@@ -5,7 +5,7 @@
 //tag::RegisterEventSourcedEntity[]
 package com.example.shoppingcart;
 
-import com.akkaserverless.javasdk.AkkaServerless;
+import kalix.javasdk.AkkaServerless;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

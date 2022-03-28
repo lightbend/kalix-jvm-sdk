@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.testkit.eventsourcedentity
+package kalix.testkit.eventsourcedentity
 
 import com.akkaserverless.protocol.component._
 import com.akkaserverless.protocol.entity.Command
 import com.akkaserverless.protocol.event_sourced_entity._
-import com.akkaserverless.testkit.entity.EntityMessages
+import kalix.testkit.entity.EntityMessages
 import com.google.protobuf.any.{ Any => ScalaPbAny }
 import com.google.protobuf.{ Message => JavaPbMessage }
 import scalapb.{ GeneratedMessage => ScalaPbMessage }

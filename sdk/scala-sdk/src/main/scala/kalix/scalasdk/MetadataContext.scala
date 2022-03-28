@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.scalasdk
+package kalix.scalasdk
 
 /** Context that provides access to metadata. */
 trait MetadataContext extends Context {

@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.scalasdk.valueentity
+package kalix.scalasdk.valueentity
 
 import scala.collection.immutable.Seq
-import com.akkaserverless.scalasdk.impl.valueentity.ValueEntityRouter
+import kalix.scalasdk.impl.valueentity.ValueEntityRouter
 import com.google.protobuf.Descriptors
 
 /**
- * Register a value based entity in {@link com.akkaserverless.scalasdk.AkkaServerless} using a <code>
- * ValueEntityProvider</code>. The concrete <code>ValueEntityProvider</code> is generated for the specific entities
- * defined in Protobuf, for example <code>CustomerEntityProvider</code>.
+ * Register a value based entity in {@link kalix.scalasdk.AkkaServerless} using a <code> ValueEntityProvider</code>. The
+ * concrete <code>ValueEntityProvider</code> is generated for the specific entities defined in Protobuf, for example
+ * <code>CustomerEntityProvider</code>.
  */
 trait ValueEntityProvider[S, E <: ValueEntity[S]] {
   def options: ValueEntityOptions

@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.scalasdk.view
+package kalix.scalasdk.view
 
 import scala.collection.immutable.Set
 
-import com.akkaserverless.scalasdk.impl.ComponentOptions
+import kalix.scalasdk.impl.ComponentOptions
 
 object ViewOptions {
 
   def defaults: ViewOptions = ViewOptionsImpl(Set.empty)
 
-  private[akkaserverless] final case class ViewOptionsImpl(forwardHeaders: Set[String]) extends ViewOptions {
+  private[kalix] final case class ViewOptionsImpl(forwardHeaders: Set[String]) extends ViewOptions {
 
     /**
      * Ask Akka Serverless to forward these headers from the incoming request as metadata headers for the incoming

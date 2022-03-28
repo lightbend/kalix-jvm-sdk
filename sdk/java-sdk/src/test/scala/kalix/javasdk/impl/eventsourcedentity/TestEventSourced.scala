@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.impl.eventsourcedentity
+package kalix.javasdk.impl.eventsourcedentity
 
 import akka.actor.testkit.typed.scaladsl.LoggingTestKit
 import akka.actor.typed.scaladsl.adapter._
 import akka.testkit.SocketUtil
-import com.akkaserverless.javasdk.{ AkkaServerless, AkkaServerlessRunner }
+import kalix.javasdk.{ AkkaServerless, AkkaServerlessRunner }
 import com.typesafe.config.{ Config, ConfigFactory }
-import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityProvider
+import kalix.javasdk.eventsourcedentity.EventSourcedEntityProvider
 
 object TestEventSourced {
   def service(entityProvider: EventSourcedEntityProvider[_, _]): TestEventSourcedService =

@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.scalasdk.replicatedentity
+package kalix.scalasdk.replicatedentity
 
-import com.akkaserverless.javasdk.impl.replicatedentity.ReplicatedCounterImpl
+import kalix.javasdk.impl.replicatedentity.ReplicatedCounterImpl
 import com.akkaserverless.protocol.replicated_entity.ReplicatedEntityDelta
 
 /** A counter that can be incremented and decremented. */

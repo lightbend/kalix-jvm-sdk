@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.eventsourcedentity;
+package kalix.javasdk.eventsourcedentity;
 
-import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityRouter;
+import kalix.javasdk.impl.eventsourcedentity.EventSourcedEntityRouter;
 import com.example.shoppingcart.ShoppingCartApi;
 import com.example.shoppingcart.domain.ShoppingCartDomain;
 

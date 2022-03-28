@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.impl
+package kalix.javasdk.impl
 
-import com.akkaserverless.javasdk.PassivationStrategy
+import kalix.javasdk.PassivationStrategy
 
 import java.time.Duration
 
-private[akkaserverless] case class Timeout private (duration: Option[Duration]) extends PassivationStrategy {
+private[kalix] case class Timeout private (duration: Option[Duration]) extends PassivationStrategy {
 
   def this() {
     this(None) // use the timeout from the default or customized settings

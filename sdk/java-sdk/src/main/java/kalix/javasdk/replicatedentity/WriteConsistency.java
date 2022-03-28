@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.replicatedentity;
+package kalix.javasdk.replicatedentity;
 
 /** Write consistency setting for replication of state updates for Replicated Entities. */
 public enum WriteConsistency {

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.impl.view
+package kalix.javasdk.impl.view
 
 import java.util.Optional
 
@@ -23,11 +23,11 @@ import scala.util.control.NonFatal
 
 import akka.actor.ActorSystem
 import akka.stream.scaladsl.Source
-import com.akkaserverless.javasdk.impl.{ Service, ViewFactory }
-import com.akkaserverless.javasdk.{ Context, Metadata }
-import com.akkaserverless.javasdk.impl._
-import com.akkaserverless.javasdk.view.ViewCreationContext
-import com.akkaserverless.javasdk.view.{ UpdateContext, View, ViewContext }
+import kalix.javasdk.impl.{ Service, ViewFactory }
+import kalix.javasdk.{ Context, Metadata }
+import kalix.javasdk.impl._
+import kalix.javasdk.view.ViewCreationContext
+import kalix.javasdk.view.{ UpdateContext, View, ViewContext }
 import com.akkaserverless.protocol.{ view => pv }
 import com.google.protobuf.Descriptors
 import com.google.protobuf.any.{ Any => ScalaPbAny }

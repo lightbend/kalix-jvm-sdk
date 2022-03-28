@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.scalasdk.testkit.impl
+package kalix.scalasdk.testkit.impl
 
 import akka.stream.Materializer
-import com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntityContext
-import com.akkaserverless.scalasdk.eventsourcedentity.CommandContext
-import com.akkaserverless.scalasdk.Metadata
+import kalix.scalasdk.eventsourcedentity.EventSourcedEntityContext
+import kalix.scalasdk.eventsourcedentity.CommandContext
+import kalix.scalasdk.Metadata
 
 /**
  * INTERNAL API Used by the generated testkit

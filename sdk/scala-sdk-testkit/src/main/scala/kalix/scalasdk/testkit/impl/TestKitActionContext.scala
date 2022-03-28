@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.scalasdk.testkit.impl
+package kalix.scalasdk.testkit.impl
 
 import akka.stream.Materializer
-import com.akkaserverless.scalasdk.Metadata
-import com.akkaserverless.scalasdk.action.ActionContext
-import com.akkaserverless.scalasdk.action.ActionCreationContext
+import kalix.scalasdk.Metadata
+import kalix.scalasdk.action.ActionContext
+import kalix.scalasdk.action.ActionCreationContext
 
 /**
  * INTERNAL API Used by the generated testkit

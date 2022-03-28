@@ -5,7 +5,7 @@
 
 package com.example.actions;
 
-import com.akkaserverless.javasdk.action.ActionCreationContext;
+import kalix.javasdk.action.ActionCreationContext;
 import com.example.domain.CounterDomain;
 import com.google.protobuf.Empty;
 

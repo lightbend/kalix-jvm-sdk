@@ -1,6 +1,6 @@
 package com.example.replicated
 
-import com.akkaserverless.scalasdk.AkkaServerless
+import kalix.scalasdk.AkkaServerless
 import com.example.replicated.counter.domain.SomeCounter
 import com.example.replicated.countermap.domain.SomeCounterMap
 import com.example.replicated.map.domain.SomeMap

@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.impl.action
+package kalix.javasdk.impl.action
 
-import com.akkaserverless.javasdk.action.ActionCreationContext
-import com.akkaserverless.javasdk.impl.ActionFactory
-import com.akkaserverless.javasdk.impl.ResolvedEntityFactory
-import com.akkaserverless.javasdk.impl.ResolvedServiceMethod
+import kalix.javasdk.action.ActionCreationContext
+import kalix.javasdk.impl.ActionFactory
+import kalix.javasdk.impl.ResolvedEntityFactory
+import kalix.javasdk.impl.ResolvedServiceMethod
 
 class ResolvedActionFactory(
     delegate: ActionFactory,

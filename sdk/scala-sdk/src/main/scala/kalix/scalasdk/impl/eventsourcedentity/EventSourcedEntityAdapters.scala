@@ -14,28 +14,26 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.scalasdk.impl.eventsourcedentity
+package kalix.scalasdk.impl.eventsourcedentity
 
 import akka.stream.Materializer
-import com.akkaserverless.javasdk
-import com.akkaserverless.javasdk.eventsourcedentity.{ EventSourcedEntityProvider => JavaSdkEventSourcedEntityProvider }
-import com.akkaserverless.javasdk.eventsourcedentity.{ EventSourcedEntityContext => JavaSdkEventSourcedEntityContext }
-import com.akkaserverless.javasdk.eventsourcedentity.{ EventSourcedEntity => JavaSdkEventSourcedEntity }
-import com.akkaserverless.javasdk.eventsourcedentity.{ EventContext => JavaSdkEventContext }
-import com.akkaserverless.javasdk.eventsourcedentity.{ EventSourcedEntityOptions => JavaSdkEventSourcedEntityOptions }
-import com.akkaserverless.javasdk.eventsourcedentity.{ CommandContext => JavaSdkCommandContext }
-import com.akkaserverless.javasdk.impl.eventsourcedentity.{
-  EventSourcedEntityRouter => JavaSdkEventSourcedEntityRouter
-}
-import com.akkaserverless.scalasdk.eventsourcedentity.CommandContext
-import com.akkaserverless.scalasdk.eventsourcedentity.EventContext
-import com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntity
-import com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntityContext
-import com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntityOptions
-import com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntityProvider
-import com.akkaserverless.scalasdk.impl.InternalContext
-import com.akkaserverless.scalasdk.impl.MetadataConverters
-import com.akkaserverless.scalasdk.impl.PassivationStrategyConverters
+import kalix.javasdk
+import kalix.javasdk.eventsourcedentity.{ EventSourcedEntityProvider => JavaSdkEventSourcedEntityProvider }
+import kalix.javasdk.eventsourcedentity.{ EventSourcedEntityContext => JavaSdkEventSourcedEntityContext }
+import kalix.javasdk.eventsourcedentity.{ EventSourcedEntity => JavaSdkEventSourcedEntity }
+import kalix.javasdk.eventsourcedentity.{ EventContext => JavaSdkEventContext }
+import kalix.javasdk.eventsourcedentity.{ EventSourcedEntityOptions => JavaSdkEventSourcedEntityOptions }
+import kalix.javasdk.eventsourcedentity.{ CommandContext => JavaSdkCommandContext }
+import kalix.javasdk.impl.eventsourcedentity.{ EventSourcedEntityRouter => JavaSdkEventSourcedEntityRouter }
+import kalix.scalasdk.eventsourcedentity.CommandContext
+import kalix.scalasdk.eventsourcedentity.EventContext
+import kalix.scalasdk.eventsourcedentity.EventSourcedEntity
+import kalix.scalasdk.eventsourcedentity.EventSourcedEntityContext
+import kalix.scalasdk.eventsourcedentity.EventSourcedEntityOptions
+import kalix.scalasdk.eventsourcedentity.EventSourcedEntityProvider
+import kalix.scalasdk.impl.InternalContext
+import kalix.scalasdk.impl.MetadataConverters
+import kalix.scalasdk.impl.PassivationStrategyConverters
 import com.google.protobuf.Descriptors
 
 import java.util.Optional
@@ -143,7 +141,7 @@ private[scalasdk] final class JavaCommandContextAdapter(val javaSdkContext: Java
 
   override def entityId: String = javaSdkContext.entityId()
 
-  override def metadata: com.akkaserverless.scalasdk.Metadata =
+  override def metadata: kalix.scalasdk.Metadata =
     MetadataConverters.toScala(javaSdkContext.metadata())
 
   def getComponentGrpcClient[T](serviceClass: Class[T]): T = javaSdkContext match {

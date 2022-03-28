@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.scalasdk.replicatedentity
+package kalix.scalasdk.replicatedentity
 
-import com.akkaserverless.scalasdk.EntityContext
+import kalix.scalasdk.EntityContext
 
 /** Root context for all Replicated Entity contexts. */
 trait ReplicatedEntityContext extends EntityContext

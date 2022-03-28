@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.impl.action
+package kalix.javasdk.impl.action
 
-import com.akkaserverless.javasdk.impl.ComponentOptions
-import com.akkaserverless.javasdk.action.ActionOptions
+import kalix.javasdk.impl.ComponentOptions
+import kalix.javasdk.action.ActionOptions
 
 import java.util
 
-private[akkaserverless] final case class ActionOptionsImpl(override val forwardHeaders: java.util.Set[String])
+private[kalix] final case class ActionOptionsImpl(override val forwardHeaders: java.util.Set[String])
     extends ActionOptions {
   def withForwardHeaders(headers: util.Set[String]): ComponentOptions = copy(forwardHeaders = headers)
 }

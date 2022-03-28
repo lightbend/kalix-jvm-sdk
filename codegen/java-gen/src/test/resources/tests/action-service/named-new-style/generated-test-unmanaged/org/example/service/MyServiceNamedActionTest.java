@@ -2,7 +2,7 @@ package org.example.service;
 
 import akka.NotUsed;
 import akka.stream.javadsl.Source;
-import com.akkaserverless.javasdk.testkit.ActionResult;
+import kalix.javasdk.testkit.ActionResult;
 import com.google.protobuf.Empty;
 import org.example.service.MyServiceNamedAction;
 import org.example.service.MyServiceNamedActionTestKit;

@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.impl.action
+package kalix.javasdk.impl.action
 
-import com.akkaserverless.javasdk.{ DeferredCall, Metadata, SideEffect }
-import com.akkaserverless.javasdk.action.Action
+import kalix.javasdk.{ DeferredCall, Metadata, SideEffect }
+import kalix.javasdk.action.Action
 import java.util
 import java.util.concurrent.CompletionStage
 

@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.testkit.impl;
+package kalix.javasdk.testkit.impl;
 
-import com.akkaserverless.javasdk.eventsourcedentity.CommandContext;
-import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity;
-import com.akkaserverless.javasdk.testkit.EventSourcedResult;
+import kalix.javasdk.eventsourcedentity.CommandContext;
+import kalix.javasdk.eventsourcedentity.EventSourcedEntity;
+import kalix.javasdk.testkit.EventSourcedResult;
 import java.util.Optional;
 import java.util.List;
 import java.util.ArrayList;

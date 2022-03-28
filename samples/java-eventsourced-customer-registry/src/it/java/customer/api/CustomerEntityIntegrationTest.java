@@ -1,6 +1,6 @@
 package customer.api;
 
-import com.akkaserverless.javasdk.testkit.junit.AkkaServerlessTestKitResource;
+import kalix.javasdk.testkit.junit.AkkaServerlessTestKitResource;
 import com.google.protobuf.Empty;
 import customer.Main;
 import customer.domain.CustomerDomain;

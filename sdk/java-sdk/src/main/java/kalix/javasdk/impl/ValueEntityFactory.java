@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.impl;
+package kalix.javasdk.impl;
 
-import com.akkaserverless.javasdk.impl.valueentity.ValueEntityRouter;
-import com.akkaserverless.javasdk.valueentity.ValueEntityContext;
+import kalix.javasdk.impl.valueentity.ValueEntityRouter;
+import kalix.javasdk.valueentity.ValueEntityContext;
 
 /**
  * Low level interface for handling commands on a value based entity.
  *
  * <p>Generally, this should not be needed, instead, a class extending a generated abstract {@link
- * com.akkaserverless.javasdk.valueentity.ValueEntity} should be used.
+ * kalix.javasdk.valueentity.ValueEntity} should be used.
  */
 public interface ValueEntityFactory {
   /**

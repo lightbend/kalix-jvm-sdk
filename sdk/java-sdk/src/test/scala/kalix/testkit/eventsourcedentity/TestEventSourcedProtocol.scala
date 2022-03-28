@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.testkit.eventsourcedentity
+package kalix.testkit.eventsourcedentity
 
 import akka.stream.scaladsl.Source
 import akka.stream.testkit.TestPublisher
 import akka.stream.testkit.scaladsl.TestSink
 import com.akkaserverless.protocol.component.Failure
 import com.akkaserverless.protocol.event_sourced_entity._
-import com.akkaserverless.testkit.TestProtocol.TestProtocolContext
+import kalix.testkit.TestProtocol.TestProtocolContext
 
 final class TestEventSourcedProtocol(context: TestProtocolContext) {
   private val client = EventSourcedEntitiesClient(context.clientSettings)(context.system)

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.scalasdk.replicatedentity
+package kalix.scalasdk.replicatedentity
 
 class ReplicatedVoteEntity extends ReplicatedEntity[ReplicatedVote] {
 

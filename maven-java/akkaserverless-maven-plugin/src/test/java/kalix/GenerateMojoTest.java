@@ -1,4 +1,4 @@
-package com.akkaserverless;
+package kalix;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.plugin.testing.MojoRule;

@@ -1,9 +1,9 @@
 package org.example.valueentity
 
-import com.akkaserverless.javasdk.impl.valueentity.ValueEntityRouter.CommandHandlerNotFound
-import com.akkaserverless.scalasdk.impl.valueentity.ValueEntityRouter
-import com.akkaserverless.scalasdk.valueentity.CommandContext
-import com.akkaserverless.scalasdk.valueentity.ValueEntity
+import kalix.javasdk.impl.valueentity.ValueEntityRouter.CommandHandlerNotFound
+import kalix.scalasdk.impl.valueentity.ValueEntityRouter
+import kalix.scalasdk.valueentity.CommandContext
+import kalix.scalasdk.valueentity.ValueEntity
 import org.example.valueentity
 import org.example.valueentity.domain.CounterState
 

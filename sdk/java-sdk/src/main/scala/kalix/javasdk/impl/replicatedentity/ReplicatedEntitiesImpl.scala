@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.impl.replicatedentity
+package kalix.javasdk.impl.replicatedentity
 
 import akka.NotUsed
 import akka.actor.ActorSystem
 import akka.stream.scaladsl.{ Flow, Source }
-import com.akkaserverless.javasdk.impl._
-import com.akkaserverless.javasdk.impl.effect.{ EffectSupport, ErrorReplyImpl, MessageReplyImpl }
-import com.akkaserverless.javasdk.impl.replicatedentity.ReplicatedEntityEffectImpl.DeleteEntity
-import com.akkaserverless.javasdk.impl.replicatedentity.ReplicatedEntityRouter.CommandResult
-import com.akkaserverless.javasdk.replicatedentity._
-import com.akkaserverless.javasdk.{ Context, Metadata }
+import kalix.javasdk.impl._
+import kalix.javasdk.impl.effect.{ EffectSupport, ErrorReplyImpl, MessageReplyImpl }
+import kalix.javasdk.impl.replicatedentity.ReplicatedEntityEffectImpl.DeleteEntity
+import kalix.javasdk.impl.replicatedentity.ReplicatedEntityRouter.CommandResult
+import kalix.javasdk.replicatedentity._
+import kalix.javasdk.{ Context, Metadata }
 import com.akkaserverless.protocol.entity.Command
 import com.akkaserverless.protocol.replicated_entity.ReplicatedEntityStreamIn.{ Message => In }
 import com.akkaserverless.protocol.replicated_entity.ReplicatedEntityStreamOut.{ Message => Out }
@@ -33,7 +33,7 @@ import com.google.protobuf.any.{ Any => ScalaPbAny }
 import com.google.protobuf.Descriptors
 
 import scala.util.control.NonFatal
-import com.akkaserverless.javasdk.impl.ReplicatedEntityFactory
+import kalix.javasdk.impl.ReplicatedEntityFactory
 import com.akkaserverless.protocol.component.Failure
 import org.slf4j.LoggerFactory
 

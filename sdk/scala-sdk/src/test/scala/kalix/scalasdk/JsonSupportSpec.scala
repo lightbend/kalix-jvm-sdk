@@ -17,11 +17,11 @@
 /*
  * Copyright (C) 2009-2021 Lightbend Inc. <https://www.lightbend.com>
  */
-package com.akkaserverless.scalasdk
+package kalix.scalasdk
 
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
-import com.akkaserverless.javasdk.{ JsonSupport => JavaJsonSupport }
+import kalix.javasdk.{ JsonSupport => JavaJsonSupport }
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
 

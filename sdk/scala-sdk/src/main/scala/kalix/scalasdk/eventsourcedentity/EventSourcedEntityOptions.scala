@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.scalasdk.eventsourcedentity
+package kalix.scalasdk.eventsourcedentity
 
-import com.akkaserverless.scalasdk.EntityOptions
-import com.akkaserverless.scalasdk.PassivationStrategy
+import kalix.scalasdk.EntityOptions
+import kalix.scalasdk.PassivationStrategy
 import scala.collection.immutable.Set
 
 import java.util.Collections
@@ -52,7 +52,7 @@ object EventSourcedEntityOptions {
     EventSourcedEntityOptionsImpl(0, PassivationStrategy.defaultTimeout, Set.empty)
   }
 
-  private[akkaserverless] final case class EventSourcedEntityOptionsImpl(
+  private[kalix] final case class EventSourcedEntityOptionsImpl(
       override val snapshotEvery: Int,
       override val passivationStrategy: PassivationStrategy,
       override val forwardHeaders: Set[String])

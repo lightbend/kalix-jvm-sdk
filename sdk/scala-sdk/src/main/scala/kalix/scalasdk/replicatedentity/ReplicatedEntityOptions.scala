@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.scalasdk.replicatedentity
+package kalix.scalasdk.replicatedentity
 
-import com.akkaserverless.scalasdk.replicatedentity.WriteConsistency
+import kalix.scalasdk.replicatedentity.WriteConsistency
 
 import scala.collection.immutable.Set
-import com.akkaserverless.scalasdk
-import com.akkaserverless.scalasdk.EntityOptions
-import com.akkaserverless.scalasdk.PassivationStrategy
+import kalix.scalasdk
+import kalix.scalasdk.EntityOptions
+import kalix.scalasdk.PassivationStrategy
 
 trait ReplicatedEntityOptions extends EntityOptions {
   override def withPassivationStrategy(strategy: PassivationStrategy): ReplicatedEntityOptions
@@ -50,7 +50,7 @@ object ReplicatedEntityOptions {
   val defaults: ReplicatedEntityOptions =
     ReplicatedEntityOptionsImpl(PassivationStrategy.defaultTimeout, Set.empty, WriteConsistency.Local)
 
-  private[akkaserverless] final case class ReplicatedEntityOptionsImpl(
+  private[kalix] final case class ReplicatedEntityOptionsImpl(
       passivationStrategy: PassivationStrategy,
       forwardHeaders: Set[String],
       writeConsistency: WriteConsistency)

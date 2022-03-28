@@ -1,6 +1,6 @@
 package com.example.fibonacci;
 
-import com.akkaserverless.javasdk.testkit.junit.AkkaServerlessTestKitResource;
+import kalix.javasdk.testkit.junit.AkkaServerlessTestKitResource;
 import com.example.Main;
 import org.junit.Assert;
 import org.junit.ClassRule;

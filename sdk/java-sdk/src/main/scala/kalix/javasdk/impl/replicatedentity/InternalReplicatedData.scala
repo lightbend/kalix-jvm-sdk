@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.impl.replicatedentity
+package kalix.javasdk.impl.replicatedentity
 
 import com.akkaserverless.protocol.replicated_entity.ReplicatedEntityDelta
-import com.akkaserverless.replicatedentity.ReplicatedData
+import kalix.replicatedentity.ReplicatedData
 
-private[akkaserverless] trait InternalReplicatedData extends ReplicatedData {
+private[kalix] trait InternalReplicatedData extends ReplicatedData {
   type Self <: InternalReplicatedData
   def name: String
   def hasDelta: Boolean

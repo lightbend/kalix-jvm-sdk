@@ -4,7 +4,7 @@
  */
 package com.example;
 
-import com.akkaserverless.javasdk.testkit.junit.AkkaServerlessTestKitResource;
+import kalix.javasdk.testkit.junit.AkkaServerlessTestKitResource;
 import com.example.CounterApi;
 import com.example.CounterService;
 import com.example.Main;

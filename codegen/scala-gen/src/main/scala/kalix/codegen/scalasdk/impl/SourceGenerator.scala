@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.codegen.scalasdk.impl
+package kalix.codegen.scalasdk.impl
 
 import com.lightbend.akkasls.codegen.{ File, GeneratedFiles, ModelBuilder, PackageNaming, SourceGeneratorUtils }
 

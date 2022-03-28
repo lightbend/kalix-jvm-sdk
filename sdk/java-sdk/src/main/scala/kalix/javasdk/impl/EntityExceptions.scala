@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.impl
+package kalix.javasdk.impl
 
-import com.akkaserverless.javasdk.{ eventsourcedentity, valueentity }
+import kalix.javasdk.{ eventsourcedentity, valueentity }
 import com.akkaserverless.protocol.entity.Command
 import com.akkaserverless.protocol.event_sourced_entity.EventSourcedInit
 import com.akkaserverless.protocol.replicated_entity.ReplicatedEntityInit

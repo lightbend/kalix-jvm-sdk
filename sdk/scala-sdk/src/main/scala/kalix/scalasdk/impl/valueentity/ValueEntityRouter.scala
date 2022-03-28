@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.scalasdk.impl.valueentity
+package kalix.scalasdk.impl.valueentity
 
-import com.akkaserverless.scalasdk.valueentity.CommandContext
-import com.akkaserverless.scalasdk.valueentity.ValueEntity
+import kalix.scalasdk.valueentity.CommandContext
+import kalix.scalasdk.valueentity.ValueEntity
 
 /**
  * INTERNAL API, but used by generated code.

@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.codegen.scalasdk
+package kalix.codegen.scalasdk
 
 import protocbridge.SandboxedJvmGenerator
 
 object genUnmanagedTest {
   def apply(options: Seq[String] = Seq.empty): (SandboxedJvmGenerator, Seq[String]) =
-    gen(options, "com.akkaserverless.codegen.scalasdk.AkkaserverlessUnmanagedTestGenerator$")
+    gen(options, "kalix.codegen.scalasdk.AkkaserverlessUnmanagedTestGenerator$")
 }

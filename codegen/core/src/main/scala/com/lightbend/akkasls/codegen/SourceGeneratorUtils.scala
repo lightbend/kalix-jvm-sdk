@@ -239,7 +239,7 @@ object SourceGeneratorUtils {
   def extraReplicatedImports(replicatedData: ModelBuilder.ReplicatedData): Seq[String] = {
     replicatedData match {
       // special case ReplicatedMap as heterogeneous with ReplicatedData values
-      case _: ModelBuilder.ReplicatedMap => Seq("com.akkaserverless.replicatedentity.ReplicatedData")
+      case _: ModelBuilder.ReplicatedMap => Seq("kalix.replicatedentity.ReplicatedData")
       case _                             => Seq.empty
     }
   }

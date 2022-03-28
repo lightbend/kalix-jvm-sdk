@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.view;
+package kalix.javasdk.view;
 
-import com.akkaserverless.javasdk.CloudEvent;
-import com.akkaserverless.javasdk.MetadataContext;
+import kalix.javasdk.CloudEvent;
+import kalix.javasdk.MetadataContext;
 
 import java.util.Optional;
 

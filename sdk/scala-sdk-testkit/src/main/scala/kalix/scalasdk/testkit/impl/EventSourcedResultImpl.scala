@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.scalasdk.testkit.impl
+package kalix.scalasdk.testkit.impl
 
 import scala.collection.immutable.Seq
-import com.akkaserverless.javasdk.impl.effect._
-import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityEffectImpl.{ EmitEvents, NoPrimaryEffect }
-import com.akkaserverless.scalasdk.impl.eventsourcedentity.EventSourcedEntityEffectImpl
-import com.akkaserverless.scalasdk.testkit.{ DeferredCallDetails, EventSourcedResult }
-import com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntity
+import kalix.javasdk.impl.effect._
+import kalix.javasdk.impl.eventsourcedentity.EventSourcedEntityEffectImpl.{ EmitEvents, NoPrimaryEffect }
+import kalix.scalasdk.impl.eventsourcedentity.EventSourcedEntityEffectImpl
+import kalix.scalasdk.testkit.{ DeferredCallDetails, EventSourcedResult }
+import kalix.scalasdk.eventsourcedentity.EventSourcedEntity
 import io.grpc.Status
 
 import scala.reflect.ClassTag

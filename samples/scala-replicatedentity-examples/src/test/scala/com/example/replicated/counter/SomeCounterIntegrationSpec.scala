@@ -1,6 +1,6 @@
 package com.example.replicated.counter
 
-import com.akkaserverless.scalasdk.testkit.AkkaServerlessTestKit
+import kalix.scalasdk.testkit.AkkaServerlessTestKit
 import com.example.replicated.Main
 import com.example.replicated.counter.CounterService
 import com.example.replicated.counter.DecreaseValue

@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.testkit.impl
+package kalix.javasdk.testkit.impl
 
 import akka.stream.Materializer
-import com.akkaserverless.javasdk.Context
-import com.akkaserverless.javasdk.impl.InternalContext
+import kalix.javasdk.Context
+import kalix.javasdk.impl.InternalContext
 
 class AbstractTestKitContext extends Context with InternalContext {
 

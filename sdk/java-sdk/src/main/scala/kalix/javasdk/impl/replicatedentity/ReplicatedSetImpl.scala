@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.impl.replicatedentity
+package kalix.javasdk.impl.replicatedentity
 
 import scala.jdk.CollectionConverters._
 
-import com.akkaserverless.javasdk.impl.AnySupport
-import com.akkaserverless.javasdk.replicatedentity.ReplicatedSet
+import kalix.javasdk.impl.AnySupport
+import kalix.javasdk.replicatedentity.ReplicatedSet
 import com.akkaserverless.protocol.replicated_entity.ReplicatedEntityDelta
 import com.akkaserverless.protocol.replicated_entity.ReplicatedSetDelta
 
-private[akkaserverless] class ReplicatedSetImpl[E](
+private[kalix] class ReplicatedSetImpl[E](
     anySupport: AnySupport,
     values: Set[E] = Set.empty[E],
     added: Set[E] = Set.empty[E],

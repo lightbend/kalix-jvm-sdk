@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.codegen.scalasdk.impl
+package kalix.codegen.scalasdk.impl
 
 import com.lightbend.akkasls.codegen.File
 import com.lightbend.akkasls.codegen.Format
@@ -45,9 +45,9 @@ object ViewServiceSourceGenerator {
         Seq(view.state.messageType) ++ view.commandTypes,
         view.messageType.parent.scalaPackage,
         otherImports = Seq(
-          "com.akkaserverless.javasdk.impl.view.UpdateHandlerNotFound",
-          "com.akkaserverless.scalasdk.impl.view.ViewRouter",
-          "com.akkaserverless.scalasdk.view.View"),
+          "kalix.javasdk.impl.view.UpdateHandlerNotFound",
+          "kalix.scalasdk.impl.view.ViewRouter",
+          "kalix.scalasdk.view.View"),
         packageImports = Nil)
 
     val cases = view.transformedUpdates
@@ -95,12 +95,12 @@ object ViewServiceSourceGenerator {
         Seq(view.state.messageType, view.messageType.descriptorImport),
         view.messageType.parent.scalaPackage,
         otherImports = Seq(
-          "com.akkaserverless.javasdk.impl.view.UpdateHandlerNotFound",
-          "com.akkaserverless.scalasdk.impl.view.ViewRouter",
-          "com.akkaserverless.scalasdk.view.ViewOptions",
-          "com.akkaserverless.scalasdk.view.ViewProvider",
-          "com.akkaserverless.scalasdk.view.ViewCreationContext",
-          "com.akkaserverless.scalasdk.view.View",
+          "kalix.javasdk.impl.view.UpdateHandlerNotFound",
+          "kalix.scalasdk.impl.view.ViewRouter",
+          "kalix.scalasdk.view.ViewOptions",
+          "kalix.scalasdk.view.ViewProvider",
+          "kalix.scalasdk.view.ViewCreationContext",
+          "kalix.scalasdk.view.View",
           view.classNameQualified,
           "com.google.protobuf.Descriptors",
           "com.google.protobuf.EmptyProto",
@@ -155,8 +155,7 @@ object ViewServiceSourceGenerator {
       generateImports(
         Seq(view.state.messageType) ++ view.commandTypes,
         view.messageType.parent.scalaPackage,
-        otherImports =
-          Seq("com.akkaserverless.scalasdk.view.View.UpdateEffect", "com.akkaserverless.scalasdk.view.ViewContext"),
+        otherImports = Seq("kalix.scalasdk.view.View.UpdateEffect", "kalix.scalasdk.view.ViewContext"),
         packageImports = Nil)
 
     val emptyState =
@@ -197,7 +196,7 @@ object ViewServiceSourceGenerator {
       generateImports(
         Seq(view.state.messageType) ++ view.commandTypes,
         view.messageType.parent.scalaPackage,
-        otherImports = Seq("com.akkaserverless.scalasdk.view.View"),
+        otherImports = Seq("kalix.scalasdk.view.View"),
         packageImports = Nil)
 
     val emptyState =

@@ -1,4 +1,4 @@
-package com.akkaserverless;
+package kalix;
 
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;

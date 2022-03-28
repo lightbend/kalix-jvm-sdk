@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.testkit.replicatedentity
+package kalix.testkit.replicatedentity
 
 import akka.stream.scaladsl.Source
 import akka.stream.testkit.TestPublisher
 import akka.stream.testkit.scaladsl.TestSink
 import com.akkaserverless.protocol.replicated_entity._
-import com.akkaserverless.testkit.TestProtocol.TestProtocolContext
+import kalix.testkit.TestProtocol.TestProtocolContext
 
 import scala.collection.immutable.Seq
 

@@ -14,22 +14,22 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.impl.eventsourcedentity
+package kalix.javasdk.impl.eventsourcedentity
 
-import com.akkaserverless.javasdk.{ DeferredCall, Metadata, SideEffect }
+import kalix.javasdk.{ DeferredCall, Metadata, SideEffect }
 import java.util
 import java.util.function.{ Function => JFunction }
 
 import scala.jdk.CollectionConverters._
-import com.akkaserverless.javasdk.impl.effect.ErrorReplyImpl
-import com.akkaserverless.javasdk.impl.effect.ForwardReplyImpl
-import com.akkaserverless.javasdk.impl.effect.MessageReplyImpl
-import com.akkaserverless.javasdk.impl.effect.NoReply
-import com.akkaserverless.javasdk.impl.effect.NoSecondaryEffectImpl
-import com.akkaserverless.javasdk.impl.effect.SecondaryEffectImpl
-import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity.Effect
-import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity.Effect.Builder
-import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity.Effect.OnSuccessBuilder
+import kalix.javasdk.impl.effect.ErrorReplyImpl
+import kalix.javasdk.impl.effect.ForwardReplyImpl
+import kalix.javasdk.impl.effect.MessageReplyImpl
+import kalix.javasdk.impl.effect.NoReply
+import kalix.javasdk.impl.effect.NoSecondaryEffectImpl
+import kalix.javasdk.impl.effect.SecondaryEffectImpl
+import kalix.javasdk.eventsourcedentity.EventSourcedEntity.Effect
+import kalix.javasdk.eventsourcedentity.EventSourcedEntity.Effect.Builder
+import kalix.javasdk.eventsourcedentity.EventSourcedEntity.Effect.OnSuccessBuilder
 import io.grpc.Status
 
 import scala.collection.convert.ImplicitConversions.`collection AsScalaIterable`

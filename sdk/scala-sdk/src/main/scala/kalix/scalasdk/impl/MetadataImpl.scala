@@ -14,21 +14,19 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.scalasdk.impl
+package kalix.scalasdk.impl
 import java.nio.ByteBuffer
 import scala.collection.immutable.Seq
-import com.akkaserverless.scalasdk.{ CloudEvent, JwtClaims, Metadata, MetadataEntry }
+import kalix.scalasdk.{ CloudEvent, JwtClaims, Metadata, MetadataEntry }
 import com.akkaserverless.protocol.component.{ MetadataEntry => ProtocolMetadataEntry }
 
-private[akkaserverless] object MetadataImpl {
-  def apply(impl: com.akkaserverless.javasdk.impl.MetadataImpl): MetadataImpl = new MetadataImpl(impl)
+private[kalix] object MetadataImpl {
+  def apply(impl: kalix.javasdk.impl.MetadataImpl): MetadataImpl = new MetadataImpl(impl)
   def apply(entries: Seq[ProtocolMetadataEntry]): MetadataImpl = MetadataImpl(
-    new com.akkaserverless.javasdk.impl.MetadataImpl(entries))
+    new kalix.javasdk.impl.MetadataImpl(entries))
 }
 
-private[akkaserverless] class MetadataImpl(val impl: com.akkaserverless.javasdk.impl.MetadataImpl)
-    extends Metadata
-    with CloudEvent {
+private[kalix] class MetadataImpl(val impl: kalix.javasdk.impl.MetadataImpl) extends Metadata with CloudEvent {
   def asMetadata: Metadata = this
   def clearDatacontenttype(): CloudEvent = MetadataImpl(impl.clearDatacontenttype()).asCloudEvent
   def clearDataschema(): CloudEvent = MetadataImpl(impl.clearDataschema()).asCloudEvent

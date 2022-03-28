@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.impl
+package kalix.javasdk.impl
 
 import akka.Done
 import akka.actor.{ ActorSystem, CoordinatedShutdown }
-import com.akkaserverless.javasdk.replicatedentity.{ ReplicatedEntityOptions, WriteConsistency }
-import com.akkaserverless.javasdk.{ BuildInfo, EntityOptions }
+import kalix.javasdk.replicatedentity.{ ReplicatedEntityOptions, WriteConsistency }
+import kalix.javasdk.{ BuildInfo, EntityOptions }
 import com.akkaserverless.protocol.action.Actions
 import com.akkaserverless.protocol.discovery.PassivationStrategy.Strategy
 import com.akkaserverless.protocol.discovery._

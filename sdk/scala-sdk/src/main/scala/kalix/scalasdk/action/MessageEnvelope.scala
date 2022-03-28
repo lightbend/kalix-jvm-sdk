@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.scalasdk.action
+package kalix.scalasdk.action
 
-import com.akkaserverless.scalasdk.Metadata
-import com.akkaserverless.scalasdk.impl.action.MessageEnvelopeImpl
+import kalix.scalasdk.Metadata
+import kalix.scalasdk.impl.action.MessageEnvelopeImpl
 
 object MessageEnvelope {
 

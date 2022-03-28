@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk;
+package kalix.javasdk;
 
-import com.akkaserverless.javasdk.impl.ComponentOptions;
+import kalix.javasdk.impl.ComponentOptions;
 /** Options used for configuring an entity. */
 public interface EntityOptions extends ComponentOptions {
 

@@ -2,7 +2,7 @@ package org.example.service;
 
 import akka.NotUsed;
 import akka.stream.javadsl.Source;
-import com.akkaserverless.javasdk.action.ActionCreationContext;
+import kalix.javasdk.action.ActionCreationContext;
 import com.google.protobuf.Empty;
 
 // This class was initially generated based on the .proto definition by Akka Serverless tooling.

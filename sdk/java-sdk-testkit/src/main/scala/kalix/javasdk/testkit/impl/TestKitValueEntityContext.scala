@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.testkit.impl
+package kalix.javasdk.testkit.impl
 
 import akka.stream.Materializer
-import com.akkaserverless.javasdk.valueentity.ValueEntityContext
+import kalix.javasdk.valueentity.ValueEntityContext
 
 /**
  * INTERNAL API Used by the generated testkit

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.impl
+package kalix.javasdk.impl
 
 import akka.Done
 import akka.actor.ClassicActorSystemProvider

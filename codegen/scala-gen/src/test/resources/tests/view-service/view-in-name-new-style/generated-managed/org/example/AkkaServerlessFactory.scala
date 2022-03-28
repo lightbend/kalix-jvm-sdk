@@ -1,7 +1,7 @@
 package org.example
 
-import com.akkaserverless.scalasdk.AkkaServerless
-import com.akkaserverless.scalasdk.view.ViewCreationContext
+import kalix.scalasdk.AkkaServerless
+import kalix.scalasdk.view.ViewCreationContext
 import org.example.view.UserByNameViewImpl
 import org.example.view.UserByNameViewProvider
 

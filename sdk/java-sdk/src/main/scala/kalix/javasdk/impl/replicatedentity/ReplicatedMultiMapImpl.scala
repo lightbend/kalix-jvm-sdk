@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.impl.replicatedentity
+package kalix.javasdk.impl.replicatedentity
 
 import java.util.{ Set => JSet }
 import java.util.{ Collection => JCollection }
@@ -22,14 +22,14 @@ import java.util.{ Collections => JCollections }
 
 import scala.jdk.CollectionConverters._
 
-import com.akkaserverless.javasdk.impl.AnySupport
-import com.akkaserverless.javasdk.replicatedentity.ReplicatedMultiMap
+import kalix.javasdk.impl.AnySupport
+import kalix.javasdk.replicatedentity.ReplicatedMultiMap
 import com.akkaserverless.protocol.replicated_entity.ReplicatedEntityDelta
 import com.akkaserverless.protocol.replicated_entity.ReplicatedMultiMapDelta
 import com.akkaserverless.protocol.replicated_entity.ReplicatedMultiMapEntryDelta
-import com.akkaserverless.replicatedentity.ReplicatedData
+import kalix.replicatedentity.ReplicatedData
 
-private[akkaserverless] final class ReplicatedMultiMapImpl[K, V](
+private[kalix] final class ReplicatedMultiMapImpl[K, V](
     anySupport: AnySupport,
     entries: Map[K, ReplicatedSetImpl[V]] = Map.empty[K, ReplicatedSetImpl[V]],
     removed: Set[K] = Set.empty[K],

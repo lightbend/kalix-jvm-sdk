@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.replicatedentity;
+package kalix.javasdk.replicatedentity;
 
-import com.akkaserverless.javasdk.MetadataContext;
+import kalix.javasdk.MetadataContext;
 
 /** Command context for Replicated Entity. */
 public interface CommandContext extends ReplicatedEntityContext, MetadataContext {

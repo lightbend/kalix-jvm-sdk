@@ -1,9 +1,9 @@
 package org.example.service
 
-import com.akkaserverless.scalasdk.action.ActionCreationContext
-import com.akkaserverless.scalasdk.testkit.ActionResult
-import com.akkaserverless.scalasdk.testkit.impl.ActionResultImpl
-import com.akkaserverless.scalasdk.testkit.impl.TestKitActionContext
+import kalix.scalasdk.action.ActionCreationContext
+import kalix.scalasdk.testkit.ActionResult
+import kalix.scalasdk.testkit.impl.ActionResultImpl
+import kalix.scalasdk.testkit.impl.TestKitActionContext
 import com.google.protobuf.empty.Empty
 
 // This code is managed by Akka Serverless tooling.

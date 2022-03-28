@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.scalasdk.replicatedentity
+package kalix.scalasdk.replicatedentity
 
-import com.akkaserverless.replicatedentity.ReplicatedData
+import kalix.replicatedentity.ReplicatedData
 
 trait ReplicatedDataFactory {
 

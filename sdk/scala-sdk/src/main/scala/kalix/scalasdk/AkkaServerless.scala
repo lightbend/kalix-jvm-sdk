@@ -14,28 +14,28 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.scalasdk
+package kalix.scalasdk
 
 import scala.concurrent.Future
 
 import akka.Done
-import com.akkaserverless.javasdk
-import com.akkaserverless.replicatedentity.ReplicatedData
-import com.akkaserverless.scalasdk.action.Action
-import com.akkaserverless.scalasdk.action.ActionProvider
-import com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntity
-import com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntityProvider
-import com.akkaserverless.scalasdk.impl.eventsourcedentity.JavaEventSourcedEntityProviderAdapter
-import com.akkaserverless.scalasdk.impl.valueentity.JavaValueEntityProviderAdapter
-import com.akkaserverless.scalasdk.impl.action.JavaActionProviderAdapter
-import com.akkaserverless.scalasdk.impl.replicatedentity.JavaReplicatedEntityProviderAdapter
-import com.akkaserverless.scalasdk.impl.view.JavaViewProviderAdapter
-import com.akkaserverless.scalasdk.replicatedentity.ReplicatedEntity
-import com.akkaserverless.scalasdk.replicatedentity.ReplicatedEntityProvider
-import com.akkaserverless.scalasdk.valueentity.ValueEntity
-import com.akkaserverless.scalasdk.valueentity.ValueEntityProvider
-import com.akkaserverless.scalasdk.view.View
-import com.akkaserverless.scalasdk.view.ViewProvider
+import kalix.javasdk
+import kalix.replicatedentity.ReplicatedData
+import kalix.scalasdk.action.Action
+import kalix.scalasdk.action.ActionProvider
+import kalix.scalasdk.eventsourcedentity.EventSourcedEntity
+import kalix.scalasdk.eventsourcedentity.EventSourcedEntityProvider
+import kalix.scalasdk.impl.eventsourcedentity.JavaEventSourcedEntityProviderAdapter
+import kalix.scalasdk.impl.valueentity.JavaValueEntityProviderAdapter
+import kalix.scalasdk.impl.action.JavaActionProviderAdapter
+import kalix.scalasdk.impl.replicatedentity.JavaReplicatedEntityProviderAdapter
+import kalix.scalasdk.impl.view.JavaViewProviderAdapter
+import kalix.scalasdk.replicatedentity.ReplicatedEntity
+import kalix.scalasdk.replicatedentity.ReplicatedEntityProvider
+import kalix.scalasdk.valueentity.ValueEntity
+import kalix.scalasdk.valueentity.ValueEntityProvider
+import kalix.scalasdk.view.View
+import kalix.scalasdk.view.ViewProvider
 import com.typesafe.config.Config
 object AkkaServerless {
   def apply() = new AkkaServerless(new javasdk.AkkaServerless().preferScalaProtobufs())
@@ -48,7 +48,7 @@ object AkkaServerless {
  * The AkkaServerless class is the main interface to configuring entities to deploy, and subsequently starting a local
  * server which will expose these entities to the AkkaServerless Proxy Sidecar.
  */
-class AkkaServerless private (private[akkaserverless] val delegate: javasdk.AkkaServerless) {
+class AkkaServerless private (private[kalix] val delegate: javasdk.AkkaServerless) {
 
   /**
    * Sets the ClassLoader to be used for reflective access, the default value is the ClassLoader of the AkkaServerless
@@ -98,8 +98,7 @@ class AkkaServerless private (private[akkaserverless] val delegate: javasdk.Akka
    * Register a replicated entity using a [[ReplicatedEntityProvider]]. The concrete `ReplicatedEntityProvider` is
    * generated for the specific entities defined in Protobuf, for example `CustomerEntityProvider`.
    *
-   * [[com.akkaserverless.scalasdk.replicatedentity.ReplicatedEntityOptions]] can be defined by in the
-   * `ReplicatedEntityProvider `.
+   * [[kalix.scalasdk.replicatedentity.ReplicatedEntityOptions]] can be defined by in the `ReplicatedEntityProvider `.
    *
    * @return
    *   This stateful service builder.
@@ -112,7 +111,7 @@ class AkkaServerless private (private[akkaserverless] val delegate: javasdk.Akka
    * Register a value based entity using a [[ValueEntityProvider]]. The concrete ` ValueEntityProvider` is generated for
    * the specific entities defined in Protobuf, for example `CustomerEntityProvider`.
    *
-   * [[com.akkaserverless.scalasdk.valueentity.ValueEntityOptions]] can be defined by in the `ValueEntityProvider`.
+   * [[kalix.scalasdk.valueentity.ValueEntityOptions]] can be defined by in the `ValueEntityProvider`.
    *
    * @return
    *   This stateful service builder.
@@ -124,7 +123,7 @@ class AkkaServerless private (private[akkaserverless] val delegate: javasdk.Akka
    * Register a event sourced entity using a [[EventSourcedEntityProvider]]. The concrete `EventSourcedEntityProvider`
    * is generated for the specific entities defined in Protobuf, for example `CustomerEntityProvider`.
    *
-   * [[com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntityOptions]] can be defined by in the
+   * [[kalix.scalasdk.eventsourcedentity.EventSourcedEntityOptions]] can be defined by in the
    * `EventSourcedEntityProvider`.
    *
    * @return

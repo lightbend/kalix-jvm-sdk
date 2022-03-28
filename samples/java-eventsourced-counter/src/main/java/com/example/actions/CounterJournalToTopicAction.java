@@ -5,7 +5,7 @@
 
 package com.example.actions;
 
-import com.akkaserverless.javasdk.action.ActionCreationContext;
+import kalix.javasdk.action.ActionCreationContext;
 import com.example.domain.CounterDomain;
 import com.google.protobuf.Empty;
 import com.google.protobuf.Any;
@@ -31,9 +31,9 @@ public class CounterJournalToTopicAction extends AbstractCounterJournalToTopicAc
     */
     // tag::counter-topic[]
     CounterTopicApi.Increased increased = // <1>
-      CounterTopicApi.Increased.newBuilder() 
+      CounterTopicApi.Increased.newBuilder()
         .setValue(valueIncreased.getValue())
-        .build(); 
+        .build();
 
     return effects().reply(increased); // <2>
   // tag::counter-topic-event-subject[]
@@ -50,7 +50,7 @@ public class CounterJournalToTopicAction extends AbstractCounterJournalToTopicAc
 
     return effects().reply(decreased);
   }
-  
+
   // tag::counter-ignore[]
   @Override
   public Effect<Empty> ignore(Any any) {

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.impl
+package kalix.javasdk.impl
 
 import java.util
 import java.util.Collections

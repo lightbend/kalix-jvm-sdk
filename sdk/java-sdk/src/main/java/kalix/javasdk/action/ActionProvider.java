@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.action;
+package kalix.javasdk.action;
 
-import com.akkaserverless.javasdk.impl.action.ActionRouter;
+import kalix.javasdk.impl.action.ActionRouter;
 import com.google.protobuf.Descriptors;
 
 /**
- * Register an Action in {{@link com.akkaserverless.javasdk.AkkaServerless}} using an <code>
+ * Register an Action in {{@link kalix.javasdk.AkkaServerless}} using an <code>
  * ActionProvider</code>. The concrete <code>ActionProvider</code> is generated for the specific
  * entities defined in Protobuf, for example <code>CustomerActionProvider</code>.
  */

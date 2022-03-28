@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.scalasdk.replicatedentity
+package kalix.scalasdk.replicatedentity
 
-import com.akkaserverless.replicatedentity.ReplicatedData
-import com.akkaserverless.scalasdk.{ DeferredCall, Metadata, SideEffect }
-import com.akkaserverless.scalasdk.impl.replicatedentity.ReplicatedEntityEffectImpl
+import kalix.replicatedentity.ReplicatedData
+import kalix.scalasdk.{ DeferredCall, Metadata, SideEffect }
+import kalix.scalasdk.impl.replicatedentity.ReplicatedEntityEffectImpl
 import io.grpc.Status
 
 object ReplicatedEntity {

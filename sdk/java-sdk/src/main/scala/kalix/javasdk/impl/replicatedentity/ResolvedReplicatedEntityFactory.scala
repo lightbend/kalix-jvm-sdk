@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.impl.replicatedentity
+package kalix.javasdk.impl.replicatedentity
 
-import com.akkaserverless.javasdk.impl.ReplicatedEntityFactory
-import com.akkaserverless.javasdk.impl.ResolvedEntityFactory
-import com.akkaserverless.javasdk.impl.ResolvedServiceMethod
-import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityContext
+import kalix.javasdk.impl.ReplicatedEntityFactory
+import kalix.javasdk.impl.ResolvedEntityFactory
+import kalix.javasdk.impl.ResolvedServiceMethod
+import kalix.javasdk.replicatedentity.ReplicatedEntityContext
 
 class ResolvedReplicatedEntityFactory(
     delegate: ReplicatedEntityFactory,

@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.impl.view
+package kalix.javasdk.impl.view
 
-import com.akkaserverless.javasdk.impl.ComponentOptions
-import com.akkaserverless.javasdk.view.ViewOptions
+import kalix.javasdk.impl.ComponentOptions
+import kalix.javasdk.view.ViewOptions
 
 import java.util
 
 /**
  * INTERNAL API
  */
-private[akkaserverless] final case class ViewOptionsImpl(override val forwardHeaders: java.util.Set[String])
+private[kalix] final case class ViewOptionsImpl(override val forwardHeaders: java.util.Set[String])
     extends ViewOptions {
   def withForwardHeaders(headers: util.Set[String]): ViewOptions = copy(forwardHeaders = headers)
 }

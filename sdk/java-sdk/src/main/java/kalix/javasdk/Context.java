@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk;
+package kalix.javasdk;
 
 import akka.stream.Materializer;
 

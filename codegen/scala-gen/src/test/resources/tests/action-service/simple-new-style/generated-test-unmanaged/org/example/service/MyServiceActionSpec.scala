@@ -2,8 +2,8 @@ package org.example.service
 
 import akka.NotUsed
 import akka.stream.scaladsl.Source
-import com.akkaserverless.scalasdk.action.Action
-import com.akkaserverless.scalasdk.testkit.ActionResult
+import kalix.scalasdk.action.Action
+import kalix.scalasdk.testkit.ActionResult
 import org.external.Empty
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec

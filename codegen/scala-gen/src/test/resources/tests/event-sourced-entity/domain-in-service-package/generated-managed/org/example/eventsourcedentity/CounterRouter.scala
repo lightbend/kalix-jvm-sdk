@@ -1,10 +1,10 @@
 package org.example.eventsourcedentity
 
-import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityRouter.CommandHandlerNotFound
-import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityRouter.EventHandlerNotFound
-import com.akkaserverless.scalasdk.eventsourcedentity.CommandContext
-import com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntity
-import com.akkaserverless.scalasdk.impl.eventsourcedentity.EventSourcedEntityRouter
+import kalix.javasdk.impl.eventsourcedentity.EventSourcedEntityRouter.CommandHandlerNotFound
+import kalix.javasdk.impl.eventsourcedentity.EventSourcedEntityRouter.EventHandlerNotFound
+import kalix.scalasdk.eventsourcedentity.CommandContext
+import kalix.scalasdk.eventsourcedentity.EventSourcedEntity
+import kalix.scalasdk.impl.eventsourcedentity.EventSourcedEntityRouter
 import org.example.eventsourcedentity
 
 // This code is managed by Akka Serverless tooling.

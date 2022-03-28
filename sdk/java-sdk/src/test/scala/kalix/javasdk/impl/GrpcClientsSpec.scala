@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.impl
+package kalix.javasdk.impl
 
 import akka.Done
 import akka.actor.ClassicActorSystemProvider
 import akka.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
 import akka.grpc.GrpcClientSettings
 import akka.grpc.javadsl.AkkaGrpcClient
-import com.akkaserverless.javasdk.actionspec.actionspec_api.ActionSpecService
-import com.akkaserverless.javasdk.actionspec.actionspec_api.ActionSpecServiceClient
+import kalix.javasdk.actionspec.actionspec_api.ActionSpecService
+import kalix.javasdk.actionspec.actionspec_api.ActionSpecServiceClient
 import com.typesafe.config.ConfigFactory
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.matchers.should.Matchers

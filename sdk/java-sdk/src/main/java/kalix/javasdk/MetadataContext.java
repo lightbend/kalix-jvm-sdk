@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk;
+package kalix.javasdk;
 
 /** Context that provides access to metadata. */
 public interface MetadataContext extends Context {

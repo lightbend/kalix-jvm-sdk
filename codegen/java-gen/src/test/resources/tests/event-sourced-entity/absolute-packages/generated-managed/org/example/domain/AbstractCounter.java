@@ -1,6 +1,6 @@
 package org.example.domain;
 
-import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity;
+import kalix.javasdk.eventsourcedentity.EventSourcedEntity;
 import com.google.protobuf.Empty;
 import org.example.Components;
 import org.example.ComponentsImpl;

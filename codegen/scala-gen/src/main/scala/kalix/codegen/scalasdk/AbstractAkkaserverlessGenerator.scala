@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.codegen.scalasdk
+package kalix.codegen.scalasdk
 
 import com.akkaserverless.Annotations
-import com.akkaserverless.codegen.scalasdk.impl.SourceGenerator
+import kalix.codegen.scalasdk.impl.SourceGenerator
 import com.google.protobuf.ExtensionRegistry
 import com.google.protobuf.compiler.PluginProtos.CodeGeneratorResponse
 import com.google.protobuf.compiler.PluginProtos.CodeGeneratorResponse.Feature

@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.testkit.impl;
+package kalix.javasdk.testkit.impl;
 
-import com.akkaserverless.javasdk.action.ActionContext
+import kalix.javasdk.action.ActionContext
 
 import java.util.Optional
-import com.akkaserverless.javasdk.action.ActionCreationContext
+import kalix.javasdk.action.ActionCreationContext
 import akka.stream.Materializer
-import com.akkaserverless.javasdk.impl.InternalContext
+import kalix.javasdk.impl.InternalContext
 
 /**
  * INTERNAL API Used by the generated testkit

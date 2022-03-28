@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.impl.valueentity
+package kalix.javasdk.impl.valueentity
 
 import scala.concurrent.ExecutionContext
 import scala.util.control.NonFatal
@@ -22,23 +22,23 @@ import akka.NotUsed
 import akka.actor.ActorSystem
 import akka.stream.scaladsl.Flow
 import akka.stream.scaladsl.Source
-import com.akkaserverless.javasdk.AkkaServerlessRunner.Configuration
+import kalix.javasdk.AkkaServerlessRunner.Configuration
 import com.akkaserverless.protocol.component.Failure
 import org.slf4j.LoggerFactory
 
 // FIXME these don't seem to be 'public API', more internals?
-import com.akkaserverless.javasdk.Context
-import com.akkaserverless.javasdk.Metadata
-import com.akkaserverless.javasdk.valueentity._
+import kalix.javasdk.Context
+import kalix.javasdk.Metadata
+import kalix.javasdk.valueentity._
 
-import com.akkaserverless.javasdk.impl.ValueEntityFactory
-import com.akkaserverless.javasdk.impl._
-import com.akkaserverless.javasdk.impl.effect.EffectSupport
-import com.akkaserverless.javasdk.impl.effect.ErrorReplyImpl
-import com.akkaserverless.javasdk.impl.effect.MessageReplyImpl
-import com.akkaserverless.javasdk.impl.valueentity.ValueEntityEffectImpl.DeleteState
-import com.akkaserverless.javasdk.impl.valueentity.ValueEntityEffectImpl.UpdateState
-import com.akkaserverless.javasdk.impl.valueentity.ValueEntityRouter.CommandResult
+import kalix.javasdk.impl.ValueEntityFactory
+import kalix.javasdk.impl._
+import kalix.javasdk.impl.effect.EffectSupport
+import kalix.javasdk.impl.effect.ErrorReplyImpl
+import kalix.javasdk.impl.effect.MessageReplyImpl
+import kalix.javasdk.impl.valueentity.ValueEntityEffectImpl.DeleteState
+import kalix.javasdk.impl.valueentity.ValueEntityEffectImpl.UpdateState
+import kalix.javasdk.impl.valueentity.ValueEntityRouter.CommandResult
 import com.akkaserverless.protocol.value_entity.ValueEntityAction.Action.Delete
 import com.akkaserverless.protocol.value_entity.ValueEntityAction.Action.Update
 import com.akkaserverless.protocol.value_entity.ValueEntityStreamIn.Message.{ Command => InCommand }
@@ -212,7 +212,7 @@ final class ValueEntitiesImpl(system: ActorSystem, val services: Map[String, Val
 
 }
 
-private[akkaserverless] final class CommandContextImpl(
+private[kalix] final class CommandContextImpl(
     override val entityId: String,
     override val commandName: String,
     override val commandId: Long,
@@ -222,6 +222,6 @@ private[akkaserverless] final class CommandContextImpl(
     with CommandContext
     with ActivatableContext
 
-private[akkaserverless] final class ValueEntityContextImpl(override val entityId: String, system: ActorSystem)
+private[kalix] final class ValueEntityContextImpl(override val entityId: String, system: ActorSystem)
     extends AbstractContext(system)
     with ValueEntityContext

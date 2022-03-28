@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.eventsourcedentity;
+package kalix.javasdk.eventsourcedentity;
 
-import com.akkaserverless.javasdk.MetadataContext;
+import kalix.javasdk.MetadataContext;
 
 /** An event sourced command context. */
 public interface CommandContext extends EventSourcedEntityContext, MetadataContext {

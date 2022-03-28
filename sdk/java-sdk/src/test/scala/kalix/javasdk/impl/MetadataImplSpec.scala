@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.impl
+package kalix.javasdk.impl
 
 import java.time.Instant
 
-import com.akkaserverless.javasdk.Metadata
+import kalix.javasdk.Metadata
 import com.akkaserverless.protocol.component.MetadataEntry
 import org.scalatest.OptionValues
 import org.scalatest.matchers.should.Matchers

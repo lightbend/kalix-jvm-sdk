@@ -5,9 +5,9 @@
 
 package com.example.actions;
 
-import com.akkaserverless.javasdk.DeferredCall;
-import com.akkaserverless.javasdk.SideEffect;
-import com.akkaserverless.javasdk.action.ActionCreationContext;
+import kalix.javasdk.DeferredCall;
+import kalix.javasdk.SideEffect;
+import kalix.javasdk.action.ActionCreationContext;
 import com.example.Components;
 import com.example.ComponentsImpl;
 import com.example.CounterApi;
@@ -27,7 +27,7 @@ public class DoubleCounterAction extends AbstractDoubleCounterAction {
 
 // end::controller-side-effect[]
 // tag::controller-side-effect[]
-  
+
   // Handler for "Increase" not shown in this snippet
 
 // end::controller-side-effect[]
@@ -50,7 +50,7 @@ public class DoubleCounterAction extends AbstractDoubleCounterAction {
   /**
    * Handler for "IncreaseWithSideEffect".
    */
-  @Override 
+  @Override
   public Effect<Empty> increaseWithSideEffect(CounterApi.IncreaseValue increaseValue) {
     int doubled = increaseValue.getValue() * 2;
     CounterApi.IncreaseValue increaseValueDoubled =

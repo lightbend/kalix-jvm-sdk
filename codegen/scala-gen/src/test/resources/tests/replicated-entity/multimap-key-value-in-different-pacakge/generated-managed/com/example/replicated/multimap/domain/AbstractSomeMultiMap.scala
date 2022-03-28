@@ -1,8 +1,8 @@
 package com.example.replicated.multimap.domain
 
-import com.akkaserverless.scalasdk.replicatedentity.ReplicatedEntity
-import com.akkaserverless.scalasdk.replicatedentity.ReplicatedMultiMap
-import com.akkaserverless.scalasdk.replicatedentity.ReplicatedMultiMapEntity
+import kalix.scalasdk.replicatedentity.ReplicatedEntity
+import kalix.scalasdk.replicatedentity.ReplicatedMultiMap
+import kalix.scalasdk.replicatedentity.ReplicatedMultiMapEntity
 import com.example.replicated.multimap
 import com.example.replicated.multimap.domain.key.SomeKey
 import com.example.replicated.multimap.domain.value.SomeValue

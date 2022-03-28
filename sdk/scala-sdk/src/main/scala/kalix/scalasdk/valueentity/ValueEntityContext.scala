@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.scalasdk.valueentity
+package kalix.scalasdk.valueentity
 
-import com.akkaserverless.scalasdk.EntityContext
+import kalix.scalasdk.EntityContext
 
 /** Root context for all value based entity contexts. */
 trait ValueEntityContext extends EntityContext

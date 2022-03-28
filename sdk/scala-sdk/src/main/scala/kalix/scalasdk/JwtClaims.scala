@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.scalasdk
+package kalix.scalasdk
 
 import java.time.Instant
 

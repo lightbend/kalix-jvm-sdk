@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.impl.valueentity
+package kalix.javasdk.impl.valueentity
 
-import com.akkaserverless.javasdk.PassivationStrategy
-import com.akkaserverless.javasdk.valueentity.ValueEntityOptions
+import kalix.javasdk.PassivationStrategy
+import kalix.javasdk.valueentity.ValueEntityOptions
 
 import java.util.Collections
 import java.util

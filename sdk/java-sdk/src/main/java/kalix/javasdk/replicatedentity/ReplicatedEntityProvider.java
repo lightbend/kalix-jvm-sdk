@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.replicatedentity;
+package kalix.javasdk.replicatedentity;
 
-import com.akkaserverless.javasdk.impl.replicatedentity.ReplicatedEntityRouter;
-import com.akkaserverless.replicatedentity.ReplicatedData;
+import kalix.javasdk.impl.replicatedentity.ReplicatedEntityRouter;
+import kalix.replicatedentity.ReplicatedData;
 import com.google.protobuf.Descriptors;
 
 /**
- * Register a value based entity in {@link com.akkaserverless.javasdk.AkkaServerless} using a <code>
+ * Register a value based entity in {@link kalix.javasdk.AkkaServerless} using a <code>
  *  ReplicatedEntityProvider</code>. The concrete <code>ReplicatedEntityProvider</code> is generated
  * for the specific entities defined in Protobuf.
  */

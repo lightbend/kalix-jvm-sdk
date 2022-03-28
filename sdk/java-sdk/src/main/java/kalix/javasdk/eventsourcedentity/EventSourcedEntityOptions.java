@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.eventsourcedentity;
+package kalix.javasdk.eventsourcedentity;
 
-import com.akkaserverless.javasdk.EntityOptions;
-import com.akkaserverless.javasdk.PassivationStrategy;
-import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityOptionsImpl;
+import kalix.javasdk.EntityOptions;
+import kalix.javasdk.PassivationStrategy;
+import kalix.javasdk.impl.eventsourcedentity.EventSourcedEntityOptionsImpl;
 import scala.collection.immutable.Set;
 
 import java.util.Collections;

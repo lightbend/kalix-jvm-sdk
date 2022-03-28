@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.codegen.scalasdk.impl
+package kalix.codegen.scalasdk.impl
 
 import com.lightbend.akkasls.codegen.File
 import com.lightbend.akkasls.codegen.Format
@@ -43,11 +43,11 @@ object ValueEntityTestKitGenerator {
         service.commands.map(_.outputType),
         valueEntity.messageType.parent.scalaPackage,
         otherImports = Seq(
-          "com.akkaserverless.scalasdk.testkit.ValueEntityResult",
-          "com.akkaserverless.scalasdk.testkit.impl.ValueEntityResultImpl",
-          "com.akkaserverless.scalasdk.valueentity.ValueEntity",
-          "com.akkaserverless.scalasdk.valueentity.ValueEntityContext",
-          "com.akkaserverless.scalasdk.testkit.impl.TestKitValueEntityContext"),
+          "kalix.scalasdk.testkit.ValueEntityResult",
+          "kalix.scalasdk.testkit.impl.ValueEntityResultImpl",
+          "kalix.scalasdk.valueentity.ValueEntity",
+          "kalix.scalasdk.valueentity.ValueEntityContext",
+          "kalix.scalasdk.testkit.impl.TestKitValueEntityContext"),
         packageImports = Seq(service.messageType.parent.scalaPackage))
 
     val entityClassName = valueEntity.messageType.name
@@ -121,8 +121,8 @@ object ValueEntityTestKitGenerator {
         service.commands.map(_.outputType),
         valueEntity.messageType.parent.scalaPackage,
         otherImports = Seq(
-          "com.akkaserverless.scalasdk.valueentity.ValueEntity",
-          "com.akkaserverless.scalasdk.testkit.ValueEntityResult",
+          "kalix.scalasdk.valueentity.ValueEntity",
+          "kalix.scalasdk.testkit.ValueEntityResult",
           "org.scalatest.matchers.should.Matchers",
           "org.scalatest.wordspec.AnyWordSpec"),
         packageImports = Seq(service.messageType.parent.scalaPackage))
@@ -178,7 +178,7 @@ object ValueEntityTestKitGenerator {
         service.messageType.parent.scalaPackage,
         otherImports = Seq(
           "akka.actor.ActorSystem",
-          "com.akkaserverless.scalasdk.testkit.AkkaServerlessTestKit",
+          "kalix.scalasdk.testkit.AkkaServerlessTestKit",
           "org.scalatest.matchers.should.Matchers",
           "org.scalatest.wordspec.AnyWordSpec",
           "org.scalatest.BeforeAndAfterAll",

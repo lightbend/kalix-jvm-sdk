@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.codegen.scalasdk
+package kalix.codegen.scalasdk
 
-import com.akkaserverless.codegen.scalasdk.impl.SourceGenerator
+import kalix.codegen.scalasdk.impl.SourceGenerator
 import protocbridge.Artifact
 import com.lightbend.akkasls.codegen.{ File, ModelBuilder }
 

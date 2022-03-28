@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.impl
+package kalix.javasdk.impl
 
-import com.akkaserverless.javasdk.DeferredCall
+import kalix.javasdk.DeferredCall
 import com.google.protobuf.Descriptors
 
 import java.util.concurrent.CompletionStage

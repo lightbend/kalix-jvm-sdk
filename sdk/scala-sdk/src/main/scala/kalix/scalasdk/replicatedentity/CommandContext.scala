@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.scalasdk.replicatedentity
+package kalix.scalasdk.replicatedentity
 
-import com.akkaserverless.scalasdk.MetadataContext
+import kalix.scalasdk.MetadataContext
 
 trait CommandContext extends ReplicatedEntityContext with MetadataContext

@@ -1,7 +1,7 @@
 package com.example.shoppingcart
 
-import com.akkaserverless.scalasdk.action.Action
-import com.akkaserverless.scalasdk.action.ActionCreationContext
+import kalix.scalasdk.action.Action
+import kalix.scalasdk.action.ActionCreationContext
 import com.google.protobuf.empty.Empty
 
 import java.util.UUID

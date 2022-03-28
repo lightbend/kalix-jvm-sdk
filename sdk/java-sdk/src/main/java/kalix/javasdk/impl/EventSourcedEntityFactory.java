@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.impl;
+package kalix.javasdk.impl;
 
-import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityContext;
-import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityRouter;
+import kalix.javasdk.eventsourcedentity.EventSourcedEntityContext;
+import kalix.javasdk.impl.eventsourcedentity.EventSourcedEntityRouter;
 
 /**
  * Low level interface for handling events and commands on an entity.
  *
  * <p>Generally, this should not be needed, instead, a class extending a generated abstract {@link
- * com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity} should be used.
+ * kalix.javasdk.eventsourcedentity.EventSourcedEntity} should be used.
  */
 public interface EventSourcedEntityFactory {
   /**

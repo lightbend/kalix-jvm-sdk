@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk;
+package kalix.javasdk;
 
-import com.akkaserverless.javasdk.impl.Timeout;
+import kalix.javasdk.impl.Timeout;
 
 import java.time.Duration;
 

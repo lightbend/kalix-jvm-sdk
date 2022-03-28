@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.view;
+package kalix.javasdk.view;
 
-import com.akkaserverless.javasdk.Context;
-import com.akkaserverless.javasdk.MetadataContext;
+import kalix.javasdk.Context;
+import kalix.javasdk.MetadataContext;
 
 /** Context for views. */
 public interface ViewContext extends Context {

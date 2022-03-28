@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.scalasdk.view
+package kalix.scalasdk.view
 
-import com.akkaserverless.scalasdk.impl.view.ViewUpdateEffectImpl
+import kalix.scalasdk.impl.view.ViewUpdateEffectImpl
 
 object View {
 

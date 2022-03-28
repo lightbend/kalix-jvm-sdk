@@ -1,6 +1,6 @@
 package org.example
 
-import com.akkaserverless.scalasdk.AkkaServerless
+import kalix.scalasdk.AkkaServerless
 import com.example.replicated.multimap.MultiMapServiceEntity
 import org.slf4j.LoggerFactory
 

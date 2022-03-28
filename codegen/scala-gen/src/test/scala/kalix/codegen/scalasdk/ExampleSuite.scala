@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.codegen.scalasdk
+package kalix.codegen.scalasdk
 
-import com.akkaserverless.codegen.scalasdk.impl.SourceGenerator
+import kalix.codegen.scalasdk.impl.SourceGenerator
 import com.google.protobuf.Descriptors
 import com.lightbend.akkasls.codegen.{ ExampleSuiteBase, GeneratedFiles, ModelBuilder }
 import scalapb.compiler.{ DescriptorImplicits, GeneratorParams }
@@ -25,7 +25,7 @@ class ExampleSuite extends ExampleSuiteBase {
 
   def regenerateAll: Boolean = false
 
-  lazy val BuildInfo = com.akkaserverless.codegen.scalasdk.BuildInfo
+  lazy val BuildInfo = kalix.codegen.scalasdk.BuildInfo
 
   override def propertyPath: String = "example.suite.scala.regenerate"
 

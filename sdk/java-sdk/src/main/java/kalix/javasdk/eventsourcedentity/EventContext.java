@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.eventsourcedentity;
+package kalix.javasdk.eventsourcedentity;
 
 /** Context for an event. */
 public interface EventContext extends EventSourcedEntityContext {

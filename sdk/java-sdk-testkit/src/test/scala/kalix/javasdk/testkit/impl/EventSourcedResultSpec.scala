@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.testkit.impl
+package kalix.javasdk.testkit.impl
 
-import com.akkaserverless.javasdk.impl.DeferredCallImpl
-import com.akkaserverless.javasdk.impl.MetadataImpl
-import com.akkaserverless.javasdk.impl.effect.ForwardReplyImpl
-import com.akkaserverless.javasdk.impl.effect.MessageReplyImpl
-import com.akkaserverless.javasdk.impl.effect.SecondaryEffectImpl
-import com.akkaserverless.javasdk.impl.effect.SideEffectImpl
-import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityEffectImpl
-import com.akkaserverless.javasdk.impl.valueentity.ValueEntityEffectImpl
+import kalix.javasdk.impl.DeferredCallImpl
+import kalix.javasdk.impl.MetadataImpl
+import kalix.javasdk.impl.effect.ForwardReplyImpl
+import kalix.javasdk.impl.effect.MessageReplyImpl
+import kalix.javasdk.impl.effect.SecondaryEffectImpl
+import kalix.javasdk.impl.effect.SideEffectImpl
+import kalix.javasdk.impl.eventsourcedentity.EventSourcedEntityEffectImpl
+import kalix.javasdk.impl.valueentity.ValueEntityEffectImpl
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 

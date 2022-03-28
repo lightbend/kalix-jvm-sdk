@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.scalasdk.valueentity
+package kalix.scalasdk.valueentity
 
 import scala.collection.immutable.Set
 
-import com.akkaserverless.scalasdk
-import com.akkaserverless.scalasdk.EntityOptions
-import com.akkaserverless.scalasdk.PassivationStrategy
+import kalix.scalasdk
+import kalix.scalasdk.EntityOptions
+import kalix.scalasdk.PassivationStrategy
 
 /** Root entity options for all value based entities. */
 trait ValueEntityOptions extends EntityOptions {
@@ -31,7 +31,7 @@ object ValueEntityOptions {
   val defaults: ValueEntityOptions =
     ValueEntityOptionsImpl(PassivationStrategy.defaultTimeout, Set.empty)
 
-  private[akkaserverless] final case class ValueEntityOptionsImpl(
+  private[kalix] final case class ValueEntityOptionsImpl(
       passivationStrategy: scalasdk.PassivationStrategy,
       forwardHeaders: Set[String])
       extends ValueEntityOptions {

@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.testkit;
+package kalix.javasdk.testkit;
 
 import akka.actor.ActorSystem;
 import akka.grpc.GrpcClientSettings;
 import akka.stream.Materializer;
 import akka.stream.SystemMaterializer;
-import com.akkaserverless.javasdk.AkkaServerless;
-import com.akkaserverless.javasdk.AkkaServerlessRunner;
-import com.akkaserverless.javasdk.impl.GrpcClients;
+import kalix.javasdk.AkkaServerless;
+import kalix.javasdk.AkkaServerlessRunner;
+import kalix.javasdk.impl.GrpcClients;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import org.slf4j.Logger;

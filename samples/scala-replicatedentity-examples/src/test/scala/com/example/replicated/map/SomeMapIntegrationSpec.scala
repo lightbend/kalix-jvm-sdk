@@ -1,6 +1,6 @@
 package com.example.replicated.map
 
-import com.akkaserverless.scalasdk.testkit.AkkaServerlessTestKit
+import kalix.scalasdk.testkit.AkkaServerlessTestKit
 import com.example.replicated.Main
 import com.example.replicated.map.AddBazValue
 import com.example.replicated.map.GetValues

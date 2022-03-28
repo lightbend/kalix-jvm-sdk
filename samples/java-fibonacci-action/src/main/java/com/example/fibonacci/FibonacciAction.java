@@ -8,7 +8,7 @@ package com.example.fibonacci;
 import akka.NotUsed;
 import akka.japi.Pair;
 import akka.stream.javadsl.Source;
-import com.akkaserverless.javasdk.action.ActionCreationContext;
+import kalix.javasdk.action.ActionCreationContext;
 
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;

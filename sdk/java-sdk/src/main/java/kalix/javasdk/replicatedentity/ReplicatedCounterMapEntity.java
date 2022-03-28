@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.replicatedentity;
+package kalix.javasdk.replicatedentity;
 
 public class ReplicatedCounterMapEntity<K> extends ReplicatedEntity<ReplicatedCounterMap<K>> {
   @Override

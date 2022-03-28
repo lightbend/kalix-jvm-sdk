@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.codegen.scalasdk.impl
+package kalix.codegen.scalasdk.impl
 
 import com.lightbend.akkasls.codegen.File
 import com.lightbend.akkasls.codegen.Format
@@ -47,14 +47,14 @@ object EventSourcedEntityTestKitGenerator {
         service.commands.map(_.outputType),
         entity.messageType.parent.scalaPackage,
         Seq(
-          "com.akkaserverless.scalasdk.testkit.EventSourcedResult",
-          "com.akkaserverless.scalasdk.testkit.impl.EventSourcedResultImpl",
-          "com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntity",
-          "com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntityContext",
-          "com.akkaserverless.scalasdk.testkit.impl.TestKitEventSourcedEntityContext",
-          "com.akkaserverless.scalasdk.testkit.impl.EventSourcedEntityEffectsRunner",
-          "com.akkaserverless.scalasdk.testkit.impl.TestKitEventSourcedEntityCommandContext",
-          "com.akkaserverless.scalasdk.testkit.impl.TestKitEventSourcedEntityEventContext",
+          "kalix.scalasdk.testkit.EventSourcedResult",
+          "kalix.scalasdk.testkit.impl.EventSourcedResultImpl",
+          "kalix.scalasdk.eventsourcedentity.EventSourcedEntity",
+          "kalix.scalasdk.eventsourcedentity.EventSourcedEntityContext",
+          "kalix.scalasdk.testkit.impl.TestKitEventSourcedEntityContext",
+          "kalix.scalasdk.testkit.impl.EventSourcedEntityEffectsRunner",
+          "kalix.scalasdk.testkit.impl.TestKitEventSourcedEntityCommandContext",
+          "kalix.scalasdk.testkit.impl.TestKitEventSourcedEntityEventContext",
           "scala.collection.immutable.Seq"),
         packageImports = Seq(service.messageType.parent.scalaPackage))
 
@@ -122,8 +122,8 @@ object EventSourcedEntityTestKitGenerator {
       service.commands.map(_.outputType),
       entity.messageType.parent.scalaPackage,
       Seq(
-        "com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntity",
-        "com.akkaserverless.scalasdk.testkit.EventSourcedResult",
+        "kalix.scalasdk.eventsourcedentity.EventSourcedEntity",
+        "kalix.scalasdk.testkit.EventSourcedResult",
         "org.scalatest.matchers.should.Matchers",
         "org.scalatest.wordspec.AnyWordSpec"),
       packageImports = Seq(service.messageType.parent.scalaPackage))
@@ -179,7 +179,7 @@ object EventSourcedEntityTestKitGenerator {
         service.messageType.parent.scalaPackage,
         otherImports = Seq(
           "akka.actor.ActorSystem",
-          "com.akkaserverless.scalasdk.testkit.AkkaServerlessTestKit",
+          "kalix.scalasdk.testkit.AkkaServerlessTestKit",
           "org.scalatest.matchers.should.Matchers",
           "org.scalatest.wordspec.AnyWordSpec",
           "org.scalatest.BeforeAndAfterAll",

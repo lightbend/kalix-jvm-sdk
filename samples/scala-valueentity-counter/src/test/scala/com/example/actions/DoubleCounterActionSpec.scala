@@ -1,6 +1,6 @@
 package com.example.actions
 
-import com.akkaserverless.scalasdk.testkit.ActionResult
+import kalix.scalasdk.testkit.ActionResult
 import com.example.IncreaseValue
 import com.google.protobuf.empty.Empty
 import org.scalatest.matchers.should.Matchers

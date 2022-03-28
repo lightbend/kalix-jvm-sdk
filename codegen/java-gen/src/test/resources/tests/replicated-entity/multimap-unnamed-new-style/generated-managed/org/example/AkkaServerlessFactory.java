@@ -1,7 +1,7 @@
 package org.example;
 
-import com.akkaserverless.javasdk.AkkaServerless;
-import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityContext;
+import kalix.javasdk.AkkaServerless;
+import kalix.javasdk.replicatedentity.ReplicatedEntityContext;
 import com.example.replicated.multimap.MultiMapServiceEntity;
 import com.example.replicated.multimap.MultiMapServiceEntityProvider;
 import com.example.replicated.multimap.SomeMultiMapApi;

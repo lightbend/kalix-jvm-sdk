@@ -14,18 +14,18 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.scalasdk.impl.valueentity
+package kalix.scalasdk.impl.valueentity
 
 import akka.stream.Materializer
-import com.akkaserverless.javasdk
-import com.akkaserverless.scalasdk.impl.InternalContext
-import com.akkaserverless.scalasdk.impl.MetadataConverters
-import com.akkaserverless.scalasdk.impl.PassivationStrategyConverters
-import com.akkaserverless.scalasdk.valueentity.CommandContext
-import com.akkaserverless.scalasdk.valueentity.ValueEntity
-import com.akkaserverless.scalasdk.valueentity.ValueEntityContext
-import com.akkaserverless.scalasdk.valueentity.ValueEntityOptions
-import com.akkaserverless.scalasdk.valueentity.ValueEntityProvider
+import kalix.javasdk
+import kalix.scalasdk.impl.InternalContext
+import kalix.scalasdk.impl.MetadataConverters
+import kalix.scalasdk.impl.PassivationStrategyConverters
+import kalix.scalasdk.valueentity.CommandContext
+import kalix.scalasdk.valueentity.ValueEntity
+import kalix.scalasdk.valueentity.ValueEntityContext
+import kalix.scalasdk.valueentity.ValueEntityOptions
+import kalix.scalasdk.valueentity.ValueEntityProvider
 import com.google.protobuf.Descriptors
 
 import java.util.Optional
@@ -111,7 +111,7 @@ private[scalasdk] final class ScalaCommandContextAdapter(val javaSdkContext: jav
 
   override def entityId: String = javaSdkContext.entityId()
 
-  override def metadata: com.akkaserverless.scalasdk.Metadata =
+  override def metadata: kalix.scalasdk.Metadata =
     MetadataConverters.toScala(javaSdkContext.metadata())
 
   def getComponentGrpcClient[T](serviceClass: Class[T]): T = javaSdkContext match {

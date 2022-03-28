@@ -1,6 +1,6 @@
 package org.example.domain;
 
-import com.akkaserverless.javasdk.valueentity.ValueEntity;
+import kalix.javasdk.valueentity.ValueEntity;
 import com.google.protobuf.Empty;
 import org.example.Components;
 import org.example.ComponentsImpl;

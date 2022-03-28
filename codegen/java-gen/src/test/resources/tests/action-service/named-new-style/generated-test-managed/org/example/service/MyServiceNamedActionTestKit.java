@@ -2,12 +2,12 @@ package org.example.service;
 
 import akka.NotUsed;
 import akka.stream.javadsl.Source;
-import com.akkaserverless.javasdk.action.Action.Effect;
-import com.akkaserverless.javasdk.action.ActionCreationContext;
-import com.akkaserverless.javasdk.impl.action.ActionEffectImpl;
-import com.akkaserverless.javasdk.testkit.ActionResult;
-import com.akkaserverless.javasdk.testkit.impl.ActionResultImpl;
-import com.akkaserverless.javasdk.testkit.impl.TestKitActionContext;
+import kalix.javasdk.action.Action.Effect;
+import kalix.javasdk.action.ActionCreationContext;
+import kalix.javasdk.impl.action.ActionEffectImpl;
+import kalix.javasdk.testkit.ActionResult;
+import kalix.javasdk.testkit.impl.ActionResultImpl;
+import kalix.javasdk.testkit.impl.TestKitActionContext;
 import com.google.protobuf.Empty;
 import org.example.service.MyServiceNamedAction;
 import org.example.service.ServiceOuterClass;

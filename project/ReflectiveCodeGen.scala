@@ -37,10 +37,10 @@ object ReflectiveCodeGen extends AutoPlugin {
           Seq(
             gen(
               akkaGrpcCodeGeneratorSettings.value ++ Seq("enable-debug", "flat_package"),
-              "com.akkaserverless.codegen.scalasdk.AkkaserverlessGenerator$") -> (Compile / sourceManaged).value,
+              "kalix.codegen.scalasdk.AkkaserverlessGenerator$") -> (Compile / sourceManaged).value,
             gen(
               akkaGrpcCodeGeneratorSettings.value ++ Seq("enable-debug", "flat_package"),
-              "com.akkaserverless.codegen.scalasdk.AkkaserverlessUnmanagedGenerator$") -> (Compile / temporaryUnmanagedDirectory).value)
+              "kalix.codegen.scalasdk.AkkaserverlessUnmanagedGenerator$") -> (Compile / temporaryUnmanagedDirectory).value)
         else Seq.empty
       },
       PB.artifactResolver := Def.taskDyn {
@@ -48,7 +48,7 @@ object ReflectiveCodeGen extends AutoPlugin {
         val oldResolver = PB.artifactResolver.value
         Def.task { (artifact: Artifact) =>
           artifact.groupId match {
-            case "com.akkaserverless.codegen.scalasdk.BuildInfo.organization" =>
+            case "kalix.codegen.scalasdk.BuildInfo.organization" =>
               cp
             case _ =>
               oldResolver(artifact)
@@ -61,7 +61,7 @@ object ReflectiveCodeGen extends AutoPlugin {
       SandboxedJvmGenerator.forModule(
         "scala",
         Artifact(
-          "com.akkaserverless.codegen.scalasdk.BuildInfo.organization",
+          "kalix.codegen.scalasdk.BuildInfo.organization",
           "akkaserverless-codegen-scala_2.12",
           "SNAPSHOT"),
         generatorClass,

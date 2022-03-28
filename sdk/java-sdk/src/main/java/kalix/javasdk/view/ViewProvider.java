@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.view;
+package kalix.javasdk.view;
 
-import com.akkaserverless.javasdk.impl.view.ViewRouter;
+import kalix.javasdk.impl.view.ViewRouter;
 import com.google.protobuf.Descriptors;
 
 public interface ViewProvider<S, V extends View<S>> {

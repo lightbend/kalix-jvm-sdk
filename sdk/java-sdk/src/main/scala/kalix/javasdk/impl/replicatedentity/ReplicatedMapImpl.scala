@@ -14,26 +14,26 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.impl.replicatedentity
+package kalix.javasdk.impl.replicatedentity
 
 import java.util.function
 
 import scala.jdk.CollectionConverters._
 
-import com.akkaserverless.javasdk.impl.AnySupport
-import com.akkaserverless.javasdk.replicatedentity.ReplicatedDataFactory
-import com.akkaserverless.javasdk.replicatedentity.ReplicatedMap
+import kalix.javasdk.impl.AnySupport
+import kalix.javasdk.replicatedentity.ReplicatedDataFactory
+import kalix.javasdk.replicatedentity.ReplicatedMap
 import com.akkaserverless.protocol.replicated_entity.ReplicatedEntityDelta
 import com.akkaserverless.protocol.replicated_entity.ReplicatedMapDelta
 import com.akkaserverless.protocol.replicated_entity.ReplicatedMapEntryDelta
-import com.akkaserverless.replicatedentity.ReplicatedData
+import kalix.replicatedentity.ReplicatedData
 import org.slf4j.LoggerFactory
 
 private object ReplicatedMapImpl {
   private val log = LoggerFactory.getLogger(classOf[ReplicatedMapImpl[_, _]])
 }
 
-private[akkaserverless] final class ReplicatedMapImpl[K, V <: ReplicatedData](
+private[kalix] final class ReplicatedMapImpl[K, V <: ReplicatedData](
     anySupport: AnySupport,
     entries: Map[K, V] = Map.empty[K, V],
     added: Set[K] = Set.empty[K],

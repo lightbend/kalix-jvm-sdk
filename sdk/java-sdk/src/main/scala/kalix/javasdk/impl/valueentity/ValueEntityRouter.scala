@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.impl.valueentity
+package kalix.javasdk.impl.valueentity
 
 import java.util.Optional
 
-import com.akkaserverless.javasdk.valueentity.CommandContext
-import com.akkaserverless.javasdk.impl.EntityExceptions
-import com.akkaserverless.javasdk.impl.valueentity.ValueEntityEffectImpl.DeleteState
-import com.akkaserverless.javasdk.impl.valueentity.ValueEntityEffectImpl.UpdateState
-import com.akkaserverless.javasdk.valueentity.ValueEntity
+import kalix.javasdk.valueentity.CommandContext
+import kalix.javasdk.impl.EntityExceptions
+import kalix.javasdk.impl.valueentity.ValueEntityEffectImpl.DeleteState
+import kalix.javasdk.impl.valueentity.ValueEntityEffectImpl.UpdateState
+import kalix.javasdk.valueentity.ValueEntity
 
 object ValueEntityRouter {
   final case class CommandResult(effect: ValueEntity.Effect[_])

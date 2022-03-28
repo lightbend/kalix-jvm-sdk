@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.impl
+package kalix.javasdk.impl
 
-import com.akkaserverless.javasdk.{ CloudEvent, JwtClaims, Metadata }
+import kalix.javasdk.{ CloudEvent, JwtClaims, Metadata }
 import com.akkaserverless.protocol.component.MetadataEntry
 import com.google.protobuf.ByteString
 import java.net.URI
@@ -26,20 +26,20 @@ import java.time.format.DateTimeFormatter
 import java.{ lang, util }
 import java.util.{ Objects, Optional }
 
-import com.akkaserverless.javasdk.impl.MetadataImpl.JwtClaimPrefix
+import kalix.javasdk.impl.MetadataImpl.JwtClaimPrefix
 
 import scala.jdk.CollectionConverters._
 import scala.collection.immutable.Seq
 import scala.compat.java8.OptionConverters._
 
-private[akkaserverless] class MetadataImpl(val entries: Seq[MetadataEntry]) extends Metadata with CloudEvent {
+private[kalix] class MetadataImpl(val entries: Seq[MetadataEntry]) extends Metadata with CloudEvent {
 
   override def has(key: String): Boolean = entries.exists(_.key.equalsIgnoreCase(key))
 
   override def get(key: String): Optional[String] =
     getScala(key).asJava
 
-  private[akkaserverless] def getScala(key: String): Option[String] =
+  private[kalix] def getScala(key: String): Option[String] =
     entries.collectFirst {
       case MetadataEntry(k, MetadataEntry.Value.StringValue(value), _) if key.equalsIgnoreCase(k) =>
         value
@@ -48,7 +48,7 @@ private[akkaserverless] class MetadataImpl(val entries: Seq[MetadataEntry]) exte
   override def getAll(key: String): util.List[String] =
     getAllScala(key).asJava
 
-  private[akkaserverless] def getAllScala(key: String): Seq[String] =
+  private[kalix] def getAllScala(key: String): Seq[String] =
     entries.collect {
       case MetadataEntry(k, MetadataEntry.Value.StringValue(value), _) if key.equalsIgnoreCase(k) =>
         value
@@ -57,7 +57,7 @@ private[akkaserverless] class MetadataImpl(val entries: Seq[MetadataEntry]) exte
   override def getBinary(key: String): Optional[ByteBuffer] =
     getBinaryScala(key).asJava
 
-  private[akkaserverless] def getBinaryScala(key: String): Option[ByteBuffer] =
+  private[kalix] def getBinaryScala(key: String): Option[ByteBuffer] =
     entries.collectFirst {
       case MetadataEntry(k, MetadataEntry.Value.BytesValue(value), _) if key.equalsIgnoreCase(k) =>
         value.asReadOnlyByteBuffer()
@@ -66,14 +66,14 @@ private[akkaserverless] class MetadataImpl(val entries: Seq[MetadataEntry]) exte
   override def getBinaryAll(key: String): util.List[ByteBuffer] =
     getBinaryAllScala(key).asJava
 
-  private[akkaserverless] def getBinaryAllScala(key: String): Seq[ByteBuffer] =
+  private[kalix] def getBinaryAllScala(key: String): Seq[ByteBuffer] =
     entries.collect {
       case MetadataEntry(k, MetadataEntry.Value.BytesValue(value), _) if key.equalsIgnoreCase(k) =>
         value.asReadOnlyByteBuffer()
     }
 
   override def getAllKeys: util.List[String] = getAllKeysScala.asJava
-  private[akkaserverless] def getAllKeysScala: Seq[String] = entries.map(_.key)
+  private[kalix] def getAllKeysScala: Seq[String] = entries.map(_.key)
 
   override def set(key: String, value: String): MetadataImpl = {
     Objects.requireNonNull(key, "Key must not be null")
@@ -103,7 +103,7 @@ private[akkaserverless] class MetadataImpl(val entries: Seq[MetadataEntry]) exte
 
   override def clear(): MetadataImpl = MetadataImpl.Empty
 
-  private[akkaserverless] def iteratorScala[R](f: MetadataEntry => R): Iterator[R] =
+  private[kalix] def iteratorScala[R](f: MetadataEntry => R): Iterator[R] =
     entries.iterator.map(f)
 
   override def iterator(): util.Iterator[Metadata.MetadataEntry] =
@@ -159,7 +159,7 @@ private[akkaserverless] class MetadataImpl(val entries: Seq[MetadataEntry]) exte
   override def withType(`type`: String): MetadataImpl = set(MetadataImpl.CeType, `type`)
 
   override def datacontenttype(): Optional[String] = getScala(MetadataImpl.CeDatacontenttype).asJava
-  private[akkaserverless] def datacontenttypeScala(): Option[String] = getScala(MetadataImpl.CeDatacontenttype)
+  private[kalix] def datacontenttypeScala(): Option[String] = getScala(MetadataImpl.CeDatacontenttype)
 
   override def withDatacontenttype(datacontenttype: String): MetadataImpl =
     set(MetadataImpl.CeDatacontenttype, datacontenttype)
@@ -167,21 +167,21 @@ private[akkaserverless] class MetadataImpl(val entries: Seq[MetadataEntry]) exte
   override def clearDatacontenttype(): MetadataImpl = remove(MetadataImpl.CeDatacontenttype)
 
   override def dataschema(): Optional[URI] = dataschemaScala().asJava
-  private[akkaserverless] def dataschemaScala(): Option[URI] = getScala(MetadataImpl.CeDataschema).map(URI.create(_))
+  private[kalix] def dataschemaScala(): Option[URI] = getScala(MetadataImpl.CeDataschema).map(URI.create(_))
 
   override def withDataschema(dataschema: URI): MetadataImpl = set(MetadataImpl.CeDataschema, dataschema.toString)
 
   override def clearDataschema(): MetadataImpl = remove(MetadataImpl.CeDataschema)
 
   override def subject(): Optional[String] = subjectScala.asJava
-  private[akkaserverless] def subjectScala: Option[String] = getScala(MetadataImpl.CeSubject)
+  private[kalix] def subjectScala: Option[String] = getScala(MetadataImpl.CeSubject)
 
   override def withSubject(subject: String): MetadataImpl = set(MetadataImpl.CeSubject, subject)
 
   override def clearSubject(): MetadataImpl = remove(MetadataImpl.CeSubject)
 
   override def time(): Optional[ZonedDateTime] = timeScala.asJava
-  private[akkaserverless] def timeScala: Option[ZonedDateTime] =
+  private[kalix] def timeScala: Option[ZonedDateTime] =
     getScala(MetadataImpl.CeTime).map(ZonedDateTime.parse(_))
 
   override def withTime(time: ZonedDateTime): MetadataImpl =
@@ -198,18 +198,18 @@ private[akkaserverless] class MetadataImpl(val entries: Seq[MetadataEntry]) exte
     override def getString(name: String): Optional[String] = getJwtClaim(name).asJava
   }
 
-  private[akkaserverless] def allJwtClaimNames: Iterable[String] =
+  private[kalix] def allJwtClaimNames: Iterable[String] =
     entries.view.collect {
       case MetadataEntry(key, MetadataEntry.Value.StringValue(_), _) if key.startsWith(JwtClaimPrefix) => key
     }
 
-  private[akkaserverless] def jwtClaimsAsMap: Map[String, String] =
+  private[kalix] def jwtClaimsAsMap: Map[String, String] =
     entries.view.collect {
       case MetadataEntry(key, MetadataEntry.Value.StringValue(value), _) if key.startsWith(JwtClaimPrefix) =>
         key -> value
     }.toMap
 
-  private[akkaserverless] def getJwtClaim(name: String): Option[String] = {
+  private[kalix] def getJwtClaim(name: String): Option[String] = {
     val prefixedName = JwtClaimPrefix + name
     entries.collectFirst {
       case MetadataEntry(key, MetadataEntry.Value.StringValue(value), _) if key == prefixedName => value

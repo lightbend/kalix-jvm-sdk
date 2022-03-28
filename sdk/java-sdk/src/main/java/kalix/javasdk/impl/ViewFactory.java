@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.impl;
+package kalix.javasdk.impl;
 
-import com.akkaserverless.javasdk.impl.view.ViewRouter;
-import com.akkaserverless.javasdk.view.ViewCreationContext;
+import kalix.javasdk.impl.view.ViewRouter;
+import kalix.javasdk.view.ViewCreationContext;
 
 /**
  * Low level interface for handling messages in views.
  *
  * <p>Generally, this should not be needed, instead, a class extending a generated abstract {@link
- * com.akkaserverless.javasdk.view.View} should be used.
+ * kalix.javasdk.view.View} should be used.
  */
 public interface ViewFactory {
   /**

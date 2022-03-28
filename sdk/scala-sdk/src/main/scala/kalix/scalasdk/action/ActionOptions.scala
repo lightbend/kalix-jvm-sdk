@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.scalasdk.action
+package kalix.scalasdk.action
 
 import scala.collection.immutable.Set
 
-import com.akkaserverless.scalasdk.impl.ComponentOptions
+import kalix.scalasdk.impl.ComponentOptions
 
 object ActionOptions {
 
   def defaults: ActionOptions = ActionOptionsImpl(Set.empty)
 
-  private[akkaserverless] final case class ActionOptionsImpl(forwardHeaders: Set[String]) extends ActionOptions {
+  private[kalix] final case class ActionOptionsImpl(forwardHeaders: Set[String]) extends ActionOptions {
 
     /**
      * Ask Akka Serverless to forward these headers from the incoming request as metadata headers for the incoming

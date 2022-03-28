@@ -1,9 +1,9 @@
 package com.example.shoppingcart
 
 import akka.actor.ActorSystem
-import com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntity
-import com.akkaserverless.scalasdk.testkit.AkkaServerlessTestKit
-import com.akkaserverless.scalasdk.testkit.EventSourcedResult
+import kalix.scalasdk.eventsourcedentity.EventSourcedEntity
+import kalix.scalasdk.testkit.AkkaServerlessTestKit
+import kalix.scalasdk.testkit.EventSourcedResult
 import com.google.protobuf.empty.Empty
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.concurrent.ScalaFutures

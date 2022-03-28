@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.scalasdk.testkit.impl
+package kalix.scalasdk.testkit.impl
 
-import com.akkaserverless.javasdk.impl.DeferredCallImpl
-import com.akkaserverless.scalasdk.SideEffect
-import com.akkaserverless.scalasdk.action.Action
-import com.akkaserverless.scalasdk.impl.ScalaDeferredCallAdapter
-import com.akkaserverless.scalasdk.impl.action.ActionEffectImpl
-import com.akkaserverless.scalasdk.testkit.ActionResult
-import com.akkaserverless.scalasdk.testkit.DeferredCallDetails
-import com.akkaserverless.javasdk.impl.action.ActionEffectImpl.{ PrimaryEffect => JavaPrimaryEffect }
+import kalix.javasdk.impl.DeferredCallImpl
+import kalix.scalasdk.SideEffect
+import kalix.scalasdk.action.Action
+import kalix.scalasdk.impl.ScalaDeferredCallAdapter
+import kalix.scalasdk.impl.action.ActionEffectImpl
+import kalix.scalasdk.testkit.ActionResult
+import kalix.scalasdk.testkit.DeferredCallDetails
+import kalix.javasdk.impl.action.ActionEffectImpl.{ PrimaryEffect => JavaPrimaryEffect }
 import io.grpc.Status
 
 import scala.concurrent.ExecutionContext

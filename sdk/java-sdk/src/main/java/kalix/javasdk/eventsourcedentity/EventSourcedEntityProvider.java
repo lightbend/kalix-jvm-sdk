@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.eventsourcedentity;
+package kalix.javasdk.eventsourcedentity;
 
-import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityRouter;
+import kalix.javasdk.impl.eventsourcedentity.EventSourcedEntityRouter;
 import com.google.protobuf.Descriptors;
 
 /**
- * Register an event sourced entity in {@link com.akkaserverless.javasdk.AkkaServerless} using a
+ * Register an event sourced entity in {@link kalix.javasdk.AkkaServerless} using a
  * <code>EventSourcedEntityProvider</code>. The concrete <code>EventSourcedEntityProvider</code> is
  * generated for the specific entities defined in Protobuf, for example <code>CustomerEntityProvider
  * </code>.

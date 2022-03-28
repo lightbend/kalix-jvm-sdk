@@ -1,7 +1,7 @@
 package com.example.actions
 
-import com.akkaserverless.scalasdk.action.Action
-import com.akkaserverless.scalasdk.action.ActionCreationContext
+import kalix.scalasdk.action.Action
+import kalix.scalasdk.action.ActionCreationContext
 import com.example.domain.ValueDecreased
 import com.example.domain.ValueIncreased
 import com.google.protobuf.any.{ Any => ScalaPbAny }

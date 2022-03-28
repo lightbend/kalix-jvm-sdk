@@ -14,18 +14,16 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.scalasdk.impl.replicatedentity
-import com.akkaserverless.javasdk
-import com.akkaserverless.javasdk.impl.replicatedentity.{
-  ReplicatedEntityEffectImpl => JavaSdkReplicatedEntityEffectImpl
-}
-import com.akkaserverless.replicatedentity.ReplicatedData
-import com.akkaserverless.scalasdk.{ DeferredCall, Metadata, SideEffect }
-import com.akkaserverless.scalasdk.impl.MetadataConverters
-import com.akkaserverless.scalasdk.impl.ScalaDeferredCallAdapter
-import com.akkaserverless.scalasdk.impl.ScalaSideEffectAdapter
-import com.akkaserverless.scalasdk.replicatedentity.ReplicatedEntity
-import com.akkaserverless.scalasdk.replicatedentity.ReplicatedEntity.Effect
+package kalix.scalasdk.impl.replicatedentity
+import kalix.javasdk
+import kalix.javasdk.impl.replicatedentity.{ ReplicatedEntityEffectImpl => JavaSdkReplicatedEntityEffectImpl }
+import kalix.replicatedentity.ReplicatedData
+import kalix.scalasdk.{ DeferredCall, Metadata, SideEffect }
+import kalix.scalasdk.impl.MetadataConverters
+import kalix.scalasdk.impl.ScalaDeferredCallAdapter
+import kalix.scalasdk.impl.ScalaSideEffectAdapter
+import kalix.scalasdk.replicatedentity.ReplicatedEntity
+import kalix.scalasdk.replicatedentity.ReplicatedEntity.Effect
 import io.grpc.Status
 
 import scala.jdk.CollectionConverters.IterableHasAsJava

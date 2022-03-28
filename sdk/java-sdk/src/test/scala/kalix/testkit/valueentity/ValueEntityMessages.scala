@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.testkit.valueentity
+package kalix.testkit.valueentity
 
 import com.akkaserverless.protocol.component._
 import com.akkaserverless.protocol.entity.Command
 import com.akkaserverless.protocol.value_entity._
-import com.akkaserverless.testkit.entity.EntityMessages
+import kalix.testkit.entity.EntityMessages
 import com.google.protobuf.any.{ Any => ScalaPbAny }
 import com.google.protobuf.{ Message => JavaPbMessage }
 import scalapb.{ GeneratedMessage => ScalaPbMessage }

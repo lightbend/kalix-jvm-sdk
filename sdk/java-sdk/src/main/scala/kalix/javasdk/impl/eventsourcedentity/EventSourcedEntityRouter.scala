@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.impl.eventsourcedentity
+package kalix.javasdk.impl.eventsourcedentity
 
 import java.util.Optional
 
-import com.akkaserverless.javasdk.eventsourcedentity.CommandContext
-import com.akkaserverless.javasdk.eventsourcedentity.EventContext
-import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity
-import com.akkaserverless.javasdk.impl.EntityExceptions
-import com.akkaserverless.javasdk.impl.effect.SecondaryEffectImpl
-import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityEffectImpl.EmitEvents
-import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityEffectImpl.NoPrimaryEffect
+import kalix.javasdk.eventsourcedentity.CommandContext
+import kalix.javasdk.eventsourcedentity.EventContext
+import kalix.javasdk.eventsourcedentity.EventSourcedEntity
+import kalix.javasdk.impl.EntityExceptions
+import kalix.javasdk.impl.effect.SecondaryEffectImpl
+import kalix.javasdk.impl.eventsourcedentity.EventSourcedEntityEffectImpl.EmitEvents
+import kalix.javasdk.impl.eventsourcedentity.EventSourcedEntityEffectImpl.NoPrimaryEffect
 
 object EventSourcedEntityRouter {
   final case class CommandResult(

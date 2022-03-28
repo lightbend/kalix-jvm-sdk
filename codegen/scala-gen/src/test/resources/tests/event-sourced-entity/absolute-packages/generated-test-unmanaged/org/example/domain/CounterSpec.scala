@@ -1,7 +1,7 @@
 package org.example.domain
 
-import com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntity
-import com.akkaserverless.scalasdk.testkit.EventSourcedResult
+import kalix.scalasdk.eventsourcedentity.EventSourcedEntity
+import kalix.scalasdk.testkit.EventSourcedResult
 import com.google.protobuf.empty.Empty
 import org.example.eventsourcedentity
 import org.example.state.CounterState

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.impl
+package kalix.javasdk.impl
 import com.google.protobuf.Descriptors
 
 /**
@@ -50,7 +50,7 @@ trait Service {
    * @return
    *   a dictionary of service methods (Protobuf Descriptors.MethodDescriptor) classified by method name. The dictionary
    *   values represent a mapping of Protobuf Descriptors.MethodDescriptor with its input and output types (see
-   *   [[com.akkaserverless.javasdk.impl.ResolvedServiceMethod]])
+   *   [[kalix.javasdk.impl.ResolvedServiceMethod]])
    */
   def resolvedMethods: Option[Map[String, ResolvedServiceMethod[_, _]]]
 }

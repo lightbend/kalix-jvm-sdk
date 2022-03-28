@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.scalasdk.replicatedentity
+package kalix.scalasdk.replicatedentity
 
-import com.akkaserverless.javasdk.impl.replicatedentity.{ InternalReplicatedData => JavaSdkInternalReplicatedData }
+import kalix.javasdk.impl.replicatedentity.{ InternalReplicatedData => JavaSdkInternalReplicatedData }
 import com.akkaserverless.protocol.replicated_entity.ReplicatedEntityDelta
 
 trait InternalReplicatedData extends JavaSdkInternalReplicatedData {

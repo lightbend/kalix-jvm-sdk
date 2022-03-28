@@ -14,19 +14,19 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.impl.replicatedentity
+package kalix.javasdk.impl.replicatedentity
 
 import java.util.Objects
 
-import com.akkaserverless.javasdk.impl.AnySupport
-import com.akkaserverless.javasdk.replicatedentity.ReplicatedRegister
+import kalix.javasdk.impl.AnySupport
+import kalix.javasdk.replicatedentity.ReplicatedRegister
 import com.akkaserverless.protocol.replicated_entity.ReplicatedEntityClock
 import com.akkaserverless.protocol.replicated_entity.ReplicatedEntityDelta
 import com.akkaserverless.protocol.replicated_entity.ReplicatedRegisterDelta
-import com.akkaserverless.replicatedentity.ReplicatedData
+import kalix.replicatedentity.ReplicatedData
 import com.google.protobuf.any.{ Any => ScalaPbAny }
 
-private[akkaserverless] final class ReplicatedRegisterImpl[T](
+private[kalix] final class ReplicatedRegisterImpl[T](
     anySupport: AnySupport,
     value: T = null.asInstanceOf[T],
     deltaValue: Option[ScalaPbAny] = None,

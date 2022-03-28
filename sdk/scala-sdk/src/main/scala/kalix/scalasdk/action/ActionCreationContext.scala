@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.scalasdk.action
+package kalix.scalasdk.action
 
-import com.akkaserverless.scalasdk.Context
+import kalix.scalasdk.Context
 
 trait ActionCreationContext extends Context {
 

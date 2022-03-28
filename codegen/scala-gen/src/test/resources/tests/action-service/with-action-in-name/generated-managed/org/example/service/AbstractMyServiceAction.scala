@@ -1,6 +1,6 @@
 package org.example.service
 
-import com.akkaserverless.scalasdk.action.Action
+import kalix.scalasdk.action.Action
 import com.google.protobuf.empty.Empty
 import org.example.Components
 import org.example.ComponentsImpl

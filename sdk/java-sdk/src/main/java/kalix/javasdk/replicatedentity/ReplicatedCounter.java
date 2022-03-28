@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.replicatedentity;
+package kalix.javasdk.replicatedentity;
 
-import com.akkaserverless.replicatedentity.ReplicatedData;
+import kalix.replicatedentity.ReplicatedData;
 
 /** A counter that can be incremented and decremented. */
 public interface ReplicatedCounter extends ReplicatedData {

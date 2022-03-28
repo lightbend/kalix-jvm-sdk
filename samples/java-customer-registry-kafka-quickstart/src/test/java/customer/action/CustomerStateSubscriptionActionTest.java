@@ -1,7 +1,7 @@
 package customer.action;
 
 import akka.stream.javadsl.Source;
-import com.akkaserverless.javasdk.testkit.ActionResult;
+import kalix.javasdk.testkit.ActionResult;
 import customer.action.CustomerStateSubscriptionAction;
 import customer.action.CustomerStateSubscriptionActionTestKit;
 import customer.domain.CustomerDomain;

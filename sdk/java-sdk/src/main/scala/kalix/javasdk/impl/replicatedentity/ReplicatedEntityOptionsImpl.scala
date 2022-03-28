@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.impl.replicatedentity
+package kalix.javasdk.impl.replicatedentity
 
-import com.akkaserverless.javasdk.PassivationStrategy
-import com.akkaserverless.javasdk.replicatedentity.{ ReplicatedEntityOptions, WriteConsistency }
+import kalix.javasdk.PassivationStrategy
+import kalix.javasdk.replicatedentity.{ ReplicatedEntityOptions, WriteConsistency }
 
 import java.util.Collections
 import java.util

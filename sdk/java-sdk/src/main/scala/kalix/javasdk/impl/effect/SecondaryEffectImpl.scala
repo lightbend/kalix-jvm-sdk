@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.impl.effect
+package kalix.javasdk.impl.effect
 
-import com.akkaserverless.javasdk.{ DeferredCall, Metadata, SideEffect }
-import com.akkaserverless.javasdk.impl.AnySupport
-import com.akkaserverless.javasdk.impl.DeferredCallImpl
-import com.akkaserverless.javasdk.impl.effect
+import kalix.javasdk.{ DeferredCall, Metadata, SideEffect }
+import kalix.javasdk.impl.AnySupport
+import kalix.javasdk.impl.DeferredCallImpl
+import kalix.javasdk.impl.effect
 import com.akkaserverless.protocol.component.ClientAction
 import com.google.protobuf.{ Any => JavaPbAny }
 import io.grpc.Status

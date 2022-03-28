@@ -1,6 +1,6 @@
 package com.example.replicated.registermap;
 
-import com.akkaserverless.javasdk.testkit.junit.AkkaServerlessTestKitResource;
+import kalix.javasdk.testkit.junit.AkkaServerlessTestKitResource;
 import com.example.replicated.Main;
 import com.example.replicated.registermap.RegisterMapService;
 import com.example.replicated.registermap.SomeRegisterMapApi;

@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.scalasdk
+package kalix.scalasdk
 
-import com.akkaserverless.scalasdk.impl.MetadataImpl
-import com.akkaserverless.javasdk.impl.{ MetadataImpl => JMetadataImpl }
+import kalix.scalasdk.impl.MetadataImpl
+import kalix.javasdk.impl.{ MetadataImpl => JMetadataImpl }
 
 import java.net.URI
 import java.nio.ByteBuffer
@@ -41,7 +41,7 @@ import java.nio.ByteBuffer
  * <p>Implementations of this class should be immutable, all update operations should return a copy of the metadata.
  */
 trait Metadata extends Iterable[MetadataEntry] {
-  private[akkaserverless] def impl: JMetadataImpl
+  private[kalix] def impl: JMetadataImpl
 
   /**
    * Get the string value for the given key, if found.

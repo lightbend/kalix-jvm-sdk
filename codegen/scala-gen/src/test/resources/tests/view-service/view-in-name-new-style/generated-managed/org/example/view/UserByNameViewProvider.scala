@@ -1,11 +1,11 @@
 package org.example.view
 
-import com.akkaserverless.javasdk.impl.view.UpdateHandlerNotFound
-import com.akkaserverless.scalasdk.impl.view.ViewRouter
-import com.akkaserverless.scalasdk.view.View
-import com.akkaserverless.scalasdk.view.ViewCreationContext
-import com.akkaserverless.scalasdk.view.ViewOptions
-import com.akkaserverless.scalasdk.view.ViewProvider
+import kalix.javasdk.impl.view.UpdateHandlerNotFound
+import kalix.scalasdk.impl.view.ViewRouter
+import kalix.scalasdk.view.View
+import kalix.scalasdk.view.ViewCreationContext
+import kalix.scalasdk.view.ViewOptions
+import kalix.scalasdk.view.ViewProvider
 import com.google.protobuf.Descriptors
 import com.google.protobuf.EmptyProto
 

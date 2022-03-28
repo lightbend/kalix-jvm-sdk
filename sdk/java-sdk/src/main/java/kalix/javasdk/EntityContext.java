@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk;
+package kalix.javasdk;
 
 /**
  * Root context for all contexts that pertain to entities, that is, things that are addressable via

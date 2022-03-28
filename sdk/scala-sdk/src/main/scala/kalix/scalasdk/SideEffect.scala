@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.scalasdk
+package kalix.scalasdk
 
-import com.akkaserverless.scalasdk.impl.ScalaSideEffectAdapter
+import kalix.scalasdk.impl.ScalaSideEffectAdapter
 
 /* A side effect. */
 object SideEffect {

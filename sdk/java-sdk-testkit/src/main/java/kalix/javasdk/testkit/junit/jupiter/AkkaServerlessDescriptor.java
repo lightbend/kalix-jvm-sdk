@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.testkit.junit.jupiter;
+package kalix.javasdk.testkit.junit.jupiter;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

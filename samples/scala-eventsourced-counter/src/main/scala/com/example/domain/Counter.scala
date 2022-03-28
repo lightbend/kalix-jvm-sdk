@@ -1,8 +1,8 @@
 package com.example.domain
 
-import com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntity
-import com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntityContext
-import com.akkaserverless.scalasdk.SideEffect
+import kalix.scalasdk.eventsourcedentity.EventSourcedEntity
+import kalix.scalasdk.eventsourcedentity.EventSourcedEntityContext
+import kalix.scalasdk.SideEffect
 import com.example
 import com.google.protobuf.empty.Empty
 
@@ -25,7 +25,7 @@ class Counter(context: EventSourcedEntityContext) extends AbstractCounter {
         .thenReply(_ => Empty())
     }
 
-   import com.akkaserverless.javasdk.impl.DeferredCallImpl
+   import kalix.javasdk.impl.DeferredCallImpl
 
   override def increaseWithSideEffect(
       currentState: CounterState,

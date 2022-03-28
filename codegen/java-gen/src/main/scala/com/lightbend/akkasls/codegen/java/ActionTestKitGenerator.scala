@@ -44,12 +44,12 @@ object ActionTestKitGenerator {
         "java.util.function.Function",
         "java.util.Optional",
         s"$packageName.$className",
-        "com.akkaserverless.javasdk.action.Action.Effect",
-        "com.akkaserverless.javasdk.action.ActionCreationContext",
-        "com.akkaserverless.javasdk.testkit.ActionResult",
-        "com.akkaserverless.javasdk.testkit.impl.ActionResultImpl",
-        "com.akkaserverless.javasdk.impl.action.ActionEffectImpl",
-        "com.akkaserverless.javasdk.testkit.impl.TestKitActionContext")
+        "kalix.javasdk.action.Action.Effect",
+        "kalix.javasdk.action.ActionCreationContext",
+        "kalix.javasdk.testkit.ActionResult",
+        "kalix.javasdk.testkit.impl.ActionResultImpl",
+        "kalix.javasdk.impl.action.ActionEffectImpl",
+        "kalix.javasdk.testkit.impl.TestKitActionContext")
         ++ commandStreamedTypes(service.commands))
 
     val testKitClassName = s"${className}TestKit"
@@ -98,7 +98,7 @@ object ActionTestKitGenerator {
         s"$packageName.$className",
         s"${packageName}.${className}TestKit",
         "akka.stream.javadsl.Source",
-        "com.akkaserverless.javasdk.testkit.ActionResult",
+        "kalix.javasdk.testkit.ActionResult",
         "org.junit.Test",
         "static org.junit.Assert.*")
         ++ commandStreamedTypes(service.commands))

@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk;
+package kalix.javasdk;
 
-import com.akkaserverless.javasdk.impl.effect.SideEffectImpl;
+import kalix.javasdk.impl.effect.SideEffectImpl;
 
 /** A side effect. */
 public interface SideEffect {

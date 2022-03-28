@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.codegen.scalasdk.impl
+package kalix.codegen.scalasdk.impl
 
 import com.lightbend.akkasls.codegen.File
 import com.lightbend.akkasls.codegen.Format
@@ -47,9 +47,9 @@ object ReplicatedEntitySourceGenerator {
       entity.data.typeArguments,
       packageName,
       otherImports = Seq(
-        "com.akkaserverless.scalasdk.replicatedentity.ReplicatedEntity",
-        "com.akkaserverless.scalasdk.replicatedentity.ReplicatedEntityContext",
-        s"com.akkaserverless.scalasdk.replicatedentity.${entity.data.name}") ++ extraReplicatedImports(entity.data),
+        "kalix.scalasdk.replicatedentity.ReplicatedEntity",
+        "kalix.scalasdk.replicatedentity.ReplicatedEntityContext",
+        s"kalix.scalasdk.replicatedentity.${entity.data.name}") ++ extraReplicatedImports(entity.data),
       packageImports = Seq(service.messageType.parent.scalaPackage))
 
     val typeArguments = parameterizeDataType(entity.data)
@@ -107,9 +107,9 @@ object ReplicatedEntitySourceGenerator {
       entity.data.typeArguments,
       packageName,
       otherImports = Seq(
-        "com.akkaserverless.scalasdk.replicatedentity.ReplicatedEntity",
-        s"com.akkaserverless.scalasdk.replicatedentity.${entity.data.name}",
-        s"com.akkaserverless.scalasdk.replicatedentity.$baseClass") ++ extraReplicatedImports(entity.data),
+        "kalix.scalasdk.replicatedentity.ReplicatedEntity",
+        s"kalix.scalasdk.replicatedentity.${entity.data.name}",
+        s"kalix.scalasdk.replicatedentity.$baseClass") ++ extraReplicatedImports(entity.data),
       packageImports = Seq(service.messageType.parent.scalaPackage))
 
     val typeArguments = parameterizeDataType(entity.data)
@@ -152,11 +152,11 @@ object ReplicatedEntitySourceGenerator {
       service.commands.map(_.inputType),
       packageName,
       otherImports = Seq(
-        "com.akkaserverless.javasdk.impl.replicatedentity.ReplicatedEntityRouter.CommandHandlerNotFound",
-        "com.akkaserverless.scalasdk.impl.replicatedentity.ReplicatedEntityRouter",
-        "com.akkaserverless.scalasdk.replicatedentity.CommandContext",
-        "com.akkaserverless.scalasdk.replicatedentity.ReplicatedEntity",
-        s"com.akkaserverless.scalasdk.replicatedentity.${entity.data.name}") ++
+        "kalix.javasdk.impl.replicatedentity.ReplicatedEntityRouter.CommandHandlerNotFound",
+        "kalix.scalasdk.impl.replicatedentity.ReplicatedEntityRouter",
+        "kalix.scalasdk.replicatedentity.CommandContext",
+        "kalix.scalasdk.replicatedentity.ReplicatedEntity",
+        s"kalix.scalasdk.replicatedentity.${entity.data.name}") ++
         extraReplicatedImports(entity.data) ++
         extraTypeImports(entity.data.typeArguments),
       packageImports = Seq(service.messageType.parent.scalaPackage))
@@ -217,10 +217,10 @@ object ReplicatedEntitySourceGenerator {
       relevantProtoTypes.map(_.descriptorImport),
       packageName,
       otherImports = Seq(
-        s"com.akkaserverless.scalasdk.replicatedentity.${entity.data.name}",
-        "com.akkaserverless.scalasdk.replicatedentity.ReplicatedEntityContext",
-        "com.akkaserverless.scalasdk.replicatedentity.ReplicatedEntityOptions",
-        "com.akkaserverless.scalasdk.replicatedentity.ReplicatedEntityProvider",
+        s"kalix.scalasdk.replicatedentity.${entity.data.name}",
+        "kalix.scalasdk.replicatedentity.ReplicatedEntityContext",
+        "kalix.scalasdk.replicatedentity.ReplicatedEntityOptions",
+        "kalix.scalasdk.replicatedentity.ReplicatedEntityProvider",
         "com.google.protobuf.Descriptors",
         "scala.collection.immutable.Seq") ++
         extraReplicatedImports(entity.data) ++
@@ -249,7 +249,7 @@ object ReplicatedEntitySourceGenerator {
          | * A replicated entity provider that defines how to register and create the entity for
          | * the Protobuf service `${service.messageType.name}`.
          | *
-         | * Should be used with the `register` method in [[com.akkaserverless.scalasdk.AkkaServerless]].
+         | * Should be used with the `register` method in [[kalix.scalasdk.AkkaServerless]].
          | */
          |object $providerName {
          |  def apply(entityFactory: ReplicatedEntityContext => ${entity.messageType.name}): $providerName =

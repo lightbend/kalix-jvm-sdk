@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk
+package kalix.javasdk
 
 import java.lang.management.ManagementFactory
 import akka.Done
@@ -22,11 +22,11 @@ import akka.actor.CoordinatedShutdown.Reason
 import akka.actor.{ ActorSystem, CoordinatedShutdown }
 import akka.http.scaladsl._
 import akka.http.scaladsl.model._
-import com.akkaserverless.javasdk.impl.action.{ ActionService, ActionsImpl }
-import com.akkaserverless.javasdk.impl.replicatedentity.{ ReplicatedEntitiesImpl, ReplicatedEntityService }
-import com.akkaserverless.javasdk.impl.valueentity.{ ValueEntitiesImpl, ValueEntityService }
-import com.akkaserverless.javasdk.impl.eventsourcedentity.{ EventSourcedEntitiesImpl, EventSourcedEntityService }
-import com.akkaserverless.javasdk.impl.{ DiscoveryImpl, Service }
+import kalix.javasdk.impl.action.{ ActionService, ActionsImpl }
+import kalix.javasdk.impl.replicatedentity.{ ReplicatedEntitiesImpl, ReplicatedEntityService }
+import kalix.javasdk.impl.valueentity.{ ValueEntitiesImpl, ValueEntityService }
+import kalix.javasdk.impl.eventsourcedentity.{ EventSourcedEntitiesImpl, EventSourcedEntityService }
+import kalix.javasdk.impl.{ DiscoveryImpl, Service }
 import com.akkaserverless.protocol.action.ActionsHandler
 import com.akkaserverless.protocol.discovery.DiscoveryHandler
 import com.akkaserverless.protocol.event_sourced_entity.EventSourcedEntitiesHandler
@@ -36,15 +36,15 @@ import com.google.protobuf.Descriptors
 import com.typesafe.config.{ Config, ConfigFactory }
 
 import java.util.concurrent.CompletionStage
-import com.akkaserverless.javasdk.impl.view.ViewService
-import com.akkaserverless.javasdk.impl.AbstractContext
+import kalix.javasdk.impl.view.ViewService
+import kalix.javasdk.impl.AbstractContext
 
 import scala.compat.java8.FutureConverters
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters._
 import scala.util.Failure
 import scala.util.Success
-import com.akkaserverless.javasdk.impl.view.ViewsImpl
+import kalix.javasdk.impl.view.ViewsImpl
 import com.akkaserverless.protocol.view.ViewsHandler
 import org.slf4j.LoggerFactory
 
@@ -69,15 +69,15 @@ object AkkaServerlessRunner {
 
 /**
  * The AkkaServerlessRunner is responsible for handle the bootstrap of entities, and is used by
- * [[com.akkaserverless.javasdk.AkkaServerless#start()]] to set up the local server with the given configuration.
+ * [[kalix.javasdk.AkkaServerless#start()]] to set up the local server with the given configuration.
  *
- * AkkaServerlessRunner can be seen as a low-level API for cases where
- * [[com.akkaserverless.javasdk.AkkaServerless#start()]] isn't enough.
+ * AkkaServerlessRunner can be seen as a low-level API for cases where [[kalix.javasdk.AkkaServerless#start()]] isn't
+ * enough.
  */
 final class AkkaServerlessRunner private[this] (
     _system: ActorSystem,
     serviceFactories: Map[String, java.util.function.Function[ActorSystem, Service]]) {
-  private[akkaserverless] implicit val system: ActorSystem = _system
+  private[kalix] implicit val system: ActorSystem = _system
   private val log = LoggerFactory.getLogger(getClass)
 
   private[this] final val configuration =

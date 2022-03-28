@@ -5,7 +5,7 @@
 package com.example.domain;
 
 // tag::sample-unit-test[]
-import com.akkaserverless.javasdk.testkit.ValueEntityResult;
+import kalix.javasdk.testkit.ValueEntityResult;
 import com.example.CounterApi;
 import com.google.protobuf.Empty;
 import org.junit.Test;

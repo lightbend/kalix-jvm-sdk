@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.scalasdk.replicatedentity
+package kalix.scalasdk.replicatedentity
 
-import com.akkaserverless.javasdk.impl.replicatedentity.ReplicatedRegisterImpl
-import com.akkaserverless.javasdk.replicatedentity.{ ReplicatedRegister => JavaSdkReplicatedRegister }
+import kalix.javasdk.impl.replicatedentity.ReplicatedRegisterImpl
+import kalix.javasdk.replicatedentity.{ ReplicatedRegister => JavaSdkReplicatedRegister }
 import com.akkaserverless.protocol.replicated_entity.ReplicatedEntityDelta
 
 object ReplicatedRegister {

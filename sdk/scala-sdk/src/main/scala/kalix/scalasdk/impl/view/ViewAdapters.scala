@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.scalasdk.impl.view
+package kalix.scalasdk.impl.view
 
 import akka.stream.Materializer
-import com.akkaserverless.javasdk
-import com.akkaserverless.javasdk.view.ViewOptions
-import com.akkaserverless.scalasdk.Metadata
-import com.akkaserverless.scalasdk.impl.MetadataConverters
-import com.akkaserverless.scalasdk.view.UpdateContext
-import com.akkaserverless.scalasdk.view.View
-import com.akkaserverless.scalasdk.view.ViewCreationContext
-import com.akkaserverless.scalasdk.view.ViewProvider
+import kalix.javasdk
+import kalix.javasdk.view.ViewOptions
+import kalix.scalasdk.Metadata
+import kalix.scalasdk.impl.MetadataConverters
+import kalix.scalasdk.view.UpdateContext
+import kalix.scalasdk.view.View
+import kalix.scalasdk.view.ViewCreationContext
+import kalix.scalasdk.view.ViewProvider
 import com.google.protobuf.Descriptors
 
 import java.util.Optional

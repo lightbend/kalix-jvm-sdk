@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.scalasdk.replicatedentity
+package kalix.scalasdk.replicatedentity
 
 import scala.collection.immutable.Set
 
-import com.akkaserverless.javasdk.impl.replicatedentity.ReplicatedMultiMapImpl
+import kalix.javasdk.impl.replicatedentity.ReplicatedMultiMapImpl
 import com.akkaserverless.protocol.replicated_entity.ReplicatedEntityDelta
 
 /**

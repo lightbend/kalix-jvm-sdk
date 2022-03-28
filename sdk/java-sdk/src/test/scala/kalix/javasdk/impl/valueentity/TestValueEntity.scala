@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.impl.valueentity
+package kalix.javasdk.impl.valueentity
 
 import akka.actor.testkit.typed.scaladsl.LoggingTestKit
 import akka.actor.typed.scaladsl.adapter._
 import akka.testkit.EventFilter
 import akka.testkit.SocketUtil
-import com.akkaserverless.javasdk.AkkaServerless
-import com.akkaserverless.javasdk.AkkaServerlessRunner
-import com.akkaserverless.javasdk.valueentity.ValueEntityProvider
+import kalix.javasdk.AkkaServerless
+import kalix.javasdk.AkkaServerlessRunner
+import kalix.javasdk.valueentity.ValueEntityProvider
 import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
 

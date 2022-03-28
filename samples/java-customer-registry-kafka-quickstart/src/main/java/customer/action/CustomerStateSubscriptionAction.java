@@ -1,6 +1,6 @@
 package customer.action;
 
-import com.akkaserverless.javasdk.action.ActionCreationContext;
+import kalix.javasdk.action.ActionCreationContext;
 import customer.api.CustomerApi;
 import customer.domain.CustomerDomain;
 

@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.action;
+package kalix.javasdk.action;
 
-import com.akkaserverless.javasdk.DeferredCall;
-import com.akkaserverless.javasdk.Metadata;
-import com.akkaserverless.javasdk.SideEffect;
-import com.akkaserverless.javasdk.impl.action.ActionEffectImpl;
+import kalix.javasdk.DeferredCall;
+import kalix.javasdk.Metadata;
+import kalix.javasdk.SideEffect;
+import kalix.javasdk.impl.action.ActionEffectImpl;
 import io.grpc.Status;
 
 import java.util.Collection;

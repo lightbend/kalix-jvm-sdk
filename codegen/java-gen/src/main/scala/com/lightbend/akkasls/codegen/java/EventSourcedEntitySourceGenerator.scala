@@ -42,9 +42,9 @@ object EventSourcedEntitySourceGenerator {
       allRelevantMessageTypes(service, entity),
       packageName,
       otherImports = Seq(
-        "com.akkaserverless.javasdk.eventsourcedentity.CommandContext",
-        "com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity",
-        "com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityRouter"))
+        "kalix.javasdk.eventsourcedentity.CommandContext",
+        "kalix.javasdk.eventsourcedentity.EventSourcedEntity",
+        "kalix.javasdk.impl.eventsourcedentity.EventSourcedEntityRouter"))
 
     val stateType = entity.state.messageType.fullName
 
@@ -121,9 +121,9 @@ object EventSourcedEntitySourceGenerator {
       relevantTypes ++ relevantProtoTypes.map(_.descriptorImport),
       packageName,
       otherImports = Seq(
-        "com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityContext",
-        "com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityOptions",
-        "com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityProvider",
+        "kalix.javasdk.eventsourcedentity.EventSourcedEntityContext",
+        "kalix.javasdk.eventsourcedentity.EventSourcedEntityOptions",
+        "kalix.javasdk.eventsourcedentity.EventSourcedEntityProvider",
         "com.google.protobuf.Descriptors",
         "java.util.function.Function"))
 
@@ -144,7 +144,7 @@ object EventSourcedEntitySourceGenerator {
        | * An event sourced entity provider that defines how to register and create the entity for
        | * the Protobuf service <code>${service.messageType.name}</code>.
        | *
-       | * Should be used with the <code>register</code> method in {@link com.akkaserverless.javasdk.AkkaServerless}.
+       | * Should be used with the <code>register</code> method in {@link kalix.javasdk.AkkaServerless}.
        | */
        |public class ${className}Provider implements EventSourcedEntityProvider<${entity.state.messageType.fullName}, $className> {
        |
@@ -209,9 +209,9 @@ object EventSourcedEntitySourceGenerator {
       allRelevantMessageTypes(service, entity),
       packageName,
       Seq(
-        "com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityContext",
-        "com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity",
-        "com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity.Effect"))
+        "kalix.javasdk.eventsourcedentity.EventSourcedEntityContext",
+        "kalix.javasdk.eventsourcedentity.EventSourcedEntity",
+        "kalix.javasdk.eventsourcedentity.EventSourcedEntity.Effect"))
 
     val commandHandlers =
       service.commands
@@ -277,7 +277,7 @@ object EventSourcedEntitySourceGenerator {
       allRelevantMessageTypes(service, entity),
       packageName,
       Seq(
-        "com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity",
+        "kalix.javasdk.eventsourcedentity.EventSourcedEntity",
         s"$mainPackageName.Components",
         s"$mainPackageName.ComponentsImpl"))
 

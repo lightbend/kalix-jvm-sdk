@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.scalasdk.impl.action
+package kalix.scalasdk.impl.action
 
 import akka.NotUsed
 import akka.stream.scaladsl.Source
-import com.akkaserverless.scalasdk.action.Action
-import com.akkaserverless.scalasdk.action.ActionContext
-import com.akkaserverless.scalasdk.action.MessageEnvelope
-import com.akkaserverless.javasdk.impl.action.ActionRouter.HandlerNotFound
+import kalix.scalasdk.action.Action
+import kalix.scalasdk.action.ActionContext
+import kalix.scalasdk.action.MessageEnvelope
+import kalix.javasdk.impl.action.ActionRouter.HandlerNotFound
 
 /**
  * INTERNAL API, but used by generated code.

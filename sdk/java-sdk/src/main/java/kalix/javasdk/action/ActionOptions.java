@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.action;
+package kalix.javasdk.action;
 
-import com.akkaserverless.javasdk.impl.ComponentOptions;
-import com.akkaserverless.javasdk.PassivationStrategy;
-import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityOptions;
-import com.akkaserverless.javasdk.impl.action.ActionOptionsImpl;
-import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityOptionsImpl;
+import kalix.javasdk.impl.ComponentOptions;
+import kalix.javasdk.PassivationStrategy;
+import kalix.javasdk.eventsourcedentity.EventSourcedEntityOptions;
+import kalix.javasdk.impl.action.ActionOptionsImpl;
+import kalix.javasdk.impl.eventsourcedentity.EventSourcedEntityOptionsImpl;
 
 import java.util.Collections;
 

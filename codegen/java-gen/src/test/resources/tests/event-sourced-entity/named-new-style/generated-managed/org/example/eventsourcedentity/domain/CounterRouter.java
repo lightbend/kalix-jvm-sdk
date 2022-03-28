@@ -1,8 +1,8 @@
 package org.example.eventsourcedentity.domain;
 
-import com.akkaserverless.javasdk.eventsourcedentity.CommandContext;
-import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity;
-import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityRouter;
+import kalix.javasdk.eventsourcedentity.CommandContext;
+import kalix.javasdk.eventsourcedentity.EventSourcedEntity;
+import kalix.javasdk.impl.eventsourcedentity.EventSourcedEntityRouter;
 import com.google.protobuf.Empty;
 import org.example.eventsourcedentity.CounterApi;
 

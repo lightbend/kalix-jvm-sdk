@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.scalasdk.replicatedentity
+package kalix.scalasdk.replicatedentity
 
-import com.akkaserverless.javasdk.impl.replicatedentity.ReplicatedVoteImpl
+import kalix.javasdk.impl.replicatedentity.ReplicatedVoteImpl
 import com.akkaserverless.protocol.replicated_entity.ReplicatedEntityDelta
 
 /**

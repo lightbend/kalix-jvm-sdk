@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.scalasdk.impl.eventsourcedentity
+package kalix.scalasdk.impl.eventsourcedentity
 
-import com.akkaserverless.scalasdk.eventsourcedentity.CommandContext
-import com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntity
+import kalix.scalasdk.eventsourcedentity.CommandContext
+import kalix.scalasdk.eventsourcedentity.EventSourcedEntity
 
 abstract class EventSourcedEntityRouter[S, E <: EventSourcedEntity[S]](val entity: E) {
   def handleEvent(state: S, event: Any): S

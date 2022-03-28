@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.replicatedentity;
+package kalix.javasdk.replicatedentity;
 
 public class ReplicatedVoteEntity extends ReplicatedEntity<ReplicatedVote> {
   @Override

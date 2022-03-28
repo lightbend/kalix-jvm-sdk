@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.valueentity;
+package kalix.javasdk.valueentity;
 
-import com.akkaserverless.javasdk.PassivationStrategy;
-import com.akkaserverless.javasdk.impl.valueentity.ValueEntityOptionsImpl;
+import kalix.javasdk.PassivationStrategy;
+import kalix.javasdk.impl.valueentity.ValueEntityOptionsImpl;
 
 import java.util.Collections;
 
 /** Root entity options for all value based entities. */
-public interface ValueEntityOptions extends com.akkaserverless.javasdk.EntityOptions {
+public interface ValueEntityOptions extends kalix.javasdk.EntityOptions {
 
   ValueEntityOptions withPassivationStrategy(PassivationStrategy strategy);
 

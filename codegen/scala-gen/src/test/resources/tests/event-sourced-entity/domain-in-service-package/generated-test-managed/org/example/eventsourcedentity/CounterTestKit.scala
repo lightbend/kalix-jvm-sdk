@@ -1,13 +1,13 @@
 package org.example.eventsourcedentity
 
-import com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntity
-import com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntityContext
-import com.akkaserverless.scalasdk.testkit.EventSourcedResult
-import com.akkaserverless.scalasdk.testkit.impl.EventSourcedEntityEffectsRunner
-import com.akkaserverless.scalasdk.testkit.impl.EventSourcedResultImpl
-import com.akkaserverless.scalasdk.testkit.impl.TestKitEventSourcedEntityCommandContext
-import com.akkaserverless.scalasdk.testkit.impl.TestKitEventSourcedEntityContext
-import com.akkaserverless.scalasdk.testkit.impl.TestKitEventSourcedEntityEventContext
+import kalix.scalasdk.eventsourcedentity.EventSourcedEntity
+import kalix.scalasdk.eventsourcedentity.EventSourcedEntityContext
+import kalix.scalasdk.testkit.EventSourcedResult
+import kalix.scalasdk.testkit.impl.EventSourcedEntityEffectsRunner
+import kalix.scalasdk.testkit.impl.EventSourcedResultImpl
+import kalix.scalasdk.testkit.impl.TestKitEventSourcedEntityCommandContext
+import kalix.scalasdk.testkit.impl.TestKitEventSourcedEntityContext
+import kalix.scalasdk.testkit.impl.TestKitEventSourcedEntityEventContext
 import com.google.protobuf.empty.Empty
 import org.example.eventsourcedentity
 

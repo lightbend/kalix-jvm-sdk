@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.impl.valueentity
+package kalix.javasdk.impl.valueentity
 
-import com.akkaserverless.javasdk.valueentity.CartEntity
-import com.akkaserverless.javasdk.valueentity.CartEntityProvider
-import com.akkaserverless.testkit.TestProtocol
-import com.akkaserverless.testkit.valueentity.ValueEntityMessages
+import kalix.javasdk.valueentity.CartEntity
+import kalix.javasdk.valueentity.CartEntityProvider
+import kalix.testkit.TestProtocol
+import kalix.testkit.valueentity.ValueEntityMessages
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec

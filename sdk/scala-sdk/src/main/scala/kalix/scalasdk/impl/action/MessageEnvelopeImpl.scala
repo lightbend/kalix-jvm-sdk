@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.scalasdk.impl.action
+package kalix.scalasdk.impl.action
 
-import com.akkaserverless.scalasdk.Metadata
-import com.akkaserverless.scalasdk.action.MessageEnvelope
+import kalix.scalasdk.Metadata
+import kalix.scalasdk.action.MessageEnvelope
 
 private[scalasdk] final case class MessageEnvelopeImpl[T](payload: T, metadata: Metadata) extends MessageEnvelope[T]

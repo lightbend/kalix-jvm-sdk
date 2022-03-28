@@ -14,22 +14,22 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.impl.eventsourcedentity
+package kalix.javasdk.impl.eventsourcedentity
 
 import akka.NotUsed
 import akka.actor.ActorSystem
 import akka.stream.scaladsl.Flow
 import akka.stream.scaladsl.Source
-import com.akkaserverless.javasdk.AkkaServerlessRunner.Configuration
-import com.akkaserverless.javasdk.eventsourcedentity._
-import com.akkaserverless.javasdk.impl._
-import com.akkaserverless.javasdk.impl.effect.EffectSupport
-import com.akkaserverless.javasdk.impl.effect.ErrorReplyImpl
-import com.akkaserverless.javasdk.impl.effect.MessageReplyImpl
-import com.akkaserverless.javasdk.impl.effect.SecondaryEffectImpl
-import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityRouter.CommandResult
-import com.akkaserverless.javasdk.Context
-import com.akkaserverless.javasdk.Metadata
+import kalix.javasdk.AkkaServerlessRunner.Configuration
+import kalix.javasdk.eventsourcedentity._
+import kalix.javasdk.impl._
+import kalix.javasdk.impl.effect.EffectSupport
+import kalix.javasdk.impl.effect.ErrorReplyImpl
+import kalix.javasdk.impl.effect.MessageReplyImpl
+import kalix.javasdk.impl.effect.SecondaryEffectImpl
+import kalix.javasdk.impl.eventsourcedentity.EventSourcedEntityRouter.CommandResult
+import kalix.javasdk.Context
+import kalix.javasdk.Metadata
 import com.akkaserverless.protocol.event_sourced_entity.EventSourcedStreamIn.Message.{ Init => InInit }
 import com.akkaserverless.protocol.event_sourced_entity.EventSourcedStreamIn.Message.{ Empty => InEmpty }
 import com.akkaserverless.protocol.event_sourced_entity.EventSourcedStreamIn.Message.{ Command => InCommand }
@@ -47,7 +47,7 @@ import com.google.protobuf.any.{ Any => ScalaPbAny }
 import com.google.protobuf.Descriptors
 
 import scala.util.control.NonFatal
-import com.akkaserverless.javasdk.impl.EventSourcedEntityFactory
+import kalix.javasdk.impl.EventSourcedEntityFactory
 import com.akkaserverless.protocol.component.Failure
 import org.slf4j.LoggerFactory
 

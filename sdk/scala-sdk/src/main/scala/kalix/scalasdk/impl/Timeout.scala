@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.scalasdk.impl
+package kalix.scalasdk.impl
 import scala.concurrent.duration.FiniteDuration
-import com.akkaserverless.scalasdk.PassivationStrategy
+import kalix.scalasdk.PassivationStrategy
 
-private[akkaserverless] final case class Timeout(duration: Option[FiniteDuration]) extends PassivationStrategy
+private[kalix] final case class Timeout(duration: Option[FiniteDuration]) extends PassivationStrategy

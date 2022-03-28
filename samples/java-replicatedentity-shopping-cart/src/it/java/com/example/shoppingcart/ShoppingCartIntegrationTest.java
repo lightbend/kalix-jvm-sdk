@@ -1,6 +1,6 @@
 package com.example.shoppingcart;
 
-import com.akkaserverless.javasdk.testkit.junit.AkkaServerlessTestKitResource;
+import kalix.javasdk.testkit.junit.AkkaServerlessTestKitResource;
 import com.example.shoppingcart.Main;
 import com.example.shoppingcart.ShoppingCartApi;
 import com.example.shoppingcart.ShoppingCartService;

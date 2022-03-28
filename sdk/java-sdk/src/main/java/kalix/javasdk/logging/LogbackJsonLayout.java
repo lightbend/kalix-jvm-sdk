@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.logging;
+package kalix.javasdk.logging;
 
-import com.akkaserverless.javasdk.impl.ErrorHandling;
-import com.akkaserverless.javasdk.impl.ErrorHandling$;
+import kalix.javasdk.impl.ErrorHandling;
+import kalix.javasdk.impl.ErrorHandling$;
 
 /**
  * This Logback JSON layout uses the name `severity` (instead of `level`).

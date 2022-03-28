@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.scalasdk.eventsourcedentity
+package kalix.scalasdk.eventsourcedentity
 
 import scala.collection.immutable.Seq
-import com.akkaserverless.scalasdk.impl.eventsourcedentity.EventSourcedEntityRouter
+import kalix.scalasdk.impl.eventsourcedentity.EventSourcedEntityRouter
 import com.google.protobuf.Descriptors
 
 /**
- * Register an event sourced entity in {@link com.akkaserverless.scalasdk.AkkaServerless} using a
+ * Register an event sourced entity in {@link kalix.scalasdk.AkkaServerless} using a
  * <code>EventSourcedEntityProvider</code>. The concrete <code>EventSourcedEntityProvider</code> is generated for the
  * specific entities defined in Protobuf, for example <code>CustomerEntityProvider </code>.
  */

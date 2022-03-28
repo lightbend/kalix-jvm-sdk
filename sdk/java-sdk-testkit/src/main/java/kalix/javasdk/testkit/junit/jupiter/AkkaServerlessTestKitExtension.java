@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.testkit.junit.jupiter;
+package kalix.javasdk.testkit.junit.jupiter;
 
-import com.akkaserverless.javasdk.AkkaServerless;
-import com.akkaserverless.javasdk.testkit.AkkaServerlessTestKit;
+import kalix.javasdk.AkkaServerless;
+import kalix.javasdk.testkit.AkkaServerlessTestKit;
 import org.junit.jupiter.api.extension.*;
 import org.junit.jupiter.api.extension.ExtensionContext.Namespace;
 import org.junit.jupiter.api.extension.ExtensionContext.Store;

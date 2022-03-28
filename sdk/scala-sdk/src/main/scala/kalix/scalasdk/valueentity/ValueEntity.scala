@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.scalasdk.valueentity
+package kalix.scalasdk.valueentity
 
-import com.akkaserverless.scalasdk.{ DeferredCall, Metadata, SideEffect }
-import com.akkaserverless.scalasdk.impl.valueentity.ValueEntityEffectImpl
+import kalix.scalasdk.{ DeferredCall, Metadata, SideEffect }
+import kalix.scalasdk.impl.valueentity.ValueEntityEffectImpl
 import io.grpc.Status
 
 object ValueEntity {

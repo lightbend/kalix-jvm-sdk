@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.impl.replicatedentity
+package kalix.javasdk.impl.replicatedentity
 
-import com.akkaserverless.javasdk.impl.AnySupport
+import kalix.javasdk.impl.AnySupport
 import com.akkaserverless.protocol.replicated_entity.ReplicatedEntityDelta
 
 private[replicatedentity] object ReplicatedEntityDeltaTransformer {

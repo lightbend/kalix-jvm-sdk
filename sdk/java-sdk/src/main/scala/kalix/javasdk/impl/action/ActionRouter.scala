@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.impl.action
+package kalix.javasdk.impl.action
 
 import akka.NotUsed
 import akka.stream.javadsl.Source
-import com.akkaserverless.javasdk.action.Action
-import com.akkaserverless.javasdk.action.ActionContext
-import com.akkaserverless.javasdk.action.MessageEnvelope
-import com.akkaserverless.javasdk.impl.action.ActionRouter.HandlerNotFound
+import kalix.javasdk.action.Action
+import kalix.javasdk.action.ActionContext
+import kalix.javasdk.action.MessageEnvelope
+import kalix.javasdk.impl.action.ActionRouter.HandlerNotFound
 
 import java.util.Optional
 

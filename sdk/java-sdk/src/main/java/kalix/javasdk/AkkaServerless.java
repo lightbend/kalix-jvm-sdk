@@ -14,32 +14,32 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk;
+package kalix.javasdk;
 
 import akka.Done;
 import akka.actor.ActorSystem;
-import com.akkaserverless.javasdk.action.ActionProvider;
-import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity;
-import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityOptions;
-import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityProvider;
-import com.akkaserverless.javasdk.impl.*;
-import com.akkaserverless.javasdk.impl.action.ActionService;
-import com.akkaserverless.javasdk.impl.action.ResolvedActionFactory;
-import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityService;
-import com.akkaserverless.javasdk.impl.eventsourcedentity.ResolvedEventSourcedEntityFactory;
-import com.akkaserverless.javasdk.impl.replicatedentity.ReplicatedEntityService;
-import com.akkaserverless.javasdk.impl.replicatedentity.ResolvedReplicatedEntityFactory;
-import com.akkaserverless.javasdk.impl.valueentity.ResolvedValueEntityFactory;
-import com.akkaserverless.javasdk.impl.valueentity.ValueEntityService;
-import com.akkaserverless.javasdk.impl.view.ViewService;
-import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntity;
-import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityOptions;
-import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityProvider;
-import com.akkaserverless.javasdk.valueentity.ValueEntity;
-import com.akkaserverless.javasdk.valueentity.ValueEntityOptions;
-import com.akkaserverless.javasdk.valueentity.ValueEntityProvider;
-import com.akkaserverless.javasdk.view.ViewProvider;
-import com.akkaserverless.replicatedentity.ReplicatedData;
+import kalix.javasdk.action.ActionProvider;
+import kalix.javasdk.eventsourcedentity.EventSourcedEntity;
+import kalix.javasdk.eventsourcedentity.EventSourcedEntityOptions;
+import kalix.javasdk.eventsourcedentity.EventSourcedEntityProvider;
+import kalix.javasdk.impl.*;
+import kalix.javasdk.impl.action.ActionService;
+import kalix.javasdk.impl.action.ResolvedActionFactory;
+import kalix.javasdk.impl.eventsourcedentity.EventSourcedEntityService;
+import kalix.javasdk.impl.eventsourcedentity.ResolvedEventSourcedEntityFactory;
+import kalix.javasdk.impl.replicatedentity.ReplicatedEntityService;
+import kalix.javasdk.impl.replicatedentity.ResolvedReplicatedEntityFactory;
+import kalix.javasdk.impl.valueentity.ResolvedValueEntityFactory;
+import kalix.javasdk.impl.valueentity.ValueEntityService;
+import kalix.javasdk.impl.view.ViewService;
+import kalix.javasdk.replicatedentity.ReplicatedEntity;
+import kalix.javasdk.replicatedentity.ReplicatedEntityOptions;
+import kalix.javasdk.replicatedentity.ReplicatedEntityProvider;
+import kalix.javasdk.valueentity.ValueEntity;
+import kalix.javasdk.valueentity.ValueEntityOptions;
+import kalix.javasdk.valueentity.ValueEntityProvider;
+import kalix.javasdk.view.ViewProvider;
+import kalix.replicatedentity.ReplicatedData;
 import com.google.protobuf.Descriptors;
 import com.typesafe.config.Config;
 

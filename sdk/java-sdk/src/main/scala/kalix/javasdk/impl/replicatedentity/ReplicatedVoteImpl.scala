@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.impl.replicatedentity
+package kalix.javasdk.impl.replicatedentity
 
-import com.akkaserverless.javasdk.replicatedentity.ReplicatedVote
+import kalix.javasdk.replicatedentity.ReplicatedVote
 import com.akkaserverless.protocol.replicated_entity.ReplicatedEntityDelta
 import com.akkaserverless.protocol.replicated_entity.VoteDelta
-import com.akkaserverless.replicatedentity.ReplicatedData
+import kalix.replicatedentity.ReplicatedData
 
-private[akkaserverless] final class ReplicatedVoteImpl(
+private[kalix] final class ReplicatedVoteImpl(
     selfVote: Boolean = false,
     votesFor: Int = 0,
     voters: Int = 1,

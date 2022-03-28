@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.scalasdk
+package kalix.scalasdk
 
 import scala.concurrent.Future
 import scala.compat.java8.FutureConverters
@@ -23,7 +23,7 @@ import scala.jdk.CollectionConverters._
 import akka.Done
 import akka.actor.ActorSystem
 import com.typesafe.config.Config
-import com.akkaserverless.javasdk
+import kalix.javasdk
 
 private[scalasdk] object AkkaServerlessRunner {
 

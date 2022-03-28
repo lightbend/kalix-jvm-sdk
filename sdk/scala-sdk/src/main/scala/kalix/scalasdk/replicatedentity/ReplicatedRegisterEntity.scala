@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.scalasdk.replicatedentity
+package kalix.scalasdk.replicatedentity
 
 abstract class ReplicatedRegisterEntity[T] extends ReplicatedEntity[ReplicatedRegister[T]] {
 

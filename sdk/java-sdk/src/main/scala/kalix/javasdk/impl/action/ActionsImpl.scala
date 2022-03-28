@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.impl.action
+package kalix.javasdk.impl.action
 
 import akka.NotUsed
 import akka.actor.ActorSystem
 import akka.stream.scaladsl.Sink
 import akka.stream.scaladsl.Source
-import com.akkaserverless.javasdk._
-import com.akkaserverless.javasdk.action._
-import com.akkaserverless.javasdk.impl.AnySupport
-import com.akkaserverless.javasdk.impl._
+import kalix.javasdk._
+import kalix.javasdk.action._
+import kalix.javasdk.impl.AnySupport
+import kalix.javasdk.impl._
 import com.akkaserverless.protocol.action.ActionCommand
 import com.akkaserverless.protocol.action.ActionResponse
 import com.akkaserverless.protocol.action.Actions
@@ -37,9 +37,9 @@ import java.util.Optional
 import scala.collection.immutable.Seq
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters.SeqHasAsJava
-import com.akkaserverless.javasdk.impl.ActionFactory
-import com.akkaserverless.javasdk.impl.EntityExceptions.ProtocolException
-import com.akkaserverless.javasdk.impl.effect.SideEffectImpl
+import kalix.javasdk.impl.ActionFactory
+import kalix.javasdk.impl.EntityExceptions.ProtocolException
+import kalix.javasdk.impl.effect.SideEffectImpl
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.slf4j.MDC
@@ -157,7 +157,7 @@ private[javasdk] final class ActionsImpl(
         toProtocol(deferred.metadata))
     }
 
-  private def toProtocol(metadata: com.akkaserverless.javasdk.Metadata): Option[component.Metadata] =
+  private def toProtocol(metadata: kalix.javasdk.Metadata): Option[component.Metadata] =
     metadata match {
       case impl: MetadataImpl if impl.entries.nonEmpty =>
         Some(component.Metadata(impl.entries))

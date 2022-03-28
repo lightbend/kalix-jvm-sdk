@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.scalasdk.valueentity
+package kalix.scalasdk.valueentity
 
-import com.akkaserverless.scalasdk.MetadataContext
+import kalix.scalasdk.MetadataContext
 
 /** A value based entity command context. */
 trait CommandContext extends ValueEntityContext with MetadataContext {

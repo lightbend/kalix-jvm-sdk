@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.impl.replicatedentity
+package kalix.javasdk.impl.replicatedentity
 
-import com.akkaserverless.javasdk.replicatedentity._
-import com.akkaserverless.javasdk.impl.AnySupport
-import com.akkaserverless.replicatedentity.ReplicatedData
+import kalix.javasdk.replicatedentity._
+import kalix.javasdk.impl.AnySupport
+import kalix.replicatedentity.ReplicatedData
 
 final class ReplicatedDataFactoryImpl(anySupport: AnySupport) extends ReplicatedDataFactory {
 

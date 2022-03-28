@@ -1,7 +1,7 @@
 package com.example.actions
 
-import com.akkaserverless.scalasdk.action.Action
-import com.akkaserverless.scalasdk.testkit.ActionResult
+import kalix.scalasdk.action.Action
+import kalix.scalasdk.testkit.ActionResult
 import com.example.domain.CounterState
 import com.google.protobuf.empty.Empty
 import org.scalatest.matchers.should.Matchers

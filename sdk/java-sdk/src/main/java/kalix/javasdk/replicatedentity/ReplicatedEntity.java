@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.replicatedentity;
+package kalix.javasdk.replicatedentity;
 
-import com.akkaserverless.javasdk.Metadata;
-import com.akkaserverless.javasdk.DeferredCall;
-import com.akkaserverless.javasdk.SideEffect;
-import com.akkaserverless.javasdk.impl.replicatedentity.ReplicatedEntityEffectImpl;
-import com.akkaserverless.replicatedentity.ReplicatedData;
+import kalix.javasdk.Metadata;
+import kalix.javasdk.DeferredCall;
+import kalix.javasdk.SideEffect;
+import kalix.javasdk.impl.replicatedentity.ReplicatedEntityEffectImpl;
+import kalix.replicatedentity.ReplicatedData;
 import io.grpc.Status;
 
 import java.util.Collection;

@@ -1,7 +1,7 @@
 package org.example.eventsourcedentity
 
 import akka.actor.ActorSystem
-import com.akkaserverless.scalasdk.testkit.AkkaServerlessTestKit
+import kalix.scalasdk.testkit.AkkaServerlessTestKit
 import com.google.protobuf.empty.Empty
 import org.example.Main
 import org.scalatest.BeforeAndAfterAll

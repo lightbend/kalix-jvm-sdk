@@ -14,21 +14,21 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.scalasdk.testkit.impl
+package kalix.scalasdk.testkit.impl
 
-import com.akkaserverless.javasdk.{ SideEffect => JavaSideEffect }
-import com.akkaserverless.javasdk.impl.DeferredCallImpl
-import com.akkaserverless.javasdk.impl.effect.ErrorReplyImpl
-import com.akkaserverless.javasdk.impl.effect.ForwardReplyImpl
-import com.akkaserverless.javasdk.impl.effect.MessageReplyImpl
-import com.akkaserverless.javasdk.impl.effect.NoReply
-import com.akkaserverless.javasdk.impl.effect.NoSecondaryEffectImpl
-import com.akkaserverless.javasdk.impl.effect.{ SecondaryEffectImpl => JavaSecondaryEffectImpl }
-import com.akkaserverless.scalasdk.testkit.DeferredCallDetails
+import kalix.javasdk.{ SideEffect => JavaSideEffect }
+import kalix.javasdk.impl.DeferredCallImpl
+import kalix.javasdk.impl.effect.ErrorReplyImpl
+import kalix.javasdk.impl.effect.ForwardReplyImpl
+import kalix.javasdk.impl.effect.MessageReplyImpl
+import kalix.javasdk.impl.effect.NoReply
+import kalix.javasdk.impl.effect.NoSecondaryEffectImpl
+import kalix.javasdk.impl.effect.{ SecondaryEffectImpl => JavaSecondaryEffectImpl }
+import kalix.scalasdk.testkit.DeferredCallDetails
 
 import scala.collection.immutable.Seq
 
-private[akkaserverless] object EffectUtils {
+private[kalix] object EffectUtils {
   def toDeferredCallDetails(sideEffects: Seq[JavaSideEffect]): Seq[DeferredCallDetails[_, _]] = {
     sideEffects.map { sideEffect =>
       TestKitDeferredCall(sideEffect.call.asInstanceOf[DeferredCallImpl[_, _]])

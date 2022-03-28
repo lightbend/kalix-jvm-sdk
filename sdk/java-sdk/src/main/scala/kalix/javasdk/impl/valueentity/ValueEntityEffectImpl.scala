@@ -14,19 +14,19 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.impl.valueentity
+package kalix.javasdk.impl.valueentity
 
 import java.util
 
 import scala.jdk.CollectionConverters._
-import com.akkaserverless.javasdk.impl.effect.ErrorReplyImpl
-import com.akkaserverless.javasdk.impl.effect.ForwardReplyImpl
-import com.akkaserverless.javasdk.impl.effect.MessageReplyImpl
-import com.akkaserverless.javasdk.impl.effect.NoReply
-import com.akkaserverless.javasdk.impl.effect.NoSecondaryEffectImpl
-import com.akkaserverless.javasdk.impl.effect.SecondaryEffectImpl
-import com.akkaserverless.javasdk.{ DeferredCall, Metadata, SideEffect }
-import com.akkaserverless.javasdk.valueentity.ValueEntity.Effect
+import kalix.javasdk.impl.effect.ErrorReplyImpl
+import kalix.javasdk.impl.effect.ForwardReplyImpl
+import kalix.javasdk.impl.effect.MessageReplyImpl
+import kalix.javasdk.impl.effect.NoReply
+import kalix.javasdk.impl.effect.NoSecondaryEffectImpl
+import kalix.javasdk.impl.effect.SecondaryEffectImpl
+import kalix.javasdk.{ DeferredCall, Metadata, SideEffect }
+import kalix.javasdk.valueentity.ValueEntity.Effect
 import Effect.Builder
 import Effect.OnSuccessBuilder
 import io.grpc.Status

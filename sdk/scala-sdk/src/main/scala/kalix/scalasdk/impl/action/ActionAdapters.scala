@@ -14,21 +14,21 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.scalasdk.impl.action
+package kalix.scalasdk.impl.action
 
 import akka.NotUsed
 import akka.stream.Materializer
 import akka.stream.javadsl.Source
-import com.akkaserverless.javasdk
-import com.akkaserverless.javasdk.impl.action.ActionOptionsImpl
-import com.akkaserverless.scalasdk.Metadata
-import com.akkaserverless.scalasdk.action.Action
-import com.akkaserverless.scalasdk.action.ActionContext
-import com.akkaserverless.scalasdk.action.ActionCreationContext
-import com.akkaserverless.scalasdk.action.ActionProvider
-import com.akkaserverless.scalasdk.action.MessageEnvelope
-import com.akkaserverless.scalasdk.impl.InternalContext
-import com.akkaserverless.scalasdk.impl.MetadataConverters
+import kalix.javasdk
+import kalix.javasdk.impl.action.ActionOptionsImpl
+import kalix.scalasdk.Metadata
+import kalix.scalasdk.action.Action
+import kalix.scalasdk.action.ActionContext
+import kalix.scalasdk.action.ActionCreationContext
+import kalix.scalasdk.action.ActionProvider
+import kalix.scalasdk.action.MessageEnvelope
+import kalix.scalasdk.impl.InternalContext
+import kalix.scalasdk.impl.MetadataConverters
 import com.google.protobuf.Descriptors
 
 import java.util.Optional

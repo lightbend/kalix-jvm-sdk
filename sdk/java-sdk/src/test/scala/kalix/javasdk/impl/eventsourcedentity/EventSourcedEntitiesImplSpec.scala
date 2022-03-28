@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.impl.eventsourcedentity
+package kalix.javasdk.impl.eventsourcedentity
 
-import com.akkaserverless.javasdk.eventsourcedentity._
-import com.akkaserverless.testkit.TestProtocol
-import com.akkaserverless.testkit.eventsourcedentity.EventSourcedMessages
+import kalix.javasdk.eventsourcedentity._
+import kalix.testkit.TestProtocol
+import kalix.testkit.eventsourcedentity.EventSourcedMessages
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec

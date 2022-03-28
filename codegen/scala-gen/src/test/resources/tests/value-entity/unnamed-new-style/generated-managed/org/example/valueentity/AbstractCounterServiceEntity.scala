@@ -1,6 +1,6 @@
 package org.example.valueentity
 
-import com.akkaserverless.scalasdk.valueentity.ValueEntity
+import kalix.scalasdk.valueentity.ValueEntity
 import com.google.protobuf.empty.Empty
 import org.example.Components
 import org.example.ComponentsImpl

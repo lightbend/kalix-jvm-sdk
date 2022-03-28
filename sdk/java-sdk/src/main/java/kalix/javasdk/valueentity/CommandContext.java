@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.valueentity;
+package kalix.javasdk.valueentity;
 
-import com.akkaserverless.javasdk.MetadataContext;
+import kalix.javasdk.MetadataContext;
 
 /** A value based entity command context. */
 public interface CommandContext extends ValueEntityContext, MetadataContext {

@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.testkit.impl
+package kalix.javasdk.testkit.impl
 
-import com.akkaserverless.javasdk.SideEffect
-import com.akkaserverless.javasdk.action.Action
-import com.akkaserverless.javasdk.impl.DeferredCallImpl
-import com.akkaserverless.javasdk.impl.action.ActionEffectImpl
-import com.akkaserverless.javasdk.testkit.ActionResult
-import com.akkaserverless.javasdk.testkit.DeferredCallDetails
+import kalix.javasdk.SideEffect
+import kalix.javasdk.action.Action
+import kalix.javasdk.impl.DeferredCallImpl
+import kalix.javasdk.impl.action.ActionEffectImpl
+import kalix.javasdk.testkit.ActionResult
+import kalix.javasdk.testkit.DeferredCallDetails
 import java.util.concurrent.CompletionStage
 import java.util.{ List => JList }
 
@@ -34,7 +34,7 @@ import scala.concurrent.ExecutionContext
 /**
  * INTERNAL API
  */
-private[akkaserverless] object ActionResultImpl {
+private[kalix] object ActionResultImpl {
 
   private def toDeferredCallDetails(sideEffects: Seq[SideEffect]): JList[DeferredCallDetails[_, _]] =
     sideEffects

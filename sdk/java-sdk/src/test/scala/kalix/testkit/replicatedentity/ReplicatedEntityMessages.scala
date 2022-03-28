@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.testkit.replicatedentity
+package kalix.testkit.replicatedentity
 
 import com.akkaserverless.protocol.replicated_entity._
 import com.akkaserverless.protocol.component.{ ClientAction, Failure, SideEffect }
 import com.akkaserverless.protocol.entity.Command
-import com.akkaserverless.testkit.entity.EntityMessages
+import kalix.testkit.entity.EntityMessages
 import com.google.protobuf.any.{ Any => ScalaPbAny }
 import com.google.protobuf.{ Message => JavaPbMessage }
 import scalapb.{ GeneratedMessage => ScalaPbMessage }

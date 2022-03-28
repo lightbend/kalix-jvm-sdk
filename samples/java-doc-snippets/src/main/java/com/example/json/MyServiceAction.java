@@ -6,8 +6,8 @@
 package com.example.json;
 
 // tag::action[]
-import com.akkaserverless.javasdk.JsonSupport;
-import com.akkaserverless.javasdk.action.ActionCreationContext;
+import kalix.javasdk.JsonSupport;
+import kalix.javasdk.action.ActionCreationContext;
 import com.google.protobuf.Any;
 import com.google.protobuf.Empty;
 import org.slf4j.Logger;

@@ -1,6 +1,6 @@
 package org.example.eventsourcedentity
 
-import com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntity
+import kalix.scalasdk.eventsourcedentity.EventSourcedEntity
 import com.google.protobuf.empty.Empty
 import org.example.Components
 import org.example.ComponentsImpl

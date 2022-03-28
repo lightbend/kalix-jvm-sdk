@@ -14,19 +14,19 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.testkit.impl
+package kalix.javasdk.testkit.impl
 
-import com.akkaserverless.javasdk.SideEffect
-import com.akkaserverless.javasdk.impl.DeferredCallImpl
-import com.akkaserverless.javasdk.impl.effect.ErrorReplyImpl
-import com.akkaserverless.javasdk.impl.effect.ForwardReplyImpl
-import com.akkaserverless.javasdk.impl.effect.MessageReplyImpl
-import com.akkaserverless.javasdk.impl.effect.NoReply
-import com.akkaserverless.javasdk.impl.effect.NoSecondaryEffectImpl
-import com.akkaserverless.javasdk.impl.valueentity.ValueEntityEffectImpl
-import com.akkaserverless.javasdk.testkit.DeferredCallDetails
-import com.akkaserverless.javasdk.testkit.ValueEntityResult
-import com.akkaserverless.javasdk.valueentity.ValueEntity
+import kalix.javasdk.SideEffect
+import kalix.javasdk.impl.DeferredCallImpl
+import kalix.javasdk.impl.effect.ErrorReplyImpl
+import kalix.javasdk.impl.effect.ForwardReplyImpl
+import kalix.javasdk.impl.effect.MessageReplyImpl
+import kalix.javasdk.impl.effect.NoReply
+import kalix.javasdk.impl.effect.NoSecondaryEffectImpl
+import kalix.javasdk.impl.valueentity.ValueEntityEffectImpl
+import kalix.javasdk.testkit.DeferredCallDetails
+import kalix.javasdk.testkit.ValueEntityResult
+import kalix.javasdk.valueentity.ValueEntity
 import java.util.{ List => JList }
 
 import io.grpc.Status
@@ -36,8 +36,7 @@ import scala.jdk.CollectionConverters._
 /**
  * INTERNAL API
  */
-private[akkaserverless] final class ValueEntityResultImpl[R](effect: ValueEntityEffectImpl[R])
-    extends ValueEntityResult[R] {
+private[kalix] final class ValueEntityResultImpl[R](effect: ValueEntityEffectImpl[R]) extends ValueEntityResult[R] {
 
   def this(effect: ValueEntity.Effect[R]) =
     this(effect.asInstanceOf[ValueEntityEffectImpl[R]])

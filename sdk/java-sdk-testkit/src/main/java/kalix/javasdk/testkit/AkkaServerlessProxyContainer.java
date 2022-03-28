@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.testkit;
+package kalix.javasdk.testkit;
 
 import org.slf4j.LoggerFactory;
 import org.testcontainers.Testcontainers;

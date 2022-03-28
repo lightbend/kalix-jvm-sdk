@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.replicatedentity;
+package kalix.javasdk.replicatedentity;
 
 import java.util.Optional;
 import java.util.Set;
-import com.akkaserverless.replicatedentity.ReplicatedData;
+import kalix.replicatedentity.ReplicatedData;
 
 /**
  * A Map of registers. Uses {@link ReplicatedRegister}'s as values.

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.replicatedentity;
+package kalix.javasdk.replicatedentity;
 
 public class ReplicatedSetEntity<T> extends ReplicatedEntity<ReplicatedSet<T>> {
   @Override

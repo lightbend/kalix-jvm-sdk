@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.testkit
+package kalix.testkit
 
 import akka.actor.ActorSystem
 import akka.grpc.GrpcClientSettings
 import akka.testkit.TestKit
-import com.akkaserverless.testkit.eventsourcedentity.TestEventSourcedProtocol
-import com.akkaserverless.testkit.replicatedentity.TestReplicatedEntityProtocol
-import com.akkaserverless.testkit.valueentity.TestValueEntityProtocol
+import kalix.testkit.eventsourcedentity.TestEventSourcedProtocol
+import kalix.testkit.replicatedentity.TestReplicatedEntityProtocol
+import kalix.testkit.valueentity.TestValueEntityProtocol
 import com.typesafe.config.{ Config, ConfigFactory }
 
 // FIXME: should we be doing protocol-level testing in the SDK?

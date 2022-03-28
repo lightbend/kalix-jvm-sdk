@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.scalasdk.impl.view
+package kalix.scalasdk.impl.view
 
-import com.akkaserverless.scalasdk.view.View
+import kalix.scalasdk.view.View
 
 /**
  * INTERNAL API, but used by generated code.

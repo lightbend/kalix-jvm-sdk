@@ -14,18 +14,18 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.scalasdk.testkit.impl
+package kalix.scalasdk.testkit.impl
 
-import com.akkaserverless.javasdk.impl.effect.ErrorReplyImpl
-import com.akkaserverless.javasdk.impl.effect.ForwardReplyImpl
-import com.akkaserverless.javasdk.impl.effect.MessageReplyImpl
-import com.akkaserverless.javasdk.impl.effect.NoReply
-import com.akkaserverless.javasdk.impl.effect.NoSecondaryEffectImpl
-import com.akkaserverless.scalasdk.impl.valueentity.ValueEntityEffectImpl
-import com.akkaserverless.javasdk.impl.valueentity.{ ValueEntityEffectImpl => JValueEntityEffectImpl }
-import com.akkaserverless.scalasdk.testkit.DeferredCallDetails
-import com.akkaserverless.scalasdk.testkit.ValueEntityResult
-import com.akkaserverless.scalasdk.valueentity.ValueEntity
+import kalix.javasdk.impl.effect.ErrorReplyImpl
+import kalix.javasdk.impl.effect.ForwardReplyImpl
+import kalix.javasdk.impl.effect.MessageReplyImpl
+import kalix.javasdk.impl.effect.NoReply
+import kalix.javasdk.impl.effect.NoSecondaryEffectImpl
+import kalix.scalasdk.impl.valueentity.ValueEntityEffectImpl
+import kalix.javasdk.impl.valueentity.{ ValueEntityEffectImpl => JValueEntityEffectImpl }
+import kalix.scalasdk.testkit.DeferredCallDetails
+import kalix.scalasdk.testkit.ValueEntityResult
+import kalix.scalasdk.valueentity.ValueEntity
 import io.grpc.Status
 
 /**

@@ -14,20 +14,20 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.impl.replicatedentity
+package kalix.javasdk.impl.replicatedentity
 
 import scala.jdk.CollectionConverters._
 import scala.jdk.OptionConverters._
 
-import com.akkaserverless.javasdk.impl.AnySupport
-import com.akkaserverless.javasdk.replicatedentity.ReplicatedRegister
-import com.akkaserverless.javasdk.replicatedentity.ReplicatedRegisterMap
+import kalix.javasdk.impl.AnySupport
+import kalix.javasdk.replicatedentity.ReplicatedRegister
+import kalix.javasdk.replicatedentity.ReplicatedRegisterMap
 import com.akkaserverless.protocol.replicated_entity.ReplicatedEntityDelta
 import com.akkaserverless.protocol.replicated_entity.ReplicatedRegisterMapDelta
 import com.akkaserverless.protocol.replicated_entity.ReplicatedRegisterMapEntryDelta
-import com.akkaserverless.replicatedentity.ReplicatedData
+import kalix.replicatedentity.ReplicatedData
 
-private[akkaserverless] final class ReplicatedRegisterMapImpl[K, V](
+private[kalix] final class ReplicatedRegisterMapImpl[K, V](
     anySupport: AnySupport,
     registers: Map[K, ReplicatedRegisterImpl[V]] = Map.empty[K, ReplicatedRegisterImpl[V]],
     removed: Set[K] = Set.empty[K],

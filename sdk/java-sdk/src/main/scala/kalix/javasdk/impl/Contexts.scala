@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.impl
+package kalix.javasdk.impl
 
 import akka.actor.ActorSystem
 import akka.stream.Materializer
 import akka.stream.SystemMaterializer
-import com.akkaserverless.javasdk.Context
+import kalix.javasdk.Context
 
 /**
  * INTERNAL API
@@ -33,7 +33,7 @@ private[impl] trait ActivatableContext extends Context {
 /**
  * INTERNAL API
  */
-private[akkaserverless] trait InternalContext {
+private[kalix] trait InternalContext {
   def getComponentGrpcClient[T](serviceClass: Class[T]): T
 }
 

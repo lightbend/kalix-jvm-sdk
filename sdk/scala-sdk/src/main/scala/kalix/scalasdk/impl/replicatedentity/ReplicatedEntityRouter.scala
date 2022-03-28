@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.scalasdk.impl.replicatedentity
+package kalix.scalasdk.impl.replicatedentity
 
-import com.akkaserverless.scalasdk.replicatedentity.ReplicatedEntity
-import com.akkaserverless.replicatedentity.ReplicatedData
-import com.akkaserverless.scalasdk.replicatedentity.CommandContext
+import kalix.scalasdk.replicatedentity.ReplicatedEntity
+import kalix.replicatedentity.ReplicatedData
+import kalix.scalasdk.replicatedentity.CommandContext
 
 /**
  * INTERNAL API, but used by generated code.

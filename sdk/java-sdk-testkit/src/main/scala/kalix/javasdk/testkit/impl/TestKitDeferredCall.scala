@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.testkit.impl
+package kalix.javasdk.testkit.impl
 
-import com.akkaserverless.javasdk.Metadata
-import com.akkaserverless.javasdk.impl.DeferredCallImpl
-import com.akkaserverless.javasdk.testkit.DeferredCallDetails
+import kalix.javasdk.Metadata
+import kalix.javasdk.impl.DeferredCallImpl
+import kalix.javasdk.testkit.DeferredCallDetails
 
 final case class TestKitDeferredCall[I, O](deferredCall: DeferredCallImpl[I, O]) extends DeferredCallDetails[I, O] {
   // public API for inspection

@@ -1,8 +1,8 @@
 package com.example.replicated.counter.domain
 
-import com.akkaserverless.scalasdk.replicatedentity.ReplicatedCounter
-import com.akkaserverless.scalasdk.replicatedentity.ReplicatedEntity
-import com.akkaserverless.scalasdk.replicatedentity.ReplicatedEntityContext
+import kalix.scalasdk.replicatedentity.ReplicatedCounter
+import kalix.scalasdk.replicatedentity.ReplicatedEntity
+import kalix.scalasdk.replicatedentity.ReplicatedEntityContext
 import com.example.replicated.counter
 import com.google.protobuf.empty.Empty
 

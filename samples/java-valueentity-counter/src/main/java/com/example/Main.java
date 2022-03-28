@@ -5,7 +5,7 @@
 
 package com.example;
 
-import com.akkaserverless.javasdk.AkkaServerless;
+import kalix.javasdk.AkkaServerless;
 import com.example.actions.DoubleCounterAction;
 import com.example.actions.CounterStateSubscriptionAction;
 import org.slf4j.Logger;
@@ -33,7 +33,7 @@ public final class Main {
     /* the comment hack bellow is needed to only show the Counter::new and DoubleCounterAction
     // tag::registration[]
     return AkkaServerlessFactory.withComponents(
-            Counter::new, 
+            Counter::new,
             DoubleCounterAction::new);
     // end::registration[]
      */

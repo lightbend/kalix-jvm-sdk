@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.impl.valueentity
+package kalix.javasdk.impl.valueentity
 
-import com.akkaserverless.javasdk.impl.ResolvedEntityFactory
-import com.akkaserverless.javasdk.impl.ResolvedServiceMethod
-import com.akkaserverless.javasdk.impl.ValueEntityFactory
-import com.akkaserverless.javasdk.valueentity.ValueEntityContext
+import kalix.javasdk.impl.ResolvedEntityFactory
+import kalix.javasdk.impl.ResolvedServiceMethod
+import kalix.javasdk.impl.ValueEntityFactory
+import kalix.javasdk.valueentity.ValueEntityContext
 
 class ResolvedValueEntityFactory(
     delegate: ValueEntityFactory,

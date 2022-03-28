@@ -5,7 +5,7 @@
 
 package customer;
 
-import com.akkaserverless.javasdk.AkkaServerless;
+import kalix.javasdk.AkkaServerless;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import customer.domain.CustomerEntity;

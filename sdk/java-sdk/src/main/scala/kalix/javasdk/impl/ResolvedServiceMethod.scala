@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.impl
+package kalix.javasdk.impl
 
 import com.google.protobuf.{ ByteString, Descriptors, Message => JavaMessage, Parser }
 

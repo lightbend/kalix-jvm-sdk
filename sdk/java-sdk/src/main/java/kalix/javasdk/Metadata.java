@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk;
+package kalix.javasdk;
 
-import com.akkaserverless.javasdk.impl.MetadataImpl;
+import kalix.javasdk.impl.MetadataImpl;
 
 import java.net.URI;
 import java.nio.ByteBuffer;

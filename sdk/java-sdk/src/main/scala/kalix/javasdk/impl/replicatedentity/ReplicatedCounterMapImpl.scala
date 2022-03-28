@@ -14,18 +14,18 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.impl.replicatedentity
+package kalix.javasdk.impl.replicatedentity
 
 import scala.jdk.CollectionConverters._
 
-import com.akkaserverless.javasdk.impl.AnySupport
-import com.akkaserverless.javasdk.replicatedentity.ReplicatedCounterMap
+import kalix.javasdk.impl.AnySupport
+import kalix.javasdk.replicatedentity.ReplicatedCounterMap
 import com.akkaserverless.protocol.replicated_entity.ReplicatedCounterMapDelta
 import com.akkaserverless.protocol.replicated_entity.ReplicatedCounterMapEntryDelta
 import com.akkaserverless.protocol.replicated_entity.ReplicatedEntityDelta
-import com.akkaserverless.replicatedentity.ReplicatedData
+import kalix.replicatedentity.ReplicatedData
 
-private[akkaserverless] final class ReplicatedCounterMapImpl[K](
+private[kalix] final class ReplicatedCounterMapImpl[K](
     anySupport: AnySupport,
     counters: Map[K, ReplicatedCounterImpl] = Map.empty[K, ReplicatedCounterImpl],
     removed: Set[K] = Set.empty[K],

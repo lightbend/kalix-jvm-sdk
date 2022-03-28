@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk;
+package kalix.javasdk;
 
-import com.akkaserverless.javasdk.impl.ByteStringEncoding;
+import kalix.javasdk.impl.ByteStringEncoding;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
@@ -60,7 +60,7 @@ public final class JsonSupport {
   /**
    * The Jackson ObjectMapper that is used for encoding and decoding JSON. You may adjust it's
    * configuration, but that must only be performed before starting {@link
-   * com.akkaserverless.javasdk.AkkaServerless}
+   * kalix.javasdk.AkkaServerless}
    */
   public static ObjectMapper getObjectMapper() {
     return objectMapper;

@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.testkit;
+package kalix.javasdk.testkit;
 
-import com.akkaserverless.javasdk.Metadata;
+import kalix.javasdk.Metadata;
 
 public interface DeferredCallDetails<I, O> {
   /** @return The forwarded message */

@@ -1,7 +1,7 @@
 package com.example.replicated.multimap;
 
-import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityContext;
-import com.akkaserverless.javasdk.replicatedentity.ReplicatedMultiMap;
+import kalix.javasdk.replicatedentity.ReplicatedEntityContext;
+import kalix.javasdk.replicatedentity.ReplicatedMultiMap;
 import com.google.protobuf.Empty;
 
 // This class was initially generated based on the .proto definition by Akka Serverless tooling.

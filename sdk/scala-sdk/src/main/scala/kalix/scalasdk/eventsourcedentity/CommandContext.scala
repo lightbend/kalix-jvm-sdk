@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.scalasdk.eventsourcedentity
+package kalix.scalasdk.eventsourcedentity
 
-import com.akkaserverless.scalasdk.MetadataContext
+import kalix.scalasdk.MetadataContext
 
 /** An event sourced command context. */
 trait CommandContext extends EventSourcedEntityContext with MetadataContext {

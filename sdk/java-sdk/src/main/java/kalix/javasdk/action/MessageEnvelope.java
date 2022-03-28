@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.action;
+package kalix.javasdk.action;
 
-import com.akkaserverless.javasdk.Metadata;
-import com.akkaserverless.javasdk.impl.action.MessageEnvelopeImpl;
+import kalix.javasdk.Metadata;
+import kalix.javasdk.impl.action.MessageEnvelopeImpl;
 
 /** A message envelope. */
 public interface MessageEnvelope<T> {

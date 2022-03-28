@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.impl.replicatedentity
+package kalix.javasdk.impl.replicatedentity
 
-import com.akkaserverless.javasdk.impl.EntityExceptions.ProtocolException
-import com.akkaserverless.javasdk.impl.replicatedentity.ReplicatedEntityEffectImpl.UpdateData
+import kalix.javasdk.impl.EntityExceptions.ProtocolException
+import kalix.javasdk.impl.replicatedentity.ReplicatedEntityEffectImpl.UpdateData
 import java.util.Optional
 
-import com.akkaserverless.javasdk.replicatedentity.{ CommandContext, ReplicatedEntity }
-import com.akkaserverless.javasdk.impl.{ AnySupport, EntityExceptions }
+import kalix.javasdk.replicatedentity.{ CommandContext, ReplicatedEntity }
+import kalix.javasdk.impl.{ AnySupport, EntityExceptions }
 import com.akkaserverless.protocol.replicated_entity.ReplicatedEntityDelta
-import com.akkaserverless.replicatedentity.ReplicatedData
+import kalix.replicatedentity.ReplicatedData
 
 object ReplicatedEntityRouter {
   final case class CommandResult(effect: ReplicatedEntity.Effect[_])

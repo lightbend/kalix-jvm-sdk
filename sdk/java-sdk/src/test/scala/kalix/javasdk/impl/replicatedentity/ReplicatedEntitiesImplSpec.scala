@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.impl.replicatedentity
+package kalix.javasdk.impl.replicatedentity
 
-import com.akkaserverless.javasdk.replicatedentity.CartEntity
-import com.akkaserverless.javasdk.replicatedentity.CartEntityProvider
+import kalix.javasdk.replicatedentity.CartEntity
+import kalix.javasdk.replicatedentity.CartEntityProvider
 import com.akkaserverless.protocol.replicated_entity.ReplicatedEntityDelta
-import com.akkaserverless.testkit.TestProtocol
-import com.akkaserverless.testkit.replicatedentity.ReplicatedEntityMessages
+import kalix.testkit.TestProtocol
+import kalix.testkit.replicatedentity.ReplicatedEntityMessages
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec

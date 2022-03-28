@@ -1,2 +1,2 @@
 /** Event Sourced Entity support. */
-package com.akkaserverless.javasdk.eventsourcedentity;
+package kalix.javasdk.eventsourcedentity;

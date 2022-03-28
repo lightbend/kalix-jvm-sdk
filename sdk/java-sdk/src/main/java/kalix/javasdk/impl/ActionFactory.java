@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.impl;
+package kalix.javasdk.impl;
 
-import com.akkaserverless.javasdk.action.Action;
-import com.akkaserverless.javasdk.action.ActionCreationContext;
-import com.akkaserverless.javasdk.impl.action.ActionRouter;
+import kalix.javasdk.action.Action;
+import kalix.javasdk.action.ActionCreationContext;
+import kalix.javasdk.impl.action.ActionRouter;
 
 /**
  * Low level interface to implement {@link Action} components.

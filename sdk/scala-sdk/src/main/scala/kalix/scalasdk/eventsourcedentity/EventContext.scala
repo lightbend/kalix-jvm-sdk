@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.scalasdk.eventsourcedentity
+package kalix.scalasdk.eventsourcedentity
 
 trait EventContext extends EventSourcedEntityContext {
   def sequenceNumber: Long

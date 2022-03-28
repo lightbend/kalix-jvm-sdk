@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.scalasdk.view
+package kalix.scalasdk.view
 
 /**
  * Creation context for [[View]] entities.

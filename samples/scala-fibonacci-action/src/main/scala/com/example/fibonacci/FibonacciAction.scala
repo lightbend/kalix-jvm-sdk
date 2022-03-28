@@ -6,8 +6,8 @@ package com.example.fibonacci
 
 import akka.NotUsed
 import akka.stream.scaladsl.Source
-import com.akkaserverless.scalasdk.action.Action
-import com.akkaserverless.scalasdk.action.ActionCreationContext
+import kalix.scalasdk.action.Action
+import kalix.scalasdk.action.ActionCreationContext
 
 class FibonacciAction(creationContext: ActionCreationContext) extends AbstractFibonacciAction { // <1>
 

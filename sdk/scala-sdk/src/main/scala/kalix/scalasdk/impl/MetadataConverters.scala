@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.scalasdk.impl
+package kalix.scalasdk.impl
 
-import com.akkaserverless.javasdk
-import com.akkaserverless.scalasdk
+import kalix.javasdk
+import kalix.scalasdk
 
 private[scalasdk] object MetadataConverters {
   def toScala(javaSdkMetadata: javasdk.Metadata): scalasdk.Metadata =

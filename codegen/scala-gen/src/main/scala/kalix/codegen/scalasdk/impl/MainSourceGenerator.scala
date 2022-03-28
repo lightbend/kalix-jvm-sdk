@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.codegen.scalasdk.impl
+package kalix.codegen.scalasdk.impl
 
 import com.lightbend.akkasls.codegen.File
 import com.lightbend.akkasls.codegen.ModelBuilder
@@ -54,7 +54,7 @@ object MainSourceGenerator {
     }.toSeq
 
     val allImports = entityImports ++ serviceImports ++
-      List("com.akkaserverless.scalasdk.AkkaServerless", "org.slf4j.LoggerFactory")
+      List("kalix.scalasdk.AkkaServerless", "org.slf4j.LoggerFactory")
 
     implicit val imports: Imports =
       generateImports(Iterable.empty, mainClass.parent.scalaPackage, allImports)
@@ -134,25 +134,25 @@ object MainSourceGenerator {
 
     val entityContextImports = model.entities.values.collect {
       case _: ModelBuilder.EventSourcedEntity =>
-        List("com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntityContext")
+        List("kalix.scalasdk.eventsourcedentity.EventSourcedEntityContext")
       case _: ModelBuilder.ValueEntity =>
-        List("com.akkaserverless.scalasdk.valueentity.ValueEntityContext")
+        List("kalix.scalasdk.valueentity.ValueEntityContext")
       case _: ModelBuilder.ReplicatedEntity =>
-        List("com.akkaserverless.scalasdk.replicatedentity.ReplicatedEntityContext")
+        List("kalix.scalasdk.replicatedentity.ReplicatedEntityContext")
     }.flatten
 
     val serviceContextImports = model.services.values.collect {
       case _: ModelBuilder.ActionService =>
-        List("com.akkaserverless.scalasdk.action.ActionCreationContext")
+        List("kalix.scalasdk.action.ActionCreationContext")
       case _: ModelBuilder.ViewService =>
-        List("com.akkaserverless.scalasdk.view.ViewCreationContext")
+        List("kalix.scalasdk.view.ViewCreationContext")
     }.flatten
 
     implicit val imports: Imports =
       generateImports(
         entityImports,
         mainPackageName.javaPackage,
-        Seq("com.akkaserverless.scalasdk.AkkaServerless") ++ serviceImports ++ entityContextImports ++ serviceContextImports)
+        Seq("kalix.scalasdk.AkkaServerless") ++ serviceImports ++ entityContextImports ++ serviceContextImports)
 
     def creator(messageType: ProtoMessageType): String = {
       if (imports.clashingNames.contains(messageType.name)) s"create${dotsToCamelCase(typeName(messageType))}"

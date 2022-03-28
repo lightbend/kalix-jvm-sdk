@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.scalasdk
+package kalix.scalasdk
 
 import scala.concurrent.duration.FiniteDuration
 
-import com.akkaserverless.scalasdk.impl.Timeout
+import kalix.scalasdk.impl.Timeout
 
 /** A passivation strategy. */
 object PassivationStrategy extends PassivationStrategy

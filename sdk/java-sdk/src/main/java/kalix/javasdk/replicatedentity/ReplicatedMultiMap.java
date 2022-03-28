@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.replicatedentity;
+package kalix.javasdk.replicatedentity;
 
 import java.util.Collection;
 import java.util.Set;
-import com.akkaserverless.replicatedentity.ReplicatedData;
+import kalix.replicatedentity.ReplicatedData;
 
 /**
  * A replicated map that maps keys to values, where each key may be associated with multiple values.

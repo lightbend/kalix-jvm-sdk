@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.scalasdk.testkit.impl
+package kalix.scalasdk.testkit.impl
 
 import akka.stream.Materializer
-import com.akkaserverless.scalasdk.Context
-import com.akkaserverless.scalasdk.impl.InternalContext
+import kalix.scalasdk.Context
+import kalix.scalasdk.impl.InternalContext
 
 class AbstractTestKitContext extends Context with InternalContext {
   override def materializer(): Materializer =

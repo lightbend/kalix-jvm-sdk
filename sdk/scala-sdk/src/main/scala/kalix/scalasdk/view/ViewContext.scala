@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.scalasdk.view
+package kalix.scalasdk.view
 
-import com.akkaserverless.scalasdk.Context
+import kalix.scalasdk.Context
 
 /** Context for views. */
 trait ViewContext extends Context {

@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.testkit.junit;
+package kalix.javasdk.testkit.junit;
 
 import akka.actor.ActorSystem;
 import akka.grpc.GrpcClientSettings;
 import akka.stream.Materializer;
-import com.akkaserverless.javasdk.AkkaServerless;
-import com.akkaserverless.javasdk.testkit.AkkaServerlessTestKit;
+import kalix.javasdk.AkkaServerless;
+import kalix.javasdk.testkit.AkkaServerlessTestKit;
 import org.junit.rules.ExternalResource;
 
 /**
@@ -34,7 +34,7 @@ import org.junit.rules.ExternalResource;
  * <p>Example:
  *
  * <pre>
- * import com.akkaserverless.javasdk.testkit.junit.AkkaServerlessTestKitResource;
+ * import kalix.javasdk.testkit.junit.AkkaServerlessTestKitResource;
  *
  * public class MyAkkaServerlessIntegrationTest {
  *

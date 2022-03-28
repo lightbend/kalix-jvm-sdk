@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk;
+package kalix.javasdk;
 
 import java.util.concurrent.CompletionStage;
 
@@ -37,7 +37,7 @@ public interface DeferredCall<I, O> {
 
   /**
    * Execute this call right away and get the async result back for composition. Can be used to
-   * create an async reply in an {@link com.akkaserverless.javasdk.action.Action} with {@code
+   * create an async reply in an {@link kalix.javasdk.action.Action} with {@code
    * effects().asyncReply} and {@code effects().asyncEffect}
    */
   CompletionStage<O> execute();

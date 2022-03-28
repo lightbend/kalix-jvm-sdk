@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.scalasdk.replicatedentity
+package kalix.scalasdk.replicatedentity
 
-import com.akkaserverless.javasdk.impl.replicatedentity.ReplicatedMapImpl
+import kalix.javasdk.impl.replicatedentity.ReplicatedMapImpl
 import com.akkaserverless.protocol.replicated_entity.ReplicatedEntityDelta
-import com.akkaserverless.replicatedentity.ReplicatedData
-import com.akkaserverless.scalasdk.impl.replicatedentity.ScalaReplicatedDataFactoryAdapter
+import kalix.replicatedentity.ReplicatedData
+import kalix.scalasdk.impl.replicatedentity.ScalaReplicatedDataFactoryAdapter
 
 /**
  * A Replicated Map that allows both the addition and removal of [[ReplicatedData]] objects.

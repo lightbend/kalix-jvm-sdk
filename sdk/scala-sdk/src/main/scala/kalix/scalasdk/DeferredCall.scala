@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.scalasdk
+package kalix.scalasdk
 
 import scala.concurrent.Future
 
@@ -43,7 +43,7 @@ trait DeferredCall[I, O] {
 
   /**
    * Execute this call right away and get the async result back for composition. Can be used to create an async reply in
-   * an [[com.akkaserverless.scalasdk.action.Action]] using {{{effects.asyncReply}}} and {{{effects.asyncEffect}}}.
+   * an [[kalix.scalasdk.action.Action]] using {{{effects.asyncReply}}} and {{{effects.asyncEffect}}}.
    */
   def execute(): Future[O]
 }

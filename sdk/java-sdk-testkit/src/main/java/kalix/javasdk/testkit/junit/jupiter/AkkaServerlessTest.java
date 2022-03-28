@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.testkit.junit.jupiter;
+package kalix.javasdk.testkit.junit.jupiter;
 
-import com.akkaserverless.javasdk.testkit.AkkaServerlessTestKit;
+import kalix.javasdk.testkit.AkkaServerlessTestKit;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.lang.annotation.ElementType;

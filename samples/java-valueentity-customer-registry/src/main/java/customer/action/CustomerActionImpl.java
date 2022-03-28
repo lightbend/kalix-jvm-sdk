@@ -5,7 +5,7 @@
 
 package customer.action;
 
-import com.akkaserverless.javasdk.action.ActionCreationContext;
+import kalix.javasdk.action.ActionCreationContext;
 import com.google.protobuf.Empty;
 import customer.api.CustomerApi;
 

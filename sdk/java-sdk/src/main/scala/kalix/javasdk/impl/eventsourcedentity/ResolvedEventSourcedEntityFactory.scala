@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.impl.eventsourcedentity
+package kalix.javasdk.impl.eventsourcedentity
 
-import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityContext
-import com.akkaserverless.javasdk.impl.EventSourcedEntityFactory
-import com.akkaserverless.javasdk.impl.ResolvedEntityFactory
-import com.akkaserverless.javasdk.impl.ResolvedServiceMethod
+import kalix.javasdk.eventsourcedentity.EventSourcedEntityContext
+import kalix.javasdk.impl.EventSourcedEntityFactory
+import kalix.javasdk.impl.ResolvedEntityFactory
+import kalix.javasdk.impl.ResolvedServiceMethod
 
 class ResolvedEventSourcedEntityFactory(
     delegate: EventSourcedEntityFactory,

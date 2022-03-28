@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.testkit.entity
+package kalix.testkit.entity
 
 import com.akkaserverless.protocol.component._
 import com.google.protobuf.any.{ Any => ScalaPbAny }

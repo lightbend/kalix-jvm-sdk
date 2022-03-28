@@ -14,56 +14,52 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.codegen.scalasdk.impl
+package kalix.codegen.scalasdk.impl
 
 import com.lightbend.akkasls.codegen.ClassMessageType
 
 object Types {
   object Action {
-    val Action = ClassMessageType("com.akkaserverless.scalasdk.action.Action")
-    val ActionCreationContext = ClassMessageType("com.akkaserverless.scalasdk.action.ActionCreationContext")
-    val ActionOptions = ClassMessageType("com.akkaserverless.scalasdk.action.ActionOptions")
-    val ActionProvider = ClassMessageType("com.akkaserverless.scalasdk.action.ActionProvider")
-    val MessageEnvelope = ClassMessageType("com.akkaserverless.scalasdk.action.MessageEnvelope")
-    val ActionRouter = ClassMessageType("com.akkaserverless.scalasdk.impl.action.ActionRouter")
-    val HandlerNotFound = ClassMessageType("com.akkaserverless.javasdk.impl.action.ActionRouter.HandlerNotFound")
+    val Action = ClassMessageType("kalix.scalasdk.action.Action")
+    val ActionCreationContext = ClassMessageType("kalix.scalasdk.action.ActionCreationContext")
+    val ActionOptions = ClassMessageType("kalix.scalasdk.action.ActionOptions")
+    val ActionProvider = ClassMessageType("kalix.scalasdk.action.ActionProvider")
+    val MessageEnvelope = ClassMessageType("kalix.scalasdk.action.MessageEnvelope")
+    val ActionRouter = ClassMessageType("kalix.scalasdk.impl.action.ActionRouter")
+    val HandlerNotFound = ClassMessageType("kalix.javasdk.impl.action.ActionRouter.HandlerNotFound")
   }
 
   object EventSourcedEntity {
-    val EventSourcedEntity = ClassMessageType("com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntity")
-    val EventSourcedEntityProvider = ClassMessageType(
-      "com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntityProvider")
-    val EventSourcedEntityOptions = ClassMessageType(
-      "com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntityOptions")
-    val EventSourcedEntityContext = ClassMessageType(
-      "com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntityContext")
+    val EventSourcedEntity = ClassMessageType("kalix.scalasdk.eventsourcedentity.EventSourcedEntity")
+    val EventSourcedEntityProvider = ClassMessageType("kalix.scalasdk.eventsourcedentity.EventSourcedEntityProvider")
+    val EventSourcedEntityOptions = ClassMessageType("kalix.scalasdk.eventsourcedentity.EventSourcedEntityOptions")
+    val EventSourcedEntityContext = ClassMessageType("kalix.scalasdk.eventsourcedentity.EventSourcedEntityContext")
 
-    val CommandContext = ClassMessageType("com.akkaserverless.scalasdk.eventsourcedentity.CommandContext")
-    val EventSourcedEntityRouter = ClassMessageType(
-      "com.akkaserverless.scalasdk.impl.eventsourcedentity.EventSourcedEntityRouter")
+    val CommandContext = ClassMessageType("kalix.scalasdk.eventsourcedentity.CommandContext")
+    val EventSourcedEntityRouter = ClassMessageType("kalix.scalasdk.impl.eventsourcedentity.EventSourcedEntityRouter")
 
     val CommandHandlerNotFound = ClassMessageType(
-      "com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityRouter.CommandHandlerNotFound")
+      "kalix.javasdk.impl.eventsourcedentity.EventSourcedEntityRouter.CommandHandlerNotFound")
     val EventHandlerNotFound = ClassMessageType(
-      "com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityRouter.EventHandlerNotFound")
+      "kalix.javasdk.impl.eventsourcedentity.EventSourcedEntityRouter.EventHandlerNotFound")
   }
 
   object ValueEntity {
-    val ValueEntity = ClassMessageType("com.akkaserverless.scalasdk.valueentity.ValueEntity")
-    val CommandContext = ClassMessageType("com.akkaserverless.scalasdk.valueentity.CommandContext")
-    val ValueEntityContext = ClassMessageType("com.akkaserverless.scalasdk.valueentity.ValueEntityContext")
-    val ValueEntityOptions = ClassMessageType("com.akkaserverless.scalasdk.valueentity.ValueEntityOptions")
-    val ValueEntityProvider = ClassMessageType("com.akkaserverless.scalasdk.valueentity.ValueEntityProvider")
-    val ValueEntityRouter = ClassMessageType("com.akkaserverless.scalasdk.impl.valueentity.ValueEntityRouter")
+    val ValueEntity = ClassMessageType("kalix.scalasdk.valueentity.ValueEntity")
+    val CommandContext = ClassMessageType("kalix.scalasdk.valueentity.CommandContext")
+    val ValueEntityContext = ClassMessageType("kalix.scalasdk.valueentity.ValueEntityContext")
+    val ValueEntityOptions = ClassMessageType("kalix.scalasdk.valueentity.ValueEntityOptions")
+    val ValueEntityProvider = ClassMessageType("kalix.scalasdk.valueentity.ValueEntityProvider")
+    val ValueEntityRouter = ClassMessageType("kalix.scalasdk.impl.valueentity.ValueEntityRouter")
     val CommandHandlerNotFound = ClassMessageType(
-      "com.akkaserverless.javasdk.impl.valueentity.ValueEntityRouter.CommandHandlerNotFound")
+      "kalix.javasdk.impl.valueentity.ValueEntityRouter.CommandHandlerNotFound")
   }
 
-  val DeferredCall = ClassMessageType("com.akkaserverless.scalasdk.DeferredCall")
-  val ScalaDeferredCallAdapter = ClassMessageType("com.akkaserverless.scalasdk.impl.ScalaDeferredCallAdapter")
-  val InternalContext = ClassMessageType("com.akkaserverless.scalasdk.impl.InternalContext")
-  val Context = ClassMessageType("com.akkaserverless.scalasdk.Context")
-  val Metadata = ClassMessageType("com.akkaserverless.scalasdk.Metadata")
+  val DeferredCall = ClassMessageType("kalix.scalasdk.DeferredCall")
+  val ScalaDeferredCallAdapter = ClassMessageType("kalix.scalasdk.impl.ScalaDeferredCallAdapter")
+  val InternalContext = ClassMessageType("kalix.scalasdk.impl.InternalContext")
+  val Context = ClassMessageType("kalix.scalasdk.Context")
+  val Metadata = ClassMessageType("kalix.scalasdk.Metadata")
 
   val Source = ClassMessageType("akka.stream.scaladsl.Source")
   val NotUsed = ClassMessageType("akka.NotUsed")

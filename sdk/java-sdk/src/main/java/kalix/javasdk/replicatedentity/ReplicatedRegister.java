@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.replicatedentity;
+package kalix.javasdk.replicatedentity;
 
-import com.akkaserverless.replicatedentity.ReplicatedData;
+import kalix.replicatedentity.ReplicatedData;
 /**
  * A Last-Write-Wins Register.
  *

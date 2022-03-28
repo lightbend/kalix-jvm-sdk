@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.impl.view
+package kalix.javasdk.impl.view
 
-import com.akkaserverless.javasdk.view.{ UpdateContext, View }
+import kalix.javasdk.view.{ UpdateContext, View }
 
 import java.util.Optional
 

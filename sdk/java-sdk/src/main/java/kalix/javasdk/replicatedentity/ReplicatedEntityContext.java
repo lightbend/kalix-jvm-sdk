@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.replicatedentity;
+package kalix.javasdk.replicatedentity;
 
-import com.akkaserverless.javasdk.EntityContext;
+import kalix.javasdk.EntityContext;
 
 /** Root context for all Replicated Entity contexts. */
 public interface ReplicatedEntityContext extends EntityContext {}

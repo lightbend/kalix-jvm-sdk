@@ -1,6 +1,6 @@
 package com.example.replicated.set
 
-import com.akkaserverless.scalasdk.testkit.AkkaServerlessTestKit
+import kalix.scalasdk.testkit.AkkaServerlessTestKit
 import com.example.replicated.Main
 import com.example.replicated.set.AddElement
 import com.example.replicated.set.GetElements

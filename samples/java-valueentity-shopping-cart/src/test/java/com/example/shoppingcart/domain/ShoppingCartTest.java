@@ -5,7 +5,7 @@
 
 package com.example.shoppingcart.domain;
 
-import com.akkaserverless.javasdk.testkit.ValueEntityResult;
+import kalix.javasdk.testkit.ValueEntityResult;
 import com.example.shoppingcart.ShoppingCartApi;
 import com.google.protobuf.Empty;
 import org.junit.Test;

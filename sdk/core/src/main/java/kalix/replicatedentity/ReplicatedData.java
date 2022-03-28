@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.replicatedentity;
+package kalix.replicatedentity;
 
 /** Root interface for all data entries in Replicated Entities. */
 public interface ReplicatedData {}

@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.scalasdk.action
+package kalix.scalasdk.action
 
-import com.akkaserverless.scalasdk.Metadata
-import com.akkaserverless.scalasdk.MetadataContext
+import kalix.scalasdk.Metadata
+import kalix.scalasdk.MetadataContext
 
 trait ActionContext extends MetadataContext {
 

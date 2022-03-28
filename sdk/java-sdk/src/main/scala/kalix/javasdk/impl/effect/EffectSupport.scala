@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.impl.effect
+package kalix.javasdk.impl.effect
 
-import com.akkaserverless.javasdk
-import com.akkaserverless.javasdk.impl.AnySupport
-import com.akkaserverless.javasdk.impl.DeferredCallImpl
-import com.akkaserverless.javasdk.impl.MetadataImpl
+import kalix.javasdk
+import kalix.javasdk.impl.AnySupport
+import kalix.javasdk.impl.DeferredCallImpl
+import kalix.javasdk.impl.MetadataImpl
 import com.akkaserverless.protocol.component
 import com.google.protobuf.any.{ Any => ScalaPbAny }
 import com.google.protobuf.{ Any => JavaPbAny }

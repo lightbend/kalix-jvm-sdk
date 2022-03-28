@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.valueentity;
+package kalix.javasdk.valueentity;
 
-import com.akkaserverless.javasdk.impl.valueentity.ValueEntityRouter;
+import kalix.javasdk.impl.valueentity.ValueEntityRouter;
 import com.google.protobuf.Descriptors;
 
 /**
- * Register a value based entity in {@link com.akkaserverless.javasdk.AkkaServerless} using a <code>
+ * Register a value based entity in {@link kalix.javasdk.AkkaServerless} using a <code>
  * ValueEntityProvider</code>. The concrete <code>ValueEntityProvider</code> is generated for the
  * specific entities defined in Protobuf, for example <code>CustomerEntityProvider</code>.
  */

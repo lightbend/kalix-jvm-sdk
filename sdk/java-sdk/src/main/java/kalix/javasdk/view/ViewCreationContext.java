@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.view;
+package kalix.javasdk.view;
 
 /**
  * Creation context for {@link View} entities.

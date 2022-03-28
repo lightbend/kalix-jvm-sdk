@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.action;
+package kalix.javasdk.action;
 
-import com.akkaserverless.javasdk.Context;
+import kalix.javasdk.Context;
 
 /**
  * Creation context for {@link Action} components.

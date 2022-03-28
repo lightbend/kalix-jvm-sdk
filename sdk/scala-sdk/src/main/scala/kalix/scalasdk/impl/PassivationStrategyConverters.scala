@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.scalasdk.impl
+package kalix.scalasdk.impl
 
 import scala.compat.java8.DurationConverters.DurationOps
 import scala.compat.java8.DurationConverters.FiniteDurationops
 
-import com.akkaserverless.scalasdk
-import com.akkaserverless.javasdk
+import kalix.scalasdk
+import kalix.javasdk
 
 private[scalasdk] object PassivationStrategyConverters {
 

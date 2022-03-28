@@ -1,6 +1,6 @@
 package com.example.replicated.multimap;
 
-import com.akkaserverless.javasdk.testkit.junit.AkkaServerlessTestKitResource;
+import kalix.javasdk.testkit.junit.AkkaServerlessTestKitResource;
 import com.google.protobuf.Empty;
 import org.example.Main;
 import org.junit.ClassRule;

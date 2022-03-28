@@ -1,7 +1,7 @@
 package org.example
 
-import com.akkaserverless.scalasdk.AkkaServerless
-import com.akkaserverless.scalasdk.replicatedentity.ReplicatedEntityContext
+import kalix.scalasdk.AkkaServerless
+import kalix.scalasdk.replicatedentity.ReplicatedEntityContext
 import com.example.replicated.multimap.SomeMultiMap
 import com.example.replicated.multimap.SomeMultiMapProvider
 

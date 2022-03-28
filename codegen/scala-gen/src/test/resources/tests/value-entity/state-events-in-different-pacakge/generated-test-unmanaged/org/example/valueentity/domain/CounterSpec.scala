@@ -1,7 +1,7 @@
 package org.example.valueentity.domain
 
-import com.akkaserverless.scalasdk.testkit.ValueEntityResult
-import com.akkaserverless.scalasdk.valueentity.ValueEntity
+import kalix.scalasdk.testkit.ValueEntityResult
+import kalix.scalasdk.valueentity.ValueEntity
 import com.google.protobuf.empty.Empty
 import org.example.valueentity
 import org.example.valueentity.state.CounterState

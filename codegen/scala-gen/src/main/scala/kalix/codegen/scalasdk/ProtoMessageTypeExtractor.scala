@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.codegen.scalasdk
+package kalix.codegen.scalasdk
 
 import com.google.protobuf.Descriptors
 import com.lightbend.akkasls.codegen.{ ModelBuilder, PackageNaming, ProtoMessageType }

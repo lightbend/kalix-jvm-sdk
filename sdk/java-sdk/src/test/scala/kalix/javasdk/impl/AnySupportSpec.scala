@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.impl
+package kalix.javasdk.impl
 
-import com.akkaserverless.javasdk.JsonSupport
+import kalix.javasdk.JsonSupport
 import com.akkaserverless.protocol.discovery.{ DiscoveryProto, UserFunctionError }
 import com.akkaserverless.protocol.event_sourced_entity.EventSourcedEntityProto
 import com.example.shoppingcart.ShoppingCartApi

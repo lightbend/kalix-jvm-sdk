@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.view;
+package kalix.javasdk.view;
 
-import com.akkaserverless.javasdk.impl.ComponentOptions;
-import com.akkaserverless.javasdk.impl.view.ViewOptionsImpl;
+import kalix.javasdk.impl.ComponentOptions;
+import kalix.javasdk.impl.view.ViewOptionsImpl;
 
 import java.util.Collections;
 

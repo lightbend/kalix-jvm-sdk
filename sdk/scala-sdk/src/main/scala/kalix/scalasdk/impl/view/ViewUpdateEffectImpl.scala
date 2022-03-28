@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.scalasdk.impl.view
+package kalix.scalasdk.impl.view
 
-import com.akkaserverless.javasdk
-import com.akkaserverless.scalasdk.view.View
+import kalix.javasdk
+import kalix.scalasdk.view.View
 
 private[scalasdk] object ViewUpdateEffectImpl {
   sealed trait PrimaryUpdateEffect[S] extends View.UpdateEffect[S] {

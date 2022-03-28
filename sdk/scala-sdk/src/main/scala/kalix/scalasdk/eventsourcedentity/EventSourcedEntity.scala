@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.scalasdk.eventsourcedentity
+package kalix.scalasdk.eventsourcedentity
 
-import com.akkaserverless.scalasdk.{ Context, DeferredCall, Metadata, SideEffect }
-import com.akkaserverless.scalasdk.impl.eventsourcedentity.EventSourcedEntityEffectImpl
+import kalix.scalasdk.{ Context, DeferredCall, Metadata, SideEffect }
+import kalix.scalasdk.impl.eventsourcedentity.EventSourcedEntityEffectImpl
 import io.grpc.Status
 
 object EventSourcedEntity {

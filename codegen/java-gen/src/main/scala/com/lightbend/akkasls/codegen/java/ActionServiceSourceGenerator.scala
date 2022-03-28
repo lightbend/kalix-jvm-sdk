@@ -61,7 +61,7 @@ object ActionServiceSourceGenerator {
     val imports = generateImports(
       service.commandTypes,
       packageName,
-      otherImports = Seq("com.akkaserverless.javasdk.action.ActionCreationContext") ++ streamImports(service.commands))
+      otherImports = Seq("kalix.javasdk.action.ActionCreationContext") ++ streamImports(service.commands))
 
     val methods = service.commands.map { cmd =>
       val methodName = cmd.name
@@ -159,7 +159,7 @@ object ActionServiceSourceGenerator {
         |
         |$managedComment
         |
-        |public abstract class ${service.abstractActionName} extends com.akkaserverless.javasdk.action.Action {
+        |public abstract class ${service.abstractActionName} extends kalix.javasdk.action.Action {
         |
         |  protected final Components components() {
         |    return new ComponentsImpl(actionContext());
@@ -220,9 +220,9 @@ object ActionServiceSourceGenerator {
       otherImports = Seq(
         "akka.NotUsed",
         "akka.stream.javadsl.Source",
-        "com.akkaserverless.javasdk.action.Action.Effect",
-        "com.akkaserverless.javasdk.action.MessageEnvelope",
-        "com.akkaserverless.javasdk.impl.action.ActionRouter"))
+        "kalix.javasdk.action.Action.Effect",
+        "kalix.javasdk.action.MessageEnvelope",
+        "kalix.javasdk.impl.action.ActionRouter"))
 
     s"""package $packageName;
         |
@@ -296,10 +296,10 @@ object ActionServiceSourceGenerator {
       service.commandTypes ++ service.commandTypes.map(_.descriptorImport),
       packageName,
       otherImports = Seq(
-        "com.akkaserverless.javasdk.action.ActionCreationContext",
-        "com.akkaserverless.javasdk.action.ActionProvider",
-        "com.akkaserverless.javasdk.action.ActionOptions",
-        "com.akkaserverless.javasdk.impl.action.ActionRouter",
+        "kalix.javasdk.action.ActionCreationContext",
+        "kalix.javasdk.action.ActionProvider",
+        "kalix.javasdk.action.ActionOptions",
+        "kalix.javasdk.impl.action.ActionRouter",
         "com.google.protobuf.Descriptors",
         "java.util.function.Function"))
 
@@ -313,7 +313,7 @@ object ActionServiceSourceGenerator {
       | * ${service.providerName} that defines how to register and create the action for
       | * the Protobuf service <code>$protoName</code>.
       | *
-      | * Should be used with the <code>register</code> method in {@link com.akkaserverless.javasdk.AkkaServerless}.
+      | * Should be used with the <code>register</code> method in {@link kalix.javasdk.AkkaServerless}.
       | */
       |public class ${service.providerName} implements ActionProvider<$classNameAction> {
       |

@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.scalasdk.impl.action
+package kalix.scalasdk.impl.action
 
 import scala.collection.immutable.Seq
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
-import com.akkaserverless.javasdk
-import com.akkaserverless.scalasdk.{ DeferredCall, Metadata, SideEffect }
-import com.akkaserverless.scalasdk.action.Action
-import com.akkaserverless.scalasdk.impl.ScalaDeferredCallAdapter
-import com.akkaserverless.scalasdk.impl.ScalaSideEffectAdapter
+import kalix.javasdk
+import kalix.scalasdk.{ DeferredCall, Metadata, SideEffect }
+import kalix.scalasdk.action.Action
+import kalix.scalasdk.impl.ScalaDeferredCallAdapter
+import kalix.scalasdk.impl.ScalaSideEffectAdapter
 import io.grpc.Status
 
 private[scalasdk] object ActionEffectImpl {

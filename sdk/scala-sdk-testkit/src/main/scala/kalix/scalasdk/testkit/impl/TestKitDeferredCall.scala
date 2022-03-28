@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.scalasdk.testkit.impl
+package kalix.scalasdk.testkit.impl
 
-import com.akkaserverless.javasdk.impl.DeferredCallImpl
-import com.akkaserverless.scalasdk.Metadata
-import com.akkaserverless.scalasdk.impl.MetadataConverters
-import com.akkaserverless.scalasdk.testkit.DeferredCallDetails
+import kalix.javasdk.impl.DeferredCallImpl
+import kalix.scalasdk.Metadata
+import kalix.scalasdk.impl.MetadataConverters
+import kalix.scalasdk.testkit.DeferredCallDetails
 
 import scala.concurrent.Future
 

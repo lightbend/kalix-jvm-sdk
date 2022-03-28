@@ -1,7 +1,7 @@
 package com.example.replicated.countermap.domain;
 
-import com.akkaserverless.javasdk.replicatedentity.ReplicatedCounterMap;
-import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityContext;
+import kalix.javasdk.replicatedentity.ReplicatedCounterMap;
+import kalix.javasdk.replicatedentity.ReplicatedEntityContext;
 import com.example.replicated.countermap.SomeCounterMapApi;
 import com.google.protobuf.Empty;
 

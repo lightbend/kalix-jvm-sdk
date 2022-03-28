@@ -14,23 +14,23 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.testkit.impl
+package kalix.javasdk.testkit.impl
 
-import com.akkaserverless.javasdk.SideEffect
-import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity
-import com.akkaserverless.javasdk.impl.DeferredCallImpl
-import com.akkaserverless.javasdk.impl.effect.ErrorReplyImpl
-import com.akkaserverless.javasdk.impl.effect.ForwardReplyImpl
-import com.akkaserverless.javasdk.impl.effect.MessageReplyImpl
-import com.akkaserverless.javasdk.impl.effect.NoReply
-import com.akkaserverless.javasdk.impl.effect.NoSecondaryEffectImpl
-import com.akkaserverless.javasdk.impl.effect.SecondaryEffectImpl
-import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityEffectImpl
-import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityEffectImpl.EmitEvents
-import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityEffectImpl.NoPrimaryEffect
-import com.akkaserverless.javasdk.testkit.DeferredCallDetails
-import com.akkaserverless.javasdk.testkit.EventSourcedResult
-import com.akkaserverless.javasdk.testkit.impl.EventSourcedResultImpl.eventsOf
+import kalix.javasdk.SideEffect
+import kalix.javasdk.eventsourcedentity.EventSourcedEntity
+import kalix.javasdk.impl.DeferredCallImpl
+import kalix.javasdk.impl.effect.ErrorReplyImpl
+import kalix.javasdk.impl.effect.ForwardReplyImpl
+import kalix.javasdk.impl.effect.MessageReplyImpl
+import kalix.javasdk.impl.effect.NoReply
+import kalix.javasdk.impl.effect.NoSecondaryEffectImpl
+import kalix.javasdk.impl.effect.SecondaryEffectImpl
+import kalix.javasdk.impl.eventsourcedentity.EventSourcedEntityEffectImpl
+import kalix.javasdk.impl.eventsourcedentity.EventSourcedEntityEffectImpl.EmitEvents
+import kalix.javasdk.impl.eventsourcedentity.EventSourcedEntityEffectImpl.NoPrimaryEffect
+import kalix.javasdk.testkit.DeferredCallDetails
+import kalix.javasdk.testkit.EventSourcedResult
+import kalix.javasdk.testkit.impl.EventSourcedResultImpl.eventsOf
 import java.util.Collections
 import java.util.{ List => JList }
 
@@ -41,7 +41,7 @@ import scala.jdk.CollectionConverters._
 /**
  * INTERNAL API
  */
-private[akkaserverless] object EventSourcedResultImpl {
+private[kalix] object EventSourcedResultImpl {
   def eventsOf(effect: EventSourcedEntity.Effect[_]): JList[Any] = {
     effect match {
       case ei: EventSourcedEntityEffectImpl[_] =>
@@ -74,7 +74,7 @@ private[akkaserverless] object EventSourcedResultImpl {
 /**
  * INTERNAL API
  */
-private[akkaserverless] final class EventSourcedResultImpl[R, S](
+private[kalix] final class EventSourcedResultImpl[R, S](
     effect: EventSourcedEntityEffectImpl[S],
     state: S,
     secondaryEffect: SecondaryEffectImpl)

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.impl
+package kalix.javasdk.impl
 
 import java.io.ByteArrayOutputStream
 import java.util.Locale
@@ -24,9 +24,9 @@ import scala.jdk.CollectionConverters._
 import scala.reflect.ClassTag
 import scala.util.Try
 
-import com.akkaserverless.javasdk.JsonSupport
-import com.akkaserverless.javasdk.impl.AnySupport.Prefer.Java
-import com.akkaserverless.javasdk.impl.AnySupport.Prefer.Scala
+import kalix.javasdk.JsonSupport
+import kalix.javasdk.impl.AnySupport.Prefer.Java
+import kalix.javasdk.impl.AnySupport.Prefer.Scala
 import com.google.common.base.CaseFormat
 import com.google.protobuf.ByteString
 import com.google.protobuf.CodedInputStream
@@ -126,13 +126,13 @@ object AnySupport {
   /**
    * INTERNAL API
    */
-  private[akkaserverless] def encodePrimitiveBytes(bytes: ByteString): ByteString =
+  private[kalix] def encodePrimitiveBytes(bytes: ByteString): ByteString =
     primitiveToBytes(BytesPrimitive, bytes)
 
   /**
    * INTERNAL API
    */
-  private[akkaserverless] def decodePrimitiveBytes(bytes: ByteString): ByteString =
+  private[kalix] def decodePrimitiveBytes(bytes: ByteString): ByteString =
     bytesToPrimitive(BytesPrimitive, bytes)
 
   private def primitiveToBytes[T](primitive: Primitive[T], value: T): ByteString =
@@ -485,7 +485,7 @@ final case class SerializationException(msg: String, cause: Throwable = null) ex
  * INTERNAL API
  */
 // only here to avoid MODULE$ forwarder mess from Java
-private[akkaserverless] object ByteStringEncoding {
+private[kalix] object ByteStringEncoding {
 
   def encodePrimitiveBytes(bytes: ByteString): ByteString =
     AnySupport.encodePrimitiveBytes(bytes)

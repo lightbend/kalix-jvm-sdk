@@ -5,14 +5,14 @@
 
 package customer.domain;
 
-import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityContext;
+import kalix.javasdk.eventsourcedentity.EventSourcedEntityContext;
 import com.google.protobuf.Empty;
 import customer.api.CustomerApi;
 
 public class CustomerEntity extends AbstractCustomerEntity {
     @SuppressWarnings("unused")
     private final String entityId;
-    
+
     public CustomerEntity(EventSourcedEntityContext context) {
         this.entityId = context.entityId();
     }

@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.scalasdk.testkit
+package kalix.scalasdk.testkit
 
 import scala.concurrent.ExecutionContext
 
 import akka.actor.ActorSystem
 import akka.grpc.GrpcClientSettings
 import akka.stream.Materializer
-import com.akkaserverless.scalasdk.AkkaServerless
-import com.akkaserverless.javasdk.testkit.{ AkkaServerlessTestKit => JTestKit }
+import kalix.scalasdk.AkkaServerless
+import kalix.javasdk.testkit.{ AkkaServerlessTestKit => JTestKit }
 
 /**
  * TestKit for running Akka Serverless services locally.

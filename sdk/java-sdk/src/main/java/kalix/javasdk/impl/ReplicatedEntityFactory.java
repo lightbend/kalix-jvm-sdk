@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.impl;
+package kalix.javasdk.impl;
 
-import com.akkaserverless.javasdk.impl.replicatedentity.ReplicatedEntityRouter;
-import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntity;
-import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityContext;
+import kalix.javasdk.impl.replicatedentity.ReplicatedEntityRouter;
+import kalix.javasdk.replicatedentity.ReplicatedEntity;
+import kalix.javasdk.replicatedentity.ReplicatedEntityContext;
 
 /**
  * Low level interface for handling commands on a replicated entity.

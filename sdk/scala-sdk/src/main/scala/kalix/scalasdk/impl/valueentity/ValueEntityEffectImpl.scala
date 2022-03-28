@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.scalasdk.impl.valueentity
+package kalix.scalasdk.impl.valueentity
 
 import scala.jdk.CollectionConverters._
-import com.akkaserverless.javasdk
-import com.akkaserverless.scalasdk.SideEffect
-import com.akkaserverless.scalasdk.impl.ScalaDeferredCallAdapter
-import com.akkaserverless.scalasdk.impl.ScalaSideEffectAdapter
-import com.akkaserverless.scalasdk.valueentity.ValueEntity
+import kalix.javasdk
+import kalix.scalasdk.SideEffect
+import kalix.scalasdk.impl.ScalaDeferredCallAdapter
+import kalix.scalasdk.impl.ScalaSideEffectAdapter
+import kalix.scalasdk.valueentity.ValueEntity
 import io.grpc.Status
 
 private[scalasdk] object ValueEntityEffectImpl {
@@ -46,7 +46,7 @@ private[scalasdk] final case class ValueEntityEffectImpl[S](
       case None       => javasdkEffect.error(description)
     })
 
-  def forward[T](deferredCall: com.akkaserverless.scalasdk.DeferredCall[_, T]): ValueEntity.Effect[T] = {
+  def forward[T](deferredCall: kalix.scalasdk.DeferredCall[_, T]): ValueEntity.Effect[T] = {
     deferredCall match {
       case ScalaDeferredCallAdapter(javaSdkDeferredCall) =>
         new ValueEntityEffectImpl(javasdkEffect.forward(javaSdkDeferredCall))
@@ -55,7 +55,7 @@ private[scalasdk] final case class ValueEntityEffectImpl[S](
 
   def noReply[T]: ValueEntity.Effect[T] = new ValueEntityEffectImpl(javasdkEffect.noReply[T]())
 
-  def reply[T](message: T, metadata: com.akkaserverless.scalasdk.Metadata): ValueEntity.Effect[T] =
+  def reply[T](message: T, metadata: kalix.scalasdk.Metadata): ValueEntity.Effect[T] =
     ValueEntityEffectImpl(javasdkEffect.reply(message, metadata.impl))
 
   def reply[T](message: T): ValueEntity.Effect[T] = new ValueEntityEffectImpl(javasdkEffect.reply(message))
@@ -69,7 +69,7 @@ private[scalasdk] final case class ValueEntityEffectImpl[S](
         javasdkSideEffect
       }.asJavaCollection))
 
-  def thenForward[T](deferredCall: com.akkaserverless.scalasdk.DeferredCall[_, T]): ValueEntity.Effect[T] = {
+  def thenForward[T](deferredCall: kalix.scalasdk.DeferredCall[_, T]): ValueEntity.Effect[T] = {
     deferredCall match {
       case ScalaDeferredCallAdapter(javaSdkDeferredCall) =>
         ValueEntityEffectImpl(javasdkEffect.thenForward(javaSdkDeferredCall))
@@ -78,7 +78,7 @@ private[scalasdk] final case class ValueEntityEffectImpl[S](
 
   def thenNoReply[T]: ValueEntity.Effect[T] = new ValueEntityEffectImpl(javasdkEffect.thenNoReply())
 
-  def thenReply[T](message: T, metadata: com.akkaserverless.scalasdk.Metadata): ValueEntity.Effect[T] =
+  def thenReply[T](message: T, metadata: kalix.scalasdk.Metadata): ValueEntity.Effect[T] =
     ValueEntityEffectImpl(javasdkEffect.thenReply(message, metadata.impl))
 
   def thenReply[T](message: T): ValueEntity.Effect[T] = new ValueEntityEffectImpl(javasdkEffect.thenReply(message))

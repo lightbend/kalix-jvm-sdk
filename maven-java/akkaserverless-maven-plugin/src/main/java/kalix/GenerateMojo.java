@@ -1,4 +1,4 @@
-package com.akkaserverless;
+package kalix;
 
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.Descriptors.FileDescriptor;
@@ -114,14 +114,14 @@ public class GenerateMojo extends AbstractMojo {
                       log.info("Generated: " + absBaseDir.relativize(p.toAbsolutePath()));
                       return null;
                   });
-  
+
                   project.addCompileSourceRoot(generatedSourceDirectory.toString());
                   project.addTestCompileSourceRoot(generatedTestSourceDirectory.toString());
-                  
+
                 } else {
                         throw new RuntimeException(new MojoExecutionException(
                         "There was a problem building the file descriptor from its protobuf: "
-                            + descriptors.left().get().toString())); 
+                            + descriptors.left().get().toString()));
                 }
             } else {
                 throw new MojoExecutionException("There was a problem opening the protobuf descriptor file",

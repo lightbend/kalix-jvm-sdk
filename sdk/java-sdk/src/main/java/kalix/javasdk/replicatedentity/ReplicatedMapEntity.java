@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.replicatedentity;
+package kalix.javasdk.replicatedentity;
 
-import com.akkaserverless.replicatedentity.ReplicatedData;
+import kalix.replicatedentity.ReplicatedData;
 
 public class ReplicatedMapEntity<K, V extends ReplicatedData>
     extends ReplicatedEntity<ReplicatedMap<K, V>> {

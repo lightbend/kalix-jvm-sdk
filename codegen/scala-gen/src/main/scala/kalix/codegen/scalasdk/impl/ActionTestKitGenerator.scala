@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.codegen.scalasdk.impl
+package kalix.codegen.scalasdk.impl
 
 import com.lightbend.akkasls.codegen.File
 import com.lightbend.akkasls.codegen.Format
@@ -39,10 +39,10 @@ object ActionTestKitGenerator {
         service.commands.map(_.outputType),
         service.messageType.parent.scalaPackage,
         otherImports = Seq(
-          "com.akkaserverless.scalasdk.testkit.ActionResult",
-          "com.akkaserverless.scalasdk.testkit.impl.ActionResultImpl",
-          "com.akkaserverless.scalasdk.action.ActionCreationContext",
-          "com.akkaserverless.scalasdk.testkit.impl.TestKitActionContext") ++ commandStreamedTypes(service.commands))
+          "kalix.scalasdk.testkit.ActionResult",
+          "kalix.scalasdk.testkit.impl.ActionResultImpl",
+          "kalix.scalasdk.action.ActionCreationContext",
+          "kalix.scalasdk.testkit.impl.TestKitActionContext") ++ commandStreamedTypes(service.commands))
 
     val actionClassName = service.className
 
@@ -101,8 +101,8 @@ object ActionTestKitGenerator {
         service.commands.map(_.inputType) ++ service.commands.map(_.outputType),
         service.messageType.parent.scalaPackage,
         otherImports = Seq(
-          "com.akkaserverless.scalasdk.action.Action",
-          "com.akkaserverless.scalasdk.testkit.ActionResult",
+          "kalix.scalasdk.action.Action",
+          "kalix.scalasdk.testkit.ActionResult",
           "org.scalatest.matchers.should.Matchers",
           "org.scalatest.wordspec.AnyWordSpec") ++ commandStreamedTypes(service.commands))
 

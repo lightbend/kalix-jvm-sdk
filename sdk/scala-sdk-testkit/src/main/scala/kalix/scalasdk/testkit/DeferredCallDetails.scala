@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.scalasdk.testkit
+package kalix.scalasdk.testkit
 
-import com.akkaserverless.scalasdk.DeferredCall
+import kalix.scalasdk.DeferredCall
 
 trait DeferredCallDetails[I, O] extends DeferredCall[I, O] {
 

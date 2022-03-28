@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.scalasdk.impl.eventsourcedentity
+package kalix.scalasdk.impl.eventsourcedentity
 
 import scala.jdk.CollectionConverters._
 import scala.compat.java8.FunctionConverters._
-import com.akkaserverless.javasdk
-import com.akkaserverless.scalasdk.{ DeferredCall, Metadata, SideEffect }
-import com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntity
-import com.akkaserverless.scalasdk.impl.ScalaDeferredCallAdapter
-import com.akkaserverless.scalasdk.impl.ScalaSideEffectAdapter
+import kalix.javasdk
+import kalix.scalasdk.{ DeferredCall, Metadata, SideEffect }
+import kalix.scalasdk.eventsourcedentity.EventSourcedEntity
+import kalix.scalasdk.impl.ScalaDeferredCallAdapter
+import kalix.scalasdk.impl.ScalaSideEffectAdapter
 import io.grpc.Status
 
 private[scalasdk] object EventSourcedEntityEffectImpl {

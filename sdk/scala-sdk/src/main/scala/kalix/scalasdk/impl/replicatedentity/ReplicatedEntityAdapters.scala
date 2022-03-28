@@ -14,48 +14,48 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.scalasdk.impl.replicatedentity
+package kalix.scalasdk.impl.replicatedentity
 
 import akka.stream.Materializer
-import com.akkaserverless.javasdk.impl.AbstractContext
-import com.akkaserverless.javasdk.impl.replicatedentity.ReplicatedCounterImpl
-import com.akkaserverless.javasdk.impl.replicatedentity.ReplicatedCounterMapImpl
-import com.akkaserverless.javasdk.impl.replicatedentity.ReplicatedMapImpl
-import com.akkaserverless.javasdk.impl.replicatedentity.ReplicatedMultiMapImpl
-import com.akkaserverless.javasdk.impl.replicatedentity.ReplicatedRegisterImpl
-import com.akkaserverless.javasdk.impl.replicatedentity.ReplicatedRegisterMapImpl
-import com.akkaserverless.javasdk.impl.replicatedentity.ReplicatedSetImpl
-import com.akkaserverless.javasdk.impl.replicatedentity.ReplicatedVoteImpl
-import com.akkaserverless.javasdk.impl.replicatedentity.{ ReplicatedEntityRouter => JavaSdkReplicatedEntityRouter }
-import com.akkaserverless.javasdk.impl.{ ComponentOptions => JavaSdkComponentOptions }
-import com.akkaserverless.javasdk.replicatedentity.{ CommandContext => JavaSdkCommandContext }
-import com.akkaserverless.javasdk.replicatedentity.{ ReplicatedDataFactory => JavaSdkReplicatedDataFactory }
-import com.akkaserverless.javasdk.replicatedentity.{ ReplicatedEntity => JavaSdkReplicatedEntity }
-import com.akkaserverless.javasdk.replicatedentity.{ ReplicatedEntityContext => JavaSdkReplicatedEntityContext }
-import com.akkaserverless.javasdk.replicatedentity.{ ReplicatedEntityOptions => JavaSdkReplicatedEntityOptions }
-import com.akkaserverless.javasdk.replicatedentity.{ ReplicatedEntityProvider => JavaSdkReplicatedEntityProvider }
-import com.akkaserverless.javasdk.replicatedentity.{ WriteConsistency => JavaSdkWriteConsistency }
-import com.akkaserverless.javasdk.{ PassivationStrategy => JavaSdkPassivationStrategy }
-import com.akkaserverless.replicatedentity.ReplicatedData
-import com.akkaserverless.scalasdk.Metadata
-import com.akkaserverless.scalasdk.impl.InternalContext
-import com.akkaserverless.scalasdk.impl.MetadataConverters
-import com.akkaserverless.scalasdk.impl.PassivationStrategyConverters
-import com.akkaserverless.scalasdk.replicatedentity.CommandContext
-import com.akkaserverless.scalasdk.replicatedentity.ReplicatedCounter
-import com.akkaserverless.scalasdk.replicatedentity.ReplicatedCounterMap
-import com.akkaserverless.scalasdk.replicatedentity.ReplicatedDataFactory
-import com.akkaserverless.scalasdk.replicatedentity.ReplicatedEntity
-import com.akkaserverless.scalasdk.replicatedentity.ReplicatedEntityContext
-import com.akkaserverless.scalasdk.replicatedentity.ReplicatedEntityOptions
-import com.akkaserverless.scalasdk.replicatedentity.ReplicatedEntityProvider
-import com.akkaserverless.scalasdk.replicatedentity.ReplicatedMap
-import com.akkaserverless.scalasdk.replicatedentity.ReplicatedMultiMap
-import com.akkaserverless.scalasdk.replicatedentity.ReplicatedRegister
-import com.akkaserverless.scalasdk.replicatedentity.ReplicatedRegisterMap
-import com.akkaserverless.scalasdk.replicatedentity.ReplicatedSet
-import com.akkaserverless.scalasdk.replicatedentity.ReplicatedVote
-import com.akkaserverless.scalasdk.replicatedentity.WriteConsistency
+import kalix.javasdk.impl.AbstractContext
+import kalix.javasdk.impl.replicatedentity.ReplicatedCounterImpl
+import kalix.javasdk.impl.replicatedentity.ReplicatedCounterMapImpl
+import kalix.javasdk.impl.replicatedentity.ReplicatedMapImpl
+import kalix.javasdk.impl.replicatedentity.ReplicatedMultiMapImpl
+import kalix.javasdk.impl.replicatedentity.ReplicatedRegisterImpl
+import kalix.javasdk.impl.replicatedentity.ReplicatedRegisterMapImpl
+import kalix.javasdk.impl.replicatedentity.ReplicatedSetImpl
+import kalix.javasdk.impl.replicatedentity.ReplicatedVoteImpl
+import kalix.javasdk.impl.replicatedentity.{ ReplicatedEntityRouter => JavaSdkReplicatedEntityRouter }
+import kalix.javasdk.impl.{ ComponentOptions => JavaSdkComponentOptions }
+import kalix.javasdk.replicatedentity.{ CommandContext => JavaSdkCommandContext }
+import kalix.javasdk.replicatedentity.{ ReplicatedDataFactory => JavaSdkReplicatedDataFactory }
+import kalix.javasdk.replicatedentity.{ ReplicatedEntity => JavaSdkReplicatedEntity }
+import kalix.javasdk.replicatedentity.{ ReplicatedEntityContext => JavaSdkReplicatedEntityContext }
+import kalix.javasdk.replicatedentity.{ ReplicatedEntityOptions => JavaSdkReplicatedEntityOptions }
+import kalix.javasdk.replicatedentity.{ ReplicatedEntityProvider => JavaSdkReplicatedEntityProvider }
+import kalix.javasdk.replicatedentity.{ WriteConsistency => JavaSdkWriteConsistency }
+import kalix.javasdk.{ PassivationStrategy => JavaSdkPassivationStrategy }
+import kalix.replicatedentity.ReplicatedData
+import kalix.scalasdk.Metadata
+import kalix.scalasdk.impl.InternalContext
+import kalix.scalasdk.impl.MetadataConverters
+import kalix.scalasdk.impl.PassivationStrategyConverters
+import kalix.scalasdk.replicatedentity.CommandContext
+import kalix.scalasdk.replicatedentity.ReplicatedCounter
+import kalix.scalasdk.replicatedentity.ReplicatedCounterMap
+import kalix.scalasdk.replicatedentity.ReplicatedDataFactory
+import kalix.scalasdk.replicatedentity.ReplicatedEntity
+import kalix.scalasdk.replicatedentity.ReplicatedEntityContext
+import kalix.scalasdk.replicatedentity.ReplicatedEntityOptions
+import kalix.scalasdk.replicatedentity.ReplicatedEntityProvider
+import kalix.scalasdk.replicatedentity.ReplicatedMap
+import kalix.scalasdk.replicatedentity.ReplicatedMultiMap
+import kalix.scalasdk.replicatedentity.ReplicatedRegister
+import kalix.scalasdk.replicatedentity.ReplicatedRegisterMap
+import kalix.scalasdk.replicatedentity.ReplicatedSet
+import kalix.scalasdk.replicatedentity.ReplicatedVote
+import kalix.scalasdk.replicatedentity.WriteConsistency
 import com.google.protobuf.Descriptors
 
 import java.util

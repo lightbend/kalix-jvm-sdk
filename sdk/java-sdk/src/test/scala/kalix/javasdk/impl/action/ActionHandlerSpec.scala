@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.impl.action
+package kalix.javasdk.impl.action
 
 import akka.NotUsed
 import akka.actor.testkit.typed.scaladsl.LogCapturing
@@ -24,15 +24,15 @@ import akka.actor.typed.scaladsl.adapter._
 import akka.stream.javadsl.Source
 import akka.stream.scaladsl.Sink
 import akka.testkit.EventFilter
-import com.akkaserverless.javasdk.action.Action
-import com.akkaserverless.javasdk.action.MessageEnvelope
-import com.akkaserverless.javasdk.actionspec.ActionspecApi
-import com.akkaserverless.javasdk.impl.AbstractContext
-import com.akkaserverless.javasdk.impl.AnySupport
-import com.akkaserverless.javasdk.impl.DeferredCallImpl
-import com.akkaserverless.javasdk.impl.MetadataImpl
-import com.akkaserverless.javasdk.impl.ResolvedServiceMethod
-import com.akkaserverless.javasdk.impl.effect.SideEffectImpl
+import kalix.javasdk.action.Action
+import kalix.javasdk.action.MessageEnvelope
+import kalix.javasdk.actionspec.ActionspecApi
+import kalix.javasdk.impl.AbstractContext
+import kalix.javasdk.impl.AnySupport
+import kalix.javasdk.impl.DeferredCallImpl
+import kalix.javasdk.impl.MetadataImpl
+import kalix.javasdk.impl.ResolvedServiceMethod
+import kalix.javasdk.impl.effect.SideEffectImpl
 import com.akkaserverless.protocol.action.ActionCommand
 import com.akkaserverless.protocol.action.ActionResponse
 import com.akkaserverless.protocol.action.Actions

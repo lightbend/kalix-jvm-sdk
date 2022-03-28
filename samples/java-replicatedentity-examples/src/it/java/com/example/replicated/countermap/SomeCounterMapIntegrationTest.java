@@ -1,6 +1,6 @@
 package com.example.replicated.countermap;
 
-import com.akkaserverless.javasdk.testkit.junit.AkkaServerlessTestKitResource;
+import kalix.javasdk.testkit.junit.AkkaServerlessTestKitResource;
 import com.example.replicated.Main;
 import com.example.replicated.countermap.CounterMapService;
 import com.example.replicated.countermap.SomeCounterMapApi;

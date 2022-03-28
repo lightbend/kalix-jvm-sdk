@@ -1,7 +1,7 @@
 package com.example.replicated.multimap.domain;
 
-import com.akkaserverless.javasdk.replicatedentity.ReplicatedMultiMap;
-import com.akkaserverless.javasdk.replicatedentity.ReplicatedMultiMapEntity;
+import kalix.javasdk.replicatedentity.ReplicatedMultiMap;
+import kalix.javasdk.replicatedentity.ReplicatedMultiMapEntity;
 import com.example.replicated.multimap.SomeMultiMapApi;
 import com.google.protobuf.Empty;
 import org.example.Components;

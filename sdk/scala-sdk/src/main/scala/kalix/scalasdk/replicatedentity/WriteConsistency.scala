@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.scalasdk.replicatedentity
+package kalix.scalasdk.replicatedentity
 
 /** Write consistency setting for replication of state updates for Replicated Entities. */
 sealed trait WriteConsistency

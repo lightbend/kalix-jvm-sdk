@@ -1,16 +1,16 @@
 package org.example.eventsourcedentity.domain;
 
-import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity;
-import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityContext;
-import com.akkaserverless.javasdk.impl.effect.MessageReplyImpl;
-import com.akkaserverless.javasdk.impl.effect.SecondaryEffectImpl;
-import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityEffectImpl;
-import com.akkaserverless.javasdk.testkit.EventSourcedResult;
-import com.akkaserverless.javasdk.testkit.impl.EventSourcedEntityEffectsRunner;
-import com.akkaserverless.javasdk.testkit.impl.EventSourcedResultImpl;
-import com.akkaserverless.javasdk.testkit.impl.TestKitEventSourcedEntityCommandContext;
-import com.akkaserverless.javasdk.testkit.impl.TestKitEventSourcedEntityContext;
-import com.akkaserverless.javasdk.testkit.impl.TestKitEventSourcedEntityEventContext;
+import kalix.javasdk.eventsourcedentity.EventSourcedEntity;
+import kalix.javasdk.eventsourcedentity.EventSourcedEntityContext;
+import kalix.javasdk.impl.effect.MessageReplyImpl;
+import kalix.javasdk.impl.effect.SecondaryEffectImpl;
+import kalix.javasdk.impl.eventsourcedentity.EventSourcedEntityEffectImpl;
+import kalix.javasdk.testkit.EventSourcedResult;
+import kalix.javasdk.testkit.impl.EventSourcedEntityEffectsRunner;
+import kalix.javasdk.testkit.impl.EventSourcedResultImpl;
+import kalix.javasdk.testkit.impl.TestKitEventSourcedEntityCommandContext;
+import kalix.javasdk.testkit.impl.TestKitEventSourcedEntityContext;
+import kalix.javasdk.testkit.impl.TestKitEventSourcedEntityEventContext;
 import com.google.protobuf.Empty;
 import org.example.eventsourcedentity.CounterApi;
 import org.example.eventsourcedentity.events.OuterCounterEvents;

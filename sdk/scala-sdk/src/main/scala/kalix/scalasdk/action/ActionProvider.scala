@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.scalasdk.action
+package kalix.scalasdk.action
 
 import scala.collection.immutable.Seq
 
-import com.akkaserverless.scalasdk.impl.action.ActionRouter
+import kalix.scalasdk.impl.action.ActionRouter
 import com.google.protobuf.Descriptors
 
 trait ActionProvider[A <: Action] {

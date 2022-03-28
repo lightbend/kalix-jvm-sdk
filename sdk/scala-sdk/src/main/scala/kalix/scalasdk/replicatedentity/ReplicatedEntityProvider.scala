@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.scalasdk.replicatedentity
+package kalix.scalasdk.replicatedentity
 
 import scala.collection.immutable.Seq
 
-import com.akkaserverless.replicatedentity.ReplicatedData
-import com.akkaserverless.scalasdk.impl.replicatedentity.ReplicatedEntityRouter
+import kalix.replicatedentity.ReplicatedData
+import kalix.scalasdk.impl.replicatedentity.ReplicatedEntityRouter
 import com.google.protobuf.Descriptors
 
 trait ReplicatedEntityProvider[D <: ReplicatedData, E <: ReplicatedEntity[D]] {

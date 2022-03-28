@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.sbt
+package kalix.sbt
 
 import akka.grpc.sbt.AkkaGrpcPlugin
 import akka.grpc.sbt.AkkaGrpcPlugin.autoImport.{ akkaGrpcCodeGeneratorSettings, akkaGrpcGeneratedSources }
@@ -24,14 +24,7 @@ import java.lang.{ Boolean => JBoolean }
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.nio.file.Files
-import com.akkaserverless.codegen.scalasdk.{
-  gen,
-  genTests,
-  genUnmanaged,
-  genUnmanagedTest,
-  AkkaserverlessGenerator,
-  BuildInfo
-}
+import kalix.codegen.scalasdk.{ gen, genTests, genUnmanaged, genUnmanagedTest, AkkaserverlessGenerator, BuildInfo }
 import sbt.{ Compile, _ }
 import sbt.Keys._
 import sbtprotoc.ProtocPlugin

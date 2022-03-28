@@ -1,6 +1,6 @@
 package com.example.actions;
 
-import com.akkaserverless.javasdk.testkit.ActionResult;
+import kalix.javasdk.testkit.ActionResult;
 import com.example.actions.CounterStateSubscriptionAction;
 import com.example.actions.CounterStateSubscriptionActionTestKit;
 import com.example.domain.CounterDomain;

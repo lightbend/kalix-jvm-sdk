@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.impl.replicatedentity
+package kalix.javasdk.impl.replicatedentity
 
 import akka.actor.testkit.typed.scaladsl.LoggingTestKit
 import akka.actor.typed.scaladsl.adapter._
 import akka.testkit.SocketUtil
-import com.akkaserverless.javasdk.AkkaServerless
-import com.akkaserverless.javasdk.AkkaServerlessRunner
-import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityProvider
+import kalix.javasdk.AkkaServerless
+import kalix.javasdk.AkkaServerlessRunner
+import kalix.javasdk.replicatedentity.ReplicatedEntityProvider
 import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
 

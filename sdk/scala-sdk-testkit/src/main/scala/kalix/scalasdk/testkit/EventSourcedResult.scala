@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.scalasdk.testkit
+package kalix.scalasdk.testkit
 
 import io.grpc.Status
 

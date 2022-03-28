@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.replicatedentity;
+package kalix.javasdk.replicatedentity;
 
-import com.akkaserverless.replicatedentity.ReplicatedData;
+import kalix.replicatedentity.ReplicatedData;
 import java.util.Set;
 
 /**
- * A Map of counters. Uses {@link com.akkaserverless.javasdk.replicatedentity.ReplicatedCounter}'s
+ * A Map of counters. Uses {@link kalix.javasdk.replicatedentity.ReplicatedCounter}'s
  * as values.
  *
  * @param <K> The type for keys.

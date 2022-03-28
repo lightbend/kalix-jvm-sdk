@@ -1,6 +1,6 @@
 package com.example.replicated.multimap
 
-import com.akkaserverless.scalasdk.testkit.AkkaServerlessTestKit
+import kalix.scalasdk.testkit.AkkaServerlessTestKit
 import com.example.replicated.Main
 import com.example.replicated.multimap.GetValues
 import com.example.replicated.multimap.MultiMapService

@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.scalasdk.eventsourcedentity
+package kalix.scalasdk.eventsourcedentity
 
-import com.akkaserverless.scalasdk.EntityContext
+import kalix.scalasdk.EntityContext
 
 /** Root context for all event sourcing contexts. */
 trait EventSourcedEntityContext extends EntityContext

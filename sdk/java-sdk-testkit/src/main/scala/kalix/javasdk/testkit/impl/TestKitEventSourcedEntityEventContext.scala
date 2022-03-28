@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.testkit.impl
+package kalix.javasdk.testkit.impl
 
 import akka.stream.Materializer
-import com.akkaserverless.javasdk.eventsourcedentity.EventContext
+import kalix.javasdk.eventsourcedentity.EventContext
 
 /**
  * INTERNAL API Used by the generated testkit

@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.scalasdk.view
+package kalix.scalasdk.view
 
 import com.google.protobuf.Descriptors
 import scala.collection.immutable.Seq
 
-import com.akkaserverless.scalasdk.impl.view.ViewRouter
+import kalix.scalasdk.impl.view.ViewRouter
 
 trait ViewProvider[S, V <: View[S]] {
   def serviceDescriptor: Descriptors.ServiceDescriptor

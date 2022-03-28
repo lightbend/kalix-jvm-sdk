@@ -5,7 +5,7 @@
 package customer.view;
 
 // tag::process-events[]
-import com.akkaserverless.javasdk.view.ViewContext;
+import kalix.javasdk.view.ViewContext;
 import com.google.protobuf.Any;
 import customer.domain.CustomerDomain;
 import customer.api.CustomerApi;

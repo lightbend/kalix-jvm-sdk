@@ -1,6 +1,6 @@
 package customer
 
-import com.akkaserverless.scalasdk.AkkaServerless
+import kalix.scalasdk.AkkaServerless
 import customer.domain.Customer
 import customer.view.CustomerByEmailView
 import customer.view.CustomerByNameView

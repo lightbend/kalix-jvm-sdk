@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.scalasdk
+package kalix.scalasdk
 
 import scala.collection.immutable.Set
 
-import com.akkaserverless.scalasdk.impl.ComponentOptions
+import kalix.scalasdk.impl.ComponentOptions
 
 /** Options used for configuring an entity. */
 trait EntityOptions extends ComponentOptions {

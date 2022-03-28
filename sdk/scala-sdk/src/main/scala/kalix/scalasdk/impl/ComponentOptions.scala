@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.scalasdk.impl
+package kalix.scalasdk.impl
 
 import scala.collection.immutable.Set
 

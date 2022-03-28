@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.impl.replicatedentity
+package kalix.javasdk.impl.replicatedentity
 
-import com.akkaserverless.javasdk.replicatedentity.ReplicatedCounter
+import kalix.javasdk.replicatedentity.ReplicatedCounter
 import com.akkaserverless.protocol.replicated_entity.ReplicatedCounterDelta
 import com.akkaserverless.protocol.replicated_entity.ReplicatedEntityDelta
-import com.akkaserverless.replicatedentity.ReplicatedData
+import kalix.replicatedentity.ReplicatedData
 
-private[akkaserverless] final class ReplicatedCounterImpl(value: Long = 0, delta: Long = 0)
+private[kalix] final class ReplicatedCounterImpl(value: Long = 0, delta: Long = 0)
     extends ReplicatedCounter
     with InternalReplicatedData {
 

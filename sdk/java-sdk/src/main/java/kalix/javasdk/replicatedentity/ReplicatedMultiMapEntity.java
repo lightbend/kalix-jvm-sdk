@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.replicatedentity;
+package kalix.javasdk.replicatedentity;
 
 public class ReplicatedMultiMapEntity<K, V> extends ReplicatedEntity<ReplicatedMultiMap<K, V>> {
   @Override
