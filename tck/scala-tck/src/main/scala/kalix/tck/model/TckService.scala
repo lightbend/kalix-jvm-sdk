@@ -36,7 +36,7 @@ import kalix.tck.model.valueentity.{ ValueEntityConfiguredEntity, ValueEntityCon
 object TckService {
   def createService() =
     Main
-      .createAkkaServerless()
+      .createKalix()
       // take Main registrations and override a few ones with extra options
       .register(
         // required timeout of 100 millis for configured TCK tests

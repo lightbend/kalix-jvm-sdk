@@ -14,15 +14,20 @@
  * limitations under the License.
  */
 
-package kalix.codegen.scalasdk
+package kalix.javasdk.testkit.junit.jupiter;
 
-import kalix.codegen.scalasdk.impl.SourceGenerator
-import kalix.codegen.{ File, ModelBuilder }
-import protocbridge.Artifact
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-object AkkaserverlessUnmanagedGenerator extends AbstractAkkaserverlessGenerator {
-  override def generateFiles(model: ModelBuilder.Model, configuredRootPackage: Option[String]): Seq[File] =
-    SourceGenerator.generateUnmanaged(model, configuredRootPackage)
-
-  override def suggestedDependencies: Seq[Artifact] = Nil
-}
+/**
+ * The {@code @KalixDescriptor} annotation is used in conjunction with the {@link
+ * KalixTest} annotation to mark the {@code AkkaServerless} that should be managed by the
+ * kalix Testkit extension.
+ *
+ * @see KalixTest
+ */
+@Target(ElementType.FIELD)
+@Retention(RetentionPolicy.RUNTIME)
+public @interface KalixDescriptor {}

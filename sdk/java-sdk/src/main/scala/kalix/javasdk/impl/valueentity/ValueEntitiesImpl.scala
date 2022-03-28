@@ -22,7 +22,7 @@ import akka.NotUsed
 import akka.actor.ActorSystem
 import akka.stream.scaladsl.Flow
 import akka.stream.scaladsl.Source
-import kalix.javasdk.AkkaServerlessRunner.Configuration
+import kalix.javasdk.KalixRunner.Configuration
 import com.akkaserverless.protocol.component.Failure
 import org.slf4j.LoggerFactory
 

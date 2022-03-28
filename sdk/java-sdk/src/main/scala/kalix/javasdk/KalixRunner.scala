@@ -48,7 +48,7 @@ import kalix.javasdk.impl.view.ViewsImpl
 import com.akkaserverless.protocol.view.ViewsHandler
 import org.slf4j.LoggerFactory
 
-object AkkaServerlessRunner {
+object KalixRunner {
   object BindFailure extends Reason
 
   final case class Configuration(userFunctionInterface: String, userFunctionPort: Int, snapshotEvery: Int) {
@@ -68,20 +68,19 @@ object AkkaServerlessRunner {
 }
 
 /**
- * The AkkaServerlessRunner is responsible for handle the bootstrap of entities, and is used by
- * [[kalix.javasdk.AkkaServerless#start()]] to set up the local server with the given configuration.
+ * The AkkaServerlessRunner is responsible for handle the bootstrap of entities, and is used by [[Kalix#start()]] to set
+ * up the local server with the given configuration.
  *
- * AkkaServerlessRunner can be seen as a low-level API for cases where [[kalix.javasdk.AkkaServerless#start()]] isn't
- * enough.
+ * AkkaServerlessRunner can be seen as a low-level API for cases where [[Kalix#start()]] isn't enough.
  */
-final class AkkaServerlessRunner private[this] (
+final class KalixRunner private[this] (
     _system: ActorSystem,
     serviceFactories: Map[String, java.util.function.Function[ActorSystem, Service]]) {
   private[kalix] implicit val system: ActorSystem = _system
   private val log = LoggerFactory.getLogger(getClass)
 
   private[this] final val configuration =
-    new AkkaServerlessRunner.Configuration(system.settings.config.getConfig("akkaserverless"))
+    new KalixRunner.Configuration(system.settings.config.getConfig("akkaserverless"))
 
   private val services = serviceFactories.toSeq.map { case (serviceName, factory) =>
     serviceName -> factory(system)
@@ -182,7 +181,7 @@ final class AkkaServerlessRunner private[this] (
           configuration.userFunctionInterface,
           configuration.userFunctionPort,
           ex)
-        CoordinatedShutdown.get(system).run(AkkaServerlessRunner.BindFailure)
+        CoordinatedShutdown.get(system).run(KalixRunner.BindFailure)
     }
 
     // Complete the returned CompletionStage with bind failure or Done when system is terminated

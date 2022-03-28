@@ -21,8 +21,8 @@ import kalix.scalasdk.impl.valueentity.ValueEntityRouter
 import com.google.protobuf.Descriptors
 
 /**
- * Register a value based entity in {@link kalix.scalasdk.AkkaServerless} using a <code> ValueEntityProvider</code>. The
- * concrete <code>ValueEntityProvider</code> is generated for the specific entities defined in Protobuf, for example
+ * Register a value based entity in {@link kalix.scalasdk.Kalix} using a <code> ValueEntityProvider</code>. The concrete
+ * <code>ValueEntityProvider</code> is generated for the specific entities defined in Protobuf, for example
  * <code>CustomerEntityProvider</code>.
  */
 trait ValueEntityProvider[S, E <: ValueEntity[S]] {

@@ -16,11 +16,12 @@
 
 package kalix.javasdk.action;
 
+import kalix.javasdk.Kalix;
 import kalix.javasdk.impl.action.ActionRouter;
 import com.google.protobuf.Descriptors;
 
 /**
- * Register an Action in {{@link kalix.javasdk.AkkaServerless}} using an <code>
+ * Register an Action in {{@link Kalix}} using an <code>
  * ActionProvider</code>. The concrete <code>ActionProvider</code> is generated for the specific
  * entities defined in Protobuf, for example <code>CustomerActionProvider</code>.
  */

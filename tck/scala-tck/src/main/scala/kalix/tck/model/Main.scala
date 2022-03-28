@@ -16,7 +16,7 @@
 
 package kalix.tck.model
 
-import kalix.scalasdk.AkkaServerless
+import kalix.scalasdk.Kalix
 import kalix.tck.model.action.ActionTckModelImpl
 import kalix.tck.model.action.ActionTwoImpl
 import kalix.tck.model.eventsourcedentity.EventSourcedConfiguredEntity
@@ -38,12 +38,12 @@ object Main {
 
   private val log = LoggerFactory.getLogger("kalix.tck.model.Main")
 
-  def createAkkaServerless(): AkkaServerless = {
-    // The AkkaServerlessFactory automatically registers any generated Actions, Views or Entities,
+  def createKalix(): Kalix = {
+    // The KalixFactory automatically registers any generated Actions, Views or Entities,
     // and is kept up-to-date with any changes in your protobuf definitions.
     // If you prefer, you may remove this and manually register these components in a
-    // `AkkaServerless()` instance.
-    AkkaServerlessFactory.withComponents(
+    // `Kalix()` instance.
+    KalixFactory.withComponents(
       new EventSourcedConfiguredEntity(_),
       new EventSourcedTckModelEntity(_),
       new EventSourcedTwoEntity(_),
@@ -57,7 +57,7 @@ object Main {
   }
 
   def main(args: Array[String]): Unit = {
-    log.info("starting the Akka Serverless service")
-    createAkkaServerless().start()
+    log.info("starting the Kalix service")
+    createKalix().start()
   }
 }

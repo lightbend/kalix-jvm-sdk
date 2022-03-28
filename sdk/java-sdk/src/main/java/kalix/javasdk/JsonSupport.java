@@ -60,7 +60,7 @@ public final class JsonSupport {
   /**
    * The Jackson ObjectMapper that is used for encoding and decoding JSON. You may adjust it's
    * configuration, but that must only be performed before starting {@link
-   * kalix.javasdk.AkkaServerless}
+   * Kalix}
    */
   public static ObjectMapper getObjectMapper() {
     return objectMapper;

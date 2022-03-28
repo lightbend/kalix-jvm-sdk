@@ -16,7 +16,7 @@
 
 package kalix.javasdk.testkit.junit.jupiter;
 
-import kalix.javasdk.testkit.AkkaServerlessTestKit;
+import kalix.javasdk.testkit.KalixTestKit;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.lang.annotation.ElementType;
@@ -26,22 +26,22 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * {@code @AkkaServerlessTest} registers a JUnit Jupiter extension to automatically manage the
- * lifecycle of {@link AkkaServerlessTestKit}.
+ * {@code @KalixTest} registers a JUnit Jupiter extension to automatically manage the
+ * lifecycle of {@link KalixTestKit}.
  *
  * <p><b>Note</b>: JUnit Jupiter is not provided as a transitive dependency of the Java SDK testkit
  * module but must be added explicitly to your project.
  *
- * <p>The Akka Serverless Testkit extension finds a field annotated with {@link
- * AkkaServerlessDescriptor} and creates a testkit for this annotated {@code AkkaServerless}.
+ * <p>The kalix Testkit extension finds a field annotated with {@link
+ * KalixDescriptor} and creates a testkit for this annotated {@code Kalix}.
  *
  * <p>The testkit can be injected into constructors or test methods, by specifying an {@code
- * AkkaServerlessTestkit} parameter.
+ * KalixTestkit} parameter.
  *
- * @see AkkaServerlessDescriptor
+ * @see KalixDescriptor
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-@ExtendWith(AkkaServerlessTestKitExtension.class)
+@ExtendWith(KalixTestKitExtension.class)
 @Inherited
-public @interface AkkaServerlessTest {}
+public @interface KalixTest {}

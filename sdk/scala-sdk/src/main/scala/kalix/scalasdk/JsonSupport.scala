@@ -17,7 +17,7 @@
 package kalix.scalasdk
 
 import com.google.protobuf.any.{ Any => ScalaPbAny }
-import kalix.javasdk.{ JsonSupport => JavaJsonSupport }
+import kalix.javasdk.{ JsonSupport => JavaJsonSupport, Kalix }
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
 
@@ -30,7 +30,7 @@ object JsonSupport {
 
   /**
    * The Jackson ObjectMapper that is used for encoding and decoding JSON. You may adjust it's configuration, but that
-   * must only be performed before starting [[kalix.javasdk.AkkaServerless]]
+   * must only be performed before starting [[Kalix]]
    */
   def getObjectMapper(): ObjectMapper = JavaJsonSupport.getObjectMapper
 

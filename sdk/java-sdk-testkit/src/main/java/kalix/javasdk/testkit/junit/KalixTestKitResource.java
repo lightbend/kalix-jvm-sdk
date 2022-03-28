@@ -19,12 +19,12 @@ package kalix.javasdk.testkit.junit;
 import akka.actor.ActorSystem;
 import akka.grpc.GrpcClientSettings;
 import akka.stream.Materializer;
-import kalix.javasdk.AkkaServerless;
-import kalix.javasdk.testkit.AkkaServerlessTestKit;
+import kalix.javasdk.Kalix;
+import kalix.javasdk.testkit.KalixTestKit;
 import org.junit.rules.ExternalResource;
 
 /**
- * A JUnit external resource for {@link AkkaServerlessTestKit}, which automatically manages the
+ * A JUnit external resource for {@link KalixTestKit}, which automatically manages the
  * lifecycle of the testkit. The testkit will be automatically stopped when the test completes or
  * fails.
  *
@@ -34,18 +34,18 @@ import org.junit.rules.ExternalResource;
  * <p>Example:
  *
  * <pre>
- * import kalix.javasdk.testkit.junit.AkkaServerlessTestKitResource;
+ * import kalix.javasdk.testkit.junit.KalixTestKitResource;
  *
- * public class MyAkkaServerlessIntegrationTest {
+ * public class MyKalixIntegrationTest {
  *
- *   private static final AkkaServerless MY_AKKA_SERVERLESS = new AkkaServerless(); // with registered services
+ *   private static final Kalix MY_AKKA_SERVERLESS = new Kalix(); // with registered services
  *
  *   &#64;ClassRule
- *   public static final AkkaServerlessTestKitResource testKit = new AkkaServerlessTestKitResource(MY_AKKA_SERVERLESS);
+ *   public static final KalixTestKitResource testKit = new KalixTestKitResource(MY_AKKA_SERVERLESS);
  *
  *   private final MyServiceClient client; // generated Akka gRPC client
  *
- *   public MyAkkaServerlessIntegrationTest() {
+ *   public MyKalixIntegrationTest() {
  *     this.client = MyServiceClient.create(testKit.getGrpcClientSettings(), testKit.getActorSystem());
  *   }
  *
@@ -56,17 +56,17 @@ import org.junit.rules.ExternalResource;
  * }
  * </pre>
  */
-public final class AkkaServerlessTestKitResource extends ExternalResource {
+public final class KalixTestKitResource extends ExternalResource {
 
-  private final AkkaServerlessTestKit testKit;
+  private final KalixTestKit testKit;
 
-  public AkkaServerlessTestKitResource(AkkaServerless akkaServerless) {
-    this(akkaServerless, AkkaServerlessTestKit.Settings.DEFAULT);
+  public KalixTestKitResource(Kalix kalix) {
+    this(kalix, KalixTestKit.Settings.DEFAULT);
   }
 
-  public AkkaServerlessTestKitResource(
-      AkkaServerless akkaServerless, AkkaServerlessTestKit.Settings settings) {
-    this.testKit = new AkkaServerlessTestKit(akkaServerless, settings);
+  public KalixTestKitResource(
+          Kalix kalix, KalixTestKit.Settings settings) {
+    this.testKit = new KalixTestKit(kalix, settings);
   }
 
   @Override

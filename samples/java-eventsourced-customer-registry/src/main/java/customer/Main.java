@@ -5,7 +5,7 @@
 
 package customer;
 
-import kalix.javasdk.AkkaServerless;
+import kalix.javasdk.Kalix;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import customer.domain.CustomerEntity;
@@ -16,7 +16,7 @@ public final class Main {
   private static final Logger LOG = LoggerFactory.getLogger(Main.class);
 
   // tag::register[]
-  public static AkkaServerless createAkkaServerless() {
+  public static Kalix createAkkaServerless() {
     return AkkaServerlessFactory.withComponents(
       CustomerEntity::new,
       CustomerByNameView::new);

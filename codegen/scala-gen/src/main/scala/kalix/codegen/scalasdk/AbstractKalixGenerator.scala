@@ -25,7 +25,7 @@ import kalix.codegen.{ File, ModelBuilder }
 import protocbridge.Artifact
 import protocgen.{ CodeGenApp, CodeGenRequest, CodeGenResponse }
 
-abstract class AbstractAkkaserverlessGenerator extends CodeGenApp {
+abstract class AbstractKalixGenerator extends CodeGenApp {
   val enableDebug = "enableDebug"
   def rootPackage(packageName: String) = s"rootPackage=$packageName"
   val rootPackageRegex = """rootPackage=(\w+)""".r

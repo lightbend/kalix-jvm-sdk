@@ -16,23 +16,21 @@
 
 package kalix.javasdk.testkit;
 
-import org.slf4j.LoggerFactory;
 import org.testcontainers.Testcontainers;
 import org.testcontainers.containers.GenericContainer;
-import org.testcontainers.containers.output.Slf4jLogConsumer;
 import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.utility.DockerImageName;
 
-/** Docker test container of Akka Serverless proxy for local development and testing. */
-public class AkkaServerlessProxyContainer extends GenericContainer<AkkaServerlessProxyContainer> {
+/** Docker test container of Kalix proxy for local development and testing. */
+public class KalixProxyContainer extends GenericContainer<KalixProxyContainer> {
 
-  /** Default Akka Serverless proxy image for local testing. */
+  /** Default Kalix proxy image for local testing. */
   public static final String DEFAULT_PROXY_IMAGE = BuildInfo.proxyImage();
 
-  /** Default Akka Serverless proxy version, compatible with this version of the SDK and testkit. */
+  /** Default Kalix proxy version, compatible with this version of the SDK and testkit. */
   public static final String DEFAULT_PROXY_VERSION = BuildInfo.proxyVersion();
 
-  /** Default Testcontainers DockerImageName for the Akka Serverless proxy. */
+  /** Default Testcontainers DockerImageName for the Kalix proxy. */
   public static final DockerImageName DEFAULT_PROXY_IMAGE_NAME =
       DockerImageName.parse(DEFAULT_PROXY_IMAGE).withTag(DEFAULT_PROXY_VERSION);
 
@@ -48,19 +46,19 @@ public class AkkaServerlessProxyContainer extends GenericContainer<AkkaServerles
   private final int userFunctionPort;
   private final int googlePubSubPort;
 
-  public AkkaServerlessProxyContainer() {
+  public KalixProxyContainer() {
     this(DEFAULT_USER_FUNCTION_PORT);
   }
 
-  public AkkaServerlessProxyContainer(final int userFunctionPort) {
+  public KalixProxyContainer(final int userFunctionPort) {
     this(DEFAULT_PROXY_IMAGE_NAME, userFunctionPort, DEFAULT_GOOGLE_PUBSUB_PORT);
   }
 
-  public AkkaServerlessProxyContainer(final int userFunctionPort, int googlePubSubPort) {
+  public KalixProxyContainer(final int userFunctionPort, int googlePubSubPort) {
     this(DEFAULT_PROXY_IMAGE_NAME, userFunctionPort, googlePubSubPort);
   }
 
-  public AkkaServerlessProxyContainer(
+  public KalixProxyContainer(
       final DockerImageName dockerImageName,
       final int userFunctionPort,
       final int googlePubSubPort) {
@@ -92,9 +90,9 @@ public class AkkaServerlessProxyContainer extends GenericContainer<AkkaServerles
   }
 
   /**
-   * Get the mapped port for the Akka Serverless proxy container.
+   * Get the mapped port for the Kalix proxy container.
    *
-   * @return port for the local Akka Serverless service
+   * @return port for the local Kalix service
    */
   public int getProxyPort() {
     return getMappedPort(DEFAULT_PROXY_PORT);

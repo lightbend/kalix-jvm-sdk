@@ -20,8 +20,8 @@ import akka.actor.ActorSystem;
 import akka.grpc.GrpcClientSettings;
 import akka.stream.Materializer;
 import akka.stream.SystemMaterializer;
-import kalix.javasdk.AkkaServerless;
-import kalix.javasdk.AkkaServerlessRunner;
+import kalix.javasdk.Kalix;
+import kalix.javasdk.KalixRunner;
 import kalix.javasdk.impl.GrpcClients;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
@@ -40,11 +40,11 @@ import java.util.concurrent.TimeUnit;
  *
  * <p>Requires Docker for starting a local instance of the Akka Serverless proxy.
  *
- * <p>Create an AkkaServerlessTestkit with an {@link AkkaServerless} service descriptor, and then
+ * <p>Create an AkkaServerlessTestkit with an {@link Kalix} service descriptor, and then
  * {@link #start} the testkit before testing the service with gRPC or HTTP clients. Call {@link
  * #stop} after tests are complete.
  */
-public class AkkaServerlessTestKit {
+public class KalixTestKit {
 
   /** Settings for AkkaServerlessTestkit. */
   public static class Settings {
@@ -76,33 +76,33 @@ public class AkkaServerlessTestKit {
     }
   }
 
-  private static final Logger log = LoggerFactory.getLogger(AkkaServerlessTestKit.class);
+  private static final Logger log = LoggerFactory.getLogger(KalixTestKit.class);
 
-  private final AkkaServerless akkaServerless;
+  private final Kalix kalix;
   private final Settings settings;
 
   private boolean started = false;
-  private AkkaServerlessProxyContainer proxyContainer;
-  private AkkaServerlessRunner runner;
+  private KalixProxyContainer proxyContainer;
+  private KalixRunner runner;
   private ActorSystem testSystem;
 
   /**
    * Create a new testkit for an AkkaServerless service descriptor.
    *
-   * @param akkaServerless AkkaServerless service descriptor
+   * @param kalix AkkaServerless service descriptor
    */
-  public AkkaServerlessTestKit(final AkkaServerless akkaServerless) {
-    this(akkaServerless, Settings.DEFAULT);
+  public KalixTestKit(final Kalix kalix) {
+    this(kalix, Settings.DEFAULT);
   }
 
   /**
    * Create a new testkit for an AkkaServerless service descriptor with custom settings.
    *
-   * @param akkaServerless AkkaServerless service descriptor
+   * @param kalix AkkaServerless service descriptor
    * @param settings custom testkit settings
    */
-  public AkkaServerlessTestKit(final AkkaServerless akkaServerless, final Settings settings) {
-    this.akkaServerless = akkaServerless;
+  public KalixTestKit(final Kalix kalix, final Settings settings) {
+    this.kalix = kalix;
     this.settings = settings;
   }
 
@@ -111,7 +111,7 @@ public class AkkaServerlessTestKit {
    *
    * @return this AkkaServerlessTestkit
    */
-  public AkkaServerlessTestKit start() {
+  public KalixTestKit start() {
     return start(ConfigFactory.load());
   }
 
@@ -121,7 +121,7 @@ public class AkkaServerlessTestKit {
    * @param config custom test configuration for the AkkaServerlessRunner
    * @return this AkkaServerlessTestkit
    */
-  public AkkaServerlessTestKit start(final Config config) {
+  public KalixTestKit start(final Config config) {
     if (started) throw new IllegalStateException("AkkaServerlessTestkit already started");
     int port = availableLocalPort();
     Map<String, Object> conf = new HashMap<>();
@@ -129,10 +129,10 @@ public class AkkaServerlessTestKit {
     // don't kill the test JVM when terminating the AkkaServerlessRunner
     conf.put("akkaserverless.system.akka.coordinated-shutdown.exit-jvm", "off");
     Config testConfig = ConfigFactory.parseMap(conf);
-    runner = akkaServerless.createRunner(testConfig.withFallback(config));
+    runner = kalix.createRunner(testConfig.withFallback(config));
     runner.run();
     testSystem = ActorSystem.create("AkkaServerlessTestkit");
-    proxyContainer = new AkkaServerlessProxyContainer(port);
+    proxyContainer = new KalixProxyContainer(port);
     proxyContainer.start();
     started = true;
     // pass on proxy and host to GrpcClients to allow for inter-component communication

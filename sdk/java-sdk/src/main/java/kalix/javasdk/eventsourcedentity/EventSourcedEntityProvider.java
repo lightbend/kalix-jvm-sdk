@@ -16,11 +16,12 @@
 
 package kalix.javasdk.eventsourcedentity;
 
+import kalix.javasdk.Kalix;
 import kalix.javasdk.impl.eventsourcedentity.EventSourcedEntityRouter;
 import com.google.protobuf.Descriptors;
 
 /**
- * Register an event sourced entity in {@link kalix.javasdk.AkkaServerless} using a <code>
+ * Register an event sourced entity in {@link Kalix} using a <code>
  * EventSourcedEntityProvider</code>. The concrete <code>EventSourcedEntityProvider</code> is
  * generated for the specific entities defined in Protobuf, for example <code>CustomerEntityProvider
  * </code>.

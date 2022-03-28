@@ -17,7 +17,6 @@
 package kalix.scalasdk
 
 import scala.concurrent.Future
-
 import akka.Done
 import kalix.javasdk
 import kalix.replicatedentity.ReplicatedData
@@ -37,18 +36,19 @@ import kalix.scalasdk.valueentity.ValueEntityProvider
 import kalix.scalasdk.view.View
 import kalix.scalasdk.view.ViewProvider
 import com.typesafe.config.Config
-object AkkaServerless {
-  def apply() = new AkkaServerless(new javasdk.AkkaServerless().preferScalaProtobufs())
 
-  private[scalasdk] def apply(impl: javasdk.AkkaServerless) =
-    new AkkaServerless(impl)
+object Kalix {
+  def apply() = new Kalix(new javasdk.Kalix().preferScalaProtobufs())
+
+  private[scalasdk] def apply(impl: javasdk.Kalix) =
+    new Kalix(impl)
 }
 
 /**
  * The AkkaServerless class is the main interface to configuring entities to deploy, and subsequently starting a local
  * server which will expose these entities to the AkkaServerless Proxy Sidecar.
  */
-class AkkaServerless private (private[kalix] val delegate: javasdk.AkkaServerless) {
+class Kalix private (private[kalix] val delegate: javasdk.Kalix) {
 
   /**
    * Sets the ClassLoader to be used for reflective access, the default value is the ClassLoader of the AkkaServerless
@@ -59,8 +59,8 @@ class AkkaServerless private (private[kalix] val delegate: javasdk.AkkaServerles
    * @return
    *   This AkkaServerless instance.
    */
-  def withClassLoader(classLoader: ClassLoader): AkkaServerless =
-    AkkaServerless(delegate.withClassLoader(classLoader))
+  def withClassLoader(classLoader: ClassLoader): Kalix =
+    Kalix(delegate.withClassLoader(classLoader))
 
   /**
    * Sets the type URL prefix to be used when serializing and deserializing types from and to Protobyf Any values.
@@ -71,8 +71,8 @@ class AkkaServerless private (private[kalix] val delegate: javasdk.AkkaServerles
    * @return
    *   This AkkaServerless instance.
    */
-  def withTypeUrlPrefix(prefix: String): AkkaServerless =
-    AkkaServerless(delegate.withTypeUrlPrefix(prefix))
+  def withTypeUrlPrefix(prefix: String): Kalix =
+    Kalix(delegate.withTypeUrlPrefix(prefix))
 
   /**
    * When locating protobufs, if both a Java and a ScalaPB generated class is found on the classpath, this specifies
@@ -81,8 +81,8 @@ class AkkaServerless private (private[kalix] val delegate: javasdk.AkkaServerles
    * @return
    *   This AkkaServerless instance.
    */
-  def preferJavaProtobufs: AkkaServerless =
-    AkkaServerless(delegate.preferJavaProtobufs)
+  def preferJavaProtobufs: Kalix =
+    Kalix(delegate.preferJavaProtobufs)
 
   /**
    * When locating protobufs, if both a Java and a ScalaPB generated class is found on the classpath, this specifies
@@ -91,8 +91,8 @@ class AkkaServerless private (private[kalix] val delegate: javasdk.AkkaServerles
    * @return
    *   This AkkaServerless instance.
    */
-  def preferScalaProtobufs: AkkaServerless =
-    AkkaServerless(delegate.preferScalaProtobufs)
+  def preferScalaProtobufs: Kalix =
+    Kalix(delegate.preferScalaProtobufs)
 
   /**
    * Register a replicated entity using a [[ReplicatedEntityProvider]]. The concrete `ReplicatedEntityProvider` is
@@ -103,9 +103,8 @@ class AkkaServerless private (private[kalix] val delegate: javasdk.AkkaServerles
    * @return
    *   This stateful service builder.
    */
-  def register[D <: ReplicatedData, E <: ReplicatedEntity[D]](
-      provider: ReplicatedEntityProvider[D, E]): AkkaServerless =
-    AkkaServerless(delegate.register(JavaReplicatedEntityProviderAdapter(provider)))
+  def register[D <: ReplicatedData, E <: ReplicatedEntity[D]](provider: ReplicatedEntityProvider[D, E]): Kalix =
+    Kalix(delegate.register(JavaReplicatedEntityProviderAdapter(provider)))
 
   /**
    * Register a value based entity using a [[ValueEntityProvider]]. The concrete ` ValueEntityProvider` is generated for
@@ -116,8 +115,8 @@ class AkkaServerless private (private[kalix] val delegate: javasdk.AkkaServerles
    * @return
    *   This stateful service builder.
    */
-  def register[S, E <: ValueEntity[S]](provider: ValueEntityProvider[S, E]): AkkaServerless =
-    AkkaServerless(delegate.register(new JavaValueEntityProviderAdapter(provider)))
+  def register[S, E <: ValueEntity[S]](provider: ValueEntityProvider[S, E]): Kalix =
+    Kalix(delegate.register(new JavaValueEntityProviderAdapter(provider)))
 
   /**
    * Register a event sourced entity using a [[EventSourcedEntityProvider]]. The concrete `EventSourcedEntityProvider`
@@ -129,8 +128,8 @@ class AkkaServerless private (private[kalix] val delegate: javasdk.AkkaServerles
    * @return
    *   This stateful service builder.
    */
-  def register[S, E <: EventSourcedEntity[S]](provider: EventSourcedEntityProvider[S, E]): AkkaServerless =
-    AkkaServerless(delegate.register(new JavaEventSourcedEntityProviderAdapter(provider)))
+  def register[S, E <: EventSourcedEntity[S]](provider: EventSourcedEntityProvider[S, E]): Kalix =
+    Kalix(delegate.register(new JavaEventSourcedEntityProviderAdapter(provider)))
 
   /**
    * Register a view using a [[ViewProvider]]. The concrete ` ViewProvider` is generated for the specific views defined
@@ -139,8 +138,8 @@ class AkkaServerless private (private[kalix] val delegate: javasdk.AkkaServerles
    * @return
    *   This stateful service builder.
    */
-  def register[S, V <: View[S]](provider: ViewProvider[S, V]): AkkaServerless =
-    AkkaServerless(delegate.register(new JavaViewProviderAdapter(provider)))
+  def register[S, V <: View[S]](provider: ViewProvider[S, V]): Kalix =
+    Kalix(delegate.register(new JavaViewProviderAdapter(provider)))
 
   /**
    * Register an action using an [[ActionProvider]]. The concrete ` ActionProvider` is generated for the specific
@@ -149,8 +148,8 @@ class AkkaServerless private (private[kalix] val delegate: javasdk.AkkaServerles
    * @return
    *   This stateful service builder.
    */
-  def register[A <: Action](provider: ActionProvider[A]): AkkaServerless =
-    AkkaServerless(delegate.register(JavaActionProviderAdapter(provider)))
+  def register[A <: Action](provider: ActionProvider[A]): Kalix =
+    Kalix(delegate.register(JavaActionProviderAdapter(provider)))
 
   /**
    * Starts a server with the configured entities.
@@ -179,8 +178,8 @@ class AkkaServerless private (private[kalix] val delegate: javasdk.AkkaServerles
    * @return
    *   an AkkaServerlessRunner
    */
-  def createRunner(): AkkaServerlessRunner =
-    AkkaServerlessRunner(delegate.createRunner())
+  def createRunner(): KalixRunner =
+    KalixRunner(delegate.createRunner())
 
   /**
    * Creates an AkkaServerlessRunner using the currently configured services, using the supplied configuration. In order
@@ -189,6 +188,6 @@ class AkkaServerless private (private[kalix] val delegate: javasdk.AkkaServerles
    * @return
    *   an AkkaServerlessRunner
    */
-  def createRunner(config: Config): AkkaServerlessRunner =
-    AkkaServerlessRunner(delegate.createRunner(config))
+  def createRunner(config: Config): KalixRunner =
+    KalixRunner(delegate.createRunner(config))
 }

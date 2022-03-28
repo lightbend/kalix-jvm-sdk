@@ -19,8 +19,7 @@ package kalix.javasdk.impl.replicatedentity
 import akka.actor.testkit.typed.scaladsl.LoggingTestKit
 import akka.actor.typed.scaladsl.adapter._
 import akka.testkit.SocketUtil
-import kalix.javasdk.AkkaServerless
-import kalix.javasdk.AkkaServerlessRunner
+import kalix.javasdk.{ Kalix, KalixRunner }
 import kalix.javasdk.replicatedentity.ReplicatedEntityProvider
 import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
@@ -44,7 +43,7 @@ class TestReplicatedService(entityProvider: ReplicatedEntityProvider[_, _]) {
     }
   """))
 
-  val runner: AkkaServerlessRunner = new AkkaServerless()
+  val runner: KalixRunner = new Kalix()
     .register(entityProvider)
     .createRunner(config)
 

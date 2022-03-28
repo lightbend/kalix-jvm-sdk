@@ -16,8 +16,8 @@
 
 package kalix.javasdk.testkit.junit.jupiter;
 
-import kalix.javasdk.AkkaServerless;
-import kalix.javasdk.testkit.AkkaServerlessTestKit;
+import kalix.javasdk.Kalix;
+import kalix.javasdk.testkit.KalixTestKit;
 import org.junit.jupiter.api.extension.*;
 import org.junit.jupiter.api.extension.ExtensionContext.Namespace;
 import org.junit.jupiter.api.extension.ExtensionContext.Store;
@@ -25,43 +25,42 @@ import org.junit.platform.commons.support.AnnotationSupport;
 import org.junit.platform.commons.util.ReflectionUtils;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 
-class AkkaServerlessTestKitExtension implements BeforeAllCallback, ParameterResolver {
+class KalixTestKitExtension implements BeforeAllCallback, ParameterResolver {
 
-  private static final Namespace NAMESPACE = Namespace.create(AkkaServerlessTestKitExtension.class);
+  private static final Namespace NAMESPACE = Namespace.create(KalixTestKitExtension.class);
   private static final String TESTKIT = "testkit";
 
   @Override
   public void beforeAll(ExtensionContext context) {
     Class<?> testClass = context.getRequiredTestClass();
-    AkkaServerless akkaServerless = findAkkaServerlessDescriptor(testClass);
-    AkkaServerlessTestKit testkit = new AkkaServerlessTestKit(akkaServerless).start();
+    Kalix kalix = findKalixDescriptor(testClass);
+    KalixTestKit testkit = new KalixTestKit(kalix).start();
     context.getStore(NAMESPACE).put(TESTKIT, new StoredTestkit(testkit));
   }
 
-  private static AkkaServerless findAkkaServerlessDescriptor(final Class<?> testClass) {
+  private static Kalix findKalixDescriptor(final Class<?> testClass) {
     return ReflectionUtils.findFields(
             testClass,
-            AkkaServerlessTestKitExtension::isAkkaServerlessDescriptor,
+            KalixTestKitExtension::isKalixDescriptor,
             ReflectionUtils.HierarchyTraversalMode.TOP_DOWN)
         .stream()
         .findFirst()
-        .map(AkkaServerlessTestKitExtension::getAkkaServerlessDescriptor)
+        .map(KalixTestKitExtension::getKalixDescriptor)
         .orElseThrow(
             () ->
                 new ExtensionConfigurationException(
-                    "No field annotated with @AkkaServerlessDescriptor found for @AkkaServerlessTest"));
+                    "No field annotated with @KalixDescriptor found for @KalixTest"));
   }
 
-  private static boolean isAkkaServerlessDescriptor(final Field field) {
-    if (AnnotationSupport.isAnnotated(field, AkkaServerlessDescriptor.class)) {
-      if (AkkaServerless.class.isAssignableFrom(field.getType())) {
+  private static boolean isKalixDescriptor(final Field field) {
+    if (AnnotationSupport.isAnnotated(field, KalixDescriptor.class)) {
+      if (Kalix.class.isAssignableFrom(field.getType())) {
         return true;
       } else {
         throw new ExtensionConfigurationException(
             String.format(
-                "Field [%s] annotated with @AkkaServerlessDescriptor is not an AkkaServerless",
+                "Field [%s] annotated with @KalixDescriptor is not an Kalix",
                 field.getName()));
       }
     } else {
@@ -69,27 +68,27 @@ class AkkaServerlessTestKitExtension implements BeforeAllCallback, ParameterReso
     }
   }
 
-  private static AkkaServerless getAkkaServerlessDescriptor(final Field field) {
-    return (AkkaServerless)
+  private static Kalix getKalixDescriptor(final Field field) {
+    return (Kalix)
         ReflectionUtils.tryToReadFieldValue(field)
             .getOrThrow(
                 e ->
                     new ExtensionConfigurationException(
-                        "Cannot access AkkaServerless defined in field " + field.getName(), e));
+                        "Cannot access Kalix defined in field " + field.getName(), e));
   }
 
   @Override
   public boolean supportsParameter(ParameterContext parameterContext, ExtensionContext context) {
     Class<?> type = parameterContext.getParameter().getType();
-    return type == AkkaServerlessTestKit.class;
+    return type == KalixTestKit.class;
   }
 
   @Override
   public Object resolveParameter(ParameterContext parameterContext, ExtensionContext context) {
     Class<?> type = parameterContext.getParameter().getType();
     Store store = context.getStore(NAMESPACE);
-    AkkaServerlessTestKit testkit = store.get(TESTKIT, StoredTestkit.class).getTestkit();
-    if (type == AkkaServerlessTestKit.class) {
+    KalixTestKit testkit = store.get(TESTKIT, StoredTestkit.class).getTestkit();
+    if (type == KalixTestKit.class) {
       return testkit;
     } else {
       throw new ParameterResolutionException("Unexpected parameter type " + type);
@@ -98,13 +97,13 @@ class AkkaServerlessTestKitExtension implements BeforeAllCallback, ParameterReso
 
   // Wrap testkit in CloseableResource, auto-closed when test finishes (extension store is closed)
   private static class StoredTestkit implements Store.CloseableResource {
-    private final AkkaServerlessTestKit testkit;
+    private final KalixTestKit testkit;
 
-    private StoredTestkit(AkkaServerlessTestKit testkit) {
+    private StoredTestkit(KalixTestKit testkit) {
       this.testkit = testkit;
     }
 
-    public AkkaServerlessTestKit getTestkit() {
+    public KalixTestKit getTestkit() {
       return testkit;
     }
 

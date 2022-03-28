@@ -5,7 +5,7 @@
 
 package customer;
 
-import kalix.javasdk.AkkaServerless;
+import kalix.javasdk.Kalix;
 import customer.domain.CustomerEntity;
 import customer.domain.CustomerEntityProvider;
 import customer.view.CustomerByNameView;
@@ -18,12 +18,12 @@ public final class MainWithCustomViewId {
   private static final Logger LOG = LoggerFactory.getLogger(MainWithCustomViewId.class);
 
   // tag::register[]
-  public static AkkaServerless createAkkaServerless() {
-    AkkaServerless akkaServerless = new AkkaServerless();
-    akkaServerless.register(CustomerByNameViewProvider.of(CustomerByNameView::new)
+  public static Kalix createAkkaServerless() {
+    Kalix kalix = new Kalix();
+    kalix.register(CustomerByNameViewProvider.of(CustomerByNameView::new)
         .withViewId("CustomerByNameV2"));
-    akkaServerless.register(CustomerEntityProvider.of(CustomerEntity::new));
-    return akkaServerless;
+    kalix.register(CustomerEntityProvider.of(CustomerEntity::new));
+    return kalix;
   }
   // end::register[]
 

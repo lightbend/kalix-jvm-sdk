@@ -20,9 +20,10 @@ import kalix.codegen.scalasdk.impl.SourceGenerator
 import kalix.codegen.{ File, ModelBuilder }
 import protocbridge.Artifact
 
-object AkkaserverlessUnmanagedTestGenerator extends AbstractAkkaserverlessGenerator {
+object KalixTestGenerator extends AbstractKalixGenerator {
   override def generateFiles(model: ModelBuilder.Model, configuredRootPackage: Option[String]): Seq[File] =
-    SourceGenerator.generateUnmanagedTest(model, configuredRootPackage)
+    SourceGenerator.generateManagedTest(model)
 
+  // FIXME #382 add reference to the runtime lib here
   override def suggestedDependencies: Seq[Artifact] = Nil
 }

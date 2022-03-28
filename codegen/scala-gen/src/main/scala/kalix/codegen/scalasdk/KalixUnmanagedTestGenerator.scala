@@ -17,19 +17,12 @@
 package kalix.codegen.scalasdk
 
 import kalix.codegen.scalasdk.impl.SourceGenerator
-import protocbridge.Artifact
 import kalix.codegen.{ File, ModelBuilder }
+import protocbridge.Artifact
 
-object AkkaserverlessGenerator extends AbstractAkkaserverlessGenerator {
-
+object KalixUnmanagedTestGenerator extends AbstractKalixGenerator {
   override def generateFiles(model: ModelBuilder.Model, configuredRootPackage: Option[String]): Seq[File] =
-    SourceGenerator.generateManaged(model, configuredRootPackage)
+    SourceGenerator.generateUnmanagedTest(model, configuredRootPackage)
 
-  // FIXME #382 add reference to the runtime lib here
-  override def suggestedDependencies: Seq[Artifact] = Seq(
-    Artifact(
-      BuildInfo.organization,
-      // FIXME determine scala version properly
-      "kalix-scala-sdk" + "_2.13",
-      BuildInfo.version))
+  override def suggestedDependencies: Seq[Artifact] = Nil
 }

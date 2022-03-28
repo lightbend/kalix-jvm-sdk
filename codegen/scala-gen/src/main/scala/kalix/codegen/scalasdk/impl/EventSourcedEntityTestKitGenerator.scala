@@ -179,7 +179,7 @@ object EventSourcedEntityTestKitGenerator {
         service.messageType.parent.scalaPackage,
         otherImports = Seq(
           "akka.actor.ActorSystem",
-          "kalix.scalasdk.testkit.AkkaServerlessTestKit",
+          "kalix.scalasdk.testkit.KalixTestKit",
           "org.scalatest.matchers.should.Matchers",
           "org.scalatest.wordspec.AnyWordSpec",
           "org.scalatest.BeforeAndAfterAll",
@@ -208,7 +208,7 @@ object EventSourcedEntityTestKitGenerator {
           |  implicit private val patience: PatienceConfig =
           |    PatienceConfig(Span(5, Seconds), Span(500, Millis))
           |
-          |  private val testKit = AkkaServerlessTestKit(Main.createAkkaServerless()).start()
+          |  private val testKit = KalixTestKit(Main.createKalix()).start()
           |
           |  private val client = testKit.getGrpcClient(classOf[${typeName(service.messageType)}])
           |

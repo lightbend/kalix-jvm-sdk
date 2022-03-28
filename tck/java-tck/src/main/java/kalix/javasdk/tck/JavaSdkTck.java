@@ -16,7 +16,7 @@
 
 package kalix.javasdk.tck;
 
-import kalix.javasdk.AkkaServerless;
+import kalix.javasdk.Kalix;
 import kalix.javasdk.PassivationStrategy;
 import kalix.javasdk.eventsourcedentity.EventSourcedEntityOptions;
 import kalix.javasdk.replicatedentity.ReplicatedEntityOptions;
@@ -39,8 +39,8 @@ import kalix.tck.model.view.ViewTckSourceEntityProvider;
 import java.time.Duration;
 
 public final class JavaSdkTck {
-  public static AkkaServerless SERVICE =
-      new AkkaServerless()
+  public static Kalix SERVICE =
+      new Kalix()
           .register(ActionTckModelActionProvider.of(ActionTckModelImpl::new))
           .register(ActionTwoActionProvider.of(ActionTwoImpl::new))
           .register(ValueEntityTckModelEntityProvider.of(ValueEntityTckModelEntity::new))

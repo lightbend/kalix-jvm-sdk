@@ -22,8 +22,7 @@ import scalapb.GeneratorOption
 object gen {
   def apply(
       options: Seq[String] = Seq.empty,
-      generatorClass: String = "kalix.codegen.scalasdk.AkkaserverlessGenerator$")
-      : (SandboxedJvmGenerator, Seq[String]) =
+      generatorClass: String = "kalix.codegen.scalasdk.KalixGenerator$"): (SandboxedJvmGenerator, Seq[String]) =
     (
       SandboxedJvmGenerator.forModule(
         "scala",
@@ -32,7 +31,7 @@ object gen {
           "kalix-codegen-scala_2.12",
           kalix.codegen.scalasdk.BuildInfo.version),
         generatorClass,
-        AkkaserverlessGenerator.suggestedDependencies),
+        KalixGenerator.suggestedDependencies),
       options)
 
 }

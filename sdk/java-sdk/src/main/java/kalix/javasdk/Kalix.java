@@ -51,10 +51,10 @@ import java.util.function.Function;
 
 /**
  * The AkkaServerless class is the main interface to configuring entities to deploy, and
- * subsequently starting a local server which will expose these entities to the AkkaServerless Proxy
+ * subsequently starting a local server which will expose these entities to the Kalix proxy
  * Sidecar.
  */
-public final class AkkaServerless {
+public final class Kalix {
   private final Map<String, Function<ActorSystem, Service>> services = new HashMap<>();
   private ClassLoader classLoader = getClass().getClassLoader();
   private String typeUrlPrefix = AnySupport.DefaultTypeUrlPrefix();
@@ -75,7 +75,7 @@ public final class AkkaServerless {
      *     protobuf types when needed.
      * @return This stateful service builder.
      */
-    public AkkaServerless registerEventSourcedEntity(
+    public Kalix registerEventSourcedEntity(
         EventSourcedEntityFactory factory,
         Descriptors.ServiceDescriptor descriptor,
         String entityType,
@@ -98,7 +98,7 @@ public final class AkkaServerless {
                   entityOptions.snapshotEvery(),
                   entityOptions));
 
-      return AkkaServerless.this;
+      return Kalix.this;
     }
 
     /**
@@ -111,7 +111,7 @@ public final class AkkaServerless {
      *     protobuf types when needed.
      * @return This Akka Serverless builder.
      */
-    public AkkaServerless registerAction(
+    public Kalix registerAction(
         ActionFactory actionFactory,
         Descriptors.ServiceDescriptor descriptor,
         Descriptors.FileDescriptor... additionalDescriptors) {
@@ -125,7 +125,7 @@ public final class AkkaServerless {
 
       services.put(descriptor.getFullName(), system -> service);
 
-      return AkkaServerless.this;
+      return Kalix.this;
     }
 
     /**
@@ -139,7 +139,7 @@ public final class AkkaServerless {
      * @param entityOptions The options for this entity.
      * @return This stateful service builder.
      */
-    public AkkaServerless registerValueEntity(
+    public Kalix registerValueEntity(
         ValueEntityFactory factory,
         Descriptors.ServiceDescriptor descriptor,
         String entityType,
@@ -156,7 +156,7 @@ public final class AkkaServerless {
               new ValueEntityService(
                   resolvedFactory, descriptor, anySupport, entityType, entityOptions));
 
-      return AkkaServerless.this;
+      return Kalix.this;
     }
 
     /**
@@ -170,7 +170,7 @@ public final class AkkaServerless {
      * @param entityOptions The options for this entity.
      * @return This stateful service builder.
      */
-    public AkkaServerless registerReplicatedEntity(
+    public Kalix registerReplicatedEntity(
         ReplicatedEntityFactory factory,
         Descriptors.ServiceDescriptor descriptor,
         String entityType,
@@ -188,7 +188,7 @@ public final class AkkaServerless {
               new ReplicatedEntityService(
                   resolvedFactory, descriptor, anySupport, entityType, entityOptions));
 
-      return AkkaServerless.this;
+      return Kalix.this;
     }
 
     /**
@@ -203,7 +203,7 @@ public final class AkkaServerless {
      *     protobuf types when needed.
      * @return This stateful service builder.
      */
-    private AkkaServerless registerView(
+    private Kalix registerView(
         ViewFactory factory,
         Descriptors.ServiceDescriptor descriptor,
         String viewId,
@@ -214,7 +214,7 @@ public final class AkkaServerless {
           new ViewService(Optional.ofNullable(factory), descriptor, anySupport, viewId);
       services.put(descriptor.getFullName(), system -> service);
 
-      return AkkaServerless.this;
+      return Kalix.this;
     }
   }
 
@@ -225,7 +225,7 @@ public final class AkkaServerless {
    * @param classLoader A non-null ClassLoader to be used for reflective access.
    * @return This AkkaServerless instance.
    */
-  public AkkaServerless withClassLoader(ClassLoader classLoader) {
+  public Kalix withClassLoader(ClassLoader classLoader) {
     this.classLoader = classLoader;
     return this;
   }
@@ -237,7 +237,7 @@ public final class AkkaServerless {
    * @param prefix the type URL prefix to be used.
    * @return This AkkaServerless instance.
    */
-  public AkkaServerless withTypeUrlPrefix(String prefix) {
+  public Kalix withTypeUrlPrefix(String prefix) {
     this.typeUrlPrefix = prefix;
     return this;
   }
@@ -248,7 +248,7 @@ public final class AkkaServerless {
    *
    * @return This AkkaServerless instance.
    */
-  public AkkaServerless preferJavaProtobufs() {
+  public Kalix preferJavaProtobufs() {
     this.prefer = AnySupport.PREFER_JAVA();
     return this;
   }
@@ -259,7 +259,7 @@ public final class AkkaServerless {
    *
    * @return This AkkaServerless instance.
    */
-  public AkkaServerless preferScalaProtobufs() {
+  public Kalix preferScalaProtobufs() {
     this.prefer = AnySupport.PREFER_SCALA();
     return this;
   }
@@ -274,7 +274,7 @@ public final class AkkaServerless {
    *
    * @return This stateful service builder.
    */
-  public <D extends ReplicatedData, E extends ReplicatedEntity<D>> AkkaServerless register(
+  public <D extends ReplicatedData, E extends ReplicatedEntity<D>> Kalix register(
       ReplicatedEntityProvider<D, E> provider) {
     return lowLevel.registerReplicatedEntity(
         provider::newRouter,
@@ -293,7 +293,7 @@ public final class AkkaServerless {
    *
    * @return This stateful service builder.
    */
-  public <S, E extends ValueEntity<S>> AkkaServerless register(ValueEntityProvider<S, E> provider) {
+  public <S, E extends ValueEntity<S>> Kalix register(ValueEntityProvider<S, E> provider) {
     return lowLevel.registerValueEntity(
         provider::newRouter,
         provider.serviceDescriptor(),
@@ -313,7 +313,7 @@ public final class AkkaServerless {
    *
    * @return This stateful service builder.
    */
-  public <S, E extends EventSourcedEntity<S>> AkkaServerless register(
+  public <S, E extends EventSourcedEntity<S>> Kalix register(
       EventSourcedEntityProvider<S, E> provider) {
     return lowLevel.registerEventSourcedEntity(
         provider::newRouter,
@@ -330,7 +330,7 @@ public final class AkkaServerless {
    *
    * @return This stateful service builder.
    */
-  public AkkaServerless register(ViewProvider provider) {
+  public Kalix register(ViewProvider provider) {
     return lowLevel.registerView(
         provider::newRouter,
         provider.serviceDescriptor(),
@@ -345,7 +345,7 @@ public final class AkkaServerless {
    *
    * @return This stateful service builder.
    */
-  public AkkaServerless register(ActionProvider provider) {
+  public Kalix register(ActionProvider provider) {
     return lowLevel.registerAction(
         provider::newRouter, provider.serviceDescriptor(), provider.additionalDescriptors());
   }
@@ -374,8 +374,8 @@ public final class AkkaServerless {
    *
    * @return an AkkaServerlessRunner
    */
-  public AkkaServerlessRunner createRunner() {
-    return new AkkaServerlessRunner(services);
+  public KalixRunner createRunner() {
+    return new KalixRunner(services);
   }
 
   /**
@@ -385,8 +385,8 @@ public final class AkkaServerless {
    *
    * @return an AkkaServerlessRunner
    */
-  public AkkaServerlessRunner createRunner(Config config) {
-    return new AkkaServerlessRunner(services, config);
+  public KalixRunner createRunner(Config config) {
+    return new KalixRunner(services, config);
   }
 
   private AnySupport newAnySupport(Descriptors.FileDescriptor[] descriptors) {

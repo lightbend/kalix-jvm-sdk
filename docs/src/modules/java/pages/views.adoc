@@ -122,7 +122,7 @@ When no result is found, the request fails with gRPC status code `NOT_FOUND`. A 
 [#register-view]
 === Registering a View
 
-Once you've defined a View, register it with `AkkaServerless` by invoking the `AkkaServerlessFactory.withComponents` method in the `Main` class.
+Once you've defined a View, register it with `Kalix` by invoking the `AkkaServerlessFactory.withComponents` method in the `Main` class.
 
 [.tabset]
 Java::
@@ -258,7 +258,7 @@ NOTE: This type of update transformation is a natural fit for Events emitted by 
 [#es_register]
 === Register the View
 
-Register the View class with `AkkaServerless`:
+Register the View class with `Kalix`:
 
 [.tabset]
 Java::

@@ -20,8 +20,7 @@ import akka.actor.testkit.typed.scaladsl.LoggingTestKit
 import akka.actor.typed.scaladsl.adapter._
 import akka.testkit.EventFilter
 import akka.testkit.SocketUtil
-import kalix.javasdk.AkkaServerless
-import kalix.javasdk.AkkaServerlessRunner
+import kalix.javasdk.{ Kalix, KalixRunner }
 import kalix.javasdk.valueentity.ValueEntityProvider
 import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
@@ -44,7 +43,7 @@ class TestValueService(entityProvider: ValueEntityProvider[_, _]) {
     }
   """))
 
-  val runner: AkkaServerlessRunner = new AkkaServerless()
+  val runner: KalixRunner = new Kalix()
     .register(entityProvider)
     .createRunner(config)
 

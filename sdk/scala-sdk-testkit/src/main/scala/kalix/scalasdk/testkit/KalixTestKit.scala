@@ -21,24 +21,23 @@ import scala.concurrent.ExecutionContext
 import akka.actor.ActorSystem
 import akka.grpc.GrpcClientSettings
 import akka.stream.Materializer
-import kalix.scalasdk.AkkaServerless
-import kalix.javasdk.testkit.{ AkkaServerlessTestKit => JTestKit }
+import kalix.scalasdk.Kalix
+import kalix.javasdk.testkit.{ KalixTestKit => JTestKit }
 
 /**
  * TestKit for running Akka Serverless services locally.
  *
  * <p>Requires Docker for starting a local instance of the Akka Serverless proxy.
  *
- * <p>Create an AkkaServerlessTestKit with an [[AkkaServerless]] service descriptor, and then
- * [[AkkaServerlessTestKit.start]] the testkit before testing the service with gRPC or HTTP clients. Call
- * [[AkkaServerlessTestKit.stop]] after tests are complete.
+ * <p>Create an AkkaServerlessTestKit with an [[Kalix]] service descriptor, and then [[KalixTestKit.start]] the testkit
+ * before testing the service with gRPC or HTTP clients. Call [[KalixTestKit.stop]] after tests are complete.
  */
-object AkkaServerlessTestKit {
-  def apply(main: AkkaServerless): AkkaServerlessTestKit =
-    new AkkaServerlessTestKit(new JTestKit(main.delegate))
+object KalixTestKit {
+  def apply(main: Kalix): KalixTestKit =
+    new KalixTestKit(new JTestKit(main.delegate))
 }
-class AkkaServerlessTestKit private (delegate: JTestKit) {
-  def start(): AkkaServerlessTestKit = {
+class KalixTestKit private (delegate: JTestKit) {
+  def start(): KalixTestKit = {
     delegate.start()
     this
   }

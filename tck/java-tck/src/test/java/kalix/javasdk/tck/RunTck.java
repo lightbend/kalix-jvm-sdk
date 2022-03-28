@@ -16,7 +16,7 @@
 
 package kalix.javasdk.tck;
 
-import kalix.javasdk.AkkaServerlessRunner;
+import kalix.javasdk.KalixRunner;
 import kalix.javasdk.testkit.BuildInfo;
 import org.testcontainers.Testcontainers;
 import org.testcontainers.containers.GenericContainer;
@@ -30,7 +30,7 @@ public final class RunTck {
   public static final String TCK_VERSION = BuildInfo.proxyVersion();
 
   public static void main(String[] args) throws Exception {
-    AkkaServerlessRunner runner = JavaSdkTck.SERVICE.createRunner();
+    KalixRunner runner = JavaSdkTck.SERVICE.createRunner();
     runner.run();
 
     Testcontainers.exposeHostPorts(8080);

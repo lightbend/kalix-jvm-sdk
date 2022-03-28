@@ -25,31 +25,31 @@ import akka.actor.ActorSystem
 import com.typesafe.config.Config
 import kalix.javasdk
 
-private[scalasdk] object AkkaServerlessRunner {
+private[scalasdk] object KalixRunner {
 
   /**
    * Creates an AkkaServerlessRunner from the given services. Use the default config to create the internal ActorSystem.
    */
-  def apply(services: Map[String, ActorSystem => javasdk.impl.Service]): AkkaServerlessRunner =
-    new AkkaServerlessRunner(new javasdk.AkkaServerlessRunner(toJava(services)))
+  def apply(services: Map[String, ActorSystem => javasdk.impl.Service]): KalixRunner =
+    new KalixRunner(new javasdk.KalixRunner(toJava(services)))
 
   /**
    * Creates an AkkaServerlessRunner from the given services and config. The config should have the same structure as
    * the reference.conf, with `akkaserverless` as the root section, and the configuration for the internal ActorSystem
    * is in the `akkaserverless.system` section.
    */
-  def apply(services: Map[String, ActorSystem => javasdk.impl.Service], config: Config): AkkaServerlessRunner =
-    new AkkaServerlessRunner(new javasdk.AkkaServerlessRunner(toJava(services), config))
+  def apply(services: Map[String, ActorSystem => javasdk.impl.Service], config: Config): KalixRunner =
+    new KalixRunner(new javasdk.KalixRunner(toJava(services), config))
 
-  def apply(impl: javasdk.AkkaServerlessRunner): AkkaServerlessRunner =
-    new AkkaServerlessRunner(impl)
+  def apply(impl: javasdk.KalixRunner): KalixRunner =
+    new KalixRunner(impl)
 
   private def toJava(services: Map[String, ActorSystem => javasdk.impl.Service]) = services.map { case (k, v) =>
     k -> v.asJava
   }.asJava
 }
 
-class AkkaServerlessRunner private (impl: javasdk.AkkaServerlessRunner) {
+class KalixRunner private (impl: javasdk.KalixRunner) {
   def run(): Future[Done] = {
     FutureConverters.toScala(impl.run())
   }
