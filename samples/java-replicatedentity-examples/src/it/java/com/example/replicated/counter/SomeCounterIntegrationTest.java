@@ -22,7 +22,7 @@ public class SomeCounterIntegrationTest {
   /** The test kit starts both the service container and the Akka Serverless proxy. */
   @ClassRule
   public static final AkkaServerlessTestKitResource testKit =
-      new AkkaServerlessTestKitResource(Main.createAkkaServerless());
+      new AkkaServerlessTestKitResource(Main.createKalix());
 
   /** Use the generated gRPC client to call the service through the Akka Serverless proxy. */
   private final CounterService client;

@@ -27,7 +27,7 @@ class ShoppingCartServiceIntegrationSpec
   implicit val patience: PatienceConfig =
     PatienceConfig(Span(5, Seconds), Span(500, Millis))
 
-  val testKit = AkkaServerlessTestKit(Main.createAkkaServerless())
+  val testKit = AkkaServerlessTestKit(Main.createKalix())
   testKit.start()
   implicit val system: ActorSystem = testKit.system
 

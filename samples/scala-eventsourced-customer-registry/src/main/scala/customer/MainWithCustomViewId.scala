@@ -12,7 +12,7 @@ object MainWithCustomViewId {
   private val log = LoggerFactory.getLogger("customer.Main")
 
   // tag::register[]
-  def createAkkaServerless(): AkkaServerless =
+  def createKalix(): AkkaServerless =
     AkkaServerless()
       .register(
         CustomerByNameViewProvider(new CustomerByNameView(_))
@@ -23,7 +23,7 @@ object MainWithCustomViewId {
   // end::register[]
 
   def main(args: Array[String]): Unit = {
-    log.info("starting the Akka Serverless service")
-    createAkkaServerless().start()
+    log.info("starting the Kalix service")
+    createKalix().start()
   }
 }

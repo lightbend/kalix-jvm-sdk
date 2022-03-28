@@ -31,7 +31,7 @@ public class ShoppingCartIntegrationTest {
    * The test kit starts both the service container and the Akka Serverless proxy.
    */
   @ClassRule
-  public static final AkkaServerlessTestKitResource testKit = new AkkaServerlessTestKitResource(Main.createAkkaServerless());
+  public static final AkkaServerlessTestKitResource testKit = new AkkaServerlessTestKitResource(Main.createKalix());
 
   private final ShoppingCartService client;
 

@@ -16,7 +16,7 @@ public class FibonacciActionIntegrationTest {
    */
   @ClassRule
   public static final AkkaServerlessTestKitResource testKit =
-      new AkkaServerlessTestKitResource(Main.createAkkaServerless());
+      new AkkaServerlessTestKitResource(Main.createKalix());
 
   private final Fibonacci client;
 

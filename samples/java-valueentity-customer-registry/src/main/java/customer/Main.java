@@ -20,8 +20,8 @@ public final class Main {
   private static final Logger LOG = LoggerFactory.getLogger(Main.class);
 
   // tag::register[]
-  public static Kalix createAkkaServerless() {
-    return AkkaServerlessFactory.withComponents(
+  public static Kalix createKalix() {
+    return KalixFactory.withComponents(
       // end::register[]
       CustomerValueEntity::new,
       CustomerActionImpl::new,
@@ -31,7 +31,7 @@ public final class Main {
       CustomersResponseByNameView::new);
       /*
       // tag::register[]
-      return AkkaServerlessFactory.withComponents(
+      return KalixFactory.withComponents(
         CustomerValueEntity::new,
         CustomerByNameView::new);
       // end::register[]
@@ -42,7 +42,7 @@ public final class Main {
   // end::register[]
 
   public static void main(String[] args) throws Exception {
-    LOG.info("starting the Akka Serverless service");
-    createAkkaServerless().start();
+    LOG.info("starting the Kalix service");
+    createKalix().start();
   }
 }

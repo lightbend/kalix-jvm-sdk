@@ -23,7 +23,7 @@ class CounterServiceIntegrationSpec
   implicit private val patience: PatienceConfig =
     PatienceConfig(Span(5, Seconds), Span(500, Millis))
 
-  private val testKit = AkkaServerlessTestKit(Main.createAkkaServerless()).start()
+  private val testKit = AkkaServerlessTestKit(Main.createKalix()).start()
   import testKit.executionContext
 
   private val client = testKit.getGrpcClient(classOf[CounterService])

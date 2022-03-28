@@ -19,7 +19,7 @@ class SomeSetIntegrationSpec extends AnyWordSpec with Matchers with BeforeAndAft
   implicit private val patience: PatienceConfig =
     PatienceConfig(Span(5, Seconds), Span(500, Millis))
 
-  private val testKit = AkkaServerlessTestKit(Main.createAkkaServerless()).start()
+  private val testKit = AkkaServerlessTestKit(Main.createKalix()).start()
   import testKit.executionContext
 
   private val setService = testKit.getGrpcClient(classOf[SetService])

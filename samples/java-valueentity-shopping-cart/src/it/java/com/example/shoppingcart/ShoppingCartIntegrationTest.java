@@ -36,7 +36,7 @@ public class ShoppingCartIntegrationTest {
    */
   @ClassRule
   public static final AkkaServerlessTestKitResource testKit =
-          new AkkaServerlessTestKitResource(Main.createAkkaServerless());
+          new AkkaServerlessTestKitResource(Main.createKalix());
 
   /**
    * Use the generated gRPC client to call the service through the Akka Serverless proxy.

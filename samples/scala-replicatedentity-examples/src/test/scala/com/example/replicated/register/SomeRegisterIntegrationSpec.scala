@@ -18,7 +18,7 @@ class SomeRegisterIntegrationSpec extends AnyWordSpec with Matchers with BeforeA
   implicit private val patience: PatienceConfig =
     PatienceConfig(Span(5, Seconds), Span(500, Millis))
 
-  private val testKit = AkkaServerlessTestKit(Main.createAkkaServerless()).start()
+  private val testKit = AkkaServerlessTestKit(Main.createKalix()).start()
 
   private val registerService = testKit.getGrpcClient(classOf[RegisterService])
 

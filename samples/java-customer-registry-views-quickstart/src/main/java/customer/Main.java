@@ -16,19 +16,19 @@ public final class Main {
 
   private static final Logger LOG = LoggerFactory.getLogger(Main.class);
 
-  public static AkkaServerless createAkkaServerless() {
-    // The AkkaServerlessFactory automatically registers any generated Actions, Views or Entities,
+  public static AkkaServerless createKalix() {
+    // The KalixFactory automatically registers any generated Actions, Views or Entities,
     // and is kept up-to-date with any changes in your protobuf definitions.
     // If you prefer, you may remove this and manually register these components in a
     // `new AkkaServerless()` instance.
-    return AkkaServerlessFactory.withComponents(
+    return KalixFactory.withComponents(
       Customer::new,
       CustomerByEmailView::new,
       CustomerByNameView::new);
   }
 
   public static void main(String[] args) throws Exception {
-    LOG.info("starting the Akka Serverless service");
-    createAkkaServerless().start();
+    LOG.info("starting the Kalix service");
+    createKalix().start();
   }
 }

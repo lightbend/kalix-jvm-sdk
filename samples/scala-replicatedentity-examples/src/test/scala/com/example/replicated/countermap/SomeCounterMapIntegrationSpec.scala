@@ -19,7 +19,7 @@ class SomeCounterMapIntegrationSpec extends AnyWordSpec with Matchers with Befor
   implicit private val patience: PatienceConfig =
     PatienceConfig(Span(5, Seconds), Span(500, Millis))
 
-  private val testKit = AkkaServerlessTestKit(Main.createAkkaServerless()).start()
+  private val testKit = AkkaServerlessTestKit(Main.createKalix()).start()
   import testKit.executionContext
 
   private val counterMap = testKit.getGrpcClient(classOf[CounterMapService])

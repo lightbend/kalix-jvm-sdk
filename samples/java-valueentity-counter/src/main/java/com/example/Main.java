@@ -18,21 +18,21 @@ import com.example.domain.Counter;
 public final class Main {
 
   private static final Logger LOG = LoggerFactory.getLogger(Main.class);
-  public static AkkaServerless createAkkaServerless() {
-    // The AkkaServerlessFactory automatically registers any generated Actions, Views or Entities,
+  public static AkkaServerless createKalix() {
+    // The KalixFactory automatically registers any generated Actions, Views or Entities,
     // and is kept up-to-date with any changes in your protobuf definitions.
     // If you prefer, you may remove this and manually register these components in a
     // `new AkkaServerless()` instance.
     // end::registration-value-entity[]
     // end::registration[]
-    return AkkaServerlessFactory.withComponents(
+    return KalixFactory.withComponents(
             Counter::new,
             CounterStateSubscriptionAction::new,
             DoubleCounterAction::new);
 
     /* the comment hack bellow is needed to only show the Counter::new and DoubleCounterAction
     // tag::registration[]
-    return AkkaServerlessFactory.withComponents(
+    return KalixFactory.withComponents(
             Counter::new,
             DoubleCounterAction::new);
     // end::registration[]
@@ -40,7 +40,7 @@ public final class Main {
 
     /* the comment hack bellow is needed to only show the Counter::new
     // tag::registration-value-entity[]
-    return AkkaServerlessFactory.withComponents(
+    return KalixFactory.withComponents(
             Counter::new);
     // end::registration-value-entity[]
      */
@@ -49,8 +49,8 @@ public final class Main {
   }
 
   public static void main(String[] args) throws Exception {
-    LOG.info("starting the Akka Serverless service");
-    createAkkaServerless().start();
+    LOG.info("starting the Kalix service");
+    createKalix().start();
   }
 }
 // end::registration-value-entity[]
