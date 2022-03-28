@@ -20,7 +20,7 @@ import kalix.javasdk
 import kalix.javasdk.impl.AnySupport
 import kalix.javasdk.impl.DeferredCallImpl
 import kalix.javasdk.impl.MetadataImpl
-import com.akkaserverless.protocol.component
+import kalix.protocol.component
 import com.google.protobuf.any.{ Any => ScalaPbAny }
 import com.google.protobuf.{ Any => JavaPbAny }
 

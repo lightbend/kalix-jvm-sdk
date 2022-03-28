@@ -17,8 +17,8 @@
 package kalix.javasdk.impl
 
 import kalix.javasdk.JsonSupport
-import com.akkaserverless.protocol.discovery.{ DiscoveryProto, UserFunctionError }
-import com.akkaserverless.protocol.event_sourced_entity.EventSourcedEntityProto
+import kalix.protocol.discovery.{ DiscoveryProto, UserFunctionError }
+import kalix.protocol.event_sourced_entity.EventSourcedEntityProto
 import com.example.shoppingcart.ShoppingCartApi
 import com.google.protobuf.{ ByteString, Empty }
 import com.google.protobuf.{ Any => JavaPbAny }

@@ -16,7 +16,7 @@ syntax = "proto3";
 
 package com.example.valueentity;
 
-import "akkaserverless/annotations.proto";
+import "kalix/annotations.proto";
 
 option java_multiple_files = true;
 // no java_outer_classname option, will default to "SomeValueEntityApi"
@@ -25,7 +25,7 @@ message Request {}
 message Response {}
 
 service SomeValueEntityService {
-  option (akkaserverless.codegen) = {
+  option (kalix.codegen) = {
     value_entity: {
       name: ".domain.SomeValueEntity"
       entity_type: "some-value-entity"

@@ -17,7 +17,7 @@
 package kalix.javasdk.impl.replicatedentity
 
 import kalix.javasdk.impl.AnySupport
-import com.akkaserverless.protocol.replicated_entity.ReplicatedEntityDelta
+import kalix.protocol.replicated_entity.ReplicatedEntityDelta
 
 private[replicatedentity] object ReplicatedEntityDeltaTransformer {
 

@@ -18,26 +18,26 @@ syntax = "proto3";
 package customer.view;
 
 import "customer/domain/customer_domain.proto";
-import "akkaserverless/annotations.proto";
+import "kalix/annotations.proto";
 
 // end::declarations[]
 // tag::name[]
 service CustomerByName {
-  option (akkaserverless.codegen) = {
+  option (kalix.codegen) = {
     view: {}
   };
 
   rpc UpdateCustomer(domain.CustomerState) returns (domain.CustomerState) {
-    option (akkaserverless.method).eventing.in = {
+    option (kalix.method).eventing.in = {
       value_entity: "customers"
     };
-    option (akkaserverless.method).view.update = {
+    option (kalix.method).view.update = {
       table: "customers"
     };
   }
 
   rpc GetCustomers(ByNameRequest) returns (stream domain.CustomerState) {
-    option (akkaserverless.method).view.query = {
+    option (kalix.method).view.query = {
       query: "SELECT * FROM customers WHERE name = :customer_name"
     };
   }
@@ -50,21 +50,21 @@ message ByNameRequest {
 // end::name[]
 // tag::email[]
 service CustomerByEmail {
-  option (akkaserverless.codegen) = {
+  option (kalix.codegen) = {
     view: {}
   };
 
   rpc UpdateCustomer(domain.CustomerState) returns (domain.CustomerState) {
-    option (akkaserverless.method).eventing.in = {
+    option (kalix.method).eventing.in = {
       value_entity: "customers"
     };
-    option (akkaserverless.method).view.update = {
+    option (kalix.method).view.update = {
       table: "customers"
     };
   }
 
   rpc GetCustomer(ByEmailRequest) returns (domain.CustomerState) {
-    option (akkaserverless.method).view.query = {
+    option (kalix.method).view.query = {
       query: "SELECT * FROM customers WHERE email = :email"
     };
   }

@@ -16,9 +16,9 @@
 
 package kalix.testkit.replicatedentity
 
-import com.akkaserverless.protocol.replicated_entity._
-import com.akkaserverless.protocol.component.{ ClientAction, Failure, SideEffect }
-import com.akkaserverless.protocol.entity.Command
+import kalix.protocol.replicated_entity._
+import kalix.protocol.component.{ ClientAction, Failure, SideEffect }
+import kalix.protocol.entity.Command
 import kalix.testkit.entity.EntityMessages
 import com.google.protobuf.any.{ Any => ScalaPbAny }
 import com.google.protobuf.{ Message => JavaPbMessage }

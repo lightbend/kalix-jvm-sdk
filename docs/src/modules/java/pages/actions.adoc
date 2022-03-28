@@ -21,7 +21,7 @@ include::example$java-fibonacci-action/src/main/proto/com/example/fibonacci/fibo
 <1> Any classes generated from this protobuf file will be in the `com.example.fibonacci` package.
 <2> Import the Akka Serverless protobuf annotations or options.
 <3> Let the messages declared in this protobuf file be inner classes to the Java class `FibonacciApi`.
-<4> The protobuf option (akkaserverless.codegen) is specific to code-generation as provided by the Akka Serverless Maven plugin. This annotation indicates to the code-generation that an Action must be generated.
+<4> The protobuf option (kalix.codegen) is specific to code-generation as provided by the Akka Serverless Maven plugin. This annotation indicates to the code-generation that an Action must be generated.
 
 Scala::
 +
@@ -32,7 +32,7 @@ include::example$scala-fibonacci-action/src/main/proto/com/example/fibonacci/fib
 ----
 <1> Any classes generated from this protobuf file will be in the `com.example.fibonacci` package.
 <2> Import the Akka Serverless protobuf annotations or options.
-<3> The protobuf option (akkaserverless.codegen) is specific to code-generation as provided by the Akka Serverless sbt plugin. This annotation indicates to the code-generation that an Action must be generated.
+<3> The protobuf option (kalix.codegen) is specific to code-generation as provided by the Akka Serverless sbt plugin. This annotation indicates to the code-generation that an Action must be generated.
 
 == Implementing the Action
 
@@ -130,13 +130,13 @@ Scala::
 include::example$scala-fibonacci-action/src/main/scala/com/example/fibonacci/Main.scala[]
 ----
 
-By default, the generated constructor has an `ActionCreationContext` parameter, but you can change this to accept other parameters. 
-If you change the constructor of the `FibonacciAction` class you will see a compilation error here, and you have to adjust the 
+By default, the generated constructor has an `ActionCreationContext` parameter, but you can change this to accept other parameters.
+If you change the constructor of the `FibonacciAction` class you will see a compilation error here, and you have to adjust the
 factory function that is passed to `AkkaServerlessFactory.withComponents`.
 
 When more components are added the `AkkaServerlessFactory` is regenerated, and you have to adjust the registration from the `Main` class.
 
-== Testing the Action 
+== Testing the Action
 
 
 === Unit tests

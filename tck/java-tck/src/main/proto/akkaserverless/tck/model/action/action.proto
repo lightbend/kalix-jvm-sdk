@@ -24,7 +24,7 @@ option go_package = "github.com/lightbend/akkaserverless-go-sdk/tck/action;actio
 option java_package = "kalix.tck.model.action";
 
 import "google/api/annotations.proto";
-import "akkaserverless/annotations.proto";
+import "kalix/annotations.proto";
 
 //
 // The `ActionTckModel` service should be implemented in the following ways:
@@ -44,7 +44,7 @@ import "akkaserverless/annotations.proto";
 // - Forwarding and side effects must always be made to the second service `ActionTwo`.
 //
 service ActionTckModel {
-  option (akkaserverless.codegen) = {
+  option (kalix.codegen) = {
     action: {}
   };
 
@@ -64,7 +64,7 @@ service ActionTckModel {
 // The `Call` method is not required to do anything, and must return an empty `Response` message.
 //
 service ActionTwo {
-  option (akkaserverless.codegen) = {
+  option (kalix.codegen) = {
     action: {}
   };
 

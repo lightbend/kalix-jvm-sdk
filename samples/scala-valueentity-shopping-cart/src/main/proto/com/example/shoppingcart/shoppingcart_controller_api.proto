@@ -17,7 +17,7 @@ syntax = "proto3";
 package com.example.shoppingcart;
 
 import "google/protobuf/empty.proto";
-import "akkaserverless/annotations.proto";
+import "kalix/annotations.proto";
 import "google/api/annotations.proto";
 import "com/example/shoppingcart/shoppingcart_api.proto";
 
@@ -29,7 +29,7 @@ message NewCartCreated {
 }
 
 service ShoppingCartAction {
-  option (akkaserverless.codegen) = {
+  option (kalix.codegen) = {
     action: {}
   };
 

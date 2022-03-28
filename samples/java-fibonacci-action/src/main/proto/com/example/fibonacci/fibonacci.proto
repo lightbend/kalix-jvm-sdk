@@ -16,7 +16,7 @@
 syntax = "proto3";
 package com.example.fibonacci; // <1>
 
-import "akkaserverless/annotations.proto"; // <2>
+import "kalix/annotations.proto"; // <2>
 
 option java_outer_classname = "FibonacciApi"; // <3>
 
@@ -25,7 +25,7 @@ message Number {
 }
 
 service Fibonacci {
-  option (akkaserverless.codegen) = { 
+  option (kalix.codegen) = {
     action: {}  // <4>
   };
 

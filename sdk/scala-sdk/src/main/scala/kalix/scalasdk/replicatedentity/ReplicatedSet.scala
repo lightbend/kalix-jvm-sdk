@@ -19,7 +19,7 @@ package kalix.scalasdk.replicatedentity
 import scala.collection.immutable.Set
 
 import kalix.javasdk.impl.replicatedentity.ReplicatedSetImpl
-import com.akkaserverless.protocol.replicated_entity.ReplicatedEntityDelta
+import kalix.protocol.replicated_entity.ReplicatedEntityDelta
 
 /**
  * A Replicated Set that allows both the addition and removal of elements in a set.

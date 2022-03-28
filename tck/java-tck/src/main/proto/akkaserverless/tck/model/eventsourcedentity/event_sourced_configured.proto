@@ -24,7 +24,7 @@ option go_package = "github.com/lightbend/akkaserverless-go-sdk/tck/eventsourced
 option java_package = "kalix.tck.model.eventsourcedentity";
 option java_multiple_files = true;
 
-import "akkaserverless/annotations.proto";
+import "kalix/annotations.proto";
 import "akkaserverless/tck/model/eventsourcedentity/event_sourced_entity_api.proto";
 
 
@@ -36,7 +36,7 @@ import "akkaserverless/tck/model/eventsourcedentity/event_sourced_entity_api.pro
 // - The `Call` method is not required to do anything, and must return an empty `Response` message.
 //
 service EventSourcedConfigured {
-  option (akkaserverless.codegen) = {
+  option (kalix.codegen) = {
     event_sourced_entity: {
       name: "EventSourcedConfiguredEntity"
       entity_type: "event-sourced-configured"

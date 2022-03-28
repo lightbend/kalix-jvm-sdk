@@ -22,7 +22,7 @@ import java.util.Optional
 
 import kalix.javasdk.replicatedentity.{ CommandContext, ReplicatedEntity }
 import kalix.javasdk.impl.{ AnySupport, EntityExceptions }
-import com.akkaserverless.protocol.replicated_entity.ReplicatedEntityDelta
+import kalix.protocol.replicated_entity.ReplicatedEntityDelta
 import kalix.replicatedentity.ReplicatedData
 
 object ReplicatedEntityRouter {

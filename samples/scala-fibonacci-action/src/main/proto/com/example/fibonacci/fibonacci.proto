@@ -16,14 +16,14 @@
 syntax = "proto3";
 package com.example.fibonacci; // <1>
 
-import "akkaserverless/annotations.proto"; // <2>
+import "kalix/annotations.proto"; // <2>
 
 message Number {
   int64 value = 1;
 }
 
 service Fibonacci {
-  option (akkaserverless.codegen) = { 
+  option (kalix.codegen) = {
     action: {}  // <3>
   };
 

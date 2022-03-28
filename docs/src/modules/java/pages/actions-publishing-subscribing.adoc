@@ -5,7 +5,7 @@ include::ROOT:partial$include.adoc[]
 
 A very common use case when building Microservices is to publish and subscribe to a stream of events. The source of events can be the journal of an event sourced entity, the value entity state changes, a https://cloud.google.com/pubsub/docs/overview[Google Cloud Pub/Sub] or Apache Kafka topic for asynchronous messaging between services.
 
-With Actions you can: 
+With Actions you can:
 
 - subscribe to events emitted by an event sourced entity within the same service.
 - subscribe to state changes emitted by a value entity within the same service.
@@ -29,10 +29,10 @@ Java::
 include::example$java-eventsourced-counter/src/main/proto/com/example/actions/counter_topic.proto[tag=counter-topic]
 ----
 <1> Import the Counter Domain file containing the definitions of the events. This is typically a proto definition within the same service.
-<2> The protobuf option (akkaserverless.codegen) is specific to code-generation as provided by the Akka Serverless Maven plugin. This annotation indicates to the code-generation that an Action must be generated.
-<3> The `Increase` method receives the event `ValueIncreased` and returns the transformed type `Increased`. 
-<4> The `(akkaserverless.method).eventing.in` annotation indicates that events from the entity type `counter` should be delivered to this method (when the type is `ValueIncreased`).
-<5> The `(akkaserverless.method).eventing.out` annotation indicates that the returned value from this method should be published to the topic called `counter-events`.
+<2> The protobuf option (kalix.codegen) is specific to code-generation as provided by the Akka Serverless Maven plugin. This annotation indicates to the code-generation that an Action must be generated.
+<3> The `Increase` method receives the event `ValueIncreased` and returns the transformed type `Increased`.
+<4> The `(kalix.method).eventing.in` annotation indicates that events from the entity type `counter` should be delivered to this method (when the type is `ValueIncreased`).
+<5> The `(kalix.method).eventing.out` annotation indicates that the returned value from this method should be published to the topic called `counter-events`.
 
 Scala::
 +
@@ -42,10 +42,10 @@ Scala::
 include::example$scala-eventsourced-counter/src/main/proto/com/example/actions/counter_topic.proto[tag=counter-topic]
 ----
 <1> Import the Counter Domain file containing the definitions of the events. This is typically a proto definition within the same service.
-<2> The protobuf option (akkaserverless.codegen) is specific to code-generation as provided by the Akka Serverless sbt plugin. This annotation indicates to the code-generation that an Action must be generated.
+<2> The protobuf option (kalix.codegen) is specific to code-generation as provided by the Akka Serverless sbt plugin. This annotation indicates to the code-generation that an Action must be generated.
 <3> The `Increase` method receives the event `ValueIncreased` and returns the transformed type `Increased`.
-<4> The `(akkaserverless.method).eventing.in` annotation indicates that events from the entity type `counter` should be delivered to this method (when the type is `ValueIncreased`).
-<5> The `(akkaserverless.method).eventing.out` annotation indicates that the returned value from this method should be published to the topic called `counter-events`.
+<4> The `(kalix.method).eventing.in` annotation indicates that events from the entity type `counter` should be delivered to this method (when the type is `ValueIncreased`).
+<5> The `(kalix.method).eventing.out` annotation indicates that the returned value from this method should be published to the topic called `counter-events`.
 
 The class `CounterJournalToTopicAction` gets generated for us based on the proto file defined above.
 
@@ -73,7 +73,7 @@ In this example we have published Protobuf messages to the topic which is conven
 
 == Subscribing to state changes from a Value Entity
 
-Similar to subscribing to events from an Event Sourced Entity, you can also subscribe to state changes from a Value Entity. 
+Similar to subscribing to events from an Event Sourced Entity, you can also subscribe to state changes from a Value Entity.
 
 [.tabset]
 Java::
@@ -84,8 +84,8 @@ Java::
 include::example$java-valueentity-counter/src/main/proto/com/example/actions/counter_states_sub.proto[tag=state-subscription]
 ----
 <1> Import the Counter Domain from the Value Entity example (see xref:java:value-entity.adoc[Implementing Value Entities])
-<2> The protobuf option (akkaserverless.codegen) is specific to code-generation as provided by the Akka Serverless Maven plugin. This annotation indicates to the code-generation that an Action must be generated.
-<3> The `(akkaserverless.method).eventing.in` annotation indicates that state changes from the value entity type `counter` should be delivered to this method. 
+<2> The protobuf option (kalix.codegen) is specific to code-generation as provided by the Akka Serverless Maven plugin. This annotation indicates to the code-generation that an Action must be generated.
+<3> The `(kalix.method).eventing.in` annotation indicates that state changes from the value entity type `counter` should be delivered to this method.
 
 Scala::
 +
@@ -95,12 +95,12 @@ Scala::
 include::example$scala-valueentity-counter/src/main/proto/com/example/actions/counter_states_sub.proto[tag=state-subscription]
 ----
 <1> Import the Counter Domain from the Value Entity example (see xref:java:value-entity.adoc[Implementing Value Entities])
-<2> The protobuf option (akkaserverless.codegen) is specific to code-generation as provided by the Akka Serverless sbt plugin. This annotation indicates to the code-generation that an Action must be generated.
-<3> The `(akkaserverless.method).eventing.in` annotation indicates that state changes from the value entity type `counter` should be delivered to this method. 
+<2> The protobuf option (kalix.codegen) is specific to code-generation as provided by the Akka Serverless sbt plugin. This annotation indicates to the code-generation that an Action must be generated.
+<3> The `(kalix.method).eventing.in` annotation indicates that state changes from the value entity type `counter` should be delivered to this method.
 
 == Subscribing to a Topic
 
-It's also possible to subscribe to a Pub/Sub topic. To receive messages from a Pub/Sub topic, annotate a service method in the Protobuf service definition with the `option (akkaserverless.method).eventing.in` annotation and specify the topic name in the `topic` section of the annotation.
+It's also possible to subscribe to a Pub/Sub topic. To receive messages from a Pub/Sub topic, annotate a service method in the Protobuf service definition with the `option (kalix.method).eventing.in` annotation and specify the topic name in the `topic` section of the annotation.
 
 include::partial$pubsub-note.adoc[]
 
@@ -115,8 +115,8 @@ Java::
 include::example$java-eventsourced-counter/src/main/proto/com/example/actions/counter_topic_sub.proto[tag=counter-topic-sub]
 ----
 <1> Import the Counter Topic types from previous example.
-<2> The protobuf option (akkaserverless.codegen) is specific to code-generation as provided by the Akka Serverless Maven plugin. This annotation indicates to the code-generation that an Action must be generated.
-<3> Define methods for each of the possible incoming messages and annotate them with `(akkaserverless.method).eventing.in` indicating that the source of events is the topic `counter-events`.
+<2> The protobuf option (kalix.codegen) is specific to code-generation as provided by the Akka Serverless Maven plugin. This annotation indicates to the code-generation that an Action must be generated.
+<3> Define methods for each of the possible incoming messages and annotate them with `(kalix.method).eventing.in` indicating that the source of events is the topic `counter-events`.
 
 Scala::
 +
@@ -126,8 +126,8 @@ Scala::
 include::example$scala-eventsourced-counter/src/main/proto/com/example/actions/counter_topic_sub.proto[tag=counter-topic-sub]
 ----
 <1> Import the Counter Topic types from previous example.
-<2> The protobuf option (akkaserverless.codegen) is specific to code-generation as provided by the Akka Serverless sbt plugin. This annotation indicates to the code-generation that an Action must be generated.
-<3> Define methods for each of the possible incoming messages and annotate them with `(akkaserverless.method).eventing.in` indicating that the source of events is the topic `counter-events`.
+<2> The protobuf option (kalix.codegen) is specific to code-generation as provided by the Akka Serverless sbt plugin. This annotation indicates to the code-generation that an Action must be generated.
+<3> Define methods for each of the possible incoming messages and annotate them with `(kalix.method).eventing.in` indicating that the source of events is the topic `counter-events`.
 
 The class `CounterTopicSubscriptionAction` gets generated for us based on the proto file defined above.
 
@@ -148,7 +148,7 @@ Scala::
 include::example$scala-eventsourced-counter/src/main/scala/com/example/actions/CounterTopicSubscriptionAction.scala[tag=counter-topic-sub]
 ----
 
-The events from the topic are delivered to the new Action. The implementation may vary, for this simplified example we are just logging it, 
+The events from the topic are delivered to the new Action. The implementation may vary, for this simplified example we are just logging it,
 but it could a forward to some other component or external service.
 
 == Receiving messages from an external Topic
@@ -159,18 +159,18 @@ In such case, the Action definition should receive a type depending on the type 
 
 == Subscribing and acting upon
 
-Another possible usage for Actions is to consume events and act upon. 
+Another possible usage for Actions is to consume events and act upon.
 
 For example, you may consume events from one entity or from a topic, transform to commands and send to an another entity or an external system. This is similar to the usage explained in xref:actions-as-controller.adoc[Actions as Controller], except that the Action is driven by the flow of incoming events instead of external user requests.
 
-For that purpose, it's enough to add the `(akkaserverless.method).eventing.in` and omit the `(akkaserverless.method).eventing.out`.
+For that purpose, it's enough to add the `(kalix.method).eventing.in` and omit the `(kalix.method).eventing.out`.
 
 == Accessing the Entity ID
 
 [.tabset]
 Java::
 +
-For many use cases, a subscriber to an event log will trigger other services and needs to pass the entity ID to the receiver. The events of an Event Sourced entity, by design, do not include the entity ID, but it is made available to the subscriber via the metadata field `subject`, accessible through `eventSubject` in the  link:{attachmentsdir}/api/com/akkaserverless/javasdk/action/ActionContext.html[`ActionContext`{tab-icon}, window="new"]. 
+For many use cases, a subscriber to an event log will trigger other services and needs to pass the entity ID to the receiver. The events of an Event Sourced entity, by design, do not include the entity ID, but it is made available to the subscriber via the metadata field `subject`, accessible through `eventSubject` in the  link:{attachmentsdir}/api/com/akkaserverless/javasdk/action/ActionContext.html[`ActionContext`{tab-icon}, window="new"].
 +
 You can access the link:{attachmentsdir}/api/com/akkaserverless/javasdk/action/ActionContext.html[`ActionContext`{tab-icon}, window="new"] through method `actionContext()`.
 +
@@ -205,7 +205,7 @@ Java::
 ----
 include::example$java-eventsourced-counter/src/main/proto/com/example/actions/counter_topic.proto[tag=counter-ignore]
 ----
-<1> We must annotate it with a `(akkaserverless.method).eventing.in`
+<1> We must annotate it with a `(kalix.method).eventing.in`
 
 Scala::
 +
@@ -214,7 +214,7 @@ Scala::
 ----
 include::example$scala-eventsourced-counter/src/main/proto/com/example/actions/counter_topic.proto[tag=counter-ignore]
 ----
-<1> We must annotate it with a `(akkaserverless.method).eventing.in`
+<1> We must annotate it with a `(kalix.method).eventing.in`
 
 The corresponding implementation must exist in the component.
 

@@ -18,40 +18,40 @@ package shoppingcart;
 option java_package = "kalix.javasdk.shoppingcart";
 option java_outer_classname = "ShoppingCartViewModel";
 
-import "akkaserverless/annotations.proto";
+import "kalix/annotations.proto";
 import "shoppingcart/shopping_cart_domain.proto";
 import "google/api/annotations.proto";
 
 service ShoppingCartViewService {
   rpc ProcessAdded(ItemAdded) returns (CartViewState) {
-    option (akkaserverless.method).eventing.in = {
+    option (kalix.method).eventing.in = {
       event_sourced_entity: "eventsourced-shopping-cart"
     };
-    option (akkaserverless.method).view.update = {
+    option (kalix.method).view.update = {
       table: "carts"
       transform_updates: true
     };
   }
   rpc ProcessRemoved(ItemRemoved) returns (CartViewState) {
-    option (akkaserverless.method).eventing.in = {
+    option (kalix.method).eventing.in = {
       event_sourced_entity: "eventsourced-shopping-cart"
     };
-    option (akkaserverless.method).view.update = {
+    option (kalix.method).view.update = {
       table: "carts"
       transform_updates: true
     };
   }
   rpc ProcessCheckedOut(CheckedOut) returns (CartViewState) {
-    option (akkaserverless.method).eventing.in = {
+    option (kalix.method).eventing.in = {
       event_sourced_entity: "eventsourced-shopping-cart"
     };
-    option (akkaserverless.method).view.update = {
+    option (kalix.method).view.update = {
       table: "carts"
       transform_updates: true
     };
   }
   rpc GetCheckedOutCarts(GetCheckedOutCartsRequest) returns (stream CartViewState) {
-    option (akkaserverless.method).view.query = {
+    option (kalix.method).view.query = {
       query: "select * from carts where checked_out_timestamp >= :timestamp"
     };
     option (google.api.http) = {

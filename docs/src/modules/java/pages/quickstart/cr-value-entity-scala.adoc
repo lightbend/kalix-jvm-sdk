@@ -18,7 +18,7 @@ Learn how to create a customer registry in Scala, package it into a container, a
 ====
 If you want to bypass writing code and jump straight to the deployment:
 
-. Download the source code using the Akka Serverless CLI: 
+. Download the source code using the Akka Serverless CLI:
 `akkasls quickstart download customer-registry-scala`
 
 . Skip to <<Package and deploy your service>>.
@@ -100,7 +100,7 @@ mkdir src/main/proto/customer/domain
 include::example$scala-customer-registry-quickstart/src/main/proto/customer/api/customer_api.proto[tag=declarations]
 ----
 
-. Add the service endpoint. The service endpoint is annotated with `akkaserverless.codegen` indicating we want to generate a Value Entity for this service.
+. Add the service endpoint. The service endpoint is annotated with `kalix.codegen` indicating we want to generate a Value Entity for this service.
 +
 [source,proto,indent=0]
 .src/main/proto/customer/api/customer_api.proto

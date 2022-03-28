@@ -19,7 +19,7 @@ package customer.view;
 
 import "customer/domain/customer_domain.proto";
 import "customer/api/customer_api.proto";
-import "akkaserverless/annotations.proto";
+import "kalix/annotations.proto";
 import "google/protobuf/any.proto";
 
 // end::declarations[]
@@ -30,52 +30,52 @@ message ByNameRequest {
 }
 
 service CustomerByName {
-  option (akkaserverless.codegen) = { // <1>
+  option (kalix.codegen) = { // <1>
     view: {}
   };
 
   rpc ProcessCustomerCreated(domain.CustomerCreated) returns (api.Customer) { // <2>
-    option (akkaserverless.method).eventing.in = {
+    option (kalix.method).eventing.in = {
       event_sourced_entity: "customers" // <3>
     };
-    option (akkaserverless.method).view.update = {
+    option (kalix.method).view.update = {
       table: "customers"
       transform_updates: true // <4>
     };
   }
 
   rpc ProcessCustomerNameChanged(domain.CustomerNameChanged) returns (api.Customer) { // <2>
-    option (akkaserverless.method).eventing.in = {
+    option (kalix.method).eventing.in = {
       event_sourced_entity: "customers" // <5>
     };
-    option (akkaserverless.method).view.update = {
+    option (kalix.method).view.update = {
       table: "customers"
       transform_updates: true // <6>
     };
   }
 
   rpc ProcessCustomerAddressChanged(domain.CustomerAddressChanged) returns (api.Customer) {
-    option (akkaserverless.method).eventing.in = {
+    option (kalix.method).eventing.in = {
       event_sourced_entity: "customers"
     };
-    option (akkaserverless.method).view.update = {
+    option (kalix.method).view.update = {
       table: "customers"
       transform_updates: true
     };
   }
 
   rpc IgnoreOtherEvents(google.protobuf.Any) returns (api.Customer) {
-    option (akkaserverless.method).eventing.in = {
+    option (kalix.method).eventing.in = {
       event_sourced_entity: "customers" // <5>
      };
-     option (akkaserverless.method).view.update = {
+     option (kalix.method).view.update = {
        table: "customers"
        transform_updates: true // <6>
      };
   };
 
   rpc GetCustomers(ByNameRequest) returns (stream api.Customer) {
-    option (akkaserverless.method).view.query = {
+    option (kalix.method).view.query = {
       query: "SELECT * FROM customers WHERE name = :customer_name"
     };
   }
@@ -85,47 +85,47 @@ service CustomerByName {
 // tag::service-topic[]
 service CustomerByNameFromTopic {
   rpc ProcessCustomerCreated(domain.CustomerCreated) returns (api.Customer) {
-    option (akkaserverless.method).eventing.in = {
+    option (kalix.method).eventing.in = {
       topic: "customers" // <1>
     };
-    option (akkaserverless.method).view.update = {
+    option (kalix.method).view.update = {
       table: "customers"
       transform_updates: true
     };
   }
 
   rpc ProcessCustomerNameChanged(domain.CustomerNameChanged) returns (api.Customer) {
-    option (akkaserverless.method).eventing.in = {
+    option (kalix.method).eventing.in = {
       topic: "customers"
     };
-    option (akkaserverless.method).view.update = {
+    option (kalix.method).view.update = {
       table: "customers"
       transform_updates: true
     };
   }
 
   rpc ProcessCustomerAddressChanged(domain.CustomerAddressChanged) returns (api.Customer) {
-    option (akkaserverless.method).eventing.in = {
+    option (kalix.method).eventing.in = {
       topic: "customers"
     };
-    option (akkaserverless.method).view.update = {
+    option (kalix.method).view.update = {
       table: "customers"
       transform_updates: true
     };
   }
 
   rpc IgnoreOtherEvents(google.protobuf.Any) returns (api.Customer) {
-    option (akkaserverless.method).eventing.in = {
+    option (kalix.method).eventing.in = {
       topic: "customers"
      };
-     option (akkaserverless.method).view.update = {
+     option (kalix.method).view.update = {
        table: "customers"
        transform_updates: true
      };
   };
 
   rpc GetCustomers(ByNameRequest) returns (stream api.Customer) {
-    option (akkaserverless.method).view.query = {
+    option (kalix.method).view.query = {
       query: "SELECT * FROM customers WHERE name = :customer_name"
     };
   }

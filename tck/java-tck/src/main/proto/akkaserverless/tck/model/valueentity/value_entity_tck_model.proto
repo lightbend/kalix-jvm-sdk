@@ -24,7 +24,7 @@ option go_package = "github.com/lightbend/akkaserverless-go-sdk/tck/valueentity;
 option java_package = "kalix.tck.model.valueentity";
 option java_multiple_files = true;
 
-import "akkaserverless/annotations.proto";
+import "kalix/annotations.proto";
 import "google/api/annotations.proto";
 
 import "akkaserverless/tck/model/valueentity/value_entity_api.proto";
@@ -45,7 +45,7 @@ import "akkaserverless/tck/model/valueentity/value_entity_api.proto";
 //
 service ValueEntityTckModel {
 
-  option (akkaserverless.codegen) = {
+  option (kalix.codegen) = {
     value_entity: {
       name: "ValueEntityTckModelEntity"
       entity_type: "value-entity-tck-model"

@@ -19,7 +19,7 @@ package kalix.testkit.valueentity
 import akka.stream.scaladsl.Source
 import akka.stream.testkit.TestPublisher
 import akka.stream.testkit.scaladsl.TestSink
-import com.akkaserverless.protocol.value_entity.{ ValueEntitiesClient, ValueEntityStreamIn, ValueEntityStreamOut }
+import kalix.protocol.value_entity.{ ValueEntitiesClient, ValueEntityStreamIn, ValueEntityStreamOut }
 import kalix.testkit.TestProtocol.TestProtocolContext
 
 final class TestValueEntityProtocol(context: TestProtocolContext) {

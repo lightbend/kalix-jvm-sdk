@@ -3,28 +3,28 @@ syntax = "proto3";
 
 package com.example; // <1>
 
-import "akkaserverless/annotations.proto"; // <2>
+import "kalix/annotations.proto"; // <2>
 import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
 
 option java_outer_classname = "CounterApi"; // <3>
 
 message IncreaseValue { // <4>
-  string counter_id = 1 [(akkaserverless.field).entity_key = true]; // <5>
+  string counter_id = 1 [(kalix.field).entity_key = true]; // <5>
   int32 value = 2;
 }
 
 message DecreaseValue {
-  string counter_id = 1 [(akkaserverless.field).entity_key = true];
+  string counter_id = 1 [(kalix.field).entity_key = true];
   int32 value = 2;
 }
 
 message ResetValue {
-  string counter_id = 1 [(akkaserverless.field).entity_key = true];
+  string counter_id = 1 [(kalix.field).entity_key = true];
 }
 
 message GetCounter {
-  string counter_id = 1 [(akkaserverless.field).entity_key = true];
+  string counter_id = 1 [(kalix.field).entity_key = true];
 }
 
 message CurrentCounter { // <6>
@@ -32,7 +32,7 @@ message CurrentCounter { // <6>
 }
 
 service CounterService { // <7>
-  option (akkaserverless.codegen) = { // <8>
+  option (kalix.codegen) = { // <8>
     value_entity: { // <9>
       name: "com.example.domain.Counter" // <10>
       entity_type: "counter" // <11>

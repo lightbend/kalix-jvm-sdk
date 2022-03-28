@@ -1,6 +1,6 @@
 = Using Spring to consume Akka Serverless Services
 
-This guide provides a simple example of how a Spring client can be built to interact with an Akka Serverless Service. 
+This guide provides a simple example of how a Spring client can be built to interact with an Akka Serverless Service.
 
 == What You Will Build
 
@@ -30,7 +30,7 @@ To get started, do the following:
 
 == Build and Run the Akka Serverless Service Locally
 
-With the source repository downloaded, you can build and run the Akka Serverless Service locally. 
+With the source repository downloaded, you can build and run the Akka Serverless Service locally.
 
 Run the Akka Serverless Service using Maven:
 
@@ -50,7 +50,7 @@ In another terminal window, run the Akka Serverless proxy using Docker:
 
 `docker compose up`
 
-You should see output similar to the following:app-name: 
+You should see output similar to the following:app-name:
 
 ```
 akka-serverless-proxy_1   | {"timestamp":"2022-03-02T23:40:40.766Z","mdc":{"akkaAddress":"akka://akkaserverless-proxy@172.21.0.2:25520","akkaSource":"akka://akkaserverless-proxy/user/discovery-manager","sourceActorSystem":"akkaserverless-proxy"},"logger":"com.akkaserverless.proxy.DiscoveryManager","message":"gRPC proxy started at 0.0.0.0:9000","severity":"INFO","thread":"akkaserverless-proxy-akka.actor.default-dispatcher-8"}
@@ -232,7 +232,7 @@ Download the resulting ZIP file, which is an archive of a web application that i
 
 === Generate gRPC stubs
 
-- Get all the proto files from relevant akka serverless service and copy under `src/main/proto` folder.  Remove all the akka serverless annotations from the proto files. For instance `[(akkaserverless.field).entity_key = true]` and `akkaserverless.codegen` etc.
+- Get all the proto files from relevant akka serverless service and copy under `src/main/proto` folder.  Remove all the akka serverless annotations from the proto files. For instance `[(kalix.field).entity_key = true]` and `kalix.codegen` etc.
  For instance,  copying proto files from to `java-valueentity-counter/src/main/proto/com/example`.
 
 - Run `mvn compile` to generate stubs.

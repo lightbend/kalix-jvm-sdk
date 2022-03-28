@@ -24,7 +24,7 @@ option go_package = "github.com/lightbend/akkaserverless-go-sdk/tck/eventsourced
 option java_package = "kalix.tck.model.eventsourcedentity";
 option java_multiple_files = true;
 
-import "akkaserverless/annotations.proto";
+import "kalix/annotations.proto";
 import "google/api/annotations.proto";
 import "akkaserverless/tck/model/eventsourcedentity/event_sourced_entity_api.proto";
 
@@ -44,7 +44,7 @@ import "akkaserverless/tck/model/eventsourcedentity/event_sourced_entity_api.pro
 // - Forwarding and side effects must always be made to the second service `EventSourcedTwo`.
 //
 service EventSourcedTckModel {
-  option (akkaserverless.codegen) = {
+  option (kalix.codegen) = {
     event_sourced_entity: {
       name: "EventSourcedTckModelEntity"
       entity_type: "event-sourced-tck-model"

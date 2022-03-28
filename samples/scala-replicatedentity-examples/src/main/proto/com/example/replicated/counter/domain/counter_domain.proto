@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package com.example.replicated.counter.domain;
 
-import "akkaserverless/annotations.proto";
+import "kalix/annotations.proto";
 
 // tag::replicated_entity[]
 option (akkaserverless.file).replicated_entity = {

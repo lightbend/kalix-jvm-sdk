@@ -23,7 +23,7 @@ package akkaserverless.tck.model.eventing;
 option go_package = "github.com/lightbend/akkaserverless-go-sdk/tck/eventing;eventing";
 option java_package = "kalix.tck.model.eventing";
 
-import "akkaserverless/annotations.proto";
+import "kalix/annotations.proto";
 import "google/protobuf/any.proto";
 import "google/protobuf/empty.proto";
 
@@ -52,32 +52,32 @@ import "google/protobuf/empty.proto";
 //
 service LocalPersistenceSubscriberModel {
   rpc ProcessEventOne(EventOne) returns (Response) {
-    option (akkaserverless.method).eventing.in = {
+    option (kalix.method).eventing.in = {
       event_sourced_entity: "eventlogeventing-one"
     };
   }
   rpc ProcessEventTwo(EventTwo) returns (stream Response) {
-    option (akkaserverless.method).eventing.in = {
+    option (kalix.method).eventing.in = {
       event_sourced_entity: "eventlogeventing-one"
     };
   }
   rpc ProcessAnyEvent(google.protobuf.Any) returns (Response) {
-    option (akkaserverless.method).eventing.in = {
+    option (kalix.method).eventing.in = {
       event_sourced_entity: "eventlogeventing-two"
     };
   }
   rpc ProcessValueOne(ValueOne) returns (Response) {
-    option (akkaserverless.method).eventing.in = {
+    option (kalix.method).eventing.in = {
       value_entity: "valuechangeseventing-one"
     };
   }
   rpc ProcessValueTwo(ValueTwo) returns (stream Response) {
-    option (akkaserverless.method).eventing.in = {
+    option (kalix.method).eventing.in = {
       value_entity: "valuechangeseventing-one"
     };
   }
   rpc ProcessAnyValue(google.protobuf.Any) returns (Response) {
-    option (akkaserverless.method).eventing.in = {
+    option (kalix.method).eventing.in = {
       value_entity: "valuechangeseventing-two"
     };
   }
@@ -113,7 +113,7 @@ service EventSourcedEntityTwo {
 // or an `EventTwo`.
 //
 message EmitEventRequest {
-  string id = 1 [(akkaserverless.field).entity_key = true];
+  string id = 1 [(kalix.field).entity_key = true];
   oneof event {
     EventOne event_one = 2;
     EventTwo event_two = 3;
@@ -141,7 +141,7 @@ message EventTwo {
 // `LocalPersistenceSubscriberModel`.
 //
 message JsonEvent {
-  string id = 1 [(akkaserverless.field).entity_key = true];
+  string id = 1 [(kalix.field).entity_key = true];
   string message = 2;
 }
 
@@ -175,7 +175,7 @@ service ValueEntityTwo {
 // or an `ValueTwo`.
 //
 message UpdateValueRequest {
-  string id = 1 [(akkaserverless.field).entity_key = true];
+  string id = 1 [(kalix.field).entity_key = true];
   oneof value {
     ValueOne value_one = 2;
     ValueTwo value_two = 3;
@@ -203,7 +203,7 @@ message ValueTwo {
 // `ValueChangesSubscriberModel`.
 //
 message JsonValue {
-  string id = 1 [(akkaserverless.field).entity_key = true];
+  string id = 1 [(kalix.field).entity_key = true];
   string message = 2;
 }
 

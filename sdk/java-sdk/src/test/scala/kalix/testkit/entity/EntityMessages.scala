@@ -16,7 +16,7 @@
 
 package kalix.testkit.entity
 
-import com.akkaserverless.protocol.component._
+import kalix.protocol.component._
 import com.google.protobuf.any.{ Any => ScalaPbAny }
 import com.google.protobuf.empty.{ Empty => ScalaPbEmpty }
 import com.google.protobuf.{ Any => JavaPbAny, Empty => JavaPbEmpty, Message => JavaPbMessage, StringValue }

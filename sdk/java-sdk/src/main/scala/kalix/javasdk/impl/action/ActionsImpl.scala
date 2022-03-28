@@ -24,11 +24,11 @@ import kalix.javasdk._
 import kalix.javasdk.action._
 import kalix.javasdk.impl.AnySupport
 import kalix.javasdk.impl._
-import com.akkaserverless.protocol.action.ActionCommand
-import com.akkaserverless.protocol.action.ActionResponse
-import com.akkaserverless.protocol.action.Actions
-import com.akkaserverless.protocol.component
-import com.akkaserverless.protocol.component.Failure
+import kalix.protocol.action.ActionCommand
+import kalix.protocol.action.ActionResponse
+import kalix.protocol.action.Actions
+import kalix.protocol.component
+import kalix.protocol.component.Failure
 import com.google.protobuf.Descriptors
 import com.google.protobuf.any.{ Any => ScalaPbAny }
 import com.google.protobuf.{ Any => JavaPbAny }

@@ -19,32 +19,32 @@ package com.example.view;
 option java_outer_classname = "UserViewModel";
 
 import "com/example/valueentity/domain/user_domain.proto";
-import "akkaserverless/annotations.proto";  
+import "kalix/annotations.proto";
 
 service UserByName {
-  option (akkaserverless.codegen) = {
+  option (kalix.codegen) = {
     view: { }
   };
 
   // purposely using a projection query up top to detect using the wrong state type
   rpc GetCustomersProjected(ByNameRequest) returns (stream UserProjection) {
-    option (akkaserverless.method).view.query = {
+    option (kalix.method).view.query = {
       query: "SELECT name  FROM users WHERE name = :name"
     };
   }
 
   rpc UpdateCustomer(valueentity.domain.UserState) returns (valueentity.domain.UserState) {
-    option (akkaserverless.method).eventing.in = {
+    option (kalix.method).eventing.in = {
       value_entity: "users"
     };
-    option (akkaserverless.method).view.update = {
+    option (kalix.method).view.update = {
       table: "users"
       transform_updates: true
     };
   }
 
   rpc GetCustomers(ByNameRequest) returns (stream valueentity.domain.UserState) {
-    option (akkaserverless.method).view.query = {
+    option (kalix.method).view.query = {
       query: "SELECT * FROM users WHERE name = :name"
     };
   }
@@ -60,15 +60,15 @@ message UserProjection {
 
 // test coverage for a view with no transformations
 service AdditionalView {
-  option (akkaserverless.codegen) = {
+  option (kalix.codegen) = {
     view: {}
   };
 
   rpc UpdateCustomer(valueentity.domain.UserState) returns (valueentity.domain.UserState) {
-    option (akkaserverless.method).eventing.in = {
+    option (kalix.method).eventing.in = {
       value_entity: "users_no_transform"
     };
-    option (akkaserverless.method).view.update = {
+    option (kalix.method).view.update = {
       table: "users_no_transform"
     };
   }

@@ -18,11 +18,11 @@ package kalix.codegen
 
 import scala.jdk.CollectionConverters._
 
-import com.akkaserverless.CodegenOptions
-import com.akkaserverless.EventSourcedEntityDef
-import com.akkaserverless.ReplicatedEntityDef
-import com.akkaserverless.ServiceOptions.ServiceType
-import com.akkaserverless.ValueEntityDef
+import kalix.CodegenOptions
+import kalix.EventSourcedEntityDef
+import kalix.ReplicatedEntityDef
+import kalix.ServiceOptions.ServiceType
+import kalix.ValueEntityDef
 import com.google.protobuf.Descriptors
 import com.google.protobuf.Descriptors.ServiceDescriptor
 
@@ -285,7 +285,7 @@ object ModelBuilder {
 
     if (updates.isEmpty)
       throw new IllegalArgumentException(
-        s"At least one view method must have `option (akkaserverless.method).view.update` in ${messageType.protoName} (${messageType.parent.protoFileName}).")
+        s"At least one view method must have `option (kalix.method).view.update` in ${messageType.protoName} (${messageType.parent.protoFileName}).")
 
     val state = State(updates.head.outputType)
   }
@@ -321,7 +321,7 @@ object ModelBuilder {
 
   object Command {
     def from(method: Descriptors.MethodDescriptor)(implicit messageExtractor: ProtoMessageTypeExtractor): Command = {
-      val eventing = method.getOptions.getExtension(com.akkaserverless.Annotations.method).getEventing
+      val eventing = method.getOptions.getExtension(kalix.Annotations.method).getEventing
       Command(
         method.getName,
         messageExtractor(method.getInputType),
@@ -366,10 +366,10 @@ object ModelBuilder {
 
       val modelFromServices =
         fileDescriptor.getServices.asScala.foldLeft(accModel) { (model, serviceDescriptor) =>
-          if (serviceDescriptor.getOptions.hasExtension(com.akkaserverless.Annotations.codegen)) {
+          if (serviceDescriptor.getOptions.hasExtension(kalix.Annotations.codegen)) {
             model ++ modelFromCodegenOptions(serviceDescriptor, descriptorSeq)
 
-          } else if (serviceDescriptor.getOptions.hasExtension(com.akkaserverless.Annotations.service)) {
+          } else if (serviceDescriptor.getOptions.hasExtension(kalix.Annotations.service)) {
             // FIXME: old format, builds service model from old service annotation
             model ++ modelFromServiceOptions(serviceDescriptor)
           } else {
@@ -528,7 +528,7 @@ object ModelBuilder {
       log: Log,
       messageExtractor: ProtoMessageTypeExtractor): Model = {
 
-    val codegenOptions = serviceDescriptor.getOptions.getExtension(com.akkaserverless.Annotations.codegen)
+    val codegenOptions = serviceDescriptor.getOptions.getExtension(kalix.Annotations.codegen)
     val serviceName = messageExtractor(serviceDescriptor)
     val methods = serviceDescriptor.getMethods.asScala
     val commands = methods.map(Command.from)
@@ -542,7 +542,7 @@ object ModelBuilder {
 
       case CodegenOptions.CodegenCase.VIEW =>
         val methodDetails = methods.flatMap { method =>
-          Option(method.getOptions.getExtension(com.akkaserverless.Annotations.method).getView).map(viewOptions =>
+          Option(method.getOptions.getExtension(kalix.Annotations.method).getView).map(viewOptions =>
             (method, viewOptions))
         }
         val updates = methodDetails.collect {
@@ -731,7 +731,7 @@ object ModelBuilder {
       log: Log,
       messageExtractor: ProtoMessageTypeExtractor): Model = {
 
-    val serviceOptions = serviceDescriptor.getOptions.getExtension(com.akkaserverless.Annotations.service)
+    val serviceOptions = serviceDescriptor.getOptions.getExtension(kalix.Annotations.service)
     val serviceType = serviceOptions.getType
     val serviceName = messageExtractor(serviceDescriptor)
 
@@ -751,7 +751,7 @@ object ModelBuilder {
 
       case ServiceType.SERVICE_TYPE_VIEW =>
         val methodDetails = methods.flatMap { method =>
-          Option(method.getOptions.getExtension(com.akkaserverless.Annotations.method).getView).map(viewOptions =>
+          Option(method.getOptions.getExtension(kalix.Annotations.method).getView).map(viewOptions =>
             (method, viewOptions))
         }
         val updates = methodDetails.collect {
@@ -795,7 +795,7 @@ object ModelBuilder {
 
     val entityDef =
       descriptor.getOptions
-        .getExtension(com.akkaserverless.Annotations.file)
+        .getExtension(kalix.Annotations.file)
         .getEventSourcedEntity
 
     val protoReference = messageExtractor.packageName(descriptor)
@@ -829,7 +829,7 @@ object ModelBuilder {
       messageExtractor: ProtoMessageTypeExtractor): Model = {
     val entityDef =
       descriptor.getOptions
-        .getExtension(com.akkaserverless.Annotations.file)
+        .getExtension(kalix.Annotations.file)
         .getValueEntity
 
     nonEmptyName(entityDef.getName)
@@ -855,11 +855,11 @@ object ModelBuilder {
    */
   private def extractReplicatedEntityDefinitionFromFileOptions(
       descriptor: Descriptors.FileDescriptor)(implicit log: Log, messageExtractor: ProtoMessageTypeExtractor): Model = {
-    import com.akkaserverless.ReplicatedEntity.ReplicatedDataCase
+    import kalix.ReplicatedEntity.ReplicatedDataCase
 
     val entityDef =
       descriptor.getOptions
-        .getExtension(com.akkaserverless.Annotations.file)
+        .getExtension(kalix.Annotations.file)
         .getReplicatedEntity
 
     val protoReference = messageExtractor.packageName(descriptor)

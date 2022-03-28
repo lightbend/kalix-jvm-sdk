@@ -83,7 +83,7 @@ mkdir src/main/proto/shopping/cart/domain
 * The protobuf syntax version, `proto3`.
 * The package name, `shopping.cart.api`.
 * The required Java outer classname, `ShoppingCartAPI`. Messages defined in this file will be generated as inner classes.
-* Import `google/protobuf/empty.proto` and Akka Serverless `akkaserverless/annotations.proto`.
+* Import `google/protobuf/empty.proto` and Akka Serverless `kalix/annotations.proto`.
 +
 [source,proto,indent=0]
 .src/main/proto/shopping/cart/shopping_cart_api.proto
@@ -91,7 +91,7 @@ mkdir src/main/proto/shopping/cart/domain
 include::example$java-shopping-cart-quickstart/src/main/proto/shopping/cart/api/shopping_cart_api.proto[tag=declarations]
 ----
 
-. Add the service endpoint. The service endpoint is annotated with `akkaserverless.codegen` indicating we want to generate an Event Sourced Entity for this service.
+. Add the service endpoint. The service endpoint is annotated with `kalix.codegen` indicating we want to generate an Event Sourced Entity for this service.
 +
 [source,proto,indent=0]
 .src/main/proto/shopping/cart/api/shopping_cart_api.proto

@@ -16,7 +16,7 @@
 
 package kalix.codegen.scalasdk
 
-import com.akkaserverless.Annotations
+import kalix.Annotations
 import kalix.codegen.scalasdk.impl.SourceGenerator
 import com.google.protobuf.ExtensionRegistry
 import com.google.protobuf.compiler.PluginProtos.CodeGeneratorResponse

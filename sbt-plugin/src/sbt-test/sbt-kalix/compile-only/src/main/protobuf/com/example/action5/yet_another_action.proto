@@ -19,13 +19,13 @@ package com.example.action5;
 option java_multiple_files = true;
 option java_outer_classname = "YetAnotherActionApi";
 
-import "akkaserverless/annotations.proto";  
+import "kalix/annotations.proto";
 
 message Request {}
 message Response {}
 
 service YetAnotherAction {
-  option (akkaserverless.codegen) = {
+  option (kalix.codegen) = {
     action: { }
   };
 

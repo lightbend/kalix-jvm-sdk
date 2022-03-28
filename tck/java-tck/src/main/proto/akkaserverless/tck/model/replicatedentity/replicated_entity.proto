@@ -23,7 +23,7 @@ package akkaserverless.tck.model.replicatedentity;
 option go_package = "github.com/lightbend/akkaserverless-go-sdk/tck/replicatedentity;replicatedentity";
 option java_package = "kalix.tck.model";
 
-import "akkaserverless/annotations.proto";
+import "kalix/annotations.proto";
 import "google/api/annotations.proto";
 
 //
@@ -72,7 +72,7 @@ service ReplicatedEntityConfigured {
 // Actions must be processed in order. Any actions after a `Fail` may be ignored.
 //
 message Request {
-  string id = 1 [(akkaserverless.field).entity_key = true];
+  string id = 1 [(kalix.field).entity_key = true];
   repeated RequestAction actions = 2;
 }
 

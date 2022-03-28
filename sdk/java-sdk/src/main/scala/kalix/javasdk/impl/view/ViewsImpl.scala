@@ -28,7 +28,7 @@ import kalix.javasdk.{ Context, Metadata }
 import kalix.javasdk.impl._
 import kalix.javasdk.view.ViewCreationContext
 import kalix.javasdk.view.{ UpdateContext, View, ViewContext }
-import com.akkaserverless.protocol.{ view => pv }
+import kalix.protocol.{ view => pv }
 import com.google.protobuf.Descriptors
 import com.google.protobuf.any.{ Any => ScalaPbAny }
 import org.slf4j.LoggerFactory

@@ -17,7 +17,7 @@
 package kalix.scalasdk.replicatedentity
 
 import kalix.javasdk.impl.replicatedentity.ReplicatedMapImpl
-import com.akkaserverless.protocol.replicated_entity.ReplicatedEntityDelta
+import kalix.protocol.replicated_entity.ReplicatedEntityDelta
 import kalix.replicatedentity.ReplicatedData
 import kalix.scalasdk.impl.replicatedentity.ScalaReplicatedDataFactoryAdapter
 

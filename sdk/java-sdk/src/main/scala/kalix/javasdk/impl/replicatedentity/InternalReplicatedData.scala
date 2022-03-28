@@ -16,7 +16,7 @@
 
 package kalix.javasdk.impl.replicatedentity
 
-import com.akkaserverless.protocol.replicated_entity.ReplicatedEntityDelta
+import kalix.protocol.replicated_entity.ReplicatedEntityDelta
 import kalix.replicatedentity.ReplicatedData
 
 private[kalix] trait InternalReplicatedData extends ReplicatedData {

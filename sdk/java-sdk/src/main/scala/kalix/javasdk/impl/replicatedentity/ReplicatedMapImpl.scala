@@ -23,9 +23,9 @@ import scala.jdk.CollectionConverters._
 import kalix.javasdk.impl.AnySupport
 import kalix.javasdk.replicatedentity.ReplicatedDataFactory
 import kalix.javasdk.replicatedentity.ReplicatedMap
-import com.akkaserverless.protocol.replicated_entity.ReplicatedEntityDelta
-import com.akkaserverless.protocol.replicated_entity.ReplicatedMapDelta
-import com.akkaserverless.protocol.replicated_entity.ReplicatedMapEntryDelta
+import kalix.protocol.replicated_entity.ReplicatedEntityDelta
+import kalix.protocol.replicated_entity.ReplicatedMapDelta
+import kalix.protocol.replicated_entity.ReplicatedMapEntryDelta
 import kalix.replicatedentity.ReplicatedData
 import org.slf4j.LoggerFactory
 

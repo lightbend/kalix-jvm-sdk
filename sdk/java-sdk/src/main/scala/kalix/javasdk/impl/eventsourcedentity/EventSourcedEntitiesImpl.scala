@@ -30,25 +30,21 @@ import kalix.javasdk.impl.effect.SecondaryEffectImpl
 import kalix.javasdk.impl.eventsourcedentity.EventSourcedEntityRouter.CommandResult
 import kalix.javasdk.Context
 import kalix.javasdk.Metadata
-import com.akkaserverless.protocol.event_sourced_entity.EventSourcedStreamIn.Message.{ Init => InInit }
-import com.akkaserverless.protocol.event_sourced_entity.EventSourcedStreamIn.Message.{ Empty => InEmpty }
-import com.akkaserverless.protocol.event_sourced_entity.EventSourcedStreamIn.Message.{ Command => InCommand }
-import com.akkaserverless.protocol.event_sourced_entity.EventSourcedStreamIn.Message.{ Event => InEvent }
-import com.akkaserverless.protocol.event_sourced_entity.EventSourcedStreamIn.Message.{
-  SnapshotRequest => InSnapshotRequest
-}
-import com.akkaserverless.protocol.event_sourced_entity.EventSourcedStreamOut.Message.{ Reply => OutReply }
-import com.akkaserverless.protocol.event_sourced_entity.EventSourcedStreamOut.Message.{ Failure => OutFailure }
-import com.akkaserverless.protocol.event_sourced_entity.EventSourcedStreamOut.Message.{
-  SnapshotReply => OutSnapshotReply
-}
-import com.akkaserverless.protocol.event_sourced_entity._
+import kalix.protocol.event_sourced_entity.EventSourcedStreamIn.Message.{ Init => InInit }
+import kalix.protocol.event_sourced_entity.EventSourcedStreamIn.Message.{ Empty => InEmpty }
+import kalix.protocol.event_sourced_entity.EventSourcedStreamIn.Message.{ Command => InCommand }
+import kalix.protocol.event_sourced_entity.EventSourcedStreamIn.Message.{ Event => InEvent }
+import kalix.protocol.event_sourced_entity.EventSourcedStreamIn.Message.{ SnapshotRequest => InSnapshotRequest }
+import kalix.protocol.event_sourced_entity.EventSourcedStreamOut.Message.{ Reply => OutReply }
+import kalix.protocol.event_sourced_entity.EventSourcedStreamOut.Message.{ Failure => OutFailure }
+import kalix.protocol.event_sourced_entity.EventSourcedStreamOut.Message.{ SnapshotReply => OutSnapshotReply }
+import kalix.protocol.event_sourced_entity._
 import com.google.protobuf.any.{ Any => ScalaPbAny }
 import com.google.protobuf.Descriptors
 
 import scala.util.control.NonFatal
 import kalix.javasdk.impl.EventSourcedEntityFactory
-import com.akkaserverless.protocol.component.Failure
+import kalix.protocol.component.Failure
 import org.slf4j.LoggerFactory
 
 final class EventSourcedEntityService(

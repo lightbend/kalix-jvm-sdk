@@ -19,7 +19,7 @@ package kalix.scalasdk.replicatedentity
 import scala.collection.immutable.Set
 
 import kalix.javasdk.impl.replicatedentity.ReplicatedMultiMapImpl
-import com.akkaserverless.protocol.replicated_entity.ReplicatedEntityDelta
+import kalix.protocol.replicated_entity.ReplicatedEntityDelta
 
 /**
  * A replicated map that maps keys to values, where each key may be associated with multiple values. Effectively a
