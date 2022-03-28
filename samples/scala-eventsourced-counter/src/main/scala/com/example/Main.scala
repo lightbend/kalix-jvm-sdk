@@ -1,6 +1,6 @@
 package com.example
 
-import com.akkaserverless.scalasdk.AkkaServerless
+import kalix.scalasdk.AkkaServerless
 import com.example.actions.CounterJournalToTopicAction
 import com.example.actions.CounterTopicSubscriptionAction
 import com.example.domain.Counter

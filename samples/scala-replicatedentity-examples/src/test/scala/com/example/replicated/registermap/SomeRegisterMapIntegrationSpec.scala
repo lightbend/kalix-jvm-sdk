@@ -1,6 +1,6 @@
 package com.example.replicated.registermap
 
-import com.akkaserverless.scalasdk.testkit.AkkaServerlessTestKit
+import kalix.scalasdk.testkit.AkkaServerlessTestKit
 import com.example.replicated.Main
 import com.example.replicated.registermap.GetAllValues
 import com.example.replicated.registermap.Key

@@ -1,15 +1,15 @@
 package com.example.replicated.multimap.domain;
 
-import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityContext;
-import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityOptions;
-import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityProvider;
-import com.akkaserverless.javasdk.replicatedentity.ReplicatedMultiMap;
 import com.example.replicated.multimap.SomeMultiMapApi;
 import com.example.replicated.multimap.domain.key.SomeMultiMapDomainKey;
 import com.example.replicated.multimap.domain.value.SomeMultiMapDomainValue;
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.Empty;
 import com.google.protobuf.EmptyProto;
+import kalix.javasdk.replicatedentity.ReplicatedEntityContext;
+import kalix.javasdk.replicatedentity.ReplicatedEntityOptions;
+import kalix.javasdk.replicatedentity.ReplicatedEntityProvider;
+import kalix.javasdk.replicatedentity.ReplicatedMultiMap;
 
 import java.util.function.Function;
 
@@ -21,7 +21,7 @@ import java.util.function.Function;
  * A replicated entity provider that defines how to register and create the entity for
  * the Protobuf service <code>MultiMapService</code>.
  *
- * Should be used with the <code>register</code> method in {@link com.akkaserverless.javasdk.AkkaServerless}.
+ * Should be used with the <code>register</code> method in {@link kalix.javasdk.AkkaServerless}.
  */
 public class SomeMultiMapProvider implements ReplicatedEntityProvider<ReplicatedMultiMap<SomeMultiMapDomainKey.SomeKey, SomeMultiMapDomainValue.SomeValue>, SomeMultiMap> {
 

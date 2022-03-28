@@ -4,8 +4,8 @@
  */
 package customer.domain;
 
-import com.akkaserverless.javasdk.testkit.ValueEntityResult;
-import com.akkaserverless.javasdk.valueentity.ValueEntity;
+import kalix.javasdk.testkit.ValueEntityResult;
+import kalix.javasdk.valueentity.ValueEntity;
 import com.google.protobuf.Empty;
 import customer.api.CustomerApi;
 import java.util.ArrayList;

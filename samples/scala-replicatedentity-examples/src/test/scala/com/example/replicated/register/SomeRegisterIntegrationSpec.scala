@@ -1,6 +1,6 @@
 package com.example.replicated.register
 
-import com.akkaserverless.scalasdk.testkit.AkkaServerlessTestKit
+import kalix.scalasdk.testkit.AkkaServerlessTestKit
 import com.example.replicated.Main
 import com.example.replicated.register.GetValue
 import com.example.replicated.register.RegisterService

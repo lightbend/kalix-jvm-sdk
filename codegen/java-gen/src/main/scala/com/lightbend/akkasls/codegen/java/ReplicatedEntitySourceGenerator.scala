@@ -36,8 +36,8 @@ object ReplicatedEntitySourceGenerator {
       entity.data.typeArguments,
       packageName,
       otherImports = Seq(
-        s"com.akkaserverless.javasdk.replicatedentity.${entity.data.name}",
-        "com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityContext") ++ extraReplicatedImports(entity.data))
+        s"kalix.javasdk.replicatedentity.${entity.data.name}",
+        "kalix.javasdk.replicatedentity.ReplicatedEntityContext") ++ extraReplicatedImports(entity.data))
 
     val parameterizedDataType = entity.data.name + parameterizeDataType(entity.data)
 
@@ -94,10 +94,10 @@ object ReplicatedEntitySourceGenerator {
       entity.data.typeArguments,
       packageName,
       otherImports = Seq(
-        "com.akkaserverless.javasdk.impl.replicatedentity.ReplicatedEntityRouter",
-        "com.akkaserverless.javasdk.replicatedentity.CommandContext",
-        "com.akkaserverless.javasdk.replicatedentity.ReplicatedEntity",
-        s"com.akkaserverless.javasdk.replicatedentity.${entity.data.name}") ++ extraReplicatedImports(entity.data))
+        "kalix.javasdk.impl.replicatedentity.ReplicatedEntityRouter",
+        "kalix.javasdk.replicatedentity.CommandContext",
+        "kalix.javasdk.replicatedentity.ReplicatedEntity",
+        s"kalix.javasdk.replicatedentity.${entity.data.name}") ++ extraReplicatedImports(entity.data))
 
     val parameterizedDataType = entity.data.name + parameterizeDataType(entity.data)
 
@@ -155,10 +155,10 @@ object ReplicatedEntitySourceGenerator {
       relevantTypes ++ relevantProtoTypes.map(_.descriptorImport),
       packageName,
       otherImports = Seq(
-        s"com.akkaserverless.javasdk.replicatedentity.${entity.data.name}",
-        "com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityContext",
-        "com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityOptions",
-        "com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityProvider",
+        s"kalix.javasdk.replicatedentity.${entity.data.name}",
+        "kalix.javasdk.replicatedentity.ReplicatedEntityContext",
+        "kalix.javasdk.replicatedentity.ReplicatedEntityOptions",
+        "kalix.javasdk.replicatedentity.ReplicatedEntityProvider",
         "com.google.protobuf.Descriptors",
         "java.util.function.Function")
         ++ extraReplicatedImports(entity.data) ++ extraTypeImports(entity.data.typeArguments))
@@ -182,7 +182,7 @@ object ReplicatedEntitySourceGenerator {
         | * A replicated entity provider that defines how to register and create the entity for
         | * the Protobuf service <code>${service.messageType.name}</code>.
         | *
-        | * Should be used with the <code>register</code> method in {@link com.akkaserverless.javasdk.AkkaServerless}.
+        | * Should be used with the <code>register</code> method in {@link kalix.javasdk.AkkaServerless}.
         | */
         |public class ${className}Provider implements ReplicatedEntityProvider<$parameterizedDataType, $className> {
         |
@@ -251,8 +251,8 @@ object ReplicatedEntitySourceGenerator {
       entity.data.typeArguments,
       packageName,
       otherImports = Seq(
-        s"com.akkaserverless.javasdk.replicatedentity.${entity.data.name}",
-        s"com.akkaserverless.javasdk.replicatedentity.$baseClass",
+        s"kalix.javasdk.replicatedentity.${entity.data.name}",
+        s"kalix.javasdk.replicatedentity.$baseClass",
         s"$mainPackageName.Components",
         s"$mainPackageName.ComponentsImpl") ++ extraReplicatedImports(entity.data))
 

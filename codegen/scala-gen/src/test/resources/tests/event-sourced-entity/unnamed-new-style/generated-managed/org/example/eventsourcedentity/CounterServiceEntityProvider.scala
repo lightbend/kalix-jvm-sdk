@@ -1,10 +1,10 @@
 package org.example.eventsourcedentity
 
-import com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntityContext
-import com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntityOptions
-import com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntityProvider
 import com.google.protobuf.Descriptors
 import com.google.protobuf.empty.EmptyProto
+import kalix.scalasdk.eventsourcedentity.EventSourcedEntityContext
+import kalix.scalasdk.eventsourcedentity.EventSourcedEntityOptions
+import kalix.scalasdk.eventsourcedentity.EventSourcedEntityProvider
 import org.example.eventsourcedentity
 import org.example.eventsourcedentity.domain.CounterDomainProto
 import org.example.eventsourcedentity.domain.CounterState

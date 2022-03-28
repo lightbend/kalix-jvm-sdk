@@ -1,6 +1,6 @@
 package com.example.shoppingcart
 
-import com.akkaserverless.scalasdk.AkkaServerless
+import kalix.scalasdk.AkkaServerless
 import com.example.shoppingcart.domain.ShoppingCart
 import org.slf4j.LoggerFactory
 

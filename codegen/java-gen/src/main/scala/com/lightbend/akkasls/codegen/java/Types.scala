@@ -20,13 +20,13 @@ import com.lightbend.akkasls.codegen.ClassMessageType
 
 object Types {
   object View {
-    val UpdateHandlerNotFound = ClassMessageType("com.akkaserverless.javasdk.impl.view.UpdateHandlerNotFound")
-    val ViewRouter = ClassMessageType("com.akkaserverless.javasdk.impl.view.ViewRouter")
-    val View = ClassMessageType("com.akkaserverless.javasdk.view.View")
-    val ViewProvider = ClassMessageType("com.akkaserverless.javasdk.view.ViewProvider")
-    val ViewCreationContext = ClassMessageType("com.akkaserverless.javasdk.view.ViewCreationContext")
-    val ViewOptions = ClassMessageType("com.akkaserverless.javasdk.view.ViewOptions")
-    val ViewContext = ClassMessageType("com.akkaserverless.javasdk.view.ViewContext")
+    val UpdateHandlerNotFound = ClassMessageType("kalix.javasdk.impl.view.UpdateHandlerNotFound")
+    val ViewRouter = ClassMessageType("kalix.javasdk.impl.view.ViewRouter")
+    val View = ClassMessageType("kalix.javasdk.view.View")
+    val ViewProvider = ClassMessageType("kalix.javasdk.view.ViewProvider")
+    val ViewCreationContext = ClassMessageType("kalix.javasdk.view.ViewCreationContext")
+    val ViewOptions = ClassMessageType("kalix.javasdk.view.ViewOptions")
+    val ViewContext = ClassMessageType("kalix.javasdk.view.ViewContext")
   }
 
   val Descriptors = ClassMessageType("com.google.protobuf.Descriptors")

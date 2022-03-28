@@ -1,12 +1,12 @@
 package org.example.service;
 
-import com.akkaserverless.javasdk.action.ActionCreationContext;
-import com.akkaserverless.javasdk.action.ActionOptions;
-import com.akkaserverless.javasdk.action.ActionProvider;
-import com.akkaserverless.javasdk.impl.action.ActionRouter;
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.Empty;
 import com.google.protobuf.EmptyProto;
+import kalix.javasdk.action.ActionCreationContext;
+import kalix.javasdk.action.ActionOptions;
+import kalix.javasdk.action.ActionProvider;
+import kalix.javasdk.impl.action.ActionRouter;
 
 import java.util.function.Function;
 
@@ -18,7 +18,7 @@ import java.util.function.Function;
  * MyServiceNamedActionProvider that defines how to register and create the action for
  * the Protobuf service <code>MyService</code>.
  *
- * Should be used with the <code>register</code> method in {@link com.akkaserverless.javasdk.AkkaServerless}.
+ * Should be used with the <code>register</code> method in {@link kalix.javasdk.AkkaServerless}.
  */
 public class MyServiceNamedActionProvider implements ActionProvider<MyServiceNamedAction> {
 

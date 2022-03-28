@@ -1,6 +1,6 @@
 package org.example;
 
-import com.akkaserverless.javasdk.AkkaServerless;
+import kalix.javasdk.AkkaServerless;
 import org.example.valueentity.Counter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -5,7 +5,7 @@
 
 package customer;
 
-import com.akkaserverless.javasdk.AkkaServerless;
+import kalix.javasdk.AkkaServerless;
 import customer.domain.CustomerEntity;
 import customer.domain.CustomerEntityProvider;
 import customer.view.CustomerByNameView;

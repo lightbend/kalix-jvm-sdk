@@ -2,7 +2,7 @@ package org.example.service
 
 import akka.NotUsed
 import akka.stream.scaladsl.Source
-import com.akkaserverless.scalasdk.action.Action
+import kalix.scalasdk.action.Action
 import org.example.Components
 import org.example.ComponentsImpl
 import org.external.Empty

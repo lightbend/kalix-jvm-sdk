@@ -4,8 +4,8 @@
  */
 package customer.domain
 
-import com.akkaserverless.scalasdk.testkit.ValueEntityResult
-import com.akkaserverless.scalasdk.valueentity.ValueEntity
+import kalix.scalasdk.testkit.ValueEntityResult
+import kalix.scalasdk.valueentity.ValueEntity
 import com.google.protobuf.empty.Empty
 import customer.api
 import org.scalatest.matchers.should.Matchers

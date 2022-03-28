@@ -1,7 +1,7 @@
 package org.example
 
-import com.akkaserverless.scalasdk.AkkaServerless
-import com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntityContext
+import kalix.scalasdk.AkkaServerless
+import kalix.scalasdk.eventsourcedentity.EventSourcedEntityContext
 import org.example.domain.Counter
 import org.example.domain.CounterProvider
 

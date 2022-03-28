@@ -189,7 +189,7 @@ object EntityServiceSourceGenerator {
       packageName,
       List(service.messageType.parent.javaPackage + "." + serviceName) ++
       Seq(
-        "com.akkaserverless.javasdk.testkit.junit.AkkaServerlessTestKitResource",
+        "kalix.javasdk.testkit.junit.AkkaServerlessTestKitResource",
         "org.junit.ClassRule",
         "org.junit.Test",
         mainClassPackageName + "." + mainClassName) ++ extraImports)

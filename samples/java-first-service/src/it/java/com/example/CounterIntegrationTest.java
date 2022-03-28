@@ -1,6 +1,6 @@
 package com.example;
 
-import com.akkaserverless.javasdk.testkit.junit.AkkaServerlessTestKitResource;
+import kalix.javasdk.testkit.junit.AkkaServerlessTestKitResource;
 import com.example.domain.CounterDomain;
 import com.google.protobuf.Empty;
 import org.junit.ClassRule;

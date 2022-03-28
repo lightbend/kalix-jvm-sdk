@@ -1,7 +1,7 @@
 package org.example
 
-import com.akkaserverless.scalasdk.AkkaServerless
-import com.akkaserverless.scalasdk.action.ActionCreationContext
+import kalix.scalasdk.AkkaServerless
+import kalix.scalasdk.action.ActionCreationContext
 import org.example.service.MyServiceActionImpl
 import org.example.service.MyServiceActionProvider
 

@@ -1,7 +1,7 @@
 package org.example.valueentity.domain;
 
-import com.akkaserverless.javasdk.valueentity.ValueEntity;
 import com.google.protobuf.Empty;
+import kalix.javasdk.valueentity.ValueEntity;
 import org.example.Components;
 import org.example.ComponentsImpl;
 import org.example.valueentity.CounterApi;

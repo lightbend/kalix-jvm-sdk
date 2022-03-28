@@ -21,7 +21,7 @@ syntax = "proto3";
 package akkaserverless.tck.model.valueentity;
 
 option go_package = "github.com/lightbend/akkaserverless-go-sdk/tck/valueentity;valueentity";
-option java_package = "com.akkaserverless.tck.model.valueentity";
+option java_package = "kalix.tck.model.valueentity";
 
 import "akkaserverless/annotations.proto";
 import "google/api/annotations.proto";

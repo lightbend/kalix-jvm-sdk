@@ -1,7 +1,7 @@
 package org.example.valueentity;
 
-import com.akkaserverless.javasdk.testkit.junit.AkkaServerlessTestKitResource;
 import com.google.protobuf.Empty;
+import kalix.javasdk.testkit.junit.AkkaServerlessTestKitResource;
 import org.example.Main;
 import org.example.valueentity.domain.CounterDomain;
 import org.junit.ClassRule;

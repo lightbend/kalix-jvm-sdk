@@ -2,10 +2,10 @@ package org.example.service
 
 import akka.NotUsed
 import akka.stream.scaladsl.Source
-import com.akkaserverless.javasdk.impl.action.ActionRouter.HandlerNotFound
-import com.akkaserverless.scalasdk.action.Action
-import com.akkaserverless.scalasdk.action.MessageEnvelope
-import com.akkaserverless.scalasdk.impl.action.ActionRouter
+import kalix.javasdk.impl.action.ActionRouter.HandlerNotFound
+import kalix.scalasdk.action.Action
+import kalix.scalasdk.action.MessageEnvelope
+import kalix.scalasdk.impl.action.ActionRouter
 
 // This code is managed by Akka Serverless tooling.
 // It will be re-generated to reflect any changes to your protobuf definitions.

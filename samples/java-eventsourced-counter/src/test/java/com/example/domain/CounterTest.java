@@ -4,8 +4,8 @@
  */
 package com.example.domain;
 
-import com.akkaserverless.javasdk.testkit.EventSourcedResult;
-import com.akkaserverless.javasdk.testkit.DeferredCallDetails;
+import kalix.javasdk.testkit.EventSourcedResult;
+import kalix.javasdk.testkit.DeferredCallDetails;
 import com.example.CounterApi;
 import com.google.protobuf.Empty;
 import org.junit.Test;

@@ -1,7 +1,7 @@
 package org.example;
 
-import com.akkaserverless.javasdk.AkkaServerless;
-import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityContext;
+import kalix.javasdk.AkkaServerless;
+import kalix.javasdk.eventsourcedentity.EventSourcedEntityContext;
 import org.example.eventsourcedentity.CounterApi;
 import org.example.eventsourcedentity.CounterServiceEntity;
 import org.example.eventsourcedentity.CounterServiceEntityProvider;

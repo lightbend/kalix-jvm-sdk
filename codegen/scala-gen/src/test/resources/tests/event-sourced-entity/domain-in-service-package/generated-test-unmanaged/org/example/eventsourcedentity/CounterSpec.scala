@@ -1,8 +1,8 @@
 package org.example.eventsourcedentity
 
-import com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntity
-import com.akkaserverless.scalasdk.testkit.EventSourcedResult
 import com.google.protobuf.empty.Empty
+import kalix.scalasdk.eventsourcedentity.EventSourcedEntity
+import kalix.scalasdk.testkit.EventSourcedResult
 import org.example.eventsourcedentity
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec

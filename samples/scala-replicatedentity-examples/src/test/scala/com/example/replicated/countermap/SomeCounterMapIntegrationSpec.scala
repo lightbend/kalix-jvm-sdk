@@ -1,6 +1,6 @@
 package com.example.replicated.countermap
 
-import com.akkaserverless.scalasdk.testkit.AkkaServerlessTestKit
+import kalix.scalasdk.testkit.AkkaServerlessTestKit
 import com.example.replicated.Main
 import com.example.replicated.countermap.CounterMapService
 import com.example.replicated.countermap.DecreaseValue

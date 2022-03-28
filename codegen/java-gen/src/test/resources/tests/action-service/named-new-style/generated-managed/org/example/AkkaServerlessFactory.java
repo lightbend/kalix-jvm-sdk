@@ -1,7 +1,7 @@
 package org.example;
 
-import com.akkaserverless.javasdk.AkkaServerless;
-import com.akkaserverless.javasdk.action.ActionCreationContext;
+import kalix.javasdk.AkkaServerless;
+import kalix.javasdk.action.ActionCreationContext;
 import org.example.service.MyServiceNamedAction;
 import org.example.service.MyServiceNamedActionProvider;
 import org.example.service.ServiceOuterClass;

@@ -1,13 +1,13 @@
 
 package com.example.replicated.multimap
 
-import com.akkaserverless.scalasdk.replicatedentity.ReplicatedEntityContext
-import com.akkaserverless.scalasdk.replicatedentity.ReplicatedEntityOptions
-import com.akkaserverless.scalasdk.replicatedentity.ReplicatedEntityProvider
-import com.akkaserverless.scalasdk.replicatedentity.ReplicatedMultiMap
 import com.example.replicated.multimap
 import com.google.protobuf.Descriptors
 import com.google.protobuf.empty.EmptyProto
+import kalix.scalasdk.replicatedentity.ReplicatedEntityContext
+import kalix.scalasdk.replicatedentity.ReplicatedEntityOptions
+import kalix.scalasdk.replicatedentity.ReplicatedEntityProvider
+import kalix.scalasdk.replicatedentity.ReplicatedMultiMap
 
 import scala.collection.immutable.Seq
 
@@ -19,7 +19,7 @@ import scala.collection.immutable.Seq
  * A replicated entity provider that defines how to register and create the entity for
  * the Protobuf service `MultiMapService`.
  *
- * Should be used with the `register` method in [[com.akkaserverless.scalasdk.AkkaServerless]].
+ * Should be used with the `register` method in [[kalix.scalasdk.AkkaServerless]].
  */
 object SomeMultiMapProvider {
   def apply(entityFactory: ReplicatedEntityContext => SomeMultiMap): SomeMultiMapProvider =

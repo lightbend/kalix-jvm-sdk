@@ -44,14 +44,14 @@ object ValueEntityTestKitGenerator {
       packageName,
       otherImports = Seq(
         "com.google.protobuf.Empty",
-        "com.akkaserverless.javasdk.valueentity.ValueEntity",
-        "com.akkaserverless.javasdk.impl.effect.SecondaryEffectImpl",
-        "com.akkaserverless.javasdk.impl.effect.MessageReplyImpl",
-        "com.akkaserverless.javasdk.impl.valueentity.ValueEntityEffectImpl",
-        "com.akkaserverless.javasdk.testkit.ValueEntityResult",
-        "com.akkaserverless.javasdk.testkit.impl.ValueEntityResultImpl",
-        "com.akkaserverless.javasdk.valueentity.ValueEntityContext",
-        "com.akkaserverless.javasdk.testkit.impl.TestKitValueEntityContext",
+        "kalix.javasdk.valueentity.ValueEntity",
+        "kalix.javasdk.impl.effect.SecondaryEffectImpl",
+        "kalix.javasdk.impl.effect.MessageReplyImpl",
+        "kalix.javasdk.impl.valueentity.ValueEntityEffectImpl",
+        "kalix.javasdk.testkit.ValueEntityResult",
+        "kalix.javasdk.testkit.impl.ValueEntityResultImpl",
+        "kalix.javasdk.valueentity.ValueEntityContext",
+        "kalix.javasdk.testkit.impl.TestKitValueEntityContext",
         "java.util.function.Function"))
 
     val entityClassName = entity.messageType.name
@@ -153,8 +153,8 @@ object ValueEntityTestKitGenerator {
       packageName,
       otherImports = Seq(
         "com.google.protobuf.Empty",
-        "com.akkaserverless.javasdk.valueentity.ValueEntity",
-        "com.akkaserverless.javasdk.testkit.ValueEntityResult",
+        "kalix.javasdk.valueentity.ValueEntity",
+        "kalix.javasdk.testkit.ValueEntityResult",
         "org.junit.Test"))
 
     val entityClassName = entity.messageType.name

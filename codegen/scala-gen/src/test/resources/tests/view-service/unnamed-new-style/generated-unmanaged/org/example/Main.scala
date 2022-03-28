@@ -1,6 +1,6 @@
 package org.example
 
-import com.akkaserverless.scalasdk.AkkaServerless
+import kalix.scalasdk.AkkaServerless
 import org.example.unnamed.view.UserByNameView
 import org.slf4j.LoggerFactory
 

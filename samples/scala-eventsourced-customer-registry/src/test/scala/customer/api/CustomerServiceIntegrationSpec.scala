@@ -1,7 +1,7 @@
 package customer.api
 
 import akka.actor.ActorSystem
-import com.akkaserverless.scalasdk.testkit.AkkaServerlessTestKit
+import kalix.scalasdk.testkit.AkkaServerlessTestKit
 import com.google.protobuf.empty.Empty
 import customer.Main
 import org.scalatest.BeforeAndAfterAll

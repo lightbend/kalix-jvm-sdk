@@ -5,7 +5,7 @@
 package customer.view;
 
 import akka.stream.javadsl.Sink;
-import com.akkaserverless.javasdk.testkit.junit.AkkaServerlessTestKitResource;
+import kalix.javasdk.testkit.junit.AkkaServerlessTestKitResource;
 import customer.Main;
 import customer.api.CustomerApi;
 import customer.api.CustomerService;

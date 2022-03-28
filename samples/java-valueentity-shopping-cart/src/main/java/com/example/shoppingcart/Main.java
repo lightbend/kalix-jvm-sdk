@@ -15,7 +15,7 @@
  */
 package com.example.shoppingcart;
 
-import com.akkaserverless.javasdk.AkkaServerless;
+import kalix.javasdk.AkkaServerless;
 import com.example.shoppingcart.domain.ShoppingCart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

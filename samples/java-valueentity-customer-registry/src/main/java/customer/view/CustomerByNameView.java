@@ -4,7 +4,7 @@
  */
 package customer.view;
 
-import com.akkaserverless.javasdk.view.ViewContext;
+import kalix.javasdk.view.ViewContext;
 import customer.domain.CustomerDomain;
 
 public class CustomerByNameView extends AbstractCustomerByNameView {

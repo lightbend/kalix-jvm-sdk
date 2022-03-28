@@ -1,6 +1,6 @@
 package com.example
 
-import com.akkaserverless.scalasdk.AkkaServerless
+import kalix.scalasdk.AkkaServerless
 import com.example.domain.Counter
 import org.slf4j.LoggerFactory
 

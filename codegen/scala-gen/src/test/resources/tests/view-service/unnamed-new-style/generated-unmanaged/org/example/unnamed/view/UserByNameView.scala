@@ -1,7 +1,7 @@
 package org.example.unnamed.view
 
-import com.akkaserverless.scalasdk.view.View.UpdateEffect
-import com.akkaserverless.scalasdk.view.ViewContext
+import kalix.scalasdk.view.View.UpdateEffect
+import kalix.scalasdk.view.ViewContext
 
 // This class was initially generated based on the .proto definition by Akka Serverless tooling.
 //

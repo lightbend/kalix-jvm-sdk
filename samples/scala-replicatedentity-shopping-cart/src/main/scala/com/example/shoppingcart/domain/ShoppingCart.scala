@@ -1,8 +1,8 @@
 package com.example.shoppingcart.domain
 
-import com.akkaserverless.scalasdk.replicatedentity.ReplicatedCounterMap
-import com.akkaserverless.scalasdk.replicatedentity.ReplicatedEntity
-import com.akkaserverless.scalasdk.replicatedentity.ReplicatedEntityContext
+import kalix.scalasdk.replicatedentity.ReplicatedCounterMap
+import kalix.scalasdk.replicatedentity.ReplicatedEntity
+import kalix.scalasdk.replicatedentity.ReplicatedEntityContext
 import com.example.shoppingcart
 import com.google.protobuf.empty.Empty
 

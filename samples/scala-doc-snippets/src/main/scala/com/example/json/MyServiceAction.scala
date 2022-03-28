@@ -1,8 +1,8 @@
 package com.example.json
 
-import com.akkaserverless.scalasdk.JsonSupport
-import com.akkaserverless.scalasdk.action.Action
-import com.akkaserverless.scalasdk.action.ActionCreationContext
+import kalix.scalasdk.JsonSupport
+import kalix.scalasdk.action.Action
+import kalix.scalasdk.action.ActionCreationContext
 import com.google.protobuf.any.{Any => ScalaPbAny}
 import com.google.protobuf.empty.Empty
 import org.slf4j.LoggerFactory

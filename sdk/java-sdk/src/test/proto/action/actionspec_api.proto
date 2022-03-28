@@ -15,7 +15,7 @@
 syntax = "proto3";
 
 package actionspec;
-option java_package = "com.akkaserverless.javasdk.actionspec";
+option java_package = "kalix.javasdk.actionspec";
 
 import "google/protobuf/any.proto";
 

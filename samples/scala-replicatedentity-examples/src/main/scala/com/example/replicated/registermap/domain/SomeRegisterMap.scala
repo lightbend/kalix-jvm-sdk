@@ -1,8 +1,8 @@
 package com.example.replicated.registermap.domain
 
-import com.akkaserverless.scalasdk.replicatedentity.ReplicatedEntity
-import com.akkaserverless.scalasdk.replicatedentity.ReplicatedEntityContext
-import com.akkaserverless.scalasdk.replicatedentity.ReplicatedRegisterMap
+import kalix.scalasdk.replicatedentity.ReplicatedEntity
+import kalix.scalasdk.replicatedentity.ReplicatedEntityContext
+import kalix.scalasdk.replicatedentity.ReplicatedRegisterMap
 import com.example.replicated.registermap
 import com.google.protobuf.empty.Empty
 
@@ -40,7 +40,7 @@ class SomeRegisterMap(context: ReplicatedEntityContext) extends AbstractSomeRegi
 
   def getAll(currentData: ReplicatedRegisterMap[SomeKey, SomeValue], getAllValues: registermap.GetAllValues): ReplicatedEntity.Effect[registermap.CurrentValues] = {
 
-    val allData = 
+    val allData =
       currentData.keySet.map { key => // <3>
         val value = currentData.get(key).map(v => registermap.Value(v.someField))
         registermap.CurrentValue(Some(registermap.Key(key.someField)), value)

@@ -16,7 +16,7 @@
 package com.example.shoppingcart;
 
 import com.example.shoppingcart.*;
-import com.akkaserverless.javasdk.testkit.junit.AkkaServerlessTestKitResource;
+import kalix.javasdk.testkit.junit.AkkaServerlessTestKitResource;
 import com.google.protobuf.Empty;
 import org.junit.ClassRule;
 import org.junit.Test;

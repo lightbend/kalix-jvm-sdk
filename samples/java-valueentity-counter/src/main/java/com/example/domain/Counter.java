@@ -5,7 +5,7 @@
 
 package com.example.domain;
 
-import com.akkaserverless.javasdk.valueentity.ValueEntityContext;
+import kalix.javasdk.valueentity.ValueEntityContext;
 import com.example.CounterApi;
 import com.google.protobuf.Empty;
 
@@ -63,7 +63,7 @@ public class Counter extends AbstractCounter { // <1>
           .updateState(newState)
           .thenReply(Empty.getDefaultInstance());
     }
-    
+
     @Override
     public Effect<Empty> reset(
         CounterDomain.CounterState currentState, CounterApi.ResetValue command) {
@@ -73,7 +73,7 @@ public class Counter extends AbstractCounter { // <1>
           .updateState(newState)
           .thenReply(Empty.getDefaultInstance());
     }
-    
+
     // tag::getCurrentCounter[]
     @Override
     public Effect<CounterApi.CurrentCounter> getCurrentCounter(

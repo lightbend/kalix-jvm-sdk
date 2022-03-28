@@ -34,7 +34,7 @@ object ValueEntitySourceGenerator {
     val imports = generateImports(
       allRelevantMessageTypes(service, entity),
       packageName,
-      otherImports = Seq("com.akkaserverless.javasdk.valueentity.ValueEntityContext"))
+      otherImports = Seq("kalix.javasdk.valueentity.ValueEntityContext"))
 
     val stateType = entity.state.messageType.fullName
 
@@ -85,9 +85,9 @@ object ValueEntitySourceGenerator {
       allRelevantMessageTypes(service, entity),
       packageName,
       otherImports = Seq(
-        "com.akkaserverless.javasdk.valueentity.CommandContext",
-        "com.akkaserverless.javasdk.valueentity.ValueEntity",
-        "com.akkaserverless.javasdk.impl.valueentity.ValueEntityRouter"))
+        "kalix.javasdk.valueentity.CommandContext",
+        "kalix.javasdk.valueentity.ValueEntity",
+        "kalix.javasdk.impl.valueentity.ValueEntityRouter"))
 
     val stateType = entity.state.messageType.fullName
 
@@ -145,9 +145,9 @@ object ValueEntitySourceGenerator {
       relevantTypes ++ relevantProtoTypes.flatMap(_.descriptorObject),
       packageName,
       otherImports = Seq(
-        "com.akkaserverless.javasdk.valueentity.ValueEntityContext",
-        "com.akkaserverless.javasdk.valueentity.ValueEntityOptions",
-        "com.akkaserverless.javasdk.valueentity.ValueEntityProvider",
+        "kalix.javasdk.valueentity.ValueEntityContext",
+        "kalix.javasdk.valueentity.ValueEntityOptions",
+        "kalix.javasdk.valueentity.ValueEntityProvider",
         "com.google.protobuf.Descriptors",
         "java.util.function.Function"))
 
@@ -169,7 +169,7 @@ object ValueEntitySourceGenerator {
         | * A value entity provider that defines how to register and create the entity for
         | * the Protobuf service <code>${service.messageType.name}</code>.
         | *
-        | * Should be used with the <code>register</code> method in {@link com.akkaserverless.javasdk.AkkaServerless}.
+        | * Should be used with the <code>register</code> method in {@link kalix.javasdk.AkkaServerless}.
         | */
         |public class ${className}Provider implements ValueEntityProvider<${entity.state.messageType.fullName}, $className> {
         |
@@ -180,7 +180,7 @@ object ValueEntitySourceGenerator {
         |  public static ${className}Provider of(Function<ValueEntityContext, $className> entityFactory) {
         |    return new ${className}Provider(entityFactory, ValueEntityOptions.defaults());
         |  }
-        | 
+        |
         |  private ${className}Provider(
         |      Function<ValueEntityContext, $className> entityFactory,
         |      ValueEntityOptions options) {
@@ -192,7 +192,7 @@ object ValueEntitySourceGenerator {
         |  public final ValueEntityOptions options() {
         |    return options;
         |  }
-        | 
+        |
         |  public final ${className}Provider withOptions(ValueEntityOptions options) {
         |    return new ${className}Provider(entityFactory, options);
         |  }
@@ -236,7 +236,7 @@ object ValueEntitySourceGenerator {
       allRelevantMessageTypes(service, entity),
       packageName,
       otherImports = Seq(
-        "com.akkaserverless.javasdk.valueentity.ValueEntity",
+        "kalix.javasdk.valueentity.ValueEntity",
         s"$mainPackageName.Components",
         s"$mainPackageName.ComponentsImpl"))
 

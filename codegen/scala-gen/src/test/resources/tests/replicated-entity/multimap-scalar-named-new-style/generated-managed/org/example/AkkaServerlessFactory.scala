@@ -1,9 +1,9 @@
 package org.example
 
-import com.akkaserverless.scalasdk.AkkaServerless
-import com.akkaserverless.scalasdk.replicatedentity.ReplicatedEntityContext
 import com.example.replicated.multimap.domain.SomeMultiMap
 import com.example.replicated.multimap.domain.SomeMultiMapProvider
+import kalix.scalasdk.AkkaServerless
+import kalix.scalasdk.replicatedentity.ReplicatedEntityContext
 
 // This code is managed by Akka Serverless tooling.
 // It will be re-generated to reflect any changes to your protobuf definitions.

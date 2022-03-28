@@ -1,9 +1,9 @@
 package org.example.valueentity.domain;
 
-import com.akkaserverless.javasdk.impl.valueentity.ValueEntityRouter;
-import com.akkaserverless.javasdk.valueentity.CommandContext;
-import com.akkaserverless.javasdk.valueentity.ValueEntity;
 import com.google.protobuf.Empty;
+import kalix.javasdk.impl.valueentity.ValueEntityRouter;
+import kalix.javasdk.valueentity.CommandContext;
+import kalix.javasdk.valueentity.ValueEntity;
 import org.example.valueentity.CounterApi;
 
 // This code is managed by Akka Serverless tooling.

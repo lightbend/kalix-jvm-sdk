@@ -2,10 +2,10 @@ package org.example.service;
 
 import akka.NotUsed;
 import akka.stream.javadsl.Source;
-import com.akkaserverless.javasdk.action.Action.Effect;
-import com.akkaserverless.javasdk.action.MessageEnvelope;
-import com.akkaserverless.javasdk.impl.action.ActionRouter;
 import com.google.protobuf.Empty;
+import kalix.javasdk.action.Action.Effect;
+import kalix.javasdk.action.MessageEnvelope;
+import kalix.javasdk.impl.action.ActionRouter;
 
 // This code is managed by Akka Serverless tooling.
 // It will be re-generated to reflect any changes to your protobuf definitions.

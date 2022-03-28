@@ -44,17 +44,17 @@ object EventSourcedEntityTestKitGenerator {
         "java.util.ArrayList",
         "java.util.List",
         "java.util.NoSuchElementException",
-        "com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity",
-        "com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityContext",
-        "com.akkaserverless.javasdk.impl.effect.SecondaryEffectImpl",
-        "com.akkaserverless.javasdk.impl.effect.MessageReplyImpl",
-        "com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityEffectImpl",
-        "com.akkaserverless.javasdk.testkit.EventSourcedResult",
-        "com.akkaserverless.javasdk.testkit.impl.TestKitEventSourcedEntityContext",
-        "com.akkaserverless.javasdk.testkit.impl.EventSourcedResultImpl",
-        "com.akkaserverless.javasdk.testkit.impl.EventSourcedEntityEffectsRunner",
-        "com.akkaserverless.javasdk.testkit.impl.TestKitEventSourcedEntityCommandContext",
-        "com.akkaserverless.javasdk.testkit.impl.TestKitEventSourcedEntityEventContext",
+        "kalix.javasdk.eventsourcedentity.EventSourcedEntity",
+        "kalix.javasdk.eventsourcedentity.EventSourcedEntityContext",
+        "kalix.javasdk.impl.effect.SecondaryEffectImpl",
+        "kalix.javasdk.impl.effect.MessageReplyImpl",
+        "kalix.javasdk.impl.eventsourcedentity.EventSourcedEntityEffectImpl",
+        "kalix.javasdk.testkit.EventSourcedResult",
+        "kalix.javasdk.testkit.impl.TestKitEventSourcedEntityContext",
+        "kalix.javasdk.testkit.impl.EventSourcedResultImpl",
+        "kalix.javasdk.testkit.impl.EventSourcedEntityEffectsRunner",
+        "kalix.javasdk.testkit.impl.TestKitEventSourcedEntityCommandContext",
+        "kalix.javasdk.testkit.impl.TestKitEventSourcedEntityEventContext",
         "java.util.function.Function",
         "java.util.Optional"))
 
@@ -162,9 +162,9 @@ object EventSourcedEntityTestKitGenerator {
       packageName,
       otherImports = Seq(
         "com.google.protobuf.Empty",
-        "com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity",
-        "com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityContext",
-        "com.akkaserverless.javasdk.testkit.EventSourcedResult",
+        "kalix.javasdk.eventsourcedentity.EventSourcedEntity",
+        "kalix.javasdk.eventsourcedentity.EventSourcedEntityContext",
+        "kalix.javasdk.testkit.EventSourcedResult",
         "org.junit.Test"))
 
     val entityClassName = entity.messageType.name

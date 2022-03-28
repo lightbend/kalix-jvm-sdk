@@ -1,9 +1,9 @@
 package org.example.unnamed.view;
 
-import com.akkaserverless.javasdk.view.ViewCreationContext;
-import com.akkaserverless.javasdk.view.ViewOptions;
-import com.akkaserverless.javasdk.view.ViewProvider;
 import com.google.protobuf.Descriptors;
+import kalix.javasdk.view.ViewCreationContext;
+import kalix.javasdk.view.ViewOptions;
+import kalix.javasdk.view.ViewProvider;
 
 import java.util.function.Function;
 

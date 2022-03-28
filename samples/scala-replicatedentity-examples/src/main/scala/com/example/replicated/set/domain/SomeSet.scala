@@ -1,8 +1,8 @@
 package com.example.replicated.set.domain
 
-import com.akkaserverless.scalasdk.replicatedentity.ReplicatedEntity
-import com.akkaserverless.scalasdk.replicatedentity.ReplicatedEntityContext
-import com.akkaserverless.scalasdk.replicatedentity.ReplicatedSet
+import kalix.scalasdk.replicatedentity.ReplicatedEntity
+import kalix.scalasdk.replicatedentity.ReplicatedEntityContext
+import kalix.scalasdk.replicatedentity.ReplicatedSet
 import com.example.replicated.set
 import com.google.protobuf.empty.Empty
 
@@ -14,7 +14,7 @@ import com.google.protobuf.empty.Empty
 class SomeSet(context: ReplicatedEntityContext) extends AbstractSomeSet {
 
   // tag::update[]
-  def add(currentData: ReplicatedSet[String], addElement: set.AddElement): ReplicatedEntity.Effect[Empty] = 
+  def add(currentData: ReplicatedSet[String], addElement: set.AddElement): ReplicatedEntity.Effect[Empty] =
     effects
       .update(currentData.add(addElement.element)) // <1>
       .thenReply(Empty.defaultInstance)

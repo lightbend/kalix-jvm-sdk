@@ -1,7 +1,7 @@
 package org.example
 
-import com.akkaserverless.scalasdk.AkkaServerless
-import com.akkaserverless.scalasdk.valueentity.ValueEntityContext
+import kalix.scalasdk.AkkaServerless
+import kalix.scalasdk.valueentity.ValueEntityContext
 import org.example.valueentity.domain.Counter
 import org.example.valueentity.domain.CounterProvider
 

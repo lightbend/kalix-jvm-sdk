@@ -1,7 +1,7 @@
 package com.example.actions;
 
-import com.akkaserverless.javasdk.testkit.ActionResult;
-import com.akkaserverless.javasdk.testkit.DeferredCallDetails;
+import kalix.javasdk.testkit.ActionResult;
+import kalix.javasdk.testkit.DeferredCallDetails;
 import com.example.CounterApi;
 import com.example.actions.DoubleCounterAction;
 import com.example.actions.DoubleCounterActionTestKit;

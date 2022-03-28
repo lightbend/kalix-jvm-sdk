@@ -1,10 +1,10 @@
 package org.example.valueentity
 
-import com.akkaserverless.scalasdk.valueentity.ValueEntityContext
-import com.akkaserverless.scalasdk.valueentity.ValueEntityOptions
-import com.akkaserverless.scalasdk.valueentity.ValueEntityProvider
 import com.google.protobuf.Descriptors
 import com.google.protobuf.empty.EmptyProto
+import kalix.scalasdk.valueentity.ValueEntityContext
+import kalix.scalasdk.valueentity.ValueEntityOptions
+import kalix.scalasdk.valueentity.ValueEntityProvider
 import org.example.valueentity
 
 import scala.collection.immutable.Seq

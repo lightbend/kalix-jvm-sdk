@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.valueentity;
+package kalix.javasdk.valueentity;
 
 import com.example.valueentity.shoppingcart.ShoppingCartApi;
 import com.example.valueentity.shoppingcart.domain.ShoppingCartDomain;

@@ -6,7 +6,7 @@
     </appender>
 
     <logger name="akka" level="INFO"/>
-    <logger name="com.akkaserverless" level="INFO"/>
+    <logger name="kalix" level="INFO"/>
     <logger name="akka.http" level="INFO"/>
     <logger name="io.grpc" level="INFO"/>
     <logger name="org.testcontainers" level="INFO"/>

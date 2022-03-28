@@ -50,7 +50,7 @@ lazy val sdkJava = project
       "protocolMajorVersion" -> AkkaServerless.ProtocolVersionMajor,
       "protocolMinorVersion" -> AkkaServerless.ProtocolVersionMinor,
       "scalaVersion" -> scalaVersion.value),
-    buildInfoPackage := "com.akkaserverless.javasdk",
+    buildInfoPackage := "kalix.javasdk",
     // Generate javadocs by just including non generated Java sources
     Compile / doc / sources := {
       val javaSourceDir = (Compile / javaSource).value.getAbsolutePath
@@ -92,7 +92,7 @@ lazy val sdkScala = project
       "protocolMajorVersion" -> AkkaServerless.ProtocolVersionMajor,
       "protocolMinorVersion" -> AkkaServerless.ProtocolVersionMinor,
       "scalaVersion" -> scalaVersion.value),
-    buildInfoPackage := "com.akkaserverless.scalasdk",
+    buildInfoPackage := "kalix.scalasdk",
     Compile / akkaGrpcGeneratedSources := Seq(AkkaGrpc.Server),
     Compile / akkaGrpcGeneratedLanguages := Seq(AkkaGrpc.Scala),
     Test / javacOptions += "-parameters", // for Jackson
@@ -118,7 +118,7 @@ lazy val sdkScalaTestKit = project
       "protocolMajorVersion" -> AkkaServerless.ProtocolVersionMajor,
       "protocolMinorVersion" -> AkkaServerless.ProtocolVersionMinor,
       "scalaVersion" -> scalaVersion.value),
-    buildInfoPackage := "com.akkaserverless.scalasdk.testkit",
+    buildInfoPackage := "kalix.scalasdk.testkit",
     inTask(doc)(
       Seq(
         Compile / scalacOptions ++= scaladocOptions(
@@ -161,7 +161,7 @@ lazy val sdkJavaTestKit = project
       "proxyImage" -> "gcr.io/akkaserverless-public/akkaserverless-proxy",
       "proxyVersion" -> AkkaServerless.FrameworkVersion,
       "scalaVersion" -> scalaVersion.value),
-    buildInfoPackage := "com.akkaserverless.javasdk.testkit",
+    buildInfoPackage := "kalix.javasdk.testkit",
     // Produce javadoc by restricting to Java sources only -- no genjavadoc setup currently
     Compile / doc / sources := (Compile / doc / sources).value.filterNot(_.name.endsWith(".scala")))
   .settings(Dependencies.sdkJavaTestKit)
@@ -175,7 +175,7 @@ lazy val tckJava = project
     name := "akkaserverless-tck-java-sdk",
     akkaGrpcGeneratedLanguages := Seq(AkkaGrpc.Java),
     ReflectiveCodeGen.copyUnmanagedSources := true,
-    Compile / mainClass := Some("com.akkaserverless.javasdk.tck.JavaSdkTck"),
+    Compile / mainClass := Some("kalix.javasdk.tck.JavaSdkTck"),
     dockerEnvVars += "HOST" -> "0.0.0.0",
     dockerExposedPorts += 8080)
   .settings(Dependencies.tck)
@@ -190,7 +190,7 @@ lazy val tckScala = project
     akkaGrpcGeneratedLanguages := Seq(AkkaGrpc.Scala),
     libraryDependencies ++= Seq(Dependencies.akkaslsSdkProtocol % "protobuf-src"),
     ReflectiveCodeGen.copyUnmanagedSources := true,
-    Compile / mainClass := Some("com.akkaserverless.scalasdk.tck.ScalaSdkTck"),
+    Compile / mainClass := Some("kalix.scalasdk.tck.ScalaSdkTck"),
     dockerEnvVars += "HOST" -> "0.0.0.0",
     dockerExposedPorts += 8080)
   .settings(Dependencies.tck)
@@ -312,7 +312,7 @@ lazy val codegenScala =
         BuildInfoKey(codegenCore / PB.externalIncludePath),
         BuildInfoKey(codegenCore / PB.externalSourcePath),
         BuildInfoKey(Test / resourceDirectory)),
-      buildInfoPackage := "com.akkaserverless.codegen.scalasdk",
+      buildInfoPackage := "kalix.codegen.scalasdk",
       testFrameworks += new TestFramework("munit.Framework"))
     .dependsOn(codegenCore % "compile->compile;test->test")
 

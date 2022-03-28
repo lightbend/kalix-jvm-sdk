@@ -1,6 +1,6 @@
 package customer;
 
-import com.akkaserverless.javasdk.AkkaServerless;
+import kalix.javasdk.AkkaServerless;
 import customer.action.CustomerStateSubscriptionAction;
 import customer.domain.Customer;
 import org.slf4j.Logger;

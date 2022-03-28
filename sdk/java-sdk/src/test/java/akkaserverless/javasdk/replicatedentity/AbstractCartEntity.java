@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.replicatedentity;
+package kalix.javasdk.replicatedentity;
 
 import com.example.replicatedentity.shoppingcart.ShoppingCartApi;
 import com.example.replicatedentity.shoppingcart.domain.ShoppingCartDomain;

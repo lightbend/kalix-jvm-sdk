@@ -5,8 +5,8 @@
 
 package customer.domain
 
-import com.akkaserverless.scalasdk.valueentity.ValueEntity
-import com.akkaserverless.scalasdk.valueentity.ValueEntityContext
+import kalix.scalasdk.valueentity.ValueEntity
+import kalix.scalasdk.valueentity.ValueEntityContext
 import com.google.protobuf.empty.Empty
 import customer.api
 

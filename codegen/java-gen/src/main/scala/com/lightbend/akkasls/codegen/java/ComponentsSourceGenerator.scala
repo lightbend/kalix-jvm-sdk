@@ -69,7 +69,7 @@ object ComponentsSourceGenerator {
   }
 
   private def generateComponentsInterface(packageName: String, callableComponents: Seq[CallableComponent]): String = {
-    val imports = generateImports(Nil, packageName, otherImports = Seq("com.akkaserverless.javasdk.DeferredCall"))
+    val imports = generateImports(Nil, packageName, otherImports = Seq("kalix.javasdk.DeferredCall"))
 
     val componentCalls = callableComponents.map { component =>
       // higher risk of name conflicts here where all components in the service meets up, so all
@@ -114,11 +114,11 @@ object ComponentsSourceGenerator {
       Nil,
       packageName,
       otherImports = Seq(
-        "com.akkaserverless.javasdk.DeferredCall",
-        "com.akkaserverless.javasdk.Context",
-        "com.akkaserverless.javasdk.impl.DeferredCallImpl",
-        "com.akkaserverless.javasdk.impl.MetadataImpl",
-        "com.akkaserverless.javasdk.impl.InternalContext"))
+        "kalix.javasdk.DeferredCall",
+        "kalix.javasdk.Context",
+        "kalix.javasdk.impl.DeferredCallImpl",
+        "kalix.javasdk.impl.MetadataImpl",
+        "kalix.javasdk.impl.InternalContext"))
 
     val componentGetters = components.map { component =>
       s"""@Override

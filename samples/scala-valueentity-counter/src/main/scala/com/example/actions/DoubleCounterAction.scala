@@ -4,9 +4,9 @@
  */
 package com.example.actions
 
-import com.akkaserverless.scalasdk.SideEffect
-import com.akkaserverless.scalasdk.action.Action
-import com.akkaserverless.scalasdk.action.ActionCreationContext
+import kalix.scalasdk.SideEffect
+import kalix.scalasdk.action.Action
+import kalix.scalasdk.action.ActionCreationContext
 import com.example.IncreaseValue
 import com.google.protobuf.empty.Empty
 

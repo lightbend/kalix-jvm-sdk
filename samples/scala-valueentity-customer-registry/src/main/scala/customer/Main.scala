@@ -1,7 +1,7 @@
 //tag::RegisterComponents[]
 package customer
 
-import com.akkaserverless.scalasdk.AkkaServerless
+import kalix.scalasdk.AkkaServerless
 import customer.action.CustomerActionImpl
 import customer.domain.CustomerValueEntity
 import customer.view.CustomerByEmailView

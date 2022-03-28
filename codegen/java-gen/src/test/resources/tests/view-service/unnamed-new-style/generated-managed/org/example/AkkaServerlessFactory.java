@@ -1,7 +1,7 @@
 package org.example;
 
-import com.akkaserverless.javasdk.AkkaServerless;
-import com.akkaserverless.javasdk.view.ViewCreationContext;
+import kalix.javasdk.AkkaServerless;
+import kalix.javasdk.view.ViewCreationContext;
 import org.example.unnamed.view.UserByNameView;
 import org.example.unnamed.view.UserByNameViewProvider;
 import org.example.unnamed.view.UserViewModel;

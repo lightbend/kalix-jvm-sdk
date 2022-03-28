@@ -1,7 +1,7 @@
 package customer.api;
 
 import java.util.UUID;
-import com.akkaserverless.javasdk.testkit.junit.AkkaServerlessTestKitResource;
+import kalix.javasdk.testkit.junit.AkkaServerlessTestKitResource;
 import customer.Main;
 import customer.api.CustomerApi;
 import customer.api.CustomerService;

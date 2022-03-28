@@ -5,7 +5,7 @@
 
 package com.example;
 
-import com.akkaserverless.javasdk.action.ActionCreationContext;
+import kalix.javasdk.action.ActionCreationContext;
 import com.google.protobuf.Empty;
 
 import java.util.concurrent.CompletionStage;

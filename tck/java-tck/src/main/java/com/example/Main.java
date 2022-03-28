@@ -16,17 +16,17 @@
 
 package com.example;
 
-import com.akkaserverless.javasdk.AkkaServerless;
-import com.akkaserverless.tck.model.action.ActionTckModelImpl;
-import com.akkaserverless.tck.model.action.ActionTwoImpl;
-import com.akkaserverless.tck.model.eventsourcedentity.EventSourcedConfiguredEntity;
-import com.akkaserverless.tck.model.eventsourcedentity.EventSourcedTckModelEntity;
-import com.akkaserverless.tck.model.eventsourcedentity.EventSourcedTwoEntity;
-import com.akkaserverless.tck.model.valueentity.ValueEntityConfiguredEntity;
-import com.akkaserverless.tck.model.valueentity.ValueEntityTckModelEntity;
-import com.akkaserverless.tck.model.valueentity.ValueEntityTwoEntity;
-import com.akkaserverless.tck.model.view.ViewTckModelImpl;
-import com.akkaserverless.tck.model.view.ViewTckSourceEntity;
+import kalix.javasdk.AkkaServerless;
+import kalix.tck.model.action.ActionTckModelImpl;
+import kalix.tck.model.action.ActionTwoImpl;
+import kalix.tck.model.eventsourcedentity.EventSourcedConfiguredEntity;
+import kalix.tck.model.eventsourcedentity.EventSourcedTckModelEntity;
+import kalix.tck.model.eventsourcedentity.EventSourcedTwoEntity;
+import kalix.tck.model.valueentity.ValueEntityConfiguredEntity;
+import kalix.tck.model.valueentity.ValueEntityTckModelEntity;
+import kalix.tck.model.valueentity.ValueEntityTwoEntity;
+import kalix.tck.model.view.ViewTckModelImpl;
+import kalix.tck.model.view.ViewTckSourceEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -4,8 +4,8 @@
  */
 package customer.view;
 
-import com.akkaserverless.javasdk.view.View;
-import com.akkaserverless.javasdk.view.ViewContext;
+import kalix.javasdk.view.View;
+import kalix.javasdk.view.ViewContext;
 import customer.domain.CustomerDomain;
 import java.util.function.Function;
 

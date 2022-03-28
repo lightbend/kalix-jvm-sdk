@@ -21,7 +21,7 @@ syntax = "proto3";
 package akkaserverless.tck.model.eventsourcedentity;
 
 option go_package = "github.com/lightbend/akkaserverless-go-sdk/tck/eventsourcedentity;eventsourcedentity";
-option java_package = "com.akkaserverless.tck.model.eventsourcedentity";
+option java_package = "kalix.tck.model.eventsourcedentity";
 option java_multiple_files = true;
 
 import "akkaserverless/annotations.proto";
@@ -44,6 +44,6 @@ service EventSourcedConfigured {
       events: ["Persisted"]
     }
   };
-  
+
   rpc Call(Request) returns (Response);
 }

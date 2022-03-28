@@ -4,10 +4,10 @@
  */
 package com.example.domain;
 
-import com.akkaserverless.javasdk.SideEffect;
-import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity;
-import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity.Effect;
-import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityContext;
+import kalix.javasdk.SideEffect;
+import kalix.javasdk.eventsourcedentity.EventSourcedEntity;
+import kalix.javasdk.eventsourcedentity.EventSourcedEntity.Effect;
+import kalix.javasdk.eventsourcedentity.EventSourcedEntityContext;
 import com.example.CounterApi;
 import com.google.protobuf.Empty;
 
@@ -44,7 +44,7 @@ public class Counter extends AbstractCounter {
   public Effect<Empty> increaseWithSideEffect(CounterDomain.CounterState currentState, CounterApi.IncreaseValue increaseValue) {
      int doubled = increaseValue.getValue() * 2;
     CounterApi.IncreaseValue increaseValueDoubled =
-        increaseValue.toBuilder().setValue(doubled).build(); 
+        increaseValue.toBuilder().setValue(doubled).build();
 
     if (increaseValue.getValue() < 0)
       return effects().error("Value must be a zero or a positive number");

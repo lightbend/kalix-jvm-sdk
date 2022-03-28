@@ -1,7 +1,7 @@
 package org.example;
 
-import com.akkaserverless.javasdk.AkkaServerless;
-import com.akkaserverless.javasdk.valueentity.ValueEntityContext;
+import kalix.javasdk.AkkaServerless;
+import kalix.javasdk.valueentity.ValueEntityContext;
 import org.example.domain.Counter;
 import org.example.domain.CounterProvider;
 import org.example.valueentity.CounterApi;

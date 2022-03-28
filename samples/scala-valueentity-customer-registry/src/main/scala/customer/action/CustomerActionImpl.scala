@@ -4,8 +4,8 @@
  */
 package customer.action
 
-import com.akkaserverless.scalasdk.action.Action
-import com.akkaserverless.scalasdk.action.ActionCreationContext
+import kalix.scalasdk.action.Action
+import kalix.scalasdk.action.ActionCreationContext
 import com.google.protobuf.empty.Empty
 import customer.api.Customer
 

@@ -15,7 +15,7 @@
 syntax = "proto3";
 
 package shoppingcart;
-option java_package = "com.akkaserverless.javasdk.shoppingcart";
+option java_package = "kalix.javasdk.shoppingcart";
 option java_outer_classname = "ShoppingCartViewModel";
 
 import "akkaserverless/annotations.proto";

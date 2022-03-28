@@ -1,8 +1,8 @@
 package org.example.valueentity.domain;
 
-import com.akkaserverless.javasdk.testkit.ValueEntityResult;
-import com.akkaserverless.javasdk.valueentity.ValueEntity;
 import com.google.protobuf.Empty;
+import kalix.javasdk.testkit.ValueEntityResult;
+import kalix.javasdk.valueentity.ValueEntity;
 import org.example.valueentity.CounterApi;
 import org.junit.Test;
 

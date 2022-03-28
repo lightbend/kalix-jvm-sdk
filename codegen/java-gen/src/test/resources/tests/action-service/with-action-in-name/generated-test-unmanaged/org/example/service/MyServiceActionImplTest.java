@@ -1,8 +1,8 @@
 package org.example.service;
 
 import akka.stream.javadsl.Source;
-import com.akkaserverless.javasdk.testkit.ActionResult;
 import com.google.protobuf.Empty;
+import kalix.javasdk.testkit.ActionResult;
 import org.example.service.MyServiceActionImpl;
 import org.example.service.MyServiceActionImplTestKit;
 import org.example.service.ServiceOuterClass;

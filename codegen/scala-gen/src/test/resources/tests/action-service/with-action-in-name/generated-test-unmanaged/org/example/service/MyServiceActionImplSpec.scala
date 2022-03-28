@@ -1,8 +1,8 @@
 package org.example.service
 
-import com.akkaserverless.scalasdk.action.Action
-import com.akkaserverless.scalasdk.testkit.ActionResult
 import com.google.protobuf.empty.Empty
+import kalix.scalasdk.action.Action
+import kalix.scalasdk.testkit.ActionResult
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 

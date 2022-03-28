@@ -1,0 +1,158 @@
+/*
+ * Copyright 2021 Lightbend Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package kalix.testkit.eventsourcedentity
+
+import com.akkaserverless.protocol.component._
+import com.akkaserverless.protocol.entity.Command
+import com.akkaserverless.protocol.event_sourced_entity._
+import kalix.testkit.entity.EntityMessages
+import com.google.protobuf.any.{ Any => ScalaPbAny }
+import com.google.protobuf.{ Message => JavaPbMessage }
+import scalapb.{ GeneratedMessage => ScalaPbMessage }
+
+object EventSourcedMessages extends EntityMessages {
+  import EventSourcedStreamIn.{ Message => InMessage }
+  import EventSourcedStreamOut.{ Message => OutMessage }
+
+  case class Effects(
+      events: Seq[ScalaPbAny] = Seq.empty,
+      snapshot: Option[ScalaPbAny] = None,
+      sideEffects: Seq[SideEffect] = Seq.empty) {
+    def withEvents(message: JavaPbMessage, messages: JavaPbMessage*): Effects =
+      copy(events = events ++ (message +: messages).map(protobufAny))
+
+    def withEvents(message: ScalaPbMessage, messages: ScalaPbMessage*): Effects =
+      copy(events = events ++ (message +: messages).map(protobufAny))
+
+    def withSnapshot(message: JavaPbMessage): Effects =
+      copy(snapshot = messagePayload(message))
+
+    def withSnapshot(message: ScalaPbMessage): Effects =
+      copy(snapshot = messagePayload(message))
+
+    def withSideEffect(service: String, command: String, message: JavaPbMessage): Effects =
+      withSideEffect(service, command, messagePayload(message), synchronous = false)
+
+    def withSideEffect(service: String, command: String, message: JavaPbMessage, synchronous: Boolean): Effects =
+      withSideEffect(service, command, messagePayload(message), synchronous)
+
+    def withSideEffect(service: String, command: String, message: ScalaPbMessage): Effects =
+      withSideEffect(service, command, messagePayload(message), synchronous = false)
+
+    def withSideEffect(service: String, command: String, message: ScalaPbMessage, synchronous: Boolean): Effects =
+      withSideEffect(service, command, messagePayload(message), synchronous)
+
+    def withSideEffect(service: String, command: String, payload: Option[ScalaPbAny], synchronous: Boolean): Effects =
+      copy(sideEffects = sideEffects :+ SideEffect(service, command, payload, synchronous))
+
+    def ++(other: Effects): Effects =
+      Effects(events ++ other.events, snapshot.orElse(other.snapshot), sideEffects ++ other.sideEffects)
+  }
+
+  object Effects {
+    val empty: Effects = Effects()
+  }
+
+  val EmptyInMessage: InMessage = InMessage.Empty
+
+  def init(serviceName: String, entityId: String): InMessage =
+    init(serviceName, entityId, None)
+
+  def init(serviceName: String, entityId: String, snapshot: EventSourcedSnapshot): InMessage =
+    init(serviceName, entityId, Option(snapshot))
+
+  def init(serviceName: String, entityId: String, snapshot: Option[EventSourcedSnapshot]): InMessage =
+    InMessage.Init(EventSourcedInit(serviceName, entityId, snapshot))
+
+  def snapshot(sequence: Long, payload: JavaPbMessage): EventSourcedSnapshot =
+    snapshot(sequence, messagePayload(payload))
+
+  def snapshot(sequence: Long, payload: ScalaPbMessage): EventSourcedSnapshot =
+    snapshot(sequence, messagePayload(payload))
+
+  def snapshot(sequence: Long, payload: Option[ScalaPbAny]): EventSourcedSnapshot =
+    EventSourcedSnapshot(sequence, payload)
+
+  def event(sequence: Long, payload: JavaPbMessage): InMessage =
+    event(sequence, messagePayload(payload))
+
+  def event(sequence: Long, payload: ScalaPbMessage): InMessage =
+    event(sequence, messagePayload(payload))
+
+  def event(sequence: Long, payload: Option[ScalaPbAny]): InMessage =
+    InMessage.Event(EventSourcedEvent(sequence, payload))
+
+  def command(id: Long, entityId: String, name: String): InMessage =
+    command(id, entityId, name, EmptyJavaMessage)
+
+  def command(id: Long, entityId: String, name: String, payload: JavaPbMessage): InMessage =
+    command(id, entityId, name, messagePayload(payload))
+
+  def command(id: Long, entityId: String, name: String, payload: ScalaPbMessage): InMessage =
+    command(id, entityId, name, messagePayload(payload))
+
+  def command(id: Long, entityId: String, name: String, payload: Option[ScalaPbAny]): InMessage =
+    InMessage.Command(Command(entityId, id, name, payload))
+
+  def reply(id: Long, payload: JavaPbMessage): OutMessage =
+    reply(id, payload, Effects.empty)
+
+  def reply(id: Long, payload: JavaPbMessage, effects: Effects): OutMessage =
+    reply(id, messagePayload(payload), effects)
+
+  def reply(id: Long, payload: ScalaPbMessage): OutMessage =
+    reply(id, payload, Effects.empty)
+
+  def reply(id: Long, payload: ScalaPbMessage, effects: Effects): OutMessage =
+    reply(id, messagePayload(payload), effects)
+
+  def reply(id: Long, payload: Option[ScalaPbAny], effects: Effects): OutMessage =
+    replyAction(id, clientActionReply(payload), effects)
+
+  def replyAction(id: Long, action: Option[ClientAction], effects: Effects): OutMessage =
+    OutMessage.Reply(EventSourcedReply(id, action, effects.sideEffects, effects.events, effects.snapshot))
+
+  def forward(id: Long, service: String, command: String, payload: JavaPbMessage): OutMessage =
+    forward(id, service, command, payload, Effects.empty)
+
+  def forward(id: Long, service: String, command: String, payload: JavaPbMessage, effects: Effects): OutMessage =
+    forward(id, service, command, messagePayload(payload), effects)
+
+  def forward(id: Long, service: String, command: String, payload: ScalaPbMessage): OutMessage =
+    forward(id, service, command, payload, Effects.empty)
+
+  def forward(id: Long, service: String, command: String, payload: ScalaPbMessage, effects: Effects): OutMessage =
+    forward(id, service, command, messagePayload(payload), effects)
+
+  def forward(id: Long, service: String, command: String, payload: Option[ScalaPbAny], effects: Effects): OutMessage =
+    replyAction(id, clientActionForward(service, command, payload), effects)
+
+  def actionFailure(id: Long, description: String): OutMessage =
+    OutMessage.Reply(EventSourcedReply(id, clientActionFailure(id, description)))
+
+  def failure(description: String): OutMessage =
+    failure(id = 0, description)
+
+  def failure(id: Long, description: String): OutMessage =
+    OutMessage.Failure(Failure(id, description))
+
+  def persist(event: JavaPbMessage, events: JavaPbMessage*): Effects =
+    Effects.empty.withEvents(event, events: _*)
+
+  def persist(event: ScalaPbMessage, events: ScalaPbMessage*): Effects =
+    Effects.empty.withEvents(event, events: _*)
+}

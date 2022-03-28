@@ -4,7 +4,7 @@ import akka.NotUsed;
 import akka.actor.ActorSystem;
 import akka.stream.javadsl.Sink;
 import akka.stream.javadsl.Source;
-import com.akkaserverless.javasdk.testkit.ActionResult;
+import kalix.javasdk.testkit.ActionResult;
 import com.example.fibonacci.FibonacciAction;
 import com.example.fibonacci.FibonacciActionTestKit;
 import com.example.fibonacci.FibonacciApi;

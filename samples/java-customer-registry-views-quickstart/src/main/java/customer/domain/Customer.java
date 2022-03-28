@@ -16,7 +16,7 @@
 
 package customer.domain;
 
-import com.akkaserverless.javasdk.valueentity.ValueEntityContext;
+import kalix.javasdk.valueentity.ValueEntityContext;
 import com.google.protobuf.Empty;
 import customer.api.CustomerApi;
 

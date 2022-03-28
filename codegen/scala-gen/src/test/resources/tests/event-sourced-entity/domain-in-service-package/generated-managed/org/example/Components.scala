@@ -1,6 +1,6 @@
 package org.example
 
-import com.akkaserverless.scalasdk.DeferredCall
+import kalix.scalasdk.DeferredCall
 
 
 // This code is managed by Akka Serverless tooling.

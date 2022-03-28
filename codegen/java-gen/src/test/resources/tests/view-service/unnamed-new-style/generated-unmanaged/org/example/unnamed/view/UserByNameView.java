@@ -1,6 +1,6 @@
 package org.example.unnamed.view;
 
-import com.akkaserverless.javasdk.view.ViewContext;
+import kalix.javasdk.view.ViewContext;
 
 // This class was initially generated based on the .proto definition by Akka Serverless tooling.
 // This is the implementation for the View Service described in your example-unnamed-views.proto file.

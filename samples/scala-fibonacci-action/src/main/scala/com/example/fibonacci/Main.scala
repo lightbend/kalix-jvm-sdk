@@ -1,6 +1,6 @@
 package com.example.fibonacci
 
-import com.akkaserverless.scalasdk.AkkaServerless
+import kalix.scalasdk.AkkaServerless
 import org.slf4j.LoggerFactory
 
 object Main {
