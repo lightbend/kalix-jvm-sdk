@@ -3,7 +3,7 @@ package com.example.replicated.multimap;
 import com.example.replicated.multimap.domain.key.SomeMultiMapDomainKey;
 import com.example.replicated.multimap.domain.value.SomeMultiMapDomainValue;
 import com.google.protobuf.Empty;
-import kalix.javasdk.testkit.junit.AkkaServerlessTestKitResource;
+import kalix.javasdk.testkit.junit.KalixTestKitResource;
 import org.example.Main;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -15,19 +15,19 @@ import static java.util.concurrent.TimeUnit.*;
 // As long as this file exists it will not be overwritten: you can maintain it yourself,
 // or delete it so it is regenerated as needed.
 
-// Example of an integration test calling our service via the Akka Serverless proxy
+// Example of an integration test calling our service via the Kalix proxy
 // Run all test classes ending with "IntegrationTest" using `mvn verify -Pit`
 public class SomeMultiMapIntegrationTest {
 
   /**
-   * The test kit starts both the service container and the Akka Serverless proxy.
+   * The test kit starts both the service container and the Kalix proxy.
    */
   @ClassRule
-  public static final AkkaServerlessTestKitResource testKit =
-    new AkkaServerlessTestKitResource(Main.createAkkaServerless());
+  public static final KalixTestKitResource testKit =
+    new KalixTestKitResource(Main.createKalix());
 
   /**
-   * Use the generated gRPC client to call the service through the Akka Serverless proxy.
+   * Use the generated gRPC client to call the service through the Kalix proxy.
    */
   private final MultiMapService client;
 
