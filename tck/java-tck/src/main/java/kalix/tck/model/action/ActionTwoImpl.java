@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.tck.model.action;
+package kalix.tck.model.action;
 
-import com.akkaserverless.javasdk.action.ActionCreationContext;
-import com.akkaserverless.tck.model.action.Action.*;
+import kalix.javasdk.action.ActionCreationContext;
+import kalix.tck.model.action.Action.*;
 
 import java.util.concurrent.CompletableFuture;
 

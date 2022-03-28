@@ -14,20 +14,20 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.tck.model.localpersistenceeventing;
+package kalix.javasdk.tck.model.localpersistenceeventing;
 
 import akka.NotUsed;
 import akka.stream.javadsl.Source;
-import com.akkaserverless.javasdk.DeferredCall;
-import com.akkaserverless.javasdk.JsonSupport;
-import com.akkaserverless.javasdk.action.Action;
-import com.akkaserverless.javasdk.action.ActionContext;
-import com.akkaserverless.javasdk.action.ActionCreationContext;
-import com.akkaserverless.javasdk.impl.DeferredCallImpl;
-import com.akkaserverless.javasdk.impl.InternalContext;
-import com.akkaserverless.javasdk.impl.MetadataImpl;
-import com.akkaserverless.tck.model.eventing.LocalPersistenceSubscriberModel;
-import com.akkaserverless.tck.model.eventing.LocalPersistenceEventing;
+import kalix.javasdk.DeferredCall;
+import kalix.javasdk.JsonSupport;
+import kalix.javasdk.action.Action;
+import kalix.javasdk.action.ActionContext;
+import kalix.javasdk.action.ActionCreationContext;
+import kalix.javasdk.impl.DeferredCallImpl;
+import kalix.javasdk.impl.InternalContext;
+import kalix.javasdk.impl.MetadataImpl;
+import kalix.tck.model.eventing.LocalPersistenceSubscriberModel;
+import kalix.tck.model.eventing.LocalPersistenceEventing;
 import com.example.Components;
 import com.example.ComponentsImpl;
 import com.google.protobuf.Any;
@@ -123,7 +123,7 @@ public class LocalPersistenceSubscriber extends Action {
   //                  .effect(
   private DeferredCall<LocalPersistenceEventing.EffectRequest, LocalPersistenceEventing.Response>
       localPersistenceEventingEffect(
-          com.akkaserverless.tck.model.eventing.LocalPersistenceEventing.EffectRequest
+          kalix.tck.model.eventing.LocalPersistenceEventing.EffectRequest
               effectRequest) {
     return new DeferredCallImpl<>(
         effectRequest,
@@ -133,7 +133,7 @@ public class LocalPersistenceSubscriber extends Action {
         () ->
             ((InternalContext) actionContext())
                 .getComponentGrpcClient(
-                    com.akkaserverless.tck.model.eventing.LocalPersistenceSubscriberModel.class)
+                    kalix.tck.model.eventing.LocalPersistenceSubscriberModel.class)
                 .effect(effectRequest));
   }
 }

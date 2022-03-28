@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.tck.model.valueentity;
+package kalix.tck.model.valueentity;
 
-import com.akkaserverless.javasdk.valueentity.ValueEntityContext;
-import com.akkaserverless.tck.model.valueentity.ValueEntityApi.*;
+import kalix.javasdk.valueentity.ValueEntityContext;
+import kalix.tck.model.valueentity.ValueEntityApi.*;
 
 public class ValueEntityConfiguredEntity extends AbstractValueEntityConfiguredEntity {
 

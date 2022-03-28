@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.tck.model.localpersistenceeventing;
+package kalix.javasdk.tck.model.localpersistenceeventing;
 
-import com.akkaserverless.javasdk.eventsourcedentity.*;
-import com.akkaserverless.tck.model.eventing.LocalPersistenceEventing;
+import kalix.javasdk.eventsourcedentity.*;
+import kalix.tck.model.eventing.LocalPersistenceEventing;
 import com.google.protobuf.Empty;
 
 public class EventSourcedEntityOne extends EventSourcedEntity<String> {

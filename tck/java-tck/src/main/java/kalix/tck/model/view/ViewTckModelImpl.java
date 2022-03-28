@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.tck.model.view;
+package kalix.tck.model.view;
 
-import com.akkaserverless.javasdk.view.ViewContext;
+import kalix.javasdk.view.ViewContext;
 
 public class ViewTckModelImpl extends AbstractViewTckModelView {
 

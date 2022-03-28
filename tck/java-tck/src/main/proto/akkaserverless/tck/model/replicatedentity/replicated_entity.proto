@@ -21,7 +21,7 @@ syntax = "proto3";
 package akkaserverless.tck.model.replicatedentity;
 
 option go_package = "github.com/lightbend/akkaserverless-go-sdk/tck/replicatedentity;replicatedentity";
-option java_package = "com.akkaserverless.tck.model";
+option java_package = "kalix.tck.model";
 
 import "akkaserverless/annotations.proto";
 import "google/api/annotations.proto";

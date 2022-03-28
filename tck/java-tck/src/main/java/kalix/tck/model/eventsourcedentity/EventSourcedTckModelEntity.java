@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.tck.model.eventsourcedentity;
+package kalix.tck.model.eventsourcedentity;
 
-import com.akkaserverless.javasdk.Context;
-import com.akkaserverless.javasdk.DeferredCall;
-import com.akkaserverless.javasdk.SideEffect;
-import com.akkaserverless.javasdk.eventsourcedentity.*;
-import com.akkaserverless.tck.model.eventsourcedentity.EventSourcedEntityApi.*;
+import kalix.javasdk.Context;
+import kalix.javasdk.DeferredCall;
+import kalix.javasdk.SideEffect;
+import kalix.javasdk.eventsourcedentity.*;
+import kalix.tck.model.eventsourcedentity.EventSourcedEntityApi.*;
 
 import java.util.ArrayList;
 import java.util.List;

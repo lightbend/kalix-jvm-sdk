@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.tck.model.localpersistenceeventing;
+package kalix.javasdk.tck.model.localpersistenceeventing;
 
-import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityContext;
-import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityOptions;
-import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityProvider;
-import com.akkaserverless.tck.model.eventing.LocalPersistenceEventing;
+import kalix.javasdk.eventsourcedentity.EventSourcedEntityContext;
+import kalix.javasdk.eventsourcedentity.EventSourcedEntityOptions;
+import kalix.javasdk.eventsourcedentity.EventSourcedEntityProvider;
+import kalix.tck.model.eventing.LocalPersistenceEventing;
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.EmptyProto;
 

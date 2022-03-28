@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.tck.model.replicatedentity;
+package kalix.javasdk.tck.model.replicatedentity;
 
-import com.akkaserverless.javasdk.replicatedentity.ReplicatedCounter;
-import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityContext;
-import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityOptions;
-import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityProvider;
-import com.akkaserverless.tck.model.ReplicatedEntity;
+import kalix.javasdk.replicatedentity.ReplicatedCounter;
+import kalix.javasdk.replicatedentity.ReplicatedEntityContext;
+import kalix.javasdk.replicatedentity.ReplicatedEntityOptions;
+import kalix.javasdk.replicatedentity.ReplicatedEntityProvider;
+import kalix.tck.model.ReplicatedEntity;
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.EmptyProto;
 

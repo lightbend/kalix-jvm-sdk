@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.tck.model.eventsourcedentity;
+package kalix.tck.model.eventsourcedentity;
 
-import com.akkaserverless.javasdk.eventsourcedentity.*;
-import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity;
-import com.akkaserverless.tck.model.eventsourcedentity.EventSourcedEntityApi.*;
+import kalix.javasdk.eventsourcedentity.*;
+import kalix.javasdk.eventsourcedentity.EventSourcedEntity;
+import kalix.tck.model.eventsourcedentity.EventSourcedEntityApi.*;
 
 public class EventSourcedConfiguredEntity extends AbstractEventSourcedConfiguredEntity {
 

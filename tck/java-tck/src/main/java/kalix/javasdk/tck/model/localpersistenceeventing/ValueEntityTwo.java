@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.tck.model.localpersistenceeventing;
+package kalix.javasdk.tck.model.localpersistenceeventing;
 
-import com.akkaserverless.javasdk.JsonSupport;
-import com.akkaserverless.javasdk.valueentity.ValueEntity;
-import com.akkaserverless.javasdk.valueentity.ValueEntityContext;
-import com.akkaserverless.tck.model.eventing.LocalPersistenceEventing;
+import kalix.javasdk.JsonSupport;
+import kalix.javasdk.valueentity.ValueEntity;
+import kalix.javasdk.valueentity.ValueEntityContext;
+import kalix.tck.model.eventing.LocalPersistenceEventing;
 import com.google.protobuf.Empty;
 
 public class ValueEntityTwo extends ValueEntity<Object> {

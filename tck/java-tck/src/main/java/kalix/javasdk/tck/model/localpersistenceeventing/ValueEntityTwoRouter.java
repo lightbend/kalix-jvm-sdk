@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.tck.model.localpersistenceeventing;
+package kalix.javasdk.tck.model.localpersistenceeventing;
 
-import com.akkaserverless.javasdk.impl.valueentity.ValueEntityRouter;
-import com.akkaserverless.javasdk.valueentity.CommandContext;
-import com.akkaserverless.javasdk.valueentity.ValueEntity;
-import com.akkaserverless.tck.model.eventing.LocalPersistenceEventing;
+import kalix.javasdk.impl.valueentity.ValueEntityRouter;
+import kalix.javasdk.valueentity.CommandContext;
+import kalix.javasdk.valueentity.ValueEntity;
+import kalix.tck.model.eventing.LocalPersistenceEventing;
 
 /** A value entity handler */
 public class ValueEntityTwoRouter extends ValueEntityRouter<Object, ValueEntityTwo> {

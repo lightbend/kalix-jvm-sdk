@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.tck.model.localpersistenceeventing;
+package kalix.javasdk.tck.model.localpersistenceeventing;
 
 public class JsonMessage {
   public JsonMessage(String message) {

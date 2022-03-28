@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.tck.model.replicatedentity;
+package kalix.javasdk.tck.model.replicatedentity;
 
-import com.akkaserverless.javasdk.DeferredCall;
-import com.akkaserverless.javasdk.SideEffect;
-import com.akkaserverless.javasdk.impl.DeferredCallImpl;
-import com.akkaserverless.javasdk.impl.InternalContext;
-import com.akkaserverless.javasdk.impl.MetadataImpl;
-import com.akkaserverless.replicatedentity.ReplicatedData;
-import com.akkaserverless.javasdk.replicatedentity.*;
-import com.akkaserverless.tck.model.ReplicatedEntity.*;
+import kalix.javasdk.DeferredCall;
+import kalix.javasdk.SideEffect;
+import kalix.javasdk.impl.DeferredCallImpl;
+import kalix.javasdk.impl.InternalContext;
+import kalix.javasdk.impl.MetadataImpl;
+import kalix.replicatedentity.ReplicatedData;
+import kalix.javasdk.replicatedentity.*;
+import kalix.tck.model.ReplicatedEntity.*;
 import com.example.Components;
 import com.example.ComponentsImpl;
 
@@ -98,7 +98,7 @@ public class ReplicatedEntityTckModelEntity extends ReplicatedEntity<ReplicatedD
           }
           break;
         case EFFECT:
-          com.akkaserverless.tck.model.ReplicatedEntity.Effect effect = action.getEffect();
+          kalix.tck.model.ReplicatedEntity.Effect effect = action.getEffect();
           sideEffects.add(
               SideEffect.of(serviceTwoRequest(effect.getId()), effect.getSynchronous()));
           break;
@@ -368,7 +368,7 @@ public class ReplicatedEntityTckModelEntity extends ReplicatedEntity<ReplicatedD
         "Call",
         () ->
             ((InternalContext) commandContext())
-                .getComponentGrpcClient(com.akkaserverless.tck.model.ReplicatedEntityTwo.class)
+                .getComponentGrpcClient(kalix.tck.model.ReplicatedEntityTwo.class)
                 .call(request));
   }
 }

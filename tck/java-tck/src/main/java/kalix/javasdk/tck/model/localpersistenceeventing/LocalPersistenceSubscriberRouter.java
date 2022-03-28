@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.tck.model.localpersistenceeventing;
+package kalix.javasdk.tck.model.localpersistenceeventing;
 
 import akka.NotUsed;
 import akka.stream.javadsl.Source;
-import com.akkaserverless.javasdk.action.Action;
-import com.akkaserverless.javasdk.action.MessageEnvelope;
-import com.akkaserverless.javasdk.impl.action.ActionRouter;
-import com.akkaserverless.tck.model.eventing.LocalPersistenceEventing;
+import kalix.javasdk.action.Action;
+import kalix.javasdk.action.MessageEnvelope;
+import kalix.javasdk.impl.action.ActionRouter;
+import kalix.tck.model.eventing.LocalPersistenceEventing;
 import com.google.protobuf.Any;
 
 public class LocalPersistenceSubscriberRouter extends ActionRouter<LocalPersistenceSubscriber> {

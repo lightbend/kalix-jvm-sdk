@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.tck.model.valueentity;
+package kalix.tck.model.valueentity;
 
-import com.akkaserverless.javasdk.Context;
-import com.akkaserverless.javasdk.DeferredCall;
-import com.akkaserverless.javasdk.SideEffect;
-import com.akkaserverless.tck.model.valueentity.ValueEntityApi.*;
+import kalix.javasdk.Context;
+import kalix.javasdk.DeferredCall;
+import kalix.javasdk.SideEffect;
+import kalix.tck.model.valueentity.ValueEntityApi.*;
 
 import java.util.ArrayList;
 import java.util.List;

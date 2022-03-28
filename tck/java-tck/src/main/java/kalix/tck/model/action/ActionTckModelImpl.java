@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.tck.model.action;
+package kalix.tck.model.action;
 
 import akka.NotUsed;
 import akka.stream.javadsl.Sink;
 import akka.stream.javadsl.Source;
-import com.akkaserverless.javasdk.DeferredCall;
-import com.akkaserverless.javasdk.SideEffect;
-import com.akkaserverless.javasdk.action.*;
-import com.akkaserverless.tck.model.action.Action.*;
+import kalix.javasdk.DeferredCall;
+import kalix.javasdk.SideEffect;
+import kalix.javasdk.action.*;
+import kalix.tck.model.action.Action.*;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -96,7 +96,7 @@ public class ActionTckModelImpl extends AbstractActionTckModelAction {
           case EFFECT:
             Action.SideEffect sideEffect = step.getEffect();
             sideEffects.add(
-                com.akkaserverless.javasdk.SideEffect.of(
+                kalix.javasdk.SideEffect.of(
                     serviceTwoRequest(sideEffect.getId()), sideEffect.getSynchronous()));
             break;
           case FAIL:

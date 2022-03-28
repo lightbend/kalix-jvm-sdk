@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.tck.model.view;
+package kalix.tck.model.view;
 
-import com.akkaserverless.javasdk.valueentity.ValueEntityContext;
+import kalix.javasdk.valueentity.ValueEntityContext;
 
 /** A value entity. */
 public class ViewTckSourceEntity extends AbstractViewTckSourceEntity {

@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.tck.model.localpersistenceeventing;
+package kalix.javasdk.tck.model.localpersistenceeventing;
 
-import com.akkaserverless.javasdk.action.ActionCreationContext;
-import com.akkaserverless.javasdk.action.ActionOptions;
-import com.akkaserverless.javasdk.action.ActionProvider;
-import com.akkaserverless.tck.model.eventing.LocalPersistenceEventing;
+import kalix.javasdk.action.ActionCreationContext;
+import kalix.javasdk.action.ActionOptions;
+import kalix.javasdk.action.ActionProvider;
+import kalix.tck.model.eventing.LocalPersistenceEventing;
 import com.google.protobuf.Descriptors;
 
 import java.util.function.Function;

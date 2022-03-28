@@ -21,7 +21,7 @@ syntax = "proto3";
 package akkaserverless.tck.model.action;
 
 option go_package = "github.com/lightbend/akkaserverless-go-sdk/tck/action;action";
-option java_package = "com.akkaserverless.tck.model.action";
+option java_package = "kalix.tck.model.action";
 
 import "google/api/annotations.proto";
 import "akkaserverless/annotations.proto";

@@ -14,27 +14,27 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.tck;
+package kalix.javasdk.tck;
 
-import com.akkaserverless.javasdk.AkkaServerless;
-import com.akkaserverless.javasdk.PassivationStrategy;
-import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityOptions;
-import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityOptions;
-import com.akkaserverless.javasdk.replicatedentity.WriteConsistency;
-import com.akkaserverless.javasdk.tck.model.localpersistenceeventing.ValueEntityTwo;
-import com.akkaserverless.javasdk.tck.model.localpersistenceeventing.*;
-import com.akkaserverless.javasdk.tck.model.replicatedentity.*;
-import com.akkaserverless.javasdk.valueentity.ValueEntityOptions;
-import com.akkaserverless.tck.model.action.ActionTckModelActionProvider;
-import com.akkaserverless.tck.model.action.ActionTckModelImpl;
-import com.akkaserverless.tck.model.action.ActionTwoActionProvider;
-import com.akkaserverless.tck.model.action.ActionTwoImpl;
-import com.akkaserverless.tck.model.eventsourcedentity.*;
-import com.akkaserverless.tck.model.valueentity.*;
-import com.akkaserverless.tck.model.view.ViewTckModelImpl;
-import com.akkaserverless.tck.model.view.ViewTckModelViewProvider;
-import com.akkaserverless.tck.model.view.ViewTckSourceEntity;
-import com.akkaserverless.tck.model.view.ViewTckSourceEntityProvider;
+import kalix.javasdk.AkkaServerless;
+import kalix.javasdk.PassivationStrategy;
+import kalix.javasdk.eventsourcedentity.EventSourcedEntityOptions;
+import kalix.javasdk.replicatedentity.ReplicatedEntityOptions;
+import kalix.javasdk.replicatedentity.WriteConsistency;
+import kalix.javasdk.tck.model.localpersistenceeventing.ValueEntityTwo;
+import kalix.javasdk.tck.model.localpersistenceeventing.*;
+import kalix.javasdk.tck.model.replicatedentity.*;
+import kalix.javasdk.valueentity.ValueEntityOptions;
+import kalix.tck.model.action.ActionTckModelActionProvider;
+import kalix.tck.model.action.ActionTckModelImpl;
+import kalix.tck.model.action.ActionTwoActionProvider;
+import kalix.tck.model.action.ActionTwoImpl;
+import kalix.tck.model.eventsourcedentity.*;
+import kalix.tck.model.valueentity.*;
+import kalix.tck.model.view.ViewTckModelImpl;
+import kalix.tck.model.view.ViewTckModelViewProvider;
+import kalix.tck.model.view.ViewTckSourceEntity;
+import kalix.tck.model.view.ViewTckSourceEntityProvider;
 
 import java.time.Duration;
 

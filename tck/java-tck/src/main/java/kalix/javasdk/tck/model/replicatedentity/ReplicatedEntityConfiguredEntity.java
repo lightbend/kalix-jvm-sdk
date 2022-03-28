@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.tck.model.replicatedentity;
+package kalix.javasdk.tck.model.replicatedentity;
 
-import com.akkaserverless.javasdk.replicatedentity.ReplicatedCounter;
-import com.akkaserverless.javasdk.replicatedentity.ReplicatedDataFactory;
-import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntity;
-import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityContext;
-import com.akkaserverless.tck.model.ReplicatedEntity.Request;
-import com.akkaserverless.tck.model.ReplicatedEntity.Response;
+import kalix.javasdk.replicatedentity.ReplicatedCounter;
+import kalix.javasdk.replicatedentity.ReplicatedDataFactory;
+import kalix.javasdk.replicatedentity.ReplicatedEntity;
+import kalix.javasdk.replicatedentity.ReplicatedEntityContext;
+import kalix.tck.model.ReplicatedEntity.Request;
+import kalix.tck.model.ReplicatedEntity.Response;
 
 public class ReplicatedEntityConfiguredEntity extends ReplicatedEntity<ReplicatedCounter> {
 

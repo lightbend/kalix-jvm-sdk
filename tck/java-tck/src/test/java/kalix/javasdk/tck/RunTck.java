@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.tck;
+package kalix.javasdk.tck;
 
-import com.akkaserverless.javasdk.AkkaServerlessRunner;
-import com.akkaserverless.javasdk.testkit.BuildInfo;
+import kalix.javasdk.AkkaServerlessRunner;
+import kalix.javasdk.testkit.BuildInfo;
 import org.testcontainers.Testcontainers;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.output.BaseConsumer;

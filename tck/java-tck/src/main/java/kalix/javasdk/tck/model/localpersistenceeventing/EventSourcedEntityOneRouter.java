@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package com.akkaserverless.javasdk.tck.model.localpersistenceeventing;
+package kalix.javasdk.tck.model.localpersistenceeventing;
 
-import com.akkaserverless.javasdk.eventsourcedentity.CommandContext;
-import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity;
-import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityRouter;
-import com.akkaserverless.tck.model.eventing.LocalPersistenceEventing;
+import kalix.javasdk.eventsourcedentity.CommandContext;
+import kalix.javasdk.eventsourcedentity.EventSourcedEntity;
+import kalix.javasdk.impl.eventsourcedentity.EventSourcedEntityRouter;
+import kalix.tck.model.eventing.LocalPersistenceEventing;
 
 /** An event sourced entity handler */
 public class EventSourcedEntityOneRouter
