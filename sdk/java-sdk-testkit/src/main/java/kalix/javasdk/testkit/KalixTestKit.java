@@ -40,9 +40,9 @@ import java.util.concurrent.TimeUnit;
  *
  * <p>Requires Docker for starting a local instance of the Akka Serverless proxy.
  *
- * <p>Create an AkkaServerlessTestkit with an {@link Kalix} service descriptor, and then
- * {@link #start} the testkit before testing the service with gRPC or HTTP clients. Call {@link
- * #stop} after tests are complete.
+ * <p>Create an AkkaServerlessTestkit with an {@link Kalix} service descriptor, and then {@link
+ * #start} the testkit before testing the service with gRPC or HTTP clients. Call {@link #stop}
+ * after tests are complete.
  */
 public class KalixTestKit {
 

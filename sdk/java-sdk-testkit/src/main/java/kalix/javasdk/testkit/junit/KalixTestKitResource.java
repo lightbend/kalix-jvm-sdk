@@ -24,9 +24,8 @@ import kalix.javasdk.testkit.KalixTestKit;
 import org.junit.rules.ExternalResource;
 
 /**
- * A JUnit external resource for {@link KalixTestKit}, which automatically manages the
- * lifecycle of the testkit. The testkit will be automatically stopped when the test completes or
- * fails.
+ * A JUnit external resource for {@link KalixTestKit}, which automatically manages the lifecycle of
+ * the testkit. The testkit will be automatically stopped when the test completes or fails.
  *
  * <p><b>Note</b>: JUnit is not provided as a transitive dependency of the Java SDK testkit module
  * but must be added explicitly to your project.
@@ -64,8 +63,7 @@ public final class KalixTestKitResource extends ExternalResource {
     this(kalix, KalixTestKit.Settings.DEFAULT);
   }
 
-  public KalixTestKitResource(
-          Kalix kalix, KalixTestKit.Settings settings) {
+  public KalixTestKitResource(Kalix kalix, KalixTestKit.Settings settings) {
     this.testKit = new KalixTestKit(kalix, settings);
   }
 

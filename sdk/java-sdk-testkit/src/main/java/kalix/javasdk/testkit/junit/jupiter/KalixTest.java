@@ -26,14 +26,14 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * {@code @KalixTest} registers a JUnit Jupiter extension to automatically manage the
- * lifecycle of {@link KalixTestKit}.
+ * {@code @KalixTest} registers a JUnit Jupiter extension to automatically manage the lifecycle of
+ * {@link KalixTestKit}.
  *
  * <p><b>Note</b>: JUnit Jupiter is not provided as a transitive dependency of the Java SDK testkit
  * module but must be added explicitly to your project.
  *
- * <p>The kalix Testkit extension finds a field annotated with {@link
- * KalixDescriptor} and creates a testkit for this annotated {@code Kalix}.
+ * <p>The kalix Testkit extension finds a field annotated with {@link KalixDescriptor} and creates a
+ * testkit for this annotated {@code Kalix}.
  *
  * <p>The testkit can be injected into constructors or test methods, by specifying an {@code
  * KalixTestkit} parameter.

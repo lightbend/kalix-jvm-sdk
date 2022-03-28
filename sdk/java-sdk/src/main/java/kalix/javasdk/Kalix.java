@@ -51,8 +51,7 @@ import java.util.function.Function;
 
 /**
  * The AkkaServerless class is the main interface to configuring entities to deploy, and
- * subsequently starting a local server which will expose these entities to the Kalix proxy
- * Sidecar.
+ * subsequently starting a local server which will expose these entities to the Kalix proxy Sidecar.
  */
 public final class Kalix {
   private final Map<String, Function<ActorSystem, Service>> services = new HashMap<>();
