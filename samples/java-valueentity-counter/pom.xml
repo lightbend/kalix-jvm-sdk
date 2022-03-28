@@ -308,12 +308,12 @@
   <dependencies>
     <dependency>
       <groupId>com.akkaserverless</groupId>
-      <artifactId>akkaserverless-java-sdk</artifactId>
+      <artifactId>kalix-java-sdk</artifactId>
       <version>${akkaserverless-sdk.version}</version>
     </dependency>
     <dependency>
       <groupId>com.akkaserverless</groupId>
-      <artifactId>akkaserverless-java-sdk-testkit</artifactId>
+      <artifactId>kalix-java-sdk-testkit</artifactId>
       <version>${akkaserverless-sdk.version}</version>
       <scope>test</scope>
     </dependency>
