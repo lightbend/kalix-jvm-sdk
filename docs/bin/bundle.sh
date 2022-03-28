@@ -39,7 +39,7 @@ function _set_sdk_version {
     rm -f "$dir/pom.xml.bak"
   fi
   if [ -f "$dir/project/plugins.sbt" ] ; then
-    sed -i.bak "s/\"sbt-akkaserverless\" % .*/\"sbt-akkaserverless\" % \"$sdk_version\")/" "$dir/project/plugins.sbt"
+    sed -i.bak "s/\"sbt-kalix\" % .*/\"sbt-kalix\" % \"$sdk_version\")/" "$dir/project/plugins.sbt"
     rm -f "$dir/project/plugins.sbt.bak"
   fi
 }

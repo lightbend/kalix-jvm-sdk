@@ -71,7 +71,7 @@ And in `project/plugins.sbt`:
 [.group-scala]
 [source,scala,subs="attributes+"]
 ----
-addSbtPlugin("com.akkaserverless" % "sbt-akkaserverless" % "{akkaserverless-java-sdk-version}")
+addSbtPlugin("com.akkaserverless" % "sbt-kalix" % "{akkaserverless-java-sdk-version}")
 ----
 
 == Configure JSON formatted logging
@@ -102,7 +102,7 @@ The Akka Serverless plugin will create a main class for you and make sure all co
 Java::
 +
 [source,java,indent=0]
-----  
+----
 include::example$java-eventsourced-shopping-cart/src/main/java/com/example/shoppingcart/Main.java[tag=RegisterEventSourcedEntity]
 ----
 

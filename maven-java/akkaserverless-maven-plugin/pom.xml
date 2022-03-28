@@ -63,7 +63,7 @@
     <!-- Plugin-specific dependencies -->
     <dependency>
       <groupId>com.akkaserverless</groupId>
-      <artifactId>akkaserverless-codegen-java_2.12</artifactId>
+      <artifactId>kalix-codegen-java_2.12</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>

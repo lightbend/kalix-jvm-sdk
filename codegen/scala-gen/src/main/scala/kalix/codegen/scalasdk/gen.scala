@@ -29,7 +29,7 @@ object gen {
         "scala",
         Artifact(
           kalix.codegen.scalasdk.BuildInfo.organization,
-          "akkaserverless-codegen-scala_2.12",
+          "kalix-codegen-scala_2.12",
           kalix.codegen.scalasdk.BuildInfo.version),
         generatorClass,
         AkkaserverlessGenerator.suggestedDependencies),

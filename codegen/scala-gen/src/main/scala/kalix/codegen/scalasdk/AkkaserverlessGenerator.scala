@@ -30,6 +30,6 @@ object AkkaserverlessGenerator extends AbstractAkkaserverlessGenerator {
     Artifact(
       BuildInfo.organization,
       // FIXME determine scala version properly
-      "akkaserverless-scala-sdk" + "_2.13",
+      "kalix-scala-sdk" + "_2.13",
       BuildInfo.version))
 }
