@@ -32,12 +32,13 @@ abstract class ExampleSuiteBase extends munit.FunSuite {
 
   def propertyPath: String
 
-  def regenerate(testDir: java.io.File): Boolean =
+  def regenerate(testDir: java.io.File): Boolean = regenerateAll || {
     sys.props.get(propertyPath) match {
       case Some("all") => true
       case Some(node)  => testDir.toString.contains(node)
       case None        => false
     }
+  }
 
   implicit val codegenLog = new com.lightbend.akkasls.codegen.Log {
     override def debug(message: String): Unit = println(s"[DEBUG] $message")
