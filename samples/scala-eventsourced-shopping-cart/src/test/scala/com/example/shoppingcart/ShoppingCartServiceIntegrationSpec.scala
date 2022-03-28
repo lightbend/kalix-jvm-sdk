@@ -2,7 +2,7 @@ package com.example.shoppingcart
 
 import akka.actor.ActorSystem
 import kalix.scalasdk.eventsourcedentity.EventSourcedEntity
-import kalix.scalasdk.testkit.AkkaServerlessTestKit
+import kalix.scalasdk.testkit.KalixTestKit
 import kalix.scalasdk.testkit.EventSourcedResult
 import com.google.protobuf.empty.Empty
 import org.scalatest.BeforeAndAfterAll
@@ -27,7 +27,7 @@ class ShoppingCartServiceIntegrationSpec
   implicit val patience: PatienceConfig =
     PatienceConfig(Span(5, Seconds), Span(500, Millis))
 
-  val testKit = AkkaServerlessTestKit(Main.createKalix())
+  val testKit = KalixTestKit(Main.createKalix())
   testKit.start()
   implicit val system: ActorSystem = testKit.system
 

@@ -1,6 +1,6 @@
 package com.example.replicated
 
-import kalix.scalasdk.AkkaServerless
+import kalix.scalasdk.Kalix
 import com.example.replicated.counter.domain.SomeCounter
 import com.example.replicated.countermap.domain.SomeCounterMap
 import com.example.replicated.map.domain.SomeMap
@@ -19,11 +19,11 @@ object Main {
 
   private val log = LoggerFactory.getLogger("com.example.replicated.Main")
 
-  def createKalix(): AkkaServerless = {
+  def createKalix(): Kalix = {
     // The KalixFactory automatically registers any generated Actions, Views or Entities,
     // and is kept up-to-date with any changes in your protobuf definitions.
     // If you prefer, you may remove this and manually register these components in a
-    // `AkkaServerless()` instance.
+    // `Kalix()` instance.
     KalixFactory.withComponents(
       new SomeCounter(_),
       new SomeCounterMap(_),

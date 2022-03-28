@@ -1,6 +1,6 @@
 package com.example.replicated.register
 
-import kalix.scalasdk.testkit.AkkaServerlessTestKit
+import kalix.scalasdk.testkit.KalixTestKit
 import com.example.replicated.Main
 import com.example.replicated.register.GetValue
 import com.example.replicated.register.RegisterService
@@ -18,7 +18,7 @@ class SomeRegisterIntegrationSpec extends AnyWordSpec with Matchers with BeforeA
   implicit private val patience: PatienceConfig =
     PatienceConfig(Span(5, Seconds), Span(500, Millis))
 
-  private val testKit = AkkaServerlessTestKit(Main.createKalix()).start()
+  private val testKit = KalixTestKit(Main.createKalix()).start()
 
   private val registerService = testKit.getGrpcClient(classOf[RegisterService])
 

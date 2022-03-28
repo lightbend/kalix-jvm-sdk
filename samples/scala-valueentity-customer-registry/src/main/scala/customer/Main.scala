@@ -1,7 +1,7 @@
 //tag::RegisterComponents[]
 package customer
 
-import kalix.scalasdk.AkkaServerless
+import kalix.scalasdk.Kalix
 import customer.action.CustomerActionImpl
 import customer.domain.CustomerValueEntity
 import customer.view.CustomerByEmailView
@@ -15,11 +15,11 @@ object Main {
   private val log = LoggerFactory.getLogger("customer.Main")
 
   // tag::register[]
-  def createKalix(): AkkaServerless = {
+  def createKalix(): Kalix = {
     // The KalixFactory automatically registers any generated Actions, Views or Entities,
     // and is kept up-to-date with any changes in your protobuf definitions.
     // If you prefer, you may remove this and manually register these components in a
-    // `AkkaServerless()` instance.
+    // `Kalix()` instance.
     KalixFactory.withComponents(
       // end::register[]
       new CustomerValueEntity(_),

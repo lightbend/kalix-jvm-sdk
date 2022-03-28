@@ -5,7 +5,7 @@
 package customer.view;
 
 import akka.stream.javadsl.Sink;
-import kalix.javasdk.testkit.junit.AkkaServerlessTestKitResource;
+import kalix.javasdk.testkit.junit.KalixTestKitResource;
 import customer.Main;
 import customer.api.CustomerApi;
 import customer.api.CustomerService;
@@ -29,8 +29,8 @@ public class CustomerByNameIntegrationTest {
    * The test kit starts both the service container and the Akka Serverless proxy.
    */
   @ClassRule
-  public static final AkkaServerlessTestKitResource testKit =
-          new AkkaServerlessTestKitResource(Main.createKalix());
+  public static final KalixTestKitResource testKit =
+          new KalixTestKitResource(Main.createKalix());
 
   /**
    * Use the generated gRPC client to call the service through the Akka Serverless proxy.

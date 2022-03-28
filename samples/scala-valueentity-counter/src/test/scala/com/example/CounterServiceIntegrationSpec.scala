@@ -1,6 +1,6 @@
 package com.example
 
-import kalix.scalasdk.testkit.AkkaServerlessTestKit
+import kalix.scalasdk.testkit.KalixTestKit
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.matchers.should.Matchers
@@ -23,7 +23,7 @@ class CounterServiceIntegrationSpec
   implicit private val patience: PatienceConfig =
     PatienceConfig(Span(5, Seconds), Span(500, Millis))
 
-  private val testKit = AkkaServerlessTestKit(Main.createKalix()).start()
+  private val testKit = KalixTestKit(Main.createKalix()).start()
   import testKit.executionContext
 
   private val client = testKit.getGrpcClient(classOf[CounterService])

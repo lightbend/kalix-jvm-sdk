@@ -1,6 +1,6 @@
 package customer
 
-import kalix.scalasdk.AkkaServerless
+import kalix.scalasdk.Kalix
 import customer.domain.CustomerEntity
 import customer.view.CustomerByNameView
 import org.slf4j.LoggerFactory
@@ -10,7 +10,7 @@ object Main {
   private val log = LoggerFactory.getLogger("customer.Main")
 
   // tag::register[]
-  def createKalix(): AkkaServerless = {
+  def createKalix(): Kalix = {
     KalixFactory.withComponents(
       new CustomerEntity(_),
       new CustomerByNameView(_))

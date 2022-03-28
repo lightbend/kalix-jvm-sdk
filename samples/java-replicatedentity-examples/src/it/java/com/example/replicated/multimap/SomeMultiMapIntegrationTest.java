@@ -1,6 +1,6 @@
 package com.example.replicated.multimap;
 
-import kalix.javasdk.testkit.junit.AkkaServerlessTestKitResource;
+import kalix.javasdk.testkit.junit.KalixTestKitResource;
 import com.example.replicated.Main;
 import com.example.replicated.multimap.MultiMapService;
 import com.example.replicated.multimap.SomeMultiMapApi;
@@ -30,8 +30,8 @@ public class SomeMultiMapIntegrationTest {
 
   /** The test kit starts both the service container and the Akka Serverless proxy. */
   @ClassRule
-  public static final AkkaServerlessTestKitResource testKit =
-      new AkkaServerlessTestKitResource(Main.createKalix());
+  public static final KalixTestKitResource testKit =
+      new KalixTestKitResource(Main.createKalix());
 
   /** Use the generated gRPC client to call the service through the Akka Serverless proxy. */
   private final MultiMapService client;

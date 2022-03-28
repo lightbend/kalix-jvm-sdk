@@ -1,6 +1,6 @@
 package customer
 
-import kalix.scalasdk.AkkaServerless
+import kalix.scalasdk.Kalix
 import customer.domain.CustomerEntity
 import customer.domain.CustomerEntityProvider
 import customer.view.CustomerByNameView
@@ -12,8 +12,8 @@ object MainWithCustomViewId {
   private val log = LoggerFactory.getLogger("customer.Main")
 
   // tag::register[]
-  def createKalix(): AkkaServerless =
-    AkkaServerless()
+  def createKalix(): Kalix =
+    Kalix()
       .register(
         CustomerByNameViewProvider(new CustomerByNameView(_))
           .withViewId("CustomerByNameV2"))

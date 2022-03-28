@@ -1,7 +1,7 @@
 package customer.api
 
 import akka.actor.ActorSystem
-import kalix.scalasdk.testkit.AkkaServerlessTestKit
+import kalix.scalasdk.testkit.KalixTestKit
 import com.google.protobuf.empty.Empty
 import customer.Main
 import org.scalatest.BeforeAndAfterAll
@@ -26,7 +26,7 @@ class CustomerServiceIntegrationSpec
   implicit private val patience: PatienceConfig =
     PatienceConfig(Span(5, Seconds), Span(500, Millis))
 
-  private val testKit = AkkaServerlessTestKit(Main.createKalix()).start()
+  private val testKit = KalixTestKit(Main.createKalix()).start()
 
   private val client = testKit.getGrpcClient(classOf[CustomerService])
 

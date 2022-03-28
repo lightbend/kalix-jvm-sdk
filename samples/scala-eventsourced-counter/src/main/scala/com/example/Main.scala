@@ -1,6 +1,6 @@
 package com.example
 
-import kalix.scalasdk.AkkaServerless
+import kalix.scalasdk.Kalix
 import com.example.actions.CounterJournalToTopicAction
 import com.example.actions.CounterTopicSubscriptionAction
 import com.example.domain.Counter
@@ -15,11 +15,11 @@ object Main {
 
   private val log = LoggerFactory.getLogger("com.example.Main")
 
-  def createKalix(): AkkaServerless = {
+  def createKalix(): Kalix = {
     // The KalixFactory automatically registers any generated Actions, Views or Entities,
     // and is kept up-to-date with any changes in your protobuf definitions.
     // If you prefer, you may remove this and manually register these components in a
-    // `AkkaServerless()` instance.
+    // `Kalix()` instance.
     KalixFactory.withComponents(
       new Counter(_),
       new CounterJournalToTopicAction(_),

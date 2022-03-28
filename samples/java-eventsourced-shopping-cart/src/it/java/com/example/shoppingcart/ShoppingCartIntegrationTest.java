@@ -15,7 +15,7 @@
  */
 package com.example.shoppingcart;
 
-import kalix.javasdk.testkit.junit.AkkaServerlessTestKitResource;
+import kalix.javasdk.testkit.junit.KalixTestKitResource;
 import org.junit.ClassRule;
 import org.junit.Test;
 
@@ -31,7 +31,7 @@ public class ShoppingCartIntegrationTest {
    * The test kit starts both the service container and the Akka Serverless proxy.
    */
   @ClassRule
-  public static final AkkaServerlessTestKitResource testKit = new AkkaServerlessTestKitResource(Main.createKalix());
+  public static final KalixTestKitResource testKit = new KalixTestKitResource(Main.createKalix());
 
   private final ShoppingCartService client;
 

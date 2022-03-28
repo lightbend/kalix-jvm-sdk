@@ -5,7 +5,7 @@
 
 package customer;
 
-import kalix.javasdk.AkkaServerless;
+import kalix.javasdk.Kalix;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import customer.domain.Customer;
@@ -16,11 +16,11 @@ public final class Main {
 
   private static final Logger LOG = LoggerFactory.getLogger(Main.class);
 
-  public static AkkaServerless createKalix() {
+  public static Kalix createKalix() {
     // The KalixFactory automatically registers any generated Actions, Views or Entities,
     // and is kept up-to-date with any changes in your protobuf definitions.
     // If you prefer, you may remove this and manually register these components in a
-    // `new AkkaServerless()` instance.
+    // `new Kalix()` instance.
     return KalixFactory.withComponents(
       Customer::new,
       CustomerByEmailView::new,

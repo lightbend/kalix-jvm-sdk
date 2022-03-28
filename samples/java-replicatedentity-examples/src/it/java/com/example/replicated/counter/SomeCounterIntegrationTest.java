@@ -1,6 +1,6 @@
 package com.example.replicated.counter;
 
-import kalix.javasdk.testkit.junit.AkkaServerlessTestKitResource;
+import kalix.javasdk.testkit.junit.KalixTestKitResource;
 import com.example.replicated.Main;
 import com.example.replicated.counter.CounterService;
 import com.example.replicated.counter.SomeCounterApi;
@@ -21,8 +21,8 @@ public class SomeCounterIntegrationTest {
 
   /** The test kit starts both the service container and the Akka Serverless proxy. */
   @ClassRule
-  public static final AkkaServerlessTestKitResource testKit =
-      new AkkaServerlessTestKitResource(Main.createKalix());
+  public static final KalixTestKitResource testKit =
+      new KalixTestKitResource(Main.createKalix());
 
   /** Use the generated gRPC client to call the service through the Akka Serverless proxy. */
   private final CounterService client;
