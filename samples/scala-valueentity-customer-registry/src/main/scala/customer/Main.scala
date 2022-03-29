@@ -2,12 +2,9 @@
 package customer
 
 import kalix.scalasdk.Kalix
-import customer.action.CustomerActionImpl
-import customer.domain.CustomerValueEntity
-import customer.view.CustomerByEmailView
-import customer.view.CustomerByNameView
-import customer.view.CustomerSummaryByNameView
-import customer.view.CustomersResponseByNameView
+import customer.action._
+import customer.domain._
+import customer.view._
 import org.slf4j.LoggerFactory
 
 object Main {
@@ -16,26 +13,16 @@ object Main {
 
   // tag::register[]
   def createKalix(): Kalix = {
-    // The KalixFactory automatically registers any generated Actions, Views or Entities,
-    // and is kept up-to-date with any changes in your protobuf definitions.
-    // If you prefer, you may remove this and manually register these components in a
-    // `Kalix()` instance.
-    KalixFactory.withComponents(
-      // end::register[]
-      new CustomerValueEntity(_),
-      new CustomerActionImpl(_),
-      new CustomerByEmailView(_),
-      new CustomerByNameView(_),
-      new CustomerSummaryByNameView(_),
-      new CustomersResponseByNameView(_))
-      /*
-      // tag::register[]
-      return KalixFactory.withComponents(
-        new CustomerValueEntity(_),
-        new CustomerByNameView(_))
-      // end::register[]
-      */
-    // tag::register[]
+    // FIXME temporarily changed to set a short view id to not hit view id limit of 21 chars
+    Kalix()
+      .register(CustomerValueEntityProvider(new CustomerValueEntity(_)))
+      .register(CustomerActionProvider(new CustomerActionImpl(_)))
+      .register(CustomerByEmailViewProvider(new CustomerByEmailView(_)).withViewId("ByEmail"))
+      .register(CustomerByNameViewProvider(new CustomerByNameView(_)).withViewId("ByName"))
+      .register(CustomerSummaryByNameViewProvider(new CustomerSummaryByNameView(_))
+        .withViewId("Summary"))
+      .register(CustomersResponseByNameViewProvider(new CustomersResponseByNameView(_))
+        .withViewId("Response"))
   }
   // end::register[]
 

@@ -8,12 +8,10 @@ package customer;
 import kalix.javasdk.Kalix;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import customer.action.CustomerActionImpl;
-import customer.domain.CustomerValueEntity;
-import customer.view.CustomerByEmailView;
-import customer.view.CustomerByNameView;
-import customer.view.CustomerSummaryByNameView;
-import customer.view.CustomersResponseByNameView;
+import customer.action.*;
+import customer.domain.*;
+import customer.view.*;
+import kalix.javasdk.Kalix;
 
 public final class Main {
 
@@ -21,23 +19,15 @@ public final class Main {
 
   // tag::register[]
   public static Kalix createKalix() {
-    return KalixFactory.withComponents(
-      // end::register[]
-      CustomerValueEntity::new,
-      CustomerActionImpl::new,
-      CustomerByEmailView::new,
-      CustomerByNameView::new,
-      CustomerSummaryByNameView::new,
-      CustomersResponseByNameView::new);
-      /*
-      // tag::register[]
-      return KalixFactory.withComponents(
-        CustomerValueEntity::new,
-        CustomerByNameView::new);
-      // end::register[]
-      */
-      // tag::register[]
-
+    // FIXME temporarily changed to set a short view id to not hit view id limit of 21 chars
+    Kalix kalix = new Kalix();
+    kalix.register(CustomerValueEntityProvider.of(CustomerValueEntity::new));
+    kalix.register(CustomerActionProvider.of(CustomerActionImpl::new));
+    kalix.register(CustomerByEmailViewProvider.of(CustomerByEmailView::new).withViewId("ByEmail"));
+    kalix.register(CustomerByNameViewProvider.of(CustomerByNameView::new).withViewId("ByName"));
+    kalix.register(CustomerSummaryByNameViewProvider.of(CustomerSummaryByNameView::new).withViewId("Summary"));
+    kalix.register(CustomersResponseByNameViewProvider.of(CustomersResponseByNameView::new).withViewId("Response"));
+    return kalix;
   }
   // end::register[]
 
