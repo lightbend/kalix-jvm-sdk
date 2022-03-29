@@ -30,11 +30,11 @@ public class DeployMojo extends AbstractMojo {
     @Parameter(defaultValue = "${project.artifactId}", property = "service", required = true)
     private String service;
 
-    @Parameter(defaultValue = "akkasls", property = "akkaslsPath", required = true)
-    private String akkaslsPath;
+    @Parameter(defaultValue = "kalix", property = "kalixPath", required = true)
+    private String kalixPath;
 
-    @Parameter(property = "akkaslsContext")
-    private String akkaslsContext;
+    @Parameter(property = "kalixContext")
+    private String kalixContext;
 
     @Parameter(defaultValue = "30000", property = "cliTimeoutMs", required = true)
     private Long cliTimeoutMs;
@@ -48,10 +48,10 @@ public class DeployMojo extends AbstractMojo {
         log.info("Deploying project to Kalix");
         try {
             final List<String> commandLine;
-            if (akkaslsContext != null) {
-                commandLine = Arrays.asList(akkaslsPath, "--context", akkaslsContext, "service", "deploy", service, dockerImage);
+            if (kalixContext != null) {
+                commandLine = Arrays.asList(kalixPath, "--context", kalixContext, "service", "deploy", service, dockerImage);
             } else {
-                commandLine = Arrays.asList(akkaslsPath, "service", "deploy", service, dockerImage);
+                commandLine = Arrays.asList(kalixPath, "service", "deploy", service, dockerImage);
             }
             log.info("Executing `" + String.join(" ", commandLine) + "`");
             Process process = new ProcessBuilder().directory(baseDir).command(commandLine).start();
@@ -62,7 +62,7 @@ public class DeployMojo extends AbstractMojo {
             if (status == 0) {
                 log.info("Done.");
             } else {
-                log.error("Unable to deploy. Ensure you can deploy by using the akkasls command line directly.");
+                log.error("Unable to deploy. Ensure you can deploy by using the kalix command line directly.");
             }
         } catch (IOException | InterruptedException e) {
             throw new MojoExecutionException("There was a problem deploying", e);
