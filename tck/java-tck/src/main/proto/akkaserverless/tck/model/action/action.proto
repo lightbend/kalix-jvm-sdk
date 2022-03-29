@@ -18,7 +18,7 @@
 
 syntax = "proto3";
 
-package akkaserverless.tck.model.action;
+package kalix.tck.model.action;
 
 option go_package = "github.com/lightbend/akkaserverless-go-sdk/tck/action;action";
 option java_package = "kalix.tck.model.action";
@@ -111,7 +111,7 @@ message Reply {
 }
 
 //
-// Replace the response with a forward to `akkaserverless.tck.model.ActionTwo/Call`.
+// Replace the response with a forward to `kalix.tck.model.ActionTwo/Call`.
 // The payload must be an `OtherRequest` message with the given `id`.
 //
 message Forward {
@@ -126,7 +126,7 @@ message Fail {
 }
 
 //
-// Add a side effect to the reply, to `akkaserverless.tck.model.ActionTwo/Call`.
+// Add a side effect to the reply, to `kalix.tck.model.ActionTwo/Call`.
 // The payload must be an `OtherRequest` message with the given `id`.
 // The side effect should be marked synchronous based on the given `synchronous` value.
 //

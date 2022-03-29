@@ -18,7 +18,7 @@
 
 syntax = "proto3";
 
-package akkaserverless.tck.model.valueentity;
+package kalix.tck.model.valueentity;
 
 option go_package = "github.com/lightbend/akkaserverless-go-sdk/tck/valueentity;valueentity";
 option java_package = "kalix.tck.model.valueentity";
@@ -67,7 +67,7 @@ message Update {
 message Delete {}
 
 //
-// Replace the response with a forward to `akkaserverless.tck.model.valueentity.ValueEntityTwo/Call`.
+// Replace the response with a forward to `kalix.tck.model.valueentity.ValueEntityTwo/Call`.
 // The payload must be a `Request` message with the given `id`.
 //
 message Forward {
@@ -75,7 +75,7 @@ message Forward {
 }
 
 //
-// Add a side effect to the reply, to `akkaserverless.tck.model.valueentity.ValueEntityTwo/Call`.
+// Add a side effect to the reply, to `kalix.tck.model.valueentity.ValueEntityTwo/Call`.
 // The payload must be a `Request` message with the given `id`.
 // The side effect should be marked synchronous based on the given `synchronous` value.
 //

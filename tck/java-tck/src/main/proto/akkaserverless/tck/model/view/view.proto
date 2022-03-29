@@ -18,7 +18,7 @@
 
 syntax = "proto3";
 
-package akkaserverless.tck.model.view;
+package kalix.tck.model.view;
 
 option go_package = "github.com/lightbend/akkaserverless-go-sdk/tck/view;view";
 option java_package = "kalix.tck.model.view";

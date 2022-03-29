@@ -18,7 +18,7 @@
 
 syntax = "proto3";
 
-package akkaserverless.tck.model.eventing;
+package kalix.tck.model.eventing;
 
 option go_package = "github.com/lightbend/akkaserverless-go-sdk/tck/eventing;eventing";
 option java_package = "kalix.tck.model.eventing";
@@ -228,7 +228,7 @@ message Reply {
 }
 
 //
-// Replace the response with a forward to `akkaserverless.tck.model.localpersistenceeventing.LocalPersistenceSubscriberModel/Effect`.
+// Replace the response with a forward to `kalix.tck.model.localpersistenceeventing.LocalPersistenceSubscriberModel/Effect`.
 // The payload must be an `EffectRequest` message with the given `message`.
 //
 message Forward {

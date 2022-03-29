@@ -18,7 +18,7 @@
 
 syntax = "proto3";
 
-package akkaserverless.tck.model.valueentity;
+package kalix.tck.model.valueentity;
 
 option go_package = "github.com/lightbend/akkaserverless-go-sdk/tck/valueentity;valueentity";
 option java_package = "kalix.tck.model.valueentity";

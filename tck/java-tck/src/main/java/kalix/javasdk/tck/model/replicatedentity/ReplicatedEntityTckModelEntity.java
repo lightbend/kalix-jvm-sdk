@@ -364,7 +364,7 @@ public class ReplicatedEntityTckModelEntity extends ReplicatedEntity<ReplicatedD
     return new DeferredCallImpl<>(
         request,
         MetadataImpl.Empty(),
-        "akkaserverless.tck.model.replicatedentity.ReplicatedEntityTwo",
+        "kalix.tck.model.replicatedentity.ReplicatedEntityTwo",
         "Call",
         () ->
             ((InternalContext) commandContext())

@@ -18,7 +18,7 @@
 
 syntax = "proto3";
 
-package akkaserverless.tck.model.eventsourcedentity;
+package kalix.tck.model.eventsourcedentity;
 
 option go_package = "github.com/lightbend/akkaserverless-go-sdk/tck/eventsourcedentity;eventsourcedentity";
 option java_package = "kalix.tck.model.eventsourcedentity";
@@ -59,7 +59,7 @@ message Emit {
 }
 
 //
-// Replace the response with a forward to `akkaserverless.tck.model.EventSourcedTwo/Call`.
+// Replace the response with a forward to `kalix.tck.model.EventSourcedTwo/Call`.
 // The payload must be a `Request` message with the given `id`.
 //
 message Forward {
@@ -67,7 +67,7 @@ message Forward {
 }
 
 //
-// Add a side effect to the reply, to `akkaserverless.tck.model.EventSourcedTwo/Call`.
+// Add a side effect to the reply, to `kalix.tck.model.EventSourcedTwo/Call`.
 // The payload must be a `Request` message with the given `id`.
 // The side effect should be marked synchronous based on the given `synchronous` value.
 //
