@@ -112,10 +112,8 @@ final class ViewsImpl(system: ActorSystem, _services: Map[String, ViewService], 
                 case ViewUpdateEffectImpl.Update(newState) =>
                   if (newState == null)
                     throw ViewException(context, "updateState with null state is not allowed.", None)
-                  val table = receiveEvent.initialTable
-                  val key = receiveEvent.key
                   val serializedState = ScalaPbAny.fromJavaProto(service.anySupport.encodeJava(newState))
-                  val upsert = pv.Upsert(Some(pv.Row(table, key, Some(serializedState))))
+                  val upsert = pv.Upsert(Some(pv.Row(value = Some(serializedState))))
                   val out = pv.ViewStreamOut(pv.ViewStreamOut.Message.Upsert(upsert))
                   Source.single(out)
                 case i if i == ViewUpdateEffectImpl.Ignore =>
