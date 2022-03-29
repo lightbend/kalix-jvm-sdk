@@ -20,7 +20,7 @@ public final class Main {
     // FIXME temporarily changed to set a short view id to not hit view id limit of 21 chars
     Kalix kalix = new Kalix();
     kalix.register(ShoppingCartProvider.of(ShoppingCart::new));
-    kalix.register(ShoppingCartViewServiceImpl.of(ShoppingCartViewServiceImpl::new));
+    kalix.register(ShoppingCartViewServiceImpl.of(ShoppingCartViewServiceImpl::new)
         .withViewId("ShoppingCartView"));
     return kalix;
   }

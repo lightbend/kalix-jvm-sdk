@@ -18,8 +18,8 @@ object Main {
   def createKalix(): Kalix = {
     // FIXME temporarily changed to set a short view id to not hit view id limit of 21 chars
     new Kalix()
-      .register(CustomerValueEntityProvider.of(new CustomerValueEntity(_))
-      .register(CustomerActionImplProvider.of(new CustomerActionImpl(_))
+      .register(CustomerValueEntityProvider.of(new CustomerValueEntity(_)))
+      .register(CustomerActionImplProvider.of(new CustomerActionImpl(_)))
       .register(CustomerByEmailViewProvider.of(new CustomerByEmailView(_)).withViewId("ByEmail"))
       .register(CustomerByNameViewProvider.of(new CustomerByNameView(_)).withViewId("ByName"))
       .register(CustomerSummaryByNameViewProvider.of(new CustomerSummaryByNameView(_))

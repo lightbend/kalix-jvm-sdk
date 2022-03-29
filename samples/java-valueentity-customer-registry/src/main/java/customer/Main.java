@@ -26,7 +26,7 @@ public final class Main {
     kalix.register(CustomerValueEntityProvider.of(CustomerValueEntity::new));
     kalix.register(CustomerActionImplProvider.of(CustomerActionImpl::new));
     kalix.register(CustomerByEmailViewProvider.of(CustomerByEmailView::new).withViewId("ByEmail"));
-    kalix.register(CustomerByNameViewProvider.of(CustomerByNameView::new).withViewId("ByName")));
+    kalix.register(CustomerByNameViewProvider.of(CustomerByNameView::new).withViewId("ByName"));
     kalix.register(CustomerSummaryByNameViewProvider.of(CustomerSummaryByNameView::new).withViewId("Summary"));
     kalix.register(CustomersResponseByNameViewProvider.of(CustomersResponseByNameView::new).withViewId("Response"));
     return kalix;
