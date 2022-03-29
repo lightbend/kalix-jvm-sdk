@@ -4,8 +4,8 @@ import sbt.Keys._
 object Dependencies {
   object Kalix {
     val ProtocolVersionMajor = 0
-    val ProtocolVersionMinor = 8
-    val FrameworkVersion = "0.9.0-12-3385d96e-dev-SNAPSHOT"
+    val ProtocolVersionMinor = 10
+    val FrameworkVersion = "0.10.0-M1"
   }
 
   // changing the Scala version of the Java SDK affects end users
