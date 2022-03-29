@@ -1,6 +1,6 @@
 # Publishing
 
-The samples are published as Docker images to `grc.io/akkaserverless-public`.
+The samples are published as Docker images to `grc.io/kalix-public`.
 
 To publish the images, ensure that you have the right permissions and configure `gcloud` to connect
 

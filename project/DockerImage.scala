@@ -24,5 +24,5 @@ object PublicDockerImage extends AutoPlugin {
   override def requires = DockerImage
 
   override def projectSettings =
-    Seq(dockerRepository := Some("gcr.io"), dockerUsername := Some("akkaserverless-public"))
+    Seq(dockerRepository := Some("gcr.io"), dockerUsername := Some("kalix-public"))
 }

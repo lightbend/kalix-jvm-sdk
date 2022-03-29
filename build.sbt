@@ -158,7 +158,7 @@ lazy val sdkJavaTestKit = project
     buildInfoKeys := Seq[BuildInfoKey](
       name,
       version,
-      "proxyImage" -> "gcr.io/akkaserverless-public/kalix-proxy",
+      "proxyImage" -> "gcr.io/kalix-public/kalix-proxy",
       "proxyVersion" -> Kalix.FrameworkVersion,
       "scalaVersion" -> scalaVersion.value),
     buildInfoPackage := "kalix.javasdk.testkit",
