@@ -16,26 +16,16 @@ object Main {
 
   // tag::register[]
   def createKalix(): Kalix = {
-    // The KalixFactory automatically registers any generated Actions, Views or Entities,
-    // and is kept up-to-date with any changes in your protobuf definitions.
-    // If you prefer, you may remove this and manually register these components in a
-    // `Kalix()` instance.
-    KalixFactory.withComponents(
-      // end::register[]
-      new CustomerValueEntity(_),
-      new CustomerActionImpl(_),
-      new CustomerByEmailView(_),
-      new CustomerByNameView(_),
-      new CustomerSummaryByNameView(_),
-      new CustomersResponseByNameView(_))
-      /*
-      // tag::register[]
-      return KalixFactory.withComponents(
-        new CustomerValueEntity(_),
-        new CustomerByNameView(_))
-      // end::register[]
-      */
-    // tag::register[]
+    // FIXME temporarily changed to set a short view id to not hit view id limit of 21 chars
+    new Kalix()
+      .register(CustomerValueEntityProvider.of(new CustomerValueEntity(_))
+      .register(CustomerActionImplProvider.of(new CustomerActionImpl(_))
+      .register(CustomerByEmailViewProvider.of(new CustomerByEmailView(_)).withViewId("ByEmail"))
+      .register(CustomerByNameViewProvider.of(new CustomerByNameView(_)).withViewId("ByName"))
+      .register(CustomerSummaryByNameViewProvider.of(new CustomerSummaryByNameView(_))
+        .withViewId("Summary"))
+      .register(CustomersResponseByNameViewProvider.of(new CustomersResponseByNameView(_))
+        .withViewId("Response"))
   }
   // end::register[]
 

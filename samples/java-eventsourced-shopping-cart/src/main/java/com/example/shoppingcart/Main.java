@@ -17,14 +17,12 @@ public final class Main {
   private static final Logger LOG = LoggerFactory.getLogger(Main.class);
 
   public static Kalix createKalix() {
-    // The KalixFactory automatically registers any generated Actions, Views or Entities,
-    // and is kept up-to-date with any changes in your protobuf definitions.
-    // If you prefer, you may remove this and manually register these components in a
-    // `new Kalix()` instance.
-    return KalixFactory.withComponents(
-        ShoppingCart::new,
-        ShoppingCartViewServiceImpl::new
-    );
+    // FIXME temporarily changed to set a short view id to not hit view id limit of 21 chars
+    Kalix kalix = new Kalix();
+    kalix.register(ShoppingCartProvider.of(ShoppingCart::new));
+    kalix.register(ShoppingCartViewServiceImpl.of(ShoppingCartViewServiceImpl::new));
+        .withViewId("ShoppingCartView"));
+    return kalix;
   }
 
   public static void main(String[] args) throws Exception {
