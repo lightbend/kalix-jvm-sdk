@@ -15,7 +15,7 @@
 syntax = "proto3";
 
 import "google/protobuf/empty.proto";
-import "akkaserverless/annotations.proto";
+import "kalix/annotations.proto";
 
 package com.example.replicated.set;
 
@@ -26,17 +26,17 @@ message Element {
 }
 
 message AddElement {
-  string set_id = 1 [(akkaserverless.field).entity_key = true];
+  string set_id = 1 [(kalix.field).entity_key = true];
   Element element = 2;
 }
 
 message RemoveElement {
-  string set_id = 1 [(akkaserverless.field).entity_key = true];
+  string set_id = 1 [(kalix.field).entity_key = true];
   Element element = 2;
 }
 
 message GetElements {
-  string set_id = 1 [(akkaserverless.field).entity_key = true];
+  string set_id = 1 [(kalix.field).entity_key = true];
 }
 
 message CurrentElements {
@@ -44,7 +44,7 @@ message CurrentElements {
 }
 
 service SetService {
-  option (akkaserverless.codegen) = {
+  option (kalix.codegen) = {
     replicated_entity: {
       name: ".domain.SomeSet"
       entity_type: "some-set"
@@ -60,7 +60,7 @@ service SetService {
 }
 
 service ScalarSetService {
-  option (akkaserverless.codegen) = {
+  option (kalix.codegen) = {
     replicated_entity: {
       name: ".domain.SomeScalarSet"
       entity_type: "some-scalar-set"

@@ -19,23 +19,23 @@ package com.example.eventing;
 option java_multiple_files = true;
 option java_outer_classname = "RawEventingTypes";
 
-import "akkaserverless/annotations.proto";
+import "kalix/annotations.proto";
 import "google/protobuf/empty.proto";
 import "google/protobuf/wrappers.proto";
 
 service RawEventingTypesAction {
-  option (akkaserverless.codegen) = {
+  option (kalix.codegen) = {
     action: {}
   };
 
   rpc ConsumeStringTopic(google.protobuf.StringValue) returns (google.protobuf.Empty) {
-    option (akkaserverless.method).eventing.in = {
+    option (kalix.method).eventing.in = {
       topic: "strings_topic"
     };
   }
 
   rpc ConsumeRawBytesTopic(google.protobuf.BytesValue) returns (google.protobuf.Empty) {
-    option (akkaserverless.method).eventing.in = {
+    option (kalix.method).eventing.in = {
       topic: "bytes_topic"
     };
   }

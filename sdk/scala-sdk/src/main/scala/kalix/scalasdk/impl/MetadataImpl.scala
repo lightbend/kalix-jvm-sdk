@@ -18,7 +18,7 @@ package kalix.scalasdk.impl
 import java.nio.ByteBuffer
 import scala.collection.immutable.Seq
 import kalix.scalasdk.{ CloudEvent, JwtClaims, Metadata, MetadataEntry }
-import com.akkaserverless.protocol.component.{ MetadataEntry => ProtocolMetadataEntry }
+import kalix.protocol.component.{ MetadataEntry => ProtocolMetadataEntry }
 
 private[kalix] object MetadataImpl {
   def apply(impl: kalix.javasdk.impl.MetadataImpl): MetadataImpl = new MetadataImpl(impl)

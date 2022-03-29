@@ -23,7 +23,7 @@ import akka.actor.ActorSystem
 import akka.stream.scaladsl.Flow
 import akka.stream.scaladsl.Source
 import kalix.javasdk.KalixRunner.Configuration
-import com.akkaserverless.protocol.component.Failure
+import kalix.protocol.component.Failure
 import org.slf4j.LoggerFactory
 
 // FIXME these don't seem to be 'public API', more internals?
@@ -39,14 +39,14 @@ import kalix.javasdk.impl.effect.MessageReplyImpl
 import kalix.javasdk.impl.valueentity.ValueEntityEffectImpl.DeleteState
 import kalix.javasdk.impl.valueentity.ValueEntityEffectImpl.UpdateState
 import kalix.javasdk.impl.valueentity.ValueEntityRouter.CommandResult
-import com.akkaserverless.protocol.value_entity.ValueEntityAction.Action.Delete
-import com.akkaserverless.protocol.value_entity.ValueEntityAction.Action.Update
-import com.akkaserverless.protocol.value_entity.ValueEntityStreamIn.Message.{ Command => InCommand }
-import com.akkaserverless.protocol.value_entity.ValueEntityStreamIn.Message.{ Empty => InEmpty }
-import com.akkaserverless.protocol.value_entity.ValueEntityStreamIn.Message.{ Init => InInit }
-import com.akkaserverless.protocol.value_entity.ValueEntityStreamOut.Message.{ Failure => OutFailure }
-import com.akkaserverless.protocol.value_entity.ValueEntityStreamOut.Message.{ Reply => OutReply }
-import com.akkaserverless.protocol.value_entity._
+import kalix.protocol.value_entity.ValueEntityAction.Action.Delete
+import kalix.protocol.value_entity.ValueEntityAction.Action.Update
+import kalix.protocol.value_entity.ValueEntityStreamIn.Message.{ Command => InCommand }
+import kalix.protocol.value_entity.ValueEntityStreamIn.Message.{ Empty => InEmpty }
+import kalix.protocol.value_entity.ValueEntityStreamIn.Message.{ Init => InInit }
+import kalix.protocol.value_entity.ValueEntityStreamOut.Message.{ Failure => OutFailure }
+import kalix.protocol.value_entity.ValueEntityStreamOut.Message.{ Reply => OutReply }
+import kalix.protocol.value_entity._
 import com.google.protobuf.Descriptors
 import com.google.protobuf.any.{ Any => ScalaPbAny }
 

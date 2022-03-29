@@ -19,7 +19,7 @@ package com.example.shoppingcart;
 option java_outer_classname = "ShoppingCartController";
 
 import "google/protobuf/empty.proto";
-import "akkaserverless/annotations.proto";
+import "kalix/annotations.proto";
 import "com/example/shoppingcart/shoppingcart_api.proto";
 
 message NewCart {
@@ -30,7 +30,7 @@ message NewCartCreated {
 }
 
 service ShoppingCartAction {
-  option (akkaserverless.codegen) = {
+  option (kalix.codegen) = {
     action: {}
   };
 

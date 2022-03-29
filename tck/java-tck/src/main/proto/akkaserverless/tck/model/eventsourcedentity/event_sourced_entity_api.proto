@@ -18,19 +18,19 @@
 
 syntax = "proto3";
 
-package akkaserverless.tck.model.eventsourcedentity;
+package kalix.tck.model.eventsourcedentity;
 
 option go_package = "github.com/lightbend/akkaserverless-go-sdk/tck/eventsourcedentity;eventsourcedentity";
 option java_package = "kalix.tck.model.eventsourcedentity";
 
-import "akkaserverless/annotations.proto";
+import "kalix/annotations.proto";
 
 //
 // A `Request` message contains any actions that the entity should process.
 // Actions must be processed in order. Any actions after a `Fail` may be ignored.
 //
 message Request {
-  string id = 1 [(akkaserverless.field).entity_key = true];
+  string id = 1 [(kalix.field).entity_key = true];
   repeated RequestAction actions = 2;
 }
 
@@ -59,7 +59,7 @@ message Emit {
 }
 
 //
-// Replace the response with a forward to `akkaserverless.tck.model.EventSourcedTwo/Call`.
+// Replace the response with a forward to `kalix.tck.model.EventSourcedTwo/Call`.
 // The payload must be a `Request` message with the given `id`.
 //
 message Forward {
@@ -67,7 +67,7 @@ message Forward {
 }
 
 //
-// Add a side effect to the reply, to `akkaserverless.tck.model.EventSourcedTwo/Call`.
+// Add a side effect to the reply, to `kalix.tck.model.EventSourcedTwo/Call`.
 // The payload must be a `Request` message with the given `id`.
 // The side effect should be marked synchronous based on the given `synchronous` value.
 //

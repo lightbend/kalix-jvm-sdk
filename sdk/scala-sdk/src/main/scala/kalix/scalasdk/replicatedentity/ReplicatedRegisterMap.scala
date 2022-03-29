@@ -20,7 +20,7 @@ import scala.collection.immutable.Set
 
 import kalix.javasdk.impl.replicatedentity.ReplicatedRegisterMapImpl
 import kalix.javasdk.replicatedentity.{ ReplicatedRegister => JavaSdkReplicatedRegister }
-import com.akkaserverless.protocol.replicated_entity.ReplicatedEntityDelta
+import kalix.protocol.replicated_entity.ReplicatedEntityDelta
 
 /**
  * A Map of registers. Uses [[ReplicatedRegister]] 's as values.

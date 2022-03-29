@@ -17,7 +17,7 @@
 package kalix.scalasdk.replicatedentity
 
 import kalix.javasdk.impl.replicatedentity.ReplicatedCounterImpl
-import com.akkaserverless.protocol.replicated_entity.ReplicatedEntityDelta
+import kalix.protocol.replicated_entity.ReplicatedEntityDelta
 
 /** A counter that can be incremented and decremented. */
 class ReplicatedCounter private[scalasdk] (override val delegate: ReplicatedCounterImpl)

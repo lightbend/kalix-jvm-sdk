@@ -18,12 +18,12 @@
 
 syntax = "proto3";
 
-package akkaserverless.tck.model.valueentity;
+package kalix.tck.model.valueentity;
 
 option go_package = "github.com/lightbend/akkaserverless-go-sdk/tck/valueentity;valueentity";
 option java_package = "kalix.tck.model.valueentity";
 
-import "akkaserverless/annotations.proto";
+import "kalix/annotations.proto";
 import "google/api/annotations.proto";
 
 //
@@ -31,7 +31,7 @@ import "google/api/annotations.proto";
 // Actions must be processed in order. Any actions after a `Fail` may be ignored.
 //
 message Request {
-  string id = 1 [(akkaserverless.field).entity_key = true];
+  string id = 1 [(kalix.field).entity_key = true];
   repeated RequestAction actions = 2;
 }
 
@@ -67,7 +67,7 @@ message Update {
 message Delete {}
 
 //
-// Replace the response with a forward to `akkaserverless.tck.model.valueentity.ValueEntityTwo/Call`.
+// Replace the response with a forward to `kalix.tck.model.valueentity.ValueEntityTwo/Call`.
 // The payload must be a `Request` message with the given `id`.
 //
 message Forward {
@@ -75,7 +75,7 @@ message Forward {
 }
 
 //
-// Add a side effect to the reply, to `akkaserverless.tck.model.valueentity.ValueEntityTwo/Call`.
+// Add a side effect to the reply, to `kalix.tck.model.valueentity.ValueEntityTwo/Call`.
 // The payload must be a `Request` message with the given `id`.
 // The side effect should be marked synchronous based on the given `synchronous` value.
 //

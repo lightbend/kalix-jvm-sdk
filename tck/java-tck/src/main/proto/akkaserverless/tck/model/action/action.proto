@@ -18,13 +18,13 @@
 
 syntax = "proto3";
 
-package akkaserverless.tck.model.action;
+package kalix.tck.model.action;
 
 option go_package = "github.com/lightbend/akkaserverless-go-sdk/tck/action;action";
 option java_package = "kalix.tck.model.action";
 
 import "google/api/annotations.proto";
-import "akkaserverless/annotations.proto";
+import "kalix/annotations.proto";
 
 //
 // The `ActionTckModel` service should be implemented in the following ways:
@@ -44,7 +44,7 @@ import "akkaserverless/annotations.proto";
 // - Forwarding and side effects must always be made to the second service `ActionTwo`.
 //
 service ActionTckModel {
-  option (akkaserverless.codegen) = {
+  option (kalix.codegen) = {
     action: {}
   };
 
@@ -64,7 +64,7 @@ service ActionTckModel {
 // The `Call` method is not required to do anything, and must return an empty `Response` message.
 //
 service ActionTwo {
-  option (akkaserverless.codegen) = {
+  option (kalix.codegen) = {
     action: {}
   };
 
@@ -111,7 +111,7 @@ message Reply {
 }
 
 //
-// Replace the response with a forward to `akkaserverless.tck.model.ActionTwo/Call`.
+// Replace the response with a forward to `kalix.tck.model.ActionTwo/Call`.
 // The payload must be an `OtherRequest` message with the given `id`.
 //
 message Forward {
@@ -126,7 +126,7 @@ message Fail {
 }
 
 //
-// Add a side effect to the reply, to `akkaserverless.tck.model.ActionTwo/Call`.
+// Add a side effect to the reply, to `kalix.tck.model.ActionTwo/Call`.
 // The payload must be an `OtherRequest` message with the given `id`.
 // The side effect should be marked synchronous based on the given `synchronous` value.
 //

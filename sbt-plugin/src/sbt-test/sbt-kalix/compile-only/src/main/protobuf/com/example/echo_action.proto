@@ -19,7 +19,7 @@ package com.example;
 option java_outer_classname = "EchoActionModel";
 
 import "google/protobuf/empty.proto";
-import "akkaserverless/annotations.proto";
+import "kalix/annotations.proto";
 import "com/example/valueentity/user_api.proto";
 
 message Person {
@@ -31,7 +31,7 @@ message Hello {
 }
 
 service EchoAction {
-  option (akkaserverless.codegen) = {
+  option (kalix.codegen) = {
     action: { }
   };
 

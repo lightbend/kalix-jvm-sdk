@@ -18,7 +18,7 @@ package kalix.javasdk.impl.replicatedentity
 
 import kalix.javasdk.replicatedentity.CartEntity
 import kalix.javasdk.replicatedentity.CartEntityProvider
-import com.akkaserverless.protocol.replicated_entity.ReplicatedEntityDelta
+import kalix.protocol.replicated_entity.ReplicatedEntityDelta
 import kalix.testkit.TestProtocol
 import kalix.testkit.replicatedentity.ReplicatedEntityMessages
 import org.scalatest.BeforeAndAfterAll

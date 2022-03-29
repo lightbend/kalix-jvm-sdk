@@ -17,14 +17,14 @@
 syntax = "proto3";
 package com.example.actions;
 
-import "akkaserverless/annotations.proto"; 
+import "kalix/annotations.proto";
 import "com/example/counter_api.proto"; // <1>
 import "google/protobuf/empty.proto";
 
 option java_outer_classname = "DoubleCounterApi";
 
 service DoubleCounter {
-  option (akkaserverless.codegen) = {
+  option (kalix.codegen) = {
     action: {}  // <2>
   };
 

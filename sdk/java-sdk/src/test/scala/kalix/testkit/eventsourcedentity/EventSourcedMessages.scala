@@ -16,9 +16,9 @@
 
 package kalix.testkit.eventsourcedentity
 
-import com.akkaserverless.protocol.component._
-import com.akkaserverless.protocol.entity.Command
-import com.akkaserverless.protocol.event_sourced_entity._
+import kalix.protocol.component._
+import kalix.protocol.entity.Command
+import kalix.protocol.event_sourced_entity._
 import kalix.testkit.entity.EntityMessages
 import com.google.protobuf.any.{ Any => ScalaPbAny }
 import com.google.protobuf.{ Message => JavaPbMessage }

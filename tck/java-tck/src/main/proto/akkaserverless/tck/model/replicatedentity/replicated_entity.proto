@@ -18,12 +18,12 @@
 
 syntax = "proto3";
 
-package akkaserverless.tck.model.replicatedentity;
+package kalix.tck.model.replicatedentity;
 
 option go_package = "github.com/lightbend/akkaserverless-go-sdk/tck/replicatedentity;replicatedentity";
 option java_package = "kalix.tck.model";
 
-import "akkaserverless/annotations.proto";
+import "kalix/annotations.proto";
 import "google/api/annotations.proto";
 
 //
@@ -72,7 +72,7 @@ service ReplicatedEntityConfigured {
 // Actions must be processed in order. Any actions after a `Fail` may be ignored.
 //
 message Request {
-  string id = 1 [(akkaserverless.field).entity_key = true];
+  string id = 1 [(kalix.field).entity_key = true];
   repeated RequestAction actions = 2;
 }
 
@@ -249,7 +249,7 @@ message VoteUpdate {
 message Delete {}
 
 //
-// Replace the response with a forward to `akkaserverless.tck.model.ReplicatedEntityTwo/Call`.
+// Replace the response with a forward to `kalix.tck.model.ReplicatedEntityTwo/Call`.
 // The payload must be an `OtherRequest` message with the given `id`.
 //
 message Forward {
@@ -264,7 +264,7 @@ message Fail {
 }
 
 //
-// Add a side effect to the reply, to `akkaserverless.tck.model.ReplicatedEntityTwo/Call`.
+// Add a side effect to the reply, to `kalix.tck.model.ReplicatedEntityTwo/Call`.
 // The payload must be an `OtherRequest` message with the given `id`.
 // The side effect should be marked synchronous based on the given `synchronous` value.
 //

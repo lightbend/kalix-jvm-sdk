@@ -19,7 +19,7 @@ package kalix.javasdk.impl
 import java.time.Instant
 
 import kalix.javasdk.Metadata
-import com.akkaserverless.protocol.component.MetadataEntry
+import kalix.protocol.component.MetadataEntry
 import org.scalatest.OptionValues
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec

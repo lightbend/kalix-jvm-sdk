@@ -16,9 +16,8 @@
 
 package kalix.javasdk.impl
 
-import kalix.javasdk.JsonSupport
-import com.akkaserverless.protocol.discovery.{ DiscoveryProto, UserFunctionError }
-import com.akkaserverless.protocol.event_sourced_entity.EventSourcedEntityProto
+import kalix.protocol.discovery.{ DiscoveryProto, UserFunctionError }
+import kalix.protocol.event_sourced_entity.EventSourcedEntityProto
 import com.example.shoppingcart.ShoppingCartApi
 import com.google.protobuf.{ ByteString, Empty }
 import com.google.protobuf.{ Any => JavaPbAny }
@@ -56,7 +55,7 @@ class AnySupportSpec extends AnyWordSpec with Matchers with OptionValues {
     "support se/deserializing scala protobufs" in {
       val error = UserFunctionError("error")
       val any = anySupport.encodeScala(UserFunctionError("error"))
-      any.typeUrl should ===("com.example/akkaserverless.protocol.UserFunctionError")
+      any.typeUrl should ===("com.example/kalix.protocol.UserFunctionError")
 
       val decoded = anySupport.decodePossiblyPrimitive(any)
       decoded.getClass should ===(error.getClass)
@@ -84,11 +83,11 @@ class AnySupportSpec extends AnyWordSpec with Matchers with OptionValues {
 
     def testPrimitive[T](name: String, value: T, defaultValue: T) = {
       val any = anySupport.encodeScala(value)
-      any.typeUrl should ===(AnySupport.AkkaServerlessPrimitive + name)
+      any.typeUrl should ===(AnySupport.KalixPrimitive + name)
       anySupport.decodePossiblyPrimitive(any) should ===(value)
 
       val defaultAny = anySupport.encodeScala(defaultValue)
-      defaultAny.typeUrl should ===(AnySupport.AkkaServerlessPrimitive + name)
+      defaultAny.typeUrl should ===(AnySupport.KalixPrimitive + name)
       defaultAny.value.size() shouldBe 0
       anySupport.decodePossiblyPrimitive(defaultAny) should ===(defaultValue)
     }
@@ -105,15 +104,15 @@ class AnySupportSpec extends AnyWordSpec with Matchers with OptionValues {
     "deserialize json into StringValue" in {
       val jsonText = """{"such":"json"}"""
       val any =
-        ScalaPbAny("json.akkaserverless.com/suffix", AnySupport.encodePrimitiveBytes(ByteString.copyFromUtf8(jsonText)))
+        ScalaPbAny("json.kalix.io/suffix", AnySupport.encodePrimitiveBytes(ByteString.copyFromUtf8(jsonText)))
       // both as top level message
       val decoded = anySupport.decodeMessage(any)
       decoded shouldBe a[JavaPbAny]
-      decoded.asInstanceOf[JavaPbAny].getTypeUrl should ===("json.akkaserverless.com/suffix")
+      decoded.asInstanceOf[JavaPbAny].getTypeUrl should ===("json.kalix.io/suffix")
       decoded.asInstanceOf[JavaPbAny].getValue should ===(
         ByteStringEncoding.encodePrimitiveBytes(ByteString.copyFromUtf8(jsonText)))
       val decoded2 = anySupport.decodePossiblyPrimitive(any)
-      decoded2.asInstanceOf[JavaPbAny].getTypeUrl should ===("json.akkaserverless.com/suffix")
+      decoded2.asInstanceOf[JavaPbAny].getTypeUrl should ===("json.kalix.io/suffix")
       decoded2.asInstanceOf[JavaPbAny].getValue should ===(
         ByteStringEncoding.encodePrimitiveBytes(ByteString.copyFromUtf8(jsonText)))
     }
@@ -121,7 +120,7 @@ class AnySupportSpec extends AnyWordSpec with Matchers with OptionValues {
     "deserialize text into StringValue" in {
       val plainText = "some text"
       val any =
-        ScalaPbAny("p.akkaserverless.com/string", AnySupport.encodePrimitiveBytes(ByteString.copyFromUtf8(plainText)))
+        ScalaPbAny("p.kalix.io/string", AnySupport.encodePrimitiveBytes(ByteString.copyFromUtf8(plainText)))
       // both as top level message
       val decoded = anySupport.decodeMessage(any)
       decoded shouldBe a[com.google.protobuf.StringValue]
@@ -133,7 +132,7 @@ class AnySupportSpec extends AnyWordSpec with Matchers with OptionValues {
     "deserialize bytes into BytesValue" in {
       val bytes = "some texty bytes"
       val any =
-        ScalaPbAny("p.akkaserverless.com/bytes", AnySupport.encodePrimitiveBytes(ByteString.copyFromUtf8(bytes)))
+        ScalaPbAny("p.kalix.io/bytes", AnySupport.encodePrimitiveBytes(ByteString.copyFromUtf8(bytes)))
       // both as top level message
       val decoded = anySupport.decodeMessage(any)
       decoded shouldBe a[com.google.protobuf.BytesValue]
@@ -163,17 +162,17 @@ class AnySupportSpec extends AnyWordSpec with Matchers with OptionValues {
     "pass on json as is" in {
       val jsonText = """{"such":"json"}"""
       val any =
-        ScalaPbAny("json.akkaserverless.com/suffix", AnySupport.encodePrimitiveBytes(ByteString.copyFromUtf8(jsonText)))
+        ScalaPbAny("json.kalix.io/suffix", AnySupport.encodePrimitiveBytes(ByteString.copyFromUtf8(jsonText)))
       // both as top level message
       val decoded = anySupportScala.decodeMessage(any)
       decoded shouldBe a[ScalaPbAny]
       // kept to allow user to distinguish different messages based on suffix
-      decoded.asInstanceOf[ScalaPbAny].typeUrl should ===("json.akkaserverless.com/suffix")
+      decoded.asInstanceOf[ScalaPbAny].typeUrl should ===("json.kalix.io/suffix")
       decoded.asInstanceOf[ScalaPbAny].value should ===(
         ByteStringEncoding.encodePrimitiveBytes(ByteString.copyFromUtf8(jsonText)))
 
       val decoded2 = anySupportScala.decodePossiblyPrimitive(any)
-      decoded2.asInstanceOf[ScalaPbAny].typeUrl should ===("json.akkaserverless.com/suffix")
+      decoded2.asInstanceOf[ScalaPbAny].typeUrl should ===("json.kalix.io/suffix")
       decoded2.asInstanceOf[ScalaPbAny].value should ===(
         ByteStringEncoding.encodePrimitiveBytes(ByteString.copyFromUtf8(jsonText)))
 
@@ -182,7 +181,7 @@ class AnySupportSpec extends AnyWordSpec with Matchers with OptionValues {
     "deserialize text into StringValue" in {
       val plainText = "some text"
       val any =
-        ScalaPbAny("p.akkaserverless.com/string", AnySupport.encodePrimitiveBytes(ByteString.copyFromUtf8(plainText)))
+        ScalaPbAny("p.kalix.io/string", AnySupport.encodePrimitiveBytes(ByteString.copyFromUtf8(plainText)))
       // both as top level message
       val decoded = anySupportScala.decodeMessage(any)
       decoded shouldBe a[com.google.protobuf.wrappers.StringValue]
@@ -194,7 +193,7 @@ class AnySupportSpec extends AnyWordSpec with Matchers with OptionValues {
     "deserialize bytes into BytesValue" in {
       val bytes = "some texty bytes"
       val any =
-        ScalaPbAny("p.akkaserverless.com/bytes", AnySupport.encodePrimitiveBytes(ByteString.copyFromUtf8(bytes)))
+        ScalaPbAny("p.kalix.io/bytes", AnySupport.encodePrimitiveBytes(ByteString.copyFromUtf8(bytes)))
       // both as top level message
       val decoded = anySupportScala.decodeMessage(any)
       decoded shouldBe a[com.google.protobuf.wrappers.BytesValue]

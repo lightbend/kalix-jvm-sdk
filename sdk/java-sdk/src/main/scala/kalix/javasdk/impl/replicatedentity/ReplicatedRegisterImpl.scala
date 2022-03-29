@@ -20,9 +20,9 @@ import java.util.Objects
 
 import kalix.javasdk.impl.AnySupport
 import kalix.javasdk.replicatedentity.ReplicatedRegister
-import com.akkaserverless.protocol.replicated_entity.ReplicatedEntityClock
-import com.akkaserverless.protocol.replicated_entity.ReplicatedEntityDelta
-import com.akkaserverless.protocol.replicated_entity.ReplicatedRegisterDelta
+import kalix.protocol.replicated_entity.ReplicatedEntityClock
+import kalix.protocol.replicated_entity.ReplicatedEntityDelta
+import kalix.protocol.replicated_entity.ReplicatedRegisterDelta
 import kalix.replicatedentity.ReplicatedData
 import com.google.protobuf.any.{ Any => ScalaPbAny }
 

@@ -15,7 +15,7 @@
 syntax = "proto3";
 
 import "google/protobuf/empty.proto";
-import "akkaserverless/annotations.proto";
+import "kalix/annotations.proto";
 
 package com.example.replicated.registermap;
 
@@ -30,13 +30,13 @@ message Value {
 }
 
 message SetValue {
-  string register_map_id = 1 [(akkaserverless.field).entity_key = true];
+  string register_map_id = 1 [(kalix.field).entity_key = true];
   Key key = 2;
   Value value = 3;
 }
 
 message GetValue {
-  string register_map_id = 1 [(akkaserverless.field).entity_key = true];
+  string register_map_id = 1 [(kalix.field).entity_key = true];
   Key key = 2;
 }
 
@@ -46,7 +46,7 @@ message CurrentValue {
 }
 
 message GetAllValues {
-  string register_map_id = 1 [(akkaserverless.field).entity_key = true];
+  string register_map_id = 1 [(kalix.field).entity_key = true];
 }
 
 message CurrentValues {
@@ -54,7 +54,7 @@ message CurrentValues {
 }
 
 service RegisterMapService {
-  option (akkaserverless.codegen) = {
+  option (kalix.codegen) = {
     replicated_entity: {
       name: ".domain.SomeRegisterMap"
       entity_type: "some-register-map"
@@ -72,7 +72,7 @@ service RegisterMapService {
 }
 
 service ScalarRegisterMapService {
-  option (akkaserverless.codegen) = {
+  option (kalix.codegen) = {
     replicated_entity: {
       name: ".domain.SomeScalarRegisterMap"
       entity_type: "some-scalar-register-map"

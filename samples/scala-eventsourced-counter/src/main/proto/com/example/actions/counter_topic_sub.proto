@@ -16,23 +16,23 @@
 syntax = "proto3";
 package com.example.actions;
 
-import "akkaserverless/annotations.proto"; 
+import "kalix/annotations.proto";
 import "com/example/actions/counter_topic.proto"; // <1>
 import "google/protobuf/empty.proto";
 
 service CounterTopicSubscription {
-  option (akkaserverless.codegen) = { 
+  option (kalix.codegen) = {
     action: {}  // <2>
   };
-  
+
   rpc Increase (com.example.actions.Increased) returns (google.protobuf.Empty) {
-    option (akkaserverless.method).eventing.in = { // <3>
+    option (kalix.method).eventing.in = { // <3>
       topic:  "counter-events"
     };
-  } 
-  
-  rpc Decrease (com.example.actions.Decreased) returns (google.protobuf.Empty) { 
-    option (akkaserverless.method).eventing.in = { 
+  }
+
+  rpc Decrease (com.example.actions.Decreased) returns (google.protobuf.Empty) {
+    option (kalix.method).eventing.in = {
       topic:  "counter-events"
     };
   }

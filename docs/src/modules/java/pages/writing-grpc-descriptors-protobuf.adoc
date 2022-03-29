@@ -42,7 +42,7 @@ You define messages that can be sent to or returned from the service.
 
 ==== Messages for entities
 
-Each input message for an Entity that is input to a RPC command, *must* be associated with an Entity key, so that Akka Serverless can identify which entity the message is for. In the example, this includes `AddLineItem`, `RemoveLineItem`, and `GetShoppingCart` where the `user_id` is the `(akkaserverless.field).entity_key`. Akka Serverless extracts the value of these fields in order to route messages to the right Entity. If more than one field is specified as an Entity key, the fields are concatenated together. Akka Serverless serializes Entity keys to strings.
+Each input message for an Entity that is input to a RPC command, *must* be associated with an Entity key, so that Akka Serverless can identify which entity the message is for. In the example, this includes `AddLineItem`, `RemoveLineItem`, and `GetShoppingCart` where the `user_id` is the `(kalix.field).entity_key`. Akka Serverless extracts the value of these fields in order to route messages to the right Entity. If more than one field is specified as an Entity key, the fields are concatenated together. Akka Serverless serializes Entity keys to strings.
 
 .src/main/proto/com/example/shoppingcart/shoppingcart_api.proto
 [source,proto]
@@ -56,19 +56,19 @@ To use a multi-field key, add the `entity_key` notation to each field. For examp
 [source,proto]
 ----
 message SomeMessage {
-  string first_field = 1 [(akkaserverless.field).entity_key = true];
-  string second_field = 2 [(akkaserverless.field).entity_key = true];
-}  
+  string first_field = 1 [(kalix.field).entity_key = true];
+  string second_field = 2 [(kalix.field).entity_key = true];
+}
 ----
 
 ==== Generated entity keys
 
-In some cases, you may wish to generate an Entity key, this is typically done when an RPC method creates an entity, and the key is a surrogate key. To indicate to Akka Serverless that an Entity key should be generated, the incoming message must not have any `(akkaserverless.field).entity_key` annotated field. Instead, the rpc method should be annotated with `(akkaserverless.method).entity.key_generator`, for example:
+In some cases, you may wish to generate an Entity key, this is typically done when an RPC method creates an entity, and the key is a surrogate key. To indicate to Akka Serverless that an Entity key should be generated, the incoming message must not have any `(kalix.field).entity_key` annotated field. Instead, the rpc method should be annotated with `(kalix.method).entity.key_generator`, for example:
 
 [source,proto]
 ----
 rpc CreateCart(CreateCartRequest) returns (CreateCartResponse) {
-  option (akkaserverless.method).entity.key_generator = VERSION_4_UUID;
+  option (kalix.method).entity.key_generator = VERSION_4_UUID;
 };
 ----
 

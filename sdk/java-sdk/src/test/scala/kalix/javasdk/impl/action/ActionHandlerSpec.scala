@@ -33,10 +33,10 @@ import kalix.javasdk.impl.DeferredCallImpl
 import kalix.javasdk.impl.MetadataImpl
 import kalix.javasdk.impl.ResolvedServiceMethod
 import kalix.javasdk.impl.effect.SideEffectImpl
-import com.akkaserverless.protocol.action.ActionCommand
-import com.akkaserverless.protocol.action.ActionResponse
-import com.akkaserverless.protocol.action.Actions
-import com.akkaserverless.protocol.component.Reply
+import kalix.protocol.action.ActionCommand
+import kalix.protocol.action.ActionResponse
+import kalix.protocol.action.Actions
+import kalix.protocol.component.Reply
 import com.google.protobuf
 import com.google.protobuf.any.{ Any => ScalaPbAny }
 import com.typesafe.config.ConfigFactory

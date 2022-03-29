@@ -20,9 +20,9 @@ import scala.jdk.CollectionConverters._
 
 import kalix.javasdk.impl.AnySupport
 import kalix.javasdk.replicatedentity.ReplicatedCounterMap
-import com.akkaserverless.protocol.replicated_entity.ReplicatedCounterMapDelta
-import com.akkaserverless.protocol.replicated_entity.ReplicatedCounterMapEntryDelta
-import com.akkaserverless.protocol.replicated_entity.ReplicatedEntityDelta
+import kalix.protocol.replicated_entity.ReplicatedCounterMapDelta
+import kalix.protocol.replicated_entity.ReplicatedCounterMapEntryDelta
+import kalix.protocol.replicated_entity.ReplicatedEntityDelta
 import kalix.replicatedentity.ReplicatedData
 
 private[kalix] final class ReplicatedCounterMapImpl[K](

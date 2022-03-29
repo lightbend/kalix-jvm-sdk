@@ -16,13 +16,13 @@ syntax = "proto3";
 
 package com.example.action;
 
-import "akkaserverless/annotations.proto";
+import "kalix/annotations.proto";
 
 message Request {}
 message Response {}
 
 service AllCommandsAction {
-  option (akkaserverless.codegen) = {
+  option (kalix.codegen) = {
     action: { }
   };
 

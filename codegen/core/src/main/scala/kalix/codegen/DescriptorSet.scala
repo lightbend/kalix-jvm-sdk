@@ -61,7 +61,7 @@ object DescriptorSet {
   @SuppressWarnings(Array("org.wartremover.warts.Throw"))
   def descriptors(is: InputStream): Either[CannotOpen, Either[ReadFailure, Iterable[Descriptors.FileDescriptor]]] = {
     val registry = ExtensionRegistry.newInstance()
-    com.akkaserverless.Annotations.registerAllExtensions(registry)
+    kalix.Annotations.registerAllExtensions(registry)
 
     Right(try {
       val descriptorProtos =

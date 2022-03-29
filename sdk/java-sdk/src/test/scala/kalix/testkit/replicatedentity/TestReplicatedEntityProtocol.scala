@@ -19,7 +19,7 @@ package kalix.testkit.replicatedentity
 import akka.stream.scaladsl.Source
 import akka.stream.testkit.TestPublisher
 import akka.stream.testkit.scaladsl.TestSink
-import com.akkaserverless.protocol.replicated_entity._
+import kalix.protocol.replicated_entity._
 import kalix.testkit.TestProtocol.TestProtocolContext
 
 import scala.collection.immutable.Seq

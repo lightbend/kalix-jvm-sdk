@@ -19,7 +19,7 @@ package kalix.scalasdk.replicatedentity
 import scala.collection.immutable.Set
 
 import kalix.javasdk.impl.replicatedentity.ReplicatedCounterMapImpl
-import com.akkaserverless.protocol.replicated_entity.ReplicatedEntityDelta
+import kalix.protocol.replicated_entity.ReplicatedEntityDelta
 
 /**
  * A Map of counters. Uses [[ReplicatedCounter]] 's as values.

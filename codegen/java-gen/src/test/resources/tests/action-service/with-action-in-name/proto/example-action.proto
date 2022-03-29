@@ -16,13 +16,13 @@ syntax = "proto3";
 package org.example.service;
 
 import "google/protobuf/empty.proto";
-import "akkaserverless/annotations.proto";
+import "kalix/annotations.proto";
 
 option java_outer_classname = "ServiceOuterClass";
 
 // to test that we generate a reasonable name
 service MyServiceAction {
-  option (akkaserverless.service) = {
+  option (kalix.service) = {
     type : SERVICE_TYPE_ACTION
   };
 

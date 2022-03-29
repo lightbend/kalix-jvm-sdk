@@ -17,15 +17,15 @@
 syntax = "proto3";
 package com.example.actions;
 
-import "akkaserverless/annotations.proto"; 
+import "kalix/annotations.proto";
 import "com/example/counter_api.proto"; // <1>
 import "google/protobuf/empty.proto";
 
 service DoubleCounter {
-  option (akkaserverless.codegen) = {
+  option (kalix.codegen) = {
     action: {}  // <2>
   };
-  
+
   rpc Increase (com.example.IncreaseValue) returns (google.protobuf.Empty); // <3>
 // end::double-action-proto[]
 

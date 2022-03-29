@@ -16,7 +16,7 @@ syntax = "proto3";
 
 package com.example.replicated.countermap.domain;
 
-import "akkaserverless/annotations.proto";
+import "kalix/annotations.proto";
 
 option java_outer_classname = "SomeCounterMapDomain";
 

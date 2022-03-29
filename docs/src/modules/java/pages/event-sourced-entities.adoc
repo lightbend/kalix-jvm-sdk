@@ -58,10 +58,10 @@ include::example$java-eventsourced-shopping-cart/src/main/proto/com/example/shop
 <2> Import the Akka Serverless protobuf annotations or options.
 <3> Let the messages declared in this protobuf file be inner classes to the Java class `ShoppingCartApi`.
 <4> We use protobuf messages to describe the Commands that our service handles. They may contain other messages to represent structured data.
-<5> Every Command must contain a `string` field that contains the entity ID and is marked with the `(akkaserverless.field).entity_key` option.
+<5> Every Command must contain a `string` field that contains the entity ID and is marked with the `(kalix.field).entity_key` option.
 <6> Messages describe the return value for our API. For methods that don't have return values, we use `google.protobuf.Empty`.
 <7> The service descriptor shows the API of the entity. It lists the methods a client can use to issue Commands to the entity.
-<8> The protobuf option `(akkaserverless.codegen)`  is specific to code-generation as provided by the Akka Serverless Maven plugin.
+<8> The protobuf option `(kalix.codegen)`  is specific to code-generation as provided by the Akka Serverless Maven plugin.
 <9> `event_sourced_entity` indicates that we want the codegen to generate an Event Sourced Entity for this service.
 <10> `name` denotes the base name for the Event Sourced Entity, the code-generation will create initial sources `ShoppingCart`, `ShoppingCartTest` and `ShoppingCartIntegrationTest`. Once these files exist, they are not overwritten, so you can freely add logic to them.
 <11> `entity_type` is a unique identifier of the "state storage". The entity name may be changed even after data has been created, the `entity_type` can't.
@@ -79,10 +79,10 @@ include::example$scala-eventsourced-shopping-cart/src/main/proto/com/example/sho
 <1> Any classes generated from this protobuf file will be in the Scala package `com.example.shoppingcart`.
 <2> Import the Akka Serverless protobuf annotations or options.
 <3> We use protobuf messages to describe the Commands that our service handles. They may contain other messages to represent structured data.
-<4> Every Command must contain a `string` field that contains the entity ID and is marked with the `(akkaserverless.field).entity_key` option.
+<4> Every Command must contain a `string` field that contains the entity ID and is marked with the `(kalix.field).entity_key` option.
 <5> Messages describe the return value for our API. For methods that don't have return values, we use `google.protobuf.Empty`.
 <6> The service descriptor shows the API of the entity. It lists the methods a client can use to issue Commands to the entity.
-<7> The protobuf option `(akkaserverless.codegen)`  is specific to code-generation as provided by the Akka Serverless sbt plugin.
+<7> The protobuf option `(kalix.codegen)`  is specific to code-generation as provided by the Akka Serverless sbt plugin.
 <8> `event_sourced_entity` indicates that we want the codegen to generate an Event Sourced Entity for this service.
 <9> `name` denotes the base name for the Event Sourced Entity, the code-generation will create initial sources `ShoppingCart`, `ShoppingCartTest` and `ShoppingCartIntegrationTest`. Once these files exist, they are not overwritten, so you can freely add logic to them.
 <10> `entity_type` is a unique identifier of the "state storage". The entity name may be changed even after data has been created, the `entity_type` can't.
@@ -155,7 +155,7 @@ include::example$scala-eventsourced-shopping-cart/src/main/scala/com/example/sho
 <3> We store the event by returning an `Effect` with `effects.emitEvent`.
 <4> The acknowledgment that the command was successfully processed is only sent if the event was successfully stored, otherwise there will be an error reply.
 
-The new state is created from the event and the previous state in the event handler. Event handlers are implemented in the `ShoppingCart` class as methods that override abstract methods from `AbstractShoppingCart`. Event handlers are generated for each event declared in  `(akkaserverless.codegen).event_sourced_entity.events`.
+The new state is created from the event and the previous state in the event handler. Event handlers are implemented in the `ShoppingCart` class as methods that override abstract methods from `AbstractShoppingCart`. Event handlers are generated for each event declared in  `(kalix.codegen).event_sourced_entity.events`.
 
 [.tabset]
 Java::
@@ -243,7 +243,7 @@ include::example$java-eventsourced-shopping-cart/src/main/resources/application.
 
 When the Event Sourced Entity is loaded again, the snapshot will be loaded before any other events are received.
 
-== Testing the Entity 
+== Testing the Entity
 
 The following snippet shows how the `ShoppingCartTestKit` is used to test the `ShoppingCart` implementation. AkkaServerless provides two main APIs for unit tests, the `ShoppingCartTestKit` and the `EventSourcedResult`. The former gives us the overall state of the entity. Its state and all the events produced by all the calls to the Entity. While the latter only holds the effects produced for each individual call to the Entity.
 
@@ -253,7 +253,7 @@ Java::
 .src/test/java/com/example/shoppingcart/domain/ShoppingCartTest.java
 [source,java]
 ----
-include::example$java-eventsourced-shopping-cart/src/test/java/com/example/shoppingcart/domain/ShoppingCartTest.java[] 
+include::example$java-eventsourced-shopping-cart/src/test/java/com/example/shoppingcart/domain/ShoppingCartTest.java[]
 ----
 <1> creating the TestKit passing the constructor of the Entity.
 <2> calling the method `addItem` from the Entity in the `ShoppingCartTestKit`.

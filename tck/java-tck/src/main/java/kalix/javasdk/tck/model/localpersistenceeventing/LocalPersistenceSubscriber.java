@@ -127,7 +127,7 @@ public class LocalPersistenceSubscriber extends Action {
     return new DeferredCallImpl<>(
         effectRequest,
         MetadataImpl.Empty(),
-        "akkaserverless.tck.model.eventing.LocalPersistenceSubscriberModel",
+        "kalix.tck.model.eventing.LocalPersistenceSubscriberModel",
         "Effect",
         () ->
             ((InternalContext) actionContext())

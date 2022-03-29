@@ -32,7 +32,7 @@ Java::
 include::example$java-valueentity-counter/src/main/proto/com/example/actions/double-counter.proto[tag=whole-double-action-proto]
 ----
 <1> Import the Counter API definition
-<2> The protobuf option (akkaserverless.codegen) is specific to code-generation as provided by the Akka Serverless Maven plugin. This annotation indicates to the code-generation that an Action must be generated.
+<2> The protobuf option (kalix.codegen) is specific to code-generation as provided by the Akka Serverless Maven plugin. This annotation indicates to the code-generation that an Action must be generated.
 <3> The Action mimics the Counter API with a forward
 <4> The Action mimics the Counter API with a side effect
 
@@ -44,7 +44,7 @@ Scala::
 include::example$scala-valueentity-counter/src/main/proto/com/example/actions/double-counter.proto[tag=whole-double-action-proto]
 ----
 <1> Import the Counter API definition
-<2> The protobuf option (akkaserverless.codegen) is specific to code-generation as provided by the Akka Serverless Maven plugin. This annotation indicates to the code-generation that an Action must be generated.
+<2> The protobuf option (kalix.codegen) is specific to code-generation as provided by the Akka Serverless Maven plugin. This annotation indicates to the code-generation that an Action must be generated.
 <3> The Action mimics the Counter API with a forward
 <4> The Action mimics the Counter API with a side effect
 

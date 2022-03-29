@@ -2,10 +2,10 @@ import sbt._
 import sbt.Keys._
 
 object Dependencies {
-  object AkkaServerless {
+  object Kalix {
     val ProtocolVersionMajor = 0
-    val ProtocolVersionMinor = 8
-    val FrameworkVersion = "0.8.10"
+    val ProtocolVersionMinor = 10
+    val FrameworkVersion = "0.10.0-M2"
   }
 
   // changing the Scala version of the Java SDK affects end users
@@ -31,9 +31,9 @@ object Dependencies {
   val MunitVersion = "0.7.20"
   val ScoptVersions = "4.0.0"
 
-  val akkaslsProxyProtocol = "com.akkaserverless" % "akkaserverless-proxy-protocol" % AkkaServerless.FrameworkVersion
-  val akkaslsSdkProtocol = "com.akkaserverless" % "akkaserverless-sdk-protocol" % AkkaServerless.FrameworkVersion
-  val akkaslsTckProtocol = "com.akkaserverless" % "akkaserverless-tck-protocol" % AkkaServerless.FrameworkVersion
+  val akkaslsProxyProtocol = "com.akkaserverless" % "kalix-proxy-protocol" % Kalix.FrameworkVersion
+  val akkaslsSdkProtocol = "com.akkaserverless" % "kalix-sdk-protocol" % Kalix.FrameworkVersion
+  val akkaslsTckProtocol = "com.akkaserverless" % "kalix-tck-protocol" % Kalix.FrameworkVersion
 
   val commonsIo = "commons-io" % "commons-io" % CommonsIoVerison
   val logback = "ch.qos.logback" % "logback-classic" % LogbackVersion

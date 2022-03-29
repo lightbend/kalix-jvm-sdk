@@ -24,9 +24,9 @@ import scala.jdk.CollectionConverters._
 
 import kalix.javasdk.impl.AnySupport
 import kalix.javasdk.replicatedentity.ReplicatedMultiMap
-import com.akkaserverless.protocol.replicated_entity.ReplicatedEntityDelta
-import com.akkaserverless.protocol.replicated_entity.ReplicatedMultiMapDelta
-import com.akkaserverless.protocol.replicated_entity.ReplicatedMultiMapEntryDelta
+import kalix.protocol.replicated_entity.ReplicatedEntityDelta
+import kalix.protocol.replicated_entity.ReplicatedMultiMapDelta
+import kalix.protocol.replicated_entity.ReplicatedMultiMapEntryDelta
 import kalix.replicatedentity.ReplicatedData
 
 private[kalix] final class ReplicatedMultiMapImpl[K, V](

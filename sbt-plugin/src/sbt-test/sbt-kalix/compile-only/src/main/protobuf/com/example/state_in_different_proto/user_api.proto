@@ -16,20 +16,20 @@
 syntax = "proto3";
 
 import "google/protobuf/empty.proto";
-import "akkaserverless/annotations.proto";
+import "kalix/annotations.proto";
 
 package com.example.state_in_different_proto;
 
 option java_outer_classname = "UserApi";
 
 message CreateUser {
-  string user_id = 1 [(akkaserverless.field).entity_key = true];
+  string user_id = 1 [(kalix.field).entity_key = true];
   string name = 2;
 }
 
 
 message GetUser {
-  string user_id = 1 [(akkaserverless.field).entity_key = true];
+  string user_id = 1 [(kalix.field).entity_key = true];
 }
 
 message CurrentUser {
@@ -38,7 +38,7 @@ message CurrentUser {
 
 service UserService {
 
-  option (akkaserverless.codegen) = {
+  option (kalix.codegen) = {
     value_entity: {
       // entity is generated in package com.example.state_in_different_proto.domain
       name: ".domain.User"

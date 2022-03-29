@@ -17,10 +17,10 @@
 package kalix.javasdk.impl
 
 import kalix.javasdk.{ eventsourcedentity, valueentity }
-import com.akkaserverless.protocol.entity.Command
-import com.akkaserverless.protocol.event_sourced_entity.EventSourcedInit
-import com.akkaserverless.protocol.replicated_entity.ReplicatedEntityInit
-import com.akkaserverless.protocol.value_entity.ValueEntityInit
+import kalix.protocol.entity.Command
+import kalix.protocol.event_sourced_entity.EventSourcedInit
+import kalix.protocol.replicated_entity.ReplicatedEntityInit
+import kalix.protocol.value_entity.ValueEntityInit
 
 object EntityExceptions {
 

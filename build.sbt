@@ -1,4 +1,4 @@
-import Dependencies.AkkaServerless
+import Dependencies.Kalix
 
 lazy val `kalix-jvm-sdk` = project
   .in(file("."))
@@ -47,8 +47,8 @@ lazy val sdkJava = project
     buildInfoKeys := Seq[BuildInfoKey](
       name,
       version,
-      "protocolMajorVersion" -> AkkaServerless.ProtocolVersionMajor,
-      "protocolMinorVersion" -> AkkaServerless.ProtocolVersionMinor,
+      "protocolMajorVersion" -> Kalix.ProtocolVersionMajor,
+      "protocolMinorVersion" -> Kalix.ProtocolVersionMinor,
       "scalaVersion" -> scalaVersion.value),
     buildInfoPackage := "kalix.javasdk",
     // Generate javadocs by just including non generated Java sources
@@ -89,8 +89,8 @@ lazy val sdkScala = project
     buildInfoKeys := Seq[BuildInfoKey](
       name,
       version,
-      "protocolMajorVersion" -> AkkaServerless.ProtocolVersionMajor,
-      "protocolMinorVersion" -> AkkaServerless.ProtocolVersionMinor,
+      "protocolMajorVersion" -> Kalix.ProtocolVersionMajor,
+      "protocolMinorVersion" -> Kalix.ProtocolVersionMinor,
       "scalaVersion" -> scalaVersion.value),
     buildInfoPackage := "kalix.scalasdk",
     Compile / akkaGrpcGeneratedSources := Seq(AkkaGrpc.Server),
@@ -115,8 +115,8 @@ lazy val sdkScalaTestKit = project
     buildInfoKeys := Seq[BuildInfoKey](
       name,
       version,
-      "protocolMajorVersion" -> AkkaServerless.ProtocolVersionMajor,
-      "protocolMinorVersion" -> AkkaServerless.ProtocolVersionMinor,
+      "protocolMajorVersion" -> Kalix.ProtocolVersionMajor,
+      "protocolMinorVersion" -> Kalix.ProtocolVersionMinor,
       "scalaVersion" -> scalaVersion.value),
     buildInfoPackage := "kalix.scalasdk.testkit",
     inTask(doc)(
@@ -158,8 +158,8 @@ lazy val sdkJavaTestKit = project
     buildInfoKeys := Seq[BuildInfoKey](
       name,
       version,
-      "proxyImage" -> "gcr.io/akkaserverless-public/akkaserverless-proxy",
-      "proxyVersion" -> AkkaServerless.FrameworkVersion,
+      "proxyImage" -> "gcr.io/akkaserverless-public/kalix-proxy",
+      "proxyVersion" -> Kalix.FrameworkVersion,
       "scalaVersion" -> scalaVersion.value),
     buildInfoPackage := "kalix.javasdk.testkit",
     // Produce javadoc by restricting to Java sources only -- no genjavadoc setup currently
@@ -307,7 +307,7 @@ lazy val codegenScala =
         version,
         scalaVersion,
         sbtVersion,
-        "protocolVersion" -> AkkaServerless.FrameworkVersion,
+        "protocolVersion" -> Kalix.FrameworkVersion,
         BuildInfoKey(PB.protocExecutable),
         BuildInfoKey(codegenCore / PB.externalIncludePath),
         BuildInfoKey(codegenCore / PB.externalSourcePath),

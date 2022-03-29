@@ -16,10 +16,10 @@ syntax = "proto3";
 
 package com.example.replicated.registermap.domain;
 
-import "akkaserverless/annotations.proto";
+import "kalix/annotations.proto";
 
 // tag::replicated_entity[]
-option (akkaserverless.file).replicated_entity = {
+option (kalix.file).replicated_entity = {
   name: "SomeRegisterMap"
   entity_type: "some-register-map"
   replicated_register_map: { // <1>

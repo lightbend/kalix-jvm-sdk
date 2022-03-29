@@ -17,7 +17,7 @@
 package kalix.javasdk.impl
 
 import kalix.javasdk.{ CloudEvent, JwtClaims, Metadata }
-import com.akkaserverless.protocol.component.MetadataEntry
+import kalix.protocol.component.MetadataEntry
 import com.google.protobuf.ByteString
 import java.net.URI
 import java.nio.ByteBuffer

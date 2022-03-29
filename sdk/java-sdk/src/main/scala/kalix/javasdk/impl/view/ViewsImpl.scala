@@ -28,7 +28,7 @@ import kalix.javasdk.{ Context, Metadata }
 import kalix.javasdk.impl._
 import kalix.javasdk.view.ViewCreationContext
 import kalix.javasdk.view.{ UpdateContext, View, ViewContext }
-import com.akkaserverless.protocol.{ view => pv }
+import kalix.protocol.{ view => pv }
 import com.google.protobuf.Descriptors
 import com.google.protobuf.any.{ Any => ScalaPbAny }
 import org.slf4j.LoggerFactory
@@ -112,10 +112,8 @@ final class ViewsImpl(system: ActorSystem, _services: Map[String, ViewService], 
                 case ViewUpdateEffectImpl.Update(newState) =>
                   if (newState == null)
                     throw ViewException(context, "updateState with null state is not allowed.", None)
-                  val table = receiveEvent.initialTable
-                  val key = receiveEvent.key
                   val serializedState = ScalaPbAny.fromJavaProto(service.anySupport.encodeJava(newState))
-                  val upsert = pv.Upsert(Some(pv.Row(table, key, Some(serializedState))))
+                  val upsert = pv.Upsert(Some(pv.Row(value = Some(serializedState))))
                   val out = pv.ViewStreamOut(pv.ViewStreamOut.Message.Upsert(upsert))
                   Source.single(out)
                 case i if i == ViewUpdateEffectImpl.Ignore =>

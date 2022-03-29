@@ -18,7 +18,7 @@ package kalix.scalasdk.replicatedentity
 
 import kalix.javasdk.impl.replicatedentity.ReplicatedRegisterImpl
 import kalix.javasdk.replicatedentity.{ ReplicatedRegister => JavaSdkReplicatedRegister }
-import com.akkaserverless.protocol.replicated_entity.ReplicatedEntityDelta
+import kalix.protocol.replicated_entity.ReplicatedEntityDelta
 
 object ReplicatedRegister {
   sealed trait Clock

@@ -20,7 +20,7 @@ import kalix.javasdk.{ DeferredCall, Metadata, SideEffect }
 import kalix.javasdk.impl.AnySupport
 import kalix.javasdk.impl.DeferredCallImpl
 import kalix.javasdk.impl.effect
-import com.akkaserverless.protocol.component.ClientAction
+import kalix.protocol.component.ClientAction
 import com.google.protobuf.{ Any => JavaPbAny }
 import io.grpc.Status
 
@@ -41,7 +41,7 @@ sealed trait SecondaryEffectImpl {
         Some(
           ClientAction(
             ClientAction.Action
-              .Failure(com.akkaserverless.protocol.component
+              .Failure(kalix.protocol.component
                 .Failure(commandId, failure.description, grpcStatusCode = failure.status.map(_.value()).getOrElse(0)))))
       case _: effect.NoReply[_] @unchecked | effect.NoSecondaryEffectImpl =>
         if (allowNoReply) {

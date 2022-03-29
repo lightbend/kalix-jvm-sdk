@@ -34,6 +34,7 @@ object CommonSettings extends AutoPlugin {
       scalafmtOnCompile := true,
       javafmtOnCompile := true,
       scalaVersion := Dependencies.ScalaVersion,
+      resolvers += "Sonatype snapshots".at("https://s01.oss.sonatype.org/content/repositories/snapshots/"),
       run / javaOptions ++= {
         sys.props.collect { case (key, value) if key.startsWith("akka") => s"-D$key=$value" }(breakOut)
       }) ++ (

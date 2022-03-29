@@ -17,8 +17,8 @@
 package kalix.javasdk.impl.replicatedentity
 
 import kalix.javasdk.replicatedentity.ReplicatedVote
-import com.akkaserverless.protocol.replicated_entity.ReplicatedEntityDelta
-import com.akkaserverless.protocol.replicated_entity.VoteDelta
+import kalix.protocol.replicated_entity.ReplicatedEntityDelta
+import kalix.protocol.replicated_entity.VoteDelta
 import kalix.replicatedentity.ReplicatedData
 
 private[kalix] final class ReplicatedVoteImpl(

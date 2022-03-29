@@ -20,9 +20,9 @@ import akka.Done
 import akka.actor.{ ActorSystem, CoordinatedShutdown }
 import kalix.javasdk.replicatedentity.{ ReplicatedEntityOptions, WriteConsistency }
 import kalix.javasdk.{ BuildInfo, EntityOptions }
-import com.akkaserverless.protocol.action.Actions
-import com.akkaserverless.protocol.discovery.PassivationStrategy.Strategy
-import com.akkaserverless.protocol.discovery._
+import kalix.protocol.action.Actions
+import kalix.protocol.discovery.PassivationStrategy.Strategy
+import kalix.protocol.discovery._
 import com.google.protobuf.DescriptorProtos
 import com.google.protobuf.empty.Empty
 import org.slf4j.LoggerFactory
@@ -211,7 +211,7 @@ class DiscoveryImpl(system: ActorSystem, services: Map[String, Service]) extends
     }
 
   private def entityPassivationStrategy(maybeOptions: Option[EntityOptions]): Option[PassivationStrategy] = {
-    import com.akkaserverless.protocol.discovery.{ PassivationStrategy => EPStrategy }
+    import kalix.protocol.discovery.{ PassivationStrategy => EPStrategy }
     maybeOptions.flatMap { options =>
       options.passivationStrategy() match {
         case Timeout(maybeTimeout) =>

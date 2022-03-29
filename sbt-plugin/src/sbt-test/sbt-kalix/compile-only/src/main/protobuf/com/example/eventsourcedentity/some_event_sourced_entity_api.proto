@@ -16,7 +16,7 @@ syntax = "proto3";
 
 package com.example.eventsourcedentity;
 
-import "akkaserverless/annotations.proto";
+import "kalix/annotations.proto";
 
 option java_multiple_files = true;
 // no java_outer_classname option, will default to "SomeEventSourcedEntityApi"
@@ -25,7 +25,7 @@ message Request {}
 message Response {}
 
 service SomeEventSourcedEntityService {
-  option (akkaserverless.codegen) = {
+  option (kalix.codegen) = {
     event_sourced_entity: {
       name: ".domain.SomeEventSourcedEntity"
       entity_type: "some-event-sourced-entity"

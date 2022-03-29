@@ -20,8 +20,8 @@ import scala.jdk.CollectionConverters._
 
 import kalix.javasdk.impl.AnySupport
 import kalix.javasdk.replicatedentity.ReplicatedSet
-import com.akkaserverless.protocol.replicated_entity.ReplicatedEntityDelta
-import com.akkaserverless.protocol.replicated_entity.ReplicatedSetDelta
+import kalix.protocol.replicated_entity.ReplicatedEntityDelta
+import kalix.protocol.replicated_entity.ReplicatedSetDelta
 
 private[kalix] class ReplicatedSetImpl[E](
     anySupport: AnySupport,

@@ -22,9 +22,9 @@ import scala.jdk.OptionConverters._
 import kalix.javasdk.impl.AnySupport
 import kalix.javasdk.replicatedentity.ReplicatedRegister
 import kalix.javasdk.replicatedentity.ReplicatedRegisterMap
-import com.akkaserverless.protocol.replicated_entity.ReplicatedEntityDelta
-import com.akkaserverless.protocol.replicated_entity.ReplicatedRegisterMapDelta
-import com.akkaserverless.protocol.replicated_entity.ReplicatedRegisterMapEntryDelta
+import kalix.protocol.replicated_entity.ReplicatedEntityDelta
+import kalix.protocol.replicated_entity.ReplicatedRegisterMapDelta
+import kalix.protocol.replicated_entity.ReplicatedRegisterMapEntryDelta
 import kalix.replicatedentity.ReplicatedData
 
 private[kalix] final class ReplicatedRegisterMapImpl[K, V](

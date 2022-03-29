@@ -25,16 +25,16 @@ import kalix.javasdk.impl.replicatedentity.ReplicatedEntityEffectImpl.DeleteEnti
 import kalix.javasdk.impl.replicatedentity.ReplicatedEntityRouter.CommandResult
 import kalix.javasdk.replicatedentity._
 import kalix.javasdk.{ Context, Metadata }
-import com.akkaserverless.protocol.entity.Command
-import com.akkaserverless.protocol.replicated_entity.ReplicatedEntityStreamIn.{ Message => In }
-import com.akkaserverless.protocol.replicated_entity.ReplicatedEntityStreamOut.{ Message => Out }
-import com.akkaserverless.protocol.replicated_entity._
+import kalix.protocol.entity.Command
+import kalix.protocol.replicated_entity.ReplicatedEntityStreamIn.{ Message => In }
+import kalix.protocol.replicated_entity.ReplicatedEntityStreamOut.{ Message => Out }
+import kalix.protocol.replicated_entity._
 import com.google.protobuf.any.{ Any => ScalaPbAny }
 import com.google.protobuf.Descriptors
 
 import scala.util.control.NonFatal
 import kalix.javasdk.impl.ReplicatedEntityFactory
-import com.akkaserverless.protocol.component.Failure
+import kalix.protocol.component.Failure
 import org.slf4j.LoggerFactory
 
 final class ReplicatedEntityService(

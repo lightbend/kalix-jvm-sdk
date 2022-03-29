@@ -27,11 +27,11 @@ import kalix.javasdk.impl.replicatedentity.{ ReplicatedEntitiesImpl, ReplicatedE
 import kalix.javasdk.impl.valueentity.{ ValueEntitiesImpl, ValueEntityService }
 import kalix.javasdk.impl.eventsourcedentity.{ EventSourcedEntitiesImpl, EventSourcedEntityService }
 import kalix.javasdk.impl.{ DiscoveryImpl, Service }
-import com.akkaserverless.protocol.action.ActionsHandler
-import com.akkaserverless.protocol.discovery.DiscoveryHandler
-import com.akkaserverless.protocol.event_sourced_entity.EventSourcedEntitiesHandler
-import com.akkaserverless.protocol.replicated_entity.ReplicatedEntitiesHandler
-import com.akkaserverless.protocol.value_entity.ValueEntitiesHandler
+import kalix.protocol.action.ActionsHandler
+import kalix.protocol.discovery.DiscoveryHandler
+import kalix.protocol.event_sourced_entity.EventSourcedEntitiesHandler
+import kalix.protocol.replicated_entity.ReplicatedEntitiesHandler
+import kalix.protocol.value_entity.ValueEntitiesHandler
 import com.google.protobuf.Descriptors
 import com.typesafe.config.{ Config, ConfigFactory }
 
@@ -45,7 +45,7 @@ import scala.jdk.CollectionConverters._
 import scala.util.Failure
 import scala.util.Success
 import kalix.javasdk.impl.view.ViewsImpl
-import com.akkaserverless.protocol.view.ViewsHandler
+import kalix.protocol.view.ViewsHandler
 import org.slf4j.LoggerFactory
 
 object KalixRunner {
