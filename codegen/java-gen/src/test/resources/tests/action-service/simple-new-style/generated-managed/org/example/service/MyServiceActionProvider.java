@@ -17,7 +17,7 @@ import java.util.function.Function;
  * MyServiceActionProvider that defines how to register and create the action for
  * the Protobuf service <code>MyService</code>.
  *
- * Should be used with the <code>register</code> method in {@link kalix.javasdk.AkkaServerless}.
+ * Should be used with the <code>register</code> method in {@link kalix.javasdk.Kalix}.
  */
 public class MyServiceActionProvider implements ActionProvider<MyServiceAction> {
 

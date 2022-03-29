@@ -1,6 +1,6 @@
 # Shopping Cart example (using a Value Entity)
 
-This example project implements an API for a shopping cart using an Kalix Value Entity
+This example project implements an API for a shopping cart using a Kalix Value Entity
 
 ## See also
 

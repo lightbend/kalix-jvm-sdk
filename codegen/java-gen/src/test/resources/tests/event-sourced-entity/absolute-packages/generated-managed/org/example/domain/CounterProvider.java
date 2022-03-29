@@ -20,7 +20,7 @@ import java.util.function.Function;
  * An event sourced entity provider that defines how to register and create the entity for
  * the Protobuf service <code>CounterService</code>.
  *
- * Should be used with the <code>register</code> method in {@link kalix.javasdk.AkkaServerless}.
+ * Should be used with the <code>register</code> method in {@link kalix.javasdk.Kalix}.
  */
 public class CounterProvider implements EventSourcedEntityProvider<OuterCounterState.CounterState, Counter> {
 

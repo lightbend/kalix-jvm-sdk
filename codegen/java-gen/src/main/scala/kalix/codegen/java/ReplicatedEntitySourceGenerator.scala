@@ -182,7 +182,7 @@ object ReplicatedEntitySourceGenerator {
         | * A replicated entity provider that defines how to register and create the entity for
         | * the Protobuf service <code>${service.messageType.name}</code>.
         | *
-        | * Should be used with the <code>register</code> method in {@link kalix.javasdk.AkkaServerless}.
+        | * Should be used with the <code>register</code> method in {@link kalix.javasdk.Kalix}.
         | */
         |public class ${className}Provider implements ReplicatedEntityProvider<$parameterizedDataType, $className> {
         |

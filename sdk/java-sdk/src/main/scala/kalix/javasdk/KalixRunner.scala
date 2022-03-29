@@ -68,10 +68,10 @@ object KalixRunner {
 }
 
 /**
- * The AkkaServerlessRunner is responsible for handle the bootstrap of entities, and is used by [[Kalix#start()]] to set
- * up the local server with the given configuration.
+ * The KalixRunner is responsible for handle the bootstrap of entities, and is used by [[Kalix#start()]] to set up the
+ * local server with the given configuration.
  *
- * AkkaServerlessRunner can be seen as a low-level API for cases where [[Kalix#start()]] isn't enough.
+ * KalixRunner can be seen as a low-level API for cases where [[Kalix#start()]] isn't enough.
  */
 final class KalixRunner private[this] (
     _system: ActorSystem,
@@ -87,7 +87,7 @@ final class KalixRunner private[this] (
   }.toMap
 
   /**
-   * Creates an AkkaServerlessRunner from the given services. Use the default config to create the internal ActorSystem.
+   * Creates a KalixRunner from the given services. Use the default config to create the internal ActorSystem.
    */
   def this(services: java.util.Map[String, java.util.function.Function[ActorSystem, Service]]) {
     this(
@@ -100,9 +100,9 @@ final class KalixRunner private[this] (
   }
 
   /**
-   * Creates an AkkaServerlessRunner from the given services and config. The config should have the same structure as
-   * the reference.conf, with `akkaserverless` as the root section, and the configuration for the internal ActorSystem
-   * is in the `akkaserverless.system` section.
+   * Creates a KalixRunner from the given services and config. The config should have the same structure as the
+   * reference.conf, with `akkaserverless` as the root section, and the configuration for the internal ActorSystem is in
+   * the `akkaserverless.system` section.
    */
   def this(services: java.util.Map[String, java.util.function.Function[ActorSystem, Service]], config: Config) {
     this(ActorSystem("kalix", config.getConfig("kalix.system").withFallback(config)), services.asScala.toMap)

@@ -23,8 +23,7 @@ import java.lang.annotation.Target;
 
 /**
  * The {@code @KalixDescriptor} annotation is used in conjunction with the {@link KalixTest}
- * annotation to mark the {@code AkkaServerless} that should be managed by the kalix Testkit
- * extension.
+ * annotation to mark the {@code Kalix} that should be managed by the kalix Testkit extension.
  *
  * @see KalixTest
  */

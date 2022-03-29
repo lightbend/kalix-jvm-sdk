@@ -29,7 +29,7 @@ import kalix.tck.model.eventsourcedentity.{
 import kalix.tck.model.valueentity.{ ValueEntityConfiguredEntity, ValueEntityConfiguredEntityProvider }
 
 /**
- * Create the AkkaServerless instance with some required configuration changes.
+ * Create the Kalix instance with some required configuration changes.
  *
  * This construction allows to regenerate the Main class automatically and use it as is.
  */

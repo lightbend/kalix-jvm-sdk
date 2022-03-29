@@ -1,2 +1,2 @@
-/** Internal implementation classes for AkkaServerless Java Support. */
+/** Internal implementation classes for Kalix Java Support. */
 package kalix.javasdk.impl;

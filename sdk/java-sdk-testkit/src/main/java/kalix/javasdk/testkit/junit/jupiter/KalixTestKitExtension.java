@@ -60,7 +60,7 @@ class KalixTestKitExtension implements BeforeAllCallback, ParameterResolver {
       } else {
         throw new ExtensionConfigurationException(
             String.format(
-                "Field [%s] annotated with @KalixDescriptor is not an Kalix", field.getName()));
+                "Field [%s] annotated with @KalixDescriptor is not a Kalix", field.getName()));
       }
     } else {
       return false;

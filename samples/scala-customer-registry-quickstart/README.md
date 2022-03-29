@@ -80,5 +80,5 @@ Refer to
 for more information on how to make your docker image available to Kalix.
 
 Finally, you can use the [Kalix Console](https://console.akkaserverless.com)
-to create an Kalix project and then deploy your service into it
+to create a Kalix project and then deploy your service into it
 through the `akkasls` CLI or via the web interface. 
