@@ -25,8 +25,8 @@ mvn compile
 #[[
 ## Running Locally
 ]]#
-In order to run your application locally, you must run the Akka Serverless proxy. The included `docker-compose` file contains the configuration required to run the proxy for a locally running application.
-It also contains the configuration to start a local Google Pub/Sub emulator that the Akka Serverless proxy will connect to.
+In order to run your application locally, you must run the Kalix proxy. The included `docker-compose` file contains the configuration required to run the proxy for a locally running application.
+It also contains the configuration to start a local Google Pub/Sub emulator that the Kalix proxy will connect to.
 To start the proxy, run the following command from this directory:
 
 ```
@@ -42,20 +42,20 @@ mvn compile exec:exec
 With both the proxy and your application running, any defined endpoints should be available at `http://localhost:9000`. In addition to the defined gRPC interface, each method has a corresponding HTTP endpoint. Unless configured otherwise (see [Transcoding HTTP](https://developer.lightbend.com/docs/akka-serverless/java/proto.html#_transcoding_http)), this endpoint accepts POST requests at the path `/[package].[entity name]/[method]`. For example, using `curl`:
 
 ```
-> curl -XPOST -H "Content-Type: application/json" localhost:9000/${package}.MyServiceEntity/GetValue -d '{"entityId": "foo"}'
-The command handler for `GetValue` is not implemented, yet
+> curl -XPOST -H "Content-Type: application/json" localhost:9000/${package}.CounterService/GetCurrentCounter -d '{"counterId": "foo"}'
+The command handler for `GetCurrentCounter` is not implemented, yet
 ```
 
 For example, using [`grpcurl`](https://github.com/fullstorydev/grpcurl):
 
 ```shell
-> grpcurl -plaintext -d '{"entityId": "foo"}' localhost:9000 ${package}.MyServiceEntity/GetValue
+> grpcurl -plaintext -d '{"counterId": "foo"}' localhost:9000 ${package}.CounterService/GetCurrentCounter 
 ERROR:
   Code: Unknown
-  Message: The command handler for `GetValue` is not implemented, yet
+  Message: The command handler for `GetCurrentCounter` is not implemented, yet
 ```
 
-> Note: The failure is to be expected if you have not yet provided an implementation of `GetValue` in
+> Note: The failure is to be expected if you have not yet provided an implementation of `GetCurrentCounter` in
 > your entity.
 
 #[[
@@ -67,9 +67,9 @@ and configure a Docker Registry to upload your docker image to.
 
 You will need to update the `dockerImage` property in the `pom.xml` and refer to
 [Configuring registries](https://developer.lightbend.com/docs/akka-serverless/projects/container-registries.html)
-for more information on how to make your docker image available to Akka Serverless.
+for more information on how to make your docker image available to Kalix.
 
-Finally, you can use the [Akka Serverless Console](https://console.akkaserverless.com)
+Finally, you can use the [Kalix Console](https://console.kalix.com)
 to create a project and then deploy your service into the project either by using `mvn deploy` which
 will also conveniently package and publish your docker image prior to deployment, or by first packaging and
 publishing the docker image through `mvn clean package docker:push -DskipTests` and then deploying the image

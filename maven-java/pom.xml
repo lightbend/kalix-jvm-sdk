@@ -3,13 +3,13 @@
                       http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>com.akkaserverless</groupId>
-  <artifactId>akkaserverless-maven-java</artifactId>
+  <groupId>io.kalix</groupId>
+  <artifactId>kalix-maven-java</artifactId>
   <version>0.10.6</version>
   <packaging>pom</packaging>
 
-  <name>Akka Serverless Java Maven parent pom</name>
-  <description>This is the parent pom for the Akka Serverless Maven plugin and archetypes</description>
+  <name>Kalix Java Maven parent pom</name>
+  <description>This is the parent pom for the Kalix Maven plugin and archetypes</description>
   <licenses>
     <license>
       <name>Apache-2.0</name>
@@ -18,9 +18,9 @@
     </license>
   </licenses>
 
-  <url>https://www.lightbend.com/akkaserverless</url>
+  <url>https://www.lightbend.com/kalix</url>
   <scm>
-    <url>https://github.com/lightbend/akkaserverless-java-sdk</url>
+    <url>https://github.com/lightbend/kalix-jvm-sdk</url>
   </scm>
 
   <developers>
@@ -125,8 +125,8 @@
   </profiles>
 
   <modules>
-    <module>akkaserverless-maven-plugin</module>
-    <module>akkaserverless-maven-archetype-value-entity</module>
-    <module>akkaserverless-maven-archetype-event-sourced-entity</module>
+    <module>kalix-maven-plugin</module>
+    <module>kalix-maven-archetype-value-entity</module>
+    <module>kalix-maven-archetype-event-sourced-entity</module>
   </modules>
 </project>

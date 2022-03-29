@@ -12,7 +12,7 @@ To run the example locally:
   * trigger codegen, compile and run from Maven
     ```
     cd samples/java-eventsourced-customer-registry
-    mvn -Dakkaserverless-sdk.version=0.7.0-beta....-dev-SNAPSHOT compile exec:exec
+    mvn -Dkalix-sdk.version=0.7.0-beta....-dev-SNAPSHOT compile exec:exec
     ```
 
 * Start the proxy

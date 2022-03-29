@@ -14,7 +14,7 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Goal which deploys the current project to Akka Serverless.
+ * Goal which deploys the current project to Kalix.
  */
 @SuppressWarnings("unused")
 @Mojo(name = "deploy", defaultPhase = LifecyclePhase.DEPLOY)
@@ -45,7 +45,7 @@ public class DeployMojo extends AbstractMojo {
      * We deploy by invoking the services deploy command
      */
     public void execute() throws MojoExecutionException {
-        log.info("Deploying project to Akka Serverless");
+        log.info("Deploying project to Kalix");
         try {
             final List<String> commandLine;
             if (akkaslsContext != null) {
