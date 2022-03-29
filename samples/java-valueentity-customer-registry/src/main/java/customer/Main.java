@@ -8,12 +8,10 @@ package customer;
 import kalix.javasdk.Kalix;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import customer.action.CustomerActionImpl;
-import customer.domain.CustomerValueEntity;
-import customer.view.CustomerByEmailView;
-import customer.view.CustomerByNameView;
-import customer.view.CustomerSummaryByNameView;
-import customer.view.CustomersResponseByNameView;
+import customer.action.*;
+import customer.domain.*;
+import customer.view.*;
+import kalix.javasdk.Kalix;
 
 public final class Main {
 
@@ -24,7 +22,7 @@ public final class Main {
     // FIXME temporarily changed to set a short view id to not hit view id limit of 21 chars
     Kalix kalix = new Kalix();
     kalix.register(CustomerValueEntityProvider.of(CustomerValueEntity::new));
-    kalix.register(CustomerActionImplProvider.of(CustomerActionImpl::new));
+    kalix.register(CustomerActionProvider.of(CustomerActionImpl::new));
     kalix.register(CustomerByEmailViewProvider.of(CustomerByEmailView::new).withViewId("ByEmail"));
     kalix.register(CustomerByNameViewProvider.of(CustomerByNameView::new).withViewId("ByName"));
     kalix.register(CustomerSummaryByNameViewProvider.of(CustomerSummaryByNameView::new).withViewId("Summary"));
