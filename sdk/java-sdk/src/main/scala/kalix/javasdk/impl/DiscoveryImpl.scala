@@ -55,12 +55,10 @@ class DiscoveryImpl(system: ActorSystem, services: Map[String, Service]) extends
   private val serviceInfo = ServiceInfo(
     serviceRuntime = sys.props.getOrElse("java.runtime.name", "")
       + " " + sys.props.getOrElse("java.runtime.version", ""),
-    supportLibraryName = configuredOrElse("akkaserverless.library.name", BuildInfo.name),
-    supportLibraryVersion = configuredOrElse("akkaserverless.library.version", BuildInfo.version),
-    protocolMajorVersion =
-      configuredIntOrElse("akkaserverless.library.protocol-major-version", BuildInfo.protocolMajorVersion),
-    protocolMinorVersion =
-      configuredIntOrElse("akkaserverless.library.protocol-minor-version", BuildInfo.protocolMinorVersion))
+    supportLibraryName = configuredOrElse("kalix.library.name", BuildInfo.name),
+    supportLibraryVersion = configuredOrElse("kalix.library.version", BuildInfo.version),
+    protocolMajorVersion = configuredIntOrElse("kalix.library.protocol-major-version", BuildInfo.protocolMajorVersion),
+    protocolMinorVersion = configuredIntOrElse("kalix.library.protocol-minor-version", BuildInfo.protocolMinorVersion))
 
   // detect hybrid proxy version probes when protocol version 0.0
   private def isVersionProbe(info: ProxyInfo): Boolean = {
@@ -109,7 +107,7 @@ class DiscoveryImpl(system: ActorSystem, services: Map[String, Service]) extends
       }
 
       val descriptorsWithSource = loadDescriptorsWithSource(
-        system.settings.config.getString("akkaserverless.discovery.protobuf-descriptor-with-source-info-path"))
+        system.settings.config.getString("kalix.discovery.protobuf-descriptor-with-source-info-path"))
       val allDescriptors = AnySupport.flattenDescriptors(services.values.map(_.descriptor.getFile).toSeq)
       val builder = DescriptorProtos.FileDescriptorSet.newBuilder()
       allDescriptors.values.foreach { fd =>
@@ -218,7 +216,7 @@ class DiscoveryImpl(system: ActorSystem, services: Map[String, Service]) extends
           maybeTimeout match {
             case Some(timeout) => Some(EPStrategy(Strategy.Timeout(TimeoutPassivationStrategy(timeout.toMillis))))
             case _ =>
-              configuredPassivationTimeout("akkaserverless.passivation-timeout").map(timeout =>
+              configuredPassivationTimeout("kalix.passivation-timeout").map(timeout =>
                 EPStrategy(Strategy.Timeout(TimeoutPassivationStrategy(timeout.toMillis))))
           }
       }

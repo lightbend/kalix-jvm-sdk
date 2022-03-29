@@ -31,11 +31,10 @@ Test / logBuffered := false
 
 Compile / run := {
   // needed for the proxy to access the user function on all platforms
-  sys.props += "akkaserverless.user-function-interface" -> "0.0.0.0"
+  sys.props += "kalix.user-function-interface" -> "0.0.0.0"
   (Compile / run).evaluated
 }
 run / fork := false
 Global / cancelable := false // ctrl-c
 
 libraryDependencies ++= Seq("org.scalatest" %% "scalatest" % "3.2.7" % Test)
-

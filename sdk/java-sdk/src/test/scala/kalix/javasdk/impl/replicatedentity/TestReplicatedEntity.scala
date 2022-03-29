@@ -33,7 +33,7 @@ class TestReplicatedService(entityProvider: ReplicatedEntityProvider[_, _]) {
   val port: Int = SocketUtil.temporaryLocalPort()
 
   val config: Config = ConfigFactory.load(ConfigFactory.parseString(s"""
-    akkaserverless {
+    kalix {
       user-function-port = $port
       system.akka {
         loglevel = DEBUG

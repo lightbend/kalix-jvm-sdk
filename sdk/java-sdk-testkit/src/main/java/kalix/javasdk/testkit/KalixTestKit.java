@@ -125,9 +125,9 @@ public class KalixTestKit {
     if (started) throw new IllegalStateException("AkkaServerlessTestkit already started");
     int port = availableLocalPort();
     Map<String, Object> conf = new HashMap<>();
-    conf.put("akkaserverless.user-function-port", port);
+    conf.put("kalix.user-function-port", port);
     // don't kill the test JVM when terminating the AkkaServerlessRunner
-    conf.put("akkaserverless.system.akka.coordinated-shutdown.exit-jvm", "off");
+    conf.put("kalix.system.akka.coordinated-shutdown.exit-jvm", "off");
     Config testConfig = ConfigFactory.parseMap(conf);
     runner = kalix.createRunner(testConfig.withFallback(config));
     runner.run();
