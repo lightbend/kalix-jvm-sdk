@@ -26,7 +26,7 @@ import org.testcontainers.containers.startupcheck.IndefiniteWaitOneShotStartupCh
 import org.testcontainers.utility.DockerImageName;
 
 public final class RunTck {
-  public static final String TCK_IMAGE = "gcr.io/akkaserverless-public/kalix-tck";
+  public static final String TCK_IMAGE = "gcr.io/kalix-public/kalix-tck";
   public static final String TCK_VERSION = BuildInfo.proxyVersion();
 
   public static void main(String[] args) throws Exception {

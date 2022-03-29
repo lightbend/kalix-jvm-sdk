@@ -1,7 +1,7 @@
 version: "3"
 services:
   akka-serverless-proxy:
-    image: gcr.io/akkaserverless-public/kalix-proxy:0.10.0-M2
+    image: gcr.io/kalix-public/kalix-proxy:0.10.0-M3
     command: -Dconfig.resource=dev-mode.conf -Dakkaserverless.proxy.eventing.support=kafka
     ports:
       - "9000:9000"

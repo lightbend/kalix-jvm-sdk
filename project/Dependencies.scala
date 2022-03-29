@@ -5,7 +5,7 @@ object Dependencies {
   object Kalix {
     val ProtocolVersionMajor = 0
     val ProtocolVersionMinor = 10
-    val FrameworkVersion = "0.10.0-M2"
+    val FrameworkVersion = "0.10.0-M3"
   }
 
   // changing the Scala version of the Java SDK affects end users

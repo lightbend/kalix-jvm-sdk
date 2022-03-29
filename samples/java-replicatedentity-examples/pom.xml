@@ -12,7 +12,7 @@
 
     <properties>
       <!-- TODO Update to your own Docker repository or Docker Hub scope -->
-      <dockerImage>gcr.io/akkaserverless-public/samples-java-replicated-entity-examples</dockerImage>
+      <dockerImage>gcr.io/kalix-public/samples-java-replicated-entity-examples</dockerImage>
       <dockerTag>${project.version}</dockerTag>
       <mainClass>com.example.replicated.Main</mainClass>
 
