@@ -46,11 +46,11 @@ public class GenerateMojo extends AbstractMojo {
     private File descriptorSetOutputDirectory;
 
     @SuppressWarnings("unused")
-    @Parameter(defaultValue = "${project.build.directory}/generated-sources/akkaserverless/java", required = true)
+    @Parameter(defaultValue = "${project.build.directory}/generated-sources/kalix/java", required = true)
     private File generatedSourceDirectory;
 
   @SuppressWarnings("unused")
-  @Parameter(defaultValue = "${project.build.directory}/generated-test-sources/akkaserverless/java", required = true)
+  @Parameter(defaultValue = "${project.build.directory}/generated-test-sources/kalix/java", required = true)
   private File generatedTestSourceDirectory;
 
     // src/main/java

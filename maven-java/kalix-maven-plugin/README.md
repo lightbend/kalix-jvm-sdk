@@ -1,12 +1,12 @@
-# akkaserverless-maven-plugin
+# kalix-maven-plugin
 
 This plugin is designed for developers of Maven and Java projects that wish to target the
-[Akka Serverless](https://www.lightbend.com/akka-serverless) environment.
+[Kalix](https://www.lightbend.com/akka-serverless) environment.
 
 The plugin provides two functions:
 
 * generate templated source code from entity, command, event and state information declared by `.proto` files; and
-* the ability to deploy directly to Akka Serverless.
+* the ability to deploy directly to Kalix.
 
 ## Usage
 
@@ -15,7 +15,7 @@ To use the plugin (substitute the version accordingly):
 ```xml
 <plugin>
 <groupId>com.lightbend</groupId>
-<artifactId>akkaserverless-maven-plugin</artifactId>
+<artifactId>kalix-maven-plugin</artifactId>
 <version>1.0-SNAPSHOT</version>
 <executions>
   <execution>
