@@ -5,7 +5,7 @@ object Dependencies {
   object Kalix {
     val ProtocolVersionMajor = 0
     val ProtocolVersionMinor = 10
-    val FrameworkVersion = "0.10.0-M3"
+    val FrameworkVersion = "0.10.0-M4"
   }
 
   // changing the Scala version of the Java SDK affects end users
@@ -31,9 +31,9 @@ object Dependencies {
   val MunitVersion = "0.7.20"
   val ScoptVersions = "4.0.0"
 
-  val akkaslsProxyProtocol = "com.akkaserverless" % "kalix-proxy-protocol" % Kalix.FrameworkVersion
-  val akkaslsSdkProtocol = "com.akkaserverless" % "kalix-sdk-protocol" % Kalix.FrameworkVersion
-  val akkaslsTckProtocol = "com.akkaserverless" % "kalix-tck-protocol" % Kalix.FrameworkVersion
+  val akkaslsProxyProtocol = "io.kalix" % "kalix-proxy-protocol" % Kalix.FrameworkVersion
+  val akkaslsSdkProtocol = "io.kalix" % "kalix-sdk-protocol" % Kalix.FrameworkVersion
+  val akkaslsTckProtocol = "io.kalix" % "kalix-tck-protocol" % Kalix.FrameworkVersion
 
   val commonsIo = "commons-io" % "commons-io" % CommonsIoVerison
   val logback = "ch.qos.logback" % "logback-classic" % LogbackVersion
