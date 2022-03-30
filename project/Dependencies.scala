@@ -18,7 +18,8 @@ object Dependencies {
   val AkkaVersion = "2.6.19"
   val AkkaHttpVersion = "10.2.9" // Note: should at least the Akka HTTP version required by Akka gRPC
   val ScalaTestVersion = "3.2.7"
-  val JacksonVersion = "2.11.4" // Akka 2.6.16: 2.11.4, google-http-client-jackson2 1.34.0: 2.10.1
+  val JacksonVersion = "2.12.6"
+  val JacksonDatabindVersion = "2.12.6.1"
   val DockerBaseImageVersion = "adoptopenjdk/openjdk11:debianslim-jre"
   val LogbackVersion = "1.2.10"
   val LogbackContribVersion = "0.1.5"
@@ -46,7 +47,7 @@ object Dependencies {
   val scopt = "com.github.scopt" %% "scopt" % ScoptVersions
   val jacksonCore = "com.fasterxml.jackson.core" % "jackson-core" % JacksonVersion
   val jacksonAnnotations = "com.fasterxml.jackson.core" % "jackson-annotations" % JacksonVersion
-  val jacksonDatabind = "com.fasterxml.jackson.core" % "jackson-databind" % JacksonVersion
+  val jacksonDatabind = "com.fasterxml.jackson.core" % "jackson-databind" % JacksonDatabindVersion
   val jacksonJdk8 = "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % JacksonVersion
   val jacksonJsr310 = "com.fasterxml.jackson.datatype" % "jackson-datatype-jsr310" % JacksonVersion
   val jacksonParameterNames = "com.fasterxml.jackson.module" % "jackson-module-parameter-names" % JacksonVersion
