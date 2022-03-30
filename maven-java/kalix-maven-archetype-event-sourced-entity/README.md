@@ -1,6 +1,6 @@
 # kalix-maven-archetype-event-sourced-entity
 
-This archetype can be used to generate a project suitable for a service using an Event-sourced Entity with [Kalix](https://www.lightbend.com/akka-serverless).
+This archetype can be used to generate a project suitable for a service using an Event-sourced Entity with [Kalix](https://docs.kalix.io).
 
 **The Maven project created from the archetype will contain an Event Sourced entity protobuf definition.**
 

@@ -1,6 +1,6 @@
 # kalix-maven-archetype
 
-This archetype can be used to generate a project suitable for the development of a Service using a Value Entity with [Kalix](https://www.lightbend.com/akka-serverless).
+This archetype can be used to generate a project suitable for the development of a Service using a Value Entity with [Kalix](https://docs.kalix.io).
 
 **The Maven project created from the archetype will contain a Value entity protobuf definition.**
 

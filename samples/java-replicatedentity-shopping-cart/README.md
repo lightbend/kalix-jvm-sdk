@@ -5,9 +5,9 @@ This example project implements an API for a shopping cart using a Kalix Replica
 ## See also
 
 * process - for effective development it is useful to
-  read [development process](https://developer.lightbend.com/docs/akka-serverless/services/development-process.html)
+  read [development process](https://docs.kalix.io/services/development-process.html)
 * developing - it may be useful to read up
-  on [developing with Java](https://developer.lightbend.com/docs/akka-serverless/java/index.html)
+  on [developing with Java](https://docs.kalix.io/java/index.html)
 
 ## Building
 
@@ -35,7 +35,7 @@ mvn compile exec:exec
 
 With both the proxy and your application running, any defined endpoints should be available at `http://localhost:9000`.
 In addition to the defined gRPC interface, each method has a corresponding HTTP endpoint. Unless configured otherwise (
-see [Transcoding HTTP](https://developer.lightbend.com/docs/akka-serverless/java/proto.html#_transcoding_http)), this
+see [Transcoding HTTP](https://docs.kalix.io/java/proto.html#_transcoding_http)), this
 endpoint accepts POST requests at the path `/[package].[entity name]/[method]`. For example, using `curl`:
 
 * Send an AddItem command:
@@ -75,16 +75,16 @@ mvn verify -Pit
 
 ## Deploying
 
-To deploy your service, install the `akkasls` CLI as documented in [Setting up a local development
-environment](https://developer.lightbend.com/docs/akka-serverless/setting-up/) and
+To deploy your service, install the `kalix` CLI as documented in [Setting up a local development
+environment](https://docs.kalix.io/setting-up/) and
 configure a Docker Registry to upload your docker image to.
 
 You will need to update the `dockerImage` property in the `pom.xml` and refer to [Configuring
-registries](https://developer.lightbend.com/docs/akka-serverless/projects/container-registries.html) for more information on how
+registries](https://docs.kalix.io/projects/container-registries.html) for more information on how
 to make your docker image available to Kalix.
 
-Finally, you can use the [Kalix Console](https://console.akkaserverless.com)
+Finally, you can use the [Kalix Console](https://console.kalix.io)
 to create a project and then deploy your service into the project either by using `mvn deploy` which
 will also conveniently package and publish your docker image prior to deployment, or by first packaging and
 publishing the docker image through `mvn clean package docker:push -DskipTests` and then deploying the image
-through the `akkasls` CLI or via the web interface.
+through the `kalix` CLI or via the web interface.
