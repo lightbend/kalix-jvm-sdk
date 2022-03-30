@@ -27,6 +27,6 @@ fi
 
 for i in samples/*
 do
-  sed  -i .versionsBackup "s/<akkaserverless-sdk.version>\(.*\)<\/akkaserverless-sdk.version>/<akkaserverless-sdk.version>$SDK_VERSION<\/akkaserverless-sdk.version>/" $i/pom.xml
+  sed  -i .versionsBackup "s/<kalix-sdk.version>\(.*\)<\/kalix-sdk.version>/<kalix-sdk.version>$SDK_VERSION<\/kalix-sdk.version>/" $i/pom.xml
   rm $i/pom.xml.versionsBackup
 done
