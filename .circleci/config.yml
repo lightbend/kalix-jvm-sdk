@@ -147,17 +147,17 @@ jobs:
       - run:
           name: Scala Samples
           command: |
-            if [ $(find ./samples -name plugins.sbt | xargs grep -h "akkaserverless-sdk.version" | uniq | wc -l) -ne 1 ]; then
+            if [ $(find ./samples -name plugins.sbt | xargs grep -h "kalix-sdk.version" | uniq | wc -l) -ne 1 ]; then
               echo "Not all Scala samples have the same SDK version:"
-              find ./samples -name plugins.sbt | xargs grep "akkaserverless-sdk.version"
+              find ./samples -name plugins.sbt | xargs grep "kalix-sdk.version"
               false
             fi
       - run:
           name: Java Samples
           command: |
-            if [ $(find ./samples -name pom.xml | xargs grep -h "<akkaserverless-sdk.version>" | tr -s [:space:] | uniq | wc -l) -ne 1 ]; then
+            if [ $(find ./samples -name pom.xml | xargs grep -h "<kalix-sdk.version>" | tr -s [:space:] | uniq | wc -l) -ne 1 ]; then
               echo "Not all Java samples have the same SDK version:"
-              find ./samples -name pom.xml | xargs grep "<akkaserverless-sdk.version>"
+              find ./samples -name pom.xml | xargs grep "<kalix-sdk.version>"
               false
             fi
       - run:
@@ -321,14 +321,14 @@ jobs:
           name: Run integration tests for Value Entity Archetype
           command: |
             cd maven-java
-            mvn -B archetype:generate -DgroupId=com.example -DartifactId=counter-value-entity -DarchetypeGroupId=com.akkaserverless -DarchetypeArtifactId=akkaserverless-maven-archetype -DarchetypeVersion=$SDK_VERSION
+            mvn -B archetype:generate -DgroupId=com.example -DartifactId=counter-value-entity -DarchetypeGroupId=io.kalix -DarchetypeArtifactId=kalix-maven-archetype -DarchetypeVersion=$SDK_VERSION
             cd counter-value-entity
             mvn -B compile
       - run:
           name: Run integration tests for Event Sourced Entity Archetype
           command: |
             cd maven-java
-            mvn -B archetype:generate  -DgroupId=com.example -DartifactId=counter-event-sourced-entity -DarchetypeGroupId=com.akkaserverless -DarchetypeArtifactId=akkaserverless-maven-archetype-event-sourced-entity -DarchetypeVersion=$SDK_VERSION
+            mvn -B archetype:generate  -DgroupId=com.example -DartifactId=counter-event-sourced-entity -DarchetypeGroupId=io.kalix -DarchetypeArtifactId=kalix-maven-archetype-event-sourced-entity -DarchetypeVersion=$SDK_VERSION
             cd counter-event-sourced-entity
             mvn -B compile
       - save_deps_cache
@@ -349,11 +349,11 @@ jobs:
             cd samples/java-customer-registry-quickstart
             echo "Running mvn with SDK version: '$SDK_VERSION'"
             # must also compile without the profile!
-            mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
-            mvn -Dakkaserverless-sdk.version=$SDK_VERSION verify -Pit
+            mvn -Dkalix-sdk.version=$SDK_VERSION test-compile
+            mvn -Dkalix-sdk.version=$SDK_VERSION verify -Pit
             echo "==== Verifying that generated unmanaged sources compile ===="
             rm -rf src/main/java src/test/java src/it/java
-            mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
+            mvn -Dkalix-sdk.version=$SDK_VERSION test-compile
 
   sample-java-customer-registry-kafka-quickstart:
     machine: true
@@ -370,11 +370,11 @@ jobs:
             cd samples/java-customer-registry-kafka-quickstart
             echo "Running mvn with SDK version: '$SDK_VERSION'"
             # must also compile without the profile!
-            mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
-            mvn -Dakkaserverless-sdk.version=$SDK_VERSION verify -Pit
+            mvn -Dkalix-sdk.version=$SDK_VERSION test-compile
+            mvn -Dkalix-sdk.version=$SDK_VERSION verify -Pit
             echo "==== Verifying that generated unmanaged sources compile ===="
             rm -rf src/main/java src/test/java src/it/java
-            mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
+            mvn -Dkalix-sdk.version=$SDK_VERSION test-compile
 
   sample-java-customer-registry-views-quickstart:
     machine:
@@ -392,11 +392,11 @@ jobs:
             cd samples/java-customer-registry-views-quickstart
             echo "Running mvn with SDK version: '$SDK_VERSION'"
             # must also compile without the profile!
-            mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
-            mvn -Dakkaserverless-sdk.version=$SDK_VERSION verify -Pit
+            mvn -Dkalix-sdk.version=$SDK_VERSION test-compile
+            mvn -Dkalix-sdk.version=$SDK_VERSION verify -Pit
             echo "==== Verifying that generated unmanaged sources compile ===="
             rm -rf src/main/java src/test/java src/it/java
-            mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
+            mvn -Dkalix-sdk.version=$SDK_VERSION test-compile
 
   sample-java-shopping-cart-quickstart:
     machine:
@@ -414,11 +414,11 @@ jobs:
             cd samples/java-shopping-cart-quickstart
             echo "Running mvn with SDK version: '$SDK_VERSION'"
             # must also compile without the profile!
-            mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
-            mvn -Dakkaserverless-sdk.version=$SDK_VERSION verify -Pit
+            mvn -Dkalix-sdk.version=$SDK_VERSION test-compile
+            mvn -Dkalix-sdk.version=$SDK_VERSION verify -Pit
             echo "==== Verifying that generated unmanaged sources compile ===="
             rm -rf src/main/java src/test/java src/it/java
-            mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
+            mvn -Dkalix-sdk.version=$SDK_VERSION test-compile
 
   sample-java-fibonacci-action:
     machine:
@@ -435,11 +435,11 @@ jobs:
           command: |
             cd samples/java-fibonacci-action
             echo "Running mvn with SDK version: '$SDK_VERSION'"
-            mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
-            mvn -Dakkaserverless-sdk.version=$SDK_VERSION verify -Pit
+            mvn -Dkalix-sdk.version=$SDK_VERSION test-compile
+            mvn -Dkalix-sdk.version=$SDK_VERSION verify -Pit
             echo "==== Verifying that generated unmanaged sources compile ===="
             rm -rf src/main/java src/test/java src/it/java
-            mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
+            mvn -Dkalix-sdk.version=$SDK_VERSION test-compile
 
   sample-java-doc-snippets:
     machine:
@@ -456,7 +456,7 @@ jobs:
           command: |
             cd samples/java-doc-snippets
             echo "Running mvn with SDK version: '$SDK_VERSION'"
-            mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
+            mvn -Dkalix-sdk.version=$SDK_VERSION test-compile
 
   sample-java-first-service:
     machine:
@@ -473,10 +473,10 @@ jobs:
           command: |
             cd samples/java-first-service
             echo "Running mvn with SDK version: '$SDK_VERSION'"
-            mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
+            mvn -Dkalix-sdk.version=$SDK_VERSION test-compile
             echo "==== Verifying that generated unmanaged sources compile ===="
             rm -rf src/main/java src/test/java src/it/java
-            mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
+            mvn -Dkalix-sdk.version=$SDK_VERSION test-compile
 
   sample-java-valueentity-customer-registry:
     machine:
@@ -493,11 +493,11 @@ jobs:
           command: |
             cd samples/java-valueentity-customer-registry
             echo "Running mvn with SDK version: '$SDK_VERSION'"
-            mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
-            mvn -Dakkaserverless-sdk.version=$SDK_VERSION verify -Pit
+            mvn -Dkalix-sdk.version=$SDK_VERSION test-compile
+            mvn -Dkalix-sdk.version=$SDK_VERSION verify -Pit
             echo "==== Verifying that generated unmanaged sources compile ===="
             rm -rf src/main/java src/test/java src/it/java
-            mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
+            mvn -Dkalix-sdk.version=$SDK_VERSION test-compile
 
   sample-java-eventsourced-customer-registry:
     machine:
@@ -514,11 +514,11 @@ jobs:
           command: |
             cd samples/java-eventsourced-customer-registry
             echo "Running mvn with SDK version: '$SDK_VERSION'"
-            mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
-            mvn -Dakkaserverless-sdk.version=$SDK_VERSION verify -Pit
+            mvn -Dkalix-sdk.version=$SDK_VERSION test-compile
+            mvn -Dkalix-sdk.version=$SDK_VERSION verify -Pit
             echo "==== Verifying that generated unmanaged sources compile ===="
             rm -rf src/main/java src/test/java src/it/java
-            mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
+            mvn -Dkalix-sdk.version=$SDK_VERSION test-compile
 
   sample-java-valueentity-shopping-cart:
     machine:
@@ -535,11 +535,11 @@ jobs:
           command: |
             cd samples/java-valueentity-shopping-cart
             echo "Running mvn with SDK version: '$SDK_VERSION'"
-            mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
-            mvn -Dakkaserverless-sdk.version=$SDK_VERSION verify -Pit
+            mvn -Dkalix-sdk.version=$SDK_VERSION test-compile
+            mvn -Dkalix-sdk.version=$SDK_VERSION verify -Pit
             echo "==== Verifying that generated unmanaged sources compile ===="
             rm -rf src/main/java src/test/java src/it/java
-            mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
+            mvn -Dkalix-sdk.version=$SDK_VERSION test-compile
 
   sample-java-eventsourced-shopping-cart:
     machine:
@@ -556,11 +556,11 @@ jobs:
           command: |
             cd samples/java-eventsourced-shopping-cart
             echo "Running mvn with SDK version: '$SDK_VERSION'"
-            mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
-            mvn -Dakkaserverless-sdk.version=$SDK_VERSION verify -Pit
+            mvn -Dkalix-sdk.version=$SDK_VERSION test-compile
+            mvn -Dkalix-sdk.version=$SDK_VERSION verify -Pit
             echo "==== Verifying that generated unmanaged sources compile ===="
             rm -rf src/main/java src/test/java src/it/java
-            mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
+            mvn -Dkalix-sdk.version=$SDK_VERSION test-compile
 
   sample-java-replicatedentity-shopping-cart:
     machine:
@@ -577,11 +577,11 @@ jobs:
           command: |
             cd samples/java-replicatedentity-shopping-cart
             echo "Running mvn with SDK version: '$SDK_VERSION'"
-            mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
-            mvn -Dakkaserverless-sdk.version=$SDK_VERSION verify -Pit
+            mvn -Dkalix-sdk.version=$SDK_VERSION test-compile
+            mvn -Dkalix-sdk.version=$SDK_VERSION verify -Pit
             echo "==== Verifying that generated unmanaged sources compile ===="
             rm -rf src/main/java src/test/java src/it/java
-            mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
+            mvn -Dkalix-sdk.version=$SDK_VERSION test-compile
 
   sample-java-eventsourced-counter:
     machine:
@@ -598,13 +598,13 @@ jobs:
           command: |
             cd samples/java-eventsourced-counter
             echo "Running mvn with SDK version: '$SDK_VERSION'"
-            mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
-            mvn -Dakkaserverless-sdk.version=$SDK_VERSION test
-            # FIXME related to https://github.com/lightbend/akkaserverless-java-sdk/issues/297
-            # mvn -Dakkaserverless-sdk.version=$SDK_VERSION verify -Pit
+            mvn -Dkalix-sdk.version=$SDK_VERSION test-compile
+            mvn -Dkalix-sdk.version=$SDK_VERSION test
+            # FIXME related to https://github.com/lightbend/kalix-jvm-sdk/issues/297
+            # mvn -Dkalix-sdk.version=$SDK_VERSION verify -Pit
             echo "==== Verifying that generated unmanaged sources compile ===="
             rm -rf src/main/java src/test/java src/it/java
-            mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
+            mvn -Dkalix-sdk.version=$SDK_VERSION test-compile
 
   sample-java-valueentity-counter:
     machine:
@@ -621,11 +621,11 @@ jobs:
           command: |
             cd samples/java-valueentity-counter
             echo "Running mvn with SDK version: '$SDK_VERSION'"
-            mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
-            mvn -Dakkaserverless-sdk.version=$SDK_VERSION verify -Pit
+            mvn -Dkalix-sdk.version=$SDK_VERSION test-compile
+            mvn -Dkalix-sdk.version=$SDK_VERSION verify -Pit
             echo "==== Verifying that generated unmanaged sources compile ===="
             rm -rf src/main/java src/test/java src/it/java
-            mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
+            mvn -Dkalix-sdk.version=$SDK_VERSION test-compile
 
   sample-java-valueentity-counter-spring-client:
     machine: true
@@ -641,11 +641,11 @@ jobs:
           command: |
             cd samples/java-valueentity-counter-spring-client
             echo "Running mvn with SDK version: '$SDK_VERSION'"
-            mvn -Dakkaserverless-sdk.version=$SDK_VERSION compile
-            mvn -Dakkaserverless-sdk.version=$SDK_VERSION verify
+            mvn -Dkalix-sdk.version=$SDK_VERSION compile
+            mvn -Dkalix-sdk.version=$SDK_VERSION verify
             echo "==== Verifying that generated unmanaged sources compile ===="
             rm -rf src/main/java src/test/java src/it/java
-            mvn -Dakkaserverless-sdk.version=$SDK_VERSION compile
+            mvn -Dkalix-sdk.version=$SDK_VERSION compile
 
   sample-java-replicatedentity-examples:
     machine:
@@ -662,11 +662,11 @@ jobs:
           command: |
             cd samples/java-replicatedentity-examples
             echo "Running mvn with SDK version: '$SDK_VERSION'"
-            mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
-            mvn -Dakkaserverless-sdk.version=$SDK_VERSION verify -Pit
+            mvn -Dkalix-sdk.version=$SDK_VERSION test-compile
+            mvn -Dkalix-sdk.version=$SDK_VERSION verify -Pit
             echo "==== Verifying that generated unmanaged sources compile ===="
             rm -rf src/main/java src/test/java src/it/java
-            mvn -Dakkaserverless-sdk.version=$SDK_VERSION test-compile
+            mvn -Dkalix-sdk.version=$SDK_VERSION test-compile
 
   sample-scala-doc-snippets:
     machine:
@@ -683,11 +683,11 @@ jobs:
           command: |
             cd samples/scala-doc-snippets
             echo "Running sbt with SDK version: '$SDK_VERSION'"
-            sbt -Dakkaserverless-sdk.version=$SDK_VERSION compile
+            sbt -Dkalix-sdk.version=$SDK_VERSION compile
             # FIXME tests && integration tests
             echo "==== Verifying that generated unmanaged sources compile ===="
             rm -rf src/main/scala src/test/scala src/it/scala
-            sbt -Dakkaserverless-sdk.version=$SDK_VERSION test:compile
+            sbt -Dkalix-sdk.version=$SDK_VERSION test:compile
 
   sample-scala-fibonacci-action:
     machine:
@@ -704,11 +704,11 @@ jobs:
           command: |
             cd samples/scala-fibonacci-action
             echo "Running sbt with SDK version: '$SDK_VERSION'"
-            sbt -Dakkaserverless-sdk.version=$SDK_VERSION test
+            sbt -Dkalix-sdk.version=$SDK_VERSION test
             # FIXME tests && integration tests
             echo "==== Verifying that generated unmanaged sources compile ===="
             rm -rf src/main/scala src/test/scala src/it/scala
-            sbt -Dakkaserverless-sdk.version=$SDK_VERSION test:compile
+            sbt -Dkalix-sdk.version=$SDK_VERSION test:compile
 
   sample-scala-valueentity-customer-registry:
     machine:
@@ -725,11 +725,11 @@ jobs:
           command: |
             cd samples/scala-valueentity-customer-registry
             echo "Running sbt with SDK version: '$SDK_VERSION'"
-            sbt -Dakkaserverless-sdk.version=$SDK_VERSION test
+            sbt -Dkalix-sdk.version=$SDK_VERSION test
             # FIXME integration tests
             echo "==== Verifying that generated unmanaged sources compile ===="
             rm -rf src/main/scala src/test/scala src/it/scala
-            sbt -Dakkaserverless-sdk.version=$SDK_VERSION test:compile
+            sbt -Dkalix-sdk.version=$SDK_VERSION test:compile
 
   sample-scala-customer-registry-quickstart:
     machine:
@@ -746,11 +746,11 @@ jobs:
           command: |
             cd samples/scala-customer-registry-quickstart
             echo "Running sbt with SDK version: '$SDK_VERSION'"
-            sbt -Dakkaserverless-sdk.version=$SDK_VERSION test
+            sbt -Dkalix-sdk.version=$SDK_VERSION test
             # FIXME integration tests
             echo "==== Verifying that generated unmanaged sources compile ===="
             rm -rf src/main/scala src/test/scala src/it/scala
-            sbt -Dakkaserverless-sdk.version=$SDK_VERSION test:compile
+            sbt -Dkalix-sdk.version=$SDK_VERSION test:compile
 
   sample-scala-eventsourced-customer-registry:
     machine:
@@ -767,11 +767,11 @@ jobs:
           command: |
             cd samples/scala-eventsourced-customer-registry
             echo "Running sbt with SDK version: '$SDK_VERSION'"
-            sbt -Dakkaserverless-sdk.version=$SDK_VERSION test
+            sbt -Dkalix-sdk.version=$SDK_VERSION test
             # FIXME integration tests
             echo "==== Verifying that generated unmanaged sources compile ===="
             rm -rf src/main/scala src/test/scala src/it/scala
-            sbt -Dakkaserverless-sdk.version=$SDK_VERSION test:compile
+            sbt -Dkalix-sdk.version=$SDK_VERSION test:compile
 
   sample-scala-first-service:
     machine:
@@ -788,11 +788,11 @@ jobs:
           command: |
             cd samples/scala-first-service
             echo "Running sbt with SDK version: '$SDK_VERSION'"
-            sbt -Dakkaserverless-sdk.version=$SDK_VERSION test:compile
+            sbt -Dkalix-sdk.version=$SDK_VERSION test:compile
             # FIXME integration tests
             echo "==== Verifying that generated unmanaged sources compile ===="
             rm -rf src/main/scala src/test/scala src/it/scala
-            sbt -Dakkaserverless-sdk.version=$SDK_VERSION test:compile
+            sbt -Dkalix-sdk.version=$SDK_VERSION test:compile
 
   sample-scala-valueentity-counter:
     machine:
@@ -809,11 +809,11 @@ jobs:
           command: |
             cd samples/scala-valueentity-counter
             echo "Running sbt with SDK version: '$SDK_VERSION'"
-            sbt -Dakkaserverless-sdk.version=$SDK_VERSION test
+            sbt -Dkalix-sdk.version=$SDK_VERSION test
             # FIXME integration tests
             echo "==== Verifying that generated unmanaged sources compile ===="
             rm -rf src/main/scala src/test/scala src/it/scala
-            sbt -Dakkaserverless-sdk.version=$SDK_VERSION test:compile
+            sbt -Dkalix-sdk.version=$SDK_VERSION test:compile
 
   sample-scala-eventsourced-counter:
     machine:
@@ -830,11 +830,11 @@ jobs:
           command: |
             cd samples/scala-eventsourced-counter
             echo "Running sbt with SDK version: '$SDK_VERSION'"
-            sbt -Dakkaserverless-sdk.version=$SDK_VERSION test
+            sbt -Dkalix-sdk.version=$SDK_VERSION test
             # FIXME integration tests
             echo "==== Verifying that generated unmanaged sources compile ===="
             rm -rf src/main/scala src/test/scala src/it/scala
-            sbt -Dakkaserverless-sdk.version=$SDK_VERSION test:compile
+            sbt -Dkalix-sdk.version=$SDK_VERSION test:compile
 
   sample-scala-eventsourced-shopping-cart:
     machine:
@@ -851,11 +851,11 @@ jobs:
           command: |
             cd samples/scala-eventsourced-shopping-cart
             echo "Running sbt with SDK version: '$SDK_VERSION'"
-            sbt -Dakkaserverless-sdk.version=$SDK_VERSION test
+            sbt -Dkalix-sdk.version=$SDK_VERSION test
             # FIXME integration tests
             echo "==== Verifying that generated unmanaged sources compile ===="
             rm -rf src/main/scala src/test/scala src/it/scala
-            sbt -Dakkaserverless-sdk.version=$SDK_VERSION test:compile
+            sbt -Dkalix-sdk.version=$SDK_VERSION test:compile
 
   sample-scala-replicatedentity-shopping-cart:
     machine:
@@ -872,10 +872,10 @@ jobs:
           command: |
             cd samples/scala-replicatedentity-shopping-cart
             echo "Running sbt with SDK version: '$SDK_VERSION'"
-            sbt -Dakkaserverless-sdk.version=$SDK_VERSION test
+            sbt -Dkalix-sdk.version=$SDK_VERSION test
             echo "==== Verifying that generated unmanaged sources compile ===="
             rm -rf src/main/java src/test/java src/it/java
-            sbt -Dakkaserverless-sdk.version=$SDK_VERSION test:compile
+            sbt -Dkalix-sdk.version=$SDK_VERSION test:compile
 
   sample-scala-replicatedentity-examples:
     machine:
@@ -892,10 +892,10 @@ jobs:
           command: |
             cd samples/scala-replicatedentity-examples
             echo "Running sbt with SDK version: '$SDK_VERSION'"
-            sbt -Dakkaserverless-sdk.version=$SDK_VERSION test
+            sbt -Dkalix-sdk.version=$SDK_VERSION test
             echo "==== Verifying that generated unmanaged sources compile ===="
             rm -rf src/main/java src/test/java src/it/java
-            sbt -Dakkaserverless-sdk.version=$SDK_VERSION test:compile
+            sbt -Dkalix-sdk.version=$SDK_VERSION test:compile
 
   sample-scala-valueentity-shopping-cart:
     machine:
@@ -913,10 +913,10 @@ jobs:
             cd samples/scala-valueentity-shopping-cart
             echo "Running sbt with SDK version: '$SDK_VERSION'"
             echo "Version check: $VERSION_CHECK_ON_STARTUP"
-            sbt -Dakkaserverless-sdk.version=$SDK_VERSION test
+            sbt -Dkalix-sdk.version=$SDK_VERSION test
             echo "==== Verifying that generated unmanaged sources compile ===="
             rm -rf src/main/java src/test/java src/it/java
-            sbt -Dakkaserverless-sdk.version=$SDK_VERSION test:compile
+            sbt -Dkalix-sdk.version=$SDK_VERSION test:compile
 
   publish:
     docker:

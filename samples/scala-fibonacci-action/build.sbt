@@ -1,6 +1,6 @@
 name := "fibonacci-action"
 
-organization := "com.akkaserverless.samples"
+organization := "io.kalix.samples"
 organizationHomepage := Some(url("https://akkaserverless.com"))
 licenses := Seq(("CC0", url("https://creativecommons.org/publicdomain/zero/1.0")))
 

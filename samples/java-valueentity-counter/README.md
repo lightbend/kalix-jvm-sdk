@@ -4,8 +4,8 @@ This project is based on the Kalix Maven archetype.
 
 ```shell
 mvn archetype:generate \
-  -DarchetypeGroupId=com.akkaserverless \
-  -DarchetypeArtifactId=akkaserverless-maven-archetype \
+  -DarchetypeGroupId=io.kalix \
+  -DarchetypeArtifactId=kalix-maven-archetype \
   -DarchetypeVersion=LATEST
 ```
 
