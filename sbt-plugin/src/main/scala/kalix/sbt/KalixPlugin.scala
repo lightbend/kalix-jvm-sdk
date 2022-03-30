@@ -54,7 +54,7 @@ object KalixPlugin extends AutoPlugin {
 
   override def projectSettings: Seq[sbt.Setting[_]] = Seq(
     libraryDependencies ++= Seq(
-      "com.akkaserverless" % "kalix-sdk-protocol" % KalixProtocolVersion % "protobuf-src",
+      "io.kalix" % "kalix-sdk-protocol" % KalixProtocolVersion % "protobuf-src",
       "com.google.protobuf" % "protobuf-java" % "3.17.3" % "protobuf",
       "com.akkaserverless" %% "kalix-scala-sdk-testkit" % KalixSdkVersion % Test),
     Compile / PB.targets +=
