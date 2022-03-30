@@ -27,9 +27,8 @@ object CommonSettings extends AutoPlugin {
           url = url("https://lightbend.com"))),
       scmInfo := Some(
         ScmInfo(
-          // TODO: change this after we rename the repo
-          url("https://github.com/lightbend/akkaserverless-java-sdk"),
-          "scm:git@github.com:lightbend/akkaserverless-java-sdk.git")),
+          url("https://github.com/lightbend/kalix-jvm-sdk"),
+          "scm:git@github.com:lightbend/kalix-jvm-sdk.git")),
       startYear := Some(2021),
       licenses := List("Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")),
       scalafmtOnCompile := true,

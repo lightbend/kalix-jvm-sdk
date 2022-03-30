@@ -47,7 +47,7 @@ public class FibonacciActionTest {
     }
   }
 
-  // Not possible until testkit provides materializer https://github.com/lightbend/akkaserverless-java-sdk/issues/495
+  // Not possible until testkit provides materializer https://github.com/lightbend/kalix-jvm-sdk/issues/495
   /*
   @Test
   public void nextNumberOfSumTest() {

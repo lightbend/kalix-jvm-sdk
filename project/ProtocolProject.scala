@@ -44,8 +44,8 @@ object PublicProtocolProject extends AutoPlugin {
       // this repo doesn't exist (yet) but we need this for publishing to Sonatype OSS
       scmInfo := Some(
         ScmInfo(
-          url("https://github.com/lightbend/akkaserverless-protocol"),
-          "scm:git@github.com:lightbend/akkaserverless-protocol.git")),
+          url("https://github.com/lightbend/kalix-protocol"),
+          "scm:git@github.com:lightbend/kalix-protocol.git")),
       packageZip := {
         import com.typesafe.sbt.packager.universal.Archives
         val zipName = s"${name.value}-${version.value}"

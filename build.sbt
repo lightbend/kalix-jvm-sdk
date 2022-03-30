@@ -144,7 +144,7 @@ def scaladocOptions(title: String, ver: String, base: File): List[String] = {
 
 def githubUrl(v: String): String = {
   val branch = if (v.endsWith("SNAPSHOT")) "main" else "v" + v
-  "https://github.com/lightbend/akkaserverless-java-sdk/tree/" + branch
+  "https://github.com/lightbend/kalix-jvm-sdk/tree/" + branch
 }
 
 lazy val sdkJavaTestKit = project
@@ -188,7 +188,7 @@ lazy val tckScala = project
   .settings(
     name := "kalix-tck-scala-sdk",
     akkaGrpcGeneratedLanguages := Seq(AkkaGrpc.Scala),
-    libraryDependencies ++= Seq(Dependencies.akkaslsSdkProtocol % "protobuf-src"),
+    libraryDependencies ++= Seq(Dependencies.kalixSdkProtocol % "protobuf-src"),
     ReflectiveCodeGen.copyUnmanagedSources := true,
     Compile / mainClass := Some("kalix.scalasdk.tck.ScalaSdkTck"),
     dockerEnvVars += "HOST" -> "0.0.0.0",
@@ -325,7 +325,7 @@ lazy val codegenScalaCompilationTest = project
   // and the goal is to verify if it compiles
   .dependsOn(sdkScalaTestKit)
   .settings(common)
-  .settings(libraryDependencies ++= Seq(Dependencies.junit4, Dependencies.akkaslsSdkProtocol % "protobuf-src"))
+  .settings(libraryDependencies ++= Seq(Dependencies.junit4, Dependencies.kalixSdkProtocol % "protobuf-src"))
   .settings(
     akkaGrpcGeneratedLanguages := Seq(AkkaGrpc.Scala),
     (publish / skip) := true,
@@ -346,7 +346,7 @@ lazy val codegenScalaCompilationExampleSuite: CompositeProject =
         .dependsOn(sdkScala % "compile", sdkScalaTestKit % "test")
         .settings(
           akkaGrpcCodeGeneratorSettings += "flat_package",
-          libraryDependencies ++= Seq(Dependencies.akkaslsSdkProtocol % "protobuf-src"))
+          libraryDependencies ++= Seq(Dependencies.kalixSdkProtocol % "protobuf-src"))
   }
 
 lazy val sbtPlugin = Project(id = "sbt-kalix", base = file("sbt-plugin"))

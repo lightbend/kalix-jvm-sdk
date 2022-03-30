@@ -25,7 +25,7 @@ object DocLinks {
     "AS-00402" -> s"$baseUrl/java/topic-eventing.html",
     "AS-00406" -> s"$baseUrl/java/topic-eventing.html",
     "AS-00414" -> s"$baseUrl/java/entity-eventing.html"
-    // TODO: docs for value entity eventing (https://github.com/lightbend/akkaserverless-java-sdk/issues/121)
+    // TODO: docs for value entity eventing (https://github.com/lightbend/kalix-jvm-sdk/issues/121)
     // "AS-00415" -> s"$baseUrl/java/entity-eventing.html"
   )
 
