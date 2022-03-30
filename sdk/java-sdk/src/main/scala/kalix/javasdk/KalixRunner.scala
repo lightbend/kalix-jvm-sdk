@@ -101,8 +101,8 @@ final class KalixRunner private[this] (
 
   /**
    * Creates a KalixRunner from the given services and config. The config should have the same structure as the
-   * reference.conf, with `akkaserverless` as the root section, and the configuration for the internal ActorSystem is in
-   * the `akkaserverless.system` section.
+   * reference.conf, with `kalix` as the root section, and the configuration for the internal ActorSystem is in
+   * the `kalix.system` section.
    */
   def this(services: java.util.Map[String, java.util.function.Function[ActorSystem, Service]], config: Config) {
     this(ActorSystem("kalix", config.getConfig("kalix.system").withFallback(config)), services.asScala.toMap)

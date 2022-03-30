@@ -132,7 +132,7 @@ include::example$scala-fibonacci-action/src/main/scala/com/example/fibonacci/Mai
 
 By default, the generated constructor has an `ActionCreationContext` parameter, but you can change this to accept other parameters.
 If you change the constructor of the `FibonacciAction` class you will see a compilation error here, and you have to adjust the
-factory function that is passed to `AkkaServerlessFactory.withComponents`.
+factory function that is passed to `KalixFactory.withComponents`.
 
 When more components are added the `KalixFactory` is regenerated, and you have to adjust the registration from the `Main` class.
 
