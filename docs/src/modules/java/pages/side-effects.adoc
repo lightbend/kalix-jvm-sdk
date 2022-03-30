@@ -32,7 +32,7 @@ Java::
 include::example$java-valueentity-counter/src/main/proto/com/example/actions/double-counter.proto[tag=whole-double-action-proto]
 ----
 <1> Import the Counter API definition
-<2> The protobuf option (kalix.codegen) is specific to code-generation as provided by the Akka Serverless Maven plugin. This annotation indicates to the code-generation that an Action must be generated.
+<2> The protobuf option (kalix.codegen) is specific to code-generation as provided by the Kalix Maven plugin. This annotation indicates to the code-generation that an Action must be generated.
 <3> The Action mimics the Counter API with a forward
 <4> The Action mimics the Counter API with a side effect
 
@@ -44,7 +44,7 @@ Scala::
 include::example$scala-valueentity-counter/src/main/proto/com/example/actions/double-counter.proto[tag=whole-double-action-proto]
 ----
 <1> Import the Counter API definition
-<2> The protobuf option (kalix.codegen) is specific to code-generation as provided by the Akka Serverless Maven plugin. This annotation indicates to the code-generation that an Action must be generated.
+<2> The protobuf option (kalix.codegen) is specific to code-generation as provided by the Kalix Maven plugin. This annotation indicates to the code-generation that an Action must be generated.
 <3> The Action mimics the Counter API with a forward
 <4> The Action mimics the Counter API with a side effect
 
@@ -67,7 +67,7 @@ the `Counter` entity fails, the `Action` reply will succeed.
 
 == Unit testing the side effects
 
-The side effects of an Action can be tested in isolation. To test the side effects of `DoubleCounterAction`, shown on the previous snippet, we can leverage link:{attachmentsdir}/testkit/com/akkaserverless/javasdk/testkit/ActionResult.html[`ActionResult` {tab-icon}, window="new"]. This class has the method `getSideEffects()` that returns the list of side effects added to the `Action`.
+The side effects of an Action can be tested in isolation. To test the side effects of `DoubleCounterAction`, shown on the previous snippet, we can leverage link:{attachmentsdir}/testkit/kalix/javasdk/testkit/ActionResult.html[`ActionResult` {tab-icon}, window="new"]. This class has the method `getSideEffects()` that returns the list of side effects added to the `Action`.
 
 [.tabset]
 Java::
@@ -78,7 +78,7 @@ Java::
 include::example$java-valueentity-counter/src/test/java/com/example/actions/DoubleCounterActionTest.java[tag=side-effect-test]
 ----
 <1> executing the `DoubleCounterAction.increase` RPC call through the test kit
-<2> retrieving the first side effect. There is only one in `DoubleConterAction.increase`. It's worth noting the side effects are `DeferredCall` objects that represent Akka Serverless RPC services. `DeferredCallDetails` is the representation of a `DeferredCall` on the Akka Serverless test kit framework.
+<2> retrieving the first side effect. There is only one in `DoubleConterAction.increase`. It's worth noting the side effects are `DeferredCall` objects that represent Kalix RPC services. `DeferredCallDetails` is the representation of a `DeferredCall` on the Kalix test kit framework.
 <3> retrieving and asserting the name of the service
 <4> retrieving and asserting the RPC's name of the service
 <5> retrieving and asserting the RPC's input
@@ -90,7 +90,7 @@ Scala::
 include::example$scala-valueentity-counter/src/test/scala/com/example/actions/DoubleCounterActionSpec.scala[tag=side-effect-test]
 ----
 <1> executing the `DoubleCounterAction.increaseWithSideEffect` RPC call through the test kit
-<2> retrieving the first side effect. There is only one in `DoubleConterAction.increaseWithSideEffect` implementation. It's worth noting the side effects are `DeferredCall` objects that represent Akka Serverless RPC services. `DeferredCallDetails` is the representation of a `DeferredCall` on the Akka Serverless test kit framework.
+<2> retrieving the first side effect. There is only one in `DoubleConterAction.increaseWithSideEffect` implementation. It's worth noting the side effects are `DeferredCall` objects that represent Kalix RPC services. `DeferredCallDetails` is the representation of a `DeferredCall` on the Kalix test kit framework.
 <3> retrieving and asserting the name of the service
 <4> retrieving and asserting the RPC's name of the service
 <5> retrieving and asserting the RPC's input

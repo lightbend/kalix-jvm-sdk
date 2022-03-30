@@ -1,7 +1,7 @@
-# Make Akka Serverless Java SDK documentation
+# Make Kalix Java SDK documentation
 
 module   := java
-upstream := lightbend/akkaserverless-java-sdk
+upstream := lightbend/kalix-jvm-sdk
 branch   := docs/current
 sources  := src build/src/managed
 
@@ -30,13 +30,13 @@ managed: prepare attributes apidocs examples bundles
 
 attributes:
 	mkdir -p "${managed_partials}"
-	bin/version.sh | xargs -0  printf ":akkaserverless-java-sdk-version: %s" \
+	bin/version.sh | xargs -0  printf ":kalix-jvm-sdk-version: %s" \
 		> "${managed_partials}/attributes.adoc"
 	echo ":java-version: 11" \
 		>> "${managed_partials}/attributes.adoc"
 	echo ":java_minimum_sdk_version: 0.7.0" \
 		>> "${managed_partials}/attributes.adoc"
-	echo ":console: https://console.akkaserverless.com/" \
+	echo ":console: https://console.kalix.io/" \
 		>> "${managed_partials}/attributes.adoc"
 
 apidocs:

@@ -2,7 +2,7 @@
 :page-supergroup-java-scala: Language
 include::ROOT:partial$include.adoc[]
 
-https://developer.lightbend.com/docs/akka-serverless/reference/glossary.html#value_entity[Value Entities] persist state on every change and Akka Serverless needs to serialize that data to send it to the underlying data store, this is done with Protocol Buffers using `protobuf` types.
+https://docs.kalix.io/reference/glossary.html#value_entity[Value Entities] persist state on every change and Kalix needs to serialize that data to send it to the underlying data store, this is done with Protocol Buffers using `protobuf` types.
 
 While Protocol Buffers are the recommended format for persisting state, we recommend that you do not persist your service's public `protobuf` messages. This may introduce some overhead to convert from one type to the other but allows the service public interface logic to evolve independently of the data storage format, which should be private.
 
@@ -31,7 +31,7 @@ include::example$java-valueentity-counter/src/main/proto/com/example/domain/coun
 ----
 <1> Any classes generated from this protobuf file will be in the Java package `com.example.domain`.
 <2> Let the messages declared in this protobuf file be inner classes to the Java class `CounterDomain`.
-<3> The `CounterState` protobuf message is what Akka Serverless stores for this entity.
+<3> The `CounterState` protobuf message is what Kalix stores for this entity.
 
 Scala::
 +
@@ -41,11 +41,11 @@ Scala::
 include::example$scala-valueentity-counter/src/main/proto/com/example/domain/counter_domain.proto[]
 ----
 <1> Any classes generated from this protobuf file will be in the Scala package `com.example.domain`.
-<2> The `CounterState` protobuf message is what Akka Serverless stores for this entity.
+<2> The `CounterState` protobuf message is what Kalix stores for this entity.
 
 The `counter_api.proto` file defines the commands we can send to the Counter service to manipulate or access the Counter's state.
 
-In this file we instruct the Akka Serverless Codegen which kind of component we want to create. The codegen will generate all stubs for your entity/service and corresponding tests, as well as an abstract class for your implementation to extend.
+In this file we instruct the Kalix Codegen which kind of component we want to create. The codegen will generate all stubs for your entity/service and corresponding tests, as well as an abstract class for your implementation to extend.
 
 They make up the service API:
 
@@ -58,17 +58,17 @@ Java::
 include::example$java-valueentity-counter/src/main/proto/com/example/counter_api.proto[]
 ----
 <1> Any classes generated from this protobuf file will be in the Java package `com.example`.
-<2> Import the Akka Serverless protobuf annotations, or options.
+<2> Import the Kalix protobuf annotations, or options.
 <3> Let the messages declared in this protobuf file be inner classes to the class `CounterApi`.
 <4> We use protobuf messages to describe the Commands that our service handles. They may contain other messages to represent structured data.
 <5> Every Command must contain a `string` field that contains the entity ID and is marked with the `(kalix.field).entity_key` option.
 <6> Messages describe the return value for our API. For methods that don't have return values, we use `google.protobuf.Empty`.
 <7> The service descriptor shows the API of the entity. It lists the methods a client can use to issue Commands to the entity.
-<8> The protobuf option `(kalix.codegen)`  is specific to code-generation as provided by the Akka Serverless Maven plugin.
+<8> The protobuf option `(kalix.codegen)`  is specific to code-generation as provided by the Kalix Maven plugin.
 <9> `value_entity` indicates that we want the codegen to generate a Value Entity for this service.
 <10> `name` denotes the base name for the Value Entity, the code-generation will create initial sources `Counter`, `CounterTest` and `CounterIntegrationTest`. Once these files exist, they are not overwritten, so you can freely add logic to them.
 <11> `entity_type` is a unique identifier of the "state storage". The entity name may be changed even after data has been created, the `entity_type` can't.
-<12> `state` points to the protobuf message representing the Value Entity's state which is kept by Akka Serverless. Note, the package and name follow the definion in the domain.proto file.
+<12> `state` points to the protobuf message representing the Value Entity's state which is kept by Kalix. Note, the package and name follow the definion in the domain.proto file.
 
 Scala::
 +
@@ -78,16 +78,16 @@ Scala::
 include::example$scala-valueentity-counter/src/main/proto/com/example/counter_api.proto[]
 ----
 <1> Any classes generated from this protobuf file will be in the Scala package `com.example`.
-<2> Import the Akka Serverless protobuf annotations or options.
+<2> Import the Kalix protobuf annotations or options.
 <3> We use protobuf messages to describe the Commands that our service handles. They may contain other messages to represent structured data.
 <4> Every Command must contain a `string` field that contains the entity ID and is marked with the `(kalix.field).entity_key` option.
 <5> Messages describe the return value for our API. For methods that don't have return values, we use `google.protobuf.Empty`.
 <6> The service descriptor shows the API of the entity. It lists the methods a client can use to issue Commands to the entity.
-<7> The protobuf option `(kalix.codegen)`  is specific to code-generation as provided by the Akka Serverless Maven plugin.
+<7> The protobuf option `(kalix.codegen)`  is specific to code-generation as provided by the Kalix Maven plugin.
 <8> `value_entity` indicates that we want the codegen to generate a Value Entity for this service.
 <9> `name` denotes the base name for the Value Entity, the code-generation will create initial sources `Counter`, `CounterTest` and `CounterIntegrationTest`. Once these files exist, they are not overwritten, so you can freely add logic to them.
 <10> `entity_type` is a unique identifier of the "state storage". The entity name may be changed even after data has been created, the `entity_type` can't.
-<11> `state` points to the protobuf message representing the Value Entity's state which is kept by Akka Serverless. Note, the package and name follow the definion in the domain.proto file.
+<11> `state` points to the protobuf message representing the Value Entity's state which is kept by Kalix. Note, the package and name follow the definion in the domain.proto file.
 
 
 == Implementing behavior
@@ -103,7 +103,7 @@ Java::
 ----
 include::java:example$java-valueentity-counter/src/main/java/com/example/domain/Counter.java[tag=class]
 ----
-<1> Extends the generated `AbstractCounter`, which extends link:{attachmentsdir}/api/com/akkaserverless/javasdk/valueentity/ValueEntity.html[`ValueEntity` {tab-icon}, window="new"].
+<1> Extends the generated `AbstractCounter`, which extends link:{attachmentsdir}/api/kalix/javasdk/valueentity/ValueEntity.html[`ValueEntity` {tab-icon}, window="new"].
 <2> Defines the initial, empty, state that is used before any updates.
 
 Scala::
@@ -113,10 +113,10 @@ Scala::
 ----
 include::java:example$scala-valueentity-counter/src/main/scala/com/example/domain/Counter.scala[tag=class]
 ----
-<1> Extends the generated `AbstractCounter`, which extends link:{attachmentsdir}/api/com/akkaserverless/scalasdk/valueentity/ValueEntity.html[`ValueEntity` {tab-icon}, window="new"].
+<1> Extends the generated `AbstractCounter`, which extends link:{attachmentsdir}/api/kalix/scalasdk/valueentity/ValueEntity.html[`ValueEntity` {tab-icon}, window="new"].
 <2> Defines the initial, empty, state that is used before any updates.
 
-We need to implement all methods our Value Entity offers as https://developer.lightbend.com/docs/akka-serverless/reference/glossary.html#command_handler[_command handlers_].
+We need to implement all methods our Value Entity offers as https://docs.kalix.io/reference/glossary.html#command_handler[_command handlers_].
 
 The code-generation will generate an implementation class with an initial empty implementation which we'll discuss below.
 
@@ -184,9 +184,9 @@ include::java:example$scala-valueentity-counter/src/main/scala/com/example/domai
 
 == Registering the Entity
 
-To make Akka Serverless aware of the Value Entity, we need to register it with the service.
+To make Kalix aware of the Value Entity, we need to register it with the service.
 
-From the code-generation, the registration gets automatically inserted in the generated `AkkaServerlessFactory.withComponents` method from the `Main` class.
+From the code-generation, the registration gets automatically inserted in the generated `KalixFactory.withComponents` method from the `Main` class.
 
 [.tabset]
 Java::
@@ -205,9 +205,9 @@ Scala::
 include::java:example$scala-valueentity-counter/src/main/scala/com/example/Main.scala[tag=registration-value-entity]
 ----
 
-By default, the generated constructor has a `ValueEntityContext` parameter, but you can change this to accept other parameters. If you change the constructor of the `Counter` class you will see a compilation error here, and you have to adjust the factory function that is passed to `AkkaServerlessFactory.withComponents`.
+By default, the generated constructor has a `ValueEntityContext` parameter, but you can change this to accept other parameters. If you change the constructor of the `Counter` class you will see a compilation error here, and you have to adjust the factory function that is passed to `KalixFactory.withComponents`.
 
-When more components are added the `AkkaServerlessFactory` is regenerated, and you have to adjust the registration from the `Main` class.
+When more components are added the `KalixFactory` is regenerated, and you have to adjust the registration from the `Main` class.
 
 == Testing the Entity
 
@@ -244,7 +244,7 @@ By default, the integration and unit tests are both invoked by `sbt test`. To on
 
 === Integration tests
 
-An example integration test class to start from is also generated for you. It uses [.group-java]#an `AkkaServerlessTestKitResource`# [.group-scala]#`KalixTestKit`# to start docker containers and interacts with the entity with an actual gRPC client.
+An example integration test class to start from is also generated for you. It uses [.group-java]#an `KalixTestKitResource`# [.group-scala]#`KalixTestKit`# to start docker containers and interacts with the entity with an actual gRPC client.
 
 [.tabset]
 Java::
