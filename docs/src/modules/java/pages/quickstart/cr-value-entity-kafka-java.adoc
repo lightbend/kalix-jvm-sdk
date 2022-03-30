@@ -4,30 +4,30 @@ include::ROOT:partial$include.adoc[]
 include::java:partial$attributes.adoc[]
 
 
-Create a customer registry that includes publishing to Kafka. Package it into a container, and run it on Akka Serverless.
+Create a customer registry that includes publishing to Kafka. Package it into a container, and run it on Kalix.
 
 == In this Quickstart you will learn:
 
 * How to add additional functionality, allowing to publish customer's events to Kafka.
 * How to package the customer registry into a container.
-* How to deploy and run the customer registry on Akka Serverless.
+* How to deploy and run the customer registry on Kalix.
 
 == Before you begin
 
-* If you're new to Akka Serverless, {console}[create an account, window="console"] so you can try out Akka Serverless for free.
-* You'll also need to install the https://developer.lightbend.com/docs/akka-serverless/akkasls/install-akkasls.html[Akka Serverless CLI, window="new-doc"] to deploy from a terminal window.
+* If you're new to Kalix, {console}[create an account, window="console"] so you can try out Kalix for free.
+* You'll also need to install the https://docs.kalix.io/kalix/install-kalix.html[Kalix CLI, window="new-doc"] to deploy from a terminal window.
 * For this quickstart, you'll also need
 ** https://docs.docker.com/engine/install[Docker {minimum_docker_version} or higher, window="new"]
 ** Java {java-version} or higher
 ** https://maven.apache.org/download.cgi[Maven 3.x or higher, window="new"]
 ** https://github.com/fullstorydev/grpcurl#installation[`grpcurl`, window="new"]
-** Configure your project message broker to use Kafka and create the topic `customer_changes` by following the https://developer.lightbend.com/docs/akka-serverless/projects/message-brokers.html[Configure message brokers] how-to. When setting the broker the configuration file you pass should be like `kafka/my-dev.kafka.properties` that you can find in this project.
+** Configure your project message broker to use Kafka and create the topic `customer_changes` by following the https://docs.kalix.io/projects/message-brokers.html[Configure message brokers] how-to. When setting the broker the configuration file you pass should be like `kafka/my-dev.kafka.properties` that you can find in this project.
 
 [NOTE]
 ====
 If you want to bypass writing code and jump straight to the deployment:
 
-. Download the source code using the Akka Serverless CLI:
+. Download the source code using the Kalix CLI:
 `akkasls quickstart download customer-registry-kafka-java`
 
 . Skip to <<Package and deploy your service>>.
@@ -35,14 +35,14 @@ If you want to bypass writing code and jump straight to the deployment:
 
 == Start from the Customer Registry Entity
 
-Start by downloading the  xref:java:quickstart/cr-value-entity-java.adoc[Customer Registry Quickstart] source code using the Akka Serverless CLI:
+Start by downloading the  xref:java:quickstart/cr-value-entity-java.adoc[Customer Registry Quickstart] source code using the Kalix CLI:
 
 [source,command line]
 ----
-akkasls quickstart download customer-registry-java
+kalix quickstart download customer-registry-java
 ----
 
-In this guide, we will describe how to subscribe to events from the entity and forward them to a Kafka Broker. How to do this with an  https://developer.lightbend.com/docs/akka-serverless/reference/glossary.html#action[Action]. Publishing an event each time a customer is created or updated
+In this guide, we will describe how to subscribe to events from the entity and forward them to a Kafka Broker. How to do this with an  https://docs.kalix.io/reference/glossary.html#action[Action]. Publishing an event each time a customer is created or updated
 
 == Define an Action
 
@@ -74,7 +74,7 @@ mkdir src/main/proto/customer/action
 * The protobuf syntax version, `proto3`.
 * The package name, `customer.action`.
 * The required Java outer classname, `CustomerAction`. Messages defined in this file will be generated as inner classes.
-* Import `customer/api/customer_api.proto`,`customer/domain/customer_domain.proto`, and Akka Serverless `kalix/annotations.proto`.
+* Import `customer/api/customer_api.proto`,`customer/domain/customer_domain.proto`, and Kalix `kalix/annotations.proto`.
 +
 [source,proto,indent=0]
 .src/main/proto/customer/action/customer_action.proto
@@ -120,22 +120,22 @@ include::example$java-customer-registry-kafka-quickstart/src/main/java/customer/
 
 To build and publish the container image and then deploy the service, follow these steps:
 
-. If you haven't done so yet, sign in to your Akka Serverless account. If this is your first time using Akka Serverless, this will let you register an account, https://developer.lightbend.com/docs/akka-serverless/projects/create-project.html[create your first project], and set this project as the default.
+. If you haven't done so yet, sign in to your Kalix account. If this is your first time using Kalix, this will let you register an account, https://docs.kalix.io/projects/create-project.html[create your first project], and set this project as the default.
 +
 ----
-akkasls auth login
+kalix auth login
 ----
 
-. Use the `deploy` target to build the container image, publish it to the container registry as configured in the `pom.xml` file, and then automatically https://developer.lightbend.com/docs/akka-serverless/services/deploy-service.html#_deploy[deploy the service] to Akka Serverless using `akkasls`:
+. Use the `deploy` target to build the container image, publish it to the container registry as configured in the `pom.xml` file, and then automatically https://docs.kalix.io/services/deploy-service.html#_deploy[deploy the service] to Kalix using `kalix`:
 +
 ----
 mvn deploy
 ----
 
-. You can https://developer.lightbend.com/docs/akka-serverless/services/deploy-service.html#_verify_service_status[verify the status of the deployed service] using:
+. You can https://docs.kalix.io/services/deploy-service.html#_verify_service_status[verify the status of the deployed service] using:
 +
 ----
-akkasls service list
+kalix service list
 ----
 
 == Invoke your service

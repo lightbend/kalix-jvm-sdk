@@ -3,12 +3,12 @@
 include::ROOT:partial$include.adoc[]
 include::java:partial$attributes.adoc[]
 
-Learn how to create a shopping cart in Java, package it into a container, and run it on Akka Serverless.
+Learn how to create a shopping cart in Java, package it into a container, and run it on Kalix.
 
 == Before you begin
 
-* If you're new to Akka Serverless, {console}[create an account, window="console"] so you can try out Akka Serverless for free.
-* You'll also need to install the https://developer.lightbend.com/docs/akka-serverless/akkasls/install-akkasls.html[Akka Serverless CLI, window="new-doc"] to deploy from a terminal window.
+* If you're new to Kalix, {console}[create an account, window="console"] so you can try out Kalix for free.
+* You'll also need to install the https://docs.kalix.io/kalix/install-kalix.html[Kalix CLI, window="new-doc"] to deploy from a terminal window.
 * For this quickstart, you'll also need
 ** https://docs.docker.com/engine/install[Docker {minimum_docker_version} or higher, window="new"]
 ** Java {java-version} or higher
@@ -19,8 +19,8 @@ Learn how to create a shopping cart in Java, package it into a container, and ru
 ====
 If you want to bypass writing code and jump straight to the deployment:
 
-. Download the source code using the Akka Serverless CLI:
-`akkasls quickstart download shopping-cart-java`
+. Download the source code using the Kalix CLI:
+`kalix quickstart download shopping-cart-java`
 
 . Skip to <<Package and deploy your service>>.
 ====
@@ -46,7 +46,7 @@ cd shoppingcart
 +
 [source,command line]
 ----
-curl -OL https://raw.githubusercontent.com/lightbend/akkaserverless-java-sdk/main/samples/java-shopping-cart-quickstart/pom.xml
+curl -OL https://raw.githubusercontent.com/lightbend/kalix-jvm-sdk/main/samples/java-shopping-cart-quickstart/pom.xml
 ----
 
 . Update the `dockerImage` property (line 13 of the `pom.xml` file) with your container registry name.
@@ -83,7 +83,7 @@ mkdir src/main/proto/shopping/cart/domain
 * The protobuf syntax version, `proto3`.
 * The package name, `shopping.cart.api`.
 * The required Java outer classname, `ShoppingCartAPI`. Messages defined in this file will be generated as inner classes.
-* Import `google/protobuf/empty.proto` and Akka Serverless `kalix/annotations.proto`.
+* Import `google/protobuf/empty.proto` and Kalix `kalix/annotations.proto`.
 +
 [source,proto,indent=0]
 .src/main/proto/shopping/cart/shopping_cart_api.proto
@@ -117,7 +117,7 @@ include::example$java-shopping-cart-quickstart/src/main/proto/shopping/cart/api/
 
 == Define the domain model
 
-The `shopping_cart_domain.proto` contains all the internal data objects (https://developer.lightbend.com/docs/akka-serverless/reference/glossary.html#entity[Entities, window="new"]). The https://developer.lightbend.com/docs/akka-serverless/reference/glossary.html#event_sourced_entity[Event Sourced Entity, window="new"] in this quickstart keeps all events sent for a specific shopping cart in a journal.
+The `shopping_cart_domain.proto` contains all the internal data objects (https://docs.kalix.io/reference/glossary.html#entity[Entities, window="new"]). The https://docs.kalix.io/reference/glossary.html#event_sourced_entity[Event Sourced Entity, window="new"] in this quickstart keeps all events sent for a specific shopping cart in a journal.
 
 
 . Create a `shopping_cart_domain.proto` file and save it in the `src/main/proto/shopping/cart/domain` directory.
@@ -250,40 +250,40 @@ include::example$java-shopping-cart-quickstart/src/main/java/shopping/cart/domai
 
 [NOTE]
 ====
-The `src/main/java/shopping/cart/Main.java` file already contains the required code to start your service and register it with Akka Serverless.
+The `src/main/java/shopping/cart/Main.java` file already contains the required code to start your service and register it with Kalix.
 ====
 
 == Package and deploy your service
 
 To build and publish the container image and then deploy the service, follow these steps:
 
-. If you haven't done so yet, sign in to your Akka Serverless account. If this is your first time using Akka Serverless, this will let you register an account, https://developer.lightbend.com/docs/akka-serverless/projects/create-project.html[create your first project], and set this project as the default.
+. If you haven't done so yet, sign in to your Kalix account. If this is your first time using Kalix, this will let you register an account, https://docs.kalix.io/projects/create-project.html[create your first project], and set this project as the default.
 +
 ----
-akkasls auth login
+kalix auth login
 ----
 
-. Use the `deploy` target to build the container image, publish it to the container registry as configured in the `pom.xml` file, and then automatically https://developer.lightbend.com/docs/akka-serverless/services/deploy-service.html#_deploy[deploy the service] to Akka Serverless using `akkasls`:
+. Use the `deploy` target to build the container image, publish it to the container registry as configured in the `pom.xml` file, and then automatically https://docs.kalix.io/services/deploy-service.html#_deploy[deploy the service] to Kalix using `kalix`:
 +
 ----
 mvn deploy
 ----
 
-. You can https://developer.lightbend.com/docs/akka-serverless/services/deploy-service.html#_verify_service_status[verify the status of the deployed service] using:
+. You can https://docs.kalix.io/services/deploy-service.html#_verify_service_status[verify the status of the deployed service] using:
 +
 ----
-akkasls service list
+kalix service list
 ----
 
 == Invoke your service
 
-Once the service has started successfully, you can https://developer.lightbend.com/docs/akka-serverless/services/invoke-service.html#_testing_and_development[start a proxy locally] to access the service:
+Once the service has started successfully, you can https://docs.kalix.io/services/invoke-service.html#_testing_and_development[start a proxy locally] to access the service:
 
 ----
-akkasls service proxy <service name> --grpcui
+kalix service proxy <service name> --grpcui
 ----
 
-The `--grpcui` option also starts and opens a https://developer.lightbend.com/docs/akka-serverless/services/invoke-service.html#_using_the_built_in_graphical_client[gRPC web UI] for exploring and invoking the service (available at http://127.0.0.1:8080/ui/).
+The `--grpcui` option also starts and opens a https://docs.kalix.io/services/invoke-service.html#_using_the_built_in_graphical_client[gRPC web UI] for exploring and invoking the service (available at http://127.0.0.1:8080/ui/).
 
 Or you can use command line gRPC or HTTP clients, such as `grpcurl` or `curl`, to invoke the service through the proxy at `localhost:8080`, using plaintext connections.
 
@@ -310,10 +310,10 @@ grpcurl \
   shopping.cart.api.ShoppingCart/GetCart
 ----
 
-You can https://developer.lightbend.com/docs/akka-serverless/services/invoke-service.html#_exposing_services_to_the_internet[expose the service to the internet]. A generated hostname will be returned from the expose command:
+You can https://docs.kalix.io/services/invoke-service.html#_exposing_services_to_the_internet[expose the service to the internet]. A generated hostname will be returned from the expose command:
 
 ----
-akkasls service expose <service name>
+kalix service expose <service name>
 ----
 
 == Next steps

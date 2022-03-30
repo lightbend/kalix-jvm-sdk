@@ -29,7 +29,7 @@ Java::
 include::example$java-eventsourced-counter/src/main/proto/com/example/actions/counter_topic.proto[tag=counter-topic]
 ----
 <1> Import the Counter Domain file containing the definitions of the events. This is typically a proto definition within the same service.
-<2> The protobuf option (kalix.codegen) is specific to code-generation as provided by the Akka Serverless Maven plugin. This annotation indicates to the code-generation that an Action must be generated.
+<2> The protobuf option (kalix.codegen) is specific to code-generation as provided by the Kalix Maven plugin. This annotation indicates to the code-generation that an Action must be generated.
 <3> The `Increase` method receives the event `ValueIncreased` and returns the transformed type `Increased`.
 <4> The `(kalix.method).eventing.in` annotation indicates that events from the entity type `counter` should be delivered to this method (when the type is `ValueIncreased`).
 <5> The `(kalix.method).eventing.out` annotation indicates that the returned value from this method should be published to the topic called `counter-events`.
@@ -42,7 +42,7 @@ Scala::
 include::example$scala-eventsourced-counter/src/main/proto/com/example/actions/counter_topic.proto[tag=counter-topic]
 ----
 <1> Import the Counter Domain file containing the definitions of the events. This is typically a proto definition within the same service.
-<2> The protobuf option (kalix.codegen) is specific to code-generation as provided by the Akka Serverless sbt plugin. This annotation indicates to the code-generation that an Action must be generated.
+<2> The protobuf option (kalix.codegen) is specific to code-generation as provided by the Kalix sbt plugin. This annotation indicates to the code-generation that an Action must be generated.
 <3> The `Increase` method receives the event `ValueIncreased` and returns the transformed type `Increased`.
 <4> The `(kalix.method).eventing.in` annotation indicates that events from the entity type `counter` should be delivered to this method (when the type is `ValueIncreased`).
 <5> The `(kalix.method).eventing.out` annotation indicates that the returned value from this method should be published to the topic called `counter-events`.
@@ -69,7 +69,7 @@ include::example$scala-eventsourced-counter/src/main/scala/com/example/actions/C
 ----
 <1> We convert the incoming domain event `ValueIncreased` to the outgoing topic API `Increased` and return that as a reply.
 
-In this example we have published Protobuf messages to the topic which is convenient if the consuming end is also an Akka Serverless service. For an external consumer Protobuf may not be a supported format, for details on publishing other formats see xref:java:serialization.adoc[Handling Serialization].
+In this example we have published Protobuf messages to the topic which is convenient if the consuming end is also a Kalix service. For an external consumer Protobuf may not be a supported format, for details on publishing other formats see xref:java:serialization.adoc[Handling Serialization].
 
 == Subscribing to state changes from a Value Entity
 
@@ -84,7 +84,7 @@ Java::
 include::example$java-valueentity-counter/src/main/proto/com/example/actions/counter_states_sub.proto[tag=state-subscription]
 ----
 <1> Import the Counter Domain from the Value Entity example (see xref:java:value-entity.adoc[Implementing Value Entities])
-<2> The protobuf option (kalix.codegen) is specific to code-generation as provided by the Akka Serverless Maven plugin. This annotation indicates to the code-generation that an Action must be generated.
+<2> The protobuf option (kalix.codegen) is specific to code-generation as provided by the Kalix Maven plugin. This annotation indicates to the code-generation that an Action must be generated.
 <3> The `(kalix.method).eventing.in` annotation indicates that state changes from the value entity type `counter` should be delivered to this method.
 
 Scala::
@@ -95,7 +95,7 @@ Scala::
 include::example$scala-valueentity-counter/src/main/proto/com/example/actions/counter_states_sub.proto[tag=state-subscription]
 ----
 <1> Import the Counter Domain from the Value Entity example (see xref:java:value-entity.adoc[Implementing Value Entities])
-<2> The protobuf option (kalix.codegen) is specific to code-generation as provided by the Akka Serverless sbt plugin. This annotation indicates to the code-generation that an Action must be generated.
+<2> The protobuf option (kalix.codegen) is specific to code-generation as provided by the Kalix sbt plugin. This annotation indicates to the code-generation that an Action must be generated.
 <3> The `(kalix.method).eventing.in` annotation indicates that state changes from the value entity type `counter` should be delivered to this method.
 
 == Subscribing to a Topic
@@ -115,7 +115,7 @@ Java::
 include::example$java-eventsourced-counter/src/main/proto/com/example/actions/counter_topic_sub.proto[tag=counter-topic-sub]
 ----
 <1> Import the Counter Topic types from previous example.
-<2> The protobuf option (kalix.codegen) is specific to code-generation as provided by the Akka Serverless Maven plugin. This annotation indicates to the code-generation that an Action must be generated.
+<2> The protobuf option (kalix.codegen) is specific to code-generation as provided by the Kalix Maven plugin. This annotation indicates to the code-generation that an Action must be generated.
 <3> Define methods for each of the possible incoming messages and annotate them with `(kalix.method).eventing.in` indicating that the source of events is the topic `counter-events`.
 
 Scala::
@@ -126,7 +126,7 @@ Scala::
 include::example$scala-eventsourced-counter/src/main/proto/com/example/actions/counter_topic_sub.proto[tag=counter-topic-sub]
 ----
 <1> Import the Counter Topic types from previous example.
-<2> The protobuf option (kalix.codegen) is specific to code-generation as provided by the Akka Serverless sbt plugin. This annotation indicates to the code-generation that an Action must be generated.
+<2> The protobuf option (kalix.codegen) is specific to code-generation as provided by the Kalix sbt plugin. This annotation indicates to the code-generation that an Action must be generated.
 <3> Define methods for each of the possible incoming messages and annotate them with `(kalix.method).eventing.in` indicating that the source of events is the topic `counter-events`.
 
 The class `CounterTopicSubscriptionAction` gets generated for us based on the proto file defined above.
@@ -153,7 +153,7 @@ but it could a forward to some other component or external service.
 
 == Receiving messages from an external Topic
 
-In the example above, we consumed Protobuf messages from a topic that we control ourselves. When consuming an external topic, it's very likely that the message format is not under your control and is not known by Akka Serverless.
+In the example above, we consumed Protobuf messages from a topic that we control ourselves. When consuming an external topic, it's very likely that the message format is not under your control and is not known by Kalix.
 
 In such case, the Action definition should receive a type depending on the type of the message payload. See xref:java:serialization.adoc[Handling Serialization] for more information on how to deal with data formats.
 
@@ -170,9 +170,9 @@ For that purpose, it's enough to add the `(kalix.method).eventing.in` and omit t
 [.tabset]
 Java::
 +
-For many use cases, a subscriber to an event log will trigger other services and needs to pass the entity ID to the receiver. The events of an Event Sourced entity, by design, do not include the entity ID, but it is made available to the subscriber via the metadata field `subject`, accessible through `eventSubject` in the  link:{attachmentsdir}/api/com/akkaserverless/javasdk/action/ActionContext.html[`ActionContext`{tab-icon}, window="new"].
+For many use cases, a subscriber to an event log will trigger other services and needs to pass the entity ID to the receiver. The events of an Event Sourced entity, by design, do not include the entity ID, but it is made available to the subscriber via the metadata field `subject`, accessible through `eventSubject` in the  link:{attachmentsdir}/api/io/kalix/javasdk/action/ActionContext.html[`ActionContext`{tab-icon}, window="new"].
 +
-You can access the link:{attachmentsdir}/api/com/akkaserverless/javasdk/action/ActionContext.html[`ActionContext`{tab-icon}, window="new"] through method `actionContext()`.
+You can access the link:{attachmentsdir}/api/kalix/javasdk/action/ActionContext.html[`ActionContext`{tab-icon}, window="new"] through method `actionContext()`.
 +
 [source,java,indent=0]
 .src/main/java/com/example/actions/CounterJournalToTopicAction.java
@@ -182,9 +182,9 @@ include::example$java-eventsourced-counter/src/main/java/com/example/actions/Cou
 
 Scala::
 +
-For many use cases, a subscriber to an event log will trigger other services and needs to pass the entity ID to the receiver. The events of an Event Sourced entity, by design, do not include the entity ID, but it is made available to the subscriber via the metadata field `subject`, accessible through `eventSubject` in the  link:{attachmentsdir}/scala-api/com/akkaserverless/scalasdk/action/ActionContext.html[`ActionContext`{tab-icon}, window="new"].
+For many use cases, a subscriber to an event log will trigger other services and needs to pass the entity ID to the receiver. The events of an Event Sourced entity, by design, do not include the entity ID, but it is made available to the subscriber via the metadata field `subject`, accessible through `eventSubject` in the  link:{attachmentsdir}/scala-api/kalix/scalasdk/action/ActionContext.html[`ActionContext`{tab-icon}, window="new"].
 +
-You can access the link:{attachmentsdir}/scala-api/com/akkaserverless/scalasdk/action/ActionContext.html[`ActionContext`{tab-icon}, window="new"] through method `actionContext`.
+You can access the link:{attachmentsdir}/scala-api/kalix/scalasdk/action/ActionContext.html[`ActionContext`{tab-icon}, window="new"] through method `actionContext`.
 +
 [source,scala,indent=0]
 .src/main/proto/customer/domain/customer_domain.proto

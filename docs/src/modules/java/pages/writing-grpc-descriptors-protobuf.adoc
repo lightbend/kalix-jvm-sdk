@@ -4,7 +4,7 @@
 include::ROOT:partial$include.adoc[]
 include::partial$attributes.adoc[]
 
-Akka Serverless SDKs support `protobuf` descriptors in the https://developers.google.com/protocol-buffers/docs/proto3[Proto3 {tab-icon}, window="new-tab"] Protocol Buffers language. You define command messages, data associated with Entities, and events in `.proto` files. From these definitions, the gRPC compiler creates client and server side code that saves work for you and enables Akka Serverless to serialize message data.
+Kalix SDKs support `protobuf` descriptors in the https://developers.google.com/protocol-buffers/docs/proto3[Proto3 {tab-icon}, window="new-tab"] Protocol Buffers language. You define command messages, data associated with Entities, and events in `.proto` files. From these definitions, the gRPC compiler creates client and server side code that saves work for you and enables Kalix to serialize message data.
 
 We recommend that you define your service API and events and data associated with components separately. This allows business logic to evolve independently of the public interface. This page walks you through elements in an example `shoppingcart_api.proto` file and the associated `shoppingcart_domain.proto` file.
 
@@ -18,7 +18,7 @@ The first line of the example `shoppingcart_api.proto` file defines the version 
 include::example$java-valueentity-shopping-cart/src/main/proto/com/example/shoppingcart/shoppingcart_api.proto[tag=proto_syntax]
 ----
 
-The following imports provide Akka Serverless and gRPC functionality:
+The following imports provide Kalix and gRPC functionality:
 
 .src/main/proto/com/example/shoppingcart/shoppingcart_api.proto
 [source,proto]
@@ -42,7 +42,7 @@ You define messages that can be sent to or returned from the service.
 
 ==== Messages for entities
 
-Each input message for an Entity that is input to a RPC command, *must* be associated with an Entity key, so that Akka Serverless can identify which entity the message is for. In the example, this includes `AddLineItem`, `RemoveLineItem`, and `GetShoppingCart` where the `user_id` is the `(kalix.field).entity_key`. Akka Serverless extracts the value of these fields in order to route messages to the right Entity. If more than one field is specified as an Entity key, the fields are concatenated together. Akka Serverless serializes Entity keys to strings.
+Each input message for an Entity that is input to a RPC command, *must* be associated with an Entity key, so that Kalix can identify which entity the message is for. In the example, this includes `AddLineItem`, `RemoveLineItem`, and `GetShoppingCart` where the `user_id` is the `(kalix.field).entity_key`. Kalix extracts the value of these fields in order to route messages to the right Entity. If more than one field is specified as an Entity key, the fields are concatenated together. Kalix serializes Entity keys to strings.
 
 .src/main/proto/com/example/shoppingcart/shoppingcart_api.proto
 [source,proto]
@@ -63,7 +63,7 @@ message SomeMessage {
 
 ==== Generated entity keys
 
-In some cases, you may wish to generate an Entity key, this is typically done when an RPC method creates an entity, and the key is a surrogate key. To indicate to Akka Serverless that an Entity key should be generated, the incoming message must not have any `(kalix.field).entity_key` annotated field. Instead, the rpc method should be annotated with `(kalix.method).entity.key_generator`, for example:
+In some cases, you may wish to generate an Entity key, this is typically done when an RPC method creates an entity, and the key is a surrogate key. To indicate to Kalix that an Entity key should be generated, the incoming message must not have any `(kalix.field).entity_key` annotated field. Instead, the rpc method should be annotated with `(kalix.method).entity.key_generator`, for example:
 
 [source,proto]
 ----
@@ -74,15 +74,15 @@ rpc CreateCart(CreateCartRequest) returns (CreateCartResponse) {
 
 This will generate a version 4 (random) UUID for the Entity. Only version 4 UUIDs are currently supported for generated Entity keys.
 
-It will often be necessary to access the generated entity key from inside the entities code. This can be done using the link:{attachmentsdir}/api/com/akkaserverless/javasdk/EntityContext.html#entityId()[`EntityContext.entityId` {tab-icon}, window="new"] method.
+It will often be necessary to access the generated entity key from inside the entities code. This can be done using the link:{attachmentsdir}/api/kalix/javasdk/EntityContext.html#entityId()[`EntityContext.entityId` {tab-icon}, window="new"] method.
 
 === Service
 
-This section of the `.proto` file declares the API of the service itself, along with each function or method and their parameters and return types. When a command is received for a given Entity key, Akka Serverless will establish a gRPC streamed call to the service implementation using that Entity's type's protocol--if one isn't already established. Any commands received for the Entity key will be sent through that call.
+This section of the `.proto` file declares the API of the service itself, along with each function or method and their parameters and return types. When a command is received for a given Entity key, Kalix will establish a gRPC streamed call to the service implementation using that Entity's type's protocol--if one isn't already established. Any commands received for the Entity key will be sent through that call.
 
 The `AddItem` and `RemoveItem` methods have no return value (the `Empty` type).
 
-Most importantly, in this file we instruct the Akka Serverless Codegen which kind of component we want to create. The codegen will generate all stubs for your entity/service and corresponding tests, as well as an abstract class for your implementation to extend.
+Most importantly, in this file we instruct the Kalix Codegen which kind of component we want to create. The codegen will generate all stubs for your entity/service and corresponding tests, as well as an abstract class for your implementation to extend.
 
 .src/main/proto/com/example/shoppingcart/shoppingcart_api.proto
 [source,proto]
@@ -113,7 +113,7 @@ include::example$java-valueentity-shopping-cart/src/main/proto/com/example/shopp
 [#_transcoding_http]
 == Transcoding HTTP
 
-Akka Serverless supports transcoding gRPC to HTTP/JSON, using the Google transcoding annotations described https://cloud.google.com/endpoints/docs/grpc/transcoding[here]. You can use transcoding to consume your Entities' gRPC interfaces using HTTP/JSON.
+Kalix supports transcoding gRPC to HTTP/JSON, using the Google transcoding annotations described https://cloud.google.com/endpoints/docs/grpc/transcoding[here]. You can use transcoding to consume your Entities' gRPC interfaces using HTTP/JSON.
 
 In the example below, the optional transcoding of the service to bind the various endpoints to HTTP is highlighted with annotations.
 

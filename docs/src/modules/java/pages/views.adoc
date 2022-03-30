@@ -2,7 +2,7 @@
 :page-supergroup-java-scala: Language
 include::ROOT:partial$include.adoc[]
 
-You can access a single https://developer.lightbend.com/docs/akka-serverless/reference/glossary.html#entity[Entity] with its https://developer.lightbend.com/docs/akka-serverless/reference/glossary.html#entity_key[Entity key]. You might want to retrieve multiple Entities, or retrieve them using an attribute other than the key. Akka Serverless https://developer.lightbend.com/docs/akka-serverless/reference/glossary.html#view[Views] allow you achieve this. By creating multiple Views, you can optimize for query performance against each one.
+You can access a single https://docs.kalix.io/reference/glossary.html#entity[Entity] with its https://docs.kalix.io/reference/glossary.html#entity_key[Entity key]. You might want to retrieve multiple Entities, or retrieve them using an attribute other than the key. Kalix https://docs.kalix.io/reference/glossary.html#view[Views] allow you achieve this. By creating multiple Views, you can optimize for query performance against each one.
 
 Views can be defined from any of the following:
 
@@ -16,14 +16,14 @@ The remainder of this page describes:
 * <<#changing>>
 * <<#query>>
 
-IMPORTANT: Be aware that Views are not updated immediately when Entity state changes. Akka Serverless does update Views as quickly as possible, but it is not instant and can take up to a few seconds for the changes to become visible in the query results. View updates might also take more time during failure scenarios than during normal operation.
+IMPORTANT: Be aware that Views are not updated immediately when Entity state changes. Kalix does update Views as quickly as possible, but it is not instant and can take up to a few seconds for the changes to become visible in the query results. View updates might also take more time during failure scenarios than during normal operation.
 
 [#value-entity]
 == Creating a View from a Value Entity
 
 Consider an example of a Customer Registry service with a `customer` Value Entity. When `customer` state changes, the entire state is emitted as a value change. Value changes update any associated Views. To create a View that lists customers by their name:
 
-* <<_define_the_view_service_descriptor>> for a service that selects customers by name and associates a table name with the View. The table is created and used by Akka Serverless to store the View.
+* <<_define_the_view_service_descriptor>> for a service that selects customers by name and associates a table name with the View. The table is created and used by Kalix to store the View.
 
 * xref:register-view[Register the View].
 
@@ -88,8 +88,8 @@ Scala::
 include::example$scala-valueentity-customer-registry/src/main/proto/customer/view/customer_view.proto[tags=declarations;service]
 ----
 
-<1> The protobuf option (kalix.codegen) is specific to code-generation as provided by the Akka Serverless Maven plugin. This annotation indicates to the code-generation that a View must be generated.
-<2> The `UpdateCustomer` method defines how Akka Serverless will update the view.
+<1> The protobuf option (kalix.codegen) is specific to code-generation as provided by the Kalix Maven plugin. This annotation indicates to the code-generation that a View must be generated.
+<2> The `UpdateCustomer` method defines how Kalix will update the view.
 <3> The source of the View is the `"customers"` Value Entity. This identifier is defined in the `entity_type: "customers"` property of the `(kalix.codegen).value_entity` option in the `customer_api.proto` file.
 <4> The `(kalix.method).view.update` annotation defines that this method is used for updating the View. You must define the `table` attribute for the table to be used in the query. Pick any name and use it in the query `SELECT` statement.
 <5> The `GetCustomers` method defines the query to retrieve a stream of customers.
@@ -122,7 +122,7 @@ When no result is found, the request fails with gRPC status code `NOT_FOUND`. A 
 [#register-view]
 === Registering a View
 
-Once you've defined a View, register it with `Kalix` by invoking the `AkkaServerlessFactory.withComponents` method in the `Main` class.
+Once you've defined a View, register it with `Kalix` by invoking the `KalixFactory.withComponents` method in the `Main` class.
 
 [.tabset]
 Java::
@@ -238,7 +238,7 @@ Java::
 ----
 include::example$java-eventsourced-customer-registry/src/main/java/customer/view/CustomerByNameView.java[tag=process-events]
 ----
-<1> Extends the generated `AbstractCustomerByNameView`, which extends link:{attachmentsdir}/api/com/akkaserverless/javasdk/view/View.html[`View` {tab-icon}, window="new"].
+<1> Extends the generated `AbstractCustomerByNameView`, which extends link:{attachmentsdir}/api/kalix/javasdk/view/View.html[`View` {tab-icon}, window="new"].
 <2> Defines the initial, empty, state that is used before any updates.
 <3> One method for each event.
 
@@ -249,7 +249,7 @@ Scala::
 ----
 include::example$scala-eventsourced-customer-registry/src/main/scala/customer/view/CustomerByNameView.scala[tag=process-events]
 ----
-<1> Extends the generated `AbstractCustomerByNameView`, which extends link:{attachmentsdir}/scala-api/com/akkaserverless/scalasdk/view/View.html[`View` {tab-icon}, window="new"].
+<1> Extends the generated `AbstractCustomerByNameView`, which extends link:{attachmentsdir}/scala-api/kalix/scalasdk/view/View.html[`View` {tab-icon}, window="new"].
 <2> Defines the initial, empty, state that is used before any updates.
 <3> One method for each event.
 
@@ -361,21 +361,21 @@ include::example$scala-valueentity-customer-registry/src/main/proto/customer/vie
 [#changing]
 == How to modify a View
 
-Akka Serverless creates indexes for the View based on the query. For example, the following query will result in a View with an index on the `name` column:
+Kalix creates indexes for the View based on the query. For example, the following query will result in a View with an index on the `name` column:
 
 [source,proto,indent=0]
 ----
 SELECT * FROM customers WHERE name = :customer_name
 ----
 
-If the query is changed, Akka Serverless might need to add other indexes. For example, changing the above query to filter on the `city` would mean that Akka Serverless needs to build a View with the index on the `city` column.
+If the query is changed, Kalix might need to add other indexes. For example, changing the above query to filter on the `city` would mean that Kalix needs to build a View with the index on the `city` column.
 
 [source,proto,indent=0]
 ----
 SELECT * FROM customers WHERE address.city = :city
 ----
 
-Such changes require you to define a new View. Akka Serverless will then rebuild it from the source event log or value changes.
+Such changes require you to define a new View. Kalix will then rebuild it from the source event log or value changes.
 
 WARNING: Views from topics cannot be rebuilt from the source messages, because it's not possible to consume all events from the topic again. The new View will be built from new messages published to the topic.
 

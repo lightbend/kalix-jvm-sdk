@@ -14,8 +14,8 @@
 
 # deploy author
 
-readonly deploy_name="Akka Serverless Bot"
-readonly deploy_email="bot@akkaserverless.com"
+readonly deploy_name="Kalix Bot"
+readonly deploy_email="bot@kalix.io"
 
 # locations
 
@@ -158,7 +158,7 @@ function __deploy {
   done
   rsync -av --delete --exclude='.git/' "$sources_dir/" "$upstream_repo_dir/"
 
-  __deploy_push "$upstream" "$branch" "Update docs @ $commit. This commit was made by docs/bin/deploy.sh, typically invoked by CircleCI when a new version is tagged. It can also be manually performed for a documentation hotfix. This branch is then picked up by https://github.com/lightbend/akkaserverless-docs/blob/master/RELEASING.md"
+  __deploy_push "$upstream" "$branch" "Update docs @ $commit. This commit was made by docs/bin/deploy.sh, typically invoked by CircleCI when a new version is tagged. It can also be manually performed for a documentation hotfix. This branch is then picked up by https://github.com/lightbend/kalix-docs/blob/master/RELEASING.md"
 }
 
 # deploy doc sources to another branch
