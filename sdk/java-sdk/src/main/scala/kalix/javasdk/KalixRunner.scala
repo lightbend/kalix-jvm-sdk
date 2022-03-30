@@ -80,7 +80,7 @@ final class KalixRunner private[this] (
   private val log = LoggerFactory.getLogger(getClass)
 
   private[this] final val configuration =
-    new KalixRunner.Configuration(system.settings.config.getConfig("akkaserverless"))
+    new KalixRunner.Configuration(system.settings.config.getConfig("kalix"))
 
   private val services = serviceFactories.toSeq.map { case (serviceName, factory) =>
     serviceName -> factory(system)
@@ -92,9 +92,9 @@ final class KalixRunner private[this] (
   def this(services: java.util.Map[String, java.util.function.Function[ActorSystem, Service]]) {
     this(
       ActorSystem(
-        "akkaserverless", {
+        "kalix", {
           val conf = ConfigFactory.load()
-          conf.getConfig("akkaserverless.system").withFallback(conf)
+          conf.getConfig("kalix.system").withFallback(conf)
         }),
       services.asScala.toMap)
   }
@@ -105,9 +105,7 @@ final class KalixRunner private[this] (
    * is in the `akkaserverless.system` section.
    */
   def this(services: java.util.Map[String, java.util.function.Function[ActorSystem, Service]], config: Config) {
-    this(
-      ActorSystem("akkaserverless", config.getConfig("akkaserverless.system").withFallback(config)),
-      services.asScala.toMap)
+    this(ActorSystem("kalix", config.getConfig("kalix.system").withFallback(config)), services.asScala.toMap)
   }
 
   private val rootContext: Context = new AbstractContext(system) {}
