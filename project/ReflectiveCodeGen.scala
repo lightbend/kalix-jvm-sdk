@@ -115,13 +115,7 @@ object ReflectiveCodeGen extends AutoPlugin {
         val tmpUnmanaged = (Compile / temporaryUnmanagedDirectory).value
         val sbtLogger = streams.value.log
         val generatedFiles =
-          runKalixCondegen(
-            cp,
-            protobufDescriptorSetOut.value,
-            tmpUnmanaged,
-            srcManaged,
-            testSrcManaged,
-            sbtLogger)
+          runKalixCondegen(cp, protobufDescriptorSetOut.value, tmpUnmanaged, srcManaged, testSrcManaged, sbtLogger)
 
         if ((Compile / copyUnmanagedSources).value) // in this case use the files in the unmanaged source tree
           generatedFiles.filterNot(_.getCanonicalPath.startsWith(tmpUnmanaged.getCanonicalPath))

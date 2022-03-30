@@ -26,9 +26,7 @@ object CommonSettings extends AutoPlugin {
           email = "info@lightbend.com",
           url = url("https://lightbend.com"))),
       scmInfo := Some(
-        ScmInfo(
-          url("https://github.com/lightbend/kalix-jvm-sdk"),
-          "scm:git@github.com:lightbend/kalix-jvm-sdk.git")),
+        ScmInfo(url("https://github.com/lightbend/kalix-jvm-sdk"), "scm:git@github.com:lightbend/kalix-jvm-sdk.git")),
       startYear := Some(2021),
       licenses := List("Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")),
       scalafmtOnCompile := true,
