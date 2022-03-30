@@ -249,7 +249,7 @@ object ReplicatedEntitySourceGenerator {
          | * A replicated entity provider that defines how to register and create the entity for
          | * the Protobuf service `${service.messageType.name}`.
          | *
-         | * Should be used with the `register` method in [[kalix.scalasdk.AkkaServerless]].
+         | * Should be used with the `register` method in [[kalix.scalasdk.Kalix]].
          | */
          |object $providerName {
          |  def apply(entityFactory: ReplicatedEntityContext => ${entity.messageType.name}): $providerName =

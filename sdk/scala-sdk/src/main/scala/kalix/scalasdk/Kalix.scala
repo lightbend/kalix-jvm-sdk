@@ -45,19 +45,18 @@ object Kalix {
 }
 
 /**
- * The AkkaServerless class is the main interface to configuring entities to deploy, and subsequently starting a local
- * server which will expose these entities to the AkkaServerless Proxy Sidecar.
+ * The Kalix class is the main interface to configuring entities to deploy, and subsequently starting a local server
+ * which will expose these entities to the Kalix Proxy Sidecar.
  */
 class Kalix private (private[kalix] val delegate: javasdk.Kalix) {
 
   /**
-   * Sets the ClassLoader to be used for reflective access, the default value is the ClassLoader of the AkkaServerless
-   * class.
+   * Sets the ClassLoader to be used for reflective access, the default value is the ClassLoader of the Kalix class.
    *
    * @param classLoader
    *   A non-null ClassLoader to be used for reflective access.
    * @return
-   *   This AkkaServerless instance.
+   *   This Kalix instance.
    */
   def withClassLoader(classLoader: ClassLoader): Kalix =
     Kalix(delegate.withClassLoader(classLoader))
@@ -69,7 +68,7 @@ class Kalix private (private[kalix] val delegate: javasdk.Kalix) {
    * @param prefix
    *   the type URL prefix to be used.
    * @return
-   *   This AkkaServerless instance.
+   *   This Kalix instance.
    */
   def withTypeUrlPrefix(prefix: String): Kalix =
     Kalix(delegate.withTypeUrlPrefix(prefix))
@@ -79,7 +78,7 @@ class Kalix private (private[kalix] val delegate: javasdk.Kalix) {
    * that Java should be preferred.
    *
    * @return
-   *   This AkkaServerless instance.
+   *   This Kalix instance.
    */
   def preferJavaProtobufs: Kalix =
     Kalix(delegate.preferJavaProtobufs)
@@ -89,7 +88,7 @@ class Kalix private (private[kalix] val delegate: javasdk.Kalix) {
    * that Scala should be preferred.
    *
    * @return
-   *   This AkkaServerless instance.
+   *   This Kalix instance.
    */
   def preferScalaProtobufs: Kalix =
     Kalix(delegate.preferScalaProtobufs)
@@ -172,21 +171,21 @@ class Kalix private (private[kalix] val delegate: javasdk.Kalix) {
   }
 
   /**
-   * Creates an AkkaServerlessRunner using the currently configured services. In order to start the server, `run()` must
-   * be invoked on the returned AkkaServerlessRunner.
+   * Creates a KalixRunner using the currently configured services. In order to start the server, `run()` must be
+   * invoked on the returned KalixRunner.
    *
    * @return
-   *   an AkkaServerlessRunner
+   *   a KalixRunner
    */
   def createRunner(): KalixRunner =
     KalixRunner(delegate.createRunner())
 
   /**
-   * Creates an AkkaServerlessRunner using the currently configured services, using the supplied configuration. In order
-   * to start the server, `run()` must be invoked on the returned AkkaServerlessRunner.
+   * Creates a KalixRunner using the currently configured services, using the supplied configuration. In order to start
+   * the server, `run()` must be invoked on the returned KalixRunner.
    *
    * @return
-   *   an AkkaServerlessRunner
+   *   a KalixRunner
    */
   def createRunner(config: Config): KalixRunner =
     KalixRunner(delegate.createRunner(config))

@@ -1,6 +1,6 @@
 # Shopping Cart example (using a Replicated Entity)
 
-This example project implements an API for a shopping cart using an Kalix Replicated Entity.
+This example project implements an API for a shopping cart using a Kalix Replicated Entity.
 ## Designing
 
 While designing your service it is useful to read [designing services](https://developer.lightbend.com/docs/akka-serverless/services/development-process.html)

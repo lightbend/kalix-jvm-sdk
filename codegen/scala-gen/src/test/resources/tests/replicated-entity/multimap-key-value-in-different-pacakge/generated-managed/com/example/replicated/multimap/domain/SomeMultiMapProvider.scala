@@ -21,7 +21,7 @@ import scala.collection.immutable.Seq
  * A replicated entity provider that defines how to register and create the entity for
  * the Protobuf service `MultiMapService`.
  *
- * Should be used with the `register` method in [[kalix.scalasdk.AkkaServerless]].
+ * Should be used with the `register` method in [[kalix.scalasdk.Kalix]].
  */
 object SomeMultiMapProvider {
   def apply(entityFactory: ReplicatedEntityContext => SomeMultiMap): SomeMultiMapProvider =

@@ -313,7 +313,7 @@ object ActionServiceSourceGenerator {
       | * ${service.providerName} that defines how to register and create the action for
       | * the Protobuf service <code>$protoName</code>.
       | *
-      | * Should be used with the <code>register</code> method in {@link kalix.javasdk.AkkaServerless}.
+      | * Should be used with the <code>register</code> method in {@link kalix.javasdk.Kalix}.
       | */
       |public class ${service.providerName} implements ActionProvider<$classNameAction> {
       |

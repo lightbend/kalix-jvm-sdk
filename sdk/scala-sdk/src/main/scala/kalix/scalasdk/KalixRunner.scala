@@ -28,15 +28,15 @@ import kalix.javasdk
 private[scalasdk] object KalixRunner {
 
   /**
-   * Creates an AkkaServerlessRunner from the given services. Use the default config to create the internal ActorSystem.
+   * Creates a KalixRunner from the given services. Use the default config to create the internal ActorSystem.
    */
   def apply(services: Map[String, ActorSystem => javasdk.impl.Service]): KalixRunner =
     new KalixRunner(new javasdk.KalixRunner(toJava(services)))
 
   /**
-   * Creates an AkkaServerlessRunner from the given services and config. The config should have the same structure as
-   * the reference.conf, with `akkaserverless` as the root section, and the configuration for the internal ActorSystem
-   * is in the `akkaserverless.system` section.
+   * Creates a KalixRunner from the given services and config. The config should have the same structure as the
+   * reference.conf, with `akkaserverless` as the root section, and the configuration for the internal ActorSystem is in
+   * the `akkaserverless.system` section.
    */
   def apply(services: Map[String, ActorSystem => javasdk.impl.Service], config: Config): KalixRunner =
     new KalixRunner(new javasdk.KalixRunner(toJava(services), config))

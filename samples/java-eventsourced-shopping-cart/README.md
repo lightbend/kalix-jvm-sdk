@@ -1,6 +1,6 @@
 # Shopping Cart example (using an Event Sourced Entity)
 
-This example project implements an API for a shopping cart using an Kalix Event Sourced Entity
+This example project implements an API for a shopping cart using a Kalix Event Sourced Entity
 
 ## See also
 

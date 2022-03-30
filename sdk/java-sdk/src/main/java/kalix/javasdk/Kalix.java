@@ -50,8 +50,8 @@ import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
 
 /**
- * The AkkaServerless class is the main interface to configuring entities to deploy, and
- * subsequently starting a local server which will expose these entities to the Kalix proxy Sidecar.
+ * The Kalix class is the main interface to configuring entities to deploy, and subsequently
+ * starting a local server which will expose these entities to the Kalix proxy Sidecar.
  */
 public final class Kalix {
   private final Map<String, Function<ActorSystem, Service>> services = new HashMap<>();
@@ -219,10 +219,10 @@ public final class Kalix {
 
   /**
    * Sets the ClassLoader to be used for reflective access, the default value is the ClassLoader of
-   * the AkkaServerless class.
+   * the Kalix class.
    *
    * @param classLoader A non-null ClassLoader to be used for reflective access.
-   * @return This AkkaServerless instance.
+   * @return This Kalix instance.
    */
   public Kalix withClassLoader(ClassLoader classLoader) {
     this.classLoader = classLoader;
@@ -234,7 +234,7 @@ public final class Kalix {
    * Protobyf Any values. Defaults to "type.googleapis.com".
    *
    * @param prefix the type URL prefix to be used.
-   * @return This AkkaServerless instance.
+   * @return This Kalix instance.
    */
   public Kalix withTypeUrlPrefix(String prefix) {
     this.typeUrlPrefix = prefix;
@@ -245,7 +245,7 @@ public final class Kalix {
    * When locating protobufs, if both a Java and a ScalaPB generated class is found on the
    * classpath, this specifies that Java should be preferred.
    *
-   * @return This AkkaServerless instance.
+   * @return This Kalix instance.
    */
   public Kalix preferJavaProtobufs() {
     this.prefer = AnySupport.PREFER_JAVA();
@@ -256,7 +256,7 @@ public final class Kalix {
    * When locating protobufs, if both a Java and a ScalaPB generated class is found on the
    * classpath, this specifies that Scala should be preferred.
    *
-   * @return This AkkaServerless instance.
+   * @return This Kalix instance.
    */
   public Kalix preferScalaProtobufs() {
     this.prefer = AnySupport.PREFER_SCALA();
@@ -368,21 +368,21 @@ public final class Kalix {
   }
 
   /**
-   * Creates an AkkaServerlessRunner using the currently configured services. In order to start the
-   * server, `run()` must be invoked on the returned AkkaServerlessRunner.
+   * Creates a KalixRunner using the currently configured services. In order to start the server,
+   * `run()` must be invoked on the returned KalixRunner.
    *
-   * @return an AkkaServerlessRunner
+   * @return a KalixRunner
    */
   public KalixRunner createRunner() {
     return new KalixRunner(services);
   }
 
   /**
-   * Creates an AkkaServerlessRunner using the currently configured services, using the supplied
+   * Creates a KalixRunner using the currently configured services, using the supplied
    * configuration. In order to start the server, `run()` must be invoked on the returned
-   * AkkaServerlessRunner.
+   * KalixRunner.
    *
-   * @return an AkkaServerlessRunner
+   * @return a KalixRunner
    */
   public KalixRunner createRunner(Config config) {
     return new KalixRunner(services, config);

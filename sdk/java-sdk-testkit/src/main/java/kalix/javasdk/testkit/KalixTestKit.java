@@ -40,24 +40,24 @@ import java.util.concurrent.TimeUnit;
  *
  * <p>Requires Docker for starting a local instance of the Akka Serverless proxy.
  *
- * <p>Create an AkkaServerlessTestkit with an {@link Kalix} service descriptor, and then {@link
- * #start} the testkit before testing the service with gRPC or HTTP clients. Call {@link #stop}
- * after tests are complete.
+ * <p>Create a KalixTestkit with an {@link Kalix} service descriptor, and then {@link #start} the
+ * testkit before testing the service with gRPC or HTTP clients. Call {@link #stop} after tests are
+ * complete.
  */
 public class KalixTestKit {
 
-  /** Settings for AkkaServerlessTestkit. */
+  /** Settings for KalixTestkit. */
   public static class Settings {
     /** Default stop timeout (10 seconds). */
     public static Duration DEFAULT_STOP_TIMEOUT = Duration.ofSeconds(10);
-    /** Default settings for AkkaServerlessTestkit. */
+    /** Default settings for KalixTestkit. */
     public static Settings DEFAULT = new Settings(DEFAULT_STOP_TIMEOUT);
 
     /** Timeout setting for stopping the local Akka Serverless test instance. */
     public final Duration stopTimeout;
 
     /**
-     * Create new settings for AkkaServerlessTestkit.
+     * Create new settings for KalixTestkit.
      *
      * @param stopTimeout timeout to use when waiting for Akka Serverless to stop
      */
@@ -87,18 +87,18 @@ public class KalixTestKit {
   private ActorSystem testSystem;
 
   /**
-   * Create a new testkit for an AkkaServerless service descriptor.
+   * Create a new testkit for a Kalix service descriptor.
    *
-   * @param kalix AkkaServerless service descriptor
+   * @param kalix Kalix service descriptor
    */
   public KalixTestKit(final Kalix kalix) {
     this(kalix, Settings.DEFAULT);
   }
 
   /**
-   * Create a new testkit for an AkkaServerless service descriptor with custom settings.
+   * Create a new testkit for a Kalix service descriptor with custom settings.
    *
-   * @param kalix AkkaServerless service descriptor
+   * @param kalix Kalix service descriptor
    * @param settings custom testkit settings
    */
   public KalixTestKit(final Kalix kalix, final Settings settings) {
@@ -109,7 +109,7 @@ public class KalixTestKit {
   /**
    * Start this testkit with default configuration (loaded from {@code application.conf}).
    *
-   * @return this AkkaServerlessTestkit
+   * @return this KalixTestkit
    */
   public KalixTestKit start() {
     return start(ConfigFactory.load());
@@ -118,20 +118,20 @@ public class KalixTestKit {
   /**
    * Start this testkit with custom configuration (overrides {@code application.conf}).
    *
-   * @param config custom test configuration for the AkkaServerlessRunner
-   * @return this AkkaServerlessTestkit
+   * @param config custom test configuration for the KalixRunner
+   * @return this KalixTestkit
    */
   public KalixTestKit start(final Config config) {
-    if (started) throw new IllegalStateException("AkkaServerlessTestkit already started");
+    if (started) throw new IllegalStateException("KalixTestkit already started");
     int port = availableLocalPort();
     Map<String, Object> conf = new HashMap<>();
     conf.put("kalix.user-function-port", port);
-    // don't kill the test JVM when terminating the AkkaServerlessRunner
+    // don't kill the test JVM when terminating the KalixRunner
     conf.put("kalix.system.akka.coordinated-shutdown.exit-jvm", "off");
     Config testConfig = ConfigFactory.parseMap(conf);
     runner = kalix.createRunner(testConfig.withFallback(config));
     runner.run();
-    testSystem = ActorSystem.create("AkkaServerlessTestkit");
+    testSystem = ActorSystem.create("KalixTestkit");
     proxyContainer = new KalixProxyContainer(port);
     proxyContainer.start();
     started = true;
@@ -148,8 +148,7 @@ public class KalixTestKit {
    */
   public String getHost() {
     if (!started)
-      throw new IllegalStateException(
-          "Need to start AkkaServerlessTestkit before accessing the host name");
+      throw new IllegalStateException("Need to start KalixTestkit before accessing the host name");
     return proxyContainer.getHost();
   }
 
@@ -160,8 +159,7 @@ public class KalixTestKit {
    */
   public int getPort() {
     if (!started)
-      throw new IllegalStateException(
-          "Need to start AkkaServerlessTestkit before accessing the port");
+      throw new IllegalStateException("Need to start KalixTestkit before accessing the port");
     return proxyContainer.getProxyPort();
   }
 
@@ -193,8 +191,7 @@ public class KalixTestKit {
    */
   public ActorSystem getActorSystem() {
     if (!started)
-      throw new IllegalStateException(
-          "Need to start AkkaServerlessTestkit before accessing actor system");
+      throw new IllegalStateException("Need to start KalixTestkit before accessing actor system");
     return testSystem;
   }
 
@@ -208,7 +205,7 @@ public class KalixTestKit {
   public GrpcClientSettings getGrpcClientSettings() {
     if (!started)
       throw new IllegalStateException(
-          "Need to start AkkaServerlessTestkit before accessing gRPC client settings");
+          "Need to start KalixTestkit before accessing gRPC client settings");
     return GrpcClientSettings.connectToServiceAt(getHost(), getPort(), testSystem).withTls(false);
   }
 
@@ -217,7 +214,7 @@ public class KalixTestKit {
     try {
       proxyContainer.stop();
     } catch (Exception e) {
-      log.error("AkkaServerlessTestkit proxy container failed to stop", e);
+      log.error("KalixTestkit proxy container failed to stop", e);
     }
     try {
       testSystem.terminate();
@@ -226,7 +223,7 @@ public class KalixTestKit {
           .toCompletableFuture()
           .get(settings.stopTimeout.toMillis(), TimeUnit.MILLISECONDS);
     } catch (Exception e) {
-      log.error("AkkaServerlessTestkit ActorSystem failed to terminate", e);
+      log.error("KalixTestkit ActorSystem failed to terminate", e);
     }
     try {
       runner
@@ -234,7 +231,7 @@ public class KalixTestKit {
           .toCompletableFuture()
           .get(settings.stopTimeout.toMillis(), TimeUnit.MILLISECONDS);
     } catch (Exception e) {
-      log.error("AkkaServerlessTestkit AkkaServerlessRunner failed to terminate", e);
+      log.error("KalixTestkit KalixRunner failed to terminate", e);
     }
     started = false;
   }
