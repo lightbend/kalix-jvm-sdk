@@ -41,11 +41,10 @@ object PublicProtocolProject extends AutoPlugin {
   override def projectSettings =
     Seq(
       licenses := List("Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")),
-      // this repo doesn't exist (yet) but we need this for publishing to Sonatype OSS
       scmInfo := Some(
         ScmInfo(
-          url("https://github.com/lightbend/kalix-protocol"),
-          "scm:git@github.com:lightbend/kalix-protocol.git")),
+          url("https://github.com/lightbend/kalix-jvm-sdk"),
+          "scm:git@github.com:lightbend/kalix-jvm-sdk.git")),
       packageZip := {
         import com.typesafe.sbt.packager.universal.Archives
         val zipName = s"${name.value}-${version.value}"
