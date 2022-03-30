@@ -233,7 +233,7 @@
       </plugin>
 
       <plugin>
-        <groupId>com.akkaserverless</groupId>
+        <groupId>io.kalix</groupId>
         <artifactId>akkaserverless-maven-plugin</artifactId>
         <version>${akkaserverless-sdk.version}</version>
         <executions>

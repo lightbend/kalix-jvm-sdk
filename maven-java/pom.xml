@@ -3,7 +3,7 @@
                       http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>com.akkaserverless</groupId>
+  <groupId>io.kalix</groupId>
   <artifactId>akkaserverless-maven-java</artifactId>
   <version>0.10.6</version>
   <packaging>pom</packaging>

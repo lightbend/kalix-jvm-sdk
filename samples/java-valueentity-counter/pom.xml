@@ -245,7 +245,7 @@
       </plugin>
 
       <plugin>
-        <groupId>com.akkaserverless</groupId>
+        <groupId>io.kalix</groupId>
         <artifactId>akkaserverless-maven-plugin</artifactId>
         <version>${akkaserverless-sdk.version}</version>
         <executions>
@@ -307,12 +307,12 @@
 
   <dependencies>
     <dependency>
-      <groupId>com.akkaserverless</groupId>
+      <groupId>io.kalix</groupId>
       <artifactId>kalix-java-sdk</artifactId>
       <version>${akkaserverless-sdk.version}</version>
     </dependency>
     <dependency>
-      <groupId>com.akkaserverless</groupId>
+      <groupId>io.kalix</groupId>
       <artifactId>kalix-java-sdk-testkit</artifactId>
       <version>${akkaserverless-sdk.version}</version>
       <scope>test</scope>
