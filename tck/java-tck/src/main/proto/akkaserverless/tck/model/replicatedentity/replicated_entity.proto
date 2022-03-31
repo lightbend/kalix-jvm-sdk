@@ -20,7 +20,6 @@ syntax = "proto3";
 
 package kalix.tck.model.replicatedentity;
 
-option go_package = "github.com/lightbend/akkaserverless-go-sdk/tck/replicatedentity;replicatedentity";
 option java_package = "kalix.tck.model";
 
 import "kalix/annotations.proto";
