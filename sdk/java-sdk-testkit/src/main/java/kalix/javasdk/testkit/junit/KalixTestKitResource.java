@@ -73,8 +73,8 @@ public final class KalixTestKitResource extends ExternalResource {
   }
 
   /**
-   * Get the host name/IP address where the Kalix service is available. This is relevant
-   * in certain Continuous Integration environments.
+   * Get the host name/IP address where the Kalix service is available. This is relevant in certain
+   * Continuous Integration environments.
    *
    * @return Kalix host
    */

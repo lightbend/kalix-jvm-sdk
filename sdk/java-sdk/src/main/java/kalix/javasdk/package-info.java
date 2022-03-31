@@ -1,8 +1,7 @@
 /**
  * Root package for the Kalix Java SDK library.
  *
- * <p>The main entry point to creating a Kalix Java server is the {@link
- * kalix.javasdk.Kalix} class.
+ * <p>The main entry point to creating a Kalix Java server is the {@link kalix.javasdk.Kalix} class.
  *
  * <p>For information about specific component types, see:
  *

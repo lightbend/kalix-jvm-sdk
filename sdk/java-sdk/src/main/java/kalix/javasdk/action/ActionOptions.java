@@ -39,8 +39,8 @@ public interface ActionOptions extends ComponentOptions {
   java.util.Set<String> forwardHeaders();
 
   /**
-   * Ask Kalix to forward these headers from the incoming request as metadata headers for
-   * the incoming commands. By default, no headers except "X-Server-Timing" are forwarded.
+   * Ask Kalix to forward these headers from the incoming request as metadata headers for the
+   * incoming commands. By default, no headers except "X-Server-Timing" are forwarded.
    */
   ComponentOptions withForwardHeaders(java.util.Set<String> headers);
 }
