@@ -20,7 +20,6 @@ syntax = "proto3";
 
 package kalix.tck.model.eventsourcedentity;
 
-option go_package = "github.com/lightbend/akkaserverless-go-sdk/tck/eventsourcedentity;eventsourcedentity";
 option java_package = "kalix.tck.model.eventsourcedentity";
 option java_multiple_files = true;
 
