@@ -32,9 +32,9 @@ object Dependencies {
   val MunitVersion = "0.7.20"
   val ScoptVersions = "4.0.0"
 
-  val akkaslsProxyProtocol = "io.kalix" % "kalix-proxy-protocol" % Kalix.FrameworkVersion
-  val akkaslsSdkProtocol = "io.kalix" % "kalix-sdk-protocol" % Kalix.FrameworkVersion
-  val akkaslsTckProtocol = "io.kalix" % "kalix-tck-protocol" % Kalix.FrameworkVersion
+  val kalixProxyProtocol = "io.kalix" % "kalix-proxy-protocol" % Kalix.FrameworkVersion
+  val kalixSdkProtocol = "io.kalix" % "kalix-sdk-protocol" % Kalix.FrameworkVersion
+  val kalixTckProtocol = "io.kalix" % "kalix-tck-protocol" % Kalix.FrameworkVersion
 
   val commonsIo = "commons-io" % "commons-io" % CommonsIoVerison
   val logback = "ch.qos.logback" % "logback-classic" % LogbackVersion
@@ -77,8 +77,8 @@ object Dependencies {
     akkaHttpDependency("akka-http2-support"),
     akkaHttpDependency("akka-parsing"),
     protobufJavaUtil,
-    akkaslsProxyProtocol % "protobuf-src",
-    akkaslsSdkProtocol % "compile;protobuf-src",
+    kalixProxyProtocol % "protobuf-src",
+    kalixSdkProtocol % "compile;protobuf-src",
     akkaDependency("akka-testkit") % Test,
     akkaDependency("akka-actor-testkit-typed") % Test,
     akkaDependency("akka-stream-testkit") % Test,
@@ -117,14 +117,14 @@ object Dependencies {
     // FIXME: For now TCK protos have been copied and adapted into this project.
     //        Running the TCK is still meaningful as it runs the TCK check against the defined framework version.
     //        Eventually, the final form of protos from should be backported to the framework.
-    //        See https://github.com/lightbend/akkaserverless-java-sdk/issues/605
-    //  akkaslsTckProtocol % "protobuf-src",
-    //  "com.akkaserverless" % "akkaserverless-tck-protocol" % AkkaServerless.FrameworkVersion % "protobuf-src",
+    //        See https://github.com/lightbend/kalix-jvm-sdk/issues/605
+    //  kalixTckProtocol % "protobuf-src",
+    //  "io.kalix" % "kalix-tck-protocol" % Kalix.FrameworkVersion % "protobuf-src",
     "ch.qos.logback" % "logback-classic" % LogbackVersion)
 
   val codegenCore = deps ++= Seq(
     protobufJava,
-    akkaslsSdkProtocol % "compile;protobuf-src",
+    kalixSdkProtocol % "compile;protobuf-src",
     logback % Test,
     munit % Test,
     munitScalaCheck % Test)

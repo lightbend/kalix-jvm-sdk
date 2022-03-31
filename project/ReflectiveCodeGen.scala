@@ -65,7 +65,7 @@ object ReflectiveCodeGen extends AutoPlugin {
         Nil),
       options)
 
-  def runAkkaServerlessCodegen(
+  def runKalixCondegen(
       classpath: Classpath,
       protobufDescriptor: File,
       srcDir: File,
@@ -115,13 +115,7 @@ object ReflectiveCodeGen extends AutoPlugin {
         val tmpUnmanaged = (Compile / temporaryUnmanagedDirectory).value
         val sbtLogger = streams.value.log
         val generatedFiles =
-          runAkkaServerlessCodegen(
-            cp,
-            protobufDescriptorSetOut.value,
-            tmpUnmanaged,
-            srcManaged,
-            testSrcManaged,
-            sbtLogger)
+          runKalixCondegen(cp, protobufDescriptorSetOut.value, tmpUnmanaged, srcManaged, testSrcManaged, sbtLogger)
 
         if ((Compile / copyUnmanagedSources).value) // in this case use the files in the unmanaged source tree
           generatedFiles.filterNot(_.getCanonicalPath.startsWith(tmpUnmanaged.getCanonicalPath))
@@ -133,7 +127,7 @@ object ReflectiveCodeGen extends AutoPlugin {
   lazy val protobufDescriptorSetOut = settingKey[File]("The file to write the protobuf descriptor set to")
   lazy val temporaryUnmanagedDirectory = settingKey[File]("Directory to generate 'unmanaged' sources into")
   val generateUnmanaged = taskKey[Seq[File]](
-    "Generate \"unmanaged\" akkaserverless scaffolding code based on the available .proto definitions.\n" +
+    "Generate \"unmanaged\" kalix scaffolding code based on the available .proto definitions.\n" +
     "These are the source files that are placed in the source tree, and after initial generation should typically be maintained by the user.\n" +
     "Files that already exist they are not re-generated.")
 
@@ -144,7 +138,7 @@ object ReflectiveCodeGen extends AutoPlugin {
         protobufDescriptorSetOut.value.getParentFile.mkdirs()
       })
       .value,
-    Compile / temporaryUnmanagedDirectory := (Compile / baseDirectory).value / "target" / "akkaserverless-unmanaged",
+    Compile / temporaryUnmanagedDirectory := (Compile / baseDirectory).value / "target" / "kalix-unmanaged",
     Compile / PB.protocOptions ++= Seq(
       "--descriptor_set_out",
       protobufDescriptorSetOut.value.getAbsolutePath,

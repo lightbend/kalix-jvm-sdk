@@ -39,7 +39,7 @@ class FibonacciActionSpec
       }
     }
 
-    // Not possible until testkit provides materializer https://github.com/lightbend/akkaserverless-java-sdk/issues/495
+    // Not possible until testkit provides materializer https://github.com/lightbend/kalix-jvm-sdk/issues/495
     "handle command NextNumberOfSum" in pendingUntilFixed {
       val testKit = FibonacciActionTestKit(new FibonacciAction(_))
       val result = testKit.nextNumberOfSum(Source.single(Number(5)))
