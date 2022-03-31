@@ -108,7 +108,7 @@ public final class Kalix {
      * @param descriptor The descriptor for the service that this action implements.
      * @param additionalDescriptors Any additional descriptors that should be used to look up
      *     protobuf types when needed.
-     * @return This Akka Serverless builder.
+     * @return This Kalix builder.
      */
     public Kalix registerAction(
         ActionFactory actionFactory,

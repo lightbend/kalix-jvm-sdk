@@ -13,8 +13,8 @@
 // limitations under the License.
 
 //
-// == Akka Serverless TCK model test for actions ==
-// see tck/src/main/scala/com/akkaserverless/tck/ActionTCK.scala
+// == Kalix TCK model test for actions ==
+// see tck/src/main/scala/kalix/tck/ActionTCK.scala
 
 syntax = "proto3";
 

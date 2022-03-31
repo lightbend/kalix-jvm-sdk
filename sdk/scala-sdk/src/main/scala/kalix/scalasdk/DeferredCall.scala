@@ -19,8 +19,8 @@ package kalix.scalasdk
 import scala.concurrent.Future
 
 /**
- * Represents a call to a component service that has not yet happened, but will be handed to Akka Serverless for
- * execution. Used with forwards and side effects.
+ * Represents a call to a component service that has not yet happened, but will be handed to Kalix for execution. Used
+ * with forwards and side effects.
  *
  * @tparam I
  *   the message type of the parameter for the call

@@ -13,8 +13,8 @@
 // limitations under the License.
 
 //
-// == Akka Serverless TCK model test for event-sourced entities ==
-// see tck/src/main/scala/com/akkaserverless/tck/EventSourcedEntityTCK.scala
+// == Kalix TCK model test for event-sourced entities ==
+// see tck/src/main/scala/kalix/tck/EventSourcedEntityTCK.scala
 
 syntax = "proto3";
 
@@ -24,21 +24,18 @@ option java_package = "kalix.tck.model.eventsourcedentity";
 option java_multiple_files = true;
 
 import "kalix/annotations.proto";
-import "akkaserverless/tck/model/eventsourcedentity/event_sourced_entity_api.proto";
+import "kalix/tck/model/eventsourcedentity/event_sourced_entity_api.proto";
 
+//
+// The `EventSourcedTwo` service is only for verifying forward actions and side effects.
+// The `Call` method is not required to do anything, and must return an empty `Response` message.
+//
+service EventSourcedTwo {
 
-//
-// The `EventSourcedConfigured` service is for testing entity configuration from the language support:
-//
-// - The entity persistence-id must be `event-sourced-configured`.
-// - The passivation strategy must be set with a timeout of 100 millis.
-// - The `Call` method is not required to do anything, and must return an empty `Response` message.
-//
-service EventSourcedConfigured {
   option (kalix.codegen) = {
     event_sourced_entity: {
-      name: "EventSourcedConfiguredEntity"
-      entity_type: "event-sourced-configured"
+      name: "EventSourcedTwoEntity"
+      entity_type: "event-sourced-two"
       state: "Persisted"
       events: ["Persisted"]
     }

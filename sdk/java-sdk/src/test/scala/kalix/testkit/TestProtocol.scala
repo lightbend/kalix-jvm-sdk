@@ -25,7 +25,7 @@ import kalix.testkit.valueentity.TestValueEntityProtocol
 import com.typesafe.config.{ Config, ConfigFactory }
 
 // FIXME: should we be doing protocol-level testing in the SDK?
-// Copied over from Akka Serverless framework (parts that are used here).
+// Copied over from Kalix framework (parts that are used here).
 final class TestProtocol(host: String, port: Int) {
   import TestProtocol._
 

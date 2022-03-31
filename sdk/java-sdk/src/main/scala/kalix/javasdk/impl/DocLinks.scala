@@ -18,7 +18,7 @@ package kalix.javasdk.impl
 
 object DocLinks {
 
-  private val baseUrl = "https://developer.lightbend.com/docs/akka-serverless"
+  private val baseUrl = "https://docs.kalix.io"
 
   private val errorCodes = Map(
     "AS-00112" -> s"$baseUrl/java/views.html#changing",

@@ -20,7 +20,7 @@ Learn how to create a customer registry in Java, package it into a container, an
 If you want to bypass writing code and jump straight to the deployment:
 
 . Download the source code using the Kalix CLI:
-`akkasls quickstart download customer-registry-java`
+`kalix quickstart download customer-registry-java`
 
 . Skip to <<Package and deploy your service>>.
 ====

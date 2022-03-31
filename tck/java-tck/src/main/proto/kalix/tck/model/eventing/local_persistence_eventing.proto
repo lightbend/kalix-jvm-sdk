@@ -13,8 +13,8 @@
 // limitations under the License.
 
 //
-// == Akka Serverless TCK model test for Event Sourced Entity eventing ==
-// see tck/src/main/scala/com/akkaserverless/tck/EventingTCK.scala
+// == Kalix TCK model test for Event Sourced Entity eventing ==
+// see tck/src/main/scala/kalix/tck/EventingTCK.scala
 
 syntax = "proto3";
 
@@ -33,14 +33,14 @@ import "google/protobuf/empty.proto";
 // - The `ProcessEventTwo` method receives an `EventTwo` message, and must return a stream of responses, one for each
 //   incoming step.
 // - The `ProcessAnyEvent` method receives a `google.protobuf.Any`, which will contain JSON serialized according to
-//   the Akka Serverless JSON serialization conventions, with a `type_url` of `json.akkaserverless.com/JsonEvent`. The contents
+//   the Kalix JSON serialization conventions, with a `type_url` of `json.kalix.io/JsonEvent`. The contents
 //   of the JSON message will be a JSON object with a single message property, and the call must respond with this
 //   message in the `Response`.
 // - The `ProcessValueOne` method receives an `ValueOne` message, and must behave according to the passed in step.
 // - The `ProcessValueTwo` method receives an `ValueTwo` message, and must return a stream of responses, one for each
 //   incoming step.
 // - The `ProcessAnyValue` method receives a `google.protobuf.Any`, which will contain JSON serialized according to
-//   the Akka Serverless JSON serialization conventions, with a `type_url` of `json.akkaserverless.com/JsonValue`. The
+//   the Kalix JSON serialization conventions, with a `type_url` of `json.kalix.io/JsonValue`. The
 //   contents of the JSON message will be a JSON object with a single message property, and the call must respond with
 //   this message in the `Response`.
 // - The `Effect` method receives an `EffectRequest` message and must respond with a `Response` that contains the id
@@ -98,9 +98,9 @@ service EventSourcedEntityOne {
 //
 // - The `EmitJsonEvent` method should emit an event serialised as JSON. This event should:
 //   - Contain a single `message` property with the value of the `message` field in `JsonEvent`.
-//   - Be serialized according to the Akka Serverless JSON serialization conventions - that is, with the JSON serialized
+//   - Be serialized according to the Kalix JSON serialization conventions - that is, with the JSON serialized
 //     to bytes, then placed into a protobuf message with a single bytes field with field number 1.
-//   - Have a type_url of `json.akkaserverless.com/JsonEvent`.
+//   - Have a type_url of `json.kalix.io/JsonEvent`.
 // - The persistence id for it must be `eventlogeventing-two`.
 //
 service EventSourcedEntityTwo {
@@ -160,9 +160,9 @@ service ValueEntityOne {
 //
 // - The `UpdateJsonValue` method should update a value to be serialised as JSON. This value should:
 //   - Contain a single `message` property with the value of the `message` field in `JsonValue`.
-//   - Be serialized according to the Akka Serverless JSON serialization conventions - that is, with the JSON serialized to
+//   - Be serialized according to the Kalix JSON serialization conventions - that is, with the JSON serialized to
 //     bytes, then placed into a protobuf message with a single bytes field with field number 1.
-//   - Have a type_url of `json.akkaserverless.com/JsonValue`.
+//   - Have a type_url of `json.kalix.io/JsonValue`.
 // - The persistence id for it must be `valuechangeseventing-two`.
 //
 service ValueEntityTwo {

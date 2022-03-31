@@ -209,7 +209,7 @@ private[javasdk] final class ActionsImpl(
         case (Nil, _) =>
           Future.successful(ActionResponse(ActionResponse.Response.Failure(Failure(
             0,
-            "Akka Serverless protocol failure: expected command message with service name and command name, but got empty stream"))))
+            "Kalix protocol failure: expected command message with service name and command name, but got empty stream"))))
         case (Seq(call), messages) =>
           services.get(call.serviceName) match {
             case Some(service) =>
@@ -287,7 +287,7 @@ private[javasdk] final class ActionsImpl(
         case (Nil, _) =>
           Source.single(ActionResponse(ActionResponse.Response.Failure(Failure(
             0,
-            "Akka Serverless protocol failure: expected command message with service name and command name, but got empty stream"))))
+            "Kalix protocol failure: expected command message with service name and command name, but got empty stream"))))
         case (Seq(call), messages) =>
           services.get(call.serviceName) match {
             case Some(service) =>

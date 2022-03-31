@@ -36,9 +36,9 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Testkit for running Akka Serverless services locally.
+ * Testkit for running Kalix services locally.
  *
- * <p>Requires Docker for starting a local instance of the Akka Serverless proxy.
+ * <p>Requires Docker for starting a local instance of the Kalix proxy.
  *
  * <p>Create a KalixTestkit with an {@link Kalix} service descriptor, and then {@link #start} the
  * testkit before testing the service with gRPC or HTTP clients. Call {@link #stop} after tests are
@@ -53,22 +53,22 @@ public class KalixTestKit {
     /** Default settings for KalixTestkit. */
     public static Settings DEFAULT = new Settings(DEFAULT_STOP_TIMEOUT);
 
-    /** Timeout setting for stopping the local Akka Serverless test instance. */
+    /** Timeout setting for stopping the local Kalix test instance. */
     public final Duration stopTimeout;
 
     /**
      * Create new settings for KalixTestkit.
      *
-     * @param stopTimeout timeout to use when waiting for Akka Serverless to stop
+     * @param stopTimeout timeout to use when waiting for Kalix to stop
      */
     public Settings(final Duration stopTimeout) {
       this.stopTimeout = stopTimeout;
     }
 
     /**
-     * Set a custom stop timeout, for stopping the local Akka Serverless test instance.
+     * Set a custom stop timeout, for stopping the local Kalix test instance.
      *
-     * @param stopTimeout timeout to use when waiting for Akka Serverless to stop
+     * @param stopTimeout timeout to use when waiting for Kalix to stop
      * @return updated Settings
      */
     public Settings withStopTimeout(final Duration stopTimeout) {
@@ -141,10 +141,10 @@ public class KalixTestKit {
   }
 
   /**
-   * Get the host name/IP address where the Akka Serverless service is available. This is relevant
-   * in certain Continuous Integration environments.
+   * Get the host name/IP address where the Kalix service is available. This is relevant in certain
+   * Continuous Integration environments.
    *
-   * @return Akka Serverless host
+   * @return Kalix host
    */
   public String getHost() {
     if (!started)
@@ -153,9 +153,9 @@ public class KalixTestKit {
   }
 
   /**
-   * Get the local port where the Akka Serverless service is available.
+   * Get the local port where the Kalix service is available.
    *
-   * @return local Akka Serverless port
+   * @return local Kalix port
    */
   public int getPort() {
     if (!started)
@@ -209,7 +209,7 @@ public class KalixTestKit {
     return GrpcClientSettings.connectToServiceAt(getHost(), getPort(), testSystem).withTls(false);
   }
 
-  /** Stop the testkit and local Akka Serverless. */
+  /** Stop the testkit and local Kalix. */
   public void stop() {
     try {
       proxyContainer.stop();

@@ -37,10 +37,10 @@ import org.junit.rules.ExternalResource;
  *
  * public class MyKalixIntegrationTest {
  *
- *   private static final Kalix MY_AKKA_SERVERLESS = new Kalix(); // with registered services
+ *   private static final Kalix MY_KALIX = new Kalix(); // with registered services
  *
  *   &#64;ClassRule
- *   public static final KalixTestKitResource testKit = new KalixTestKitResource(MY_AKKA_SERVERLESS);
+ *   public static final KalixTestKitResource testKit = new KalixTestKitResource(MY_KALIX);
  *
  *   private final MyServiceClient client; // generated Akka gRPC client
  *
@@ -73,19 +73,19 @@ public final class KalixTestKitResource extends ExternalResource {
   }
 
   /**
-   * Get the host name/IP address where the Akka Serverless service is available. This is relevant
-   * in certain Continuous Integration environments.
+   * Get the host name/IP address where the Kalix service is available. This is relevant in certain
+   * Continuous Integration environments.
    *
-   * @return Akka Serverless host
+   * @return Kalix host
    */
   public String getHost() {
     return testKit.getHost();
   }
 
   /**
-   * Get the local port where the Akka Serverless service is available.
+   * Get the local port where the Kalix service is available.
    *
-   * @return local Akka Serverless port
+   * @return local Kalix port
    */
   public int getPort() {
     return testKit.getPort();

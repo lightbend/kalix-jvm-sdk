@@ -55,7 +55,7 @@ object ModelBuilder {
   }
 
   /**
-   * The Akka Serverless service definitions and entities that could be extracted from a protobuf descriptor
+   * The Kalix service definitions and entities that could be extracted from a protobuf descriptor
    */
   case class Model(services: Map[String, Service], entities: Map[String, Entity]) {
     def lookupEntity(service: EntityService): Entity = {
@@ -209,7 +209,7 @@ object ModelBuilder {
   }
 
   /**
-   * A Service backed by Akka Serverless; either an Action, View or Entity
+   * A Service backed by Kalix; either an Action, View or Entity
    */
   sealed abstract class Service(val messageType: ProtoMessageType, val commands: Iterable[Command]) {
     lazy val commandTypes =
@@ -291,7 +291,7 @@ object ModelBuilder {
   }
 
   /**
-   * A Service backed by an Akka Serverless Entity
+   * A Service backed by a Kalix Entity
    */
   case class EntityService(
       override val messageType: ProtoMessageType,
@@ -335,7 +335,7 @@ object ModelBuilder {
 
   /**
    * An event indicates that a change has occurred to an entity. Events are stored in a journal, and are read and
-   * replayed each time the entity is reloaded by the Akka Serverless state management system.
+   * replayed each time the entity is reloaded by the Kalix state management system.
    */
   case class Event(messageType: MessageType)
 
@@ -346,7 +346,7 @@ object ModelBuilder {
   case class State(messageType: MessageType)
 
   /**
-   * Given a protobuf descriptor, discover the Akka Serverless entities and their properties.
+   * Given a protobuf descriptor, discover the Kalix entities and their properties.
    *
    * Impure.
    *

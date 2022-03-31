@@ -25,9 +25,9 @@ import kalix.scalasdk.Kalix
 import kalix.javasdk.testkit.{ KalixTestKit => JTestKit }
 
 /**
- * TestKit for running Akka Serverless services locally.
+ * TestKit for running Kalix services locally.
  *
- * <p>Requires Docker for starting a local instance of the Akka Serverless proxy.
+ * <p>Requires Docker for starting a local instance of the Kalix proxy.
  *
  * <p>Create a KalixTestKit with an [[Kalix]] service descriptor, and then [[KalixTestKit.start]] the testkit before
  * testing the service with gRPC or HTTP clients. Call [[KalixTestKit.stop]] after tests are complete.

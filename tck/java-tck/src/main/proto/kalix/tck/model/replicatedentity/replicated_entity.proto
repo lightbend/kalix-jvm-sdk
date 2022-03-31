@@ -13,8 +13,8 @@
 // limitations under the License.
 
 //
-// == Akka Serverless TCK model test for replicated entites ==
-// see tck/src/main/scala/com/akkaserverless/tck/ReplicatedEntityTCK.scala
+// == Kalix TCK model test for replicated entites ==
+// see tck/src/main/scala/kalix/tck/ReplicatedEntityTCK.scala
 
 syntax = "proto3";
 

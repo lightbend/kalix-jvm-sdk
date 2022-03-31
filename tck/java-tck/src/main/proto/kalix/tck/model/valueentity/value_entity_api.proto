@@ -13,8 +13,8 @@
 // limitations under the License.
 
 //
-// == Akka Serverless TCK model test for value-based entities ==
-// see tck/src/main/scala/com/akkaserverless/tck/EntityTCK.scala
+// == Kalix TCK model test for value-based entities ==
+// see tck/src/main/scala/kalix/tck/EntityTCK.scala
 
 syntax = "proto3";
 

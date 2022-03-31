@@ -13,8 +13,8 @@
 // limitations under the License.
 
 //
-// == Akka Serverless TCK model test for value-based entities ==
-// see tck/src/main/scala/com/akkaserverless/tck/EntityTCK.scala
+// == Kalix TCK model test for value-based entities ==
+// see tck/src/main/scala/kalix/tck/EntityTCK.scala
 
 syntax = "proto3";
 
@@ -26,7 +26,7 @@ option java_multiple_files = true;
 import "kalix/annotations.proto";
 import "google/api/annotations.proto";
 
-import "akkaserverless/tck/model/valueentity/value_entity_api.proto";
+import "kalix/tck/model/valueentity/value_entity_api.proto";
 
 
 //

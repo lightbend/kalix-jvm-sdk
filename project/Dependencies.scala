@@ -5,7 +5,7 @@ object Dependencies {
   object Kalix {
     val ProtocolVersionMajor = 0
     val ProtocolVersionMinor = 10
-    val FrameworkVersion = "0.10.0-M4"
+    val ProxyVersion = "0.10.0-M4"
   }
 
   // changing the Scala version of the Java SDK affects end users
@@ -32,9 +32,9 @@ object Dependencies {
   val MunitVersion = "0.7.20"
   val ScoptVersions = "4.0.0"
 
-  val kalixProxyProtocol = "io.kalix" % "kalix-proxy-protocol" % Kalix.FrameworkVersion
-  val kalixSdkProtocol = "io.kalix" % "kalix-sdk-protocol" % Kalix.FrameworkVersion
-  val kalixTckProtocol = "io.kalix" % "kalix-tck-protocol" % Kalix.FrameworkVersion
+  val kalixProxyProtocol = "io.kalix" % "kalix-proxy-protocol" % Kalix.ProxyVersion
+  val kalixSdkProtocol = "io.kalix" % "kalix-sdk-protocol" % Kalix.ProxyVersion
+  val kalixTckProtocol = "io.kalix" % "kalix-tck-protocol" % Kalix.ProxyVersion
 
   val commonsIo = "commons-io" % "commons-io" % CommonsIoVerison
   val logback = "ch.qos.logback" % "logback-classic" % LogbackVersion
@@ -119,7 +119,7 @@ object Dependencies {
     //        Eventually, the final form of protos from should be backported to the framework.
     //        See https://github.com/lightbend/kalix-jvm-sdk/issues/605
     //  kalixTckProtocol % "protobuf-src",
-    //  "io.kalix" % "kalix-tck-protocol" % Kalix.FrameworkVersion % "protobuf-src",
+    //  "io.kalix" % "kalix-tck-protocol" % Kalix.ProxyVersion % "protobuf-src",
     "ch.qos.logback" % "logback-classic" % LogbackVersion)
 
   val codegenCore = deps ++= Seq(

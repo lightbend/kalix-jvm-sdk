@@ -232,5 +232,5 @@ object MetadataImpl {
 
   val Empty = new MetadataImpl(Vector.empty)
 
-  val JwtClaimPrefix = "_akkasls-jwt-claim-"
+  val JwtClaimPrefix = "_kalix-jwt-claim-"
 }

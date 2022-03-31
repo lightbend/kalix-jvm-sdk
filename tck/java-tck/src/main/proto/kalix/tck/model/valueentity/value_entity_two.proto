@@ -13,8 +13,8 @@
 // limitations under the License.
 
 //
-// == Akka Serverless TCK model test for value-based entities ==
-// see tck/src/main/scala/com/akkaserverless/tck/EntityTCK.scala
+// == Kalix TCK model test for value-based entities ==
+// see tck/src/main/scala/kalix/tck/EntityTCK.scala
 
 syntax = "proto3";
 
@@ -25,22 +25,21 @@ option java_multiple_files = true;
 
 import "kalix/annotations.proto";
 import "google/api/annotations.proto";
-import "akkaserverless/tck/model/valueentity/value_entity_api.proto";
 
+import "kalix/tck/model/valueentity/value_entity_api.proto";
 
 
 //
-// The `ValueEntityConfigured` service is for testing entity configuration from the language support:
+// The `ValueBasedTwo` service is only for verifying forward actions and side effects.
 //
-// - The entity persistence-id must be `value-entity-configured`.
-// - The passivation strategy must be set with a timeout of 100 millis.
+// - The entity persistence-id must be `value-entity-tck-model-two`.
 // - The `Call` method is not required to do anything, and must return an empty `Response` message.
 //
-service ValueEntityConfigured {
+service ValueEntityTwo {
   option (kalix.codegen) = {
     value_entity: {
-      name: "ValueEntityConfiguredEntity"
-      entity_type: "value-entity-configured"
+      name: "ValueEntityTwoEntity"
+      entity_type: "value-entity-tck-model-two"
       state: "Persisted"
     }
   };
