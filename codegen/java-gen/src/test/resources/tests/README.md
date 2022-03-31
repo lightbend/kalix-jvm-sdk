@@ -43,7 +43,7 @@ sbt -Dexample.suite.java.enabled
 When the example suites are enabled at sbt level, you will get a few more sbt projects.
 
 ```shell
-[info]   * akkaserverless-java-sdk
+[info]   * kalix-jvm-sdk
 ...
 # extra project 
 [info]     codegenJavaCompilationExampleSuite

@@ -1,7 +1,7 @@
 # kalix-maven-plugin
 
 This plugin is designed for developers of Maven and Java projects that wish to target the
-[Kalix](https://www.lightbend.com/akka-serverless) environment.
+[Kalix](https://docs.kalix.io) environment.
 
 The plugin provides two functions:
 
@@ -33,9 +33,9 @@ that have been introduced.
 
 ## Configuration
 
-- `akkaslsPath` path and name of the `akkasls` command line tool
-- `akkaslsContext` selects the context when calling `akkasls` if set
-- `dockerImage` the Docker image name (use eg. `<dockerImage>${akkasls.dockerImage}:${akkasls.dockerTag}</dockerImage>`)
+- `kalixPath` path and name of the `kalix` command line tool
+- `kalixContext` selects the context when calling `kalix` if set
+- `dockerImage` the Docker image name (use eg. `<dockerImage>${kalix.dockerImage}:${kalix.dockerTag}</dockerImage>`)
 
 ## Building and testing
 
