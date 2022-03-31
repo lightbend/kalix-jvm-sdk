@@ -169,7 +169,7 @@ public interface CloudEvent {
    * <p>If this CloudEvent was created by {{@link Metadata#asCloudEvent()}}, then any non CloudEvent
    * metadata that was present will still be present.
    *
-   * @return This CloudEvent expressed as Akka Serverless metadata.
+   * @return This CloudEvent expressed as Kalix metadata.
    */
   Metadata asMetadata();
 

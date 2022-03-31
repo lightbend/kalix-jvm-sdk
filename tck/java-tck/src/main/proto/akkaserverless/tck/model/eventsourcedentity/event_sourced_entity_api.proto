@@ -13,8 +13,8 @@
 // limitations under the License.
 
 //
-// == Akka Serverless TCK model test for event-sourced entities ==
-// see tck/src/main/scala/com/akkaserverless/tck/EventSourcedEntityTCK.scala
+// == Kalix TCK model test for event-sourced entities ==
+// see tck/src/main/scala/kalix/tck/EventSourcedEntityTCK.scala
 
 syntax = "proto3";
 

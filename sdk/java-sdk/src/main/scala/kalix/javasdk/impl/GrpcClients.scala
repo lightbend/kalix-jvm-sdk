@@ -99,10 +99,10 @@ final class GrpcClients(system: ExtendedActorSystem) extends Extension {
   private def createClient(key: Key): AnyRef = {
     val settings = if (!system.settings.config.hasPath(s"""akka.grpc.client."${key.service}"""")) {
       // "service" is not present in the config, treat it as an Akka gRPC inter-service call
-      log.debug("Creating gRPC client for Akka Serverless service [{}:{}]", key.service, key.port)
+      log.debug("Creating gRPC client for Kalix service [{}:{}]", key.service, key.port)
       GrpcClientSettings
         .connectToServiceAt(key.service, key.port)(system)
-        // (TLS is handled for us by Akka Serverless infra)
+        // (TLS is handled for us by Kalix infra)
         .withTls(false)
     } else {
       log.debug("Creating gRPC client for external service [{}]", key.service)

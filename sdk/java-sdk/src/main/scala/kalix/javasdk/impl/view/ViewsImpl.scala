@@ -68,7 +68,7 @@ final class ViewsImpl(system: ActorSystem, _services: Map[String, ViewService], 
    */
   override def handle(in: akka.stream.scaladsl.Source[pv.ViewStreamIn, akka.NotUsed])
       : akka.stream.scaladsl.Source[pv.ViewStreamOut, akka.NotUsed] =
-    // FIXME: see akkaserverless-framework/issues/209 and akkaserverless-framework/issues/207
+    // FIXME: see kalix-proxy/issues/209 and kalix-proxy/issues/207
     // It is currently only implemented to support one request (ReceiveEvent) with one response (Upsert).
     // The intention, and reason for full-duplex streaming, is that there should be able to have an interaction
     // with two main types of operations, loads, and updates, and with
@@ -137,7 +137,7 @@ final class ViewsImpl(system: ActorSystem, _services: Map[String, ViewService], 
 
         case (Seq(pv.ViewStreamIn(other, _)), _) =>
           val errMsg =
-            s"Akka Serverless protocol failure: expected ReceiveEvent message, but got ${other.getClass.getName}"
+            s"Kalix protocol failure: expected ReceiveEvent message, but got ${other.getClass.getName}"
           Source.failed(new RuntimeException(errMsg))
       }
 

@@ -78,7 +78,7 @@ class DiscoveryImpl(system: ActorSystem, services: Map[String, Service]) extends
       proxyTerminatedRef.getAndSet(proxyTerminatedPromise).trySuccess(Done)
 
       log.info(
-        "Received discovery call from [{} {}]{} supporting Akka Serverless protocol {}.{}",
+        "Received discovery call from [{} {}]{} supporting Kalix protocol {}.{}",
         in.proxyName,
         in.proxyVersion,
         if (in.deploymentName.isEmpty) { "" }
@@ -168,7 +168,7 @@ class DiscoveryImpl(system: ActorSystem, services: Map[String, Service]) extends
           s"At ${location.fileName}:${location.startLine + 1}:${location.startCol + 1}:${"\n"}$source"
       }
     }.toList
-    val message = s"Error reported from Akka Serverless system: ${in.code} ${in.message}"
+    val message = s"Error reported from Kalix system: ${in.code} ${in.message}"
     val detail = if (in.detail.isEmpty) Nil else List(in.detail)
     val seeDocs = DocLinks.forErrorCode(in.code).map(link => s"See documentation: $link").toList
     val messages = message :: detail ::: seeDocs ::: sourceMsgs

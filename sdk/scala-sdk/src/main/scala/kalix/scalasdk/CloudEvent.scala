@@ -195,7 +195,7 @@ trait CloudEvent {
    * present will still be present.
    *
    * @return
-   *   This CloudEvent expressed as Akka Serverless metadata.
+   *   This CloudEvent expressed as Kalix metadata.
    */
   def asMetadata: Metadata
 }

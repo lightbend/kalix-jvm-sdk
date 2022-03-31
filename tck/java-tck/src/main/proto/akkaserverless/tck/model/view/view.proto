@@ -13,8 +13,8 @@
 // limitations under the License.
 
 //
-// == Akka Serverless TCK model test for views ==
-// see tck/src/main/scala/com/akkaserverless/tck/ViewTCK.scala
+// == Kalix TCK model test for views ==
+// see tck/src/main/scala/kalix/tck/ViewTCK.scala
 
 syntax = "proto3";
 

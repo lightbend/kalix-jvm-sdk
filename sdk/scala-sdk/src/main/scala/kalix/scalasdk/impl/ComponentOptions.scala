@@ -27,7 +27,7 @@ private[scalasdk] trait ComponentOptions {
   def forwardHeaders: Set[String]
 
   /**
-   * Ask Akka Serverless to forward these headers from the incoming request as metadata headers for the incoming
+   * Ask Kalix to forward these headers from the incoming request as metadata headers for the incoming
    * commands. By default no headers except "X-Server-Timing" are forwarded.
    */
   def withForwardHeaders(headers: Set[String]): ComponentOptions

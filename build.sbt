@@ -66,7 +66,7 @@ lazy val sdkJava = project
       "--no-module-directories",
       "-notimestamp",
       "-doctitle",
-      "Akka Serverless Java SDK",
+      "Kalix Java SDK",
       "-noqualifier",
       "java.lang"),
     Compile / akkaGrpcGeneratedSources := Seq(AkkaGrpc.Server),
@@ -99,7 +99,7 @@ lazy val sdkScala = project
     inTask(doc)(
       Seq(
         Compile / scalacOptions ++= scaladocOptions(
-          "Akka Serverless Scala SDK",
+          "Kalix Scala SDK",
           version.value,
           (ThisBuild / baseDirectory).value))))
   .settings(Dependencies.sdkScala)
@@ -122,7 +122,7 @@ lazy val sdkScalaTestKit = project
     inTask(doc)(
       Seq(
         Compile / scalacOptions ++= scaladocOptions(
-          "Akka Serverless Scala SDK TestKit",
+          "Kalix Scala SDK TestKit",
           version.value,
           (ThisBuild / baseDirectory).value))))
   .settings(Dependencies.sdkScalaTestKit)
@@ -159,7 +159,7 @@ lazy val sdkJavaTestKit = project
       name,
       version,
       "proxyImage" -> "gcr.io/kalix-public/kalix-proxy",
-      "proxyVersion" -> Kalix.FrameworkVersion,
+      "proxyVersion" -> Kalix.ProxyVersion,
       "scalaVersion" -> scalaVersion.value),
     buildInfoPackage := "kalix.javasdk.testkit",
     // Produce javadoc by restricting to Java sources only -- no genjavadoc setup currently
@@ -307,7 +307,7 @@ lazy val codegenScala =
         version,
         scalaVersion,
         sbtVersion,
-        "protocolVersion" -> Kalix.FrameworkVersion,
+        "protocolVersion" -> Kalix.ProxyVersion,
         BuildInfoKey(PB.protocExecutable),
         BuildInfoKey(codegenCore / PB.externalIncludePath),
         BuildInfoKey(codegenCore / PB.externalSourcePath),

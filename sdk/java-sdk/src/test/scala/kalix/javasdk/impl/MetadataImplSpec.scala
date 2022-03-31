@@ -31,22 +31,22 @@ class MetadataImplSpec extends AnyWordSpec with Matchers with OptionValues {
 
   "MetadataImpl" should {
     "support getting the subject JWT claim" in {
-      metadata("_akkasls-jwt-claim-sub" -> "some-subject").jwtClaims.subject().toScala.value shouldBe "some-subject"
+      metadata("_kalix-jwt-claim-sub" -> "some-subject").jwtClaims.subject().toScala.value shouldBe "some-subject"
     }
 
     "support getting the expiriation JWT claim" in {
-      metadata("_akkasls-jwt-claim-exp" -> "12345").jwtClaims.expirationTime().toScala.value shouldBe Instant
+      metadata("_kalix-jwt-claim-exp" -> "12345").jwtClaims.expirationTime().toScala.value shouldBe Instant
         .ofEpochSecond(12345)
     }
 
     "support parsing object JWT claims" in {
       val jsonNode =
-        metadata("_akkasls-jwt-claim-my-object" -> """{"foo":"bar"}""").jwtClaims().getObject("my-object").toScala.value
+        metadata("_kalix-jwt-claim-my-object" -> """{"foo":"bar"}""").jwtClaims().getObject("my-object").toScala.value
       jsonNode.get("foo").textValue() shouldBe "bar"
     }
 
     "support parsing string list JWT claims" in {
-      val list = metadata("_akkasls-jwt-claim-my-string-list" -> """["foo","bar"]""")
+      val list = metadata("_kalix-jwt-claim-my-string-list" -> """["foo","bar"]""")
         .jwtClaims()
         .getStringList("my-string-list")
         .toScala
@@ -55,7 +55,7 @@ class MetadataImplSpec extends AnyWordSpec with Matchers with OptionValues {
     }
 
     "support parsing int list JWT claims" in {
-      val list = metadata("_akkasls-jwt-claim-my-int-list" -> """[3,4]""")
+      val list = metadata("_kalix-jwt-claim-my-int-list" -> """[3,4]""")
         .jwtClaims()
         .getIntegerList("my-int-list")
         .toScala
@@ -64,7 +64,7 @@ class MetadataImplSpec extends AnyWordSpec with Matchers with OptionValues {
     }
 
     "ignore claims that are not the right type" in {
-      val meta = metadata("_akkasls-jwt-claim-foo" -> "bar")
+      val meta = metadata("_kalix-jwt-claim-foo" -> "bar")
       meta.jwtClaims().getBoolean("foo").toScala shouldBe None
       meta.jwtClaims().getInteger("foo").toScala shouldBe None
       meta.jwtClaims().getLong("foo").toScala shouldBe None
@@ -81,7 +81,7 @@ class MetadataImplSpec extends AnyWordSpec with Matchers with OptionValues {
     }
 
     "ignore claims that don't exist" in {
-      val meta = metadata("_akkasls-jwt-claim-x" -> "bar")
+      val meta = metadata("_kalix-jwt-claim-x" -> "bar")
       meta.jwtClaims().getString("foo").toScala shouldBe None
       meta.jwtClaims().getBoolean("foo").toScala shouldBe None
       meta.jwtClaims().getInteger("foo").toScala shouldBe None

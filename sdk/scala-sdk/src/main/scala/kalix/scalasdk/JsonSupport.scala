@@ -36,7 +36,7 @@ object JsonSupport {
 
   /**
    * Encode the given value as JSON using Jackson and put the encoded string as bytes in a protobuf `Any` with the type
-   * URL `json.akkaserverless.com/[valueClassName]`.
+   * URL `json.kalix.io/[valueClassName]`.
    *
    * <p>Note that if the serialized Any is published to a pub/sub topic that is consumed by an external service using
    * the class name suffix this introduces coupling as the internal class name of this service becomes known to the
@@ -50,7 +50,7 @@ object JsonSupport {
 
   /**
    * Encode the given value as JSON using Jackson and put the encoded string as bytes in a protobuf Any with the type
-   * URL `json.akkaserverless.com/[jsonType]`.
+   * URL `json.kalix.io/[jsonType]`.
    *
    * @param value
    *   the object to encode as JSON, must be an instance of a class properly annotated with the needed Jackson
@@ -66,7 +66,7 @@ object JsonSupport {
 
   /**
    * Decode the given protobuf `Any` object to an instance of `T` using Jackson. The object must have the JSON string as
-   * bytes as value and a type URL starting with `json.akkaserverless.com/`.
+   * bytes as value and a type URL starting with `json.kalix.io/`.
    *
    * @param valueClass
    *   The type of class to deserialize the object to, the class must have the proper Jackson annotations for
