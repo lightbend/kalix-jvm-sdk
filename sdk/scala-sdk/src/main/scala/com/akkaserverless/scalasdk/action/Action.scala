@@ -155,9 +155,8 @@ abstract class Action {
       throw new IllegalStateException("ActionContext is only available when handling a message."))
 
   /** INTERNAL API */
-  def _internalSetActionContext(context: Option[ActionContext]): Unit = {
+  def _internalSetActionContext(context: Option[ActionContext]): Unit =
     _actionContext = context
-  }
 
   protected def effects[T]: Action.Effect.Builder =
     ActionEffectImpl.builder()

@@ -72,18 +72,17 @@ object ActionTestKitGenerator {
           |   * Create a testkit instance of $actionClassName
           |   * @param entityFactory A function that creates a $actionClassName based on the given ActionCreationContext
           |   */
-          |  def apply(actionFactory: ActionCreationContext => $actionClassName): ${actionClassName}TestKit =
-          |    new ${actionClassName}TestKit(actionFactory)
+          |  def apply(actionFactory: ActionCreationContext => $actionClassName, context: TestKitActionContext = new TestKitActionContext): ${actionClassName}TestKit =
+          |    new ${actionClassName}TestKit(actionFactory, context)
           |
           |}
           |
           |/**
           | * TestKit for unit testing $actionClassName
           | */
-          |final class ${actionClassName}TestKit private(actionFactory: ActionCreationContext => $actionClassName) {
+          |final class ${actionClassName}TestKit private(actionFactory: ActionCreationContext => $actionClassName, context: TestKitActionContext) {
           |
           |  private def newActionInstance() = {
-          |    val context = new TestKitActionContext
           |    val action = actionFactory(context)
           |    action._internalSetActionContext(Some(context))
           |    action

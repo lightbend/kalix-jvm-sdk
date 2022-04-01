@@ -40,6 +40,7 @@ object ActionTestKitGenerator {
       "",
       otherImports = Seq(
         "java.util.ArrayList",
+        "java.util.HashMap",
         "java.util.List",
         "java.util.function.Function",
         "java.util.Optional",
@@ -64,18 +65,25 @@ object ActionTestKitGenerator {
         |
         |  private Function<ActionCreationContext, $className> actionFactory;
         |
+        |  private TestKitActionContext context;
+        |
         |  private $className createAction() {
-        |    $className action = actionFactory.apply(new TestKitActionContext());
-        |    action._internalSetActionContext(Optional.of(new TestKitActionContext()));
+        |    $className action = actionFactory.apply(context);
+        |    action._internalSetActionContext(Optional.of(context));
         |    return action;
         |  };
         |
         |  public static $testKitClassName of(Function<ActionCreationContext, $className> actionFactory) {
-        |    return new $testKitClassName(actionFactory);
+        |    return new $testKitClassName(actionFactory, new TestKitActionContext(new HashMap(),Optional.of("test-subject-id")));
         |  }
         |
-        |  private $testKitClassName(Function<ActionCreationContext, $className> actionFactory) {
+        |  public static $testKitClassName of(Function<ActionCreationContext, $className> actionFactory, TestKitActionContext context) {
+        |    return new $testKitClassName(actionFactory, context);
+        |  }
+        |
+        |  private $testKitClassName(Function<ActionCreationContext, $className> actionFactory, TestKitActionContext context) {
         |    this.actionFactory = actionFactory;
+        |    this.context = context;
         |  }
         |
         |  private <E> ActionResult<E> interpretEffects(Effect<E> effect) {

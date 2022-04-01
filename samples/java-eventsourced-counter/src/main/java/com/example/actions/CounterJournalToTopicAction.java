@@ -42,6 +42,26 @@ public class CounterJournalToTopicAction extends AbstractCounterJournalToTopicAc
   // end::counter-topic[]
 
   @Override
+  public Effect<CounterTopicApi.Increased> increaseMetadata(CounterDomain.ValueIncreased valueIncreased) {
+    Optional<String> counterId = actionContext().eventSubject();
+
+    CounterTopicApi.Increased increased;
+
+    if(actionContext().metadata().get("myKey") == Optional.of("myValue")){
+      increased = 
+      CounterTopicApi.Increased.newBuilder() 
+        .setValue(valueIncreased.getValue() * 2)
+        .build();
+    } else {
+      increased = 
+      CounterTopicApi.Increased.newBuilder() 
+        .setValue(valueIncreased.getValue())
+        .build();
+    }
+    return effects().reply(increased); 
+  }
+
+  @Override
   public Effect<CounterTopicApi.Decreased> decrease(CounterDomain.ValueDecreased valueDecreased) {
     CounterTopicApi.Decreased decreased =
         CounterTopicApi.Decreased.newBuilder()
