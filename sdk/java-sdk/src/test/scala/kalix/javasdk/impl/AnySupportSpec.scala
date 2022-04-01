@@ -120,7 +120,7 @@ class AnySupportSpec extends AnyWordSpec with Matchers with OptionValues {
     "deserialize text into StringValue" in {
       val plainText = "some text"
       val any =
-        ScalaPbAny("p.kalix.io/string", AnySupport.encodePrimitiveBytes(ByteString.copyFromUtf8(plainText)))
+        ScalaPbAny("type.kalix.io/string", AnySupport.encodePrimitiveBytes(ByteString.copyFromUtf8(plainText)))
       // both as top level message
       val decoded = anySupport.decodeMessage(any)
       decoded shouldBe a[com.google.protobuf.StringValue]
@@ -132,7 +132,7 @@ class AnySupportSpec extends AnyWordSpec with Matchers with OptionValues {
     "deserialize bytes into BytesValue" in {
       val bytes = "some texty bytes"
       val any =
-        ScalaPbAny("p.kalix.io/bytes", AnySupport.encodePrimitiveBytes(ByteString.copyFromUtf8(bytes)))
+        ScalaPbAny("type.kalix.io/bytes", AnySupport.encodePrimitiveBytes(ByteString.copyFromUtf8(bytes)))
       // both as top level message
       val decoded = anySupport.decodeMessage(any)
       decoded shouldBe a[com.google.protobuf.BytesValue]
@@ -181,7 +181,7 @@ class AnySupportSpec extends AnyWordSpec with Matchers with OptionValues {
     "deserialize text into StringValue" in {
       val plainText = "some text"
       val any =
-        ScalaPbAny("p.kalix.io/string", AnySupport.encodePrimitiveBytes(ByteString.copyFromUtf8(plainText)))
+        ScalaPbAny("type.kalix.io/string", AnySupport.encodePrimitiveBytes(ByteString.copyFromUtf8(plainText)))
       // both as top level message
       val decoded = anySupportScala.decodeMessage(any)
       decoded shouldBe a[com.google.protobuf.wrappers.StringValue]
@@ -193,7 +193,7 @@ class AnySupportSpec extends AnyWordSpec with Matchers with OptionValues {
     "deserialize bytes into BytesValue" in {
       val bytes = "some texty bytes"
       val any =
-        ScalaPbAny("p.kalix.io/bytes", AnySupport.encodePrimitiveBytes(ByteString.copyFromUtf8(bytes)))
+        ScalaPbAny("type.kalix.io/bytes", AnySupport.encodePrimitiveBytes(ByteString.copyFromUtf8(bytes)))
       // both as top level message
       val decoded = anySupportScala.decodeMessage(any)
       decoded shouldBe a[com.google.protobuf.wrappers.BytesValue]

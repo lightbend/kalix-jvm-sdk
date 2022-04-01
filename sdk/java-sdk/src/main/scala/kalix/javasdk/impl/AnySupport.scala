@@ -45,7 +45,7 @@ import scalapb.options.Scalapb
 object AnySupport {
 
   private final val KalixPrimitiveFieldNumber = 1
-  final val KalixPrimitive = "p.kalix.io/"
+  final val KalixPrimitive = "type.kalix.io/"
   final val DefaultTypeUrlPrefix = "type.googleapis.com"
 
   private val log = LoggerFactory.getLogger(classOf[AnySupport])

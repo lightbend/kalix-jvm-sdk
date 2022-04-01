@@ -3,9 +3,9 @@ import sbt.Keys._
 
 object Dependencies {
   object Kalix {
-    val ProtocolVersionMajor = 0
-    val ProtocolVersionMinor = 10
-    val ProxyVersion = "0.10.0-M4"
+    val ProtocolVersionMajor = 1
+    val ProtocolVersionMinor = 0
+    val ProxyVersion = "1.0.0-M2"
   }
 
   // changing the Scala version of the Java SDK affects end users
