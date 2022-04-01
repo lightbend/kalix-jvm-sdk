@@ -23,18 +23,25 @@ public final class MyServiceActionImplTestKit {
 
   private Function<ActionCreationContext, MyServiceActionImpl> actionFactory;
 
+  private TestKitActionContext context;
+
   private MyServiceActionImpl createAction() {
-    MyServiceActionImpl action = actionFactory.apply(new TestKitActionContext());
-    action._internalSetActionContext(Optional.of(new TestKitActionContext()));
+    MyServiceActionImpl action = actionFactory.apply(context);
+    action._internalSetActionContext(Optional.of(context));
     return action;
   };
 
   public static MyServiceActionImplTestKit of(Function<ActionCreationContext, MyServiceActionImpl> actionFactory) {
-    return new MyServiceActionImplTestKit(actionFactory);
+    return new MyServiceActionImplTestKit(actionFactory, new TestKitActionContext());
   }
 
-  private MyServiceActionImplTestKit(Function<ActionCreationContext, MyServiceActionImpl> actionFactory) {
+  public static MyServiceActionImplTestKit of(Function<ActionCreationContext, MyServiceActionImpl> actionFactory, TestKitActionContext context) {
+    return new MyServiceActionImplTestKit(actionFactory, context);
+  }
+
+  private MyServiceActionImplTestKit(Function<ActionCreationContext, MyServiceActionImpl> actionFactory, TestKitActionContext context) {
     this.actionFactory = actionFactory;
+    this.context = context;
   }
 
   private <E> ActionResult<E> interpretEffects(Effect<E> effect) {

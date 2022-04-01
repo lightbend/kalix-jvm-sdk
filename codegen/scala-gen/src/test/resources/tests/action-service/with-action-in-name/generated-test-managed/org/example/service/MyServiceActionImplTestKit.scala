@@ -18,18 +18,17 @@ object MyServiceActionImplTestKit {
    * Create a testkit instance of MyServiceActionImpl
    * @param entityFactory A function that creates a MyServiceActionImpl based on the given ActionCreationContext
    */
-  def apply(actionFactory: ActionCreationContext => MyServiceActionImpl): MyServiceActionImplTestKit =
-    new MyServiceActionImplTestKit(actionFactory)
+  def apply(actionFactory: ActionCreationContext => MyServiceActionImpl, context: TestKitActionContext = new TestKitActionContext): MyServiceActionImplTestKit =
+    new MyServiceActionImplTestKit(actionFactory, context)
 
 }
 
 /**
  * TestKit for unit testing MyServiceActionImpl
  */
-final class MyServiceActionImplTestKit private(actionFactory: ActionCreationContext => MyServiceActionImpl) {
+final class MyServiceActionImplTestKit private(actionFactory: ActionCreationContext => MyServiceActionImpl, context: TestKitActionContext) {
 
   private def newActionInstance() = {
-    val context = new TestKitActionContext
     val action = actionFactory(context)
     action._internalSetActionContext(Some(context))
     action

@@ -40,7 +40,6 @@ object ActionTestKitGenerator {
       "",
       otherImports = Seq(
         "java.util.ArrayList",
-        "java.util.HashMap",
         "java.util.List",
         "java.util.function.Function",
         "java.util.Optional",
@@ -74,7 +73,7 @@ object ActionTestKitGenerator {
         |  };
         |
         |  public static $testKitClassName of(Function<ActionCreationContext, $className> actionFactory) {
-        |    return new $testKitClassName(actionFactory, new TestKitActionContext(new HashMap(),Optional.of("test-subject-id")));
+        |    return new $testKitClassName(actionFactory, new TestKitActionContext());
         |  }
         |
         |  public static $testKitClassName of(Function<ActionCreationContext, $className> actionFactory, TestKitActionContext context) {
