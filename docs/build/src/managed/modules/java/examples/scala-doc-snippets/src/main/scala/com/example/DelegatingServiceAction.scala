@@ -1,7 +1,7 @@
 package com.example
 
-import com.akkaserverless.scalasdk.action.Action
-import com.akkaserverless.scalasdk.action.ActionCreationContext
+import kalix.scalasdk.action.Action
+import kalix.scalasdk.action.ActionCreationContext
 
 import scala.concurrent.ExecutionContext
 

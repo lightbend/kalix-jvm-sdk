@@ -19,12 +19,12 @@ package customer.action;
 option java_outer_classname = "CustomerActionModel";
 
 import "google/protobuf/empty.proto";
-import "akkaserverless/annotations.proto";
+import "kalix/annotations.proto";
 import "customer/api/customer_api.proto";
 
 
 service CustomerAction {
-  option (akkaserverless.codegen) = {
+  option (kalix.codegen) = {
       action: {}
     };
   rpc Create(api.Customer) returns (google.protobuf.Empty) {

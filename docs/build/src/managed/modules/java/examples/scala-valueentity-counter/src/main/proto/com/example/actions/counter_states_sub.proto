@@ -16,20 +16,20 @@
 syntax = "proto3";
 package com.example.actions;
 
-import "akkaserverless/annotations.proto"; 
+import "kalix/annotations.proto";
 import "com/example/domain/counter_domain.proto"; // <1>
 import "google/protobuf/empty.proto";
 
 service CounterStateSubscription {
-  option (akkaserverless.codegen) = { 
+  option (kalix.codegen) = {
     action: {} // <2>
   };
-  
+
   rpc OnUpdateState (com.example.domain.CounterState) returns (google.protobuf.Empty) {
-    option (akkaserverless.method).eventing.in = {  
+    option (kalix.method).eventing.in = {
       value_entity: "counter" // <3>
     };
-  } 
+  }
 
 }
 // end::state-subscription[]

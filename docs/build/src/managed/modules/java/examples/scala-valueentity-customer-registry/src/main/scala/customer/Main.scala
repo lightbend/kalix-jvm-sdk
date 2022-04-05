@@ -1,13 +1,10 @@
 //tag::RegisterComponents[]
 package customer
 
-import com.akkaserverless.scalasdk.AkkaServerless
-import customer.action.CustomerActionImpl
-import customer.domain.CustomerValueEntity
-import customer.view.CustomerByEmailView
-import customer.view.CustomerByNameView
-import customer.view.CustomerSummaryByNameView
-import customer.view.CustomersResponseByNameView
+import kalix.scalasdk.Kalix
+import customer.action._
+import customer.domain._
+import customer.view._
 import org.slf4j.LoggerFactory
 
 object Main {
@@ -15,33 +12,23 @@ object Main {
   private val log = LoggerFactory.getLogger("customer.Main")
 
   // tag::register[]
-  def createAkkaServerless(): AkkaServerless = {
-    // The AkkaServerlessFactory automatically registers any generated Actions, Views or Entities,
-    // and is kept up-to-date with any changes in your protobuf definitions.
-    // If you prefer, you may remove this and manually register these components in a
-    // `AkkaServerless()` instance.
-    AkkaServerlessFactory.withComponents(
-      // end::register[]
-      new CustomerValueEntity(_),
-      new CustomerActionImpl(_),
-      new CustomerByEmailView(_),
-      new CustomerByNameView(_),
-      new CustomerSummaryByNameView(_),
-      new CustomersResponseByNameView(_))
-      /*
-      // tag::register[]
-      return AkkaServerlessFactory.withComponents(
-        new CustomerValueEntity(_),
-        new CustomerByNameView(_))
-      // end::register[]
-      */
-    // tag::register[]
+  def createKalix(): Kalix = {
+    // FIXME temporarily changed to set a short view id to not hit view id limit of 21 chars
+    Kalix()
+      .register(CustomerValueEntityProvider(new CustomerValueEntity(_)))
+      .register(CustomerActionProvider(new CustomerActionImpl(_)))
+      .register(CustomerByEmailViewProvider(new CustomerByEmailView(_)).withViewId("ByEmail"))
+      .register(CustomerByNameViewProvider(new CustomerByNameView(_)).withViewId("ByName"))
+      .register(CustomerSummaryByNameViewProvider(new CustomerSummaryByNameView(_))
+        .withViewId("Summary"))
+      .register(CustomersResponseByNameViewProvider(new CustomersResponseByNameView(_))
+        .withViewId("Response"))
   }
   // end::register[]
 
   def main(args: Array[String]): Unit = {
-    log.info("starting the Akka Serverless service")
-    createAkkaServerless().start()
+    log.info("starting the Kalix service")
+    createKalix().start()
   }
 }
 //end::RegisterComponents[]

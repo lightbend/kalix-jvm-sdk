@@ -1,7 +1,7 @@
 package com.example.replicated.registermap.domain;
 
-import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityContext;
-import com.akkaserverless.javasdk.replicatedentity.ReplicatedRegisterMap;
+import kalix.javasdk.replicatedentity.ReplicatedEntityContext;
+import kalix.javasdk.replicatedentity.ReplicatedRegisterMap;
 import com.example.replicated.registermap.SomeRegisterMapApi;
 import com.google.protobuf.Empty;
 

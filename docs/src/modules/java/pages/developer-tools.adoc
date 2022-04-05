@@ -6,13 +6,13 @@ include::partial$attributes.adoc[]
 Select your preferred language (Java/Scala) above.
 
 [.group-java]
-The Java tooling is published to https://mvnrepository.com/artifact/com.akkaserverless[Maven Central]. 
+The Java tooling is published to https://mvnrepository.com/artifact/kalix[Maven Central]. 
 
 [.group-java]
 == Maven archetype
 
 [.group-java]
-A https://maven.apache.org/guides/introduction/introduction-to-archetypes.html[Maven archetype]; _akkaserverless-maven-archetype_ provides the tooling to xref:quickstart-template.adoc[kickstart a Maven project]. You supply details such as the desired artifact and group IDs, and the archetype provides a new Maven project directory with the Akka Serverless SDK and associated development support tooling set up.
+A https://maven.apache.org/guides/introduction/introduction-to-archetypes.html[Maven archetype]; _kalix-maven-archetype_ provides the tooling to xref:quickstart-template.adoc[kickstart a Maven project]. You supply details such as the desired artifact and group IDs, and the archetype provides a new Maven project directory with the Kalix SDK and associated development support tooling set up.
 
 [.group-java]
 The archetype can be used via the `mvn` CLI.
@@ -23,9 +23,9 @@ Linux or MacOS::
 ----
 mvn \
   archetype:generate \
-  -DarchetypeGroupId=com.akkaserverless \
-  -DarchetypeArtifactId=akkaserverless-maven-archetype \
-  -DarchetypeVersion={akkaserverless-java-sdk-version}
+  -DarchetypeGroupId=io.kalix \
+  -DarchetypeArtifactId=kalix-maven-archetype \
+  -DarchetypeVersion={kalix-jvm-sdk-version}
 ----
 
 Windows::
@@ -34,46 +34,46 @@ Windows::
 ----
 mvn ^
   archetype:generate ^
-  -DarchetypeGroupId=com.akkaserverless ^
-  -DarchetypeArtifactId=akkaserverless-maven-archetype ^
-  -DarchetypeVersion={akkaserverless-java-sdk-version}
+  -DarchetypeGroupId=io.kalix ^
+  -DarchetypeArtifactId=kalix-maven-archetype ^
+  -DarchetypeVersion={kalix-jvm-sdk-version}
 ----
 
 
 [.group-java]
 == Ongoing development support
-The development support tooling is provided via a single Maven plugin; _akkaserverless-maven-plugin_. This plugin provides two Maven goals to support Protobuf driven interface-first development.
+The development support tooling is provided via a single Maven plugin; _kalix-maven-plugin_. This plugin provides two Maven goals to support Protobuf driven interface-first development.
 
 [.group-java]
 === Goals
 This plugin implements the following https://maven.apache.org/guides/introduction/introduction-to-the-lifecycle.html[Maven Build Lifecycle] goals:
 
 * `generate`; generates implementation stubs for your entity/service and corresponding tests, as well as an abstract class for your implementation to extend. If you make further updates to your Protobuf specification after the initial generation, existing implementation is left unchanged but the abstract class is updated to align. This allows you to leverage native developer tooling to guide the desired changes.
-* `deploy`; simply invokes the `akkasls` command line tool to deploy the service to Akka Serverless. This relies on an existing installation of the CLI and uses configuration and credentials from that installation.
+* `deploy`; simply invokes the `kalix` command line tool to deploy the service to Kalix. This relies on an existing installation of the CLI and uses configuration and credentials from that installation.
 
-NOTE: The deploy goal requires the Akka Serverless CLI to be installed on your system.
+NOTE: The deploy goal requires the Kalix CLI to be installed on your system.
 
 [.group-java]
 === Configuration
 The behaviour of the plugin can be adjusted by adding a `<configuration>` tag to the plugin definition in your POM with any of the following options:
 
-* `akkaslsPath` path and name of the `akkasls` commmand line tool
-* `akkaslsContext` selects the context when calling `akkasls` if set
-* `dockerImage` the Docker image name (use eg. `<dockerImage>${akkasls.dockerImage}:${akkasls.dockerTag}</dockerImage>`)
+* `kalixPath` path and name of the `kalix` commmand line tool
+* `kalixContext` selects the context when calling `kalix` if set
+* `dockerImage` the Docker image name (use eg. `<dockerImage>${kalix.dockerImage}:${kalix.dockerTag}</dockerImage>`)
 
 [.group-scala]
 == sbt Giter8 template
-A https://github.com/foundweekends/giter8[Giter8 template]; https://github.com/lightbend/akkaserverless-value-entity.g8[lightbend/akkaserverless-value-entity.g8] provides the tooling to xref:quickstart-template.adoc[kickstart an sbt project]. The Giter8 template can be used via the `sbt` CLI.
+A https://github.com/foundweekends/giter8[Giter8 template]; https://github.com/lightbend/kalix-value-entity.g8[lightbend/kalix-value-entity.g8] provides the tooling to xref:quickstart-template.adoc[kickstart an sbt project]. The Giter8 template can be used via the `sbt` CLI.
 
 [source,command line,subs="attributes"]
 ----
-sbt new lightbend/akkaserverless-value-entity.g8
+sbt new lightbend/kalix-value-entity.g8
 ----
 
 [.group-scala]
 == Ongoing development support
 
-The development support tooling is provided via an sbt plugin; _sbt-akkaserverless_. This plugin provides commands to support Protobuf driven interface-first development.
+The development support tooling is provided via an sbt plugin; _sbt-kalix_. This plugin provides commands to support Protobuf driven interface-first development.
 
 [.group-scala]
 === Commands

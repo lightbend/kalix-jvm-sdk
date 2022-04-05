@@ -17,7 +17,7 @@
 
     <jdk.target>11</jdk.target>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <akkaserverless-sdk.version>0.10.5</akkaserverless-sdk.version>
+    <kalix-sdk.version>1.0.0-M1</kalix-sdk.version>
     <akka-grpc.version>2.1.2</akka-grpc.version>
   </properties>
 
@@ -232,9 +232,9 @@
       </plugin>
 
       <plugin>
-        <groupId>com.akkaserverless</groupId>
-        <artifactId>akkaserverless-maven-plugin</artifactId>
-        <version>${akkaserverless-sdk.version}</version>
+        <groupId>io.kalix</groupId>
+        <artifactId>kalix-maven-plugin</artifactId>
+        <version>${kalix-sdk.version}</version>
         <executions>
           <execution>
             <goals>
@@ -294,14 +294,14 @@
 
   <dependencies>
     <dependency>
-      <groupId>com.akkaserverless</groupId>
-      <artifactId>akkaserverless-java-sdk</artifactId>
-      <version>${akkaserverless-sdk.version}</version>
+      <groupId>io.kalix</groupId>
+      <artifactId>kalix-java-sdk</artifactId>
+      <version>${kalix-sdk.version}</version>
     </dependency>
     <dependency>
-      <groupId>com.akkaserverless</groupId>
-      <artifactId>akkaserverless-java-sdk-testkit</artifactId>
-      <version>${akkaserverless-sdk.version}</version>
+      <groupId>io.kalix</groupId>
+      <artifactId>kalix-java-sdk-testkit</artifactId>
+      <version>${kalix-sdk.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>

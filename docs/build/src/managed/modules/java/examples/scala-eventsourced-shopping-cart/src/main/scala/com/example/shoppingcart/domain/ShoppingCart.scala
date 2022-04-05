@@ -1,8 +1,8 @@
 package com.example.shoppingcart.domain
 
 // tag::imports[]
-import com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntity
-import com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntityContext
+import kalix.scalasdk.eventsourcedentity.EventSourcedEntity
+import kalix.scalasdk.eventsourcedentity.EventSourcedEntityContext
 import com.example.shoppingcart
 import com.google.protobuf.empty.Empty
 import scala.annotation.nowarn

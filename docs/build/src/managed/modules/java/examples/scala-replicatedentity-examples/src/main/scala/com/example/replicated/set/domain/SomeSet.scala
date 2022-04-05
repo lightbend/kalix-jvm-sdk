@@ -1,12 +1,12 @@
 package com.example.replicated.set.domain
 
-import com.akkaserverless.scalasdk.replicatedentity.ReplicatedEntity
-import com.akkaserverless.scalasdk.replicatedentity.ReplicatedEntityContext
-import com.akkaserverless.scalasdk.replicatedentity.ReplicatedSet
+import kalix.scalasdk.replicatedentity.ReplicatedEntity
+import kalix.scalasdk.replicatedentity.ReplicatedEntityContext
+import kalix.scalasdk.replicatedentity.ReplicatedSet
 import com.example.replicated.set
 import com.google.protobuf.empty.Empty
 
-// This class was initially generated based on the .proto definition by Akka Serverless tooling.
+// This class was initially generated based on the .proto definition by Kalix tooling.
 //
 // As long as this file exists it will not be overwritten: you can maintain it yourself,
 // or delete it so it is regenerated as needed.
@@ -14,7 +14,7 @@ import com.google.protobuf.empty.Empty
 class SomeSet(context: ReplicatedEntityContext) extends AbstractSomeSet {
 
   // tag::update[]
-  def add(currentData: ReplicatedSet[String], addElement: set.AddElement): ReplicatedEntity.Effect[Empty] = 
+  def add(currentData: ReplicatedSet[String], addElement: set.AddElement): ReplicatedEntity.Effect[Empty] =
     effects
       .update(currentData.add(addElement.element)) // <1>
       .thenReply(Empty.defaultInstance)

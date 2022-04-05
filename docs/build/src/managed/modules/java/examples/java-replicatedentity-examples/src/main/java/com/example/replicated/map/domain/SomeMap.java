@@ -1,11 +1,11 @@
 package com.example.replicated.map.domain;
 
-import com.akkaserverless.javasdk.replicatedentity.ReplicatedCounter;
-import com.akkaserverless.replicatedentity.ReplicatedData;
-import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityContext;
-import com.akkaserverless.javasdk.replicatedentity.ReplicatedMap;
-import com.akkaserverless.javasdk.replicatedentity.ReplicatedRegister;
-import com.akkaserverless.javasdk.replicatedentity.ReplicatedSet;
+import kalix.javasdk.replicatedentity.ReplicatedCounter;
+import kalix.replicatedentity.ReplicatedData;
+import kalix.javasdk.replicatedentity.ReplicatedEntityContext;
+import kalix.javasdk.replicatedentity.ReplicatedMap;
+import kalix.javasdk.replicatedentity.ReplicatedRegister;
+import kalix.javasdk.replicatedentity.ReplicatedSet;
 import com.example.replicated.map.SomeMapApi;
 import com.google.protobuf.Empty;
 

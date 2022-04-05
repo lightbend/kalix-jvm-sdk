@@ -1,12 +1,12 @@
 name := "replicatedentity-shopping-cart"
 
-organization := "com.akkaseverless.samples"
-organizationHomepage := Some(url("https://akkaserverless.com"))
+organization := "io.kalix.samples"
+organizationHomepage := Some(url("https://kalix.io"))
 licenses := Seq(("CC0", url("https://creativecommons.org/publicdomain/zero/1.0")))
 
 scalaVersion := "2.13.6"
 
-enablePlugins(AkkaserverlessPlugin, JavaAppPackaging, DockerPlugin)
+enablePlugins(KalixPlugin, JavaAppPackaging, DockerPlugin)
 dockerBaseImage := "docker.io/library/adoptopenjdk:11-jre-hotspot"
 dockerUsername := sys.props.get("docker.username")
 dockerRepository := sys.props.get("docker.registry")
@@ -29,7 +29,7 @@ Test / logBuffered := false
 
 Compile / run := {
   // needed for the proxy to access the user function on all platforms
-  sys.props += "akkaserverless.user-function-interface" -> "0.0.0.0"
+  sys.props += "kalix.user-function-interface" -> "0.0.0.0"
   (Compile / run).evaluated
 }
 run / fork := false

@@ -1,7 +1,7 @@
 package com.example.actions;
 
-import com.akkaserverless.javasdk.testkit.ActionResult;
-import com.akkaserverless.javasdk.testkit.DeferredCallDetails;
+import kalix.javasdk.testkit.ActionResult;
+import kalix.javasdk.testkit.DeferredCallDetails;
 import com.example.CounterApi;
 import com.example.actions.DoubleCounterAction;
 import com.example.actions.DoubleCounterActionTestKit;
@@ -11,7 +11,7 @@ import org.junit.Ignore;
 
 import static org.junit.Assert.*;
 
-// This class was initially generated based on the .proto definition by Akka Serverless tooling.
+// This class was initially generated based on the .proto definition by Kalix tooling.
 //
 // As long as this file exists it will not be overwritten: you can maintain it yourself,
 // or delete it so it is regenerated as needed.

@@ -1,12 +1,12 @@
 package com.example.replicated.multimap.domain
 
-import com.akkaserverless.scalasdk.replicatedentity.ReplicatedEntity
-import com.akkaserverless.scalasdk.replicatedentity.ReplicatedEntityContext
-import com.akkaserverless.scalasdk.replicatedentity.ReplicatedMultiMap
+import kalix.scalasdk.replicatedentity.ReplicatedEntity
+import kalix.scalasdk.replicatedentity.ReplicatedEntityContext
+import kalix.scalasdk.replicatedentity.ReplicatedMultiMap
 import com.example.replicated.multimap
 import com.google.protobuf.empty.Empty
 
-// This class was initially generated based on the .proto definition by Akka Serverless tooling.
+// This class was initially generated based on the .proto definition by Kalix tooling.
 //
 // As long as this file exists it will not be overwritten: you can maintain it yourself,
 // or delete it so it is regenerated as needed.
@@ -14,7 +14,7 @@ import com.google.protobuf.empty.Empty
 class SomeMultiMap(context: ReplicatedEntityContext) extends AbstractSomeMultiMap {
 
   // tag::update[]
-  def put(currentData: ReplicatedMultiMap[String, Double], putValue: multimap.PutValue): ReplicatedEntity.Effect[Empty] = 
+  def put(currentData: ReplicatedMultiMap[String, Double], putValue: multimap.PutValue): ReplicatedEntity.Effect[Empty] =
     effects
       .update(currentData.put(putValue.key, putValue.value)) // <1>
       .thenReply(Empty.defaultInstance)
@@ -41,10 +41,10 @@ class SomeMultiMap(context: ReplicatedEntityContext) extends AbstractSomeMultiMa
     effects
       .reply(multimap.CurrentValues(getValues.key, values.toSeq))
   }
-    
+
   /** Command handler for "GetAll". */
   def getAll(currentData: ReplicatedMultiMap[String, Double], getAllValues: multimap.GetAllValues): ReplicatedEntity.Effect[multimap.AllCurrentValues] = {
-    val currentValues = 
+    val currentValues =
       currentData.keySet.map { key => // <2>
         val values = currentData.get(key)
         multimap.CurrentValues(key, values.toSeq)
@@ -53,5 +53,5 @@ class SomeMultiMap(context: ReplicatedEntityContext) extends AbstractSomeMultiMa
     effects.reply(multimap.AllCurrentValues(currentValues.toSeq))
   }
   // end::get[]
-    
+
 }

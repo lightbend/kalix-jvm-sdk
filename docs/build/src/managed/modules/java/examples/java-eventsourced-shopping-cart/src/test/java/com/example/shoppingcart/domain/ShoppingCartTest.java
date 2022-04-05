@@ -1,6 +1,6 @@
 package com.example.shoppingcart.domain;
 
-import com.akkaserverless.javasdk.testkit.EventSourcedResult;
+import kalix.javasdk.testkit.EventSourcedResult;
 import com.example.shoppingcart.ShoppingCartApi;
 import com.google.protobuf.Empty;
 import org.junit.Test;

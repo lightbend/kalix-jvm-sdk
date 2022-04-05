@@ -1,6 +1,6 @@
 package com.example
 
-import com.akkaserverless.scalasdk.AkkaServerless
+import kalix.scalasdk.Kalix
 import com.example.actions.CounterStateSubscriptionAction
 import com.example.actions.DoubleCounterAction
 import com.example.domain.Counter
@@ -12,21 +12,21 @@ object Main {
 
   private val log = LoggerFactory.getLogger("com.example.Main")
 
-  def createAkkaServerless(): AkkaServerless = {
-    // The AkkaServerlessFactory automatically registers any generated Actions, Views or Entities,
+  def createKalix(): Kalix = {
+    // The KalixFactory automatically registers any generated Actions, Views or Entities,
     // and is kept up-to-date with any changes in your protobuf definitions.
     // If you prefer, you may remove this and manually register these components in a
-    // `AkkaServerless()` instance.
+    // `Kalix()` instance.
     // end::registration-value-entity[]
     // end::registration[]
-    AkkaServerlessFactory.withComponents(
+    KalixFactory.withComponents(
       new Counter(_),
       new CounterStateSubscriptionAction(_),
       new DoubleCounterAction(_))
 
     /* the comment hack bellow is needed to only show the Counter and DoubleCounterAction
     // tag::registration[]
-    AkkaServerlessFactory.withComponents(
+    KalixFactory.withComponents(
       new Counter(_),
       new DoubleCounterAction(_))
     // end::registration[]
@@ -34,7 +34,7 @@ object Main {
 
     /* the comment hack bellow is needed to only show the Counter
     // tag::registration-value-entity[]
-    AkkaServerlessFactory.withComponents(
+    KalixFactory.withComponents(
       new Counter(_))
     // end::registration-value-entity[]
      */
@@ -43,8 +43,8 @@ object Main {
   }
 
   def main(args: Array[String]): Unit = {
-    log.info("starting the Akka Serverless service")
-    createAkkaServerless().start()
+    log.info("starting the Kalix service")
+    createKalix().start()
   }
 }
 // end::registration-value-entity[]

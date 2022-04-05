@@ -1,8 +1,8 @@
-com.akkaserverless.javasdk
-com.akkaserverless.javasdk.action
-com.akkaserverless.javasdk.eventsourcedentity
-com.akkaserverless.javasdk.impl
-com.akkaserverless.javasdk.logging
-com.akkaserverless.javasdk.replicatedentity
-com.akkaserverless.javasdk.valueentity
-com.akkaserverless.javasdk.view
+kalix.javasdk
+kalix.javasdk.action
+kalix.javasdk.eventsourcedentity
+kalix.javasdk.impl
+kalix.javasdk.logging
+kalix.javasdk.replicatedentity
+kalix.javasdk.valueentity
+kalix.javasdk.view

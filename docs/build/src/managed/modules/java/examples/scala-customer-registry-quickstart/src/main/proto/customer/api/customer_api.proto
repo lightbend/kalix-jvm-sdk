@@ -18,11 +18,11 @@ syntax = "proto3";
 package customer.api;
 
 import "google/protobuf/empty.proto";
-import "akkaserverless/annotations.proto";
+import "kalix/annotations.proto";
 // end::declarations[]
 // tag::messages[]
 message Customer {
-  string customer_id = 1 [(akkaserverless.field).entity_key = true];
+  string customer_id = 1 [(kalix.field).entity_key = true];
   string email = 2;
   string name = 3;
   Address address = 4;
@@ -35,23 +35,23 @@ message Address {
 // end::messages[]
 // tag::method-messages[]
 message GetCustomerRequest {
-  string customer_id = 1 [(akkaserverless.field).entity_key = true];
+  string customer_id = 1 [(kalix.field).entity_key = true];
 }
 // end::method-messages[]
 
 message ChangeNameRequest {
-  string customer_id = 1 [(akkaserverless.field).entity_key = true];
+  string customer_id = 1 [(kalix.field).entity_key = true];
   string new_name = 2;
 }
 
 message ChangeAddressRequest {
-  string customer_id = 1 [(akkaserverless.field).entity_key = true];
+  string customer_id = 1 [(kalix.field).entity_key = true];
   Address new_address = 2;
 }
 
 // tag::service[]
 service CustomerService {
-  option (akkaserverless.codegen) = {
+  option (kalix.codegen) = {
     value_entity: {
       name: "customer.domain.Customer"
       entity_type: "customers"

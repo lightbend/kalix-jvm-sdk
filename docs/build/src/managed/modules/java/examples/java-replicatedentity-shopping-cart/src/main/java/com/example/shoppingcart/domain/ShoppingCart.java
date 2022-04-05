@@ -15,8 +15,8 @@
  */
 package com.example.shoppingcart.domain;
 
-import com.akkaserverless.javasdk.replicatedentity.ReplicatedCounterMap;
-import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityContext;
+import kalix.javasdk.replicatedentity.ReplicatedCounterMap;
+import kalix.javasdk.replicatedentity.ReplicatedEntityContext;
 import com.example.shoppingcart.ShoppingCartApi;
 import com.google.protobuf.Empty;
 

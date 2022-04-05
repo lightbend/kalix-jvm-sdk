@@ -5,30 +5,30 @@ syntax = "proto3";
 package com.example.shoppingcart;  // <1>
 
 import "google/protobuf/empty.proto"; // <2>
-import "akkaserverless/annotations.proto";
+import "kalix/annotations.proto";
 import "google/api/annotations.proto";
 
 option java_outer_classname = "ShoppingCartApi";  // <3>
 
 message AddLineItem { // <4>
-  string cart_id = 1 [(akkaserverless.field).entity_key = true];  // <5>
+  string cart_id = 1 [(kalix.field).entity_key = true];  // <5>
   string product_id = 2;
   string name = 3;
   int32 quantity = 4;
 }
 
 message RemoveLineItem {
-  string cart_id = 1 [(akkaserverless.field).entity_key = true];
+  string cart_id = 1 [(kalix.field).entity_key = true];
   string product_id = 2;
   string name = 3;
 }
 
 message GetShoppingCart {
-  string cart_id = 1 [(akkaserverless.field).entity_key = true];
+  string cart_id = 1 [(kalix.field).entity_key = true];
 }
 
 message RemoveShoppingCart {
-  string cart_id = 1 [(akkaserverless.field).entity_key = true];
+  string cart_id = 1 [(kalix.field).entity_key = true];
 }
 
 message LineItem {
@@ -42,7 +42,7 @@ message Cart {  // <6>
 }
 
 service ShoppingCartService {  // <7>
-  option (akkaserverless.codegen) = { // <8>
+  option (kalix.codegen) = { // <8>
     replicated_entity: { // <9>
       name: "com.example.shoppingcart.domain.ShoppingCart" // <10>
       entity_type: "shopping-cart" // <11>
