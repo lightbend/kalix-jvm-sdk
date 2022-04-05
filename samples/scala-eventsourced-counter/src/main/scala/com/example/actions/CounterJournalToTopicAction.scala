@@ -29,6 +29,16 @@ class CounterJournalToTopicAction(creationContext: ActionCreationContext) extend
   // end::counter-topic-event-subject[]
   // end::counter-topic[]
 
+  override def increaseConditional(valueIncreased: ValueIncreased): Action.Effect[Increased] = {
+    val counterId = actionContext.eventSubject 
+    if (actionContext.metadata.get("myKey") == Some("myValue")){
+      effects.reply(Increased(valueIncreased.value * 2))
+    } else {
+      effects.reply(Increased(valueIncreased.value))
+    }
+
+  }
+
   override def decrease(valueDecreased: ValueDecreased): Action.Effect[Decreased] = {
     effects.reply(Decreased(valueDecreased.value))
   }
