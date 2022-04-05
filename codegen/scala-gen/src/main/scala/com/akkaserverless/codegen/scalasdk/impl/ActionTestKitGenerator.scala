@@ -50,15 +50,15 @@ object ActionTestKitGenerator {
     val methods = service.commands.map { cmd =>
       s"""def ${lowerFirst(cmd.name)}(command: ${selectInput(
         cmd)}, metadata: Metadata = Metadata.empty, eventSubject: Option[String] = Some("test-subject-id")): ${selectOutputResult(
-        cmd)} = { \n""" +
-      "val context = new TestKitActionContext(metadata, eventSubject) \n" +
+        cmd)} = {\n""" +
+      "  val context = new TestKitActionContext(metadata, eventSubject)\n" +
       (if (cmd.isUnary || cmd.isStreamIn) {
          s"""  new ActionResultImpl(newActionInstance(context).${lowerFirst(cmd.name)}(command))"""
        } else {
          s"""  newActionInstance(context).${lowerFirst(
            cmd.name)}(command).map(effect => new ActionResultImpl(effect))"""
        }) + "\n" +
-      "} \n"
+      "}\n"
     }
 
     File.scala(

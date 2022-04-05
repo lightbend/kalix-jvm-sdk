@@ -1,5 +1,6 @@
 package org.example.service
 
+import com.akkaserverless.scalasdk.Metadata
 import com.akkaserverless.scalasdk.action.ActionCreationContext
 import com.akkaserverless.scalasdk.testkit.ActionResult
 import com.akkaserverless.scalasdk.testkit.impl.ActionResultImpl
@@ -28,13 +29,14 @@ object MyServiceActionImplTestKit {
  */
 final class MyServiceActionImplTestKit private(actionFactory: ActionCreationContext => MyServiceActionImpl) {
 
-  private def newActionInstance() = {
-    val context = new TestKitActionContext
+  private def newActionInstance(context: TestKitActionContext) = {
     val action = actionFactory(context)
     action._internalSetActionContext(Some(context))
     action
   }
 
-  def simpleMethod(command: MyRequest): ActionResult[Empty] =
-    new ActionResultImpl(newActionInstance().simpleMethod(command))
+  def simpleMethod(command: MyRequest, metadata: Metadata = Metadata.empty, eventSubject: Option[String] = Some("test-subject-id")): ActionResult[Empty] = {
+    val context = new TestKitActionContext(metadata, eventSubject)
+    new ActionResultImpl(newActionInstance(context).simpleMethod(command))
+  }
 }

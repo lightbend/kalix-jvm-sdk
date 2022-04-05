@@ -2,6 +2,7 @@ package org.example.service;
 
 import akka.NotUsed;
 import akka.stream.javadsl.Source;
+import com.akkaserverless.javasdk.Metadata;
 import com.akkaserverless.javasdk.action.Action.Effect;
 import com.akkaserverless.javasdk.action.ActionCreationContext;
 import com.akkaserverless.javasdk.impl.action.ActionEffectImpl;
@@ -25,11 +26,11 @@ public final class MyServiceActionTestKit {
 
   private Function<ActionCreationContext, MyServiceAction> actionFactory;
 
-  private MyServiceAction createAction() {
-    MyServiceAction action = actionFactory.apply(new TestKitActionContext());
-    action._internalSetActionContext(Optional.of(new TestKitActionContext()));
+  private MyServiceAction createAction(TestKitActionContext context) {
+    MyServiceAction action = actionFactory.apply(context);
+    action._internalSetActionContext(Optional.of(context));
     return action;
-  };
+  }
 
   public static MyServiceActionTestKit of(Function<ActionCreationContext, MyServiceAction> actionFactory) {
     return new MyServiceActionTestKit(actionFactory);
@@ -43,24 +44,60 @@ public final class MyServiceActionTestKit {
     return new ActionResultImpl(effect);
   }
 
-  public ActionResult<ExternalDomain.Empty> simpleMethod(ServiceOuterClass.MyRequest myRequest) {
-    Effect<ExternalDomain.Empty> effect = createAction().simpleMethod(myRequest);
+  public ActionResult<ExternalDomain.Empty> simpleMethod(ServiceOuterClass.MyRequest myRequest, Metadata metadata, Optional<String> eventSubject) {
+    TestKitActionContext context = new TestKitActionContext(metadata, eventSubject);
+    Effect<ExternalDomain.Empty> effect = createAction(context).simpleMethod(myRequest);
     return interpretEffects(effect);
+  }
+
+  public Source<ActionResult<ExternalDomain.Empty>, akka.NotUsed> streamedOutputMethod(ServiceOuterClass.MyRequest myRequest, Metadata metadata, Optional<String> eventSubject) {
+    TestKitActionContext context = new TestKitActionContext(metadata, eventSubject);
+    Source<Effect<ExternalDomain.Empty>, akka.NotUsed> effect = createAction(context).streamedOutputMethod(myRequest);
+    return effect.map(e -> interpretEffects(e));
+  }
+
+  public ActionResult<ExternalDomain.Empty> streamedInputMethod(Source<ServiceOuterClass.MyRequest, akka.NotUsed> myRequest, Metadata metadata, Optional<String> eventSubject) {
+    TestKitActionContext context = new TestKitActionContext(metadata, eventSubject);
+    Effect<ExternalDomain.Empty> effect = createAction(context).streamedInputMethod(myRequest);
+    return interpretEffects(effect);
+  }
+
+  public Source<ActionResult<ExternalDomain.Empty>, akka.NotUsed> fullStreamedMethod(Source<ServiceOuterClass.MyRequest, akka.NotUsed> myRequest, Metadata metadata, Optional<String> eventSubject) {
+    TestKitActionContext context = new TestKitActionContext(metadata, eventSubject);
+    Source<Effect<ExternalDomain.Empty>, akka.NotUsed> effect = createAction(context).fullStreamedMethod(myRequest);
+    return effect.map(e -> interpretEffects(e));
+  }
+
+  public ActionResult<ExternalDomain.Empty> simpleMethod(ServiceOuterClass.MyRequest myRequest, Metadata metadata) {
+    return simpleMethod(myRequest, metadata, Optional.of("test-subject-id"));
+  }
+
+  public Source<ActionResult<ExternalDomain.Empty>, akka.NotUsed> streamedOutputMethod(ServiceOuterClass.MyRequest myRequest, Metadata metadata) {
+    return streamedOutputMethod(myRequest, metadata, Optional.of("test-subject-id"));
+  }
+
+  public ActionResult<ExternalDomain.Empty> streamedInputMethod(Source<ServiceOuterClass.MyRequest, akka.NotUsed> myRequest, Metadata metadata) {
+    return streamedInputMethod(myRequest, metadata, Optional.of("test-subject-id"));
+  }
+
+  public Source<ActionResult<ExternalDomain.Empty>, akka.NotUsed> fullStreamedMethod(Source<ServiceOuterClass.MyRequest, akka.NotUsed> myRequest, Metadata metadata) {
+    return fullStreamedMethod(myRequest, metadata, Optional.of("test-subject-id"));
+  }
+
+  public ActionResult<ExternalDomain.Empty> simpleMethod(ServiceOuterClass.MyRequest myRequest) {
+    return simpleMethod(myRequest, Metadata.EMPTY, Optional.of("test-subject-id"));
   }
 
   public Source<ActionResult<ExternalDomain.Empty>, akka.NotUsed> streamedOutputMethod(ServiceOuterClass.MyRequest myRequest) {
-    Source<Effect<ExternalDomain.Empty>, akka.NotUsed> effect = createAction().streamedOutputMethod(myRequest);
-    return effect.map(e -> interpretEffects(e));
+    return streamedOutputMethod(myRequest, Metadata.EMPTY, Optional.of("test-subject-id"));
   }
 
   public ActionResult<ExternalDomain.Empty> streamedInputMethod(Source<ServiceOuterClass.MyRequest, akka.NotUsed> myRequest) {
-    Effect<ExternalDomain.Empty> effect = createAction().streamedInputMethod(myRequest);
-    return interpretEffects(effect);
+    return streamedInputMethod(myRequest, Metadata.EMPTY, Optional.of("test-subject-id"));
   }
 
   public Source<ActionResult<ExternalDomain.Empty>, akka.NotUsed> fullStreamedMethod(Source<ServiceOuterClass.MyRequest, akka.NotUsed> myRequest) {
-    Source<Effect<ExternalDomain.Empty>, akka.NotUsed> effect = createAction().fullStreamedMethod(myRequest);
-    return effect.map(e -> interpretEffects(e));
+    return fullStreamedMethod(myRequest, Metadata.EMPTY, Optional.of("test-subject-id"));
   }
 
 }

@@ -44,6 +44,7 @@ object ActionTestKitGenerator {
         "java.util.function.Function",
         "java.util.Optional",
         s"$packageName.$className",
+        "com.akkaserverless.javasdk.Metadata",
         "com.akkaserverless.javasdk.action.Action.Effect",
         "com.akkaserverless.javasdk.action.ActionCreationContext",
         "com.akkaserverless.javasdk.testkit.ActionResult",
@@ -64,11 +65,11 @@ object ActionTestKitGenerator {
         |
         |  private Function<ActionCreationContext, $className> actionFactory;
         |
-        |  private $className createAction() {
-        |    $className action = actionFactory.apply(new TestKitActionContext());
-        |    action._internalSetActionContext(Optional.of(new TestKitActionContext()));
+        |  private $className createAction(TestKitActionContext context) {
+        |    $className action = actionFactory.apply(context);
+        |    action._internalSetActionContext(Optional.of(context));
         |    return action;
-        |  };
+        |  }
         |
         |  public static $testKitClassName of(Function<ActionCreationContext, $className> actionFactory) {
         |    return new $testKitClassName(actionFactory);
@@ -83,6 +84,10 @@ object ActionTestKitGenerator {
         |  }
         |
         |  ${Format.indent(generateServices(service), 2)}
+        |
+        |  ${Format.indent(generateServicesMetadata(service), 2)}
+        |
+        |  ${Format.indent(generateServicesDefault(service), 2)}
         |
         |}
         |""".stripMargin
@@ -135,10 +140,45 @@ object ActionTestKitGenerator {
     service.commands
       .map { command =>
         s"""|public ${selectOutputResult(command)} ${lowerFirst(command.name)}(${selectInputType(command)} ${lowerFirst(
-          command.inputType.protoName)}) {
-          |  ${selectOutputEffect(command)} effect = createAction().${lowerFirst(command.name)}(${lowerFirst(
+          command.inputType.protoName)}, Metadata metadata, Optional<String> eventSubject) {
+          |  TestKitActionContext context = new TestKitActionContext(metadata, eventSubject);
+          |  ${selectOutputEffect(command)} effect = createAction(context).${lowerFirst(command.name)}(${lowerFirst(
           command.inputType.protoName)});
           |  return ${selectOutputReturn(command)}
+          |}
+          |""".stripMargin + "\n"
+      }
+      .mkString("")
+  }
+
+  /**
+   * Leveraging `generateServices` by passing Metadata and setting default eventSubject
+   */
+  def generateServicesMetadata(service: ModelBuilder.ActionService): String = {
+    require(!service.commands.isEmpty, "empty `commands` not allowed")
+
+    service.commands
+      .map { command =>
+        s"""|public ${selectOutputResult(command)} ${lowerFirst(command.name)}(${selectInputType(command)} ${lowerFirst(
+          command.inputType.protoName)}, Metadata metadata) {
+          |  return ${lowerFirst(command.name)}(${lowerFirst(command.inputType.protoName)}, metadata, Optional.of("test-subject-id"));
+          |}
+          |""".stripMargin + "\n"
+      }
+      .mkString("")
+  }
+
+  /**
+   * Leveraging `generateServices` by setting default Metadata and default eventSubject
+   */
+  def generateServicesDefault(service: ModelBuilder.ActionService): String = {
+    require(!service.commands.isEmpty, "empty `commands` not allowed")
+
+    service.commands
+      .map { command =>
+        s"""|public ${selectOutputResult(command)} ${lowerFirst(command.name)}(${selectInputType(command)} ${lowerFirst(
+          command.inputType.protoName)}) {
+          |  return ${lowerFirst(command.name)}(${lowerFirst(command.inputType.protoName)}, Metadata.EMPTY, Optional.of("test-subject-id"));
           |}
           |""".stripMargin + "\n"
       }

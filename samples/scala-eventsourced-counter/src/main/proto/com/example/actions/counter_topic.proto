@@ -45,11 +45,11 @@ service CounterJournalToTopic {
     };
   } 
 
-   rpc IncreaseConditional (com.example.domain.ValueIncreased) returns (Increased) { // <3>
-    option (akkaserverless.method).eventing.in = { // <4>
+  rpc IncreaseConditional (com.example.domain.ValueIncreased) returns (Increased) { 
+    option (akkaserverless.method).eventing.in = { 
       event_sourced_entity: "counter" 
     };
-    option (akkaserverless.method).eventing.out = { // <5>
+    option (akkaserverless.method).eventing.out = {
       topic:  "counter-events"
     };
   } 

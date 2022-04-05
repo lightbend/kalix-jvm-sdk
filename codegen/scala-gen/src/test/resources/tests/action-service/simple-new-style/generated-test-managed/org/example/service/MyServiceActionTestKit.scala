@@ -2,6 +2,7 @@ package org.example.service
 
 import akka.NotUsed
 import akka.stream.scaladsl.Source
+import com.akkaserverless.scalasdk.Metadata
 import com.akkaserverless.scalasdk.action.ActionCreationContext
 import com.akkaserverless.scalasdk.testkit.ActionResult
 import com.akkaserverless.scalasdk.testkit.impl.ActionResultImpl
@@ -30,22 +31,29 @@ object MyServiceActionTestKit {
  */
 final class MyServiceActionTestKit private(actionFactory: ActionCreationContext => MyServiceAction) {
 
-  private def newActionInstance() = {
-    val context = new TestKitActionContext
+  private def newActionInstance(context: TestKitActionContext) = {
     val action = actionFactory(context)
     action._internalSetActionContext(Some(context))
     action
   }
 
-  def simpleMethod(command: MyRequest): ActionResult[Empty] =
-    new ActionResultImpl(newActionInstance().simpleMethod(command))
+  def simpleMethod(command: MyRequest, metadata: Metadata = Metadata.empty, eventSubject: Option[String] = Some("test-subject-id")): ActionResult[Empty] = {
+    val context = new TestKitActionContext(metadata, eventSubject)
+    new ActionResultImpl(newActionInstance(context).simpleMethod(command))
+  }
 
-  def streamedOutputMethod(command: MyRequest): Source[ActionResult[Empty], akka.NotUsed] =
-    newActionInstance().streamedOutputMethod(command).map(effect => new ActionResultImpl(effect))
+  def streamedOutputMethod(command: MyRequest, metadata: Metadata = Metadata.empty, eventSubject: Option[String] = Some("test-subject-id")): Source[ActionResult[Empty], akka.NotUsed] = {
+    val context = new TestKitActionContext(metadata, eventSubject)
+    newActionInstance(context).streamedOutputMethod(command).map(effect => new ActionResultImpl(effect))
+  }
 
-  def streamedInputMethod(command: Source[MyRequest, akka.NotUsed]): ActionResult[Empty] =
-    new ActionResultImpl(newActionInstance().streamedInputMethod(command))
+  def streamedInputMethod(command: Source[MyRequest, akka.NotUsed], metadata: Metadata = Metadata.empty, eventSubject: Option[String] = Some("test-subject-id")): ActionResult[Empty] = {
+    val context = new TestKitActionContext(metadata, eventSubject)
+    new ActionResultImpl(newActionInstance(context).streamedInputMethod(command))
+  }
 
-  def fullStreamedMethod(command: Source[MyRequest, akka.NotUsed]): Source[ActionResult[Empty], akka.NotUsed] =
-    newActionInstance().fullStreamedMethod(command).map(effect => new ActionResultImpl(effect))
+  def fullStreamedMethod(command: Source[MyRequest, akka.NotUsed], metadata: Metadata = Metadata.empty, eventSubject: Option[String] = Some("test-subject-id")): Source[ActionResult[Empty], akka.NotUsed] = {
+    val context = new TestKitActionContext(metadata, eventSubject)
+    newActionInstance(context).fullStreamedMethod(command).map(effect => new ActionResultImpl(effect))
+  }
 }
