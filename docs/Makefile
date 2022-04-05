@@ -2,7 +2,7 @@
 
 module   := java
 upstream := lightbend/kalix-jvm-sdk
-branch   := docs/current
+branch   := docs/kalix-current
 sources  := src build/src/managed
 
 src_managed := build/src/managed
