@@ -46,7 +46,8 @@ public class CounterJournalToTopicAction extends AbstractCounterJournalToTopicAc
     Optional<String> counterId = actionContext().eventSubject();
 
     CounterTopicApi.Increased increased;
-    if(actionContext().metadata().get("myKey").equals(Optional.of("myValue"))){
+    if(actionContext().metadata().get("myKey").equals(Optional.of("myValue")) 
+      && actionContext().eventSubject().equals(Optional.of("mySubject"))){
       increased = 
       CounterTopicApi.Increased.newBuilder() 
         .setValue(valueIncreased.getValue() * 2)

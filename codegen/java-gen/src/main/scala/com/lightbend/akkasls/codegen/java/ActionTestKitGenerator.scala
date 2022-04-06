@@ -85,8 +85,6 @@ object ActionTestKitGenerator {
         |
         |  ${Format.indent(generateServices(service), 2)}
         |
-        |  ${Format.indent(generateServicesMetadata(service), 2)}
-        |
         |  ${Format.indent(generateServicesDefault(service), 2)}
         |
         |}
@@ -140,8 +138,8 @@ object ActionTestKitGenerator {
     service.commands
       .map { command =>
         s"""|public ${selectOutputResult(command)} ${lowerFirst(command.name)}(${selectInputType(command)} ${lowerFirst(
-          command.inputType.protoName)}, Metadata metadata, Optional<String> eventSubject) {
-          |  TestKitActionContext context = new TestKitActionContext(metadata, eventSubject);
+          command.inputType.protoName)}, Metadata metadata) {
+          |  TestKitActionContext context = new TestKitActionContext(metadata);
           |  ${selectOutputEffect(command)} effect = createAction(context).${lowerFirst(command.name)}(${lowerFirst(
           command.inputType.protoName)});
           |  return ${selectOutputReturn(command)}
@@ -152,24 +150,7 @@ object ActionTestKitGenerator {
   }
 
   /**
-   * Leveraging `generateServices` by passing Metadata and setting default eventSubject
-   */
-  def generateServicesMetadata(service: ModelBuilder.ActionService): String = {
-    require(!service.commands.isEmpty, "empty `commands` not allowed")
-
-    service.commands
-      .map { command =>
-        s"""|public ${selectOutputResult(command)} ${lowerFirst(command.name)}(${selectInputType(command)} ${lowerFirst(
-          command.inputType.protoName)}, Metadata metadata) {
-          |  return ${lowerFirst(command.name)}(${lowerFirst(command.inputType.protoName)}, metadata, Optional.of("test-subject-id"));
-          |}
-          |""".stripMargin + "\n"
-      }
-      .mkString("")
-  }
-
-  /**
-   * Leveraging `generateServices` by setting default Metadata and default eventSubject
+   * Leveraging `generateServices` by setting default Metadata as Metadata.EMPTY
    */
   def generateServicesDefault(service: ModelBuilder.ActionService): String = {
     require(!service.commands.isEmpty, "empty `commands` not allowed")
@@ -178,7 +159,7 @@ object ActionTestKitGenerator {
       .map { command =>
         s"""|public ${selectOutputResult(command)} ${lowerFirst(command.name)}(${selectInputType(command)} ${lowerFirst(
           command.inputType.protoName)}) {
-          |  return ${lowerFirst(command.name)}(${lowerFirst(command.inputType.protoName)}, Metadata.EMPTY, Optional.of("test-subject-id"));
+          |  return ${lowerFirst(command.name)}(${lowerFirst(command.inputType.protoName)}, Metadata.EMPTY);
           |}
           |""".stripMargin + "\n"
       }

@@ -30,7 +30,7 @@ public class CounterJournalToTopicActionTest {
     CounterJournalToTopicActionTestKit testKit = CounterJournalToTopicActionTestKit.of(CounterJournalToTopicAction::new);
     ActionResult<CounterTopicApi.Increased> result = testKit.increaseConditional(
       CounterDomain.ValueIncreased.newBuilder().setValue(1).build(),
-      Metadata.EMPTY.set("myKey","myValue")
+      Metadata.EMPTY.set("myKey","myValue").set("ce-subject","mySubject")
       );
     assertEquals(2, result.getReply().getValue());
   }

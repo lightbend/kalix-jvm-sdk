@@ -44,60 +44,44 @@ public final class MyServiceNamedActionTestKit {
     return new ActionResultImpl(effect);
   }
 
-  public ActionResult<Empty> simpleMethod(ServiceOuterClass.MyRequest myRequest, Metadata metadata, Optional<String> eventSubject) {
-    TestKitActionContext context = new TestKitActionContext(metadata, eventSubject);
+  public ActionResult<Empty> simpleMethod(ServiceOuterClass.MyRequest myRequest, Metadata metadata) {
+    TestKitActionContext context = new TestKitActionContext(metadata);
     Effect<Empty> effect = createAction(context).simpleMethod(myRequest);
     return interpretEffects(effect);
   }
 
-  public Source<ActionResult<Empty>, akka.NotUsed> streamedOutputMethod(ServiceOuterClass.MyRequest myRequest, Metadata metadata, Optional<String> eventSubject) {
-    TestKitActionContext context = new TestKitActionContext(metadata, eventSubject);
+  public Source<ActionResult<Empty>, akka.NotUsed> streamedOutputMethod(ServiceOuterClass.MyRequest myRequest, Metadata metadata) {
+    TestKitActionContext context = new TestKitActionContext(metadata);
     Source<Effect<Empty>, akka.NotUsed> effect = createAction(context).streamedOutputMethod(myRequest);
     return effect.map(e -> interpretEffects(e));
   }
 
-  public ActionResult<Empty> streamedInputMethod(Source<ServiceOuterClass.MyRequest, akka.NotUsed> myRequest, Metadata metadata, Optional<String> eventSubject) {
-    TestKitActionContext context = new TestKitActionContext(metadata, eventSubject);
+  public ActionResult<Empty> streamedInputMethod(Source<ServiceOuterClass.MyRequest, akka.NotUsed> myRequest, Metadata metadata) {
+    TestKitActionContext context = new TestKitActionContext(metadata);
     Effect<Empty> effect = createAction(context).streamedInputMethod(myRequest);
     return interpretEffects(effect);
   }
 
-  public Source<ActionResult<Empty>, akka.NotUsed> fullStreamedMethod(Source<ServiceOuterClass.MyRequest, akka.NotUsed> myRequest, Metadata metadata, Optional<String> eventSubject) {
-    TestKitActionContext context = new TestKitActionContext(metadata, eventSubject);
+  public Source<ActionResult<Empty>, akka.NotUsed> fullStreamedMethod(Source<ServiceOuterClass.MyRequest, akka.NotUsed> myRequest, Metadata metadata) {
+    TestKitActionContext context = new TestKitActionContext(metadata);
     Source<Effect<Empty>, akka.NotUsed> effect = createAction(context).fullStreamedMethod(myRequest);
     return effect.map(e -> interpretEffects(e));
   }
 
-  public ActionResult<Empty> simpleMethod(ServiceOuterClass.MyRequest myRequest, Metadata metadata) {
-    return simpleMethod(myRequest, metadata, Optional.of("test-subject-id"));
-  }
-
-  public Source<ActionResult<Empty>, akka.NotUsed> streamedOutputMethod(ServiceOuterClass.MyRequest myRequest, Metadata metadata) {
-    return streamedOutputMethod(myRequest, metadata, Optional.of("test-subject-id"));
-  }
-
-  public ActionResult<Empty> streamedInputMethod(Source<ServiceOuterClass.MyRequest, akka.NotUsed> myRequest, Metadata metadata) {
-    return streamedInputMethod(myRequest, metadata, Optional.of("test-subject-id"));
-  }
-
-  public Source<ActionResult<Empty>, akka.NotUsed> fullStreamedMethod(Source<ServiceOuterClass.MyRequest, akka.NotUsed> myRequest, Metadata metadata) {
-    return fullStreamedMethod(myRequest, metadata, Optional.of("test-subject-id"));
-  }
-
   public ActionResult<Empty> simpleMethod(ServiceOuterClass.MyRequest myRequest) {
-    return simpleMethod(myRequest, Metadata.EMPTY, Optional.of("test-subject-id"));
+    return simpleMethod(myRequest, Metadata.EMPTY);
   }
 
   public Source<ActionResult<Empty>, akka.NotUsed> streamedOutputMethod(ServiceOuterClass.MyRequest myRequest) {
-    return streamedOutputMethod(myRequest, Metadata.EMPTY, Optional.of("test-subject-id"));
+    return streamedOutputMethod(myRequest, Metadata.EMPTY);
   }
 
   public ActionResult<Empty> streamedInputMethod(Source<ServiceOuterClass.MyRequest, akka.NotUsed> myRequest) {
-    return streamedInputMethod(myRequest, Metadata.EMPTY, Optional.of("test-subject-id"));
+    return streamedInputMethod(myRequest, Metadata.EMPTY);
   }
 
   public Source<ActionResult<Empty>, akka.NotUsed> fullStreamedMethod(Source<ServiceOuterClass.MyRequest, akka.NotUsed> myRequest) {
-    return fullStreamedMethod(myRequest, Metadata.EMPTY, Optional.of("test-subject-id"));
+    return fullStreamedMethod(myRequest, Metadata.EMPTY);
   }
 
 }

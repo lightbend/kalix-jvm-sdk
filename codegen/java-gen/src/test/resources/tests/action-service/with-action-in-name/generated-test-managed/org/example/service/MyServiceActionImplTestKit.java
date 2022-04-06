@@ -42,18 +42,14 @@ public final class MyServiceActionImplTestKit {
     return new ActionResultImpl(effect);
   }
 
-  public ActionResult<Empty> simpleMethod(ServiceOuterClass.MyRequest myRequest, Metadata metadata, Optional<String> eventSubject) {
-    TestKitActionContext context = new TestKitActionContext(metadata, eventSubject);
+  public ActionResult<Empty> simpleMethod(ServiceOuterClass.MyRequest myRequest, Metadata metadata) {
+    TestKitActionContext context = new TestKitActionContext(metadata);
     Effect<Empty> effect = createAction(context).simpleMethod(myRequest);
     return interpretEffects(effect);
   }
 
-  public ActionResult<Empty> simpleMethod(ServiceOuterClass.MyRequest myRequest, Metadata metadata) {
-    return simpleMethod(myRequest, metadata, Optional.of("test-subject-id"));
-  }
-
   public ActionResult<Empty> simpleMethod(ServiceOuterClass.MyRequest myRequest) {
-    return simpleMethod(myRequest, Metadata.EMPTY, Optional.of("test-subject-id"));
+    return simpleMethod(myRequest, Metadata.EMPTY);
   }
 
 }

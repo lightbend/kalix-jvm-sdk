@@ -35,8 +35,8 @@ final class MyServiceActionImplTestKit private(actionFactory: ActionCreationCont
     action
   }
 
-  def simpleMethod(command: MyRequest, metadata: Metadata = Metadata.empty, eventSubject: Option[String] = Some("test-subject-id")): ActionResult[Empty] = {
-    val context = new TestKitActionContext(metadata, eventSubject)
+  def simpleMethod(command: MyRequest, metadata: Metadata = Metadata.empty): ActionResult[Empty] = {
+    val context = new TestKitActionContext(metadata)
     new ActionResultImpl(newActionInstance(context).simpleMethod(command))
   }
 }

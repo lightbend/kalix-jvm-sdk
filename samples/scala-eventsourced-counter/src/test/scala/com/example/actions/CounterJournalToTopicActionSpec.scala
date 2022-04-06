@@ -18,7 +18,7 @@ class CounterJournalToTopicActionSpec extends AnyWordSpec with Matchers {
 
     "handle command Increase with Metadata" in {
       val testKit = CounterJournalToTopicActionTestKit(new CounterJournalToTopicAction(_))
-      val result = testKit.increaseConditional(ValueIncreased(1),Metadata.empty.set("myKey","myValue"))
+      val result = testKit.increaseConditional(ValueIncreased(1),Metadata.empty.set("myKey","myValue").set("ce-subject","mySubject"))
       result.reply shouldBe Increased(2)
     }
 

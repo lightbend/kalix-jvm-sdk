@@ -24,12 +24,12 @@ import com.akkaserverless.scalasdk.action.ActionCreationContext
 /**
  * INTERNAL API Used by the generated testkit
  */
-final class TestKitActionContext(
-    override val metadata: Metadata = Metadata.empty,
-    override val eventSubject: Option[String] = Some("test-subject-id"))
+final class TestKitActionContext(override val metadata: Metadata = Metadata.empty)
     extends AbstractTestKitContext
     with ActionContext
     with ActionCreationContext {
+
+  override def eventSubject = metadata.get("ce-subject")
   override def getGrpcClient[T](clientClass: Class[T], service: String): T =
     throw new UnsupportedOperationException("Testing logic using a gRPC client is not possible with the testkit")
 
