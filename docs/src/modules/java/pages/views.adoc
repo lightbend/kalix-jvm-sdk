@@ -458,6 +458,7 @@ The following comparison operators are supported:
 
 ==== Logical operators
 
+////
 Combine filter conditions with the `AND` and `OR` operators, and negate using the `NOT` operator. Group conditions using parentheses. Note that `AND` has precedence over `OR`.
 
 [source,proto,indent=0]
@@ -466,8 +467,16 @@ SELECT * FROM customers WHERE
   name = :customer_name AND address.city = 'New York' OR
   NOT (name = :customer_name AND address.city = 'San Francisco')
 ----
+////
+
+Combine filter conditions with the `AND` operator, and negate using the `NOT` operator. Group conditions using parentheses.
 
 NOTE: `OR` support is currently disabled, until it can be more efficiently indexed.
+
+----
+SELECT * FROM customers WHERE
+  name = :customer_name AND NOT (address.city = 'New York' AND age > 65)
+----
 
 ==== Array operators
 
@@ -499,7 +508,7 @@ Use `LIKE` to pattern match on strings. The standard SQL `LIKE` patterns are sup
 SELECT * FROM customers WHERE name LIKE 'Bob%'
 ----
 
-NOTE: For index efficiency, only constant patterns with literal strings are supported, and the pattern must have a non-wildcard prefix or suffix. A pattern like `'%foo%'` is not supported.
+NOTE: For index efficiency, the pattern must have a non-wildcard prefix or suffix. A pattern like `'%foo%'` is not supported. Given this limitation, only constant patterns with literal strings are supported; patterns in request parameters are not allowed.
 
 ==== Text search
 
@@ -516,6 +525,8 @@ The following text search language configurations are supported: `'danish'`, `'d
 ----
 SELECT * FROM customers WHERE text_search(profile, :search_words, 'english')
 ----
+
+NOTE: Text search is currently only available for deployed services, and can't be used in local testing.
 
 ==== Data types
 
