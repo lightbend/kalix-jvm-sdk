@@ -18,23 +18,30 @@ package com.akkaserverless.javasdk.testkit.impl;
 
 import com.akkaserverless.javasdk.action.ActionContext
 
-import java.util.Optional
+import java.util.{ HashMap, Optional }
+import java.nio.ByteBuffer
 import com.akkaserverless.javasdk.action.ActionCreationContext
 import akka.stream.Materializer
 import com.akkaserverless.javasdk.impl.InternalContext
+import com.akkaserverless.javasdk.Metadata
+import scala.collection.convert.ImplicitConversions._
 
 /**
  * INTERNAL API Used by the generated testkit
  */
-final class TestKitActionContext
+final class TestKitActionContext(metadata: Metadata)
     extends AbstractTestKitContext
     with ActionContext
     with ActionCreationContext
     with InternalContext {
 
-  override def metadata() = throw new UnsupportedOperationException("Accessing metadata from testkit not supported yet")
+  def this() {
+    this(Metadata.EMPTY)
+  }
 
-  override def eventSubject() = Optional.of("test-subject-id")
+  override def metadata() = metadata
+
+  override def eventSubject() = metadata.get("ce-subject")
 
   override def getGrpcClient[T](clientClass: Class[T], service: String): T =
     throw new UnsupportedOperationException("Testing logic using a gRPC client is not possible with the testkit")

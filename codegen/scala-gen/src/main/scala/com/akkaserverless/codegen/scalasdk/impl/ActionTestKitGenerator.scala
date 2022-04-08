@@ -39,6 +39,7 @@ object ActionTestKitGenerator {
         service.commands.map(_.outputType),
         service.messageType.parent.scalaPackage,
         otherImports = Seq(
+          "com.akkaserverless.scalasdk.Metadata",
           "com.akkaserverless.scalasdk.testkit.ActionResult",
           "com.akkaserverless.scalasdk.testkit.impl.ActionResultImpl",
           "com.akkaserverless.scalasdk.action.ActionCreationContext",
@@ -47,12 +48,16 @@ object ActionTestKitGenerator {
     val actionClassName = service.className
 
     val methods = service.commands.map { cmd =>
-      s"""def ${lowerFirst(cmd.name)}(command: ${selectInput(cmd)}): ${selectOutputResult(cmd)} =\n""" +
+      s"""def ${lowerFirst(cmd.name)}(command: ${selectInput(
+        cmd)}, metadata: Metadata = Metadata.empty): ${selectOutputResult(cmd)} = {\n""" +
+      "  val context = new TestKitActionContext(metadata)\n" +
       (if (cmd.isUnary || cmd.isStreamIn) {
-         s"""  new ActionResultImpl(newActionInstance().${lowerFirst(cmd.name)}(command))"""
+         s"""  new ActionResultImpl(newActionInstance(context).${lowerFirst(cmd.name)}(command))"""
        } else {
-         s"""  newActionInstance().${lowerFirst(cmd.name)}(command).map(effect => new ActionResultImpl(effect))"""
-       }) + "\n"
+         s"""  newActionInstance(context).${lowerFirst(
+           cmd.name)}(command).map(effect => new ActionResultImpl(effect))"""
+       }) + "\n" +
+      "}\n"
     }
 
     File.scala(
@@ -82,8 +87,7 @@ object ActionTestKitGenerator {
           | */
           |final class ${actionClassName}TestKit private(actionFactory: ActionCreationContext => $actionClassName) {
           |
-          |  private def newActionInstance() = {
-          |    val context = new TestKitActionContext
+          |  private def newActionInstance(context: TestKitActionContext) = {
           |    val action = actionFactory(context)
           |    action._internalSetActionContext(Some(context))
           |    action

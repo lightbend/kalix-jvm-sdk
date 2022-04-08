@@ -4,6 +4,7 @@
  */
 package com.example.actions;
 
+import com.akkaserverless.javasdk.Metadata;
 import com.akkaserverless.javasdk.testkit.ActionResult;
 import com.example.actions.CounterJournalToTopicAction;
 import com.example.actions.CounterJournalToTopicActionTestKit;
@@ -22,6 +23,16 @@ public class CounterJournalToTopicActionTest {
     CounterJournalToTopicActionTestKit testKit = CounterJournalToTopicActionTestKit.of(CounterJournalToTopicAction::new);
     ActionResult<CounterTopicApi.Increased> result = testKit.increase(CounterDomain.ValueIncreased.newBuilder().setValue(1).build());
     assertEquals(1, result.getReply().getValue());
+  }
+
+   @Test
+  public void increaseTestConditional() {
+    CounterJournalToTopicActionTestKit testKit = CounterJournalToTopicActionTestKit.of(CounterJournalToTopicAction::new);
+    ActionResult<CounterTopicApi.Increased> result = testKit.increaseConditional(
+      CounterDomain.ValueIncreased.newBuilder().setValue(1).build(),
+      Metadata.EMPTY.set("myKey","myValue").set("ce-subject","mySubject")
+      );
+    assertEquals(2, result.getReply().getValue());
   }
 
   @Test
