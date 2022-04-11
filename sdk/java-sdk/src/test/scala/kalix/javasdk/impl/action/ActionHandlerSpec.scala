@@ -50,7 +50,7 @@ import scala.concurrent.Await
 import scala.concurrent.Future
 import scala.concurrent.duration._
 
-class ActionRouterSpec
+class ActionHandlerSpec
     extends ScalaTestWithActorTestKit
     with LogCapturing
     with AnyWordSpecLike
@@ -68,7 +68,7 @@ class ActionRouterSpec
   private val anySupport = new AnySupport(Array(ActionspecApi.getDescriptor), this.getClass.getClassLoader)
 
   def create(handler: ActionRouter[_]): Actions = {
-    val service = new ActionService(_ => handler, serviceDescriptor, anySupport)
+    val service = new ActionService(_ => handler, serviceDescriptor, Array(), anySupport)
 
     val services = Map(serviceName -> service)
 

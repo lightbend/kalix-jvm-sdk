@@ -50,6 +50,7 @@ import scala.util.control.NonFatal
 final class ActionService(
     val factory: ActionFactory,
     override val descriptor: Descriptors.ServiceDescriptor,
+    override val additionalDescriptors: Array[Descriptors.FileDescriptor],
     val anySupport: AnySupport)
     extends Service {
 

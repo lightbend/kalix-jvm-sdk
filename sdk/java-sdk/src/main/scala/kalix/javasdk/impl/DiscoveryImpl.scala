@@ -25,7 +25,7 @@ import kalix.protocol.discovery.PassivationStrategy.Strategy
 import kalix.protocol.discovery._
 import com.google.protobuf.DescriptorProtos
 import com.google.protobuf.empty.Empty
-import org.slf4j.LoggerFactory
+import org.slf4j.{ Logger, LoggerFactory }
 
 import java.time.Duration
 import java.util.concurrent.atomic.AtomicReference
@@ -35,6 +35,7 @@ import scala.jdk.CollectionConverters._
 import scala.util.control.NonFatal
 
 class DiscoveryImpl(system: ActorSystem, services: Map[String, Service]) extends Discovery {
+  import DiscoveryImpl._
 
   private val log = LoggerFactory.getLogger(getClass)
 
@@ -106,21 +107,6 @@ class DiscoveryImpl(system: ActorSystem, services: Map[String, Service]) extends
         // eg, the proxy doesn't have a configured journal, and so can't support event sourcing.
       }
 
-      val descriptorsWithSource = loadDescriptorsWithSource(
-        system.settings.config.getString("kalix.discovery.protobuf-descriptor-with-source-info-path"))
-      val allDescriptors = AnySupport.flattenDescriptors(services.values.map(_.descriptor.getFile).toSeq)
-      val builder = DescriptorProtos.FileDescriptorSet.newBuilder()
-      allDescriptors.values.foreach { fd =>
-        val proto = fd.toProto
-        // We still use the descriptor as passed in by the user, but if we have one that we've read from the
-        // descriptors file that has the source info, we add that source info to the one passed in, and use that.
-        val protoWithSource = descriptorsWithSource.get(proto.getName).fold(proto) { withSource =>
-          proto.toBuilder.setSourceCodeInfo(withSource.getSourceCodeInfo).build()
-        }
-        builder.addFile(protoWithSource)
-      }
-      val fileDescriptorSet = builder.build().toByteString
-
       val components = services.map { case (name, service) =>
         val forwardHeaders = service.componentOptions.map(_.forwardHeaders().asScala.toSeq).getOrElse(Seq.empty)
         service.componentType match {
@@ -148,7 +134,12 @@ class DiscoveryImpl(system: ActorSystem, services: Map[String, Service]) extends
         }
       }.toSeq
 
-      Future.successful(Spec(fileDescriptorSet, components, Some(serviceInfo)))
+      val fileDescriptors = fileDescriptorSet(
+        services.values,
+        system.settings.config.getString("kalix.discovery.protobuf-descriptor-with-source-info-path"),
+        log)
+
+      Future.successful(Spec(fileDescriptors.toByteString, components, Some(serviceInfo)))
     }
   }
 
@@ -235,13 +226,41 @@ class DiscoveryImpl(system: ActorSystem, services: Map[String, Service]) extends
     EntitySettings.SpecificSettings.ReplicatedEntity(ReplicatedEntitySettings(writeConsistency))
   }
 
-  private def loadDescriptorsWithSource(path: String): Map[String, DescriptorProtos.FileDescriptorProto] =
+  override def proxyTerminated(in: Empty): Future[Empty] = {
+    log.debug("Proxy terminated")
+    proxyTerminatedRef.get().trySuccess(Done)
+    Future.successful(Empty.defaultInstance)
+  }
+}
+
+object DiscoveryImpl {
+
+  private[impl] def fileDescriptorSet(services: Iterable[Service], userDescPath: String, log: Logger) = {
+    val descriptorsWithSource = loadDescriptorsWithSource(userDescPath, log)
+    val allDescriptors =
+      AnySupport.flattenDescriptors(services.flatMap(s => s.descriptor.getFile +: s.additionalDescriptors).toSeq)
+    val builder = DescriptorProtos.FileDescriptorSet.newBuilder()
+    allDescriptors.values.foreach { fd =>
+      val proto = fd.toProto
+      // We still use the descriptor as passed in by the user, but if we have one that we've read from the
+      // descriptors file that has the source info, we add that source info to the one passed in, and use that.
+      val protoWithSource = descriptorsWithSource.get(proto.getName).fold(proto) { withSource =>
+        proto.toBuilder.setSourceCodeInfo(withSource.getSourceCodeInfo).build()
+      }
+      builder.addFile(protoWithSource)
+    }
+    builder.build()
+  }
+
+  private[impl] def loadDescriptorsWithSource(
+      path: String,
+      log: Logger): Map[String, DescriptorProtos.FileDescriptorProto] =
     // Special case for disabled, this allows the user to disable attempting to load the descriptor, which means
     // they won't get the great big warning below if it doesn't exist.
     if (path == "disabled") {
       Map.empty
     } else {
-      val stream = getClass.getClassLoader.getResourceAsStream(path)
+      val stream = getClass.getResourceAsStream(path)
       if (stream == null) {
         log.warn(
           s"Source info descriptor [$path] not found on classpath. Reporting descriptor errors against " +
@@ -280,10 +299,4 @@ class DiscoveryImpl(system: ActorSystem, services: Map[String, Service]) extends
         }
       }
     }
-
-  override def proxyTerminated(in: Empty): Future[Empty] = {
-    log.debug("Proxy terminated")
-    proxyTerminatedRef.get().trySuccess(Done)
-    Future.successful(Empty.defaultInstance)
-  }
 }
