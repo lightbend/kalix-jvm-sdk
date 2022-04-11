@@ -53,6 +53,7 @@ import com.google.protobuf.any.{ Any => ScalaPbAny }
 final class ValueEntityService(
     val factory: ValueEntityFactory,
     override val descriptor: Descriptors.ServiceDescriptor,
+    override val additionalDescriptors: Array[Descriptors.FileDescriptor],
     val anySupport: AnySupport,
     override val entityType: String,
     val entityOptions: Option[ValueEntityOptions])
@@ -61,10 +62,11 @@ final class ValueEntityService(
   def this(
       factory: ValueEntityFactory,
       descriptor: Descriptors.ServiceDescriptor,
+      additionalDescriptors: Array[Descriptors.FileDescriptor],
       anySupport: AnySupport,
       entityType: String,
       entityOptions: ValueEntityOptions) =
-    this(factory, descriptor, anySupport, entityType, Some(entityOptions))
+    this(factory, descriptor, additionalDescriptors, anySupport, entityType, Some(entityOptions))
 
   override def resolvedMethods: Option[Map[String, ResolvedServiceMethod[_, _]]] =
     factory match {

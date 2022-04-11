@@ -50,6 +50,7 @@ import org.slf4j.LoggerFactory
 final class EventSourcedEntityService(
     val factory: EventSourcedEntityFactory,
     override val descriptor: Descriptors.ServiceDescriptor,
+    override val additionalDescriptors: Array[Descriptors.FileDescriptor],
     val anySupport: AnySupport,
     override val entityType: String,
     val snapshotEvery: Int, // FIXME remove and only use entityOptions snapshotEvery?
@@ -59,11 +60,12 @@ final class EventSourcedEntityService(
   def this(
       factory: EventSourcedEntityFactory,
       descriptor: Descriptors.ServiceDescriptor,
+      additionalDescriptors: Array[Descriptors.FileDescriptor],
       anySupport: AnySupport,
       entityType: String,
       snapshotEvery: Int,
       entityOptions: EventSourcedEntityOptions) =
-    this(factory, descriptor, anySupport, entityType, snapshotEvery, Some(entityOptions))
+    this(factory, descriptor, additionalDescriptors, anySupport, entityType, snapshotEvery, Some(entityOptions))
 
   override def resolvedMethods: Option[Map[String, ResolvedServiceMethod[_, _]]] =
     factory match {
@@ -78,6 +80,7 @@ final class EventSourcedEntityService(
       new EventSourcedEntityService(
         this.factory,
         this.descriptor,
+        this.additionalDescriptors,
         this.anySupport,
         this.entityType,
         snapshotEvery,

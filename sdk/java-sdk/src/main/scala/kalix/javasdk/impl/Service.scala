@@ -30,6 +30,13 @@ trait Service {
 
   /**
    * @return
+   *   a Protobuf FileDescriptor of any API's that need to be available either to API consumers (message types etc) or
+   *   the backoffice API (state model etc).
+   */
+  def additionalDescriptors: Array[Descriptors.FileDescriptor]
+
+  /**
+   * @return
    *   the type of component represented by this service
    */
   def componentType: String

@@ -40,6 +40,7 @@ import org.slf4j.LoggerFactory
 final class ReplicatedEntityService(
     val factory: ReplicatedEntityFactory,
     override val descriptor: Descriptors.ServiceDescriptor,
+    override val additionalDescriptors: Array[Descriptors.FileDescriptor],
     val anySupport: AnySupport,
     override val entityType: String,
     val entityOptions: Option[ReplicatedEntityOptions])
@@ -48,9 +49,11 @@ final class ReplicatedEntityService(
   def this(
       factory: ReplicatedEntityFactory,
       descriptor: Descriptors.ServiceDescriptor,
+      additionalDescriptors: Array[Descriptors.FileDescriptor],
       anySupport: AnySupport,
       entityType: String,
-      entityOptions: ReplicatedEntityOptions) = this(factory, descriptor, anySupport, entityType, Some(entityOptions))
+      entityOptions: ReplicatedEntityOptions) =
+    this(factory, descriptor, additionalDescriptors, anySupport, entityType, Some(entityOptions))
 
   override final val componentType = ReplicatedEntities.name
 

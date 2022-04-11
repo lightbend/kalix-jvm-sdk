@@ -37,6 +37,7 @@ import org.slf4j.LoggerFactory
 final class ViewService(
     val factory: Optional[ViewFactory],
     override val descriptor: Descriptors.ServiceDescriptor,
+    override val additionalDescriptors: Array[Descriptors.FileDescriptor],
     val anySupport: AnySupport,
     val viewId: String)
     extends Service {

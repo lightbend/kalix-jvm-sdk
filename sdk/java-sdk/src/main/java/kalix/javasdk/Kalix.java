@@ -92,6 +92,7 @@ public final class Kalix {
               new EventSourcedEntityService(
                   resolvedFactory,
                   descriptor,
+                  additionalDescriptors,
                   anySupport,
                   entityType,
                   entityOptions.snapshotEvery(),
@@ -120,7 +121,8 @@ public final class Kalix {
       ActionFactory resolvedActionFactory =
           new ResolvedActionFactory(actionFactory, anySupport.resolveServiceDescriptor(descriptor));
 
-      ActionService service = new ActionService(resolvedActionFactory, descriptor, anySupport);
+      ActionService service =
+          new ActionService(resolvedActionFactory, descriptor, additionalDescriptors, anySupport);
 
       services.put(descriptor.getFullName(), system -> service);
 
@@ -153,7 +155,12 @@ public final class Kalix {
           descriptor.getFullName(),
           system ->
               new ValueEntityService(
-                  resolvedFactory, descriptor, anySupport, entityType, entityOptions));
+                  resolvedFactory,
+                  descriptor,
+                  additionalDescriptors,
+                  anySupport,
+                  entityType,
+                  entityOptions));
 
       return Kalix.this;
     }
@@ -185,7 +192,12 @@ public final class Kalix {
           descriptor.getFullName(),
           system ->
               new ReplicatedEntityService(
-                  resolvedFactory, descriptor, anySupport, entityType, entityOptions));
+                  resolvedFactory,
+                  descriptor,
+                  additionalDescriptors,
+                  anySupport,
+                  entityType,
+                  entityOptions));
 
       return Kalix.this;
     }
@@ -210,7 +222,8 @@ public final class Kalix {
 
       AnySupport anySupport = newAnySupport(additionalDescriptors);
       ViewService service =
-          new ViewService(Optional.ofNullable(factory), descriptor, anySupport, viewId);
+          new ViewService(
+              Optional.ofNullable(factory), descriptor, additionalDescriptors, anySupport, viewId);
       services.put(descriptor.getFullName(), system -> service);
 
       return Kalix.this;
