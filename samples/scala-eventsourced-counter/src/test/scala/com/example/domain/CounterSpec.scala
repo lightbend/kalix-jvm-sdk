@@ -1,5 +1,6 @@
 package com.example.domain
 
+import com.akkaserverless.scalasdk.Metadata
 import com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntity
 import com.akkaserverless.scalasdk.testkit.EventSourcedResult
 import com.example
@@ -41,6 +42,13 @@ class CounterSpec extends AnyWordSpec with Matchers {
       val sideEffect = result.sideEffects.head
       sideEffect.methodName shouldBe "Increase"
       sideEffect.serviceName shouldBe "com.example.CounterService"
+    }
+
+     "correctly process commands of type IncreaseWithConditional" in {
+      val testKit = CounterTestKit(new Counter(_))
+      val result: EventSourcedResult[Empty] = testKit.increaseWithConditional(example.IncreaseValue("id1",1),Metadata.empty.set("myKey","myValue"))
+      val actualEvent = result.nextEvent[ValueIncreased]
+      actualEvent shouldBe ValueIncreased(value = 2)
     }
 
     "correctly process commands of type Decrease" in {
