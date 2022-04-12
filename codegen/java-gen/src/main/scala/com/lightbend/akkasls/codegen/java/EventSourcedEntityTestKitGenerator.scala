@@ -44,6 +44,7 @@ object EventSourcedEntityTestKitGenerator {
         "java.util.ArrayList",
         "java.util.List",
         "java.util.NoSuchElementException",
+        "com.akkaserverless.javasdk.Metadata",
         "com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity",
         "com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityContext",
         "com.akkaserverless.javasdk.impl.effect.SecondaryEffectImpl",
@@ -107,6 +108,9 @@ object EventSourcedEntityTestKitGenerator {
           |  }
           |
           |  ${Format.indent(generateServices(service), 2)}
+          |
+          |  ${Format.indent(generateServicesDefault(service), 2)}
+          |
           |}
           |""".stripMargin
   }
@@ -123,8 +127,28 @@ object EventSourcedEntityTestKitGenerator {
 
     service.commands
       .map { command =>
+        s"""|public EventSourcedResult<${selectOutput(command)}> ${lowerFirst(command.name)}(${command.inputType.fullName} command, Metadata metadata) {
+            |  return interpretEffects(() -> entity.${lowerFirst(command.name)}(getState(), command), metadata);
+            |}
+            |""".stripMargin + "\n"
+      }
+      .mkString("")
+  }
+
+  def generateServicesDefault(service: ModelBuilder.EntityService): String = {
+    require(!service.commands.isEmpty, "empty `commands` not allowed")
+
+    def selectOutput(command: ModelBuilder.Command): String =
+      if (command.outputType.name == "Empty") {
+        "Empty"
+      } else {
+        command.outputType.fullName
+      }
+
+    service.commands
+      .map { command =>
         s"""|public EventSourcedResult<${selectOutput(command)}> ${lowerFirst(command.name)}(${command.inputType.fullName} command) {
-            |  return interpretEffects(() -> entity.${lowerFirst(command.name)}(getState(), command));
+            |  return interpretEffects(() -> entity.${lowerFirst(command.name)}(getState(), command), Metadata.EMPTY);
             |}
             |""".stripMargin + "\n"
       }

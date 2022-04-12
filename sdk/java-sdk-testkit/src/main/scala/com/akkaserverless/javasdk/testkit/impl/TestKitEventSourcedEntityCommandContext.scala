@@ -30,6 +30,11 @@ final class TestKitEventSourcedEntityCommandContext(
     override val metadata: Metadata = Metadata.EMPTY)
     extends CommandContext
     with InternalContext {
+
+  def this(metadat: Metadata) {
+    this(metadata = metadat)
+  }
+
   override def materializer(): Materializer = throw new UnsupportedOperationException(
     "Accessing the materializer from testkit not supported yet")
   override def getComponentGrpcClient[T](serviceClass: Class[T]): T = throw new UnsupportedOperationException(
