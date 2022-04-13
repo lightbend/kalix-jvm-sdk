@@ -112,7 +112,7 @@
       <plugin>
         <groupId>io.fabric8</groupId>
         <artifactId>docker-maven-plugin</artifactId>
-        <version>0.26.1</version>
+        <version>0.39.1</version>
         <configuration>
           <images>
             <image>
@@ -120,6 +120,9 @@
               <build>
                 <!-- Base Docker image which contains jre-->
                 <from>docker.io/library/adoptopenjdk:${jdk.target}-jre-hotspot</from>
+                <createImageOptions>
+                  <platform>linux/amd64</platform>
+                </createImageOptions>
                 <tags>
                   <!-- tag for generated image -->
                   <tag>${dockerTag}</tag>
