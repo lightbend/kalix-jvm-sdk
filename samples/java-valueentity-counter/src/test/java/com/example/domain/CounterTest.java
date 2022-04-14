@@ -5,6 +5,7 @@
 package com.example.domain;
 
 // tag::sample-unit-test[]
+import com.akkaserverless.javasdk.Metadata;
 import com.akkaserverless.javasdk.testkit.ValueEntityResult;
 import com.example.CounterApi;
 import com.google.protobuf.Empty;
@@ -31,6 +32,20 @@ public class CounterTest {
     assertEquals(2, testKit.getState().getValue());
   }
   // end::sample-unit-test[]
+
+  @Test
+  public void increaseCounterConditionalTest() {
+    CounterTestKit testKit = CounterTestKit.of(Counter::new);
+ 
+    CounterApi.IncreaseValue increaseValueCommand = CounterApi.IncreaseValue.newBuilder()
+        .setValue(1)
+        .build();
+    ValueEntityResult<Empty> result1 = testKit.increaseWithConditional(increaseValueCommand, Metadata.EMPTY.set("myKey","myValue"));
+    assertEquals(Empty.getDefaultInstance(), result1.getReply());
+    assertEquals(2, testKit.getState().getValue());
+  }   
+
+  
 
   @Test
   public void decreaseCounterTest() {

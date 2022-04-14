@@ -1,6 +1,8 @@
 package org.example.valueentity
 
+import com.akkaserverless.scalasdk.Metadata
 import com.akkaserverless.scalasdk.testkit.ValueEntityResult
+import com.akkaserverless.scalasdk.testkit.impl.TestKitValueEntityCommandContext
 import com.akkaserverless.scalasdk.testkit.impl.TestKitValueEntityContext
 import com.akkaserverless.scalasdk.testkit.impl.ValueEntityResultImpl
 import com.akkaserverless.scalasdk.valueentity.ValueEntity
@@ -29,13 +31,13 @@ object CounterServiceEntityTestKit {
    * Create a testkit instance of CounterServiceEntity with a specific entity id.
    */
   def apply(entityId: String, entityFactory: ValueEntityContext => CounterServiceEntity): CounterServiceEntityTestKit =
-    new CounterServiceEntityTestKit(entityFactory(new TestKitValueEntityContext(entityId)))
+    new CounterServiceEntityTestKit(entityFactory(new TestKitValueEntityContext(entityId)), entityId)
 }
 
 /**
  * TestKit for unit testing CounterServiceEntity
  */
-final class CounterServiceEntityTestKit private(entity: CounterServiceEntity) {
+final class CounterServiceEntityTestKit private(entity: CounterServiceEntity, entityId: String) {
   private var state: CounterState = entity.emptyState
 
   /**
@@ -51,12 +53,14 @@ final class CounterServiceEntityTestKit private(entity: CounterServiceEntity) {
     result
   }
 
-  def increase(command: IncreaseValue): ValueEntityResult[Empty] = {
+  def increase(command: IncreaseValue, metadata: Metadata = Metadata.empty): ValueEntityResult[Empty] = {
+    entity._internalSetCommandContext(Some(new TestKitValueEntityCommandContext(entityId = entityId, metadata = metadata)))
     val effect = entity.increase(state, command)
     interpretEffects(effect)
   }
 
-  def decrease(command: DecreaseValue): ValueEntityResult[Empty] = {
+  def decrease(command: DecreaseValue, metadata: Metadata = Metadata.empty): ValueEntityResult[Empty] = {
+    entity._internalSetCommandContext(Some(new TestKitValueEntityCommandContext(entityId = entityId, metadata = metadata)))
     val effect = entity.decrease(state, command)
     interpretEffects(effect)
   }

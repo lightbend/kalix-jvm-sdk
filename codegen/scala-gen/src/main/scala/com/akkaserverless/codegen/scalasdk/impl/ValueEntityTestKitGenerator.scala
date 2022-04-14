@@ -43,18 +43,21 @@ object ValueEntityTestKitGenerator {
         service.commands.map(_.outputType),
         valueEntity.messageType.parent.scalaPackage,
         otherImports = Seq(
+          "com.akkaserverless.scalasdk.Metadata",
           "com.akkaserverless.scalasdk.testkit.ValueEntityResult",
           "com.akkaserverless.scalasdk.testkit.impl.ValueEntityResultImpl",
           "com.akkaserverless.scalasdk.valueentity.ValueEntity",
           "com.akkaserverless.scalasdk.valueentity.ValueEntityContext",
+          "com.akkaserverless.scalasdk.testkit.impl.TestKitValueEntityCommandContext",
           "com.akkaserverless.scalasdk.testkit.impl.TestKitValueEntityContext"),
         packageImports = Seq(service.messageType.parent.scalaPackage))
 
     val entityClassName = valueEntity.messageType.name
 
     val methods = service.commands.map { cmd =>
-      s"""|def ${lowerFirst(cmd.name)}(command: ${typeName(cmd.inputType)}): ValueEntityResult[${typeName(
-        cmd.outputType)}] = {
+      s"""|def ${lowerFirst(cmd.name)}(command: ${typeName(
+        cmd.inputType)}, metadata: Metadata = Metadata.empty): ValueEntityResult[${typeName(cmd.outputType)}] = {
+          |  entity._internalSetCommandContext(Some(new TestKitValueEntityCommandContext(entityId = entityId, metadata = metadata)))
           |  val effect = entity.${lowerFirst(cmd.name)}(state, command)
           |  interpretEffects(effect)
           |}
@@ -85,13 +88,13 @@ object ValueEntityTestKitGenerator {
           |   * Create a testkit instance of $entityClassName with a specific entity id.
           |   */
           |  def apply(entityId: String, entityFactory: ValueEntityContext => $entityClassName): ${entityClassName}TestKit =
-          |    new ${entityClassName}TestKit(entityFactory(new TestKitValueEntityContext(entityId)))
+          |    new ${entityClassName}TestKit(entityFactory(new TestKitValueEntityContext(entityId)), entityId)
           |}
           |
           |/**
           | * TestKit for unit testing $entityClassName
           | */
-          |final class ${entityClassName}TestKit private(entity: $entityClassName) {
+          |final class ${entityClassName}TestKit private(entity: $entityClassName, entityId: String) {
           |  private var state: ${typeName(valueEntity.state.messageType)} = entity.emptyState
           |
           |  /**

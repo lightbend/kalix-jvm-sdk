@@ -5,9 +5,11 @@
 
 package com.example.domain;
 
+import com.akkaserverless.javasdk.Metadata;
 import com.akkaserverless.javasdk.valueentity.ValueEntityContext;
 import com.example.CounterApi;
 import com.google.protobuf.Empty;
+import java.util.Optional;
 
 
 // tag::class[]
@@ -47,6 +49,26 @@ public class Counter extends AbstractCounter { // <1>
               .thenReply(Empty.getDefaultInstance());  // <4>
     }
     // end::increase[]
+
+    @Override
+    public Effect<Empty> increaseWithConditional(
+        CounterDomain.CounterState currentState, CounterApi.IncreaseValue command) {
+      if (command.getValue() < 0) { 
+        return effects().error("Increase requires a positive value. It was [" +
+            command.getValue() + "].");
+      }
+      CounterDomain.CounterState newState;
+      if (commandContext().metadata().get("myKey").equals(Optional.of("myValue"))) {
+        newState = currentState.toBuilder().setValue(currentState.getValue() +
+                  command.getValue()*2).build();
+      } else {
+        newState = currentState.toBuilder().setValue(currentState.getValue() +
+                  command.getValue()).build();
+      }
+      return effects()
+              .updateState(newState) 
+              .thenReply(Empty.getDefaultInstance()); 
+    }
 
     @Override
     public Effect<Empty> decrease(
