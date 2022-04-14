@@ -31,8 +31,8 @@ final class TestKitEventSourcedEntityCommandContext(
     extends CommandContext
     with InternalContext {
 
-  def this(metadat: Metadata) {
-    this(metadata = metadat)
+  def this(metadata: Metadata) {
+    this(metadata = metadata, commandName = "stubCommandName")
   }
 
   override def materializer(): Materializer = throw new UnsupportedOperationException(
