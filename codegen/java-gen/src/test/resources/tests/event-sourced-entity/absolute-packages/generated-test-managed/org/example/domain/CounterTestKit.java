@@ -1,5 +1,6 @@
 package org.example.domain;
 
+import com.akkaserverless.javasdk.Metadata;
 import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity;
 import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityContext;
 import com.akkaserverless.javasdk.impl.effect.MessageReplyImpl;
@@ -70,11 +71,20 @@ public final class CounterTestKit extends EventSourcedEntityEffectsRunner<OuterC
     }
   }
 
+  public EventSourcedResult<Empty> increase(CounterApi.IncreaseValue command, Metadata metadata) {
+    return interpretEffects(() -> entity.increase(getState(), command), metadata);
+  }
+
+  public EventSourcedResult<Empty> decrease(CounterApi.DecreaseValue command, Metadata metadata) {
+    return interpretEffects(() -> entity.decrease(getState(), command), metadata);
+  }
+
   public EventSourcedResult<Empty> increase(CounterApi.IncreaseValue command) {
-    return interpretEffects(() -> entity.increase(getState(), command));
+    return interpretEffects(() -> entity.increase(getState(), command), Metadata.EMPTY);
   }
 
   public EventSourcedResult<Empty> decrease(CounterApi.DecreaseValue command) {
-    return interpretEffects(() -> entity.decrease(getState(), command));
+    return interpretEffects(() -> entity.decrease(getState(), command), Metadata.EMPTY);
   }
+
 }

@@ -4,6 +4,7 @@
  */
 package com.example.domain;
 
+import com.akkaserverless.javasdk.Metadata;
 import com.akkaserverless.javasdk.testkit.EventSourcedResult;
 import com.akkaserverless.javasdk.testkit.DeferredCallDetails;
 import com.example.CounterApi;
@@ -36,6 +37,18 @@ public class CounterTest {
         .setValue(increase*2)
         .build();
     assertEquals(doubledIncreased, sideEffect.getMessage());
+
+  }
+
+   @Test
+  public void increaseWithConditionalTest() {
+    CounterTestKit testKit = CounterTestKit.of(Counter::new);
+    int increase = 1;
+    EventSourcedResult<Empty> result = testKit.increaseWithConditional(
+      CounterApi.IncreaseValue.newBuilder().setValue(increase).build(), 
+      Metadata.EMPTY.set("myKey","myValue")
+      );   
+    assertEquals(2 , testKit.getState().getValue());
 
   }
 

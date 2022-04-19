@@ -16,6 +16,7 @@
 
 package com.akkaserverless.javasdk.testkit.impl;
 
+import com.akkaserverless.javasdk.Metadata;
 import com.akkaserverless.javasdk.eventsourcedentity.CommandContext;
 import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity;
 import com.akkaserverless.javasdk.testkit.EventSourcedResult;
@@ -58,8 +59,8 @@ public abstract class EventSourcedEntityEffectsRunner<S> {
    * @return the result of the side effects
    */
   protected <R> EventSourcedResult<R> interpretEffects(
-      Supplier<EventSourcedEntity.Effect<R>> effect) {
-    var commandContext = TestKitEventSourcedEntityCommandContext.empty();
+      Supplier<EventSourcedEntity.Effect<R>> effect, Metadata metadata) {
+    var commandContext = new TestKitEventSourcedEntityCommandContext(metadata);
     EventSourcedEntity.Effect<R> effectExecuted;
     try {
       entity._internalSetCommandContext(Optional.of(commandContext));

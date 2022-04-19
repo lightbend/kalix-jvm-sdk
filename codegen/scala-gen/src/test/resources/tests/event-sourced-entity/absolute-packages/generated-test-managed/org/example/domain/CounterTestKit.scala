@@ -1,5 +1,6 @@
 package org.example.domain
 
+import com.akkaserverless.scalasdk.Metadata
 import com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntity
 import com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntityContext
 import com.akkaserverless.scalasdk.testkit.EventSourcedResult
@@ -47,9 +48,9 @@ final class CounterTestKit private(entity: Counter) extends EventSourcedEntityEf
     }
   }
 
-  def increase(command: eventsourcedentity.IncreaseValue): EventSourcedResult[Empty] =
-    interpretEffects(() => entity.increase(currentState, command))
+  def increase(command: eventsourcedentity.IncreaseValue, metadata: Metadata = Metadata.empty): EventSourcedResult[Empty] =
+    interpretEffects(() => entity.increase(currentState, command), metadata)
 
-  def decrease(command: eventsourcedentity.DecreaseValue): EventSourcedResult[Empty] =
-    interpretEffects(() => entity.decrease(currentState, command))
+  def decrease(command: eventsourcedentity.DecreaseValue, metadata: Metadata = Metadata.empty): EventSourcedResult[Empty] =
+    interpretEffects(() => entity.decrease(currentState, command), metadata)
 }
