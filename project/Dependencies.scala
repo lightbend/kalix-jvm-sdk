@@ -21,7 +21,7 @@ object Dependencies {
   val JacksonVersion = "2.12.6"
   val JacksonDatabindVersion = "2.12.6.1"
   val DockerBaseImageVersion = "adoptopenjdk/openjdk11:debianslim-jre"
-  val LogbackVersion = "1.2.10"
+  val LogbackVersion = "1.2.11"
   val LogbackContribVersion = "0.1.5"
   val TestContainersVersion = "1.15.3"
   val JUnitVersion = "4.13.2"
@@ -29,7 +29,7 @@ object Dependencies {
   val JUnitJupiterVersion = "5.7.1"
 
   val CommonsIoVerison = "2.8.0"
-  val MunitVersion = "0.7.20"
+  val MunitVersion = "0.7.29"
   val ScoptVersions = "4.0.0"
 
   val kalixProxyProtocol = "io.kalix" % "kalix-proxy-protocol" % Kalix.ProxyVersion
@@ -63,7 +63,7 @@ object Dependencies {
   val scalapbCompilerPlugin = "com.thesamet.scalapb" %% "compilerplugin" % scalapb.compiler.Version.scalapbVersion
   val sbtProtoc = "com.thesamet" % "sbt-protoc" % "1.0.0"
 
-  val akkaGrpc = "com.lightbend.akka.grpc" % "sbt-akka-grpc" % "2.1.3"
+  val akkaGrpc = "com.lightbend.akka.grpc" % "sbt-akka-grpc" % akka.grpc.gen.BuildInfo.version
 
   private val deps = libraryDependencies
 
