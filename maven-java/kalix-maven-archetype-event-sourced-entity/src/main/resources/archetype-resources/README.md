@@ -9,7 +9,7 @@ While designing your service it is useful to read [designing services](https://d
 ## Developing
 ]]#
 This project has a bare-bones skeleton service ready to go, but in order to adapt and
-extend it it may be useful to read up on [developing services](https://docs.kalix.io/developing/index.html)
+extend it it may be useful to read up on [developing services](https://docs.kalix.io/services/)
 and in particular the [Java section](https://docs.kalix.io/java/index.html)
 
 #[[

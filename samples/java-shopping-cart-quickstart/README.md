@@ -8,8 +8,8 @@ To understand the Kalix concepts that are the basis for this example, see [Desig
 ## Developing
 
 This project demonstrates the use of an Event Sourced Entity.
-To understand more about these components, see [Developing services](https://docs.kalix.io/developing/index.html)
-and in particular the [Java section](https://docs.kalix.io/java-services/index.html)
+To understand more about these components, see [Developing services](https://docs.kalix.io/services/)
+and in particular the [Java section](https://docs.kalix.io/java/)
 
 
 ## Building
@@ -17,7 +17,7 @@ and in particular the [Java section](https://docs.kalix.io/java-services/index.h
 You can use Maven to build your project, which will also take care of
 generating code based on the `.proto` definitions:
 
-```
+```shell
 mvn compile
 ```
 
@@ -29,13 +29,13 @@ It also contains the configuration to start a local Google Pub/Sub emulator that
 To start the proxy, run the following command from this directory:
 
 
-```
+```shell
 docker-compose up
 ```
 
 To start the application locally, the `exec-maven-plugin` is used. Use the following command:
 
-```
+```shell
 mvn compile exec:exec
 ```
 
@@ -61,7 +61,7 @@ grpcurl --plaintext -d '{"cart_id": "cart1"}' localhost:9000  shopping.cart.api.
 grpcurl --plaintext -d '{"cart_id": "cart1", "product_id": "akka-tshirt" }' localhost:9000 shopping.cart.api.ShoppingCart/RemoveItem
 ```
 
-In addition to the defined gRPC interface, each method has a corresponding HTTP endpoint. As defined in `shpping_cart_api.proto` (see [Transcoding HTTP](https://docs.kalix.io/java/proto.html#_transcoding_http)), this endpoint accepts POST requests at the path `/cart/<cart_id>/items/add`.
+In addition to the defined gRPC interface, each method has a corresponding HTTP endpoint. As defined in `shpping_cart_api.proto` (see [Transcoding HTTP](https://docs.kalix.io/java/writing-grpc-descriptors-protobuf.html#_transcoding_http)), this endpoint accepts POST requests at the path `/cart/<cart_id>/items/add`.
 
 
 * Send an AddItem command:
@@ -84,4 +84,4 @@ Finally, you can use the [Kalix Console](https://console.kalix.io)
 to create a project and then deploy your service into the project either by using `mvn deploy` which
 will also conveniently package and publish your docker image prior to deployment, or by first packaging and
 publishing the docker image through `mvn clean package docker:push -DskipTests` and then deploying the image
-through the `kalix` CLI or via the web interface.
+through the `kalix` CLI.

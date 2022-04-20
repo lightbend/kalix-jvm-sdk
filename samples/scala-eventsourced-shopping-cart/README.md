@@ -24,7 +24,7 @@ In order to run your application locally, you must run the Kalix proxy. The incl
 It also contains the configuration to start a local Google Pub/Sub emulator that the Kalix proxy will connect to.
 To start the proxy, run the following command from this directory:
 
-```
+```shell
 docker-compose up
 ```
 
@@ -40,7 +40,7 @@ For further details see [Running a service locally](https://docs.kalix.io/develo
 
 With both the proxy and your application running, any defined endpoints should be available at `http://localhost:9000`.
 In addition to the defined gRPC interface, each method has a corresponding HTTP endpoint. Unless configured otherwise (
-see [Transcoding HTTP](https://docs.kalix.io/java/proto.html#_transcoding_http)), this endpoint accepts POST
+see [Transcoding HTTP](https://docs.kalix.io/java/writing-grpc-descriptors-protobuf.html#_transcoding_http)), this endpoint accepts POST
 requests at the path `/[package].[entity name]/[method]`. For example, using `curl`:
 
 * Send an AddItem command:
@@ -86,4 +86,4 @@ for more information on how to make your docker image available to Kalix.
 
 Finally, you can use the [Kalix Console](https://console.kalix.io)
 to create a Kalix project and then deploy your service into it 
-through the `kalix` CLI or via the web interface. 
+through the `kalix` CLI. 
