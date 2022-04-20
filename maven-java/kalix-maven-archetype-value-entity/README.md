@@ -8,7 +8,7 @@ For the latest release see [GitHub releases](https://github.com/lightbend/kalix-
 
 To kickstart a project on Linux and macOS:
 
-```
+```shell
 mvn \
   archetype:generate \
   -DarchetypeGroupId=io.kalix \
@@ -18,7 +18,7 @@ mvn \
 
 To kickstart a project on Windows 10 or later:
 
-```
+```shell
 mvn ^
   archetype:generate ^
   -DarchetypeGroupId=io.kalix ^
