@@ -13,16 +13,13 @@ object Main {
 
   // tag::register[]
   def createKalix(): Kalix = {
-    // FIXME temporarily changed to set a short view id to not hit view id limit of 21 chars
     Kalix()
       .register(CustomerValueEntityProvider(new CustomerValueEntity(_)))
       .register(CustomerActionProvider(new CustomerActionImpl(_)))
-      .register(CustomerByEmailViewProvider(new CustomerByEmailView(_)).withViewId("ByEmail"))
-      .register(CustomerByNameViewProvider(new CustomerByNameView(_)).withViewId("ByName"))
-      .register(CustomerSummaryByNameViewProvider(new CustomerSummaryByNameView(_))
-        .withViewId("Summary"))
-      .register(CustomersResponseByNameViewProvider(new CustomersResponseByNameView(_))
-        .withViewId("Response"))
+      .register(CustomerByEmailViewProvider(new CustomerByEmailView(_)))
+      .register(CustomerByNameViewProvider(new CustomerByNameView(_)))
+      .register(CustomerSummaryByNameViewProvider(new CustomerSummaryByNameView(_)))
+      .register(CustomersResponseByNameViewProvider(new CustomersResponseByNameView(_)))
   }
   // end::register[]
 
