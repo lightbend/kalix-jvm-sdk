@@ -9,8 +9,8 @@ While designing your service it is useful to read [designing services](https://d
 ## Developing
 
 This project has a bare-bones skeleton service ready to go, but in order to adapt and
-extend it it may be useful to read up on [developing services](https://docs.kalix.io/developing/index.html)
-and in particular the [Java section](https://docs.kalix.io/java-services/index.html)
+extend it it may be useful to read up on [developing services](https://docs.kalix.io/services/)
+and in particular the [Java section](https://docs.kalix.io/java/)
 
 
 ## Building
@@ -18,7 +18,7 @@ and in particular the [Java section](https://docs.kalix.io/java-services/index.h
 You can use Maven to build your project, which will also take care of
 generating code based on the `.proto` definitions:
 
-```
+```shell
 mvn compile
 ```
 
@@ -29,17 +29,17 @@ In order to run your application locally, you must run the Kalix proxy. The incl
 It also contains the configuration to start a local Google Pub/Sub emulator that the Kalix proxy will connect to.
 To start the proxy, run the following command from this directory:
 
-```
+```shell
 docker-compose up
 ```
 
 To start the application locally, the `exec-maven-plugin` is used. Use the following command:
 
-```
+```shell
 mvn compile exec:exec
 ```
 
-With both the proxy and your application running, any defined endpoints should be available at `http://localhost:9000`. In addition to the defined gRPC interface, each method has a corresponding HTTP endpoint. Unless configured otherwise (see [Transcoding HTTP](https://docs.kalix.io/java/proto.html#_transcoding_http)), this endpoint accepts POST requests at the path `/[package].[entity name]/[method]`. For example, using `curl`:
+With both the proxy and your application running, any defined endpoints should be available at `http://localhost:9000`. In addition to the defined gRPC interface, each method has a corresponding HTTP endpoint. Unless configured otherwise (see [Transcoding HTTP](https://docs.kalix.io/java/writing-grpc-descriptors-protobuf.html#_transcoding_http)), this endpoint accepts POST requests at the path `/[package].[entity name]/[method]`. For example, using `curl`:
 
 ```shell
 > curl -XPOST -H "Content-Type: application/json" localhost:9000/com.example.CounterService/GetCurrentCounter -d '{"counterId": "foo"}'        
@@ -73,4 +73,4 @@ Finally, you can use the [Kalix Console](https://console.kalix.io)
 to create a project and then deploy your service into the project either by using `mvn deploy` which
 will also conveniently package and publish your docker image prior to deployment, or by first packaging and
 publishing the docker image through `mvn clean package docker:push -DskipTests` and then deploying the image
-through the `kalix` CLI or via the web interface.
+through the `kalix` CLI.

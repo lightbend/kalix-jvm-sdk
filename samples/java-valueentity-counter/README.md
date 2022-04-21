@@ -39,13 +39,13 @@ In order to run your application locally, you must run the Kalix proxy. The incl
 It also contains the configuration to start a local Google Pub/Sub emulator that the Kalix proxy will connect to.
 To start the proxy, run the following command from this directory:
 
-```
+```shell
 docker-compose up
 ```
 
 To start the application locally, the `exec-maven-plugin` is used. Use the following command:
 
-```
+```shell
 mvn compile exec:exec
 ```
 
@@ -79,4 +79,4 @@ Finally, you can use the [Kalix Console](https://console.kalix.io)
 to create a project and then deploy your service into the project either by using `mvn deploy` which
 will also conveniently package and publish your docker image prior to deployment, or by first packaging and
 publishing the docker image through `mvn clean package docker:push -DskipTests` and then deploying the image
-through the `kalix` CLI or via the web interface.
+through the `kalix` CLI.

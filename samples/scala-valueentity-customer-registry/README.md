@@ -17,7 +17,7 @@ In order to run your application locally, you must run the Kalix proxy. The incl
 It also contains the configuration to start a local Google Pub/Sub emulator that the Kalix proxy will connect to.
 To start the proxy, run the following command from this directory:
 
-```
+```shell
 docker-compose up
 ```
 
@@ -34,23 +34,23 @@ For further details see [Running a service locally](https://docs.kalix.io/develo
 With both the proxy and your application running, any defined endpoints should be available at `http://localhost:9000`. In addition to the defined gRPC interface, each method has a corresponding HTTP endpoint. Unless configured otherwise (see [Transcoding HTTP](https://docs.kalix.io/java/writing-grpc-descriptors-protobuf.html#_transcoding_http)), this endpoint accepts POST requests at the path `/[package].[entity name]/[method]`. For example, using `curl`:
 
 * Create a customer with:
-  ```
+  ```shell
   grpcurl --plaintext -d '{"customer_id": "wip", "email": "wip@example.com", "name": "Very Important", "address": {"street": "Road 1", "city": "The Capital"}}' localhost:9000  customer.api.CustomerService/Create
   ```
 * Retrieve the customer:
-  ```
+  ```shell
   grpcurl --plaintext -d '{"customer_id": "wip"}' localhost:9000  customer.api.CustomerService/GetCustomer
   ```
 * Query by name:
-  ```
+  ```shell
   grpcurl --plaintext -d '{"customer_name": "Very Important"}' localhost:9000 customer.view.CustomerByName/GetCustomers
   ```
 * Change name:
-  ```
+  ```shell
   grpcurl --plaintext -d '{"customer_id": "wip", "new_name": "Most Important"}' localhost:9000 customer.api.CustomerService/ChangeName
   ```
 * Change address:
-  ```
+  ```shell
   grpcurl --plaintext -d '{"customer_id": "wip", "new_address": {"street": "Street 1", "city": "The City"}}' localhost:9000 customer.api.CustomerService/ChangeAddress
   ```
 
@@ -70,4 +70,4 @@ for more information on how to make your docker image available to Kalix.
 
 Finally, you can use the [Kalix Console](https://console.kalix.io)
 to create a Kalix project and then deploy your service into it 
-through the `kalix` CLI or via the web interface. 
+through the `kalix` CLI. 
