@@ -189,10 +189,10 @@ service CustomerByCityStreaming {
   };
 
   // tag::stream-updates[]
-  rpc GetCustomers(ByCityRequest) returns (stream api.Customer) {
+  rpc GetCustomers(ByCityRequest) returns (stream api.Customer) { // <1>
     option (akkaserverless.method).view.query = {
-      query: "SELECT * FROM customers WHERE address.city = :city", // <1>
-      stream_updates: true // <2>
+      query: "SELECT * FROM customers WHERE address.city = :city", // <2>
+      stream_updates: true // <3>
     };
     // end::stream-updates[]
     option (google.api.http) = {
