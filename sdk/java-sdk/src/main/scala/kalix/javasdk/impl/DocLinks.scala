@@ -37,7 +37,8 @@ object DocLinks {
     "KLX-004" -> s"$baseUrl/java/", // no single page for eventing
     "KLX-005" -> s"$baseUrl/java/", // no docs yet for replicated entities
     "KLX-006" -> s"$baseUrl/java/proto.html#_transcoding_http", // all HTTP API errors
-    "KLX-007" -> s"$baseUrl/services/using-jwts.html")
+    "KLX-007" -> s"$baseUrl/services/using-jwts.html",
+    "KLX-008" -> s"$baseUrl/java/timers.html")
 
   def forErrorCode(code: String): Option[String] =
     errorCodes.get(code) match {

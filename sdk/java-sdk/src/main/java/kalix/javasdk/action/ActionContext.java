@@ -16,12 +16,15 @@
 
 package kalix.javasdk.action;
 
+import akka.Done;
 import kalix.javasdk.CloudEvent;
+import kalix.javasdk.DeferredCall;
 import kalix.javasdk.Metadata;
 import kalix.javasdk.MetadataContext;
-import com.google.protobuf.Any;
 
+import java.time.Duration;
 import java.util.Optional;
+import java.util.concurrent.CompletionStage;
 
 /** Context for action calls. */
 public interface ActionContext extends MetadataContext {
