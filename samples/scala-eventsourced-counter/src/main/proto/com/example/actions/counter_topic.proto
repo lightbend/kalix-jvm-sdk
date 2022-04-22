@@ -43,28 +43,20 @@ service CounterJournalToTopic {
     option (kalix.method).eventing.out = { // <5>
       topic:  "counter-events"
     };
-<<<<<<< HEAD
   } 
 
   rpc IncreaseConditional (com.example.domain.ValueIncreased) returns (Increased) { 
-    option (akkaserverless.method).eventing.in = { 
+    option (kalix.method).eventing.in = { 
       event_sourced_entity: "counter" 
     };
-    option (akkaserverless.method).eventing.out = {
+    option (kalix.method).eventing.out = {
       topic:  "counter-events"
     };
   } 
   
-  rpc Decrease (com.example.domain.ValueDecreased) returns (Decreased) { 
-    option (akkaserverless.method).eventing.in = { 
-      event_sourced_entity: "counter" 
-=======
-  }
-
   rpc Decrease (com.example.domain.ValueDecreased) returns (Decreased) {
     option (kalix.method).eventing.in = {
       event_sourced_entity: "counter"
->>>>>>> 283d07b7c00a411d8e9f286fe30dbcbd4d42d801
     };
     option (kalix.method).eventing.out = {
       topic:  "counter-events"
