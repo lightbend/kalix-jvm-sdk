@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-      - kalix-main
 
 jobs:
   update_release_draft:
