@@ -1,7 +1,7 @@
 package com.example.json;
 
-import com.akkaserverless.javasdk.JsonSupport;
-import com.akkaserverless.javasdk.testkit.ActionResult;
+import kalix.javasdk.JsonSupport;
+import kalix.javasdk.testkit.ActionResult;
 import com.example.json.MyServiceAction;
 import com.example.json.MyServiceActionTestKit;
 import com.example.json.MyServiceApi;

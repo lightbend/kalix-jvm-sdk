@@ -1,16 +1,16 @@
 package org.example.valueentity;
 
-import com.akkaserverless.javasdk.valueentity.ValueEntityContext;
-import com.akkaserverless.javasdk.valueentity.ValueEntityOptions;
-import com.akkaserverless.javasdk.valueentity.ValueEntityProvider;
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.Empty;
 import com.google.protobuf.EmptyProto;
+import kalix.javasdk.valueentity.ValueEntityContext;
+import kalix.javasdk.valueentity.ValueEntityOptions;
+import kalix.javasdk.valueentity.ValueEntityProvider;
 import org.example.valueentity.domain.CounterDomain;
 
 import java.util.function.Function;
 
-// This code is managed by Akka Serverless tooling.
+// This code is managed by Kalix tooling.
 // It will be re-generated to reflect any changes to your protobuf definitions.
 // DO NOT EDIT
 
@@ -18,7 +18,7 @@ import java.util.function.Function;
  * A value entity provider that defines how to register and create the entity for
  * the Protobuf service <code>CounterService</code>.
  *
- * Should be used with the <code>register</code> method in {@link com.akkaserverless.javasdk.AkkaServerless}.
+ * Should be used with the <code>register</code> method in {@link kalix.javasdk.Kalix}.
  */
 public class CounterServiceEntityProvider implements ValueEntityProvider<CounterDomain.CounterState, CounterServiceEntity> {
 
@@ -29,7 +29,7 @@ public class CounterServiceEntityProvider implements ValueEntityProvider<Counter
   public static CounterServiceEntityProvider of(Function<ValueEntityContext, CounterServiceEntity> entityFactory) {
     return new CounterServiceEntityProvider(entityFactory, ValueEntityOptions.defaults());
   }
- 
+
   private CounterServiceEntityProvider(
       Function<ValueEntityContext, CounterServiceEntity> entityFactory,
       ValueEntityOptions options) {
@@ -41,7 +41,7 @@ public class CounterServiceEntityProvider implements ValueEntityProvider<Counter
   public final ValueEntityOptions options() {
     return options;
   }
- 
+
   public final CounterServiceEntityProvider withOptions(ValueEntityOptions options) {
     return new CounterServiceEntityProvider(entityFactory, options);
   }

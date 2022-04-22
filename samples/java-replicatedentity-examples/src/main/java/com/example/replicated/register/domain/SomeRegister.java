@@ -1,7 +1,7 @@
 package com.example.replicated.register.domain;
 
-import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityContext;
-import com.akkaserverless.javasdk.replicatedentity.ReplicatedRegister;
+import kalix.javasdk.replicatedentity.ReplicatedEntityContext;
+import kalix.javasdk.replicatedentity.ReplicatedRegister;
 import com.example.replicated.register.SomeRegisterApi;
 import com.google.protobuf.Empty;
 

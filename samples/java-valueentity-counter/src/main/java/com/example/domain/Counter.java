@@ -1,12 +1,12 @@
-/* This code was initialised by Akka Serverless tooling.
+/* This code was initialised by Kalix tooling.
  * As long as this file exists it will not be re-generated.
  * You are free to make changes to this file.
  */
 
 package com.example.domain;
 
-import com.akkaserverless.javasdk.Metadata;
-import com.akkaserverless.javasdk.valueentity.ValueEntityContext;
+import kalix.javasdk.Metadata;
+import kalix.javasdk.valueentity.ValueEntityContext;
 import com.example.CounterApi;
 import com.google.protobuf.Empty;
 import java.util.Optional;
@@ -85,7 +85,7 @@ public class Counter extends AbstractCounter { // <1>
           .updateState(newState)
           .thenReply(Empty.getDefaultInstance());
     }
-    
+
     @Override
     public Effect<Empty> reset(
         CounterDomain.CounterState currentState, CounterApi.ResetValue command) {
@@ -95,7 +95,7 @@ public class Counter extends AbstractCounter { // <1>
           .updateState(newState)
           .thenReply(Empty.getDefaultInstance());
     }
-    
+
     // tag::getCurrentCounter[]
     @Override
     public Effect<CounterApi.CurrentCounter> getCurrentCounter(

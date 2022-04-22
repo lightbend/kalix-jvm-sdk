@@ -15,20 +15,18 @@ object CommonSettings extends AutoPlugin {
 
   override def globalSettings =
     Seq(
-      organization := "com.akkaserverless",
+      organization := "io.kalix",
       organizationName := "Lightbend Inc.",
       organizationHomepage := Some(url("https://lightbend.com")),
-      homepage := Some(url("https://akkaserverless.com")),
+      homepage := Some(url("https://kalix.io")),
       developers := List(
         Developer(
-          id = "akka-serverless-team",
-          name = "Akka Serverless Team",
+          id = "kalix-team",
+          name = "Kalix Team",
           email = "info@lightbend.com",
           url = url("https://lightbend.com"))),
       scmInfo := Some(
-        ScmInfo(
-          url("https://github.com/lightbend/akkaserverless-java-sdk"),
-          "scm:git@github.com:lightbend/akkaserverless-java-sdk.git")),
+        ScmInfo(url("https://github.com/lightbend/kalix-jvm-sdk"), "scm:git@github.com:lightbend/kalix-jvm-sdk.git")),
       startYear := Some(2021),
       licenses := List("Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")),
       scalafmtOnCompile := true,

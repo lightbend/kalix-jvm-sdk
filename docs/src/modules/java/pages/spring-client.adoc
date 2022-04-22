@@ -1,14 +1,14 @@
-= Using Spring to consume Akka Serverless Services
+= Using Spring to consume Kalix Services
 
-This guide provides a simple example of how a Spring client can be built to interact with an Akka Serverless Service. 
+This guide provides a simple example of how a Spring client can be built to interact with a Kalix Service.
 
 == What You Will Build
 
-You will build an Akka Serverless Service along with a Spring client to interact with that Service.
+You will build a Kalix Service along with a Spring client to interact with that Service.
 
-The Akka Serverless Service will create, read, update and persist simple counters.
+The Kalix Service will create, read, update and persist simple counters.
 
-The Spring client will expose the functionality of the Akka Serverless Service as a REST API.
+The Spring client will expose the functionality of the Kalix Service as a REST API.
 
 == What You Need
 
@@ -22,17 +22,17 @@ The Spring client will expose the functionality of the Akka Serverless Service a
 
 To get started, do the following:
 
-- https://github.com/lightbend/akkaserverless-java-sdk/archive/refs/heads/main.zip[Download] and unzip the source repository for this guide, or clone it using Git:
+- https://github.com/lightbend/kalix-jvm-sdk/archive/refs/heads/main.zip[Download] and unzip the source repository for this guide, or clone it using Git:
 
-`git clone https://github.com/lightbend/akkaserverless-java-sdk.git`
+`git clone https://github.com/lightbend/kalix-jvm-sdk.git`
 
-- cd into `akkaserverless-java-sdk/samples/java-valueentity-counter`
+- cd into `kalix-jvm-sdk/samples/java-valueentity-counter`
 
-== Build and Run the Akka Serverless Service Locally
+== Build and Run the Kalix Service Locally
 
-With the source repository downloaded, you can build and run the Akka Serverless Service locally. 
+With the source repository downloaded, you can build and run the Kalix Service locally.
 
-Run the Akka Serverless Service using Maven:
+Run the Kalix Service using Maven:
 
 `mvn compile exec:exec`
 
@@ -40,25 +40,25 @@ You should see output similar to the following:
 
 ```
 [INFO] --- exec-maven-plugin:3.0.0:exec (default-cli) @ valueentity-counter ---
-{"timestamp":"2022-03-02T23:38:12.174Z","thread":"main","logger":"com.example.Main","message":"starting the Akka Serverless service","context":"default","severity":"INFO"}
-{"timestamp":"2022-03-02T23:38:12.829Z","thread":"akkaserverless-akka.actor.default-dispatcher-2","logger":"akka.event.slf4j.Slf4jLogger","message":"Slf4jLogger started","context":"default","severity":"INFO"}
+{"timestamp":"2022-03-02T23:38:12.174Z","thread":"main","logger":"com.example.Main","message":"starting the Kalix service","context":"default","severity":"INFO"}
+{"timestamp":"2022-03-02T23:38:12.829Z","thread":"kalix-akka.actor.default-dispatcher-2","logger":"akka.event.slf4j.Slf4jLogger","message":"Slf4jLogger started","context":"default","severity":"INFO"}
 ```
 
-== Build and Run the Akka Serverless proxy locally
+== Build and Run the Kalix proxy locally
 
-In another terminal window, run the Akka Serverless proxy using Docker:
+In another terminal window, run the Kalix proxy using Docker:
 
 `docker compose up`
 
-You should see output similar to the following:app-name: 
+You should see output similar to the following:app-name:
 
 ```
-akka-serverless-proxy_1   | {"timestamp":"2022-03-02T23:40:40.766Z","mdc":{"akkaAddress":"akka://akkaserverless-proxy@172.21.0.2:25520","akkaSource":"akka://akkaserverless-proxy/user/discovery-manager","sourceActorSystem":"akkaserverless-proxy"},"logger":"com.akkaserverless.proxy.DiscoveryManager","message":"gRPC proxy started at 0.0.0.0:9000","severity":"INFO","thread":"akkaserverless-proxy-akka.actor.default-dispatcher-8"}
+kalix-proxy_1   | {"timestamp":"2022-03-02T23:40:40.766Z","mdc":{"akkaAddress":"akka://kalix-proxy@172.21.0.2:25520","akkaSource":"akka://kalix-proxy/user/discovery-manager","sourceActorSystem":"kalix-proxy"},"logger":"io.kalix.proxy.DiscoveryManager","message":"gRPC proxy started at 0.0.0.0:9000","severity":"INFO","thread":"kalix-proxy-akka.actor.default-dispatcher-8"}
 ```
 
 == Building Spring REST Client
 
-The Spring REST Client would enable Spring application to integrate with REST endpoints exposed via Akka Serverless Service.
+The Spring REST Client would enable Spring application to integrate with REST endpoints exposed via Kalix Service.
 
 === Create a Spring Boot Project
 
@@ -76,11 +76,11 @@ Download the resulting ZIP file, which is an archive of a web application that i
 
 === Create a Spring WebClient
 
-Creating a Spring REST WebClient would allow Spring application to communicate with the REST Endpoints exposed via Akka Serverless Service.
+Creating a Spring REST WebClient would allow Spring application to communicate with the REST Endpoints exposed via Kalix Service.
 
-cd into `akkaserverless-java-sdk/samples/java-valueentity-counter-spring-client`.
+cd into `kalix-jvm-sdk/samples/java-valueentity-counter-spring-client`.
 
-Now you can create a `WebClient`. You need to configure the WebClient to use the Akka Serverless Service's host and port. The following listing shows how to do so:
+Now you can create a `WebClient`. You need to configure the WebClient to use the Kalix Service's host and port. The following listing shows how to do so:
 
 [source,java,indent=0]
 .src/main/java/com/example/client/spring/rest/config/WebClientConfig.java
@@ -90,9 +90,9 @@ include::example$java-valueentity-counter-spring-client/src/main/java/com/exampl
 
 === Create a Spring Service
 
-The Service methods interact with endpoints defined in Akka Serverless Service.
+The Service methods interact with endpoints defined in Kalix Service.
 
-The `CounterServiceImpl` shown in the following listing uses the Spring REST WebClient to interact with the Akka Serverless Service and return the response received from called endpoint:
+The `CounterServiceImpl` shown in the following listing uses the Spring REST WebClient to interact with the Kalix Service and return the response received from called endpoint:
 
 [source,java,indent=0]
 .src/main/java/com/example/client/spring/rest/service/CounterServiceImpl.java
@@ -132,7 +132,7 @@ In project root directory, run the following command
 
 == Building Spring gRPC Client
 
-The Spring gRPC Client would enable Spring application to integrate with gRPC services exposed via Akka Serverless Service.
+The Spring gRPC Client would enable Spring application to integrate with gRPC services exposed via Kalix Service.
 
 === Create a Spring Boot Project
 
@@ -153,7 +153,7 @@ Download the resulting ZIP file, which is an archive of a web application that i
 
 ----
   <properties>
-        <akkaserverless-sdk.version>0.10.6</akkaserverless-sdk.version>
+        <kalix-sdk.version>1.0.0-M1</kalix-sdk.version>
         <akka-grpc.version>2.1.2</akka-grpc.version>
         <protobuf.version>3.19.2</protobuf.version>
         <protobuf-plugin.version>0.6.1</protobuf-plugin.version>
@@ -187,9 +187,9 @@ Download the resulting ZIP file, which is an archive of a web application that i
             <version>2.13.1.RELEASE</version>
         </dependency>
         <dependency>
-            <groupId>com.akkaserverless</groupId>
-            <artifactId>akkaserverless-java-sdk</artifactId>
-            <version>${akkaserverless-sdk.version}</version>
+            <groupId>io.kalix</groupId>
+            <artifactId>kalix-java-sdk</artifactId>
+            <version>${kalix-sdk.version}</version>
         </dependency>
     </dependencies>
 
@@ -232,18 +232,18 @@ Download the resulting ZIP file, which is an archive of a web application that i
 
 === Generate gRPC stubs
 
-- Get all the proto files from relevant akka serverless service and copy under `src/main/proto` folder.  Remove all the akka serverless annotations from the proto files. For instance `[(akkaserverless.field).entity_key = true]` and `akkaserverless.codegen` etc.
+- Get all the proto files from relevant Kalix service and copy under `src/main/proto` folder.  Remove all the Kalix annotations from the proto files. For instance `[(kalix.field).entity_key = true]` and `kalix.codegen` etc.
  For instance,  copying proto files from to `java-valueentity-counter/src/main/proto/com/example`.
 
 - Run `mvn compile` to generate stubs.
 
 === Create a Spring gRPC Client
 
-Creating a Spring gRPC would allow Spring application to communicate with the gRPC Services exposed via Akka Serverless Service.
+Creating a Spring gRPC would allow Spring application to communicate with the gRPC Services exposed via Kalix Service.
 
-cd into `akkaserverless-java-sdk/samples/java-valueentity-counter-spring-client`.
+cd into `kalix-jvm-sdk/samples/java-valueentity-counter-spring-client`.
 
-Now you can create a `GrpcClientConfig`. You need to configure the gRPC Client to use the Akka Serverless Service's host and port. The following listing shows how to do so:
+Now you can create a `GrpcClientConfig`. You need to configure the gRPC Client to use the Kalix Service's host and port. The following listing shows how to do so:
 
 [source,java,indent=0]
 .src/main/java/com/example/client/spring/rest/config/GrpcClientConfig.java
@@ -253,9 +253,9 @@ include::example$java-valueentity-counter-spring-client/src/main/java/com/exampl
 
 === Create a Spring Service
 
-The Service methods interact with gRPC services defined in Akka Serverless Service.
+The Service methods interact with gRPC services defined in Kalix Service.
 
-The `GrpcClientService` shown in the following listing uses the Spring REST WebClient to interact with the Akka Serverless Service and return the response received from called endpoint:
+The `GrpcClientService` shown in the following listing uses the Spring REST WebClient to interact with the Kalix Service and return the response received from called endpoint:
 
 [source,java,indent=0]
 .src/main/java/com/example/client/spring/rest/service/GrpcClientService.java

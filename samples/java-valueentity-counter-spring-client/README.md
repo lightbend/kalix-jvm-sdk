@@ -23,7 +23,7 @@ By default, this application connects to java-valueentity-counter running on loc
 
 To start the application locally, the `exec-maven-plugin` is used. Use the following command:
 
-```
+```shell
 mvn spring-boot:run
 ```
 

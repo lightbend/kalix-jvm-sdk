@@ -19,9 +19,9 @@ package customer.api;
 option java_outer_classname = "CustomerApi";
 
 import "google/protobuf/empty.proto";
-import "akkaserverless/annotations.proto";
+import "kalix/annotations.proto";
 message Customer {
-  string customer_id = 1 [(akkaserverless.field).entity_key = true];
+  string customer_id = 1 [(kalix.field).entity_key = true];
   string email = 2;
   string name = 3;
   Address address = 4;
@@ -32,21 +32,21 @@ message Address {
   string city = 2;
 }
 message GetCustomerRequest {
-  string customer_id = 1 [(akkaserverless.field).entity_key = true];
+  string customer_id = 1 [(kalix.field).entity_key = true];
 }
 
 message ChangeNameRequest {
-  string customer_id = 1 [(akkaserverless.field).entity_key = true];
+  string customer_id = 1 [(kalix.field).entity_key = true];
   string new_name = 2;
 }
 
 message ChangeAddressRequest {
-  string customer_id = 1 [(akkaserverless.field).entity_key = true];
+  string customer_id = 1 [(kalix.field).entity_key = true];
   Address new_address = 2;
 }
 
 service CustomerService {
-  option (akkaserverless.codegen) = {
+  option (kalix.codegen) = {
     value_entity: {
       name: "customer.domain.Customer"
       entity_type: "customers"

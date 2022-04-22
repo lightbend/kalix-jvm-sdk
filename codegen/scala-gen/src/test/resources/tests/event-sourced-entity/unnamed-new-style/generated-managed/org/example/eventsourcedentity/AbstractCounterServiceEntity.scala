@@ -1,7 +1,7 @@
 package org.example.eventsourcedentity
 
-import com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntity
 import com.google.protobuf.empty.Empty
+import kalix.scalasdk.eventsourcedentity.EventSourcedEntity
 import org.example.Components
 import org.example.ComponentsImpl
 import org.example.eventsourcedentity
@@ -9,7 +9,7 @@ import org.example.eventsourcedentity.domain.CounterState
 import org.example.eventsourcedentity.domain.Decreased
 import org.example.eventsourcedentity.domain.Increased
 
-// This code is managed by Akka Serverless tooling.
+// This code is managed by Kalix tooling.
 // It will be re-generated to reflect any changes to your protobuf definitions.
 // DO NOT EDIT
 

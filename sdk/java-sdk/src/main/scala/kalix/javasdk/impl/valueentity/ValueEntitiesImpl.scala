@@ -1,0 +1,229 @@
+/*
+ * Copyright 2021 Lightbend Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package kalix.javasdk.impl.valueentity
+
+import scala.concurrent.ExecutionContext
+import scala.util.control.NonFatal
+import akka.NotUsed
+import akka.actor.ActorSystem
+import akka.stream.scaladsl.Flow
+import akka.stream.scaladsl.Source
+import kalix.javasdk.KalixRunner.Configuration
+import kalix.protocol.component.Failure
+import org.slf4j.LoggerFactory
+
+// FIXME these don't seem to be 'public API', more internals?
+import kalix.javasdk.Context
+import kalix.javasdk.Metadata
+import kalix.javasdk.valueentity._
+
+import kalix.javasdk.impl.ValueEntityFactory
+import kalix.javasdk.impl._
+import kalix.javasdk.impl.effect.EffectSupport
+import kalix.javasdk.impl.effect.ErrorReplyImpl
+import kalix.javasdk.impl.effect.MessageReplyImpl
+import kalix.javasdk.impl.valueentity.ValueEntityEffectImpl.DeleteState
+import kalix.javasdk.impl.valueentity.ValueEntityEffectImpl.UpdateState
+import kalix.javasdk.impl.valueentity.ValueEntityRouter.CommandResult
+import kalix.protocol.value_entity.ValueEntityAction.Action.Delete
+import kalix.protocol.value_entity.ValueEntityAction.Action.Update
+import kalix.protocol.value_entity.ValueEntityStreamIn.Message.{ Command => InCommand }
+import kalix.protocol.value_entity.ValueEntityStreamIn.Message.{ Empty => InEmpty }
+import kalix.protocol.value_entity.ValueEntityStreamIn.Message.{ Init => InInit }
+import kalix.protocol.value_entity.ValueEntityStreamOut.Message.{ Failure => OutFailure }
+import kalix.protocol.value_entity.ValueEntityStreamOut.Message.{ Reply => OutReply }
+import kalix.protocol.value_entity._
+import com.google.protobuf.Descriptors
+import com.google.protobuf.any.{ Any => ScalaPbAny }
+
+final class ValueEntityService(
+    val factory: ValueEntityFactory,
+    override val descriptor: Descriptors.ServiceDescriptor,
+    override val additionalDescriptors: Array[Descriptors.FileDescriptor],
+    val anySupport: AnySupport,
+    override val entityType: String,
+    val entityOptions: Option[ValueEntityOptions])
+    extends Service {
+
+  def this(
+      factory: ValueEntityFactory,
+      descriptor: Descriptors.ServiceDescriptor,
+      additionalDescriptors: Array[Descriptors.FileDescriptor],
+      anySupport: AnySupport,
+      entityType: String,
+      entityOptions: ValueEntityOptions) =
+    this(factory, descriptor, additionalDescriptors, anySupport, entityType, Some(entityOptions))
+
+  override def resolvedMethods: Option[Map[String, ResolvedServiceMethod[_, _]]] =
+    factory match {
+      case resolved: ResolvedEntityFactory => Some(resolved.resolvedMethods)
+      case _                               => None
+    }
+
+  override final val componentType = ValueEntities.name
+
+  override def componentOptions: Option[ComponentOptions] = entityOptions
+}
+
+final class ValueEntitiesImpl(system: ActorSystem, val services: Map[String, ValueEntityService])
+    extends ValueEntities {
+
+  import EntityExceptions._
+
+  private implicit val ec: ExecutionContext = system.dispatcher
+  private final val log = LoggerFactory.getLogger(this.getClass)
+
+  /**
+   * One stream will be established per active entity. Once established, the first message sent will be Init, which
+   * contains the entity ID, and, a state if the entity has previously persisted one. Once the Init message is sent, one
+   * to many commands are sent to the entity. Each request coming in leads to a new command being sent to the entity.
+   * The entity is expected to reply to each command with exactly one reply message. The entity should process commands
+   * and reply to commands in the order they came in. When processing a command the entity can read and persist (update
+   * or delete) the state.
+   */
+  override def handle(in: akka.stream.scaladsl.Source[ValueEntityStreamIn, akka.NotUsed])
+      : akka.stream.scaladsl.Source[ValueEntityStreamOut, akka.NotUsed] =
+    in.prefixAndTail(1)
+      .flatMapConcat {
+        case (Seq(ValueEntityStreamIn(InInit(init), _)), source) =>
+          source.via(runEntity(init))
+        case (Seq(), _) =>
+          // if error during recovery in proxy the stream will be completed before init
+          log.warn("Value Entity stream closed before init.")
+          Source.empty[ValueEntityStreamOut]
+        case (Seq(ValueEntityStreamIn(other, _)), _) =>
+          throw ProtocolException(s"Expected init message for Value Entity, but received [${other.getClass.getName}]")
+      }
+      .recover { case error =>
+        ErrorHandling.withCorrelationId { correlationId =>
+          log.error(failureMessageForLog(error), error)
+          ValueEntityStreamOut(OutFailure(Failure(description = s"Unexpected error [$correlationId]")))
+        }
+      }
+
+  private def runEntity(init: ValueEntityInit): Flow[ValueEntityStreamIn, ValueEntityStreamOut, NotUsed] = {
+    val service =
+      services.getOrElse(init.serviceName, throw ProtocolException(init, s"Service not found: ${init.serviceName}"))
+    val handler =
+      service.factory.create(new ValueEntityContextImpl(init.entityId, system))
+    val thisEntityId = init.entityId
+
+    init.state match {
+      case Some(ValueEntityInitState(stateOpt, _)) =>
+        stateOpt match {
+          case Some(state) =>
+            val decoded = service.anySupport.decodeMessage(state)
+            handler._internalSetInitState(decoded)
+          case None => // no initial state
+        }
+      case None =>
+        throw new IllegalStateException("ValueEntityInitState is mandatory")
+    }
+
+    Flow[ValueEntityStreamIn]
+      .map(_.message)
+      .map {
+        case InCommand(command) if thisEntityId != command.entityId =>
+          throw ProtocolException(command, "Receiving Value entity is not the intended recipient of command")
+
+        case InCommand(command) if command.payload.isEmpty =>
+          throw ProtocolException(command, "No command payload for Value entity")
+
+        case InCommand(command) =>
+          if (thisEntityId != command.entityId)
+            throw ProtocolException(command, "Receiving entity is not the intended recipient of command")
+
+          val metadata = new MetadataImpl(command.metadata.map(_.entries.toVector).getOrElse(Nil))
+          val cmd =
+            service.anySupport.decodeMessage(
+              command.payload.getOrElse(throw ProtocolException(command, "No command payload")))
+          val context =
+            new CommandContextImpl(thisEntityId, command.name, command.id, metadata, system)
+
+          val CommandResult(effect: ValueEntityEffectImpl[_]) =
+            try {
+              handler._internalHandleCommand(command.name, cmd, context)
+            } catch {
+              case e: EntityException => throw e
+              case NonFatal(error) =>
+                throw EntityException(command, s"Unexpected failure: $error", Some(error))
+            } finally {
+              context.deactivate() // Very important!
+            }
+
+          val serializedSecondaryEffect = effect.secondaryEffect match {
+            case MessageReplyImpl(message, metadata, sideEffects) =>
+              MessageReplyImpl(service.anySupport.encodeJava(message), metadata, sideEffects)
+            case other => other
+          }
+
+          val clientAction =
+            serializedSecondaryEffect.replyToClientAction(service.anySupport, command.id, allowNoReply = false)
+
+          serializedSecondaryEffect match {
+            case error: ErrorReplyImpl[_] =>
+              ValueEntityStreamOut(OutReply(ValueEntityReply(commandId = command.id, clientAction = clientAction)))
+
+            case _ => // non-error
+              val action: Option[ValueEntityAction] = effect.primaryEffect match {
+                case DeleteState =>
+                  Some(ValueEntityAction(Delete(ValueEntityDelete())))
+                case UpdateState(newState) =>
+                  val newStateScalaPbAny = ScalaPbAny.fromJavaProto(service.anySupport.encodeJava(newState))
+                  Some(ValueEntityAction(Update(ValueEntityUpdate(Some(newStateScalaPbAny)))))
+                case _ =>
+                  None
+              }
+
+              ValueEntityStreamOut(
+                OutReply(
+                  ValueEntityReply(
+                    command.id,
+                    clientAction,
+                    EffectSupport.sideEffectsFrom(service.anySupport, serializedSecondaryEffect),
+                    action)))
+          }
+
+        case InInit(_) =>
+          throw ProtocolException(init, "Value entity already inited")
+
+        case InEmpty =>
+          throw ProtocolException(init, "Value entity received empty/unknown message")
+      }
+      .recover { case error =>
+        ErrorHandling.withCorrelationId { correlationId =>
+          LoggerFactory.getLogger(handler.entityClass).error(failureMessageForLog(error), error)
+          ValueEntityStreamOut(OutFailure(Failure(description = s"Unexpected error [$correlationId]")))
+        }
+      }
+  }
+
+}
+
+private[kalix] final class CommandContextImpl(
+    override val entityId: String,
+    override val commandName: String,
+    override val commandId: Long,
+    override val metadata: Metadata,
+    system: ActorSystem)
+    extends AbstractContext(system)
+    with CommandContext
+    with ActivatableContext
+
+private[kalix] final class ValueEntityContextImpl(override val entityId: String, system: ActorSystem)
+    extends AbstractContext(system)
+    with ValueEntityContext

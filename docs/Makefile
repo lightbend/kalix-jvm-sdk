@@ -1,8 +1,8 @@
-# Make Akka Serverless Java SDK documentation
+# Make Kalix Java SDK documentation
 
 module   := java
-upstream := lightbend/akkaserverless-java-sdk
-branch   := docs/current
+upstream := lightbend/kalix-jvm-sdk
+branch   := docs/kalix-current
 sources  := src build/src/managed
 
 src_managed := build/src/managed
@@ -10,7 +10,7 @@ managed_attachments := ${src_managed}/modules/${module}/attachments
 managed_examples := ${src_managed}/modules/${module}/examples
 managed_partials := ${src_managed}/modules/${module}/partials
 
-antora_docker_image := gcr.io/akkaserverless-public/akkaserverless-docbuilder
+antora_docker_image := gcr.io/kalix-public/kalix-docbuilder
 antora_docker_image_tag := 0.0.5
 root_dir := $(shell git rev-parse --show-toplevel)
 base_path := $(shell git rev-parse --show-prefix)
@@ -30,13 +30,13 @@ managed: prepare attributes apidocs examples bundles
 
 attributes:
 	mkdir -p "${managed_partials}"
-	bin/version.sh | xargs -0  printf ":akkaserverless-java-sdk-version: %s" \
+	bin/version.sh | xargs -0  printf ":kalix-jvm-sdk-version: %s" \
 		> "${managed_partials}/attributes.adoc"
 	echo ":java-version: 11" \
 		>> "${managed_partials}/attributes.adoc"
 	echo ":java_minimum_sdk_version: 0.7.0" \
 		>> "${managed_partials}/attributes.adoc"
-	echo ":console: https://console.akkaserverless.com/" \
+	echo ":console: https://console.kalix.io/" \
 		>> "${managed_partials}/attributes.adoc"
 
 apidocs:

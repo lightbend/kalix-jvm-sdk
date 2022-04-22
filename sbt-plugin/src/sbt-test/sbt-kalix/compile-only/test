@@ -1,0 +1,156 @@
+> products
+
+$ exists src/main/scala/com/example/Main.scala
+$ exists target/scala-2.13/src_managed/main/com/example/KalixFactory.scala
+
+# com/example/echo_action.proto
+$ exists src/main/scala/com/example/EchoActionImpl.scala
+$ exists target/scala-2.13/src_managed/main/com/example/AbstractEchoAction.scala
+$ exists target/scala-2.13/src_managed/main/com/example/EchoActionProvider.scala
+$ exists target/scala-2.13/src_managed/main/com/example/EchoActionRouter.scala
+
+# com/example/action/all_commands_api.proto
+$ exists src/main/scala/com/example/action/AllCommandsActionImpl.scala
+$ exists target/scala-2.13/src_managed/main/com/example/action/AbstractAllCommandsAction.scala
+$ exists target/scala-2.13/src_managed/main/com/example/action/AllCommandsActionRouter.scala
+$ exists target/scala-2.13/src_managed/main/com/example/action/AllCommandsActionProvider.scala
+
+# com/example/action1/simple_action.proto
+$ exists src/main/scala/com/example/action1/SimpleActionImpl.scala
+$ exists target/scala-2.13/src_managed/main/com/example/action1/AbstractSimpleAction.scala
+$ exists target/scala-2.13/src_managed/main/com/example/action1/SimpleActionRouter.scala
+$ exists target/scala-2.13/src_managed/main/com/example/action1/SimpleActionProvider.scala
+
+# com/example/action2/simple_action_api.proto
+$ exists src/main/scala/com/example/action2/AnotherSimpleActionImpl.scala
+$ exists target/scala-2.13/src_managed/main/com/example/action2/AbstractAnotherSimpleAction.scala
+$ exists target/scala-2.13/src_managed/main/com/example/action2/AnotherSimpleActionProvider.scala
+$ exists target/scala-2.13/src_managed/main/com/example/action2/AnotherSimpleActionRouter.scala
+
+# com/example/action3/some_action.proto
+$ exists src/main/scala/com/example/action3/SomeActionImpl.scala
+$ exists target/scala-2.13/src_managed/main/com/example/action3/AbstractSomeAction.scala
+$ exists target/scala-2.13/src_managed/main/com/example/action3/SomeActionRouter.scala
+$ exists target/scala-2.13/src_managed/main/com/example/action3/SomeActionProvider.scala
+
+# com/example/action4/some_other_action_api.proto
+$ exists src/main/scala/com/example/action4/SomeOtherActionImpl.scala
+$ exists target/scala-2.13/src_managed/main/com/example/action4/AbstractSomeOtherAction.scala
+$ exists target/scala-2.13/src_managed/main/com/example/action4/SomeOtherActionRouter.scala
+$ exists target/scala-2.13/src_managed/main/com/example/action4/SomeOtherActionProvider.scala
+
+# com/example/action5/yet_another_action.proto
+$ exists src/main/scala/com/example/action5/YetAnotherActionImpl.scala
+$ exists target/scala-2.13/src_managed/main/com/example/action5/AbstractYetAnotherAction.scala
+$ exists target/scala-2.13/src_managed/main/com/example/action5/YetAnotherActionRouter.scala
+$ exists target/scala-2.13/src_managed/main/com/example/action5/YetAnotherActionProvider.scala
+
+# com/example/view/user_view.proto
+$ exists src/main/scala/com/example/view/UserByNameView.scala
+$ exists target/scala-2.13/src_managed/main/com/example/view/AbstractUserByNameView.scala
+$ exists target/scala-2.13/src_managed/main/com/example/view/UserByNameViewRouter.scala
+$ exists target/scala-2.13/src_managed/main/com/example/view/UserByNameViewProvider.scala
+$ exists src/main/scala/com/example/view/AdditionalViewImpl.scala
+$ exists target/scala-2.13/src_managed/main/com/example/view/AbstractAdditionalView.scala
+$ exists target/scala-2.13/src_managed/main/com/example/view/AdditionalViewProvider.scala
+$ exists target/scala-2.13/src_managed/main/com/example/view/AdditionalViewRouter.scala
+
+# com/example/valueentity/some_value_entity_api.proto
+# com/example/valueentity/domain/some_value_entity_domain.proto
+$ exists src/main/scala/com/example/valueentity/domain/SomeValueEntity.scala
+$ exists target/scala-2.13/src_managed/main/com/example/valueentity/domain/AbstractSomeValueEntity.scala
+
+# com/example/valueentity/user_api.proto
+# com/example/valueentity/domain/user_domain.proto
+$ exists src/main/scala/com/example/valueentity/domain/User.scala
+$ exists target/scala-2.13/src_managed/main/com/example/valueentity/domain/AbstractUser.scala
+
+# com/example/replicated/counter/counter_api.proto
+# com/example/replicated/counter/domain/counter_domain.proto
+# com/example/replicated/countermap/counter_map_api.proto
+$ exists src/main/scala/com/example/replicated/counter/domain/SomeCounter.scala
+$ exists target/scala-2.13/src_managed/main/com/example/replicated/counter/domain/SomeCounterRouter.scala
+$ exists target/scala-2.13/src_managed/main/com/example/replicated/counter/domain/SomeCounterProvider.scala
+$ exists target/scala-2.13/src_managed/main/com/example/replicated/counter/domain/AbstractSomeCounter.scala
+
+# com/example/replicated/countermap/domain/counter_map_domain.proto
+# com/example/replicated/countermap/domain/counter_map_domain_scalar.proto
+$ exists src/main/scala/com/example/replicated/countermap/domain/SomeScalarCounterMap.scala
+$ exists src/main/scala/com/example/replicated/countermap/domain/SomeCounterMap.scala
+$ exists target/scala-2.13/src_managed/main/com/example/replicated/countermap/domain/SomeCounterMapProvider.scala
+$ exists target/scala-2.13/src_managed/main/com/example/replicated/countermap/domain/SomeCounterMapRouter.scala
+$ exists target/scala-2.13/src_managed/main/com/example/replicated/countermap/domain/SomeScalarCounterMapRouter.scala
+$ exists target/scala-2.13/src_managed/main/com/example/replicated/countermap/domain/SomeScalarCounterMapProvider.scala
+$ exists target/scala-2.13/src_managed/main/com/example/replicated/countermap/domain/AbstractSomeCounterMap.scala
+$ exists target/scala-2.13/src_managed/main/com/example/replicated/countermap/domain/AbstractSomeScalarCounterMap.scala
+
+# com/example/replicated/map/map_api.proto
+# com/example/replicated/map/domain/map_domain.proto
+# com/example/replicated/map/domain/map_domain_scalar.proto
+$ exists src/main/scala/com/example/replicated/map/domain/SomeMap.scala
+$ exists src/main/scala/com/example/replicated/map/domain/SomeScalarMap.scala
+$ exists target/scala-2.13/src_managed/main/com/example/replicated/map/domain/SomeMapRouter.scala
+$ exists target/scala-2.13/src_managed/main/com/example/replicated/map/domain/SomeMapProvider.scala
+$ exists target/scala-2.13/src_managed/main/com/example/replicated/map/domain/SomeScalarMapRouter.scala
+$ exists target/scala-2.13/src_managed/main/com/example/replicated/map/domain/AbstractSomeMap.scala
+$ exists target/scala-2.13/src_managed/main/com/example/replicated/map/domain/AbstractSomeScalarMap.scala
+$ exists target/scala-2.13/src_managed/main/com/example/replicated/map/domain/SomeScalarMapProvider.scala
+
+# com/example/replicated/multimap/multi_map_api.proto
+# com/example/replicated/multimap/domain/multi_map_domain.proto
+# com/example/replicated/multimap/domain/multi_map_domain_scalar.proto
+$ exists src/main/scala/com/example/replicated/multimap/domain/SomeScalarMultiMap.scala
+$ exists src/main/scala/com/example/replicated/multimap/domain/SomeMultiMap.scala
+$ exists target/scala-2.13/src_managed/main/com/example/replicated/multimap/domain/AbstractSomeScalarMultiMap.scala
+$ exists target/scala-2.13/src_managed/main/com/example/replicated/multimap/domain/AbstractSomeMultiMap.scala
+$ exists target/scala-2.13/src_managed/main/com/example/replicated/multimap/domain/SomeMultiMapRouter.scala
+$ exists target/scala-2.13/src_managed/main/com/example/replicated/multimap/domain/SomeMultiMapProvider.scala
+$ exists target/scala-2.13/src_managed/main/com/example/replicated/multimap/domain/SomeScalarMultiMapProvider.scala
+$ exists target/scala-2.13/src_managed/main/com/example/replicated/multimap/domain/SomeScalarMultiMapRouter.scala
+
+# com/example/replicated/register/register_api.proto
+# com/example/replicated/register/domain/register_domain.proto
+# com/example/replicated/register/domain/register_domain_scalar.proto
+$ exists src/main/scala/com/example/replicated/register/domain/SomeRegister.scala
+$ exists src/main/scala/com/example/replicated/register/domain/SomeScalarRegister.scala
+$ exists target/scala-2.13/src_managed/main/com/example/replicated/register/domain/SomeScalarRegisterProvider.scala
+$ exists target/scala-2.13/src_managed/main/com/example/replicated/register/domain/SomeRegisterProvider.scala
+$ exists target/scala-2.13/src_managed/main/com/example/replicated/register/domain/SomeRegisterRouter.scala
+$ exists target/scala-2.13/src_managed/main/com/example/replicated/register/domain/AbstractSomeRegister.scala
+$ exists target/scala-2.13/src_managed/main/com/example/replicated/register/domain/AbstractSomeScalarRegister.scala
+$ exists target/scala-2.13/src_managed/main/com/example/replicated/register/domain/SomeScalarRegisterRouter.scala
+
+# com/example/replicated/registermap/register_map_api.proto
+# com/example/replicated/registermap/domain/register_map_domain_scalar.proto
+$ exists src/main/scala/com/example/replicated/registermap/domain/SomeRegisterMap.scala
+$ exists src/main/scala/com/example/replicated/registermap/domain/SomeScalarRegisterMap.scala
+$ exists target/scala-2.13/src_managed/main/com/example/replicated/registermap/domain/SomeRegisterMapRouter.scala
+$ exists target/scala-2.13/src_managed/main/com/example/replicated/registermap/domain/SomeScalarRegisterMapRouter.scala
+$ exists target/scala-2.13/src_managed/main/com/example/replicated/registermap/domain/AbstractSomeScalarRegisterMap.scala
+$ exists target/scala-2.13/src_managed/main/com/example/replicated/registermap/domain/SomeRegisterMapProvider.scala
+$ exists target/scala-2.13/src_managed/main/com/example/replicated/registermap/domain/AbstractSomeRegisterMap.scala
+$ exists target/scala-2.13/src_managed/main/com/example/replicated/registermap/domain/SomeScalarRegisterMapProvider.scala
+
+# com/example/replicated/set/set_api.proto
+# com/example/replicated/set/domain/set_domain.proto
+# com/example/replicated/set/domain/set_domain_scalar.proto
+$ exists src/main/scala/com/example/replicated/set/domain/SomeSet.scala
+$ exists src/main/scala/com/example/replicated/set/domain/SomeScalarSet.scala
+$ exists target/scala-2.13/src_managed/main/com/example/replicated/set/domain/SomeScalarSetRouter.scala
+$ exists target/scala-2.13/src_managed/main/com/example/replicated/set/domain/SomeScalarSetProvider.scala
+$ exists target/scala-2.13/src_managed/main/com/example/replicated/set/domain/SomeSetProvider.scala
+$ exists target/scala-2.13/src_managed/main/com/example/replicated/set/domain/AbstractSomeSet.scala
+$ exists target/scala-2.13/src_managed/main/com/example/replicated/set/domain/AbstractSomeScalarSet.scala
+$ exists target/scala-2.13/src_managed/main/com/example/replicated/set/domain/SomeSetRouter.scala
+
+# Unmanaged Test sources should have been generated already after `compile`
+# com/example/valueentity/some_value_entity_api.proto
+# com/example/valueentity/domain/some_value_entity_domain.proto
+$ exists src/test/scala/com/example/valueentity/domain/SomeValueEntitySpec.scala
+$ exists src/test/scala/com/example/valueentity/SomeValueEntityServiceIntegrationSpec.scala
+
+# Descriptor set must be included in classpath
+$ must-mirror target/scala-2.13/classes/protobuf/descriptor-sets/user-function.desc target/scala-2.13/resource_managed/main/protobuf/descriptor-sets/user-function.desc
+
+> Test/compile
+$ exists target/scala-2.13/src_managed/test/com/example/valueentity/domain/SomeValueEntityTestKit.scala

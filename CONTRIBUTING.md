@@ -1,4 +1,4 @@
-# Contributing to Akka Serverless Java SDK
+# Contributing to Kalix Java SDK
 
 FIXME contribution guidelines like in other LB projects
 
@@ -30,7 +30,7 @@ FIXME contribution guidelines like in other LB projects
 
     ```shell
     cd samples/java-valueentity-shopping-cart
-    mvn -Dakkaserverless-sdk.version="0.7...-SNAPSHOT" compile
+    mvn -Dkalix-sdk.version="0.7...-SNAPSHOT" compile
     ```
 
 Be careful not to accidentally check in the `maven-java` `pom.xml` files with changed version.
@@ -53,7 +53,7 @@ Ensure to remove/update generated files under `src` if they cause problems.
 
     ```shell
     cd samples/scala-valueentity-customer-registry
-    sbt -Dakkaserverless-sdk.version="0.7...-SNAPSHOT" compile
+    sbt -Dkalix-sdk.version="0.7...-SNAPSHOT" compile
     ```
 
 Ensure to remove/update generated files under `src` if they cause problems.

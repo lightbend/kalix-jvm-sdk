@@ -18,7 +18,7 @@ package org.example.unnamed.view;
 
 option java_outer_classname = "UserViewModel";
 
-import "akkaserverless/annotations.proto";
+import "kalix/annotations.proto";
 
 
 message ByNameRequest {
@@ -34,20 +34,20 @@ message UserState {
 }
 
 service UserByName {
-  option (akkaserverless.codegen) = {
+  option (kalix.codegen) = {
     view: {}
   };
 
 
   rpc UpdateCustomer(UserState) returns (UserState) {
 
-    option (akkaserverless.method).view.update = {
+    option (kalix.method).view.update = {
       table: "users"
     };
   }
 
   rpc GetUserByName(ByNameRequest) returns (UserResponse) {
-    option (akkaserverless.method).view.query = {
+    option (kalix.method).view.query = {
       query: "SELECT name  FROM users WHERE name = :name"
     };
   }

@@ -1,7 +1,7 @@
 package com.example.shoppingcart;
 
 import akka.stream.javadsl.Source;
-import com.akkaserverless.javasdk.testkit.ActionResult;
+import kalix.javasdk.testkit.ActionResult;
 import com.example.shoppingcart.ShoppingCartActionImpl;
 import com.example.shoppingcart.ShoppingCartActionImplTestKit;
 import com.example.shoppingcart.ShoppingCartController;

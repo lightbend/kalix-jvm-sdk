@@ -1,8 +1,8 @@
 version: "3"
 services:
-  akka-serverless-proxy:
-    image: gcr.io/akkaserverless-public/akkaserverless-proxy:0.8.10
-    command: -Dconfig.resource=dev-mode.conf -Dakkaserverless.proxy.eventing.support=kafka
+  kalix-proxy:
+    image: gcr.io/kalix-public/kalix-proxy:1.0.0-M2
+    command: -Dconfig.resource=dev-mode.conf -Dkalix.proxy.eventing.support=kafka
     ports:
       - "9000:9000"
     extra_hosts:
@@ -14,7 +14,7 @@ services:
     volumes:
       - .:/conf
   kafka:
-    image: wurstmeister/kafka 
+    image: wurstmeister/kafka
     ports:
       - "9092:9092"
     environment:

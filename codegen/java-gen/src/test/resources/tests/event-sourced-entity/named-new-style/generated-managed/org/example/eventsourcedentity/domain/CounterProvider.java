@@ -1,16 +1,16 @@
 package org.example.eventsourcedentity.domain;
 
-import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityContext;
-import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityOptions;
-import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityProvider;
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.Empty;
 import com.google.protobuf.EmptyProto;
+import kalix.javasdk.eventsourcedentity.EventSourcedEntityContext;
+import kalix.javasdk.eventsourcedentity.EventSourcedEntityOptions;
+import kalix.javasdk.eventsourcedentity.EventSourcedEntityProvider;
 import org.example.eventsourcedentity.CounterApi;
 
 import java.util.function.Function;
 
-// This code is managed by Akka Serverless tooling.
+// This code is managed by Kalix tooling.
 // It will be re-generated to reflect any changes to your protobuf definitions.
 // DO NOT EDIT
 
@@ -18,7 +18,7 @@ import java.util.function.Function;
  * An event sourced entity provider that defines how to register and create the entity for
  * the Protobuf service <code>CounterService</code>.
  *
- * Should be used with the <code>register</code> method in {@link com.akkaserverless.javasdk.AkkaServerless}.
+ * Should be used with the <code>register</code> method in {@link kalix.javasdk.Kalix}.
  */
 public class CounterProvider implements EventSourcedEntityProvider<CounterDomain.CounterState, Counter> {
 

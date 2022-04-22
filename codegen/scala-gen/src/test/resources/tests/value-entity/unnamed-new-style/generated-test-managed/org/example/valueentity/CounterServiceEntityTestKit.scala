@@ -1,17 +1,17 @@
 package org.example.valueentity
 
-import com.akkaserverless.scalasdk.Metadata
-import com.akkaserverless.scalasdk.testkit.ValueEntityResult
-import com.akkaserverless.scalasdk.testkit.impl.TestKitValueEntityCommandContext
-import com.akkaserverless.scalasdk.testkit.impl.TestKitValueEntityContext
-import com.akkaserverless.scalasdk.testkit.impl.ValueEntityResultImpl
-import com.akkaserverless.scalasdk.valueentity.ValueEntity
-import com.akkaserverless.scalasdk.valueentity.ValueEntityContext
 import com.google.protobuf.empty.Empty
+import kalix.scalasdk.Metadata
+import kalix.scalasdk.testkit.ValueEntityResult
+import kalix.scalasdk.testkit.impl.TestKitValueEntityCommandContext
+import kalix.scalasdk.testkit.impl.TestKitValueEntityContext
+import kalix.scalasdk.testkit.impl.ValueEntityResultImpl
+import kalix.scalasdk.valueentity.ValueEntity
+import kalix.scalasdk.valueentity.ValueEntityContext
 import org.example.valueentity
 import org.example.valueentity.domain.CounterState
 
-// This code is managed by Akka Serverless tooling.
+// This code is managed by Kalix tooling.
 // It will be re-generated to reflect any changes to your protobuf definitions.
 // DO NOT EDIT
 

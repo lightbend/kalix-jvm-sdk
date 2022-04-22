@@ -1,9 +1,9 @@
 package org.example.domain;
 
-import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity;
-import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityContext;
-import com.akkaserverless.javasdk.testkit.EventSourcedResult;
 import com.google.protobuf.Empty;
+import kalix.javasdk.eventsourcedentity.EventSourcedEntity;
+import kalix.javasdk.eventsourcedentity.EventSourcedEntityContext;
+import kalix.javasdk.testkit.EventSourcedResult;
 import org.example.events.OuterCounterEvents;
 import org.example.eventsourcedentity.CounterApi;
 import org.example.state.OuterCounterState;
@@ -11,7 +11,7 @@ import org.junit.Test;
 
 import static org.junit.Assert.*;
 
-// This class was initially generated based on the .proto definition by Akka Serverless tooling.
+// This class was initially generated based on the .proto definition by Kalix tooling.
 //
 // As long as this file exists it will not be overwritten: you can maintain it yourself,
 // or delete it so it is regenerated as needed.

@@ -1,6 +1,6 @@
 package com.example.replicated.multimap
 
-import com.akkaserverless.scalasdk.testkit.AkkaServerlessTestKit
+import kalix.scalasdk.testkit.KalixTestKit
 import com.example.replicated.Main
 import com.example.replicated.multimap.GetValues
 import com.example.replicated.multimap.MultiMapService
@@ -18,7 +18,7 @@ class SomeMultiMapIntegrationSpec extends AnyWordSpec with Matchers with BeforeA
   implicit private val patience: PatienceConfig =
     PatienceConfig(Span(5, Seconds), Span(500, Millis))
 
-  private val testKit = AkkaServerlessTestKit(Main.createAkkaServerless()).start()
+  private val testKit = KalixTestKit(Main.createKalix()).start()
   import testKit.executionContext
 
   private val multiMapService = testKit.getGrpcClient(classOf[MultiMapService])

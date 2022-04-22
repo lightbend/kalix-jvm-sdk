@@ -8,11 +8,11 @@ include::partial$attributes.adoc[]
 
 Select your preferred language (Java/Scala) above.
 
-The Akka Serverless code generation tools help you to get started quickly. They include:
+The Kalix code generation tools help you to get started quickly. They include:
 
 * A [.group-java]#*Maven archetype*# [.group-scala]#*giter8 template*# that generates the recommended project structure, a simple Counter service containing a Value Entity, and unit tests. A `README.md` explains what was created and how to work with the newly created service.
 
-* [.group-java]#A *Maven plugin*# [.group-scala]#An *sbt plugin*# that runs the gRPC compiler and generates code stubs. You can modify the `.proto` and source files, and the Akka Serverless plugin will not overwrite your work but will generate code stubs for the elements you changed or added.
+* [.group-java]#A *Maven plugin*# [.group-scala]#An *sbt plugin*# that runs the gRPC compiler and generates code stubs. You can modify the `.proto` and source files, and the Kalix plugin will not overwrite your work but will generate code stubs for the elements you changed or added.
 
 The generated project also contains configuration for packaging and deploying the service.
 
@@ -28,14 +28,14 @@ Before running the code generation tools, make sure you have the following:
 
 To deploy the generated service, you will need:
 
-* An https://developer.lightbend.com/docs/akka-serverless/setting-up/index.html#_akka_serverless_account[Akka Serverless account]
-* An https://developer.lightbend.com/docs/akka-serverless/projects/create-project.html[Akka Serverless project]
-* The https://developer.lightbend.com/docs/akka-serverless/akkasls/install-akkasls.html[Akka Serverless CLI (akkasls)]
-* A configured registry in which to publish the service container image. Refer to https://developer.lightbend.com/docs/akka-serverless/projects/container-registries.html[Configuring registries] for more information on how to make your Docker registry available to Akka Serverless.
+* An https://docs.kalix.io/setting-up/index.html#_kalix_account[Kalix account]
+* An https://docs.kalix.io/projects/create-project.html[Kalix project]
+* The https://docs.kalix.io/kalix/install-kalix.html[Kalix CLI (kalix)]
+* A configured registry in which to publish the service container image. Refer to https://docs.kalix.io/projects/container-registries.html[Configuring registries] for more information on how to make your Docker registry available to Kalix.
 
 :sectnums:
 
-== Generate and build the Akka Serverless project
+== Generate and build the Kalix project
 
 The [.group-java]#Maven archetype# [.group-scala]#giter8 template# prompts you to specify the project's group ID, name and version interactively. Run it using the commands shown for your OS.
 
@@ -56,9 +56,9 @@ Linux or macOS::
 [source,command window, subs="attributes"]
 ----
 mvn archetype:generate \
-  -DarchetypeGroupId=com.akkaserverless \
-  -DarchetypeArtifactId=akkaserverless-maven-archetype \
-  -DarchetypeVersion={akkaserverless-java-sdk-version}
+  -DarchetypeGroupId=io.kalix \
+  -DarchetypeArtifactId=kalix-maven-archetype \
+  -DarchetypeVersion={kalix-jvm-sdk-version}
 ----
 --
 Windows 10+::
@@ -67,9 +67,9 @@ Windows 10+::
 [source,command window, subs="attributes"]
 ----
 mvn archetype:generate ^
-  -DarchetypeGroupId=com.akkaserverless ^
-  -DarchetypeArtifactId=akkaserverless-maven-archetype ^
-  -DarchetypeVersion={akkaserverless-java-sdk-version}
+  -DarchetypeGroupId=io.kalix ^
+  -DarchetypeArtifactId=kalix-maven-archetype ^
+  -DarchetypeVersion={kalix-jvm-sdk-version}
 ----
 --
 
@@ -78,7 +78,7 @@ mvn archetype:generate ^
 +
 [source,command window, subs="attributes"]
 ----
-sbt new lightbend/akkaserverless-value-entity.g8
+sbt new lightbend/kalix-value-entity.g8
 ----
 
 . Navigate to the new project directory.
@@ -93,7 +93,7 @@ The template created the source files outlined in xref:developing:development-pr
 
 === Descriptors for the service interface and domain model
 
-Akka Serverless uses gRPC Protocol Buffers language to describe the service interface and the entity domain model. The archetype generates a `CounterService` API implemented as a https://developer.lightbend.com/docs/akka-serverless/reference/glossary.html#value_entity[Value Entity]. The entity descriptors include:
+Kalix uses gRPC Protocol Buffers language to describe the service interface and the entity domain model. The archetype generates a `CounterService` API implemented as a https://docs.kalix.io/reference/glossary.html#value_entity[Value Entity]. The entity descriptors include:
 
 - `src/main/proto/com/example/counter_api.proto` the service API to be used by clients
 - `src/main/proto/com/example/counter_domain.proto` the domain model of the Value Entity's state
@@ -145,7 +145,7 @@ Scala::
 include::example$scala-first-service/src/main/scala/com/example/domain/Counter.scala[]
 ----
 
-The plugin provides the `Main` class implementation that registers service components with Akka Serverless.
+The plugin provides the `Main` class implementation that registers service components with Kalix.
 
 [.tabset]
 Java::
@@ -164,13 +164,13 @@ Scala::
 include::example$scala-first-service/src/main/scala/com/example/Main.scala[]
 ----
 
-This class is the entry point for running Akka Serverless within the container.
+This class is the entry point for running Kalix within the container.
 
 For more details see xref:java:value-entity.adoc[].
 
 === Unit [.source-java]#and integration# tests
 
-The Akka Serverless plugin creates a unit test stub for the Entity. Use this stub as a starting point to test the logic in your implementation. [.group-java]#The Akka Serverless Java SDK test kit supports both link:https://junit.org/junit4/[JUnit 4] and link:https://junit.org/junit5/[JUnit 5].#
+The Kalix plugin creates a unit test stub for the Entity. Use this stub as a starting point to test the logic in your implementation. [.group-java]#The Kalix Java SDK test kit supports both link:https://junit.org/junit4/[JUnit 4] and link:https://junit.org/junit5/[JUnit 5].#
 
 [.tabset]
 Java::
@@ -212,7 +212,7 @@ xref:java:event-sourced-entities.adoc#_testing_the_entity[Testing an Event Sourc
 xref:java:actions.adoc#_testing_the_action[Testing an Action].
 
 [.group-java]
-The Maven plugin also provides you with an initial setup for integration tests based on the Akka Serverless Java SDK test kit which leverages link:https://www.testcontainers.org/[TestContainers] and link:https://junit.org/junit4/[JUnit].
+The Maven plugin also provides you with an initial setup for integration tests based on the Kalix Java SDK test kit which leverages link:https://www.testcontainers.org/[TestContainers] and link:https://junit.org/junit4/[JUnit].
 
 [.group-java]
 .src/it/java/com/example/domain/CounterIntegrationTest.java
@@ -241,7 +241,7 @@ sbt test
 
 == Package service
 
-The project is configured to package your service into a Docker image which can be deployed to Akka Serverless. The Docker image name can be changed in the [.group-java]#`pom.xml` file's `properties` section.# [.group-scala]#`build.sbt`.# Update this file to publish your image to your Docker repository.
+The project is configured to package your service into a Docker image which can be deployed to Kalix. The Docker image name can be changed in the [.group-java]#`pom.xml` file's `properties` section.# [.group-scala]#`build.sbt`.# Update this file to publish your image to your Docker repository.
 
 This uses JDK {java-version} and the image is based on the link:https://adoptium.net/[Eclipse Adoptium] JDK image (formerly Adopt OpenJDK). Choose a different image in the [.group-java]#`docker-maven-plugin` configuration  `pom.xml` file.# [.group-scala]#`build.sbt`.
 
@@ -264,7 +264,7 @@ TIP: For more details see xref:developing:development-process-java.adoc#_package
 
 == Run locally
 
-You can run your service locally for manual testing via HTTP or gRPC requests. To run your application locally, you need to initiate the Akka Serverless proxy. The included `docker-compose` file contains the configuration required to run the proxy for a locally running application.
+You can run your service locally for manual testing via HTTP or gRPC requests. To run your application locally, you need to initiate the Kalix proxy. The included `docker-compose` file contains the configuration required to run the proxy for a locally running application.
 
 To start the proxy, run the following command from the project directory:
 
@@ -290,20 +290,20 @@ Scala::
 sbt run
 ----
 
-== Deploy to Akka Serverless
+== Deploy to Kalix
 
-To deploy your service to Akka Serverless:
+To deploy your service to Kalix:
 
 [.group-java]
 First make sure you have updated the `dockerImage` property in the `pom.xml` to point at your Docker registry. Then:
 
 - Run [.group-java]#`mvn deploy`,# [.group-scala]#`sbt docker:publish`# which conveniently packages and publishes your Docker image prior to deployment.
 
-- When using the CLI, in your command window, set your Akka Serverless project to be the current project:
+- When using the CLI, in your command window, set your Kalix project to be the current project:
 +
 [source, command window]
 ----
-akkasls config set project <project-name>
+kalix config set project <project-name>
 ----
 
-- Deploy your service following the instructions at xref:developing:development-process-java.adoc#_deploy_to_akka_serverless[Development Process - Deploy to Akka Serverless].
+- Deploy your service following the instructions at xref:developing:development-process-java.adoc#_deploy_to_kalix[Development Process - Deploy to Kalix].

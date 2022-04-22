@@ -2,7 +2,7 @@ package com.example.fibonacci;
 
 import akka.NotUsed;
 import akka.stream.javadsl.Source;
-import com.akkaserverless.javasdk.action.ActionCreationContext;
+import kalix.javasdk.action.ActionCreationContext;
 
 
 // wrap the original FibonacciAction here so we can use it in the docs

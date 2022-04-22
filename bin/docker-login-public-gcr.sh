@@ -5,4 +5,4 @@
 
 set -euo pipefail
 
-echo "$PUBLIC_GCR_SERVICE_KEY" | docker login -u _json_key --password-stdin https://gcr.io
+echo "$KALIX_PUBLIC_GCR_SERVICE_KEY" | docker login -u _json_key --password-stdin https://gcr.io

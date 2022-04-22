@@ -35,11 +35,11 @@ function _set_sdk_version {
   local -r dir="$1"
   # note: use commands that are compatible with both GNU sed and BSD (macOS) sed
   if [ -f "$dir/pom.xml" ] ; then
-    sed -i.bak "s/<akkaserverless-sdk.version>.*</<akkaserverless-sdk.version>$sdk_version</" "$dir/pom.xml"
+    sed -i.bak "s/<kalix-sdk.version>.*</<kalix-sdk.version>$sdk_version</" "$dir/pom.xml"
     rm -f "$dir/pom.xml.bak"
   fi
   if [ -f "$dir/project/plugins.sbt" ] ; then
-    sed -i.bak "s/\"sbt-akkaserverless\" % .*/\"sbt-akkaserverless\" % \"$sdk_version\")/" "$dir/project/plugins.sbt"
+    sed -i.bak "s/\"sbt-kalix\" % .*/\"sbt-kalix\" % \"$sdk_version\")/" "$dir/project/plugins.sbt"
     rm -f "$dir/project/plugins.sbt.bak"
   fi
 }

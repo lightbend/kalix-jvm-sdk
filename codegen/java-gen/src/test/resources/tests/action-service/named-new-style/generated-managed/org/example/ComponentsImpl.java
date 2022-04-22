@@ -1,12 +1,12 @@
 package org.example;
 
-import com.akkaserverless.javasdk.Context;
-import com.akkaserverless.javasdk.DeferredCall;
-import com.akkaserverless.javasdk.impl.DeferredCallImpl;
-import com.akkaserverless.javasdk.impl.InternalContext;
-import com.akkaserverless.javasdk.impl.MetadataImpl;
+import kalix.javasdk.Context;
+import kalix.javasdk.DeferredCall;
+import kalix.javasdk.impl.DeferredCallImpl;
+import kalix.javasdk.impl.InternalContext;
+import kalix.javasdk.impl.MetadataImpl;
 
-// This code is managed by Akka Serverless tooling.
+// This code is managed by Kalix tooling.
 // It will be re-generated to reflect any changes to your protobuf definitions.
 // DO NOT EDIT
 

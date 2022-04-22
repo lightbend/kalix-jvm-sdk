@@ -1,11 +1,11 @@
-/* This code was initialised by Akka Serverless tooling.
+/* This code was initialised by Kalix tooling.
  * As long as this file exists it will not be re-generated.
  * You are free to make changes to this file.
  */
 
 package com.example.shoppingcart.domain;
 
-import com.akkaserverless.javasdk.testkit.ValueEntityResult;
+import kalix.javasdk.testkit.ValueEntityResult;
 import com.example.shoppingcart.ShoppingCartApi;
 import com.google.protobuf.Empty;
 import org.junit.Test;

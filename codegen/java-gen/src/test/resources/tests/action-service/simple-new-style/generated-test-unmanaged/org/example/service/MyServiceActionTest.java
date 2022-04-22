@@ -2,7 +2,7 @@ package org.example.service;
 
 import akka.NotUsed;
 import akka.stream.javadsl.Source;
-import com.akkaserverless.javasdk.testkit.ActionResult;
+import kalix.javasdk.testkit.ActionResult;
 import org.example.service.MyServiceAction;
 import org.example.service.MyServiceActionTestKit;
 import org.example.service.ServiceOuterClass;
@@ -10,7 +10,7 @@ import org.external.ExternalDomain;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
-// This class was initially generated based on the .proto definition by Akka Serverless tooling.
+// This class was initially generated based on the .proto definition by Kalix tooling.
 //
 // As long as this file exists it will not be overwritten: you can maintain it yourself,
 // or delete it so it is regenerated as needed.

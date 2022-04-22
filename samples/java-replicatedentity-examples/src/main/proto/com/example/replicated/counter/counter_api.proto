@@ -15,24 +15,24 @@
 syntax = "proto3";
 
 import "google/protobuf/empty.proto";
-import "akkaserverless/annotations.proto";
+import "kalix/annotations.proto";
 
 package com.example.replicated.counter;
 
 option java_outer_classname = "SomeCounterApi";
 
 message IncreaseValue {
-  string counter_id = 1 [(akkaserverless.field).entity_key = true];
+  string counter_id = 1 [(kalix.field).entity_key = true];
   int32 value = 2;
 }
 
 message DecreaseValue {
-  string counter_id = 1 [(akkaserverless.field).entity_key = true];
+  string counter_id = 1 [(kalix.field).entity_key = true];
   int32 value = 2;
 }
 
 message GetValue {
-  string counter_id = 1 [(akkaserverless.field).entity_key = true];
+  string counter_id = 1 [(kalix.field).entity_key = true];
 }
 
 message CurrentValue {
@@ -41,7 +41,7 @@ message CurrentValue {
 
 // tag::replicated_entity[]
 service CounterService {
-  option (akkaserverless.codegen) = {
+  option (kalix.codegen) = {
     replicated_entity: {
       name: "com.example.replicated.counter.domain.SomeCounter" // <1>
       entity_type: "some-counter"

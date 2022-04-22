@@ -2,11 +2,18 @@ organization := "com.example"
 
 scalaVersion := "2.13.6"
 
-enablePlugins(AkkaserverlessPlugin, JavaAppPackaging, DockerPlugin)
+enablePlugins(KalixPlugin, JavaAppPackaging, DockerPlugin)
 dockerBaseImage := "docker.io/library/adoptopenjdk:11-jre-hotspot"
 dockerUsername := sys.props.get("docker.username")
 dockerRepository := sys.props.get("docker.registry")
 dockerUpdateLatest := true
+dockerBuildCommand := {
+  if (sys.props("os.arch") != "amd64") {
+    // use buildx with platform to build supported amd64 images on other CPU architectures
+    // this may require that you have first run 'docker buildx create' to set docker buildx up
+    dockerExecCommand.value ++ Seq("buildx", "build", "--platform=linux/amd64", "--load") ++ dockerBuildOptions.value :+ "."
+  } else dockerBuildCommand.value
+}
 ThisBuild / dynverSeparator := "-"
 
 Compile / scalacOptions ++= Seq(

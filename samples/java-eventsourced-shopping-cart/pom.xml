@@ -5,21 +5,21 @@
 
     <groupId>com.example</groupId>
     <artifactId>eventsourced-shoppingcart</artifactId>
-    <version>0.0.2-SNAPSHOT</version>
+    <version>0.0.3-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>Shopping Cart as Event Sourced Entity</name>
 
     <properties>
         <!-- TODO Update to your own Docker repository or Docker Hub scope -->
-        <dockerImage>gcr.io/akkaserverless-public/samples-java-event-sourced-shopping-cart</dockerImage>
+        <dockerImage>gcr.io/kalix-public/samples-java-eventsourced-shopping-cart</dockerImage>
         <dockerTag>${project.version}</dockerTag>
         <mainClass>com.example.shoppingcart.Main</mainClass>
 
         <jdk.target>11</jdk.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-        <akkaserverless-sdk.version>0.10.6</akkaserverless-sdk.version>
+        <kalix-sdk.version>1.0.0-M1</kalix-sdk.version>
         <akka-grpc.version>2.1.2</akka-grpc.version>
     </properties>
 
@@ -117,7 +117,7 @@
             <plugin>
                 <groupId>io.fabric8</groupId>
                 <artifactId>docker-maven-plugin</artifactId>
-                <version>0.26.1</version>
+                <version>0.39.1</version>
                 <configuration>
                     <images>
                         <image>
@@ -125,6 +125,9 @@
                             <build>
                                 <!-- Base Docker image which contains jre-->
                                 <from>docker.io/library/adoptopenjdk:${jdk.target}-jre-hotspot</from>
+                                <createImageOptions>
+                                    <platform>linux/amd64</platform>
+                                </createImageOptions>
                                 <tags>
                                     <!-- tag for generated image -->
                                     <tag>${dockerTag}</tag>
@@ -237,9 +240,9 @@
             </plugin>
 
             <plugin>
-                <groupId>com.akkaserverless</groupId>
-                <artifactId>akkaserverless-maven-plugin</artifactId>
-                <version>${akkaserverless-sdk.version}</version>
+                <groupId>io.kalix</groupId>
+                <artifactId>kalix-maven-plugin</artifactId>
+                <version>${kalix-sdk.version}</version>
                 <executions>
                     <execution>
                         <goals>
@@ -299,14 +302,14 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.akkaserverless</groupId>
-            <artifactId>akkaserverless-java-sdk</artifactId>
-            <version>${akkaserverless-sdk.version}</version>
+            <groupId>io.kalix</groupId>
+            <artifactId>kalix-java-sdk</artifactId>
+            <version>${kalix-sdk.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.akkaserverless</groupId>
-            <artifactId>akkaserverless-java-sdk-testkit</artifactId>
-            <version>${akkaserverless-sdk.version}</version>
+            <groupId>io.kalix</groupId>
+            <artifactId>kalix-java-sdk-testkit</artifactId>
+            <version>${kalix-sdk.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>

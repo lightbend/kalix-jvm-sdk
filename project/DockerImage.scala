@@ -10,7 +10,7 @@ object DockerImage extends AutoPlugin {
 
   override def projectSettings = Seq(
     dockerBaseImage := "adoptopenjdk/openjdk11:jre-11.0.8_10-ubi",
-    dockerUsername := Some("akkaserverless"),
+    dockerUsername := Some("kalix"),
     dockerUpdateLatest := true,
     // disable javadoc/scaladoc for projects published as docker images
     Compile / packageDoc / publishArtifact := false)
@@ -24,5 +24,5 @@ object PublicDockerImage extends AutoPlugin {
   override def requires = DockerImage
 
   override def projectSettings =
-    Seq(dockerRepository := Some("gcr.io"), dockerUsername := Some("akkaserverless-public"))
+    Seq(dockerRepository := Some("gcr.io"), dockerUsername := Some("kalix-public"))
 }

@@ -1,13 +1,13 @@
 package org.example
 
-import com.akkaserverless.scalasdk.Context
-import com.akkaserverless.scalasdk.DeferredCall
-import com.akkaserverless.scalasdk.Metadata
-import com.akkaserverless.scalasdk.impl.InternalContext
-import com.akkaserverless.scalasdk.impl.ScalaDeferredCallAdapter
+import kalix.scalasdk.Context
+import kalix.scalasdk.DeferredCall
+import kalix.scalasdk.Metadata
+import kalix.scalasdk.impl.InternalContext
+import kalix.scalasdk.impl.ScalaDeferredCallAdapter
 
 
-// This code is managed by Akka Serverless tooling.
+// This code is managed by Kalix tooling.
 // It will be re-generated to reflect any changes to your protobuf definitions.
 // DO NOT EDIT
 

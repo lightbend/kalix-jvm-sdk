@@ -1,22 +1,22 @@
 package org.example.valueentity;
 
-import com.akkaserverless.javasdk.Metadata;
-import com.akkaserverless.javasdk.impl.effect.MessageReplyImpl;
-import com.akkaserverless.javasdk.impl.effect.SecondaryEffectImpl;
-import com.akkaserverless.javasdk.impl.valueentity.ValueEntityEffectImpl;
-import com.akkaserverless.javasdk.testkit.ValueEntityResult;
-import com.akkaserverless.javasdk.testkit.impl.TestKitValueEntityCommandContext;
-import com.akkaserverless.javasdk.testkit.impl.TestKitValueEntityContext;
-import com.akkaserverless.javasdk.testkit.impl.ValueEntityResultImpl;
-import com.akkaserverless.javasdk.valueentity.ValueEntity;
-import com.akkaserverless.javasdk.valueentity.ValueEntityContext;
 import com.google.protobuf.Empty;
+import kalix.javasdk.Metadata;
+import kalix.javasdk.impl.effect.MessageReplyImpl;
+import kalix.javasdk.impl.effect.SecondaryEffectImpl;
+import kalix.javasdk.impl.valueentity.ValueEntityEffectImpl;
+import kalix.javasdk.testkit.ValueEntityResult;
+import kalix.javasdk.testkit.impl.TestKitValueEntityCommandContext;
+import kalix.javasdk.testkit.impl.TestKitValueEntityContext;
+import kalix.javasdk.testkit.impl.ValueEntityResultImpl;
+import kalix.javasdk.valueentity.ValueEntity;
+import kalix.javasdk.valueentity.ValueEntityContext;
 import org.example.valueentity.domain.CounterDomain;
 
 import java.util.Optional;
 import java.util.function.Function;
 
-// This code is managed by Akka Serverless tooling.
+// This code is managed by Kalix tooling.
 // It will be re-generated to reflect any changes to your protobuf definitions.
 // DO NOT EDIT
 

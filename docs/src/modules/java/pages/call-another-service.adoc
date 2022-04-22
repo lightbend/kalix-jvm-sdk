@@ -1,19 +1,19 @@
 = Calling other services
 :page-supergroup-java-scala: Language
 
-== Akka Serverless services
+== Kalix services
 
 In some cases it is useful to call a component in another service, for example interacting with multiple entities or actions, aggregating their return values or performing a multi-step workflow. xref:actions-as-controller.adoc[Forwards] and xref:side-effects.adoc[Side Effects] allow us to trigger other services but does not make it possible to compose and transform the results of calling them.
 
-Calling other Akka Serverless services in the same project from an Action is done by invoking them over gRPC much like how an external client would. The service is however identified only by the name it has been deployed as, Akka Serverless takes care of routing requests to the service and keeping the data safe by encrypting the connection for us.
+Calling other Kalix services in the same project from an Action is done by invoking them over gRPC much like how an external client would. The service is however identified only by the name it has been deployed as, Kalix takes care of routing requests to the service and keeping the data safe by encrypting the connection for us.
 
 In this sample we will make an action that does two sequential calls to the xref:value-entity.adoc[Value Entity Counter] service, deployed with the service name "counter".
 
 We start by adding the public API of the counter to the `src/main/proto` directory of our project.
 
-Since the proto file of an Akka Serverless service contains annotations that cause the Java SDK code generation to generate services, and we only want to consume the service, we need to start by removing the annotations.
+Since the proto file of a Kalix service contains annotations that cause the Java SDK code generation to generate services, and we only want to consume the service, we need to start by removing the annotations.
 
-Copy the API definition proto file from the other service into the `proto` directory but remove all `akkaserverless.service` option blocks as well as all other Akka Serverless annotations and the `import "akkaserverless/annotations.proto"` from it.
+Copy the API definition proto file from the other service into the `proto` directory but remove all `kalix.service` option blocks as well as all other Kalix annotations and the `import "kalix/annotations.proto"` from it.
 
 This is how the counter descriptor looks with all annotations removed:
 
@@ -74,11 +74,6 @@ For additional documentation about Akka gRPC see the https://doc.akka.io/docs/ak
 
 == External gRPC services
 
-Calling an Akka Serverless service in another project, or an arbitrary external gRPC service is done the same way as described above, with the difference that the service name string passed to `getGrpcClient` is present in the `application.conf` file of the project with details on how to connect to the external service. For a service named `external-example-service` config is expected to be found under `akka.grpc.client.external-example-service`.
+Calling a Kalix service in another project, or an arbitrary external gRPC service is done the same way as described above, with the difference that the service name string passed to `getGrpcClient` is present in the `application.conf` file of the project with details on how to connect to the external service. For a service named `external-example-service` config is expected to be found under `akka.grpc.client.external-example-service`.
 
 See the https://doc.akka.io/docs/akka-grpc/current/client/configuration.html#by-configuration[Akka gRPC docs on consuming a service] for details on configuring the client for a service name.
-
-
-
-
-

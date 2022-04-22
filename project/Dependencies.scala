@@ -2,10 +2,10 @@ import sbt._
 import sbt.Keys._
 
 object Dependencies {
-  object AkkaServerless {
-    val ProtocolVersionMajor = 0
-    val ProtocolVersionMinor = 8
-    val FrameworkVersion = "0.8.10"
+  object Kalix {
+    val ProtocolVersionMajor = 1
+    val ProtocolVersionMinor = 0
+    val ProxyVersion = "1.0.0-M2"
   }
 
   // changing the Scala version of the Java SDK affects end users
@@ -18,9 +18,10 @@ object Dependencies {
   val AkkaVersion = "2.6.19"
   val AkkaHttpVersion = "10.2.9" // Note: should at least the Akka HTTP version required by Akka gRPC
   val ScalaTestVersion = "3.2.7"
-  val JacksonVersion = "2.11.4" // Akka 2.6.16: 2.11.4, google-http-client-jackson2 1.34.0: 2.10.1
+  val JacksonVersion = "2.12.6"
+  val JacksonDatabindVersion = "2.12.6.1"
   val DockerBaseImageVersion = "adoptopenjdk/openjdk11:debianslim-jre"
-  val LogbackVersion = "1.2.10"
+  val LogbackVersion = "1.2.11"
   val LogbackContribVersion = "0.1.5"
   val TestContainersVersion = "1.15.3"
   val JUnitVersion = "4.13.2"
@@ -28,12 +29,12 @@ object Dependencies {
   val JUnitJupiterVersion = "5.7.1"
 
   val CommonsIoVerison = "2.8.0"
-  val MunitVersion = "0.7.20"
+  val MunitVersion = "0.7.29"
   val ScoptVersions = "4.0.0"
 
-  val akkaslsProxyProtocol = "com.akkaserverless" % "akkaserverless-proxy-protocol" % AkkaServerless.FrameworkVersion
-  val akkaslsSdkProtocol = "com.akkaserverless" % "akkaserverless-sdk-protocol" % AkkaServerless.FrameworkVersion
-  val akkaslsTckProtocol = "com.akkaserverless" % "akkaserverless-tck-protocol" % AkkaServerless.FrameworkVersion
+  val kalixProxyProtocol = "io.kalix" % "kalix-proxy-protocol" % Kalix.ProxyVersion
+  val kalixSdkProtocol = "io.kalix" % "kalix-sdk-protocol" % Kalix.ProxyVersion
+  val kalixTckProtocol = "io.kalix" % "kalix-tck-protocol" % Kalix.ProxyVersion
 
   val commonsIo = "commons-io" % "commons-io" % CommonsIoVerison
   val logback = "ch.qos.logback" % "logback-classic" % LogbackVersion
@@ -46,7 +47,7 @@ object Dependencies {
   val scopt = "com.github.scopt" %% "scopt" % ScoptVersions
   val jacksonCore = "com.fasterxml.jackson.core" % "jackson-core" % JacksonVersion
   val jacksonAnnotations = "com.fasterxml.jackson.core" % "jackson-annotations" % JacksonVersion
-  val jacksonDatabind = "com.fasterxml.jackson.core" % "jackson-databind" % JacksonVersion
+  val jacksonDatabind = "com.fasterxml.jackson.core" % "jackson-databind" % JacksonDatabindVersion
   val jacksonJdk8 = "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % JacksonVersion
   val jacksonJsr310 = "com.fasterxml.jackson.datatype" % "jackson-datatype-jsr310" % JacksonVersion
   val jacksonParameterNames = "com.fasterxml.jackson.module" % "jackson-module-parameter-names" % JacksonVersion
@@ -62,7 +63,7 @@ object Dependencies {
   val scalapbCompilerPlugin = "com.thesamet.scalapb" %% "compilerplugin" % scalapb.compiler.Version.scalapbVersion
   val sbtProtoc = "com.thesamet" % "sbt-protoc" % "1.0.0"
 
-  val akkaGrpc = "com.lightbend.akka.grpc" % "sbt-akka-grpc" % "2.1.3"
+  val akkaGrpc = "com.lightbend.akka.grpc" % "sbt-akka-grpc" % akka.grpc.gen.BuildInfo.version
 
   private val deps = libraryDependencies
 
@@ -76,8 +77,8 @@ object Dependencies {
     akkaHttpDependency("akka-http2-support"),
     akkaHttpDependency("akka-parsing"),
     protobufJavaUtil,
-    akkaslsProxyProtocol % "protobuf-src",
-    akkaslsSdkProtocol % "compile;protobuf-src",
+    kalixProxyProtocol % "protobuf-src",
+    kalixSdkProtocol % "compile;protobuf-src",
     akkaDependency("akka-testkit") % Test,
     akkaDependency("akka-actor-testkit-typed") % Test,
     akkaDependency("akka-stream-testkit") % Test,
@@ -116,14 +117,14 @@ object Dependencies {
     // FIXME: For now TCK protos have been copied and adapted into this project.
     //        Running the TCK is still meaningful as it runs the TCK check against the defined framework version.
     //        Eventually, the final form of protos from should be backported to the framework.
-    //        See https://github.com/lightbend/akkaserverless-java-sdk/issues/605
-    //  akkaslsTckProtocol % "protobuf-src",
-    //  "com.akkaserverless" % "akkaserverless-tck-protocol" % AkkaServerless.FrameworkVersion % "protobuf-src",
+    //        See https://github.com/lightbend/kalix-jvm-sdk/issues/605
+    //  kalixTckProtocol % "protobuf-src",
+    //  "io.kalix" % "kalix-tck-protocol" % Kalix.ProxyVersion % "protobuf-src",
     "ch.qos.logback" % "logback-classic" % LogbackVersion)
 
   val codegenCore = deps ++= Seq(
     protobufJava,
-    akkaslsSdkProtocol % "compile;protobuf-src",
+    kalixSdkProtocol % "compile;protobuf-src",
     logback % Test,
     munit % Test,
     munitScalaCheck % Test)

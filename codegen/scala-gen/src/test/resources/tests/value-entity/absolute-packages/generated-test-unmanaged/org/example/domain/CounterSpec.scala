@@ -1,8 +1,8 @@
 package org.example.domain
 
-import com.akkaserverless.scalasdk.testkit.ValueEntityResult
-import com.akkaserverless.scalasdk.valueentity.ValueEntity
 import com.google.protobuf.empty.Empty
+import kalix.scalasdk.testkit.ValueEntityResult
+import kalix.scalasdk.valueentity.ValueEntity
 import org.example.state.CounterState
 import org.example.valueentity
 import org.scalatest.matchers.should.Matchers
