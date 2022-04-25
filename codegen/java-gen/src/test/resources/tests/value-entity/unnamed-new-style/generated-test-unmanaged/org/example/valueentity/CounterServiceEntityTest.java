@@ -4,6 +4,7 @@ import com.google.protobuf.Empty;
 import kalix.javasdk.testkit.ValueEntityResult;
 import kalix.javasdk.valueentity.ValueEntity;
 import org.example.valueentity.domain.CounterDomain;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -16,6 +17,7 @@ import static org.junit.Assert.*;
 public class CounterServiceEntityTest {
 
   @Test
+  @Ignore("to be implemented")
   public void exampleTest() {
     CounterServiceEntityTestKit testKit = CounterServiceEntityTestKit.of(CounterServiceEntity::new);
     // use the testkit to execute a command
@@ -29,6 +31,7 @@ public class CounterServiceEntityTest {
   }
 
   @Test
+  @Ignore("to be implemented")
   public void increaseTest() {
     CounterServiceEntityTestKit testKit = CounterServiceEntityTestKit.of(CounterServiceEntity::new);
     // ValueEntityResult<Empty> result = testKit.increase(IncreaseValue.newBuilder()...build());
@@ -36,6 +39,7 @@ public class CounterServiceEntityTest {
 
 
   @Test
+  @Ignore("to be implemented")
   public void decreaseTest() {
     CounterServiceEntityTestKit testKit = CounterServiceEntityTestKit.of(CounterServiceEntity::new);
     // ValueEntityResult<Empty> result = testKit.decrease(DecreaseValue.newBuilder()...build());

@@ -4,6 +4,7 @@ import com.google.protobuf.Empty;
 import kalix.javasdk.eventsourcedentity.EventSourcedEntity;
 import kalix.javasdk.eventsourcedentity.EventSourcedEntityContext;
 import kalix.javasdk.testkit.EventSourcedResult;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -16,6 +17,7 @@ import static org.junit.Assert.*;
 public class CounterTest {
 
   @Test
+  @Ignore("to be implemented")
   public void exampleTest() {
     CounterTestKit testKit = CounterTestKit.of(Counter::new);
     // use the testkit to execute a command
@@ -32,6 +34,7 @@ public class CounterTest {
   }
 
   @Test
+  @Ignore("to be implemented")
   public void increaseTest() {
     CounterTestKit testKit = CounterTestKit.of(Counter::new);
     // EventSourcedResult<Empty> result = testKit.increase(IncreaseValue.newBuilder()...build());
@@ -39,6 +42,7 @@ public class CounterTest {
 
 
   @Test
+  @Ignore("to be implemented")
   public void decreaseTest() {
     CounterTestKit testKit = CounterTestKit.of(Counter::new);
     // EventSourcedResult<Empty> result = testKit.decrease(DecreaseValue.newBuilder()...build());
