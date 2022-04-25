@@ -4,6 +4,7 @@
  */
 package com.example.actions;
 
+import kalix.javasdk.Metadata;
 import kalix.javasdk.testkit.ActionResult;
 import com.example.actions.CounterJournalToTopicAction;
 import com.example.actions.CounterJournalToTopicActionTestKit;
