@@ -48,7 +48,7 @@ public abstract class ReplicatedEntity<D extends ReplicatedData> {
    *
    * <p>It will throw an exception if accessed from the entity constructor.
    */
-  protected CommandContext commandContext() {
+  protected final CommandContext commandContext() {
     return commandContext.orElseThrow(
         () ->
             new IllegalStateException("CommandContext is only available when handling a command."));
@@ -59,7 +59,7 @@ public abstract class ReplicatedEntity<D extends ReplicatedData> {
     commandContext = context;
   }
 
-  protected <R> Effect.Builder<D> effects() {
+  protected final <R> Effect.Builder<D> effects() {
     return new ReplicatedEntityEffectImpl<D, R>();
   }
 

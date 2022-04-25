@@ -150,15 +150,15 @@ abstract class Action {
    *
    * <p>It will throw an exception if accessed from constructor.
    */
-  protected def actionContext: ActionContext =
+  protected final def actionContext: ActionContext =
     _actionContext.getOrElse(
       throw new IllegalStateException("ActionContext is only available when handling a message."))
 
   /** INTERNAL API */
-  def _internalSetActionContext(context: Option[ActionContext]): Unit = {
+  final def _internalSetActionContext(context: Option[ActionContext]): Unit = {
     _actionContext = context
   }
 
-  protected def effects[T]: Action.Effect.Builder =
+  protected final def effects[T]: Action.Effect.Builder =
     ActionEffectImpl.builder()
 }
