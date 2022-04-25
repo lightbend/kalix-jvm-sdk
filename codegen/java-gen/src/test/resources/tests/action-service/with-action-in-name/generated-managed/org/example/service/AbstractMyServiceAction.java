@@ -11,7 +11,7 @@ import org.example.ComponentsImpl;
 public abstract class AbstractMyServiceAction extends kalix.javasdk.action.Action {
 
   protected final Components components() {
-    return new ComponentsImpl(actionContext());
+    return new ComponentsImpl(contextForComponents());
   }
 
   public abstract Effect<Empty> simpleMethod(ServiceOuterClass.MyRequest myRequest);
