@@ -151,8 +151,18 @@ abstract class Action {
    * <p>It will throw an exception if accessed from constructor.
    */
   protected final def actionContext: ActionContext =
-    _actionContext.getOrElse(
-      throw new IllegalStateException("ActionContext is only available when handling a message."))
+    actionContext("ActionContext is only available when handling a message.")
+
+  /**
+   * INTERNAL API
+   *
+   * Same as actionContext, but if specific error message when accessing components.
+   */
+  protected final def contextForComponents: ActionContext =
+    actionContext("Components can only be accessed when handling a message.")
+
+  private def actionContext(errorMessage: String): ActionContext =
+    _actionContext.getOrElse(throw new IllegalStateException(errorMessage))
 
   /** INTERNAL API */
   final def _internalSetActionContext(context: Option[ActionContext]): Unit = {

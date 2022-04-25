@@ -162,7 +162,7 @@ object ActionServiceSourceGenerator {
         |public abstract class ${service.abstractActionName} extends kalix.javasdk.action.Action {
         |
         |  protected final Components components() {
-        |    return new ComponentsImpl(actionContext());
+        |    return new ComponentsImpl(contextForComponents());
         |  }
         |
         |  ${Format.indent(methods, 2)}
