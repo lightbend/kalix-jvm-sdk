@@ -42,16 +42,14 @@ public abstract class Action {
   /**
    * INTERNAL API
    *
-   * Same as actionContext, but if specific error message when accessing components.
+   * <p>Same as actionContext, but if specific error message when accessing components.
    */
   protected final ActionContext contextForComponents() {
     return actionContext("Components can only be accessed when handling a message.");
   }
 
   private ActionContext actionContext(String errorMessage) {
-    return actionContext.orElseThrow(
-        () ->
-            new IllegalStateException(errorMessage));
+    return actionContext.orElseThrow(() -> new IllegalStateException(errorMessage));
   }
 
   /** INTERNAL API */
