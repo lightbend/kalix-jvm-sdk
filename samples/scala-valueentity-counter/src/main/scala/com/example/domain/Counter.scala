@@ -5,7 +5,6 @@
 
 package com.example.domain
 
-import kalix.scalasdk.Metadata
 import kalix.scalasdk.valueentity.ValueEntity
 import kalix.scalasdk.valueentity.ValueEntityContext
 import com.example

@@ -4,7 +4,7 @@
  */
 package com.example.domain
 
-import com.akkaserverless.scalasdk.Metadata
+import kalix.scalasdk.Metadata
 import com.example.{ DecreaseValue, IncreaseValue, ResetValue }
 import com.google.protobuf.empty.Empty
 import org.scalatest.matchers.should.Matchers
