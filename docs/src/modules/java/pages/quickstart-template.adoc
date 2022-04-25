@@ -16,8 +16,6 @@ The Kalix code generation tools help you to get started quickly. They include:
 
 The generated project also contains configuration for packaging and deploying the service.
 
-[.group-java]#link:https://www.youtube.com/watch?v=odzpn-Kd3b8[Serverless for Java: Build and Deploy Your First Service, role=yt-widget]#
-
 == Prerequisites
 
 Before running the code generation tools, make sure you have the following:
