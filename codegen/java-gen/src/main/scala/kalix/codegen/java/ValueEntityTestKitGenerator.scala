@@ -165,8 +165,9 @@ object ValueEntityTestKitGenerator {
       s"""|@Test
           |@Ignore("to be implemented")
           |public void ${lowerFirst(command.name)}Test() {
-          |  $testkitClassName testKit = $testkitClassName.of(${entityClassName}::new);
-          |  // ValueEntityResult<${command.outputType.name}> result = testKit.${lowerFirst(command.name)}(${command.inputType.name}.newBuilder()...build());
+          |  $testkitClassName service = $testkitClassName.of(${entityClassName}::new);
+          |  // ${command.inputType.name} command = ${command.inputType.name}.newBuilder()...build();
+          |  // ValueEntityResult<${command.outputType.name}> result = service.${lowerFirst(command.name)}(command);
           |}
           |
           |""".stripMargin
@@ -185,15 +186,16 @@ object ValueEntityTestKitGenerator {
        |  @Test
        |  @Ignore("to be implemented")
        |  public void exampleTest() {
-       |    $testkitClassName testKit = $testkitClassName.of(${entityClassName}::new);
-       |    // use the testkit to execute a command
-       |    // of events emitted, or a final updated state:
-       |    // ValueEntityResult<SomeResponse> result = testKit.someOperation(SomeRequest);
-       |    // verify the response
-       |    // SomeResponse actualResponse = result.getReply();
-       |    // assertEquals(expectedResponse, actualResponse);
-       |    // verify the final state after the command
-       |    // assertEquals(expectedState, testKit.getState());
+       |    $testkitClassName service = $testkitClassName.of(${entityClassName}::new);
+       |    // // use the testkit to execute a command
+       |    // // of events emitted, or a final updated state:
+       |    // SomeCommand command = SomeCommand.newBuilder()...build();
+       |    // ValueEntityResult<SomeResponse> result = service.someOperation(command);
+       |    // // verify the reply
+       |    // SomeReply reply = result.getReply();
+       |    // assertEquals(expectedReply, reply);
+       |    // // verify the final state after the command
+       |    // assertEquals(expectedState, service.getState());
        |  }
        |
        |  ${Format.indent(dummyTestCases, 2)}

@@ -175,8 +175,9 @@ object EventSourcedEntityTestKitGenerator {
       s"""|@Test
           |@Ignore("to be implemented")
           |public void ${lowerFirst(command.name)}Test() {
-          |  $testkitClassName testKit = $testkitClassName.of(${entityClassName}::new);
-          |  // EventSourcedResult<${command.outputType.name}> result = testKit.${lowerFirst(command.name)}(${command.inputType.name}.newBuilder()...build());
+          |  $testkitClassName service = $testkitClassName.of(${entityClassName}::new);
+          |  // ${command.inputType.name} command = ${command.inputType.name}.newBuilder()...build();
+          |  // EventSourcedResult<${command.outputType.name}> result = service.${lowerFirst(command.name)}(command);
           |}
           |
           |""".stripMargin
@@ -195,18 +196,19 @@ object EventSourcedEntityTestKitGenerator {
       |  @Test
       |  @Ignore("to be implemented")
       |  public void exampleTest() {
-      |    $testkitClassName testKit = $testkitClassName.of(${entityClassName}::new);
-      |    // use the testkit to execute a command
-      |    // of events emitted, or a final updated state:
-      |    // EventSourcedResult<SomeResponse> result = testKit.someOperation(SomeRequest);
-      |    // verify the emitted events
+      |    $testkitClassName service = $testkitClassName.of(${entityClassName}::new);
+      |    // // use the testkit to execute a command
+      |    // // of events emitted, or a final updated state:
+      |    // SomeCommand command = SomeCommand.newBuilder()...build();
+      |    // EventSourcedResult<SomeResponse> result = service.someOperation(command);
+      |    // // verify the emitted events
       |    // ExpectedEvent actualEvent = result.getNextEventOfType(ExpectedEvent.class);
-      |    // assertEquals(expectedEvent, actualEvent)
-      |    // verify the final state after applying the events
-      |    // assertEquals(expectedState, testKit.getState());
-      |    // verify the response
-      |    // SomeResponse actualResponse = result.getReply();
-      |    // assertEquals(expectedResponse, actualResponse);
+      |    // assertEquals(expectedEvent, actualEvent);
+      |    // // verify the final state after applying the events
+      |    // assertEquals(expectedState, service.getState());
+      |    // // verify the reply
+      |    // SomeReply reply = result.getReply();
+      |    // assertEquals(expectedReply, reply);
       |  }
       |
       |  ${Format.indent(dummyTestCases, 2)}
