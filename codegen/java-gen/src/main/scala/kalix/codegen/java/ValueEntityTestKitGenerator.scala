@@ -155,6 +155,7 @@ object ValueEntityTestKitGenerator {
         "com.google.protobuf.Empty",
         "kalix.javasdk.valueentity.ValueEntity",
         "kalix.javasdk.testkit.ValueEntityResult",
+        "org.junit.Ignore",
         "org.junit.Test"))
 
     val entityClassName = entity.messageType.name
@@ -162,6 +163,7 @@ object ValueEntityTestKitGenerator {
 
     val dummyTestCases = service.commands.map { command =>
       s"""|@Test
+          |@Ignore("to be implemented")
           |public void ${lowerFirst(command.name)}Test() {
           |  $testkitClassName testKit = $testkitClassName.of(${entityClassName}::new);
           |  // ValueEntityResult<${command.outputType.name}> result = testKit.${lowerFirst(command.name)}(${command.inputType.name}.newBuilder()...build());
@@ -181,6 +183,7 @@ object ValueEntityTestKitGenerator {
        |public class ${entityClassName}Test {
        |
        |  @Test
+       |  @Ignore("to be implemented")
        |  public void exampleTest() {
        |    $testkitClassName testKit = $testkitClassName.of(${entityClassName}::new);
        |    // use the testkit to execute a command

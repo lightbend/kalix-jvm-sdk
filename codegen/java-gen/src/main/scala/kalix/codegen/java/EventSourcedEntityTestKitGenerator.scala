@@ -165,6 +165,7 @@ object EventSourcedEntityTestKitGenerator {
         "kalix.javasdk.eventsourcedentity.EventSourcedEntity",
         "kalix.javasdk.eventsourcedentity.EventSourcedEntityContext",
         "kalix.javasdk.testkit.EventSourcedResult",
+        "org.junit.Ignore",
         "org.junit.Test"))
 
     val entityClassName = entity.messageType.name
@@ -172,6 +173,7 @@ object EventSourcedEntityTestKitGenerator {
 
     val dummyTestCases = service.commands.map { command =>
       s"""|@Test
+          |@Ignore("to be implemented")
           |public void ${lowerFirst(command.name)}Test() {
           |  $testkitClassName testKit = $testkitClassName.of(${entityClassName}::new);
           |  // EventSourcedResult<${command.outputType.name}> result = testKit.${lowerFirst(command.name)}(${command.inputType.name}.newBuilder()...build());
@@ -191,6 +193,7 @@ object EventSourcedEntityTestKitGenerator {
       |public class ${entityClassName}Test {
       |
       |  @Test
+      |  @Ignore("to be implemented")
       |  public void exampleTest() {
       |    $testkitClassName testKit = $testkitClassName.of(${entityClassName}::new);
       |    // use the testkit to execute a command

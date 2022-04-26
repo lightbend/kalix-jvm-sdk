@@ -99,6 +99,7 @@ object ActionTestKitGenerator {
         s"${packageName}.${className}TestKit",
         "akka.stream.javadsl.Source",
         "kalix.javasdk.testkit.ActionResult",
+        "org.junit.Ignore",
         "org.junit.Test",
         "static org.junit.Assert.*")
         ++ commandStreamedTypes(service.commands))
@@ -114,6 +115,7 @@ object ActionTestKitGenerator {
         |public class $testClassName {
         |
         |  @Test
+        |  @Ignore("to be implemented")
         |  public void exampleTest() {
         |    ${className}TestKit testKit = ${className}TestKit.of($className::new);
         |    // use the testkit to execute a command
@@ -149,6 +151,7 @@ object ActionTestKitGenerator {
     service.commands
       .map { command =>
         s"""|@Test
+            |@Ignore("to be implemented")
             |public void ${lowerFirst(command.name)}Test() {
             |  ${service.className}TestKit testKit = ${service.className}TestKit.of(${service.className}::new);""".stripMargin +
         (if (command.isUnary || command.isStreamOut) {

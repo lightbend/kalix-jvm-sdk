@@ -7,6 +7,7 @@ import kalix.javasdk.testkit.ActionResult;
 import org.example.service.MyServiceNamedAction;
 import org.example.service.MyServiceNamedActionTestKit;
 import org.example.service.ServiceOuterClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -18,6 +19,7 @@ import static org.junit.Assert.*;
 public class MyServiceNamedActionTest {
 
   @Test
+  @Ignore("to be implemented")
   public void exampleTest() {
     MyServiceNamedActionTestKit testKit = MyServiceNamedActionTestKit.of(MyServiceNamedAction::new);
     // use the testkit to execute a command
@@ -28,24 +30,28 @@ public class MyServiceNamedActionTest {
   }
 
   @Test
+  @Ignore("to be implemented")
   public void simpleMethodTest() {
     MyServiceNamedActionTestKit testKit = MyServiceNamedActionTestKit.of(MyServiceNamedAction::new);
     // ActionResult<Empty> result = testKit.simpleMethod(ServiceOuterClass.MyRequest.newBuilder()...build());
   }
 
   @Test
+  @Ignore("to be implemented")
   public void streamedOutputMethodTest() {
     MyServiceNamedActionTestKit testKit = MyServiceNamedActionTestKit.of(MyServiceNamedAction::new);
     // Source<ActionResult<Empty>, akka.NotUsed> result = testKit.streamedOutputMethod(ServiceOuterClass.MyRequest.newBuilder()...build());
   }
 
   @Test
+  @Ignore("to be implemented")
   public void streamedInputMethodTest() {
     MyServiceNamedActionTestKit testKit = MyServiceNamedActionTestKit.of(MyServiceNamedAction::new);
     // ActionResult<Empty> result = testKit.streamedInputMethod(Source.single(ServiceOuterClass.MyRequest.newBuilder()...build()));
   }
 
   @Test
+  @Ignore("to be implemented")
   public void fullStreamedMethodTest() {
     MyServiceNamedActionTestKit testKit = MyServiceNamedActionTestKit.of(MyServiceNamedAction::new);
     // Source<ActionResult<Empty>, akka.NotUsed> result = testKit.fullStreamedMethod(Source.single(ServiceOuterClass.MyRequest.newBuilder()...build()));

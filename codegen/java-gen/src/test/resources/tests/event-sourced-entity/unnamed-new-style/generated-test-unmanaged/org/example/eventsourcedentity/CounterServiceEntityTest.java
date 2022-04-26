@@ -5,6 +5,7 @@ import kalix.javasdk.eventsourcedentity.EventSourcedEntity;
 import kalix.javasdk.eventsourcedentity.EventSourcedEntityContext;
 import kalix.javasdk.testkit.EventSourcedResult;
 import org.example.eventsourcedentity.domain.CounterDomain;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -17,6 +18,7 @@ import static org.junit.Assert.*;
 public class CounterServiceEntityTest {
 
   @Test
+  @Ignore("to be implemented")
   public void exampleTest() {
     CounterServiceEntityTestKit testKit = CounterServiceEntityTestKit.of(CounterServiceEntity::new);
     // use the testkit to execute a command
@@ -33,6 +35,7 @@ public class CounterServiceEntityTest {
   }
 
   @Test
+  @Ignore("to be implemented")
   public void increaseTest() {
     CounterServiceEntityTestKit testKit = CounterServiceEntityTestKit.of(CounterServiceEntity::new);
     // EventSourcedResult<Empty> result = testKit.increase(IncreaseValue.newBuilder()...build());
@@ -40,6 +43,7 @@ public class CounterServiceEntityTest {
 
 
   @Test
+  @Ignore("to be implemented")
   public void decreaseTest() {
     CounterServiceEntityTestKit testKit = CounterServiceEntityTestKit.of(CounterServiceEntity::new);
     // EventSourcedResult<Empty> result = testKit.decrease(DecreaseValue.newBuilder()...build());
