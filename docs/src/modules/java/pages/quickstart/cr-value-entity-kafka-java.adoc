@@ -140,14 +140,43 @@ kalix service list
 
 == Invoke your service
 
-Now that you have deployed your service, the next step is to invoke it using gRPCurl
+Once the service has started successfully, you can https://docs.kalix.io/services/invoke-service.html#_testing_and_development[start a proxy locally] to access the service:
 
-. From the "_Service Explorer_" click on the method you want to invoke
-. Click on "_gRPCurl_"
-. In the bottom section of the dialog, fill in the values you want to send to your service
-. In the top section of the dialog, click the "_Copy to clipboard_" button
-. Open a new command line and paste the content you just copied
-. Check the change made to the Customer appears in the topic `customer_changes` in the Kafka cluster on your Confluent Cloud.
+----
+kalix service proxy <service name> --grpcui
+----
+
+The `--grpcui` option also starts and opens a https://docs.kalix.io/services/invoke-service.html#_using_the_built_in_graphical_client[gRPC web UI] for exploring and invoking the service (available at http://127.0.0.1:8080/ui/).
+
+Or you can use command line gRPC or HTTP clients, such as `grpcurl` or `curl`, to invoke the service through the proxy at `localhost:8080`, using plaintext connections.
+
+A customer can be created using the `Create` method on `CustomerService`, in the gRPC web UI, or with `grpcurl`:
+
+----
+grpcurl \
+  -d '{
+    "customer_id": "abc123",
+    "email": "someone@example.com",
+    "name": "Someone",
+    "address": {
+      "street": "123 Some Street",
+      "city": "Somewhere"
+    }
+  }' \
+  --plaintext localhost:8080 \
+  customer.api.CustomerService/Create
+----
+
+The `GetCustomer` method can be used to retrieve this customer, in the gRPC web UI, or with `grpcurl`:
+
+----
+grpcurl \
+  -d '{"customer_id": "abc123"}' \
+  --plaintext localhost:8080 \
+  customer.api.CustomerService/GetCustomer
+----
+
+Check the change made to the Customer appears in the topic `customer_changes` in the Kafka cluster on your Confluent Cloud.
 
 == Next steps
 
