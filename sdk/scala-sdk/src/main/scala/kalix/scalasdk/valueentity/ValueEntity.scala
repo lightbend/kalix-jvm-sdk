@@ -195,7 +195,7 @@ abstract class ValueEntity[S] {
    *
    * <p>It will throw an exception if accessed from constructor.
    */
-  protected def commandContext(): CommandContext = {
+  protected final def commandContext(): CommandContext = {
     try {
       _commandContext.get
     } catch {
@@ -205,11 +205,11 @@ abstract class ValueEntity[S] {
   }
 
   /** INTERNAL API */
-  def _internalSetCommandContext(context: Option[CommandContext]): Unit = {
+  final def _internalSetCommandContext(context: Option[CommandContext]): Unit = {
     _commandContext = context
   }
 
-  protected def effects: ValueEntity.Effect.Builder[S] =
+  protected final def effects: ValueEntity.Effect.Builder[S] =
     ValueEntityEffectImpl[S]()
 
 }

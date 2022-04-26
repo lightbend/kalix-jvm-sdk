@@ -206,7 +206,7 @@ abstract class EventSourcedEntity[S] {
    *
    * <p>It will throw an exception if accessed from constructor.
    */
-  protected def commandContext(): CommandContext = {
+  protected final def commandContext(): CommandContext = {
     try {
       _commandContext.get
     } catch {
@@ -216,7 +216,7 @@ abstract class EventSourcedEntity[S] {
   }
 
   /** INTERNAL API */
-  def _internalSetCommandContext(context: Option[CommandContext]): Unit = {
+  final def _internalSetCommandContext(context: Option[CommandContext]): Unit = {
     _commandContext = context
   }
 
@@ -225,7 +225,7 @@ abstract class EventSourcedEntity[S] {
    *
    * <p>It will throw an exception if accessed from constructor.
    */
-  protected def eventContext(): EventContext = {
+  protected final def eventContext(): EventContext = {
     try {
       _eventContext.get
     } catch {
@@ -235,11 +235,11 @@ abstract class EventSourcedEntity[S] {
   }
 
   /** INTERNAL API */
-  def _internalSetEventContext(context: Option[EventContext]): Unit = {
+  final def _internalSetEventContext(context: Option[EventContext]): Unit = {
     _eventContext = context
   }
 
-  protected def effects: EventSourcedEntity.Effect.Builder[S] =
+  protected final def effects: EventSourcedEntity.Effect.Builder[S] =
     EventSourcedEntityEffectImpl[Any, S]()
 
 }

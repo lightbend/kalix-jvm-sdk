@@ -45,7 +45,7 @@ public abstract class ValueEntity<S> {
    *
    * <p>It will throw an exception if accessed from constructor.
    */
-  protected CommandContext commandContext() {
+  protected final CommandContext commandContext() {
     return commandContext.orElseThrow(
         () ->
             new IllegalStateException("CommandContext is only available when handling a command."));
@@ -56,7 +56,7 @@ public abstract class ValueEntity<S> {
     commandContext = context;
   }
 
-  protected Effect.Builder<S> effects() {
+  protected final Effect.Builder<S> effects() {
     return new ValueEntityEffectImpl<S>();
   }
 
