@@ -628,7 +628,8 @@ jobs:
             mvn -Dkalix-sdk.version=$SDK_VERSION test-compile
 
   sample-java-valueentity-counter-spring-client:
-    machine: true
+    machine:
+      image: ubuntu-2004:202201-02
     steps:
       - checkout-and-merge-to-main
       - setup_sbt
