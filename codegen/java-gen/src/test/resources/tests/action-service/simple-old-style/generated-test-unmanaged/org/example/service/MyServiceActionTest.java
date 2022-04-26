@@ -21,12 +21,13 @@ public class MyServiceActionTest {
   @Test
   @Ignore("to be implemented")
   public void exampleTest() {
-    MyServiceActionTestKit testKit = MyServiceActionTestKit.of(MyServiceAction::new);
-    // use the testkit to execute a command
-    // ActionResult<SomeResponse> result = testKit.someOperation(SomeRequest);
-    // verify the response
-    // SomeResponse actualResponse = result.getReply();
-    // assertEquals(expectedResponse, actualResponse);
+    MyServiceActionTestKit service = MyServiceActionTestKit.of(MyServiceAction::new);
+    // // use the testkit to execute a command
+    // SomeCommand command = SomeCommand.newBuilder()...build();
+    // ActionResult<SomeResponse> result = service.someOperation(command);
+    // // verify the reply
+    // SomeReply reply = result.getReply();
+    // assertEquals(expectedReply, reply);
   }
 
   @Test

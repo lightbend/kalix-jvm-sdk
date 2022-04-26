@@ -117,12 +117,13 @@ object ActionTestKitGenerator {
         |  @Test
         |  @Ignore("to be implemented")
         |  public void exampleTest() {
-        |    ${className}TestKit testKit = ${className}TestKit.of($className::new);
-        |    // use the testkit to execute a command
-        |    // ActionResult<SomeResponse> result = testKit.someOperation(SomeRequest);
-        |    // verify the response
-        |    // SomeResponse actualResponse = result.getReply();
-        |    // assertEquals(expectedResponse, actualResponse);
+        |    ${className}TestKit service = ${className}TestKit.of($className::new);
+        |    // // use the testkit to execute a command
+        |    // SomeCommand command = SomeCommand.newBuilder()...build();
+        |    // ActionResult<SomeResponse> result = service.someOperation(command);
+        |    // // verify the reply
+        |    // SomeReply reply = result.getReply();
+        |    // assertEquals(expectedReply, reply);
         |  }
         |
         |  ${Format.indent(generateTestingServices(service), 2)}

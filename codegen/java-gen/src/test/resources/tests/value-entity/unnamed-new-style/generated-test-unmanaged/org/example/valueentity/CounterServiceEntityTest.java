@@ -19,30 +19,33 @@ public class CounterServiceEntityTest {
   @Test
   @Ignore("to be implemented")
   public void exampleTest() {
-    CounterServiceEntityTestKit testKit = CounterServiceEntityTestKit.of(CounterServiceEntity::new);
-    // use the testkit to execute a command
-    // of events emitted, or a final updated state:
-    // ValueEntityResult<SomeResponse> result = testKit.someOperation(SomeRequest);
-    // verify the response
-    // SomeResponse actualResponse = result.getReply();
-    // assertEquals(expectedResponse, actualResponse);
-    // verify the final state after the command
-    // assertEquals(expectedState, testKit.getState());
+    CounterServiceEntityTestKit service = CounterServiceEntityTestKit.of(CounterServiceEntity::new);
+    // // use the testkit to execute a command
+    // // of events emitted, or a final updated state:
+    // SomeCommand command = SomeCommand.newBuilder()...build();
+    // ValueEntityResult<SomeResponse> result = service.someOperation(command);
+    // // verify the reply
+    // SomeReply reply = result.getReply();
+    // assertEquals(expectedReply, reply);
+    // // verify the final state after the command
+    // assertEquals(expectedState, service.getState());
   }
 
   @Test
   @Ignore("to be implemented")
   public void increaseTest() {
-    CounterServiceEntityTestKit testKit = CounterServiceEntityTestKit.of(CounterServiceEntity::new);
-    // ValueEntityResult<Empty> result = testKit.increase(IncreaseValue.newBuilder()...build());
+    CounterServiceEntityTestKit service = CounterServiceEntityTestKit.of(CounterServiceEntity::new);
+    // IncreaseValue command = IncreaseValue.newBuilder()...build();
+    // ValueEntityResult<Empty> result = service.increase(command);
   }
 
 
   @Test
   @Ignore("to be implemented")
   public void decreaseTest() {
-    CounterServiceEntityTestKit testKit = CounterServiceEntityTestKit.of(CounterServiceEntity::new);
-    // ValueEntityResult<Empty> result = testKit.decrease(DecreaseValue.newBuilder()...build());
+    CounterServiceEntityTestKit service = CounterServiceEntityTestKit.of(CounterServiceEntity::new);
+    // DecreaseValue command = DecreaseValue.newBuilder()...build();
+    // ValueEntityResult<Empty> result = service.decrease(command);
   }
 
 }
