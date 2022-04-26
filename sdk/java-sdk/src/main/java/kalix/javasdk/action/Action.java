@@ -36,9 +36,20 @@ public abstract class Action {
    * <p>It will throw an exception if accessed from constructor.
    */
   protected final ActionContext actionContext() {
-    return actionContext.orElseThrow(
-        () ->
-            new IllegalStateException("ActionContext is only available when handling a message."));
+    return actionContext("ActionContext is only available when handling a message.");
+  }
+
+  /**
+   * INTERNAL API
+   *
+   * <p>Same as actionContext, but if specific error message when accessing components.
+   */
+  protected final ActionContext contextForComponents() {
+    return actionContext("Components can only be accessed when handling a message.");
+  }
+
+  private ActionContext actionContext(String errorMessage) {
+    return actionContext.orElseThrow(() -> new IllegalStateException(errorMessage));
   }
 
   /** INTERNAL API */

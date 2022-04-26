@@ -14,7 +14,7 @@ import org.example.ComponentsImpl
 abstract class AbstractMyServiceNamedAction extends Action {
 
   def components: Components =
-    new ComponentsImpl(actionContext)
+    new ComponentsImpl(contextForComponents)
 
   def simpleMethod(myRequest: MyRequest): Action.Effect[Empty]
 

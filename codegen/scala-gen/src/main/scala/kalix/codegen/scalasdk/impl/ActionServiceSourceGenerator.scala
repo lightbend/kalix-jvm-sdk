@@ -135,7 +135,7 @@ object ActionServiceSourceGenerator {
           |abstract class ${service.abstractActionName} extends $Action {
           |
           |  def components: $Components =
-          |    new ${ComponentsImpl}(actionContext)
+          |    new ${ComponentsImpl}(contextForComponents)
           |
           |  $methods
           |}
