@@ -18,30 +18,33 @@ public class CounterTest {
   @Test
   @Ignore("to be implemented")
   public void exampleTest() {
-    CounterTestKit testKit = CounterTestKit.of(Counter::new);
-    // use the testkit to execute a command
-    // of events emitted, or a final updated state:
-    // ValueEntityResult<SomeResponse> result = testKit.someOperation(SomeRequest);
-    // verify the response
-    // SomeResponse actualResponse = result.getReply();
-    // assertEquals(expectedResponse, actualResponse);
-    // verify the final state after the command
-    // assertEquals(expectedState, testKit.getState());
+    CounterTestKit service = CounterTestKit.of(Counter::new);
+    // // use the testkit to execute a command
+    // // of events emitted, or a final updated state:
+    // SomeCommand command = SomeCommand.newBuilder()...build();
+    // ValueEntityResult<SomeResponse> result = service.someOperation(command);
+    // // verify the reply
+    // SomeReply reply = result.getReply();
+    // assertEquals(expectedReply, reply);
+    // // verify the final state after the command
+    // assertEquals(expectedState, service.getState());
   }
 
   @Test
   @Ignore("to be implemented")
   public void increaseTest() {
-    CounterTestKit testKit = CounterTestKit.of(Counter::new);
-    // ValueEntityResult<Empty> result = testKit.increase(IncreaseValue.newBuilder()...build());
+    CounterTestKit service = CounterTestKit.of(Counter::new);
+    // IncreaseValue command = IncreaseValue.newBuilder()...build();
+    // ValueEntityResult<Empty> result = service.increase(command);
   }
 
 
   @Test
   @Ignore("to be implemented")
   public void decreaseTest() {
-    CounterTestKit testKit = CounterTestKit.of(Counter::new);
-    // ValueEntityResult<Empty> result = testKit.decrease(DecreaseValue.newBuilder()...build());
+    CounterTestKit service = CounterTestKit.of(Counter::new);
+    // DecreaseValue command = DecreaseValue.newBuilder()...build();
+    // ValueEntityResult<Empty> result = service.decrease(command);
   }
 
 }

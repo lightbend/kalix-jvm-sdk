@@ -20,33 +20,36 @@ public class CounterTest {
   @Test
   @Ignore("to be implemented")
   public void exampleTest() {
-    CounterTestKit testKit = CounterTestKit.of(Counter::new);
-    // use the testkit to execute a command
-    // of events emitted, or a final updated state:
-    // EventSourcedResult<SomeResponse> result = testKit.someOperation(SomeRequest);
-    // verify the emitted events
+    CounterTestKit service = CounterTestKit.of(Counter::new);
+    // // use the testkit to execute a command
+    // // of events emitted, or a final updated state:
+    // SomeCommand command = SomeCommand.newBuilder()...build();
+    // EventSourcedResult<SomeResponse> result = service.someOperation(command);
+    // // verify the emitted events
     // ExpectedEvent actualEvent = result.getNextEventOfType(ExpectedEvent.class);
-    // assertEquals(expectedEvent, actualEvent)
-    // verify the final state after applying the events
-    // assertEquals(expectedState, testKit.getState());
-    // verify the response
-    // SomeResponse actualResponse = result.getReply();
-    // assertEquals(expectedResponse, actualResponse);
+    // assertEquals(expectedEvent, actualEvent);
+    // // verify the final state after applying the events
+    // assertEquals(expectedState, service.getState());
+    // // verify the reply
+    // SomeReply reply = result.getReply();
+    // assertEquals(expectedReply, reply);
   }
 
   @Test
   @Ignore("to be implemented")
   public void increaseTest() {
-    CounterTestKit testKit = CounterTestKit.of(Counter::new);
-    // EventSourcedResult<Empty> result = testKit.increase(IncreaseValue.newBuilder()...build());
+    CounterTestKit service = CounterTestKit.of(Counter::new);
+    // IncreaseValue command = IncreaseValue.newBuilder()...build();
+    // EventSourcedResult<Empty> result = service.increase(command);
   }
 
 
   @Test
   @Ignore("to be implemented")
   public void decreaseTest() {
-    CounterTestKit testKit = CounterTestKit.of(Counter::new);
-    // EventSourcedResult<Empty> result = testKit.decrease(DecreaseValue.newBuilder()...build());
+    CounterTestKit service = CounterTestKit.of(Counter::new);
+    // DecreaseValue command = DecreaseValue.newBuilder()...build();
+    // EventSourcedResult<Empty> result = service.decrease(command);
   }
 
 }
