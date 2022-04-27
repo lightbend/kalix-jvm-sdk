@@ -11,7 +11,7 @@
 
   <properties>
     <!-- TODO Update to your own Docker repository or Docker Hub scope -->
-    <dockerImage>franciscolopezsancho/${project.artifactId}</dockerImage>
+    <dockerImage>my-docker-repo/${project.artifactId}</dockerImage>
     <dockerTag>${project.version}</dockerTag>
     <mainClass>customer.Main</mainClass>
 
