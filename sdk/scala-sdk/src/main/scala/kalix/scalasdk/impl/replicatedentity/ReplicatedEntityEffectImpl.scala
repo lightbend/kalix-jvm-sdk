@@ -56,11 +56,11 @@ private[scalasdk] final case class ReplicatedEntityEffectImpl[D <: ReplicatedDat
         ReplicatedEntityEffectImpl(javaSdkEffect.forward(javaSdkDeferredCall))
     }
 
-  def error[T](description: String, statusCode: Option[Status.Code]): ReplicatedEntity.Effect[T] =
-    ReplicatedEntityEffectImpl(statusCode match {
-      case Some(code) => javaSdkEffect.error(description, code)
-      case None       => javaSdkEffect.error(description)
-    })
+  def error[T](description: String): ReplicatedEntity.Effect[T] =
+    ReplicatedEntityEffectImpl(javaSdkEffect.error(description))
+
+  def error[T](description: String, statusCode: Status.Code): ReplicatedEntity.Effect[T] =
+    ReplicatedEntityEffectImpl(javaSdkEffect.error(description, statusCode))
 
   override def noReply[T]: ReplicatedEntity.Effect[T] =
     ReplicatedEntityEffectImpl(javaSdkEffect.noReply())

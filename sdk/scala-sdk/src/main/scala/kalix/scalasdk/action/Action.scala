@@ -105,14 +105,26 @@ object Action {
        *
        * @param description
        *   The description of the error.
-       * @param statusCode
-       *   An optional gRPC status code.
        * @return
        *   An error reply.
        * @tparam S
        *   The type of the message that must be returned by this call.
        */
-      def error[S](description: String, statusCode: Option[Status.Code] = None): Action.Effect[S]
+      def error[S](description: String): Action.Effect[S]
+
+      /**
+       * Create an error reply.
+       *
+       * @param description
+       *   The description of the error.
+       * @param statusCode
+       *   A gRPC status code.
+       * @return
+       *   An error reply.
+       * @tparam S
+       *   The type of the message that must be returned by this call.
+       */
+      def error[S](description: String, statusCode: Status.Code): Action.Effect[S]
 
       /**
        * Create a message reply from an async operation result.

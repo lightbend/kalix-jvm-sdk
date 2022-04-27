@@ -42,11 +42,11 @@ private[scalasdk] final case class EventSourcedEntityEffectImpl[R, S](
   def emitEvents(event: List[_]): EventSourcedEntity.Effect.OnSuccessBuilder[S] =
     EventSourcedEntityEffectImpl(javasdkEffect.emitEvents(event.asJava))
 
-  def error[T](description: String, statusCode: Option[Status.Code]): EventSourcedEntity.Effect[T] =
-    EventSourcedEntityEffectImpl(statusCode match {
-      case Some(code) => javasdkEffect.error[T](description, code)
-      case None       => javasdkEffect.error[T](description)
-    })
+  def error[T](description: String): EventSourcedEntity.Effect[T] =
+    EventSourcedEntityEffectImpl(javasdkEffect.error[T](description))
+
+  def error[T](description: String, statusCode: Status.Code): EventSourcedEntity.Effect[T] =
+    EventSourcedEntityEffectImpl(javasdkEffect.error[T](description, statusCode))
 
   def forward[T](deferredCall: DeferredCall[_, T]): EventSourcedEntity.Effect[T] =
     deferredCall match {

@@ -129,14 +129,19 @@ private[scalasdk] object ActionEffectImpl {
     override def reply[S](message: S, metadata: Metadata): Action.Effect[S] = ReplyEffect(message, Some(metadata), Nil)
     override def forward[S](serviceCall: DeferredCall[_, S]): Action.Effect[S] = ForwardEffect(serviceCall, Nil)
     override def noReply[S]: Action.Effect[S] = NoReply(Nil)
-    override def error[S](description: String, statusCode: Option[Status.Code]): Action.Effect[S] = {
-      if (statusCode.exists(_.toStatus.isOk)) throw new IllegalArgumentException("Cannot fail with a success status")
-      ErrorEffect(description, statusCode, Nil)
-    }
+
+    override def error[S](description: String): Action.Effect[S] =
+      ErrorEffect(description, None, Nil)
+
+    override def error[S](description: String, statusCode: Status.Code): Action.Effect[S] =
+      if (statusCode.toStatus.isOk) throw new IllegalArgumentException("Cannot fail with a success status")
+      else ErrorEffect(description, Some(statusCode), Nil)
+
     override def asyncReply[S](futureMessage: Future[S]): Action.Effect[S] =
       AsyncEffect(futureMessage.map(s => Builder.reply[S](s))(ExecutionContext.parasitic), Nil)
     override def asyncEffect[S](futureEffect: Future[Action.Effect[S]]): Action.Effect[S] =
       AsyncEffect(futureEffect, Nil)
+
   }
 
   def builder(): Action.Effect.Builder = Builder

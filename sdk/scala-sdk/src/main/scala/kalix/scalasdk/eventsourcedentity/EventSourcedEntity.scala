@@ -99,14 +99,26 @@ object EventSourcedEntity {
        *
        * @param description
        *   The description of the error.
-       * @param statusCode
-       *   An optional gRPC status code.
        * @return
        *   An error reply.
        * @tparam T
        *   The type of the message that must be returned by this call.
        */
-      def error[T](description: String, statusCode: Option[Status.Code] = None): Effect[T]
+      def error[T](description: String): Effect[T]
+
+      /**
+       * Create an error reply.
+       *
+       * @param description
+       *   The description of the error.
+       * @param statusCode
+       *   A gRPC status code.
+       * @return
+       *   An error reply.
+       * @tparam T
+       *   The type of the message that must be returned by this call.
+       */
+      def error[T](description: String, statusCode: Status.Code): Effect[T]
 
       /**
        * Create a reply that contains neither a message nor a forward nor an error.
