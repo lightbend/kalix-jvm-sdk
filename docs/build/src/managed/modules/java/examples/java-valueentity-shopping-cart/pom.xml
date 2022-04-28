@@ -5,7 +5,7 @@
 
     <groupId>com.example</groupId>
     <artifactId>valueentity-shoppingcart</artifactId>
-    <version>0.0.2-SNAPSHOT</version>
+    <version>0.0.3-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>Shopping Cart as Value Entity</name>
@@ -115,7 +115,7 @@
       <plugin>
         <groupId>io.fabric8</groupId>
         <artifactId>docker-maven-plugin</artifactId>
-        <version>0.36.0</version>
+        <version>0.39.1</version>
         <configuration>
           <images>
             <image>
@@ -123,6 +123,9 @@
               <build>
                 <!-- Base Docker image which contains jre-->
                 <from>docker.io/library/adoptopenjdk:${jdk.target}-jre-hotspot</from>
+                <createImageOptions>
+                  <platform>linux/amd64</platform>
+                </createImageOptions>
                 <tags>
                   <!-- tag for generated image -->
                   <tag>${dockerTag}</tag>

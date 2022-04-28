@@ -19,14 +19,13 @@ public final class Main {
 
   // tag::register[]
   public static Kalix createKalix() {
-    // FIXME temporarily changed to set a short view id to not hit view id limit of 21 chars
     Kalix kalix = new Kalix();
     kalix.register(CustomerValueEntityProvider.of(CustomerValueEntity::new));
     kalix.register(CustomerActionProvider.of(CustomerActionImpl::new));
-    kalix.register(CustomerByEmailViewProvider.of(CustomerByEmailView::new).withViewId("ByEmail"));
-    kalix.register(CustomerByNameViewProvider.of(CustomerByNameView::new).withViewId("ByName"));
-    kalix.register(CustomerSummaryByNameViewProvider.of(CustomerSummaryByNameView::new).withViewId("Summary"));
-    kalix.register(CustomersResponseByNameViewProvider.of(CustomersResponseByNameView::new).withViewId("Response"));
+    kalix.register(CustomerByEmailViewProvider.of(CustomerByEmailView::new));
+    kalix.register(CustomerByNameViewProvider.of(CustomerByNameView::new));
+    kalix.register(CustomerSummaryByNameViewProvider.of(CustomerSummaryByNameView::new));
+    kalix.register(CustomersResponseByNameViewProvider.of(CustomersResponseByNameView::new));
     return kalix;
   }
   // end::register[]

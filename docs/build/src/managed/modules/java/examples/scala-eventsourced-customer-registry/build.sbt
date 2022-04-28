@@ -13,6 +13,13 @@ dockerRepository := sys.props.get("docker.registry")
 // two Main files in this project changes entry point
 dockerEntrypoint := Seq("bin/main")
 dockerUpdateLatest := true
+dockerBuildCommand := {
+  if (sys.props("os.arch") != "amd64") {
+    // use buildx with platform to build supported amd64 images on other CPU architectures
+    // this may require that you have first run 'docker buildx create' to set docker buildx up
+    dockerExecCommand.value ++ Seq("buildx", "build", "--platform=linux/amd64", "--load") ++ dockerBuildOptions.value :+ "."
+  } else dockerBuildCommand.value
+}
 ThisBuild / dynverSeparator := "-"
 
 Compile / scalacOptions ++= Seq(

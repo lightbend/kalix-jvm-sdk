@@ -13,7 +13,8 @@
 <!--[if IE]>
 <script type="text/javascript" src="../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
 <![endif]-->
-<script type="text/javascript" src="../../../jquery/jquery-3.5.1.js"></script>
+<script type="text/javascript" src="../../../jquery/jquery-3.3.1.js"></script>
+<script type="text/javascript" src="../../../jquery/jquery-migrate-3.0.1.js"></script>
 <script type="text/javascript" src="../../../jquery/jquery-ui.js"></script>
 </head>
 <body>
@@ -300,7 +301,7 @@ extends Object</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>commandContext</h4>
-<pre class="methodSignature">protected&nbsp;<a href="CommandContext.html" title="interface in kalix.javasdk.replicatedentity">CommandContext</a>&nbsp;commandContext()</pre>
+<pre class="methodSignature">protected final&nbsp;<a href="CommandContext.html" title="interface in kalix.javasdk.replicatedentity">CommandContext</a>&nbsp;commandContext()</pre>
 <div class="block">Additional context and metadata for a command handler.
 
  <p>It will throw an exception if accessed from the entity constructor.</div>
@@ -322,7 +323,7 @@ extends Object</pre>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>effects</h4>
-<pre class="methodSignature">protected&nbsp;&lt;R&gt;&nbsp;<a href="ReplicatedEntity.Effect.Builder.html" title="interface in kalix.javasdk.replicatedentity">ReplicatedEntity.Effect.Builder</a>&lt;<a href="ReplicatedEntity.html" title="type parameter in ReplicatedEntity">D</a>&gt;&nbsp;effects()</pre>
+<pre class="methodSignature">protected final&nbsp;&lt;R&gt;&nbsp;<a href="ReplicatedEntity.Effect.Builder.html" title="interface in kalix.javasdk.replicatedentity">ReplicatedEntity.Effect.Builder</a>&lt;<a href="ReplicatedEntity.html" title="type parameter in ReplicatedEntity">D</a>&gt;&nbsp;effects()</pre>
 </li>
 </ul>
 </li>
