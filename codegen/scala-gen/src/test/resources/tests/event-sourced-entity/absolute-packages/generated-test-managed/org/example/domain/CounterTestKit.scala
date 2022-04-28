@@ -1,20 +1,20 @@
 package org.example.domain
 
-import com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntity
-import com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntityContext
-import com.akkaserverless.scalasdk.testkit.EventSourcedResult
-import com.akkaserverless.scalasdk.testkit.impl.EventSourcedEntityEffectsRunner
-import com.akkaserverless.scalasdk.testkit.impl.EventSourcedResultImpl
-import com.akkaserverless.scalasdk.testkit.impl.TestKitEventSourcedEntityCommandContext
-import com.akkaserverless.scalasdk.testkit.impl.TestKitEventSourcedEntityContext
-import com.akkaserverless.scalasdk.testkit.impl.TestKitEventSourcedEntityEventContext
 import com.google.protobuf.empty.Empty
+import kalix.scalasdk.eventsourcedentity.EventSourcedEntity
+import kalix.scalasdk.eventsourcedentity.EventSourcedEntityContext
+import kalix.scalasdk.testkit.EventSourcedResult
+import kalix.scalasdk.testkit.impl.EventSourcedEntityEffectsRunner
+import kalix.scalasdk.testkit.impl.EventSourcedResultImpl
+import kalix.scalasdk.testkit.impl.TestKitEventSourcedEntityCommandContext
+import kalix.scalasdk.testkit.impl.TestKitEventSourcedEntityContext
+import kalix.scalasdk.testkit.impl.TestKitEventSourcedEntityEventContext
 import org.example.eventsourcedentity
 import org.example.state.CounterState
 
 import scala.collection.immutable.Seq
 
-// This code is managed by Akka Serverless tooling.
+// This code is managed by Kalix tooling.
 // It will be re-generated to reflect any changes to your protobuf definitions.
 // DO NOT EDIT
 

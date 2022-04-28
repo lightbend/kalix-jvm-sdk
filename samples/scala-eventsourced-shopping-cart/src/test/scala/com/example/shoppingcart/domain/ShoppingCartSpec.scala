@@ -1,7 +1,7 @@
 package com.example.shoppingcart.domain
 
-import com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntity
-import com.akkaserverless.scalasdk.testkit.EventSourcedResult
+import kalix.scalasdk.eventsourcedentity.EventSourcedEntity
+import kalix.scalasdk.testkit.EventSourcedResult
 import com.example.shoppingcart
 import com.example.shoppingcart.AddLineItem
 import com.google.protobuf.empty.Empty

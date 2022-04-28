@@ -3,8 +3,8 @@ package com.example.fibonacci
 import akka.actor.ActorSystem
 import akka.stream.scaladsl.Sink
 import akka.stream.scaladsl.Source
-import com.akkaserverless.scalasdk.action.Action
-import com.akkaserverless.scalasdk.testkit.ActionResult
+import kalix.scalasdk.action.Action
+import kalix.scalasdk.testkit.ActionResult
 import com.example.fibonacci
 import org.scalatest.Assertions.pending
 import org.scalatest.concurrent.ScalaFutures
@@ -39,7 +39,7 @@ class FibonacciActionSpec
       }
     }
 
-    // Not possible until testkit provides materializer https://github.com/lightbend/akkaserverless-java-sdk/issues/495
+    // Not possible until testkit provides materializer https://github.com/lightbend/kalix-jvm-sdk/issues/495
     "handle command NextNumberOfSum" in pendingUntilFixed {
       val testKit = FibonacciActionTestKit(new FibonacciAction(_))
       val result = testKit.nextNumberOfSum(Source.single(Number(5)))

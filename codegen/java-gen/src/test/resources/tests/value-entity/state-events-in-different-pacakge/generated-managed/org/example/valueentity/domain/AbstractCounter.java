@@ -1,13 +1,13 @@
 package org.example.valueentity.domain;
 
-import com.akkaserverless.javasdk.valueentity.ValueEntity;
 import com.google.protobuf.Empty;
+import kalix.javasdk.valueentity.ValueEntity;
 import org.example.Components;
 import org.example.ComponentsImpl;
 import org.example.valueentity.CounterApi;
 import org.example.valueentity.state.OuterCounterState;
 
-// This code is managed by Akka Serverless tooling.
+// This code is managed by Kalix tooling.
 // It will be re-generated to reflect any changes to your protobuf definitions.
 // DO NOT EDIT
 

@@ -1,15 +1,15 @@
 # Shopping Cart example (using a Replicated Entity)
 
-This example project implements an API for a shopping cart using an Akka Serverless Replicated Entity.
+This example project implements an API for a shopping cart using a Kalix Replicated Entity.
 ## Designing
 
-While designing your service it is useful to read [designing services](https://developer.lightbend.com/docs/akka-serverless/services/development-process.html)
+While designing your service it is useful to read [designing services](https://docs.kalix.io/services/development-process.html)
 
 ## Developing
 
 This project has a bare-bones skeleton service ready to go, but in order to adapt and
-extend it it may be useful to read up on [developing services](https://developer.lightbend.com/docs/akka-serverless/developing/index.html)
-and in particular the [JVM section](https://developer.lightbend.com/docs/akka-serverless/java-services/index.html)
+extend it it may be useful to read up on [developing services](https://docs.kalix.io/services/)
+and in particular the [JVM section](https://docs.kalix.io/java/)
 
 ## Building
 
@@ -22,11 +22,11 @@ sbt compile
 
 ## Running Locally
 
-In order to run your application locally, you must run the Akka Serverless proxy. The included `docker-compose` file contains the configuration required to run the proxy for a locally running application.
-It also contains the configuration to start a local Google Pub/Sub emulator that the Akka Serverless proxy will connect to.
+In order to run your application locally, you must run the Kalix proxy. The included `docker-compose` file contains the configuration required to run the proxy for a locally running application.
+It also contains the configuration to start a local Google Pub/Sub emulator that the Kalix proxy will connect to.
 To start the proxy, run the following command from this directory:
 
-```
+```shell
 docker-compose up
 ```
 
@@ -39,7 +39,7 @@ To start the application locally, start it from your IDE or use:
 sbt run
 ```
 
-With both the proxy and your application running, any defined endpoints should be available at `http://localhost:9000`. In addition to the defined gRPC interface, each method has a corresponding HTTP endpoint. Unless configured otherwise (see [Transcoding HTTP](https://developer.lightbend.com/docs/akka-serverless/java/proto.html#_transcoding_http)), this endpoint accepts POST requests at the path `/[package].[entity name]/[method]`. For example, using `curl`:
+With both the proxy and your application running, any defined endpoints should be available at `http://localhost:9000`. In addition to the defined gRPC interface, each method has a corresponding HTTP endpoint. Unless configured otherwise (see [Transcoding HTTP](https://docs.kalix.io/java/writing-grpc-descriptors-protobuf.html#_transcoding_http)), this endpoint accepts POST requests at the path `/[package].[entity name]/[method]`. For example, using `curl`:
 
 * Send an AddItem command:
 
@@ -70,8 +70,8 @@ grpcurl --plaintext -d '{"cart_id": "cart1", "product_id": "akka-tshirt", "name"
 
 ## Deploying
 
-To deploy your service, install the `akkasls` CLI as documented in
-[Setting up a local development environment](https://developer.lightbend.com/docs/akka-serverless/setting-up/)
+To deploy your service, install the `kalix` CLI as documented in
+[Setting up a local development environment](https://docs.kalix.io/setting-up/)
 and configure a Docker Registry to upload your docker image to.
 
 You will need to set your `docker.username` as a system property:
@@ -80,9 +80,9 @@ You will need to set your `docker.username` as a system property:
 sbt -Ddocker.username=mary docker:publish
 ```
 
-Refer to [Configuring registries](https://developer.lightbend.com/docs/akka-serverless/projects/container-registries.html)
-for more information on how to make your docker image available to Akka Serverless.
+Refer to [Configuring registries](https://docs.kalix.io/projects/container-registries.html)
+for more information on how to make your docker image available to Kalix.
 
-Finally you can or use the [Akka Serverless Console](https://console.akkaserverless.com)
+Finally you can or use the [Kalix Console](https://console.kalix.io)
 to create a project and then deploy your service into the project
-through the `akkasls` CLI or via the web interface.
+through the `kalix` CLI.

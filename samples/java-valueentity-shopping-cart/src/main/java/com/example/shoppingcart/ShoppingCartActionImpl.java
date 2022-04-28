@@ -1,7 +1,7 @@
 package com.example.shoppingcart;
 
-import com.akkaserverless.javasdk.DeferredCall;
-import com.akkaserverless.javasdk.action.ActionCreationContext;
+import kalix.javasdk.DeferredCall;
+import kalix.javasdk.action.ActionCreationContext;
 import com.google.protobuf.Empty;
 
 import java.util.UUID;

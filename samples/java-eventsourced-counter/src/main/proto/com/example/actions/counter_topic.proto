@@ -16,7 +16,7 @@
 syntax = "proto3";
 package com.example.actions;
 
-import "akkaserverless/annotations.proto"; 
+import "kalix/annotations.proto";
 import "com/example/domain/counter_domain.proto"; // <1>
 import "google/protobuf/empty.proto";
 // tag::counter-topic[]
@@ -34,32 +34,32 @@ message Decreased {
 }
 
 service CounterJournalToTopic {
-  option (akkaserverless.codegen) = { 
+  option (kalix.codegen) = {
     action: {}  // <2>
   };
-  
+
   rpc Increase (com.example.domain.ValueIncreased) returns (Increased) { // <3>
-    option (akkaserverless.method).eventing.in = { // <4>
-      event_sourced_entity: "counter" 
+    option (kalix.method).eventing.in = { // <4>
+      event_sourced_entity: "counter"
     };
-    option (akkaserverless.method).eventing.out = { // <5>
-      topic:  "counter-events"
-    };
-  } 
-  
-  rpc Decrease (com.example.domain.ValueDecreased) returns (Decreased) { 
-    option (akkaserverless.method).eventing.in = { 
-      event_sourced_entity: "counter" 
-    };
-    option (akkaserverless.method).eventing.out = { 
+    option (kalix.method).eventing.out = { // <5>
       topic:  "counter-events"
     };
   }
-  
+
+  rpc Decrease (com.example.domain.ValueDecreased) returns (Decreased) {
+    option (kalix.method).eventing.in = {
+      event_sourced_entity: "counter"
+    };
+    option (kalix.method).eventing.out = {
+      topic:  "counter-events"
+    };
+  }
+
   // end::counter-topic[]
   // tag::counter-ignore[]
-  rpc Ignore(google.protobuf.Any) returns (google.protobuf.Empty) { 
-    option (akkaserverless.method).eventing.in = { // <1>
+  rpc Ignore(google.protobuf.Any) returns (google.protobuf.Empty) {
+    option (kalix.method).eventing.in = { // <1>
       event_sourced_entity: "counter"
     };
   }

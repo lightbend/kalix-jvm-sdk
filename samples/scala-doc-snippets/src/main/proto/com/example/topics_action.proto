@@ -4,7 +4,7 @@
 syntax = "proto3";
 package com.example;
 
-import "akkaserverless/annotations.proto";
+import "kalix/annotations.proto";
 // end::cloudEvent[]
 import "google/protobuf/wrappers.proto"; // <1>
 // tag::cloudEvent[]
@@ -19,28 +19,28 @@ message TopicOperation {
 // tag::text[]
 
 service MyTopicsAction {
-  option (akkaserverless.codegen) = {
+  option (kalix.codegen) = {
     action: {}
   };
 
   // end::bytes[]
   // end::cloudEvent[]
   rpc ConsumeStringTopic(google.protobuf.StringValue) returns (google.protobuf.Empty) { // <2>
-    option (akkaserverless.method).eventing.in = {
+    option (kalix.method).eventing.in = {
       topic: "strings_topic"
     };
   }
   // end::text[]
   // tag::bytes[]
   rpc ConsumeRawBytesTopic(google.protobuf.BytesValue) returns (google.protobuf.Empty) { // <2>
-    option (akkaserverless.method).eventing.in = {
+    option (kalix.method).eventing.in = {
       topic: "bytes_topic"
     };
   }
   // end::bytes[]
   // tag::cloudEvent[]
   rpc ProtobufFromTopic(TopicOperation) returns (google.protobuf.Empty) { // <1>
-    option (akkaserverless.method).eventing.in = {
+    option (kalix.method).eventing.in = {
       topic:  "shopping-cart-protobuf-cloudevents"
     };
   }

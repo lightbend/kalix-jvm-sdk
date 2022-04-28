@@ -2,11 +2,11 @@ package org.example.service
 
 import akka.NotUsed
 import akka.stream.scaladsl.Source
-import com.akkaserverless.scalasdk.action.Action
-import com.akkaserverless.scalasdk.action.ActionCreationContext
+import kalix.scalasdk.action.Action
+import kalix.scalasdk.action.ActionCreationContext
 import org.external.Empty
 
-// This class was initially generated based on the .proto definition by Akka Serverless tooling.
+// This class was initially generated based on the .proto definition by Kalix tooling.
 //
 // As long as this file exists it will not be overwritten: you can maintain it yourself,
 // or delete it so it is regenerated as needed.

@@ -4,7 +4,7 @@ import akka.NotUsed;
 import akka.actor.ActorSystem;
 import akka.stream.javadsl.Sink;
 import akka.stream.javadsl.Source;
-import com.akkaserverless.javasdk.testkit.ActionResult;
+import kalix.javasdk.testkit.ActionResult;
 import com.example.fibonacci.FibonacciAction;
 import com.example.fibonacci.FibonacciActionTestKit;
 import com.example.fibonacci.FibonacciApi;
@@ -47,7 +47,7 @@ public class FibonacciActionTest {
     }
   }
 
-  // Not possible until testkit provides materializer https://github.com/lightbend/akkaserverless-java-sdk/issues/495
+  // Not possible until testkit provides materializer https://github.com/lightbend/kalix-jvm-sdk/issues/495
   /*
   @Test
   public void nextNumberOfSumTest() {

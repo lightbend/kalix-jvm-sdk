@@ -1,11 +1,11 @@
 package org.example.valueentity.domain;
 
-import com.akkaserverless.javasdk.valueentity.ValueEntityContext;
 import com.google.protobuf.Empty;
+import kalix.javasdk.valueentity.ValueEntityContext;
 import org.example.valueentity.CounterApi;
 import org.example.valueentity.state.OuterCounterState;
 
-// This class was initially generated based on the .proto definition by Akka Serverless tooling.
+// This class was initially generated based on the .proto definition by Kalix tooling.
 // This is the implementation for the Value Entity Service described in your counter_api.proto file.
 //
 // As long as this file exists it will not be overwritten: you can maintain it yourself,

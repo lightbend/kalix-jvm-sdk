@@ -1,13 +1,13 @@
 package org.example.named.view;
 
-import com.akkaserverless.javasdk.view.ViewCreationContext;
-import com.akkaserverless.javasdk.view.ViewOptions;
-import com.akkaserverless.javasdk.view.ViewProvider;
 import com.google.protobuf.Descriptors;
+import kalix.javasdk.view.ViewCreationContext;
+import kalix.javasdk.view.ViewOptions;
+import kalix.javasdk.view.ViewProvider;
 
 import java.util.function.Function;
 
-// This code is managed by Akka Serverless tooling.
+// This code is managed by Kalix tooling.
 // It will be re-generated to reflect any changes to your protobuf definitions.
 // DO NOT EDIT
 

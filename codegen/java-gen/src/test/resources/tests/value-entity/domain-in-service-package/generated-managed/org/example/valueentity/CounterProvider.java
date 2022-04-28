@@ -1,15 +1,15 @@
 package org.example.valueentity;
 
-import com.akkaserverless.javasdk.valueentity.ValueEntityContext;
-import com.akkaserverless.javasdk.valueentity.ValueEntityOptions;
-import com.akkaserverless.javasdk.valueentity.ValueEntityProvider;
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.Empty;
 import com.google.protobuf.EmptyProto;
+import kalix.javasdk.valueentity.ValueEntityContext;
+import kalix.javasdk.valueentity.ValueEntityOptions;
+import kalix.javasdk.valueentity.ValueEntityProvider;
 
 import java.util.function.Function;
 
-// This code is managed by Akka Serverless tooling.
+// This code is managed by Kalix tooling.
 // It will be re-generated to reflect any changes to your protobuf definitions.
 // DO NOT EDIT
 
@@ -17,7 +17,7 @@ import java.util.function.Function;
  * A value entity provider that defines how to register and create the entity for
  * the Protobuf service <code>CounterService</code>.
  *
- * Should be used with the <code>register</code> method in {@link com.akkaserverless.javasdk.AkkaServerless}.
+ * Should be used with the <code>register</code> method in {@link kalix.javasdk.Kalix}.
  */
 public class CounterProvider implements ValueEntityProvider<CounterDomain.CounterState, Counter> {
 
@@ -28,7 +28,7 @@ public class CounterProvider implements ValueEntityProvider<CounterDomain.Counte
   public static CounterProvider of(Function<ValueEntityContext, Counter> entityFactory) {
     return new CounterProvider(entityFactory, ValueEntityOptions.defaults());
   }
- 
+
   private CounterProvider(
       Function<ValueEntityContext, Counter> entityFactory,
       ValueEntityOptions options) {
@@ -40,7 +40,7 @@ public class CounterProvider implements ValueEntityProvider<CounterDomain.Counte
   public final ValueEntityOptions options() {
     return options;
   }
- 
+
   public final CounterProvider withOptions(ValueEntityOptions options) {
     return new CounterProvider(entityFactory, options);
   }

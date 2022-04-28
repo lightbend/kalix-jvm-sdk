@@ -1,10 +1,10 @@
 package org.example.eventsourcedentity.domain
 
-import com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntityContext
-import com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntityOptions
-import com.akkaserverless.scalasdk.eventsourcedentity.EventSourcedEntityProvider
 import com.google.protobuf.Descriptors
 import com.google.protobuf.empty.EmptyProto
+import kalix.scalasdk.eventsourcedentity.EventSourcedEntityContext
+import kalix.scalasdk.eventsourcedentity.EventSourcedEntityOptions
+import kalix.scalasdk.eventsourcedentity.EventSourcedEntityProvider
 import org.example.eventsourcedentity
 import org.example.eventsourcedentity.events.CounterEventsProto
 import org.example.eventsourcedentity.state.CounterState
@@ -12,7 +12,7 @@ import org.example.eventsourcedentity.state.CounterStateProto
 
 import scala.collection.immutable.Seq
 
-// This code is managed by Akka Serverless tooling.
+// This code is managed by Kalix tooling.
 // It will be re-generated to reflect any changes to your protobuf definitions.
 // DO NOT EDIT
 

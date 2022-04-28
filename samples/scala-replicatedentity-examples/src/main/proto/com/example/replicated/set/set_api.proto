@@ -15,23 +15,23 @@
 syntax = "proto3";
 
 import "google/protobuf/empty.proto";
-import "akkaserverless/annotations.proto";
+import "kalix/annotations.proto";
 
 package com.example.replicated.set;
 
 
 message AddElement {
-  string set_id = 1 [(akkaserverless.field).entity_key = true];
+  string set_id = 1 [(kalix.field).entity_key = true];
   string element = 2;
 }
 
 message RemoveElement {
-  string set_id = 1 [(akkaserverless.field).entity_key = true];
+  string set_id = 1 [(kalix.field).entity_key = true];
   string element = 2;
 }
 
 message GetElements {
-  string set_id = 1 [(akkaserverless.field).entity_key = true];
+  string set_id = 1 [(kalix.field).entity_key = true];
 }
 
 message CurrentElements {
@@ -40,7 +40,7 @@ message CurrentElements {
 
 // tag::replicated_entity[]
 service SetService {
-  option (akkaserverless.codegen) = {
+  option (kalix.codegen) = {
     replicated_entity: {
       name: "com.example.replicated.set.domain.SomeSet" // <1>
       entity_type: "some-set"

@@ -1,10 +1,10 @@
 package org.example.unnamed.view;
 
-import com.akkaserverless.javasdk.impl.view.UpdateHandlerNotFound;
-import com.akkaserverless.javasdk.impl.view.ViewRouter;
-import com.akkaserverless.javasdk.view.View;
+import kalix.javasdk.impl.view.UpdateHandlerNotFound;
+import kalix.javasdk.impl.view.ViewRouter;
+import kalix.javasdk.view.View;
 
-// This code is managed by Akka Serverless tooling.
+// This code is managed by Kalix tooling.
 // It will be re-generated to reflect any changes to your protobuf definitions.
 // DO NOT EDIT
 

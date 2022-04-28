@@ -16,9 +16,9 @@
 
 package com.example.shoppingcart.domain;
 
-import com.akkaserverless.javasdk.eventsourcedentity.CommandContext;
-import com.akkaserverless.javasdk.eventsourcedentity.EventContext;
-import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityContext;
+import kalix.javasdk.eventsourcedentity.CommandContext;
+import kalix.javasdk.eventsourcedentity.EventContext;
+import kalix.javasdk.eventsourcedentity.EventSourcedEntityContext;
 import com.example.shoppingcart.ShoppingCartApi;
 import com.example.shoppingcart.domain.ShoppingCartDomain;
 import com.google.protobuf.Empty;

@@ -1,12 +1,12 @@
 package org.example.eventsourcedentity;
 
-import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity;
 import com.google.protobuf.Empty;
+import kalix.javasdk.eventsourcedentity.EventSourcedEntity;
 import org.example.Components;
 import org.example.ComponentsImpl;
 import org.example.eventsourcedentity.domain.CounterDomain;
 
-// This code is managed by Akka Serverless tooling.
+// This code is managed by Kalix tooling.
 // It will be re-generated to reflect any changes to your protobuf definitions.
 // DO NOT EDIT
 

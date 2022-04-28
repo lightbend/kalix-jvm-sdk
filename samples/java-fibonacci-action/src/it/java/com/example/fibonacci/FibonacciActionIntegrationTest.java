@@ -1,6 +1,6 @@
 package com.example.fibonacci;
 
-import com.akkaserverless.javasdk.testkit.junit.AkkaServerlessTestKitResource;
+import kalix.javasdk.testkit.junit.KalixTestKitResource;
 import com.example.Main;
 import org.junit.Assert;
 import org.junit.ClassRule;
@@ -12,11 +12,11 @@ import static org.junit.Assert.fail;
 
 public class FibonacciActionIntegrationTest {
   /**
-   * The test kit starts both the service container and the Akka Serverless proxy.
+   * The test kit starts both the service container and the Kalix proxy.
    */
   @ClassRule
-  public static final AkkaServerlessTestKitResource testKit =
-      new AkkaServerlessTestKitResource(Main.createAkkaServerless());
+  public static final KalixTestKitResource testKit =
+      new KalixTestKitResource(Main.createKalix());
 
   private final Fibonacci client;
 

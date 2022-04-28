@@ -15,7 +15,7 @@
 syntax = "proto3";
 
 import "google/protobuf/empty.proto";
-import "akkaserverless/annotations.proto";
+import "kalix/annotations.proto";
 
 package com.example.replicated.multimap;
 
@@ -30,13 +30,13 @@ message Value {
 }
 
 message PutValue {
-  string multi_map_id = 1 [(akkaserverless.field).entity_key = true];
+  string multi_map_id = 1 [(kalix.field).entity_key = true];
   Key key = 2;
   Value value = 3;
 }
 
 service MultiMapService {
-  option (akkaserverless.codegen) = {
+  option (kalix.codegen) = {
     replicated_entity: {
       entity_type: "some-multi-map"
       replicated_multi_map: {

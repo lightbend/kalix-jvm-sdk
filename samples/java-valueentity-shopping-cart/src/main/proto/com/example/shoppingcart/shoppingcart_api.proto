@@ -27,33 +27,33 @@ option java_outer_classname = "ShoppingCartApi";
 
 // tag::proto_imports[]
 import "google/protobuf/empty.proto";
-import "akkaserverless/annotations.proto";
+import "kalix/annotations.proto";
 import "google/api/annotations.proto";
 // end::proto_imports[]
 
 // tag::proto_messages[]
 message CreateCart {
-  string cart_id = 1 [(akkaserverless.field).entity_key = true];
+  string cart_id = 1 [(kalix.field).entity_key = true];
 }
 
 message AddLineItem {
-  string cart_id = 1 [(akkaserverless.field).entity_key = true];
+  string cart_id = 1 [(kalix.field).entity_key = true];
   string product_id = 2;
   string name = 3;
   int32 quantity = 4;
 }
 
 message RemoveLineItem {
-  string cart_id = 1 [(akkaserverless.field).entity_key = true];
+  string cart_id = 1 [(kalix.field).entity_key = true];
   string product_id = 2;
 }
 
 message GetShoppingCart {
-  string cart_id = 1 [(akkaserverless.field).entity_key = true];
+  string cart_id = 1 [(kalix.field).entity_key = true];
 }
 
 message RemoveShoppingCart {
-  string cart_id = 1 [(akkaserverless.field).entity_key = true];
+  string cart_id = 1 [(kalix.field).entity_key = true];
 }
 
 message LineItem {
@@ -71,7 +71,7 @@ message Cart {
 // tag::proto_service[]
 service ShoppingCartService {
   // Describes how this domain relates to a value entity
-  option (akkaserverless.codegen) = {
+  option (kalix.codegen) = {
     value_entity: { // <1>
       name: "com.example.shoppingcart.domain.ShoppingCart" // <2>
       entity_type: "shopping-cart" // <3>

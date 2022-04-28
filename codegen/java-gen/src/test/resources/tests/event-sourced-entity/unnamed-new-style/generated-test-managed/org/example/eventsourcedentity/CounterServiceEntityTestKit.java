@@ -1,17 +1,17 @@
 package org.example.eventsourcedentity;
 
-import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntity;
-import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityContext;
-import com.akkaserverless.javasdk.impl.effect.MessageReplyImpl;
-import com.akkaserverless.javasdk.impl.effect.SecondaryEffectImpl;
-import com.akkaserverless.javasdk.impl.eventsourcedentity.EventSourcedEntityEffectImpl;
-import com.akkaserverless.javasdk.testkit.EventSourcedResult;
-import com.akkaserverless.javasdk.testkit.impl.EventSourcedEntityEffectsRunner;
-import com.akkaserverless.javasdk.testkit.impl.EventSourcedResultImpl;
-import com.akkaserverless.javasdk.testkit.impl.TestKitEventSourcedEntityCommandContext;
-import com.akkaserverless.javasdk.testkit.impl.TestKitEventSourcedEntityContext;
-import com.akkaserverless.javasdk.testkit.impl.TestKitEventSourcedEntityEventContext;
 import com.google.protobuf.Empty;
+import kalix.javasdk.eventsourcedentity.EventSourcedEntity;
+import kalix.javasdk.eventsourcedentity.EventSourcedEntityContext;
+import kalix.javasdk.impl.effect.MessageReplyImpl;
+import kalix.javasdk.impl.effect.SecondaryEffectImpl;
+import kalix.javasdk.impl.eventsourcedentity.EventSourcedEntityEffectImpl;
+import kalix.javasdk.testkit.EventSourcedResult;
+import kalix.javasdk.testkit.impl.EventSourcedEntityEffectsRunner;
+import kalix.javasdk.testkit.impl.EventSourcedResultImpl;
+import kalix.javasdk.testkit.impl.TestKitEventSourcedEntityCommandContext;
+import kalix.javasdk.testkit.impl.TestKitEventSourcedEntityContext;
+import kalix.javasdk.testkit.impl.TestKitEventSourcedEntityEventContext;
 import org.example.eventsourcedentity.domain.CounterDomain;
 
 import java.util.ArrayList;
@@ -20,7 +20,7 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.function.Function;
 
-// This code is managed by Akka Serverless tooling.
+// This code is managed by Kalix tooling.
 // It will be re-generated to reflect any changes to your protobuf definitions.
 // DO NOT EDIT
 

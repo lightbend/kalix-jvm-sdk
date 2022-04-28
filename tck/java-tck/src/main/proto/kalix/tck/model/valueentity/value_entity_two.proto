@@ -1,0 +1,47 @@
+// Copyright 2021 Lightbend Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+//
+// == Kalix TCK model test for value-based entities ==
+// see tck/src/main/scala/kalix/tck/EntityTCK.scala
+
+syntax = "proto3";
+
+package kalix.tck.model.valueentity;
+
+option java_package = "kalix.tck.model.valueentity";
+option java_multiple_files = true;
+
+import "kalix/annotations.proto";
+import "google/api/annotations.proto";
+
+import "kalix/tck/model/valueentity/value_entity_api.proto";
+
+
+//
+// The `ValueBasedTwo` service is only for verifying forward actions and side effects.
+//
+// - The entity persistence-id must be `value-entity-tck-model-two`.
+// - The `Call` method is not required to do anything, and must return an empty `Response` message.
+//
+service ValueEntityTwo {
+  option (kalix.codegen) = {
+    value_entity: {
+      name: "ValueEntityTwoEntity"
+      entity_type: "value-entity-tck-model-two"
+      state: "Persisted"
+    }
+  };
+  rpc Call(Request) returns (Response);
+}

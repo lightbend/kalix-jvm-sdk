@@ -1,7 +1,7 @@
 package com.example.replicated.set.domain;
 
-import com.akkaserverless.javasdk.replicatedentity.ReplicatedEntityContext;
-import com.akkaserverless.javasdk.replicatedentity.ReplicatedSet;
+import kalix.javasdk.replicatedentity.ReplicatedEntityContext;
+import kalix.javasdk.replicatedentity.ReplicatedSet;
 import com.example.replicated.set.SomeSetApi;
 import com.google.protobuf.Empty;
 

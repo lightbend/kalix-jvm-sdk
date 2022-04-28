@@ -1,6 +1,6 @@
-import Dependencies.AkkaServerless
+import Dependencies.Kalix
 
-lazy val `akkaserverless-java-sdk` = project
+lazy val `kalix-jvm-sdk` = project
   .in(file("."))
   .aggregate(
     sdkCore,
@@ -27,7 +27,7 @@ lazy val sdkCore = project
   .enablePlugins(PublishSonatype)
   .settings(common)
   .settings(
-    name := "akkaserverless-jvm-sdk",
+    name := "kalix-jvm-core-sdk",
     crossPaths := false,
     // Generate javadocs by just including non generated Java sources
     Compile / doc / sources := {
@@ -42,15 +42,15 @@ lazy val sdkJava = project
   .enablePlugins(AkkaGrpcPlugin, BuildInfoPlugin, PublishSonatype)
   .settings(common)
   .settings(
-    name := "akkaserverless-java-sdk",
+    name := "kalix-java-sdk",
     crossPaths := false,
     buildInfoKeys := Seq[BuildInfoKey](
       name,
       version,
-      "protocolMajorVersion" -> AkkaServerless.ProtocolVersionMajor,
-      "protocolMinorVersion" -> AkkaServerless.ProtocolVersionMinor,
+      "protocolMajorVersion" -> Kalix.ProtocolVersionMajor,
+      "protocolMinorVersion" -> Kalix.ProtocolVersionMinor,
       "scalaVersion" -> scalaVersion.value),
-    buildInfoPackage := "com.akkaserverless.javasdk",
+    buildInfoPackage := "kalix.javasdk",
     // Generate javadocs by just including non generated Java sources
     Compile / doc / sources := {
       val javaSourceDir = (Compile / javaSource).value.getAbsolutePath
@@ -66,7 +66,7 @@ lazy val sdkJava = project
       "--no-module-directories",
       "-notimestamp",
       "-doctitle",
-      "Akka Serverless Java SDK",
+      "Kalix Java SDK",
       "-noqualifier",
       "java.lang"),
     Compile / akkaGrpcGeneratedSources := Seq(AkkaGrpc.Server),
@@ -85,21 +85,21 @@ lazy val sdkScala = project
   .enablePlugins(AkkaGrpcPlugin, BuildInfoPlugin, PublishSonatype)
   .settings(common)
   .settings(
-    name := "akkaserverless-scala-sdk",
+    name := "kalix-scala-sdk",
     buildInfoKeys := Seq[BuildInfoKey](
       name,
       version,
-      "protocolMajorVersion" -> AkkaServerless.ProtocolVersionMajor,
-      "protocolMinorVersion" -> AkkaServerless.ProtocolVersionMinor,
+      "protocolMajorVersion" -> Kalix.ProtocolVersionMajor,
+      "protocolMinorVersion" -> Kalix.ProtocolVersionMinor,
       "scalaVersion" -> scalaVersion.value),
-    buildInfoPackage := "com.akkaserverless.scalasdk",
+    buildInfoPackage := "kalix.scalasdk",
     Compile / akkaGrpcGeneratedSources := Seq(AkkaGrpc.Server),
     Compile / akkaGrpcGeneratedLanguages := Seq(AkkaGrpc.Scala),
     Test / javacOptions += "-parameters", // for Jackson
     inTask(doc)(
       Seq(
         Compile / scalacOptions ++= scaladocOptions(
-          "Akka Serverless Scala SDK",
+          "Kalix Scala SDK",
           version.value,
           (ThisBuild / baseDirectory).value))))
   .settings(Dependencies.sdkScala)
@@ -111,18 +111,18 @@ lazy val sdkScalaTestKit = project
   .enablePlugins(BuildInfoPlugin, PublishSonatype)
   .settings(common)
   .settings(
-    name := "akkaserverless-scala-sdk-testkit",
+    name := "kalix-scala-sdk-testkit",
     buildInfoKeys := Seq[BuildInfoKey](
       name,
       version,
-      "protocolMajorVersion" -> AkkaServerless.ProtocolVersionMajor,
-      "protocolMinorVersion" -> AkkaServerless.ProtocolVersionMinor,
+      "protocolMajorVersion" -> Kalix.ProtocolVersionMajor,
+      "protocolMinorVersion" -> Kalix.ProtocolVersionMinor,
       "scalaVersion" -> scalaVersion.value),
-    buildInfoPackage := "com.akkaserverless.scalasdk.testkit",
+    buildInfoPackage := "kalix.scalasdk.testkit",
     inTask(doc)(
       Seq(
         Compile / scalacOptions ++= scaladocOptions(
-          "Akka Serverless Scala SDK TestKit",
+          "Kalix Scala SDK TestKit",
           version.value,
           (ThisBuild / baseDirectory).value))))
   .settings(Dependencies.sdkScalaTestKit)
@@ -144,7 +144,7 @@ def scaladocOptions(title: String, ver: String, base: File): List[String] = {
 
 def githubUrl(v: String): String = {
   val branch = if (v.endsWith("SNAPSHOT")) "main" else "v" + v
-  "https://github.com/lightbend/akkaserverless-java-sdk/tree/" + branch
+  "https://github.com/lightbend/kalix-jvm-sdk/tree/" + branch
 }
 
 lazy val sdkJavaTestKit = project
@@ -153,15 +153,15 @@ lazy val sdkJavaTestKit = project
   .enablePlugins(BuildInfoPlugin, PublishSonatype)
   .settings(common)
   .settings(
-    name := "akkaserverless-java-sdk-testkit",
+    name := "kalix-java-sdk-testkit",
     crossPaths := false,
     buildInfoKeys := Seq[BuildInfoKey](
       name,
       version,
-      "proxyImage" -> "gcr.io/akkaserverless-public/akkaserverless-proxy",
-      "proxyVersion" -> AkkaServerless.FrameworkVersion,
+      "proxyImage" -> "gcr.io/kalix-public/kalix-proxy",
+      "proxyVersion" -> Kalix.ProxyVersion,
       "scalaVersion" -> scalaVersion.value),
-    buildInfoPackage := "com.akkaserverless.javasdk.testkit",
+    buildInfoPackage := "kalix.javasdk.testkit",
     // Produce javadoc by restricting to Java sources only -- no genjavadoc setup currently
     Compile / doc / sources := (Compile / doc / sources).value.filterNot(_.name.endsWith(".scala")))
   .settings(Dependencies.sdkJavaTestKit)
@@ -172,10 +172,10 @@ lazy val tckJava = project
   .enablePlugins(AkkaGrpcPlugin, PublicDockerImage, ReflectiveCodeGen)
   .settings(common)
   .settings(
-    name := "akkaserverless-tck-java-sdk",
+    name := "kalix-tck-java-sdk",
     akkaGrpcGeneratedLanguages := Seq(AkkaGrpc.Java),
     ReflectiveCodeGen.copyUnmanagedSources := true,
-    Compile / mainClass := Some("com.akkaserverless.javasdk.tck.JavaSdkTck"),
+    Compile / mainClass := Some("kalix.javasdk.tck.JavaSdkTck"),
     dockerEnvVars += "HOST" -> "0.0.0.0",
     dockerExposedPorts += 8080)
   .settings(Dependencies.tck)
@@ -186,11 +186,11 @@ lazy val tckScala = project
   .enablePlugins(AkkaGrpcPlugin, PublicDockerImage, ReflectiveCodeGen)
   .settings(common)
   .settings(
-    name := "akkaserverless-tck-scala-sdk",
+    name := "kalix-tck-scala-sdk",
     akkaGrpcGeneratedLanguages := Seq(AkkaGrpc.Scala),
-    libraryDependencies ++= Seq(Dependencies.akkaslsSdkProtocol % "protobuf-src"),
+    libraryDependencies ++= Seq(Dependencies.kalixSdkProtocol % "protobuf-src"),
     ReflectiveCodeGen.copyUnmanagedSources := true,
-    Compile / mainClass := Some("com.akkaserverless.scalasdk.tck.ScalaSdkTck"),
+    Compile / mainClass := Some("kalix.scalasdk.tck.ScalaSdkTck"),
     dockerEnvVars += "HOST" -> "0.0.0.0",
     dockerExposedPorts += 8080)
   .settings(Dependencies.tck)
@@ -201,7 +201,7 @@ lazy val codegenCore =
     .enablePlugins(AkkaGrpcPlugin, PublishSonatype)
     .settings(common)
     .settings(
-      name := "akkaserverless-codegen-core",
+      name := "kalix-codegen-core",
       testFrameworks += new TestFramework("munit.Framework"),
       Test / fork := false)
     .settings(Dependencies.codegenCore)
@@ -219,7 +219,7 @@ lazy val codegenJava =
     .settings(
       Test / fork := false, // needed to pass -D properties to ExampleSuite
       // to provide access to protoc to tests
-      Test / buildInfoPackage := "com.lightbend.akkasls.codegen.java",
+      Test / buildInfoPackage := "kalix.codegen.java",
       Test / buildInfoKeys := Seq(
         BuildInfoKey(PB.protocExecutable),
         BuildInfoKey(codegenCore / PB.externalIncludePath),
@@ -229,7 +229,7 @@ lazy val codegenJava =
     .settings(BuildInfoPlugin.buildInfoScopedSettings(Test) ++ BuildInfoPlugin.buildInfoDefaultSettings)
     .settings(common)
     .settings(Defaults.itSettings)
-    .settings(name := "akkaserverless-codegen-java", testFrameworks += new TestFramework("munit.Framework"))
+    .settings(name := "kalix-codegen-java", testFrameworks += new TestFramework("munit.Framework"))
     .settings(Dependencies.codegenJava)
     .settings(
       crossScalaVersions := Dependencies.ScalaVersionForCodegen,
@@ -248,8 +248,8 @@ lazy val codegenJavaCompilationTest = project
   .settings(
     akkaGrpcGeneratedLanguages := Seq(AkkaGrpc.Java),
     (publish / skip) := true,
-    name := "akkaserverless-codegen-java-compilation-tests",
-    Compile / PB.protoSources += baseDirectory.value / ".." / ".." / "sbt-plugin" / "src" / "sbt-test" / "sbt-akkaserverless" / "compile-only" / "src" / "main" / "protobuf",
+    name := "kalix-codegen-java-compilation-tests",
+    Compile / PB.protoSources += baseDirectory.value / ".." / ".." / "sbt-plugin" / "src" / "sbt-test" / "sbt-kalix" / "compile-only" / "src" / "main" / "protobuf",
     ReflectiveCodeGen.copyUnmanagedSources := false)
 
 lazy val javaValueentityCustomerRegistry = project
@@ -298,7 +298,7 @@ lazy val codegenScala =
     .settings(Dependencies.codegenScala)
     .settings(common)
     .settings(
-      name := "akkaserverless-codegen-scala",
+      name := "kalix-codegen-scala",
       scalaVersion := Dependencies.ScalaVersionForSbtPlugin,
       Test / fork := false, // needed to pass -D properties to ExampleSuite
       buildInfoKeys := Seq[BuildInfoKey](
@@ -307,12 +307,12 @@ lazy val codegenScala =
         version,
         scalaVersion,
         sbtVersion,
-        "protocolVersion" -> AkkaServerless.FrameworkVersion,
+        "protocolVersion" -> Kalix.ProxyVersion,
         BuildInfoKey(PB.protocExecutable),
         BuildInfoKey(codegenCore / PB.externalIncludePath),
         BuildInfoKey(codegenCore / PB.externalSourcePath),
         BuildInfoKey(Test / resourceDirectory)),
-      buildInfoPackage := "com.akkaserverless.codegen.scalasdk",
+      buildInfoPackage := "kalix.codegen.scalasdk",
       testFrameworks += new TestFramework("munit.Framework"))
     .dependsOn(codegenCore % "compile->compile;test->test")
 
@@ -325,12 +325,12 @@ lazy val codegenScalaCompilationTest = project
   // and the goal is to verify if it compiles
   .dependsOn(sdkScalaTestKit)
   .settings(common)
-  .settings(libraryDependencies ++= Seq(Dependencies.junit4, Dependencies.akkaslsSdkProtocol % "protobuf-src"))
+  .settings(libraryDependencies ++= Seq(Dependencies.junit4, Dependencies.kalixSdkProtocol % "protobuf-src"))
   .settings(
     akkaGrpcGeneratedLanguages := Seq(AkkaGrpc.Scala),
     (publish / skip) := true,
-    name := "akkaserverless-codegen-scala-compilation-tests",
-    Compile / PB.protoSources += baseDirectory.value / ".." / ".." / "sbt-plugin" / "src" / "sbt-test" / "sbt-akkaserverless" / "compile-only" / "src" / "main" / "protobuf",
+    name := "kalix-codegen-scala-compilation-tests",
+    Compile / PB.protoSources += baseDirectory.value / ".." / ".." / "sbt-plugin" / "src" / "sbt-test" / "sbt-kalix" / "compile-only" / "src" / "main" / "protobuf",
     ReflectiveCodeGen.copyUnmanagedSources := false)
 
 lazy val codegenJavaCompilationExampleSuite: CompositeProject =
@@ -346,10 +346,10 @@ lazy val codegenScalaCompilationExampleSuite: CompositeProject =
         .dependsOn(sdkScala % "compile", sdkScalaTestKit % "test")
         .settings(
           akkaGrpcCodeGeneratorSettings += "flat_package",
-          libraryDependencies ++= Seq(Dependencies.akkaslsSdkProtocol % "protobuf-src"))
+          libraryDependencies ++= Seq(Dependencies.kalixSdkProtocol % "protobuf-src"))
   }
 
-lazy val sbtPlugin = Project(id = "sbt-akkaserverless", base = file("sbt-plugin"))
+lazy val sbtPlugin = Project(id = "sbt-kalix", base = file("sbt-plugin"))
   .enablePlugins(SbtPlugin)
   .enablePlugins(PublishSonatype)
   .settings(Dependencies.sbtPlugin)

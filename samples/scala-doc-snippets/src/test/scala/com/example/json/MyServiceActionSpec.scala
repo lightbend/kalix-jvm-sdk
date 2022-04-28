@@ -1,6 +1,6 @@
 package com.example.json
 
-import com.akkaserverless.scalasdk.JsonSupport
+import kalix.scalasdk.JsonSupport
 import com.google.protobuf.empty.Empty
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec

@@ -1,6 +1,6 @@
 package com.example.replicated.registermap
 
-import com.akkaserverless.scalasdk.testkit.AkkaServerlessTestKit
+import kalix.scalasdk.testkit.KalixTestKit
 import com.example.replicated.Main
 import com.example.replicated.registermap.GetAllValues
 import com.example.replicated.registermap.Key
@@ -20,7 +20,7 @@ class SomeRegisterMapIntegrationSpec extends AnyWordSpec with Matchers with Befo
   implicit private val patience: PatienceConfig =
     PatienceConfig(Span(5, Seconds), Span(500, Millis))
 
-  private val testKit = AkkaServerlessTestKit(Main.createAkkaServerless()).start()
+  private val testKit = KalixTestKit(Main.createKalix()).start()
   import testKit.executionContext
 
   private val registerMapService = testKit.getGrpcClient(classOf[RegisterMapService])

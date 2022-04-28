@@ -2,7 +2,7 @@ syntax = "proto3";
 package com.example;
 
 // tag::service[]
-import "akkaserverless/annotations.proto";
+import "kalix/annotations.proto";
 
 option java_outer_classname = "DelegatingServiceApi";
 
@@ -15,7 +15,7 @@ message Result {
 }
 
 service DelegatingService {
-  option (akkaserverless.codegen) = {
+  option (kalix.codegen) = {
     action: {}
   };
 

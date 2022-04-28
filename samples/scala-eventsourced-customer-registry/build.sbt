@@ -1,18 +1,25 @@
 name := "customer-registry"
 
-organization := "com.akkaserverless.samples"
-organizationHomepage := Some(url("https://akkaserverless.com"))
+organization := "io.kalix.samples"
+organizationHomepage := Some(url("https://kalix.io"))
 licenses := Seq(("CC0", url("https://creativecommons.org/publicdomain/zero/1.0")))
 
 scalaVersion := "2.13.6"
 
-enablePlugins(AkkaserverlessPlugin, JavaAppPackaging, DockerPlugin)
+enablePlugins(KalixPlugin, JavaAppPackaging, DockerPlugin)
 dockerBaseImage := "docker.io/library/adoptopenjdk:11-jre-hotspot"
 dockerUsername := sys.props.get("docker.username")
 dockerRepository := sys.props.get("docker.registry")
 // two Main files in this project changes entry point
 dockerEntrypoint := Seq("bin/main")
 dockerUpdateLatest := true
+dockerBuildCommand := {
+  if (sys.props("os.arch") != "amd64") {
+    // use buildx with platform to build supported amd64 images on other CPU architectures
+    // this may require that you have first run 'docker buildx create' to set docker buildx up
+    dockerExecCommand.value ++ Seq("buildx", "build", "--platform=linux/amd64", "--load") ++ dockerBuildOptions.value :+ "."
+  } else dockerBuildCommand.value
+}
 ThisBuild / dynverSeparator := "-"
 
 Compile / scalacOptions ++= Seq(
@@ -31,11 +38,10 @@ Test / logBuffered := false
 
 Compile / run := {
   // needed for the proxy to access the user function on all platforms
-  sys.props += "akkaserverless.user-function-interface" -> "0.0.0.0"
+  sys.props += "kalix.user-function-interface" -> "0.0.0.0"
   (Compile / run).evaluated
 }
 run / fork := false
 Global / cancelable := false // ctrl-c
 
 libraryDependencies ++= Seq("org.scalatest" %% "scalatest" % "3.2.7" % Test)
-
