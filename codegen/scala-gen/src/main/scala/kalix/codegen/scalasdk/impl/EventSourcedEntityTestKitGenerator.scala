@@ -133,6 +133,7 @@ object EventSourcedEntityTestKitGenerator {
     val dummyTestCases = service.commands.map { command =>
       s"""|"correctly process commands of type ${command.name}" in {
           |  val testKit = $testKitClassName(new ${entity.messageType.name}(_))
+          |  pending
           |  // val result: EventSourcedResult[${typeName(command.outputType)}] = testKit.${lowerFirst(
         command.name)}(${typeName(command.inputType)}(...))
           |}
@@ -151,6 +152,7 @@ object EventSourcedEntityTestKitGenerator {
          |  "The ${entity.messageType.name}" should {
          |    "have example test that can be removed" in {
          |      val testKit = $testKitClassName(new ${entity.messageType.name}(_))
+         |      pending
          |      // use the testkit to execute a command:
          |      // val result: EventSourcedResult[R] = testKit.someOperation(SomeRequest("id"));
          |      // verify the emitted events
@@ -158,7 +160,7 @@ object EventSourcedEntityTestKitGenerator {
          |      // actualEvent shouldBe expectedEvent
          |      // verify the final state after applying the events
          |      // testKit.state() shouldBe expectedState
-         |      // verify the response
+         |      // verify the reply
          |      // result.reply shouldBe expectedReply
          |      // verify the final state after the command
          |    }
@@ -215,6 +217,7 @@ object EventSourcedEntityTestKitGenerator {
           |  "${entityClassName}" must {
           |
           |    "have example test that can be removed" in {
+          |      pending
           |      // use the gRPC client to send requests to the
           |      // proxy and verify the results
           |    }

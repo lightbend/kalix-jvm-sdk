@@ -15,25 +15,28 @@ class CounterServiceEntitySpec
   "CounterServiceEntity" must {
 
     "have example test that can be removed" in {
-      val testKit = CounterServiceEntityTestKit(new CounterServiceEntity(_))
+      val service = CounterServiceEntityTestKit(new CounterServiceEntity(_))
+      pending
       // use the testkit to execute a command
       // and verify final updated state:
-      // val result = testKit.someOperation(SomeRequest)
-      // verify the response
-      // val actualResponse = result.getReply()
-      // actualResponse shouldBe expectedResponse
+      // val result = service.someOperation(SomeRequest)
+      // verify the reply
+      // val reply = result.getReply()
+      // reply shouldBe expectedReply
       // verify the final state after the command
-      // testKit.currentState() shouldBe expectedState
+      // service.currentState() shouldBe expectedState
     }
 
     "handle command Increase" in {
-      val testKit = CounterServiceEntityTestKit(new CounterServiceEntity(_))
-      // val result = testKit.increase(IncreaseValue(...))
+      val service = CounterServiceEntityTestKit(new CounterServiceEntity(_))
+      pending
+      // val result = service.increase(IncreaseValue(...))
     }
 
     "handle command Decrease" in {
-      val testKit = CounterServiceEntityTestKit(new CounterServiceEntity(_))
-      // val result = testKit.decrease(DecreaseValue(...))
+      val service = CounterServiceEntityTestKit(new CounterServiceEntity(_))
+      pending
+      // val result = service.decrease(DecreaseValue(...))
     }
 
   }

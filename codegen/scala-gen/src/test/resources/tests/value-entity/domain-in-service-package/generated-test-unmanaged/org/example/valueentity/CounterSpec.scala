@@ -14,25 +14,28 @@ class CounterSpec
   "Counter" must {
 
     "have example test that can be removed" in {
-      val testKit = CounterTestKit(new Counter(_))
+      val service = CounterTestKit(new Counter(_))
+      pending
       // use the testkit to execute a command
       // and verify final updated state:
-      // val result = testKit.someOperation(SomeRequest)
-      // verify the response
-      // val actualResponse = result.getReply()
-      // actualResponse shouldBe expectedResponse
+      // val result = service.someOperation(SomeRequest)
+      // verify the reply
+      // val reply = result.getReply()
+      // reply shouldBe expectedReply
       // verify the final state after the command
-      // testKit.currentState() shouldBe expectedState
+      // service.currentState() shouldBe expectedState
     }
 
     "handle command Increase" in {
-      val testKit = CounterTestKit(new Counter(_))
-      // val result = testKit.increase(IncreaseValue(...))
+      val service = CounterTestKit(new Counter(_))
+      pending
+      // val result = service.increase(IncreaseValue(...))
     }
 
     "handle command Decrease" in {
-      val testKit = CounterTestKit(new Counter(_))
-      // val result = testKit.decrease(DecreaseValue(...))
+      val service = CounterTestKit(new Counter(_))
+      pending
+      // val result = service.decrease(DecreaseValue(...))
     }
 
   }

@@ -111,13 +111,15 @@ object ActionTestKitGenerator {
     val testCases = service.commands.map { cmd =>
       s""""handle command ${cmd.name}" in {\n""" +
       (if (cmd.isUnary || cmd.isStreamOut)
-         s"""|  val testKit = ${actionClassName}TestKit(new $actionClassName(_))
-              |  // val result = testKit.${lowerFirst(cmd.name)}(${typeName(cmd.inputType)}(...))
+         s"""|  val service = ${actionClassName}TestKit(new $actionClassName(_))
+              |      pending
+              |  // val result = service.${lowerFirst(cmd.name)}(${typeName(cmd.inputType)}(...))
               |}
               |""".stripMargin
        else
-         s"""|  val testKit = ${actionClassName}TestKit(new $actionClassName(_))
-              |  // val result = testKit.${lowerFirst(cmd.name)}(Source.single(${typeName(cmd.inputType)}(...)))
+         s"""|  val service = ${actionClassName}TestKit(new $actionClassName(_))
+              |      pending
+              |  // val result = service.${lowerFirst(cmd.name)}(Source.single(${typeName(cmd.inputType)}(...)))
               |}
               |""".stripMargin)
     }
@@ -138,11 +140,12 @@ object ActionTestKitGenerator {
           |  "${actionClassName}" must {
           |
           |    "have example test that can be removed" in {
-          |      val testKit = ${actionClassName}TestKit(new $actionClassName(_))
+          |      val service = ${actionClassName}TestKit(new $actionClassName(_))
+          |      pending
           |      // use the testkit to execute a command
           |      // and verify final updated state:
-          |      // val result = testKit.someOperation(SomeRequest)
-          |      // verify the response
+          |      // val result = service.someOperation(SomeRequest)
+          |      // verify the reply
           |      // result.reply shouldBe expectedReply
           |    }
           |
