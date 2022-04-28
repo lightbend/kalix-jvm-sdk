@@ -41,6 +41,7 @@ service CounterService { // <7>
   };
 
   rpc Increase (IncreaseValue) returns (google.protobuf.Empty);
+  rpc IncreaseWithConditional (IncreaseValue) returns (google.protobuf.Empty);
   rpc Decrease (DecreaseValue) returns (google.protobuf.Empty);
   rpc Reset (ResetValue) returns (google.protobuf.Empty);
   rpc GetCurrentCounter (GetCounter) returns (CurrentCounter);

@@ -44,6 +44,8 @@ object ValueEntityTestKitGenerator {
       packageName,
       otherImports = Seq(
         "com.google.protobuf.Empty",
+        "kalix.javasdk.Metadata",
+        "java.util.Optional",
         "kalix.javasdk.valueentity.ValueEntity",
         "kalix.javasdk.impl.effect.SecondaryEffectImpl",
         "kalix.javasdk.impl.effect.MessageReplyImpl",
@@ -52,6 +54,7 @@ object ValueEntityTestKitGenerator {
         "kalix.javasdk.testkit.impl.ValueEntityResultImpl",
         "kalix.javasdk.valueentity.ValueEntityContext",
         "kalix.javasdk.testkit.impl.TestKitValueEntityContext",
+        "kalix.javasdk.testkit.impl.TestKitValueEntityCommandContext",
         "java.util.function.Function"))
 
     val entityClassName = entity.messageType.name
@@ -72,6 +75,7 @@ object ValueEntityTestKitGenerator {
        |
        |  private $stateClassName state;
        |  private $entityClassName entity;
+       |  private String entityId;
        |
        |  /**
        |   * Create a testkit instance of $entityClassName
@@ -86,16 +90,18 @@ object ValueEntityTestKitGenerator {
        |   * Create a testkit instance of $entityClassName with a specific entity id.
        |   */
        |  public static $testkitClassName of(String entityId, Function<ValueEntityContext, $entityClassName> entityFactory) {
-       |    return new $testkitClassName(entityFactory.apply(new TestKitValueEntityContext(entityId)));
+       |    return new $testkitClassName(entityFactory.apply(new TestKitValueEntityContext(entityId)), entityId);
        |  }
        |
        |  /** Construction is done through the static $testkitClassName.of-methods */
-       |  private ${testkitClassName}($entityClassName entity) {
+       |  private ${testkitClassName}($entityClassName entity, String entityId) {
+       |    this.entityId = entityId;
        |    this.state = entity.emptyState();
        |    this.entity = entity;
        |  }
        |
-       |  private $testkitClassName($entityClassName entity, $stateClassName state) {
+       |  private $testkitClassName($entityClassName entity, String entityId, $stateClassName state) {
+       |    this.entityId = entityId;
        |    this.state = state;
        |    this.entity = entity;
        |  }
@@ -117,6 +123,8 @@ object ValueEntityTestKitGenerator {
        |  }
        |
        |  ${Format.indent(generateServices(service), 2)}
+       |
+       |  ${Format.indent(generateServicesDefault(service), 2)}
        |}
        |""".stripMargin
   }
@@ -134,7 +142,31 @@ object ValueEntityTestKitGenerator {
       .map { command =>
         val output = selectOutput(command)
         s"""|public ValueEntityResult<$output> ${lowerFirst(command.name)}(${command.inputType.fullName} ${lowerFirst(
+          command.inputType.name)}, Metadata metadata) {
+       |  entity ._internalSetCommandContext(Optional.of(new TestKitValueEntityCommandContext(entityId, metadata)));
+       |  ValueEntity.Effect<$output> effect = entity.${lowerFirst(command.name)}(state, ${lowerFirst(
+          command.inputType.name)});
+       |  return interpretEffects(effect);
+       |}""".stripMargin
+      }
+      .mkString("\n\n")
+  }
+
+  def generateServicesDefault(service: ModelBuilder.EntityService): String = {
+
+    def selectOutput(command: ModelBuilder.Command): String =
+      if (command.outputType.name == "Empty") {
+        "Empty"
+      } else {
+        command.outputType.fullName
+      }
+
+    service.commands
+      .map { command =>
+        val output = selectOutput(command)
+        s"""|public ValueEntityResult<$output> ${lowerFirst(command.name)}(${command.inputType.fullName} ${lowerFirst(
           command.inputType.name)}) {
+       |  entity ._internalSetCommandContext(Optional.of(new TestKitValueEntityCommandContext(entityId, Metadata.EMPTY)));
        |  ValueEntity.Effect<$output> effect = entity.${lowerFirst(command.name)}(state, ${lowerFirst(
           command.inputType.name)});
        |  return interpretEffects(effect);

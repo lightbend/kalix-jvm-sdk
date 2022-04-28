@@ -1,6 +1,7 @@
 package org.example.service;
 
 import com.google.protobuf.Empty;
+import kalix.javasdk.Metadata;
 import kalix.javasdk.action.Action.Effect;
 import kalix.javasdk.action.ActionCreationContext;
 import kalix.javasdk.impl.action.ActionEffectImpl;
@@ -23,11 +24,11 @@ public final class MyServiceActionImplTestKit {
 
   private Function<ActionCreationContext, MyServiceActionImpl> actionFactory;
 
-  private MyServiceActionImpl createAction() {
-    MyServiceActionImpl action = actionFactory.apply(new TestKitActionContext());
-    action._internalSetActionContext(Optional.of(new TestKitActionContext()));
+  private MyServiceActionImpl createAction(TestKitActionContext context) {
+    MyServiceActionImpl action = actionFactory.apply(context);
+    action._internalSetActionContext(Optional.of(context));
     return action;
-  };
+  }
 
   public static MyServiceActionImplTestKit of(Function<ActionCreationContext, MyServiceActionImpl> actionFactory) {
     return new MyServiceActionImplTestKit(actionFactory);
@@ -41,9 +42,14 @@ public final class MyServiceActionImplTestKit {
     return new ActionResultImpl(effect);
   }
 
-  public ActionResult<Empty> simpleMethod(ServiceOuterClass.MyRequest myRequest) {
-    Effect<Empty> effect = createAction().simpleMethod(myRequest);
+  public ActionResult<Empty> simpleMethod(ServiceOuterClass.MyRequest myRequest, Metadata metadata) {
+    TestKitActionContext context = new TestKitActionContext(metadata);
+    Effect<Empty> effect = createAction(context).simpleMethod(myRequest);
     return interpretEffects(effect);
+  }
+
+  public ActionResult<Empty> simpleMethod(ServiceOuterClass.MyRequest myRequest) {
+    return simpleMethod(myRequest, Metadata.EMPTY);
   }
 
 }

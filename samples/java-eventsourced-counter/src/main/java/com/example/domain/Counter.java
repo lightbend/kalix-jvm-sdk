@@ -10,6 +10,7 @@ import kalix.javasdk.eventsourcedentity.EventSourcedEntity.Effect;
 import kalix.javasdk.eventsourcedentity.EventSourcedEntityContext;
 import com.example.CounterApi;
 import com.google.protobuf.Empty;
+import java.util.Optional;
 
 public class Counter extends AbstractCounter {
 
@@ -56,12 +57,29 @@ public class Counter extends AbstractCounter {
   }
 
   @Override
+  public Effect<Empty> increaseWithConditional(CounterDomain.CounterState currentState, CounterApi.IncreaseValue increaseValue) {
+    int doubled = increaseValue.getValue() * 2;
+
+    if (increaseValue.getValue() < 0)
+      return effects().error("Value must be a zero or a positive number");
+    else if(commandContext().metadata().get("myKey").equals(Optional.of("myValue"))){ 
+      return effects()
+              .emitEvent(CounterDomain.ValueIncreased.newBuilder().setValue(doubled).build())
+              .thenReply(__ -> Empty.getDefaultInstance());
+    } else
+      return effects()
+              .emitEvent(CounterDomain.ValueIncreased.newBuilder().setValue(increaseValue.getValue()).build())
+              .thenReply(__ -> Empty.getDefaultInstance());
+  }
+
+
+  @Override
   public Effect<Empty> decrease(CounterDomain.CounterState currentState, CounterApi.DecreaseValue decreaseValue) {
     if (decreaseValue.getValue() > 0){
       return effects().error("Value must be a zero or a negative number");
-    }else if(updateState(currentState, decreaseValue.getValue()).getValue() < 0){
+    } else if(updateState(currentState, decreaseValue.getValue()).getValue() < 0){
       return effects().error("Decrease value is too high. Counter cannot become negative");
-    }else
+    } else
       return effects()
           .emitEvent(CounterDomain.ValueDecreased.newBuilder().setValue(decreaseValue.getValue()).build())
           .thenReply(__ -> Empty.getDefaultInstance());

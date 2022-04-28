@@ -45,8 +45,17 @@ service CounterJournalToTopic {
     option (kalix.method).eventing.out = { // <5>
       topic:  "counter-events"
     };
-  }
+  } 
 
+  rpc IncreaseConditional (com.example.domain.ValueIncreased) returns (Increased) { 
+    option (kalix.method).eventing.in = { 
+      event_sourced_entity: "counter" 
+    };
+    option (kalix.method).eventing.out = {
+      topic:  "counter-events"
+    };
+  } 
+  
   rpc Decrease (com.example.domain.ValueDecreased) returns (Decreased) {
     option (kalix.method).eventing.in = {
       event_sourced_entity: "counter"

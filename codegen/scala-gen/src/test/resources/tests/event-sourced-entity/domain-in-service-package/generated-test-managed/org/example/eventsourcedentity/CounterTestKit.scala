@@ -1,6 +1,7 @@
 package org.example.eventsourcedentity
 
 import com.google.protobuf.empty.Empty
+import kalix.scalasdk.Metadata
 import kalix.scalasdk.eventsourcedentity.EventSourcedEntity
 import kalix.scalasdk.eventsourcedentity.EventSourcedEntityContext
 import kalix.scalasdk.testkit.EventSourcedResult
@@ -46,9 +47,9 @@ final class CounterTestKit private(entity: Counter) extends EventSourcedEntityEf
     }
   }
 
-  def increase(command: IncreaseValue): EventSourcedResult[Empty] =
-    interpretEffects(() => entity.increase(currentState, command))
+  def increase(command: IncreaseValue, metadata: Metadata = Metadata.empty): EventSourcedResult[Empty] =
+    interpretEffects(() => entity.increase(currentState, command), metadata)
 
-  def decrease(command: DecreaseValue): EventSourcedResult[Empty] =
-    interpretEffects(() => entity.decrease(currentState, command))
+  def decrease(command: DecreaseValue, metadata: Metadata = Metadata.empty): EventSourcedResult[Empty] =
+    interpretEffects(() => entity.decrease(currentState, command), metadata)
 }

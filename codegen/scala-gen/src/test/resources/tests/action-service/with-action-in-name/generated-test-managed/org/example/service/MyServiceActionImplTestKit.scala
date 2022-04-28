@@ -1,6 +1,7 @@
 package org.example.service
 
 import com.google.protobuf.empty.Empty
+import kalix.scalasdk.Metadata
 import kalix.scalasdk.action.ActionCreationContext
 import kalix.scalasdk.testkit.ActionResult
 import kalix.scalasdk.testkit.impl.ActionResultImpl
@@ -28,13 +29,14 @@ object MyServiceActionImplTestKit {
  */
 final class MyServiceActionImplTestKit private(actionFactory: ActionCreationContext => MyServiceActionImpl) {
 
-  private def newActionInstance() = {
-    val context = new TestKitActionContext
+  private def newActionInstance(context: TestKitActionContext) = {
     val action = actionFactory(context)
     action._internalSetActionContext(Some(context))
     action
   }
 
-  def simpleMethod(command: MyRequest): ActionResult[Empty] =
-    new ActionResultImpl(newActionInstance().simpleMethod(command))
+  def simpleMethod(command: MyRequest, metadata: Metadata = Metadata.empty): ActionResult[Empty] = {
+    val context = new TestKitActionContext(metadata)
+    new ActionResultImpl(newActionInstance(context).simpleMethod(command))
+  }
 }

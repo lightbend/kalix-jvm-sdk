@@ -47,10 +47,11 @@ object EventSourcedEntityTestKitGenerator {
         service.commands.map(_.outputType),
         entity.messageType.parent.scalaPackage,
         Seq(
-          "kalix.scalasdk.testkit.EventSourcedResult",
+          "kalix.scalasdk.Metadata",
           "kalix.scalasdk.testkit.impl.EventSourcedResultImpl",
           "kalix.scalasdk.eventsourcedentity.EventSourcedEntity",
           "kalix.scalasdk.eventsourcedentity.EventSourcedEntityContext",
+          "kalix.scalasdk.testkit.EventSourcedResult",
           "kalix.scalasdk.testkit.impl.TestKitEventSourcedEntityContext",
           "kalix.scalasdk.testkit.impl.EventSourcedEntityEffectsRunner",
           "kalix.scalasdk.testkit.impl.TestKitEventSourcedEntityCommandContext",
@@ -65,9 +66,9 @@ object EventSourcedEntityTestKitGenerator {
     }
 
     val methods = service.commands.map { cmd =>
-      s"""|def ${lowerFirst(cmd.name)}(command: ${typeName(cmd.inputType)}): EventSourcedResult[${typeName(
-        cmd.outputType)}] =
-          |  interpretEffects(() => entity.${lowerFirst(cmd.name)}(currentState, command))
+      s"""|def ${lowerFirst(cmd.name)}(command: ${typeName(
+        cmd.inputType)}, metadata: Metadata = Metadata.empty): EventSourcedResult[${typeName(cmd.outputType)}] =
+          |  interpretEffects(() => entity.${lowerFirst(cmd.name)}(currentState, command), metadata)
          |""".stripMargin
     }
 

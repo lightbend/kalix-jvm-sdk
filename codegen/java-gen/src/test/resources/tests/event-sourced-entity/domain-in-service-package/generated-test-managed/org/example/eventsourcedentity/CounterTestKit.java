@@ -1,6 +1,7 @@
 package org.example.eventsourcedentity;
 
 import com.google.protobuf.Empty;
+import kalix.javasdk.Metadata;
 import kalix.javasdk.eventsourcedentity.EventSourcedEntity;
 import kalix.javasdk.eventsourcedentity.EventSourcedEntityContext;
 import kalix.javasdk.impl.effect.MessageReplyImpl;
@@ -67,11 +68,20 @@ public final class CounterTestKit extends EventSourcedEntityEffectsRunner<Counte
     }
   }
 
+  public EventSourcedResult<Empty> increase(CounterApi.IncreaseValue command, Metadata metadata) {
+    return interpretEffects(() -> entity.increase(getState(), command), metadata);
+  }
+
+  public EventSourcedResult<Empty> decrease(CounterApi.DecreaseValue command, Metadata metadata) {
+    return interpretEffects(() -> entity.decrease(getState(), command), metadata);
+  }
+
   public EventSourcedResult<Empty> increase(CounterApi.IncreaseValue command) {
-    return interpretEffects(() -> entity.increase(getState(), command));
+    return interpretEffects(() -> entity.increase(getState(), command), Metadata.EMPTY);
   }
 
   public EventSourcedResult<Empty> decrease(CounterApi.DecreaseValue command) {
-    return interpretEffects(() -> entity.decrease(getState(), command));
+    return interpretEffects(() -> entity.decrease(getState(), command), Metadata.EMPTY);
   }
+
 }

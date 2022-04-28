@@ -3,6 +3,7 @@ package org.example.service;
 import akka.NotUsed;
 import akka.stream.javadsl.Source;
 import com.google.protobuf.Empty;
+import kalix.javasdk.Metadata;
 import kalix.javasdk.action.Action.Effect;
 import kalix.javasdk.action.ActionCreationContext;
 import kalix.javasdk.impl.action.ActionEffectImpl;
@@ -25,11 +26,11 @@ public final class MyServiceNamedActionTestKit {
 
   private Function<ActionCreationContext, MyServiceNamedAction> actionFactory;
 
-  private MyServiceNamedAction createAction() {
-    MyServiceNamedAction action = actionFactory.apply(new TestKitActionContext());
-    action._internalSetActionContext(Optional.of(new TestKitActionContext()));
+  private MyServiceNamedAction createAction(TestKitActionContext context) {
+    MyServiceNamedAction action = actionFactory.apply(context);
+    action._internalSetActionContext(Optional.of(context));
     return action;
-  };
+  }
 
   public static MyServiceNamedActionTestKit of(Function<ActionCreationContext, MyServiceNamedAction> actionFactory) {
     return new MyServiceNamedActionTestKit(actionFactory);
@@ -43,24 +44,44 @@ public final class MyServiceNamedActionTestKit {
     return new ActionResultImpl(effect);
   }
 
-  public ActionResult<Empty> simpleMethod(ServiceOuterClass.MyRequest myRequest) {
-    Effect<Empty> effect = createAction().simpleMethod(myRequest);
+  public ActionResult<Empty> simpleMethod(ServiceOuterClass.MyRequest myRequest, Metadata metadata) {
+    TestKitActionContext context = new TestKitActionContext(metadata);
+    Effect<Empty> effect = createAction(context).simpleMethod(myRequest);
     return interpretEffects(effect);
+  }
+
+  public Source<ActionResult<Empty>, akka.NotUsed> streamedOutputMethod(ServiceOuterClass.MyRequest myRequest, Metadata metadata) {
+    TestKitActionContext context = new TestKitActionContext(metadata);
+    Source<Effect<Empty>, akka.NotUsed> effect = createAction(context).streamedOutputMethod(myRequest);
+    return effect.map(e -> interpretEffects(e));
+  }
+
+  public ActionResult<Empty> streamedInputMethod(Source<ServiceOuterClass.MyRequest, akka.NotUsed> myRequest, Metadata metadata) {
+    TestKitActionContext context = new TestKitActionContext(metadata);
+    Effect<Empty> effect = createAction(context).streamedInputMethod(myRequest);
+    return interpretEffects(effect);
+  }
+
+  public Source<ActionResult<Empty>, akka.NotUsed> fullStreamedMethod(Source<ServiceOuterClass.MyRequest, akka.NotUsed> myRequest, Metadata metadata) {
+    TestKitActionContext context = new TestKitActionContext(metadata);
+    Source<Effect<Empty>, akka.NotUsed> effect = createAction(context).fullStreamedMethod(myRequest);
+    return effect.map(e -> interpretEffects(e));
+  }
+
+  public ActionResult<Empty> simpleMethod(ServiceOuterClass.MyRequest myRequest) {
+    return simpleMethod(myRequest, Metadata.EMPTY);
   }
 
   public Source<ActionResult<Empty>, akka.NotUsed> streamedOutputMethod(ServiceOuterClass.MyRequest myRequest) {
-    Source<Effect<Empty>, akka.NotUsed> effect = createAction().streamedOutputMethod(myRequest);
-    return effect.map(e -> interpretEffects(e));
+    return streamedOutputMethod(myRequest, Metadata.EMPTY);
   }
 
   public ActionResult<Empty> streamedInputMethod(Source<ServiceOuterClass.MyRequest, akka.NotUsed> myRequest) {
-    Effect<Empty> effect = createAction().streamedInputMethod(myRequest);
-    return interpretEffects(effect);
+    return streamedInputMethod(myRequest, Metadata.EMPTY);
   }
 
   public Source<ActionResult<Empty>, akka.NotUsed> fullStreamedMethod(Source<ServiceOuterClass.MyRequest, akka.NotUsed> myRequest) {
-    Source<Effect<Empty>, akka.NotUsed> effect = createAction().fullStreamedMethod(myRequest);
-    return effect.map(e -> interpretEffects(e));
+    return fullStreamedMethod(myRequest, Metadata.EMPTY);
   }
 
 }

@@ -1,7 +1,9 @@
 package org.example.valueentity
 
 import com.google.protobuf.empty.Empty
+import kalix.scalasdk.Metadata
 import kalix.scalasdk.testkit.ValueEntityResult
+import kalix.scalasdk.testkit.impl.TestKitValueEntityCommandContext
 import kalix.scalasdk.testkit.impl.TestKitValueEntityContext
 import kalix.scalasdk.testkit.impl.ValueEntityResultImpl
 import kalix.scalasdk.valueentity.ValueEntity
@@ -28,13 +30,13 @@ object CounterTestKit {
    * Create a testkit instance of Counter with a specific entity id.
    */
   def apply(entityId: String, entityFactory: ValueEntityContext => Counter): CounterTestKit =
-    new CounterTestKit(entityFactory(new TestKitValueEntityContext(entityId)))
+    new CounterTestKit(entityFactory(new TestKitValueEntityContext(entityId)), entityId)
 }
 
 /**
  * TestKit for unit testing Counter
  */
-final class CounterTestKit private(entity: Counter) {
+final class CounterTestKit private(entity: Counter, entityId: String) {
   private var state: CounterState = entity.emptyState
 
   /**
@@ -50,12 +52,14 @@ final class CounterTestKit private(entity: Counter) {
     result
   }
 
-  def increase(command: IncreaseValue): ValueEntityResult[Empty] = {
+  def increase(command: IncreaseValue, metadata: Metadata = Metadata.empty): ValueEntityResult[Empty] = {
+    entity._internalSetCommandContext(Some(new TestKitValueEntityCommandContext(entityId = entityId, metadata = metadata)))
     val effect = entity.increase(state, command)
     interpretEffects(effect)
   }
 
-  def decrease(command: DecreaseValue): ValueEntityResult[Empty] = {
+  def decrease(command: DecreaseValue, metadata: Metadata = Metadata.empty): ValueEntityResult[Empty] = {
+    entity._internalSetCommandContext(Some(new TestKitValueEntityCommandContext(entityId = entityId, metadata = metadata)))
     val effect = entity.decrease(state, command)
     interpretEffects(effect)
   }

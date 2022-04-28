@@ -18,23 +18,31 @@ package kalix.javasdk.testkit.impl;
 
 import kalix.javasdk.action.ActionContext
 
+import java.util.{ HashMap, Optional }
+import java.nio.ByteBuffer
+import kalix.javasdk.action.ActionCreationContext
+import kalix.javasdk.Metadata
+import scala.collection.convert.ImplicitConversions._
 import java.util.Optional
 import kalix.javasdk.action.ActionCreationContext
-import akka.stream.Materializer
 import kalix.javasdk.impl.InternalContext
 
 /**
  * INTERNAL API Used by the generated testkit
  */
-final class TestKitActionContext
+final class TestKitActionContext(metadata: Metadata)
     extends AbstractTestKitContext
     with ActionContext
     with ActionCreationContext
     with InternalContext {
 
-  override def metadata() = throw new UnsupportedOperationException("Accessing metadata from testkit not supported yet")
+  def this() {
+    this(Metadata.EMPTY)
+  }
 
-  override def eventSubject() = Optional.of("test-subject-id")
+  override def metadata() = metadata
+
+  override def eventSubject() = metadata.get("ce-subject")
 
   override def getGrpcClient[T](clientClass: Class[T], service: String): T =
     throw new UnsupportedOperationException("Testing logic using a gRPC client is not possible with the testkit")
