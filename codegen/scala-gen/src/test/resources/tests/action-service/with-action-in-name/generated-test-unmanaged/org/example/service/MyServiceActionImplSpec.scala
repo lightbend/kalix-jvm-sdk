@@ -18,17 +18,19 @@ class MyServiceActionImplSpec
   "MyServiceActionImpl" must {
 
     "have example test that can be removed" in {
-      val testKit = MyServiceActionImplTestKit(new MyServiceActionImpl(_))
+      val service = MyServiceActionImplTestKit(new MyServiceActionImpl(_))
+      pending
       // use the testkit to execute a command
       // and verify final updated state:
-      // val result = testKit.someOperation(SomeRequest)
-      // verify the response
+      // val result = service.someOperation(SomeRequest)
+      // verify the reply
       // result.reply shouldBe expectedReply
     }
 
     "handle command simpleMethod" in {
-      val testKit = MyServiceActionImplTestKit(new MyServiceActionImpl(_))
-      // val result = testKit.simpleMethod(MyRequest(...))
+      val service = MyServiceActionImplTestKit(new MyServiceActionImpl(_))
+          pending
+      // val result = service.simpleMethod(MyRequest(...))
     }
 
   }
