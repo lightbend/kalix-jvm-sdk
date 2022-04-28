@@ -17,11 +17,9 @@ public final class Main {
   private static final Logger LOG = LoggerFactory.getLogger(Main.class);
 
   public static Kalix createKalix() {
-    // FIXME temporarily changed to set a short view id to not hit view id limit of 21 chars
     Kalix kalix = new Kalix();
     kalix.register(ShoppingCartProvider.of(ShoppingCart::new));
-    kalix.register(ShoppingCartViewServiceViewProvider.of(ShoppingCartViewServiceImpl::new)
-        .withViewId("ShoppingCartView"));
+    kalix.register(ShoppingCartViewServiceViewProvider.of(ShoppingCartViewServiceImpl::new));
     return kalix;
   }
 
