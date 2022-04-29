@@ -18,8 +18,8 @@ object Dependencies {
   val AkkaVersion = "2.6.19"
   val AkkaHttpVersion = "10.2.9" // Note: should at least the Akka HTTP version required by Akka gRPC
   val ScalaTestVersion = "3.2.7"
-  val JacksonVersion = "2.12.6"
-  val JacksonDatabindVersion = "2.12.6.1"
+  val JacksonVersion = "2.13.2"
+  val JacksonDatabindVersion = "2.13.2.2"
   val DockerBaseImageVersion = "adoptopenjdk/openjdk11:debianslim-jre"
   val LogbackVersion = "1.2.11"
   val LogbackContribVersion = "0.1.5"
@@ -28,7 +28,7 @@ object Dependencies {
   val JUnitInterfaceVersion = "0.11"
   val JUnitJupiterVersion = "5.7.1"
 
-  val CommonsIoVerison = "2.8.0"
+  val CommonsIoVersion = "2.8.0"
   val MunitVersion = "0.7.29"
   val ScoptVersions = "4.0.0"
 
@@ -36,7 +36,7 @@ object Dependencies {
   val kalixSdkProtocol = "io.kalix" % "kalix-sdk-protocol" % Kalix.ProxyVersion
   val kalixTckProtocol = "io.kalix" % "kalix-tck-protocol" % Kalix.ProxyVersion
 
-  val commonsIo = "commons-io" % "commons-io" % CommonsIoVerison
+  val commonsIo = "commons-io" % "commons-io" % CommonsIoVersion
   val logback = "ch.qos.logback" % "logback-classic" % LogbackVersion
   val logbackJson = "ch.qos.logback.contrib" % "logback-json-classic" % LogbackContribVersion
   val logbackJackson = "ch.qos.logback.contrib" % "logback-jackson" % LogbackContribVersion
