@@ -25,6 +25,7 @@ import "kalix/annotations.proto";
 import "google/protobuf/any.proto";
 
 // end::declarations[]
+import "google/api/annotations.proto";
 
 // tag::service-event-sourced[]
 message ByNameRequest {
@@ -133,3 +134,71 @@ service CustomerByNameFromTopic {
   }
 }
 // end::service-topic[]
+
+
+// tag::stream-updates[]
+message ByCityRequest {
+  string city = 1;
+}
+service CustomerByCityStreaming {
+  option (kalix.codegen) = {
+    view: {}
+  };
+
+  // update methods omitted
+  // end::stream-updates[]
+
+  rpc ProcessCustomerCreated(domain.CustomerCreated) returns (api.Customer) {
+    option (kalix.method).eventing.in = {
+      event_sourced_entity: "customers"
+    };
+    option (kalix.method).view.update = {
+      table: "customers"
+      transform_updates: true
+    };
+  }
+
+  rpc ProcessCustomerNameChanged(domain.CustomerNameChanged) returns (api.Customer) {
+    option (kalix.method).eventing.in = {
+      event_sourced_entity: "customers"
+    };
+    option (kalix.method).view.update = {
+      table: "customers"
+      transform_updates: true
+    };
+  }
+
+  rpc ProcessCustomerAddressChanged(domain.CustomerAddressChanged) returns (api.Customer) {
+    option (kalix.method).eventing.in = {
+      event_sourced_entity: "customers"
+    };
+    option (kalix.method).view.update = {
+      table: "customers"
+      transform_updates: true
+    };
+  }
+
+  rpc IgnoreOtherEvents(google.protobuf.Any) returns (api.Customer) {
+    option (kalix.method).eventing.in = {
+      event_sourced_entity: "customers"
+    };
+    option (kalix.method).view.update = {
+      table: "customers"
+      transform_updates: true
+    };
+  };
+
+  // tag::stream-updates[]
+  rpc GetCustomers(ByCityRequest) returns (stream api.Customer) { // <1>
+    option (kalix.method).view.query = {
+      query: "SELECT * FROM customers WHERE address.city = :city", // <2>
+      stream_updates: true // <3>
+    };
+    // end::stream-updates[]
+    option (google.api.http) = {
+      get: "/stream-city/{city}"
+    };
+    // tag::stream-updates[]
+  }
+}
+// end::stream-updates[]

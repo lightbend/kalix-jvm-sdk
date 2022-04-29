@@ -53,6 +53,15 @@ With both the proxy and your application running, any defined endpoints should b
   ```shell
   grpcurl --plaintext -d '{"customer_id": "wip", "new_address": {"street": "Street 1", "city": "The City"}}' localhost:9000 customer.api.CustomerService/ChangeAddress
   ```
+* Query the customer by name view:
+  ```shell
+  grpcurl --plaintext -d '{"customer_name":"Bob"}' localhost:9000 customer.view.CustomerByName/GetCustomers
+  ```
+  
+* Query the streaming customer by city (will stay running listing updates until cancelled with Ctrl+C):
+  ```shell
+  grpcurl --plaintext -d '{"city":"Stockholm"}' localhost:9000 customer.view.CustomerByCityStreaming/GetCustomers
+  ```
 
 ## Deploying
 

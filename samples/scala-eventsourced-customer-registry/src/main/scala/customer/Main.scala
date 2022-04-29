@@ -2,6 +2,7 @@ package customer
 
 import kalix.scalasdk.Kalix
 import customer.domain.CustomerEntity
+import customer.view.CustomerByCityStreamingView
 import customer.view.CustomerByNameView
 import org.slf4j.LoggerFactory
 
@@ -13,6 +14,9 @@ object Main {
   def createKalix(): Kalix = {
     KalixFactory.withComponents(
       new CustomerEntity(_),
+      // end::register[]
+      new CustomerByCityStreamingView(_),
+      // tag::register[]
       new CustomerByNameView(_))
   }
   // end::register[]
