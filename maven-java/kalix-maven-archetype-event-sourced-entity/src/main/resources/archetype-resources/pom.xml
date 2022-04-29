@@ -13,7 +13,8 @@
 
     <!-- TODO Update to your own Docker repository or Docker Hub scope -->
     <dockerImage>my-docker-repo/${D}{project.artifactId}</dockerImage>
-    <dockerTag>${D}{project.version}</dockerTag>
+    <dockerTag>${D}{project.version}-${D}{build.timestamp}</dockerTag>
+    <maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
     <mainClass>${package}.Main</mainClass>
 
     <jdk.target>11</jdk.target>

@@ -13,7 +13,8 @@
     <properties>
       <!-- TODO Update to your own Docker repository or Docker Hub scope -->
       <dockerImage>gcr.io/kalix-public/samples-java-replicated-entity-examples</dockerImage>
-      <dockerTag>${project.version}</dockerTag>
+      <dockerTag>${project.version}-${build.timestamp}</dockerTag>
+      <maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
       <mainClass>com.example.replicated.Main</mainClass>
 
       <jdk.target>11</jdk.target>
