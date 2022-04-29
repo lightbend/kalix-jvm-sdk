@@ -167,7 +167,7 @@ service CustomerByCityStreaming {
 
   rpc ProcessCustomerAddressChanged(domain.CustomerAddressChanged) returns (api.Customer) {
     option (kalix.method).eventing.in = {
-      topic: "customers"
+      event_sourced_entity: "customers"
     };
     option (kalix.method).view.update = {
       table: "customers"
