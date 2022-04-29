@@ -422,8 +422,9 @@ Java::
 ----
 include::example$java-eventsourced-customer-registry/src/main/proto/customer/view/customer_view.proto[tag=stream-updates]
 ----
-<1> A regular query, in this case showing all customers from a specific city
-<2> The `stream_updates` option set to `true`
+<1> Return type must be a `stream`
+<2> A regular query, in this case showing all customers from a specific city
+<3> The `stream_updates` option set to `true`
 
 Scala::
 +

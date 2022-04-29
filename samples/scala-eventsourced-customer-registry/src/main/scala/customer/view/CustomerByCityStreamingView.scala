@@ -1,7 +1,7 @@
 package customer.view
 
-import com.akkaserverless.scalasdk.view.View.UpdateEffect
-import com.akkaserverless.scalasdk.view.ViewContext
+import kalix.scalasdk.view.View.UpdateEffect
+import kalix.scalasdk.view.ViewContext
 import com.google.protobuf.any.{ Any => ScalaPbAny }
 import customer.api
 import customer.api.Customer

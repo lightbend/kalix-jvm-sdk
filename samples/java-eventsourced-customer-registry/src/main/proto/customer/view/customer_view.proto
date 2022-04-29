@@ -141,7 +141,7 @@ message ByCityRequest {
   string city = 1;
 }
 service CustomerByCityStreaming {
-  option (akkaserverless.codegen) = {
+  option (kalix.codegen) = {
     view: {}
   };
 
@@ -149,40 +149,40 @@ service CustomerByCityStreaming {
   // end::stream-updates[]
 
   rpc ProcessCustomerCreated(domain.CustomerCreated) returns (api.Customer) {
-    option (akkaserverless.method).eventing.in = {
+    option (kalix.method).eventing.in = {
       event_sourced_entity: "customers"
     };
-    option (akkaserverless.method).view.update = {
+    option (kalix.method).view.update = {
       table: "customers"
       transform_updates: true
     };
   }
 
   rpc ProcessCustomerNameChanged(domain.CustomerNameChanged) returns (api.Customer) {
-    option (akkaserverless.method).eventing.in = {
+    option (kalix.method).eventing.in = {
       event_sourced_entity: "customers"
     };
-    option (akkaserverless.method).view.update = {
+    option (kalix.method).view.update = {
       table: "customers"
       transform_updates: true
     };
   }
 
   rpc ProcessCustomerAddressChanged(domain.CustomerAddressChanged) returns (api.Customer) {
-    option (akkaserverless.method).eventing.in = {
+    option (kalix.method).eventing.in = {
       topic: "customers"
     };
-    option (akkaserverless.method).view.update = {
+    option (kalix.method).view.update = {
       table: "customers"
       transform_updates: true
     };
   }
 
   rpc IgnoreOtherEvents(google.protobuf.Any) returns (api.Customer) {
-    option (akkaserverless.method).eventing.in = {
+    option (kalix.method).eventing.in = {
       event_sourced_entity: "customers"
     };
-    option (akkaserverless.method).view.update = {
+    option (kalix.method).view.update = {
       table: "customers"
       transform_updates: true
     };
@@ -190,7 +190,7 @@ service CustomerByCityStreaming {
 
   // tag::stream-updates[]
   rpc GetCustomers(ByCityRequest) returns (stream api.Customer) { // <1>
-    option (akkaserverless.method).view.query = {
+    option (kalix.method).view.query = {
       query: "SELECT * FROM customers WHERE address.city = :city", // <2>
       stream_updates: true // <3>
     };
