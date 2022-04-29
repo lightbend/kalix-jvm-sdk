@@ -143,7 +143,7 @@ service CustomerByCityStreaming {
   };
 
   // update methods omitted
-  // end ::stream-updates[]
+  // end::stream-updates[]
 
   rpc ProcessCustomerCreated(domain.CustomerCreated) returns (api.Customer) {
     option (akkaserverless.method).eventing.in = {
