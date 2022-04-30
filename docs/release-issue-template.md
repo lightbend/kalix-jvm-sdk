@@ -17,7 +17,7 @@ You can see the proxy version on prod [on grafana](https://lightbendcloud.grafan
 ### Check availability
 
 - [ ] Check that [`docs/current`](https://github.com/lightbend/kalix-jvm-sdk/commits/docs/current) has been updated
-- [ ] Check the release on [Maven Central](https://repo1.maven.org/maven2/kalix/kalix-scala-sdk-testkit_2.13/)
+- [ ] Check the release on [Maven Central](https://repo1.maven.org/maven2/io/kalix/kalix-scala-sdk-testkit_2.13/)
 
 ### Fix and publish docs
 
