@@ -12,13 +12,14 @@
 
     <!-- TODO Update to your own Docker repository or Docker Hub scope -->
     <dockerImage>my-docker-repo/${project.artifactId}</dockerImage>
-    <dockerTag>${project.version}</dockerTag>
+    <dockerTag>${project.version}-${build.timestamp}</dockerTag>
+    <maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
     <mainClass>com.example.Main</mainClass>
 
     <jdk.target>11</jdk.target>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-    <kalix-sdk.version>1.0.0-M1</kalix-sdk.version>
+    <kalix-sdk.version>1.0.0</kalix-sdk.version>
     <akka-grpc.version>1.1.1</akka-grpc.version>
   </properties>
 
@@ -312,7 +313,7 @@
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
-      <version>4.13.1</version>
+      <version>4.13.2</version>
       <scope>test</scope>
     </dependency>
   </dependencies>

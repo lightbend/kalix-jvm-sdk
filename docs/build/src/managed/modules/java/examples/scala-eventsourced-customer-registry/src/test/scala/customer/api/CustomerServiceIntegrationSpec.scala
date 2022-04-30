@@ -17,11 +17,7 @@ import org.scalatest.wordspec.AnyWordSpec
 // As long as this file exists it will not be overwritten: you can maintain it yourself,
 // or delete it so it is regenerated as needed.
 
-class CustomerServiceIntegrationSpec
-    extends AnyWordSpec
-    with Matchers
-    with BeforeAndAfterAll
-    with ScalaFutures {
+class CustomerServiceIntegrationSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll with ScalaFutures {
 
   implicit private val patience: PatienceConfig =
     PatienceConfig(Span(5, Seconds), Span(500, Millis))

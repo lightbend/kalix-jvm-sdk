@@ -29,6 +29,23 @@ class Counter(context: ValueEntityContext) extends AbstractCounter { // <1>
     }
   // end::increase[]
 
+  override def increaseWithConditional(currentState: CounterState, command: example.IncreaseValue): ValueEntity.Effect[Empty] =
+    if (command.value < 0) // <1>
+      effects.error(s"Increase requires a positive value. It was [${command.value}].")
+    else {
+      if (commandContext.metadata.get("myKey") == Some("myValue")) {
+      val newState = currentState.copy(value = currentState.value + command.value*2)
+      effects
+        .updateState(newState) 
+        .thenReply(Empty.defaultInstance)
+      } else {
+        val newState = currentState.copy(value = currentState.value + command.value)
+        effects
+          .updateState(newState) 
+          .thenReply(Empty.defaultInstance)
+      }
+  }
+
   override def decrease(currentState: CounterState, command: example.DecreaseValue): ValueEntity.Effect[Empty] =
     if (command.value < 0) effects.error(s"Increase requires a positive value. It was [${command.value}].")
     else

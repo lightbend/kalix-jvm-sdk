@@ -4,6 +4,7 @@
  */
 package com.example.domain
 
+import kalix.scalasdk.Metadata
 import com.example.{ DecreaseValue, IncreaseValue, ResetValue }
 import com.google.protobuf.empty.Empty
 import org.scalatest.matchers.should.Matchers
@@ -26,6 +27,16 @@ class CounterSpec extends AnyWordSpec with Matchers {
       testKit.currentState().value shouldBe 2
     }
     // end::sample-unit-test[]
+
+    "handle command Increase depending on Metadata" in {
+      val testKit = CounterTestKit(new Counter(_))
+
+      val result1 = testKit.increaseWithConditional(
+        IncreaseValue(value = 1), 
+        Metadata.empty.set("myKey","myValue"))
+      result1.reply shouldBe Empty.defaultInstance
+      testKit.currentState().value shouldBe 2
+    }
 
     "handle command Decrease" in {
       val testKit = CounterTestKit(new Counter(_))
