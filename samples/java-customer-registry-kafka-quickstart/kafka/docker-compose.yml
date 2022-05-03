@@ -12,7 +12,7 @@ services:
       USER_FUNCTION_PORT: ${USER_FUNCTION_PORT:-8080}
       BROKER_CONFIG_FILE: /conf/my-local.kafka.properties
     volumes:
-      - .:/con
+      - .:/conf
   kafka:
     image: wurstmeister/kafka
     ports:
