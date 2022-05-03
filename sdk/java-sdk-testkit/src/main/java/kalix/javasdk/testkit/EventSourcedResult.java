@@ -59,9 +59,6 @@ public interface EventSourcedResult<R> {
    */
   Status.Code getErrorStatusCode();
 
-  /** @return true if the call had a noReply effect, false if not */
-  boolean isNoReply();
-
   /**
    * @return The updated state. If the state was not updated (no events emitted) an exeption is
    *     thrown

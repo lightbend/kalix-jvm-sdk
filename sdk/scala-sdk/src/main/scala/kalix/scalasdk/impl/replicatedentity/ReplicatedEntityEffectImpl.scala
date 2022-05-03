@@ -62,9 +62,6 @@ private[scalasdk] final case class ReplicatedEntityEffectImpl[D <: ReplicatedDat
   def error[T](description: String, statusCode: Status.Code): ReplicatedEntity.Effect[T] =
     ReplicatedEntityEffectImpl(javaSdkEffect.error(description, statusCode))
 
-  override def noReply[T]: ReplicatedEntity.Effect[T] =
-    ReplicatedEntityEffectImpl(javaSdkEffect.noReply())
-
   override def thenReply[T](message: T): ReplicatedEntity.Effect[T] =
     ReplicatedEntityEffectImpl(javaSdkEffect.thenReply(message))
 
@@ -76,9 +73,6 @@ private[scalasdk] final case class ReplicatedEntityEffectImpl[D <: ReplicatedDat
       case ScalaDeferredCallAdapter(javaSdkDeferredCall) =>
         ReplicatedEntityEffectImpl(javaSdkEffect.thenForward(javaSdkDeferredCall))
     }
-
-  override def thenNoReply[T]: ReplicatedEntity.Effect[T] =
-    ReplicatedEntityEffectImpl(javaSdkEffect.thenNoReply())
 
   override def addSideEffects(sideEffects: Seq[SideEffect]): ReplicatedEntity.Effect[R] = {
     val javaSideEffects =

@@ -58,9 +58,6 @@ public interface ValueEntityResult<R> {
    */
   Status.Code getErrorStatusCode();
 
-  /** @return true if the call had a noReply effect, false if not */
-  boolean isNoReply();
-
   /** @return true if the call updated the entity state */
   boolean stateWasUpdated();
 

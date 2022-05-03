@@ -109,18 +109,6 @@ object ReplicatedEntity {
        *   The type of the message that must be returned by this call.
        */
       def error[T](description: String, statusCode: Status.Code): ReplicatedEntity.Effect[T]
-
-      /**
-       * Create a reply that contains neither a message nor a forward nor an error.
-       *
-       * This may be useful for emitting effects without sending a message.
-       *
-       * @return
-       *   The reply.
-       * @tparam T
-       *   The type of the message that must be returned by this call.
-       */
-      def noReply[T]: ReplicatedEntity.Effect[T]
     }
 
     trait OnSuccessBuilder {
@@ -162,18 +150,6 @@ object ReplicatedEntity {
        *   The type of the message that must be returned by this call.
        */
       def thenForward[T](serviceCall: DeferredCall[_, T]): ReplicatedEntity.Effect[T]
-
-      /**
-       * Create a reply that contains neither a message nor a forward nor an error.
-       *
-       * This may be useful for emitting effects without sending a message.
-       *
-       * @return
-       *   The reply.
-       * @tparam T
-       *   The type of the message that must be returned by this call.
-       */
-      def thenNoReply[T]: ReplicatedEntity.Effect[T]
     }
   }
 

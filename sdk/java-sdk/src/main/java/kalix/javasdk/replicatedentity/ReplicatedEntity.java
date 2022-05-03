@@ -138,16 +138,6 @@ public abstract class ReplicatedEntity<D extends ReplicatedData> {
        * @param <T> The type of the message that must be returned by this call.
        */
       <T> Effect<T> error(String description, Status.Code statusCode);
-
-      /**
-       * Create a reply that contains neither a message nor a forward nor an error.
-       *
-       * <p>This may be useful for emitting effects without sending a message.
-       *
-       * @return The reply.
-       * @param <T> The type of the message that must be returned by this call.
-       */
-      <T> Effect<T> noReply();
     }
 
     interface OnSuccessBuilder {
@@ -179,16 +169,6 @@ public abstract class ReplicatedEntity<D extends ReplicatedData> {
        * @param <T> The type of the message that must be returned by this call.
        */
       <T> Effect<T> thenForward(DeferredCall<? extends Object, T> serviceCall);
-
-      /**
-       * Create a reply that contains neither a message nor a forward nor an error.
-       *
-       * <p>This may be useful for emitting effects without sending a message.
-       *
-       * @return The reply.
-       * @param <T> The type of the message that must be returned by this call.
-       */
-      <T> Effect<T> thenNoReply();
     }
 
     /**

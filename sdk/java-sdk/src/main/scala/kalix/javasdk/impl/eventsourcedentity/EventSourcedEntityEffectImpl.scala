@@ -21,10 +21,10 @@ import java.util
 import java.util.function.{ Function => JFunction }
 
 import scala.jdk.CollectionConverters._
+import kalix.javasdk.Metadata
 import kalix.javasdk.impl.effect.ErrorReplyImpl
 import kalix.javasdk.impl.effect.ForwardReplyImpl
 import kalix.javasdk.impl.effect.MessageReplyImpl
-import kalix.javasdk.impl.effect.NoReply
 import kalix.javasdk.impl.effect.NoSecondaryEffectImpl
 import kalix.javasdk.impl.effect.SecondaryEffectImpl
 import kalix.javasdk.eventsourcedentity.EventSourcedEntity.Effect
@@ -44,9 +44,9 @@ class EventSourcedEntityEffectImpl[S] extends Builder[S] with OnSuccessBuilder[S
   import EventSourcedEntityEffectImpl._
 
   private var _primaryEffect: PrimaryEffectImpl = NoPrimaryEffect
-  private var _secondaryEffect: SecondaryEffectImpl = NoSecondaryEffectImpl
+  private var _secondaryEffect: SecondaryEffectImpl = NoSecondaryEffectImpl()
 
-  private var _functionSecondaryEffect: Function[S, SecondaryEffectImpl] = _ => NoSecondaryEffectImpl
+  private var _functionSecondaryEffect: Function[S, SecondaryEffectImpl] = _ => NoSecondaryEffectImpl()
   private var _functionSideEffects: Vector[JFunction[S, SideEffect]] = Vector.empty
 
   def primaryEffect: PrimaryEffectImpl = _primaryEffect
@@ -54,8 +54,8 @@ class EventSourcedEntityEffectImpl[S] extends Builder[S] with OnSuccessBuilder[S
   def secondaryEffect(state: S): SecondaryEffectImpl = {
     var secondary =
       _functionSecondaryEffect(state) match {
-        case NoSecondaryEffectImpl => _secondaryEffect
-        case newSecondary          => newSecondary.addSideEffects(_secondaryEffect.sideEffects)
+        case NoSecondaryEffectImpl(_) => _secondaryEffect
+        case newSecondary             => newSecondary.addSideEffects(_secondaryEffect.sideEffects)
       }
     if (_functionSideEffects.nonEmpty) {
       secondary = secondary.addSideEffects(_functionSideEffects.map(_.apply(state)))
@@ -97,11 +97,6 @@ class EventSourcedEntityEffectImpl[S] extends Builder[S] with OnSuccessBuilder[S
     this.asInstanceOf[EventSourcedEntityEffectImpl[T]]
   }
 
-  override def noReply[T](): EventSourcedEntityEffectImpl[T] = {
-    _secondaryEffect = NoReply(_secondaryEffect.sideEffects)
-    this.asInstanceOf[EventSourcedEntityEffectImpl[T]]
-  }
-
   override def thenReply[T](replyMessage: JFunction[S, T]): EventSourcedEntityEffectImpl[T] =
     thenReply(replyMessage, Metadata.EMPTY)
 
@@ -112,11 +107,6 @@ class EventSourcedEntityEffectImpl[S] extends Builder[S] with OnSuccessBuilder[S
 
   override def thenForward[T](serviceCall: JFunction[S, DeferredCall[_, T]]): EventSourcedEntityEffectImpl[T] = {
     _functionSecondaryEffect = state => ForwardReplyImpl(serviceCall.apply(state), Vector.empty)
-    this.asInstanceOf[EventSourcedEntityEffectImpl[T]]
-  }
-
-  override def thenNoReply[T](): EventSourcedEntityEffectImpl[T] = {
-    _secondaryEffect = NoReply(_secondaryEffect.sideEffects)
     this.asInstanceOf[EventSourcedEntityEffectImpl[T]]
   }
 

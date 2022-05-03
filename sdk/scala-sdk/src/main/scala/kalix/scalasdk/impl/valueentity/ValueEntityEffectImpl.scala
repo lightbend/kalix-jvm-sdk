@@ -50,8 +50,6 @@ private[scalasdk] final case class ValueEntityEffectImpl[S](
     }
   }
 
-  def noReply[T]: ValueEntity.Effect[T] = new ValueEntityEffectImpl(javasdkEffect.noReply[T]())
-
   def reply[T](message: T, metadata: kalix.scalasdk.Metadata): ValueEntity.Effect[T] =
     ValueEntityEffectImpl(javasdkEffect.reply(message, metadata.impl))
 
@@ -72,8 +70,6 @@ private[scalasdk] final case class ValueEntityEffectImpl[S](
         ValueEntityEffectImpl(javasdkEffect.thenForward(javaSdkDeferredCall))
     }
   }
-
-  def thenNoReply[T]: ValueEntity.Effect[T] = new ValueEntityEffectImpl(javasdkEffect.thenNoReply())
 
   def thenReply[T](message: T, metadata: kalix.scalasdk.Metadata): ValueEntity.Effect[T] =
     ValueEntityEffectImpl(javasdkEffect.thenReply(message, metadata.impl))

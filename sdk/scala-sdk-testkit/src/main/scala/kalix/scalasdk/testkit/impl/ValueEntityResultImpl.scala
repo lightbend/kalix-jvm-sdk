@@ -19,7 +19,6 @@ package kalix.scalasdk.testkit.impl
 import kalix.javasdk.impl.effect.ErrorReplyImpl
 import kalix.javasdk.impl.effect.ForwardReplyImpl
 import kalix.javasdk.impl.effect.MessageReplyImpl
-import kalix.javasdk.impl.effect.NoReply
 import kalix.javasdk.impl.effect.NoSecondaryEffectImpl
 import kalix.scalasdk.impl.valueentity.ValueEntityEffectImpl
 import kalix.javasdk.impl.valueentity.{ ValueEntityEffectImpl => JValueEntityEffectImpl }
@@ -71,9 +70,6 @@ final class ValueEntityResultImpl[R](effect: ValueEntityEffectImpl[R]) extends V
       case error: ErrorReplyImpl[_] => error.status.getOrElse(Status.Code.UNKNOWN)
       case _ => throw new IllegalStateException(s"The effect was not an error but [$secondaryEffectName]")
     }
-
-  override def isNoReply: Boolean =
-    secondaryEffect.isInstanceOf[NoReply[_]]
 
   override def stateWasUpdated: Boolean =
     primaryEffect.isInstanceOf[JValueEntityEffectImpl.UpdateState[_]]

@@ -56,9 +56,6 @@ trait EventSourcedResult[R] {
   /** The error status code. If the result was not an error an exception is thrown. */
   def errorStatusCode: Status.Code
 
-  /** @return true if the call had a noReply effect, false if not */
-  def isNoReply: Boolean
-
   /** @return The updated state. If the state was not updated an exeption is thrown */
   def updatedState: Any
 

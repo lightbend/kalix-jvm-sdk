@@ -76,9 +76,6 @@ final class EventSourcedResultImpl[R, S](
       case _ => throw new IllegalStateException(s"The effect was not an error but [$secondaryEffectName]")
     }
 
-  override def isNoReply: Boolean =
-    secondaryEffect.isInstanceOf[NoReply[_]]
-
   override def updatedState: S = state
 
   override def didEmitEvents: Boolean = events.nonEmpty

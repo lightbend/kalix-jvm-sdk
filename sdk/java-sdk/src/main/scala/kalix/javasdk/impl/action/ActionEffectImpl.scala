@@ -67,16 +67,11 @@ object ActionEffectImpl {
     protected def withSideEffects(sideEffects: Seq[SideEffect]): ErrorEffect[T] =
       copy(internalSideEffects = sideEffects)
   }
-  final case class NoReply[T](internalSideEffects: Seq[SideEffect]) extends PrimaryEffect[T] {
-    def isEmpty: Boolean = true
-    protected def withSideEffects(sideEffects: Seq[SideEffect]): NoReply[T] = copy(internalSideEffects = sideEffects)
-  }
 
   object Builder extends Action.Effect.Builder {
     def reply[S](message: S): Action.Effect[S] = ReplyEffect(message, None, Nil)
     def reply[S](message: S, metadata: Metadata): Action.Effect[S] = ReplyEffect(message, Some(metadata), Nil)
     def forward[S](serviceCall: DeferredCall[_, S]): Action.Effect[S] = ForwardEffect(serviceCall, Nil)
-    def noReply[S](): Action.Effect[S] = NoReply(Nil)
     def error[S](description: String): Action.Effect[S] = ErrorEffect(description, None, Nil)
     def error[S](description: String, statusCode: Status.Code): Action.Effect[S] = {
       if (statusCode.toStatus.isOk) throw new IllegalArgumentException("Cannot fail with a success status")

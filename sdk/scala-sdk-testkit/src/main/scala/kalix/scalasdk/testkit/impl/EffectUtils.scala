@@ -21,7 +21,6 @@ import kalix.javasdk.impl.DeferredCallImpl
 import kalix.javasdk.impl.effect.ErrorReplyImpl
 import kalix.javasdk.impl.effect.ForwardReplyImpl
 import kalix.javasdk.impl.effect.MessageReplyImpl
-import kalix.javasdk.impl.effect.NoReply
 import kalix.javasdk.impl.effect.NoSecondaryEffectImpl
 import kalix.javasdk.impl.effect.{ SecondaryEffectImpl => JavaSecondaryEffectImpl }
 import kalix.scalasdk.testkit.DeferredCallDetails
@@ -44,10 +43,9 @@ private[kalix] object EffectUtils {
 
   def nameFor(secondaryEffect: JavaSecondaryEffectImpl): String =
     secondaryEffect match {
-      case _: MessageReplyImpl[_] => "reply"
-      case _: ForwardReplyImpl[_] => "forward"
-      case _: ErrorReplyImpl[_]   => "error"
-      case _: NoReply[_]          => "noReply"
-      case NoSecondaryEffectImpl  => "no effect"
+      case _: MessageReplyImpl[_]   => "reply"
+      case _: ForwardReplyImpl[_]   => "forward"
+      case _: ErrorReplyImpl[_]     => "error"
+      case _: NoSecondaryEffectImpl => "no effect"
     }
 }

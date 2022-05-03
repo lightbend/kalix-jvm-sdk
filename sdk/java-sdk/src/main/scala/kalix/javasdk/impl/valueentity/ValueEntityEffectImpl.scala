@@ -22,7 +22,6 @@ import scala.jdk.CollectionConverters._
 import kalix.javasdk.impl.effect.ErrorReplyImpl
 import kalix.javasdk.impl.effect.ForwardReplyImpl
 import kalix.javasdk.impl.effect.MessageReplyImpl
-import kalix.javasdk.impl.effect.NoReply
 import kalix.javasdk.impl.effect.NoSecondaryEffectImpl
 import kalix.javasdk.impl.effect.SecondaryEffectImpl
 import kalix.javasdk.{ DeferredCall, Metadata, SideEffect }
@@ -42,7 +41,7 @@ class ValueEntityEffectImpl[S] extends Builder[S] with OnSuccessBuilder[S] with 
   import ValueEntityEffectImpl._
 
   private var _primaryEffect: PrimaryEffectImpl[S] = NoPrimaryEffect
-  private var _secondaryEffect: SecondaryEffectImpl = NoSecondaryEffectImpl
+  private var _secondaryEffect: SecondaryEffectImpl = NoSecondaryEffectImpl()
 
   def primaryEffect: PrimaryEffectImpl[S] = _primaryEffect
 
@@ -85,11 +84,6 @@ class ValueEntityEffectImpl[S] extends Builder[S] with OnSuccessBuilder[S] with 
   def hasError(): Boolean =
     _secondaryEffect.isInstanceOf[ErrorReplyImpl[_]]
 
-  override def noReply[T](): ValueEntityEffectImpl[T] = {
-    _secondaryEffect = NoReply(_secondaryEffect.sideEffects)
-    this.asInstanceOf[ValueEntityEffectImpl[T]]
-  }
-
   override def thenReply[T](message: T): ValueEntityEffectImpl[T] =
     thenReply(message, Metadata.EMPTY)
 
@@ -100,11 +94,6 @@ class ValueEntityEffectImpl[S] extends Builder[S] with OnSuccessBuilder[S] with 
 
   override def thenForward[T](serviceCall: DeferredCall[_, T]): ValueEntityEffectImpl[T] = {
     _secondaryEffect = ForwardReplyImpl(serviceCall, _secondaryEffect.sideEffects)
-    this.asInstanceOf[ValueEntityEffectImpl[T]]
-  }
-
-  override def thenNoReply[T](): ValueEntityEffectImpl[T] = {
-    _secondaryEffect = NoReply(_secondaryEffect.sideEffects)
     this.asInstanceOf[ValueEntityEffectImpl[T]]
   }
 

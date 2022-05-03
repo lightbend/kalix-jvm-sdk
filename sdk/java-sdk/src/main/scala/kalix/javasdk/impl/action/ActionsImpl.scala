@@ -141,8 +141,6 @@ private[javasdk] final class ActionsImpl(
             ActionResponse.Response.Failure(
               Failure(description = description, grpcStatusCode = status.map(_.value()).getOrElse(0))),
             toProtocol(anySupport, sideEffects)))
-      case NoReply(sideEffects) =>
-        Future.successful(ActionResponse(ActionResponse.Response.Empty, toProtocol(anySupport, sideEffects)))
       case unknown =>
         throw new IllegalArgumentException(s"Unknown Action.Effect type ${unknown.getClass}")
     }

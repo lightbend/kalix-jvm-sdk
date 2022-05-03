@@ -20,7 +20,6 @@ import kalix.javasdk.{ DeferredCall, Metadata, SideEffect }
 import kalix.javasdk.impl.effect.ErrorReplyImpl
 import kalix.javasdk.impl.effect.ForwardReplyImpl
 import kalix.javasdk.impl.effect.MessageReplyImpl
-import kalix.javasdk.impl.effect.NoReply
 import kalix.javasdk.impl.effect.NoSecondaryEffectImpl
 import kalix.javasdk.impl.effect.SecondaryEffectImpl
 import kalix.javasdk.replicatedentity.ReplicatedEntity.Effect
@@ -44,7 +43,7 @@ class ReplicatedEntityEffectImpl[D <: ReplicatedData, R]
   import ReplicatedEntityEffectImpl._
 
   private var _primaryEffect: PrimaryEffectImpl = NoPrimaryEffect
-  private var _secondaryEffect: SecondaryEffectImpl = NoSecondaryEffectImpl
+  private var _secondaryEffect: SecondaryEffectImpl = NoSecondaryEffectImpl()
 
   def primaryEffect: PrimaryEffectImpl = _primaryEffect
 
@@ -87,11 +86,6 @@ class ReplicatedEntityEffectImpl[D <: ReplicatedData, R]
   def hasError: Boolean =
     _secondaryEffect.isInstanceOf[ErrorReplyImpl[_]]
 
-  override def noReply[T](): ReplicatedEntityEffectImpl[D, T] = {
-    _secondaryEffect = NoReply(_secondaryEffect.sideEffects)
-    this.asInstanceOf[ReplicatedEntityEffectImpl[D, T]]
-  }
-
   override def thenReply[T](message: T): ReplicatedEntityEffectImpl[D, T] =
     thenReply(message, Metadata.EMPTY)
 
@@ -102,11 +96,6 @@ class ReplicatedEntityEffectImpl[D <: ReplicatedData, R]
 
   override def thenForward[T](serviceCall: DeferredCall[_, T]): ReplicatedEntityEffectImpl[D, T] = {
     _secondaryEffect = ForwardReplyImpl(serviceCall, _secondaryEffect.sideEffects)
-    this.asInstanceOf[ReplicatedEntityEffectImpl[D, T]]
-  }
-
-  override def thenNoReply[T](): ReplicatedEntityEffectImpl[D, T] = {
-    _secondaryEffect = NoReply(_secondaryEffect.sideEffects)
     this.asInstanceOf[ReplicatedEntityEffectImpl[D, T]]
   }
 

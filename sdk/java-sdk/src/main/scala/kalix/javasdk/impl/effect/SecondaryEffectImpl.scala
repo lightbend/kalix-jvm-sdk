@@ -28,10 +28,7 @@ sealed trait SecondaryEffectImpl {
   def sideEffects: Vector[SideEffect]
   def addSideEffects(sideEffects: Iterable[SideEffect]): SecondaryEffectImpl
 
-  final def replyToClientAction(
-      anySupport: AnySupport,
-      commandId: Long,
-      allowNoReply: Boolean): Option[ClientAction] = {
+  final def replyToClientAction(anySupport: AnySupport, commandId: Long): Option[ClientAction] = {
     this match {
       case message: effect.MessageReplyImpl[JavaPbAny] @unchecked =>
         Some(ClientAction(ClientAction.Action.Reply(EffectSupport.asProtocol(message))))
@@ -41,23 +38,17 @@ sealed trait SecondaryEffectImpl {
         Some(
           ClientAction(
             ClientAction.Action
-              .Failure(kalix.protocol.component
-                .Failure(commandId, failure.description, grpcStatusCode = failure.status.map(_.value()).getOrElse(0)))))
-      case _: effect.NoReply[_] @unchecked | effect.NoSecondaryEffectImpl =>
-        if (allowNoReply) {
-          None
-        } else {
-          throw new RuntimeException("No reply or forward returned by command handler!")
-        }
+              .Failure(kalix.protocol.component.Failure(commandId, failure.description))))
+      case NoSecondaryEffectImpl(_) =>
+        throw new RuntimeException("No reply or forward returned by command handler!")
     }
   }
 }
 
-case object NoSecondaryEffectImpl extends SecondaryEffectImpl {
-  override def sideEffects: Vector[SideEffect] = Vector.empty
+case class NoSecondaryEffectImpl(sideEffects: Vector[SideEffect] = Vector.empty) extends SecondaryEffectImpl {
 
-  override def addSideEffects(sideEffects: Iterable[SideEffect]): SecondaryEffectImpl =
-    NoReply(sideEffects.toVector)
+  override def addSideEffects(newSideEffects: Iterable[SideEffect]): SecondaryEffectImpl =
+    copy(sideEffects = sideEffects ++ newSideEffects)
 }
 
 final case class MessageReplyImpl[T](message: T, metadata: Metadata, sideEffects: Vector[SideEffect])
@@ -78,16 +69,6 @@ final case class ErrorReplyImpl[T](description: String, status: Option[Status.Co
     extends SecondaryEffectImpl {
   override def addSideEffects(newSideEffects: Iterable[SideEffect]): SecondaryEffectImpl =
     copy(sideEffects = sideEffects ++ newSideEffects)
-}
-
-final case class NoReply[T](sideEffects: Vector[SideEffect]) extends SecondaryEffectImpl {
-  override def addSideEffects(newSideEffects: Iterable[SideEffect]): SecondaryEffectImpl =
-    copy(sideEffects = sideEffects ++ newSideEffects)
-}
-
-object NoReply {
-  private val instance = NoReply[Any](Vector.empty)
-  def apply[T]: NoReply[T] = instance.asInstanceOf[NoReply[T]]
 }
 
 final case class SideEffectImpl(call: DeferredCall[_, _], synchronous: Boolean) extends SideEffect

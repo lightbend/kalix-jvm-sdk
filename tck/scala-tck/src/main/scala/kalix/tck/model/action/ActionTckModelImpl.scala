@@ -62,7 +62,7 @@ class ActionTckModelImpl(ctx: ActionCreationContext) extends AbstractActionTckMo
               case ProcessStep.Step.Reply(r)   => effects.reply(Response(r.message))
               case ProcessStep.Step.Forward(f) => effects.forward(components.actionTwoImpl.call(OtherRequest(f.id)))
             }
-            .getOrElse(effects.noReply)
+            .getOrElse(effects.reply(Response.defaultInstance))
       }
     res.addSideEffects(sideEffects)
   }

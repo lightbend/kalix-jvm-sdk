@@ -21,7 +21,6 @@ import kalix.javasdk.impl.DeferredCallImpl
 import kalix.javasdk.impl.effect.ErrorReplyImpl
 import kalix.javasdk.impl.effect.ForwardReplyImpl
 import kalix.javasdk.impl.effect.MessageReplyImpl
-import kalix.javasdk.impl.effect.NoReply
 import kalix.javasdk.impl.effect.NoSecondaryEffectImpl
 import kalix.javasdk.impl.valueentity.ValueEntityEffectImpl
 import kalix.javasdk.testkit.DeferredCallDetails
@@ -46,11 +45,10 @@ private[kalix] final class ValueEntityResultImpl[R](effect: ValueEntityEffectImp
   override def isReply(): Boolean = effect.secondaryEffect.isInstanceOf[MessageReplyImpl[_]]
 
   private def secondaryEffectName: String = effect.secondaryEffect match {
-    case _: MessageReplyImpl[_] => "reply"
-    case _: ForwardReplyImpl[_] => "forward"
-    case _: ErrorReplyImpl[_]   => "error"
-    case _: NoReply[_]          => "noReply"
-    case NoSecondaryEffectImpl  => "no effect" // this should never happen
+    case _: MessageReplyImpl[_]   => "reply"
+    case _: ForwardReplyImpl[_]   => "forward"
+    case _: ErrorReplyImpl[_]     => "error"
+    case _: NoSecondaryEffectImpl => "no effect" // this should never happen
   }
 
   override def getReply(): R = effect.secondaryEffect match {
@@ -81,8 +79,6 @@ private[kalix] final class ValueEntityResultImpl[R](effect: ValueEntityEffectImp
     case ErrorReplyImpl(_, status, _) => status.getOrElse(Status.Code.UNKNOWN)
     case _ => throw new IllegalStateException(s"The effect was not an error but [$secondaryEffectName]")
   }
-
-  override def isNoReply(): Boolean = effect.secondaryEffect.isInstanceOf[NoReply[_]]
 
   override def stateWasUpdated(): Boolean = effect.primaryEffect.isInstanceOf[ValueEntityEffectImpl.UpdateState[_]]
 

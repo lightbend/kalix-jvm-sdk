@@ -22,7 +22,6 @@ import kalix.javasdk.impl.DeferredCallImpl
 import kalix.javasdk.impl.effect.ErrorReplyImpl
 import kalix.javasdk.impl.effect.ForwardReplyImpl
 import kalix.javasdk.impl.effect.MessageReplyImpl
-import kalix.javasdk.impl.effect.NoReply
 import kalix.javasdk.impl.effect.NoSecondaryEffectImpl
 import kalix.javasdk.impl.effect.SecondaryEffectImpl
 import kalix.javasdk.impl.eventsourcedentity.EventSourcedEntityEffectImpl
@@ -87,11 +86,10 @@ private[kalix] final class EventSourcedResultImpl[R, S](
   private lazy val eventsIterator = getAllEvents().iterator
 
   private def secondaryEffectName: String = secondaryEffect match {
-    case _: MessageReplyImpl[_] => "reply"
-    case _: ForwardReplyImpl[_] => "forward"
-    case _: ErrorReplyImpl[_]   => "error"
-    case _: NoReply[_]          => "noReply"
-    case NoSecondaryEffectImpl  => "no effect" // this should never happen
+    case _: MessageReplyImpl[_]   => "reply"
+    case _: ForwardReplyImpl[_]   => "forward"
+    case _: ErrorReplyImpl[_]     => "error"
+    case _: NoSecondaryEffectImpl => "no effect" // this should never happen
   }
 
   /** All emitted events. */
@@ -123,8 +121,6 @@ private[kalix] final class EventSourcedResultImpl[R, S](
     case ErrorReplyImpl(_, status, _) => status.getOrElse(Status.Code.UNKNOWN)
     case _ => throw new IllegalStateException(s"The effect was not an error but [$secondaryEffectName]")
   }
-
-  override def isNoReply: Boolean = secondaryEffect.isInstanceOf[NoReply[_]]
 
   override def getUpdatedState: AnyRef = state.asInstanceOf[AnyRef]
 

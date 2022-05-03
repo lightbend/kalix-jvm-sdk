@@ -31,7 +31,7 @@ class EventSourcedResultSpec extends AnyWordSpec with Matchers {
 
     "extract side effects" in {
       val replyWithSideEffectResult = new EventSourcedResultImpl[String, String](
-        EventSourcedEntityEffectImpl().noReply[String], // not actually used here
+        EventSourcedEntityEffectImpl().reply("not actually used here"),
         "state",
         MessageReplyImpl(
           "reply", // pretend it was evaluated, in practice done by the generated testkit
@@ -46,7 +46,7 @@ class EventSourcedResultSpec extends AnyWordSpec with Matchers {
 
     "extract forward details" in {
       val forwardResult = new EventSourcedResultImpl[String, String](
-        EventSourcedEntityEffectImpl().noReply[String], // not actually used here
+        EventSourcedEntityEffectImpl().reply("not actually used here"),
         "state",
         ForwardReplyImpl(
           deferredCall =
