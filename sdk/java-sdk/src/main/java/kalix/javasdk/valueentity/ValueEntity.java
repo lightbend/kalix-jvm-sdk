@@ -125,7 +125,6 @@ public abstract class ValueEntity<S> {
        * @param <T> The type of the message that must be returned by this call.
        */
       <T> Effect<T> error(String description, Status.Code statusCode);
-
     }
 
     interface OnSuccessBuilder<S> {
