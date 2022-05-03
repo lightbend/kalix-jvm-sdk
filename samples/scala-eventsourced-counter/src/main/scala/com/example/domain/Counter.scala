@@ -25,7 +25,23 @@ class Counter(context: EventSourcedEntityContext) extends AbstractCounter {
         .thenReply(_ => Empty())
     }
 
-   import kalix.javasdk.impl.DeferredCallImpl
+  override def increaseWithConditional(
+      currentState: CounterState,
+      increaseValue: example.IncreaseValue): EventSourcedEntity.Effect[Empty] =
+    if (increaseValue.value < 0) {
+      effects.error("Value must be a zero or a positive number")
+    } else {
+      val valIncrease = if (commandContext.metadata.get("myKey") == Some("myValue")){
+        ValueIncreased(2 * increaseValue.value) 
+      } else {
+        ValueIncreased(increaseValue.value)
+      }
+      effects
+        .emitEvent(valIncrease)
+        .thenReply(_ => Empty())
+    }
+
+  import kalix.javasdk.impl.DeferredCallImpl
 
   override def increaseWithSideEffect(
       currentState: CounterState,

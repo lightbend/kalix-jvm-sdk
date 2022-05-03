@@ -1,15 +1,18 @@
 package org.example.valueentity;
 
 import com.google.protobuf.Empty;
+import kalix.javasdk.Metadata;
 import kalix.javasdk.impl.effect.MessageReplyImpl;
 import kalix.javasdk.impl.effect.SecondaryEffectImpl;
 import kalix.javasdk.impl.valueentity.ValueEntityEffectImpl;
 import kalix.javasdk.testkit.ValueEntityResult;
+import kalix.javasdk.testkit.impl.TestKitValueEntityCommandContext;
 import kalix.javasdk.testkit.impl.TestKitValueEntityContext;
 import kalix.javasdk.testkit.impl.ValueEntityResultImpl;
 import kalix.javasdk.valueentity.ValueEntity;
 import kalix.javasdk.valueentity.ValueEntityContext;
 
+import java.util.Optional;
 import java.util.function.Function;
 
 // This code is managed by Kalix tooling.
@@ -23,6 +26,7 @@ public final class CounterTestKit {
 
   private CounterDomain.CounterState state;
   private Counter entity;
+  private String entityId;
 
   /**
    * Create a testkit instance of Counter
@@ -37,16 +41,18 @@ public final class CounterTestKit {
    * Create a testkit instance of Counter with a specific entity id.
    */
   public static CounterTestKit of(String entityId, Function<ValueEntityContext, Counter> entityFactory) {
-    return new CounterTestKit(entityFactory.apply(new TestKitValueEntityContext(entityId)));
+    return new CounterTestKit(entityFactory.apply(new TestKitValueEntityContext(entityId)), entityId);
   }
 
   /** Construction is done through the static CounterTestKit.of-methods */
-  private CounterTestKit(Counter entity) {
+  private CounterTestKit(Counter entity, String entityId) {
+    this.entityId = entityId;
     this.state = entity.emptyState();
     this.entity = entity;
   }
 
-  private CounterTestKit(Counter entity, CounterDomain.CounterState state) {
+  private CounterTestKit(Counter entity, String entityId, CounterDomain.CounterState state) {
+    this.entityId = entityId;
     this.state = state;
     this.entity = entity;
   }
@@ -67,12 +73,26 @@ public final class CounterTestKit {
     return result;
   }
 
+  public ValueEntityResult<Empty> increase(CounterApi.IncreaseValue increaseValue, Metadata metadata) {
+    entity ._internalSetCommandContext(Optional.of(new TestKitValueEntityCommandContext(entityId, metadata)));
+    ValueEntity.Effect<Empty> effect = entity.increase(state, increaseValue);
+    return interpretEffects(effect);
+  }
+
+  public ValueEntityResult<Empty> decrease(CounterApi.DecreaseValue decreaseValue, Metadata metadata) {
+    entity ._internalSetCommandContext(Optional.of(new TestKitValueEntityCommandContext(entityId, metadata)));
+    ValueEntity.Effect<Empty> effect = entity.decrease(state, decreaseValue);
+    return interpretEffects(effect);
+  }
+
   public ValueEntityResult<Empty> increase(CounterApi.IncreaseValue increaseValue) {
+    entity ._internalSetCommandContext(Optional.of(new TestKitValueEntityCommandContext(entityId, Metadata.EMPTY)));
     ValueEntity.Effect<Empty> effect = entity.increase(state, increaseValue);
     return interpretEffects(effect);
   }
 
   public ValueEntityResult<Empty> decrease(CounterApi.DecreaseValue decreaseValue) {
+    entity ._internalSetCommandContext(Optional.of(new TestKitValueEntityCommandContext(entityId, Metadata.EMPTY)));
     ValueEntity.Effect<Empty> effect = entity.decrease(state, decreaseValue);
     return interpretEffects(effect);
   }

@@ -17,6 +17,7 @@ class CounterServiceEntitySpec extends AnyWordSpec with Matchers {
   "The CounterServiceEntity" should {
     "have example test that can be removed" in {
       val testKit = CounterServiceEntityTestKit(new CounterServiceEntity(_))
+      pending
       // use the testkit to execute a command:
       // val result: EventSourcedResult[R] = testKit.someOperation(SomeRequest("id"));
       // verify the emitted events
@@ -24,18 +25,20 @@ class CounterServiceEntitySpec extends AnyWordSpec with Matchers {
       // actualEvent shouldBe expectedEvent
       // verify the final state after applying the events
       // testKit.state() shouldBe expectedState
-      // verify the response
+      // verify the reply
       // result.reply shouldBe expectedReply
       // verify the final state after the command
     }
 
     "correctly process commands of type Increase" in {
       val testKit = CounterServiceEntityTestKit(new CounterServiceEntity(_))
+      pending
       // val result: EventSourcedResult[Empty] = testKit.increase(IncreaseValue(...))
     }
 
     "correctly process commands of type Decrease" in {
       val testKit = CounterServiceEntityTestKit(new CounterServiceEntity(_))
+      pending
       // val result: EventSourcedResult[Empty] = testKit.decrease(DecreaseValue(...))
     }
   }

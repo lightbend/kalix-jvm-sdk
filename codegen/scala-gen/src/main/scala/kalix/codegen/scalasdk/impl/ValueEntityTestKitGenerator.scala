@@ -43,18 +43,21 @@ object ValueEntityTestKitGenerator {
         service.commands.map(_.outputType),
         valueEntity.messageType.parent.scalaPackage,
         otherImports = Seq(
+          "kalix.scalasdk.Metadata",
           "kalix.scalasdk.testkit.ValueEntityResult",
           "kalix.scalasdk.testkit.impl.ValueEntityResultImpl",
           "kalix.scalasdk.valueentity.ValueEntity",
           "kalix.scalasdk.valueentity.ValueEntityContext",
+          "kalix.scalasdk.testkit.impl.TestKitValueEntityCommandContext",
           "kalix.scalasdk.testkit.impl.TestKitValueEntityContext"),
         packageImports = Seq(service.messageType.parent.scalaPackage))
 
     val entityClassName = valueEntity.messageType.name
 
     val methods = service.commands.map { cmd =>
-      s"""|def ${lowerFirst(cmd.name)}(command: ${typeName(cmd.inputType)}): ValueEntityResult[${typeName(
-        cmd.outputType)}] = {
+      s"""|def ${lowerFirst(cmd.name)}(command: ${typeName(
+        cmd.inputType)}, metadata: Metadata = Metadata.empty): ValueEntityResult[${typeName(cmd.outputType)}] = {
+          |  entity._internalSetCommandContext(Some(new TestKitValueEntityCommandContext(entityId = entityId, metadata = metadata)))
           |  val effect = entity.${lowerFirst(cmd.name)}(state, command)
           |  interpretEffects(effect)
           |}
@@ -85,13 +88,13 @@ object ValueEntityTestKitGenerator {
           |   * Create a testkit instance of $entityClassName with a specific entity id.
           |   */
           |  def apply(entityId: String, entityFactory: ValueEntityContext => $entityClassName): ${entityClassName}TestKit =
-          |    new ${entityClassName}TestKit(entityFactory(new TestKitValueEntityContext(entityId)))
+          |    new ${entityClassName}TestKit(entityFactory(new TestKitValueEntityContext(entityId)), entityId)
           |}
           |
           |/**
           | * TestKit for unit testing $entityClassName
           | */
-          |final class ${entityClassName}TestKit private(entity: $entityClassName) {
+          |final class ${entityClassName}TestKit private(entity: $entityClassName, entityId: String) {
           |  private var state: ${typeName(valueEntity.state.messageType)} = entity.emptyState
           |
           |  /**
@@ -131,8 +134,9 @@ object ValueEntityTestKitGenerator {
 
     val testCases = service.commands.map { cmd =>
       s"""|"handle command ${cmd.name}" in {
-          |  val testKit = ${entityClassName}TestKit(new $entityClassName(_))
-          |  // val result = testKit.${lowerFirst(cmd.name)}(${typeName(cmd.inputType)}(...))
+          |  val service = ${entityClassName}TestKit(new $entityClassName(_))
+          |  pending
+          |  // val result = service.${lowerFirst(cmd.name)}(${typeName(cmd.inputType)}(...))
           |}
           |""".stripMargin
     }
@@ -150,15 +154,16 @@ object ValueEntityTestKitGenerator {
           |  "${entityClassName}" must {
           |
           |    "have example test that can be removed" in {
-          |      val testKit = ${entityClassName}TestKit(new $entityClassName(_))
+          |      val service = ${entityClassName}TestKit(new $entityClassName(_))
+          |      pending
           |      // use the testkit to execute a command
           |      // and verify final updated state:
-          |      // val result = testKit.someOperation(SomeRequest)
-          |      // verify the response
-          |      // val actualResponse = result.getReply()
-          |      // actualResponse shouldBe expectedResponse
+          |      // val result = service.someOperation(SomeRequest)
+          |      // verify the reply
+          |      // val reply = result.getReply()
+          |      // reply shouldBe expectedReply
           |      // verify the final state after the command
-          |      // testKit.currentState() shouldBe expectedState
+          |      // service.currentState() shouldBe expectedState
           |    }
           |
           |    ${Format.indent(testCases, 4)}
@@ -214,6 +219,7 @@ object ValueEntityTestKitGenerator {
           |  "${entityClassName}" must {
           |
           |    "have example test that can be removed" in {
+          |      pending
           |      // use the gRPC client to send requests to the
           |      // proxy and verify the results
           |    }

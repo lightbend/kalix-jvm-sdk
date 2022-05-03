@@ -39,6 +39,7 @@ object ActionTestKitGenerator {
         service.commands.map(_.outputType),
         service.messageType.parent.scalaPackage,
         otherImports = Seq(
+          "kalix.scalasdk.Metadata",
           "kalix.scalasdk.testkit.ActionResult",
           "kalix.scalasdk.testkit.impl.ActionResultImpl",
           "kalix.scalasdk.action.ActionCreationContext",
@@ -47,12 +48,16 @@ object ActionTestKitGenerator {
     val actionClassName = service.className
 
     val methods = service.commands.map { cmd =>
-      s"""def ${lowerFirst(cmd.name)}(command: ${selectInput(cmd)}): ${selectOutputResult(cmd)} =\n""" +
+      s"""def ${lowerFirst(cmd.name)}(command: ${selectInput(
+        cmd)}, metadata: Metadata = Metadata.empty): ${selectOutputResult(cmd)} = {\n""" +
+      "  val context = new TestKitActionContext(metadata)\n" +
       (if (cmd.isUnary || cmd.isStreamIn) {
-         s"""  new ActionResultImpl(newActionInstance().${lowerFirst(cmd.name)}(command))"""
+         s"""  new ActionResultImpl(newActionInstance(context).${lowerFirst(cmd.name)}(command))"""
        } else {
-         s"""  newActionInstance().${lowerFirst(cmd.name)}(command).map(effect => new ActionResultImpl(effect))"""
-       }) + "\n"
+         s"""  newActionInstance(context).${lowerFirst(
+           cmd.name)}(command).map(effect => new ActionResultImpl(effect))"""
+       }) + "\n" +
+      "}\n"
     }
 
     File.scala(
@@ -82,8 +87,7 @@ object ActionTestKitGenerator {
           | */
           |final class ${actionClassName}TestKit private(actionFactory: ActionCreationContext => $actionClassName) {
           |
-          |  private def newActionInstance() = {
-          |    val context = new TestKitActionContext
+          |  private def newActionInstance(context: TestKitActionContext) = {
           |    val action = actionFactory(context)
           |    action._internalSetActionContext(Some(context))
           |    action
@@ -111,13 +115,15 @@ object ActionTestKitGenerator {
     val testCases = service.commands.map { cmd =>
       s""""handle command ${cmd.name}" in {\n""" +
       (if (cmd.isUnary || cmd.isStreamOut)
-         s"""|  val testKit = ${actionClassName}TestKit(new $actionClassName(_))
-              |  // val result = testKit.${lowerFirst(cmd.name)}(${typeName(cmd.inputType)}(...))
+         s"""|  val service = ${actionClassName}TestKit(new $actionClassName(_))
+              |      pending
+              |  // val result = service.${lowerFirst(cmd.name)}(${typeName(cmd.inputType)}(...))
               |}
               |""".stripMargin
        else
-         s"""|  val testKit = ${actionClassName}TestKit(new $actionClassName(_))
-              |  // val result = testKit.${lowerFirst(cmd.name)}(Source.single(${typeName(cmd.inputType)}(...)))
+         s"""|  val service = ${actionClassName}TestKit(new $actionClassName(_))
+              |      pending
+              |  // val result = service.${lowerFirst(cmd.name)}(Source.single(${typeName(cmd.inputType)}(...)))
               |}
               |""".stripMargin)
     }
@@ -138,11 +144,12 @@ object ActionTestKitGenerator {
           |  "${actionClassName}" must {
           |
           |    "have example test that can be removed" in {
-          |      val testKit = ${actionClassName}TestKit(new $actionClassName(_))
+          |      val service = ${actionClassName}TestKit(new $actionClassName(_))
+          |      pending
           |      // use the testkit to execute a command
           |      // and verify final updated state:
-          |      // val result = testKit.someOperation(SomeRequest)
-          |      // verify the response
+          |      // val result = service.someOperation(SomeRequest)
+          |      // verify the reply
           |      // result.reply shouldBe expectedReply
           |    }
           |

@@ -1,4 +1,3 @@
-
 package customer.domain
 
 import kalix.scalasdk.eventsourcedentity.EventSourcedEntity
@@ -12,7 +11,9 @@ class CustomerEntity(context: EventSourcedEntityContext) extends AbstractCustome
 
   override def emptyState: CustomerState = CustomerState(customerId = entityId)
 
-  override def getCustomer(currentState: CustomerState, getCustomerRequest: api.GetCustomerRequest): EventSourcedEntity.Effect[api.Customer] =
+  override def getCustomer(
+      currentState: CustomerState,
+      getCustomerRequest: api.GetCustomerRequest): EventSourcedEntity.Effect[api.Customer] =
     effects.reply(convertToApi(currentState))
 
   override def create(currentState: CustomerState, customer: api.Customer): EventSourcedEntity.Effect[Empty] = {
@@ -20,12 +21,16 @@ class CustomerEntity(context: EventSourcedEntityContext) extends AbstractCustome
     effects.emitEvent(event).thenReply(_ => Empty.defaultInstance)
   }
 
-  override def changeName(currentState: CustomerState, changeNameRequest: api.ChangeNameRequest): EventSourcedEntity.Effect[Empty] = {
+  override def changeName(
+      currentState: CustomerState,
+      changeNameRequest: api.ChangeNameRequest): EventSourcedEntity.Effect[Empty] = {
     val event = CustomerNameChanged(newName = changeNameRequest.newName)
     effects.emitEvent(event).thenReply(_ => Empty.defaultInstance)
   }
 
-  override def changeAddress(currentState: CustomerState, changeAddressRequest: api.ChangeAddressRequest): EventSourcedEntity.Effect[Empty] = {
+  override def changeAddress(
+      currentState: CustomerState,
+      changeAddressRequest: api.ChangeAddressRequest): EventSourcedEntity.Effect[Empty] = {
     val event = CustomerAddressChanged(newAddress = changeAddressRequest.newAddress.map(convertToDomain))
     effects.emitEvent(event).thenReply(_ => Empty.defaultInstance)
   }
@@ -33,10 +38,14 @@ class CustomerEntity(context: EventSourcedEntityContext) extends AbstractCustome
   override def customerCreated(currentState: CustomerState, customerCreated: CustomerCreated): CustomerState =
     customerCreated.customer.get
 
-  override def customerNameChanged(currentState: CustomerState, customerNameChanged: CustomerNameChanged): CustomerState =
+  override def customerNameChanged(
+      currentState: CustomerState,
+      customerNameChanged: CustomerNameChanged): CustomerState =
     currentState.copy(name = customerNameChanged.newName)
 
-  override def customerAddressChanged(currentState: CustomerState, customerAddressChanged: CustomerAddressChanged): CustomerState =
+  override def customerAddressChanged(
+      currentState: CustomerState,
+      customerAddressChanged: CustomerAddressChanged): CustomerState =
     currentState.copy(address = customerAddressChanged.newAddress)
 
   private def convertToApi(customer: CustomerState): api.Customer =
@@ -44,26 +53,18 @@ class CustomerEntity(context: EventSourcedEntityContext) extends AbstractCustome
       customerId = customer.customerId,
       name = customer.name,
       email = customer.email,
-      address = customer.address.map(convertToApi),
-    )
+      address = customer.address.map(convertToApi))
 
   private def convertToApi(address: Address): api.Address =
-    api.Address(
-      street = address.street,
-      city = address.city
-    )
+    api.Address(street = address.street, city = address.city)
 
   private def convertToDomain(customer: api.Customer): CustomerState =
     CustomerState(
       customerId = customer.customerId,
       email = customer.email,
       name = customer.name,
-      address = customer.address.map(convertToDomain)
-    )
+      address = customer.address.map(convertToDomain))
 
   private def convertToDomain(address: api.Address): Address =
-    Address(
-      street = address.street,
-      city = address.city
-    )
+    Address(street = address.street, city = address.city)
 }

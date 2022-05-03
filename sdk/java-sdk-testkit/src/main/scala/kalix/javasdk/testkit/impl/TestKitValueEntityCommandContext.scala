@@ -14,23 +14,29 @@
  * limitations under the License.
  */
 
-package kalix.scalasdk.testkit.impl
+package kalix.javasdk.testkit.impl
 
 import akka.stream.Materializer
-import kalix.scalasdk.Metadata
-import kalix.scalasdk.action.ActionContext
-import kalix.scalasdk.action.ActionCreationContext
+import kalix.javasdk.Metadata
+import kalix.javasdk.testkit.impl.AbstractTestKitContext
+import kalix.javasdk.valueentity.CommandContext
+import kalix.javasdk.valueentity.ValueEntityContext
+import kalix.javasdk.impl.InternalContext
 
 /**
  * INTERNAL API Used by the generated testkit
  */
-final class TestKitActionContext(override val metadata: Metadata = Metadata.empty)
+final class TestKitValueEntityCommandContext(
+    override val entityId: String,
+    override val commandName: String = "stubCommandName",
+    override val commandId: Long = 0L,
+    override val metadata: Metadata = Metadata.EMPTY)
     extends AbstractTestKitContext
-    with ActionContext
-    with ActionCreationContext {
+    with ValueEntityContext
+    with CommandContext {
 
-  override def eventSubject = metadata.get("ce-subject")
-  override def getGrpcClient[T](clientClass: Class[T], service: String): T =
-    throw new UnsupportedOperationException("Testing logic using a gRPC client is not possible with the testkit")
+  def this(entityId: String, metadata: Metadata) {
+    this(entityId = entityId, metadata = metadata, commandName = "stubCommandName")
+  }
 
 }

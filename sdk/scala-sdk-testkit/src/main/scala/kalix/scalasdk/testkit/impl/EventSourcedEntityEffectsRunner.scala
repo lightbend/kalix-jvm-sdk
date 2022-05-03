@@ -16,6 +16,7 @@
 
 package kalix.scalasdk.testkit.impl
 
+import kalix.scalasdk.Metadata
 import kalix.scalasdk.eventsourcedentity.EventSourcedEntity
 import kalix.scalasdk.testkit.EventSourcedResult
 import kalix.scalasdk.testkit.impl.EventSourcedResultImpl
@@ -36,8 +37,10 @@ abstract class EventSourcedEntityEffectsRunner[S](entity: EventSourcedEntity[S])
   /** @return All events emitted by command handlers of this entity up to now */
   def allEvents: Seq[Any] = events
 
-  protected def interpretEffects[R](effect: () => EventSourcedEntity.Effect[R]): EventSourcedResult[R] = {
-    val commandContext = new TestKitEventSourcedEntityCommandContext()
+  protected def interpretEffects[R](
+      effect: () => EventSourcedEntity.Effect[R],
+      metadata: Metadata = Metadata.empty): EventSourcedResult[R] = {
+    val commandContext = new TestKitEventSourcedEntityCommandContext(metadata = metadata)
     val effectExecuted =
       try {
         entity._internalSetCommandContext(Some(commandContext))

@@ -20,32 +20,37 @@ class MyServiceActionSpec
   "MyServiceAction" must {
 
     "have example test that can be removed" in {
-      val testKit = MyServiceActionTestKit(new MyServiceAction(_))
+      val service = MyServiceActionTestKit(new MyServiceAction(_))
+      pending
       // use the testkit to execute a command
       // and verify final updated state:
-      // val result = testKit.someOperation(SomeRequest)
-      // verify the response
+      // val result = service.someOperation(SomeRequest)
+      // verify the reply
       // result.reply shouldBe expectedReply
     }
 
     "handle command simpleMethod" in {
-      val testKit = MyServiceActionTestKit(new MyServiceAction(_))
-      // val result = testKit.simpleMethod(MyRequest(...))
+      val service = MyServiceActionTestKit(new MyServiceAction(_))
+          pending
+      // val result = service.simpleMethod(MyRequest(...))
     }
 
     "handle command streamedOutputMethod" in {
-      val testKit = MyServiceActionTestKit(new MyServiceAction(_))
-      // val result = testKit.streamedOutputMethod(MyRequest(...))
+      val service = MyServiceActionTestKit(new MyServiceAction(_))
+          pending
+      // val result = service.streamedOutputMethod(MyRequest(...))
     }
 
     "handle command streamedInputMethod" in {
-      val testKit = MyServiceActionTestKit(new MyServiceAction(_))
-      // val result = testKit.streamedInputMethod(Source.single(MyRequest(...)))
+      val service = MyServiceActionTestKit(new MyServiceAction(_))
+          pending
+      // val result = service.streamedInputMethod(Source.single(MyRequest(...)))
     }
 
     "handle command fullStreamedMethod" in {
-      val testKit = MyServiceActionTestKit(new MyServiceAction(_))
-      // val result = testKit.fullStreamedMethod(Source.single(MyRequest(...)))
+      val service = MyServiceActionTestKit(new MyServiceAction(_))
+          pending
+      // val result = service.fullStreamedMethod(Source.single(MyRequest(...)))
     }
 
   }
