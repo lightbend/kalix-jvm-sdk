@@ -5,7 +5,6 @@ import kalix.scalasdk.action.ActionCreationContext
 import com.google.protobuf.empty.Empty
 
 import java.util.UUID
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 // This class was initially generated based on the .proto definition by Kalix tooling.
@@ -77,4 +76,3 @@ class ShoppingCartActionImpl(creationContext: ActionCreationContext) extends Abs
 
 
 }
-
