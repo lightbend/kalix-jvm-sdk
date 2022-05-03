@@ -1,11 +1,7 @@
 version: "3"
 services:
   kalix-proxy:
-<<<<<<< HEAD
-    image: gcr.io/kalix-public/kalix-proxy:1.0.2
-=======
     image: gcr.io/kalix-public/kalix-proxy:1.0.1
->>>>>>> 9ca809abe32dc70498827a23a8c8e83e68da40c3
     command: -Dconfig.resource=dev-mode.conf -Dkalix.proxy.eventing.support=kafka
     ports:
       - "9000:9000"
@@ -16,7 +12,7 @@ services:
       USER_FUNCTION_PORT: ${USER_FUNCTION_PORT:-8080}
       BROKER_CONFIG_FILE: /conf/my-local.kafka.properties
     volumes:
-      - .:/conf
+      - .:/con
   kafka:
     image: wurstmeister/kafka
     ports:
