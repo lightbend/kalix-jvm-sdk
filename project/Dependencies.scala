@@ -23,7 +23,7 @@ object Dependencies {
   val DockerBaseImageVersion = "adoptopenjdk/openjdk11:debianslim-jre"
   val LogbackVersion = "1.2.11"
   val LogbackContribVersion = "0.1.5"
-  val TestContainersVersion = "1.15.3"
+  val TestContainersVersion = "1.17.1"
   val JUnitVersion = "4.13.2"
   val JUnitInterfaceVersion = "0.11"
   val JUnitJupiterVersion = "5.7.1"
