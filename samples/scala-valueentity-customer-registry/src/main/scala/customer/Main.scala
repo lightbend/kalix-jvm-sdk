@@ -1,11 +1,19 @@
 //tag::RegisterComponents[]
 package customer
 
+import customer.action.CustomerActionImpl
+import customer.domain.CustomerValueEntity
+import customer.view.CustomerByEmailView
+import customer.view.CustomerByNameView
+import customer.view.CustomerSummaryByNameView
+import customer.view.CustomersResponseByNameView
 import kalix.scalasdk.Kalix
-import customer.action._
-import customer.domain._
-import customer.view._
 import org.slf4j.LoggerFactory
+
+// This class was initially generated based on the .proto definition by Kalix tooling.
+//
+// As long as this file exists it will not be overwritten: you can maintain it yourself,
+// or delete it so it is regenerated as needed.
 
 object Main {
 
@@ -13,13 +21,19 @@ object Main {
 
   // tag::register[]
   def createKalix(): Kalix = {
-    Kalix()
-      .register(CustomerValueEntityProvider(new CustomerValueEntity(_)))
-      .register(CustomerActionProvider(new CustomerActionImpl(_)))
-      .register(CustomerByEmailViewProvider(new CustomerByEmailView(_)))
-      .register(CustomerByNameViewProvider(new CustomerByNameView(_)))
-      .register(CustomerSummaryByNameViewProvider(new CustomerSummaryByNameView(_)))
-      .register(CustomersResponseByNameViewProvider(new CustomersResponseByNameView(_)))
+    // end::register[]
+    // The KalixFactory automatically registers any generated Actions, Views or Entities,
+    // and is kept up-to-date with any changes in your protobuf definitions.
+    // If you prefer, you may remove this and manually register these components in a
+    // `Kalix()` instance.
+    // tag::register[]
+    KalixFactory.withComponents(
+      new CustomerValueEntity(_),
+      new CustomerActionImpl(_),
+      new CustomerByEmailView(_),
+      new CustomerByNameView(_),
+      new CustomerSummaryByNameView(_),
+      new CustomersResponseByNameView(_))
   }
   // end::register[]
 
