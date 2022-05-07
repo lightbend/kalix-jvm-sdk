@@ -51,7 +51,7 @@ class OrderAction(creationContext: ActionCreationContext) extends AbstractOrderA
 
     // end::place-order[]
     logger.info(
-      "Placing order for item {} (quantity {}). Order id {}",
+      "Placing order for item {} (quantity {}). Order number '{}'",
       orderRequest.item,
       orderRequest.quantity,
       orderNumber.number)
@@ -62,7 +62,7 @@ class OrderAction(creationContext: ActionCreationContext) extends AbstractOrderA
 
   // tag::expire-order[]
   override def expire(orderNumber: OrderNumber): Action.Effect[Empty] = {
-    logger.info("Expiring order {}", orderNumber.number)
+    logger.info("Expiring order '{}'", orderNumber.number)
 
     def validateErrorCodes(code: Status.Code) =
       code == Status.Code.NOT_FOUND || code == Status.Code.INVALID_ARGUMENT
@@ -85,7 +85,7 @@ class OrderAction(creationContext: ActionCreationContext) extends AbstractOrderA
 
   // tag::confirm-cancel-order[]
   override def confirm(orderNumber: OrderNumber): Action.Effect[Empty] = {
-    logger.info("Confirming order {}", orderNumber.number)
+    logger.info("Confirming order '{}'", orderNumber.number)
     val reply =
       for {
         _ <- components.order // <1>
@@ -98,7 +98,7 @@ class OrderAction(creationContext: ActionCreationContext) extends AbstractOrderA
   }
 
   override def cancel(orderNumber: OrderNumber): Action.Effect[Empty] = {
-    logger.info("Cancelling order {}", orderNumber.number)
+    logger.info("Cancelling order '{}'", orderNumber.number)
     val reply =
       for {
         _ <- components.order

@@ -61,7 +61,7 @@ public class OrderAction extends AbstractOrderAction {
 
     // end::place-order[]
     logger.info(
-        "Placing order for item {} (quantity {}). Order id {}",
+        "Placing order for item {} (quantity {}). Order number '{}'",
         orderRequest.getItem(),
         orderRequest.getQuantity(),
         orderNumber.getNumber());
@@ -78,7 +78,7 @@ public class OrderAction extends AbstractOrderAction {
   // tag::expire-order[]
   @Override
   public Effect<Empty> expire(OrderApi.OrderNumber orderNumber) {
-    logger.info("Expiring order {}", orderNumber.getNumber());
+    logger.info("Expiring order '{}'", orderNumber.getNumber());
 
     Predicate<StatusRuntimeException> validateErrorCodes = exception -> {
       Status.Code code = exception.getStatus().getCode();
@@ -112,7 +112,7 @@ public class OrderAction extends AbstractOrderAction {
   // tag::confirm-cancel-order[]
   @Override
   public Effect<Empty> confirm(OrderApi.OrderNumber orderNumber) {
-    logger.info("Confirming order {}", orderNumber.getNumber());
+    logger.info("Confirming order '{}'", orderNumber.getNumber());
     OrderServiceApi.ConfirmRequest request =
         OrderServiceApi.ConfirmRequest.newBuilder()
             .setOrderNumber(orderNumber.getNumber())
@@ -130,7 +130,7 @@ public class OrderAction extends AbstractOrderAction {
 
   @Override
   public Effect<Empty> cancel(OrderApi.OrderNumber orderNumber) {
-    logger.info("Cancelling order {}", orderNumber.getNumber());
+    logger.info("Cancelling order '{}'", orderNumber.getNumber());
     OrderServiceApi.CancelRequest request =
         OrderServiceApi.CancelRequest.newBuilder()
             .setOrderNumber(orderNumber.getNumber())

@@ -37,14 +37,14 @@ class Order(context: ValueEntityContext) extends AbstractOrder {
     else
       effects
         .error(
-          s"No order found for ${confirmRequest.orderNumber}", 
+          s"No order found for '${confirmRequest.orderNumber}'", 
           Status.Code.NOT_FOUND) // <3>
 
   override def cancel(currentState: OrderState, cancelRequest: example.CancelRequest): ValueEntity.Effect[Empty] =
     if (!currentState.placed)
       effects
         .error(
-          s"No order found for ${cancelRequest.orderNumber}", 
+          s"No order found for '${cancelRequest.orderNumber}'", 
           Status.Code.NOT_FOUND) // <4>
     else if (currentState.confirmed)
       effects
@@ -69,7 +69,7 @@ class Order(context: ValueEntityContext) extends AbstractOrder {
       effects.reply(status)
     } else {
       effects.error(
-        s"No order found for ${orderStatusRequest.orderNumber}", 
+        s"No order found for '${orderStatusRequest.orderNumber}'", 
         Status.Code.NOT_FOUND)
     }
   }

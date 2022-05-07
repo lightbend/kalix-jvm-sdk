@@ -50,7 +50,7 @@ public class Order extends AbstractOrder {
           .thenReply(Empty.getDefaultInstance());
     } else {
       return effects().error(
-          "No order found for " + confirmRequest.getOrderNumber(),
+        "No order found for '" + confirmRequest.getOrderNumber() + "'",
           Status.Code.NOT_FOUND); // <3>
     }
   }
@@ -86,7 +86,7 @@ public class Order extends AbstractOrder {
       return effects().reply(status);
     } else {
       return effects().error(
-          "No order found for " + orderStatusRequest.getOrderNumber(),
+          "No order found for '" + orderStatusRequest.getOrderNumber() + "'",
           Status.Code.NOT_FOUND);
     }
   }
