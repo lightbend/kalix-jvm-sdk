@@ -74,12 +74,12 @@ final class ActionResultImpl[T](val effect: ActionEffectImpl.PrimaryEffect[T]) e
 
   override def errorDescription: String = effect match {
     case e: ActionEffectImpl.ErrorEffect[_] => e.description
-    case _ => throw new IllegalStateException(s"The effect was not error but [$effectName]")
+    case _ => throw new IllegalStateException(s"The effect was not an error but [$effectName]")
   }
 
   override def errorStatusCode: Status.Code = effect match {
     case e: ActionEffectImpl.ErrorEffect[_] => e.statusCode.getOrElse(Status.Code.UNKNOWN)
-    case _ => throw new IllegalStateException(s"The effect was not error but [$effectName]")
+    case _ => throw new IllegalStateException(s"The effect was not an error but [$effectName]")
   }
 
   private def effectName: String =
