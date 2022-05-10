@@ -45,7 +45,6 @@ class FibonacciAction(creationContext: ActionCreationContext) extends AbstractFi
   override def nextNumberOfSum(numberSrc: Source[Number, NotUsed]): Action.Effect[Number] = {
     // contrived but just to stay in fibonacci land with a streamed in call
     implicit val materializer = actionContext.materializer()
-    import scala.concurrent.ExecutionContext.Implicits.global
     val futureEffect = numberSrc.runFold(0L)((acc, number) => acc + number.value)
       .map { sum =>
         if (!isFibonacci(sum)) effects.error(s"Input sum is not a Fibonacci number, received '$sum'")
