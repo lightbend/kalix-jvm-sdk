@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package com.example.domain;
+
+option java_outer_classname = "OrderDomain";
+
+message OrderState {
+  string order_number = 1;
+  bool confirmed = 2;
+  bool placed = 3;
+  string item = 4;
+  int32 quantity = 5;
+}

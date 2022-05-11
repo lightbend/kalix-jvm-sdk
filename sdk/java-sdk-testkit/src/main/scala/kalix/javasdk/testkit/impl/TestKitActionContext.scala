@@ -24,6 +24,11 @@ import kalix.javasdk.action.ActionCreationContext
 import kalix.javasdk.Metadata
 import scala.collection.convert.ImplicitConversions._
 import java.util.Optional
+import java.util.concurrent.CompletionStage
+
+import akka.Done
+import kalix.javasdk.DeferredCall
+import kalix.javasdk.action.ActionContext
 import kalix.javasdk.action.ActionCreationContext
 import kalix.javasdk.impl.InternalContext
 
