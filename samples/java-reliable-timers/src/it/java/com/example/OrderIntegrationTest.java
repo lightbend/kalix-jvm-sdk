@@ -5,6 +5,7 @@ import com.google.protobuf.Empty;
 import kalix.javasdk.testkit.junit.KalixTestKitResource;
 import org.junit.ClassRule;
 import org.junit.Test;
+import org.junit.Ignore;
 
 import static java.util.concurrent.TimeUnit.*;
 
@@ -34,6 +35,7 @@ public class OrderIntegrationTest {
   }
 
   @Test
+  @Ignore("to be implemented")
   public void placeOrderOnNonExistingEntity() throws Exception {
     // TODO: set fields in command, and provide assertions to match replies
     // client.placeOrder(OrderServiceApi.OrderRequest.newBuilder().build())
@@ -41,6 +43,7 @@ public class OrderIntegrationTest {
   }
 
   @Test
+  @Ignore("to be implemented")
   public void confirmOnNonExistingEntity() throws Exception {
     // TODO: set fields in command, and provide assertions to match replies
     // client.confirm(OrderServiceApi.ConfirmRequest.newBuilder().build())
@@ -48,6 +51,7 @@ public class OrderIntegrationTest {
   }
 
   @Test
+  @Ignore("to be implemented")
   public void cancelOnNonExistingEntity() throws Exception {
     // TODO: set fields in command, and provide assertions to match replies
     // client.cancel(OrderServiceApi.CancelRequest.newBuilder().build())
@@ -55,6 +59,7 @@ public class OrderIntegrationTest {
   }
 
   @Test
+  @Ignore("to be implemented")
   public void getOrderStatusOnNonExistingEntity() throws Exception {
     // TODO: set fields in command, and provide assertions to match replies
     // client.getOrderStatus(OrderServiceApi.OrderStatusRequest.newBuilder().build())
