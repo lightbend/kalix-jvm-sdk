@@ -38,9 +38,6 @@ import kalix.timers.timers.TimerService
 /** INTERNAL API */
 private[kalix] final class TimerSchedulerImpl(anySupport: AnySupport, system: ActorSystem) extends TimerScheduler {
 
-  /**
-   * TODO - document
-   */
   override def startSingleTimer[I, O](
       name: String,
       delay: FiniteDuration,
@@ -67,9 +64,6 @@ private[kalix] final class TimerSchedulerImpl(anySupport: AnySupport, system: Ac
     timerServiceClient.addSingle(singleTimer).map(_ => Done)(ExecutionContext.parasitic)
   }
 
-  /**
-   * TODO - document
-   */
   override def cancel(name: String): Future[Done] = {
     val timerServiceClient = GrpcClients(system).getProxyGrpcClient(classOf[TimerService])
     timerServiceClient.remove(StringValue(name)).map(_ => Done)(ExecutionContext.parasitic)
