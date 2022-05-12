@@ -48,7 +48,6 @@ apidocs:
 	rsync -a ../sdk/scala-sdk-testkit/target/scala-2.13/api/ "${managed_attachments}/scala-testkit-api/"
 	bin/version.sh | xargs -0  printf "%s" > "${managed_attachments}/latest-version.txt"
 
-
 examples:
 	mkdir -p "${managed_examples}"
 	rsync -a --exclude-from=.examplesignore ../samples/ "${managed_examples}/"
