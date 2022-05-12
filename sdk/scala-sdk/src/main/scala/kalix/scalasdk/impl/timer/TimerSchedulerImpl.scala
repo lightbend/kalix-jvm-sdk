@@ -28,12 +28,19 @@ import com.google.protobuf.wrappers.StringValue
 import kalix.javasdk.impl.AnySupport
 import kalix.javasdk.impl.DeferredCallImpl
 import kalix.javasdk.impl.GrpcClients
+import kalix.javasdk.impl.action.ActionContextImpl
 import kalix.scalasdk.DeferredCall
 import kalix.scalasdk.impl.ScalaDeferredCallAdapter
 import kalix.scalasdk.timer.TimerScheduler
 import kalix.timers.timers.Call
 import kalix.timers.timers.SingleTimer
 import kalix.timers.timers.TimerService
+
+/** INTERNAL API */
+private[kalix] object TimerSchedulerImpl {
+  def apply(actionContextImpl: ActionContextImpl): TimerScheduler =
+    new TimerSchedulerImpl(actionContextImpl.anySupport, actionContextImpl.system)
+}
 
 /** INTERNAL API */
 private[kalix] final class TimerSchedulerImpl(anySupport: AnySupport, system: ActorSystem) extends TimerScheduler {

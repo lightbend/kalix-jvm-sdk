@@ -16,14 +16,15 @@
 
 package kalix.javasdk.impl.action
 
+import java.util.Optional
+
 import akka.NotUsed
 import akka.stream.javadsl.Source
 import kalix.javasdk.action.Action
 import kalix.javasdk.action.ActionContext
 import kalix.javasdk.action.MessageEnvelope
 import kalix.javasdk.impl.action.ActionRouter.HandlerNotFound
-
-import java.util.Optional
+import kalix.javasdk.impl.timer.TimerSchedulerImpl
 
 object ActionRouter {
   case class HandlerNotFound(commandName: String) extends RuntimeException
@@ -161,6 +162,8 @@ abstract class ActionRouter[A <: Action](protected val action: A) {
     // only set, never cleared, to allow access from other threads in async callbacks in the action
     // the same handler and action instance is expected to only ever be invoked for a single command
     action._internalSetActionContext(Optional.of(context))
+    action._internalSetTimerScheduler(TimerSchedulerImpl.apply(context.asInstanceOf[ActionContextImpl]))
+
     try {
       func()
     } catch {

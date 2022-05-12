@@ -44,7 +44,8 @@ object ActionTestKitGenerator {
           "kalix.scalasdk.testkit.impl.ActionResultImpl",
           "kalix.scalasdk.action.ActionCreationContext",
           "kalix.scalasdk.testkit.impl.TestKitActionContext",
-          "kalix.scalasdk.testkit.MockRegistry") ++ commandStreamedTypes(service.commands))
+          "kalix.scalasdk.testkit.MockRegistry",
+          "kalix.scalasdk.testkit.impl.TestKitTimerScheduler") ++ commandStreamedTypes(service.commands))
 
     val actionClassName = service.className
 
@@ -53,10 +54,10 @@ object ActionTestKitGenerator {
         cmd)}, metadata: Metadata = Metadata.empty): ${selectOutputResult(cmd)} = {\n""" +
       "  val context = new TestKitActionContext(metadata, mockRegistry)\n" +
       (if (cmd.isUnary || cmd.isStreamIn) {
-         s"""  new ActionResultImpl(newActionInstance(context).${lowerFirst(cmd.name)}(command))"""
+         s"""  new ActionResultImpl(newActionInstance(context).${lowerFirst(cmd.name)}(command), timerScheduler)"""
        } else {
          s"""  newActionInstance(context).${lowerFirst(
-           cmd.name)}(command).map(effect => new ActionResultImpl(effect))"""
+           cmd.name)}(command).map(effect => new ActionResultImpl(effect, timerScheduler))"""
        }) + "\n" +
       "}\n"
     }
@@ -89,9 +90,12 @@ object ActionTestKitGenerator {
           | */
           |final class ${actionClassName}TestKit private(actionFactory: ActionCreationContext => $actionClassName, mockRegistry: MockRegistry) {
           |
+          |  private val timerScheduler: TestKitTimerScheduler = new TestKitTimerScheduler
+          |  
           |  private def newActionInstance(context: TestKitActionContext) = {
           |    val action = actionFactory(context)
           |    action._internalSetActionContext(Some(context))
+          |    action._internalSetTimerScheduler(timerScheduler)
           |    action
           |  }
           |

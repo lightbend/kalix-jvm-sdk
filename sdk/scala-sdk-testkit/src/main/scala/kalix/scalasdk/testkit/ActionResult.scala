@@ -16,9 +16,9 @@
 
 package kalix.scalasdk.testkit
 
-import io.grpc.Status
-
 import scala.concurrent.Future
+
+import io.grpc.Status
 
 /**
  * Represents the result of an Action handling a command when run in through the testkit.
@@ -47,6 +47,12 @@ trait ActionResult[T] {
    *   An object with details about the forward. If the result was not a forward an exception is thrown.
    */
   def forwardedTo: DeferredCallDetails[_, T]
+
+  def singleTimerDetails: Seq[SingleTimerDetails]
+
+  def nextSingleTimerDetails: SingleTimerDetails
+
+  def timerCancellations: Seq[String]
 
   /** @return true if the call was async, false if not */
   def isAsync: Boolean

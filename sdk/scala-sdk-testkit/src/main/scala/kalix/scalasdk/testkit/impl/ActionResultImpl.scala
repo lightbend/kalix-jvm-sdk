@@ -16,37 +16,38 @@
 
 package kalix.scalasdk.testkit.impl
 
+import scala.concurrent.ExecutionContext
+import scala.concurrent.Future
+
+import io.grpc.Status
 import kalix.javasdk.impl.DeferredCallImpl
-import kalix.scalasdk.SideEffect
+import kalix.javasdk.impl.action.ActionEffectImpl.{ PrimaryEffect => JavaPrimaryEffect }
 import kalix.scalasdk.action.Action
 import kalix.scalasdk.impl.ScalaDeferredCallAdapter
 import kalix.scalasdk.impl.action.ActionEffectImpl
 import kalix.scalasdk.testkit.ActionResult
 import kalix.scalasdk.testkit.DeferredCallDetails
-import kalix.javasdk.impl.action.ActionEffectImpl.{ PrimaryEffect => JavaPrimaryEffect }
-import io.grpc.Status
+import kalix.scalasdk.testkit.SingleTimerDetails
 
-import scala.concurrent.ExecutionContext
-import scala.concurrent.Future
+final class ActionResultImpl[T](val effect: ActionEffectImpl.PrimaryEffect[T], timerScheduler: TestKitTimerScheduler)
+    extends ActionResult[T] {
 
-final class ActionResultImpl[T](val effect: ActionEffectImpl.PrimaryEffect[T]) extends ActionResult[T] {
+  def this(effect: Action.Effect[T], timerScheduler: TestKitTimerScheduler) =
+    this(effect.asInstanceOf[ActionEffectImpl.PrimaryEffect[T]], timerScheduler)
 
-  def this(effect: Action.Effect[T]) =
-    this(effect.asInstanceOf[ActionEffectImpl.PrimaryEffect[T]])
+  override val timerCancellations: Seq[String] = timerScheduler.timerCancellations
+  override val singleTimerDetails: Seq[SingleTimerDetails] = timerScheduler.singleTimers
+
+  private lazy val singleTimersIterator = singleTimerDetails.iterator
+
+  override def nextSingleTimerDetails: SingleTimerDetails =
+    if (!singleTimersIterator.hasNext) throw new NoSuchElementException("No more timers found")
+    else singleTimersIterator.next()
 
   override def isReply: Boolean = effect.isInstanceOf[ActionEffectImpl.ReplyEffect[_]]
   override def reply: T = effect match {
     case e: ActionEffectImpl.ReplyEffect[T] => e.msg
     case _ => throw new IllegalStateException(s"The effect was not a reply but [$effectName]")
-  }
-
-  private def extractServices(sideEffects: Seq[SideEffect]): Seq[DeferredCallDetails[_, _]] = {
-    sideEffects.map { sideEffect =>
-      sideEffect.serviceCall match {
-        case ScalaDeferredCallAdapter(javaSdkDeferredCall) =>
-          TestKitDeferredCall(javaSdkDeferredCall.asInstanceOf[DeferredCallImpl[_, _]])
-      }
-    }
   }
 
   override def sideEffects: Seq[DeferredCallDetails[_, _]] =
@@ -65,7 +66,7 @@ final class ActionResultImpl[T](val effect: ActionEffectImpl.PrimaryEffect[T]) e
   override def asyncResult: Future[ActionResult[T]] = effect match {
     case a: ActionEffectImpl.AsyncEffect[T] =>
       a.effect.map { case p: ActionEffectImpl.PrimaryEffect[T] =>
-        new ActionResultImpl[T](p)
+        new ActionResultImpl[T](p, timerScheduler)
       }(ExecutionContext.global)
     case _ => throw new IllegalStateException(s"The effect was not an async effect but [$effectName]")
   }
@@ -89,4 +90,5 @@ final class ActionResultImpl[T](val effect: ActionEffectImpl.PrimaryEffect[T]) e
       case _: ActionEffectImpl.ErrorEffect[_]   => "error"
       case _: ActionEffectImpl.AsyncEffect[_]   => "async effect"
     }
+
 }

@@ -26,7 +26,6 @@ import io.grpc.Status
 import kalix.javasdk.impl.action.ActionContextImpl
 import kalix.scalasdk.impl.action.ScalaActionContextAdapter
 import kalix.scalasdk.timer.TimerScheduler
-import kalix.scalasdk.impl.timer.TimerSchedulerImpl
 
 object Action {
 
@@ -154,6 +153,9 @@ abstract class Action {
   @volatile
   private var _actionContext: Option[ActionContext] = None
 
+  @volatile
+  private var _timerScheduler: Option[TimerScheduler] = None
+
   /**
    * An ExecutionContext to use when composing Futures inside Actions.
    */
@@ -184,22 +186,16 @@ abstract class Action {
     _actionContext = context
   }
 
+  /** INTERNAL API */
+  final def _internalSetTimerScheduler(timerScheduler: TimerScheduler): Unit =
+    _timerScheduler = Some(timerScheduler)
+
   /**
    * Returns a [[TimerScheduler]] that can be used to schedule further in time.
    */
-  final def timers: TimerScheduler = {
-
-    val javaActionContextImpl =
-      actionContext("Timers can only be scheduled or cancelled when handling a message.") match {
-        case ScalaActionContextAdapter(actionContext: ActionContextImpl) => actionContext
-        // should not happen as we always need to pass ScalaActionContextAdapter(ActionContextImpl)
-        case other =>
-          throw new RuntimeException(
-            s"Incompatible ActionContext instance. Found ${other.getClass}, expecting ${classOf[ActionContextImpl].getName}")
-      }
-
-    new TimerSchedulerImpl(javaActionContextImpl.anySupport, javaActionContextImpl.system)
-  }
+  final def timers: TimerScheduler =
+    _timerScheduler.getOrElse(
+      throw new IllegalStateException("Timers can only be scheduled or cancelled when handling a message."))
 
   protected final def effects[T]: Action.Effect.Builder =
     ActionEffectImpl.builder()
