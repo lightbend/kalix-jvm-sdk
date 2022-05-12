@@ -69,7 +69,7 @@ lazy val sdkJava = project
       "Kalix Java SDK",
       "-noqualifier",
       "java.lang"),
-    Compile / akkaGrpcGeneratedSources := Seq(AkkaGrpc.Server),
+    Compile / akkaGrpcGeneratedSources := Seq(AkkaGrpc.Server, AkkaGrpc.Client),
     Compile / akkaGrpcGeneratedLanguages := Seq(AkkaGrpc.Scala), // FIXME should be Java, but here be dragons
     // We need to generate the java files for things like entity_key.proto so that downstream libraries can use them
     // without needing to generate them themselves

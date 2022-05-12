@@ -9,14 +9,14 @@ if [ -z ${SDK_VERSION+x} ]; then
 fi
 
 if [ $1 ]; then 
-  sbt publishM2
-fi 
+  sbt publishM2;publishLocal
+fi
 
 (
   cd maven-java
   mvn versions:set -DnewVersion=$SDK_VERSION
 
-  if [ $1 ]; then 
+  if [ $1 ]; then
     mvn install
   fi
 
@@ -25,7 +25,7 @@ fi
   rm */pom.xml.versionsBackup
 )
 
-for i in samples/*
+for i in samples/java-*
 do
   sed  -i .versionsBackup "s/<kalix-sdk.version>\(.*\)<\/kalix-sdk.version>/<kalix-sdk.version>$SDK_VERSION<\/kalix-sdk.version>/" $i/pom.xml
   rm $i/pom.xml.versionsBackup

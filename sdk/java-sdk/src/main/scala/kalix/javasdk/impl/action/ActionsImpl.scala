@@ -16,36 +16,32 @@
 
 package kalix.javasdk.impl.action
 
+import java.util.Optional
+
+import scala.collection.immutable.Seq
+import scala.concurrent.Future
+import scala.jdk.CollectionConverters.SeqHasAsJava
+import scala.util.control.NonFatal
+
 import akka.NotUsed
 import akka.actor.ActorSystem
 import akka.stream.scaladsl.Sink
 import akka.stream.scaladsl.Source
+import com.google.protobuf.Descriptors
+import com.google.protobuf.any.{ Any => ScalaPbAny }
 import kalix.javasdk._
 import kalix.javasdk.action._
+import kalix.javasdk.impl.ActionFactory
 import kalix.javasdk.impl.AnySupport
 import kalix.javasdk.impl._
+import kalix.javasdk.impl.effect.SideEffectImpl
 import kalix.protocol.action.ActionCommand
 import kalix.protocol.action.ActionResponse
 import kalix.protocol.action.Actions
 import kalix.protocol.component
 import kalix.protocol.component.Failure
-import com.google.protobuf.Descriptors
-import com.google.protobuf.any.{ Any => ScalaPbAny }
-import com.google.protobuf.{ Any => JavaPbAny }
-
-import java.util.Optional
-import scala.collection.immutable.Seq
-import scala.concurrent.Future
-import scala.jdk.CollectionConverters.SeqHasAsJava
-import kalix.javasdk.impl.ActionFactory
-import kalix.javasdk.impl.EntityExceptions.ProtocolException
-import kalix.javasdk.impl.effect.SideEffectImpl
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import org.slf4j.MDC
-
-import java.util.UUID
-import scala.util.control.NonFatal
 
 final class ActionService(
     val factory: ActionFactory,
@@ -174,7 +170,7 @@ private[javasdk] final class ActionsImpl(
     services.get(in.serviceName) match {
       case Some(service) =>
         try {
-          val context = createContext(in)
+          val context = createContext(in, service.anySupport)
           val decodedPayload = service.anySupport.decodeMessage(
             in.payload.getOrElse(throw new IllegalArgumentException("No command payload")))
           val effect = service.factory
@@ -223,7 +219,7 @@ private[javasdk] final class ActionsImpl(
                         message.payload.getOrElse(throw new IllegalArgumentException("No command payload")))
                       MessageEnvelope.of(decodedPayload, metadata)
                     }.asJava,
-                    createContext(call))
+                    createContext(call, service.anySupport))
                 effectToResponse(service, call, effect, service.anySupport)
               } catch {
                 case NonFatal(ex) =>
@@ -247,7 +243,7 @@ private[javasdk] final class ActionsImpl(
     services.get(in.serviceName) match {
       case Some(service) =>
         try {
-          val context = createContext(in)
+          val context = createContext(in, service.anySupport)
           val decodedPayload = service.anySupport.decodeMessage(
             in.payload.getOrElse(throw new IllegalArgumentException("No command payload")))
           service.factory
@@ -301,7 +297,7 @@ private[javasdk] final class ActionsImpl(
                         message.payload.getOrElse(throw new IllegalArgumentException("No command payload")))
                       MessageEnvelope.of(decodedPayload, metadata)
                     }.asJava,
-                    createContext(call))
+                    createContext(call, service.anySupport))
                   .asScala
                   .mapAsync(1)(effect => effectToResponse(service, call, effect, service.anySupport))
                   .recover { case NonFatal(ex) =>
@@ -322,9 +318,9 @@ private[javasdk] final class ActionsImpl(
           }
       }
 
-  private def createContext(in: ActionCommand): ActionContext = {
+  private def createContext(in: ActionCommand, anySupport: AnySupport): ActionContext = {
     val metadata = new MetadataImpl(in.metadata.map(_.entries.toVector).getOrElse(Nil))
-    new ActionContextImpl(metadata, system)
+    new ActionContextImpl(metadata, anySupport, system)
   }
 
 }
@@ -334,7 +330,7 @@ case class MessageEnvelopeImpl[T](payload: T, metadata: Metadata) extends Messag
 /**
  * INTERNAL API
  */
-class ActionContextImpl(override val metadata: Metadata, val system: ActorSystem)
+class ActionContextImpl(override val metadata: Metadata, val anySupport: AnySupport, val system: ActorSystem)
     extends AbstractContext(system)
     with ActionContext {
 

@@ -16,11 +16,14 @@
 
 package kalix.javasdk.action;
 
+import io.grpc.Status;
 import kalix.javasdk.DeferredCall;
 import kalix.javasdk.Metadata;
 import kalix.javasdk.SideEffect;
+import kalix.javasdk.impl.action.ActionContextImpl;
 import kalix.javasdk.impl.action.ActionEffectImpl;
-import io.grpc.Status;
+import kalix.javasdk.timer.TimerScheduler;
+import kalix.javasdk.impl.timer.TimerSchedulerImpl;
 
 import java.util.Collection;
 import java.util.Optional;
@@ -59,6 +62,14 @@ public abstract class Action {
 
   public final Effect.Builder effects() {
     return ActionEffectImpl.builder();
+  }
+
+  /** Returns a {@link TimerScheduler} that can be used to schedule further in time. */
+  public final TimerScheduler timers() {
+    ActionContextImpl impl =
+        (ActionContextImpl)
+            actionContext("Timers can only be scheduled or cancelled when handling a message.");
+    return new TimerSchedulerImpl(impl.anySupport(), impl.system());
   }
 
   /**
