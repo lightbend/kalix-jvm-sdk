@@ -12,7 +12,7 @@ class CounterTopicSubscriptionAction(creationContext: ActionCreationContext)
   /** Handler for "Increase". */
   override def increase(increased: Increased): Action.Effect[Empty] = {
     logger.info("Received increase event: " + increased.toString())
-    effects.reply(Empty.getDefaultInstance())
+    effects.reply(Empty.defaultInstance)
   }
 
   override def decrease(decreased: Decreased): Action.Effect[Empty] = {

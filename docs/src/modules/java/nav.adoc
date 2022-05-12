@@ -9,6 +9,7 @@
 *** xref:java:views.adoc[Implementing Views]
 *** xref:java:actions.adoc[Implementing Actions]
 *** xref:java:actions-as-controller.adoc[Actions as Controllers]
+*** xref:java:timers.adoc[Timers]
 *** xref:java:actions-publishing-subscribing.adoc[Publishing and Subscribing]
 *** xref:java:side-effects.adoc[Running Side Effects]
 *** xref:java:serialization.adoc[Handling Serialization]

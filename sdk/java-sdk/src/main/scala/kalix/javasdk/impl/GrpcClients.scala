@@ -81,7 +81,17 @@ final class GrpcClients(system: ExtendedActorSystem) extends Extension {
     selfPort = Some(port)
   }
 
-  def getComponentGrpcClient[T](serviceClass: Class[T]): T = {
+  def getComponentGrpcClient[T](serviceClass: Class[T]): T =
+    getLocalGrpcClient(serviceClass)
+
+  def getProxyGrpcClient[T](serviceClass: Class[T]): T =
+    getLocalGrpcClient(serviceClass)
+
+  def getGrpcClient[T](serviceClass: Class[T], service: String): T =
+    getGrpcClient(serviceClass, service, port = 80)
+
+  /** Local gRPC clients point to services (user components or Kalix services) in the same deployable */
+  private def getLocalGrpcClient[T](serviceClass: Class[T]): T = {
     selfServiceName match {
       case Some("localhost") => getGrpcClient(serviceClass, "localhost", selfPort.getOrElse(9000))
       case Some(selfName)    => getGrpcClient(serviceClass, selfName)
@@ -89,9 +99,6 @@ final class GrpcClients(system: ExtendedActorSystem) extends Extension {
         throw new IllegalStateException("Self service name not set by proxy at discovery, too old proxy version?")
     }
   }
-
-  def getGrpcClient[T](serviceClass: Class[T], service: String): T =
-    getGrpcClient(serviceClass, service, port = 80)
 
   def getGrpcClient[T](serviceClass: Class[T], service: String, port: Int): T =
     clients.computeIfAbsent(Key(serviceClass, service, port), createClient(_)).asInstanceOf[T]
