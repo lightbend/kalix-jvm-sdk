@@ -27,7 +27,7 @@ mvn compile
 To run the example locally, you must run the Kalix proxy. The included `docker-compose` file contains the configuration required to run the proxy for a locally running application.
 
 It also contains the configuration to start a local Kafka broker and a Zookeeper that the Kalix proxy will connect to.
-To start the proxy, the Kafka broker, and the Zookeeper, run the following command from the kafka directory:
+To start the proxy, the Kafka broker, and the Zookeeper, run the following command from the `kafka` directory:
 
 ```shell
 docker-compose up
