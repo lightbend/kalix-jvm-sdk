@@ -128,7 +128,8 @@ public final class Kalix {
           new ResolvedActionFactory(actionFactory, anySupport.resolveServiceDescriptor(descriptor));
 
       ActionService service =
-          new ActionService(resolvedActionFactory, descriptor, additionalDescriptors, anySupport, actionOptions);
+          new ActionService(
+              resolvedActionFactory, descriptor, additionalDescriptors, anySupport, actionOptions);
 
       services.put(descriptor.getFullName(), system -> service);
 
@@ -230,7 +231,12 @@ public final class Kalix {
       AnySupport anySupport = newAnySupport(additionalDescriptors);
       ViewService service =
           new ViewService(
-              Optional.ofNullable(factory), descriptor, additionalDescriptors, anySupport, viewId, viewOptions);
+              Optional.ofNullable(factory),
+              descriptor,
+              additionalDescriptors,
+              anySupport,
+              viewId,
+              viewOptions);
       services.put(descriptor.getFullName(), system -> service);
 
       return Kalix.this;
@@ -367,7 +373,10 @@ public final class Kalix {
    */
   public Kalix register(ActionProvider provider) {
     return lowLevel.registerAction(
-        provider::newRouter, provider.options(), provider.serviceDescriptor(), provider.additionalDescriptors());
+        provider::newRouter,
+        provider.options(),
+        provider.serviceDescriptor(),
+        provider.additionalDescriptors());
   }
 
   /**
