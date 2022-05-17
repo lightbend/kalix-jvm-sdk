@@ -192,10 +192,10 @@ The `src/main/scala/customer/Main.scala` file already contains the required code
 
 To build and publish the container image and then deploy the service, follow these steps:
 
-. Use the `docker:publish` task to build the container image and publish it to your container registry. At the end of this command sbt will show you the container image URL you'll need in the next part of this quickstart.
+. Use the `Docker/publish` task to build the container image and publish it to your container registry. At the end of this command sbt will show you the container image URL you'll need in the next part of this quickstart.
 +
 ----
-sbt docker:publish -Ddocker.username=[your-docker-hub-username]
+sbt Docker/publish -Ddocker.username=[your-docker-hub-username]
 ----
 
 . If you haven't done so yet, sign in to your Kalix account. If this is your first time using Kalix, this will let you register an account, https://docs.kalix.io/projects/create-project.html[create your first project], and set this project as the default.

@@ -63,7 +63,7 @@ and configure a Docker Registry to upload your docker image to.
 You will need to set your `docker.username` as a system property:
 
 ```
-sbt -Ddocker.username=mary docker:publish
+sbt -Ddocker.username=mary Docker/publish
 ```
 
 Refer to [Configuring registries](https://docs.kalix.io/projects/container-registries.html)

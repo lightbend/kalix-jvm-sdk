@@ -77,11 +77,11 @@ The development support tooling is provided via an sbt plugin; _sbt-kalix_. This
 
 [.group-scala]
 === Commands
-The sbt plugin hooks into the standard `sbt` commands for compiling, testing, and packaging. Code is automatically generated from Protobuf interfaces when using `compile`, `test:compile`, `test`, and other commands that depend on these commands. The `sbt-native-packager` plugin is included in the Giter8 template, which can be used for building and publishing Docker images, respectively using the `docker:publishLocal` and `docker:publish` commands. 
+The sbt plugin hooks into the standard `sbt` commands for compiling, testing, and packaging. Code is automatically generated from Protobuf interfaces when using `compile`, `test:compile`, `test`, and other commands that depend on these commands. The `sbt-native-packager` plugin is included in the Giter8 template, which can be used for building and publishing Docker images, respectively using the `Docker/publishLocal` and `Docker/publish` commands.
 
 [.group-scala]
 === Configuration
 The behaviour of the plugin can be adjusted, by specifying system properties when starting sbt with a `-D` flag, for the following options:
 
-* The `docker.username` sets the username used to publish the image, for example `sbt -Ddocker.username=myuser docker:publish`. 
+* The `docker.username` sets the username used to publish the image, for example `sbt -Ddocker.username=myuser Docker/publish`.
 * The `docker.registry` sets the docker registry to publish to, which is only needed for a docker registry other than docker hub.
