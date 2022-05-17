@@ -37,4 +37,4 @@ Test / logBuffered := false
 run / fork := false
 Global / cancelable := false // ctrl-c
 
-libraryDependencies ++= Seq("org.scalatest" %% "scalatest" % "3.2.7" % Test)
+libraryDependencies ++= Seq("org.scalatest" %% "scalatest" % "3.2.12" % Test)

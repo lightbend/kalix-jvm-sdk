@@ -17,7 +17,7 @@ object Dependencies {
 
   val AkkaVersion = "2.6.19"
   val AkkaHttpVersion = "10.2.9" // Note: should at least the Akka HTTP version required by Akka gRPC
-  val ScalaTestVersion = "3.2.7"
+  val ScalaTestVersion = "3.2.12"
   val JacksonVersion = "2.13.2"
   val JacksonDatabindVersion = "2.13.2.2"
   val DockerBaseImageVersion = "adoptopenjdk/openjdk11:debianslim-jre"
