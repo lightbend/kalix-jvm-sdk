@@ -28,10 +28,12 @@ public class Customer extends AbstractCustomer {
     this.entityId = context.entityId();
   }
 
+  // tag::emptyState[]
   @Override
   public CustomerDomain.CustomerState emptyState() {
     return CustomerDomain.CustomerState.getDefaultInstance();
   }
+  // end::emptyState[]
 
   // tag::create[]
   @Override

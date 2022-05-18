@@ -182,6 +182,18 @@ include::example$java-customer-registry-quickstart/src/main/java/customer/domain
 The `src/main/java/customer/Main.java` file already contains the required code to start your service and register it with Kalix.
 ====
 
+== Define the initial entity state
+
+To give the domain model a starting point, the initial state for the entity needs to be define.
+
+. Implement the `emptyState` method by returning a default instance of the `CustomerState` class:
++
+[source, java]
+.src/main/java/customer/domain/Customer.java
+----
+include::example$java-customer-registry-quickstart/src/main/java/customer/domain/Customer.java[tag=emptyState]
+----
+
 == Package and deploy your service
 
 To build and publish the container image and then deploy the service, follow these steps:

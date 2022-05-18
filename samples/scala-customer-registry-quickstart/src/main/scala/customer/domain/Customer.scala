@@ -12,7 +12,9 @@ import customer.api
 
 class Customer(context: ValueEntityContext) extends AbstractCustomer {
 
+  // tag::emptyState[]
   override def emptyState: CustomerState = CustomerState()
+  // end::emptyState[]
 
   // tag::create[]
   override def create(currentState: CustomerState, customer: api.Customer): ValueEntity.Effect[Empty] = {
