@@ -189,6 +189,19 @@ include::example$scala-customer-registry-quickstart/src/main/scala/customer/doma
 The `src/main/scala/customer/Main.scala` file already contains the required code to start your service and register it with Kalix.
 ====
 
+
+== Define the initial entity state
+
+To give the domain model a starting point, the initial state for the entity needs to be define.
+
+. Implement the `emptyState` method by returning an instance of the `CustomerState` case class:
++
+[source, scala]
+.src/main/scala/customer/domain/Customer.scala
+----
+include::example$scala-customer-registry-quickstart/src/main/scala/customer/domain/Customer.scala[tag=emptyState]
+----
+
 == Package and deploy your service
 
 To build and publish the container image and then deploy the service, follow these steps:
