@@ -7,7 +7,8 @@ Learn how to create a customer registry in Scala, package it into a container, a
 
 == Before you begin
 
-* Install the https://docs.kalix.io/kalix/install-kalix.html[Kalix CLI, window="new-doc"] to deploy from a terminal window.
+* If you're new to Kalix, {console}[create an account, window="console"] so you can try out Kalix for free.
+* You'll also need to install the https://docs.kalix.io/kalix/install-kalix.html[Kalix CLI, window="new-doc"] to deploy from a terminal window.
 * For this quickstart, you'll also need
 ** https://docs.docker.com/engine/install[Docker {minimum_docker_version} or higher, window="new"]
 ** Java {java-version} or higher
@@ -124,7 +125,6 @@ include::example$scala-customer-registry-quickstart/src/main/proto/customer/api/
 include::example$scala-customer-registry-quickstart/src/main/proto/customer/api/customer_api.proto[tag=method-messages]
 ----
 
-
 == Define the domain model
 
 The `customer_domain.proto` contains all the internal data objects (https://docs.kalix.io/reference/glossary.html#entity[Entities, window="new"]). The https://docs.kalix.io/reference/glossary.html#value_entity[Value Entity, window="new"]  in this quickstart is a Key/Value store that stores only the latest updates.
@@ -149,6 +149,7 @@ include::example$scala-customer-registry-quickstart/src/main/proto/customer/doma
 
 . Run `sbt compile` from the project root directory to generate source classes in which you add business logic.
 +
+[source,command line]
 ----
 sbt compile
 ----
@@ -168,7 +169,7 @@ include::example$scala-customer-registry-quickstart/src/main/scala/customer/doma
 ----
 +
 * The incoming message contains the request data from your client and the command handler updates the state of the customer.
-* The `convertToDomain` and `convertAddressToDomain` methods convert the incoming request to your domain model.
+* The `convertToDomain` methods convert the incoming request to your domain model.
 
 . Modify the `getCustomer` method as follows to handle the `GetCustomerRequest` command:
 +
@@ -192,26 +193,30 @@ The `src/main/scala/customer/Main.scala` file already contains the required code
 
 To build and publish the container image and then deploy the service, follow these steps:
 
-. Use the `docker:publish` task to build the container image and publish it to your container registry. At the end of this command sbt will show you the container image URL you'll need in the next part of this quickstart.
+. Use the `Docker/publish` task to build the container image and publish it to your container registry. At the end of this command sbt will show you the container image URL you'll need in the next part of this quickstart.
 +
+[source,command line]
 ----
-sbt docker:publish -Ddocker.username=[your-docker-hub-username]
+sbt Docker/publish -Ddocker.username=[your-docker-hub-username]
 ----
 
 . If you haven't done so yet, sign in to your Kalix account. If this is your first time using Kalix, this will let you register an account, https://docs.kalix.io/projects/create-project.html[create your first project], and set this project as the default.
 +
+[source,command line]
 ----
 kalix auth login
 ----
 
 . https://docs.kalix.io/services/deploy-service.html#_deploy[Deploy the service] with the published container image from above:
 +
+[source,command line]
 ----
 kalix service deploy <service name> <container image>
 ----
 
 . You can https://docs.kalix.io/services/deploy-service.html#_verify_service_status[verify the status of the deployed service] using:
 +
+[source,command line]
 ----
 kalix service list
 ----
@@ -220,6 +225,7 @@ kalix service list
 
 Once the service has started successfully, you can https://docs.kalix.io/services/invoke-service.html#_testing_and_development[start a proxy locally] to access the service:
 
+[source,command line]
 ----
 kalix service proxy <service name> --grpcui
 ----
@@ -230,6 +236,7 @@ Or you can use command line gRPC or HTTP clients, such as `grpcurl` or `curl`, t
 
 A customer can be created using the `Create` method on `CustomerService`, in the gRPC web UI, or with `grpcurl`:
 
+[source,command line]
 ----
 grpcurl \
   -d '{
@@ -247,6 +254,7 @@ grpcurl \
 
 The `GetCustomer` method can be used to retrieve this customer, in the gRPC web UI, or with `grpcurl`:
 
+[source,command line]
 ----
 grpcurl \
   -d '{"customer_id": "abc123"}' \
@@ -256,6 +264,7 @@ grpcurl \
 
 You can https://docs.kalix.io/services/invoke-service.html#_exposing_services_to_the_internet[expose the service to the internet]. A generated hostname will be returned from the expose command:
 
+[source,command line]
 ----
 kalix service expose <service name>
 ----

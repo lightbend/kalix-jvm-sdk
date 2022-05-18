@@ -25,7 +25,6 @@ If you want to bypass writing code and jump straight to the deployment:
 . Skip to <<Package and deploy your service>>.
 ====
 
-
 == Writing the Customer Registry
 
 . From the command line, create a directory for your project.
@@ -119,7 +118,6 @@ include::example$java-customer-registry-quickstart/src/main/proto/customer/api/c
 
 The `customer_domain.proto` contains all the internal data objects (https://docs.kalix.io/reference/glossary.html#entity[Entities, window="new"]). The https://docs.kalix.io/reference/glossary.html#value_entity[Value Entity, window="new"] in this quickstart is a Key/Value store that stores only the latest updates.
 
-
 . Create a `customer_domain.proto` file and save it in the `src/main/proto/customer/domain` directory.
 
 . Add declarations for the proto syntax and domain package.
@@ -143,6 +141,7 @@ include::example$java-customer-registry-quickstart/src/main/proto/customer/domai
 
 . Run `mvn compile` from the project root directory to generate source classes in which you add business logic.
 +
+[source,command line]
 ----
 mvn compile
 ----
@@ -162,7 +161,7 @@ include::example$java-customer-registry-quickstart/src/main/java/customer/domain
 ----
 +
 * The incoming message contains the request data from your client and the command handler updates the state of the customer.
-* The `convertToDomain` and `convertAddressToDomain` methods convert the incoming request to your domain model.
+* The `convertToDomain` methods convert the incoming request to your domain model.
 
 . Modify the `getCustomer` method as follows to handle the `GetCustomerRequest` command:
 +
@@ -188,18 +187,21 @@ To build and publish the container image and then deploy the service, follow the
 
 . If you haven't done so yet, sign in to your Kalix account. If this is your first time using Kalix, this will let you register an account, https://docs.kalix.io/projects/create-project.html[create your first project], and set this project as the default.
 +
+[source,command line]
 ----
 kalix auth login
 ----
 
 . Use the `deploy` target to build the container image, publish it to the container registry as configured in the `pom.xml` file, and then automatically https://docs.kalix.io/services/deploy-service.html#_deploy[deploy the service] to Kalix using `kalix`:
 +
+[source,command line]
 ----
 mvn deploy
 ----
 
 . You can https://docs.kalix.io/services/deploy-service.html#_verify_service_status[verify the status of the deployed service] using:
 +
+[source,command line]
 ----
 kalix service list
 ----
@@ -208,6 +210,7 @@ kalix service list
 
 Once the service has started successfully, you can https://docs.kalix.io/services/invoke-service.html#_testing_and_development[start a proxy locally] to access the service:
 
+[source,command line]
 ----
 kalix service proxy <service name> --grpcui
 ----
@@ -218,6 +221,7 @@ Or you can use command line gRPC or HTTP clients, such as `grpcurl` or `curl`, t
 
 A customer can be created using the `Create` method on `CustomerService`, in the gRPC web UI, or with `grpcurl`:
 
+[source,command line]
 ----
 grpcurl \
   -d '{
@@ -235,6 +239,7 @@ grpcurl \
 
 The `GetCustomer` method can be used to retrieve this customer, in the gRPC web UI, or with `grpcurl`:
 
+[source,command line]
 ----
 grpcurl \
   -d '{"customer_id": "abc123"}' \
@@ -244,6 +249,7 @@ grpcurl \
 
 You can https://docs.kalix.io/services/invoke-service.html#_exposing_services_to_the_internet[expose the service to the internet]. A generated hostname will be returned from the expose command:
 
+[source,command line]
 ----
 kalix service expose <service name>
 ----

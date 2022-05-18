@@ -240,6 +240,10 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd>
 <div class="block">The service call that is executed as this effect.</div>
 </dd>
+<dt><span class="memberNameLink"><a href="kalix/javasdk/timer/TimerScheduler.html#cancel(java.lang.String)">cancel(String)</a></span> - Method in interface kalix.javasdk.timer.<a href="kalix/javasdk/timer/TimerScheduler.html" title="interface in kalix.javasdk.timer">TimerScheduler</a></dt>
+<dd>
+<div class="block">Cancel an existing timer.</div>
+</dd>
 <dt><span class="memberNameLink"><a href="kalix/javasdk/Metadata.html#clear()">clear()</a></span> - Method in interface kalix.javasdk.<a href="kalix/javasdk/Metadata.html" title="interface in kalix.javasdk">Metadata</a></dt>
 <dd>
 <div class="block">Clear all metadata entries.</div>
@@ -1020,6 +1024,8 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd>
 <div class="block">Replicated Entity support.</div>
 </dd>
+<dt><a href="kalix/javasdk/timer/package-summary.html">kalix.javasdk.timer</a> - package kalix.javasdk.timer</dt>
+<dd>&nbsp;</dd>
 <dt><a href="kalix/javasdk/valueentity/package-summary.html">kalix.javasdk.valueentity</a> - package kalix.javasdk.valueentity</dt>
 <dd>
 <div class="block">Value Entity support.</div>
@@ -1155,22 +1161,6 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dt><span class="memberNameLink"><a href="kalix/javasdk/replicatedentity/ReplicatedDataFactory.html#newVote()">newVote()</a></span> - Method in interface kalix.javasdk.replicatedentity.<a href="kalix/javasdk/replicatedentity/ReplicatedDataFactory.html" title="interface in kalix.javasdk.replicatedentity">ReplicatedDataFactory</a></dt>
 <dd>
 <div class="block">Create a new Vote.</div>
-</dd>
-<dt><span class="memberNameLink"><a href="kalix/javasdk/action/Action.Effect.Builder.html#noReply()">noReply()</a></span> - Method in interface kalix.javasdk.action.<a href="kalix/javasdk/action/Action.Effect.Builder.html" title="interface in kalix.javasdk.action">Action.Effect.Builder</a></dt>
-<dd>
-<div class="block">Create a reply that contains neither a message nor a forward nor an error.</div>
-</dd>
-<dt><span class="memberNameLink"><a href="kalix/javasdk/eventsourcedentity/EventSourcedEntity.Effect.Builder.html#noReply()">noReply()</a></span> - Method in interface kalix.javasdk.eventsourcedentity.<a href="kalix/javasdk/eventsourcedentity/EventSourcedEntity.Effect.Builder.html" title="interface in kalix.javasdk.eventsourcedentity">EventSourcedEntity.Effect.Builder</a></dt>
-<dd>
-<div class="block">Create a reply that contains neither a message nor a forward nor an error.</div>
-</dd>
-<dt><span class="memberNameLink"><a href="kalix/javasdk/replicatedentity/ReplicatedEntity.Effect.Builder.html#noReply()">noReply()</a></span> - Method in interface kalix.javasdk.replicatedentity.<a href="kalix/javasdk/replicatedentity/ReplicatedEntity.Effect.Builder.html" title="interface in kalix.javasdk.replicatedentity">ReplicatedEntity.Effect.Builder</a></dt>
-<dd>
-<div class="block">Create a reply that contains neither a message nor a forward nor an error.</div>
-</dd>
-<dt><span class="memberNameLink"><a href="kalix/javasdk/valueentity/ValueEntity.Effect.Builder.html#noReply()">noReply()</a></span> - Method in interface kalix.javasdk.valueentity.<a href="kalix/javasdk/valueentity/ValueEntity.Effect.Builder.html" title="interface in kalix.javasdk.valueentity">ValueEntity.Effect.Builder</a></dt>
-<dd>
-<div class="block">Create a reply that contains neither a message nor a forward nor an error.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="kalix/javasdk/JwtClaims.html#notBefore()">notBefore()</a></span> - Method in interface kalix.javasdk.<a href="kalix/javasdk/JwtClaims.html" title="interface in kalix.javasdk">JwtClaims</a></dt>
 <dd>
@@ -1539,6 +1529,10 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd>
 <div class="block">Starts a server with the configured entities, using the supplied configuration.</div>
 </dd>
+<dt><span class="memberNameLink"><a href="kalix/javasdk/timer/TimerScheduler.html#startSingleTimer(java.lang.String,java.time.Duration,kalix.javasdk.DeferredCall)">startSingleTimer(String, Duration, DeferredCall&lt;I, O&gt;)</a></span> - Method in interface kalix.javasdk.timer.<a href="kalix/javasdk/timer/TimerScheduler.html" title="interface in kalix.javasdk.timer">TimerScheduler</a></dt>
+<dd>
+<div class="block">Schedule a single timer in Kalix.</div>
+</dd>
 <dt><span class="memberNameLink"><a href="kalix/javasdk/CloudEvent.html#subject()">subject()</a></span> - Method in interface kalix.javasdk.<a href="kalix/javasdk/CloudEvent.html" title="interface in kalix.javasdk">CloudEvent</a></dt>
 <dd>
 <div class="block">The subject of this CloudEvent.</div>
@@ -1573,18 +1567,6 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd>
 <div class="block">Create a forward reply after for example <code>updateState</code>.</div>
 </dd>
-<dt><span class="memberNameLink"><a href="kalix/javasdk/eventsourcedentity/EventSourcedEntity.Effect.OnSuccessBuilder.html#thenNoReply()">thenNoReply()</a></span> - Method in interface kalix.javasdk.eventsourcedentity.<a href="kalix/javasdk/eventsourcedentity/EventSourcedEntity.Effect.OnSuccessBuilder.html" title="interface in kalix.javasdk.eventsourcedentity">EventSourcedEntity.Effect.OnSuccessBuilder</a></dt>
-<dd>
-<div class="block">Create a reply that contains neither a message nor a forward nor an error.</div>
-</dd>
-<dt><span class="memberNameLink"><a href="kalix/javasdk/replicatedentity/ReplicatedEntity.Effect.OnSuccessBuilder.html#thenNoReply()">thenNoReply()</a></span> - Method in interface kalix.javasdk.replicatedentity.<a href="kalix/javasdk/replicatedentity/ReplicatedEntity.Effect.OnSuccessBuilder.html" title="interface in kalix.javasdk.replicatedentity">ReplicatedEntity.Effect.OnSuccessBuilder</a></dt>
-<dd>
-<div class="block">Create a reply that contains neither a message nor a forward nor an error.</div>
-</dd>
-<dt><span class="memberNameLink"><a href="kalix/javasdk/valueentity/ValueEntity.Effect.OnSuccessBuilder.html#thenNoReply()">thenNoReply()</a></span> - Method in interface kalix.javasdk.valueentity.<a href="kalix/javasdk/valueentity/ValueEntity.Effect.OnSuccessBuilder.html" title="interface in kalix.javasdk.valueentity">ValueEntity.Effect.OnSuccessBuilder</a></dt>
-<dd>
-<div class="block">Create a reply that contains neither a message nor a forward nor an error.</div>
-</dd>
 <dt><span class="memberNameLink"><a href="kalix/javasdk/eventsourcedentity/EventSourcedEntity.Effect.OnSuccessBuilder.html#thenReply(java.util.function.Function)">thenReply(Function&lt;S, T&gt;)</a></span> - Method in interface kalix.javasdk.eventsourcedentity.<a href="kalix/javasdk/eventsourcedentity/EventSourcedEntity.Effect.OnSuccessBuilder.html" title="interface in kalix.javasdk.eventsourcedentity">EventSourcedEntity.Effect.OnSuccessBuilder</a></dt>
 <dd>
 <div class="block">Reply after for example <code>emitEvent</code>.</div>
@@ -1617,6 +1599,12 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd>
 <div class="block">Create a passivation strategy that passivates the entity after a given duration of inactivity.</div>
 </dd>
+<dt><span class="memberNameLink"><a href="kalix/javasdk/action/Action.html#timers()">timers()</a></span> - Method in class kalix.javasdk.action.<a href="kalix/javasdk/action/Action.html" title="class in kalix.javasdk.action">Action</a></dt>
+<dd>
+<div class="block">Returns a <a href="kalix/javasdk/timer/TimerScheduler.html" title="interface in kalix.javasdk.timer"><code>TimerScheduler</code></a> that can be used to schedule further in time.</div>
+</dd>
+<dt><a href="kalix/javasdk/timer/TimerScheduler.html" title="interface in kalix.javasdk.timer"><span class="typeNameLink">TimerScheduler</span></a> - Interface in <a href="kalix/javasdk/timer/package-summary.html">kalix.javasdk.timer</a></dt>
+<dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="kalix/javasdk/CloudEvent.html#type()">type()</a></span> - Method in interface kalix.javasdk.<a href="kalix/javasdk/CloudEvent.html" title="interface in kalix.javasdk">CloudEvent</a></dt>
 <dd>
 <div class="block">The type of this CloudEvent.</div>

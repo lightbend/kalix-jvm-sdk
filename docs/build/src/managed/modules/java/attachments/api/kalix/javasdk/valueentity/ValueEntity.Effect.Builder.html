@@ -27,7 +27,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":6,"i1":6,"i2":6,"i3":6,"i4":6,"i5":6,"i6":6,"i7":6};
+var data = {"i0":6,"i1":6,"i2":6,"i3":6,"i4":6,"i5":6,"i6":6};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -183,19 +183,12 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </tr>
 <tr id="i4" class="altColor">
 <td class="colFirst"><code>&lt;T&gt;&nbsp;<a href="ValueEntity.Effect.html" title="interface in kalix.javasdk.valueentity">ValueEntity.Effect</a>&lt;T&gt;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#noReply()">noReply</a></span>()</code></th>
-<td class="colLast">
-<div class="block">Create a reply that contains neither a message nor a forward nor an error.</div>
-</td>
-</tr>
-<tr id="i5" class="rowColor">
-<td class="colFirst"><code>&lt;T&gt;&nbsp;<a href="ValueEntity.Effect.html" title="interface in kalix.javasdk.valueentity">ValueEntity.Effect</a>&lt;T&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#reply(T)">reply</a></span>&#8203;(T&nbsp;message)</code></th>
 <td class="colLast">
 <div class="block">Create a message reply.</div>
 </td>
 </tr>
-<tr id="i6" class="altColor">
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code>&lt;T&gt;&nbsp;<a href="ValueEntity.Effect.html" title="interface in kalix.javasdk.valueentity">ValueEntity.Effect</a>&lt;T&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#reply(T,kalix.javasdk.Metadata)">reply</a></span>&#8203;(T&nbsp;message,
      <a href="../Metadata.html" title="interface in kalix.javasdk">Metadata</a>&nbsp;metadata)</code></th>
@@ -203,7 +196,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <div class="block">Create a message reply.</div>
 </td>
 </tr>
-<tr id="i7" class="rowColor">
+<tr id="i6" class="altColor">
 <td class="colFirst"><code><a href="ValueEntity.Effect.OnSuccessBuilder.html" title="interface in kalix.javasdk.valueentity">ValueEntity.Effect.OnSuccessBuilder</a>&lt;<a href="ValueEntity.Effect.Builder.html" title="type parameter in ValueEntity.Effect.Builder">S</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#updateState(S)">updateState</a></span>&#8203;(<a href="ValueEntity.Effect.Builder.html" title="type parameter in ValueEntity.Effect.Builder">S</a>&nbsp;newState)</code></th>
 <td class="colLast">&nbsp;</td>
@@ -326,7 +319,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <a id="error(java.lang.String,io.grpc.Status.Code)">
 <!--   -->
 </a>
-<ul class="blockList">
+<ul class="blockListLast">
 <li class="blockList">
 <h4>error</h4>
 <pre class="methodSignature">&lt;T&gt;&nbsp;<a href="ValueEntity.Effect.html" title="interface in kalix.javasdk.valueentity">ValueEntity.Effect</a>&lt;T&gt;&nbsp;error&#8203;(String&nbsp;description,
@@ -340,24 +333,6 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code>statusCode</code> - A custom gRPC status code.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>An error reply.</dd>
-</dl>
-</li>
-</ul>
-<a id="noReply()">
-<!--   -->
-</a>
-<ul class="blockListLast">
-<li class="blockList">
-<h4>noReply</h4>
-<pre class="methodSignature">&lt;T&gt;&nbsp;<a href="ValueEntity.Effect.html" title="interface in kalix.javasdk.valueentity">ValueEntity.Effect</a>&lt;T&gt;&nbsp;noReply()</pre>
-<div class="block">Create a reply that contains neither a message nor a forward nor an error.
-
- <p>This may be useful for emitting effects without sending a message.</div>
-<dl>
-<dt><span class="paramLabel">Type Parameters:</span></dt>
-<dd><code>T</code> - The type of the message that must be returned by this call.</dd>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>The reply.</dd>
 </dl>
 </li>
 </ul>

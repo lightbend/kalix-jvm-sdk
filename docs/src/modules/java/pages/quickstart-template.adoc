@@ -255,7 +255,7 @@ Scala::
 +
 [source,bash]
 ----
-sbt -Ddocker.username=alice docker:publish
+sbt -Ddocker.username=alice Docker/publish
 ----
 
 TIP: For more details see xref:developing:development-process-java.adoc#_package_service[Development Process - Package service].
@@ -295,7 +295,7 @@ To deploy your service to Kalix:
 [.group-java]
 First make sure you have updated the `dockerImage` property in the `pom.xml` to point at your Docker registry. Then:
 
-- Run [.group-java]#`mvn deploy`,# [.group-scala]#`sbt docker:publish`# which conveniently packages and publishes your Docker image prior to deployment.
+- Run [.group-java]#`mvn deploy`,# [.group-scala]#`sbt Docker/publish`# which conveniently packages and publishes your Docker image prior to deployment.
 
 - When using the CLI, in your command window, set your Kalix project to be the current project:
 +

@@ -74,7 +74,7 @@ public class CounterJournalToTopicAction extends AbstractCounterJournalToTopicAc
   // tag::counter-ignore[]
   @Override
   public Effect<Empty> ignore(Any any) {
-    return effects().noReply(); // <1>
+    return effects().reply(Empty.getDefaultInstance()); // <1>
   }
   // tag::counter-topic[]
 }
