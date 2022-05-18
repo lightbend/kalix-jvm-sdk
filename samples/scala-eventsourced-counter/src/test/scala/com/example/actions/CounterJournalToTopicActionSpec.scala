@@ -4,7 +4,7 @@ import com.example.domain.ValueDecreased
 import com.example.domain.ValueIncreased
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
-import com.akkaserverless.scalasdk.Metadata
+import kalix.scalasdk.Metadata
 
 class CounterJournalToTopicActionSpec extends AnyWordSpec with Matchers {
 
