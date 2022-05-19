@@ -183,7 +183,7 @@ The `src/main/java/customer/Main.java` file already contains the required code t
 
 == Define the initial entity state
 
-To give the domain model a starting point, the initial state for the entity needs to be define.
+To give the domain model a starting point, the initial state for the entity needs to be defined.
 
 . Implement the `emptyState` method by returning a default instance of the `CustomerState` class:
 +
