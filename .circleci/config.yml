@@ -710,7 +710,7 @@ jobs:
             # FIXME tests && integration tests
             echo "==== Verifying that generated unmanaged sources compile ===="
             rm -rf src/main/scala src/test/scala src/it/scala
-            sbt -Dkalix-sdk.version=$SDK_VERSION test:compile
+            sbt -Dkalix-sdk.version=$SDK_VERSION Test/compile
 
   sample-scala-fibonacci-action:
     machine:
@@ -731,7 +731,7 @@ jobs:
             # FIXME tests && integration tests
             echo "==== Verifying that generated unmanaged sources compile ===="
             rm -rf src/main/scala src/test/scala src/it/scala
-            sbt -Dkalix-sdk.version=$SDK_VERSION test:compile
+            sbt -Dkalix-sdk.version=$SDK_VERSION Test/compile
 
   sample-scala-valueentity-customer-registry:
     machine:
@@ -752,7 +752,7 @@ jobs:
             # FIXME integration tests
             echo "==== Verifying that generated unmanaged sources compile ===="
             rm -rf src/main/scala src/test/scala src/it/scala
-            sbt -Dkalix-sdk.version=$SDK_VERSION test:compile
+            sbt -Dkalix-sdk.version=$SDK_VERSION Test/compile
 
   sample-scala-customer-registry-quickstart:
     machine:
@@ -773,7 +773,7 @@ jobs:
             # FIXME integration tests
             echo "==== Verifying that generated unmanaged sources compile ===="
             rm -rf src/main/scala src/test/scala src/it/scala
-            sbt -Dkalix-sdk.version=$SDK_VERSION test:compile
+            sbt -Dkalix-sdk.version=$SDK_VERSION Test/compile
 
   sample-scala-eventsourced-customer-registry:
     machine:
@@ -794,7 +794,7 @@ jobs:
             # FIXME integration tests
             echo "==== Verifying that generated unmanaged sources compile ===="
             rm -rf src/main/scala src/test/scala src/it/scala
-            sbt -Dkalix-sdk.version=$SDK_VERSION test:compile
+            sbt -Dkalix-sdk.version=$SDK_VERSION Test/compile
 
   sample-scala-first-service:
     machine:
@@ -811,11 +811,11 @@ jobs:
           command: |
             cd samples/scala-first-service
             echo "Running sbt with SDK version: '$SDK_VERSION'"
-            sbt -Dkalix-sdk.version=$SDK_VERSION test:compile
+            sbt -Dkalix-sdk.version=$SDK_VERSION Test/compile
             # FIXME integration tests
             echo "==== Verifying that generated unmanaged sources compile ===="
             rm -rf src/main/scala src/test/scala src/it/scala
-            sbt -Dkalix-sdk.version=$SDK_VERSION test:compile
+            sbt -Dkalix-sdk.version=$SDK_VERSION Test/compile
 
   sample-scala-valueentity-counter:
     machine:
@@ -836,7 +836,7 @@ jobs:
             # FIXME integration tests
             echo "==== Verifying that generated unmanaged sources compile ===="
             rm -rf src/main/scala src/test/scala src/it/scala
-            sbt -Dkalix-sdk.version=$SDK_VERSION test:compile
+            sbt -Dkalix-sdk.version=$SDK_VERSION Test/compile
 
   sample-scala-eventsourced-counter:
     machine:
@@ -857,7 +857,7 @@ jobs:
             # FIXME integration tests
             echo "==== Verifying that generated unmanaged sources compile ===="
             rm -rf src/main/scala src/test/scala src/it/scala
-            sbt -Dkalix-sdk.version=$SDK_VERSION test:compile
+            sbt -Dkalix-sdk.version=$SDK_VERSION Test/compile
 
   sample-scala-eventsourced-shopping-cart:
     machine:
@@ -878,7 +878,7 @@ jobs:
             # FIXME integration tests
             echo "==== Verifying that generated unmanaged sources compile ===="
             rm -rf src/main/scala src/test/scala src/it/scala
-            sbt -Dkalix-sdk.version=$SDK_VERSION test:compile
+            sbt -Dkalix-sdk.version=$SDK_VERSION Test/compile
 
   sample-scala-replicatedentity-shopping-cart:
     machine:
@@ -898,7 +898,7 @@ jobs:
             sbt -Dkalix-sdk.version=$SDK_VERSION test
             echo "==== Verifying that generated unmanaged sources compile ===="
             rm -rf src/main/java src/test/java src/it/java
-            sbt -Dkalix-sdk.version=$SDK_VERSION test:compile
+            sbt -Dkalix-sdk.version=$SDK_VERSION Test/compile
 
   sample-scala-replicatedentity-examples:
     machine:
@@ -918,7 +918,7 @@ jobs:
             sbt -Dkalix-sdk.version=$SDK_VERSION test
             echo "==== Verifying that generated unmanaged sources compile ===="
             rm -rf src/main/java src/test/java src/it/java
-            sbt -Dkalix-sdk.version=$SDK_VERSION test:compile
+            sbt -Dkalix-sdk.version=$SDK_VERSION Test/compile
 
   sample-scala-valueentity-shopping-cart:
     machine:
@@ -939,7 +939,7 @@ jobs:
             sbt -Dkalix-sdk.version=$SDK_VERSION test
             echo "==== Verifying that generated unmanaged sources compile ===="
             rm -rf src/main/java src/test/java src/it/java
-            sbt -Dkalix-sdk.version=$SDK_VERSION test:compile
+            sbt -Dkalix-sdk.version=$SDK_VERSION Test/compile
 
   sample-scala-reliable-timers:
     machine:
@@ -960,7 +960,7 @@ jobs:
             sbt -Dkalix-sdk.version=$SDK_VERSION compile
             echo "==== Verifying that generated unmanaged sources compile ===="
             rm -rf src/main/scala src/test/scala src/it/scala
-            sbt -Dkalix-sdk.version=$SDK_VERSION test:compile
+            sbt -Dkalix-sdk.version=$SDK_VERSION Test/compile
 
   publish:
     docker:
