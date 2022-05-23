@@ -1,0 +1,14 @@
+// This is the default ACLs for all components of this Kalix Service
+syntax = "proto3";
+
+package com.example;
+
+import "kalix/annotations.proto";
+
+// Allow other Kalix services deployed in the same project to access the components of this
+// Kalix service, but disallow access from the internet. This can be overridden explicitly
+// per component or method using annotations.
+option (kalix.file).acl = {
+  allow: { principal: ALL }
+  deny: { principal: INTERNET }
+};
