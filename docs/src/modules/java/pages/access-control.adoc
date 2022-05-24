@@ -1,0 +1,141 @@
+= Access Control
+:page-supergroup-java-scala: Language
+
+It is often important to limit access to the components of a Kalix service so that they are not all available to anyone when the service is https://docs.kalix.io/services/invoke-service.html#_exposing_services_to_the_internet[exposed to the internet].
+
+To control access Kalix supports Access Control Lists, ACLs, to specify who can access the components of a Kalix Service.
+
+== ACL Scope
+ACLs can be defined at three different levels, going from broader scope to more specific:
+
+ 1. The Kalix default
+ 2. For the entire Kalix service
+ 3. For one component / gRPC service
+ 4. For a specific method
+
+ACLs are inherited, so that if a method does not have an ACL defined, it will get its ACL from the component, and if that does not have any ACL defined it will get the global ACL.
+
+In other words an ACL defined for a specific method overrides a component ACL which in turn overrides a service-global ACL.
+
+=== ACL Matchers
+
+A Kalix ACL defines requirements in `allow` and `deny` blocks. An incoming request must match at least one `allow` rule and not match any `deny` rules to be passed through to the requested method.
+
+The requirements can be expressed with the following matchers:
+
+ * The `principal` of the request:
+ ** `UNSPECIFIED`
+ ** `ALL` - Any (including no principal at all)
+ ** `INTERNET` - Matches requests that came from the internet to the Kalix service
+ * The `service` (in the same project) the request came from:
+ ** `service-name` - the specific service name
+ ** `*` - wildcard matching (FIXME what more matching is possible)
+
+If a request does not match a defined `allow` block, or matches both the `allow` and the `deny` matchers it is failed with gRPC status code `7 - permission denied`.
+
+== The Kalix default ACL
+
+If no ACLs is defined at all in a Kalix service Kalix will allow requests from both other services and the internet to all components of a Kalix service.
+
+Note: The Kalix quickstarts and [.group-java]#Maven archetypes# [.group-scala]#the sbt g8-template# all include a less permissive ACL for the entire service, to not accidentally make services available to the public internet, just like the one described in the next section.
+
+== ACL for the entire Kalix Service
+
+A default ACL for the entire Kalix Service can be defined by placing a `kalix_policy.proto` file among the protobuf descriptors of the service. It should only contain a `kalix.file(acl)` annotation:
+
+[.tabset]
+Java::
++
+[source,proto,indent=0]
+.src/main/proto/com/example/kalix_policy.proto
+----
+include::example$java-doc-snippets/src/main/proto/com/example/kalix_policy.proto[tag=default]
+----
+<1> Import the needed Kalix annotations from `kalix/annotations.proto`
+<2> Allow access from all other services, but not the public internet
+
+Scala::
++
+[source,proto,indent=0]
+.src/main/proto/com/example/kalix_policy.proto
+----
+include::example$scala-doc-snippets/src/main/proto/com/example/kalix_policy.proto[tag=default]
+----
+<1> Import the needed Kalix annotations from `kalix/annotations.proto`
+<2> Allow access from all other services, but not the public internet
+
+This is the default ACL included in the quickstarts and project templates, it allows calls from any other Kalix service deployed in the same project, but denies access from the internet.
+
+== ACL for one component
+
+Rules can be defined for an entire component
+
+[.tabset]
+Java::
++
+[source,proto,indent=0]
+.src/main/proto/com/example/secured_api.proto
+----
+include::example$java-doc-snippets/src/main/proto/com/example/secured_api.proto[tag=serviceAcl]
+----
+<1> Allow requests from the internet to access to this component/service
+<2> Methods with no ACL of their own inherit the ACL from the service
+Scala::
++
+[source,proto,indent=0]
+.src/main/proto/com/example/secured_api.proto
+----
+include::example$scala-doc-snippets/src/main/proto/com/example/secured_api.proto[tag=serviceAcl]
+----
+<1> Allow requests from the internet to access to this component/service
+<2> Methods with no ACL of their own inherit the ACL from the service
+
+== ACL for one method
+
+[.tabset]
+Java::
++
+[source,proto,indent=0]
+.src/main/proto/com/example/secured_api.proto
+----
+include::example$java-doc-snippets/src/main/proto/com/example/secured_api.proto[tag=methodAcl]
+----
+<1> Allow requests from all other Kalix services in this project to this method
+<2> Allow only requests from the Kalix Service `my-other-service` to this method
+
+Scala::
++
+[source,proto,indent=0]
+.src/main/proto/com/example/secured_api.proto
+----
+include::example$scala-doc-snippets/src/main/proto/com/example/secured_api.proto[tag=methodAcl]
+----
+<1> Allow requests from all other Kalix services in this project to this method
+<2> Allow only requests from the Kalix Service `my-other-service` to this method
+
+== Special case for eventing in methods
+
+Eventing in methods, used for consuming event streams and message broker events do by default not inherit ACLs as they are not intended for access from the outside at all. To make such methods accessible they require an explicit method level ACL annotation.
+
+== Request denied response status code
+
+By default denied requests are responded to with the gRPC status code `7 - permission denied`. It is possible to specify a custom gRPC response code, for example `16 - unauthenticated` or `5 - not found`, through the `deny_code` field on the `acl` block:
+
+[.tabset]
+Java::
++
+[source,proto,indent=0]
+.src/main/proto/com/example/secured_api.proto
+----
+include::example$java-doc-snippets/src/main/proto/com/example/secured_api.proto[tag=customCode]
+----
+<1> Respond with `5 - not found` for denied requests
+
+Scala::
++
+[source,proto,indent=0]
+.src/main/proto/com/example/secured_api.proto
+----
+include::example$scala-doc-snippets/src/main/proto/com/example/secured_api.proto[tag=customCode]
+----
+<1> Respond with `5 - not found` for denied requests

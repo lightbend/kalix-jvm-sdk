@@ -128,4 +128,5 @@ This section provides details on how to accomplish common tasks:
 * xref:java:views.adoc[Implementing Views]
 * xref:java:side-effects.adoc[Running Side Effects]
 * xref:serialization.adoc[Serialization]
+* xref:access-control.adoc[Access Control (ACL)]
 * xref:api.adoc[API docs]
