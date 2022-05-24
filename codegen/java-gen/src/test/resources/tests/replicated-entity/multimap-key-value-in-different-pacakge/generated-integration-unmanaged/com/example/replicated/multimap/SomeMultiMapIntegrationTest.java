@@ -6,6 +6,7 @@ import com.google.protobuf.Empty;
 import kalix.javasdk.testkit.junit.KalixTestKitResource;
 import org.example.Main;
 import org.junit.ClassRule;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import static java.util.concurrent.TimeUnit.*;
@@ -36,6 +37,7 @@ public class SomeMultiMapIntegrationTest {
   }
 
   @Test
+  @Ignore("to be implemented")
   public void putOnNonExistingEntity() throws Exception {
     // TODO: set fields in command, and provide assertions to match replies
     // client.put(SomeMultiMapApi.PutValue.newBuilder().build())
