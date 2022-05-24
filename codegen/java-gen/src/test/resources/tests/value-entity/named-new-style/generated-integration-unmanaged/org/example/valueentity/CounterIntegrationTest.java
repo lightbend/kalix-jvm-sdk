@@ -5,6 +5,7 @@ import kalix.javasdk.testkit.junit.KalixTestKitResource;
 import org.example.Main;
 import org.example.valueentity.domain.CounterDomain;
 import org.junit.ClassRule;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import static java.util.concurrent.TimeUnit.*;
@@ -35,6 +36,7 @@ public class CounterIntegrationTest {
   }
 
   @Test
+  @Ignore("to be implemented")
   public void increaseOnNonExistingEntity() throws Exception {
     // TODO: set fields in command, and provide assertions to match replies
     // client.increase(CounterApi.IncreaseValue.newBuilder().build())
@@ -42,6 +44,7 @@ public class CounterIntegrationTest {
   }
 
   @Test
+  @Ignore("to be implemented")
   public void decreaseOnNonExistingEntity() throws Exception {
     // TODO: set fields in command, and provide assertions to match replies
     // client.decrease(CounterApi.DecreaseValue.newBuilder().build())
