@@ -56,6 +56,7 @@ mkdir project
 ----
 
 . Download the `plugins.sbt`
++
 [source,command line]
 ----
 curl -L https://raw.githubusercontent.com/lightbend/kalix-jvm-sdk/main/samples/scala-customer-registry-quickstart/project/plugins.sbt -o project/plugins.sbt
