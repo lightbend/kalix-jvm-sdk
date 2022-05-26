@@ -82,8 +82,8 @@ class DiscoveryImpl(system: ActorSystem, services: Map[String, Service]) extends
         "Received discovery call from [{} {}]{} supporting Kalix protocol {}.{}",
         in.proxyName,
         in.proxyVersion,
-        if (in.deploymentName.isEmpty) { "" }
-        else { s" at [${in.deploymentName}]" }, // added in protocol 0.7.4
+        if (in.proxyHostname.isEmpty) { "" }
+        else { s" at [${in.proxyHostname}]" }, // added in protocol 0.7.4
         in.protocolMajorVersion,
         in.protocolMinorVersion)
       log.debug(s"Supported sidecar entity types: {}", in.supportedEntityTypes.mkString("[", ",", "]"))
@@ -92,10 +92,13 @@ class DiscoveryImpl(system: ActorSystem, services: Map[String, Service]) extends
         in.supportedEntityTypes.contains(service.componentType)
       }
 
+      val grpcClients = GrpcClients.get(system)
       // pass the deployed name of the service on to GrpcClients for cross component calls
-      if (in.deploymentName.nonEmpty) {
-        GrpcClients.get(system).setSelfServiceName(in.deploymentName)
+      if (in.proxyHostname.nonEmpty) {
+        grpcClients.setProxyHostname(in.proxyHostname)
       }
+
+      grpcClients.setIdentificationInfo(in.identificationInfo)
 
       if (unsupportedServices.nonEmpty) {
         log.error(

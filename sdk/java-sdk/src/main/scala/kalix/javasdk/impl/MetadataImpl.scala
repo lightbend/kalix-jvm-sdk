@@ -16,15 +16,15 @@
 
 package kalix.javasdk.impl
 
-import kalix.javasdk.{ CloudEvent, JwtClaims, Metadata }
+import kalix.javasdk.{CloudEvent, JwtClaims, Metadata, Principal, Principals}
 import kalix.protocol.component.MetadataEntry
 import com.google.protobuf.ByteString
 import java.net.URI
 import java.nio.ByteBuffer
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
-import java.{ lang, util }
-import java.util.{ Objects, Optional }
+import java.{lang, util}
+import java.util.{Objects, Optional}
 
 import kalix.javasdk.impl.MetadataImpl.JwtClaimPrefix
 
@@ -198,6 +198,24 @@ private[kalix] class MetadataImpl(val entries: Seq[MetadataEntry]) extends Metad
     override def getString(name: String): Optional[String] = getJwtClaim(name).asJava
   }
 
+  override lazy val principals: Principals = new Principals {
+    private def src: Option[String] = getScala(MetadataImpl.PrincipalsSource)
+    private def svc: Option[String] = getScala(MetadataImpl.PrincipalsService)
+    override def isInternet: Boolean = src.contains("internet")
+    override def isSelf: Boolean = src.contains("self")
+    override def isBackoffice: Boolean = src.contains("backoffice")
+    override def isLocalService(name: String): Boolean = svc.contains(name)
+    override def isAnyLocalService: Boolean = svc.nonEmpty
+    override def getLocalService: Optional[String] = svc.asJava
+    override def get(): util.Collection[Principal] = {
+      (src.collect {
+        case "internet" => Principal.INTERNET
+        case "self" => Principal.SELF
+        case "backoffice" => Principal.BACKOFFICE
+      } ++ svc.map(Principal.localService)).asJavaCollection
+    }
+  }
+
   private[kalix] def allJwtClaimNames: Iterable[String] =
     entries.view.collect {
       case MetadataEntry(key, MetadataEntry.Value.StringValue(_), _) if key.startsWith(JwtClaimPrefix) => key
@@ -233,4 +251,7 @@ object MetadataImpl {
   val Empty = new MetadataImpl(Vector.empty)
 
   val JwtClaimPrefix = "_kalix-jwt-claim-"
+
+  val PrincipalsSource = "_kalix-src"
+  val PrincipalsService = "_kalix-src-svc"
 }
