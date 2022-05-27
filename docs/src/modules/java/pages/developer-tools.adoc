@@ -77,7 +77,7 @@ The development support tooling is provided via an sbt plugin; _sbt-kalix_. This
 
 [.group-scala]
 === Commands
-The sbt plugin hooks into the standard `sbt` commands for compiling, testing, and packaging. Code is automatically generated from Protobuf interfaces when using `compile`, `test:compile`, `test`, and other commands that depend on these commands. The `sbt-native-packager` plugin is included in the Giter8 template, which can be used for building and publishing Docker images, respectively using the `Docker/publishLocal` and `Docker/publish` commands.
+The sbt plugin hooks into the standard `sbt` commands for compiling, testing, and packaging. Code is automatically generated from Protobuf interfaces when using `compile`, `Test/compile`, `test`, and other commands that depend on these commands. The `sbt-native-packager` plugin is included in the Giter8 template, which can be used for building and publishing Docker images, respectively using the `Docker/publishLocal` and `Docker/publish` commands.
 
 [.group-scala]
 === Configuration

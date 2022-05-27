@@ -101,7 +101,7 @@ include::example$scala-reliable-timers/src/main/scala/com/example/actions/OrderA
 
 In a nutshell, we first requested Kalix to register a timer. When it completes, we know that the timer is persisted and will run at the specified time. We then proceed by placing the order.
 
-The sequence of actions is important here. If we had called the entity first and then registered the timer, the Order could have been placed and the timer registration could have failed due to some network issue for example. In such as case, we would end up with an Order without an expiration timer.
+The sequence of actions is important here. If we had called the entity first and then registered the timer, the Order could have been placed and the timer registration could have failed due to some network issue for example. In such a case, we would end up with an Order without an expiration timer.
 
 But the inverse is also true. There is still the risk of registering the timer and then failing to place the Order. However, the implementation of the `expire` method can take that into account.
 
