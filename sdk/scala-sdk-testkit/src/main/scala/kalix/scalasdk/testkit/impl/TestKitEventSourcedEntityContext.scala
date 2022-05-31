@@ -24,8 +24,10 @@ import kalix.scalasdk.Metadata
 /**
  * INTERNAL API Used by the generated testkit
  */
-final class TestKitEventSourcedEntityContext(override val entityId: String)
-    extends AbstractTestKitContext
+final class TestKitEventSourcedEntityContext(
+    override val entityId: String,
+    mockRegistry: TestKitMockRegistry = TestKitMockRegistry.empty)
+    extends AbstractTestKitContext(mockRegistry)
     with EventSourcedEntityContext {
   override def materializer(): Materializer = throw new UnsupportedOperationException(
     "Accessing the materializer from testkit not supported yet")

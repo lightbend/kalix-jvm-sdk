@@ -16,17 +16,10 @@
 
 package kalix.scalasdk.testkit.impl
 
-import akka.stream.Materializer
-import kalix.scalasdk.valueentity.ValueEntityContext
+final class TestKitMockRegistry(mocks: Map[Class[_], Any]) {
+  def get[T](key: Class[T]): Option[T] = mocks.get(key).map(key.cast)
+}
 
-/**
- * INTERNAL API Used by the generated testkit
- */
-final class TestKitValueEntityContext(
-    override val entityId: String,
-    mockRegistry: TestKitMockRegistry = TestKitMockRegistry.empty)
-    extends AbstractTestKitContext(mockRegistry)
-    with ValueEntityContext {
-  override def materializer(): Materializer = throw new UnsupportedOperationException(
-    "Accessing the materializer from testkit not supported yet")
+object TestKitMockRegistry {
+  val empty = new TestKitMockRegistry(Map.empty)
 }

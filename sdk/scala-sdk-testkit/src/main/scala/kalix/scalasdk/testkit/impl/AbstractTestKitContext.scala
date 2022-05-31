@@ -20,9 +20,14 @@ import akka.stream.Materializer
 import kalix.scalasdk.Context
 import kalix.scalasdk.impl.InternalContext
 
-class AbstractTestKitContext extends Context with InternalContext {
+class AbstractTestKitContext(mockRegistry: TestKitMockRegistry) extends Context with InternalContext {
   override def materializer(): Materializer =
     throw new UnsupportedOperationException("Accessing the materializer from testkit not supported yet")
-  def getComponentGrpcClient[T](serviceClass: Class[T]): T =
-    throw new UnsupportedOperationException("Async call testing is not possible with the testkit")
+  def getComponentGrpcClient[T](serviceClass: Class[T]): T = {
+    mockRegistry
+      .get(serviceClass)
+      .getOrElse(
+        throw new UnsupportedOperationException(
+          s"""Could not find mock for class $serviceClass. Hint: use TestKitMockRegistry to provide it."""))
+  }
 }

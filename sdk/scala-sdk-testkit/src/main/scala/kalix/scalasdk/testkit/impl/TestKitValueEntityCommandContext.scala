@@ -29,7 +29,8 @@ final class TestKitValueEntityCommandContext(
     override val entityId: String,
     override val commandName: String = "stubCommandName",
     override val commandId: Long = 0L,
-    override val metadata: Metadata = Metadata.empty)
-    extends AbstractTestKitContext
+    override val metadata: Metadata = Metadata.empty,
+    mockRegistry: TestKitMockRegistry = TestKitMockRegistry.empty)
+    extends AbstractTestKitContext(mockRegistry)
     with ValueEntityContext
     with CommandContext {}
