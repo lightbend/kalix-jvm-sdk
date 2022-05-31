@@ -27,6 +27,7 @@ object Dependencies {
   val JUnitVersion = "4.13.2"
   val JUnitInterfaceVersion = "0.11"
   val JUnitJupiterVersion = "5.7.1"
+  val SpringVersion = "2.7.0"
 
   val CommonsIoVersion = "2.8.0"
   val MunitVersion = "0.7.29"
@@ -52,6 +53,7 @@ object Dependencies {
   val jacksonJsr310 = "com.fasterxml.jackson.datatype" % "jackson-datatype-jsr310" % JacksonVersion
   val jacksonParameterNames = "com.fasterxml.jackson.module" % "jackson-module-parameter-names" % JacksonVersion
   val jacksonScala = "com.fasterxml.jackson.module" %% "jackson-module-scala" % JacksonVersion
+  val jacksonDataFormatProto = "com.fasterxml.jackson.dataformat" % "jackson-dataformat-protobuf" % JacksonVersion
 
   val scalaTest = "org.scalatest" %% "scalatest" % ScalaTestVersion
   val munit = "org.scalameta" %% "munit" % MunitVersion
@@ -108,7 +110,11 @@ object Dependencies {
     junit5 % Provided,
     scalaTest % Test)
 
-  val sdkSpring = deps ++= coreDeps
+  val sdkSpring = deps ++= coreDeps ++ Seq(
+    jacksonDataFormatProto,
+    "org.springframework.boot" % "spring-boot" % SpringVersion,
+    ("org.springframework.boot" % "spring-boot-starter-web" % SpringVersion)
+      .exclude("org.springframework.boot", "spring-boot-starter-tomcat"))
 
   // FIXME
   val sdkScala = deps ++= coreDeps ++ Seq(jacksonScala)
