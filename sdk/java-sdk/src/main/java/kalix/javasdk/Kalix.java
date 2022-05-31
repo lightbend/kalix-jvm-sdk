@@ -379,7 +379,10 @@ public final class Kalix {
    */
   public Kalix register(ActionProvider provider) {
     return lowLevel.registerAction(
-        provider::newRouter, provider.serviceDescriptor(), provider.additionalSerializers(), provider.additionalDescriptors());
+        provider::newRouter,
+        provider.serviceDescriptor(),
+        provider.additionalSerializers(),
+        provider.additionalDescriptors());
   }
 
   /**
