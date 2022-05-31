@@ -80,7 +80,6 @@ lazy val sdkJava = project
     Test / PB.targets += PB.gens.java -> crossTarget.value / "akka-grpc" / "test")
   .settings(Dependencies.sdkJava)
 
-
 lazy val sdkSpring = project
   .in(file("sdk/spring-sdk"))
   .dependsOn(sdkJava)
