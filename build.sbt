@@ -5,6 +5,7 @@ lazy val `kalix-jvm-sdk` = project
   .aggregate(
     sdkCore,
     sdkJava,
+    sdkSpring,
     sdkScala,
     sdkJavaTestKit,
     sdkScalaTestKit,
@@ -78,6 +79,31 @@ lazy val sdkJava = project
     Test / PB.protoSources ++= (Compile / PB.protoSources).value,
     Test / PB.targets += PB.gens.java -> crossTarget.value / "akka-grpc" / "test")
   .settings(Dependencies.sdkJava)
+
+lazy val sdkSpring = project
+  .in(file("sdk/spring-sdk"))
+  .dependsOn(sdkJava)
+  .enablePlugins(AkkaGrpcPlugin, BuildInfoPlugin, PublishSonatype)
+  .settings(common)
+  .settings(
+    name := "kalix-spring-sdk",
+    buildInfoKeys := Seq[BuildInfoKey](
+      name,
+      version,
+      "protocolMajorVersion" -> Kalix.ProtocolVersionMajor,
+      "protocolMinorVersion" -> Kalix.ProtocolVersionMinor,
+      "scalaVersion" -> scalaVersion.value),
+    buildInfoPackage := "kalix.springsdk",
+    Compile / akkaGrpcGeneratedSources := Seq(AkkaGrpc.Server),
+    Compile / akkaGrpcGeneratedLanguages := Seq(AkkaGrpc.Scala),
+    Test / javacOptions += "-parameters", // for Jackson
+    inTask(doc)(
+      Seq(
+        Compile / scalacOptions ++= scaladocOptions(
+          "Kalix Spring SDK",
+          version.value,
+          (ThisBuild / baseDirectory).value))))
+  .settings(Dependencies.sdkSpring)
 
 lazy val sdkScala = project
   .in(file("sdk/scala-sdk"))

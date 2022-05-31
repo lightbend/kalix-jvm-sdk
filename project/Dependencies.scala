@@ -108,6 +108,8 @@ object Dependencies {
     junit5 % Provided,
     scalaTest % Test)
 
+  val sdkSpring = deps ++= coreDeps
+
   // FIXME
   val sdkScala = deps ++= coreDeps ++ Seq(jacksonScala)
 
