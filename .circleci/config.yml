@@ -962,6 +962,24 @@ jobs:
             rm -rf src/main/scala src/test/scala src/it/scala
             sbt -Dkalix-sdk.version=$SDK_VERSION Test/compile
 
+  sample-spring-java-fibonacci-action:
+    machine:
+      image: ubuntu-2004:202201-02
+    steps:
+      - checkout-and-merge-to-main
+      - setup_sbt
+      - restore_deps_cache
+      # note: `copy-from-workspace` requires `publish-local` to be run first as declared in workflow section below
+      - copy-from-workspace
+      - set-sdk-version
+      - run:
+          name: Java Fibonacci Action
+          command: |
+            cd samples/spring-java-fibonacci-action
+            echo "Running mvn with SDK version: '$SDK_VERSION'"
+            # no testing for now, only 'compile'
+            mvn -Dkalix-sdk.version=$SDK_VERSION compile 
+
   publish:
     docker:
       - image: circleci/openjdk:11
