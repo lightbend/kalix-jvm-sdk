@@ -19,6 +19,10 @@ package kalix.javasdk.action;
 import kalix.javasdk.Kalix;
 import kalix.javasdk.impl.action.ActionRouter;
 import com.google.protobuf.Descriptors;
+import kalix.serializer.Serializer;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Register an Action in {{@link Kalix}} using an <code>
@@ -34,4 +38,8 @@ public interface ActionProvider<A extends Action> {
   ActionRouter<A> newRouter(ActionCreationContext context);
 
   Descriptors.FileDescriptor[] additionalDescriptors();
+
+  default Map<Class<?>, Serializer> additionalSerializers() {
+    return new HashMap<>();
+  }
 }

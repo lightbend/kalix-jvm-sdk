@@ -42,6 +42,7 @@ import kalix.javasdk.view.ViewProvider;
 import kalix.replicatedentity.ReplicatedData;
 import com.google.protobuf.Descriptors;
 import com.typesafe.config.Config;
+import kalix.serializer.Serializer;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -117,6 +118,25 @@ public final class Kalix {
         Descriptors.FileDescriptor... additionalDescriptors) {
 
       final AnySupport anySupport = newAnySupport(additionalDescriptors);
+
+      ActionFactory resolvedActionFactory =
+          new ResolvedActionFactory(actionFactory, anySupport.resolveServiceDescriptor(descriptor));
+
+      ActionService service =
+          new ActionService(resolvedActionFactory, descriptor, additionalDescriptors, anySupport);
+
+      services.put(descriptor.getFullName(), system -> service);
+
+      return Kalix.this;
+    }
+
+    public Kalix registerAction(
+        ActionFactory actionFactory,
+        Descriptors.ServiceDescriptor descriptor,
+        Map<Class<?>, Serializer> additionalSerializers,
+        Descriptors.FileDescriptor... additionalDescriptors) {
+
+      final AnySupport anySupport = newAnySupport(additionalDescriptors, additionalSerializers);
 
       ActionFactory resolvedActionFactory =
           new ResolvedActionFactory(actionFactory, anySupport.resolveServiceDescriptor(descriptor));
@@ -359,7 +379,10 @@ public final class Kalix {
    */
   public Kalix register(ActionProvider provider) {
     return lowLevel.registerAction(
-        provider::newRouter, provider.serviceDescriptor(), provider.additionalDescriptors());
+        provider::newRouter,
+        provider.serviceDescriptor(),
+        provider.additionalSerializers(),
+        provider.additionalDescriptors());
   }
 
   /**
@@ -402,6 +425,11 @@ public final class Kalix {
   }
 
   private AnySupport newAnySupport(Descriptors.FileDescriptor[] descriptors) {
-    return new AnySupport(descriptors, classLoader, typeUrlPrefix, prefer);
+    return new AnySupport(descriptors, classLoader, typeUrlPrefix, prefer, new HashMap<>());
+  }
+
+  private AnySupport newAnySupport(
+      Descriptors.FileDescriptor[] descriptors, Map<Class<?>, Serializer> additionalSerializers) {
+    return new AnySupport(descriptors, classLoader, typeUrlPrefix, prefer, additionalSerializers);
   }
 }
