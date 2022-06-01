@@ -16,22 +16,17 @@
 
 package kalix.javasdk.testkit.impl
 
-import akka.stream.Materializer
-import kalix.javasdk.eventsourcedentity.EventSourcedEntityContext
+import scala.jdk.CollectionConverters._
 
-/**
- * INTERNAL API Used by the generated testkit
- */
-final class TestKitEventSourcedEntityContext(
-    override val entityId: String,
-    mockRegistry: TestKitMockRegistry = TestKitMockRegistry.empty)
-    extends AbstractTestKitContext(mockRegistry)
-    with EventSourcedEntityContext {
+final class TestKitMockRegistry private (mocks: Map[Class[_], Any]) {
 
-  def this(entityId: String) {
-    this(entityId, TestKitMockRegistry.empty)
+  def this(mocks: java.util.Map[Class[_], Any]) {
+    this(mocks.asScala.toMap)
   }
 
-  override def materializer(): Materializer = throw new UnsupportedOperationException(
-    "Accessing the materializer from testkit not supported yet")
+  def get[T](key: Class[T]): Option[T] = mocks.get(key).map(key.cast)
+}
+
+object TestKitMockRegistry {
+  val empty = new TestKitMockRegistry(Map.empty[Class[_], Any].asJava)
 }

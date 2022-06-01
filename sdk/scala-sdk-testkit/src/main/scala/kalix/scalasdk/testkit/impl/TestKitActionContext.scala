@@ -21,6 +21,9 @@ import kalix.scalasdk.Metadata
 import kalix.scalasdk.action.ActionContext
 import kalix.scalasdk.action.ActionCreationContext
 
+/**
+ * INTERNAL API Used by the generated testkit
+ */
 final class TestKitActionContext(
     override val metadata: Metadata = Metadata.empty,
     mockRegistry: TestKitMockRegistry = TestKitMockRegistry.empty)

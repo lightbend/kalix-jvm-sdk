@@ -22,9 +22,16 @@ import kalix.javasdk.valueentity.ValueEntityContext
 /**
  * INTERNAL API Used by the generated testkit
  */
-final class TestKitValueEntityContext(override val entityId: String)
-    extends AbstractTestKitContext
+final class TestKitValueEntityContext(
+    override val entityId: String,
+    mockRegistry: TestKitMockRegistry = TestKitMockRegistry.empty)
+    extends AbstractTestKitContext(mockRegistry)
     with ValueEntityContext {
+
+  def this(entityId: String) {
+    this(entityId, TestKitMockRegistry.empty)
+  }
+
   override def materializer(): Materializer = throw new UnsupportedOperationException(
     "Accessing the materializer from testkit not supported yet")
 }
