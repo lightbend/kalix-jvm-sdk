@@ -4,15 +4,19 @@ kalix-proxy:
   - '**/*'
 
 java-sdk:
-  - sdk/java/**/*
+  - sdk/java-sdk/**/*
+  - sdk/java-sdk-testkit/**/*
   - maven-java/**/*
   - codegen/java-gen/**/*
-  - codegen/java-gen-compilation-tests/**/*
 
 scala-sdk:
-  - sdk/scala/**/*
+  - sdk/scala-sdk/**/*
+  - sdk/scala-sdk-testkit/**/*
   - sbt-plugin/**/*
   - codegen/scala-gen/**/*
+
+spring-sdk:
+  - sdk/spring-sdk/**/*
 
 Documentation:
   - docs/**/*
