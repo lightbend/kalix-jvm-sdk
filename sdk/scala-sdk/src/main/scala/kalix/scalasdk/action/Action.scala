@@ -157,7 +157,7 @@ abstract class Action {
   /**
    * An ExecutionContext to use when composing Futures inside Actions.
    */
-  implicit lazy val executionContext: ExecutionContext =
+  implicit def executionContext: ExecutionContext =
     scala.concurrent.ExecutionContext.Implicits.global
 
   /**
