@@ -26,8 +26,7 @@ class AbstractTestKitContext(mockRegistry: TestKitMockRegistry) extends Context 
   def getComponentGrpcClient[T](serviceClass: Class[T]): T = {
     mockRegistry
       .get(serviceClass)
-      .getOrElse(
-        throw new UnsupportedOperationException(
-          s"""Could not find mock for class $serviceClass. Hint: use TestKitMockRegistry to provide it."""))
+      .getOrElse(throw new UnsupportedOperationException(
+        s"Could not find mock for class $serviceClass. Hint: use ${classOf[TestKitMockRegistry].getName} to provide it."))
   }
 }
