@@ -20,6 +20,7 @@ object MyServiceNamedActionTestKit {
   /**
    * Create a testkit instance of MyServiceNamedAction
    * @param entityFactory A function that creates a MyServiceNamedAction based on the given ActionCreationContext
+   * @param mockRegistry A map of mocks (Class -> mock) that provides control and the ability to test the dependencies on another components / services
    */
   def apply(actionFactory: ActionCreationContext => MyServiceNamedAction): MyServiceNamedActionTestKit =
     new MyServiceNamedActionTestKit(actionFactory)
