@@ -25,7 +25,7 @@ class ShoppingCartActionImplSpec
       (mockShoppingCart.create _)
         .expects(*)
         .returning(Future.successful(Empty.defaultInstance))
-      val mockRegistry = new TestKitMockRegistry(Map(classOf[ShoppingCartService] -> mockShoppingCart))
+      val mockRegistry = new TestKitMockRegistry(Set(mockShoppingCart))
 
       val service = ShoppingCartActionImplTestKit(new ShoppingCartActionImpl(_), mockRegistry)
       val cartId = service.initializeCart(NewCart.defaultInstance).asyncResult
@@ -42,7 +42,7 @@ class ShoppingCartActionImplSpec
         .when(where { li: AddLineItem => li.name == "eggplant"})
         .returns(Future.successful(Empty.defaultInstance))
 
-      val mockRegistry = new TestKitMockRegistry(Map(classOf[ShoppingCartService] -> mockShoppingCart))
+      val mockRegistry = new TestKitMockRegistry(Set(mockShoppingCart))
 
       val service = ShoppingCartActionImplTestKit(new ShoppingCartActionImpl(_), mockRegistry)
       val cartId = service.createPrePopulated(NewCart.defaultInstance).asyncResult
