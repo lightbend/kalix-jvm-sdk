@@ -74,7 +74,8 @@ public class KalixTestKit {
       this(stopTimeout, "self", true);
     }
 
-    private Settings(final Duration stopTimeout, final String serviceName, final boolean aclEnabled) {
+    private Settings(
+        final Duration stopTimeout, final String serviceName, final boolean aclEnabled) {
       this.stopTimeout = stopTimeout;
       this.serviceName = serviceName;
       this.aclEnabled = aclEnabled;
@@ -91,8 +92,9 @@ public class KalixTestKit {
     }
 
     /**
-     * Set the name of this service. This will be used by the service when making calls on other services run by
-     * the testkit to authenticate itself, allowing those services to apply ACLs based on that name.
+     * Set the name of this service. This will be used by the service when making calls on other
+     * services run by the testkit to authenticate itself, allowing those services to apply ACLs
+     * based on that name.
      *
      * @param serviceName The name of this service.
      * @return The updated settings.
@@ -229,7 +231,8 @@ public class KalixTestKit {
       serviceName = ((Principal.LocalService) principal).getName();
     }
     if (serviceName != null) {
-      return GrpcClients.get(getActorSystem()).getGrpcClient(clientClass, getHost(), getPort(), serviceName);
+      return GrpcClients.get(getActorSystem())
+          .getGrpcClient(clientClass, getHost(), getPort(), serviceName);
     } else {
       return GrpcClients.get(getActorSystem()).getGrpcClient(clientClass, getHost(), getPort());
     }

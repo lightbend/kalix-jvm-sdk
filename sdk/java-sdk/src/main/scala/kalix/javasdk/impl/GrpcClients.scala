@@ -24,17 +24,17 @@ import akka.actor.Extension
 import akka.actor.ExtensionId
 import akka.actor.ExtensionIdProvider
 import akka.grpc.GrpcClientSettings
-import akka.grpc.javadsl.{AkkaGrpcClient => AkkaGrpcJavaClient}
-import akka.grpc.scaladsl.{AkkaGrpcClient => AkkaGrpcScalaClient}
+import akka.grpc.javadsl.{ AkkaGrpcClient => AkkaGrpcJavaClient }
+import akka.grpc.scaladsl.{ AkkaGrpcClient => AkkaGrpcScalaClient }
 import org.slf4j.LoggerFactory
-import java.util.concurrent.{ConcurrentHashMap, Executor}
+import java.util.concurrent.{ ConcurrentHashMap, Executor }
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters._
 import scala.jdk.FutureConverters._
 import akka.actor.ActorSystem
-import io.grpc.{CallCredentials, Metadata}
+import io.grpc.{ CallCredentials, Metadata }
 import kalix.javasdk.Principal
 import kalix.protocol.discovery.IdentificationInfo
 
@@ -97,8 +97,10 @@ final class GrpcClients(system: ExtendedActorSystem) extends Extension {
     getLocalGrpcClient(serviceClass)
   }
 
-  /** This gets called from the action context to get a client to another service, and hence needs to add a
-   * service identification header (in dev/test mode) to ensure calls get associated with this service. */
+  /**
+   * This gets called from the action context to get a client to another service, and hence needs to add a service
+   * identification header (in dev/test mode) to ensure calls get associated with this service.
+   */
   def getGrpcClient[T](serviceClass: Class[T], service: String): T =
     getGrpcClient(serviceClass, service, port = 80, remoteAddHeader)
 
@@ -115,13 +117,13 @@ final class GrpcClients(system: ExtendedActorSystem) extends Extension {
   private def localAddHeader: Option[(String, String)] = identificationInfo match {
     case Some(IdentificationInfo(header, token, _, _, _)) if header.nonEmpty && token.nonEmpty =>
       Some((header, token))
-    case None => None
+    case _ => None
   }
 
   private def remoteAddHeader: Option[(String, String)] = identificationInfo match {
     case Some(IdentificationInfo(_, _, header, name, _)) if header.nonEmpty && name.nonEmpty =>
       Some((header, name))
-    case None => None
+    case _ => None
   }
 
   /** This gets called by the testkit, so shouldn't add any headers. */
@@ -132,7 +134,11 @@ final class GrpcClients(system: ExtendedActorSystem) extends Extension {
   def getGrpcClient[T](serviceClass: Class[T], service: String, port: Int, impersonate: String): T =
     getGrpcClient(serviceClass, service, port, Some("impersonate-kalix-service", impersonate))
 
-  private def getGrpcClient[T](serviceClass: Class[T], service: String, port: Int, addHeader: Option[(String, String)]) = {
+  private def getGrpcClient[T](
+      serviceClass: Class[T],
+      service: String,
+      port: Int,
+      addHeader: Option[(String, String)]) = {
     clients.computeIfAbsent(Key(serviceClass, service, port, addHeader), createClient(_)).asInstanceOf[T]
   }
 
@@ -155,8 +161,10 @@ final class GrpcClients(system: ExtendedActorSystem) extends Extension {
         val headers = new Metadata()
         headers.put(Metadata.Key.of(key, Metadata.ASCII_STRING_MARSHALLER), value)
         settings.withCallCredentials(new CallCredentials {
-          override def applyRequestMetadata(requestInfo: CallCredentials.RequestInfo, appExecutor: Executor,
-            applier: CallCredentials.MetadataApplier): Unit = {
+          override def applyRequestMetadata(
+              requestInfo: CallCredentials.RequestInfo,
+              appExecutor: Executor,
+              applier: CallCredentials.MetadataApplier): Unit = {
             applier.apply(headers)
           }
           override def thisUsesUnstableApi(): Unit = ()

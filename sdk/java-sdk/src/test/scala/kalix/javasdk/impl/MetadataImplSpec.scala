@@ -17,8 +17,9 @@
 package kalix.javasdk.impl
 
 import java.time.Instant
+import java.util.Optional
 
-import kalix.javasdk.Metadata
+import kalix.javasdk.{ Metadata, Principal }
 import kalix.protocol.component.MetadataEntry
 import org.scalatest.OptionValues
 import org.scalatest.matchers.should.Matchers
@@ -98,6 +99,53 @@ class MetadataImplSpec extends AnyWordSpec with Matchers with OptionValues {
       meta.jwtClaims().getStringList("foo").toScala shouldBe None
     }
 
+    "support accessing principals" when {
+      "the principal is the internet" in {
+        val meta = metadata("_kalix-src" -> "internet")
+        meta.principals().isInternet shouldBe true
+        meta.principals().get().asScala should contain only Principal.INTERNET
+      }
+      "the principal is not the internet" in {
+        metadata("_kalix-src" -> "self").principals().isInternet shouldBe false
+        metadata("_kalix-src-svc" -> "foo").principals().isInternet shouldBe false
+      }
+      "the principal is self" in {
+        val meta = metadata("_kalix-src" -> "self")
+        meta.principals().isSelf shouldBe true
+        meta.principals().get().asScala should contain only Principal.SELF
+      }
+      "the principal is not self" in {
+        metadata("_kalix-src" -> "internet").principals().isSelf shouldBe false
+        metadata("_kalix-src-svc" -> "foo").principals().isSelf shouldBe false
+      }
+      "the principal is the backoffice" in {
+        val meta = metadata("_kalix-src" -> "backoffice")
+        meta.principals().isBackoffice shouldBe true
+        meta.principals().get().asScala should contain only Principal.BACKOFFICE
+      }
+      "the principal is not backoffice" in {
+        metadata("_kalix-src" -> "internet").principals().isBackoffice shouldBe false
+        metadata("_kalix-src-svc" -> "foo").principals().isBackoffice shouldBe false
+      }
+      "the principal is a local service" in {
+        val meta = metadata("_kalix-src-svc" -> "foo")
+        meta.principals().isLocalService("foo") shouldBe true
+        meta.principals().isLocalService("bar") shouldBe false
+        meta.principals().getLocalService shouldBe Optional.of("foo")
+        meta.principals().isAnyLocalService shouldBe true
+        meta.principals().get().asScala should contain only Principal.localService("foo")
+      }
+      "the principal is not a local service" in {
+        metadata("_kalix-src" -> "internet").principals().isAnyLocalService shouldBe false
+        metadata("_kalix-src" -> "internet").principals().isLocalService("foo") shouldBe false
+      }
+      "the principal is unrecognised" in {
+        val meta = metadata("_kalix-src" -> "blah")
+        meta.principals().isInternet shouldBe false
+        meta.principals().isAnyLocalService shouldBe false
+        meta.principals().get().asScala should have size 0
+      }
+    }
   }
 
   private def metadata(entries: (String, String)*): Metadata = {

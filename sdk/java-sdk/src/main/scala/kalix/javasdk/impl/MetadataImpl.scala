@@ -16,15 +16,15 @@
 
 package kalix.javasdk.impl
 
-import kalix.javasdk.{CloudEvent, JwtClaims, Metadata, Principal, Principals}
+import kalix.javasdk.{ CloudEvent, JwtClaims, Metadata, Principal, Principals }
 import kalix.protocol.component.MetadataEntry
 import com.google.protobuf.ByteString
 import java.net.URI
 import java.nio.ByteBuffer
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
-import java.{lang, util}
-import java.util.{Objects, Optional}
+import java.{ lang, util }
+import java.util.{ Objects, Optional }
 
 import kalix.javasdk.impl.MetadataImpl.JwtClaimPrefix
 
@@ -209,8 +209,8 @@ private[kalix] class MetadataImpl(val entries: Seq[MetadataEntry]) extends Metad
     override def getLocalService: Optional[String] = svc.asJava
     override def get(): util.Collection[Principal] = {
       (src.collect {
-        case "internet" => Principal.INTERNET
-        case "self" => Principal.SELF
+        case "internet"   => Principal.INTERNET
+        case "self"       => Principal.SELF
         case "backoffice" => Principal.BACKOFFICE
       } ++ svc.map(Principal.localService)).asJavaCollection
     }
