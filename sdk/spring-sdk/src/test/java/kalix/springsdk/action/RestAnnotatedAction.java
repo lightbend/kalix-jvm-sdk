@@ -17,14 +17,27 @@
 package kalix.springsdk.action;
 
 import kalix.javasdk.action.Action;
+import org.springframework.web.bind.annotation.*;
 
-public class EchoAction extends Action {
+public class RestAnnotatedAction extends Action {
 
-  public Effect<Number> echoNumber(Number number) {
-    return effects().reply(number);
+  @PostMapping("/post/message")
+  public Effect<Message> postNumber(Message msg) {
+    return effects().reply(msg);
   }
 
-  public Effect<Message> echoMessage(Message number) {
-    return effects().reply(number);
+  @GetMapping("/get/message")
+  public Effect<Message> getMessage(Message msg) {
+    return effects().reply(msg);
+  }
+
+  @PutMapping("/put/message")
+  public Effect<Message> putMessage(Message msg) {
+    return effects().reply(msg);
+  }
+
+  @PatchMapping("/patch/message")
+  public Effect<Message> patchMessage(Message msg) {
+    return effects().reply(msg);
   }
 }
