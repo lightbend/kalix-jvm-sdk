@@ -16,10 +16,17 @@
 
 package kalix.scalasdk.testkit.impl
 
-final class TestKitMockRegistry(mocks: Map[Class[_], Any]) {
-  def get[T](key: Class[T]): Option[T] = mocks.get(key).map(key.cast)
+/**
+ * This class is meant to hold mocks used in unit testing cross-component calls
+ * @param mocks
+ *   set of mocks or stubs that will be matched by the class upon an external call within a component
+ */
+final class TestKitMockRegistry(mocks: Set[Any]) {
+  def get[T](key: Class[T]): Option[T] = mocks.collectFirst {
+    case m if m.getClass.getAnnotatedInterfaces.exists(_.getType == key) => key.cast(m)
+  }
 }
 
 object TestKitMockRegistry {
-  val empty = new TestKitMockRegistry(Map.empty)
+  val empty = new TestKitMockRegistry(Set.empty)
 }

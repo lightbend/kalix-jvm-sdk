@@ -53,7 +53,6 @@ final class TestKitActionContext(metadata: Metadata, mockRegistry: TestKitMockRe
 
   override def eventSubject() = metadata.get("ce-subject")
 
-  override def getGrpcClient[T](clientClass: Class[T], service: String): T =
-    throw new UnsupportedOperationException("Testing logic using a gRPC client is not possible with the testkit")
+  override def getGrpcClient[T](clientClass: Class[T], service: String): T = getComponentGrpcClient(clientClass)
 
 }

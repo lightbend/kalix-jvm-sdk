@@ -18,6 +18,11 @@ package kalix.javasdk.testkit.impl
 
 import scala.jdk.CollectionConverters._
 
+/**
+ * This class is meant to hold mocks used in unit testing cross-component calls
+ * @param mocks
+ *   set of mocks or stubs that will be matched by the class upon an external call within a component
+ */
 final class TestKitMockRegistry private (mocks: Map[Class[_], Any]) {
 
   def this(mocks: java.util.Map[Class[_], Any]) {
