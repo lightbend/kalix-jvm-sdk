@@ -21,11 +21,11 @@ import kalix.javasdk.action.Action;
 import kalix.javasdk.action.ActionCreationContext;
 import kalix.javasdk.action.ActionOptions;
 import kalix.javasdk.action.ActionProvider;
-import kalix.serializer.JacksonProtobufSerializer;
 import kalix.springsdk.impl.action.ActionReflectiveRouter;
 import kalix.javasdk.impl.action.ActionRouter;
 import kalix.serializer.Serializer;
 import kalix.springsdk.impl.ProtoDescriptorGenerator;
+import kalix.springsdk.impl.serializer.GeneratedProtobufSerializer;
 
 import java.util.Map;
 import java.util.function.Function;
@@ -74,7 +74,7 @@ public class ReflectiveActionProvider<A extends Action> implements ActionProvide
 
   @Override
   public Map<Class<?>, Serializer> additionalSerializers() {
-    return JacksonProtobufSerializer.buildSerializersJava(
+    return GeneratedProtobufSerializer.buildSerializersJava(
         getClass().getClassLoader(), fileDescriptor);
   }
 }
