@@ -79,11 +79,10 @@ class DiscoveryImpl(system: ActorSystem, services: Map[String, Service]) extends
       proxyTerminatedRef.getAndSet(proxyTerminatedPromise).trySuccess(Done)
 
       log.info(
-        "Received discovery call from [{} {}]{} supporting Kalix protocol {}.{}",
+        "Received discovery call from [{} {}] at [{}] supporting Kalix protocol {}.{}",
         in.proxyName,
         in.proxyVersion,
-        if (in.deploymentName.isEmpty) { "" }
-        else { s" at [${in.deploymentName}]" }, // added in protocol 0.7.4
+        in.proxyHostname,
         in.protocolMajorVersion,
         in.protocolMinorVersion)
       log.debug(s"Supported sidecar entity types: {}", in.supportedEntityTypes.mkString("[", ",", "]"))
@@ -93,9 +92,7 @@ class DiscoveryImpl(system: ActorSystem, services: Map[String, Service]) extends
       }
 
       // pass the deployed name of the service on to GrpcClients for cross component calls
-      if (in.deploymentName.nonEmpty) {
-        GrpcClients.get(system).setSelfServiceName(in.deploymentName)
-      }
+      GrpcClients.get(system).setSelfServiceName(in.proxyHostname)
 
       if (unsupportedServices.nonEmpty) {
         log.error(
