@@ -156,19 +156,9 @@ abstract class Action {
 
   /**
    * An ExecutionContext to use when composing Futures inside Actions.
-   *
-   * Note that this ExecutionContext is only available when handling a message. It will throw an exception if accessed
-   * from constructor.
    */
-  implicit lazy val executionContext: ExecutionContext = {
-    actionContext("ExecutionContext is only available when handling a message") match {
-      case ScalaActionContextAdapter(actionContext: ActionContextImpl) => actionContext.system.dispatcher
-      // should not happen as we always need to pass ScalaActionContextAdapter(ActionContextImpl)
-      case other =>
-        throw new RuntimeException(
-          s"Incompatible ActionContext instance. Found ${other.getClass}, expecting ${classOf[ActionContextImpl].getName}")
-    }
-  }
+  implicit def executionContext: ExecutionContext =
+    scala.concurrent.ExecutionContext.Implicits.global
 
   /**
    * Additional context and metadata for a message handler.
