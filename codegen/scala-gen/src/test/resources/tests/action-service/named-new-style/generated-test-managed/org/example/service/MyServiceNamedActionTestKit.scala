@@ -8,6 +8,7 @@ import kalix.scalasdk.action.ActionCreationContext
 import kalix.scalasdk.testkit.ActionResult
 import kalix.scalasdk.testkit.impl.ActionResultImpl
 import kalix.scalasdk.testkit.impl.TestKitActionContext
+import kalix.scalasdk.testkit.impl.TestKitMockRegistry
 
 // This code is managed by Kalix tooling.
 // It will be re-generated to reflect any changes to your protobuf definitions.
@@ -22,15 +23,15 @@ object MyServiceNamedActionTestKit {
    * @param entityFactory A function that creates a MyServiceNamedAction based on the given ActionCreationContext
    * @param mockRegistry A map of mocks (Class -> mock) that provides control and the ability to test the dependencies on another components / services
    */
-  def apply(actionFactory: ActionCreationContext => MyServiceNamedAction): MyServiceNamedActionTestKit =
-    new MyServiceNamedActionTestKit(actionFactory)
+  def apply(actionFactory: ActionCreationContext => MyServiceNamedAction, mockRegistry: TestKitMockRegistry = TestKitMockRegistry.empty): MyServiceNamedActionTestKit =
+    new MyServiceNamedActionTestKit(actionFactory, mockRegistry)
 
 }
 
 /**
  * TestKit for unit testing MyServiceNamedAction
  */
-final class MyServiceNamedActionTestKit private(actionFactory: ActionCreationContext => MyServiceNamedAction) {
+final class MyServiceNamedActionTestKit private(actionFactory: ActionCreationContext => MyServiceNamedAction, mockRegistry: TestKitMockRegistry) {
 
   private def newActionInstance(context: TestKitActionContext) = {
     val action = actionFactory(context)
@@ -39,22 +40,22 @@ final class MyServiceNamedActionTestKit private(actionFactory: ActionCreationCon
   }
 
   def simpleMethod(command: MyRequest, metadata: Metadata = Metadata.empty): ActionResult[Empty] = {
-    val context = new TestKitActionContext(metadata)
+    val context = new TestKitActionContext(metadata, mockRegistry)
     new ActionResultImpl(newActionInstance(context).simpleMethod(command))
   }
 
   def streamedOutputMethod(command: MyRequest, metadata: Metadata = Metadata.empty): Source[ActionResult[Empty], akka.NotUsed] = {
-    val context = new TestKitActionContext(metadata)
+    val context = new TestKitActionContext(metadata, mockRegistry)
     newActionInstance(context).streamedOutputMethod(command).map(effect => new ActionResultImpl(effect))
   }
 
   def streamedInputMethod(command: Source[MyRequest, akka.NotUsed], metadata: Metadata = Metadata.empty): ActionResult[Empty] = {
-    val context = new TestKitActionContext(metadata)
+    val context = new TestKitActionContext(metadata, mockRegistry)
     new ActionResultImpl(newActionInstance(context).streamedInputMethod(command))
   }
 
   def fullStreamedMethod(command: Source[MyRequest, akka.NotUsed], metadata: Metadata = Metadata.empty): Source[ActionResult[Empty], akka.NotUsed] = {
-    val context = new TestKitActionContext(metadata)
+    val context = new TestKitActionContext(metadata, mockRegistry)
     newActionInstance(context).fullStreamedMethod(command).map(effect => new ActionResultImpl(effect))
   }
 }

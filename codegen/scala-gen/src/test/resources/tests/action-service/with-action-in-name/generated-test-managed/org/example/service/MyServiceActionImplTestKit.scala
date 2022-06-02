@@ -6,6 +6,7 @@ import kalix.scalasdk.action.ActionCreationContext
 import kalix.scalasdk.testkit.ActionResult
 import kalix.scalasdk.testkit.impl.ActionResultImpl
 import kalix.scalasdk.testkit.impl.TestKitActionContext
+import kalix.scalasdk.testkit.impl.TestKitMockRegistry
 
 // This code is managed by Kalix tooling.
 // It will be re-generated to reflect any changes to your protobuf definitions.
@@ -18,16 +19,17 @@ object MyServiceActionImplTestKit {
   /**
    * Create a testkit instance of MyServiceActionImpl
    * @param entityFactory A function that creates a MyServiceActionImpl based on the given ActionCreationContext
+   * @param mockRegistry A map of mocks (Class -> mock) that provides control and the ability to test the dependencies on another components / services
    */
-  def apply(actionFactory: ActionCreationContext => MyServiceActionImpl): MyServiceActionImplTestKit =
-    new MyServiceActionImplTestKit(actionFactory)
+  def apply(actionFactory: ActionCreationContext => MyServiceActionImpl, mockRegistry: TestKitMockRegistry = TestKitMockRegistry.empty): MyServiceActionImplTestKit =
+    new MyServiceActionImplTestKit(actionFactory, mockRegistry)
 
 }
 
 /**
  * TestKit for unit testing MyServiceActionImpl
  */
-final class MyServiceActionImplTestKit private(actionFactory: ActionCreationContext => MyServiceActionImpl) {
+final class MyServiceActionImplTestKit private(actionFactory: ActionCreationContext => MyServiceActionImpl, mockRegistry: TestKitMockRegistry) {
 
   private def newActionInstance(context: TestKitActionContext) = {
     val action = actionFactory(context)
@@ -36,7 +38,7 @@ final class MyServiceActionImplTestKit private(actionFactory: ActionCreationCont
   }
 
   def simpleMethod(command: MyRequest, metadata: Metadata = Metadata.empty): ActionResult[Empty] = {
-    val context = new TestKitActionContext(metadata)
+    val context = new TestKitActionContext(metadata, mockRegistry)
     new ActionResultImpl(newActionInstance(context).simpleMethod(command))
   }
 }
