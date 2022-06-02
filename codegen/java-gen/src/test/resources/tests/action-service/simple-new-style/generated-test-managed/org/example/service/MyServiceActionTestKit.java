@@ -9,6 +9,7 @@ import kalix.javasdk.impl.action.ActionEffectImpl;
 import kalix.javasdk.testkit.ActionResult;
 import kalix.javasdk.testkit.impl.ActionResultImpl;
 import kalix.javasdk.testkit.impl.TestKitActionContext;
+import kalix.javasdk.testkit.impl.TestKitMockRegistry;
 import org.example.service.MyServiceAction;
 import org.example.service.ServiceOuterClass;
 import org.external.ExternalDomain;
@@ -26,6 +27,8 @@ public final class MyServiceActionTestKit {
 
   private Function<ActionCreationContext, MyServiceAction> actionFactory;
 
+  private TestKitMockRegistry mockRegistry;
+
   private MyServiceAction createAction(TestKitActionContext context) {
     MyServiceAction action = actionFactory.apply(context);
     action._internalSetActionContext(Optional.of(context));
@@ -33,11 +36,16 @@ public final class MyServiceActionTestKit {
   }
 
   public static MyServiceActionTestKit of(Function<ActionCreationContext, MyServiceAction> actionFactory) {
-    return new MyServiceActionTestKit(actionFactory);
+    return new MyServiceActionTestKit(actionFactory, TestKitMockRegistry.empty());
   }
 
-  private MyServiceActionTestKit(Function<ActionCreationContext, MyServiceAction> actionFactory) {
+  public static MyServiceActionTestKit of(Function<ActionCreationContext, MyServiceAction> actionFactory, TestKitMockRegistry mockRegistry) {
+    return new MyServiceActionTestKit(actionFactory, mockRegistry);
+  }
+
+  private MyServiceActionTestKit(Function<ActionCreationContext, MyServiceAction> actionFactory, TestKitMockRegistry mockRegistry) {
     this.actionFactory = actionFactory;
+    this.mockRegistry = mockRegistry;
   }
 
   private <E> ActionResult<E> interpretEffects(Effect<E> effect) {
@@ -45,25 +53,25 @@ public final class MyServiceActionTestKit {
   }
 
   public ActionResult<ExternalDomain.Empty> simpleMethod(ServiceOuterClass.MyRequest myRequest, Metadata metadata) {
-    TestKitActionContext context = new TestKitActionContext(metadata);
+    TestKitActionContext context = new TestKitActionContext(metadata, mockRegistry);
     Effect<ExternalDomain.Empty> effect = createAction(context).simpleMethod(myRequest);
     return interpretEffects(effect);
   }
 
   public Source<ActionResult<ExternalDomain.Empty>, akka.NotUsed> streamedOutputMethod(ServiceOuterClass.MyRequest myRequest, Metadata metadata) {
-    TestKitActionContext context = new TestKitActionContext(metadata);
+    TestKitActionContext context = new TestKitActionContext(metadata, mockRegistry);
     Source<Effect<ExternalDomain.Empty>, akka.NotUsed> effect = createAction(context).streamedOutputMethod(myRequest);
     return effect.map(e -> interpretEffects(e));
   }
 
   public ActionResult<ExternalDomain.Empty> streamedInputMethod(Source<ServiceOuterClass.MyRequest, akka.NotUsed> myRequest, Metadata metadata) {
-    TestKitActionContext context = new TestKitActionContext(metadata);
+    TestKitActionContext context = new TestKitActionContext(metadata, mockRegistry);
     Effect<ExternalDomain.Empty> effect = createAction(context).streamedInputMethod(myRequest);
     return interpretEffects(effect);
   }
 
   public Source<ActionResult<ExternalDomain.Empty>, akka.NotUsed> fullStreamedMethod(Source<ServiceOuterClass.MyRequest, akka.NotUsed> myRequest, Metadata metadata) {
-    TestKitActionContext context = new TestKitActionContext(metadata);
+    TestKitActionContext context = new TestKitActionContext(metadata, mockRegistry);
     Source<Effect<ExternalDomain.Empty>, akka.NotUsed> effect = createAction(context).fullStreamedMethod(myRequest);
     return effect.map(e -> interpretEffects(e));
   }

@@ -50,7 +50,8 @@ object ActionTestKitGenerator {
         "kalix.javasdk.testkit.ActionResult",
         "kalix.javasdk.testkit.impl.ActionResultImpl",
         "kalix.javasdk.impl.action.ActionEffectImpl",
-        "kalix.javasdk.testkit.impl.TestKitActionContext")
+        "kalix.javasdk.testkit.impl.TestKitActionContext",
+        "kalix.javasdk.testkit.impl.TestKitMockRegistry")
         ++ commandStreamedTypes(service.commands))
 
     val testKitClassName = s"${className}TestKit"
@@ -65,6 +66,8 @@ object ActionTestKitGenerator {
         |
         |  private Function<ActionCreationContext, $className> actionFactory;
         |
+        |  private TestKitMockRegistry mockRegistry;
+        |
         |  private $className createAction(TestKitActionContext context) {
         |    $className action = actionFactory.apply(context);
         |    action._internalSetActionContext(Optional.of(context));
@@ -72,11 +75,16 @@ object ActionTestKitGenerator {
         |  }
         |
         |  public static $testKitClassName of(Function<ActionCreationContext, $className> actionFactory) {
-        |    return new $testKitClassName(actionFactory);
+        |    return new $testKitClassName(actionFactory, TestKitMockRegistry.empty());
         |  }
         |
-        |  private $testKitClassName(Function<ActionCreationContext, $className> actionFactory) {
+        |  public static $testKitClassName of(Function<ActionCreationContext, $className> actionFactory, TestKitMockRegistry mockRegistry) {
+        |    return new $testKitClassName(actionFactory, mockRegistry);
+        |  }
+        |
+        |  private $testKitClassName(Function<ActionCreationContext, $className> actionFactory, TestKitMockRegistry mockRegistry) {
         |    this.actionFactory = actionFactory;
+        |    this.mockRegistry = mockRegistry;
         |  }
         |
         |  private <E> ActionResult<E> interpretEffects(Effect<E> effect) {
@@ -142,7 +150,7 @@ object ActionTestKitGenerator {
       .map { command =>
         s"""|public ${selectOutputResult(command)} ${lowerFirst(command.name)}(${selectInputType(command)} ${lowerFirst(
           command.inputType.protoName)}, Metadata metadata) {
-          |  TestKitActionContext context = new TestKitActionContext(metadata);
+          |  TestKitActionContext context = new TestKitActionContext(metadata, mockRegistry);
           |  ${selectOutputEffect(command)} effect = createAction(context).${lowerFirst(command.name)}(${lowerFirst(
           command.inputType.protoName)});
           |  return ${selectOutputReturn(command)}
