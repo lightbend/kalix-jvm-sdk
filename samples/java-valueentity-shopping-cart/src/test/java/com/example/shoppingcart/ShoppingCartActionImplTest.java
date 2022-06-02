@@ -1,5 +1,8 @@
 package com.example.shoppingcart;
 
+import com.example.shoppingcart.ShoppingCartApi.AddLineItem;
+import com.example.shoppingcart.ShoppingCartController.NewCart;
+import com.example.shoppingcart.ShoppingCartController.NewCartCreated;
 import com.google.protobuf.Empty;
 import kalix.javasdk.testkit.ActionResult;
 import kalix.javasdk.testkit.impl.TestKitMockRegistry;
@@ -43,13 +46,12 @@ public class ShoppingCartActionImplTest {
   public void initializeCartTest() throws ExecutionException, InterruptedException, TimeoutException {
     when(shoppingCartService.create(notNull()))
             .thenReturn(CompletableFuture.completedFuture(Empty.getDefaultInstance()));
+    var mockRegistry = new TestKitMockRegistry(Map.of(ShoppingCartService.class, shoppingCartService));
 
-    TestKitMockRegistry mockRegistry = new TestKitMockRegistry(Map.of(ShoppingCartService.class, shoppingCartService));
+    var testKit = ShoppingCartActionImplTestKit.of(ShoppingCartActionImpl::new, mockRegistry);
+    var result = testKit.initializeCart(NewCart.newBuilder().build());
 
-    ShoppingCartActionImplTestKit testKit = ShoppingCartActionImplTestKit.of(ShoppingCartActionImpl::new, mockRegistry);
-    ActionResult<ShoppingCartController.NewCartCreated> result = testKit.initializeCart(ShoppingCartController.NewCart.newBuilder().build());
-
-    CompletableFuture<ActionResult<ShoppingCartController.NewCartCreated>> asyncResult = (CompletableFuture<ActionResult<ShoppingCartController.NewCartCreated>>) result.getAsyncResult();
+    var asyncResult = (CompletableFuture<ActionResult<NewCartCreated>>) result.getAsyncResult();
     assertFalse(asyncResult.get(1, TimeUnit.SECONDS).getReply().getCartId().isEmpty());
   }
 
@@ -59,13 +61,15 @@ public class ShoppingCartActionImplTest {
             .thenReturn(CompletableFuture.completedFuture(Empty.getDefaultInstance()));
     when(shoppingCartService.addItem(any()))
             .thenReturn(CompletableFuture.completedFuture(Empty.getDefaultInstance()));
-    TestKitMockRegistry mockRegistry = new TestKitMockRegistry(Map.of(ShoppingCartService.class, shoppingCartService));
+    var mockRegistry = new TestKitMockRegistry(Map.of(ShoppingCartService.class, shoppingCartService));
 
-    ShoppingCartActionImplTestKit testKit = ShoppingCartActionImplTestKit.of(ShoppingCartActionImpl::new, mockRegistry);
-    ActionResult<ShoppingCartController.NewCartCreated> result = testKit.createPrePopulated(ShoppingCartController.NewCart.newBuilder().build());
-    ShoppingCartController.NewCartCreated reply = ((CompletableFuture<ActionResult<ShoppingCartController.NewCartCreated>>) result.getAsyncResult()).get(1, TimeUnit.SECONDS).getReply();
+    var service = ShoppingCartActionImplTestKit.of(ShoppingCartActionImpl::new, mockRegistry);
+    var result = service.createPrePopulated(NewCart.getDefaultInstance()).getAsyncResult();
+    var reply = ((CompletableFuture<ActionResult<NewCartCreated>>) result)
+            .get(1, TimeUnit.SECONDS)
+            .getReply();
 
-    ArgumentCaptor<ShoppingCartApi.AddLineItem> lineItem = ArgumentCaptor.forClass(ShoppingCartApi.AddLineItem.class);
+    ArgumentCaptor<AddLineItem> lineItem = ArgumentCaptor.forClass(AddLineItem.class);
     verify(shoppingCartService).addItem(lineItem.capture());
     assertEquals("eggplant", lineItem.getValue().getName());
     assertEquals(reply.getCartId(), lineItem.getValue().getCartId());

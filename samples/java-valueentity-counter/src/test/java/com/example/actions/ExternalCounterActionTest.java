@@ -1,12 +1,11 @@
 package com.example.actions;
 
-import com.example.CounterApi;
+import com.example.CounterApi.*;
 import com.example.CounterService;
 import com.google.protobuf.Empty;
 import kalix.javasdk.testkit.ActionResult;
 import kalix.javasdk.testkit.impl.TestKitMockRegistry;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -17,7 +16,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.notNull;
 import static org.mockito.Mockito.when;
 
@@ -49,8 +48,8 @@ public class ExternalCounterActionTest {
             .thenReturn(CompletableFuture.completedFuture(Empty.getDefaultInstance()));
     var mockRegistry = new TestKitMockRegistry(Map.of(CounterService.class, counterService));
 
-    ExternalCounterActionTestKit testKit = ExternalCounterActionTestKit.of(ExternalCounterAction::new, mockRegistry);
-    var result = testKit.increase(CounterApi.IncreaseValue.newBuilder().build());
+    var service = ExternalCounterActionTestKit.of(ExternalCounterAction::new, mockRegistry);
+    var result = service.increase(IncreaseValue.getDefaultInstance());
 
     var asyncResult = (CompletableFuture<ActionResult<Empty>>) result.getAsyncResult();
     assertNotNull(asyncResult.get(1, TimeUnit.SECONDS).getReply());
