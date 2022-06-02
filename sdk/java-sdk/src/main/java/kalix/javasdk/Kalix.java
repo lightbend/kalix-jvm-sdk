@@ -18,6 +18,8 @@ package kalix.javasdk;
 
 import akka.Done;
 import akka.actor.ActorSystem;
+import com.google.protobuf.Descriptors;
+import com.typesafe.config.Config;
 import kalix.javasdk.action.ActionProvider;
 import kalix.javasdk.eventsourcedentity.EventSourcedEntity;
 import kalix.javasdk.eventsourcedentity.EventSourcedEntityOptions;
@@ -40,10 +42,9 @@ import kalix.javasdk.valueentity.ValueEntityOptions;
 import kalix.javasdk.valueentity.ValueEntityProvider;
 import kalix.javasdk.view.ViewProvider;
 import kalix.replicatedentity.ReplicatedData;
-import com.google.protobuf.Descriptors;
-import com.typesafe.config.Config;
 import kalix.serializer.Serializer;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -425,7 +426,7 @@ public final class Kalix {
   }
 
   private AnySupport newAnySupport(Descriptors.FileDescriptor[] descriptors) {
-    return new AnySupport(descriptors, classLoader, typeUrlPrefix, prefer, new HashMap<>());
+    return new AnySupport(descriptors, classLoader, typeUrlPrefix, prefer, Collections.emptyMap());
   }
 
   private AnySupport newAnySupport(
