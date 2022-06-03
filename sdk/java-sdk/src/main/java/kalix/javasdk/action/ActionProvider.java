@@ -21,6 +21,7 @@ import kalix.javasdk.impl.action.ActionRouter;
 import com.google.protobuf.Descriptors;
 import kalix.serializer.Serializer;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -40,6 +41,6 @@ public interface ActionProvider<A extends Action> {
   Descriptors.FileDescriptor[] additionalDescriptors();
 
   default Map<Class<?>, Serializer> additionalSerializers() {
-    return new HashMap<>();
+    return Collections.emptyMap();
   }
 }
