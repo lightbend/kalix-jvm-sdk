@@ -19,9 +19,8 @@ package kalix.springsdk.impl
 import com.google.protobuf.Descriptors
 import kalix.javasdk.impl.AnySupport
 import kalix.serializer.Serializer
-import kalix.springsdk.action.EchoAction
 import kalix.springsdk.action.Message
-import kalix.springsdk.action.Number
+import kalix.springsdk.action.RestAnnotatedAction
 import kalix.springsdk.impl.serializer.GeneratedProtobufSerializer
 import org.scalatest.OptionValues
 import org.scalatest.matchers.should.Matchers
@@ -36,15 +35,10 @@ class AnySupportWithGeneratedProtobufSerializerSpec extends AnyWordSpec with Mat
 
     "serialize and deserializer Jackson type to proto" in {
 
-      val descriptor = ProtoDescriptorGenerator.generateFileDescriptorAction(classOf[EchoAction])
+      val descriptor = ProtoDescriptorGenerator.generateFileDescriptorAction(classOf[RestAnnotatedAction])
       val serializers = GeneratedProtobufSerializer.buildSerializers(getClass.getClassLoader, descriptor)
 
       val anySupportWithSerializer = newAnySupport(Array(descriptor), serializers)
-
-      val number = new Number(10)
-      val encodedNumber = anySupportWithSerializer.encodeScala(number)
-      val decodedNumber = anySupportWithSerializer.decodeMessage(encodedNumber).asInstanceOf[Number]
-      decodedNumber.value shouldBe number.value
 
       val message = new Message("foo")
       val encodedMsg = anySupportWithSerializer.encodeScala(message)

@@ -18,7 +18,7 @@ package kalix.springsdk.impl
 
 import scala.jdk.CollectionConverters.ListHasAsScala
 
-import kalix.springsdk.action.EchoAction
+import kalix.springsdk.action.RestAnnotatedAction
 import org.scalatest.OptionValues
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
@@ -27,26 +27,28 @@ class ProtoDescriptorGeneratorSpec extends AnyWordSpecLike with Matchers with Op
 
   "ProtoDescriptorGenerator" should {
     "generate a descriptor from an Action class" in {
-      val descriptor = ProtoDescriptorGenerator.generateFileDescriptorAction(classOf[EchoAction])
 
+      val descriptor = ProtoDescriptorGenerator.generateFileDescriptorAction(classOf[RestAnnotatedAction])
       // very simplistic test to start with
       val service = descriptor.getServices.get(0)
-      service.getName shouldBe "EchoAction"
+      service.getName shouldBe "RestAnnotatedAction"
 
-      service.getMethods.size() shouldBe 2
+      service.getMethods.size() shouldBe 4
 
       val sortedMethods = service.getMethods.asScala.sortBy(_.getFullName)
 
-      {
-        val method = sortedMethods.head
+      sortedMethods.foreach { method =>
+
         method.getInputType.getFullName shouldBe "kalix.springsdk.action.Message"
         method.getOutputType.getFullName shouldBe "kalix.springsdk.action.Message"
-      }
 
-      {
-        val method = sortedMethods(1)
-        method.getInputType.getFullName shouldBe "kalix.springsdk.action.Number"
-        method.getOutputType.getFullName shouldBe "kalix.springsdk.action.Number"
+        val httpOptions = method.getOptions.getExtension(com.google.api.AnnotationsProto.http)
+        method.getName match {
+          case "PostNumber"   => httpOptions.getPost shouldBe "/post/message"
+          case "GetMessage"   => httpOptions.getGet shouldBe "/get/message"
+          case "PutMessage"   => httpOptions.getPut shouldBe "/put/message"
+          case "PatchMessage" => httpOptions.getPatch shouldBe "/patch/message"
+        }
       }
 
     }

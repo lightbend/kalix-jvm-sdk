@@ -4,6 +4,8 @@ import kalix.javasdk.action.Action;
 
 import java.util.function.Predicate;
 
+import org.springframework.web.bind.annotation.PostMapping;
+
 public class FibonacciAction extends Action { 
 
   private boolean isFibonacci(long num) {  // <1>
@@ -13,12 +15,12 @@ public class FibonacciAction extends Action {
     };
     return isPerfectSquare.test(5*num*num + 4) || isPerfectSquare.test(5*num*num - 4);
   }
-
   private long nextFib(long num) {
     double result = num * (1 + Math.sqrt(5)) / 2.0;
     return Math.round(result);
   }
 
+  @PostMapping("/next/number")
   public Effect<Number> nextNumber(Number number) {
     long num = number.value;
     if (isFibonacci(num)) {
