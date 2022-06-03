@@ -16,37 +16,26 @@
 
 package kalix.javasdk.testkit.impl;
 
-import kalix.javasdk.action.ActionContext
-
-import java.util.{ HashMap, Optional }
-import java.nio.ByteBuffer
-import kalix.javasdk.action.ActionCreationContext
 import kalix.javasdk.Metadata
-import scala.collection.convert.ImplicitConversions._
-import java.util.Optional
-import java.util.concurrent.CompletionStage
-
-import akka.Done
-import kalix.javasdk.DeferredCall
-import kalix.javasdk.action.ActionContext
-import kalix.javasdk.action.ActionCreationContext
+import kalix.javasdk.action.{ ActionContext, ActionCreationContext }
 import kalix.javasdk.impl.InternalContext
+import kalix.javasdk.testkit.TestKitMockRegistry
 
 /**
  * INTERNAL API Used by the generated testkit
  */
-final class TestKitActionContext(metadata: Metadata, mockRegistry: TestKitMockRegistry = TestKitMockRegistry.empty)
+final class TestKitActionContext(metadata: Metadata, mockRegistry: TestKitMockRegistry = TestKitMockRegistry.EMPTY)
     extends AbstractTestKitContext(mockRegistry)
     with ActionContext
     with ActionCreationContext
     with InternalContext {
 
   def this() {
-    this(Metadata.EMPTY, TestKitMockRegistry.empty)
+    this(Metadata.EMPTY, TestKitMockRegistry.EMPTY)
   }
 
   def this(metadata: Metadata) {
-    this(metadata, TestKitMockRegistry.empty)
+    this(metadata, TestKitMockRegistry.EMPTY)
   }
 
   override def metadata() = metadata

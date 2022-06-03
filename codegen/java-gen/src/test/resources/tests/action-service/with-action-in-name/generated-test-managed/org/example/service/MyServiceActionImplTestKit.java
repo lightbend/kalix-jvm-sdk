@@ -8,7 +8,7 @@ import kalix.javasdk.impl.action.ActionEffectImpl;
 import kalix.javasdk.testkit.ActionResult;
 import kalix.javasdk.testkit.impl.ActionResultImpl;
 import kalix.javasdk.testkit.impl.TestKitActionContext;
-import kalix.javasdk.testkit.impl.TestKitMockRegistry;
+import kalix.javasdk.testkit.TestKitMockRegistry;
 import org.example.service.MyServiceActionImpl;
 import org.example.service.ServiceOuterClass;
 
@@ -34,7 +34,7 @@ public final class MyServiceActionImplTestKit {
   }
 
   public static MyServiceActionImplTestKit of(Function<ActionCreationContext, MyServiceActionImpl> actionFactory) {
-    return new MyServiceActionImplTestKit(actionFactory, TestKitMockRegistry.empty());
+    return new MyServiceActionImplTestKit(actionFactory, TestKitMockRegistry.EMPTY);
   }
 
   public static MyServiceActionImplTestKit of(Function<ActionCreationContext, MyServiceActionImpl> actionFactory, TestKitMockRegistry mockRegistry) {

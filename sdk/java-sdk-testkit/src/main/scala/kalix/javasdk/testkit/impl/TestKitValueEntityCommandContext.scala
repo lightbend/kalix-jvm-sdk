@@ -16,12 +16,9 @@
 
 package kalix.javasdk.testkit.impl
 
-import akka.stream.Materializer
 import kalix.javasdk.Metadata
-import kalix.javasdk.testkit.impl.AbstractTestKitContext
-import kalix.javasdk.valueentity.CommandContext
-import kalix.javasdk.valueentity.ValueEntityContext
-import kalix.javasdk.impl.InternalContext
+import kalix.javasdk.testkit.TestKitMockRegistry
+import kalix.javasdk.valueentity.{ CommandContext, ValueEntityContext }
 
 /**
  * INTERNAL API Used by the generated testkit
@@ -31,7 +28,7 @@ final class TestKitValueEntityCommandContext(
     override val commandName: String = "stubCommandName",
     override val commandId: Long = 0L,
     override val metadata: Metadata = Metadata.EMPTY,
-    mockRegistry: TestKitMockRegistry = TestKitMockRegistry.empty)
+    mockRegistry: TestKitMockRegistry = TestKitMockRegistry.EMPTY)
     extends AbstractTestKitContext(mockRegistry)
     with ValueEntityContext
     with CommandContext {

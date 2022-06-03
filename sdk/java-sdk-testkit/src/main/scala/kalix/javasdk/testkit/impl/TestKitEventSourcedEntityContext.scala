@@ -18,18 +18,19 @@ package kalix.javasdk.testkit.impl
 
 import akka.stream.Materializer
 import kalix.javasdk.eventsourcedentity.EventSourcedEntityContext
+import kalix.javasdk.testkit.TestKitMockRegistry
 
 /**
  * INTERNAL API Used by the generated testkit
  */
 final class TestKitEventSourcedEntityContext(
     override val entityId: String,
-    mockRegistry: TestKitMockRegistry = TestKitMockRegistry.empty)
+    mockRegistry: TestKitMockRegistry = TestKitMockRegistry.EMPTY)
     extends AbstractTestKitContext(mockRegistry)
     with EventSourcedEntityContext {
 
   def this(entityId: String) {
-    this(entityId, TestKitMockRegistry.empty)
+    this(entityId, TestKitMockRegistry.EMPTY)
   }
 
   override def materializer(): Materializer = throw new UnsupportedOperationException(

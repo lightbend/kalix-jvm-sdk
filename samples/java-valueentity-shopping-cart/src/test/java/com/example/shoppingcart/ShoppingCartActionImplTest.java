@@ -5,7 +5,7 @@ import com.example.shoppingcart.ShoppingCartController.NewCart;
 import com.example.shoppingcart.ShoppingCartController.NewCartCreated;
 import com.google.protobuf.Empty;
 import kalix.javasdk.testkit.ActionResult;
-import kalix.javasdk.testkit.impl.TestKitMockRegistry;
+import kalix.javasdk.testkit.TestKitMockRegistry;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -46,7 +46,7 @@ public class ShoppingCartActionImplTest {
   public void initializeCartTest() throws ExecutionException, InterruptedException, TimeoutException {
     when(shoppingCartService.create(notNull()))
             .thenReturn(CompletableFuture.completedFuture(Empty.getDefaultInstance()));
-    var mockRegistry = new TestKitMockRegistry(Map.of(ShoppingCartService.class, shoppingCartService));
+    var mockRegistry = TestKitMockRegistry.withMock(ShoppingCartService.class, shoppingCartService);
 
     var testKit = ShoppingCartActionImplTestKit.of(ShoppingCartActionImpl::new, mockRegistry);
     var result = testKit.initializeCart(NewCart.newBuilder().build());
@@ -61,7 +61,7 @@ public class ShoppingCartActionImplTest {
             .thenReturn(CompletableFuture.completedFuture(Empty.getDefaultInstance()));
     when(shoppingCartService.addItem(any()))
             .thenReturn(CompletableFuture.completedFuture(Empty.getDefaultInstance()));
-    var mockRegistry = new TestKitMockRegistry(Map.of(ShoppingCartService.class, shoppingCartService));
+    var mockRegistry = TestKitMockRegistry.withMock(ShoppingCartService.class, shoppingCartService);
 
     var service = ShoppingCartActionImplTestKit.of(ShoppingCartActionImpl::new, mockRegistry);
     var result = service.createPrePopulated(NewCart.getDefaultInstance()).getAsyncResult();

@@ -51,7 +51,7 @@ object ActionTestKitGenerator {
         "kalix.javasdk.testkit.impl.ActionResultImpl",
         "kalix.javasdk.impl.action.ActionEffectImpl",
         "kalix.javasdk.testkit.impl.TestKitActionContext",
-        "kalix.javasdk.testkit.impl.TestKitMockRegistry")
+        "kalix.javasdk.testkit.TestKitMockRegistry")
         ++ commandStreamedTypes(service.commands))
 
     val testKitClassName = s"${className}TestKit"
@@ -75,7 +75,7 @@ object ActionTestKitGenerator {
         |  }
         |
         |  public static $testKitClassName of(Function<ActionCreationContext, $className> actionFactory) {
-        |    return new $testKitClassName(actionFactory, TestKitMockRegistry.empty());
+        |    return new $testKitClassName(actionFactory, TestKitMockRegistry.EMPTY);
         |  }
         |
         |  public static $testKitClassName of(Function<ActionCreationContext, $className> actionFactory, TestKitMockRegistry mockRegistry) {

@@ -18,7 +18,7 @@ package kalix.scalasdk.testkit.impl
 
 import kalix.scalasdk.testkit.TestKitMockRegistry
 
-final class TestKitMockRegistryImpl(var mocks: Set[Any] = Set.empty) extends TestKitMockRegistry {
+private[kalix] class TestKitMockRegistryImpl(var mocks: Set[Any] = Set.empty) extends TestKitMockRegistry {
 
   override def withMock[T](instance: T): TestKitMockRegistry = {
     mocks = mocks + instance

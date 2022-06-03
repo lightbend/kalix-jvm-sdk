@@ -16,22 +16,32 @@
 
 package kalix.javasdk.testkit.impl
 
+import kalix.javasdk.testkit.TestKitMockRegistry
+
 import scala.jdk.CollectionConverters._
+import scala.jdk.OptionConverters.RichOption
 
 /**
  * This class is meant to hold mocks used in unit testing cross-component calls
- * @param mocks
- *   set of mocks or stubs that will be matched by the class upon an external call within a component
  */
-final class TestKitMockRegistry private (mocks: Map[Class[_], Any]) {
+private[kalix] class TestKitMockRegistryImpl(var mocks: Map[Class[_], Any]) extends TestKitMockRegistry {
 
   def this(mocks: java.util.Map[Class[_], Any]) {
     this(mocks.asScala.toMap)
   }
 
-  def get[T](key: Class[T]): Option[T] = mocks.get(key).map(key.cast)
+  override def get[T](key: Class[T]): java.util.Optional[T] =
+    mocks
+      .get(key)
+      .map(key.cast)
+      .toJava
+
+  override def addMock[T](clazz: Class[T], instance: T): TestKitMockRegistry = {
+    mocks = mocks + (clazz -> instance)
+    this
+  }
 }
 
-object TestKitMockRegistry {
-  val empty = new TestKitMockRegistry(Map.empty[Class[_], Any].asJava)
+object TestKitMockRegistryImpl {
+  val empty = new TestKitMockRegistryImpl(Map.empty[Class[_], Any])
 }

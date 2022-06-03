@@ -19,6 +19,9 @@ package kalix.javasdk.testkit.impl
 import akka.stream.Materializer
 import kalix.javasdk.Context
 import kalix.javasdk.impl.InternalContext
+import kalix.javasdk.testkit.TestKitMockRegistry
+
+import scala.jdk.OptionConverters.RichOptional
 
 class AbstractTestKitContext(mockRegistry: TestKitMockRegistry) extends Context with InternalContext {
 
@@ -28,6 +31,7 @@ class AbstractTestKitContext(mockRegistry: TestKitMockRegistry) extends Context 
   def getComponentGrpcClient[T](serviceClass: Class[T]): T =
     mockRegistry
       .get(serviceClass)
+      .toScala
       .getOrElse(throw new UnsupportedOperationException(
         s"Could not find mock for class $serviceClass. Hint: use ${classOf[TestKitMockRegistry].getName} to provide it."))
 
