@@ -22,8 +22,9 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
- * This trait is meant to allow for unit testing when a service has cross-component or cross-service calls. The set of
- * mocks or stubs will be matched by its class type upon a call of an external component or service.
+ * This trait is meant to allow for unit testing when a service has cross-component or cross-service
+ * calls. The set of mocks or stubs will be matched by its class type upon a call of an external
+ * component or service.
  */
 public interface TestKitMockRegistry {
   /**
