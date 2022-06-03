@@ -16,16 +16,35 @@
 
 package kalix.scalasdk.testkit
 
+import kalix.scalasdk.testkit.impl.TestKitMockRegistryImpl
+
 /**
- * This class is meant to hold mocks used in unit testing cross-component calls
- *
- * @param mocks
- *   set of mocks or stubs that will be matched by the class upon an external call within a component
+ * This trait is meant to allow for unit testing when a service has cross-component or cross-service calls. The set of
+ * mocks or stubs will be matched by its class type upon a call of an external component or service.
  */
 trait TestKitMockRegistry {
+
+  /**
+   * Return a new TestKitMockRegistry with the new mock added to previous ones.
+   *
+   * @param instance
+   *   the instance object to be used as a mock
+   * @tparam T
+   * @return
+   *   A copy of this TestKitMockRegistry.
+   */
   def withMock[T](instance: T): TestKitMockRegistry
 
-  private[kalix] def get[T](clazz: Class[T]): Option[T]
+  /**
+   * Retrieve the existing mock for a given class type.
+   *
+   * @param clazz
+   *   the class type to match on the set of mocks
+   * @tparam T
+   * @return
+   *   an Optional containing the existing mock for the given class type or None otherwise.
+   */
+  def get[T](clazz: Class[T]): Option[T]
 }
 
 object TestKitMockRegistry {
@@ -34,16 +53,4 @@ object TestKitMockRegistry {
   def of(set: Set[Any]): TestKitMockRegistry = new TestKitMockRegistryImpl(set)
 
   def withMock[T](instance: T): TestKitMockRegistry = new TestKitMockRegistryImpl(Set(instance))
-}
-
-final class TestKitMockRegistryImpl(var mocks: Set[Any] = Set.empty) extends TestKitMockRegistry {
-
-  override def withMock[T](instance: T): TestKitMockRegistry = {
-    mocks = mocks + instance
-    this
-  }
-
-  override def get[T](clazz: Class[T]): Option[T] = mocks.collectFirst {
-    case m if m.getClass.getAnnotatedInterfaces.exists(_.getType == clazz) => clazz.cast(m)
-  }
 }
