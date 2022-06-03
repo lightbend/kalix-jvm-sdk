@@ -7,9 +7,9 @@ import kalix.javasdk.action.Action.Effect;
 import kalix.javasdk.action.ActionCreationContext;
 import kalix.javasdk.impl.action.ActionEffectImpl;
 import kalix.javasdk.testkit.ActionResult;
+import kalix.javasdk.testkit.TestKitMockRegistry;
 import kalix.javasdk.testkit.impl.ActionResultImpl;
 import kalix.javasdk.testkit.impl.TestKitActionContext;
-import kalix.javasdk.testkit.TestKitMockRegistry;
 import org.example.service.MyServiceAction;
 import org.example.service.ServiceOuterClass;
 import org.external.ExternalDomain;
@@ -25,9 +25,9 @@ import java.util.function.Function;
 
 public final class MyServiceActionTestKit {
 
-  private Function<ActionCreationContext, MyServiceAction> actionFactory;
+  private final Function<ActionCreationContext, MyServiceAction> actionFactory;
 
-  private TestKitMockRegistry mockRegistry;
+  private final TestKitMockRegistry mockRegistry;
 
   private MyServiceAction createAction(TestKitActionContext context) {
     MyServiceAction action = actionFactory.apply(context);

@@ -64,9 +64,9 @@ object ActionTestKitGenerator {
         |
         |public final class $testKitClassName {
         |
-        |  private Function<ActionCreationContext, $className> actionFactory;
+        |  private final Function<ActionCreationContext, $className> actionFactory;
         |
-        |  private TestKitMockRegistry mockRegistry;
+        |  private final TestKitMockRegistry mockRegistry;
         |
         |  private $className createAction(TestKitActionContext context) {
         |    $className action = actionFactory.apply(context);

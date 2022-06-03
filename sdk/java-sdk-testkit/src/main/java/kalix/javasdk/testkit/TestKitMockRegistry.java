@@ -22,44 +22,45 @@ import java.util.Map;
 import java.util.Optional;
 
 public interface TestKitMockRegistry {
-    /**
-     * Returns a new TestKitMockRegistry with the new mock added to previous ones.
-     *
-     * @param instance The instance object to be used as a mock
-     * @return A copy of this TestKitMockRegistry.
-     * @param <T>
-     */
-    <T> TestKitMockRegistry addMock(Class<T> clazz, T instance);
+  /**
+   * Returns a new TestKitMockRegistry with the new mock added to previous ones.
+   *
+   * @param instance The instance object to be used as a mock
+   * @return A copy of this TestKitMockRegistry.
+   * @param <T>
+   */
+  <T> TestKitMockRegistry addMock(Class<T> clazz, T instance);
 
-    /**
-     * Retrieves the existing mock for a given class type.
-     *
-     * @param clazz The class type to match on the set of mocks.
-     * @return An Optional containing the existing mock for the given class type or None otherwise.
-     * @param <T>
-     */
-    <T> Optional<T> get(Class<T> clazz);
+  /**
+   * Retrieves the existing mock for a given class type.
+   *
+   * @param clazz The class type to match on the set of mocks.
+   * @return An Optional containing the existing mock for the given class type or None otherwise.
+   * @param <T>
+   */
+  <T> Optional<T> get(Class<T> clazz);
 
-    /**
-     * Returns an instance of TestKitMockRegistry populated with the given set of mocks
-     *
-     * @param mocks the set of instances to serve as mocks
-     * @return a new instance of TestKitMockRegistry
-     */
-    static TestKitMockRegistry of(Map<Class<?>, Object> mocks) {
-        return new TestKitMockRegistryImpl(mocks);
-    }
+  /**
+   * Returns an instance of TestKitMockRegistry populated with the given set of mocks
+   *
+   * @param mocks the set of instances to serve as mocks
+   * @return a new instance of TestKitMockRegistry
+   */
+  static TestKitMockRegistry of(Map<Class<?>, Object> mocks) {
+    return new TestKitMockRegistryImpl(mocks);
+  }
 
-    /**
-     * Returns an instance of TestKitMockRegistry populated with the mock provided
-     * @param clazz the class type used to identify the mock
-     * @param instance the instance that will be used as a mock
-     * @return a new instance of TestKitMockRegistry
-     * @param <T>
-     */
-    static <T> TestKitMockRegistry withMock(Class<T> clazz, T instance) {
-        return new TestKitMockRegistryImpl(Map.of(clazz, instance));
-    }
+  /**
+   * Returns an instance of TestKitMockRegistry populated with the mock provided
+   *
+   * @param clazz the class type used to identify the mock
+   * @param instance the instance that will be used as a mock
+   * @return a new instance of TestKitMockRegistry
+   * @param <T>
+   */
+  static <T> TestKitMockRegistry withMock(Class<T> clazz, T instance) {
+    return new TestKitMockRegistryImpl(Map.of(clazz, instance));
+  }
 
-    TestKitMockRegistry EMPTY = TestKitMockRegistryImpl.empty();
+  TestKitMockRegistry EMPTY = TestKitMockRegistryImpl.empty();
 }
