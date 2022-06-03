@@ -16,11 +16,11 @@
 
 package kalix.scalasdk.testkit.impl
 
-import akka.stream.Materializer
 import kalix.scalasdk.Metadata
 import kalix.scalasdk.valueentity.CommandContext
 import kalix.scalasdk.valueentity.ValueEntityContext
 import kalix.scalasdk.impl.InternalContext
+import kalix.scalasdk.testkit.TestKitMockRegistry
 
 /**
  * INTERNAL API Used by the generated testkit

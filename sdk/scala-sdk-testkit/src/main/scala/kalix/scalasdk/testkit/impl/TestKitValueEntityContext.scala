@@ -17,6 +17,7 @@
 package kalix.scalasdk.testkit.impl
 
 import akka.stream.Materializer
+import kalix.scalasdk.testkit.TestKitMockRegistry
 import kalix.scalasdk.valueentity.ValueEntityContext
 
 /**

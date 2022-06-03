@@ -44,7 +44,7 @@ object ActionTestKitGenerator {
           "kalix.scalasdk.testkit.impl.ActionResultImpl",
           "kalix.scalasdk.action.ActionCreationContext",
           "kalix.scalasdk.testkit.impl.TestKitActionContext",
-          "kalix.scalasdk.testkit.impl.TestKitMockRegistry") ++ commandStreamedTypes(service.commands))
+          "kalix.scalasdk.testkit.TestKitMockRegistry") ++ commandStreamedTypes(service.commands))
 
     val actionClassName = service.className
 

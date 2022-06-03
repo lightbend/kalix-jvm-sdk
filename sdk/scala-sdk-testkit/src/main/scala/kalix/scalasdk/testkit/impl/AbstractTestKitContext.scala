@@ -19,6 +19,7 @@ package kalix.scalasdk.testkit.impl
 import akka.stream.Materializer
 import kalix.scalasdk.Context
 import kalix.scalasdk.impl.InternalContext
+import kalix.scalasdk.testkit.TestKitMockRegistry
 
 class AbstractTestKitContext(mockRegistry: TestKitMockRegistry) extends Context with InternalContext {
   override def materializer(): Materializer =

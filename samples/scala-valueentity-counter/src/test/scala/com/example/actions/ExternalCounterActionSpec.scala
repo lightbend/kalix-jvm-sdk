@@ -2,7 +2,7 @@ package com.example.actions
 
 import com.example.{CounterService, IncreaseValue}
 import com.google.protobuf.empty.Empty
-import kalix.scalasdk.testkit.impl.TestKitMockRegistry
+import kalix.scalasdk.testkit.TestKitMockRegistry
 import org.scalamock.scalatest.AsyncMockFactory
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AsyncWordSpec
@@ -27,7 +27,7 @@ class ExternalCounterActionSpec
       (mockCounter.increase _)
         .expects(*)
         .returning(Future.successful(Empty()))
-      val mockRegistry = new TestKitMockRegistry(Set(mockCounter))
+      val mockRegistry = TestKitMockRegistry.of(Set(mockCounter))
 
       val service = ExternalCounterActionTestKit(new ExternalCounterAction(_), mockRegistry)
 

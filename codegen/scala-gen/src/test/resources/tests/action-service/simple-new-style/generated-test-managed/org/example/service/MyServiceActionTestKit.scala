@@ -5,9 +5,9 @@ import akka.stream.scaladsl.Source
 import kalix.scalasdk.Metadata
 import kalix.scalasdk.action.ActionCreationContext
 import kalix.scalasdk.testkit.ActionResult
+import kalix.scalasdk.testkit.TestKitMockRegistry
 import kalix.scalasdk.testkit.impl.ActionResultImpl
 import kalix.scalasdk.testkit.impl.TestKitActionContext
-import kalix.scalasdk.testkit.impl.TestKitMockRegistry
 import org.external.Empty
 
 // This code is managed by Kalix tooling.

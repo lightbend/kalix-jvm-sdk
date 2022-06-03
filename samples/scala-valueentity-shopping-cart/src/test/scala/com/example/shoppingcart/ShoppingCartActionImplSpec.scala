@@ -1,10 +1,10 @@
 package com.example.shoppingcart
 
 import com.google.protobuf.empty.Empty
-import kalix.scalasdk.testkit.impl.TestKitMockRegistry
-import org.scalamock.scalatest.{AsyncMockFactory}
+import kalix.scalasdk.testkit.TestKitMockRegistry
+import org.scalamock.scalatest.AsyncMockFactory
 import org.scalatest.matchers.should.Matchers
-import org.scalatest.wordspec.{AsyncWordSpec}
+import org.scalatest.wordspec.AsyncWordSpec
 
 import scala.concurrent.Future
 
@@ -25,7 +25,7 @@ class ShoppingCartActionImplSpec
       (mockShoppingCart.create _)
         .expects(*)
         .returning(Future.successful(Empty.defaultInstance))
-      val mockRegistry = new TestKitMockRegistry(Set(mockShoppingCart))
+      val mockRegistry = TestKitMockRegistry.withMock(mockShoppingCart)
 
       val service = ShoppingCartActionImplTestKit(new ShoppingCartActionImpl(_), mockRegistry)
       val cartId = service.initializeCart(NewCart.defaultInstance).asyncResult
@@ -41,8 +41,7 @@ class ShoppingCartActionImplSpec
       (mockShoppingCart.addItem _)
         .when(where { li: AddLineItem => li.name == "eggplant"})
         .returns(Future.successful(Empty.defaultInstance))
-
-      val mockRegistry = new TestKitMockRegistry(Set(mockShoppingCart))
+      val mockRegistry = TestKitMockRegistry.withMock(mockShoppingCart)
 
       val service = ShoppingCartActionImplTestKit(new ShoppingCartActionImpl(_), mockRegistry)
       val cartId = service.createPrePopulated(NewCart.defaultInstance).asyncResult
