@@ -32,7 +32,7 @@ public interface TestKitMockRegistry {
    *
    * @param instance The instance object to be used as a mock
    * @return A copy of this TestKitMockRegistry.
-   * @param <T>
+   * @param <T> the service interface to be mocked
    */
   <T> TestKitMockRegistry addMock(Class<T> clazz, T instance);
 
@@ -41,7 +41,7 @@ public interface TestKitMockRegistry {
    *
    * @param clazz The class type to match on the set of mocks.
    * @return An Optional containing the existing mock for the given class type or None otherwise.
-   * @param <T>
+   * @param <T> the service interface to be mocked
    */
   <T> Optional<T> get(Class<T> clazz);
 
@@ -61,7 +61,7 @@ public interface TestKitMockRegistry {
    * @param clazz the class type used to identify the mock
    * @param instance the instance that will be used as a mock
    * @return a new instance of TestKitMockRegistry
-   * @param <T>
+   * @param <T> the service interface to be mocked
    */
   static <T> TestKitMockRegistry withMock(Class<T> clazz, T instance) {
     return new TestKitMockRegistryImpl(Map.of(clazz, instance));

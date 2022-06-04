@@ -30,6 +30,7 @@ trait TestKitMockRegistry {
    * @param instance
    *   the instance object to be used as a mock
    * @tparam T
+   *   the service interface to be mocked
    * @return
    *   A copy of this TestKitMockRegistry.
    */
@@ -41,6 +42,7 @@ trait TestKitMockRegistry {
    * @param clazz
    *   the class type to match on the set of mocks
    * @tparam T
+   *   the service interface to be mocked
    * @return
    *   an Optional containing the existing mock for the given class type or None otherwise.
    */
