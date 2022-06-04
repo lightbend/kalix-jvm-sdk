@@ -21,7 +21,7 @@ import kalix.javasdk.testkit.TestKitMockRegistry
 import scala.jdk.CollectionConverters._
 import scala.jdk.OptionConverters.RichOption
 
-private[kalix] class TestKitMockRegistryImpl(var mocks: Map[Class[_], Any]) extends TestKitMockRegistry {
+final class TestKitMockRegistryImpl(var mocks: Map[Class[_], Any]) extends TestKitMockRegistry {
 
   def this(mocks: java.util.Map[Class[_], Any]) {
     this(mocks.asScala.toMap)
