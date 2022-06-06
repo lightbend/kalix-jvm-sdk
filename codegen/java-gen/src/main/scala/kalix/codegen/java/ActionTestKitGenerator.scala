@@ -39,8 +39,6 @@ object ActionTestKitGenerator {
       commandTypes(service.commands),
       "",
       otherImports = Seq(
-        "java.util.ArrayList",
-        "java.util.List",
         "java.util.function.Function",
         "java.util.Optional",
         s"$packageName.$className",
@@ -49,7 +47,6 @@ object ActionTestKitGenerator {
         "kalix.javasdk.action.ActionCreationContext",
         "kalix.javasdk.testkit.ActionResult",
         "kalix.javasdk.testkit.impl.ActionResultImpl",
-        "kalix.javasdk.impl.action.ActionEffectImpl",
         "kalix.javasdk.testkit.impl.TestKitActionContext",
         "kalix.javasdk.testkit.MockRegistry")
         ++ commandStreamedTypes(service.commands))
