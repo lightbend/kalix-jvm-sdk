@@ -27,7 +27,7 @@ class ExternalCounterActionSpec
       (mockCounter.increase _)
         .expects(*)
         .returning(Future.successful(Empty()))
-      val mockRegistry = TestKitMockRegistry.of(Set(mockCounter))
+      val mockRegistry = TestKitMockRegistry.withMock(mockCounter)
 
       val service = ExternalCounterActionTestKit(new ExternalCounterAction(_), mockRegistry)
 

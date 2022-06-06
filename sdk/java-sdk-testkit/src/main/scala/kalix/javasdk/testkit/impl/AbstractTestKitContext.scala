@@ -33,6 +33,6 @@ class AbstractTestKitContext(mockRegistry: TestKitMockRegistry) extends Context 
       .get(serviceClass)
       .toScala
       .getOrElse(throw new UnsupportedOperationException(
-        s"Could not find mock for class $serviceClass. Hint: use ${classOf[TestKitMockRegistry].getName} to provide it."))
+        s"Could not find mock for component of type $serviceClass. Hint: use ${classOf[TestKitMockRegistry].getName} to provide an instance when testing services calling other components."))
 
 }

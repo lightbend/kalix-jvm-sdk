@@ -27,10 +27,10 @@ private[kalix] class TestKitMockRegistryImpl(var mocks: Map[Class[_], Any]) exte
     this(mocks.asScala.toMap)
   }
 
-  override def get[T](key: Class[T]): java.util.Optional[T] =
+  override def get[T](clazz: Class[T]): java.util.Optional[T] =
     mocks
-      .get(key)
-      .map(key.cast)
+      .get(clazz)
+      .map(clazz.cast)
       .toJava
 
   override def addMock[T](clazz: Class[T], instance: T): TestKitMockRegistry = {

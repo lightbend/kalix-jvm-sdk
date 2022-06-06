@@ -18,14 +18,16 @@ package kalix.scalasdk.testkit.impl
 
 import kalix.scalasdk.testkit.TestKitMockRegistry
 
-private[kalix] class TestKitMockRegistryImpl(var mocks: Set[Any] = Set.empty) extends TestKitMockRegistry {
+import scala.reflect.ClassTag
 
-  override def withMock[T](instance: T): TestKitMockRegistry = {
-    mocks = mocks + instance
+private[kalix] class TestKitMockRegistryImpl(var mocks: Map[Class[_], Any] = Map.empty) extends TestKitMockRegistry {
+
+  override def withMock[T](instance: T)(implicit expectedClass: ClassTag[T]): TestKitMockRegistry = {
+    mocks = mocks + (expectedClass.runtimeClass -> instance)
     this
   }
 
-  override def get[T](clazz: Class[T]): Option[T] = mocks.collectFirst {
-    case m if m.getClass.getAnnotatedInterfaces.exists(_.getType == clazz) => clazz.cast(m)
-  }
+  override def get[T](clazz: Class[T]): Option[T] = mocks
+    .get(clazz)
+    .map(clazz.cast)
 }
