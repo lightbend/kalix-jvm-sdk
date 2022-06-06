@@ -16,12 +16,11 @@
 
 package kalix.javasdk.testkit.impl
 
-import kalix.javasdk.testkit.TestKitMockRegistry
-
+import kalix.javasdk.testkit.MockRegistry
 import scala.jdk.CollectionConverters._
 import scala.jdk.OptionConverters.RichOption
 
-private[kalix] class TestKitMockRegistryImpl(var mocks: Map[Class[_], Any]) extends TestKitMockRegistry {
+private[kalix] class MockRegistryImpl(var mocks: Map[Class[_], Any]) extends MockRegistry {
 
   def this(mocks: java.util.Map[Class[_], Any]) {
     this(mocks.asScala.toMap)
@@ -33,12 +32,12 @@ private[kalix] class TestKitMockRegistryImpl(var mocks: Map[Class[_], Any]) exte
       .map(clazz.cast)
       .toJava
 
-  override def addMock[T](clazz: Class[T], instance: T): TestKitMockRegistry = {
+  override def addMock[T](clazz: Class[T], instance: T): MockRegistry = {
     mocks = mocks + (clazz -> instance)
     this
   }
 }
 
-object TestKitMockRegistryImpl {
-  val empty = new TestKitMockRegistryImpl(Map.empty[Class[_], Any])
+object MockRegistryImpl {
+  val empty = new MockRegistryImpl(Map.empty[Class[_], Any])
 }

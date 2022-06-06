@@ -4,16 +4,13 @@ import com.google.protobuf.Empty;
 import kalix.javasdk.Metadata;
 import kalix.javasdk.action.Action.Effect;
 import kalix.javasdk.action.ActionCreationContext;
-import kalix.javasdk.impl.action.ActionEffectImpl;
 import kalix.javasdk.testkit.ActionResult;
-import kalix.javasdk.testkit.TestKitMockRegistry;
+import kalix.javasdk.testkit.MockRegistry;
 import kalix.javasdk.testkit.impl.ActionResultImpl;
 import kalix.javasdk.testkit.impl.TestKitActionContext;
 import org.example.service.MyServiceActionImpl;
 import org.example.service.ServiceOuterClass;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 
@@ -25,7 +22,7 @@ public final class MyServiceActionImplTestKit {
 
   private final Function<ActionCreationContext, MyServiceActionImpl> actionFactory;
 
-  private final TestKitMockRegistry mockRegistry;
+  private final MockRegistry mockRegistry;
 
   private MyServiceActionImpl createAction(TestKitActionContext context) {
     MyServiceActionImpl action = actionFactory.apply(context);
@@ -34,14 +31,14 @@ public final class MyServiceActionImplTestKit {
   }
 
   public static MyServiceActionImplTestKit of(Function<ActionCreationContext, MyServiceActionImpl> actionFactory) {
-    return new MyServiceActionImplTestKit(actionFactory, TestKitMockRegistry.EMPTY);
+    return new MyServiceActionImplTestKit(actionFactory, MockRegistry.EMPTY);
   }
 
-  public static MyServiceActionImplTestKit of(Function<ActionCreationContext, MyServiceActionImpl> actionFactory, TestKitMockRegistry mockRegistry) {
+  public static MyServiceActionImplTestKit of(Function<ActionCreationContext, MyServiceActionImpl> actionFactory, MockRegistry mockRegistry) {
     return new MyServiceActionImplTestKit(actionFactory, mockRegistry);
   }
 
-  private MyServiceActionImplTestKit(Function<ActionCreationContext, MyServiceActionImpl> actionFactory, TestKitMockRegistry mockRegistry) {
+  private MyServiceActionImplTestKit(Function<ActionCreationContext, MyServiceActionImpl> actionFactory, MockRegistry mockRegistry) {
     this.actionFactory = actionFactory;
     this.mockRegistry = mockRegistry;
   }

@@ -16,7 +16,7 @@
 
 package kalix.javasdk.testkit;
 
-import kalix.javasdk.testkit.impl.TestKitMockRegistryImpl;
+import kalix.javasdk.testkit.impl.MockRegistryImpl;
 
 import java.util.Map;
 import java.util.Optional;
@@ -26,16 +26,16 @@ import java.util.Optional;
  * calls. The set of mocks or stubs will be matched by its class type upon a call of an external
  * component or service.
  */
-public interface TestKitMockRegistry {
+public interface MockRegistry {
   /**
-   * Returns a new TestKitMockRegistry with the new mock added to previous ones.
+   * Returns a new MockRegistry with the new mock added to previous ones.
    *
    * @param clazz The class type used to identify the mock.
    * @param instance The instance object to be used as a mock-
-   * @return A copy of this TestKitMockRegistry.
+   * @return A copy of this MockRegistry.
    * @param <T> The service interface to be mocked.
    */
-  <T> TestKitMockRegistry addMock(Class<T> clazz, T instance);
+  <T> MockRegistry addMock(Class<T> clazz, T instance);
 
   /**
    * Retrieves the existing mock for a given class type.
@@ -47,26 +47,26 @@ public interface TestKitMockRegistry {
   <T> Optional<T> get(Class<T> clazz);
 
   /**
-   * Returns an instance of TestKitMockRegistry populated with the given set of mocks
+   * Returns an instance of MockRegistry populated with the given set of mocks
    *
    * @param mocks the set of instances to serve as mocks
-   * @return a new instance of TestKitMockRegistry
+   * @return a new instance of MockRegistry
    */
-  static TestKitMockRegistry of(Map<Class<?>, Object> mocks) {
-    return new TestKitMockRegistryImpl(mocks);
+  static MockRegistry of(Map<Class<?>, Object> mocks) {
+    return new MockRegistryImpl(mocks);
   }
 
   /**
-   * Returns an instance of TestKitMockRegistry populated with the mock provided
+   * Returns an instance of MockRegistry populated with the mock provided
    *
    * @param clazz The class type used to identify the mock.
    * @param instance The instance that will be used as a mock.
-   * @return A new instance of TestKitMockRegistry.
+   * @return A new instance of MockRegistry.
    * @param <T> The service interface to be mocked.
    */
-  static <T> TestKitMockRegistry withMock(Class<T> clazz, T instance) {
-    return new TestKitMockRegistryImpl(Map.of(clazz, instance));
+  static <T> MockRegistry withMock(Class<T> clazz, T instance) {
+    return new MockRegistryImpl(Map.of(clazz, instance));
   }
 
-  TestKitMockRegistry EMPTY = TestKitMockRegistryImpl.empty();
+  MockRegistry EMPTY = MockRegistryImpl.empty();
 }

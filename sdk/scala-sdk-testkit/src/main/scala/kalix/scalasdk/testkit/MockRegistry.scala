@@ -16,7 +16,7 @@
 
 package kalix.scalasdk.testkit
 
-import kalix.scalasdk.testkit.impl.TestKitMockRegistryImpl
+import kalix.scalasdk.testkit.impl.MockRegistryImpl
 
 import scala.reflect.ClassTag
 
@@ -24,10 +24,10 @@ import scala.reflect.ClassTag
  * This trait is meant to allow for unit testing when a service has cross-component or cross-service calls. The set of
  * mocks or stubs will be matched by its class type upon a call of an external component or service.
  */
-trait TestKitMockRegistry {
+trait MockRegistry {
 
   /**
-   * Returns a new TestKitMockRegistry with the new mock added to previous ones.
+   * Returns a new MockRegistry with the new mock added to previous ones.
    *
    * @param instance
    *   The instance object to be used as a mock.
@@ -36,9 +36,9 @@ trait TestKitMockRegistry {
    * @tparam T
    *   The service interface to be mocked.
    * @return
-   *   A copy of this TestKitMockRegistry.
+   *   A copy of this MockRegistry.
    */
-  def withMock[T](instance: T)(implicit expectedClass: ClassTag[T]): TestKitMockRegistry
+  def withMock[T](instance: T)(implicit expectedClass: ClassTag[T]): MockRegistry
 
   /**
    * Retrieves the existing mock for a given class type.
@@ -53,21 +53,21 @@ trait TestKitMockRegistry {
   def get[T](clazz: Class[T]): Option[T]
 }
 
-object TestKitMockRegistry {
-  val empty = new TestKitMockRegistryImpl()
+object MockRegistry {
+  val empty = new MockRegistryImpl()
 
   /**
-   * Returns an instance of TestKitMockRegistry populated with the given set of mocks
+   * Returns an instance of MockRegistry populated with the given set of mocks
    *
    * @param mocks
    *   the set of instances to serve as mocks
    * @return
-   *   a new instance of TestKitMockRegistry
+   *   a new instance of MockRegistry
    */
-  def of(mocks: Map[Class[_], Any]): TestKitMockRegistry = new TestKitMockRegistryImpl(mocks)
+  def of(mocks: Map[Class[_], Any]): MockRegistry = new MockRegistryImpl(mocks)
 
   /**
-   * Returns a new TestKitMockRegistry with the new mock added to previous ones.
+   * Returns a new MockRegistry with the new mock added to previous ones.
    *
    * @param instance
    *   The instance object to be used as a mock.
@@ -76,8 +76,8 @@ object TestKitMockRegistry {
    * @tparam T
    *   The service interface to be mocked.
    * @return
-   *   A copy of this TestKitMockRegistry.
+   *   A copy of this MockRegistry.
    */
-  def withMock[T](instance: T)(implicit expectedClass: ClassTag[T]): TestKitMockRegistry =
-    new TestKitMockRegistryImpl(Map(expectedClass.runtimeClass -> instance))
+  def withMock[T](instance: T)(implicit expectedClass: ClassTag[T]): MockRegistry =
+    new MockRegistryImpl(Map(expectedClass.runtimeClass -> instance))
 }

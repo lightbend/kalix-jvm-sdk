@@ -16,13 +16,13 @@
 
 package kalix.scalasdk.testkit.impl
 
-import kalix.scalasdk.testkit.TestKitMockRegistry
+import kalix.scalasdk.testkit.MockRegistry
 
 import scala.reflect.ClassTag
 
-private[kalix] class TestKitMockRegistryImpl(var mocks: Map[Class[_], Any] = Map.empty) extends TestKitMockRegistry {
+private[kalix] class MockRegistryImpl(var mocks: Map[Class[_], Any] = Map.empty) extends MockRegistry {
 
-  override def withMock[T](instance: T)(implicit expectedClass: ClassTag[T]): TestKitMockRegistry = {
+  override def withMock[T](instance: T)(implicit expectedClass: ClassTag[T]): MockRegistry = {
     mocks = mocks + (expectedClass.runtimeClass -> instance)
     this
   }

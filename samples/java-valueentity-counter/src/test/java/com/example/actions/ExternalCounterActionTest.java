@@ -4,7 +4,7 @@ import com.example.CounterApi.*;
 import com.example.CounterService;
 import com.google.protobuf.Empty;
 import kalix.javasdk.testkit.ActionResult;
-import kalix.javasdk.testkit.TestKitMockRegistry;
+import kalix.javasdk.testkit.MockRegistry;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -46,7 +46,7 @@ public class ExternalCounterActionTest {
   public void increaseTest() throws ExecutionException, InterruptedException, TimeoutException {
     when(counterService.increase(notNull()))
             .thenReturn(CompletableFuture.completedFuture(Empty.getDefaultInstance()));
-    var mockRegistry = TestKitMockRegistry.withMock(CounterService.class, counterService);
+    var mockRegistry = MockRegistry.withMock(CounterService.class, counterService);
 
     var service = ExternalCounterActionTestKit.of(ExternalCounterAction::new, mockRegistry);
     var result = service.increase(IncreaseValue.getDefaultInstance());

@@ -51,7 +51,7 @@ object ActionTestKitGenerator {
         "kalix.javasdk.testkit.impl.ActionResultImpl",
         "kalix.javasdk.impl.action.ActionEffectImpl",
         "kalix.javasdk.testkit.impl.TestKitActionContext",
-        "kalix.javasdk.testkit.TestKitMockRegistry")
+        "kalix.javasdk.testkit.MockRegistry")
         ++ commandStreamedTypes(service.commands))
 
     val testKitClassName = s"${className}TestKit"
@@ -66,7 +66,7 @@ object ActionTestKitGenerator {
         |
         |  private final Function<ActionCreationContext, $className> actionFactory;
         |
-        |  private final TestKitMockRegistry mockRegistry;
+        |  private final MockRegistry mockRegistry;
         |
         |  private $className createAction(TestKitActionContext context) {
         |    $className action = actionFactory.apply(context);
@@ -75,14 +75,14 @@ object ActionTestKitGenerator {
         |  }
         |
         |  public static $testKitClassName of(Function<ActionCreationContext, $className> actionFactory) {
-        |    return new $testKitClassName(actionFactory, TestKitMockRegistry.EMPTY);
+        |    return new $testKitClassName(actionFactory, MockRegistry.EMPTY);
         |  }
         |
-        |  public static $testKitClassName of(Function<ActionCreationContext, $className> actionFactory, TestKitMockRegistry mockRegistry) {
+        |  public static $testKitClassName of(Function<ActionCreationContext, $className> actionFactory, MockRegistry mockRegistry) {
         |    return new $testKitClassName(actionFactory, mockRegistry);
         |  }
         |
-        |  private $testKitClassName(Function<ActionCreationContext, $className> actionFactory, TestKitMockRegistry mockRegistry) {
+        |  private $testKitClassName(Function<ActionCreationContext, $className> actionFactory, MockRegistry mockRegistry) {
         |    this.actionFactory = actionFactory;
         |    this.mockRegistry = mockRegistry;
         |  }

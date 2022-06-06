@@ -17,7 +17,7 @@
 package kalix.javasdk.testkit.impl
 
 import kalix.javasdk.Metadata
-import kalix.javasdk.testkit.TestKitMockRegistry
+import kalix.javasdk.testkit.MockRegistry
 import kalix.javasdk.valueentity.{ CommandContext, ValueEntityContext }
 
 /**
@@ -28,7 +28,7 @@ final class TestKitValueEntityCommandContext(
     override val commandName: String = "stubCommandName",
     override val commandId: Long = 0L,
     override val metadata: Metadata = Metadata.EMPTY,
-    mockRegistry: TestKitMockRegistry = TestKitMockRegistry.EMPTY)
+    mockRegistry: MockRegistry = MockRegistry.EMPTY)
     extends AbstractTestKitContext(mockRegistry)
     with ValueEntityContext
     with CommandContext {

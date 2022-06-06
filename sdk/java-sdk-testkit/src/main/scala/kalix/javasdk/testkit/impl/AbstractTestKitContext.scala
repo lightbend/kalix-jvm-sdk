@@ -19,11 +19,11 @@ package kalix.javasdk.testkit.impl
 import akka.stream.Materializer
 import kalix.javasdk.Context
 import kalix.javasdk.impl.InternalContext
-import kalix.javasdk.testkit.TestKitMockRegistry
+import kalix.javasdk.testkit.MockRegistry
 
 import scala.jdk.OptionConverters.RichOptional
 
-class AbstractTestKitContext(mockRegistry: TestKitMockRegistry) extends Context with InternalContext {
+class AbstractTestKitContext(mockRegistry: MockRegistry) extends Context with InternalContext {
 
   override def materializer(): Materializer = throw new UnsupportedOperationException(
     "Accessing the materializer from testkit not supported yet")
@@ -33,6 +33,6 @@ class AbstractTestKitContext(mockRegistry: TestKitMockRegistry) extends Context 
       .get(serviceClass)
       .toScala
       .getOrElse(throw new UnsupportedOperationException(
-        s"Could not find mock for component of type $serviceClass. Hint: use ${classOf[TestKitMockRegistry].getName} to provide an instance when testing services calling other components."))
+        s"Could not find mock for component of type $serviceClass. Hint: use ${classOf[MockRegistry].getName} to provide an instance when testing services calling other components."))
 
 }

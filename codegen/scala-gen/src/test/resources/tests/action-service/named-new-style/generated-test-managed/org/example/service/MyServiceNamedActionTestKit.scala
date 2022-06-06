@@ -6,7 +6,7 @@ import com.google.protobuf.empty.Empty
 import kalix.scalasdk.Metadata
 import kalix.scalasdk.action.ActionCreationContext
 import kalix.scalasdk.testkit.ActionResult
-import kalix.scalasdk.testkit.TestKitMockRegistry
+import kalix.scalasdk.testkit.MockRegistry
 import kalix.scalasdk.testkit.impl.ActionResultImpl
 import kalix.scalasdk.testkit.impl.TestKitActionContext
 
@@ -23,7 +23,7 @@ object MyServiceNamedActionTestKit {
    * @param entityFactory A function that creates a MyServiceNamedAction based on the given ActionCreationContext
    * @param mockRegistry A map of mocks (Class -> mock) that provides control and the ability to test the dependencies on another components / services
    */
-  def apply(actionFactory: ActionCreationContext => MyServiceNamedAction, mockRegistry: TestKitMockRegistry = TestKitMockRegistry.empty): MyServiceNamedActionTestKit =
+  def apply(actionFactory: ActionCreationContext => MyServiceNamedAction, mockRegistry: MockRegistry = MockRegistry.empty): MyServiceNamedActionTestKit =
     new MyServiceNamedActionTestKit(actionFactory, mockRegistry)
 
 }
@@ -31,7 +31,7 @@ object MyServiceNamedActionTestKit {
 /**
  * TestKit for unit testing MyServiceNamedAction
  */
-final class MyServiceNamedActionTestKit private(actionFactory: ActionCreationContext => MyServiceNamedAction, mockRegistry: TestKitMockRegistry) {
+final class MyServiceNamedActionTestKit private(actionFactory: ActionCreationContext => MyServiceNamedAction, mockRegistry: MockRegistry) {
 
   private def newActionInstance(context: TestKitActionContext) = {
     val action = actionFactory(context)

@@ -5,7 +5,7 @@ import akka.stream.scaladsl.Source
 import kalix.scalasdk.Metadata
 import kalix.scalasdk.action.ActionCreationContext
 import kalix.scalasdk.testkit.ActionResult
-import kalix.scalasdk.testkit.TestKitMockRegistry
+import kalix.scalasdk.testkit.MockRegistry
 import kalix.scalasdk.testkit.impl.ActionResultImpl
 import kalix.scalasdk.testkit.impl.TestKitActionContext
 import org.external.Empty
@@ -23,7 +23,7 @@ object MyServiceActionTestKit {
    * @param entityFactory A function that creates a MyServiceAction based on the given ActionCreationContext
    * @param mockRegistry A map of mocks (Class -> mock) that provides control and the ability to test the dependencies on another components / services
    */
-  def apply(actionFactory: ActionCreationContext => MyServiceAction, mockRegistry: TestKitMockRegistry = TestKitMockRegistry.empty): MyServiceActionTestKit =
+  def apply(actionFactory: ActionCreationContext => MyServiceAction, mockRegistry: MockRegistry = MockRegistry.empty): MyServiceActionTestKit =
     new MyServiceActionTestKit(actionFactory, mockRegistry)
 
 }
@@ -31,7 +31,7 @@ object MyServiceActionTestKit {
 /**
  * TestKit for unit testing MyServiceAction
  */
-final class MyServiceActionTestKit private(actionFactory: ActionCreationContext => MyServiceAction, mockRegistry: TestKitMockRegistry) {
+final class MyServiceActionTestKit private(actionFactory: ActionCreationContext => MyServiceAction, mockRegistry: MockRegistry) {
 
   private def newActionInstance(context: TestKitActionContext) = {
     val action = actionFactory(context)

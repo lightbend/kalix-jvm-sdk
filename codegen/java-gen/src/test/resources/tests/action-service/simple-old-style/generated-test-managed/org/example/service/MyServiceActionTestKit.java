@@ -5,17 +5,14 @@ import akka.stream.javadsl.Source;
 import kalix.javasdk.Metadata;
 import kalix.javasdk.action.Action.Effect;
 import kalix.javasdk.action.ActionCreationContext;
-import kalix.javasdk.impl.action.ActionEffectImpl;
 import kalix.javasdk.testkit.ActionResult;
-import kalix.javasdk.testkit.TestKitMockRegistry;
+import kalix.javasdk.testkit.MockRegistry;
 import kalix.javasdk.testkit.impl.ActionResultImpl;
 import kalix.javasdk.testkit.impl.TestKitActionContext;
 import org.example.service.MyServiceAction;
 import org.example.service.ServiceOuterClass;
 import org.external.ExternalDomain;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 
@@ -27,7 +24,7 @@ public final class MyServiceActionTestKit {
 
   private final Function<ActionCreationContext, MyServiceAction> actionFactory;
 
-  private final TestKitMockRegistry mockRegistry;
+  private final MockRegistry mockRegistry;
 
   private MyServiceAction createAction(TestKitActionContext context) {
     MyServiceAction action = actionFactory.apply(context);
@@ -36,14 +33,14 @@ public final class MyServiceActionTestKit {
   }
 
   public static MyServiceActionTestKit of(Function<ActionCreationContext, MyServiceAction> actionFactory) {
-    return new MyServiceActionTestKit(actionFactory, TestKitMockRegistry.EMPTY);
+    return new MyServiceActionTestKit(actionFactory, MockRegistry.EMPTY);
   }
 
-  public static MyServiceActionTestKit of(Function<ActionCreationContext, MyServiceAction> actionFactory, TestKitMockRegistry mockRegistry) {
+  public static MyServiceActionTestKit of(Function<ActionCreationContext, MyServiceAction> actionFactory, MockRegistry mockRegistry) {
     return new MyServiceActionTestKit(actionFactory, mockRegistry);
   }
 
-  private MyServiceActionTestKit(Function<ActionCreationContext, MyServiceAction> actionFactory, TestKitMockRegistry mockRegistry) {
+  private MyServiceActionTestKit(Function<ActionCreationContext, MyServiceAction> actionFactory, MockRegistry mockRegistry) {
     this.actionFactory = actionFactory;
     this.mockRegistry = mockRegistry;
   }

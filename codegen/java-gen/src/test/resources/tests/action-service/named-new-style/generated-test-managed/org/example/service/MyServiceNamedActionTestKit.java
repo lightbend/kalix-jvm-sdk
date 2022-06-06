@@ -6,16 +6,13 @@ import com.google.protobuf.Empty;
 import kalix.javasdk.Metadata;
 import kalix.javasdk.action.Action.Effect;
 import kalix.javasdk.action.ActionCreationContext;
-import kalix.javasdk.impl.action.ActionEffectImpl;
 import kalix.javasdk.testkit.ActionResult;
-import kalix.javasdk.testkit.TestKitMockRegistry;
+import kalix.javasdk.testkit.MockRegistry;
 import kalix.javasdk.testkit.impl.ActionResultImpl;
 import kalix.javasdk.testkit.impl.TestKitActionContext;
 import org.example.service.MyServiceNamedAction;
 import org.example.service.ServiceOuterClass;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 
@@ -27,7 +24,7 @@ public final class MyServiceNamedActionTestKit {
 
   private final Function<ActionCreationContext, MyServiceNamedAction> actionFactory;
 
-  private final TestKitMockRegistry mockRegistry;
+  private final MockRegistry mockRegistry;
 
   private MyServiceNamedAction createAction(TestKitActionContext context) {
     MyServiceNamedAction action = actionFactory.apply(context);
@@ -36,14 +33,14 @@ public final class MyServiceNamedActionTestKit {
   }
 
   public static MyServiceNamedActionTestKit of(Function<ActionCreationContext, MyServiceNamedAction> actionFactory) {
-    return new MyServiceNamedActionTestKit(actionFactory, TestKitMockRegistry.EMPTY);
+    return new MyServiceNamedActionTestKit(actionFactory, MockRegistry.EMPTY);
   }
 
-  public static MyServiceNamedActionTestKit of(Function<ActionCreationContext, MyServiceNamedAction> actionFactory, TestKitMockRegistry mockRegistry) {
+  public static MyServiceNamedActionTestKit of(Function<ActionCreationContext, MyServiceNamedAction> actionFactory, MockRegistry mockRegistry) {
     return new MyServiceNamedActionTestKit(actionFactory, mockRegistry);
   }
 
-  private MyServiceNamedActionTestKit(Function<ActionCreationContext, MyServiceNamedAction> actionFactory, TestKitMockRegistry mockRegistry) {
+  private MyServiceNamedActionTestKit(Function<ActionCreationContext, MyServiceNamedAction> actionFactory, MockRegistry mockRegistry) {
     this.actionFactory = actionFactory;
     this.mockRegistry = mockRegistry;
   }
