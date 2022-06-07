@@ -46,7 +46,7 @@ public class ShoppingCartActionImplTest {
   public void initializeCartTest() throws ExecutionException, InterruptedException, TimeoutException {
     when(shoppingCartService.create(notNull()))
             .thenReturn(CompletableFuture.completedFuture(Empty.getDefaultInstance()));
-    var mockRegistry = MockRegistry.withMock(ShoppingCartService.class, shoppingCartService);
+    var mockRegistry = MockRegistry.create().withMock(ShoppingCartService.class, shoppingCartService);
 
     var testKit = ShoppingCartActionImplTestKit.of(ShoppingCartActionImpl::new, mockRegistry);
     var result = testKit.initializeCart(NewCart.newBuilder().build());
@@ -61,7 +61,7 @@ public class ShoppingCartActionImplTest {
             .thenReturn(CompletableFuture.completedFuture(Empty.getDefaultInstance()));
     when(shoppingCartService.addItem(any()))
             .thenReturn(CompletableFuture.completedFuture(Empty.getDefaultInstance()));
-    var mockRegistry = MockRegistry.withMock(ShoppingCartService.class, shoppingCartService);
+    var mockRegistry = MockRegistry.create().withMock(ShoppingCartService.class, shoppingCartService);
 
     var service = ShoppingCartActionImplTestKit.of(ShoppingCartActionImpl::new, mockRegistry);
     var result = service.createPrePopulated(NewCart.getDefaultInstance()).getAsyncResult();

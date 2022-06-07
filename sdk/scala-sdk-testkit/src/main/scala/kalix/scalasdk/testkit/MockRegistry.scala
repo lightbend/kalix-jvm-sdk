@@ -39,32 +39,10 @@ trait MockRegistry {
    *   A copy of this MockRegistry.
    */
   def withMock[T](instance: T)(implicit expectedClass: ClassTag[T]): MockRegistry
-
-  /**
-   * Retrieves the existing mock for a given class type.
-   *
-   * @param clazz
-   *   The class type to match on the set of mocks.
-   * @tparam T
-   *   The service interface to be mocked.
-   * @return
-   *   An Optional containing the existing mock for the given class type or None otherwise.
-   */
-  def get[T](clazz: Class[T]): Option[T]
 }
 
 object MockRegistry {
   val empty = new MockRegistryImpl()
-
-  /**
-   * Returns an instance of MockRegistry populated with the given set of mocks
-   *
-   * @param mocks
-   *   the set of instances to serve as mocks
-   * @return
-   *   a new instance of MockRegistry
-   */
-  def of(mocks: Map[Class[_], Any]): MockRegistry = new MockRegistryImpl(mocks)
 
   /**
    * Returns a new MockRegistry with the new mock added to previous ones.

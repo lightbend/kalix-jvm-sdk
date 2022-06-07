@@ -27,7 +27,7 @@ private[kalix] class MockRegistryImpl(var mocks: Map[Class[_], Any] = Map.empty)
     this
   }
 
-  override def get[T](clazz: Class[T]): Option[T] = mocks
+  def get[T](clazz: Class[T]): Option[T] = mocks
     .get(clazz)
     .map(clazz.cast)
 }

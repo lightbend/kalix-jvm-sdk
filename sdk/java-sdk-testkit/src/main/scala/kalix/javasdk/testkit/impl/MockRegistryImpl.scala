@@ -26,16 +26,16 @@ private[kalix] class MockRegistryImpl(var mocks: Map[Class[_], Any]) extends Moc
     this(mocks.asScala.toMap)
   }
 
-  override def get[T](clazz: Class[T]): java.util.Optional[T] =
+  override def withMock[T](clazz: Class[T], instance: T): MockRegistry = {
+    mocks = mocks + (clazz -> instance)
+    this
+  }
+
+  def get[T](clazz: Class[T]): java.util.Optional[T] =
     mocks
       .get(clazz)
       .map(clazz.cast)
       .toJava
-
-  override def addMock[T](clazz: Class[T], instance: T): MockRegistry = {
-    mocks = mocks + (clazz -> instance)
-    this
-  }
 }
 
 object MockRegistryImpl {

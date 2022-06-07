@@ -26,8 +26,9 @@ class AbstractTestKitContext(mockRegistry: MockRegistry = MockRegistry.empty) ex
     throw new UnsupportedOperationException("Accessing the materializer from testkit not supported yet")
   def getComponentGrpcClient[T](serviceClass: Class[T]): T = {
     mockRegistry
+      .asInstanceOf[MockRegistryImpl]
       .get(serviceClass)
-      .getOrElse(throw new UnsupportedOperationException(
+      .getOrElse(throw new NoSuchElementException(
         s"Could not find mock for component of type $serviceClass. Hint: use ${classOf[MockRegistry].getName} to provide an instance when testing services calling other components."))
   }
 }

@@ -46,7 +46,7 @@ public class ExternalCounterActionTest {
   public void increaseTest() throws ExecutionException, InterruptedException, TimeoutException {
     when(counterService.increase(notNull()))
             .thenReturn(CompletableFuture.completedFuture(Empty.getDefaultInstance()));
-    var mockRegistry = MockRegistry.withMock(CounterService.class, counterService);
+    var mockRegistry = MockRegistry.create().withMock(CounterService.class, counterService);
 
     var service = ExternalCounterActionTestKit.of(ExternalCounterAction::new, mockRegistry);
     var result = service.increase(IncreaseValue.getDefaultInstance());
