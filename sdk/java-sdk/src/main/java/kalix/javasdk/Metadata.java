@@ -232,6 +232,13 @@ public interface Metadata extends Iterable<Metadata.MetadataEntry> {
    */
   JwtClaims jwtClaims();
 
+  /**
+   * Get the principals associated with this request metadata.
+   *
+   * @return The principals associated with this request metadata.
+   */
+  Principals principals();
+
   /** A metadata entry. */
   interface MetadataEntry {
     /**

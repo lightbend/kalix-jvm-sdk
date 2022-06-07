@@ -16,9 +16,13 @@
 
 package kalix.scalasdk.impl
 import java.nio.ByteBuffer
+
 import scala.collection.immutable.Seq
-import kalix.scalasdk.{ CloudEvent, JwtClaims, Metadata, MetadataEntry }
+import kalix.scalasdk.{ CloudEvent, JwtClaims, Metadata, MetadataEntry, Principal, Principals }
 import kalix.protocol.component.{ MetadataEntry => ProtocolMetadataEntry }
+
+import scala.jdk.OptionConverters._
+import scala.jdk.CollectionConverters._
 
 private[kalix] object MetadataImpl {
   def apply(impl: kalix.javasdk.impl.MetadataImpl): MetadataImpl = new MetadataImpl(impl)
@@ -81,5 +85,14 @@ private[kalix] class MetadataImpl(val impl: kalix.javasdk.impl.MetadataImpl) ext
     override def allClaimNames: Iterable[String] = impl.allJwtClaimNames
     override def asMap: Map[String, String] = impl.jwtClaimsAsMap
     override def getString(name: String): Option[String] = impl.getJwtClaim(name)
+  }
+  override lazy val principals: Principals = new Principals {
+    override def isInternet: Boolean = impl.principals.isInternet
+    override def isSelf: Boolean = impl.principals.isSelf
+    override def isBackoffice: Boolean = impl.principals.isBackoffice
+    override def isLocalService(name: String): Boolean = impl.principals.isLocalService(name)
+    override def isAnyLocalService: Boolean = impl.principals.isAnyLocalService
+    override def localService: Option[String] = impl.principals.getLocalService.toScala
+    override def apply: Seq[Principal] = impl.principals.get.asScala.map(Principal.toScala).toSeq
   }
 }
