@@ -198,7 +198,9 @@ class AnySupport(
     classLoader: ClassLoader,
     typeUrlPrefix: String = AnySupport.DefaultTypeUrlPrefix,
     prefer: AnySupport.Prefer = AnySupport.Prefer.Java,
-    additionalSerializers: Map[Class[_], Serializer] = Map.empty) {
+    additionalSerializers: Map[Class[_], Serializer] = Map.empty)
+    extends MessageInDecoder
+    with MessageOutEncoder {
 
   def this(
       descriptors: Array[Descriptors.FileDescriptor],
@@ -508,4 +510,11 @@ private[kalix] object ByteStringEncoding {
   def decodePrimitiveBytes(bytes: ByteString): ByteString =
     AnySupport.decodePrimitiveBytes(bytes)
 
+}
+
+trait MessageInDecoder {
+  def decodeMessage(any: ScalaPbAny): Any
+}
+trait MessageOutEncoder {
+  def encodeScala(value: Any): ScalaPbAny
 }
