@@ -20,30 +20,30 @@ import java.lang.reflect.Method
 
 import akka.NotUsed
 import akka.stream.javadsl.Source
+import com.google.protobuf.{ Descriptors, DynamicMessage }
+import kalix.javasdk.Metadata
 import kalix.javasdk.action.Action
 import kalix.javasdk.action.MessageEnvelope
 import kalix.javasdk.impl.action.ActionRouter
+import kalix.springsdk.impl.reflection.{ DynamicMessageContext, MetadataContext, ParameterExtractor }
+import com.google.protobuf.any.{ Any => ScalaPbAny }
 
-class ActionReflectiveRouter[A <: Action](override val action: A) extends ActionRouter[A](action) {
-
-  private val allHandlers: Map[String, Method] =
-    // FIXME: names must be unique, overloading shouldn't be allowed,
-    //  we should detect it here and fail-fast
-    action.getClass.getDeclaredMethods.toList
-      // handlers are all methods returning Effect
-      .filter(_.getReturnType == classOf[Action.Effect[_]])
-      // and with one single input param
-      .filter(_.getParameters.length == 1)
-      .map { javaMethod => (javaMethod.getName.capitalize, javaMethod) }
-      .toMap
+class ActionReflectiveRouter[A <: Action](action: A, methods: Map[String, ActionMethod])
+    extends ActionRouter[A](action) {
 
   private def methodLookup(commandName: String) =
-    allHandlers.getOrElse(commandName, throw new RuntimeException(s"no matching method for '$commandName'"))
+    methods.getOrElse(commandName, throw new RuntimeException(s"no matching method for '$commandName'"))
 
-  override def handleUnary(commandName: String, message: MessageEnvelope[Any]): Action.Effect[_] =
-    methodLookup(commandName)
-      .invoke(action, message.payload())
+  override def handleUnary(commandName: String, message: MessageEnvelope[Any]): Action.Effect[_] = {
+    val method = methodLookup(commandName)
+    // Todo - this should probably be elsewhere
+    val anyMessage = message.payload().asInstanceOf[ScalaPbAny]
+    val dynamicMessage = DynamicMessage.parseFrom(method.messageDescriptor, anyMessage.value)
+    val context = new ActionInvocationContext(dynamicMessage, message.metadata())
+    method.method
+      .invoke(action, method.parameterExtractors.map(e => e.extract(context)): _*)
       .asInstanceOf[Action.Effect[_]]
+  }
 
   override def handleStreamedOut(
       commandName: String,
@@ -56,3 +56,13 @@ class ActionReflectiveRouter[A <: Action](override val action: A) extends Action
       commandName: String,
       stream: Source[MessageEnvelope[Any], NotUsed]): Source[Action.Effect[_], NotUsed] = ???
 }
+
+// Might need to have one of each of these for unary, streamed out, streamed in and streamed.
+case class ActionMethod(
+    method: Method,
+    grpcMethodName: String,
+    parameterExtractors: Array[ParameterExtractor[ActionInvocationContext, AnyRef]],
+    messageDescriptor: Descriptors.Descriptor)
+class ActionInvocationContext(val message: DynamicMessage, val metadata: Metadata)
+    extends DynamicMessageContext
+    with MetadataContext

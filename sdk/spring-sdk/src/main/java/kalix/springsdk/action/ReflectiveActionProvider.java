@@ -47,7 +47,7 @@ public class ReflectiveActionProvider<A extends Action> implements ActionProvide
       Class<A> cls, Function<ActionCreationContext, A> factory, ActionOptions options) {
     this.factory = factory;
     this.options = options;
-    this.fileDescriptor = ProtoDescriptorGenerator.generateFileDescriptorAction(cls);
+    this.fileDescriptor = null; //ProtoDescriptorGenerator.generateFileDescriptorAction(cls);
     this.serviceDescriptor = fileDescriptor.findServiceByName(cls.getSimpleName());
   }
 
@@ -64,7 +64,7 @@ public class ReflectiveActionProvider<A extends Action> implements ActionProvide
   @Override
   public ActionRouter<A> newRouter(ActionCreationContext context) {
     A action = factory.apply(context);
-    return new ActionReflectiveRouter<>(action);
+    return null; //new ActionReflectiveRouter<>(action);
   }
 
   @Override

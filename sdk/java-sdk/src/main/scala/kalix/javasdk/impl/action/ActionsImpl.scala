@@ -47,7 +47,9 @@ final class ActionService(
     val factory: ActionFactory,
     override val descriptor: Descriptors.ServiceDescriptor,
     override val additionalDescriptors: Array[Descriptors.FileDescriptor],
-    val anySupport: AnySupport)
+    val anySupport: AnySupport,
+    val messageInDecoder: MessageInDecoder,
+    val messageOutEncoder: MessageOutEncoder)
     extends Service {
 
   @volatile var actionClass: Option[Class[_]] = None
@@ -107,26 +109,27 @@ private[javasdk] final class ActionsImpl(
       service: ActionService,
       command: ActionCommand,
       effect: Action.Effect[_],
-      anySupport: AnySupport): Future[ActionResponse] = {
+      messageOutEncoder: MessageOutEncoder): Future[ActionResponse] = {
     import ActionEffectImpl._
     effect match {
       case ReplyEffect(message, metadata, sideEffects) =>
         val response =
-          component.Reply(Some(ScalaPbAny.fromJavaProto(anySupport.encodeJava(message))), metadata.flatMap(toProtocol))
-        Future.successful(ActionResponse(ActionResponse.Response.Reply(response), toProtocol(anySupport, sideEffects)))
+          component.Reply(Some(messageOutEncoder.encodeScala(message)), metadata.flatMap(toProtocol))
+        Future.successful(
+          ActionResponse(ActionResponse.Response.Reply(response), toProtocol(messageOutEncoder, sideEffects)))
       case ForwardEffect(forward: DeferredCallImpl[_, _], sideEffects) =>
         val response = component.Forward(
           forward.fullServiceName,
           forward.methodName,
-          Some(ScalaPbAny.fromJavaProto(anySupport.encodeJava(forward.message))),
+          Some(messageOutEncoder.encodeScala(forward.message)),
           toProtocol(forward.metadata))
         Future.successful(
-          ActionResponse(ActionResponse.Response.Forward(response), toProtocol(anySupport, sideEffects)))
+          ActionResponse(ActionResponse.Response.Forward(response), toProtocol(messageOutEncoder, sideEffects)))
       case AsyncEffect(futureEffect, sideEffects) =>
         futureEffect
           .flatMap { effect =>
             val withSurroundingSideEffects = effect.addSideEffects(sideEffects.asJava)
-            effectToResponse(service, command, withSurroundingSideEffects, anySupport)
+            effectToResponse(service, command, withSurroundingSideEffects, messageOutEncoder)
           }
           .recover { case NonFatal(ex) =>
             handleUnexpectedException(service, command, ex)
@@ -136,18 +139,20 @@ private[javasdk] final class ActionsImpl(
           ActionResponse(
             ActionResponse.Response.Failure(
               Failure(description = description, grpcStatusCode = status.map(_.value()).getOrElse(0))),
-            toProtocol(anySupport, sideEffects)))
+            toProtocol(messageOutEncoder, sideEffects)))
       case unknown =>
         throw new IllegalArgumentException(s"Unknown Action.Effect type ${unknown.getClass}")
     }
   }
 
-  private def toProtocol(anySupport: AnySupport, sideEffects: Seq[SideEffect]): Seq[component.SideEffect] =
+  private def toProtocol(
+      messageOutEncoder: MessageOutEncoder,
+      sideEffects: Seq[SideEffect]): Seq[component.SideEffect] =
     sideEffects.map { case SideEffectImpl(deferred: DeferredCallImpl[_, _], synchronous) =>
       component.SideEffect(
         deferred.fullServiceName,
         deferred.methodName,
-        Some(ScalaPbAny.fromJavaProto(anySupport.encodeJava(deferred.message))),
+        Some(messageOutEncoder.encodeScala(deferred.message)),
         synchronous,
         toProtocol(deferred.metadata))
     }
@@ -171,12 +176,12 @@ private[javasdk] final class ActionsImpl(
       case Some(service) =>
         try {
           val context = createContext(in, service.anySupport)
-          val decodedPayload = service.anySupport.decodeMessage(
+          val decodedPayload = service.messageInDecoder.decodeMessage(
             in.payload.getOrElse(throw new IllegalArgumentException("No command payload")))
           val effect = service.factory
             .create(creationContext)
             .handleUnary(in.name, MessageEnvelope.of(decodedPayload, context.metadata()), context)
-          effectToResponse(service, in, effect, service.anySupport)
+          effectToResponse(service, in, effect, service.messageOutEncoder)
         } catch {
           case NonFatal(ex) =>
             // command handler threw an "unexpected" error
@@ -215,7 +220,7 @@ private[javasdk] final class ActionsImpl(
                     call.name,
                     messages.map { message =>
                       val metadata = new MetadataImpl(message.metadata.map(_.entries.toVector).getOrElse(Nil))
-                      val decodedPayload = service.anySupport.decodeMessage(
+                      val decodedPayload = service.messageInDecoder.decodeMessage(
                         message.payload.getOrElse(throw new IllegalArgumentException("No command payload")))
                       MessageEnvelope.of(decodedPayload, metadata)
                     }.asJava,
@@ -244,7 +249,7 @@ private[javasdk] final class ActionsImpl(
       case Some(service) =>
         try {
           val context = createContext(in, service.anySupport)
-          val decodedPayload = service.anySupport.decodeMessage(
+          val decodedPayload = service.messageInDecoder.decodeMessage(
             in.payload.getOrElse(throw new IllegalArgumentException("No command payload")))
           service.factory
             .create(creationContext)
@@ -293,7 +298,7 @@ private[javasdk] final class ActionsImpl(
                     call.name,
                     messages.map { message =>
                       val metadata = new MetadataImpl(message.metadata.map(_.entries.toVector).getOrElse(Nil))
-                      val decodedPayload = service.anySupport.decodeMessage(
+                      val decodedPayload = service.messageInDecoder.decodeMessage(
                         message.payload.getOrElse(throw new IllegalArgumentException("No command payload")))
                       MessageEnvelope.of(decodedPayload, metadata)
                     }.asJava,

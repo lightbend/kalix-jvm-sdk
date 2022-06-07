@@ -14,20 +14,15 @@
  * limitations under the License.
  */
 
-package kalix.springsdk.action;
+package kalix.springsdk.annotations;
 
-import kalix.javasdk.action.Action;
-import org.springframework.web.bind.annotation.*;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-public class EchoAction extends Action {
-
-  @GetMapping("/echo/{number}")
-  public Effect<Number> echoNumber(@PathVariable Long number) {
-    return effects().reply(new Number(number));
-  }
-
-  @PostMapping("/echo")
-  public Effect<Message> echoMessage(@RequestParam("add") String add, @RequestBody Message msg) {
-    return effects().reply(new Message(msg.value + add));
-  }
+@Target({ElementType.METHOD, ElementType.PARAMETER, ElementType.TYPE})
+@Retention(RetentionPolicy.RUNTIME)
+public @interface EntityKey {
+  String[] value() default {};
 }

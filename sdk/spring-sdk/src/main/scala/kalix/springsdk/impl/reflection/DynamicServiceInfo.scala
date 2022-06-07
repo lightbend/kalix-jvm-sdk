@@ -14,20 +14,8 @@
  * limitations under the License.
  */
 
-package kalix.springsdk.action;
+package kalix.springsdk.impl.reflection
 
-import kalix.javasdk.action.Action;
-import org.springframework.web.bind.annotation.*;
+object DynamicServiceInfo {}
 
-public class EchoAction extends Action {
-
-  @GetMapping("/echo/{number}")
-  public Effect<Number> echoNumber(@PathVariable Long number) {
-    return effects().reply(new Number(number));
-  }
-
-  @PostMapping("/echo")
-  public Effect<Message> echoMessage(@RequestParam("add") String add, @RequestBody Message msg) {
-    return effects().reply(new Message(msg.value + add));
-  }
-}
+trait DynamicServiceCreator {}

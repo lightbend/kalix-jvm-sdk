@@ -124,7 +124,7 @@ public final class Kalix {
           new ResolvedActionFactory(actionFactory, anySupport.resolveServiceDescriptor(descriptor));
 
       ActionService service =
-          new ActionService(resolvedActionFactory, descriptor, additionalDescriptors, anySupport);
+          new ActionService(resolvedActionFactory, descriptor, additionalDescriptors, anySupport, anySupport, anySupport);
 
       services.put(descriptor.getFullName(), system -> service);
 
@@ -143,7 +143,7 @@ public final class Kalix {
           new ResolvedActionFactory(actionFactory, anySupport.resolveServiceDescriptor(descriptor));
 
       ActionService service =
-          new ActionService(resolvedActionFactory, descriptor, additionalDescriptors, anySupport);
+          new ActionService(resolvedActionFactory, descriptor, additionalDescriptors, anySupport, anySupport, anySupport);
 
       services.put(descriptor.getFullName(), system -> service);
 

@@ -36,7 +36,7 @@ class AnySupportWithGeneratedProtobufSerializerSpec extends AnyWordSpec with Mat
 
     "serialize and deserializer Jackson type to proto" in {
 
-      val descriptor = ProtoDescriptorGenerator.generateFileDescriptorAction(classOf[EchoAction])
+      val descriptor = null //ProtoDescriptorGenerator.generateFileDescriptorAction(classOf[EchoAction])
       val serializers = GeneratedProtobufSerializer.buildSerializers(getClass.getClassLoader, descriptor)
 
       val anySupportWithSerializer = newAnySupport(Array(descriptor), serializers)
