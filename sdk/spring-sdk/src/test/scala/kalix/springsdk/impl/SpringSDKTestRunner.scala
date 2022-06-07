@@ -16,45 +16,13 @@
 
 package kalix.springsdk.impl
 
-import java.util.function
-
-import akka.actor.ActorSystem
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.google.protobuf.{ any, ByteString }
-import kalix.javasdk.{ JsonSupport, KalixRunner }
-import kalix.javasdk.impl.{ AnySupport, MessageInDecoder, MessageOutEncoder, Service }
-import kalix.javasdk.impl.action.ActionService
+import kalix.javasdk.Kalix
 import kalix.springsdk.action.EchoAction
-import kalix.springsdk.impl.action.{ ActionIntrospector, ActionReflectiveRouter }
-import kalix.springsdk.impl.reflection.NameGenerator
-
-import scala.jdk.CollectionConverters._
+import kalix.springsdk.action.ReflectiveActionProvider
 
 // Temporary class just for testing
 object SpringSDKTestRunner extends App {
-
-  val objectMapper = new ObjectMapper()
-  val nameGenerator = new NameGenerator
-  val factory = ActionIntrospector.inspect(classOf[EchoAction], nameGenerator, objectMapper, () => new EchoAction)
-  val anySupport = new AnySupport(Array(factory.fileDescriptor), getClass.getClassLoader)
-
-  val service = new ActionService(
-    factory,
-    factory.serviceDescriptor,
-    ProtoDescriptorGenerator.dependencies,
-    anySupport,
-    new MessageInDecoder {
-      override def decodeMessage(value: any.Any): Any = value
-    },
-    new MessageOutEncoder {
-      override def encodeScala(value: Any): any.Any = {
-        any.Any.fromJavaProto(JsonSupport.encodeJson(value))
-      }
-    })
-
-  val runner = new KalixRunner(
-    Map(factory.serviceDescriptor.getFullName -> new function.Function[ActorSystem, Service] {
-      override def apply(system: ActorSystem): Service = service
-    }).asJava)
-  runner.run().toCompletableFuture.get()
+  val kalix = new Kalix()
+  kalix.register(ReflectiveActionProvider.of(classOf[EchoAction], _ => new EchoAction))
+  kalix.start().toCompletableFuture.get()
 }

@@ -16,18 +16,21 @@
 
 package kalix.springsdk.action;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.protobuf.Descriptors;
 import kalix.javasdk.action.Action;
 import kalix.javasdk.action.ActionCreationContext;
 import kalix.javasdk.action.ActionOptions;
 import kalix.javasdk.action.ActionProvider;
-import kalix.springsdk.impl.action.ActionReflectiveRouter;
+import kalix.javasdk.impl.MessageCodec;
 import kalix.javasdk.impl.action.ActionRouter;
-import kalix.serializer.Serializer;
-import kalix.springsdk.impl.ProtoDescriptorGenerator;
-import kalix.springsdk.impl.serializer.GeneratedProtobufSerializer;
+import kalix.springsdk.impl.SpringSdkMessageCodec;
+import kalix.springsdk.impl.action.ActionIntrospector;
+import kalix.springsdk.impl.action.ActionReflectiveRouter;
+import kalix.springsdk.impl.action.ActionDescription;
+import kalix.springsdk.impl.reflection.NameGenerator;
 
-import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 
 public class ReflectiveActionProvider<A extends Action> implements ActionProvider<A> {
@@ -37,6 +40,7 @@ public class ReflectiveActionProvider<A extends Action> implements ActionProvide
   private final ActionOptions options;
   private final Descriptors.FileDescriptor fileDescriptor;
   private final Descriptors.ServiceDescriptor serviceDescriptor;
+  private final ActionDescription<A> actionDescription;
 
   public static <A extends Action> ReflectiveActionProvider<A> of(
       Class<A> cls, Function<ActionCreationContext, A> factory) {
@@ -45,10 +49,14 @@ public class ReflectiveActionProvider<A extends Action> implements ActionProvide
 
   private ReflectiveActionProvider(
       Class<A> cls, Function<ActionCreationContext, A> factory, ActionOptions options) {
+
     this.factory = factory;
     this.options = options;
-    this.fileDescriptor = null; //ProtoDescriptorGenerator.generateFileDescriptorAction(cls);
-    this.serviceDescriptor = fileDescriptor.findServiceByName(cls.getSimpleName());
+
+    this.actionDescription = ActionIntrospector.inspect(cls, new NameGenerator(), new ObjectMapper());
+
+    this.fileDescriptor = actionDescription.fileDescriptor();
+    this.serviceDescriptor = actionDescription.serviceDescriptor();
   }
 
   @Override
@@ -64,7 +72,7 @@ public class ReflectiveActionProvider<A extends Action> implements ActionProvide
   @Override
   public ActionRouter<A> newRouter(ActionCreationContext context) {
     A action = factory.apply(context);
-    return null; //new ActionReflectiveRouter<>(action);
+    return new ActionReflectiveRouter<>(action, actionDescription.methods());
   }
 
   @Override
@@ -73,8 +81,7 @@ public class ReflectiveActionProvider<A extends Action> implements ActionProvide
   }
 
   @Override
-  public Map<Class<?>, Serializer> additionalSerializers() {
-    return GeneratedProtobufSerializer.buildSerializersJava(
-        getClass().getClassLoader(), fileDescriptor);
+  public Optional<MessageCodec> alternativeCodec() {
+    return Optional.of(SpringSdkMessageCodec.instance());
   }
 }

@@ -19,23 +19,27 @@ package kalix.springsdk.impl.action
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.google.protobuf.DescriptorProtos.ServiceDescriptorProto
 import com.google.protobuf.Descriptors
-import kalix.javasdk.action.{ Action, ActionCreationContext }
-import kalix.javasdk.impl.ActionFactory
-import kalix.javasdk.impl.action.ActionRouter
+import kalix.javasdk.action.Action
 import kalix.springsdk.impl.ProtoDescriptorGenerator
 import kalix.springsdk.impl.reflection.ParameterExtractors.HeaderExtractor
-import kalix.springsdk.impl.reflection.RestServiceIntrospector.{ HeaderParameter, UnhandledParameter }
-import kalix.springsdk.impl.reflection.{ DynamicMethodInfo, NameGenerator, RestServiceIntrospector }
+import kalix.springsdk.impl.reflection.RestServiceIntrospector.HeaderParameter
+import kalix.springsdk.impl.reflection.RestServiceIntrospector.UnhandledParameter
+import kalix.springsdk.impl.reflection.DynamicMethodInfo
+import kalix.springsdk.impl.reflection.NameGenerator
+import kalix.springsdk.impl.reflection.RestServiceIntrospector
 
 object ActionIntrospector {
+
   def inspect[A <: Action](
       action: Class[A],
       nameGenerator: NameGenerator,
-      objectMapper: ObjectMapper,
-      creator: () => A): SpringActionFactory[A] = {
+      objectMapper: ObjectMapper): ActionDescription[A] = {
+
     val restService = RestServiceIntrospector.inspectService(action)
+
     val grpcService = ServiceDescriptorProto.newBuilder()
     grpcService.setName(nameGenerator.getName(action.getSimpleName))
+
     val dynamicRestMethods =
       restService.methods.map(method => DynamicMethodInfo.build(method, nameGenerator, objectMapper))
 
@@ -49,7 +53,9 @@ object ActionIntrospector {
       action.getPackageName,
       grpcService.build(),
       messageDescriptors)
+
     val serviceDescriptor = fileDescriptor.findServiceByName(grpcService.getName)
+
     val methods = dynamicRestMethods.map { method =>
       val message = fileDescriptor.findMessageTypeByName(method.descriptor.getName)
       val extractors = method.restMethod.params.zipWithIndex.map { case (param, idx) =>
@@ -74,17 +80,12 @@ object ActionIntrospector {
         message)
     }.toMap
 
-    new SpringActionFactory(fileDescriptor, serviceDescriptor, creator, methods)
+    new ActionDescription(fileDescriptor, serviceDescriptor, methods)
   }
 
 }
 
-class SpringActionFactory[A <: Action](
+class ActionDescription[A <: Action](
     val fileDescriptor: Descriptors.FileDescriptor,
     val serviceDescriptor: Descriptors.ServiceDescriptor,
-    creator: () => A,
-    methods: Map[String, ActionMethod])
-    extends ActionFactory {
-  override def create(context: ActionCreationContext): ActionRouter[A] =
-    new ActionReflectiveRouter(creator(), methods)
-}
+    val methods: Map[String, ActionMethod])

@@ -63,6 +63,7 @@ case class ActionMethod(
     grpcMethodName: String,
     parameterExtractors: Array[ParameterExtractor[ActionInvocationContext, AnyRef]],
     messageDescriptor: Descriptors.Descriptor)
+
 class ActionInvocationContext(val message: DynamicMessage, val metadata: Metadata)
     extends DynamicMessageContext
     with MetadataContext

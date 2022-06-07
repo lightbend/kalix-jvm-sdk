@@ -16,19 +16,10 @@
 
 package kalix.springsdk.impl
 
-import java.lang.reflect.Method
-import java.lang.reflect.ParameterizedType
-
-import scala.jdk.CollectionConverters.IterableHasAsJava
-import scala.jdk.CollectionConverters.IterableHasAsScala
-import kalix.javasdk.action.Action
-import kalix.javasdk.valueentity.ValueEntity
-import com.fasterxml.jackson.dataformat.protobuf.ProtobufMapper
-import com.fasterxml.jackson.dataformat.protobuf.schema.ProtobufSchema
-import com.google.protobuf.{ AnyProto, DescriptorProtos, Descriptors }
-import com.fasterxml.jackson.dataformat.protobuf.schema.FieldType
-import com.fasterxml.jackson.dataformat.protobuf.schema.FieldType._
 import com.google.api.{ AnnotationsProto => HttpAnnotationsProto }
+import com.google.protobuf.AnyProto
+import com.google.protobuf.DescriptorProtos
+import com.google.protobuf.Descriptors
 import kalix.{ Annotations => KalixAnnotations }
 
 object ProtoDescriptorGenerator {

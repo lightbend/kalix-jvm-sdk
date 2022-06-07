@@ -42,9 +42,7 @@ import kalix.javasdk.valueentity.ValueEntityOptions;
 import kalix.javasdk.valueentity.ValueEntityProvider;
 import kalix.javasdk.view.ViewProvider;
 import kalix.replicatedentity.ReplicatedData;
-import kalix.serializer.Serializer;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -119,31 +117,20 @@ public final class Kalix {
         Descriptors.FileDescriptor... additionalDescriptors) {
 
       final AnySupport anySupport = newAnySupport(additionalDescriptors);
-
       ActionFactory resolvedActionFactory =
           new ResolvedActionFactory(actionFactory, anySupport.resolveServiceDescriptor(descriptor));
 
-      ActionService service =
-          new ActionService(resolvedActionFactory, descriptor, additionalDescriptors, anySupport, anySupport, anySupport);
-
-      services.put(descriptor.getFullName(), system -> service);
-
-      return Kalix.this;
+      return registerAction(resolvedActionFactory, anySupport, descriptor, additionalDescriptors);
     }
 
     public Kalix registerAction(
         ActionFactory actionFactory,
+        MessageCodec messageCodec,
         Descriptors.ServiceDescriptor descriptor,
-        Map<Class<?>, Serializer> additionalSerializers,
         Descriptors.FileDescriptor... additionalDescriptors) {
 
-      final AnySupport anySupport = newAnySupport(additionalDescriptors, additionalSerializers);
-
-      ActionFactory resolvedActionFactory =
-          new ResolvedActionFactory(actionFactory, anySupport.resolveServiceDescriptor(descriptor));
-
       ActionService service =
-          new ActionService(resolvedActionFactory, descriptor, additionalDescriptors, anySupport, anySupport, anySupport);
+          new ActionService(actionFactory, descriptor, additionalDescriptors, messageCodec);
 
       services.put(descriptor.getFullName(), system -> service);
 
@@ -371,6 +358,9 @@ public final class Kalix {
         provider.additionalDescriptors());
   }
 
+  public Optional<String> hey() {
+    return Optional.empty();
+  }
   /**
    * Register an action using an {{@link ActionProvider}}. The concrete <code>
    * ActionProvider</code> is generated for the specific entities defined in Protobuf, for example
@@ -379,11 +369,19 @@ public final class Kalix {
    * @return This stateful service builder.
    */
   public Kalix register(ActionProvider provider) {
-    return lowLevel.registerAction(
-        provider::newRouter,
-        provider.serviceDescriptor(),
-        provider.additionalSerializers(),
-        provider.additionalDescriptors());
+
+    // FIXME: type inference complaining about lack of type param in ActionProvider<>
+    Optional<MessageCodec> codecOpt = provider.alternativeCodec();
+    if (codecOpt.isPresent()) {
+      return lowLevel.registerAction(
+          provider::newRouter,
+          codecOpt.get(),
+          provider.serviceDescriptor(),
+          provider.additionalDescriptors());
+    } else {
+      return lowLevel.registerAction(
+          provider::newRouter, provider.serviceDescriptor(), provider.additionalDescriptors());
+    }
   }
 
   /**
@@ -426,11 +424,6 @@ public final class Kalix {
   }
 
   private AnySupport newAnySupport(Descriptors.FileDescriptor[] descriptors) {
-    return new AnySupport(descriptors, classLoader, typeUrlPrefix, prefer, Collections.emptyMap());
-  }
-
-  private AnySupport newAnySupport(
-      Descriptors.FileDescriptor[] descriptors, Map<Class<?>, Serializer> additionalSerializers) {
-    return new AnySupport(descriptors, classLoader, typeUrlPrefix, prefer, additionalSerializers);
+    return new AnySupport(descriptors, classLoader, typeUrlPrefix, prefer);
   }
 }

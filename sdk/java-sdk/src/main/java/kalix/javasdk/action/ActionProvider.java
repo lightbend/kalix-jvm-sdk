@@ -16,14 +16,12 @@
 
 package kalix.javasdk.action;
 
-import kalix.javasdk.Kalix;
-import kalix.javasdk.impl.action.ActionRouter;
 import com.google.protobuf.Descriptors;
-import kalix.serializer.Serializer;
+import kalix.javasdk.Kalix;
+import kalix.javasdk.impl.MessageCodec;
+import kalix.javasdk.impl.action.ActionRouter;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Optional;
 
 /**
  * Register an Action in {{@link Kalix}} using an <code>
@@ -40,7 +38,7 @@ public interface ActionProvider<A extends Action> {
 
   Descriptors.FileDescriptor[] additionalDescriptors();
 
-  default Map<Class<?>, Serializer> additionalSerializers() {
-    return Collections.emptyMap();
+  default Optional<MessageCodec> alternativeCodec() {
+    return Optional.empty();
   }
 }
