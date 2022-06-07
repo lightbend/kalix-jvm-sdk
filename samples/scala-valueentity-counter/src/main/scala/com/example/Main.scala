@@ -1,8 +1,7 @@
 package com.example
 
 import kalix.scalasdk.Kalix
-import com.example.actions.CounterStateSubscriptionAction
-import com.example.actions.DoubleCounterAction
+import com.example.actions.{CounterStateSubscriptionAction, DoubleCounterAction, ExternalCounterAction}
 import com.example.domain.Counter
 import org.slf4j.LoggerFactory
 
@@ -22,7 +21,8 @@ object Main {
     KalixFactory.withComponents(
       new Counter(_),
       new CounterStateSubscriptionAction(_),
-      new DoubleCounterAction(_))
+      new DoubleCounterAction(_),
+      new ExternalCounterAction(_))
 
     /* the comment hack bellow is needed to only show the Counter and DoubleCounterAction
     // tag::registration[]

@@ -16,40 +16,32 @@
 
 package kalix.javasdk.testkit.impl;
 
-import kalix.javasdk.action.ActionContext
-
-import java.util.{ HashMap, Optional }
-import java.nio.ByteBuffer
-import kalix.javasdk.action.ActionCreationContext
 import kalix.javasdk.Metadata
-import scala.collection.convert.ImplicitConversions._
-import java.util.Optional
-import java.util.concurrent.CompletionStage
-
-import akka.Done
-import kalix.javasdk.DeferredCall
-import kalix.javasdk.action.ActionContext
-import kalix.javasdk.action.ActionCreationContext
+import kalix.javasdk.action.{ ActionContext, ActionCreationContext }
 import kalix.javasdk.impl.InternalContext
+import kalix.javasdk.testkit.MockRegistry
 
 /**
  * INTERNAL API Used by the generated testkit
  */
-final class TestKitActionContext(metadata: Metadata)
-    extends AbstractTestKitContext
+final class TestKitActionContext(metadata: Metadata, mockRegistry: MockRegistry = MockRegistry.EMPTY)
+    extends AbstractTestKitContext(mockRegistry)
     with ActionContext
     with ActionCreationContext
     with InternalContext {
 
   def this() {
-    this(Metadata.EMPTY)
+    this(Metadata.EMPTY, MockRegistry.EMPTY)
+  }
+
+  def this(metadata: Metadata) {
+    this(metadata, MockRegistry.EMPTY)
   }
 
   override def metadata() = metadata
 
   override def eventSubject() = metadata.get("ce-subject")
 
-  override def getGrpcClient[T](clientClass: Class[T], service: String): T =
-    throw new UnsupportedOperationException("Testing logic using a gRPC client is not possible with the testkit")
+  override def getGrpcClient[T](clientClass: Class[T], service: String): T = getComponentGrpcClient(clientClass)
 
 }

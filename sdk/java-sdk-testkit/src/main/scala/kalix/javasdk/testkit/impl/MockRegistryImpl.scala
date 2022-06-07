@@ -17,20 +17,27 @@
 package kalix.javasdk.testkit.impl
 
 import kalix.javasdk.testkit.MockRegistry
-import akka.stream.Materializer
-import kalix.javasdk.valueentity.ValueEntityContext
+import scala.jdk.CollectionConverters._
+import scala.jdk.OptionConverters.RichOption
 
-/**
- * INTERNAL API Used by the generated testkit
- */
-final class TestKitValueEntityContext(override val entityId: String, mockRegistry: MockRegistry = MockRegistry.EMPTY)
-    extends AbstractTestKitContext(mockRegistry)
-    with ValueEntityContext {
+private[kalix] class MockRegistryImpl(var mocks: Map[Class[_], Any]) extends MockRegistry {
 
-  def this(entityId: String) {
-    this(entityId, MockRegistry.EMPTY)
+  def this(mocks: java.util.Map[Class[_], Any]) {
+    this(mocks.asScala.toMap)
   }
 
-  override def materializer(): Materializer = throw new UnsupportedOperationException(
-    "Accessing the materializer from testkit not supported yet")
+  override def withMock[T](clazz: Class[T], instance: T): MockRegistry = {
+    mocks = mocks + (clazz -> instance)
+    this
+  }
+
+  def get[T](clazz: Class[T]): java.util.Optional[T] =
+    mocks
+      .get(clazz)
+      .map(clazz.cast)
+      .toJava
+}
+
+object MockRegistryImpl {
+  val empty = new MockRegistryImpl(Map.empty[Class[_], Any])
 }
