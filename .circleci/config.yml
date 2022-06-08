@@ -14,7 +14,7 @@ commands:
             git config user.email "circleci@example.com"
             git config user.name "CircleCI"
       - build-tools/merge-with-parent:
-          parent: main
+          parent: spring-sdk # we need to revert this when merging back into main
 
   install-java-11:
     description: install openjdk-11

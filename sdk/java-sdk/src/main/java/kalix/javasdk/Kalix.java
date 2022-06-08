@@ -358,9 +358,6 @@ public final class Kalix {
         provider.additionalDescriptors());
   }
 
-  public Optional<String> hey() {
-    return Optional.empty();
-  }
   /**
    * Register an action using an {{@link ActionProvider}}. The concrete <code>
    * ActionProvider</code> is generated for the specific entities defined in Protobuf, for example
