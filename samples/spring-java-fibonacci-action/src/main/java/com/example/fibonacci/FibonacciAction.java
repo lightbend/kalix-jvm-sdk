@@ -4,8 +4,9 @@ import kalix.javasdk.action.Action;
 
 import java.util.function.Predicate;
 
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.*;
 
+@RequestMapping("/fibonacci")
 public class FibonacciAction extends Action { 
 
   private boolean isFibonacci(long num) {  // <1>
@@ -20,9 +21,14 @@ public class FibonacciAction extends Action {
     return Math.round(result);
   }
 
-  @PostMapping("/next/number")
-  public Effect<Number> nextNumber(Number number) {
-    long num = number.value;
+  @GetMapping("/{number}/next")
+  public Effect<Number> nextNumber(@PathVariable Long number) {
+    return nextNumber(new Number(number));
+  }
+
+  @PostMapping("/next")
+  public Effect<Number> nextNumber(@RequestBody Number number) {
+    long num =  number.value;
     if (isFibonacci(num)) {
       return effects().reply(new Number(nextFib(num)));
     } else {
