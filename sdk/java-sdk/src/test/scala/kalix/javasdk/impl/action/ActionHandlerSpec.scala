@@ -45,10 +45,12 @@ import org.scalatest.Inside
 import org.scalatest.OptionValues
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
-
 import scala.concurrent.Await
 import scala.concurrent.Future
 import scala.concurrent.duration._
+
+import kalix.javasdk.action.ActionOptions
+import kalix.javasdk.impl.ActionFactory
 
 class ActionHandlerSpec
     extends ScalaTestWithActorTestKit
@@ -68,7 +70,8 @@ class ActionHandlerSpec
   private val anySupport = new AnySupport(Array(ActionspecApi.getDescriptor), this.getClass.getClassLoader)
 
   def create(handler: ActionRouter[_]): Actions = {
-    val service = new ActionService(_ => handler, serviceDescriptor, Array(), anySupport)
+    val actionFactory: ActionFactory = _ => handler
+    val service = new ActionService(actionFactory, serviceDescriptor, Array(), anySupport, None)
 
     val services = Map(serviceName -> service)
 
