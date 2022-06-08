@@ -31,6 +31,4 @@ final class TestKitValueEntityContext(override val entityId: String, mockRegistr
     this(entityId, MockRegistry.EMPTY)
   }
 
-  override def materializer(): Materializer = throw new UnsupportedOperationException(
-    "Accessing the materializer from testkit not supported yet")
 }

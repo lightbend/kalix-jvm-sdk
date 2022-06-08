@@ -28,7 +28,7 @@ class AbstractTestKitContext(mockRegistry: MockRegistry) extends Context with In
   override def materializer(): Materializer = throw new UnsupportedOperationException(
     "Accessing the materializer from testkit not supported yet")
 
-  def getComponentGrpcClient[T](serviceClass: Class[T]): T =
+  override def getComponentGrpcClient[T](serviceClass: Class[T]): T =
     mockRegistry
       .asInstanceOf[MockRegistryImpl]
       .get(serviceClass)

@@ -24,7 +24,7 @@ import kalix.scalasdk.testkit.MockRegistry
 class AbstractTestKitContext(mockRegistry: MockRegistry = MockRegistry.empty) extends Context with InternalContext {
   override def materializer(): Materializer =
     throw new UnsupportedOperationException("Accessing the materializer from testkit not supported yet")
-  def getComponentGrpcClient[T](serviceClass: Class[T]): T = {
+  override def getComponentGrpcClient[T](serviceClass: Class[T]): T = {
     mockRegistry
       .asInstanceOf[MockRegistryImpl]
       .get(serviceClass)

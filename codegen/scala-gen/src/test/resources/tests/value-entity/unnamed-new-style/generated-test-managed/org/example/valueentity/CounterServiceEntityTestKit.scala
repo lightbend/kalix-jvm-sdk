@@ -2,6 +2,7 @@ package org.example.valueentity
 
 import com.google.protobuf.empty.Empty
 import kalix.scalasdk.Metadata
+import kalix.scalasdk.testkit.MockRegistry
 import kalix.scalasdk.testkit.ValueEntityResult
 import kalix.scalasdk.testkit.impl.TestKitValueEntityCommandContext
 import kalix.scalasdk.testkit.impl.TestKitValueEntityContext
@@ -24,14 +25,14 @@ object CounterServiceEntityTestKit {
    * @param entityFactory A function that creates a CounterServiceEntity based on the given ValueEntityContext,
    *                      a default entity id is used.
    */
-  def apply(entityFactory: ValueEntityContext => CounterServiceEntity): CounterServiceEntityTestKit =
-    apply("testkit-entity-id", entityFactory)
+  def apply(entityFactory: ValueEntityContext => CounterServiceEntity, mockRegistry: MockRegistry = MockRegistry.empty): CounterServiceEntityTestKit =
+    apply("testkit-entity-id", entityFactory, mockRegistry)
 
   /**
    * Create a testkit instance of CounterServiceEntity with a specific entity id.
    */
-  def apply(entityId: String, entityFactory: ValueEntityContext => CounterServiceEntity): CounterServiceEntityTestKit =
-    new CounterServiceEntityTestKit(entityFactory(new TestKitValueEntityContext(entityId)), entityId)
+  def apply(entityId: String, entityFactory: ValueEntityContext => CounterServiceEntity, mockRegistry: MockRegistry = MockRegistry.empty): CounterServiceEntityTestKit =
+    new CounterServiceEntityTestKit(entityFactory(new TestKitValueEntityContext(entityId, mockRegistry)), entityId)
 }
 
 /**

@@ -51,6 +51,7 @@ object EventSourcedEntityTestKitGenerator {
         "kalix.javasdk.impl.effect.MessageReplyImpl",
         "kalix.javasdk.impl.eventsourcedentity.EventSourcedEntityEffectImpl",
         "kalix.javasdk.testkit.EventSourcedResult",
+        "kalix.javasdk.testkit.MockRegistry",
         "kalix.javasdk.testkit.impl.TestKitEventSourcedEntityContext",
         "kalix.javasdk.testkit.impl.EventSourcedResultImpl",
         "kalix.javasdk.testkit.impl.EventSourcedEntityEffectsRunner",
@@ -85,9 +86,29 @@ object EventSourcedEntityTestKitGenerator {
           |
           |  /**
           |   * Create a testkit instance of $entityClassName with a specific entity id.
+          |   * @param entityFactory A function that creates a $entityClassName based on the given EventSourcedEntityContext,
+          |   *                      a default entity id is used.
+          |   * @param mockRegistry  A registry to be provided in cases which the entity calls other components to allow for unit testing.
+          |   */
+          |  public static $testkitClassName of(Function<EventSourcedEntityContext, $entityClassName> entityFactory, MockRegistry mockRegistry) {
+          |    return new $testkitClassName(entityFactory.apply(new TestKitEventSourcedEntityContext("testkit-entity-id", mockRegistry)));
+          |  }
+          |
+          |  /**
+          |   * Create a testkit instance of $entityClassName with a specific entity id.
           |   */
           |  public static $testkitClassName of(String entityId, Function<EventSourcedEntityContext, $entityClassName> entityFactory) {
-          |    return new $testkitClassName(entityFactory.apply(new TestKitEventSourcedEntityContext(entityId)));
+          |    return of(entityId, entityFactory, MockRegistry.EMPTY);
+          |  }
+          |
+          |  /**
+          |   * Create a testkit instance of $entityClassName with a specific entity id.
+          |   * @param entityFactory A function that creates a $entityClassName based on the given EventSourcedEntityContext,
+          |   *                      a default entity id is used.
+          |   * @param mockRegistry  A registry to be provided in cases which the entity calls other components to allow for unit testing.
+          |   */
+          |  public static $testkitClassName of(String entityId, Function<EventSourcedEntityContext, $entityClassName> entityFactory, MockRegistry mockRegistry) {
+          |    return new $testkitClassName(entityFactory.apply(new TestKitEventSourcedEntityContext(entityId, mockRegistry)));
           |  }
           |
           |  private ${entityClassName} entity;

@@ -5,6 +5,7 @@ import kalix.scalasdk.Metadata
 import kalix.scalasdk.eventsourcedentity.EventSourcedEntity
 import kalix.scalasdk.eventsourcedentity.EventSourcedEntityContext
 import kalix.scalasdk.testkit.EventSourcedResult
+import kalix.scalasdk.testkit.MockRegistry
 import kalix.scalasdk.testkit.impl.EventSourcedEntityEffectsRunner
 import kalix.scalasdk.testkit.impl.EventSourcedResultImpl
 import kalix.scalasdk.testkit.impl.TestKitEventSourcedEntityCommandContext
@@ -26,14 +27,20 @@ object CounterTestKit {
    * Create a testkit instance of Counter
    * @param entityFactory A function that creates a Counter based on the given EventSourcedEntityContext,
    *                      a default entity id is used.
+   * @param mockRegistry  A registry to be provided in cases which the entity calls other components to allow for unit testing.
    */
-  def apply(entityFactory: EventSourcedEntityContext => Counter): CounterTestKit =
-    apply("testkit-entity-id", entityFactory)
+  def apply(entityFactory: EventSourcedEntityContext => Counter, mockRegistry: MockRegistry = MockRegistry.empty): CounterTestKit =
+    apply("testkit-entity-id", entityFactory, mockRegistry)
+
   /**
    * Create a testkit instance of Counter with a specific entity id.
+   * @param entityId      An entity identifier
+   * @param entityFactory A function that creates a Counter based on the given EventSourcedEntityContext,
+   *                      a default entity id is used.
+   * @param mockRegistry  A registry to be provided in cases which the entity calls other components to allow for unit testing.
    */
-  def apply(entityId: String, entityFactory: EventSourcedEntityContext => Counter): CounterTestKit =
-    new CounterTestKit(entityFactory(new TestKitEventSourcedEntityContext(entityId)))
+  def apply(entityId: String, entityFactory: EventSourcedEntityContext => Counter, mockRegistry: MockRegistry = MockRegistry.empty): CounterTestKit =
+    new CounterTestKit(entityFactory(new TestKitEventSourcedEntityContext(entityId, mockRegistry)))
 }
 final class CounterTestKit private(entity: Counter) extends EventSourcedEntityEffectsRunner[CounterState](entity: Counter) {
 

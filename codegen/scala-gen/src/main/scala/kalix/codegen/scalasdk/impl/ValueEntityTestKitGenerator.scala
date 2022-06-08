@@ -44,6 +44,7 @@ object ValueEntityTestKitGenerator {
         valueEntity.messageType.parent.scalaPackage,
         otherImports = Seq(
           "kalix.scalasdk.Metadata",
+          "kalix.scalasdk.testkit.MockRegistry",
           "kalix.scalasdk.testkit.ValueEntityResult",
           "kalix.scalasdk.testkit.impl.ValueEntityResultImpl",
           "kalix.scalasdk.valueentity.ValueEntity",
@@ -81,14 +82,14 @@ object ValueEntityTestKitGenerator {
           |   * @param entityFactory A function that creates a $entityClassName based on the given ValueEntityContext,
           |   *                      a default entity id is used.
           |   */
-          |  def apply(entityFactory: ValueEntityContext => $entityClassName): ${entityClassName}TestKit =
-          |    apply("testkit-entity-id", entityFactory)
+          |  def apply(entityFactory: ValueEntityContext => $entityClassName, mockRegistry: MockRegistry = MockRegistry.empty): ${entityClassName}TestKit =
+          |    apply("testkit-entity-id", entityFactory, mockRegistry)
           |
           |  /**
           |   * Create a testkit instance of $entityClassName with a specific entity id.
           |   */
-          |  def apply(entityId: String, entityFactory: ValueEntityContext => $entityClassName): ${entityClassName}TestKit =
-          |    new ${entityClassName}TestKit(entityFactory(new TestKitValueEntityContext(entityId)), entityId)
+          |  def apply(entityId: String, entityFactory: ValueEntityContext => $entityClassName, mockRegistry: MockRegistry = MockRegistry.empty): ${entityClassName}TestKit =
+          |    new ${entityClassName}TestKit(entityFactory(new TestKitValueEntityContext(entityId, mockRegistry)), entityId)
           |}
           |
           |/**

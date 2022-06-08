@@ -8,6 +8,7 @@ import kalix.javasdk.impl.effect.MessageReplyImpl;
 import kalix.javasdk.impl.effect.SecondaryEffectImpl;
 import kalix.javasdk.impl.eventsourcedentity.EventSourcedEntityEffectImpl;
 import kalix.javasdk.testkit.EventSourcedResult;
+import kalix.javasdk.testkit.MockRegistry;
 import kalix.javasdk.testkit.impl.EventSourcedEntityEffectsRunner;
 import kalix.javasdk.testkit.impl.EventSourcedResultImpl;
 import kalix.javasdk.testkit.impl.TestKitEventSourcedEntityCommandContext;
@@ -41,9 +42,29 @@ public final class CounterServiceEntityTestKit extends EventSourcedEntityEffects
 
   /**
    * Create a testkit instance of CounterServiceEntity with a specific entity id.
+   * @param entityFactory A function that creates a CounterServiceEntity based on the given EventSourcedEntityContext,
+   *                      a default entity id is used.
+   * @param mockRegistry  A registry to be provided in cases which the entity calls other components to allow for unit testing.
+   */
+  public static CounterServiceEntityTestKit of(Function<EventSourcedEntityContext, CounterServiceEntity> entityFactory, MockRegistry mockRegistry) {
+    return new CounterServiceEntityTestKit(entityFactory.apply(new TestKitEventSourcedEntityContext("testkit-entity-id", mockRegistry)));
+  }
+
+  /**
+   * Create a testkit instance of CounterServiceEntity with a specific entity id.
    */
   public static CounterServiceEntityTestKit of(String entityId, Function<EventSourcedEntityContext, CounterServiceEntity> entityFactory) {
-    return new CounterServiceEntityTestKit(entityFactory.apply(new TestKitEventSourcedEntityContext(entityId)));
+    return of(entityId, entityFactory, MockRegistry.EMPTY);
+  }
+
+  /**
+   * Create a testkit instance of CounterServiceEntity with a specific entity id.
+   * @param entityFactory A function that creates a CounterServiceEntity based on the given EventSourcedEntityContext,
+   *                      a default entity id is used.
+   * @param mockRegistry  A registry to be provided in cases which the entity calls other components to allow for unit testing.
+   */
+  public static CounterServiceEntityTestKit of(String entityId, Function<EventSourcedEntityContext, CounterServiceEntity> entityFactory, MockRegistry mockRegistry) {
+    return new CounterServiceEntityTestKit(entityFactory.apply(new TestKitEventSourcedEntityContext(entityId, mockRegistry)));
   }
 
   private CounterServiceEntity entity;

@@ -2,6 +2,7 @@ package org.example.valueentity.domain
 
 import com.google.protobuf.empty.Empty
 import kalix.scalasdk.Metadata
+import kalix.scalasdk.testkit.MockRegistry
 import kalix.scalasdk.testkit.ValueEntityResult
 import kalix.scalasdk.testkit.impl.TestKitValueEntityCommandContext
 import kalix.scalasdk.testkit.impl.TestKitValueEntityContext
@@ -23,14 +24,14 @@ object CounterTestKit {
    * @param entityFactory A function that creates a Counter based on the given ValueEntityContext,
    *                      a default entity id is used.
    */
-  def apply(entityFactory: ValueEntityContext => Counter): CounterTestKit =
-    apply("testkit-entity-id", entityFactory)
+  def apply(entityFactory: ValueEntityContext => Counter, mockRegistry: MockRegistry = MockRegistry.empty): CounterTestKit =
+    apply("testkit-entity-id", entityFactory, mockRegistry)
 
   /**
    * Create a testkit instance of Counter with a specific entity id.
    */
-  def apply(entityId: String, entityFactory: ValueEntityContext => Counter): CounterTestKit =
-    new CounterTestKit(entityFactory(new TestKitValueEntityContext(entityId)), entityId)
+  def apply(entityId: String, entityFactory: ValueEntityContext => Counter, mockRegistry: MockRegistry = MockRegistry.empty): CounterTestKit =
+    new CounterTestKit(entityFactory(new TestKitValueEntityContext(entityId, mockRegistry)), entityId)
 }
 
 /**

@@ -5,6 +5,7 @@ import kalix.javasdk.Metadata;
 import kalix.javasdk.impl.effect.MessageReplyImpl;
 import kalix.javasdk.impl.effect.SecondaryEffectImpl;
 import kalix.javasdk.impl.valueentity.ValueEntityEffectImpl;
+import kalix.javasdk.testkit.MockRegistry;
 import kalix.javasdk.testkit.ValueEntityResult;
 import kalix.javasdk.testkit.impl.TestKitValueEntityCommandContext;
 import kalix.javasdk.testkit.impl.TestKitValueEntityContext;
@@ -42,7 +43,27 @@ public final class CounterServiceEntityTestKit {
    * Create a testkit instance of CounterServiceEntity with a specific entity id.
    */
   public static CounterServiceEntityTestKit of(String entityId, Function<ValueEntityContext, CounterServiceEntity> entityFactory) {
-    return new CounterServiceEntityTestKit(entityFactory.apply(new TestKitValueEntityContext(entityId)), entityId);
+    return of(entityId, entityFactory, MockRegistry.EMPTY);
+  }
+
+  /**
+   * Create a testkit instance of CounterServiceEntity
+   * @param entityFactory A function that creates a CounterServiceEntity based on the given ValueEntityContext,
+   *                      a default entity id is used.
+   * @param mockRegistry  A registry to be provided in cases which the entity calls other components to allow for unit testing.
+   */
+  public static CounterServiceEntityTestKit of(Function<ValueEntityContext, CounterServiceEntity> entityFactory, MockRegistry mockRegistry) {
+    return new CounterServiceEntityTestKit(entityFactory.apply(new TestKitValueEntityContext("testkit-entity-id", mockRegistry)), "testkit-entity-id");
+  }
+
+  /**
+   * Create a testkit instance of CounterServiceEntity
+   * @param entityFactory A function that creates a CounterServiceEntity based on the given ValueEntityContext,
+   *                      a default entity id is used.
+   * @param mockRegistry  A registry to be provided in cases which the entity calls other components to allow for unit testing.
+   */
+  public static CounterServiceEntityTestKit of(String entityId, Function<ValueEntityContext, CounterServiceEntity> entityFactory, MockRegistry mockRegistry) {
+    return new CounterServiceEntityTestKit(entityFactory.apply(new TestKitValueEntityContext(entityId, mockRegistry)), entityId);
   }
 
   /** Construction is done through the static CounterServiceEntityTestKit.of-methods */

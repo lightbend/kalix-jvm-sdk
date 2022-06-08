@@ -5,6 +5,7 @@ import kalix.javasdk.Metadata;
 import kalix.javasdk.impl.effect.MessageReplyImpl;
 import kalix.javasdk.impl.effect.SecondaryEffectImpl;
 import kalix.javasdk.impl.valueentity.ValueEntityEffectImpl;
+import kalix.javasdk.testkit.MockRegistry;
 import kalix.javasdk.testkit.ValueEntityResult;
 import kalix.javasdk.testkit.impl.TestKitValueEntityCommandContext;
 import kalix.javasdk.testkit.impl.TestKitValueEntityContext;
@@ -43,7 +44,27 @@ public final class CounterTestKit {
    * Create a testkit instance of Counter with a specific entity id.
    */
   public static CounterTestKit of(String entityId, Function<ValueEntityContext, Counter> entityFactory) {
-    return new CounterTestKit(entityFactory.apply(new TestKitValueEntityContext(entityId)), entityId);
+    return of(entityId, entityFactory, MockRegistry.EMPTY);
+  }
+
+  /**
+   * Create a testkit instance of Counter
+   * @param entityFactory A function that creates a Counter based on the given ValueEntityContext,
+   *                      a default entity id is used.
+   * @param mockRegistry  A registry to be provided in cases which the entity calls other components to allow for unit testing.
+   */
+  public static CounterTestKit of(Function<ValueEntityContext, Counter> entityFactory, MockRegistry mockRegistry) {
+    return new CounterTestKit(entityFactory.apply(new TestKitValueEntityContext("testkit-entity-id", mockRegistry)), "testkit-entity-id");
+  }
+
+  /**
+   * Create a testkit instance of Counter
+   * @param entityFactory A function that creates a Counter based on the given ValueEntityContext,
+   *                      a default entity id is used.
+   * @param mockRegistry  A registry to be provided in cases which the entity calls other components to allow for unit testing.
+   */
+  public static CounterTestKit of(String entityId, Function<ValueEntityContext, Counter> entityFactory, MockRegistry mockRegistry) {
+    return new CounterTestKit(entityFactory.apply(new TestKitValueEntityContext(entityId, mockRegistry)), entityId);
   }
 
   /** Construction is done through the static CounterTestKit.of-methods */

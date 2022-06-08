@@ -16,7 +16,6 @@
 
 package kalix.javasdk.testkit.impl
 
-import akka.stream.Materializer
 import kalix.javasdk.eventsourcedentity.EventSourcedEntityContext
 import kalix.javasdk.testkit.MockRegistry
 
@@ -33,6 +32,4 @@ final class TestKitEventSourcedEntityContext(
     this(entityId, MockRegistry.EMPTY)
   }
 
-  override def materializer(): Materializer = throw new UnsupportedOperationException(
-    "Accessing the materializer from testkit not supported yet")
 }
