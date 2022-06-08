@@ -249,6 +249,11 @@ object DiscoveryImpl {
       }
       builder.addFile(protoWithSource)
     }
+    // include 'kalix_policy.proto' with ACL defaults for entire Kalix service if the file exists
+    descriptorsWithSource
+      .collect { case (file, proto) if file.endsWith("kalix_policy.proto") => proto }
+      .foreach(defaultPolicy => builder.addFile(defaultPolicy))
+
     builder.build()
   }
 

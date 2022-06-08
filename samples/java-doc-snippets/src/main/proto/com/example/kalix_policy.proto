@@ -1,0 +1,12 @@
+// This is the default ACLs for all components of this Kalix Service
+// tag::default[]
+syntax = "proto3";
+
+package com.example;
+
+import "kalix/annotations.proto"; // <1>
+
+option (kalix.file).acl = {
+  allow: { service: "*" } // <2>
+};
+// end::default[]
