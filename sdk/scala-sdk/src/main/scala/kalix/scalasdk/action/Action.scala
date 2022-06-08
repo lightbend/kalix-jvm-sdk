@@ -198,7 +198,7 @@ abstract class Action {
             s"Incompatible ActionContext instance. Found ${other.getClass}, expecting ${classOf[ActionContextImpl].getName}")
       }
 
-    new TimerSchedulerImpl(javaActionContextImpl.anySupport, javaActionContextImpl.system)
+    new TimerSchedulerImpl(javaActionContextImpl.messageCodec, javaActionContextImpl.system)
   }
 
   protected final def effects[T]: Action.Effect.Builder =

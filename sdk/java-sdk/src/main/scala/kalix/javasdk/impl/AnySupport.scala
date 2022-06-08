@@ -37,7 +37,6 @@ import com.google.protobuf.{ Any => JavaPbAny }
 import kalix.javasdk.JsonSupport
 import kalix.javasdk.impl.AnySupport.Prefer.Java
 import kalix.javasdk.impl.AnySupport.Prefer.Scala
-import kalix.serializer.Serializer
 import org.slf4j.LoggerFactory
 import scalapb.GeneratedMessage
 import scalapb.GeneratedMessageCompanion
@@ -197,16 +196,8 @@ class AnySupport(
     descriptors: Array[Descriptors.FileDescriptor],
     classLoader: ClassLoader,
     typeUrlPrefix: String = AnySupport.DefaultTypeUrlPrefix,
-    prefer: AnySupport.Prefer = AnySupport.Prefer.Java,
-    additionalSerializers: Map[Class[_], Serializer] = Map.empty) {
-
-  def this(
-      descriptors: Array[Descriptors.FileDescriptor],
-      classLoader: ClassLoader,
-      typeUrlPrefix: String,
-      prefer: AnySupport.Prefer,
-      additionalSerializers: java.util.Map[Class[_], Serializer]) =
-    this(descriptors, classLoader, typeUrlPrefix, prefer, additionalSerializers.asScala.toMap)
+    prefer: AnySupport.Prefer = AnySupport.Prefer.Java)
+    extends MessageCodec {
 
   import AnySupport._
   private val allDescriptors = flattenDescriptors(descriptors)
@@ -249,15 +240,8 @@ class AnySupport(
       log.debug("Attempting to load class {}", className)
 
       val clazz = classLoader.loadClass(className)
-
-      if (classOf[com.google.protobuf.Message].isAssignableFrom(clazz)) {
-        val parser = clazz.getMethod("parser").invoke(null).asInstanceOf[Parser[com.google.protobuf.Message]]
-        Some(new JavaPbResolvedType(parser))
-      } else {
-        additionalSerializers.get(clazz).collect { case ser =>
-          new SerializerBasedResolvedType(ser)
-        }
-      }
+      val parser = clazz.getMethod("parser").invoke(null).asInstanceOf[Parser[com.google.protobuf.Message]]
+      Some(new JavaPbResolvedType(parser))
 
     } catch {
       case cnfe: ClassNotFoundException =>
@@ -397,16 +381,8 @@ class AnySupport(
         ScalaPbAny(BytesPrimitive.fullName, primitiveToBytes(BytesPrimitive, byteString))
 
       case other =>
-        // last chance: try to find a suitable JacksonProto serializer
-        additionalSerializers
-          .get(value.getClass)
-          .map { serializer =>
-            ScalaPbAny.fromJavaProto(serializer.serialize(value))
-          }
-          .getOrElse {
-            throw SerializationException(
-              s"Don't know how to serialize object of type ${other.getClass}. Try passing a protobuf or use a primitive type.")
-          }
+        throw SerializationException(
+          s"Don't know how to serialize object of type ${other.getClass}. Try passing a protobuf or use a primitive type.")
     }
 
   /**
@@ -508,4 +484,9 @@ private[kalix] object ByteStringEncoding {
   def decodePrimitiveBytes(bytes: ByteString): ByteString =
     AnySupport.decodePrimitiveBytes(bytes)
 
+}
+
+trait MessageCodec {
+  def decodeMessage(any: ScalaPbAny): Any
+  def encodeScala(value: Any): ScalaPbAny
 }

@@ -16,10 +16,10 @@
 
 package kalix.javasdk.impl
 
-import com.google.protobuf.{ ByteString, Descriptors, Message => JavaMessage, Parser }
-import java.util.concurrent.CompletionStage
-
-import kalix.serializer.Serializer
+import com.google.protobuf.ByteString
+import com.google.protobuf.Descriptors
+import com.google.protobuf.Parser
+import com.google.protobuf.{ Message => JavaMessage }
 
 /**
  * A resolved service method.
@@ -54,11 +54,6 @@ private final class JavaPbResolvedType[T <: JavaMessage](parser: Parser[T]) exte
 private final class ScalaPbResolvedType[T <: scalapb.GeneratedMessage](companion: scalapb.GeneratedMessageCompanion[_])
     extends ResolvedType[T] {
   override def parseFrom(bytes: ByteString): T = companion.parseFrom(bytes.newCodedInput()).asInstanceOf[T]
-}
-
-private final class SerializerBasedResolvedType[T](serializer: Serializer) extends ResolvedType[T] {
-
-  override def parseFrom(bytes: ByteString): T = serializer.deserialize(bytes).asInstanceOf[T]
 }
 
 trait ResolvedEntityFactory {

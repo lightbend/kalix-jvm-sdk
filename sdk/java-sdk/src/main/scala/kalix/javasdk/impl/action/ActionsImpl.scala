@@ -28,11 +28,9 @@ import akka.actor.ActorSystem
 import akka.stream.scaladsl.Sink
 import akka.stream.scaladsl.Source
 import com.google.protobuf.Descriptors
-import com.google.protobuf.any.{ Any => ScalaPbAny }
 import kalix.javasdk._
 import kalix.javasdk.action._
 import kalix.javasdk.impl.ActionFactory
-import kalix.javasdk.impl.AnySupport
 import kalix.javasdk.impl._
 import kalix.javasdk.impl.effect.SideEffectImpl
 import kalix.protocol.action.ActionCommand
@@ -47,7 +45,7 @@ final class ActionService(
     val factory: ActionFactory,
     override val descriptor: Descriptors.ServiceDescriptor,
     override val additionalDescriptors: Array[Descriptors.FileDescriptor],
-    val anySupport: AnySupport)
+    val messageCodec: MessageCodec)
     extends Service {
 
   @volatile var actionClass: Option[Class[_]] = None
@@ -107,26 +105,27 @@ private[javasdk] final class ActionsImpl(
       service: ActionService,
       command: ActionCommand,
       effect: Action.Effect[_],
-      anySupport: AnySupport): Future[ActionResponse] = {
+      messageCodec: MessageCodec): Future[ActionResponse] = {
     import ActionEffectImpl._
     effect match {
       case ReplyEffect(message, metadata, sideEffects) =>
         val response =
-          component.Reply(Some(ScalaPbAny.fromJavaProto(anySupport.encodeJava(message))), metadata.flatMap(toProtocol))
-        Future.successful(ActionResponse(ActionResponse.Response.Reply(response), toProtocol(anySupport, sideEffects)))
+          component.Reply(Some(messageCodec.encodeScala(message)), metadata.flatMap(toProtocol))
+        Future.successful(
+          ActionResponse(ActionResponse.Response.Reply(response), toProtocol(messageCodec, sideEffects)))
       case ForwardEffect(forward: DeferredCallImpl[_, _], sideEffects) =>
         val response = component.Forward(
           forward.fullServiceName,
           forward.methodName,
-          Some(ScalaPbAny.fromJavaProto(anySupport.encodeJava(forward.message))),
+          Some(messageCodec.encodeScala(forward.message)),
           toProtocol(forward.metadata))
         Future.successful(
-          ActionResponse(ActionResponse.Response.Forward(response), toProtocol(anySupport, sideEffects)))
+          ActionResponse(ActionResponse.Response.Forward(response), toProtocol(messageCodec, sideEffects)))
       case AsyncEffect(futureEffect, sideEffects) =>
         futureEffect
           .flatMap { effect =>
             val withSurroundingSideEffects = effect.addSideEffects(sideEffects.asJava)
-            effectToResponse(service, command, withSurroundingSideEffects, anySupport)
+            effectToResponse(service, command, withSurroundingSideEffects, messageCodec)
           }
           .recover { case NonFatal(ex) =>
             handleUnexpectedException(service, command, ex)
@@ -136,18 +135,18 @@ private[javasdk] final class ActionsImpl(
           ActionResponse(
             ActionResponse.Response.Failure(
               Failure(description = description, grpcStatusCode = status.map(_.value()).getOrElse(0))),
-            toProtocol(anySupport, sideEffects)))
+            toProtocol(messageCodec, sideEffects)))
       case unknown =>
         throw new IllegalArgumentException(s"Unknown Action.Effect type ${unknown.getClass}")
     }
   }
 
-  private def toProtocol(anySupport: AnySupport, sideEffects: Seq[SideEffect]): Seq[component.SideEffect] =
+  private def toProtocol(messageCodec: MessageCodec, sideEffects: Seq[SideEffect]): Seq[component.SideEffect] =
     sideEffects.map { case SideEffectImpl(deferred: DeferredCallImpl[_, _], synchronous) =>
       component.SideEffect(
         deferred.fullServiceName,
         deferred.methodName,
-        Some(ScalaPbAny.fromJavaProto(anySupport.encodeJava(deferred.message))),
+        Some(messageCodec.encodeScala(deferred.message)),
         synchronous,
         toProtocol(deferred.metadata))
     }
@@ -170,13 +169,13 @@ private[javasdk] final class ActionsImpl(
     services.get(in.serviceName) match {
       case Some(service) =>
         try {
-          val context = createContext(in, service.anySupport)
-          val decodedPayload = service.anySupport.decodeMessage(
+          val context = createContext(in, service.messageCodec)
+          val decodedPayload = service.messageCodec.decodeMessage(
             in.payload.getOrElse(throw new IllegalArgumentException("No command payload")))
           val effect = service.factory
             .create(creationContext)
             .handleUnary(in.name, MessageEnvelope.of(decodedPayload, context.metadata()), context)
-          effectToResponse(service, in, effect, service.anySupport)
+          effectToResponse(service, in, effect, service.messageCodec)
         } catch {
           case NonFatal(ex) =>
             // command handler threw an "unexpected" error
@@ -215,12 +214,12 @@ private[javasdk] final class ActionsImpl(
                     call.name,
                     messages.map { message =>
                       val metadata = new MetadataImpl(message.metadata.map(_.entries.toVector).getOrElse(Nil))
-                      val decodedPayload = service.anySupport.decodeMessage(
+                      val decodedPayload = service.messageCodec.decodeMessage(
                         message.payload.getOrElse(throw new IllegalArgumentException("No command payload")))
                       MessageEnvelope.of(decodedPayload, metadata)
                     }.asJava,
-                    createContext(call, service.anySupport))
-                effectToResponse(service, call, effect, service.anySupport)
+                    createContext(call, service.messageCodec))
+                effectToResponse(service, call, effect, service.messageCodec)
               } catch {
                 case NonFatal(ex) =>
                   // command handler threw an "unexpected" error
@@ -243,14 +242,14 @@ private[javasdk] final class ActionsImpl(
     services.get(in.serviceName) match {
       case Some(service) =>
         try {
-          val context = createContext(in, service.anySupport)
-          val decodedPayload = service.anySupport.decodeMessage(
+          val context = createContext(in, service.messageCodec)
+          val decodedPayload = service.messageCodec.decodeMessage(
             in.payload.getOrElse(throw new IllegalArgumentException("No command payload")))
           service.factory
             .create(creationContext)
             .handleStreamedOut(in.name, MessageEnvelope.of(decodedPayload, context.metadata()), context)
             .asScala
-            .mapAsync(1)(effect => effectToResponse(service, in, effect, service.anySupport))
+            .mapAsync(1)(effect => effectToResponse(service, in, effect, service.messageCodec))
             .recover { case NonFatal(ex) =>
               // user stream failed with an "unexpected" error
               handleUnexpectedException(service, in, ex)
@@ -293,13 +292,13 @@ private[javasdk] final class ActionsImpl(
                     call.name,
                     messages.map { message =>
                       val metadata = new MetadataImpl(message.metadata.map(_.entries.toVector).getOrElse(Nil))
-                      val decodedPayload = service.anySupport.decodeMessage(
+                      val decodedPayload = service.messageCodec.decodeMessage(
                         message.payload.getOrElse(throw new IllegalArgumentException("No command payload")))
                       MessageEnvelope.of(decodedPayload, metadata)
                     }.asJava,
-                    createContext(call, service.anySupport))
+                    createContext(call, service.messageCodec))
                   .asScala
-                  .mapAsync(1)(effect => effectToResponse(service, call, effect, service.anySupport))
+                  .mapAsync(1)(effect => effectToResponse(service, call, effect, service.messageCodec))
                   .recover { case NonFatal(ex) =>
                     // user stream failed with an "unexpected" error
                     handleUnexpectedException(service, call, ex)
@@ -318,9 +317,9 @@ private[javasdk] final class ActionsImpl(
           }
       }
 
-  private def createContext(in: ActionCommand, anySupport: AnySupport): ActionContext = {
+  private def createContext(in: ActionCommand, messageCodec: MessageCodec): ActionContext = {
     val metadata = new MetadataImpl(in.metadata.map(_.entries.toVector).getOrElse(Nil))
-    new ActionContextImpl(metadata, anySupport, system)
+    new ActionContextImpl(metadata, messageCodec, system)
   }
 
 }
@@ -330,7 +329,7 @@ case class MessageEnvelopeImpl[T](payload: T, metadata: Metadata) extends Messag
 /**
  * INTERNAL API
  */
-class ActionContextImpl(override val metadata: Metadata, val anySupport: AnySupport, val system: ActorSystem)
+class ActionContextImpl(override val metadata: Metadata, val messageCodec: MessageCodec, val system: ActorSystem)
     extends AbstractContext(system)
     with ActionContext {
 
