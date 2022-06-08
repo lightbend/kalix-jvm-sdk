@@ -53,7 +53,8 @@ public class ReflectiveActionProvider<A extends Action> implements ActionProvide
     this.factory = factory;
     this.options = options;
 
-    this.actionDescription = ActionIntrospector.inspect(cls, new NameGenerator(), new ObjectMapper());
+    this.actionDescription =
+        ActionIntrospector.inspect(cls, new NameGenerator(), new ObjectMapper());
 
     this.fileDescriptor = actionDescription.fileDescriptor();
     this.serviceDescriptor = actionDescription.serviceDescriptor();
