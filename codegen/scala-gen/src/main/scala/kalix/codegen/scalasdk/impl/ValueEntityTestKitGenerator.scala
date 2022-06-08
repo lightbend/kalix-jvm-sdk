@@ -88,7 +88,7 @@ object ValueEntityTestKitGenerator {
           |  /**
           |   * Create a testkit instance of $entityClassName with a specific entity id.
           |   */
-          |  def apply(entityId: String, entityFactory: ValueEntityContext => $entityClassName, mockRegistry: MockRegistry = MockRegistry.empty): ${entityClassName}TestKit =
+          |  def apply(entityId: String, entityFactory: ValueEntityContext => $entityClassName, mockRegistry: MockRegistry): ${entityClassName}TestKit =
           |    new ${entityClassName}TestKit(entityFactory(new TestKitValueEntityContext(entityId, mockRegistry)), entityId)
           |}
           |

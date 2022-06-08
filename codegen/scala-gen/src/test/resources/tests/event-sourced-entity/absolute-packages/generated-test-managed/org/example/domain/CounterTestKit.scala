@@ -40,7 +40,7 @@ object CounterTestKit {
    *                      a default entity id is used.
    * @param mockRegistry  A registry to be provided in cases which the entity calls other components to allow for unit testing.
    */
-  def apply(entityId: String, entityFactory: EventSourcedEntityContext => Counter, mockRegistry: MockRegistry = MockRegistry.empty): CounterTestKit =
+  def apply(entityId: String, entityFactory: EventSourcedEntityContext => Counter, mockRegistry: MockRegistry): CounterTestKit =
     new CounterTestKit(entityFactory(new TestKitEventSourcedEntityContext(entityId, mockRegistry)))
 }
 final class CounterTestKit private(entity: Counter) extends EventSourcedEntityEffectsRunner[CounterState](entity: Counter) {

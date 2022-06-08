@@ -102,7 +102,7 @@ object EventSourcedEntityTestKitGenerator {
        |   *                      a default entity id is used.
        |   * @param mockRegistry  A registry to be provided in cases which the entity calls other components to allow for unit testing.
        |   */
-       |  def apply(entityId: String, entityFactory: EventSourcedEntityContext => ${entity.messageType.name}, mockRegistry: MockRegistry = MockRegistry.empty): ${{
+       |  def apply(entityId: String, entityFactory: EventSourcedEntityContext => ${entity.messageType.name}, mockRegistry: MockRegistry): ${{
         entity.messageType.name
       }}TestKit =
        |    new ${entity.messageType.name}TestKit(entityFactory(new TestKitEventSourcedEntityContext(entityId, mockRegistry)))

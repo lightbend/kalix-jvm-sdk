@@ -31,7 +31,7 @@ object CounterServiceEntityTestKit {
   /**
    * Create a testkit instance of CounterServiceEntity with a specific entity id.
    */
-  def apply(entityId: String, entityFactory: ValueEntityContext => CounterServiceEntity, mockRegistry: MockRegistry = MockRegistry.empty): CounterServiceEntityTestKit =
+  def apply(entityId: String, entityFactory: ValueEntityContext => CounterServiceEntity, mockRegistry: MockRegistry): CounterServiceEntityTestKit =
     new CounterServiceEntityTestKit(entityFactory(new TestKitValueEntityContext(entityId, mockRegistry)), entityId)
 }
 
