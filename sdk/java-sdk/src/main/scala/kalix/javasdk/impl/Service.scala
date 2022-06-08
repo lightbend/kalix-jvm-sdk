@@ -51,7 +51,7 @@ trait Service {
    * @return
    *   the options [[ComponentOptions]] or [[EntityOptions]] used by this service
    */
-  def componentOptions: Option[ComponentOptions] = None
+  def componentOptions: Option[ComponentOptions]
 
   /**
    * @return

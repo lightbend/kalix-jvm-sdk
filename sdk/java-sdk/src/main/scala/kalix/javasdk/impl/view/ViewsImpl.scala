@@ -17,17 +17,14 @@
 package kalix.javasdk.impl.view
 
 import java.util.Optional
-
 import scala.compat.java8.OptionConverters._
 import scala.util.control.NonFatal
-
 import akka.actor.ActorSystem
 import akka.stream.scaladsl.Source
 import kalix.javasdk.impl.{ Service, ViewFactory }
 import kalix.javasdk.{ Context, Metadata }
 import kalix.javasdk.impl._
-import kalix.javasdk.view.ViewCreationContext
-import kalix.javasdk.view.{ UpdateContext, View, ViewContext }
+import kalix.javasdk.view.{ UpdateContext, View, ViewContext, ViewCreationContext, ViewOptions }
 import kalix.protocol.{ view => pv }
 import com.google.protobuf.Descriptors
 import com.google.protobuf.any.{ Any => ScalaPbAny }
@@ -39,8 +36,18 @@ final class ViewService(
     override val descriptor: Descriptors.ServiceDescriptor,
     override val additionalDescriptors: Array[Descriptors.FileDescriptor],
     val anySupport: AnySupport,
-    val viewId: String)
+    val viewId: String,
+    val viewOptions: Option[ViewOptions])
     extends Service {
+
+  def this(
+      factory: Optional[ViewFactory],
+      descriptor: Descriptors.ServiceDescriptor,
+      additionalDescriptors: Array[Descriptors.FileDescriptor],
+      anySupport: AnySupport,
+      viewId: String,
+      viewOptions: ViewOptions) =
+    this(factory, descriptor, additionalDescriptors, anySupport, viewId, Some(viewOptions))
 
   override def resolvedMethods: Option[Map[String, ResolvedServiceMethod[_, _]]] =
     factory.asScala.collect { case resolved: ResolvedEntityFactory =>
@@ -50,6 +57,8 @@ final class ViewService(
   override final val componentType = pv.Views.name
 
   override def entityType: String = viewId
+
+  override def componentOptions: Option[ComponentOptions] = viewOptions
 }
 
 object ViewsImpl {

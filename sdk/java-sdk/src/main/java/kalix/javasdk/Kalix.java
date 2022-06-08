@@ -18,6 +18,9 @@ package kalix.javasdk;
 
 import akka.Done;
 import akka.actor.ActorSystem;
+import com.google.protobuf.Descriptors;
+import com.typesafe.config.Config;
+import kalix.javasdk.action.ActionOptions;
 import kalix.javasdk.action.ActionProvider;
 import kalix.javasdk.eventsourcedentity.EventSourcedEntity;
 import kalix.javasdk.eventsourcedentity.EventSourcedEntityOptions;
@@ -38,10 +41,9 @@ import kalix.javasdk.replicatedentity.ReplicatedEntityProvider;
 import kalix.javasdk.valueentity.ValueEntity;
 import kalix.javasdk.valueentity.ValueEntityOptions;
 import kalix.javasdk.valueentity.ValueEntityProvider;
+import kalix.javasdk.view.ViewOptions;
 import kalix.javasdk.view.ViewProvider;
 import kalix.replicatedentity.ReplicatedData;
-import com.google.protobuf.Descriptors;
-import com.typesafe.config.Config;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -113,6 +115,7 @@ public final class Kalix {
      */
     public Kalix registerAction(
         ActionFactory actionFactory,
+        ActionOptions actionOptions,
         Descriptors.ServiceDescriptor descriptor,
         Descriptors.FileDescriptor... additionalDescriptors) {
 
@@ -122,7 +125,8 @@ public final class Kalix {
           new ResolvedActionFactory(actionFactory, anySupport.resolveServiceDescriptor(descriptor));
 
       ActionService service =
-          new ActionService(resolvedActionFactory, descriptor, additionalDescriptors, anySupport);
+          new ActionService(
+              resolvedActionFactory, descriptor, additionalDescriptors, anySupport, actionOptions);
 
       services.put(descriptor.getFullName(), system -> service);
 
@@ -218,12 +222,18 @@ public final class Kalix {
         ViewFactory factory,
         Descriptors.ServiceDescriptor descriptor,
         String viewId,
+        ViewOptions viewOptions,
         Descriptors.FileDescriptor... additionalDescriptors) {
 
       AnySupport anySupport = newAnySupport(additionalDescriptors);
       ViewService service =
           new ViewService(
-              Optional.ofNullable(factory), descriptor, additionalDescriptors, anySupport, viewId);
+              Optional.ofNullable(factory),
+              descriptor,
+              additionalDescriptors,
+              anySupport,
+              viewId,
+              viewOptions);
       services.put(descriptor.getFullName(), system -> service);
 
       return Kalix.this;
@@ -347,6 +357,7 @@ public final class Kalix {
         provider::newRouter,
         provider.serviceDescriptor(),
         provider.viewId(),
+        provider.options(),
         provider.additionalDescriptors());
   }
 
@@ -359,7 +370,10 @@ public final class Kalix {
    */
   public Kalix register(ActionProvider provider) {
     return lowLevel.registerAction(
-        provider::newRouter, provider.serviceDescriptor(), provider.additionalDescriptors());
+        provider::newRouter,
+        provider.options(),
+        provider.serviceDescriptor(),
+        provider.additionalDescriptors());
   }
 
   /**
