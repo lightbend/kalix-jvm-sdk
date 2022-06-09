@@ -18,19 +18,17 @@ package kalix.javasdk.impl.valueentity
 
 import scala.concurrent.ExecutionContext
 import scala.util.control.NonFatal
+
 import akka.NotUsed
 import akka.actor.ActorSystem
 import akka.stream.scaladsl.Flow
 import akka.stream.scaladsl.Source
-import kalix.javasdk.KalixRunner.Configuration
 import kalix.protocol.component.Failure
 import org.slf4j.LoggerFactory
 
 // FIXME these don't seem to be 'public API', more internals?
-import kalix.javasdk.Context
+import com.google.protobuf.Descriptors
 import kalix.javasdk.Metadata
-import kalix.javasdk.valueentity._
-
 import kalix.javasdk.impl.ValueEntityFactory
 import kalix.javasdk.impl._
 import kalix.javasdk.impl.effect.EffectSupport
@@ -39,6 +37,7 @@ import kalix.javasdk.impl.effect.MessageReplyImpl
 import kalix.javasdk.impl.valueentity.ValueEntityEffectImpl.DeleteState
 import kalix.javasdk.impl.valueentity.ValueEntityEffectImpl.UpdateState
 import kalix.javasdk.impl.valueentity.ValueEntityRouter.CommandResult
+import kalix.javasdk.valueentity._
 import kalix.protocol.value_entity.ValueEntityAction.Action.Delete
 import kalix.protocol.value_entity.ValueEntityAction.Action.Update
 import kalix.protocol.value_entity.ValueEntityStreamIn.Message.{ Command => InCommand }
@@ -47,14 +46,12 @@ import kalix.protocol.value_entity.ValueEntityStreamIn.Message.{ Init => InInit 
 import kalix.protocol.value_entity.ValueEntityStreamOut.Message.{ Failure => OutFailure }
 import kalix.protocol.value_entity.ValueEntityStreamOut.Message.{ Reply => OutReply }
 import kalix.protocol.value_entity._
-import com.google.protobuf.Descriptors
-import com.google.protobuf.any.{ Any => ScalaPbAny }
 
 final class ValueEntityService(
     val factory: ValueEntityFactory,
     override val descriptor: Descriptors.ServiceDescriptor,
     override val additionalDescriptors: Array[Descriptors.FileDescriptor],
-    val anySupport: AnySupport,
+    val messageCodec: MessageCodec,
     override val entityType: String,
     val entityOptions: Option[ValueEntityOptions])
     extends Service {
@@ -63,7 +60,7 @@ final class ValueEntityService(
       factory: ValueEntityFactory,
       descriptor: Descriptors.ServiceDescriptor,
       additionalDescriptors: Array[Descriptors.FileDescriptor],
-      anySupport: AnySupport,
+      anySupport: MessageCodec,
       entityType: String,
       entityOptions: ValueEntityOptions) =
     this(factory, descriptor, additionalDescriptors, anySupport, entityType, Some(entityOptions))
@@ -126,7 +123,7 @@ final class ValueEntitiesImpl(system: ActorSystem, val services: Map[String, Val
       case Some(ValueEntityInitState(stateOpt, _)) =>
         stateOpt match {
           case Some(state) =>
-            val decoded = service.anySupport.decodeMessage(state)
+            val decoded = service.messageCodec.decodeMessage(state)
             handler._internalSetInitState(decoded)
           case None => // no initial state
         }
@@ -149,7 +146,7 @@ final class ValueEntitiesImpl(system: ActorSystem, val services: Map[String, Val
 
           val metadata = new MetadataImpl(command.metadata.map(_.entries.toVector).getOrElse(Nil))
           val cmd =
-            service.anySupport.decodeMessage(
+            service.messageCodec.decodeMessage(
               command.payload.getOrElse(throw ProtocolException(command, "No command payload")))
           val context =
             new CommandContextImpl(thisEntityId, command.name, command.id, metadata, system)
@@ -167,12 +164,12 @@ final class ValueEntitiesImpl(system: ActorSystem, val services: Map[String, Val
 
           val serializedSecondaryEffect = effect.secondaryEffect match {
             case MessageReplyImpl(message, metadata, sideEffects) =>
-              MessageReplyImpl(service.anySupport.encodeJava(message), metadata, sideEffects)
+              MessageReplyImpl(service.messageCodec.encodeScala(message), metadata, sideEffects)
             case other => other
           }
 
           val clientAction =
-            serializedSecondaryEffect.replyToClientAction(service.anySupport, command.id)
+            serializedSecondaryEffect.replyToClientAction(service.messageCodec, command.id)
 
           serializedSecondaryEffect match {
             case error: ErrorReplyImpl[_] =>
@@ -183,7 +180,7 @@ final class ValueEntitiesImpl(system: ActorSystem, val services: Map[String, Val
                 case DeleteState =>
                   Some(ValueEntityAction(Delete(ValueEntityDelete())))
                 case UpdateState(newState) =>
-                  val newStateScalaPbAny = ScalaPbAny.fromJavaProto(service.anySupport.encodeJava(newState))
+                  val newStateScalaPbAny = service.messageCodec.encodeScala(newState)
                   Some(ValueEntityAction(Update(ValueEntityUpdate(Some(newStateScalaPbAny)))))
                 case _ =>
                   None
@@ -194,7 +191,7 @@ final class ValueEntitiesImpl(system: ActorSystem, val services: Map[String, Val
                   ValueEntityReply(
                     command.id,
                     clientAction,
-                    EffectSupport.sideEffectsFrom(service.anySupport, serializedSecondaryEffect),
+                    EffectSupport.sideEffectsFrom(service.messageCodec, serializedSecondaryEffect),
                     action)))
           }
 

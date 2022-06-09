@@ -16,13 +16,13 @@
 
 package kalix.javasdk.impl.effect
 
-import kalix.javasdk
-import kalix.javasdk.impl.AnySupport
-import kalix.javasdk.impl.DeferredCallImpl
-import kalix.javasdk.impl.MetadataImpl
-import kalix.protocol.component
 import com.google.protobuf.any.{ Any => ScalaPbAny }
 import com.google.protobuf.{ Any => JavaPbAny }
+import kalix.javasdk
+import kalix.javasdk.impl.DeferredCallImpl
+import kalix.javasdk.impl.MessageCodec
+import kalix.javasdk.impl.MetadataImpl
+import kalix.protocol.component
 
 object EffectSupport {
   private def asProtocol(metadata: javasdk.Metadata): Option[component.Metadata] =
@@ -37,13 +37,13 @@ object EffectSupport {
   def asProtocol(messageReply: MessageReplyImpl[JavaPbAny]): component.Reply =
     component.Reply(Some(ScalaPbAny.fromJavaProto(messageReply.message)), asProtocol(messageReply.metadata))
 
-  def asProtocol(anySupport: AnySupport, forward: ForwardReplyImpl[_]): component.Forward = {
+  def asProtocol(messageCodec: MessageCodec, forward: ForwardReplyImpl[_]): component.Forward = {
     forward match {
       case ForwardReplyImpl(deferredCall: DeferredCallImpl[_, _], sideEffects) =>
         component.Forward(
           deferredCall.fullServiceName,
           deferredCall.methodName,
-          Some(ScalaPbAny.fromJavaProto(anySupport.encodeJava(forward.deferredCall.message))),
+          Some(messageCodec.encodeScala(forward.deferredCall.message)),
           asProtocol(forward.deferredCall.metadata))
       case _ =>
         throw new IllegalArgumentException(s"Unsupported type of deferred call: ${forward.deferredCall.getClass}")
@@ -51,13 +51,15 @@ object EffectSupport {
 
   }
 
-  def sideEffectsFrom(anySupport: AnySupport, secondaryEffect: SecondaryEffectImpl): Vector[component.SideEffect] = {
+  def sideEffectsFrom(
+      messageCodec: MessageCodec,
+      secondaryEffect: SecondaryEffectImpl): Vector[component.SideEffect] = {
     val encodedSideEffects = secondaryEffect.sideEffects.map {
       case SideEffectImpl(deferred: DeferredCallImpl[_, _], synchronous) =>
         component.SideEffect(
           deferred.fullServiceName,
           deferred.methodName,
-          Some(ScalaPbAny.fromJavaProto(anySupport.encodeJava(deferred.message))),
+          Some(messageCodec.encodeScala(deferred.message)),
           synchronous,
           asProtocol(deferred.metadata))
     }

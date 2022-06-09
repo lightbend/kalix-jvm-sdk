@@ -16,32 +16,32 @@
 
 package kalix.springsdk.impl.action
 
-import java.lang.reflect.Method
-
 import akka.NotUsed
 import akka.stream.javadsl.Source
-import com.google.protobuf.{ Descriptors, DynamicMessage }
-import kalix.javasdk.Metadata
+import com.google.protobuf.any.{ Any => ScalaPbAny }
 import kalix.javasdk.action.Action
 import kalix.javasdk.action.MessageEnvelope
 import kalix.javasdk.impl.action.ActionRouter
-import kalix.springsdk.impl.reflection.{ DynamicMessageContext, MetadataContext, ParameterExtractor }
-import com.google.protobuf.any.{ Any => ScalaPbAny }
+import kalix.springsdk.impl.ComponentMethod
+import kalix.springsdk.impl.InvocationContext
 
-class ActionReflectiveRouter[A <: Action](action: A, methods: Map[String, ActionMethod])
+class ReflectiveActionRouter[A <: Action](action: A, componentMethods: Map[String, ComponentMethod])
     extends ActionRouter[A](action) {
 
   private def methodLookup(commandName: String) =
-    methods.getOrElse(commandName, throw new RuntimeException(s"no matching method for '$commandName'"))
+    componentMethods.getOrElse(commandName, throw new RuntimeException(s"no matching method for '$commandName'"))
 
   override def handleUnary(commandName: String, message: MessageEnvelope[Any]): Action.Effect[_] = {
-    val method = methodLookup(commandName)
-    // Todo - this should probably be elsewhere
-    val anyMessage = message.payload().asInstanceOf[ScalaPbAny]
-    val dynamicMessage = DynamicMessage.parseFrom(method.messageDescriptor, anyMessage.value)
-    val context = new ActionInvocationContext(dynamicMessage, message.metadata())
-    method.method
-      .invoke(action, method.parameterExtractors.map(e => e.extract(context)): _*)
+
+    val componentMethod = methodLookup(commandName)
+    val context =
+      InvocationContext(
+        message.payload().asInstanceOf[ScalaPbAny],
+        componentMethod.messageDescriptor,
+        message.metadata())
+
+    componentMethod.method
+      .invoke(action, componentMethod.parameterExtractors.map(e => e.extract(context)): _*)
       .asInstanceOf[Action.Effect[_]]
   }
 
@@ -56,14 +56,3 @@ class ActionReflectiveRouter[A <: Action](action: A, methods: Map[String, Action
       commandName: String,
       stream: Source[MessageEnvelope[Any], NotUsed]): Source[Action.Effect[_], NotUsed] = ???
 }
-
-// Might need to have one of each of these for unary, streamed out, streamed in and streamed.
-case class ActionMethod(
-    method: Method,
-    grpcMethodName: String,
-    parameterExtractors: Array[ParameterExtractor[ActionInvocationContext, AnyRef]],
-    messageDescriptor: Descriptors.Descriptor)
-
-class ActionInvocationContext(val message: DynamicMessage, val metadata: Metadata)
-    extends DynamicMessageContext
-    with MetadataContext
