@@ -41,6 +41,7 @@ object ProtoDescriptorGenerator {
       .setPackage(packageName)
       .setOptions(DescriptorProtos.FileOptions.newBuilder.setJavaMultipleFiles(true).build)
 
+    protoBuilder.addDependency("google/protobuf/any.proto")
     protoBuilder.addService(service)
     messages.foreach(protoBuilder.addMessageType)
 
