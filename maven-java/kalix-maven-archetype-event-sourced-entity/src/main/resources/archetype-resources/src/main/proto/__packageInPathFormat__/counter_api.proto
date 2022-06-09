@@ -43,6 +43,7 @@ service CounterService {
         "${package}.domain.ValueReset"]
     }
   };
+  option (kalix.service).acl.allow = { principal: ALL };
 
   rpc Increase(IncreaseValue) returns (google.protobuf.Empty);
   rpc Decrease(DecreaseValue) returns (google.protobuf.Empty);
