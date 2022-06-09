@@ -8,7 +8,7 @@ Timers are persisted in the https://docs.kalix.io/reference/glossary.html#proxy[
 When a timer is triggered, the scheduled call is executed. If successfully executed, the timer completes and is automatically removed.
 In case of a failure, the timer is rescheduled with a delay of 3 seconds. This process repeats until the call succeeds.
 
-You can schedule a timer for any service method in Kalix, but you can only create a timer from within an Action and by passing a `DefferedCall`. 
+You can schedule a timer for any service method in Kalix, but you can only create a timer from within an Action and by passing a `DeferredCall`.
 
 **Timer features**:
 
