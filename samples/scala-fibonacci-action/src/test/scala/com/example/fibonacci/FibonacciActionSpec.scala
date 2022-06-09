@@ -3,10 +3,6 @@ package com.example.fibonacci
 import akka.actor.ActorSystem
 import akka.stream.scaladsl.Sink
 import akka.stream.scaladsl.Source
-import kalix.scalasdk.action.Action
-import kalix.scalasdk.testkit.ActionResult
-import com.example.fibonacci
-import org.scalatest.Assertions.pending
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
