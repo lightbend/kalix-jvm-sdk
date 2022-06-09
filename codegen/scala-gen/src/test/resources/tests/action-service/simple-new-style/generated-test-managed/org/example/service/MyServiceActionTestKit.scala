@@ -8,6 +8,7 @@ import kalix.scalasdk.testkit.ActionResult
 import kalix.scalasdk.testkit.MockRegistry
 import kalix.scalasdk.testkit.impl.ActionResultImpl
 import kalix.scalasdk.testkit.impl.TestKitActionContext
+import kalix.scalasdk.testkit.impl.TestKitTimerScheduler
 import org.external.Empty
 
 // This code is managed by Kalix tooling.
@@ -33,29 +34,32 @@ object MyServiceActionTestKit {
  */
 final class MyServiceActionTestKit private(actionFactory: ActionCreationContext => MyServiceAction, mockRegistry: MockRegistry) {
 
+  private val timerScheduler: TestKitTimerScheduler = new TestKitTimerScheduler
+  
   private def newActionInstance(context: TestKitActionContext) = {
     val action = actionFactory(context)
     action._internalSetActionContext(Some(context))
+    action._internalSetTimerScheduler(timerScheduler)
     action
   }
 
   def simpleMethod(command: MyRequest, metadata: Metadata = Metadata.empty): ActionResult[Empty] = {
     val context = new TestKitActionContext(metadata, mockRegistry)
-    new ActionResultImpl(newActionInstance(context).simpleMethod(command))
+    new ActionResultImpl(newActionInstance(context).simpleMethod(command), timerScheduler)
   }
 
   def streamedOutputMethod(command: MyRequest, metadata: Metadata = Metadata.empty): Source[ActionResult[Empty], akka.NotUsed] = {
     val context = new TestKitActionContext(metadata, mockRegistry)
-    newActionInstance(context).streamedOutputMethod(command).map(effect => new ActionResultImpl(effect))
+    newActionInstance(context).streamedOutputMethod(command).map(effect => new ActionResultImpl(effect, timerScheduler))
   }
 
   def streamedInputMethod(command: Source[MyRequest, akka.NotUsed], metadata: Metadata = Metadata.empty): ActionResult[Empty] = {
     val context = new TestKitActionContext(metadata, mockRegistry)
-    new ActionResultImpl(newActionInstance(context).streamedInputMethod(command))
+    new ActionResultImpl(newActionInstance(context).streamedInputMethod(command), timerScheduler)
   }
 
   def fullStreamedMethod(command: Source[MyRequest, akka.NotUsed], metadata: Metadata = Metadata.empty): Source[ActionResult[Empty], akka.NotUsed] = {
     val context = new TestKitActionContext(metadata, mockRegistry)
-    newActionInstance(context).fullStreamedMethod(command).map(effect => new ActionResultImpl(effect))
+    newActionInstance(context).fullStreamedMethod(command).map(effect => new ActionResultImpl(effect, timerScheduler))
   }
 }
