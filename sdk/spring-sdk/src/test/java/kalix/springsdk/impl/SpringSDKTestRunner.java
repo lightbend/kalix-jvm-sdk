@@ -33,7 +33,7 @@ public class SpringSDKTestRunner {
         .register(
             ReflectiveValueEntityProvider.of(
                 "user-entity", // TODO: we should have this in some type level annotation, ie:
-                               // @KalixComponent(name)
+                // @KalixComponent(name)
                 UserEntity.class,
                 __ -> new UserEntity()));
     kalix.start().toCompletableFuture().get();

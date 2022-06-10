@@ -24,17 +24,16 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 public class RestAnnotatedValueEntities {
 
-  @EntityKey("id")
-  @RequestMapping("/user/{id}")
-  public static class PostWithoutParam extends ValueEntity<User> {
-
+  @EntityKey({"userId", "cartId"})
+  @RequestMapping("/user/{userId}/{cartId}")
+  public static class PostWithEntityKeys extends ValueEntity<User> {
     @Override
     public User emptyState() {
       return User.empty();
     }
 
     @PostMapping("/create")
-    public ValueEntity.Effect<Done> createUser(@RequestBody CreateUser createUser) {
+    public ValueEntity.Effect<Done> createEntity(@RequestBody CreateUser createUser) {
       return effects().reply(Done.instance);
     }
   }

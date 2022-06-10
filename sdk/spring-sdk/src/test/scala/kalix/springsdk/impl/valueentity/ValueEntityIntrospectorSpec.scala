@@ -18,20 +18,25 @@ package kalix.springsdk.impl.valueentity
 
 import com.google.protobuf.Descriptors.FieldDescriptor.JavaType
 import kalix.springsdk.impl.IntrospectionSuite
-import kalix.springsdk.valueentity.RestAnnotatedValueEntities
+import kalix.springsdk.valueentity.RestAnnotatedValueEntities.PostWithEntityKeys
 import org.scalatest.wordspec.AnyWordSpec
 
 class ValueEntityIntrospectorSpec extends AnyWordSpec with IntrospectionSuite {
 
   "ValueEntity introspector" should {
-    "generate mappings for a Value Entity" in {
-      assertDescriptor[RestAnnotatedValueEntities.PostWithoutParam] { desc =>
-        val method = desc.methods("CreateUser")
+    "generate mappings for a Value Entity with entity keys in path" in {
+      assertDescriptor[PostWithEntityKeys] { desc =>
+        val method = desc.methods("CreateEntity")
         assertMessage(method, "json_body", JavaType.MESSAGE)
-        assertMessage(method, "id", JavaType.STRING)
-        assertEntityKeyField(method, "id")
+
+        assertMessage(method, "userId", JavaType.STRING)
+        assertEntityKeyField(method, "userId")
+
+        assertMessage(method, "cartId", JavaType.STRING)
+        assertEntityKeyField(method, "cartId")
       }
     }
+
   }
 
 }

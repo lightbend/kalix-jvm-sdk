@@ -18,6 +18,7 @@ package kalix.springsdk.impl
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.google.protobuf.DescriptorProtos.ServiceDescriptorProto
+import kalix.springsdk.annotations.EntityKey
 import kalix.springsdk.impl.reflection.DynamicMethodInfo
 import kalix.springsdk.impl.reflection.NameGenerator
 import kalix.springsdk.impl.reflection.ParameterExtractors.HeaderExtractor
@@ -37,8 +38,15 @@ object Introspector {
     val grpcService = ServiceDescriptorProto.newBuilder()
     grpcService.setName(nameGenerator.getName(component.getSimpleName))
 
+    val declaredEntityKeys: Seq[String] =
+      Option(component.getAnnotation(classOf[EntityKey]))
+        .map(_.value())
+        .toSeq
+        .flatten
+
     val dynamicRestMethods =
-      restService.methods.map(method => DynamicMethodInfo.build(method, nameGenerator, objectMapper))
+      restService.methods.map(method =>
+        DynamicMethodInfo.build(method, nameGenerator, objectMapper, declaredEntityKeys))
 
     val messageDescriptors = dynamicRestMethods.map { method =>
       grpcService.addMethod(method.method)
