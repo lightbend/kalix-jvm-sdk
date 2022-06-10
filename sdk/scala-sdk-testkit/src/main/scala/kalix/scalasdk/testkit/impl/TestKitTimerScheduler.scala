@@ -28,8 +28,8 @@ import kalix.scalasdk.timer.TimerScheduler
 
 class TestKitTimerScheduler extends TimerScheduler {
 
-  private var _singleTimers: Seq[SingleTimerDetails] = Seq.empty
-  private var _timerCancellations: Seq[String] = Seq.empty
+  @volatile private var _singleTimers: Seq[SingleTimerDetails] = Seq.empty
+  @volatile private var _timerCancellations: Seq[String] = Seq.empty
 
   def singleTimers: Seq[SingleTimerDetails] = _singleTimers
   def timerCancellations: Seq[String] = _timerCancellations
