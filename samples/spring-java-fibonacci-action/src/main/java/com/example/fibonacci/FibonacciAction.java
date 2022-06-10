@@ -1,6 +1,6 @@
 package com.example.fibonacci;
 
-import kalix.javasdk.action.Action;
+import kalix.springsdk.action.Action;
 
 import java.util.function.Predicate;
 

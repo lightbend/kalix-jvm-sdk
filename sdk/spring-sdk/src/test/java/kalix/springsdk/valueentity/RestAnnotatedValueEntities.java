@@ -16,7 +16,6 @@
 
 package kalix.springsdk.valueentity;
 
-import kalix.javasdk.valueentity.ValueEntity;
 import kalix.springsdk.annotations.EntityKey;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -27,6 +26,20 @@ public class RestAnnotatedValueEntities {
   @EntityKey({"userId", "cartId"})
   @RequestMapping("/user/{userId}/{cartId}")
   public static class PostWithEntityKeys extends ValueEntity<User> {
+    @Override
+    public User emptyState() {
+      return User.empty();
+    }
+
+    @PostMapping("/create")
+    public ValueEntity.Effect<Done> createEntity(@RequestBody CreateUser createUser) {
+      return effects().reply(Done.instance);
+    }
+  }
+
+  @EntityKey({"userId", "cartId"})
+  @RequestMapping("/user/{userId}/{cartId}")
+  public static class ValueEntityUsingJavaSdk extends kalix.javasdk.valueentity.ValueEntity<User> {
     @Override
     public User emptyState() {
       return User.empty();

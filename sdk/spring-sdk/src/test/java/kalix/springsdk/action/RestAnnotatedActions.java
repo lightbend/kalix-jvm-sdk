@@ -16,7 +16,7 @@
 
 package kalix.springsdk.action;
 
-import kalix.javasdk.action.Action;
+import kalix.springsdk.action.Action;
 import org.springframework.web.bind.annotation.*;
 
 public class RestAnnotatedActions {
@@ -109,6 +109,13 @@ public class RestAnnotatedActions {
     @DeleteMapping("/message/{one}")
     public Action.Effect<Message> message(@PathVariable String one) {
       return effects().reply(new Message(one));
+    }
+  }
+
+  public static class ActionUsingJavaSdk extends kalix.javasdk.action.Action {
+    @GetMapping("/message")
+    public Action.Effect<Message> message() {
+      return effects().reply(new Message("hello"));
     }
   }
 }

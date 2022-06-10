@@ -30,8 +30,6 @@ public abstract class ValueEntity<S> {
 
   private Optional<CommandContext> commandContext = Optional.empty();
 
-  private Optional<S> currentState = Optional.empty();
-
   /**
    * Implement by returning the initial empty state object. This object will be passed into the
    * command handlers, until a new state replaces it.
@@ -58,28 +56,6 @@ public abstract class ValueEntity<S> {
   /** INTERNAL API */
   public void _internalSetCommandContext(Optional<CommandContext> context) {
     commandContext = context;
-  }
-
-  /** INTERNAL API */
-  public void _internalSetCurrentState(S state) {
-    currentState = Optional.ofNullable(state);
-  }
-
-  /**
-   * Returns the state as currently stored by Kalix.
-   *
-   * <p>Note that modifying the state directly will not update it in storage. To save the state, one
-   * must call {{@code effects().updateState()}}.
-   *
-   * <p>This method can only be called when handling a command. Calling it outside a method (eg: in
-   * the constructor) will raise a IllegalStateException exception.
-   *
-   * @throws IllegalStateException if accessed outside a handler method
-   */
-  protected final S currentState() {
-    return currentState.orElseThrow(
-        () ->
-            new IllegalStateException("Current state can only available when handling a command."));
   }
 
   protected final Effect.Builder<S> effects() {

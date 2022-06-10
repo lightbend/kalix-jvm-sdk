@@ -42,7 +42,7 @@ class ReflectiveValueEntityRouter[S, E <: ValueEntity[S]](
       InvocationContext(command.asInstanceOf[ScalaPbAny], componentMethod.messageDescriptor)
 
     // pass current state to entity
-    entity._internalSetCurrentState(state);
+    entity.asInstanceOf[kalix.springsdk.valueentity.ValueEntity[S]]._internalSetCurrentState(state);
 
     componentMethod.method
       .invoke(entity, componentMethod.parameterExtractors.map(e => e.extract(context)): _*)

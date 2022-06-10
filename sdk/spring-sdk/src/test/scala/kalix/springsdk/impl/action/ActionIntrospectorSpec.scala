@@ -16,7 +16,9 @@
 
 package kalix.springsdk.impl.action
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.google.protobuf.Descriptors.FieldDescriptor.JavaType
+import kalix.springsdk.action.RestAnnotatedActions.ActionUsingJavaSdk
 import kalix.springsdk.action.RestAnnotatedActions.DeleteWithOneParam
 import kalix.springsdk.action.RestAnnotatedActions.GetClassLevel
 import kalix.springsdk.action.RestAnnotatedActions.GetWithOneParam
@@ -30,6 +32,8 @@ import kalix.springsdk.action.RestAnnotatedActions.PostWithoutParam
 import kalix.springsdk.action.RestAnnotatedActions.PutWithOneParam
 import kalix.springsdk.action.RestAnnotatedActions.PutWithoutParam
 import kalix.springsdk.impl.IntrospectionSuite
+import kalix.springsdk.impl.Introspector
+import kalix.springsdk.impl.reflection.NameGenerator
 import org.scalatest.wordspec.AnyWordSpec
 
 class ActionIntrospectorSpec extends AnyWordSpec with IntrospectionSuite {
@@ -128,6 +132,12 @@ class ActionIntrospectorSpec extends AnyWordSpec with IntrospectionSuite {
       assertDescriptor[DeleteWithOneParam] { desc =>
         val method = desc.methods("Message")
         assertMessage(method, "one", JavaType.STRING)
+      }
+    }
+
+    "fail when inspecting an Action implementing Java SDK directly" in {
+      intercept[IllegalArgumentException] {
+        Introspector.inspect(classOf[ActionUsingJavaSdk], new NameGenerator, new ObjectMapper())
       }
     }
   }

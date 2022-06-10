@@ -33,6 +33,12 @@ object Introspector {
       nameGenerator: NameGenerator,
       objectMapper: ObjectMapper): ComponentDescription = {
 
+    // TODO: this is better done at compile time, by checking that
+    // the component annotation was added to a Spring Kalix component and not any other class
+    if (!classOf[SpringKalixComponent].isAssignableFrom(component))
+      throw new IllegalArgumentException(
+        s"Component [${component.getName}] is not one of the available components in the Spring SDK. ")
+
     val restService = RestServiceIntrospector.inspectService(component)
 
     val grpcService = ServiceDescriptorProto.newBuilder()

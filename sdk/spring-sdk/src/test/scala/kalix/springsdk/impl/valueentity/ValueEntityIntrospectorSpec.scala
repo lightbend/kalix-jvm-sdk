@@ -16,9 +16,13 @@
 
 package kalix.springsdk.impl.valueentity
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.google.protobuf.Descriptors.FieldDescriptor.JavaType
 import kalix.springsdk.impl.IntrospectionSuite
+import kalix.springsdk.impl.Introspector
+import kalix.springsdk.impl.reflection.NameGenerator
 import kalix.springsdk.valueentity.RestAnnotatedValueEntities.PostWithEntityKeys
+import kalix.springsdk.valueentity.RestAnnotatedValueEntities.ValueEntityUsingJavaSdk
 import org.scalatest.wordspec.AnyWordSpec
 
 class ValueEntityIntrospectorSpec extends AnyWordSpec with IntrospectionSuite {
@@ -34,6 +38,12 @@ class ValueEntityIntrospectorSpec extends AnyWordSpec with IntrospectionSuite {
 
         assertMessage(method, "cartId", JavaType.STRING)
         assertEntityKeyField(method, "cartId")
+      }
+    }
+
+    "fail when inspecting a ValueEntity implementing Java SDK directly" in {
+      intercept[IllegalArgumentException] {
+        Introspector.inspect(classOf[ValueEntityUsingJavaSdk], new NameGenerator, new ObjectMapper())
       }
     }
 
