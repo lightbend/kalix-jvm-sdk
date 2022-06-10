@@ -89,10 +89,18 @@ object EventSourcedEntityTestKitGenerator {
        |   * Create a testkit instance of ${entity.messageType.name}
        |   * @param entityFactory A function that creates a ${entity.messageType.name} based on the given EventSourcedEntityContext,
        |   *                      a default entity id is used.
+       |   */
+       |  def apply(entityFactory: EventSourcedEntityContext => ${typeName(entity.messageType)}): $className =
+       |    apply("testkit-entity-id", entityFactory, MockRegistry.empty)
+       |
+       |  /**
+       |   * Create a testkit instance of ${entity.messageType.name}
+       |   * @param entityFactory A function that creates a ${entity.messageType.name} based on the given EventSourcedEntityContext,
+       |   *                      a default entity id is used.
        |   * @param mockRegistry  A registry to be provided in cases which the entity calls other components to allow for unit testing.
        |   */
        |  def apply(entityFactory: EventSourcedEntityContext => ${typeName(
-        entity.messageType)}, mockRegistry: MockRegistry = MockRegistry.empty): $className =
+        entity.messageType)}, mockRegistry: MockRegistry): $className =
        |    apply("testkit-entity-id", entityFactory, mockRegistry)
        |
        |  /**
@@ -102,7 +110,7 @@ object EventSourcedEntityTestKitGenerator {
        |   *                      a default entity id is used.
        |   * @param mockRegistry  A registry to be provided in cases which the entity calls other components to allow for unit testing.
        |   */
-       |  def apply(entityId: String, entityFactory: EventSourcedEntityContext => ${entity.messageType.name}, mockRegistry: MockRegistry): ${{
+       |  def apply(entityId: String, entityFactory: EventSourcedEntityContext => ${entity.messageType.name}, mockRegistry: MockRegistry = MockRegistry.empty): ${{
         entity.messageType.name
       }}TestKit =
        |    new ${entity.messageType.name}TestKit(entityFactory(new TestKitEventSourcedEntityContext(entityId, mockRegistry)))

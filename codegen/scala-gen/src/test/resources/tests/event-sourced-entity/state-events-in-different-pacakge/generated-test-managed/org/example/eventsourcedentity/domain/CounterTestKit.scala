@@ -28,9 +28,17 @@ object CounterTestKit {
    * Create a testkit instance of Counter
    * @param entityFactory A function that creates a Counter based on the given EventSourcedEntityContext,
    *                      a default entity id is used.
+   */
+  def apply(entityFactory: EventSourcedEntityContext => Counter): CounterTestKit =
+    apply("testkit-entity-id", entityFactory, MockRegistry.empty)
+
+  /**
+   * Create a testkit instance of Counter
+   * @param entityFactory A function that creates a Counter based on the given EventSourcedEntityContext,
+   *                      a default entity id is used.
    * @param mockRegistry  A registry to be provided in cases which the entity calls other components to allow for unit testing.
    */
-  def apply(entityFactory: EventSourcedEntityContext => Counter, mockRegistry: MockRegistry = MockRegistry.empty): CounterTestKit =
+  def apply(entityFactory: EventSourcedEntityContext => Counter, mockRegistry: MockRegistry): CounterTestKit =
     apply("testkit-entity-id", entityFactory, mockRegistry)
 
   /**
@@ -40,7 +48,7 @@ object CounterTestKit {
    *                      a default entity id is used.
    * @param mockRegistry  A registry to be provided in cases which the entity calls other components to allow for unit testing.
    */
-  def apply(entityId: String, entityFactory: EventSourcedEntityContext => Counter, mockRegistry: MockRegistry): CounterTestKit =
+  def apply(entityId: String, entityFactory: EventSourcedEntityContext => Counter, mockRegistry: MockRegistry = MockRegistry.empty): CounterTestKit =
     new CounterTestKit(entityFactory(new TestKitEventSourcedEntityContext(entityId, mockRegistry)))
 }
 final class CounterTestKit private(entity: Counter) extends EventSourcedEntityEffectsRunner[CounterState](entity: Counter) {

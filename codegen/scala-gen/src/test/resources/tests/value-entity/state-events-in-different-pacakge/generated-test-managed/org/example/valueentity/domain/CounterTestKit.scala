@@ -25,13 +25,26 @@ object CounterTestKit {
    * @param entityFactory A function that creates a Counter based on the given ValueEntityContext,
    *                      a default entity id is used.
    */
-  def apply(entityFactory: ValueEntityContext => Counter, mockRegistry: MockRegistry = MockRegistry.empty): CounterTestKit =
+  def apply(entityFactory: ValueEntityContext => Counter): CounterTestKit =
+    apply("testkit-entity-id", entityFactory, MockRegistry.empty)
+
+  /**
+   * Create a testkit instance of Counter
+   * @param entityFactory A function that creates a Counter based on the given ValueEntityContext,
+   *                      a default entity id is used.
+   * @param mockRegistry  A registry to be provided in cases which the entity calls other components to allow for unit testing.
+   */
+  def apply(entityFactory: ValueEntityContext => Counter, mockRegistry: MockRegistry): CounterTestKit =
     apply("testkit-entity-id", entityFactory, mockRegistry)
 
   /**
    * Create a testkit instance of Counter with a specific entity id.
+   * @param entityId      An entity identifier
+   * @param entityFactory A function that creates a Counter based on the given ValueEntityContext,
+   *                      a default entity id is used.
+   * @param mockRegistry  A registry to be provided in cases which the entity calls other components to allow for unit testing.
    */
-  def apply(entityId: String, entityFactory: ValueEntityContext => Counter, mockRegistry: MockRegistry): CounterTestKit =
+  def apply(entityId: String, entityFactory: ValueEntityContext => Counter, mockRegistry: MockRegistry = MockRegistry.empty): CounterTestKit =
     new CounterTestKit(entityFactory(new TestKitValueEntityContext(entityId, mockRegistry)), entityId)
 }
 

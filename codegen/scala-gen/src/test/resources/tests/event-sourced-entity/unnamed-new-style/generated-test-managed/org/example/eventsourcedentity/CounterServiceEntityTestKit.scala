@@ -28,9 +28,17 @@ object CounterServiceEntityTestKit {
    * Create a testkit instance of CounterServiceEntity
    * @param entityFactory A function that creates a CounterServiceEntity based on the given EventSourcedEntityContext,
    *                      a default entity id is used.
+   */
+  def apply(entityFactory: EventSourcedEntityContext => CounterServiceEntity): CounterServiceEntityTestKit =
+    apply("testkit-entity-id", entityFactory, MockRegistry.empty)
+
+  /**
+   * Create a testkit instance of CounterServiceEntity
+   * @param entityFactory A function that creates a CounterServiceEntity based on the given EventSourcedEntityContext,
+   *                      a default entity id is used.
    * @param mockRegistry  A registry to be provided in cases which the entity calls other components to allow for unit testing.
    */
-  def apply(entityFactory: EventSourcedEntityContext => CounterServiceEntity, mockRegistry: MockRegistry = MockRegistry.empty): CounterServiceEntityTestKit =
+  def apply(entityFactory: EventSourcedEntityContext => CounterServiceEntity, mockRegistry: MockRegistry): CounterServiceEntityTestKit =
     apply("testkit-entity-id", entityFactory, mockRegistry)
 
   /**
@@ -40,7 +48,7 @@ object CounterServiceEntityTestKit {
    *                      a default entity id is used.
    * @param mockRegistry  A registry to be provided in cases which the entity calls other components to allow for unit testing.
    */
-  def apply(entityId: String, entityFactory: EventSourcedEntityContext => CounterServiceEntity, mockRegistry: MockRegistry): CounterServiceEntityTestKit =
+  def apply(entityId: String, entityFactory: EventSourcedEntityContext => CounterServiceEntity, mockRegistry: MockRegistry = MockRegistry.empty): CounterServiceEntityTestKit =
     new CounterServiceEntityTestKit(entityFactory(new TestKitEventSourcedEntityContext(entityId, mockRegistry)))
 }
 final class CounterServiceEntityTestKit private(entity: CounterServiceEntity) extends EventSourcedEntityEffectsRunner[CounterState](entity: CounterServiceEntity) {

@@ -82,13 +82,26 @@ object ValueEntityTestKitGenerator {
           |   * @param entityFactory A function that creates a $entityClassName based on the given ValueEntityContext,
           |   *                      a default entity id is used.
           |   */
-          |  def apply(entityFactory: ValueEntityContext => $entityClassName, mockRegistry: MockRegistry = MockRegistry.empty): ${entityClassName}TestKit =
+          |  def apply(entityFactory: ValueEntityContext => $entityClassName): ${entityClassName}TestKit =
+          |    apply("testkit-entity-id", entityFactory, MockRegistry.empty)
+          |
+          |  /**
+          |   * Create a testkit instance of $entityClassName
+          |   * @param entityFactory A function that creates a $entityClassName based on the given ValueEntityContext,
+          |   *                      a default entity id is used.
+          |   * @param mockRegistry  A registry to be provided in cases which the entity calls other components to allow for unit testing.
+          |   */
+          |  def apply(entityFactory: ValueEntityContext => $entityClassName, mockRegistry: MockRegistry): ${entityClassName}TestKit =
           |    apply("testkit-entity-id", entityFactory, mockRegistry)
           |
           |  /**
           |   * Create a testkit instance of $entityClassName with a specific entity id.
+          |   * @param entityId      An entity identifier
+          |   * @param entityFactory A function that creates a $entityClassName based on the given ValueEntityContext,
+          |   *                      a default entity id is used.
+          |   * @param mockRegistry  A registry to be provided in cases which the entity calls other components to allow for unit testing.
           |   */
-          |  def apply(entityId: String, entityFactory: ValueEntityContext => $entityClassName, mockRegistry: MockRegistry): ${entityClassName}TestKit =
+          |  def apply(entityId: String, entityFactory: ValueEntityContext => $entityClassName, mockRegistry: MockRegistry = MockRegistry.empty): ${entityClassName}TestKit =
           |    new ${entityClassName}TestKit(entityFactory(new TestKitValueEntityContext(entityId, mockRegistry)), entityId)
           |}
           |

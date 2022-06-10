@@ -25,13 +25,26 @@ object CounterServiceEntityTestKit {
    * @param entityFactory A function that creates a CounterServiceEntity based on the given ValueEntityContext,
    *                      a default entity id is used.
    */
-  def apply(entityFactory: ValueEntityContext => CounterServiceEntity, mockRegistry: MockRegistry = MockRegistry.empty): CounterServiceEntityTestKit =
+  def apply(entityFactory: ValueEntityContext => CounterServiceEntity): CounterServiceEntityTestKit =
+    apply("testkit-entity-id", entityFactory, MockRegistry.empty)
+
+  /**
+   * Create a testkit instance of CounterServiceEntity
+   * @param entityFactory A function that creates a CounterServiceEntity based on the given ValueEntityContext,
+   *                      a default entity id is used.
+   * @param mockRegistry  A registry to be provided in cases which the entity calls other components to allow for unit testing.
+   */
+  def apply(entityFactory: ValueEntityContext => CounterServiceEntity, mockRegistry: MockRegistry): CounterServiceEntityTestKit =
     apply("testkit-entity-id", entityFactory, mockRegistry)
 
   /**
    * Create a testkit instance of CounterServiceEntity with a specific entity id.
+   * @param entityId      An entity identifier
+   * @param entityFactory A function that creates a CounterServiceEntity based on the given ValueEntityContext,
+   *                      a default entity id is used.
+   * @param mockRegistry  A registry to be provided in cases which the entity calls other components to allow for unit testing.
    */
-  def apply(entityId: String, entityFactory: ValueEntityContext => CounterServiceEntity, mockRegistry: MockRegistry): CounterServiceEntityTestKit =
+  def apply(entityId: String, entityFactory: ValueEntityContext => CounterServiceEntity, mockRegistry: MockRegistry = MockRegistry.empty): CounterServiceEntityTestKit =
     new CounterServiceEntityTestKit(entityFactory(new TestKitValueEntityContext(entityId, mockRegistry)), entityId)
 }
 
