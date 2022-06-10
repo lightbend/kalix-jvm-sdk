@@ -16,13 +16,9 @@
 
 package kalix.springsdk.impl
 
-import kalix.javasdk.Kalix
-import kalix.springsdk.action.EchoAction
-import kalix.springsdk.action.ReflectiveActionProvider
+import com.google.protobuf.Descriptors
 
-// Temporary class just for testing
-object SpringSDKTestRunner extends App {
-  val kalix = new Kalix()
-  kalix.register(ReflectiveActionProvider.of(classOf[EchoAction], _ => new EchoAction))
-  kalix.start().toCompletableFuture.get()
-}
+class ComponentDescription(
+    val fileDescriptor: Descriptors.FileDescriptor,
+    val serviceDescriptor: Descriptors.ServiceDescriptor,
+    val methods: Map[String, ComponentMethod])

@@ -17,8 +17,11 @@
 package kalix.javasdk.valueentity;
 
 import kalix.javasdk.Kalix;
+import kalix.javasdk.impl.MessageCodec;
 import kalix.javasdk.impl.valueentity.ValueEntityRouter;
 import com.google.protobuf.Descriptors;
+
+import java.util.Optional;
 
 /**
  * Register a value based entity in {@link Kalix} using a <code>
@@ -36,4 +39,8 @@ public interface ValueEntityProvider<S, E extends ValueEntity<S>> {
   ValueEntityRouter<S, E> newRouter(ValueEntityContext context);
 
   Descriptors.FileDescriptor[] additionalDescriptors();
+
+  default Optional<MessageCodec> alternativeCodec() {
+    return Optional.empty();
+  }
 }

@@ -489,4 +489,5 @@ private[kalix] object ByteStringEncoding {
 trait MessageCodec {
   def decodeMessage(any: ScalaPbAny): Any
   def encodeScala(value: Any): ScalaPbAny
+  def encodeJava(value: Any): JavaPbAny
 }

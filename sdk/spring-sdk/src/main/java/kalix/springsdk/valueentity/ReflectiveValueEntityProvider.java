@@ -14,42 +14,47 @@
  * limitations under the License.
  */
 
-package kalix.springsdk.action;
+package kalix.springsdk.valueentity;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.protobuf.Descriptors;
-import kalix.javasdk.action.Action;
-import kalix.javasdk.action.ActionCreationContext;
-import kalix.javasdk.action.ActionOptions;
-import kalix.javasdk.action.ActionProvider;
 import kalix.javasdk.impl.MessageCodec;
-import kalix.javasdk.impl.action.ActionRouter;
+import kalix.javasdk.impl.valueentity.ValueEntityRouter;
+import kalix.javasdk.valueentity.ValueEntity;
+import kalix.javasdk.valueentity.ValueEntityContext;
+import kalix.javasdk.valueentity.ValueEntityOptions;
+import kalix.javasdk.valueentity.ValueEntityProvider;
+import kalix.springsdk.impl.ComponentDescription;
 import kalix.springsdk.impl.Introspector;
 import kalix.springsdk.impl.SpringSdkMessageCodec;
-import kalix.springsdk.impl.action.ReflectiveActionRouter;
-import kalix.springsdk.impl.ComponentDescription;
 import kalix.springsdk.impl.reflection.NameGenerator;
+import kalix.springsdk.impl.valueentity.ReflectiveValueEntityRouter;
 
 import java.util.Optional;
 import java.util.function.Function;
 
-public class ReflectiveActionProvider<A extends Action> implements ActionProvider<A> {
+public class ReflectiveValueEntityProvider<S, E extends ValueEntity<S>>
+    implements ValueEntityProvider<S, E> {
 
-  private final Function<ActionCreationContext, A> factory;
-
-  private final ActionOptions options;
+  private final String entityType;
+  private final Function<ValueEntityContext, E> factory;
+  private final ValueEntityOptions options;
   private final Descriptors.FileDescriptor fileDescriptor;
   private final Descriptors.ServiceDescriptor serviceDescriptor;
   private final ComponentDescription componentDescription;
 
-  public static <A extends Action> ReflectiveActionProvider<A> of(
-      Class<A> cls, Function<ActionCreationContext, A> factory) {
-    return new ReflectiveActionProvider<>(cls, factory, ActionOptions.defaults());
+  public static <S, E extends ValueEntity<S>> ReflectiveValueEntityProvider<S, E> of(
+      String entityType, Class<E> cls, Function<ValueEntityContext, E> factory) {
+    return new ReflectiveValueEntityProvider<>(
+        entityType, cls, factory, ValueEntityOptions.defaults());
   }
 
-  private ReflectiveActionProvider(
-      Class<A> cls, Function<ActionCreationContext, A> factory, ActionOptions options) {
-
+  public ReflectiveValueEntityProvider(
+      String entityType,
+      Class<E> cls,
+      Function<ValueEntityContext, E> factory,
+      ValueEntityOptions options) {
+    this.entityType = entityType;
     this.factory = factory;
     this.options = options;
 
@@ -60,7 +65,7 @@ public class ReflectiveActionProvider<A extends Action> implements ActionProvide
   }
 
   @Override
-  public ActionOptions options() {
+  public ValueEntityOptions options() {
     return options;
   }
 
@@ -70,9 +75,14 @@ public class ReflectiveActionProvider<A extends Action> implements ActionProvide
   }
 
   @Override
-  public ActionRouter<A> newRouter(ActionCreationContext context) {
-    A action = factory.apply(context);
-    return new ReflectiveActionRouter<>(action, componentDescription.methods());
+  public String entityType() {
+    return entityType;
+  }
+
+  @Override
+  public ValueEntityRouter<S, E> newRouter(ValueEntityContext context) {
+    E entity = factory.apply(context);
+    return new ReflectiveValueEntityRouter<>(entity, componentDescription.methods());
   }
 
   @Override
