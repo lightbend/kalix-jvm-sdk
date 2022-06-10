@@ -68,11 +68,11 @@ public abstract class ValueEntity<S> {
   /**
    * Returns the state as currently stored by Kalix.
    *
-   * Note that modifying the state directly will not update it in storage.
-   * To save the state, one must call {{@code effects().updateState()}}.
+   * <p>Note that modifying the state directly will not update it in storage. To save the state, one
+   * must call {{@code effects().updateState()}}.
    *
-   * This method can only be called when handling a command. Calling it outside a method (eg: in the constructor) will
-   * raise a IllegalStateException exception.
+   * <p>This method can only be called when handling a command. Calling it outside a method (eg: in
+   * the constructor) will raise a IllegalStateException exception.
    *
    * @throws IllegalStateException if accessed outside a handler method
    */
