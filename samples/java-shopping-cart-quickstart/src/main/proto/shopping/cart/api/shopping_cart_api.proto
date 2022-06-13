@@ -68,6 +68,9 @@ service ShoppingCart {
         "shopping.cart.domain.ItemRemoved"]
     }
   };
+  // end::service[]
+  option (kalix.service).acl.allow = { principal: ALL };
+  // tag::service[]
 
   rpc AddItem(AddLineItem) returns (google.protobuf.Empty) {
     option (google.api.http) = {

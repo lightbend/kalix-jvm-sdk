@@ -28,6 +28,9 @@ service CustomerByEmail { // <1>
   option (kalix.codegen) = { // <2>
     view: {}
   };
+  // end::CustomerByEmail[]
+  option (kalix.service).acl.allow = { principal: ALL };
+  // tag::CustomerByEmail[]
 
   rpc UpdateCustomer(domain.CustomerState) returns (domain.CustomerState) { // <3>
     option (kalix.method).eventing.in = { // <4>
@@ -55,6 +58,9 @@ service CustomerByName {
   option (kalix.codegen) = {
     view: {}
   };
+  // end::CustomerByName[]
+  option (kalix.service).acl.allow = { principal: ALL };
+  // tag::CustomerByName[]
 
   rpc UpdateCustomer(domain.CustomerState) returns (CustomerViewState) { // <1>
     option (kalix.method).eventing.in = {
