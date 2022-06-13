@@ -159,16 +159,28 @@ public final class Kalix {
       ValueEntityFactory resolvedFactory =
           new ResolvedValueEntityFactory(factory, anySupport.resolveServiceDescriptor(descriptor));
 
-      services.put(
-          descriptor.getFullName(),
-          system ->
-              new ValueEntityService(
-                  resolvedFactory,
-                  descriptor,
-                  additionalDescriptors,
-                  anySupport,
-                  entityType,
-                  entityOptions));
+      return registerValueEntity(
+          resolvedFactory,
+          anySupport,
+          descriptor,
+          entityType,
+          entityOptions,
+          additionalDescriptors);
+    }
+
+    public Kalix registerValueEntity(
+        ValueEntityFactory factory,
+        MessageCodec messageCodec,
+        Descriptors.ServiceDescriptor descriptor,
+        String entityType,
+        ValueEntityOptions entityOptions,
+        Descriptors.FileDescriptor... additionalDescriptors) {
+
+      ValueEntityService service =
+          new ValueEntityService(
+              factory, descriptor, additionalDescriptors, messageCodec, entityType, entityOptions);
+
+      services.put(descriptor.getFullName(), system -> service);
 
       return Kalix.this;
     }
@@ -314,12 +326,25 @@ public final class Kalix {
    * @return This stateful service builder.
    */
   public <S, E extends ValueEntity<S>> Kalix register(ValueEntityProvider<S, E> provider) {
-    return lowLevel.registerValueEntity(
-        provider::newRouter,
-        provider.serviceDescriptor(),
-        provider.entityType(),
-        provider.options(),
-        provider.additionalDescriptors());
+    return provider
+        .alternativeCodec()
+        .map(
+            codec ->
+                lowLevel.registerValueEntity(
+                    provider::newRouter,
+                    codec,
+                    provider.serviceDescriptor(),
+                    provider.entityType(),
+                    provider.options(),
+                    provider.additionalDescriptors()))
+        .orElseGet(
+            () ->
+                lowLevel.registerValueEntity(
+                    provider::newRouter,
+                    provider.serviceDescriptor(),
+                    provider.entityType(),
+                    provider.options(),
+                    provider.additionalDescriptors()));
   }
 
   /**
@@ -366,19 +391,22 @@ public final class Kalix {
    * @return This stateful service builder.
    */
   public Kalix register(ActionProvider provider) {
-
     // FIXME: type inference complaining about lack of type param in ActionProvider<>
     Optional<MessageCodec> codecOpt = provider.alternativeCodec();
-    if (codecOpt.isPresent()) {
-      return lowLevel.registerAction(
-          provider::newRouter,
-          codecOpt.get(),
-          provider.serviceDescriptor(),
-          provider.additionalDescriptors());
-    } else {
-      return lowLevel.registerAction(
-          provider::newRouter, provider.serviceDescriptor(), provider.additionalDescriptors());
-    }
+    return codecOpt
+        .map(
+            codec ->
+                lowLevel.registerAction(
+                    provider::newRouter,
+                    codec,
+                    provider.serviceDescriptor(),
+                    provider.additionalDescriptors()))
+        .orElseGet(
+            () ->
+                lowLevel.registerAction(
+                    provider::newRouter,
+                    provider.serviceDescriptor(),
+                    provider.additionalDescriptors()));
   }
 
   /**

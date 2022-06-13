@@ -37,7 +37,7 @@ object RestServiceIntrospector {
 
   private val discoverer = new DefaultParameterNameDiscoverer
 
-  def inspectService[T](pojo: Class[T]): RestService = {
+  def inspectService[T](component: Class[T]): RestService = {
     // Spring defines a number of annotations, eg, @GetMapping, @PostMapping, etc, that we want to support. These
     // annotations are annotated with @AliasFor annotations that essentially map all their properties to the more
     // generic @RequestMapping annotation. Spring's annotation support understands these annotations, and is therefore
@@ -45,12 +45,12 @@ object RestServiceIntrospector {
     // merge their properties according to the @AliasFor configuration, so that we only have to do the below call to
     // read the entire hierarchy.
 
-    val classMapping = Option(AnnotatedElementUtils.findMergedAnnotation(pojo, classOf[RequestMapping]))
+    val classMapping = Option(AnnotatedElementUtils.findMergedAnnotation(component, classOf[RequestMapping]))
     classMapping.foreach { mapping =>
-      validateRequestMapping(pojo, mapping)
+      validateRequestMapping(component, mapping)
     }
 
-    val methodMappings = pojo.getMethods
+    val methodMappings = component.getMethods
       .map { method =>
         method -> Option(AnnotatedElementUtils.findMergedAnnotation(method, classOf[RequestMapping]))
       }

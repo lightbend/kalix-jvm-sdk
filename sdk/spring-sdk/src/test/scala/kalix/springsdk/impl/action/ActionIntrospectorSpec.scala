@@ -16,11 +16,7 @@
 
 package kalix.springsdk.impl.action
 
-import scala.reflect.ClassTag
-
-import com.fasterxml.jackson.databind.ObjectMapper
 import com.google.protobuf.Descriptors.FieldDescriptor.JavaType
-import kalix.javasdk.action.Action
 import kalix.springsdk.action.RestAnnotatedActions.DeleteWithOneParam
 import kalix.springsdk.action.RestAnnotatedActions.GetClassLevel
 import kalix.springsdk.action.RestAnnotatedActions.GetWithOneParam
@@ -33,11 +29,10 @@ import kalix.springsdk.action.RestAnnotatedActions.PostWithTwoParam
 import kalix.springsdk.action.RestAnnotatedActions.PostWithoutParam
 import kalix.springsdk.action.RestAnnotatedActions.PutWithOneParam
 import kalix.springsdk.action.RestAnnotatedActions.PutWithoutParam
-import kalix.springsdk.impl.reflection.NameGenerator
-import org.scalatest.matchers.should.Matchers
+import kalix.springsdk.impl.IntrospectionSuite
 import org.scalatest.wordspec.AnyWordSpec
 
-class ActionIntrospectorSpec extends AnyWordSpec with Matchers {
+class ActionIntrospectorSpec extends AnyWordSpec with IntrospectionSuite {
 
   "Action introspector" should {
 
@@ -135,19 +130,6 @@ class ActionIntrospectorSpec extends AnyWordSpec with Matchers {
         assertMessage(method, "one", JavaType.STRING)
       }
     }
-  }
-
-  private def assertDescriptor[A <: Action](assertFunc: ActionDescription[A] => Unit)(implicit ev: ClassTag[A]) = {
-    val nameGenerator = new NameGenerator
-    val objectMapper = new ObjectMapper
-
-    assertFunc(ActionIntrospector.inspect(ev.runtimeClass.asInstanceOf[Class[A]], nameGenerator, objectMapper))
-  }
-
-  private def assertMessage(method: ActionMethod, fieldName: String, expectedType: JavaType) = {
-    val field = method.messageDescriptor.findFieldByName(fieldName)
-    if (field == null) throw new NoSuchElementException(s"no field found for $fieldName")
-    field.getJavaType shouldBe expectedType
   }
 
 }

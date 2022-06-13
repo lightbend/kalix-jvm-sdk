@@ -14,34 +14,35 @@
  * limitations under the License.
  */
 
-package kalix.springsdk.impl.action
+package kalix.springsdk.impl
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import com.google.protobuf.DescriptorProtos.ServiceDescriptorProto
-import com.google.protobuf.Descriptors
-import kalix.javasdk.action.Action
-import kalix.springsdk.impl.ProtoDescriptorGenerator
-import kalix.springsdk.impl.reflection.ParameterExtractors.HeaderExtractor
-import kalix.springsdk.impl.reflection.RestServiceIntrospector.HeaderParameter
-import kalix.springsdk.impl.reflection.RestServiceIntrospector.UnhandledParameter
+import kalix.springsdk.annotations.EntityKey
 import kalix.springsdk.impl.reflection.DynamicMethodInfo
 import kalix.springsdk.impl.reflection.NameGenerator
+import kalix.springsdk.impl.reflection.ParameterExtractors.HeaderExtractor
 import kalix.springsdk.impl.reflection.RestServiceIntrospector
+import kalix.springsdk.impl.reflection.RestServiceIntrospector.HeaderParameter
+import kalix.springsdk.impl.reflection.RestServiceIntrospector.UnhandledParameter
 
-object ActionIntrospector {
+object Introspector {
 
-  def inspect[A <: Action](
-      action: Class[A],
-      nameGenerator: NameGenerator,
-      objectMapper: ObjectMapper): ActionDescription[A] = {
+  def inspect[T](component: Class[T]): ComponentDescription = {
 
-    val restService = RestServiceIntrospector.inspectService(action)
+    val nameGenerator = new NameGenerator
+    val restService = RestServiceIntrospector.inspectService(component)
 
     val grpcService = ServiceDescriptorProto.newBuilder()
-    grpcService.setName(nameGenerator.getName(action.getSimpleName))
+    grpcService.setName(nameGenerator.getName(component.getSimpleName))
+
+    val declaredEntityKeys: Seq[String] =
+      Option(component.getAnnotation(classOf[EntityKey]))
+        .map(_.value())
+        .toSeq
+        .flatten
 
     val dynamicRestMethods =
-      restService.methods.map(method => DynamicMethodInfo.build(method, nameGenerator, objectMapper))
+      restService.methods.map(method => DynamicMethodInfo.build(method, nameGenerator, declaredEntityKeys))
 
     val messageDescriptors = dynamicRestMethods.map { method =>
       grpcService.addMethod(method.method)
@@ -49,8 +50,8 @@ object ActionIntrospector {
     }
 
     val fileDescriptor = ProtoDescriptorGenerator.genFileDescriptor(
-      action.getName,
-      action.getPackageName,
+      component.getName,
+      component.getPackageName,
       grpcService.build(),
       messageDescriptors)
 
@@ -73,19 +74,14 @@ object ActionIntrospector {
             }
         }
       }
-      method.method.getName -> ActionMethod(
+      method.method.getName -> ComponentMethod(
         method.restMethod.method,
         method.method.getName,
         extractors.toArray,
         message)
     }.toMap
 
-    new ActionDescription(fileDescriptor, serviceDescriptor, methods)
+    new ComponentDescription(fileDescriptor, serviceDescriptor, methods)
   }
 
 }
-
-class ActionDescription[A <: Action](
-    val fileDescriptor: Descriptors.FileDescriptor,
-    val serviceDescriptor: Descriptors.ServiceDescriptor,
-    val methods: Map[String, ActionMethod])

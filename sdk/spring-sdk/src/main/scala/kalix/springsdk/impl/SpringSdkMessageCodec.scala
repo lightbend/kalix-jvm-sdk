@@ -16,7 +16,8 @@
 
 package kalix.springsdk.impl
 
-import com.google.protobuf.any
+import com.google.protobuf.{ Any => JavaPbAny }
+import com.google.protobuf.any.{ Any => ScalaPbAny }
 import kalix.javasdk.JsonSupport
 import kalix.javasdk.impl.MessageCodec
 
@@ -30,11 +31,15 @@ class SpringSdkMessageCodec extends MessageCodec {
   /**
    * In the Spring SDK, output data are encoded to Json.
    */
-  override def encodeScala(value: Any): any.Any =
-    any.Any.fromJavaProto(JsonSupport.encodeJson(value))
+  override def encodeScala(value: Any): ScalaPbAny =
+    ScalaPbAny.fromJavaProto(encodeJava(value))
+
+  override def encodeJava(value: Any): JavaPbAny =
+    JsonSupport.encodeJson(value)
 
   /**
    * In the Spring SDK, input data are kept as proto Any and delivered as such to the router
    */
-  override def decodeMessage(value: any.Any): Any = value
+  override def decodeMessage(value: ScalaPbAny): Any = value
+
 }

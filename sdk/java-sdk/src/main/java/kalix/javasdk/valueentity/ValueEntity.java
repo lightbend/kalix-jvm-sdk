@@ -30,6 +30,8 @@ public abstract class ValueEntity<S> {
 
   private Optional<CommandContext> commandContext = Optional.empty();
 
+  private Optional<S> currentState = Optional.empty();
+
   /**
    * Implement by returning the initial empty state object. This object will be passed into the
    * command handlers, until a new state replaces it.
@@ -44,6 +46,8 @@ public abstract class ValueEntity<S> {
    * Additional context and metadata for a command handler.
    *
    * <p>It will throw an exception if accessed from constructor.
+   *
+   * @throws IllegalStateException if accessed outside a handler method
    */
   protected final CommandContext commandContext() {
     return commandContext.orElseThrow(
@@ -54,6 +58,28 @@ public abstract class ValueEntity<S> {
   /** INTERNAL API */
   public void _internalSetCommandContext(Optional<CommandContext> context) {
     commandContext = context;
+  }
+
+  /** INTERNAL API */
+  public void _internalSetCurrentState(S state) {
+    currentState = Optional.ofNullable(state);
+  }
+
+  /**
+   * Returns the state as currently stored by Kalix.
+   *
+   * <p>Note that modifying the state directly will not update it in storage. To save the state, one
+   * must call {{@code effects().updateState()}}.
+   *
+   * <p>This method can only be called when handling a command. Calling it outside a method (eg: in
+   * the constructor) will raise a IllegalStateException exception.
+   *
+   * @throws IllegalStateException if accessed outside a handler method
+   */
+  protected final S currentState() {
+    return currentState.orElseThrow(
+        () ->
+            new IllegalStateException("Current state can only available when handling a command."));
   }
 
   protected final Effect.Builder<S> effects() {
@@ -83,8 +109,8 @@ public abstract class ValueEntity<S> {
        * Create a message reply.
        *
        * @param message The payload of the reply.
-       * @return A message reply.
        * @param <T> The type of the message that must be returned by this call.
+       * @return A message reply.
        */
       <T> Effect<T> reply(T message);
 
@@ -93,8 +119,8 @@ public abstract class ValueEntity<S> {
        *
        * @param message The payload of the reply.
        * @param metadata The metadata for the message.
-       * @return A message reply.
        * @param <T> The type of the message that must be returned by this call.
+       * @return A message reply.
        */
       <T> Effect<T> reply(T message, Metadata metadata);
 
@@ -102,8 +128,8 @@ public abstract class ValueEntity<S> {
        * Create a forward reply.
        *
        * @param serviceCall The service call representing the forward.
-       * @return A forward reply.
        * @param <T> The type of the message that must be returned by this call.
+       * @return A forward reply.
        */
       <T> Effect<T> forward(DeferredCall<? extends Object, T> serviceCall);
 
@@ -111,8 +137,8 @@ public abstract class ValueEntity<S> {
        * Create an error reply.
        *
        * @param description The description of the error.
-       * @return An error reply.
        * @param <T> The type of the message that must be returned by this call.
+       * @return An error reply.
        */
       <T> Effect<T> error(String description);
 
@@ -121,8 +147,8 @@ public abstract class ValueEntity<S> {
        *
        * @param description The description of the error.
        * @param statusCode A custom gRPC status code.
-       * @return An error reply.
        * @param <T> The type of the message that must be returned by this call.
+       * @return An error reply.
        */
       <T> Effect<T> error(String description, Status.Code statusCode);
     }
@@ -133,8 +159,8 @@ public abstract class ValueEntity<S> {
        * Reply after for example <code>updateState</code>.
        *
        * @param message The payload of the reply.
-       * @return A message reply.
        * @param <T> The type of the message that must be returned by this call.
+       * @return A message reply.
        */
       <T> Effect<T> thenReply(T message);
 
@@ -143,8 +169,8 @@ public abstract class ValueEntity<S> {
        *
        * @param message The payload of the reply.
        * @param metadata The metadata for the message.
-       * @return A message reply.
        * @param <T> The type of the message that must be returned by this call.
+       * @return A message reply.
        */
       <T> Effect<T> thenReply(T message, Metadata metadata);
 
@@ -152,8 +178,8 @@ public abstract class ValueEntity<S> {
        * Create a forward reply after for example <code>updateState</code>.
        *
        * @param serviceCall The service call representing the forward.
-       * @return A forward reply.
        * @param <T> The type of the message that must be returned by this call.
+       * @return A forward reply.
        */
       <T> Effect<T> thenForward(DeferredCall<? extends Object, T> serviceCall);
     }

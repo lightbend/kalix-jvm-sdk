@@ -14,20 +14,18 @@
  * limitations under the License.
  */
 
-package kalix.springsdk.action;
+package kalix.springsdk.valueentity;
 
-import kalix.javasdk.action.Action;
-import org.springframework.web.bind.annotation.*;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class EchoAction extends Action {
+public class Done {
 
-  @GetMapping("/echo/{msg}")
-  public Effect<Message> stringMessage(@PathVariable String msg) {
-    return effects().reply(new Message(msg));
-  }
+  public static Done instance = new Done("done");
+  public final String message;
 
-  @PostMapping("/echo")
-  public Effect<Message> messageBody(@RequestParam("add") String add, @RequestBody Message msg) {
-    return effects().reply(new Message(msg.value + add));
+  @JsonCreator
+  public Done(@JsonProperty("message") String message) {
+    this.message = message;
   }
 }

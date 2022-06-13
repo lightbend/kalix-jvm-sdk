@@ -14,20 +14,16 @@
  * limitations under the License.
  */
 
-package kalix.springsdk.action;
+package kalix.springsdk.impl
 
-import kalix.javasdk.action.Action;
-import org.springframework.web.bind.annotation.*;
+import java.lang.reflect.Method
 
-public class EchoAction extends Action {
+import com.google.protobuf.Descriptors
+import kalix.springsdk.impl.reflection.ParameterExtractor
 
-  @GetMapping("/echo/{msg}")
-  public Effect<Message> stringMessage(@PathVariable String msg) {
-    return effects().reply(new Message(msg));
-  }
-
-  @PostMapping("/echo")
-  public Effect<Message> messageBody(@RequestParam("add") String add, @RequestBody Message msg) {
-    return effects().reply(new Message(msg.value + add));
-  }
-}
+// Might need to have one of each of these for unary, streamed out, streamed in and streamed.
+case class ComponentMethod(
+    method: Method,
+    grpcMethodName: String,
+    parameterExtractors: Array[ParameterExtractor[InvocationContext, AnyRef]],
+    messageDescriptor: Descriptors.Descriptor)
