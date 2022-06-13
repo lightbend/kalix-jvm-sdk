@@ -259,6 +259,11 @@ trait Metadata extends Iterable[MetadataEntry] {
    *   The JWT claims.
    */
   def jwtClaims: JwtClaims
+
+  /**
+   * Get the Principals associated with this request.
+   */
+  def principals: Principals
 }
 
 object Metadata {

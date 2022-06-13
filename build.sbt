@@ -189,8 +189,13 @@ lazy val sdkJavaTestKit = project
       "proxyVersion" -> Kalix.ProxyVersion,
       "scalaVersion" -> scalaVersion.value),
     buildInfoPackage := "kalix.javasdk.testkit",
-    // Produce javadoc by restricting to Java sources only -- no genjavadoc setup currently
-    Compile / doc / sources := (Compile / doc / sources).value.filterNot(_.name.endsWith(".scala")))
+    // Generate javadocs by just including non generated Java/Scala sources
+    Compile / doc / sources := {
+      val javaSourceDir = (Compile / javaSource).value.getAbsolutePath
+      val scalaSourceDir = (Compile / scalaSource).value.getAbsolutePath
+      (Compile / doc / sources).value.filter(f =>
+        f.getAbsolutePath.startsWith(javaSourceDir) || f.getAbsolutePath.startsWith(scalaSourceDir))
+    })
   .settings(Dependencies.sdkJavaTestKit)
 
 lazy val tckJava = project

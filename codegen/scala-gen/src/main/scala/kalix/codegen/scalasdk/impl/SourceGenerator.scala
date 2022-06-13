@@ -139,7 +139,7 @@ object SourceGenerator {
       protoFileName = "",
       name = "",
       protoPackage = packageString,
-      javaPackageOption = None,
+      javaPackageOption = Some(packageString),
       javaOuterClassnameOption = None,
       javaMultipleFiles = false)
 

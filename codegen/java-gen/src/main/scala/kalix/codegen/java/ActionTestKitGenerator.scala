@@ -39,8 +39,6 @@ object ActionTestKitGenerator {
       commandTypes(service.commands),
       "",
       otherImports = Seq(
-        "java.util.ArrayList",
-        "java.util.List",
         "java.util.function.Function",
         "java.util.Optional",
         s"$packageName.$className",
@@ -49,8 +47,8 @@ object ActionTestKitGenerator {
         "kalix.javasdk.action.ActionCreationContext",
         "kalix.javasdk.testkit.ActionResult",
         "kalix.javasdk.testkit.impl.ActionResultImpl",
-        "kalix.javasdk.impl.action.ActionEffectImpl",
-        "kalix.javasdk.testkit.impl.TestKitActionContext")
+        "kalix.javasdk.testkit.impl.TestKitActionContext",
+        "kalix.javasdk.testkit.MockRegistry")
         ++ commandStreamedTypes(service.commands))
 
     val testKitClassName = s"${className}TestKit"
@@ -63,7 +61,9 @@ object ActionTestKitGenerator {
         |
         |public final class $testKitClassName {
         |
-        |  private Function<ActionCreationContext, $className> actionFactory;
+        |  private final Function<ActionCreationContext, $className> actionFactory;
+        |
+        |  private final MockRegistry mockRegistry;
         |
         |  private $className createAction(TestKitActionContext context) {
         |    $className action = actionFactory.apply(context);
@@ -72,11 +72,16 @@ object ActionTestKitGenerator {
         |  }
         |
         |  public static $testKitClassName of(Function<ActionCreationContext, $className> actionFactory) {
-        |    return new $testKitClassName(actionFactory);
+        |    return new $testKitClassName(actionFactory, MockRegistry.EMPTY);
         |  }
         |
-        |  private $testKitClassName(Function<ActionCreationContext, $className> actionFactory) {
+        |  public static $testKitClassName of(Function<ActionCreationContext, $className> actionFactory, MockRegistry mockRegistry) {
+        |    return new $testKitClassName(actionFactory, mockRegistry);
+        |  }
+        |
+        |  private $testKitClassName(Function<ActionCreationContext, $className> actionFactory, MockRegistry mockRegistry) {
         |    this.actionFactory = actionFactory;
+        |    this.mockRegistry = mockRegistry;
         |  }
         |
         |  private <E> ActionResult<E> interpretEffects(Effect<E> effect) {
@@ -142,7 +147,7 @@ object ActionTestKitGenerator {
       .map { command =>
         s"""|public ${selectOutputResult(command)} ${lowerFirst(command.name)}(${selectInputType(command)} ${lowerFirst(
           command.inputType.protoName)}, Metadata metadata) {
-          |  TestKitActionContext context = new TestKitActionContext(metadata);
+          |  TestKitActionContext context = new TestKitActionContext(metadata, mockRegistry);
           |  ${selectOutputEffect(command)} effect = createAction(context).${lowerFirst(command.name)}(${lowerFirst(
           command.inputType.protoName)});
           |  return ${selectOutputReturn(command)}

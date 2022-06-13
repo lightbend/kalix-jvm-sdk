@@ -79,11 +79,10 @@ class DiscoveryImpl(system: ActorSystem, services: Map[String, Service]) extends
       proxyTerminatedRef.getAndSet(proxyTerminatedPromise).trySuccess(Done)
 
       log.info(
-        "Received discovery call from [{} {}]{} supporting Kalix protocol {}.{}",
+        "Received discovery call from [{} {}] at [{}] supporting Kalix protocol {}.{}",
         in.proxyName,
         in.proxyVersion,
-        if (in.deploymentName.isEmpty) { "" }
-        else { s" at [${in.deploymentName}]" }, // added in protocol 0.7.4
+        in.proxyHostname,
         in.protocolMajorVersion,
         in.protocolMinorVersion)
       log.debug(s"Supported sidecar entity types: {}", in.supportedEntityTypes.mkString("[", ",", "]"))
@@ -92,10 +91,11 @@ class DiscoveryImpl(system: ActorSystem, services: Map[String, Service]) extends
         in.supportedEntityTypes.contains(service.componentType)
       }
 
+      val grpcClients = GrpcClients.get(system)
       // pass the deployed name of the service on to GrpcClients for cross component calls
-      if (in.deploymentName.nonEmpty) {
-        GrpcClients.get(system).setSelfServiceName(in.deploymentName)
-      }
+      GrpcClients.get(system).setProxyHostname(in.proxyHostname)
+
+      grpcClients.setIdentificationInfo(in.identificationInfo)
 
       if (unsupportedServices.nonEmpty) {
         log.error(
@@ -249,6 +249,11 @@ object DiscoveryImpl {
       }
       builder.addFile(protoWithSource)
     }
+    // include 'kalix_policy.proto' with ACL defaults for entire Kalix service if the file exists
+    descriptorsWithSource
+      .collect { case (file, proto) if file.endsWith("kalix_policy.proto") => proto }
+      .foreach(defaultPolicy => builder.addFile(defaultPolicy))
+
     builder.build()
   }
 

@@ -5,6 +5,7 @@
 
 package com.example;
 
+import com.example.actions.ExternalCounterAction;
 import kalix.javasdk.Kalix;
 import com.example.actions.DoubleCounterAction;
 import com.example.actions.CounterStateSubscriptionAction;
@@ -28,7 +29,8 @@ public final class Main {
     return KalixFactory.withComponents(
             Counter::new,
             CounterStateSubscriptionAction::new,
-            DoubleCounterAction::new);
+            DoubleCounterAction::new,
+            ExternalCounterAction::new);
 
     /* the comment hack bellow is needed to only show the Counter::new and DoubleCounterAction
     // tag::registration[]

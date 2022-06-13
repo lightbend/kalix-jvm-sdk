@@ -4,15 +4,13 @@ import com.google.protobuf.Empty;
 import kalix.javasdk.Metadata;
 import kalix.javasdk.action.Action.Effect;
 import kalix.javasdk.action.ActionCreationContext;
-import kalix.javasdk.impl.action.ActionEffectImpl;
 import kalix.javasdk.testkit.ActionResult;
+import kalix.javasdk.testkit.MockRegistry;
 import kalix.javasdk.testkit.impl.ActionResultImpl;
 import kalix.javasdk.testkit.impl.TestKitActionContext;
 import org.example.service.MyServiceActionImpl;
 import org.example.service.ServiceOuterClass;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 
@@ -22,7 +20,9 @@ import java.util.function.Function;
 
 public final class MyServiceActionImplTestKit {
 
-  private Function<ActionCreationContext, MyServiceActionImpl> actionFactory;
+  private final Function<ActionCreationContext, MyServiceActionImpl> actionFactory;
+
+  private final MockRegistry mockRegistry;
 
   private MyServiceActionImpl createAction(TestKitActionContext context) {
     MyServiceActionImpl action = actionFactory.apply(context);
@@ -31,11 +31,16 @@ public final class MyServiceActionImplTestKit {
   }
 
   public static MyServiceActionImplTestKit of(Function<ActionCreationContext, MyServiceActionImpl> actionFactory) {
-    return new MyServiceActionImplTestKit(actionFactory);
+    return new MyServiceActionImplTestKit(actionFactory, MockRegistry.EMPTY);
   }
 
-  private MyServiceActionImplTestKit(Function<ActionCreationContext, MyServiceActionImpl> actionFactory) {
+  public static MyServiceActionImplTestKit of(Function<ActionCreationContext, MyServiceActionImpl> actionFactory, MockRegistry mockRegistry) {
+    return new MyServiceActionImplTestKit(actionFactory, mockRegistry);
+  }
+
+  private MyServiceActionImplTestKit(Function<ActionCreationContext, MyServiceActionImpl> actionFactory, MockRegistry mockRegistry) {
     this.actionFactory = actionFactory;
+    this.mockRegistry = mockRegistry;
   }
 
   private <E> ActionResult<E> interpretEffects(Effect<E> effect) {
@@ -43,7 +48,7 @@ public final class MyServiceActionImplTestKit {
   }
 
   public ActionResult<Empty> simpleMethod(ServiceOuterClass.MyRequest myRequest, Metadata metadata) {
-    TestKitActionContext context = new TestKitActionContext(metadata);
+    TestKitActionContext context = new TestKitActionContext(metadata, mockRegistry);
     Effect<Empty> effect = createAction(context).simpleMethod(myRequest);
     return interpretEffects(effect);
   }
