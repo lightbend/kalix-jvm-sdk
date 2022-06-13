@@ -85,7 +85,10 @@ case class File(name: String, content: String) {
     val target = directory.resolve(name)
     if (!onlyIfMissing || !target.toFile.exists()) {
       if (!target.getParent.toFile.exists()) target.getParent.toFile.mkdirs()
-      Files.write(target, content.getBytes("UTF8"))
+
+      val bytes = content.getBytes("UTF8")
+      if (!File.hasSameContents(target, content, bytes))
+        Files.write(target, bytes)
     }
     target
   }
@@ -99,4 +102,10 @@ object File {
 
   def apply(packageName: String, className: String, fileType: String, content: String): File =
     File(s"${packageAsPath(packageName)}/$className.$fileType", content)
+
+  def hasSameContents(target: Path, contents: String, contentBytes: Array[Byte]): Boolean =
+    Files.exists(target) &&
+    Files.size(target) == contentBytes.length &&
+    // assumes that reading full files into memory is ok
+    Files.readString(target) == contents
 }
