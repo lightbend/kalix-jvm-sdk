@@ -14,27 +14,25 @@
  * limitations under the License.
  */
 
-package kalix.springsdk.valueentity;
+package kalix.springsdk.impl;
 
-import kalix.javasdk.valueentity.ValueEntity;
-import kalix.springsdk.annotations.EntityKey;
+import kalix.javasdk.action.Action;
+import kalix.springsdk.annotations.Subscribe;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-public class RestAnnotatedValueEntities {
+@RequestMapping("/subscription/log")
+public class CounterSubscriber extends Action {
 
-  @EntityKey({"userId", "cartId"})
-  @RequestMapping("/user/{userId}/{cartId}")
-  public static class PostWithEntityKeys extends ValueEntity<User> {
-    @Override
-    public User emptyState() {
-      return User.empty();
-    }
+  private Logger logger = LoggerFactory.getLogger(getClass());
 
-    @PostMapping("/create")
-    public ValueEntity.Effect<Done> createEntity(@RequestBody CreateUser createUser) {
-      return effects().reply(Done.instance);
-    }
+  @Subscribe.ValueEntity(entityType = "counter")
+  @PostMapping("/counter")
+  public Effect<Done> changes(@RequestBody CounterState counterState) {
+    logger.info("Counter subscriber: counter id '{}' is '{}'", counterState.id, counterState.value);
+    return effects().reply(Done.instance);
   }
 }

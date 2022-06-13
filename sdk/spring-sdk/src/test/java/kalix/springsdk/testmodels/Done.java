@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package kalix.springsdk.valueentity;
+package kalix.springsdk.testmodels;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;

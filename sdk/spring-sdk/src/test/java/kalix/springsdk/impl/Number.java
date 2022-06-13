@@ -14,19 +14,17 @@
  * limitations under the License.
  */
 
-package kalix.springsdk.valueentity;
+package kalix.springsdk.impl;
 
-public class User {
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-  public final String firstName;
-  public final String lastName;
+public class Number {
 
-  public User(String firstName, String lastName) {
-    this.firstName = firstName;
-    this.lastName = lastName;
-  }
+  public final int value;
 
-  public static User empty() {
-    return new User("", "");
+  @JsonCreator
+  public Number(@JsonProperty("value") int value) {
+    this.value = value;
   }
 }

@@ -124,25 +124,25 @@ object RestServiceIntrospector {
   case class RestMethod(
       classMapping: Option[RequestMapping],
       mapping: RequestMapping,
-      method: Method,
+      javaMethod: Method,
       params: Seq[RestMethodParameter]) {
 
     // First fail on unsupported mapping values. Should all default to empty arrays, but let's not trust that
     {
-      validateRequestMapping(method, mapping)
+      validateRequestMapping(javaMethod, mapping)
       if (!isEmpty(mapping.method()) && classMapping.exists(cm => !isEmpty(cm.method()))) {
         throw new ServiceIntrospectionException(
-          method,
+          javaMethod,
           "Invalid request method mapping. A request method mapping may only be defined on the class, or on the method, but not both.")
       }
       if (isEmpty(mapping.path()) && classMapping.forall(cm => isEmpty(cm.path()))) {
         throw new ServiceIntrospectionException(
-          method,
+          javaMethod,
           "Missing path mapping. Kalix Spring SDK methods must have a path defined.")
       }
       if (isEmpty(mapping.method()) && classMapping.forall(cm => isEmpty(cm.method()))) {
         throw new ServiceIntrospectionException(
-          method,
+          javaMethod,
           "Missing request method mapping. Kalix Spring SDK methods must have a request method defined.")
       }
     }

@@ -18,6 +18,7 @@ package kalix.springsdk.impl
 
 import com.google.api.{ AnnotationsProto => HttpAnnotationsProto }
 import com.google.protobuf.AnyProto
+import com.google.protobuf.{ Any => JavaPbAny }
 import com.google.protobuf.DescriptorProtos
 import com.google.protobuf.Descriptors
 import kalix.{ Annotations => KalixAnnotations }
@@ -43,7 +44,11 @@ object ProtoDescriptorGenerator {
 
     protoBuilder.addDependency("google/protobuf/any.proto")
     protoBuilder.addService(service)
-    messages.foreach(protoBuilder.addMessageType)
+    messages
+      .filterNot { desc =>
+        desc.getName == JavaPbAny.getDescriptor.getFullName
+      }
+      .foreach(protoBuilder.addMessageType)
 
     // finally build all final descriptor
     Descriptors.FileDescriptor.buildFrom(protoBuilder.build, dependencies)

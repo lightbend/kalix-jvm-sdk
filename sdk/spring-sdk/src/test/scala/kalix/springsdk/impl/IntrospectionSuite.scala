@@ -21,6 +21,7 @@ import scala.reflect.ClassTag
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.google.protobuf.Descriptors
 import com.google.protobuf.Descriptors.FieldDescriptor.JavaType
+import kalix.EventSource
 import kalix.springsdk.impl.reflection.NameGenerator
 import org.scalatest.matchers.should.Matchers
 
@@ -39,6 +40,18 @@ trait IntrospectionSuite extends Matchers {
     val field = findField(method, fieldName)
     val fieldOption = field.toProto.getOptions.getExtension(kalix.Annotations.field)
     fieldOption.getEntityKey shouldBe true
+  }
+
+  def findEventSource(desc: ComponentDescription, methodName: String): EventSource = {
+    val grpcMethod = desc.serviceDescriptor.findMethodByName(methodName)
+    val methodOptions = grpcMethod.toProto.getOptions.getExtension(kalix.Annotations.method)
+    methodOptions.getEventing.getIn
+  }
+
+  def assertSubscriptionMethod(method: ComponentMethod) = {
+//    val field = findField(method, fieldName)
+//    val fieldOption = field.toProto.getOptions.getExtension(kalix.Annotations.field)
+//    fieldOption.getEntityKey shouldBe true
   }
 
   private def findField(method: ComponentMethod, fieldName: String): Descriptors.FieldDescriptor = {

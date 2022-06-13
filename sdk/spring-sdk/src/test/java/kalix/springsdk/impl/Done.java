@@ -14,16 +14,18 @@
  * limitations under the License.
  */
 
-package kalix.springsdk.annotations;
+package kalix.springsdk.impl;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-@Target({ElementType.TYPE})
-@Retention(RetentionPolicy.RUNTIME)
-public @interface EntityKey {
-  // TODO: document
-  String[] value() default {};
+public class Done {
+  public final String message;
+
+  @JsonCreator
+  public Done(@JsonProperty String message) {
+    this.message = message;
+  }
+
+  public static Done instance = new Done("done");
 }

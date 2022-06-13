@@ -14,18 +14,22 @@
  * limitations under the License.
  */
 
-package kalix.springsdk.valueentity;
+package kalix.springsdk.impl;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 
-public class CreateUser {
+public class CounterState {
 
-  public final String firstName;
-  public final String lastName;
+  public final String id;
+  public final int value;
 
   @JsonCreator
-  public CreateUser(String firstName, String lastName) {
-    this.firstName = firstName;
-    this.lastName = lastName;
+  public CounterState(String id, int value) {
+    this.id = id;
+    this.value = value;
+  }
+
+  public CounterState increase(int increaseBy) {
+    return new CounterState(id, value + increaseBy);
   }
 }

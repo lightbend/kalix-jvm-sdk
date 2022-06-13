@@ -24,6 +24,8 @@ import kalix.springsdk.impl.reflection.ParameterExtractors.HeaderExtractor
 import kalix.springsdk.impl.reflection.RestServiceIntrospector
 import kalix.springsdk.impl.reflection.RestServiceIntrospector.HeaderParameter
 import kalix.springsdk.impl.reflection.RestServiceIntrospector.UnhandledParameter
+import com.google.protobuf.{ Any => JavaPbAny }
+import com.google.protobuf.any.{ Any => ScalaPbAny }
 
 object Introspector {
 
@@ -33,6 +35,9 @@ object Introspector {
     val restService = RestServiceIntrospector.inspectService(component)
 
     val grpcService = ServiceDescriptorProto.newBuilder()
+    // FIXME: I made NameGenerator internal state, but we need unique names per service as well
+    // on the other hand, using the same NameGenerator for all components will make it hard to debug
+    // as we it will make it hard to correlate the methods and to the classes they are defined.
     grpcService.setName(nameGenerator.getName(component.getSimpleName))
 
     val declaredEntityKeys: Seq[String] =
@@ -41,12 +46,12 @@ object Introspector {
         .toSeq
         .flatten
 
-    val dynamicRestMethods =
-      restService.methods.map(method => DynamicMethodInfo.build(method, nameGenerator, declaredEntityKeys))
+    val methodsInfo =
+      restService.methods.map(restMethod => DynamicMethodInfo.build(restMethod, nameGenerator, declaredEntityKeys))
 
-    val messageDescriptors = dynamicRestMethods.map { method =>
-      grpcService.addMethod(method.method)
-      method.descriptor
+    val messageDescriptors = methodsInfo.flatMap { methodInfo =>
+      grpcService.addMethod(methodInfo.grpcMethod)
+      methodInfo.inputMessageDescriptor
     }
 
     val fileDescriptor = ProtoDescriptorGenerator.genFileDescriptor(
@@ -57,8 +62,14 @@ object Introspector {
 
     val serviceDescriptor = fileDescriptor.findServiceByName(grpcService.getName)
 
-    val methods = dynamicRestMethods.map { method =>
-      val message = fileDescriptor.findMessageTypeByName(method.descriptor.getName)
+    val methods = methodsInfo.map { method =>
+
+      val message = method.inputMessageDescriptor
+        .map { inputDescriptor =>
+          fileDescriptor.findMessageTypeByName(inputDescriptor.getName)
+        }
+        .getOrElse(ScalaPbAny.javaDescriptor)
+
       val extractors = method.restMethod.params.zipWithIndex.map { case (param, idx) =>
         // First, see if we have an extractor for it to extract from the dynamic message
         method.extractors.find(_._1 == idx) match {
@@ -74,9 +85,9 @@ object Introspector {
             }
         }
       }
-      method.method.getName -> ComponentMethod(
-        method.restMethod.method,
-        method.method.getName,
+      method.grpcMethod.getName -> ComponentMethod(
+        method.restMethod.javaMethod,
+        method.grpcMethod.getName,
         extractors.toArray,
         message)
     }.toMap

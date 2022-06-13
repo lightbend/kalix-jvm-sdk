@@ -20,17 +20,20 @@ import java.lang.reflect.Type
 
 import scala.annotation.tailrec
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import com.google.api.AnnotationsProto
 import com.google.api.CustomHttpPattern
 import com.google.api.HttpRule
+import com.google.protobuf.ByteString
 import com.google.protobuf.DescriptorProtos
 import com.google.protobuf.DescriptorProtos.DescriptorProto
 import com.google.protobuf.DescriptorProtos.FieldDescriptorProto
 import com.google.protobuf.DescriptorProtos.MethodDescriptorProto
 import com.google.protobuf.DescriptorProtos.MethodOptions
-import com.google.protobuf.ByteString
 import com.google.protobuf.Descriptors
+import com.google.protobuf.{ Any => JavaPbAny }
+import kalix.EventSource
+import kalix.Eventing
+import kalix.springsdk.annotations.Subscribe
 import kalix.springsdk.impl.reflection.RestServiceIntrospector.BodyParameter
 import kalix.springsdk.impl.reflection.RestServiceIntrospector.PathParameter
 import kalix.springsdk.impl.reflection.RestServiceIntrospector.QueryParamParameter
@@ -39,8 +42,8 @@ import org.springframework.web.bind.annotation.RequestMethod
 
 case class DynamicMethodInfo(
     restMethod: RestMethod,
-    descriptor: DescriptorProto,
-    method: MethodDescriptorProto,
+    grpcMethod: MethodDescriptorProto,
+    inputMessageDescriptor: Option[DescriptorProto],
     extractors: Seq[(Int, ExtractorCreator)])
 
 object DynamicMethodInfo {
@@ -50,37 +53,66 @@ object DynamicMethodInfo {
       generator: NameGenerator,
       entityKeys: Seq[String] = Seq.empty): DynamicMethodInfo = {
 
-    val methodName = restMethod.method.getName.capitalize
-    val inputTypeName = generator.getName(methodName + "Request")
+    // TODO: check for EventSourced, Replicated and Topics
+    val hasSubscriptionAnnotations =
+      restMethod.javaMethod.getAnnotation(classOf[Subscribe.ValueEntity]) != null
 
-    val method = MethodDescriptorProto.newBuilder()
-    method.setName(generator.getName(methodName))
-    method.setInputType(inputTypeName)
-    method.setOutputType("google.protobuf.Any")
+    if (hasSubscriptionAnnotations)
+      buildForProtoAny(restMethod, generator)
+    else
+      buildSyntheticMessageDescriptor(restMethod, generator, entityKeys)
+  }
 
-    val httpRule = HttpRule.newBuilder()
-    val pathTemplate = restMethod.parsedPath.toGrpcTranscodingPattern
-    restMethod.requestMethod match {
-      case RequestMethod.GET =>
-        httpRule.setGet(pathTemplate)
-      case RequestMethod.POST =>
-        httpRule.setPost(pathTemplate)
-      case RequestMethod.PUT =>
-        httpRule.setPut(pathTemplate)
-      case RequestMethod.PATCH =>
-        httpRule.setPatch(pathTemplate)
-      case RequestMethod.DELETE =>
-        httpRule.setDelete(pathTemplate)
-      case other =>
-        httpRule.setCustom(
-          CustomHttpPattern
-            .newBuilder()
-            .setKind(other.name())
-            .setPath(pathTemplate))
+  private def buildForProtoAny(restMethod: RestMethod, generator: NameGenerator): DynamicMethodInfo = {
+
+    val methodName = restMethod.javaMethod.getName.capitalize
+    val inputTypeName = JavaPbAny.getDescriptor.getFullName
+    val httpRule: HttpRule.Builder = buildHttpRule(restMethod)
+
+    // TODO: make sure we accept only one Subscribe annotation
+    // go over the ValueEntity.Subscribe annotations
+    val kalixMethodOptions =
+      Option(restMethod.javaMethod.getAnnotation(classOf[Subscribe.ValueEntity])).map { ann =>
+        val eventSource = EventSource.newBuilder().setValueEntity(ann.entityType()).build()
+        val eventingOpts = Eventing.newBuilder().setIn(eventSource).build()
+        kalix.MethodOptions.newBuilder().setEventing(eventingOpts).build()
+      }
+
+    val grpcMethod =
+      buildGrpcMethod(generator, methodName, inputTypeName, httpRule.build(), kalixMethodOptions.toSeq)
+
+    val typeParam = restMethod.params.headOption
+      .collectFirst { case BodyParameter(param, _) => param.getParameterType }
+      .getOrElse {
+        throw new IllegalArgumentException(
+          s"Unable to identify input parameter for subscription method ${restMethod.javaMethod}")
+      }
+
+    val anyBodyExtractor = new ExtractorCreator {
+      override def apply(descriptor: Descriptors.Descriptor): ParameterExtractor[DynamicMessageContext, AnyRef] =
+        // FIXME: new to find type properly
+        new ParameterExtractors.AnyBodyExtractor(typeParam)
+
     }
 
-    val descriptor = DescriptorProto.newBuilder()
-    descriptor.setName(inputTypeName)
+    DynamicMethodInfo(restMethod, grpcMethod, None, Seq((0 -> anyBodyExtractor)))
+  }
+
+  /*
+   * Build a DynamicMethodInfo for method using a synthetic message
+   */
+  private def buildSyntheticMessageDescriptor(
+      restMethod: RestMethod,
+      generator: NameGenerator,
+      entityKeys: Seq[String]): DynamicMethodInfo = {
+
+    val methodName = restMethod.javaMethod.getName.capitalize
+    val httpRule: HttpRule.Builder = buildHttpRule(restMethod)
+
+    val inputTypeName = generator.getName(methodName + "Request")
+
+    val inputMessageDescriptor = DescriptorProto.newBuilder()
+    inputMessageDescriptor.setName(inputTypeName)
 
     def addEntityKeyIfNeeded(paramName: String, fieldDescriptor: FieldDescriptorProto.Builder) =
       if (entityKeys.contains(paramName)) {
@@ -105,7 +137,7 @@ object DynamicMethodInfo {
       fieldDescriptor.setNumber(1)
       fieldDescriptor.setType(FieldDescriptorProto.Type.TYPE_MESSAGE)
       fieldDescriptor.setTypeName("google.protobuf.Any")
-      descriptor.addField(fieldDescriptor)
+      inputMessageDescriptor.addField(fieldDescriptor)
       idx -> new ExtractorCreator {
         override def apply(descriptor: Descriptors.Descriptor): ParameterExtractor[DynamicMessageContext, AnyRef] = {
           new ParameterExtractors.BodyExtractor(descriptor.findFieldByNumber(1), param.getParameterType)
@@ -127,7 +159,7 @@ object DynamicMethodInfo {
       fieldDescriptor.setNumber(fieldNumber)
       fieldDescriptor.setType(mapJavaTypeToProtobuf(paramType))
       addEntityKeyIfNeeded(paramName, fieldDescriptor)
-      descriptor.addField(fieldDescriptor)
+      inputMessageDescriptor.addField(fieldDescriptor)
       maybeParamIdx.map(_ -> new ExtractorCreator {
         override def apply(descriptor: Descriptors.Descriptor): ParameterExtractor[DynamicMessageContext, AnyRef] = {
           new ParameterExtractors.FieldExtractor[AnyRef](descriptor.findFieldByNumber(fieldNumber), identity)
@@ -149,7 +181,7 @@ object DynamicMethodInfo {
         fieldDescriptor.setName(param.name)
         fieldDescriptor.setNumber(fieldNumber)
         fieldDescriptor.setType(mapJavaTypeToProtobuf(param.param.getGenericParameterType))
-        descriptor.addField(fieldDescriptor)
+        inputMessageDescriptor.addField(fieldDescriptor)
         addEntityKeyIfNeeded(param.name, fieldDescriptor)
         paramIdx -> new ExtractorCreator {
           override def apply(descriptor: Descriptors.Descriptor): ParameterExtractor[DynamicMessageContext, AnyRef] = {
@@ -158,12 +190,61 @@ object DynamicMethodInfo {
         }
       }
 
-    val methodOptions = MethodOptions
-      .newBuilder()
-      .setExtension(AnnotationsProto.http, httpRule.build())
-    method.setOptions(methodOptions)
+    val grpcMethod =
+      buildGrpcMethod(generator, methodName, inputTypeName, httpRule.build())
 
-    DynamicMethodInfo(restMethod, descriptor.build(), method.build(), bodyField.toSeq ++ pathParamFields ++ queryFields)
+    DynamicMethodInfo(
+      restMethod,
+      grpcMethod,
+      Some(inputMessageDescriptor.build()),
+      bodyField.toSeq ++ pathParamFields ++ queryFields)
+  }
+
+  private def buildHttpRule(restMethod: RestMethod) = {
+    val httpRule = HttpRule.newBuilder()
+    val pathTemplate = restMethod.parsedPath.toGrpcTranscodingPattern
+    restMethod.requestMethod match {
+      case RequestMethod.GET =>
+        httpRule.setGet(pathTemplate)
+      case RequestMethod.POST =>
+        httpRule.setPost(pathTemplate)
+      case RequestMethod.PUT =>
+        httpRule.setPut(pathTemplate)
+      case RequestMethod.PATCH =>
+        httpRule.setPatch(pathTemplate)
+      case RequestMethod.DELETE =>
+        httpRule.setDelete(pathTemplate)
+      case other =>
+        httpRule.setCustom(
+          CustomHttpPattern
+            .newBuilder()
+            .setKind(other.name())
+            .setPath(pathTemplate))
+    }
+    httpRule
+  }
+
+  private def buildGrpcMethod(
+      generator: NameGenerator,
+      methodName: String,
+      inputTypeName: String,
+      httpRule: HttpRule,
+      extraKalixOptions: Seq[kalix.MethodOptions] = Seq.empty): MethodDescriptorProto = {
+
+    val grpcMethod = MethodDescriptorProto.newBuilder()
+    grpcMethod.setName(generator.getName(methodName))
+    grpcMethod.setInputType(inputTypeName)
+    grpcMethod.setOutputType("google.protobuf.Any")
+
+    val methodOptions = MethodOptions.newBuilder()
+
+    methodOptions.setExtension(AnnotationsProto.http, httpRule)
+
+    extraKalixOptions.foreach { methodOpt =>
+      methodOptions.setExtension(kalix.Annotations.method, methodOpt)
+    }
+    grpcMethod.setOptions(methodOptions.build())
+    grpcMethod.build()
   }
 
   private def mapJavaTypeToProtobuf(javaType: Type): FieldDescriptorProto.Type = {
@@ -193,7 +274,7 @@ trait ExtractorCreator {
 }
 
 /**
- * Ensures all generated names in a given package are unique, noting that method names and message names must not
+ * Ensures all generated names in a given package are unique, noting that grpcMethod names and message names must not
  * conflict
  */
 class NameGenerator {

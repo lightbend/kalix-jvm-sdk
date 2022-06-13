@@ -26,7 +26,6 @@ import kalix.javasdk.valueentity.ValueEntityProvider;
 import kalix.springsdk.impl.ComponentDescription;
 import kalix.springsdk.impl.Introspector;
 import kalix.springsdk.impl.SpringSdkMessageCodec;
-import kalix.springsdk.impl.reflection.NameGenerator;
 import kalix.springsdk.impl.valueentity.ReflectiveValueEntityRouter;
 
 import java.util.Optional;

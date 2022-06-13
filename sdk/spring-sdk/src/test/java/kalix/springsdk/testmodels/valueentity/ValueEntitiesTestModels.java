@@ -14,24 +14,28 @@
  * limitations under the License.
  */
 
-package kalix.springsdk.valueentity;
+package kalix.springsdk.testmodels.valueentity;
 
 import kalix.javasdk.valueentity.ValueEntity;
 import kalix.springsdk.annotations.EntityKey;
+import kalix.springsdk.testmodels.Done;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-@EntityKey("id")
-@RequestMapping("/user/{id}")
-public class UserEntity extends ValueEntity<User> {
-  @Override
-  public User emptyState() {
-    return User.empty();
-  }
+public class ValueEntitiesTestModels {
 
-  @PostMapping("/create")
-  public ValueEntity.Effect<Done> createUser(@RequestBody CreateUser createUser) {
-    return effects().reply(Done.instance);
+  @EntityKey({"userId", "cartId"})
+  @RequestMapping("/user/{userId}/{cartId}")
+  public static class PostWithEntityKeys extends ValueEntity<User> {
+    @Override
+    public User emptyState() {
+      return User.empty();
+    }
+
+    @PostMapping("/create")
+    public ValueEntity.Effect<Done> createEntity(@RequestBody CreateUser createUser) {
+      return effects().reply(Done.instance);
+    }
   }
 }

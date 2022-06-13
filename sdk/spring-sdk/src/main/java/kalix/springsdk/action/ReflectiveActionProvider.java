@@ -27,7 +27,6 @@ import kalix.springsdk.impl.ComponentDescription;
 import kalix.springsdk.impl.Introspector;
 import kalix.springsdk.impl.SpringSdkMessageCodec;
 import kalix.springsdk.impl.action.ReflectiveActionRouter;
-import kalix.springsdk.impl.reflection.NameGenerator;
 
 import java.util.Optional;
 import java.util.function.Function;

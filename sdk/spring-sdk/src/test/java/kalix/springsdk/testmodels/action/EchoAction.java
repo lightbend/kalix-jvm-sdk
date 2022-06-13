@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-package kalix.springsdk.action;
+package kalix.springsdk.testmodels.action;
 
 import kalix.javasdk.action.Action;
+import kalix.springsdk.testmodels.Message;
 import org.springframework.web.bind.annotation.*;
 
 public class EchoAction extends Action {
