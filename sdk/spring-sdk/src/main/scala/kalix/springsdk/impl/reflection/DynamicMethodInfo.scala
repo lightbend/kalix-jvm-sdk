@@ -48,7 +48,6 @@ object DynamicMethodInfo {
   def build(
       restMethod: RestMethod,
       generator: NameGenerator,
-      mapper: ObjectMapper,
       entityKeys: Seq[String] = Seq.empty): DynamicMethodInfo = {
 
     val methodName = restMethod.method.getName.capitalize
@@ -107,10 +106,10 @@ object DynamicMethodInfo {
       fieldDescriptor.setType(FieldDescriptorProto.Type.TYPE_MESSAGE)
       fieldDescriptor.setTypeName("google.protobuf.Any")
       descriptor.addField(fieldDescriptor)
-      val fieldReader = mapper.readerFor(mapper.constructType(param.getGenericParameterType))
       idx -> new ExtractorCreator {
-        override def apply(descriptor: Descriptors.Descriptor): ParameterExtractor[DynamicMessageContext, AnyRef] =
-          new ParameterExtractors.BodyExtractor(descriptor.findFieldByNumber(1), fieldReader)
+        override def apply(descriptor: Descriptors.Descriptor): ParameterExtractor[DynamicMessageContext, AnyRef] = {
+          new ParameterExtractors.BodyExtractor(descriptor.findFieldByNumber(1), param.getParameterType)
+        }
       }
     }
 
@@ -151,7 +150,7 @@ object DynamicMethodInfo {
         fieldDescriptor.setNumber(fieldNumber)
         fieldDescriptor.setType(mapJavaTypeToProtobuf(param.param.getGenericParameterType))
         descriptor.addField(fieldDescriptor)
-        // todo entity key
+        addEntityKeyIfNeeded(param.name, fieldDescriptor)
         paramIdx -> new ExtractorCreator {
           override def apply(descriptor: Descriptors.Descriptor): ParameterExtractor[DynamicMessageContext, AnyRef] = {
             new ParameterExtractors.FieldExtractor[AnyRef](descriptor.findFieldByNumber(fieldNumber), identity)

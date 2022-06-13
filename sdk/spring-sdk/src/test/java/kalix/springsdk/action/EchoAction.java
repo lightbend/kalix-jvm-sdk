@@ -22,12 +22,12 @@ import org.springframework.web.bind.annotation.*;
 public class EchoAction extends Action {
 
   @GetMapping("/echo/{msg}")
-  public Effect<Message> echoMessage(@PathVariable String msg) {
+  public Effect<Message> stringMessage(@PathVariable String msg) {
     return effects().reply(new Message(msg));
   }
 
   @PostMapping("/echo")
-  public Effect<Message> echoMessage(@RequestParam("add") String add, @RequestBody Message msg) {
+  public Effect<Message> messageBody(@RequestParam("add") String add, @RequestBody Message msg) {
     return effects().reply(new Message(msg.value + add));
   }
 }

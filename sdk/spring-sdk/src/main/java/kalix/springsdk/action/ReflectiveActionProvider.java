@@ -16,7 +16,6 @@
 
 package kalix.springsdk.action;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.protobuf.Descriptors;
 import kalix.javasdk.action.Action;
 import kalix.javasdk.action.ActionCreationContext;
@@ -24,10 +23,10 @@ import kalix.javasdk.action.ActionOptions;
 import kalix.javasdk.action.ActionProvider;
 import kalix.javasdk.impl.MessageCodec;
 import kalix.javasdk.impl.action.ActionRouter;
+import kalix.springsdk.impl.ComponentDescription;
 import kalix.springsdk.impl.Introspector;
 import kalix.springsdk.impl.SpringSdkMessageCodec;
 import kalix.springsdk.impl.action.ReflectiveActionRouter;
-import kalix.springsdk.impl.ComponentDescription;
 import kalix.springsdk.impl.reflection.NameGenerator;
 
 import java.util.Optional;
@@ -53,7 +52,7 @@ public class ReflectiveActionProvider<A extends Action> implements ActionProvide
     this.factory = factory;
     this.options = options;
 
-    this.componentDescription = Introspector.inspect(cls, new NameGenerator(), new ObjectMapper());
+    this.componentDescription = Introspector.inspect(cls);
 
     this.fileDescriptor = componentDescription.fileDescriptor();
     this.serviceDescriptor = componentDescription.serviceDescriptor();

@@ -16,7 +16,6 @@
 
 package kalix.springsdk.valueentity;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.protobuf.Descriptors;
 import kalix.javasdk.impl.MessageCodec;
 import kalix.javasdk.impl.valueentity.ValueEntityRouter;
@@ -58,7 +57,7 @@ public class ReflectiveValueEntityProvider<S, E extends ValueEntity<S>>
     this.factory = factory;
     this.options = options;
 
-    this.componentDescription = Introspector.inspect(cls, new NameGenerator(), new ObjectMapper());
+    this.componentDescription = Introspector.inspect(cls);
 
     this.fileDescriptor = componentDescription.fileDescriptor();
     this.serviceDescriptor = componentDescription.serviceDescriptor();

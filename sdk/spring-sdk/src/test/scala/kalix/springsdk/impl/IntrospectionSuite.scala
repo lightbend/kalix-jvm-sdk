@@ -27,10 +27,7 @@ import org.scalatest.matchers.should.Matchers
 trait IntrospectionSuite extends Matchers {
 
   def assertDescriptor[E](assertFunc: ComponentDescription => Unit)(implicit ev: ClassTag[E]) = {
-    val nameGenerator = new NameGenerator
-    val objectMapper = new ObjectMapper
-
-    assertFunc(Introspector.inspect(ev.runtimeClass, nameGenerator, objectMapper))
+    assertFunc(Introspector.inspect(ev.runtimeClass))
   }
 
   def assertMessage(method: ComponentMethod, fieldName: String, expectedType: JavaType) = {

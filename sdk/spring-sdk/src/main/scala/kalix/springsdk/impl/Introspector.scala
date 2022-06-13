@@ -16,7 +16,6 @@
 
 package kalix.springsdk.impl
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import com.google.protobuf.DescriptorProtos.ServiceDescriptorProto
 import kalix.springsdk.annotations.EntityKey
 import kalix.springsdk.impl.reflection.DynamicMethodInfo
@@ -28,11 +27,9 @@ import kalix.springsdk.impl.reflection.RestServiceIntrospector.UnhandledParamete
 
 object Introspector {
 
-  def inspect[T](
-      component: Class[T],
-      nameGenerator: NameGenerator,
-      objectMapper: ObjectMapper): ComponentDescription = {
+  def inspect[T](component: Class[T]): ComponentDescription = {
 
+    val nameGenerator = new NameGenerator
     val restService = RestServiceIntrospector.inspectService(component)
 
     val grpcService = ServiceDescriptorProto.newBuilder()
@@ -45,8 +42,7 @@ object Introspector {
         .flatten
 
     val dynamicRestMethods =
-      restService.methods.map(method =>
-        DynamicMethodInfo.build(method, nameGenerator, objectMapper, declaredEntityKeys))
+      restService.methods.map(method => DynamicMethodInfo.build(method, nameGenerator, declaredEntityKeys))
 
     val messageDescriptors = dynamicRestMethods.map { method =>
       grpcService.addMethod(method.method)
