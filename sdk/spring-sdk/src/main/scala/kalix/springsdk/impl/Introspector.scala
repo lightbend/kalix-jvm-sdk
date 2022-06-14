@@ -51,6 +51,10 @@ object Introspector {
 
     val messageDescriptors = methodsInfo.flatMap { methodInfo =>
       grpcService.addMethod(methodInfo.grpcMethod)
+      // Input message descriptor can be a None. That happens when the desired type is Any.
+      // In such case, we should not add an `Any` as a message to the generated proto file
+      // And we can't properly filter it out because that's a DescriptorProto and it has no package information.
+      // Therefore, our best option is to use a None to exclude it.
       methodInfo.inputMessageDescriptor
     }
 
@@ -68,6 +72,8 @@ object Introspector {
         .map { inputDescriptor =>
           fileDescriptor.findMessageTypeByName(inputDescriptor.getName)
         }
+        // when empty descriptor, we should fallback to Any
+        // see explanation why it can be a None
         .getOrElse(ScalaPbAny.javaDescriptor)
 
       val extractors = method.restMethod.params.zipWithIndex.map { case (param, idx) =>
