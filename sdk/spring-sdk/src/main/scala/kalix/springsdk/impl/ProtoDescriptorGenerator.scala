@@ -44,11 +44,7 @@ object ProtoDescriptorGenerator {
 
     protoBuilder.addDependency("google/protobuf/any.proto")
     protoBuilder.addService(service)
-    messages
-      .filterNot { desc =>
-        desc.getName == JavaPbAny.getDescriptor.getFullName
-      }
-      .foreach(protoBuilder.addMessageType)
+    messages.foreach(protoBuilder.addMessageType)
 
     // finally build all final descriptor
     Descriptors.FileDescriptor.buildFrom(protoBuilder.build, dependencies)

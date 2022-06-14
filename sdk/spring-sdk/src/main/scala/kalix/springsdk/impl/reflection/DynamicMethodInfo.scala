@@ -70,7 +70,7 @@ object DynamicMethodInfo {
     val httpRule: HttpRule.Builder = buildHttpRule(restMethod)
 
     // TODO: make sure we accept only one Subscribe annotation
-    // go over the ValueEntity.Subscribe annotations
+    // go over the all exiting Subscribe annotations
     val kalixMethodOptions =
       Option(restMethod.javaMethod.getAnnotation(classOf[Subscribe.ValueEntity])).map { ann =>
         val eventSource = EventSource.newBuilder().setValueEntity(ann.entityType()).build()
