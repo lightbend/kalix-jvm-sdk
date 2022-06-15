@@ -18,7 +18,6 @@ package kalix.springsdk.impl
 
 import com.google.api.{ AnnotationsProto => HttpAnnotationsProto }
 import com.google.protobuf.AnyProto
-import com.google.protobuf.{ Any => JavaPbAny }
 import com.google.protobuf.DescriptorProtos
 import com.google.protobuf.Descriptors
 import kalix.{ Annotations => KalixAnnotations }

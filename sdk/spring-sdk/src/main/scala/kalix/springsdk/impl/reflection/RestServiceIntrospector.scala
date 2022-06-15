@@ -17,21 +17,23 @@
 package kalix.springsdk.impl.reflection
 
 import java.lang.annotation.Annotation
-import java.lang.reflect.{ AnnotatedElement, Method }
-
-import kalix.springsdk.impl.path.{ SpringPathPattern, SpringPathPatternParser }
-import org.springframework.core.{ DefaultParameterNameDiscoverer, MethodParameter }
-import org.springframework.core.annotation.{ AnnotatedElementUtils, SynthesizingMethodParameter }
-import org.springframework.web.bind.annotation.{
-  PathVariable,
-  RequestBody,
-  RequestHeader,
-  RequestMapping,
-  RequestMethod,
-  RequestParam
-}
+import java.lang.reflect.AnnotatedElement
+import java.lang.reflect.Method
 
 import scala.reflect.ClassTag
+
+import kalix.springsdk.impl.path.SpringPathPattern
+import kalix.springsdk.impl.path.SpringPathPatternParser
+import org.springframework.core.annotation.AnnotatedElementUtils
+import org.springframework.core.annotation.SynthesizingMethodParameter
+import org.springframework.core.DefaultParameterNameDiscoverer
+import org.springframework.core.MethodParameter
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestHeader
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestMethod
+import org.springframework.web.bind.annotation.RequestParam
 
 object RestServiceIntrospector {
 

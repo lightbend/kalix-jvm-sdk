@@ -18,11 +18,9 @@ package kalix.springsdk.impl
 
 import scala.reflect.ClassTag
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import com.google.protobuf.Descriptors
 import com.google.protobuf.Descriptors.FieldDescriptor.JavaType
 import kalix.EventSource
-import kalix.springsdk.impl.reflection.NameGenerator
 import org.scalatest.matchers.should.Matchers
 
 trait IntrospectionSuite extends Matchers {

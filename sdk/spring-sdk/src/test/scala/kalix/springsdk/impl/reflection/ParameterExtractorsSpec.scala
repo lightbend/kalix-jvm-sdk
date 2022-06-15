@@ -21,11 +21,11 @@ import com.google.protobuf.DynamicMessage
 import com.google.protobuf.any.{ Any => ScalaPbAny }
 import com.google.protobuf.{ Any => JavaPbAny }
 import kalix.javasdk.JsonSupport
-import kalix.springsdk.testmodels.action.EchoAction
 import kalix.springsdk.impl.Introspector
 import kalix.springsdk.impl.InvocationContext
 import kalix.springsdk.impl.reflection.ParameterExtractors.BodyExtractor
 import kalix.springsdk.testmodels.Message
+import kalix.springsdk.testmodels.action.EchoAction
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 

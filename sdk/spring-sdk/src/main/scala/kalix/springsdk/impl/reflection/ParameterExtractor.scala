@@ -18,10 +18,10 @@ package kalix.springsdk.impl.reflection
 
 import scala.jdk.OptionConverters._
 
-import com.google.protobuf.{ Any => JavaPbAny }
 import com.google.protobuf.ByteString
 import com.google.protobuf.Descriptors
 import com.google.protobuf.DynamicMessage
+import com.google.protobuf.{ Any => JavaPbAny }
 import kalix.javasdk.JsonSupport
 import kalix.javasdk.Metadata
 

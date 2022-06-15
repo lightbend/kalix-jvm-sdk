@@ -17,8 +17,8 @@
 package kalix.springsdk.testmodels.subscriptions;
 
 import kalix.javasdk.action.Action;
-import kalix.springsdk.testmodels.Message;
 import kalix.springsdk.annotations.Subscribe;
+import kalix.springsdk.testmodels.Message;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 

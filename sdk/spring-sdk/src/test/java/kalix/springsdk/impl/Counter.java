@@ -20,7 +20,10 @@ import kalix.javasdk.valueentity.ValueEntity;
 import kalix.springsdk.annotations.EntityKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 @EntityKey("counterId")
 @RequestMapping("/counter")

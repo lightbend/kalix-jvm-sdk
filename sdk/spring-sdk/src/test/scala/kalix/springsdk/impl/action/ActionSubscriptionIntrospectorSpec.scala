@@ -16,11 +16,10 @@
 
 package kalix.springsdk.impl.action
 
+import com.google.protobuf.{ Any => JavaPbAny }
 import kalix.springsdk.impl.IntrospectionSuite
 import kalix.springsdk.testmodels.subscriptions.SubscriptionsTestModels.SubscribeToValueEntityAction
 import org.scalatest.wordspec.AnyWordSpec
-
-import com.google.protobuf.{ Any => JavaPbAny }
 
 class ActionSubscriptionIntrospectorSpec extends AnyWordSpec with IntrospectionSuite {
 

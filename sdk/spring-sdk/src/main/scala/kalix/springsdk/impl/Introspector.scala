@@ -17,6 +17,7 @@
 package kalix.springsdk.impl
 
 import com.google.protobuf.DescriptorProtos.ServiceDescriptorProto
+import com.google.protobuf.any.{ Any => ScalaPbAny }
 import kalix.springsdk.annotations.EntityKey
 import kalix.springsdk.impl.reflection.DynamicMethodInfo
 import kalix.springsdk.impl.reflection.NameGenerator
@@ -24,8 +25,6 @@ import kalix.springsdk.impl.reflection.ParameterExtractors.HeaderExtractor
 import kalix.springsdk.impl.reflection.RestServiceIntrospector
 import kalix.springsdk.impl.reflection.RestServiceIntrospector.HeaderParameter
 import kalix.springsdk.impl.reflection.RestServiceIntrospector.UnhandledParameter
-import com.google.protobuf.{ Any => JavaPbAny }
-import com.google.protobuf.any.{ Any => ScalaPbAny }
 
 object Introspector {
 
