@@ -45,8 +45,17 @@ final class ActionService(
     val factory: ActionFactory,
     override val descriptor: Descriptors.ServiceDescriptor,
     override val additionalDescriptors: Array[Descriptors.FileDescriptor],
-    val messageCodec: MessageCodec)
+    val messageCodec: MessageCodec,
+    val actionOptions: Option[ActionOptions])
     extends Service {
+
+  def this(
+      factory: ActionFactory,
+      descriptor: Descriptors.ServiceDescriptor,
+      additionalDescriptors: Array[Descriptors.FileDescriptor],
+      messageCodec: MessageCodec,
+      actionOptions: ActionOptions) =
+    this(factory, descriptor, additionalDescriptors, messageCodec, Some(actionOptions))
 
   @volatile var actionClass: Option[Class[_]] = None
 
@@ -67,6 +76,8 @@ final class ActionService(
       case resolved: ResolvedEntityFactory => Some(resolved.resolvedMethods)
       case _                               => None
     }
+
+  override def componentOptions: Option[ComponentOptions] = actionOptions
 
   override final val componentType = Actions.name
 }

@@ -43,14 +43,15 @@ object ActionTestKitGenerator {
           "kalix.scalasdk.testkit.ActionResult",
           "kalix.scalasdk.testkit.impl.ActionResultImpl",
           "kalix.scalasdk.action.ActionCreationContext",
-          "kalix.scalasdk.testkit.impl.TestKitActionContext") ++ commandStreamedTypes(service.commands))
+          "kalix.scalasdk.testkit.impl.TestKitActionContext",
+          "kalix.scalasdk.testkit.MockRegistry") ++ commandStreamedTypes(service.commands))
 
     val actionClassName = service.className
 
     val methods = service.commands.map { cmd =>
       s"""def ${lowerFirst(cmd.name)}(command: ${selectInput(
         cmd)}, metadata: Metadata = Metadata.empty): ${selectOutputResult(cmd)} = {\n""" +
-      "  val context = new TestKitActionContext(metadata)\n" +
+      "  val context = new TestKitActionContext(metadata, mockRegistry)\n" +
       (if (cmd.isUnary || cmd.isStreamIn) {
          s"""  new ActionResultImpl(newActionInstance(context).${lowerFirst(cmd.name)}(command))"""
        } else {
@@ -76,16 +77,17 @@ object ActionTestKitGenerator {
           |  /**
           |   * Create a testkit instance of $actionClassName
           |   * @param entityFactory A function that creates a $actionClassName based on the given ActionCreationContext
+          |   * @param mockRegistry A map of mocks (Class -> mock) that provides control and the ability to test the dependencies on another components / services
           |   */
-          |  def apply(actionFactory: ActionCreationContext => $actionClassName): ${actionClassName}TestKit =
-          |    new ${actionClassName}TestKit(actionFactory)
+          |  def apply(actionFactory: ActionCreationContext => $actionClassName, mockRegistry: MockRegistry = MockRegistry.empty): ${actionClassName}TestKit =
+          |    new ${actionClassName}TestKit(actionFactory, mockRegistry)
           |
           |}
           |
           |/**
           | * TestKit for unit testing $actionClassName
           | */
-          |final class ${actionClassName}TestKit private(actionFactory: ActionCreationContext => $actionClassName) {
+          |final class ${actionClassName}TestKit private(actionFactory: ActionCreationContext => $actionClassName, mockRegistry: MockRegistry) {
           |
           |  private def newActionInstance(context: TestKitActionContext) = {
           |    val action = actionFactory(context)

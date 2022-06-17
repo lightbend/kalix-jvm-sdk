@@ -18,8 +18,6 @@ package kalix.scalasdk.testkit.impl
 
 import akka.stream.Materializer
 import kalix.scalasdk.eventsourcedentity.EventSourcedEntityContext
-import kalix.scalasdk.eventsourcedentity.CommandContext
-import kalix.scalasdk.Metadata
 
 /**
  * INTERNAL API Used by the generated testkit
