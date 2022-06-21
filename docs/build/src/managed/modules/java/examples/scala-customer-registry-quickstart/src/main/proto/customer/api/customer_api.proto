@@ -58,6 +58,9 @@ service CustomerService {
       state: "customer.domain.CustomerState"
     }
   };
+  // end::service[]
+  option (kalix.service).acl.allow = { principal: ALL };
+  // tag::service[]
 
   rpc Create(Customer) returns (google.protobuf.Empty) {}
 
