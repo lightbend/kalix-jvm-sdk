@@ -77,6 +77,11 @@ object SourceGenerator {
     val componentSources = ComponentsSourceGenerator.generate(mainClassPackage, model.services)
     val mainSources = MainSourceGenerator.generate(model, mainClassPackage, mainClassName)
 
+    if (model.services.values.isEmpty) {
+      throw new IllegalStateException(
+        "Project does not contain any gRPC service descriptors annotated as Kalix components with 'option (kalix.codegen)'. " +
+        "For details on declaring services see documentation: https://docs.kalix.io/java/writing-grpc-descriptors-protobuf.html#_service")
+    }
     componentSources ++ mainSources ++ model.services.values
       .map {
         case service: ModelBuilder.EntityService =>

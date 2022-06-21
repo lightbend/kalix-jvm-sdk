@@ -28,6 +28,11 @@ object SourceGenerator {
       .map(nameForMainPackage)
       .getOrElse(nameForMainPackage(model))
 
+    if (model.services.values.isEmpty) {
+      throw new IllegalStateException(
+        "Project does not contain any gRPC service descriptors annotated as Kalix components with 'option (kalix.codegen)'. " +
+        "For details on declaring services see documentation: https://docs.kalix.io/java/writing-grpc-descriptors-protobuf.html#_service")
+    }
     MainSourceGenerator.generateManaged(model, mainPackageName).toSeq ++
     ComponentSourceGenerator.generateManaged(model, mainPackageName) ++
     model.services.values
