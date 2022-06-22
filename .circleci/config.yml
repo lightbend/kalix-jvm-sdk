@@ -600,8 +600,8 @@ jobs:
             echo "Running mvn with SDK version: '$SDK_VERSION'"
             mvn -Dkalix-sdk.version=$SDK_VERSION test-compile
             mvn -Dkalix-sdk.version=$SDK_VERSION test
-            # FIXME related to https://github.com/lightbend/kalix-jvm-sdk/issues/297
-            # mvn -Dkalix-sdk.version=$SDK_VERSION verify -Pit
+            # FIXME add eventing integration tests (related to https://github.com/lightbend/kalix-jvm-sdk/issues/297)
+            mvn -Dkalix-sdk.version=$SDK_VERSION verify -Pit
             echo "==== Verifying that generated unmanaged sources compile ===="
             rm -rf src/main/java src/test/java src/it/java
             mvn -Dkalix-sdk.version=$SDK_VERSION test-compile
@@ -853,8 +853,8 @@ jobs:
           command: |
             cd samples/scala-eventsourced-counter
             echo "Running sbt with SDK version: '$SDK_VERSION'"
+            # FIXME add eventing integration tests (related to https://github.com/lightbend/kalix-jvm-sdk/issues/297)
             sbt -Dkalix-sdk.version=$SDK_VERSION test
-            # FIXME integration tests
             echo "==== Verifying that generated unmanaged sources compile ===="
             rm -rf src/main/scala src/test/scala src/it/scala
             sbt -Dkalix-sdk.version=$SDK_VERSION Test/compile
