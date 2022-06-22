@@ -298,9 +298,13 @@ jobs:
             ALL_OK=true
             for SAMPLE in samples/java* samples/scala*
             do
-              if [ $(grep -c $SAMPLE .circleci/config.yml) -lt 1 ]
-              then
+              if [ $(grep -c $SAMPLE .circleci/config.yml) -lt 1 ] ; then
                 echo "$SAMPLE is missing CI-tests"
+                ALL_OK=false
+              fi
+              SAMPLE_JOB_NAME="sample-${SAMPLE#samples/}"
+              if [ $(grep -c $SAMPLE_JOB_NAME .circleci/config.yml) -lt 2 ] ; then
+                echo "$SAMPLE_JOB_NAME is missing from CI workflow"
                 ALL_OK=false
               fi
             done
