@@ -34,7 +34,7 @@ Test / parallelExecution := false
 Test / testOptions += Tests.Argument("-oDF")
 Test / logBuffered := false
 
-run / fork := false
+run / fork := true
 Global / cancelable := false // ctrl-c
 
 libraryDependencies ++= Seq("org.scalatest" %% "scalatest" % "3.2.12" % Test)
