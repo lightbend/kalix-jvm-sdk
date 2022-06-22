@@ -1088,6 +1088,10 @@ workflows:
           requires:
             - checks
             - publish-local
+      - sample-java-customer-registry-kafka-quickstart:
+          requires:
+            - checks
+            - publish-local
       - sample-java-customer-registry-views-quickstart:
           requires:
             - checks
@@ -1169,6 +1173,10 @@ workflows:
             - checks
             - publish-local
       - sample-scala-valueentity-counter:
+          requires:
+            - checks
+            - publish-local
+      - sample-scala-eventsourced-counter:
           requires:
             - checks
             - publish-local
