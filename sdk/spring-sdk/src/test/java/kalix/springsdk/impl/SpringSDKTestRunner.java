@@ -18,6 +18,8 @@ package kalix.springsdk.impl;
 
 import kalix.javasdk.Kalix;
 import kalix.springsdk.action.ReflectiveActionProvider;
+import kalix.springsdk.testmodels.action.CounterSubscriber;
+import kalix.springsdk.testmodels.valueentity.Counter;
 import kalix.springsdk.valueentity.ReflectiveValueEntityProvider;
 
 import java.util.concurrent.ExecutionException;
@@ -29,7 +31,7 @@ public class SpringSDKTestRunner {
     kalix
         .register(
             ReflectiveActionProvider.of(CounterSubscriber.class, __ -> new CounterSubscriber()))
-        .register(ReflectiveValueEntityProvider.of("counter", Counter.class, __ -> new Counter()));
+        .register(ReflectiveValueEntityProvider.of(Counter.class, __ -> new Counter()));
     kalix.start().toCompletableFuture().get();
   }
 }

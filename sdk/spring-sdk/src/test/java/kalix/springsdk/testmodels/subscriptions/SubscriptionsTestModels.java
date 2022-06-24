@@ -19,6 +19,8 @@ package kalix.springsdk.testmodels.subscriptions;
 import kalix.javasdk.action.Action;
 import kalix.springsdk.annotations.Subscribe;
 import kalix.springsdk.testmodels.Message;
+import kalix.springsdk.testmodels.valueentity.Counter;
+import kalix.springsdk.testmodels.valueentity.User;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
@@ -26,13 +28,13 @@ public class SubscriptionsTestModels {
 
   public static class SubscribeToValueEntityAction extends Action {
 
-    @Subscribe.ValueEntity(entityType = "ve-counter")
+    @Subscribe.ValueEntity(Counter.class)
     @PostMapping("/message/one")
     public Action.Effect<Message> messageOne(@RequestBody Message message) {
       return effects().reply(message);
     }
 
-    @Subscribe.ValueEntity(entityType = "ve-counter")
+    @Subscribe.ValueEntity(Counter.class)
     @PostMapping("/message/two")
     public Action.Effect<Message> messageTwo(@RequestBody Message message) {
       return effects().reply(message);

@@ -16,16 +16,16 @@
 
 package kalix.springsdk.annotations;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.lang.annotation.*;
+
 
 public @interface Subscribe {
 
   @Target(ElementType.METHOD)
   @Retention(RetentionPolicy.RUNTIME)
+  @Documented
   @interface ValueEntity {
-    String entityType();
+    Class<? extends kalix.javasdk.valueentity.ValueEntity<?>> value();
   }
+
 }

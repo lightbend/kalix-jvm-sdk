@@ -14,17 +14,14 @@
  * limitations under the License.
  */
 
-package kalix.springsdk.impl;
+package kalix.springsdk.annotations;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import java.lang.annotation.*;
 
-public class Number {
-
-  public final int value;
-
-  @JsonCreator
-  public Number(@JsonProperty("value") int value) {
-    this.value = value;
-  }
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.RUNTIME)
+@Documented
+public @interface Entity {
+  String entityType();
+  String[] entityKey();
 }

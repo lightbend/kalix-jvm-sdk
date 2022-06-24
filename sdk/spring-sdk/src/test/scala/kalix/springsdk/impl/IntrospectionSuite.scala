@@ -40,16 +40,10 @@ trait IntrospectionSuite extends Matchers {
     fieldOption.getEntityKey shouldBe true
   }
 
-  def findEventSource(desc: ComponentDescription, methodName: String): EventSource = {
+  def findSubscription(desc: ComponentDescription, methodName: String): EventSource = {
     val grpcMethod = desc.serviceDescriptor.findMethodByName(methodName)
     val methodOptions = grpcMethod.toProto.getOptions.getExtension(kalix.Annotations.method)
     methodOptions.getEventing.getIn
-  }
-
-  def assertSubscriptionMethod(method: ComponentMethod) = {
-//    val field = findField(method, fieldName)
-//    val fieldOption = field.toProto.getOptions.getExtension(kalix.Annotations.field)
-//    fieldOption.getEntityKey shouldBe true
   }
 
   private def findField(method: ComponentMethod, fieldName: String): Descriptors.FieldDescriptor = {

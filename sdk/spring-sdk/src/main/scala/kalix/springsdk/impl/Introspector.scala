@@ -18,7 +18,7 @@ package kalix.springsdk.impl
 
 import com.google.protobuf.DescriptorProtos.ServiceDescriptorProto
 import com.google.protobuf.any.{ Any => ScalaPbAny }
-import kalix.springsdk.annotations.EntityKey
+import kalix.springsdk.annotations.Entity
 import kalix.springsdk.impl.reflection.DynamicMethodInfo
 import kalix.springsdk.impl.reflection.NameGenerator
 import kalix.springsdk.impl.reflection.ParameterExtractors.HeaderExtractor
@@ -40,8 +40,8 @@ object Introspector {
     grpcService.setName(nameGenerator.getName(component.getSimpleName))
 
     val declaredEntityKeys: Seq[String] =
-      Option(component.getAnnotation(classOf[EntityKey]))
-        .map(_.value())
+      Option(component.getAnnotation(classOf[Entity]))
+        .map(_.entityKey())
         .toSeq
         .flatten
 

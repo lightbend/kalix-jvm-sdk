@@ -23,7 +23,6 @@ public class CreateUser {
   public final String firstName;
   public final String lastName;
 
-  @JsonCreator
   public CreateUser(String firstName, String lastName) {
     this.firstName = firstName;
     this.lastName = lastName;

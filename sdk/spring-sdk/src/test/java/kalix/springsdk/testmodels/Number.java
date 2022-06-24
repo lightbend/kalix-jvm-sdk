@@ -14,16 +14,17 @@
  * limitations under the License.
  */
 
-package kalix.springsdk.annotations;
+package kalix.springsdk.testmodels;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-@Target({ElementType.TYPE})
-@Retention(RetentionPolicy.RUNTIME)
-public @interface EntityKey {
-  // TODO: document
-  String[] value() default {};
+public class Number {
+
+  public final int value;
+
+  @JsonCreator
+  public Number(@JsonProperty("value") int value) {
+    this.value = value;
+  }
 }

@@ -29,12 +29,12 @@ class ActionSubscriptionIntrospectorSpec extends AnyWordSpec with IntrospectionS
       val methodOne = desc.methods("MessageOne")
       methodOne.messageDescriptor.getFullName shouldBe JavaPbAny.getDescriptor.getFullName
 
-      val eventSourceOne = findEventSource(desc, "MessageOne")
+      val eventSourceOne = findSubscription(desc, "MessageOne")
       eventSourceOne.getValueEntity shouldBe "ve-counter"
 
       val methodTwo = desc.methods("MessageTwo")
       methodTwo.messageDescriptor.getFullName shouldBe JavaPbAny.getDescriptor.getFullName
-      val eventSourceTwo = findEventSource(desc, "MessageTwo")
+      val eventSourceTwo = findSubscription(desc, "MessageTwo")
       eventSourceTwo.getValueEntity shouldBe "ve-counter"
     }
   }

@@ -14,10 +14,13 @@
  * limitations under the License.
  */
 
-package kalix.springsdk.impl;
+package kalix.springsdk.testmodels.action;
 
 import kalix.javasdk.action.Action;
 import kalix.springsdk.annotations.Subscribe;
+import kalix.springsdk.testmodels.Done;
+import kalix.springsdk.testmodels.valueentity.Counter;
+import kalix.springsdk.testmodels.valueentity.CounterState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -29,7 +32,7 @@ public class CounterSubscriber extends Action {
 
   private Logger logger = LoggerFactory.getLogger(getClass());
 
-  @Subscribe.ValueEntity(entityType = "counter")
+  @Subscribe.ValueEntity(Counter.class)
   @PostMapping("/counter")
   public Effect<Done> changes(@RequestBody CounterState counterState) {
     logger.info("Counter subscriber: counter id '{}' is '{}'", counterState.id, counterState.value);

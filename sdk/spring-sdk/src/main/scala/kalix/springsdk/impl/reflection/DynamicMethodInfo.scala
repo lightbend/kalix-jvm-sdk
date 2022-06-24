@@ -33,6 +33,7 @@ import com.google.protobuf.Descriptors
 import com.google.protobuf.{ Any => JavaPbAny }
 import kalix.EventSource
 import kalix.Eventing
+import kalix.springsdk.annotations.Entity
 import kalix.springsdk.annotations.Subscribe
 import kalix.springsdk.impl.reflection.RestServiceIntrospector.BodyParameter
 import kalix.springsdk.impl.reflection.RestServiceIntrospector.PathParameter
@@ -72,10 +73,16 @@ object DynamicMethodInfo {
     // TODO: make sure we accept only one Subscribe annotation
     // go over the all exiting Subscribe annotations
     val kalixMethodOptions =
-      Option(restMethod.javaMethod.getAnnotation(classOf[Subscribe.ValueEntity])).map { ann =>
-        val eventSource = EventSource.newBuilder().setValueEntity(ann.entityType()).build()
-        val eventingOpts = Eventing.newBuilder().setIn(eventSource).build()
-        kalix.MethodOptions.newBuilder().setEventing(eventingOpts).build()
+      Option(restMethod.javaMethod.getAnnotation(classOf[Subscribe.ValueEntity])).flatMap { ann =>
+
+        val entityClass = ann.value()
+        Option(entityClass.getAnnotation(classOf[Entity])).map { entityAnn =>
+
+          val eventSource = EventSource.newBuilder().setValueEntity(entityAnn.entityType()).build()
+          val eventingOpts = Eventing.newBuilder().setIn(eventSource).build()
+
+          kalix.MethodOptions.newBuilder().setEventing(eventingOpts).build()
+        }
       }
 
     val grpcMethod =

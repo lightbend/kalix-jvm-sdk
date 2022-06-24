@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-package kalix.springsdk.impl;
+package kalix.springsdk.testmodels.valueentity;
 
 import kalix.javasdk.valueentity.ValueEntity;
-import kalix.springsdk.annotations.EntityKey;
+import kalix.springsdk.annotations.Entity;
+import kalix.springsdk.testmodels.Number;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,7 +26,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-@EntityKey("counterId")
+@Entity(entityKey = "counterId", entityType = "ve-counter")
 @RequestMapping("/counter")
 public class Counter extends ValueEntity<CounterState> {
 

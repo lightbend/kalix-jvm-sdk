@@ -17,7 +17,7 @@
 package kalix.springsdk.testmodels.valueentity;
 
 import kalix.javasdk.valueentity.ValueEntity;
-import kalix.springsdk.annotations.EntityKey;
+import kalix.springsdk.annotations.Entity;
 import kalix.springsdk.testmodels.Done;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -25,7 +25,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 public class ValueEntitiesTestModels {
 
-  @EntityKey({"userId", "cartId"})
+  @Entity( entityKey = {"userId", "cartId"}, entityType = "user")
   @RequestMapping("/user/{userId}/{cartId}")
   public static class PostWithEntityKeys extends ValueEntity<User> {
     @Override
