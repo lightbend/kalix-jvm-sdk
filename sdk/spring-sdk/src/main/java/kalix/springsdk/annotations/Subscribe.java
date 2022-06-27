@@ -18,7 +18,6 @@ package kalix.springsdk.annotations;
 
 import java.lang.annotation.*;
 
-
 public @interface Subscribe {
 
   @Target(ElementType.METHOD)
@@ -27,5 +26,4 @@ public @interface Subscribe {
   @interface ValueEntity {
     Class<? extends kalix.javasdk.valueentity.ValueEntity<?>> value();
   }
-
 }

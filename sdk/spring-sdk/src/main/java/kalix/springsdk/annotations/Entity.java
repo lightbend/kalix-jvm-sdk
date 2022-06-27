@@ -23,5 +23,6 @@ import java.lang.annotation.*;
 @Documented
 public @interface Entity {
   String entityType();
+
   String[] entityKey();
 }

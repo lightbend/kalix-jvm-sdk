@@ -25,7 +25,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 public class ValueEntitiesTestModels {
 
-  @Entity( entityKey = {"userId", "cartId"}, entityType = "user")
+  @Entity(
+      entityKey = {"userId", "cartId"},
+      entityType = "user")
   @RequestMapping("/user/{userId}/{cartId}")
   public static class PostWithEntityKeys extends ValueEntity<User> {
     @Override
