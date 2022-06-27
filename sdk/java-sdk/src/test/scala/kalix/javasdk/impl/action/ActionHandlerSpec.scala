@@ -184,7 +184,7 @@ class ActionHandlerSpec
         }
 
       replies should have size 1
-      inside(replies.head) { case ActionResponse(ActionResponse.Response.Failure(fail), _, _) =>
+      inside(replies.head) { case ActionResponse(ActionResponse.Response.Failure(fail), _, _, _) =>
         fail.description should startWith("Unexpected error")
       }
     }
@@ -208,7 +208,7 @@ class ActionHandlerSpec
         }
 
       replies should have size 1
-      inside(replies.head) { case ActionResponse(ActionResponse.Response.Failure(fail), _, _) =>
+      inside(replies.head) { case ActionResponse(ActionResponse.Response.Failure(fail), _, _, _) =>
         fail.description should startWith("Unexpected error")
       }
     }
@@ -279,7 +279,7 @@ class ActionHandlerSpec
         Await.result(service.handleUnary(ActionCommand(serviceName, "Unary", createInPayload("in"))), 10.seconds)
 
       reply match {
-        case ActionResponse(_, sideEffects, _) =>
+        case ActionResponse(_, sideEffects, _, _) =>
           sideEffects should have size 2
       }
 

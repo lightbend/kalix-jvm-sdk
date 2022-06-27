@@ -329,6 +329,9 @@ private[javasdk] final class ActionsImpl(
           }
       }
 
+  override def handleUnaryStreamed(in: Source[ActionCommand, NotUsed]): Source[ActionResponse, NotUsed] =
+    in.mapAsync(16 /* TODO: make configurable */ )(cmd => handleUnary(cmd).map(reply => reply.withCommandId(cmd.id)))
+
   private def createContext(in: ActionCommand, anySupport: AnySupport): ActionContext = {
     val metadata = new MetadataImpl(in.metadata.map(_.entries.toVector).getOrElse(Nil))
     new ActionContextImpl(metadata, anySupport, system)
