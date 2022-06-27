@@ -20,7 +20,7 @@ import java.lang.annotation.*;
 
 public @interface Subscribe {
 
-  @Target(ElementType.METHOD)
+  @Target({ElementType.TYPE, ElementType.METHOD})
   @Retention(RetentionPolicy.RUNTIME)
   @Documented
   @interface ValueEntity {

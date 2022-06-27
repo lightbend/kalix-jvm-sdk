@@ -16,17 +16,18 @@
 
 package kalix.springsdk.impl
 
-import scala.reflect.ClassTag
+import com.google.api.{ AnnotationsProto, HttpRule }
 
+import scala.reflect.ClassTag
 import com.google.protobuf.Descriptors
 import com.google.protobuf.Descriptors.FieldDescriptor.JavaType
-import kalix.EventSource
+import kalix.MethodOptions
 import org.scalatest.matchers.should.Matchers
 
-trait IntrospectionSuite extends Matchers {
+trait ComponentDescriptorSuite extends Matchers {
 
-  def assertDescriptor[E](assertFunc: ComponentDescription => Unit)(implicit ev: ClassTag[E]) = {
-    assertFunc(Introspector.inspect(ev.runtimeClass))
+  def assertDescriptor[E](assertFunc: ComponentDescriptor => Unit)(implicit ev: ClassTag[E]) = {
+    assertFunc(ComponentDescriptor.descriptorFor[E])
   }
 
   def assertMessage(method: ComponentMethod, fieldName: String, expectedType: JavaType) = {
@@ -40,11 +41,17 @@ trait IntrospectionSuite extends Matchers {
     fieldOption.getEntityKey shouldBe true
   }
 
-  def findSubscription(desc: ComponentDescription, methodName: String): EventSource = {
+  private def findMethod(desc: ComponentDescriptor, methodName: String) = {
     val grpcMethod = desc.serviceDescriptor.findMethodByName(methodName)
-    val methodOptions = grpcMethod.toProto.getOptions.getExtension(kalix.Annotations.method)
-    methodOptions.getEventing.getIn
+    if (grpcMethod != null) grpcMethod
+    else throw new NoSuchElementException(s"Method '$methodName' not found")
   }
+
+  def findKalixMethodOptions(desc: ComponentDescriptor, methodName: String): MethodOptions =
+    findMethod(desc, methodName).toProto.getOptions.getExtension(kalix.Annotations.method)
+
+  def findHttpRule(desc: ComponentDescriptor, methodName: String): HttpRule =
+    findMethod(desc, methodName).toProto.getOptions.getExtension(AnnotationsProto.http)
 
   private def findField(method: ComponentMethod, fieldName: String): Descriptors.FieldDescriptor = {
     val field = method.messageDescriptor.findFieldByName(fieldName)

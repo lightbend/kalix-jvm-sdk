@@ -24,8 +24,8 @@ import kalix.javasdk.valueentity.ValueEntityContext;
 import kalix.javasdk.valueentity.ValueEntityOptions;
 import kalix.javasdk.valueentity.ValueEntityProvider;
 import kalix.springsdk.annotations.Entity;
-import kalix.springsdk.impl.ComponentDescription;
-import kalix.springsdk.impl.Introspector;
+import kalix.springsdk.impl.ComponentDescriptor;
+import kalix.springsdk.impl.ComponentDescriptorFactory;
 import kalix.springsdk.impl.SpringSdkMessageCodec;
 import kalix.springsdk.impl.valueentity.ReflectiveValueEntityRouter;
 
@@ -40,7 +40,7 @@ public class ReflectiveValueEntityProvider<S, E extends ValueEntity<S>>
   private final ValueEntityOptions options;
   private final Descriptors.FileDescriptor fileDescriptor;
   private final Descriptors.ServiceDescriptor serviceDescriptor;
-  private final ComponentDescription componentDescription;
+  private final ComponentDescriptor componentDescriptor;
 
   public static <S, E extends ValueEntity<S>> ReflectiveValueEntityProvider<S, E> of(
       Class<E> cls, Function<ValueEntityContext, E> factory) {
@@ -60,10 +60,10 @@ public class ReflectiveValueEntityProvider<S, E extends ValueEntity<S>>
     this.factory = factory;
     this.options = options;
 
-    this.componentDescription = Introspector.inspect(entityClass);
+    this.componentDescriptor = ComponentDescriptor.descriptorFor(entityClass);
 
-    this.fileDescriptor = componentDescription.fileDescriptor();
-    this.serviceDescriptor = componentDescription.serviceDescriptor();
+    this.fileDescriptor = componentDescriptor.fileDescriptor();
+    this.serviceDescriptor = componentDescriptor.serviceDescriptor();
   }
 
   @Override
@@ -84,7 +84,7 @@ public class ReflectiveValueEntityProvider<S, E extends ValueEntity<S>>
   @Override
   public ValueEntityRouter<S, E> newRouter(ValueEntityContext context) {
     E entity = factory.apply(context);
-    return new ReflectiveValueEntityRouter<>(entity, componentDescription.methods());
+    return new ReflectiveValueEntityRouter<>(entity, componentDescriptor.methods());
   }
 
   @Override

@@ -16,24 +16,13 @@
 
 package kalix.springsdk.impl.reflection
 
+import org.springframework.core.{ DefaultParameterNameDiscoverer, MethodParameter }
+import org.springframework.core.annotation.{ AnnotatedElementUtils, SynthesizingMethodParameter }
+import org.springframework.web.bind.annotation._
+
 import java.lang.annotation.Annotation
 import java.lang.reflect.AnnotatedElement
-import java.lang.reflect.Method
-
 import scala.reflect.ClassTag
-
-import kalix.springsdk.impl.path.SpringPathPattern
-import kalix.springsdk.impl.path.SpringPathPatternParser
-import org.springframework.core.annotation.AnnotatedElementUtils
-import org.springframework.core.annotation.SynthesizingMethodParameter
-import org.springframework.core.DefaultParameterNameDiscoverer
-import org.springframework.core.MethodParameter
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestHeader
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestMethod
-import org.springframework.web.bind.annotation.RequestParam
 
 object RestServiceIntrospector {
 
@@ -68,7 +57,7 @@ object RestServiceIntrospector {
           param
         }
         val restParams = params.map(inspectParameter)
-        RestMethod(classMapping, mapping, method, restParams)
+        SpringRestServiceMethod(classMapping, mapping, method, restParams)
       }
 
     RestService(methodMappings)
@@ -121,73 +110,9 @@ object RestServiceIntrospector {
   }
   case class BodyParameter(param: MethodParameter, annotation: RequestBody) extends RestMethodParameter
 
-  case class RestService(methods: Seq[RestMethod])
+  case class RestService(methods: Seq[SpringRestServiceMethod])
 
-  case class RestMethod(
-      classMapping: Option[RequestMapping],
-      mapping: RequestMapping,
-      javaMethod: Method,
-      params: Seq[RestMethodParameter]) {
-
-    // First fail on unsupported mapping values. Should all default to empty arrays, but let's not trust that
-    {
-      validateRequestMapping(javaMethod, mapping)
-      if (!isEmpty(mapping.method()) && classMapping.exists(cm => !isEmpty(cm.method()))) {
-        throw new ServiceIntrospectionException(
-          javaMethod,
-          "Invalid request method mapping. A request method mapping may only be defined on the class, or on the method, but not both.")
-      }
-      if (isEmpty(mapping.path()) && classMapping.forall(cm => isEmpty(cm.path()))) {
-        throw new ServiceIntrospectionException(
-          javaMethod,
-          "Missing path mapping. Kalix Spring SDK methods must have a path defined.")
-      }
-      if (isEmpty(mapping.method()) && classMapping.forall(cm => isEmpty(cm.method()))) {
-        throw new ServiceIntrospectionException(
-          javaMethod,
-          "Missing request method mapping. Kalix Spring SDK methods must have a request method defined.")
-      }
-    }
-
-    val path: String = {
-      val classPath = classMapping match {
-        case Some(cm) if !isEmpty(cm.path) =>
-          cm.path().head
-        case _ => ""
-      }
-      classPath + (mapping.path match {
-        case Array(path) => path
-        case _           => ""
-      })
-    }
-
-    val parsedPath: SpringPathPattern = SpringPathPatternParser.parse(path)
-
-    val pathParameters: Seq[PathParameter] = params.collect { case p: PathParameter => p }
-
-    {
-      // Validate all the path parameters exist
-      pathParameters.foreach { param =>
-        if (!parsedPath.fields.contains(param.name)) {
-          throw new ServiceIntrospectionException(
-            param.param.getAnnotatedElement,
-            s"There is no parameter named ${param.name} in the path pattern for this method.")
-        }
-      }
-    }
-
-    val requestMethod: RequestMethod = {
-      mapping.method match {
-        case Array(method) => method
-        case _             =>
-          // This has already been validated so can't fail
-          classMapping.get.method.head
-      }
-    }
-
-  }
-
-  private def validateRequestMapping(element: AnnotatedElement, mapping: RequestMapping): Unit = {
+  private[kalix] def validateRequestMapping(element: AnnotatedElement, mapping: RequestMapping): Unit = {
     if (!isEmpty(mapping.consumes())) {
       throw new ServiceIntrospectionException(
         element,
@@ -221,7 +146,7 @@ object RestServiceIntrospector {
     }
   }
 
-  private def isEmpty[T](array: Array[T]): Boolean = array == null || array.isEmpty
+  private[kalix] def isEmpty[T](array: Array[T]): Boolean = array == null || array.isEmpty
 
 }
 

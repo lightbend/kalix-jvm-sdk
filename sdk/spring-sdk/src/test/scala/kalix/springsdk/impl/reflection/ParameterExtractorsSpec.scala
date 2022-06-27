@@ -21,7 +21,8 @@ import com.google.protobuf.DynamicMessage
 import com.google.protobuf.any.{ Any => ScalaPbAny }
 import com.google.protobuf.{ Any => JavaPbAny }
 import kalix.javasdk.JsonSupport
-import kalix.springsdk.impl.Introspector
+import kalix.springsdk.impl.ComponentDescriptor
+import kalix.springsdk.impl.ComponentDescriptorFactory
 import kalix.springsdk.impl.InvocationContext
 import kalix.springsdk.impl.reflection.ParameterExtractors.BodyExtractor
 import kalix.springsdk.testmodels.Message
@@ -34,8 +35,8 @@ class ParameterExtractorsSpec extends AnyWordSpec with Matchers {
   "BodyExtractor" should {
 
     "extract json payload from Any" in {
-      val componentDescription = Introspector.inspect(classOf[EchoAction])
-      val method = componentDescription.methods("MessageBody")
+      val componentDescriptor = ComponentDescriptor.descriptorFor[EchoAction]
+      val method = componentDescriptor.methods("MessageBody")
 
       val jsonBody = JsonSupport.encodeJson(new Message("test"))
 
@@ -56,10 +57,9 @@ class ParameterExtractorsSpec extends AnyWordSpec with Matchers {
     }
 
     "reject non json payload" in {
-      val componentDescription =
-        Introspector.inspect(classOf[EchoAction])
+      val componentDescriptor = ComponentDescriptor.descriptorFor[EchoAction]
 
-      val method = componentDescription.methods("MessageBody")
+      val method = componentDescriptor.methods("MessageBody")
 
       val nonJsonBody =
         JavaPbAny

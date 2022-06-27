@@ -16,6 +16,8 @@
 
 package kalix.springsdk.impl.path
 
+import kalix.springsdk.impl.path.PathPatternParser.{ Literal, Segment }
+
 import scala.annotation.nowarn
 import scala.util.parsing.combinator.JavaTokenParsers
 import scala.util.parsing.input.CharSequenceReader
@@ -30,17 +32,17 @@ import scala.util.parsing.input.Positional
  *
  * // todo test me
  */
-object SpringPathPatternParser extends JavaTokenParsers {
+object PathPatternParser extends JavaTokenParsers {
 
   @nowarn("msg=match may not be exhaustive") // for NoSuccess unapply
-  final def parse(path: String): SpringPathPattern =
+  final def parse(path: String): PathPattern =
     template(new CharSequenceReader(path)) match {
       case Success(template, _) =>
-        val pattern = new SpringPathPattern(path, template)
+        val pattern = new PathPattern(path, template)
         pattern.validate()
         pattern
       case NoSuccess(msg, next) =>
-        throw SpringPathPatternParseException(msg, path, next.pos.column)
+        throw PathPatternParseException(msg, path, next.pos.column)
     }
 
   final case class Template(segments: List[Segment])
@@ -80,8 +82,14 @@ object SpringPathPatternParser extends JavaTokenParsers {
     segments <~ endOfInput ^^ Template
 }
 
-final class SpringPathPattern(val path: String, template: SpringPathPatternParser.Template) {
-  import SpringPathPatternParser._
+object PathPattern {
+  def apply(path: String): PathPattern = {
+    val segment = Segment(List(Literal(path)))
+    new PathPattern(path, PathPatternParser.Template(List(segment)))
+  }
+}
+final class PathPattern(val path: String, template: PathPatternParser.Template) {
+  import PathPatternParser._
 
   def validate(): Unit = {
     // gRPC HTTP transcoding doesn't support exactly the same mapping rules as Spring, including:
@@ -94,13 +102,10 @@ final class SpringPathPattern(val path: String, template: SpringPathPatternParse
       // First apply validation rules to the parts
       segment.parts.foreach {
         case dc @ DynamicChar() =>
-          throw new SpringPathPatternParseException(
-            "Single character matchers not supported by Kalix Spring SDK",
-            path,
-            dc)
+          throw new PathPatternParseException("Single character matchers not supported by Kalix Spring SDK", path, dc)
         case cp @ CapturingPart(name, regex, rest) =>
           if (rest && !last) {
-            throw new SpringPathPatternParseException(
+            throw new PathPatternParseException(
               s"Variable $name is configured to match the rest of the path but is not at the end of the pattern.",
               path,
               cp)
@@ -109,12 +114,12 @@ final class SpringPathPattern(val path: String, template: SpringPathPatternParse
             throw new RuntimeException("Regex matchers not supported by Kalix Spring SDK")
           }
         case w @ Wildcard(true) if !last =>
-          throw new SpringPathPatternParseException(s"Rest of path matcher is not at the end of the pattern.", path, w)
+          throw new PathPatternParseException(s"Rest of path matcher is not at the end of the pattern.", path, w)
         case _ =>
       }
       // Now validate that there is only zero or one parts
       if (segment.parts.size > 1) {
-        throw new SpringPathPatternParseException(
+        throw new PathPatternParseException(
           "Kalix Spring SDK only supports capturing or dynamically matching whole path segments, partial segment matching not allowed.",
           path,
           segment)
@@ -146,7 +151,7 @@ final class SpringPathPattern(val path: String, template: SpringPathPatternParse
   }
 }
 
-final case class SpringPathPatternParseException(msg: String, path: String, column: Int)
+final case class PathPatternParseException(msg: String, path: String, column: Int)
     extends RuntimeException(
       s"$msg at ${if (column >= path.length) "end of input" else s"character $column"} of '$path'") {
 

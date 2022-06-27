@@ -14,11 +14,13 @@
  * limitations under the License.
  */
 
-package kalix.springsdk.impl
+package kalix.springsdk.annotations;
 
-import com.google.protobuf.Descriptors
+import java.lang.annotation.*;
 
-class ComponentDescription(
-    val fileDescriptor: Descriptors.FileDescriptor,
-    val serviceDescriptor: Descriptors.ServiceDescriptor,
-    val methods: Map[String, ComponentMethod])
+@Target(ElementType.METHOD)
+@Retention(RetentionPolicy.RUNTIME)
+@Documented
+public @interface Query {
+  String value();
+}
