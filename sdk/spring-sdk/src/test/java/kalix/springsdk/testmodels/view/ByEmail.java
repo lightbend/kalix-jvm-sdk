@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-package kalix.springsdk.impl
+package kalix.springsdk.testmodels.view;
 
-import java.lang.reflect.Method
+import com.fasterxml.jackson.annotation.JsonCreator;
 
-import com.google.protobuf.Descriptors
-import kalix.springsdk.impl.reflection.ParameterExtractor
+public class ByEmail {
 
-// Might need to have one of each of these for unary, streamed out, streamed in and streamed.
-case class ComponentMethod(
-    method: Option[Method],
-    grpcMethodName: String,
-    parameterExtractors: Array[ParameterExtractor[InvocationContext, AnyRef]],
-    messageDescriptor: Descriptors.Descriptor)
+  public final String email;
+
+  @JsonCreator
+  public ByEmail(String email) {
+    this.email = email;
+  }
+}

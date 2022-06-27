@@ -14,16 +14,14 @@
  * limitations under the License.
  */
 
-package kalix.springsdk.impl
+package kalix.springsdk.annotations;
 
-import java.lang.reflect.Method
+import java.lang.annotation.*;
 
-import com.google.protobuf.Descriptors
-import kalix.springsdk.impl.reflection.ParameterExtractor
+@Target({ElementType.TYPE})
+@Retention(RetentionPolicy.RUNTIME)
+@Documented
+public @interface Table {
 
-// Might need to have one of each of these for unary, streamed out, streamed in and streamed.
-case class ComponentMethod(
-    method: Option[Method],
-    grpcMethodName: String,
-    parameterExtractors: Array[ParameterExtractor[InvocationContext, AnyRef]],
-    messageDescriptor: Descriptors.Descriptor)
+  String value();
+}

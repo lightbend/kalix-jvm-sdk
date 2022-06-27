@@ -23,8 +23,7 @@ import kalix.javasdk.action.ActionOptions;
 import kalix.javasdk.action.ActionProvider;
 import kalix.javasdk.impl.MessageCodec;
 import kalix.javasdk.impl.action.ActionRouter;
-import kalix.springsdk.impl.ComponentDescription;
-import kalix.springsdk.impl.Introspector;
+import kalix.springsdk.impl.ComponentDescriptor;
 import kalix.springsdk.impl.SpringSdkMessageCodec;
 import kalix.springsdk.impl.action.ReflectiveActionRouter;
 
@@ -38,7 +37,7 @@ public class ReflectiveActionProvider<A extends Action> implements ActionProvide
   private final ActionOptions options;
   private final Descriptors.FileDescriptor fileDescriptor;
   private final Descriptors.ServiceDescriptor serviceDescriptor;
-  private final ComponentDescription componentDescription;
+  private final ComponentDescriptor componentDescriptor;
 
   public static <A extends Action> ReflectiveActionProvider<A> of(
       Class<A> cls, Function<ActionCreationContext, A> factory) {
@@ -51,10 +50,10 @@ public class ReflectiveActionProvider<A extends Action> implements ActionProvide
     this.factory = factory;
     this.options = options;
 
-    this.componentDescription = Introspector.inspect(cls);
+    this.componentDescriptor = ComponentDescriptor.descriptorFor(cls);
 
-    this.fileDescriptor = componentDescription.fileDescriptor();
-    this.serviceDescriptor = componentDescription.serviceDescriptor();
+    this.fileDescriptor = componentDescriptor.fileDescriptor();
+    this.serviceDescriptor = componentDescriptor.serviceDescriptor();
   }
 
   @Override
@@ -70,7 +69,7 @@ public class ReflectiveActionProvider<A extends Action> implements ActionProvide
   @Override
   public ActionRouter<A> newRouter(ActionCreationContext context) {
     A action = factory.apply(context);
-    return new ReflectiveActionRouter<>(action, componentDescription.methods());
+    return new ReflectiveActionRouter<>(action, componentDescriptor.methods());
   }
 
   @Override

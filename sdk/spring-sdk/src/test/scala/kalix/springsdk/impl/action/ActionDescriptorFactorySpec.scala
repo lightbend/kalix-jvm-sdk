@@ -17,7 +17,7 @@
 package kalix.springsdk.impl.action
 
 import com.google.protobuf.Descriptors.FieldDescriptor.JavaType
-import kalix.springsdk.impl.IntrospectionSuite
+import kalix.springsdk.impl.{ ComponentDescriptor, ComponentDescriptorSuite }
 import kalix.springsdk.testmodels.action.ActionsTestModels.DeleteWithOneParam
 import kalix.springsdk.testmodels.action.ActionsTestModels.GetClassLevel
 import kalix.springsdk.testmodels.action.ActionsTestModels.GetWithOneParam
@@ -30,11 +30,16 @@ import kalix.springsdk.testmodels.action.ActionsTestModels.PostWithTwoParam
 import kalix.springsdk.testmodels.action.ActionsTestModels.PostWithoutParam
 import kalix.springsdk.testmodels.action.ActionsTestModels.PutWithOneParam
 import kalix.springsdk.testmodels.action.ActionsTestModels.PutWithoutParam
+import kalix.springsdk.testmodels.subscriptions.SubscriptionsTestModels.{
+  RestAnnotatedSubscribeToValueEntityAction,
+  SubscribeToValueEntityAction
+}
 import org.scalatest.wordspec.AnyWordSpec
+import com.google.protobuf.{ Any => JavaPbAny }
 
-class ActionIntrospectorSpec extends AnyWordSpec with IntrospectionSuite {
+class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSuite {
 
-  "Action introspector" should {
+  "Action descriptor factory" should {
 
     "generate mappings for an Action with GET without path param" in {
       assertDescriptor[GetWithoutParam] { desc =>
@@ -128,6 +133,35 @@ class ActionIntrospectorSpec extends AnyWordSpec with IntrospectionSuite {
       assertDescriptor[DeleteWithOneParam] { desc =>
         val method = desc.methods("Message")
         assertMessage(method, "one", JavaType.STRING)
+      }
+    }
+
+    "generate mapping with Value Entity Subscription annotations" in {
+      assertDescriptor[SubscribeToValueEntityAction] { desc =>
+
+        val methodOne = desc.methods("MessageOne")
+        methodOne.messageDescriptor.getFullName shouldBe JavaPbAny.getDescriptor.getFullName
+
+        val eventSourceOne = findKalixMethodOptions(desc, "MessageOne").getEventing.getIn
+        eventSourceOne.getValueEntity shouldBe "ve-counter"
+        val rule = findHttpRule(desc, "MessageOne")
+
+        rule.getPost shouldBe
+        "/kalix.springsdk.testmodels.subscriptions.SubscriptionsTestModels.SubscribeToValueEntityAction/MessageOne"
+
+        // should have a default extractor for any payload
+        methodOne.parameterExtractors.size shouldBe 1
+
+        val methodTwo = desc.methods("MessageTwo")
+        methodTwo.messageDescriptor.getFullName shouldBe JavaPbAny.getDescriptor.getFullName
+        val eventSourceTwo = findKalixMethodOptions(desc, "MessageTwo").getEventing.getIn
+        eventSourceTwo.getValueEntity shouldBe "ve-counter"
+      }
+    }
+
+    "fail if has both Value Entity Subscription and REST annotations" in {
+      intercept[IllegalArgumentException] {
+        ComponentDescriptor.descriptorFor[RestAnnotatedSubscribeToValueEntityAction]
       }
     }
 
