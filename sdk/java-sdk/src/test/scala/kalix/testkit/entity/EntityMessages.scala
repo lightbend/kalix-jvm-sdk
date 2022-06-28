@@ -35,10 +35,13 @@ trait EntityMessages {
     Some(ClientAction(ClientAction.Action.Forward(Forward(service, command, payload))))
 
   def clientActionFailure(description: String): Option[ClientAction] =
-    clientActionFailure(id = 0, description)
+    clientActionFailure(id = 0, description, statusCode = 0)
 
   def clientActionFailure(id: Long, description: String): Option[ClientAction] =
-    Some(ClientAction(ClientAction.Action.Failure(Failure(id, description))))
+    clientActionFailure(id, description, statusCode = 0)
+
+  def clientActionFailure(id: Long, description: String, statusCode: Int): Option[ClientAction] =
+    Some(ClientAction(ClientAction.Action.Failure(Failure(id, description, statusCode))))
 
   def sideEffect(service: String, command: String, payload: JavaPbMessage): SideEffect =
     sideEffect(service, command, messagePayload(payload), synchronous = false)

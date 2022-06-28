@@ -38,7 +38,8 @@ sealed trait SecondaryEffectImpl {
         Some(
           ClientAction(
             ClientAction.Action
-              .Failure(kalix.protocol.component.Failure(commandId, failure.description))))
+              .Failure(kalix.protocol.component
+                .Failure(commandId, failure.description, grpcStatusCode = failure.status.map(_.value()).getOrElse(0)))))
       case NoSecondaryEffectImpl(_) =>
         throw new RuntimeException("No reply or forward returned by command handler!")
     }

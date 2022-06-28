@@ -3,18 +3,24 @@
  * You are free to make changes to this file.
  */
 
-package com.example.api;
+package com.example;
 
-import com.example.Main;
 import com.example.CounterApi;
 import com.example.CounterService;
+import com.example.Main;
+import io.grpc.Status;
+import io.grpc.StatusRuntimeException;
 import kalix.javasdk.testkit.junit.KalixTestKitResource;
+import org.junit.Assert;
 import org.junit.ClassRule;
 import org.junit.Test;
-import static org.hamcrest.MatcherAssert.*;
-import static org.hamcrest.CoreMatchers.*;
 
-import static java.util.concurrent.TimeUnit.*;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeoutException;
+
+import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 // Run all test classes ending with "IntegrationTest" using `mvn verify -Pit`
 // tag::sample-it-test[]
@@ -58,4 +64,17 @@ public class CounterIntegrationTest {
               .toCompletableFuture().get(5, SECONDS);
       assertThat(reply.getValue(), is(69));
   }
+
+    @Test
+    public void validateGrpcStatusCode() throws Exception {
+        try {
+            client.increaseWithConditional(CounterApi.IncreaseValue.newBuilder().setCounterId("new-id").setValue(-10).build())
+                    .toCompletableFuture().get(5, SECONDS);
+            Assert.fail("Previous method should be invalid and throw exception");
+        } catch (ExecutionException e) {
+            var suppressed = (StatusRuntimeException) e.getCause();
+            assertThat(suppressed.getStatus().getCode(), is(Status.Code.INVALID_ARGUMENT));
+        }
+    }
+
 }

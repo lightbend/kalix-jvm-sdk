@@ -16,6 +16,7 @@
 
 package kalix.javasdk.impl.valueentity
 
+import io.grpc.Status.Code.INVALID_ARGUMENT
 import kalix.javasdk.valueentity.CartEntity
 import kalix.javasdk.valueentity.CartEntityProvider
 import kalix.testkit.TestProtocol
@@ -113,7 +114,7 @@ class ValueEntitiesImplSpec extends AnyWordSpec with Matchers with BeforeAndAfte
       val entity = protocol.valueEntity.connect()
       entity.send(init(ShoppingCart.Name, "cart"))
       entity.send(command(1, "cart", "AddItem", addItem("foo", "bar", -1)))
-      entity.expect(actionFailure(1, "Quantity for item foo must be greater than zero."))
+      entity.expect(actionFailure(1, "Quantity for item foo must be greater than zero.", INVALID_ARGUMENT))
       entity.send(command(2, "cart", "GetCart", getShoppingCart("cart")))
       entity.expect(reply(2, EmptyCart)) // check update-then-fail doesn't change entity state
 

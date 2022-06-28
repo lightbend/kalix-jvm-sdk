@@ -5,6 +5,7 @@
 
 package com.example.domain;
 
+import io.grpc.Status;
 import kalix.javasdk.Metadata;
 import kalix.javasdk.valueentity.ValueEntityContext;
 import com.example.CounterApi;
@@ -55,7 +56,7 @@ public class Counter extends AbstractCounter { // <1>
         CounterDomain.CounterState currentState, CounterApi.IncreaseValue command) {
       if (command.getValue() < 0) { 
         return effects().error("Increase requires a positive value. It was [" +
-            command.getValue() + "].");
+            command.getValue() + "].", Status.Code.INVALID_ARGUMENT);
       }
       CounterDomain.CounterState newState;
       if (commandContext().metadata().get("myKey").equals(Optional.of("myValue"))) {
