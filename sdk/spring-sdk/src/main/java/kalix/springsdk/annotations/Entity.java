@@ -14,19 +14,15 @@
  * limitations under the License.
  */
 
-package kalix.springsdk.valueentity;
+package kalix.springsdk.annotations;
 
-public class User {
+import java.lang.annotation.*;
 
-  public final String firstName;
-  public final String lastName;
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.RUNTIME)
+@Documented
+public @interface Entity {
+  String entityType();
 
-  public User(String firstName, String lastName) {
-    this.firstName = firstName;
-    this.lastName = lastName;
-  }
-
-  public static User empty() {
-    return new User("", "");
-  }
+  String[] entityKey();
 }

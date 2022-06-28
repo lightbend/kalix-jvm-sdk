@@ -23,10 +23,10 @@ import kalix.javasdk.valueentity.ValueEntity;
 import kalix.javasdk.valueentity.ValueEntityContext;
 import kalix.javasdk.valueentity.ValueEntityOptions;
 import kalix.javasdk.valueentity.ValueEntityProvider;
+import kalix.springsdk.annotations.Entity;
 import kalix.springsdk.impl.ComponentDescription;
 import kalix.springsdk.impl.Introspector;
 import kalix.springsdk.impl.SpringSdkMessageCodec;
-import kalix.springsdk.impl.reflection.NameGenerator;
 import kalix.springsdk.impl.valueentity.ReflectiveValueEntityRouter;
 
 import java.util.Optional;
@@ -43,21 +43,24 @@ public class ReflectiveValueEntityProvider<S, E extends ValueEntity<S>>
   private final ComponentDescription componentDescription;
 
   public static <S, E extends ValueEntity<S>> ReflectiveValueEntityProvider<S, E> of(
-      String entityType, Class<E> cls, Function<ValueEntityContext, E> factory) {
-    return new ReflectiveValueEntityProvider<>(
-        entityType, cls, factory, ValueEntityOptions.defaults());
+      Class<E> cls, Function<ValueEntityContext, E> factory) {
+    return new ReflectiveValueEntityProvider<>(cls, factory, ValueEntityOptions.defaults());
   }
 
   public ReflectiveValueEntityProvider(
-      String entityType,
-      Class<E> cls,
-      Function<ValueEntityContext, E> factory,
-      ValueEntityOptions options) {
-    this.entityType = entityType;
+      Class<E> entityClass, Function<ValueEntityContext, E> factory, ValueEntityOptions options) {
+
+    Entity annotation = entityClass.getAnnotation(Entity.class);
+    if (annotation == null)
+      throw new IllegalArgumentException(
+          "Value Entity [" + entityClass.getName() + "] is missing '@Entity' annotation");
+
+    this.entityType = annotation.entityType();
+
     this.factory = factory;
     this.options = options;
 
-    this.componentDescription = Introspector.inspect(cls);
+    this.componentDescription = Introspector.inspect(entityClass);
 
     this.fileDescriptor = componentDescription.fileDescriptor();
     this.serviceDescriptor = componentDescription.serviceDescriptor();

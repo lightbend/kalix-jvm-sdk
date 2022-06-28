@@ -14,20 +14,17 @@
  * limitations under the License.
  */
 
-package kalix.springsdk.action;
+package kalix.springsdk.testmodels;
 
-import kalix.javasdk.action.Action;
-import org.springframework.web.bind.annotation.*;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class EchoAction extends Action {
+public class Number {
 
-  @GetMapping("/echo/{msg}")
-  public Effect<Message> stringMessage(@PathVariable String msg) {
-    return effects().reply(new Message(msg));
-  }
+  public final int value;
 
-  @PostMapping("/echo")
-  public Effect<Message> messageBody(@RequestParam("add") String add, @RequestBody Message msg) {
-    return effects().reply(new Message(msg.value + add));
+  @JsonCreator
+  public Number(@JsonProperty("value") int value) {
+    this.value = value;
   }
 }

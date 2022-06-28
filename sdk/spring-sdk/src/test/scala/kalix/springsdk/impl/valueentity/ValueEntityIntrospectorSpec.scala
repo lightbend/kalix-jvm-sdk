@@ -18,7 +18,7 @@ package kalix.springsdk.impl.valueentity
 
 import com.google.protobuf.Descriptors.FieldDescriptor.JavaType
 import kalix.springsdk.impl.IntrospectionSuite
-import kalix.springsdk.valueentity.RestAnnotatedValueEntities.PostWithEntityKeys
+import kalix.springsdk.testmodels.valueentity.ValueEntitiesTestModels.PostWithEntityKeys
 import org.scalatest.wordspec.AnyWordSpec
 
 class ValueEntityIntrospectorSpec extends AnyWordSpec with IntrospectionSuite {

@@ -17,19 +17,19 @@
 package kalix.springsdk.impl.action
 
 import com.google.protobuf.Descriptors.FieldDescriptor.JavaType
-import kalix.springsdk.action.RestAnnotatedActions.DeleteWithOneParam
-import kalix.springsdk.action.RestAnnotatedActions.GetClassLevel
-import kalix.springsdk.action.RestAnnotatedActions.GetWithOneParam
-import kalix.springsdk.action.RestAnnotatedActions.GetWithoutParam
-import kalix.springsdk.action.RestAnnotatedActions.PatchWithOneParam
-import kalix.springsdk.action.RestAnnotatedActions.PatchWithoutParam
-import kalix.springsdk.action.RestAnnotatedActions.PostWithOneParam
-import kalix.springsdk.action.RestAnnotatedActions.PostWithTwoMethods
-import kalix.springsdk.action.RestAnnotatedActions.PostWithTwoParam
-import kalix.springsdk.action.RestAnnotatedActions.PostWithoutParam
-import kalix.springsdk.action.RestAnnotatedActions.PutWithOneParam
-import kalix.springsdk.action.RestAnnotatedActions.PutWithoutParam
 import kalix.springsdk.impl.IntrospectionSuite
+import kalix.springsdk.testmodels.action.ActionsTestModels.DeleteWithOneParam
+import kalix.springsdk.testmodels.action.ActionsTestModels.GetClassLevel
+import kalix.springsdk.testmodels.action.ActionsTestModels.GetWithOneParam
+import kalix.springsdk.testmodels.action.ActionsTestModels.GetWithoutParam
+import kalix.springsdk.testmodels.action.ActionsTestModels.PatchWithOneParam
+import kalix.springsdk.testmodels.action.ActionsTestModels.PatchWithoutParam
+import kalix.springsdk.testmodels.action.ActionsTestModels.PostWithOneParam
+import kalix.springsdk.testmodels.action.ActionsTestModels.PostWithTwoMethods
+import kalix.springsdk.testmodels.action.ActionsTestModels.PostWithTwoParam
+import kalix.springsdk.testmodels.action.ActionsTestModels.PostWithoutParam
+import kalix.springsdk.testmodels.action.ActionsTestModels.PutWithOneParam
+import kalix.springsdk.testmodels.action.ActionsTestModels.PutWithoutParam
 import org.scalatest.wordspec.AnyWordSpec
 
 class ActionIntrospectorSpec extends AnyWordSpec with IntrospectionSuite {
@@ -130,6 +130,7 @@ class ActionIntrospectorSpec extends AnyWordSpec with IntrospectionSuite {
         assertMessage(method, "one", JavaType.STRING)
       }
     }
+
   }
 
 }

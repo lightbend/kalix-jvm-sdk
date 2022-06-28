@@ -17,8 +17,9 @@
 package kalix.springsdk.impl
 
 import com.google.protobuf.Descriptors
-import com.google.protobuf.any.{ Any => ScalaPbAny }
 import com.google.protobuf.DynamicMessage
+import com.google.protobuf.any.{ Any => ScalaPbAny }
+import kalix.javasdk.JsonSupport
 import kalix.javasdk.Metadata
 import kalix.springsdk.impl.reflection.DynamicMessageContext
 import kalix.springsdk.impl.reflection.MetadataContext
@@ -29,7 +30,17 @@ object InvocationContext {
       methodDescriptor: Descriptors.Descriptor,
       metadata: Metadata = Metadata.EMPTY): InvocationContext = {
 
-    val dynamicMessage = DynamicMessage.parseFrom(methodDescriptor, anyMessage.value)
+    val dynamicMessage =
+      if (anyMessage.typeUrl.startsWith(JsonSupport.KALIX_JSON)) {
+        DynamicMessage
+          .newBuilder(methodDescriptor)
+          .setField(ScalaPbAny.javaDescriptor.findFieldByName("type_url"), anyMessage.typeUrl)
+          .setField(ScalaPbAny.javaDescriptor.findFieldByName("value"), anyMessage.value)
+          .build()
+
+      } else
+        DynamicMessage.parseFrom(methodDescriptor, anyMessage.value)
+
     new InvocationContext(dynamicMessage, metadata)
   }
 }

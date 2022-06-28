@@ -17,10 +17,10 @@
 package kalix.springsdk.impl;
 
 import kalix.javasdk.Kalix;
-import kalix.springsdk.action.EchoAction;
 import kalix.springsdk.action.ReflectiveActionProvider;
+import kalix.springsdk.testmodels.action.CounterSubscriber;
+import kalix.springsdk.testmodels.valueentity.Counter;
 import kalix.springsdk.valueentity.ReflectiveValueEntityProvider;
-import kalix.springsdk.valueentity.UserEntity;
 
 import java.util.concurrent.ExecutionException;
 
@@ -29,13 +29,9 @@ public class SpringSDKTestRunner {
   public static void main(String[] args) throws ExecutionException, InterruptedException {
     Kalix kalix = new Kalix();
     kalix
-        .register(ReflectiveActionProvider.of(EchoAction.class, __ -> new EchoAction()))
         .register(
-            ReflectiveValueEntityProvider.of(
-                "user-entity", // TODO: we should have this in some type level annotation, ie:
-                // @KalixComponent(name)
-                UserEntity.class,
-                __ -> new UserEntity()));
+            ReflectiveActionProvider.of(CounterSubscriber.class, __ -> new CounterSubscriber()))
+        .register(ReflectiveValueEntityProvider.of(Counter.class, __ -> new Counter()));
     kalix.start().toCompletableFuture().get();
   }
 }

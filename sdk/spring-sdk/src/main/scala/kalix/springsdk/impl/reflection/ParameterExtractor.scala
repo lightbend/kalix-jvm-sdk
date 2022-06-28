@@ -18,10 +18,10 @@ package kalix.springsdk.impl.reflection
 
 import scala.jdk.OptionConverters._
 
-import com.google.protobuf.{ Any => JavaPbAny }
 import com.google.protobuf.ByteString
 import com.google.protobuf.Descriptors
 import com.google.protobuf.DynamicMessage
+import com.google.protobuf.{ Any => JavaPbAny }
 import kalix.javasdk.JsonSupport
 import kalix.javasdk.Metadata
 
@@ -42,25 +42,33 @@ trait DynamicMessageContext {
 
 object ParameterExtractors {
 
+  private def decodeJson[T](dm: DynamicMessage, cls: Class[T]): T = {
+    val typeUrl = dm.getField(JavaPbAny.getDescriptor.findFieldByName("type_url")).asInstanceOf[String]
+    val bytes = dm.getField(JavaPbAny.getDescriptor.findFieldByName("value")).asInstanceOf[ByteString]
+
+    // TODO: avoid creating a new JavaPbAny instance
+    // we want to reuse the typeUrl validation and reading logic (skip tag + jackson reader) from JsonSupport
+    // we need a new internal version that also handle DynamicMessages
+    val any =
+      JavaPbAny
+        .newBuilder()
+        .setTypeUrl(typeUrl)
+        .setValue(bytes)
+        .build()
+    JsonSupport.decodeJson(cls, any)
+  }
+
+  class AnyBodyExtractor[T](cls: Class[_]) extends ParameterExtractor[DynamicMessageContext, T] {
+    override def extract(context: DynamicMessageContext): T =
+      decodeJson(context.message, cls.asInstanceOf[Class[T]])
+  }
+
   class BodyExtractor[T](field: Descriptors.FieldDescriptor, cls: Class[_])
       extends ParameterExtractor[DynamicMessageContext, T] {
 
     override def extract(context: DynamicMessageContext): T = {
       context.message.getField(field) match {
-        case dm: DynamicMessage =>
-          val typeUrl = dm.getField(JavaPbAny.getDescriptor.findFieldByName("type_url")).asInstanceOf[String]
-          val bytes = dm.getField(JavaPbAny.getDescriptor.findFieldByName("value")).asInstanceOf[ByteString]
-
-          // TODO: avoid creating a new JavaPbAny instance
-          // we want to reuse the typeUrl validation and reading logic (skip tag + jackson reader) from JsonSupport
-          // we need a new internal version that also handle DynamicMessages
-          val any =
-            JavaPbAny
-              .newBuilder()
-              .setTypeUrl(typeUrl)
-              .setValue(bytes)
-              .build()
-          JsonSupport.decodeJson(cls.asInstanceOf[Class[T]], any)
+        case dm: DynamicMessage => decodeJson(dm, cls.asInstanceOf[Class[T]])
       }
     }
   }

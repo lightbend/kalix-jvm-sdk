@@ -16,8 +16,8 @@
 
 package kalix.springsdk.impl
 
-import com.google.protobuf.{ Any => JavaPbAny }
 import com.google.protobuf.any.{ Any => ScalaPbAny }
+import com.google.protobuf.{ Any => JavaPbAny }
 import kalix.javasdk.JsonSupport
 import kalix.javasdk.impl.MessageCodec
 

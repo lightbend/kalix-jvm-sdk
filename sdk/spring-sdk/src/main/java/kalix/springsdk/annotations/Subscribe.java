@@ -14,18 +14,16 @@
  * limitations under the License.
  */
 
-package kalix.springsdk.valueentity;
+package kalix.springsdk.annotations;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
+import java.lang.annotation.*;
 
-public class CreateUser {
+public @interface Subscribe {
 
-  public final String firstName;
-  public final String lastName;
-
-  @JsonCreator
-  public CreateUser(String firstName, String lastName) {
-    this.firstName = firstName;
-    this.lastName = lastName;
+  @Target(ElementType.METHOD)
+  @Retention(RetentionPolicy.RUNTIME)
+  @Documented
+  @interface ValueEntity {
+    Class<? extends kalix.javasdk.valueentity.ValueEntity<?>> value();
   }
 }

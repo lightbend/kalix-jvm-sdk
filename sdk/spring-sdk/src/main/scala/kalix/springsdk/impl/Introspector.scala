@@ -17,7 +17,8 @@
 package kalix.springsdk.impl
 
 import com.google.protobuf.DescriptorProtos.ServiceDescriptorProto
-import kalix.springsdk.annotations.EntityKey
+import com.google.protobuf.any.{ Any => ScalaPbAny }
+import kalix.springsdk.annotations.Entity
 import kalix.springsdk.impl.reflection.DynamicMethodInfo
 import kalix.springsdk.impl.reflection.NameGenerator
 import kalix.springsdk.impl.reflection.ParameterExtractors.HeaderExtractor
@@ -33,20 +34,27 @@ object Introspector {
     val restService = RestServiceIntrospector.inspectService(component)
 
     val grpcService = ServiceDescriptorProto.newBuilder()
+    // FIXME: I made NameGenerator internal state, but we need unique names per service as well
+    // on the other hand, using the same NameGenerator for all components will make it hard to debug
+    // as we it will make it hard to correlate the methods and to the classes they are defined.
     grpcService.setName(nameGenerator.getName(component.getSimpleName))
 
     val declaredEntityKeys: Seq[String] =
-      Option(component.getAnnotation(classOf[EntityKey]))
-        .map(_.value())
+      Option(component.getAnnotation(classOf[Entity]))
+        .map(_.entityKey())
         .toSeq
         .flatten
 
-    val dynamicRestMethods =
-      restService.methods.map(method => DynamicMethodInfo.build(method, nameGenerator, declaredEntityKeys))
+    val methodsInfo =
+      restService.methods.map(restMethod => DynamicMethodInfo.build(restMethod, nameGenerator, declaredEntityKeys))
 
-    val messageDescriptors = dynamicRestMethods.map { method =>
-      grpcService.addMethod(method.method)
-      method.descriptor
+    val messageDescriptors = methodsInfo.flatMap { methodInfo =>
+      grpcService.addMethod(methodInfo.grpcMethod)
+      // Input message descriptor can be a None. That happens when the desired type is Any.
+      // In such case, we should not add an `Any` as a message to the generated proto file
+      // And we can't properly filter it out because that's a DescriptorProto and it has no package information.
+      // Therefore, our best option is to use a None to exclude it.
+      methodInfo.inputMessageDescriptor
     }
 
     val fileDescriptor = ProtoDescriptorGenerator.genFileDescriptor(
@@ -57,8 +65,16 @@ object Introspector {
 
     val serviceDescriptor = fileDescriptor.findServiceByName(grpcService.getName)
 
-    val methods = dynamicRestMethods.map { method =>
-      val message = fileDescriptor.findMessageTypeByName(method.descriptor.getName)
+    val methods = methodsInfo.map { method =>
+
+      val message = method.inputMessageDescriptor
+        .map { inputDescriptor =>
+          fileDescriptor.findMessageTypeByName(inputDescriptor.getName)
+        }
+        // when empty descriptor, we should fallback to Any
+        // see explanation why it can be a None
+        .getOrElse(ScalaPbAny.javaDescriptor)
+
       val extractors = method.restMethod.params.zipWithIndex.map { case (param, idx) =>
         // First, see if we have an extractor for it to extract from the dynamic message
         method.extractors.find(_._1 == idx) match {
@@ -74,9 +90,9 @@ object Introspector {
             }
         }
       }
-      method.method.getName -> ComponentMethod(
-        method.restMethod.method,
-        method.method.getName,
+      method.grpcMethod.getName -> ComponentMethod(
+        method.restMethod.javaMethod,
+        method.grpcMethod.getName,
         extractors.toArray,
         message)
     }.toMap
