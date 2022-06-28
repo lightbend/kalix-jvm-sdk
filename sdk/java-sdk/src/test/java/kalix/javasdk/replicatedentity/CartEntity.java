@@ -41,7 +41,9 @@ public class CartEntity extends AbstractCartEntity {
       ShoppingCartApi.AddLineItem addLineItem) {
     if (addLineItem.getQuantity() <= 0) {
       return effects()
-          .error("Quantity for item " + addLineItem.getProductId() + " must be greater than zero.", INVALID_ARGUMENT);
+          .error(
+              "Quantity for item " + addLineItem.getProductId() + " must be greater than zero.",
+              INVALID_ARGUMENT);
     }
 
     return effects()
