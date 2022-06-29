@@ -16,6 +16,7 @@
 
 package kalix.javasdk.impl.eventsourcedentity
 
+import io.grpc.Status.Code.INVALID_ARGUMENT
 import kalix.javasdk.eventsourcedentity._
 import kalix.testkit.TestProtocol
 import kalix.testkit.eventsourcedentity.EventSourcedMessages
@@ -181,7 +182,7 @@ class EventSourcedEntitiesImplSpec extends AnyWordSpec with Matchers with Before
       val entity = protocol.eventSourced.connect()
       entity.send(init(ShoppingCart.Name, "cart"))
       entity.send(command(1, "cart", "AddItem", addItem("foo", "bar", -1)))
-      entity.expect(actionFailure(1, "Quantity for item foo must be greater than zero."))
+      entity.expect(actionFailure(1, "Quantity for item foo must be greater than zero.", INVALID_ARGUMENT))
       entity.send(command(2, "cart", "GetCart", getShoppingCart("cart")))
       entity.expect(reply(2, EmptyCart)) // check entity state hasn't changed
       entity.passivate()

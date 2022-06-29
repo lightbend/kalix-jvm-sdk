@@ -1,5 +1,7 @@
 package com.example
 
+import io.grpc.Status.Code
+import io.grpc.StatusRuntimeException
 import kalix.scalasdk.testkit.KalixTestKit
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.concurrent.ScalaFutures
@@ -8,6 +10,8 @@ import org.scalatest.time.Millis
 import org.scalatest.time.Seconds
 import org.scalatest.time.Span
 import org.scalatest.wordspec.AnyWordSpec
+
+import scala.language.postfixOps
 
 // This class was initially generated based on the .proto definition by Kalix tooling.
 //
@@ -43,6 +47,14 @@ class CounterServiceIntegrationSpec
 
       val getResult = client.getCurrentCounter(GetCounter(counterId))
       getResult.futureValue.value shouldBe(42-32)
+    }
+
+    "Return correct status code if command fails" in {
+      val counterId = "42"
+      val updateResult = client.increaseWithConditional(IncreaseValue(counterId, -5)).failed.futureValue
+
+      updateResult shouldBe a[StatusRuntimeException]
+      updateResult.asInstanceOf[StatusRuntimeException].getStatus.getCode shouldBe Code.INVALID_ARGUMENT
     }
 
   }
