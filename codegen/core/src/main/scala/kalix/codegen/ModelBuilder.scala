@@ -309,7 +309,8 @@ object ModelBuilder {
       streamedInput: Boolean,
       streamedOutput: Boolean,
       inFromTopic: Boolean,
-      outToTopic: Boolean) {
+      outToTopic: Boolean,
+      ignore: Boolean) {
 
     def isUnary: Boolean = !streamedInput && !streamedOutput
     def isStreamIn: Boolean = streamedInput && !streamedOutput
@@ -329,7 +330,8 @@ object ModelBuilder {
         streamedInput = method.isClientStreaming,
         streamedOutput = method.isServerStreaming,
         inFromTopic = eventing.hasIn && eventing.getIn.hasTopic,
-        outToTopic = eventing.hasOut && eventing.getOut.hasTopic)
+        outToTopic = eventing.hasOut && eventing.getOut.hasTopic,
+        ignore = eventing.hasIn && eventing.getIn.getIgnore)
     }
   }
 
@@ -549,10 +551,12 @@ object ModelBuilder {
           case (method, viewOptions) if viewOptions.hasUpdate =>
             Command.from(method)
         }
-        val transformedUpdates = methodDetails.collect {
-          case (method, viewOptions) if viewOptions.hasUpdate && viewOptions.getUpdate.getTransformUpdates =>
-            Command.from(method)
-        }
+        val transformedUpdates = methodDetails
+          .collect {
+            case (method, viewOptions) if viewOptions.hasUpdate && viewOptions.getUpdate.getTransformUpdates =>
+              Command.from(method)
+          }
+          .filterNot(_.ignore)
         val queries = methodDetails.collect {
           case (method, viewOptions) if viewOptions.hasQuery =>
             Command.from(method)
