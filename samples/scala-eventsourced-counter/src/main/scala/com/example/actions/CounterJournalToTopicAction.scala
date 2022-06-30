@@ -8,9 +8,7 @@ import com.google.protobuf.any.{ Any => ScalaPbAny }
 import com.google.protobuf.empty.Empty
 
 // tag::counter-topic[]
-// tag::counter-ignore[]
 class CounterJournalToTopicAction(creationContext: ActionCreationContext) extends AbstractCounterJournalToTopicAction {
-// end::counter-ignore[]
 
   // tag::counter-topic-event-subject[]
   override def increase(valueIncreased: ValueIncreased): Action.Effect[Increased] = {
@@ -42,10 +40,5 @@ class CounterJournalToTopicAction(creationContext: ActionCreationContext) extend
     effects.reply(Decreased(valueDecreased.value))
   }
 
-  // tag::counter-ignore[]
-  override def ignore(any: ScalaPbAny): Action.Effect[Empty] =
-    effects.reply(Empty.defaultInstance) // <1>
-  // tag::counter-topic[]
 }
-// end::counter-ignore[]
 // end::counter-topic[]
