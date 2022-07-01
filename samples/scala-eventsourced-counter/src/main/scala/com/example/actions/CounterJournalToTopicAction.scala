@@ -39,6 +39,6 @@ class CounterJournalToTopicAction(creationContext: ActionCreationContext) extend
   override def decrease(valueDecreased: ValueDecreased): Action.Effect[Decreased] = {
     effects.reply(Decreased(valueDecreased.value))
   }
-
+  // tag::counter-topic[]
 }
 // end::counter-topic[]
