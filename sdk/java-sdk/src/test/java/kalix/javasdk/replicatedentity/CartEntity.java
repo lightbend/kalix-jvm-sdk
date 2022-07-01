@@ -18,13 +18,14 @@ package kalix.javasdk.replicatedentity;
 
 import com.example.replicatedentity.shoppingcart.ShoppingCartApi;
 import com.example.replicatedentity.shoppingcart.domain.ShoppingCartDomain;
-import com.example.replicatedentity.shoppingcart.domain.ShoppingCartDomain.LineItem;
 import com.google.protobuf.Empty;
 
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static io.grpc.Status.Code.INVALID_ARGUMENT;
 
 public class CartEntity extends AbstractCartEntity {
   @SuppressWarnings("unused")
@@ -40,7 +41,9 @@ public class CartEntity extends AbstractCartEntity {
       ShoppingCartApi.AddLineItem addLineItem) {
     if (addLineItem.getQuantity() <= 0) {
       return effects()
-          .error("Quantity for item " + addLineItem.getProductId() + " must be greater than zero.");
+          .error(
+              "Quantity for item " + addLineItem.getProductId() + " must be greater than zero.",
+              INVALID_ARGUMENT);
     }
 
     return effects()

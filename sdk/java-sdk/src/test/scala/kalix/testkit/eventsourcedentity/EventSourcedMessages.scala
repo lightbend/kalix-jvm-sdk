@@ -22,6 +22,7 @@ import kalix.protocol.event_sourced_entity._
 import kalix.testkit.entity.EntityMessages
 import com.google.protobuf.any.{ Any => ScalaPbAny }
 import com.google.protobuf.{ Message => JavaPbMessage }
+import io.grpc.Status
 import scalapb.{ GeneratedMessage => ScalaPbMessage }
 
 object EventSourcedMessages extends EntityMessages {
@@ -143,6 +144,9 @@ object EventSourcedMessages extends EntityMessages {
 
   def actionFailure(id: Long, description: String): OutMessage =
     OutMessage.Reply(EventSourcedReply(id, clientActionFailure(id, description)))
+
+  def actionFailure(id: Long, description: String, statusCode: Status.Code): OutMessage =
+    OutMessage.Reply(EventSourcedReply(id, clientActionFailure(id, description, statusCode.value())))
 
   def failure(description: String): OutMessage =
     failure(id = 0, description)

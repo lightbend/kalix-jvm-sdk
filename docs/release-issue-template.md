@@ -38,7 +38,7 @@ You can see the proxy version on prod [on grafana](https://lightbendcloud.grafan
 
 ### Announcements
 
-- [ ] Announce in [the forum](https://discuss.lightbend.com/c/kalix/40)
-  - tag with Kalix, releases and announcement
+- [ ] Announce in [the forum](https://discuss.kalix.io/)
+  - tag with releases and announcement
 - [ ] Inform Lightbend marketing and engineering if it's a noteworthy release
 - [ ] Close this issue

@@ -298,9 +298,13 @@ jobs:
             ALL_OK=true
             for SAMPLE in samples/java* samples/scala*
             do
-              if [ $(grep -c $SAMPLE .circleci/config.yml) -lt 1 ]
-              then
+              if [ $(grep -c $SAMPLE .circleci/config.yml) -lt 1 ] ; then
                 echo "$SAMPLE is missing CI-tests"
+                ALL_OK=false
+              fi
+              SAMPLE_JOB_NAME="sample-${SAMPLE#samples/}"
+              if [ $(grep -c $SAMPLE_JOB_NAME .circleci/config.yml) -lt 2 ] ; then
+                echo "$SAMPLE_JOB_NAME is missing from CI workflow"
                 ALL_OK=false
               fi
             done
@@ -600,8 +604,8 @@ jobs:
             echo "Running mvn with SDK version: '$SDK_VERSION'"
             mvn -Dkalix-sdk.version=$SDK_VERSION test-compile
             mvn -Dkalix-sdk.version=$SDK_VERSION test
-            # FIXME related to https://github.com/lightbend/kalix-jvm-sdk/issues/297
-            # mvn -Dkalix-sdk.version=$SDK_VERSION verify -Pit
+            # FIXME add eventing integration tests (related to https://github.com/lightbend/kalix-jvm-sdk/issues/297)
+            mvn -Dkalix-sdk.version=$SDK_VERSION verify -Pit
             echo "==== Verifying that generated unmanaged sources compile ===="
             rm -rf src/main/java src/test/java src/it/java
             mvn -Dkalix-sdk.version=$SDK_VERSION test-compile
@@ -853,8 +857,8 @@ jobs:
           command: |
             cd samples/scala-eventsourced-counter
             echo "Running sbt with SDK version: '$SDK_VERSION'"
+            # FIXME add eventing integration tests (related to https://github.com/lightbend/kalix-jvm-sdk/issues/297)
             sbt -Dkalix-sdk.version=$SDK_VERSION test
-            # FIXME integration tests
             echo "==== Verifying that generated unmanaged sources compile ===="
             rm -rf src/main/scala src/test/scala src/it/scala
             sbt -Dkalix-sdk.version=$SDK_VERSION Test/compile
@@ -1106,6 +1110,10 @@ workflows:
           requires:
             - checks
             - publish-local
+      - sample-java-customer-registry-kafka-quickstart:
+          requires:
+            - checks
+            - publish-local
       - sample-java-customer-registry-views-quickstart:
           requires:
             - checks
@@ -1187,6 +1195,10 @@ workflows:
             - checks
             - publish-local
       - sample-scala-valueentity-counter:
+          requires:
+            - checks
+            - publish-local
+      - sample-scala-eventsourced-counter:
           requires:
             - checks
             - publish-local
