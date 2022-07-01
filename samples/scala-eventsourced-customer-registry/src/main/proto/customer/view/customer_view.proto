@@ -70,10 +70,6 @@ service CustomerByName {
       event_sourced_entity: "customers" // <5>
       ignore: true
      };
-     option (kalix.method).view.update = {
-       table: "customers"
-       transform_updates: true // <6>
-     };
   };
 
   rpc GetCustomers(ByNameRequest) returns (stream api.Customer) {
@@ -120,10 +116,6 @@ service CustomerByNameFromTopic {
     option (kalix.method).eventing.in = {
       topic: "customers"
       ignore: true
-     };
-     option (kalix.method).view.update = {
-       table: "customers"
-       transform_updates: true
      };
   };
 
@@ -182,10 +174,6 @@ service CustomerByCityStreaming {
     option (kalix.method).eventing.in = {
       event_sourced_entity: "customers"
       ignore: true
-    };
-    option (kalix.method).view.update = {
-      table: "customers"
-      transform_updates: true
     };
   };
   // end::ignore-other-events[]
