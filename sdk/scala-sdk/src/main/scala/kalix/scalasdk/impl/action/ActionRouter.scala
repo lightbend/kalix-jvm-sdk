@@ -18,10 +18,12 @@ package kalix.scalasdk.impl.action
 
 import akka.NotUsed
 import akka.stream.scaladsl.Source
+import kalix.javasdk.impl.action.ActionContextImpl
+import kalix.javasdk.impl.action.ActionRouter.HandlerNotFound
 import kalix.scalasdk.action.Action
 import kalix.scalasdk.action.ActionContext
 import kalix.scalasdk.action.MessageEnvelope
-import kalix.javasdk.impl.action.ActionRouter.HandlerNotFound
+import kalix.scalasdk.impl.timer.TimerSchedulerImpl
 
 /**
  * INTERNAL API, but used by generated code.
@@ -161,6 +163,16 @@ abstract class ActionRouter[A <: Action](val action: A) {
     // only set, never cleared, to allow access from other threads in async callbacks in the action
     // the same handler and action instance is expected to only ever be invoked for a single command
     action._internalSetActionContext(Option(context))
+
+    val javaActionContextImpl = context match {
+      case ScalaActionContextAdapter(actionContext: ActionContextImpl) => actionContext
+      // should not happen as we always need to pass ScalaActionContextAdapter(ActionContextImpl)
+      case other =>
+        throw new RuntimeException(
+          s"Incompatible ActionContext instance. Found ${other.getClass}, expecting ${classOf[ActionContextImpl].getName}")
+    }
+    action._internalSetTimerScheduler(TimerSchedulerImpl(javaActionContextImpl))
+
     try {
       func()
     } catch {

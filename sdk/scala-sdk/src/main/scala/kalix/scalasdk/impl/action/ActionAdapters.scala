@@ -30,16 +30,29 @@ import kalix.scalasdk.action.MessageEnvelope
 import kalix.scalasdk.impl.InternalContext
 import kalix.scalasdk.impl.MetadataConverters
 import com.google.protobuf.Descriptors
-
 import java.util.Optional
+
 import scala.jdk.CollectionConverters.SetHasAsJava
 import scala.jdk.OptionConverters.RichOptional
+
+import akka.actor.ActorSystem
+import kalix.javasdk.impl.timer.{ TimerSchedulerImpl => JavaTimerSchedulerImpl }
+import kalix.javasdk.timer.TimerScheduler
+import kalix.scalasdk.impl.timer.TimerSchedulerImpl
 
 private[scalasdk] final case class JavaActionAdapter(scalaSdkAction: Action) extends javasdk.action.Action {
 
   /** INTERNAL API */
   override def _internalSetActionContext(context: Optional[javasdk.action.ActionContext]): Unit =
     scalaSdkAction._internalSetActionContext(context.map(new ScalaActionContextAdapter(_)).toScala)
+
+  /** INTERNAL API */
+  override def _internalSetTimerScheduler(timerScheduler: TimerScheduler): Unit = {
+    val javaTimerScheduler = timerScheduler.asInstanceOf[JavaTimerSchedulerImpl]
+    scalaSdkAction._internalSetTimerScheduler(
+      new TimerSchedulerImpl(javaTimerScheduler.anySupport, javaTimerScheduler.system))
+  }
+
 }
 
 private[scalasdk] final case class JavaActionProviderAdapter[A <: Action](scalaSdkProvider: ActionProvider[A])

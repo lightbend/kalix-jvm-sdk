@@ -32,6 +32,7 @@ import java.util.concurrent.CompletionStage;
 public abstract class Action {
 
   private volatile Optional<ActionContext> actionContext = Optional.empty();
+  private volatile Optional<TimerScheduler> timerScheduler = Optional.empty();
 
   /**
    * Additional context and metadata for a message handler.
@@ -60,16 +61,21 @@ public abstract class Action {
     actionContext = context;
   }
 
+  /** INTERNAL API */
+  public void _internalSetTimerScheduler(TimerScheduler timerScheduler) {
+    this.timerScheduler = Optional.of(timerScheduler);
+  }
+
   public final Effect.Builder effects() {
     return ActionEffectImpl.builder();
   }
 
   /** Returns a {@link TimerScheduler} that can be used to schedule further in time. */
   public final TimerScheduler timers() {
-    ActionContextImpl impl =
-        (ActionContextImpl)
-            actionContext("Timers can only be scheduled or cancelled when handling a message.");
-    return new TimerSchedulerImpl(impl.anySupport(), impl.system());
+    return timerScheduler.orElseThrow(
+        () ->
+            new IllegalStateException(
+                "Timers can only be scheduled or cancelled when handling a message."));
   }
 
   /**

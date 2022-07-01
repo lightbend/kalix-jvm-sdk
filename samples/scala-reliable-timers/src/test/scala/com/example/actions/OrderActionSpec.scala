@@ -1,61 +1,47 @@
 package com.example.actions
 
-import com.example.OrderStatus
+import scala.concurrent.Future
+
+import com.example.OrderService
 import com.google.protobuf.empty.Empty
-import kalix.scalasdk.action.Action
-import kalix.scalasdk.testkit.ActionResult
+import kalix.scalasdk.testkit.MockRegistry
+import org.scalamock.scalatest.AsyncMockFactory
+import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.matchers.should.Matchers
-import org.scalatest.wordspec.AnyWordSpec
+import org.scalatest.wordspec.AsyncWordSpec
 
 // This class was initially generated based on the .proto definition by Kalix tooling.
 //
 // As long as this file exists it will not be overwritten: you can maintain it yourself,
 // or delete it so it is regenerated as needed.
 
-class OrderActionSpec
-    extends AnyWordSpec
-    with Matchers {
+class OrderActionSpec extends AsyncWordSpec with Matchers with ScalaFutures with AsyncMockFactory {
 
   "OrderAction" must {
 
-    "have example test that can be removed" in {
-      val service = OrderActionTestKit(new OrderAction(_))
-      pending
-      // use the testkit to execute a command
-      // and verify final updated state:
-      // val result = service.someOperation(SomeRequest)
-      // verify the reply
-      // result.reply shouldBe expectedReply
-    }
-
     "handle command PlaceOrder" in {
-      val service = OrderActionTestKit(new OrderAction(_))
-          pending
-      // val result = service.placeOrder(OrderRequest(...))
-    }
 
-    "handle command Confirm" in {
-      val service = OrderActionTestKit(new OrderAction(_))
-          pending
-      // val result = service.confirm(OrderNumber(...))
-    }
+      val orderService = mock[OrderService]
+      (orderService.placeOrder _)
+        .expects(*)
+        .returning(Future.successful(Empty()))
 
-    "handle command Cancel" in {
-      val service = OrderActionTestKit(new OrderAction(_))
-          pending
-      // val result = service.cancel(OrderNumber(...))
-    }
+      val mockRegistry = MockRegistry.withMock(orderService)
 
-    "handle command Expire" in {
-      val service = OrderActionTestKit(new OrderAction(_))
-          pending
-      // val result = service.expire(OrderNumber(...))
-    }
+      val service = OrderActionTestKit(new OrderAction(_), mockRegistry)
+      val result =
+        service.placeOrder(OrderRequest(item = "Pizza Margherita", quantity = 3))
 
-    "handle command GetOrderStatus" in {
-      val service = OrderActionTestKit(new OrderAction(_))
-          pending
-      // val result = service.getOrderStatus(OrderNumber(...))
+      val timer = result.nextSingleTimerDetails
+      timer.name should startWith("order-expiration-timer")
+      val deferredCall = timer.deferredCallDetails[OrderRequest, Empty]
+
+      deferredCall.serviceName shouldBe "com.example.actions.Order"
+      deferredCall.methodName shouldBe "Expire"
+
+      val callResult = result.asyncResult.futureValue
+      callResult.isError shouldBe false
+      callResult.reply.number shouldNot be(null)
     }
 
   }

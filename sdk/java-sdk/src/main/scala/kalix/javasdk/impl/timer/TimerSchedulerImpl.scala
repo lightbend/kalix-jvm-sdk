@@ -29,13 +29,21 @@ import kalix.javasdk.DeferredCall
 import kalix.javasdk.impl.AnySupport
 import kalix.javasdk.impl.DeferredCallImpl
 import kalix.javasdk.impl.GrpcClients
+import kalix.javasdk.impl.action.ActionContextImpl
 import kalix.javasdk.timer.TimerScheduler
 import kalix.timers.timers.Call
 import kalix.timers.timers.SingleTimer
 import kalix.timers.timers.TimerService
 
 /** INTERNAL API */
-private[kalix] final class TimerSchedulerImpl(anySupport: AnySupport, system: ActorSystem) extends TimerScheduler {
+private[kalix] object TimerSchedulerImpl {
+  def apply(actionContextImpl: ActionContextImpl): TimerSchedulerImpl =
+    new TimerSchedulerImpl(actionContextImpl.anySupport, actionContextImpl.system)
+}
+
+/** INTERNAL API */
+private[kalix] final class TimerSchedulerImpl(val anySupport: AnySupport, val system: ActorSystem)
+    extends TimerScheduler {
 
   override def startSingleTimer[I, O](
       name: String,
