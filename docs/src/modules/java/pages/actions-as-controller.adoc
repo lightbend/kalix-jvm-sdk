@@ -109,6 +109,7 @@ include::example$scala-valueentity-shopping-cart/src/main/scala/com/example/shop
 ----
 
 
+[#_composing_calls]
 == Composing calls
 
 The async call shown in the previous section, can also be used to chain or compose multiple calls to a single action response.
@@ -176,3 +177,37 @@ The problem with this is that an `addItem` call directly to the entity happening
 action returning and the `addItem` call from the action would lead to more items in the cart than the allowed limit.
 
 Such validation depending on state can only safely be done handling the command inside of the entity.
+
+[#_unit_tests_cross_component]
+=== Unit tests (with cross-component calls)
+
+Testing an Action serving as a controller, or more generally, one that depends on calling other components, requires
+that a mock registry containing the mocks to be used be provided to TestKit. Later, at runtime, the Testkit will try to find the appropriate mock object it needs by matching those with the dependency component's class type.
+
+So, let's say we want to test the xref:actions-as-controller.adoc#_composing_calls[previous example] where we rely on 2 _external_ calls to create and populate the shopping cart before replying. A unit test for such action method would look like:
+
+[.tabset]
+Java::
++
+.src/test/java/com/example/shoppingcart/ShoppingCartActionImplTest.java
+[source,java]
+----
+include::example$java-valueentity-shopping-cart/src/test/java/com/example/shoppingcart/ShoppingCartActionImplTest.java[tag=createPrePopulated]
+----
+<1> First step is to declare our mock object. In this example, `shoppingCartService` is a `@Mock` object by https://site.mockito.org/[Mockito framework].
+<2> We start by configuring our mock service how to reply to the two calls: `create` and `addItem`.
+<3> Then we use the TestKit-provided `MockRegistry` to initialize and add `shoppingCartService` to serve as a mock for class type `ShoppingCartService`.
+<4> Finally, we just need to pass the `mockRegistry` while initializing the `ShoppingCartActionImplTestKit` and the TestKit will make sure to try to find our mock object when it needs.
+
+
+Scala::
++
+.src/main/test/com/example/shoppingcart/ShoppingCartActionImplSpec.scala
+[source,scala]
+----
+include::example$scala-valueentity-shopping-cart/src/test/scala/com/example/shoppingcart/ShoppingCartActionImplSpec.scala[tag=createPrePopulated]
+----
+<1> First step is to declare our mock object. In this case, `shoppingCartService` is a `stub` object provided by https://scalamock.org/[ScalaMock framework].
+<2> Then we configure our mock service how to reply to the two calls: `create` and `addItem`.
+<3> We use the TestKit-provided `MockRegistry` to initialize and add `shoppingCartService` to serve as a mock for class type `ShoppingCartService`.
+<4> Finally, we just need to pass the `mockRegistry` while initializing the `ShoppingCartActionImplTestKit` and the TestKit will make sure to try to find our mock object when it needs.

@@ -26,6 +26,8 @@ import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import static io.grpc.Status.Code.INVALID_ARGUMENT;
+
 /** A value entity. */
 public class CartEntity extends AbstractCartEntity {
   @SuppressWarnings("unused")
@@ -45,7 +47,9 @@ public class CartEntity extends AbstractCartEntity {
       ShoppingCartDomain.Cart currentState, ShoppingCartApi.AddLineItem addLineItem) {
     if (addLineItem.getQuantity() <= 0) {
       return effects()
-          .error("Quantity for item " + addLineItem.getProductId() + " must be greater than zero.");
+          .error(
+              "Quantity for item " + addLineItem.getProductId() + " must be greater than zero.",
+              INVALID_ARGUMENT);
     }
 
     ShoppingCartDomain.LineItem lineItem = updateItem(addLineItem, currentState);

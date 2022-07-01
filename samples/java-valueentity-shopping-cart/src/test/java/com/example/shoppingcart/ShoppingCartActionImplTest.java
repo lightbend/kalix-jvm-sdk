@@ -25,11 +25,13 @@ import static org.mockito.ArgumentMatchers.notNull;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+// tag::createPrePopulated[]
 public class ShoppingCartActionImplTest {
 
   @Mock
-  private ShoppingCartService shoppingCartService;
+  private ShoppingCartService shoppingCartService; // <1>
 
+  // end::createPrePopulated[]
   private AutoCloseable closeable;
 
   @Before
@@ -42,6 +44,7 @@ public class ShoppingCartActionImplTest {
     closeable.close();
   }
 
+  // tag::initialize[]
   @Test
   public void initializeCartTest() throws ExecutionException, InterruptedException, TimeoutException {
     when(shoppingCartService.create(notNull()))
@@ -54,25 +57,31 @@ public class ShoppingCartActionImplTest {
     var asyncResult = (CompletableFuture<ActionResult<NewCartCreated>>) result.getAsyncResult();
     assertFalse(asyncResult.get(1, TimeUnit.SECONDS).getReply().getCartId().isEmpty());
   }
+  // end::initialize[]
 
+  // tag::createPrePopulated[]
   @Test
   public void prePopulatedCartTest() throws ExecutionException, InterruptedException, TimeoutException {
-    when(shoppingCartService.create(notNull()))
+    when(shoppingCartService.create(notNull())) // <2>
             .thenReturn(CompletableFuture.completedFuture(Empty.getDefaultInstance()));
     when(shoppingCartService.addItem(any()))
             .thenReturn(CompletableFuture.completedFuture(Empty.getDefaultInstance()));
-    var mockRegistry = MockRegistry.create().withMock(ShoppingCartService.class, shoppingCartService);
+    var mockRegistry = MockRegistry.create().withMock(ShoppingCartService.class, shoppingCartService); // <3>
 
-    var service = ShoppingCartActionImplTestKit.of(ShoppingCartActionImpl::new, mockRegistry);
+    var service = ShoppingCartActionImplTestKit.of(ShoppingCartActionImpl::new, mockRegistry); // <4>
     var result = service.createPrePopulated(NewCart.getDefaultInstance()).getAsyncResult();
     var reply = ((CompletableFuture<ActionResult<NewCartCreated>>) result)
             .get(1, TimeUnit.SECONDS)
             .getReply();
 
+    // assertions go here
+    // end::createPrePopulated[]
+
     ArgumentCaptor<AddLineItem> lineItem = ArgumentCaptor.forClass(AddLineItem.class);
     verify(shoppingCartService).addItem(lineItem.capture());
     assertEquals("eggplant", lineItem.getValue().getName());
     assertEquals(reply.getCartId(), lineItem.getValue().getCartId());
+  // tag::createPrePopulated[]
   }
-
 }
+// end::createPrePopulated[]

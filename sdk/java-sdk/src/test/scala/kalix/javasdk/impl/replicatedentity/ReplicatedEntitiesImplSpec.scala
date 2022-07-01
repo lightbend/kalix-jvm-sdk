@@ -16,6 +16,7 @@
 
 package kalix.javasdk.impl.replicatedentity
 
+import io.grpc.Status.Code.INVALID_ARGUMENT
 import kalix.javasdk.replicatedentity.CartEntity
 import kalix.javasdk.replicatedentity.CartEntityProvider
 import kalix.protocol.replicated_entity.ReplicatedEntityDelta
@@ -187,7 +188,7 @@ class ReplicatedEntitiesImplSpec extends AnyWordSpec with Matchers with BeforeAn
         .connect()
         .send(init(ShoppingCart.Name, "cart"))
         .send(command(1, "cart", "AddItem", addItem("foo", "bar", -1)))
-        .expect(failure(1, "Quantity for item foo must be greater than zero."))
+        .expect(failure(1, "Quantity for item foo must be greater than zero.", INVALID_ARGUMENT))
         .send(command(2, "cart", "GetCart", getShoppingCart("cart")))
         .expect(reply(2, EmptyCart)) // check update-then-fail doesn't change entity state
         .passivate()

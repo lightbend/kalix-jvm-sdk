@@ -22,6 +22,7 @@ import kalix.protocol.entity.Command
 import kalix.testkit.entity.EntityMessages
 import com.google.protobuf.any.{ Any => ScalaPbAny }
 import com.google.protobuf.{ Message => JavaPbMessage }
+import io.grpc.Status
 import scalapb.{ GeneratedMessage => ScalaPbMessage }
 
 object ReplicatedEntityMessages extends EntityMessages {
@@ -117,10 +118,13 @@ object ReplicatedEntityMessages extends EntityMessages {
     failure(id = 0, description)
 
   def failure(id: Long, description: String): OutMessage =
-    failure(id, description, Effects.empty)
+    failure(id, description, Status.Code.UNKNOWN, Effects.empty)
 
-  def failure(id: Long, description: String, effects: Effects): OutMessage =
-    replicatedEntityReply(id, clientActionFailure(id, description), effects)
+  def failure(id: Long, description: String, statusCode: Status.Code): OutMessage =
+    failure(id, description, statusCode, Effects.empty)
+
+  def failure(id: Long, description: String, statusCode: Status.Code, effects: Effects): OutMessage =
+    replicatedEntityReply(id, clientActionFailure(id, description, statusCode.value()), effects)
 
   def replicatedEntityReply(id: Long, clientAction: Option[ClientAction], effects: Effects): OutMessage =
     OutMessage.Reply(ReplicatedEntityReply(id, clientAction, effects.sideEffects, effects.stateAction))
