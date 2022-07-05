@@ -10,6 +10,7 @@ import kalix.scalasdk.valueentity.ValueEntityContext
 import com.example
 import com.example.CurrentCounter
 import com.google.protobuf.empty.Empty
+import io.grpc.Status.Code
 
 // tag::class[]
 class Counter(context: ValueEntityContext) extends AbstractCounter { // <1>
@@ -31,7 +32,7 @@ class Counter(context: ValueEntityContext) extends AbstractCounter { // <1>
 
   override def increaseWithConditional(currentState: CounterState, command: example.IncreaseValue): ValueEntity.Effect[Empty] =
     if (command.value < 0) // <1>
-      effects.error(s"Increase requires a positive value. It was [${command.value}].")
+      effects.error(s"Increase requires a positive value. It was [${command.value}].", Code.INVALID_ARGUMENT)
     else {
       if (commandContext.metadata.get("myKey") == Some("myValue")) {
       val newState = currentState.copy(value = currentState.value + command.value*2)

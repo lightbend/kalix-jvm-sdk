@@ -32,9 +32,6 @@ class CustomerByNameView(context: ViewContext) extends AbstractCustomerByNameVie
       customerAddressChanged: CustomerAddressChanged): UpdateEffect[Customer] = // <3>
     effects.updateState(state.copy(address = customerAddressChanged.newAddress.map(convertToApi)))
 
-  override def ignoreOtherEvents(state: Customer, any: ScalaPbAny): UpdateEffect[Customer] =
-    effects.ignore()
-
   private def convertToApi(customer: CustomerState): Customer =
     Customer(
       customerId = customer.customerId,

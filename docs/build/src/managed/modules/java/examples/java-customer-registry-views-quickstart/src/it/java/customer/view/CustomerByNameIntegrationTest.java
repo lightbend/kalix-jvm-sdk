@@ -67,7 +67,7 @@ public class CustomerByNameIntegrationTest {
         CustomerViewModel.ByNameRequest.newBuilder().setCustomerName("Johanna").build();
 
     // the view is eventually updated
-    await().atMost(10, SECONDS).until(() -> viewClient.getCustomers(req).runWith(Sink.seq(), testKit.getActorSystem()).toCompletableFuture()
+    await().atMost(20, SECONDS).until(() -> viewClient.getCustomers(req).runWith(Sink.seq(), testKit.getActorSystem()).toCompletableFuture()
         .get(3, SECONDS).size() == 2);
 
     List<CustomerViewModel.CustomerViewState> result = viewClient.getCustomers(req).runWith(Sink.seq(), testKit.getActorSystem()).toCompletableFuture()
