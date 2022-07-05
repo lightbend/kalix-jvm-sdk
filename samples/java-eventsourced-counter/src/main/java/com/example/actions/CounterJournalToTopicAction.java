@@ -13,9 +13,7 @@ import com.google.protobuf.Any;
 import java.util.Optional;
 
 // tag::counter-topic[]
-// tag::counter-ignore[]
 public class CounterJournalToTopicAction extends AbstractCounterJournalToTopicAction {
-// end::counter-ignore[]
   public CounterJournalToTopicAction(ActionCreationContext creationContext) {}
 
   // tag::counter-topic-event-subject[]
@@ -71,12 +69,6 @@ public class CounterJournalToTopicAction extends AbstractCounterJournalToTopicAc
     return effects().reply(decreased);
   }
 
-  // tag::counter-ignore[]
-  @Override
-  public Effect<Empty> ignore(Any any) {
-    return effects().reply(Empty.getDefaultInstance()); // <1>
-  }
   // tag::counter-topic[]
 }
-  // end::counter-ignore[]
 // end::counter-topic[]

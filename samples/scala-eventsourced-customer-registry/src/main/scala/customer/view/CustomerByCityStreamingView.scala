@@ -29,9 +29,6 @@ class CustomerByCityStreamingView(context: ViewContext) extends AbstractCustomer
       customerNameChanged: CustomerNameChanged): UpdateEffect[Customer] =
     effects.updateState(state.copy(name = customerNameChanged.newName))
 
-  override def ignoreOtherEvents(state: Customer, any: ScalaPbAny): UpdateEffect[Customer] =
-    effects.ignore()
-
   override def processCustomerAddressChanged(
       state: Customer,
       customerAddressChanged: CustomerAddressChanged): UpdateEffect[Customer] = // <3>

@@ -68,10 +68,7 @@ service CustomerByName {
   rpc IgnoreOtherEvents(google.protobuf.Any) returns (api.Customer) {
     option (kalix.method).eventing.in = {
       event_sourced_entity: "customers" // <5>
-     };
-     option (kalix.method).view.update = {
-       table: "customers"
-       transform_updates: true // <6>
+      ignore: true
      };
   };
 
@@ -118,10 +115,7 @@ service CustomerByNameFromTopic {
   rpc IgnoreOtherEvents(google.protobuf.Any) returns (api.Customer) {
     option (kalix.method).eventing.in = {
       topic: "customers"
-     };
-     option (kalix.method).view.update = {
-       table: "customers"
-       transform_updates: true
+      ignore: true
      };
   };
 
@@ -175,15 +169,14 @@ service CustomerByCityStreaming {
     };
   }
 
+  // tag::ignore-other-events[]
   rpc IgnoreOtherEvents(google.protobuf.Any) returns (api.Customer) {
     option (kalix.method).eventing.in = {
       event_sourced_entity: "customers"
-    };
-    option (kalix.method).view.update = {
-      table: "customers"
-      transform_updates: true
+      ignore: true
     };
   };
+  // end::ignore-other-events[]
 
   // tag::stream-updates[]
   rpc GetCustomers(ByCityRequest) returns (stream api.Customer) { // <1>
