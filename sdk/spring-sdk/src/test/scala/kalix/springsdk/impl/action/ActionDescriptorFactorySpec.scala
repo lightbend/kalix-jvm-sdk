@@ -44,46 +44,46 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
     "generate mappings for an Action with GET without path param" in {
       assertDescriptor[GetWithoutParam] { desc =>
         val method = desc.methods("Message")
-        method.messageDescriptor.getFields.size() shouldBe 0
+        method.requestMessageDescriptor.getFields.size() shouldBe 0
       }
     }
 
     "generate mappings for an Action with GET and one path param" in {
       assertDescriptor[GetWithOneParam] { desc =>
         val method = desc.methods("Message")
-        assertMessage(method, "one", JavaType.STRING)
+        assertRequestFieldJavaType(method, "one", JavaType.STRING)
       }
     }
 
     "generate mappings for an Action with class level Request mapping" in {
       assertDescriptor[GetClassLevel] { desc =>
         val method = desc.methods("Message")
-        assertMessage(method, "one", JavaType.STRING)
-        assertMessage(method, "two", JavaType.LONG)
+        assertRequestFieldJavaType(method, "one", JavaType.STRING)
+        assertRequestFieldJavaType(method, "two", JavaType.LONG)
       }
     }
 
     "generate mappings for an Action with POST without path param" in {
       assertDescriptor[PostWithoutParam] { desc =>
         val method = desc.methods("Message")
-        assertMessage(method, "json_body", JavaType.MESSAGE)
+        assertRequestFieldJavaType(method, "json_body", JavaType.MESSAGE)
       }
     }
 
     "generate mappings for an Action with POST and one path param" in {
       assertDescriptor[PostWithOneParam] { desc =>
         val method = desc.methods("Message")
-        assertMessage(method, "one", JavaType.STRING)
-        assertMessage(method, "json_body", JavaType.MESSAGE)
+        assertRequestFieldJavaType(method, "one", JavaType.STRING)
+        assertRequestFieldJavaType(method, "json_body", JavaType.MESSAGE)
       }
     }
 
     "generate mappings for an Action with POST and two path param" in {
       assertDescriptor[PostWithTwoParam] { desc =>
         val method = desc.methods("Message")
-        assertMessage(method, "one", JavaType.STRING)
-        assertMessage(method, "two", JavaType.LONG)
-        assertMessage(method, "json_body", JavaType.MESSAGE)
+        assertRequestFieldJavaType(method, "one", JavaType.STRING)
+        assertRequestFieldJavaType(method, "two", JavaType.LONG)
+        assertRequestFieldJavaType(method, "json_body", JavaType.MESSAGE)
       }
     }
 
@@ -91,12 +91,12 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
       assertDescriptor[PostWithTwoMethods] { desc =>
 
         val firstMethod = desc.methods("Message")
-        assertMessage(firstMethod, "text", JavaType.STRING)
-        assertMessage(firstMethod, "json_body", JavaType.MESSAGE)
+        assertRequestFieldJavaType(firstMethod, "text", JavaType.STRING)
+        assertRequestFieldJavaType(firstMethod, "json_body", JavaType.MESSAGE)
 
         val secondMethod = desc.methods("Message1")
-        assertMessage(secondMethod, "num", JavaType.LONG)
-        assertMessage(secondMethod, "json_body", JavaType.MESSAGE)
+        assertRequestFieldJavaType(secondMethod, "num", JavaType.LONG)
+        assertRequestFieldJavaType(secondMethod, "json_body", JavaType.MESSAGE)
 
       }
     }
@@ -104,35 +104,35 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
     "generate mappings for an Action with PUT without path param" in {
       assertDescriptor[PutWithoutParam] { desc =>
         val method = desc.methods("Message")
-        assertMessage(method, "json_body", JavaType.MESSAGE)
+        assertRequestFieldJavaType(method, "json_body", JavaType.MESSAGE)
       }
     }
 
     "generate mappings for an Action with PUT and one path param" in {
       assertDescriptor[PutWithOneParam] { desc =>
         val method = desc.methods("Message")
-        assertMessage(method, "one", JavaType.STRING)
+        assertRequestFieldJavaType(method, "one", JavaType.STRING)
       }
     }
 
     "generate mappings for an Action with PATCH without path param" in {
       assertDescriptor[PatchWithoutParam] { desc =>
         val method = desc.methods("Message")
-        assertMessage(method, "json_body", JavaType.MESSAGE)
+        assertRequestFieldJavaType(method, "json_body", JavaType.MESSAGE)
       }
     }
 
     "generate mappings for an Action with PATCH and one path param" in {
       assertDescriptor[PatchWithOneParam] { desc =>
         val method = desc.methods("Message")
-        assertMessage(method, "one", JavaType.STRING)
+        assertRequestFieldJavaType(method, "one", JavaType.STRING)
       }
     }
 
     "generate mappings for an Action with DELETE and one path param" in {
       assertDescriptor[DeleteWithOneParam] { desc =>
         val method = desc.methods("Message")
-        assertMessage(method, "one", JavaType.STRING)
+        assertRequestFieldJavaType(method, "one", JavaType.STRING)
       }
     }
 
@@ -140,7 +140,7 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
       assertDescriptor[SubscribeToValueEntityAction] { desc =>
 
         val methodOne = desc.methods("MessageOne")
-        methodOne.messageDescriptor.getFullName shouldBe JavaPbAny.getDescriptor.getFullName
+        methodOne.requestMessageDescriptor.getFullName shouldBe JavaPbAny.getDescriptor.getFullName
 
         val eventSourceOne = findKalixMethodOptions(desc, "MessageOne").getEventing.getIn
         eventSourceOne.getValueEntity shouldBe "ve-counter"
@@ -153,7 +153,7 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
         methodOne.parameterExtractors.size shouldBe 1
 
         val methodTwo = desc.methods("MessageTwo")
-        methodTwo.messageDescriptor.getFullName shouldBe JavaPbAny.getDescriptor.getFullName
+        methodTwo.requestMessageDescriptor.getFullName shouldBe JavaPbAny.getDescriptor.getFullName
         val eventSourceTwo = findKalixMethodOptions(desc, "MessageTwo").getEventing.getIn
         eventSourceTwo.getValueEntity shouldBe "ve-counter"
       }

@@ -40,9 +40,9 @@ class ParameterExtractorsSpec extends AnyWordSpec with Matchers {
 
       val jsonBody = JsonSupport.encodeJson(new Message("test"))
 
-      val field = method.messageDescriptor.findFieldByNumber(1)
+      val field = method.requestMessageDescriptor.findFieldByNumber(1)
       val message = DynamicMessage
-        .newBuilder(method.messageDescriptor)
+        .newBuilder(method.requestMessageDescriptor)
         .setField(field, jsonBody)
         .build()
 
@@ -51,7 +51,7 @@ class ParameterExtractorsSpec extends AnyWordSpec with Matchers {
       val bodyExtractor: BodyExtractor[_] =
         method.parameterExtractors.collect { case extractor: BodyExtractor[_] => extractor }.head
 
-      val context = InvocationContext(wrappedMessage, method.messageDescriptor)
+      val context = InvocationContext(wrappedMessage, method.requestMessageDescriptor)
       bodyExtractor.extract(context)
 
     }
@@ -68,9 +68,9 @@ class ParameterExtractorsSpec extends AnyWordSpec with Matchers {
           .setValue(ByteString.EMPTY)
           .build()
 
-      val field = method.messageDescriptor.findFieldByNumber(1)
+      val field = method.requestMessageDescriptor.findFieldByNumber(1)
       val message = DynamicMessage
-        .newBuilder(method.messageDescriptor)
+        .newBuilder(method.requestMessageDescriptor)
         .setField(field, nonJsonBody)
         .build()
 
@@ -79,7 +79,7 @@ class ParameterExtractorsSpec extends AnyWordSpec with Matchers {
       val bodyExtractor: BodyExtractor[_] =
         method.parameterExtractors.collect { case extractor: BodyExtractor[_] => extractor }.head
 
-      val context = InvocationContext(wrappedMessage, method.messageDescriptor)
+      val context = InvocationContext(wrappedMessage, method.requestMessageDescriptor)
 
       intercept[IllegalArgumentException] {
         bodyExtractor.extract(context)

@@ -30,9 +30,14 @@ trait ComponentDescriptorSuite extends Matchers {
     assertFunc(ComponentDescriptor.descriptorFor[E])
   }
 
-  def assertMessage(method: ComponentMethod, fieldName: String, expectedType: JavaType) = {
+  def assertRequestFieldJavaType(method: ComponentMethod, fieldName: String, expectedType: JavaType) = {
     val field = findField(method, fieldName)
     field.getJavaType shouldBe expectedType
+  }
+
+  def assertRequestFieldMessageType(method: ComponentMethod, fieldName: String, expectedMessageType: String) = {
+    val field = findField(method, fieldName)
+    field.getMessageType.getFullName shouldBe expectedMessageType
   }
 
   def assertEntityKeyField(method: ComponentMethod, fieldName: String) = {
@@ -54,7 +59,7 @@ trait ComponentDescriptorSuite extends Matchers {
     findMethod(desc, methodName).toProto.getOptions.getExtension(AnnotationsProto.http)
 
   private def findField(method: ComponentMethod, fieldName: String): Descriptors.FieldDescriptor = {
-    val field = method.messageDescriptor.findFieldByName(fieldName)
+    val field = method.requestMessageDescriptor.findFieldByName(fieldName)
     if (field == null) throw new NoSuchElementException(s"no field found for $fieldName")
     field
   }

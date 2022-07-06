@@ -27,7 +27,7 @@ import kalix.springsdk.impl.ViewDescriptorFactory.{ noQueryAnnotationMessage, on
 import kalix.springsdk.impl.reflection._
 import kalix.{ EventSource, Eventing, MethodOptions }
 
-import java.lang.reflect.{ Method, Modifier }
+import java.lang.reflect.{ Method, Modifier, ParameterizedType }
 
 object ComponentDescriptorFactory {
 
@@ -130,33 +130,53 @@ object ViewDescriptorFactory {
 }
 case class ViewDescriptorFactory[T](component: Class[T]) extends ComponentDescriptorFactory[T] {
 
-  private def addTableOptions(builder: MethodOptions.Builder, transform: Boolean) = {
-    val tableName: String = component.getAnnotation(classOf[Table]).value()
-    if (tableName == null || tableName.trim.isEmpty) {
-      // TODO: find a better error message for this
-      throw new IllegalArgumentException(s"Invalid table name for view ${component.getName}.")
-    }
-
-    val update = kalix.View.Update
-      .newBuilder()
-      .setTable(tableName)
-      .setTransformUpdates(transform)
-
-    val view = kalix.View.newBuilder().setUpdate(update).build()
-    builder.setView(view)
-  }
-
-  private def queryOptions(queryStr: String) = {
-    val builder = kalix.MethodOptions.newBuilder()
-    val query = kalix.View.Query.newBuilder().setQuery(queryStr).build()
-    val view = kalix.View.newBuilder().setQuery(query).build()
-    builder.setView(view)
-    builder.build()
-  }
-
   private val hasTypeLevelValueEntitySubs = component.getAnnotation(classOf[Subscribe.ValueEntity]) != null
+  private val hasMethodLevelValueEntitySubs = component.getMethods.exists(hasSubscription)
+  // View class type parameter declares table type
+  // FIXME if value entity, validate that the type is the same as the value entity state
+  private val tableClass: Class[_] = component.getGenericSuperclass.asInstanceOf[ParameterizedType].getActualTypeArguments.head.asInstanceOf[Class[_]]
 
-  private def kalixMethods: Seq[KalixMethod] = {
+  private val tableTypeDescriptor = MessageDescriptor.generateMessageDescriptors(tableClass)
+
+  // options are added later (to avoid cyclic dependency)
+  private val subscriptionMethods = {
+    if (hasTypeLevelValueEntitySubs && hasMethodLevelValueEntitySubs)
+      throw new IllegalArgumentException(
+        "Mixed usage of @Subscribe.ValueEntity annotations. " +
+        "You should either use it at type level or at method level, not both.")
+
+    if (hasTypeLevelValueEntitySubs) {
+      // create a virtual method
+      val methodOptionsBuilder = kalix.MethodOptions.newBuilder()
+
+      val entityType = findValueEntityType(component)
+      // FIXME class for value entity state type (since that will be the view updates)
+
+      methodOptionsBuilder.setEventing(eventingInForValueEntity(entityType))
+
+      addTableOptions(methodOptionsBuilder, false)
+      val kalixOptions = methodOptionsBuilder.build()
+
+      Seq(
+        KalixMethod(VirtualServiceMethod(component, "OnChange"))
+          .withKalixOptions(kalixOptions))
+
+    } else {
+      component.getMethods
+        .filter(hasSubscription)
+        .map { method =>
+          // event sourced or topic subscription updates
+          val methodOptionsBuilder = kalix.MethodOptions.newBuilder()
+          methodOptionsBuilder.setEventing(eventingInForValueEntity(method))
+          addTableOptions(methodOptionsBuilder, true)
+
+          KalixMethod(RestServiceMethod(method)).withKalixOptions(methodOptionsBuilder.build())
+        }
+        .toSeq
+    }
+  }
+
+  private val kalixMethods: Seq[KalixMethod] = {
 
     def validQueryMethod(javaMethod: Method) =
       validateRestMethod(javaMethod) && javaMethod.getAnnotation(classOf[Query]) != null
@@ -176,50 +196,49 @@ case class ViewDescriptorFactory[T](component: Class[T]) extends ComponentDescri
     if (springAnnotatedMethods.size > 1)
       throw new IllegalArgumentException(onlyOneQueryAnnotationMessage)
 
-    val hasMethodLevelValueEntitySubs = component.getMethods.exists(hasSubscription)
+    (springAnnotatedMethods ++ subscriptionMethods)
+  }
 
-    if (hasTypeLevelValueEntitySubs && hasMethodLevelValueEntitySubs)
-      throw new IllegalArgumentException(
-        "Mixed usage of @Subscribe.ValueEntity annotations. " +
-        "You should either use it at type level or at method level, not both.")
+  private def addTableOptions(builder: MethodOptions.Builder, transform: Boolean) = {
+    val tableName: String = component.getAnnotation(classOf[Table]).value()
+    if (tableName == null || tableName.trim.isEmpty) {
+      // TODO: find a better error message for this
+      throw new IllegalArgumentException(s"Invalid table name for view ${component.getName}.")
+    }
 
-    val subscriptionMethods =
-      if (hasTypeLevelValueEntitySubs) {
-        // create a virtual method
-        val methodOptionsBuilder = kalix.MethodOptions.newBuilder()
+    val update = kalix.View.Update
+      .newBuilder()
+      .setTable(tableName)
+      .setTransformUpdates(transform)
 
-        val entityType = findValueEntityType(component)
-        methodOptionsBuilder.setEventing(eventingInForValueEntity(entityType))
+    val jsonSchema = kalix.JsonSchema
+      .newBuilder()
+      .setOutput(tableTypeDescriptor.mainMessageDescriptor.getName)
+      .build()
 
-        addTableOptions(methodOptionsBuilder, false)
-        val kalixOptions = methodOptionsBuilder.build()
+    val view = kalix.View
+      .newBuilder()
+      .setUpdate(update)
+      .setJsonSchema(jsonSchema)
+      .build()
+    builder.setView(view)
+  }
 
-        Seq(
-          KalixMethod(VirtualServiceMethod(component, "OnChange"))
-            .withKalixOptions(kalixOptions))
-
-      } else {
-        component.getMethods
-          .filter(hasSubscription)
-          .map { method =>
-
-            val methodOptionsBuilder = kalix.MethodOptions.newBuilder()
-            methodOptionsBuilder.setEventing(eventingInForValueEntity(method))
-            addTableOptions(methodOptionsBuilder, true)
-
-            KalixMethod(RestServiceMethod(method)).withKalixOptions(methodOptionsBuilder.build())
-          }
-          .toSeq
-      }
-
-    springAnnotatedMethods ++ subscriptionMethods
+  private def queryOptions(queryStr: String) = {
+    val builder = kalix.MethodOptions.newBuilder()
+    val query = kalix.View.Query.newBuilder().setQuery(queryStr).build()
+    val view = kalix.View.newBuilder().setQuery(query).build()
+    builder.setView(view)
+    builder.build()
   }
 
   override def buildDescriptor(nameGenerator: NameGenerator): ComponentDescriptor = {
     val serviceName = nameGenerator.getName(component.getSimpleName)
-    kalixMethods.foldLeft(new ComponentDescriptor(serviceName, component.getPackageName, nameGenerator)) {
-      (desc, method) =>
-        desc.withMethod(method)
-    }
+    val componentDescriptor =
+      kalixMethods.foldLeft(new ComponentDescriptor(serviceName, component.getPackageName, nameGenerator)) {
+        (desc, method) =>
+          desc.withMethod(method)
+      }
+    componentDescriptor.withMessageDescriptor(tableTypeDescriptor)
   }
 }

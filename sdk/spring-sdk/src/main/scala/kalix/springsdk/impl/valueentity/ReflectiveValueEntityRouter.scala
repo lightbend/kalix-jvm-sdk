@@ -39,7 +39,7 @@ class ReflectiveValueEntityRouter[S, E <: ValueEntity[S]](
 
     val componentMethod = methodLookup(commandName)
     val context =
-      InvocationContext(command.asInstanceOf[ScalaPbAny], componentMethod.messageDescriptor)
+      InvocationContext(command.asInstanceOf[ScalaPbAny], componentMethod.requestMessageDescriptor)
 
     // pass current state to entity
     entity._internalSetCurrentState(state);

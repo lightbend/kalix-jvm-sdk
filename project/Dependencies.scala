@@ -5,7 +5,8 @@ object Dependencies {
   object Kalix {
     val ProtocolVersionMajor = 1
     val ProtocolVersionMinor = 0
-    val ProxyVersion = System.getProperty("kalix-proxy.version", "1.0.13")
+    // FIXME built with json-view-support proxy PR, release and bump version
+    val ProxyVersion = System.getProperty("kalix-proxy.version", "1.0.12-30-b0cb8ebf-SNAPSHOT")
   }
 
   // changing the Scala version of the Java SDK affects end users

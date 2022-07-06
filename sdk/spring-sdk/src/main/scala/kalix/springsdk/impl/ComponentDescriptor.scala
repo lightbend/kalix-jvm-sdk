@@ -79,6 +79,7 @@ class ComponentDescriptor(serviceName: String, packageName: String, nameGenerato
   grpcService.setName(serviceName)
 
   private var inputMessageProtos: Seq[DescriptorProtos.DescriptorProto] = Seq.empty
+  private var otherMessageProtos: Seq[DescriptorProtos.DescriptorProto] = Seq.empty
   private var componentMethods: Seq[NamedComponentMethod] = Seq.empty
 
   // intermediate format that references input message by name
@@ -163,9 +164,16 @@ class ComponentDescriptor(serviceName: String, packageName: String, nameGenerato
     this
   }
 
+  def withMessageDescriptor(messageDescriptor: MessageDescriptor): ComponentDescriptor = {
+    otherMessageProtos :+= messageDescriptor.mainMessageDescriptor
+    otherMessageProtos ++= messageDescriptor.additionalMessageDescriptors
+    this
+  }
+
   def serviceDescriptor: Descriptors.ServiceDescriptor =
     fileDescriptor.findServiceByName(grpcService.getName)
-
+  0
+  // FIXME lazy vals depending on mutable fields is a recipe for disaster - turn the class into a builder that is built to create the file and service descriptors when done instead?
   lazy val fileDescriptor: Descriptors.FileDescriptor =
     ProtoDescriptorGenerator.genFileDescriptor(serviceName, packageName, grpcService.build(), inputMessageProtos)
 

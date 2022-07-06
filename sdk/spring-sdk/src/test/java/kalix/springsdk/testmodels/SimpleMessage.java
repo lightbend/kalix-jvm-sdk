@@ -14,16 +14,28 @@
  * limitations under the License.
  */
 
-package kalix.springsdk.impl
+package kalix.springsdk.testmodels;
 
-import java.lang.reflect.Method
-
-import com.google.protobuf.Descriptors
-import kalix.springsdk.impl.reflection.ParameterExtractor
-
-// Might need to have one of each of these for unary, streamed out, streamed in and streamed.
-case class ComponentMethod(
-    method: Option[Method],
-    grpcMethodName: String,
-    parameterExtractors: Array[ParameterExtractor[InvocationContext, AnyRef]],
-    requestMessageDescriptor: Descriptors.Descriptor)
+public class SimpleMessage {
+  // all them primitives
+  public char c;
+  public byte by;
+  public int n;
+  public long l;
+  public double d;
+  public float f;
+  public boolean bo;
+  // boxed primitives
+  public Character cO;
+  public Byte bO;
+  public Integer nO;
+  public Long lO;
+  public Double dO;
+  public Float fO;
+  public Boolean boO;
+  // common object types mapping to proto primitives
+  public String s;
+  // arrays
+  public int[] iA;
+  public String[] sA;
+}

@@ -49,7 +49,7 @@ class ViewDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSuit
         methodOptions.getView.getUpdate.getTable shouldBe "users_view"
         methodOptions.getView.getUpdate.getTransformUpdates shouldBe true
         // check json input schema:  ByEmail
-        // check json output schema:  TransformedUser
+        methodOptions.getView.getJsonSchema.getOutput shouldBe "kalix.springsdk.testmodels.view.TransformedUser"
 
         val queryMethodOptions = this.findKalixMethodOptions(desc, "GetUser")
         queryMethodOptions.getView.getQuery.getQuery shouldBe "SELECT * FROM users_view WHERE email = :email"
@@ -69,7 +69,7 @@ class ViewDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSuit
         methodOptions.getView.getUpdate.getTable shouldBe "users_view"
         methodOptions.getView.getUpdate.getTransformUpdates shouldBe false
         // check json input schema:  ByEmail
-        // check json output schema:  User
+        methodOptions.getView.getJsonSchema.getOutput shouldBe "kalix.springsdk.testmodels.valueentity.User"
 
         val queryMethodOptions = this.findKalixMethodOptions(desc, "GetUser")
         queryMethodOptions.getView.getQuery.getQuery shouldBe "SELECT * FROM users_view WHERE email = :email"
@@ -87,8 +87,8 @@ class ViewDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSuit
 
         methodOptions.getView.getUpdate.getTable shouldBe "users_view"
         methodOptions.getView.getUpdate.getTransformUpdates shouldBe false
+        methodOptions.getView.getJsonSchema.getOutput shouldBe "kalix.springsdk.testmodels.valueentity.User"
         // check json input schema:  ByEmail
-        // check json output schema:  User
 
         val queryMethodOptions = this.findKalixMethodOptions(desc, "GetUser")
         queryMethodOptions.getView.getQuery.getQuery shouldBe "SELECT * FROM users_view WHERE email = :email"
@@ -107,7 +107,7 @@ class ViewDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSuit
         methodOptions.getView.getUpdate.getTable shouldBe "users_view"
         methodOptions.getView.getUpdate.getTransformUpdates shouldBe false
         // check json input schema:  ByEmail
-        // check json output schema:  User
+        methodOptions.getView.getJsonSchema.getOutput shouldBe "kalix.springsdk.testmodels.valueentity.User"
 
         val queryMethodOptions = this.findKalixMethodOptions(desc, "GetUser")
         queryMethodOptions.getView.getQuery.getQuery shouldBe "SELECT * FROM users_view WHERE email = :email"

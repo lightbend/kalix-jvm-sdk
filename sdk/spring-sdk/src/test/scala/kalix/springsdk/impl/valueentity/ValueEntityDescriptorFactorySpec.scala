@@ -16,8 +16,9 @@
 
 package kalix.springsdk.impl.valueentity
 
+import com.google.protobuf.Any
 import com.google.protobuf.Descriptors.FieldDescriptor.JavaType
-import kalix.springsdk.impl.ComponentDescriptorSuite
+import kalix.springsdk.impl.{ ComponentDescriptorSuite, ComponentMethod }
 import kalix.springsdk.testmodels.valueentity.ValueEntitiesTestModels.PostWithEntityKeys
 import org.scalatest.wordspec.AnyWordSpec
 
@@ -27,12 +28,13 @@ class ValueEntityDescriptorFactorySpec extends AnyWordSpec with ComponentDescrip
     "generate mappings for a Value Entity with entity keys in path" in {
       assertDescriptor[PostWithEntityKeys] { desc =>
         val method = desc.methods("CreateEntity")
-        assertMessage(method, "json_body", JavaType.MESSAGE)
+        assertRequestFieldJavaType(method, "json_body", JavaType.MESSAGE)
+        assertRequestFieldMessageType(method, "json_body", Any.getDescriptor.getFullName)
 
-        assertMessage(method, "userId", JavaType.STRING)
+        assertRequestFieldJavaType(method, "userId", JavaType.STRING)
         assertEntityKeyField(method, "userId")
 
-        assertMessage(method, "cartId", JavaType.STRING)
+        assertRequestFieldJavaType(method, "cartId", JavaType.STRING)
         assertEntityKeyField(method, "cartId")
       }
     }

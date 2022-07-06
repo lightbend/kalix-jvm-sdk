@@ -46,12 +46,11 @@ sealed trait AnyServiceMethod extends ServiceMethod {
   }
 }
 
-
 /**
  * Build from methods annotated with @Subscription at type level.
  *
- * It's used as a 'virtual' method because there is not Java method backing it.
- * It will exist only in the gRPC descriptor and will be used for view updates with transform = false
+ * It's used as a 'virtual' method because there is not Java method backing it. It will exist only in the gRPC
+ * descriptor and will be used for view updates with transform = false
  */
 case class VirtualServiceMethod(component: Class[_], methodName: String) extends AnyServiceMethod {
 
@@ -63,7 +62,6 @@ case class VirtualServiceMethod(component: Class[_], methodName: String) extends
 
   val pathTemplate = buildPathTemplate(component.getName, methodName)
 }
-
 
 /**
  * Build from methods annotated with @Subscription. Those methods are not annotated with Spring REST annotations, but

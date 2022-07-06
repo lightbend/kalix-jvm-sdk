@@ -14,16 +14,11 @@
  * limitations under the License.
  */
 
-package kalix.springsdk.impl
+package kalix.springsdk.testmodels;
 
-import java.lang.reflect.Method
+import kalix.springsdk.testmodels.SimpleMessage;
 
-import com.google.protobuf.Descriptors
-import kalix.springsdk.impl.reflection.ParameterExtractor
-
-// Might need to have one of each of these for unary, streamed out, streamed in and streamed.
-case class ComponentMethod(
-    method: Option[Method],
-    grpcMethodName: String,
-    parameterExtractors: Array[ParameterExtractor[InvocationContext, AnyRef]],
-    requestMessageDescriptor: Descriptors.Descriptor)
+public class NestedMessage {
+  public String one;
+  public SimpleMessage two;
+}

@@ -37,7 +37,7 @@ class ReflectiveActionRouter[A <: Action](action: A, componentMethods: Map[Strin
     val context =
       InvocationContext(
         message.payload().asInstanceOf[ScalaPbAny],
-        componentMethod.messageDescriptor,
+        componentMethod.requestMessageDescriptor,
         message.metadata())
 
     // safe call: if component method is None, proxy won't forward calls to it
