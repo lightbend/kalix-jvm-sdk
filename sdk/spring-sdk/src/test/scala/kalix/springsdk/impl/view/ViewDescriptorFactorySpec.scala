@@ -53,6 +53,7 @@ class ViewDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSuit
 
         val queryMethodOptions = this.findKalixMethodOptions(desc, "GetUser")
         queryMethodOptions.getView.getQuery.getQuery shouldBe "SELECT * FROM users_view WHERE email = :email"
+        queryMethodOptions.getView.getJsonSchema.getOutput shouldBe "kalix.springsdk.testmodels.view.TransformedUser"
 
         val rule = findHttpRule(desc, "GetUser")
         rule.getPost shouldBe "/users/by-email"
@@ -73,6 +74,7 @@ class ViewDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSuit
 
         val queryMethodOptions = this.findKalixMethodOptions(desc, "GetUser")
         queryMethodOptions.getView.getQuery.getQuery shouldBe "SELECT * FROM users_view WHERE email = :email"
+        queryMethodOptions.getView.getJsonSchema.getOutput shouldBe "kalix.springsdk.testmodels.valueentity.User"
 
         val rule = findHttpRule(desc, "GetUser")
         rule.getPost shouldBe "/users/by-email"
@@ -92,6 +94,7 @@ class ViewDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSuit
 
         val queryMethodOptions = this.findKalixMethodOptions(desc, "GetUser")
         queryMethodOptions.getView.getQuery.getQuery shouldBe "SELECT * FROM users_view WHERE email = :email"
+        queryMethodOptions.getView.getJsonSchema.getOutput shouldBe "kalix.springsdk.testmodels.valueentity.User"
 
         val rule = findHttpRule(desc, "GetUser")
         rule.getPost shouldBe "/users/{name}/by-email"
@@ -111,6 +114,7 @@ class ViewDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSuit
 
         val queryMethodOptions = this.findKalixMethodOptions(desc, "GetUser")
         queryMethodOptions.getView.getQuery.getQuery shouldBe "SELECT * FROM users_view WHERE email = :email"
+        queryMethodOptions.getView.getJsonSchema.getOutput shouldBe "kalix.springsdk.testmodels.valueentity.User"
 
         val rule = findHttpRule(desc, "GetUser")
         rule.getGet shouldBe "/users/{email}"
@@ -120,13 +124,13 @@ class ViewDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSuit
     "fail if no query method found" in {
       intercept[IllegalArgumentException] {
         ComponentDescriptor.descriptorFor[ViewWithNoQuery]
-      }.getMessage shouldBe ViewDescriptorFactory.noQueryAnnotationMessage
+      }
     }
 
     "fail if more than one query method is found" in {
       intercept[IllegalArgumentException] {
         ComponentDescriptor.descriptorFor[ViewWithTwoQueries]
-      }.getMessage shouldBe ViewDescriptorFactory.onlyOneQueryAnnotationMessage
+      }
     }
 
   }

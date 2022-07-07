@@ -109,6 +109,8 @@ class ComponentDescriptor(serviceName: String, packageName: String, nameGenerato
                       new HeaderExtractor[AnyRef](hp.name, identity)
                     case UnhandledParameter(param) =>
                       throw new RuntimeException("Unhandled parameter: " + param)
+                    // FIXME not handled: BodyParameter(_, _), PathParameter(_, _), QueryParamParameter(_, _)
+
                   }
               }
             }.toArray
@@ -172,7 +174,7 @@ class ComponentDescriptor(serviceName: String, packageName: String, nameGenerato
 
   def serviceDescriptor: Descriptors.ServiceDescriptor =
     fileDescriptor.findServiceByName(grpcService.getName)
-  0
+
   // FIXME lazy vals depending on mutable fields is a recipe for disaster - turn the class into a builder that is built to create the file and service descriptors when done instead?
   lazy val fileDescriptor: Descriptors.FileDescriptor =
     ProtoDescriptorGenerator.genFileDescriptor(serviceName, packageName, grpcService.build(), inputMessageProtos)
