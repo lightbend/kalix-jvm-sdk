@@ -21,20 +21,17 @@ import kalix.springsdk.impl.reflection.KalixMethod
 import kalix.springsdk.impl.reflection.NameGenerator
 import kalix.springsdk.impl.reflection.RestServiceIntrospector
 
-private[impl] final class EntityDescriptorFactory[T](val component: Class[T]) extends ComponentDescriptorFactory[T] {
+private[impl] object EntityDescriptorFactory extends ComponentDescriptorFactory {
 
-  private val entityKeys: Seq[String] = component.getAnnotation(classOf[Entity]).entityKey()
+  override def buildDescriptorFor(component: Class[_], nameGenerator: NameGenerator): ComponentDescriptor = {
+    val entityKeys = component.getAnnotation(classOf[Entity]).entityKey()
 
-  private def kalixMethods: Seq[KalixMethod] =
-    RestServiceIntrospector.inspectService(component).methods.map { restMethod =>
-      KalixMethod(restMethod, entityKeys = entityKeys)
-    }
+    val kalixMethods =
+      RestServiceIntrospector.inspectService(component).methods.map { restMethod =>
+        KalixMethod(restMethod, entityKeys = entityKeys)
+      }
 
-  override def buildDescriptor(nameGenerator: NameGenerator): ComponentDescriptor = {
     val serviceName = nameGenerator.getName(component.getSimpleName)
-    kalixMethods.foldLeft(new ComponentDescriptor(serviceName, component.getPackageName, nameGenerator)) {
-      (desc, method) =>
-        desc.withMethod(method)
-    }
+    ComponentDescriptor(nameGenerator, serviceName, component.getPackageName, kalixMethods)
   }
 }

@@ -31,7 +31,7 @@ class ViewDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSuit
 
     "not allow @Subscribe annotations in mixed levels" in {
       // it should be annotated either on type or on method level
-      intercept[IllegalArgumentException] {
+      intercept[InvalidComponentException] {
         assertDescriptor[ViewWithSubscriptionsInMixedLevels] { desc => }
       }.getMessage should startWith("Mixed usage of @Subscribe.ValueEntity annotations.")
     }
@@ -137,13 +137,13 @@ class ViewDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSuit
     }
 
     "fail if no query method found" in {
-      intercept[IllegalArgumentException] {
+      intercept[InvalidComponentException] {
         ComponentDescriptor.descriptorFor[ViewWithNoQuery]
       }
     }
 
     "fail if more than one query method is found" in {
-      intercept[IllegalArgumentException] {
+      intercept[InvalidComponentException] {
         ComponentDescriptor.descriptorFor[ViewWithTwoQueries]
       }
     }

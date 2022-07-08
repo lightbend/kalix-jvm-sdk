@@ -16,6 +16,7 @@
 
 package kalix.springsdk.impl
 
+import kalix.springsdk.annotations.Table
 import kalix.springsdk.annotations.{ Entity, Subscribe }
 import kalix.springsdk.impl.reflection._
 import kalix.{ EventSource, Eventing }
@@ -58,10 +59,29 @@ private[impl] object ComponentDescriptorFactory {
         " can not be annotated with REST annotations ")
     else true
 
+  // TODO: add more validations here
+  // we should let users know if components are missing required annotations,
+  // eg: entities require @Entity, view require @Table and @Subscription
+  def getFactoryFor(component: Class[_]): ComponentDescriptorFactory = {
+    if (component.getAnnotation(classOf[Entity]) != null)
+      EntityDescriptorFactory
+    else if (component.getAnnotation(classOf[Table]) != null)
+      ViewDescriptorFactory
+    else
+      ActionDescriptorFactory
+  }
+
 }
 
-private[impl] trait ComponentDescriptorFactory[T] {
-  def component: Class[T]
+private[impl] trait ComponentDescriptorFactory {
 
-  def buildDescriptor(nameGenerator: NameGenerator): ComponentDescriptor
+  /**
+   * Inspect the component class (type), validate the annotations/methods and build a component descriptor for it.
+   */
+  def buildDescriptorFor(componentClass: Class[_], nameGenerator: NameGenerator): ComponentDescriptor
 }
+
+/**
+ * Thrown when the component has incorrect annotations
+ */
+final case class InvalidComponentException(message: String) extends RuntimeException(message)

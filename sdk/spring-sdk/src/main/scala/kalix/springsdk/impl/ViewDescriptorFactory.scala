@@ -27,59 +27,29 @@ import kalix.springsdk.impl.reflection.KalixMethod
 import kalix.springsdk.impl.reflection.NameGenerator
 import kalix.springsdk.impl.reflection.RestServiceIntrospector
 import kalix.springsdk.impl.reflection.RestServiceMethod
+import kalix.springsdk.impl.reflection.SpringRestServiceMethod
 import kalix.springsdk.impl.reflection.VirtualServiceMethod
 
 import java.lang.reflect.ParameterizedType
 
-private[impl] object ViewDescriptorFactory {
-  private def valueEntityStateClassOf(valueEntityClass: Class[_]): Class[_] = {
-    valueEntityClass.getGenericSuperclass
-      .asInstanceOf[ParameterizedType]
-      .getActualTypeArguments
-      .head
-      .asInstanceOf[Class[_]]
-  }
-}
+private[impl] object ViewDescriptorFactory extends ComponentDescriptorFactory {
 
-private[impl] final class ViewDescriptorFactory[T](val component: Class[T]) extends ComponentDescriptorFactory[T] {
-  import ViewDescriptorFactory._
-
-  override def buildDescriptor(nameGenerator: NameGenerator): ComponentDescriptor = {
+  override def buildDescriptorFor(component: Class[_], nameGenerator: NameGenerator): ComponentDescriptor = {
     val hasTypeLevelValueEntitySubs = component.getAnnotation(classOf[Subscribe.ValueEntity]) != null
     val hasMethodLevelValueEntitySubs = component.getMethods.exists(hasValueEntitySubscription)
     // View class type parameter declares table type
     val tableType: Class[_] =
       component.getGenericSuperclass.asInstanceOf[ParameterizedType].getActualTypeArguments.head.asInstanceOf[Class[_]]
-    val tableTypeDescriptor = ProtoMessageDescriptors.generateMessageDescriptors(tableType)
-
-    def addTableOptionsToUpdateMethod(builder: MethodOptions.Builder, transform: Boolean) = {
-      val tableName: String = component.getAnnotation(classOf[Table]).value()
-      if (tableName == null || tableName.trim.isEmpty) {
-        throw new IllegalArgumentException(
-          s"Table name for [${component.getName}] is empty, must be a non-empty string.")
-      }
-
-      val update = kalix.View.Update
-        .newBuilder()
-        .setTable(tableName)
-        .setTransformUpdates(transform)
-
-      val jsonSchema = kalix.JsonSchema
-        .newBuilder()
-        .setOutput(tableTypeDescriptor.mainMessageDescriptor.getName)
-        .build()
-
-      val view = kalix.View
-        .newBuilder()
-        .setUpdate(update)
-        .setJsonSchema(jsonSchema)
-        .build()
-      builder.setView(view)
+    val tableName: String = component.getAnnotation(classOf[Table]).value()
+    if (tableName == null || tableName.trim.isEmpty) {
+      throw InvalidComponentException(s"Table name for [${component.getName}] is empty, must be a non-empty string.")
     }
+    val tableTypeDescriptor = ProtoMessageDescriptors.generateMessageDescriptors(tableType)
+    val tableProtoMessageName = tableTypeDescriptor.mainMessageDescriptor.getName
 
     val updateMethods = {
       if (hasTypeLevelValueEntitySubs && hasMethodLevelValueEntitySubs)
-        throw new IllegalArgumentException(
+        throw InvalidComponentException(
           "Mixed usage of @Subscribe.ValueEntity annotations. " +
           "You should either use it at type level or at method level, not both.")
 
@@ -92,7 +62,7 @@ private[impl] final class ViewDescriptorFactory[T](val component: Class[T]) exte
           component.getAnnotation(classOf[Subscribe.ValueEntity]).value().asInstanceOf[Class[_]]
         val entityStateClass = valueEntityStateClassOf(valueEntityClass)
         if (entityStateClass != tableType)
-          throw new IllegalArgumentException(
+          throw InvalidComponentException(
             s"View subscribes to ValueEntity [${valueEntityClass.getName}] and subscribes to state changes " +
             s"which will be of type [${entityStateClass.getName}] but view type parameter is [${tableType.getName}] which does not match, " +
             "the types of the entity and the subscribing must be the same.")
@@ -100,11 +70,11 @@ private[impl] final class ViewDescriptorFactory[T](val component: Class[T]) exte
         val entityType = findValueEntityType(component)
         methodOptionsBuilder.setEventing(eventingInForValueEntity(entityType))
 
-        addTableOptionsToUpdateMethod(methodOptionsBuilder, false)
+        addTableOptionsToUpdateMethod(tableName, tableProtoMessageName, methodOptionsBuilder, false)
         val kalixOptions = methodOptionsBuilder.build()
 
         Seq(
-          KalixMethod(VirtualServiceMethod(component, "OnChange"))
+          KalixMethod(VirtualServiceMethod(component, "OnChange", tableType))
             .withKalixOptions(kalixOptions))
 
       } else {
@@ -113,12 +83,12 @@ private[impl] final class ViewDescriptorFactory[T](val component: Class[T]) exte
         component.getMethods
           .filter(hasValueEntitySubscription)
           .map { method =>
-            // validate
+            // validate that all updates return the same type
             val valueEntityClass = method.getAnnotation(classOf[Subscribe.ValueEntity]).value().asInstanceOf[Class[_]]
             previousValueEntityClass match {
               case Some(`valueEntityClass`) => // ok
               case Some(other) =>
-                throw new IllegalArgumentException(
+                throw InvalidComponentException(
                   s"All update methods must return the same type, but [${method.getName}] returns [${valueEntityClass.getName}] while a prevous update method returns [${other.getName}]")
               case None => previousValueEntityClass = Some(valueEntityClass)
             }
@@ -127,7 +97,7 @@ private[impl] final class ViewDescriptorFactory[T](val component: Class[T]) exte
             // event sourced or topic subscription updates
             val methodOptionsBuilder = kalix.MethodOptions.newBuilder()
             methodOptionsBuilder.setEventing(eventingInForValueEntity(method))
-            addTableOptionsToUpdateMethod(methodOptionsBuilder, true)
+            addTableOptionsToUpdateMethod(tableName, tableProtoMessageName, methodOptionsBuilder, true)
 
             KalixMethod(RestServiceMethod(method)).withKalixOptions(methodOptionsBuilder.build())
 
@@ -149,7 +119,7 @@ private[impl] final class ViewDescriptorFactory[T](val component: Class[T]) exte
       if (annotatedMethods.size > 1)
         throw new IllegalArgumentException("Views can have only one method annotated with @Query")
 
-      val annotatedMethod = annotatedMethods.head
+      val annotatedMethod: SpringRestServiceMethod = annotatedMethods.head
 
       val returnType = annotatedMethod.javaMethod.getReturnType
       val returnTypeDescriptor =
@@ -180,21 +150,47 @@ private[impl] final class ViewDescriptorFactory[T](val component: Class[T]) exte
       builder.setView(view)
       val methodOptions = builder.build()
 
-      (KalixMethod(annotatedMethod).withKalixOptions(methodOptions), returnTypeDescriptor)
+      // since it is a query, we don't actually ever want to handle any request in the SDK
+      // the proxy does the work for us, mark the method as non-callable
+      (KalixMethod(annotatedMethod.copy(callable = false)).withKalixOptions(methodOptions), returnTypeDescriptor)
     }
 
     val kalixMethods: Seq[KalixMethod] = queryMethod +: updateMethods
-
     val serviceName = nameGenerator.getName(component.getSimpleName)
-    val componentDescriptor =
-      kalixMethods.foldLeft(new ComponentDescriptor(serviceName, component.getPackageName, nameGenerator)) {
-        (desc, method) =>
-          desc.withMethod(method)
-      }
-    componentDescriptor.withMessageDescriptor(tableTypeDescriptor)
-    if (tableTypeDescriptor != queryResultDescriptor)
-      componentDescriptor.withMessageDescriptor(queryResultDescriptor)
+    val additionalMessages =
+      Seq(tableTypeDescriptor) ++ (if (tableTypeDescriptor != queryResultDescriptor) Seq(queryResultDescriptor)
+                                   else Nil)
+    ComponentDescriptor(nameGenerator, serviceName, component.getPackageName, kalixMethods, additionalMessages)
+  }
 
-    componentDescriptor
+  private def addTableOptionsToUpdateMethod(
+      tableName: String,
+      tableProtoMessage: String,
+      builder: MethodOptions.Builder,
+      transform: Boolean) = {
+    val update = kalix.View.Update
+      .newBuilder()
+      .setTable(tableName)
+      .setTransformUpdates(transform)
+
+    val jsonSchema = kalix.JsonSchema
+      .newBuilder()
+      .setOutput(tableProtoMessage)
+      .build()
+
+    val view = kalix.View
+      .newBuilder()
+      .setUpdate(update)
+      .setJsonSchema(jsonSchema)
+      .build()
+    builder.setView(view)
+  }
+
+  private def valueEntityStateClassOf(valueEntityClass: Class[_]): Class[_] = {
+    valueEntityClass.getGenericSuperclass
+      .asInstanceOf[ParameterizedType]
+      .getActualTypeArguments
+      .head
+      .asInstanceOf[Class[_]]
   }
 }

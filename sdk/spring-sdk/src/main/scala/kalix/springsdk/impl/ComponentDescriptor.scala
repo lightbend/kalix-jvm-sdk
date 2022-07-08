@@ -52,44 +52,93 @@ import kalix.springsdk.impl.reflection.RestServiceIntrospector.QueryParamParamet
 import kalix.springsdk.impl.reflection.RestServiceIntrospector.UnhandledParameter
 import org.springframework.web.bind.annotation.RequestMethod
 
+import scala.jdk.CollectionConverters.CollectionHasAsScala
+
+/**
+ * The component descriptor is both used for generating the protobuf service descriptor to communicate the service type
+ * and methods etc. to Kalix and for the reflective routers routing incoming calls to the right method of the user
+ * component class.
+ */
 private[impl] object ComponentDescriptor {
+
   def descriptorFor[T](implicit ev: ClassTag[T]): ComponentDescriptor =
     descriptorFor(ev.runtimeClass)
 
-  def descriptorFor[T](component: Class[T]): ComponentDescriptor =
-    getFactory(component).buildDescriptor(new NameGenerator)
+  def descriptorFor(component: Class[_]): ComponentDescriptor =
+    ComponentDescriptorFactory.getFactoryFor(component).buildDescriptorFor(component, new NameGenerator)
 
-  // TODO: add more validations here
-  // we should let users know if components are missing required annotations,
-  // eg: entities require @Entity, view require @Table and @Subscription
-  private def getFactory[T](component: Class[T]): ComponentDescriptorFactory[T] = {
-    if (component.getAnnotation(classOf[Entity]) != null)
-      new EntityDescriptorFactory(component)
-    else if (component.getAnnotation(classOf[Table]) != null)
-      new ViewDescriptorFactory(component)
-    else
-      new ActionDescriptorFactory(component)
+  def apply(
+      nameGenerator: NameGenerator,
+      serviceName: String,
+      packageName: String,
+      serviceMethods: Seq[KalixMethod],
+      additionalMessages: Seq[ProtoMessageDescriptors] = Nil): ComponentDescriptor = {
+    val otherMessageProtos: Seq[DescriptorProtos.DescriptorProto] =
+      additionalMessages.flatMap(pm => pm.mainMessageDescriptor +: pm.additionalMessageDescriptors)
+
+    val grpcService = ServiceDescriptorProto.newBuilder()
+    grpcService.setName(serviceName)
+
+    def methodToNamedComponentMethod(kalixMethod: KalixMethod): NamedComponentMethod = {
+
+      val httpRuleBuilder = buildHttpRule(kalixMethod.serviceMethod)
+
+      val (inputMessageName: String, extractors: Map[Int, ExtractorCreator], inputProto: Option[DescriptorProto]) =
+        kalixMethod.serviceMethod match {
+          case serviceMethod: SpringRestServiceMethod =>
+            val (inputProto, extractors) =
+              buildSyntheticMessageAndExtractors(nameGenerator, serviceMethod, httpRuleBuilder, kalixMethod.entityKeys)
+            (inputProto.getName, extractors, Some(inputProto))
+
+          case _: AnyServiceMethod =>
+            (JavaPbAny.getDescriptor.getFullName, Map.empty[Int, ExtractorCreator], None)
+        }
+
+      val grpcMethodName = nameGenerator.getName(kalixMethod.serviceMethod.methodName.capitalize)
+      val grpcMethodBuilder = buildGrpcMethod(grpcMethodName, inputMessageName)
+
+      val methodOptions =
+        kalixMethod.methodOptions.foldLeft(MethodOptions.newBuilder()) { (optionsBuilder, options) =>
+          optionsBuilder.setExtension(kalix.Annotations.method, options)
+        }
+
+      methodOptions.setExtension(AnnotationsProto.http, httpRuleBuilder.build())
+
+      grpcMethodBuilder.setOptions(methodOptions.build())
+
+      val grpcMethod = grpcMethodBuilder.build()
+      grpcService.addMethod(grpcMethod)
+
+      NamedComponentMethod(kalixMethod.serviceMethod, grpcMethodName, extractors, inputMessageName, inputProto)
+    }
+
+    val componentMethods: Seq[NamedComponentMethod] = serviceMethods.map(methodToNamedComponentMethod)
+    val inputMessageProtos: Seq[DescriptorProtos.DescriptorProto] = componentMethods.flatMap(_.inputProto)
+
+    val fileDescriptor: Descriptors.FileDescriptor =
+      ProtoDescriptorGenerator.genFileDescriptor(
+        serviceName,
+        packageName,
+        grpcService.build(),
+        inputMessageProtos ++ otherMessageProtos)
+
+    val methods: Map[String, ComponentMethod] =
+      componentMethods.map { method => (method.grpcMethodName, method.toComponentMethod(fileDescriptor)) }.toMap
+
+    val serviceDescriptor: Descriptors.ServiceDescriptor =
+      fileDescriptor.findServiceByName(grpcService.getName)
+
+    new ComponentDescriptor(serviceName, packageName, methods, serviceDescriptor, fileDescriptor)
   }
-
-}
-
-// FIXME this is a mix of state/logic, immutable/mutable, clean it up!
-private[impl] final class ComponentDescriptor(serviceName: String, packageName: String, nameGenerator: NameGenerator) {
-
-  private val grpcService = ServiceDescriptorProto.newBuilder()
-  grpcService.setName(serviceName)
-
-  private var inputMessageProtos: Seq[DescriptorProtos.DescriptorProto] = Seq.empty
-  private var otherMessageProtos: Seq[DescriptorProtos.DescriptorProto] = Seq.empty
-  private var componentMethods: Seq[NamedComponentMethod] = Seq.empty
 
   // intermediate format that references input message by name
   // once we have built the full file descriptor, we can look up for the input message using its name
-  case class NamedComponentMethod(
+  private case class NamedComponentMethod(
       serviceMethod: ServiceMethod,
       grpcMethodName: String,
       extractorCreators: Map[Int, ExtractorCreator],
-      inputMessageName: String) {
+      inputMessageName: String,
+      inputProto: Option[DescriptorProto]) {
 
     type ParameterExtractors = Array[ParameterExtractor[InvocationContext, AnyRef]]
 
@@ -97,24 +146,30 @@ private[impl] final class ComponentDescriptor(serviceName: String, packageName: 
       serviceMethod match {
         case method: SpringRestServiceMethod =>
           val message = fileDescriptor.findMessageTypeByName(inputMessageName)
+          if (message == null)
+            throw new RuntimeException(
+              "Unknown message type [" + inputMessageName + "], known are [" + fileDescriptor.getMessageTypes.asScala
+                .map(_.getName) + "]")
 
           val parameterExtractors: ParameterExtractors =
-            method.params.zipWithIndex.map { case (param, idx) =>
-              extractorCreators.find(_._1 == idx) match {
-                case Some((_, creator)) =>
-                  creator(message)
-                case None =>
-                  // Yet to resolve this parameter, resolve now
-                  param match {
-                    case hp: HeaderParameter =>
-                      new HeaderExtractor[AnyRef](hp.name, identity)
-                    case UnhandledParameter(param) =>
-                      throw new RuntimeException("Unhandled parameter: " + param)
-                    // FIXME not handled: BodyParameter(_, _), PathParameter(_, _), QueryParamParameter(_, _)
-
-                  }
-              }
-            }.toArray
+            if (method.callable) {
+              method.params.zipWithIndex.map { case (param, idx) =>
+                extractorCreators.find(_._1 == idx) match {
+                  case Some((_, creator)) =>
+                    creator(message)
+                  case None =>
+                    // Yet to resolve this parameter, resolve now
+                    param match {
+                      case hp: HeaderParameter =>
+                        new HeaderExtractor[AnyRef](hp.name, identity)
+                      case UnhandledParameter(p) =>
+                        throw new RuntimeException(
+                          s"Unhandled parameter for [${serviceMethod.methodName}]: [$p], message type: " + inputMessageName)
+                      // FIXME not handled: BodyParameter(_, _), PathParameter(_, _), QueryParamParameter(_, _)
+                    }
+                }
+              }.toArray
+            } else Array.empty
 
           ComponentMethod(serviceMethod.javaMethodOpt, grpcMethodName, parameterExtractors, message)
 
@@ -128,72 +183,15 @@ private[impl] final class ComponentDescriptor(serviceName: String, packageName: 
     }
   }
 
-  def withMethod(kalixMethod: KalixMethod) = {
-
-    val httpRuleBuilder = buildHttpRule(kalixMethod.serviceMethod)
-
-    val (inputMessageName, extractors) =
-      kalixMethod.serviceMethod match {
-        case serviceMethod: SpringRestServiceMethod =>
-          val (inputProto, extractors) =
-            buildSyntheticMessageAndExtractors(serviceMethod, httpRuleBuilder, kalixMethod.entityKeys)
-          inputMessageProtos :+= inputProto
-          (inputProto.getName, extractors)
-
-        case _: AnyServiceMethod =>
-          (JavaPbAny.getDescriptor.getFullName, Map.empty[Int, ExtractorCreator])
-      }
-
-    val grpcMethodName = nameGenerator.getName(kalixMethod.serviceMethod.methodName.capitalize)
-    val grpcMethodBuilder = buildGrpcMethod(grpcMethodName, inputMessageName)
-
-    val methodOptions =
-      kalixMethod.methodOptions.foldLeft(MethodOptions.newBuilder()) { (optionsBuilder, options) =>
-        optionsBuilder.setExtension(kalix.Annotations.method, options)
-      }
-
-    methodOptions.setExtension(AnnotationsProto.http, httpRuleBuilder.build())
-
-    grpcMethodBuilder.setOptions(methodOptions.build())
-
-    val grpcMethod = grpcMethodBuilder.build()
-    grpcService.addMethod(grpcMethod)
-
-    val componentMethod =
-      NamedComponentMethod(kalixMethod.serviceMethod, grpcMethodName, extractors, inputMessageName)
-
-    componentMethods = componentMethods :+ componentMethod
-
-    this
-  }
-
-  def withMessageDescriptor(messageDescriptor: ProtoMessageDescriptors): ComponentDescriptor = {
-    otherMessageProtos :+= messageDescriptor.mainMessageDescriptor
-    otherMessageProtos ++= messageDescriptor.additionalMessageDescriptors
-    this
-  }
-
-  def serviceDescriptor: Descriptors.ServiceDescriptor =
-    fileDescriptor.findServiceByName(grpcService.getName)
-
-  // FIXME lazy vals depending on mutable fields is a recipe for disaster - turn the class into a builder that is built to create the file and service descriptors when done instead?
-  lazy val fileDescriptor: Descriptors.FileDescriptor =
-    ProtoDescriptorGenerator.genFileDescriptor(
-      serviceName,
-      packageName,
-      grpcService.build(),
-      inputMessageProtos ++ otherMessageProtos)
-
-  lazy val methods: Map[String, ComponentMethod] =
-    componentMethods.map { method => (method.grpcMethodName, method.toComponentMethod(fileDescriptor)) }.toMap
-
   private def buildSyntheticMessageAndExtractors(
+      nameGenerator: NameGenerator,
       serviceMethod: SpringRestServiceMethod,
       httpRule: HttpRule.Builder,
       entityKeys: Seq[String] = Seq.empty): (DescriptorProto, Map[Int, ExtractorCreator]) = {
 
-    // FIXME this becoming the same message name depends on order of calls to this method which could be problematic
-    // (for example sharding passing the request to a different Kalix node where the name was generated to have 2 instead of 1 in the msg name
+    // FIXME the name depends on order of calls to name generator which could be problematic
+    // (for example sharding passing the request to a different Kalix node where the name was generated
+    // to have 2 instead of 1 in the msg name because of class path ordering not being consistent?)
     val inputMessageName = nameGenerator.getName(serviceMethod.requestProtoMessageName)
 
     val inputMessageDescriptor = DescriptorProto.newBuilder()
@@ -333,3 +331,10 @@ private[impl] final class ComponentDescriptor(serviceName: String, packageName: 
       .setOutputType("google.protobuf.Any")
 
 }
+
+private[springsdk] final case class ComponentDescriptor private (
+    serviceName: String,
+    packageName: String,
+    methods: Map[String, ComponentMethod],
+    serviceDescriptor: Descriptors.ServiceDescriptor,
+    fileDescriptor: Descriptors.FileDescriptor)

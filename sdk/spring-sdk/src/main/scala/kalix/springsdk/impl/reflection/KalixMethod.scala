@@ -52,13 +52,11 @@ sealed trait AnyServiceMethod extends ServiceMethod {
  * It's used as a 'virtual' method because there is not Java method backing it. It will exist only in the gRPC
  * descriptor and will be used for view updates with transform = false
  */
-case class VirtualServiceMethod(component: Class[_], methodName: String) extends AnyServiceMethod {
+case class VirtualServiceMethod(component: Class[_], methodName: String, inputType: Class[_]) extends AnyServiceMethod {
 
   override def requestMethod: RequestMethod = RequestMethod.POST
 
   override def javaMethodOpt: Option[Method] = None
-
-  override def inputType: Class[_] = ???
 
   val pathTemplate = buildPathTemplate(component.getName, methodName)
 }
@@ -81,12 +79,16 @@ case class RestServiceMethod(javaMethod: Method) extends AnyServiceMethod {
 
 /**
  * Build from Spring annotations
+ *
+ * @param callable
+ *   Is this actually a method that will ever be called or just there for metadata annotations?
  */
 case class SpringRestServiceMethod(
     classMapping: Option[RequestMapping],
     mapping: RequestMapping,
     javaMethod: Method,
-    params: Seq[RestMethodParameter])
+    params: Seq[RestMethodParameter],
+    callable: Boolean = true)
     extends ServiceMethod {
 
   override def javaMethodOpt: Option[Method] = Some(javaMethod)

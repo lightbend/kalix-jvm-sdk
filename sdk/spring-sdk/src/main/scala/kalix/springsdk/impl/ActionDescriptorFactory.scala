@@ -24,35 +24,32 @@ import kalix.springsdk.impl.reflection.NameGenerator
 import kalix.springsdk.impl.reflection.RestServiceIntrospector
 import kalix.springsdk.impl.reflection.RestServiceMethod
 
-private[impl] final class ActionDescriptorFactory[T](val component: Class[T]) extends ComponentDescriptorFactory[T] {
+private[impl] object ActionDescriptorFactory extends ComponentDescriptorFactory {
 
-  override def buildDescriptor(nameGenerator: NameGenerator): ComponentDescriptor = {
+  override def buildDescriptorFor(component: Class[_], nameGenerator: NameGenerator): ComponentDescriptor = {
 
-    val kalixMethods: Seq[KalixMethod] = {
-      val springAnnotatedMethods =
-        RestServiceIntrospector.inspectService(component).methods.map { serviceMethod =>
-          validateRestMethod(serviceMethod.javaMethod)
-          KalixMethod(serviceMethod)
-        }
+    val springAnnotatedMethods =
+      RestServiceIntrospector.inspectService(component).methods.map { serviceMethod =>
+        validateRestMethod(serviceMethod.javaMethod)
+        KalixMethod(serviceMethod)
+      }
 
-      val subscriptionMethods = component.getMethods
-        .filter(hasValueEntitySubscription)
-        .map { method =>
-          val subscriptionOptions = eventingInForValueEntity(method)
-          val kalixOptions =
-            kalix.MethodOptions.newBuilder().setEventing(subscriptionOptions).build()
+    val subscriptionMethods = component.getMethods
+      .filter(hasValueEntitySubscription)
+      .map { method =>
+        val subscriptionOptions = eventingInForValueEntity(method)
+        val kalixOptions =
+          kalix.MethodOptions.newBuilder().setEventing(subscriptionOptions).build()
 
-          KalixMethod(RestServiceMethod(method))
-            .withKalixOptions(kalixOptions)
-        }
-
-      springAnnotatedMethods ++ subscriptionMethods
-    }
+        KalixMethod(RestServiceMethod(method))
+          .withKalixOptions(kalixOptions)
+      }
 
     val serviceName = nameGenerator.getName(component.getSimpleName)
-    kalixMethods.foldLeft(new ComponentDescriptor(serviceName, component.getPackageName, nameGenerator)) {
-      (desc, method) =>
-        desc.withMethod(method)
-    }
+    ComponentDescriptor(
+      nameGenerator,
+      serviceName,
+      component.getPackageName,
+      springAnnotatedMethods ++ subscriptionMethods)
   }
 }

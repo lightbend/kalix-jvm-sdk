@@ -16,8 +16,11 @@
 
 package kalix.javasdk.view;
 
+import kalix.javasdk.impl.MessageCodec;
 import kalix.javasdk.impl.view.ViewRouter;
 import com.google.protobuf.Descriptors;
+
+import java.util.Optional;
 
 public interface ViewProvider<S, V extends View<S>> {
 
@@ -30,4 +33,8 @@ public interface ViewProvider<S, V extends View<S>> {
   ViewRouter<S, V> newRouter(ViewCreationContext context);
 
   Descriptors.FileDescriptor[] additionalDescriptors();
+
+  default Optional<MessageCodec> alternativeCodec() {
+    return Optional.empty();
+  }
 }
