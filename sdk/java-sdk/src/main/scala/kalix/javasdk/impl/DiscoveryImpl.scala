@@ -167,10 +167,11 @@ class DiscoveryImpl(system: ActorSystem, services: Map[String, Service]) extends
     val logMessage = messages.mkString("\n\n")
 
     in.severity match {
-      case UserFunctionError.Severity.ERROR           => log.error(logMessage)
-      case UserFunctionError.Severity.WARNING         => log.warn(logMessage)
-      case UserFunctionError.Severity.INFO            => log.info(logMessage)
-      case UserFunctionError.Severity.Unrecognized(_) => log.error(logMessage)
+      case UserFunctionError.Severity.ERROR   => log.error(logMessage)
+      case UserFunctionError.Severity.WARNING => log.warn(logMessage)
+      case UserFunctionError.Severity.INFO    => log.info(logMessage)
+      case UserFunctionError.Severity.UNSPECIFIED | UserFunctionError.Severity.Unrecognized(_) =>
+        log.error(logMessage)
     }
 
     Future.successful(com.google.protobuf.empty.Empty.defaultInstance)
