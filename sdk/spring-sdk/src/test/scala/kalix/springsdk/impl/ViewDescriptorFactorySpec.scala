@@ -14,21 +14,16 @@
  * limitations under the License.
  */
 
-package kalix.springsdk.impl.view
+package kalix.springsdk.impl
 
-import kalix.springsdk.impl.{ ComponentDescriptor, ComponentDescriptorSuite, ViewDescriptorFactory }
-import kalix.springsdk.testmodels.view.ViewTestModels.{
-  TransformedUserView,
-  UserByEmailWithGet,
-  UserByEmailWithPost,
-  UserByNameEmailWithPost,
-  ViewWithNoQuery,
-  ViewWithSubscriptionsInMixedLevels,
-  ViewWithTwoQueries
-}
+import kalix.springsdk.testmodels.view.ViewTestModels.TransformedUserView
+import kalix.springsdk.testmodels.view.ViewTestModels.UserByEmailWithGet
+import kalix.springsdk.testmodels.view.ViewTestModels.UserByEmailWithPost
+import kalix.springsdk.testmodels.view.ViewTestModels.UserByNameEmailWithPost
+import kalix.springsdk.testmodels.view.ViewTestModels.ViewWithNoQuery
+import kalix.springsdk.testmodels.view.ViewTestModels.ViewWithSubscriptionsInMixedLevels
+import kalix.springsdk.testmodels.view.ViewTestModels.ViewWithTwoQueries
 import org.scalatest.wordspec.AnyWordSpec
-
-import scala.jdk.CollectionConverters.CollectionHasAsScala
 
 class ViewDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSuite {
 

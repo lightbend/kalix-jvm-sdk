@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package kalix.springsdk.impl.action
+package kalix.springsdk.impl
 
 import com.google.protobuf.Descriptors.FieldDescriptor.JavaType
-import kalix.springsdk.impl.{ ComponentDescriptor, ComponentDescriptorSuite }
+import com.google.protobuf.{ Any => JavaPbAny }
 import kalix.springsdk.testmodels.action.ActionsTestModels.DeleteWithOneParam
 import kalix.springsdk.testmodels.action.ActionsTestModels.GetClassLevel
 import kalix.springsdk.testmodels.action.ActionsTestModels.GetWithOneParam
@@ -30,12 +30,9 @@ import kalix.springsdk.testmodels.action.ActionsTestModels.PostWithTwoParam
 import kalix.springsdk.testmodels.action.ActionsTestModels.PostWithoutParam
 import kalix.springsdk.testmodels.action.ActionsTestModels.PutWithOneParam
 import kalix.springsdk.testmodels.action.ActionsTestModels.PutWithoutParam
-import kalix.springsdk.testmodels.subscriptions.SubscriptionsTestModels.{
-  RestAnnotatedSubscribeToValueEntityAction,
-  SubscribeToValueEntityAction
-}
+import kalix.springsdk.testmodels.subscriptions.SubscriptionsTestModels.RestAnnotatedSubscribeToValueEntityAction
+import kalix.springsdk.testmodels.subscriptions.SubscriptionsTestModels.SubscribeToValueEntityAction
 import org.scalatest.wordspec.AnyWordSpec
-import com.google.protobuf.{ Any => JavaPbAny }
 
 class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSuite {
 

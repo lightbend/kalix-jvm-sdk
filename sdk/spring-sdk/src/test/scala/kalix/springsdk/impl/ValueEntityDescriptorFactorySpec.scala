@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-package kalix.springsdk.impl.valueentity
+package kalix.springsdk.impl
 
 import com.google.protobuf.Any
 import com.google.protobuf.Descriptors.FieldDescriptor.JavaType
-import kalix.springsdk.impl.{ ComponentDescriptorSuite, ComponentMethod }
 import kalix.springsdk.testmodels.valueentity.ValueEntitiesTestModels.PostWithEntityKeys
 import org.scalatest.wordspec.AnyWordSpec
 
