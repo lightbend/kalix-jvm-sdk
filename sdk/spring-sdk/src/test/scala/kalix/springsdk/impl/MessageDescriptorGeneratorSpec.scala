@@ -16,19 +16,18 @@
 
 package kalix.springsdk.impl
 
-import com.google.protobuf.DescriptorProtos
-import com.google.protobuf.DescriptorProtos.FieldDescriptorProto.{ PROTO3_OPTIONAL_FIELD_NUMBER, Type => ProtoType }
+import com.google.protobuf.DescriptorProtos.FieldDescriptorProto.{ Type => ProtoType }
 import kalix.springsdk.testmodels.{ NestedMessage, SimpleMessage }
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 
-class MessageDescriptorSpec extends AnyWordSpec with Matchers {
+class MessageDescriptorGeneratorSpec extends AnyWordSpec with Matchers {
 
   "The message descriptor extraction" should {
     "create a schema for a simple message" in {
-      val messageDescriptor = MessageDescriptor.generateMessageDescriptors(classOf[SimpleMessage])
+      val messageDescriptor = ProtoMessageDescriptors.generateMessageDescriptors(classOf[SimpleMessage])
       val descriptor = messageDescriptor.mainMessageDescriptor
-      descriptor.getName shouldBe "kalix.springsdk.testmodels.SimpleMessage"
+      descriptor.getName shouldBe "SimpleMessage"
       // as ordered in message
       val expectedFieldsAndTypesInOrder = Seq(
         "c" -> ProtoType.TYPE_STRING,
@@ -63,9 +62,9 @@ class MessageDescriptorSpec extends AnyWordSpec with Matchers {
     }
 
     "create a schema for a message with nested objects" in {
-      val messageDescriptor = MessageDescriptor.generateMessageDescriptors(classOf[NestedMessage])
+      val messageDescriptor = ProtoMessageDescriptors.generateMessageDescriptors(classOf[NestedMessage])
       val descriptor = messageDescriptor.mainMessageDescriptor
-      descriptor.getName shouldBe "kalix.springsdk.testmodels.NestedMessage"
+      descriptor.getName shouldBe "NestedMessage"
       val field1 = descriptor.getField(0) // note: not field number but 0 based index
       field1.getName shouldBe "one"
       val field2 = descriptor.getField(1)
@@ -74,7 +73,7 @@ class MessageDescriptorSpec extends AnyWordSpec with Matchers {
       // nested message field type?
 
       messageDescriptor.additionalMessageDescriptors should have size 1
-      messageDescriptor.additionalMessageDescriptors.head.getName shouldBe "kalix.springsdk.testmodels.SimpleMessage"
+      messageDescriptor.additionalMessageDescriptors.head.getName shouldBe "SimpleMessage"
     }
   }
 

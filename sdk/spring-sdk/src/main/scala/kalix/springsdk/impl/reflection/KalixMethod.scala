@@ -91,6 +91,7 @@ case class SpringRestServiceMethod(
 
   override def javaMethodOpt: Option[Method] = Some(javaMethod)
   override def methodName: String = javaMethod.getName
+  val requestProtoMessageName: String = javaMethod.getName.capitalize + "Request"
 
   // First fail on unsupported mapping values. Should all default to empty arrays, but let's not trust that
   {

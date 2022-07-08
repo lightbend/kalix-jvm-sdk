@@ -52,7 +52,7 @@ import kalix.springsdk.impl.reflection.RestServiceIntrospector.QueryParamParamet
 import kalix.springsdk.impl.reflection.RestServiceIntrospector.UnhandledParameter
 import org.springframework.web.bind.annotation.RequestMethod
 
-object ComponentDescriptor {
+private[impl] object ComponentDescriptor {
   def descriptorFor[T](implicit ev: ClassTag[T]): ComponentDescriptor =
     descriptorFor(ev.runtimeClass)
 
@@ -64,16 +64,17 @@ object ComponentDescriptor {
   // eg: entities require @Entity, view require @Table and @Subscription
   private def getFactory[T](component: Class[T]): ComponentDescriptorFactory[T] = {
     if (component.getAnnotation(classOf[Entity]) != null)
-      EntityDescriptorFactory(component)
+      new EntityDescriptorFactory(component)
     else if (component.getAnnotation(classOf[Table]) != null)
-      ViewDescriptorFactory(component)
+      new ViewDescriptorFactory(component)
     else
-      ActionDescriptorFactory(component)
+      new ActionDescriptorFactory(component)
   }
 
 }
 
-class ComponentDescriptor(serviceName: String, packageName: String, nameGenerator: NameGenerator) {
+// FIXME this is a mix of state/logic, immutable/mutable, clean it up!
+private[impl] final class ComponentDescriptor(serviceName: String, packageName: String, nameGenerator: NameGenerator) {
 
   private val grpcService = ServiceDescriptorProto.newBuilder()
   grpcService.setName(serviceName)
@@ -136,7 +137,7 @@ class ComponentDescriptor(serviceName: String, packageName: String, nameGenerato
         case serviceMethod: SpringRestServiceMethod =>
           val (inputProto, extractors) =
             buildSyntheticMessageAndExtractors(serviceMethod, httpRuleBuilder, kalixMethod.entityKeys)
-          inputMessageProtos = inputMessageProtos :+ inputProto
+          inputMessageProtos :+= inputProto
           (inputProto.getName, extractors)
 
         case _: AnyServiceMethod =>
@@ -166,7 +167,7 @@ class ComponentDescriptor(serviceName: String, packageName: String, nameGenerato
     this
   }
 
-  def withMessageDescriptor(messageDescriptor: MessageDescriptor): ComponentDescriptor = {
+  def withMessageDescriptor(messageDescriptor: ProtoMessageDescriptors): ComponentDescriptor = {
     otherMessageProtos :+= messageDescriptor.mainMessageDescriptor
     otherMessageProtos ++= messageDescriptor.additionalMessageDescriptors
     this
@@ -177,7 +178,11 @@ class ComponentDescriptor(serviceName: String, packageName: String, nameGenerato
 
   // FIXME lazy vals depending on mutable fields is a recipe for disaster - turn the class into a builder that is built to create the file and service descriptors when done instead?
   lazy val fileDescriptor: Descriptors.FileDescriptor =
-    ProtoDescriptorGenerator.genFileDescriptor(serviceName, packageName, grpcService.build(), inputMessageProtos)
+    ProtoDescriptorGenerator.genFileDescriptor(
+      serviceName,
+      packageName,
+      grpcService.build(),
+      inputMessageProtos ++ otherMessageProtos)
 
   lazy val methods: Map[String, ComponentMethod] =
     componentMethods.map { method => (method.grpcMethodName, method.toComponentMethod(fileDescriptor)) }.toMap
@@ -187,8 +192,9 @@ class ComponentDescriptor(serviceName: String, packageName: String, nameGenerato
       httpRule: HttpRule.Builder,
       entityKeys: Seq[String] = Seq.empty): (DescriptorProto, Map[Int, ExtractorCreator]) = {
 
-    val methodName = serviceMethod.methodName
-    val inputMessageName = nameGenerator.getName(methodName + "Request").capitalize
+    // FIXME this becoming the same message name depends on order of calls to this method which could be problematic
+    // (for example sharding passing the request to a different Kalix node where the name was generated to have 2 instead of 1 in the msg name
+    val inputMessageName = nameGenerator.getName(serviceMethod.requestProtoMessageName)
 
     val inputMessageDescriptor = DescriptorProto.newBuilder()
     inputMessageDescriptor.setName(inputMessageName)

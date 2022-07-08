@@ -27,24 +27,24 @@ import scala.jdk.CollectionConverters._
 /**
  * Extracts a protobuf schema for a message, used only for assigning a typed schema to view state and results
  */
-object MessageDescriptor {
+object ProtoMessageDescriptors {
   private val protobufMapper = new ProtobufMapper()
 
-  def generateMessageDescriptors(javaClass: Class[_]): MessageDescriptor = {
+  def generateMessageDescriptors(javaClass: Class[_]): ProtoMessageDescriptors = {
     val jacksonProtoSchema = protobufMapper.generateSchemaFor(javaClass)
 
     val messages = jacksonProtoSchema.getMessageTypes.asScala.toSeq.map { messageType =>
       val jacksonType = jacksonProtoSchema.withRootType(messageType).getRootType
-      toProto(javaClass.getPackageName, jacksonType)
+      toProto(jacksonType)
     }
     val (Seq(mainDescriptor), otherDescriptors) =
       messages.partition(_.getName.endsWith(jacksonProtoSchema.getRootType.getName))
-    MessageDescriptor(mainDescriptor, otherDescriptors)
+    ProtoMessageDescriptors(mainDescriptor, otherDescriptors)
   }
 
-  private def toProto(packageName: String, jacksonType: ProtobufMessage): DescriptorProtos.DescriptorProto = {
+  private def toProto(jacksonType: ProtobufMessage): DescriptorProtos.DescriptorProto = {
     val builder = DescriptorProtos.DescriptorProto.newBuilder()
-    builder.setName(s"$packageName.${jacksonType.getName}")
+    builder.setName(jacksonType.getName)
     jacksonType.fields().forEach { field =>
       val fieldDescriptor = DescriptorProtos.FieldDescriptorProto
         .newBuilder()
@@ -55,7 +55,7 @@ object MessageDescriptor {
         fieldDescriptor.setType(protoTypeFor(field))
       else {
         fieldDescriptor.setType(DescriptorProtos.FieldDescriptorProto.Type.TYPE_MESSAGE)
-        // set concrete message type?
+        fieldDescriptor.setTypeName(field.getMessageType.getName)
       }
 
       if (field.isArray)
@@ -87,6 +87,6 @@ object MessageDescriptor {
 
 }
 
-case class MessageDescriptor(
+case class ProtoMessageDescriptors(
     mainMessageDescriptor: DescriptorProtos.DescriptorProto,
     additionalMessageDescriptors: Seq[DescriptorProtos.DescriptorProto])

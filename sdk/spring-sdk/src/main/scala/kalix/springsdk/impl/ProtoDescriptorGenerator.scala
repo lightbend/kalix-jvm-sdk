@@ -22,10 +22,10 @@ import com.google.protobuf.DescriptorProtos
 import com.google.protobuf.Descriptors
 import kalix.{ Annotations => KalixAnnotations }
 
-object ProtoDescriptorGenerator {
+private[impl] object ProtoDescriptorGenerator {
 
   // do we need to recurse into the dependencies of the dependencies? Probably not, just top level imports.
-  val dependencies: Array[Descriptors.FileDescriptor] =
+  private val dependencies: Array[Descriptors.FileDescriptor] =
     Array(AnyProto.getDescriptor, HttpAnnotationsProto.getDescriptor, KalixAnnotations.getDescriptor)
 
   def genFileDescriptor(

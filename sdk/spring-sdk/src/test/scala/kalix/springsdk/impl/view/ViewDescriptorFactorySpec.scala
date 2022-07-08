@@ -28,6 +28,8 @@ import kalix.springsdk.testmodels.view.ViewTestModels.{
 }
 import org.scalatest.wordspec.AnyWordSpec
 
+import scala.jdk.CollectionConverters.CollectionHasAsScala
+
 class ViewDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSuite {
 
   "View descriptor factory" should {
@@ -48,12 +50,16 @@ class ViewDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSuit
 
         methodOptions.getView.getUpdate.getTable shouldBe "users_view"
         methodOptions.getView.getUpdate.getTransformUpdates shouldBe true
-        // check json input schema:  ByEmail
-        methodOptions.getView.getJsonSchema.getOutput shouldBe "kalix.springsdk.testmodels.view.TransformedUser"
+        methodOptions.getView.getJsonSchema.getOutput shouldBe "TransformedUser"
 
         val queryMethodOptions = this.findKalixMethodOptions(desc, "GetUser")
         queryMethodOptions.getView.getQuery.getQuery shouldBe "SELECT * FROM users_view WHERE email = :email"
-        queryMethodOptions.getView.getJsonSchema.getOutput shouldBe "kalix.springsdk.testmodels.view.TransformedUser"
+        queryMethodOptions.getView.getJsonSchema.getJsonBodyInputField shouldBe "json_body"
+        queryMethodOptions.getView.getJsonSchema.getInput shouldBe "GetUserRequest"
+        queryMethodOptions.getView.getJsonSchema.getOutput shouldBe "TransformedUser"
+
+        val tableMessageDescriptor = desc.fileDescriptor.findMessageTypeByName("TransformedUser")
+        tableMessageDescriptor should not be null
 
         val rule = findHttpRule(desc, "GetUser")
         rule.getPost shouldBe "/users/by-email"
@@ -70,11 +76,16 @@ class ViewDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSuit
         methodOptions.getView.getUpdate.getTable shouldBe "users_view"
         methodOptions.getView.getUpdate.getTransformUpdates shouldBe false
         // check json input schema:  ByEmail
-        methodOptions.getView.getJsonSchema.getOutput shouldBe "kalix.springsdk.testmodels.valueentity.User"
+        methodOptions.getView.getJsonSchema.getOutput shouldBe "User"
 
         val queryMethodOptions = this.findKalixMethodOptions(desc, "GetUser")
         queryMethodOptions.getView.getQuery.getQuery shouldBe "SELECT * FROM users_view WHERE email = :email"
-        queryMethodOptions.getView.getJsonSchema.getOutput shouldBe "kalix.springsdk.testmodels.valueentity.User"
+        queryMethodOptions.getView.getJsonSchema.getOutput shouldBe "User"
+        queryMethodOptions.getView.getJsonSchema.getJsonBodyInputField shouldBe "json_body"
+        queryMethodOptions.getView.getJsonSchema.getInput shouldBe "GetUserRequest"
+
+        val tableMessageDescriptor = desc.fileDescriptor.findMessageTypeByName("User")
+        tableMessageDescriptor should not be null
 
         val rule = findHttpRule(desc, "GetUser")
         rule.getPost shouldBe "/users/by-email"
@@ -89,12 +100,17 @@ class ViewDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSuit
 
         methodOptions.getView.getUpdate.getTable shouldBe "users_view"
         methodOptions.getView.getUpdate.getTransformUpdates shouldBe false
-        methodOptions.getView.getJsonSchema.getOutput shouldBe "kalix.springsdk.testmodels.valueentity.User"
+        methodOptions.getView.getJsonSchema.getOutput shouldBe "User"
         // check json input schema:  ByEmail
 
         val queryMethodOptions = this.findKalixMethodOptions(desc, "GetUser")
         queryMethodOptions.getView.getQuery.getQuery shouldBe "SELECT * FROM users_view WHERE email = :email"
-        queryMethodOptions.getView.getJsonSchema.getOutput shouldBe "kalix.springsdk.testmodels.valueentity.User"
+        queryMethodOptions.getView.getJsonSchema.getOutput shouldBe "User"
+        queryMethodOptions.getView.getJsonSchema.getJsonBodyInputField shouldBe "json_body"
+        queryMethodOptions.getView.getJsonSchema.getInput shouldBe "GetUserRequest"
+
+        desc.fileDescriptor.findMessageTypeByName("User") should not be null
+        desc.fileDescriptor.findMessageTypeByName("GetUserRequest") should not be null
 
         val rule = findHttpRule(desc, "GetUser")
         rule.getPost shouldBe "/users/{name}/by-email"
@@ -110,11 +126,15 @@ class ViewDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSuit
         methodOptions.getView.getUpdate.getTable shouldBe "users_view"
         methodOptions.getView.getUpdate.getTransformUpdates shouldBe false
         // check json input schema:  ByEmail
-        methodOptions.getView.getJsonSchema.getOutput shouldBe "kalix.springsdk.testmodels.valueentity.User"
+        methodOptions.getView.getJsonSchema.getOutput shouldBe "User"
 
         val queryMethodOptions = this.findKalixMethodOptions(desc, "GetUser")
         queryMethodOptions.getView.getQuery.getQuery shouldBe "SELECT * FROM users_view WHERE email = :email"
-        queryMethodOptions.getView.getJsonSchema.getOutput shouldBe "kalix.springsdk.testmodels.valueentity.User"
+        queryMethodOptions.getView.getJsonSchema.getOutput shouldBe "User"
+
+        val tableMessageDescriptor =
+          desc.fileDescriptor.findMessageTypeByName("User")
+        tableMessageDescriptor should not be null
 
         val rule = findHttpRule(desc, "GetUser")
         rule.getGet shouldBe "/users/{email}"
