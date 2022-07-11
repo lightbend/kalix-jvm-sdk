@@ -605,6 +605,7 @@ jobs:
             mvn -Dkalix-sdk.version=$SDK_VERSION test-compile
             mvn -Dkalix-sdk.version=$SDK_VERSION test
             # FIXME add eventing integration tests (related to https://github.com/lightbend/kalix-jvm-sdk/issues/297)
+            docker-compose -f ~/project/.circleci/google-pubsub-emulator-docker-compose.yml up -d
             mvn -Dkalix-sdk.version=$SDK_VERSION verify -Pit
             echo "==== Verifying that generated unmanaged sources compile ===="
             rm -rf src/main/java src/test/java src/it/java
@@ -858,6 +859,7 @@ jobs:
             cd samples/scala-eventsourced-counter
             echo "Running sbt with SDK version: '$SDK_VERSION'"
             # FIXME add eventing integration tests (related to https://github.com/lightbend/kalix-jvm-sdk/issues/297)
+            docker-compose -f ~/project/.circleci/google-pubsub-emulator-docker-compose.yml up -d
             sbt -Dkalix-sdk.version=$SDK_VERSION test
             echo "==== Verifying that generated unmanaged sources compile ===="
             rm -rf src/main/scala src/test/scala src/it/scala
