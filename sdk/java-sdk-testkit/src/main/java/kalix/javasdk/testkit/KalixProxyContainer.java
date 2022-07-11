@@ -76,6 +76,8 @@ public class KalixProxyContainer extends GenericContainer<KalixProxyContainer> {
     if ("false".equals(System.getenv("VERSION_CHECK_ON_STARTUP"))) {
       withEnv("VERSION_CHECK_ON_STARTUP", "false");
     }
+    // reintroduce the readiness delay for integration tests that currently rely on this
+    withCommand("-Dconfig.resource=dev-mode.conf", "-Dkalix.proxy.readiness-delay=3s");
     waitingFor(Wait.forLogMessage(".*gRPC proxy started.*", 1));
   }
 

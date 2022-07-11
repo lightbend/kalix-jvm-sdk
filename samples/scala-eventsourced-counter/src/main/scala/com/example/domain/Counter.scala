@@ -41,8 +41,6 @@ class Counter(context: EventSourcedEntityContext) extends AbstractCounter {
         .thenReply(_ => Empty())
     }
 
-  import kalix.javasdk.impl.DeferredCallImpl
-
   override def increaseWithSideEffect(
       currentState: CounterState,
       increaseValue: example.IncreaseValue): EventSourcedEntity.Effect[Empty] =
