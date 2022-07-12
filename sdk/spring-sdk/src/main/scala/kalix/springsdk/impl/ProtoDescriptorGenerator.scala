@@ -21,8 +21,11 @@ import com.google.protobuf.AnyProto
 import com.google.protobuf.DescriptorProtos
 import com.google.protobuf.Descriptors
 import kalix.{ Annotations => KalixAnnotations }
+import org.slf4j.LoggerFactory
 
 private[impl] object ProtoDescriptorGenerator {
+
+  private val logger = LoggerFactory.getLogger(classOf[ProtoDescriptorGenerator.type])
 
   // do we need to recurse into the dependencies of the dependencies? Probably not, just top level imports.
   private val dependencies: Array[Descriptors.FileDescriptor] =
@@ -46,6 +49,10 @@ private[impl] object ProtoDescriptorGenerator {
     messages.foreach(protoBuilder.addMessageType)
 
     // finally build all final descriptor
-    Descriptors.FileDescriptor.buildFrom(protoBuilder.build, dependencies)
+    val fd = Descriptors.FileDescriptor.buildFrom(protoBuilder.build, dependencies)
+    if (logger.isDebugEnabled) {
+      logger.debug("Generated file descriptor for service [{}]: {}", name, fd.toProto.toString)
+    }
+    fd
   }
 }
