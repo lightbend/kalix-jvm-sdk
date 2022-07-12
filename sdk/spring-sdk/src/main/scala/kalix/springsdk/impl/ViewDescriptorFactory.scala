@@ -29,6 +29,7 @@ import kalix.springsdk.impl.reflection.RestServiceIntrospector
 import kalix.springsdk.impl.reflection.RestServiceMethod
 import kalix.springsdk.impl.reflection.SpringRestServiceMethod
 import kalix.springsdk.impl.reflection.VirtualServiceMethod
+import kalix.springsdk.impl.reflection.ReflectionUtils
 
 import java.lang.reflect.ParameterizedType
 
@@ -80,8 +81,10 @@ private[impl] object ViewDescriptorFactory extends ComponentDescriptorFactory {
       } else {
         var previousValueEntityClass: Option[Class[_]] = None
 
+        import ReflectionUtils.methodOrdering
         component.getMethods
           .filter(hasValueEntitySubscription)
+          .sorted // make sure we get the methods in deterministic order
           .map { method =>
             // validate that all updates return the same type
             val valueEntityClass = method.getAnnotation(classOf[Subscribe.ValueEntity]).value().asInstanceOf[Class[_]]

@@ -170,7 +170,10 @@ trait ExtractorCreator {
 
 /**
  * Ensures all generated names in a given package are unique, noting that grpcMethod names and message names must not
- * conflict
+ * conflict.
+ *
+ * Note that it is important to make sure that invoking this is done in an deterministic order or else JVMs on different
+ * nodes will generate different names for the same method. Sorting can be done using ReflectionUtils.methodOrdering
  */
 class NameGenerator {
   private var names: Set[String] = Set.empty

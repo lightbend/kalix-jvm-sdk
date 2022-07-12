@@ -23,6 +23,7 @@ import kalix.springsdk.impl.reflection.KalixMethod
 import kalix.springsdk.impl.reflection.NameGenerator
 import kalix.springsdk.impl.reflection.RestServiceIntrospector
 import kalix.springsdk.impl.reflection.RestServiceMethod
+import kalix.springsdk.impl.reflection.ReflectionUtils
 
 private[impl] object ActionDescriptorFactory extends ComponentDescriptorFactory {
 
@@ -34,8 +35,10 @@ private[impl] object ActionDescriptorFactory extends ComponentDescriptorFactory 
         KalixMethod(serviceMethod)
       }
 
+    import ReflectionUtils.methodOrdering
     val subscriptionMethods = component.getMethods
       .filter(hasValueEntitySubscription)
+      .sorted // make sure we get the methods in deterministic order
       .map { method =>
         val subscriptionOptions = eventingInForValueEntity(method)
         val kalixOptions =

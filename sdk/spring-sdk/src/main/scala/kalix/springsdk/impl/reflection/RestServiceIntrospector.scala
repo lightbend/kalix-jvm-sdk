@@ -41,7 +41,8 @@ object RestServiceIntrospector {
       validateRequestMapping(component, mapping)
     }
 
-    val methodMappings = component.getMethods
+    import ReflectionUtils.methodOrdering
+    val methodMappings = component.getMethods.sorted // make sure we get the methods in deterministic order
       .map { method =>
         method -> Option(AnnotatedElementUtils.findMergedAnnotation(method, classOf[RequestMapping]))
       }

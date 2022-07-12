@@ -88,13 +88,12 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
       assertDescriptor[PostWithTwoMethods] { desc =>
 
         val firstMethod = desc.methods("Message")
-        assertRequestFieldJavaType(firstMethod, "text", JavaType.STRING)
+        assertRequestFieldJavaType(firstMethod, "num", JavaType.LONG)
         assertRequestFieldJavaType(firstMethod, "json_body", JavaType.MESSAGE)
 
         val secondMethod = desc.methods("Message1")
-        assertRequestFieldJavaType(secondMethod, "num", JavaType.LONG)
+        assertRequestFieldJavaType(secondMethod, "text", JavaType.STRING)
         assertRequestFieldJavaType(secondMethod, "json_body", JavaType.MESSAGE)
-
       }
     }
 
