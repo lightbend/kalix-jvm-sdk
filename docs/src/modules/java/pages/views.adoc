@@ -216,13 +216,18 @@ Scala::
 ----
 include::example$scala-eventsourced-customer-registry/src/main/proto/customer/view/customer_view.proto[tags=declarations;service-event-sourced]
 ----
+<1> The `kalix.codegen` option configures code generation to provide base classes and an initial implementation for the class transforming events to updates of the state.
+<2> Define an update method for each event.
+<3> The source of the View is from the journal of the `"customers"` Event Sourced Entity. This identifier is defined in the entity_type: "customers"` property of the `(kalix.codegen).event_sourced_entity` option in the `customer_api.proto` file.
+<4> Enable `transform_updates` to build the View state from the events.
+<5> The same `event_sourced_entity` for all update methods. Note the required `table` attribute. Use any name, which you will reference in the query `SELECT` statement.
+<6> Enable `transform_updates` for all update methods.
 
 See <<#query>> for more examples of valid query syntax.
 
 === Create a transformation class
 
-Next, you need to define how to transforms events to state that can be used in the View. An Event Sourced entity can emit many types of events. If a View does not use
-all events, you need to ignore unneeded events as shown in the `IgnoreOtherEvents` update handler:
+Next, you need to define how to transforms events to state that can be used in the View. An Event Sourced entity can emit many types of events. You need to define a method for each event type. If a View does not use all events, you need to ignore unneeded events as shown in the `IgnoreOtherEvents` update method
 
 The code-generation will generate an implementation class with an initial empty implementation which we'll discuss below.
 
@@ -254,6 +259,31 @@ include::example$scala-eventsourced-customer-registry/src/main/scala/customer/vi
 <3> One method for each event.
 
 NOTE: This type of update transformation is a natural fit for Events emitted by an Event Sourced Entity, but it can also be used for Value Entities. For example, if the View representation is different from the Entity state you might want to transform it before presenting the View to the client.
+
+== Ignoring events
+
+When consuming events, each event must be matched by a Protobuf service method. In case your View is only interested in certain events, you may declare a method to receive all events that are not received by the other methods. If an event type is not handled, the Action will fail. Views are designed to restart, but since the handler is missing, it will fail again. Therefore, it's important to define methods for all events or define a catch-all method in case you want to discard some events.
+
+[.tabset]
+Java::
++
+[source,proto,indent=0]
+.src/main/proto/customer/customer_view.proto
+----
+include::example$java-eventsourced-customer-registry/src/main/proto/customer/view/customer_view.proto[tag=ignore-other-events]
+----
+
+Scala::
++
+[source,proto,indent=0]
+.src/main/proto/customer/customer_view.proto
+----
+include::example$scala-eventsourced-customer-registry/src/main/proto/customer/view/customer_view.proto[tag=ignore-other-events]
+----
+
+The `IgnoreOtherEvents` method here is defined as a catch-all because it has input type `Any`. Instead of using a catch-all it can be better to define concrete methods for all known event types that should be ignored because then there is no risk of accidentally ignoring events that are added in later evolution of the service.
+
+When adding the `ignore: true` annotation the corresponding implementation is not needed in the component. It is more efficient to use `ignore: true` than implementing the method with an immediate reply.
 
 [#es_register]
 === Register the View

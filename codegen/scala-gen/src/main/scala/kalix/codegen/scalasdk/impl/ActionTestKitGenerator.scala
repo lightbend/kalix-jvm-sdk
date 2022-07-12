@@ -33,10 +33,11 @@ object ActionTestKitGenerator {
     Seq(testkit(service))
 
   private[codegen] def testkit(service: ModelBuilder.ActionService): File = {
+    val commands = service.commands.filterNot(_.ignore)
     implicit val imports: Imports =
       generateImports(
-        service.commands.map(_.inputType) ++
-        service.commands.map(_.outputType),
+        commands.map(_.inputType) ++
+        commands.map(_.outputType),
         service.messageType.parent.scalaPackage,
         otherImports = Seq(
           "kalix.scalasdk.Metadata",
@@ -44,11 +45,11 @@ object ActionTestKitGenerator {
           "kalix.scalasdk.testkit.impl.ActionResultImpl",
           "kalix.scalasdk.action.ActionCreationContext",
           "kalix.scalasdk.testkit.impl.TestKitActionContext",
-          "kalix.scalasdk.testkit.MockRegistry") ++ commandStreamedTypes(service.commands))
+          "kalix.scalasdk.testkit.MockRegistry") ++ commandStreamedTypes(commands))
 
     val actionClassName = service.className
 
-    val methods = service.commands.map { cmd =>
+    val methods = commands.map { cmd =>
       s"""def ${lowerFirst(cmd.name)}(command: ${selectInput(
         cmd)}, metadata: Metadata = Metadata.empty): ${selectOutputResult(cmd)} = {\n""" +
       "  val context = new TestKitActionContext(metadata, mockRegistry)\n" +
@@ -101,20 +102,20 @@ object ActionTestKitGenerator {
   }
 
   def test(service: ModelBuilder.ActionService): File = {
-
+    val commands = service.commands.filterNot(_.ignore)
     implicit val imports: Imports =
       generateImports(
-        service.commands.map(_.inputType) ++ service.commands.map(_.outputType),
+        commands.map(_.inputType) ++ commands.map(_.outputType),
         service.messageType.parent.scalaPackage,
         otherImports = Seq(
           "kalix.scalasdk.action.Action",
           "kalix.scalasdk.testkit.ActionResult",
           "org.scalatest.matchers.should.Matchers",
-          "org.scalatest.wordspec.AnyWordSpec") ++ commandStreamedTypes(service.commands))
+          "org.scalatest.wordspec.AnyWordSpec") ++ commandStreamedTypes(commands))
 
     val actionClassName = service.className
 
-    val testCases = service.commands.map { cmd =>
+    val testCases = commands.map { cmd =>
       s""""handle command ${cmd.name}" in {\n""" +
       (if (cmd.isUnary || cmd.isStreamOut)
          s"""|  val service = ${actionClassName}TestKit(new $actionClassName(_))

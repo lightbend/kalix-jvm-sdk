@@ -67,15 +67,14 @@ service CustomerByName {
     };
   }
 
+  // tag::ignore-other-events[]
   rpc IgnoreOtherEvents(google.protobuf.Any) returns (api.Customer) {
     option (kalix.method).eventing.in = {
-      event_sourced_entity: "customers" // <5>
-     };
-     option (kalix.method).view.update = {
-       table: "customers"
-       transform_updates: true // <6>
+      event_sourced_entity: "customers"
+      ignore: true
      };
   };
+  // end::ignore-other-events[]
 
   rpc GetCustomers(ByNameRequest) returns (stream api.Customer) {
     option (kalix.method).view.query = {
@@ -120,10 +119,7 @@ service CustomerByNameFromTopic {
   rpc IgnoreOtherEvents(google.protobuf.Any) returns (api.Customer) {
     option (kalix.method).eventing.in = {
       topic: "customers"
-     };
-     option (kalix.method).view.update = {
-       table: "customers"
-       transform_updates: true
+      ignore: true
      };
   };
 
@@ -181,10 +177,7 @@ service CustomerByCityStreaming {
   rpc IgnoreOtherEvents(google.protobuf.Any) returns (api.Customer) {
     option (kalix.method).eventing.in = {
       event_sourced_entity: "customers"
-    };
-    option (kalix.method).view.update = {
-      table: "customers"
-      transform_updates: true
+      ignore: true
     };
   };
 

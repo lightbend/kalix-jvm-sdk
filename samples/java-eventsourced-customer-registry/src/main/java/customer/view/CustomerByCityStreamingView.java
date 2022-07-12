@@ -64,13 +64,6 @@ public class CustomerByCityStreamingView extends AbstractCustomerByCityStreaming
         state.toBuilder().setAddress(convertToApi(customerAddressChanged.getNewAddress())).build());
   }
 
-  @Override
-  public UpdateEffect<CustomerApi.Customer> ignoreOtherEvents(
-      CustomerApi.Customer state,
-      Any any) {
-    return effects().ignore();
-  }
-
   private CustomerApi.Customer convertToApi(CustomerDomain.CustomerState s) {
     CustomerApi.Address address = CustomerApi.Address.getDefaultInstance();
     if (s.hasAddress()) {
