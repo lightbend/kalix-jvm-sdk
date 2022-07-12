@@ -159,12 +159,20 @@ class DiscoveryImpl(system: ActorSystem, services: Map[String, Service]) extends
           s"At ${location.fileName}:${location.startLine + 1}:${location.startCol + 1}:${"\n"}$source"
       }
     }.toList
-    val message = s"Error reported from Kalix system: ${in.code} ${in.message}"
+    val severityString = in.severity.name.take(1) + in.severity.name.drop(1).toLowerCase
+    val message = s"$severityString reported from Kalix system: ${in.code} ${in.message}"
     val detail = if (in.detail.isEmpty) Nil else List(in.detail)
     val seeDocs = DocLinks.forErrorCode(in.code).map(link => s"See documentation: $link").toList
     val messages = message :: detail ::: seeDocs ::: sourceMsgs
+    val logMessage = messages.mkString("\n\n")
 
-    log.error(messages.mkString("\n\n"))
+    in.severity match {
+      case UserFunctionError.Severity.ERROR   => log.error(logMessage)
+      case UserFunctionError.Severity.WARNING => log.warn(logMessage)
+      case UserFunctionError.Severity.INFO    => log.info(logMessage)
+      case UserFunctionError.Severity.UNSPECIFIED | UserFunctionError.Severity.Unrecognized(_) =>
+        log.error(logMessage)
+    }
 
     Future.successful(com.google.protobuf.empty.Empty.defaultInstance)
   }
