@@ -116,8 +116,6 @@ object EventSourcedEntityTestKitGenerator {
   }
 
   def generateServices(service: ModelBuilder.EntityService): String = {
-    require(!service.commands.isEmpty, "empty `commands` not allowed")
-
     def selectOutput(command: ModelBuilder.Command): String =
       if (command.outputType.name == "Empty") {
         "Empty"
@@ -125,7 +123,8 @@ object EventSourcedEntityTestKitGenerator {
         command.outputType.fullName
       }
 
-    service.commands
+    val commands = service.commands.filterNot(_.ignore)
+    commands
       .map { command =>
         s"""|public EventSourcedResult<${selectOutput(command)}> ${lowerFirst(command.name)}(${command.inputType.fullName} command, Metadata metadata) {
             |  return interpretEffects(() -> entity.${lowerFirst(command.name)}(getState(), command), metadata);
@@ -136,8 +135,6 @@ object EventSourcedEntityTestKitGenerator {
   }
 
   def generateServicesDefault(service: ModelBuilder.EntityService): String = {
-    require(!service.commands.isEmpty, "empty `commands` not allowed")
-
     def selectOutput(command: ModelBuilder.Command): String =
       if (command.outputType.name == "Empty") {
         "Empty"
@@ -145,7 +142,8 @@ object EventSourcedEntityTestKitGenerator {
         command.outputType.fullName
       }
 
-    service.commands
+    val commands = service.commands.filterNot(_.ignore)
+    commands
       .map { command =>
         s"""|public EventSourcedResult<${selectOutput(command)}> ${lowerFirst(command.name)}(${command.inputType.fullName} command) {
             |  return interpretEffects(() -> entity.${lowerFirst(command.name)}(getState(), command), Metadata.EMPTY);
@@ -181,6 +179,7 @@ object EventSourcedEntityTestKitGenerator {
 
   def generateTestSources(service: ModelBuilder.EntityService, entity: ModelBuilder.EventSourcedEntity): String = {
     val packageName = entity.messageType.parent.javaPackage
+    val commands = service.commands.filterNot(_.ignore)
     val imports = generateImports(
       allRelevantMessageTypes(service, entity),
       packageName,
@@ -195,7 +194,7 @@ object EventSourcedEntityTestKitGenerator {
     val entityClassName = entity.messageType.name
     val testkitClassName = s"${entityClassName}TestKit"
 
-    val dummyTestCases = service.commands.map { command =>
+    val dummyTestCases = commands.map { command =>
       s"""|@Test
           |@Ignore("to be implemented")
           |public void ${lowerFirst(command.name)}Test() {

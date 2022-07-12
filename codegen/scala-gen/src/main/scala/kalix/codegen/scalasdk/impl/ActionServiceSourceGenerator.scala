@@ -47,8 +47,9 @@ object ActionServiceSourceGenerator {
     import Types.Action._
 
     val className = service.className
+    val commands = service.commands.filterNot(_.ignore)
 
-    val methods = service.commands.map { cmd =>
+    val methods = commands.map { cmd =>
       val methodName = cmd.name
       val input = lowerFirst(cmd.inputType.name)
       val inputType = cmd.inputType
@@ -103,7 +104,8 @@ object ActionServiceSourceGenerator {
     import Types.{ Source, NotUsed }
     import Types.Action._
 
-    val methods = service.commands.map { cmd =>
+    val commands = service.commands.filterNot(_.ignore)
+    val methods = commands.map { cmd =>
       val methodName = cmd.name
       val input = lowerFirst(cmd.inputType.name)
       val inputType = cmd.inputType
@@ -146,7 +148,9 @@ object ActionServiceSourceGenerator {
     import Types.{ Source, NotUsed }
     import Types.Action._
 
-    val unaryCases = service.commands.filter(_.isUnary).map { cmd =>
+    val commands = service.commands.filterNot(_.ignore)
+
+    val unaryCases = commands.filter(_.isUnary).map { cmd =>
       val methodName = cmd.name
       val inputType = cmd.inputType
 
@@ -155,7 +159,7 @@ object ActionServiceSourceGenerator {
           |"""
     }
 
-    val streamOutCases = service.commands.filter(_.isStreamOut).map { cmd =>
+    val streamOutCases = commands.filter(_.isStreamOut).map { cmd =>
       val methodName = cmd.name
       val inputType = cmd.inputType
 
@@ -164,7 +168,7 @@ object ActionServiceSourceGenerator {
           |"""
     }
 
-    val streamInCases = service.commands.filter(_.isStreamIn).map { cmd =>
+    val streamInCases = commands.filter(_.isStreamIn).map { cmd =>
       val methodName = cmd.name
       val inputType = cmd.inputType
 
@@ -173,7 +177,7 @@ object ActionServiceSourceGenerator {
           |"""
     }
 
-    val streamInOutCases = service.commands.filter(_.isStreamInOut).map { cmd =>
+    val streamInOutCases = commands.filter(_.isStreamInOut).map { cmd =>
       val methodName = cmd.name
       val inputType = cmd.inputType
 

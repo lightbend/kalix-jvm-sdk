@@ -194,7 +194,7 @@ include::example$scala-eventsourced-counter/src/main/scala/com/example/actions/C
 
 == Ignoring events
 
-When consuming events, each event must be matched by a Protobuf service method. In case your component is only interested in certain events, you may declare a method to receive all events that are not received by the other methods. If an event type is not handled, the Action will fail. Actions are designed to restart, but since the handler is missing, it will fail again. Therefore, it's important to define a such catch-all method in case you want to discard some events.
+When consuming events, each event must be matched by a Protobuf service method. In case your component is only interested in certain events, you may declare a method to receive all events that are not received by the other methods. If an event type is not handled, the Action will fail. Actions are designed to restart, but since the handler is missing, it will fail again. Therefore, it's important to define methods for all events or define a catch-all method in case you want to discard some events.
 
 
 [.tabset]
@@ -205,7 +205,8 @@ Java::
 ----
 include::example$java-eventsourced-counter/src/main/proto/com/example/actions/counter_topic.proto[tag=counter-ignore]
 ----
-<1> We must annotate it with a `(kalix.method).eventing.in`
+<1> We must annotate it with a `(kalix.method).eventing.in`.
+<2> Set `ignore: true` option.
 
 Scala::
 +
@@ -214,25 +215,9 @@ Scala::
 ----
 include::example$scala-eventsourced-counter/src/main/proto/com/example/actions/counter_topic.proto[tag=counter-ignore]
 ----
-<1> We must annotate it with a `(kalix.method).eventing.in`
+<1> We must annotate it with a `(kalix.method).eventing.in`.
+<2> Set `ignore: true` option.
 
-The corresponding implementation must exist in the component.
+The `Ignore` method here is defined as a catch-all because it has input type `Any`. Instead of using a catch-all it can be better to define concrete methods for all known event types that should be ignored because then there is no risk of accidentally ignoring events that are added in later evolution of the service.
 
-[.tabset]
-Java::
-+
-[source,java,indent=0]
-.src/main/java/com/example/actions/CounterJournalToTopicAction.java
-----
-include::example$java-eventsourced-counter/src/main/java/com/example/actions/CounterJournalToTopicAction.java[tag=counter-ignore]
-----
-<1> The `ignore` method is implemented as a catch-all. It matches `Any` input and replies with `effects().thenReply(Empty.getDefaultInstance())`.
-
-Scala::
-+
-[source,scala,indent=0]
-.src/main/scala/com/example/actions/CounterJournalToTopicAction.scala
-----
-include::example$scala-eventsourced-counter/src/main/scala/com/example/actions/CounterJournalToTopicAction.scala[tag=counter-ignore]
-----
-<1> The `ignore` method is implemented as a catch-all. It matches `Any` input and replies with `effects().thenReply(Empty.defaultInstance)`.
+When adding the `ignore: true` annotation the corresponding implementation is not needed in the component. It is more efficient to use `ignore: true` than implementing the method with an immediate reply.

@@ -47,11 +47,11 @@ service CounterJournalToTopic {
     };
   } 
 
-  rpc IncreaseConditional (com.example.domain.ValueIncreased) returns (Increased) { 
+  rpc IncreaseConditional (com.example.domain.ValueIncreased) returns (Increased) {
     option (kalix.method).eventing.out = {
       topic:  "counter-events"
     };
-  } 
+  }
   
   rpc Decrease (com.example.domain.ValueDecreased) returns (Decreased) {
     option (kalix.method).eventing.in = {
@@ -67,6 +67,7 @@ service CounterJournalToTopic {
   rpc Ignore(google.protobuf.Any) returns (google.protobuf.Empty) {
     option (kalix.method).eventing.in = { // <1>
       event_sourced_entity: "counter"
+      ignore: true // <2>
     };
   }
   // end::counter-ignore[]

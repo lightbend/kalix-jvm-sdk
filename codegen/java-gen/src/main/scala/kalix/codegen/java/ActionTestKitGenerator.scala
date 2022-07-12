@@ -34,9 +34,10 @@ object ActionTestKitGenerator {
 
     val packageName = service.messageType.parent.javaPackage
     val className = service.className
+    val commands = service.commands.filterNot(_.ignore)
 
     val imports = generateImports(
-      commandTypes(service.commands),
+      commandTypes(commands),
       "",
       otherImports = Seq(
         "java.util.function.Function",
@@ -49,7 +50,7 @@ object ActionTestKitGenerator {
         "kalix.javasdk.testkit.impl.ActionResultImpl",
         "kalix.javasdk.testkit.impl.TestKitActionContext",
         "kalix.javasdk.testkit.MockRegistry")
-        ++ commandStreamedTypes(service.commands))
+        ++ commandStreamedTypes(commands))
 
     val testKitClassName = s"${className}TestKit"
 
@@ -99,8 +100,9 @@ object ActionTestKitGenerator {
   private[codegen] def generateTestSourceCode(service: ModelBuilder.ActionService): String = {
     val className = service.className
     val packageName = service.messageType.parent.javaPackage
+    val commands = service.commands.filterNot(_.ignore)
     val imports = generateImports(
-      commandTypes(service.commands),
+      commandTypes(commands),
       "",
       otherImports = Seq(
         s"$packageName.$className",
@@ -110,7 +112,7 @@ object ActionTestKitGenerator {
         "org.junit.Ignore",
         "org.junit.Test",
         "static org.junit.Assert.*")
-        ++ commandStreamedTypes(service.commands))
+        ++ commandStreamedTypes(commands))
 
     val testClassName = s"${className}Test"
 
@@ -141,9 +143,9 @@ object ActionTestKitGenerator {
   }
 
   def generateServices(service: ModelBuilder.ActionService): String = {
-    require(!service.commands.isEmpty, "empty `commands` not allowed")
+    val commands = service.commands.filterNot(_.ignore)
 
-    service.commands
+    commands
       .map { command =>
         s"""|public ${selectOutputResult(command)} ${lowerFirst(command.name)}(${selectInputType(command)} ${lowerFirst(
           command.inputType.protoName)}, Metadata metadata) {
@@ -161,9 +163,9 @@ object ActionTestKitGenerator {
    * Leveraging `generateServices` by setting default Metadata as Metadata.EMPTY
    */
   def generateServicesDefault(service: ModelBuilder.ActionService): String = {
-    require(!service.commands.isEmpty, "empty `commands` not allowed")
+    val commands = service.commands.filterNot(_.ignore)
 
-    service.commands
+    commands
       .map { command =>
         s"""|public ${selectOutputResult(command)} ${lowerFirst(command.name)}(${selectInputType(command)} ${lowerFirst(
           command.inputType.protoName)}) {
@@ -175,7 +177,9 @@ object ActionTestKitGenerator {
   }
 
   def generateTestingServices(service: ModelBuilder.ActionService): String = {
-    service.commands
+    val commands = service.commands.filterNot(_.ignore)
+
+    commands
       .map { command =>
         s"""|@Test
             |@Ignore("to be implemented")

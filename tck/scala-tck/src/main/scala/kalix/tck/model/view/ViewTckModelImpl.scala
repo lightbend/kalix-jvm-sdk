@@ -33,5 +33,6 @@ class ViewTckModelImpl(context: ViewContext) extends AbstractViewTckModelView {
         effects.updateState(ViewState(state.data + data))
       case Event.Event.Fail(_)   => effects.error("Fail")
       case Event.Event.Ignore(_) => effects.ignore()
+      case Event.Event.Empty     => effects.ignore()
     }
 }

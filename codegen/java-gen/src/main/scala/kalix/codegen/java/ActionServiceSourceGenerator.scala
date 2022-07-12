@@ -57,13 +57,14 @@ object ActionServiceSourceGenerator {
 
     val packageName = service.messageType.parent.javaPackage
     val className = service.className
+    val commands = service.commands.filterNot(_.ignore)
 
     val imports = generateImports(
       service.commandTypes,
       packageName,
-      otherImports = Seq("kalix.javasdk.action.ActionCreationContext") ++ streamImports(service.commands))
+      otherImports = Seq("kalix.javasdk.action.ActionCreationContext") ++ streamImports(commands))
 
-    val methods = service.commands.map { cmd =>
+    val methods = commands.filterNot(_.ignore).map { cmd =>
       val methodName = cmd.name
       val input = lowerFirst(cmd.inputType.name)
       val inputTypeFullName = cmd.inputType.fullName
@@ -124,13 +125,14 @@ object ActionServiceSourceGenerator {
   private[codegen] def abstractActionSource(service: ModelBuilder.ActionService, rootPackage: String): String = {
 
     val packageName = service.messageType.parent.javaPackage
+    val commands = service.commands.filterNot(_.ignore)
     val imports = generateImports(
       service.commandTypes,
       packageName,
-      otherImports = streamImports(service.commands) ++
+      otherImports = streamImports(commands) ++
         Seq(s"$rootPackage.Components", s"$rootPackage.ComponentsImpl"))
 
-    val methods = service.commands.map { cmd =>
+    val methods = commands.map { cmd =>
       val methodName = cmd.name
       val input = lowerFirst(cmd.inputType.name)
       val inputTypeFullName = cmd.inputType.fullName
@@ -173,8 +175,9 @@ object ActionServiceSourceGenerator {
 
     val className = service.className
     val packageName = service.messageType.parent.javaPackage
+    val commands = service.commands.filterNot(_.ignore)
 
-    val unaryCases = service.commands.filter(_.isUnary).map { cmd =>
+    val unaryCases = commands.filter(_.isUnary).map { cmd =>
       val methodName = cmd.name
       val inputTypeFullName = cmd.inputType.fullName
 
@@ -184,7 +187,7 @@ object ActionServiceSourceGenerator {
           |""".stripMargin
     }
 
-    val streamOutCases = service.commands.filter(_.isStreamOut).map { cmd =>
+    val streamOutCases = commands.filter(_.isStreamOut).map { cmd =>
       val methodName = cmd.name
       val inputTypeFullName = cmd.inputType.fullName
 
@@ -194,7 +197,7 @@ object ActionServiceSourceGenerator {
           |""".stripMargin
     }
 
-    val streamInCases = service.commands.filter(_.isStreamIn).map { cmd =>
+    val streamInCases = commands.filter(_.isStreamIn).map { cmd =>
       val methodName = cmd.name
       val inputTypeFullName = cmd.inputType.fullName
 
@@ -204,7 +207,7 @@ object ActionServiceSourceGenerator {
           |""".stripMargin
     }
 
-    val streamInOutCases = service.commands.filter(_.isStreamInOut).map { cmd =>
+    val streamInOutCases = commands.filter(_.isStreamInOut).map { cmd =>
       val methodName = cmd.name
       val inputTypeFullName = cmd.inputType.fullName
 
