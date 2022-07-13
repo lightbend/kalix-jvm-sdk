@@ -34,8 +34,8 @@ public class CustomerEntity extends ValueEntity<Customer> {
   }
 
   @PostMapping("/create")
-  public ValueEntity.Effect<Done> create(@RequestBody Customer customer) {
-    return effects().updateState(customer).thenReply(done());
+  public ValueEntity.Effect<String> create(@RequestBody Customer customer) {
+    return effects().updateState(customer).thenReply("OK");
   }
 
   @GetMapping()
@@ -44,17 +44,17 @@ public class CustomerEntity extends ValueEntity<Customer> {
   }
 
   @PostMapping("/changeName/{newName}")
-  public Effect<Done> changeName(@PathVariable String newName) {
+  public Effect<String> changeName(@PathVariable String newName) {
     Customer customer = currentState();
     customer.name = newName;
-    return effects().updateState(customer).thenReply(done());
+    return effects().updateState(customer).thenReply("OK");
   }
 
   @PostMapping("/changeAddress")
-  public Effect<Done> changeAddress(@RequestBody Address newAddress) {
+  public Effect<String> changeAddress(@RequestBody Address newAddress) {
     Customer customer = currentState();
     customer.address = newAddress;
-    return effects().updateState(customer).thenReply(done());
+    return effects().updateState(customer).thenReply("OK");
   }
 
 }

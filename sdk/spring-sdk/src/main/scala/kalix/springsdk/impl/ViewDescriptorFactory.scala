@@ -136,12 +136,20 @@ private[impl] object ViewDescriptorFactory extends ComponentDescriptorFactory {
         .setQuery(queryStr)
         .build()
 
-      val jsonSchema = kalix.JsonSchema
-        .newBuilder()
-        .setInput(annotatedMethod.requestProtoMessageName)
-        .setJsonBodyInputField("json_body") // is it safe to always specify?
-        .setOutput(returnTypeDescriptor.mainMessageDescriptor.getName)
-        .build()
+      val jsonSchema = {
+        val builder = kalix.JsonSchema
+          .newBuilder()
+          .setOutput(returnTypeDescriptor.mainMessageDescriptor.getName)
+
+        if (annotatedMethod.classMapping.isDefined) {
+          // only define a json body if there is a request body mapping
+          builder
+            .setInput(annotatedMethod.requestProtoMessageName)
+            .setJsonBodyInputField("json_body")
+        }
+
+        builder.build()
+      }
 
       val view = kalix.View
         .newBuilder()

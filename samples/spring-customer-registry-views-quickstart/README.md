@@ -43,27 +43,33 @@ FIXME update for spring
 
 * Create a customer with:
   ```shell
-  grpcurl --plaintext -d '{"customer_id": "wip", "email": "wip@example.com", "name": "Very Important", "address": {"street": "Road 1", "city": "The Capital"}}' localhost:9000  customer.api.CustomerService/Create
+  curl localhost:9000/customer/one/create \
+    --header "Content-Type: application/json" \
+    -XPOST \
+    --data '{"customerId":"one","email":"test@example.com","name":"Test Testsson","address":{"street":"Teststreet 25","city":"Testcity"}}'
   ```
 * Retrieve the customer:
   ```shell
-  grpcurl --plaintext -d '{"customer_id": "wip"}' localhost:9000  customer.api.CustomerService/GetCustomer
+  curl localhost:9000/customer/one
   ```
 * Query by email:
   ```shell
-  grpcurl --plaintext -d '{"email": "wip@example.com"}' localhost:9000 customer.view.CustomerByEmail/GetCustomer
+  curl localhost:9000/customer/by_email/test@example.com
   ```
 * Query by name:
   ```shell
-  grpcurl --plaintext -d '{"customer_name": "Very Important"}' localhost:9000 customer.view.CustomerByName/GetCustomers
+  curl localhost:9000/customer/by_name/Test%20Testsson
   ```
 * Change name:
   ```shell
-  grpcurl --plaintext -d '{"customer_id": "wip", "new_name": "Most Important"}' localhost:9000 customer.api.CustomerService/ChangeName
+  curl localhost:9000/customer/one/changeName/Jan%20Banan -XPOST
   ```
 * Change address:
   ```shell
-  grpcurl --plaintext -d '{"customer_id": "wip", "new_address": {"street": "Street 1", "city": "The City"}}' localhost:9000 customer.api.CustomerService/ChangeAddress
+  curl localhost:9000/customer/one/changeAddress \
+    --header "Content-Type: application/json" \
+    -XPOST \
+    --data '{"street":"Newstreet 25","city":"Newcity"}'
   ```
 
 ## Deploying
