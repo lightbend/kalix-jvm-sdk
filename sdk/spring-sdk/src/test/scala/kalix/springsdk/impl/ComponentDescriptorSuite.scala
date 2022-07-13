@@ -27,7 +27,10 @@ import org.scalatest.matchers.should.Matchers
 trait ComponentDescriptorSuite extends Matchers {
 
   def assertDescriptor[E](assertFunc: ComponentDescriptor => Unit)(implicit ev: ClassTag[E]) = {
-    assertFunc(ComponentDescriptor.descriptorFor[E])
+    val descriptor = ComponentDescriptor.descriptorFor[E]
+    withClue(descriptor.fileDescriptor.toProto.toString) {
+      assertFunc(descriptor)
+    }
   }
 
   def assertRequestFieldJavaType(method: ComponentMethod, fieldName: String, expectedType: JavaType) = {

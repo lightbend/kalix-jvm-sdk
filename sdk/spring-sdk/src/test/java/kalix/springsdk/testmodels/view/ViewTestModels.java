@@ -66,6 +66,7 @@ public class ViewTestModels {
   @Subscribe.ValueEntity(UserEntity.class)
   public static class UserByNameEmailWithPost extends View<User> {
 
+    // mixing request body and path variable
     @Query("SELECT * FROM users_view WHERE email = :email")
     @PostMapping("/users/{name}/by-email")
     public User getUser(@PathVariable String name, @RequestBody ByEmail byEmail) {
@@ -159,4 +160,23 @@ public class ViewTestModels {
       return null;
     }
   }
+
+
+  @Table(value = "users_view")
+  @Subscribe.ValueEntity(UserEntity.class)
+  public static class UserByNameEmailWithPostRequestBodyOnly extends View<User> {
+
+    // not path variables, only request body
+    @Query("SELECT * FROM users_view WHERE email = :email")
+    @PostMapping("/users/by-email")
+    public User getUser(@RequestBody ByEmail byEmail) {
+      return null;
+    }
+
+    @Override
+    public User emptyState() {
+      return null;
+    }
+  }
+
 }

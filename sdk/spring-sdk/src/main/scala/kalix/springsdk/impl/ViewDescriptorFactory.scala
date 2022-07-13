@@ -30,6 +30,7 @@ import kalix.springsdk.impl.reflection.RestServiceMethod
 import kalix.springsdk.impl.reflection.SpringRestServiceMethod
 import kalix.springsdk.impl.reflection.VirtualServiceMethod
 import kalix.springsdk.impl.reflection.ReflectionUtils
+import kalix.springsdk.impl.reflection.RestServiceIntrospector.BodyParameter
 
 import java.lang.reflect.ParameterizedType
 
@@ -141,7 +142,7 @@ private[impl] object ViewDescriptorFactory extends ComponentDescriptorFactory {
           .newBuilder()
           .setOutput(returnTypeDescriptor.mainMessageDescriptor.getName)
 
-        if (annotatedMethod.classMapping.isDefined) {
+        if (annotatedMethod.params.exists(_.isInstanceOf[BodyParameter])) {
           // only define a json body if there is a request body mapping
           builder
             .setInput(annotatedMethod.requestProtoMessageName)
