@@ -46,10 +46,15 @@ public abstract class View<S> {
   }
 
   /**
+   * The default implementation of this method returns <code>null</code>. It can be overridden to return a more
+   * sensible initial state.
+   *
    * @return an empty state object or `null` to hand to the process method when an event for a
    *     previously unknown subject id is seen.
    */
-  public abstract S emptyState();
+  public S emptyState() {
+    return null;
+  }
 
   /**
    * Construct the effect that is returned by the command handler. The effect describes next
