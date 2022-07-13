@@ -28,7 +28,7 @@ trait ComponentDescriptorSuite extends Matchers {
 
   def assertDescriptor[E](assertFunc: ComponentDescriptor => Unit)(implicit ev: ClassTag[E]) = {
     val descriptor = ComponentDescriptor.descriptorFor[E]
-    withClue(descriptor.fileDescriptor.toProto.toString) {
+    withClue(ProtoDescriptorRenderer.toString(descriptor.fileDescriptor)) {
       assertFunc(descriptor)
     }
   }
