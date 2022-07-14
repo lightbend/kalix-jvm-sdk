@@ -14,27 +14,28 @@
  * limitations under the License.
  */
 
-package kalix.javasdk.view;
+package kalix.springsdk.testmodels;
 
-import kalix.javasdk.impl.MessageCodec;
-import kalix.javasdk.impl.view.ViewRouter;
-import com.google.protobuf.Descriptors;
-
-import java.util.Optional;
-
-public interface ViewProvider<S, V extends View<S>> {
-
-  Descriptors.ServiceDescriptor serviceDescriptor();
-
-  String viewId();
-
-  ViewOptions options();
-
-  ViewRouter<S, V> newRouter(ViewCreationContext context);
-
-  Descriptors.FileDescriptor[] additionalDescriptors();
-
-  default Optional<MessageCodec> alternativeCodec() {
-    return Optional.empty();
-  }
+public class SimpleMessage {
+  // all them primitives
+  public char c;
+  public byte by;
+  public int n;
+  public long l;
+  public double d;
+  public float f;
+  public boolean bo;
+  // boxed primitives
+  public Character cO;
+  public Byte bO;
+  public Integer nO;
+  public Long lO;
+  public Double dO;
+  public Float fO;
+  public Boolean boO;
+  // common object types mapping to proto primitives
+  public String s;
+  // arrays
+  public int[] iA;
+  public String[] sA;
 }

@@ -29,14 +29,21 @@ public class SubscriptionsTestModels {
   public static class SubscribeToValueEntityAction extends Action {
 
     @Subscribe.ValueEntity(Counter.class)
-    @PostMapping("/message/one")
-    public Action.Effect<Message> messageOne(@RequestBody Message message) {
+    public Action.Effect<Message> messageOne(Message message) {
       return effects().reply(message);
     }
 
     @Subscribe.ValueEntity(Counter.class)
-    @PostMapping("/message/two")
-    public Action.Effect<Message> messageTwo(@RequestBody Message message) {
+    public Action.Effect<Message> messageTwo(Message message) {
+      return effects().reply(message);
+    }
+  }
+
+  public static class RestAnnotatedSubscribeToValueEntityAction extends Action {
+    // this should fail as not allowed
+    @Subscribe.ValueEntity(Counter.class)
+    @PostMapping("/message/one")
+    public Action.Effect<Message> messageOne(@RequestBody Message message) {
       return effects().reply(message);
     }
   }

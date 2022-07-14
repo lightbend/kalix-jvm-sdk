@@ -14,41 +14,52 @@
  * limitations under the License.
  */
 
-package kalix.springsdk.action;
+package kalix.springsdk.view;
 
 import com.google.protobuf.Descriptors;
 import kalix.javasdk.action.Action;
 import kalix.javasdk.action.ActionCreationContext;
 import kalix.javasdk.action.ActionOptions;
-import kalix.javasdk.action.ActionProvider;
 import kalix.javasdk.impl.MessageCodec;
-import kalix.javasdk.impl.action.ActionRouter;
+import kalix.javasdk.impl.view.ViewRouter;
+import kalix.javasdk.view.View;
+import kalix.javasdk.view.ViewCreationContext;
+import kalix.javasdk.view.ViewOptions;
+import kalix.javasdk.view.ViewProvider;
+import kalix.springsdk.action.ReflectiveActionProvider;
 import kalix.springsdk.impl.ComponentDescriptor;
 import kalix.springsdk.impl.SpringSdkMessageCodec;
-import kalix.springsdk.impl.action.ReflectiveActionRouter;
+import kalix.springsdk.impl.view.ReflectiveViewRouter;
+import scala.NotImplementedError;
 
 import java.util.Optional;
 import java.util.function.Function;
 
-public class ReflectiveActionProvider<A extends Action> implements ActionProvider<A> {
+public class ReflectiveViewProvider<S, V extends View<S>> implements ViewProvider<S, V> {
+  private final Function<ViewCreationContext, V> factory;
 
-  private final Function<ActionCreationContext, A> factory;
+  private final String viewId;
 
-  private final ActionOptions options;
+  private final ViewOptions options;
   private final Descriptors.FileDescriptor fileDescriptor;
   private final Descriptors.ServiceDescriptor serviceDescriptor;
   private final ComponentDescriptor componentDescriptor;
 
-  public static <A extends Action> ReflectiveActionProvider<A> of(
-      Class<A> cls, Function<ActionCreationContext, A> factory) {
-    return new ReflectiveActionProvider<>(cls, factory, ActionOptions.defaults());
+  public static <S, V extends View<S>> ReflectiveViewProvider<S, V> of(
+      Class<V> cls, Function<ViewCreationContext, V> factory) {
+    return new ReflectiveViewProvider<>(cls, cls.getName(), factory, ViewOptions.defaults());
   }
 
-  private ReflectiveActionProvider(
-      Class<A> cls, Function<ActionCreationContext, A> factory, ActionOptions options) {
+  public static <S, V extends View<S>> ReflectiveViewProvider<S, V> of(
+      Class<V> cls, String viewId, Function<ViewCreationContext, V> factory) {
+    return new ReflectiveViewProvider<>(cls, viewId, factory, ViewOptions.defaults());
+  }
 
+  private ReflectiveViewProvider(
+      Class<V> cls, String viewId, Function<ViewCreationContext, V> factory, ViewOptions options) {
     this.factory = factory;
     this.options = options;
+    this.viewId = viewId;
 
     this.componentDescriptor = ComponentDescriptor.descriptorFor(cls);
 
@@ -57,24 +68,29 @@ public class ReflectiveActionProvider<A extends Action> implements ActionProvide
   }
 
   @Override
-  public ActionOptions options() {
-    return options;
-  }
-
-  @Override
   public Descriptors.ServiceDescriptor serviceDescriptor() {
     return serviceDescriptor;
   }
 
   @Override
-  public ActionRouter<A> newRouter(ActionCreationContext context) {
-    A action = factory.apply(context);
-    return new ReflectiveActionRouter<>(action, componentDescriptor.methods());
+  public String viewId() {
+    return viewId;
+  }
+
+  @Override
+  public ViewOptions options() {
+    return options;
+  }
+
+  @Override
+  public ViewRouter<S, V> newRouter(ViewCreationContext context) {
+    V view = factory.apply(context);
+    return new ReflectiveViewRouter<>(view, componentDescriptor.methods());
   }
 
   @Override
   public Descriptors.FileDescriptor[] additionalDescriptors() {
-    return new Descriptors.FileDescriptor[] {fileDescriptor};
+    return new Descriptors.FileDescriptor[0];
   }
 
   @Override

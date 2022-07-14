@@ -14,27 +14,11 @@
  * limitations under the License.
  */
 
-package kalix.javasdk.view;
+package kalix.springsdk.testmodels;
 
-import kalix.javasdk.impl.MessageCodec;
-import kalix.javasdk.impl.view.ViewRouter;
-import com.google.protobuf.Descriptors;
+import kalix.springsdk.testmodels.SimpleMessage;
 
-import java.util.Optional;
-
-public interface ViewProvider<S, V extends View<S>> {
-
-  Descriptors.ServiceDescriptor serviceDescriptor();
-
-  String viewId();
-
-  ViewOptions options();
-
-  ViewRouter<S, V> newRouter(ViewCreationContext context);
-
-  Descriptors.FileDescriptor[] additionalDescriptors();
-
-  default Optional<MessageCodec> alternativeCodec() {
-    return Optional.empty();
-  }
+public class NestedMessage {
+  public String one;
+  public SimpleMessage two;
 }

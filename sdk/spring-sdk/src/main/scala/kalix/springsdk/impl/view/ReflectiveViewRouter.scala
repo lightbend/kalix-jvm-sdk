@@ -14,41 +14,36 @@
  * limitations under the License.
  */
 
-package kalix.springsdk.impl.valueentity
+package kalix.springsdk.impl.view
 
 import com.google.protobuf.any.{ Any => ScalaPbAny }
-import kalix.javasdk.impl.valueentity.ValueEntityRouter
-import kalix.javasdk.valueentity.CommandContext
-import kalix.javasdk.valueentity.ValueEntity
+import kalix.javasdk.Metadata
+import kalix.javasdk.impl.view.ViewRouter
+import kalix.javasdk.view.View
 import kalix.springsdk.impl.ComponentMethod
 import kalix.springsdk.impl.InvocationContext
 
-class ReflectiveValueEntityRouter[S, E <: ValueEntity[S]](
-    override protected val entity: E,
-    componentMethods: Map[String, ComponentMethod])
-    extends ValueEntityRouter[S, E](entity) {
+class ReflectiveViewRouter[S, V <: View[S]](view: V, componentMethods: Map[String, ComponentMethod])
+    extends ViewRouter[S, V](view) {
 
   private def methodLookup(commandName: String) =
     componentMethods.getOrElse(commandName, throw new RuntimeException(s"no matching method for '$commandName'"))
 
-  override protected def handleCommand(
-      commandName: String,
-      state: S,
-      command: Any,
-      context: CommandContext): ValueEntity.Effect[_] = {
-
+  override def handleUpdate(commandName: String, state: S, event: Any): View.UpdateEffect[S] = {
     val componentMethod = methodLookup(commandName)
     val context =
-      InvocationContext(command.asInstanceOf[ScalaPbAny], componentMethod.requestMessageDescriptor)
-
-    // pass current state to entity
-    entity._internalSetCurrentState(state);
+      InvocationContext(
+        event.asInstanceOf[ScalaPbAny],
+        componentMethod.requestMessageDescriptor,
+        Metadata.EMPTY
+      ) // FIXME no metadata available???
 
     // safe call: if component method is None, proxy won't forward calls to it
     // typically, that happens when we have a View update method with transform = false
     // in such a case, the proxy can index the view payload directly, without passing through the user function
     componentMethod.method.get
-      .invoke(entity, componentMethod.parameterExtractors.map(e => e.extract(context)): _*)
-      .asInstanceOf[ValueEntity.Effect[_]]
+      .invoke(view, componentMethod.parameterExtractors.map(e => e.extract(context)): _*)
+      .asInstanceOf[View.UpdateEffect[S]]
   }
+
 }

@@ -20,13 +20,11 @@ public class User {
 
   public final String firstName;
   public final String lastName;
+  public final String email;
 
-  public User(String firstName, String lastName) {
+  public User(String firstName, String lastName, String email) {
     this.firstName = firstName;
     this.lastName = lastName;
-  }
-
-  public static User empty() {
-    return new User("", "");
+    this.email = email;
   }
 }

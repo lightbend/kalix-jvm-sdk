@@ -32,7 +32,7 @@ public class ValueEntitiesTestModels {
   public static class PostWithEntityKeys extends ValueEntity<User> {
     @Override
     public User emptyState() {
-      return User.empty();
+      return null;
     }
 
     @PostMapping("/create")

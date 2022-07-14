@@ -14,8 +14,14 @@
  * limitations under the License.
  */
 
-package kalix.springsdk.impl.reflection
+package kalix.springsdk.testmodels.view;
 
-object DynamicServiceInfo {}
+public class TransformedUser {
+  public final String name;
+  public final String email;
 
-trait DynamicServiceCreator {}
+  public TransformedUser(String name, String email) {
+    this.name = name;
+    this.email = email;
+  }
+}

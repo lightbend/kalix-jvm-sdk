@@ -23,7 +23,7 @@ import kalix.springsdk.impl.reflection.ParameterExtractor
 
 // Might need to have one of each of these for unary, streamed out, streamed in and streamed.
 case class ComponentMethod(
-    method: Method,
+    method: Option[Method],
     grpcMethodName: String,
     parameterExtractors: Array[ParameterExtractor[InvocationContext, AnyRef]],
-    messageDescriptor: Descriptors.Descriptor)
+    requestMessageDescriptor: Descriptors.Descriptor)

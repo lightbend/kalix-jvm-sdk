@@ -14,27 +14,16 @@
  * limitations under the License.
  */
 
-package kalix.javasdk.view;
+package kalix.springsdk.impl.reflection
 
-import kalix.javasdk.impl.MessageCodec;
-import kalix.javasdk.impl.view.ViewRouter;
-import com.google.protobuf.Descriptors;
+import java.lang.reflect.Method
+import java.util
 
-import java.util.Optional;
+object ReflectionUtils {
 
-public interface ViewProvider<S, V extends View<S>> {
+  private implicit val stringArrayOrdering: Ordering[Array[String]] =
+    Ordering.fromLessThan(util.Arrays.compare[String](_, _) < 0)
+  implicit val methodOrdering =
+    Ordering.by((m: Method) => (m.getName, m.getReturnType.getName, m.getParameterTypes.map(_.getName)))
 
-  Descriptors.ServiceDescriptor serviceDescriptor();
-
-  String viewId();
-
-  ViewOptions options();
-
-  ViewRouter<S, V> newRouter(ViewCreationContext context);
-
-  Descriptors.FileDescriptor[] additionalDescriptors();
-
-  default Optional<MessageCodec> alternativeCodec() {
-    return Optional.empty();
-  }
 }

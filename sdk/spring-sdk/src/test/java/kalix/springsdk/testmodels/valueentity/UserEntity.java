@@ -28,7 +28,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 public class UserEntity extends ValueEntity<User> {
   @Override
   public User emptyState() {
-    return User.empty();
+    return null;
   }
 
   @PostMapping("/create")

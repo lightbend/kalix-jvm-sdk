@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package kalix.springsdk.impl.action
+package kalix.springsdk.impl
 
 import com.google.protobuf.Descriptors.FieldDescriptor.JavaType
-import kalix.springsdk.impl.IntrospectionSuite
+import com.google.protobuf.{ Any => JavaPbAny }
 import kalix.springsdk.testmodels.action.ActionsTestModels.DeleteWithOneParam
 import kalix.springsdk.testmodels.action.ActionsTestModels.GetClassLevel
 import kalix.springsdk.testmodels.action.ActionsTestModels.GetWithOneParam
@@ -30,55 +30,57 @@ import kalix.springsdk.testmodels.action.ActionsTestModels.PostWithTwoParam
 import kalix.springsdk.testmodels.action.ActionsTestModels.PostWithoutParam
 import kalix.springsdk.testmodels.action.ActionsTestModels.PutWithOneParam
 import kalix.springsdk.testmodels.action.ActionsTestModels.PutWithoutParam
+import kalix.springsdk.testmodels.subscriptions.SubscriptionsTestModels.RestAnnotatedSubscribeToValueEntityAction
+import kalix.springsdk.testmodels.subscriptions.SubscriptionsTestModels.SubscribeToValueEntityAction
 import org.scalatest.wordspec.AnyWordSpec
 
-class ActionIntrospectorSpec extends AnyWordSpec with IntrospectionSuite {
+class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSuite {
 
-  "Action introspector" should {
+  "Action descriptor factory" should {
 
     "generate mappings for an Action with GET without path param" in {
       assertDescriptor[GetWithoutParam] { desc =>
         val method = desc.methods("Message")
-        method.messageDescriptor.getFields.size() shouldBe 0
+        method.requestMessageDescriptor.getFields.size() shouldBe 0
       }
     }
 
     "generate mappings for an Action with GET and one path param" in {
       assertDescriptor[GetWithOneParam] { desc =>
         val method = desc.methods("Message")
-        assertMessage(method, "one", JavaType.STRING)
+        assertRequestFieldJavaType(method, "one", JavaType.STRING)
       }
     }
 
     "generate mappings for an Action with class level Request mapping" in {
       assertDescriptor[GetClassLevel] { desc =>
         val method = desc.methods("Message")
-        assertMessage(method, "one", JavaType.STRING)
-        assertMessage(method, "two", JavaType.LONG)
+        assertRequestFieldJavaType(method, "one", JavaType.STRING)
+        assertRequestFieldJavaType(method, "two", JavaType.LONG)
       }
     }
 
     "generate mappings for an Action with POST without path param" in {
       assertDescriptor[PostWithoutParam] { desc =>
         val method = desc.methods("Message")
-        assertMessage(method, "json_body", JavaType.MESSAGE)
+        assertRequestFieldJavaType(method, "json_body", JavaType.MESSAGE)
       }
     }
 
     "generate mappings for an Action with POST and one path param" in {
       assertDescriptor[PostWithOneParam] { desc =>
         val method = desc.methods("Message")
-        assertMessage(method, "one", JavaType.STRING)
-        assertMessage(method, "json_body", JavaType.MESSAGE)
+        assertRequestFieldJavaType(method, "one", JavaType.STRING)
+        assertRequestFieldJavaType(method, "json_body", JavaType.MESSAGE)
       }
     }
 
     "generate mappings for an Action with POST and two path param" in {
       assertDescriptor[PostWithTwoParam] { desc =>
         val method = desc.methods("Message")
-        assertMessage(method, "one", JavaType.STRING)
-        assertMessage(method, "two", JavaType.LONG)
-        assertMessage(method, "json_body", JavaType.MESSAGE)
+        assertRequestFieldJavaType(method, "one", JavaType.STRING)
+        assertRequestFieldJavaType(method, "two", JavaType.LONG)
+        assertRequestFieldJavaType(method, "json_body", JavaType.MESSAGE)
       }
     }
 
@@ -86,48 +88,76 @@ class ActionIntrospectorSpec extends AnyWordSpec with IntrospectionSuite {
       assertDescriptor[PostWithTwoMethods] { desc =>
 
         val firstMethod = desc.methods("Message")
-        assertMessage(firstMethod, "text", JavaType.STRING)
-        assertMessage(firstMethod, "json_body", JavaType.MESSAGE)
+        assertRequestFieldJavaType(firstMethod, "num", JavaType.LONG)
+        assertRequestFieldJavaType(firstMethod, "json_body", JavaType.MESSAGE)
 
         val secondMethod = desc.methods("Message1")
-        assertMessage(secondMethod, "num", JavaType.LONG)
-        assertMessage(secondMethod, "json_body", JavaType.MESSAGE)
-
+        assertRequestFieldJavaType(secondMethod, "text", JavaType.STRING)
+        assertRequestFieldJavaType(secondMethod, "json_body", JavaType.MESSAGE)
       }
     }
 
     "generate mappings for an Action with PUT without path param" in {
       assertDescriptor[PutWithoutParam] { desc =>
         val method = desc.methods("Message")
-        assertMessage(method, "json_body", JavaType.MESSAGE)
+        assertRequestFieldJavaType(method, "json_body", JavaType.MESSAGE)
       }
     }
 
     "generate mappings for an Action with PUT and one path param" in {
       assertDescriptor[PutWithOneParam] { desc =>
         val method = desc.methods("Message")
-        assertMessage(method, "one", JavaType.STRING)
+        assertRequestFieldJavaType(method, "one", JavaType.STRING)
       }
     }
 
     "generate mappings for an Action with PATCH without path param" in {
       assertDescriptor[PatchWithoutParam] { desc =>
         val method = desc.methods("Message")
-        assertMessage(method, "json_body", JavaType.MESSAGE)
+        assertRequestFieldJavaType(method, "json_body", JavaType.MESSAGE)
       }
     }
 
     "generate mappings for an Action with PATCH and one path param" in {
       assertDescriptor[PatchWithOneParam] { desc =>
         val method = desc.methods("Message")
-        assertMessage(method, "one", JavaType.STRING)
+        assertRequestFieldJavaType(method, "one", JavaType.STRING)
       }
     }
 
     "generate mappings for an Action with DELETE and one path param" in {
       assertDescriptor[DeleteWithOneParam] { desc =>
         val method = desc.methods("Message")
-        assertMessage(method, "one", JavaType.STRING)
+        assertRequestFieldJavaType(method, "one", JavaType.STRING)
+      }
+    }
+
+    "generate mapping with Value Entity Subscription annotations" in {
+      assertDescriptor[SubscribeToValueEntityAction] { desc =>
+
+        val methodOne = desc.methods("MessageOne")
+        methodOne.requestMessageDescriptor.getFullName shouldBe JavaPbAny.getDescriptor.getFullName
+
+        val eventSourceOne = findKalixMethodOptions(desc, "MessageOne").getEventing.getIn
+        eventSourceOne.getValueEntity shouldBe "ve-counter"
+        val rule = findHttpRule(desc, "MessageOne")
+
+        rule.getPost shouldBe
+        "/kalix.springsdk.testmodels.subscriptions.SubscriptionsTestModels.SubscribeToValueEntityAction/MessageOne"
+
+        // should have a default extractor for any payload
+        methodOne.parameterExtractors.size shouldBe 1
+
+        val methodTwo = desc.methods("MessageTwo")
+        methodTwo.requestMessageDescriptor.getFullName shouldBe JavaPbAny.getDescriptor.getFullName
+        val eventSourceTwo = findKalixMethodOptions(desc, "MessageTwo").getEventing.getIn
+        eventSourceTwo.getValueEntity shouldBe "ve-counter"
+      }
+    }
+
+    "fail if has both Value Entity Subscription and REST annotations" in {
+      intercept[IllegalArgumentException] {
+        ComponentDescriptor.descriptorFor[RestAnnotatedSubscribeToValueEntityAction]
       }
     }
 

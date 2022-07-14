@@ -14,27 +14,14 @@
  * limitations under the License.
  */
 
-package kalix.javasdk.view;
+package kalix.springsdk.annotations;
 
-import kalix.javasdk.impl.MessageCodec;
-import kalix.javasdk.impl.view.ViewRouter;
-import com.google.protobuf.Descriptors;
+import java.lang.annotation.*;
 
-import java.util.Optional;
+@Target({ElementType.TYPE})
+@Retention(RetentionPolicy.RUNTIME)
+@Documented
+public @interface Table {
 
-public interface ViewProvider<S, V extends View<S>> {
-
-  Descriptors.ServiceDescriptor serviceDescriptor();
-
-  String viewId();
-
-  ViewOptions options();
-
-  ViewRouter<S, V> newRouter(ViewCreationContext context);
-
-  Descriptors.FileDescriptor[] additionalDescriptors();
-
-  default Optional<MessageCodec> alternativeCodec() {
-    return Optional.empty();
-  }
+  String value();
 }

@@ -25,6 +25,10 @@ import kalix.springsdk.impl.reflection.DynamicMessageContext
 import kalix.springsdk.impl.reflection.MetadataContext
 
 object InvocationContext {
+
+  private val typeUrlField = ScalaPbAny.javaDescriptor.findFieldByName("type_url")
+  private val valueField = ScalaPbAny.javaDescriptor.findFieldByName("value")
+
   def apply(
       anyMessage: ScalaPbAny,
       methodDescriptor: Descriptors.Descriptor,
@@ -34,8 +38,8 @@ object InvocationContext {
       if (anyMessage.typeUrl.startsWith(JsonSupport.KALIX_JSON)) {
         DynamicMessage
           .newBuilder(methodDescriptor)
-          .setField(ScalaPbAny.javaDescriptor.findFieldByName("type_url"), anyMessage.typeUrl)
-          .setField(ScalaPbAny.javaDescriptor.findFieldByName("value"), anyMessage.value)
+          .setField(typeUrlField, anyMessage.typeUrl)
+          .setField(valueField, anyMessage.value)
           .build()
 
       } else

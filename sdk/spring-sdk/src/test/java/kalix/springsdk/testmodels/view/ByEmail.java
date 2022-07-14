@@ -14,27 +14,16 @@
  * limitations under the License.
  */
 
-package kalix.javasdk.view;
+package kalix.springsdk.testmodels.view;
 
-import kalix.javasdk.impl.MessageCodec;
-import kalix.javasdk.impl.view.ViewRouter;
-import com.google.protobuf.Descriptors;
+import com.fasterxml.jackson.annotation.JsonCreator;
 
-import java.util.Optional;
+public class ByEmail {
 
-public interface ViewProvider<S, V extends View<S>> {
+  public final String email;
 
-  Descriptors.ServiceDescriptor serviceDescriptor();
-
-  String viewId();
-
-  ViewOptions options();
-
-  ViewRouter<S, V> newRouter(ViewCreationContext context);
-
-  Descriptors.FileDescriptor[] additionalDescriptors();
-
-  default Optional<MessageCodec> alternativeCodec() {
-    return Optional.empty();
+  @JsonCreator
+  public ByEmail(String email) {
+    this.email = email;
   }
 }

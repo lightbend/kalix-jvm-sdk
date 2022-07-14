@@ -16,22 +16,31 @@
 
 package kalix.springsdk.impl
 
-import scala.reflect.ClassTag
+import com.google.api.{ AnnotationsProto, HttpRule }
 
+import scala.reflect.ClassTag
 import com.google.protobuf.Descriptors
 import com.google.protobuf.Descriptors.FieldDescriptor.JavaType
-import kalix.EventSource
+import kalix.MethodOptions
 import org.scalatest.matchers.should.Matchers
 
-trait IntrospectionSuite extends Matchers {
+trait ComponentDescriptorSuite extends Matchers {
 
-  def assertDescriptor[E](assertFunc: ComponentDescription => Unit)(implicit ev: ClassTag[E]) = {
-    assertFunc(Introspector.inspect(ev.runtimeClass))
+  def assertDescriptor[E](assertFunc: ComponentDescriptor => Unit)(implicit ev: ClassTag[E]) = {
+    val descriptor = ComponentDescriptor.descriptorFor[E]
+    withClue(ProtoDescriptorRenderer.toString(descriptor.fileDescriptor)) {
+      assertFunc(descriptor)
+    }
   }
 
-  def assertMessage(method: ComponentMethod, fieldName: String, expectedType: JavaType) = {
+  def assertRequestFieldJavaType(method: ComponentMethod, fieldName: String, expectedType: JavaType) = {
     val field = findField(method, fieldName)
     field.getJavaType shouldBe expectedType
+  }
+
+  def assertRequestFieldMessageType(method: ComponentMethod, fieldName: String, expectedMessageType: String) = {
+    val field = findField(method, fieldName)
+    field.getMessageType.getFullName shouldBe expectedMessageType
   }
 
   def assertEntityKeyField(method: ComponentMethod, fieldName: String) = {
@@ -40,14 +49,20 @@ trait IntrospectionSuite extends Matchers {
     fieldOption.getEntityKey shouldBe true
   }
 
-  def findSubscription(desc: ComponentDescription, methodName: String): EventSource = {
+  private def findMethod(desc: ComponentDescriptor, methodName: String) = {
     val grpcMethod = desc.serviceDescriptor.findMethodByName(methodName)
-    val methodOptions = grpcMethod.toProto.getOptions.getExtension(kalix.Annotations.method)
-    methodOptions.getEventing.getIn
+    if (grpcMethod != null) grpcMethod
+    else throw new NoSuchElementException(s"Method '$methodName' not found")
   }
 
+  def findKalixMethodOptions(desc: ComponentDescriptor, methodName: String): MethodOptions =
+    findMethod(desc, methodName).toProto.getOptions.getExtension(kalix.Annotations.method)
+
+  def findHttpRule(desc: ComponentDescriptor, methodName: String): HttpRule =
+    findMethod(desc, methodName).toProto.getOptions.getExtension(AnnotationsProto.http)
+
   private def findField(method: ComponentMethod, fieldName: String): Descriptors.FieldDescriptor = {
-    val field = method.messageDescriptor.findFieldByName(fieldName)
+    val field = method.requestMessageDescriptor.findFieldByName(fieldName)
     if (field == null) throw new NoSuchElementException(s"no field found for $fieldName")
     field
   }

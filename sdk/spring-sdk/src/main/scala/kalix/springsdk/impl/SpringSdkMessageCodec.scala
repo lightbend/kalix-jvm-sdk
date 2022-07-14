@@ -21,12 +21,10 @@ import com.google.protobuf.{ Any => JavaPbAny }
 import kalix.javasdk.JsonSupport
 import kalix.javasdk.impl.MessageCodec
 
-object SpringSdkMessageCodec {
-  def instance: SpringSdkMessageCodec = apply()
-  def apply(): SpringSdkMessageCodec = new SpringSdkMessageCodec
-}
+private[springsdk] object SpringSdkMessageCodec extends MessageCodec {
 
-class SpringSdkMessageCodec extends MessageCodec {
+  /** Accessor for Java */
+  def instance(): MessageCodec = this
 
   /**
    * In the Spring SDK, output data are encoded to Json.

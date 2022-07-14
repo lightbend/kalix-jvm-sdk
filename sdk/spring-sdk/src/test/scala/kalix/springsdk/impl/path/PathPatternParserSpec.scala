@@ -19,18 +19,18 @@ package kalix.springsdk.impl.path
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 
-class SpringPathPatternParserSpec extends AnyWordSpec with Matchers {
+class PathPatternParserSpec extends AnyWordSpec with Matchers {
 
   "The Spring Path Pattern Parser" should {
     "parse a literal path" in {
-      SpringPathPatternParser.parse("/foo/bar").toGrpcTranscodingPattern should ===("/foo/bar")
+      PathPatternParser.parse("/foo/bar").toGrpcTranscodingPattern should ===("/foo/bar")
     }
     "parse a path with a parameter" in {
-      SpringPathPatternParser.parse("/foo/{param}").toGrpcTranscodingPattern should ===("/foo/{param}")
+      PathPatternParser.parse("/foo/{param}").toGrpcTranscodingPattern should ===("/foo/{param}")
     }
 
     "parse a path with multiple parameters" in {
-      SpringPathPatternParser.parse("/foo/{param1}/bar/{param2}").toGrpcTranscodingPattern should ===(
+      PathPatternParser.parse("/foo/{param1}/bar/{param2}").toGrpcTranscodingPattern should ===(
         "/foo/{param1}/bar/{param2}")
     }
 
