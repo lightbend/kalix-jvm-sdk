@@ -51,7 +51,7 @@ private[impl] object ProtoDescriptorGenerator {
     // finally build all final descriptor
     val fd = Descriptors.FileDescriptor.buildFrom(protoBuilder.build, dependencies)
     if (logger.isDebugEnabled) {
-      logger.debug("Generated file descriptor for service [{}]: {}", name, ProtoDescriptorRenderer.toString(fd))
+      logger.debug("Generated file descriptor for service [{}]: \n{}", name, ProtoDescriptorRenderer.toString(fd))
     }
     fd
   }
