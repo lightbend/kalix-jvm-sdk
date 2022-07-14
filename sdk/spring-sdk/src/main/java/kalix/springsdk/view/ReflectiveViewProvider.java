@@ -36,64 +36,65 @@ import java.util.Optional;
 import java.util.function.Function;
 
 public class ReflectiveViewProvider<S, V extends View<S>> implements ViewProvider<S, V> {
- private final Function<ViewCreationContext, V> factory;
+  private final Function<ViewCreationContext, V> factory;
 
- private final String viewId;
+  private final String viewId;
 
- private final ViewOptions options;
- private final Descriptors.FileDescriptor fileDescriptor;
- private final Descriptors.ServiceDescriptor serviceDescriptor;
- private final ComponentDescriptor componentDescriptor;
+  private final ViewOptions options;
+  private final Descriptors.FileDescriptor fileDescriptor;
+  private final Descriptors.ServiceDescriptor serviceDescriptor;
+  private final ComponentDescriptor componentDescriptor;
 
- public static <S, V extends View<S>> ReflectiveViewProvider<S, V> of(
-     Class<V> cls, Function<ViewCreationContext, V> factory) {
-  return new ReflectiveViewProvider<>(cls, cls.getName(), factory, ViewOptions.defaults());
- }
+  public static <S, V extends View<S>> ReflectiveViewProvider<S, V> of(
+      Class<V> cls, Function<ViewCreationContext, V> factory) {
+    return new ReflectiveViewProvider<>(cls, cls.getName(), factory, ViewOptions.defaults());
+  }
 
- public static <S, V extends View<S>> ReflectiveViewProvider<S, V> of(
-     Class<V> cls, String viewId, Function<ViewCreationContext, V> factory) {
-  return new ReflectiveViewProvider<>(cls, viewId, factory, ViewOptions.defaults());
- }
+  public static <S, V extends View<S>> ReflectiveViewProvider<S, V> of(
+      Class<V> cls, String viewId, Function<ViewCreationContext, V> factory) {
+    return new ReflectiveViewProvider<>(cls, viewId, factory, ViewOptions.defaults());
+  }
 
- private ReflectiveViewProvider(Class<V> cls, String viewId, Function<ViewCreationContext, V> factory, ViewOptions options) {
-  this.factory = factory;
-  this.options = options;
-  this.viewId = viewId;
+  private ReflectiveViewProvider(
+      Class<V> cls, String viewId, Function<ViewCreationContext, V> factory, ViewOptions options) {
+    this.factory = factory;
+    this.options = options;
+    this.viewId = viewId;
 
-  this.componentDescriptor = ComponentDescriptor.descriptorFor(cls);
+    this.componentDescriptor = ComponentDescriptor.descriptorFor(cls);
 
-  this.fileDescriptor = componentDescriptor.fileDescriptor();
-  this.serviceDescriptor = componentDescriptor.serviceDescriptor();
- }
+    this.fileDescriptor = componentDescriptor.fileDescriptor();
+    this.serviceDescriptor = componentDescriptor.serviceDescriptor();
+  }
 
- @Override
- public Descriptors.ServiceDescriptor serviceDescriptor() {
-  return serviceDescriptor;
- }
+  @Override
+  public Descriptors.ServiceDescriptor serviceDescriptor() {
+    return serviceDescriptor;
+  }
 
- @Override
- public String viewId() {
-  return viewId;
- }
+  @Override
+  public String viewId() {
+    return viewId;
+  }
 
- @Override
- public ViewOptions options() {
-  return options;
- }
+  @Override
+  public ViewOptions options() {
+    return options;
+  }
 
- @Override
- public ViewRouter<S, V> newRouter(ViewCreationContext context) {
-  V view = factory.apply(context);
-  return new ReflectiveViewRouter<>(view, componentDescriptor.methods());
- }
+  @Override
+  public ViewRouter<S, V> newRouter(ViewCreationContext context) {
+    V view = factory.apply(context);
+    return new ReflectiveViewRouter<>(view, componentDescriptor.methods());
+  }
 
- @Override
- public Descriptors.FileDescriptor[] additionalDescriptors() {
-  return new Descriptors.FileDescriptor[0];
- }
+  @Override
+  public Descriptors.FileDescriptor[] additionalDescriptors() {
+    return new Descriptors.FileDescriptor[0];
+  }
 
- @Override
- public Optional<MessageCodec> alternativeCodec() {
-  return Optional.of(SpringSdkMessageCodec.instance());
- }
+  @Override
+  public Optional<MessageCodec> alternativeCodec() {
+    return Optional.of(SpringSdkMessageCodec.instance());
+  }
 }

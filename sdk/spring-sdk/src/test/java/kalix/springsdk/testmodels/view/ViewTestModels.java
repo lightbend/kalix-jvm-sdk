@@ -161,7 +161,6 @@ public class ViewTestModels {
     }
   }
 
-
   @Table(value = "users_view")
   @Subscribe.ValueEntity(UserEntity.class)
   public static class UserByNameEmailWithPostRequestBodyOnly extends View<User> {
@@ -178,5 +177,4 @@ public class ViewTestModels {
       return null;
     }
   }
-
 }
