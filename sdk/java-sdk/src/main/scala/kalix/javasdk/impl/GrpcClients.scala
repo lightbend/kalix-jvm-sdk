@@ -61,7 +61,7 @@ final class GrpcClients(system: ExtendedActorSystem) extends Extension {
   private val log = LoggerFactory.getLogger(classOf[GrpcClients])
 
   @volatile private var proxyHostname: Option[String] = None
-  @volatile private var selfPort: Option[Int] = None
+  @volatile private var proxyPort: Option[Int] = None
   @volatile private var identificationInfo: Option[IdentificationInfo] = None
   private implicit val ec: ExecutionContext = system.dispatcher
   private val clients = new ConcurrentHashMap[Key, AnyRef]()
@@ -84,15 +84,14 @@ final class GrpcClients(system: ExtendedActorSystem) extends Extension {
     identificationInfo = info
   }
 
-  def setSelfServicePort(port: Int): Unit = {
+  def setProxyPort(port: Int): Unit = {
     log.debug("Setting port to: [{}]", port)
-    selfPort = Some(port)
+    proxyPort = Some(port)
   }
 
   def getComponentGrpcClient[T](serviceClass: Class[T]): T = {
-    getLocalGrpcClient(serviceClass)
+    getProxyGrpcClient(serviceClass)
   }
-
   def getProxyGrpcClient[T](serviceClass: Class[T]): T = {
     getLocalGrpcClient(serviceClass)
   }
@@ -104,13 +103,22 @@ final class GrpcClients(system: ExtendedActorSystem) extends Extension {
   def getGrpcClient[T](serviceClass: Class[T], service: String): T =
     getGrpcClient(serviceClass, service, port = 80, remoteAddHeader)
 
-  /** Local gRPC clients point to services (user components or Kalix services) in the same deployable */
+  /** gRPC clients point to services (user components or Kalix services) in the same deployable */
   private def getLocalGrpcClient[T](serviceClass: Class[T]): T = {
-    proxyHostname match {
-      case Some("localhost") => getGrpcClient(serviceClass, "localhost", selfPort.getOrElse(9000), localAddHeader)
-      case Some(selfName)    => getGrpcClient(serviceClass, selfName, 80, localAddHeader)
-      case None =>
-        throw new IllegalStateException("Self service name not set by proxy at discovery, too old proxy version?")
+    (proxyHostname, proxyPort) match {
+      case (Some(internalProxyHostname), Some(port)) =>
+        getGrpcClient(serviceClass, internalProxyHostname, port, localAddHeader)
+      // for backward compatibiliy with proxy 1.0.14 or older.
+      case (Some("localhost"), None) =>
+        log.warn("you are using an old version of the Kalix proxy")
+        getGrpcClient(serviceClass, "localhost", proxyPort.getOrElse(9000), localAddHeader)
+      // for backward compatibiliy with proxy 1.0.14 or older
+      case (Some(proxyHostname), None) =>
+        log.warn("you are using an old version of the Kalix proxy")
+        getGrpcClient(serviceClass, proxyHostname, 80, localAddHeader)
+      case _ =>
+        throw new IllegalStateException(
+          "Service proxy hostname and port are not set by proxy at discovery, too old proxy version?")
     }
   }
 
