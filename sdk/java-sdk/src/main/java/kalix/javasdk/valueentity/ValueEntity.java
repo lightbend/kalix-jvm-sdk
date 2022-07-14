@@ -36,8 +36,8 @@ public abstract class ValueEntity<S> {
    *
    * <p>Also known as "zero state" or "neutral state".
    *
-   * <p>The default implementation of this method returns <code>null</code>. It can be overridden to return a more
-   * sensible initial state.
+   * <p>The default implementation of this method returns <code>null</code>. It can be overridden to
+   * return a more sensible initial state.
    */
   public S emptyState() {
     return null;
