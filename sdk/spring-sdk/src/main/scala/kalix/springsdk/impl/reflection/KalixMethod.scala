@@ -17,6 +17,7 @@
 package kalix.springsdk.impl.reflection
 
 import com.google.protobuf.Descriptors
+import kalix.springsdk.impl.ProtoMessageDescriptors
 import kalix.springsdk.impl.path.{ PathPattern, PathPatternParser }
 import kalix.springsdk.impl.reflection.RestServiceIntrospector.{
   isEmpty,
@@ -93,7 +94,6 @@ case class SpringRestServiceMethod(
 
   override def javaMethodOpt: Option[Method] = Some(javaMethod)
   override def methodName: String = javaMethod.getName
-  val requestProtoMessageName: String = javaMethod.getName.capitalize + "Request"
 
   // First fail on unsupported mapping values. Should all default to empty arrays, but let's not trust that
   {

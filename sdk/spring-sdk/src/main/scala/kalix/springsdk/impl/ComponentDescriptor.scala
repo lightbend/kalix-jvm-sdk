@@ -189,10 +189,7 @@ private[impl] object ComponentDescriptor {
       httpRule: HttpRule.Builder,
       entityKeys: Seq[String] = Seq.empty): (DescriptorProto, Map[Int, ExtractorCreator]) = {
 
-    // FIXME the name depends on order of calls to name generator which could be problematic
-    // (for example sharding passing the request to a different Kalix node where the name was generated
-    // to have 2 instead of 1 in the msg name because of class path ordering not being consistent?)
-    val inputMessageName = nameGenerator.getName(serviceMethod.requestProtoMessageName)
+    val inputMessageName = nameGenerator.getName(serviceMethod.methodName.capitalize + "KalixSyntheticRequest")
 
     val inputMessageDescriptor = DescriptorProto.newBuilder()
     inputMessageDescriptor.setName(inputMessageName)
