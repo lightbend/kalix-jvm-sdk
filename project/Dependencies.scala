@@ -5,6 +5,8 @@ object Dependencies {
   object Kalix {
     val ProtocolVersionMajor = 1
     val ProtocolVersionMinor = 0
+    // Remember to make sure the proxy has been deployed to prod
+    // before updating this version.
     val ProxyVersion = System.getProperty("kalix-proxy.version", "1.0.13")
   }
 
