@@ -26,6 +26,9 @@ object ProtoDescriptorRenderer {
     // not water tight but better than the default non-protobuf Proto-toString format
     val proto = fileDescriptor.toProto
     val builder = new mutable.StringBuilder()
+    builder ++= "package "
+    builder ++= fileDescriptor.getPackage + ";\n"
+
     proto.getMessageTypeList.forEach { messageType =>
       builder ++= "message "
       builder ++= messageType.getName

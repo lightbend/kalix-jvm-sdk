@@ -25,7 +25,6 @@ import kalix.javasdk.valueentity.ValueEntityOptions;
 import kalix.javasdk.valueentity.ValueEntityProvider;
 import kalix.springsdk.annotations.Entity;
 import kalix.springsdk.impl.ComponentDescriptor;
-import kalix.springsdk.impl.ComponentDescriptorFactory;
 import kalix.springsdk.impl.SpringSdkMessageCodec;
 import kalix.springsdk.impl.valueentity.ReflectiveValueEntityRouter;
 

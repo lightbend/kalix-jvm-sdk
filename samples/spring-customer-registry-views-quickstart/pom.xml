@@ -238,6 +238,12 @@
         </configuration>
       </plugin>
 
+
+      <plugin>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-maven-plugin</artifactId>
+      </plugin>
+
       <plugin>
         <groupId>io.kalix</groupId>
         <artifactId>kalix-maven-plugin</artifactId>

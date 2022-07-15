@@ -13,12 +13,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 @Subscribe.ValueEntity(CustomerEntity.class)
 public class CustomerByNameView extends View<Customer> {
 
-  // FIXME should not actually be needed
-  @Override
-  public Customer emptyState() {
-    return null;
-  }
-
 
   @GetMapping("/customer/by_name/{customer_name}")
   @Query("SELECT * FROM customers_by_name WHERE name = :customer_name")
