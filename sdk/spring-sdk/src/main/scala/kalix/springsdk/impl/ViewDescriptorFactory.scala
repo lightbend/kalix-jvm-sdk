@@ -111,7 +111,10 @@ private[impl] object ViewDescriptorFactory extends ComponentDescriptorFactory {
     }
 
     // we only take methods with Query annotations and Spring REST annotations
-    val (queryMethod, queryResultDescriptor) = {
+    val (
+      queryMethod: KalixMethod,
+      queryInputSchemaDescriptor: Option[ProtoMessageDescriptors],
+      queryOutputSchemaDescriptor: ProtoMessageDescriptors) = {
       val annotatedMethods = RestServiceIntrospector
         .inspectService(component)
         .methods
@@ -125,11 +128,15 @@ private[impl] object ViewDescriptorFactory extends ComponentDescriptorFactory {
 
       val annotatedMethod: SpringRestServiceMethod = annotatedMethods.head
 
-      val returnType = annotatedMethod.javaMethod.getReturnType
-      val returnTypeDescriptor =
-        if (returnType == tableType) tableTypeDescriptor
-        else ProtoMessageDescriptors.generateMessageDescriptors(returnType)
+      val queryOutputType = annotatedMethod.javaMethod.getReturnType
+      val queryOutputSchemaDescriptor =
+        if (queryOutputType == tableType) tableTypeDescriptor
+        else ProtoMessageDescriptors.generateMessageDescriptors(queryOutputType)
 
+      val queryInputSchemaDescriptor =
+        annotatedMethod.params.find(_.isInstanceOf[BodyParameter]).map { case BodyParameter(param, _) =>
+          ProtoMessageDescriptors.generateMessageDescriptors(param.getParameterType)
+        }
       val queryStr = annotatedMethod.javaMethod.getAnnotation(classOf[Query]).value()
 
       val query = kalix.View.Query
@@ -140,15 +147,14 @@ private[impl] object ViewDescriptorFactory extends ComponentDescriptorFactory {
       val jsonSchema = {
         val builder = kalix.JsonSchema
           .newBuilder()
-          .setOutput(returnTypeDescriptor.mainMessageDescriptor.getName)
+          .setOutput(queryOutputSchemaDescriptor.mainMessageDescriptor.getName)
 
-        if (annotatedMethod.params.exists(_.isInstanceOf[BodyParameter])) {
-          // only define a json body if there is a request body mapping
+        queryInputSchemaDescriptor.foreach { inputSchema =>
           builder
-            .setInput(annotatedMethod.requestProtoMessageName)
+            .setInput(inputSchema.mainMessageDescriptor.getName)
             .setJsonBodyInputField("json_body")
-        }
 
+        }
         builder.build()
       }
 
@@ -164,15 +170,16 @@ private[impl] object ViewDescriptorFactory extends ComponentDescriptorFactory {
 
       // since it is a query, we don't actually ever want to handle any request in the SDK
       // the proxy does the work for us, mark the method as non-callable
-      (KalixMethod(annotatedMethod.copy(callable = false)).withKalixOptions(methodOptions), returnTypeDescriptor)
+      (
+        KalixMethod(annotatedMethod.copy(callable = false), methodOptions = Seq(methodOptions)),
+        queryInputSchemaDescriptor,
+        queryOutputSchemaDescriptor)
     }
 
     val kalixMethods: Seq[KalixMethod] = queryMethod +: updateMethods
     val serviceName = nameGenerator.getName(component.getSimpleName)
-    val additionalMessages =
-      Seq(tableTypeDescriptor) ++ (if (tableTypeDescriptor != queryResultDescriptor) Seq(queryResultDescriptor)
-                                   else Nil)
-    ComponentDescriptor(nameGenerator, serviceName, component.getPackageName, kalixMethods, additionalMessages)
+    val additionalMessages = Set(tableTypeDescriptor, queryOutputSchemaDescriptor) ++ queryInputSchemaDescriptor.toSet
+    ComponentDescriptor(nameGenerator, serviceName, component.getPackageName, kalixMethods, additionalMessages.toSeq)
   }
 
   private def addTableOptionsToUpdateMethod(

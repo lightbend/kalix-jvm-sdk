@@ -32,7 +32,10 @@ object ProtoDescriptorRenderer {
       builder ++= " {\n"
       messageType.getFieldList.forEach { field =>
         builder ++= "  "
-        builder ++= field.getTypeName
+        if (field.hasTypeName)
+          builder ++= field.getTypeName
+        else
+          builder ++= field.getType.name().toLowerCase.drop(5)
         builder ++= " "
         builder ++= field.getName
         builder ++= " = ";

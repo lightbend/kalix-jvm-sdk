@@ -51,7 +51,7 @@ class ViewDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSuit
         val queryMethodOptions = this.findKalixMethodOptions(desc, "GetUser")
         queryMethodOptions.getView.getQuery.getQuery shouldBe "SELECT * FROM users_view WHERE email = :email"
         queryMethodOptions.getView.getJsonSchema.getJsonBodyInputField shouldBe "json_body"
-        queryMethodOptions.getView.getJsonSchema.getInput shouldBe "GetUserRequest"
+        queryMethodOptions.getView.getJsonSchema.getInput shouldBe "ByEmail"
         queryMethodOptions.getView.getJsonSchema.getOutput shouldBe "TransformedUser"
 
         val tableMessageDescriptor = desc.fileDescriptor.findMessageTypeByName("TransformedUser")
@@ -59,7 +59,6 @@ class ViewDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSuit
 
         val rule = findHttpRule(desc, "GetUser")
         rule.getPost shouldBe "/users/by-email"
-
       }
     }
 
@@ -78,7 +77,7 @@ class ViewDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSuit
         queryMethodOptions.getView.getQuery.getQuery shouldBe "SELECT * FROM users_view WHERE email = :email"
         queryMethodOptions.getView.getJsonSchema.getOutput shouldBe "User"
         queryMethodOptions.getView.getJsonSchema.getJsonBodyInputField shouldBe "json_body"
-        queryMethodOptions.getView.getJsonSchema.getInput shouldBe "GetUserRequest"
+        queryMethodOptions.getView.getJsonSchema.getInput shouldBe "ByEmail"
 
         val tableMessageDescriptor = desc.fileDescriptor.findMessageTypeByName("User")
         tableMessageDescriptor should not be null
@@ -103,10 +102,10 @@ class ViewDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSuit
         queryMethodOptions.getView.getQuery.getQuery shouldBe "SELECT * FROM users_view WHERE email = :email"
         queryMethodOptions.getView.getJsonSchema.getOutput shouldBe "User"
         queryMethodOptions.getView.getJsonSchema.getJsonBodyInputField shouldBe "json_body"
-        queryMethodOptions.getView.getJsonSchema.getInput shouldBe "GetUserRequest"
+        queryMethodOptions.getView.getJsonSchema.getInput shouldBe "ByEmail"
 
         desc.fileDescriptor.findMessageTypeByName("User") should not be null
-        desc.fileDescriptor.findMessageTypeByName("GetUserRequest") should not be null
+        desc.fileDescriptor.findMessageTypeByName("ByEmail") should not be null
 
         val rule = findHttpRule(desc, "GetUser")
         rule.getPost shouldBe "/users/{name}/by-email"
@@ -154,7 +153,8 @@ class ViewDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSuit
         queryMethodOptions.getView.getQuery.getQuery shouldBe "SELECT * FROM users_view WHERE email = :email"
         queryMethodOptions.getView.getJsonSchema.getOutput shouldBe "User"
         queryMethodOptions.getView.getJsonSchema.getJsonBodyInputField shouldBe "json_body"
-        queryMethodOptions.getView.getJsonSchema.getInput shouldBe "GetUserRequest"
+        // based on the body parameter type class name
+        queryMethodOptions.getView.getJsonSchema.getInput shouldBe "ByEmail"
 
         val tableMessageDescriptor =
           desc.fileDescriptor.findMessageTypeByName("User")
