@@ -39,9 +39,12 @@ public abstract class EventSourcedEntity<S> {
    *
    * <p>Also known as "zero state" or "neutral state".
    *
-   * <p><code>null</code> is an allowed value.
+   * <p>The default implementation of this method returns <code>null</code>. It can be overridden to
+   * return a more sensible initial state.
    */
-  public abstract S emptyState();
+  public S emptyState() {
+    return null;
+  }
 
   /**
    * Additional context and metadata for a command handler.
