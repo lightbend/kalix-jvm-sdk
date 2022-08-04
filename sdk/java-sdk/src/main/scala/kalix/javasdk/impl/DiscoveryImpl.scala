@@ -70,6 +70,14 @@ class DiscoveryImpl(system: ActorSystem, services: Map[String, Service]) extends
    * Discover what components the user function wishes to serve.
    */
   override def discover(in: ProxyInfo): scala.concurrent.Future[Spec] = {
+    log.info(
+      "Received discovery call from [{} {}] at [{}]:[{}] supporting Kalix protocol {}.{}",
+      in.proxyName,
+      in.proxyVersion,
+      in.internalProxyHostname,
+      in.proxyPort,
+      in.protocolMajorVersion,
+      in.protocolMinorVersion)
     if (isVersionProbe(in)) {
       // only (silently) send service info for hybrid proxy version probe
       Future.successful(Spec(serviceInfo = Some(serviceInfo)))
@@ -78,23 +86,21 @@ class DiscoveryImpl(system: ActorSystem, services: Map[String, Service]) extends
       val proxyTerminatedPromise = if (in.devMode) Promise.successful[Done](Done) else Promise[Done]()
       proxyTerminatedRef.getAndSet(proxyTerminatedPromise).trySuccess(Done)
 
-      log.info(
-        "Received discovery call from [{} {}] at [{}] supporting Kalix protocol {}.{}",
-        in.proxyName,
-        in.proxyVersion,
-        in.proxyHostname,
-        in.protocolMajorVersion,
-        in.protocolMinorVersion)
       log.debug(s"Supported sidecar entity types: {}", in.supportedEntityTypes.mkString("[", ",", "]"))
 
       val unsupportedServices = services.values.filterNot { service =>
         in.supportedEntityTypes.contains(service.componentType)
       }
 
-      val grpcClients = GrpcClients.get(system)
+      val grpcClients = GrpcClients(system)
       // pass the deployed name of the service on to GrpcClients for cross component calls
-      GrpcClients.get(system).setProxyHostname(in.proxyHostname)
-
+      if (in.internalProxyHostname.isEmpty) {
+        // for backward compatibiliy with proxy 1.0.14 or older
+        grpcClients.setProxyHostname(in.proxyHostname)
+      } else {
+        grpcClients.setProxyHostname(in.internalProxyHostname)
+      }
+      grpcClients.setProxyPort(in.proxyPort)
       grpcClients.setIdentificationInfo(in.identificationInfo)
 
       if (unsupportedServices.nonEmpty) {
