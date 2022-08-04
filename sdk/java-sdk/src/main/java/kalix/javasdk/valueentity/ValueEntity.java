@@ -82,7 +82,7 @@ public abstract class ValueEntity<S> {
   protected final S currentState() {
     return currentState.orElseThrow(
         () ->
-            new IllegalStateException("Current state can only available when handling a command."));
+            new IllegalStateException("Current state is only available when handling a command."));
   }
 
   protected final Effect.Builder<S> effects() {

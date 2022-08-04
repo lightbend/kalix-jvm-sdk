@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.example;
+package customer.api;
 
 import kalix.javasdk.valueentity.ValueEntity;
 import kalix.springsdk.annotations.Entity;

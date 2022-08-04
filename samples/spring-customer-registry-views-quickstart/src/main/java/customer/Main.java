@@ -1,4 +1,4 @@
-package com.example;
+package customer;
 
 import kalix.springsdk.KalixConfiguration;
 import org.slf4j.Logger;

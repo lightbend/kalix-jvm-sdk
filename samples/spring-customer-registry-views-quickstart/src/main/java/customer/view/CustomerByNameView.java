@@ -1,8 +1,10 @@
-package com.example;
+package customer.view;
 /*
  * Copyright (C) 2009-2022 Lightbend Inc. <https://www.lightbend.com>
  */
 
+import customer.api.Customer;
+import customer.api.CustomerEntity;
 import kalix.javasdk.view.View;
 import kalix.springsdk.annotations.Query;
 import kalix.springsdk.annotations.Subscribe;
@@ -13,10 +15,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 @Subscribe.ValueEntity(CustomerEntity.class)
 public class CustomerByNameView extends View<Customer> {
 
-
   @GetMapping("/customer/by_name/{customer_name}")
   @Query("SELECT * FROM customers_by_name WHERE name = :customer_name")
-  public Customer getCustomer(String email) {
+  public Customer getCustomer(String name) {
     return null;
   }
 }
