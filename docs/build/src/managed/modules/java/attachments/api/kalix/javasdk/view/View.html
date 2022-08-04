@@ -27,8 +27,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":6,"i3":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":10,"i1":10,"i2":10,"i3":10};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -197,7 +197,7 @@ extends Object</pre>
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -216,9 +216,11 @@ extends Object</pre>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i2" class="altColor">
-<td class="colFirst"><code>abstract <a href="View.html" title="type parameter in View">S</a></code></td>
+<td class="colFirst"><code><a href="View.html" title="type parameter in View">S</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#emptyState()">emptyState</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block">The default implementation of this method returns <code>null</code>.</div>
+</td>
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code>protected <a href="UpdateContext.html" title="interface in kalix.javasdk.view">UpdateContext</a></code></td>
@@ -307,7 +309,9 @@ extends Object</pre>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>emptyState</h4>
-<pre class="methodSignature">public abstract&nbsp;<a href="View.html" title="type parameter in View">S</a>&nbsp;emptyState()</pre>
+<pre class="methodSignature">public&nbsp;<a href="View.html" title="type parameter in View">S</a>&nbsp;emptyState()</pre>
+<div class="block">The default implementation of this method returns <code>null</code>. It can be overridden to
+ return a more sensible initial state.</div>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>an empty state object or `null` to hand to the process method when an event for a
