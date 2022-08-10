@@ -33,7 +33,7 @@ To start the proxy, the Kafka broker, and the Zookeeper, run the following comma
 docker compose -f kafka/docker-compose.yml rm -f && docker compose -f kafka/docker-compose.yml up
 ```
 
-It can make sense to delete the existing containers (if exist) and start from scratch when starting up Kafka.
+It can make sense to delete the existing containers (if any exist) and start from scratch when starting up the Kafka container.
 
 ### Starting the application
 To start the application locally, the `exec-maven-plugin` is used. Use the following command:
