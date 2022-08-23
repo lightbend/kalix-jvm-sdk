@@ -35,9 +35,13 @@ import kalix.scalasdk.valueentity.ValueEntity
 import kalix.scalasdk.valueentity.ValueEntityProvider
 import kalix.scalasdk.view.View
 import kalix.scalasdk.view.ViewProvider
-import com.typesafe.config.Config
+import com.typesafe.config.{ Config, ConfigFactory }
+import kalix.scalasdk.Kalix.sdkNameConfig
 
 object Kalix {
+  // effectively overrides the sdk name so that scala apps get reported as such
+  private val sdkNameConfig = ConfigFactory.parseString(s"kalix.library.name: ${BuildInfo.name}")
+
   def apply() = new Kalix(new javasdk.Kalix().preferScalaProtobufs())
 
   private[scalasdk] def apply(impl: javasdk.Kalix) =
@@ -157,7 +161,8 @@ class Kalix private (private[kalix] val delegate: javasdk.Kalix) {
    *   a CompletionStage which will be completed when the server has shut down.
    */
   def start(): Future[Done] = {
-    createRunner().run()
+    val conf = ConfigFactory.load()
+    createRunner(sdkNameConfig.withFallback(conf)).run()
   }
 
   /**
@@ -167,7 +172,7 @@ class Kalix private (private[kalix] val delegate: javasdk.Kalix) {
    *   a CompletionStage which will be completed when the server has shut down.
    */
   def start(config: Config): Future[Done] = {
-    createRunner(config).run()
+    createRunner(sdkNameConfig.withFallback(config)).run()
   }
 
   /**
