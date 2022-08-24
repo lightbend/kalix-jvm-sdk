@@ -113,6 +113,7 @@ lazy val sdkScala = project
   .settings(common)
   .settings(
     name := "kalix-scala-sdk",
+    buildInfoObject := "ScalaSdkBuildInfo",
     buildInfoKeys := Seq[BuildInfoKey](
       name,
       version,
