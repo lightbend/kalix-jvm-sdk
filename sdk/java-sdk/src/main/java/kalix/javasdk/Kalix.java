@@ -61,7 +61,7 @@ public final class Kalix {
   private String typeUrlPrefix = AnySupport.DefaultTypeUrlPrefix();
   private AnySupport.Prefer prefer = AnySupport.PREFER_JAVA();
   private final LowLevelRegistration lowLevel = new LowLevelRegistration();
-  private SdkInfo sdkInfo = BuildInfo$.MODULE$;
+  private String sdkName = BuildInfo$.MODULE$.name();
 
   private class LowLevelRegistration {
     /**
@@ -288,12 +288,13 @@ public final class Kalix {
   }
 
   /**
+   * INTERNAL API - subject to change without notice
    *
-   * @param sdkInfo
-   * @return
+   * @param sdkName the name of the SDK used to build this Kalix app (i.e. kalix-java-sdk)
+   * @return This Kalix instance.
    */
-  public Kalix withSdkInfo(SdkInfo sdkInfo) {
-    this.sdkInfo = sdkInfo;
+  public Kalix withSdkName(String sdkName) {
+    this.sdkName = sdkName;
     return this;
   }
 
@@ -412,7 +413,7 @@ public final class Kalix {
    * @return a KalixRunner
    */
   public KalixRunner createRunner() {
-    return new KalixRunner(services, sdkInfo);
+    return new KalixRunner(services, sdkName);
   }
 
   /**
@@ -423,7 +424,7 @@ public final class Kalix {
    * @return a KalixRunner
    */
   public KalixRunner createRunner(Config config) {
-    return new KalixRunner(services, config, sdkInfo);
+    return new KalixRunner(services, config, sdkName);
   }
 
   private AnySupport newAnySupport(Descriptors.FileDescriptor[] descriptors) {

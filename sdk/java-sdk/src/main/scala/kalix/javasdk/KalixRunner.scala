@@ -74,7 +74,7 @@ object KalixRunner {
 final class KalixRunner private[this] (
     _system: ActorSystem,
     serviceFactories: Map[String, java.util.function.Function[ActorSystem, Service]],
-    buildInfo: SdkInfo) {
+    sdkName: String) {
   private[kalix] implicit val system: ActorSystem = _system
   private val log = LoggerFactory.getLogger(getClass)
 
@@ -88,7 +88,7 @@ final class KalixRunner private[this] (
   /**
    * Creates a KalixRunner from the given services. Use the default config to create the internal ActorSystem.
    */
-  def this(services: java.util.Map[String, java.util.function.Function[ActorSystem, Service]], buildInfo: SdkInfo) {
+  def this(services: java.util.Map[String, java.util.function.Function[ActorSystem, Service]], sdkName: String) {
     this(
       ActorSystem(
         "kalix", {
@@ -96,7 +96,7 @@ final class KalixRunner private[this] (
           conf.getConfig("kalix.system").withFallback(conf)
         }),
       services.asScala.toMap,
-      buildInfo)
+      sdkName)
   }
 
   /**
@@ -107,8 +107,8 @@ final class KalixRunner private[this] (
   def this(
       services: java.util.Map[String, java.util.function.Function[ActorSystem, Service]],
       config: Config,
-      buildInfo: SdkInfo) {
-    this(ActorSystem("kalix", config.getConfig("kalix.system").withFallback(config)), services.asScala.toMap, buildInfo)
+      sdkName: String) {
+    this(ActorSystem("kalix", config.getConfig("kalix.system").withFallback(config)), services.asScala.toMap, sdkName)
   }
 
   private val rootContext: Context = new AbstractContext(system) {}
@@ -147,7 +147,7 @@ final class KalixRunner private[this] (
           sys.error(s"Unknown service type: $serviceClass")
       }
 
-    val discovery = DiscoveryHandler.partial(new DiscoveryImpl(system, services, buildInfo))
+    val discovery = DiscoveryHandler.partial(new DiscoveryImpl(system, services, sdkName))
 
     serviceRoutes.orElse(discovery).orElse { case _ => Future.successful(HttpResponse(StatusCodes.NotFound)) }
   }
