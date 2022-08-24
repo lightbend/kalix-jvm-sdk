@@ -34,7 +34,7 @@ import scala.io.Source
 import scala.jdk.CollectionConverters._
 import scala.util.control.NonFatal
 
-class DiscoveryImpl(system: ActorSystem, services: Map[String, Service]) extends Discovery {
+class DiscoveryImpl(system: ActorSystem, services: Map[String, Service], sdkName: String) extends Discovery {
   import DiscoveryImpl._
 
   private val log = LoggerFactory.getLogger(getClass)
@@ -56,7 +56,7 @@ class DiscoveryImpl(system: ActorSystem, services: Map[String, Service]) extends
   private val serviceInfo = ServiceInfo(
     serviceRuntime = sys.props.getOrElse("java.runtime.name", "")
       + " " + sys.props.getOrElse("java.runtime.version", ""),
-    supportLibraryName = configuredOrElse("kalix.library.name", BuildInfo.name),
+    supportLibraryName = sdkName,
     supportLibraryVersion = configuredOrElse("kalix.library.version", BuildInfo.version),
     protocolMajorVersion = configuredIntOrElse("kalix.library.protocol-major-version", BuildInfo.protocolMajorVersion),
     protocolMinorVersion = configuredIntOrElse("kalix.library.protocol-minor-version", BuildInfo.protocolMinorVersion))
