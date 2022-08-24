@@ -44,6 +44,7 @@ lazy val sdkJava = project
   .settings(
     name := "kalix-java-sdk",
     crossPaths := false,
+    buildInfoOptions += BuildInfoOption.Traits("kalix.javasdk.SdkInfo"),
     buildInfoKeys := Seq[BuildInfoKey](
       name,
       version,
@@ -86,6 +87,7 @@ lazy val sdkScala = project
   .settings(common)
   .settings(
     name := "kalix-scala-sdk",
+    buildInfoOptions += BuildInfoOption.Traits("kalix.javasdk.SdkInfo"),
     buildInfoKeys := Seq[BuildInfoKey](
       name,
       version,

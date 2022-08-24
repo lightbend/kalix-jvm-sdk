@@ -61,6 +61,7 @@ public final class Kalix {
   private String typeUrlPrefix = AnySupport.DefaultTypeUrlPrefix();
   private AnySupport.Prefer prefer = AnySupport.PREFER_JAVA();
   private final LowLevelRegistration lowLevel = new LowLevelRegistration();
+  private SdkInfo sdkInfo = BuildInfo$.MODULE$;
 
   private class LowLevelRegistration {
     /**
@@ -287,6 +288,16 @@ public final class Kalix {
   }
 
   /**
+   *
+   * @param sdkInfo
+   * @return
+   */
+  public Kalix withSdkInfo(SdkInfo sdkInfo) {
+    this.sdkInfo = sdkInfo;
+    return this;
+  }
+
+  /**
    * Register a replicated entity using a {@link ReplicatedEntityProvider}. The concrete <code>
    * ReplicatedEntityProvider</code> is generated for the specific entities defined in Protobuf, for
    * example <code>CustomerEntityProvider</code>.
@@ -401,7 +412,7 @@ public final class Kalix {
    * @return a KalixRunner
    */
   public KalixRunner createRunner() {
-    return new KalixRunner(services);
+    return new KalixRunner(services, sdkInfo);
   }
 
   /**
@@ -412,7 +423,7 @@ public final class Kalix {
    * @return a KalixRunner
    */
   public KalixRunner createRunner(Config config) {
-    return new KalixRunner(services, config);
+    return new KalixRunner(services, config, sdkInfo);
   }
 
   private AnySupport newAnySupport(Descriptors.FileDescriptor[] descriptors) {

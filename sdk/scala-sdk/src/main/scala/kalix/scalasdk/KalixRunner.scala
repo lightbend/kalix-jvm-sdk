@@ -31,7 +31,7 @@ private[scalasdk] object KalixRunner {
    * Creates a KalixRunner from the given services. Use the default config to create the internal ActorSystem.
    */
   def apply(services: Map[String, ActorSystem => javasdk.impl.Service]): KalixRunner =
-    new KalixRunner(new javasdk.KalixRunner(toJava(services)))
+    new KalixRunner(new javasdk.KalixRunner(toJava(services), BuildInfo))
 
   /**
    * Creates a KalixRunner from the given services and config. The config should have the same structure as the
@@ -39,7 +39,7 @@ private[scalasdk] object KalixRunner {
    * `kalix.system` section.
    */
   def apply(services: Map[String, ActorSystem => javasdk.impl.Service], config: Config): KalixRunner =
-    new KalixRunner(new javasdk.KalixRunner(toJava(services), config))
+    new KalixRunner(new javasdk.KalixRunner(toJava(services), config, BuildInfo))
 
   def apply(impl: javasdk.KalixRunner): KalixRunner =
     new KalixRunner(impl)
