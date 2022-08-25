@@ -4,6 +4,7 @@ package customer.view;
 import customer.Main;
 import customer.api.Customer;
 import kalix.springsdk.KalixConfigurationTest;
+import org.hamcrest.core.IsEqual;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
@@ -17,9 +18,11 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.time.Duration;
+import static java.time.temporal.ChronoUnit.SECONDS;
+import java.util.concurrent.TimeUnit;
 import java.util.UUID;
 
-import static java.time.temporal.ChronoUnit.SECONDS;
+import static org.awaitility.Awaitility.await;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = Main.class)
@@ -48,16 +51,18 @@ public class CustomerByEmailIntegrationTest {
 
     Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
 
-    Customer customerByName =
-        webClient
-            .get()
-            .uri("/customer/by_email/bar@example.com")
-            .retrieve()
-            .bodyToMono(Customer.class)
-            .block(timeout);
-
-   Assertions.assertEquals("Bar", customerByName.name);
-
+    // the view is eventually updated
+    await()
+        .atMost(20, TimeUnit.SECONDS)
+        .until(() ->
+                webClient.get()
+                    .uri("/customer/by_email/bar@example.com")
+                    .retrieve()
+                    .bodyToMono(Customer.class)
+                    .block(timeout)
+                    .name,
+            new IsEqual("Bar")
+        );
   }
 
 }
