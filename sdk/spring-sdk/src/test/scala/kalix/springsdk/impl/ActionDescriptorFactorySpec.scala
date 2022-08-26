@@ -32,6 +32,7 @@ import kalix.springsdk.testmodels.action.ActionsTestModels.PutWithOneParam
 import kalix.springsdk.testmodels.action.ActionsTestModels.PutWithoutParam
 import kalix.springsdk.testmodels.subscriptions.SubscriptionsTestModels.RestAnnotatedSubscribeToValueEntityAction
 import kalix.springsdk.testmodels.subscriptions.SubscriptionsTestModels.SubscribeToValueEntityAction
+import kalix.springsdk.testmodels.subscriptions.SubscriptionsTestModels.SubscribeToTopicAction
 import org.scalatest.wordspec.AnyWordSpec
 
 class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSuite {
@@ -159,6 +160,24 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
       intercept[IllegalArgumentException] {
         ComponentDescriptor.descriptorFor[RestAnnotatedSubscribeToValueEntityAction]
       }
+    }
+
+    "generate mapping for an Action with a subscription to a topic" in {
+      assertDescriptor[SubscribeToTopicAction] { desc =>
+        val methodOne = desc.methods("MessageOne")
+        methodOne.requestMessageDescriptor.getFullName shouldBe JavaPbAny.getDescriptor.getFullName
+
+        val eventSourceOne = findKalixMethodOptions(desc, "MessageOne").getEventing.getIn
+        eventSourceOne.getTopic shouldBe "topicXYZ"
+        val rule = findHttpRule(desc, "MessageOne")
+
+        rule.getPost shouldBe
+        "/kalix.springsdk.testmodels.subscriptions.SubscriptionsTestModels.SubscribeToTopicAction/MessageOne"
+
+        // should have a default extractor for any payload
+        methodOne.parameterExtractors.size shouldBe 1
+      }
+
     }
 
   }

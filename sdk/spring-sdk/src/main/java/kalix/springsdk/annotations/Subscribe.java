@@ -17,6 +17,7 @@
 package kalix.springsdk.annotations;
 
 import java.lang.annotation.*;
+import org.springframework.core.annotation.AliasFor;
 
 public @interface Subscribe {
 
@@ -25,5 +26,14 @@ public @interface Subscribe {
   @Documented
   @interface ValueEntity {
     Class<? extends kalix.javasdk.valueentity.ValueEntity<?>> value();
+  }
+
+  @Target(ElementType.METHOD)
+  @Retention(RetentionPolicy.RUNTIME)
+  @Documented
+  @interface Topic {
+    String value();
+    // @AliasFor("value")
+    // String name();
   }
 }

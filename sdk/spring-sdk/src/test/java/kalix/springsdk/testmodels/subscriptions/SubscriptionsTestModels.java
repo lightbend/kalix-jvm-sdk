@@ -39,6 +39,14 @@ public class SubscriptionsTestModels {
     }
   }
 
+  public static class SubscribeToTopicAction extends Action {
+
+    @Subscribe.Topic("topicXYZ")
+    public Action.Effect<Message> messageOne(Message message) {
+      return effects().reply(message);
+    }
+  }
+
   public static class RestAnnotatedSubscribeToValueEntityAction extends Action {
     // this should fail as not allowed
     @Subscribe.ValueEntity(Counter.class)

@@ -29,6 +29,10 @@ private[impl] object ComponentDescriptorFactory {
     Modifier.isPublic(javaMethod.getModifiers) &&
     javaMethod.getAnnotation(classOf[Subscribe.ValueEntity]) != null
 
+  def hasTopicSubscription(javaMethod: Method): Boolean =
+    Modifier.isPublic(javaMethod.getModifiers) &&
+    javaMethod.getAnnotation(classOf[Subscribe.Topic]) != null
+
   def findValueEntityType(javaMethod: Method): String = {
     val ann = javaMethod.getAnnotation(classOf[Subscribe.ValueEntity])
     val entityClass = ann.value()
@@ -41,9 +45,20 @@ private[impl] object ComponentDescriptorFactory {
     entityClass.getAnnotation(classOf[Entity]).entityType()
   }
 
+  def findTopicName(javaMethod: Method): String = {
+    val ann = javaMethod.getAnnotation(classOf[Subscribe.Topic])
+    ann.value()
+  }
+
   def eventingInForValueEntity(javaMethod: Method): Eventing = {
     val entityType = findValueEntityType(javaMethod)
     val eventSource = EventSource.newBuilder().setValueEntity(entityType).build()
+    Eventing.newBuilder().setIn(eventSource).build()
+  }
+
+  def eventingInForTopic(javaMethod: Method): Eventing = {
+    val topicName = findTopicName(javaMethod)
+    val eventSource = EventSource.newBuilder().setTopic(topicName).build()
     Eventing.newBuilder().setIn(eventSource).build()
   }
 
