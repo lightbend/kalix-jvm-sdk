@@ -968,7 +968,7 @@ jobs:
             rm -rf src/main/scala src/test/scala src/it/scala
             sbt -Dkalix-sdk.version=$SDK_VERSION Test/compile
 
-  sample-spring-java-fibonacci-action:
+  sample-spring-fibonacci-action:
     machine:
       image: ubuntu-2004:202201-02
     steps:
@@ -979,13 +979,46 @@ jobs:
       - copy-from-workspace
       - set-sdk-version
       - run:
-          name: Java Fibonacci Action
+          name: Spring SDK Fibonacci Action
           command: |
-            cd samples/spring-java-fibonacci-action
+            cd samples/spring-fibonacci-action
+            echo "Running mvn with SDK version: '$SDK_VERSION'"
+            mvn -Dkalix-sdk.version=$SDK_VERSION verify -Pit 
+
+  sample-spring-customer-registry-views-quickstart:
+    machine:
+      image: ubuntu-2004:202201-02
+    steps:
+      - checkout-and-merge-to-main
+      - setup_sbt
+      - restore_deps_cache
+      # note: `copy-from-workspace` requires `publish-local` to be run first as declared in workflow section below
+      - copy-from-workspace
+      - set-sdk-version
+      - run:
+          name: Spring SDK Customer Registry quickstart
+          command: |
+            cd samples/spring-customer-registry-views-quickstart
+            echo "Running mvn with SDK version: '$SDK_VERSION'"
+            mvn -Dkalix-sdk.version=$SDK_VERSION verify -Pit             
+
+  sample-spring-wiring-tests:
+    machine:
+      image: ubuntu-2004:202201-02
+    steps:
+      - checkout-and-merge-to-main
+      - setup_sbt
+      - restore_deps_cache
+      # note: `copy-from-workspace` requires `publish-local` to be run first as declared in workflow section below
+      - copy-from-workspace
+      - set-sdk-version
+      - run:
+          name: Spring SDK wiring tests
+          command: |
+            cd samples/spring-wiring-tests
             echo "Running mvn with SDK version: '$SDK_VERSION'"
             # no testing for now, only 'compile'
-            mvn -Dkalix-sdk.version=$SDK_VERSION compile 
-
+            mvn -Dkalix-sdk.version=$SDK_VERSION verify -Pit
   publish:
     docker:
       - image: circleci/openjdk:11
@@ -1225,6 +1258,18 @@ workflows:
             - checks
             - publish-local
       - sample-scala-reliable-timers:
+          requires:
+            - checks
+            - publish-local
+      - sample-spring-fibonacci-action:
+          requires:
+            - checks
+            - publish-local
+      - sample-spring-customer-registry-views-quickstart:
+          requires:
+            - checks
+            - publish-local
+      - sample-spring-wiring-tests:
           requires:
             - checks
             - publish-local

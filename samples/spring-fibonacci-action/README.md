@@ -32,7 +32,7 @@ docker-compose up
 To start the application locally, the `exec-maven-plugin` is used. Use the following command:
 
 ```shell
-mvn compile exec:exec
+mvn spring-boot:run
 ```
 
 For further details see [Running a service locally](https://docs.kalix.io/developing/running-service-locally.html) in the documentation.
