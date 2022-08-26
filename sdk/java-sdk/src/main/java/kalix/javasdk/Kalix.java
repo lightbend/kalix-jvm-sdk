@@ -20,6 +20,7 @@ import akka.Done;
 import akka.actor.ActorSystem;
 import com.google.protobuf.Descriptors;
 import com.typesafe.config.Config;
+import kalix.javasdk.action.Action;
 import kalix.javasdk.action.ActionOptions;
 import kalix.javasdk.action.ActionProvider;
 import kalix.javasdk.eventsourcedentity.EventSourcedEntity;
@@ -360,7 +361,7 @@ public final class Kalix {
   }
 
   /**
-   * Register a event sourced entity using a {{@link EventSourcedEntityProvider}}. The concrete
+   * Register an event sourced entity using a {{@link EventSourcedEntityProvider}}. The concrete
    * <code>
    * EventSourcedEntityProvider</code> is generated for the specific entities defined in Protobuf,
    * for example <code>CustomerEntityProvider</code>.
@@ -387,7 +388,7 @@ public final class Kalix {
    *
    * @return This stateful service builder.
    */
-  public Kalix register(ViewProvider provider) {
+  public Kalix register(ViewProvider<?, ?> provider) {
     return lowLevel.registerView(
         provider::newRouter,
         provider.serviceDescriptor(),
@@ -403,10 +404,9 @@ public final class Kalix {
    *
    * @return This stateful service builder.
    */
-  public Kalix register(ActionProvider provider) {
-    // FIXME: type inference complaining about lack of type param in ActionProvider<>
-    Optional<MessageCodec> codecOpt = provider.alternativeCodec();
-    return codecOpt
+  public <A extends Action> Kalix register(ActionProvider<A> provider) {
+    return provider
+        .alternativeCodec()
         .map(
             codec ->
                 lowLevel.registerAction(

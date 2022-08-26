@@ -14,24 +14,15 @@
  * limitations under the License.
  */
 
-package com.example;
+package customer.api;
 
-import akka.Done;
 import kalix.javasdk.valueentity.ValueEntity;
 import kalix.springsdk.annotations.Entity;
 import org.springframework.web.bind.annotation.*;
 
-import static akka.Done.done;
-
 @Entity(entityKey = "id", entityType = "customer")
 @RequestMapping("/customer/{id}")
 public class CustomerEntity extends ValueEntity<Customer> {
-
-  // FIXME: (in SDK) default empty state as null with no need to override
-  @Override
-  public Customer emptyState() {
-    return null;
-  }
 
   @PostMapping("/create")
   public ValueEntity.Effect<String> create(@RequestBody Customer customer) {

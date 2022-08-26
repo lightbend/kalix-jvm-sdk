@@ -17,20 +17,16 @@
 package kalix.springsdk.view;
 
 import com.google.protobuf.Descriptors;
-import kalix.javasdk.action.Action;
-import kalix.javasdk.action.ActionCreationContext;
-import kalix.javasdk.action.ActionOptions;
 import kalix.javasdk.impl.MessageCodec;
 import kalix.javasdk.impl.view.ViewRouter;
 import kalix.javasdk.view.View;
 import kalix.javasdk.view.ViewCreationContext;
 import kalix.javasdk.view.ViewOptions;
 import kalix.javasdk.view.ViewProvider;
-import kalix.springsdk.action.ReflectiveActionProvider;
+import kalix.springsdk.annotations.ViewId;
 import kalix.springsdk.impl.ComponentDescriptor;
 import kalix.springsdk.impl.SpringSdkMessageCodec;
 import kalix.springsdk.impl.view.ReflectiveViewRouter;
-import scala.NotImplementedError;
 
 import java.util.Optional;
 import java.util.function.Function;
@@ -47,11 +43,12 @@ public class ReflectiveViewProvider<S, V extends View<S>> implements ViewProvide
 
   public static <S, V extends View<S>> ReflectiveViewProvider<S, V> of(
       Class<V> cls, Function<ViewCreationContext, V> factory) {
-    return new ReflectiveViewProvider<>(cls, cls.getName(), factory, ViewOptions.defaults());
-  }
 
-  public static <S, V extends View<S>> ReflectiveViewProvider<S, V> of(
-      Class<V> cls, String viewId, Function<ViewCreationContext, V> factory) {
+    String viewId =
+        Optional.ofNullable(cls.getAnnotation(ViewId.class))
+            .map(ViewId::value)
+            .orElseGet(cls::getName);
+
     return new ReflectiveViewProvider<>(cls, viewId, factory, ViewOptions.defaults());
   }
 
