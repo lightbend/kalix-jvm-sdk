@@ -26,18 +26,16 @@ import kalix.javasdk.impl.action.{ ActionService, ActionsImpl }
 import kalix.javasdk.impl.replicatedentity.{ ReplicatedEntitiesImpl, ReplicatedEntityService }
 import kalix.javasdk.impl.valueentity.{ ValueEntitiesImpl, ValueEntityService }
 import kalix.javasdk.impl.eventsourcedentity.{ EventSourcedEntitiesImpl, EventSourcedEntityService }
-import kalix.javasdk.impl.{ DiscoveryImpl, Service }
+import kalix.javasdk.impl.{ AbstractContext, DiscoveryImpl, Service }
 import kalix.protocol.action.ActionsHandler
 import kalix.protocol.discovery.DiscoveryHandler
 import kalix.protocol.event_sourced_entity.EventSourcedEntitiesHandler
 import kalix.protocol.replicated_entity.ReplicatedEntitiesHandler
 import kalix.protocol.value_entity.ValueEntitiesHandler
-import com.google.protobuf.Descriptors
 import com.typesafe.config.{ Config, ConfigFactory }
 
 import java.util.concurrent.CompletionStage
 import kalix.javasdk.impl.view.ViewService
-import kalix.javasdk.impl.AbstractContext
 
 import scala.compat.java8.FutureConverters
 import scala.concurrent.Future
@@ -75,7 +73,8 @@ object KalixRunner {
  */
 final class KalixRunner private[this] (
     _system: ActorSystem,
-    serviceFactories: Map[String, java.util.function.Function[ActorSystem, Service]]) {
+    serviceFactories: Map[String, java.util.function.Function[ActorSystem, Service]],
+    sdkName: String) {
   private[kalix] implicit val system: ActorSystem = _system
   private val log = LoggerFactory.getLogger(getClass)
 
@@ -89,14 +88,15 @@ final class KalixRunner private[this] (
   /**
    * Creates a KalixRunner from the given services. Use the default config to create the internal ActorSystem.
    */
-  def this(services: java.util.Map[String, java.util.function.Function[ActorSystem, Service]]) {
+  def this(services: java.util.Map[String, java.util.function.Function[ActorSystem, Service]], sdkName: String) {
     this(
       ActorSystem(
         "kalix", {
           val conf = ConfigFactory.load()
           conf.getConfig("kalix.system").withFallback(conf)
         }),
-      services.asScala.toMap)
+      services.asScala.toMap,
+      sdkName)
   }
 
   /**
@@ -104,8 +104,11 @@ final class KalixRunner private[this] (
    * reference.conf, with `kalix` as the root section, and the configuration for the internal ActorSystem is in the
    * `kalix.system` section.
    */
-  def this(services: java.util.Map[String, java.util.function.Function[ActorSystem, Service]], config: Config) {
-    this(ActorSystem("kalix", config.getConfig("kalix.system").withFallback(config)), services.asScala.toMap)
+  def this(
+      services: java.util.Map[String, java.util.function.Function[ActorSystem, Service]],
+      config: Config,
+      sdkName: String) {
+    this(ActorSystem("kalix", config.getConfig("kalix.system").withFallback(config)), services.asScala.toMap, sdkName)
   }
 
   private val rootContext: Context = new AbstractContext(system) {}
@@ -144,7 +147,7 @@ final class KalixRunner private[this] (
           sys.error(s"Unknown service type: $serviceClass")
       }
 
-    val discovery = DiscoveryHandler.partial(new DiscoveryImpl(system, services))
+    val discovery = DiscoveryHandler.partial(new DiscoveryImpl(system, services, sdkName))
 
     serviceRoutes.orElse(discovery).orElse { case _ => Future.successful(HttpResponse(StatusCodes.NotFound)) }
   }
