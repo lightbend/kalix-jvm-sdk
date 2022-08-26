@@ -3,6 +3,8 @@ package customer.api;
 
 import customer.Main;
 import kalix.springsdk.KalixConfigurationTest;
+import org.hamcrest.core.IsEqual;
+import org.junit.BeforeClass;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
@@ -17,9 +19,11 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
 import java.time.Duration;
+import static java.time.temporal.ChronoUnit.SECONDS;
+import java.util.concurrent.TimeUnit;
 import java.util.UUID;
 
-import static java.time.temporal.ChronoUnit.SECONDS;
+import static org.awaitility.Awaitility.await;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = Main.class)
@@ -34,7 +38,7 @@ public class CustomerIntegrationTest {
   private Duration timeout = Duration.of(5, SECONDS);
 
   @Test
-  public void create() {
+  public void create() throws InterruptedException {
     String id = UUID.randomUUID().toString();
     Customer customer = new Customer(id, "foo@example.com", "Johanna", null);
 
@@ -51,7 +55,7 @@ public class CustomerIntegrationTest {
   }
 
   @Test
-  public void changeName() {
+  public void changeName() throws InterruptedException {
     String id = UUID.randomUUID().toString();
     Customer customer = new Customer(id, "foo@example.com", "Johanna", null);
 
@@ -78,7 +82,7 @@ public class CustomerIntegrationTest {
   }
 
   @Test
-  public void changeAddress() {
+  public void changeAddress() throws InterruptedException {
     String id = UUID.randomUUID().toString();
     Customer customer = new Customer(id, "foo@example.com", "Johanna", null);
 
@@ -107,6 +111,61 @@ public class CustomerIntegrationTest {
   }
 
 
+  @Test
+  public void findByName() throws Exception {
+    String id = UUID.randomUUID().toString();
+    Customer customer = new Customer(id, "foo@example.com", "Foo", null);
+    ResponseEntity<String> response =
+        webClient.post()
+            .uri("/customer/" + id + "/create")
+            .bodyValue(customer)
+            .retrieve()
+            .toEntity(String.class)
+            .block(timeout);
+
+    Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+
+
+    // the view is eventually updated
+    await()
+        .atMost(20, TimeUnit.SECONDS)
+        .until(() ->
+                webClient.get()
+                    .uri("/customer/by_name/Foo")
+                    .retrieve()
+                    .bodyToMono(Customer.class)
+                    .block(timeout)
+                    .name,
+            new IsEqual("Foo")
+        );
+  }
+
+  public void findByEmail() throws Exception {
+    String id = UUID.randomUUID().toString();
+    Customer customer = new Customer(id, "bar@example.com", "Bar", null);
+    ResponseEntity<String> response =
+        webClient.post()
+            .uri("/customer/" + id + "/create")
+            .bodyValue(customer)
+            .retrieve()
+            .toEntity(String.class)
+            .block(timeout);
+
+    Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+
+    // the view is eventually updated
+    await()
+        .atMost(20, TimeUnit.SECONDS)
+        .until(() ->
+                webClient.get()
+                    .uri("/customer/by_email/bar@example.com")
+                    .retrieve()
+                    .bodyToMono(Customer.class)
+                    .block(timeout)
+                    .name,
+            new IsEqual("Bar")
+        );
+  }
   private Customer getCustomerById(String customerId) {
     return webClient
         .get()
