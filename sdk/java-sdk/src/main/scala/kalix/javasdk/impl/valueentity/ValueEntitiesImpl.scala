@@ -114,6 +114,7 @@ final class ValueEntitiesImpl(system: ActorSystem, val services: Map[String, Val
           ValueEntityStreamOut(OutFailure(Failure(description = s"Unexpected error [$correlationId]")))
         }
       }
+      .async
 
   private def runEntity(init: ValueEntityInit): Flow[ValueEntityStreamIn, ValueEntityStreamOut, NotUsed] = {
     val service =

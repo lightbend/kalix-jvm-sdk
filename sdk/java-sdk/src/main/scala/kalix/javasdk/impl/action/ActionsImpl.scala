@@ -266,6 +266,7 @@ private[javasdk] final class ActionsImpl(
               // user stream failed with an "unexpected" error
               handleUnexpectedException(service, in, ex)
             }
+            .async
         } catch {
           case NonFatal(ex) =>
             // command handler threw an "unexpected" error
