@@ -23,6 +23,7 @@ import kalix.javasdk.Kalix
 import kalix.javasdk.action.Action
 import kalix.javasdk.action.ActionCreationContext
 import kalix.javasdk.action.ActionProvider
+import kalix.javasdk.eventsourcedentity.{ EventSourcedEntity, EventSourcedEntityContext, EventSourcedEntityProvider }
 import kalix.javasdk.valueentity.ValueEntity
 import kalix.javasdk.valueentity.ValueEntityContext
 import kalix.javasdk.valueentity.ValueEntityProvider
@@ -31,9 +32,11 @@ import kalix.javasdk.view.ViewCreationContext
 import kalix.javasdk.view.ViewProvider
 import kalix.springsdk.SpringSdkBuildInfo
 import kalix.springsdk.action.ReflectiveActionProvider
+import kalix.springsdk.eventsourced.ReflectiveEventSourcedEntityProvider
 import kalix.springsdk.impl.KalixServer.ActionCreationContextFactoryBean
 import kalix.springsdk.impl.KalixServer.KalixComponentProvider
 import kalix.springsdk.impl.KalixServer.ValueEntityContextFactoryBean
+import kalix.springsdk.impl.KalixServer.EventSourcedEntityContextFactoryBean
 import kalix.springsdk.impl.KalixServer.ViewCreationContextFactoryBean
 import kalix.springsdk.valueentity.ReflectiveValueEntityProvider
 import kalix.springsdk.view.ReflectiveViewProvider
@@ -66,9 +69,10 @@ object KalixServer {
   class KalixComponentProvider extends ClassPathScanningCandidateComponentProvider {
 
     object KalixComponentTypeFilter extends TypeFilter {
-      // TODO: missing EventSourced and Replicated Entities
+      // TODO: missing Replicated Entities
       val kalixComponents =
         classOf[Action].getName ::
+        classOf[EventSourcedEntity[_]].getName ::
         classOf[ValueEntity[_]].getName ::
         classOf[View[_]].getName ::
         Nil
@@ -112,6 +116,13 @@ object KalixServer {
     override def getObjectType: Class[_] = classOf[ActionCreationContext]
   }
 
+  class EventSourcedEntityContextFactoryBean(loco: ThreadLocal[EventSourcedEntityContext])
+      extends FactoryBean[EventSourcedEntityContext] {
+    override def isSingleton: Boolean = false // never!!
+    override def getObject: EventSourcedEntityContext = loco.get()
+    override def getObjectType: Class[_] = classOf[ValueEntityContext]
+  }
+
   class ValueEntityContextFactoryBean(loco: ThreadLocal[ValueEntityContext]) extends FactoryBean[ValueEntityContext] {
     override def isSingleton: Boolean = false // never!!
     override def getObject: ValueEntityContext = loco.get()
@@ -133,6 +144,7 @@ class KalixServer(applicationContext: ApplicationContext, config: Config) {
   val kalix = (new Kalix).withSdkName(SpringSdkBuildInfo.name)
 
   private val threadLocalActionContext = new ThreadLocal[ActionCreationContext]
+  private val threadLocalEventSourcedEntityContext = new ThreadLocal[EventSourcedEntityContext]
   private val threadLocalValueEntityContext = new ThreadLocal[ValueEntityContext]
   private val threadLocalViewContext = new ThreadLocal[ViewCreationContext]
 
@@ -143,6 +155,9 @@ class KalixServer(applicationContext: ApplicationContext, config: Config) {
   private val actionCreationContextFactoryBean: ActionCreationContextFactoryBean =
     new ActionCreationContextFactoryBean(threadLocalActionContext)
 
+  private val eventSourcedEntityContext: EventSourcedEntityContextFactoryBean =
+    new EventSourcedEntityContextFactoryBean(threadLocalEventSourcedEntityContext)
+
   private val valueEntityContext: ValueEntityContextFactoryBean =
     new ValueEntityContextFactoryBean(threadLocalValueEntityContext)
 
@@ -150,6 +165,7 @@ class KalixServer(applicationContext: ApplicationContext, config: Config) {
     new ViewCreationContextFactoryBean(threadLocalViewContext)
 
   kalixBeanFactory.registerSingleton("actionCreationContextFactoryBean", actionCreationContextFactoryBean)
+  kalixBeanFactory.registerSingleton("eventSourcedEntityContext", eventSourcedEntityContext)
   kalixBeanFactory.registerSingleton("valueEntityContext", valueEntityContext)
   kalixBeanFactory.registerSingleton("viewCreationContext", viewCreationContext)
 
@@ -183,6 +199,11 @@ class KalixServer(applicationContext: ApplicationContext, config: Config) {
         kalix.register(actionProvider(clz.asInstanceOf[Class[Action]]))
       }
 
+      if (classOf[EventSourcedEntity[_]].isAssignableFrom(clz)) {
+        logger.info(s"Registering EventSourcedEntity provider for [${clz.getName}]")
+        kalix.register(eventSourcedEntityProvider(clz.asInstanceOf[Class[EventSourcedEntity[Nothing]]]))
+      }
+
       if (classOf[ValueEntity[_]].isAssignableFrom(clz)) {
         logger.info(s"Registering ValueEntity provider for [${clz.getName}]")
         kalix.register(valueEntityProvider(clz.asInstanceOf[Class[ValueEntity[Nothing]]]))
@@ -193,7 +214,7 @@ class KalixServer(applicationContext: ApplicationContext, config: Config) {
         kalix.register(viewProvider(clz.asInstanceOf[Class[View[Nothing]]]))
       }
 
-    // TODO: missing EventSourced and Replicated Entities
+    // TODO: missing Replicated Entities
     }
 
   def start() = {
@@ -219,6 +240,19 @@ class KalixServer(applicationContext: ApplicationContext, config: Config) {
         })
     else
       ReflectiveActionProvider.of(clz, _ => kalixBeanFactory.getBean(clz))
+
+  private def eventSourcedEntityProvider[S, E <: EventSourcedEntity[S]](
+      clz: Class[E]): EventSourcedEntityProvider[S, E] = {
+    if (hasContextConstructor(clz, classOf[ValueEntityContext]))
+      ReflectiveEventSourcedEntityProvider.of(
+        clz,
+        context => {
+          threadLocalEventSourcedEntityContext.set(context)
+          kalixBeanFactory.getBean(clz)
+        })
+    else
+      ReflectiveEventSourcedEntityProvider.of(clz, _ => kalixBeanFactory.getBean(clz))
+  }
 
   private def valueEntityProvider[S, E <: ValueEntity[S]](clz: Class[E]): ValueEntityProvider[S, E] = {
     if (hasContextConstructor(clz, classOf[ValueEntityContext]))
