@@ -17,11 +17,9 @@
 package kalix.springsdk.impl
 
 import scala.jdk.CollectionConverters.CollectionHasAsScala
-
 import com.typesafe.config.Config
-import javax.annotation.PostConstruct
+
 import kalix.javasdk.Kalix
-import kalix.javasdk.KalixRunner
 import kalix.javasdk.action.Action
 import kalix.javasdk.action.ActionCreationContext
 import kalix.javasdk.action.ActionProvider
@@ -31,6 +29,7 @@ import kalix.javasdk.valueentity.ValueEntityProvider
 import kalix.javasdk.view.View
 import kalix.javasdk.view.ViewCreationContext
 import kalix.javasdk.view.ViewProvider
+import kalix.springsdk.SpringSdkBuildInfo
 import kalix.springsdk.action.ReflectiveActionProvider
 import kalix.springsdk.impl.KalixServer.ActionCreationContextFactoryBean
 import kalix.springsdk.impl.KalixServer.KalixComponentProvider
@@ -131,7 +130,7 @@ class KalixServer(applicationContext: ApplicationContext, config: Config) {
 
   private val logger: Logger = LoggerFactory.getLogger(getClass)
 
-  val kalix = new Kalix
+  val kalix = (new Kalix).withSdkName(SpringSdkBuildInfo.name)
 
   private val threadLocalActionContext = new ThreadLocal[ActionCreationContext]
   private val threadLocalValueEntityContext = new ThreadLocal[ValueEntityContext]
