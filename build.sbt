@@ -88,6 +88,7 @@ lazy val sdkSpring = project
   .settings(
     name := "kalix-spring-sdk",
     crossPaths := false,
+    buildInfoObject := "SpringSdkBuildInfo",
     buildInfoKeys := Seq[BuildInfoKey](
       name,
       version,
