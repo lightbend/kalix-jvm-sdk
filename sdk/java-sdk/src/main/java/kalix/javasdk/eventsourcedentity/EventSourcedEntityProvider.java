@@ -17,8 +17,11 @@
 package kalix.javasdk.eventsourcedentity;
 
 import kalix.javasdk.Kalix;
+import kalix.javasdk.impl.MessageCodec;
 import kalix.javasdk.impl.eventsourcedentity.EventSourcedEntityRouter;
 import com.google.protobuf.Descriptors;
+
+import java.util.Optional;
 
 /**
  * Register an event sourced entity in {@link Kalix} using a <code>
@@ -37,4 +40,8 @@ public interface EventSourcedEntityProvider<S, E extends EventSourcedEntity<S>> 
   EventSourcedEntityRouter<S, E> newRouter(EventSourcedEntityContext context);
 
   Descriptors.FileDescriptor[] additionalDescriptors();
+
+  default Optional<MessageCodec> alternativeCodec() {
+    return Optional.empty();
+  }
 }

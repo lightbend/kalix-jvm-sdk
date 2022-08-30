@@ -51,7 +51,7 @@ final class EventSourcedEntityService(
     val factory: EventSourcedEntityFactory,
     override val descriptor: Descriptors.ServiceDescriptor,
     override val additionalDescriptors: Array[Descriptors.FileDescriptor],
-    val anySupport: AnySupport,
+    val anySupport: MessageCodec,
     override val entityType: String,
     val snapshotEvery: Int, // FIXME remove and only use entityOptions snapshotEvery?
     val entityOptions: Option[EventSourcedEntityOptions])
@@ -61,7 +61,7 @@ final class EventSourcedEntityService(
       factory: EventSourcedEntityFactory,
       descriptor: Descriptors.ServiceDescriptor,
       additionalDescriptors: Array[Descriptors.FileDescriptor],
-      anySupport: AnySupport,
+      anySupport: MessageCodec,
       entityType: String,
       snapshotEvery: Int,
       entityOptions: EventSourcedEntityOptions) =

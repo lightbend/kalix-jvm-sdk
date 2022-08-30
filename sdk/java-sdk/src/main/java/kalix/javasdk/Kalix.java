@@ -90,6 +90,22 @@ public final class Kalix {
           new ResolvedEventSourcedEntityFactory(
               factory, anySupport.resolveServiceDescriptor(descriptor));
 
+      return registerEventSourcedEntity(
+          descriptor,
+          entityType,
+          entityOptions,
+          anySupport,
+          resolvedFactory,
+          additionalDescriptors);
+    }
+
+    public Kalix registerEventSourcedEntity(
+        Descriptors.ServiceDescriptor descriptor,
+        String entityType,
+        EventSourcedEntityOptions entityOptions,
+        MessageCodec anySupport,
+        EventSourcedEntityFactory resolvedFactory,
+        Descriptors.FileDescriptor[] additionalDescriptors) {
       services.put(
           descriptor.getFullName(),
           system ->
@@ -385,12 +401,25 @@ public final class Kalix {
    */
   public <S, E extends EventSourcedEntity<S>> Kalix register(
       EventSourcedEntityProvider<S, E> provider) {
-    return lowLevel.registerEventSourcedEntity(
-        provider::newRouter,
-        provider.serviceDescriptor(),
-        provider.entityType(),
-        provider.options(),
-        provider.additionalDescriptors());
+    return provider
+        .alternativeCodec()
+        .map(
+            codec ->
+                lowLevel.registerEventSourcedEntity(
+                    provider.serviceDescriptor(),
+                    provider.entityType(),
+                    provider.options(),
+                    codec,
+                    provider::newRouter,
+                    provider.additionalDescriptors()))
+        .orElseGet(
+            () ->
+                lowLevel.registerEventSourcedEntity(
+                    provider::newRouter,
+                    provider.serviceDescriptor(),
+                    provider.entityType(),
+                    provider.options(),
+                    provider.additionalDescriptors()));
   }
 
   /**
