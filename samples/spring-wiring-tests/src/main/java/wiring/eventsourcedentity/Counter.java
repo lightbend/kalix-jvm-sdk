@@ -2,10 +2,12 @@
  * As long as this file exists it will not be re-generated.
  * You are free to make changes to this file.
  */
-package com.example;
+package wiring.eventsourcedentity;
 
 import kalix.javasdk.eventsourcedentity.EventSourcedEntity;
 import kalix.springsdk.annotations.Entity;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -14,8 +16,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping("/counter/{id}")
 public class Counter extends EventSourcedEntity<Integer> {
 
+    private Logger logger = LoggerFactory.getLogger(getClass());
+
     @PostMapping("/increase/{value}")
     public Effect<String> increase(@PathVariable Integer value) {
+        logger.info("Increasing counter with commandContext={} value={}", commandContext(), value);
+
         return effects()
             .emitEvent(new ValueIncreased(value))
             .thenReply((s) -> "Ok");
