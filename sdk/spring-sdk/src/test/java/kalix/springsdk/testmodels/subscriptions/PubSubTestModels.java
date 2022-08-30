@@ -18,13 +18,14 @@ package kalix.springsdk.testmodels.subscriptions;
 
 import kalix.javasdk.action.Action;
 import kalix.springsdk.annotations.Subscribe;
+import kalix.springsdk.annotations.Publish;
 import kalix.springsdk.testmodels.Message;
 import kalix.springsdk.testmodels.valueentity.Counter;
 import kalix.springsdk.testmodels.valueentity.User;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-public class SubscriptionsTestModels {
+public class PubSubTestModels {
 
   public static class SubscribeToValueEntityAction extends Action {
 
@@ -42,6 +43,14 @@ public class SubscriptionsTestModels {
   public static class SubscribeToTopicAction extends Action {
 
     @Subscribe.Topic("topicXYZ")
+    public Action.Effect<Message> messageOne(Message message) {
+      return effects().reply(message);
+    }
+  }
+
+   public static class PublishToTopicAction extends Action {
+
+    @Publish.Topic("topicAlphaOmega")
     public Action.Effect<Message> messageOne(Message message) {
       return effects().reply(message);
     }

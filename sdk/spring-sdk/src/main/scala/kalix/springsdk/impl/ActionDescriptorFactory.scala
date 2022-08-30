@@ -18,8 +18,10 @@ package kalix.springsdk.impl
 
 import kalix.springsdk.impl.ComponentDescriptorFactory.eventingInForValueEntity
 import kalix.springsdk.impl.ComponentDescriptorFactory.eventingInForTopic
+import kalix.springsdk.impl.ComponentDescriptorFactory.eventingOutForTopic
 import kalix.springsdk.impl.ComponentDescriptorFactory.hasValueEntitySubscription
 import kalix.springsdk.impl.ComponentDescriptorFactory.hasTopicSubscription
+import kalix.springsdk.impl.ComponentDescriptorFactory.hasTopicPublication
 import kalix.springsdk.impl.ComponentDescriptorFactory.validateRestMethod
 import kalix.springsdk.impl.reflection.KalixMethod
 import kalix.springsdk.impl.reflection.NameGenerator
@@ -62,11 +64,23 @@ private[impl] object ActionDescriptorFactory extends ComponentDescriptorFactory 
           .withKalixOptions(kalixOptions)
       }
 
+    val publicationTopicMethods = component.getMethods
+      .filter(hasTopicPublication)
+      .sorted // make sure we get the methods in deterministic order
+      .map { method =>
+        val publicatinOptions = eventingOutForTopic(method)
+        val kalixOptions =
+          kalix.MethodOptions.newBuilder().setEventing(publicatinOptions).build()
+
+        KalixMethod(RestServiceMethod(method))
+          .withKalixOptions(kalixOptions)
+      }
+
     val serviceName = nameGenerator.getName(component.getSimpleName)
     ComponentDescriptor(
       nameGenerator,
       serviceName,
       component.getPackageName,
-      springAnnotatedMethods ++ subscriptionValueEntityMethods ++ subscriptionTopicMethods)
+      springAnnotatedMethods ++ subscriptionValueEntityMethods ++ subscriptionTopicMethods ++ publicationTopicMethods)
   }
 }

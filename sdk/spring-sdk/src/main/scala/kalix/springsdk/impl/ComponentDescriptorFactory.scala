@@ -17,9 +17,9 @@
 package kalix.springsdk.impl
 
 import kalix.springsdk.annotations.Table
-import kalix.springsdk.annotations.{ Entity, Subscribe }
+import kalix.springsdk.annotations.{ Entity, Publish, Subscribe }
 import kalix.springsdk.impl.reflection._
-import kalix.{ EventSource, Eventing }
+import kalix.{ EventDestination, EventSource, Eventing }
 
 import java.lang.reflect.{ Method, Modifier }
 
@@ -33,6 +33,10 @@ private[impl] object ComponentDescriptorFactory {
     Modifier.isPublic(javaMethod.getModifiers) &&
     javaMethod.getAnnotation(classOf[Subscribe.Topic]) != null
 
+  def hasTopicPublication(javaMethod: Method): Boolean =
+    Modifier.isPublic(javaMethod.getModifiers) &&
+    javaMethod.getAnnotation(classOf[Publish.Topic]) != null
+
   def findValueEntityType(javaMethod: Method): String = {
     val ann = javaMethod.getAnnotation(classOf[Subscribe.ValueEntity])
     val entityClass = ann.value()
@@ -45,8 +49,13 @@ private[impl] object ComponentDescriptorFactory {
     entityClass.getAnnotation(classOf[Entity]).entityType()
   }
 
-  def findTopicName(javaMethod: Method): String = {
+  def findSubTopicName(javaMethod: Method): String = {
     val ann = javaMethod.getAnnotation(classOf[Subscribe.Topic])
+    ann.value()
+  }
+
+  def findPubTopicName(javaMethod: Method): String = {
+    val ann = javaMethod.getAnnotation(classOf[Publish.Topic])
     ann.value()
   }
 
@@ -57,9 +66,15 @@ private[impl] object ComponentDescriptorFactory {
   }
 
   def eventingInForTopic(javaMethod: Method): Eventing = {
-    val topicName = findTopicName(javaMethod)
+    val topicName = findSubTopicName(javaMethod)
     val eventSource = EventSource.newBuilder().setTopic(topicName).build()
     Eventing.newBuilder().setIn(eventSource).build()
+  }
+
+  def eventingOutForTopic(javaMethod: Method): Eventing = {
+    val topicName = findPubTopicName(javaMethod)
+    val eventSource = EventDestination.newBuilder().setTopic(topicName).build()
+    Eventing.newBuilder().setOut(eventSource).build()
   }
 
   def eventingInForValueEntity(entityType: String): Eventing = {
