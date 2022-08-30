@@ -48,7 +48,7 @@ public class PubSubTestModels {
     }
   }
 
-   public static class PublishToTopicAction extends Action {
+  public static class PublishToTopicAction extends Action {
 
     @Publish.Topic("topicAlphaOmega")
     public Action.Effect<Message> messageOne(Message message) {
