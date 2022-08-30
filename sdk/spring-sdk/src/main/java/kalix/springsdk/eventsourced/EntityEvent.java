@@ -14,19 +14,8 @@
  * limitations under the License.
  */
 
-package kalix.springsdk.annotations;
+package kalix.springsdk.eventsourced;
 
-import kalix.springsdk.eventsourced.EntityEvent;
-
-import java.lang.annotation.*;
-
-@Target(ElementType.TYPE)
-@Retention(RetentionPolicy.RUNTIME)
-@Documented
-public @interface Entity {
-  String entityType();
-
-  String[] entityKey();
-
-  Class<? extends EntityEvent>[] events() default EntityEvent.None.class;
+public interface EntityEvent {
+    final class None implements EntityEvent {}
 }

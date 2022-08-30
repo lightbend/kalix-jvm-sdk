@@ -103,7 +103,7 @@ public final class Kalix {
         Descriptors.ServiceDescriptor descriptor,
         String entityType,
         EventSourcedEntityOptions entityOptions,
-        MessageCodec anySupport,
+        MessageCodec messageCodec,
         EventSourcedEntityFactory resolvedFactory,
         Descriptors.FileDescriptor[] additionalDescriptors) {
       services.put(
@@ -113,7 +113,7 @@ public final class Kalix {
                   resolvedFactory,
                   descriptor,
                   additionalDescriptors,
-                  anySupport,
+                  messageCodec,
                   entityType,
                   entityOptions.snapshotEvery(),
                   entityOptions));

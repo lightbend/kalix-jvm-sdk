@@ -12,18 +12,26 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-@Entity(entityKey = "id", entityType = "counter")
+@Entity(entityKey = "id", entityType = "counter", events = { ValueIncreased.class })
 @RequestMapping("/counter/{id}")
 public class Counter extends EventSourcedEntity<Integer> {
 
     private Logger logger = LoggerFactory.getLogger(getClass());
 
+
+    // how to declare that this entity subscribes to their events?
+    // how to know what to implement?
     @PostMapping("/increase/{value}")
     public Effect<String> increase(@PathVariable Integer value) {
+        // how do we access current state?
         logger.info("Increasing counter with commandContext={} value={}", commandContext(), value);
 
         return effects()
             .emitEvent(new ValueIncreased(value))
             .thenReply((s) -> "Ok");
+    }
+
+    public Integer handle(ValueIncreased value) {
+        return value.value; // TODO add currentState
     }
 }

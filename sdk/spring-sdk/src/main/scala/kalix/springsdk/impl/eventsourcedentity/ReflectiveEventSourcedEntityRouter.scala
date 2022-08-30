@@ -31,7 +31,10 @@ class ReflectiveEventSourcedEntityRouter[S, E <: EventSourcedEntity[S]](
   private def methodLookup(commandName: String) =
     componentMethods.getOrElse(commandName, throw new RuntimeException(s"no matching method for '$commandName'"))
 
-  override def handleEvent(state: S, event: Any): S = ???
+  override def handleEvent(state: S, event: Any): S = {
+    //TODO match with handler for event
+    state
+  }
 
   override def handleCommand(
       commandName: String,
