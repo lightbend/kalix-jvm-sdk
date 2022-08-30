@@ -17,7 +17,6 @@
 package kalix.springsdk.annotations;
 
 import java.lang.annotation.*;
-import org.springframework.core.annotation.AliasFor;
 
 public @interface Subscribe {
 
