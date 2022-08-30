@@ -38,7 +38,7 @@ private[impl] object ActionDescriptorFactory extends ComponentDescriptorFactory 
       }
 
     import ReflectionUtils.methodOrdering
-    val subscriptionMethods = component.getMethods
+    val subscriptionValueEntityMethods = component.getMethods
       .filter(hasValueEntitySubscription)
       .sorted // make sure we get the methods in deterministic order
       .map { method =>
@@ -67,6 +67,6 @@ private[impl] object ActionDescriptorFactory extends ComponentDescriptorFactory 
       nameGenerator,
       serviceName,
       component.getPackageName,
-      springAnnotatedMethods ++ subscriptionMethods ++ subscriptionTopicMethods)
+      springAnnotatedMethods ++ subscriptionValueEntityMethods ++ subscriptionTopicMethods)
   }
 }

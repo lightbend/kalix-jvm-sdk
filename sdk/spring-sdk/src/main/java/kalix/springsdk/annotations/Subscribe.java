@@ -33,7 +33,5 @@ public @interface Subscribe {
   @Documented
   @interface Topic {
     String value();
-    // @AliasFor("value")
-    // String name();
   }
 }
