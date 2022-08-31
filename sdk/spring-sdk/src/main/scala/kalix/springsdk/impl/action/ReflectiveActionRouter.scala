@@ -24,6 +24,7 @@ import kalix.javasdk.action.MessageEnvelope
 import kalix.javasdk.impl.action.ActionRouter
 import kalix.springsdk.impl.ComponentMethod
 import kalix.springsdk.impl.InvocationContext
+import reactor.core.publisher.Flux
 
 class ReflectiveActionRouter[A <: Action](action: A, componentMethods: Map[String, ComponentMethod])
     extends ActionRouter[A](action) {
@@ -51,7 +52,24 @@ class ReflectiveActionRouter[A <: Action](action: A, componentMethods: Map[Strin
   // TODO: to implement
   override def handleStreamedOut(
       commandName: String,
-      message: MessageEnvelope[Any]): Source[Action.Effect[_], NotUsed] = ???
+      message: MessageEnvelope[Any]): Source[Action.Effect[_], NotUsed] = {
+    val componentMethod = methodLookup(commandName)
+    val context =
+      InvocationContext(
+        message.payload().asInstanceOf[ScalaPbAny],
+        componentMethod.requestMessageDescriptor,
+        message.metadata())
+
+    // safe call: if component method is None, proxy won't forward calls to it
+    // typically, that happens when we have a View update method with transform = false
+    // in such a case, the proxy can index the view payload directly, without passing through the user function
+    val response =
+      componentMethod.method.get
+        .invoke(action, componentMethod.parameterExtractors.map(e => e.extract(context)): _*)
+        .asInstanceOf[Flux[Action.Effect[_]]]
+
+    Source.fromPublisher(response)
+  }
 
   // TODO: to implement
   override def handleStreamedIn(commandName: String, stream: Source[MessageEnvelope[Any], NotUsed]): Action.Effect[_] =

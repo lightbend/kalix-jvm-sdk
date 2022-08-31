@@ -47,7 +47,7 @@ object ServiceMethod {
 
     // we are looking for a single param annotated with RequestBody and type Flux
     if (paramWithRequestBody.length == 1) paramWithRequestBody.head.getType == classOf[Flux[_]]
-    else if (paramWithRequestBody.length == 0) false // no RequestBody, then certainly no streaming
+    else if (paramWithRequestBody.length == 0) false // no RequestBody, then certainly no streaming in
     else
       throw new IllegalArgumentException("Method should have only zero or one parameter annotated with @RequestBody")
 

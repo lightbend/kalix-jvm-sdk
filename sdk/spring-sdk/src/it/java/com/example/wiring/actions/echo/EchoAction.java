@@ -14,13 +14,16 @@
  * limitations under the License.
  */
 
-package com.example.wiring.actions;
+package com.example.wiring.actions.echo;
 
-import com.example.wiring.Message;
 import kalix.javasdk.action.Action;
 import kalix.javasdk.action.ActionCreationContext;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import reactor.core.publisher.Flux;
+
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 public class EchoAction extends Action {
 
@@ -36,5 +39,17 @@ public class EchoAction extends Action {
   public Effect<Message> stringMessage(@PathVariable String msg) {
     String response = this.parrot.repeat(msg);
     return effects().reply(new Message(response));
+  }
+
+  @GetMapping("/echo/repeat/{msg}/times/{times}")
+  public Flux<Effect<Message>> stringMessage(
+      @PathVariable String msg, @PathVariable Integer times) {
+
+    Stream<Effect<Message>> messages =
+        IntStream.rangeClosed(1, times)
+            .mapToObj(i -> new Message(parrot.repeat(msg)))
+            .map(m -> effects().reply(m));
+
+    return Flux.fromStream(messages);
   }
 }
