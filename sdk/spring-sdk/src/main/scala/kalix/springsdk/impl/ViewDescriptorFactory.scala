@@ -93,7 +93,7 @@ private[impl] object ViewDescriptorFactory extends ComponentDescriptorFactory {
               case Some(`valueEntityClass`) => // ok
               case Some(other) =>
                 throw InvalidComponentException(
-                  s"All update methods must return the same type, but [${method.getName}] returns [${valueEntityClass.getName}] while a prevous update method returns [${other.getName}]")
+                  s"All update methods must return the same type, but [${method.getName}] returns [${valueEntityClass.getName}] while a previous update method returns [${other.getName}]")
               case None => previousValueEntityClass = Some(valueEntityClass)
             }
             // FIXME validate that transform method accepts value entity state type

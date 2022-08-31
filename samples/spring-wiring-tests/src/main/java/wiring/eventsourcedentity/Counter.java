@@ -6,8 +6,11 @@ package wiring.eventsourcedentity;
 
 import kalix.javasdk.eventsourcedentity.EventSourcedEntity;
 import kalix.springsdk.annotations.Entity;
+import kalix.springsdk.annotations.EventHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.event.EventListener;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -28,9 +31,10 @@ public class Counter extends EventSourcedEntity<Integer> {
 
         return effects()
             .emitEvent(new ValueIncreased(value))
-            .thenReply((s) -> "Ok");
+            .thenReply(s -> "Ok");
     }
 
+    @EventHandler
     public Integer handle(ValueIncreased value) {
         return value.value; // TODO add currentState
     }

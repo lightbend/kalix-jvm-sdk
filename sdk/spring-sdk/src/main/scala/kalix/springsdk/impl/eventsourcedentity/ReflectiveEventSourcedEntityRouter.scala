@@ -21,19 +21,27 @@ import kalix.javasdk.eventsourcedentity.{ CommandContext, EventSourcedEntity }
 import kalix.javasdk.impl.eventsourcedentity.EventSourcedEntityRouter
 import kalix.springsdk.impl.{ ComponentMethod, InvocationContext }
 
+import java.lang.reflect.Method
 import java.util.Optional
+import scala.jdk.CollectionConverters.MapHasAsScala
 
 class ReflectiveEventSourcedEntityRouter[S, E <: EventSourcedEntity[S]](
     override protected val entity: E,
-    componentMethods: Map[String, ComponentMethod])
+    componentMethods: Map[String, ComponentMethod],
+    handlerMethods: java.util.Map[Class[_], Method]) // TODO change this to scala map
     extends EventSourcedEntityRouter[S, E](entity) {
 
   private def methodLookup(commandName: String) =
     componentMethods.getOrElse(commandName, throw new RuntimeException(s"no matching method for '$commandName'"))
 
+  private def handlerLookup(eventClass: Class[_]) =
+    handlerMethods.asScala.getOrElse(eventClass, throw new RuntimeException(s"no matching handler for '$eventClass'"))
+
   override def handleEvent(state: S, event: Any): S = {
     //TODO match with handler for event
-    state
+    handlerLookup(event.getClass)
+      .invoke(entity, event.asInstanceOf[event.type])
+      .asInstanceOf[S]
   }
 
   override def handleCommand(

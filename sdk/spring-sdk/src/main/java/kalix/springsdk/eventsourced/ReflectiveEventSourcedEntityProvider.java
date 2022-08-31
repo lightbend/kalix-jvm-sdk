@@ -24,12 +24,18 @@ import kalix.javasdk.eventsourcedentity.EventSourcedEntityProvider;
 import kalix.javasdk.impl.MessageCodec;
 import kalix.javasdk.impl.eventsourcedentity.EventSourcedEntityRouter;
 import kalix.springsdk.annotations.Entity;
+import kalix.springsdk.annotations.EventHandler;
 import kalix.springsdk.impl.ComponentDescriptor;
 import kalix.springsdk.impl.SpringSdkMessageCodec;
 import kalix.springsdk.impl.eventsourcedentity.ReflectiveEventSourcedEntityRouter;
 
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.Arrays;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class ReflectiveEventSourcedEntityProvider<S, E extends EventSourcedEntity<S>>
     implements EventSourcedEntityProvider<S, E> {
@@ -40,6 +46,8 @@ public class ReflectiveEventSourcedEntityProvider<S, E extends EventSourcedEntit
   private final Descriptors.FileDescriptor fileDescriptor;
   private final Descriptors.ServiceDescriptor serviceDescriptor;
   private final ComponentDescriptor componentDescriptor;
+
+  private final Map<Class<?>, Method> eventHandlers;
 
   public static <S, E extends EventSourcedEntity<S>> ReflectiveEventSourcedEntityProvider<S, E> of(
       Class<E> cls, Function<EventSourcedEntityContext, E> factory) {
@@ -71,6 +79,15 @@ public class ReflectiveEventSourcedEntityProvider<S, E extends EventSourcedEntit
 
     this.fileDescriptor = componentDescriptor.fileDescriptor();
     this.serviceDescriptor = componentDescriptor.serviceDescriptor();
+
+    // TODO extract logic
+    Function<Method, Class<?>> eventTypeExtractor = (mt) -> mt.getParameterTypes()[0];
+    this.eventHandlers = Arrays.stream(entityClass.getDeclaredMethods())
+            .filter(m -> m.getAnnotation(EventHandler.class) != null
+                    && m.getParameterCount() == 1
+                    && Modifier.isPublic(m.getModifiers()))
+            .collect(Collectors.toMap(eventTypeExtractor, Function.identity()));
+                    //&& m.getReturnType() == Class<S>) // TODO check return type equals state type
   }
 
   @Override
@@ -91,7 +108,7 @@ public class ReflectiveEventSourcedEntityProvider<S, E extends EventSourcedEntit
   @Override
   public EventSourcedEntityRouter<S, E> newRouter(EventSourcedEntityContext context) {
     E entity = factory.apply(context);
-    return new ReflectiveEventSourcedEntityRouter<>(entity, componentDescriptor.methods());
+    return new ReflectiveEventSourcedEntityRouter<>(entity, componentDescriptor.methods(), eventHandlers);
   }
 
   @Override

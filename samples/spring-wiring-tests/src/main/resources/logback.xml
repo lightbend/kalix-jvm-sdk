@@ -25,8 +25,8 @@
         <appender-ref ref="JSON-STDOUT"/>
     </appender>
 
-    <logger name="akka" level="INFO"/>
-    <logger name="kalix" level="INFO"/>
+    <logger name="akka" level="DEBUG"/>
+    <logger name="kalix" level="DEBUG"/>
     <logger name="akka.http" level="INFO"/>
     <logger name="io.grpc" level="INFO"/>
 
