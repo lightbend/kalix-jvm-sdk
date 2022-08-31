@@ -26,16 +26,41 @@ import kalix.springsdk.impl.reflection.RestServiceIntrospector.{
   RestMethodParameter
 }
 import org.springframework.web.bind.annotation.{ RequestMapping, RequestMethod }
-
 import java.lang.reflect.Method
+import java.lang.reflect.Parameter
+
 import scala.annotation.tailrec
 
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.ResponseBody
+import reactor.core.publisher.Flux
+
+object ServiceMethod {
+  def isStreamOut(method: Method): Boolean =
+    method.getReturnType == classOf[Flux[_]]
+
+  def isStreamIn(method: Method): Boolean = {
+    val paramWithRequestBody =
+      method.getParameters.collect {
+        case param if param.getAnnotation(classOf[RequestBody]) != null => param
+      }
+
+    // we are looking for a single param annotated with RequestBody and type Flux
+    if (paramWithRequestBody.length == 1) paramWithRequestBody.head.getType == classOf[Flux[_]]
+    else if (paramWithRequestBody.length == 0) false // no RequestBody, then certainly no streaming
+    else
+      throw new IllegalArgumentException("Method should have only zero or one parameter annotated with @RequestBody")
+
+  }
+}
 sealed trait ServiceMethod {
   def methodName: String
   def javaMethodOpt: Option[Method]
 
   def requestMethod: RequestMethod
   def pathTemplate: String
+  def streamIn: Boolean
+  def streamOut: Boolean
 }
 
 sealed trait AnyServiceMethod extends ServiceMethod {
@@ -60,6 +85,9 @@ case class VirtualServiceMethod(component: Class[_], methodName: String, inputTy
   override def javaMethodOpt: Option[Method] = None
 
   val pathTemplate = buildPathTemplate(component.getName, methodName)
+
+  val streamIn: Boolean = false
+  val streamOut: Boolean = false
 }
 
 /**
@@ -76,6 +104,9 @@ case class RestServiceMethod(javaMethod: Method) extends AnyServiceMethod {
   override def javaMethodOpt: Option[Method] = Some(javaMethod)
 
   val pathTemplate = buildPathTemplate(javaMethod.getDeclaringClass.getName, methodName)
+
+  val streamIn: Boolean = ServiceMethod.isStreamIn(javaMethod)
+  val streamOut: Boolean = ServiceMethod.isStreamOut(javaMethod)
 }
 
 /**
@@ -94,6 +125,9 @@ case class SpringRestServiceMethod(
 
   override def javaMethodOpt: Option[Method] = Some(javaMethod)
   override def methodName: String = javaMethod.getName
+
+  val streamIn: Boolean = ServiceMethod.isStreamIn(javaMethod)
+  val streamOut: Boolean = ServiceMethod.isStreamOut(javaMethod)
 
   // First fail on unsupported mapping values. Should all default to empty arrays, but let's not trust that
   {

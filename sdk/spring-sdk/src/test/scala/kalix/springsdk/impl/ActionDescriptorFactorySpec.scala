@@ -30,6 +30,9 @@ import kalix.springsdk.testmodels.action.ActionsTestModels.PostWithTwoParam
 import kalix.springsdk.testmodels.action.ActionsTestModels.PostWithoutParam
 import kalix.springsdk.testmodels.action.ActionsTestModels.PutWithOneParam
 import kalix.springsdk.testmodels.action.ActionsTestModels.PutWithoutParam
+import kalix.springsdk.testmodels.action.ActionsTestModels.StreamInAction
+import kalix.springsdk.testmodels.action.ActionsTestModels.StreamInOutAction
+import kalix.springsdk.testmodels.action.ActionsTestModels.StreamOutAction
 import kalix.springsdk.testmodels.subscriptions.SubscriptionsTestModels.RestAnnotatedSubscribeToValueEntityAction
 import kalix.springsdk.testmodels.subscriptions.SubscriptionsTestModels.SubscribeToValueEntityAction
 import org.scalatest.wordspec.AnyWordSpec
@@ -40,6 +43,11 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
 
     "generate mappings for an Action with GET without path param" in {
       assertDescriptor[GetWithoutParam] { desc =>
+
+        val methodDescriptor = desc.serviceDescriptor.findMethodByName("Message")
+        methodDescriptor.isServerStreaming shouldBe false
+        methodDescriptor.isClientStreaming shouldBe false
+
         val method = desc.methods("Message")
         method.requestMessageDescriptor.getFields.size() shouldBe 0
       }
@@ -47,6 +55,11 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
 
     "generate mappings for an Action with GET and one path param" in {
       assertDescriptor[GetWithOneParam] { desc =>
+
+        val methodDescriptor = desc.serviceDescriptor.findMethodByName("Message")
+        methodDescriptor.isServerStreaming shouldBe false
+        methodDescriptor.isClientStreaming shouldBe false
+
         val method = desc.methods("Message")
         assertRequestFieldJavaType(method, "one", JavaType.STRING)
       }
@@ -54,6 +67,11 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
 
     "generate mappings for an Action with class level Request mapping" in {
       assertDescriptor[GetClassLevel] { desc =>
+
+        val methodDescriptor = desc.serviceDescriptor.findMethodByName("Message")
+        methodDescriptor.isServerStreaming shouldBe false
+        methodDescriptor.isClientStreaming shouldBe false
+
         val method = desc.methods("Message")
         assertRequestFieldJavaType(method, "one", JavaType.STRING)
         assertRequestFieldJavaType(method, "two", JavaType.LONG)
@@ -62,6 +80,11 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
 
     "generate mappings for an Action with POST without path param" in {
       assertDescriptor[PostWithoutParam] { desc =>
+
+        val methodDescriptor = desc.serviceDescriptor.findMethodByName("Message")
+        methodDescriptor.isServerStreaming shouldBe false
+        methodDescriptor.isClientStreaming shouldBe false
+
         val method = desc.methods("Message")
         assertRequestFieldJavaType(method, "json_body", JavaType.MESSAGE)
       }
@@ -69,6 +92,11 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
 
     "generate mappings for an Action with POST and one path param" in {
       assertDescriptor[PostWithOneParam] { desc =>
+
+        val methodDescriptor = desc.serviceDescriptor.findMethodByName("Message")
+        methodDescriptor.isServerStreaming shouldBe false
+        methodDescriptor.isClientStreaming shouldBe false
+
         val method = desc.methods("Message")
         assertRequestFieldJavaType(method, "one", JavaType.STRING)
         assertRequestFieldJavaType(method, "json_body", JavaType.MESSAGE)
@@ -77,6 +105,11 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
 
     "generate mappings for an Action with POST and two path param" in {
       assertDescriptor[PostWithTwoParam] { desc =>
+
+        val methodDescriptor = desc.serviceDescriptor.findMethodByName("Message")
+        methodDescriptor.isServerStreaming shouldBe false
+        methodDescriptor.isClientStreaming shouldBe false
+
         val method = desc.methods("Message")
         assertRequestFieldJavaType(method, "one", JavaType.STRING)
         assertRequestFieldJavaType(method, "two", JavaType.LONG)
@@ -87,9 +120,17 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
     "generate mappings for an Action with POST and two methods" in {
       assertDescriptor[PostWithTwoMethods] { desc =>
 
+        val methodDescriptor = desc.serviceDescriptor.findMethodByName("Message")
+        methodDescriptor.isServerStreaming shouldBe false
+        methodDescriptor.isClientStreaming shouldBe false
+
         val firstMethod = desc.methods("Message")
         assertRequestFieldJavaType(firstMethod, "num", JavaType.LONG)
         assertRequestFieldJavaType(firstMethod, "json_body", JavaType.MESSAGE)
+
+        val methodDescriptor1 = desc.serviceDescriptor.findMethodByName("Message1")
+        methodDescriptor1.isServerStreaming shouldBe false
+        methodDescriptor1.isClientStreaming shouldBe false
 
         val secondMethod = desc.methods("Message1")
         assertRequestFieldJavaType(secondMethod, "text", JavaType.STRING)
@@ -99,6 +140,10 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
 
     "generate mappings for an Action with PUT without path param" in {
       assertDescriptor[PutWithoutParam] { desc =>
+        val methodDescriptor = desc.serviceDescriptor.findMethodByName("Message")
+        methodDescriptor.isServerStreaming shouldBe false
+        methodDescriptor.isClientStreaming shouldBe false
+
         val method = desc.methods("Message")
         assertRequestFieldJavaType(method, "json_body", JavaType.MESSAGE)
       }
@@ -106,6 +151,10 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
 
     "generate mappings for an Action with PUT and one path param" in {
       assertDescriptor[PutWithOneParam] { desc =>
+        val methodDescriptor = desc.serviceDescriptor.findMethodByName("Message")
+        methodDescriptor.isServerStreaming shouldBe false
+        methodDescriptor.isClientStreaming shouldBe false
+
         val method = desc.methods("Message")
         assertRequestFieldJavaType(method, "one", JavaType.STRING)
       }
@@ -113,6 +162,10 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
 
     "generate mappings for an Action with PATCH without path param" in {
       assertDescriptor[PatchWithoutParam] { desc =>
+        val methodDescriptor = desc.serviceDescriptor.findMethodByName("Message")
+        methodDescriptor.isServerStreaming shouldBe false
+        methodDescriptor.isClientStreaming shouldBe false
+
         val method = desc.methods("Message")
         assertRequestFieldJavaType(method, "json_body", JavaType.MESSAGE)
       }
@@ -120,6 +173,10 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
 
     "generate mappings for an Action with PATCH and one path param" in {
       assertDescriptor[PatchWithOneParam] { desc =>
+        val methodDescriptor = desc.serviceDescriptor.findMethodByName("Message")
+        methodDescriptor.isServerStreaming shouldBe false
+        methodDescriptor.isClientStreaming shouldBe false
+
         val method = desc.methods("Message")
         assertRequestFieldJavaType(method, "one", JavaType.STRING)
       }
@@ -127,6 +184,11 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
 
     "generate mappings for an Action with DELETE and one path param" in {
       assertDescriptor[DeleteWithOneParam] { desc =>
+
+        val methodDescriptor = desc.serviceDescriptor.findMethodByName("Message")
+        methodDescriptor.isServerStreaming shouldBe false
+        methodDescriptor.isClientStreaming shouldBe false
+
         val method = desc.methods("Message")
         assertRequestFieldJavaType(method, "one", JavaType.STRING)
       }
@@ -134,6 +196,10 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
 
     "generate mapping with Value Entity Subscription annotations" in {
       assertDescriptor[SubscribeToValueEntityAction] { desc =>
+
+        val methodDescriptorOne = desc.serviceDescriptor.findMethodByName("MessageOne")
+        methodDescriptorOne.isServerStreaming shouldBe false
+        methodDescriptorOne.isClientStreaming shouldBe false
 
         val methodOne = desc.methods("MessageOne")
         methodOne.requestMessageDescriptor.getFullName shouldBe JavaPbAny.getDescriptor.getFullName
@@ -148,6 +214,10 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
         // should have a default extractor for any payload
         methodOne.parameterExtractors.size shouldBe 1
 
+        val methodDescriptorTwo = desc.serviceDescriptor.findMethodByName("MessageTwo")
+        methodDescriptorTwo.isServerStreaming shouldBe false
+        methodDescriptorTwo.isClientStreaming shouldBe false
+
         val methodTwo = desc.methods("MessageTwo")
         methodTwo.requestMessageDescriptor.getFullName shouldBe JavaPbAny.getDescriptor.getFullName
         val eventSourceTwo = findKalixMethodOptions(desc, "MessageTwo").getEventing.getIn
@@ -161,6 +231,29 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
       }
     }
 
+    "generate stream out methods" in {
+      assertDescriptor[StreamOutAction] { desc =>
+        val methodDescriptor = desc.serviceDescriptor.findMethodByName("Message")
+        methodDescriptor.isServerStreaming shouldBe true
+        methodDescriptor.isClientStreaming shouldBe false
+      }
+    }
+
+    "generate stream in methods" in {
+      assertDescriptor[StreamInAction] { desc =>
+        val methodDescriptor = desc.serviceDescriptor.findMethodByName("Message")
+        methodDescriptor.isServerStreaming shouldBe false
+        methodDescriptor.isClientStreaming shouldBe true
+      }
+    }
+
+    "generate stream in/out methods" in {
+      assertDescriptor[StreamInOutAction] { desc =>
+        val methodDescriptor = desc.serviceDescriptor.findMethodByName("Message")
+        methodDescriptor.isServerStreaming shouldBe true
+        methodDescriptor.isClientStreaming shouldBe true
+      }
+    }
   }
 
 }

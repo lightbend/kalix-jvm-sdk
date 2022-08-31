@@ -16,9 +16,12 @@
 
 package kalix.springsdk.testmodels.action;
 
+import akka.NotUsed;
+import akka.stream.javadsl.Source;
 import kalix.javasdk.action.Action;
 import kalix.springsdk.testmodels.Message;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Flux;
 
 public class ActionsTestModels {
 
@@ -110,6 +113,27 @@ public class ActionsTestModels {
     @DeleteMapping("/message/{one}")
     public Action.Effect<Message> message(@PathVariable String one) {
       return effects().reply(new Message(one));
+    }
+  }
+
+  public static class StreamOutAction extends Action {
+    @GetMapping("/message")
+    public Flux<Effect<Message>> message() {
+      return Flux.just(effects().reply(new Message("hello")));
+    }
+  }
+
+  public static class StreamInAction extends Action {
+    @PostMapping("/message")
+    public Action.Effect<Message> message(@RequestBody Flux<Message> messages) {
+      return effects().reply(new Message("hello"));
+    }
+  }
+
+  public static class StreamInOutAction extends Action {
+    @PostMapping("/message")
+    public Flux<Effect<Message>> message(@RequestBody Flux<Message> messages) {
+      return messages.map(msg -> effects().reply(msg));
     }
   }
 }
