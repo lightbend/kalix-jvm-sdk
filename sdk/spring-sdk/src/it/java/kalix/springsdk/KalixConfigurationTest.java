@@ -1,3 +1,19 @@
+/*
+ * Copyright 2021 Lightbend Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package kalix.springsdk;
 
 import kalix.javasdk.testkit.KalixTestKit;
@@ -12,7 +28,6 @@ import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.web.reactive.function.client.WebClient;
-import kalix.springsdk.KalixConfiguration;
 
 // TODO: we need a better TestKit integration for the Spring SDK
 // for now, this server us to prove that the Spring wiring is working as expect
@@ -22,26 +37,22 @@ public class KalixConfigurationTest {
 
   private Logger logger = LoggerFactory.getLogger(getClass());
 
-  @Autowired
-  private ApplicationContext applicationContext;
-  @Autowired
-  private KalixConfiguration kalixConfiguration;
+  @Autowired private ApplicationContext applicationContext;
+  @Autowired private KalixConfiguration kalixConfiguration;
 
   @Bean
   public KalixServer kalixServer() {
     return new KalixServer(applicationContext, kalixConfiguration.config());
   }
 
-  /**
-   * WebClient pointing to the proxy.
-   */
+  /** WebClient pointing to the proxy. */
   @Bean
   public WebClient createWebClient(KalixTestKit kalixTestKit) {
-    return WebClient.builder().baseUrl("http://localhost:" + kalixTestKit.getPort())
-          .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-          .build();
+    return WebClient.builder()
+        .baseUrl("http://localhost:" + kalixTestKit.getPort())
+        .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+        .build();
   }
-
 
   @Bean
   public KalixTestKit kalixTestKit() {
@@ -51,6 +62,4 @@ public class KalixConfigurationTest {
     logger.info("Kalix Proxy running on port: " + kalixTestKit.getPort());
     return kalixTestKit;
   }
-
-
 }

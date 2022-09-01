@@ -1,3 +1,4 @@
+import net.aichler.jupiter.sbt.Import.JupiterKeys
 import sbt._
 import sbt.Keys._
 
@@ -115,10 +116,10 @@ object Dependencies {
     "org.springframework.boot" % "spring-boot" % SpringVersion,
     ("org.springframework.boot" % "spring-boot-starter-webflux" % SpringVersion)
       .exclude("org.springframework.boot", "spring-boot-starter-tomcat"),
-    "org.springframework.boot" % "spring-boot-starter-test" % SpringVersion % Test,
-    junit4 % Test,
-    "com.novocode" % "junit-interface" % "0.11" % Test,
-    "com.squareup.okhttp3" % "okhttp" % "4.0.1" % Test)
+    "net.aichler" % "jupiter-interface" % JupiterKeys.jupiterVersion.value % IntegrationTest,
+    "org.springframework.boot" % "spring-boot-starter-test" % SpringVersion % IntegrationTest,
+    junit5 % IntegrationTest,
+    "org.awaitility" % "awaitility" % "4.1.0" % IntegrationTest)
 
   // FIXME
   val sdkScala = deps ++= coreDeps ++ Seq(jacksonScala)
