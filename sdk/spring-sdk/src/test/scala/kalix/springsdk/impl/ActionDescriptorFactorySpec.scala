@@ -34,6 +34,7 @@ import kalix.springsdk.testmodels.subscriptions.PubSubTestModels.RestAnnotatedSu
 import kalix.springsdk.testmodels.subscriptions.PubSubTestModels.SubscribeToValueEntityAction
 import kalix.springsdk.testmodels.subscriptions.PubSubTestModels.SubscribeToTopicAction
 import kalix.springsdk.testmodels.subscriptions.PubSubTestModels.PublishToTopicAction
+import kalix.springsdk.testmodels.subscriptions.PubSubTestModels.RestWithPublishToTopicAction
 import org.scalatest.wordspec.AnyWordSpec
 
 class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSuite {
@@ -187,11 +188,29 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
         methodOne.requestMessageDescriptor.getFullName shouldBe JavaPbAny.getDescriptor.getFullName
 
         val eventDestinationOne = findKalixMethodOptions(desc, "MessageOne").getEventing.getOut
-        eventDestinationOne.getTopic shouldBe "topicAlphaOmega"
+        eventDestinationOne.getTopic shouldBe "topicAlpha"
         val rule = findHttpRule(desc, "MessageOne")
 
         rule.getPost shouldBe
         "/kalix.springsdk.testmodels.subscriptions.PubSubTestModels.PublishToTopicAction/MessageOne"
+
+        // should have a default extractor for any payload
+        methodOne.parameterExtractors.size shouldBe 1
+      }
+
+    }
+
+    "generate mapping for an Action with a Rest endpoint and publication to a topic" in {
+      assertDescriptor[RestWithPublishToTopicAction] { desc =>
+        val methodOne = desc.methods("MessageOne")
+        methodOne.requestMessageDescriptor.getFullName shouldBe "kalix.springsdk.testmodels.subscriptions.MessageOneKalixSyntheticRequest"
+
+        val eventDestinationOne = findKalixMethodOptions(desc, "MessageOne").getEventing.getOut
+        eventDestinationOne.getTopic shouldBe "foobar"
+        val rule = findHttpRule(desc, "MessageOne")
+
+        rule.getPost shouldBe
+        "/message/{msg}"
 
         // should have a default extractor for any payload
         methodOne.parameterExtractors.size shouldBe 1

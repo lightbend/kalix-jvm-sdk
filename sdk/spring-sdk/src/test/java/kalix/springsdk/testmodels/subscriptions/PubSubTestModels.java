@@ -23,6 +23,7 @@ import kalix.springsdk.testmodels.Message;
 import kalix.springsdk.testmodels.valueentity.Counter;
 import kalix.springsdk.testmodels.valueentity.User;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 
 public class PubSubTestModels {
@@ -50,10 +51,19 @@ public class PubSubTestModels {
 
   public static class PublishToTopicAction extends Action {
 
-    @Publish.Topic("topicAlphaOmega")
+    @Publish.Topic("topicAlpha")
     public Action.Effect<Message> messageOne(Message message) {
       return effects().reply(message);
     }
+  }
+
+  public static class RestWithPublishToTopicAction extends Action {
+    
+      @PostMapping("/message/{msg}")
+      @Publish.Topic("foobar")
+      public Effect<Message> messageOne(@PathVariable String msg) {
+        return effects().reply(new Message(msg));
+      }
   }
 
   public static class RestAnnotatedSubscribeToValueEntityAction extends Action {

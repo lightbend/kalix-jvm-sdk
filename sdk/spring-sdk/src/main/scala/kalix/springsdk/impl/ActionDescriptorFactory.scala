@@ -23,22 +23,26 @@ import kalix.springsdk.impl.ComponentDescriptorFactory.hasValueEntitySubscriptio
 import kalix.springsdk.impl.ComponentDescriptorFactory.hasTopicSubscription
 import kalix.springsdk.impl.ComponentDescriptorFactory.hasTopicPublication
 import kalix.springsdk.impl.ComponentDescriptorFactory.validateRestMethod
-import kalix.springsdk.impl.reflection.KalixMethod
-import kalix.springsdk.impl.reflection.NameGenerator
-import kalix.springsdk.impl.reflection.RestServiceIntrospector
-import kalix.springsdk.impl.reflection.RestServiceMethod
-import kalix.springsdk.impl.reflection.ReflectionUtils
+import kalix.springsdk.impl.reflection.{
+  KalixMethod,
+  NameGenerator,
+  ReflectionUtils,
+  RestServiceIntrospector,
+  RestServiceMethod,
+  SpringRestServiceMethod
+}
 
 private[impl] object ActionDescriptorFactory extends ComponentDescriptorFactory {
 
   override def buildDescriptorFor(component: Class[_], nameGenerator: NameGenerator): ComponentDescriptor = {
-
+    //we shoudl merge from here
     val springAnnotatedMethods =
       RestServiceIntrospector.inspectService(component).methods.map { serviceMethod =>
         validateRestMethod(serviceMethod.javaMethod)
         KalixMethod(serviceMethod)
       }
 
+    //TODO make sure no subscription shoudl be exposed via REST.
     import ReflectionUtils.methodOrdering
     val subscriptionValueEntityMethods = component.getMethods
       .filter(hasValueEntitySubscription)
@@ -75,12 +79,31 @@ private[impl] object ActionDescriptorFactory extends ComponentDescriptorFactory 
         KalixMethod(RestServiceMethod(method))
           .withKalixOptions(kalixOptions)
       }
-
     val serviceName = nameGenerator.getName(component.getSimpleName)
+
+    def mixAnnotations(springMethods: Seq[KalixMethod], pubSubMethods: Seq[KalixMethod]): Seq[KalixMethod] = {
+      springMethods
+        .map(s =>
+          pubSubMethods
+            .filter(p => p.serviceMethod.methodName.equals(s.serviceMethod.methodName))
+            .map(p => s.withKalixOptions(p.methodOptions.head)))
+        .flatten
+    }
+
+    def removeDuplicates(springMethods: Seq[KalixMethod], pubSubMethods: Seq[KalixMethod]): Seq[KalixMethod] = {
+      springMethods
+        .map(s => pubSubMethods.filterNot(p => p.serviceMethod.methodName.equals(s.serviceMethod.methodName)))
+        .flatten
+    }
+
     ComponentDescriptor(
       nameGenerator,
       serviceName,
       component.getPackageName,
-      springAnnotatedMethods ++ subscriptionValueEntityMethods ++ subscriptionTopicMethods ++ publicationTopicMethods)
+      mixAnnotations(
+        springAnnotatedMethods,
+        publicationTopicMethods) ++ subscriptionValueEntityMethods ++ subscriptionTopicMethods ++ removeDuplicates(
+        springAnnotatedMethods,
+        publicationTopicMethods))
   }
 }
