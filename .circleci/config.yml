@@ -213,7 +213,20 @@ jobs:
       - restore_deps_cache
       - run:
           name: Run tests
-          command: sbt test IntegrationTest/test
+          command: sbt test
+      - save_deps_cache
+
+  spring-sdk-integration-tests:
+    machine:
+      image: ubuntu-2004:202201-02
+    description: "Spring SDK -  Integration Test"
+    steps:
+      - checkout-and-merge-to-main
+      - setup_sbt
+      - restore_deps_cache
+      - run:
+          name: Run tests
+          command: sbt sdkSpring/IntegrationTest/test
       - save_deps_cache
 
   scripted-tests:
@@ -360,7 +373,8 @@ jobs:
             mvn -Dkalix-sdk.version=$SDK_VERSION test-compile
 
   sample-java-customer-registry-kafka-quickstart:
-    machine: true
+    machine:
+      image: ubuntu-2004:202201-02
     steps:
       - checkout-and-merge-to-main
       - setup_sbt
@@ -1118,7 +1132,9 @@ workflows:
       - tests:
           requires:
             - checks
-
+      - spring-sdk-integration-tests:
+          requires:
+            - tests
       - scripted-tests:
           requires:
             - checks
