@@ -2,9 +2,8 @@ package wiring.eventsourcedentity;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import kalix.springsdk.eventsourced.EntityEvent;
 
-public class ValueIncreased implements EntityEvent {
+public class ValueIncreased {
 
     public final int value;
 

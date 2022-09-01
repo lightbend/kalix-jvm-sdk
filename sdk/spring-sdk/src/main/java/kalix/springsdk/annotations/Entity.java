@@ -16,8 +16,6 @@
 
 package kalix.springsdk.annotations;
 
-import kalix.springsdk.eventsourced.EntityEvent;
-
 import java.lang.annotation.*;
 
 @Target(ElementType.TYPE)
@@ -27,6 +25,4 @@ public @interface Entity {
   String entityType();
 
   String[] entityKey();
-
-  Class<? extends EntityEvent>[] events() default EntityEvent.None.class;
 }

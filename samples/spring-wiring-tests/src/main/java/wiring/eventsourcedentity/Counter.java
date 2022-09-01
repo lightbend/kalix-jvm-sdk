@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-@Entity(entityKey = "id", entityType = "counter", events = {ValueIncreased.class})
+@Entity(entityKey = "id", entityType = "counter")
 @RequestMapping("/counter/{id}")
 public class Counter extends EventSourcedEntity<Integer> {
 

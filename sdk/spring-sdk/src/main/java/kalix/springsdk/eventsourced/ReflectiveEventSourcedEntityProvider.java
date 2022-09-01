@@ -65,11 +65,6 @@ public class ReflectiveEventSourcedEntityProvider<S, E extends EventSourcedEntit
       throw new IllegalArgumentException(
           "Event Sourced Entity [" + entityClass.getName() + "] is missing '@Entity' annotation");
 
-    if (annotation.events().length == 0 ||
-            annotation.events().length == 1 && annotation.events()[0] == EntityEvent.None.class)
-      throw new IllegalArgumentException(
-              "Event Sourced Entity [" + entityClass.getName() + "] is missing events on '@Entity' annotation");
-
     // TODO validate all methods annotated with @EventHandler only have 1 param and a correct return type
 
     this.entityType = annotation.entityType();
