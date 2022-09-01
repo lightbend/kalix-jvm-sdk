@@ -213,7 +213,7 @@ jobs:
       - restore_deps_cache
       - run:
           name: Run tests
-          command: sbt test IntegrationTest/Test
+          command: sbt test IntegrationTest/test
       - save_deps_cache
 
   scripted-tests:
