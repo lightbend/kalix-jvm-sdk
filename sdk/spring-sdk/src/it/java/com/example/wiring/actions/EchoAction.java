@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package kalix.springsdk.wiring;
+package com.example.wiring.actions;
 
+import com.example.wiring.Message;
 import kalix.javasdk.action.Action;
 import kalix.javasdk.action.ActionCreationContext;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -31,16 +32,9 @@ public class EchoAction extends Action {
     this.ctx = ctx;
   }
 
-  public boolean hasContext() {
-    return ctx != null;
-  }
-
-  public boolean hasParrot() {
-    return parrot != null;
-  }
-
-  @GetMapping("/echo/{msg}")
-  public Effect<String> stringMessage(@PathVariable String msg) {
-    return effects().reply(this.parrot.repeat(msg));
+  @GetMapping("/echo/message/{msg}")
+  public Effect<Message> stringMessage(@PathVariable String msg) {
+    String response = this.parrot.repeat(msg);
+    return effects().reply(new Message(response));
   }
 }

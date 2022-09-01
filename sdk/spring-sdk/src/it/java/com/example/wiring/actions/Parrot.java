@@ -14,17 +14,14 @@
  * limitations under the License.
  */
 
-package kalix.springsdk.wiring;
+package com.example.wiring.actions;
 
-import kalix.springsdk.KalixConfiguration;
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.Import;
+import org.springframework.stereotype.Component;
 
-@SpringBootApplication
-@Import(KalixConfiguration.class)
-public class SpringSDKTestRunner {
-  public static void main(String[] args) {
-    SpringApplication.run(SpringSDKTestRunner.class, args);
+@Component
+public class Parrot {
+
+  public String repeat(String word) {
+    return "Parrot says: '" + word + "'";
   }
 }
