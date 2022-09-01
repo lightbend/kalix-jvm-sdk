@@ -70,6 +70,8 @@ public class ReflectiveEventSourcedEntityProvider<S, E extends EventSourcedEntit
       throw new IllegalArgumentException(
               "Event Sourced Entity [" + entityClass.getName() + "] is missing events on '@Entity' annotation");
 
+    // TODO validate all methods annotated with @EventHandler only have 1 param and a correct return type
+
     this.entityType = annotation.entityType();
 
     this.factory = factory;
@@ -85,9 +87,8 @@ public class ReflectiveEventSourcedEntityProvider<S, E extends EventSourcedEntit
     this.eventHandlers = Arrays.stream(entityClass.getDeclaredMethods())
             .filter(m -> m.getAnnotation(EventHandler.class) != null
                     && m.getParameterCount() == 1
-                    && Modifier.isPublic(m.getModifiers()))
+                    && Modifier.isPublic(m.getModifiers())) // TODO check return type equals state type
             .collect(Collectors.toMap(eventTypeExtractor, Function.identity()));
-                    //&& m.getReturnType() == Class<S>) // TODO check return type equals state type
   }
 
   @Override

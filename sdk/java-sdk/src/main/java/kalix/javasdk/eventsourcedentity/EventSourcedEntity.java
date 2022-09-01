@@ -32,6 +32,7 @@ public abstract class EventSourcedEntity<S> {
 
   private Optional<CommandContext> commandContext = Optional.empty();
   private Optional<EventContext> eventContext = Optional.empty();
+  private Optional<S> currentState = Optional.empty();
 
   /**
    * Implement by returning the initial empty state object. This object will be passed into the
@@ -76,6 +77,29 @@ public abstract class EventSourcedEntity<S> {
   public void _internalSetEventContext(Optional<EventContext> context) {
     eventContext = context;
   }
+
+  /** INTERNAL API */
+  public void _internalSetCurrentState(S state) {
+    currentState = Optional.ofNullable(state);
+  }
+
+  /**
+   * Returns the state as currently stored by Kalix.
+   *
+   * <p>Note that modifying the state directly will not update it in storage. To save the state, one
+   * must call {{@code effects().updateState()}}.
+   *
+   * <p>This method can only be called when handling a command or an event. Calling it outside a method (eg: in
+   * the constructor) will raise a IllegalStateException exception.
+   *
+   * @throws IllegalStateException if accessed outside a handler method
+   */
+  protected final S currentState() {
+    return currentState.orElseThrow(
+            () ->
+                    new IllegalStateException("Current state is only available when handling a command or an event."));
+  }
+
 
   protected final Effect.Builder<S> effects() {
     return new EventSourcedEntityEffectImpl<S>();

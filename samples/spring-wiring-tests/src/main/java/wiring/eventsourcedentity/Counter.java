@@ -9,33 +9,59 @@ import kalix.springsdk.annotations.Entity;
 import kalix.springsdk.annotations.EventHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.event.EventListener;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-@Entity(entityKey = "id", entityType = "counter", events = { ValueIncreased.class })
+@Entity(entityKey = "id", entityType = "counter", events = {ValueIncreased.class})
 @RequestMapping("/counter/{id}")
 public class Counter extends EventSourcedEntity<Integer> {
 
     private Logger logger = LoggerFactory.getLogger(getClass());
 
+    @Override
+    public Integer emptyState() {
+        return 0;
+    }
 
     // how to declare that this entity subscribes to their events?
     // how to know what to implement?
     @PostMapping("/increase/{value}")
     public Effect<String> increase(@PathVariable Integer value) {
-        // how do we access current state?
-        logger.info("Increasing counter with commandContext={} value={}", commandContext(), value);
+        logger.info("Increasing counter with commandId={} commandName={} seqNr={} current={} value={}",
+                commandContext().commandId(), commandContext().commandName(), commandContext().sequenceNumber(), currentState(), value);
 
         return effects()
-            .emitEvent(new ValueIncreased(value))
-            .thenReply(s -> "Ok");
+                .emitEvent(new ValueIncreased(value))
+                .thenReply(Object::toString);
+    }
+
+    @GetMapping
+    public Effect<String> read() {
+        logger.info("Reading counter with commandId={} commandName={} seqNr={} current={}",
+                commandContext().commandId(), commandContext().commandName(), commandContext().sequenceNumber(), currentState());
+
+        return effects().reply(currentState().toString());
+    }
+
+    @PostMapping("/times/{value}")
+    public Effect<String> times(@PathVariable Integer value) {
+        logger.info("Increasing counter with commandId={} commandName={} seqNr={} current={} value={}",
+                commandContext().commandId(), commandContext().commandName(), commandContext().sequenceNumber(), currentState(), value);
+
+        return effects()
+                .emitEvent(new ValueMultiplied(value))
+                .thenReply(Object::toString);
     }
 
     @EventHandler
-    public Integer handle(ValueIncreased value) {
-        return value.value; // TODO add currentState
+    public Integer handleIncrease(ValueIncreased value) {
+        return currentState() + value.value;
+    }
+
+    @EventHandler
+    public Integer handleMultiply(ValueMultiplied value) {
+        return currentState() * value.value;
     }
 }
