@@ -16,10 +16,10 @@
 
 package kalix.springsdk.impl.eventsourcedentity
 
-import com.google.protobuf.any.{Any => ScalaPbAny}
-import kalix.javasdk.eventsourcedentity.{CommandContext, EventSourcedEntity}
+import com.google.protobuf.any.{ Any => ScalaPbAny }
+import kalix.javasdk.eventsourcedentity.{ CommandContext, EventSourcedEntity }
 import kalix.javasdk.impl.eventsourcedentity.EventSourcedEntityRouter
-import kalix.springsdk.impl.{ComponentMethod, InvocationContext}
+import kalix.springsdk.impl.{ ComponentMethod, InvocationContext }
 
 import java.lang.reflect.Method
 import scala.jdk.CollectionConverters.MapHasAsScala

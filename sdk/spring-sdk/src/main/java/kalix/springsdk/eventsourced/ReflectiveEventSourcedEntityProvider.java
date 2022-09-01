@@ -31,6 +31,7 @@ import kalix.springsdk.impl.eventsourcedentity.ReflectiveEventSourcedEntityRoute
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.ParameterizedType;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
@@ -67,6 +68,29 @@ public class ReflectiveEventSourcedEntityProvider<S, E extends EventSourcedEntit
 
     // TODO validate all methods annotated with @EventHandler only have 1 param and a correct return type
 
+    var annotatedHandlers = Arrays.stream(entityClass.getDeclaredMethods())
+            .filter(m -> m.getAnnotation(EventHandler.class) != null)
+            .collect(Collectors.toList());
+
+    var expectedReturnType = ((ParameterizedType) entityClass.getGenericSuperclass()).getActualTypeArguments()[0];
+    var invalidHandlers = annotatedHandlers.stream().filter(
+            m -> m.getParameterCount() != 1
+                    || !Modifier.isPublic(m.getModifiers())
+                    || expectedReturnType != m.getReturnType())
+            .map(Method::getName)
+            .collect(Collectors.toList());
+    if (!invalidHandlers.isEmpty())
+      throw new IllegalArgumentException(
+              "Event Sourced Entity [" + entityClass.getName() + "] has '@EventHandler' methods " + invalidHandlers +
+                      " with a wrong signature: it must have exactly 1 unique parameter and return type '" + expectedReturnType.getTypeName() + "'");
+    // TODO extract logic
+    Function<Method, Class<?>> eventTypeExtractor = (mt) -> mt.getParameterTypes()[0];
+    this.eventHandlers = annotatedHandlers.stream().collect(Collectors.toMap(eventTypeExtractor, Function.identity(), (m1, m2) -> {
+              throw new IllegalArgumentException("Event Sourced Entity [" + m1.getDeclaringClass().getName() + "] " +
+                      "cannot have duplicate event handlers (" + m1.getName() + ", " + m2.getName() + ") for the same event type: " + m1.getParameterTypes()[0].getName() );
+                    }));
+
+
     this.entityType = annotation.entityType();
 
     this.factory = factory;
@@ -77,13 +101,6 @@ public class ReflectiveEventSourcedEntityProvider<S, E extends EventSourcedEntit
     this.fileDescriptor = componentDescriptor.fileDescriptor();
     this.serviceDescriptor = componentDescriptor.serviceDescriptor();
 
-    // TODO extract logic
-    Function<Method, Class<?>> eventTypeExtractor = (mt) -> mt.getParameterTypes()[0];
-    this.eventHandlers = Arrays.stream(entityClass.getDeclaredMethods())
-            .filter(m -> m.getAnnotation(EventHandler.class) != null
-                    && m.getParameterCount() == 1
-                    && Modifier.isPublic(m.getModifiers())) // TODO check return type equals state type
-            .collect(Collectors.toMap(eventTypeExtractor, Function.identity()));
   }
 
   @Override
