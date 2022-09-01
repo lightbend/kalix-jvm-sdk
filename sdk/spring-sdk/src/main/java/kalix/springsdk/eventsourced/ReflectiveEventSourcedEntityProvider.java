@@ -27,6 +27,8 @@ import kalix.springsdk.annotations.Entity;
 import kalix.springsdk.annotations.EventHandler;
 import kalix.springsdk.impl.ComponentDescriptor;
 import kalix.springsdk.impl.SpringSdkMessageCodec;
+import kalix.springsdk.impl.eventsourcedentity.EventHandlersExtractor;
+import kalix.springsdk.impl.eventsourcedentity.EventSourceEntityHandlers;
 import kalix.springsdk.impl.eventsourcedentity.ReflectiveEventSourcedEntityRouter;
 
 import java.lang.reflect.Method;
@@ -48,7 +50,7 @@ public class ReflectiveEventSourcedEntityProvider<S, E extends EventSourcedEntit
   private final Descriptors.ServiceDescriptor serviceDescriptor;
   private final ComponentDescriptor componentDescriptor;
 
-  private final Map<Class<?>, Method> eventHandlers;
+  private final EventSourceEntityHandlers eventHandlers;
 
   public static <S, E extends EventSourcedEntity<S>> ReflectiveEventSourcedEntityProvider<S, E> of(
       Class<E> cls, Function<EventSourcedEntityContext, E> factory) {
@@ -66,31 +68,7 @@ public class ReflectiveEventSourcedEntityProvider<S, E extends EventSourcedEntit
       throw new IllegalArgumentException(
           "Event Sourced Entity [" + entityClass.getName() + "] is missing '@Entity' annotation");
 
-    // TODO validate all methods annotated with @EventHandler only have 1 param and a correct return type
-
-    var annotatedHandlers = Arrays.stream(entityClass.getDeclaredMethods())
-            .filter(m -> m.getAnnotation(EventHandler.class) != null)
-            .collect(Collectors.toList());
-
-    var expectedReturnType = ((ParameterizedType) entityClass.getGenericSuperclass()).getActualTypeArguments()[0];
-    var invalidHandlers = annotatedHandlers.stream().filter(
-            m -> m.getParameterCount() != 1
-                    || !Modifier.isPublic(m.getModifiers())
-                    || expectedReturnType != m.getReturnType())
-            .map(Method::getName)
-            .collect(Collectors.toList());
-    if (!invalidHandlers.isEmpty())
-      throw new IllegalArgumentException(
-              "Event Sourced Entity [" + entityClass.getName() + "] has '@EventHandler' methods " + invalidHandlers +
-                      " with a wrong signature: it must have exactly 1 unique parameter and return type '" + expectedReturnType.getTypeName() + "'");
-    // TODO extract logic
-    Function<Method, Class<?>> eventTypeExtractor = (mt) -> mt.getParameterTypes()[0];
-    this.eventHandlers = annotatedHandlers.stream().collect(Collectors.toMap(eventTypeExtractor, Function.identity(), (m1, m2) -> {
-              throw new IllegalArgumentException("Event Sourced Entity [" + m1.getDeclaringClass().getName() + "] " +
-                      "cannot have duplicate event handlers (" + m1.getName() + ", " + m2.getName() + ") for the same event type: " + m1.getParameterTypes()[0].getName() );
-                    }));
-
-
+    this.eventHandlers = EventHandlersExtractor.handlersFrom(entityClass);
     this.entityType = annotation.entityType();
 
     this.factory = factory;
@@ -121,7 +99,7 @@ public class ReflectiveEventSourcedEntityProvider<S, E extends EventSourcedEntit
   @Override
   public EventSourcedEntityRouter<S, E> newRouter(EventSourcedEntityContext context) {
     E entity = factory.apply(context);
-    return new ReflectiveEventSourcedEntityRouter<>(entity, componentDescriptor.methods(), eventHandlers);
+    return new ReflectiveEventSourcedEntityRouter<>(entity, componentDescriptor.methods(), eventHandlers.handlers());
   }
 
   @Override

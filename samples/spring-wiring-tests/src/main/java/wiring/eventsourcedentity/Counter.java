@@ -64,4 +64,29 @@ public class Counter extends EventSourcedEntity<Integer> {
     public Integer handleMultiply(ValueMultiplied value) {
         return currentState() * value.value;
     }
+
+
+    /**
+     *
+    @EventHandler
+    private Integer notGoodBecausePrivate(ValueMultiplied value) {
+        return currentState() * value.value;
+    }
+
+    private Integer allGoodBecausePrivate(ValueMultiplied value) {
+        return currentState() * value.value;
+    }
+
+    public Integer duplicatedEvent(ValueMultiplied value) {
+        return currentState() * value.value;
+    }
+
+    //@EventHandler
+    public String wrongReturnType(Integer value) {
+        return currentState() * value + "";
+    }
+
+    public Integer missingAnnotation(ValueMultiplied value) {
+        return currentState() * value.value;
+    }*/
 }
