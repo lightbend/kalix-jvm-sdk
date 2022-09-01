@@ -17,7 +17,7 @@ commands:
           parent: spring-sdk # we need to revert this when merging back into main
 
   install-java-11:
-    description: install openjdk-11
+    description: install openjdk-11t
     steps:
       - run:
           name: Install java 11
@@ -213,7 +213,7 @@ jobs:
       - restore_deps_cache
       - run:
           name: Run tests
-          command: sbt test
+          command: sbt test IntegrationTest/Test
       - save_deps_cache
 
   scripted-tests:
