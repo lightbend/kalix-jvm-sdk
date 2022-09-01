@@ -14,14 +14,23 @@
  * limitations under the License.
  */
 
-package kalix.springsdk.wiring;
+package com.example;
 
-import org.springframework.stereotype.Component;
+import kalix.springsdk.KalixConfiguration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Import;
 
-@Component
-public class Parrot {
+@SpringBootApplication
+@Import(KalixConfiguration.class)
+public class Main {
 
-  public String repeat(String word) {
-    return "[" + word + "]";
+  private static final Logger logger = LoggerFactory.getLogger(Main.class);
+
+  public static void main(String[] args) {
+    logger.info("Starting Kalix - Spring SDK");
+    SpringApplication.run(Main.class, args);
   }
 }
