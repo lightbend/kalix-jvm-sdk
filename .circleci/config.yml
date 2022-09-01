@@ -17,7 +17,7 @@ commands:
           parent: spring-sdk # we need to revert this when merging back into main
 
   install-java-11:
-    description: install openjdk-11t
+    description: install openjdk-11
     steps:
       - run:
           name: Install java 11
