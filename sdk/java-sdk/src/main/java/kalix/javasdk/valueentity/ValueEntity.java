@@ -86,7 +86,8 @@ public abstract class ValueEntity<S> {
     // user may call this method inside a command handler and get a null because it's legal
     // to have emptyState set to null.
     if (handlingCommands) return currentState.orElse(null);
-    else new IllegalStateException("Current state is only available when handling a command.");
+    else
+      throw new IllegalStateException("Current state is only available when handling a command.");
   }
 
   protected final Effect.Builder<S> effects() {
