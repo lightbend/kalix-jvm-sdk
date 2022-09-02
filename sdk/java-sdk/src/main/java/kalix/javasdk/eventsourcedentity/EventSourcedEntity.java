@@ -89,17 +89,17 @@ public abstract class EventSourcedEntity<S> {
    * <p>Note that modifying the state directly will not update it in storage. To save the state, one
    * must call {{@code effects().updateState()}}.
    *
-   * <p>This method can only be called when handling a command or an event. Calling it outside a method (eg: in
-   * the constructor) will raise a IllegalStateException exception.
+   * <p>This method can only be called when handling a command or an event. Calling it outside a
+   * method (eg: in the constructor) will raise a IllegalStateException exception.
    *
    * @throws IllegalStateException if accessed outside a handler method
    */
   protected final S currentState() {
     return currentState.orElseThrow(
-            () ->
-                    new IllegalStateException("Current state is only available when handling a command or an event."));
+        () ->
+            new IllegalStateException(
+                "Current state is only available when handling a command or an event."));
   }
-
 
   protected final Effect.Builder<S> effects() {
     return new EventSourcedEntityEffectImpl<S>();

@@ -64,7 +64,10 @@ public class ReflectiveEventSourcedEntityProvider<S, E extends EventSourcedEntit
     this.eventHandlers = EventSourcedHandlersExtractor.handlersFrom(entityClass);
     if (this.eventHandlers.errors().nonEmpty()) {
       throw new IllegalArgumentException(
-              "Event Sourced Entity [" + entityClass.getName() + "] has event handlers configured incorrectly: " + this.eventHandlers.errors());
+          "Event Sourced Entity ["
+              + entityClass.getName()
+              + "] has event handlers configured incorrectly: "
+              + this.eventHandlers.errors());
     }
 
     this.entityType = annotation.entityType();
@@ -93,7 +96,8 @@ public class ReflectiveEventSourcedEntityProvider<S, E extends EventSourcedEntit
   @Override
   public EventSourcedEntityRouter<S, E> newRouter(EventSourcedEntityContext context) {
     E entity = factory.apply(context);
-    return new ReflectiveEventSourcedEntityRouter<>(entity, componentDescriptor.methods(), eventHandlers.handlers());
+    return new ReflectiveEventSourcedEntityRouter<>(
+        entity, componentDescriptor.methods(), eventHandlers.handlers());
   }
 
   @Override

@@ -22,58 +22,58 @@ import kalix.springsdk.annotations.EventHandler;
 
 public class EventSourcedEntitiesTestModels {
 
-    @Entity(entityKey = "id", entityType = "counter")
-    public static class WellAnnotatedEntity extends EventSourcedEntity<Integer> {
+  @Entity(entityKey = "id", entityType = "counter")
+  public static class WellAnnotatedEntity extends EventSourcedEntity<Integer> {
 
-        @EventHandler
-        public Integer receiveStringEvent(String event) {
-            return 0;
-        }
-
-        @EventHandler
-        public Integer receivedIntegerEvent(Integer event) {
-            return 0;
-        }
-
-        public Integer publicMethodSimilarSignature(Integer event) {
-            return 0;
-        }
-
-        private Integer privateMethodSimilarSignature(Integer event) {
-            return 0;
-        }
+    @EventHandler
+    public Integer receiveStringEvent(String event) {
+      return 0;
     }
 
-    @Entity(entityKey = "id", entityType = "counter")
-    public static class ErrorDuplicatedEventsEntity extends EventSourcedEntity<Integer> {
-
-        @EventHandler
-        public Integer receiveStringEvent(String event) {
-            return 0;
-        }
-
-        @EventHandler
-        public Integer receivedIntegerEvent(Integer event) {
-            return 0;
-        }
-
-        @EventHandler
-        public Integer receivedIntegerEventDup(Integer event) {
-            return 0;
-        }
+    @EventHandler
+    public Integer receivedIntegerEvent(Integer event) {
+      return 0;
     }
 
-    @Entity(entityKey = "id", entityType = "counter")
-    public static class ErrorWrongSignaturesEntity extends EventSourcedEntity<Integer> {
-
-        @EventHandler
-        public String receivedIntegerEvent(Integer event) {
-            return "0";
-        }
-
-        @EventHandler
-        public Integer receivedIntegerEventAndString(Integer event, String s1) {
-            return 0;
-        }
+    public Integer publicMethodSimilarSignature(Integer event) {
+      return 0;
     }
+
+    private Integer privateMethodSimilarSignature(Integer event) {
+      return 0;
+    }
+  }
+
+  @Entity(entityKey = "id", entityType = "counter")
+  public static class ErrorDuplicatedEventsEntity extends EventSourcedEntity<Integer> {
+
+    @EventHandler
+    public Integer receiveStringEvent(String event) {
+      return 0;
+    }
+
+    @EventHandler
+    public Integer receivedIntegerEvent(Integer event) {
+      return 0;
+    }
+
+    @EventHandler
+    public Integer receivedIntegerEventDup(Integer event) {
+      return 0;
+    }
+  }
+
+  @Entity(entityKey = "id", entityType = "counter")
+  public static class ErrorWrongSignaturesEntity extends EventSourcedEntity<Integer> {
+
+    @EventHandler
+    public String receivedIntegerEvent(Integer event) {
+      return "0";
+    }
+
+    @EventHandler
+    public Integer receivedIntegerEventAndString(Integer event, String s1) {
+      return 0;
+    }
+  }
 }
