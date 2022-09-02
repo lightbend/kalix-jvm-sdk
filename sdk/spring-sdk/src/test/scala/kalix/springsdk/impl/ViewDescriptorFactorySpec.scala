@@ -16,15 +16,20 @@
 
 package kalix.springsdk.impl
 
-import kalix.springsdk.testmodels.view.ViewTestModels.TransformedUserView
-import kalix.springsdk.testmodels.view.ViewTestModels.UserByEmailWithGet
-import kalix.springsdk.testmodels.view.ViewTestModels.UserByEmailWithPost
-import kalix.springsdk.testmodels.view.ViewTestModels.UserByEmailWithPostRequestBodyOnly
-import kalix.springsdk.testmodels.view.ViewTestModels.UserByNameEmailWithPost
-import kalix.springsdk.testmodels.view.ViewTestModels.UserByNameStreamed
-import kalix.springsdk.testmodels.view.ViewTestModels.ViewWithNoQuery
-import kalix.springsdk.testmodels.view.ViewTestModels.ViewWithSubscriptionsInMixedLevels
-import kalix.springsdk.testmodels.view.ViewTestModels.ViewWithTwoQueries
+import kalix.springsdk.testmodels.view.ViewTestModels.{
+  TransformMethodLackingEventParam,
+  TransformMethodWrongParamOrder,
+  TransformedUserView,
+  TransformedUserViewUsingState,
+  UserByEmailWithGet,
+  UserByEmailWithPost,
+  UserByEmailWithPostRequestBodyOnly,
+  UserByNameEmailWithPost,
+  UserByNameStreamed,
+  ViewWithNoQuery,
+  ViewWithSubscriptionsInMixedLevels,
+  ViewWithTwoQueries
+}
 import org.scalatest.wordspec.AnyWordSpec
 
 class ViewDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSuite {
@@ -60,6 +65,32 @@ class ViewDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSuit
 
         val rule = findHttpRule(desc, "GetUser")
         rule.getPost shouldBe "/users/by-email"
+      }
+    }
+
+    "generate proto for a View using POST request with explicit update method that also receives the current state" in {
+      assertDescriptor[TransformedUserViewUsingState] { desc =>
+        val methodOptions = this.findKalixMethodOptions(desc, "OnChange")
+        val entityType = methodOptions.getEventing.getIn.getValueEntity
+        entityType shouldBe "user"
+
+        methodOptions.getView.getUpdate.getTable shouldBe "users_view"
+        methodOptions.getView.getUpdate.getTransformUpdates shouldBe true
+        methodOptions.getView.getJsonSchema.getOutput shouldBe "TransformedUser"
+
+        val queryMethodOptions = this.findKalixMethodOptions(desc, "GetUser")
+        queryMethodOptions.getView.getQuery.getQuery shouldBe "SELECT * FROM users_view WHERE email = :email"
+        queryMethodOptions.getView.getJsonSchema.getJsonBodyInputField shouldBe "json_body"
+        queryMethodOptions.getView.getJsonSchema.getInput shouldBe "ByEmail"
+        queryMethodOptions.getView.getJsonSchema.getOutput shouldBe "TransformedUser"
+
+        val tableMessageDescriptor = desc.fileDescriptor.findMessageTypeByName("TransformedUser")
+        tableMessageDescriptor should not be null
+
+        val rule = findHttpRule(desc, "GetUser")
+        rule.getPost shouldBe "/users/by-email"
+
+        desc.methods("OnChange").parameterExtractors.length shouldBe 1
       }
     }
 
@@ -204,6 +235,18 @@ class ViewDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSuit
     "fail if more than one query method is found" in {
       intercept[InvalidComponentException] {
         ComponentDescriptor.descriptorFor[ViewWithTwoQueries]
+      }
+    }
+
+    "fail if transform method has wrong signature lacking the event param" in {
+      intercept[InvalidComponentException] {
+        ComponentDescriptor.descriptorFor[TransformMethodLackingEventParam]
+      }
+    }
+
+    "fail if transform method has wrong signature because of parameters order" in {
+      intercept[InvalidComponentException] {
+        ComponentDescriptor.descriptorFor[TransformMethodWrongParamOrder]
       }
     }
 

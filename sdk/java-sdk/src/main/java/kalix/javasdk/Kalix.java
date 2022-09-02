@@ -266,12 +266,24 @@ public final class Kalix {
         Descriptors.FileDescriptor... additionalDescriptors) {
 
       AnySupport anySupport = newAnySupport(additionalDescriptors);
+      return registerView(
+          factory, anySupport, descriptor, viewId, viewOptions, additionalDescriptors);
+    }
+
+    private Kalix registerView(
+        ViewFactory factory,
+        MessageCodec messageCodec,
+        Descriptors.ServiceDescriptor descriptor,
+        String viewId,
+        ViewOptions viewOptions,
+        Descriptors.FileDescriptor... additionalDescriptors) {
+
       ViewService service =
           new ViewService(
               Optional.ofNullable(factory),
               descriptor,
               additionalDescriptors,
-              anySupport,
+              messageCodec,
               viewId,
               viewOptions);
       services.put(descriptor.getFullName(), system -> service);
@@ -430,12 +442,25 @@ public final class Kalix {
    * @return This stateful service builder.
    */
   public Kalix register(ViewProvider<?, ?> provider) {
-    return lowLevel.registerView(
-        provider::newRouter,
-        provider.serviceDescriptor(),
-        provider.viewId(),
-        provider.options(),
-        provider.additionalDescriptors());
+    return provider
+        .alternativeCodec()
+        .map(
+            codec ->
+                lowLevel.registerView(
+                    provider::newRouter,
+                    codec,
+                    provider.serviceDescriptor(),
+                    provider.viewId(),
+                    provider.options(),
+                    provider.additionalDescriptors()))
+        .orElseGet(
+            () ->
+                lowLevel.registerView(
+                    provider::newRouter,
+                    provider.serviceDescriptor(),
+                    provider.viewId(),
+                    provider.options(),
+                    provider.additionalDescriptors()));
   }
 
   /**
