@@ -33,6 +33,7 @@ public abstract class EventSourcedEntity<S> {
   private Optional<CommandContext> commandContext = Optional.empty();
   private Optional<EventContext> eventContext = Optional.empty();
   private Optional<S> currentState = Optional.empty();
+  private boolean handlingCommands = false;
 
   /**
    * Implement by returning the initial empty state object. This object will be passed into the
@@ -80,6 +81,7 @@ public abstract class EventSourcedEntity<S> {
 
   /** INTERNAL API */
   public void _internalSetCurrentState(S state) {
+    handlingCommands = true;
     currentState = Optional.of(state);
   }
 
@@ -95,10 +97,11 @@ public abstract class EventSourcedEntity<S> {
    * @throws IllegalStateException if accessed outside a handler method
    */
   protected final S currentState() {
-    return currentState.orElseThrow(
-        () ->
-            new IllegalStateException(
-                "Current state is only available when handling a command or an event."));
+    // user may call this method inside a command handler and get a null because it's legal
+    // to have emptyState set to null.
+    if (handlingCommands) return currentState.orElse(null);
+    else
+      throw new IllegalStateException("Current state is only available when handling a command.");
   }
 
   protected final Effect.Builder<S> effects() {
