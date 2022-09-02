@@ -74,4 +74,33 @@ public class SpringSdkWiringIntegrationTest {
 
     Assertions.assertEquals(3, messageList.size());
   }
+
+  @Test
+  public void verifyCounterEventSourcedWiring() {
+
+    String counterIncrease =
+        webClient
+            .post()
+            .uri("/counter/hello/increase/10")
+            .retrieve()
+            .bodyToMono(String.class)
+            .block(timeout);
+
+    Assertions.assertEquals("\"10\"", counterIncrease);
+
+    String counterMultiply =
+        webClient
+            .post()
+            .uri("/counter/hello/multiply/20")
+            .retrieve()
+            .bodyToMono(String.class)
+            .block(timeout);
+
+    Assertions.assertEquals("\"200\"", counterMultiply);
+
+    String counterGet =
+        webClient.get().uri("/counter/hello").retrieve().bodyToMono(String.class).block(timeout);
+
+    Assertions.assertEquals("\"200\"", counterGet);
+  }
 }
