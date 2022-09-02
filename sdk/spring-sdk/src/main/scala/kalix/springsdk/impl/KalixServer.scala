@@ -120,7 +120,7 @@ object KalixServer {
       extends FactoryBean[EventSourcedEntityContext] {
     override def isSingleton: Boolean = false // never!!
     override def getObject: EventSourcedEntityContext = loco.get()
-    override def getObjectType: Class[_] = classOf[ValueEntityContext]
+    override def getObjectType: Class[_] = classOf[EventSourcedEntityContext]
   }
 
   class ValueEntityContextFactoryBean(loco: ThreadLocal[ValueEntityContext]) extends FactoryBean[ValueEntityContext] {
