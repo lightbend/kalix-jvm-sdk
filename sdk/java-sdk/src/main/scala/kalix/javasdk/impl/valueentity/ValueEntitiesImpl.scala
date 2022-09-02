@@ -60,10 +60,10 @@ final class ValueEntityService(
       factory: ValueEntityFactory,
       descriptor: Descriptors.ServiceDescriptor,
       additionalDescriptors: Array[Descriptors.FileDescriptor],
-      anySupport: MessageCodec,
+      messageCodec: MessageCodec,
       entityType: String,
       entityOptions: ValueEntityOptions) =
-    this(factory, descriptor, additionalDescriptors, anySupport, entityType, Some(entityOptions))
+    this(factory, descriptor, additionalDescriptors, messageCodec, entityType, Some(entityOptions))
 
   override def resolvedMethods: Option[Map[String, ResolvedServiceMethod[_, _]]] =
     factory match {

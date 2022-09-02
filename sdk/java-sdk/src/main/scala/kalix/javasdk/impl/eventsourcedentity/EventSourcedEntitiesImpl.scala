@@ -51,7 +51,7 @@ final class EventSourcedEntityService(
     val factory: EventSourcedEntityFactory,
     override val descriptor: Descriptors.ServiceDescriptor,
     override val additionalDescriptors: Array[Descriptors.FileDescriptor],
-    val anySupport: MessageCodec,
+    val messageCodec: MessageCodec,
     override val entityType: String,
     val snapshotEvery: Int, // FIXME remove and only use entityOptions snapshotEvery?
     val entityOptions: Option[EventSourcedEntityOptions])
@@ -61,11 +61,11 @@ final class EventSourcedEntityService(
       factory: EventSourcedEntityFactory,
       descriptor: Descriptors.ServiceDescriptor,
       additionalDescriptors: Array[Descriptors.FileDescriptor],
-      anySupport: MessageCodec,
+      messageCodec: MessageCodec,
       entityType: String,
       snapshotEvery: Int,
       entityOptions: EventSourcedEntityOptions) =
-    this(factory, descriptor, additionalDescriptors, anySupport, entityType, snapshotEvery, Some(entityOptions))
+    this(factory, descriptor, additionalDescriptors, messageCodec, entityType, snapshotEvery, Some(entityOptions))
 
   override def resolvedMethods: Option[Map[String, ResolvedServiceMethod[_, _]]] =
     factory match {
@@ -81,7 +81,7 @@ final class EventSourcedEntityService(
         this.factory,
         this.descriptor,
         this.additionalDescriptors,
-        this.anySupport,
+        this.messageCodec,
         this.entityType,
         snapshotEvery,
         this.entityOptions)
@@ -151,7 +151,7 @@ final class EventSourcedEntitiesImpl(
       any <- snapshot.snapshot
     } yield {
       val snapshotSequence = snapshot.snapshotSequence
-      handler._internalHandleSnapshot(service.anySupport.decodeMessage(any))
+      handler._internalHandleSnapshot(service.messageCodec.decodeMessage(any))
       snapshotSequence
     }).getOrElse(0L)
 
@@ -162,7 +162,7 @@ final class EventSourcedEntitiesImpl(
           // Note that these only come on replay
           val context = new EventContextImpl(thisEntityId, event.sequence)
           val ev =
-            service.anySupport
+            service.messageCodec
               .decodeMessage(event.payload.get)
               .asInstanceOf[AnyRef] // FIXME empty?
           handler._internalHandleEvent(ev, context)
@@ -172,7 +172,7 @@ final class EventSourcedEntitiesImpl(
             throw ProtocolException(command, "Receiving entity is not the intended recipient of command")
 
           val cmd =
-            service.anySupport.decodeMessage(
+            service.messageCodec.decodeMessage(
               command.payload.getOrElse(throw ProtocolException(command, "No command payload")))
           val metadata = new MetadataImpl(command.metadata.map(_.entries.toVector).getOrElse(Nil))
           val context =
@@ -200,12 +200,12 @@ final class EventSourcedEntitiesImpl(
 
           val serializedSecondaryEffect = secondaryEffect match {
             case MessageReplyImpl(message, metadata, sideEffects) =>
-              MessageReplyImpl(service.anySupport.encodeJava(message), metadata, sideEffects)
+              MessageReplyImpl(service.messageCodec.encodeJava(message), metadata, sideEffects)
             case other => other
           }
 
           val clientAction =
-            serializedSecondaryEffect.replyToClientAction(service.anySupport, command.id)
+            serializedSecondaryEffect.replyToClientAction(service.messageCodec, command.id)
 
           serializedSecondaryEffect match {
             case error: ErrorReplyImpl[_] =>
@@ -214,9 +214,10 @@ final class EventSourcedEntitiesImpl(
                 Some(OutReply(EventSourcedReply(commandId = command.id, clientAction = clientAction))))
 
             case _ => // non-error
-              val serializedEvents = events.map(event => ScalaPbAny.fromJavaProto(service.anySupport.encodeJava(event)))
+              val serializedEvents =
+                events.map(event => ScalaPbAny.fromJavaProto(service.messageCodec.encodeJava(event)))
               val serializedSnapshot =
-                snapshot.map(state => ScalaPbAny.fromJavaProto(service.anySupport.encodeJava(state)))
+                snapshot.map(state => ScalaPbAny.fromJavaProto(service.messageCodec.encodeJava(state)))
               (
                 endSequenceNumber,
                 Some(
@@ -224,13 +225,15 @@ final class EventSourcedEntitiesImpl(
                     EventSourcedReply(
                       command.id,
                       clientAction,
-                      EffectSupport.sideEffectsFrom(service.anySupport, serializedSecondaryEffect),
+                      EffectSupport.sideEffectsFrom(service.messageCodec, serializedSecondaryEffect),
                       serializedEvents,
                       serializedSnapshot))))
           }
         case ((sequence, _), InSnapshotRequest(request)) =>
           val reply =
-            EventSourcedSnapshotReply(request.requestId, Some(service.anySupport.encodeScala(handler._stateOrEmpty())))
+            EventSourcedSnapshotReply(
+              request.requestId,
+              Some(service.messageCodec.encodeScala(handler._stateOrEmpty())))
           (sequence, Some(OutSnapshotReply(reply)))
         case (_, InInit(_)) =>
           throw ProtocolException(init, "Entity already inited")
