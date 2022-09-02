@@ -19,11 +19,26 @@ package kalix.springsdk.testmodels.eventsourcedentity;
 import kalix.javasdk.eventsourcedentity.EventSourcedEntity;
 import kalix.springsdk.annotations.Entity;
 import kalix.springsdk.annotations.EventHandler;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 public class EventSourcedEntitiesTestModels {
 
   @Entity(entityKey = "id", entityType = "counter")
-  public static class WellAnnotatedEntity extends EventSourcedEntity<Integer> {
+  @RequestMapping("/eventsourced/{id}")
+  public static class WellAnnotatedESEntity extends EventSourcedEntity<Integer> {
+
+    @GetMapping("/int/{number}")
+    public Integer getInteger(@PathVariable Integer number) {
+      return number;
+    }
+
+    @PostMapping("/changeInt/{number}")
+    public Integer changeInteger(@PathVariable Integer number) {
+      return number;
+    }
 
     @EventHandler
     public Integer receiveStringEvent(String event) {
