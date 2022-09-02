@@ -27,12 +27,17 @@ object EventSourcedHandlersExtractor {
       .filter(_.getAnnotation(classOf[EventHandler]) != null)
       .toList
 
-    val expectedReturnType: Type =
-      entityClass.getGenericSuperclass.asInstanceOf[ParameterizedType].getActualTypeArguments.apply(0)
+    // the type parameter from the entity defines the return type of each event handler
+    val returnType =
+      entityClass.getGenericSuperclass
+        .asInstanceOf[ParameterizedType]
+        .getActualTypeArguments
+        .head
+        .asInstanceOf[Class[_]]
     val (invalidHandlers, validSignatureHandlers) = annotatedHandlers.partition((m: Method) =>
-      m.getParameterCount != 1 || !Modifier.isPublic(m.getModifiers) || (expectedReturnType ne m.getReturnType))
+      m.getParameterCount != 1 || !Modifier.isPublic(m.getModifiers) || (returnType != m.getReturnType))
 
-    def eventTypeExtractor: Method => Class[_] = (mt: Method) => mt.getParameterTypes.apply(0)
+    def eventTypeExtractor: Method => Class[_] = (mt: Method) => mt.getParameterTypes.head
     val eventTypeGrouped = validSignatureHandlers
       .groupBy(eventTypeExtractor)
 
@@ -44,7 +49,7 @@ object EventSourcedHandlersExtractor {
         List(
           HandlerValidationError(
             invalidHandlers,
-            "must be public, with exactly one parameter and return type '" + expectedReturnType.getTypeName + "'"))
+            "must be public, with exactly one parameter and return type '" + returnType.getTypeName + "'"))
     val errorsForDuplicates =
       for (elem <- duplicatedEventTypes)
         yield HandlerValidationError(
