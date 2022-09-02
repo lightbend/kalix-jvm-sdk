@@ -25,8 +25,6 @@ public class Counter extends EventSourcedEntity<Integer> {
         return 0;
     }
 
-    // how to declare that this entity subscribes to their events?
-    // how to know what to implement?
     @PostMapping("/increase/{value}")
     public Effect<String> increase(@PathVariable Integer value) {
         logger.info("Increasing counter with commandId={} commandName={} seqNr={} current={} value={}",
@@ -64,29 +62,4 @@ public class Counter extends EventSourcedEntity<Integer> {
     public Integer handleMultiply(ValueMultiplied value) {
         return currentState() * value.value;
     }
-
-
-    /**
-     *
-    @EventHandler
-    private Integer notGoodBecausePrivate(ValueMultiplied value) {
-        return currentState() * value.value;
-    }
-
-    private Integer allGoodBecausePrivate(ValueMultiplied value) {
-        return currentState() * value.value;
-    }
-
-    public Integer duplicatedEvent(ValueMultiplied value) {
-        return currentState() * value.value;
-    }
-
-    //@EventHandler
-    public String wrongReturnType(Integer value) {
-        return currentState() * value + "";
-    }
-
-    public Integer missingAnnotation(ValueMultiplied value) {
-        return currentState() * value.value;
-    }*/
 }

@@ -24,21 +24,14 @@ import kalix.javasdk.eventsourcedentity.EventSourcedEntityProvider;
 import kalix.javasdk.impl.MessageCodec;
 import kalix.javasdk.impl.eventsourcedentity.EventSourcedEntityRouter;
 import kalix.springsdk.annotations.Entity;
-import kalix.springsdk.annotations.EventHandler;
 import kalix.springsdk.impl.ComponentDescriptor;
 import kalix.springsdk.impl.SpringSdkMessageCodec;
-import kalix.springsdk.impl.eventsourcedentity.EventHandlersExtractor;
+import kalix.springsdk.impl.eventsourcedentity.EventSourcedHandlersExtractor;
 import kalix.springsdk.impl.eventsourcedentity.EventSourceEntityHandlers;
 import kalix.springsdk.impl.eventsourcedentity.ReflectiveEventSourcedEntityRouter;
 
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.lang.reflect.ParameterizedType;
-import java.util.Arrays;
-import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 public class ReflectiveEventSourcedEntityProvider<S, E extends EventSourcedEntity<S>>
     implements EventSourcedEntityProvider<S, E> {
@@ -68,7 +61,13 @@ public class ReflectiveEventSourcedEntityProvider<S, E extends EventSourcedEntit
       throw new IllegalArgumentException(
           "Event Sourced Entity [" + entityClass.getName() + "] is missing '@Entity' annotation");
 
-    this.eventHandlers = EventHandlersExtractor.handlersFrom(entityClass);
+    this.eventHandlers = EventSourcedHandlersExtractor.handlersFrom(entityClass);
+    if (this.eventHandlers.errors().nonEmpty()) {
+      throw new IllegalArgumentException(
+              "Event Sourced Entity [" + entityClass.getName() + "] has event handlers configured incorrectly: " + this.eventHandlers.errors());
+    }
+
+
     this.entityType = annotation.entityType();
 
     this.factory = factory;
