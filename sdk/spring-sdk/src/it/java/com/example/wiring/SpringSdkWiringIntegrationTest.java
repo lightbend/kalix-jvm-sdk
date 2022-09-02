@@ -17,6 +17,7 @@
 package com.example.wiring;
 
 import com.example.Main;
+import com.example.wiring.actions.echo.Message;
 import kalix.springsdk.KalixConfigurationTest;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -27,8 +28,12 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Flux;
 
 import java.time.Duration;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import static java.time.temporal.ChronoUnit.SECONDS;
 
 @ExtendWith(SpringExtension.class)
@@ -42,7 +47,7 @@ public class SpringSdkWiringIntegrationTest {
   private Duration timeout = Duration.of(5, SECONDS);
 
   @Test
-  public void verifyActionWiring() {
+  public void verifyEchoActionWiring() {
 
     Message response =
         webClient
@@ -53,5 +58,20 @@ public class SpringSdkWiringIntegrationTest {
             .block(timeout);
 
     Assertions.assertEquals("Parrot says: 'abc'", response.text);
+  }
+
+  @Test
+  public void verifyStreamActions() {
+
+    List<Message> messageList =
+        webClient
+            .get()
+            .uri("/echo/repeat/abc/times/3")
+            .retrieve()
+            .bodyToFlux(Message.class)
+            .toStream()
+            .collect(Collectors.toList());
+
+    Assertions.assertEquals(3, messageList.size());
   }
 }

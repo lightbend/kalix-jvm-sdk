@@ -14,14 +14,17 @@
  * limitations under the License.
  */
 
-package com.example.wiring.actions;
+package com.example.wiring.actions.echo;
 
-import org.springframework.stereotype.Component;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-@Component
-public class Parrot {
+public class Message {
 
-  public String repeat(String word) {
-    return "Parrot says: '" + word + "'";
+  public final String text;
+
+  @JsonCreator
+  public Message(@JsonProperty("text") String text) {
+    this.text = text;
   }
 }
