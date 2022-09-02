@@ -21,9 +21,9 @@ import kalix.javasdk.action.ActionCreationContext;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
+import java.util.concurrent.CompletableFuture;
 
 public class EchoAction extends Action {
 
@@ -44,12 +44,10 @@ public class EchoAction extends Action {
   @GetMapping("/echo/repeat/{msg}/times/{times}")
   public Flux<Effect<Message>> stringMessage(
       @PathVariable String msg, @PathVariable Integer times) {
-
-    Stream<Effect<Message>> messages =
-        IntStream.rangeClosed(1, times)
-            .mapToObj(i -> new Message(parrot.repeat(msg)))
-            .map(m -> effects().reply(m));
-
-    return Flux.fromStream(messages);
+    return Flux.range(1, times)
+        // add an async boundary just to have some thread switching
+        .flatMap(
+            i -> Mono.fromCompletionStage(CompletableFuture.supplyAsync(() -> parrot.repeat(msg))))
+        .map(m -> effects().reply(new Message(m)));
   }
 }
