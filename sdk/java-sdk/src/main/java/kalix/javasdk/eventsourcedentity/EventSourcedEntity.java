@@ -80,7 +80,7 @@ public abstract class EventSourcedEntity<S> {
 
   /** INTERNAL API */
   public void _internalSetCurrentState(S state) {
-    currentState = Optional.ofNullable(state);
+    currentState = Optional.of(state);
   }
 
   /**

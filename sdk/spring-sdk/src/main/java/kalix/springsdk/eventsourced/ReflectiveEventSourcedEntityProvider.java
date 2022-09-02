@@ -67,17 +67,12 @@ public class ReflectiveEventSourcedEntityProvider<S, E extends EventSourcedEntit
               "Event Sourced Entity [" + entityClass.getName() + "] has event handlers configured incorrectly: " + this.eventHandlers.errors());
     }
 
-
     this.entityType = annotation.entityType();
-
     this.factory = factory;
     this.options = options;
-
     this.componentDescriptor = ComponentDescriptor.descriptorFor(entityClass);
-
     this.fileDescriptor = componentDescriptor.fileDescriptor();
     this.serviceDescriptor = componentDescriptor.serviceDescriptor();
-
   }
 
   @Override

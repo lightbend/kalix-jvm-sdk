@@ -47,9 +47,8 @@ class EventSourcedHandlersExtractorSpec extends AnyWordSpec with Matchers {
       val result = EventSourcedHandlersExtractor.handlersFrom(classOf[ErrorWrongSignaturesEntity])
       result.handlers shouldBe empty
       result.errors.size shouldBe 1
-      result.errors.head.methods.size shouldBe 2
-      result.errors.head.methods.head.getName shouldBe "receivedIntegerEvent"
-      result.errors.head.methods(1).getName shouldBe "receivedIntegerEventAndString"
+      val offendingMethods = result.errors.map(_.methods.map(_.getName).sorted)
+      offendingMethods shouldBe List(List("receivedIntegerEvent", "receivedIntegerEventAndString"))
     }
 
     "report error on annotated handlers with duplicates signatures (receiving the same event type)" in {
@@ -61,9 +60,8 @@ class EventSourcedHandlersExtractorSpec extends AnyWordSpec with Matchers {
       }
 
       result.errors.size shouldBe 1
-      result.errors.head.methods.size shouldBe 2
-      result.errors.head.methods.head.getName shouldBe "receivedIntegerEvent"
-      result.errors.head.methods(1).getName shouldBe "receivedIntegerEventDup"
+      val offendingMethods = result.errors.map(_.methods.map(_.getName).sorted)
+      offendingMethods shouldBe List(List("receivedIntegerEvent", "receivedIntegerEventDup"))
     }
   }
 }
