@@ -32,6 +32,8 @@ public abstract class ValueEntity<S> {
 
   private Optional<S> currentState = Optional.empty();
 
+  private boolean handlingCommands = false;
+
   /**
    * Implement by returning the initial empty state object. This object will be passed into the
    * command handlers, until a new state replaces it.
@@ -65,6 +67,7 @@ public abstract class ValueEntity<S> {
 
   /** INTERNAL API */
   public void _internalSetCurrentState(S state) {
+    handlingCommands = true;
     currentState = Optional.ofNullable(state);
   }
 
@@ -80,9 +83,11 @@ public abstract class ValueEntity<S> {
    * @throws IllegalStateException if accessed outside a handler method
    */
   protected final S currentState() {
-    return currentState.orElseThrow(
-        () ->
-            new IllegalStateException("Current state is only available when handling a command."));
+    // user may call this method inside a command handler and get a null because it's legal
+    // to have emptyState set to null.
+    if (handlingCommands) return currentState.orElse(null);
+    else
+      throw new IllegalStateException("Current state is only available when handling a command.");
   }
 
   protected final Effect.Builder<S> effects() {
