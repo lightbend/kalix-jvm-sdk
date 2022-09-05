@@ -83,11 +83,13 @@ lazy val sdkJava = project
 lazy val sdkSpring = project
   .in(file("sdk/spring-sdk"))
   .dependsOn(sdkJava)
-  .enablePlugins(AkkaGrpcPlugin, BuildInfoPlugin, PublishSonatype)
+  .dependsOn(sdkJavaTestKit % IntegrationTest)
+  .enablePlugins(AkkaGrpcPlugin, BuildInfoPlugin, PublishSonatype, IntegrationTests)
   .settings(common)
   .settings(
     name := "kalix-spring-sdk",
     crossPaths := false,
+    buildInfoObject := "SpringSdkBuildInfo",
     buildInfoKeys := Seq[BuildInfoKey](
       name,
       version,
@@ -98,12 +100,14 @@ lazy val sdkSpring = project
     Compile / akkaGrpcGeneratedSources := Seq(AkkaGrpc.Server),
     Compile / akkaGrpcGeneratedLanguages := Seq(AkkaGrpc.Scala),
     Test / javacOptions += "-parameters", // for Jackson
+    IntegrationTest / javacOptions += "-parameters", // for Jackson
     inTask(doc)(
       Seq(
         Compile / scalacOptions ++= scaladocOptions(
           "Kalix Spring SDK",
           version.value,
           (ThisBuild / baseDirectory).value))))
+  .settings(inConfig(IntegrationTest)(JupiterPlugin.scopedSettings): _*)
   .settings(Dependencies.sdkSpring)
 
 lazy val sdkScala = project
@@ -113,6 +117,7 @@ lazy val sdkScala = project
   .settings(common)
   .settings(
     name := "kalix-scala-sdk",
+    buildInfoObject := "ScalaSdkBuildInfo",
     buildInfoKeys := Seq[BuildInfoKey](
       name,
       version,

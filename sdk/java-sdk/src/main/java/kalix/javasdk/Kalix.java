@@ -20,6 +20,7 @@ import akka.Done;
 import akka.actor.ActorSystem;
 import com.google.protobuf.Descriptors;
 import com.typesafe.config.Config;
+import kalix.javasdk.action.Action;
 import kalix.javasdk.action.ActionOptions;
 import kalix.javasdk.action.ActionProvider;
 import kalix.javasdk.eventsourcedentity.EventSourcedEntity;
@@ -61,6 +62,7 @@ public final class Kalix {
   private String typeUrlPrefix = AnySupport.DefaultTypeUrlPrefix();
   private AnySupport.Prefer prefer = AnySupport.PREFER_JAVA();
   private final LowLevelRegistration lowLevel = new LowLevelRegistration();
+  private String sdkName = BuildInfo$.MODULE$.name();
 
   private class LowLevelRegistration {
     /**
@@ -309,6 +311,17 @@ public final class Kalix {
   }
 
   /**
+   * INTERNAL API - subject to change without notice
+   *
+   * @param sdkName the name of the SDK used to build this Kalix app (i.e. kalix-java-sdk)
+   * @return This Kalix instance.
+   */
+  public Kalix withSdkName(String sdkName) {
+    this.sdkName = sdkName;
+    return this;
+  }
+
+  /**
    * Register a replicated entity using a {@link ReplicatedEntityProvider}. The concrete <code>
    * ReplicatedEntityProvider</code> is generated for the specific entities defined in Protobuf, for
    * example <code>CustomerEntityProvider</code>.
@@ -360,7 +373,7 @@ public final class Kalix {
   }
 
   /**
-   * Register a event sourced entity using a {{@link EventSourcedEntityProvider}}. The concrete
+   * Register an event sourced entity using a {{@link EventSourcedEntityProvider}}. The concrete
    * <code>
    * EventSourcedEntityProvider</code> is generated for the specific entities defined in Protobuf,
    * for example <code>CustomerEntityProvider</code>.
@@ -387,7 +400,7 @@ public final class Kalix {
    *
    * @return This stateful service builder.
    */
-  public Kalix register(ViewProvider provider) {
+  public Kalix register(ViewProvider<?, ?> provider) {
     return lowLevel.registerView(
         provider::newRouter,
         provider.serviceDescriptor(),
@@ -403,10 +416,9 @@ public final class Kalix {
    *
    * @return This stateful service builder.
    */
-  public Kalix register(ActionProvider provider) {
-    // FIXME: type inference complaining about lack of type param in ActionProvider<>
-    Optional<MessageCodec> codecOpt = provider.alternativeCodec();
-    return codecOpt
+  public <A extends Action> Kalix register(ActionProvider<A> provider) {
+    return provider
+        .alternativeCodec()
         .map(
             codec ->
                 lowLevel.registerAction(
@@ -449,7 +461,7 @@ public final class Kalix {
    * @return a KalixRunner
    */
   public KalixRunner createRunner() {
-    return new KalixRunner(services);
+    return new KalixRunner(services, sdkName);
   }
 
   /**
@@ -460,7 +472,7 @@ public final class Kalix {
    * @return a KalixRunner
    */
   public KalixRunner createRunner(Config config) {
-    return new KalixRunner(services, config);
+    return new KalixRunner(services, config, sdkName);
   }
 
   private AnySupport newAnySupport(Descriptors.FileDescriptor[] descriptors) {

@@ -95,7 +95,12 @@ private[impl] object ComponentDescriptor {
         }
 
       val grpcMethodName = nameGenerator.getName(kalixMethod.serviceMethod.methodName.capitalize)
-      val grpcMethodBuilder = buildGrpcMethod(grpcMethodName, inputMessageName)
+      val grpcMethodBuilder =
+        buildGrpcMethod(
+          grpcMethodName,
+          inputMessageName,
+          kalixMethod.serviceMethod.streamIn,
+          kalixMethod.serviceMethod.streamOut)
 
       val methodOptions =
         kalixMethod.methodOptions.foldLeft(MethodOptions.newBuilder()) { (optionsBuilder, options) =>
@@ -112,8 +117,8 @@ private[impl] object ComponentDescriptor {
       NamedComponentMethod(kalixMethod.serviceMethod, grpcMethodName, extractors, inputMessageName, inputProto)
     }
 
-    val componentMethods: Seq[NamedComponentMethod] = serviceMethods.map(methodToNamedComponentMethod)
-    val inputMessageProtos: Seq[DescriptorProtos.DescriptorProto] = componentMethods.flatMap(_.inputProto)
+    val namedMethods: Seq[NamedComponentMethod] = serviceMethods.map(methodToNamedComponentMethod)
+    val inputMessageProtos: Seq[DescriptorProtos.DescriptorProto] = namedMethods.flatMap(_.inputProto)
 
     val fileDescriptor: Descriptors.FileDescriptor =
       ProtoDescriptorGenerator.genFileDescriptor(
@@ -123,7 +128,7 @@ private[impl] object ComponentDescriptor {
         inputMessageProtos ++ otherMessageProtos)
 
     val methods: Map[String, ComponentMethod] =
-      componentMethods.map { method => (method.grpcMethodName, method.toComponentMethod(fileDescriptor)) }.toMap
+      namedMethods.map { method => (method.grpcMethodName, method.toComponentMethod(fileDescriptor)) }.toMap
 
     val serviceDescriptor: Descriptors.ServiceDescriptor =
       fileDescriptor.findServiceByName(grpcService.getName)
@@ -320,11 +325,17 @@ private[impl] object ComponentDescriptor {
     httpRule
   }
 
-  private def buildGrpcMethod(grpcMethodName: String, inputTypeName: String): MethodDescriptorProto.Builder =
+  private def buildGrpcMethod(
+      grpcMethodName: String,
+      inputTypeName: String,
+      streamIn: Boolean,
+      streamOut: Boolean): MethodDescriptorProto.Builder =
     MethodDescriptorProto
       .newBuilder()
       .setName(grpcMethodName)
       .setInputType(inputTypeName)
+      .setClientStreaming(streamIn)
+      .setServerStreaming(streamOut)
       .setOutputType("google.protobuf.Any")
 
 }

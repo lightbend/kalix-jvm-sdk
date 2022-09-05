@@ -1,3 +1,4 @@
+import net.aichler.jupiter.sbt.Import.JupiterKeys
 import sbt._
 import sbt.Keys._
 
@@ -5,7 +6,7 @@ object Dependencies {
   object Kalix {
     val ProtocolVersionMajor = 1
     val ProtocolVersionMinor = 0
-    val ProxyVersion = System.getProperty("kalix-proxy.version", "1.0.15")
+    val ProxyVersion = System.getProperty("kalix-proxy.version", "1.0.16")
   }
 
   // changing the Scala version of the Java SDK affects end users
@@ -113,8 +114,12 @@ object Dependencies {
   val sdkSpring = deps ++= coreDeps ++ Seq(
     jacksonDataFormatProto,
     "org.springframework.boot" % "spring-boot" % SpringVersion,
-    ("org.springframework.boot" % "spring-boot-starter-web" % SpringVersion)
-      .exclude("org.springframework.boot", "spring-boot-starter-tomcat"))
+    ("org.springframework.boot" % "spring-boot-starter-webflux" % SpringVersion)
+      .exclude("org.springframework.boot", "spring-boot-starter-tomcat"),
+    "net.aichler" % "jupiter-interface" % JupiterKeys.jupiterVersion.value % IntegrationTest,
+    "org.springframework.boot" % "spring-boot-starter-test" % SpringVersion % IntegrationTest,
+    junit5 % IntegrationTest,
+    "org.awaitility" % "awaitility" % "4.1.0" % IntegrationTest)
 
   // FIXME
   val sdkScala = deps ++= coreDeps ++ Seq(jacksonScala)

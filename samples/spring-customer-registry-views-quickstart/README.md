@@ -54,7 +54,7 @@ FIXME update for spring
   ```
 * Query by email:
   ```shell
-  curl localhost:9000/customer/by_email/test@example.com
+  curl localhost:9000/customer/by_email/test%40example.com
   ```
 * Query by name:
   ```shell

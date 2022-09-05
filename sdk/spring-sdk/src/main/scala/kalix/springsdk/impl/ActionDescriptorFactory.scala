@@ -23,9 +23,9 @@ import kalix.springsdk.impl.ComponentDescriptorFactory.hasTopicSubscription
 import kalix.springsdk.impl.ComponentDescriptorFactory.validateRestMethod
 import kalix.springsdk.impl.reflection.KalixMethod
 import kalix.springsdk.impl.reflection.NameGenerator
+import kalix.springsdk.impl.reflection.ReflectionUtils
 import kalix.springsdk.impl.reflection.RestServiceIntrospector
 import kalix.springsdk.impl.reflection.RestServiceMethod
-import kalix.springsdk.impl.reflection.ReflectionUtils
 
 private[impl] object ActionDescriptorFactory extends ComponentDescriptorFactory {
 
