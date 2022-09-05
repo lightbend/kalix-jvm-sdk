@@ -7,7 +7,7 @@ public class ValueMultiplied {
     public final int value;
 
     @JsonCreator
-    public ValueMultiplied(@JsonProperty Integer value) {
+    public ValueMultiplied(@JsonProperty int value) {
         this.value = value;
     }
 }

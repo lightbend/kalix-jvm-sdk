@@ -8,7 +8,7 @@ public class ValueIncreased {
     public final int value;
 
     @JsonCreator
-    public ValueIncreased(@JsonProperty("value") int value) {
+    public ValueIncreased(@JsonProperty int value) {
         this.value = value;
     }
 }
