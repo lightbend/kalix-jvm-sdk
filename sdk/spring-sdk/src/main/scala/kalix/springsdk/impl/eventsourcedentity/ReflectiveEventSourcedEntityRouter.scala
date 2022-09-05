@@ -25,20 +25,20 @@ import java.lang.reflect.Method
 
 class ReflectiveEventSourcedEntityRouter[S, E <: EventSourcedEntity[S]](
     override protected val entity: E,
-    componentMethods: Map[String, ComponentMethod],
-    handlerMethods: Map[Class[_], Method])
+    commandHandlerMethods: Map[String, ComponentMethod],
+    eventHandlerMethods: Map[Class[_], Method])
     extends EventSourcedEntityRouter[S, E](entity) {
 
-  private def methodLookup(commandName: String) =
-    componentMethods.getOrElse(commandName, throw new RuntimeException(s"no matching method for '$commandName'"))
+  private def commandHandlerLookup(commandName: String) =
+    commandHandlerMethods.getOrElse(commandName, throw new RuntimeException(s"no matching method for '$commandName'"))
 
-  private def handlerLookup(eventClass: Class[_]) =
-    handlerMethods.getOrElse(eventClass, throw new RuntimeException(s"no matching handler for '$eventClass'"))
+  private def eventHandlerLookup(eventClass: Class[_]) =
+    eventHandlerMethods.getOrElse(eventClass, throw new RuntimeException(s"no matching handler for '$eventClass'"))
 
   override def handleEvent(state: S, event: Any): S = {
     entity._internalSetCurrentState(state)
 
-    handlerLookup(event.getClass)
+    eventHandlerLookup(event.getClass)
       .invoke(entity, event.asInstanceOf[event.type])
       .asInstanceOf[S]
   }
@@ -49,7 +49,7 @@ class ReflectiveEventSourcedEntityRouter[S, E <: EventSourcedEntity[S]](
       command: Any,
       context: CommandContext): EventSourcedEntity.Effect[_] = {
 
-    val componentMethod = methodLookup(commandName)
+    val componentMethod = commandHandlerLookup(commandName)
     val invocationContext =
       InvocationContext(command.asInstanceOf[ScalaPbAny], componentMethod.requestMessageDescriptor)
 
