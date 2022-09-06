@@ -18,21 +18,12 @@ package kalix.springsdk.annotations;
 
 import java.lang.annotation.*;
 
-public @interface Subscribe {
-
-  @Target({ElementType.TYPE, ElementType.METHOD})
-  @Retention(RetentionPolicy.RUNTIME)
-  @Documented
-  @interface ValueEntity {
-    Class<? extends kalix.javasdk.valueentity.ValueEntity<?>> value();
-  }
+public @interface Publish {
 
   @Target(ElementType.METHOD)
   @Retention(RetentionPolicy.RUNTIME)
   @Documented
   @interface Topic {
     String value();
-
-    String consumerGroup() default "";
   }
 }

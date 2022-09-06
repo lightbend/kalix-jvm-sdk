@@ -18,13 +18,16 @@ package kalix.springsdk.testmodels.subscriptions;
 
 import kalix.javasdk.action.Action;
 import kalix.springsdk.annotations.Subscribe;
+import kalix.springsdk.annotations.Publish;
 import kalix.springsdk.testmodels.Message;
+import kalix.springsdk.testmodels.Message2;
 import kalix.springsdk.testmodels.valueentity.Counter;
 import kalix.springsdk.testmodels.valueentity.User;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 
-public class SubscriptionsTestModels {
+public class PubSubTestModels {
 
   public static class SubscribeToValueEntityAction extends Action {
 
@@ -36,6 +39,44 @@ public class SubscriptionsTestModels {
     @Subscribe.ValueEntity(Counter.class)
     public Action.Effect<Message> messageTwo(Message message) {
       return effects().reply(message);
+    }
+  }
+
+  public static class SubscribeToTopicAction extends Action {
+
+    @Subscribe.Topic(value = "topicXYZ", consumerGroup = "cg")
+    public Action.Effect<Message> messageOne(Message message) {
+      return effects().reply(message);
+    }
+  }
+
+  public static class SubscribeToTwoTopicsAction extends Action {
+
+    @Subscribe.Topic("topicXYZ")
+    public Action.Effect<Message> methodOne(Message message) {
+      return effects().reply(message);
+    }
+
+    @Subscribe.Topic("topicXYZ")
+    public Action.Effect<Message2> methodTwo(Message2 message) {
+      return effects().reply(message);
+    }
+  }
+
+  public static class PublishToTopicAction extends Action {
+
+    @Publish.Topic("topicAlpha")
+    public Action.Effect<Message> messageOne(Message message) {
+      return effects().reply(message);
+    }
+  }
+
+  public static class RestWithPublishToTopicAction extends Action {
+
+    @PostMapping("/message/{msg}")
+    @Publish.Topic("foobar")
+    public Effect<Message> messageOne(@PathVariable String msg) {
+      return effects().reply(new Message(msg));
     }
   }
 
