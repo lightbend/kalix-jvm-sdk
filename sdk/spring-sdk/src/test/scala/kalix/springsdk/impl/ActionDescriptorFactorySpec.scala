@@ -245,18 +245,14 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
     }
 
     "generate stream in methods" in {
-      assertDescriptor[StreamInAction] { desc =>
-        val methodDescriptor = desc.serviceDescriptor.findMethodByName("Message")
-        methodDescriptor.isServerStreaming shouldBe false
-        methodDescriptor.isClientStreaming shouldBe true
+      intercept[IllegalArgumentException] {
+        ComponentDescriptor.descriptorFor[StreamInAction]
       }
     }
 
     "generate stream in/out methods" in {
-      assertDescriptor[StreamInOutAction] { desc =>
-        val methodDescriptor = desc.serviceDescriptor.findMethodByName("Message")
-        methodDescriptor.isServerStreaming shouldBe true
-        methodDescriptor.isClientStreaming shouldBe true
+      intercept[IllegalArgumentException] {
+        ComponentDescriptor.descriptorFor[StreamInOutAction]
       }
     }
     "generate mapping for an Action with a subscription to a topic" in {
