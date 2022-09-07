@@ -8,14 +8,13 @@
   <packaging>jar</packaging>
 
   <name>${artifactId}</name>
-  #set( $D = '$' )
   <properties>
 
     <!-- TODO Update to your own Docker repository or Docker Hub scope -->
-    <dockerImage>my-docker-repo/${D}{project.artifactId}</dockerImage>
-    <dockerTag>${D}{project.version}-${D}{build.timestamp}</dockerTag>
+    <dockerImage>my-docker-repo/${project.artifactId}</dockerImage>
+    <dockerTag>${project.version}-${build.timestamp}</dockerTag>
     <maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
-    <mainClass>${package}.Main</mainClass>
+    <mainClass>customer.Main</mainClass>
 
     <jdk.target>11</jdk.target>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -28,7 +27,7 @@
     <resources>
       <!-- Add the generated protobuf descriptor to the classpath, so that source mapping works -->
       <resource>
-        <directory>${D}{project.build.directory}/generated-resources</directory>
+        <directory>${project.build.directory}/generated-resources</directory>
       </resource>
       <resource>
         <directory>src/main/resources</directory>
@@ -49,43 +48,12 @@
         <artifactId>maven-compiler-plugin</artifactId>
         <version>3.8.1</version>
         <configuration>
-          <source>${D}{jdk.target}</source>
-          <target>${D}{jdk.target}</target>
+          <source>${jdk.target}</source>
+          <target>${jdk.target}</target>
           <compilerArgs>
             <arg>-Xlint:deprecation</arg>
           </compilerArgs>
         </configuration>
-      </plugin>
-
-      <plugin>
-        <groupId>org.xolstice.maven.plugins</groupId>
-        <artifactId>protobuf-maven-plugin</artifactId>
-        <version>0.6.1</version>
-        <executions>
-          <execution>
-            <!-- generate Java code for protobuf types -->
-            <id>protobuf</id>
-            <goals>
-              <goal>compile</goal>
-            </goals>
-            <configuration>
-              <writeDescriptorSet>true</writeDescriptorSet>
-              <includeSourceInfoInDescriptorSet>true</includeSourceInfoInDescriptorSet>
-              <descriptorSetFileName>user-function.desc</descriptorSetFileName>
-              <checkStaleness>true</checkStaleness>
-              <protocArtifact>com.google.protobuf:protoc:3.19.2:exe:${D}{os.detected.classifier}</protocArtifact>
-              <protocPlugins>
-                <protocPlugin>
-                  <id>akka-grpc</id>
-                  <groupId>com.lightbend.akka.grpc</groupId>
-                  <artifactId>akka-grpc-scalapb-protoc-plugin_2.12</artifactId>
-                  <version>${D}{akka-grpc.version}</version>
-                  <mainClass>akka.grpc.gen.Main</mainClass>
-                </protocPlugin>
-              </protocPlugins>
-            </configuration>
-          </execution>
-        </executions>
       </plugin>
 
       <plugin>
@@ -104,7 +72,7 @@
                   <resource>reference.conf</resource>
                 </transformer>
                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                  <mainClass>${D}{mainClass}</mainClass>
+                  <mainClass>${mainClass}</mainClass>
                 </transformer>
               </transformers>
             </configuration>
@@ -119,16 +87,16 @@
         <configuration>
           <images>
             <image>
-              <name>${D}{dockerImage}:%l</name>
+              <name>${dockerImage}:%l</name>
               <build>
                 <!-- Base Docker image which contains jre-->
-                <from>docker.io/library/adoptopenjdk:${D}{jdk.target}-jre-hotspot</from>
+                <from>docker.io/library/adoptopenjdk:${jdk.target}-jre-hotspot</from>
                 <createImageOptions>
                   <platform>linux/amd64</platform>
                 </createImageOptions>
                 <tags>
                   <!-- tag for generated image -->
-                  <tag>${D}{dockerTag}</tag>
+                  <tag>${dockerTag}</tag>
                 </tags>
                 <ports>
                   <!-- expose port in Docker container -->
@@ -141,7 +109,7 @@
                 <entryPoint>
                   <arg>java</arg>
                   <arg>-jar</arg>
-                  <arg>/maven/${D}{project.build.finalName}.jar</arg>
+                  <arg>/maven/${project.build.finalName}.jar</arg>
                 </entryPoint>
               </build>
             </image>
@@ -181,7 +149,7 @@
           <arguments>
             <argument>-classpath</argument>
             <classpath/>
-            <argument>${D}{mainClass}</argument>
+            <argument>${mainClass}</argument>
           </arguments>
           <environmentVariables>
             <!-- needed for the proxy to access the user function on all platforms -->
@@ -240,7 +208,7 @@
       <plugin>
         <groupId>io.kalix</groupId>
         <artifactId>kalix-maven-plugin</artifactId>
-        <version>${D}{kalix-sdk.version}</version>
+        <version>${kalix-sdk.version}</version>
         <executions>
           <execution>
             <goals>
@@ -250,8 +218,8 @@
           </execution>
         </executions>
         <configuration>
-          <dockerImage>${D}{dockerImage}:${D}{dockerTag}</dockerImage>
-          <mainClass>${D}{mainClass}</mainClass>
+          <dockerImage>${dockerImage}:${dockerTag}</dockerImage>
+          <mainClass>${mainClass}</mainClass>
           <integrationTestSourceDirectory>src/it/java</integrationTestSourceDirectory>
         </configuration>
       </plugin>
@@ -301,20 +269,29 @@
   <dependencies>
     <dependency>
       <groupId>io.kalix</groupId>
-      <artifactId>kalix-java-sdk</artifactId>
-      <version>${D}{kalix-sdk.version}</version>
+      <artifactId>kalix-spring-sdk</artifactId>
+      <version>${kalix-sdk.version}</version>
     </dependency>
     <dependency>
       <groupId>io.kalix</groupId>
       <artifactId>kalix-java-sdk-testkit</artifactId>
-      <version>${D}{kalix-sdk.version}</version>
+      <version>${kalix-sdk.version}</version>
       <scope>test</scope>
     </dependency>
+
     <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>4.13.2</version>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-test</artifactId>
+      <version>2.7.0</version>
       <scope>test</scope>
     </dependency>
+
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-api</artifactId>
+      <version>5.5.2</version>
+      <scope>test</scope>
+    </dependency>
+    
   </dependencies>
 </project>
