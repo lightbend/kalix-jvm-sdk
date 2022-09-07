@@ -278,22 +278,10 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
 
     }
 
-    "generate mapping for an Action with two subscriptions to a topic" in {
-      assertDescriptor[SubscribeToTwoTopicsAction] { desc =>
-        val methodOne = desc.methods("OnTopicXYZKalixSyntheticMethod")
-        methodOne.requestMessageDescriptor.getFullName shouldBe JavaPbAny.getDescriptor.getFullName
-
-        val eventSourceOne = findKalixMethodOptions(desc, "OnTopicXYZKalixSyntheticMethod").getEventing.getIn
-        eventSourceOne.getTopic shouldBe "topicXYZ"
-        val rule = findHttpRule(desc, "OnTopicXYZKalixSyntheticMethod")
-
-        rule.getPost shouldBe
-        "/kalix.springsdk.testmodels.subscriptions.PubSubTestModels.SubscribeToTwoTopicsAction/OnTopicXYZKalixSyntheticMethod"
-
-        // should have a default extractor for any payload
-        methodOne.parameterExtractors.size shouldBe 1
+    "Raise and error when there are two subscriptions to the same topic" in {
+      intercept[InvalidComponentException] {
+        ComponentDescriptor.descriptorFor[SubscribeToTwoTopicsAction]
       }
-
     }
 
     "generate mapping for an Action with a publication to a topic" in {

@@ -65,30 +65,20 @@ private[impl] object ActionDescriptorFactory extends ComponentDescriptorFactory 
           .withKalixOptions(kalixOptions)
       }
 
-    def uniqueTopicSubscriptions(subscriptions: Seq[KalixMethod]): Seq[KalixMethod] =
-      groupByTopic(subscriptions)
-        .filter { case (topic, kMethods) => kMethods.size == 1 }
-        .flatMap { case (topic, kMethods) =>
-          kMethods
-        }
-        .toSeq
-
-    def combineSubscriptionsSameTopic(subscriptions: Seq[KalixMethod]): Seq[KalixMethod] = {
+    def checkNotTopicDuplication(subscriptions: Seq[KalixMethod]): Seq[KalixMethod] = {
+      def groupByTopic(methods: Seq[KalixMethod]): Map[String, Seq[KalixMethod]] = {
+        val withTopicIn = methods.filter(kalixMethod =>
+          kalixMethod.methodOptions.exists(option =>
+            option.hasEventing && option.getEventing.hasIn && option.getEventing.getIn.hasTopic))
+        //Assuming there is only one topic, therefore head is as good as any other
+        withTopicIn.groupBy(m => m.methodOptions.head.getEventing.getIn.getTopic)
+      }
       groupByTopic(subscriptions).collect {
         case (topic, kMethods) if kMethods.size > 1 =>
-          val representative = kMethods.head
-          val rs: RestServiceMethod = representative.serviceMethod.asInstanceOf[RestServiceMethod]
-          KalixMethod(RestServiceMethod(rs.javaMethod, Some("On" + topic.capitalize + "KalixSyntheticMethod")))
-            .withKalixOptions(representative.methodOptions)
-      }.toSeq
-    }
-
-    def groupByTopic(methods: Seq[KalixMethod]): Map[String, Seq[KalixMethod]] = {
-      val withTopicIn = methods.filter(kalixMethod =>
-        kalixMethod.methodOptions.exists(option =>
-          option.hasEventing && option.getEventing.hasIn && option.getEventing.getIn.hasTopic))
-      //Assuming there is only one topic, therefore head is as good as any other
-      withTopicIn.groupBy(m => m.methodOptions.head.getEventing.getIn.getTopic)
+          throw InvalidComponentException(
+            s"topic: '$topic' it is used in multiple @Subscription.Topic annotations. Each @Subscription. Topic must point to a different topic")
+      }
+      subscriptions
     }
 
     val publicationTopicMethods = component.getMethods
@@ -131,8 +121,7 @@ private[impl] object ActionDescriptorFactory extends ComponentDescriptorFactory 
       component.getPackageName,
       filterAndAddKalixOptions(springAnnotatedMethods, publicationTopicMethods)
       ++ subscriptionValueEntityMethods
-      ++ combineSubscriptionsSameTopic(subscriptionTopicMethods)
-      ++ uniqueTopicSubscriptions(subscriptionTopicMethods)
+      ++ checkNotTopicDuplication(subscriptionTopicMethods)
       ++ removeDuplicates(springAnnotatedMethods, publicationTopicMethods))
   }
 }
