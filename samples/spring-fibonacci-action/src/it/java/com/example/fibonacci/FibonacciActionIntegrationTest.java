@@ -1,7 +1,8 @@
 package com.example.fibonacci;
 
 import com.example.Main;
-import kalix.springsdk.KalixConfigurationTest;
+import kalix.springsdk.KalixIntegrationTestKitSupport;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
@@ -22,9 +23,7 @@ import static java.time.temporal.ChronoUnit.SECONDS;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = Main.class)
-@Import(KalixConfigurationTest.class)
-@TestPropertySource(properties = "spring.main.allow-bean-definition-overriding=true")
-public class FibonacciActionIntegrationTest {
+public class FibonacciActionIntegrationTest extends KalixIntegrationTestKitSupport {
 
 
   @Autowired

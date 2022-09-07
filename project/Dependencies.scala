@@ -111,15 +111,20 @@ object Dependencies {
     junit5 % Provided,
     scalaTest % Test)
 
-  val sdkSpring = deps ++= coreDeps ++ Seq(
+  val springDeps = Seq(
     jacksonDataFormatProto,
     "org.springframework.boot" % "spring-boot" % SpringVersion,
     ("org.springframework.boot" % "spring-boot-starter-webflux" % SpringVersion)
-      .exclude("org.springframework.boot", "spring-boot-starter-tomcat"),
+      .exclude("org.springframework.boot", "spring-boot-starter-tomcat"))
+
+  val sdkSpring = deps ++= coreDeps ++ springDeps ++ Seq(
     "net.aichler" % "jupiter-interface" % JupiterKeys.jupiterVersion.value % IntegrationTest,
     "org.springframework.boot" % "spring-boot-starter-test" % SpringVersion % IntegrationTest,
     junit5 % IntegrationTest,
     "org.awaitility" % "awaitility" % "4.1.0" % IntegrationTest)
+
+  val sdkSpringTestKit =
+    deps ++= springDeps ++ Seq("org.springframework.boot" % "spring-boot-starter-test" % SpringVersion)
 
   // FIXME
   val sdkScala = deps ++= coreDeps ++ Seq(jacksonScala)
