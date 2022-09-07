@@ -14,25 +14,17 @@
  * limitations under the License.
  */
 
-package kalix.springsdk.annotations;
+package kalix.springsdk.testmodels;
 
-import java.lang.annotation.*;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-public @interface Subscribe {
+public class Message2 {
 
-  @Target({ElementType.TYPE, ElementType.METHOD})
-  @Retention(RetentionPolicy.RUNTIME)
-  @Documented
-  @interface ValueEntity {
-    Class<? extends kalix.javasdk.valueentity.ValueEntity<?>> value();
-  }
+  public final String value;
 
-  @Target(ElementType.METHOD)
-  @Retention(RetentionPolicy.RUNTIME)
-  @Documented
-  @interface Topic {
-    String value();
-
-    String consumerGroup() default "";
+  @JsonCreator
+  public Message2(@JsonProperty("value") String value) {
+    this.value = value;
   }
 }

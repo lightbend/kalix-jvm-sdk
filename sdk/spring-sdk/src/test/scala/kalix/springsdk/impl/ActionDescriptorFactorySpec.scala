@@ -33,8 +33,13 @@ import kalix.springsdk.testmodels.action.ActionsTestModels.PutWithoutParam
 import kalix.springsdk.testmodels.action.ActionsTestModels.StreamInAction
 import kalix.springsdk.testmodels.action.ActionsTestModels.StreamInOutAction
 import kalix.springsdk.testmodels.action.ActionsTestModels.StreamOutAction
-import kalix.springsdk.testmodels.subscriptions.SubscriptionsTestModels.RestAnnotatedSubscribeToValueEntityAction
-import kalix.springsdk.testmodels.subscriptions.SubscriptionsTestModels.SubscribeToValueEntityAction
+import kalix.springsdk.testmodels.subscriptions.PubSubTestModels.PublishToTopicAction
+import kalix.springsdk.testmodels.subscriptions.PubSubTestModels.RestAnnotatedSubscribeToValueEntityAction
+import kalix.springsdk.testmodels.subscriptions.PubSubTestModels.RestWithPublishToTopicAction
+import kalix.springsdk.testmodels.subscriptions.PubSubTestModels.SubscribeToTopicAction
+import kalix.springsdk.testmodels.subscriptions.PubSubTestModels.SubscribeToTwoTopicsAction
+import kalix.springsdk.testmodels.subscriptions.PubSubTestModels.SubscribeToValueEntityAction
+
 import org.scalatest.wordspec.AnyWordSpec
 
 class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSuite {
@@ -209,7 +214,7 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
         val rule = findHttpRule(desc, "MessageOne")
 
         rule.getPost shouldBe
-        "/kalix.springsdk.testmodels.subscriptions.SubscriptionsTestModels.SubscribeToValueEntityAction/MessageOne"
+        "/kalix.springsdk.testmodels.subscriptions.PubSubTestModels.SubscribeToValueEntityAction/MessageOne"
 
         // should have a default extractor for any payload
         methodOne.parameterExtractors.size shouldBe 1
@@ -253,6 +258,66 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
         methodDescriptor.isServerStreaming shouldBe true
         methodDescriptor.isClientStreaming shouldBe true
       }
+    }
+    "generate mapping for an Action with a subscription to a topic" in {
+      assertDescriptor[SubscribeToTopicAction] { desc =>
+        val methodOne = desc.methods("MessageOne")
+        methodOne.requestMessageDescriptor.getFullName shouldBe JavaPbAny.getDescriptor.getFullName
+
+        val eventSourceOne = findKalixMethodOptions(desc, "MessageOne").getEventing.getIn
+        eventSourceOne.getTopic shouldBe "topicXYZ"
+        eventSourceOne.getConsumerGroup shouldBe "cg"
+        val rule = findHttpRule(desc, "MessageOne")
+
+        rule.getPost shouldBe
+        "/kalix.springsdk.testmodels.subscriptions.PubSubTestModels.SubscribeToTopicAction/MessageOne"
+
+        // should have a default extractor for any payload
+        methodOne.parameterExtractors.size shouldBe 1
+      }
+
+    }
+
+    "Raise and error when there are two subscriptions to the same topic" in {
+      intercept[InvalidComponentException] {
+        ComponentDescriptor.descriptorFor[SubscribeToTwoTopicsAction]
+      }
+    }
+
+    "generate mapping for an Action with a publication to a topic" in {
+      assertDescriptor[PublishToTopicAction] { desc =>
+        val methodOne = desc.methods("MessageOne")
+        methodOne.requestMessageDescriptor.getFullName shouldBe JavaPbAny.getDescriptor.getFullName
+
+        val eventDestinationOne = findKalixMethodOptions(desc, "MessageOne").getEventing.getOut
+        eventDestinationOne.getTopic shouldBe "topicAlpha"
+        val rule = findHttpRule(desc, "MessageOne")
+
+        rule.getPost shouldBe
+        "/kalix.springsdk.testmodels.subscriptions.PubSubTestModels.PublishToTopicAction/MessageOne"
+
+        // should have a default extractor for any payload
+        methodOne.parameterExtractors.size shouldBe 1
+      }
+
+    }
+
+    "generate mapping for an Action with a Rest endpoint and publication to a topic" in {
+      assertDescriptor[RestWithPublishToTopicAction] { desc =>
+        val methodOne = desc.methods("MessageOne")
+        methodOne.requestMessageDescriptor.getFullName shouldBe "kalix.springsdk.testmodels.subscriptions.MessageOneKalixSyntheticRequest"
+
+        val eventDestinationOne = findKalixMethodOptions(desc, "MessageOne").getEventing.getOut
+        eventDestinationOne.getTopic shouldBe "foobar"
+        val rule = findHttpRule(desc, "MessageOne")
+
+        rule.getPost shouldBe
+        "/message/{msg}"
+
+        // should have a default extractor for any payload
+        methodOne.parameterExtractors.size shouldBe 1
+      }
+
     }
   }
 

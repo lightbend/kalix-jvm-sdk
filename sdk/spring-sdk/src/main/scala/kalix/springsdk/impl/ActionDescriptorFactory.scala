@@ -17,7 +17,11 @@
 package kalix.springsdk.impl
 
 import kalix.springsdk.impl.ComponentDescriptorFactory.eventingInForValueEntity
+import kalix.springsdk.impl.ComponentDescriptorFactory.eventingInForTopic
+import kalix.springsdk.impl.ComponentDescriptorFactory.eventingOutForTopic
 import kalix.springsdk.impl.ComponentDescriptorFactory.hasValueEntitySubscription
+import kalix.springsdk.impl.ComponentDescriptorFactory.hasTopicSubscription
+import kalix.springsdk.impl.ComponentDescriptorFactory.hasTopicPublication
 import kalix.springsdk.impl.ComponentDescriptorFactory.validateRestMethod
 import kalix.springsdk.impl.reflection.KalixMethod
 import kalix.springsdk.impl.reflection.NameGenerator
@@ -28,15 +32,16 @@ import kalix.springsdk.impl.reflection.RestServiceMethod
 private[impl] object ActionDescriptorFactory extends ComponentDescriptorFactory {
 
   override def buildDescriptorFor(component: Class[_], nameGenerator: NameGenerator): ComponentDescriptor = {
-
+    //we should merge from here
     val springAnnotatedMethods =
       RestServiceIntrospector.inspectService(component).methods.map { serviceMethod =>
         validateRestMethod(serviceMethod.javaMethod)
         KalixMethod(serviceMethod)
       }
 
+    //TODO make sure no subscription should be exposed via REST.
     import ReflectionUtils.methodOrdering
-    val subscriptionMethods = component.getMethods
+    val subscriptionValueEntityMethods = component.getMethods
       .filter(hasValueEntitySubscription)
       .sorted // make sure we get the methods in deterministic order
       .map { method =>
@@ -48,11 +53,75 @@ private[impl] object ActionDescriptorFactory extends ComponentDescriptorFactory 
           .withKalixOptions(kalixOptions)
       }
 
+    val subscriptionTopicMethods = component.getMethods
+      .filter(hasTopicSubscription)
+      .sorted // make sure we get the methods in deterministic order
+      .map { method =>
+        val subscriptionOptions = eventingInForTopic(method)
+        val kalixOptions =
+          kalix.MethodOptions.newBuilder().setEventing(subscriptionOptions).build()
+
+        KalixMethod(RestServiceMethod(method))
+          .withKalixOptions(kalixOptions)
+      }
+
+    def checkNotTopicDuplication(subscriptions: Seq[KalixMethod]): Seq[KalixMethod] = {
+      def groupByTopic(methods: Seq[KalixMethod]): Map[String, Seq[KalixMethod]] = {
+        val withTopicIn = methods.filter(kalixMethod =>
+          kalixMethod.methodOptions.exists(option =>
+            option.hasEventing && option.getEventing.hasIn && option.getEventing.getIn.hasTopic))
+        //Assuming there is only one topic, therefore head is as good as any other
+        withTopicIn.groupBy(m => m.methodOptions.head.getEventing.getIn.getTopic)
+      }
+      groupByTopic(subscriptions).collect {
+        case (topic, kMethods) if kMethods.size > 1 =>
+          throw InvalidComponentException(
+            s"topic: '$topic' it is used in multiple @Subscription.Topic annotations. Each @Subscription.Topic must point to a different topic")
+      }
+      subscriptions
+    }
+
+    val publicationTopicMethods = component.getMethods
+      .filter(hasTopicPublication)
+      .sorted // make sure we get the methods in deterministic order
+      .map { method =>
+        val publicationOptions = eventingOutForTopic(method)
+        val kalixOptions =
+          kalix.MethodOptions.newBuilder().setEventing(publicationOptions).build()
+
+        KalixMethod(RestServiceMethod(method))
+          .withKalixOptions(kalixOptions)
+      }
     val serviceName = nameGenerator.getName(component.getSimpleName)
+
+    def filterAndAddKalixOptions(to: Seq[KalixMethod], from: Seq[KalixMethod]): Seq[KalixMethod] = {
+      val common = to.flatMap(toAdd =>
+        from
+          .filter { addingFrom =>
+            addingFrom.serviceMethod.methodName.equals(toAdd.serviceMethod.methodName)
+          }
+          .map(addingFrom => toAdd.withKalixOptions(addingFrom.methodOptions)))
+      val notInCommon = to
+        .filter { toAdd =>
+          !from.exists { addingFrom =>
+            addingFrom.serviceMethod.methodName.equals(toAdd.serviceMethod.methodName)
+          }
+        }
+      common ++ notInCommon
+    }
+
+    def removeDuplicates(springMethods: Seq[KalixMethod], pubSubMethods: Seq[KalixMethod]): Seq[KalixMethod] = {
+      pubSubMethods.filterNot(p =>
+        springMethods.exists(s => p.serviceMethod.methodName.equals(s.serviceMethod.methodName)))
+    }
+
     ComponentDescriptor(
       nameGenerator,
       serviceName,
       component.getPackageName,
-      springAnnotatedMethods ++ subscriptionMethods)
+      filterAndAddKalixOptions(springAnnotatedMethods, publicationTopicMethods)
+      ++ subscriptionValueEntityMethods
+      ++ checkNotTopicDuplication(subscriptionTopicMethods)
+      ++ removeDuplicates(springAnnotatedMethods, publicationTopicMethods))
   }
 }

@@ -17,9 +17,9 @@
 package kalix.springsdk.impl
 
 import kalix.springsdk.annotations.Table
-import kalix.springsdk.annotations.{ Entity, Subscribe }
+import kalix.springsdk.annotations.{ Entity, Publish, Subscribe }
 import kalix.springsdk.impl.reflection._
-import kalix.{ EventSource, Eventing }
+import kalix.{ EventDestination, EventSource, Eventing }
 
 import java.lang.reflect.{ Method, Modifier }
 
@@ -28,6 +28,14 @@ private[impl] object ComponentDescriptorFactory {
   def hasValueEntitySubscription(javaMethod: Method): Boolean =
     Modifier.isPublic(javaMethod.getModifiers) &&
     javaMethod.getAnnotation(classOf[Subscribe.ValueEntity]) != null
+
+  def hasTopicSubscription(javaMethod: Method): Boolean =
+    Modifier.isPublic(javaMethod.getModifiers) &&
+    javaMethod.getAnnotation(classOf[Subscribe.Topic]) != null
+
+  def hasTopicPublication(javaMethod: Method): Boolean =
+    Modifier.isPublic(javaMethod.getModifiers) &&
+    javaMethod.getAnnotation(classOf[Publish.Topic]) != null
 
   def findValueEntityType(javaMethod: Method): String = {
     val ann = javaMethod.getAnnotation(classOf[Subscribe.ValueEntity])
@@ -41,10 +49,38 @@ private[impl] object ComponentDescriptorFactory {
     entityClass.getAnnotation(classOf[Entity]).entityType()
   }
 
+  def findSubTopicName(javaMethod: Method): String = {
+    val ann = javaMethod.getAnnotation(classOf[Subscribe.Topic])
+    ann.value()
+  }
+
+  def findSubConsumerGroup(javaMethod: Method): String = {
+    val ann = javaMethod.getAnnotation(classOf[Subscribe.Topic])
+    ann.consumerGroup()
+  }
+
+  def findPubTopicName(javaMethod: Method): String = {
+    val ann = javaMethod.getAnnotation(classOf[Publish.Topic])
+    ann.value()
+  }
+
   def eventingInForValueEntity(javaMethod: Method): Eventing = {
     val entityType = findValueEntityType(javaMethod)
     val eventSource = EventSource.newBuilder().setValueEntity(entityType).build()
     Eventing.newBuilder().setIn(eventSource).build()
+  }
+
+  def eventingInForTopic(javaMethod: Method): Eventing = {
+    val topicName = findSubTopicName(javaMethod)
+    val consumerGroup = findSubConsumerGroup(javaMethod)
+    val eventSource = EventSource.newBuilder().setTopic(topicName).setConsumerGroup(consumerGroup).build()
+    Eventing.newBuilder().setIn(eventSource).build()
+  }
+
+  def eventingOutForTopic(javaMethod: Method): Eventing = {
+    val topicName = findPubTopicName(javaMethod)
+    val eventSource = EventDestination.newBuilder().setTopic(topicName).build()
+    Eventing.newBuilder().setOut(eventSource).build()
   }
 
   def eventingInForValueEntity(entityType: String): Eventing = {
