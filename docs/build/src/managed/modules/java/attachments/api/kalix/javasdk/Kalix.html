@@ -27,7 +27,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10};
+var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -266,6 +266,13 @@ extends Object</pre>
 </tr>
 <tr id="i12" class="altColor">
 <td class="colFirst"><code><a href="Kalix.html" title="class in kalix.javasdk">Kalix</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#withSdkName(java.lang.String)">withSdkName</a></span>&#8203;(String&nbsp;sdkName)</code></th>
+<td class="colLast">
+<div class="block">INTERNAL API - subject to change without notice</div>
+</td>
+</tr>
+<tr id="i13" class="rowColor">
+<td class="colFirst"><code><a href="Kalix.html" title="class in kalix.javasdk">Kalix</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#withTypeUrlPrefix(java.lang.String)">withTypeUrlPrefix</a></span>&#8203;(String&nbsp;prefix)</code></th>
 <td class="colLast">
 <div class="block">Sets the type URL prefix to be used when serializing and deserializing types from and to
@@ -374,6 +381,22 @@ extends Object</pre>
 <div class="block">When locating protobufs, if both a Java and a ScalaPB generated class is found on the
  classpath, this specifies that Scala should be preferred.</div>
 <dl>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This Kalix instance.</dd>
+</dl>
+</li>
+</ul>
+<a id="withSdkName(java.lang.String)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>withSdkName</h4>
+<pre class="methodSignature">public&nbsp;<a href="Kalix.html" title="class in kalix.javasdk">Kalix</a>&nbsp;withSdkName&#8203;(String&nbsp;sdkName)</pre>
+<div class="block">INTERNAL API - subject to change without notice</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>sdkName</code> - the name of the SDK used to build this Kalix app (i.e. kalix-java-sdk)</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>This Kalix instance.</dd>
 </dl>
