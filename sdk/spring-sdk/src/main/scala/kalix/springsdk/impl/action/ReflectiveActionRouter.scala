@@ -41,15 +41,11 @@ class ReflectiveActionRouter[A <: Action](action: A, componentMethods: Map[Strin
         componentMethod.requestMessageDescriptor,
         message.metadata())
 
-    // safe call: if component method is None, proxy won't forward calls to it
-    // typically, that happens when we have a View update method with transform = false
-    // in such a case, the proxy can index the view payload directly, without passing through the user function
-    componentMethod.method.get
+    componentMethod.method.get // safe call: if component method is None, proxy won't forward calls to it
       .invoke(action, componentMethod.parameterExtractors.map(e => e.extract(context)): _*)
       .asInstanceOf[Action.Effect[_]]
   }
 
-  // TODO: to implement
   override def handleStreamedOut(
       commandName: String,
       message: MessageEnvelope[Any]): Source[Action.Effect[_], NotUsed] = {
@@ -60,23 +56,20 @@ class ReflectiveActionRouter[A <: Action](action: A, componentMethods: Map[Strin
         componentMethod.requestMessageDescriptor,
         message.metadata())
 
-    // safe call: if component method is None, proxy won't forward calls to it
-    // typically, that happens when we have a View update method with transform = false
-    // in such a case, the proxy can index the view payload directly, without passing through the user function
     val response =
-      componentMethod.method.get
+      componentMethod.method.get // safe call: if component method is None, proxy won't forward calls to it
         .invoke(action, componentMethod.parameterExtractors.map(e => e.extract(context)): _*)
         .asInstanceOf[Flux[Action.Effect[_]]]
 
     Source.fromPublisher(response)
   }
 
-  // TODO: to implement
   override def handleStreamedIn(commandName: String, stream: Source[MessageEnvelope[Any], NotUsed]): Action.Effect[_] =
-    ???
+    throw new IllegalArgumentException("Stream in calls are not supported")
 
   // TODO: to implement
   override def handleStreamed(
       commandName: String,
-      stream: Source[MessageEnvelope[Any], NotUsed]): Source[Action.Effect[_], NotUsed] = ???
+      stream: Source[MessageEnvelope[Any], NotUsed]): Source[Action.Effect[_], NotUsed] =
+    throw new IllegalArgumentException("Stream in calls are not supported")
 }

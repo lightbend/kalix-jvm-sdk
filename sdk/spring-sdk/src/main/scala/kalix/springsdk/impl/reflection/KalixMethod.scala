@@ -39,17 +39,18 @@ object ServiceMethod {
   def isStreamOut(method: Method): Boolean =
     method.getReturnType == classOf[Flux[_]]
 
+  // this is more for early validation. We don't support stream-in over http,
+  // we block it before deploying anything
   def isStreamIn(method: Method): Boolean = {
     val paramWithRequestBody =
       method.getParameters.collect {
         case param if param.getAnnotation(classOf[RequestBody]) != null => param
       }
 
-    // we are looking for a single param annotated with RequestBody and type Flux
-    if (paramWithRequestBody.length == 1) paramWithRequestBody.head.getType == classOf[Flux[_]]
-    else if (paramWithRequestBody.length == 0) false // no RequestBody, then certainly no streaming in
+    if (paramWithRequestBody.exists(_.getType == classOf[Flux[_]]))
+      throw new IllegalArgumentException("Stream in calls are not supported")
     else
-      throw new IllegalArgumentException("Method should have only zero or one parameter annotated with @RequestBody")
+      false
 
   }
 }
