@@ -76,7 +76,7 @@ private[impl] object ActionDescriptorFactory extends ComponentDescriptorFactory 
       groupByTopic(subscriptions).collect {
         case (topic, kMethods) if kMethods.size > 1 =>
           throw InvalidComponentException(
-            s"topic: '$topic' it is used in multiple @Subscription.Topic annotations. Each @Subscription. Topic must point to a different topic")
+            s"topic: '$topic' it is used in multiple @Subscription.Topic annotations. Each @Subscription.Topic must point to a different topic")
       }
       subscriptions
     }
