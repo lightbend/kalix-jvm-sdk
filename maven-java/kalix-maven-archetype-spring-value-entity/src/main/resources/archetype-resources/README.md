@@ -8,8 +8,7 @@ To understand the Kalix concepts that are the basis for this example, see [Desig
 ## Developing
 
 This project demonstrates the use of Value Entity and View components.
-To understand more about these components, see [Developing services](https://docs.kalix.io/services/)
-and in particular the [Java section](https://docs.kalix.io/java/)
+To understand more about these components, see [Developing services]https://docs.kalix.io/services/). Spring-SDK is an experimental feature and so far there is no [official](https://docs.kalix.io/) documentation.
 
 
 ## Building
