@@ -33,13 +33,17 @@ import kalix.springsdk.testmodels.action.ActionsTestModels.PutWithoutParam
 import kalix.springsdk.testmodels.action.ActionsTestModels.StreamInAction
 import kalix.springsdk.testmodels.action.ActionsTestModels.StreamInOutAction
 import kalix.springsdk.testmodels.action.ActionsTestModels.StreamOutAction
-import kalix.springsdk.testmodels.subscriptions.PubSubTestModels.PublishToTopicAction
-import kalix.springsdk.testmodels.subscriptions.PubSubTestModels.RestAnnotatedSubscribeToValueEntityAction
-import kalix.springsdk.testmodels.subscriptions.PubSubTestModels.RestWithPublishToTopicAction
-import kalix.springsdk.testmodels.subscriptions.PubSubTestModels.SubscribeToTopicAction
-import kalix.springsdk.testmodels.subscriptions.PubSubTestModels.SubscribeToTwoTopicsAction
-import kalix.springsdk.testmodels.subscriptions.PubSubTestModels.SubscribeToValueEntityAction
-
+import kalix.springsdk.testmodels.subscriptions.PubSubTestModels
+import kalix.springsdk.testmodels.subscriptions.PubSubTestModels.{
+  PublishToTopicAction,
+  RestAnnotatedSubscribeToEventSourcedEntityAction,
+  RestAnnotatedSubscribeToValueEntityAction,
+  RestWithPublishToTopicAction,
+  SubscribeToEventSourcedEntityAction,
+  SubscribeToTopicAction,
+  SubscribeToTwoTopicsAction,
+  SubscribeToValueEntityAction
+}
 import org.scalatest.wordspec.AnyWordSpec
 
 class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSuite {
@@ -196,6 +200,42 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
 
         val method = desc.methods("Message")
         assertRequestFieldJavaType(method, "one", JavaType.STRING)
+      }
+    }
+    "generate mappint with Event Sourced Entity Subscription annotation" in {
+      assertDescriptor[SubscribeToEventSourcedEntityAction] { desc =>
+        val methodDescriptorOne = desc.serviceDescriptor.findMethodByName("MethodOne")
+        methodDescriptorOne.isServerStreaming shouldBe false
+        methodDescriptorOne.isClientStreaming shouldBe false
+
+        val methodOne = desc.methods("MethodOne")
+        methodOne.requestMessageDescriptor.getFullName shouldBe JavaPbAny.getDescriptor.getFullName
+
+        val eventSourceOne = findKalixMethodOptions(desc, "MethodOne").getEventing.getIn
+        eventSourceOne.getEventSourcedEntity shouldBe "counter"
+
+        val ruleOne = findHttpRule(desc, "MethodOne")
+        ruleOne.getPost shouldBe "/kalix.springsdk.testmodels.subscriptions.PubSubTestModels.SubscribeToEventSourcedEntityAction/MethodOne"
+
+        val methodDescriptorTwo = desc.serviceDescriptor.findMethodByName("MethodTwo")
+        methodDescriptorTwo.isServerStreaming shouldBe false
+        methodDescriptorTwo.isClientStreaming shouldBe false
+
+        val methodTwo = desc.methods("MethodTwo")
+        methodTwo.requestMessageDescriptor.getFullName shouldBe JavaPbAny.getDescriptor.getFullName
+
+        val eventSourceTwo = findKalixMethodOptions(desc, "MethodTwo").getEventing.getIn
+        eventSourceTwo.getEventSourcedEntity shouldBe "counter"
+
+        val ruleTwo = findHttpRule(desc, "MethodTwo")
+        ruleTwo.getPost shouldBe "/kalix.springsdk.testmodels.subscriptions.PubSubTestModels.SubscribeToEventSourcedEntityAction/MethodTwo"
+
+      }
+    }
+
+    "fail if has both Event Sourced Entity Subscription and REST annotations" in {
+      intercept[IllegalArgumentException] {
+        ComponentDescriptor.descriptorFor[RestAnnotatedSubscribeToEventSourcedEntityAction]
       }
     }
 

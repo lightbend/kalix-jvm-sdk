@@ -27,6 +27,13 @@ public @interface Subscribe {
     Class<? extends kalix.javasdk.valueentity.ValueEntity<?>> value();
   }
 
+  @Target({ElementType.TYPE, ElementType.METHOD})
+  @Retention(RetentionPolicy.RUNTIME)
+  @Documented
+  @interface EventSourcedEntity {
+    Class<? extends kalix.javasdk.eventsourcedentity.EventSourcedEntity<?>> value();
+  }
+
   @Target(ElementType.METHOD)
   @Retention(RetentionPolicy.RUNTIME)
   @Documented

@@ -26,6 +26,8 @@ import kalix.springsdk.testmodels.valueentity.User;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
+import kalix.springsdk.testmodels.eventsourcedentity.EventSourcedEntitiesTestModels.WellAnnotatedESEntity;
+
 
 public class PubSubTestModels {
 
@@ -39,6 +41,27 @@ public class PubSubTestModels {
     @Subscribe.ValueEntity(Counter.class)
     public Action.Effect<Message> messageTwo(Message message) {
       return effects().reply(message);
+    }
+  }
+
+  public static class SubscribeToEventSourcedEntityAction extends Action {
+
+    @Subscribe.EventSourcedEntity(WellAnnotatedESEntity.class)
+    public Action.Effect<Integer> methodOne(Integer message) {
+      return effects().reply(message);
+    }
+
+    @Subscribe.EventSourcedEntity(WellAnnotatedESEntity.class)
+    public Action.Effect<String> methodTwo(String message) {
+      return effects().reply(message);
+    }
+  }
+
+  public static class RestAnnotatedSubscribeToEventSourcedEntityAction extends Action {
+    @PostMapping("/changeInt/{number}")
+    @Subscribe.EventSourcedEntity(WellAnnotatedESEntity.class)
+    public Action.Effect<Integer> methodTwo(Integer number) {
+      return effects().reply(number);
     }
   }
 

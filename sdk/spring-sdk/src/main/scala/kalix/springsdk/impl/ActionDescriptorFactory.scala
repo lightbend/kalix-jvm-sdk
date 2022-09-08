@@ -16,12 +16,14 @@
 
 package kalix.springsdk.impl
 
-import kalix.springsdk.impl.ComponentDescriptorFactory.eventingInForValueEntity
+import kalix.springsdk.impl.ComponentDescriptorFactory.eventingInForEventSourcedEntity
 import kalix.springsdk.impl.ComponentDescriptorFactory.eventingInForTopic
+import kalix.springsdk.impl.ComponentDescriptorFactory.eventingInForValueEntity
 import kalix.springsdk.impl.ComponentDescriptorFactory.eventingOutForTopic
-import kalix.springsdk.impl.ComponentDescriptorFactory.hasValueEntitySubscription
-import kalix.springsdk.impl.ComponentDescriptorFactory.hasTopicSubscription
+import kalix.springsdk.impl.ComponentDescriptorFactory.hasEventSourcedEntitySubscription
 import kalix.springsdk.impl.ComponentDescriptorFactory.hasTopicPublication
+import kalix.springsdk.impl.ComponentDescriptorFactory.hasTopicSubscription
+import kalix.springsdk.impl.ComponentDescriptorFactory.hasValueEntitySubscription
 import kalix.springsdk.impl.ComponentDescriptorFactory.validateRestMethod
 import kalix.springsdk.impl.reflection.KalixMethod
 import kalix.springsdk.impl.reflection.NameGenerator
@@ -46,6 +48,18 @@ private[impl] object ActionDescriptorFactory extends ComponentDescriptorFactory 
       .sorted // make sure we get the methods in deterministic order
       .map { method =>
         val subscriptionOptions = eventingInForValueEntity(method)
+        val kalixOptions =
+          kalix.MethodOptions.newBuilder().setEventing(subscriptionOptions).build()
+
+        KalixMethod(RestServiceMethod(method))
+          .withKalixOptions(kalixOptions)
+      }
+
+    val subscriptionEventSourcedEntityMethods = component.getMethods
+      .filter(hasEventSourcedEntitySubscription)
+      .sorted // make sure we get the methods in deterministic order
+      .map { method =>
+        val subscriptionOptions = eventingInForEventSourcedEntity(method)
         val kalixOptions =
           kalix.MethodOptions.newBuilder().setEventing(subscriptionOptions).build()
 
@@ -121,6 +135,7 @@ private[impl] object ActionDescriptorFactory extends ComponentDescriptorFactory 
       component.getPackageName,
       filterAndAddKalixOptions(springAnnotatedMethods, publicationTopicMethods)
       ++ subscriptionValueEntityMethods
+      ++ subscriptionEventSourcedEntityMethods
       ++ checkNotTopicDuplication(subscriptionTopicMethods)
       ++ removeDuplicates(springAnnotatedMethods, publicationTopicMethods))
   }

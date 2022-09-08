@@ -95,11 +95,11 @@ case class VirtualServiceMethod(component: Class[_], methodName: String, inputTy
  * Build from methods annotated with @Subscription. Those methods are not annotated with Spring REST annotations, but
  * they become a REST method at the end.
  */
-case class RestServiceMethod(javaMethod: Method, optMethodName: Option[String] = None) extends AnyServiceMethod {
+case class RestServiceMethod(javaMethod: Method) extends AnyServiceMethod {
 
   val inputType: Class[_] = javaMethod.getParameterTypes()(0)
 
-  override def methodName: String = optMethodName.getOrElse(javaMethod.getName)
+  override def methodName: String = javaMethod.getName
 
   override def requestMethod: RequestMethod = RequestMethod.POST
   override def javaMethodOpt: Option[Method] = Some(javaMethod)
