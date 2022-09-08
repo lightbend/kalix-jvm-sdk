@@ -1,8 +1,6 @@
-# kalix-maven-archetype
+# kalix-maven-archetype-spring
 
-This archetype can be used to generate a project suitable for the development of a Service using a Value Entity with [Kalix](https://docs.kalix.io).
-
-**The Maven project created from the archetype will contain a Value Entity encoded using the Kalix Spring SDK.**
+This archetype can be used to generate a project suitable for the development of a Service using [Kalix](https://docs.kalix.io).
 
 For the latest release see [GitHub releases](https://github.com/lightbend/kalix-jvm-sdk/releases).
 
@@ -12,8 +10,7 @@ To kickstart a project on Linux and macOS:
 mvn \
   archetype:generate \
   -DarchetypeGroupId=io.kalix \
-  -DarchetypeArtifactId=kalix-maven-archetype-spring-value-entity \
-  -DarchetypeVersion=LATEST
+  -DarchetypeArtifactId=kalix-maven-archetype-spring
 ```
 
 To kickstart a project on Windows 10 or later:
@@ -22,6 +19,6 @@ To kickstart a project on Windows 10 or later:
 mvn ^
   archetype:generate ^
   -DarchetypeGroupId=io.kalix ^
-  -DarchetypeArtifactId=kalix-maven-archetype-spring-value-entit ^
+  -DarchetypeArtifactId=kalix-maven-archetype-spring ^
   -DarchetypeVersion=LATEST
 ```
