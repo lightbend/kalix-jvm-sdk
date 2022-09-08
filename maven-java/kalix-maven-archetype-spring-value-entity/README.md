@@ -2,7 +2,7 @@
 
 This archetype can be used to generate a project suitable for the development of a Service using a Value Entity with [Kalix](https://docs.kalix.io).
 
-**The Maven project created from the archetype will contain a Spring Value entity.**
+**The Maven project created from the archetype will contain a Value Entity encoded using the Kalix Spring SDK.**
 
 For the latest release see [GitHub releases](https://github.com/lightbend/kalix-jvm-sdk/releases).
 
