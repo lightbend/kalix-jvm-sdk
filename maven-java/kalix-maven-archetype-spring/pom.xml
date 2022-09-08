@@ -10,7 +10,7 @@
         <version>1.0.5</version>
     </parent>
 
-    <name>Kalix Maven Archetype (Spring Value entity)</name>
+    <name>Kalix Maven Archetype (Spring SDK)</name>
     <description>This archetype can be used to generate a project suitable for the general development of Kalix applications</description>
     <url>https://docs.kalix.io</url>
 
