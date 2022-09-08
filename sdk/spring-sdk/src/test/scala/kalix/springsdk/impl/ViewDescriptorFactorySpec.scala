@@ -19,8 +19,9 @@ package kalix.springsdk.impl
 import kalix.springsdk.testmodels.view.ViewTestModels.TransformedUserView
 import kalix.springsdk.testmodels.view.ViewTestModels.UserByEmailWithGet
 import kalix.springsdk.testmodels.view.ViewTestModels.UserByEmailWithPost
+import kalix.springsdk.testmodels.view.ViewTestModels.UserByEmailWithPostRequestBodyOnly
 import kalix.springsdk.testmodels.view.ViewTestModels.UserByNameEmailWithPost
-import kalix.springsdk.testmodels.view.ViewTestModels.UserByNameEmailWithPostRequestBodyOnly
+import kalix.springsdk.testmodels.view.ViewTestModels.UserByNameStreamed
 import kalix.springsdk.testmodels.view.ViewTestModels.ViewWithNoQuery
 import kalix.springsdk.testmodels.view.ViewTestModels.ViewWithSubscriptionsInMixedLevels
 import kalix.springsdk.testmodels.view.ViewTestModels.ViewWithTwoQueries
@@ -139,7 +140,7 @@ class ViewDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSuit
     }
 
     "generate proto for a View using POST request with only request body" in {
-      assertDescriptor[UserByNameEmailWithPostRequestBodyOnly] { desc =>
+      assertDescriptor[UserByEmailWithPostRequestBodyOnly] { desc =>
         val methodOptions = this.findKalixMethodOptions(desc, "OnChange")
         val entityType = methodOptions.getEventing.getIn.getValueEntity
         entityType shouldBe "user"
@@ -165,6 +166,35 @@ class ViewDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSuit
       }
     }
 
+    "generate proto for a View using GET request with path param and returning stream" in {
+      assertDescriptor[UserByNameStreamed] { desc =>
+        val methodOptions = this.findKalixMethodOptions(desc, "OnChange")
+        val entityType = methodOptions.getEventing.getIn.getValueEntity
+        entityType shouldBe "user"
+
+        methodOptions.getView.getUpdate.getTable shouldBe "users_view"
+        methodOptions.getView.getUpdate.getTransformUpdates shouldBe false
+        methodOptions.getView.getJsonSchema.getOutput shouldBe "User"
+
+        val methodDescriptor = desc.serviceDescriptor.findMethodByName("GetUser")
+        methodDescriptor.isServerStreaming shouldBe true
+
+        val queryMethodOptions = this.findKalixMethodOptions(desc, "GetUser")
+        queryMethodOptions.getView.getQuery.getQuery shouldBe "SELECT * FROM users_view WHERE name = :name"
+        queryMethodOptions.getView.getJsonSchema.getOutput shouldBe "User"
+        // not defined when query body not used
+        queryMethodOptions.getView.getJsonSchema.getJsonBodyInputField shouldBe ""
+        queryMethodOptions.getView.getJsonSchema.getInput shouldBe ""
+
+        val tableMessageDescriptor =
+          desc.fileDescriptor.findMessageTypeByName("User")
+        tableMessageDescriptor should not be null
+
+        val rule = findHttpRule(desc, "GetUser")
+        rule.getGet shouldBe "/users/{name}"
+
+      }
+    }
     "fail if no query method found" in {
       intercept[InvalidComponentException] {
         ComponentDescriptor.descriptorFor[ViewWithNoQuery]

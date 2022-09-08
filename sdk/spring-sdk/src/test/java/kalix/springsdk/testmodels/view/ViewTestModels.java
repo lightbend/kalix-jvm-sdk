@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import reactor.core.publisher.Flux;
 
 public class ViewTestModels {
 
@@ -163,12 +164,28 @@ public class ViewTestModels {
 
   @Table(value = "users_view")
   @Subscribe.ValueEntity(UserEntity.class)
-  public static class UserByNameEmailWithPostRequestBodyOnly extends View<User> {
+  public static class UserByEmailWithPostRequestBodyOnly extends View<User> {
 
     // not path variables, only request body
     @Query("SELECT * FROM users_view WHERE email = :email")
     @PostMapping("/users/by-email")
     public User getUser(@RequestBody ByEmail byEmail) {
+      return null;
+    }
+
+    @Override
+    public User emptyState() {
+      return null;
+    }
+  }
+
+  @Table(value = "users_view")
+  @Subscribe.ValueEntity(UserEntity.class)
+  public static class UserByNameStreamed extends View<User> {
+
+    @Query("SELECT * FROM users_view WHERE name = :name")
+    @GetMapping("/users/{name}")
+    public Flux<User> getUser(@PathVariable String name) {
       return null;
     }
 
