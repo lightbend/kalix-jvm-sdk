@@ -1,13 +1,13 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>kalix-maven-archetype-spring-value-entity</artifactId>
-    <version>1.0.5</version>
+    <artifactId>kalix-maven-archetype-spring</artifactId>
+    <version>1.0.5-60-1a70cc88-dev-SNAPSHOT</version>
     <packaging>maven-archetype</packaging>
     <parent>
         <groupId>io.kalix</groupId>
         <artifactId>kalix-maven-java</artifactId>
-        <version>1.0.5</version>
+        <version>1.0.5-60-1a70cc88-dev-SNAPSHOT</version>
     </parent>
 
     <name>Kalix Maven Archetype (Spring Value entity)</name>

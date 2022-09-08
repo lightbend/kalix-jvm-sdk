@@ -1,4 +1,5 @@
-# Quickstart project: Customer Registry with Views
+# ${artifactId}
+
 
 ## Designing
 
@@ -7,8 +8,7 @@ To understand the Kalix concepts that are the basis for this example, see [Desig
 
 ## Developing
 
-This project demonstrates the use of Value Entity and View components.
-To understand more about these components, see [Developing services]https://docs.kalix.io/services/). Spring-SDK is an experimental feature and so far there is no [official](https://docs.kalix.io/) documentation.
+This project contains the framework to create a Kalix application by adding Kalix components. To understand more about these components, see [Developing services]https://docs.kalix.io/services/). Spring-SDK is an experimental feature and so far there is no [official](https://docs.kalix.io/) documentation.
 
 
 ## Building
@@ -36,40 +36,8 @@ To start the application locally, the `exec-maven-plugin` is used. Use the follo
 mvn compile exec:exec
 ```
 
-With both the proxy and your application running, any defined endpoints should be available at `http://localhost:9000`. 
+With both the proxy and your application running, once you have defined endpoints they should be available at `http://localhost:9000`. 
 
-FIXME update for spring
-
-* Create a customer with:
-  ```shell
-  curl localhost:9000/customer/one/create \
-    --header "Content-Type: application/json" \
-    -XPOST \
-    --data '{"customerId":"one","email":"test@example.com","name":"Test Testsson","address":{"street":"Teststreet 25","city":"Testcity"}}'
-  ```
-* Retrieve the customer:
-  ```shell
-  curl localhost:9000/customer/one
-  ```
-* Query by email:
-  ```shell
-  curl localhost:9000/customer/by_email/test%40example.com
-  ```
-* Query by name:
-  ```shell
-  curl localhost:9000/customer/by_name/Test%20Testsson
-  ```
-* Change name:
-  ```shell
-  curl localhost:9000/customer/one/changeName/Jan%20Banan -XPOST
-  ```
-* Change address:
-  ```shell
-  curl localhost:9000/customer/one/changeAddress \
-    --header "Content-Type: application/json" \
-    -XPOST \
-    --data '{"street":"Newstreet 25","city":"Newcity"}'
-  ```
 
 ## Deploying
 
