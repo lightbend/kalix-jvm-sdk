@@ -1,4 +1,4 @@
-# kalix-maven-archetype-spring
+# kalix-spring-boot-archetype
 
 This archetype can be used to generate a project suitable for the development of a Service using [Kalix](https://docs.kalix.io).
 
@@ -10,7 +10,8 @@ To kickstart a project on Linux and macOS:
 mvn \
   archetype:generate \
   -DarchetypeGroupId=io.kalix \
-  -DarchetypeArtifactId=kalix-maven-archetype-spring
+  -DarchetypeArtifactId=kalix-spring-boot-archetype \
+  -DarchetypeVersion=LATEST
 ```
 
 To kickstart a project on Windows 10 or later:
@@ -19,6 +20,6 @@ To kickstart a project on Windows 10 or later:
 mvn ^
   archetype:generate ^
   -DarchetypeGroupId=io.kalix ^
-  -DarchetypeArtifactId=kalix-maven-archetype-spring ^
+  -DarchetypeArtifactId=kalix-spring-boot-archetype ^
   -DarchetypeVersion=LATEST
 ```
