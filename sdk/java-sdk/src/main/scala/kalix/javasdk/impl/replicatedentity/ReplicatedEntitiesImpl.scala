@@ -100,6 +100,7 @@ final class ReplicatedEntitiesImpl(system: ActorSystem, services: Map[String, Re
           ReplicatedEntityStreamOut(Out.Failure(Failure(description = s"Unexpected error [$correlationId]")))
         }
       }
+      .async
 
   private def runEntity(
       init: ReplicatedEntityInit): Flow[ReplicatedEntityStreamIn, ReplicatedEntityStreamOut, NotUsed] = {
