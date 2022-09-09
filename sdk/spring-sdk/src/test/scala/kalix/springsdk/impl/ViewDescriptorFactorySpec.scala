@@ -16,20 +16,19 @@
 
 package kalix.springsdk.impl
 
-import kalix.springsdk.testmodels.view.ViewTestModels.{
-  TransformMethodLackingEventParam,
-  TransformMethodWrongParamOrder,
-  TransformedUserView,
-  TransformedUserViewUsingState,
-  UserByEmailWithGet,
-  UserByEmailWithPost,
-  UserByEmailWithPostRequestBodyOnly,
-  UserByNameEmailWithPost,
-  UserByNameStreamed,
-  ViewWithNoQuery,
-  ViewWithSubscriptionsInMixedLevels,
-  ViewWithTwoQueries
-}
+import kalix.springsdk.testmodels.view.ViewTestModels.TransformMethodLackingEventParam
+import kalix.springsdk.testmodels.view.ViewTestModels.TransformMethodWrongParamOrder
+import kalix.springsdk.testmodels.view.ViewTestModels.TransformedUserView
+import kalix.springsdk.testmodels.view.ViewTestModels.TransformedUserViewUsingState
+import kalix.springsdk.testmodels.view.ViewTestModels.UserByEmailWithGet
+import kalix.springsdk.testmodels.view.ViewTestModels.UserByEmailWithPost
+import kalix.springsdk.testmodels.view.ViewTestModels.UserByEmailWithPostRequestBodyOnly
+import kalix.springsdk.testmodels.view.ViewTestModels.UserByNameEmailWithPost
+import kalix.springsdk.testmodels.view.ViewTestModels.UserByNameStreamed
+import kalix.springsdk.testmodels.view.ViewTestModels.ViewWithNoQuery
+import kalix.springsdk.testmodels.view.ViewTestModels.ViewWithSubscriptionsInMixedLevels
+import kalix.springsdk.testmodels.view.ViewTestModels.ViewWithTwoQueries
+
 import org.scalatest.wordspec.AnyWordSpec
 
 class ViewDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSuite {
