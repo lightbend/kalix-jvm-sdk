@@ -33,6 +33,7 @@ import java.lang.reflect.ParameterizedType
 
 import kalix.springsdk.impl.reflection.RestServiceMethod
 import kalix.springsdk.impl.reflection.VirtualServiceMethod
+import reactor.core.publisher.Flux
 
 private[impl] object ViewDescriptorFactory extends ComponentDescriptorFactory {
 
@@ -128,7 +129,16 @@ private[impl] object ViewDescriptorFactory extends ComponentDescriptorFactory {
 
       val annotatedMethod: SpringRestServiceMethod = annotatedMethods.head
 
-      val queryOutputType = annotatedMethod.javaMethod.getReturnType
+      val queryOutputType = {
+        val returnType = annotatedMethod.javaMethod.getReturnType
+        if (returnType == classOf[Flux[_]]) {
+          annotatedMethod.javaMethod.getGenericReturnType
+            .asInstanceOf[ParameterizedType] // Flux will be a ParameterizedType
+            .getActualTypeArguments
+            .head // only one type parameter, safe to pick the head
+            .asInstanceOf[Class[_]]
+        } else returnType
+      }
       val queryOutputSchemaDescriptor =
         if (queryOutputType == tableType) tableTypeDescriptor
         else ProtoMessageDescriptors.generateMessageDescriptors(queryOutputType)

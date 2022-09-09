@@ -18,18 +18,30 @@ package com.example.wiring;
 
 import com.example.Main;
 import com.example.wiring.actions.echo.Message;
+import com.example.wiring.valueentities.user.User;
 import kalix.springsdk.KalixConfigurationTest;
+import org.hamcrest.core.IsEqual;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Flux;
 
 import java.time.Duration;
+
+import static java.time.temporal.ChronoUnit.SECONDS;
+
+import java.util.concurrent.TimeUnit;
+
+import static org.awaitility.Awaitility.await;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -101,5 +113,76 @@ public class SpringSdkWiringIntegrationTest {
         webClient.get().uri("/counter/hello").retrieve().bodyToMono(String.class).block(timeout);
 
     Assertions.assertEquals("\"200\"", counterGet);
+  }
+
+  @Test
+  public void verifyFindUsersByEmail() {
+
+    ResponseEntity<String> response =
+        webClient
+            .post()
+            .uri("/user/jane/jane.example.com/jane")
+            .retrieve()
+            .toEntity(String.class)
+            .block(timeout);
+
+    Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+
+    // the view is eventually updated
+    await()
+        .atMost(20, TimeUnit.SECONDS)
+        .until(
+            () ->
+                webClient
+                    .get()
+                    .uri("/users/by_email/jane.example.com")
+                    .retrieve()
+                    .bodyToMono(User.class)
+                    .block()
+                    .email,
+            new IsEqual("jane.example.com"));
+  }
+
+  //  @Test
+  public void verifyFindUsersByNameStreaming() {
+
+    { // joe 1
+      ResponseEntity<String> response =
+          webClient
+              .post()
+              .uri("/user/user1/joe1.example.com/joe")
+              .retrieve()
+              .toEntity(String.class)
+              .block(timeout);
+
+      Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+    }
+
+    { // joe 2
+      ResponseEntity<String> response =
+          webClient
+              .post()
+              .uri("/user/user2/joe2.example.com/joe")
+              .retrieve()
+              .toEntity(String.class)
+              .block(timeout);
+
+      Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+    }
+
+    // the view is eventually updated
+    await()
+        .atMost(20, TimeUnit.SECONDS)
+        .until(
+            () ->
+                webClient
+                    .get()
+                    .uri("/users/by_name/joe")
+                    .retrieve()
+                    .bodyToFlux(User.class)
+                    .toStream()
+                    .collect(Collectors.toList())
+                    .size(),
+            new IsEqual(2));
   }
 }
