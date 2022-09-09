@@ -18,7 +18,13 @@ Use Maven to build your project:
 ```shell
 mvn compile
 ```
+## Running integration tests
 
+To run the Integration Tests in `src/it/java` use
+
+```shell
+mvn verify -Pit
+```
 
 ## Running Locally
 
