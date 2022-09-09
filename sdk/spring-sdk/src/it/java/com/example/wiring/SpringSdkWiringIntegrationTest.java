@@ -121,7 +121,7 @@ public class SpringSdkWiringIntegrationTest {
     ResponseEntity<String> response =
         webClient
             .post()
-            .uri("/user/jane/jane/jane.example.com")
+            .uri("/user/jane/jane.example.com/jane")
             .retrieve()
             .toEntity(String.class)
             .block(timeout);
@@ -150,7 +150,7 @@ public class SpringSdkWiringIntegrationTest {
       ResponseEntity<String> response =
           webClient
               .post()
-              .uri("/user/user1/joe/joe1.example.com")
+              .uri("/user/user1/joe1.example.com/joe")
               .retrieve()
               .toEntity(String.class)
               .block(timeout);
@@ -162,7 +162,7 @@ public class SpringSdkWiringIntegrationTest {
       ResponseEntity<String> response =
           webClient
               .post()
-              .uri("/user/user2/joe/joe2.example.com")
+              .uri("/user/user2/joe2.example.com/joe")
               .retrieve()
               .toEntity(String.class)
               .block(timeout);
