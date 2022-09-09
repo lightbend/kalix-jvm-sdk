@@ -250,6 +250,7 @@ final class EventSourcedEntitiesImpl(
           EventSourcedStreamOut(OutFailure(Failure(description = s"Unexpected failure [$correlationId]")))
         }
       }
+      .async
   }
 
   private class CommandContextImpl(
