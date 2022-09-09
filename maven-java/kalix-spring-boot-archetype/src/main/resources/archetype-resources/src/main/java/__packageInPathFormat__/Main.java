@@ -1,4 +1,4 @@
-package customer;
+package ${package};
 
 import kalix.springsdk.KalixConfiguration;
 import org.slf4j.Logger;
