@@ -188,7 +188,7 @@ public class SpringSdkWiringIntegrationTest {
             new IsEqual("jane.example.com"));
   }
 
-  // @Test
+  @Test
   public void verifyFindUsersByNameStreaming() {
 
     { // joe 1
