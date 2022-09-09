@@ -44,7 +44,7 @@ public class CustomerByNameIntegrationTest {
   }
 
   @Test
-  public void findByEmail() throws Exception {
+  public void findByName() throws Exception {
     String id1 = UUID.randomUUID().toString();
     apiClient.create(CustomerApi.Customer.newBuilder()
             .setCustomerId(id1)

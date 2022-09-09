@@ -16,9 +16,12 @@
 
 package kalix.javasdk.action;
 
-import kalix.javasdk.Kalix;
-import kalix.javasdk.impl.action.ActionRouter;
 import com.google.protobuf.Descriptors;
+import kalix.javasdk.Kalix;
+import kalix.javasdk.impl.MessageCodec;
+import kalix.javasdk.impl.action.ActionRouter;
+
+import java.util.Optional;
 
 /**
  * Register an Action in {{@link Kalix}} using an <code>
@@ -34,4 +37,8 @@ public interface ActionProvider<A extends Action> {
   ActionRouter<A> newRouter(ActionCreationContext context);
 
   Descriptors.FileDescriptor[] additionalDescriptors();
+
+  default Optional<MessageCodec> alternativeCodec() {
+    return Optional.empty();
+  }
 }

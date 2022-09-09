@@ -5,8 +5,10 @@ lazy val `kalix-jvm-sdk` = project
   .aggregate(
     sdkCore,
     sdkJava,
-    sdkScala,
     sdkJavaTestKit,
+    sdkSpring,
+    sdkSpringTestKit,
+    sdkScala,
     sdkScalaTestKit,
     tckJava,
     tckScala,
@@ -79,6 +81,85 @@ lazy val sdkJava = project
     Test / PB.targets += PB.gens.java -> crossTarget.value / "akka-grpc" / "test")
   .settings(Dependencies.sdkJava)
 
+lazy val sdkJavaTestKit = project
+  .in(file("sdk/java-sdk-testkit"))
+  .dependsOn(sdkJava)
+  .enablePlugins(BuildInfoPlugin, PublishSonatype)
+  .settings(common)
+  .settings(
+    name := "kalix-java-sdk-testkit",
+    crossPaths := false,
+    buildInfoKeys := Seq[BuildInfoKey](
+      name,
+      version,
+      "proxyImage" -> "gcr.io/kalix-public/kalix-proxy",
+      "proxyVersion" -> Kalix.ProxyVersion,
+      "scalaVersion" -> scalaVersion.value),
+    buildInfoPackage := "kalix.javasdk.testkit",
+    // Generate javadocs by just including non generated Java/Scala sources
+    Compile / doc / sources := {
+      val javaSourceDir = (Compile / javaSource).value.getAbsolutePath
+      val scalaSourceDir = (Compile / scalaSource).value.getAbsolutePath
+      (Compile / doc / sources).value.filter(f =>
+        f.getAbsolutePath.startsWith(javaSourceDir) || f.getAbsolutePath.startsWith(scalaSourceDir))
+    })
+  .settings(Dependencies.sdkJavaTestKit)
+
+lazy val sdkSpring = project
+  .in(file("sdk/spring-sdk"))
+  .dependsOn(sdkJava)
+  .dependsOn(sdkJavaTestKit % IntegrationTest)
+  .enablePlugins(AkkaGrpcPlugin, BuildInfoPlugin, PublishSonatype, IntegrationTests)
+  .settings(common)
+  .settings(
+    name := "kalix-spring-sdk",
+    crossPaths := false,
+    buildInfoObject := "SpringSdkBuildInfo",
+    buildInfoKeys := Seq[BuildInfoKey](
+      name,
+      version,
+      "protocolMajorVersion" -> Kalix.ProtocolVersionMajor,
+      "protocolMinorVersion" -> Kalix.ProtocolVersionMinor,
+      "scalaVersion" -> scalaVersion.value),
+    buildInfoPackage := "kalix.springsdk",
+    Compile / akkaGrpcGeneratedSources := Seq(AkkaGrpc.Server),
+    Compile / akkaGrpcGeneratedLanguages := Seq(AkkaGrpc.Scala),
+    Test / javacOptions += "-parameters", // for Jackson
+    IntegrationTest / javacOptions += "-parameters", // for Jackson
+    inTask(doc)(
+      Seq(
+        Compile / scalacOptions ++= scaladocOptions(
+          "Kalix Spring SDK",
+          version.value,
+          (ThisBuild / baseDirectory).value))))
+  .settings(inConfig(IntegrationTest)(JupiterPlugin.scopedSettings): _*)
+  .settings(Dependencies.sdkSpring)
+
+lazy val sdkSpringTestKit = project
+  .in(file("sdk/spring-sdk-testkit"))
+  .dependsOn(sdkSpring)
+  .dependsOn(sdkJavaTestKit)
+  .enablePlugins(BuildInfoPlugin, PublishSonatype)
+  .settings(common)
+  .settings(
+    name := "kalix-spring-sdk-testkit",
+    crossPaths := false,
+    buildInfoKeys := Seq[BuildInfoKey](
+      name,
+      version,
+      "proxyImage" -> "gcr.io/kalix-public/kalix-proxy",
+      "proxyVersion" -> Kalix.ProxyVersion,
+      "scalaVersion" -> scalaVersion.value),
+    buildInfoPackage := "kalix.springsdk.testkit",
+    // Generate javadocs by just including non generated Java/Scala sources
+    Compile / doc / sources := {
+      val javaSourceDir = (Compile / javaSource).value.getAbsolutePath
+      val scalaSourceDir = (Compile / scalaSource).value.getAbsolutePath
+      (Compile / doc / sources).value.filter(f =>
+        f.getAbsolutePath.startsWith(javaSourceDir) || f.getAbsolutePath.startsWith(scalaSourceDir))
+    })
+  .settings(Dependencies.sdkSpringTestKit)
+
 lazy val sdkScala = project
   .in(file("sdk/scala-sdk"))
   .dependsOn(sdkJava)
@@ -147,30 +228,6 @@ def githubUrl(v: String): String = {
   val branch = if (v.endsWith("SNAPSHOT")) "main" else "v" + v
   "https://github.com/lightbend/kalix-jvm-sdk/tree/" + branch
 }
-
-lazy val sdkJavaTestKit = project
-  .in(file("sdk/java-sdk-testkit"))
-  .dependsOn(sdkJava)
-  .enablePlugins(BuildInfoPlugin, PublishSonatype)
-  .settings(common)
-  .settings(
-    name := "kalix-java-sdk-testkit",
-    crossPaths := false,
-    buildInfoKeys := Seq[BuildInfoKey](
-      name,
-      version,
-      "proxyImage" -> "gcr.io/kalix-public/kalix-proxy",
-      "proxyVersion" -> Kalix.ProxyVersion,
-      "scalaVersion" -> scalaVersion.value),
-    buildInfoPackage := "kalix.javasdk.testkit",
-    // Generate javadocs by just including non generated Java/Scala sources
-    Compile / doc / sources := {
-      val javaSourceDir = (Compile / javaSource).value.getAbsolutePath
-      val scalaSourceDir = (Compile / scalaSource).value.getAbsolutePath
-      (Compile / doc / sources).value.filter(f =>
-        f.getAbsolutePath.startsWith(javaSourceDir) || f.getAbsolutePath.startsWith(scalaSourceDir))
-    })
-  .settings(Dependencies.sdkJavaTestKit)
 
 lazy val tckJava = project
   .in(file("tck/java-tck"))

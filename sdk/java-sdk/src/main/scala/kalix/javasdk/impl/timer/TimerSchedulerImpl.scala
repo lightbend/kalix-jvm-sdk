@@ -26,16 +26,16 @@ import akka.actor.ActorSystem
 import com.google.protobuf.duration.{ Duration => ProtoDuration }
 import com.google.protobuf.wrappers.StringValue
 import kalix.javasdk.DeferredCall
-import kalix.javasdk.impl.AnySupport
 import kalix.javasdk.impl.DeferredCallImpl
 import kalix.javasdk.impl.GrpcClients
+import kalix.javasdk.impl.MessageCodec
 import kalix.javasdk.timer.TimerScheduler
 import kalix.timers.timers.Call
 import kalix.timers.timers.SingleTimer
 import kalix.timers.timers.TimerService
 
 /** INTERNAL API */
-private[kalix] final class TimerSchedulerImpl(anySupport: AnySupport, system: ActorSystem) extends TimerScheduler {
+private[kalix] final class TimerSchedulerImpl(messageCodec: MessageCodec, system: ActorSystem) extends TimerScheduler {
 
   override def startSingleTimer[I, O](
       name: String,
@@ -49,7 +49,7 @@ private[kalix] final class TimerSchedulerImpl(anySupport: AnySupport, system: Ac
       Call(
         deferredCallImpl.fullServiceName,
         deferredCallImpl.methodName,
-        Some(anySupport.encodeScala(deferredCall.message())))
+        Some(messageCodec.encodeScala(deferredCall.message())))
 
     val singleTimer = SingleTimer(name, Some(call), Some(ProtoDuration(delay)))
 

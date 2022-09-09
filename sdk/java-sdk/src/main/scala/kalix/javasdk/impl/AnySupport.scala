@@ -24,9 +24,6 @@ import scala.jdk.CollectionConverters._
 import scala.reflect.ClassTag
 import scala.util.Try
 
-import kalix.javasdk.JsonSupport
-import kalix.javasdk.impl.AnySupport.Prefer.Java
-import kalix.javasdk.impl.AnySupport.Prefer.Scala
 import com.google.common.base.CaseFormat
 import com.google.protobuf.ByteString
 import com.google.protobuf.CodedInputStream
@@ -37,6 +34,9 @@ import com.google.protobuf.UnsafeByteOperations
 import com.google.protobuf.WireFormat
 import com.google.protobuf.any.{ Any => ScalaPbAny }
 import com.google.protobuf.{ Any => JavaPbAny }
+import kalix.javasdk.JsonSupport
+import kalix.javasdk.impl.AnySupport.Prefer.Java
+import kalix.javasdk.impl.AnySupport.Prefer.Scala
 import org.slf4j.LoggerFactory
 import scalapb.GeneratedMessage
 import scalapb.GeneratedMessageCompanion
@@ -196,7 +196,9 @@ class AnySupport(
     descriptors: Array[Descriptors.FileDescriptor],
     classLoader: ClassLoader,
     typeUrlPrefix: String = AnySupport.DefaultTypeUrlPrefix,
-    prefer: AnySupport.Prefer = AnySupport.Prefer.Java) {
+    prefer: AnySupport.Prefer = AnySupport.Prefer.Java)
+    extends MessageCodec {
+
   import AnySupport._
   private val allDescriptors = flattenDescriptors(descriptors)
 
@@ -235,18 +237,12 @@ class AnySupport(
 
     val className = packageName + outerClassName + typeDescriptor.getName
     try {
-      log.debug("Attempting to load com.google.protobuf.Message class {}", className)
+      log.debug("Attempting to load class {}", className)
+
       val clazz = classLoader.loadClass(className)
-      if (classOf[com.google.protobuf.Message].isAssignableFrom(clazz)) {
-        val parser = clazz.getMethod("parser").invoke(null).asInstanceOf[Parser[com.google.protobuf.Message]]
-        Some(
-          new JavaPbResolvedType(
-            clazz.asInstanceOf[Class[com.google.protobuf.Message]],
-            typeUrlPrefix + "/" + typeDescriptor.getFullName,
-            parser))
-      } else {
-        None
-      }
+      val parser = clazz.getMethod("parser").invoke(null).asInstanceOf[Parser[com.google.protobuf.Message]]
+      Some(new JavaPbResolvedType(parser))
+
     } catch {
       case cnfe: ClassNotFoundException =>
         log.debug("Failed to load class [{}] because: {}", className, cnfe.getMessage)
@@ -296,11 +292,7 @@ class AnySupport(
         if (classOf[GeneratedMessageCompanion[_]].isAssignableFrom(companion) &&
           classOf[scalapb.GeneratedMessage].isAssignableFrom(clazz)) {
           val companionObject = companion.getField("MODULE$").get(null).asInstanceOf[GeneratedMessageCompanion[_]]
-          Some(
-            new ScalaPbResolvedType(
-              clazz.asInstanceOf[Class[scalapb.GeneratedMessage]],
-              typeUrlPrefix + "/" + typeDescriptor.getFullName,
-              companionObject))
+          Some(new ScalaPbResolvedType(companionObject))
         } else {
           None
         }
@@ -379,8 +371,7 @@ class AnySupport(
         ScalaPbAny(typeUrlPrefix + "/" + scalaPbMessage.companion.scalaDescriptor.fullName, scalaPbMessage.toByteString)
 
       case null =>
-        throw SerializationException(
-          s"Don't know how to serialize object of type null. Try passing a protobuf, using a primitive type, or defining a codec for this type.")
+        throw SerializationException(s"Don't know how to serialize object of type null.")
 
       case _ if ClassToPrimitives.contains(value.getClass) =>
         val primitive = ClassToPrimitives(value.getClass)
@@ -391,7 +382,7 @@ class AnySupport(
 
       case other =>
         throw SerializationException(
-          s"Don't know how to serialize object of type ${other.getClass}. Try passing a protobuf, using a primitive type, or defining a codec for this type.")
+          s"Don't know how to serialize object of type ${other.getClass}. Try passing a protobuf or use a primitive type.")
     }
 
   /**
@@ -493,4 +484,10 @@ private[kalix] object ByteStringEncoding {
   def decodePrimitiveBytes(bytes: ByteString): ByteString =
     AnySupport.decodePrimitiveBytes(bytes)
 
+}
+
+trait MessageCodec {
+  def decodeMessage(any: ScalaPbAny): Any
+  def encodeScala(value: Any): ScalaPbAny
+  def encodeJava(value: Any): JavaPbAny
 }

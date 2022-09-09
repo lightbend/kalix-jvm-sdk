@@ -16,24 +16,25 @@
 
 package kalix.javasdk.impl.effect
 
-import kalix.javasdk.{ DeferredCall, Metadata, SideEffect }
-import kalix.javasdk.impl.AnySupport
-import kalix.javasdk.impl.DeferredCallImpl
-import kalix.javasdk.impl.effect
-import kalix.protocol.component.ClientAction
 import com.google.protobuf.{ Any => JavaPbAny }
 import io.grpc.Status
+import kalix.javasdk.impl.MessageCodec
+import kalix.javasdk.impl.effect
+import kalix.javasdk.DeferredCall
+import kalix.javasdk.Metadata
+import kalix.javasdk.SideEffect
+import kalix.protocol.component.ClientAction
 
 sealed trait SecondaryEffectImpl {
   def sideEffects: Vector[SideEffect]
   def addSideEffects(sideEffects: Iterable[SideEffect]): SecondaryEffectImpl
 
-  final def replyToClientAction(anySupport: AnySupport, commandId: Long): Option[ClientAction] = {
+  final def replyToClientAction(messageCodec: MessageCodec, commandId: Long): Option[ClientAction] = {
     this match {
       case message: effect.MessageReplyImpl[JavaPbAny] @unchecked =>
         Some(ClientAction(ClientAction.Action.Reply(EffectSupport.asProtocol(message))))
       case forward: effect.ForwardReplyImpl[JavaPbAny] @unchecked =>
-        Some(ClientAction(ClientAction.Action.Forward(EffectSupport.asProtocol(anySupport, forward))))
+        Some(ClientAction(ClientAction.Action.Forward(EffectSupport.asProtocol(messageCodec, forward))))
       case failure: effect.ErrorReplyImpl[JavaPbAny] @unchecked =>
         Some(
           ClientAction(

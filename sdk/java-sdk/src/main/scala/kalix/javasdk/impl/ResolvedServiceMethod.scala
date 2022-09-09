@@ -16,9 +16,10 @@
 
 package kalix.javasdk.impl
 
-import com.google.protobuf.{ ByteString, Descriptors, Message => JavaMessage, Parser }
-
-import java.util.concurrent.CompletionStage
+import com.google.protobuf.ByteString
+import com.google.protobuf.Descriptors
+import com.google.protobuf.Parser
+import com.google.protobuf.{ Message => JavaMessage }
 
 /**
  * A resolved service method.
@@ -40,42 +41,19 @@ final case class ResolvedServiceMethod[I, O](
 trait ResolvedType[T] {
 
   /**
-   * The class for this type.
-   */
-  def typeClass: Class[T]
-
-  /**
-   * The URL for this type.
-   */
-  def typeUrl: String
-
-  /**
    * Parse the given bytes into this type.
    */
   def parseFrom(bytes: ByteString): T
 
-  /**
-   * Convert the given value into a byte string.
-   */
-  def toByteString(value: T): ByteString
 }
 
-private final class JavaPbResolvedType[T <: JavaMessage](
-    override val typeClass: Class[T],
-    override val typeUrl: String,
-    parser: Parser[T])
-    extends ResolvedType[T] {
+private final class JavaPbResolvedType[T <: JavaMessage](parser: Parser[T]) extends ResolvedType[T] {
   override def parseFrom(bytes: ByteString): T = parser.parseFrom(bytes)
-  override def toByteString(value: T): ByteString = value.toByteString
 }
 
-private final class ScalaPbResolvedType[T <: scalapb.GeneratedMessage](
-    override val typeClass: Class[T],
-    override val typeUrl: String,
-    companion: scalapb.GeneratedMessageCompanion[_])
+private final class ScalaPbResolvedType[T <: scalapb.GeneratedMessage](companion: scalapb.GeneratedMessageCompanion[_])
     extends ResolvedType[T] {
   override def parseFrom(bytes: ByteString): T = companion.parseFrom(bytes.newCodedInput()).asInstanceOf[T]
-  override def toByteString(value: T): ByteString = value.toByteString
 }
 
 trait ResolvedEntityFactory {

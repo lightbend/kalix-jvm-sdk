@@ -1,3 +1,4 @@
+import net.aichler.jupiter.sbt.Import.JupiterKeys
 import sbt._
 import sbt.Keys._
 
@@ -27,6 +28,7 @@ object Dependencies {
   val JUnitVersion = "4.13.2"
   val JUnitInterfaceVersion = "0.11"
   val JUnitJupiterVersion = "5.7.1"
+  val SpringVersion = "2.7.0"
 
   val CommonsIoVersion = "2.8.0"
   val MunitVersion = "0.7.29"
@@ -52,6 +54,7 @@ object Dependencies {
   val jacksonJsr310 = "com.fasterxml.jackson.datatype" % "jackson-datatype-jsr310" % JacksonVersion
   val jacksonParameterNames = "com.fasterxml.jackson.module" % "jackson-module-parameter-names" % JacksonVersion
   val jacksonScala = "com.fasterxml.jackson.module" %% "jackson-module-scala" % JacksonVersion
+  val jacksonDataFormatProto = "com.fasterxml.jackson.dataformat" % "jackson-dataformat-protobuf" % JacksonVersion
 
   val scalaTest = "org.scalatest" %% "scalatest" % ScalaTestVersion
   val munit = "org.scalameta" %% "munit" % MunitVersion
@@ -107,6 +110,21 @@ object Dependencies {
     junit4 % Provided,
     junit5 % Provided,
     scalaTest % Test)
+
+  val springDeps = Seq(
+    jacksonDataFormatProto,
+    "org.springframework.boot" % "spring-boot" % SpringVersion,
+    ("org.springframework.boot" % "spring-boot-starter-webflux" % SpringVersion)
+      .exclude("org.springframework.boot", "spring-boot-starter-tomcat"))
+
+  val sdkSpring = deps ++= coreDeps ++ springDeps ++ Seq(
+    "net.aichler" % "jupiter-interface" % JupiterKeys.jupiterVersion.value % IntegrationTest,
+    "org.springframework.boot" % "spring-boot-starter-test" % SpringVersion % IntegrationTest,
+    junit5 % IntegrationTest,
+    "org.awaitility" % "awaitility" % "4.1.0" % IntegrationTest)
+
+  val sdkSpringTestKit =
+    deps ++= springDeps ++ Seq("org.springframework.boot" % "spring-boot-starter-test" % SpringVersion)
 
   // FIXME
   val sdkScala = deps ++= coreDeps ++ Seq(jacksonScala)

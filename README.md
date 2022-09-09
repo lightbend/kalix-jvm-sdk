@@ -30,3 +30,4 @@ For more information see the documentation for [implementing Kalix services in J
 # License
 
 The Kalix Java SDK is Open Source and available under the [Apache 2 License](LICENSE).
+

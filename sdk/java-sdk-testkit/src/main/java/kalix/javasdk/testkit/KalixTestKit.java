@@ -160,14 +160,17 @@ public class KalixTestKit {
    */
   public KalixTestKit start(final Config config) {
     if (started) throw new IllegalStateException("KalixTestkit already started");
+
     int port = availableLocalPort();
     Map<String, Object> conf = new HashMap<>();
     conf.put("kalix.user-function-port", port);
     // don't kill the test JVM when terminating the KalixRunner
     conf.put("kalix.system.akka.coordinated-shutdown.exit-jvm", "off");
     Config testConfig = ConfigFactory.parseMap(conf);
+
     runner = kalix.createRunner(testConfig.withFallback(config));
     runner.run();
+
     testSystem = ActorSystem.create("KalixTestkit");
     proxyContainer = new KalixProxyContainer(port);
     proxyContainer.addEnv("SERVICE_NAME", settings.serviceName);
