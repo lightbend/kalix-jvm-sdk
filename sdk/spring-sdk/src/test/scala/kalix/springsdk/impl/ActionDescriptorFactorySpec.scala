@@ -33,17 +33,14 @@ import kalix.springsdk.testmodels.action.ActionsTestModels.PutWithoutParam
 import kalix.springsdk.testmodels.action.ActionsTestModels.StreamInAction
 import kalix.springsdk.testmodels.action.ActionsTestModels.StreamInOutAction
 import kalix.springsdk.testmodels.action.ActionsTestModels.StreamOutAction
-import kalix.springsdk.testmodels.subscriptions.PubSubTestModels
-import kalix.springsdk.testmodels.subscriptions.PubSubTestModels.{
-  PublishToTopicAction,
-  RestAnnotatedSubscribeToEventSourcedEntityAction,
-  RestAnnotatedSubscribeToValueEntityAction,
-  RestWithPublishToTopicAction,
-  SubscribeToEventSourcedEntityAction,
-  SubscribeToTopicAction,
-  SubscribeToTwoTopicsAction,
-  SubscribeToValueEntityAction
-}
+import kalix.springsdk.testmodels.subscriptions.PubSubTestModels.PublishToTopicAction
+import kalix.springsdk.testmodels.subscriptions.PubSubTestModels.RestAnnotatedSubscribeToEventSourcedEntityAction
+import kalix.springsdk.testmodels.subscriptions.PubSubTestModels.RestAnnotatedSubscribeToValueEntityAction
+import kalix.springsdk.testmodels.subscriptions.PubSubTestModels.RestWithPublishToTopicAction
+import kalix.springsdk.testmodels.subscriptions.PubSubTestModels.SubscribeToEventSourcedEntityAction
+import kalix.springsdk.testmodels.subscriptions.PubSubTestModels.SubscribeToTopicAction
+import kalix.springsdk.testmodels.subscriptions.PubSubTestModels.SubscribeToTwoTopicsAction
+import kalix.springsdk.testmodels.subscriptions.PubSubTestModels.SubscribeToValueEntityAction
 import org.scalatest.wordspec.AnyWordSpec
 
 class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSuite {
