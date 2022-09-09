@@ -311,7 +311,7 @@
     </dependency>
     <dependency>
       <groupId>io.kalix</groupId>
-      <artifactId>kalix-java-sdk-testkit</artifactId>
+      <artifactId>kalix-spring-sdk-testkit</artifactId>
       <version>${kalix-sdk.version}</version>
       <scope>test</scope>
     </dependency>

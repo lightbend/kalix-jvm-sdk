@@ -2,34 +2,29 @@ package customer.api;
 
 
 import customer.Main;
-import kalix.springsdk.KalixConfigurationTest;
+import kalix.springsdk.KalixIntegrationTestKitSupport;
 import org.hamcrest.core.IsEqual;
-import org.junit.BeforeClass;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
 import java.time.Duration;
-import static java.time.temporal.ChronoUnit.SECONDS;
-import java.util.concurrent.TimeUnit;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
+import static java.time.temporal.ChronoUnit.SECONDS;
 import static org.awaitility.Awaitility.await;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = Main.class)
-@Import(KalixConfigurationTest.class)
-@TestPropertySource(properties = "spring.main.allow-bean-definition-overriding=true")
-public class CustomerIntegrationTest {
+public class CustomerIntegrationTest extends KalixIntegrationTestKitSupport {
 
 
   @Autowired
@@ -44,11 +39,11 @@ public class CustomerIntegrationTest {
 
     ResponseEntity<String> response =
         webClient.post()
-        .uri("/customer/" + id + "/create")
-        .bodyValue(customer)
-        .retrieve()
-        .toEntity(String.class)
-        .block(timeout);
+            .uri("/customer/" + id + "/create")
+            .bodyValue(customer)
+            .retrieve()
+            .toEntity(String.class)
+            .block(timeout);
 
     Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
     Assertions.assertEquals("Johanna", getCustomerById(id).name);
@@ -60,21 +55,21 @@ public class CustomerIntegrationTest {
     Customer customer = new Customer(id, "foo@example.com", "Johanna", null);
 
     ResponseEntity<String> resCreation =
-    webClient.post()
-        .uri("/customer/" + id + "/create")
-        .body(Mono.just(customer), Customer.class)
-        .retrieve()
-        .toEntity(String.class)
-        .block(timeout);
+        webClient.post()
+            .uri("/customer/" + id + "/create")
+            .body(Mono.just(customer), Customer.class)
+            .retrieve()
+            .toEntity(String.class)
+            .block(timeout);
 
     Assertions.assertEquals(HttpStatus.OK, resCreation.getStatusCode());
 
     ResponseEntity<String> resUpdate =
         webClient.post()
-        .uri("/customer/" + id + "/changeName/" + "Katarina")
-        .retrieve()
-        .toEntity(String.class)
-        .block(timeout);
+            .uri("/customer/" + id + "/changeName/" + "Katarina")
+            .retrieve()
+            .toEntity(String.class)
+            .block(timeout);
 
 
     Assertions.assertEquals(HttpStatus.OK, resUpdate.getStatusCode());
@@ -166,6 +161,7 @@ public class CustomerIntegrationTest {
             new IsEqual("Bar")
         );
   }
+
   private Customer getCustomerById(String customerId) {
     return webClient
         .get()
