@@ -29,6 +29,10 @@ private[impl] object ComponentDescriptorFactory {
     Modifier.isPublic(javaMethod.getModifiers) &&
     javaMethod.getAnnotation(classOf[Subscribe.ValueEntity]) != null
 
+  def hasEventSourcedEntitySubscription(javaMethod: Method): Boolean =
+    Modifier.isPublic(javaMethod.getModifiers) &&
+    javaMethod.getAnnotation(classOf[Subscribe.EventSourcedEntity]) != null
+
   def hasTopicSubscription(javaMethod: Method): Boolean =
     Modifier.isPublic(javaMethod.getModifiers) &&
     javaMethod.getAnnotation(classOf[Subscribe.Topic]) != null
@@ -36,6 +40,12 @@ private[impl] object ComponentDescriptorFactory {
   def hasTopicPublication(javaMethod: Method): Boolean =
     Modifier.isPublic(javaMethod.getModifiers) &&
     javaMethod.getAnnotation(classOf[Publish.Topic]) != null
+
+  def findEventSourcedEntityType(javaMethod: Method): String = {
+    val ann = javaMethod.getAnnotation(classOf[Subscribe.EventSourcedEntity])
+    val entityClass = ann.value()
+    entityClass.getAnnotation(classOf[Entity]).entityType()
+  }
 
   def findValueEntityType(javaMethod: Method): String = {
     val ann = javaMethod.getAnnotation(classOf[Subscribe.ValueEntity])
@@ -70,6 +80,12 @@ private[impl] object ComponentDescriptorFactory {
     Eventing.newBuilder().setIn(eventSource).build()
   }
 
+  def eventingInForEventSourcedEntity(javaMethod: Method): Eventing = {
+    val entityType = findEventSourcedEntityType(javaMethod)
+    val eventSource = EventSource.newBuilder().setEventSourcedEntity(entityType).build()
+    Eventing.newBuilder().setIn(eventSource).build()
+  }
+
   def eventingInForTopic(javaMethod: Method): Eventing = {
     val topicName = findSubTopicName(javaMethod)
     val consumerGroup = findSubConsumerGroup(javaMethod)
@@ -89,7 +105,7 @@ private[impl] object ComponentDescriptorFactory {
   }
 
   def validateRestMethod(javaMethod: Method): Boolean =
-    if (hasValueEntitySubscription(javaMethod))
+    if (hasValueEntitySubscription(javaMethod) || hasEventSourcedEntitySubscription(javaMethod))
       throw new IllegalArgumentException(
         "Methods annotated with Kalix @Subscription annotations" +
         " can not be annotated with REST annotations ")
