@@ -202,7 +202,7 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
         assertRequestFieldJavaType(method, "one", JavaType.STRING)
       }
     }
-    "generate mappint with Event Sourced Entity Subscription annotation" in {
+    "generate mapping with Event Sourced Entity Subscription annotation" in {
       assertDescriptor[SubscribeToEventSourcedEntityAction] { desc =>
         val methodDescriptorOne = desc.serviceDescriptor.findMethodByName("MethodOne")
         methodDescriptorOne.isServerStreaming shouldBe false
