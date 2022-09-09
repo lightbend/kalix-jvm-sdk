@@ -27,13 +27,13 @@ import org.springframework.test.context.TestPropertySource;
 
 /**
  * This class provided the necessary infrastructure to run Kalix integration test for projects built
- * with the Spring SDK. Users should let their tests classes extends this class.
+ * with the Spring SDK. Users should let their test classes extends this class.
  *
  * <p>Requires Docker for starting a local instance of the Kalix proxy.
  *
  * <p>This class wires-up a local Kalix server using the user's defined Kalix components.
  *
- * <p>Users can interact their components using the {@link
+ * <p>Users can interact with their components using the {@link
  * org.springframework.web.reactive.function.client.WebClient} that is made available by the test
  * {@link org.springframework.context.ApplicationContext}.
  *
