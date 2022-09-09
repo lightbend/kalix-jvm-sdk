@@ -19,6 +19,7 @@ package com.example.wiring;
 import com.example.Main;
 import com.example.wiring.actions.echo.Message;
 import com.example.wiring.valueentities.user.User;
+import com.example.wiring.views.UserWithVersion;
 import kalix.springsdk.KalixConfigurationTest;
 import org.hamcrest.core.IsEqual;
 import org.junit.jupiter.api.Assertions;
@@ -43,9 +44,11 @@ import java.util.concurrent.TimeUnit;
 import static org.awaitility.Awaitility.await;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static java.time.temporal.ChronoUnit.SECONDS;
+import static org.awaitility.Awaitility.await;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = Main.class)
@@ -55,7 +58,7 @@ public class SpringSdkWiringIntegrationTest {
 
   @Autowired private WebClient webClient;
 
-  private Duration timeout = Duration.of(5, SECONDS);
+  private Duration timeout = Duration.of(10, SECONDS);
 
   @Test
   public void verifyEchoActionWiring() {
@@ -116,6 +119,48 @@ public class SpringSdkWiringIntegrationTest {
   }
 
   @Test
+  public void verifyTransformedUserViewWiring() throws InterruptedException {
+
+    User u1 = new User("john@doe.com", "JohnDoe");
+    String userCreation =
+        webClient
+            .post()
+            .uri("/user/JohnDoe/" + u1.email + "/" + u1.name)
+            .retrieve()
+            .bodyToMono(String.class)
+            .block(timeout);
+    Assertions.assertEquals("\"Ok\"", userCreation);
+
+    String userUpdate =
+        webClient
+            .post()
+            .uri("/user/JohnDoe/" + u1.email + "/JohnDoeJr")
+            .retrieve()
+            .bodyToMono(String.class)
+            .block(timeout);
+    Assertions.assertEquals("\"Ok\"", userUpdate);
+
+    // the view is eventually updated
+    await()
+        .atMost(15, TimeUnit.of(SECONDS))
+        .until(
+            () -> {
+              try {
+                var userView =
+                    webClient
+                        .get()
+                        .uri("/users/by-email/" + u1.email)
+                        .retrieve()
+                        .bodyToMono(UserWithVersion.class)
+                        .block(timeout);
+                return userView != null && 2 == userView.version;
+              } catch (Exception e) {
+                return false;
+              }
+            });
+  }
+
+  @Test
   public void verifyFindUsersByEmail() {
 
     ResponseEntity<String> response =
@@ -143,7 +188,7 @@ public class SpringSdkWiringIntegrationTest {
             new IsEqual("jane.example.com"));
   }
 
-  //  @Test
+  @Test
   public void verifyFindUsersByNameStreaming() {
 
     { // joe 1

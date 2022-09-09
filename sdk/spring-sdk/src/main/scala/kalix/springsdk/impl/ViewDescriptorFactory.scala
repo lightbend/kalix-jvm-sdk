@@ -90,6 +90,11 @@ private[impl] object ViewDescriptorFactory extends ComponentDescriptorFactory {
           .map { method =>
             // validate that all updates return the same type
             val valueEntityClass = method.getAnnotation(classOf[Subscribe.ValueEntity]).value().asInstanceOf[Class[_]]
+            val valueEntityEventClass = valueEntityClass.getGenericSuperclass
+              .asInstanceOf[ParameterizedType]
+              .getActualTypeArguments
+              .head
+              .asInstanceOf[Class[_]]
             previousValueEntityClass match {
               case Some(`valueEntityClass`) => // ok
               case Some(other) =>
@@ -97,14 +102,24 @@ private[impl] object ViewDescriptorFactory extends ComponentDescriptorFactory {
                   s"All update methods must return the same type, but [${method.getName}] returns [${valueEntityClass.getName}] while a previous update method returns [${other.getName}]")
               case None => previousValueEntityClass = Some(valueEntityClass)
             }
-            // FIXME validate that transform method accepts value entity state type
+
+            method.getParameterTypes.toList match {
+              case p1 :: Nil if p1 != valueEntityEventClass =>
+                throw InvalidComponentException(
+                  s"Method [${method.getName}] annotated with '@Subscribe' should either receive a single parameter of type [${valueEntityEventClass.getName}] or two ordered parameters of type [${tableType.getName}, ${valueEntityEventClass.getName}]")
+              case p1 :: p2 :: Nil if p1 != tableType || p2 != valueEntityEventClass =>
+                throw InvalidComponentException(
+                  s"Method [${method.getName}] annotated with '@Subscribe' should either receive a single parameter of type [${valueEntityEventClass.getName}] or two ordered parameters of type [${tableType.getName}, ${valueEntityEventClass.getName}]")
+              case _ => // happy days, dev did good with the signature
+            }
 
             // event sourced or topic subscription updates
             val methodOptionsBuilder = kalix.MethodOptions.newBuilder()
             methodOptionsBuilder.setEventing(eventingInForValueEntity(method))
             addTableOptionsToUpdateMethod(tableName, tableProtoMessageName, methodOptionsBuilder, true)
 
-            KalixMethod(RestServiceMethod(method)).withKalixOptions(methodOptionsBuilder.build())
+            KalixMethod(RestServiceMethod(method, method.getParameterCount - 1))
+              .withKalixOptions(methodOptionsBuilder.build())
 
           }
           .toSeq

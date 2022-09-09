@@ -102,6 +102,28 @@ public class ViewTestModels {
     }
   }
 
+  @Table("users_view")
+  public static class TransformedUserViewUsingState extends View<TransformedUser> {
+
+    // when methods are annotated, it's implicitly a transform = true
+    @Subscribe.ValueEntity(UserEntity.class)
+    public UpdateEffect<TransformedUser> onChange(TransformedUser userView, User user) {
+      return effects()
+          .updateState(new TransformedUser(user.lastName + ", " + user.firstName, user.email));
+    }
+
+    @Query("SELECT * FROM users_view WHERE email = :email")
+    @PostMapping("/users/by-email")
+    public TransformedUser getUser(@RequestBody ByEmail byEmail) {
+      return null;
+    }
+
+    @Override
+    public TransformedUser emptyState() {
+      return null;
+    }
+  }
+
   /**
    * This should be illegal. Either we subscribe at type level, and it's a transform = false. Or we
    * subscribe at method level, and it's a transform = true.
@@ -191,6 +213,38 @@ public class ViewTestModels {
 
     @Override
     public User emptyState() {
+      return null;
+    }
+  }
+
+  @Table(value = "users_view")
+  @Subscribe.ValueEntity(UserEntity.class)
+  public static class TransformMethodLackingEventParam extends View<TransformedUser> {
+
+    @Subscribe.ValueEntity(UserEntity.class)
+    public UpdateEffect<TransformedUser> onChange(TransformedUser user) {
+      return effects().updateState(new TransformedUser(user.name, user.email));
+    }
+
+    @Query("SELECT * FROM users_view WHERE email = :email")
+    @PostMapping("/users/by-email")
+    public TransformedUser getUserByEmail(@RequestBody ByEmail byEmail) {
+      return null;
+    }
+  }
+
+  @Table(value = "users_view")
+  @Subscribe.ValueEntity(UserEntity.class)
+  public static class TransformMethodWrongParamOrder extends View<TransformedUser> {
+
+    @Subscribe.ValueEntity(UserEntity.class)
+    public UpdateEffect<TransformedUser> onChange(User user, TransformedUser userView) {
+      return effects().updateState(new TransformedUser(userView.name, user.email));
+    }
+
+    @Query("SELECT * FROM users_view WHERE email = :email")
+    @PostMapping("/users/by-email")
+    public TransformedUser getUserByEmail(@RequestBody ByEmail byEmail) {
       return null;
     }
   }

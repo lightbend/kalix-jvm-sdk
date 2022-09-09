@@ -35,7 +35,7 @@ final class ViewService(
     val factory: Optional[ViewFactory],
     override val descriptor: Descriptors.ServiceDescriptor,
     override val additionalDescriptors: Array[Descriptors.FileDescriptor],
-    val anySupport: AnySupport,
+    val messageCodec: MessageCodec,
     val viewId: String,
     val viewOptions: Option[ViewOptions])
     extends Service {
@@ -44,10 +44,10 @@ final class ViewService(
       factory: Optional[ViewFactory],
       descriptor: Descriptors.ServiceDescriptor,
       additionalDescriptors: Array[Descriptors.FileDescriptor],
-      anySupport: AnySupport,
+      messageCodec: MessageCodec,
       viewId: String,
       viewOptions: ViewOptions) =
-    this(factory, descriptor, additionalDescriptors, anySupport, viewId, Some(viewOptions))
+    this(factory, descriptor, additionalDescriptors, messageCodec, viewId, Some(viewOptions))
 
   override def resolvedMethods: Option[Map[String, ResolvedServiceMethod[_, _]]] =
     factory.asScala.collect { case resolved: ResolvedEntityFactory =>
@@ -102,10 +102,10 @@ final class ViewsImpl(system: ActorSystem, _services: Map[String, ViewService], 
 
               val state: Option[Any] =
                 receiveEvent.bySubjectLookupResult.flatMap(row =>
-                  row.value.map(scalaPb => service.anySupport.decodeMessage(scalaPb)))
+                  row.value.map(scalaPb => service.messageCodec.decodeMessage(scalaPb)))
 
               val commandName = receiveEvent.commandName
-              val msg = service.anySupport.decodeMessage(receiveEvent.payload.get)
+              val msg = service.messageCodec.decodeMessage(receiveEvent.payload.get)
               val metadata = new MetadataImpl(receiveEvent.metadata.map(_.entries.toVector).getOrElse(Nil))
               val context = new UpdateContextImpl(service.viewId, commandName, metadata)
 
@@ -122,7 +122,7 @@ final class ViewsImpl(system: ActorSystem, _services: Map[String, ViewService], 
                 case ViewUpdateEffectImpl.Update(newState) =>
                   if (newState == null)
                     throw ViewException(context, "updateState with null state is not allowed.", None)
-                  val serializedState = ScalaPbAny.fromJavaProto(service.anySupport.encodeJava(newState))
+                  val serializedState = ScalaPbAny.fromJavaProto(service.messageCodec.encodeJava(newState))
                   val upsert = pv.Upsert(Some(pv.Row(value = Some(serializedState))))
                   val out = pv.ViewStreamOut(pv.ViewStreamOut.Message.Upsert(upsert))
                   Source.single(out)

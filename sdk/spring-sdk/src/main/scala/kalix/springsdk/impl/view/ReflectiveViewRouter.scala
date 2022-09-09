@@ -17,11 +17,14 @@
 package kalix.springsdk.impl.view
 
 import com.google.protobuf.any.{ Any => ScalaPbAny }
-import kalix.javasdk.Metadata
+import kalix.javasdk.{ JsonSupport, Metadata }
 import kalix.javasdk.impl.view.ViewRouter
 import kalix.javasdk.view.View
 import kalix.springsdk.impl.ComponentMethod
 import kalix.springsdk.impl.InvocationContext
+
+import java.lang.reflect.ParameterizedType
+import scala.PartialFunction.condOpt
 
 class ReflectiveViewRouter[S, V <: View[S]](view: V, componentMethods: Map[String, ComponentMethod])
     extends ViewRouter[S, V](view) {
@@ -31,6 +34,12 @@ class ReflectiveViewRouter[S, V <: View[S]](view: V, componentMethods: Map[Strin
 
   override def handleUpdate(commandName: String, state: S, event: Any): View.UpdateEffect[S] = {
     val componentMethod = methodLookup(commandName)
+    val viewStateType = this.view.getClass.getGenericSuperclass
+      .asInstanceOf[ParameterizedType]
+      .getActualTypeArguments
+      .head
+      .asInstanceOf[Class[_]]
+
     val context =
       InvocationContext(
         event.asInstanceOf[ScalaPbAny],
@@ -38,12 +47,33 @@ class ReflectiveViewRouter[S, V <: View[S]](view: V, componentMethods: Map[Strin
         Metadata.EMPTY
       ) // FIXME no metadata available???
 
+    // the state: S received can either be of the view "state" type (if coming from emptyState)
+    // or PB Any type (if coming from the proxy)
+    val newState = condOpt(state) {
+      case s if s != null && state.getClass == viewStateType => s
+      case s if s != null => JsonSupport.decodeJson(viewStateType, ScalaPbAny.toJavaProto(s.asInstanceOf[ScalaPbAny]))
+    }
+    val params = componentMethod.parameterExtractors.map(e => e.extract(context))
+
     // safe call: if component method is None, proxy won't forward calls to it
     // typically, that happens when we have a View update method with transform = false
     // in such a case, the proxy can index the view payload directly, without passing through the user function
-    componentMethod.method.get
-      .invoke(view, componentMethod.parameterExtractors.map(e => e.extract(context)): _*)
-      .asInstanceOf[View.UpdateEffect[S]]
+    (componentMethod.method.get.getParameterCount, newState) match {
+      case (1, _) =>
+        componentMethod.method.get
+          .invoke(view, params: _*)
+          .asInstanceOf[View.UpdateEffect[S]]
+      case (2, Some(s)) =>
+        componentMethod.method.get
+          .invoke(view, s, params.head)
+          .asInstanceOf[View.UpdateEffect[S]]
+      case (2, None) =>
+        componentMethod.method.get
+          .invoke(view, null, params.head)
+          .asInstanceOf[View.UpdateEffect[S]]
+      case (n, _) => // this shouldn't really be reached
+        throw new RuntimeException(s"unexpected number of params ($n) for '$commandName'")
+    }
   }
 
 }
