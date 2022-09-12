@@ -1,4 +1,4 @@
-:kalix-jvm-sdk-version: 1.0.6
+:kalix-jvm-sdk-version: 1.0.7
 :java-version: 11
 :java_minimum_sdk_version: 0.7.0
 :console: https://console.kalix.io/

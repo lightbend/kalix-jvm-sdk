@@ -208,8 +208,8 @@ extends Object</pre>
 </td>
 </tr>
 <tr id="i4" class="altColor">
-<td class="colFirst"><code><a href="Kalix.html" title="class in kalix.javasdk">Kalix</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#register(kalix.javasdk.action.ActionProvider)">register</a></span>&#8203;(<a href="action/ActionProvider.html" title="interface in kalix.javasdk.action">ActionProvider</a>&nbsp;provider)</code></th>
+<td class="colFirst"><code>&lt;A extends <a href="action/Action.html" title="class in kalix.javasdk.action">Action</a>&gt;<br><a href="Kalix.html" title="class in kalix.javasdk">Kalix</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#register(kalix.javasdk.action.ActionProvider)">register</a></span>&#8203;(<a href="action/ActionProvider.html" title="interface in kalix.javasdk.action">ActionProvider</a>&lt;A&gt;&nbsp;provider)</code></th>
 <td class="colLast">
 <div class="block">Register an action using an {<a href="action/ActionProvider.html" title="interface in kalix.javasdk.action"><code>ActionProvider</code></a>}.</div>
 </td>
@@ -218,7 +218,7 @@ extends Object</pre>
 <td class="colFirst"><code>&lt;S,&#8203;E extends <a href="eventsourcedentity/EventSourcedEntity.html" title="class in kalix.javasdk.eventsourcedentity">EventSourcedEntity</a>&lt;S&gt;&gt;<br><a href="Kalix.html" title="class in kalix.javasdk">Kalix</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#register(kalix.javasdk.eventsourcedentity.EventSourcedEntityProvider)">register</a></span>&#8203;(<a href="eventsourcedentity/EventSourcedEntityProvider.html" title="interface in kalix.javasdk.eventsourcedentity">EventSourcedEntityProvider</a>&lt;S,&#8203;E&gt;&nbsp;provider)</code></th>
 <td class="colLast">
-<div class="block">Register a event sourced entity using a {<a href="eventsourcedentity/EventSourcedEntityProvider.html" title="interface in kalix.javasdk.eventsourcedentity"><code>EventSourcedEntityProvider</code></a>}.</div>
+<div class="block">Register an event sourced entity using a {<a href="eventsourcedentity/EventSourcedEntityProvider.html" title="interface in kalix.javasdk.eventsourcedentity"><code>EventSourcedEntityProvider</code></a>}.</div>
 </td>
 </tr>
 <tr id="i6" class="altColor">
@@ -237,7 +237,7 @@ extends Object</pre>
 </tr>
 <tr id="i8" class="altColor">
 <td class="colFirst"><code><a href="Kalix.html" title="class in kalix.javasdk">Kalix</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#register(kalix.javasdk.view.ViewProvider)">register</a></span>&#8203;(<a href="view/ViewProvider.html" title="interface in kalix.javasdk.view">ViewProvider</a>&nbsp;provider)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#register(kalix.javasdk.view.ViewProvider)">register</a></span>&#8203;(<a href="view/ViewProvider.html" title="interface in kalix.javasdk.view">ViewProvider</a>&lt;?,&#8203;?&gt;&nbsp;provider)</code></th>
 <td class="colLast">
 <div class="block">Register a view using a <a href="view/ViewProvider.html" title="interface in kalix.javasdk.view"><code>ViewProvider</code></a>.</div>
 </td>
@@ -446,7 +446,7 @@ extends Object</pre>
 <li class="blockList">
 <h4>register</h4>
 <pre class="methodSignature">public&nbsp;&lt;S,&#8203;E extends <a href="eventsourcedentity/EventSourcedEntity.html" title="class in kalix.javasdk.eventsourcedentity">EventSourcedEntity</a>&lt;S&gt;&gt;&nbsp;<a href="Kalix.html" title="class in kalix.javasdk">Kalix</a>&nbsp;register&#8203;(<a href="eventsourcedentity/EventSourcedEntityProvider.html" title="interface in kalix.javasdk.eventsourcedentity">EventSourcedEntityProvider</a>&lt;S,&#8203;E&gt;&nbsp;provider)</pre>
-<div class="block">Register a event sourced entity using a {<a href="eventsourcedentity/EventSourcedEntityProvider.html" title="interface in kalix.javasdk.eventsourcedentity"><code>EventSourcedEntityProvider</code></a>}. The concrete
+<div class="block">Register an event sourced entity using a {<a href="eventsourcedentity/EventSourcedEntityProvider.html" title="interface in kalix.javasdk.eventsourcedentity"><code>EventSourcedEntityProvider</code></a>}. The concrete
  <code>
  EventSourcedEntityProvider</code> is generated for the specific entities defined in Protobuf,
  for example <code>CustomerEntityProvider</code>.
@@ -465,7 +465,7 @@ extends Object</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>register</h4>
-<pre class="methodSignature">public&nbsp;<a href="Kalix.html" title="class in kalix.javasdk">Kalix</a>&nbsp;register&#8203;(<a href="view/ViewProvider.html" title="interface in kalix.javasdk.view">ViewProvider</a>&nbsp;provider)</pre>
+<pre class="methodSignature">public&nbsp;<a href="Kalix.html" title="class in kalix.javasdk">Kalix</a>&nbsp;register&#8203;(<a href="view/ViewProvider.html" title="interface in kalix.javasdk.view">ViewProvider</a>&lt;?,&#8203;?&gt;&nbsp;provider)</pre>
 <div class="block">Register a view using a <a href="view/ViewProvider.html" title="interface in kalix.javasdk.view"><code>ViewProvider</code></a>. The concrete <code>
  ViewProvider</code> is generated for the specific views defined in Protobuf, for example <code>
  CustomerViewProvider</code>.</div>
@@ -481,7 +481,7 @@ extends Object</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>register</h4>
-<pre class="methodSignature">public&nbsp;<a href="Kalix.html" title="class in kalix.javasdk">Kalix</a>&nbsp;register&#8203;(<a href="action/ActionProvider.html" title="interface in kalix.javasdk.action">ActionProvider</a>&nbsp;provider)</pre>
+<pre class="methodSignature">public&nbsp;&lt;A extends <a href="action/Action.html" title="class in kalix.javasdk.action">Action</a>&gt;&nbsp;<a href="Kalix.html" title="class in kalix.javasdk">Kalix</a>&nbsp;register&#8203;(<a href="action/ActionProvider.html" title="interface in kalix.javasdk.action">ActionProvider</a>&lt;A&gt;&nbsp;provider)</pre>
 <div class="block">Register an action using an {<a href="action/ActionProvider.html" title="interface in kalix.javasdk.action"><code>ActionProvider</code></a>}. The concrete <code>
  ActionProvider</code> is generated for the specific entities defined in Protobuf, for example
  <code>CustomerActionProvider</code>.</div>

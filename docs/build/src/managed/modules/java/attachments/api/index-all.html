@@ -202,6 +202,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd>
 <div class="block">Returns the names of all the claims in this request.</div>
 </dd>
+<dt><span class="memberNameLink"><a href="kalix/javasdk/action/ActionProvider.html#alternativeCodec()">alternativeCodec()</a></span> - Method in interface kalix.javasdk.action.<a href="kalix/javasdk/action/ActionProvider.html" title="interface in kalix.javasdk.action">ActionProvider</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="kalix/javasdk/eventsourcedentity/EventSourcedEntityProvider.html#alternativeCodec()">alternativeCodec()</a></span> - Method in interface kalix.javasdk.eventsourcedentity.<a href="kalix/javasdk/eventsourcedentity/EventSourcedEntityProvider.html" title="interface in kalix.javasdk.eventsourcedentity">EventSourcedEntityProvider</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="kalix/javasdk/valueentity/ValueEntityProvider.html#alternativeCodec()">alternativeCodec()</a></span> - Method in interface kalix.javasdk.valueentity.<a href="kalix/javasdk/valueentity/ValueEntityProvider.html" title="interface in kalix.javasdk.valueentity">ValueEntityProvider</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="kalix/javasdk/view/ViewProvider.html#alternativeCodec()">alternativeCodec()</a></span> - Method in interface kalix.javasdk.view.<a href="kalix/javasdk/view/ViewProvider.html" title="interface in kalix.javasdk.view">ViewProvider</a></dt>
+<dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="kalix/javasdk/Metadata.html#asCloudEvent()">asCloudEvent()</a></span> - Method in interface kalix.javasdk.<a href="kalix/javasdk/Metadata.html" title="interface in kalix.javasdk">Metadata</a></dt>
 <dd>
 <div class="block">Return a CloudEvent representation of this Metadata.</div>
@@ -410,6 +418,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd>
 <div class="block">Creates a KalixRunner using the currently configured services, using the supplied
  configuration.</div>
+</dd>
+<dt><span class="memberNameLink"><a href="kalix/javasdk/eventsourcedentity/EventSourcedEntity.html#currentState()">currentState()</a></span> - Method in class kalix.javasdk.eventsourcedentity.<a href="kalix/javasdk/eventsourcedentity/EventSourcedEntity.html" title="class in kalix.javasdk.eventsourcedentity">EventSourcedEntity</a></dt>
+<dd>
+<div class="block">Returns the state as currently stored by Kalix.</div>
+</dd>
+<dt><span class="memberNameLink"><a href="kalix/javasdk/valueentity/ValueEntity.html#currentState()">currentState()</a></span> - Method in class kalix.javasdk.valueentity.<a href="kalix/javasdk/valueentity/ValueEntity.html" title="class in kalix.javasdk.valueentity">ValueEntity</a></dt>
+<dd>
+<div class="block">Returns the state as currently stored by Kalix.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="kalix/javasdk/replicatedentity/ReplicatedRegister.Clock.html#CUSTOM">CUSTOM</a></span> - kalix.javasdk.replicatedentity.<a href="kalix/javasdk/replicatedentity/ReplicatedRegister.Clock.html" title="enum in kalix.javasdk.replicatedentity">ReplicatedRegister.Clock</a></dt>
 <dd>
@@ -1320,13 +1336,13 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </a>
 <h2 class="title">R</h2>
 <dl>
-<dt><span class="memberNameLink"><a href="kalix/javasdk/Kalix.html#register(kalix.javasdk.action.ActionProvider)">register(ActionProvider)</a></span> - Method in class kalix.javasdk.<a href="kalix/javasdk/Kalix.html" title="class in kalix.javasdk">Kalix</a></dt>
+<dt><span class="memberNameLink"><a href="kalix/javasdk/Kalix.html#register(kalix.javasdk.action.ActionProvider)">register(ActionProvider&lt;A&gt;)</a></span> - Method in class kalix.javasdk.<a href="kalix/javasdk/Kalix.html" title="class in kalix.javasdk">Kalix</a></dt>
 <dd>
 <div class="block">Register an action using an {<a href="kalix/javasdk/action/ActionProvider.html" title="interface in kalix.javasdk.action"><code>ActionProvider</code></a>}.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="kalix/javasdk/Kalix.html#register(kalix.javasdk.eventsourcedentity.EventSourcedEntityProvider)">register(EventSourcedEntityProvider&lt;S, E&gt;)</a></span> - Method in class kalix.javasdk.<a href="kalix/javasdk/Kalix.html" title="class in kalix.javasdk">Kalix</a></dt>
 <dd>
-<div class="block">Register a event sourced entity using a {<a href="kalix/javasdk/eventsourcedentity/EventSourcedEntityProvider.html" title="interface in kalix.javasdk.eventsourcedentity"><code>EventSourcedEntityProvider</code></a>}.</div>
+<div class="block">Register an event sourced entity using a {<a href="kalix/javasdk/eventsourcedentity/EventSourcedEntityProvider.html" title="interface in kalix.javasdk.eventsourcedentity"><code>EventSourcedEntityProvider</code></a>}.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="kalix/javasdk/Kalix.html#register(kalix.javasdk.replicatedentity.ReplicatedEntityProvider)">register(ReplicatedEntityProvider&lt;D, E&gt;)</a></span> - Method in class kalix.javasdk.<a href="kalix/javasdk/Kalix.html" title="class in kalix.javasdk">Kalix</a></dt>
 <dd>
@@ -1336,7 +1352,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd>
 <div class="block">Register a value based entity using a {<a href="kalix/javasdk/valueentity/ValueEntityProvider.html" title="interface in kalix.javasdk.valueentity"><code>ValueEntityProvider</code></a>}.</div>
 </dd>
-<dt><span class="memberNameLink"><a href="kalix/javasdk/Kalix.html#register(kalix.javasdk.view.ViewProvider)">register(ViewProvider)</a></span> - Method in class kalix.javasdk.<a href="kalix/javasdk/Kalix.html" title="class in kalix.javasdk">Kalix</a></dt>
+<dt><span class="memberNameLink"><a href="kalix/javasdk/Kalix.html#register(kalix.javasdk.view.ViewProvider)">register(ViewProvider&lt;?, ?&gt;)</a></span> - Method in class kalix.javasdk.<a href="kalix/javasdk/Kalix.html" title="class in kalix.javasdk">Kalix</a></dt>
 <dd>
 <div class="block">Register a view using a <a href="kalix/javasdk/view/ViewProvider.html" title="interface in kalix.javasdk.view"><code>ViewProvider</code></a>.</div>
 </dd>
@@ -1930,6 +1946,14 @@ the order they are declared.</div>
 <div class="block">INTERNAL API</div>
 </dd>
 <dt><span class="memberNameLink"><a href="kalix/javasdk/valueentity/ValueEntity.html#_internalSetCommandContext(java.util.Optional)">_internalSetCommandContext(Optional&lt;CommandContext&gt;)</a></span> - Method in class kalix.javasdk.valueentity.<a href="kalix/javasdk/valueentity/ValueEntity.html" title="class in kalix.javasdk.valueentity">ValueEntity</a></dt>
+<dd>
+<div class="block">INTERNAL API</div>
+</dd>
+<dt><span class="memberNameLink"><a href="kalix/javasdk/eventsourcedentity/EventSourcedEntity.html#_internalSetCurrentState(S)">_internalSetCurrentState(S)</a></span> - Method in class kalix.javasdk.eventsourcedentity.<a href="kalix/javasdk/eventsourcedentity/EventSourcedEntity.html" title="class in kalix.javasdk.eventsourcedentity">EventSourcedEntity</a></dt>
+<dd>
+<div class="block">INTERNAL API</div>
+</dd>
+<dt><span class="memberNameLink"><a href="kalix/javasdk/valueentity/ValueEntity.html#_internalSetCurrentState(S)">_internalSetCurrentState(S)</a></span> - Method in class kalix.javasdk.valueentity.<a href="kalix/javasdk/valueentity/ValueEntity.html" title="class in kalix.javasdk.valueentity">ValueEntity</a></dt>
 <dd>
 <div class="block">INTERNAL API</div>
 </dd>

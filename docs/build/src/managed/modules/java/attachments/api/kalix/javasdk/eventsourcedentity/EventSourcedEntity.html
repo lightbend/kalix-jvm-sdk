@@ -27,7 +27,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10};
+var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -212,31 +212,45 @@ extends Object</pre>
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#_internalSetEventContext(java.util.Optional)">_internalSetEventContext</a></span>&#8203;(java.util.Optional&lt;<a href="EventContext.html" title="interface in kalix.javasdk.eventsourcedentity">EventContext</a>&gt;&nbsp;context)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#_internalSetCurrentState(S)">_internalSetCurrentState</a></span>&#8203;(<a href="EventSourcedEntity.html" title="type parameter in EventSourcedEntity">S</a>&nbsp;state)</code></th>
 <td class="colLast">
 <div class="block">INTERNAL API</div>
 </td>
 </tr>
 <tr id="i2" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#_internalSetEventContext(java.util.Optional)">_internalSetEventContext</a></span>&#8203;(java.util.Optional&lt;<a href="EventContext.html" title="interface in kalix.javasdk.eventsourcedentity">EventContext</a>&gt;&nbsp;context)</code></th>
+<td class="colLast">
+<div class="block">INTERNAL API</div>
+</td>
+</tr>
+<tr id="i3" class="rowColor">
 <td class="colFirst"><code>protected <a href="CommandContext.html" title="interface in kalix.javasdk.eventsourcedentity">CommandContext</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#commandContext()">commandContext</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Additional context and metadata for a command handler.</div>
 </td>
 </tr>
-<tr id="i3" class="rowColor">
+<tr id="i4" class="altColor">
+<td class="colFirst"><code>protected <a href="EventSourcedEntity.html" title="type parameter in EventSourcedEntity">S</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#currentState()">currentState</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Returns the state as currently stored by Kalix.</div>
+</td>
+</tr>
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code>protected <a href="EventSourcedEntity.Effect.Builder.html" title="interface in kalix.javasdk.eventsourcedentity">EventSourcedEntity.Effect.Builder</a>&lt;<a href="EventSourcedEntity.html" title="type parameter in EventSourcedEntity">S</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#effects()">effects</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i6" class="altColor">
 <td class="colFirst"><code><a href="EventSourcedEntity.html" title="type parameter in EventSourcedEntity">S</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#emptyState()">emptyState</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Implement by returning the initial empty state object.</div>
 </td>
 </tr>
-<tr id="i5" class="rowColor">
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code>protected <a href="EventContext.html" title="interface in kalix.javasdk.eventsourcedentity">EventContext</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#eventContext()">eventContext</a></span>()</code></th>
 <td class="colLast">
@@ -344,6 +358,38 @@ extends Object</pre>
 <h4>_internalSetEventContext</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;_internalSetEventContext&#8203;(java.util.Optional&lt;<a href="EventContext.html" title="interface in kalix.javasdk.eventsourcedentity">EventContext</a>&gt;&nbsp;context)</pre>
 <div class="block">INTERNAL API</div>
+</li>
+</ul>
+<a id="_internalSetCurrentState(java.lang.Object)">
+<!--   -->
+</a><a id="_internalSetCurrentState(S)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>_internalSetCurrentState</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;_internalSetCurrentState&#8203;(<a href="EventSourcedEntity.html" title="type parameter in EventSourcedEntity">S</a>&nbsp;state)</pre>
+<div class="block">INTERNAL API</div>
+</li>
+</ul>
+<a id="currentState()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>currentState</h4>
+<pre class="methodSignature">protected final&nbsp;<a href="EventSourcedEntity.html" title="type parameter in EventSourcedEntity">S</a>&nbsp;currentState()</pre>
+<div class="block">Returns the state as currently stored by Kalix.
+
+ <p>Note that modifying the state directly will not update it in storage. To save the state, one
+ must call {<code>effects().updateState()</code>}.
+
+ <p>This method can only be called when handling a command or an event. Calling it outside a
+ method (eg: in the constructor) will raise a IllegalStateException exception.</div>
+<dl>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code>IllegalStateException</code> - if accessed outside a handler method</dd>
+</dl>
 </li>
 </ul>
 <a id="effects()">
