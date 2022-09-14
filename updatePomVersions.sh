@@ -15,10 +15,10 @@ fi
 if [ $1 ]; then
   PROJ=$1
 else
-  PROJ="samples/*java-*"
+  PROJ=("samples/*java-*" "samples/*spring-*")
 fi
 
-sbt publishM2;publishLocal
+sbt 'publishM2; publishLocal'
 (
   cd maven-java
   mvn versions:set -DnewVersion=$SDK_VERSION
@@ -33,8 +33,9 @@ sbt publishM2;publishLocal
   git checkout */pom.xml
 )
 
-for i in $PROJ
+for i in ${PROJ[@]}
 do
+  echo "Updating pom for: $i"
   sed  -i .versionsBackup "s/<kalix-sdk.version>\(.*\)<\/kalix-sdk.version>/<kalix-sdk.version>$SDK_VERSION<\/kalix-sdk.version>/" $i/pom.xml
   rm $i/pom.xml.versionsBackup
 done
