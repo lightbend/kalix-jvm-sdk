@@ -19,12 +19,27 @@ package kalix.springsdk.testmodels.eventsourcedentity;
 import kalix.javasdk.eventsourcedentity.EventSourcedEntity;
 import kalix.springsdk.annotations.Entity;
 import kalix.springsdk.annotations.EventHandler;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 public class EventSourcedEntitiesTestModels {
+
+  @Entity(entityKey = "id", entityType = "employee")
+  @RequestMapping("/employee/{id}")
+  public static class EmployeeEntity extends EventSourcedEntity<Employee> {
+
+    @PostMapping
+    public Effect<String> createUser(@RequestBody CreateEmployee create) {
+      return effects()
+          .emitEvent(new EmployeeCreated(create.firstName, create.lastName, create.email))
+          .thenReply(__ -> "ok");
+    }
+
+    @EventHandler
+    public Employee onEvent(EmployeeEvent event) {
+      EmployeeCreated create = (EmployeeCreated) event;
+      return new Employee(create.firstName, create.lastName, create.email);
+    }
+  }
 
   @Entity(entityKey = "id", entityType = "counter")
   @RequestMapping("/eventsourced/{id}")

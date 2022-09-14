@@ -16,7 +16,14 @@
 
 package kalix.springsdk.impl
 
+import kalix.springsdk.testmodels.view.ViewTestModels.SubscribeToEventSourcedEvents
+import kalix.springsdk.testmodels.view.ViewTestModels.SubscribeToEventSourcedEventsWithMethodWithState
+import kalix.springsdk.testmodels.view.ViewTestModels.SubscriptionMethodWithMoreThanTwoArgs
+import kalix.springsdk.testmodels.view.ViewTestModels.SubscriptionMethodWithTwiceTheState
+import kalix.springsdk.testmodels.view.ViewTestModels.SubscriptionMethodWithoutEvent
+import kalix.springsdk.testmodels.view.ViewTestModels.SubscriptionMethodWrongOrdering
 import kalix.springsdk.testmodels.view.ViewTestModels.TransformMethodLackingEventParam
+import kalix.springsdk.testmodels.view.ViewTestModels.TransformMethodThreeParameters
 import kalix.springsdk.testmodels.view.ViewTestModels.TransformMethodWrongParamOrder
 import kalix.springsdk.testmodels.view.ViewTestModels.TransformedUserView
 import kalix.springsdk.testmodels.view.ViewTestModels.TransformedUserViewUsingState
@@ -28,12 +35,11 @@ import kalix.springsdk.testmodels.view.ViewTestModels.UserByNameStreamed
 import kalix.springsdk.testmodels.view.ViewTestModels.ViewWithNoQuery
 import kalix.springsdk.testmodels.view.ViewTestModels.ViewWithSubscriptionsInMixedLevels
 import kalix.springsdk.testmodels.view.ViewTestModels.ViewWithTwoQueries
-
 import org.scalatest.wordspec.AnyWordSpec
 
 class ViewDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSuite {
 
-  "View descriptor factory" should {
+  "View descriptor factory (for Value Entity)" should {
 
     "not allow @Subscribe annotations in mixed levels" in {
       // it should be annotated either on type or on method level
@@ -225,6 +231,7 @@ class ViewDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSuit
 
       }
     }
+
     "fail if no query method found" in {
       intercept[InvalidComponentException] {
         ComponentDescriptor.descriptorFor[ViewWithNoQuery]
@@ -237,17 +244,102 @@ class ViewDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSuit
       }
     }
 
-    "fail if transform method has wrong signature lacking the event param" in {
+    "fail if subscription method has wrong signature lacking the event param" in {
       intercept[InvalidComponentException] {
         ComponentDescriptor.descriptorFor[TransformMethodLackingEventParam]
-      }
+      }.getMessage should include("Single parameter is not of type")
     }
 
-    "fail if transform method has wrong signature because of parameters order" in {
+    "fail if subscription method has wrong signature because of parameters order" in {
       intercept[InvalidComponentException] {
         ComponentDescriptor.descriptorFor[TransformMethodWrongParamOrder]
+      }.getMessage should include("Parameters of type ")
+    }
+
+    "fail if subscription method has wrong signature because is has more then two parameters" in {
+      intercept[InvalidComponentException] {
+        ComponentDescriptor.descriptorFor[TransformMethodThreeParameters]
+      }.getMessage should include("Subscription method should have one or two params, found 3")
+    }
+
+  }
+
+  "View descriptor factory (for Event Sourced Entity)" should {
+
+    "generate proto for a View using POST request" in {
+      assertDescriptor[SubscribeToEventSourcedEvents] { desc =>
+
+        val methodOptions = this.findKalixMethodOptions(desc, "OnEvent")
+        val entityType = methodOptions.getEventing.getIn.getEventSourcedEntity
+        entityType shouldBe "employee"
+
+        methodOptions.getView.getUpdate.getTable shouldBe "employees_view"
+        methodOptions.getView.getUpdate.getTransformUpdates shouldBe true
+        methodOptions.getView.getJsonSchema.getOutput shouldBe "Employee"
+
+        val queryMethodOptions = this.findKalixMethodOptions(desc, "GetEmployeeByEmail")
+        queryMethodOptions.getView.getQuery.getQuery shouldBe "SELECT * FROM employees_view WHERE email = :email"
+        queryMethodOptions.getView.getJsonSchema.getOutput shouldBe "Employee"
+        // not defined when query body not used
+        queryMethodOptions.getView.getJsonSchema.getJsonBodyInputField shouldBe ""
+        queryMethodOptions.getView.getJsonSchema.getInput shouldBe ""
+
+        val tableMessageDescriptor = desc.fileDescriptor.findMessageTypeByName("Employee")
+        tableMessageDescriptor should not be null
+
+        val rule = findHttpRule(desc, "GetEmployeeByEmail")
+        rule.getPost shouldBe "/employees/by-email/{email}"
       }
     }
 
+    "generate proto for a View using POST request with subscription method accepting state" in {
+      assertDescriptor[SubscribeToEventSourcedEventsWithMethodWithState] { desc =>
+
+        val methodOptions = this.findKalixMethodOptions(desc, "OnEvent")
+        val entityType = methodOptions.getEventing.getIn.getEventSourcedEntity
+        entityType shouldBe "employee"
+
+        methodOptions.getView.getUpdate.getTable shouldBe "employees_view"
+        methodOptions.getView.getUpdate.getTransformUpdates shouldBe true
+        methodOptions.getView.getJsonSchema.getOutput shouldBe "Employee"
+
+        val queryMethodOptions = this.findKalixMethodOptions(desc, "GetEmployeeByEmail")
+        queryMethodOptions.getView.getQuery.getQuery shouldBe "SELECT * FROM employees_view WHERE email = :email"
+        queryMethodOptions.getView.getJsonSchema.getOutput shouldBe "Employee"
+        // not defined when query body not used
+        queryMethodOptions.getView.getJsonSchema.getJsonBodyInputField shouldBe ""
+        queryMethodOptions.getView.getJsonSchema.getInput shouldBe ""
+
+        val tableMessageDescriptor = desc.fileDescriptor.findMessageTypeByName("Employee")
+        tableMessageDescriptor should not be null
+
+        val rule = findHttpRule(desc, "GetEmployeeByEmail")
+        rule.getPost shouldBe "/employees/by-email/{email}"
+      }
+    }
+
+    "fail if subscription method has wrong signature lacking the event param" in {
+      intercept[InvalidComponentException] {
+        ComponentDescriptor.descriptorFor[SubscriptionMethodWithoutEvent]
+      }.getMessage should include("Subscription method only has the view type.")
+    }
+
+    "fail when trying to subscribe to snapshot" in {
+      intercept[InvalidComponentException] {
+        ComponentDescriptor.descriptorFor[SubscriptionMethodWithTwiceTheState]
+      }.getMessage should include("Subscription method receives twice the view type")
+    }
+
+    "fail when subscription method has more than two args" in {
+      intercept[InvalidComponentException] {
+        ComponentDescriptor.descriptorFor[SubscriptionMethodWithMoreThanTwoArgs]
+      }.getMessage should include("Subscription method should have one or two params, found 3")
+    }
+
+    "fail when subscription method receives 2 params, but first is not the view type" in {
+      intercept[InvalidComponentException] {
+        ComponentDescriptor.descriptorFor[SubscriptionMethodWrongOrdering]
+      }.getMessage should include("Subscription method first param must be view type")
+    }
   }
 }

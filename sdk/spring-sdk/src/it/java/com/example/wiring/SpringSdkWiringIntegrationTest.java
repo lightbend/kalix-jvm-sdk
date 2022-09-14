@@ -18,6 +18,7 @@ package com.example.wiring;
 
 import com.example.Main;
 import com.example.wiring.actions.echo.Message;
+import com.example.wiring.eventsourcedentities.counter.Counter;
 import com.example.wiring.valueentities.user.User;
 import com.example.wiring.views.UserWithVersion;
 import kalix.springsdk.KalixConfigurationTest;
@@ -33,16 +34,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Flux;
 
 import java.time.Duration;
-
-import static java.time.temporal.ChronoUnit.SECONDS;
-
-import java.util.concurrent.TimeUnit;
-
-import static org.awaitility.Awaitility.await;
-
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -116,6 +109,34 @@ public class SpringSdkWiringIntegrationTest {
         webClient.get().uri("/counter/hello").retrieve().bodyToMono(String.class).block(timeout);
 
     Assertions.assertEquals("\"200\"", counterGet);
+  }
+
+  @Test
+  public void verifyFindCounterByName() {
+
+    ResponseEntity<String> response =
+        webClient
+            .post()
+            .uri("/counter/abc/increase/10")
+            .retrieve()
+            .toEntity(String.class)
+            .block(timeout);
+
+    Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+
+    // the view is eventually updated
+    await()
+        .atMost(15, TimeUnit.of(SECONDS))
+        .until(
+            () ->
+                webClient
+                    .get()
+                    .uri("/counters/by-value/10")
+                    .retrieve()
+                    .bodyToMono(Counter.class)
+                    .map(c -> c.value)
+                    .block(timeout),
+            new IsEqual(10));
   }
 
   @Test
