@@ -82,7 +82,7 @@ This section of the `.proto` file declares the API of the service itself, along 
 
 The `AddItem` and `RemoveItem` methods have no return value (the `Empty` type).
 
-Most importantly, in this file we instruct the Kalix Codegen which kind of component we want to create. The codegen will generate all stubs for your entity/service and corresponding tests, as well as an abstract class for your implementation to extend.
+Most importantly, in this file we instruct the Kalix code generation tooling (codegen) which kind of component we want to create. The codegen will generate all stubs for your entity/service and corresponding tests, as well as an abstract class for your implementation to extend.
 
 .src/main/proto/com/example/shoppingcart/shoppingcart_api.proto
 [source,proto]
@@ -93,7 +93,7 @@ include::example$java-valueentity-shopping-cart/src/main/proto/com/example/shopp
 <1> Indicates to the codegen that we want to generate a Value Entity
 <2> The package and name of our Value Entity
 <3> Unique identifier of the "state storage" for this entity. The entity name may be changed even after data has been created, the `entity_type` can't.
-<4> The Entity state using a fully-qualified name. Note, the package and name follow the definion in the domain.proto file (see below)
+<4> The Entity state using a fully-qualified name. Note, the package and name follow the definition in the domain.proto file (see below)
 
 
 == The domain proto file

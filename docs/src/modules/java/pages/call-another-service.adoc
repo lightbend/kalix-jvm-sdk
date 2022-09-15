@@ -7,7 +7,7 @@ In some cases it is useful to call a component in another service, for example i
 
 Calling other Kalix services in the same project from an Action is done by invoking them over gRPC much like how an external client would. The service is however identified only by the name it has been deployed as, Kalix takes care of routing requests to the service and keeping the data safe by encrypting the connection for us.
 
-In this sample we will make an action that does two sequential calls to the xref:value-entity.adoc[Value Entity Counter] service, deployed with the service name "counter".
+In this sample we will make an action that does two sequential calls to the xref:value-entity.adoc[Value Entity Counter] service, deployed with the service name "counter."
 
 We start by adding the public API of the counter to the `src/main/proto` directory of our project.
 

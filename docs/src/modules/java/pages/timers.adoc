@@ -21,7 +21,7 @@ You can schedule a timer for any service method in Kalix, but you can only creat
 **Timer limitations**: 
 
 * Timers can only be scheduled from within an Action.
-* Timers can only call other components (eg: Actions and Entities), therefore external service calls must be wrapped by an Action in the deployed service.
+* Timers can only call other components (e.g., Actions and Entities), therefore external service calls must be wrapped by an Action in the deployed service.
 
 To demonstrate its functionality, let's consider an Ordering Service composed of a xref:value-entity.adoc[Value Entity] and an xref:actions.adoc[Action]. The Action will work as a xref:actions-as-controller.adoc[Controller] receiving calls and delegating to the Order Entity. 
 
@@ -76,7 +76,7 @@ Java::
 include::example$java-reliable-timers/src/main/java/com/example/actions/OrderAction.java[tags=timers;place-order]
 ----
 <1> First we generate a random identifier for the Order. We will use it for identifying the Order, but also as unique name for the timer.
-<2> We call the timers API to register a new timer. Note that it returns `CompletionStage<Done>`. A successul completion means that Kalix registered the timer. 
+<2> We call the timers API to register a new timer. Note that it returns `CompletionStage<Done>`. A successful completion means that Kalix registered the timer. 
 <3> Order number is used to generate a unique name for the timer.
 <4> We set the delay we want for the timer to trigger. 
 <5> We scheduled call to `OrderAction.expire` method. We will cover it in a while.
@@ -91,7 +91,7 @@ Scala::
 include::example$scala-reliable-timers/src/main/scala/com/example/actions/OrderAction.scala[tags=timers;place-order]
 ----
 <1> First we generate a random identifier for the Order. We will use it for identifying the Order, but also as unique name for the timer.
-<2> We call the timers API to register a new timer. Note that it returns `Future[Done]`. A successul completion means that Kalix registered the timer. 
+<2> We call the timers API to register a new timer. Note that it returns `Future[Done]`. A successful completion means that Kalix registered the timer. 
 <3> Order number is used to generate a unique name for the timer.
 <4> We set the delay we want for the timer to trigger. 
 <5> We scheduled call to `OrderAction.expire` method. We will cover it in a while.
@@ -118,7 +118,7 @@ Java::
 include::example$java-reliable-timers/src/main/java/com/example/actions/OrderAction.java[tags=timers;expire-order]
 ----
 <1> When the `OrderAction` receives the expiration call, it immediately tries to cancel the Order. We use the `execute()` method to run it. This method returns a `CompletionStage`.
-<2> If the `CompletionStage` completes successfuly, we are all good and we can simply return `Empty.getDefaultInstance()`. Since this method is returning normally, the timer will be considered as executed and will be removed from Kalix.
+<2> If the `CompletionStage` completes successfully, we are all good and we can simply return `Empty.getDefaultInstance()`. Since this method is returning normally, the timer will be considered as executed and will be removed from Kalix.
 <3> On the other hand, if the `CompletionStage` completes with a failure, we must decide if we will recover the call or not. If we recover, the timer will be considered as completed. If we will let the call fail, the timer will be re-scheduled. 
 
 Scala::
@@ -129,7 +129,7 @@ Scala::
 include::example$scala-reliable-timers/src/main/scala/com/example/actions/OrderAction.scala[tags=timers;expire-order]
 ----
 <1> When the `OrderAction` receives the expiration call, it immediately tries to cancel the Order. We use the `execute()` method to run it. This method returns a `Future`.
-<2> If the `Future` completes successfuly, we are all good and we can simply return `Empty.defaultInstance`. Since this method is returning normally, the timer will be considered as executed and will be removed from Kalix.
+<2> If the `Future` completes successfully, we are all good and we can simply return `Empty.defaultInstance`. Since this method is returning normally, the timer will be considered as executed and will be removed from Kalix.
 <3> On the other hand, if the `Future` completes with a failure, we must decide if we will recover the call or not. If we recover, the timer will be considered as completed. If we will let the call fail, the timer will be re-scheduled. 
 
 We have seen the `Order.cancel` implementation and we know that if we get a `NOT_FOUND`, it means that either the Order never existed or it was already cancelled (deleted). Or, we may get an `INVALID_ARGUMENT` error, meaning that the order has been confirmed in the meantime. In both cases, we can consider that the timer has become obsolete and don't need to be rescheduled, therefore we recover the call.

@@ -854,11 +854,11 @@ NOTE: Entries may not contain the most up-to-date values when there are concurre
 
 [IMPORTANT]
 ====
-All objects used within Replicated Data types -- as keys, values, or elements -- must be immutable, and their serialized form must be stable.
+All objects used within Replicated Data types - as keys, values, or elements - must be immutable, and their serialized form must be stable.
 
 Kalix uses the serialized form of these values to track changes in Replicated Sets or Maps. If the same value serializes to different bytes on different occasions, they will be treated as different keys, values, or elements in a Replicated Set or Map.
 
 This is particularly relevant when using Protocol Buffers (`protobuf`) for serialization. The serialized ordering for the entries of a protobuf `map` type is undefined, so protobuf `map` types should not be used within protobuf messages that are keys, values, or elements in Replicated Data objects.
 
-For the rest of the protobuf specification, while no guarantees are made on the stability by the protobuf specification itself, the Java libraries do produce stable orderings for message fields and repeated fields. But care should be taken when changing the protobuf structure of any types used within Replicated Data objects -- many changes that are backwards compatible from a protobuf standpoint do not necessarily translate into stable serializations.
+For the rest of the protobuf specification, while no guarantees are made on the stability by the protobuf specification itself, the Java libraries do produce stable orderings for message fields and repeated fields. But care should be taken when changing the protobuf structure of any types used within Replicated Data objects--many changes that are backwards compatible from a protobuf standpoint do not necessarily translate into stable serializations.
 ====

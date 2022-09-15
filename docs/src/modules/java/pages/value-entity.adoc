@@ -19,7 +19,7 @@ The sections on this page walk through these steps using a counter service as an
 
 NOTE: Our Value Entity example starts with the "Counter" service as included in the xref:quickstart-template.adoc[project template].
 
-The following `counter_domain.proto` file defines state the Entity will hold. The entity stores an integer value as represented in the message `CounterState`. Real-world entities store much more data -- often structured data --  they represent an _Entity_ in the https://en.wikipedia.org/wiki/Domain-driven_design[domain-driven design] sense of the term.
+The following `counter_domain.proto` file defines state the Entity will hold. The entity stores an integer value as represented in the message `CounterState`. Real-world entities store much more data - often structured data - they represent an _Entity_ in the https://en.wikipedia.org/wiki/Domain-driven_design[domain-driven design] sense of the term.
 
 [.tabset]
 Java::
@@ -45,7 +45,7 @@ include::example$scala-valueentity-counter/src/main/proto/com/example/domain/cou
 
 The `counter_api.proto` file defines the commands we can send to the Counter service to manipulate or access the Counter's state.
 
-In this file we instruct the Kalix Codegen which kind of component we want to create. The codegen will generate all stubs for your entity/service and corresponding tests, as well as an abstract class for your implementation to extend.
+In this file we instruct the Kalix code generation tooling (codegen) which kind of component we want to create. The codegen will generate all stubs for your entity/service and corresponding tests, as well as an abstract class for your implementation to extend.
 
 They make up the service API:
 
@@ -67,8 +67,8 @@ include::example$java-valueentity-counter/src/main/proto/com/example/counter_api
 <8> The protobuf option `(kalix.codegen)`  is specific to code-generation as provided by the Kalix Maven plugin.
 <9> `value_entity` indicates that we want the codegen to generate a Value Entity for this service.
 <10> `name` denotes the base name for the Value Entity, the code-generation will create initial sources `Counter`, `CounterTest` and `CounterIntegrationTest`. Once these files exist, they are not overwritten, so you can freely add logic to them.
-<11> `entity_type` is a unique identifier of the "state storage". The entity name may be changed even after data has been created, the `entity_type` can't.
-<12> `state` points to the protobuf message representing the Value Entity's state which is kept by Kalix. Note, the package and name follow the definion in the domain.proto file.
+<11> `entity_type` is a unique identifier of the "state storage." The entity name may be changed even after data has been created, the `entity_type` can't.
+<12> `state` points to the protobuf message representing the Value Entity's state which is kept by Kalix. Note, the package and name follow the definition in the domain.proto file.
 
 Scala::
 +
@@ -86,8 +86,8 @@ include::example$scala-valueentity-counter/src/main/proto/com/example/counter_ap
 <7> The protobuf option `(kalix.codegen)`  is specific to code-generation as provided by the Kalix Maven plugin.
 <8> `value_entity` indicates that we want the codegen to generate a Value Entity for this service.
 <9> `name` denotes the base name for the Value Entity, the code-generation will create initial sources `Counter`, `CounterTest` and `CounterIntegrationTest`. Once these files exist, they are not overwritten, so you can freely add logic to them.
-<10> `entity_type` is a unique identifier of the "state storage". The entity name may be changed even after data has been created, the `entity_type` can't.
-<11> `state` points to the protobuf message representing the Value Entity's state which is kept by Kalix. Note, the package and name follow the definion in the domain.proto file.
+<10> `entity_type` is a unique identifier of the "state storage." The entity name may be changed even after data has been created, the `entity_type` can't.
+<11> `state` points to the protobuf message representing the Value Entity's state which is kept by Kalix. Note, the package and name follow the definition in the domain.proto file.
 
 
 == Implementing behavior
