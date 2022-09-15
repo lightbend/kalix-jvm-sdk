@@ -8,6 +8,9 @@ categories:
   - title: 'Scala SDK'
     labels:
       - 'scala-sdk'
+  - title: 'Spring SDK'
+    labels:
+      - 'spring-sdk'
   - title: 'Documentation'
     labels:
       - 'Documentation'

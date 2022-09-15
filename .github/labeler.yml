@@ -17,6 +17,7 @@ scala-sdk:
 
 spring-sdk:
   - sdk/spring-sdk/**/*
+  - sdk/spring-sdk-testkit/**/*
 
 Documentation:
   - docs/**/*
