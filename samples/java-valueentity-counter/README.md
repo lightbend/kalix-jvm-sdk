@@ -23,7 +23,7 @@ mvn verify
 
 The integration test sources are in the `src/it/java` directory.
 
-NOTE: As this is not part of the standard Maven setup, you might need to add it as test source directory in your IDE. (IntelliJ: right klick on the directory -> "Mark directory as" | "Test sources root")
+NOTE: As this is not part of the standard Maven setup, you might need to add it as test source directory in your IDE. (IntelliJ: right click on the directory -> "Mark directory as" | "Test sources root")
 
 Maven is configured to run tests from it when using the `it` profile.
 
