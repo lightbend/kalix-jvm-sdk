@@ -87,7 +87,7 @@ private[impl] object ViewDescriptorFactory extends ComponentDescriptorFactory {
       if (annotatedMethods.isEmpty)
         throw new IllegalArgumentException(
           s"No valid query method found in class ${component.getName}. " +
-          "Views should have a method annotated with @Query and annotated exposed by a REST annotation")
+          "Views should have a method annotated with @Query and exposed by a REST annotation")
       if (annotatedMethods.size > 1)
         throw new IllegalArgumentException(
           "Views can have only one method annotated with @Query, " +
@@ -205,7 +205,7 @@ private[impl] object ViewDescriptorFactory extends ComponentDescriptorFactory {
             invalidComponentException(method, s"Subscription method first param must be view type [$tableType]")
 
           case p1 :: p2 :: Nil if p1 == tableType && p2 == tableType =>
-            invalidComponentException(method, "Subscription method receives twice the view type [$tableType]")
+            invalidComponentException(method, s"Subscription method receives twice the view type [$tableType]")
           case _ => // happy days, dev did good with the signature
         }
 
