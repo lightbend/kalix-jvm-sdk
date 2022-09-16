@@ -103,13 +103,12 @@ private[impl] object ViewDescriptorFactory extends ComponentDescriptorFactory {
               case None => previousValueEntityClass = Some(valueEntityClass)
             }
 
+            def throwSignatureError = () =>
+              throw InvalidComponentException(
+                s"Method [${method.getName}] annotated with '@Subscribe' should either receive a single parameter of type [${valueEntityEventClass.getName}] or two ordered parameters of type [${tableType.getName}, ${valueEntityEventClass.getName}]")
             method.getParameterTypes.toList match {
-              case p1 :: Nil if p1 != valueEntityEventClass =>
-                throw InvalidComponentException(
-                  s"Method [${method.getName}] annotated with '@Subscribe' should either receive a single parameter of type [${valueEntityEventClass.getName}] or two ordered parameters of type [${tableType.getName}, ${valueEntityEventClass.getName}]")
-              case p1 :: p2 :: Nil if p1 != tableType || p2 != valueEntityEventClass =>
-                throw InvalidComponentException(
-                  s"Method [${method.getName}] annotated with '@Subscribe' should either receive a single parameter of type [${valueEntityEventClass.getName}] or two ordered parameters of type [${tableType.getName}, ${valueEntityEventClass.getName}]")
+              case p1 :: Nil if p1 != valueEntityEventClass                          => throwSignatureError()
+              case p1 :: p2 :: Nil if p1 != tableType || p2 != valueEntityEventClass => throwSignatureError()
               case _ => // happy days, dev did good with the signature
             }
 
