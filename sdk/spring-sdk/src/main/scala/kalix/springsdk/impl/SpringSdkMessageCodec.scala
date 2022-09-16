@@ -16,6 +16,8 @@
 
 package kalix.springsdk.impl
 
+import com.fasterxml.jackson.annotation.JsonSubTypes
+import com.fasterxml.jackson.annotation.JsonTypeName
 import com.google.protobuf.any.{ Any => ScalaPbAny }
 import com.google.protobuf.{ Any => JavaPbAny }
 import kalix.javasdk.JsonSupport
@@ -30,10 +32,59 @@ private[springsdk] object SpringSdkMessageCodec extends MessageCodec {
    * In the Spring SDK, output data are encoded to Json.
    */
   override def encodeScala(value: Any): ScalaPbAny =
-    ScalaPbAny.fromJavaProto(encodeJava(value))
+    ScalaPbAny.fromJavaProto(JsonSupport.encodeJson(value, findTypeHint(value)))
 
   override def encodeJava(value: Any): JavaPbAny =
-    JsonSupport.encodeJson(value)
+    JsonSupport.encodeJson(value, findTypeHint(value))
+
+  private def findTypeHint(value: Any): String = {
+
+    // TODO: cache results, otherwise we'll run scanning + reflection on each encoding
+    def annotatedParents(clz: Class[_], listOfParents: Seq[Class[_]]): Seq[Class[_]] = {
+
+      def hasJsonSubTypes(clz: Class[_]) =
+        clz != null && clz.getAnnotation(classOf[JsonSubTypes]) != null
+
+      val acc =
+        if (hasJsonSubTypes(clz)) listOfParents :+ clz
+        else listOfParents
+
+      val directParents = clz.getSuperclass +: clz.getInterfaces
+
+      directParents.foldLeft(acc) { case (acc, clz) =>
+        if (clz == null) acc // happens when we reach the bottom, ie: Object.getSuperclass == null
+        else annotatedParents(clz, acc)
+      }
+    }
+
+    // straightforward case: class is annotated with JsonTypeName
+    if (value.getClass.getAnnotation(classOf[JsonTypeName]) != null) {
+      value.getClass.getAnnotation(classOf[JsonTypeName]).value()
+    } else {
+      // otherwise needs to scan hierarchy until we find JsonSubTypes annotations
+      // in a parent class or trait
+      val parents = annotatedParents(value.getClass, Seq.empty)
+      if (parents.isEmpty)
+        value.getClass.getName
+      else {
+        val typeClass = value.getClass
+        val ann = {
+          parents.flatMap { parent =>
+            val subTypeAnn = parent.getAnnotation(classOf[JsonSubTypes])
+            subTypeAnn.value().find(_.value() == typeClass)
+          }
+        }.headOption
+
+        ann
+          .map { a =>
+            // if more than one name, we pick the first one for the typeUrl
+            // otherwise, default to `name`
+            a.names().headOption.getOrElse(a.name())
+          }
+          .getOrElse(value.getClass.getName)
+      }
+    }
+  }
 
   /**
    * In the Spring SDK, input data are kept as proto Any and delivered as such to the router
