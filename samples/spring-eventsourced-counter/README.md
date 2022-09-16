@@ -34,7 +34,24 @@ mvn spring-boot:run
 
 With both the proxy and your application running, once you have defined endpoints they should be available at `http://localhost:9000`. 
 
+### Examples
 
+- increase (or create) a counter named `hello` with value `10`
+```shell
+curl -i -XPOST localhost:9000/counter/hello/increase/10
+```
+
+- retrieve the value of a counter named `hello`
+```shell
+curl -i -XGET localhost:9000/counter/hello
+```
+
+- multiply existing counter named `hello` by value `5`
+```shell
+curl -i -XPOST localhost:9000/counter/hello/multiply/5
+```
+
+### Deploy
 
 To deploy your service, install the `kalix` CLI as documented in
 [Setting up a local development environment](https://docs.kalix.io/setting-up/)
