@@ -1,17 +1,14 @@
-# ${artifactId}
+# spring-eventsourced-counter
 
 
-## Designing
 
 To understand the Kalix concepts that are the basis for this example, see [Designing services](https://docs.kalix.io/services/development-process.html) in the documentation.
 
 
-## Developing
 
 This project contains the framework to create a Kalix application by adding Kalix components. To understand more about these components, see [Developing services](https://docs.kalix.io/services/). Spring-SDK is an experimental feature and so far there is no [official](https://docs.kalix.io/) documentation. Examples can be found [here](https://github.com/lightbend/kalix-jvm-sdk/tree/main/samples) in the folders with "spring" in their name.
 
 
-## Building
 
 Use Maven to build your project:
 
@@ -20,7 +17,6 @@ mvn compile
 ```
 
 
-## Running Locally
 
 To run the example locally, you must run the Kalix proxy. The included `docker-compose` file contains the configuration required to run the proxy for a locally running application.
 It also contains the configuration to start a local Google Pub/Sub emulator that the Kalix proxy will connect to.
@@ -38,8 +34,24 @@ mvn spring-boot:run
 
 With both the proxy and your application running, once you have defined endpoints they should be available at `http://localhost:9000`. 
 
+### Examples
 
-## Deploying
+- increase (or create) a counter named `hello` with value `10`
+```shell
+curl -i -XPOST localhost:9000/counter/hello/increase/10
+```
+
+- retrieve the value of a counter named `hello`
+```shell
+curl -i -XGET localhost:9000/counter/hello
+```
+
+- multiply existing counter named `hello` by value `5`
+```shell
+curl -i -XPOST localhost:9000/counter/hello/multiply/5
+```
+
+### Deploy
 
 To deploy your service, install the `kalix` CLI as documented in
 [Setting up a local development environment](https://docs.kalix.io/setting-up/)
