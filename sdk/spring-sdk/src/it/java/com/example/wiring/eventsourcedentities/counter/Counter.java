@@ -24,7 +24,7 @@ public class Counter {
   public final Integer value;
 
   @JsonCreator
-  public Counter(@JsonProperty Integer value) {
+  public Counter(@JsonProperty("value") Integer value) {
     this.value = value;
   }
 

@@ -19,7 +19,7 @@ package com.example.wiring.eventsourcedentities.counter;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class ValueIncreased {
+public class ValueIncreased implements CounterEvent {
 
   public final int value;
 

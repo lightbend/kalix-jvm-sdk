@@ -85,25 +85,25 @@ public class SpringSdkWiringIntegrationTest {
   @Test
   public void verifyCounterEventSourcedWiring() {
 
-    String counterIncrease =
+    Integer counterIncrease =
         webClient
             .post()
             .uri("/counter/hello/increase/10")
             .retrieve()
-            .bodyToMono(String.class)
+            .bodyToMono(Integer.class)
             .block(timeout);
 
-    Assertions.assertEquals("\"10\"", counterIncrease);
+    Assertions.assertEquals(10, counterIncrease);
 
-    String counterMultiply =
+    Integer counterMultiply =
         webClient
             .post()
             .uri("/counter/hello/multiply/20")
             .retrieve()
-            .bodyToMono(String.class)
+            .bodyToMono(Integer.class)
             .block(timeout);
 
-    Assertions.assertEquals("\"200\"", counterMultiply);
+    Assertions.assertEquals(200, counterMultiply);
 
     String counterGet =
         webClient.get().uri("/counter/hello").retrieve().bodyToMono(String.class).block(timeout);
@@ -112,7 +112,7 @@ public class SpringSdkWiringIntegrationTest {
   }
 
   @Test
-  public void verifyFindCounterByName() {
+  public void verifyFindCounterByValue() {
 
     ResponseEntity<String> response =
         webClient
@@ -134,9 +134,9 @@ public class SpringSdkWiringIntegrationTest {
                     .uri("/counters/by-value/10")
                     .retrieve()
                     .bodyToMono(Counter.class)
-                    .map(c -> c.value)
+                    .map(counter -> counter.value)
                     .block(timeout),
-            new IsEqual(10));
+            new IsEqual<Integer>(10));
   }
 
   @Test

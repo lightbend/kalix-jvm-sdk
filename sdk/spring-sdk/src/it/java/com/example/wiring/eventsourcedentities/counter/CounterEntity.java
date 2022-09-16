@@ -39,19 +39,23 @@ public class CounterEntity extends EventSourcedEntity<Counter> {
     this.context = context;
   }
 
-  @PostMapping("/increase/{value}")
-  public Effect<String> increase(@PathVariable Integer value) {
+  @Override
+  public Counter emptyState() {
+    return new Counter(0);
+  }
 
-    return effects().emitEvent(new ValueIncreased(value)).thenReply(Object::toString);
+  @PostMapping("/increase/{value}")
+  public Effect<Integer> increase(@PathVariable Integer value) {
+    return effects().emitEvent(new ValueIncreased(value)).thenReply(c -> c.value);
   }
 
   @GetMapping
   public Effect<String> get() {
-    return effects().reply(currentState().toString());
+    return effects().reply(currentState().value.toString());
   }
 
   @PostMapping("/multiply/{value}")
-  public Effect<String> times(@PathVariable Integer value) {
+  public Effect<Integer> times(@PathVariable Integer value) {
     logger.info(
         "Increasing counter with commandId={} commandName={} seqNr={} current={} value={}",
         commandContext().commandId(),
@@ -60,7 +64,7 @@ public class CounterEntity extends EventSourcedEntity<Counter> {
         currentState(),
         value);
 
-    return effects().emitEvent(new ValueMultiplied(value)).thenReply(Object::toString);
+    return effects().emitEvent(new ValueMultiplied(value)).thenReply(c -> c.value);
   }
 
   @EventHandler

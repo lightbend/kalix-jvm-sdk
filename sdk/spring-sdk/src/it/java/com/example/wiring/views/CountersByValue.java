@@ -16,9 +16,10 @@
 
 package com.example.wiring.views;
 
-import com.example.wiring.eventsourcedentities.counter.Counter;
+import com.example.wiring.eventsourcedentities.counter.*;
 import kalix.javasdk.view.View;
 import kalix.springsdk.annotations.Query;
+import kalix.springsdk.annotations.Subscribe;
 import kalix.springsdk.annotations.Table;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -26,22 +27,26 @@ import org.springframework.web.bind.annotation.PathVariable;
 @Table("counters_by_value")
 public class CountersByValue extends View<Counter> {
 
-  @GetMapping("/counters-by-value/{value}")
+  @Override
+  public Counter emptyState() {
+    return new Counter(0);
+  }
+
+  @GetMapping("/counters/by-value/{value}")
   @Query("SELECT * FROM counters_by_value WHERE value = :value")
   public Counter getCounterByValue(@PathVariable Integer value) {
     return null;
   }
 
-  //  @Subscribe.EventSourcedEntity( CounterEntity.class)
-  //  public Counter onEvent(Counter counter, CounterEvent event) {
-  //
-  //    if (event instanceof ValueIncreased) {
-  //      return counter.onValueIncreased((ValueIncreased) event);
-  //    } else if (event instanceof ValueMultiplied) {
-  //      return counter.onValueMultiplied((ValueMultiplied) event);
-  //    } else {
-  //      return counter;
-  //    }
-  //  }
+  @Subscribe.EventSourcedEntity(CounterEntity.class)
+  public UpdateEffect<Counter> onEvent(Counter counter, CounterEvent event) {
 
+    if (event instanceof ValueIncreased) {
+      return effects().updateState(counter.onValueIncreased((ValueIncreased) event));
+    } else if (event instanceof ValueMultiplied) {
+      return effects().updateState(counter.onValueMultiplied((ValueMultiplied) event));
+    } else {
+      return effects().updateState(counter);
+    }
+  }
 }
