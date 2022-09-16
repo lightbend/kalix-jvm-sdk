@@ -186,7 +186,7 @@ private[impl] object ViewDescriptorFactory extends ComponentDescriptorFactory {
           .head
           .asInstanceOf[Class[_]]
         previousEntityClass match {
-          case Some(entityClass) => // ok
+          case Some(`entityClass`) => // ok
           case Some(other) =>
             throw InvalidComponentException(
               s"All update methods must return the same type, but [${method.getName}] returns [${entityClass.getName}] while a previous update method returns [${other.getName}]")
@@ -249,7 +249,7 @@ private[impl] object ViewDescriptorFactory extends ComponentDescriptorFactory {
           .head
           .asInstanceOf[Class[_]]
         previousEntityClass match {
-          case Some(entityClass) => // ok
+          case Some(`entityClass`) => // ok
           case Some(other) =>
             throw InvalidComponentException(
               s"All update methods must return the same type, but [${method.getName}] returns [${entityClass.getName}] while a previous update method returns [${other.getName}]")
