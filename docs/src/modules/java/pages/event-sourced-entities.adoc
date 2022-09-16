@@ -22,7 +22,7 @@ The sections on this page walk through these steps using a shopping cart service
 
 NOTE: Our Event Sourced Entity example is a shopping cart service.
 
-The following `shoppingcart_domain.proto` file defines our "Shopping" Event Sourced Entity. The entity manages line items of a cart and stores events `ItemAdded` and `ItemRemoved` to represent changes to the cart. Real-world entities store much more data -- often structured data --  they represent an _Entity_ in the https://en.wikipedia.org/wiki/Domain-driven_design[domain-driven design] sense of the term.
+The following `shoppingcart_domain.proto` file defines our "Shopping" Event Sourced Entity. The entity manages line items of a cart and stores events `ItemAdded` and `ItemRemoved` to represent changes to the cart. Real-world entities store much more data - often structured data - they represent an _Entity_ in the https://en.wikipedia.org/wiki/Domain-driven_design[domain-driven design] sense of the term.
 
 [.tabset]
 Java::
@@ -64,7 +64,7 @@ include::example$java-eventsourced-shopping-cart/src/main/proto/com/example/shop
 <8> The protobuf option `(kalix.codegen)`  is specific to code-generation as provided by the Kalix Maven plugin.
 <9> `event_sourced_entity` indicates that we want the codegen to generate an Event Sourced Entity for this service.
 <10> `name` denotes the base name for the Event Sourced Entity, the code-generation will create initial sources `ShoppingCart`, `ShoppingCartTest` and `ShoppingCartIntegrationTest`. Once these files exist, they are not overwritten, so you can freely add logic to them.
-<11> `entity_type` is a unique identifier of the "state storage". The entity name may be changed even after data has been created, the `entity_type` can't.
+<11> `entity_type` is a unique identifier of the "state storage." The entity name may be changed even after data has been created, the `entity_type` can't.
 <12> `state` points to the protobuf message representing the entity's state which is kept by Kalix. It is stored as snapshots.
 <13> `events` points to the protobuf message representing the entity's events, which are stored by Kalix.
 
@@ -85,7 +85,7 @@ include::example$scala-eventsourced-shopping-cart/src/main/proto/com/example/sho
 <7> The protobuf option `(kalix.codegen)`  is specific to code-generation as provided by the Kalix sbt plugin.
 <8> `event_sourced_entity` indicates that we want the codegen to generate an Event Sourced Entity for this service.
 <9> `name` denotes the base name for the Event Sourced Entity, the code-generation will create initial sources `ShoppingCart`, `ShoppingCartTest` and `ShoppingCartIntegrationTest`. Once these files exist, they are not overwritten, so you can freely add logic to them.
-<10> `entity_type` is a unique identifier of the "state storage". The entity name may be changed even after data has been created, the `entity_type` can't.
+<10> `entity_type` is a unique identifier of the "state storage." The entity name may be changed even after data has been created, the `entity_type` can't.
 <11> `state` points to the protobuf message representing the entity's state which is kept by Kalix. It is stored as snapshots.
 <12> `events` points to the protobuf message representing the entity's events, which are stored by Kalix.
 
