@@ -17,6 +17,8 @@
 package kalix.springsdk;
 
 import kalix.javasdk.testkit.KalixTestKit;
+import kalix.springsdk.impl.KalixClient;
+import kalix.springsdk.impl.KalixClientImpl;
 import kalix.springsdk.impl.KalixServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,6 +44,16 @@ public class KalixConfigurationTest {
   @Bean
   public KalixServer kalixServer() {
     return new KalixServer(applicationContext, kalixConfiguration.config());
+  }
+
+  @Bean
+  public KalixClient kalixClient(KalixTestKit kalixTestKit) {
+    var webClient =
+            WebClient.builder()
+                    .baseUrl("http://localhost:" + kalixTestKit.getPort())
+                    .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                    .build();
+    return new KalixClientImpl(webClient);
   }
 
   /** WebClient pointing to the proxy. */

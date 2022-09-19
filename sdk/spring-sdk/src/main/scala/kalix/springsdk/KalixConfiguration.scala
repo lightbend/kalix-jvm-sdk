@@ -18,10 +18,12 @@ package kalix.springsdk
 
 import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
-import kalix.springsdk.impl.KalixServer
+import kalix.springsdk.impl.{ KalixClient, KalixClientImpl, KalixServer }
 import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.http.{ HttpHeaders, MediaType }
+import org.springframework.web.reactive.function.client.WebClient
 
 @Configuration
 class KalixConfiguration(applicationContext: ApplicationContext) {
@@ -36,4 +38,13 @@ class KalixConfiguration(applicationContext: ApplicationContext) {
     kalix
   }
 
+  @Bean
+  def kalixClient: KalixClient = {
+    val webClient = WebClient
+      .builder()
+      .baseUrl("http://localhost:9000") // FIXME load address and port from discovery info
+      .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+      .build();
+    new KalixClientImpl(webClient)
+  }
 }

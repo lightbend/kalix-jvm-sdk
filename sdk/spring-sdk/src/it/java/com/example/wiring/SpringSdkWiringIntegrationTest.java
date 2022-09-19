@@ -37,11 +37,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 import java.time.Duration;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-
-import static java.time.temporal.ChronoUnit.SECONDS;
-import static org.awaitility.Awaitility.await;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = Main.class)
@@ -65,6 +61,20 @@ public class SpringSdkWiringIntegrationTest {
             .block(timeout);
 
     Assertions.assertEquals("Parrot says: 'abc'", response.text);
+  }
+
+  @Test
+  public void verifyEchoActionWiringWithXComponentCall() {
+
+    Message response =
+        webClient
+            .get()
+            .uri("/echo/message/message to be shortened/short")
+            .retrieve()
+            .bodyToMono(Message.class)
+            .block(timeout);
+
+    Assertions.assertEquals("Parrot says: 'mssg t b shrtnd'", response.text);
   }
 
   @Test

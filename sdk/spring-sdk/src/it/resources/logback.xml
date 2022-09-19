@@ -26,8 +26,8 @@
     </appender>
 
     <logger name="akka" level="INFO"/>
-    <logger name="kalix.springsdk" level="DEBUG"/>
-    <logger name="org.springframework.web" level="DEBUG"/>
+    <logger name="kalix.springsdk" level="INFO"/>
+    <logger name="org.springframework.web" level="INFO"/>
     <logger name="akka.http" level="INFO"/>
     <logger name="io.grpc" level="INFO"/>
 
