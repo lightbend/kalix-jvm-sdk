@@ -18,6 +18,7 @@ package com.example.wiring;
 
 import com.example.Main;
 import com.example.wiring.actions.echo.Message;
+import com.example.wiring.eventsourcedentities.counter.Counter;
 import com.example.wiring.valueentities.user.User;
 import com.example.wiring.views.UserWithVersion;
 import kalix.springsdk.KalixConfigurationTest;
@@ -33,16 +34,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Flux;
 
 import java.time.Duration;
-
-import static java.time.temporal.ChronoUnit.SECONDS;
-
-import java.util.concurrent.TimeUnit;
-
-import static org.awaitility.Awaitility.await;
-
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -92,30 +85,58 @@ public class SpringSdkWiringIntegrationTest {
   @Test
   public void verifyCounterEventSourcedWiring() {
 
-    String counterIncrease =
+    Integer counterIncrease =
         webClient
             .post()
             .uri("/counter/hello/increase/10")
             .retrieve()
-            .bodyToMono(String.class)
+            .bodyToMono(Integer.class)
             .block(timeout);
 
-    Assertions.assertEquals("\"10\"", counterIncrease);
+    Assertions.assertEquals(10, counterIncrease);
 
-    String counterMultiply =
+    Integer counterMultiply =
         webClient
             .post()
             .uri("/counter/hello/multiply/20")
             .retrieve()
-            .bodyToMono(String.class)
+            .bodyToMono(Integer.class)
             .block(timeout);
 
-    Assertions.assertEquals("\"200\"", counterMultiply);
+    Assertions.assertEquals(200, counterMultiply);
 
     String counterGet =
         webClient.get().uri("/counter/hello").retrieve().bodyToMono(String.class).block(timeout);
 
     Assertions.assertEquals("\"200\"", counterGet);
+  }
+
+  @Test
+  public void verifyFindCounterByValue() {
+
+    ResponseEntity<String> response =
+        webClient
+            .post()
+            .uri("/counter/abc/increase/10")
+            .retrieve()
+            .toEntity(String.class)
+            .block(timeout);
+
+    Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+
+    // the view is eventually updated
+    await()
+        .atMost(15, TimeUnit.of(SECONDS))
+        .until(
+            () ->
+                webClient
+                    .get()
+                    .uri("/counters/by-value/10")
+                    .retrieve()
+                    .bodyToMono(Counter.class)
+                    .map(counter -> counter.value)
+                    .block(timeout),
+            new IsEqual<Integer>(10));
   }
 
   @Test

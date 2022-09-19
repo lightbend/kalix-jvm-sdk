@@ -14,17 +14,18 @@
  * limitations under the License.
  */
 
-package com.example.wiring.eventsourcedentities.counter;
+package kalix.springsdk.testmodels.eventsourcedentity;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
+public class CreateEmployee {
 
-public class ValueMultiplied implements CounterEvent {
+  public final String firstName;
+  public final String lastName;
 
-  public final int value;
+  public final String email;
 
-  @JsonCreator
-  public ValueMultiplied(@JsonProperty Integer value) {
-    this.value = value;
+  public CreateEmployee(String firstName, String lastName, String email) {
+    this.firstName = firstName;
+    this.lastName = lastName;
+    this.email = email;
   }
 }

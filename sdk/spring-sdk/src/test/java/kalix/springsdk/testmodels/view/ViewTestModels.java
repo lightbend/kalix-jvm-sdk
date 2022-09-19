@@ -20,12 +20,17 @@ import kalix.javasdk.view.View;
 import kalix.springsdk.annotations.Query;
 import kalix.springsdk.annotations.Subscribe;
 import kalix.springsdk.annotations.Table;
+import kalix.springsdk.testmodels.eventsourcedentity.Employee;
+import kalix.springsdk.testmodels.eventsourcedentity.EventSourcedEntitiesTestModels;
+import kalix.springsdk.testmodels.eventsourcedentity.EmployeeCreated;
+import kalix.springsdk.testmodels.eventsourcedentity.EmployeeEvent;
 import kalix.springsdk.testmodels.valueentity.User;
 import kalix.springsdk.testmodels.valueentity.UserEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+
 import reactor.core.publisher.Flux;
 
 public class ViewTestModels {
@@ -56,11 +61,6 @@ public class ViewTestModels {
     public User getUser(@RequestBody ByEmail byEmail) {
       return null;
     }
-
-    @Override
-    public User emptyState() {
-      return null;
-    }
   }
 
   @Table(value = "users_view")
@@ -71,11 +71,6 @@ public class ViewTestModels {
     @Query("SELECT * FROM users_view WHERE email = :email")
     @PostMapping("/users/{name}/by-email")
     public User getUser(@PathVariable String name, @RequestBody ByEmail byEmail) {
-      return null;
-    }
-
-    @Override
-    public User emptyState() {
       return null;
     }
   }
@@ -95,11 +90,6 @@ public class ViewTestModels {
     public TransformedUser getUser(@RequestBody ByEmail byEmail) {
       return null;
     }
-
-    @Override
-    public TransformedUser emptyState() {
-      return null;
-    }
   }
 
   @Table("users_view")
@@ -115,11 +105,6 @@ public class ViewTestModels {
     @Query("SELECT * FROM users_view WHERE email = :email")
     @PostMapping("/users/by-email")
     public TransformedUser getUser(@RequestBody ByEmail byEmail) {
-      return null;
-    }
-
-    @Override
-    public TransformedUser emptyState() {
       return null;
     }
   }
@@ -144,22 +129,11 @@ public class ViewTestModels {
     public TransformedUser getUser(@RequestBody ByEmail byEmail) {
       return null;
     }
-
-    @Override
-    public TransformedUser emptyState() {
-      return null;
-    }
   }
 
   @Table("users_view")
   @Subscribe.ValueEntity(UserEntity.class)
-  public static class ViewWithNoQuery extends View<TransformedUser> {
-
-    @Override
-    public TransformedUser emptyState() {
-      return null;
-    }
-  }
+  public static class ViewWithNoQuery extends View<TransformedUser> {}
 
   @Table("users_view")
   @Subscribe.ValueEntity(UserEntity.class)
@@ -177,11 +151,6 @@ public class ViewTestModels {
         @PathVariable String name, @RequestBody ByEmail byEmail) {
       return null;
     }
-
-    @Override
-    public TransformedUser emptyState() {
-      return null;
-    }
   }
 
   @Table(value = "users_view")
@@ -192,11 +161,6 @@ public class ViewTestModels {
     @Query("SELECT * FROM users_view WHERE email = :email")
     @PostMapping("/users/by-email")
     public User getUser(@RequestBody ByEmail byEmail) {
-      return null;
-    }
-
-    @Override
-    public User emptyState() {
       return null;
     }
   }
@@ -210,15 +174,9 @@ public class ViewTestModels {
     public Flux<User> getUser(@PathVariable String name) {
       return null;
     }
-
-    @Override
-    public User emptyState() {
-      return null;
-    }
   }
 
   @Table(value = "users_view")
-  @Subscribe.ValueEntity(UserEntity.class)
   public static class TransformMethodLackingEventParam extends View<TransformedUser> {
 
     @Subscribe.ValueEntity(UserEntity.class)
@@ -234,7 +192,6 @@ public class ViewTestModels {
   }
 
   @Table(value = "users_view")
-  @Subscribe.ValueEntity(UserEntity.class)
   public static class TransformMethodWrongParamOrder extends View<TransformedUser> {
 
     @Subscribe.ValueEntity(UserEntity.class)
@@ -245,6 +202,118 @@ public class ViewTestModels {
     @Query("SELECT * FROM users_view WHERE email = :email")
     @PostMapping("/users/by-email")
     public TransformedUser getUserByEmail(@RequestBody ByEmail byEmail) {
+      return null;
+    }
+  }
+
+  @Table(value = "users_view")
+  public static class TransformMethodThreeParameters extends View<TransformedUser> {
+
+    @Subscribe.ValueEntity(UserEntity.class)
+    public UpdateEffect<TransformedUser> onChange(
+        User user, TransformedUser userView, String somethingElse) {
+      return effects().updateState(new TransformedUser(userView.name, user.email));
+    }
+
+    @Query("SELECT * FROM users_view WHERE email = :email")
+    @PostMapping("/users/by-email")
+    public TransformedUser getUserByEmail(@RequestBody ByEmail byEmail) {
+      return null;
+    }
+  }
+
+  @Table(value = "employees_view")
+  public static class SubscribeToEventSourcedEvents extends View<Employee> {
+
+    @Subscribe.EventSourcedEntity(EventSourcedEntitiesTestModels.EmployeeEntity.class)
+    public UpdateEffect<Employee> onEvent(EmployeeEvent evt) {
+      EmployeeCreated created = (EmployeeCreated) evt;
+      return effects()
+          .updateState(new Employee(created.firstName, created.lastName, created.email));
+    }
+
+    @Query("SELECT * FROM employees_view WHERE email = :email")
+    @PostMapping("/employees/by-email/{email}")
+    public Employee getEmployeeByEmail(@PathVariable String email) {
+      return null;
+    }
+  }
+
+  @Table(value = "employees_view")
+  public static class SubscribeToEventSourcedEventsWithMethodWithState extends View<Employee> {
+
+    @Subscribe.EventSourcedEntity(EventSourcedEntitiesTestModels.EmployeeEntity.class)
+    public UpdateEffect<Employee> onEvent(Employee employee, EmployeeEvent evt) {
+      EmployeeCreated created = (EmployeeCreated) evt;
+      return effects()
+          .updateState(new Employee(created.firstName, created.lastName, created.email));
+    }
+
+    @Query("SELECT * FROM employees_view WHERE email = :email")
+    @PostMapping("/employees/by-email/{email}")
+    public Employee getEmployeeByEmail(@PathVariable String email) {
+      return null;
+    }
+  }
+
+  @Table(value = "employees_view")
+  public static class SubscriptionMethodWithoutEvent extends View<Employee> {
+
+    @Subscribe.EventSourcedEntity(EventSourcedEntitiesTestModels.EmployeeEntity.class)
+    public UpdateEffect<Employee> onEvent(Employee employee) {
+      return null;
+    }
+
+    @Query("SELECT * FROM employees_view WHERE email = :email")
+    @PostMapping("/employees/by-email/{email}")
+    public Employee getEmployeeByEmail(@PathVariable String email) {
+      return null;
+    }
+  }
+
+  // in case users think that they can subscribe to snapshots
+  @Table(value = "employees_view")
+  public static class SubscriptionMethodWithTwiceTheState extends View<Employee> {
+
+    @Subscribe.EventSourcedEntity(EventSourcedEntitiesTestModels.EmployeeEntity.class)
+    public UpdateEffect<Employee> onEvent(Employee employee, Employee employee2) {
+      return null;
+    }
+
+    @Query("SELECT * FROM employees_view WHERE email = :email")
+    @PostMapping("/employees/by-email/{email}")
+    public Employee getEmployeeByEmail(@PathVariable String email) {
+      return null;
+    }
+  }
+
+  @Table(value = "employees_view")
+  public static class SubscriptionMethodWithMoreThanTwoArgs extends View<Employee> {
+
+    @Subscribe.EventSourcedEntity(EventSourcedEntitiesTestModels.EmployeeEntity.class)
+    public UpdateEffect<Employee> onEvent(
+        Employee employee, EmployeeEvent evt1, EmployeeEvent evt2) {
+      return null;
+    }
+
+    @Query("SELECT * FROM employees_view WHERE email = :email")
+    @PostMapping("/employees/by-email/{email}")
+    public Employee getEmployeeByEmail(@PathVariable String email) {
+      return null;
+    }
+  }
+
+  @Table(value = "employees_view")
+  public static class SubscriptionMethodWrongOrdering extends View<Employee> {
+
+    @Subscribe.EventSourcedEntity(EventSourcedEntitiesTestModels.EmployeeEntity.class)
+    public UpdateEffect<Employee> onEvent(EmployeeEvent evt, Employee employee) {
+      return null;
+    }
+
+    @Query("SELECT * FROM employees_view WHERE email = :email")
+    @PostMapping("/employees/by-email/{email}")
+    public Employee getEmployeeByEmail(@PathVariable String email) {
       return null;
     }
   }

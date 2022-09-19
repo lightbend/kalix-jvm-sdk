@@ -16,58 +16,31 @@
 
 package com.example.wiring.eventsourcedentities.counter;
 
-import kalix.javasdk.eventsourcedentity.EventSourcedEntity;
-import kalix.springsdk.annotations.Entity;
-import kalix.springsdk.annotations.EventHandler;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-@Entity(entityKey = "id", entityType = "counter")
-@RequestMapping("/counter/{id}")
-public class Counter extends EventSourcedEntity<Integer> {
+public class Counter {
 
-  private Logger logger = LoggerFactory.getLogger(getClass());
+  public final Integer value;
 
-  @Override
-  public Integer emptyState() {
-    return 0;
+  @JsonCreator
+  public Counter(@JsonProperty("value") Integer value) {
+    this.value = value;
   }
 
-  @PostMapping("/increase/{value}")
-  public Effect<String> increase(@PathVariable Integer value) {
-
-    return effects().emitEvent(new ValueIncreased(value)).thenReply(Object::toString);
+  public Counter increase(int byNum) {
+    return new Counter(this.value + byNum);
   }
 
-  @GetMapping
-  public Effect<String> get() {
-    return effects().reply(currentState().toString());
+  public Counter onValueIncreased(ValueIncreased evt) {
+    return new Counter(this.value + evt.value);
   }
 
-  @PostMapping("/multiply/{value}")
-  public Effect<String> times(@PathVariable Integer value) {
-    logger.info(
-        "Increasing counter with commandId={} commandName={} seqNr={} current={} value={}",
-        commandContext().commandId(),
-        commandContext().commandName(),
-        commandContext().sequenceNumber(),
-        currentState(),
-        value);
-
-    return effects().emitEvent(new ValueMultiplied(value)).thenReply(Object::toString);
+  public Counter multiply(int times) {
+    return new Counter(this.value * times);
   }
 
-  @EventHandler
-  public Integer handleIncrease(ValueIncreased value) {
-    return currentState() + value.value;
-  }
-
-  @EventHandler
-  public Integer handleMultiply(ValueMultiplied value) {
-    return currentState() * value.value;
+  public Counter onValueMultiplied(ValueMultiplied evt) {
+    return new Counter(this.value * evt.value);
   }
 }

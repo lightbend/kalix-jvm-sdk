@@ -16,15 +16,12 @@
 
 package com.example.wiring.eventsourcedentities.counter;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
-public class ValueMultiplied implements CounterEvent {
-
-  public final int value;
-
-  @JsonCreator
-  public ValueMultiplied(@JsonProperty Integer value) {
-    this.value = value;
-  }
-}
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
+@JsonSubTypes({
+  @JsonSubTypes.Type(value = ValueIncreased.class, name = "increased"),
+  @JsonSubTypes.Type(value = ValueMultiplied.class, name = "multiplied")
+})
+public interface CounterEvent {}
