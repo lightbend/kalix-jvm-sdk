@@ -16,6 +16,7 @@
 
 package kalix.javasdk.valueentity;
 
+import akka.annotation.ApiMayChange;
 import kalix.javasdk.DeferredCall;
 import kalix.javasdk.Metadata;
 import kalix.javasdk.SideEffect;
@@ -82,6 +83,7 @@ public abstract class ValueEntity<S> {
    *
    * @throws IllegalStateException if accessed outside a handler method
    */
+  @ApiMayChange
   protected final S currentState() {
     // user may call this method inside a command handler and get a null because it's legal
     // to have emptyState set to null.
