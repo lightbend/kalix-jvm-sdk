@@ -1132,9 +1132,6 @@ workflows:
       - tests:
           requires:
             - checks
-      - spring-sdk-integration-tests:
-          requires:
-            - tests
       - scripted-tests:
           requires:
             - checks
@@ -1155,6 +1152,9 @@ workflows:
           requires:
             - checks
             - publish-local
+      - spring-sdk-integration-tests:
+          requires:
+            - tests
 
       # individual samples as jobs to allow parallelizing them
       - sample-java-customer-registry-quickstart:
@@ -1279,11 +1279,15 @@ workflows:
             - publish-local
       - sample-spring-fibonacci-action:
           requires:
-            - checks
+            - spring-sdk-integration-tests
             - publish-local
       - sample-spring-customer-registry-views-quickstart:
           requires:
-            - checks
+            - spring-sdk-integration-tests
+            - publish-local
+      - sample-spring-eventsourced-counter:
+          requires:
+            - spring-sdk-integration-tests
             - publish-local
       - publish:
           filters: # version tags only
