@@ -24,6 +24,7 @@ import kalix.javasdk.action.Action
 import kalix.javasdk.action.ActionCreationContext
 import kalix.javasdk.action.ActionProvider
 import kalix.javasdk.eventsourcedentity.{ EventSourcedEntity, EventSourcedEntityContext, EventSourcedEntityProvider }
+import kalix.javasdk.impl.GrpcClients
 import kalix.javasdk.valueentity.ValueEntity
 import kalix.javasdk.valueentity.ValueEntityContext
 import kalix.javasdk.valueentity.ValueEntityProvider
@@ -143,6 +144,7 @@ class KalixServer(applicationContext: ApplicationContext, config: Config) {
 
   val kalix = (new Kalix).withSdkName(SpringSdkBuildInfo.name)
 
+  private val kalixClient = new RestKalixClientImpl
   private val threadLocalActionContext = new ThreadLocal[ActionCreationContext]
   private val threadLocalEventSourcedEntityContext = new ThreadLocal[EventSourcedEntityContext]
   private val threadLocalValueEntityContext = new ThreadLocal[ValueEntityContext]
@@ -168,6 +170,7 @@ class KalixServer(applicationContext: ApplicationContext, config: Config) {
   kalixBeanFactory.registerSingleton("eventSourcedEntityContext", eventSourcedEntityContext)
   kalixBeanFactory.registerSingleton("valueEntityContext", valueEntityContext)
   kalixBeanFactory.registerSingleton("viewCreationContext", viewCreationContext)
+  kalixBeanFactory.registerSingleton("kalixClient", kalixClient)
 
   // TODO: it should not be allowed to annotate Kalix components with Spring stereotypes
   //  otherwise it will be possible to inject kalix components everywhere and that won't work as expected
@@ -231,50 +234,43 @@ class KalixServer(applicationContext: ApplicationContext, config: Config) {
     }
 
   private def actionProvider[A <: Action](clz: Class[A]): ActionProvider[A] =
-    if (hasContextConstructor(clz, classOf[ActionCreationContext]))
-      ReflectiveActionProvider.of(
-        clz,
-        context => {
+    ReflectiveActionProvider.of(
+      clz,
+      context => {
+        if (hasContextConstructor(clz, classOf[ActionCreationContext]))
           threadLocalActionContext.set(context)
-          kalixBeanFactory.getBean(clz)
-        })
-    else
-      ReflectiveActionProvider.of(clz, _ => kalixBeanFactory.getBean(clz))
+
+        val grpcClients = GrpcClients.get(context.materializer().system)
+        grpcClients.getProxyHostname.foreach(kalixClient.setHost)
+        grpcClients.getProxyPort.foreach(kalixClient.setPort)
+        kalixBeanFactory.getBean(clz)
+      })
 
   private def eventSourcedEntityProvider[S, E <: EventSourcedEntity[S]](
-      clz: Class[E]): EventSourcedEntityProvider[S, E] = {
-    if (hasContextConstructor(clz, classOf[ValueEntityContext]))
-      ReflectiveEventSourcedEntityProvider.of(
-        clz,
-        context => {
+      clz: Class[E]): EventSourcedEntityProvider[S, E] =
+    ReflectiveEventSourcedEntityProvider.of(
+      clz,
+      context => {
+        if (hasContextConstructor(clz, classOf[ValueEntityContext]))
           threadLocalEventSourcedEntityContext.set(context)
-          kalixBeanFactory.getBean(clz)
-        })
-    else
-      ReflectiveEventSourcedEntityProvider.of(clz, _ => kalixBeanFactory.getBean(clz))
-  }
+        kalixBeanFactory.getBean(clz)
+      })
 
-  private def valueEntityProvider[S, E <: ValueEntity[S]](clz: Class[E]): ValueEntityProvider[S, E] = {
-    if (hasContextConstructor(clz, classOf[ValueEntityContext]))
-      ReflectiveValueEntityProvider.of(
-        clz,
-        context => {
+  private def valueEntityProvider[S, E <: ValueEntity[S]](clz: Class[E]): ValueEntityProvider[S, E] =
+    ReflectiveValueEntityProvider.of(
+      clz,
+      context => {
+        if (hasContextConstructor(clz, classOf[ValueEntityContext]))
           threadLocalValueEntityContext.set(context)
-          kalixBeanFactory.getBean(clz)
-        })
-    else
-      ReflectiveValueEntityProvider.of(clz, _ => kalixBeanFactory.getBean(clz))
-  }
+        kalixBeanFactory.getBean(clz)
+      })
 
-  private def viewProvider[S, V <: View[S]](clz: Class[V]): ViewProvider[S, V] = {
-    if (hasContextConstructor(clz, classOf[ViewCreationContext]))
-      ReflectiveViewProvider.of(
-        clz,
-        context => {
+  private def viewProvider[S, V <: View[S]](clz: Class[V]): ViewProvider[S, V] =
+    ReflectiveViewProvider.of(
+      clz,
+      context => {
+        if (hasContextConstructor(clz, classOf[ViewCreationContext]))
           threadLocalViewContext.set(context)
-          kalixBeanFactory.getBean(clz)
-        })
-    else
-      ReflectiveViewProvider.of(clz, _ => kalixBeanFactory.getBean(clz))
-  }
+        kalixBeanFactory.getBean(clz)
+      })
 }
