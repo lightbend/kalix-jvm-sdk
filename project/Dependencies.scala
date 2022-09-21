@@ -114,8 +114,7 @@ object Dependencies {
   val springDeps = Seq(
     jacksonDataFormatProto,
     "org.springframework.boot" % "spring-boot" % SpringVersion,
-    ("org.springframework.boot" % "spring-boot-starter-webflux" % SpringVersion)
-      .exclude("org.springframework.boot", "spring-boot-starter-tomcat"))
+    "org.springframework.boot" % "spring-boot-starter-webflux" % SpringVersion)
 
   val sdkSpring = deps ++= coreDeps ++ springDeps ++ Seq(
     "net.aichler" % "jupiter-interface" % JupiterKeys.jupiterVersion.value % IntegrationTest,
