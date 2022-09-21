@@ -16,7 +16,8 @@
 
 package kalix.springsdk.impl
 
-import com.google.protobuf.ExperimentalApi
+import akka.annotation.ApiMayChange
+import kalix.javasdk.{ DeferredCall, Metadata }
 import org.springframework.http.{ HttpHeaders, MediaType }
 import org.springframework.web.reactive.function.client.WebClient
 
@@ -26,17 +27,22 @@ import scala.jdk.FutureConverters._
 import scala.concurrent.ExecutionContext.Implicits.global
 
 trait KalixClient {
-  //def post[P, R](uri: String, body: P, returnType: Class[R]): DeferredCall[P, R]
-  //def get[R](uri: String, resp: Class[R]): DeferredCall[_, R] // FIXME not sure what to use by default
 
-  @ExperimentalApi
-  def postCall[P, R](uri: String, body: P, returnType: Class[R]): CompletionStage[R]
+  @ApiMayChange
+  def post[P, R](uri: String, body: P, returnType: Class[R]): DeferredCall[P, R]
 
-  @ExperimentalApi
-  def getCall[R](uri: String, resp: Class[R]): CompletionStage[R]
+  @ApiMayChange
+  def get[R](uri: String, resp: Class[R]): DeferredCall[_, R]
+
 }
 
 final class RestKalixClientImpl extends KalixClient {
+
+  private class RestDeferredCallImpl[P, R](asyncCall: () => CompletionStage[R]) extends DeferredCall[P, R] {
+    override def message(): P = ???
+    override def metadata(): Metadata = Metadata.EMPTY
+    override def execute(): CompletionStage[R] = asyncCall.apply()
+  }
 
   // at the time of creation, Proxy Discovery has not happened so we don't have this info
   private val host: Promise[String] = Promise[String]()
@@ -61,7 +67,7 @@ final class RestKalixClientImpl extends KalixClient {
   def setHost(host: String) = this.host.trySuccess(host)
   def setPort(port: Int) = this.port.trySuccess(port)
 
-  def postCall[P, R](uri: String, body: P, returnType: Class[R]): CompletionStage[R] =
+  def post[P, R](uri: String, body: P, returnType: Class[R]): DeferredCall[P, R] = new RestDeferredCallImpl[P, R](() =>
     webClient.flatMap {
       _.post()
         .uri(uri)
@@ -70,9 +76,9 @@ final class RestKalixClientImpl extends KalixClient {
         .bodyToMono(returnType)
         .toFuture
         .asScala
-    }.asJava
+    }.asJava)
 
-  def getCall[R](uri: String, resp: Class[R]): CompletionStage[R] =
+  def get[R](uri: String, resp: Class[R]): DeferredCall[Void, R] = new RestDeferredCallImpl[Void, R](() =>
     webClient
       .flatMap(
         _.get()
@@ -81,6 +87,5 @@ final class RestKalixClientImpl extends KalixClient {
           .bodyToMono(resp)
           .toFuture
           .asScala)
-      .asJava
-
+      .asJava)
 }

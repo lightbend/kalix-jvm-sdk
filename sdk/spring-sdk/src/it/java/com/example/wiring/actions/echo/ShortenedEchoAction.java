@@ -35,7 +35,7 @@ public class ShortenedEchoAction extends Action {
   @GetMapping("/echo/message/{msg}/short")
   public Effect<Message> stringMessage(@PathVariable String msg) {
     var shortenedMsg = msg.replaceAll("[AEIOUaeiou]", "");
-    var deferredCall = kalixClient.getCall("/echo/message/" + shortenedMsg, Message.class);
-    return effects().asyncReply(deferredCall);
+    var result = kalixClient.get("/echo/message/" + shortenedMsg, Message.class).execute();
+    return effects().asyncReply(result);
   }
 }

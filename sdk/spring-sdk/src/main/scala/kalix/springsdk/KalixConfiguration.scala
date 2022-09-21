@@ -35,4 +35,5 @@ class KalixConfiguration(applicationContext: ApplicationContext) {
     kalix.start()
     kalix
   }
+
 }
