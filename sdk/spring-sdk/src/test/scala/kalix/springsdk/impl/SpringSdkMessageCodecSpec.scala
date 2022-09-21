@@ -21,7 +21,6 @@ import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import com.fasterxml.jackson.annotation.JsonTypeName
 import kalix.javasdk.JsonSupport
-import kalix.springsdk.impl.SpringSdkMessageCodecSpec.AnnotatedWithSingleName.Elephant
 import kalix.springsdk.impl.SpringSdkMessageCodecSpec.SimpleClass
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
@@ -91,37 +90,39 @@ class SpringSdkMessageCodecSpec extends AnyWordSpec with Matchers {
 
   def jsonTypeUrlWith(typ: String) = JsonSupport.KALIX_JSON + typ
 
+  val messageCodec = new SpringSdkMessageCodec
+
   "The SpringSdkMessageCodec" should {
 
     "by default FQCN for typeUrl (java)" in {
-      val encoded = SpringSdkMessageCodec.encodeJava(SimpleClass("abc", 10))
+      val encoded = messageCodec.encodeJava(SimpleClass("abc", 10))
       encoded.getTypeUrl shouldBe jsonTypeUrlWith("kalix.springsdk.impl.SpringSdkMessageCodecSpec$SimpleClass")
     }
 
     "by default FQCN for typeUrl (scala)" in {
-      val encoded = SpringSdkMessageCodec.encodeScala(SimpleClass("abc", 10))
+      val encoded = messageCodec.encodeScala(SimpleClass("abc", 10))
       encoded.typeUrl shouldBe jsonTypeUrlWith("kalix.springsdk.impl.SpringSdkMessageCodecSpec$SimpleClass")
     }
 
     {
-      import kalix.springsdk.impl.SpringSdkMessageCodecSpec.AnnotatedWIthJsonTypeName.Lion
       import kalix.springsdk.impl.SpringSdkMessageCodecSpec.AnnotatedWIthJsonTypeName.Elephant
+      import kalix.springsdk.impl.SpringSdkMessageCodecSpec.AnnotatedWIthJsonTypeName.Lion
 
       "use JsonTypeName if available (java)" in {
 
-        val encodedLion = SpringSdkMessageCodec.encodeJava(Lion("Simba"))
+        val encodedLion = messageCodec.encodeJava(Lion("Simba"))
         encodedLion.getTypeUrl shouldBe jsonTypeUrlWith("lion")
 
-        val encodedElephant = SpringSdkMessageCodec.encodeJava(Elephant("Dumbo", 1))
+        val encodedElephant = messageCodec.encodeJava(Elephant("Dumbo", 1))
         encodedElephant.getTypeUrl shouldBe jsonTypeUrlWith("elephant")
       }
 
       "use JsonTypeName if available  (scala)" in {
 
-        val encodedLion = SpringSdkMessageCodec.encodeScala(Lion("Simba"))
+        val encodedLion = messageCodec.encodeScala(Lion("Simba"))
         encodedLion.typeUrl shouldBe jsonTypeUrlWith("lion")
 
-        val encodedElephant = SpringSdkMessageCodec.encodeScala(Elephant("Dumbo", 1))
+        val encodedElephant = messageCodec.encodeScala(Elephant("Dumbo", 1))
         encodedElephant.typeUrl shouldBe jsonTypeUrlWith("elephant")
       }
     }
@@ -132,42 +133,42 @@ class SpringSdkMessageCodecSpec extends AnyWordSpec with Matchers {
 
       "use JsonTypeInfo if available (java)" in {
 
-        val encodedLion = SpringSdkMessageCodec.encodeJava(Lion("Simba"))
+        val encodedLion = messageCodec.encodeJava(Lion("Simba"))
         encodedLion.getTypeUrl shouldBe jsonTypeUrlWith("lion")
 
-        val encodedElephant = SpringSdkMessageCodec.encodeJava(Elephant("Dumbo", 1))
+        val encodedElephant = messageCodec.encodeJava(Elephant("Dumbo", 1))
         encodedElephant.getTypeUrl shouldBe jsonTypeUrlWith("elephant")
       }
 
       "use JsonTypeInfo if available (scala)" in {
 
-        val encodedLion = SpringSdkMessageCodec.encodeScala(Lion("Simba"))
+        val encodedLion = messageCodec.encodeScala(Lion("Simba"))
         encodedLion.typeUrl shouldBe jsonTypeUrlWith("lion")
 
-        val encodedElephant = SpringSdkMessageCodec.encodeScala(Elephant("Dumbo", 1))
+        val encodedElephant = messageCodec.encodeScala(Elephant("Dumbo", 1))
         encodedElephant.typeUrl shouldBe jsonTypeUrlWith("elephant")
       }
     }
 
     {
-      import kalix.springsdk.impl.SpringSdkMessageCodecSpec.AnnotatedWithManyNames.Lion
       import kalix.springsdk.impl.SpringSdkMessageCodecSpec.AnnotatedWithManyNames.Elephant
+      import kalix.springsdk.impl.SpringSdkMessageCodecSpec.AnnotatedWithManyNames.Lion
 
       "use JsonTypeInfo first name if multiple names are available (java)" in {
 
-        val encodedLion = SpringSdkMessageCodec.encodeJava(Lion("Simba"))
+        val encodedLion = messageCodec.encodeJava(Lion("Simba"))
         encodedLion.getTypeUrl shouldBe jsonTypeUrlWith("lion")
 
-        val encodedElephant = SpringSdkMessageCodec.encodeJava(Elephant("Dumbo", 1))
+        val encodedElephant = messageCodec.encodeJava(Elephant("Dumbo", 1))
         encodedElephant.getTypeUrl shouldBe jsonTypeUrlWith("elephant")
       }
 
       "use JsonTypeInfo first name if multiple names are available (scala)" in {
 
-        val encodedLion = SpringSdkMessageCodec.encodeScala(Lion("Simba"))
+        val encodedLion = messageCodec.encodeScala(Lion("Simba"))
         encodedLion.typeUrl shouldBe jsonTypeUrlWith("lion")
 
-        val encodedElephant = SpringSdkMessageCodec.encodeScala(Elephant("Dumbo", 1))
+        val encodedElephant = messageCodec.encodeScala(Elephant("Dumbo", 1))
         encodedElephant.typeUrl shouldBe jsonTypeUrlWith("elephant")
       }
     }
@@ -178,19 +179,19 @@ class SpringSdkMessageCodecSpec extends AnyWordSpec with Matchers {
 
       "use JsonTypeInfo if available in abstract class parent (java)" in {
 
-        val encodedLion = SpringSdkMessageCodec.encodeJava(Lion("Simba"))
+        val encodedLion = messageCodec.encodeJava(Lion("Simba"))
         encodedLion.getTypeUrl shouldBe jsonTypeUrlWith("lion")
 
-        val encodedElephant = SpringSdkMessageCodec.encodeJava(Elephant("Dumbo", 1))
+        val encodedElephant = messageCodec.encodeJava(Elephant("Dumbo", 1))
         encodedElephant.getTypeUrl shouldBe jsonTypeUrlWith("elephant")
       }
 
       "use JsonTypeInfo if available in abstract class parent (scala)" in {
 
-        val encodedLion = SpringSdkMessageCodec.encodeScala(Lion("Simba"))
+        val encodedLion = messageCodec.encodeScala(Lion("Simba"))
         encodedLion.typeUrl shouldBe jsonTypeUrlWith("lion")
 
-        val encodedElephant = SpringSdkMessageCodec.encodeScala(Elephant("Dumbo", 1))
+        val encodedElephant = messageCodec.encodeScala(Elephant("Dumbo", 1))
         encodedElephant.typeUrl shouldBe jsonTypeUrlWith("elephant")
       }
     }

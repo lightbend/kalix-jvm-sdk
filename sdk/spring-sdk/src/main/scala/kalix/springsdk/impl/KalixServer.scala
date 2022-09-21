@@ -144,6 +144,7 @@ class KalixServer(applicationContext: ApplicationContext, config: Config) {
   val kalix = (new Kalix).withSdkName(SpringSdkBuildInfo.name)
 
   private val kalixClient = new RestKalixClientImpl
+  private val messageCodec = new SpringSdkMessageCodec
   private val threadLocalActionContext = new ThreadLocal[ActionCreationContext]
   private val threadLocalEventSourcedEntityContext = new ThreadLocal[EventSourcedEntityContext]
   private val threadLocalValueEntityContext = new ThreadLocal[ValueEntityContext]
@@ -235,6 +236,7 @@ class KalixServer(applicationContext: ApplicationContext, config: Config) {
   private def actionProvider[A <: Action](clz: Class[A]): ActionProvider[A] =
     ReflectiveActionProvider.of(
       clz,
+      messageCodec,
       context => {
         if (hasContextConstructor(clz, classOf[ActionCreationContext]))
           threadLocalActionContext.set(context)
@@ -249,6 +251,7 @@ class KalixServer(applicationContext: ApplicationContext, config: Config) {
       clz: Class[E]): EventSourcedEntityProvider[S, E] =
     ReflectiveEventSourcedEntityProvider.of(
       clz,
+      messageCodec,
       context => {
         if (hasContextConstructor(clz, classOf[ValueEntityContext]))
           threadLocalEventSourcedEntityContext.set(context)
@@ -258,6 +261,7 @@ class KalixServer(applicationContext: ApplicationContext, config: Config) {
   private def valueEntityProvider[S, E <: ValueEntity[S]](clz: Class[E]): ValueEntityProvider[S, E] =
     ReflectiveValueEntityProvider.of(
       clz,
+      messageCodec,
       context => {
         if (hasContextConstructor(clz, classOf[ValueEntityContext]))
           threadLocalValueEntityContext.set(context)
@@ -267,6 +271,7 @@ class KalixServer(applicationContext: ApplicationContext, config: Config) {
   private def viewProvider[S, V <: View[S]](clz: Class[V]): ViewProvider[S, V] =
     ReflectiveViewProvider.of(
       clz,
+      messageCodec,
       context => {
         if (hasContextConstructor(clz, classOf[ViewCreationContext]))
           threadLocalViewContext.set(context)

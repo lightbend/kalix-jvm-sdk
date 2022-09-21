@@ -43,16 +43,21 @@ public class ReflectiveEventSourcedEntityProvider<S, E extends EventSourcedEntit
   private final Descriptors.ServiceDescriptor serviceDescriptor;
   private final ComponentDescriptor componentDescriptor;
 
+  private final SpringSdkMessageCodec messageCodec;
+
   private final EventSourceEntityHandlers eventHandlers;
 
   public static <S, E extends EventSourcedEntity<S>> ReflectiveEventSourcedEntityProvider<S, E> of(
-      Class<E> cls, Function<EventSourcedEntityContext, E> factory) {
+      Class<E> cls,
+      SpringSdkMessageCodec messageCodec,
+      Function<EventSourcedEntityContext, E> factory) {
     return new ReflectiveEventSourcedEntityProvider<>(
-        cls, factory, EventSourcedEntityOptions.defaults());
+        cls, messageCodec, factory, EventSourcedEntityOptions.defaults());
   }
 
   public ReflectiveEventSourcedEntityProvider(
       Class<E> entityClass,
+      SpringSdkMessageCodec messageCodec,
       Function<EventSourcedEntityContext, E> factory,
       EventSourcedEntityOptions options) {
 
@@ -73,6 +78,7 @@ public class ReflectiveEventSourcedEntityProvider<S, E extends EventSourcedEntit
     this.entityType = annotation.entityType();
     this.factory = factory;
     this.options = options;
+    this.messageCodec = messageCodec;
     this.componentDescriptor = ComponentDescriptor.descriptorFor(entityClass);
     this.fileDescriptor = componentDescriptor.fileDescriptor();
     this.serviceDescriptor = componentDescriptor.serviceDescriptor();
@@ -107,6 +113,6 @@ public class ReflectiveEventSourcedEntityProvider<S, E extends EventSourcedEntit
 
   @Override
   public Optional<MessageCodec> alternativeCodec() {
-    return Optional.of(SpringSdkMessageCodec.instance());
+    return Optional.of(messageCodec);
   }
 }
