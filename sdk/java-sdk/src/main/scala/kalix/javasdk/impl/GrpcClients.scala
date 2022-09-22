@@ -96,6 +96,10 @@ final class GrpcClients(system: ExtendedActorSystem) extends Extension {
     getLocalGrpcClient(serviceClass)
   }
 
+  // FIXME we might be able to revert this once we implement transcoding of Rest calls to Grpc calls so this is not needed outside
+  def getProxyHostname: Option[String] = proxyHostname
+  def getProxyPort: Option[Int] = proxyPort
+
   /**
    * This gets called from the action context to get a client to another service, and hence needs to add a service
    * identification header (in dev/test mode) to ensure calls get associated with this service.

@@ -43,6 +43,19 @@ public class FibonacciActionIntegrationTest extends KalixIntegrationTestKitSuppo
   }
 
   @Test
+  public void calculateNextNumberWithLimitedFibo() throws Exception {
+
+    Mono<Number> response =
+            webClient.get()
+                    .uri("/limitedfibonacci/5/next")
+                    .retrieve().bodyToMono(Number.class);
+
+    long next = response.block(Duration.of(5, SECONDS)).value;
+    Assertions.assertEquals(8, next);
+
+  }
+
+  @Test
   public void wrongNumberReturnsError() throws Exception {
     try {
 
