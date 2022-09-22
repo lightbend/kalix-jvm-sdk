@@ -16,8 +16,7 @@
 
 package kalix.springsdk.impl
 
-import akka.annotation.ApiMayChange
-import kalix.javasdk.{ DeferredCall, Metadata }
+import kalix.springsdk.KalixClient
 import org.springframework.http.{ HttpHeaders, MediaType }
 import org.springframework.web.reactive.function.client.WebClient
 
@@ -26,14 +25,11 @@ import scala.concurrent.{ Future, Promise }
 import scala.jdk.FutureConverters._
 import scala.concurrent.ExecutionContext.Implicits.global
 
-trait KalixClient {
-
-  @ApiMayChange
-  def post[P, R](uri: String, body: P, returnType: Class[R]): DeferredCall[P, R]
-
-  @ApiMayChange
-  def get[R](uri: String, resp: Class[R]): DeferredCall[_, R]
-
+/**
+ * INTERNAL API
+ */
+trait RestDeferredCall[_, R] {
+  def execute(): CompletionStage[R]
 }
 
 /**
@@ -41,13 +37,8 @@ trait KalixClient {
  */
 final class RestKalixClientImpl extends KalixClient {
 
-/**
- * INTERNAL API
- */
-  private class RestDeferredCallImpl[P, R](asyncCall: () => CompletionStage[R]) extends DeferredCall[P, R] {
-    override def message(): P = ???
-    override def metadata(): Metadata = Metadata.EMPTY
-    override def execute(): CompletionStage[R] = asyncCall.apply()
+  private class RestDeferredCallImpl[P, R](asyncCall: () => CompletionStage[R]) extends RestDeferredCall[P, R] {
+    def execute(): CompletionStage[R] = asyncCall.apply()
   }
 
   // at the time of creation, Proxy Discovery has not happened so we don't have this info
@@ -73,24 +64,25 @@ final class RestKalixClientImpl extends KalixClient {
   def setHost(host: String) = this.host.trySuccess(host)
   def setPort(port: Int) = this.port.trySuccess(port)
 
-  def post[P, R](uri: String, body: P, returnType: Class[R]): DeferredCall[P, R] = new RestDeferredCallImpl[P, R](() =>
-    webClient.flatMap {
-      _.post()
-        .uri(uri)
-        .bodyValue(body)
-        .retrieve()
-        .bodyToMono(returnType)
-        .toFuture
-        .asScala
-    }.asJava)
+  def post[P, R](uri: String, body: P, returnType: Class[R]): RestDeferredCall[P, R] =
+    new RestDeferredCallImpl[P, R](() =>
+      webClient.flatMap {
+        _.post()
+          .uri(uri)
+          .bodyValue(body)
+          .retrieve()
+          .bodyToMono(returnType)
+          .toFuture
+          .asScala
+      }.asJava)
 
-  def get[R](uri: String, resp: Class[R]): DeferredCall[Void, R] = new RestDeferredCallImpl[Void, R](() =>
+  def get[R](uri: String, returnType: Class[R]): RestDeferredCall[Void, R] = new RestDeferredCallImpl[Void, R](() =>
     webClient
       .flatMap(
         _.get()
           .uri(uri)
           .retrieve()
-          .bodyToMono(resp)
+          .bodyToMono(returnType)
           .toFuture
           .asScala)
       .asJava)

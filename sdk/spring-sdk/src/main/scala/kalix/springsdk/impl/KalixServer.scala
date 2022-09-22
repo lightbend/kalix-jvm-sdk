@@ -18,7 +18,6 @@ package kalix.springsdk.impl
 
 import scala.jdk.CollectionConverters.CollectionHasAsScala
 import com.typesafe.config.Config
-
 import kalix.javasdk.Kalix
 import kalix.javasdk.action.Action
 import kalix.javasdk.action.ActionCreationContext
@@ -31,7 +30,7 @@ import kalix.javasdk.valueentity.ValueEntityProvider
 import kalix.javasdk.view.View
 import kalix.javasdk.view.ViewCreationContext
 import kalix.javasdk.view.ViewProvider
-import kalix.springsdk.SpringSdkBuildInfo
+import kalix.springsdk.{ KalixClient, SpringSdkBuildInfo }
 import kalix.springsdk.action.ReflectiveActionProvider
 import kalix.springsdk.eventsourced.ReflectiveEventSourcedEntityProvider
 import kalix.springsdk.impl.KalixServer.ActionCreationContextFactoryBean
