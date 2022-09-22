@@ -14,14 +14,10 @@
  * limitations under the License.
  */
 
-package kalix.springsdk.badwiring;
+package kalix.springsdk.badwiring.view;
 
-import kalix.javasdk.action.Action;
+import kalix.javasdk.view.View;
+import org.springframework.stereotype.Component;
 
-public class ActionWithEventSourcedEntity extends Action {
-  private final OneEventSourcedEntity oneEventSourcedEntity;
-
-  public ActionWithEventSourcedEntity(OneEventSourcedEntity oneEventSourcedEntity) {
-    this.oneEventSourcedEntity = oneEventSourcedEntity;
-  }
-}
+@Component
+public class IllDefinedView extends View<String> {}

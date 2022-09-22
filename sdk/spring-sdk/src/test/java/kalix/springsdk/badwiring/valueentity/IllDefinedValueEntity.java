@@ -14,14 +14,10 @@
  * limitations under the License.
  */
 
-package kalix.springsdk.badwiring;
+package kalix.springsdk.badwiring.valueentity;
 
-import kalix.javasdk.action.Action;
+import kalix.javasdk.valueentity.ValueEntity;
+import org.springframework.stereotype.Component;
 
-public class ActionWithView extends Action {
-  private final OneView oneView;
-
-  public ActionWithView(OneView oneView) {
-    this.oneView = oneView;
-  }
-}
+@Component
+public class IllDefinedValueEntity extends ValueEntity<String> {}

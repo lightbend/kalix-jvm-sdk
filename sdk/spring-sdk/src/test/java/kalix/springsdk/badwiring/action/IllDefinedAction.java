@@ -14,8 +14,10 @@
  * limitations under the License.
  */
 
-package kalix.springsdk.badwiring;
+package kalix.springsdk.badwiring.action;
 
-import kalix.javasdk.view.View;
+import kalix.javasdk.action.Action;
+import org.springframework.stereotype.Component;
 
-public class OneView extends View<String> {}
+@Component
+public class IllDefinedAction extends Action {}

@@ -23,7 +23,9 @@ import kalix.javasdk.Kalix
 import kalix.javasdk.action.Action
 import kalix.javasdk.action.ActionCreationContext
 import kalix.javasdk.action.ActionProvider
-import kalix.javasdk.eventsourcedentity.{ EventSourcedEntity, EventSourcedEntityContext, EventSourcedEntityProvider }
+import kalix.javasdk.eventsourcedentity.EventSourcedEntity
+import kalix.javasdk.eventsourcedentity.EventSourcedEntityContext
+import kalix.javasdk.eventsourcedentity.EventSourcedEntityProvider
 import kalix.javasdk.impl.GrpcClients
 import kalix.javasdk.replicatedentity.ReplicatedEntity
 import kalix.javasdk.valueentity.ValueEntity
@@ -32,13 +34,13 @@ import kalix.javasdk.valueentity.ValueEntityProvider
 import kalix.javasdk.view.View
 import kalix.javasdk.view.ViewCreationContext
 import kalix.javasdk.view.ViewProvider
-import kalix.springsdk.{ KalixClient, SpringSdkBuildInfo }
+import kalix.springsdk.SpringSdkBuildInfo
 import kalix.springsdk.action.ReflectiveActionProvider
 import kalix.springsdk.eventsourced.ReflectiveEventSourcedEntityProvider
 import kalix.springsdk.impl.KalixServer.ActionCreationContextFactoryBean
+import kalix.springsdk.impl.KalixServer.EventSourcedEntityContextFactoryBean
 import kalix.springsdk.impl.KalixServer.KalixComponentProvider
 import kalix.springsdk.impl.KalixServer.ValueEntityContextFactoryBean
-import kalix.springsdk.impl.KalixServer.EventSourcedEntityContextFactoryBean
 import kalix.springsdk.impl.KalixServer.ViewCreationContextFactoryBean
 import kalix.springsdk.impl.KalixServer.kalixComponents
 import kalix.springsdk.valueentity.ReflectiveValueEntityProvider
@@ -216,16 +218,12 @@ class KalixServer(applicationContext: ApplicationContext, config: Config) {
   val provider = new KalixComponentProvider
 
   // all Kalix components found in the classpath
-  val allComponents =
-    packagesToScan
-      .flatMap(pkg => provider.findKalixComponents(pkg))
-      .map(bean => (Class.forName(bean.getBeanClassName), bean))
-      .toMap
+  packagesToScan
+    .flatMap(pkg => provider.findKalixComponents(pkg))
+    .foreach { bean =>
 
-  validateComponents(allComponents.keySet)
+      val clz = Class.forName(bean.getBeanClassName)
 
-  allComponents
-    .foreach { case (clz, bean) =>
       kalixBeanFactory.registerBeanDefinition(bean.getBeanClassName, bean)
 
       if (classOf[Action].isAssignableFrom(clz)) {

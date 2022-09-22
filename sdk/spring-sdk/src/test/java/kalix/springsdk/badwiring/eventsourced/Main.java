@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package kalix.springsdk.badwiring;
+package kalix.springsdk.badwiring.eventsourced;
 
 import kalix.springsdk.KalixConfiguration;
 import org.slf4j.Logger;

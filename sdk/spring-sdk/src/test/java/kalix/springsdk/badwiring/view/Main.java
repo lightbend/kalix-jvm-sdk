@@ -14,14 +14,23 @@
  * limitations under the License.
  */
 
-package kalix.springsdk.badwiring;
+package kalix.springsdk.badwiring.view;
 
-import kalix.javasdk.action.Action;
+import kalix.springsdk.KalixConfiguration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Import;
 
-public class ActionWithValueEntity extends Action {
-  private final OneValueEntity oneValueEntity;
+@SpringBootApplication
+@Import(KalixConfiguration.class)
+public class Main {
 
-  public ActionWithValueEntity(OneValueEntity oneValueEntity) {
-    this.oneValueEntity = oneValueEntity;
+  private static final Logger logger = LoggerFactory.getLogger(Main.class);
+
+  public static void main(String[] args) {
+    logger.info("Starting Kalix - Spring SDK");
+    SpringApplication.run(Main.class, args);
   }
 }

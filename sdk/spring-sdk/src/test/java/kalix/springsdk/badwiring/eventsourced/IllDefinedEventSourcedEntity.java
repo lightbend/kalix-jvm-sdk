@@ -14,8 +14,10 @@
  * limitations under the License.
  */
 
-package kalix.springsdk.badwiring;
+package kalix.springsdk.badwiring.eventsourced;
 
-import kalix.javasdk.valueentity.ValueEntity;
+import kalix.javasdk.eventsourcedentity.EventSourcedEntity;
+import org.springframework.stereotype.Component;
 
-public class OneValueEntity extends ValueEntity<String> {}
+@Component
+public class IllDefinedEventSourcedEntity extends EventSourcedEntity<String> {}
