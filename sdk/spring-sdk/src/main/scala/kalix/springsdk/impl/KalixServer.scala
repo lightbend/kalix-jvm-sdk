@@ -240,7 +240,7 @@ class KalixServer(applicationContext: ApplicationContext, config: Config) {
         if (hasContextConstructor(clz, classOf[ActionCreationContext]))
           threadLocalActionContext.set(context)
 
-        val grpcClients = GrpcClients.get(context.materializer().system)
+        val grpcClients = GrpcClients(context.materializer().system)
         grpcClients.getProxyHostname.foreach(kalixClient.setHost)
         grpcClients.getProxyPort.foreach(kalixClient.setPort)
         kalixBeanFactory.getBean(clz)

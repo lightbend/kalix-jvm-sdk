@@ -36,8 +36,14 @@ trait KalixClient {
 
 }
 
+/**
+ * INTERNAL API
+ */
 final class RestKalixClientImpl extends KalixClient {
 
+/**
+ * INTERNAL API
+ */
   private class RestDeferredCallImpl[P, R](asyncCall: () => CompletionStage[R]) extends DeferredCall[P, R] {
     override def message(): P = ???
     override def metadata(): Metadata = Metadata.EMPTY
