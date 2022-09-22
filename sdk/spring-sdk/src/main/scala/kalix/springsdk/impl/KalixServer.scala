@@ -177,33 +177,6 @@ class KalixServer(applicationContext: ApplicationContext, config: Config) {
   kalixBeanFactory.registerSingleton("viewCreationContext", viewCreationContext)
   kalixBeanFactory.registerSingleton("kalixClient", kalixClient)
 
-  /* Validates the component constructor.
-   * It's not allowed to inject other Kalix components. Kalix components must always be called from the Proxy.
-   */
-  private def validateComponents(components: Set[Class[_]]) = {
-
-    def hasIllegalConstructor(clz: Class[_]): Boolean = {
-
-      def isAssignableFrom(paramClz: Class[_]) =
-        kalixComponents.exists(_.isAssignableFrom(paramClz))
-
-      clz.getConstructors.exists { ctor =>
-        ctor.getParameterTypes.exists(isAssignableFrom)
-      }
-    }
-
-    val offendingComponents =
-      components.collect {
-        case clz if hasIllegalConstructor(clz) => clz.getName
-      }
-
-    if (offendingComponents.nonEmpty)
-      throw new IllegalArgumentException(
-        "Some Kalix component have a direct dependency on one or more Kalix components. Kalix components cannot " +
-        "access each other directly. Cross components calls must happen through the provided KalixClient." +
-        s"Components found with invalid dependencies are: ${offendingComponents.mkString(", ")}")
-  }
-
   // This little hack allows us to find out which bean is annotated with SpringBootApplication (usually only one).
   // We need it to find out which packages to scan.
   // Normally, users are expected to have their classes in subpackages of their Main class.
