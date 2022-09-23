@@ -10,6 +10,7 @@ If you're new to Kalix and the different types of entities that exist in a Kalix
 
 ## Features
 
+As the Spring SDK is more recent than their gRPC-first counterparts, not all features are supported at this time. However, there's already a lot to play with as described next.
 
 ### Value Entities
 
@@ -129,11 +130,71 @@ public class Counter {
 ```
 
 #### Sample
-If you're looking for a working sample of a event-sourced entity, check [samples/spring-customer-registry-views-quickstart](../../samples/spring-eventsourced-counter).
+If you're looking for a working sample of an event-sourced entity, check [samples/spring-eventsourced-counter](../../samples/spring-eventsourced-counter).
 
-### Action
+### Actions
+
+An Action can be defined by:
+1. creating a class extending the `Action` interface
+2. using Spring's RequestMapping annotations to define the routes to your entity and implement the command handlers 
+
+```java
+// ...
+import kalix.javasdk.action.Action;
+
+public class EchoAction extends Action { // <1>
+
+  @GetMapping("/echo/{msg}") // <2>
+  public Effect<Message> stringMessage(@PathVariable String msg) {
+    return effects().reply(new Message(msg));
+  }
+
+}
+```
+
+#### Sample
+If you're looking for a working sample of an action, check [samples/spring-fibonacci-action](../../samples/spring-fibonacci-action).
 
 ### Views
+
+Generally, a view is defined in 3 steps:
+1. creating a class that extends `View<S>`, where `S` is the event type this view will receive (what might usually be called a domain model class)
+2. defining the source of events/updates by using one the `@Subscribe` annotations
+3. providing a way to query the data using Spring's RequestMapping and Kalix `@Query` annotations 
+
+There are the slight differences depending on the type of entity the view is subscribing to, which we will describe  next. 
+
+#### Subscribing to a Value Entity 
+
+To subscribe to a Value Entity, use `@Subscribe.ValueEntity` annotation to provide the respective Entity type as follows:
+
+```java
+// ...
+import kalix.javasdk.view.View;
+import kalix.springsdk.annotations.Query;
+import kalix.springsdk.annotations.Subscribe;
+import kalix.springsdk.annotations.Table;
+
+@Table("users_by_email")
+@Subscribe.ValueEntity(UserEntity.class)
+public class UsersByEmail extends View<User> {
+
+  @GetMapping("/users/by_email/{email}")
+  @Query("SELECT * FROM users_by_email WHERE email = :email")
+  public User getUsers(String email) {
+    return null;
+  }
+}
+```
+
+From the above example, note that:
+- we are subscribing to updates of `UserEntity` (from the example provided in the [Value Entities section](#value-entities))
+- the type of updates is `User` as defined in `extends View<User>` since that is the state type of the `UserEntity`
+- the query method `getUsers` needs to have a dummy implementation for now (which is not used)
+
+#### Sample
+If you're looking for a working sample using a view, check [samples/spring-customer-registry-views-quickstart](../../samples/spring-customer-registry-views-quickstart).
+
 
 #### Views with transformation
 
@@ -143,16 +204,24 @@ If you're looking for a working sample of a event-sourced entity, check [samples
 
 
 
+## Testing
+
+The only type of testing available at the moment are Integration tests. You can do such a test by:
+
+[TODO: complete here]
+
 ## Upcoming features
 
-The Spring SDK is more recent than their gRPC-first counterparts so some bits are not yet supported. Here's a list of the features that we are working on for the short-term:
+Here's a list of the features that we are working on for the short-term:
 - ACLs definition
-- Timers
+- Timers support
+- Unit testing
 
+And much more to come later. :)
 
 ## Getting Started
 
-The easiest way to get started is to use the `kalix-spring-boot-archetype` and let it generate a spring boot application for you.
+The easiest way to get started is to use the `kalix-spring-boot-archetype` and let it generate a spring boot application for you. Try:
 
 ```shell
 mvn \
