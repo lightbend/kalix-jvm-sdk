@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package kalix.springsdk;
+package kalix.springsdk.testkit;
 
 import kalix.javasdk.testkit.KalixTestKit;
 import org.junit.jupiter.api.AfterAll;

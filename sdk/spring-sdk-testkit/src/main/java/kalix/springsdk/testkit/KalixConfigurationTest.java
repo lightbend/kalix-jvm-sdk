@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-package kalix.springsdk;
+package kalix.springsdk.testkit;
 
 import kalix.javasdk.testkit.KalixTestKit;
+import kalix.springsdk.KalixConfiguration;
 import kalix.springsdk.impl.KalixServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
