@@ -7,7 +7,7 @@ To understand the Kalix concepts that are the basis for this example, see [Desig
 
 ## Developing
 
-This project demonstrates the use of Value Entity and View components.
+This project demonstrates the use of Event Sourced Entity and View components.
 To understand more about these components, see [Developing services](https://docs.kalix.io/services/)
 and in particular the [Java section](https://docs.kalix.io/java/)
 
@@ -39,7 +39,6 @@ mvn spring-boot:run
 
 With both the proxy and your application running, any defined endpoints should be available at `http://localhost:9000`. 
 
-FIXME update for spring
 
 * Create a customer with:
   ```shell
