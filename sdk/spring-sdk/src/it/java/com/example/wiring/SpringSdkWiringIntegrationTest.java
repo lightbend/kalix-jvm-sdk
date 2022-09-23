@@ -49,7 +49,8 @@ import static org.awaitility.Awaitility.await;
 @TestPropertySource(properties = "spring.main.allow-bean-definition-overriding=true")
 public class SpringSdkWiringIntegrationTest {
 
-  @Autowired private WebClient webClient;
+  @Autowired
+  private WebClient webClient;
 
   private Duration timeout = Duration.of(10, SECONDS);
 
@@ -140,6 +141,7 @@ public class SpringSdkWiringIntegrationTest {
 
     // the view is eventually updated
     await()
+        .ignoreExceptions()
         .atMost(15, TimeUnit.of(SECONDS))
         .until(
             () ->
@@ -177,22 +179,18 @@ public class SpringSdkWiringIntegrationTest {
 
     // the view is eventually updated
     await()
+        .ignoreExceptions()
         .atMost(15, TimeUnit.of(SECONDS))
         .until(
-            () -> {
-              try {
-                var userView =
-                    webClient
-                        .get()
-                        .uri("/users/by-email/" + u1.email)
-                        .retrieve()
-                        .bodyToMono(UserWithVersion.class)
-                        .block(timeout);
-                return userView != null && 2 == userView.version;
-              } catch (Exception e) {
-                return false;
-              }
-            });
+            () ->
+                webClient
+                    .get()
+                    .uri("/users/by-email/" + u1.email)
+                    .retrieve()
+                    .bodyToMono(UserWithVersion.class)
+                    .block(timeout)
+                    .version,
+            new IsEqual(2));
   }
 
   @Test
@@ -210,6 +208,7 @@ public class SpringSdkWiringIntegrationTest {
 
     // the view is eventually updated
     await()
+        .ignoreExceptions()
         .atMost(20, TimeUnit.SECONDS)
         .until(
             () ->
@@ -252,6 +251,7 @@ public class SpringSdkWiringIntegrationTest {
 
     // the view is eventually updated
     await()
+        .ignoreExceptions()
         .atMost(20, TimeUnit.SECONDS)
         .until(
             () ->
