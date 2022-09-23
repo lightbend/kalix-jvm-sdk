@@ -38,17 +38,24 @@ public class ReflectiveActionProvider<A extends Action> implements ActionProvide
   private final Descriptors.FileDescriptor fileDescriptor;
   private final Descriptors.ServiceDescriptor serviceDescriptor;
   private final ComponentDescriptor componentDescriptor;
+  private final SpringSdkMessageCodec messageCodec;
 
   public static <A extends Action> ReflectiveActionProvider<A> of(
-      Class<A> cls, Function<ActionCreationContext, A> factory) {
-    return new ReflectiveActionProvider<>(cls, factory, ActionOptions.defaults());
+      Class<A> cls,
+      SpringSdkMessageCodec messageCodec,
+      Function<ActionCreationContext, A> factory) {
+    return new ReflectiveActionProvider<>(cls, messageCodec, factory, ActionOptions.defaults());
   }
 
   private ReflectiveActionProvider(
-      Class<A> cls, Function<ActionCreationContext, A> factory, ActionOptions options) {
+      Class<A> cls,
+      SpringSdkMessageCodec messageCodec,
+      Function<ActionCreationContext, A> factory,
+      ActionOptions options) {
 
     this.factory = factory;
     this.options = options;
+    this.messageCodec = messageCodec;
 
     this.componentDescriptor = ComponentDescriptor.descriptorFor(cls);
 
@@ -79,6 +86,6 @@ public class ReflectiveActionProvider<A extends Action> implements ActionProvide
 
   @Override
   public Optional<MessageCodec> alternativeCodec() {
-    return Optional.of(SpringSdkMessageCodec.instance());
+    return Optional.of(messageCodec);
   }
 }

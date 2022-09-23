@@ -16,24 +16,84 @@
 
 package kalix.springsdk.impl
 
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.ConcurrentMap
+
+import com.fasterxml.jackson.annotation.JsonSubTypes
+import com.fasterxml.jackson.annotation.JsonTypeName
 import com.google.protobuf.any.{ Any => ScalaPbAny }
 import com.google.protobuf.{ Any => JavaPbAny }
 import kalix.javasdk.JsonSupport
 import kalix.javasdk.impl.MessageCodec
 
-private[springsdk] object SpringSdkMessageCodec extends MessageCodec {
+private[springsdk] class SpringSdkMessageCodec extends MessageCodec {
 
-  /** Accessor for Java */
-  def instance(): MessageCodec = this
+  private val cache: ConcurrentMap[Class[_], String] = new ConcurrentHashMap()
 
   /**
    * In the Spring SDK, output data are encoded to Json.
    */
   override def encodeScala(value: Any): ScalaPbAny =
-    ScalaPbAny.fromJavaProto(encodeJava(value))
+    ScalaPbAny.fromJavaProto(JsonSupport.encodeJson(value, lookTypeHint(value)))
 
   override def encodeJava(value: Any): JavaPbAny =
-    JsonSupport.encodeJson(value)
+    JsonSupport.encodeJson(value, lookTypeHint(value))
+
+  private def lookTypeHint(value: Any): String =
+    cache.computeIfAbsent(value.getClass, clz => findTypeHint(clz))
+
+  /**
+   * Used in to compute cache value if absent. This method will try to scan the type hierarchy from the passed
+   * `messageClass` to for either an explicit JsonTypeName annotation or a JsonSubTypes.
+   *
+   * In the absence of any annotation from the JsonTypeInfo family, it will fallback to use the FQCN as a type hint.
+   */
+  private def findTypeHint(messageClass: Class[_]): String = {
+
+    def annotatedParents(clz: Class[_], listOfParents: Seq[Class[_]]): Seq[Class[_]] = {
+
+      def hasJsonSubTypes(clz: Class[_]) =
+        clz != null && clz.getAnnotation(classOf[JsonSubTypes]) != null
+
+      val acc =
+        if (hasJsonSubTypes(clz)) listOfParents :+ clz
+        else listOfParents
+
+      val directParents = clz.getSuperclass +: clz.getInterfaces
+
+      directParents.foldLeft(acc) { case (acc, clz) =>
+        if (clz == null) acc // happens when we reach the bottom, ie: Object.getSuperclass == null
+        else annotatedParents(clz, acc)
+      }
+    }
+
+    // straightforward case: class is annotated with JsonTypeName
+    if (messageClass.getAnnotation(classOf[JsonTypeName]) != null) {
+      messageClass.getAnnotation(classOf[JsonTypeName]).value()
+    } else {
+      // otherwise needs to scan hierarchy until we find JsonSubTypes annotations
+      // in a parent class or trait
+      val parents = annotatedParents(messageClass, Seq.empty)
+      if (parents.isEmpty)
+        messageClass.getName
+      else {
+        val ann = {
+          parents.flatMap { parent =>
+            val subTypeAnn = parent.getAnnotation(classOf[JsonSubTypes])
+            subTypeAnn.value().find(_.value() == messageClass)
+          }
+        }.headOption
+
+        ann
+          .map { a =>
+            // if more than one name, we pick the first one for the typeUrl
+            // otherwise, default to `name`
+            a.names().headOption.getOrElse(a.name())
+          }
+          .getOrElse(messageClass.getName)
+      }
+    }
+  }
 
   /**
    * In the Spring SDK, input data are kept as proto Any and delivered as such to the router

@@ -41,21 +41,28 @@ public class ReflectiveViewProvider<S, V extends View<S>> implements ViewProvide
   private final Descriptors.ServiceDescriptor serviceDescriptor;
   private final ComponentDescriptor componentDescriptor;
 
+  private final SpringSdkMessageCodec messageCodec;
+
   public static <S, V extends View<S>> ReflectiveViewProvider<S, V> of(
-      Class<V> cls, Function<ViewCreationContext, V> factory) {
+      Class<V> cls, SpringSdkMessageCodec messageCodec, Function<ViewCreationContext, V> factory) {
 
     String viewId =
         Optional.ofNullable(cls.getAnnotation(ViewId.class))
             .map(ViewId::value)
             .orElseGet(cls::getName);
 
-    return new ReflectiveViewProvider<>(cls, viewId, factory, ViewOptions.defaults());
+    return new ReflectiveViewProvider<>(cls, messageCodec, viewId, factory, ViewOptions.defaults());
   }
 
   private ReflectiveViewProvider(
-      Class<V> cls, String viewId, Function<ViewCreationContext, V> factory, ViewOptions options) {
+      Class<V> cls,
+      SpringSdkMessageCodec messageCodec,
+      String viewId,
+      Function<ViewCreationContext, V> factory,
+      ViewOptions options) {
     this.factory = factory;
     this.options = options;
+    this.messageCodec = messageCodec;
     this.viewId = viewId;
 
     this.componentDescriptor = ComponentDescriptor.descriptorFor(cls);
@@ -92,6 +99,6 @@ public class ReflectiveViewProvider<S, V extends View<S>> implements ViewProvide
 
   @Override
   public Optional<MessageCodec> alternativeCodec() {
-    return Optional.of(SpringSdkMessageCodec.instance());
+    return Optional.of(messageCodec);
   }
 }

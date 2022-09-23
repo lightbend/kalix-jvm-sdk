@@ -40,14 +40,19 @@ public class ReflectiveValueEntityProvider<S, E extends ValueEntity<S>>
   private final Descriptors.FileDescriptor fileDescriptor;
   private final Descriptors.ServiceDescriptor serviceDescriptor;
   private final ComponentDescriptor componentDescriptor;
+  private final SpringSdkMessageCodec messageCodec;
 
   public static <S, E extends ValueEntity<S>> ReflectiveValueEntityProvider<S, E> of(
-      Class<E> cls, Function<ValueEntityContext, E> factory) {
-    return new ReflectiveValueEntityProvider<>(cls, factory, ValueEntityOptions.defaults());
+      Class<E> cls, SpringSdkMessageCodec messageCodec, Function<ValueEntityContext, E> factory) {
+    return new ReflectiveValueEntityProvider<>(
+        cls, messageCodec, factory, ValueEntityOptions.defaults());
   }
 
   public ReflectiveValueEntityProvider(
-      Class<E> entityClass, Function<ValueEntityContext, E> factory, ValueEntityOptions options) {
+      Class<E> entityClass,
+      SpringSdkMessageCodec messageCodec,
+      Function<ValueEntityContext, E> factory,
+      ValueEntityOptions options) {
 
     Entity annotation = entityClass.getAnnotation(Entity.class);
     if (annotation == null)
@@ -58,6 +63,7 @@ public class ReflectiveValueEntityProvider<S, E extends ValueEntity<S>>
 
     this.factory = factory;
     this.options = options;
+    this.messageCodec = messageCodec;
 
     this.componentDescriptor = ComponentDescriptor.descriptorFor(entityClass);
 
@@ -93,6 +99,6 @@ public class ReflectiveValueEntityProvider<S, E extends ValueEntity<S>>
 
   @Override
   public Optional<MessageCodec> alternativeCodec() {
-    return Optional.of(SpringSdkMessageCodec.instance());
+    return Optional.of(messageCodec);
   }
 }
