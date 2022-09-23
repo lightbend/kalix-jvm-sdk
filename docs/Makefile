@@ -47,7 +47,10 @@ apidocs:
 	rsync -a ../sdk/scala-sdk/target/scala-2.13/api/ "${managed_attachments}/scala-api/"
 	rsync -a ../sdk/scala-sdk-testkit/target/scala-2.13/api/ "${managed_attachments}/scala-testkit-api/"
 	mkdir -p "${src_managed}/modules/scala/attachments"
-	bin/version.sh > "${managed_attachments}/latest-version.txt" && cp "${managed_attachments}/latest-version.txt" "${src_managed}/modules/scala/attachments"
+	mkdir -p "${src_managed}/modules/spring/attachments"
+	bin/version.sh > "${managed_attachments}/latest-version.txt" \
+		&& cp "${managed_attachments}/latest-version.txt" "${src_managed}/modules/scala/attachments" \
+		&& cp "${managed_attachments}/latest-version.txt" "${src_managed}/modules/spring/attachments"
 
 examples:
 	mkdir -p "${managed_examples}"
