@@ -33,7 +33,7 @@ public class CustomerEntity extends EventSourcedEntity<Customer> {
     this.entityId = context.entityId();
   }
 
-  @GetMapping()
+  @GetMapping
   public Effect<Customer> getCustomer() {
     return effects().reply(currentState());
   }
