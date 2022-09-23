@@ -253,7 +253,7 @@ class KalixServer(applicationContext: ApplicationContext, config: Config) {
       clz,
       messageCodec,
       context => {
-        if (hasContextConstructor(clz, classOf[ValueEntityContext]))
+        if (hasContextConstructor(clz, classOf[EventSourcedEntityContext]))
           threadLocalEventSourcedEntityContext.set(context)
         kalixBeanFactory.getBean(clz)
       })
