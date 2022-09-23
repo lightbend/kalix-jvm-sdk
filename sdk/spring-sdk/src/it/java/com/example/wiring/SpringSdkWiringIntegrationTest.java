@@ -49,8 +49,7 @@ import static org.awaitility.Awaitility.await;
 @TestPropertySource(properties = "spring.main.allow-bean-definition-overriding=true")
 public class SpringSdkWiringIntegrationTest {
 
-  @Autowired
-  private WebClient webClient;
+  @Autowired private WebClient webClient;
 
   private Duration timeout = Duration.of(10, SECONDS);
 
