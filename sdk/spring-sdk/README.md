@@ -31,6 +31,7 @@ As the Spring SDK is more recent than their gRPC-first counterparts, not all fea
 - Views
 - Publishing and subscribing to Topics
 
+> Note: the code snippets shared in the following sections are illustrative and might not be complete. For working samples, make sure to check the `Sample` sub-section at the end of each section. 
 
 ### Value Entities
 
@@ -386,20 +387,85 @@ public class UserEntity extends EventSourcedEntity<User> {
 }
 ```
 
+#### Sample
+If you're looking for a working sample of a view subscribing to an Event-sourced Entity, check [samples/spring-eventsourced-customer-registry](../../samples/spring-eventsourced-customer-registry).
 
-## Using Topics
+## Advanced Actions
+
+The previous section about Actions was a brief introduction, but they offer  additional functionalities that we will visit below.
 
 ### Subscribing to topics
 
+To use an Action to consume a general PubSub topic, make sure to:
+1. create a class extending `Action`
+2. annotate a method handler with `@Subscribe.Topic` and make sure the parameter matches the type of messages that will be consumed
+
+*SubscribeToTwoTopicsAction.java*
+```java
+public class SubscribeToTwoTopicsAction extends Action { // <1>
+
+    @Subscribe.Topic("topicXYZ") 
+    public Action.Effect<Message> methodOne(Message message) { // <2>
+      return effects().reply(message);
+    }
+
+    @Subscribe.Topic("topicXYZ")
+    public Action.Effect<Message2> methodTwo(Message2 message) {
+      return effects().reply(message);
+    }
+}
+```
+
 ### Publishing to topics
+
+To use an Action to publish to a PubSub topic, make sure to:
+1. create a class extending `Action`
+2. annotate a method handler with `@Publish.Topic`
+   1. this can get combined with a `@RequestMapping` type annotation
+
+*PublishToTopicAction.java*
+```java
+public class PublishToTopicAction extends Action { // <1>
+
+   @PostMapping("/message/{msg}")
+   @Publish.Topic("foobar")
+   public Effect<Message> messageOne(@PathVariable String msg) { // <2>
+      return effects().reply(new Message(msg));
+   }
+}
+```
+
+### Cross-components calls
+
 
 
 
 ## Testing
 
-For now, only Integration tests are available to test your application. You can do such a test by:
+For now, only Integration tests are available to test your application. You can do such a test by having your test classes extending `KalixIntegrationTestKitSupport`. Here is an example:
 
-[TODO: complete here]
+```java
+// ...
+import kalix.springsdk.testkit.KalixIntegrationTestKitSupport;
+
+@RunWith(SpringRunner.class)
+@SpringBootTest(classes = Main.class)
+public class FibonacciActionIntegrationTest extends KalixIntegrationTestKitSupport {
+   @Autowired
+   private WebClient webClient;
+
+   @Test
+   public void calculateNextNumber() {
+      Mono<Number> response =
+           webClient.get()
+                .uri("/fibonacci/5/next")
+                .retrieve().bodyToMono(Number.class);
+
+      long next = response.block(Duration.of(5, SECONDS)).value;
+      Assertions.assertEquals(8, next);
+   }
+}
+```
 
 ## Upcoming features
 
@@ -407,5 +473,6 @@ Here's a list of the features that we are working on for the short-term:
 - ACLs definition
 - Timers support
 - Unit testing
+- Calling other Kalix services 
 
 And much more to come later. :)
