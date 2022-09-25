@@ -43,7 +43,7 @@ class KalixConfiguration(applicationContext: ApplicationContext) {
     override def postProcessBeforeInitialization(bean: AnyRef, beanName: String): AnyRef = {
       if (KalixServer.kalixComponents.exists(_.isAssignableFrom(bean.getClass)))
         throw new IllegalArgumentException(
-          s"${bean.getClass.getName} is Kalix component and is marked as a Spring bean for automatic wiring. " +
+          s"${bean.getClass.getName} is a Kalix component and is marked as a Spring bean for automatic wiring. " +
           "Kalix components cannot be accessed directly and therefore cannot be wired into other classes. " +
           "In order to interact with a Kalix component, you should call it using the provided KalixClient.")
 
