@@ -17,27 +17,32 @@
 package kalix.springsdk.impl
 
 import scala.jdk.CollectionConverters.CollectionHasAsScala
+
 import com.typesafe.config.Config
 import kalix.javasdk.Kalix
 import kalix.javasdk.action.Action
 import kalix.javasdk.action.ActionCreationContext
 import kalix.javasdk.action.ActionProvider
-import kalix.javasdk.eventsourcedentity.{ EventSourcedEntity, EventSourcedEntityContext, EventSourcedEntityProvider }
+import kalix.javasdk.eventsourcedentity.EventSourcedEntity
+import kalix.javasdk.eventsourcedentity.EventSourcedEntityContext
+import kalix.javasdk.eventsourcedentity.EventSourcedEntityProvider
 import kalix.javasdk.impl.GrpcClients
+import kalix.javasdk.replicatedentity.ReplicatedEntity
 import kalix.javasdk.valueentity.ValueEntity
 import kalix.javasdk.valueentity.ValueEntityContext
 import kalix.javasdk.valueentity.ValueEntityProvider
 import kalix.javasdk.view.View
 import kalix.javasdk.view.ViewCreationContext
 import kalix.javasdk.view.ViewProvider
-import kalix.springsdk.{ KalixClient, SpringSdkBuildInfo }
+import kalix.springsdk.SpringSdkBuildInfo
 import kalix.springsdk.action.ReflectiveActionProvider
 import kalix.springsdk.eventsourced.ReflectiveEventSourcedEntityProvider
 import kalix.springsdk.impl.KalixServer.ActionCreationContextFactoryBean
+import kalix.springsdk.impl.KalixServer.EventSourcedEntityContextFactoryBean
 import kalix.springsdk.impl.KalixServer.KalixComponentProvider
 import kalix.springsdk.impl.KalixServer.ValueEntityContextFactoryBean
-import kalix.springsdk.impl.KalixServer.EventSourcedEntityContextFactoryBean
 import kalix.springsdk.impl.KalixServer.ViewCreationContextFactoryBean
+import kalix.springsdk.impl.KalixServer.kalixComponents
 import kalix.springsdk.valueentity.ReflectiveValueEntityProvider
 import kalix.springsdk.view.ReflectiveViewProvider
 import org.slf4j.Logger
@@ -56,6 +61,16 @@ import org.springframework.core.`type`.filter.TypeFilter
 
 object KalixServer {
 
+  val kalixComponents =
+    classOf[Action] ::
+    classOf[EventSourcedEntity[_]] ::
+    classOf[ValueEntity[_]] ::
+    classOf[ReplicatedEntity[_]] ::
+    classOf[View[_]] ::
+    Nil
+
+  val kalixComponentsNames = kalixComponents.map(_.getName)
+
   /**
    * Kalix components are not Spring components. They should not be wired into other components and they should not be
    * freely available for users to access.
@@ -67,18 +82,9 @@ object KalixServer {
    * by constructor)
    */
   class KalixComponentProvider extends ClassPathScanningCandidateComponentProvider {
-
     object KalixComponentTypeFilter extends TypeFilter {
-      // TODO: missing Replicated Entities
-      val kalixComponents =
-        classOf[Action].getName ::
-        classOf[EventSourcedEntity[_]].getName ::
-        classOf[ValueEntity[_]].getName ::
-        classOf[View[_]].getName ::
-        Nil
-
       override def `match`(metadataReader: MetadataReader, metadataReaderFactory: MetadataReaderFactory): Boolean = {
-        kalixComponents.contains(metadataReader.getClassMetadata.getSuperClassName)
+        kalixComponentsNames.contains(metadataReader.getClassMetadata.getSuperClassName)
       }
     }
 
@@ -172,10 +178,6 @@ class KalixServer(applicationContext: ApplicationContext, config: Config) {
   kalixBeanFactory.registerSingleton("viewCreationContext", viewCreationContext)
   kalixBeanFactory.registerSingleton("kalixClient", kalixClient)
 
-  // TODO: it should not be allowed to annotate Kalix components with Spring stereotypes
-  //  otherwise it will be possible to inject kalix components everywhere and that won't work as expected
-  // therefore, we should check all beans in ApplicationContext and fail if any of them implements a Kalix component
-
   // This little hack allows us to find out which bean is annotated with SpringBootApplication (usually only one).
   // We need it to find out which packages to scan.
   // Normally, users are expected to have their classes in subpackages of their Main class.
@@ -188,14 +190,15 @@ class KalixServer(applicationContext: ApplicationContext, config: Config) {
   val packagesToScan = springBootMain.map(_.getClass.getPackageName).toSet
 
   val provider = new KalixComponentProvider
+
   // all Kalix components found in the classpath
   packagesToScan
     .flatMap(pkg => provider.findKalixComponents(pkg))
-    .foreach { kalixComponent =>
+    .foreach { bean =>
 
-      val clz = Class.forName(kalixComponent.getBeanClassName)
+      val clz = Class.forName(bean.getBeanClassName)
 
-      kalixBeanFactory.registerBeanDefinition(kalixComponent.getBeanClassName, kalixComponent)
+      kalixBeanFactory.registerBeanDefinition(bean.getBeanClassName, bean)
 
       if (classOf[Action].isAssignableFrom(clz)) {
         logger.info(s"Registering Action provider for [${clz.getName}]")
