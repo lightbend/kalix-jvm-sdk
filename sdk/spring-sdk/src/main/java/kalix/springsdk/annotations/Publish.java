@@ -18,12 +18,21 @@ package kalix.springsdk.annotations;
 
 import java.lang.annotation.*;
 
+/**
+ * Annotation for aggregating ways of publishing outgoing information.
+ */
 public @interface Publish {
 
+  /**
+   * Annotation for marking a method as producing information to be published on a PubSub or Kafka topic.
+   */
   @Target(ElementType.METHOD)
   @Retention(RetentionPolicy.RUNTIME)
   @Documented
   @interface Topic {
+    /**
+     * Assign the name of the topic to be used for eventing out.
+     */
     String value();
   }
 }
