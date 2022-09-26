@@ -19,16 +19,18 @@ package kalix.springsdk.annotations;
 import java.lang.annotation.*;
 
 /**
- * Annotation for marking a method under EventSourced entities as handlers for events of such entity.
+ * Annotation for marking a method under EventSourced entities as handlers for events of such
+ * entity.
  *
- * A method marked with this annotation needs to:
+ * <p>A method marked with this annotation needs to:
+ *
  * <p>
+ *
  * <ul>
- * <li>be public</li>
- * <li>have exactly one parameter</li>
- * <li>have a return type that matches the state type of the enclosing entity</li>
+ *   <li>be public
+ *   <li>have exactly one parameter
+ *   <li>have a return type that matches the state type of the enclosing entity
  * </ul>
- * </p>
  */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
