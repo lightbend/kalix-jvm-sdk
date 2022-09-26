@@ -76,12 +76,14 @@ public final class CounterTestKit {
 
   public ValueEntityResult<Empty> increase(CounterApi.IncreaseValue increaseValue, Metadata metadata) {
     entity ._internalSetCommandContext(Optional.of(new TestKitValueEntityCommandContext(entityId, metadata)));
+    entity._internalSetCurrentState(state);
     ValueEntity.Effect<Empty> effect = entity.increase(state, increaseValue);
     return interpretEffects(effect);
   }
 
   public ValueEntityResult<Empty> decrease(CounterApi.DecreaseValue decreaseValue, Metadata metadata) {
     entity ._internalSetCommandContext(Optional.of(new TestKitValueEntityCommandContext(entityId, metadata)));
+    entity._internalSetCurrentState(state);
     ValueEntity.Effect<Empty> effect = entity.decrease(state, decreaseValue);
     return interpretEffects(effect);
   }

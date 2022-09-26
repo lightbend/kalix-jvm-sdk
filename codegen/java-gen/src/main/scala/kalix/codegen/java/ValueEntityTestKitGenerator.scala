@@ -144,6 +144,7 @@ object ValueEntityTestKitGenerator {
         s"""|public ValueEntityResult<$output> ${lowerFirst(command.name)}(${command.inputType.fullName} ${lowerFirst(
           command.inputType.name)}, Metadata metadata) {
        |  entity ._internalSetCommandContext(Optional.of(new TestKitValueEntityCommandContext(entityId, metadata)));
+       |  entity._internalSetCurrentState(state);
        |  ValueEntity.Effect<$output> effect = entity.${lowerFirst(command.name)}(state, ${lowerFirst(
           command.inputType.name)});
        |  return interpretEffects(effect);
