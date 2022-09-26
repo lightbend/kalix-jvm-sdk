@@ -1,7 +1,7 @@
 package com.example.fibonacci;
 
 import com.example.Main;
-import kalix.springsdk.KalixIntegrationTestKitSupport;
+import kalix.springsdk.testkit.KalixIntegrationTestKitSupport;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -36,6 +36,19 @@ public class FibonacciActionIntegrationTest extends KalixIntegrationTestKitSuppo
         webClient.get()
             .uri("/fibonacci/5/next")
             .retrieve().bodyToMono(Number.class);
+
+    long next = response.block(Duration.of(5, SECONDS)).value;
+    Assertions.assertEquals(8, next);
+
+  }
+
+  @Test
+  public void calculateNextNumberWithLimitedFibo() throws Exception {
+
+    Mono<Number> response =
+            webClient.get()
+                    .uri("/limitedfibonacci/5/next")
+                    .retrieve().bodyToMono(Number.class);
 
     long next = response.block(Duration.of(5, SECONDS)).value;
     Assertions.assertEquals(8, next);

@@ -2,7 +2,7 @@ package customer.api;
 
 
 import customer.Main;
-import kalix.springsdk.KalixIntegrationTestKitSupport;
+import kalix.springsdk.testkit.KalixIntegrationTestKitSupport;
 import org.hamcrest.core.IsEqual;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -123,6 +123,7 @@ public class CustomerIntegrationTest extends KalixIntegrationTestKitSupport {
 
     // the view is eventually updated
     await()
+        .ignoreExceptions()
         .atMost(20, TimeUnit.SECONDS)
         .until(() ->
                 webClient.get()
@@ -135,6 +136,7 @@ public class CustomerIntegrationTest extends KalixIntegrationTestKitSupport {
         );
   }
 
+  @Test
   public void findByEmail() throws Exception {
     String id = UUID.randomUUID().toString();
     Customer customer = new Customer(id, "bar@example.com", "Bar", null);
@@ -150,6 +152,7 @@ public class CustomerIntegrationTest extends KalixIntegrationTestKitSupport {
 
     // the view is eventually updated
     await()
+        .ignoreExceptions()
         .atMost(20, TimeUnit.SECONDS)
         .until(() ->
                 webClient.get()

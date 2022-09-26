@@ -158,7 +158,7 @@ To allow proper reading of Protobuf messages from topics, the messages need to s
 
 - `Content-Type` = `application/protobuf`
 - `ce-specversion` = `1.0`
-- `ce-type` = fully qualified protobuf message name (eg. `shopping.cart.api.TopicOperation`)
+- `ce-type` = fully qualified protobuf message name (e.g., `shopping.cart.api.TopicOperation`)
 
 (The `ce-` prefixed attributes are part of the CloudEvents specification.)
 

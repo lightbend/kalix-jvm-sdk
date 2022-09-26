@@ -120,11 +120,11 @@ For more information on descriptors, see xref:java:proto.adoc[].
 
 === Component implementation
 
-For the default service description in the template, the plugin creates an abstract base class (eg. `AbstractCounter`) which always reflects the latest service description.
+For the default service description in the template, the plugin creates an abstract base class (e.g., `AbstractCounter`) which always reflects the latest service description.
 
 IMPORTANT: Do not modify the base class as it is regenerated on each invocation of [.group-java]#`mvn compile`# [.group-scala]#`compile`#
 
-On the first build, the plugin creates a Value Entity implementation class where you implement the business logic for command handlers (eg. `Counter`) .
+On the first build, the plugin creates a Value Entity implementation class where you implement the business logic for command handlers (e.g., `Counter`) .
 
 [.tabset]
 Java::
@@ -220,7 +220,7 @@ include::example$java-first-service/src/it/java/com/example/CounterIntegrationTe
 ----
 
 [.group-java]
-The Maven failsafe plugin runs the integration tests when the `it` profile is enabled via `-Pit`.
+The Maven Failsafe plugin runs the integration tests when the `it` profile is enabled via `-Pit`.
 
 [.group-java]
 [source,bash]

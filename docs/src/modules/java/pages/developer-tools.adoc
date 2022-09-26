@@ -57,9 +57,9 @@ NOTE: The deploy goal requires the Kalix CLI to be installed on your system.
 === Configuration
 The behaviour of the plugin can be adjusted by adding a `<configuration>` tag to the plugin definition in your POM with any of the following options:
 
-* `kalixPath` path and name of the `kalix` commmand line tool
+* `kalixPath` path and name of the `kalix` command line tool 
 * `kalixContext` selects the context when calling `kalix` if set
-* `dockerImage` the Docker image name (use eg. `<dockerImage>${kalix.dockerImage}:${kalix.dockerTag}</dockerImage>`)
+* `dockerImage` the Docker image name (use e.g. `<dockerImage>${kalix.dockerImage}:${kalix.dockerTag}</dockerImage>`)
 
 [.group-scala]
 == sbt Giter8 template
