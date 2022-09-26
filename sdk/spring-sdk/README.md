@@ -6,7 +6,7 @@ The goal of the Spring SDK is to provide a code-first approach to developing Kal
 
 This SDK offers a way to develop applications which should be familiar to someone who has worked with Spring applications by making use of annotations to assemble Kalix and its components.
 
-If you're new to Kalix and the different types of entities that exist in a Kalix app, consider reading [this section](https://docs.kalix.io/services/programming-model.html#_what_is_a_kalix_service) before continuing.  
+> If you're new to Kalix and the different types of entities that exist in a Kalix app, consider reading [this section](https://docs.kalix.io/services/programming-model.html#_what_is_a_kalix_service) before continuing.  
 
 ## Getting Started
 
@@ -31,7 +31,31 @@ As the Spring SDK is more recent than their gRPC-first counterparts, not all fea
 - Views
 - Publishing and subscribing to Topics
 
-> Note: the code snippets shared in the following sections are illustrative and might not be complete. For working samples, make sure to check the `Sample` sub-section at the end of each section. 
+> **Note:** the code snippets shared in the following sections are illustrative and might not be complete. For working samples, make sure to check the `Sample` sub-section at the end of each section. 
+
+### Actions
+
+An Action can be defined by:
+1. creating a class extending the `Action` interface
+2. using Spring's RequestMapping annotations to define the routes to your entity and implement the command handlers
+
+*EchoAction.java*
+```java
+// ...
+import kalix.javasdk.action.Action;
+
+public class EchoAction extends Action { // <1>
+
+  @GetMapping("/echo/{msg}") // <2>
+  public Effect<Message> stringMessage(@PathVariable String msg) {
+    return effects().reply(new Message(msg));
+  }
+
+}
+```
+
+#### Sample
+If you're looking for a working sample of an action, check [samples/spring-fibonacci-action](../../samples/spring-fibonacci-action).
 
 ### Value Entities
 
@@ -158,30 +182,6 @@ public class Counter {
 
 #### Sample
 If you're looking for a working sample of an event-sourced entity, check [samples/spring-eventsourced-counter](../../samples/spring-eventsourced-counter).
-
-### Actions
-
-An Action can be defined by:
-1. creating a class extending the `Action` interface
-2. using Spring's RequestMapping annotations to define the routes to your entity and implement the command handlers 
-
-*EchoAction.java*
-```java
-// ...
-import kalix.javasdk.action.Action;
-
-public class EchoAction extends Action { // <1>
-
-  @GetMapping("/echo/{msg}") // <2>
-  public Effect<Message> stringMessage(@PathVariable String msg) {
-    return effects().reply(new Message(msg));
-  }
-
-}
-```
-
-#### Sample
-If you're looking for a working sample of an action, check [samples/spring-fibonacci-action](../../samples/spring-fibonacci-action).
 
 ### Views
 
@@ -437,7 +437,37 @@ public class PublishToTopicAction extends Action { // <1>
 
 ### Cross-components calls
 
+At this moment, the ability to call external Kalix components is limited to two options:
+1. use a regular HTTP client of your preference and call the service with its full external path;
+2. use a provided `KalixClient` that allows one to do a simple local call to another component (see example below).
 
+```java
+import kalix.javasdk.action.Action;
+import kalix.javasdk.action.ActionCreationContext;
+import kalix.springsdk.KalixClient;
+
+public class ShortenedEchoAction extends Action {
+
+  private ActionCreationContext ctx;
+  private KalixClient kalixClient;
+
+  public ShortenedEchoAction(ActionCreationContext ctx, KalixClient kalixClient) {
+    this.ctx = ctx;
+    this.kalixClient = kalixClient;
+  }
+
+  @GetMapping("/echo/message/{msg}/short")
+  public Effect<Message> stringMessage(@PathVariable String msg) {
+    var shortenedMsg = msg.replaceAll("[AEIOUaeiou]", "");
+    var result = kalixClient.get("/echo/message/" + shortenedMsg, Message.class).execute();
+    return effects().asyncReply(result);
+  }
+}
+```
+
+From the example above, note:
+- access to the `KalixClient` is provided by Kalix at runtime given that there is a constructor receiving a parameter with such type;
+- the client resembles a normal HTTP client, providing `.get` and `.post` requests that can then be executed and passed as reply.
 
 
 ## Testing
@@ -466,6 +496,8 @@ public class FibonacciActionIntegrationTest extends KalixIntegrationTestKitSuppo
    }
 }
 ```
+
+> **Note:** all samples mentioned earlier include some Integration Tests as well that can be consulted if one is looking for real examples. 
 
 ## Upcoming features
 
