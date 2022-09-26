@@ -30,11 +30,12 @@ import java.util.function.Supplier;
 
 /**
  * ValueEntity Testkit for use in unit tests for Value entities.
- * <p>
- * To test a ValueEntity create a testkit instance by calling one of the available {@code ValueEntityTestKit.of} methods.
- * The returned testkit is stateful, and it holds internally the state of the entity.
- * <p>
- * Use the {@code call} methods to interact with the testkit.
+ *
+ * <p>To test a ValueEntity create a testkit instance by calling one of the available {@code
+ * ValueEntityTestKit.of} methods. The returned testkit is stateful, and it holds internally the
+ * state of the entity.
+ *
+ * <p>Use the {@code call} methods to interact with the testkit.
  */
 public class ValueEntityTestKit<S, E extends ValueEntity<S>> {
 
@@ -51,46 +52,47 @@ public class ValueEntityTestKit<S, E extends ValueEntity<S>> {
   /**
    * Creates a new testkit instance from a ValueEntity Supplier.
    *
-   * A default test entity id will be automatically provided.
+   * <p>A default test entity id will be automatically provided.
    */
-  public static <S, E extends ValueEntity<S>> ValueEntityTestKit<S, E> of(Supplier<E> entityFactory) {
+  public static <S, E extends ValueEntity<S>> ValueEntityTestKit<S, E> of(
+      Supplier<E> entityFactory) {
     return of(ctx -> entityFactory.get());
   }
 
   /**
    * Creates a new testkit instance from a function ValueEntityContext to ValueEntity.
    *
-   * A default test entity id will be automatically provided.
+   * <p>A default test entity id will be automatically provided.
    */
-  public static <S, E extends ValueEntity<S>> ValueEntityTestKit<S, E> of(Function<ValueEntityContext, E> entityFactory) {
+  public static <S, E extends ValueEntity<S>> ValueEntityTestKit<S, E> of(
+      Function<ValueEntityContext, E> entityFactory) {
     return of("testkit-entity-id", entityFactory);
   }
 
-
-  /**
-   * Creates a new testkit instance from a user defined entity id and a ValueEntity Supplier.
-   */
-  public static <S, E extends ValueEntity<S>> ValueEntityTestKit<S, E> of(String entityId, Supplier<E> entityFactory) {
+  /** Creates a new testkit instance from a user defined entity id and a ValueEntity Supplier. */
+  public static <S, E extends ValueEntity<S>> ValueEntityTestKit<S, E> of(
+      String entityId, Supplier<E> entityFactory) {
     return of(entityId, ctx -> entityFactory.get());
   }
 
   /**
-   * Creates a new testkit instance from a user defined entity id and a function ValueEntityContext to ValueEntity.
+   * Creates a new testkit instance from a user defined entity id and a function ValueEntityContext
+   * to ValueEntity.
    */
-  public static <S, E extends ValueEntity<S>> ValueEntityTestKit<S, E> of(String entityId, Function<ValueEntityContext, E> entityFactory) {
+  public static <S, E extends ValueEntity<S>> ValueEntityTestKit<S, E> of(
+      String entityId, Function<ValueEntityContext, E> entityFactory) {
     TestKitValueEntityContext context = new TestKitValueEntityContext(entityId);
     return new ValueEntityTestKit<>(entityId, entityFactory.apply(context));
   }
 
-  /**
-   * @return The current state of the value entity under test
-   */
+  /** @return The current state of the value entity under test */
   public S getState() {
     return state;
   }
 
   private <Reply> ValueEntityResult<Reply> interpretEffects(ValueEntity.Effect<Reply> effect) {
-    @SuppressWarnings("unchecked") ValueEntityResultImpl<Reply> result = new ValueEntityResultImpl<>(effect);
+    @SuppressWarnings("unchecked")
+    ValueEntityResultImpl<Reply> result = new ValueEntityResultImpl<>(effect);
     if (result.stateWasUpdated()) {
       this.state = (S) result.getUpdatedState();
     }
@@ -98,19 +100,19 @@ public class ValueEntityTestKit<S, E extends ValueEntity<S>> {
   }
 
   /**
-   * The call method can be used to simulate a call to the ValueEntity.
-   * The passed java lambda should return an ValueEntity.Effect.
-   * The Effect is interpreted into a ValueEntityResult that can be used in test assertions.
+   * The call method can be used to simulate a call to the ValueEntity. The passed java lambda
+   * should return an ValueEntity.Effect. The Effect is interpreted into a ValueEntityResult that
+   * can be used in test assertions.
    *
    * @param func A function from ValueEntity to ValueEntity.Effect.
    * @return a ValueEntityResult
    * @param <R> The type of reply that is expected from invoking a command handler
    */
   public <R> ValueEntityResult<R> call(Function<E, ValueEntity.Effect<R>> func) {
-    TestKitValueEntityCommandContext commandContext = new TestKitValueEntityCommandContext(entityId, Metadata.EMPTY);
+    TestKitValueEntityCommandContext commandContext =
+        new TestKitValueEntityCommandContext(entityId, Metadata.EMPTY);
     entity._internalSetCommandContext(Optional.of(commandContext));
     entity._internalSetCurrentState(this.state);
     return interpretEffects(func.apply(entity));
   }
-
 }

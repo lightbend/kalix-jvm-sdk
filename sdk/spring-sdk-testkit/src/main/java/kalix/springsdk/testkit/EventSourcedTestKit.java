@@ -31,14 +31,14 @@ import java.util.NoSuchElementException;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-
 /**
  * EventSourced Testkit for use in unit tests for EventSourced entities.
- * <p>
- * To test a EventSourced create a testkit instance by calling one of the available {@code EventSourcedTestKit.of} methods.
- * The returned testkit is stateful, and it holds internally the state of the entity.
- * <p>
- * Use the {@code call} methods to interact with the testkit.
+ *
+ * <p>To test a EventSourced create a testkit instance by calling one of the available {@code
+ * EventSourcedTestKit.of} methods. The returned testkit is stateful, and it holds internally the
+ * state of the entity.
+ *
+ * <p>Use the {@code call} methods to interact with the testkit.
  */
 public class EventSourcedTestKit<S, E extends EventSourcedEntity<S>>
     extends EventSourcedEntityEffectsRunner<S> {
@@ -52,20 +52,20 @@ public class EventSourcedTestKit<S, E extends EventSourcedEntity<S>>
     eventHandlers = EventSourcedHandlersExtractor.handlersFrom(entity.getClass());
   }
 
-
   /**
    * Creates a new testkit instance from a EventSourcedEntity Supplier.
    *
-   * A default test entity id will be automatically provided.
+   * <p>A default test entity id will be automatically provided.
    */
-  public static <S, E extends EventSourcedEntity<S>> EventSourcedTestKit<S, E> of(Supplier< E> entityFactory) {
+  public static <S, E extends EventSourcedEntity<S>> EventSourcedTestKit<S, E> of(
+      Supplier<E> entityFactory) {
     return of("testkit-entity-id", entityFactory);
   }
 
   /**
    * Creates a new testkit instance from a function EventSourcedEntityContext to EventSourcedEntity.
    *
-   * A default test entity id will be automatically provided.
+   * <p>A default test entity id will be automatically provided.
    */
   public static <S, E extends EventSourcedEntity<S>> EventSourcedTestKit<S, E> of(
       Function<EventSourcedEntityContext, E> entityFactory) {
@@ -73,16 +73,17 @@ public class EventSourcedTestKit<S, E extends EventSourcedEntity<S>>
   }
 
   /**
-   * Creates a new testkit instance from a user defined entity id and an EventSourcedEntity Supplier.
+   * Creates a new testkit instance from a user defined entity id and an EventSourcedEntity
+   * Supplier.
    */
   public static <S, E extends EventSourcedEntity<S>> EventSourcedTestKit<S, E> of(
-      String entityId, Supplier< E> entityFactory) {
+      String entityId, Supplier<E> entityFactory) {
     return of(entityId, ctx -> entityFactory.get());
   }
 
   /**
-   * Creates a new testkit instance from a user defined entity id and a
-   * function EventSourcedEntityContext to EventSourcedEntity.
+   * Creates a new testkit instance from a user defined entity id and a function
+   * EventSourcedEntityContext to EventSourcedEntity.
    */
   public static <S, E extends EventSourcedEntity<S>> EventSourcedTestKit<S, E> of(
       String entityId, Function<EventSourcedEntityContext, E> entityFactory) {
@@ -90,11 +91,10 @@ public class EventSourcedTestKit<S, E extends EventSourcedEntity<S>>
     return new EventSourcedTestKit<>(entityFactory.apply(context));
   }
 
-
   /**
-   * The call method can be used to simulate a call to the EventSourcedEntity.
-   * The passed java lambda should return an EventSourcedEntity.Effect.
-   * The Effect is interpreted into an EventSourcedResult that can be used in test assertions.
+   * The call method can be used to simulate a call to the EventSourcedEntity. The passed java
+   * lambda should return an EventSourcedEntity.Effect. The Effect is interpreted into an
+   * EventSourcedResult that can be used in test assertions.
    *
    * @param func A function from EventSourcedEntity to EventSourcedEntity.Effect.
    * @return a EventSourcedResult
@@ -111,7 +111,9 @@ public class EventSourcedTestKit<S, E extends EventSourcedEntity<S>>
       return (S) method.invoke(entity, event);
     } catch (NoSuchElementException e) {
       throw new RuntimeException(
-          "Couldn't find a valid event handler for event type '" + event.getClass().getName() + "'");
+          "Couldn't find a valid event handler for event type '"
+              + event.getClass().getName()
+              + "'");
     } catch (IllegalAccessException | InvocationTargetException e) {
       throw new RuntimeException(e);
     }
