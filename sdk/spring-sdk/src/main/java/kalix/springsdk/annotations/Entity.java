@@ -29,7 +29,8 @@ public @interface Entity {
 
   /**
    * Assign a type to the entity. This name should be unique among the different existing entities
-   * within a Kalix application.
+   * within a Kalix application. Additionally, the name should be stable as a different name means a
+   * different entity in storage.
    */
   String entityType();
 

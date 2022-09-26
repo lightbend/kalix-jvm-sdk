@@ -28,7 +28,14 @@ public @interface Subscribe {
    * Annotation for subscribing to updates from a Value Entity. It can be used both at type and
    * method levels. When used at type level, it means the `View` will not be transforming state.
    * When used at method level, it gives the ability to transform the updates into a different state
-   * for the view.
+   * for the view and the underlying method must be declared to receive one or two parameters:
+   *
+   * <ul>
+   *   <li>when one parameter is passed, the single parameter will be considered the event type such
+   *       method will handle;
+   *   <li>when two parameters are passed, the first one will be considered the view state and the
+   *       second one the event type.
+   * </ul>
    */
   @Target({ElementType.TYPE, ElementType.METHOD})
   @Retention(RetentionPolicy.RUNTIME)

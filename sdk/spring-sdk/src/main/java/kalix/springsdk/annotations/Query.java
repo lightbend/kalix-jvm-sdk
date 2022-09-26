@@ -19,7 +19,7 @@ package kalix.springsdk.annotations;
 import java.lang.annotation.*;
 
 /**
- * Annotation used un the scope of a view for providing the query that will be used to explore data
+ * Annotation used in the scope of a view for providing the query that will be used to explore data
  * from that view.
  *
  * <p><b>Note: </b>the actual method implementation is irrelevant as the method itself is never

@@ -10,7 +10,7 @@ This SDK offers a way to develop applications which should be familiar to someon
 
 ## Getting Started
 
-The easiest way to get started is to use the `kalix-spring-boot-archetype` and let it generate a spring boot application for you. Try:
+The easiest way to get started is to use the `kalix-spring-boot-archetype` and let it generate a Spring Boot application for you. Try:
 
 ```shell
 mvn \
