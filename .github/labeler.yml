@@ -21,3 +21,4 @@ spring-sdk:
 
 Documentation:
   - docs/**/*
+  - samples/**/*
