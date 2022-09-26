@@ -46,6 +46,12 @@ commands:
             sudo dpkg -i sbt-<< parameters.version >>.deb
             rm sbt-<< parameters.version >>.deb
 
+  install_fossa:
+    description: Install fossa (for license checking)
+    steps:
+      - run: |
+          curl -H 'Cache-Control: no-cache' https://raw.githubusercontent.com/fossas/fossa-cli/master/install-latest.sh | bash
+
   save_deps_cache:
     description: "Save dependency cache"
     steps:
@@ -1132,6 +1138,17 @@ jobs:
           command: make -C docs deploy
       - save_deps_cache
 
+  fossa_nightly:
+    description: "Nightly FOSSA checks"
+    machine:
+      image: ubuntu-2004:202107-02
+    steps:
+      - checkout
+      - install_fossa
+      - run:
+          name: Run Fossa
+          command: fossa analyze -p kalix-jvm-sdk && fossa test -p kalix-jvm-sdk
+
 workflows:
   CI:
     jobs:
@@ -1346,3 +1363,14 @@ workflows:
             - publish
             - publish-maven
             - publish-tck
+
+  Nightly:
+    triggers:
+      - schedule:
+          cron: "0 0 * * 1-5"
+          filters:
+            branches:
+              only:
+                - main
+    jobs:
+      - fossa_nightly
