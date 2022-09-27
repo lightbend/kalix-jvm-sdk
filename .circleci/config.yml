@@ -1393,9 +1393,10 @@ workflows:
       - create-pr-sdk-version-update:
           filters: # version tags only
             tags:
-              only: efgpinto/automate_pr_bump_sdk #FIXME change this to /^v.*/ once tested
+              only: /^v.*/
             branches:
-              ignore: /.*/
+              #ignore: /.*/ FIXME uncomment
+              only: efgpinto/automate_pr_bump_sdk
           requires:
             # we only publish the docs if all publishing jobs are successful, otherwise we have a 'broken' release
             #- publish FIXME uncomment
