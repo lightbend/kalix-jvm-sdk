@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # this script is meant to be used after a new SDK version is out
 # to facilitate the update of all the places where we usually depend on the latest version
 

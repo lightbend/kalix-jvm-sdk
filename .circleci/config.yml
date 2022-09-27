@@ -221,6 +221,7 @@ jobs:
       - run:
           name: Create PR to update all sdk versions (samples, sbt and maven)
           command: |
+            chmod +x ./updateSdkReleasedVersion.sh
             SDK_VERSION=${CIRCLE_BRANCH#*v} ./updateSdkReleasedVersion.sh
             
             BRANCH=bump-sdk-version-$SDK_VERSION
