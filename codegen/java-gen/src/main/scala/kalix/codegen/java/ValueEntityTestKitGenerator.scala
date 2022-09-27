@@ -143,7 +143,7 @@ object ValueEntityTestKitGenerator {
         val output = selectOutput(command)
         s"""|public ValueEntityResult<$output> ${lowerFirst(command.name)}(${command.inputType.fullName} ${lowerFirst(
           command.inputType.name)}, Metadata metadata) {
-       |  entity ._internalSetCommandContext(Optional.of(new TestKitValueEntityCommandContext(entityId, metadata)));
+       |  entity._internalSetCommandContext(Optional.of(new TestKitValueEntityCommandContext(entityId, metadata)));
        |  entity._internalSetCurrentState(state);
        |  ValueEntity.Effect<$output> effect = entity.${lowerFirst(command.name)}(state, ${lowerFirst(
           command.inputType.name)});
