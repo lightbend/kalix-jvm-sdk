@@ -221,8 +221,19 @@ jobs:
       - run:
           name: Create PR to update all sdk versions (samples, sbt and maven)
           command: |
-            ./updateAllSdkVersions.sh
-            gh pr create -B main -t "Auto PR - Update " -b "Please review, and MERGE COMMIT if okay. [$CIRCLE_SHA1]($CIRCLE_BUILD_URL)" || echo "No changes"; exit 0
+            SDK_VERSION=${CIRCLE_BRANCH#*v} ./updateSdkReleasedVersion.sh
+            
+            BRANCH=bump-sdk-version-$SDK_VERSION
+            git checkout -b $BRANCH
+            git config user.name "Kalix Bot"
+            git config user.email "kalix.team@lightbend.com"
+            git commit . -m "Update CLI docs to $(kalix version)" || true
+            # HEADs without changes are cheap anyway, so let's
+            # push even if there aren't any changes
+            git remote add origin-rw https://$GITHUB_TOKEN@github.com/lightbend/kalix-jvm-sdk
+            git push --set-upstream origin-rw $BRANCH
+            
+            gh pr create -B main -t "Auto PR - Bump SDK versions to $SDK_VERSION" -b "Please review, and merge if okay. [$CIRCLE_SHA1]($CIRCLE_BUILD_URL)" || echo "No changes"; exit 0
 
   tests:
     docker:
