@@ -1393,7 +1393,7 @@ workflows:
       - create-pr-sdk-version-update:
           filters: # version tags only
             tags:
-              only: test_pr_creation #FIXME change this to /^v.*/ once tested
+              only: efgpinto/automate_pr_bump_sdk #FIXME change this to /^v.*/ once tested
             branches:
               ignore: /.*/
           requires:
