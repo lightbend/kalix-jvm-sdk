@@ -33,7 +33,7 @@ import java.util.function.Supplier;
  *
  * <p>To test an Action create a testkit instance by calling one of the available {@code
  * ActionTestkit.of} methods. The returned testkit can be used as many times as you want. It doesn't
- * preserve any state between invocation.
+ * preserve any state between invocations.
  *
  * <p>Use the {@code call} methods to interact with the testkit.
  */

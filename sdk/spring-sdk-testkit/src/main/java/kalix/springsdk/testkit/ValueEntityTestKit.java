@@ -101,7 +101,7 @@ public class ValueEntityTestKit<S, E extends ValueEntity<S>> {
 
   /**
    * The call method can be used to simulate a call to the ValueEntity. The passed java lambda
-   * should return an ValueEntity.Effect. The Effect is interpreted into a ValueEntityResult that
+   * should return a ValueEntity.Effect. The Effect is interpreted into a ValueEntityResult that
    * can be used in test assertions.
    *
    * @param func A function from ValueEntity to ValueEntity.Effect.
