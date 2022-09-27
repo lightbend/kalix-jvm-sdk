@@ -1398,9 +1398,10 @@ workflows:
               ignore: /.*/
           requires:
             # we only publish the docs if all publishing jobs are successful, otherwise we have a 'broken' release
-            - publish
-            - publish-maven
-            - publish-tck
+            #- publish FIXME uncomment
+            #- publish-maven
+            #- publish-tck
+             - checks
 
   Nightly:
     triggers:
