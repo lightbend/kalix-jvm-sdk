@@ -2,6 +2,7 @@ version: 2.1
 
 orbs:
   build-tools: circleci/build-tools@2.9.0
+  github-cli: circleci/github-cli@1.0.2
 
 commands:
   checkout-and-merge-to-main:
@@ -208,6 +209,20 @@ jobs:
           command: |
             make -C docs validate-links
       - save_deps_cache
+
+  create-pr-sdk-version-update:
+    docker:
+      - image: 'cimg/base:stable'
+    steps:
+      - checkout
+      - attach_workspace:
+          at: ~/
+      - github-cli/setup
+      - run:
+          name: Create PR to update all sdk versions (samples, sbt and maven)
+          command: |
+            ./updateAllSdkVersions.sh
+            gh pr create -B main -t "Auto PR - Update " -b "Please review, and MERGE COMMIT if okay. [$CIRCLE_SHA1]($CIRCLE_BUILD_URL)" || echo "No changes"; exit 0
 
   tests:
     docker:
@@ -1356,6 +1371,18 @@ workflows:
           filters: # version tags only
             tags:
               only: /^v.*/
+            branches:
+              ignore: /.*/
+          requires:
+            # we only publish the docs if all publishing jobs are successful, otherwise we have a 'broken' release
+            - publish
+            - publish-maven
+            - publish-tck
+
+      - create-pr-sdk-version-update:
+          filters: # version tags only
+            tags:
+              only: test_pr_creation #FIXME change this to /^v.*/ once tested
             branches:
               ignore: /.*/
           requires:
