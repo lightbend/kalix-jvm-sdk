@@ -27,10 +27,10 @@ You can see the proxy version on prod [on grafana](https://lightbendcloud.grafan
 
 ### Update to the latest version
  
-- [ ] Update the sdk version in samples and maven plugin
-    - [ ] Update the `kalix-sdk.version` in the `samples/*/pom.xml` files to the released version.
-    - [ ] Update the `kalix-sdk.version` default value in the `samples/scala-*/project/plugins.sbt` files to the release version
-    - [ ] version in `maven-java/**/pom.xml`
+- [ ] Review and merge PR created by bot (should appear [here](https://github.com/lightbend/kalix-jvm-sdk/pulls?q=is%3Apr+is%3Aopen+auto+pr+)). While reviewing confirm the release version is updated for:
+    - `kalix-sdk.version` in the `samples/*/pom.xml` files
+    - `kalix-sdk.version` default value in the `samples/scala-*/project/plugins.sbt` files 
+    - version in `maven-java/**/pom.xml`
  
 ### Check docs update
 
