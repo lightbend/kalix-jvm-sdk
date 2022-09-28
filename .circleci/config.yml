@@ -210,7 +210,7 @@ jobs:
             make -C docs validate-links
       - save_deps_cache
 
-  create-pr-sdk-version-update:
+  create-pr-sdk-versions-update:
     docker:
       - image: circleci/openjdk:11
     steps:
@@ -225,17 +225,15 @@ jobs:
             chmod +x ./updateSdkReleasedVersion.sh
             bash ./updateSdkReleasedVersion.sh
             
-            BRANCH=bump-sdk-version-$SDK_VERSION
+            BRANCH=bump-sdk-versions-$SDK_VERSION
             git checkout -b $BRANCH
             git config user.name "Kalix Bot"
-            git config user.email "kalix.team@lightbend.com"
-            git commit . -m "Update CLI docs to $(kalix version)" || true
-            # HEADs without changes are cheap anyway, so let's
-            # push even if there aren't any changes
+            git config user.email "kalix.team@lightbend.com" #FIXME use a proper email
+            git commit . -m "Bump SDK versions to $SDK_VERSION"
             git remote add origin-rw https://$GITHUB_TOKEN@github.com/lightbend/kalix-jvm-sdk
             git push --set-upstream origin-rw $BRANCH
             
-            gh pr create -B main -t "Auto PR - Bump SDK versions to $SDK_VERSION" -b "Please review, and merge if okay. [$CIRCLE_SHA1]($CIRCLE_BUILD_URL)" || echo "No changes"; exit 0
+            gh pr create -B main -t "Auto PR - Bump SDK versions to $SDK_VERSION" -b "This PR should update all existing samples (pom.xml and plugins.sbt) and the maven-java poms. Please review, and merge if okay. [$CIRCLE_SHA1]($CIRCLE_BUILD_URL)" || echo "No changes"; exit 0
 
   tests:
     docker:
@@ -1392,19 +1390,15 @@ workflows:
             - publish-maven
             - publish-tck
 
-      - create-pr-sdk-version-update:
+      - create-pr-sdk-versions-update:
           filters: # version tags only
             tags:
               only: /^v.*/
             branches:
-              #ignore: /.*/ FIXME uncomment
-              only: efgpinto/automate_pr_bump_sdk
+              ignore: /.*/
           requires:
-            # we only publish the docs if all publishing jobs are successful, otherwise we have a 'broken' release
-            #- publish FIXME uncomment
-            #- publish-maven
-            #- publish-tck
-             - checks
+            # we only create the versions bump PR after publish-docs is successful, which means release was successful
+            - publish-docs
 
   Nightly:
     triggers:
