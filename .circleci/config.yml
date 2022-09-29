@@ -1151,10 +1151,13 @@ jobs:
       image: ubuntu-2004:202107-02
     steps:
       - checkout
+      - setup_sbt
       - install_fossa
       - run:
           name: Run Fossa
-          command: fossa analyze -p kalix-jvm-sdk && fossa test -p kalix-jvm-sdk
+          command: |
+            sbt "compile; makePom"
+            fossa analyze -p kalix-jvm-sdk && fossa test -p kalix-jvm-sdk
 
 workflows:
   CI:
