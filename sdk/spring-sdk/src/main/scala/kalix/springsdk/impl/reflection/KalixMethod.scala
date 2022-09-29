@@ -91,15 +91,35 @@ case class VirtualServiceMethod(component: Class[_], methodName: String, inputTy
   val streamOut: Boolean = false
 }
 
+case class CombinedSubscriptionServiceMethod(
+    combinedMethodName: String,
+    representative: SubscriptionServiceMethod,
+    inputClass2Method: Map[String, Method])
+    extends AnyServiceMethod {
+
+  val methodName = combinedMethodName
+
+  val javaMethod = representative.javaMethod
+
+  val inputType: Class[_] = javaMethod.getParameterTypes()(representative.inputTypeParamIndex)
+
+  override def requestMethod: RequestMethod = RequestMethod.POST
+  override def javaMethodOpt: Option[Method] = Some(javaMethod)
+
+  val pathTemplate = buildPathTemplate(javaMethod.getDeclaringClass.getName, methodName)
+
+  val streamIn: Boolean = ServiceMethod.isStreamIn(javaMethod)
+  val streamOut: Boolean = ServiceMethod.isStreamOut(javaMethod)
+}
+
 /**
  * Build from methods annotated with @Subscription. Those methods are not annotated with Spring REST annotations, but
  * they become a REST method at the end.
  */
-case class RestServiceMethod(javaMethod: Method, inputTypeParamIndex: Int = 0) extends AnyServiceMethod {
+case class SubscriptionServiceMethod(javaMethod: Method, inputTypeParamIndex: Int = 0, methodName: String)
+    extends AnyServiceMethod {
 
   val inputType: Class[_] = javaMethod.getParameterTypes()(inputTypeParamIndex)
-
-  override def methodName: String = javaMethod.getName
 
   override def requestMethod: RequestMethod = RequestMethod.POST
   override def javaMethodOpt: Option[Method] = Some(javaMethod)

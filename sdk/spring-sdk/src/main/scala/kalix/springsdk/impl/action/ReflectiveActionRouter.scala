@@ -24,6 +24,7 @@ import kalix.javasdk.action.MessageEnvelope
 import kalix.javasdk.impl.action.ActionRouter
 import kalix.springsdk.impl.ComponentMethod
 import kalix.springsdk.impl.InvocationContext
+import kalix.springsdk.impl.reflection.ParameterExtractors.AnyBodyExtractor
 import reactor.core.publisher.Flux
 
 class ReflectiveActionRouter[A <: Action](action: A, componentMethods: Map[String, ComponentMethod])
@@ -41,9 +42,19 @@ class ReflectiveActionRouter[A <: Action](action: A, componentMethods: Map[Strin
         componentMethod.requestMessageDescriptor,
         message.metadata())
 
-    componentMethod.method.get // safe call: if component method is None, proxy won't forward calls to it
-      .invoke(action, componentMethod.parameterExtractors.map(e => e.extract(context)): _*)
-      .asInstanceOf[Action.Effect[_]]
+    val inputTypeUrl =
+      message.payload().asInstanceOf[ScalaPbAny].typeUrl
+
+    val javaMethod = componentMethod
+      .lookupMethod(inputTypeUrl)
+    javaMethod.method match {
+      case Some(method) =>
+        method
+          .invoke(action, javaMethod.parameterExtractors.map(e => e.extract(context)): _*)
+          .asInstanceOf[Action.Effect[_]]
+      case None => throw new NoSuchElementException(s"There is no method [$commandName] with [$inputTypeUrl] as input")
+    }
+
   }
 
   override def handleStreamedOut(

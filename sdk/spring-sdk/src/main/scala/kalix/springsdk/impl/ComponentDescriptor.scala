@@ -33,6 +33,7 @@ import com.google.protobuf.Descriptors.FileDescriptor
 import com.google.protobuf.{ Any => JavaPbAny }
 import kalix.springsdk.annotations.Entity
 import kalix.springsdk.annotations.Table
+import kalix.springsdk.impl.reflection.CombinedSubscriptionServiceMethod
 import kalix.springsdk.impl.reflection.{
   AnyServiceMethod,
   DynamicMessageContext,
@@ -50,6 +51,7 @@ import kalix.springsdk.impl.reflection.RestServiceIntrospector.HeaderParameter
 import kalix.springsdk.impl.reflection.RestServiceIntrospector.PathParameter
 import kalix.springsdk.impl.reflection.RestServiceIntrospector.QueryParamParameter
 import kalix.springsdk.impl.reflection.RestServiceIntrospector.UnhandledParameter
+import kalix.springsdk.impl.reflection.SubscriptionServiceMethod
 import org.springframework.web.bind.annotation.RequestMethod
 
 import scala.jdk.CollectionConverters.CollectionHasAsScala
@@ -177,7 +179,22 @@ private[impl] object ComponentDescriptor {
             } else Array.empty
 
           ComponentMethod(serviceMethod.javaMethodOpt, grpcMethodName, parameterExtractors, message)
-
+        case method: SubscriptionServiceMethod =>
+          val parameterExtractors: ParameterExtractors =
+            Array(new ParameterExtractors.AnyBodyExtractor[AnyRef](method.inputType))
+          ComponentMethod(serviceMethod.javaMethodOpt, grpcMethodName, parameterExtractors, JavaPbAny.getDescriptor)
+        case method: CombinedSubscriptionServiceMethod =>
+          val parameterExtractors: ParameterExtractors =
+            method.inputClass2Method.values
+              .flatMap(each =>
+                each.getParameterTypes.map(param => new ParameterExtractors.AnyBodyExtractor[AnyRef](param)))
+              .toArray
+          ComponentMethod(
+            serviceMethod.javaMethodOpt,
+            grpcMethodName,
+            parameterExtractors,
+            JavaPbAny.getDescriptor,
+            method.inputClass2Method)
         case method: AnyServiceMethod =>
           // methods that receive Any as input always default to AnyBodyExtractor
           val parameterExtractors: ParameterExtractors = Array(

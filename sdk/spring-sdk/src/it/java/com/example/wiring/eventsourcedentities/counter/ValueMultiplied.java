@@ -24,7 +24,9 @@ public class ValueMultiplied implements CounterEvent {
   public final int value;
 
   @JsonCreator
-  public ValueMultiplied(@JsonProperty Integer value) {
+  public ValueMultiplied(
+      @JsonProperty("value")
+          int value) { // FIXME raise decoded expection if used || @JsonProperty Integer value
     this.value = value;
   }
 }
