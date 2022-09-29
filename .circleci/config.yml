@@ -36,7 +36,7 @@ commands:
     parameters:
       version:
         type: string
-        default: "1.4.9"
+        default: "1.6.2"
     steps:
       - install-java-11
       - run:
@@ -45,6 +45,11 @@ commands:
             curl -L -o sbt-<< parameters.version >>.deb https://repo.scala-sbt.org/scalasbt/debian/sbt-<< parameters.version >>.deb
             sudo dpkg -i sbt-<< parameters.version >>.deb
             rm sbt-<< parameters.version >>.deb
+      - restore_cache:
+          # https://circleci.com/docs/caching#restoring-cache
+          keys:
+            # new cache if sbt version changed
+            - sbt-cache-v3-{{ checksum "project/build.properties" }}-
 
   install_fossa:
     description: Install fossa (for license checking)
@@ -53,21 +58,23 @@ commands:
           curl -H 'Cache-Control: no-cache' https://raw.githubusercontent.com/fossas/fossa-cli/master/install-latest.sh | bash
 
   save_deps_cache:
-    description: "Save dependency cache"
+    description: "Save sbt caches"
     steps:
       - save_cache:
-          key: deps-cache-01
+          key: sbt-cache-v3-{{ checksum "project/build.properties" }}-
+          paths:
+            - "~/.sbt"
+      - save_cache:
+          key: sbt-dependencies-v1-{{ checksum "project/Dependencies.scala" }}-
           paths:
             - "~/.ivy2/cache"
-            - "~/.sbt"
             - "~/.cache/coursier"
-            - "~/.m2"
 
   restore_deps_cache:
-    description: "Restore dependency cache"
+    description: "Restore sbt dependency cache"
     steps:
       - restore_cache:
-          key: deps-cache-01
+          key: sbt-dependencies-v1-{{ checksum "project/Dependencies.scala" }}-
 
   set-sdk-version:
     description: "Set global option, grab current SDK version"
