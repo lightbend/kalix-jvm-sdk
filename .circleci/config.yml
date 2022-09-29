@@ -49,7 +49,7 @@ commands:
           # https://circleci.com/docs/caching#restoring-cache
           keys:
             # new cache if sbt version changed
-            - sbt-cache-v3-{{ checksum "<< parameters.dir >>/project/build.properties" }}-
+            - sbt-cache-v3-{{ checksum "project/build.properties" }}-
 
   install_fossa:
     description: Install fossa (for license checking)
