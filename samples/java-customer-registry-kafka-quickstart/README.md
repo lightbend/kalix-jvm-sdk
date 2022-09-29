@@ -30,10 +30,17 @@ It also contains the configuration to start a local Kafka broker and a Zookeeper
 To start the proxy, the Kafka broker, and the Zookeeper, run the following command from the root directory:
 
 ```shell
-docker compose -f kafka/docker-compose.yml rm -f && docker compose -f kafka/docker-compose.yml up
+docker compose -f docker-compose.yml rm -f && docker compose -f docker-compose.yml up
 ```
 
 It can make sense to delete the existing containers (if any exist) and start from scratch when starting up the Kafka container.
+
+### Create topic for eventing out
+
+Every time a customer receives a change, the application also persists that change to a topic in Kafka called `customer_changes`. You can see that this is set in customer_action.proto. In order for the changes to be written to this topic, you need to manually create the topic in Kafka. To do this, run the following command after the Docker container `java-customer-registry-kafka-quickstart-kafka-1` is running.
+
+    docker-compose exec broker kafka-topics --create --bootstrap-server \
+    localhost:9092 --replication-factor 1 --partitions 1 --topic customer_changes
 
 ### Starting the application
 To start the application locally, the `exec-maven-plugin` is used. Use the following command:
