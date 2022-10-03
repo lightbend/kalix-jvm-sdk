@@ -19,6 +19,7 @@ package kalix.springsdk.impl
 import scala.jdk.CollectionConverters.CollectionHasAsScala
 
 import com.typesafe.config.Config
+import com.typesafe.config.ConfigFactory
 import kalix.javasdk.Kalix
 import kalix.javasdk.action.Action
 import kalix.javasdk.action.ActionCreationContext
@@ -225,7 +226,15 @@ class KalixServer(applicationContext: ApplicationContext, config: Config) {
 
   def start() = {
     logger.info("Starting Kalix Server!")
-    kalix.createRunner(config).run()
+
+    val finalConfig =
+      ConfigFactory
+        // it doesn't make sense to try to load descriptor source for
+        // the Spring SDK, so better to just disable it
+        .parseString("kalix.discovery.protobuf-descriptor-with-source-info-path=disabled")
+        .withFallback(config)
+
+    kalix.createRunner(finalConfig).run()
   }
 
   /* Each component may have a creation context passed to its constructor.
