@@ -23,6 +23,7 @@ import kalix.springsdk.annotations.Subscribe;
 import kalix.springsdk.annotations.Table;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import reactor.core.publisher.Flux;
 
 // With Multiple Subscriptions
 @Table("counters_by_value_ms")
@@ -35,17 +36,17 @@ public class CountersByValueSubscriptions extends View<Counter> {
 
   @GetMapping("/counters-ms/by-value/{value}")
   @Query("SELECT * FROM counters_by_value_ms WHERE value = :value")
-  public Counter getCounterByValue(@PathVariable Integer value) {
+  public Flux<Counter> getCounterByValue(@PathVariable Integer value) {
     return null;
   }
 
   @Subscribe.EventSourcedEntity(CounterEntity.class)
-  public UpdateEffect<Counter> onEvent1(Counter counter, ValueIncreased event) {
+  public UpdateEffect<Counter> onEvent(Counter counter, ValueIncreased event) {
     return effects().updateState(counter.onValueIncreased(event));
   }
 
   @Subscribe.EventSourcedEntity(CounterEntity.class)
-  public UpdateEffect<Counter> onEvent2(Counter counter, ValueMultiplied event) {
+  public UpdateEffect<Counter> onEvent(Counter counter, ValueMultiplied event) {
     return effects().updateState(counter.onValueMultiplied(event));
   }
 }

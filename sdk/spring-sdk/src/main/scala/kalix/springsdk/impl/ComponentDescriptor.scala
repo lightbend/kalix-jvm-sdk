@@ -179,10 +179,6 @@ private[impl] object ComponentDescriptor {
             } else Array.empty
 
           ComponentMethod(serviceMethod.javaMethodOpt, grpcMethodName, parameterExtractors, message)
-        case method: SubscriptionServiceMethod =>
-          val parameterExtractors: ParameterExtractors =
-            Array(new ParameterExtractors.AnyBodyExtractor[AnyRef](method.inputType))
-          ComponentMethod(serviceMethod.javaMethodOpt, grpcMethodName, parameterExtractors, JavaPbAny.getDescriptor)
         case method: CombinedSubscriptionServiceMethod =>
           val parameterExtractors: ParameterExtractors =
             method.inputClass2Method.values

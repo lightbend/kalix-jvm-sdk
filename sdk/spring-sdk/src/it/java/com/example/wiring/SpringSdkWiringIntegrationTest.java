@@ -192,17 +192,14 @@ public class SpringSdkWiringIntegrationTest {
             .block(timeout);
 
     Assertions.assertEquals(HttpStatus.OK, response1.getStatusCode());
-    // FIXME this test is to prove that multiple subscriptions works for views. However the view is
-    // not working.
-    // It does not add more than one entity. Adding the call below should give new IsEqual<>(2)
-    //    ResponseEntity<Integer> response2 = webClient
-    //                    .post()
-    //                    .uri("/counter/hello3/increase/1")
-    //                    .retrieve()
-    //                    .toEntity(Integer.class)
-    //                    .block(timeout);
-    //
-    //    Assertions.assertEquals(HttpStatus.OK, response2.getStatusCode());
+        ResponseEntity<Integer> response2 = webClient
+                        .post()
+                        .uri("/counter/hello3/increase/1")
+                        .retrieve()
+                        .toEntity(Integer.class)
+                        .block(timeout);
+
+        Assertions.assertEquals(HttpStatus.OK, response2.getStatusCode());
 
     await()
         .ignoreExceptions()
@@ -217,7 +214,7 @@ public class SpringSdkWiringIntegrationTest {
                     .toStream()
                     .collect(Collectors.toList())
                     .size(),
-            new IsEqual<>(1));
+            new IsEqual<>(2));
   }
 
   @Test
