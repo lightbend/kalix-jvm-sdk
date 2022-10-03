@@ -64,6 +64,7 @@ public abstract class EventSourcedEntityEffectsRunner<S> {
     EventSourcedEntity.Effect<R> effectExecuted;
     try {
       entity._internalSetCommandContext(Optional.of(commandContext));
+      entity._internalSetCurrentState(this._state);
       effectExecuted = effect.get();
       this.events.addAll(EventSourcedResultImpl.eventsOf(effectExecuted));
     } finally {
@@ -73,6 +74,7 @@ public abstract class EventSourcedEntityEffectsRunner<S> {
       entity._internalSetEventContext(Optional.of(new TestKitEventSourcedEntityEventContext()));
       for (Object event : EventSourcedResultImpl.eventsOf(effectExecuted)) {
         this._state = handleEvent(this._state, event);
+        entity._internalSetCurrentState(this._state);
       }
     } finally {
       entity._internalSetEventContext(Optional.empty());

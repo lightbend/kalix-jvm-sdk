@@ -23,7 +23,7 @@ import java.util.List;
 /**
  * Represents the result of an ValueEntity handling a command when run in through the testkit.
  *
- * <p>Not for user extension, returned by the generated testkit.
+ * <p>Not for user extension, returned by the testkit.
  *
  * @param <R> The type of reply that is expected from invoking a command handler
  */

@@ -123,7 +123,11 @@ object Dependencies {
     "org.awaitility" % "awaitility" % "4.1.0" % IntegrationTest)
 
   val sdkSpringTestKit =
-    deps ++= springDeps ++ Seq("org.springframework.boot" % "spring-boot-starter-test" % SpringVersion)
+    deps ++= springDeps ++
+    Seq(
+      junit5 % Test,
+      "net.aichler" % "jupiter-interface" % JupiterKeys.jupiterVersion.value % Test,
+      "org.springframework.boot" % "spring-boot-starter-test" % SpringVersion)
 
   // FIXME
   val sdkScala = deps ++= coreDeps ++ Seq(jacksonScala)
