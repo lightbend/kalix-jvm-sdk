@@ -95,7 +95,7 @@ class DiscoveryImpl(system: ActorSystem, services: Map[String, Service], sdkName
       val grpcClients = GrpcClients(system)
       // pass the deployed name of the service on to GrpcClients for cross component calls
       if (in.internalProxyHostname.isEmpty) {
-        // for backward compatibiliy with proxy 1.0.14 or older
+        // for backward compatibility with proxy 1.0.14 or older
         grpcClients.setProxyHostname(in.proxyHostname)
       } else {
         grpcClients.setProxyHostname(in.internalProxyHostname)
@@ -250,10 +250,17 @@ class DiscoveryImpl(system: ActorSystem, services: Map[String, Service], sdkName
 object DiscoveryImpl {
 
   private[impl] def fileDescriptorSet(services: Iterable[Service], userDescPath: String, log: Logger) = {
-    val descriptorsWithSource = loadDescriptorsWithSource(userDescPath, log)
+
+    val descriptors = loadFileDescriptors(userDescPath, log)
+
     val allDescriptors =
       AnySupport.flattenDescriptors(services.flatMap(s => s.descriptor.getFile +: s.additionalDescriptors).toSeq)
+
     val builder = DescriptorProtos.FileDescriptorSet.newBuilder()
+
+    val descriptorsWithSource = descriptors.filter { case (_, proto) =>
+      proto.hasSourceCodeInfo
+    }
     allDescriptors.values.foreach { fd =>
       val proto = fd.toProto
       // We still use the descriptor as passed in by the user, but if we have one that we've read from the
@@ -264,16 +271,14 @@ object DiscoveryImpl {
       builder.addFile(protoWithSource)
     }
     // include 'kalix_policy.proto' with ACL defaults for entire Kalix service if the file exists
-    descriptorsWithSource
+    descriptors
       .collect { case (file, proto) if file.endsWith("kalix_policy.proto") => proto }
       .foreach(defaultPolicy => builder.addFile(defaultPolicy))
 
     builder.build()
   }
 
-  private[impl] def loadDescriptorsWithSource(
-      path: String,
-      log: Logger): Map[String, DescriptorProtos.FileDescriptorProto] =
+  private[impl] def loadFileDescriptors(path: String, log: Logger): Map[String, DescriptorProtos.FileDescriptorProto] =
     // Special case for disabled, this allows the user to disable attempting to load the descriptor, which means
     // they won't get the great big warning below if it doesn't exist.
     if (path == "disabled") {
@@ -307,9 +312,7 @@ object DiscoveryImpl {
             .parseFrom(stream)
             .getFileList
             .asScala
-            .collect {
-              case file if file.hasSourceCodeInfo => file.getName -> file
-            }
+            .map { case file => file.getName -> file }
             .toMap
         } catch {
           case NonFatal(e) =>
