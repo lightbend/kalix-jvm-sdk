@@ -92,7 +92,7 @@ private[impl] object ActionDescriptorFactory extends ComponentDescriptorFactory 
       }
       groupByTopic(subscriptions).collect {
         case (topic, kMethods) if kMethods.size > 1 =>
-          val methodsMap: Seq[TypeUrl2Method] = kMethods.map { k =>
+          val typeUrl2Methods: Seq[TypeUrl2Method] = kMethods.map { k =>
             TypeUrl2Method(
               k.serviceMethod.javaMethodOpt.get.getParameterTypes()(0).getName,
               k.serviceMethod.javaMethodOpt.get)
@@ -102,7 +102,7 @@ private[impl] object ActionDescriptorFactory extends ComponentDescriptorFactory 
             CombinedSubscriptionServiceMethod(
               "KalixSyntheticMethodOnTopic" + topic.capitalize,
               kMethods.head.serviceMethod.asInstanceOf[SubscriptionServiceMethod],
-              methodsMap))
+              typeUrl2Methods))
             .withKalixOptions(kMethods.head.methodOptions)
         case (topic, kMethod +: Nil) =>
           kMethod

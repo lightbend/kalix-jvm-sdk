@@ -20,6 +20,7 @@ import java.lang.reflect.Method
 import com.google.protobuf.Descriptors
 import kalix.springsdk.impl.reflection.ParameterExtractor
 import kalix.springsdk.impl.reflection.ParameterExtractors.AnyBodyExtractor
+import org.slf4j.LoggerFactory
 
 // Might need to have one of each of these for unary, streamed out, streamed in and streamed.
 /**
@@ -38,24 +39,31 @@ case class ComponentMethod(
     requestMessageDescriptor: Descriptors.Descriptor,
     typeUrl2Methods: Seq[TypeUrl2Method] = Nil) {
 
-  def lookupMethod(inputTypeUrl: String): Option[JavaMethod] = {
+  val logger = LoggerFactory.getLogger(ComponentMethod.getClass)
 
+  def lookupMethod(inputTypeUrl: String): Option[JavaMethod] = {
     val method = typeUrl2Methods.find(p => p.typeUrl == inputTypeUrl)
     method match {
       case Some(meth) =>
-        val methodParameterTypes = meth.method.getParameterTypes();
-        val extractors = parameterExtractors.collect {
-          //it is safe to pick the last parameter. An action has one and View has two. In the View the event it is always the last parameter
-          case extractor @ AnyBodyExtractor(cls)
-              if cls.getName.equals(methodParameterTypes(methodParameterTypes.size - 1).getName) =>
-            extractor.asInstanceOf[ParameterExtractor[InvocationContext, AnyRef]]
-        }
-        Some(JavaMethod(meth.method, extractors))
-      case None => None
+        Some(JavaMethod(meth.method, getExtractors(meth.method)))
+      case None if typeUrl2Methods.size == 1 =>
+        Some(JavaMethod(typeUrl2Methods.head.method, parameterExtractors))
+      case None =>
+        logger.error(
+          s"couldn't find any method in typeUrl2Methods [${typeUrl2Methods}] with a typeUrl [${inputTypeUrl}")
+        None
     }
   }
 
-  def invoke(typeUrl: Option[String]) = ???
+  private def getExtractors(method: Method): Array[ParameterExtractor[InvocationContext, AnyRef]] = {
+    val methodParameterTypes = method.getParameterTypes();
+    parameterExtractors.collect {
+      //it is safe to pick the last parameter. An action has one and View has two. In the View the event it is always the last parameter
+      case extractor @ AnyBodyExtractor(cls)
+          if cls.getName.equals(methodParameterTypes(methodParameterTypes.size - 1).getName) =>
+        extractor.asInstanceOf[ParameterExtractor[InvocationContext, AnyRef]]
+    }
+  }
 }
 
 case class TypeUrl2Method(typeUrl: String, method: Method)
