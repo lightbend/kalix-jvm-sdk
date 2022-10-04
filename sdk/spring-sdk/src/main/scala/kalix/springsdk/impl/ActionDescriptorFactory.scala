@@ -54,7 +54,7 @@ private[impl] object ActionDescriptorFactory extends ComponentDescriptorFactory 
         val kalixOptions =
           kalix.MethodOptions.newBuilder().setEventing(subscriptionOptions).build()
 
-        KalixMethod(SubscriptionServiceMethod(method, methodName = method.getName))
+        KalixMethod(SubscriptionServiceMethod(method))
           .withKalixOptions(kalixOptions)
       }
 
@@ -66,7 +66,7 @@ private[impl] object ActionDescriptorFactory extends ComponentDescriptorFactory 
         val kalixOptions =
           kalix.MethodOptions.newBuilder().setEventing(subscriptionOptions).build()
 
-        KalixMethod(SubscriptionServiceMethod(method, methodName = method.getName))
+        KalixMethod(SubscriptionServiceMethod(method))
           .withKalixOptions(kalixOptions)
       }
 
@@ -78,7 +78,7 @@ private[impl] object ActionDescriptorFactory extends ComponentDescriptorFactory 
         val kalixOptions =
           kalix.MethodOptions.newBuilder().setEventing(subscriptionOptions).build()
 
-        KalixMethod(SubscriptionServiceMethod(method, methodName = method.getName))
+        KalixMethod(SubscriptionServiceMethod(method))
           .withKalixOptions(kalixOptions)
       }
 
@@ -117,7 +117,7 @@ private[impl] object ActionDescriptorFactory extends ComponentDescriptorFactory 
         val kalixOptions =
           kalix.MethodOptions.newBuilder().setEventing(publicationOptions).build()
 
-        KalixMethod(SubscriptionServiceMethod(method, methodName = method.getName))
+        KalixMethod(SubscriptionServiceMethod(method))
           .withKalixOptions(kalixOptions)
       }
     val serviceName = nameGenerator.getName(component.getSimpleName)

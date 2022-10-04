@@ -214,7 +214,7 @@ private[impl] object ViewDescriptorFactory extends ComponentDescriptorFactory {
         methodOptionsBuilder.setEventing(eventingInForEventSourcedEntity(method))
         addTableOptionsToUpdateMethod(tableName, tableProtoMessageName, methodOptionsBuilder, true)
 
-        KalixMethod(SubscriptionServiceMethod(method, method.getParameterCount - 1, methodName = method.getName))
+        KalixMethod(SubscriptionServiceMethod(method, method.getParameterCount - 1))
           .withKalixOptions(methodOptionsBuilder.build())
 
       }
@@ -277,7 +277,7 @@ private[impl] object ViewDescriptorFactory extends ComponentDescriptorFactory {
         methodOptionsBuilder.setEventing(eventingInForValueEntity(method))
         addTableOptionsToUpdateMethod(tableName, tableProtoMessageName, methodOptionsBuilder, true)
 
-        KalixMethod(SubscriptionServiceMethod(method, method.getParameterCount - 1, methodName = method.getName))
+        KalixMethod(SubscriptionServiceMethod(method, method.getParameterCount - 1))
           .withKalixOptions(methodOptionsBuilder.build())
 
       }

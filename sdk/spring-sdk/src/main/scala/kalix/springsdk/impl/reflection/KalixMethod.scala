@@ -116,9 +116,9 @@ case class CombinedSubscriptionServiceMethod(
  * Build from methods annotated with @Subscription. Those methods are not annotated with Spring REST annotations, but
  * they become a REST method at the end.
  */
-case class SubscriptionServiceMethod(javaMethod: Method, inputTypeParamIndex: Int = 0, methodName: String)
-    extends AnyServiceMethod {
+case class SubscriptionServiceMethod(javaMethod: Method, inputTypeParamIndex: Int = 0) extends AnyServiceMethod {
 
+  val methodName = javaMethod.getName
   val inputType: Class[_] = javaMethod.getParameterTypes()(inputTypeParamIndex)
 
   override def requestMethod: RequestMethod = RequestMethod.POST

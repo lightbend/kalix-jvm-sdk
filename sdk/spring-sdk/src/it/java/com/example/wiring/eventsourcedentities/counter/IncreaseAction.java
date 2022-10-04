@@ -18,22 +18,23 @@ package com.example.wiring.eventsourcedentities.counter;
 
 import kalix.javasdk.action.Action;
 import kalix.javasdk.action.ActionCreationContext;
+import kalix.springsdk.KalixClient;
 import kalix.springsdk.KalixConfigurationTest;
 import kalix.springsdk.annotations.Subscribe;
 import org.springframework.context.annotation.Import;
-import org.springframework.web.reactive.function.client.WebClient;
 
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 
 @Import(KalixConfigurationTest.class)
 public class IncreaseAction extends Action {
 
-  private WebClient webClient;
+  private KalixClient kalixClient;
 
   private ActionCreationContext context;
 
-  public IncreaseAction(WebClient webClient, ActionCreationContext context) {
-    this.webClient = webClient;
+  public IncreaseAction(KalixClient kalixClient, ActionCreationContext context) {
+    this.kalixClient = kalixClient;
     this.context = context;
   }
 
@@ -43,18 +44,13 @@ public class IncreaseAction extends Action {
   }
 
   @Subscribe.EventSourcedEntity(value = CounterEntity.class)
-  public Effect<ValueIncreased> printIncrease(ValueIncreased event) {
+  public Effect<Integer> printIncrease(ValueIncreased event) {
     String entityId = this.actionContext().metadata().asCloudEvent().subject().get();
     if (event.value == 42) {
-      CompletableFuture res =
-          webClient
-              .post()
-              .uri("/counter/" + entityId + "/increase/1")
-              .retrieve()
-              .bodyToMono(Integer.class)
-              .toFuture();
+      CompletionStage<Integer> res =
+          kalixClient.post("/counter/" + entityId + "/increase/1", "", Integer.class).execute();
       return effects().asyncReply(res);
     }
-    return effects().reply(event);
+    return effects().reply(event.value);
   }
 }
