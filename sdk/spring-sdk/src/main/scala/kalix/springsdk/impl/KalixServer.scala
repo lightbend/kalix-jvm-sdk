@@ -19,7 +19,6 @@ package kalix.springsdk.impl
 import scala.jdk.CollectionConverters.CollectionHasAsScala
 import scala.jdk.OptionConverters.RichOption
 import scala.util.Try
-
 import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
 import kalix.javasdk.Kalix
@@ -249,7 +248,9 @@ case class KalixServer(applicationContext: ApplicationContext, config: Config) {
 
       if (classOf[Action].isAssignableFrom(clz)) {
         logger.info(s"Registering Action provider for [${clz.getName}]")
+        val action = actionProvider(clz.asInstanceOf[Class[Action]])
         kalix.register(actionProvider(clz.asInstanceOf[Class[Action]]))
+        kalixClient.registerComponent(action.serviceDescriptor()) // only actions allow for calling other components
       }
 
       if (classOf[EventSourcedEntity[_]].isAssignableFrom(clz)) {

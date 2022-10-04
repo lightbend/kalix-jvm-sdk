@@ -26,7 +26,7 @@
     </appender>
 
     <logger name="akka" level="INFO"/>
-    <logger name="kalix" level="INFO"/>
+    <logger name="kalix" level="DEBUG"/>
     <logger name="akka.http" level="INFO"/>
     <logger name="io.grpc" level="INFO"/>
 

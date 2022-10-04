@@ -132,6 +132,14 @@ private[javasdk] final class ActionsImpl(
           toProtocol(forward.metadata))
         Future.successful(
           ActionResponse(ActionResponse.Response.Forward(response), toProtocol(messageCodec, sideEffects)))
+      case ForwardEffect(forward: RestDeferredCallImpl[_, _], sideEffects) =>
+        val response = component.Forward(
+          forward.methodDescriptor.getService.getFullName,
+          forward.methodDescriptor.getName,
+          Some(messageCodec.encodeScala(forward.message)), // FIXME use the generated synthetic request here
+          toProtocol(forward.metadata))
+        Future.successful(
+          ActionResponse(ActionResponse.Response.Forward(response), toProtocol(messageCodec, sideEffects)))
       case AsyncEffect(futureEffect, sideEffects) =>
         futureEffect
           .flatMap { effect =>

@@ -14,15 +14,21 @@
  * limitations under the License.
  */
 
-package kalix.springsdk
-import akka.annotation.ApiMayChange
+package kalix.javasdk.impl
+
+import com.google.protobuf.Descriptors
 import kalix.javasdk.DeferredCall
 
-trait KalixClient {
+import java.util.concurrent.CompletionStage
 
-  @ApiMayChange
-  def post[P, R](uri: String, body: P, returnType: Class[R]): DeferredCall[P, R]
-
-  @ApiMayChange
-  def get[R](uri: String, returnType: Class[R]): DeferredCall[_, R]
+/**
+ * INTERNAL API
+ */
+final case class RestDeferredCallImpl[I, O](
+    message: I,
+    metadata: MetadataImpl,
+    methodDescriptor: Descriptors.MethodDescriptor,
+    asyncCall: () => CompletionStage[O])
+    extends DeferredCall[I, O] {
+  override def execute(): CompletionStage[O] = asyncCall()
 }
