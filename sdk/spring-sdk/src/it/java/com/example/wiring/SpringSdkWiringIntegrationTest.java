@@ -192,14 +192,15 @@ public class SpringSdkWiringIntegrationTest {
             .block(timeout);
 
     Assertions.assertEquals(HttpStatus.OK, response1.getStatusCode());
-        ResponseEntity<Integer> response2 = webClient
-                        .post()
-                        .uri("/counter/hello3/increase/1")
-                        .retrieve()
-                        .toEntity(Integer.class)
-                        .block(timeout);
+    ResponseEntity<Integer> response2 =
+        webClient
+            .post()
+            .uri("/counter/hello3/increase/1")
+            .retrieve()
+            .toEntity(Integer.class)
+            .block(timeout);
 
-        Assertions.assertEquals(HttpStatus.OK, response2.getStatusCode());
+    Assertions.assertEquals(HttpStatus.OK, response2.getStatusCode());
 
     await()
         .ignoreExceptions()

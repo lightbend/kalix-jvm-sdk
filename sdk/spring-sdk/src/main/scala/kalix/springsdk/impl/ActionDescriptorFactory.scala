@@ -92,9 +92,11 @@ private[impl] object ActionDescriptorFactory extends ComponentDescriptorFactory 
       }
       groupByTopic(subscriptions).collect {
         case (topic, kMethods) if kMethods.size > 1 =>
-          val methodsMap: Map[String, Method] = kMethods.map { k =>
-            (k.serviceMethod.javaMethodOpt.get.getParameterTypes()(0).getName, k.serviceMethod.javaMethodOpt.get)
-          }.toMap
+          val methodsMap: Seq[TypeUrl2Method] = kMethods.map { k =>
+            TypeUrl2Method(
+              k.serviceMethod.javaMethodOpt.get.getParameterTypes()(0).getName,
+              k.serviceMethod.javaMethodOpt.get)
+          }
 
           KalixMethod(
             CombinedSubscriptionServiceMethod(

@@ -24,7 +24,6 @@ import kalix.javasdk.action.MessageEnvelope
 import kalix.javasdk.impl.action.ActionRouter
 import kalix.springsdk.impl.ComponentMethod
 import kalix.springsdk.impl.InvocationContext
-import kalix.springsdk.impl.reflection.ParameterExtractors.AnyBodyExtractor
 import reactor.core.publisher.Flux
 
 class ReflectiveActionRouter[A <: Action](action: A, componentMethods: Map[String, ComponentMethod])
@@ -45,11 +44,11 @@ class ReflectiveActionRouter[A <: Action](action: A, componentMethods: Map[Strin
     val inputTypeUrl =
       message.payload().asInstanceOf[ScalaPbAny].typeUrl
 
-    val javaMethod = componentMethod
+    val javaMethodOpt = componentMethod
       .lookupMethod(inputTypeUrl)
-    javaMethod.method match {
-      case Some(method) =>
-        method
+    javaMethodOpt match {
+      case Some(javaMethod) =>
+        javaMethod.method
           .invoke(action, javaMethod.parameterExtractors.map(e => e.extract(context)): _*)
           .asInstanceOf[Action.Effect[_]]
       case None => throw new NoSuchElementException(s"There is no method [$commandName] with [$inputTypeUrl] as input")
@@ -67,12 +66,19 @@ class ReflectiveActionRouter[A <: Action](action: A, componentMethods: Map[Strin
         componentMethod.requestMessageDescriptor,
         message.metadata())
 
-    val response =
-      componentMethod.method.get // safe call: if component method is None, proxy won't forward calls to it
-        .invoke(action, componentMethod.parameterExtractors.map(e => e.extract(context)): _*)
-        .asInstanceOf[Flux[Action.Effect[_]]]
+    val inputTypeUrl =
+      message.payload().asInstanceOf[ScalaPbAny].typeUrl
+    val javaMethodOpt = componentMethod
+      .lookupMethod(inputTypeUrl)
 
-    Source.fromPublisher(response)
+    javaMethodOpt match {
+      case Some(javaMethod) =>
+        val response = javaMethod.method
+          .invoke(action, javaMethod.parameterExtractors.map(e => e.extract(context)): _*)
+          .asInstanceOf[Flux[Action.Effect[_]]]
+        Source.fromPublisher(response)
+      case None => throw new NoSuchElementException(s"There is no method [$commandName] with [$inputTypeUrl] as input")
+    }
   }
 
   override def handleStreamedIn(commandName: String, stream: Source[MessageEnvelope[Any], NotUsed]): Action.Effect[_] =

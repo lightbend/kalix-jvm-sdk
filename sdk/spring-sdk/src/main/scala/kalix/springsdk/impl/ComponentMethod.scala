@@ -23,41 +23,41 @@ import kalix.springsdk.impl.reflection.ParameterExtractors.AnyBodyExtractor
 
 // Might need to have one of each of these for unary, streamed out, streamed in and streamed.
 /**
- * @param method
- *   method from the annotated class
  * @param grpcMethodName
  *   'rpc' method name. When it has a methodsMap - see below - the name is not the same as the method above but a
  *   synthetic one.
  * @param parameterExtractors
  *   To extract the value of a parameter from protobuf.Any
  * @param requestMessageDescriptor
- * @param inputClass2Method
- *   This component method may represent multiple methods in a class. For example, if a class is annotated with the same
- * @Subscription.Topic("xyz")
- *   in two different methods then this methodsMap keeps reference to those two methods.
+ * @param typeUrl2Methods
+ *   This is the list of reflect.Method available for each typeUrl
  */
 case class ComponentMethod(
-    method: Option[Method],
     grpcMethodName: String,
     parameterExtractors: Array[ParameterExtractor[InvocationContext, AnyRef]],
     requestMessageDescriptor: Descriptors.Descriptor,
-    inputClass2Method: Map[String, Method] = Map()) {
+    typeUrl2Methods: Seq[TypeUrl2Method] = Nil) {
 
-  def lookupMethod(inputTypeUrl: String): JavaMethod = {
-    if (inputClass2Method.isEmpty) {
-      JavaMethod(method, parameterExtractors)
-    } else {
-      val method = inputClass2Method.get(inputTypeUrl)
-      val methodParameterTypes = method.get.getParameterTypes();
-      val extractors = parameterExtractors.collect {
-        //FIXME is it safe to pick the last parameter. An action has one and View has two. Is it in the View always the second the event? are we enforcing that?
-        case extractor @ AnyBodyExtractor(cls)
-            if cls.getName.equals(methodParameterTypes(methodParameterTypes.size - 1).getName) =>
-          extractor.asInstanceOf[ParameterExtractor[InvocationContext, AnyRef]]
-      }
-      JavaMethod(method, extractors)
+  def lookupMethod(inputTypeUrl: String): Option[JavaMethod] = {
+
+    val method = typeUrl2Methods.find(p => p.typeUrl == inputTypeUrl)
+    method match {
+      case Some(meth) =>
+        val methodParameterTypes = meth.method.getParameterTypes();
+        val extractors = parameterExtractors.collect {
+          //it is safe to pick the last parameter. An action has one and View has two. In the View the event it is always the last parameter
+          case extractor @ AnyBodyExtractor(cls)
+              if cls.getName.equals(methodParameterTypes(methodParameterTypes.size - 1).getName) =>
+            extractor.asInstanceOf[ParameterExtractor[InvocationContext, AnyRef]]
+        }
+        Some(JavaMethod(meth.method, extractors))
+      case None => None
     }
   }
+
+  def invoke(typeUrl: Option[String]) = ???
 }
 
-case class JavaMethod(method: Option[Method], parameterExtractors: Array[ParameterExtractor[InvocationContext, AnyRef]])
+case class TypeUrl2Method(typeUrl: String, method: Method)
+
+case class JavaMethod(method: Method, parameterExtractors: Array[ParameterExtractor[InvocationContext, AnyRef]])

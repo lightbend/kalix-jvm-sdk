@@ -54,6 +54,7 @@ import kalix.springsdk.impl.reflection.RestServiceIntrospector.UnhandledParamete
 import kalix.springsdk.impl.reflection.SubscriptionServiceMethod
 import org.springframework.web.bind.annotation.RequestMethod
 
+import java.lang.reflect.Method
 import scala.jdk.CollectionConverters.CollectionHasAsScala
 
 /**
@@ -178,24 +179,27 @@ private[impl] object ComponentDescriptor {
               }.toArray
             } else Array.empty
 
-          ComponentMethod(serviceMethod.javaMethodOpt, grpcMethodName, parameterExtractors, message)
-        case method: CombinedSubscriptionServiceMethod =>
-          val parameterExtractors: ParameterExtractors =
-            method.inputClass2Method.values
-              .flatMap(each =>
-                each.getParameterTypes.map(param => new ParameterExtractors.AnyBodyExtractor[AnyRef](param)))
-              .toArray
           ComponentMethod(
-            serviceMethod.javaMethodOpt,
             grpcMethodName,
             parameterExtractors,
-            JavaPbAny.getDescriptor,
-            method.inputClass2Method)
+            message,
+            Seq(TypeUrl2Method(method.javaMethod.getName, method.javaMethod)))
+        case method: CombinedSubscriptionServiceMethod =>
+          val parameterExtractors: ParameterExtractors =
+            method.typeUrl2Method
+              .flatMap(each =>
+                each.method.getParameterTypes.map(param => new ParameterExtractors.AnyBodyExtractor[AnyRef](param)))
+              .toArray
+          ComponentMethod(grpcMethodName, parameterExtractors, JavaPbAny.getDescriptor, method.typeUrl2Method)
         case method: AnyServiceMethod =>
           // methods that receive Any as input always default to AnyBodyExtractor
           val parameterExtractors: ParameterExtractors = Array(
             new ParameterExtractors.AnyBodyExtractor(method.inputType))
-          ComponentMethod(serviceMethod.javaMethodOpt, grpcMethodName, parameterExtractors, JavaPbAny.getDescriptor)
+          val typeUrl2method = serviceMethod.javaMethodOpt match {
+            case Some(m) => Seq(TypeUrl2Method(m.getName, m))
+            case None    => Nil
+          }
+          ComponentMethod(grpcMethodName, parameterExtractors, JavaPbAny.getDescriptor, typeUrl2method)
       }
 
     }

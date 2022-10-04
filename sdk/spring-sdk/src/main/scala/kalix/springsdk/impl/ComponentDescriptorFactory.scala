@@ -142,21 +142,20 @@ private[impl] trait ComponentDescriptorFactory {
     }
     groupByES(subscriptions).collect {
       case (eventSourcedEntity, kMethods) if kMethods.size > 1 =>
-        val inputClass2Method: Map[String, Method] = kMethods.map { k =>
+        val typeUrl2Method: Seq[TypeUrl2Method] = kMethods.map { k =>
           val methodParameterTypes = k.serviceMethod.javaMethodOpt.get.getParameterTypes();
           val eventParameter = methodParameterTypes(methodParameterTypes.size - 1)
-          //FIXME is it safe to pick the last parameter. An action has one and View has two. Is it in the View always the second the event? are we enforcing that?
-          (
-            kalix.javasdk.JsonSupport.KALIX_JSON + SpringSdkMessageCodec.findTypeHint(
-              eventParameter
-            ), //shall I add kalix.io.json here?
+          // it is safe to pick the last parameter. An action has one and View has two. In the View always the last is the event
+          TypeUrl2Method(
+            kalix.javasdk.JsonSupport.KALIX_JSON
+            + SpringSdkMessageCodec.findTypeHint(eventParameter),
             k.serviceMethod.javaMethodOpt.get)
-        }.toMap
+        }
         KalixMethod(
           CombinedSubscriptionServiceMethod(
             "KalixSyntheticMethodOnES" + eventSourcedEntity.capitalize,
             kMethods.head.serviceMethod.asInstanceOf[SubscriptionServiceMethod],
-            inputClass2Method))
+            typeUrl2Method))
           .withKalixOptions(kMethods.head.methodOptions)
       case (eventSourcedEntity, kMethod +: Nil) =>
         kMethod
