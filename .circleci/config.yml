@@ -228,7 +228,7 @@ jobs:
             BRANCH=bump-sdk-versions-$SDK_VERSION
             git checkout -b $BRANCH
             git config user.name "Kalix Bot"
-            git config user.email "kalix.team@lightbend.com" #FIXME use a proper email
+            git config user.email "kalix.github@lightbend.com"
             git commit . -m "Bump SDK versions to $SDK_VERSION"
             git remote add origin-rw https://$GITHUB_TOKEN@github.com/lightbend/kalix-jvm-sdk
             git push --set-upstream origin-rw $BRANCH
