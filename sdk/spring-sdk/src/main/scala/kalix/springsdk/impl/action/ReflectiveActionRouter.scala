@@ -44,16 +44,12 @@ class ReflectiveActionRouter[A <: Action](action: A, componentMethods: Map[Strin
     val inputTypeUrl =
       message.payload().asInstanceOf[ScalaPbAny].typeUrl
 
-    val javaMethodOpt = componentMethod
+    val javaMethod = componentMethod
       .lookupMethod(inputTypeUrl)
-    javaMethodOpt match {
-      case Some(javaMethod) =>
-        javaMethod.method
-          .invoke(action, javaMethod.parameterExtractors.map(e => e.extract(context)): _*)
-          .asInstanceOf[Action.Effect[_]]
-      case None => throw new NoSuchElementException(s"There is no method [$commandName] with [$inputTypeUrl] as input")
-    }
 
+    javaMethod.method
+      .invoke(action, javaMethod.parameterExtractors.map(e => e.extract(context)): _*)
+      .asInstanceOf[Action.Effect[_]]
   }
 
   override def handleStreamedOut(
@@ -66,19 +62,13 @@ class ReflectiveActionRouter[A <: Action](action: A, componentMethods: Map[Strin
         componentMethod.requestMessageDescriptor,
         message.metadata())
 
-    val inputTypeUrl =
-      message.payload().asInstanceOf[ScalaPbAny].typeUrl
-    val javaMethodOpt = componentMethod
-      .lookupMethod(inputTypeUrl)
+    val javaMethod = componentMethod
+      .lookupMethod(message.payload().asInstanceOf[ScalaPbAny].typeUrl)
 
-    javaMethodOpt match {
-      case Some(javaMethod) =>
-        val response = javaMethod.method
-          .invoke(action, javaMethod.parameterExtractors.map(e => e.extract(context)): _*)
-          .asInstanceOf[Flux[Action.Effect[_]]]
-        Source.fromPublisher(response)
-      case None => throw new NoSuchElementException(s"There is no method [$commandName] with [$inputTypeUrl] as input")
-    }
+    val response = javaMethod.method
+      .invoke(action, javaMethod.parameterExtractors.map(e => e.extract(context)): _*)
+      .asInstanceOf[Flux[Action.Effect[_]]]
+    Source.fromPublisher(response)
   }
 
   override def handleStreamedIn(commandName: String, stream: Source[MessageEnvelope[Any], NotUsed]): Action.Effect[_] =

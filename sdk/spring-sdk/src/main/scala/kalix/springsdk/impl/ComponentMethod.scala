@@ -41,17 +41,19 @@ case class ComponentMethod(
 
   val logger = LoggerFactory.getLogger(ComponentMethod.getClass)
 
-  def lookupMethod(inputTypeUrl: String): Option[JavaMethod] = {
+  def lookupMethod(inputTypeUrl: String): JavaMethod = {
     val method = typeUrl2Methods.find(p => p.typeUrl == inputTypeUrl)
     method match {
       case Some(meth) =>
-        Some(JavaMethod(meth.method, getExtractors(meth.method)))
+        JavaMethod(meth.method, getExtractors(meth.method))
       case None if typeUrl2Methods.size == 1 =>
-        Some(JavaMethod(typeUrl2Methods.head.method, parameterExtractors))
+        logger.warn(
+          s"Couldn't find any entry for typeUrl [${inputTypeUrl}] in [${typeUrl2Methods}]." +
+          s" Choosing the first option [${typeUrl2Methods.head.method}].")
+        JavaMethod(typeUrl2Methods.head.method, parameterExtractors)
       case None =>
-        logger.error(
-          s"couldn't find any method in typeUrl2Methods [${typeUrl2Methods}] with a typeUrl [${inputTypeUrl}")
-        None
+        throw new IllegalStateException(
+          s"Couldn't find any entry for typeUrl [${inputTypeUrl}] in [${typeUrl2Methods}].")
     }
   }
 

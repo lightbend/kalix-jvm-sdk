@@ -17,7 +17,6 @@
 package kalix.springsdk.impl.reflection
 
 import com.google.protobuf.Descriptors
-import kalix.springsdk.impl.ProtoMessageDescriptors
 import kalix.springsdk.impl.TypeUrl2Method
 import kalix.springsdk.impl.path.{ PathPattern, PathPatternParser }
 import kalix.springsdk.impl.reflection.RestServiceIntrospector.{
@@ -29,10 +28,8 @@ import kalix.springsdk.impl.reflection.RestServiceIntrospector.{
 import org.springframework.web.bind.annotation.{ RequestMapping, RequestMethod }
 
 import java.lang.reflect.Method
-import java.lang.reflect.Parameter
 import scala.annotation.tailrec
 import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.ResponseBody
 import reactor.core.publisher.Flux
 
 object ServiceMethod {
@@ -207,7 +204,6 @@ case class SpringRestServiceMethod(
         classMapping.get.method.head
     }
   }
-
 }
 
 case class KalixMethod(
