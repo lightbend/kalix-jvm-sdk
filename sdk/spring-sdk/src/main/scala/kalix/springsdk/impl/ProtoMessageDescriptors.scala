@@ -16,7 +16,7 @@
 
 package kalix.springsdk.impl
 
-import com.google.protobuf.{ DescriptorProtos, Descriptors, FieldType }
+import com.google.protobuf.DescriptorProtos
 import com.fasterxml.jackson.dataformat.protobuf.ProtobufMapper
 import com.fasterxml.jackson.dataformat.protobuf.schema.ProtobufMessage
 import com.fasterxml.jackson.dataformat.protobuf.{ schema => jacksonSchema }

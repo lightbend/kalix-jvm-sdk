@@ -41,8 +41,14 @@ class ReflectiveActionRouter[A <: Action](action: A, componentMethods: Map[Strin
         componentMethod.requestMessageDescriptor,
         message.metadata())
 
-    componentMethod.method.get // safe call: if component method is None, proxy won't forward calls to it
-      .invoke(action, componentMethod.parameterExtractors.map(e => e.extract(context)): _*)
+    val inputTypeUrl =
+      message.payload().asInstanceOf[ScalaPbAny].typeUrl
+
+    val javaMethod = componentMethod
+      .lookupMethod(inputTypeUrl)
+
+    javaMethod.method
+      .invoke(action, javaMethod.parameterExtractors.map(e => e.extract(context)): _*)
       .asInstanceOf[Action.Effect[_]]
   }
 
@@ -56,11 +62,12 @@ class ReflectiveActionRouter[A <: Action](action: A, componentMethods: Map[Strin
         componentMethod.requestMessageDescriptor,
         message.metadata())
 
-    val response =
-      componentMethod.method.get // safe call: if component method is None, proxy won't forward calls to it
-        .invoke(action, componentMethod.parameterExtractors.map(e => e.extract(context)): _*)
-        .asInstanceOf[Flux[Action.Effect[_]]]
+    val javaMethod = componentMethod
+      .lookupMethod(message.payload().asInstanceOf[ScalaPbAny].typeUrl)
 
+    val response = javaMethod.method
+      .invoke(action, javaMethod.parameterExtractors.map(e => e.extract(context)): _*)
+      .asInstanceOf[Flux[Action.Effect[_]]]
     Source.fromPublisher(response)
   }
 

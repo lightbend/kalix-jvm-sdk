@@ -199,34 +199,20 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
         assertRequestFieldJavaType(method, "one", JavaType.STRING)
       }
     }
-    "generate mapping with Event Sourced Entity Subscription annotation" in {
+    "generate combined mapping with Event Sourced Entity Subscription annotation" in {
       assertDescriptor[SubscribeToEventSourcedEntityAction] { desc =>
-        val methodDescriptorOne = desc.serviceDescriptor.findMethodByName("MethodOne")
-        methodDescriptorOne.isServerStreaming shouldBe false
-        methodDescriptorOne.isClientStreaming shouldBe false
+        val methodDescriptor = desc.serviceDescriptor.findMethodByName("KalixSyntheticMethodOnESCounter")
+        methodDescriptor.isServerStreaming shouldBe false
+        methodDescriptor.isClientStreaming shouldBe false
 
-        val methodOne = desc.methods("MethodOne")
+        val methodOne = desc.methods("KalixSyntheticMethodOnESCounter")
         methodOne.requestMessageDescriptor.getFullName shouldBe JavaPbAny.getDescriptor.getFullName
 
-        val eventSourceOne = findKalixMethodOptions(desc, "MethodOne").getEventing.getIn
+        val eventSourceOne = findKalixMethodOptions(desc, "KalixSyntheticMethodOnESCounter").getEventing.getIn
         eventSourceOne.getEventSourcedEntity shouldBe "counter"
 
-        val ruleOne = findHttpRule(desc, "MethodOne")
-        ruleOne.getPost shouldBe "/kalix.springsdk.testmodels.subscriptions.PubSubTestModels.SubscribeToEventSourcedEntityAction/MethodOne"
-
-        val methodDescriptorTwo = desc.serviceDescriptor.findMethodByName("MethodTwo")
-        methodDescriptorTwo.isServerStreaming shouldBe false
-        methodDescriptorTwo.isClientStreaming shouldBe false
-
-        val methodTwo = desc.methods("MethodTwo")
-        methodTwo.requestMessageDescriptor.getFullName shouldBe JavaPbAny.getDescriptor.getFullName
-
-        val eventSourceTwo = findKalixMethodOptions(desc, "MethodTwo").getEventing.getIn
-        eventSourceTwo.getEventSourcedEntity shouldBe "counter"
-
-        val ruleTwo = findHttpRule(desc, "MethodTwo")
-        ruleTwo.getPost shouldBe "/kalix.springsdk.testmodels.subscriptions.PubSubTestModels.SubscribeToEventSourcedEntityAction/MethodTwo"
-
+        val ruleOne = findHttpRule(desc, "KalixSyntheticMethodOnESCounter")
+        ruleOne.getPost shouldBe "/kalix.springsdk.testmodels.subscriptions.PubSubTestModels.SubscribeToEventSourcedEntityAction/KalixSyntheticMethodOnESCounter"
       }
     }
 
@@ -312,9 +298,24 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
     }
 
     "Raise and error when there are two subscriptions to the same topic" in {
-      intercept[InvalidComponentException] {
-        ComponentDescriptor.descriptorFor[SubscribeToTwoTopicsAction]
+      assertDescriptor[SubscribeToTwoTopicsAction] { desc =>
+        val methodOne = desc.methods("KalixSyntheticMethodOnTopicTopicXYZ")
+        methodOne.requestMessageDescriptor.getFullName shouldBe JavaPbAny.getDescriptor.getFullName
+
+        val eventSourceOne = findKalixMethodOptions(desc, "KalixSyntheticMethodOnTopicTopicXYZ").getEventing.getIn
+        eventSourceOne.getTopic shouldBe "topicXYZ"
+        val rule = findHttpRule(desc, "KalixSyntheticMethodOnTopicTopicXYZ")
+
+        rule.getPost shouldBe
+        "/kalix.springsdk.testmodels.subscriptions.PubSubTestModels.SubscribeToTwoTopicsAction/KalixSyntheticMethodOnTopicTopicXYZ"
+
+        //We are combining two methods in one synthetic one so the proxy has a single endpoint
+        // but when event are consumed and need to be dispatched to the proper method in SubscribeToTwoTopicsAction class
+        // it needs to have available both extractors so depending if is Message or Message2 it can extract the value
+        // and pass it to the java.reflect.Method.invoke
+        methodOne.parameterExtractors.size shouldBe 2
       }
+
     }
 
     "generate mapping for an Action with a publication to a topic" in {

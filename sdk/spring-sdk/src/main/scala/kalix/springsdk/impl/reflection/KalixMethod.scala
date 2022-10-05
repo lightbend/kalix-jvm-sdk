@@ -17,7 +17,7 @@
 package kalix.springsdk.impl.reflection
 
 import com.google.protobuf.Descriptors
-import kalix.springsdk.impl.ProtoMessageDescriptors
+import kalix.springsdk.impl.TypeUrl2Method
 import kalix.springsdk.impl.path.{ PathPattern, PathPatternParser }
 import kalix.springsdk.impl.reflection.RestServiceIntrospector.{
   isEmpty,
@@ -26,13 +26,10 @@ import kalix.springsdk.impl.reflection.RestServiceIntrospector.{
   RestMethodParameter
 }
 import org.springframework.web.bind.annotation.{ RequestMapping, RequestMethod }
+
 import java.lang.reflect.Method
-import java.lang.reflect.Parameter
-
 import scala.annotation.tailrec
-
 import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.ResponseBody
 import reactor.core.publisher.Flux
 
 object ServiceMethod {
@@ -91,15 +88,35 @@ case class VirtualServiceMethod(component: Class[_], methodName: String, inputTy
   val streamOut: Boolean = false
 }
 
+case class CombinedSubscriptionServiceMethod(
+    combinedMethodName: String,
+    representative: SubscriptionServiceMethod,
+    typeUrl2Method: Seq[TypeUrl2Method])
+    extends AnyServiceMethod {
+
+  val methodName = combinedMethodName
+
+  val javaMethod = representative.javaMethod
+
+  val inputType: Class[_] = javaMethod.getParameterTypes()(representative.inputTypeParamIndex)
+
+  override def requestMethod: RequestMethod = RequestMethod.POST
+  override def javaMethodOpt: Option[Method] = Some(javaMethod)
+
+  val pathTemplate = buildPathTemplate(javaMethod.getDeclaringClass.getName, methodName)
+
+  val streamIn: Boolean = ServiceMethod.isStreamIn(javaMethod)
+  val streamOut: Boolean = ServiceMethod.isStreamOut(javaMethod)
+}
+
 /**
  * Build from methods annotated with @Subscription. Those methods are not annotated with Spring REST annotations, but
  * they become a REST method at the end.
  */
-case class RestServiceMethod(javaMethod: Method, inputTypeParamIndex: Int = 0) extends AnyServiceMethod {
+case class SubscriptionServiceMethod(javaMethod: Method, inputTypeParamIndex: Int = 0) extends AnyServiceMethod {
 
+  val methodName = javaMethod.getName
   val inputType: Class[_] = javaMethod.getParameterTypes()(inputTypeParamIndex)
-
-  override def methodName: String = javaMethod.getName
 
   override def requestMethod: RequestMethod = RequestMethod.POST
   override def javaMethodOpt: Option[Method] = Some(javaMethod)
@@ -187,7 +204,6 @@ case class SpringRestServiceMethod(
         classMapping.get.method.head
     }
   }
-
 }
 
 case class KalixMethod(

@@ -16,8 +16,6 @@
 
 package kalix.springsdk.testmodels.valueentity;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-
 public class CounterState {
 
   public final String id;

@@ -25,11 +25,12 @@ import kalix.springsdk.impl.ComponentDescriptorFactory.hasTopicPublication
 import kalix.springsdk.impl.ComponentDescriptorFactory.hasTopicSubscription
 import kalix.springsdk.impl.ComponentDescriptorFactory.hasValueEntitySubscription
 import kalix.springsdk.impl.ComponentDescriptorFactory.validateRestMethod
+import kalix.springsdk.impl.reflection.CombinedSubscriptionServiceMethod
 import kalix.springsdk.impl.reflection.KalixMethod
 import kalix.springsdk.impl.reflection.NameGenerator
 import kalix.springsdk.impl.reflection.ReflectionUtils
 import kalix.springsdk.impl.reflection.RestServiceIntrospector
-import kalix.springsdk.impl.reflection.RestServiceMethod
+import kalix.springsdk.impl.reflection.SubscriptionServiceMethod
 
 private[impl] object ActionDescriptorFactory extends ComponentDescriptorFactory {
 
@@ -51,7 +52,7 @@ private[impl] object ActionDescriptorFactory extends ComponentDescriptorFactory 
         val kalixOptions =
           kalix.MethodOptions.newBuilder().setEventing(subscriptionOptions).build()
 
-        KalixMethod(RestServiceMethod(method))
+        KalixMethod(SubscriptionServiceMethod(method))
           .withKalixOptions(kalixOptions)
       }
 
@@ -63,7 +64,7 @@ private[impl] object ActionDescriptorFactory extends ComponentDescriptorFactory 
         val kalixOptions =
           kalix.MethodOptions.newBuilder().setEventing(subscriptionOptions).build()
 
-        KalixMethod(RestServiceMethod(method))
+        KalixMethod(SubscriptionServiceMethod(method))
           .withKalixOptions(kalixOptions)
       }
 
@@ -75,24 +76,35 @@ private[impl] object ActionDescriptorFactory extends ComponentDescriptorFactory 
         val kalixOptions =
           kalix.MethodOptions.newBuilder().setEventing(subscriptionOptions).build()
 
-        KalixMethod(RestServiceMethod(method))
+        KalixMethod(SubscriptionServiceMethod(method))
           .withKalixOptions(kalixOptions)
       }
 
-    def checkNotTopicDuplication(subscriptions: Seq[KalixMethod]): Seq[KalixMethod] = {
+    def combineByTopic(subscriptions: Seq[KalixMethod]): Seq[KalixMethod] = {
       def groupByTopic(methods: Seq[KalixMethod]): Map[String, Seq[KalixMethod]] = {
         val withTopicIn = methods.filter(kalixMethod =>
           kalixMethod.methodOptions.exists(option =>
             option.hasEventing && option.getEventing.hasIn && option.getEventing.getIn.hasTopic))
-        //Assuming there is only one topic, therefore head is as good as any other
+        //Assuming there is only one topic annotation per method, therefore head is as good as any other
         withTopicIn.groupBy(m => m.methodOptions.head.getEventing.getIn.getTopic)
       }
       groupByTopic(subscriptions).collect {
         case (topic, kMethods) if kMethods.size > 1 =>
-          throw InvalidComponentException(
-            s"topic: '$topic' it is used in multiple @Subscription.Topic annotations. Each @Subscription.Topic must point to a different topic")
-      }
-      subscriptions
+          val typeUrl2Methods: Seq[TypeUrl2Method] = kMethods.map { k =>
+            TypeUrl2Method(
+              k.serviceMethod.javaMethodOpt.get.getParameterTypes()(0).getName,
+              k.serviceMethod.javaMethodOpt.get)
+          }
+
+          KalixMethod(
+            CombinedSubscriptionServiceMethod(
+              "KalixSyntheticMethodOnTopic" + topic.capitalize,
+              kMethods.head.serviceMethod.asInstanceOf[SubscriptionServiceMethod],
+              typeUrl2Methods))
+            .withKalixOptions(kMethods.head.methodOptions)
+        case (topic, kMethod +: Nil) =>
+          kMethod
+      }.toSeq
     }
 
     val publicationTopicMethods = component.getMethods
@@ -103,7 +115,7 @@ private[impl] object ActionDescriptorFactory extends ComponentDescriptorFactory 
         val kalixOptions =
           kalix.MethodOptions.newBuilder().setEventing(publicationOptions).build()
 
-        KalixMethod(RestServiceMethod(method))
+        KalixMethod(SubscriptionServiceMethod(method))
           .withKalixOptions(kalixOptions)
       }
     val serviceName = nameGenerator.getName(component.getSimpleName)
@@ -135,8 +147,8 @@ private[impl] object ActionDescriptorFactory extends ComponentDescriptorFactory 
       component.getPackageName,
       filterAndAddKalixOptions(springAnnotatedMethods, publicationTopicMethods)
       ++ subscriptionValueEntityMethods
-      ++ subscriptionEventSourcedEntityMethods
-      ++ checkNotTopicDuplication(subscriptionTopicMethods)
+      ++ combineByES(subscriptionEventSourcedEntityMethods)
+      ++ combineByTopic(subscriptionTopicMethods)
       ++ removeDuplicates(springAnnotatedMethods, publicationTopicMethods))
   }
 }

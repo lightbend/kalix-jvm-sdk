@@ -58,7 +58,7 @@ object ParameterExtractors {
     JsonSupport.decodeJson(cls, any)
   }
 
-  class AnyBodyExtractor[T](cls: Class[_]) extends ParameterExtractor[DynamicMessageContext, T] {
+  case class AnyBodyExtractor[T](cls: Class[_]) extends ParameterExtractor[DynamicMessageContext, T] {
     override def extract(context: DynamicMessageContext): T =
       decodeJson(context.message, cls.asInstanceOf[Class[T]])
   }

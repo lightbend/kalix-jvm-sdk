@@ -44,10 +44,8 @@ class ReflectiveValueEntityRouter[S, E <: ValueEntity[S]](
     // pass current state to entity
     entity._internalSetCurrentState(state);
 
-    // safe call: if component method is None, proxy won't forward calls to it
-    // typically, that happens when we have a View update method with transform = false
-    // in such a case, the proxy can index the view payload directly, without passing through the user function
-    componentMethod.method.get
+    // safe call: typeUrl2Methods has at least one entry - famous last words.
+    componentMethod.typeUrl2Methods.head.method
       .invoke(entity, componentMethod.parameterExtractors.map(e => e.extract(context)): _*)
       .asInstanceOf[ValueEntity.Effect[_]]
   }

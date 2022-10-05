@@ -31,8 +31,7 @@ import com.google.protobuf.DescriptorProtos.ServiceDescriptorProto
 import com.google.protobuf.Descriptors
 import com.google.protobuf.Descriptors.FileDescriptor
 import com.google.protobuf.{ Any => JavaPbAny }
-import kalix.springsdk.annotations.Entity
-import kalix.springsdk.annotations.Table
+import kalix.springsdk.impl.reflection.CombinedSubscriptionServiceMethod
 import kalix.springsdk.impl.reflection.{
   AnyServiceMethod,
   DynamicMessageContext,
@@ -50,8 +49,10 @@ import kalix.springsdk.impl.reflection.RestServiceIntrospector.HeaderParameter
 import kalix.springsdk.impl.reflection.RestServiceIntrospector.PathParameter
 import kalix.springsdk.impl.reflection.RestServiceIntrospector.QueryParamParameter
 import kalix.springsdk.impl.reflection.RestServiceIntrospector.UnhandledParameter
+import kalix.springsdk.impl.reflection.SubscriptionServiceMethod
 import org.springframework.web.bind.annotation.RequestMethod
 
+import java.lang.reflect.Method
 import scala.jdk.CollectionConverters.CollectionHasAsScala
 
 /**
@@ -176,13 +177,27 @@ private[impl] object ComponentDescriptor {
               }.toArray
             } else Array.empty
 
-          ComponentMethod(serviceMethod.javaMethodOpt, grpcMethodName, parameterExtractors, message)
-
+          ComponentMethod(
+            grpcMethodName,
+            parameterExtractors,
+            message,
+            Seq(TypeUrl2Method(method.javaMethod.getName, method.javaMethod)))
+        case method: CombinedSubscriptionServiceMethod =>
+          val parameterExtractors: ParameterExtractors =
+            method.typeUrl2Method
+              .flatMap(each =>
+                each.method.getParameterTypes.map(param => new ParameterExtractors.AnyBodyExtractor[AnyRef](param)))
+              .toArray
+          ComponentMethod(grpcMethodName, parameterExtractors, JavaPbAny.getDescriptor, method.typeUrl2Method)
         case method: AnyServiceMethod =>
           // methods that receive Any as input always default to AnyBodyExtractor
           val parameterExtractors: ParameterExtractors = Array(
             new ParameterExtractors.AnyBodyExtractor(method.inputType))
-          ComponentMethod(serviceMethod.javaMethodOpt, grpcMethodName, parameterExtractors, JavaPbAny.getDescriptor)
+          val typeUrl2method = serviceMethod.javaMethodOpt match {
+            case Some(m) => Seq(TypeUrl2Method(m.getName, m))
+            case None    => Nil
+          }
+          ComponentMethod(grpcMethodName, parameterExtractors, JavaPbAny.getDescriptor, typeUrl2method)
       }
 
     }

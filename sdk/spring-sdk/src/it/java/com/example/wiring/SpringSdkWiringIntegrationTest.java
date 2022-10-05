@@ -16,6 +16,7 @@
 
 package com.example.wiring;
 
+import akka.http.javadsl.model.StatusCode;
 import com.example.Main;
 import com.example.wiring.actions.echo.Message;
 import com.example.wiring.eventsourcedentities.counter.Counter;
@@ -97,6 +98,32 @@ public class SpringSdkWiringIntegrationTest {
   }
 
   @Test
+  public void verifyCounterEventSourceSubscription() {
+    // GIVEN IncreaseAction is subscribed to CounterEntity events
+    // WHEN the CounterEntity is requested to increase 42
+    webClient
+        .post()
+        .uri("/counter/hello1/increase/42")
+        .retrieve()
+        .bodyToMono(Integer.class)
+        .block(timeout);
+
+    // THEN IncreaseAction receives the event 42 and increases the counter 1 more
+    await()
+        .ignoreExceptions()
+        .atMost(10, TimeUnit.of(SECONDS))
+        .until(
+            () ->
+                webClient
+                    .get()
+                    .uri("/counter/hello1")
+                    .retrieve()
+                    .bodyToMono(Integer.class)
+                    .block(timeout),
+            new IsEqual(42 + 1));
+  }
+
+  @Test
   public void verifyCounterEventSourcedWiring() {
 
     Integer counterIncrease =
@@ -152,6 +179,43 @@ public class SpringSdkWiringIntegrationTest {
                     .map(counter -> counter.value)
                     .block(timeout),
             new IsEqual<Integer>(10));
+  }
+
+  @Test
+  public void verifyCounterViewMultipleSubscriptions() throws InterruptedException {
+    ResponseEntity<Integer> response1 =
+        webClient
+            .post()
+            .uri("/counter/hello2/increase/1")
+            .retrieve()
+            .toEntity(Integer.class)
+            .block(timeout);
+
+    Assertions.assertEquals(HttpStatus.OK, response1.getStatusCode());
+    ResponseEntity<Integer> response2 =
+        webClient
+            .post()
+            .uri("/counter/hello3/increase/1")
+            .retrieve()
+            .toEntity(Integer.class)
+            .block(timeout);
+
+    Assertions.assertEquals(HttpStatus.OK, response2.getStatusCode());
+
+    await()
+        .ignoreExceptions()
+        .atMost(20, TimeUnit.SECONDS)
+        .until(
+            () ->
+                webClient
+                    .get()
+                    .uri("/counters-ms/by-value/1")
+                    .retrieve()
+                    .bodyToFlux(Counter.class)
+                    .toStream()
+                    .collect(Collectors.toList())
+                    .size(),
+            new IsEqual<>(2));
   }
 
   @Test

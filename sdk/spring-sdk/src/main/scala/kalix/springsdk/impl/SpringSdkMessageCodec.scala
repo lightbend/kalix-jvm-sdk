@@ -40,7 +40,16 @@ private[springsdk] class SpringSdkMessageCodec extends MessageCodec {
     JsonSupport.encodeJson(value, lookTypeHint(value))
 
   private def lookTypeHint(value: Any): String =
-    cache.computeIfAbsent(value.getClass, clz => findTypeHint(clz))
+    cache.computeIfAbsent(value.getClass, clz => SpringSdkMessageCodec.findTypeHint(clz))
+
+  /**
+   * In the Spring SDK, input data are kept as proto Any and delivered as such to the router
+   */
+  override def decodeMessage(value: ScalaPbAny): Any = value
+
+}
+
+private[springsdk] object SpringSdkMessageCodec {
 
   /**
    * Used in to compute cache value if absent. This method will try to scan the type hierarchy from the passed
@@ -48,7 +57,7 @@ private[springsdk] class SpringSdkMessageCodec extends MessageCodec {
    *
    * In the absence of any annotation from the JsonTypeInfo family, it will fallback to use the FQCN as a type hint.
    */
-  private def findTypeHint(messageClass: Class[_]): String = {
+  def findTypeHint(messageClass: Class[_]): String = {
 
     def annotatedParents(clz: Class[_], listOfParents: Seq[Class[_]]): Seq[Class[_]] = {
 
@@ -94,10 +103,4 @@ private[springsdk] class SpringSdkMessageCodec extends MessageCodec {
       }
     }
   }
-
-  /**
-   * In the Spring SDK, input data are kept as proto Any and delivered as such to the router
-   */
-  override def decodeMessage(value: ScalaPbAny): Any = value
-
 }

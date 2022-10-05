@@ -24,7 +24,7 @@ public class ValueMultiplied implements CounterEvent {
   public final int value;
 
   @JsonCreator
-  public ValueMultiplied(@JsonProperty Integer value) {
+  public ValueMultiplied(@JsonProperty("value") int value) {
     this.value = value;
   }
 }

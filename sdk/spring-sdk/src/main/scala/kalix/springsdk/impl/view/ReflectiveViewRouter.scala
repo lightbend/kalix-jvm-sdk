@@ -53,22 +53,23 @@ class ReflectiveViewRouter[S, V <: View[S]](view: V, componentMethods: Map[Strin
       case s if s != null && state.getClass == viewStateType => s
       case s if s != null => JsonSupport.decodeJson(viewStateType, ScalaPbAny.toJavaProto(s.asInstanceOf[ScalaPbAny]))
     }
-    val params = componentMethod.parameterExtractors.map(e => e.extract(context))
 
-    // safe call: if component method is None, proxy won't forward calls to it
-    // typically, that happens when we have a View update method with transform = false
-    // in such a case, the proxy can index the view payload directly, without passing through the user function
-    (componentMethod.method.get.getParameterCount, newState) match {
+    val javaMethod = componentMethod
+      .lookupMethod(event.asInstanceOf[ScalaPbAny].typeUrl)
+
+    val params = javaMethod.parameterExtractors.map(e => e.extract(context))
+
+    (javaMethod.method.getParameterCount, newState) match {
       case (1, _) =>
-        componentMethod.method.get
+        javaMethod.method
           .invoke(view, params: _*)
           .asInstanceOf[View.UpdateEffect[S]]
       case (2, Some(s)) =>
-        componentMethod.method.get
+        javaMethod.method
           .invoke(view, s, params.head)
           .asInstanceOf[View.UpdateEffect[S]]
       case (2, None) =>
-        componentMethod.method.get
+        javaMethod.method
           .invoke(view, null, params.head)
           .asInstanceOf[View.UpdateEffect[S]]
       case (n, _) => // this shouldn't really be reached

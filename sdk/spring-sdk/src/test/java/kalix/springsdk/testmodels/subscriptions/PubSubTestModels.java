@@ -22,7 +22,6 @@ import kalix.springsdk.annotations.Publish;
 import kalix.springsdk.testmodels.Message;
 import kalix.springsdk.testmodels.Message2;
 import kalix.springsdk.testmodels.valueentity.Counter;
-import kalix.springsdk.testmodels.valueentity.User;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;

@@ -35,7 +35,7 @@ import java.lang.reflect.ParameterizedType
 
 import kalix.springsdk.impl.ComponentDescriptorFactory.eventingInForEventSourcedEntity
 import kalix.springsdk.impl.ComponentDescriptorFactory.hasEventSourcedEntitySubscription
-import kalix.springsdk.impl.reflection.RestServiceMethod
+import kalix.springsdk.impl.reflection.SubscriptionServiceMethod
 import kalix.springsdk.impl.reflection.VirtualServiceMethod
 import reactor.core.publisher.Flux
 
@@ -69,7 +69,7 @@ private[impl] object ViewDescriptorFactory extends ComponentDescriptorFactory {
       else if (hasMethodLevelValueEntitySubs)
         subscriptionForMethodLevelValueEntity(component, tableType, tableName, tableProtoMessageName)
       else if (hasMethodLevelEventSourcedEntitySubs)
-        eventSourcedEntitySubscription(component, tableType, tableName, tableProtoMessageName)
+        combineByES(eventSourcedEntitySubscription(component, tableType, tableName, tableProtoMessageName))
       else
         Seq.empty
 
@@ -214,7 +214,7 @@ private[impl] object ViewDescriptorFactory extends ComponentDescriptorFactory {
         methodOptionsBuilder.setEventing(eventingInForEventSourcedEntity(method))
         addTableOptionsToUpdateMethod(tableName, tableProtoMessageName, methodOptionsBuilder, true)
 
-        KalixMethod(RestServiceMethod(method, method.getParameterCount - 1))
+        KalixMethod(SubscriptionServiceMethod(method, method.getParameterCount - 1))
           .withKalixOptions(methodOptionsBuilder.build())
 
       }
@@ -277,7 +277,7 @@ private[impl] object ViewDescriptorFactory extends ComponentDescriptorFactory {
         methodOptionsBuilder.setEventing(eventingInForValueEntity(method))
         addTableOptionsToUpdateMethod(tableName, tableProtoMessageName, methodOptionsBuilder, true)
 
-        KalixMethod(RestServiceMethod(method, method.getParameterCount - 1))
+        KalixMethod(SubscriptionServiceMethod(method, method.getParameterCount - 1))
           .withKalixOptions(methodOptionsBuilder.build())
 
       }
