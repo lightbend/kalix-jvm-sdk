@@ -17,7 +17,7 @@
 package kalix.springsdk.impl
 
 import java.lang.reflect.Method
-
+import java.lang.reflect.ParameterizedType
 import kalix.MethodOptions
 import kalix.springsdk.annotations.Query
 import kalix.springsdk.annotations.Subscribe
@@ -31,8 +31,6 @@ import kalix.springsdk.impl.reflection.RestServiceIntrospector
 import kalix.springsdk.impl.reflection.SpringRestServiceMethod
 import kalix.springsdk.impl.reflection.ReflectionUtils
 import kalix.springsdk.impl.reflection.RestServiceIntrospector.BodyParameter
-import java.lang.reflect.ParameterizedType
-
 import kalix.springsdk.impl.ComponentDescriptorFactory.eventingInForEventSourcedEntity
 import kalix.springsdk.impl.ComponentDescriptorFactory.hasEventSourcedEntitySubscription
 import kalix.springsdk.impl.reflection.SubscriptionServiceMethod
@@ -147,7 +145,8 @@ private[impl] object ViewDescriptorFactory extends ComponentDescriptorFactory {
       // since it is a query, we don't actually ever want to handle any request in the SDK
       // the proxy does the work for us, mark the method as non-callable
       (
-        KalixMethod(annotatedMethod.copy(callable = false), methodOptions = Seq(methodOptions)),
+        KalixMethod(annotatedMethod.copy(callable = false), methodOptions = Some(methodOptions))
+          .withKalixOptions(buildJWTOptions(annotatedMethod.javaMethod)),
         queryInputSchemaDescriptor,
         queryOutputSchemaDescriptor)
     }
@@ -279,7 +278,7 @@ private[impl] object ViewDescriptorFactory extends ComponentDescriptorFactory {
 
         KalixMethod(SubscriptionServiceMethod(method, method.getParameterCount - 1))
           .withKalixOptions(methodOptionsBuilder.build())
-
+          .withKalixOptions(buildJWTOptions(method))
       }
       .toSeq
   }

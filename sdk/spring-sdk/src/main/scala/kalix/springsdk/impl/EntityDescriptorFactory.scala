@@ -28,7 +28,7 @@ private[impl] object EntityDescriptorFactory extends ComponentDescriptorFactory 
 
     val kalixMethods =
       RestServiceIntrospector.inspectService(component).methods.map { restMethod =>
-        KalixMethod(restMethod, entityKeys = entityKeys)
+        KalixMethod(restMethod, entityKeys = entityKeys).withKalixOptions(buildJWTOptions(restMethod.javaMethod))
       }
 
     val serviceName = nameGenerator.getName(component.getSimpleName)

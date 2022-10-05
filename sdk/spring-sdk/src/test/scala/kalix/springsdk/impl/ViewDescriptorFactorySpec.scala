@@ -16,6 +16,8 @@
 
 package kalix.springsdk.impl
 
+import com.google.protobuf.Descriptors.FieldDescriptor.JavaType
+import kalix.JwtMethodOptions.JwtMethodMode
 import kalix.springsdk.testmodels.view.ViewTestModels.SubscribeToEventSourcedEvents
 import kalix.springsdk.testmodels.view.ViewTestModels.SubscribeToEventSourcedEventsWithMethodWithState
 import kalix.springsdk.testmodels.view.ViewTestModels.SubscriptionMethodWithMoreThanTwoArgs
@@ -27,6 +29,7 @@ import kalix.springsdk.testmodels.view.ViewTestModels.TransformMethodThreeParame
 import kalix.springsdk.testmodels.view.ViewTestModels.TransformMethodWrongParamOrder
 import kalix.springsdk.testmodels.view.ViewTestModels.TransformedUserView
 import kalix.springsdk.testmodels.view.ViewTestModels.TransformedUserViewUsingState
+import kalix.springsdk.testmodels.view.ViewTestModels.TransformedUserViewWithJWT
 import kalix.springsdk.testmodels.view.ViewTestModels.UserByEmailWithGet
 import kalix.springsdk.testmodels.view.ViewTestModels.UserByEmailWithPost
 import kalix.springsdk.testmodels.view.ViewTestModels.UserByEmailWithPostRequestBodyOnly
@@ -70,6 +73,39 @@ class ViewDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSuit
 
         val rule = findHttpRule(desc, "GetUser")
         rule.getPost shouldBe "/users/by-email"
+      }
+    }
+
+    "generate proto for a View using POST request with explicit update method and JWT Kalix annotations" in {
+      assertDescriptor[TransformedUserViewWithJWT] { desc =>
+
+        val methodOptions = this.findKalixMethodOptions(desc, "OnChange")
+        val entityType = methodOptions.getEventing.getIn.getValueEntity
+        entityType shouldBe "user"
+
+        methodOptions.getView.getUpdate.getTable shouldBe "users_view"
+        methodOptions.getView.getUpdate.getTransformUpdates shouldBe true
+        methodOptions.getView.getJsonSchema.getOutput shouldBe "TransformedUser"
+
+        val queryMethodOptions = this.findKalixMethodOptions(desc, "GetUser")
+        queryMethodOptions.getView.getQuery.getQuery shouldBe "SELECT * FROM users_view WHERE email = :email"
+        queryMethodOptions.getView.getJsonSchema.getJsonBodyInputField shouldBe "json_body"
+        queryMethodOptions.getView.getJsonSchema.getInput shouldBe "ByEmail"
+        queryMethodOptions.getView.getJsonSchema.getOutput shouldBe "TransformedUser"
+
+        val tableMessageDescriptor = desc.fileDescriptor.findMessageTypeByName("TransformedUser")
+        tableMessageDescriptor should not be null
+
+        val rule = findHttpRule(desc, "GetUser")
+        rule.getPost shouldBe "/users/by-email"
+
+        val method = desc.methods("GetUser")
+        val jwtOption = findKalixMethodOptions(desc, method.grpcMethodName).getJwt
+        jwtOption.getBearerTokenIssuer(0) shouldBe "a"
+        jwtOption.getBearerTokenIssuer(1) shouldBe "b"
+        jwtOption.getValidate(0) shouldBe JwtMethodMode.BEARER_TOKEN
+        jwtOption.getSign(0) shouldBe JwtMethodMode.MESSAGE
+        assertRequestFieldJavaType(method, "json_body", JavaType.MESSAGE)
       }
     }
 

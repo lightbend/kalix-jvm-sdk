@@ -17,7 +17,9 @@
 package kalix.springsdk.impl
 
 import com.google.protobuf.Descriptors.FieldDescriptor.JavaType
+import kalix.JwtMethodOptions.JwtMethodMode
 import kalix.springsdk.testmodels.eventsourcedentity.EventSourcedEntitiesTestModels.WellAnnotatedESEntity
+import kalix.springsdk.testmodels.eventsourcedentity.EventSourcedEntitiesTestModels.WellAnnotatedESEntityWithJWT
 import org.scalatest.wordspec.AnyWordSpec
 
 class EventSourcedEntityDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSuite {
@@ -34,6 +36,32 @@ class EventSourcedEntityDescriptorFactorySpec extends AnyWordSpec with Component
         assertRequestFieldJavaType(postMethod, "id", JavaType.STRING)
         assertEntityKeyField(postMethod, "id")
         assertRequestFieldJavaType(postMethod, "number", JavaType.INT)
+      }
+    }
+
+    "generate mappings for a Event Sourced with entity keys in path and JWT annotations" in {
+      assertDescriptor[WellAnnotatedESEntityWithJWT] { desc =>
+        val method = desc.methods("GetInteger")
+        assertRequestFieldJavaType(method, "id", JavaType.STRING)
+        assertEntityKeyField(method, "id")
+        assertRequestFieldJavaType(method, "number", JavaType.INT)
+
+        val jwtOption = findKalixMethodOptions(desc, method.grpcMethodName).getJwt
+        jwtOption.getBearerTokenIssuer(0) shouldBe "a"
+        jwtOption.getBearerTokenIssuer(1) shouldBe "b"
+        jwtOption.getValidate(0) shouldBe JwtMethodMode.BEARER_TOKEN
+        jwtOption.getSign(0) shouldBe JwtMethodMode.MESSAGE
+
+        val postMethod = desc.methods("ChangeInteger")
+        assertRequestFieldJavaType(postMethod, "id", JavaType.STRING)
+        assertEntityKeyField(postMethod, "id")
+        assertRequestFieldJavaType(postMethod, "number", JavaType.INT)
+
+        val jwtOption2 = findKalixMethodOptions(desc, postMethod.grpcMethodName).getJwt
+        jwtOption2.getBearerTokenIssuer(0) shouldBe "a"
+        jwtOption2.getBearerTokenIssuer(1) shouldBe "b"
+        jwtOption2.getValidate(0) shouldBe JwtMethodMode.BEARER_TOKEN
+        jwtOption2.getSign(0) shouldBe JwtMethodMode.MESSAGE
       }
     }
   }

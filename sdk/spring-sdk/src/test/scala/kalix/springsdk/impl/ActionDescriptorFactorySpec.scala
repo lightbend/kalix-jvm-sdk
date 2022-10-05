@@ -18,6 +18,7 @@ package kalix.springsdk.impl
 
 import com.google.protobuf.Descriptors.FieldDescriptor.JavaType
 import com.google.protobuf.{ Any => JavaPbAny }
+import kalix.JwtMethodOptions.JwtMethodMode
 import kalix.springsdk.testmodels.action.ActionsTestModels.DeleteWithOneParam
 import kalix.springsdk.testmodels.action.ActionsTestModels.GetClassLevel
 import kalix.springsdk.testmodels.action.ActionsTestModels.GetWithOneParam
@@ -28,6 +29,7 @@ import kalix.springsdk.testmodels.action.ActionsTestModels.PostWithOneParam
 import kalix.springsdk.testmodels.action.ActionsTestModels.PostWithTwoMethods
 import kalix.springsdk.testmodels.action.ActionsTestModels.PostWithTwoParam
 import kalix.springsdk.testmodels.action.ActionsTestModels.PostWithoutParam
+import kalix.springsdk.testmodels.action.ActionsTestModels.PostWithoutParamWithJWT
 import kalix.springsdk.testmodels.action.ActionsTestModels.PutWithOneParam
 import kalix.springsdk.testmodels.action.ActionsTestModels.PutWithoutParam
 import kalix.springsdk.testmodels.action.ActionsTestModels.StreamInAction
@@ -93,6 +95,23 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
 
         val method = desc.methods("Message")
         assertRequestFieldJavaType(method, "json_body", JavaType.MESSAGE)
+      }
+    }
+
+    "generate JWT mappings for an Action with POST" in {
+      assertDescriptor[PostWithoutParamWithJWT] { desc =>
+        val methodDescriptor = desc.serviceDescriptor.findMethodByName("Message")
+        methodDescriptor.isServerStreaming shouldBe false
+        methodDescriptor.isClientStreaming shouldBe false
+
+        val method = desc.methods("Message")
+        val jwtOption = findKalixMethodOptions(desc, method.grpcMethodName).getJwt
+        jwtOption.getBearerTokenIssuer(0) shouldBe "a"
+        jwtOption.getBearerTokenIssuer(1) shouldBe "b"
+        jwtOption.getValidate(0) shouldBe JwtMethodMode.BEARER_TOKEN
+        jwtOption.getSign(0) shouldBe JwtMethodMode.MESSAGE
+        assertRequestFieldJavaType(method, "json_body", JavaType.MESSAGE)
+
       }
     }
 
