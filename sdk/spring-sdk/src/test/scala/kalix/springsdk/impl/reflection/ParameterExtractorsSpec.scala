@@ -22,7 +22,6 @@ import com.google.protobuf.any.{ Any => ScalaPbAny }
 import com.google.protobuf.{ Any => JavaPbAny }
 import kalix.javasdk.JsonSupport
 import kalix.springsdk.impl.ComponentDescriptor
-import kalix.springsdk.impl.ComponentDescriptorFactory
 import kalix.springsdk.impl.InvocationContext
 import kalix.springsdk.impl.reflection.ParameterExtractors.BodyExtractor
 import kalix.springsdk.testmodels.Message

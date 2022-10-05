@@ -32,8 +32,6 @@ import kalix.springsdk.impl.reflection.ReflectionUtils
 import kalix.springsdk.impl.reflection.RestServiceIntrospector
 import kalix.springsdk.impl.reflection.SubscriptionServiceMethod
 
-import java.lang.reflect.Method
-
 private[impl] object ActionDescriptorFactory extends ComponentDescriptorFactory {
 
   override def buildDescriptorFor(component: Class[_], nameGenerator: NameGenerator): ComponentDescriptor = {
