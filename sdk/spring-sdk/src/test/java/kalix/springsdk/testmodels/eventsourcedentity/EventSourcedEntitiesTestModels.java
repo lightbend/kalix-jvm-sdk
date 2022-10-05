@@ -16,9 +16,13 @@
 
 package kalix.springsdk.testmodels.eventsourcedentity;
 
+import kalix.JwtMethodOptions;
 import kalix.javasdk.eventsourcedentity.EventSourcedEntity;
 import kalix.springsdk.annotations.Entity;
 import kalix.springsdk.annotations.EventHandler;
+import kalix.springsdk.annotations.JWT;
+import kalix.springsdk.annotations.Subscribe;
+import kalix.springsdk.testmodels.valueentity.UserEntity;
 import org.springframework.web.bind.annotation.*;
 
 public class EventSourcedEntitiesTestModels {
@@ -71,6 +75,29 @@ public class EventSourcedEntitiesTestModels {
 
     private Integer privateMethodSimilarSignature(Integer event) {
       return 0;
+    }
+  }
+
+  @Entity(entityKey = "id", entityType = "counter")
+  @RequestMapping("/eventsourced/{id}")
+  public static class WellAnnotatedESEntityWithJWT extends EventSourcedEntity<Integer> {
+
+    @GetMapping("/int/{number}")
+    @JWT(
+        validate = JWT.JwtMethodMode.BEARER_TOKEN,
+        sign = JWT.JwtMethodMode.MESSAGE,
+        bearerTokenIssuer = {"a", "b"})
+    public Integer getInteger(@PathVariable Integer number) {
+      return number;
+    }
+
+    @PostMapping("/changeInt/{number}")
+    @JWT(
+        validate = JWT.JwtMethodMode.BEARER_TOKEN,
+        sign = JWT.JwtMethodMode.MESSAGE,
+        bearerTokenIssuer = {"a", "b"})
+    public Integer changeInteger(@PathVariable Integer number) {
+      return number;
     }
   }
 

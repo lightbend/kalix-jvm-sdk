@@ -21,9 +21,11 @@ import kalix.springsdk.impl.ComponentDescriptorFactory.eventingInForTopic
 import kalix.springsdk.impl.ComponentDescriptorFactory.eventingInForValueEntity
 import kalix.springsdk.impl.ComponentDescriptorFactory.eventingOutForTopic
 import kalix.springsdk.impl.ComponentDescriptorFactory.hasEventSourcedEntitySubscription
+import kalix.springsdk.impl.ComponentDescriptorFactory.hasJwtMethodOptions
 import kalix.springsdk.impl.ComponentDescriptorFactory.hasTopicPublication
 import kalix.springsdk.impl.ComponentDescriptorFactory.hasTopicSubscription
 import kalix.springsdk.impl.ComponentDescriptorFactory.hasValueEntitySubscription
+import kalix.springsdk.impl.ComponentDescriptorFactory.jwtMethodOptions
 import kalix.springsdk.impl.ComponentDescriptorFactory.validateRestMethod
 import kalix.springsdk.impl.reflection.CombinedSubscriptionServiceMethod
 import kalix.springsdk.impl.reflection.KalixMethod
@@ -39,7 +41,7 @@ private[impl] object ActionDescriptorFactory extends ComponentDescriptorFactory 
     val springAnnotatedMethods =
       RestServiceIntrospector.inspectService(component).methods.map { serviceMethod =>
         validateRestMethod(serviceMethod.javaMethod)
-        KalixMethod(serviceMethod)
+        KalixMethod(serviceMethod).withKalixOptions(buildJWTOptions(serviceMethod.javaMethod))
       }
 
     //TODO make sure no subscription should be exposed via REST.
@@ -121,19 +123,19 @@ private[impl] object ActionDescriptorFactory extends ComponentDescriptorFactory 
     val serviceName = nameGenerator.getName(component.getSimpleName)
 
     def filterAndAddKalixOptions(to: Seq[KalixMethod], from: Seq[KalixMethod]): Seq[KalixMethod] = {
-      val common = to.flatMap(toAdd =>
+      val inCommon = to.flatMap(toAdd =>
         from
           .filter { addingFrom =>
             addingFrom.serviceMethod.methodName.equals(toAdd.serviceMethod.methodName)
           }
           .map(addingFrom => toAdd.withKalixOptions(addingFrom.methodOptions)))
-      val notInCommon = to
+      val unique = to
         .filter { toAdd =>
           !from.exists { addingFrom =>
             addingFrom.serviceMethod.methodName.equals(toAdd.serviceMethod.methodName)
           }
         }
-      common ++ notInCommon
+      inCommon ++ unique
     }
 
     def removeDuplicates(springMethods: Seq[KalixMethod], pubSubMethods: Seq[KalixMethod]): Seq[KalixMethod] = {

@@ -17,6 +17,7 @@
 package kalix.springsdk.testmodels.view;
 
 import kalix.javasdk.view.View;
+import kalix.springsdk.annotations.JWT;
 import kalix.springsdk.annotations.Query;
 import kalix.springsdk.annotations.Subscribe;
 import kalix.springsdk.annotations.Table;
@@ -87,6 +88,27 @@ public class ViewTestModels {
 
     @Query("SELECT * FROM users_view WHERE email = :email")
     @PostMapping("/users/by-email")
+    public TransformedUser getUser(@RequestBody ByEmail byEmail) {
+      return null;
+    }
+  }
+
+  @Table("users_view")
+  public static class TransformedUserViewWithJWT extends View<TransformedUser> {
+
+    // when methods are annotated, it's implicitly a transform = true
+    @Subscribe.ValueEntity(UserEntity.class)
+    public UpdateEffect<TransformedUser> onChange(User user) {
+      return effects()
+          .updateState(new TransformedUser(user.lastName + ", " + user.firstName, user.email));
+    }
+
+    @Query("SELECT * FROM users_view WHERE email = :email")
+    @PostMapping("/users/by-email")
+    @JWT(
+        validate = JWT.JwtMethodMode.BEARER_TOKEN,
+        sign = JWT.JwtMethodMode.MESSAGE,
+        bearerTokenIssuer = {"a", "b"})
     public TransformedUser getUser(@RequestBody ByEmail byEmail) {
       return null;
     }

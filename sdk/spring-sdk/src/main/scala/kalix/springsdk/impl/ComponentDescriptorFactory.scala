@@ -16,10 +16,14 @@
 
 package kalix.springsdk.impl
 
+import kalix.MethodOptions
+import kalix.springsdk.annotations.JWT
 import kalix.springsdk.annotations.Table
 import kalix.springsdk.annotations.{ Entity, Publish, Subscribe }
+import kalix.springsdk.impl.ComponentDescriptorFactory.hasJwtMethodOptions
+import kalix.springsdk.impl.ComponentDescriptorFactory.jwtMethodOptions
 import kalix.springsdk.impl.reflection._
-import kalix.{ EventDestination, EventSource, Eventing }
+import kalix.{ EventDestination, EventSource, Eventing, JwtMethodOptions }
 
 import java.lang.reflect.{ Method, Modifier }
 
@@ -40,6 +44,10 @@ private[impl] object ComponentDescriptorFactory {
   def hasTopicPublication(javaMethod: Method): Boolean =
     Modifier.isPublic(javaMethod.getModifiers) &&
     javaMethod.getAnnotation(classOf[Publish.Topic]) != null
+
+  def hasJwtMethodOptions(javaMehod: Method): Boolean =
+    Modifier.isPublic(javaMehod.getModifiers) &&
+    javaMehod.getAnnotation(classOf[JWT]) != null
 
   def findEventSourcedEntityType(javaMethod: Method): String = {
     val ann = javaMethod.getAnnotation(classOf[Subscribe.EventSourcedEntity])
@@ -72,6 +80,19 @@ private[impl] object ComponentDescriptorFactory {
   def findPubTopicName(javaMethod: Method): String = {
     val ann = javaMethod.getAnnotation(classOf[Publish.Topic])
     ann.value()
+  }
+
+  def jwtMethodOptions(javaMethod: Method): JwtMethodOptions = {
+    val ann = javaMethod.getAnnotation(classOf[JWT])
+    val jwt = JwtMethodOptions.newBuilder()
+    ann
+      .validate()
+      .map(springValidate => jwt.addValidate(JwtMethodOptions.JwtMethodMode.forNumber(springValidate.ordinal())))
+    ann
+      .sign()
+      .map(springSign => jwt.addSign(JwtMethodOptions.JwtMethodMode.forNumber(springSign.ordinal())))
+    ann.bearerTokenIssuer().map(jwt.addBearerTokenIssuer)
+    jwt.build()
   }
 
   def eventingInForValueEntity(javaMethod: Method): Eventing = {
@@ -140,6 +161,7 @@ private[impl] trait ComponentDescriptorFactory {
       //Assuming there is only one eventing.in annotation per method, therefore head is as good as any other
       withEventSourcedIn.groupBy(m => m.methodOptions.head.getEventing.getIn.getEventSourcedEntity)
     }
+
     groupByES(subscriptions).collect {
       case (eventSourcedEntity, kMethods) if kMethods.size > 1 =>
         val typeUrl2Method: Seq[TypeUrl2Method] = kMethods.map { k =>
@@ -160,6 +182,12 @@ private[impl] trait ComponentDescriptorFactory {
       case (eventSourcedEntity, kMethod +: Nil) =>
         kMethod
     }.toSeq
+  }
+
+  private[impl] def buildJWTOptions(method: Method): Option[MethodOptions] = {
+    Option.when(hasJwtMethodOptions(method)) {
+      kalix.MethodOptions.newBuilder().setJwt(jwtMethodOptions(method)).build()
+    }
   }
 }
 

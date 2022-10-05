@@ -208,14 +208,38 @@ case class SpringRestServiceMethod(
 
 case class KalixMethod(
     serviceMethod: ServiceMethod,
-    methodOptions: Seq[kalix.MethodOptions] = Seq.empty,
+    methodOptions: Option[kalix.MethodOptions] = None,
     entityKeys: Seq[String] = Seq.empty) {
 
+  /**
+   * This method merges the new method options with the existing ones. In case of collision the 'opts' are kept
+   * @param opts
+   * @return
+   */
   def withKalixOptions(opts: kalix.MethodOptions): KalixMethod =
-    copy(methodOptions = methodOptions :+ opts)
+    copy(methodOptions = Some(mergeKalixOptions(methodOptions, opts)))
 
-  def withKalixOptions(opts: Seq[kalix.MethodOptions]): KalixMethod =
-    copy(methodOptions = methodOptions ++ opts)
+  /**
+   * This method merges the new method options with the existing ones. In case of collision the 'opts' are kept
+   * @param opts
+   * @return
+   */
+  def withKalixOptions(opts: Option[kalix.MethodOptions]): KalixMethod =
+    opts match {
+      case Some(methodOptions) => withKalixOptions(methodOptions)
+      case None                => this
+    }
+
+  private[impl] def mergeKalixOptions(
+      source: Option[kalix.MethodOptions],
+      addOn: kalix.MethodOptions): kalix.MethodOptions = {
+    val builder = source match {
+      case Some(src) => src.toBuilder
+      case None      => kalix.MethodOptions.newBuilder()
+    }
+    builder.mergeFrom(addOn)
+    builder.build()
+  }
 }
 
 trait ExtractorCreator {

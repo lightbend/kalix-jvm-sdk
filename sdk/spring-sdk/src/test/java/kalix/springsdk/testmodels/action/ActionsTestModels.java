@@ -16,9 +16,9 @@
 
 package kalix.springsdk.testmodels.action;
 
-import akka.NotUsed;
-import akka.stream.javadsl.Source;
+import kalix.JwtMethodOptions.JwtMethodMode;
 import kalix.javasdk.action.Action;
+import kalix.springsdk.annotations.JWT;
 import kalix.springsdk.testmodels.Message;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
@@ -49,6 +49,17 @@ public class ActionsTestModels {
 
   public static class PostWithoutParam extends Action {
     @PostMapping("/message")
+    public Action.Effect<Message> message(@RequestBody Message msg) {
+      return effects().reply(msg);
+    }
+  }
+
+  public static class PostWithoutParamWithJWT extends Action {
+    @PostMapping("/message")
+    @JWT(
+        validate = JWT.JwtMethodMode.BEARER_TOKEN,
+        sign = JWT.JwtMethodMode.MESSAGE,
+        bearerTokenIssuer = {"a", "b"})
     public Action.Effect<Message> message(@RequestBody Message msg) {
       return effects().reply(msg);
     }

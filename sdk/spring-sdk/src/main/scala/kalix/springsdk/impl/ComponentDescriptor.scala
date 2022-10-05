@@ -103,10 +103,8 @@ private[impl] object ComponentDescriptor {
           kalixMethod.serviceMethod.streamIn,
           kalixMethod.serviceMethod.streamOut)
 
-      val methodOptions =
-        kalixMethod.methodOptions.foldLeft(MethodOptions.newBuilder()) { (optionsBuilder, options) =>
-          optionsBuilder.setExtension(kalix.Annotations.method, options)
-        }
+      val methodOptions = MethodOptions.newBuilder()
+      kalixMethod.methodOptions.foreach(option => methodOptions.setExtension(kalix.Annotations.method, option))
 
       methodOptions.setExtension(AnnotationsProto.http, httpRuleBuilder.build())
 
