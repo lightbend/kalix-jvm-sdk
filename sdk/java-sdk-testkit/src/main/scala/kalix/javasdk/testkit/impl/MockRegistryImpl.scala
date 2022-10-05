@@ -22,7 +22,7 @@ import scala.jdk.OptionConverters.RichOption
 
 private[kalix] class MockRegistryImpl(var mocks: Map[Class[_], Any]) extends MockRegistry {
 
-  def this(mocks: java.util.Map[Class[_], Any]) {
+  def this(mocks: java.util.Map[Class[_], Any]) = {
     this(mocks.asScala.toMap)
   }
 

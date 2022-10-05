@@ -83,7 +83,7 @@ final class EventSourcedResultImpl[R, S](
   override def nextEvent[E](implicit expectedClass: ClassTag[E]): E =
     if (!eventsIterator.hasNext) throw new NoSuchElementException("No more events found")
     else {
-      @SuppressWarnings(Array("unchecked")) val next = eventsIterator.next
+      @SuppressWarnings(Array("unchecked")) val next = eventsIterator.next()
       if (expectedClass.runtimeClass.isInstance(next)) next.asInstanceOf[E]
       else
         throw new NoSuchElementException(

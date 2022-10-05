@@ -30,11 +30,11 @@ final class TestKitActionContext(metadata: Metadata, mockRegistry: MockRegistry 
     with ActionCreationContext
     with InternalContext {
 
-  def this() {
+  def this() = {
     this(Metadata.EMPTY, MockRegistry.EMPTY)
   }
 
-  def this(metadata: Metadata) {
+  def this(metadata: Metadata) = {
     this(metadata, MockRegistry.EMPTY)
   }
 

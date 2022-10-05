@@ -33,7 +33,7 @@ final class TestKitValueEntityCommandContext(
     with ValueEntityContext
     with CommandContext {
 
-  def this(entityId: String, metadata: Metadata) {
+  def this(entityId: String, metadata: Metadata) = {
     this(entityId = entityId, metadata = metadata, commandName = "stubCommandName")
   }
 
