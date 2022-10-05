@@ -16,21 +16,21 @@ object Dependencies {
 
   val ProtobufVersion = akka.grpc.gen.BuildInfo.googleProtobufVersion
 
-  val AkkaVersion = "2.6.19"
-  val AkkaHttpVersion = "10.2.9" // Note: should at least the Akka HTTP version required by Akka gRPC
-  val ScalaTestVersion = "3.2.12"
-  val JacksonVersion = "2.13.2"
-  val JacksonDatabindVersion = "2.13.2.2"
+  val AkkaVersion = "2.6.20"
+  val AkkaHttpVersion = "10.2.10" // Note: should at least the Akka HTTP version required by Akka gRPC
+  val ScalaTestVersion = "3.2.14"
+  val JacksonVersion = "2.13.4"
+  val JacksonDatabindVersion = "2.13.4"
   val DockerBaseImageVersion = "adoptopenjdk/openjdk11:debianslim-jre"
   val LogbackVersion = "1.2.11"
   val LogbackContribVersion = "0.1.5"
-  val TestContainersVersion = "1.17.1"
+  val TestContainersVersion = "1.17.5"
   val JUnitVersion = "4.13.2"
   val JUnitInterfaceVersion = "0.11"
   val JUnitJupiterVersion = "5.7.1"
-  val SpringVersion = "2.7.0"
+  val SpringVersion = "2.7.4"
 
-  val CommonsIoVersion = "2.8.0"
+  val CommonsIoVersion = "2.11.0"
   val MunitVersion = "0.7.29"
   val ScoptVersions = "4.0.0"
 
@@ -120,7 +120,7 @@ object Dependencies {
     "net.aichler" % "jupiter-interface" % JupiterKeys.jupiterVersion.value % IntegrationTest,
     "org.springframework.boot" % "spring-boot-starter-test" % SpringVersion % IntegrationTest,
     junit5 % IntegrationTest,
-    "org.awaitility" % "awaitility" % "4.1.0" % IntegrationTest)
+    "org.awaitility" % "awaitility" % "4.2.0" % IntegrationTest)
 
   val sdkSpringTestKit =
     deps ++= springDeps ++

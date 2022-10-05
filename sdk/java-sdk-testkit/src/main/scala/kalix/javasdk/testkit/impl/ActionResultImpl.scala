@@ -27,9 +27,9 @@ import java.util.{ List => JList }
 
 import io.grpc.Status
 
-import scala.collection.JavaConverters._
 import scala.compat.java8.FutureConverters._
 import scala.concurrent.ExecutionContext
+import scala.jdk.CollectionConverters._
 
 /**
  * INTERNAL API

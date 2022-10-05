@@ -22,11 +22,11 @@ import java.time.Duration
 
 private[kalix] case class Timeout private (duration: Option[Duration]) extends PassivationStrategy {
 
-  def this() {
+  def this() = {
     this(None) // use the timeout from the default or customized settings
   }
 
-  def this(duration: Duration) {
+  def this(duration: Duration) = {
     this(Some(duration))
   }
 }

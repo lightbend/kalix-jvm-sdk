@@ -29,7 +29,7 @@ final class TestKitEventSourcedEntityContext(
     extends AbstractTestKitContext(mockRegistry)
     with EventSourcedEntityContext {
 
-  def this(entityId: String) {
+  def this(entityId: String) = {
     this(entityId, MockRegistry.EMPTY)
   }
 

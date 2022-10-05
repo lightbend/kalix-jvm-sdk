@@ -88,7 +88,7 @@ final class KalixRunner private[this] (
   /**
    * Creates a KalixRunner from the given services. Use the default config to create the internal ActorSystem.
    */
-  def this(services: java.util.Map[String, java.util.function.Function[ActorSystem, Service]], sdkName: String) {
+  def this(services: java.util.Map[String, java.util.function.Function[ActorSystem, Service]], sdkName: String) = {
     this(
       ActorSystem(
         "kalix", {
@@ -107,7 +107,7 @@ final class KalixRunner private[this] (
   def this(
       services: java.util.Map[String, java.util.function.Function[ActorSystem, Service]],
       config: Config,
-      sdkName: String) {
+      sdkName: String) = {
     this(ActorSystem("kalix", config.getConfig("kalix.system").withFallback(config)), services.asScala.toMap, sdkName)
   }
 

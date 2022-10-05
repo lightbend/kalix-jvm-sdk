@@ -27,7 +27,7 @@ final class TestKitValueEntityContext(override val entityId: String, mockRegistr
     extends AbstractTestKitContext(mockRegistry)
     with ValueEntityContext {
 
-  def this(entityId: String) {
+  def this(entityId: String) = {
     this(entityId, MockRegistry.EMPTY)
   }
 

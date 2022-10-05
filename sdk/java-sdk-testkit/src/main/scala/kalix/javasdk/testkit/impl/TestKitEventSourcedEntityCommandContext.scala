@@ -31,7 +31,7 @@ final class TestKitEventSourcedEntityCommandContext(
     extends CommandContext
     with InternalContext {
 
-  def this(metadata: Metadata) {
+  def this(metadata: Metadata) = {
     this(metadata = metadata, commandName = "stubCommandName")
   }
 
