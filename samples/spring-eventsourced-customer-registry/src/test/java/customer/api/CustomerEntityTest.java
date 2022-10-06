@@ -4,6 +4,7 @@ import kalix.javasdk.testkit.EventSourcedResult;
 import kalix.springsdk.testkit.EventSourcedTestKit;
 import org.junit.jupiter.api.Test;
 
+import static customer.api.CustomerEvent.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class CustomerEntityTest {
@@ -25,7 +26,7 @@ public class CustomerEntityTest {
     {
       EventSourcedResult<String> result = testKit.call(e -> e.changeName("FooBar"));
       assertEquals("OK", result.getReply());
-      assertEquals("FooBar", testKit.getState().name);
+      assertEquals("FooBar", testKit.getState().name());
       result.getNextEventOfType(NameChanged.class);
     }
 
@@ -45,8 +46,8 @@ public class CustomerEntityTest {
       Address newAddress = new Address("Sesame Street", "Sesame City");
       EventSourcedResult<String> result = testKit.call(e -> e.changeAddress(newAddress));
       assertEquals("OK", result.getReply());
-      assertEquals("Sesame Street", testKit.getState().address.street);
-      assertEquals("Sesame City", testKit.getState().address.city);
+      assertEquals("Sesame Street", testKit.getState().address().street());
+      assertEquals("Sesame City", testKit.getState().address().city());
       result.getNextEventOfType(AddressChanged.class);
     }
 

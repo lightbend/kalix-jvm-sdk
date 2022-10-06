@@ -18,10 +18,11 @@ package customer.api;
 
 import kalix.javasdk.eventsourcedentity.EventSourcedEntity;
 import kalix.javasdk.eventsourcedentity.EventSourcedEntityContext;
-import kalix.javasdk.valueentity.ValueEntity;
 import kalix.springsdk.annotations.Entity;
 import kalix.springsdk.annotations.EventHandler;
 import org.springframework.web.bind.annotation.*;
+
+import static customer.api.CustomerEvent.*;
 
 @Entity(entityKey = "id", entityType = "customer")
 @RequestMapping("/customer/{id}")
@@ -41,13 +42,13 @@ public class CustomerEntity extends EventSourcedEntity<Customer> {
   @PostMapping("/create")
   public Effect<String> create(@RequestBody Customer customer) {
     return effects()
-        .emitEvent(new CustomerCreated(customer.email, customer.name, customer.address))
+        .emitEvent(new CustomerCreated(customer.email(), customer.name(), customer.address()))
         .thenReply(__ -> "OK");
   }
 
   @EventHandler
   public Customer onEvent(CustomerCreated created) {
-    return new Customer(entityId, created.email, created.name, created.address);
+    return new Customer(entityId, created.email(), created.name(), created.address());
   }
 
 
@@ -61,7 +62,7 @@ public class CustomerEntity extends EventSourcedEntity<Customer> {
 
   @EventHandler
   public Customer onEvent(NameChanged nameChanged) {
-    return currentState().withName(nameChanged.newName);
+    return currentState().withName(nameChanged.newName());
   }
 
 
@@ -73,7 +74,7 @@ public class CustomerEntity extends EventSourcedEntity<Customer> {
   }
 
   @EventHandler
-  public Customer onEvents(AddressChanged addressChanged){
-    return currentState().withAddress(addressChanged.address);
+  public Customer onEvents(AddressChanged addressChanged) {
+    return currentState().withAddress(addressChanged.address());
   }
 }

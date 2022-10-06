@@ -34,7 +34,7 @@ public class CustomerIntegrationTest extends KalixIntegrationTestKitSupport {
   private Duration timeout = Duration.of(5, SECONDS);
 
   @Test
-  public void create() throws InterruptedException {
+  public void create() {
     String id = UUID.randomUUID().toString();
     Customer customer = new Customer(id, "foo@example.com", "Johanna", null);
 
@@ -47,11 +47,11 @@ public class CustomerIntegrationTest extends KalixIntegrationTestKitSupport {
             .block(timeout);
 
     Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
-    Assertions.assertEquals("Johanna", getCustomerById(id).name);
+    Assertions.assertEquals("Johanna", getCustomerById(id).name());
   }
 
   @Test
-  public void changeName() throws InterruptedException {
+  public void changeName() {
     String id = UUID.randomUUID().toString();
     Customer customer = new Customer(id, "foo@example.com", "Johanna", null);
 
@@ -74,11 +74,11 @@ public class CustomerIntegrationTest extends KalixIntegrationTestKitSupport {
 
 
     Assertions.assertEquals(HttpStatus.OK, resUpdate.getStatusCode());
-    Assertions.assertEquals("Katarina", getCustomerById(id).name);
+    Assertions.assertEquals("Katarina", getCustomerById(id).name());
   }
 
   @Test
-  public void changeAddress() throws InterruptedException {
+  public void changeAddress() {
     String id = UUID.randomUUID().toString();
     Customer customer = new Customer(id, "foo@example.com", "Johanna", null);
 
@@ -103,12 +103,12 @@ public class CustomerIntegrationTest extends KalixIntegrationTestKitSupport {
 
 
     Assertions.assertEquals(HttpStatus.OK, resUpdate.getStatusCode());
-    Assertions.assertEquals("Elm st. 5", getCustomerById(id).address.street);
+    Assertions.assertEquals("Elm st. 5", getCustomerById(id).address().street());
   }
 
 
   @Test
-  public void findByName() throws Exception {
+  public void findByName() {
     String id = UUID.randomUUID().toString();
     Customer customer = new Customer(id, "foo@example.com", "Foo", null);
     ResponseEntity<String> response =
@@ -131,13 +131,13 @@ public class CustomerIntegrationTest extends KalixIntegrationTestKitSupport {
                     .retrieve()
                     .bodyToMono(CustomerView.class)
                     .block(timeout)
-                    .name,
+                    .name(),
             new IsEqual("Foo")
         );
   }
 
   @Test
-  public void findByEmail() throws Exception {
+  public void findByEmail() {
     String id = UUID.randomUUID().toString();
     Customer customer = new Customer(id, "bar@example.com", "Bar", null);
     ResponseEntity<String> response =
@@ -160,7 +160,7 @@ public class CustomerIntegrationTest extends KalixIntegrationTestKitSupport {
                     .retrieve()
                     .bodyToMono(CustomerView.class)
                     .block(timeout)
-                    .name,
+                    .name(),
             new IsEqual("Bar")
         );
   }
