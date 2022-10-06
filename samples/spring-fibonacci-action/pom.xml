@@ -11,7 +11,7 @@
   <properties>
 
     <!-- TODO Update to your own Docker repository or Docker Hub scope -->
-    <dockerImage>my-docker-repo/${project.artifactId}</dockerImage>
+    <dockerImage>aludwiko/${project.artifactId}</dockerImage>
     <dockerTag>${project.version}-${build.timestamp}</dockerTag>
     <maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
     <mainClass>com.example.Main</mainClass>
@@ -307,12 +307,12 @@
     <dependency>
       <groupId>io.kalix</groupId>
       <artifactId>kalix-spring-sdk</artifactId>
-      <version>${kalix-sdk.version}</version>
+      <version>1.0.8-14-fedc8579-dev-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>io.kalix</groupId>
       <artifactId>kalix-spring-sdk-testkit</artifactId>
-      <version>${kalix-sdk.version}</version>
+      <version>1.0.8-14-fedc8579-dev-SNAPSHOT</version>
       <scope>test</scope>
     </dependency>
 

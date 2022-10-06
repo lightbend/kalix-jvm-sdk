@@ -38,17 +38,17 @@ With both the proxy and your application running, once you have defined endpoint
 
 - increase (or create) a counter named `hello` with value `10`
 ```shell
-curl -i -XPOST localhost:9000/counter/hello/increase/10
+curl -XPOST localhost:9000/counter/hello/increase/10
 ```
 
 - retrieve the value of a counter named `hello`
 ```shell
-curl -i -XGET localhost:9000/counter/hello
+curl -XGET localhost:9000/counter/hello
 ```
 
 - multiply existing counter named `hello` by value `5`
 ```shell
-curl -i -XPOST localhost:9000/counter/hello/multiply/5
+curl -XPOST localhost:9000/counter/hello/multiply/5
 ```
 
 ### Deploy
