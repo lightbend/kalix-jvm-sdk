@@ -16,7 +16,7 @@
     <maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
     <mainClass>${package}.Main</mainClass>
 
-    <jdk.target>11</jdk.target>
+    <jdk.target>17</jdk.target>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
     <kalix-sdk.version>@project.version@</kalix-sdk.version>
@@ -91,7 +91,7 @@
               <name>${dockerImage}:%l</name>
               <build>
                 <!-- Base Docker image which contains jre-->
-                <from>docker.io/library/adoptopenjdk:${jdk.target}-jre-hotspot</from>
+                <from>docker.io/library/eclipse-temurin:${D}{jdk.target}-alpine</from>
                 <createImageOptions>
                   <platform>linux/amd64</platform>
                 </createImageOptions>
