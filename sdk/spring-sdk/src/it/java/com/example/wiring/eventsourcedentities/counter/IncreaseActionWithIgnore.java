@@ -23,31 +23,25 @@ import kalix.springsdk.KalixConfigurationTest;
 import kalix.springsdk.annotations.Subscribe;
 import org.springframework.context.annotation.Import;
 
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
 @Import(KalixConfigurationTest.class)
-public class IncreaseAction extends Action {
+public class IncreaseActionWithIgnore extends Action {
 
   private KalixClient kalixClient;
 
   private ActionCreationContext context;
 
-  public IncreaseAction(KalixClient kalixClient, ActionCreationContext context) {
+  public IncreaseActionWithIgnore(KalixClient kalixClient, ActionCreationContext context) {
     this.kalixClient = kalixClient;
     this.context = context;
   }
 
-  @Subscribe.EventSourcedEntity(value = CounterEntity.class)
-  public Effect<ValueMultiplied> printMultiply(ValueMultiplied event) {
-    return effects().reply(event);
-  }
 
-  // FIXME how to deal with multiple ignores?
-  @Subscribe.EventSourcedEntity(value = CounterEntity.class)
+  @Subscribe.EventSourcedEntity(value = CounterEntity.class) //TODO add ignore
   public Effect<Integer> printIncrease(ValueIncreased event) {
     String entityId = this.actionContext().metadata().asCloudEvent().subject().get();
-    if (event.value == 42) {
+    if (event.value == 29) {
       CompletionStage<Integer> res =
           kalixClient.post("/counter/" + entityId + "/increase/1", "", Integer.class).execute();
       return effects().asyncReply(res);

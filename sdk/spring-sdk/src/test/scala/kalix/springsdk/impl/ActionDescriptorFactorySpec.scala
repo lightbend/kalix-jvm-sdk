@@ -40,7 +40,11 @@ import kalix.springsdk.testmodels.subscriptions.PubSubTestModels.RestAnnotatedSu
 import kalix.springsdk.testmodels.subscriptions.PubSubTestModels.RestAnnotatedSubscribeToValueEntityAction
 import kalix.springsdk.testmodels.subscriptions.PubSubTestModels.RestWithPublishToTopicAction
 import kalix.springsdk.testmodels.subscriptions.PubSubTestModels.SubscribeToEventSourcedEntityAction
+import kalix.springsdk.testmodels.subscriptions.PubSubTestModels.SubscribeToEventSourcedEntityActionTypeLevel
+import kalix.springsdk.testmodels.subscriptions.PubSubTestModels.SubscribeToEventSourcedEntityActionTypeLevelMethodLevel
 import kalix.springsdk.testmodels.subscriptions.PubSubTestModels.SubscribeToTopicAction
+import kalix.springsdk.testmodels.subscriptions.PubSubTestModels.SubscribeToTopicActionTypeLevelMethodLevel
+import kalix.springsdk.testmodels.subscriptions.PubSubTestModels.SubscribeToTopicsActionTypeLevel
 import kalix.springsdk.testmodels.subscriptions.PubSubTestModels.SubscribeToTwoTopicsAction
 import kalix.springsdk.testmodels.subscriptions.PubSubTestModels.SubscribeToValueEntityAction
 import org.scalatest.wordspec.AnyWordSpec
@@ -235,6 +239,53 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
       }
     }
 
+    "generate combined mapping with Event Sourced Entity Subscription annotation type level" in {
+      assertDescriptor[SubscribeToEventSourcedEntityActionTypeLevel] { desc =>
+        val methodDescriptor = desc.serviceDescriptor.findMethodByName("KalixSyntheticMethodOnESCounter")
+        methodDescriptor.isServerStreaming shouldBe false
+        methodDescriptor.isClientStreaming shouldBe false
+
+        val methodOne = desc.methods("KalixSyntheticMethodOnESCounter")
+        methodOne.requestMessageDescriptor.getFullName shouldBe JavaPbAny.getDescriptor.getFullName
+
+        val eventSourceOne = findKalixMethodOptions(desc, "KalixSyntheticMethodOnESCounter").getEventing.getIn
+        eventSourceOne.getEventSourcedEntity shouldBe "counter"
+
+        val ruleOne = findHttpRule(desc, "KalixSyntheticMethodOnESCounter")
+        ruleOne.getPost shouldBe "/kalix.springsdk.testmodels.subscriptions.PubSubTestModels.SubscribeToEventSourcedEntityActionTypeLevel/KalixSyntheticMethodOnESCounter"
+      }
+    }
+
+    "generate mapping with Event Sourced Entity Subscription annotation type level and method level" in {
+      assertDescriptor[SubscribeToEventSourcedEntityActionTypeLevelMethodLevel] { desc =>
+        val methodDescriptor = desc.serviceDescriptor.findMethodByName("MethodOne")
+        methodDescriptor.isServerStreaming shouldBe false
+        methodDescriptor.isClientStreaming shouldBe false
+
+        val methodOne = desc.methods("MethodOne")
+        methodOne.requestMessageDescriptor.getFullName shouldBe JavaPbAny.getDescriptor.getFullName
+
+        val eventSourceOne = findKalixMethodOptions(desc, "MethodOne").getEventing.getIn
+        eventSourceOne.getEventSourcedEntity shouldBe "counter"
+
+        val ruleOne = findHttpRule(desc, "MethodOne")
+        ruleOne.getPost shouldBe "/kalix.springsdk.testmodels.subscriptions.PubSubTestModels.SubscribeToEventSourcedEntityActionTypeLevelMethodLevel/MethodOne"
+
+        val methodDescriptor2 = desc.serviceDescriptor.findMethodByName("MethodTwo")
+        methodDescriptor2.isServerStreaming shouldBe false
+        methodDescriptor2.isClientStreaming shouldBe false
+
+        val methodTwo = desc.methods("MethodTwo")
+        methodTwo.requestMessageDescriptor.getFullName shouldBe JavaPbAny.getDescriptor.getFullName
+
+        val eventSourceTwo = findKalixMethodOptions(desc, "MethodTwo").getEventing.getIn
+        eventSourceTwo.getEventSourcedEntity shouldBe "employee"
+
+        val ruleTwo = findHttpRule(desc, "MethodTwo")
+        ruleTwo.getPost shouldBe "/kalix.springsdk.testmodels.subscriptions.PubSubTestModels.SubscribeToEventSourcedEntityActionTypeLevelMethodLevel/MethodTwo"
+      }
+    }
+
     "fail if has both Event Sourced Entity Subscription and REST annotations" in {
       intercept[IllegalArgumentException] {
         ComponentDescriptor.descriptorFor[RestAnnotatedSubscribeToEventSourcedEntityAction]
@@ -305,6 +356,7 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
         val eventSourceOne = findKalixMethodOptions(desc, "MessageOne").getEventing.getIn
         eventSourceOne.getTopic shouldBe "topicXYZ"
         eventSourceOne.getConsumerGroup shouldBe "cg"
+        eventSourceOne.getIgnore shouldBe false
         val rule = findHttpRule(desc, "MessageOne")
 
         rule.getPost shouldBe
@@ -316,7 +368,39 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
 
     }
 
-    "Raise and error when there are two subscriptions to the same topic" in {
+    "generate mapping for an Action with a subscription to a topic method overrides type level annotation" in {
+      assertDescriptor[SubscribeToTopicActionTypeLevelMethodLevel] { desc =>
+        val methodOne = desc.methods("MessageOne")
+        methodOne.requestMessageDescriptor.getFullName shouldBe JavaPbAny.getDescriptor.getFullName
+
+        val eventSourceOne = findKalixMethodOptions(desc, "MessageOne").getEventing.getIn
+        eventSourceOne.getTopic shouldBe "topicAAA"
+        eventSourceOne.getConsumerGroup shouldBe "aa"
+        val rule = findHttpRule(desc, "MessageOne")
+
+        rule.getPost shouldBe
+        "/kalix.springsdk.testmodels.subscriptions.PubSubTestModels.SubscribeToTopicActionTypeLevelMethodLevel/MessageOne"
+
+        // should have a default extractor for any payload
+        methodOne.parameterExtractors.size shouldBe 1
+
+        val methodTwo = desc.methods("MessageTwo")
+        methodTwo.requestMessageDescriptor.getFullName shouldBe JavaPbAny.getDescriptor.getFullName
+
+        val eventSourceTwo = findKalixMethodOptions(desc, "MessageTwo").getEventing.getIn
+        eventSourceTwo.getTopic shouldBe "topicXYZ"
+        eventSourceTwo.getConsumerGroup shouldBe ""
+        val ruleTwo = findHttpRule(desc, "MessageTwo")
+
+        ruleTwo.getPost shouldBe
+        "/kalix.springsdk.testmodels.subscriptions.PubSubTestModels.SubscribeToTopicActionTypeLevelMethodLevel/MessageTwo"
+
+        // should have a default extractor for any payload
+        methodOne.parameterExtractors.size shouldBe 1
+      }
+    }
+
+    "generate mapping for an Action with two subscriptions to the same topic" in {
       assertDescriptor[SubscribeToTwoTopicsAction] { desc =>
         val methodOne = desc.methods("KalixSyntheticMethodOnTopicTopicXYZ")
         methodOne.requestMessageDescriptor.getFullName shouldBe JavaPbAny.getDescriptor.getFullName
@@ -327,6 +411,28 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
 
         rule.getPost shouldBe
         "/kalix.springsdk.testmodels.subscriptions.PubSubTestModels.SubscribeToTwoTopicsAction/KalixSyntheticMethodOnTopicTopicXYZ"
+
+        //We are combining two methods in one synthetic one so the proxy has a single endpoint
+        // but when event are consumed and need to be dispatched to the proper method in SubscribeToTwoTopicsAction class
+        // it needs to have available both extractors so depending if is Message or Message2 it can extract the value
+        // and pass it to the java.reflect.Method.invoke
+        methodOne.parameterExtractors.size shouldBe 2
+      }
+
+    }
+
+    "generate mapping for an Action with subscriptions type level" in {
+      assertDescriptor[SubscribeToTopicsActionTypeLevel] { desc =>
+        val methodOne = desc.methods("KalixSyntheticMethodOnTopicTopicXYZ")
+        methodOne.requestMessageDescriptor.getFullName shouldBe JavaPbAny.getDescriptor.getFullName
+
+        val eventSourceOne = findKalixMethodOptions(desc, "KalixSyntheticMethodOnTopicTopicXYZ").getEventing.getIn
+        eventSourceOne.getTopic shouldBe "topicXYZ"
+        eventSourceOne.getIgnore shouldBe true
+        val rule = findHttpRule(desc, "KalixSyntheticMethodOnTopicTopicXYZ")
+
+        rule.getPost shouldBe
+        "/kalix.springsdk.testmodels.subscriptions.PubSubTestModels.SubscribeToTopicsActionTypeLevel/KalixSyntheticMethodOnTopicTopicXYZ"
 
         //We are combining two methods in one synthetic one so the proxy has a single endpoint
         // but when event are consumed and need to be dispatched to the proper method in SubscribeToTwoTopicsAction class

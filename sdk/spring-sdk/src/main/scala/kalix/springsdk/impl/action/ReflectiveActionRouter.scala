@@ -44,12 +44,15 @@ class ReflectiveActionRouter[A <: Action](action: A, componentMethods: Map[Strin
     val inputTypeUrl =
       message.payload().asInstanceOf[ScalaPbAny].typeUrl
 
-    val javaMethod = componentMethod
+    val javaMethodOpt = componentMethod
       .lookupMethod(inputTypeUrl)
 
-    javaMethod.method
-      .invoke(action, javaMethod.parameterExtractors.map(e => e.extract(context)): _*)
-      .asInstanceOf[Action.Effect[_]]
+    javaMethodOpt match {
+      case Some(javaMethod) => javaMethod.method
+        .invoke(action, javaMethod.parameterExtractors.map(e => e.extract(context)): _*)
+        .asInstanceOf[Action.Effect[_]]
+      case None => ScalaPbAny.defaultInstance.asInstanceOf[Action.Effect[_]]
+    }
   }
 
   override def handleStreamedOut(
@@ -62,13 +65,20 @@ class ReflectiveActionRouter[A <: Action](action: A, componentMethods: Map[Strin
         componentMethod.requestMessageDescriptor,
         message.metadata())
 
-    val javaMethod = componentMethod
-      .lookupMethod(message.payload().asInstanceOf[ScalaPbAny].typeUrl)
+    val javaMethodOpt = componentMethod
+      .lookupMethod(message.payload().asInstanceOf[ScalaPbAny].typeUrl) //TODO add ignore here as well
 
-    val response = javaMethod.method
-      .invoke(action, javaMethod.parameterExtractors.map(e => e.extract(context)): _*)
-      .asInstanceOf[Flux[Action.Effect[_]]]
-    Source.fromPublisher(response)
+    javaMethodOpt match {
+      case Some(javaMethod) =>
+        val response = javaMethod
+          .method
+          .invoke(action, javaMethod.parameterExtractors.map(e => e.extract(context)): _*)
+          .asInstanceOf[Flux[Action.Effect[_]]]
+      Source.fromPublisher(response)
+      case None =>
+        Source.empty()
+    }
+
   }
 
   override def handleStreamedIn(commandName: String, stream: Source[MessageEnvelope[Any], NotUsed]): Action.Effect[_] =

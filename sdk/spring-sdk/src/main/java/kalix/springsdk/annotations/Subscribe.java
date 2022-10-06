@@ -49,17 +49,16 @@ public @interface Subscribe {
   }
 
   /**
-   * Annotation for subscribing to updates from an Event-sourced Entity. It can be used only at type
-   * level. The underlying method must be declared to receive one or two parameters:
+   * Annotation for subscribing to updates from an Event-sourced Entity. The underlying method must be declared to receive one or two parameters:
    *
    * <ul>
    *   <li>when one parameter is passed, the single parameter will be considered the event type such
    *       method will handle;
    *   <li>when two parameters are passed, the first one will be considered the view state and the
-   *       second one the event type.
+   *       second one the event type. //FIXME avoid having two parameters in views.
    * </ul>
    */
-  @Target(ElementType.METHOD)
+  @Target({ElementType.METHOD, ElementType.TYPE})
   @Retention(RetentionPolicy.RUNTIME)
   @Documented
   @interface EventSourcedEntity {
@@ -68,10 +67,20 @@ public @interface Subscribe {
      * kalix.javasdk.eventsourcedentity.EventSourcedEntity EventSourcedEntity}.
      */
     Class<? extends kalix.javasdk.eventsourcedentity.EventSourcedEntity<?>> value();
+
+    /**
+     * If the message is not of interest for consumption the method for that input message
+     * type can be marked with `ignore: true`.
+     * Enabling is more efficient than implementing the method.
+     * IMPORTANT: methods can't use this property. They are always ignore false
+     *
+     * FIXME agree with the strategy above. What even means that
+     */
+    boolean ignore() default false;
   }
 
   /** Annotation for subscribing to messages from a topic (i.e PubSub or Kafka topic). */
-  @Target(ElementType.METHOD)
+  @Target({ElementType.METHOD, ElementType.TYPE})
   @Retention(RetentionPolicy.RUNTIME)
   @Documented
   @interface Topic {
@@ -80,5 +89,15 @@ public @interface Subscribe {
 
     /** Assign the consumer group name to be used on the broker. */
     String consumerGroup() default "";
+
+    /**
+     * If the message is not of interest for consumption the method for that input message
+     * type can be marked with `ignore: true`.
+     * Enabling is more efficient than implementing the method.
+     * IMPORTANT: methods can't use this property. They are always ignore false
+     *
+     * FIXME agree with the strategy above. What even means that
+     */
+    boolean ignore() default false;
   }
 }

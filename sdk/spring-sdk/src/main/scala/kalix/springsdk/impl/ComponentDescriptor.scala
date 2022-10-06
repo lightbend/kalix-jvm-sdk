@@ -50,6 +50,7 @@ import kalix.springsdk.impl.reflection.RestServiceIntrospector.PathParameter
 import kalix.springsdk.impl.reflection.RestServiceIntrospector.QueryParamParameter
 import kalix.springsdk.impl.reflection.RestServiceIntrospector.UnhandledParameter
 import kalix.springsdk.impl.reflection.SubscriptionServiceMethod
+import org.slf4j.LoggerFactory
 import org.springframework.web.bind.annotation.RequestMethod
 
 import java.lang.reflect.Method
@@ -61,6 +62,8 @@ import scala.jdk.CollectionConverters.CollectionHasAsScala
  * component class.
  */
 private[impl] object ComponentDescriptor {
+
+  val logger = LoggerFactory.getLogger(ComponentMethod.getClass)
 
   def descriptorFor[T](implicit ev: ClassTag[T]): ComponentDescriptor =
     descriptorFor(ev.runtimeClass)
@@ -113,7 +116,7 @@ private[impl] object ComponentDescriptor {
       val grpcMethod = grpcMethodBuilder.build()
       grpcService.addMethod(grpcMethod)
 
-      NamedComponentMethod(kalixMethod.serviceMethod, grpcMethodName, extractors, inputMessageName, inputProto)
+      NamedComponentMethod(kalixMethod.serviceMethod, grpcMethodName, extractors, inputMessageName, inputProto, kalixMethod)
     }
 
     val namedMethods: Seq[NamedComponentMethod] = serviceMethods.map(methodToNamedComponentMethod)
@@ -142,7 +145,8 @@ private[impl] object ComponentDescriptor {
       grpcMethodName: String,
       extractorCreators: Map[Int, ExtractorCreator],
       inputMessageName: String,
-      inputProto: Option[DescriptorProto]) {
+      inputProto: Option[DescriptorProto],
+      kalixMethod: KalixMethod) {
 
     type ParameterExtractors = Array[ParameterExtractor[InvocationContext, AnyRef]]
 
@@ -179,28 +183,46 @@ private[impl] object ComponentDescriptor {
             grpcMethodName,
             parameterExtractors,
             message,
-            Seq(TypeUrl2Method(method.javaMethod.getName, method.javaMethod)))
+            Seq(TypeUrl2Method(message.getFullName, method.javaMethod)),
+            kalixMethod)
+           //FIXME make sure messe.getFullName is fine
         case method: CombinedSubscriptionServiceMethod =>
           val parameterExtractors: ParameterExtractors =
             method.typeUrl2Method
               .flatMap(each =>
                 each.method.getParameterTypes.map(param => new ParameterExtractors.AnyBodyExtractor[AnyRef](param)))
               .toArray
-          ComponentMethod(grpcMethodName, parameterExtractors, JavaPbAny.getDescriptor, method.typeUrl2Method)
+          ComponentMethod(
+            grpcMethodName,
+            parameterExtractors,
+            JavaPbAny.getDescriptor,
+            method.typeUrl2Method,
+            kalixMethod
+          )
         case method: AnyServiceMethod =>
+          val message = fileDescriptor.findMessageTypeByName(inputMessageName)
           // methods that receive Any as input always default to AnyBodyExtractor
           val parameterExtractors: ParameterExtractors = Array(
             new ParameterExtractors.AnyBodyExtractor(method.inputType))
           val typeUrl2method = serviceMethod.javaMethodOpt match {
-            case Some(m) => Seq(TypeUrl2Method(m.getName, m))
+            case Some(m) => Seq(TypeUrl2Method(m.getName, m)) //FIXME should not be m.getName Views fail because of this
             case None    => Nil
           }
-          ComponentMethod(grpcMethodName, parameterExtractors, JavaPbAny.getDescriptor, typeUrl2method)
+          ComponentMethod(
+            grpcMethodName,
+            parameterExtractors,
+            JavaPbAny.getDescriptor,
+            typeUrl2method,
+            kalixMethod
+          )
       }
 
     }
   }
-
+  //FIXME both are wrong: adding the name of the method to typeUrl2Method
+  // and lookupMethod passing the messageName
+  //FIXME? why when we generate synthetic rpc method the message is Any
+  // and when not we generate a Synthetic Message name
   private def buildSyntheticMessageAndExtractors(
       nameGenerator: NameGenerator,
       serviceMethod: SpringRestServiceMethod,

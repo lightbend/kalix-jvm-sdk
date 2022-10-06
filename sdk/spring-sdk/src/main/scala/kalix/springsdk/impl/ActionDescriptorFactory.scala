@@ -20,6 +20,7 @@ import kalix.springsdk.impl.ComponentDescriptorFactory.eventingInForEventSourced
 import kalix.springsdk.impl.ComponentDescriptorFactory.eventingInForTopic
 import kalix.springsdk.impl.ComponentDescriptorFactory.eventingInForValueEntity
 import kalix.springsdk.impl.ComponentDescriptorFactory.eventingOutForTopic
+import kalix.springsdk.impl.ComponentDescriptorFactory.hasActionOutput
 import kalix.springsdk.impl.ComponentDescriptorFactory.hasEventSourcedEntitySubscription
 import kalix.springsdk.impl.ComponentDescriptorFactory.hasJwtMethodOptions
 import kalix.springsdk.impl.ComponentDescriptorFactory.hasTopicPublication
@@ -58,6 +59,7 @@ private[impl] object ActionDescriptorFactory extends ComponentDescriptorFactory 
           .withKalixOptions(kalixOptions)
       }
 
+    //TODO add also to class
     val subscriptionEventSourcedEntityMethods = component.getMethods
       .filter(hasEventSourcedEntitySubscription)
       .sorted // make sure we get the methods in deterministic order
@@ -70,6 +72,25 @@ private[impl] object ActionDescriptorFactory extends ComponentDescriptorFactory 
           .withKalixOptions(kalixOptions)
       }
 
+    val subscriptionEventSourcedEntityClass =
+      if (hasEventSourcedEntitySubscription(component)) {
+        component.getMethods.sorted // make sure we get the methods in deterministic order
+          .filter(hasActionOutput)
+          .collect {
+            case method
+                if !subscriptionEventSourcedEntityMethods.exists(s =>
+                  s.serviceMethod.methodName == method.getName) => // individual annotated overrides class level annotation
+              val subscriptionOptions = eventingInForEventSourcedEntity(component)
+              val kalixOptions =
+                kalix.MethodOptions.newBuilder().setEventing(subscriptionOptions).build()
+
+              KalixMethod(SubscriptionServiceMethod(method))
+                .withKalixOptions(kalixOptions)
+          }
+      } else Array.empty[KalixMethod]
+
+    // TODO add validation so two methods with the SAME INPUT don't subscribe to the same Eventsourced|Topic. Doing this when combine?
+
     val subscriptionTopicMethods = component.getMethods
       .filter(hasTopicSubscription)
       .sorted // make sure we get the methods in deterministic order
@@ -81,6 +102,25 @@ private[impl] object ActionDescriptorFactory extends ComponentDescriptorFactory 
         KalixMethod(SubscriptionServiceMethod(method))
           .withKalixOptions(kalixOptions)
       }
+
+    val subscriptionTopicClass: Array[KalixMethod] =
+      if (hasTopicSubscription(component)) {
+        component.getMethods.sorted // make sure we get the methods in deterministic order
+          .filter(hasActionOutput)
+          .collect {
+            case method
+                if !subscriptionTopicMethods.exists(s =>
+                  s.serviceMethod.methodName == method.getName) => // individual annotated overrides class level annotation
+              val subscriptionOptions = eventingInForTopic(component)
+              val kalixOptions =
+                kalix.MethodOptions.newBuilder().setEventing(subscriptionOptions).build()
+
+              KalixMethod(SubscriptionServiceMethod(method))
+                .withKalixOptions(kalixOptions)
+          }
+      } else Array.empty[KalixMethod]
+
+    // TODO add validation so two methods with the SAME INPUT don't subscribe to the same Eventsourced|Topic. Doing this when combine?
 
     def combineByTopic(subscriptions: Seq[KalixMethod]): Seq[KalixMethod] = {
       def groupByTopic(methods: Seq[KalixMethod]): Map[String, Seq[KalixMethod]] = {
@@ -122,35 +162,36 @@ private[impl] object ActionDescriptorFactory extends ComponentDescriptorFactory 
       }
     val serviceName = nameGenerator.getName(component.getSimpleName)
 
-    def filterAndAddKalixOptions(to: Seq[KalixMethod], from: Seq[KalixMethod]): Seq[KalixMethod] = {
-      val inCommon = to.flatMap(toAdd =>
+    def addKalixOptions(to: Seq[KalixMethod], from: Seq[KalixMethod]): Seq[KalixMethod] = {
+      val added = to.flatMap(toAdd =>
         from
           .filter { addingFrom =>
             addingFrom.serviceMethod.methodName.equals(toAdd.serviceMethod.methodName)
           }
           .map(addingFrom => toAdd.withKalixOptions(addingFrom.methodOptions)))
-      val unique = to
+      val toNotInCommon = to
         .filter { toAdd =>
           !from.exists { addingFrom =>
             addingFrom.serviceMethod.methodName.equals(toAdd.serviceMethod.methodName)
           }
         }
-      inCommon ++ unique
+      added ++ toNotInCommon
     }
 
-    def removeDuplicates(springMethods: Seq[KalixMethod], pubSubMethods: Seq[KalixMethod]): Seq[KalixMethod] = {
-      pubSubMethods.filterNot(p =>
-        springMethods.exists(s => p.serviceMethod.methodName.equals(s.serviceMethod.methodName)))
+    def removeDuplicates(from: Seq[KalixMethod], given: Seq[KalixMethod]): Seq[KalixMethod] = {
+      from.filter(f => !given.exists(g => f.serviceMethod.methodName.equals(g.serviceMethod.methodName)))
     }
 
     ComponentDescriptor(
       nameGenerator,
       serviceName,
       component.getPackageName,
-      filterAndAddKalixOptions(springAnnotatedMethods, publicationTopicMethods)
-      ++ subscriptionValueEntityMethods
+      subscriptionValueEntityMethods
       ++ combineByES(subscriptionEventSourcedEntityMethods)
+      ++ combineByES(subscriptionEventSourcedEntityClass)
       ++ combineByTopic(subscriptionTopicMethods)
-      ++ removeDuplicates(springAnnotatedMethods, publicationTopicMethods))
+      ++ combineByTopic(subscriptionTopicClass)
+      ++ addKalixOptions(springAnnotatedMethods, publicationTopicMethods)
+      ++ removeDuplicates(publicationTopicMethods, springAnnotatedMethods))
   }
 }

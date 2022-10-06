@@ -230,7 +230,7 @@ case class KalixMethod(
       case None                => this
     }
 
-  private[impl] def mergeKalixOptions(
+  private[impl] def mergeKalixOptions( //TODO make sure when merging ignore raise and error if one has true and another false? or if
       source: Option[kalix.MethodOptions],
       addOn: kalix.MethodOptions): kalix.MethodOptions = {
     val builder = source match {

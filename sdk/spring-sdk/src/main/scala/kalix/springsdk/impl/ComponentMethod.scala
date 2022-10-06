@@ -18,6 +18,7 @@ package kalix.springsdk.impl
 
 import java.lang.reflect.Method
 import com.google.protobuf.Descriptors
+import kalix.springsdk.impl.reflection.KalixMethod
 import kalix.springsdk.impl.reflection.ParameterExtractor
 import kalix.springsdk.impl.reflection.ParameterExtractors.AnyBodyExtractor
 import org.slf4j.LoggerFactory
@@ -37,24 +38,31 @@ case class ComponentMethod(
     grpcMethodName: String,
     parameterExtractors: Array[ParameterExtractor[InvocationContext, AnyRef]],
     requestMessageDescriptor: Descriptors.Descriptor,
-    typeUrl2Methods: Seq[TypeUrl2Method] = Nil) {
+    typeUrl2Methods: Seq[TypeUrl2Method] = Nil,
+    kalixMethod: KalixMethod) {
 
   val logger = LoggerFactory.getLogger(ComponentMethod.getClass)
 
-  def lookupMethod(inputTypeUrl: String): JavaMethod = {
+  def lookupMethod(inputTypeUrl: String): Option[JavaMethod] = {
     val method = typeUrl2Methods.find(p => p.typeUrl == inputTypeUrl)
     method match {
       case Some(meth) =>
-        JavaMethod(meth.method, getExtractors(meth.method))
+        Some(JavaMethod(meth.method, getExtractors(meth.method)))
       case None if typeUrl2Methods.size == 1 =>
         logger.warn(
           s"Couldn't find any entry for typeUrl [${inputTypeUrl}] in [${typeUrl2Methods}]." +
           s" Choosing the first option [${typeUrl2Methods.head.method}].")
-        JavaMethod(typeUrl2Methods.head.method, parameterExtractors)
+        Some(JavaMethod(typeUrl2Methods.head.method, parameterExtractors))
+      case None if isIgnore(kalixMethod) =>
+        None
       case None =>
         throw new IllegalStateException(
           s"Couldn't find any entry for typeUrl [${inputTypeUrl}] in [${typeUrl2Methods}].")
     }
+  }
+
+  def isIgnore(kalixMethod: KalixMethod): Boolean = {
+    kalixMethod.methodOptions.exists( m => m.hasEventing && m.getEventing.hasIn && m.getEventing.getIn.getIgnore)
   }
 
   private def getExtractors(method: Method): Array[ParameterExtractor[InvocationContext, AnyRef]] = {
@@ -70,4 +78,6 @@ case class ComponentMethod(
 
 case class TypeUrl2Method(typeUrl: String, method: Method)
 
-case class JavaMethod(method: Method, parameterExtractors: Array[ParameterExtractor[InvocationContext, AnyRef]])
+case class JavaMethod(
+    method: Method,
+    parameterExtractors: Array[ParameterExtractor[InvocationContext, AnyRef]])

@@ -18,12 +18,14 @@ package kalix.springsdk.impl
 
 import kalix.MethodOptions
 import kalix.springsdk.annotations.JWT
+import kalix.javasdk.action.Action
 import kalix.springsdk.annotations.Table
 import kalix.springsdk.annotations.{ Entity, Publish, Subscribe }
 import kalix.springsdk.impl.ComponentDescriptorFactory.hasJwtMethodOptions
 import kalix.springsdk.impl.ComponentDescriptorFactory.jwtMethodOptions
 import kalix.springsdk.impl.reflection._
 import kalix.{ EventDestination, EventSource, Eventing, JwtMethodOptions }
+import sun.reflect.generics.reflectiveObjects.ParameterizedTypeImpl
 
 import java.lang.reflect.{ Method, Modifier }
 
@@ -37,9 +39,26 @@ private[impl] object ComponentDescriptorFactory {
     Modifier.isPublic(javaMethod.getModifiers) &&
     javaMethod.getAnnotation(classOf[Subscribe.EventSourcedEntity]) != null
 
+  def hasEventSourcedEntitySubscription(clazz: Class[_]): Boolean =
+    Modifier.isPublic(clazz.getModifiers) &&
+    clazz.getAnnotation(classOf[Subscribe.EventSourcedEntity]) != null
+
+  def hasActionOutput(javaMethod: Method): Boolean = {
+    javaMethod.getGenericReturnType match {
+      case p: ParameterizedTypeImpl =>
+        p.getRawType.equals(classOf[Action.Effect[_]]) &&
+          Modifier.isPublic(javaMethod.getModifiers)
+      case _ => false
+    }
+  }
+
   def hasTopicSubscription(javaMethod: Method): Boolean =
     Modifier.isPublic(javaMethod.getModifiers) &&
     javaMethod.getAnnotation(classOf[Subscribe.Topic]) != null
+
+  def hasTopicSubscription(clazz: Class[_]): Boolean =
+    Modifier.isPublic(clazz.getModifiers) &&
+    clazz.getAnnotation(classOf[Subscribe.Topic]) != null
 
   def hasTopicPublication(javaMethod: Method): Boolean =
     Modifier.isPublic(javaMethod.getModifiers) &&
@@ -51,6 +70,12 @@ private[impl] object ComponentDescriptorFactory {
 
   def findEventSourcedEntityType(javaMethod: Method): String = {
     val ann = javaMethod.getAnnotation(classOf[Subscribe.EventSourcedEntity])
+    val entityClass = ann.value()
+    entityClass.getAnnotation(classOf[Entity]).entityType()
+  }
+
+  def findEventSourcedEntityType(clazz: Class[_]): String = {
+    val ann = clazz.getAnnotation(classOf[Subscribe.EventSourcedEntity])
     val entityClass = ann.value()
     entityClass.getAnnotation(classOf[Entity]).entityType()
   }
@@ -72,8 +97,18 @@ private[impl] object ComponentDescriptorFactory {
     ann.value()
   }
 
+  def findSubTopicName(clazz: Class[_]): String = {
+    val ann = clazz.getAnnotation(classOf[Subscribe.Topic])
+    ann.value()
+  }
+
   def findSubConsumerGroup(javaMethod: Method): String = {
     val ann = javaMethod.getAnnotation(classOf[Subscribe.Topic])
+    ann.consumerGroup()
+  }
+
+  def findSubConsumerGroup(clazz: Class[_]): String = {
+    val ann = clazz.getAnnotation(classOf[Subscribe.Topic])
     ann.consumerGroup()
   }
 
@@ -107,9 +142,22 @@ private[impl] object ComponentDescriptorFactory {
     Eventing.newBuilder().setIn(eventSource).build()
   }
 
+  def eventingInForEventSourcedEntity(clazz: Class[_]): Eventing = {
+    val entityType = findEventSourcedEntityType(clazz)
+    val eventSource = EventSource.newBuilder().setEventSourcedEntity(entityType).build()
+    Eventing.newBuilder().setIn(eventSource).build()
+  }
+
   def eventingInForTopic(javaMethod: Method): Eventing = {
     val topicName = findSubTopicName(javaMethod)
     val consumerGroup = findSubConsumerGroup(javaMethod)
+    val eventSource = EventSource.newBuilder().setTopic(topicName).setConsumerGroup(consumerGroup).build()
+    Eventing.newBuilder().setIn(eventSource).build()
+  }
+
+  def eventingInForTopic(clazz: Class[_]): Eventing = {
+    val topicName = findSubTopicName(clazz)
+    val consumerGroup = findSubConsumerGroup(clazz)
     val eventSource = EventSource.newBuilder().setTopic(topicName).setConsumerGroup(consumerGroup).build()
     Eventing.newBuilder().setIn(eventSource).build()
   }

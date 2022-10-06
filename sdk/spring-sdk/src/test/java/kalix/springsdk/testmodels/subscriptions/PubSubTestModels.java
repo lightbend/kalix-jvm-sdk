@@ -21,11 +21,13 @@ import kalix.springsdk.annotations.Subscribe;
 import kalix.springsdk.annotations.Publish;
 import kalix.springsdk.testmodels.Message;
 import kalix.springsdk.testmodels.Message2;
+import kalix.springsdk.testmodels.eventsourcedentity.EventSourcedEntitiesTestModels;
 import kalix.springsdk.testmodels.valueentity.Counter;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import kalix.springsdk.testmodels.eventsourcedentity.EventSourcedEntitiesTestModels.WellAnnotatedESEntity;
+import kalix.springsdk.testmodels.eventsourcedentity.EventSourcedEntitiesTestModels.EmployeeEntity;
 
 public class PubSubTestModels {
 
@@ -55,6 +57,29 @@ public class PubSubTestModels {
     }
   }
 
+  @Subscribe.EventSourcedEntity(WellAnnotatedESEntity.class)
+  public static class SubscribeToEventSourcedEntityActionTypeLevel extends Action {
+
+    public Action.Effect<Integer> methodOne(Integer message) {
+      return effects().reply(message);
+    }
+    public Action.Effect<String> methodTwo(String message) {
+      return effects().reply(message);
+    }
+  }
+
+  @Subscribe.EventSourcedEntity(WellAnnotatedESEntity.class)
+  public static class SubscribeToEventSourcedEntityActionTypeLevelMethodLevel extends Action {
+
+    public Action.Effect<Integer> methodOne(Integer message) {
+      return effects().reply(message);
+    }
+    @Subscribe.EventSourcedEntity(EmployeeEntity.class)
+    public Action.Effect<String> methodTwo(String message) {
+      return effects().reply(message);
+    }
+  }
+
   public static class RestAnnotatedSubscribeToEventSourcedEntityAction extends Action {
     @PostMapping("/changeInt/{number}")
     @Subscribe.EventSourcedEntity(WellAnnotatedESEntity.class)
@@ -71,6 +96,15 @@ public class PubSubTestModels {
     }
   }
 
+  @Subscribe.Topic(value = "topicAAA", consumerGroup = "aa")
+  public static class SubscribeToTopicActionTypeLevelMethodLevel extends Action {
+
+    public Action.Effect<Message> messageOne(Message message) {return effects().reply(message);}
+
+    @Subscribe.Topic(value = "topicXYZ")
+    public Action.Effect<Message2> messageTwo(Message2 message) {return effects().reply(message);}
+  }
+
   public static class SubscribeToTwoTopicsAction extends Action {
 
     @Subscribe.Topic("topicXYZ")
@@ -79,6 +113,18 @@ public class PubSubTestModels {
     }
 
     @Subscribe.Topic("topicXYZ")
+    public Action.Effect<Message2> methodTwo(Message2 message) {
+      return effects().reply(message);
+    }
+  }
+
+  @Subscribe.Topic(value = "topicXYZ", ignore = true)
+  public static class SubscribeToTopicsActionTypeLevel extends Action {
+
+    public Action.Effect<Message> methodOne(Message message) {
+      return effects().reply(message);
+    }
+
     public Action.Effect<Message2> methodTwo(Message2 message) {
       return effects().reply(message);
     }
