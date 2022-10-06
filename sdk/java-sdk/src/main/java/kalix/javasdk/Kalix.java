@@ -559,7 +559,4 @@ public final class Kalix {
     return new AnySupport(descriptors, classLoader, typeUrlPrefix, prefer);
   }
 
-  public Map<String, Function<ActorSystem, Service>> getServices() {
-    return services;
-  }
 }

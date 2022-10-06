@@ -16,12 +16,16 @@
 
 package kalix.springsdk.impl
 
+import akka.http.scaladsl.model.Uri.Path
+import akka.http.scaladsl.model.{ HttpMethod, HttpMethods, HttpRequest }
 import com.google.api.AnnotationsProto
 import com.google.api.HttpRule.PatternCase
 import com.google.protobuf.Descriptors
 import kalix.javasdk.impl.{ MetadataImpl, RestDeferredCallImpl }
 import kalix.javasdk.DeferredCall
 import kalix.springsdk.KalixClient
+import kalix.springsdk.impl.http.HttpEndpointMethodDefinition.ANY_METHOD
+import kalix.springsdk.impl.http.HttpEndpointMethodDefinition
 import org.springframework.http.{ HttpHeaders, MediaType }
 import org.springframework.web.reactive.function.client.WebClient
 
@@ -38,7 +42,7 @@ class RestKalixClientImpl extends KalixClient {
   // at the time of creation, Proxy Discovery has not happened so we don't have this info
   private val host: Promise[String] = Promise[String]()
   private val port: Promise[Int] = Promise[Int]()
-  private var services: Map[String, Descriptors.MethodDescriptor] = Map.empty
+  private var services: Seq[HttpEndpointMethodDefinition] = Seq.empty
 
   private val webClient: Future[WebClient] = {
     import scala.concurrent.ExecutionContext.Implicits.global
@@ -60,55 +64,64 @@ class RestKalixClientImpl extends KalixClient {
   def setPort(port: Int) = this.port.trySuccess(port)
 
   def registerComponent(descriptor: Descriptors.ServiceDescriptor): Unit = {
+    val httpMethods =
+      HttpEndpointMethodDefinition.extractForService(descriptor)
 
-    val ruleToDescriptorMap =
-      for (methodDescriptor: Descriptors.MethodDescriptor <- descriptor.getMethods.asScala) yield {
-        val httpRule = methodDescriptor.getOptions.getExtension(AnnotationsProto.http)
-        httpRule.getPatternCase match {
-          case PatternCase.GET  => httpRule.getGet -> methodDescriptor
-          case PatternCase.POST => httpRule.getPost -> methodDescriptor
-        }
-      }
-
-    services ++= ruleToDescriptorMap
+    services = services ++ httpMethods
   }
 
+  def init(): Unit = {}
+
   def post[P, R](uri: String, body: P, returnType: Class[R]): DeferredCall[P, R] = {
-    val methodDesc = services(uri) // FIXME matching logic needs addressing
-
-    new RestDeferredCallImpl[P, R](
-      message = body,
-      metadata = MetadataImpl.Empty,
-      methodDescriptor = methodDesc,
-      asyncCall = () =>
-        webClient.flatMap {
-          _.post()
-            .uri(uri)
-            .bodyValue(body)
-            .retrieve()
-            .bodyToMono(returnType)
-            .toFuture
-            .asScala
-        }.asJava)
-
+    matchMethodDescOpt(HttpMethods.POST, Path(uri))
+      .map { methodDesc =>
+        new RestDeferredCallImpl[P, R](
+          message = body,
+          metadata = MetadataImpl.Empty,
+          methodDescriptor = methodDesc,
+          asyncCall = () =>
+            webClient.flatMap {
+              _.post()
+                .uri(uri)
+                .bodyValue(body)
+                .retrieve()
+                .bodyToMono(returnType)
+                .toFuture
+                .asScala
+            }.asJava)
+      }
+      .getOrElse {
+        throw new IllegalArgumentException("No matching service") // FIXME use another exception
+      }
   }
 
   def get[R](uri: String, returnType: Class[R]): DeferredCall[Void, R] = {
+    matchMethodDescOpt(HttpMethods.GET, Path(uri))
+      .map { methodDesc =>
+        new RestDeferredCallImpl[Void, R](
+          message = null,
+          metadata = MetadataImpl.Empty,
+          methodDescriptor = methodDesc,
+          asyncCall = () =>
+            webClient
+              .flatMap(
+                _.get()
+                  .uri(uri)
+                  .retrieve()
+                  .bodyToMono(returnType)
+                  .toFuture
+                  .asScala)
+              .asJava)
+      }
+      .getOrElse {
+        throw new IllegalArgumentException("No matching service") // FIXME use another exception
+      }
+  }
 
-    val methodDesc = services(uri)
-    new RestDeferredCallImpl[Void, R](
-      message = null,
-      metadata = MetadataImpl.Empty,
-      methodDescriptor = methodDesc,
-      asyncCall = () =>
-        webClient
-          .flatMap(
-            _.get()
-              .uri(uri)
-              .retrieve()
-              .bodyToMono(returnType)
-              .toFuture
-              .asScala)
-          .asJava)
+  private def matchMethodDescOpt(httpMethod: HttpMethod, uri: Path): Option[Descriptors.MethodDescriptor] = {
+    services
+      .filter(d => (d.methodPattern == ANY_METHOD || httpMethod == d.methodPattern) && d.matches(uri))
+      .map(_.methodDescriptor)
+      .headOption
   }
 }
