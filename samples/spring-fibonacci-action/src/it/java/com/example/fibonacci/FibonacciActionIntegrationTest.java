@@ -30,33 +30,33 @@ public class FibonacciActionIntegrationTest extends KalixIntegrationTestKitSuppo
   private WebClient webClient;
 
   @Test
-  public void calculateNextNumber() throws Exception {
+  public void calculateNextNumber() {
 
     Mono<Number> response =
         webClient.get()
             .uri("/fibonacci/5/next")
             .retrieve().bodyToMono(Number.class);
 
-    long next = response.block(Duration.of(5, SECONDS)).value;
+    long next = response.block(Duration.of(5, SECONDS)).value();
     Assertions.assertEquals(8, next);
 
   }
 
   @Test
-  public void calculateNextNumberWithLimitedFibo() throws Exception {
+  public void calculateNextNumberWithLimitedFibo() {
 
     Mono<Number> response =
             webClient.get()
                     .uri("/limitedfibonacci/5/next")
                     .retrieve().bodyToMono(Number.class);
 
-    long next = response.block(Duration.of(5, SECONDS)).value;
+    long next = response.block(Duration.of(5, SECONDS)).value();
     Assertions.assertEquals(8, next);
 
   }
 
   @Test
-  public void wrongNumberReturnsError() throws Exception {
+  public void wrongNumberReturnsError() {
     try {
 
 

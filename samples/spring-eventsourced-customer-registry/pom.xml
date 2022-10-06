@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>com.example</groupId>
@@ -11,7 +12,7 @@
   <properties>
 
     <!-- TODO Update to your own Docker repository or Docker Hub scope -->
-    <dockerImage>my-docker-repo/${project.artifactId}</dockerImage>
+    <dockerImage>aludwiko/${project.artifactId}</dockerImage>
     <dockerTag>${project.version}-${build.timestamp}</dockerTag>
     <maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
     <mainClass>customer.Main</mainClass>
@@ -307,12 +308,12 @@
     <dependency>
       <groupId>io.kalix</groupId>
       <artifactId>kalix-spring-sdk</artifactId>
-      <version>${kalix-sdk.version}</version>
+      <version>1.0.8-14-fedc8579-dev-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>io.kalix</groupId>
       <artifactId>kalix-spring-sdk-testkit</artifactId>
-      <version>${kalix-sdk.version}</version>
+      <version>1.0.8-14-fedc8579-dev-SNAPSHOT</version>
       <scope>test</scope>
     </dependency>
 
