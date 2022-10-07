@@ -46,7 +46,7 @@ public class CustomerIntegrationTest extends KalixIntegrationTestKitSupport {
             .block(timeout);
 
     Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
-    Assertions.assertEquals("Johanna", getCustomerById(id).name);
+    Assertions.assertEquals("Johanna", getCustomerById(id).name());
   }
 
   @Test
@@ -73,7 +73,7 @@ public class CustomerIntegrationTest extends KalixIntegrationTestKitSupport {
 
 
     Assertions.assertEquals(HttpStatus.OK, resUpdate.getStatusCode());
-    Assertions.assertEquals("Katarina", getCustomerById(id).name);
+    Assertions.assertEquals("Katarina", getCustomerById(id).name());
   }
 
   @Test
@@ -102,7 +102,7 @@ public class CustomerIntegrationTest extends KalixIntegrationTestKitSupport {
 
 
     Assertions.assertEquals(HttpStatus.OK, resUpdate.getStatusCode());
-    Assertions.assertEquals("Elm st. 5", getCustomerById(id).address.street);
+    Assertions.assertEquals("Elm st. 5", getCustomerById(id).address().street());
   }
 
 
@@ -131,7 +131,7 @@ public class CustomerIntegrationTest extends KalixIntegrationTestKitSupport {
                     .retrieve()
                     .bodyToMono(Customer.class)
                     .block(timeout)
-                    .name,
+                    .name(),
             new IsEqual("Foo")
         );
   }
@@ -160,7 +160,7 @@ public class CustomerIntegrationTest extends KalixIntegrationTestKitSupport {
                     .retrieve()
                     .bodyToMono(Customer.class)
                     .block(timeout)
-                    .name,
+                    .name(),
             new IsEqual("Bar")
         );
   }
