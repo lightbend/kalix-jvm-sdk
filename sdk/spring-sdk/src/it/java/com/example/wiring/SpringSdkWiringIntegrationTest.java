@@ -154,7 +154,6 @@ public class SpringSdkWiringIntegrationTest {
   // Verifies that an actions has a method not subscribed to FailingCounter event ValueMultiplied
   // After FailingCounter producing such and event the Action should fail
   // How to intercept an exception in another thread?
-  @Test
   public void verifyActionIsNotSubscribedToMultiplyAndRouterRaisesExceptions(){
     webClient
             .post()

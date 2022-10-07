@@ -51,27 +51,27 @@ case class ComponentMethod(
   val logger = LoggerFactory.getLogger(ComponentMethod.getClass)
 
   def lookupMethod(inputTypeUrl: String, componentClazz: Class[_]): Option[JavaMethod] = {
-      val method = typeUrl2Methods.find(p =>
-        "type.googleapis.com/" + p.typeUrl == inputTypeUrl ||
-        p.typeUrl == inputTypeUrl ||
-        hasJsonSubType(
-          p.method.getParameterTypes()(p.method.getParameterTypes.length - 1),
-          inputTypeUrl.replace(JsonSupport.KALIX_JSON, "")) ||
-        p.method
-          .getParameterTypes()(p.method.getParameterTypes.length - 1)
-          .getName
-          .equals(inputTypeUrl.replace(JsonSupport.KALIX_JSON, "")))
-      //FIXME havoc! would it work to call back to component to rebuild the typeUrl directly from the component?
-      // In doing so if data is saved with one SDK and later logic changes that data becomes unrecoverable?
-      method match {
-        case Some(meth) =>
-          Some(JavaMethod(meth.method, getExtractors(meth.method, componentClazz)))
-        case None if isIgnore(kalixMethod) =>
-          None
-        case None =>
-          throw NoRouteFoundException(s"Couldn't find any entry for typeUrl [${inputTypeUrl}] in [${typeUrl2Methods}].")
+    val method = typeUrl2Methods.find(p =>
+      "type.googleapis.com/" + p.typeUrl == inputTypeUrl ||
+      p.typeUrl == inputTypeUrl ||
+      hasJsonSubType(
+        p.method.getParameterTypes()(p.method.getParameterTypes.length - 1),
+        inputTypeUrl.replace(JsonSupport.KALIX_JSON, "")) ||
+      p.method
+        .getParameterTypes()(p.method.getParameterTypes.length - 1)
+        .getName
+        .equals(inputTypeUrl.replace(JsonSupport.KALIX_JSON, "")))
+    //FIXME havoc! would it work to call back to component to rebuild the typeUrl directly from the component?
+    // In doing so if data is saved with one SDK and later logic changes that data becomes unrecoverable?
+    method match {
+      case Some(meth) =>
+        Some(JavaMethod(meth.method, getExtractors(meth.method, componentClazz)))
+      case None if isIgnore(kalixMethod) =>
+        None
+      case None =>
+        throw NoRouteFoundException(s"Couldn't find any entry for typeUrl [${inputTypeUrl}] in [${typeUrl2Methods}].")
 
-      }
+    }
   }
 
   private def hasJsonSubType(clazz: Class[_], withValue: String): Boolean = {
