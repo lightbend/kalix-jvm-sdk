@@ -65,7 +65,6 @@ lazy val sdkJava = project
       "-Xdoclint:none",
       "-overview",
       ((Compile / javaSource).value / "overview.html").getAbsolutePath,
-      "--no-module-directories",
       "-notimestamp",
       "-doctitle",
       "Kalix Java SDK",
