@@ -308,12 +308,12 @@
     <dependency>
       <groupId>io.kalix</groupId>
       <artifactId>kalix-spring-sdk</artifactId>
-      <version>1.0.8-14-fedc8579-dev-SNAPSHOT</version>
+      <version>${kalix-sdk.version}</version>
     </dependency>
     <dependency>
       <groupId>io.kalix</groupId>
       <artifactId>kalix-spring-sdk-testkit</artifactId>
-      <version>1.0.8-14-fedc8579-dev-SNAPSHOT</version>
+      <version>${kalix-sdk.version}</version>
       <scope>test</scope>
     </dependency>
 
