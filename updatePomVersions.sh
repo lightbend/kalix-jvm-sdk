@@ -11,13 +11,6 @@ if [ -z ${SDK_VERSION+x} ]; then
   SDK_VERSION=$(sbt "print sdkJava/version" | tail -1)
 fi
 
-
-if [ $1 ]; then
-  PROJ=$1
-else
-  PROJ=("samples/*java-*" "samples/*spring-*")
-fi
-
 sbt 'publishM2; publishLocal'
 (
   cd maven-java
@@ -33,9 +26,8 @@ sbt 'publishM2; publishLocal'
   git checkout */pom.xml
 )
 
-for i in ${PROJ[@]}
-do
-  echo "Updating pom for: $i"
-  sed  -i .versionsBackup "s/<kalix-sdk.version>\(.*\)<\/kalix-sdk.version>/<kalix-sdk.version>$SDK_VERSION<\/kalix-sdk.version>/" $i/pom.xml
-  rm $i/pom.xml.versionsBackup
-done
+if [ $1 ]; then
+  SDK_VERSION=$SDK_VERSION sh ./updateSdkVersions.sh java $1
+else
+  SDK_VERSION=$SDK_VERSION sh ./updateSdkVersions.sh all
+fi
