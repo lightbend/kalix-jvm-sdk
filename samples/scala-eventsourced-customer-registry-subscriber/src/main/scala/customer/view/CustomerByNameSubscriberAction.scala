@@ -18,11 +18,11 @@ class CustomerByNameSubscriberAction(creationContext: ActionCreationContext) ext
   private val log = LoggerFactory.getLogger(classOf[CustomerByNameSubscriberAction])
 
   override def processCustomerCreated(created: Created): Action.Effect[Empty] = {
-    log.info("Customer created: {}", created)
+    log.info("Customer {} created: {}", actionContext.eventSubject, created)
     effects.reply(Empty.defaultInstance)
   }
   override def processCustomerNameChanged(nameChanged: NameChanged): Action.Effect[Empty] = {
-    log.info("Customer name changed: {}", nameChanged)
+    log.info("Customer {} name changed: {}", actionContext.eventSubject, nameChanged)
     effects.reply(Empty.defaultInstance)
   }
 }

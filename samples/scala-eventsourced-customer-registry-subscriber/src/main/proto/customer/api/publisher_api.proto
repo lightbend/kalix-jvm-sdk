@@ -24,6 +24,5 @@ message Created {
     string email = 3;
 }
 message NameChanged {
-    string customer_id = 1;
-    string customer_name = 2;
+    string customer_name = 1;
 }

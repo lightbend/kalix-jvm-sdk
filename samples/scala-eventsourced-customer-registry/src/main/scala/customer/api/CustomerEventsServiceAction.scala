@@ -18,7 +18,9 @@ class CustomerEventsServiceAction(creationContext: ActionCreationContext) extend
   }
 
   override def processCustomerNameChanged(customerNameChanged: domain.CustomerNameChanged): Action.Effect[NameChanged] = {
-    effects.reply(NameChanged(actionContext.eventSubject.get, customerNameChanged.newName))
+    // Note: customer_id is not present here, but will be available as subject id
+    // from the metadata on the consuming side
+    effects.reply(NameChanged(customerNameChanged.newName))
   }
 }
 
