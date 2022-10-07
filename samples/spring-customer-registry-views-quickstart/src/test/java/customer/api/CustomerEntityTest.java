@@ -25,7 +25,7 @@ public class CustomerEntityTest {
     {
       ValueEntityResult<String> result = testKit.call(e -> e.changeName("FooBar"));
       assertEquals("OK", result.getReply());
-      assertEquals("FooBar", testKit.getState().name);
+      assertEquals("FooBar", testKit.getState().name());
     }
 
   }
@@ -43,8 +43,8 @@ public class CustomerEntityTest {
       Address newAddress = new Address("Sesame Street", "Sesame City");
       ValueEntityResult<String> result = testKit.call(e -> e.changeAddress(newAddress));
       assertEquals("OK", result.getReply());
-      assertEquals("Sesame Street", testKit.getState().address.street);
-      assertEquals("Sesame City", testKit.getState().address.city);
+      assertEquals("Sesame Street", testKit.getState().address().street());
+      assertEquals("Sesame City", testKit.getState().address().city());
     }
 
   }

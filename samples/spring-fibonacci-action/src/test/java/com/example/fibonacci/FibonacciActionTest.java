@@ -14,7 +14,7 @@ public class FibonacciActionTest {
     ActionTestkit<FibonacciAction> testkit = ActionTestkit.of(FibonacciAction::new);
     ActionResult<Number> result = testkit.call(a -> a.nextNumber(3L));
     assertTrue(result.isReply());
-    assertEquals(5L, result.getReply().value);
+    assertEquals(5L, result.getReply().value());
   }
 
   @Test

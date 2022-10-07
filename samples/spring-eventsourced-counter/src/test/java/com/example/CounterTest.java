@@ -2,9 +2,10 @@ package com.example;
 
 import kalix.javasdk.testkit.EventSourcedResult;
 import kalix.springsdk.testkit.EventSourcedTestKit;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import static com.example.CounterEvent.ValueIncreased;
+import static com.example.CounterEvent.ValueMultiplied;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 

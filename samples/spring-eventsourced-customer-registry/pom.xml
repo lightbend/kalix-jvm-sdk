@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>com.example</groupId>
-  <artifactId>spring-customer-registry</artifactId>
+  <artifactId>spring-eventsourced-customer-registry</artifactId>
   <version>1.0-SNAPSHOT</version>
   <packaging>jar</packaging>
 
@@ -16,7 +17,7 @@
     <maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
     <mainClass>customer.Main</mainClass>
 
-    <jdk.target>11</jdk.target>
+    <jdk.target>17</jdk.target>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
     <kalix-sdk.version>1.0.8</kalix-sdk.version>
@@ -123,7 +124,7 @@
               <name>${dockerImage}:%l</name>
               <build>
                 <!-- Base Docker image which contains jre-->
-                <from>docker.io/library/adoptopenjdk:${jdk.target}-jre-hotspot</from>
+                <from>docker.io/library/eclipse-temurin:${jdk.target}-alpine</from>
                 <createImageOptions>
                   <platform>linux/amd64</platform>
                 </createImageOptions>

@@ -26,6 +26,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import static com.example.CounterEvent.ValueIncreased;
+import static com.example.CounterEvent.ValueMultiplied;
+
 @Entity(entityKey = "id", entityType = "counter")
 @RequestMapping("/counter/{id}")
 public class Counter extends EventSourcedEntity<Integer> {
@@ -58,12 +61,12 @@ public class Counter extends EventSourcedEntity<Integer> {
 
     @EventHandler
     public Integer handleIncrease(ValueIncreased value) {
-        return currentState() + value.value;
+        return currentState() + value.value();
     }
 
     @EventHandler
     public Integer handleMultiply(ValueMultiplied value) {
-        return currentState() * value.value;
+        return currentState() * value.value();
     }
 }
 

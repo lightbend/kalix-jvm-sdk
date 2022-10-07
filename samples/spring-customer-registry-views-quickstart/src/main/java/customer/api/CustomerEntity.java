@@ -36,16 +36,14 @@ public class CustomerEntity extends ValueEntity<Customer> {
 
   @PostMapping("/changeName/{newName}")
   public Effect<String> changeName(@PathVariable String newName) {
-    Customer customer = currentState();
-    customer.name = newName;
-    return effects().updateState(customer).thenReply("OK");
+    Customer updatedCustomer = currentState().withName(newName);
+    return effects().updateState(updatedCustomer).thenReply("OK");
   }
 
   @PostMapping("/changeAddress")
   public Effect<String> changeAddress(@RequestBody Address newAddress) {
-    Customer customer = currentState();
-    customer.address = newAddress;
-    return effects().updateState(customer).thenReply("OK");
+    Customer updatedCustomer = currentState().withAddress(newAddress);
+    return effects().updateState(updatedCustomer).thenReply("OK");
   }
 
 }
