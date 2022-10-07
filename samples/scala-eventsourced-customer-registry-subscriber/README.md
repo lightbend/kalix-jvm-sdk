@@ -1,4 +1,4 @@
-# Event Sourced Customer Registry Sample
+# Customer Registry Subscriber Sample
 
 ## Designing
 
@@ -7,12 +7,8 @@ To understand the Kalix concepts that are the basis for this example, see [Desig
 
 ## Developing
 
-This project demonstrates the use of Event Sourced Entity, View and Service to Service eventing components.
-To understand more about these components, see [Developing services](https://docs.kalix.io/services/)
-and in particular the [Scala section](https://docs.kalix.io/java/)
+This project demonstrates consumption of a Service to Service eventing publisher.
 
-The project scala-customer-registry-subscriber is a downstream consumer of the Service to Service event stream
-provided by this service.
 
 
 ## Building and running unit tests
@@ -43,9 +39,8 @@ sbt run
 
 For further details see [Running a service locally](https://docs.kalix.io/developing/running-service-locally.html) in the documentation.
 
-## Exercise the service
+With both the proxy and your application running, any defined endpoints should be available at `http://localhost:9000`. In addition to the defined gRPC interface, each method has a corresponding HTTP endpoint. Unless configured otherwise (see [Transcoding HTTP](https://docs.kalix.io/java/writing-grpc-descriptors-protobuf.html#_transcoding_http)), this endpoint accepts POST requests at the path `/[package].[entity name]/[method]`. For example, using `curl`:
 
-With both the proxy and your application running, any defined endpoints should be available at `http://localhost:9000`. In addition to the defined gRPC interface, each method has a corresponding HTTP endpoint. Unless configured otherwise (see [Transcoding HTTP](https://docs.kalix.io/java/writing-grpc-descriptors-protobuf.html#_transcoding_http)), this endpoint accepts POST requests at the path `/[package].[entity name]/[method]`. 
 
 * Create a customer with:
   ```shell
@@ -67,15 +62,6 @@ With both the proxy and your application running, any defined endpoints should b
   ```shell
   grpcurl --plaintext -d '{"customer_id": "wip", "new_address": {"street": "Street 1", "city": "The City"}}' localhost:9000 customer.api.CustomerService/ChangeAddress
   ```
-* Query the customer by name view:
-  ```shell
-  grpcurl --plaintext -d '{"customer_name":"Bob"}' localhost:9000 customer.view.CustomerByName/GetCustomers
-  ```
-  
-* Query the streaming customer by city (will stay running listing updates until cancelled with Ctrl+C):
-  ```shell
-  grpcurl --plaintext -d '{"city":"Stockholm"}' localhost:9000 customer.view.CustomerByCityStreaming/GetCustomers
-  ```
 
 ## Deploying
 
@@ -83,7 +69,7 @@ To deploy your service, install the `kalix` CLI as documented in
 [Setting up a local development environment](https://docs.kalix.io/setting-up/)
 and configure a Docker Registry to upload your docker image to.
 
-You will need to set the `docker.username` system property when starting sbt to be able to publish the image, for example `sbt -Ddocker.username=myuser Docker/publish`. 
+You will need to set the `docker.username` system property when starting sbt to be able to publish the image, for example `sbt -Ddocker.username=myuser Docker/publish`.
 
 If you are publishing to a different registry than docker hub, you will also need to specify what registry using the system property `docker.registry`.
 
@@ -92,5 +78,5 @@ Refer to
 for more information on how to make your docker image available to Kalix.
 
 Finally, you can use the [Kalix Console](https://console.kalix.io)
-to create a Kalix project and then deploy your service into it 
+to create a Kalix project and then deploy your service into it
 through the `kalix` CLI. 
