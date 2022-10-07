@@ -1,7 +1,4 @@
 package customer.api;
-/*
- * Copyright (C) 2009-2022 Lightbend Inc. <https://www.lightbend.com>
- */
 
 public record Customer(String customerId, String email, String name, Address address) {
 

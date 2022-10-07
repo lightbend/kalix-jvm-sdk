@@ -1,7 +1,4 @@
 package customer.view;
-/*
- * Copyright (C) 2009-2022 Lightbend Inc. <https://www.lightbend.com>
- */
 
 import customer.api.CustomerEntity;
 import customer.api.CustomerEvent;
