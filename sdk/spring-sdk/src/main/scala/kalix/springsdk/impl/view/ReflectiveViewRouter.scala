@@ -54,27 +54,31 @@ class ReflectiveViewRouter[S, V <: View[S]](view: V, componentMethods: Map[Strin
       case s if s != null => JsonSupport.decodeJson(viewStateType, ScalaPbAny.toJavaProto(s.asInstanceOf[ScalaPbAny]))
     }
 
-    val javaMethod = componentMethod
-      .lookupMethod(event.asInstanceOf[ScalaPbAny].typeUrl)
+    val javaMethodOpt = componentMethod
+      .lookupMethod(event.asInstanceOf[ScalaPbAny].typeUrl, classOf[View[_]])
 
-    val params = javaMethod.parameterExtractors.map(e => e.extract(context))
+    javaMethodOpt match {
+      case Some(javaMethod) =>
+        val params = javaMethod.parameterExtractors.map(e => e.extract(context))
 
-    (javaMethod.method.getParameterCount, newState) match {
-      case (1, _) =>
-        javaMethod.method
-          .invoke(view, params: _*)
-          .asInstanceOf[View.UpdateEffect[S]]
-      case (2, Some(s)) =>
-        javaMethod.method
-          .invoke(view, s, params.head)
-          .asInstanceOf[View.UpdateEffect[S]]
-      case (2, None) =>
-        javaMethod.method
-          .invoke(view, null, params.head)
-          .asInstanceOf[View.UpdateEffect[S]]
-      case (n, _) => // this shouldn't really be reached
-        throw new RuntimeException(s"unexpected number of params ($n) for '$commandName'")
+        (javaMethod.method.getParameterCount, newState) match {
+          case (1, _) =>
+            javaMethod.method
+              .invoke(view, params: _*)
+              .asInstanceOf[View.UpdateEffect[S]]
+          case (2, Some(s)) =>
+            javaMethod.method
+              .invoke(view, s, params.head)
+              .asInstanceOf[View.UpdateEffect[S]]
+          case (2, None) =>
+            javaMethod.method
+              .invoke(view, null, params.head)
+              .asInstanceOf[View.UpdateEffect[S]]
+          case (n, _) => // this shouldn't really be reached
+            throw new RuntimeException(s"unexpected number of params ($n) for '$commandName'")
+        }
+      case None =>
+        ScalaPbAny.defaultInstance.asInstanceOf[View.UpdateEffect[S]]
     }
   }
-
 }

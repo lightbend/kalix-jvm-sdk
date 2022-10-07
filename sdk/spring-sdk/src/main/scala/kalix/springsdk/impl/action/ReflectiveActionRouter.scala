@@ -45,12 +45,13 @@ class ReflectiveActionRouter[A <: Action](action: A, componentMethods: Map[Strin
       message.payload().asInstanceOf[ScalaPbAny].typeUrl
 
     val javaMethodOpt = componentMethod
-      .lookupMethod(inputTypeUrl)
+      .lookupMethod(inputTypeUrl, classOf[Action])
 
     javaMethodOpt match {
-      case Some(javaMethod) => javaMethod.method
-        .invoke(action, javaMethod.parameterExtractors.map(e => e.extract(context)): _*)
-        .asInstanceOf[Action.Effect[_]]
+      case Some(javaMethod) =>
+        javaMethod.method
+          .invoke(action, javaMethod.parameterExtractors.map(e => e.extract(context)): _*)
+          .asInstanceOf[Action.Effect[_]]
       case None => ScalaPbAny.defaultInstance.asInstanceOf[Action.Effect[_]]
     }
   }
@@ -66,15 +67,14 @@ class ReflectiveActionRouter[A <: Action](action: A, componentMethods: Map[Strin
         message.metadata())
 
     val javaMethodOpt = componentMethod
-      .lookupMethod(message.payload().asInstanceOf[ScalaPbAny].typeUrl) //TODO add ignore here as well
+      .lookupMethod(message.payload().asInstanceOf[ScalaPbAny].typeUrl, classOf[Action]) //TODO add ignore here as well
 
     javaMethodOpt match {
       case Some(javaMethod) =>
-        val response = javaMethod
-          .method
+        val response = javaMethod.method
           .invoke(action, javaMethod.parameterExtractors.map(e => e.extract(context)): _*)
           .asInstanceOf[Flux[Action.Effect[_]]]
-      Source.fromPublisher(response)
+        Source.fromPublisher(response)
       case None =>
         Source.empty()
     }

@@ -112,6 +112,16 @@ private[impl] object ComponentDescriptorFactory {
     ann.consumerGroup()
   }
 
+  def findIgnoreForTopic(clazz: Class[_]): Boolean = {
+    val ann = clazz.getAnnotation(classOf[Subscribe.Topic])
+    ann.ignore()
+  }
+
+  def findIgnoreForEventSourcedEntity(clazz: Class[_]): Boolean = {
+    val ann = clazz.getAnnotation(classOf[Subscribe.EventSourcedEntity])
+    ann.ignore()
+  }
+
   def findPubTopicName(javaMethod: Method): String = {
     val ann = javaMethod.getAnnotation(classOf[Publish.Topic])
     ann.value()
@@ -144,7 +154,8 @@ private[impl] object ComponentDescriptorFactory {
 
   def eventingInForEventSourcedEntity(clazz: Class[_]): Eventing = {
     val entityType = findEventSourcedEntityType(clazz)
-    val eventSource = EventSource.newBuilder().setEventSourcedEntity(entityType).build()
+    val ignore = findIgnoreForEventSourcedEntity(clazz)
+    val eventSource = EventSource.newBuilder().setEventSourcedEntity(entityType).setIgnore(ignore).build()
     Eventing.newBuilder().setIn(eventSource).build()
   }
 
@@ -158,7 +169,9 @@ private[impl] object ComponentDescriptorFactory {
   def eventingInForTopic(clazz: Class[_]): Eventing = {
     val topicName = findSubTopicName(clazz)
     val consumerGroup = findSubConsumerGroup(clazz)
-    val eventSource = EventSource.newBuilder().setTopic(topicName).setConsumerGroup(consumerGroup).build()
+    val ignore = findIgnoreForTopic(clazz)
+    val eventSource =
+      EventSource.newBuilder().setTopic(topicName).setConsumerGroup(consumerGroup).setIgnore(ignore).build()
     Eventing.newBuilder().setIn(eventSource).build()
   }
 

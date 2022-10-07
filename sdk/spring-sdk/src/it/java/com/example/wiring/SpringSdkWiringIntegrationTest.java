@@ -16,7 +16,6 @@
 
 package com.example.wiring;
 
-import akka.http.javadsl.model.StatusCode;
 import com.example.Main;
 import com.example.wiring.actions.echo.Message;
 import com.example.wiring.eventsourcedentities.counter.Counter;
@@ -150,6 +149,19 @@ public class SpringSdkWiringIntegrationTest {
         webClient.get().uri("/counter/hello").retrieve().bodyToMono(String.class).block(timeout);
 
     Assertions.assertEquals("\"200\"", counterGet);
+  }
+
+  // Verifies that an actions has a method not subscribed to FailingCounter event ValueMultiplied
+  // After FailingCounter producing such and event the Action should fail
+  // How to intercept an exception in another thread?
+  @Test
+  public void verifyActionIsNotSubscribedToMultiplyAndRouterRaisesExceptions(){
+    webClient
+            .post()
+            .uri("failingcounter/hello/multiply/2")
+            .retrieve()
+            .bodyToMono(Integer.class)
+            .block(timeout);
   }
 
   @Test

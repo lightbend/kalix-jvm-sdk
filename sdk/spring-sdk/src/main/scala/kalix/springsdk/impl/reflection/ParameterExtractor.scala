@@ -58,12 +58,14 @@ object ParameterExtractors {
     JsonSupport.decodeJson(cls, any)
   }
 
+  //TODO create sealed trait?
+
   case class AnyBodyExtractor[T](cls: Class[_]) extends ParameterExtractor[DynamicMessageContext, T] {
     override def extract(context: DynamicMessageContext): T =
       decodeJson(context.message, cls.asInstanceOf[Class[T]])
   }
 
-  class BodyExtractor[T](field: Descriptors.FieldDescriptor, cls: Class[_])
+  case class BodyExtractor[T](field: Descriptors.FieldDescriptor, cls: Class[_])
       extends ParameterExtractor[DynamicMessageContext, T] {
 
     override def extract(context: DynamicMessageContext): T = {
@@ -73,14 +75,14 @@ object ParameterExtractors {
     }
   }
 
-  class FieldExtractor[T](field: Descriptors.FieldDescriptor, deserialize: AnyRef => T)
+  case class FieldExtractor[T](field: Descriptors.FieldDescriptor, deserialize: AnyRef => T)
       extends ParameterExtractor[DynamicMessageContext, T] {
     override def extract(context: DynamicMessageContext): T = {
       deserialize(context.message.getField(field))
     }
   }
 
-  class HeaderExtractor[T >: Null](name: String, deserialize: String => T)
+  case class HeaderExtractor[T >: Null](name: String, deserialize: String => T)
       extends ParameterExtractor[MetadataContext, T] {
     override def extract(context: MetadataContext): T = context.metadata.get(name).toScala.map(deserialize).orNull
   }

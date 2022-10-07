@@ -154,7 +154,13 @@ private[impl] object ViewDescriptorFactory extends ComponentDescriptorFactory {
     val kalixMethods: Seq[KalixMethod] = queryMethod +: updateMethods
     val serviceName = nameGenerator.getName(component.getSimpleName)
     val additionalMessages = Set(tableTypeDescriptor, queryOutputSchemaDescriptor) ++ queryInputSchemaDescriptor.toSet
-    ComponentDescriptor(nameGenerator, serviceName, component.getPackageName, kalixMethods, additionalMessages.toSeq)
+    ComponentDescriptor(
+      nameGenerator,
+      serviceName,
+      component.getPackageName,
+      kalixMethods,
+      additionalMessages.toSeq,
+      component = component)
   }
 
   private def eventSourcedEntitySubscription(

@@ -16,6 +16,7 @@
 
 package kalix.springsdk.impl
 
+import kalix.javasdk.action.Action
 import kalix.springsdk.impl.ComponentDescriptorFactory.eventingInForEventSourcedEntity
 import kalix.springsdk.impl.ComponentDescriptorFactory.eventingInForTopic
 import kalix.springsdk.impl.ComponentDescriptorFactory.eventingInForValueEntity
@@ -192,6 +193,7 @@ private[impl] object ActionDescriptorFactory extends ComponentDescriptorFactory 
       ++ combineByTopic(subscriptionTopicMethods)
       ++ combineByTopic(subscriptionTopicClass)
       ++ addKalixOptions(springAnnotatedMethods, publicationTopicMethods)
-      ++ removeDuplicates(publicationTopicMethods, springAnnotatedMethods))
+      ++ removeDuplicates(publicationTopicMethods, springAnnotatedMethods),
+      component = component)
   }
 }

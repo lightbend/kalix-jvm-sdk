@@ -49,11 +49,9 @@ import kalix.springsdk.impl.reflection.RestServiceIntrospector.HeaderParameter
 import kalix.springsdk.impl.reflection.RestServiceIntrospector.PathParameter
 import kalix.springsdk.impl.reflection.RestServiceIntrospector.QueryParamParameter
 import kalix.springsdk.impl.reflection.RestServiceIntrospector.UnhandledParameter
-import kalix.springsdk.impl.reflection.SubscriptionServiceMethod
 import org.slf4j.LoggerFactory
 import org.springframework.web.bind.annotation.RequestMethod
 
-import java.lang.reflect.Method
 import scala.jdk.CollectionConverters.CollectionHasAsScala
 
 /**
@@ -76,7 +74,8 @@ private[impl] object ComponentDescriptor {
       serviceName: String,
       packageName: String,
       serviceMethods: Seq[KalixMethod],
-      additionalMessages: Seq[ProtoMessageDescriptors] = Nil): ComponentDescriptor = {
+      additionalMessages: Seq[ProtoMessageDescriptors] = Nil,
+      component: Class[_]): ComponentDescriptor = {
     val otherMessageProtos: Seq[DescriptorProtos.DescriptorProto] =
       additionalMessages.flatMap(pm => pm.mainMessageDescriptor +: pm.additionalMessageDescriptors)
 
@@ -116,7 +115,14 @@ private[impl] object ComponentDescriptor {
       val grpcMethod = grpcMethodBuilder.build()
       grpcService.addMethod(grpcMethod)
 
-      NamedComponentMethod(kalixMethod.serviceMethod, grpcMethodName, extractors, inputMessageName, inputProto, kalixMethod)
+      NamedComponentMethod(
+        kalixMethod.serviceMethod,
+        grpcMethodName,
+        extractors,
+        inputMessageName,
+        inputProto,
+        component,
+        kalixMethod)
     }
 
     val namedMethods: Seq[NamedComponentMethod] = serviceMethods.map(methodToNamedComponentMethod)
@@ -146,6 +152,7 @@ private[impl] object ComponentDescriptor {
       extractorCreators: Map[Int, ExtractorCreator],
       inputMessageName: String,
       inputProto: Option[DescriptorProto],
+      componentClass: Class[_],
       kalixMethod: KalixMethod) {
 
     type ParameterExtractors = Array[ParameterExtractor[InvocationContext, AnyRef]]
@@ -184,8 +191,8 @@ private[impl] object ComponentDescriptor {
             parameterExtractors,
             message,
             Seq(TypeUrl2Method(message.getFullName, method.javaMethod)),
+            componentClass,
             kalixMethod)
-           //FIXME make sure messe.getFullName is fine
         case method: CombinedSubscriptionServiceMethod =>
           val parameterExtractors: ParameterExtractors =
             method.typeUrl2Method
@@ -197,15 +204,14 @@ private[impl] object ComponentDescriptor {
             parameterExtractors,
             JavaPbAny.getDescriptor,
             method.typeUrl2Method,
-            kalixMethod
-          )
+            componentClass,
+            kalixMethod)
         case method: AnyServiceMethod =>
-          val message = fileDescriptor.findMessageTypeByName(inputMessageName)
           // methods that receive Any as input always default to AnyBodyExtractor
           val parameterExtractors: ParameterExtractors = Array(
             new ParameterExtractors.AnyBodyExtractor(method.inputType))
           val typeUrl2method = serviceMethod.javaMethodOpt match {
-            case Some(m) => Seq(TypeUrl2Method(m.getName, m)) //FIXME should not be m.getName Views fail because of this
+            case Some(m) => Seq(TypeUrl2Method(m.getName, m))
             case None    => Nil
           }
           ComponentMethod(
@@ -213,16 +219,12 @@ private[impl] object ComponentDescriptor {
             parameterExtractors,
             JavaPbAny.getDescriptor,
             typeUrl2method,
-            kalixMethod
-          )
+            componentClass,
+            kalixMethod)
       }
 
     }
   }
-  //FIXME both are wrong: adding the name of the method to typeUrl2Method
-  // and lookupMethod passing the messageName
-  //FIXME? why when we generate synthetic rpc method the message is Any
-  // and when not we generate a Synthetic Message name
   private def buildSyntheticMessageAndExtractors(
       nameGenerator: NameGenerator,
       serviceMethod: SpringRestServiceMethod,

@@ -105,6 +105,14 @@ public class PubSubTestModels {
     public Action.Effect<Message2> messageTwo(Message2 message) {return effects().reply(message);}
   }
 
+  public static class SubscribeToTopicActionIncomplete extends Action {
+
+    public Action.Effect<Message> messageOne(Message message) {return effects().reply(message);}
+
+    @Subscribe.Topic(value = "topicXYZ")
+    public Action.Effect<Message2> messageTwo(Message2 message) {return effects().reply(message);}
+  }
+
   public static class SubscribeToTwoTopicsAction extends Action {
 
     @Subscribe.Topic("topicXYZ")
