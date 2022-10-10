@@ -98,6 +98,6 @@ public @interface Subscribe {
      *
      * FIXME agree with the strategy above. What even means that
      */
-    boolean ignore() default false;
+    boolean ignoreUnknown() default false;
   }
 }
