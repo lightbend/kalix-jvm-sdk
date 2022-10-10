@@ -20,7 +20,9 @@ import akka.http.scaladsl.model.Uri.Path
 import akka.http.scaladsl.model.{ HttpMethod, HttpMethods, HttpRequest }
 import com.google.api.AnnotationsProto
 import com.google.api.HttpRule.PatternCase
-import com.google.protobuf.Descriptors
+import com.google.protobuf.DescriptorProtos.FieldDescriptorProto
+import com.google.protobuf.Descriptors.FieldDescriptor
+import com.google.protobuf.{ Descriptors, DynamicMessage }
 import kalix.javasdk.impl.{ MetadataImpl, RestDeferredCallImpl }
 import kalix.javasdk.DeferredCall
 import kalix.springsdk.KalixClient
@@ -29,6 +31,7 @@ import kalix.springsdk.impl.http.HttpEndpointMethodDefinition
 import org.springframework.http.{ HttpHeaders, MediaType }
 import org.springframework.web.reactive.function.client.WebClient
 
+import java.util.regex.Matcher
 import scala.concurrent.{ Future, Promise }
 import scala.jdk.FutureConverters._
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -70,15 +73,25 @@ class RestKalixClientImpl extends KalixClient {
     services = services ++ httpMethods
   }
 
-  def init(): Unit = {}
-
   def post[P, R](uri: String, body: P, returnType: Class[R]): DeferredCall[P, R] = {
-    matchMethodDescOpt(HttpMethods.POST, Path(uri))
-      .map { methodDesc =>
-        new RestDeferredCallImpl[P, R](
+    val path = Path(uri)
+    matchMethodOpt(HttpMethods.POST, path)
+      .map { httpDef =>
+        val inputBuilder = DynamicMessage.newBuilder(httpDef.methodDescriptor.getInputType)
+        val matcher = httpDef.pathMatcher(path)
+        matcher.find()
+        httpDef.pathExtractor.apply(
+          matcher,
+          (field, value) =>
+            inputBuilder.setField(
+              field,
+              value.getOrElse(
+                throw new Exception(s"Path contains value of wrong type! Expected field of type ${field.getType}."))))
+
+        RestDeferredCallImpl[P, R](
           message = body,
           metadata = MetadataImpl.Empty,
-          methodDescriptor = methodDesc,
+          methodDescriptor = httpDef.methodDescriptor,
           asyncCall = () =>
             webClient.flatMap {
               _.post()
@@ -88,7 +101,8 @@ class RestKalixClientImpl extends KalixClient {
                 .bodyToMono(returnType)
                 .toFuture
                 .asScala
-            }.asJava)
+            }.asJava,
+          dynamicMessage = inputBuilder)
       }
       .getOrElse {
         throw new IllegalArgumentException("No matching service") // FIXME use another exception
@@ -96,12 +110,24 @@ class RestKalixClientImpl extends KalixClient {
   }
 
   def get[R](uri: String, returnType: Class[R]): DeferredCall[Void, R] = {
-    matchMethodDescOpt(HttpMethods.GET, Path(uri))
-      .map { methodDesc =>
-        new RestDeferredCallImpl[Void, R](
+    val path = Path(uri)
+    matchMethodOpt(HttpMethods.GET, path)
+      .map { httpDef =>
+        val inputBuilder = DynamicMessage.newBuilder(httpDef.methodDescriptor.getInputType)
+        val matcher = httpDef.pathMatcher(path)
+        matcher.find()
+        httpDef.pathExtractor.apply(
+          matcher,
+          (field, value) =>
+            inputBuilder.setField(
+              field,
+              value.getOrElse(throw new IllegalArgumentException(
+                s"Path contains value of wrong type! Expected field of type ${field.getType}."))))
+
+        RestDeferredCallImpl[Void, R](
           message = null,
           metadata = MetadataImpl.Empty,
-          methodDescriptor = methodDesc,
+          methodDescriptor = httpDef.methodDescriptor,
           asyncCall = () =>
             webClient
               .flatMap(
@@ -111,17 +137,14 @@ class RestKalixClientImpl extends KalixClient {
                   .bodyToMono(returnType)
                   .toFuture
                   .asScala)
-              .asJava)
+              .asJava,
+          dynamicMessage = inputBuilder)
       }
       .getOrElse {
         throw new IllegalArgumentException("No matching service") // FIXME use another exception
       }
   }
 
-  private def matchMethodDescOpt(httpMethod: HttpMethod, uri: Path): Option[Descriptors.MethodDescriptor] = {
-    services
-      .filter(d => (d.methodPattern == ANY_METHOD || httpMethod == d.methodPattern) && d.matches(uri))
-      .map(_.methodDescriptor)
-      .headOption
-  }
+  private def matchMethodOpt(httpMethod: HttpMethod, uri: Path): Option[HttpEndpointMethodDefinition] =
+    services.find(d => (d.methodPattern == ANY_METHOD || httpMethod == d.methodPattern) && d.matches(uri))
 }

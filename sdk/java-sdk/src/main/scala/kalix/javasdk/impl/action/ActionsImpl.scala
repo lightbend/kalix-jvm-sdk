@@ -17,17 +17,16 @@
 package kalix.javasdk.impl.action
 
 import java.util.Optional
-
 import scala.collection.immutable.Seq
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters.SeqHasAsJava
 import scala.util.control.NonFatal
-
 import akka.NotUsed
 import akka.actor.ActorSystem
 import akka.stream.scaladsl.Sink
 import akka.stream.scaladsl.Source
-import com.google.protobuf.Descriptors
+import com.google.protobuf.any.Any
+import com.google.protobuf.{ Descriptors, DynamicMessage }
 import kalix.javasdk._
 import kalix.javasdk.action._
 import kalix.javasdk.impl.ActionFactory
@@ -133,10 +132,18 @@ private[javasdk] final class ActionsImpl(
         Future.successful(
           ActionResponse(ActionResponse.Response.Forward(response), toProtocol(messageCodec, sideEffects)))
       case ForwardEffect(forward: RestDeferredCallImpl[_, _], sideEffects) =>
+        if (forward.message != null) {
+          val bodyField = forward.methodDescriptor.getInputType.getFields
+            .get(0) // FIXME do we always have at least this field? json_body?
+          forward.dynamicMessage.setField(bodyField, messageCodec.encodeJava(forward.message))
+        }
         val response = component.Forward(
           forward.methodDescriptor.getService.getFullName,
           forward.methodDescriptor.getName,
-          Some(messageCodec.encodeScala(forward.message)), // FIXME use the generated synthetic request here
+          Some(
+            Any(
+              forward.dynamicMessage.getDescriptorForType.getFullName, // FIXME should we prefix with with *.kalix.io?
+              forward.dynamicMessage.build().toByteString)),
           toProtocol(forward.metadata))
         Future.successful(
           ActionResponse(ActionResponse.Response.Forward(response), toProtocol(messageCodec, sideEffects)))

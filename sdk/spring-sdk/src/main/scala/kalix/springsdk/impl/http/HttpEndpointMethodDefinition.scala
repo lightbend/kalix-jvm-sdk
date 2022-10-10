@@ -22,7 +22,7 @@ import com.google.api.HttpRule.PatternCase
 import com.google.api.annotations.AnnotationsProto
 import com.google.api.http.{ CustomHttpPattern, HttpRule }
 import com.google.api.{ AnnotationsProto => JavaAnnotationsProto, HttpRule => JavaHttpRule }
-import com.google.protobuf.Descriptors
+import com.google.protobuf.{ Descriptors, DynamicMessage }
 import com.google.protobuf.Descriptors.{ Descriptor, FieldDescriptor, MethodDescriptor, ServiceDescriptor }
 import com.google.protobuf.descriptor.{ MethodOptions => spbMethodOptions }
 import com.google.protobuf.util.JsonFormat
@@ -339,4 +339,16 @@ final case class HttpEndpointMethodDefinition private (
 
   def lookupRequestFieldByPath(selector: String): Descriptors.FieldDescriptor =
     HttpEndpointMethodDefinition.lookupFieldByPath(methodDescriptor.getInputType, selector)
+
+  def parsePathParametersInto(matcher: Matcher, inputBuilder: DynamicMessage.Builder): Unit = {
+    matcher.start()
+    pathExtractor(
+      matcher,
+      (field, value) =>
+        inputBuilder.setField(
+          field,
+          value.getOrElse(
+            throw new IllegalArgumentException(
+              s"Path contains value of wrong type! Expected field of type ${field.getType}."))))
+  }
 }
