@@ -17,25 +17,19 @@
 package kalix.springsdk.impl
 
 import akka.http.scaladsl.model.Uri.Path
-import akka.http.scaladsl.model.{ HttpMethod, HttpMethods, HttpRequest }
-import com.google.api.AnnotationsProto
-import com.google.api.HttpRule.PatternCase
-import com.google.protobuf.DescriptorProtos.FieldDescriptorProto
-import com.google.protobuf.Descriptors.FieldDescriptor
+import akka.http.scaladsl.model.{ HttpMethod, HttpMethods }
 import com.google.protobuf.{ Descriptors, DynamicMessage }
-import kalix.javasdk.impl.{ MetadataImpl, RestDeferredCallImpl }
 import kalix.javasdk.DeferredCall
+import kalix.javasdk.impl.{ MetadataImpl, RestDeferredCallImpl }
 import kalix.springsdk.KalixClient
-import kalix.springsdk.impl.http.HttpEndpointMethodDefinition.ANY_METHOD
 import kalix.springsdk.impl.http.HttpEndpointMethodDefinition
+import kalix.springsdk.impl.http.HttpEndpointMethodDefinition.ANY_METHOD
 import org.springframework.http.{ HttpHeaders, MediaType }
 import org.springframework.web.reactive.function.client.WebClient
 
-import java.util.regex.Matcher
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{ Future, Promise }
 import scala.jdk.FutureConverters._
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.jdk.CollectionConverters.CollectionHasAsScala
 
 /**
  * INTERNAL API
@@ -79,14 +73,7 @@ class RestKalixClientImpl extends KalixClient {
       .map { httpDef =>
         val inputBuilder = DynamicMessage.newBuilder(httpDef.methodDescriptor.getInputType)
         val matcher = httpDef.pathMatcher(path)
-        matcher.find()
-        httpDef.pathExtractor.apply(
-          matcher,
-          (field, value) =>
-            inputBuilder.setField(
-              field,
-              value.getOrElse(
-                throw new Exception(s"Path contains value of wrong type! Expected field of type ${field.getType}."))))
+        httpDef.parsePathParametersInto(matcher, inputBuilder)
 
         RestDeferredCallImpl[P, R](
           message = body,
@@ -105,7 +92,9 @@ class RestKalixClientImpl extends KalixClient {
           dynamicMessage = inputBuilder)
       }
       .getOrElse {
-        throw new IllegalArgumentException("No matching service") // FIXME use another exception
+        throw new IllegalArgumentException(
+          s"No matching service for method=${HttpMethods.GET} path=$path"
+        ) // FIXME use another exception?
       }
   }
 
@@ -115,14 +104,7 @@ class RestKalixClientImpl extends KalixClient {
       .map { httpDef =>
         val inputBuilder = DynamicMessage.newBuilder(httpDef.methodDescriptor.getInputType)
         val matcher = httpDef.pathMatcher(path)
-        matcher.find()
-        httpDef.pathExtractor.apply(
-          matcher,
-          (field, value) =>
-            inputBuilder.setField(
-              field,
-              value.getOrElse(throw new IllegalArgumentException(
-                s"Path contains value of wrong type! Expected field of type ${field.getType}."))))
+        httpDef.parsePathParametersInto(matcher, inputBuilder)
 
         RestDeferredCallImpl[Void, R](
           message = null,
@@ -141,7 +123,9 @@ class RestKalixClientImpl extends KalixClient {
           dynamicMessage = inputBuilder)
       }
       .getOrElse {
-        throw new IllegalArgumentException("No matching service") // FIXME use another exception
+        throw new IllegalArgumentException(
+          s"No matching service for method=${HttpMethods.GET} path=$path"
+        ) // FIXME use another exception?
       }
   }
 

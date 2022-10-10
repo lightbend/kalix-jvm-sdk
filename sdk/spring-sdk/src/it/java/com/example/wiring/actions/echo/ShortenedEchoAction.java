@@ -16,11 +16,11 @@
 
 package com.example.wiring.actions.echo;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import kalix.javasdk.action.Action;
 import kalix.javasdk.action.ActionCreationContext;
 import kalix.springsdk.KalixClient;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.*;
 
 public class ShortenedEchoAction extends Action {
 
@@ -37,5 +37,26 @@ public class ShortenedEchoAction extends Action {
     var shortenedMsg = msg.replaceAll("[AEIOUaeiou]", "");
     var result = kalixClient.get("/echo/message/" + shortenedMsg, Message.class).execute();
     return effects().asyncReply(result);
+  }
+
+  @GetMapping("/echo/message/{msg}/leetshort")
+  public Effect<Message> leetMessageWithFwd(@PathVariable String msg) {
+    var shortenedMsg = leetShort(msg);
+    var result = kalixClient.get("/echo/message/" + shortenedMsg, Message.class);
+    return effects().forward(result);
+  }
+
+  @PostMapping("/echo/message/leetshort")
+  public Effect<Message> leetMessageWithFwdPost(@RequestBody Message msg) {
+    var shortenedMsg = leetShort(msg.text);
+    var result = kalixClient.get("/echo/message/" + shortenedMsg, Message.class);
+    return effects().forward(result);
+  }
+
+  private String leetShort(String msg) {
+    return msg
+            .replaceAll("[Ee]", "3")
+            .replaceAll("[Aa]", "4")
+            .replaceAll("[AEIOUaeiou]", "");
   }
 }

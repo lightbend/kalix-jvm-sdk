@@ -69,20 +69,6 @@ public class SpringSdkWiringIntegrationTest {
   }
 
   @Test
-  public void verifyEchoActionWiringWithXComponentCall() {
-
-    Message response =
-        webClient
-            .get()
-            .uri("/echo/message/message to be shortened/short")
-            .retrieve()
-            .bodyToMono(Message.class)
-            .block(timeout);
-
-    Assertions.assertEquals("Parrot says: 'mssg t b shrtnd'", response.text);
-  }
-
-  @Test
   public void verifyStreamActions() {
 
     List<Message> messageList =
