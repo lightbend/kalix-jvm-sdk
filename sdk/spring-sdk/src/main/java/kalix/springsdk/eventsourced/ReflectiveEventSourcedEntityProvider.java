@@ -79,7 +79,7 @@ public class ReflectiveEventSourcedEntityProvider<S, E extends EventSourcedEntit
     this.factory = factory;
     this.options = options;
     this.messageCodec = messageCodec;
-    this.componentDescriptor = ComponentDescriptor.descriptorFor(entityClass);
+    this.componentDescriptor = ComponentDescriptor.descriptorFor(entityClass, messageCodec);
     this.fileDescriptor = componentDescriptor.fileDescriptor();
     this.serviceDescriptor = componentDescriptor.serviceDescriptor();
   }
@@ -103,7 +103,7 @@ public class ReflectiveEventSourcedEntityProvider<S, E extends EventSourcedEntit
   public EventSourcedEntityRouter<S, E> newRouter(EventSourcedEntityContext context) {
     E entity = factory.apply(context);
     return new ReflectiveEventSourcedEntityRouter<>(
-        entity, componentDescriptor.methods(), eventHandlers.handlers());
+        entity, componentDescriptor.commandHandlers(), eventHandlers.handlers());
   }
 
   @Override

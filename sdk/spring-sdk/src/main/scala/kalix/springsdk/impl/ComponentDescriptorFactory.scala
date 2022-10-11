@@ -24,8 +24,10 @@ import kalix.springsdk.impl.ComponentDescriptorFactory.hasJwtMethodOptions
 import kalix.springsdk.impl.ComponentDescriptorFactory.jwtMethodOptions
 import kalix.springsdk.impl.reflection._
 import kalix.{ EventDestination, EventSource, Eventing, JwtMethodOptions }
-
 import java.lang.reflect.{ Method, Modifier }
+
+import kalix.javasdk.JsonSupport
+import kalix.javasdk.JsonSupport._
 
 private[impl] object ComponentDescriptorFactory {
 
@@ -144,16 +146,7 @@ private[impl] object ComponentDescriptorFactory {
       ActionDescriptorFactory
   }
 
-}
-
-private[impl] trait ComponentDescriptorFactory {
-
-  /**
-   * Inspect the component class (type), validate the annotations/methods and build a component descriptor for it.
-   */
-  def buildDescriptorFor(componentClass: Class[_], nameGenerator: NameGenerator): ComponentDescriptor
-
-  def combineByES(subscriptions: Seq[KalixMethod]): Seq[KalixMethod] = {
+  def combineByES(subscriptions: Seq[KalixMethod], messageCodec: SpringSdkMessageCodec): Seq[KalixMethod] = {
     def groupByES(methods: Seq[KalixMethod]): Map[String, Seq[KalixMethod]] = {
       val withEventSourcedIn = methods.filter(kalixMethod =>
         kalixMethod.methodOptions.exists(option =>
@@ -164,20 +157,21 @@ private[impl] trait ComponentDescriptorFactory {
 
     groupByES(subscriptions).collect {
       case (eventSourcedEntity, kMethods) if kMethods.size > 1 =>
-        val typeUrl2Method: Seq[TypeUrl2Method] = kMethods.map { k =>
-          val methodParameterTypes = k.serviceMethod.javaMethodOpt.get.getParameterTypes();
-          val eventParameter = methodParameterTypes(methodParameterTypes.size - 1)
-          // it is safe to pick the last parameter. An action has one and View has two. In the View always the last is the event
-          TypeUrl2Method(
-            kalix.javasdk.JsonSupport.KALIX_JSON
-            + SpringSdkMessageCodec.findTypeHint(eventParameter),
-            k.serviceMethod.javaMethodOpt.get)
-        }
+        val methodsMap =
+          kMethods.map { k =>
+            val methodParameterTypes = k.serviceMethod.javaMethodOpt.get.getParameterTypes
+            // it is safe to pick the last parameter. An action has one and View has two. In the View always the last is the event
+            val eventParameter = methodParameterTypes.last
+
+            val typeUrl = messageCodec.typeUrlFor(eventParameter)
+            (typeUrl, k.serviceMethod.javaMethodOpt.get)
+          }.toMap
+
         KalixMethod(
           CombinedSubscriptionServiceMethod(
             "KalixSyntheticMethodOnES" + eventSourcedEntity.capitalize,
             kMethods.head.serviceMethod.asInstanceOf[SubscriptionServiceMethod],
-            typeUrl2Method))
+            methodsMap))
           .withKalixOptions(kMethods.head.methodOptions)
       case (eventSourcedEntity, kMethod +: Nil) =>
         kMethod
@@ -189,6 +183,19 @@ private[impl] trait ComponentDescriptorFactory {
       kalix.MethodOptions.newBuilder().setJwt(jwtMethodOptions(method)).build()
     }
   }
+
+}
+
+private[impl] trait ComponentDescriptorFactory {
+
+  /**
+   * Inspect the component class (type), validate the annotations/methods and build a component descriptor for it.
+   */
+  def buildDescriptorFor(
+      componentClass: Class[_],
+      messageCodec: SpringSdkMessageCodec,
+      nameGenerator: NameGenerator): ComponentDescriptor
+
 }
 
 /**

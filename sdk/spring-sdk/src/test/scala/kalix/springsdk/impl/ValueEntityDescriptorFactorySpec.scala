@@ -26,7 +26,7 @@ class ValueEntityDescriptorFactorySpec extends AnyWordSpec with ComponentDescrip
   "ValueEntity descriptor factory" should {
     "generate mappings for a Value Entity with entity keys in path" in {
       assertDescriptor[PostWithEntityKeys] { desc =>
-        val method = desc.methods("CreateEntity")
+        val method = desc.commandHandlers("CreateEntity")
         assertRequestFieldJavaType(method, "json_body", JavaType.MESSAGE)
         assertRequestFieldMessageType(method, "json_body", Any.getDescriptor.getFullName)
 

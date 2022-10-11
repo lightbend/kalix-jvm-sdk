@@ -22,52 +22,47 @@ import com.google.protobuf.any.{ Any => ScalaPbAny }
 import kalix.javasdk.action.Action
 import kalix.javasdk.action.MessageEnvelope
 import kalix.javasdk.impl.action.ActionRouter
-import kalix.springsdk.impl.ComponentMethod
+import kalix.springsdk.impl.CommandHandler
 import kalix.springsdk.impl.InvocationContext
 import reactor.core.publisher.Flux
 
-class ReflectiveActionRouter[A <: Action](action: A, componentMethods: Map[String, ComponentMethod])
+class ReflectiveActionRouter[A <: Action](action: A, commandHandlers: Map[String, CommandHandler])
     extends ActionRouter[A](action) {
 
-  private def methodLookup(commandName: String) =
-    componentMethods.getOrElse(commandName, throw new RuntimeException(s"no matching method for '$commandName'"))
+  private def commandHandlerLookup(commandName: String) =
+    commandHandlers.getOrElse(commandName, throw new RuntimeException(s"no matching method for '$commandName'"))
 
   override def handleUnary(commandName: String, message: MessageEnvelope[Any]): Action.Effect[_] = {
 
-    val componentMethod = methodLookup(commandName)
+    val commandHandler = commandHandlerLookup(commandName)
     val context =
       InvocationContext(
         message.payload().asInstanceOf[ScalaPbAny],
-        componentMethod.requestMessageDescriptor,
+        commandHandler.requestMessageDescriptor,
         message.metadata())
 
-    val inputTypeUrl =
-      message.payload().asInstanceOf[ScalaPbAny].typeUrl
+    val inputTypeUrl = message.payload().asInstanceOf[ScalaPbAny].typeUrl
+    val methodInvoker = commandHandler.lookupInvoker(inputTypeUrl)
 
-    val javaMethod = componentMethod
-      .lookupMethod(inputTypeUrl)
-
-    javaMethod.method
-      .invoke(action, javaMethod.parameterExtractors.map(e => e.extract(context)): _*)
+    methodInvoker
+      .invoke(action, context)
       .asInstanceOf[Action.Effect[_]]
   }
 
   override def handleStreamedOut(
       commandName: String,
       message: MessageEnvelope[Any]): Source[Action.Effect[_], NotUsed] = {
-    val componentMethod = methodLookup(commandName)
+    val componentMethod = commandHandlerLookup(commandName)
     val context =
       InvocationContext(
         message.payload().asInstanceOf[ScalaPbAny],
         componentMethod.requestMessageDescriptor,
         message.metadata())
 
-    val javaMethod = componentMethod
-      .lookupMethod(message.payload().asInstanceOf[ScalaPbAny].typeUrl)
+    val typeUrl = message.payload().asInstanceOf[ScalaPbAny].typeUrl
+    val methodInvoker = componentMethod.lookupInvoker(typeUrl)
 
-    val response = javaMethod.method
-      .invoke(action, javaMethod.parameterExtractors.map(e => e.extract(context)): _*)
-      .asInstanceOf[Flux[Action.Effect[_]]]
+    val response = methodInvoker.invoke(action, context).asInstanceOf[Flux[Action.Effect[_]]]
     Source.fromPublisher(response)
   }
 

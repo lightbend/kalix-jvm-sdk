@@ -20,16 +20,16 @@ import com.google.protobuf.any.{ Any => ScalaPbAny }
 import kalix.javasdk.impl.valueentity.ValueEntityRouter
 import kalix.javasdk.valueentity.CommandContext
 import kalix.javasdk.valueentity.ValueEntity
-import kalix.springsdk.impl.ComponentMethod
+import kalix.springsdk.impl.CommandHandler
 import kalix.springsdk.impl.InvocationContext
 
 class ReflectiveValueEntityRouter[S, E <: ValueEntity[S]](
     override protected val entity: E,
-    componentMethods: Map[String, ComponentMethod])
+    commandHandlers: Map[String, CommandHandler])
     extends ValueEntityRouter[S, E](entity) {
 
-  private def methodLookup(commandName: String) =
-    componentMethods.getOrElse(commandName, throw new RuntimeException(s"no matching method for '$commandName'"))
+  private def commandHandlerLookup(commandName: String) =
+    commandHandlers.getOrElse(commandName, throw new RuntimeException(s"no matching method for '$commandName'"))
 
   override protected def handleCommand(
       commandName: String,
@@ -37,16 +37,18 @@ class ReflectiveValueEntityRouter[S, E <: ValueEntity[S]](
       command: Any,
       context: CommandContext): ValueEntity.Effect[_] = {
 
-    val componentMethod = methodLookup(commandName)
+    val commandHandler = commandHandlerLookup(commandName)
     val context =
-      InvocationContext(command.asInstanceOf[ScalaPbAny], componentMethod.requestMessageDescriptor)
+      InvocationContext(command.asInstanceOf[ScalaPbAny], commandHandler.requestMessageDescriptor)
 
+    val inputTypeUrl = command.asInstanceOf[ScalaPbAny].typeUrl
+    val methodInvoker = commandHandler.lookupInvoker(inputTypeUrl)
     // pass current state to entity
     entity._internalSetCurrentState(state);
 
     // safe call: typeUrl2Methods has at least one entry - famous last words.
-    componentMethod.typeUrl2Methods.head.method
-      .invoke(entity, componentMethod.parameterExtractors.map(e => e.extract(context)): _*)
+    methodInvoker
+      .invoke(entity, context)
       .asInstanceOf[ValueEntity.Effect[_]]
   }
 }

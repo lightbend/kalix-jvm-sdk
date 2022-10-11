@@ -19,18 +19,18 @@ package kalix.springsdk.impl.eventsourcedentity
 import com.google.protobuf.any.{ Any => ScalaPbAny }
 import kalix.javasdk.eventsourcedentity.{ CommandContext, EventSourcedEntity }
 import kalix.javasdk.impl.eventsourcedentity.EventSourcedEntityRouter
-import kalix.springsdk.impl.{ ComponentMethod, InvocationContext }
+import kalix.springsdk.impl.{ CommandHandler, InvocationContext }
 
 import java.lang.reflect.Method
 
 class ReflectiveEventSourcedEntityRouter[S, E <: EventSourcedEntity[S]](
     override protected val entity: E,
-    commandHandlerMethods: Map[String, ComponentMethod],
+    commandHandlers: Map[String, CommandHandler],
     eventHandlerMethods: Map[Class[_], Method])
     extends EventSourcedEntityRouter[S, E](entity) {
 
   private def commandHandlerLookup(commandName: String) =
-    commandHandlerMethods.getOrElse(commandName, throw new RuntimeException(s"no matching method for '$commandName'"))
+    commandHandlers.getOrElse(commandName, throw new RuntimeException(s"no matching method for '$commandName'"))
 
   private def eventHandlerLookup(eventClass: Class[_]) =
     eventHandlerMethods.getOrElse(eventClass, throw new RuntimeException(s"no matching handler for '$eventClass'"))
@@ -49,17 +49,17 @@ class ReflectiveEventSourcedEntityRouter[S, E <: EventSourcedEntity[S]](
       command: Any,
       context: CommandContext): EventSourcedEntity.Effect[_] = {
 
-    val componentMethod = commandHandlerLookup(commandName)
+    val commandHandler = commandHandlerLookup(commandName)
     val invocationContext =
-      InvocationContext(command.asInstanceOf[ScalaPbAny], componentMethod.requestMessageDescriptor)
+      InvocationContext(command.asInstanceOf[ScalaPbAny], commandHandler.requestMessageDescriptor)
+
+    val inputTypeUrl = command.asInstanceOf[ScalaPbAny].typeUrl
+    val methodInvoker = commandHandler.lookupInvoker(inputTypeUrl)
 
     entity._internalSetCurrentState(state)
 
-    // safe call: if component method is None, proxy won't forward calls to it
-    // typically, that happens when we have a View update method with transform = false
-    // in such a case, the proxy can index the view payload directly, without passing through the user function
-    componentMethod.typeUrl2Methods.head.method
-      .invoke(entity, componentMethod.parameterExtractors.map(e => e.extract(invocationContext)): _*)
+    methodInvoker
+      .invoke(entity, invocationContext)
       .asInstanceOf[EventSourcedEntity.Effect[_]]
   }
 }

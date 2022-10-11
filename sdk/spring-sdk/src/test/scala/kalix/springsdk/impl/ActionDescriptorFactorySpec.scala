@@ -56,7 +56,7 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
         methodDescriptor.isServerStreaming shouldBe false
         methodDescriptor.isClientStreaming shouldBe false
 
-        val method = desc.methods("Message")
+        val method = desc.commandHandlers("Message")
         method.requestMessageDescriptor.getFields.size() shouldBe 0
       }
     }
@@ -68,7 +68,7 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
         methodDescriptor.isServerStreaming shouldBe false
         methodDescriptor.isClientStreaming shouldBe false
 
-        val method = desc.methods("Message")
+        val method = desc.commandHandlers("Message")
         assertRequestFieldJavaType(method, "one", JavaType.STRING)
       }
     }
@@ -80,7 +80,7 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
         methodDescriptor.isServerStreaming shouldBe false
         methodDescriptor.isClientStreaming shouldBe false
 
-        val method = desc.methods("Message")
+        val method = desc.commandHandlers("Message")
         assertRequestFieldJavaType(method, "one", JavaType.STRING)
         assertRequestFieldJavaType(method, "two", JavaType.LONG)
       }
@@ -93,7 +93,7 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
         methodDescriptor.isServerStreaming shouldBe false
         methodDescriptor.isClientStreaming shouldBe false
 
-        val method = desc.methods("Message")
+        val method = desc.commandHandlers("Message")
         assertRequestFieldJavaType(method, "json_body", JavaType.MESSAGE)
       }
     }
@@ -104,7 +104,7 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
         methodDescriptor.isServerStreaming shouldBe false
         methodDescriptor.isClientStreaming shouldBe false
 
-        val method = desc.methods("Message")
+        val method = desc.commandHandlers("Message")
         val jwtOption = findKalixMethodOptions(desc, method.grpcMethodName).getJwt
         jwtOption.getBearerTokenIssuer(0) shouldBe "a"
         jwtOption.getBearerTokenIssuer(1) shouldBe "b"
@@ -122,7 +122,7 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
         methodDescriptor.isServerStreaming shouldBe false
         methodDescriptor.isClientStreaming shouldBe false
 
-        val method = desc.methods("Message")
+        val method = desc.commandHandlers("Message")
         assertRequestFieldJavaType(method, "one", JavaType.STRING)
         assertRequestFieldJavaType(method, "json_body", JavaType.MESSAGE)
       }
@@ -135,7 +135,7 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
         methodDescriptor.isServerStreaming shouldBe false
         methodDescriptor.isClientStreaming shouldBe false
 
-        val method = desc.methods("Message")
+        val method = desc.commandHandlers("Message")
         assertRequestFieldJavaType(method, "one", JavaType.STRING)
         assertRequestFieldJavaType(method, "two", JavaType.LONG)
         assertRequestFieldJavaType(method, "json_body", JavaType.MESSAGE)
@@ -149,7 +149,7 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
         methodDescriptor.isServerStreaming shouldBe false
         methodDescriptor.isClientStreaming shouldBe false
 
-        val firstMethod = desc.methods("Message")
+        val firstMethod = desc.commandHandlers("Message")
         assertRequestFieldJavaType(firstMethod, "num", JavaType.LONG)
         assertRequestFieldJavaType(firstMethod, "json_body", JavaType.MESSAGE)
 
@@ -157,7 +157,7 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
         methodDescriptor1.isServerStreaming shouldBe false
         methodDescriptor1.isClientStreaming shouldBe false
 
-        val secondMethod = desc.methods("Message1")
+        val secondMethod = desc.commandHandlers("Message1")
         assertRequestFieldJavaType(secondMethod, "text", JavaType.STRING)
         assertRequestFieldJavaType(secondMethod, "json_body", JavaType.MESSAGE)
       }
@@ -169,7 +169,7 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
         methodDescriptor.isServerStreaming shouldBe false
         methodDescriptor.isClientStreaming shouldBe false
 
-        val method = desc.methods("Message")
+        val method = desc.commandHandlers("Message")
         assertRequestFieldJavaType(method, "json_body", JavaType.MESSAGE)
       }
     }
@@ -180,7 +180,7 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
         methodDescriptor.isServerStreaming shouldBe false
         methodDescriptor.isClientStreaming shouldBe false
 
-        val method = desc.methods("Message")
+        val method = desc.commandHandlers("Message")
         assertRequestFieldJavaType(method, "one", JavaType.STRING)
       }
     }
@@ -191,7 +191,7 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
         methodDescriptor.isServerStreaming shouldBe false
         methodDescriptor.isClientStreaming shouldBe false
 
-        val method = desc.methods("Message")
+        val method = desc.commandHandlers("Message")
         assertRequestFieldJavaType(method, "json_body", JavaType.MESSAGE)
       }
     }
@@ -202,7 +202,7 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
         methodDescriptor.isServerStreaming shouldBe false
         methodDescriptor.isClientStreaming shouldBe false
 
-        val method = desc.methods("Message")
+        val method = desc.commandHandlers("Message")
         assertRequestFieldJavaType(method, "one", JavaType.STRING)
       }
     }
@@ -214,17 +214,18 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
         methodDescriptor.isServerStreaming shouldBe false
         methodDescriptor.isClientStreaming shouldBe false
 
-        val method = desc.methods("Message")
+        val method = desc.commandHandlers("Message")
         assertRequestFieldJavaType(method, "one", JavaType.STRING)
       }
     }
+
     "generate combined mapping with Event Sourced Entity Subscription annotation" in {
       assertDescriptor[SubscribeToEventSourcedEntityAction] { desc =>
         val methodDescriptor = desc.serviceDescriptor.findMethodByName("KalixSyntheticMethodOnESCounter")
         methodDescriptor.isServerStreaming shouldBe false
         methodDescriptor.isClientStreaming shouldBe false
 
-        val methodOne = desc.methods("KalixSyntheticMethodOnESCounter")
+        val methodOne = desc.commandHandlers("KalixSyntheticMethodOnESCounter")
         methodOne.requestMessageDescriptor.getFullName shouldBe JavaPbAny.getDescriptor.getFullName
 
         val eventSourceOne = findKalixMethodOptions(desc, "KalixSyntheticMethodOnESCounter").getEventing.getIn
@@ -237,7 +238,7 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
 
     "fail if has both Event Sourced Entity Subscription and REST annotations" in {
       intercept[IllegalArgumentException] {
-        ComponentDescriptor.descriptorFor[RestAnnotatedSubscribeToEventSourcedEntityAction]
+        descriptorFor[RestAnnotatedSubscribeToEventSourcedEntityAction]
       }
     }
 
@@ -248,7 +249,7 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
         methodDescriptorOne.isServerStreaming shouldBe false
         methodDescriptorOne.isClientStreaming shouldBe false
 
-        val methodOne = desc.methods("MessageOne")
+        val methodOne = desc.commandHandlers("MessageOne")
         methodOne.requestMessageDescriptor.getFullName shouldBe JavaPbAny.getDescriptor.getFullName
 
         val eventSourceOne = findKalixMethodOptions(desc, "MessageOne").getEventing.getIn
@@ -259,13 +260,14 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
         "/kalix.springsdk.testmodels.subscriptions.PubSubTestModels.SubscribeToValueEntityAction/MessageOne"
 
         // should have a default extractor for any payload
-        methodOne.parameterExtractors.size shouldBe 1
+        val javaMethod = methodOne.methodInvokers.values.head
+        javaMethod.parameterExtractors.length shouldBe 1
 
         val methodDescriptorTwo = desc.serviceDescriptor.findMethodByName("MessageTwo")
         methodDescriptorTwo.isServerStreaming shouldBe false
         methodDescriptorTwo.isClientStreaming shouldBe false
 
-        val methodTwo = desc.methods("MessageTwo")
+        val methodTwo = desc.commandHandlers("MessageTwo")
         methodTwo.requestMessageDescriptor.getFullName shouldBe JavaPbAny.getDescriptor.getFullName
         val eventSourceTwo = findKalixMethodOptions(desc, "MessageTwo").getEventing.getIn
         eventSourceTwo.getValueEntity shouldBe "ve-counter"
@@ -274,7 +276,7 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
 
     "fail if has both Value Entity Subscription and REST annotations" in {
       intercept[IllegalArgumentException] {
-        ComponentDescriptor.descriptorFor[RestAnnotatedSubscribeToValueEntityAction]
+        descriptorFor[RestAnnotatedSubscribeToValueEntityAction]
       }
     }
 
@@ -288,18 +290,19 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
 
     "generate stream in methods" in {
       intercept[IllegalArgumentException] {
-        ComponentDescriptor.descriptorFor[StreamInAction]
+        descriptorFor[StreamInAction]
       }
     }
 
     "generate stream in/out methods" in {
       intercept[IllegalArgumentException] {
-        ComponentDescriptor.descriptorFor[StreamInOutAction]
+        descriptorFor[StreamInOutAction]
       }
     }
+
     "generate mapping for an Action with a subscription to a topic" in {
       assertDescriptor[SubscribeToTopicAction] { desc =>
-        val methodOne = desc.methods("MessageOne")
+        val methodOne = desc.commandHandlers("MessageOne")
         methodOne.requestMessageDescriptor.getFullName shouldBe JavaPbAny.getDescriptor.getFullName
 
         val eventSourceOne = findKalixMethodOptions(desc, "MessageOne").getEventing.getIn
@@ -311,14 +314,15 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
         "/kalix.springsdk.testmodels.subscriptions.PubSubTestModels.SubscribeToTopicAction/MessageOne"
 
         // should have a default extractor for any payload
-        methodOne.parameterExtractors.size shouldBe 1
+        val javaMethod = methodOne.methodInvokers.values.head
+        javaMethod.parameterExtractors.length shouldBe 1
       }
 
     }
 
-    "Raise and error when there are two subscriptions to the same topic" in {
+    "build a combined synthetic method when there are two subscriptions to the same topic" in {
       assertDescriptor[SubscribeToTwoTopicsAction] { desc =>
-        val methodOne = desc.methods("KalixSyntheticMethodOnTopicTopicXYZ")
+        val methodOne = desc.commandHandlers("KalixSyntheticMethodOnTopicTopicXYZ")
         methodOne.requestMessageDescriptor.getFullName shouldBe JavaPbAny.getDescriptor.getFullName
 
         val eventSourceOne = findKalixMethodOptions(desc, "KalixSyntheticMethodOnTopicTopicXYZ").getEventing.getIn
@@ -328,18 +332,17 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
         rule.getPost shouldBe
         "/kalix.springsdk.testmodels.subscriptions.PubSubTestModels.SubscribeToTwoTopicsAction/KalixSyntheticMethodOnTopicTopicXYZ"
 
-        //We are combining two methods in one synthetic one so the proxy has a single endpoint
-        // but when event are consumed and need to be dispatched to the proper method in SubscribeToTwoTopicsAction class
-        // it needs to have available both extractors so depending if is Message or Message2 it can extract the value
-        // and pass it to the java.reflect.Method.invoke
-        methodOne.parameterExtractors.size shouldBe 2
-      }
+        methodOne.methodInvokers.size shouldBe 2
 
+        val javaMethodNames = methodOne.methodInvokers.values.map(_.method.getName)
+        javaMethodNames should contain("methodOne")
+        javaMethodNames should contain("methodTwo")
+      }
     }
 
     "generate mapping for an Action with a publication to a topic" in {
       assertDescriptor[PublishToTopicAction] { desc =>
-        val methodOne = desc.methods("MessageOne")
+        val methodOne = desc.commandHandlers("MessageOne")
         methodOne.requestMessageDescriptor.getFullName shouldBe JavaPbAny.getDescriptor.getFullName
 
         val eventDestinationOne = findKalixMethodOptions(desc, "MessageOne").getEventing.getOut
@@ -350,14 +353,15 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
         "/kalix.springsdk.testmodels.subscriptions.PubSubTestModels.PublishToTopicAction/MessageOne"
 
         // should have a default extractor for any payload
-        methodOne.parameterExtractors.size shouldBe 1
+        val javaMethod = methodOne.methodInvokers.values.head
+        javaMethod.parameterExtractors.length shouldBe 1
       }
 
     }
 
     "generate mapping for an Action with a Rest endpoint and publication to a topic" in {
       assertDescriptor[RestWithPublishToTopicAction] { desc =>
-        val methodOne = desc.methods("MessageOne")
+        val methodOne = desc.commandHandlers("MessageOne")
         methodOne.requestMessageDescriptor.getFullName shouldBe "kalix.springsdk.testmodels.subscriptions.MessageOneKalixSyntheticRequest"
 
         val eventDestinationOne = findKalixMethodOptions(desc, "MessageOne").getEventing.getOut
@@ -368,7 +372,8 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
         "/message/{msg}"
 
         // should have a default extractor for any payload
-        methodOne.parameterExtractors.size shouldBe 1
+        val javaMethod = methodOne.methodInvokers.values.head
+        javaMethod.parameterExtractors.length shouldBe 1
       }
 
     }

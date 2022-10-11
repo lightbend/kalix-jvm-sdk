@@ -27,12 +27,12 @@ class EventSourcedEntityDescriptorFactorySpec extends AnyWordSpec with Component
   "EventSourced descriptor factory" should {
     "generate mappings for a Event Sourced with entity keys in path" in {
       assertDescriptor[WellAnnotatedESEntity] { desc =>
-        val method = desc.methods("GetInteger")
+        val method = desc.commandHandlers("GetInteger")
         assertRequestFieldJavaType(method, "id", JavaType.STRING)
         assertEntityKeyField(method, "id")
         assertRequestFieldJavaType(method, "number", JavaType.INT)
 
-        val postMethod = desc.methods("ChangeInteger")
+        val postMethod = desc.commandHandlers("ChangeInteger")
         assertRequestFieldJavaType(postMethod, "id", JavaType.STRING)
         assertEntityKeyField(postMethod, "id")
         assertRequestFieldJavaType(postMethod, "number", JavaType.INT)
@@ -41,7 +41,7 @@ class EventSourcedEntityDescriptorFactorySpec extends AnyWordSpec with Component
 
     "generate mappings for a Event Sourced with entity keys in path and JWT annotations" in {
       assertDescriptor[WellAnnotatedESEntityWithJWT] { desc =>
-        val method = desc.methods("GetInteger")
+        val method = desc.commandHandlers("GetInteger")
         assertRequestFieldJavaType(method, "id", JavaType.STRING)
         assertEntityKeyField(method, "id")
         assertRequestFieldJavaType(method, "number", JavaType.INT)
@@ -52,7 +52,7 @@ class EventSourcedEntityDescriptorFactorySpec extends AnyWordSpec with Component
         jwtOption.getValidate(0) shouldBe JwtMethodMode.BEARER_TOKEN
         jwtOption.getSign(0) shouldBe JwtMethodMode.MESSAGE
 
-        val postMethod = desc.methods("ChangeInteger")
+        val postMethod = desc.commandHandlers("ChangeInteger")
         assertRequestFieldJavaType(postMethod, "id", JavaType.STRING)
         assertEntityKeyField(postMethod, "id")
         assertRequestFieldJavaType(postMethod, "number", JavaType.INT)

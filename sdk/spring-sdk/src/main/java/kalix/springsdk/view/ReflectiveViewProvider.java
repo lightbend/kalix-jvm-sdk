@@ -65,7 +65,7 @@ public class ReflectiveViewProvider<S, V extends View<S>> implements ViewProvide
     this.messageCodec = messageCodec;
     this.viewId = viewId;
 
-    this.componentDescriptor = ComponentDescriptor.descriptorFor(cls);
+    this.componentDescriptor = ComponentDescriptor.descriptorFor(cls, messageCodec);
 
     this.fileDescriptor = componentDescriptor.fileDescriptor();
     this.serviceDescriptor = componentDescriptor.serviceDescriptor();
@@ -89,7 +89,7 @@ public class ReflectiveViewProvider<S, V extends View<S>> implements ViewProvide
   @Override
   public ViewRouter<S, V> newRouter(ViewCreationContext context) {
     V view = factory.apply(context);
-    return new ReflectiveViewRouter<>(view, componentDescriptor.methods());
+    return new ReflectiveViewRouter<>(view, componentDescriptor.commandHandlers());
   }
 
   @Override
