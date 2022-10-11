@@ -17,12 +17,13 @@
 package kalix.springsdk
 import akka.annotation.ApiMayChange
 import kalix.javasdk.DeferredCall
+import com.google.protobuf.any.Any
 
 trait KalixClient {
 
   @ApiMayChange
-  def post[P, R](uri: String, body: P, returnType: Class[R]): DeferredCall[P, R]
+  def post[P, R](uri: String, body: P, returnType: Class[R]): DeferredCall[Any, R]
 
   @ApiMayChange
-  def get[R](uri: String, returnType: Class[R]): DeferredCall[_, R]
+  def get[R](uri: String, returnType: Class[R]): DeferredCall[Any, R]
 }

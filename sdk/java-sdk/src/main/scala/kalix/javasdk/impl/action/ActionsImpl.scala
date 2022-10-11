@@ -131,14 +131,11 @@ private[javasdk] final class ActionsImpl(
           toProtocol(forward.metadata))
         Future.successful(
           ActionResponse(ActionResponse.Response.Forward(response), toProtocol(messageCodec, sideEffects)))
-      case ForwardEffect(forward: RestDeferredCallImpl[_, _], sideEffects) =>
+      case ForwardEffect(forward: RestDeferredCallImpl[Any, _], sideEffects) =>
         val response = component.Forward(
           forward.methodDescriptor.getService.getFullName,
           forward.methodDescriptor.getName,
-          Some(
-            Any(
-              forward.dynamicMessage.getDescriptorForType.getFullName, // FIXME should we prefix with with *.kalix.io?
-              forward.dynamicMessage.build().toByteString)),
+          Some(forward.message),
           toProtocol(forward.metadata))
         Future.successful(
           ActionResponse(ActionResponse.Response.Forward(response), toProtocol(messageCodec, sideEffects)))

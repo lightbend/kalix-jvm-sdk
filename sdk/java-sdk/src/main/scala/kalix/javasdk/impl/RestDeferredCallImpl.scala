@@ -16,7 +16,8 @@
 
 package kalix.javasdk.impl
 
-import com.google.protobuf.{ Descriptors, DynamicMessage }
+import com.google.protobuf.Descriptors
+import com.google.protobuf.any.Any
 import kalix.javasdk.DeferredCall
 
 import java.util.concurrent.CompletionStage
@@ -28,8 +29,7 @@ final case class RestDeferredCallImpl[I, O](
     message: I,
     metadata: MetadataImpl,
     methodDescriptor: Descriptors.MethodDescriptor,
-    asyncCall: () => CompletionStage[O],
-    dynamicMessage: DynamicMessage.Builder)
+    asyncCall: () => CompletionStage[O])
     extends DeferredCall[I, O] {
   override def execute(): CompletionStage[O] = asyncCall()
 }

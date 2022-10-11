@@ -340,7 +340,8 @@ final case class HttpEndpointMethodDefinition private (
   def lookupRequestFieldByPath(selector: String): Descriptors.FieldDescriptor =
     HttpEndpointMethodDefinition.lookupFieldByPath(methodDescriptor.getInputType, selector)
 
-  def parsePathParametersInto(matcher: Matcher, inputBuilder: DynamicMessage.Builder): Unit = {
+  def parsePathParametersInto(path: Path, inputBuilder: DynamicMessage.Builder): Unit = {
+    val matcher = pathMatcher(path)
     matcher.find()
     pathExtractor(
       matcher,

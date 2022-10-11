@@ -19,6 +19,7 @@ package kalix.springsdk.impl
 import akka.http.scaladsl.model.Uri.Path
 import akka.http.scaladsl.model.{ HttpMethod, HttpMethods }
 import com.google.protobuf.{ Descriptors, DynamicMessage }
+import com.google.protobuf.any.Any
 import kalix.javasdk.DeferredCall
 import kalix.javasdk.impl.{ MetadataImpl, RestDeferredCallImpl }
 import kalix.springsdk.KalixClient
@@ -29,6 +30,7 @@ import org.springframework.web.reactive.function.client.WebClient
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{ Future, Promise }
+import scala.jdk.CollectionConverters.CollectionHasAsScala
 import scala.jdk.FutureConverters._
 
 /**
@@ -67,22 +69,33 @@ class RestKalixClientImpl(messageCodec: SpringSdkMessageCodec) extends KalixClie
     services = services ++ httpMethods
   }
 
-  def post[P, R](uri: String, body: P, returnType: Class[R]): DeferredCall[P, R] = {
+  def buildWrappedBody[P](
+      httpDef: HttpEndpointMethodDefinition,
+      inputBuilder: DynamicMessage.Builder,
+      body: Option[P] = None): Any = {
+    if (body.isDefined && httpDef.rule.body.nonEmpty) {
+      val bodyField = httpDef.methodDescriptor.getInputType.getFields.asScala
+        .find(_.getName == httpDef.rule.body)
+        .getOrElse(
+          throw new IllegalArgumentException("Could not find a matching body field with name: " + httpDef.rule.body))
+
+      inputBuilder.setField(bodyField, messageCodec.encodeJava(body.get))
+    }
+    Any(
+      inputBuilder.getDescriptorForType.getFullName, // FIXME does this needs to be prefix with something *.kalix.io?
+      inputBuilder.build().toByteString)
+  }
+
+  def post[P, R](uri: String, body: P, returnType: Class[R]): DeferredCall[Any, R] = {
     val path = Path(uri)
     matchMethodOpt(HttpMethods.POST, path)
       .map { httpDef =>
         val inputBuilder = DynamicMessage.newBuilder(httpDef.methodDescriptor.getInputType)
-        val matcher = httpDef.pathMatcher(path)
-        httpDef.parsePathParametersInto(matcher, inputBuilder)
+        httpDef.parsePathParametersInto(path, inputBuilder)
+        val wrappedBody = buildWrappedBody(httpDef, inputBuilder, Some(body))
 
-        if (body != null && httpDef.rule.body.nonEmpty) {
-          val bodyField = httpDef.methodDescriptor.getInputType.getFields
-            .get(0) // FIXME do we always have at least this field? json_body?
-          inputBuilder.setField(bodyField, messageCodec.encodeJava(body))
-        }
-
-        RestDeferredCallImpl[P, R](
-          message = body,
+        RestDeferredCallImpl[Any, R](
+          message = wrappedBody,
           metadata = MetadataImpl.Empty,
           methodDescriptor = httpDef.methodDescriptor,
           asyncCall = () =>
@@ -94,8 +107,7 @@ class RestKalixClientImpl(messageCodec: SpringSdkMessageCodec) extends KalixClie
                 .bodyToMono(returnType)
                 .toFuture
                 .asScala
-            }.asJava,
-          dynamicMessage = inputBuilder)
+            }.asJava)
       }
       .getOrElse {
         throw new IllegalArgumentException(
@@ -104,16 +116,16 @@ class RestKalixClientImpl(messageCodec: SpringSdkMessageCodec) extends KalixClie
       }
   }
 
-  def get[R](uri: String, returnType: Class[R]): DeferredCall[Void, R] = {
+  def get[R](uri: String, returnType: Class[R]): DeferredCall[Any, R] = {
     val path = Path(uri)
     matchMethodOpt(HttpMethods.GET, path)
       .map { httpDef =>
         val inputBuilder = DynamicMessage.newBuilder(httpDef.methodDescriptor.getInputType)
-        val matcher = httpDef.pathMatcher(path)
-        httpDef.parsePathParametersInto(matcher, inputBuilder)
+        httpDef.parsePathParametersInto(path, inputBuilder)
+        val wrappedBody = buildWrappedBody(httpDef, inputBuilder)
 
-        RestDeferredCallImpl[Void, R](
-          message = null,
+        RestDeferredCallImpl[Any, R](
+          message = wrappedBody,
           metadata = MetadataImpl.Empty,
           methodDescriptor = httpDef.methodDescriptor,
           asyncCall = () =>
@@ -125,8 +137,7 @@ class RestKalixClientImpl(messageCodec: SpringSdkMessageCodec) extends KalixClie
                   .bodyToMono(returnType)
                   .toFuture
                   .asScala)
-              .asJava,
-          dynamicMessage = inputBuilder)
+              .asJava)
       }
       .getOrElse {
         throw new IllegalArgumentException(
