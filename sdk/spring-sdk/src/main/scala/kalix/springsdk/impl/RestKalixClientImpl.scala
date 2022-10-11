@@ -34,7 +34,7 @@ import scala.jdk.FutureConverters._
 /**
  * INTERNAL API
  */
-class RestKalixClientImpl extends KalixClient {
+class RestKalixClientImpl(messageCodec: SpringSdkMessageCodec) extends KalixClient {
 
   // at the time of creation, Proxy Discovery has not happened so we don't have this info
   private val host: Promise[String] = Promise[String]()
@@ -74,6 +74,12 @@ class RestKalixClientImpl extends KalixClient {
         val inputBuilder = DynamicMessage.newBuilder(httpDef.methodDescriptor.getInputType)
         val matcher = httpDef.pathMatcher(path)
         httpDef.parsePathParametersInto(matcher, inputBuilder)
+
+        if (body != null && httpDef.rule.body.nonEmpty) {
+          val bodyField = httpDef.methodDescriptor.getInputType.getFields
+            .get(0) // FIXME do we always have at least this field? json_body?
+          inputBuilder.setField(bodyField, messageCodec.encodeJava(body))
+        }
 
         RestDeferredCallImpl[P, R](
           message = body,

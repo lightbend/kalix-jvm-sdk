@@ -210,19 +210,19 @@ object HttpEndpointMethodDefinition {
       try PathTemplateParser.parse(pattern)
       catch {
         case e: PathTemplateParser.PathTemplateParseException =>
-          throw new Exception("HttpApi.pathTemplateParseFailed(e.prettyPrint, methDesc)")
+          throw new Exception("HttpApi.pathTemplateParseFailed(e.prettyPrint, methDesc)") //FIXME
       }
     val pathFieldParsers = template.fields.iterator
       .map {
         case tv @ PathTemplateParser.TemplateVariable(fieldName :: Nil, _) =>
           lookupFieldByName(methDesc.getInputType, fieldName) match {
             case null =>
-              throw new Exception("HttpApi.pathUnknownField(fieldName, methDesc)")
+              throw new Exception("HttpApi.pathUnknownField(fieldName, methDesc)") //FIXME
             case field =>
               if (field.isMapField)
-                throw new Exception("HttpApi.pathMapField(fieldName, methDesc)")
+                throw new Exception("HttpApi.pathMapField(fieldName, methDesc)") //FIXME
               else if (field.isRepeated)
-                throw new Exception("HttpApi.pathRepeatedField(fieldName, methDesc)")
+                throw new Exception("HttpApi.pathRepeatedField(fieldName, methDesc)") //FIXME
               else {
                 val notSupported =
                   (message: String) => throw new Exception(s"""HttpApi.notSupportedYet(

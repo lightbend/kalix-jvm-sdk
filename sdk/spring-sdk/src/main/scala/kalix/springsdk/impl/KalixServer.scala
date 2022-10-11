@@ -192,8 +192,8 @@ case class KalixServer(applicationContext: ApplicationContext, config: Config) {
 
   private val logger: Logger = LoggerFactory.getLogger(getClass)
 
-  private val kalixClient = new RestKalixClientImpl
   private val messageCodec = new SpringSdkMessageCodec
+  private val kalixClient = new RestKalixClientImpl(messageCodec)
   private val threadLocalActionContext = new ThreadLocal[ActionCreationContext]
   private val threadLocalEventSourcedEntityContext = new ThreadLocal[EventSourcedEntityContext]
   private val threadLocalValueEntityContext = new ThreadLocal[ValueEntityContext]
@@ -249,23 +249,29 @@ case class KalixServer(applicationContext: ApplicationContext, config: Config) {
       if (classOf[Action].isAssignableFrom(clz)) {
         logger.info(s"Registering Action provider for [${clz.getName}]")
         val action = actionProvider(clz.asInstanceOf[Class[Action]])
-        kalix.register(actionProvider(clz.asInstanceOf[Class[Action]]))
-        kalixClient.registerComponent(action.serviceDescriptor()) // only actions allow for calling other components
+        kalix.register(action)
+        kalixClient.registerComponent(action.serviceDescriptor())
       }
 
       if (classOf[EventSourcedEntity[_]].isAssignableFrom(clz)) {
         logger.info(s"Registering EventSourcedEntity provider for [${clz.getName}]")
-        kalix.register(eventSourcedEntityProvider(clz.asInstanceOf[Class[EventSourcedEntity[Nothing]]]))
+        val esEntity = eventSourcedEntityProvider(clz.asInstanceOf[Class[EventSourcedEntity[Nothing]]])
+        kalix.register(esEntity)
+        kalixClient.registerComponent(esEntity.serviceDescriptor())
       }
 
       if (classOf[ValueEntity[_]].isAssignableFrom(clz)) {
         logger.info(s"Registering ValueEntity provider for [${clz.getName}]")
-        kalix.register(valueEntityProvider(clz.asInstanceOf[Class[ValueEntity[Nothing]]]))
+        val valueEntity = valueEntityProvider(clz.asInstanceOf[Class[ValueEntity[Nothing]]])
+        kalix.register(valueEntity)
+        kalixClient.registerComponent(valueEntity.serviceDescriptor())
       }
 
       if (classOf[View[_]].isAssignableFrom(clz)) {
         logger.info(s"Registering View provider for [${clz.getName}]")
-        kalix.register(viewProvider(clz.asInstanceOf[Class[View[Nothing]]]))
+        val view = viewProvider(clz.asInstanceOf[Class[View[Nothing]]])
+        kalix.register(view)
+        kalixClient.registerComponent(view.serviceDescriptor())
       }
 
     // TODO: missing Replicated Entities
