@@ -57,7 +57,7 @@ public class ReflectiveActionProvider<A extends Action> implements ActionProvide
     this.options = options;
     this.messageCodec = messageCodec;
 
-    this.componentDescriptor = ComponentDescriptor.descriptorFor(cls);
+    this.componentDescriptor = ComponentDescriptor.descriptorFor(cls, messageCodec);
 
     this.fileDescriptor = componentDescriptor.fileDescriptor();
     this.serviceDescriptor = componentDescriptor.serviceDescriptor();
@@ -76,7 +76,7 @@ public class ReflectiveActionProvider<A extends Action> implements ActionProvide
   @Override
   public ActionRouter<A> newRouter(ActionCreationContext context) {
     A action = factory.apply(context);
-    return new ReflectiveActionRouter<>(action, componentDescriptor.methods());
+    return new ReflectiveActionRouter<>(action, componentDescriptor.commandHandlers());
   }
 
   @Override

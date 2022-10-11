@@ -17,7 +17,9 @@
 package kalix.springsdk.impl
 
 import java.lang.reflect.Type
-import scala.reflect.ClassTag
+
+import scala.jdk.CollectionConverters.CollectionHasAsScala
+
 import com.google.api.AnnotationsProto
 import com.google.api.CustomHttpPattern
 import com.google.api.HttpRule
@@ -31,29 +33,24 @@ import com.google.protobuf.DescriptorProtos.ServiceDescriptorProto
 import com.google.protobuf.Descriptors
 import com.google.protobuf.Descriptors.FileDescriptor
 import com.google.protobuf.{ Any => JavaPbAny }
+import kalix.javasdk.impl.AnySupport
 import kalix.springsdk.impl.reflection.CombinedSubscriptionServiceMethod
-import kalix.springsdk.impl.reflection.{
-  AnyServiceMethod,
-  DynamicMessageContext,
-  ExtractorCreator,
-  KalixMethod,
-  NameGenerator,
-  ParameterExtractor,
-  ParameterExtractors,
-  ServiceMethod,
-  SpringRestServiceMethod
-}
 import kalix.springsdk.impl.reflection.ParameterExtractors.HeaderExtractor
 import kalix.springsdk.impl.reflection.RestServiceIntrospector.BodyParameter
 import kalix.springsdk.impl.reflection.RestServiceIntrospector.HeaderParameter
 import kalix.springsdk.impl.reflection.RestServiceIntrospector.PathParameter
 import kalix.springsdk.impl.reflection.RestServiceIntrospector.QueryParamParameter
 import kalix.springsdk.impl.reflection.RestServiceIntrospector.UnhandledParameter
-import kalix.springsdk.impl.reflection.SubscriptionServiceMethod
+import kalix.springsdk.impl.reflection.AnyJsonRequestServiceMethod
+import kalix.springsdk.impl.reflection.DynamicMessageContext
+import kalix.springsdk.impl.reflection.ExtractorCreator
+import kalix.springsdk.impl.reflection.KalixMethod
+import kalix.springsdk.impl.reflection.NameGenerator
+import kalix.springsdk.impl.reflection.ParameterExtractor
+import kalix.springsdk.impl.reflection.ParameterExtractors
+import kalix.springsdk.impl.reflection.ServiceMethod
+import kalix.springsdk.impl.reflection.SyntheticRequestServiceMethod
 import org.springframework.web.bind.annotation.RequestMethod
-
-import java.lang.reflect.Method
-import scala.jdk.CollectionConverters.CollectionHasAsScala
 
 /**
  * The component descriptor is both used for generating the protobuf service descriptor to communicate the service type
@@ -62,18 +59,17 @@ import scala.jdk.CollectionConverters.CollectionHasAsScala
  */
 private[impl] object ComponentDescriptor {
 
-  def descriptorFor[T](implicit ev: ClassTag[T]): ComponentDescriptor =
-    descriptorFor(ev.runtimeClass)
-
-  def descriptorFor(component: Class[_]): ComponentDescriptor =
-    ComponentDescriptorFactory.getFactoryFor(component).buildDescriptorFor(component, new NameGenerator)
+  def descriptorFor(component: Class[_], messageCodec: SpringSdkMessageCodec): ComponentDescriptor =
+    ComponentDescriptorFactory.getFactoryFor(component).buildDescriptorFor(component, messageCodec, new NameGenerator)
 
   def apply(
       nameGenerator: NameGenerator,
+      messageCodec: SpringSdkMessageCodec,
       serviceName: String,
       packageName: String,
-      serviceMethods: Seq[KalixMethod],
+      kalixMethods: Seq[KalixMethod],
       additionalMessages: Seq[ProtoMessageDescriptors] = Nil): ComponentDescriptor = {
+
     val otherMessageProtos: Seq[DescriptorProtos.DescriptorProto] =
       additionalMessages.flatMap(pm => pm.mainMessageDescriptor +: pm.additionalMessageDescriptors)
 
@@ -86,12 +82,12 @@ private[impl] object ComponentDescriptor {
 
       val (inputMessageName: String, extractors: Map[Int, ExtractorCreator], inputProto: Option[DescriptorProto]) =
         kalixMethod.serviceMethod match {
-          case serviceMethod: SpringRestServiceMethod =>
+          case serviceMethod: SyntheticRequestServiceMethod =>
             val (inputProto, extractors) =
               buildSyntheticMessageAndExtractors(nameGenerator, serviceMethod, httpRuleBuilder, kalixMethod.entityKeys)
             (inputProto.getName, extractors, Some(inputProto))
 
-          case _: AnyServiceMethod =>
+          case _: AnyJsonRequestServiceMethod =>
             (JavaPbAny.getDescriptor.getFullName, Map.empty[Int, ExtractorCreator], None)
         }
 
@@ -113,10 +109,16 @@ private[impl] object ComponentDescriptor {
       val grpcMethod = grpcMethodBuilder.build()
       grpcService.addMethod(grpcMethod)
 
-      NamedComponentMethod(kalixMethod.serviceMethod, grpcMethodName, extractors, inputMessageName, inputProto)
+      NamedComponentMethod(
+        kalixMethod.serviceMethod,
+        messageCodec,
+        grpcMethodName,
+        extractors,
+        inputMessageName,
+        inputProto)
     }
 
-    val namedMethods: Seq[NamedComponentMethod] = serviceMethods.map(methodToNamedComponentMethod)
+    val namedMethods: Seq[NamedComponentMethod] = kalixMethods.map(methodToNamedComponentMethod)
     val inputMessageProtos: Seq[DescriptorProtos.DescriptorProto] = namedMethods.flatMap(_.inputProto)
 
     val fileDescriptor: Descriptors.FileDescriptor =
@@ -126,8 +128,8 @@ private[impl] object ComponentDescriptor {
         grpcService.build(),
         inputMessageProtos ++ otherMessageProtos)
 
-    val methods: Map[String, ComponentMethod] =
-      namedMethods.map { method => (method.grpcMethodName, method.toComponentMethod(fileDescriptor)) }.toMap
+    val methods: Map[String, CommandHandler] =
+      namedMethods.map { method => (method.grpcMethodName, method.toCommandHandler(fileDescriptor)) }.toMap
 
     val serviceDescriptor: Descriptors.ServiceDescriptor =
       fileDescriptor.findServiceByName(grpcService.getName)
@@ -139,29 +141,29 @@ private[impl] object ComponentDescriptor {
   // once we have built the full file descriptor, we can look up for the input message using its name
   private case class NamedComponentMethod(
       serviceMethod: ServiceMethod,
+      messageCodec: SpringSdkMessageCodec,
       grpcMethodName: String,
       extractorCreators: Map[Int, ExtractorCreator],
       inputMessageName: String,
       inputProto: Option[DescriptorProto]) {
 
-    type ParameterExtractors = Array[ParameterExtractor[InvocationContext, AnyRef]]
+    type ParameterExtractorsArray = Array[ParameterExtractor[InvocationContext, AnyRef]]
 
-    def toComponentMethod(fileDescriptor: FileDescriptor): ComponentMethod = {
+    def toCommandHandler(fileDescriptor: FileDescriptor): CommandHandler = {
       serviceMethod match {
-        case method: SpringRestServiceMethod =>
-          val message = fileDescriptor.findMessageTypeByName(inputMessageName)
-          if (message == null)
+        case method: SyntheticRequestServiceMethod =>
+          val syntheticMessageDescriptor = fileDescriptor.findMessageTypeByName(inputMessageName)
+          if (syntheticMessageDescriptor == null)
             throw new RuntimeException(
               "Unknown message type [" + inputMessageName + "], known are [" + fileDescriptor.getMessageTypes.asScala
                 .map(_.getName) + "]")
 
-          val parameterExtractors: ParameterExtractors =
+          val parameterExtractors: ParameterExtractorsArray =
             if (method.callable) {
               method.params.zipWithIndex.map { case (param, idx) =>
                 extractorCreators.find(_._1 == idx) match {
-                  case Some((_, creator)) =>
-                    creator(message)
-                  case None =>
+                  case Some((_, creator)) => creator(syntheticMessageDescriptor)
+                  case None               =>
                     // Yet to resolve this parameter, resolve now
                     param match {
                       case hp: HeaderParameter =>
@@ -175,27 +177,41 @@ private[impl] object ComponentDescriptor {
               }.toArray
             } else Array.empty
 
-          ComponentMethod(
+          // synthetic request always have proto messages as input,
+          // their type url will are prefixed by DefaultTypeUrlPrefix
+          // It's possible for a user to configure another prefix, but this is done through the Kalix instance
+          // and the Spring SDK doesn't not expose it.
+          val typeUrl = AnySupport.DefaultTypeUrlPrefix + "/" + syntheticMessageDescriptor.getFullName
+
+          CommandHandler(
             grpcMethodName,
-            parameterExtractors,
-            message,
-            Seq(TypeUrl2Method(method.javaMethod.getName, method.javaMethod)))
+            messageCodec,
+            syntheticMessageDescriptor,
+            Map(typeUrl -> MethodInvoker(method.javaMethod, parameterExtractors)))
+
         case method: CombinedSubscriptionServiceMethod =>
-          val parameterExtractors: ParameterExtractors =
-            method.typeUrl2Method
-              .flatMap(each =>
-                each.method.getParameterTypes.map(param => new ParameterExtractors.AnyBodyExtractor[AnyRef](param)))
-              .toArray
-          ComponentMethod(grpcMethodName, parameterExtractors, JavaPbAny.getDescriptor, method.typeUrl2Method)
-        case method: AnyServiceMethod =>
-          // methods that receive Any as input always default to AnyBodyExtractor
-          val parameterExtractors: ParameterExtractors = Array(
-            new ParameterExtractors.AnyBodyExtractor(method.inputType))
-          val typeUrl2method = serviceMethod.javaMethodOpt match {
-            case Some(m) => Seq(TypeUrl2Method(m.getName, m))
-            case None    => Nil
-          }
-          ComponentMethod(grpcMethodName, parameterExtractors, JavaPbAny.getDescriptor, typeUrl2method)
+          val methodInvokers =
+            method.methodsMap.map { case (typeUrl, meth) =>
+              val parameterExtractors: ParameterExtractorsArray =
+                meth.getParameterTypes.map(param => ParameterExtractors.AnyBodyExtractor[AnyRef](param))
+
+              (typeUrl, MethodInvoker(meth, parameterExtractors))
+            }
+
+          CommandHandler(grpcMethodName, messageCodec, JavaPbAny.getDescriptor, methodInvokers)
+
+        case method: AnyJsonRequestServiceMethod =>
+          val methodInvokers =
+            serviceMethod.javaMethodOpt.map { meth =>
+
+              val parameterExtractors: ParameterExtractorsArray =
+                Array(ParameterExtractors.AnyBodyExtractor(method.inputType))
+
+              val typeUrl = messageCodec.typeUrlFor(method.inputType)
+              (typeUrl, MethodInvoker(meth, parameterExtractors))
+            }.toMap
+
+          CommandHandler(grpcMethodName, messageCodec, JavaPbAny.getDescriptor, methodInvokers)
       }
 
     }
@@ -203,7 +219,7 @@ private[impl] object ComponentDescriptor {
 
   private def buildSyntheticMessageAndExtractors(
       nameGenerator: NameGenerator,
-      serviceMethod: SpringRestServiceMethod,
+      serviceMethod: SyntheticRequestServiceMethod,
       httpRule: HttpRule.Builder,
       entityKeys: Seq[String] = Seq.empty): (DescriptorProto, Map[Int, ExtractorCreator]) = {
 
@@ -356,6 +372,6 @@ private[impl] object ComponentDescriptor {
 private[springsdk] final case class ComponentDescriptor private (
     serviceName: String,
     packageName: String,
-    methods: Map[String, ComponentMethod],
+    commandHandlers: Map[String, CommandHandler],
     serviceDescriptor: Descriptors.ServiceDescriptor,
     fileDescriptor: Descriptors.FileDescriptor)

@@ -58,7 +58,7 @@ object RestServiceIntrospector {
           param
         }
         val restParams = params.map(inspectParameter)
-        SpringRestServiceMethod(classMapping, mapping, method, restParams)
+        SyntheticRequestServiceMethod(classMapping, mapping, method, restParams)
       }
 
     RestService(methodMappings)
@@ -111,7 +111,7 @@ object RestServiceIntrospector {
   }
   case class BodyParameter(param: MethodParameter, annotation: RequestBody) extends RestMethodParameter
 
-  case class RestService(methods: Seq[SpringRestServiceMethod])
+  case class RestService(methods: Seq[SyntheticRequestServiceMethod])
 
   private[kalix] def validateRequestMapping(element: AnnotatedElement, mapping: RequestMapping): Unit = {
     if (!isEmpty(mapping.consumes())) {

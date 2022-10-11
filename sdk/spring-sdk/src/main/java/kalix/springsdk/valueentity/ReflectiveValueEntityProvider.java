@@ -65,7 +65,7 @@ public class ReflectiveValueEntityProvider<S, E extends ValueEntity<S>>
     this.options = options;
     this.messageCodec = messageCodec;
 
-    this.componentDescriptor = ComponentDescriptor.descriptorFor(entityClass);
+    this.componentDescriptor = ComponentDescriptor.descriptorFor(entityClass, messageCodec);
 
     this.fileDescriptor = componentDescriptor.fileDescriptor();
     this.serviceDescriptor = componentDescriptor.serviceDescriptor();
@@ -89,7 +89,7 @@ public class ReflectiveValueEntityProvider<S, E extends ValueEntity<S>>
   @Override
   public ValueEntityRouter<S, E> newRouter(ValueEntityContext context) {
     E entity = factory.apply(context);
-    return new ReflectiveValueEntityRouter<>(entity, componentDescriptor.methods());
+    return new ReflectiveValueEntityRouter<>(entity, componentDescriptor.commandHandlers());
   }
 
   @Override

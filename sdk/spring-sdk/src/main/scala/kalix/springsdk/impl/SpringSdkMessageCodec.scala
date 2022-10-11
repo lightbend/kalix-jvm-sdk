@@ -34,13 +34,19 @@ private[springsdk] class SpringSdkMessageCodec extends MessageCodec {
    * In the Spring SDK, output data are encoded to Json.
    */
   override def encodeScala(value: Any): ScalaPbAny =
-    ScalaPbAny.fromJavaProto(JsonSupport.encodeJson(value, lookTypeHint(value)))
+    ScalaPbAny.fromJavaProto(JsonSupport.encodeJson(value, lookupTypeHint(value)))
 
   override def encodeJava(value: Any): JavaPbAny =
-    JsonSupport.encodeJson(value, lookTypeHint(value))
+    JsonSupport.encodeJson(value, lookupTypeHint(value))
 
-  private def lookTypeHint(value: Any): String =
-    cache.computeIfAbsent(value.getClass, clz => SpringSdkMessageCodec.findTypeHint(clz))
+  private def lookupTypeHint(value: Any): String =
+    lookupTypeHint(value.getClass)
+
+  private def lookupTypeHint(clz: Class[_]): String =
+    cache.computeIfAbsent(clz, clz => SpringSdkMessageCodec.findTypeHint(clz))
+
+  def typeUrlFor(clz: Class[_]) =
+    JsonSupport.KALIX_JSON + lookupTypeHint(clz)
 
   /**
    * In the Spring SDK, input data are kept as proto Any and delivered as such to the router
@@ -57,7 +63,7 @@ private[springsdk] object SpringSdkMessageCodec {
    *
    * In the absence of any annotation from the JsonTypeInfo family, it will fallback to use the FQCN as a type hint.
    */
-  def findTypeHint(messageClass: Class[_]): String = {
+  private def findTypeHint(messageClass: Class[_]): String = {
 
     def annotatedParents(clz: Class[_], listOfParents: Seq[Class[_]]): Seq[Class[_]] = {
 

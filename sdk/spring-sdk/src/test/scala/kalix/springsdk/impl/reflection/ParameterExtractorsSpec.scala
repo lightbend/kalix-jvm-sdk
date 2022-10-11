@@ -16,6 +16,8 @@
 
 package kalix.springsdk.impl.reflection
 
+import scala.reflect.ClassTag
+
 import com.google.protobuf.ByteString
 import com.google.protobuf.DynamicMessage
 import com.google.protobuf.any.{ Any => ScalaPbAny }
@@ -23,6 +25,7 @@ import com.google.protobuf.{ Any => JavaPbAny }
 import kalix.javasdk.JsonSupport
 import kalix.springsdk.impl.ComponentDescriptor
 import kalix.springsdk.impl.InvocationContext
+import kalix.springsdk.impl.SpringSdkMessageCodec
 import kalix.springsdk.impl.reflection.ParameterExtractors.BodyExtractor
 import kalix.springsdk.testmodels.Message
 import kalix.springsdk.testmodels.action.EchoAction
@@ -31,11 +34,14 @@ import org.scalatest.wordspec.AnyWordSpec
 
 class ParameterExtractorsSpec extends AnyWordSpec with Matchers {
 
+  def descriptorFor[T](implicit ev: ClassTag[T]): ComponentDescriptor =
+    ComponentDescriptor.descriptorFor(ev.runtimeClass, new SpringSdkMessageCodec)
+
   "BodyExtractor" should {
 
     "extract json payload from Any" in {
-      val componentDescriptor = ComponentDescriptor.descriptorFor[EchoAction]
-      val method = componentDescriptor.methods("MessageBody")
+      val componentDescriptor = descriptorFor[EchoAction]
+      val method = componentDescriptor.commandHandlers("MessageBody")
 
       val jsonBody = JsonSupport.encodeJson(new Message("test"))
 
@@ -47,8 +53,9 @@ class ParameterExtractorsSpec extends AnyWordSpec with Matchers {
 
       val wrappedMessage = ScalaPbAny().withValue(message.toByteString)
 
+      val javaMethod = method.methodInvokers.values.head
       val bodyExtractor: BodyExtractor[_] =
-        method.parameterExtractors.collect { case extractor: BodyExtractor[_] => extractor }.head
+        javaMethod.parameterExtractors.collect { case extractor: BodyExtractor[_] => extractor }.head
 
       val context = InvocationContext(wrappedMessage, method.requestMessageDescriptor)
       bodyExtractor.extract(context)
@@ -56,9 +63,9 @@ class ParameterExtractorsSpec extends AnyWordSpec with Matchers {
     }
 
     "reject non json payload" in {
-      val componentDescriptor = ComponentDescriptor.descriptorFor[EchoAction]
+      val componentDescriptor = descriptorFor[EchoAction]
 
-      val method = componentDescriptor.methods("MessageBody")
+      val method = componentDescriptor.commandHandlers("MessageBody")
 
       val nonJsonBody =
         JavaPbAny
@@ -74,9 +81,9 @@ class ParameterExtractorsSpec extends AnyWordSpec with Matchers {
         .build()
 
       val wrappedMessage = ScalaPbAny().withValue(message.toByteString)
-
+      val javaMethod = method.methodInvokers.values.head
       val bodyExtractor: BodyExtractor[_] =
-        method.parameterExtractors.collect { case extractor: BodyExtractor[_] => extractor }.head
+        javaMethod.parameterExtractors.collect { case extractor: BodyExtractor[_] => extractor }.head
 
       val context = InvocationContext(wrappedMessage, method.requestMessageDescriptor)
 

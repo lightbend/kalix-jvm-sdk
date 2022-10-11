@@ -20,20 +20,20 @@ import com.google.protobuf.any.{ Any => ScalaPbAny }
 import kalix.javasdk.{ JsonSupport, Metadata }
 import kalix.javasdk.impl.view.ViewRouter
 import kalix.javasdk.view.View
-import kalix.springsdk.impl.ComponentMethod
+import kalix.springsdk.impl.CommandHandler
 import kalix.springsdk.impl.InvocationContext
 
 import java.lang.reflect.ParameterizedType
 import scala.PartialFunction.condOpt
 
-class ReflectiveViewRouter[S, V <: View[S]](view: V, componentMethods: Map[String, ComponentMethod])
+class ReflectiveViewRouter[S, V <: View[S]](view: V, commandHandlers: Map[String, CommandHandler])
     extends ViewRouter[S, V](view) {
 
-  private def methodLookup(commandName: String) =
-    componentMethods.getOrElse(commandName, throw new RuntimeException(s"no matching method for '$commandName'"))
+  private def commandHandlerLookup(commandName: String) =
+    commandHandlers.getOrElse(commandName, throw new RuntimeException(s"no matching method for '$commandName'"))
 
   override def handleUpdate(commandName: String, state: S, event: Any): View.UpdateEffect[S] = {
-    val componentMethod = methodLookup(commandName)
+    val commandHandler = commandHandlerLookup(commandName)
     val viewStateType = this.view.getClass.getGenericSuperclass
       .asInstanceOf[ParameterizedType]
       .getActualTypeArguments
@@ -43,7 +43,7 @@ class ReflectiveViewRouter[S, V <: View[S]](view: V, componentMethods: Map[Strin
     val context =
       InvocationContext(
         event.asInstanceOf[ScalaPbAny],
-        componentMethod.requestMessageDescriptor,
+        commandHandler.requestMessageDescriptor,
         Metadata.EMPTY
       ) // FIXME no metadata available???
 
@@ -54,23 +54,24 @@ class ReflectiveViewRouter[S, V <: View[S]](view: V, componentMethods: Map[Strin
       case s if s != null => JsonSupport.decodeJson(viewStateType, ScalaPbAny.toJavaProto(s.asInstanceOf[ScalaPbAny]))
     }
 
-    val javaMethod = componentMethod
-      .lookupMethod(event.asInstanceOf[ScalaPbAny].typeUrl)
+    val methodInvoker = commandHandler.lookupInvoker(event.asInstanceOf[ScalaPbAny].typeUrl)
 
-    val params = javaMethod.parameterExtractors.map(e => e.extract(context))
+    val params = methodInvoker.parameterExtractors.map(e => e.extract(context))
 
-    (javaMethod.method.getParameterCount, newState) match {
+    // TODO: when we move the view state to context, we can make
+    // parameterExtractors private and always call JavaMethod.invoke instead
+    (methodInvoker.method.getParameterCount, newState) match {
       case (1, _) =>
-        javaMethod.method
+        methodInvoker.method
           .invoke(view, params: _*)
           .asInstanceOf[View.UpdateEffect[S]]
       case (2, Some(s)) =>
-        javaMethod.method
-          .invoke(view, s, params.head)
+        methodInvoker.method
+          .invoke(view, s, params.last)
           .asInstanceOf[View.UpdateEffect[S]]
       case (2, None) =>
-        javaMethod.method
-          .invoke(view, null, params.head)
+        methodInvoker.method
+          .invoke(view, null, params.last)
           .asInstanceOf[View.UpdateEffect[S]]
       case (n, _) => // this shouldn't really be reached
         throw new RuntimeException(s"unexpected number of params ($n) for '$commandName'")

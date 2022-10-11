@@ -26,24 +26,27 @@ import org.scalatest.matchers.should.Matchers
 
 trait ComponentDescriptorSuite extends Matchers {
 
+  def descriptorFor[T](implicit ev: ClassTag[T]): ComponentDescriptor =
+    ComponentDescriptor.descriptorFor(ev.runtimeClass, new SpringSdkMessageCodec)
+
   def assertDescriptor[E](assertFunc: ComponentDescriptor => Unit)(implicit ev: ClassTag[E]) = {
-    val descriptor = ComponentDescriptor.descriptorFor[E]
+    val descriptor = descriptorFor[E]
     withClue(ProtoDescriptorRenderer.toString(descriptor.fileDescriptor)) {
       assertFunc(descriptor)
     }
   }
 
-  def assertRequestFieldJavaType(method: ComponentMethod, fieldName: String, expectedType: JavaType) = {
+  def assertRequestFieldJavaType(method: CommandHandler, fieldName: String, expectedType: JavaType) = {
     val field = findField(method, fieldName)
     field.getJavaType shouldBe expectedType
   }
 
-  def assertRequestFieldMessageType(method: ComponentMethod, fieldName: String, expectedMessageType: String) = {
+  def assertRequestFieldMessageType(method: CommandHandler, fieldName: String, expectedMessageType: String) = {
     val field = findField(method, fieldName)
     field.getMessageType.getFullName shouldBe expectedMessageType
   }
 
-  def assertEntityKeyField(method: ComponentMethod, fieldName: String) = {
+  def assertEntityKeyField(method: CommandHandler, fieldName: String) = {
     val field = findField(method, fieldName)
     val fieldOption = field.toProto.getOptions.getExtension(kalix.Annotations.field)
     fieldOption.getEntityKey shouldBe true
@@ -61,7 +64,7 @@ trait ComponentDescriptorSuite extends Matchers {
   def findHttpRule(desc: ComponentDescriptor, methodName: String): HttpRule =
     findMethod(desc, methodName).toProto.getOptions.getExtension(AnnotationsProto.http)
 
-  private def findField(method: ComponentMethod, fieldName: String): Descriptors.FieldDescriptor = {
+  private def findField(method: CommandHandler, fieldName: String): Descriptors.FieldDescriptor = {
     val field = method.requestMessageDescriptor.findFieldByName(fieldName)
     if (field == null) throw new NoSuchElementException(s"no field found for $fieldName")
     field

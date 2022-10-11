@@ -18,17 +18,20 @@ package kalix.springsdk.impl
 
 import java.lang.reflect.Method
 import java.lang.reflect.ParameterizedType
+
 import kalix.MethodOptions
 import kalix.springsdk.annotations.Query
 import kalix.springsdk.annotations.Subscribe
 import kalix.springsdk.annotations.Table
+import kalix.springsdk.impl.ComponentDescriptorFactory.buildJWTOptions
+import kalix.springsdk.impl.ComponentDescriptorFactory.combineByES
 import kalix.springsdk.impl.ComponentDescriptorFactory.eventingInForValueEntity
 import kalix.springsdk.impl.ComponentDescriptorFactory.findValueEntityType
 import kalix.springsdk.impl.ComponentDescriptorFactory.hasValueEntitySubscription
 import kalix.springsdk.impl.reflection.KalixMethod
 import kalix.springsdk.impl.reflection.NameGenerator
 import kalix.springsdk.impl.reflection.RestServiceIntrospector
-import kalix.springsdk.impl.reflection.SpringRestServiceMethod
+import kalix.springsdk.impl.reflection.SyntheticRequestServiceMethod
 import kalix.springsdk.impl.reflection.ReflectionUtils
 import kalix.springsdk.impl.reflection.RestServiceIntrospector.BodyParameter
 import kalix.springsdk.impl.ComponentDescriptorFactory.eventingInForEventSourcedEntity
@@ -39,7 +42,10 @@ import reactor.core.publisher.Flux
 
 private[impl] object ViewDescriptorFactory extends ComponentDescriptorFactory {
 
-  override def buildDescriptorFor(component: Class[_], nameGenerator: NameGenerator): ComponentDescriptor = {
+  override def buildDescriptorFor(
+      component: Class[_],
+      messageCodec: SpringSdkMessageCodec,
+      nameGenerator: NameGenerator): ComponentDescriptor = {
 
     // View class type parameter declares table type
     val tableType: Class[_] =
@@ -67,7 +73,9 @@ private[impl] object ViewDescriptorFactory extends ComponentDescriptorFactory {
       else if (hasMethodLevelValueEntitySubs)
         subscriptionForMethodLevelValueEntity(component, tableType, tableName, tableProtoMessageName)
       else if (hasMethodLevelEventSourcedEntitySubs)
-        combineByES(eventSourcedEntitySubscription(component, tableType, tableName, tableProtoMessageName))
+        combineByES(
+          eventSourcedEntitySubscription(component, tableType, tableName, tableProtoMessageName),
+          messageCodec)
       else
         Seq.empty
 
@@ -91,7 +99,7 @@ private[impl] object ViewDescriptorFactory extends ComponentDescriptorFactory {
           "Views can have only one method annotated with @Query, " +
           s"found ${annotatedMethods.size} in class ${component.getName}")
 
-      val annotatedMethod: SpringRestServiceMethod = annotatedMethods.head
+      val annotatedMethod: SyntheticRequestServiceMethod = annotatedMethods.head
 
       val queryOutputType = {
         val returnType = annotatedMethod.javaMethod.getReturnType
@@ -154,7 +162,13 @@ private[impl] object ViewDescriptorFactory extends ComponentDescriptorFactory {
     val kalixMethods: Seq[KalixMethod] = queryMethod +: updateMethods
     val serviceName = nameGenerator.getName(component.getSimpleName)
     val additionalMessages = Set(tableTypeDescriptor, queryOutputSchemaDescriptor) ++ queryInputSchemaDescriptor.toSet
-    ComponentDescriptor(nameGenerator, serviceName, component.getPackageName, kalixMethods, additionalMessages.toSeq)
+    ComponentDescriptor(
+      nameGenerator,
+      messageCodec,
+      serviceName,
+      component.getPackageName,
+      kalixMethods,
+      additionalMessages.toSeq)
   }
 
   private def eventSourcedEntitySubscription(

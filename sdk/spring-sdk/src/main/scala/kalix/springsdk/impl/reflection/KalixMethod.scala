@@ -17,7 +17,6 @@
 package kalix.springsdk.impl.reflection
 
 import com.google.protobuf.Descriptors
-import kalix.springsdk.impl.TypeUrl2Method
 import kalix.springsdk.impl.path.{ PathPattern, PathPatternParser }
 import kalix.springsdk.impl.reflection.RestServiceIntrospector.{
   isEmpty,
@@ -61,7 +60,7 @@ sealed trait ServiceMethod {
   def streamOut: Boolean
 }
 
-sealed trait AnyServiceMethod extends ServiceMethod {
+sealed trait AnyJsonRequestServiceMethod extends ServiceMethod {
   def inputType: Class[_]
 
   protected def buildPathTemplate(componentName: String, methodName: String): String = {
@@ -76,7 +75,8 @@ sealed trait AnyServiceMethod extends ServiceMethod {
  * It's used as a 'virtual' method because there is not Java method backing it. It will exist only in the gRPC
  * descriptor and will be used for view updates with transform = false
  */
-case class VirtualServiceMethod(component: Class[_], methodName: String, inputType: Class[_]) extends AnyServiceMethod {
+case class VirtualServiceMethod(component: Class[_], methodName: String, inputType: Class[_])
+    extends AnyJsonRequestServiceMethod {
 
   override def requestMethod: RequestMethod = RequestMethod.POST
 
@@ -91,8 +91,8 @@ case class VirtualServiceMethod(component: Class[_], methodName: String, inputTy
 case class CombinedSubscriptionServiceMethod(
     combinedMethodName: String,
     representative: SubscriptionServiceMethod,
-    typeUrl2Method: Seq[TypeUrl2Method])
-    extends AnyServiceMethod {
+    methodsMap: Map[String, Method])
+    extends AnyJsonRequestServiceMethod {
 
   val methodName = combinedMethodName
 
@@ -113,7 +113,8 @@ case class CombinedSubscriptionServiceMethod(
  * Build from methods annotated with @Subscription. Those methods are not annotated with Spring REST annotations, but
  * they become a REST method at the end.
  */
-case class SubscriptionServiceMethod(javaMethod: Method, inputTypeParamIndex: Int = 0) extends AnyServiceMethod {
+case class SubscriptionServiceMethod(javaMethod: Method, inputTypeParamIndex: Int = 0)
+    extends AnyJsonRequestServiceMethod {
 
   val methodName = javaMethod.getName
   val inputType: Class[_] = javaMethod.getParameterTypes()(inputTypeParamIndex)
@@ -133,7 +134,7 @@ case class SubscriptionServiceMethod(javaMethod: Method, inputTypeParamIndex: In
  * @param callable
  *   Is this actually a method that will ever be called or just there for metadata annotations?
  */
-case class SpringRestServiceMethod(
+case class SyntheticRequestServiceMethod(
     classMapping: Option[RequestMapping],
     mapping: RequestMapping,
     javaMethod: Method,

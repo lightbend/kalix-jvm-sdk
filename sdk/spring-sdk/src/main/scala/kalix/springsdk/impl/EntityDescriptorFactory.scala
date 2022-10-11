@@ -17,13 +17,17 @@
 package kalix.springsdk.impl
 
 import kalix.springsdk.annotations.Entity
+import kalix.springsdk.impl.ComponentDescriptorFactory.buildJWTOptions
 import kalix.springsdk.impl.reflection.KalixMethod
 import kalix.springsdk.impl.reflection.NameGenerator
 import kalix.springsdk.impl.reflection.RestServiceIntrospector
 
 private[impl] object EntityDescriptorFactory extends ComponentDescriptorFactory {
 
-  override def buildDescriptorFor(component: Class[_], nameGenerator: NameGenerator): ComponentDescriptor = {
+  override def buildDescriptorFor(
+      component: Class[_],
+      messageCodec: SpringSdkMessageCodec,
+      nameGenerator: NameGenerator): ComponentDescriptor = {
     val entityKeys = component.getAnnotation(classOf[Entity]).entityKey()
 
     val kalixMethods =
@@ -32,6 +36,6 @@ private[impl] object EntityDescriptorFactory extends ComponentDescriptorFactory 
       }
 
     val serviceName = nameGenerator.getName(component.getSimpleName)
-    ComponentDescriptor(nameGenerator, serviceName, component.getPackageName, kalixMethods)
+    ComponentDescriptor(nameGenerator, messageCodec, serviceName, component.getPackageName, kalixMethods)
   }
 }

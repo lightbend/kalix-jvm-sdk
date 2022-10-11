@@ -16,16 +16,16 @@
 
 package kalix.springsdk.impl
 
+import kalix.springsdk.impl.ComponentDescriptorFactory.buildJWTOptions
+import kalix.springsdk.impl.ComponentDescriptorFactory.combineByES
 import kalix.springsdk.impl.ComponentDescriptorFactory.eventingInForEventSourcedEntity
 import kalix.springsdk.impl.ComponentDescriptorFactory.eventingInForTopic
 import kalix.springsdk.impl.ComponentDescriptorFactory.eventingInForValueEntity
 import kalix.springsdk.impl.ComponentDescriptorFactory.eventingOutForTopic
 import kalix.springsdk.impl.ComponentDescriptorFactory.hasEventSourcedEntitySubscription
-import kalix.springsdk.impl.ComponentDescriptorFactory.hasJwtMethodOptions
 import kalix.springsdk.impl.ComponentDescriptorFactory.hasTopicPublication
 import kalix.springsdk.impl.ComponentDescriptorFactory.hasTopicSubscription
 import kalix.springsdk.impl.ComponentDescriptorFactory.hasValueEntitySubscription
-import kalix.springsdk.impl.ComponentDescriptorFactory.jwtMethodOptions
 import kalix.springsdk.impl.ComponentDescriptorFactory.validateRestMethod
 import kalix.springsdk.impl.reflection.CombinedSubscriptionServiceMethod
 import kalix.springsdk.impl.reflection.KalixMethod
@@ -36,7 +36,10 @@ import kalix.springsdk.impl.reflection.SubscriptionServiceMethod
 
 private[impl] object ActionDescriptorFactory extends ComponentDescriptorFactory {
 
-  override def buildDescriptorFor(component: Class[_], nameGenerator: NameGenerator): ComponentDescriptor = {
+  override def buildDescriptorFor(
+      component: Class[_],
+      messageCodec: SpringSdkMessageCodec,
+      nameGenerator: NameGenerator): ComponentDescriptor = {
     //we should merge from here
     val springAnnotatedMethods =
       RestServiceIntrospector.inspectService(component).methods.map { serviceMethod =>
@@ -92,23 +95,25 @@ private[impl] object ActionDescriptorFactory extends ComponentDescriptorFactory 
       }
       groupByTopic(subscriptions).collect {
         case (topic, kMethods) if kMethods.size > 1 =>
-          val typeUrl2Methods: Seq[TypeUrl2Method] = kMethods.map { k =>
-            TypeUrl2Method(
-              k.serviceMethod.javaMethodOpt.get.getParameterTypes()(0).getName,
-              k.serviceMethod.javaMethodOpt.get)
-          }
+          val methodsMap =
+            kMethods.map { k =>
+              val inputType = k.serviceMethod.javaMethodOpt.get.getParameterTypes.head
+              val typeUrl = messageCodec.typeUrlFor(inputType)
+              (typeUrl, k.serviceMethod.javaMethodOpt.get)
+            }.toMap
 
           KalixMethod(
             CombinedSubscriptionServiceMethod(
               "KalixSyntheticMethodOnTopic" + topic.capitalize,
               kMethods.head.serviceMethod.asInstanceOf[SubscriptionServiceMethod],
-              typeUrl2Methods))
+              methodsMap))
             .withKalixOptions(kMethods.head.methodOptions)
         case (topic, kMethod +: Nil) =>
           kMethod
       }.toSeq
     }
 
+    // TODO: we need to revisit this. A Publish should not be a Subscription
     val publicationTopicMethods = component.getMethods
       .filter(hasTopicPublication)
       .sorted // make sure we get the methods in deterministic order
@@ -145,11 +150,12 @@ private[impl] object ActionDescriptorFactory extends ComponentDescriptorFactory 
 
     ComponentDescriptor(
       nameGenerator,
+      messageCodec,
       serviceName,
       component.getPackageName,
       filterAndAddKalixOptions(springAnnotatedMethods, publicationTopicMethods)
       ++ subscriptionValueEntityMethods
-      ++ combineByES(subscriptionEventSourcedEntityMethods)
+      ++ combineByES(subscriptionEventSourcedEntityMethods, messageCodec)
       ++ combineByTopic(subscriptionTopicMethods)
       ++ removeDuplicates(springAnnotatedMethods, publicationTopicMethods))
   }

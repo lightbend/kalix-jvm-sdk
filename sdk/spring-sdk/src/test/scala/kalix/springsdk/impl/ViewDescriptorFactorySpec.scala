@@ -99,7 +99,7 @@ class ViewDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSuit
         val rule = findHttpRule(desc, "GetUser")
         rule.getPost shouldBe "/users/by-email"
 
-        val method = desc.methods("GetUser")
+        val method = desc.commandHandlers("GetUser")
         val jwtOption = findKalixMethodOptions(desc, method.grpcMethodName).getJwt
         jwtOption.getBearerTokenIssuer(0) shouldBe "a"
         jwtOption.getBearerTokenIssuer(1) shouldBe "b"
@@ -131,7 +131,8 @@ class ViewDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSuit
         val rule = findHttpRule(desc, "GetUser")
         rule.getPost shouldBe "/users/by-email"
 
-        desc.methods("OnChange").parameterExtractors.length shouldBe 1
+        val javaMethod = desc.commandHandlers("OnChange").methodInvokers.values.head
+        javaMethod.parameterExtractors.length shouldBe 1
       }
     }
 
@@ -270,31 +271,31 @@ class ViewDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSuit
 
     "fail if no query method found" in {
       intercept[InvalidComponentException] {
-        ComponentDescriptor.descriptorFor[ViewWithNoQuery]
+        descriptorFor[ViewWithNoQuery]
       }
     }
 
     "fail if more than one query method is found" in {
       intercept[InvalidComponentException] {
-        ComponentDescriptor.descriptorFor[ViewWithTwoQueries]
+        descriptorFor[ViewWithTwoQueries]
       }
     }
 
     "fail if subscription method has wrong signature lacking the event param" in {
       intercept[InvalidComponentException] {
-        ComponentDescriptor.descriptorFor[TransformMethodLackingEventParam]
+        descriptorFor[TransformMethodLackingEventParam]
       }.getMessage should include("Single parameter is not of type")
     }
 
     "fail if subscription method has wrong signature because of parameters order" in {
       intercept[InvalidComponentException] {
-        ComponentDescriptor.descriptorFor[TransformMethodWrongParamOrder]
+        descriptorFor[TransformMethodWrongParamOrder]
       }.getMessage should include("Parameters of type ")
     }
 
     "fail if subscription method has wrong signature because is has more then two parameters" in {
       intercept[InvalidComponentException] {
-        ComponentDescriptor.descriptorFor[TransformMethodThreeParameters]
+        descriptorFor[TransformMethodThreeParameters]
       }.getMessage should include("Subscription method should have one or two params, found 3")
     }
 
@@ -356,25 +357,25 @@ class ViewDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSuit
 
     "fail if subscription method has wrong signature lacking the event param" in {
       intercept[InvalidComponentException] {
-        ComponentDescriptor.descriptorFor[SubscriptionMethodWithoutEvent]
+        descriptorFor[SubscriptionMethodWithoutEvent]
       }.getMessage should include("Subscription method only has the view type.")
     }
 
     "fail when trying to subscribe to snapshot" in {
       intercept[InvalidComponentException] {
-        ComponentDescriptor.descriptorFor[SubscriptionMethodWithTwiceTheState]
+        descriptorFor[SubscriptionMethodWithTwiceTheState]
       }.getMessage should include("Subscription method receives twice the view type")
     }
 
     "fail when subscription method has more than two args" in {
       intercept[InvalidComponentException] {
-        ComponentDescriptor.descriptorFor[SubscriptionMethodWithMoreThanTwoArgs]
+        descriptorFor[SubscriptionMethodWithMoreThanTwoArgs]
       }.getMessage should include("Subscription method should have one or two params, found 3")
     }
 
     "fail when subscription method receives 2 params, but first is not the view type" in {
       intercept[InvalidComponentException] {
-        ComponentDescriptor.descriptorFor[SubscriptionMethodWrongOrdering]
+        descriptorFor[SubscriptionMethodWrongOrdering]
       }.getMessage should include("Subscription method first param must be view type")
     }
   }
