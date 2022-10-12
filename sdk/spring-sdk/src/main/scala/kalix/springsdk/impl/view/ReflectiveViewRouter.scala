@@ -16,7 +16,10 @@
 
 package kalix.springsdk.impl.view
 
+import java.lang.reflect.ParameterizedType
+
 import com.google.protobuf.any.{ Any => ScalaPbAny }
+import kalix.javasdk.JsonSupport
 import kalix.javasdk.impl.view.ViewRouter
 import kalix.javasdk.view.View
 import kalix.springsdk.impl.CommandHandler
@@ -30,7 +33,25 @@ class ReflectiveViewRouter[S, V <: View[S]](view: V, commandHandlers: Map[String
 
   override def handleUpdate(commandName: String, state: S, event: Any): View.UpdateEffect[S] = {
 
-    view._internalSetViewState(state)
+    val viewStateType: Class[S] =
+      this.view.getClass.getGenericSuperclass
+        .asInstanceOf[ParameterizedType]
+        .getActualTypeArguments
+        .head
+        .asInstanceOf[Class[S]]
+
+    // the state: S received can either be of the view "state" type (if coming from emptyState)
+    // or PB Any type (if coming from the proxy)
+    state match {
+      case s if s == null || state.getClass == viewStateType =>
+        // note that we set the state even if null, this is needed in order to
+        // be able to call viewState() later
+        view._internalSetViewState(s)
+      case s =>
+        val deserializedState =
+          JsonSupport.decodeJson(viewStateType, ScalaPbAny.toJavaProto(s.asInstanceOf[ScalaPbAny]))
+        view._internalSetViewState(deserializedState)
+    }
 
     val commandHandler = commandHandlerLookup(commandName)
     val context =
