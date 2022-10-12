@@ -17,15 +17,23 @@
 package kalix.springsdk.impl.http
 
 import akka.http.scaladsl.model.Uri.Path
-import akka.http.scaladsl.model.{ErrorInfo, HttpMethod, HttpMethods, IllegalRequestException, RequestEntityAcceptance, StatusCodes, Uri}
+import akka.http.scaladsl.model.{
+  ErrorInfo,
+  HttpMethod,
+  HttpMethods,
+  IllegalRequestException,
+  RequestEntityAcceptance,
+  StatusCodes,
+  Uri
+}
 import com.google.api.HttpRule.PatternCase
 import com.google.api.annotations.AnnotationsProto
-import com.google.api.http.{CustomHttpPattern, HttpRule}
-import com.google.api.{AnnotationsProto => JavaAnnotationsProto, HttpRule => JavaHttpRule}
-import com.google.protobuf.{Descriptors, DynamicMessage}
-import com.google.protobuf.Descriptors.{Descriptor, FieldDescriptor, MethodDescriptor, ServiceDescriptor}
-import com.google.protobuf.descriptor.{MethodOptions => spbMethodOptions}
-import com.google.protobuf.util.{Durations, JsonFormat, Timestamps}
+import com.google.api.http.{ CustomHttpPattern, HttpRule }
+import com.google.api.{ AnnotationsProto => JavaAnnotationsProto, HttpRule => JavaHttpRule }
+import com.google.protobuf.{ Descriptors, DynamicMessage }
+import com.google.protobuf.Descriptors.{ Descriptor, FieldDescriptor, MethodDescriptor, ServiceDescriptor }
+import com.google.protobuf.descriptor.{ MethodOptions => spbMethodOptions }
+import com.google.protobuf.util.{ Durations, JsonFormat, Timestamps }
 import org.slf4j.LoggerFactory
 
 import java.net.URLDecoder
