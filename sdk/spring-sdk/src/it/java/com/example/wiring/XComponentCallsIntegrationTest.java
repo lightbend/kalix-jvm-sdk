@@ -32,7 +32,6 @@ import org.springframework.web.reactive.function.client.WebClient;
 import java.time.Duration;
 
 import static java.time.temporal.ChronoUnit.SECONDS;
-import static org.awaitility.Awaitility.await;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = Main.class)
@@ -50,7 +49,7 @@ public class XComponentCallsIntegrationTest {
     Message response =
         webClient
             .get()
-            .uri("/echo/message/message to be shortened/short")
+            .uri("/echo/message/{msg}/short", "message to be shortened")
             .retrieve()
             .bodyToMono(Message.class)
             .block(timeout);
@@ -60,12 +59,30 @@ public class XComponentCallsIntegrationTest {
   }
 
   @Test
+  public void verifyEchoActionXComponentCallUsingRequestParam() {
+
+    Message usingGetResponse =
+            webClient
+                    .get()
+                    .uri(builder -> builder.path("/echo/message/short")
+                            .queryParam("msg", "message to be shortened")
+                            .build())
+                    .retrieve()
+                    .bodyToMono(Message.class)
+                    .block(timeout);
+
+    Assertions.assertNotNull(usingGetResponse);
+    Assertions.assertEquals("Parrot says: 'm3ss4g3 t b3 shrt3n3d'", usingGetResponse.text);
+
+  }
+
+  @Test
   public void verifyEchoActionXComponentCallUsingForward() {
 
     Message usingGetResponse =
             webClient
                     .get()
-                    .uri("/echo/message/message to be shortened/leetshort")
+                    .uri("/echo/message/{msg}/leetshort", "message to be shortened")
                     .retrieve()
                     .bodyToMono(Message.class)
                     .block(timeout);

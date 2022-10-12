@@ -17,7 +17,7 @@
 package kalix.springsdk.impl
 
 import akka.http.scaladsl.model.Uri.Path
-import akka.http.scaladsl.model.{ HttpMethod, HttpMethods }
+import akka.http.scaladsl.model.{ HttpMethod, HttpMethods, Uri }
 import com.google.protobuf.{ Descriptors, DynamicMessage }
 import com.google.protobuf.any.Any
 import kalix.javasdk.DeferredCall
@@ -86,12 +86,13 @@ class RestKalixClientImpl(messageCodec: SpringSdkMessageCodec) extends KalixClie
       inputBuilder.build().toByteString)
   }
 
-  def post[P, R](uri: String, body: P, returnType: Class[R]): DeferredCall[Any, R] = {
-    val path = Path(uri)
-    matchMethodOpt(HttpMethods.POST, path)
+  def post[P, R](uriStr: String, body: P, returnType: Class[R]): DeferredCall[Any, R] = {
+    val uri = Uri(uriStr)
+    matchMethodOpt(HttpMethods.POST, uri.path)
       .map { httpDef =>
         val inputBuilder = DynamicMessage.newBuilder(httpDef.methodDescriptor.getInputType)
-        httpDef.parsePathParametersInto(path, inputBuilder)
+        httpDef.parsePathParametersInto(uri.path, inputBuilder)
+        httpDef.parseRequestParametersInto(uri.query().toMultiMap, inputBuilder)
         val wrappedBody = buildWrappedBody(httpDef, inputBuilder, Some(body))
 
         RestDeferredCallImpl[Any, R](
@@ -101,7 +102,7 @@ class RestKalixClientImpl(messageCodec: SpringSdkMessageCodec) extends KalixClie
           asyncCall = () =>
             webClient.flatMap {
               _.post()
-                .uri(uri)
+                .uri(uriStr)
                 .bodyValue(body)
                 .retrieve()
                 .bodyToMono(returnType)
@@ -111,17 +112,18 @@ class RestKalixClientImpl(messageCodec: SpringSdkMessageCodec) extends KalixClie
       }
       .getOrElse {
         throw new IllegalArgumentException(
-          s"No matching service for method=${HttpMethods.GET} path=$path"
+          s"No matching service for method=${HttpMethods.GET} path=$uri"
         ) // FIXME use another exception?
       }
   }
 
-  def get[R](uri: String, returnType: Class[R]): DeferredCall[Any, R] = {
-    val path = Path(uri)
-    matchMethodOpt(HttpMethods.GET, path)
+  def get[R](uriStr: String, returnType: Class[R]): DeferredCall[Any, R] = {
+    val uri = Uri(uriStr)
+    matchMethodOpt(HttpMethods.GET, uri.path)
       .map { httpDef =>
         val inputBuilder = DynamicMessage.newBuilder(httpDef.methodDescriptor.getInputType)
-        httpDef.parsePathParametersInto(path, inputBuilder)
+        httpDef.parsePathParametersInto(uri.path, inputBuilder)
+        httpDef.parseRequestParametersInto(uri.query().toMultiMap, inputBuilder)
         val wrappedBody = buildWrappedBody(httpDef, inputBuilder)
 
         RestDeferredCallImpl[Any, R](
@@ -132,7 +134,7 @@ class RestKalixClientImpl(messageCodec: SpringSdkMessageCodec) extends KalixClie
             webClient
               .flatMap(
                 _.get()
-                  .uri(uri)
+                  .uri(uriStr)
                   .retrieve()
                   .bodyToMono(returnType)
                   .toFuture
@@ -141,7 +143,7 @@ class RestKalixClientImpl(messageCodec: SpringSdkMessageCodec) extends KalixClie
       }
       .getOrElse {
         throw new IllegalArgumentException(
-          s"No matching service for method=${HttpMethods.GET} path=$path"
+          s"No matching service for method=${HttpMethods.GET} path=$uri"
         ) // FIXME use another exception?
       }
   }

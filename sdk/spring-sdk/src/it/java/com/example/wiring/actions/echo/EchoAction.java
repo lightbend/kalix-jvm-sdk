@@ -20,6 +20,7 @@ import kalix.javasdk.action.Action;
 import kalix.javasdk.action.ActionCreationContext;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -39,6 +40,11 @@ public class EchoAction extends Action {
   public Effect<Message> stringMessage(@PathVariable String msg) {
     String response = this.parrot.repeat(msg);
     return effects().reply(new Message(response));
+  }
+
+  @GetMapping("/echo/message")
+  public Effect<Message> stringMessageFromParam(@RequestParam String msg) {
+    return stringMessage(msg);
   }
 
   @GetMapping("/echo/repeat/{msg}/times/{times}")

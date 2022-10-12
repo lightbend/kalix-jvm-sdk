@@ -16,11 +16,13 @@
 
 package com.example.wiring.actions.echo;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import kalix.javasdk.action.Action;
 import kalix.javasdk.action.ActionCreationContext;
 import kalix.springsdk.KalixClient;
 import org.springframework.web.bind.annotation.*;
+
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 
 public class ShortenedEchoAction extends Action {
 
@@ -34,21 +36,26 @@ public class ShortenedEchoAction extends Action {
 
   @GetMapping("/echo/message/{msg}/short")
   public Effect<Message> stringMessage(@PathVariable String msg) {
-    var shortenedMsg = msg.replaceAll("[AEIOUaeiou]", "");
+    var shortenedMsg = URLEncoder.encode(msg.replaceAll("[AEIOUaeiou]", ""), StandardCharsets.UTF_8);
     var result = kalixClient.get("/echo/message/" + shortenedMsg, Message.class).execute();
     return effects().asyncReply(result);
   }
 
-  @GetMapping("/echo/message/{msg}/leetshort")
-  public Effect<Message> leetMessageWithFwd(@PathVariable String msg) {
-    var shortenedMsg = leetShort(msg);
-    var result = kalixClient.get("/echo/message/" + shortenedMsg, Message.class);
+  @GetMapping("/echo/message/short")
+  public Effect<Message> leetShortUsingFwd(@RequestParam String msg) {
+    var shortenedMsg = URLEncoder.encode(leetShort(msg), StandardCharsets.UTF_8);
+    var result = kalixClient.get("/echo/message?msg=" + shortenedMsg, Message.class);
     return effects().forward(result);
+  }
+
+  @GetMapping("/echo/message/{msg}/leetshort")
+  public Effect<Message> leetMessageFromPathUsingFwd(@PathVariable String msg) {
+    return leetShortUsingFwd(msg);
   }
 
   @PostMapping("/echo/message/leetshort")
   public Effect<Message> leetMessageWithFwdPost(@RequestBody Message msg) {
-    var shortenedMsg = leetShort(msg.text);
+    var shortenedMsg = URLEncoder.encode(leetShort(msg.text), StandardCharsets.UTF_8);
     var result = kalixClient.get("/echo/message/" + shortenedMsg, Message.class);
     return effects().forward(result);
   }

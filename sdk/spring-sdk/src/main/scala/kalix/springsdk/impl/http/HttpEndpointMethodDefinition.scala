@@ -17,15 +17,15 @@
 package kalix.springsdk.impl.http
 
 import akka.http.scaladsl.model.Uri.Path
-import akka.http.scaladsl.model.{ HttpMethod, HttpMethods, RequestEntityAcceptance, Uri }
+import akka.http.scaladsl.model.{ErrorInfo, HttpMethod, HttpMethods, IllegalRequestException, RequestEntityAcceptance, StatusCodes, Uri}
 import com.google.api.HttpRule.PatternCase
 import com.google.api.annotations.AnnotationsProto
-import com.google.api.http.{ CustomHttpPattern, HttpRule }
-import com.google.api.{ AnnotationsProto => JavaAnnotationsProto, HttpRule => JavaHttpRule }
-import com.google.protobuf.{ Descriptors, DynamicMessage }
-import com.google.protobuf.Descriptors.{ Descriptor, FieldDescriptor, MethodDescriptor, ServiceDescriptor }
-import com.google.protobuf.descriptor.{ MethodOptions => spbMethodOptions }
-import com.google.protobuf.util.JsonFormat
+import com.google.api.http.{CustomHttpPattern, HttpRule}
+import com.google.api.{AnnotationsProto => JavaAnnotationsProto, HttpRule => JavaHttpRule}
+import com.google.protobuf.{Descriptors, DynamicMessage}
+import com.google.protobuf.Descriptors.{Descriptor, FieldDescriptor, MethodDescriptor, ServiceDescriptor}
+import com.google.protobuf.descriptor.{MethodOptions => spbMethodOptions}
+import com.google.protobuf.util.{Durations, JsonFormat, Timestamps}
 import org.slf4j.LoggerFactory
 
 import java.net.URLDecoder
@@ -352,4 +352,52 @@ final case class HttpEndpointMethodDefinition private (
             throw new IllegalArgumentException(
               s"Path contains value of wrong type! Expected field of type ${field.getType}."))))
   }
+
+  private val singleStringMessageParsers = Map[String, String => Any](
+    "google.protobuf.Timestamp" -> Timestamps.parse,
+    "google.protobuf.Duration" -> Durations.parse)
+
+  // We use this to signal to the requestor that there's something wrong with the request
+  private final val requestError: String => Nothing = s =>
+    throw IllegalRequestException(StatusCodes.BadRequest, new ErrorInfo(s))
+
+  def parseRequestParametersInto(query: Map[String, List[String]], inputBuilder: DynamicMessage.Builder): Unit =
+    query.foreach { case (selector, values) =>
+      if (values.nonEmpty) {
+        lookupRequestFieldByPath(selector) match {
+          case null => requestError(s"Query parameter [$selector] refers to a non-existent field.")
+          case field if field.getJavaType == FieldDescriptor.JavaType.MESSAGE =>
+            singleStringMessageParsers.get(field.getMessageType.getFullName) match {
+              case Some(parser) =>
+                try {
+                  val parsed = parser(values.head)
+                  inputBuilder.setField(field, parsed)
+                } catch {
+                  case ex: Exception =>
+                    requestError(
+                      s"Query parameter [$selector] refers to a field of message type [${field.getFullName}], but could not be parsed into that type. ${ex.getMessage}")
+                }
+              case None =>
+                requestError(
+                  s"Query parameter [$selector] refers to a message type. Only scalar value types and message types [${singleStringMessageParsers.keys
+                    .mkString(", ")}] are supported.")
+            }
+          case field if !field.isRepeated && values.size > 1 =>
+            requestError(s"Query parameter [$selector] has multiple values for a non-repeated field.")
+          case field => // FIXME verify that we can set nested fields from the inputBuilder type
+            val x = HttpEndpointMethod.suitableParserFor(field)(requestError)
+            if (field.isRepeated) {
+              values.foreach { v =>
+                inputBuilder.addRepeatedField(
+                  field,
+                  x(v).getOrElse(requestError(s"Malformed query parameter [$selector].")))
+              }
+            } else
+              inputBuilder.setField(
+                field,
+                x(values.head).getOrElse(
+                  requestError(s"Malformed query parameter [$selector]. Expected field of type ${field.getType}.")))
+        }
+      } // Ignore empty values
+    }
 }
