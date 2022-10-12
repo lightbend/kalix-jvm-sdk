@@ -12,12 +12,12 @@ import kalix.scalasdk.action.ActionCreationContext
 class CustomerEventsServiceAction(creationContext: ActionCreationContext) extends AbstractCustomerEventsServiceAction {
 
   // transform internal entity event types to public API events
-  override def processCustomerCreated(customerCreated: domain.CustomerCreated): Action.Effect[Created] = {
+  override def transformCustomerCreated(customerCreated: domain.CustomerCreated): Action.Effect[Created] = {
     val customer = customerCreated.getCustomer
     effects.reply(Created(customer.customerId, customer.name, customer.email))
   }
 
-  override def processCustomerNameChanged(customerNameChanged: domain.CustomerNameChanged): Action.Effect[NameChanged] = {
+  override def transformCustomerNameChanged(customerNameChanged: domain.CustomerNameChanged): Action.Effect[NameChanged] = {
     // Note: customer_id is not present here, but will be available as subject id
     // from the metadata on the consuming side
     effects.reply(NameChanged(customerNameChanged.newName))
