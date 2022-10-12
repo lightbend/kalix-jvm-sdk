@@ -104,11 +104,11 @@ private[impl] object ActionDescriptorFactory extends ComponentDescriptorFactory 
 
           KalixMethod(
             CombinedSubscriptionServiceMethod(
+              component.getName,
               "KalixSyntheticMethodOnTopic" + topic.capitalize,
-              kMethods.head.serviceMethod.asInstanceOf[SubscriptionServiceMethod],
               methodsMap))
             .withKalixOptions(kMethods.head.methodOptions)
-        case (topic, kMethod +: Nil) =>
+        case (_, kMethod +: Nil) =>
           kMethod
       }.toSeq
     }
@@ -155,7 +155,7 @@ private[impl] object ActionDescriptorFactory extends ComponentDescriptorFactory 
       component.getPackageName,
       filterAndAddKalixOptions(springAnnotatedMethods, publicationTopicMethods)
       ++ subscriptionValueEntityMethods
-      ++ combineByES(subscriptionEventSourcedEntityMethods, messageCodec)
+      ++ combineByES(component.getName, subscriptionEventSourcedEntityMethods, messageCodec)
       ++ combineByTopic(subscriptionTopicMethods)
       ++ removeDuplicates(springAnnotatedMethods, publicationTopicMethods))
   }

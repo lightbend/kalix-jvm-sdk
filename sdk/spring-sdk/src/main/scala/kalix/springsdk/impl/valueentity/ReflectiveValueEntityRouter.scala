@@ -37,14 +37,15 @@ class ReflectiveValueEntityRouter[S, E <: ValueEntity[S]](
       command: Any,
       context: CommandContext): ValueEntity.Effect[_] = {
 
+    // pass current state to entity
+    entity._internalSetCurrentState(state)
+
     val commandHandler = commandHandlerLookup(commandName)
     val context =
       InvocationContext(command.asInstanceOf[ScalaPbAny], commandHandler.requestMessageDescriptor)
 
     val inputTypeUrl = command.asInstanceOf[ScalaPbAny].typeUrl
     val methodInvoker = commandHandler.lookupInvoker(inputTypeUrl)
-    // pass current state to entity
-    entity._internalSetCurrentState(state);
 
     // safe call: typeUrl2Methods has at least one entry - famous last words.
     methodInvoker

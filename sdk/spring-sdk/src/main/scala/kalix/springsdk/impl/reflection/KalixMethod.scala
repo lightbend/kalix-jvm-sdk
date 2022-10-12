@@ -16,6 +16,7 @@
 
 package kalix.springsdk.impl.reflection
 
+import com.google.protobuf.any.{ Any => ScalaPbAny }
 import com.google.protobuf.Descriptors
 import kalix.springsdk.impl.path.{ PathPattern, PathPatternParser }
 import kalix.springsdk.impl.reflection.RestServiceIntrospector.{
@@ -89,35 +90,32 @@ case class VirtualServiceMethod(component: Class[_], methodName: String, inputTy
 }
 
 case class CombinedSubscriptionServiceMethod(
+    componentName: String,
     combinedMethodName: String,
-    representative: SubscriptionServiceMethod,
     methodsMap: Map[String, Method])
     extends AnyJsonRequestServiceMethod {
 
   val methodName = combinedMethodName
-
-  val javaMethod = representative.javaMethod
-
-  val inputType: Class[_] = javaMethod.getParameterTypes()(representative.inputTypeParamIndex)
+  override def inputType: Class[_] = classOf[ScalaPbAny]
 
   override def requestMethod: RequestMethod = RequestMethod.POST
-  override def javaMethodOpt: Option[Method] = Some(javaMethod)
+  override def javaMethodOpt: Option[Method] = None
 
-  val pathTemplate = buildPathTemplate(javaMethod.getDeclaringClass.getName, methodName)
+  val pathTemplate = buildPathTemplate(componentName, methodName)
 
-  val streamIn: Boolean = ServiceMethod.isStreamIn(javaMethod)
-  val streamOut: Boolean = ServiceMethod.isStreamOut(javaMethod)
+  val streamIn: Boolean = false
+  val streamOut: Boolean = false
+
 }
 
 /**
  * Build from methods annotated with @Subscription. Those methods are not annotated with Spring REST annotations, but
  * they become a REST method at the end.
  */
-case class SubscriptionServiceMethod(javaMethod: Method, inputTypeParamIndex: Int = 0)
-    extends AnyJsonRequestServiceMethod {
+case class SubscriptionServiceMethod(javaMethod: Method) extends AnyJsonRequestServiceMethod {
 
   val methodName = javaMethod.getName
-  val inputType: Class[_] = javaMethod.getParameterTypes()(inputTypeParamIndex)
+  val inputType: Class[_] = javaMethod.getParameterTypes()(0)
 
   override def requestMethod: RequestMethod = RequestMethod.POST
   override def javaMethodOpt: Option[Method] = Some(javaMethod)
