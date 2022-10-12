@@ -41,7 +41,7 @@ service CustomerEventsService {
     };
     option (kalix.service).eventing.out.direct.event_stream_id = "customer_events";
     // limit access to only be allowed from specific services
-    option (kalix.service).acl.allow = { service: "customer-registry-views" };
+    // option (kalix.service).acl.allow = { service: "customer-registry-views" };
 
     // transform methods for turning internal event types to public API
     rpc TransformCustomerCreated(domain.CustomerCreated) returns (Created) { }
