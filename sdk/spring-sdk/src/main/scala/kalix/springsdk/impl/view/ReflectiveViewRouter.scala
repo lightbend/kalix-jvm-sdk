@@ -29,14 +29,15 @@ class ReflectiveViewRouter[S, V <: View[S]](view: V, commandHandlers: Map[String
     commandHandlers.getOrElse(commandName, throw new RuntimeException(s"no matching method for '$commandName'"))
 
   override def handleUpdate(commandName: String, state: S, event: Any): View.UpdateEffect[S] = {
+
     view._internalSetViewState(state)
 
     val commandHandler = commandHandlerLookup(commandName)
     val context =
       InvocationContext(event.asInstanceOf[ScalaPbAny], commandHandler.requestMessageDescriptor)
 
-    val methodInvoker = commandHandler.lookupInvoker(event.asInstanceOf[ScalaPbAny].typeUrl)
-    methodInvoker
+    commandHandler
+      .lookupInvoker(event.asInstanceOf[ScalaPbAny].typeUrl)
       .invoke(view, context)
       .asInstanceOf[View.UpdateEffect[S]]
   }

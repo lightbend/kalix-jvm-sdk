@@ -35,6 +35,7 @@ class ReflectiveActionRouter[A <: Action](action: A, commandHandlers: Map[String
   override def handleUnary(commandName: String, message: MessageEnvelope[Any]): Action.Effect[_] = {
 
     val commandHandler = commandHandlerLookup(commandName)
+
     val context =
       InvocationContext(
         message.payload().asInstanceOf[ScalaPbAny],
@@ -42,9 +43,9 @@ class ReflectiveActionRouter[A <: Action](action: A, commandHandlers: Map[String
         message.metadata())
 
     val inputTypeUrl = message.payload().asInstanceOf[ScalaPbAny].typeUrl
-    val methodInvoker = commandHandler.lookupInvoker(inputTypeUrl)
 
-    methodInvoker
+    commandHandler
+      .lookupInvoker(inputTypeUrl)
       .invoke(action, context)
       .asInstanceOf[Action.Effect[_]]
   }
@@ -52,7 +53,9 @@ class ReflectiveActionRouter[A <: Action](action: A, commandHandlers: Map[String
   override def handleStreamedOut(
       commandName: String,
       message: MessageEnvelope[Any]): Source[Action.Effect[_], NotUsed] = {
+
     val componentMethod = commandHandlerLookup(commandName)
+
     val context =
       InvocationContext(
         message.payload().asInstanceOf[ScalaPbAny],
@@ -60,9 +63,13 @@ class ReflectiveActionRouter[A <: Action](action: A, commandHandlers: Map[String
         message.metadata())
 
     val typeUrl = message.payload().asInstanceOf[ScalaPbAny].typeUrl
-    val methodInvoker = componentMethod.lookupInvoker(typeUrl)
 
-    val response = methodInvoker.invoke(action, context).asInstanceOf[Flux[Action.Effect[_]]]
+    val response =
+      componentMethod
+        .lookupInvoker(typeUrl)
+        .invoke(action, context)
+        .asInstanceOf[Flux[Action.Effect[_]]]
+
     Source.fromPublisher(response)
   }
 
