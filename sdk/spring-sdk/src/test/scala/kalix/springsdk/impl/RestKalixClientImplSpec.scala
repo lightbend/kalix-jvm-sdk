@@ -16,37 +16,200 @@
 
 package kalix.springsdk.impl
 
-import com.google.protobuf.any.Any
+import com.google.protobuf.{ ByteString, Descriptors, DynamicMessage }
+import com.google.protobuf.any.{ Any => ScalaPbAny }
+import com.google.protobuf.{ Any => JavaPbAny }
+import kalix.javasdk.{ DeferredCall, JsonSupport }
 import kalix.javasdk.impl.RestDeferredCallImpl
 import kalix.springsdk.KalixClient
-import kalix.springsdk.testmodels.action.ActionsTestModels.GetWithoutParam
+import kalix.springsdk.testmodels.action.ActionsTestModels.{
+  GetClassLevel,
+  GetWithOneParam,
+  GetWithOneQueryParam,
+  GetWithoutParam,
+  PostWithOneParam,
+  PostWithOneQueryParam,
+  PostWithTwoParam,
+  PostWithoutParam
+}
 import kalix.springsdk.testmodels.{ Message, NestedMessage, SimpleMessage }
-import org.scalatest.{ BeforeAndAfter, BeforeAndAfterAll }
+import org.checkerframework.checker.units.qual.s
+import org.scalatest
+import org.scalatest.{ BeforeAndAfter, BeforeAndAfterAll, BeforeAndAfterEach }
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 
-class RestKalixClientImplSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll with ComponentDescriptorSuite {
-  val restKalixClient: RestKalixClientImpl = new RestKalixClientImpl(new SpringSdkMessageCodec)
-  val actionDesc = ComponentDescriptor.descriptorFor[GetWithoutParam]
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
+import scala.jdk.CollectionConverters.{ CollectionHasAsScala, MapHasAsScala }
 
-  override def beforeAll(): Unit = {
+class RestKalixClientImplSpec extends AnyWordSpec with Matchers with BeforeAndAfterEach with ComponentDescriptorSuite {
 
-    restKalixClient.registerComponent(actionDesc.serviceDescriptor)
+  var restKalixClient: RestKalixClientImpl = _
+
+  override def beforeEach(): Unit = {
+    restKalixClient = new RestKalixClientImpl(new SpringSdkMessageCodec)
   }
 
   "The Rest Kalix Client" should {
-    "return a DeferredCall for a POST request" in {
+    "return a DeferredCall for a simple GET request" in {
+      val actionWithGetNoParams = ComponentDescriptor.descriptorFor[GetWithoutParam]
+      restKalixClient.registerComponent(actionWithGetNoParams.serviceDescriptor)
+
       val defCall = restKalixClient.get("/message", classOf[Message])
-      defCall shouldBe a[RestDeferredCallImpl[Any, _]]
 
-      val restDefCall = defCall.asInstanceOf[RestDeferredCallImpl[Any, Message]]
-      val targetMethod = actionDesc.serviceDescriptor.findMethodByName("Message")
-      restDefCall.message.typeUrl shouldBe targetMethod.getInputType.getFullName
+      assertRestDeferredCall(defCall) { restDefCall =>
+        val targetMethod = actionWithGetNoParams.serviceDescriptor.findMethodByName("Message")
+        restDefCall.methodDescriptor shouldBe targetMethod
+        assertMethodParamsMatch(targetMethod, restDefCall.message)
+      }
 
-      //FIXME to be continued
     }
 
-    "return a DeferredCall for a GET request" in {}
+    "return a DeferredCall for a GET request with a path param" in {
+      val actionWithGetOneParam = ComponentDescriptor.descriptorFor[GetWithOneParam]
+      restKalixClient.registerComponent(actionWithGetOneParam.serviceDescriptor)
+
+      val defCall = restKalixClient.get("/message/hello", classOf[Message])
+      assertRestDeferredCall(defCall) { restDefCall =>
+        val targetMethod = actionWithGetOneParam.serviceDescriptor.findMethodByName("Message")
+        restDefCall.methodDescriptor shouldBe targetMethod
+        assertMethodParamsMatch(targetMethod, restDefCall.message, "hello")
+      }
+    }
+
+    "return a DeferredCall for a GET request with two path params" in {
+      val actionWithTwoParams = ComponentDescriptor.descriptorFor[GetClassLevel]
+      restKalixClient.registerComponent(actionWithTwoParams.serviceDescriptor)
+
+      val defCall = restKalixClient.get("/action/test/message/2", classOf[Message])
+      assertRestDeferredCall(defCall) { restDefCall =>
+        val targetMethod = actionWithTwoParams.serviceDescriptor.findMethodByName("Message")
+        restDefCall.methodDescriptor shouldBe targetMethod
+        assertMethodParamsMatch(targetMethod, restDefCall.message, List("test", 2): _*)
+      }
+    }
+
+    "return a DeferredCall for a simple POST request" in {
+      val actionWithTwoParams = ComponentDescriptor.descriptorFor[PostWithoutParam]
+      restKalixClient.registerComponent(actionWithTwoParams.serviceDescriptor)
+
+      val msgSent = new Message("hello world")
+      val defCall = restKalixClient.post("/message", msgSent, classOf[Message])
+      assertRestDeferredCall(defCall) { restDefCall =>
+        val targetMethod = actionWithTwoParams.serviceDescriptor.findMethodByName("Message")
+        restDefCall.methodDescriptor shouldBe targetMethod
+
+        assertMethodBodyMatch(targetMethod, restDefCall.message) { body =>
+          decodeJson(body, classOf[Message]).value shouldBe msgSent.value
+        }
+      }
+    }
+
+    "return a DeferredCall for a POST request with 2 params and body" in {
+      val actionWithTwoParams = ComponentDescriptor.descriptorFor[PostWithTwoParam]
+      restKalixClient.registerComponent(actionWithTwoParams.serviceDescriptor)
+
+      val msgSent = new Message("hello world")
+      val defCall = restKalixClient.post("/message/one/2", msgSent, classOf[Message])
+      assertRestDeferredCall(defCall) { restDefCall =>
+        val targetMethod = actionWithTwoParams.serviceDescriptor.findMethodByName("Message")
+        restDefCall.methodDescriptor shouldBe targetMethod
+
+        assertMethodParamsMatch(targetMethod, restDefCall.message, List("one", 2): _*)
+        assertMethodBodyMatch(targetMethod, restDefCall.message) { body =>
+          decodeJson(body, classOf[Message]).value shouldBe msgSent.value
+        }
+
+      }
+    }
+
+    "return a DeferredCall for a POST request when multiple methods are available" in {
+      val actionPost = ComponentDescriptor.descriptorFor[PostWithoutParam]
+      val actionGetOneParam = ComponentDescriptor.descriptorFor[GetWithOneParam]
+      restKalixClient.registerComponent(actionPost.serviceDescriptor)
+      restKalixClient.registerComponent(actionGetOneParam.serviceDescriptor)
+
+      val msgSent = new Message("hello world")
+      val defCall = restKalixClient.post("/message", msgSent, classOf[Message])
+      assertRestDeferredCall(defCall) { restDefCall =>
+        val targetMethod = actionPost.serviceDescriptor.findMethodByName("Message")
+        restDefCall.methodDescriptor shouldBe targetMethod
+
+        assertMethodBodyMatch(targetMethod, restDefCall.message) { body =>
+          decodeJson(body, classOf[Message]).value shouldBe msgSent.value
+        }
+      }
+    }
+
+    "return a DeferredCall when using query params" in {
+      val actionGet = ComponentDescriptor.descriptorFor[GetWithOneQueryParam]
+      val actionPost = ComponentDescriptor.descriptorFor[PostWithOneQueryParam]
+      restKalixClient.registerComponent(actionGet.serviceDescriptor)
+      restKalixClient.registerComponent(actionPost.serviceDescriptor)
+
+      val msgSent = new Message("hello world")
+      val defCall = restKalixClient.post("/message?dest=john", msgSent, classOf[Message])
+      assertRestDeferredCall(defCall) { restDefCall =>
+        val targetMethod = actionPost.serviceDescriptor.findMethodByName("Message")
+        restDefCall.methodDescriptor shouldBe targetMethod
+
+        assertMethodParamsMatch(targetMethod, restDefCall.message, "john")
+        assertMethodBodyMatch(targetMethod, restDefCall.message) { body =>
+          decodeJson(body, classOf[Message]).value shouldBe msgSent.value
+        }
+      }
+    }
+  }
+
+  private def assertRestDeferredCall[M, R](defCall: DeferredCall[M, R])(
+      assertFunc: RestDeferredCallImpl[M, R] => scalatest.Assertion) = {
+    defCall shouldBe a[RestDeferredCallImpl[ScalaPbAny, _]]
+
+    withClue(defCall.getClass) {
+      assertFunc(defCall.asInstanceOf[RestDeferredCallImpl[M, R]])
+    }
+  }
+
+  private def assertMethodParamsMatch(
+      targetMethod: Descriptors.MethodDescriptor,
+      message: ScalaPbAny,
+      methodArgs: Any*) = {
+    message.typeUrl shouldBe targetMethod.getInputType.getFullName
+
+    val dynamicMessage = DynamicMessage.parseFrom(targetMethod.getInputType, message.value)
+    targetMethod.getInputType.getFields.asScala
+      .filter(_.getName != "json_body") // use assertMethodBodyMatch to compare the body
+      .map(dynamicMessage.getField) shouldBe methodArgs
+  }
+
+  private def decodeJson[T](dm: DynamicMessage, cls: Class[T]): T = {
+    val typeUrl = dm.getField(JavaPbAny.getDescriptor.findFieldByName("type_url")).asInstanceOf[String]
+    val bytes = dm.getField(JavaPbAny.getDescriptor.findFieldByName("value")).asInstanceOf[ByteString]
+
+    // TODO: avoid creating a new JavaPbAny instance
+    // we want to reuse the typeUrl validation and reading logic (skip tag + jackson reader) from JsonSupport
+    // we need a new internal version that also handle DynamicMessages
+    val any =
+      JavaPbAny
+        .newBuilder()
+        .setTypeUrl(typeUrl)
+        .setValue(bytes)
+        .build()
+    JsonSupport.decodeJson(cls, any)
+  }
+
+  private def assertMethodBodyMatch(targetMethod: Descriptors.MethodDescriptor, message: ScalaPbAny)(
+      assertFunc: DynamicMessage => scalatest.Assertion) = {
+    val dynamicMessage = DynamicMessage.parseFrom(targetMethod.getInputType, message.value)
+
+    val bodyMsg = targetMethod.getInputType.getFields.asScala
+      .find(_.getName == "json_body")
+      .map(dynamicMessage.getField)
+      .getOrElse(fail("failed to find body"))
+      .asInstanceOf[DynamicMessage]
+
+    assertFunc(bodyMsg)
   }
 
 }
