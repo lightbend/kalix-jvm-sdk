@@ -17,7 +17,9 @@
 package kalix.springsdk.badwiring.eventsourced;
 
 import kalix.javasdk.eventsourcedentity.EventSourcedEntity;
+import kalix.springsdk.annotations.Entity;
 import org.springframework.stereotype.Component;
 
+@Entity(entityKey = "id", entityType = "test")
 @Component
 public class IllDefinedEventSourcedEntity extends EventSourcedEntity<String> {}
