@@ -46,6 +46,7 @@ import scala.jdk.CollectionConverters.{ CollectionHasAsScala, MapHasAsScala }
 class RestKalixClientImplSpec extends AnyWordSpec with Matchers with BeforeAndAfterEach with ComponentDescriptorSuite {
 
   var restKalixClient: RestKalixClientImpl = _
+  val messageCodec = new SpringSdkMessageCodec
 
   override def beforeEach(): Unit = {
     restKalixClient = new RestKalixClientImpl(new SpringSdkMessageCodec)
@@ -53,7 +54,7 @@ class RestKalixClientImplSpec extends AnyWordSpec with Matchers with BeforeAndAf
 
   "The Rest Kalix Client" should {
     "return a DeferredCall for a simple GET request" in {
-      val actionWithGetNoParams = ComponentDescriptor.descriptorFor(classOf[GetWithoutParam])
+      val actionWithGetNoParams = ComponentDescriptor.descriptorFor(classOf[GetWithoutParam], messageCodec)
       restKalixClient.registerComponent(actionWithGetNoParams.serviceDescriptor)
 
       val defCall = restKalixClient.get("/message", classOf[Message])
@@ -67,7 +68,7 @@ class RestKalixClientImplSpec extends AnyWordSpec with Matchers with BeforeAndAf
     }
 
     "return a DeferredCall for a GET request with a path param" in {
-      val actionWithGetOneParam = ComponentDescriptor.descriptorFor(classOf[GetWithOneParam])
+      val actionWithGetOneParam = ComponentDescriptor.descriptorFor(classOf[GetWithOneParam], messageCodec)
       restKalixClient.registerComponent(actionWithGetOneParam.serviceDescriptor)
 
       val defCall = restKalixClient.get("/message/hello", classOf[Message])
@@ -79,7 +80,7 @@ class RestKalixClientImplSpec extends AnyWordSpec with Matchers with BeforeAndAf
     }
 
     "return a DeferredCall for a GET request with two path params" in {
-      val actionWithTwoParams = ComponentDescriptor.descriptorFor(classOf[GetClassLevel])
+      val actionWithTwoParams = ComponentDescriptor.descriptorFor(classOf[GetClassLevel], messageCodec)
       restKalixClient.registerComponent(actionWithTwoParams.serviceDescriptor)
 
       val defCall = restKalixClient.get("/action/test/message/2", classOf[Message])
@@ -91,7 +92,7 @@ class RestKalixClientImplSpec extends AnyWordSpec with Matchers with BeforeAndAf
     }
 
     "return a DeferredCall for a simple POST request" in {
-      val actionWithTwoParams = ComponentDescriptor.descriptorFor(classOf[PostWithoutParam])
+      val actionWithTwoParams = ComponentDescriptor.descriptorFor(classOf[PostWithoutParam], messageCodec)
       restKalixClient.registerComponent(actionWithTwoParams.serviceDescriptor)
 
       val msgSent = new Message("hello world")
@@ -107,7 +108,7 @@ class RestKalixClientImplSpec extends AnyWordSpec with Matchers with BeforeAndAf
     }
 
     "return a DeferredCall for a POST request with 2 params and body" in {
-      val actionWithTwoParams = ComponentDescriptor.descriptorFor(classOf[PostWithTwoParam])
+      val actionWithTwoParams = ComponentDescriptor.descriptorFor(classOf[PostWithTwoParam], messageCodec)
       restKalixClient.registerComponent(actionWithTwoParams.serviceDescriptor)
 
       val msgSent = new Message("hello world")
@@ -125,8 +126,8 @@ class RestKalixClientImplSpec extends AnyWordSpec with Matchers with BeforeAndAf
     }
 
     "return a DeferredCall for a POST request when multiple methods are available" in {
-      val actionPost = ComponentDescriptor.descriptorFor(classOf[PostWithoutParam])
-      val actionGetOneParam = ComponentDescriptor.descriptorFor(classOf[GetWithOneParam])
+      val actionPost = ComponentDescriptor.descriptorFor(classOf[PostWithoutParam], messageCodec)
+      val actionGetOneParam = ComponentDescriptor.descriptorFor(classOf[GetWithOneParam], messageCodec)
       restKalixClient.registerComponent(actionPost.serviceDescriptor)
       restKalixClient.registerComponent(actionGetOneParam.serviceDescriptor)
 
@@ -143,8 +144,8 @@ class RestKalixClientImplSpec extends AnyWordSpec with Matchers with BeforeAndAf
     }
 
     "return a DeferredCall when using query params" in {
-      val actionGet = ComponentDescriptor.descriptorFor(classOf[GetWithOneQueryParam])
-      val actionPost = ComponentDescriptor.descriptorFor(classOf[PostWithOneQueryParam])
+      val actionGet = ComponentDescriptor.descriptorFor(classOf[GetWithOneQueryParam], messageCodec)
+      val actionPost = ComponentDescriptor.descriptorFor(classOf[PostWithOneQueryParam], messageCodec)
       restKalixClient.registerComponent(actionGet.serviceDescriptor)
       restKalixClient.registerComponent(actionPost.serviceDescriptor)
 
