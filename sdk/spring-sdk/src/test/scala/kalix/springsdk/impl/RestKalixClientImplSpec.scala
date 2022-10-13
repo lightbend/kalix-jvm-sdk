@@ -53,7 +53,7 @@ class RestKalixClientImplSpec extends AnyWordSpec with Matchers with BeforeAndAf
 
   "The Rest Kalix Client" should {
     "return a DeferredCall for a simple GET request" in {
-      val actionWithGetNoParams = ComponentDescriptor.descriptorFor[GetWithoutParam]
+      val actionWithGetNoParams = ComponentDescriptor.descriptorFor(classOf[GetWithoutParam])
       restKalixClient.registerComponent(actionWithGetNoParams.serviceDescriptor)
 
       val defCall = restKalixClient.get("/message", classOf[Message])
@@ -67,7 +67,7 @@ class RestKalixClientImplSpec extends AnyWordSpec with Matchers with BeforeAndAf
     }
 
     "return a DeferredCall for a GET request with a path param" in {
-      val actionWithGetOneParam = ComponentDescriptor.descriptorFor[GetWithOneParam]
+      val actionWithGetOneParam = ComponentDescriptor.descriptorFor(classOf[GetWithOneParam])
       restKalixClient.registerComponent(actionWithGetOneParam.serviceDescriptor)
 
       val defCall = restKalixClient.get("/message/hello", classOf[Message])
@@ -79,7 +79,7 @@ class RestKalixClientImplSpec extends AnyWordSpec with Matchers with BeforeAndAf
     }
 
     "return a DeferredCall for a GET request with two path params" in {
-      val actionWithTwoParams = ComponentDescriptor.descriptorFor[GetClassLevel]
+      val actionWithTwoParams = ComponentDescriptor.descriptorFor(classOf[GetClassLevel])
       restKalixClient.registerComponent(actionWithTwoParams.serviceDescriptor)
 
       val defCall = restKalixClient.get("/action/test/message/2", classOf[Message])
@@ -91,7 +91,7 @@ class RestKalixClientImplSpec extends AnyWordSpec with Matchers with BeforeAndAf
     }
 
     "return a DeferredCall for a simple POST request" in {
-      val actionWithTwoParams = ComponentDescriptor.descriptorFor[PostWithoutParam]
+      val actionWithTwoParams = ComponentDescriptor.descriptorFor(classOf[PostWithoutParam])
       restKalixClient.registerComponent(actionWithTwoParams.serviceDescriptor)
 
       val msgSent = new Message("hello world")
@@ -107,7 +107,7 @@ class RestKalixClientImplSpec extends AnyWordSpec with Matchers with BeforeAndAf
     }
 
     "return a DeferredCall for a POST request with 2 params and body" in {
-      val actionWithTwoParams = ComponentDescriptor.descriptorFor[PostWithTwoParam]
+      val actionWithTwoParams = ComponentDescriptor.descriptorFor(classOf[PostWithTwoParam])
       restKalixClient.registerComponent(actionWithTwoParams.serviceDescriptor)
 
       val msgSent = new Message("hello world")
@@ -125,8 +125,8 @@ class RestKalixClientImplSpec extends AnyWordSpec with Matchers with BeforeAndAf
     }
 
     "return a DeferredCall for a POST request when multiple methods are available" in {
-      val actionPost = ComponentDescriptor.descriptorFor[PostWithoutParam]
-      val actionGetOneParam = ComponentDescriptor.descriptorFor[GetWithOneParam]
+      val actionPost = ComponentDescriptor.descriptorFor(classOf[PostWithoutParam])
+      val actionGetOneParam = ComponentDescriptor.descriptorFor(classOf[GetWithOneParam])
       restKalixClient.registerComponent(actionPost.serviceDescriptor)
       restKalixClient.registerComponent(actionGetOneParam.serviceDescriptor)
 
@@ -143,8 +143,8 @@ class RestKalixClientImplSpec extends AnyWordSpec with Matchers with BeforeAndAf
     }
 
     "return a DeferredCall when using query params" in {
-      val actionGet = ComponentDescriptor.descriptorFor[GetWithOneQueryParam]
-      val actionPost = ComponentDescriptor.descriptorFor[PostWithOneQueryParam]
+      val actionGet = ComponentDescriptor.descriptorFor(classOf[GetWithOneQueryParam])
+      val actionPost = ComponentDescriptor.descriptorFor(classOf[PostWithOneQueryParam])
       restKalixClient.registerComponent(actionGet.serviceDescriptor)
       restKalixClient.registerComponent(actionPost.serviceDescriptor)
 
@@ -187,9 +187,6 @@ class RestKalixClientImplSpec extends AnyWordSpec with Matchers with BeforeAndAf
     val typeUrl = dm.getField(JavaPbAny.getDescriptor.findFieldByName("type_url")).asInstanceOf[String]
     val bytes = dm.getField(JavaPbAny.getDescriptor.findFieldByName("value")).asInstanceOf[ByteString]
 
-    // TODO: avoid creating a new JavaPbAny instance
-    // we want to reuse the typeUrl validation and reading logic (skip tag + jackson reader) from JsonSupport
-    // we need a new internal version that also handle DynamicMessages
     val any =
       JavaPbAny
         .newBuilder()

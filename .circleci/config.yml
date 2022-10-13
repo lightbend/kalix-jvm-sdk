@@ -17,7 +17,7 @@ commands:
       - build-tools/merge-with-parent:
           parent: main
 
-  install-java-11:
+  install-java:
     description: install openjdk-17
     steps:
       - run:
@@ -39,7 +39,7 @@ commands:
         type: string
         default: "1.7.2"
     steps:
-      - install-java-11
+      - install-java
       - run:
           name: Install sbt
           command: |
