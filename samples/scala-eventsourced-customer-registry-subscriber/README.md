@@ -7,21 +7,12 @@ To understand the Kalix concepts that are the basis for this example, see [Desig
 
 ## Developing
 
-This project demonstrates consumption of a Service to Service eventing publisher.
-
-
-
-## Building and running unit tests
-
-To compile and test the code from the command line, use
-
-```shell
-sbt test
-```
-
-
+This project demonstrates consumption of a Service to Service eventing publisher. It consumes events produced and published
+by a separate service, implemented in the `scala-eventsourced-customer-registry` sample.
 
 ## Running Locally
+
+First start the `scala-eventsourced-customer-registry` service and proxy. It will run with the default service and proxy ports (`8080` and `9000`).
 
 In order to run your application locally, you must run the Kalix proxy. The included `docker compose` file contains the configuration required to run the proxy for a locally running application.
 It also contains the configuration to start a local Google Pub/Sub emulator that the Kalix proxy will connect to.
@@ -39,35 +30,27 @@ sbt run
 
 For further details see [Running a service locally](https://docs.kalix.io/developing/running-service-locally.html) in the documentation.
 
-With both the proxy and your application running, any defined endpoints should be available at `http://localhost:9000`. In addition to the defined gRPC interface, each method has a corresponding HTTP endpoint. Unless configured otherwise (see [Transcoding HTTP](https://docs.kalix.io/java/writing-grpc-descriptors-protobuf.html#_transcoding_http)), this endpoint accepts POST requests at the path `/[package].[entity name]/[method]`. For example, using `curl`:
-
-
-* Create a customer with:
-  ```shell
-  grpcurl --plaintext -d '{"customer_id": "wip", "email": "wip@example.com", "name": "Very Important", "address": {"street": "Road 1", "city": "The Capital"}}' localhost:9000  customer.api.CustomerService/Create
-  ```
-* Retrieve the customer:
-  ```shell
-  grpcurl --plaintext -d '{"customer_id": "wip"}' localhost:9000  customer.api.CustomerService/GetCustomer
-  ```
-* Query by name:
-  ```shell
-  grpcurl --plaintext -d '{"customer_name": "Very Important"}' localhost:9000 customer.view.CustomerByName/GetCustomers
-  ```
-* Change name:
-  ```shell
-  grpcurl --plaintext -d '{"customer_id": "wip", "new_name": "Most Important"}' localhost:9000 customer.api.CustomerService/ChangeName
-  ```
-* Change address:
-  ```shell
-  grpcurl --plaintext -d '{"customer_id": "wip", "new_address": {"street": "Street 1", "city": "The City"}}' localhost:9000 customer.api.CustomerService/ChangeAddress
-  ```
+With both the proxy and your application running, any defined endpoints should be available at `http://localhost:9001`.
+There are however currently no endpoints published by this service, it simply consumes Service to Service events and
+logs each event.
 
 ## Deploying
 
 To deploy your service, install the `kalix` CLI as documented in
 [Setting up a local development environment](https://docs.kalix.io/setting-up/)
 and configure a Docker Registry to upload your docker image to.
+
+First deploy the `scala-eventsourced-customer-registry` service, as that is the upstream event producer for service to service eventing
+that we will consume.
+
+Note that you will need to change the service to subscribe to according to what you deployed the event sourced customer 
+registry service as in `view/customer_view.proto`: 
+
+```protobuf
+option (kalix.service).eventing.in.direct = {
+    service: "my-customer-registry"
+}
+```
 
 You will need to set the `docker.username` system property when starting sbt to be able to publish the image, for example `sbt -Ddocker.username=myuser Docker/publish`.
 
