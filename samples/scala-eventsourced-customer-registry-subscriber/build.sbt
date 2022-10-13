@@ -10,8 +10,6 @@ enablePlugins(KalixPlugin, JavaAppPackaging, DockerPlugin)
 dockerBaseImage := "docker.io/library/adoptopenjdk:11-jre-hotspot"
 dockerUsername := sys.props.get("docker.username")
 dockerRepository := sys.props.get("docker.registry")
-// two Main files in this project changes entry point
-dockerEntrypoint := Seq("bin/main")
 dockerUpdateLatest := true
 dockerBuildCommand := {
   if (sys.props("os.arch") != "amd64") {
@@ -39,7 +37,7 @@ Test / logBuffered := false
 run / javaOptions ++= Seq(
   // needed for the proxy to access the user function on all platforms
   "-Dkalix.user-function-interface=0.0.0.0",
-    // the shopping cart service is running at 8080, this service at 8081
+  // the shopping cart service is running at 8080, this service at 8081
   "-Dkalix.user-function-port=8081"
 )
 run / fork := true

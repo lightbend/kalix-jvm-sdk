@@ -37,6 +37,8 @@ service CustomerByNameSubscriber {
     // Normally the Kalix service deployment name
     // (but localhost + hardcoded port here to be able to run both locally)
     service: "localhost:9000"
+    // for actually deployed services where producer service deployed as "customer-registry" in same Kalix project:
+    // service: "customer-registry"
     // stream id from service above
     event_stream_id: "customer_events"
   };
