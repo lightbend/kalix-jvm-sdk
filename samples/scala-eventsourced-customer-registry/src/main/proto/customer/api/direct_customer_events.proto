@@ -30,21 +30,23 @@ message NameChanged {
     string customer_name = 1;
 }
 
+// tag::publisher[]
 service CustomerEventsService {
     option (kalix.codegen) = {
         action: {}
     };
-    option (kalix.service).eventing.in = {
+    option (kalix.service).eventing.in = { // <1>
         event_sourced_entity: "customers"
         // skip/filter events that there is no transform method for (AddressChanged)
-        ignore_unknown: true
+        ignore_unknown: true // <2>
     };
-    option (kalix.service).eventing.out.direct.event_stream_id = "customer_events";
+    option (kalix.service).eventing.out.direct.event_stream_id = "customer_events"; // <3>
     // limit access to only other services in same project
-    option (kalix.service).acl.allow = { service: "*" };
+    option (kalix.service).acl.allow = { service: "*" }; // <4>
 
     // transform methods for turning internal event types to public API
-    rpc TransformCustomerCreated(domain.CustomerCreated) returns (Created) { }
+    rpc TransformCustomerCreated(domain.CustomerCreated) returns (Created) { }  // <5>
     rpc TransformCustomerNameChanged(domain.CustomerNameChanged) returns (NameChanged) {}
 
 }
+// end::publisher[]

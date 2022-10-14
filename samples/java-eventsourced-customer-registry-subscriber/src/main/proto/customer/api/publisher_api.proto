@@ -18,6 +18,7 @@ package customer.api;
 
 // Not really our own API but the public event types
 // published by scala-eventsourced-customer-registry/CustomerEventsServiceAction
+// tag::messages[]
 message Created {
     string customer_id = 1;
     string customer_name = 2;
@@ -26,3 +27,4 @@ message Created {
 message NameChanged {
     string customer_name = 1;
 }
+// end::messages[]

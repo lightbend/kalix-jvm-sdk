@@ -13,6 +13,7 @@ public class CustomerEventsServiceAction extends AbstractCustomerEventsServiceAc
 
   public CustomerEventsServiceAction(ActionCreationContext creationContext) {}
 
+  // tag::transform[]
   @Override
   public Effect<CustomerEventsApi.Created> transformCustomerCreated(CustomerDomain.CustomerCreated customerCreated) {
     CustomerDomain.CustomerState customer = customerCreated.getCustomer();
@@ -31,4 +32,5 @@ public class CustomerEventsServiceAction extends AbstractCustomerEventsServiceAc
         .setCustomerName(customerNameChanged.getNewName())
         .build());
   }
+  // end::transform[]
 }

@@ -1,0 +1,111 @@
+include::ROOT:partial$include.adoc[]
+
+= Service to Service Eventing
+:page-supergroup-java-scala: Language
+
+Kalix provides broker less at-least-once event delivery across Kalix services through the Service to Service eventing.
+
+The source of the events is an xref:event-sourced-entities.adoc[Event Sourced Entity], that the service provides a Service to Service publisher for.
+
+Note:: For eventing from an entity inside the same Kalix service as the consuming component, use regular xref:actions-publishing-subscribing.adoc[Subscription to the entity] instead of Service to Service eventing.
+
+== Event Producer
+
+The event producer controls which entity to publish events for. Each entity published is identified by a `stream id` so that one Kalix service can publish more than one of the entity types it contains.
+
+
+[.tabset]
+Java::
++
+[source,protobuf,indent=0]
+.src/main/proto/customer/api/direct_customer_events.proto
+----
+include::example$java-eventsourced-customer-registry/src/main/proto/customer/api/direct_customer_events.proto[tag=publisher]
+----
+<1> `eventing.in` identifying which event sourced entity to publish events for
+<2> Ignore any event types not handled by a method and move on with the event stream, rather than fail which is the default
+<3> `eventing.out.direct.event_stream_id` marks the public identifier for consumers of this stream
+<4> An ACL annotation, allowing access from other Kalix services, but not the public internet
+<5> All methods on the service are transformer methods for turning internal event message types into public API message types for other services to consume
+
+Scala::
++
+[source,protobuf,indent=0]
+.src/main/proto/customer/api/direct_customer_events.proto
+----
+include::example$scala-eventsourced-customer-registry/src/main/proto/customer/api/direct_customer_events.proto[tag=publisher]
+----
+<1> `eventing.in` identifying which event sourced entity to publish events for
+<2> Ignore any event types not handled by a method and move on with the event stream, rather than fail which is the default
+<3> `eventing.out.direct.event_stream_id` marks the public identifier for consumers of this stream
+<4> An ACL annotation, allowing access from other Kalix services, but not the public internet
+<5> All methods on the service are transformer methods for turning internal event message types into public API message types for other services to consume
+
+The implementation of the producer creates the public API messages and uses the regular Action `effects` API to return the messages to publish:
+
+[.tabset]
+Java::
++
+[source,java,indent=0]
+.src/main/java/customer/api/CustomerEventsServiceAction.java
+----
+include::example$java-eventsourced-customer-registry/src/main/java/customer/api/CustomerEventsServiceAction.java[tag=transform]
+----
+
+Scala::
++
+[source,scala,indent=0]
+.src/main/scala/customer/api/CustomerEventsServiceAction.scala
+----
+include::example$scala-eventsourced-customer-registry/src/main/scala/customer/api/CustomerEventsServiceAction.scala[tag=transform]
+----
+
+== Event Consumer
+
+The consumer can be an action or a view, annotated with `(kalix.service).eventing.in.direct` with a `service` identifying the publishing service, and the `event_stream_id` to subscribe to.
+
+Since the consumer is in a separate view, we must include the message descriptors for the messages the producing side produces:
+
+[.tabset]
+Java::
++
+[source,protobuf,indent=0]
+.src/main/proto/customer/api/publisher_api.proto
+----
+include::example$java-eventsourced-customer-registry-subscriber/src/main/proto/customer/api/publisher_api.proto[tag=messages]
+----
+
+Scala::
++
+[source,protobuf,indent=0]
+.src/main/proto/customer/api/publisher_api.proto
+----
+include::example$scala-eventsourced-customer-registry-subscriber/src/main/proto/customer/api/publisher_api.proto[tag=messages]
+----
+
+We then define a component subscribing to the service to service publisher. In this example we do that with a view:
+
+[.tabset]
+Java::
++
+[source,protobuf,indent=0]
+.src/main/proto/customer/view/customer_view.proto
+----
+include::example$java-eventsourced-customer-registry-subscriber/src/main/proto/customer/view/customer_view.proto[tag=view]
+----
+<1> Service level `eventing.in.direct` block
+<2> The name of the Kalix service publishing the event stream
+<3> The public `event_stream_id` of the specific stream from the publisher
+<4> One update method per message type that the stream may contain
+
+Scala::
++
+[source,protobuf,indent=0]
+.src/main/proto/customer/view/customer_view.proto
+----
+include::example$scala-eventsourced-customer-registry-subscriber/src/main/proto/customer/view/customer_view.proto[tag=view]
+----
+<1> Service level `eventing.in.direct` block
+<2> The name of the Kalix service publishing the event stream
+<3> The public `event_stream_id` of the specific stream from the publisher
+<4> One update method per message type that the stream may contain

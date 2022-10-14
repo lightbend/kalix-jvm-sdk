@@ -25,21 +25,28 @@ import "google/protobuf/empty.proto";
 
 import "google/api/annotations.proto";
 
+// tag::view[]
 service AllCustomersView {
   option (kalix.codegen) = {
     view: {}
   };
 
   // consume events published by scala-eventsourced-customer-registry/CustomerEventsServiceAction
-  option (kalix.service).eventing.in.direct = {
+  option (kalix.service).eventing.in.direct = { // <1>
+    // end::view[]
     // Normally the Kalix service deployment name
     // (but localhost + hardcoded port here to be able to run both locally)
     service: "localhost:9000"
-    // stream id from service above
-    event_stream_id: "customer_events"
+    /*
+    // tag::view[]
+    service: "customer-registry" // <2>
+    // end::view[]
+     */
+    // tag::view[]
+    event_stream_id: "customer_events" // <3>
   };
 
-  rpc ProcessCustomerCreated(api.Created) returns (api.Customer) {
+  rpc ProcessCustomerCreated(api.Created) returns (api.Customer) { // <4>
     option (kalix.method).view.update = {
       table: "all_customers"
       transform_updates: true
@@ -59,3 +66,4 @@ service AllCustomersView {
     };
   }
 }
+// end::view[]
