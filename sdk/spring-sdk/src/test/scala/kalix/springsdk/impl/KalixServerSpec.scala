@@ -16,10 +16,11 @@
 
 package kalix.springsdk.impl
 
+import kalix.springsdk.KalixConfiguration
 import kalix.springsdk.badwiring.action
 import kalix.springsdk.badwiring.action.IllDefinedAction
-import kalix.springsdk.badwiring.eventsourced
 import kalix.springsdk.badwiring.eventsourced.IllDefinedEventSourcedEntity
+import kalix.springsdk.badwiring.eventsourced.Main
 import kalix.springsdk.badwiring.valueentity
 import kalix.springsdk.badwiring.valueentity.IllDefinedValueEntity
 import kalix.springsdk.badwiring.view
@@ -28,9 +29,11 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.springframework.beans.factory.BeanCreationException
 
-class KalixComponentInjectionBlockerSpec extends AnyWordSpec with Matchers {
+class KalixServerSpec extends AnyWordSpec with Matchers {
 
-  "The KalixComponentInjectionBlocker" should {
+  val message = "is a Kalix component and is marked as a Spring bean for automatic wiring."
+
+  "The KalixServer" should {
 
     "block direct wiring of Kalix Actions" in {
       val errorMessage =
@@ -38,16 +41,16 @@ class KalixComponentInjectionBlockerSpec extends AnyWordSpec with Matchers {
           action.Main.main(Array.empty)
         }.getCause.getMessage
 
-      errorMessage should include(classOf[IllDefinedAction].getName)
+      errorMessage shouldBe KalixConfiguration.beanPostProcessorErrorMessage(classOf[IllDefinedAction])
     }
 
     "block direct wiring of Kalix Event Sourced entities" in {
       val errorMessage =
         intercept[BeanCreationException] {
-          eventsourced.Main.main(Array.empty)
+          Main.main(Array.empty)
         }.getCause.getMessage
 
-      errorMessage should include(classOf[IllDefinedEventSourcedEntity].getName)
+      errorMessage shouldBe KalixConfiguration.beanPostProcessorErrorMessage(classOf[IllDefinedEventSourcedEntity])
     }
 
     "block direct wiring of Kalix Value entities" in {
@@ -56,7 +59,8 @@ class KalixComponentInjectionBlockerSpec extends AnyWordSpec with Matchers {
           valueentity.Main.main(Array.empty)
         }.getCause.getMessage
 
-      errorMessage should include(classOf[IllDefinedValueEntity].getName)
+      errorMessage shouldBe KalixConfiguration.beanPostProcessorErrorMessage(classOf[IllDefinedValueEntity])
+
     }
 
     "block direct wiring of Kalix Views" in {
@@ -65,7 +69,7 @@ class KalixComponentInjectionBlockerSpec extends AnyWordSpec with Matchers {
           view.Main.main(Array.empty)
         }.getCause.getMessage
 
-      errorMessage should include(classOf[IllDefinedView].getName)
+      errorMessage shouldBe KalixConfiguration.beanPostProcessorErrorMessage(classOf[IllDefinedView])
     }
   }
 

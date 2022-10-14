@@ -18,12 +18,20 @@ package kalix.springsdk
 
 import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
+import kalix.springsdk.KalixConfiguration.beanPostProcessorErrorMessage
 import kalix.springsdk.impl.KalixServer
 import org.springframework.beans.factory.config.BeanPostProcessor
 import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.stereotype.Component
+
+object KalixConfiguration {
+  def beanPostProcessorErrorMessage(beanClass: Class[_]): String =
+    s"${beanClass.getName} is a Kalix component and is marked as a Spring bean for automatic wiring. " +
+    "Kalix components cannot be accessed directly and therefore cannot be wired into other classes. " +
+    "In order to interact with a Kalix component, you should call it using the provided KalixClient."
+}
 
 @Configuration
 class KalixConfiguration(applicationContext: ApplicationContext) {
@@ -42,10 +50,7 @@ class KalixConfiguration(applicationContext: ApplicationContext) {
   class KalixComponentInjectionBlocker extends BeanPostProcessor {
     override def postProcessBeforeInitialization(bean: AnyRef, beanName: String): AnyRef = {
       if (KalixServer.kalixComponents.exists(_.isAssignableFrom(bean.getClass)))
-        throw new IllegalArgumentException(
-          s"${bean.getClass.getName} is a Kalix component and is marked as a Spring bean for automatic wiring. " +
-          "Kalix components cannot be accessed directly and therefore cannot be wired into other classes. " +
-          "In order to interact with a Kalix component, you should call it using the provided KalixClient.")
+        throw new IllegalArgumentException(KalixConfiguration.beanPostProcessorErrorMessage(bean.getClass))
 
       bean
     }
