@@ -21,7 +21,7 @@ import akka.http.scaladsl.model.{ HttpMethod, HttpMethods, Uri }
 import com.google.protobuf.{ Descriptors, DynamicMessage }
 import com.google.protobuf.any.Any
 import kalix.javasdk.DeferredCall
-import kalix.javasdk.impl.{ MetadataImpl, RestDeferredCallImpl }
+import kalix.javasdk.impl.{ AnySupport, MetadataImpl, RestDeferredCallImpl }
 import kalix.protocol.component.MetadataEntry
 import kalix.protocol.discovery.IdentificationInfo
 import kalix.springsdk.KalixClient
@@ -108,7 +108,7 @@ class RestKalixClientImpl(messageCodec: SpringSdkMessageCodec) extends KalixClie
       inputBuilder.setField(bodyField, messageCodec.encodeJava(body.get))
     }
     Any(
-      inputBuilder.getDescriptorForType.getFullName, // FIXME does this needs to be prefix with something *.kalix.io?
+      AnySupport.DefaultTypeUrlPrefix + "/" + inputBuilder.getDescriptorForType.getFullName,
       inputBuilder.build().toByteString)
   }
 

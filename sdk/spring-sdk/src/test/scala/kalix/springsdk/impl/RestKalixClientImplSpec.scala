@@ -20,7 +20,7 @@ import com.google.protobuf.{ ByteString, Descriptors, DynamicMessage }
 import com.google.protobuf.any.{ Any => ScalaPbAny }
 import com.google.protobuf.{ Any => JavaPbAny }
 import kalix.javasdk.{ DeferredCall, JsonSupport }
-import kalix.javasdk.impl.RestDeferredCallImpl
+import kalix.javasdk.impl.{ AnySupport, RestDeferredCallImpl }
 import kalix.protocol.discovery.IdentificationInfo
 import kalix.springsdk.testmodels.action.ActionsTestModels.{
   GetClassLevel,
@@ -176,7 +176,7 @@ class RestKalixClientImplSpec extends AnyWordSpec with Matchers with BeforeAndAf
       targetMethod: Descriptors.MethodDescriptor,
       message: ScalaPbAny,
       methodArgs: Any*) = {
-    message.typeUrl shouldBe targetMethod.getInputType.getFullName
+    message.typeUrl shouldBe AnySupport.DefaultTypeUrlPrefix + "/" + targetMethod.getInputType.getFullName
 
     val dynamicMessage = DynamicMessage.parseFrom(targetMethod.getInputType, message.value)
     targetMethod.getInputType.getFields.asScala
