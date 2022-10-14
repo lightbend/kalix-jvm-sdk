@@ -551,6 +551,27 @@ jobs:
             rm -rf src/main/java src/test/java src/it/java
             mvn -Dkalix-sdk.version=$SDK_VERSION test-compile
 
+  sample-java-eventsourced-customer-registry-subscriber:
+    machine:
+      image: ubuntu-2004:202201-02
+    steps:
+      - checkout-and-merge-to-main
+      - setup_sbt
+      - restore_deps_cache
+      # note: `copy-from-workspace` requires `publish-local` to be run first as declared in workflow section below
+      - copy-from-workspace
+      - set-sdk-version
+      - run:
+          name: Java Event Sourced Customer Registry Subscriber sample
+          command: |
+            cd samples/java-eventsourced-customer-registry-subscriber
+            echo "Running mvn with SDK version: '$SDK_VERSION'"
+            mvn -Dkalix-sdk.version=$SDK_VERSION test-compile
+            # no it tests here
+            # mvn -Dkalix-sdk.version=$SDK_VERSION verify -Pit
+            echo "==== Verifying that generated unmanaged sources compile ===="
+            rm -rf src/main/java src/test/java src/it/java
+            mvn -Dkalix-sdk.version=$SDK_VERSION test-compile
   sample-java-valueentity-shopping-cart:
     machine:
       image: ubuntu-2004:202201-02
@@ -824,6 +845,27 @@ jobs:
             echo "Running sbt with SDK version: '$SDK_VERSION'"
             sbt -Dkalix-sdk.version=$SDK_VERSION test
             # FIXME integration tests
+            echo "==== Verifying that generated unmanaged sources compile ===="
+            rm -rf src/main/scala src/test/scala src/it/scala
+            sbt -Dkalix-sdk.version=$SDK_VERSION Test/compile
+            
+
+  sample-scala-eventsourced-customer-registry-subscriber:
+    machine:
+      image: ubuntu-2004:202201-02
+    steps:
+      - checkout-and-merge-to-main
+      - setup_sbt
+      - restore_deps_cache
+      # note: `copy-from-workspace` requires `publish-local` to be run first as declared in workflow section below
+      - copy-from-workspace
+      - set-sdk-version
+      - run:
+          name: Scala Event Sourced Customer Registry Subscriber
+          command: |
+            cd samples/scala-eventsourced-customer-registry-subscriber
+            echo "Running sbt with SDK version: '$SDK_VERSION'"
+            sbt -Dkalix-sdk.version=$SDK_VERSION test
             echo "==== Verifying that generated unmanaged sources compile ===="
             rm -rf src/main/scala src/test/scala src/it/scala
             sbt -Dkalix-sdk.version=$SDK_VERSION Test/compile
@@ -1237,6 +1279,10 @@ workflows:
           requires:
             - checks
             - publish-local
+      - sample-java-eventsourced-customer-registry-subscriber:
+          requires:
+            - checks
+            - publish-local
       - sample-java-valueentity-shopping-cart:
           requires:
             - checks
@@ -1282,6 +1328,10 @@ workflows:
             - checks
             - publish-local
       - sample-scala-eventsourced-customer-registry:
+          requires:
+            - checks
+            - publish-local
+      - sample-scala-eventsourced-customer-registry-subscriber:
           requires:
             - checks
             - publish-local
