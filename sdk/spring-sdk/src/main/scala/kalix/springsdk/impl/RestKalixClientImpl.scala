@@ -124,7 +124,8 @@ class RestKalixClientImpl(messageCodec: SpringSdkMessageCodec) extends KalixClie
         RestDeferredCallImpl[Any, R](
           message = wrappedBody,
           metadata = buildMetadata(),
-          methodDescriptor = httpDef.methodDescriptor,
+          fullServiceName = httpDef.methodDescriptor.getService.getFullName,
+          methodName = httpDef.methodDescriptor.getName,
           asyncCall = () =>
             webClient.flatMap {
               _.post()
@@ -155,7 +156,8 @@ class RestKalixClientImpl(messageCodec: SpringSdkMessageCodec) extends KalixClie
         RestDeferredCallImpl[Any, R](
           message = wrappedBody,
           metadata = buildMetadata(),
-          methodDescriptor = httpDef.methodDescriptor,
+          fullServiceName = httpDef.methodDescriptor.getService.getFullName,
+          methodName = httpDef.methodDescriptor.getName,
           asyncCall = () =>
             webClient
               .flatMap(

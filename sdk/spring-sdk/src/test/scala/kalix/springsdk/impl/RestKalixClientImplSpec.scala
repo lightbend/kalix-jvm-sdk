@@ -59,7 +59,8 @@ class RestKalixClientImplSpec extends AnyWordSpec with Matchers with BeforeAndAf
 
       assertRestDeferredCall(defCall) { restDefCall =>
         val targetMethod = actionWithGetNoParams.serviceDescriptor.findMethodByName("Message")
-        restDefCall.methodDescriptor shouldBe targetMethod
+        restDefCall.fullServiceName shouldBe targetMethod.getService.getFullName
+        restDefCall.methodName shouldBe targetMethod.getName
         assertMethodParamsMatch(targetMethod, restDefCall.message)
         restDefCall.metadata.get("testServiceHeader").get() shouldBe "testName"
       }
@@ -73,7 +74,8 @@ class RestKalixClientImplSpec extends AnyWordSpec with Matchers with BeforeAndAf
       val defCall = restKalixClient.get("/message/hello", classOf[Message])
       assertRestDeferredCall(defCall) { restDefCall =>
         val targetMethod = actionWithGetOneParam.serviceDescriptor.findMethodByName("Message")
-        restDefCall.methodDescriptor shouldBe targetMethod
+        restDefCall.fullServiceName shouldBe targetMethod.getService.getFullName
+        restDefCall.methodName shouldBe targetMethod.getName
         assertMethodParamsMatch(targetMethod, restDefCall.message, "hello")
       }
     }
@@ -85,7 +87,8 @@ class RestKalixClientImplSpec extends AnyWordSpec with Matchers with BeforeAndAf
       val defCall = restKalixClient.get("/action/test/message/2", classOf[Message])
       assertRestDeferredCall(defCall) { restDefCall =>
         val targetMethod = actionWithTwoParams.serviceDescriptor.findMethodByName("Message")
-        restDefCall.methodDescriptor shouldBe targetMethod
+        restDefCall.fullServiceName shouldBe targetMethod.getService.getFullName
+        restDefCall.methodName shouldBe targetMethod.getName
         assertMethodParamsMatch(targetMethod, restDefCall.message, List("test", 2): _*)
       }
     }
@@ -98,7 +101,8 @@ class RestKalixClientImplSpec extends AnyWordSpec with Matchers with BeforeAndAf
       val defCall = restKalixClient.post("/message", msgSent, classOf[Message])
       assertRestDeferredCall(defCall) { restDefCall =>
         val targetMethod = actionWithTwoParams.serviceDescriptor.findMethodByName("Message")
-        restDefCall.methodDescriptor shouldBe targetMethod
+        restDefCall.fullServiceName shouldBe targetMethod.getService.getFullName
+        restDefCall.methodName shouldBe targetMethod.getName
         restDefCall.metadata.get("testServiceHeader").get() shouldBe "testName"
 
         assertMethodBodyMatch(targetMethod, restDefCall.message) { body =>
@@ -115,7 +119,8 @@ class RestKalixClientImplSpec extends AnyWordSpec with Matchers with BeforeAndAf
       val defCall = restKalixClient.post("/message/one/2", msgSent, classOf[Message])
       assertRestDeferredCall(defCall) { restDefCall =>
         val targetMethod = actionWithTwoParams.serviceDescriptor.findMethodByName("Message")
-        restDefCall.methodDescriptor shouldBe targetMethod
+        restDefCall.fullServiceName shouldBe targetMethod.getService.getFullName
+        restDefCall.methodName shouldBe targetMethod.getName
 
         assertMethodParamsMatch(targetMethod, restDefCall.message, List("one", 2): _*)
         assertMethodBodyMatch(targetMethod, restDefCall.message) { body =>
@@ -135,7 +140,8 @@ class RestKalixClientImplSpec extends AnyWordSpec with Matchers with BeforeAndAf
       val defCall = restKalixClient.post("/message", msgSent, classOf[Message])
       assertRestDeferredCall(defCall) { restDefCall =>
         val targetMethod = actionPost.serviceDescriptor.findMethodByName("Message")
-        restDefCall.methodDescriptor shouldBe targetMethod
+        restDefCall.fullServiceName shouldBe targetMethod.getService.getFullName
+        restDefCall.methodName shouldBe targetMethod.getName
 
         assertMethodBodyMatch(targetMethod, restDefCall.message) { body =>
           decodeJson(body, classOf[Message]).value shouldBe msgSent.value
@@ -153,7 +159,8 @@ class RestKalixClientImplSpec extends AnyWordSpec with Matchers with BeforeAndAf
       val defCall = restKalixClient.post("/message?dest=john", msgSent, classOf[Message])
       assertRestDeferredCall(defCall) { restDefCall =>
         val targetMethod = actionPost.serviceDescriptor.findMethodByName("Message")
-        restDefCall.methodDescriptor shouldBe targetMethod
+        restDefCall.fullServiceName shouldBe targetMethod.getService.getFullName
+        restDefCall.methodName shouldBe targetMethod.getName
 
         assertMethodParamsMatch(targetMethod, restDefCall.message, "john")
         assertMethodBodyMatch(targetMethod, restDefCall.message) { body =>

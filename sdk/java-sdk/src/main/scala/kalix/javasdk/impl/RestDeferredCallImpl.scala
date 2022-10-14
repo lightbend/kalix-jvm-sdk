@@ -28,7 +28,8 @@ import java.util.concurrent.CompletionStage
 final case class RestDeferredCallImpl[I, O](
     message: I,
     metadata: MetadataImpl,
-    methodDescriptor: Descriptors.MethodDescriptor,
+    fullServiceName: String,
+    methodName: String,
     asyncCall: () => CompletionStage[O])
     extends DeferredCall[I, O] {
   override def execute(): CompletionStage[O] = asyncCall()

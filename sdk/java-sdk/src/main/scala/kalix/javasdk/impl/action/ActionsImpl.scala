@@ -133,8 +133,8 @@ private[javasdk] final class ActionsImpl(
           ActionResponse(ActionResponse.Response.Forward(response), toProtocol(messageCodec, sideEffects)))
       case ForwardEffect(forward: RestDeferredCallImpl[Any, _], sideEffects) =>
         val response = component.Forward(
-          forward.methodDescriptor.getService.getFullName,
-          forward.methodDescriptor.getName,
+          forward.fullServiceName,
+          forward.methodName,
           Some(forward.message),
           toProtocol(forward.metadata))
         Future.successful(
