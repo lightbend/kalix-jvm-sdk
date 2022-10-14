@@ -22,8 +22,10 @@ import com.google.protobuf.any.Any
 trait KalixClient {
 
   @ApiMayChange
+  // FIXME document current constraints
   def post[P, R](uri: String, body: P, returnType: Class[R]): DeferredCall[Any, R]
 
   @ApiMayChange
+  // FIXME document current constraints
   def get[R](uri: String, returnType: Class[R]): DeferredCall[Any, R]
 }

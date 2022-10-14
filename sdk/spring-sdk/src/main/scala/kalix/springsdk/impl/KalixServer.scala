@@ -310,6 +310,7 @@ case class KalixServer(applicationContext: ApplicationContext, config: Config) {
           val grpcClients = GrpcClients(context.materializer().system)
           grpcClients.getProxyHostname.foreach(kalixClient.setHost)
           grpcClients.getProxyPort.foreach(kalixClient.setPort)
+          grpcClients.getIdentificationInfo.foreach(kalixClient.setIdentificationInfo)
           threadLocalKalixClient.set(kalixClient)
         }
 

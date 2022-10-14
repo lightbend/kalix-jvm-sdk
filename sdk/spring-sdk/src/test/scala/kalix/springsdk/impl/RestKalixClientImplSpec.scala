@@ -21,26 +21,22 @@ import com.google.protobuf.any.{ Any => ScalaPbAny }
 import com.google.protobuf.{ Any => JavaPbAny }
 import kalix.javasdk.{ DeferredCall, JsonSupport }
 import kalix.javasdk.impl.RestDeferredCallImpl
-import kalix.springsdk.KalixClient
+import kalix.protocol.discovery.IdentificationInfo
 import kalix.springsdk.testmodels.action.ActionsTestModels.{
   GetClassLevel,
   GetWithOneParam,
   GetWithOneQueryParam,
   GetWithoutParam,
-  PostWithOneParam,
   PostWithOneQueryParam,
   PostWithTwoParam,
   PostWithoutParam
 }
-import kalix.springsdk.testmodels.{ Message, NestedMessage, SimpleMessage }
-import org.checkerframework.checker.units.qual.s
+import kalix.springsdk.testmodels.Message
 import org.scalatest
-import org.scalatest.{ BeforeAndAfter, BeforeAndAfterAll, BeforeAndAfterEach }
+import org.scalatest.BeforeAndAfterEach
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 
-import java.net.URLEncoder
-import java.nio.charset.StandardCharsets
 import scala.jdk.CollectionConverters.{ CollectionHasAsScala, MapHasAsScala }
 
 class RestKalixClientImplSpec extends AnyWordSpec with Matchers with BeforeAndAfterEach with ComponentDescriptorSuite {
@@ -50,6 +46,8 @@ class RestKalixClientImplSpec extends AnyWordSpec with Matchers with BeforeAndAf
 
   override def beforeEach(): Unit = {
     restKalixClient = new RestKalixClientImpl(new SpringSdkMessageCodec)
+    restKalixClient.setIdentificationInfo(
+      IdentificationInfo(serviceIdentificationHeader = "testServiceHeader", selfDeploymentName = "testName"))
   }
 
   "The Rest Kalix Client" should {
@@ -63,6 +61,7 @@ class RestKalixClientImplSpec extends AnyWordSpec with Matchers with BeforeAndAf
         val targetMethod = actionWithGetNoParams.serviceDescriptor.findMethodByName("Message")
         restDefCall.methodDescriptor shouldBe targetMethod
         assertMethodParamsMatch(targetMethod, restDefCall.message)
+        restDefCall.metadata.get("testServiceHeader").get() shouldBe "testName"
       }
 
     }
@@ -100,6 +99,7 @@ class RestKalixClientImplSpec extends AnyWordSpec with Matchers with BeforeAndAf
       assertRestDeferredCall(defCall) { restDefCall =>
         val targetMethod = actionWithTwoParams.serviceDescriptor.findMethodByName("Message")
         restDefCall.methodDescriptor shouldBe targetMethod
+        restDefCall.metadata.get("testServiceHeader").get() shouldBe "testName"
 
         assertMethodBodyMatch(targetMethod, restDefCall.message) { body =>
           decodeJson(body, classOf[Message]).value shouldBe msgSent.value

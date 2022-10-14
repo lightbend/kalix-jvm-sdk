@@ -22,9 +22,12 @@ import com.google.protobuf.{ Descriptors, DynamicMessage }
 import com.google.protobuf.any.Any
 import kalix.javasdk.DeferredCall
 import kalix.javasdk.impl.{ MetadataImpl, RestDeferredCallImpl }
+import kalix.protocol.component.MetadataEntry
+import kalix.protocol.discovery.IdentificationInfo
 import kalix.springsdk.KalixClient
 import kalix.springsdk.impl.http.HttpEndpointMethodDefinition
 import kalix.springsdk.impl.http.HttpEndpointMethodDefinition.ANY_METHOD
+import org.slf4j.{ Logger, LoggerFactory }
 import org.springframework.http.{ HttpHeaders, MediaType }
 import org.springframework.web.reactive.function.client.WebClient
 
@@ -32,16 +35,20 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{ Future, Promise }
 import scala.jdk.CollectionConverters.CollectionHasAsScala
 import scala.jdk.FutureConverters._
+import scala.util.Success
 
 /**
  * INTERNAL API
  */
 class RestKalixClientImpl(messageCodec: SpringSdkMessageCodec) extends KalixClient {
+  private val logger: Logger = LoggerFactory.getLogger(getClass)
+
+  private var services: Seq[HttpEndpointMethodDefinition] = Seq.empty
 
   // at the time of creation, Proxy Discovery has not happened so we don't have this info
   private val host: Promise[String] = Promise[String]()
   private val port: Promise[Int] = Promise[Int]()
-  private var services: Seq[HttpEndpointMethodDefinition] = Seq.empty
+  private var identificationInfo: Promise[IdentificationInfo] = Promise[IdentificationInfo]()
 
   private val webClient: Future[WebClient] = {
     import scala.concurrent.ExecutionContext.Implicits.global
@@ -59,14 +66,33 @@ class RestKalixClientImpl(messageCodec: SpringSdkMessageCodec) extends KalixClie
       })
   }
 
-  def setHost(host: String) = this.host.trySuccess(host)
-  def setPort(port: Int) = this.port.trySuccess(port)
+  private def buildMetadata(): MetadataImpl = {
+    val entries = this.identificationInfo.future.value match {
+      case Some(Success(idInfo)) =>
+        remoteAddHeader(idInfo).map { case (header, token) =>
+          MetadataEntry(header, MetadataEntry.Value.StringValue(token))
+        }.toSeq
+      case errValue =>
+        logger.warn(s"Identification info not completed or failed to complete: $errValue")
+        Seq.empty[MetadataEntry]
+    }
+    new MetadataImpl(entries)
+  }
+
+  // FIXME I don't think we need to distinguish between local and remote calls in the spring sdk.. do we?
+  private def remoteAddHeader(idInfo: IdentificationInfo): Option[(String, String)] = idInfo match {
+    case IdentificationInfo(_, _, header, name, _) if header.nonEmpty && name.nonEmpty =>
+      Some((header, name))
+    case _ => None
+  }
+
+  def setHost(host: String): Boolean = this.host.trySuccess(host)
+  def setPort(port: Int): Boolean = this.port.trySuccess(port)
+  def setIdentificationInfo(identificationInfo: IdentificationInfo): Unit =
+    this.identificationInfo.trySuccess(identificationInfo)
 
   def registerComponent(descriptor: Descriptors.ServiceDescriptor): Unit = {
-    val httpMethods =
-      HttpEndpointMethodDefinition.extractForService(descriptor)
-
-    services = services ++ httpMethods
+    services ++= HttpEndpointMethodDefinition.extractForService(descriptor)
   }
 
   def buildWrappedBody[P](
@@ -97,7 +123,7 @@ class RestKalixClientImpl(messageCodec: SpringSdkMessageCodec) extends KalixClie
 
         RestDeferredCallImpl[Any, R](
           message = wrappedBody,
-          metadata = MetadataImpl.Empty,
+          metadata = buildMetadata(),
           methodDescriptor = httpDef.methodDescriptor,
           asyncCall = () =>
             webClient.flatMap {
@@ -128,7 +154,7 @@ class RestKalixClientImpl(messageCodec: SpringSdkMessageCodec) extends KalixClie
 
         RestDeferredCallImpl[Any, R](
           message = wrappedBody,
-          metadata = MetadataImpl.Empty,
+          metadata = buildMetadata(),
           methodDescriptor = httpDef.methodDescriptor,
           asyncCall = () =>
             webClient
