@@ -74,6 +74,7 @@ private[impl] object ViewDescriptorFactory extends ComponentDescriptorFactory {
         subscriptionForMethodLevelValueEntity(component, tableType, tableName, tableProtoMessageName)
       else if (hasMethodLevelEventSourcedEntitySubs)
         combineByES(
+          component.getName,
           eventSourcedEntitySubscription(component, tableType, tableName, tableProtoMessageName),
           messageCodec)
       else
@@ -193,11 +194,7 @@ private[impl] object ViewDescriptorFactory extends ComponentDescriptorFactory {
       .map { method =>
         // validate that all updates return the same type
         val entityClass = method.getAnnotation(classOf[Subscribe.EventSourcedEntity]).value().asInstanceOf[Class[_]]
-        val stateClass = entityClass.getGenericSuperclass
-          .asInstanceOf[ParameterizedType]
-          .getActualTypeArguments
-          .head
-          .asInstanceOf[Class[_]]
+
         previousEntityClass match {
           case Some(`entityClass`) => // ok
           case Some(other) =>
@@ -210,15 +207,7 @@ private[impl] object ViewDescriptorFactory extends ComponentDescriptorFactory {
           case params if params.size > 2 =>
             invalidComponentException(
               method,
-              s"Subscription method should have one or two params, found ${params.size}")
-          case p1 :: Nil if p1 == tableType =>
-            invalidComponentException(method, "Subscription method only has the view type.")
-
-          case p1 :: p2 :: Nil if p1 != tableType =>
-            invalidComponentException(method, s"Subscription method first param must be view type [$tableType]")
-
-          case p1 :: p2 :: Nil if p1 == tableType && p2 == tableType =>
-            invalidComponentException(method, s"Subscription method receives twice the view type [$tableType]")
+              s"Subscription method should have only one parameter, found ${params.size}")
           case _ => // happy days, dev did good with the signature
         }
 
@@ -227,7 +216,7 @@ private[impl] object ViewDescriptorFactory extends ComponentDescriptorFactory {
         methodOptionsBuilder.setEventing(eventingInForEventSourcedEntity(method))
         addTableOptionsToUpdateMethod(tableName, tableProtoMessageName, methodOptionsBuilder, true)
 
-        KalixMethod(SubscriptionServiceMethod(method, method.getParameterCount - 1))
+        KalixMethod(SubscriptionServiceMethod(method))
           .withKalixOptions(methodOptionsBuilder.build())
 
       }
@@ -274,14 +263,7 @@ private[impl] object ViewDescriptorFactory extends ComponentDescriptorFactory {
             invalidComponentException(
               method,
               stateClass,
-              s"Subscription method should have one or two params, found ${params.size}")
-          case p1 :: Nil if p1 != stateClass =>
-            invalidComponentException(method, stateClass, s"Single parameter is not of type $stateClass")
-          case p1 :: p2 :: Nil if p1 != tableType || p2 != stateClass =>
-            invalidComponentException(
-              method,
-              stateClass,
-              s"Parameters of type [${tableType.getName}, ${stateClass.getName}]")
+              s"Subscription method should have only one parameter, found ${params.size}")
           case _ => // happy days, dev did good with the signature
         }
 
@@ -290,7 +272,7 @@ private[impl] object ViewDescriptorFactory extends ComponentDescriptorFactory {
         methodOptionsBuilder.setEventing(eventingInForValueEntity(method))
         addTableOptionsToUpdateMethod(tableName, tableProtoMessageName, methodOptionsBuilder, true)
 
-        KalixMethod(SubscriptionServiceMethod(method, method.getParameterCount - 1))
+        KalixMethod(SubscriptionServiceMethod(method))
           .withKalixOptions(methodOptionsBuilder.build())
           .withKalixOptions(buildJWTOptions(method))
       }

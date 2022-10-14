@@ -197,53 +197,7 @@ public class ViewTestModels {
       return null;
     }
   }
-
-  @Table(value = "users_view")
-  public static class TransformMethodLackingEventParam extends View<TransformedUser> {
-
-    @Subscribe.ValueEntity(UserEntity.class)
-    public UpdateEffect<TransformedUser> onChange(TransformedUser user) {
-      return effects().updateState(new TransformedUser(user.name, user.email));
-    }
-
-    @Query("SELECT * FROM users_view WHERE email = :email")
-    @PostMapping("/users/by-email")
-    public TransformedUser getUserByEmail(@RequestBody ByEmail byEmail) {
-      return null;
-    }
-  }
-
-  @Table(value = "users_view")
-  public static class TransformMethodWrongParamOrder extends View<TransformedUser> {
-
-    @Subscribe.ValueEntity(UserEntity.class)
-    public UpdateEffect<TransformedUser> onChange(User user, TransformedUser userView) {
-      return effects().updateState(new TransformedUser(userView.name, user.email));
-    }
-
-    @Query("SELECT * FROM users_view WHERE email = :email")
-    @PostMapping("/users/by-email")
-    public TransformedUser getUserByEmail(@RequestBody ByEmail byEmail) {
-      return null;
-    }
-  }
-
-  @Table(value = "users_view")
-  public static class TransformMethodThreeParameters extends View<TransformedUser> {
-
-    @Subscribe.ValueEntity(UserEntity.class)
-    public UpdateEffect<TransformedUser> onChange(
-        User user, TransformedUser userView, String somethingElse) {
-      return effects().updateState(new TransformedUser(userView.name, user.email));
-    }
-
-    @Query("SELECT * FROM users_view WHERE email = :email")
-    @PostMapping("/users/by-email")
-    public TransformedUser getUserByEmail(@RequestBody ByEmail byEmail) {
-      return null;
-    }
-  }
-
+  
   @Table(value = "employees_view")
   public static class SubscribeToEventSourcedEvents extends View<Employee> {
 
@@ -278,65 +232,4 @@ public class ViewTestModels {
     }
   }
 
-  @Table(value = "employees_view")
-  public static class SubscriptionMethodWithoutEvent extends View<Employee> {
-
-    @Subscribe.EventSourcedEntity(EventSourcedEntitiesTestModels.EmployeeEntity.class)
-    public UpdateEffect<Employee> onEvent(Employee employee) {
-      return null;
-    }
-
-    @Query("SELECT * FROM employees_view WHERE email = :email")
-    @PostMapping("/employees/by-email/{email}")
-    public Employee getEmployeeByEmail(@PathVariable String email) {
-      return null;
-    }
-  }
-
-  // in case users think that they can subscribe to snapshots
-  @Table(value = "employees_view")
-  public static class SubscriptionMethodWithTwiceTheState extends View<Employee> {
-
-    @Subscribe.EventSourcedEntity(EventSourcedEntitiesTestModels.EmployeeEntity.class)
-    public UpdateEffect<Employee> onEvent(Employee employee, Employee employee2) {
-      return null;
-    }
-
-    @Query("SELECT * FROM employees_view WHERE email = :email")
-    @PostMapping("/employees/by-email/{email}")
-    public Employee getEmployeeByEmail(@PathVariable String email) {
-      return null;
-    }
-  }
-
-  @Table(value = "employees_view")
-  public static class SubscriptionMethodWithMoreThanTwoArgs extends View<Employee> {
-
-    @Subscribe.EventSourcedEntity(EventSourcedEntitiesTestModels.EmployeeEntity.class)
-    public UpdateEffect<Employee> onEvent(
-        Employee employee, EmployeeEvent evt1, EmployeeEvent evt2) {
-      return null;
-    }
-
-    @Query("SELECT * FROM employees_view WHERE email = :email")
-    @PostMapping("/employees/by-email/{email}")
-    public Employee getEmployeeByEmail(@PathVariable String email) {
-      return null;
-    }
-  }
-
-  @Table(value = "employees_view")
-  public static class SubscriptionMethodWrongOrdering extends View<Employee> {
-
-    @Subscribe.EventSourcedEntity(EventSourcedEntitiesTestModels.EmployeeEntity.class)
-    public UpdateEffect<Employee> onEvent(EmployeeEvent evt, Employee employee) {
-      return null;
-    }
-
-    @Query("SELECT * FROM employees_view WHERE email = :email")
-    @PostMapping("/employees/by-email/{email}")
-    public Employee getEmployeeByEmail(@PathVariable String email) {
-      return null;
-    }
-  }
 }

@@ -36,6 +36,7 @@ class ReflectiveEventSourcedEntityRouter[S, E <: EventSourcedEntity[S]](
     eventHandlerMethods.getOrElse(eventClass, throw new RuntimeException(s"no matching handler for '$eventClass'"))
 
   override def handleEvent(state: S, event: Any): S = {
+
     entity._internalSetCurrentState(state)
 
     eventHandlerLookup(event.getClass)
@@ -49,16 +50,16 @@ class ReflectiveEventSourcedEntityRouter[S, E <: EventSourcedEntity[S]](
       command: Any,
       context: CommandContext): EventSourcedEntity.Effect[_] = {
 
+    entity._internalSetCurrentState(state)
+
     val commandHandler = commandHandlerLookup(commandName)
     val invocationContext =
       InvocationContext(command.asInstanceOf[ScalaPbAny], commandHandler.requestMessageDescriptor)
 
     val inputTypeUrl = command.asInstanceOf[ScalaPbAny].typeUrl
-    val methodInvoker = commandHandler.lookupInvoker(inputTypeUrl)
 
-    entity._internalSetCurrentState(state)
-
-    methodInvoker
+    commandHandler
+      .lookupInvoker(inputTypeUrl)
       .invoke(entity, invocationContext)
       .asInstanceOf[EventSourcedEntity.Effect[_]]
   }

@@ -146,7 +146,10 @@ private[impl] object ComponentDescriptorFactory {
       ActionDescriptorFactory
   }
 
-  def combineByES(subscriptions: Seq[KalixMethod], messageCodec: SpringSdkMessageCodec): Seq[KalixMethod] = {
+  def combineByES(
+      componentName: String,
+      subscriptions: Seq[KalixMethod],
+      messageCodec: SpringSdkMessageCodec): Seq[KalixMethod] = {
     def groupByES(methods: Seq[KalixMethod]): Map[String, Seq[KalixMethod]] = {
       val withEventSourcedIn = methods.filter(kalixMethod =>
         kalixMethod.methodOptions.exists(option =>
@@ -169,8 +172,8 @@ private[impl] object ComponentDescriptorFactory {
 
         KalixMethod(
           CombinedSubscriptionServiceMethod(
+            componentName,
             "KalixSyntheticMethodOnES" + eventSourcedEntity.capitalize,
-            kMethods.head.serviceMethod.asInstanceOf[SubscriptionServiceMethod],
             methodsMap))
           .withKalixOptions(kMethods.head.methodOptions)
       case (eventSourcedEntity, kMethod +: Nil) =>

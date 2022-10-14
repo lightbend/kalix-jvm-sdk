@@ -23,12 +23,12 @@ public class CustomerByNameView extends View<CustomerView> {
   }
 
   @Subscribe.EventSourcedEntity(CustomerEntity.class)
-  public UpdateEffect<CustomerView> onEvent(CustomerView customer, CustomerEvent.NameChanged event) {
-    return effects().updateState(customer.withName(event.newName()));
+  public UpdateEffect<CustomerView> onEvent(CustomerEvent.NameChanged event) {
+    return effects().updateState(viewState().withName(event.newName()));
   }
 
   @Subscribe.EventSourcedEntity(CustomerEntity.class)
-  public UpdateEffect<CustomerView> onEvent(CustomerView customer, CustomerEvent.AddressChanged event) {
-    return effects().updateState(customer.withAddress(event.address()));
+  public UpdateEffect<CustomerView> onEvent(CustomerEvent.AddressChanged event) {
+    return effects().updateState(viewState().withAddress(event.address()));
   }
 }

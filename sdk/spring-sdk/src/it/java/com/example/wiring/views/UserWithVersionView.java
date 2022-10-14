@@ -29,9 +29,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 public class UserWithVersionView extends View<UserWithVersion> {
 
   @Subscribe.ValueEntity(UserEntity.class)
-  public UpdateEffect<UserWithVersion> onChange(UserWithVersion state, User user) {
-    if (state == null) return effects().updateState(new UserWithVersion(user.email, 1));
-    else return effects().updateState(new UserWithVersion(user.email, state.version + 1));
+  public UpdateEffect<UserWithVersion> onChange(User user) {
+    if (viewState() == null) return effects().updateState(new UserWithVersion(user.email, 1));
+    else return effects().updateState(new UserWithVersion(user.email, viewState().version + 1));
   }
 
   @Query("SELECT * FROM user_view WHERE email = :email")

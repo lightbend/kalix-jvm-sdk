@@ -16,6 +16,7 @@
 
 package kalix.javasdk.view;
 
+import akka.annotation.ApiMayChange;
 import kalix.javasdk.impl.view.ViewUpdateEffectImpl;
 
 import java.util.Optional;
@@ -24,6 +25,11 @@ import java.util.Optional;
 public abstract class View<S> {
 
   private Optional<UpdateContext> updateContext = Optional.empty();
+
+  private Optional<S> viewState = Optional.empty();
+
+
+  private boolean handlingUpdates = false;
 
   /**
    * Additional context and metadata for an update handler.
@@ -39,6 +45,33 @@ public abstract class View<S> {
   /** INTERNAL API */
   public void _internalSetUpdateContext(Optional<UpdateContext> context) {
     updateContext = context;
+  }
+
+
+  /** INTERNAL API */
+  public void _internalSetViewState(S state) {
+    handlingUpdates = true;
+    viewState = Optional.ofNullable(state);
+  }
+
+  /**
+   * Returns the view state (row) for this invocation as currently stored in Kalix.
+   *
+   * <p>Note that modifying the state directly will not update it in storage. To save the state, one
+   * must call {{@code effects().updateState()}}.
+   *
+   * <p>This method can only be called when handling a command. Calling it outside a method (eg: in
+   * the constructor) will raise a IllegalStateException exception.
+   *
+   * @throws IllegalStateException if accessed outside a handler method
+   */
+  @ApiMayChange
+  protected final S viewState() {
+    // user may call this method inside a command handler and get a null because it's legal
+    // to have emptyState set to null.
+    if (handlingUpdates) return viewState.orElse(null);
+    else
+      throw new IllegalStateException("Current state is only available when handling updates.");
   }
 
   protected final UpdateEffect.Builder<S> effects() {
