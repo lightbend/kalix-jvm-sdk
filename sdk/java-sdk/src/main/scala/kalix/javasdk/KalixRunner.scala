@@ -17,6 +17,7 @@
 package kalix.javasdk
 
 import java.lang.management.ManagementFactory
+
 import akka.Done
 import akka.actor.CoordinatedShutdown.Reason
 import akka.actor.{ ActorSystem, CoordinatedShutdown }
@@ -33,15 +34,16 @@ import kalix.protocol.event_sourced_entity.EventSourcedEntitiesHandler
 import kalix.protocol.replicated_entity.ReplicatedEntitiesHandler
 import kalix.protocol.value_entity.ValueEntitiesHandler
 import com.typesafe.config.{ Config, ConfigFactory }
-
 import java.util.concurrent.CompletionStage
-import kalix.javasdk.impl.view.ViewService
 
+import kalix.javasdk.impl.view.ViewService
 import scala.compat.java8.FutureConverters
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters._
 import scala.util.Failure
 import scala.util.Success
+
+import com.google.protobuf.DescriptorProtos.FileDescriptorProto
 import kalix.javasdk.impl.view.ViewsImpl
 import kalix.protocol.view.ViewsHandler
 import org.slf4j.LoggerFactory
@@ -71,10 +73,12 @@ object KalixRunner {
  *
  * KalixRunner can be seen as a low-level API for cases where [[Kalix#start()]] isn't enough.
  */
-final class KalixRunner private[this] (
+final class KalixRunner private[javasdk] (
     _system: ActorSystem,
     serviceFactories: Map[String, java.util.function.Function[ActorSystem, Service]],
+    aclDescriptor: Option[FileDescriptorProto],
     sdkName: String) {
+
   private[kalix] implicit val system: ActorSystem = _system
   private val log = LoggerFactory.getLogger(getClass)
 
@@ -96,8 +100,23 @@ final class KalixRunner private[this] (
           conf.getConfig("kalix.system").withFallback(conf)
         }),
       services.asScala.toMap,
+      aclDescriptor = None,
       sdkName)
   }
+
+  def this(
+      services: java.util.Map[String, java.util.function.Function[ActorSystem, Service]],
+      aclDescriptor: Option[FileDescriptorProto],
+      sdkName: String) =
+    this(
+      ActorSystem(
+        "kalix", {
+          val conf = ConfigFactory.load()
+          conf.getConfig("kalix.system").withFallback(conf)
+        }),
+      services.asScala.toMap,
+      aclDescriptor = aclDescriptor,
+      sdkName)
 
   /**
    * Creates a KalixRunner from the given services and config. The config should have the same structure as the
@@ -108,7 +127,23 @@ final class KalixRunner private[this] (
       services: java.util.Map[String, java.util.function.Function[ActorSystem, Service]],
       config: Config,
       sdkName: String) = {
-    this(ActorSystem("kalix", config.getConfig("kalix.system").withFallback(config)), services.asScala.toMap, sdkName)
+    this(
+      ActorSystem("kalix", config.getConfig("kalix.system").withFallback(config)),
+      services.asScala.toMap,
+      aclDescriptor = None,
+      sdkName)
+  }
+
+  def this(
+      services: java.util.Map[String, java.util.function.Function[ActorSystem, Service]],
+      config: Config,
+      aclDescriptor: Option[FileDescriptorProto],
+      sdkName: String) = {
+    this(
+      ActorSystem("kalix", config.getConfig("kalix.system").withFallback(config)),
+      services.asScala.toMap,
+      aclDescriptor = aclDescriptor,
+      sdkName)
   }
 
   private val rootContext: Context = new AbstractContext(system) {}
@@ -147,7 +182,7 @@ final class KalixRunner private[this] (
           sys.error(s"Unknown service type: $serviceClass")
       }
 
-    val discovery = DiscoveryHandler.partial(new DiscoveryImpl(system, services, sdkName))
+    val discovery = DiscoveryHandler.partial(new DiscoveryImpl(system, services, aclDescriptor, sdkName))
 
     serviceRoutes.orElse(discovery).orElse { case _ => Future.successful(HttpResponse(StatusCodes.NotFound)) }
   }

@@ -18,6 +18,7 @@ package kalix.javasdk;
 
 import akka.Done;
 import akka.actor.ActorSystem;
+import com.google.protobuf.DescriptorProtos;
 import com.google.protobuf.Descriptors;
 import com.typesafe.config.Config;
 import kalix.javasdk.action.Action;
@@ -45,6 +46,8 @@ import kalix.javasdk.valueentity.ValueEntityProvider;
 import kalix.javasdk.view.ViewOptions;
 import kalix.javasdk.view.ViewProvider;
 import kalix.replicatedentity.ReplicatedData;
+import scala.Option;
+import scala.jdk.javaapi.OptionConverters;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -63,6 +66,8 @@ public final class Kalix {
   private AnySupport.Prefer prefer = AnySupport.PREFER_JAVA();
   private final LowLevelRegistration lowLevel = new LowLevelRegistration();
   private String sdkName = BuildInfo$.MODULE$.name();
+
+  private Optional<DescriptorProtos.FileDescriptorProto> aclDescriptor = Optional.empty();
 
   private class LowLevelRegistration {
     /**
@@ -349,6 +354,20 @@ public final class Kalix {
     return this;
   }
 
+
+  /**
+   * INTERNAL API - subject to change without notice
+   *
+   * @param aclDescriptor - the default ACL file descriptor
+   * @return
+   *   This Kalix instance.
+   */
+  public Kalix withDefaultAclFileDescriptor(Optional<DescriptorProtos.FileDescriptorProto> aclDescriptor) {
+    this.aclDescriptor = aclDescriptor;
+    return this;
+  }
+
+
   /**
    * Register a replicated entity using a {@link ReplicatedEntityProvider}. The concrete <code>
    * ReplicatedEntityProvider</code> is generated for the specific entities defined in Protobuf, for
@@ -515,7 +534,10 @@ public final class Kalix {
    * @return a KalixRunner
    */
   public KalixRunner createRunner() {
-    return new KalixRunner(services, sdkName);
+    return new KalixRunner(
+        services,
+        OptionConverters.toScala(aclDescriptor),
+        sdkName);
   }
 
   /**
@@ -526,7 +548,11 @@ public final class Kalix {
    * @return a KalixRunner
    */
   public KalixRunner createRunner(Config config) {
-    return new KalixRunner(services, config, sdkName);
+    return new KalixRunner(
+        services,
+        config,
+        OptionConverters.toScala(aclDescriptor),
+        sdkName);
   }
 
   private AnySupport newAnySupport(Descriptors.FileDescriptor[] descriptors) {

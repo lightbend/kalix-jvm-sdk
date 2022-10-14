@@ -17,6 +17,8 @@
 package kalix.springsdk.impl
 
 import scala.jdk.CollectionConverters.CollectionHasAsScala
+import scala.jdk.OptionConverters.RichOption
+import scala.util.Try
 
 import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
@@ -43,6 +45,7 @@ import kalix.springsdk.impl.KalixServer.ActionCreationContextFactoryBean
 import kalix.springsdk.impl.KalixServer.EventSourcedEntityContextFactoryBean
 import kalix.springsdk.impl.KalixServer.KalixClientFactoryBean
 import kalix.springsdk.impl.KalixServer.KalixComponentProvider
+import kalix.springsdk.impl.KalixServer.MainClassProvider
 import kalix.springsdk.impl.KalixServer.ValueEntityContextFactoryBean
 import kalix.springsdk.impl.KalixServer.ViewCreationContextFactoryBean
 import kalix.springsdk.valueentity.ReflectiveValueEntityProvider
@@ -64,7 +67,7 @@ import org.springframework.core.`type`.filter.TypeFilter
 
 object KalixServer {
 
-  val kalixComponents =
+  val kalixComponents: Seq[Class[_]] =
     classOf[Action] ::
     classOf[EventSourcedEntity[_]] ::
     classOf[ValueEntity[_]] ::
@@ -72,7 +75,35 @@ object KalixServer {
     classOf[View[_]] ::
     Nil
 
-  val kalixComponentsNames = kalixComponents.map(_.getName)
+  private val kalixComponentsNames = kalixComponents.map(_.getName)
+
+  /**
+   * Classpath scanning provider that will lookup for the original main class. Spring doesn't make the original main
+   * class available in the application context, but a cglib enhanced variant.
+   *
+   * The enhanced variant doesn't contain all the annotations, but only the SpringBootApplication one. Therefore we need
+   * to lookup for the original one. We need it to find the default ACL annotation.
+   */
+  class MainClassProvider(cglibMain: Class[_]) extends ClassPathScanningCandidateComponentProvider {
+
+    private object OriginalMainClassFilter extends TypeFilter {
+      override def `match`(metadataReader: MetadataReader, metadataReaderFactory: MetadataReaderFactory): Boolean = {
+        // in the classpath, we should have another class annotated with SpringBootApplication
+        // this is the original class that generated the cglib enhanced one
+        metadataReader.getAnnotationMetadata.hasAnnotation(classOf[SpringBootApplication].getName)
+      }
+    }
+
+    addIncludeFilter(OriginalMainClassFilter)
+
+    def findOriginalMailClass: Class[_] =
+      this
+        .findCandidateComponents(cglibMain.getPackageName)
+        .asScala
+        .map { bean => Class.forName(bean.getBeanClassName) }
+        .head
+
+  }
 
   /**
    * Kalix components are not Spring components. They should not be wired into other components and they should not be
@@ -84,31 +115,32 @@ object KalixServer {
    * This class will do exactly this. It find them and return tweaked BeanDefinitions (eg :prototype scope and autowired
    * by constructor)
    */
-  class KalixComponentProvider extends ClassPathScanningCandidateComponentProvider {
-    object KalixComponentTypeFilter extends TypeFilter {
+  class KalixComponentProvider(cglibMain: Class[_]) extends ClassPathScanningCandidateComponentProvider {
+
+    private object KalixComponentTypeFilter extends TypeFilter {
       override def `match`(metadataReader: MetadataReader, metadataReaderFactory: MetadataReaderFactory): Boolean = {
         kalixComponentsNames.contains(metadataReader.getClassMetadata.getSuperClassName)
+
       }
     }
 
     addIncludeFilter(KalixComponentTypeFilter)
 
-    def findKalixComponents(packageToScan: String): Seq[BeanDefinition] = {
-      this
-        .findCandidateComponents(packageToScan)
-        .asScala
-        .map { bean =>
-          // by default, the provider set them all as singletons,
-          // we need to make them all a prototype
-          bean.setScope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+    // TODO: users may define their Kalix components in other packages as well and then use @ComponentScan
+    // to let Spring find them. We should also look for @ComponentScan in the Main class and collect any
+    // scan package declared there. So later, packageToScan will be a List of packages
+    def findKalixComponents: Seq[BeanDefinition] = {
+      findCandidateComponents(cglibMain.getPackageName).asScala.map { bean =>
+        // by default, the provider set them all as singletons,
+        // we need to make them all a prototype
+        bean.setScope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 
-          // making it only wireable by constructor will simplify our lives
-          // we can review it later, if needed
-          bean.asInstanceOf[AbstractBeanDefinition].setAutowireMode(AbstractBeanDefinition.AUTOWIRE_CONSTRUCTOR)
-          bean
+        // making it only wireable by constructor will simplify our lives
+        // we can review it later, if needed
+        bean.asInstanceOf[AbstractBeanDefinition].setAutowireMode(AbstractBeanDefinition.AUTOWIRE_CONSTRUCTOR)
+        bean
 
-        }
-        .toSeq
+      }.toSeq
     }
   }
 
@@ -157,11 +189,9 @@ object KalixServer {
   }
 }
 
-class KalixServer(applicationContext: ApplicationContext, config: Config) {
+case class KalixServer(applicationContext: ApplicationContext, config: Config) {
 
   private val logger: Logger = LoggerFactory.getLogger(getClass)
-
-  val kalix: Kalix = (new Kalix).withSdkName(SpringSdkBuildInfo.name)
 
   private val kalixClient = new RestKalixClientImpl
   private val messageCodec = new SpringSdkMessageCodec
@@ -196,22 +226,21 @@ class KalixServer(applicationContext: ApplicationContext, config: Config) {
   kalixBeanFactory.registerSingleton("viewCreationContext", viewCreationContextFactoryBean)
   kalixBeanFactory.registerSingleton("kalixClient", kalixClientFactoryBean)
 
-  // This little hack allows us to find out which bean is annotated with SpringBootApplication (usually only one).
-  // We need it to find out which packages to scan.
-  // Normally, users are expected to have their classes in subpackages of their Main class.
-  val springBootMain =
-    applicationContext.getBeansWithAnnotation(classOf[SpringBootApplication]).values().asScala
+  // there should be only one class annotated with SpringBootApplication in the applicationContext
+  private val cglibEnhanceMainClass =
+    applicationContext.getBeansWithAnnotation(classOf[SpringBootApplication]).values().asScala.head
 
-  // TODO: users may define their Kalix components in other packages as well and then use @ComponentScan
-  // to let Spring find them. We should also look for @ComponentScan in the Main class and collect any
-  // scan package declared there
-  val packagesToScan = springBootMain.map(_.getClass.getPackageName).toSet
+  // lookup for the original main class, not the one enhanced by CGLIB
+  private val mainClass = new MainClassProvider(cglibEnhanceMainClass.getClass).findOriginalMailClass
 
-  val provider = new KalixComponentProvider
+  val kalix: Kalix = (new Kalix)
+    .withSdkName(SpringSdkBuildInfo.name)
+    .withDefaultAclFileDescriptor(AclDescriptorFactory.defaultAclFileDescriptor(mainClass).toJava)
+
+  private val provider = new KalixComponentProvider(cglibEnhanceMainClass.getClass)
 
   // all Kalix components found in the classpath
-  packagesToScan
-    .flatMap(pkg => provider.findKalixComponents(pkg))
+  provider.findKalixComponents
     .foreach { bean =>
 
       val clz = Class.forName(bean.getBeanClassName)

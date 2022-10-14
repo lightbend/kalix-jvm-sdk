@@ -16,9 +16,10 @@
 
 package kalix.springsdk.impl
 
-import com.google.protobuf.Descriptors.FileDescriptor
-
 import scala.collection.mutable
+
+import com.google.protobuf.DescriptorProtos
+import com.google.protobuf.Descriptors.FileDescriptor
 
 object ProtoDescriptorRenderer {
 
@@ -26,8 +27,31 @@ object ProtoDescriptorRenderer {
     // not water tight but better than the default non-protobuf Proto-toString format
     val proto = fileDescriptor.toProto
     val builder = new mutable.StringBuilder()
+    builder ++= s"""syntax = "${fileDescriptor.getSyntax.name().toLowerCase}";\n\n"""
+
     builder ++= "package "
-    builder ++= fileDescriptor.getPackage + ";\n"
+    builder ++= fileDescriptor.getPackage + ";\n\n"
+
+    fileDescriptor.getDependencies.forEach { deps =>
+      builder ++= s"""import "${deps.getFullName}";\n"""
+    }
+    builder ++= "\n"
+
+    if (proto.hasOptions) {
+      proto.getOptions.getAllFields.forEach { (option, value) =>
+        builder ++= "  option ("
+        builder ++= option.getFullName
+        builder ++= ") = {\n"
+        value.toString.split("\n").foreach { optionLine =>
+          val indent = optionLine.count(_ == ' ') / 4
+          builder ++= "    "
+          builder ++= (" " * indent)
+          builder ++= optionLine.replace("^[ ]*", "")
+          builder ++= "\n"
+        }
+        builder ++= "    };\n"
+      }
+    }
 
     proto.getMessageTypeList.forEach { messageType =>
       builder ++= "message "
