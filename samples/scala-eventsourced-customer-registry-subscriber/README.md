@@ -31,8 +31,13 @@ sbt run
 For further details see [Running a service locally](https://docs.kalix.io/developing/running-service-locally.html) in the documentation.
 
 With both the proxy and your application running, any defined endpoints should be available at `http://localhost:9001`.
-There are however currently no endpoints published by this service, it simply consumes Service to Service events and
-logs each event.
+Updates are logged as they arrived and can be queried by name through:
+
+
+* Query the customer by name view:
+  ```shell
+  grpcurl --plaintext localhost:9000 customer.view.AllCustomersView/GetCustomers
+  ```
 
 ## Deploying
 

@@ -17,8 +17,7 @@ object Main {
     // and is kept up-to-date with any changes in your protobuf definitions.
     // If you prefer, you may remove this and manually register these components in a
     // `Kalix()` instance.
-    KalixFactory.withComponents(
-      new CustomerByNameSubscriberAction(_))
+    KalixFactory.withComponents(new AllCustomersViewImpl(_))
   }
 
   def main(args: Array[String]): Unit = {

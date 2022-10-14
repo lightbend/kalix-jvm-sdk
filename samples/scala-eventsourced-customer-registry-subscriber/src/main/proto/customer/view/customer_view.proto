@@ -23,33 +23,7 @@ import "google/protobuf/empty.proto";
 
 import "google/api/annotations.proto";
 
-message ByNameRequest {
-  string customer_name = 1;
-}
-
-service CustomerByNameSubscriber {
-  option (kalix.codegen) = {
-    action: {}
-  };
-
-  // consume events published by scala-eventsourced-customer-registry/CustomerEventsServiceAction
-  option (kalix.service).eventing.in.direct = {
-    // Normally the Kalix service deployment name
-    // (but localhost + hardcoded port here to be able to run both locally)
-    service: "localhost:9000"
-    // for actually deployed services where producer service deployed as "customer-registry" in same Kalix project:
-    // service: "customer-registry"
-    // stream id from service above
-    event_stream_id: "customer_events"
-  };
-
-  rpc ProcessCustomerCreated(api.Created) returns (google.protobuf.Empty) { };
-  rpc ProcessCustomerNameChanged(api.NameChanged) returns (google.protobuf.Empty) { };
-}
-
-/*
-Doesn't work right now because views require method level eventing in on views
-service CustomerByName {
+service AllCustomersView {
   option (kalix.codegen) = {
     view: {}
   };
@@ -65,23 +39,21 @@ service CustomerByName {
 
   rpc ProcessCustomerCreated(api.Created) returns (api.Customer) {
     option (kalix.method).view.update = {
-      table: "customers"
+      table: "all_customers"
       transform_updates: true
     };
   }
 
   rpc ProcessCustomerNameChanged(api.NameChanged) returns (api.Customer) {
     option (kalix.method).view.update = {
-      table: "customers"
+      table: "all_customers"
       transform_updates: true
     };
   }
 
-  rpc GetCustomers(ByNameRequest) returns (stream api.Customer) {
+  rpc GetCustomers(google.protobuf.Empty) returns (stream api.Customer) {
     option (kalix.method).view.query = {
-      query: "SELECT * FROM customers WHERE name = :customer_name"
+      query: "SELECT * FROM all_customers"
     };
   }
 }
-
- */
