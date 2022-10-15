@@ -558,5 +558,4 @@ public final class Kalix {
   private AnySupport newAnySupport(Descriptors.FileDescriptor[] descriptors) {
     return new AnySupport(descriptors, classLoader, typeUrlPrefix, prefer);
   }
-
 }

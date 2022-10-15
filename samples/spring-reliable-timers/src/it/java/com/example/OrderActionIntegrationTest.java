@@ -24,90 +24,90 @@ import static org.testcontainers.shaded.org.awaitility.Awaitility.await;
 @SpringBootTest(classes = Main.class)
 public class OrderActionIntegrationTest extends KalixIntegrationTestKitSupport {
 
-    private Duration timeout = Duration.of(20, SECONDS);
+  private Duration timeout = Duration.of(20, SECONDS);
 
 
-    @Autowired
-    private WebClient webClient;
+  @Autowired
+  private WebClient webClient;
 
-    @Test
-    public void placeOrder() {
+  @Test
+  public void placeOrder() {
 
-        var orderReq = new OrderRequest("nice swag tshirt", 10);
+    var orderReq = new OrderRequest("nice swag tshirt", 10);
 
-        String orderId =
-                webClient.post()
-                        .uri("/orders/place")
-                        .bodyValue(orderReq)
-                        .retrieve()
-                        .bodyToMono(Order.class)
-                        .block(timeout)
-                        .id();
+    String orderId =
+        webClient.post()
+            .uri("/orders/place")
+            .bodyValue(orderReq)
+            .retrieve()
+            .bodyToMono(Order.class)
+            .block(timeout)
+            .id();
 
-        Assertions.assertNotNull(orderId);
-        Assertions.assertFalse(orderId.isEmpty());
+    Assertions.assertNotNull(orderId);
+    Assertions.assertFalse(orderId.isEmpty());
 
-        await()
-                .ignoreExceptions()
-                .atMost(20, TimeUnit.of(SECONDS))
-                .until(
-                        () ->
-                                webClient.get()
-                                        .uri("/order/" + orderId)
-                                        .retrieve()
-                                        .bodyToMono(OrderStatus.class)
-                                        .block(timeout),
-                        s -> s.quantity() == 10 && s.item().equals("nice swag tshirt"));
+    await()
+        .ignoreExceptions()
+        .atMost(20, TimeUnit.of(SECONDS))
+        .until(
+            () ->
+                webClient.get()
+                    .uri("/order/" + orderId)
+                    .retrieve()
+                    .bodyToMono(OrderStatus.class)
+                    .block(timeout),
+            s -> s.quantity() == 10 && s.item().equals("nice swag tshirt"));
 
-      webClient.post()
-              .uri("/orders/confirm/" + orderId)
-              .retrieve()
-              .bodyToMono(String.class)
-              .block(timeout);
+    webClient.post()
+        .uri("/orders/confirm/" + orderId)
+        .retrieve()
+        .bodyToMono(String.class)
+        .block(timeout);
 
-      await()
-              .ignoreExceptions()
-              .atMost(20, TimeUnit.of(SECONDS))
-              .until(
-                      () ->
-                              webClient.get()
-                                      .uri("/order/" + orderId)
-                                      .retrieve()
-                                      .bodyToMono(OrderStatus.class)
-                                      .block(timeout),
-                      OrderStatus::confirmed);
+    await()
+        .ignoreExceptions()
+        .atMost(20, TimeUnit.of(SECONDS))
+        .until(
+            () ->
+                webClient.get()
+                    .uri("/order/" + orderId)
+                    .retrieve()
+                    .bodyToMono(OrderStatus.class)
+                    .block(timeout),
+            OrderStatus::confirmed);
 
-    }
+  }
 
-    @Test
-    public void expiredOrder() {
+  @Test
+  public void expiredOrder() {
 
-        var orderReq = new OrderRequest("nice swag tshirt", 20);
+    var orderReq = new OrderRequest("nice swag tshirt", 20);
 
-        String orderId =
-                webClient.post()
-                        .uri("/orders/place")
-                        .bodyValue(orderReq)
-                        .retrieve()
-                        .bodyToMono(Order.class)
-                        .block(timeout)
-                        .id();
+    String orderId =
+        webClient.post()
+            .uri("/orders/place")
+            .bodyValue(orderReq)
+            .retrieve()
+            .bodyToMono(Order.class)
+            .block(timeout)
+            .id();
 
 
-        Assertions.assertNotNull(orderId);
-        Assertions.assertFalse(orderId.isEmpty());
+    Assertions.assertNotNull(orderId);
+    Assertions.assertFalse(orderId.isEmpty());
 
-        // After the default timeout, status changed to not placed as order is reverted
-        await()
-                .ignoreExceptions()
-                .atMost(20, TimeUnit.of(SECONDS))
-                .until(
-                        () ->
-                                webClient.get()
-                                        .uri("/order/" + orderId)
-                                        .exchangeToMono((resp) -> Mono.just(resp.statusCode().value()))
-                                        .block(timeout),
-                        s -> s == 404);
-    }
+    // After the default timeout, status changed to not placed as order is reverted
+    await()
+        .ignoreExceptions()
+        .atMost(20, TimeUnit.of(SECONDS))
+        .until(
+            () ->
+                webClient.get()
+                    .uri("/order/" + orderId)
+                    .exchangeToMono((resp) -> Mono.just(resp.statusCode().value()))
+                    .block(timeout),
+            s -> s == 404);
+  }
 
 }

@@ -365,7 +365,7 @@ final case class HttpEndpointMethodDefinition private (
     "google.protobuf.Timestamp" -> Timestamps.parse,
     "google.protobuf.Duration" -> Durations.parse)
 
-  // We use this to signal to the requestor that there's something wrong with the request
+  // We use this to signal to the requester that there's something wrong with the request
   private final val requestError: String => Nothing = s =>
     throw IllegalRequestException(StatusCodes.BadRequest, new ErrorInfo(s))
 

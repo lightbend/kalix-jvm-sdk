@@ -1,6 +1,6 @@
-# spring-reliable-timer
+# spring-reliable-timers
 
-
+This project provides an example for how to take advantage of the timers API using the Spring SDK.
 
 To understand the Kalix concepts that are the basis for this example, see [Designing services](https://docs.kalix.io/services/development-process.html) in the documentation.
 

@@ -31,6 +31,7 @@ import org.slf4j.{ Logger, LoggerFactory }
 import org.springframework.http.{ HttpHeaders, MediaType }
 import org.springframework.web.reactive.function.client.WebClient
 
+import java.util.concurrent.CompletionStage
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{ Future, Promise }
 import scala.jdk.CollectionConverters.CollectionHasAsScala
@@ -40,7 +41,7 @@ import scala.util.Success
 /**
  * INTERNAL API
  */
-class RestKalixClientImpl(messageCodec: SpringSdkMessageCodec) extends KalixClient {
+final class RestKalixClientImpl(messageCodec: SpringSdkMessageCodec) extends KalixClient {
   private val logger: Logger = LoggerFactory.getLogger(getClass)
 
   private var services: Seq[HttpEndpointMethodDefinition] = Seq.empty
@@ -48,7 +49,7 @@ class RestKalixClientImpl(messageCodec: SpringSdkMessageCodec) extends KalixClie
   // at the time of creation, Proxy Discovery has not happened so we don't have this info
   private val host: Promise[String] = Promise[String]()
   private val port: Promise[Int] = Promise[Int]()
-  private var identificationInfo: Promise[IdentificationInfo] = Promise[IdentificationInfo]()
+  private val identificationInfo: Promise[IdentificationInfo] = Promise[IdentificationInfo]()
 
   private val webClient: Future[WebClient] = {
     import scala.concurrent.ExecutionContext.Implicits.global
@@ -79,7 +80,6 @@ class RestKalixClientImpl(messageCodec: SpringSdkMessageCodec) extends KalixClie
     new MetadataImpl(entries)
   }
 
-  // FIXME I don't think we need to distinguish between local and remote calls in the spring sdk.. do we?
   private def remoteAddHeader(idInfo: IdentificationInfo): Option[(String, String)] = idInfo match {
     case IdentificationInfo(_, _, header, name, _) if header.nonEmpty && name.nonEmpty =>
       Some((header, name))
@@ -116,17 +116,11 @@ class RestKalixClientImpl(messageCodec: SpringSdkMessageCodec) extends KalixClie
     val uri = Uri(uriStr)
     matchMethodOpt(HttpMethods.POST, uri.path)
       .map { httpDef =>
-        val inputBuilder = DynamicMessage.newBuilder(httpDef.methodDescriptor.getInputType)
-        httpDef.parsePathParametersInto(uri.path, inputBuilder)
-        httpDef.parseRequestParametersInto(uri.query().toMultiMap, inputBuilder)
-        val wrappedBody = buildWrappedBody(httpDef, inputBuilder, Some(body))
-
-        RestDeferredCallImpl[Any, R](
-          message = wrappedBody,
-          metadata = buildMetadata(),
-          fullServiceName = httpDef.methodDescriptor.getService.getFullName,
-          methodName = httpDef.methodDescriptor.getName,
-          asyncCall = () =>
+        requestToRestDefCall(
+          uri,
+          Some(body),
+          httpDef,
+          () =>
             webClient.flatMap {
               _.post()
                 .uri(uriStr)
@@ -144,21 +138,33 @@ class RestKalixClientImpl(messageCodec: SpringSdkMessageCodec) extends KalixClie
       }
   }
 
+  private def requestToRestDefCall[P, R](
+      uri: Uri,
+      body: Option[P],
+      httpDef: HttpEndpointMethodDefinition,
+      asyncCall: () => CompletionStage[R]): RestDeferredCallImpl[Any, R] = {
+    val inputBuilder = DynamicMessage.newBuilder(httpDef.methodDescriptor.getInputType)
+    httpDef.parsePathParametersInto(uri.path, inputBuilder)
+    httpDef.parseRequestParametersInto(uri.query().toMultiMap, inputBuilder)
+    val wrappedBody = buildWrappedBody(httpDef, inputBuilder, body)
+
+    RestDeferredCallImpl[Any, R](
+      message = wrappedBody,
+      metadata = buildMetadata(),
+      fullServiceName = httpDef.methodDescriptor.getService.getFullName,
+      methodName = httpDef.methodDescriptor.getName,
+      asyncCall = asyncCall)
+  }
+
   def get[R](uriStr: String, returnType: Class[R]): DeferredCall[Any, R] = {
     val uri = Uri(uriStr)
     matchMethodOpt(HttpMethods.GET, uri.path)
       .map { httpDef =>
-        val inputBuilder = DynamicMessage.newBuilder(httpDef.methodDescriptor.getInputType)
-        httpDef.parsePathParametersInto(uri.path, inputBuilder)
-        httpDef.parseRequestParametersInto(uri.query().toMultiMap, inputBuilder)
-        val wrappedBody = buildWrappedBody(httpDef, inputBuilder)
-
-        RestDeferredCallImpl[Any, R](
-          message = wrappedBody,
-          metadata = buildMetadata(),
-          fullServiceName = httpDef.methodDescriptor.getService.getFullName,
-          methodName = httpDef.methodDescriptor.getName,
-          asyncCall = () =>
+        requestToRestDefCall(
+          uriStr,
+          body = None,
+          httpDef,
+          () =>
             webClient
               .flatMap(
                 _.get()

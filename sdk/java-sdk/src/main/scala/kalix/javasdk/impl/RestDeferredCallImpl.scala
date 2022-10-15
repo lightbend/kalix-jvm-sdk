@@ -16,8 +16,6 @@
 
 package kalix.javasdk.impl
 
-import com.google.protobuf.Descriptors
-import com.google.protobuf.any.Any
 import kalix.javasdk.DeferredCall
 
 import java.util.concurrent.CompletionStage
