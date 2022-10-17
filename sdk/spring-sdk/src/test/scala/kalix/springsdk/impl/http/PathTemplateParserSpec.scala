@@ -16,7 +16,8 @@
 
 package kalix.springsdk.impl.http
 
-import kalix.springsdk.impl.http.PathTemplateParser.{ PathTemplateParseException, TemplateVariable }
+import kalix.springsdk.impl.http.PathTemplateParser.TemplateVariable
+import kalix.springsdk.impl.path.PathPatternParseException
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 
@@ -30,7 +31,7 @@ class PathTemplateParserSpec extends AnyWordSpec with Matchers {
   }
 
   private def failParse(path: String) = {
-    val e = the[PathTemplateParseException] thrownBy PathTemplateParser.parse(path)
+    val e = the[PathPatternParseException] thrownBy PathTemplateParser.parse(path)
     // Uncomment to sanity check the user friendliness of error messages
     // println(e.prettyPrint + "\n")
     e

@@ -23,7 +23,7 @@ import java.util.concurrent.CompletionStage
 /**
  * INTERNAL API
  */
-final case class RestDeferredCallImpl[I, O](
+final case class RestDeferredCall[I, O](
     message: I,
     metadata: MetadataImpl,
     fullServiceName: String,

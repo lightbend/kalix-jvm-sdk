@@ -19,7 +19,7 @@ package kalix.javasdk.impl.effect
 import com.google.protobuf.any.{ Any => ScalaPbAny }
 import com.google.protobuf.{ Any => JavaPbAny }
 import kalix.javasdk
-import kalix.javasdk.impl.DeferredCallImpl
+import kalix.javasdk.impl.GrpcDeferredCall
 import kalix.javasdk.impl.MessageCodec
 import kalix.javasdk.impl.MetadataImpl
 import kalix.protocol.component
@@ -39,7 +39,7 @@ object EffectSupport {
 
   def asProtocol(messageCodec: MessageCodec, forward: ForwardReplyImpl[_]): component.Forward = {
     forward match {
-      case ForwardReplyImpl(deferredCall: DeferredCallImpl[_, _], sideEffects) =>
+      case ForwardReplyImpl(deferredCall: GrpcDeferredCall[_, _], sideEffects) =>
         component.Forward(
           deferredCall.fullServiceName,
           deferredCall.methodName,
@@ -55,7 +55,7 @@ object EffectSupport {
       messageCodec: MessageCodec,
       secondaryEffect: SecondaryEffectImpl): Vector[component.SideEffect] = {
     val encodedSideEffects = secondaryEffect.sideEffects.map {
-      case SideEffectImpl(deferred: DeferredCallImpl[_, _], synchronous) =>
+      case SideEffectImpl(deferred: GrpcDeferredCall[_, _], synchronous) =>
         component.SideEffect(
           deferred.fullServiceName,
           deferred.methodName,

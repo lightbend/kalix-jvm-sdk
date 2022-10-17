@@ -21,7 +21,7 @@ import akka.http.scaladsl.model.{ HttpMethod, HttpMethods, Uri }
 import com.google.protobuf.{ Descriptors, DynamicMessage }
 import com.google.protobuf.any.Any
 import kalix.javasdk.DeferredCall
-import kalix.javasdk.impl.{ AnySupport, MetadataImpl, RestDeferredCallImpl }
+import kalix.javasdk.impl.{ AnySupport, MetadataImpl, RestDeferredCall }
 import kalix.protocol.component.MetadataEntry
 import kalix.protocol.discovery.IdentificationInfo
 import kalix.springsdk.KalixClient
@@ -29,7 +29,6 @@ import kalix.springsdk.impl.http.HttpEndpointMethodDefinition
 import kalix.springsdk.impl.http.HttpEndpointMethodDefinition.ANY_METHOD
 import org.slf4j.{ Logger, LoggerFactory }
 import org.springframework.http.{ HttpHeaders, MediaType }
-import org.springframework.web.HttpRequestMethodNotSupportedException
 import org.springframework.web.reactive.function.client.WebClient
 
 import java.util.concurrent.CompletionStage
@@ -139,13 +138,13 @@ final class RestKalixClientImpl(messageCodec: SpringSdkMessageCodec) extends Kal
       uri: Uri,
       body: Option[P],
       httpDef: HttpEndpointMethodDefinition,
-      asyncCall: () => CompletionStage[R]): RestDeferredCallImpl[Any, R] = {
+      asyncCall: () => CompletionStage[R]): RestDeferredCall[Any, R] = {
     val inputBuilder = DynamicMessage.newBuilder(httpDef.methodDescriptor.getInputType)
     httpDef.parsePathParametersInto(uri.path, inputBuilder)
     httpDef.parseRequestParametersInto(uri.query().toMultiMap, inputBuilder)
     val wrappedBody = buildWrappedBody(httpDef, inputBuilder, body)
 
-    RestDeferredCallImpl[Any, R](
+    RestDeferredCall[Any, R](
       message = wrappedBody,
       metadata = buildMetadata(),
       fullServiceName = httpDef.methodDescriptor.getService.getFullName,

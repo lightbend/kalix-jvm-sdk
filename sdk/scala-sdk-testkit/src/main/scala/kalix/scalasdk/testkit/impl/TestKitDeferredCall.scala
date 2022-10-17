@@ -16,14 +16,14 @@
 
 package kalix.scalasdk.testkit.impl
 
-import kalix.javasdk.impl.DeferredCallImpl
+import kalix.javasdk.impl.GrpcDeferredCall
 import kalix.scalasdk.Metadata
 import kalix.scalasdk.impl.MetadataConverters
 import kalix.scalasdk.testkit.DeferredCallDetails
 
 import scala.concurrent.Future
 
-final case class TestKitDeferredCall[I, O](deferredCall: DeferredCallImpl[I, O]) extends DeferredCallDetails[I, O] {
+final case class TestKitDeferredCall[I, O](deferredCall: GrpcDeferredCall[I, O]) extends DeferredCallDetails[I, O] {
   // public API for inspection
   override def serviceName: String = deferredCall.fullServiceName
   override def methodName: String = deferredCall.methodName

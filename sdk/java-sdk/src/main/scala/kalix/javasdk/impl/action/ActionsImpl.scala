@@ -123,7 +123,7 @@ private[javasdk] final class ActionsImpl(
           component.Reply(Some(messageCodec.encodeScala(message)), metadata.flatMap(toProtocol))
         Future.successful(
           ActionResponse(ActionResponse.Response.Reply(response), toProtocol(messageCodec, sideEffects)))
-      case ForwardEffect(forward: DeferredCallImpl[_, _], sideEffects) =>
+      case ForwardEffect(forward: GrpcDeferredCall[_, _], sideEffects) =>
         val response = component.Forward(
           forward.fullServiceName,
           forward.methodName,
@@ -131,7 +131,7 @@ private[javasdk] final class ActionsImpl(
           toProtocol(forward.metadata))
         Future.successful(
           ActionResponse(ActionResponse.Response.Forward(response), toProtocol(messageCodec, sideEffects)))
-      case ForwardEffect(forward: RestDeferredCallImpl[Any, _], sideEffects) =>
+      case ForwardEffect(forward: RestDeferredCall[Any, _], sideEffects) =>
         val response = component.Forward(
           forward.fullServiceName,
           forward.methodName,
@@ -160,7 +160,7 @@ private[javasdk] final class ActionsImpl(
   }
 
   private def toProtocol(messageCodec: MessageCodec, sideEffects: Seq[SideEffect]): Seq[component.SideEffect] =
-    sideEffects.map { case SideEffectImpl(deferred: DeferredCallImpl[_, _], synchronous) =>
+    sideEffects.map { case SideEffectImpl(deferred: GrpcDeferredCall[_, _], synchronous) =>
       component.SideEffect(
         deferred.fullServiceName,
         deferred.methodName,

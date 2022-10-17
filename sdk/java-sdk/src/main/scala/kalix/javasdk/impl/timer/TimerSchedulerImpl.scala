@@ -27,7 +27,7 @@ import com.google.protobuf.duration.{ Duration => ProtoDuration }
 import com.google.protobuf.wrappers.StringValue
 import com.google.protobuf.any.{ Any => ScalaPbAny }
 import kalix.javasdk.DeferredCall
-import kalix.javasdk.impl.{ DeferredCallImpl, GrpcClients, MessageCodec, RestDeferredCallImpl }
+import kalix.javasdk.impl.{ GrpcClients, GrpcDeferredCall, MessageCodec, RestDeferredCall }
 import kalix.javasdk.timer.TimerScheduler
 import kalix.timers.timers.Call
 import kalix.timers.timers.SingleTimer
@@ -44,16 +44,16 @@ private[kalix] final class TimerSchedulerImpl(messageCodec: MessageCodec, system
     val timerServiceClient = GrpcClients(system).getProxyGrpcClient(classOf[TimerService])
 
     val call = deferredCall match {
-      case deferredCallImpl: DeferredCallImpl[I, O] =>
+      case grpcDeferredCall: GrpcDeferredCall[I, O] =>
         Call(
-          deferredCallImpl.fullServiceName,
-          deferredCallImpl.methodName,
-          Some(messageCodec.encodeScala(deferredCall.message())))
-      case restDeferredCallImpl: RestDeferredCallImpl[I, O] =>
+          grpcDeferredCall.fullServiceName,
+          grpcDeferredCall.methodName,
+          Some(messageCodec.encodeScala(grpcDeferredCall.message)))
+      case restDeferredCall: RestDeferredCall[I, O] =>
         Call(
-          restDeferredCallImpl.fullServiceName,
-          restDeferredCallImpl.methodName,
-          Some(restDeferredCallImpl.message.asInstanceOf[ScalaPbAny]))
+          restDeferredCall.fullServiceName,
+          restDeferredCall.methodName,
+          Some(restDeferredCall.message.asInstanceOf[ScalaPbAny]))
     }
 
     val singleTimer = SingleTimer(name, Some(call), Some(ProtoDuration(delay)))

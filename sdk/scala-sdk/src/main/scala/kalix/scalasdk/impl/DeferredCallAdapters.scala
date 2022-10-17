@@ -37,7 +37,7 @@ object ScalaDeferredCallAdapter {
       fullServiceName: String,
       methodName: String,
       asyncCall: () => Future[O]): ScalaDeferredCallAdapter[I, O] = ScalaDeferredCallAdapter(
-    javasdk.impl.DeferredCallImpl(message, metadata.impl, fullServiceName, methodName, () => asyncCall().asJava))
+    javasdk.impl.GrpcDeferredCall(message, metadata.impl, fullServiceName, methodName, () => asyncCall().asJava))
 
 }
 

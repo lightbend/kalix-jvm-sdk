@@ -20,7 +20,7 @@ import com.google.protobuf.{ ByteString, Descriptors, DynamicMessage }
 import com.google.protobuf.any.{ Any => ScalaPbAny }
 import com.google.protobuf.{ Any => JavaPbAny }
 import kalix.javasdk.{ DeferredCall, JsonSupport }
-import kalix.javasdk.impl.{ AnySupport, RestDeferredCallImpl }
+import kalix.javasdk.impl.{ AnySupport, RestDeferredCall }
 import kalix.protocol.discovery.IdentificationInfo
 import kalix.springsdk.testmodels.action.ActionsTestModels.{
   GetClassLevel,
@@ -171,11 +171,11 @@ class RestKalixClientImplSpec extends AnyWordSpec with Matchers with BeforeAndAf
   }
 
   private def assertRestDeferredCall[M, R](defCall: DeferredCall[M, R])(
-      assertFunc: RestDeferredCallImpl[M, R] => scalatest.Assertion) = {
-    defCall shouldBe a[RestDeferredCallImpl[ScalaPbAny, _]]
+      assertFunc: RestDeferredCall[M, R] => scalatest.Assertion) = {
+    defCall shouldBe a[RestDeferredCall[ScalaPbAny, _]]
 
     withClue(defCall.getClass) {
-      assertFunc(defCall.asInstanceOf[RestDeferredCallImpl[M, R]])
+      assertFunc(defCall.asInstanceOf[RestDeferredCall[M, R]])
     }
   }
 

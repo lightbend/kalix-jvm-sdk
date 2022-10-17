@@ -17,7 +17,7 @@
 package kalix.scalasdk.testkit.impl
 
 import kalix.javasdk.{ SideEffect => JavaSideEffect }
-import kalix.javasdk.impl.DeferredCallImpl
+import kalix.javasdk.impl.GrpcDeferredCall
 import kalix.javasdk.impl.effect.ErrorReplyImpl
 import kalix.javasdk.impl.effect.ForwardReplyImpl
 import kalix.javasdk.impl.effect.MessageReplyImpl
@@ -30,14 +30,14 @@ import scala.collection.immutable.Seq
 private[kalix] object EffectUtils {
   def toDeferredCallDetails(sideEffects: Seq[JavaSideEffect]): Seq[DeferredCallDetails[_, _]] = {
     sideEffects.map { sideEffect =>
-      TestKitDeferredCall(sideEffect.call.asInstanceOf[DeferredCallImpl[_, _]])
+      TestKitDeferredCall(sideEffect.call.asInstanceOf[GrpcDeferredCall[_, _]])
     }
   }
 
   def forwardDetailsFor[R](secondaryEffect: JavaSecondaryEffectImpl): DeferredCallDetails[_, R] =
     secondaryEffect match {
       case reply: ForwardReplyImpl[R @unchecked] =>
-        TestKitDeferredCall(reply.deferredCall.asInstanceOf[DeferredCallImpl[_, R]])
+        TestKitDeferredCall(reply.deferredCall.asInstanceOf[GrpcDeferredCall[_, R]])
       case _ => throw new IllegalArgumentException(s"Expected a forward effect but was [${nameFor(secondaryEffect)}]")
     }
 

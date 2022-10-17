@@ -2,7 +2,7 @@ package org.example;
 
 import kalix.javasdk.Context;
 import kalix.javasdk.DeferredCall;
-import kalix.javasdk.impl.DeferredCallImpl;
+import kalix.javasdk.impl.GrpcDeferredCall;
 import kalix.javasdk.impl.InternalContext;
 import kalix.javasdk.impl.MetadataImpl;
 
@@ -33,7 +33,7 @@ public final class ComponentsImpl implements Components {
   private final class MultiMapServiceEntityCallsImpl implements Components.MultiMapServiceEntityCalls {
      @Override
     public DeferredCall<com.example.replicated.multimap.SomeMultiMapApi.PutValue, com.google.protobuf.Empty> put(com.example.replicated.multimap.SomeMultiMapApi.PutValue putValue) {
-      return new DeferredCallImpl<>(
+      return new GrpcDeferredCall<>(
         putValue,
         MetadataImpl.Empty(),
         "com.example.replicated.multimap.MultiMapService",
