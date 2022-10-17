@@ -2,6 +2,7 @@ version: 2.1
 
 orbs:
   build-tools: circleci/build-tools@2.9.0
+  github-cli: circleci/github-cli@1.0.2
 
 commands:
   checkout-and-merge-to-main:
@@ -215,6 +216,31 @@ jobs:
           command: |
             make -C docs validate-links
       - save_deps_cache
+
+  create-pr-sdk-versions-update:
+    docker:
+      - image: circleci/openjdk:11
+    steps:
+      - github-cli/setup
+      - checkout
+      - restore_deps_cache
+      - setup_sbt
+      - set-sdk-version
+      - run:
+          name: Create PR to update all sdk versions (samples, sbt and maven)
+          command: |
+            chmod +x ./updateSdkVersions.sh
+            bash ./updateSdkVersions.sh all
+            
+            BRANCH=bump-sdk-versions-$SDK_VERSION
+            git checkout -b $BRANCH
+            git config user.name "Kalix Bot"
+            git config user.email "kalix.github@lightbend.com"
+            git commit . -m "Bump SDK versions to $SDK_VERSION"
+            git remote add origin-rw https://$GITHUB_TOKEN@github.com/lightbend/kalix-jvm-sdk
+            git push --set-upstream origin-rw $BRANCH
+            
+            gh pr create -B main -t "Auto PR - Bump SDK versions to $SDK_VERSION" -b "This PR should update all existing samples (pom.xml and plugins.sbt) and the maven-java poms. Please review, and merge if okay. [$CIRCLE_SHA1]($CIRCLE_BUILD_URL)" || echo "No changes"; exit 0
 
   tests:
     docker:
@@ -1423,6 +1449,16 @@ workflows:
             - publish
             - publish-maven
             - publish-tck
+
+      - create-pr-sdk-versions-update:
+          filters: # version tags only
+            tags:
+              only: /^v.*/
+            branches:
+              ignore: /.*/
+          requires:
+            # we only create the versions bump PR after publish-docs is successful, which means release was successful
+            - publish-docs
 
   Nightly:
     triggers:
