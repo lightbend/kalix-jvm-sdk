@@ -37,10 +37,10 @@ public class LimitedFibonacciAction extends Action {
 
     @PostMapping("/next")
     public Effect<Number> nextNumber(@RequestBody Number number) {
-        if (number.value < 0 || number.value > 10000) {
+        if (number.value() < 0 || number.value() > 10000) {
             return effects().error("Only numbers between 0 and 10k are allowed", Status.Code.INVALID_ARGUMENT);
         } else {
-            logger.info("Executing POST call to real /fibonacci = " + number.value);
+            logger.info("Executing POST call to real /fibonacci = " + number.value());
             var serviceCall = kalixClient.post("/fibonacci/next", number, Number.class).execute();
 
             return effects().asyncReply(serviceCall);

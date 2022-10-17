@@ -28,7 +28,7 @@ public class FibonacciAction extends Action {
 
   @PostMapping("/next")
   public Effect<Number> nextNumber(@RequestBody Number number) {
-    long num =  number.value;
+    long num =  number.value();
     if (isFibonacci(num)) {
       return effects().reply(new Number(nextFib(num)));
     } else {

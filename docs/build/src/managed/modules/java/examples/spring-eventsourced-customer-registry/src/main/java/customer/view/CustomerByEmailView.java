@@ -1,7 +1,4 @@
 package customer.view;
-/*
- * Copyright (C) 2009-2022 Lightbend Inc. <https://www.lightbend.com>
- */
 
 import customer.api.CustomerEntity;
 import customer.api.CustomerEvent;
@@ -21,9 +18,17 @@ public class CustomerByEmailView extends View<CustomerView> {
   }
 
   @Subscribe.EventSourcedEntity(CustomerEntity.class)
-  public UpdateEffect<CustomerView> onEvent(CustomerView customer, CustomerEvent event) {
-    return CustomerView.onEvent(customer, event)
-        .map(state ->effects().updateState(state))
-        .orElse(effects().ignore());
+  public UpdateEffect<CustomerView> onEvent(CustomerEvent.CustomerCreated created) {
+    return effects().updateState(new CustomerView(created.email(), created.name(), created.address()));
+  }
+
+  @Subscribe.EventSourcedEntity(CustomerEntity.class)
+  public UpdateEffect<CustomerView> onEvent(CustomerEvent.NameChanged event) {
+    return effects().updateState(viewState().withName(event.newName()));
+  }
+
+  @Subscribe.EventSourcedEntity(CustomerEntity.class)
+  public UpdateEffect<CustomerView> onEvent(CustomerEvent.AddressChanged event) {
+    return effects().updateState(viewState().withAddress(event.address()));
   }
 }

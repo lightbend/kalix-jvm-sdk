@@ -17,7 +17,11 @@ dockerBuildCommand := {
   if (sys.props("os.arch") != "amd64") {
     // use buildx with platform to build supported amd64 images on other CPU architectures
     // this may require that you have first run 'docker buildx create' to set docker buildx up
-    dockerExecCommand.value ++ Seq("buildx", "build", "--platform=linux/amd64", "--load") ++ dockerBuildOptions.value :+ "."
+    dockerExecCommand.value ++ Seq(
+      "buildx",
+      "build",
+      "--platform=linux/amd64",
+      "--load") ++ dockerBuildOptions.value :+ "."
   } else dockerBuildCommand.value
 }
 ThisBuild / dynverSeparator := "-"
@@ -29,7 +33,10 @@ Compile / scalacOptions ++= Seq(
   "-unchecked",
   "-Xlog-reflective-calls",
   "-Xlint")
-Compile / javacOptions ++= Seq("-Xlint:unchecked", "-Xlint:deprecation", "-parameters" // for Jackson
+Compile / javacOptions ++= Seq(
+  "-Xlint:unchecked",
+  "-Xlint:deprecation",
+  "-parameters" // for Jackson
 )
 
 Test / parallelExecution := false
