@@ -3,7 +3,7 @@ include::ROOT:partial$include.adoc[]
 = Service to Service Eventing
 :page-supergroup-java-scala: Language
 
-Kalix provides broker less at-least-once event delivery across Kalix services through the Service to Service eventing.
+Kalix provides brokerless at-least-once event delivery across Kalix services through the Service to Service eventing.
 
 The source of the events is an xref:event-sourced-entities.adoc[Event Sourced Entity], that the service provides a Service to Service publisher for.
 
@@ -62,9 +62,9 @@ include::example$scala-eventsourced-customer-registry/src/main/scala/customer/ap
 
 == Event Consumer
 
-The consumer can be an action or a view, annotated with `(kalix.service).eventing.in.direct` with a `service` identifying the publishing service, and the `event_stream_id` to subscribe to.
+The consumer can be an Action or a View, annotated with `(kalix.service).eventing.in.direct` with a `service` identifying the publishing service, and the `event_stream_id` to subscribe to.
 
-Since the consumer is in a separate view, we must include the message descriptors for the messages the producing side produces:
+Since the consumer is in a separate View, we must include the message descriptors for the messages the producing side produces:
 
 [.tabset]
 Java::
@@ -83,7 +83,7 @@ Scala::
 include::example$scala-eventsourced-customer-registry-subscriber/src/main/proto/customer/api/publisher_api.proto[tag=messages]
 ----
 
-We then define a component subscribing to the service to service publisher. In this example we do that with a view:
+We then define a component subscribing to the service to service publisher. In this example we do that with a View:
 
 [.tabset]
 Java::
