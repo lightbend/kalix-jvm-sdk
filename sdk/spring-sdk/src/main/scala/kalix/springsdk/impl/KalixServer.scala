@@ -35,11 +35,13 @@ import kalix.javasdk.valueentity.ValueEntityProvider
 import kalix.javasdk.view.View
 import kalix.javasdk.view.ViewCreationContext
 import kalix.javasdk.view.ViewProvider
+import kalix.springsdk.KalixClient
 import kalix.springsdk.SpringSdkBuildInfo
 import kalix.springsdk.action.ReflectiveActionProvider
 import kalix.springsdk.eventsourced.ReflectiveEventSourcedEntityProvider
 import kalix.springsdk.impl.KalixServer.ActionCreationContextFactoryBean
 import kalix.springsdk.impl.KalixServer.EventSourcedEntityContextFactoryBean
+import kalix.springsdk.impl.KalixServer.KalixClientFactoryBean
 import kalix.springsdk.impl.KalixServer.KalixComponentProvider
 import kalix.springsdk.impl.KalixServer.ValueEntityContextFactoryBean
 import kalix.springsdk.impl.KalixServer.ViewCreationContextFactoryBean
@@ -47,6 +49,7 @@ import kalix.springsdk.valueentity.ReflectiveValueEntityProvider
 import kalix.springsdk.view.ReflectiveViewProvider
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.BeanCreationException
 import org.springframework.beans.factory.FactoryBean
 import org.springframework.beans.factory.config.BeanDefinition
 import org.springframework.beans.factory.config.ConfigurableBeanFactory
@@ -141,13 +144,24 @@ object KalixServer {
     override def getObject: ViewCreationContext = loco.get()
     override def getObjectType: Class[_] = classOf[ViewCreationContext]
   }
+
+  class KalixClientFactoryBean(loco: ThreadLocal[KalixClient]) extends FactoryBean[KalixClient] {
+    override def isSingleton: Boolean = true // yes, we only need one
+    override def getObject: KalixClient = {
+      if (loco.get() != null) loco.get()
+      else
+        throw new BeanCreationException("KalixClient can only be injected in Kalix Actions.")
+    }
+
+    override def getObjectType: Class[_] = classOf[KalixClient]
+  }
 }
 
 class KalixServer(applicationContext: ApplicationContext, config: Config) {
 
   private val logger: Logger = LoggerFactory.getLogger(getClass)
 
-  val kalix = (new Kalix).withSdkName(SpringSdkBuildInfo.name)
+  val kalix: Kalix = (new Kalix).withSdkName(SpringSdkBuildInfo.name)
 
   private val kalixClient = new RestKalixClientImpl
   private val messageCodec = new SpringSdkMessageCodec
@@ -155,6 +169,7 @@ class KalixServer(applicationContext: ApplicationContext, config: Config) {
   private val threadLocalEventSourcedEntityContext = new ThreadLocal[EventSourcedEntityContext]
   private val threadLocalValueEntityContext = new ThreadLocal[ValueEntityContext]
   private val threadLocalViewContext = new ThreadLocal[ViewCreationContext]
+  private val threadLocalKalixClient = new ThreadLocal[KalixClient]
 
   private val kalixBeanFactory = new DefaultListableBeanFactory(applicationContext)
 
@@ -163,20 +178,23 @@ class KalixServer(applicationContext: ApplicationContext, config: Config) {
   private val actionCreationContextFactoryBean: ActionCreationContextFactoryBean =
     new ActionCreationContextFactoryBean(threadLocalActionContext)
 
-  private val eventSourcedEntityContext: EventSourcedEntityContextFactoryBean =
+  private val eventSourcedEntityContextFactoryBean: EventSourcedEntityContextFactoryBean =
     new EventSourcedEntityContextFactoryBean(threadLocalEventSourcedEntityContext)
 
-  private val valueEntityContext: ValueEntityContextFactoryBean =
+  private val valueEntityContextFactoryBean: ValueEntityContextFactoryBean =
     new ValueEntityContextFactoryBean(threadLocalValueEntityContext)
 
-  private val viewCreationContext: ViewCreationContextFactoryBean =
+  private val viewCreationContextFactoryBean: ViewCreationContextFactoryBean =
     new ViewCreationContextFactoryBean(threadLocalViewContext)
 
+  private val kalixClientFactoryBean: KalixClientFactoryBean =
+    new KalixClientFactoryBean(threadLocalKalixClient)
+
   kalixBeanFactory.registerSingleton("actionCreationContextFactoryBean", actionCreationContextFactoryBean)
-  kalixBeanFactory.registerSingleton("eventSourcedEntityContext", eventSourcedEntityContext)
-  kalixBeanFactory.registerSingleton("valueEntityContext", valueEntityContext)
-  kalixBeanFactory.registerSingleton("viewCreationContext", viewCreationContext)
-  kalixBeanFactory.registerSingleton("kalixClient", kalixClient)
+  kalixBeanFactory.registerSingleton("eventSourcedEntityContext", eventSourcedEntityContextFactoryBean)
+  kalixBeanFactory.registerSingleton("valueEntityContext", valueEntityContextFactoryBean)
+  kalixBeanFactory.registerSingleton("viewCreationContext", viewCreationContextFactoryBean)
+  kalixBeanFactory.registerSingleton("kalixClient", kalixClientFactoryBean)
 
   // This little hack allows us to find out which bean is annotated with SpringBootApplication (usually only one).
   // We need it to find out which packages to scan.
@@ -252,9 +270,13 @@ class KalixServer(applicationContext: ApplicationContext, config: Config) {
         if (hasContextConstructor(clz, classOf[ActionCreationContext]))
           threadLocalActionContext.set(context)
 
-        val grpcClients = GrpcClients(context.materializer().system)
-        grpcClients.getProxyHostname.foreach(kalixClient.setHost)
-        grpcClients.getProxyPort.foreach(kalixClient.setPort)
+        if (hasContextConstructor(clz, classOf[KalixClient])) {
+          val grpcClients = GrpcClients(context.materializer().system)
+          grpcClients.getProxyHostname.foreach(kalixClient.setHost)
+          grpcClients.getProxyPort.foreach(kalixClient.setPort)
+          threadLocalKalixClient.set(kalixClient)
+        }
+
         kalixBeanFactory.getBean(clz)
       })
 

@@ -1,10 +1,9 @@
 // This is the default Access Control List (ACL) for all components of this Kalix Service
 syntax = "proto3";
 
-package customer;
+package com.example.fibonacci;
 
 import "kalix/annotations.proto";
-
 
 // NOTE: This default ACL settings is very permissive as it allows any traffic from the internet.
 // Our samples default to this permissive configuration to allow users to easily try it out.

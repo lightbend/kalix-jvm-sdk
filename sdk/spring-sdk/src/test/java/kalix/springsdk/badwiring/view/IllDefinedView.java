@@ -17,7 +17,9 @@
 package kalix.springsdk.badwiring.view;
 
 import kalix.javasdk.view.View;
+import kalix.springsdk.annotations.Table;
 import org.springframework.stereotype.Component;
 
+@Table("test")
 @Component
 public class IllDefinedView extends View<String> {}

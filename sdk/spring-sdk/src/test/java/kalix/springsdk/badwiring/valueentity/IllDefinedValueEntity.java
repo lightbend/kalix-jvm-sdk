@@ -17,7 +17,9 @@
 package kalix.springsdk.badwiring.valueentity;
 
 import kalix.javasdk.valueentity.ValueEntity;
+import kalix.springsdk.annotations.Entity;
 import org.springframework.stereotype.Component;
 
+@Entity(entityKey = "id", entityType = "test")
 @Component
 public class IllDefinedValueEntity extends ValueEntity<String> {}
