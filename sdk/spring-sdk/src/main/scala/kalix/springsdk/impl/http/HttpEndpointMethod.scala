@@ -37,6 +37,8 @@ import java.lang.{
 }
 
 /**
+ * INTERNAL API
+ *
  * The actually running/request handling endpoint, one HTTP endpoint serves/handles
  */
 private object HttpEndpointMethod {

@@ -22,6 +22,7 @@ import akka.http.scaladsl.model.{
   HttpMethod,
   HttpMethods,
   IllegalRequestException,
+  ParsingException,
   RequestEntityAcceptance,
   StatusCodes,
   Uri
@@ -34,6 +35,7 @@ import com.google.protobuf.{ Descriptors, DynamicMessage }
 import com.google.protobuf.Descriptors.{ Descriptor, FieldDescriptor, MethodDescriptor, ServiceDescriptor }
 import com.google.protobuf.descriptor.{ MethodOptions => spbMethodOptions }
 import com.google.protobuf.util.{ Durations, JsonFormat, Timestamps }
+import kalix.springsdk.impl.path.PathPatternParseException
 import org.slf4j.LoggerFactory
 
 import java.net.URLDecoder
@@ -44,6 +46,8 @@ import scala.jdk.CollectionConverters._
 import scala.util.control.NonFatal
 
 /**
+ * INTERNAL API
+ *
  * Declarative model of a HTTP endpoint, and the logic to parse and validate it from a descriptor. Each instance
  * corresponds to the HTTP/JSON representation of one gRPC method. Doesn't actually handle any requests, that is up to
  * the [[HttpEndpointMethod]]
@@ -57,8 +61,8 @@ object HttpEndpointMethodDefinition {
   private val log = LoggerFactory.getLogger(classOf[HttpEndpointMethodDefinition])
 
   // For descriptive purposes so it's clear what these types do
-  type PathParameterEffect = (FieldDescriptor, Option[Any]) => Unit
-  type ExtractPathParameters = (Matcher, PathParameterEffect) => Unit
+  private type PathParameterEffect = (FieldDescriptor, Option[Any]) => Unit
+  private type ExtractPathParameters = (Matcher, PathParameterEffect) => Unit
 
   // This is used to support the "*" custom pattern
   val ANY_METHOD = HttpMethod.custom(
@@ -68,6 +72,8 @@ object HttpEndpointMethodDefinition {
     requestEntityAcceptance = RequestEntityAcceptance.Tolerated)
 
   /**
+   * INTERNAL API
+   *
    * Extracts a HTTP endpoint definition, or throws a ReportableError if the definition is invalid
    */
   def extractForService(serviceDescriptor: ServiceDescriptor): Seq[HttpEndpointMethodDefinition] = {
@@ -88,7 +94,7 @@ object HttpEndpointMethodDefinition {
     }
   }
 
-  private[http] def ruleBindings(service: ServiceDescriptor, method: MethodDescriptor): Seq[HttpRule] = {
+  private def ruleBindings(service: ServiceDescriptor, method: MethodDescriptor): Seq[HttpRule] = {
 
     def convertHttpRule(jHttpRule: JavaHttpRule): Option[HttpRule] = {
       try {
@@ -149,9 +155,7 @@ object HttpEndpointMethodDefinition {
       : (HttpMethod, PathTemplateParser.ParsedTemplate, ExtractPathParameters, Descriptor, Option[FieldDescriptor]) = {
     // Validate selector
     if (rule.selector != "" && rule.selector != methDesc.getFullName)
-      throw new Exception(
-        "HttpApi.invalidSelector(rule.selector, methDesc)"
-      ) // FIXME fix all the exceptions to useful outputs
+      parsingError(s"HTTP API selector [${rule.selector}] is not valid")
 
     // Validate pattern
     val (mp, pattern) = {
@@ -159,7 +163,7 @@ object HttpEndpointMethodDefinition {
       import HttpRule.Pattern._
 
       rule.pattern match {
-        case Empty           => throw new Exception("HttpApi.missingPattern(methDesc)")
+        case Empty           => parsingError(s"HTTP API option for [${methDesc.getFullName}] is missing a pattern")
         case Get(pattern)    => (GET, pattern)
         case Put(pattern)    => (PUT, pattern)
         case Post(pattern)   => (POST, pattern)
@@ -168,7 +172,9 @@ object HttpEndpointMethodDefinition {
         case Custom(chp) =>
           if (chp.kind == "*")
             (ANY_METHOD, chp.path) // FIXME is "path" the same as "pattern" for the other kinds? Is an empty kind valid?
-          else throw new Exception("HttpApi.invalidCustomKind(chp.kind, methDesc)")
+          else
+            parsingError(
+              s"HHTTP API option for [${methDesc.getFullName}] has a custom pattern with an unsupported kind [${chp.kind}]")
       }
     }
     val (template, extractor) = parsePathExtractor(pattern, methDesc)
@@ -179,17 +185,21 @@ object HttpEndpointMethodDefinition {
         case "" => methDesc.getInputType
         case "*" =>
           if (!mp.isEntityAccepted)
-            throw new Exception("HttpApi.requestBodyNotAccepted(mp, body = \"*\", methDesc)")
+            parsingError(
+              s"HTTP API option for [${methDesc.getFullName}] has a body [\"*\"] but [$mp] does not accept a request body")
           else
             methDesc.getInputType
         case fieldName =>
           val field = lookupFieldByName(methDesc.getInputType, fieldName)
           if (field == null)
-            throw new Exception("HttpApi.requestBodyUnknownField(fieldName, methDesc)")
+            parsingError(
+              s"HTTP API option for [${methDesc.getFullName}] has a body configured to [$fieldName] but that field does not exist")
           else if (field.isRepeated)
-            throw new Exception("HttpApi.requestBodyRepeatedField(fieldName, methDesc)")
+            parsingError(
+              s"HTTP API option for [${methDesc.getFullName}] has a body configured to [$fieldName] but that is a repeated field")
           else if (!mp.isEntityAccepted)
-            throw new Exception("HttpApi.requestBodyNotAccepted(mp, body = fieldName, methDesc)")
+            parsingError(
+              s"HTTP API option for [${methDesc.getFullName}] has a body [$fieldName] but [$mp] does not accept a request body")
           else
             field.getMessageType
       }
@@ -200,49 +210,51 @@ object HttpEndpointMethodDefinition {
         case "" => None
         case fieldName =>
           lookupFieldByName(methDesc.getOutputType, fieldName) match {
-            case null  => throw new Exception("HttpApi.responseBodyUnknownField(fieldName, methDesc)")
+            case null =>
+              parsingError(
+                s"HTTP API option for [${methDesc.getFullName}] has a response body configured to [$fieldName] but that field does not exist")
             case field => Some(field)
           }
       }
 
     if (rule.additionalBindings.exists(_.additionalBindings.nonEmpty))
-      throw new Exception("HttpApi.nestedAdditionalBindings(methDesc)")
+      parsingError(s"HTTP API option for [${methDesc.getFullName}] has nested additional bindings")
 
     (mp, template, extractor, bd, rd)
   }
 
-  final def parsePathExtractor(
+  private def parsePathExtractor(
       pattern: String,
       methDesc: MethodDescriptor): (PathTemplateParser.ParsedTemplate, ExtractPathParameters) = {
     val template =
       try PathTemplateParser.parse(pattern)
       catch {
-        case e: PathTemplateParser.PathTemplateParseException =>
-          throw new Exception("HttpApi.pathTemplateParseFailed(e.prettyPrint, methDesc)") //FIXME
+        case _: PathPatternParseException =>
+          parsingError(s"HTTP API path template for [${methDesc.getFullName}] could not be parsed")
       }
     val pathFieldParsers = template.fields.iterator
       .map {
         case tv @ PathTemplateParser.TemplateVariable(fieldName :: Nil, _) =>
           lookupFieldByName(methDesc.getInputType, fieldName) match {
             case null =>
-              throw new Exception("HttpApi.pathUnknownField(fieldName, methDesc)") //FIXME
+              parsingError(
+                s"HTTP API path template for [${methDesc.getFullName}] references an unknown field named [$fieldName], methDesc)")
             case field =>
               if (field.isMapField)
-                throw new Exception("HttpApi.pathMapField(fieldName, methDesc)") //FIXME
+                parsingError(
+                  s"HTTP API path template for [${methDesc.getFullName}] references [$fieldName] but that is a map field")
               else if (field.isRepeated)
-                throw new Exception("HttpApi.pathRepeatedField(fieldName, methDesc)") //FIXME
+                parsingError(
+                  s"HTTP API path template for [${methDesc.getFullName}] references [$fieldName] but that is a repeated fieldfield")
               else {
                 val notSupported =
-                  (message: String) => throw new Exception(s"""HttpApi.notSupportedYet(
-                      "HTTP API path for [${methDesc.getFullName}]: $message",
-                      "",
-                      List(methDesc))""")
+                  (message: String) => parsingError(s"HTTP API path for [${methDesc.getFullName}]: $message")
                 (tv, field, HttpEndpointMethod.suitableParserFor(field)(notSupported))
               }
           }
         case multi =>
           // todo implement field paths properly
-          throw new Exception(s"""HttpApi.notSupportedYet(
+          parsingError(s"""HttpApi.notSupportedYet(
             s"HTTP API path template for [${methDesc.getFullName}] references a field path [${multi.fieldPath
             .mkString(".")}]",
             "Referencing sub-fields with field paths is not yet supported.",
@@ -290,6 +302,7 @@ object HttpEndpointMethodDefinition {
   private def lookupFieldByName(desc: Descriptor, selector: String): FieldDescriptor =
     desc.findFieldByName(selector) // TODO potentially start supporting path-like selectors with maximum nesting level?
 
+  private val parsingError: String => Nothing = s => throw ParsingException(new ErrorInfo(s))
 }
 
 final case class HttpEndpointMethodDefinition private (
@@ -301,42 +314,8 @@ final case class HttpEndpointMethodDefinition private (
     bodyDescriptor: Descriptor,
     responseBodyDescriptor: Option[FieldDescriptor]) {
 
-  private def isAny(descriptor: Descriptors.Descriptor): Boolean =
-    //Note: descriptor doesn't implement 'equals', hence the fullName comparison
-    descriptor.getFullName == "google.protobuf.Any"
-
-  val inputIsAny: Boolean = isAny(methodDescriptor.getInputType)
-  val ruleBodyField: Option[FieldDescriptor] = {
-    // used for each request when used, so cache
-    if (rule.body == "" || rule.body == "*") None
-    else Option(lookupRequestFieldByName(rule.body))
-  }
-  val ruleBodyFieldIsAny: Boolean = ruleBodyField.exists(fieldDesc => isAny(fieldDesc.getMessageType))
-
-  val jsonParser =
-    JsonFormat.parser
-      .usingTypeRegistry(JsonFormat.TypeRegistry.newBuilder.add(bodyDescriptor).build())
-      .ignoringUnknownFields()
-  //usingRecursionLimit(…).
-
-  val jsonPrinter = JsonFormat.printer
-    .usingTypeRegistry(JsonFormat.TypeRegistry.newBuilder.add(methodDescriptor.getOutputType).build())
-    .includingDefaultValueFields()
-    .omittingInsignificantWhitespace()
-  //printingEnumsAsInts() // If you enable this, you need to fix the output for responseBody as well
-  //preservingProtoFieldNames(). // If you enable this, you need to fix the output for responseBody structs as well
-  //sortingMapKeys().
-
-  val isHttpBodyResponse: Boolean = methodDescriptor.getOutputType.getFullName == "google.api.HttpBody"
-  val isAnyResponse: Boolean = methodDescriptor.getOutputType.getFullName == "google.protobuf.Any"
-  //val instrumentedRequest = InstrumentedHttpRequest(pathTemplate.path, methodDescriptor)
-
-  def lookupRequestFieldByName(fieldName: String) =
-    HttpEndpointMethodDefinition.lookupFieldByName(methodDescriptor.getInputType, fieldName)
-  // FIXME these belong to request handling, not definition?
-
   // Making this a method so we can ensure it's used the same way
-  def pathMatcher(path: Uri.Path): Matcher =
+  private def pathMatcher(path: Uri.Path): Matcher =
     pathTemplate.regex.pattern
       .matcher(
         path.toString()
@@ -345,7 +324,7 @@ final case class HttpEndpointMethodDefinition private (
   def matches(path: Uri.Path): Boolean =
     pathMatcher(path).matches()
 
-  def lookupRequestFieldByPath(selector: String): Descriptors.FieldDescriptor =
+  private def lookupRequestFieldByPath(selector: String): Descriptors.FieldDescriptor =
     HttpEndpointMethodDefinition.lookupFieldByPath(methodDescriptor.getInputType, selector)
 
   def parsePathParametersInto(path: Path, inputBuilder: DynamicMessage.Builder): Unit = {
@@ -366,7 +345,7 @@ final case class HttpEndpointMethodDefinition private (
     "google.protobuf.Duration" -> Durations.parse)
 
   // We use this to signal to the requester that there's something wrong with the request
-  private final val requestError: String => Nothing = s =>
+  private val requestError: String => Nothing = s =>
     throw IllegalRequestException(StatusCodes.BadRequest, new ErrorInfo(s))
 
   def parseRequestParametersInto(query: Map[String, List[String]], inputBuilder: DynamicMessage.Builder): Unit =
@@ -409,3 +388,6 @@ final case class HttpEndpointMethodDefinition private (
       } // Ignore empty values
     }
 }
+
+final case class HttpEndpointMethodParsingException(field: String, methodDesc: Descriptors.MethodDescriptor)
+    extends RuntimeException(s"Parsing of field=$field failed for methodDesc=$methodDesc")

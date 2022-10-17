@@ -29,6 +29,7 @@ import kalix.springsdk.impl.http.HttpEndpointMethodDefinition
 import kalix.springsdk.impl.http.HttpEndpointMethodDefinition.ANY_METHOD
 import org.slf4j.{ Logger, LoggerFactory }
 import org.springframework.http.{ HttpHeaders, MediaType }
+import org.springframework.web.HttpRequestMethodNotSupportedException
 import org.springframework.web.reactive.function.client.WebClient
 
 import java.util.concurrent.CompletionStage
@@ -131,11 +132,7 @@ final class RestKalixClientImpl(messageCodec: SpringSdkMessageCodec) extends Kal
                 .asScala
             }.asJava)
       }
-      .getOrElse {
-        throw new IllegalArgumentException(
-          s"No matching service for method=${HttpMethods.GET} path=$uri"
-        ) // FIXME use another exception?
-      }
+      .getOrElse(throw HttpMethodNotFoundException(HttpMethods.POST, uri.path.toString()))
   }
 
   private def requestToRestDefCall[P, R](
@@ -175,13 +172,12 @@ final class RestKalixClientImpl(messageCodec: SpringSdkMessageCodec) extends Kal
                   .asScala)
               .asJava)
       }
-      .getOrElse {
-        throw new IllegalArgumentException(
-          s"No matching service for method=${HttpMethods.GET} path=$uri"
-        ) // FIXME use another exception?
-      }
+      .getOrElse(throw HttpMethodNotFoundException(HttpMethods.GET, uri.path.toString()))
   }
 
   private def matchMethodOpt(httpMethod: HttpMethod, uri: Path): Option[HttpEndpointMethodDefinition] =
     services.find(d => (d.methodPattern == ANY_METHOD || httpMethod == d.methodPattern) && d.matches(uri))
 }
+
+final case class HttpMethodNotFoundException(httpMethod: HttpMethod, uriStr: String)
+    extends RuntimeException(s"No matching service for method=$httpMethod path=$uriStr")

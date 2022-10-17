@@ -16,19 +16,28 @@
 
 package kalix.springsdk.impl.http
 
+import kalix.springsdk.impl.path.PathPatternParseException
+
 import java.util.regex.Pattern
 import scala.annotation.nowarn
+import scala.collection.mutable
 import scala.util.matching.Regex
 import scala.util.parsing.combinator.Parsers
 import scala.util.parsing.input.{ CharSequenceReader, Positional }
 
+/**
+ * INTERNAL API
+ */
 object PathTemplateParser extends Parsers {
 
   override type Elem = Char
 
   final class ParsedTemplate(val path: String, template: Template) {
     val regex: Regex = {
-      def doToRegex(builder: StringBuilder, segments: List[Segment], matchSlash: Boolean): StringBuilder =
+      def doToRegex(
+          builder: mutable.StringBuilder,
+          segments: List[Segment],
+          matchSlash: Boolean): mutable.StringBuilder =
         segments match {
           case Nil => builder // Do nothing
           case head :: tail =>
@@ -54,7 +63,7 @@ object PathTemplateParser extends Parsers {
             doToRegex(builder, tail, matchSlash = true)
         }
 
-      val builder = doToRegex(new StringBuilder, template.segments, matchSlash = true)
+      val builder = doToRegex(new mutable.StringBuilder, template.segments, matchSlash = true)
 
       template.verb
         .foldLeft(builder) { (builder, verb) =>
@@ -68,7 +77,7 @@ object PathTemplateParser extends Parsers {
       var found = Set.empty[List[String]]
       template.segments.collect {
         case v @ VariableSegment(fieldPath, _) if found(fieldPath) =>
-          throw PathTemplateParseException("Duplicate path in template", path, v.pos.column + 1)
+          throw PathPatternParseException("Duplicate path in template", path, v.pos.column + 1)
         case VariableSegment(fieldPath, segments) =>
           found += fieldPath
           TemplateVariable(
@@ -83,33 +92,20 @@ object PathTemplateParser extends Parsers {
 
   final case class TemplateVariable(fieldPath: List[String], multi: Boolean)
 
-  final case class PathTemplateParseException(msg: String, path: String, column: Int)
-      extends RuntimeException(
-        s"$msg at ${if (column >= path.length) "end of input" else s"character $column"} of '$path'") {
-
-    def prettyPrint: String = {
-      val caret =
-        if (column >= path.length) ""
-        else "\n" + path.take(column - 1).map { case '\t' => '\t'; case _ => ' ' } + "^"
-
-      s"$msg at ${if (column >= path.length) "end of input" else s"character $column"}:\n$path$caret\n"
-    }
-  }
-
   @nowarn("msg=match may not be exhaustive") // for NoSuccess unapply
   final def parse(path: String): ParsedTemplate =
     template(new CharSequenceReader(path)) match {
       case Success(template, _) =>
         new ParsedTemplate(path, validate(path, template))
       case NoSuccess(msg, next) =>
-        throw PathTemplateParseException(msg, path, next.pos.column)
+        throw PathPatternParseException(msg, path, next.pos.column)
     }
 
   private final def validate(path: String, template: Template): Template = {
     def flattenSegments(segments: Segments, allowVariables: Boolean): Segments =
       segments.flatMap {
         case variable: VariableSegment if !allowVariables =>
-          throw PathTemplateParseException("Variable segments may not be nested", path, variable.pos.column)
+          throw PathPatternParseException("Variable segments may not be nested", path, variable.pos.column)
         case VariableSegment(_, Some(nested)) => flattenSegments(nested, false)
         case other                            => List(other)
       }
@@ -120,7 +116,7 @@ object PathTemplateParser extends Parsers {
     // Verify there are no ** matchers that aren't the last matcher
     flattened.dropRight(1).foreach {
       case m @ MultiSegmentMatcher() =>
-        throw PathTemplateParseException(
+        throw PathPatternParseException(
           "Multi segment matchers (**) may only be in the last position of the template",
           path,
           m.pos.column)
