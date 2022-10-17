@@ -1,5 +1,6 @@
 package customer
 
+import customer.api.CustomerEventsServiceAction
 import kalix.scalasdk.Kalix
 import customer.domain.CustomerEntity
 import customer.view.CustomerByCityStreamingView
@@ -17,7 +18,11 @@ object Main {
       // end::register[]
       new CustomerByCityStreamingView(_),
       // tag::register[]
-      new CustomerByNameView(_))
+      new CustomerByNameView(_)
+      // end::register[]
+      , new CustomerEventsServiceAction(_)
+      // tag::register[]
+    )
   }
   // end::register[]
 

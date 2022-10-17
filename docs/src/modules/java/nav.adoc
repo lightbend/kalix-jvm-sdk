@@ -11,6 +11,7 @@
 *** xref:java:actions-as-controller.adoc[Actions as Controllers]
 *** xref:java:timers.adoc[Timers]
 *** xref:java:actions-publishing-subscribing.adoc[Publishing and Subscribing]
+*** xref:java:service-to-service.adoc[Service to Service Eventing]
 *** xref:java:side-effects.adoc[Running Side Effects]
 *** xref:java:serialization.adoc[Handling Serialization]
 *** xref:call-another-service.adoc[Calling other services]

@@ -9,6 +9,7 @@ With Actions you can:
 
 - subscribe to events emitted by an event sourced entity within the same service.
 - subscribe to state changes emitted by a value entity within the same service.
+- subscribe to events from Event Sourced Entities published as xref:service-to-service.adoc[service to service eventing]
 - subscribe to external events from https://cloud.google.com/pubsub/docs/overview[Google Cloud Pub/Sub] or Apache Kafka.
 - publish events to a Google Cloud Pub/Sub or Apache Kafka topic.
 

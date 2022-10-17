@@ -1,4 +1,18 @@
-# Implementing a Counter as an Event Sourced Entity
+# Event Sourced Customer Registry Sample
+
+## Designing
+
+To understand the Kalix concepts that are the basis for this example, see [Designing services](https://docs.kalix.io/services/development-process.html) in the documentation.
+
+
+## Developing
+
+This project demonstrates the use of Event Sourced Entity, View and Service to Service eventing components.
+To understand more about these components, see [Developing services](https://docs.kalix.io/services/)
+and in particular the [Scala section](https://docs.kalix.io/java/)
+
+The project scala-customer-registry-subscriber is a downstream consumer of the Service to Service event stream
+provided by this service.
 
 
 ## Building and running unit tests
