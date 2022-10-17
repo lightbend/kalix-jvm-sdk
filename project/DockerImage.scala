@@ -9,7 +9,7 @@ object DockerImage extends AutoPlugin {
   override def requires = JavaAppPackaging && DockerPlugin && SdkVersion
 
   override def projectSettings = Seq(
-    dockerBaseImage := "adoptopenjdk/openjdk11:jre-11.0.8_10-ubi",
+    dockerBaseImage := "adoptopenjdk/openjdk11:jre-11.0.9_10-ubi",
     dockerUsername := Some("kalix"),
     dockerUpdateLatest := true,
     // disable javadoc/scaladoc for projects published as docker images
