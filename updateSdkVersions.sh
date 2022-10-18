@@ -39,7 +39,7 @@ updateScalaSamples() {
 
 updateMavenPlugin() {
   echo ">>> Updating maven plugin to $SDK_VERSION"
-  cd maven-java && mvn versions:set -DnewVersion="$SDK_VERSION"
+  cd maven-java && mvn versions:set -DnewVersion="$SDK_VERSION" && cd ..
 }
 
 DEFAULT_SAMPLES="./samples"

@@ -231,7 +231,7 @@ jobs:
           command: |
             echo "Updating samples to version $SDK_VERSION"
             chmod +x ./updateSdkVersions.sh
-            bash ./updateSdkVersions.sh all
+            ./updateSdkVersions.sh all
             
             BRANCH=bump-sdk-versions-$SDK_VERSION
             git checkout -b $BRANCH
