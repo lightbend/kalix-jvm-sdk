@@ -6,12 +6,12 @@
 
   <groupId>io.kalix</groupId>
   <artifactId>kalix-maven-plugin</artifactId>
-  <version>1.0.9</version>
+  <version>1.0.9-3-406bfea6-SNAPSHOT</version>
   <packaging>maven-plugin</packaging>
   <parent>
     <groupId>io.kalix</groupId>
     <artifactId>kalix-maven-java</artifactId>
-    <version>1.0.9</version>
+    <version>1.0.9-3-406bfea6-SNAPSHOT</version>
   </parent>
 
   <name>Kalix Maven Plugin</name>
