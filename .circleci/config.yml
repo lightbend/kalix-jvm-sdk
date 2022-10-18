@@ -237,11 +237,14 @@ jobs:
             git checkout -b $BRANCH
             git config user.name "Kalix Bot"
             git config user.email "kalix.github@lightbend.com"
-            git commit . -m "Bump SDK versions to $SDK_VERSION"
-            git remote add origin-rw https://$GITHUB_TOKEN@github.com/lightbend/kalix-jvm-sdk
-            git push --set-upstream origin-rw $BRANCH
+            # for debugging purposes
+            git status 
+            #git commit . -m "Bump SDK versions to $SDK_VERSION"
+            #git remote add origin-rw https://$GITHUB_TOKEN@github.com/lightbend/kalix-jvm-sdk
+            #git push --set-upstream origin-rw $BRANCH
             
-            gh pr create -B main -t "Auto PR - Bump SDK versions to $SDK_VERSION" -b "This PR should update all existing samples (pom.xml and plugins.sbt) and the maven-java poms. Please review, and merge if okay. [$CIRCLE_SHA1]($CIRCLE_BUILD_URL)" || echo "No changes"; exit 0
+            fail
+            #gh pr create -B main -t "Auto PR - Bump SDK versions to $SDK_VERSION" -b "This PR should update all existing samples (pom.xml and plugins.sbt) and the maven-java poms. Please review, and merge if okay. [$CIRCLE_SHA1]($CIRCLE_BUILD_URL)" || echo "No changes"; exit 0
 
   tests:
     docker:

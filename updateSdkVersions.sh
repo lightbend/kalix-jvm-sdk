@@ -11,7 +11,7 @@ fi
 
 updateDocs() {
   echo ">>> Update references in docs"
-  sed -i .bak "s/<kalix-sdk.version>\(.*\)<\/kalix-sdk.version>/<kalix-sdk.version>$SDK_VERSION<\/kalix-sdk.version>/" ./docs/src/modules/java/pages/spring-client.adoc
+  sed -i.bak "s/<kalix-sdk.version>\(.*\)<\/kalix-sdk.version>/<kalix-sdk.version>$SDK_VERSION<\/kalix-sdk.version>/" ./docs/src/modules/java/pages/spring-client.adoc
   rm docs/src/modules/java/pages/spring-client.adoc.bak
 }
 
@@ -21,7 +21,7 @@ updateJavaSamples() {
   for i in ${PROJS[@]}
   do
     echo "Updating pom for: $i"
-    sed -i .bak "s/<kalix-sdk.version>\(.*\)<\/kalix-sdk.version>/<kalix-sdk.version>$SDK_VERSION<\/kalix-sdk.version>/" $i
+    sed -i.bak -e "s/<kalix-sdk.version>\(.*\)<\/kalix-sdk.version>/<kalix-sdk.version>$SDK_VERSION<\/kalix-sdk.version>/" $i
     rm $i.bak
   done
 }
@@ -32,7 +32,7 @@ updateScalaSamples() {
   for i in ${PROJS[@]}
   do
     echo "Updating plugins sbt for: $i"
-    sed -i .bak "s/System.getProperty(\"kalix-sdk.version\", \".*\"))/System.getProperty(\"kalix-sdk.version\", \"$SDK_VERSION\"))/" $i
+    sed -i.bak "s/System.getProperty(\"kalix-sdk.version\", \".*\"))/System.getProperty(\"kalix-sdk.version\", \"$SDK_VERSION\"))/" $i
     rm $i.bak
   done
 }
