@@ -230,21 +230,17 @@ jobs:
           name: Create PR to update all sdk versions (samples, sbt and maven)
           command: |
             echo "Updating samples to version $SDK_VERSION"
-            chmod +x ./updateSdkVersions.sh
             ./updateSdkVersions.sh all
             
             BRANCH=bump-sdk-versions-$SDK_VERSION
             git checkout -b $BRANCH
             git config user.name "Kalix Bot"
             git config user.email "kalix.github@lightbend.com"
-            # for debugging purposes
-            git status 
-            #git commit . -m "Bump SDK versions to $SDK_VERSION"
-            #git remote add origin-rw https://$GITHUB_TOKEN@github.com/lightbend/kalix-jvm-sdk
-            #git push --set-upstream origin-rw $BRANCH
+            git commit . -m "Bump SDK versions to $SDK_VERSION"
+            git remote add origin-rw https://$GITHUB_TOKEN@github.com/lightbend/kalix-jvm-sdk
+            git push --set-upstream origin-rw $BRANCH
             
-            fail
-            #gh pr create -B main -t "Auto PR - Bump SDK versions to $SDK_VERSION" -b "This PR should update all existing samples (pom.xml and plugins.sbt) and the maven-java poms. Please review, and merge if okay. [$CIRCLE_SHA1]($CIRCLE_BUILD_URL)" || echo "No changes"; exit 0
+            gh pr create -B main -t "Auto PR - Bump SDK versions to $SDK_VERSION" -b "This PR should update all existing samples (pom.xml and plugins.sbt) and the maven-java poms. Please review, and merge if okay. [$CIRCLE_SHA1]($CIRCLE_BUILD_URL)" || echo "No changes"; exit 0
 
   tests:
     docker:
@@ -1477,13 +1473,13 @@ workflows:
 
       - create-pr-sdk-versions-update:
           filters: # version tags only
-            #tags:
-              #only: /^v.*/
+            tags:
+              only: /^v.*/
             branches:
-              only: efgpinto-automate-sdk-bump
+              ignore: /.*/
           requires:
             # we only create the versions bump PR after publish-docs is successful, which means release was successful
-            - publish-local #docs FIXME
+            - publish-docs
 
   Nightly:
     triggers:

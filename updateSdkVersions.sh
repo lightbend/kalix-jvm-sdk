@@ -16,18 +16,18 @@ updateDocs() {
 }
 
 updateJavaSamples() {
-  echo ">>> Updating pom versions to $SDK_VERSION in $1"
+  echo ">>> Updating pom versions to $SDK_VERSION"
   PROJS=$(find $1 -type f -name "pom.xml")
   for i in ${PROJS[@]}
   do
     echo "Updating pom for: $i"
-    sed -i.bak -e "s/<kalix-sdk.version>\(.*\)<\/kalix-sdk.version>/<kalix-sdk.version>$SDK_VERSION<\/kalix-sdk.version>/" $i
+    sed -i.bak "s/<kalix-sdk.version>\(.*\)<\/kalix-sdk.version>/<kalix-sdk.version>$SDK_VERSION<\/kalix-sdk.version>/" $i
     rm $i.bak
   done
 }
 
 updateScalaSamples() {
-  echo ">>> Updating sbt plugins to $SDK_VERSION in $1"
+  echo ">>> Updating sbt plugins to $SDK_VERSION"
   PROJS=$(find $1 -type f -name "*plugins.sbt")
   for i in ${PROJS[@]}
   do
@@ -61,7 +61,7 @@ case ${option} in
      updateMavenPlugin
       ;;
    *)
-      echo "`basename ${0}`:usage: java|scala|plugin|all [project-folder]"
+      echo "`basename ${0}`:usage: java|scala|plugin|docs|all [project-folder]"
       echo "e.g.: `basename ${0}` java ./samples/java-customer-registry-kafka-quickstart/"
       exit 1 # Command to come out of the program with status 1
       ;;
