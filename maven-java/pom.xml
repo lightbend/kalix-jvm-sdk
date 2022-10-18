@@ -5,7 +5,7 @@
 
   <groupId>io.kalix</groupId>
   <artifactId>kalix-maven-java</artifactId>
-  <version>1.0.9</version>
+  <version>1.0.9-3-5346fb95-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>Kalix Java Maven parent pom</name>
