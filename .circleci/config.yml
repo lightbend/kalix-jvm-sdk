@@ -17,7 +17,7 @@ commands:
       - build-tools/merge-with-parent:
           parent: main
 
-  install-java-11:
+  install-java:
     description: install openjdk-17
     steps:
       - run:
@@ -39,7 +39,7 @@ commands:
         type: string
         default: "1.7.2"
     steps:
-      - install-java-11
+      - install-java
       - run:
           name: Install sbt
           command: |
@@ -1131,6 +1131,23 @@ jobs:
             echo "Running mvn with SDK version: '$SDK_VERSION'"
             mvn -Dkalix-sdk.version=$SDK_VERSION verify -Pit  
 
+  sample-spring-reliable-timers:
+    machine:
+      image: ubuntu-2004:202201-02
+    steps:
+      - checkout-and-merge-to-main
+      - setup_sbt
+      - restore_deps_cache
+      # note: `copy-from-workspace` requires `publish-local` to be run first as declared in workflow section below
+      - copy-from-workspace
+      - set-sdk-version
+      - run:
+          name: Spring SDK Customer Registry quickstart
+          command: |
+            cd samples/spring-eventsourced-customer-registry
+            echo "Running mvn with SDK version: '$SDK_VERSION'"
+            mvn -Dkalix-sdk.version=$SDK_VERSION verify -Pit 
+
   publish:
     docker:
       - image: circleci/openjdk:11
@@ -1410,6 +1427,10 @@ workflows:
             - spring-sdk-integration-tests
             - publish-local
       - sample-spring-eventsourced-customer-registry:
+          requires:
+            - spring-sdk-integration-tests
+            - publish-local
+      - sample-spring-reliable-timers:
           requires:
             - spring-sdk-integration-tests
             - publish-local

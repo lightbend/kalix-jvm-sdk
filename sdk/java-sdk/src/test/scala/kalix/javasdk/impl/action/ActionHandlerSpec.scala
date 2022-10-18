@@ -29,7 +29,7 @@ import kalix.javasdk.action.MessageEnvelope
 import kalix.javasdk.actionspec.ActionspecApi
 import kalix.javasdk.impl.AbstractContext
 import kalix.javasdk.impl.AnySupport
-import kalix.javasdk.impl.DeferredCallImpl
+import kalix.javasdk.impl.GrpcDeferredCall
 import kalix.javasdk.impl.MetadataImpl
 import kalix.javasdk.impl.ResolvedServiceMethod
 import kalix.javasdk.impl.effect.SideEffectImpl
@@ -256,7 +256,7 @@ class ActionHandlerSpec
               SideEffectImpl(
                 // Note that this is never constructed manually/dynamically in actual use
                 // but only by code generated based on the descriptors
-                DeferredCallImpl(
+                GrpcDeferredCall(
                   message.payload(),
                   MetadataImpl.Empty,
                   serviceName,
@@ -265,7 +265,7 @@ class ActionHandlerSpec
                 false))
           }).addSideEffect(
             SideEffectImpl(
-              DeferredCallImpl(
+              GrpcDeferredCall(
                 message.payload(),
                 MetadataImpl.Empty,
                 serviceName,

@@ -16,7 +16,7 @@
 
 package kalix.scalasdk.testkit.impl
 
-import kalix.javasdk.impl.DeferredCallImpl
+import kalix.javasdk.impl.GrpcDeferredCall
 import kalix.javasdk.impl.MetadataImpl
 import kalix.javasdk.impl.effect.ForwardReplyImpl
 import kalix.javasdk.impl.effect.MessageReplyImpl
@@ -37,7 +37,7 @@ class EventSourcedResultSpec extends AnyWordSpec with Matchers {
           "reply", // pretend it was evaluated, in practice done by the generated testkit
           MetadataImpl.Empty,
           Vector(SideEffectImpl(
-            DeferredCallImpl[String, Any]("request", MetadataImpl.Empty, "full.service.Name", "MethodName", () => ???),
+            GrpcDeferredCall[String, Any]("request", MetadataImpl.Empty, "full.service.Name", "MethodName", () => ???),
             synchronous = false))))
 
       replyWithSideEffectResult.isReply should ===(true)
@@ -50,7 +50,7 @@ class EventSourcedResultSpec extends AnyWordSpec with Matchers {
         "state",
         ForwardReplyImpl(
           deferredCall =
-            DeferredCallImpl[String, Any]("request", MetadataImpl.Empty, "full.service.Name", "MethodName", () => ???),
+            GrpcDeferredCall[String, Any]("request", MetadataImpl.Empty, "full.service.Name", "MethodName", () => ???),
           sideEffects = Vector.empty))
 
       forwardResult.isForward should ===(true)

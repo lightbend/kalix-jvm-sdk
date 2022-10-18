@@ -25,7 +25,7 @@ import akka.Done
 import akka.actor.ActorSystem
 import com.google.protobuf.duration.{ Duration => ProtoDuration }
 import com.google.protobuf.wrappers.StringValue
-import kalix.javasdk.impl.DeferredCallImpl
+import kalix.javasdk.impl.GrpcDeferredCall
 import kalix.javasdk.impl.GrpcClients
 import kalix.javasdk.impl.MessageCodec
 import kalix.scalasdk.DeferredCall
@@ -47,11 +47,11 @@ private[kalix] final class TimerSchedulerImpl(messageCodec: MessageCodec, system
 
     val deferredCallImpl =
       deferredCall match {
-        case ScalaDeferredCallAdapter(deferredCallImpl: DeferredCallImpl[I, O] @unchecked) => deferredCallImpl
+        case ScalaDeferredCallAdapter(deferredCallImpl: GrpcDeferredCall[I, O] @unchecked) => deferredCallImpl
         // should not happen as we always need to pass ScalaDeferredCallAdapter(DeferredCallImpl)
         case other =>
           throw new RuntimeException(
-            s"Incompatible DeferredCall instance. Found ${other.getClass}, expecting ${classOf[DeferredCallImpl[_, _]].getName}")
+            s"Incompatible DeferredCall instance. Found ${other.getClass}, expecting ${classOf[GrpcDeferredCall[_, _]].getName}")
       }
 
     val call =

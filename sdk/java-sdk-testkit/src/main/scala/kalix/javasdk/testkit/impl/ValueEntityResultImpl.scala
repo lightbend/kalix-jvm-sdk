@@ -17,7 +17,7 @@
 package kalix.javasdk.testkit.impl
 
 import kalix.javasdk.SideEffect
-import kalix.javasdk.impl.DeferredCallImpl
+import kalix.javasdk.impl.GrpcDeferredCall
 import kalix.javasdk.impl.effect.ErrorReplyImpl
 import kalix.javasdk.impl.effect.ForwardReplyImpl
 import kalix.javasdk.impl.effect.MessageReplyImpl
@@ -61,7 +61,7 @@ private[kalix] final class ValueEntityResultImpl[R](effect: ValueEntityEffectImp
   override def getForward(): DeferredCallDetails[_, R] = effect.secondaryEffect match {
     case reply: ForwardReplyImpl[R @unchecked] =>
       reply.deferredCall match {
-        case t: DeferredCallImpl[_, R @unchecked] => TestKitDeferredCall(t)
+        case t: GrpcDeferredCall[_, R @unchecked] => TestKitDeferredCall(t)
         case surprise =>
           throw new IllegalStateException(s"Unexpected type of service call in testkit: ${surprise.getClass.getName}")
       }
@@ -92,7 +92,7 @@ private[kalix] final class ValueEntityResultImpl[R](effect: ValueEntityEffectImp
   private def toDeferredCallDetails(sideEffects: Vector[SideEffect]): JList[DeferredCallDetails[_, _]] = {
     sideEffects
       .map { sideEffect =>
-        TestKitDeferredCall(sideEffect.call.asInstanceOf[DeferredCallImpl[_, _]])
+        TestKitDeferredCall(sideEffect.call.asInstanceOf[GrpcDeferredCall[_, _]])
           .asInstanceOf[DeferredCallDetails[_, _]] // java List is invariant in type
       }
       .toList

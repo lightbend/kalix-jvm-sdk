@@ -116,7 +116,7 @@ object ComponentsSourceGenerator {
       otherImports = Seq(
         "kalix.javasdk.DeferredCall",
         "kalix.javasdk.Context",
-        "kalix.javasdk.impl.DeferredCallImpl",
+        "kalix.javasdk.impl.GrpcDeferredCall",
         "kalix.javasdk.impl.MetadataImpl",
         "kalix.javasdk.impl.InternalContext"))
 
@@ -136,7 +136,7 @@ object ComponentsSourceGenerator {
           val outputType = fullyQualifiedMessage(command.outputType)
           s"""@Override
              |public DeferredCall<$inputType, $outputType> $commandMethod($inputType $paramName) {
-             |  return new DeferredCallImpl<>(
+             |  return new GrpcDeferredCall<>(
              |    ${lowerFirst(command.inputType.name)},
              |    MetadataImpl.Empty(),
              |    "${component.service.messageType.fullyQualifiedProtoName}",

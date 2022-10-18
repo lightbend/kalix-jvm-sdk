@@ -17,17 +17,16 @@
 package kalix.javasdk.impl.action
 
 import java.util.Optional
-
 import scala.collection.immutable.Seq
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters.SeqHasAsJava
 import scala.util.control.NonFatal
-
 import akka.NotUsed
 import akka.actor.ActorSystem
 import akka.stream.scaladsl.Sink
 import akka.stream.scaladsl.Source
-import com.google.protobuf.Descriptors
+import com.google.protobuf.any.Any
+import com.google.protobuf.{ Descriptors, DynamicMessage }
 import kalix.javasdk._
 import kalix.javasdk.action._
 import kalix.javasdk.impl.ActionFactory
@@ -124,11 +123,19 @@ private[javasdk] final class ActionsImpl(
           component.Reply(Some(messageCodec.encodeScala(message)), metadata.flatMap(toProtocol))
         Future.successful(
           ActionResponse(ActionResponse.Response.Reply(response), toProtocol(messageCodec, sideEffects)))
-      case ForwardEffect(forward: DeferredCallImpl[_, _], sideEffects) =>
+      case ForwardEffect(forward: GrpcDeferredCall[_, _], sideEffects) =>
         val response = component.Forward(
           forward.fullServiceName,
           forward.methodName,
           Some(messageCodec.encodeScala(forward.message)),
+          toProtocol(forward.metadata))
+        Future.successful(
+          ActionResponse(ActionResponse.Response.Forward(response), toProtocol(messageCodec, sideEffects)))
+      case ForwardEffect(forward: RestDeferredCall[Any, _], sideEffects) =>
+        val response = component.Forward(
+          forward.fullServiceName,
+          forward.methodName,
+          Some(forward.message),
           toProtocol(forward.metadata))
         Future.successful(
           ActionResponse(ActionResponse.Response.Forward(response), toProtocol(messageCodec, sideEffects)))
@@ -153,7 +160,7 @@ private[javasdk] final class ActionsImpl(
   }
 
   private def toProtocol(messageCodec: MessageCodec, sideEffects: Seq[SideEffect]): Seq[component.SideEffect] =
-    sideEffects.map { case SideEffectImpl(deferred: DeferredCallImpl[_, _], synchronous) =>
+    sideEffects.map { case SideEffectImpl(deferred: GrpcDeferredCall[_, _], synchronous) =>
       component.SideEffect(
         deferred.fullServiceName,
         deferred.methodName,

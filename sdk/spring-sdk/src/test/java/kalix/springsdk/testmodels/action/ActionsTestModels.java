@@ -39,6 +39,13 @@ public class ActionsTestModels {
     }
   }
 
+  public static class GetWithOneQueryParam extends Action {
+    @GetMapping("/message")
+    public Action.Effect<Message> message(@RequestParam String one) {
+      return effects().reply(new Message(one));
+    }
+  }
+
   @RequestMapping("/action/{one}")
   public static class GetClassLevel extends Action {
     @GetMapping("/message/{two}")
@@ -68,6 +75,13 @@ public class ActionsTestModels {
   public static class PostWithOneParam extends Action {
     @PostMapping("/message/{one}")
     public Action.Effect<Message> message(@PathVariable String one, @RequestBody Message msg) {
+      return effects().reply(new Message(msg.value));
+    }
+  }
+
+  public static class PostWithOneQueryParam extends Action {
+    @PostMapping("/message")
+    public Action.Effect<Message> message(@RequestParam String dest, @RequestBody Message msg) {
       return effects().reply(new Message(msg.value));
     }
   }

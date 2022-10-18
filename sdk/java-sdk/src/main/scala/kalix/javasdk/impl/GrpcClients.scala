@@ -99,6 +99,7 @@ final class GrpcClients(system: ExtendedActorSystem) extends Extension {
   // FIXME we might be able to revert this once we implement transcoding of Rest calls to Grpc calls so this is not needed outside
   def getProxyHostname: Option[String] = proxyHostname
   def getProxyPort: Option[Int] = proxyPort
+  def getIdentificationInfo: Option[IdentificationInfo] = identificationInfo
 
   /**
    * This gets called from the action context to get a client to another service, and hence needs to add a service

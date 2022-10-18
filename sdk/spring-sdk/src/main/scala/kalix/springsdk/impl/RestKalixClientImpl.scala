@@ -16,34 +16,40 @@
 
 package kalix.springsdk.impl
 
+import akka.http.scaladsl.model.Uri.Path
+import akka.http.scaladsl.model.{ HttpMethod, HttpMethods, Uri }
+import com.google.protobuf.{ Descriptors, DynamicMessage }
+import com.google.protobuf.any.Any
+import kalix.javasdk.DeferredCall
+import kalix.javasdk.impl.{ AnySupport, MetadataImpl, RestDeferredCall }
+import kalix.protocol.component.MetadataEntry
+import kalix.protocol.discovery.IdentificationInfo
 import kalix.springsdk.KalixClient
+import kalix.springsdk.impl.http.HttpEndpointMethodDefinition
+import kalix.springsdk.impl.http.HttpEndpointMethodDefinition.ANY_METHOD
+import org.slf4j.{ Logger, LoggerFactory }
 import org.springframework.http.{ HttpHeaders, MediaType }
 import org.springframework.web.reactive.function.client.WebClient
 
 import java.util.concurrent.CompletionStage
-import scala.concurrent.{ Future, Promise }
-import scala.jdk.FutureConverters._
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.{ Future, Promise }
+import scala.jdk.CollectionConverters.CollectionHasAsScala
+import scala.jdk.FutureConverters._
+import scala.util.Success
 
 /**
  * INTERNAL API
  */
-trait RestDeferredCall[_, R] {
-  def execute(): CompletionStage[R]
-}
+final class RestKalixClientImpl(messageCodec: SpringSdkMessageCodec) extends KalixClient {
+  private val logger: Logger = LoggerFactory.getLogger(getClass)
 
-/**
- * INTERNAL API
- */
-final class RestKalixClientImpl extends KalixClient {
-
-  private class RestDeferredCallImpl[P, R](asyncCall: () => CompletionStage[R]) extends RestDeferredCall[P, R] {
-    def execute(): CompletionStage[R] = asyncCall.apply()
-  }
+  private var services: Seq[HttpEndpointMethodDefinition] = Seq.empty
 
   // at the time of creation, Proxy Discovery has not happened so we don't have this info
   private val host: Promise[String] = Promise[String]()
   private val port: Promise[Int] = Promise[Int]()
+  private val identificationInfo: Promise[IdentificationInfo] = Promise[IdentificationInfo]()
 
   private val webClient: Future[WebClient] = {
     import scala.concurrent.ExecutionContext.Implicits.global
@@ -61,29 +67,116 @@ final class RestKalixClientImpl extends KalixClient {
       })
   }
 
-  def setHost(host: String) = this.host.trySuccess(host)
-  def setPort(port: Int) = this.port.trySuccess(port)
+  private def buildMetadata(): MetadataImpl = {
+    val entries = this.identificationInfo.future.value match {
+      case Some(Success(idInfo)) =>
+        remoteAddHeader(idInfo).map { case (header, token) =>
+          MetadataEntry(header, MetadataEntry.Value.StringValue(token))
+        }.toSeq
+      case errValue =>
+        logger.warn(s"Identification info not completed or failed to complete: $errValue")
+        Seq.empty[MetadataEntry]
+    }
+    new MetadataImpl(entries)
+  }
 
-  def post[P, R](uri: String, body: P, returnType: Class[R]): RestDeferredCall[P, R] =
-    new RestDeferredCallImpl[P, R](() =>
-      webClient.flatMap {
-        _.post()
-          .uri(uri)
-          .bodyValue(body)
-          .retrieve()
-          .bodyToMono(returnType)
-          .toFuture
-          .asScala
-      }.asJava)
+  private def remoteAddHeader(idInfo: IdentificationInfo): Option[(String, String)] = idInfo match {
+    case IdentificationInfo(_, _, header, name, _) if header.nonEmpty && name.nonEmpty =>
+      Some((header, name))
+    case _ => None
+  }
 
-  def get[R](uri: String, returnType: Class[R]): RestDeferredCall[Void, R] = new RestDeferredCallImpl[Void, R](() =>
-    webClient
-      .flatMap(
-        _.get()
-          .uri(uri)
-          .retrieve()
-          .bodyToMono(returnType)
-          .toFuture
-          .asScala)
-      .asJava)
+  def setHost(host: String): Boolean = this.host.trySuccess(host)
+  def setPort(port: Int): Boolean = this.port.trySuccess(port)
+  def setIdentificationInfo(identificationInfo: IdentificationInfo): Unit =
+    this.identificationInfo.trySuccess(identificationInfo)
+
+  def registerComponent(descriptor: Descriptors.ServiceDescriptor): Unit = {
+    services ++= HttpEndpointMethodDefinition.extractForService(descriptor)
+  }
+
+  def buildWrappedBody[P](
+      httpDef: HttpEndpointMethodDefinition,
+      inputBuilder: DynamicMessage.Builder,
+      body: Option[P] = None): Any = {
+    if (body.isDefined && httpDef.rule.body.nonEmpty) {
+      val bodyField = httpDef.methodDescriptor.getInputType.getFields.asScala
+        .find(_.getName == httpDef.rule.body)
+        .getOrElse(
+          throw new IllegalArgumentException("Could not find a matching body field with name: " + httpDef.rule.body))
+
+      inputBuilder.setField(bodyField, messageCodec.encodeJava(body.get))
+    }
+    Any(
+      AnySupport.DefaultTypeUrlPrefix + "/" + inputBuilder.getDescriptorForType.getFullName,
+      inputBuilder.build().toByteString)
+  }
+
+  def post[P, R](uriStr: String, body: P, returnType: Class[R]): DeferredCall[Any, R] = {
+    val uri = Uri(uriStr)
+    matchMethodOpt(HttpMethods.POST, uri.path)
+      .map { httpDef =>
+        requestToRestDefCall(
+          uri,
+          Some(body),
+          httpDef,
+          () =>
+            webClient.flatMap {
+              _.post()
+                .uri(uriStr)
+                .bodyValue(body)
+                .retrieve()
+                .bodyToMono(returnType)
+                .toFuture
+                .asScala
+            }.asJava)
+      }
+      .getOrElse(throw HttpMethodNotFoundException(HttpMethods.POST, uri.path.toString()))
+  }
+
+  private def requestToRestDefCall[P, R](
+      uri: Uri,
+      body: Option[P],
+      httpDef: HttpEndpointMethodDefinition,
+      asyncCall: () => CompletionStage[R]): RestDeferredCall[Any, R] = {
+    val inputBuilder = DynamicMessage.newBuilder(httpDef.methodDescriptor.getInputType)
+    httpDef.parsePathParametersInto(uri.path, inputBuilder)
+    httpDef.parseRequestParametersInto(uri.query().toMultiMap, inputBuilder)
+    val wrappedBody = buildWrappedBody(httpDef, inputBuilder, body)
+
+    RestDeferredCall[Any, R](
+      message = wrappedBody,
+      metadata = buildMetadata(),
+      fullServiceName = httpDef.methodDescriptor.getService.getFullName,
+      methodName = httpDef.methodDescriptor.getName,
+      asyncCall = asyncCall)
+  }
+
+  def get[R](uriStr: String, returnType: Class[R]): DeferredCall[Any, R] = {
+    val uri = Uri(uriStr)
+    matchMethodOpt(HttpMethods.GET, uri.path)
+      .map { httpDef =>
+        requestToRestDefCall(
+          uriStr,
+          body = None,
+          httpDef,
+          () =>
+            webClient
+              .flatMap(
+                _.get()
+                  .uri(uriStr)
+                  .retrieve()
+                  .bodyToMono(returnType)
+                  .toFuture
+                  .asScala)
+              .asJava)
+      }
+      .getOrElse(throw HttpMethodNotFoundException(HttpMethods.GET, uri.path.toString()))
+  }
+
+  private def matchMethodOpt(httpMethod: HttpMethod, uri: Path): Option[HttpEndpointMethodDefinition] =
+    services.find(d => (d.methodPattern == ANY_METHOD || httpMethod == d.methodPattern) && d.matches(uri))
 }
+
+final case class HttpMethodNotFoundException(httpMethod: HttpMethod, uriStr: String)
+    extends RuntimeException(s"No matching service for method=$httpMethod path=$uriStr")

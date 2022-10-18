@@ -18,7 +18,7 @@ package kalix.javasdk.testkit.impl
 
 import kalix.javasdk.SideEffect
 import kalix.javasdk.action.Action
-import kalix.javasdk.impl.DeferredCallImpl
+import kalix.javasdk.impl.GrpcDeferredCall
 import kalix.javasdk.impl.action.ActionEffectImpl
 import kalix.javasdk.testkit.ActionResult
 import kalix.javasdk.testkit.DeferredCallDetails
@@ -38,7 +38,7 @@ private[kalix] object ActionResultImpl {
 
   private def toDeferredCallDetails(sideEffects: Seq[SideEffect]): JList[DeferredCallDetails[_, _]] =
     sideEffects
-      .map(s => TestKitDeferredCall(s.call.asInstanceOf[DeferredCallImpl[_, _]]): DeferredCallDetails[_, _])
+      .map(s => TestKitDeferredCall(s.call.asInstanceOf[GrpcDeferredCall[_, _]]): DeferredCallDetails[_, _])
       .asJava
 }
 
@@ -67,7 +67,7 @@ final class ActionResultImpl[T](effect: ActionEffectImpl.PrimaryEffect[T]) exten
 
   def getForward(): DeferredCallDetails[Any, T] =
     effect match {
-      case ActionEffectImpl.ForwardEffect(serviceCall: DeferredCallImpl[Any @unchecked, T @unchecked], _) =>
+      case ActionEffectImpl.ForwardEffect(serviceCall: GrpcDeferredCall[Any @unchecked, T @unchecked], _) =>
         TestKitDeferredCall(serviceCall)
       case _ =>
         throw new IllegalStateException(

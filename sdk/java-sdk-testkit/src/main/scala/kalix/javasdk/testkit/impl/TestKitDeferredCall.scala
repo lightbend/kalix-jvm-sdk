@@ -17,10 +17,10 @@
 package kalix.javasdk.testkit.impl
 
 import kalix.javasdk.Metadata
-import kalix.javasdk.impl.DeferredCallImpl
+import kalix.javasdk.impl.GrpcDeferredCall
 import kalix.javasdk.testkit.DeferredCallDetails
 
-final case class TestKitDeferredCall[I, O](deferredCall: DeferredCallImpl[I, O]) extends DeferredCallDetails[I, O] {
+final case class TestKitDeferredCall[I, O](deferredCall: GrpcDeferredCall[I, O]) extends DeferredCallDetails[I, O] {
   // public API for inspection
   override def getServiceName: String = deferredCall.fullServiceName
   override def getMethodName: String = deferredCall.methodName

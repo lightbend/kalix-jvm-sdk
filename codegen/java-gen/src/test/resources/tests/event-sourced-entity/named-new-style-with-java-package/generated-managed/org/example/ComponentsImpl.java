@@ -2,7 +2,7 @@ package org.example;
 
 import kalix.javasdk.Context;
 import kalix.javasdk.DeferredCall;
-import kalix.javasdk.impl.DeferredCallImpl;
+import kalix.javasdk.impl.GrpcDeferredCall;
 import kalix.javasdk.impl.InternalContext;
 import kalix.javasdk.impl.MetadataImpl;
 
@@ -33,7 +33,7 @@ public final class ComponentsImpl implements Components {
   private final class CounterCallsImpl implements Components.CounterCalls {
      @Override
     public DeferredCall<org.example.eventsourcedentity.CounterApi.IncreaseValue, com.google.protobuf.Empty> increase(org.example.eventsourcedentity.CounterApi.IncreaseValue increaseValue) {
-      return new DeferredCallImpl<>(
+      return new GrpcDeferredCall<>(
         increaseValue,
         MetadataImpl.Empty(),
         "example.eventsourcedentity.CounterService",
@@ -43,7 +43,7 @@ public final class ComponentsImpl implements Components {
     }
     @Override
     public DeferredCall<org.example.eventsourcedentity.CounterApi.DecreaseValue, com.google.protobuf.Empty> decrease(org.example.eventsourcedentity.CounterApi.DecreaseValue decreaseValue) {
-      return new DeferredCallImpl<>(
+      return new GrpcDeferredCall<>(
         decreaseValue,
         MetadataImpl.Empty(),
         "example.eventsourcedentity.CounterService",

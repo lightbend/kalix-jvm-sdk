@@ -2,7 +2,7 @@ package org.example;
 
 import kalix.javasdk.Context;
 import kalix.javasdk.DeferredCall;
-import kalix.javasdk.impl.DeferredCallImpl;
+import kalix.javasdk.impl.GrpcDeferredCall;
 import kalix.javasdk.impl.InternalContext;
 import kalix.javasdk.impl.MetadataImpl;
 
@@ -33,7 +33,7 @@ public final class ComponentsImpl implements Components {
   private final class UserByNameViewImplCallsImpl implements Components.UserByNameViewImplCalls {
      @Override
     public DeferredCall<org.example.view.UserViewModel.ByNameRequest, org.example.view.UserViewModel.UserResponse> getUserByName(org.example.view.UserViewModel.ByNameRequest byNameRequest) {
-      return new DeferredCallImpl<>(
+      return new GrpcDeferredCall<>(
         byNameRequest,
         MetadataImpl.Empty(),
         "org.example.view.UserByNameView",

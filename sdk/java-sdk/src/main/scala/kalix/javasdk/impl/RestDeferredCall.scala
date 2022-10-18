@@ -17,14 +17,13 @@
 package kalix.javasdk.impl
 
 import kalix.javasdk.DeferredCall
-import com.google.protobuf.Descriptors
 
 import java.util.concurrent.CompletionStage
 
 /**
  * INTERNAL API
  */
-final case class DeferredCallImpl[I, O](
+final case class RestDeferredCall[I, O](
     message: I,
     metadata: MetadataImpl,
     fullServiceName: String,

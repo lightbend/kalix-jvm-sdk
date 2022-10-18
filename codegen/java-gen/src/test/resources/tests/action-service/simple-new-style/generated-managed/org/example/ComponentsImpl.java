@@ -2,7 +2,7 @@ package org.example;
 
 import kalix.javasdk.Context;
 import kalix.javasdk.DeferredCall;
-import kalix.javasdk.impl.DeferredCallImpl;
+import kalix.javasdk.impl.GrpcDeferredCall;
 import kalix.javasdk.impl.InternalContext;
 import kalix.javasdk.impl.MetadataImpl;
 
@@ -33,7 +33,7 @@ public final class ComponentsImpl implements Components {
   private final class MyServiceActionCallsImpl implements Components.MyServiceActionCalls {
      @Override
     public DeferredCall<org.example.service.ServiceOuterClass.MyRequest, org.external.ExternalDomain.Empty> simpleMethod(org.example.service.ServiceOuterClass.MyRequest myRequest) {
-      return new DeferredCallImpl<>(
+      return new GrpcDeferredCall<>(
         myRequest,
         MetadataImpl.Empty(),
         "org.example.service.MyService",
