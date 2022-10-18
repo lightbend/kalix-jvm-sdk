@@ -42,6 +42,8 @@ public class KalixConfigurationTest {
 
   @Bean
   public KalixServer kalixServer() {
+    // for this internal integration tests, we need to explicitly pass the Main class we want
+    // because otherwise it will detect sbt.ForkMain instead
     return new KalixServer(applicationContext, kalixConfiguration.config());
   }
 

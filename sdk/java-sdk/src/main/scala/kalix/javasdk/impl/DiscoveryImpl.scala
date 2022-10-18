@@ -16,25 +16,37 @@
 
 package kalix.javasdk.impl
 
-import akka.Done
-import akka.actor.{ ActorSystem, CoordinatedShutdown }
-import kalix.javasdk.replicatedentity.{ ReplicatedEntityOptions, WriteConsistency }
-import kalix.javasdk.{ BuildInfo, EntityOptions }
-import kalix.protocol.action.Actions
-import kalix.protocol.discovery.PassivationStrategy.Strategy
-import kalix.protocol.discovery._
-import com.google.protobuf.DescriptorProtos
-import com.google.protobuf.empty.Empty
-import org.slf4j.{ Logger, LoggerFactory }
-
 import java.time.Duration
 import java.util.concurrent.atomic.AtomicReference
-import scala.concurrent.{ Future, Promise }
+
+import scala.concurrent.Future
+import scala.concurrent.Promise
 import scala.io.Source
 import scala.jdk.CollectionConverters._
 import scala.util.control.NonFatal
 
-class DiscoveryImpl(system: ActorSystem, services: Map[String, Service], sdkName: String) extends Discovery {
+import akka.Done
+import akka.actor.ActorSystem
+import akka.actor.CoordinatedShutdown
+import com.google.protobuf.DescriptorProtos
+import com.google.protobuf.DescriptorProtos.FileDescriptorProto
+import com.google.protobuf.empty.Empty
+import kalix.javasdk.replicatedentity.ReplicatedEntityOptions
+import kalix.javasdk.replicatedentity.WriteConsistency
+import kalix.javasdk.BuildInfo
+import kalix.javasdk.EntityOptions
+import kalix.protocol.action.Actions
+import kalix.protocol.discovery.PassivationStrategy.Strategy
+import kalix.protocol.discovery._
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
+
+class DiscoveryImpl(
+    system: ActorSystem,
+    services: Map[String, Service],
+    aclDescriptor: Option[FileDescriptorProto],
+    sdkName: String)
+    extends Discovery {
   import DiscoveryImpl._
 
   private val log = LoggerFactory.getLogger(getClass)
@@ -140,11 +152,15 @@ class DiscoveryImpl(system: ActorSystem, services: Map[String, Service], sdkName
         }
       }.toSeq
 
-      val fileDescriptors = fileDescriptorSet(
+      val fileDescriptorsBuilder = fileDescriptorSetBuilder(
         services.values,
         system.settings.config.getString("kalix.discovery.protobuf-descriptor-with-source-info-path"),
         log)
 
+      // For the SpringSDK, the ACL default descriptor is provided programmatically
+      aclDescriptor.foreach(file => fileDescriptorsBuilder.addFile(file))
+
+      val fileDescriptors = fileDescriptorsBuilder.build()
       Future.successful(Spec(fileDescriptors.toByteString, components, Some(serviceInfo)))
     }
   }
@@ -249,7 +265,7 @@ class DiscoveryImpl(system: ActorSystem, services: Map[String, Service], sdkName
 
 object DiscoveryImpl {
 
-  private[impl] def fileDescriptorSet(services: Iterable[Service], userDescPath: String, log: Logger) = {
+  private[impl] def fileDescriptorSetBuilder(services: Iterable[Service], userDescPath: String, log: Logger) = {
 
     val descriptors = loadFileDescriptors(userDescPath, log)
 
@@ -275,7 +291,7 @@ object DiscoveryImpl {
       .collect { case (file, proto) if file.endsWith("kalix_policy.proto") => proto }
       .foreach(defaultPolicy => builder.addFile(defaultPolicy))
 
-    builder.build()
+    builder
   }
 
   private[impl] def loadFileDescriptors(path: String, log: Logger): Map[String, DescriptorProtos.FileDescriptorProto] =
