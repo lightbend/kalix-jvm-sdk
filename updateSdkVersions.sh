@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # this script is meant to be used after a new SDK version is out
 # to facilitate the update of all the places where we usually depend on the latest version
@@ -9,8 +9,14 @@ if [[ -z "$SDK_VERSION" ]]; then
     exit 1
 fi
 
+updateDocs() {
+  echo ">>> Update references in docs"
+  sed -i .bak "s/<kalix-sdk.version>\(.*\)<\/kalix-sdk.version>/<kalix-sdk.version>$SDK_VERSION<\/kalix-sdk.version>/" ./docs/src/modules/java/pages/spring-client.adoc
+  rm docs/src/modules/java/pages/spring-client.adoc.bak
+}
+
 updateJavaSamples() {
-  echo ">>> Updating pom versions to $SDK_VERSION"
+  echo ">>> Updating pom versions to $SDK_VERSION in $1"
   PROJS=$(find $1 -type f -name "pom.xml")
   for i in ${PROJS[@]}
   do
@@ -21,7 +27,7 @@ updateJavaSamples() {
 }
 
 updateScalaSamples() {
-  echo ">>> Updating sbt plugins to $SDK_VERSION"
+  echo ">>> Updating sbt plugins to $SDK_VERSION in $1"
   PROJS=$(find $1 -type f -name "*plugins.sbt")
   for i in ${PROJS[@]}
   do
@@ -46,8 +52,13 @@ case ${option} in
       ;;
    plugin) updateMavenPlugin
       ;;
+   docs) updateDocs
+      ;;
    all)
-     updateJavaSamples $sample; updateScalaSamples $sample; updateMavenPlugin
+     updateDocs
+     updateJavaSamples $sample
+     updateScalaSamples $sample
+     updateMavenPlugin
       ;;
    *)
       echo "`basename ${0}`:usage: java|scala|plugin|all [project-folder]"

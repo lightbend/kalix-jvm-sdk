@@ -229,6 +229,7 @@ jobs:
       - run:
           name: Create PR to update all sdk versions (samples, sbt and maven)
           command: |
+            echo "Updating samples to version $SDK_VERSION"
             chmod +x ./updateSdkVersions.sh
             bash ./updateSdkVersions.sh all
             
@@ -1473,13 +1474,13 @@ workflows:
 
       - create-pr-sdk-versions-update:
           filters: # version tags only
-            tags:
-              only: /^v.*/
+            #tags:
+              #only: /^v.*/
             branches:
-              ignore: /.*/
+              only: efgpinto-automate-sdk-bump
           requires:
             # we only create the versions bump PR after publish-docs is successful, which means release was successful
-            - publish-docs
+            - publish-local #docs FIXME
 
   Nightly:
     triggers:
