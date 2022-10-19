@@ -1142,11 +1142,11 @@ jobs:
       - copy-from-workspace
       - set-sdk-version
       - run:
-          name: Spring SDK Customer Registry quickstart
+          name: Spring SDK Reliable Timers
           command: |
-            cd samples/spring-eventsourced-customer-registry
+            cd samples/spring-reliable-timers
             echo "Running mvn with SDK version: '$SDK_VERSION'"
-            mvn -Dkalix-sdk.version=$SDK_VERSION verify -Pit 
+            mvn -Dkalix-sdk.version=$SDK_VERSION verify -Pit
 
   publish:
     docker:
