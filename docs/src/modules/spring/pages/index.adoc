@@ -1,0 +1,22 @@
+= Developing with Spring (beta)
+
+include::ROOT:partial$include.adoc[]
+
+The Spring SDK provides a code-first approach to developing Kalix applications so that a developer does not need to worry about learning protobuf upfront.
+
+This SDK offers a way to develop applications which should be familiar to someone who has worked with Spring applications by making use of annotations to assemble Kalix and its components.
+
+NOTE: If you're new to Kalix and the different types of entities that exist in a Kalix app, consider reading [this section](https://docs.kalix.io/services/programming-model.html#_what_is_a_kalix_service) before continuing. 
+
+
+== Getting Started
+
+How to get started
+
+== Features
+
+As the Spring SDK is more recent than their gRPC-first counterparts, not all features are supported at this time. However, there's already a lot to play with.
+
+== Testing
+
+For now, only Integration tests are available to test your application. You can do such a test by having your test classes extending `KalixIntegrationTestKitSupport`.
