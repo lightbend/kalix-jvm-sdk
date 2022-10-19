@@ -80,7 +80,5 @@ https://docs.kalix.io/services/running-locally.html[running them locally] before
 
 After testing locally, deploy your service to Kalix using the CLI or the Console. The following pages provide information about deployment:
 
-https://docs.kalix.io/services/deploy-service.html
-
 * https://docs.kalix.io/services/deploy-service.html[Managing Kalix services]
 * https://docs.kalix.io/quickstart/index.html[Quickstart examples]
