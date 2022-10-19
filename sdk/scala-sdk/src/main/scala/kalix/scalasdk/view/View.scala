@@ -36,6 +36,8 @@ object View {
 
       def updateState(newState: S): View.UpdateEffect[S]
 
+      def deleteState(): View.UpdateEffect[S]
+
       /** Ignore this event (and continue to process the next). */
       def ignore(): View.UpdateEffect[S]
 
@@ -53,8 +55,11 @@ object View {
       _builder.asInstanceOf[Builder[S]]
 
     private[scalasdk] val _builder = new Builder[Any] {
+
       override def updateState(newState: Any): View.UpdateEffect[Any] =
         ViewUpdateEffectImpl.Update(newState)
+
+      override def deleteState(): View.UpdateEffect[Any] = ViewUpdateEffectImpl.Delete
 
       override def ignore(): View.UpdateEffect[Any] =
         ViewUpdateEffectImpl.Ignore
