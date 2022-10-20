@@ -38,31 +38,28 @@ object ActionEffectImpl {
     def internalSideEffects(): Seq[SideEffect]
     protected def withSideEffects(sideEffects: Seq[SideEffect]): Action.Effect[T]
   }
+
   final case class ReplyEffect[T](msg: T, metadata: Option[Metadata], internalSideEffects: Seq[SideEffect])
       extends PrimaryEffect[T] {
     def isEmpty: Boolean = false
     protected def withSideEffects(sideEffects: Seq[SideEffect]): ReplyEffect[T] =
       copy(internalSideEffects = sideEffects)
   }
+
   final case class AsyncEffect[T](effect: Future[Action.Effect[T]], internalSideEffects: Seq[SideEffect])
       extends PrimaryEffect[T] {
     def isEmpty: Boolean = false
     protected def withSideEffects(sideEffects: Seq[SideEffect]): AsyncEffect[T] =
       copy(internalSideEffects = sideEffects)
   }
+
   final case class ForwardEffect[T](serviceCall: DeferredCall[_, T], internalSideEffects: Seq[SideEffect])
       extends PrimaryEffect[T] {
     def isEmpty: Boolean = false
     protected def withSideEffects(sideEffects: Seq[SideEffect]): ForwardEffect[T] =
       copy(internalSideEffects = sideEffects)
   }
-  final case class IgnoreEffect[T](internalSideEffects: Seq[SideEffect]) extends PrimaryEffect[T] {
-    def isEmpty: Boolean = true
 
-    protected def withSideEffects(sideEffect: Seq[SideEffect]): IgnoreEffect[T] = {
-      throw new IllegalArgumentException("adding side effects to is not allowed.")
-    }
-  }
   final case class ErrorEffect[T](
       description: String,
       statusCode: Option[Status.Code],
@@ -71,6 +68,20 @@ object ActionEffectImpl {
     def isEmpty: Boolean = false
     protected def withSideEffects(sideEffects: Seq[SideEffect]): ErrorEffect[T] =
       copy(internalSideEffects = sideEffects)
+  }
+
+  final case class IgnoreEffect[T](internalSideEffects: Seq[SideEffect]) extends PrimaryEffect[T] {
+    def isEmpty: Boolean = true
+
+    protected def withSideEffects(sideEffect: Seq[SideEffect]): IgnoreEffect[T] = {
+      throw new IllegalArgumentException("adding side effects to is not allowed.")
+    }
+  }
+
+  final object IgnoreEffect {
+    def apply[T](internalSideEffects: Seq[SideEffect]): IgnoreEffect[T] =
+      if (internalSideEffects.isEmpty) new IgnoreEffect(Nil)
+      else throw new IllegalArgumentException("adding side effects to is not allowed.")
   }
 
   object Builder extends Action.Effect.Builder {
