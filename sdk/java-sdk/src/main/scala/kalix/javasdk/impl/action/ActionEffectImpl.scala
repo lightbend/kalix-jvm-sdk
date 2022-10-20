@@ -72,7 +72,7 @@ object ActionEffectImpl {
       copy(internalSideEffects = sideEffects)
   }
 
-  def IgnoreEffect[T]() = IgnoreEffect.asInstanceOf[PrimaryEffect[T]] 
+  def IgnoreEffect[T](): PrimaryEffect[T] = IgnoreEffect.asInstanceOf[PrimaryEffect[T]]
   case object IgnoreEffect extends PrimaryEffect[Nothing] {
     def isEmpty: Boolean = true
 

@@ -113,15 +113,15 @@ private[scalasdk] object ActionEffectImpl {
     }
   }
 
-  final case class IgnoreEffect[T]() extends PrimaryEffect[T] {
+  def IgnoreEffect[T](): PrimaryEffect[T] = IgnoreEffect.asInstanceOf[PrimaryEffect[T]]
+  final case object IgnoreEffect extends PrimaryEffect[Nothing] {
     def isEmpty: Boolean = true
     override def internalSideEffects = Nil
 
-    protected def withSideEffects(sideEffect: Seq[SideEffect]): IgnoreEffect[T] =
+    protected def withSideEffects(sideEffect: Seq[SideEffect]): PrimaryEffect[Nothing] =
       throw new IllegalArgumentException("adding side effects to is not allowed.")
-    override def toJavaSdk: javasdk.impl.action.ActionEffectImpl.PrimaryEffect[T] = {
-      javasdk.impl.action.ActionEffectImpl.IgnoreEffect()
-    }
+    override def toJavaSdk = javasdk.impl.action.ActionEffectImpl.IgnoreEffect()
+
   }
 
   object Builder extends Action.Effect.Builder {
