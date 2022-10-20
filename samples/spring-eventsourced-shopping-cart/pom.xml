@@ -11,7 +11,7 @@
   <properties>
 
     <!-- TODO Update to your own Docker repository or Docker Hub scope -->
-    <dockerImage>gcr.io/kalix-public/${project.artifactId}</dockerImage>
+    <dockerImage>my-docker-repo/${project.artifactId}</dockerImage>
     <dockerTag>${project.version}-${build.timestamp}</dockerTag>
     <maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
     <mainClass>com.example.shoppingcart.Main</mainClass>
@@ -91,7 +91,7 @@
               <name>${dockerImage}:%l</name>
               <build>
                 <!-- Base Docker image which contains jre-->
-                <from>docker.io/library/eclipse-temurin:${D}{jdk.target}-alpine</from>
+                <from>docker.io/library/eclipse-temurin:${jdk.target}-alpine</from>
                 <createImageOptions>
                   <platform>linux/amd64</platform>
                 </createImageOptions>
