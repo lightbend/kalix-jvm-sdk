@@ -16,7 +16,7 @@
 
 package kalix.javasdk.impl.action
 
-import kalix.javasdk.{DeferredCall, Metadata, SideEffect}
+import kalix.javasdk.{ DeferredCall, Metadata, SideEffect }
 import kalix.javasdk.action.Action
 
 import java.util
