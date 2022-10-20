@@ -16,12 +16,14 @@
 
 package kalix.springsdk.impl
 
-import com.google.api.{ AnnotationsProto, HttpRule }
-
 import scala.reflect.ClassTag
+
+import com.google.api.AnnotationsProto
+import com.google.api.HttpRule
 import com.google.protobuf.Descriptors
 import com.google.protobuf.Descriptors.FieldDescriptor.JavaType
 import kalix.MethodOptions
+import org.scalatest.Assertion
 import org.scalatest.matchers.should.Matchers
 
 trait ComponentDescriptorSuite extends Matchers {
@@ -29,24 +31,27 @@ trait ComponentDescriptorSuite extends Matchers {
   def descriptorFor[T](implicit ev: ClassTag[T]): ComponentDescriptor =
     ComponentDescriptor.descriptorFor(ev.runtimeClass, new SpringSdkMessageCodec)
 
-  def assertDescriptor[E](assertFunc: ComponentDescriptor => Unit)(implicit ev: ClassTag[E]) = {
+  def assertDescriptor[E](assertFunc: ComponentDescriptor => Unit)(implicit ev: ClassTag[E]): Unit = {
     val descriptor = descriptorFor[E]
     withClue(ProtoDescriptorRenderer.toString(descriptor.fileDescriptor)) {
       assertFunc(descriptor)
     }
   }
 
-  def assertRequestFieldJavaType(method: CommandHandler, fieldName: String, expectedType: JavaType) = {
+  def assertRequestFieldJavaType(method: CommandHandler, fieldName: String, expectedType: JavaType): Assertion = {
     val field = findField(method, fieldName)
     field.getJavaType shouldBe expectedType
   }
 
-  def assertRequestFieldMessageType(method: CommandHandler, fieldName: String, expectedMessageType: String) = {
+  def assertRequestFieldMessageType(
+      method: CommandHandler,
+      fieldName: String,
+      expectedMessageType: String): Assertion = {
     val field = findField(method, fieldName)
     field.getMessageType.getFullName shouldBe expectedMessageType
   }
 
-  def assertEntityKeyField(method: CommandHandler, fieldName: String) = {
+  def assertEntityKeyField(method: CommandHandler, fieldName: String): Assertion = {
     val field = findField(method, fieldName)
     val fieldOption = field.toProto.getOptions.getExtension(kalix.Annotations.field)
     fieldOption.getEntityKey shouldBe true
@@ -69,4 +74,6 @@ trait ComponentDescriptorSuite extends Matchers {
     if (field == null) throw new NoSuchElementException(s"no field found for $fieldName")
     field
   }
+
+//  def findAclExtension
 }

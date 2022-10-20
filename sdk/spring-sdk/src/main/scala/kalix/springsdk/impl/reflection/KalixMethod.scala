@@ -16,20 +16,22 @@
 
 package kalix.springsdk.impl.reflection
 
-import com.google.protobuf.any.{ Any => ScalaPbAny }
-import com.google.protobuf.Descriptors
-import kalix.springsdk.impl.path.{ PathPattern, PathPatternParser }
-import kalix.springsdk.impl.reflection.RestServiceIntrospector.{
-  isEmpty,
-  validateRequestMapping,
-  PathParameter,
-  RestMethodParameter
-}
-import org.springframework.web.bind.annotation.{ RequestMapping, RequestMethod }
-
 import java.lang.reflect.Method
+
 import scala.annotation.tailrec
+
+import com.google.protobuf.Descriptors
+import com.google.protobuf.any.{ Any => ScalaPbAny }
+import kalix.springsdk.impl.AclDescriptorFactory
+import kalix.springsdk.impl.path.PathPattern
+import kalix.springsdk.impl.path.PathPatternParser
+import kalix.springsdk.impl.reflection.RestServiceIntrospector.PathParameter
+import kalix.springsdk.impl.reflection.RestServiceIntrospector.RestMethodParameter
+import kalix.springsdk.impl.reflection.RestServiceIntrospector.isEmpty
+import kalix.springsdk.impl.reflection.RestServiceIntrospector.validateRequestMapping
 import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestMethod
 import reactor.core.publisher.Flux
 
 object ServiceMethod {
@@ -83,7 +85,7 @@ case class VirtualServiceMethod(component: Class[_], methodName: String, inputTy
 
   override def javaMethodOpt: Option[Method] = None
 
-  val pathTemplate = buildPathTemplate(component.getName, methodName)
+  val pathTemplate: String = buildPathTemplate(component.getName, methodName)
 
   val streamIn: Boolean = false
   val streamOut: Boolean = false
@@ -95,13 +97,13 @@ case class CombinedSubscriptionServiceMethod(
     methodsMap: Map[String, Method])
     extends AnyJsonRequestServiceMethod {
 
-  val methodName = combinedMethodName
+  val methodName: String = combinedMethodName
   override def inputType: Class[_] = classOf[ScalaPbAny]
 
   override def requestMethod: RequestMethod = RequestMethod.POST
   override def javaMethodOpt: Option[Method] = None
 
-  val pathTemplate = buildPathTemplate(componentName, methodName)
+  val pathTemplate: String = buildPathTemplate(componentName, methodName)
 
   val streamIn: Boolean = false
   val streamOut: Boolean = false
@@ -114,13 +116,13 @@ case class CombinedSubscriptionServiceMethod(
  */
 case class SubscriptionServiceMethod(javaMethod: Method) extends AnyJsonRequestServiceMethod {
 
-  val methodName = javaMethod.getName
+  val methodName: String = javaMethod.getName
   val inputType: Class[_] = javaMethod.getParameterTypes()(0)
 
   override def requestMethod: RequestMethod = RequestMethod.POST
   override def javaMethodOpt: Option[Method] = Some(javaMethod)
 
-  val pathTemplate = buildPathTemplate(javaMethod.getDeclaringClass.getName, methodName)
+  val pathTemplate: String = buildPathTemplate(javaMethod.getDeclaringClass.getName, methodName)
 
   val streamIn: Boolean = ServiceMethod.isStreamIn(javaMethod)
   val streamOut: Boolean = ServiceMethod.isStreamOut(javaMethod)
@@ -147,23 +149,21 @@ case class SyntheticRequestServiceMethod(
   val streamOut: Boolean = ServiceMethod.isStreamOut(javaMethod)
 
   // First fail on unsupported mapping values. Should all default to empty arrays, but let's not trust that
-  {
-    validateRequestMapping(javaMethod, mapping)
-    if (!isEmpty(mapping.method()) && classMapping.exists(cm => !isEmpty(cm.method()))) {
-      throw new ServiceIntrospectionException(
-        javaMethod,
-        "Invalid request method mapping. A request method mapping may only be defined on the class, or on the method, but not both.")
-    }
-    if (isEmpty(mapping.path()) && classMapping.forall(cm => isEmpty(cm.path()))) {
-      throw new ServiceIntrospectionException(
-        javaMethod,
-        "Missing path mapping. Kalix Spring SDK methods must have a path defined.")
-    }
-    if (isEmpty(mapping.method()) && classMapping.forall(cm => isEmpty(cm.method()))) {
-      throw new ServiceIntrospectionException(
-        javaMethod,
-        "Missing request method mapping. Kalix Spring SDK methods must have a request method defined.")
-    }
+  validateRequestMapping(javaMethod, mapping)
+  if (!isEmpty(mapping.method()) && classMapping.exists(cm => !isEmpty(cm.method()))) {
+    throw ServiceIntrospectionException(
+      javaMethod,
+      "Invalid request method mapping. A request method mapping may only be defined on the class, or on the method, but not both.")
+  }
+  if (isEmpty(mapping.path()) && classMapping.forall(cm => isEmpty(cm.path()))) {
+    throw ServiceIntrospectionException(
+      javaMethod,
+      "Missing path mapping. Kalix Spring SDK methods must have a path defined.")
+  }
+  if (isEmpty(mapping.method()) && classMapping.forall(cm => isEmpty(cm.method()))) {
+    throw ServiceIntrospectionException(
+      javaMethod,
+      "Missing request method mapping. Kalix Spring SDK methods must have a request method defined.")
   }
 
   private val pathFromAnnotation: String = {
@@ -184,14 +184,12 @@ case class SyntheticRequestServiceMethod(
 
   val pathParameters: Seq[PathParameter] = params.collect { case p: PathParameter => p }
 
-  {
-    // Validate all the path parameters exist
-    pathParameters.foreach { param =>
-      if (!parsedPath.fields.contains(param.name)) {
-        throw new ServiceIntrospectionException(
-          param.param.getAnnotatedElement,
-          s"There is no parameter named ${param.name} in the path pattern for this method.")
-      }
+  // Validate all the path parameters exist
+  pathParameters.foreach { param =>
+    if (!parsedPath.fields.contains(param.name)) {
+      throw ServiceIntrospectionException(
+        param.param.getAnnotatedElement,
+        s"There is no parameter named ${param.name} in the path pattern for this method.")
     }
   }
 
@@ -205,13 +203,48 @@ case class SyntheticRequestServiceMethod(
   }
 }
 
-case class KalixMethod(
+object KalixMethod {
+  def apply(
+      serviceMethod: ServiceMethod,
+      methodOptions: Option[kalix.MethodOptions] = None,
+      entityKeys: Seq[String] = Seq.empty): KalixMethod = {
+
+    val aclOptions =
+      serviceMethod.javaMethodOpt.flatMap { meth =>
+        AclDescriptorFactory.methodLevelAclAnnotation(meth)
+      }
+
+    new KalixMethod(serviceMethod, methodOptions, entityKeys)
+      .withKalixOptions(aclOptions)
+  }
+}
+
+case class KalixMethod private (
     serviceMethod: ServiceMethod,
     methodOptions: Option[kalix.MethodOptions] = None,
     entityKeys: Seq[String] = Seq.empty) {
 
   /**
+   * KalixMethod is used to collect all the information that we need to produce a gRPC method for the proxy. At the end
+   * of the road, we need to check if any incompatibility was created. Therefore the validation should occur when we
+   * finish to scan the component and are ready to build the gRPC method.
+   *
+   * For example, a method eventing.in method with an ACL annotation.
+   */
+  def validate(): Unit = {
+    // check if eventing.in and acl are mixed
+    methodOptions.foreach { opts =>
+      if (opts.getEventing.hasIn && opts.hasAcl)
+        throw ServiceIntrospectionException(
+          // safe call: ServiceMethods without a java counterpart won't have ACL anyway
+          serviceMethod.javaMethodOpt.get,
+          "Subscription methods are for internal use only and cannot be combined with ACL annotations.")
+    }
+  }
+
+  /**
    * This method merges the new method options with the existing ones. In case of collision the 'opts' are kept
+   *
    * @param opts
    * @return
    */

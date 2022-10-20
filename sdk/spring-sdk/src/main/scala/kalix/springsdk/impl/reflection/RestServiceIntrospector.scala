@@ -16,13 +16,16 @@
 
 package kalix.springsdk.impl.reflection
 
-import org.springframework.core.{ DefaultParameterNameDiscoverer, MethodParameter }
-import org.springframework.core.annotation.{ AnnotatedElementUtils, SynthesizingMethodParameter }
-import org.springframework.web.bind.annotation._
-
 import java.lang.annotation.Annotation
 import java.lang.reflect.AnnotatedElement
+
 import scala.reflect.ClassTag
+
+import org.springframework.core.DefaultParameterNameDiscoverer
+import org.springframework.core.MethodParameter
+import org.springframework.core.annotation.AnnotatedElementUtils
+import org.springframework.core.annotation.SynthesizingMethodParameter
+import org.springframework.web.bind.annotation._
 
 object RestServiceIntrospector {
 
@@ -115,33 +118,33 @@ object RestServiceIntrospector {
 
   private[kalix] def validateRequestMapping(element: AnnotatedElement, mapping: RequestMapping): Unit = {
     if (!isEmpty(mapping.consumes())) {
-      throw new ServiceIntrospectionException(
+      throw ServiceIntrospectionException(
         element,
         "Unsupported RequestMapping attribute: consumes. Kalix Spring SDK does not support mapping requests by consumes, all methods are assumed to handle JSON and only JSON.")
     }
     if (!isEmpty(mapping.produces())) {
-      throw new ServiceIntrospectionException(
+      throw ServiceIntrospectionException(
         element,
         "Unsupported RequestMapping attribute: produces. Kalix Spring SDK does not support mapping requests by what it produces, all methods are assumed to produce JSON and only JSON.")
     }
     if (!isEmpty(mapping.headers())) {
-      throw new ServiceIntrospectionException(
+      throw ServiceIntrospectionException(
         element,
         "Unsupported RequestMapping attribute: headers. Kalix Spring SDK does not support mapping requests by headers.")
     }
     if (!isEmpty(mapping.params())) {
-      throw new ServiceIntrospectionException(
+      throw ServiceIntrospectionException(
         element,
         "Unsupported RequestMapping attribute: params. Kalix Spring SDK does not support mapping requests by request parameters.")
     }
     // This could be relaxed, since gRPC transcoding does have an additionalBindings field.
     if (!isEmpty(mapping.path()) && mapping.path().length > 1) {
-      throw new ServiceIntrospectionException(
+      throw ServiceIntrospectionException(
         element,
         "Invalid multiple path mapping. Kalix Spring SDK only supports mapping methods to one HTTP request path.")
     }
     if (!isEmpty(mapping.method()) && mapping.method().length > 1) {
-      throw new ServiceIntrospectionException(
+      throw ServiceIntrospectionException(
         element,
         "Invalid multiple request method mapping. Kalix Spring SDK only supports mapping methods to one HTTP request method.")
     }
@@ -150,5 +153,3 @@ object RestServiceIntrospector {
   private[kalix] def isEmpty[T](array: Array[T]): Boolean = array == null || array.isEmpty
 
 }
-
-class ServiceIntrospectionException(element: AnnotatedElement, msg: String) extends RuntimeException(msg)

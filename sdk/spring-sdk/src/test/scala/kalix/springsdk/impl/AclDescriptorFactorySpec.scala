@@ -18,6 +18,7 @@ package kalix.springsdk.impl
 
 import scala.reflect.ClassTag
 
+import kalix.FileOptions
 import kalix.PrincipalMatcher
 import kalix.springsdk.testmodels.AclTestModels.MainAllowAllServices
 import kalix.springsdk.testmodels.AclTestModels.MainAllowListOfServices
@@ -36,35 +37,34 @@ import org.scalatest.wordspec.AnyWordSpec
 
 class AclDescriptorFactorySpec extends AnyWordSpec with Matchers {
 
-  def lookupExtention[T: ClassTag] =
+  def lookupExtension[T: ClassTag]: Option[FileOptions] =
     AclDescriptorFactory
       .defaultAclFileDescriptor(implicitly[ClassTag[T]].runtimeClass)
       .map { aclFileDesc =>
-
         aclFileDesc.getOptions.getExtension(kalix.Annotations.file)
       }
 
-  "The DefaultAclDescriptorFactory" should {
+  "AclDescriptorFactory.defaultAclFileDescriptor" should {
 
     "generate an empty descriptor if no ACL annotation is found" in {
-      val extension = lookupExtention[MainWithoutAnnotation]
+      val extension = lookupExtension[MainWithoutAnnotation]
       extension shouldBe empty
     }
 
     "generate a default ACL file descriptor with deny code" in {
-      val extension = lookupExtention[MainDenyWithCode].get
+      val extension = lookupExtension[MainDenyWithCode].get
       val denyCode = extension.getAcl.getDenyCode
       denyCode shouldBe 7
     }
 
     "generate a default ACL file descriptor with allow all services" in {
-      val extension = lookupExtention[MainAllowAllServices].get
+      val extension = lookupExtension[MainAllowAllServices].get
       val service = extension.getAcl.getAllow(0).getService
       service shouldBe "*"
     }
 
     "generate a default ACL file descriptor with allow two services" in {
-      val extension = lookupExtention[MainAllowListOfServices].get
+      val extension = lookupExtension[MainAllowListOfServices].get
       val service1 = extension.getAcl.getAllow(0).getService
       service1 shouldBe "foo"
 
@@ -73,31 +73,31 @@ class AclDescriptorFactorySpec extends AnyWordSpec with Matchers {
     }
 
     "generate a default ACL file descriptor with allow Principal INTERNET" in {
-      val extension = lookupExtention[MainAllowPrincipalInternet].get
+      val extension = lookupExtension[MainAllowPrincipalInternet].get
       val principal = extension.getAcl.getAllow(0).getPrincipal
       principal shouldBe PrincipalMatcher.Principal.INTERNET
     }
 
     "generate a default ACL file descriptor with allow Principal ALL" in {
-      val extension = lookupExtention[MainAllowPrincipalAll].get
+      val extension = lookupExtension[MainAllowPrincipalAll].get
       val principal = extension.getAcl.getAllow(0).getPrincipal
       principal shouldBe PrincipalMatcher.Principal.ALL
     }
 
     "fail if both Principal and Service are defined" in {
       intercept[IllegalArgumentException] {
-        lookupExtention[MainWithInvalidAllowAnnotation]
+        lookupExtension[MainWithInvalidAllowAnnotation]
       }.getMessage shouldBe AclDescriptorFactory.invalidAnnotationUsage
     }
 
     "generate a default ACL file descriptor with deny all services" in {
-      val extension = lookupExtention[MainDenyAllServices].get
+      val extension = lookupExtension[MainDenyAllServices].get
       val service = extension.getAcl.getDeny(0).getService
       service shouldBe "*"
     }
 
     "generate a default ACL file descriptor with deny two services" in {
-      val extension = lookupExtention[MainDenyListOfServices].get
+      val extension = lookupExtension[MainDenyListOfServices].get
       val service1 = extension.getAcl.getDeny(0).getService
       service1 shouldBe "foo"
 
@@ -106,20 +106,20 @@ class AclDescriptorFactorySpec extends AnyWordSpec with Matchers {
     }
 
     "generate a default ACL file descriptor with deny Principal INTERNET" in {
-      val extension = lookupExtention[MainDenyPrincipalInternet].get
+      val extension = lookupExtension[MainDenyPrincipalInternet].get
       val principal = extension.getAcl.getDeny(0).getPrincipal
       principal shouldBe PrincipalMatcher.Principal.INTERNET
     }
 
     "generate a default ACL file descriptor with deny Principal ALL" in {
-      val extension = lookupExtention[MainDenyPrincipalAll].get
+      val extension = lookupExtension[MainDenyPrincipalAll].get
       val principal = extension.getAcl.getDeny(0).getPrincipal
       principal shouldBe PrincipalMatcher.Principal.ALL
     }
 
     "fail if both Principal and Service are defined in 'deny' field" in {
       intercept[IllegalArgumentException] {
-        lookupExtention[MainWithInvalidDenyAnnotation]
+        lookupExtension[MainWithInvalidDenyAnnotation]
       }.getMessage shouldBe AclDescriptorFactory.invalidAnnotationUsage
     }
   }

@@ -16,18 +16,20 @@
 
 package kalix.springsdk.impl
 
+import java.lang.reflect.Method
+import java.lang.reflect.Modifier
+
 import kalix.MethodOptions
 import kalix.springsdk.annotations.JWT
 import kalix.springsdk.annotations.Table
-import kalix.springsdk.annotations.{ Entity, Publish, Subscribe }
-import kalix.springsdk.impl.ComponentDescriptorFactory.hasJwtMethodOptions
-import kalix.springsdk.impl.ComponentDescriptorFactory.jwtMethodOptions
+import kalix.springsdk.annotations.Entity
+import kalix.springsdk.annotations.Publish
+import kalix.springsdk.annotations.Subscribe
 import kalix.springsdk.impl.reflection._
-import kalix.{ EventDestination, EventSource, Eventing, JwtMethodOptions }
-import java.lang.reflect.{ Method, Modifier }
-
-import kalix.javasdk.JsonSupport
-import kalix.javasdk.JsonSupport._
+import kalix.EventDestination
+import kalix.EventSource
+import kalix.Eventing
+import kalix.JwtMethodOptions
 
 private[impl] object ComponentDescriptorFactory {
 
@@ -51,7 +53,7 @@ private[impl] object ComponentDescriptorFactory {
     Modifier.isPublic(javaMehod.getModifiers) &&
     javaMehod.getAnnotation(classOf[JWT]) != null
 
-  def findEventSourcedEntityType(javaMethod: Method): String = {
+  private def findEventSourcedEntityType(javaMethod: Method): String = {
     val ann = javaMethod.getAnnotation(classOf[Subscribe.EventSourcedEntity])
     val entityClass = ann.value()
     entityClass.getAnnotation(classOf[Entity]).entityType()
@@ -69,17 +71,17 @@ private[impl] object ComponentDescriptorFactory {
     entityClass.getAnnotation(classOf[Entity]).entityType()
   }
 
-  def findSubTopicName(javaMethod: Method): String = {
+  private def findSubTopicName(javaMethod: Method): String = {
     val ann = javaMethod.getAnnotation(classOf[Subscribe.Topic])
     ann.value()
   }
 
-  def findSubConsumerGroup(javaMethod: Method): String = {
+  private def findSubConsumerGroup(javaMethod: Method): String = {
     val ann = javaMethod.getAnnotation(classOf[Subscribe.Topic])
     ann.consumerGroup()
   }
 
-  def findPubTopicName(javaMethod: Method): String = {
+  private def findPubTopicName(javaMethod: Method): String = {
     val ann = javaMethod.getAnnotation(classOf[Publish.Topic])
     ann.value()
   }

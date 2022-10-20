@@ -17,6 +17,7 @@
 package kalix.springsdk.testmodels.valueentity;
 
 import kalix.javasdk.valueentity.ValueEntity;
+import kalix.springsdk.annotations.Acl;
 import kalix.springsdk.annotations.Entity;
 import kalix.springsdk.testmodels.Done;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -36,6 +37,24 @@ public class ValueEntitiesTestModels {
     }
 
     @PostMapping("/create")
+    public ValueEntity.Effect<Done> createEntity(@RequestBody CreateUser createUser) {
+      return effects().reply(Done.instance);
+    }
+  }
+
+  @Entity(
+      entityKey = {"userId", "cartId"},
+      entityType = "user")
+  @Acl(allow = @Acl.Matcher(service = "test"))
+  public static class ValueEntityWithServiceLevelAcl extends ValueEntity<User> {
+  }
+
+  @Entity(
+      entityKey = {"userId", "cartId"},
+      entityType = "user")
+  public static class ValueEntityWithMethodLevelAcl extends ValueEntity<User> {
+    @PostMapping("/create")
+    @Acl(allow = @Acl.Matcher(service = "test"))
     public ValueEntity.Effect<Done> createEntity(@RequestBody CreateUser createUser) {
       return effects().reply(Done.instance);
     }
