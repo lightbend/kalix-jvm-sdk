@@ -72,12 +72,13 @@ object ActionEffectImpl {
       copy(internalSideEffects = sideEffects)
   }
 
-  final case class IgnoreEffect[T]() extends PrimaryEffect[T] {
+  def IgnoreEffect[T]() = IgnoreEffect.asInstanceOf[PrimaryEffect[T]] 
+  case object IgnoreEffect extends PrimaryEffect[Nothing] {
     def isEmpty: Boolean = true
 
     override def internalSideEffects = Nil
 
-    protected def withSideEffects(sideEffect: Seq[SideEffect]): IgnoreEffect[T] = {
+    protected def withSideEffects(sideEffect: Seq[SideEffect]): PrimaryEffect[Nothing] = {
       throw new IllegalArgumentException("adding side effects to is not allowed.")
     }
   }
