@@ -113,20 +113,15 @@ private[scalasdk] object ActionEffectImpl {
     }
   }
 
-  final case class IgnoreEffect[T](internalSideEffects: Seq[SideEffect]) extends PrimaryEffect[T] {
+  final case class IgnoreEffect[T]() extends PrimaryEffect[T] {
     def isEmpty: Boolean = true
+    override def internalSideEffects = Nil
+
     protected def withSideEffects(sideEffect: Seq[SideEffect]): IgnoreEffect[T] =
       throw new IllegalArgumentException("adding side effects to is not allowed.")
     override def toJavaSdk: javasdk.impl.action.ActionEffectImpl.PrimaryEffect[T] = {
-      val sideEffects = internalSideEffects.map { case ScalaSideEffectAdapter(se) => se }
-      javasdk.impl.action.ActionEffectImpl.IgnoreEffect(sideEffects)
+      javasdk.impl.action.ActionEffectImpl.IgnoreEffect()
     }
-  }
-
-  final object IgnoreEffect {
-    def apply[T](internalSideEffects: Seq[SideEffect]): IgnoreEffect[T] =
-      if (internalSideEffects.isEmpty) new IgnoreEffect(Nil)
-      else new IgnoreEffect(Nil).withSideEffects(internalSideEffects)
   }
 
   object Builder extends Action.Effect.Builder {
@@ -146,7 +141,7 @@ private[scalasdk] object ActionEffectImpl {
     override def asyncEffect[S](futureEffect: Future[Action.Effect[S]]): Action.Effect[S] =
       AsyncEffect(futureEffect, Nil)
     override def ignore[S]: Action.Effect[S] =
-      IgnoreEffect(Nil)
+      IgnoreEffect()
   }
 
   def builder(): Action.Effect.Builder = Builder

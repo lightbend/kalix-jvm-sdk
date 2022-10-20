@@ -72,18 +72,14 @@ object ActionEffectImpl {
       copy(internalSideEffects = sideEffects)
   }
 
-  final case class IgnoreEffect[T](internalSideEffects: Seq[SideEffect]) extends PrimaryEffect[T] {
+  final case class IgnoreEffect[T]() extends PrimaryEffect[T] {
     def isEmpty: Boolean = true
+
+    override def internalSideEffects = Nil
 
     protected def withSideEffects(sideEffect: Seq[SideEffect]): IgnoreEffect[T] = {
       throw new IllegalArgumentException("adding side effects to is not allowed.")
     }
-  }
-
-  final object IgnoreEffect {
-    def apply[T](internalSideEffects: Seq[SideEffect]): IgnoreEffect[T] =
-      if (internalSideEffects.isEmpty) new IgnoreEffect(Nil)
-      else new IgnoreEffect(Nil).withSideEffects(internalSideEffects)
   }
 
   object Builder extends Action.Effect.Builder {
@@ -100,7 +96,7 @@ object ActionEffectImpl {
     def asyncEffect[S](futureEffect: CompletionStage[Action.Effect[S]]): Action.Effect[S] =
       AsyncEffect(futureEffect.asScala, Nil)
     def ignore[S](): Action.Effect[S] =
-      IgnoreEffect(Nil)
+      IgnoreEffect()
   }
 
   def builder(): Action.Effect.Builder = Builder

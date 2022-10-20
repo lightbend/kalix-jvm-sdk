@@ -150,7 +150,6 @@ object Action {
        * eventing in. If used as a response to a regular gRPC or HTTP request it is turned into a NotFound response.
        *
        * Ignore is not allowed to have side effects added with `addSideEffects`
-       *
        */
       def ignore[S]: Action.Effect[S]
     }
