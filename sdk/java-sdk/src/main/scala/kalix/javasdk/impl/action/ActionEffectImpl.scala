@@ -18,12 +18,12 @@ package kalix.javasdk.impl.action
 
 import kalix.javasdk.{ DeferredCall, Metadata, SideEffect }
 import kalix.javasdk.action.Action
+
 import java.util
 import java.util.concurrent.CompletionStage
 
 import io.grpc.Status
 
-import scala.collection.immutable.Seq
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters._
@@ -40,24 +40,28 @@ object ActionEffectImpl {
     def internalSideEffects(): Seq[SideEffect]
     protected def withSideEffects(sideEffects: Seq[SideEffect]): Action.Effect[T]
   }
+
   final case class ReplyEffect[T](msg: T, metadata: Option[Metadata], internalSideEffects: Seq[SideEffect])
       extends PrimaryEffect[T] {
     def isEmpty: Boolean = false
     protected def withSideEffects(sideEffects: Seq[SideEffect]): ReplyEffect[T] =
       copy(internalSideEffects = sideEffects)
   }
+
   final case class AsyncEffect[T](effect: Future[Action.Effect[T]], internalSideEffects: Seq[SideEffect])
       extends PrimaryEffect[T] {
     def isEmpty: Boolean = false
     protected def withSideEffects(sideEffects: Seq[SideEffect]): AsyncEffect[T] =
       copy(internalSideEffects = sideEffects)
   }
+
   final case class ForwardEffect[T](serviceCall: DeferredCall[_, T], internalSideEffects: Seq[SideEffect])
       extends PrimaryEffect[T] {
     def isEmpty: Boolean = false
     protected def withSideEffects(sideEffects: Seq[SideEffect]): ForwardEffect[T] =
       copy(internalSideEffects = sideEffects)
   }
+
   final case class ErrorEffect[T](
       description: String,
       statusCode: Option[Status.Code],
@@ -66,6 +70,17 @@ object ActionEffectImpl {
     def isEmpty: Boolean = false
     protected def withSideEffects(sideEffects: Seq[SideEffect]): ErrorEffect[T] =
       copy(internalSideEffects = sideEffects)
+  }
+
+  def IgnoreEffect[T](): PrimaryEffect[T] = IgnoreEffect.asInstanceOf[PrimaryEffect[T]]
+  case object IgnoreEffect extends PrimaryEffect[Nothing] {
+    def isEmpty: Boolean = true
+
+    override def internalSideEffects = Nil
+
+    protected def withSideEffects(sideEffect: Seq[SideEffect]): PrimaryEffect[Nothing] = {
+      throw new IllegalArgumentException("adding side effects to is not allowed.")
+    }
   }
 
   object Builder extends Action.Effect.Builder {
@@ -81,6 +96,8 @@ object ActionEffectImpl {
       AsyncEffect(futureMessage.asScala.map(s => Builder.reply[S](s))(ExecutionContext.parasitic), Nil)
     def asyncEffect[S](futureEffect: CompletionStage[Action.Effect[S]]): Action.Effect[S] =
       AsyncEffect(futureEffect.asScala, Nil)
+    def ignore[S](): Action.Effect[S] =
+      IgnoreEffect()
   }
 
   def builder(): Action.Effect.Builder = Builder

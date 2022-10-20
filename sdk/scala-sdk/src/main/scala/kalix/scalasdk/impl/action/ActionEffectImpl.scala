@@ -16,14 +16,15 @@
 
 package kalix.scalasdk.impl.action
 
-import scala.collection.immutable.Seq
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
+
 import kalix.javasdk
 import kalix.scalasdk.{ DeferredCall, Metadata, SideEffect }
 import kalix.scalasdk.action.Action
 import kalix.scalasdk.impl.ScalaDeferredCallAdapter
 import kalix.scalasdk.impl.ScalaSideEffectAdapter
+
 import io.grpc.Status
 
 private[scalasdk] object ActionEffectImpl {
@@ -112,6 +113,17 @@ private[scalasdk] object ActionEffectImpl {
     }
   }
 
+  def IgnoreEffect[T](): PrimaryEffect[T] = IgnoreEffect.asInstanceOf[PrimaryEffect[T]]
+  final case object IgnoreEffect extends PrimaryEffect[Nothing] {
+    def isEmpty: Boolean = true
+    override def internalSideEffects = Nil
+
+    protected def withSideEffects(sideEffect: Seq[SideEffect]): PrimaryEffect[Nothing] =
+      throw new IllegalArgumentException("adding side effects to is not allowed.")
+    override def toJavaSdk = javasdk.impl.action.ActionEffectImpl.IgnoreEffect()
+
+  }
+
   object Builder extends Action.Effect.Builder {
     override def reply[S](message: S): Action.Effect[S] = ReplyEffect(message, None, Nil)
     override def reply[S](message: S, metadata: Metadata): Action.Effect[S] = ReplyEffect(message, Some(metadata), Nil)
@@ -128,7 +140,8 @@ private[scalasdk] object ActionEffectImpl {
       AsyncEffect(futureMessage.map(s => Builder.reply[S](s))(ExecutionContext.parasitic), Nil)
     override def asyncEffect[S](futureEffect: Future[Action.Effect[S]]): Action.Effect[S] =
       AsyncEffect(futureEffect, Nil)
-
+    override def ignore[S]: Action.Effect[S] =
+      IgnoreEffect()
   }
 
   def builder(): Action.Effect.Builder = Builder
