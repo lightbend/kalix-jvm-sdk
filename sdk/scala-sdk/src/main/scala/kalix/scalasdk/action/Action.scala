@@ -151,8 +151,6 @@ object Action {
        *
        * Ignore is not allowed to have side effects added with `addSideEffects`
        *
-       * @return
-       * @param S
        */
       def ignore[S]: Action.Effect[S]
     }
