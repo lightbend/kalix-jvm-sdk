@@ -25,10 +25,6 @@
 
   <build>
     <resources>
-      <!-- Add the generated protobuf descriptor to the classpath, so that source mapping works -->
-      <resource>
-        <directory>${project.build.directory}/generated-resources</directory>
-      </resource>
       <resource>
         <directory>src/main/resources</directory>
       </resource>
