@@ -16,12 +16,14 @@
 
 package kalix.javasdk.impl.action
 
-import kalix.javasdk.{ DeferredCall, Metadata, SideEffect }
+import kalix.javasdk.{DeferredCall, Metadata, SideEffect}
 import kalix.javasdk.action.Action
 
 import java.util
 import java.util.concurrent.CompletionStage
+
 import io.grpc.Status
+
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters._
@@ -81,7 +83,7 @@ object ActionEffectImpl {
   final object IgnoreEffect {
     def apply[T](internalSideEffects: Seq[SideEffect]): IgnoreEffect[T] =
       if (internalSideEffects.isEmpty) new IgnoreEffect(Nil)
-      else throw new IllegalArgumentException("adding side effects to is not allowed.")
+      else new IgnoreEffect(Nil).withSideEffects(internalSideEffects)
   }
 
   object Builder extends Action.Effect.Builder {
