@@ -18,12 +18,10 @@ package kalix.javasdk.impl.action
 
 import kalix.javasdk.{ DeferredCall, Metadata, SideEffect }
 import kalix.javasdk.action.Action
+
 import java.util
 import java.util.concurrent.CompletionStage
-
 import io.grpc.Status
-
-import scala.collection.immutable.Seq
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters._
@@ -58,6 +56,13 @@ object ActionEffectImpl {
     protected def withSideEffects(sideEffects: Seq[SideEffect]): ForwardEffect[T] =
       copy(internalSideEffects = sideEffects)
   }
+  final case class IgnoreEffect[T](internalSideEffects: Seq[SideEffect]) extends PrimaryEffect[T] {
+    def isEmpty: Boolean = true
+
+    protected def withSideEffects(sideEffect: Seq[SideEffect]): IgnoreEffect[T] = {
+      throw new IllegalArgumentException("adding side effects to is not allowed.")
+    }
+  }
   final case class ErrorEffect[T](
       description: String,
       statusCode: Option[Status.Code],
@@ -81,6 +86,8 @@ object ActionEffectImpl {
       AsyncEffect(futureMessage.asScala.map(s => Builder.reply[S](s))(ExecutionContext.parasitic), Nil)
     def asyncEffect[S](futureEffect: CompletionStage[Action.Effect[S]]): Action.Effect[S] =
       AsyncEffect(futureEffect.asScala, Nil)
+    def ignore[S](): Action.Effect[S] =
+      IgnoreEffect(Nil)
   }
 
   def builder(): Action.Effect.Builder = Builder

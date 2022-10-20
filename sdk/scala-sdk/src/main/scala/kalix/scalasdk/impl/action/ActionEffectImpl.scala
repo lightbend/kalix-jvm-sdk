@@ -16,7 +16,6 @@
 
 package kalix.scalasdk.impl.action
 
-import scala.collection.immutable.Seq
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 import kalix.javasdk
@@ -112,6 +111,16 @@ private[scalasdk] object ActionEffectImpl {
     }
   }
 
+  final case class IgnoreEffect[T](internalSideEffects: Seq[SideEffect]) extends PrimaryEffect[T] {
+    def isEmpty: Boolean = true
+    protected def withSideEffects(sideEffect: Seq[SideEffect]): IgnoreEffect[T] =
+      copy(internalSideEffects = sideEffect)
+    override def toJavaSdk: javasdk.impl.action.ActionEffectImpl.PrimaryEffect[T] = {
+      val sideEffects = internalSideEffects.map { case ScalaSideEffectAdapter(se) => se }
+      javasdk.impl.action.ActionEffectImpl.IgnoreEffect(sideEffects)
+    }
+  }
+
   object Builder extends Action.Effect.Builder {
     override def reply[S](message: S): Action.Effect[S] = ReplyEffect(message, None, Nil)
     override def reply[S](message: S, metadata: Metadata): Action.Effect[S] = ReplyEffect(message, Some(metadata), Nil)
@@ -128,7 +137,8 @@ private[scalasdk] object ActionEffectImpl {
       AsyncEffect(futureMessage.map(s => Builder.reply[S](s))(ExecutionContext.parasitic), Nil)
     override def asyncEffect[S](futureEffect: Future[Action.Effect[S]]): Action.Effect[S] =
       AsyncEffect(futureEffect, Nil)
-
+    override def ignore[S](): Action.Effect[S] =
+      IgnoreEffect(Nil)
   }
 
   def builder(): Action.Effect.Builder = Builder
