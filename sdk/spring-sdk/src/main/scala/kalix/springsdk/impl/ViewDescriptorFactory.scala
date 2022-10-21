@@ -25,18 +25,18 @@ import kalix.springsdk.annotations.Subscribe
 import kalix.springsdk.annotations.Table
 import kalix.springsdk.impl.ComponentDescriptorFactory.buildJWTOptions
 import kalix.springsdk.impl.ComponentDescriptorFactory.combineByES
+import kalix.springsdk.impl.ComponentDescriptorFactory.eventingInForEventSourcedEntity
 import kalix.springsdk.impl.ComponentDescriptorFactory.eventingInForValueEntity
 import kalix.springsdk.impl.ComponentDescriptorFactory.findValueEntityType
+import kalix.springsdk.impl.ComponentDescriptorFactory.hasEventSourcedEntitySubscription
 import kalix.springsdk.impl.ComponentDescriptorFactory.hasValueEntitySubscription
 import kalix.springsdk.impl.reflection.KalixMethod
 import kalix.springsdk.impl.reflection.NameGenerator
-import kalix.springsdk.impl.reflection.RestServiceIntrospector
-import kalix.springsdk.impl.reflection.SyntheticRequestServiceMethod
 import kalix.springsdk.impl.reflection.ReflectionUtils
+import kalix.springsdk.impl.reflection.RestServiceIntrospector
 import kalix.springsdk.impl.reflection.RestServiceIntrospector.BodyParameter
-import kalix.springsdk.impl.ComponentDescriptorFactory.eventingInForEventSourcedEntity
-import kalix.springsdk.impl.ComponentDescriptorFactory.hasEventSourcedEntitySubscription
 import kalix.springsdk.impl.reflection.SubscriptionServiceMethod
+import kalix.springsdk.impl.reflection.SyntheticRequestServiceMethod
 import kalix.springsdk.impl.reflection.VirtualServiceMethod
 import reactor.core.publisher.Flux
 
@@ -167,6 +167,7 @@ private[impl] object ViewDescriptorFactory extends ComponentDescriptorFactory {
       nameGenerator,
       messageCodec,
       serviceName,
+      serviceOptions = AclDescriptorFactory.serviceLevelAclAnnotation(component),
       component.getPackageName,
       kalixMethods,
       additionalMessages.toSeq)

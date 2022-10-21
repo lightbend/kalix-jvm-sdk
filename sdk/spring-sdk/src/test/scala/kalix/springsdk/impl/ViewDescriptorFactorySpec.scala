@@ -28,12 +28,31 @@ import kalix.springsdk.testmodels.view.ViewTestModels.UserByEmailWithPost
 import kalix.springsdk.testmodels.view.ViewTestModels.UserByEmailWithPostRequestBodyOnly
 import kalix.springsdk.testmodels.view.ViewTestModels.UserByNameEmailWithPost
 import kalix.springsdk.testmodels.view.ViewTestModels.UserByNameStreamed
+import kalix.springsdk.testmodels.view.ViewTestModels.ViewWithMethodLevelAcl
 import kalix.springsdk.testmodels.view.ViewTestModels.ViewWithNoQuery
+import kalix.springsdk.testmodels.view.ViewTestModels.ViewWithServiceLevelAcl
 import kalix.springsdk.testmodels.view.ViewTestModels.ViewWithSubscriptionsInMixedLevels
 import kalix.springsdk.testmodels.view.ViewTestModels.ViewWithTwoQueries
 import org.scalatest.wordspec.AnyWordSpec
 
 class ViewDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSuite {
+
+  "View descriptor factory" should {
+    "generate ACL annotations at service level" in {
+      assertDescriptor[ViewWithServiceLevelAcl] { desc =>
+        val extension = desc.serviceDescriptor.getOptions.getExtension(kalix.Annotations.service)
+        val service = extension.getAcl.getAllow(0).getService
+        service shouldBe "test"
+      }
+    }
+    "generate ACL annotations at method level" in {
+      assertDescriptor[ViewWithMethodLevelAcl] { desc =>
+        val extension = findKalixMethodOptions(desc, "GetEmployeeByEmail")
+        val service = extension.getAcl.getAllow(0).getService
+        service shouldBe "test"
+      }
+    }
+  }
 
   "View descriptor factory (for Value Entity)" should {
 
@@ -329,4 +348,5 @@ class ViewDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSuit
       }
     }
   }
+
 }

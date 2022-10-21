@@ -19,6 +19,7 @@ package kalix.springsdk.impl
 import com.google.protobuf.Descriptors.FieldDescriptor.JavaType
 import com.google.protobuf.{ Any => JavaPbAny }
 import kalix.JwtMethodOptions.JwtMethodMode
+import kalix.springsdk.impl.reflection.ServiceIntrospectionException
 import kalix.springsdk.testmodels.action.ActionsTestModels.DeleteWithOneParam
 import kalix.springsdk.testmodels.action.ActionsTestModels.GetClassLevel
 import kalix.springsdk.testmodels.action.ActionsTestModels.GetWithOneParam
@@ -35,6 +36,9 @@ import kalix.springsdk.testmodels.action.ActionsTestModels.PutWithoutParam
 import kalix.springsdk.testmodels.action.ActionsTestModels.StreamInAction
 import kalix.springsdk.testmodels.action.ActionsTestModels.StreamInOutAction
 import kalix.springsdk.testmodels.action.ActionsTestModels.StreamOutAction
+import kalix.springsdk.testmodels.subscriptions.PubSubTestModels.ActionWithMethodLevelAcl
+import kalix.springsdk.testmodels.subscriptions.PubSubTestModels.ActionWithMethodLevelAclAndSubscription
+import kalix.springsdk.testmodels.subscriptions.PubSubTestModels.ActionWithServiceLevelAcl
 import kalix.springsdk.testmodels.subscriptions.PubSubTestModels.PublishToTopicAction
 import kalix.springsdk.testmodels.subscriptions.PubSubTestModels.RestAnnotatedSubscribeToEventSourcedEntityAction
 import kalix.springsdk.testmodels.subscriptions.PubSubTestModels.RestAnnotatedSubscribeToValueEntityAction
@@ -376,6 +380,28 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
         javaMethod.parameterExtractors.length shouldBe 1
       }
 
+    }
+
+    "generate ACL annotations at service level" in {
+      assertDescriptor[ActionWithServiceLevelAcl] { desc =>
+        val extension = desc.serviceDescriptor.getOptions.getExtension(kalix.Annotations.service)
+        val service = extension.getAcl.getAllow(0).getService
+        service shouldBe "test"
+      }
+    }
+
+    "generate ACL annotations at method level" in {
+      assertDescriptor[ActionWithMethodLevelAcl] { desc =>
+        val extension = findKalixMethodOptions(desc, "MessageOne")
+        val service = extension.getAcl.getAllow(0).getService
+        service shouldBe "test"
+      }
+    }
+
+    "fail if it's subscription method exposed with ACL" in {
+      intercept[ServiceIntrospectionException] {
+        descriptorFor[ActionWithMethodLevelAclAndSubscription]
+      }
     }
   }
 

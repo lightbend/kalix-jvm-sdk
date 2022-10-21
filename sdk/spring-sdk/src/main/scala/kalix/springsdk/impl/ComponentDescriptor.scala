@@ -34,20 +34,20 @@ import com.google.protobuf.Descriptors
 import com.google.protobuf.Descriptors.FileDescriptor
 import com.google.protobuf.{ Any => JavaPbAny }
 import kalix.javasdk.impl.AnySupport
-import kalix.springsdk.impl.reflection.CombinedSubscriptionServiceMethod
-import kalix.springsdk.impl.reflection.ParameterExtractors.HeaderExtractor
-import kalix.springsdk.impl.reflection.RestServiceIntrospector.BodyParameter
-import kalix.springsdk.impl.reflection.RestServiceIntrospector.HeaderParameter
-import kalix.springsdk.impl.reflection.RestServiceIntrospector.PathParameter
-import kalix.springsdk.impl.reflection.RestServiceIntrospector.QueryParamParameter
-import kalix.springsdk.impl.reflection.RestServiceIntrospector.UnhandledParameter
 import kalix.springsdk.impl.reflection.AnyJsonRequestServiceMethod
+import kalix.springsdk.impl.reflection.CombinedSubscriptionServiceMethod
 import kalix.springsdk.impl.reflection.DynamicMessageContext
 import kalix.springsdk.impl.reflection.ExtractorCreator
 import kalix.springsdk.impl.reflection.KalixMethod
 import kalix.springsdk.impl.reflection.NameGenerator
 import kalix.springsdk.impl.reflection.ParameterExtractor
 import kalix.springsdk.impl.reflection.ParameterExtractors
+import kalix.springsdk.impl.reflection.ParameterExtractors.HeaderExtractor
+import kalix.springsdk.impl.reflection.RestServiceIntrospector.BodyParameter
+import kalix.springsdk.impl.reflection.RestServiceIntrospector.HeaderParameter
+import kalix.springsdk.impl.reflection.RestServiceIntrospector.PathParameter
+import kalix.springsdk.impl.reflection.RestServiceIntrospector.QueryParamParameter
+import kalix.springsdk.impl.reflection.RestServiceIntrospector.UnhandledParameter
 import kalix.springsdk.impl.reflection.ServiceMethod
 import kalix.springsdk.impl.reflection.SyntheticRequestServiceMethod
 import org.springframework.web.bind.annotation.RequestMethod
@@ -66,6 +66,7 @@ private[impl] object ComponentDescriptor {
       nameGenerator: NameGenerator,
       messageCodec: SpringSdkMessageCodec,
       serviceName: String,
+      serviceOptions: Option[kalix.ServiceOptions],
       packageName: String,
       kalixMethods: Seq[KalixMethod],
       additionalMessages: Seq[ProtoMessageDescriptors] = Nil): ComponentDescriptor = {
@@ -76,7 +77,18 @@ private[impl] object ComponentDescriptor {
     val grpcService = ServiceDescriptorProto.newBuilder()
     grpcService.setName(serviceName)
 
+    serviceOptions.foreach { serviceOpts =>
+      val options =
+        DescriptorProtos.ServiceOptions
+          .newBuilder()
+          .setExtension(kalix.Annotations.service, serviceOpts)
+          .build()
+      grpcService.setOptions(options)
+    }
+
     def methodToNamedComponentMethod(kalixMethod: KalixMethod): NamedComponentMethod = {
+
+      kalixMethod.validate()
 
       val httpRuleBuilder = buildHttpRule(kalixMethod.serviceMethod)
 
@@ -180,7 +192,7 @@ private[impl] object ComponentDescriptor {
           // synthetic request always have proto messages as input,
           // their type url will are prefixed by DefaultTypeUrlPrefix
           // It's possible for a user to configure another prefix, but this is done through the Kalix instance
-          // and the Spring SDK doesn't not expose it.
+          // and the Spring SDK doesn't expose it.
           val typeUrl = AnySupport.DefaultTypeUrlPrefix + "/" + syntheticMessageDescriptor.getFullName
 
           CommandHandler(

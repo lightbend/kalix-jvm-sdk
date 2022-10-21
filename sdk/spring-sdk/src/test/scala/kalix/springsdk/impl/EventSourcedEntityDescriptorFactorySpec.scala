@@ -18,6 +18,8 @@ package kalix.springsdk.impl
 
 import com.google.protobuf.Descriptors.FieldDescriptor.JavaType
 import kalix.JwtMethodOptions.JwtMethodMode
+import kalix.springsdk.testmodels.eventsourcedentity.EventSourcedEntitiesTestModels.EventSourcedEntityWithMethodLevelAcl
+import kalix.springsdk.testmodels.eventsourcedentity.EventSourcedEntitiesTestModels.EventSourcedEntityWithServiceLevelAcl
 import kalix.springsdk.testmodels.eventsourcedentity.EventSourcedEntitiesTestModels.WellAnnotatedESEntity
 import kalix.springsdk.testmodels.eventsourcedentity.EventSourcedEntitiesTestModels.WellAnnotatedESEntityWithJWT
 import org.scalatest.wordspec.AnyWordSpec
@@ -62,6 +64,22 @@ class EventSourcedEntityDescriptorFactorySpec extends AnyWordSpec with Component
         jwtOption2.getBearerTokenIssuer(1) shouldBe "b"
         jwtOption2.getValidate(0) shouldBe JwtMethodMode.BEARER_TOKEN
         jwtOption2.getSign(0) shouldBe JwtMethodMode.MESSAGE
+      }
+    }
+
+    "generate ACL annotations at service level" in {
+      assertDescriptor[EventSourcedEntityWithServiceLevelAcl] { desc =>
+        val extension = desc.serviceDescriptor.getOptions.getExtension(kalix.Annotations.service)
+        val service = extension.getAcl.getAllow(0).getService
+        service shouldBe "test"
+      }
+    }
+
+    "generate ACL annotations at method level" in {
+      assertDescriptor[EventSourcedEntityWithMethodLevelAcl] { desc =>
+        val extension = findKalixMethodOptions(desc, "CreateUser")
+        val service = extension.getAcl.getAllow(0).getService
+        service shouldBe "test"
       }
     }
   }

@@ -152,6 +152,7 @@ private[impl] object ActionDescriptorFactory extends ComponentDescriptorFactory 
       nameGenerator,
       messageCodec,
       serviceName,
+      serviceOptions = AclDescriptorFactory.serviceLevelAclAnnotation(component),
       component.getPackageName,
       filterAndAddKalixOptions(springAnnotatedMethods, publicationTopicMethods)
       ++ subscriptionValueEntityMethods
