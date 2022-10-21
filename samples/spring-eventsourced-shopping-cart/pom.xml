@@ -209,7 +209,6 @@
         <executions>
           <execution>
             <goals>
-              <goal>generate</goal>
               <goal>deploy</goal>
             </goals>
           </execution>
