@@ -81,14 +81,13 @@ private[impl] object ActionDescriptorFactory extends ComponentDescriptorFactory 
       if (hasEventSourcedEntitySubscription(component)) {
         component.getMethods.sorted // make sure we get the methods in deterministic order
           .filter(hasActionOutput)
-          .collect {
-            case method => 
-              val subscriptionOptions = eventingInForEventSourcedEntity(component)
-              val kalixOptions =
-                kalix.MethodOptions.newBuilder().setEventing(subscriptionOptions).build()
+          .collect { case method =>
+            val subscriptionOptions = eventingInForEventSourcedEntity(component)
+            val kalixOptions =
+              kalix.MethodOptions.newBuilder().setEventing(subscriptionOptions).build()
 
-              KalixMethod(SubscriptionServiceMethod(method))
-                .withKalixOptions(kalixOptions)
+            KalixMethod(SubscriptionServiceMethod(method))
+              .withKalixOptions(kalixOptions)
           }
       } else Array.empty[KalixMethod]
 
