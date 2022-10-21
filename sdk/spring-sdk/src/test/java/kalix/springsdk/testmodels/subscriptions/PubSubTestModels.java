@@ -22,13 +22,20 @@ import kalix.springsdk.annotations.Publish;
 import kalix.springsdk.annotations.Subscribe;
 import kalix.springsdk.testmodels.Message;
 import kalix.springsdk.testmodels.Message2;
-import kalix.springsdk.testmodels.eventsourcedentity.EventSourcedEntitiesTestModels.WellAnnotatedESEntity;
+import kalix.javasdk.view.View;
+import kalix.springsdk.annotations.Query;
+import kalix.springsdk.annotations.Table;
+import kalix.springsdk.testmodels.eventsourcedentity.Employee;
+import kalix.springsdk.testmodels.eventsourcedentity.EmployeeCreated;
+import kalix.springsdk.testmodels.eventsourcedentity.EmployeeEmailUpdated;
 import kalix.springsdk.testmodels.valueentity.Counter;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import kalix.springsdk.testmodels.eventsourcedentity.EventSourcedEntitiesTestModels.CounterEventSourcedEntity;
+import kalix.springsdk.testmodels.eventsourcedentity.EventSourcedEntitiesTestModels.EmployeeEntity;
 
-public class PubSubTestModels {
+public class PubSubTestModels {//TODO shall we remove this class and move things to ActionTestModels and ViewTestModels
 
   public static class SubscribeToValueEntityAction extends Action {
 
@@ -45,26 +52,75 @@ public class PubSubTestModels {
 
   public static class SubscribeToEventSourcedEntityAction extends Action {
 
-    @Subscribe.EventSourcedEntity(WellAnnotatedESEntity.class)
+    @Subscribe.EventSourcedEntity(CounterEventSourcedEntity.class)
     public Action.Effect<Integer> methodOne(Integer message) {
       return effects().reply(message);
     }
 
-    @Subscribe.EventSourcedEntity(WellAnnotatedESEntity.class)
+    @Subscribe.EventSourcedEntity(CounterEventSourcedEntity.class)
     public Action.Effect<String> methodTwo(String message) {
+      return effects().reply(message);
+    }
+  }
+
+  @Subscribe.Topic(value = "topicAAA", consumerGroup = "aa")
+  public static class SubscribeToTopicActionTypeLevelMethodLevel extends Action {
+
+    public Action.Effect<Message> messageOne(Message message) {return effects().reply(message);}
+
+    @Subscribe.Topic(value = "topicXYZ")
+    public Action.Effect<Message2> messageTwo(Message2 message) {return effects().reply(message);}
+  }
+
+  @Subscribe.Topic(value = "topicXYZ", ignoreUnknown = true)
+  public static class SubscribeToTopicsActionTypeLevel extends Action {
+
+    public Action.Effect<Message> methodOne(Message message) {
+      return effects().reply(message);
+    }
+
+    public Action.Effect<Message2> methodTwo(Message2 message) {
       return effects().reply(message);
     }
   }
 
   public static class RestAnnotatedSubscribeToEventSourcedEntityAction extends Action {
     @PostMapping("/changeInt/{number}")
-    @Subscribe.EventSourcedEntity(WellAnnotatedESEntity.class)
+    @Subscribe.EventSourcedEntity(CounterEventSourcedEntity.class)
     public Action.Effect<Integer> methodTwo(Integer number) {
       return effects().reply(number);
     }
   }
 
+  @Subscribe.EventSourcedEntity(value = CounterEventSourcedEntity.class, ignoreUnkown = true)
+  public static class SubscribeOnlyOneToEventSourcedEntityActionTypeLevel extends Action {
+
+    public Action.Effect<Integer> methodOne(Integer message) {
+      return effects().reply(message);
+    }
+  }
+
+  @Subscribe.EventSourcedEntity(value = CounterEventSourcedEntity.class, ignoreUnkown = true)
+  public static class InvalidSubscribeToEventSourcedEntityAction extends Action {
+
+    public Action.Effect<Integer> methodOne(Integer message) {
+      return effects().reply(message);
+    }
+    @Subscribe.EventSourcedEntity(EmployeeEntity.class)
+    public Action.Effect<String> methodTwo(String message) {
+      return effects().reply(message);
+    }
+  }
+
   public static class SubscribeToTopicAction extends Action {
+
+    @Subscribe.Topic(value = "topicXYZ", consumerGroup = "cg")
+    public Action.Effect<Message> messageOne(Message message) {
+      return effects().reply(message);
+    }
+  }
+  @Subscribe.Topic(value = "topicXYZ", consumerGroup = "cg")
+  public static class InvalidSubscribeToTopicAction extends Action {
 
     @Subscribe.Topic(value = "topicXYZ", consumerGroup = "cg")
     public Action.Effect<Message> messageOne(Message message) {
@@ -81,6 +137,10 @@ public class PubSubTestModels {
 
     @Subscribe.Topic("topicXYZ")
     public Action.Effect<Message2> methodTwo(Message2 message) {
+      return effects().reply(message);
+    }
+    @Subscribe.Topic("topicXYZ")
+    public Action.Effect<Integer> methodThree(Integer message) {
       return effects().reply(message);
     }
   }
@@ -130,6 +190,26 @@ public class PubSubTestModels {
     @Subscribe.ValueEntity(Counter.class)
     public Action.Effect<Message> messageOne(@RequestBody Message message) {
       return effects().reply(message);
+    }
+  }
+
+  @Table(value = "employee_table")
+  @Subscribe.EventSourcedEntity(value = EmployeeEntity.class, ignoreUnkown = true)
+  public static class SubscribeOnTypeToEventSourcedEventsWithMethodWithState extends View<Employee> {
+
+    public UpdateEffect<Employee> onCreate(Employee employee, EmployeeCreated evt) {
+      return effects()
+              .updateState(new Employee(evt.firstName, evt.lastName, evt.email));
+    }
+
+    public UpdateEffect<Employee> onEmailUpdate(Employee employee, EmployeeEmailUpdated eeu) {
+      return effects().updateState(new Employee(employee.firstName, employee.lastName, eeu.email));
+    }
+
+    @Query("SELECT * FROM employees_view WHERE email = :email")
+    @PostMapping("/employees/by-email/{email}")
+    public Employee getEmployeeByEmail(@PathVariable String email) {
+      return null;
     }
   }
 }

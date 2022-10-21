@@ -22,33 +22,29 @@ import kalix.springsdk.KalixClient;
 import kalix.springsdk.KalixConfigurationTest;
 import kalix.springsdk.annotations.Subscribe;
 import org.springframework.context.annotation.Import;
+
 import java.util.concurrent.CompletionStage;
 
 @Import(KalixConfigurationTest.class)
-public class IncreaseAction extends Action {
+@Subscribe.EventSourcedEntity(value = CounterEntity.class, ignoreUnkown = true)
+public class IncreaseActionWithIgnore extends Action {
 
-  private KalixClient kalixClient;
+    private KalixClient kalixClient;
 
-  private ActionCreationContext context;
+    private ActionCreationContext context;
 
-  public IncreaseAction(KalixClient kalixClient, ActionCreationContext context) {
-    this.kalixClient = kalixClient;
-    this.context = context;
-  }
-
-  @Subscribe.EventSourcedEntity(value = CounterEntity.class)
-  public Effect<ValueMultiplied> printMultiply(ValueMultiplied event) {
-    return effects().reply(event);
-  }
-
-  @Subscribe.EventSourcedEntity(value = CounterEntity.class)
-  public Effect<Integer> printIncrease(ValueIncreased event) {
-    String entityId = this.actionContext().metadata().asCloudEvent().subject().get();
-    if (event.value == 42) {
-      CompletionStage<Integer> res =
-          kalixClient.post("/counter/" + entityId + "/increase/1", "", Integer.class).execute();
-      return effects().asyncReply(res);
+    public IncreaseActionWithIgnore(KalixClient kalixClient, ActionCreationContext context) {
+        this.kalixClient = kalixClient;
+        this.context = context;
     }
-    return effects().reply(event.value);
-  }
+
+    public Effect<Integer> oneShallPass(ValueIncreased event) {
+        String entityId = this.actionContext().metadata().asCloudEvent().subject().get();
+        if (event.value == 1234) {
+            CompletionStage<Integer> res =
+                    kalixClient.post("/counter/" + entityId + "/increase/1", "", Integer.class).execute();
+            return effects().asyncReply(res);
+        }
+        return effects().reply(event.value);
+    }
 }

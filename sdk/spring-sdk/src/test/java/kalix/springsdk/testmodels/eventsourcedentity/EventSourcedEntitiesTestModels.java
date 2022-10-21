@@ -45,7 +45,7 @@ public class EventSourcedEntitiesTestModels {
 
   @Entity(entityKey = "id", entityType = "counter")
   @RequestMapping("/eventsourced/{id}")
-  public static class WellAnnotatedESEntity extends EventSourcedEntity<Integer> {
+  public static class CounterEventSourcedEntity extends EventSourcedEntity<Integer> {
 
     @GetMapping("/int/{number}")
     public Integer getInteger(@PathVariable Integer number) {
@@ -78,7 +78,7 @@ public class EventSourcedEntitiesTestModels {
 
   @Entity(entityKey = "id", entityType = "counter")
   @RequestMapping("/eventsourced/{id}")
-  public static class WellAnnotatedESEntityWithJWT extends EventSourcedEntity<Integer> {
+  public static class CounterEventSourcedEntityWithJWT extends EventSourcedEntity<Integer> {
 
     @GetMapping("/int/{number}")
     @JWT(

@@ -24,6 +24,7 @@ import kalix.javasdk.action.ActionProvider;
 import kalix.javasdk.impl.MessageCodec;
 import kalix.javasdk.impl.action.ActionRouter;
 import kalix.springsdk.impl.ComponentDescriptor;
+import kalix.springsdk.impl.ComponentDescriptorFactory;
 import kalix.springsdk.impl.SpringSdkMessageCodec;
 import kalix.springsdk.impl.action.ReflectiveActionRouter;
 
@@ -76,7 +77,7 @@ public class ReflectiveActionProvider<A extends Action> implements ActionProvide
   @Override
   public ActionRouter<A> newRouter(ActionCreationContext context) {
     A action = factory.apply(context);
-    return new ReflectiveActionRouter<>(action, componentDescriptor.commandHandlers());
+    return new ReflectiveActionRouter<>(action, componentDescriptor.commandHandlers(), ComponentDescriptorFactory.findIgnore(action.getClass()));
   }
 
   @Override

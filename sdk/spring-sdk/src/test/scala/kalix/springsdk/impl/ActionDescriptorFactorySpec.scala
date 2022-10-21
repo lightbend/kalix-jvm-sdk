@@ -39,10 +39,13 @@ import kalix.springsdk.testmodels.action.ActionsTestModels.StreamOutAction
 import kalix.springsdk.testmodels.subscriptions.PubSubTestModels.ActionWithMethodLevelAcl
 import kalix.springsdk.testmodels.subscriptions.PubSubTestModels.ActionWithMethodLevelAclAndSubscription
 import kalix.springsdk.testmodels.subscriptions.PubSubTestModels.ActionWithServiceLevelAcl
+import kalix.springsdk.testmodels.subscriptions.PubSubTestModels.InvalidSubscribeToEventSourcedEntityAction
+import kalix.springsdk.testmodels.subscriptions.PubSubTestModels.InvalidSubscribeToTopicAction
 import kalix.springsdk.testmodels.subscriptions.PubSubTestModels.PublishToTopicAction
 import kalix.springsdk.testmodels.subscriptions.PubSubTestModels.RestAnnotatedSubscribeToEventSourcedEntityAction
 import kalix.springsdk.testmodels.subscriptions.PubSubTestModels.RestAnnotatedSubscribeToValueEntityAction
 import kalix.springsdk.testmodels.subscriptions.PubSubTestModels.RestWithPublishToTopicAction
+import kalix.springsdk.testmodels.subscriptions.PubSubTestModels.SubscribeOnlyOneToEventSourcedEntityActionTypeLevel
 import kalix.springsdk.testmodels.subscriptions.PubSubTestModels.SubscribeToEventSourcedEntityAction
 import kalix.springsdk.testmodels.subscriptions.PubSubTestModels.SubscribeToTopicAction
 import kalix.springsdk.testmodels.subscriptions.PubSubTestModels.SubscribeToTwoTopicsAction
@@ -336,11 +339,42 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
         rule.getPost shouldBe
         "/kalix.springsdk.testmodels.subscriptions.PubSubTestModels.SubscribeToTwoTopicsAction/KalixSyntheticMethodOnTopicTopicXYZ"
 
-        methodOne.methodInvokers.size shouldBe 2
+        methodOne.methodInvokers.size shouldBe 3
 
         val javaMethodNames = methodOne.methodInvokers.values.map(_.method.getName)
         javaMethodNames should contain("methodOne")
         javaMethodNames should contain("methodTwo")
+        javaMethodNames should contain("methodThree")
+      }
+    }
+
+    "generate mapping with Event Sourced Entity Subscription annotation type level with only one method" in {
+      assertDescriptor[SubscribeOnlyOneToEventSourcedEntityActionTypeLevel] { desc =>
+        val methodDescriptor = desc.serviceDescriptor.findMethodByName("MethodOne")
+        methodDescriptor.isServerStreaming shouldBe false
+        methodDescriptor.isClientStreaming shouldBe false
+
+        val methodOne = desc.commandHandlers("MethodOne")
+        methodOne.requestMessageDescriptor.getFullName shouldBe JavaPbAny.getDescriptor.getFullName
+
+        val eventSourceOne = findKalixMethodOptions(desc, "MethodOne").getEventing.getIn
+        eventSourceOne.getEventSourcedEntity shouldBe "counter"
+        eventSourceOne.getIgnore shouldBe false // we don't set the property so the proxy won't ignore. Ignore is only internal to the SDK
+
+        val ruleOne = findHttpRule(desc, "MethodOne")
+        ruleOne.getPost shouldBe "/kalix.springsdk.testmodels.subscriptions.PubSubTestModels.SubscribeOnlyOneToEventSourcedEntityActionTypeLevel/MethodOne"
+      }
+    }
+
+    "validates it is forbidden Entity Subscription at annotation type level and method level at the same time" in {
+      intercept[InvalidComponentException] {
+        descriptorFor[InvalidSubscribeToEventSourcedEntityAction]
+      }
+    }
+
+    "validates it is forbidden Topic Subscription at annotation type level and method level at the same time" in {
+      intercept[InvalidComponentException] {
+        descriptorFor[InvalidSubscribeToTopicAction]
       }
     }
 

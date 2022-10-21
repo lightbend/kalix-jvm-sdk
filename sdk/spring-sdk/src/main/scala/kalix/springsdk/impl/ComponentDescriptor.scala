@@ -17,9 +17,7 @@
 package kalix.springsdk.impl
 
 import java.lang.reflect.Type
-
 import scala.jdk.CollectionConverters.CollectionHasAsScala
-
 import com.google.api.AnnotationsProto
 import com.google.api.CustomHttpPattern
 import com.google.api.HttpRule
@@ -49,6 +47,7 @@ import kalix.springsdk.impl.reflection.RestServiceIntrospector.PathParameter
 import kalix.springsdk.impl.reflection.RestServiceIntrospector.QueryParamParameter
 import kalix.springsdk.impl.reflection.RestServiceIntrospector.UnhandledParameter
 import kalix.springsdk.impl.reflection.ServiceMethod
+import kalix.springsdk.impl.reflection.SubscriptionServiceMethod
 import kalix.springsdk.impl.reflection.SyntheticRequestServiceMethod
 import org.springframework.web.bind.annotation.RequestMethod
 
@@ -209,6 +208,19 @@ private[impl] object ComponentDescriptor {
 
               (typeUrl, MethodInvoker(meth, parameterExtractors))
             }
+
+          CommandHandler(grpcMethodName, messageCodec, JavaPbAny.getDescriptor, methodInvokers)
+
+        case method: SubscriptionServiceMethod =>
+          val methodInvokers =
+            serviceMethod.javaMethodOpt.map { meth =>
+
+              val parameterExtractors: ParameterExtractorsArray =
+                Array(ParameterExtractors.AnyBodyExtractor(method.inputType))
+
+              val typeUrl = messageCodec.typeUrlFor(method.inputType)
+              (typeUrl, MethodInvoker(meth, parameterExtractors))
+            }.toMap
 
           CommandHandler(grpcMethodName, messageCodec, JavaPbAny.getDescriptor, methodInvokers)
 

@@ -47,7 +47,7 @@ class ReflectiveValueEntityRouter[S, E <: ValueEntity[S]](
     val inputTypeUrl = command.asInstanceOf[ScalaPbAny].typeUrl
 
     commandHandler
-      .lookupInvoker(inputTypeUrl)
+      .getInvoker(inputTypeUrl)
       .invoke(entity, context)
       .asInstanceOf[ValueEntity.Effect[_]]
   }

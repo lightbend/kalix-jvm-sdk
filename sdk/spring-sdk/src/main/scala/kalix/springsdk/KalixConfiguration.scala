@@ -18,7 +18,6 @@ package kalix.springsdk
 
 import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
-import kalix.springsdk.KalixConfiguration.beanPostProcessorErrorMessage
 import kalix.springsdk.impl.KalixServer
 import org.springframework.beans.factory.config.BeanPostProcessor
 import org.springframework.context.ApplicationContext

@@ -20,15 +20,15 @@ import com.google.protobuf.Descriptors.FieldDescriptor.JavaType
 import kalix.JwtMethodOptions.JwtMethodMode
 import kalix.springsdk.testmodels.eventsourcedentity.EventSourcedEntitiesTestModels.EventSourcedEntityWithMethodLevelAcl
 import kalix.springsdk.testmodels.eventsourcedentity.EventSourcedEntitiesTestModels.EventSourcedEntityWithServiceLevelAcl
-import kalix.springsdk.testmodels.eventsourcedentity.EventSourcedEntitiesTestModels.WellAnnotatedESEntity
-import kalix.springsdk.testmodels.eventsourcedentity.EventSourcedEntitiesTestModels.WellAnnotatedESEntityWithJWT
+import kalix.springsdk.testmodels.eventsourcedentity.EventSourcedEntitiesTestModels.CounterEventSourcedEntity
+import kalix.springsdk.testmodels.eventsourcedentity.EventSourcedEntitiesTestModels.CounterEventSourcedEntityWithJWT
 import org.scalatest.wordspec.AnyWordSpec
 
 class EventSourcedEntityDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSuite {
 
   "EventSourced descriptor factory" should {
     "generate mappings for a Event Sourced with entity keys in path" in {
-      assertDescriptor[WellAnnotatedESEntity] { desc =>
+      assertDescriptor[CounterEventSourcedEntity] { desc =>
         val method = desc.commandHandlers("GetInteger")
         assertRequestFieldJavaType(method, "id", JavaType.STRING)
         assertEntityKeyField(method, "id")
@@ -42,7 +42,7 @@ class EventSourcedEntityDescriptorFactorySpec extends AnyWordSpec with Component
     }
 
     "generate mappings for a Event Sourced with entity keys in path and JWT annotations" in {
-      assertDescriptor[WellAnnotatedESEntityWithJWT] { desc =>
+      assertDescriptor[CounterEventSourcedEntityWithJWT] { desc =>
         val method = desc.commandHandlers("GetInteger")
         assertRequestFieldJavaType(method, "id", JavaType.STRING)
         assertEntityKeyField(method, "id")

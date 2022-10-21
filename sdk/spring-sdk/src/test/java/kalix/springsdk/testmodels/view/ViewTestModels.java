@@ -228,7 +228,6 @@ public class ViewTestModels {
     }
   }
 
-
   @Table(value = "employees_view")
   @Acl(allow = @Acl.Matcher(service = "test"))
   public static class ViewWithServiceLevelAcl extends View<Employee> {
@@ -248,5 +247,4 @@ public class ViewTestModels {
       return null;
     }
   }
-
 }
