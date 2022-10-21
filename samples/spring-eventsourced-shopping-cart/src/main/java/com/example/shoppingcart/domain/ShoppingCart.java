@@ -6,13 +6,17 @@ import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-public record ShoppingCart(String cartId, List<LineItem> items) {
+// tag::domain[]
+public record ShoppingCart(String cartId, List<LineItem> items) { // <1>
 
-  public record LineItem(String productId, String name, int quantity) {
+  public record LineItem(String productId, String name, int quantity) { // <2>
+    // end::domain[]
     public LineItem withQuantity(int quantity) {
       return new LineItem(productId, name, quantity);
     }
+    // tag::domain[]
   }
+  // end::domain[]
 
   // tag::itemAdded[]
   public ShoppingCart onItemAdded(ShoppingCartEvent.ItemAdded itemAdded) {
@@ -54,4 +58,7 @@ public record ShoppingCart(String cartId, List<LineItem> items) {
         .collect(Collectors.toList());
   }
   // end::itemAdded[]
+  // tag::domain[]
 }
+
+// end::domain[]

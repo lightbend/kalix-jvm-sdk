@@ -4,6 +4,7 @@ package com.example.shoppingcart.domain;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
+// tag::events[]
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
 @JsonSubTypes(
     {
@@ -13,12 +14,10 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
     })
 public sealed interface ShoppingCartEvent {
 
-  record ItemAdded(ShoppingCart.LineItem item) implements ShoppingCartEvent {
-  }
+  record ItemAdded(ShoppingCart.LineItem item) implements ShoppingCartEvent { }
 
-  record ItemRemoved(String productId) implements ShoppingCartEvent {
-  }
+  record ItemRemoved(String productId) implements ShoppingCartEvent { }
 
-  record CheckedOut(int timestamp) implements ShoppingCartEvent {
-  }
+  record CheckedOut(int timestamp) implements ShoppingCartEvent { }
 }
+// end::events[]

@@ -14,8 +14,9 @@ import java.util.Collections;
 // tag::class[]
 @Entity(entityKey = "cartId", entityType = "shopping-cart")
 @RequestMapping("/cart/{cartId}")
-public class ShoppingCartService extends EventSourcedEntity<ShoppingCart> {
+public class ShoppingCartService extends EventSourcedEntity<ShoppingCart> { // <1>
 
+  // end::class[]
   private final String entityId;
 
   public ShoppingCartService(EventSourcedEntityContext context) { this.entityId = context.entityId(); }
@@ -24,7 +25,6 @@ public class ShoppingCartService extends EventSourcedEntity<ShoppingCart> {
   public ShoppingCart emptyState() { // <2>
     return new ShoppingCart(entityId, Collections.emptyList());
   }
-  // end::class[]
 
   // tag::addItem[]
   @PostMapping("/add")
@@ -73,5 +73,7 @@ public class ShoppingCartService extends EventSourcedEntity<ShoppingCart> {
   public ShoppingCart itemRemoved(ShoppingCartEvent.ItemRemoved itemRemoved) {
     return currentState().onItemRemoved(itemRemoved);
   }
+// tag::class[]
 
 }
+// end::class[]
