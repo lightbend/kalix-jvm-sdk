@@ -25,6 +25,7 @@ import kalix.javasdk.view.ViewOptions;
 import kalix.javasdk.view.ViewProvider;
 import kalix.springsdk.annotations.ViewId;
 import kalix.springsdk.impl.ComponentDescriptor;
+import kalix.springsdk.impl.ComponentDescriptorFactory;
 import kalix.springsdk.impl.SpringSdkMessageCodec;
 import kalix.springsdk.impl.view.ReflectiveViewRouter;
 
@@ -89,7 +90,7 @@ public class ReflectiveViewProvider<S, V extends View<S>> implements ViewProvide
   @Override
   public ViewRouter<S, V> newRouter(ViewCreationContext context) {
     V view = factory.apply(context);
-    return new ReflectiveViewRouter<>(view, componentDescriptor.commandHandlers());
+    return new ReflectiveViewRouter<>(view, componentDescriptor.commandHandlers(), ComponentDescriptorFactory.findIgnore(view.getClass()));
   }
 
   @Override

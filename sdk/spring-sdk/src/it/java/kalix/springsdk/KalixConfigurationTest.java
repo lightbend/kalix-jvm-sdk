@@ -29,8 +29,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.web.reactive.function.client.WebClient;
 
-// TODO: we need a better TestKit integration for the Spring SDK
-// for now, this server us to prove that the Spring wiring is working as expect
 @Import(KalixConfiguration.class)
 @TestConfiguration
 public class KalixConfigurationTest {

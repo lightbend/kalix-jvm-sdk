@@ -38,26 +38,26 @@ case class CommandHandler(
    * The incoming typeUrl is for one of the existing sub types, but the method itself is defined to receive a super
    * type. Therefore we look up the method parameter to find out if one of its sub types matches the incoming typeUrl.
    */
-  private def lookupMethodAcceptingSubType(inputTypeUrl: String): MethodInvoker = {
-    methodInvokers.values
-      .find { javaMethod =>
-        val lastParam = javaMethod.method.getParameterTypes.last
-        if (lastParam.getAnnotation(classOf[JsonSubTypes]) != null) {
-          lastParam.getAnnotation(classOf[JsonSubTypes]).value().exists { subType =>
-            inputTypeUrl == messageCodec.typeUrlFor(subType.value())
-          }
-        } else false
-      }
-      .getOrElse {
-        throw new IllegalStateException(
-          s"Couldn't find any entry for typeUrl [${inputTypeUrl}] in [${methodInvokers}].")
-      }
-
+  private def lookupMethodAcceptingSubType(inputTypeUrl: String): Option[MethodInvoker] = {
+    methodInvokers.values.find { javaMethod =>
+      val lastParam = javaMethod.method.getParameterTypes.last
+      if (lastParam.getAnnotation(classOf[JsonSubTypes]) != null) {
+        lastParam.getAnnotation(classOf[JsonSubTypes]).value().exists { subType =>
+          inputTypeUrl == messageCodec.typeUrlFor(subType.value())
+        }
+      } else false
+    }
   }
 
-  def lookupInvoker(inputTypeUrl: String): MethodInvoker =
-    methodInvokers.getOrElse(inputTypeUrl, lookupMethodAcceptingSubType(inputTypeUrl))
+  def lookupInvoker(inputTypeUrl: String): Option[MethodInvoker] =
+    methodInvokers
+      .get(inputTypeUrl)
+      .orElse(lookupMethodAcceptingSubType(inputTypeUrl))
 
+  def getInvoker(inputTypeUrl: String): MethodInvoker =
+    lookupInvoker(inputTypeUrl).getOrElse {
+      throw new NoSuchElementException(s"Couldn't find any entry for typeUrl [${inputTypeUrl}] in [${methodInvokers}].")
+    }
 }
 
 object MethodInvoker {
