@@ -44,14 +44,7 @@ attributes:
 	echo ":console: https://console.kalix.io/" \
 		>> "${java_managed_partials}/attributes.adoc"
 	mkdir -p "${spring_managed_partials}"
-	bin/version.sh | xargs -0  printf ":kalix-jvm-sdk-version: %s" \
-		> "${spring_managed_partials}/attributes.adoc"
-	echo ":java-version: 11" \
-		>> "${spring_managed_partials}/attributes.adoc"
-	echo ":java_minimum_sdk_version: 0.7.0" \
-		>> "${spring_managed_partials}/attributes.adoc"
-	echo ":console: https://console.kalix.io/" \
-		>> "${spring_managed_partials}/attributes.adoc"
+	cp "${java_managed_partials}/attributes.adoc" "${spring_managed_partials}/attributes.adoc"
 
 apidocs:
 	mkdir -p "${java_managed_attachments}"
