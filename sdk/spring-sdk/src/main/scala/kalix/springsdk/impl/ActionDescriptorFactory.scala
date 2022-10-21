@@ -154,10 +154,10 @@ private[impl] object ActionDescriptorFactory extends ComponentDescriptorFactory 
       serviceName,
       serviceOptions = AclDescriptorFactory.serviceLevelAclAnnotation(component),
       component.getPackageName,
-      filterAndAddKalixOptions(springAnnotatedMethods, publicationTopicMethods) ++
-      subscriptionValueEntityMethods ++
-      combineByES(component.getName, subscriptionEventSourcedEntityMethods, messageCodec) ++
-      combineByTopic(subscriptionTopicMethods) ++
-      removeDuplicates(springAnnotatedMethods, publicationTopicMethods))
+      filterAndAddKalixOptions(springAnnotatedMethods, publicationTopicMethods)
+      ++ subscriptionValueEntityMethods
+      ++ combineByES(component.getName, subscriptionEventSourcedEntityMethods, messageCodec)
+      ++ combineByTopic(subscriptionTopicMethods)
+      ++ removeDuplicates(springAnnotatedMethods, publicationTopicMethods))
   }
 }
