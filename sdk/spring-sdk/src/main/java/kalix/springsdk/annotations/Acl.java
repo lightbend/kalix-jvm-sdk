@@ -85,7 +85,7 @@ public @interface Acl {
 
   /**
    * This enum contains principal matchers that don't have any configuration, such as a name, associated with them,
-   * for ease of reference in annotations.k
+   * for ease of reference in annotations.
    */
   enum Principal {
     UNSPECIFIED,
