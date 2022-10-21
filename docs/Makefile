@@ -35,24 +35,23 @@ managed: prepare attributes apidocs examples bundles
 
 attributes:
 	mkdir -p "${java_managed_partials}"
-	mkdir -p "${spring_managed_partials}"
 	bin/version.sh | xargs -0  printf ":kalix-jvm-sdk-version: %s" \
-		> "${java_managed_partials}/attributes.adoc" "${spring_managed_partials}/attributes.adoc"
+		> "${java_managed_partials}/attributes.adoc"
 	echo ":java-version: 11" \
-		>> "${java_managed_partials}/attributes.adoc" "${spring_managed_partials}/attributes.adoc"
+		>> "${java_managed_partials}/attributes.adoc"
 	echo ":java_minimum_sdk_version: 0.7.0" \
-		>> "${java_managed_partials}/attributes.adoc" "${spring_managed_partials}/attributes.adoc"
+		>> "${java_managed_partials}/attributes.adoc"
 	echo ":console: https://console.kalix.io/" \
-		>> "${java_managed_partials}/attributes.adoc" "${spring_managed_partials}/attributes.adoc"
-# 	mkdir -p "${spring_managed_partials}"
-# 	bin/version.sh | xargs -0  printf ":kalix-jvm-sdk-version: %s" \
-# 		> "${spring_managed_partials}/attributes.adoc"
-# 	echo ":java-version: 11" \
-# 		>> "${spring_managed_partials}/attributes.adoc"
-# 	echo ":java_minimum_sdk_version: 0.7.0" \
-# 		>> "${spring_managed_partials}/attributes.adoc"
-# 	echo ":console: https://console.kalix.io/" \
-# 		>> "${spring_managed_partials}/attributes.adoc"
+		>> "${java_managed_partials}/attributes.adoc"
+	mkdir -p "${java_managed_partials}"
+	bin/version.sh | xargs -0  printf ":kalix-jvm-sdk-version: %s" \
+		> "${spring_managed_partials}/attributes.adoc"
+	echo ":java-version: 11" \
+		>> "${spring_managed_partials}/attributes.adoc"
+	echo ":java_minimum_sdk_version: 0.7.0" \
+		>> "${spring_managed_partials}/attributes.adoc"
+	echo ":console: https://console.kalix.io/" \
+		>> "${spring_managed_partials}/attributes.adoc"
 
 apidocs:
 	mkdir -p "${java_managed_attachments}"
@@ -78,11 +77,6 @@ bundles:
 	bin/bundle.sh --zip "${java_managed_attachments}/java-customer-registry-kafka-quickstart.zip" ../samples/java-customer-registry-kafka-quickstart
 	bin/bundle.sh --zip "${java_managed_attachments}/java-shopping-cart-quickstart.zip" ../samples/java-shopping-cart-quickstart
 	bin/bundle.sh --zip "${java_managed_attachments}/scala-customer-registry-quickstart.zip" ../samples/scala-customer-registry-quickstart
-	bin/bundle.sh --zip "${spring_managed_attachments}/java-customer-registry-quickstart.zip" ../samples/java-customer-registry-quickstart
-	bin/bundle.sh --zip "${spring_managed_attachments}/java-customer-registry-views-quickstart.zip" ../samples/java-customer-registry-views-quickstart
-	bin/bundle.sh --zip "${spring_managed_attachments}/java-customer-registry-kafka-quickstart.zip" ../samples/java-customer-registry-kafka-quickstart
-	bin/bundle.sh --zip "${spring_managed_attachments}/java-shopping-cart-quickstart.zip" ../samples/java-shopping-cart-quickstart
-	bin/bundle.sh --zip "${spring_managed_attachments}/scala-customer-registry-quickstart.zip" ../samples/scala-customer-registry-quickstart
 
 dev: clean managed validate-xrefs dev-html
 
