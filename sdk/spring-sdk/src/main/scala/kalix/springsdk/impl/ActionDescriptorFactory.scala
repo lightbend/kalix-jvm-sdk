@@ -82,9 +82,7 @@ private[impl] object ActionDescriptorFactory extends ComponentDescriptorFactory 
         component.getMethods.sorted // make sure we get the methods in deterministic order
           .filter(hasActionOutput)
           .collect {
-            case method
-                if !subscriptionEventSourcedEntityMethods.exists(s =>
-                  s.serviceMethod.methodName == method.getName) => // individual annotated overrides class level annotation
+            case method => 
               val subscriptionOptions = eventingInForEventSourcedEntity(component)
               val kalixOptions =
                 kalix.MethodOptions.newBuilder().setEventing(subscriptionOptions).build()
