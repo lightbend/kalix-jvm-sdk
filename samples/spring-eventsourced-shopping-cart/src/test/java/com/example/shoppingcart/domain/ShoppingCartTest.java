@@ -15,8 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ShoppingCartTest {
 
-  private Address address = new Address("Acme Street", "Acme City");
-  private LineItem akkaTshirt = new LineItem("akka-tshirt", "Akka Tshirt", 10);
+  private final ShoppingCart.LineItem akkaTshirt = new ShoppingCart.LineItem("akka-tshirt", "Akka Tshirt", 10);
 
 
   @Test

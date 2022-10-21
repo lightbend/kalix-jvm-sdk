@@ -1,8 +1,8 @@
 package com.example;
 
 import com.example.shoppingcart.Main;
-import com.example.shoppingcart.domain.LineItem;
 import com.example.shoppingcart.domain.ShoppingCart;
+import com.example.shoppingcart.domain.ShoppingCart.LineItem;
 import kalix.springsdk.testkit.KalixIntegrationTestKitSupport;
 
 import org.junit.jupiter.api.Assertions;

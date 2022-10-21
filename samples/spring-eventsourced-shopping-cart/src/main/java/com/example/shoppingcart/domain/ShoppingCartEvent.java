@@ -13,7 +13,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
     })
 public sealed interface ShoppingCartEvent {
 
-  record ItemAdded(LineItem item) implements ShoppingCartEvent {
+  record ItemAdded(ShoppingCart.LineItem item) implements ShoppingCartEvent {
   }
 
   record ItemRemoved(String productId) implements ShoppingCartEvent {

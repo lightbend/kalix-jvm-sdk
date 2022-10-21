@@ -1,7 +1,7 @@
 package com.example.shoppingcart;
 
-import com.example.shoppingcart.domain.LineItem;
 import com.example.shoppingcart.domain.ShoppingCart;
+import com.example.shoppingcart.domain.ShoppingCart.LineItem;
 import com.example.shoppingcart.domain.ShoppingCartEvent;
 import kalix.javasdk.eventsourcedentity.EventSourcedEntity;
 import kalix.javasdk.eventsourcedentity.EventSourcedEntityContext;
