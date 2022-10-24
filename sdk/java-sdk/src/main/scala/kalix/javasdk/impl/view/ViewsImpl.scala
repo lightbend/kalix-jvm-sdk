@@ -126,11 +126,11 @@ final class ViewsImpl(system: ActorSystem, _services: Map[String, ViewService], 
                   val upsert = pv.Upsert(Some(pv.Row(value = Some(serializedState))))
                   val out = pv.ViewStreamOut(pv.ViewStreamOut.Message.Upsert(upsert))
                   Source.single(out)
-                case d if d == ViewUpdateEffectImpl.Delete =>
+                case ViewUpdateEffectImpl.Delete =>
                   val delete = pv.Delete()
                   val out = pv.ViewStreamOut(pv.ViewStreamOut.Message.Delete(delete))
                   Source.single(out)
-                case i if i == ViewUpdateEffectImpl.Ignore =>
+                case ViewUpdateEffectImpl.Ignore =>
                   // ignore incoming event
                   val upsert = pv.Upsert(None)
                   val out = pv.ViewStreamOut(pv.ViewStreamOut.Message.Upsert(upsert))
