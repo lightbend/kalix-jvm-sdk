@@ -46,6 +46,7 @@ object AnySupport {
 
   private final val KalixPrimitiveFieldNumber = 1
   final val KalixPrimitive = "type.kalix.io/"
+  final val GoogleProtobufEmpty = "google.protobuf.Empty"
   final val DefaultTypeUrlPrefix = "type.googleapis.com"
 
   private val log = LoggerFactory.getLogger(classOf[AnySupport])
@@ -452,6 +453,8 @@ class AnySupport(
               typeUrlPrefix: Any)
           }
           typeName
+        case Array(GoogleProtobufEmpty) =>
+          typeUrl
         case _ =>
           log.warn(
             "Message type [{}] does not have a url prefix, it should have one that matchers the configured type url prefix [{}]",
