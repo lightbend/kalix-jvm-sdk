@@ -38,7 +38,7 @@ Another fundamental aspect of our entity will be its domain events. For now, we 
 ----
 include::example$spring-eventsourced-shopping-cart/src/main/java/com/example/shoppingcart/domain/ShoppingCartEvent.java[tag=events]
 ----
-<1> Include logical type name as JSON property "type".
+<1> Include logical type name as JSON property "type."
 <2> Declare subtypes of the serializable polymorphic type `ShoppingCartEvent` associating logical names with each.
 <3> The 3 types of event all derive from the same type `ShoppingCartEvent`.
 
@@ -88,7 +88,7 @@ include::example$spring-eventsourced-shopping-cart/src/main/java/com/example/sho
 <6> Return the new state to be stored - the logic for state transition is defined inside the `ShoppingCart` domain model.
 
 
-NOTE: There needs to be one event handler declared per each type of event the ES entity emits (e.g. `itemAdded` receives a param of type `ItemAdded`, the same type emitted in `addItem` command handler).
+NOTE: There needs to be one event handler declared per each type of event the ES entity emits (e.g. `itemAdded` receives a parameter of type `ItemAdded`, the same type emitted in `addItem` command handler).
 
 As mentioned above, the business logic that allows us to transition between states was placed on the domain model as seen below:
 
@@ -115,7 +115,7 @@ To have access to the current state of the entity we can use `currentState()` as
 include::example$spring-eventsourced-shopping-cart/src/main/java/com/example/shoppingcart/ShoppingCartService.java[tag=getCart]
 ----
 <1> Stores the `entityId` on an internal attribute so we can use it later.
-<2> Provides initial state -- overriding `emptyState()` is optional but if not doing it, be careful to deal with a currentState() with a `null` value when receiving the first command.
+<2> Provides initial state --overriding `emptyState()` is optional but if not doing it, be careful to deal with a currentState() with a `null` value when receiving the first command.
 <3> Marks this method as a command handler for `GET` requests.
 <4> Returns the current state as reply for the request.
 
