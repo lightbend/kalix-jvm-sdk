@@ -3,7 +3,7 @@
 :page-supergroup-java-scala: Language
 
 include::ROOT:partial$include.adoc[]
-include:::developing:partial$eventsourced.adoc[]
+include::ROOT:partial$eventsourced.adoc[]
 
 https://docs.kalix.io/reference/glossary.html#event_sourced_entity[Event Sourced Entities] persist changes as events and snapshots. Kalix needs to serialize that data to send it to the underlying data store, this is done with Protocol Buffers using `protobuf` types.
 
@@ -231,7 +231,7 @@ When more components are added the `KalixFactory` is regenerated and you have to
 
 == Snapshots
 
-include:::developing:partial$eventsourced-snapshots.adoc[]
+include::ROOT:partial$eventsourced-snapshots.adoc[]
 
 == Testing the Entity
 
