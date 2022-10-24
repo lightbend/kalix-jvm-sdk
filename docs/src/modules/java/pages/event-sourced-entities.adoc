@@ -3,7 +3,7 @@
 :page-supergroup-java-scala: Language
 
 include::ROOT:partial$include.adoc[]
-include::ROOT:partial$eventsourced.adoc[]
+include:::developing:partial$eventsourced.adoc[]
 
 https://docs.kalix.io/reference/glossary.html#event_sourced_entity[Event Sourced Entities] persist changes as events and snapshots. Kalix needs to serialize that data to send it to the underlying data store, this is done with Protocol Buffers using `protobuf` types.
 
@@ -231,17 +231,7 @@ When more components are added the `KalixFactory` is regenerated and you have to
 
 == Snapshots
 
-Snapshots are an important optimization for Event Sourced Entities that emit many events. Rather than reading the entire journal upon loading or restart, Kalix can initiate them from a snapshot.
-
-Snapshots are stored and handled automatically by Kalix without any specific code required. Snapshots are stored after a configured number of events:
-
-[source,conf,indent=0]
-.src/main/resources/application.conf
-----
-include::example$java-eventsourced-shopping-cart/src/main/resources/application.conf[tag=snapshot-every]
-----
-
-When the Event Sourced Entity is loaded again, the snapshot will be loaded before any other events are received.
+include:::developing:partial$eventsourced-snapshots.adoc[]
 
 == Testing the Entity
 

@@ -21,12 +21,12 @@ public record ShoppingCart(String cartId, List<LineItem> items) { // <1>
   // tag::itemAdded[]
   public ShoppingCart onItemAdded(ShoppingCartEvent.ItemAdded itemAdded) {
     var item = itemAdded.item();
-    var lineItem = updateItem(item, this);
+    var lineItem = updateItem(item, this); // <1>
     List<LineItem> lineItems =
-        removeItemByProductId(this, item.productId());
-    lineItems.add(lineItem);
+        removeItemByProductId(this, item.productId()); // <2>
+    lineItems.add(lineItem); // <3>
     lineItems.sort(Comparator.comparing(LineItem::productId));
-    return new ShoppingCart(cartId, lineItems);
+    return new ShoppingCart(cartId, lineItems); // <4>
   }
   // end::itemAdded[]
 
@@ -38,6 +38,13 @@ public record ShoppingCart(String cartId, List<LineItem> items) { // <1>
   }
 
   // tag::itemAdded[]
+
+  private static List<LineItem> removeItemByProductId(
+      ShoppingCart cart, String productId) {
+    return cart.items().stream()
+        .filter(lineItem -> !lineItem.productId().equals(productId))
+        .collect(Collectors.toList());
+  }
 
   private static LineItem updateItem(LineItem item, ShoppingCart cart) {
     return cart.findItemByProductId(item.productId())
@@ -51,12 +58,6 @@ public record ShoppingCart(String cartId, List<LineItem> items) { // <1>
     return items.stream().filter(lineItemExists).findFirst();
   }
 
-  private static List<LineItem> removeItemByProductId(
-      ShoppingCart cart, String productId) {
-    return cart.items().stream()
-        .filter(lineItem -> !lineItem.productId().equals(productId))
-        .collect(Collectors.toList());
-  }
   // end::itemAdded[]
   // tag::domain[]
 }

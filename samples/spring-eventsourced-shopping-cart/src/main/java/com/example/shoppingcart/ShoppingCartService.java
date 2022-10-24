@@ -12,20 +12,24 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Collections;
 
 // tag::class[]
-@Entity(entityKey = "cartId", entityType = "shopping-cart")
-@RequestMapping("/cart/{cartId}")
+@Entity(entityKey = "cartId", entityType = "shopping-cart") // <2>
+@RequestMapping("/cart/{cartId}") // <3>
 public class ShoppingCartService extends EventSourcedEntity<ShoppingCart> { // <1>
-
   // end::class[]
+
+// tag::getCart[]
   private final String entityId;
 
-  public ShoppingCartService(EventSourcedEntityContext context) { this.entityId = context.entityId(); }
+  public ShoppingCartService(EventSourcedEntityContext context) {
+    this.entityId = context.entityId(); // <1>
+  }
 
   @Override
   public ShoppingCart emptyState() { // <2>
     return new ShoppingCart(entityId, Collections.emptyList());
   }
 
+  // end::getCart[]
   // tag::addItem[]
   @PostMapping("/add")
   public Effect<String> addItem(@RequestBody LineItem item) {
@@ -39,6 +43,7 @@ public class ShoppingCartService extends EventSourcedEntity<ShoppingCart> { // <
         .emitEvent(event) // <3>
         .thenReply(newState -> "OK"); // <4>
   }
+
   // end::addItem[]
 
   @PostMapping("/items/{productId}/remove")
@@ -55,19 +60,19 @@ public class ShoppingCartService extends EventSourcedEntity<ShoppingCart> { // <
   }
 
   // tag::getCart[]
-  @GetMapping
+  @GetMapping // <3>
   public Effect<ShoppingCart> getCart() {
-    return effects().reply(currentState());
+    return effects().reply(currentState()); // <4>
   }
   // end::getCart[]
 
-  // tag::itemAdded[]
-  @EventHandler
+  // tag::addItem[]
+  @EventHandler // <5>
   public ShoppingCart itemAdded(ShoppingCartEvent.ItemAdded itemAdded) {
-    return currentState().onItemAdded(itemAdded);
+    return currentState().onItemAdded(itemAdded); // <6>
   }
 
-  // end::itemAdded[]
+  // end::addItem[]
 
   @EventHandler
   public ShoppingCart itemRemoved(ShoppingCartEvent.ItemRemoved itemRemoved) {
