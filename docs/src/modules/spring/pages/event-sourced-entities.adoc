@@ -83,7 +83,7 @@ include::example$spring-eventsourced-shopping-cart/src/main/java/com/example/sho
 <1> The validation ensures the quantity of items added is greater than zero and it fails for calls with illegal values by returning an `Effect` with `effects().error`.
 <2> From the current incoming `LineItem` we create a new `ItemAdded` event representing the change of the cart.
 <3> We store the event by returning an `Effect` with `effects().emitEvent`.
-<4> The acknowledgment that the command was successfully processed is only sent if the event was successfully stored and processed, otherwise there will be an error reply. The lambda parameter `newState` gives us access to the new state returned by the processing of such event.
+<4> The acknowledgment that the command was successfully processed is only sent if the event was successfully stored and applied, otherwise there will be an error reply. The lambda parameter `newState` gives us access to the new state returned by applying such event.
 <5> Event handler needs to be marked with `@EventHandler` and receive a single parameter type matching the event type produced (i.e. `ItemAdded`).
 <6> Return the new state to be stored - the logic for state transition is defined inside the `ShoppingCart` domain model.
 
