@@ -101,6 +101,8 @@ public abstract class View<S> {
 
       UpdateEffect<S> updateState(S newState);
 
+      UpdateEffect<S> deleteState();
+
       /** Ignore this event (and continue to process the next). */
       UpdateEffect<S> ignore();
 

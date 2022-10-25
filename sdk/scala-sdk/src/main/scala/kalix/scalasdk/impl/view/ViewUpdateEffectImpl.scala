@@ -29,6 +29,12 @@ private[scalasdk] object ViewUpdateEffectImpl {
       javasdk.impl.view.ViewUpdateEffectImpl.Update(state)
   }
 
+  case object Delete extends PrimaryUpdateEffect[Nothing] {
+    override def toJavaSdk =
+      javasdk.impl.view.ViewUpdateEffectImpl.Delete
+        .asInstanceOf[javasdk.impl.view.ViewUpdateEffectImpl.PrimaryUpdateEffect[Nothing]]
+  }
+
   case object Ignore extends PrimaryUpdateEffect[Nothing] {
     override def toJavaSdk =
       javasdk.impl.view.ViewUpdateEffectImpl.Ignore
