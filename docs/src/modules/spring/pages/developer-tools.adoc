@@ -1,8 +1,0 @@
-= Developer Tools
-:page-supergroup-java-scala: Language
-
-include::ROOT:partial$include.adoc[]
-
-== Spring Developer Tools
-
-A description of Spring SDK developer tools including the Spring Boot integration. No references to protobuf.

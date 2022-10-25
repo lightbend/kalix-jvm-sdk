@@ -12,7 +12,7 @@ Learn how to create a customer registry in Java, package it into a container, an
 * For this quickstart, you'll also need
 ** https://docs.docker.com/engine/install[Docker {minimum_docker_version} or higher, window="new"]
 ** Java {java-version} or higher
-** https://maven.apache.org/download.cgi[Maven 3.x or higher, window="new"]
+** https://maven.apache.org/download.cgi[Maven {minimum_maven_version} or higher, window="new"]
 ** https://github.com/fullstorydev/grpcurl#installation[`grpcurl`, window="new"]
 
 [NOTE]

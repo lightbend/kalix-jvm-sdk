@@ -1,5 +1,7 @@
 = Using Spring to consume Kalix Services
 
+include::partial$attributes.adoc[]
+
 This guide provides a simple example of how a Spring client can be built to interact with a Kalix Service.
 
 == What You Will Build
@@ -14,9 +16,9 @@ The Spring client will expose the functionality of the Kalix Service as a REST A
 
 - About 15 minutes
 - A favorite text editor or IDE
-- https://adoptium.net/[JDK 11] or later
-- https://maven.apache.org/download.cgi[Apache Maven 3.6] or later
-- https://www.docker.com/[Docker 20.10.8] or higher
+- https://adoptium.net/[JDK {java-version}] or later
+- https://maven.apache.org/download.cgi[Apache Maven {minimum_maven_version}] or later
+- https://www.docker.com/[Docker {minimum_docker_version}] or higher
 
 == How to get started
 

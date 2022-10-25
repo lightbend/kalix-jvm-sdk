@@ -1,6 +1,5 @@
 = Implementing Event Sourced Entities with Spring
 :page-aliases: spring:eventsourced.adoc
-:page-supergroup-java-scala: Language
 :sample-url: https://github.com/lightbend/kalix-jvm-sdk/tree/main/samples/spring-eventsourced-shopping-cart
 
 include::ROOT:partial$include.adoc[]
