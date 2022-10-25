@@ -42,7 +42,7 @@ include::example$spring-eventsourced-shopping-cart/src/main/java/com/example/sho
 <2> Declare subtypes of the serializable polymorphic type `ShoppingCartEvent` associating logical names with each.
 <3> The 3 types of event all derive from the same type `ShoppingCartEvent`.
 
-IMPORTANT: The use of logical names for subtypes is essential for maintainability purposes. Since that information is persisted, failing to do so might lead to the use a FQCN preventing the application from correctly deserialize the events in case of a package change.
+IMPORTANT: The use of logical names for subtypes is essential for maintainability purposes. Since that information is persisted, failing to do so might lead to the use of a FQCN preventing the application from correctly deserialize the events in case of a package change.
 
 == Implementing behavior
 
