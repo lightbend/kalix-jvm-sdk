@@ -1,5 +1,4 @@
 = Implementing Actions
-:page-supergroup-java-scala: Language
 
 include::ROOT:partial$include.adoc[]
 include::partial$actions.adoc[]
@@ -39,7 +38,7 @@ The stream may publish an arbitrary number of replies.
 ifdef::todo[TODO: add a streamed Fib series calculation]
 
 
-== Registering the Action
+== Creating the Main
 
 TODO: create Main docs and add partial here
 
