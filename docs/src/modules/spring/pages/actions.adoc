@@ -14,7 +14,7 @@ To implement this action we need the following:
 
 - Extend our class from `kalix.javasdk.action.Action`. This is generic. No matter what action we want to create we always need to extend from link:{attachmentsdir}/testkit/kalix/javasdk/action/Action.html[`Action` {tab-icon}, window="new"]. The rest is specific to this case
 - Add the Spring annotation @RequestMapping to provide a REST endpoint for the function. Here the stateless function should be reachable via HTTP.
-- Add the Spring annotations @GetMapping and @PostMapping to provide paths for GET and POST to calculate the Fibonacci of a number. Both functions do the same thing and implementation-wise the funtion exposed with GET calls the function exposed with POST.  
+- Add the Spring annotations @GetMapping and @PostMapping to provide paths for GET and POST to calculate the Fibonacci of a number. Both functions do the same thing and implementation-wise the function exposed with GET calls the function exposed with POST.  
 
 
 [source,java,indent=0]
