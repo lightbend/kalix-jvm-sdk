@@ -112,6 +112,28 @@ final class RestKalixClientImpl(messageCodec: SpringSdkMessageCodec) extends Kal
       inputBuilder.build().toByteString)
   }
 
+  def get[R](uriStr: String, returnType: Class[R]): DeferredCall[Any, R] = {
+    val uri = Uri(uriStr)
+    matchMethodOpt(HttpMethods.GET, uri.path)
+      .map { httpDef =>
+        requestToRestDefCall(
+          uriStr,
+          body = None,
+          httpDef,
+          () =>
+            webClient
+              .flatMap(
+                _.get()
+                  .uri(uriStr)
+                  .retrieve()
+                  .bodyToMono(returnType)
+                  .toFuture
+                  .asScala)
+              .asJava)
+      }
+      .getOrElse(throw HttpMethodNotFoundException(HttpMethods.GET, uri.path.toString()))
+  }
+
   def post[P, R](uriStr: String, body: P, returnType: Class[R]): DeferredCall[Any, R] = {
     val uri = Uri(uriStr)
     matchMethodOpt(HttpMethods.POST, uri.path)
@@ -134,6 +156,28 @@ final class RestKalixClientImpl(messageCodec: SpringSdkMessageCodec) extends Kal
       .getOrElse(throw HttpMethodNotFoundException(HttpMethods.POST, uri.path.toString()))
   }
 
+  def put[P, R](uriStr: String, body: P, returnType: Class[R]): DeferredCall[Any, R] = {
+    val uri = Uri(uriStr)
+    matchMethodOpt(HttpMethods.PUT, uri.path)
+      .map { httpDef =>
+        requestToRestDefCall(
+          uri,
+          Some(body),
+          httpDef,
+          () =>
+            webClient.flatMap {
+              _.put()
+                .uri(uriStr)
+                .bodyValue(body)
+                .retrieve()
+                .bodyToMono(returnType)
+                .toFuture
+                .asScala
+            }.asJava)
+      }
+      .getOrElse(throw HttpMethodNotFoundException(HttpMethods.PUT, uri.path.toString()))
+  }
+
   private def requestToRestDefCall[P, R](
       uri: Uri,
       body: Option[P],
@@ -150,28 +194,6 @@ final class RestKalixClientImpl(messageCodec: SpringSdkMessageCodec) extends Kal
       fullServiceName = httpDef.methodDescriptor.getService.getFullName,
       methodName = httpDef.methodDescriptor.getName,
       asyncCall = asyncCall)
-  }
-
-  def get[R](uriStr: String, returnType: Class[R]): DeferredCall[Any, R] = {
-    val uri = Uri(uriStr)
-    matchMethodOpt(HttpMethods.GET, uri.path)
-      .map { httpDef =>
-        requestToRestDefCall(
-          uriStr,
-          body = None,
-          httpDef,
-          () =>
-            webClient
-              .flatMap(
-                _.get()
-                  .uri(uriStr)
-                  .retrieve()
-                  .bodyToMono(returnType)
-                  .toFuture
-                  .asScala)
-              .asJava)
-      }
-      .getOrElse(throw HttpMethodNotFoundException(HttpMethods.GET, uri.path.toString()))
   }
 
   private def matchMethodOpt(httpMethod: HttpMethod, uri: Path): Option[HttpEndpointMethodDefinition] =

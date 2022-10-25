@@ -16,31 +16,31 @@
 
 package com.example.wiring.valueentities.user;
 
-import kalix.javasdk.valueentity.ValueEntity;
-import kalix.javasdk.valueentity.ValueEntityContext;
-import kalix.springsdk.annotations.Entity;
+import io.grpc.Status;
+import kalix.javasdk.action.Action;
+import kalix.javasdk.action.ActionCreationContext;
+import kalix.springsdk.KalixClient;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-@Entity(entityKey = "id", entityType = "user")
-@RequestMapping("/user/{id}")
-public class UserEntity extends ValueEntity<User> {
+@RequestMapping("/validuser/{user}")
+public class ValidateUserAction extends Action {
 
-  private final ValueEntityContext context;
+  private ActionCreationContext ctx;
+  private KalixClient kalixClient;
 
-  public UserEntity(ValueEntityContext context) {
-    this.context = context;
-  }
-
-  @PostMapping("/{email}/{name}")
-  public Effect<String> createOrUpdateUser(@PathVariable String email, @PathVariable String name) {
-    return effects().updateState(new User(email, name)).thenReply("Ok");
+  public ValidateUserAction(ActionCreationContext ctx, KalixClient kalixClient) {
+    this.ctx = ctx;
+    this.kalixClient = kalixClient;
   }
 
   @PutMapping("/{email}/{name}")
-  public Effect<String> createUser(@PathVariable String email, @PathVariable String name) {
-    return effects().updateState(new User(email, name)).thenReply("Ok from put");
+  public Action.Effect<String> createOrUpdateUser(@PathVariable String user, @PathVariable String email, @PathVariable String name) {
+    if (email.isEmpty() || name.isEmpty())
+      return effects().error("No field can be empty", Status.Code.INVALID_ARGUMENT);
+
+    var defCall = kalixClient.put("/user/" + user + "/" + email + "/" + name, "", String.class);
+    return effects().forward(defCall);
   }
 }

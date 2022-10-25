@@ -18,6 +18,7 @@ package com.example.wiring;
 
 import com.example.Main;
 import com.example.wiring.actions.echo.Message;
+import com.example.wiring.valueentities.user.User;
 import kalix.springsdk.KalixConfigurationTest;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -102,4 +103,19 @@ public class XComponentCallsIntegrationTest {
     Assertions.assertNotNull(usingPostResponse);
     Assertions.assertEquals("Parrot says: 'm3ss4g3 t b3 shrt3n3d'", usingPostResponse.text);
   }
+
+  @Test
+  public void verifyKalixClientUsingPutMethod() {
+
+    User u1 = new User("mary@pops.com", "MayPops");
+    String userCreation =
+        webClient
+            .put()
+            .uri("/validuser/MaryPops/" + u1.email + "/" + u1.name)
+            .retrieve()
+            .bodyToMono(String.class)
+            .block(timeout);
+    Assertions.assertEquals("\"Ok from put\"", userCreation);
+  }
+
 }
