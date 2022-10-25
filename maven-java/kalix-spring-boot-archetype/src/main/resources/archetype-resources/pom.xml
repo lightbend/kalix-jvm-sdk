@@ -87,7 +87,7 @@
               <name>${dockerImage}:%l</name>
               <build>
                 <!-- Base Docker image which contains jre-->
-                <from>docker.io/library/eclipse-temurin:${D}{jdk.target}-alpine</from>
+                <from>docker.io/library/eclipse-temurin:${jdk.target}-alpine</from>
                 <createImageOptions>
                   <platform>linux/amd64</platform>
                 </createImageOptions>
