@@ -29,7 +29,7 @@ include::example$spring-fibonacci-action/src/main/java/com/example/fibonacci/Fib
 next number and builds a reply using `effects().reply()`.
 <5> Otherwise, if the input number doesn't belong to the Fibonacci series, it builds an `Effect` reply error.
 
-Actions return effects, that is, `Action.Effect`. With this type we can return a reply, an error, forward the call to another component, and attach effects to messages. Here we want only the result of the calculation or an error. Therefore we use `.reply` and `.error`.
+Actions return effects, that is, `Action.Effect`. We have different types of effects. A reply, an error, forward the call to another component, and effects with side effects. Here we want only the result of the calculation or an error. Therefore we use `.reply` and `.error`.
 
 === Multiple replies / reply streaming
 
