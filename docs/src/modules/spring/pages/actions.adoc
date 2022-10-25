@@ -49,7 +49,7 @@ TODO: create Main docs and add partial here
 
 The following snippet shows how the `ActionTestkit` is used to test the `FibonacciAction` implementation.
 
-With the `ActionTestkit` we can call the methods of `FibonacciAction`. Each call we execute over to the test kit returns an `ActionResult` that contains the effect produced by the underlying action method.
+With the `ActionTestkit` we can call the methods of `FibonacciAction`. Each call we pass over to the test kit returns an `ActionResult` that contains the effect produced by the underlying action method.
 
 NOTE: Actions are unique units of computation where no local state is shared with previous or subsequent calls. The framework does not reuse an `Action` instance but creates a new one for each command handled and therefore this is also how the test kit behaves.
 
