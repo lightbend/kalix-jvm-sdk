@@ -241,7 +241,7 @@ sbt test
 
 The project is configured to package your service into a Docker image which can be deployed to Kalix. The Docker image name can be changed in the [.group-java]#`pom.xml` file's `properties` section.# [.group-scala]#`build.sbt`.# Update this file to publish your image to your Docker repository.
 
-This uses JDK {java-version} and the image is based on the link:https://adoptium.net/[Eclipse Adoptium] JDK image (formerly Adopt OpenJDK). Choose a different image in the [.group-java]#`docker-maven-plugin` configuration  `pom.xml` file.# [.group-scala]#`build.sbt`.
+This uses JDK {java-version} and the image is based on the link:https://adoptium.net/[Eclipse Adoptium] JDK image (formerly Adopt OpenJDK). Choose a different image in the [.group-java]#`docker-maven-plugin` configuration  `pom.xml` file.# [.group-scala]#`build.sbt`.#
 
 [.tabset]
 Java::
