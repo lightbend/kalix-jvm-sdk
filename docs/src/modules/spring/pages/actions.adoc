@@ -31,7 +31,7 @@ next number and builds a reply using `effects().reply()`.
 
 === Multiple replies / reply streaming
 
-An Action may return a stream of integers. To do this you need by marking the return type as `reactor.core.publisher.Flux<Effect<Integer>>`. 
+An Action may return a stream of integers. To do this you need to define the return type as `reactor.core.publisher.Flux<Effect<Integer>>`. 
 
 The stream may publish an arbitrary number of replies.
 
