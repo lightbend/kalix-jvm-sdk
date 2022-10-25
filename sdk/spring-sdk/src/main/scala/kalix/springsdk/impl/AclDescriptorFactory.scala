@@ -16,24 +16,25 @@
 
 package kalix.springsdk.impl
 
+import java.lang.reflect.Method
+
 import com.google.protobuf.DescriptorProtos
 import com.google.protobuf.Descriptors
 import kalix.PrincipalMatcher
-import kalix.{ Acl => ProtoAcl }
 import kalix.springsdk.annotations.Acl
-import kalix.springsdk.impl.ProtoDescriptorGenerator.dependencies
-import org.slf4j.LoggerFactory
+import kalix.{ Acl => ProtoAcl }
 import kalix.{ Annotations => KalixAnnotations }
+import org.slf4j.LoggerFactory
 
 object AclDescriptorFactory {
 
   private val logger = LoggerFactory.getLogger(classOf[AclDescriptorFactory.type])
 
-  val invalidAnnotationUsage =
+  val invalidAnnotationUsage: String =
     "Invalid annotation usage. Matcher has both 'principal' and 'service' defined. " +
     "Only one is allowed."
 
-  private def validateMatcher(matcher: Acl.Matcher) = {
+  private def validateMatcher(matcher: Acl.Matcher): Unit = {
     if (matcher.principal() != Acl.Principal.UNSPECIFIED && matcher.service().nonEmpty)
       throw new IllegalArgumentException(invalidAnnotationUsage)
   }
@@ -119,4 +120,27 @@ object AclDescriptorFactory {
       fd.toProto
     }
   }
+
+  def serviceLevelAclAnnotation(component: Class[_]): Option[kalix.ServiceOptions] = {
+
+    val javaAclAnnotation = component.getAnnotation(classOf[Acl])
+
+    Option.when(javaAclAnnotation != null) {
+      val kalixServiceOptions = kalix.ServiceOptions.newBuilder()
+      kalixServiceOptions.setAcl(deriveProtoAnnotation(javaAclAnnotation))
+      kalixServiceOptions.build()
+    }
+  }
+
+  def methodLevelAclAnnotation(method: Method): Option[kalix.MethodOptions] = {
+
+    val javaAclAnnotation = method.getAnnotation(classOf[Acl])
+
+    Option.when(javaAclAnnotation != null) {
+      val kalixServiceOptions = kalix.MethodOptions.newBuilder()
+      kalixServiceOptions.setAcl(deriveProtoAnnotation(javaAclAnnotation))
+      kalixServiceOptions.build()
+    }
+  }
+
 }

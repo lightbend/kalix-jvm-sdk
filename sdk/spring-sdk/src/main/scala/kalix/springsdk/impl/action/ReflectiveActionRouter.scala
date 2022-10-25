@@ -21,12 +21,16 @@ import akka.stream.javadsl.Source
 import com.google.protobuf.any.{ Any => ScalaPbAny }
 import kalix.javasdk.action.Action
 import kalix.javasdk.action.MessageEnvelope
+import kalix.javasdk.impl.action.ActionEffectImpl
 import kalix.javasdk.impl.action.ActionRouter
 import kalix.springsdk.impl.CommandHandler
 import kalix.springsdk.impl.InvocationContext
 import reactor.core.publisher.Flux
 
-class ReflectiveActionRouter[A <: Action](action: A, commandHandlers: Map[String, CommandHandler])
+class ReflectiveActionRouter[A <: Action](
+    action: A,
+    commandHandlers: Map[String, CommandHandler],
+    ignoreUnknown: Boolean)
     extends ActionRouter[A](action) {
 
   private def commandHandlerLookup(commandName: String) =
@@ -43,11 +47,18 @@ class ReflectiveActionRouter[A <: Action](action: A, commandHandlers: Map[String
         message.metadata())
 
     val inputTypeUrl = message.payload().asInstanceOf[ScalaPbAny].typeUrl
+    val methodInvoker = commandHandler.lookupInvoker(inputTypeUrl)
 
-    commandHandler
-      .lookupInvoker(inputTypeUrl)
-      .invoke(action, context)
-      .asInstanceOf[Action.Effect[_]]
+    methodInvoker match {
+      case Some(invoker) =>
+        invoker
+          .invoke(action, context)
+          .asInstanceOf[Action.Effect[_]]
+      case None if ignoreUnknown => ActionEffectImpl.Builder.ignore()
+      case None =>
+        throw new NoSuchElementException(
+          s"Couldn't find any method with input type [$inputTypeUrl] in Action [$action].")
+    }
   }
 
   override def handleStreamedOut(
@@ -62,15 +73,17 @@ class ReflectiveActionRouter[A <: Action](action: A, commandHandlers: Map[String
         componentMethod.requestMessageDescriptor,
         message.metadata())
 
-    val typeUrl = message.payload().asInstanceOf[ScalaPbAny].typeUrl
+    val inputTypeUrl = message.payload().asInstanceOf[ScalaPbAny].typeUrl
 
-    val response =
-      componentMethod
-        .lookupInvoker(typeUrl)
-        .invoke(action, context)
-        .asInstanceOf[Flux[Action.Effect[_]]]
-
-    Source.fromPublisher(response)
+    componentMethod.lookupInvoker(inputTypeUrl) match {
+      case Some(methodInvoker) =>
+        val response = methodInvoker.invoke(action, context).asInstanceOf[Flux[Action.Effect[_]]]
+        Source.fromPublisher(response)
+      case None if ignoreUnknown => Source.empty()
+      case None =>
+        throw new NoSuchElementException(
+          s"Couldn't find any method with input type [$inputTypeUrl] in Action [$action].")
+    }
   }
 
   override def handleStreamedIn(commandName: String, stream: Source[MessageEnvelope[Any], NotUsed]): Action.Effect[_] =

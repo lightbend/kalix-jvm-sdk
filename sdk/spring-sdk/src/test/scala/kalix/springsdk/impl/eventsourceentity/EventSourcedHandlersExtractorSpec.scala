@@ -18,9 +18,9 @@ package kalix.springsdk.impl.eventsourceentity
 
 import kalix.springsdk.impl.eventsourcedentity.EventSourcedHandlersExtractor
 import kalix.springsdk.testmodels.eventsourcedentity.EventSourcedEntitiesTestModels.{
+  CounterEventSourcedEntity,
   ErrorDuplicatedEventsEntity,
-  ErrorWrongSignaturesEntity,
-  WellAnnotatedESEntity
+  ErrorWrongSignaturesEntity
 }
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
@@ -30,7 +30,7 @@ class EventSourcedHandlersExtractorSpec extends AnyWordSpec with Matchers {
   "EventSourcedHandlersExtractor" should {
 
     "extract public well-annotated handlers keyed by event type received as unique parameter" in {
-      val result = EventSourcedHandlersExtractor.handlersFrom(classOf[WellAnnotatedESEntity])
+      val result = EventSourcedHandlersExtractor.handlersFrom(classOf[CounterEventSourcedEntity])
       result.handlers.size shouldBe 2
       result.handlers.get(classOf[Integer]).map { m =>
         m.getName shouldBe "receivedIntegerEvent"

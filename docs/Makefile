@@ -1,14 +1,19 @@
 # Make Kalix Java SDK documentation
 
-module   := java
 upstream := lightbend/kalix-jvm-sdk
 branch   := docs/kalix-current
 sources  := src build/src/managed
 
 src_managed := build/src/managed
-managed_attachments := ${src_managed}/modules/${module}/attachments
-managed_examples := ${src_managed}/modules/${module}/examples
-managed_partials := ${src_managed}/modules/${module}/partials
+java_managed_attachments := ${src_managed}/modules/java/attachments
+java_managed_examples := ${src_managed}/modules/java/examples
+java_managed_partials := ${src_managed}/modules/java/partials
+
+scala_managed_attachments := ${src_managed}/modules/scala/attachments
+
+spring_managed_attachments := ${src_managed}/modules/spring/attachments
+spring_managed_examples := ${src_managed}/modules/spring/examples
+spring_managed_partials := ${src_managed}/modules/spring/partials
 
 antora_docker_image := gcr.io/kalix-public/kalix-docbuilder
 antora_docker_image_tag := 0.0.5
@@ -29,39 +34,42 @@ prepare:
 managed: prepare attributes apidocs examples bundles
 
 attributes:
-	mkdir -p "${managed_partials}"
+	mkdir -p "${java_managed_partials}"
 	bin/version.sh | xargs -0  printf ":kalix-jvm-sdk-version: %s" \
-		> "${managed_partials}/attributes.adoc"
+		> "${java_managed_partials}/attributes.adoc"
 	echo ":java-version: 11" \
-		>> "${managed_partials}/attributes.adoc"
+		>> "${java_managed_partials}/attributes.adoc"
 	echo ":java_minimum_sdk_version: 0.7.0" \
-		>> "${managed_partials}/attributes.adoc"
+		>> "${java_managed_partials}/attributes.adoc"
 	echo ":console: https://console.kalix.io/" \
-		>> "${managed_partials}/attributes.adoc"
+		>> "${java_managed_partials}/attributes.adoc"
+	mkdir -p "${spring_managed_partials}"
+	cp "${java_managed_partials}/attributes.adoc" "${spring_managed_partials}/attributes.adoc"
 
 apidocs:
-	mkdir -p "${managed_attachments}"
+	mkdir -p "${java_managed_attachments}"
 	cd .. && sbt sdkJava/doc sdkJavaTestKit/doc sdkScala/doc sdkScalaTestKit/doc
-	rsync -a ../sdk/java-sdk/target/api/ "${managed_attachments}/api/"
-	rsync -a ../sdk/java-sdk-testkit/target/api/ "${managed_attachments}/testkit/"
-	rsync -a ../sdk/scala-sdk/target/scala-2.13/api/ "${managed_attachments}/scala-api/"
-	rsync -a ../sdk/scala-sdk-testkit/target/scala-2.13/api/ "${managed_attachments}/scala-testkit-api/"
-	mkdir -p "${src_managed}/modules/scala/attachments"
-	mkdir -p "${src_managed}/modules/spring/attachments"
-	bin/version.sh > "${managed_attachments}/latest-version.txt" \
-		&& cp "${managed_attachments}/latest-version.txt" "${src_managed}/modules/scala/attachments" \
-		&& cp "${managed_attachments}/latest-version.txt" "${src_managed}/modules/spring/attachments"
+	rsync -a ../sdk/java-sdk/target/api/ "${java_managed_attachments}/api/"
+	rsync -a ../sdk/java-sdk-testkit/target/api/ "${java_managed_attachments}/testkit/"
+	rsync -a ../sdk/scala-sdk/target/scala-2.13/api/ "${java_managed_attachments}/scala-api/"
+	rsync -a ../sdk/scala-sdk-testkit/target/scala-2.13/api/ "${java_managed_attachments}/scala-testkit-api/"
+	mkdir -p "${scala_managed_attachments}"
+	mkdir -p "${spring_managed_attachments}"
+	bin/version.sh > "${java_managed_attachments}/latest-version.txt" \
+		&& cp "${java_managed_attachments}/latest-version.txt" "${scala_managed_attachments}" \
+		&& cp "${java_managed_attachments}/latest-version.txt" "${spring_managed_attachments}"
 
 examples:
-	mkdir -p "${managed_examples}"
-	rsync -a --exclude-from=.examplesignore ../samples/ "${managed_examples}/"
+	mkdir -p "${java_managed_examples}"
+	rsync -a --exclude-from=.examplesignore ../samples/ "${java_managed_examples}/"
+	rsync -a --exclude-from=.examplesignore ../samples/ "${spring_managed_examples}/"
 
 bundles:
-	bin/bundle.sh --zip "${managed_attachments}/java-customer-registry-quickstart.zip" ../samples/java-customer-registry-quickstart
-	bin/bundle.sh --zip "${managed_attachments}/java-customer-registry-views-quickstart.zip" ../samples/java-customer-registry-views-quickstart
-	bin/bundle.sh --zip "${managed_attachments}/java-customer-registry-kafka-quickstart.zip" ../samples/java-customer-registry-kafka-quickstart
-	bin/bundle.sh --zip "${managed_attachments}/java-shopping-cart-quickstart.zip" ../samples/java-shopping-cart-quickstart
-	bin/bundle.sh --zip "${managed_attachments}/scala-customer-registry-quickstart.zip" ../samples/scala-customer-registry-quickstart
+	bin/bundle.sh --zip "${java_managed_attachments}/java-customer-registry-quickstart.zip" ../samples/java-customer-registry-quickstart
+	bin/bundle.sh --zip "${java_managed_attachments}/java-customer-registry-views-quickstart.zip" ../samples/java-customer-registry-views-quickstart
+	bin/bundle.sh --zip "${java_managed_attachments}/java-customer-registry-kafka-quickstart.zip" ../samples/java-customer-registry-kafka-quickstart
+	bin/bundle.sh --zip "${java_managed_attachments}/java-shopping-cart-quickstart.zip" ../samples/java-shopping-cart-quickstart
+	bin/bundle.sh --zip "${java_managed_attachments}/scala-customer-registry-quickstart.zip" ../samples/scala-customer-registry-quickstart
 
 dev: clean managed validate-xrefs dev-html
 

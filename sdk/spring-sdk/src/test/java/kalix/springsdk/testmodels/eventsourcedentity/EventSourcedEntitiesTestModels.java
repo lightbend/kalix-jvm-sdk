@@ -16,13 +16,11 @@
 
 package kalix.springsdk.testmodels.eventsourcedentity;
 
-import kalix.JwtMethodOptions;
 import kalix.javasdk.eventsourcedentity.EventSourcedEntity;
+import kalix.springsdk.annotations.Acl;
 import kalix.springsdk.annotations.Entity;
 import kalix.springsdk.annotations.EventHandler;
 import kalix.springsdk.annotations.JWT;
-import kalix.springsdk.annotations.Subscribe;
-import kalix.springsdk.testmodels.valueentity.UserEntity;
 import org.springframework.web.bind.annotation.*;
 
 public class EventSourcedEntitiesTestModels {
@@ -47,7 +45,7 @@ public class EventSourcedEntitiesTestModels {
 
   @Entity(entityKey = "id", entityType = "counter")
   @RequestMapping("/eventsourced/{id}")
-  public static class WellAnnotatedESEntity extends EventSourcedEntity<Integer> {
+  public static class CounterEventSourcedEntity extends EventSourcedEntity<Integer> {
 
     @GetMapping("/int/{number}")
     public Integer getInteger(@PathVariable Integer number) {
@@ -80,7 +78,7 @@ public class EventSourcedEntitiesTestModels {
 
   @Entity(entityKey = "id", entityType = "counter")
   @RequestMapping("/eventsourced/{id}")
-  public static class WellAnnotatedESEntityWithJWT extends EventSourcedEntity<Integer> {
+  public static class CounterEventSourcedEntityWithJWT extends EventSourcedEntity<Integer> {
 
     @GetMapping("/int/{number}")
     @JWT(
@@ -131,6 +129,25 @@ public class EventSourcedEntitiesTestModels {
     @EventHandler
     public Integer receivedIntegerEventAndString(Integer event, String s1) {
       return 0;
+    }
+  }
+
+  @Entity(entityKey = "id", entityType = "counter")
+  @Acl(allow = @Acl.Matcher(service = "test"))
+  public static class EventSourcedEntityWithServiceLevelAcl extends EventSourcedEntity<Integer> {
+
+  }
+
+
+  @Entity(entityKey = "id", entityType = "counter")
+  @RequestMapping("/employee/{id}")
+  public static class EventSourcedEntityWithMethodLevelAcl extends EventSourcedEntity<Integer> {
+    @PostMapping
+    @Acl(allow = @Acl.Matcher(service = "test"))
+    public Effect<String> createUser(@RequestBody CreateEmployee create) {
+      return effects()
+          .emitEvent(new EmployeeCreated(create.firstName, create.lastName, create.email))
+          .thenReply(__ -> "ok");
     }
   }
 }

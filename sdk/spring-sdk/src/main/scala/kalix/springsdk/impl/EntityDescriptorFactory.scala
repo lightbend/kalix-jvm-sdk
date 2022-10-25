@@ -36,6 +36,12 @@ private[impl] object EntityDescriptorFactory extends ComponentDescriptorFactory 
       }
 
     val serviceName = nameGenerator.getName(component.getSimpleName)
-    ComponentDescriptor(nameGenerator, messageCodec, serviceName, component.getPackageName, kalixMethods)
+    ComponentDescriptor(
+      nameGenerator,
+      messageCodec,
+      serviceName,
+      serviceOptions = AclDescriptorFactory.serviceLevelAclAnnotation(component),
+      component.getPackageName,
+      kalixMethods)
   }
 }

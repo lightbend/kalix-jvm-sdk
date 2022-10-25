@@ -16,7 +16,7 @@
 
 package kalix.scalasdk.testkit.impl
 
-import kalix.javasdk.impl.DeferredCallImpl
+import kalix.javasdk.impl.GrpcDeferredCall
 import kalix.scalasdk.SideEffect
 import kalix.scalasdk.action.Action
 import kalix.scalasdk.impl.ScalaDeferredCallAdapter
@@ -44,7 +44,7 @@ final class ActionResultImpl[T](val effect: ActionEffectImpl.PrimaryEffect[T]) e
     sideEffects.map { sideEffect =>
       sideEffect.serviceCall match {
         case ScalaDeferredCallAdapter(javaSdkDeferredCall) =>
-          TestKitDeferredCall(javaSdkDeferredCall.asInstanceOf[DeferredCallImpl[_, _]])
+          TestKitDeferredCall(javaSdkDeferredCall.asInstanceOf[GrpcDeferredCall[_, _]])
       }
     }
   }
@@ -55,7 +55,7 @@ final class ActionResultImpl[T](val effect: ActionEffectImpl.PrimaryEffect[T]) e
   override def isForward: Boolean = effect.isInstanceOf[ActionEffectImpl.ForwardEffect[_]]
 
   override def forwardedTo: DeferredCallDetails[_, T] = effect match {
-    case ActionEffectImpl.ForwardEffect(ScalaDeferredCallAdapter(deferredCall: DeferredCallImpl[_, T]), _) =>
+    case ActionEffectImpl.ForwardEffect(ScalaDeferredCallAdapter(deferredCall: GrpcDeferredCall[_, T]), _) =>
       TestKitDeferredCall(deferredCall)
     case _ => throw new IllegalStateException(s"The effect was not a forward but [$effectName]")
   }

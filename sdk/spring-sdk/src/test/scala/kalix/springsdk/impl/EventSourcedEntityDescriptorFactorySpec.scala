@@ -18,15 +18,17 @@ package kalix.springsdk.impl
 
 import com.google.protobuf.Descriptors.FieldDescriptor.JavaType
 import kalix.JwtMethodOptions.JwtMethodMode
-import kalix.springsdk.testmodels.eventsourcedentity.EventSourcedEntitiesTestModels.WellAnnotatedESEntity
-import kalix.springsdk.testmodels.eventsourcedentity.EventSourcedEntitiesTestModels.WellAnnotatedESEntityWithJWT
+import kalix.springsdk.testmodels.eventsourcedentity.EventSourcedEntitiesTestModels.EventSourcedEntityWithMethodLevelAcl
+import kalix.springsdk.testmodels.eventsourcedentity.EventSourcedEntitiesTestModels.EventSourcedEntityWithServiceLevelAcl
+import kalix.springsdk.testmodels.eventsourcedentity.EventSourcedEntitiesTestModels.CounterEventSourcedEntity
+import kalix.springsdk.testmodels.eventsourcedentity.EventSourcedEntitiesTestModels.CounterEventSourcedEntityWithJWT
 import org.scalatest.wordspec.AnyWordSpec
 
 class EventSourcedEntityDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSuite {
 
   "EventSourced descriptor factory" should {
     "generate mappings for a Event Sourced with entity keys in path" in {
-      assertDescriptor[WellAnnotatedESEntity] { desc =>
+      assertDescriptor[CounterEventSourcedEntity] { desc =>
         val method = desc.commandHandlers("GetInteger")
         assertRequestFieldJavaType(method, "id", JavaType.STRING)
         assertEntityKeyField(method, "id")
@@ -40,7 +42,7 @@ class EventSourcedEntityDescriptorFactorySpec extends AnyWordSpec with Component
     }
 
     "generate mappings for a Event Sourced with entity keys in path and JWT annotations" in {
-      assertDescriptor[WellAnnotatedESEntityWithJWT] { desc =>
+      assertDescriptor[CounterEventSourcedEntityWithJWT] { desc =>
         val method = desc.commandHandlers("GetInteger")
         assertRequestFieldJavaType(method, "id", JavaType.STRING)
         assertEntityKeyField(method, "id")
@@ -62,6 +64,22 @@ class EventSourcedEntityDescriptorFactorySpec extends AnyWordSpec with Component
         jwtOption2.getBearerTokenIssuer(1) shouldBe "b"
         jwtOption2.getValidate(0) shouldBe JwtMethodMode.BEARER_TOKEN
         jwtOption2.getSign(0) shouldBe JwtMethodMode.MESSAGE
+      }
+    }
+
+    "generate ACL annotations at service level" in {
+      assertDescriptor[EventSourcedEntityWithServiceLevelAcl] { desc =>
+        val extension = desc.serviceDescriptor.getOptions.getExtension(kalix.Annotations.service)
+        val service = extension.getAcl.getAllow(0).getService
+        service shouldBe "test"
+      }
+    }
+
+    "generate ACL annotations at method level" in {
+      assertDescriptor[EventSourcedEntityWithMethodLevelAcl] { desc =>
+        val extension = findKalixMethodOptions(desc, "CreateUser")
+        val service = extension.getAcl.getAllow(0).getService
+        service shouldBe "test"
       }
     }
   }

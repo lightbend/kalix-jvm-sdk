@@ -17,21 +17,17 @@
 package kalix.springsdk.testmodels.view;
 
 import kalix.javasdk.view.View;
-import kalix.springsdk.annotations.JWT;
-import kalix.springsdk.annotations.Query;
-import kalix.springsdk.annotations.Subscribe;
-import kalix.springsdk.annotations.Table;
+import kalix.springsdk.annotations.*;
 import kalix.springsdk.testmodels.eventsourcedentity.Employee;
-import kalix.springsdk.testmodels.eventsourcedentity.EventSourcedEntitiesTestModels;
 import kalix.springsdk.testmodels.eventsourcedentity.EmployeeCreated;
 import kalix.springsdk.testmodels.eventsourcedentity.EmployeeEvent;
+import kalix.springsdk.testmodels.eventsourcedentity.EventSourcedEntitiesTestModels;
 import kalix.springsdk.testmodels.valueentity.User;
 import kalix.springsdk.testmodels.valueentity.UserEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-
 import reactor.core.publisher.Flux;
 
 public class ViewTestModels {
@@ -232,4 +228,23 @@ public class ViewTestModels {
     }
   }
 
+  @Table(value = "employees_view")
+  @Acl(allow = @Acl.Matcher(service = "test"))
+  public static class ViewWithServiceLevelAcl extends View<Employee> {
+    @Query("SELECT * FROM employees_view WHERE email = :email")
+    @PostMapping("/employees/by-email/{email}")
+    public Employee getEmployeeByEmail(@PathVariable String email) {
+      return null;
+    }
+  }
+
+  @Table(value = "employees_view")
+  public static class ViewWithMethodLevelAcl extends View<Employee> {
+    @Query("SELECT * FROM employees_view WHERE email = :email")
+    @PostMapping("/employees/by-email/{email}")
+    @Acl(allow = @Acl.Matcher(service = "test"))
+    public Employee getEmployeeByEmail(@PathVariable String email) {
+      return null;
+    }
+  }
 }

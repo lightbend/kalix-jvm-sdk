@@ -59,7 +59,7 @@ class ReflectiveEventSourcedEntityRouter[S, E <: EventSourcedEntity[S]](
     val inputTypeUrl = command.asInstanceOf[ScalaPbAny].typeUrl
 
     commandHandler
-      .lookupInvoker(inputTypeUrl)
+      .getInvoker(inputTypeUrl)
       .invoke(entity, invocationContext)
       .asInstanceOf[EventSourcedEntity.Effect[_]]
   }

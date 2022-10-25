@@ -59,7 +59,7 @@ public @interface Subscribe {
    *       second one the event type.
    * </ul>
    */
-  @Target(ElementType.METHOD)
+  @Target({ElementType.METHOD, ElementType.TYPE})
   @Retention(RetentionPolicy.RUNTIME)
   @Documented
   @interface EventSourcedEntity {
@@ -68,10 +68,17 @@ public @interface Subscribe {
      * kalix.javasdk.eventsourcedentity.EventSourcedEntity EventSourcedEntity}.
      */
     Class<? extends kalix.javasdk.eventsourcedentity.EventSourcedEntity<?>> value();
+
+    /** This option is only available for classes. Using it in a method has no effect.
+     * If there is no method in the class whose input type matches the event type:
+     *   if ignoreUnknown is true the event is discarded.
+     *   if false, an Exception is raised.
+     * */
+    boolean ignoreUnkown() default false;
   }
 
   /** Annotation for subscribing to messages from a topic (i.e PubSub or Kafka topic). */
-  @Target(ElementType.METHOD)
+  @Target({ElementType.METHOD, ElementType.TYPE})
   @Retention(RetentionPolicy.RUNTIME)
   @Documented
   @interface Topic {
@@ -80,5 +87,13 @@ public @interface Subscribe {
 
     /** Assign the consumer group name to be used on the broker. */
     String consumerGroup() default "";
+
+    /**
+     * This option is only available for classes. Using it in a method has no effect.
+     * If there is no method in the class whose input type matches the event type:
+     *   if ignoreUnknown is true the event is discarded.
+     *   if false, an Exception is raised.
+     **/
+    boolean ignoreUnknown() default false;
   }
 }

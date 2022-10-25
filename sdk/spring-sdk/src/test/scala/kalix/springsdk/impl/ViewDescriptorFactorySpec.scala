@@ -18,6 +18,7 @@ package kalix.springsdk.impl
 
 import com.google.protobuf.Descriptors.FieldDescriptor.JavaType
 import kalix.JwtMethodOptions.JwtMethodMode
+import kalix.springsdk.testmodels.subscriptions.PubSubTestModels.SubscribeOnTypeToEventSourcedEventsWithMethodWithState
 import kalix.springsdk.testmodels.view.ViewTestModels.SubscribeToEventSourcedEvents
 import kalix.springsdk.testmodels.view.ViewTestModels.SubscribeToEventSourcedEventsWithMethodWithState
 import kalix.springsdk.testmodels.view.ViewTestModels.TransformedUserView
@@ -28,12 +29,31 @@ import kalix.springsdk.testmodels.view.ViewTestModels.UserByEmailWithPost
 import kalix.springsdk.testmodels.view.ViewTestModels.UserByEmailWithPostRequestBodyOnly
 import kalix.springsdk.testmodels.view.ViewTestModels.UserByNameEmailWithPost
 import kalix.springsdk.testmodels.view.ViewTestModels.UserByNameStreamed
+import kalix.springsdk.testmodels.view.ViewTestModels.ViewWithMethodLevelAcl
 import kalix.springsdk.testmodels.view.ViewTestModels.ViewWithNoQuery
+import kalix.springsdk.testmodels.view.ViewTestModels.ViewWithServiceLevelAcl
 import kalix.springsdk.testmodels.view.ViewTestModels.ViewWithSubscriptionsInMixedLevels
 import kalix.springsdk.testmodels.view.ViewTestModels.ViewWithTwoQueries
 import org.scalatest.wordspec.AnyWordSpec
 
 class ViewDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSuite {
+
+  "View descriptor factory" should {
+    "generate ACL annotations at service level" in {
+      assertDescriptor[ViewWithServiceLevelAcl] { desc =>
+        val extension = desc.serviceDescriptor.getOptions.getExtension(kalix.Annotations.service)
+        val service = extension.getAcl.getAllow(0).getService
+        service shouldBe "test"
+      }
+    }
+    "generate ACL annotations at method level" in {
+      assertDescriptor[ViewWithMethodLevelAcl] { desc =>
+        val extension = findKalixMethodOptions(desc, "GetEmployeeByEmail")
+        val service = extension.getAcl.getAllow(0).getService
+        service shouldBe "test"
+      }
+    }
+  }
 
   "View descriptor factory (for Value Entity)" should {
 
@@ -328,5 +348,21 @@ class ViewDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSuit
         rule.getPost shouldBe "/employees/by-email/{email}"
       }
     }
+
+    "generate proto for a View with multiple methods to handle different events" in {
+      assertDescriptor[SubscribeOnTypeToEventSourcedEventsWithMethodWithState] { desc =>
+        val methodOptions = this.findKalixMethodOptions(desc, "KalixSyntheticMethodOnESEmployee")
+
+        val entityType = methodOptions.getEventing.getIn.getEventSourcedEntity
+        entityType shouldBe "employee"
+
+        methodOptions.getView.getUpdate.getTable shouldBe "employee_table"
+        methodOptions.getView.getUpdate.getTransformUpdates shouldBe true
+        methodOptions.getView.getJsonSchema.getOutput shouldBe "Employee"
+        methodOptions.getEventing.getIn.getIgnore shouldBe false // we don't set the property so the proxy won't ignore. Ignore is only internal to the SDK
+
+      }
+    }
   }
+
 }

@@ -22,6 +22,7 @@ import kalix.springsdk.impl.ComponentDescriptorFactory.eventingInForEventSourced
 import kalix.springsdk.impl.ComponentDescriptorFactory.eventingInForTopic
 import kalix.springsdk.impl.ComponentDescriptorFactory.eventingInForValueEntity
 import kalix.springsdk.impl.ComponentDescriptorFactory.eventingOutForTopic
+import kalix.springsdk.impl.ComponentDescriptorFactory.hasActionOutput
 import kalix.springsdk.impl.ComponentDescriptorFactory.hasEventSourcedEntitySubscription
 import kalix.springsdk.impl.ComponentDescriptorFactory.hasTopicPublication
 import kalix.springsdk.impl.ComponentDescriptorFactory.hasTopicSubscription
@@ -41,7 +42,7 @@ private[impl] object ActionDescriptorFactory extends ComponentDescriptorFactory 
       messageCodec: SpringSdkMessageCodec,
       nameGenerator: NameGenerator): ComponentDescriptor = {
     //we should merge from here
-    val springAnnotatedMethods =
+    val syntheticMethods =
       RestServiceIntrospector.inspectService(component).methods.map { serviceMethod =>
         validateRestMethod(serviceMethod.javaMethod)
         KalixMethod(serviceMethod).withKalixOptions(buildJWTOptions(serviceMethod.javaMethod))
@@ -65,6 +66,9 @@ private[impl] object ActionDescriptorFactory extends ComponentDescriptorFactory 
       .filter(hasEventSourcedEntitySubscription)
       .sorted // make sure we get the methods in deterministic order
       .map { method =>
+        if (hasEventSourcedEntitySubscription(component))
+          throw InvalidComponentException(
+            s"You cannot use Subscribe annotation in both the methods and the class. You can do either one or the other.")
         val subscriptionOptions = eventingInForEventSourcedEntity(method)
         val kalixOptions =
           kalix.MethodOptions.newBuilder().setEventing(subscriptionOptions).build()
@@ -73,10 +77,27 @@ private[impl] object ActionDescriptorFactory extends ComponentDescriptorFactory 
           .withKalixOptions(kalixOptions)
       }
 
+    val subscriptionEventSourcedEntityClass =
+      if (hasEventSourcedEntitySubscription(component)) {
+        component.getMethods.sorted // make sure we get the methods in deterministic order
+          .filter(hasActionOutput)
+          .collect { case method =>
+            val subscriptionOptions = eventingInForEventSourcedEntity(component)
+            val kalixOptions =
+              kalix.MethodOptions.newBuilder().setEventing(subscriptionOptions).build()
+
+            KalixMethod(SubscriptionServiceMethod(method))
+              .withKalixOptions(kalixOptions)
+          }
+      } else Array.empty[KalixMethod]
+
     val subscriptionTopicMethods = component.getMethods
       .filter(hasTopicSubscription)
       .sorted // make sure we get the methods in deterministic order
       .map { method =>
+        if (hasTopicSubscription(component))
+          throw InvalidComponentException(
+            s"You cannot use Subscribe annotation in both the methods and the class. You can do either one or the other.")
         val subscriptionOptions = eventingInForTopic(method)
         val kalixOptions =
           kalix.MethodOptions.newBuilder().setEventing(subscriptionOptions).build()
@@ -85,7 +106,21 @@ private[impl] object ActionDescriptorFactory extends ComponentDescriptorFactory 
           .withKalixOptions(kalixOptions)
       }
 
-    def combineByTopic(subscriptions: Seq[KalixMethod]): Seq[KalixMethod] = {
+    val subscriptionTopicClass: Array[KalixMethod] =
+      if (hasTopicSubscription(component)) {
+        component.getMethods.sorted // make sure we get the methods in deterministic order
+          .filter(hasActionOutput)
+          .collect { case method =>
+            val subscriptionOptions = eventingInForTopic(component)
+            val kalixOptions =
+              kalix.MethodOptions.newBuilder().setEventing(subscriptionOptions).build()
+
+            KalixMethod(SubscriptionServiceMethod(method))
+              .withKalixOptions(kalixOptions)
+          }
+      } else Array.empty[KalixMethod]
+
+    def combineByTopic(kalixMethods: Seq[KalixMethod]): Seq[KalixMethod] = {
       def groupByTopic(methods: Seq[KalixMethod]): Map[String, Seq[KalixMethod]] = {
         val withTopicIn = methods.filter(kalixMethod =>
           kalixMethod.methodOptions.exists(option =>
@@ -93,7 +128,8 @@ private[impl] object ActionDescriptorFactory extends ComponentDescriptorFactory 
         //Assuming there is only one topic annotation per method, therefore head is as good as any other
         withTopicIn.groupBy(m => m.methodOptions.head.getEventing.getIn.getTopic)
       }
-      groupByTopic(subscriptions).collect {
+
+      groupByTopic(kalixMethods).collect {
         case (topic, kMethods) if kMethods.size > 1 =>
           val methodsMap =
             kMethods.map { k =>
@@ -101,7 +137,6 @@ private[impl] object ActionDescriptorFactory extends ComponentDescriptorFactory 
               val typeUrl = messageCodec.typeUrlFor(inputType)
               (typeUrl, k.serviceMethod.javaMethodOpt.get)
             }.toMap
-
           KalixMethod(
             CombinedSubscriptionServiceMethod(
               component.getName,
@@ -127,20 +162,20 @@ private[impl] object ActionDescriptorFactory extends ComponentDescriptorFactory 
       }
     val serviceName = nameGenerator.getName(component.getSimpleName)
 
-    def filterAndAddKalixOptions(to: Seq[KalixMethod], from: Seq[KalixMethod]): Seq[KalixMethod] = {
-      val inCommon = to.flatMap(toAdd =>
+    def addKalixOptions(to: Seq[KalixMethod], from: Seq[KalixMethod]): Seq[KalixMethod] = {
+      val added = to.flatMap(toAdd =>
         from
           .filter { addingFrom =>
             addingFrom.serviceMethod.methodName.equals(toAdd.serviceMethod.methodName)
           }
           .map(addingFrom => toAdd.withKalixOptions(addingFrom.methodOptions)))
-      val unique = to
+      val unmatchedInTo = to
         .filter { toAdd =>
           !from.exists { addingFrom =>
             addingFrom.serviceMethod.methodName.equals(toAdd.serviceMethod.methodName)
           }
         }
-      inCommon ++ unique
+      added ++ unmatchedInTo
     }
 
     def removeDuplicates(springMethods: Seq[KalixMethod], pubSubMethods: Seq[KalixMethod]): Seq[KalixMethod] = {
@@ -152,11 +187,14 @@ private[impl] object ActionDescriptorFactory extends ComponentDescriptorFactory 
       nameGenerator,
       messageCodec,
       serviceName,
+      serviceOptions = AclDescriptorFactory.serviceLevelAclAnnotation(component),
       component.getPackageName,
-      filterAndAddKalixOptions(springAnnotatedMethods, publicationTopicMethods)
+      addKalixOptions(syntheticMethods, publicationTopicMethods)
       ++ subscriptionValueEntityMethods
-      ++ combineByES(component.getName, subscriptionEventSourcedEntityMethods, messageCodec)
+      ++ combineByES(subscriptionEventSourcedEntityMethods, messageCodec, component)
+      ++ combineByES(subscriptionEventSourcedEntityClass, messageCodec, component)
+      ++ combineByTopic(subscriptionTopicClass)
       ++ combineByTopic(subscriptionTopicMethods)
-      ++ removeDuplicates(springAnnotatedMethods, publicationTopicMethods))
+      ++ removeDuplicates(syntheticMethods, publicationTopicMethods))
   }
 }

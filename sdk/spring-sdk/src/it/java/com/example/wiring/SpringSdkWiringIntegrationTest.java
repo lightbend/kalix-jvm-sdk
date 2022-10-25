@@ -16,7 +16,6 @@
 
 package com.example.wiring;
 
-import akka.http.javadsl.model.StatusCode;
 import com.example.Main;
 import com.example.wiring.actions.echo.Message;
 import com.example.wiring.eventsourcedentities.counter.Counter;
@@ -69,20 +68,6 @@ public class SpringSdkWiringIntegrationTest {
   }
 
   @Test
-  public void verifyEchoActionWiringWithXComponentCall() {
-
-    Message response =
-        webClient
-            .get()
-            .uri("/echo/message/message to be shortened/short")
-            .retrieve()
-            .bodyToMono(Message.class)
-            .block(timeout);
-
-    Assertions.assertEquals("Parrot says: 'mssg t b shrtnd'", response.text);
-  }
-
-  @Test
   public void verifyStreamActions() {
 
     List<Message> messageList =
@@ -121,6 +106,89 @@ public class SpringSdkWiringIntegrationTest {
                     .bodyToMono(Integer.class)
                     .block(timeout),
             new IsEqual(42 + 1));
+  }
+
+  @Test
+  public void verifyActionIsNotSubscribedToMultiplyAndRouterIgnores(){
+
+    webClient
+            .post()
+            .uri("counter/counterId2/increase/1")
+            .retrieve()
+            .bodyToMono(Integer.class)
+            .block(timeout);
+
+    webClient
+            .post()
+            .uri("counter/counterId2/multiply/2")
+            .retrieve()
+            .bodyToMono(Integer.class)
+            .block(timeout);
+
+    webClient
+            .post()
+            .uri("counter/counterId2/increase/1234")
+            .retrieve()
+            .bodyToMono(Integer.class)
+            .block(timeout);
+
+    Integer counterGet =
+            webClient.get().uri("/counter/counterId2").retrieve().bodyToMono(Integer.class).block(timeout);
+
+    //Before has time to process any action the counter has only the values from the POSTs
+    Assertions.assertEquals(1 * 2 + 1234, counterGet);
+
+    //Once the action IncreaseActionWithIgnore processes event 1234 it adds 1 more to the counter
+    await()
+            .atMost(10, TimeUnit.SECONDS)
+            .until(
+                    () ->
+                            webClient
+                                    .get()
+                                    .uri("/counter/counterId2")
+                                    .retrieve()
+                                    .bodyToMono(Integer.class)
+                                    .block(timeout),
+                    new IsEqual<Integer>(1 * 2 + 1234 + 1 ));
+  }
+
+  @Test
+  public void verifyViewIsNotSubscribedToMultiplyAndRouterIgnores() {
+
+    webClient
+            .post()
+            .uri("counter/counterId4/increase/1")
+            .retrieve()
+            .bodyToMono(Integer.class)
+            .block(timeout);
+    webClient
+            .post()
+            .uri("counter/counterId4/multiply/2")
+            .retrieve()
+            .bodyToMono(Integer.class)
+            .block(timeout);
+
+    Integer counterGet = webClient
+            .post()
+            .uri("counter/counterId4/increase/1")
+            .retrieve()
+            .bodyToMono(Integer.class)
+            .block(timeout);
+
+    Assertions.assertEquals(1 * 2 + 1, counterGet);
+
+    await()
+            .ignoreExceptions()
+            .atMost(10, TimeUnit.SECONDS)
+            .until(
+                    () -> webClient
+                            .get()
+                            .uri("/counters-ignore/by-value-with-ignore/2")
+                            .retrieve()
+                            .bodyToMono(Counter.class)
+                            .map(counter -> counter.value)
+                            .block(timeout),
+                    new IsEqual(1 + 1));
   }
 
   @Test

@@ -23,10 +23,9 @@ import kalix.javasdk.JsonSupport;
 import kalix.javasdk.action.Action;
 import kalix.javasdk.action.ActionContext;
 import kalix.javasdk.action.ActionCreationContext;
-import kalix.javasdk.impl.DeferredCallImpl;
+import kalix.javasdk.impl.GrpcDeferredCall;
 import kalix.javasdk.impl.InternalContext;
 import kalix.javasdk.impl.MetadataImpl;
-import kalix.tck.model.eventing.LocalPersistenceSubscriberModel;
 import kalix.tck.model.eventing.LocalPersistenceEventing;
 import com.example.Components;
 import com.example.ComponentsImpl;
@@ -124,7 +123,7 @@ public class LocalPersistenceSubscriber extends Action {
   private DeferredCall<LocalPersistenceEventing.EffectRequest, LocalPersistenceEventing.Response>
       localPersistenceEventingEffect(
           kalix.tck.model.eventing.LocalPersistenceEventing.EffectRequest effectRequest) {
-    return new DeferredCallImpl<>(
+    return new GrpcDeferredCall<>(
         effectRequest,
         MetadataImpl.Empty(),
         "kalix.tck.model.eventing.LocalPersistenceSubscriberModel",

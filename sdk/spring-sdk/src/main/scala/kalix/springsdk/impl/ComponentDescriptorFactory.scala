@@ -16,18 +16,24 @@
 
 package kalix.springsdk.impl
 
+import java.lang.reflect.Method
+import java.lang.reflect.Modifier
+
 import kalix.MethodOptions
 import kalix.springsdk.annotations.JWT
 import kalix.springsdk.annotations.Table
-import kalix.springsdk.annotations.{ Entity, Publish, Subscribe }
-import kalix.springsdk.impl.ComponentDescriptorFactory.hasJwtMethodOptions
-import kalix.springsdk.impl.ComponentDescriptorFactory.jwtMethodOptions
+import kalix.springsdk.annotations.Entity
+import kalix.springsdk.annotations.Publish
+import kalix.springsdk.annotations.Subscribe
 import kalix.springsdk.impl.reflection._
-import kalix.{ EventDestination, EventSource, Eventing, JwtMethodOptions }
-import java.lang.reflect.{ Method, Modifier }
+import kalix.EventDestination
+import kalix.EventSource
+import kalix.Eventing
+import kalix.JwtMethodOptions
+import kalix.javasdk.action.Action
+import kalix.javasdk.view.View
 
-import kalix.javasdk.JsonSupport
-import kalix.javasdk.JsonSupport._
+import java.lang.reflect.ParameterizedType
 
 private[impl] object ComponentDescriptorFactory {
 
@@ -39,9 +45,35 @@ private[impl] object ComponentDescriptorFactory {
     Modifier.isPublic(javaMethod.getModifiers) &&
     javaMethod.getAnnotation(classOf[Subscribe.EventSourcedEntity]) != null
 
+  def hasEventSourcedEntitySubscription(clazz: Class[_]): Boolean =
+    Modifier.isPublic(clazz.getModifiers) &&
+    clazz.getAnnotation(classOf[Subscribe.EventSourcedEntity]) != null
+
+  def hasActionOutput(javaMethod: Method): Boolean = {
+    javaMethod.getGenericReturnType match {
+      case p: ParameterizedType =>
+        p.getRawType.equals(classOf[Action.Effect[_]]) &&
+          Modifier.isPublic(javaMethod.getModifiers)
+      case _ => false
+    }
+  }
+
+  def hasUpdateEffectOutput(javaMethod: Method): Boolean = {
+    javaMethod.getGenericReturnType match {
+      case p: ParameterizedType =>
+        p.getRawType.equals(classOf[View.UpdateEffect[_]]) &&
+          Modifier.isPublic(javaMethod.getModifiers)
+      case _ => false
+    }
+  }
+
   def hasTopicSubscription(javaMethod: Method): Boolean =
     Modifier.isPublic(javaMethod.getModifiers) &&
     javaMethod.getAnnotation(classOf[Subscribe.Topic]) != null
+
+  def hasTopicSubscription(clazz: Class[_]): Boolean =
+    Modifier.isPublic(clazz.getModifiers) &&
+    clazz.getAnnotation(classOf[Subscribe.Topic]) != null
 
   def hasTopicPublication(javaMethod: Method): Boolean =
     Modifier.isPublic(javaMethod.getModifiers) &&
@@ -51,8 +83,14 @@ private[impl] object ComponentDescriptorFactory {
     Modifier.isPublic(javaMehod.getModifiers) &&
     javaMehod.getAnnotation(classOf[JWT]) != null
 
-  def findEventSourcedEntityType(javaMethod: Method): String = {
+  private def findEventSourcedEntityType(javaMethod: Method): String = {
     val ann = javaMethod.getAnnotation(classOf[Subscribe.EventSourcedEntity])
+    val entityClass = ann.value()
+    entityClass.getAnnotation(classOf[Entity]).entityType()
+  }
+
+  def findEventSourcedEntityType(clazz: Class[_]): String = {
+    val ann = clazz.getAnnotation(classOf[Subscribe.EventSourcedEntity])
     val entityClass = ann.value()
     entityClass.getAnnotation(classOf[Entity]).entityType()
   }
@@ -69,19 +107,45 @@ private[impl] object ComponentDescriptorFactory {
     entityClass.getAnnotation(classOf[Entity]).entityType()
   }
 
-  def findSubTopicName(javaMethod: Method): String = {
+  private def findSubscriptionTopicName(javaMethod: Method): String = {
     val ann = javaMethod.getAnnotation(classOf[Subscribe.Topic])
     ann.value()
   }
 
-  def findSubConsumerGroup(javaMethod: Method): String = {
+  private def findSubscriptionTopicName(clazz: Class[_]): String = {
+    val ann = clazz.getAnnotation(classOf[Subscribe.Topic])
+    ann.value()
+  }
+
+  def findSubscriptionConsumerGroup(javaMethod: Method): String = {
     val ann = javaMethod.getAnnotation(classOf[Subscribe.Topic])
     ann.consumerGroup()
   }
 
-  def findPubTopicName(javaMethod: Method): String = {
+  private def findSubscriptionConsumerGroup(clazz: Class[_]): String = {
+    val ann = clazz.getAnnotation(classOf[Subscribe.Topic])
+    ann.consumerGroup()
+  }
+
+  def findPublicationTopicName(javaMethod: Method): String = {
     val ann = javaMethod.getAnnotation(classOf[Publish.Topic])
     ann.value()
+  }
+
+  def hasIgnoreForTopic(clazz: Class[_]): Boolean = {
+    val ann = clazz.getAnnotation(classOf[Subscribe.Topic])
+    ann.ignoreUnknown()
+  }
+
+  def hasIgnoreForEventSourcedEntity(clazz: Class[_]): Boolean = {
+    val ann = clazz.getAnnotation(classOf[Subscribe.EventSourcedEntity])
+    ann.ignoreUnkown()
+  }
+
+  def findIgnore(clazz: Class[_]): Boolean = {
+    if (hasTopicSubscription(clazz)) hasIgnoreForTopic(clazz)
+    else if (hasEventSourcedEntitySubscription(clazz)) hasIgnoreForEventSourcedEntity(clazz)
+    else false
   }
 
   def jwtMethodOptions(javaMethod: Method): JwtMethodOptions = {
@@ -106,18 +170,33 @@ private[impl] object ComponentDescriptorFactory {
   def eventingInForEventSourcedEntity(javaMethod: Method): Eventing = {
     val entityType = findEventSourcedEntityType(javaMethod)
     val eventSource = EventSource.newBuilder().setEventSourcedEntity(entityType).build()
+    // ignore in method must be always false
+    Eventing.newBuilder().setIn(eventSource).build()
+  }
+
+  def eventingInForEventSourcedEntity(clazz: Class[_]): Eventing = {
+    val entityType = findEventSourcedEntityType(clazz)
+    val eventSource = EventSource.newBuilder().setEventSourcedEntity(entityType).build()
     Eventing.newBuilder().setIn(eventSource).build()
   }
 
   def eventingInForTopic(javaMethod: Method): Eventing = {
-    val topicName = findSubTopicName(javaMethod)
-    val consumerGroup = findSubConsumerGroup(javaMethod)
+    val topicName = findSubscriptionTopicName(javaMethod)
+    val consumerGroup = findSubscriptionConsumerGroup(javaMethod)
     val eventSource = EventSource.newBuilder().setTopic(topicName).setConsumerGroup(consumerGroup).build()
     Eventing.newBuilder().setIn(eventSource).build()
   }
 
+  def eventingInForTopic(clazz: Class[_]): Eventing = {
+    val topicName = findSubscriptionTopicName(clazz)
+    val consumerGroup = findSubscriptionConsumerGroup(clazz)
+    val eventSource =
+      EventSource.newBuilder().setTopic(topicName).setConsumerGroup(consumerGroup).build()
+    Eventing.newBuilder().setIn(eventSource).build()
+  }
+
   def eventingOutForTopic(javaMethod: Method): Eventing = {
-    val topicName = findPubTopicName(javaMethod)
+    val topicName = findPublicationTopicName(javaMethod)
     val eventSource = EventDestination.newBuilder().setTopic(topicName).build()
     Eventing.newBuilder().setOut(eventSource).build()
   }
@@ -147,9 +226,9 @@ private[impl] object ComponentDescriptorFactory {
   }
 
   def combineByES(
-      componentName: String,
       subscriptions: Seq[KalixMethod],
-      messageCodec: SpringSdkMessageCodec): Seq[KalixMethod] = {
+      messageCodec: SpringSdkMessageCodec,
+      component: Class[_]): Seq[KalixMethod] = {
     def groupByES(methods: Seq[KalixMethod]): Map[String, Seq[KalixMethod]] = {
       val withEventSourcedIn = methods.filter(kalixMethod =>
         kalixMethod.methodOptions.exists(option =>
@@ -157,7 +236,6 @@ private[impl] object ComponentDescriptorFactory {
       //Assuming there is only one eventing.in annotation per method, therefore head is as good as any other
       withEventSourcedIn.groupBy(m => m.methodOptions.head.getEventing.getIn.getEventSourcedEntity)
     }
-
     groupByES(subscriptions).collect {
       case (eventSourcedEntity, kMethods) if kMethods.size > 1 =>
         val methodsMap =
@@ -170,9 +248,10 @@ private[impl] object ComponentDescriptorFactory {
             (typeUrl, k.serviceMethod.javaMethodOpt.get)
           }.toMap
 
+        val subscriptions = kMethods.map(_.serviceMethod.asInstanceOf[SubscriptionServiceMethod])
         KalixMethod(
           CombinedSubscriptionServiceMethod(
-            componentName,
+            component.getName,
             "KalixSyntheticMethodOnES" + eventSourcedEntity.capitalize,
             methodsMap))
           .withKalixOptions(kMethods.head.methodOptions)
@@ -186,7 +265,6 @@ private[impl] object ComponentDescriptorFactory {
       kalix.MethodOptions.newBuilder().setJwt(jwtMethodOptions(method)).build()
     }
   }
-
 }
 
 private[impl] trait ComponentDescriptorFactory {

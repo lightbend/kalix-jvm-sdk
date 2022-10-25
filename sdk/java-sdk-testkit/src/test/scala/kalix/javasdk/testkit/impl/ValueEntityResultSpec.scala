@@ -16,7 +16,7 @@
 
 package kalix.javasdk.testkit.impl
 
-import kalix.javasdk.impl.DeferredCallImpl
+import kalix.javasdk.impl.GrpcDeferredCall
 import kalix.javasdk.impl.MetadataImpl
 import kalix.javasdk.impl.action.ActionEffectImpl
 import kalix.javasdk.impl.effect.SideEffectImpl
@@ -32,7 +32,7 @@ class ValueEntityResultSpec extends AnyWordSpec with Matchers {
         new ValueEntityEffectImpl()
           .reply("reply")
           .addSideEffects(SideEffectImpl(
-            DeferredCallImpl[String, Any]("request", MetadataImpl.Empty, "full.service.Name", "MethodName", () => ???),
+            GrpcDeferredCall[String, Any]("request", MetadataImpl.Empty, "full.service.Name", "MethodName", () => ???),
             synchronous = false)))
 
       replyWithSideEffectResult.isReply() should ===(true)
@@ -41,7 +41,7 @@ class ValueEntityResultSpec extends AnyWordSpec with Matchers {
 
     "extract forward details" in {
       val forwardResult = new ValueEntityResultImpl[String](new ValueEntityEffectImpl().forward(
-        DeferredCallImpl[String, String]("request", MetadataImpl.Empty, "full.service.Name", "MethodName", () => ???)))
+        GrpcDeferredCall[String, String]("request", MetadataImpl.Empty, "full.service.Name", "MethodName", () => ???)))
 
       forwardResult.isForward() should ===(true)
       forwardResult.getForward().getMessage should ===("request")

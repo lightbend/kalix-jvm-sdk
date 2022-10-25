@@ -22,8 +22,6 @@ import kalix.springsdk.KalixClient;
 import kalix.springsdk.KalixConfigurationTest;
 import kalix.springsdk.annotations.Subscribe;
 import org.springframework.context.annotation.Import;
-
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
 @Import(KalixConfigurationTest.class)

@@ -18,7 +18,7 @@ package kalix.javasdk.testkit.impl
 
 import kalix.javasdk.SideEffect
 import kalix.javasdk.eventsourcedentity.EventSourcedEntity
-import kalix.javasdk.impl.DeferredCallImpl
+import kalix.javasdk.impl.GrpcDeferredCall
 import kalix.javasdk.impl.effect.ErrorReplyImpl
 import kalix.javasdk.impl.effect.ForwardReplyImpl
 import kalix.javasdk.impl.effect.MessageReplyImpl
@@ -61,7 +61,7 @@ private[kalix] object EventSourcedResultImpl {
   private def toDeferredCallDetails(sideEffects: Vector[SideEffect]): JList[DeferredCallDetails[_, _]] = {
     sideEffects
       .map { sideEffect =>
-        TestKitDeferredCall(sideEffect.call.asInstanceOf[DeferredCallImpl[_, _]])
+        TestKitDeferredCall(sideEffect.call.asInstanceOf[GrpcDeferredCall[_, _]])
           .asInstanceOf[DeferredCallDetails[_, _]] // java List is invariant in type
       }
       .toList
@@ -105,8 +105,8 @@ private[kalix] final class EventSourcedResultImpl[R, S](
   override def isForward: Boolean = secondaryEffect.isInstanceOf[ForwardReplyImpl[_]]
 
   override def getForward: DeferredCallDetails[_, R] = secondaryEffect match {
-    case ForwardReplyImpl(deferredCall: DeferredCallImpl[_, _], _) =>
-      TestKitDeferredCall(deferredCall.asInstanceOf[DeferredCallImpl[_, R]])
+    case ForwardReplyImpl(deferredCall: GrpcDeferredCall[_, _], _) =>
+      TestKitDeferredCall(deferredCall.asInstanceOf[GrpcDeferredCall[_, R]])
     case _ => throw new IllegalStateException(s"The effect was not a forward but [$secondaryEffectName]")
   }
 

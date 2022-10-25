@@ -148,6 +148,15 @@ public abstract class Action {
        * @param <S> The type of the message that must be returned by this call.
        */
       <S> Effect<S> asyncEffect(CompletionStage<Effect<S>> futureEffect);
+
+      /**
+       * Ignore the current element and proceed with processing the next element if returned for an
+       * element from eventing in. If used as a response to a regular gRPC or HTTP request it is turned
+       * into a NotFound response.
+       * 
+       * Ignore is not allowed to have side effects added with `addSideEffects`
+       */
+      <S> Effect<S> ignore();
     }
 
     /**

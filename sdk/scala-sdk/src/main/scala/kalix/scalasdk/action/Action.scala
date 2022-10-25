@@ -16,7 +16,6 @@
 
 package kalix.scalasdk.action
 
-import scala.collection.immutable.Seq
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 
@@ -146,6 +145,13 @@ object Action {
        */
       def asyncEffect[S](futureEffect: Future[Action.Effect[S]]): Action.Effect[S]
 
+      /**
+       * Ignore the current element and proceed with processing the next element if returned for an element from
+       * eventing in. If used as a response to a regular gRPC or HTTP request it is turned into a NotFound response.
+       *
+       * Ignore is not allowed to have side effects added with `addSideEffects`
+       */
+      def ignore[S]: Action.Effect[S]
     }
   }
 }

@@ -8,17 +8,20 @@ java-sdk:
   - sdk/java-sdk-testkit/**/*
   - maven-java/**/*
   - codegen/java-gen/**/*
+  - samples/java-*/**/*
 
 scala-sdk:
   - sdk/scala-sdk/**/*
   - sdk/scala-sdk-testkit/**/*
   - sbt-plugin/**/*
   - codegen/scala-gen/**/*
+  - samples/scala-*/**/*
+
 
 spring-sdk:
   - sdk/spring-sdk/**/*
   - sdk/spring-sdk-testkit/**/*
+  - samples/spring-*/**/*
 
 Documentation:
   - docs/**/*
-  - samples/**/*

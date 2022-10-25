@@ -18,7 +18,7 @@ package kalix.javasdk.tck.model.replicatedentity;
 
 import kalix.javasdk.DeferredCall;
 import kalix.javasdk.SideEffect;
-import kalix.javasdk.impl.DeferredCallImpl;
+import kalix.javasdk.impl.GrpcDeferredCall;
 import kalix.javasdk.impl.InternalContext;
 import kalix.javasdk.impl.MetadataImpl;
 import kalix.replicatedentity.ReplicatedData;
@@ -361,7 +361,7 @@ public class ReplicatedEntityTckModelEntity extends ReplicatedEntity<ReplicatedD
     // return components().replicatedEntityTwoAction().call(Request.newBuilder().setId(id).build());
 
     Request request = Request.newBuilder().setId(id).build();
-    return new DeferredCallImpl<>(
+    return new GrpcDeferredCall<>(
         request,
         MetadataImpl.Empty(),
         "kalix.tck.model.replicatedentity.ReplicatedEntityTwo",

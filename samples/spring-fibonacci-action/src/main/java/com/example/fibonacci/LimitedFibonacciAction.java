@@ -29,9 +29,9 @@ public class LimitedFibonacciAction extends Action {
             return effects().error("Only numbers between 0 and 10k are allowed", Status.Code.INVALID_ARGUMENT);
         } else {
             logger.info("Executing GET call to real /fibonacci = " + number);
-            var serviceCall = kalixClient.get("/fibonacci/"+number+"/next", Number.class).execute();
+            var serviceCall = kalixClient.get("/fibonacci/"+number+"/next", Number.class);
 
-            return effects().asyncReply(serviceCall);
+            return effects().forward(serviceCall);
         }
     }
 
@@ -41,9 +41,9 @@ public class LimitedFibonacciAction extends Action {
             return effects().error("Only numbers between 0 and 10k are allowed", Status.Code.INVALID_ARGUMENT);
         } else {
             logger.info("Executing POST call to real /fibonacci = " + number.value());
-            var serviceCall = kalixClient.post("/fibonacci/next", number, Number.class).execute();
+            var serviceCall = kalixClient.post("/fibonacci/next", number, Number.class);
 
-            return effects().asyncReply(serviceCall);
+            return effects().forward(serviceCall);
         }
     }
 }
