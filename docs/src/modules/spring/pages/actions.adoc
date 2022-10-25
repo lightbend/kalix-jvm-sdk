@@ -31,11 +31,9 @@ next number and builds a reply using `effects().reply()`.
 
 === Multiple replies / reply streaming
 
-An Action may return data conditionally by marking the return type as `stream` in Protobuf. The Java method implementing
-that service must return an https://doc.akka.io/docs/akka/current/stream/stream-flows-and-basics.html[Akka Streams Source]
-to fulfill that contract.
+An Action may return a stream of integers. To do this you need by marking the return type as `reactor.core.publisher.Flux<Effect<Integer>>`. 
 
-The Source may publish an arbitrary number of replies.
+The stream may publish an arbitrary number of replies.
 
 ifdef::todo[TODO: add a streamed Fib series calculation]
 
