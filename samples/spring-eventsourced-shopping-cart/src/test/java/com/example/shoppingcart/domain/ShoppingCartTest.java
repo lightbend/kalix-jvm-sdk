@@ -1,6 +1,6 @@
 package com.example.shoppingcart.domain;
 
-import com.example.shoppingcart.ShoppingCartService;
+import com.example.shoppingcart.ShoppingCartEntity;
 import kalix.javasdk.testkit.EventSourcedResult;
 import kalix.springsdk.testkit.EventSourcedTestKit;
 import org.junit.jupiter.api.Test;
@@ -18,7 +18,7 @@ public class ShoppingCartTest {
   @Test
   public void testAddLineItem() {
 
-    EventSourcedTestKit<ShoppingCart, ShoppingCartService> testKit = EventSourcedTestKit.of(ShoppingCartService::new); // <1>
+    EventSourcedTestKit<ShoppingCart, ShoppingCartEntity> testKit = EventSourcedTestKit.of(ShoppingCartEntity::new); // <1>
     {
       EventSourcedResult<String> result = testKit.call(e -> e.addItem(akkaTshirt)); // <2>
       assertEquals("OK", result.getReply()); // <3>
@@ -34,7 +34,7 @@ public class ShoppingCartTest {
 
     {
       assertEquals(testKit.getAllEvents().size(), 2); // <6>
-      EventSourcedResult<ShoppingCart> result = testKit.call(ShoppingCartService::getCart); // <7>
+      EventSourcedResult<ShoppingCart> result = testKit.call(ShoppingCartEntity::getCart); // <7>
       assertEquals(new ShoppingCart("testkit-entity-id", List.of(akkaTshirt.withQuantity(15))), result.getReply());
     }
 

@@ -14,13 +14,13 @@ import java.util.Collections;
 // tag::class[]
 @Entity(entityKey = "cartId", entityType = "shopping-cart") // <2>
 @RequestMapping("/cart/{cartId}") // <3>
-public class ShoppingCartService extends EventSourcedEntity<ShoppingCart> { // <1>
+public class ShoppingCartEntity extends EventSourcedEntity<ShoppingCart> { // <1>
   // end::class[]
 
 // tag::getCart[]
   private final String entityId;
 
-  public ShoppingCartService(EventSourcedEntityContext context) {
+  public ShoppingCartEntity(EventSourcedEntityContext context) {
     this.entityId = context.entityId(); // <1>
   }
 
