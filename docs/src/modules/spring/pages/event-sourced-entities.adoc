@@ -29,7 +29,7 @@ include::example$spring-eventsourced-shopping-cart/src/main/java/com/example/sho
 <1> Our `ShoppingCart` is fairly simple, being composed only by a `cartId` and a list of line items.
 <2> A `LineItem` represents a single product and the quantity we intend to buy.
 
-NOTE: Above we are taking advantage of the Java `record` to reduce the amount of boilerplate code, but you can use regular classes so long as they can be serialized.
+NOTE: Above we are taking advantage of the Java `record` to reduce the amount of boilerplate code, but you can use regular classes so long as they can be serialized to JSON (e.g. using Jackson annotations).
 
 Another fundamental aspect of our entity will be its domain events. For now, we will have 3 different events `ItemAdded`, `ItemRemoved` and `CheckedOut`, defined as below:
 
@@ -41,6 +41,8 @@ include::example$spring-eventsourced-shopping-cart/src/main/java/com/example/sho
 <1> Include logical type name as JSON property "type."
 <2> Declare subtypes of the serializable polymorphic type `ShoppingCartEvent` associating logical names with each.
 <3> The 3 types of event all derive from the same type `ShoppingCartEvent`.
+
+IMPORTANT: The use of logical names for subtypes is essential for maintainability purposes. Since that information is persisted, failing to do so might lead to the use a FQCN preventing the application from correctly deserialize the events in case of a package change.
 
 == Implementing behavior
 
@@ -63,7 +65,7 @@ include::example$spring-eventsourced-shopping-cart/src/main/java/com/example/sho
 <3> Make use of Spring's RequestMapping annotation to define the routes to your entity.
 
 
-NOTE: The entity key `cartId` must match a path parameter (i.e. `cartId`) and such value needs to be unique per entity. On the other hand, the entity type `shopping-cart` is common for all instances of this entity but should be unique across the different entity types.
+NOTE: The entity key `cartId` must match a path parameter (i.e. `cartId`) and such value needs to be unique per entity. On the other hand, the entity type `shopping-cart` is common for all instances of this entity but must be stable - cannot be changed after a production deploy - and unique across the different entity types.
 
 
 
@@ -81,7 +83,7 @@ include::example$spring-eventsourced-shopping-cart/src/main/java/com/example/sho
 <1> The validation ensures the quantity of items added is greater than zero and it fails for calls with illegal values by returning an `Effect` with `effects().error`.
 <2> From the current incoming `LineItem` we create a new `ItemAdded` event representing the change of the cart.
 <3> We store the event by returning an `Effect` with `effects().emitEvent`.
-<4> The acknowledgment that the command was successfully processed is only sent if the event was successfully stored, otherwise there will be an error reply.
+<4> The acknowledgment that the command was successfully processed is only sent if the event was successfully stored and processed, otherwise there will be an error reply. The lambda parameter `newState` gives us access to the new state returned by the processing of such event.
 <5> Event handler needs to be marked with `@EventHandler` and receive a single parameter type matching the event type produced (i.e. `ItemAdded`).
 <6> Return the new state to be stored - the logic for state transition is defined inside the `ShoppingCart` domain model.
 
@@ -100,8 +102,6 @@ include::example$spring-eventsourced-shopping-cart/src/main/java/com/example/sho
 <3> Adds the update item to the shopping cart.
 <4> Returns a new instance of the shopping cart with the updated line items.
 
-- the `emptyState()` override is optional. If not using it, be careful to deal with a currentState() with a `null` value when receiving the first command
-
 
 === Retrieving state
 
@@ -113,7 +113,7 @@ To have access to the current state of the entity we can use `currentState()` as
 include::example$spring-eventsourced-shopping-cart/src/main/java/com/example/shoppingcart/ShoppingCartEntity.java[tag=getCart]
 ----
 <1> Stores the `entityId` on an internal attribute so we can use it later.
-<2> Provides initial state --overriding `emptyState()` is optional but if not doing it, be careful to deal with a currentState() with a `null` value when receiving the first command.
+<2> Provides initial state - overriding `emptyState()` is optional but if not doing it, be careful to deal with a currentState() with a `null` value when receiving the first command or event.
 <3> Marks this method as a command handler for `GET` requests.
 <4> Returns the current state as reply for the request.
 
@@ -143,7 +143,7 @@ include::example$spring-eventsourced-shopping-cart/src/test/java/com/example/sho
 
 *EventSourcedResult*
 
-Calling a command handler through the TestKit gives us back an link:{attachmentsdir}/testkit/kalix/javasdk/testkit/EventSourcedResult.html[`EventSourcedResult` {tab-icon}, window="new"]. This class has methods that we can use to assert of handling the command, such as:
+Calling a command handler through the TestKit gives us back an link:{attachmentsdir}/testkit/kalix/javasdk/testkit/EventSourcedResult.html[`EventSourcedResult` {tab-icon}, window="new"]. This class has methods that we can use to assert the handling of the command, such as:
 
 * `getReply()` - the response from the command handler if there was one, if not an, exception is thrown, failing the test.
 * `getAllEvents()` - all the events emitted by handling the command.
