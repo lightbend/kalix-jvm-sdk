@@ -39,10 +39,15 @@ attributes:
 		> "${java_managed_partials}/attributes.adoc"
 	echo ":java-version: 11" \
 		>> "${java_managed_partials}/attributes.adoc"
+	echo ":spring-java-version: 17" \
+		>> "${java_managed_partials}/attributes.adoc"
+	echo ":minimum_docker_version: 19.03" \
+		>> "${java_managed_partials}/attributes.adoc"
 	echo ":java_minimum_sdk_version: 0.7.0" \
 		>> "${java_managed_partials}/attributes.adoc"
 	echo ":console: https://console.kalix.io/" \
 		>> "${java_managed_partials}/attributes.adoc"
+
 	mkdir -p "${spring_managed_partials}"
 	cp "${java_managed_partials}/attributes.adoc" "${spring_managed_partials}/attributes.adoc"
 
@@ -61,8 +66,9 @@ apidocs:
 
 examples:
 	mkdir -p "${java_managed_examples}"
-	rsync -a --exclude-from=.examplesignore ../samples/ "${java_managed_examples}/"
-	rsync -a --exclude-from=.examplesignore ../samples/ "${spring_managed_examples}/"
+	rsync -a --exclude-from=.examplesignore ../samples/java-* "${java_managed_examples}/"
+	rsync -a --exclude-from=.examplesignore ../samples/scala-* "${java_managed_examples}/"
+	rsync -a --exclude-from=.examplesignore ../samples/spring-* "${spring_managed_examples}/"
 
 bundles:
 	bin/bundle.sh --zip "${java_managed_attachments}/java-customer-registry-quickstart.zip" ../samples/java-customer-registry-quickstart
