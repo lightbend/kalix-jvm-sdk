@@ -45,8 +45,14 @@ public class AllCustomersViewImpl extends AbstractAllCustomersView {
   @Override
   public View.UpdateEffect<CustomerApi.Customer> processCustomerNameChanged(
     CustomerApi.Customer state, PublisherApi.NameChanged nameChanged) {
-    log.info("Customer {} created: {}", updateContext().eventSubject(), nameChanged);
-    throw new UnsupportedOperationException("Update handler for 'ProcessCustomerNameChanged' not implemented yet");
+    log.info("Customer {} name changed: {}", updateContext().eventSubject(), nameChanged);
+
+    Timestamp now = Timestamps.fromMillis(Instant.now().toEpochMilli());
+    return effects().updateState(state.toBuilder()
+        .setName(nameChanged.getCustomerName())
+        .setUpdates(1)
+        .setLastUpdate(now)
+        .build());
   }
 }
 
