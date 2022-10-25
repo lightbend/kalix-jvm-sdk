@@ -97,8 +97,8 @@ The list of components are:
 * Replicated Entities
 * xref:spring:views.adoc[Views]
 
-For this "Getting started" walk-through, we will implement the ubiquitous Hello World example. We will use a Kalix
-Action that will receive data from a REST endpoint and respond back with "Hello" message.
+For this *Getting started* walk-through, we will implement the ubiquitous Hello World example. We will use a Kalix
+Action that will receive data from a REST endpoint and respond back with a "Hello" message.
 
 .src/main/java/com/example/HelloAction.java
 [source,java]
