@@ -41,7 +41,11 @@ attributes:
 		>> "${java_managed_partials}/attributes.adoc"
 	echo ":spring-java-version: 17" \
 		>> "${java_managed_partials}/attributes.adoc"
-	echo ":minimum_docker_version: 19.03" \
+	echo ":minimum_maven_version: 3.6" \
+		>> "${java_managed_partials}/attributes.adoc"
+	echo ":minimum_sbt_version: 1.3.6" \
+    	>> "${java_managed_partials}/attributes.adoc"
+	echo ":minimum_docker_version: 20.10.14" \
 		>> "${java_managed_partials}/attributes.adoc"
 	echo ":java_minimum_sdk_version: 0.7.0" \
 		>> "${java_managed_partials}/attributes.adoc"
