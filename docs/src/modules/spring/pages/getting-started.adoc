@@ -80,7 +80,7 @@ it finds in the classpath.
 .src/main/java/com/example/Main.java
 [source,java]
 ----
-include::example$spring-hello-world-action/src/main/java/com/example/Main.java[tag=main]
+include::example$spring-valueentity-counter/src/main/java/com/example/Main.java[tag=main]
 ----
 <1> Main class is annotated with `@SpringBootApplication`
 <2> Import `KalixConfiguration`
@@ -100,16 +100,16 @@ The list of components are:
 For this *Getting started* walk-through, we will implement a Counter based on a Value Entity. It's a simple counter
 that receives commands to increase the counter.
 
-.src/main/java/com/example/counter/CounterEntity.java
+.src/main/java/com/example/CounterEntity.java
 [source,java]
 ----
-include::example$spring-valueentity-counter/src/main/java/com/example/counter/CounterEntity.java[]
+include::example$spring-valueentity-counter/src/main/java/com/example/CounterEntity.java[]
 ----
 <1> Since this is an entity, we must annotate it with `@Entity` and indicate which path variable
 should be used as `entityKey` as well as how we want to name the `entityType`
 <2> The `CounterEntity` class should extend `kalix.javasdk.valueentity.ValueEntity`.
 <3> The initial state of each counter is defined as 0.
-<4> The method is accessible as a POST endpoint on `/counter/{id}/increase`, where `id` will be its unique identifier.
+<4> The method is accessible as a POST endpoint on `/counter/\{id\}/increase`, where `id` will be its unique identifier.
 Note that it matches the `entityKey` value.
 <5> Its `increaseBy` method receives a `Number` as input and increases the counter by adding it to the current state.
 <6> Finally, using the Effect API, we instruct Kalix to persist the new state, and we build a reply.
@@ -117,10 +117,10 @@ Note that it matches the `entityKey` value.
 The `Number` record in this example is used as input for the `increaseBy` method and as to return the
 counter's current state.
 
-.src/main/java/com/example/counter/Number.java
+.src/main/java/com/example/Number.java
 [source,java]
 ----
-include::example$spring-valueentity-counter/src/main/java/com/example/counter/Number.java[]
+include::example$spring-valueentity-counter/src/main/java/com/example/Number.java[]
 ----
 
 [sidebar]

@@ -10,9 +10,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 public class CounterEntity extends ValueEntity<Integer> {  // <2>
 
   @Override
-  public Integer emptyState() { return 0; }                   // <3>
+  public Integer emptyState() { return 0; }                  // <3>
 
-  @PostMapping("/counter/{id}/increase")                   // <4>
+  @PostMapping("/counter/{id}/increase")                     // <4>
   public Effect<Number> increaseBy(@RequestBody Number increaseBy) {
     int newCounter = currentState() + increaseBy.value();    // <5>
     return effects()
