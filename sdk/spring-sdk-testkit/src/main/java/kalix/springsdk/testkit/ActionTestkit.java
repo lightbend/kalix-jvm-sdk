@@ -76,7 +76,7 @@ public class ActionTestkit<A extends Action> {
   }
 
   /**
-   * The {@code stream} method can be used to simulate a call to the Action. That passed java lambda should
+   * The {@code stream} method can be used to simulate a streamed call to the Action. The passed java lambda should
    * return an Flux<Action.Effect>. The Flux<Effect> is interpreted into an Flux<ActionResult> that can be used in
    * test assertions.
    *
