@@ -10,7 +10,7 @@ next number in the Fibonacci series.
 
 To implement this action you need the following:
 
-- Extend our class from `kalix.javasdk.action.Action`. This is generic. No matter what action you want to create you always need to extend from link:{attachmentsdir}/testkit/kalix/javasdk/action/Action.html[`Action` {tab-icon}, window="new"]. The rest is specific to this case
+- Extend our class from `kalix.javasdk.action.Action`. This is generic. No matter what action you want to create you always need to extend from link:{attachmentsdir}/testkit/kalix/javasdk/action/Action.html[`Action` {tab-icon}, window="new"].
 - Add the Spring annotation @RequestMapping to provide a REST endpoint for the function. Here the stateless function should be reachable via HTTP.
 - Add the Spring annotations @GetMapping and @PostMapping to provide paths for GET and POST to calculate the Fibonacci of a number. Both functions do the same thing and implementation-wise the function exposed with GET calls the function exposed with POST.  
 
