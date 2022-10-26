@@ -164,7 +164,7 @@ Start the application locally with the following command:
 mvn compile spring-boot:run
 ----
 
-With both the proxy and your application running, any defined endpoints should be available at `http://localhost:9000`,
+With both the proxy and your application running, any defined endpoints should be available at `localhost:9000`,
 the proxy local address.
 
 [source, command window]
