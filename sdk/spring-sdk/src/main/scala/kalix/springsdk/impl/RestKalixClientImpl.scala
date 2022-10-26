@@ -16,7 +16,6 @@
 
 package kalix.springsdk.impl
 
-import akka.http.scaladsl.model.Uri.Path
 import akka.http.scaladsl.model.{ HttpMethod, HttpMethods, Uri }
 import com.google.protobuf.{ Descriptors, DynamicMessage }
 import com.google.protobuf.any.Any

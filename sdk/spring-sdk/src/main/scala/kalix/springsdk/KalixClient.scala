@@ -30,8 +30,7 @@ trait KalixClient {
    *
    * Example of use on a cross-component call:
    * {{{
-   *     @GetMapping("/{number}/next")
-   *     public Effect<Number> nextNumber(@PathVariable Long number) {
+   *     public Effect<Number> nextNumber(Long number) {
    *       var serviceCall = kalixClient.get("/fibonacci/"+number+"/next", Number.class);
    *       return effects().forward(serviceCall);
    *     }
@@ -55,8 +54,7 @@ trait KalixClient {
    *
    * Example of use:
    * {{{
-   *     @PostMapping("/next")
-   *     public Effect<Number> nextNumber(@RequestBody Number number) {
+   *     public Effect<Number> nextNumber(Number number) {
    *       var serviceCall = kalixClient.post("/fibonacci/next", number, Number.class);
    *       return effects().forward(serviceCall);
    *     }
@@ -82,10 +80,9 @@ trait KalixClient {
    * Provides utility to do a PUT HTTP request to a target endpoint belonging to a Kalix component. Such endpoint is
    * identified by a resource path (i.e. excluding authority and scheme).
    *
-   * Example of use: TODO fix sample here
+   * Example of use:
    * {{{
-   *     @PutMapping("/next")
-   *     public Effect<Number> nextNumber(@RequestBody Number number) {
+   *     public Effect<Number> nextNumber(Number number) {
    *       var serviceCall = kalixClient.put("/fibonacci/next", number, Number.class);
    *       return effects().forward(serviceCall);
    *     }
@@ -111,11 +108,10 @@ trait KalixClient {
    * Provides utility to do a PATCH HTTP request to a target endpoint belonging to a Kalix component. Such endpoint is
    * identified by a resource path (i.e. excluding authority and scheme).
    *
-   * Example of use: TODO fix sample here
+   * Example of use:
    * {{{
-   *     @PutMapping("/next")
-   *     public Effect<Number> nextNumber(@RequestBody Number number) {
-   *       var serviceCall = kalixClient.put("/fibonacci/next", number, Number.class);
+   *     public Effect<User> createUser(String email) {
+   *       var serviceCall = kalixClient.patch("/user/" + user.id + "/email", email, User.class);
    *       return effects().forward(serviceCall);
    *     }
    * }}}
@@ -140,11 +136,10 @@ trait KalixClient {
    * Provides utility to do a DELETE HTTP request to a target endpoint belonging to a Kalix component. Such endpoint is
    * identified by a resource path (i.e. excluding authority and scheme).
    *
-   * Example of use: TODO fix sample here
+   * Example of use:
    * {{{
-   *     @PutMapping("/next")
-   *     public Effect<Number> nextNumber(@RequestBody Number number) {
-   *       var serviceCall = kalixClient.put("/fibonacci/next", number, Number.class);
+   *     public Effect<String> deleteUser(@RequestBody String userId) {
+   *       var serviceCall = kalixClient.delete("/user/"+userId, "", String.class);
    *       return effects().forward(serviceCall);
    *     }
    * }}}
