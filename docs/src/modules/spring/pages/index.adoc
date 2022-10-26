@@ -33,7 +33,7 @@ As the Spring SDK is more recent than their gRPC-first counterparts, not all fea
 * xref:spring:views.adoc[Views]
 * xref:spring:actions-publishing-subscribing.adoc[Publishing and Subscribing to Topics]
 * xref:spring:timers.adoc[Timers]
-* Testkit for Unit Tests and Integration Tests  
+* Test kit for Unit Tests and Integration Tests  
 
 
 == Getting Started
