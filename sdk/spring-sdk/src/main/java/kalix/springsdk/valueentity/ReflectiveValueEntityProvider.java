@@ -23,7 +23,7 @@ import kalix.javasdk.valueentity.ValueEntity;
 import kalix.javasdk.valueentity.ValueEntityContext;
 import kalix.javasdk.valueentity.ValueEntityOptions;
 import kalix.javasdk.valueentity.ValueEntityProvider;
-import kalix.springsdk.annotations.Entity;
+import kalix.springsdk.annotations.EntityType;
 import kalix.springsdk.impl.ComponentDescriptor;
 import kalix.springsdk.impl.SpringSdkMessageCodec;
 import kalix.springsdk.impl.valueentity.ReflectiveValueEntityRouter;
@@ -54,12 +54,12 @@ public class ReflectiveValueEntityProvider<S, E extends ValueEntity<S>>
       Function<ValueEntityContext, E> factory,
       ValueEntityOptions options) {
 
-    Entity annotation = entityClass.getAnnotation(Entity.class);
+    EntityType annotation = entityClass.getAnnotation(EntityType.class);
     if (annotation == null)
       throw new IllegalArgumentException(
-          "Value Entity [" + entityClass.getName() + "] is missing '@Entity' annotation");
+          "Value Entity [" + entityClass.getName() + "] is missing '@EntityType' annotation");
 
-    this.entityType = annotation.entityType();
+    this.entityType = annotation.value();
 
     this.factory = factory;
     this.options = options;

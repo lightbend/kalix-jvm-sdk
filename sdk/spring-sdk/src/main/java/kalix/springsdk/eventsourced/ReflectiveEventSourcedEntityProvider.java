@@ -23,7 +23,7 @@ import kalix.javasdk.eventsourcedentity.EventSourcedEntityOptions;
 import kalix.javasdk.eventsourcedentity.EventSourcedEntityProvider;
 import kalix.javasdk.impl.MessageCodec;
 import kalix.javasdk.impl.eventsourcedentity.EventSourcedEntityRouter;
-import kalix.springsdk.annotations.Entity;
+import kalix.springsdk.annotations.EntityType;
 import kalix.springsdk.impl.ComponentDescriptor;
 import kalix.springsdk.impl.SpringSdkMessageCodec;
 import kalix.springsdk.impl.eventsourcedentity.EventSourcedHandlersExtractor;
@@ -61,10 +61,10 @@ public class ReflectiveEventSourcedEntityProvider<S, E extends EventSourcedEntit
       Function<EventSourcedEntityContext, E> factory,
       EventSourcedEntityOptions options) {
 
-    Entity annotation = entityClass.getAnnotation(Entity.class);
+    EntityType annotation = entityClass.getAnnotation(EntityType.class);
     if (annotation == null)
       throw new IllegalArgumentException(
-          "Event Sourced Entity [" + entityClass.getName() + "] is missing '@Entity' annotation");
+          "Event Sourced Entity [" + entityClass.getName() + "] is missing '@EntityType' annotation");
 
     this.eventHandlers = EventSourcedHandlersExtractor.handlersFrom(entityClass);
     if (this.eventHandlers.errors().nonEmpty()) {
@@ -75,7 +75,7 @@ public class ReflectiveEventSourcedEntityProvider<S, E extends EventSourcedEntit
               + this.eventHandlers.errors());
     }
 
-    this.entityType = annotation.entityType();
+    this.entityType = annotation.value();
     this.factory = factory;
     this.options = options;
     this.messageCodec = messageCodec;

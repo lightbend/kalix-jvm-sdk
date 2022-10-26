@@ -28,7 +28,7 @@ private[impl] object EntityDescriptorFactory extends ComponentDescriptorFactory 
       component: Class[_],
       messageCodec: SpringSdkMessageCodec,
       nameGenerator: NameGenerator): ComponentDescriptor = {
-    val entityKeys = component.getAnnotation(classOf[Entity]).entityKey()
+    val entityKeys = component.getAnnotation(classOf[Entity]).value()
 
     val kalixMethods =
       RestServiceIntrospector.inspectService(component).methods.map { restMethod =>

@@ -19,6 +19,7 @@ package com.example.wiring.eventsourcedentities.counter;
 import kalix.javasdk.eventsourcedentity.EventSourcedEntity;
 import kalix.javasdk.eventsourcedentity.EventSourcedEntityContext;
 import kalix.springsdk.annotations.Entity;
+import kalix.springsdk.annotations.EntityType;
 import kalix.springsdk.annotations.EventHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,7 +28,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-@Entity(entityKey = "id", entityType = "counter")
+@Entity("id")
+@EntityType("counter")
 @RequestMapping("/counter/{id}")
 public class CounterEntity extends EventSourcedEntity<Counter> {
 

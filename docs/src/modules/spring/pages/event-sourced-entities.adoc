@@ -60,11 +60,13 @@ Let's have a look at what our shopping cart entity will look like for the first 
 include::example$spring-eventsourced-shopping-cart/src/main/java/com/example/shoppingcart/ShoppingCartEntity.java[tag=class]
 ----
 <1> Create a class that extends `EventSourcedEntity<S>`, where `S` is the state type this entity will store (i.e. `ShoppingCart`).
-<2> Make sure to annotate such class with `@Entity` and pass in an `entityKey` and an `entityType`.
-<3> Make use of Spring's RequestMapping annotation to define the routes to your entity.
+<2> Make sure to annotate such class with `@EntityKey`  and pass name of the path param that will be used as the
+entity unique identifier.
+<3> Make sure to annotate such class with `@EntityType` and pass a unique name for this entity type.
+<4> Make use of Spring's RequestMapping annotation to define the routes to your entity.
 
 
-NOTE: The entity key `cartId` must match a path parameter (i.e. `cartId`) and such value needs to be unique per entity. On the other hand, the entity type `shopping-cart` is common for all instances of this entity but must be stable - cannot be changed after a production deploy - and unique across the different entity types.
+NOTE: The EntityKey `cartId` must match a path parameter (i.e. `cartId`) and such value needs to be unique per entity. On the other hand, the EntityType `shopping-cart` is common for all instances of this entity but must be stable - cannot be changed after a production deploy - and unique across the different entity types.
 
 
 

@@ -17,7 +17,8 @@
 package com.example;
 
 import kalix.javasdk.eventsourcedentity.EventSourcedEntity;
-import kalix.springsdk.annotations.Entity;
+import kalix.springsdk.annotations.EntityKey;
+import kalix.springsdk.annotations.EntityType;
 import kalix.springsdk.annotations.EventHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,7 +30,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import static com.example.CounterEvent.ValueIncreased;
 import static com.example.CounterEvent.ValueMultiplied;
 
-@Entity(entityKey = "id", entityType = "counter")
+@EntityKey("id")
+@EntityType("counter")
 @RequestMapping("/counter/{id}")
 public class Counter extends EventSourcedEntity<Integer> {
 

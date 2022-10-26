@@ -2,13 +2,15 @@ package customer.api;
 
 import kalix.javasdk.eventsourcedentity.EventSourcedEntity;
 import kalix.javasdk.eventsourcedentity.EventSourcedEntityContext;
-import kalix.springsdk.annotations.Entity;
+import kalix.springsdk.annotations.EntityKey;
+import kalix.springsdk.annotations.EntityType;
 import kalix.springsdk.annotations.EventHandler;
 import org.springframework.web.bind.annotation.*;
 
 import static customer.api.CustomerEvent.*;
 
-@Entity(entityKey = "id", entityType = "customer")
+@EntityKey("id")
+@EntityType("customer")
 @RequestMapping("/customer/{id}")
 public class CustomerEntity extends EventSourcedEntity<Customer> {
 

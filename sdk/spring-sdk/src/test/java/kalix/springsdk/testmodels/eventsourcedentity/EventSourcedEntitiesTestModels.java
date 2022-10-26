@@ -17,15 +17,13 @@
 package kalix.springsdk.testmodels.eventsourcedentity;
 
 import kalix.javasdk.eventsourcedentity.EventSourcedEntity;
-import kalix.springsdk.annotations.Acl;
-import kalix.springsdk.annotations.Entity;
-import kalix.springsdk.annotations.EventHandler;
-import kalix.springsdk.annotations.JWT;
+import kalix.springsdk.annotations.*;
 import org.springframework.web.bind.annotation.*;
 
 public class EventSourcedEntitiesTestModels {
 
-  @Entity(entityKey = "id", entityType = "employee")
+  @Entity("id")
+  @EntityType("employee")
   @RequestMapping("/employee/{id}")
   public static class EmployeeEntity extends EventSourcedEntity<Employee> {
 
@@ -43,7 +41,8 @@ public class EventSourcedEntitiesTestModels {
     }
   }
 
-  @Entity(entityKey = "id", entityType = "counter")
+  @Entity("id")
+  @EntityType("counter")
   @RequestMapping("/eventsourced/{id}")
   public static class CounterEventSourcedEntity extends EventSourcedEntity<Integer> {
 
@@ -76,7 +75,8 @@ public class EventSourcedEntitiesTestModels {
     }
   }
 
-  @Entity(entityKey = "id", entityType = "counter")
+  @Entity("id")
+  @EntityType("counter")
   @RequestMapping("/eventsourced/{id}")
   public static class CounterEventSourcedEntityWithJWT extends EventSourcedEntity<Integer> {
 
@@ -99,7 +99,8 @@ public class EventSourcedEntitiesTestModels {
     }
   }
 
-  @Entity(entityKey = "id", entityType = "counter")
+  @Entity("id")
+  @EntityType("counter")
   public static class ErrorDuplicatedEventsEntity extends EventSourcedEntity<Integer> {
 
     @EventHandler
@@ -118,7 +119,8 @@ public class EventSourcedEntitiesTestModels {
     }
   }
 
-  @Entity(entityKey = "id", entityType = "counter")
+  @Entity("id")
+  @EntityType("counter")
   public static class ErrorWrongSignaturesEntity extends EventSourcedEntity<Integer> {
 
     @EventHandler
@@ -132,14 +134,16 @@ public class EventSourcedEntitiesTestModels {
     }
   }
 
-  @Entity(entityKey = "id", entityType = "counter")
+  @Entity("id")
+  @EntityType("counter")
   @Acl(allow = @Acl.Matcher(service = "test"))
   public static class EventSourcedEntityWithServiceLevelAcl extends EventSourcedEntity<Integer> {
 
   }
 
 
-  @Entity(entityKey = "id", entityType = "counter")
+  @Entity("id")
+  @EntityType("counter")
   @RequestMapping("/employee/{id}")
   public static class EventSourcedEntityWithMethodLevelAcl extends EventSourcedEntity<Integer> {
     @PostMapping
