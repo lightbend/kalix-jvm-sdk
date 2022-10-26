@@ -48,6 +48,7 @@ object KalixTestKit {
     def withStopTimeout(timeout: FiniteDuration): Settings = new Settings(jSettings.withStopTimeout(timeout.toJava))
     def withServiceName(name: String): Settings = new Settings(jSettings.withServiceName(name))
     def withAclDisabled(): Settings = new Settings(jSettings.withAclDisabled())
+    def withAclEnabled(): Settings = new Settings(jSettings.withAclEnabled())
   }
 
   val DefaultSettings: Settings = new Settings(JTestKit.Settings.DEFAULT)
