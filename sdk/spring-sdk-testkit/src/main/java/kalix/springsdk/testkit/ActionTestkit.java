@@ -62,7 +62,7 @@ public class ActionTestkit<A extends Action> {
   }
 
   /**
-   * The {@code call} method can be used to simulate a call to the Action. That passed java lambda should
+   * The {@code call} method can be used to simulate a unary call to the Action. The passed java lambda should
    * return an Action.Effect. The Effect is interpreted into an ActionResult that can be used in
    * test assertions.
    *
