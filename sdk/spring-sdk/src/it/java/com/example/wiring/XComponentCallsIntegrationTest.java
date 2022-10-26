@@ -118,4 +118,35 @@ public class XComponentCallsIntegrationTest {
     Assertions.assertEquals("\"Ok from put\"", userCreation);
   }
 
+  @Test
+  public void verifyKalixClientUsingPatchMethod() {
+
+    User u1 = new User("mary@patch.com", "MayPatch");
+    String userCreation =
+        webClient
+            .put()
+            .uri("/validuser/MayPatch/" + u1.email + "/" + u1.name)
+            .retrieve()
+            .bodyToMono(String.class)
+            .block(timeout);
+    Assertions.assertEquals("\"Ok from put\"", userCreation);
+
+    String userUpdate =
+        webClient
+            .patch()
+            .uri("/validuser/MayPatch/email/" + "new"+u1.email)
+            .retrieve()
+            .bodyToMono(String.class)
+            .block(timeout);
+    Assertions.assertEquals("\"Ok from patch\"", userUpdate);
+
+    User userGetResponse =
+        webClient
+            .get()
+            .uri("/user/MayPatch")
+            .retrieve()
+            .bodyToMono(User.class)
+            .block(timeout);
+    Assertions.assertEquals("new"+u1.email, userGetResponse.email);
+  }
 }

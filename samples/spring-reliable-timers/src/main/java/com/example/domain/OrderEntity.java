@@ -22,7 +22,7 @@ public class OrderEntity extends ValueEntity<Order> {
     return new Order(entityId, false, false, "", 0);
   }
 
-  @PostMapping("/place")
+  @PutMapping("/place")
   public Effect<Order> placeOrder(@PathVariable String id, @RequestBody OrderRequest orderRequest) {
     var newOrder = new Order(id, false, true, orderRequest.item(), orderRequest.quantity());
     return effects()

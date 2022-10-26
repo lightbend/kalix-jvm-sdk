@@ -20,6 +20,7 @@ import io.grpc.Status;
 import kalix.javasdk.action.Action;
 import kalix.javasdk.action.ActionCreationContext;
 import kalix.springsdk.KalixClient;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -41,6 +42,15 @@ public class ValidateUserAction extends Action {
       return effects().error("No field can be empty", Status.Code.INVALID_ARGUMENT);
 
     var defCall = kalixClient.put("/user/" + user + "/" + email + "/" + name, "", String.class);
+    return effects().forward(defCall);
+  }
+
+  @PatchMapping("/email/{email}")
+  public Action.Effect<String> updateEmail(@PathVariable String user, @PathVariable String email) {
+    if (email.isEmpty())
+      return effects().error("No field can be empty", Status.Code.INVALID_ARGUMENT);
+
+    var defCall = kalixClient.patch("/user/" + user + "/email/" + email, "", String.class);
     return effects().forward(defCall);
   }
 }
