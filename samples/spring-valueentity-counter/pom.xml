@@ -3,11 +3,11 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>com.example</groupId>
-  <artifactId>hello-world</artifactId>
+  <artifactId>spring-valueentity-counter</artifactId>
   <version>1.0-SNAPSHOT</version>
   <packaging>jar</packaging>
 
-  <name>hello-world</name>
+  <name>spring-valueentity-counter</name>
   <properties>
 
     <!-- TODO Update to your own Docker repository or Docker Hub scope -->
@@ -91,7 +91,7 @@
               <name>${dockerImage}:%l</name>
               <build>
                 <!-- Base Docker image which contains jre-->
-                <from>docker.io/library/eclipse-temurin:${D}{jdk.target}-alpine</from>
+                <from>docker.io/library/eclipse-temurin:${jdk.target}-alpine</from>
                 <createImageOptions>
                   <platform>linux/amd64</platform>
                 </createImageOptions>

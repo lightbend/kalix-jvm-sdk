@@ -1,4 +1,4 @@
-# hello-world
+# spring-valueentity-counter
 
 
 
@@ -32,9 +32,25 @@ To start the application locally, the `exec-maven-plugin` is used. Use the follo
 mvn spring-boot:run
 ```
 
-With both the proxy and your application running, once you have defined endpoints they should be available at `http://localhost:9000`. 
+
+For further details see [Running a service locally](https://docs.kalix.io/developing/running-service-locally.html) in the documentation.
 
 
+## Exercise the service
+
+With both the proxy and your application running, any defined endpoints should be available at `http://localhost:9000`, 
+the proxy local address.
+
+```shell
+curl -XPOST -H "Content-Type: application/json" localhost:9000/counter/foo/increase -d '{ "value": 10 }'
+```
+
+```shell
+curl localhost:9000/counter/foo
+```
+
+
+## Deploying
 
 To deploy your service, install the `kalix` CLI as documented in
 [Setting up a local development environment](https://docs.kalix.io/setting-up/)

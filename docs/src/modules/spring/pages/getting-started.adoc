@@ -97,25 +97,39 @@ The list of components are:
 * Replicated Entities
 * xref:spring:views.adoc[Views]
 
-For this *Getting started* walk-through, we will implement the ubiquitous Hello World example. We will use a Kalix
-Action that will receive data from a REST endpoint and respond back with a "Hello" message.
+For this *Getting started* walk-through, we will implement a Counter based on a Value Entity. It's a simple counter
+that receives commands to increase the counter.
 
-.src/main/java/com/example/HelloAction.java
+.src/main/java/com/example/counter/CounterEntity.java
 [source,java]
 ----
-include::example$spring-hello-world-action/src/main/java/com/example/HelloAction.java[tag=hello]
+include::example$spring-valueentity-counter/src/main/java/com/example/counter/CounterEntity.java[]
 ----
-<1> The `HelloAction` class should extend `kalix.javasdk.action.Action`.
-<2> Its `hello` method is annotated with a Spring REST annotation for a `GET`.
-<3> Finally, we use the Effects API to construct a reply Effect.
+<1> Since this is an entity, we must annotate it with `@Entity` and indicate which path variable
+should be used as `entityKey` as well as how we want to name the `entityType`
+<2> The `CounterEntity` class should extend `kalix.javasdk.valueentity.ValueEntity`.
+<3> The initial state of each counter is defined as 0.
+<4> The method is accessible as a POST endpoint on `/counter/{id}/increase`, where `id` will be its unique identifier.
+Note that it matches the `entityKey` value.
+<5> Its `increaseBy` method receives a `Number` as input and increases the counter by adding it to the current state.
+<6> Finally, using the Effect API, we instruct Kalix to persist the new state, and we build a reply.
+
+The `Number` record in this example is used as input for the `increaseBy` method and as to return the
+counter's current state.
+
+.src/main/java/com/example/counter/Number.java
+[source,java]
+----
+include::example$spring-valueentity-counter/src/main/java/com/example/counter/Number.java[]
+----
 
 [sidebar]
 A Kalix component doesn't require any other annotation. They will be registered to Kalix and be exposed automatically.
-It suffices to add them on the same package or on a sub-package of you `Main` class. Please, refer to
+It suffices to add them on the same package or on a sub-package of your `Main` class. Please, refer to
 xref:spring:dependency-injection.adoc[Dependency injection] page for more details on how Kalix components integrates
 with Spring's application context.
 
-The project also includes a dependency on the *Kalix Spring SDK Testkit*. Please consult the component specific pages to
+The project also includes a dependency on the *Kalix Spring SDK Test Kit*. Please consult the component specific pages to
 learn more about writing unit tests and integration tests for your application.
 
 == Package service
@@ -131,7 +145,6 @@ mvn package
 ----
 
 TIP: For more details see xref:spring:development-process-spring.adoc#_package_service[Development Process - Package service].
-
 
 == Run locally
 
@@ -149,6 +162,14 @@ Start the application locally with the following command:
 [source,bash]
 ----
 mvn compile spring-boot:run
+----
+
+With both the proxy and your application running, any defined endpoints should be available at `http://localhost:9000`,
+the proxy local address.
+
+[source, command window]
+----
+curl -XPOST -H "Content-Type: application/json" localhost:9000/counter/foo/increase -d '{ "value": 10 }'
 ----
 
 == Deploy to Kalix
