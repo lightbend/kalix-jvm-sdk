@@ -23,6 +23,7 @@ import kalix.javasdk.testkit.ActionResult;
 import kalix.javasdk.testkit.MockRegistry;
 import kalix.javasdk.testkit.impl.ActionResultImpl;
 import kalix.javasdk.testkit.impl.TestKitActionContext;
+import reactor.core.publisher.Flux;
 
 import java.util.Optional;
 import java.util.function.Function;
@@ -35,7 +36,7 @@ import java.util.function.Supplier;
  * ActionTestkit.of} methods. The returned testkit can be used as many times as you want. It doesn't
  * preserve any state between invocations.
  *
- * <p>Use the {@code call} methods to interact with the testkit.
+ * <p>Use the {@code call or stream} methods to interact with the testkit.
  */
 public class ActionTestkit<A extends Action> {
 
@@ -61,7 +62,7 @@ public class ActionTestkit<A extends Action> {
   }
 
   /**
-   * The call method can be used to simulate a call to the Action. That passed java lambda should
+   * The {@code call} method can be used to simulate a unary call to the Action. The passed java lambda should
    * return an Action.Effect. The Effect is interpreted into an ActionResult that can be used in
    * test assertions.
    *
@@ -72,5 +73,20 @@ public class ActionTestkit<A extends Action> {
   public <R> ActionResult<R> call(Function<A, Action.Effect<R>> func) {
     TestKitActionContext context = new TestKitActionContext(Metadata.EMPTY, MockRegistry.EMPTY);
     return new ActionResultImpl<>(func.apply(createAction(context)));
+  }
+
+  /**
+   * The {@code stream} method can be used to simulate a streamed call to the Action. The passed java lambda should
+   * return a Flux<Action.Effect>. The Flux<Effect> is interpreted into an Flux<ActionResult> that can be used in
+   * test assertions.
+   *
+   * @param func A function from Flux<Action.Effect> to a Flux<ActionResult<R>>
+   * @return a Flux<ActionResult<R>>
+   * @param <R> The type of reply that is expected from invoking a command handler
+   */
+  public <R> Flux<ActionResult<R>> stream(Function<A, Flux<Action.Effect<R>>> func){
+    TestKitActionContext var2 = new TestKitActionContext(Metadata.EMPTY, MockRegistry.EMPTY);
+    Flux<Action.Effect<R>> res =  func.apply(this.createAction(var2));
+    return res.map( i -> new ActionResultImpl<R>(i));
   }
 }
