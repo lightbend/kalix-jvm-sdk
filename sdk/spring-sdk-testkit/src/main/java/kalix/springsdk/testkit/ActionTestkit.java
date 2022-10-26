@@ -81,7 +81,7 @@ public class ActionTestkit<A extends Action> {
    * test assertions.
    *
    * @param func A function from Flux<Action.Effect> to a Flux<ActionResult<R>>
-   * @return an Flux<ActionResult<R>>
+   * @return a Flux<ActionResult<R>>
    * @param <R> The type of reply that is expected from invoking a command handler
    */
   public <R> Flux<ActionResult<R>> stream(Function<A, Flux<Action.Effect<R>>> func){
