@@ -16,12 +16,11 @@
 
 package com.example.wiring.valueentities.user;
 
+import io.grpc.Status;
 import kalix.javasdk.valueentity.ValueEntity;
 import kalix.javasdk.valueentity.ValueEntityContext;
 import kalix.springsdk.annotations.Entity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 @Entity(entityKey = "id", entityType = "user")
 @RequestMapping("/user/{id}")
@@ -33,8 +32,31 @@ public class UserEntity extends ValueEntity<User> {
     this.context = context;
   }
 
+  @GetMapping
+  public Effect<User> getUser() {
+    if (currentState() == null)
+      return effects().error("User not found", Status.Code.NOT_FOUND);
+
+    return effects().reply(currentState());
+  }
+
   @PostMapping("/{email}/{name}")
   public Effect<String> createOrUpdateUser(@PathVariable String email, @PathVariable String name) {
     return effects().updateState(new User(email, name)).thenReply("Ok");
+  }
+
+  @PutMapping("/{email}/{name}")
+  public Effect<String> createUser(@PathVariable String email, @PathVariable String name) {
+    return effects().updateState(new User(email, name)).thenReply("Ok from put");
+  }
+
+  @PatchMapping("/email/{email}")
+  public Effect<String> createUser(@PathVariable String email) {
+    return effects().updateState(new User(email, currentState().name)).thenReply("Ok from patch");
+  }
+
+  @DeleteMapping
+  public Effect<String> deleteUser() {
+    return effects().deleteState().thenReply("Ok from delete");
   }
 }

@@ -60,7 +60,7 @@ public class OrderAction extends Action {
         orderId);
     // tag::place-order[]
 
-    var request = kalixClient.post("/order/"+orderId+"/place", orderRequest, Order.class); // <6>
+    var request = kalixClient.put("/order/"+orderId+"/place", orderRequest, Order.class); // <6>
     return effects().asyncReply( // <7>
         timerRegistration
             .thenCompose(done -> request.execute())
