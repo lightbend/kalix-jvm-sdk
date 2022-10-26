@@ -424,3 +424,5 @@ lazy val sbtPlugin = Project(id = "sbt-kalix", base = file("sbt-plugin"))
     },
     scriptedBufferLog := false)
   .dependsOn(codegenScala)
+
+addCommandAlias("formatAll", "scalafmtAll; javafmtAll")
