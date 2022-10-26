@@ -1,1 +1,1 @@
-= Dependency Injection with Spring
+= Dependency Injection

@@ -37,7 +37,7 @@ Actions are stateless functions that can be triggered by HTTP calls. They can al
 Stateful services encapsulate business logic in Value Entities or Event Sourced Entities. At runtime, command messages invoke operations on Entities. A command may only act on one Entity at a time.
 
 
-TIP: To learn more about Kalix entities see xref:spring:value-entity.adoc[Implementing Value Entities], xref:spring:eventsourced.adoc[Implementing Event Sourced Entities], and xref:spring:replicated-entity.adoc[Implementing Replicated Entities].
+TIP: To learn more about Kalix entities see xref:spring:value-entity.adoc[Implementing Value Entities] and xref:spring:eventsourced.adoc[Implementing Event Sourced Entities].
 
 If you would like to update multiple Entities from a single command, you can use forwarding and side effects.
 
@@ -45,13 +45,6 @@ TIP: For more information see xref:spring:actions-as-controller.adoc[Actions as 
 
 Services can interact asynchronously with other services and with external systems. Event Sourced Entities emit events to a journal, to which other services can subscribe. By configuring your own publish/subscribe (pub/sub) mechanism, any service can publish their own events and subscribe to events published by other services or external systems.
 
-For more details and examples take a look at the following topics:
-
-* xref:spring:value-entity.adoc[Value Entities]
-* xref:spring:eventsourced.adoc[Event Sourced Entities]
-* xref:spring:replicated-entity.adoc[Replicated Entities]
-* xref:spring:actions.adoc[Actions]
-* xref:spring:views.adoc[Views]
 
 [#_create_unit_tests]
 == Testing your application

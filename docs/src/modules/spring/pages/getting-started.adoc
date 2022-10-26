@@ -9,7 +9,7 @@ The Kalix development tools help you to get started quickly. They include:
 
 * A *Maven archetype* that generates the recommended project structure. The generated project is a regular Spring Boot project with a few configurations to integrate it seamlessly with Kalix.
 
-* A *Maven plugin* to help you in deploy your application to Kalix.
+* A *Maven plugin* to help you deploy your application to Kalix.
 
 The generated project also contains configuration for packaging and deploying the service.
 
@@ -106,7 +106,7 @@ Action that will receive data from a REST endpoint and respond back with a "Hell
 include::example$spring-hello-world-action/src/main/java/com/example/HelloAction.java[tag=hello]
 ----
 <1> The `HelloAction` class should extend `kalix.javasdk.action.Action`.
-<2> It's `hello` method is annotated with a Spring REST annotation for a `GET`.
+<2> Its `hello` method is annotated with a Spring REST annotation for a `GET`.
 <3> Finally, we use the Effects API to construct a reply Effect.
 
 [sidebar]
