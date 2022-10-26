@@ -10,9 +10,9 @@ Vale's configuration is stored in the `.vale.ini` file located in the root direc
 
 ### Styles
 
-Our Vale [styles](https://docs.errata.ai/vale/styles) are stored in the `.github/styles` directory. These styles get packaged together and are enforced by the Vale CLI.
+Our Vale [styles](https://docs.errata.ai/vale/styles) are stored in the [styles](styles) directory. These styles get packaged together and are enforced by the Vale CLI.
 
-Words normally flagged by Vale that we wish to use anyway are stored in `.github/styles/vocab.txt`.
+Words normally flagged by Vale that we wish to use anyway are stored in [styles/Vocab/Base/accept.txt](styles/Vocab/Base/accept.txt).
 
 ## Vale in CI using GitHub Actions
 
