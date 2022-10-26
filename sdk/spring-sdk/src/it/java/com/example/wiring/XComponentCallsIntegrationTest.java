@@ -29,6 +29,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 
 import java.time.Duration;
 
@@ -148,5 +149,45 @@ public class XComponentCallsIntegrationTest {
             .bodyToMono(User.class)
             .block(timeout);
     Assertions.assertEquals("new"+u1.email, userGetResponse.email);
+  }
+
+  @Test
+  public void verifyKalixClientUsingDeleteMethod() {
+
+    User u1 = new User("mary@delete.com", "MayDelete");
+    String userCreation =
+        webClient
+            .put()
+            .uri("/validuser/MayDelete/" + u1.email + "/" + u1.name)
+            .retrieve()
+            .bodyToMono(String.class)
+            .block(timeout);
+    Assertions.assertEquals("\"Ok from put\"", userCreation);
+
+    User userGetResponse =
+        webClient
+            .get()
+            .uri("/user/MayDelete")
+            .retrieve()
+            .bodyToMono(User.class)
+            .block(timeout);
+    Assertions.assertEquals(u1.email, userGetResponse.email);
+
+    String userDelete =
+        webClient
+            .delete()
+            .uri("/validuser/MayDelete")
+            .retrieve()
+            .bodyToMono(String.class)
+            .block(timeout);
+    Assertions.assertEquals("\"Ok from delete\"", userDelete);
+
+    var userGetResponse2 =
+        webClient
+            .get()
+            .uri("/user/MayDelete")
+            .exchangeToMono(clientResponse -> Mono.just(clientResponse.statusCode()))
+            .block(timeout);
+    Assertions.assertEquals(404, userGetResponse2.value());
   }
 }

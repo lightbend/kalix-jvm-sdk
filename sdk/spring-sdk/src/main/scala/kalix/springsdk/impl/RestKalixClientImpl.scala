@@ -28,7 +28,7 @@ import kalix.springsdk.KalixClient
 import kalix.springsdk.impl.http.HttpEndpointMethodDefinition
 import kalix.springsdk.impl.http.HttpEndpointMethodDefinition.ANY_METHOD
 import org.slf4j.{ Logger, LoggerFactory }
-import org.springframework.http.{ HttpHeaders, MediaType }
+import org.springframework.http.{ HttpHeaders, HttpMethod => SpringHttpMethod, MediaType }
 import org.springframework.web.reactive.function.client.WebClient
 
 import java.util.concurrent.CompletionStage
@@ -95,7 +95,7 @@ final class RestKalixClientImpl(messageCodec: SpringSdkMessageCodec) extends Kal
     services ++= HttpEndpointMethodDefinition.extractForService(descriptor)
   }
 
-  def buildWrappedBody[P](
+  private def buildWrappedBody[P](
       httpDef: HttpEndpointMethodDefinition,
       inputBuilder: DynamicMessage.Builder,
       body: Option[P] = None): Any = {
@@ -112,7 +112,7 @@ final class RestKalixClientImpl(messageCodec: SpringSdkMessageCodec) extends Kal
       inputBuilder.build().toByteString)
   }
 
-  def get[R](uriStr: String, returnType: Class[R]): DeferredCall[Any, R] = {
+  override def get[R](uriStr: String, returnType: Class[R]): DeferredCall[Any, R] = {
     matchMethodOrThrow(HttpMethods.GET, uriStr) { httpDef =>
       requestToRestDefCall(
         uriStr,
@@ -131,7 +131,7 @@ final class RestKalixClientImpl(messageCodec: SpringSdkMessageCodec) extends Kal
     }
   }
 
-  def post[P, R](uriStr: String, body: P, returnType: Class[R]): DeferredCall[Any, R] = {
+  override def post[P, R](uriStr: String, body: P, returnType: Class[R]): DeferredCall[Any, R] = {
     matchMethodOrThrow(HttpMethods.POST, uriStr) { httpDef =>
       requestToRestDefCall(
         uriStr,
@@ -150,7 +150,7 @@ final class RestKalixClientImpl(messageCodec: SpringSdkMessageCodec) extends Kal
     }
   }
 
-  def put[P, R](uriStr: String, body: P, returnType: Class[R]): DeferredCall[Any, R] = {
+  override def put[P, R](uriStr: String, body: P, returnType: Class[R]): DeferredCall[Any, R] = {
     matchMethodOrThrow(HttpMethods.PUT, uriStr) { httpDef =>
       requestToRestDefCall(
         uriStr,
@@ -169,7 +169,7 @@ final class RestKalixClientImpl(messageCodec: SpringSdkMessageCodec) extends Kal
     }
   }
 
-  def patch[P, R](uriStr: String, body: P, returnType: Class[R]): DeferredCall[Any, R] = {
+  override def patch[P, R](uriStr: String, body: P, returnType: Class[R]): DeferredCall[Any, R] = {
     matchMethodOrThrow(HttpMethods.PATCH, uriStr) { httpDef =>
       requestToRestDefCall(
         uriStr,
@@ -178,6 +178,25 @@ final class RestKalixClientImpl(messageCodec: SpringSdkMessageCodec) extends Kal
         () =>
           webClient.flatMap {
             _.patch()
+              .uri(uriStr)
+              .bodyValue(body)
+              .retrieve()
+              .bodyToMono(returnType)
+              .toFuture
+              .asScala
+          }.asJava)
+    }
+  }
+
+  override def delete[P, R](uriStr: String, body: P, returnType: Class[R]): DeferredCall[Any, R] = {
+    matchMethodOrThrow(HttpMethods.DELETE, uriStr) { httpDef =>
+      requestToRestDefCall(
+        uriStr,
+        Some(body),
+        httpDef,
+        () =>
+          webClient.flatMap {
+            _.method(SpringHttpMethod.DELETE)
               .uri(uriStr)
               .bodyValue(body)
               .retrieve()

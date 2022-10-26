@@ -16,6 +16,7 @@
 
 package com.example.wiring.valueentities.user;
 
+import io.grpc.Status;
 import kalix.javasdk.valueentity.ValueEntity;
 import kalix.javasdk.valueentity.ValueEntityContext;
 import kalix.springsdk.annotations.Entity;
@@ -33,6 +34,9 @@ public class UserEntity extends ValueEntity<User> {
 
   @GetMapping
   public Effect<User> getUser() {
+    if (currentState() == null)
+      return effects().error("User not found", Status.Code.NOT_FOUND);
+
     return effects().reply(currentState());
   }
 
@@ -49,5 +53,10 @@ public class UserEntity extends ValueEntity<User> {
   @PatchMapping("/email/{email}")
   public Effect<String> createUser(@PathVariable String email) {
     return effects().updateState(new User(email, currentState().name)).thenReply("Ok from patch");
+  }
+
+  @DeleteMapping
+  public Effect<String> deleteUser() {
+    return effects().deleteState().thenReply("Ok from delete");
   }
 }

@@ -135,4 +135,33 @@ trait KalixClient {
    *   a [[kalix.javasdk.DeferredCall]] to be used in forwards and timers or to be executed in place
    */
   def patch[P, R](uri: String, body: P, returnType: Class[R]): DeferredCall[Any, R]
+
+  /**
+   * Provides utility to do a DELETE HTTP request to a target endpoint belonging to a Kalix component. Such endpoint is
+   * identified by a resource path (i.e. excluding authority and scheme).
+   *
+   * Example of use: TODO fix sample here
+   * {{{
+   *     @PutMapping("/next")
+   *     public Effect<Number> nextNumber(@RequestBody Number number) {
+   *       var serviceCall = kalixClient.put("/fibonacci/next", number, Number.class);
+   *       return effects().forward(serviceCall);
+   *     }
+   * }}}
+   *
+   * @param uri
+   *   The resource path where the target endpoint will be reached at. Query parameters can be passed in as part of the
+   *   URI but should be encoded if containing special characters.
+   * @param body
+   *   The HTTP body type expected by the target endpoint
+   * @param returnType
+   *   The type returned by the target endpoint
+   * @tparam P
+   *   Type used as a body for the request
+   * @tparam R
+   *   Type returned as response from the target endpoint
+   * @return
+   *   a [[kalix.javasdk.DeferredCall]] to be used in forwards and timers or to be executed in place
+   */
+  def delete[P, R](uri: String, body: P, returnType: Class[R]): DeferredCall[Any, R]
 }
