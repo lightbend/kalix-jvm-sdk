@@ -38,10 +38,6 @@ The stream may publish an arbitrary number of replies.
 ifdef::todo[TODO: add a streamed Fib series calculation]
 
 
-== Creating the Main
-
-TODO: create Main docs and add partial here
-
 == Testing the Action
 
 
