@@ -1,1 +1,96 @@
-= Publishing and Subscribing
+= Publishing and Subscribing with Actions
+
+include::ROOT:partial$include.adoc[]
+
+A very common use case when building Microservices is to publish and subscribe to a stream of events. The source of events can be the journal of an event sourced entity, the value entity state changes, a https://cloud.google.com/pubsub/docs/overview[Google Cloud Pub/Sub] or Apache Kafka topic for asynchronous messaging between services.
+
+With Actions you can:
+
+- subscribe to events emitted by an event sourced entity within the same service.
+- subscribe to state changes emitted by a value entity within the same service.
+- subscribe to events from Event Sourced Entities published as xref:service-to-service.adoc[service to service eventing]
+- subscribe to external events from https://cloud.google.com/pubsub/docs/overview[Google Cloud Pub/Sub] or Apache Kafka.
+- publish events to a Google Cloud Pub/Sub or Apache Kafka topic.
+
+Messages are guaranteed to be delivered at least once. This means that receivers must be able to handle duplicate messages.
+
+== Subscribing to Event Sourced Events
+
+You can subscribe an Action to event from an Event Source Entity. To receive messages from the entity, annotate a service method @Subscribe.EventSourcedEntity and specify the class of the entity.
+
+You can assume the existence of an xref:eventsourced.adoc[Event Sourced] Counter entity that emits events of types: `ValueIncreased` and `ValueDecreased`. 
+
+[source,java,indent=0]
+.src/main/java/com/example/actions/CounterJournalToTopicAction.java
+----
+include::example$spring-eventsourced-counter/src/main/java/com/example/actions/CounterJournalToTopicAction.java[tag=pubsub-action]
+----
+<3> subscribing to the events from the Counter
+<4> publishing to a topic name 'increasedTopic'
+<5> filtering the subscription to only ValueIncreased events
+
+The events from the entity are delivered to the Action. The implementation may vary, for this simplified example we are just logging it, but it could a forward to some other component or external service.
+
+== Publishing Entity events to a Topic
+
+You can publish entity events to a topic, you can assuming the existence of the same entity above. You can get the events delivered to an Action by subscribing to the events of that counter, apply some transformation and then published them to a topic.
+
+
+[source,java,indent=0]
+.src/main/java/com/example/actions/CounterJournalToTopicAction.java
+----
+include::example$spring-eventsourced-counter/src/main/java/com/example/actions/CounterJournalToTopicAction.java[tag=pubsub-action]
+----
+<1> subscribing to the events from the Counter
+<2> publishing to a topic name 'increasedTopic'
+<3> filtering the subscription to only ValueIncreased events
+
+== Subscribing to a Topic
+
+It's also possible to subscribe to a Pub/Sub topic. To receive messages from a Pub/Sub topic, annotate a service method @Subscribe.Topic and specify the topic name.
+
+
+For illustration purpose, we can add a second Action that consumes from the Pub Sub topic `counter-events` from the previous example.
+
+The events from the topic are delivered to the Action. The implementation may vary, for this simplified example we are just logging it, but it could a forward to some other component or external service.
+
+[source,java,indent=0]
+.src/main/java/com/example/actions/CounterJournalToTopicAction.java
+----
+include::example$spring-eventsourced-counter/src/main/java/com/example/actions/CounterJournalToTopicAction.java[tag=pubsub-action]
+----
+<6> subscribing to the events from the Counter
+<7> publishing to a topic name 'increasedTopic'
+<8> filtering the subscription to only ValueIncreased events
+
+== Receiving messages from an external Topic
+
+In the example above, we consumed Protobuf messages from a topic that we control ourselves. When consuming an external topic, it's very likely that the message format is not under your control and is not known by Kalix.
+
+In such case, the Action definition should receive a type depending on the type of the message payload. See xref:java:serialization.adoc[Handling Serialization] for more information on how to deal with data formats.
+
+== Subscribing and acting upon
+
+Another possible usage for Actions is to consume events and act upon.
+
+For example, you may consume events from one entity or from a topic, transform to commands and send to an another entity or an external system. This is similar to the usage explained in xref:actions-as-controller.adoc[Actions as Controller], except that the Action is driven by the flow of incoming events instead of external user requests.
+
+
+== Accessing the Entity ID
+
+[.tabset]
+Java::
++
+For many use cases, a subscriber to an event log will trigger other services and needs to pass the entity ID to the receiver. The events of an Event Sourced entity, by design, do not include the entity ID, but it is made available to the subscriber via the metadata field `subject`, accessible through `eventSubject` in the  link:{attachmentsdir}/api/io/kalix/javasdk/action/ActionContext.html[`ActionContext`{tab-icon}, window="new"].
++
+You can access the link:{attachmentsdir}/api/kalix/javasdk/action/ActionContext.html[`ActionContext`{tab-icon}, window="new"] through method `actionContext()`.
+
+
+== Ignoring events
+
+When consuming events, each event must be matched by a Protobuf service method. In case your component is only interested in certain events, you may declare a method to receive all events that are not received by the other methods. If an event type is not handled, the Action will fail. Actions are designed to restart, but since the handler is missing, it will fail again. Therefore, it's important to define methods for all events or define a catch-all method in case you want to discard some events.
+
+
+The `Ignore` method here is defined as a catch-all because it has input type `Any`. Instead of using a catch-all it can be better to define concrete methods for all known event types that should be ignored because then there is no risk of accidentally ignoring events that are added in later evolution of the service.
+
+When adding the `ignore: true` annotation the corresponding implementation is not needed in the component. It is more efficient to use `ignore: true` than implementing the method with an immediate reply.
