@@ -75,6 +75,46 @@ public class EventSourcedEntitiesTestModels {
     }
   }
 
+
+  @EntityType("counter")
+  public static class CounterEventSourcedEntityWithEntityKeyOnMethod extends EventSourcedEntity<Integer> {
+    @EntityKey("id")
+    @GetMapping("/eventsourced/{id}/int/{number}")
+    public Integer getInteger(@PathVariable Integer number) {
+      return number;
+    }
+  }
+
+  @EntityKey("id")
+  @EntityType("counter")
+  public static class CounterEventSourcedEntityWithEntityKeyMethodOverride extends EventSourcedEntity<Integer> {
+
+    @EntityKey("counter_id")
+    @GetMapping("/eventsourced/{counter_id}/int/{number}")
+    public Integer getInteger(@PathVariable Integer number) {
+      return number;
+    }
+  }
+
+  @EntityType("counter")
+  public static class CounterEventSourcedEntityWithEntityKeyGenerator extends EventSourcedEntity<Integer> {
+    @GenerateEntityKey
+    @PutMapping("/eventsourced/int/{number}")
+    public Integer getInteger(@PathVariable Integer number) {
+      return number;
+    }
+  }
+
+  @EntityType("counter")
+  public static class IllDefinedEntityWithEntityKeyGeneratorAndEntityKey extends EventSourcedEntity<Integer> {
+    @GenerateEntityKey
+    @EntityKey("id")
+    @GetMapping("/eventsourced/{id}/int/{number}")
+    public Integer getInteger(@PathVariable Integer number) {
+      return number;
+    }
+  }
+
   @EntityKey("id")
   @EntityType("counter")
   @RequestMapping("/eventsourced/{id}")
