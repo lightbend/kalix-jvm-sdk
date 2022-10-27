@@ -17,14 +17,14 @@
 package kalix.springsdk.testmodels.valueentity;
 
 import kalix.javasdk.valueentity.ValueEntity;
-import kalix.springsdk.annotations.Entity;
+import kalix.springsdk.annotations.EntityKey;
 import kalix.springsdk.annotations.EntityType;
 import kalix.springsdk.testmodels.Done;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-@Entity("id")
+@EntityKey("id")
 @EntityType("user")
 @RequestMapping("/user/{id}")
 public class UserEntity extends ValueEntity<User> {

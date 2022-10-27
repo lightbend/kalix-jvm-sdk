@@ -18,7 +18,7 @@ package kalix.springsdk.testmodels.valueentity;
 
 import kalix.javasdk.valueentity.ValueEntity;
 import kalix.springsdk.annotations.Acl;
-import kalix.springsdk.annotations.Entity;
+import kalix.springsdk.annotations.EntityKey;
 import kalix.springsdk.annotations.EntityType;
 import kalix.springsdk.testmodels.Done;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -27,7 +27,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 public class ValueEntitiesTestModels {
 
-  @Entity( {"userId", "cartId"})
+  @EntityKey( {"userId", "cartId"})
   @EntityType("user")
   @RequestMapping("/user/{userId}/{cartId}")
   public static class PostWithEntityKeys extends ValueEntity<User> {
@@ -42,13 +42,13 @@ public class ValueEntitiesTestModels {
     }
   }
 
-  @Entity( {"userId", "cartId"})
+  @EntityKey( {"userId", "cartId"})
   @EntityType("user")
   @Acl(allow = @Acl.Matcher(service = "test"))
   public static class ValueEntityWithServiceLevelAcl extends ValueEntity<User> {
   }
 
-  @Entity( {"userId", "cartId"})
+  @EntityKey( {"userId", "cartId"})
   @EntityType("user")
   public static class ValueEntityWithMethodLevelAcl extends ValueEntity<User> {
     @PostMapping("/create")

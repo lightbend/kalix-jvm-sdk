@@ -5,7 +5,7 @@ import com.example.shoppingcart.domain.ShoppingCart.LineItem;
 import com.example.shoppingcart.domain.ShoppingCartEvent;
 import kalix.javasdk.eventsourcedentity.EventSourcedEntity;
 import kalix.javasdk.eventsourcedentity.EventSourcedEntityContext;
-import kalix.springsdk.annotations.Entity;
+import kalix.springsdk.annotations.EntityKey;
 import kalix.springsdk.annotations.EntityType;
 import kalix.springsdk.annotations.EventHandler;
 import org.springframework.web.bind.annotation.*;
@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Collections;
 
 // tag::class[]
-@Entity(entityKey = "cartId") // <2>
+@EntityKey("cartId") // <2>
 @EntityType("shopping-cart") // <3>
 @RequestMapping("/cart/{cartId}") // <4>
 public class ShoppingCartEntity extends EventSourcedEntity<ShoppingCart> { // <1>

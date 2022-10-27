@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.*;
 
 public class EventSourcedEntitiesTestModels {
 
-  @Entity("id")
+  @EntityKey("id")
   @EntityType("employee")
   @RequestMapping("/employee/{id}")
   public static class EmployeeEntity extends EventSourcedEntity<Employee> {
@@ -41,7 +41,7 @@ public class EventSourcedEntitiesTestModels {
     }
   }
 
-  @Entity("id")
+  @EntityKey("id")
   @EntityType("counter")
   @RequestMapping("/eventsourced/{id}")
   public static class CounterEventSourcedEntity extends EventSourcedEntity<Integer> {
@@ -75,7 +75,7 @@ public class EventSourcedEntitiesTestModels {
     }
   }
 
-  @Entity("id")
+  @EntityKey("id")
   @EntityType("counter")
   @RequestMapping("/eventsourced/{id}")
   public static class CounterEventSourcedEntityWithJWT extends EventSourcedEntity<Integer> {
@@ -99,7 +99,7 @@ public class EventSourcedEntitiesTestModels {
     }
   }
 
-  @Entity("id")
+  @EntityKey("id")
   @EntityType("counter")
   public static class ErrorDuplicatedEventsEntity extends EventSourcedEntity<Integer> {
 
@@ -119,7 +119,7 @@ public class EventSourcedEntitiesTestModels {
     }
   }
 
-  @Entity("id")
+  @EntityKey("id")
   @EntityType("counter")
   public static class ErrorWrongSignaturesEntity extends EventSourcedEntity<Integer> {
 
@@ -134,7 +134,7 @@ public class EventSourcedEntitiesTestModels {
     }
   }
 
-  @Entity("id")
+  @EntityKey("id")
   @EntityType("counter")
   @Acl(allow = @Acl.Matcher(service = "test"))
   public static class EventSourcedEntityWithServiceLevelAcl extends EventSourcedEntity<Integer> {
@@ -142,7 +142,7 @@ public class EventSourcedEntitiesTestModels {
   }
 
 
-  @Entity("id")
+  @EntityKey("id")
   @EntityType("counter")
   @RequestMapping("/employee/{id}")
   public static class EventSourcedEntityWithMethodLevelAcl extends EventSourcedEntity<Integer> {

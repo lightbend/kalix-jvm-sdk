@@ -18,22 +18,21 @@ package kalix.springsdk.impl
 
 import java.lang.reflect.Method
 import java.lang.reflect.Modifier
+import java.lang.reflect.ParameterizedType
 
-import kalix.MethodOptions
-import kalix.springsdk.annotations.JWT
-import kalix.springsdk.annotations.Table
-import kalix.springsdk.annotations.Entity
-import kalix.springsdk.annotations.EntityType
-import kalix.springsdk.annotations.Publish
-import kalix.springsdk.annotations.Subscribe
-import kalix.springsdk.impl.reflection._
 import kalix.EventDestination
 import kalix.EventSource
 import kalix.Eventing
 import kalix.JwtMethodOptions
+import kalix.MethodOptions
 import kalix.javasdk.action.Action
 import kalix.javasdk.view.View
-import java.lang.reflect.ParameterizedType
+import kalix.springsdk.annotations.EntityType
+import kalix.springsdk.annotations.JWT
+import kalix.springsdk.annotations.Publish
+import kalix.springsdk.annotations.Subscribe
+import kalix.springsdk.annotations.Table
+import kalix.springsdk.impl.reflection._
 
 private[impl] object ComponentDescriptorFactory {
 
@@ -217,7 +216,7 @@ private[impl] object ComponentDescriptorFactory {
   // we should let users know if components are missing required annotations,
   // eg: entities require @Entity, view require @Table and @Subscription
   def getFactoryFor(component: Class[_]): ComponentDescriptorFactory = {
-    if (component.getAnnotation(classOf[Entity]) != null)
+    if (component.getAnnotation(classOf[EntityType]) != null)
       EntityDescriptorFactory
     else if (component.getAnnotation(classOf[Table]) != null)
       ViewDescriptorFactory

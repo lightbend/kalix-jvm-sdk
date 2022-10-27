@@ -19,11 +19,11 @@ package com.example.wiring.valueentities.user;
 import io.grpc.Status;
 import kalix.javasdk.valueentity.ValueEntity;
 import kalix.javasdk.valueentity.ValueEntityContext;
-import kalix.springsdk.annotations.Entity;
+import kalix.springsdk.annotations.EntityKey;
 import kalix.springsdk.annotations.EntityType;
 import org.springframework.web.bind.annotation.*;
 
-@Entity("id")
+@EntityKey("id")
 @EntityType("user")
 @RequestMapping("/user/{id}")
 public class UserEntity extends ValueEntity<User> {

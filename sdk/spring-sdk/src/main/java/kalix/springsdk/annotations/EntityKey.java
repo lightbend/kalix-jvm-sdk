@@ -19,17 +19,15 @@ package kalix.springsdk.annotations;
 import java.lang.annotation.*;
 
 /**
- * Annotation for providing required type and key for any Kalix Entity. <b>Note:</b> can only be
- * used at type level.
+ * Assign a key to the entity.
+ * This should be unique per entity and map to some field being received on the route path.
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-public @interface Entity {
+public @interface EntityKey {
 
   /**
-   * Assign a key to the entity. This should be unique per entity and map to some field being
-   * received on the route path.
    */
   String[] value();
 }

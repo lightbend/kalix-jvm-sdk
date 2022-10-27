@@ -20,8 +20,10 @@ import java.lang.annotation.*;
 
 /**
  * Assign a type to the entity. This name should be unique among the different existing entities
- * within a Kalix application. Additionally, the name should be stable as a different name means a
- * different entity in storage.
+ * within a Kalix application.
+ *
+ * Additionally, the name should be stable as a different name means a different entity in storage. Changing this name
+ * will create a new class of entity and all previous instances using the old name won't be accessible anymore.
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
