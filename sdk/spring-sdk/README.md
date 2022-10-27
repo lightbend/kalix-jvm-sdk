@@ -66,7 +66,7 @@ If you're looking for a working sample of an action, check [samples/spring-fibon
 To define a Value Entity, one will need to do 4 simple steps:
 
 1. create a class that extends `ValueEntity<S>`, where `S` is the state type this entity will store (what might usually be called a domain model class)
-2. make sure to annotate such class with `@EntityKey` and pass name of the path param that will be used as the
+2. make sure to annotate such class with `@EntityKey` and pass name of the path parameter that will be used as the
    entity unique identifier
 3. make sure to annotate such class with `@EntityType` and pass a unique name for this entity type  
 4. make use of Spring's RequestMapping annotation to define the routes to your entity
@@ -127,7 +127,7 @@ If you're looking for a working sample of a value entity, check [samples/spring-
 
 To define an Event-Sourced Entity, be aware of the following aspects:
 1. create a class that extends `EventSourcedEntity<S>`, where `S` is the state type this entity will store (what might usually be called a domain model class)
-2. make sure to annotate such class with `@EntityKey` and pass name of the path param that will be used as the 
+2. make sure to annotate such class with `@EntityKey` and pass name of the path parameter that will be used as the
    entity unique identifier
 3. make sure to annotate such class with `@EntityType` and pass a unique name for this entity type  
 4. make use of Spring's RequestMapping annotation to define the routes to your entity
