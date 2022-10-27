@@ -48,7 +48,7 @@ public class CounterJournalToTopicAction extends Action {
 
     // tag::sub-ESE-pub-topic-action[] 
     @Subscribe.EventSourcedEntity(value = Counter.class) // <1>
-    @Publish.Topic("myTopic") // <2>
+    @Publish.Topic("counter-events") // <2>
     public Action.Effect<CounterEvent> onEntityEventToTopic(CounterEvent event){ // <3>
         if (event instanceof ValueIncreased){
             ValueIncreased vi = new ValueIncreased(((ValueIncreased) event).value() + 1);
@@ -73,7 +73,7 @@ public class CounterJournalToTopicAction extends Action {
     // end::sub-ESE-action[]
 
     // tag::sub-topic-action[]
-    @Subscribe.Topic(value = "myTopic") // <1>
+    @Subscribe.Topic(value = "counter-events") // <1>
     public Action.Effect<Integer> onTopicEvent(CounterEvent event){ // <2>
         if (event instanceof ValueIncreased){
             logger.info("Received increased event: " + event.toString());
