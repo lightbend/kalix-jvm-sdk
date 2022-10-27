@@ -32,6 +32,7 @@ configs
 CRDTs
 Ctrl
 deserialize
+deserialization
 dev
 entity_type
 failover
