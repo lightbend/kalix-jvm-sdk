@@ -51,6 +51,7 @@ interconnectivity
 Initializr
 iss
 JUnit
+JVMs
 jwts
 JWTs
 kafka
