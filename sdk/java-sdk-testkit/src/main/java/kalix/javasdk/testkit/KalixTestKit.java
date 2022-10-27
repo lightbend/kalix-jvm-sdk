@@ -71,7 +71,7 @@ public class KalixTestKit {
      */
     @Deprecated
     public Settings(final Duration stopTimeout) {
-      this(stopTimeout, "self", true);
+      this(stopTimeout, "self", false);
     }
 
     private Settings(
@@ -110,6 +110,15 @@ public class KalixTestKit {
      */
     public Settings withAclDisabled() {
       return new Settings(stopTimeout, serviceName, false);
+    }
+
+    /**
+     * Enable ACL checking in this service.
+     *
+     * @return The updated settings.
+     */
+    public Settings withAclEnabled() {
+      return new Settings(stopTimeout, serviceName, true);
     }
   }
 

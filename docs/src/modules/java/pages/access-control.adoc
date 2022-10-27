@@ -40,7 +40,7 @@ This is the default ACL included in the quickstarts and project templates, it al
 
 Checking the ACLs are in general done for you by Kalix, however in some cases programmatic access to the principal of a call can be useful.
 
-Accessing the principal of a call inside of a service is possible through the request metadata `Metadata.principals()`. The `Metadata` for a call is available through the context (`actionContext`, `commandContext`) of the component.
+Accessing the principal of a call inside a service is possible through the request metadata `Metadata.principals()`. The `Metadata` for a call is available through the context (`actionContext`, `commandContext`) of the component.
 
 == ACLs when running unit tests
 
@@ -48,8 +48,8 @@ In the generated unit test testkits, the ACLs are ignored.
 
 == ACLs when running integration tests
 
-When running integration tests, ACLs are enabled by default but can be explicitly disabled per test by running the test with `Settings.withAclDisabled`.
+When running integration tests, ACLs are disabled by default but can be explicitly enabled per test by running the test with `Settings.withAclEnabled`.
 
 For integration tests that call other services that have ACLs limiting access to specific service names `Settings.withServiceName` allows specifying what the service identifies itself as to other services.
 
-`KalixTestKit.getGrpcClientForPrincipal` makes it possible to get a integration test client that is authenticated with specific credentials for calling a service with ACLs.
+`KalixTestKit.getGrpcClientForPrincipal` makes it possible to get an integration test client that is authenticated with specific credentials for calling a service with ACLs.
