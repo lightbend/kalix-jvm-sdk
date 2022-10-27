@@ -3,11 +3,13 @@ package com.example.domain;
 import io.grpc.Status;
 import kalix.javasdk.valueentity.ValueEntity;
 import kalix.javasdk.valueentity.ValueEntityContext;
-import kalix.springsdk.annotations.Entity;
+import kalix.springsdk.annotations.EntityKey;
+import kalix.springsdk.annotations.EntityType;
 import org.springframework.web.bind.annotation.*;
 
 // tag::order[]
-@Entity(entityType = "order", entityKey = "id")
+@EntityKey("id")
+@EntityType("order")
 @RequestMapping("/order/{id}")
 public class OrderEntity extends ValueEntity<Order> {
 

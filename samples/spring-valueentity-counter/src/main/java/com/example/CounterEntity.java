@@ -1,22 +1,24 @@
 package com.example;
 
 import kalix.javasdk.valueentity.ValueEntity;
-import kalix.springsdk.annotations.Entity;
+import kalix.springsdk.annotations.EntityKey;
+import kalix.springsdk.annotations.EntityType;
 
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-@Entity(entityKey = "id", entityType = "counter")          // <1>
-public class CounterEntity extends ValueEntity<Integer> {  // <2>
+@EntityType("counter")                                     // <1>
+@EntityKey("counter_id")                                   // <2>
+public class CounterEntity extends ValueEntity<Integer> {  // <3>
 
   @Override
-  public Integer emptyState() { return 0; }                  // <3>
+  public Integer emptyState() { return 0; }                  // <4>
 
-  @PostMapping("/counter/{id}/increase")                     // <4>
+  @PostMapping("/counter/{counter_id}/increase")             // <5>
   public Effect<Number> increaseBy(@RequestBody Number increaseBy) {
-    int newCounter = currentState() + increaseBy.value();    // <5>
+    int newCounter = currentState() + increaseBy.value();    // <6>
     return effects()
-        .updateState(newCounter)                             // <6>
+        .updateState(newCounter)                             // <7>
         .thenReply(new Number(newCounter));
   }
 }

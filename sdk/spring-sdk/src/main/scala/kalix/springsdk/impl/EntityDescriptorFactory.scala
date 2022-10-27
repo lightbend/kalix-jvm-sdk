@@ -16,7 +16,7 @@
 
 package kalix.springsdk.impl
 
-import kalix.springsdk.annotations.Entity
+import kalix.springsdk.annotations.EntityKey
 import kalix.springsdk.impl.ComponentDescriptorFactory.buildJWTOptions
 import kalix.springsdk.impl.reflection.KalixMethod
 import kalix.springsdk.impl.reflection.NameGenerator
@@ -28,7 +28,7 @@ private[impl] object EntityDescriptorFactory extends ComponentDescriptorFactory 
       component: Class[_],
       messageCodec: SpringSdkMessageCodec,
       nameGenerator: NameGenerator): ComponentDescriptor = {
-    val entityKeys = component.getAnnotation(classOf[Entity]).entityKey()
+    val entityKeys = component.getAnnotation(classOf[EntityKey]).value()
 
     val kalixMethods =
       RestServiceIntrospector.inspectService(component).methods.map { restMethod =>
