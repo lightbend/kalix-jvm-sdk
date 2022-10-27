@@ -53,7 +53,7 @@ The events from the topic are delivered to the Action and in this simplified exa
 ----
 include::example$spring-eventsourced-counter/src/main/java/com/example/actions/CounterJournalToTopicAction.java[tag=sub-topic-action]
 ----
-<1> subscribing to the events from topic 'myTopic'. 
+<1> subscribing to the events from topic 'counter-events'. 
 <2> setting the method input type to the events produced by the counter.
 <3> any return is valid. See NOTE in Subscribing to an Event Sourced Entity.
 
@@ -84,7 +84,7 @@ To publish the events you need to add the annotation `@Publish.Topic` to the met
 include::example$spring-eventsourced-counter/src/main/java/com/example/actions/CounterJournalToTopicAction.java[tag=sub-ESE-pub-topic-action]
 ----
 <1> subscribing to the events from the Counter.
-<2> publishing to a topic name 'myTopic'.
+<2> publishing to a topic name 'counter-events'.
 <3> setting the method input type to the events produced by the counter.
 <4> any return is valid. See NOTE in Subscribing to an Event Sourced Entity.
 
