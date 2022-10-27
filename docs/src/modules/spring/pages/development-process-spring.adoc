@@ -45,6 +45,10 @@ TIP: For more information see xref:spring:actions-as-controller.adoc[Actions as 
 
 Services can interact asynchronously with other services and with external systems. Event Sourced Entities emit events to a journal, to which other services can subscribe. By configuring your own publish/subscribe (pub/sub) mechanism, any service can publish their own events and subscribe to events published by other services or external systems.
 
+=== Views
+
+A View provides a way to retrieve state from multiple Entities based on a query. You can query non-key data items. You can create views from Value Entity state, Event Sourced Entity events, and by subscribing to topics. For more information about writing actions see xref:spring:views.adoc[Implementing Views].
+
 
 [#_create_unit_tests]
 == Testing your application
