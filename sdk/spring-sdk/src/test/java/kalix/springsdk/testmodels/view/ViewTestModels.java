@@ -247,4 +247,27 @@ public class ViewTestModels {
       return null;
     }
   }
+
+  @Table(value = "users_view")
+  @Subscribe.ValueEntity(UserEntity.class)
+  public static class UserByEmailWithStreamUpdates extends View<User> {
+
+    @Query(value = "SELECT * FROM users_view WHERE email = :email", streamUpdates = true)
+    @PostMapping("/users/by-email")
+    public Flux<User> getUser(@RequestBody ByEmail byEmail) {
+      return null;
+    }
+  }
+
+  @Table(value = "users_view")
+  @Subscribe.ValueEntity(UserEntity.class)
+  public static class IllDefineUserByEmailWithStreamUpdates extends View<User> {
+
+    @Query(value = "SELECT * FROM users_view WHERE email = :email", streamUpdates = true)
+    @PostMapping("/users/by-email")
+    public User getUser(@RequestBody ByEmail byEmail) {
+      return null;
+    }
+  }
+
 }

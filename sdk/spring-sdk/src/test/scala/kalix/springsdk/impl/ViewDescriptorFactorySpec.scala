@@ -18,7 +18,9 @@ package kalix.springsdk.impl
 
 import com.google.protobuf.Descriptors.FieldDescriptor.JavaType
 import kalix.JwtMethodOptions.JwtMethodMode
+import kalix.springsdk.impl.reflection.ServiceIntrospectionException
 import kalix.springsdk.testmodels.subscriptions.PubSubTestModels.SubscribeOnTypeToEventSourcedEventsWithMethodWithState
+import kalix.springsdk.testmodels.view.ViewTestModels.IllDefineUserByEmailWithStreamUpdates
 import kalix.springsdk.testmodels.view.ViewTestModels.SubscribeToEventSourcedEvents
 import kalix.springsdk.testmodels.view.ViewTestModels.SubscribeToEventSourcedEventsWithMethodWithState
 import kalix.springsdk.testmodels.view.ViewTestModels.TransformedUserView
@@ -27,6 +29,7 @@ import kalix.springsdk.testmodels.view.ViewTestModels.TransformedUserViewWithJWT
 import kalix.springsdk.testmodels.view.ViewTestModels.UserByEmailWithGet
 import kalix.springsdk.testmodels.view.ViewTestModels.UserByEmailWithPost
 import kalix.springsdk.testmodels.view.ViewTestModels.UserByEmailWithPostRequestBodyOnly
+import kalix.springsdk.testmodels.view.ViewTestModels.UserByEmailWithStreamUpdates
 import kalix.springsdk.testmodels.view.ViewTestModels.UserByNameEmailWithPost
 import kalix.springsdk.testmodels.view.ViewTestModels.UserByNameStreamed
 import kalix.springsdk.testmodels.view.ViewTestModels.ViewWithMethodLevelAcl
@@ -39,6 +42,7 @@ import org.scalatest.wordspec.AnyWordSpec
 class ViewDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSuite {
 
   "View descriptor factory" should {
+
     "generate ACL annotations at service level" in {
       assertDescriptor[ViewWithServiceLevelAcl] { desc =>
         val extension = desc.serviceDescriptor.getOptions.getExtension(kalix.Annotations.service)
@@ -46,11 +50,31 @@ class ViewDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSuit
         service shouldBe "test"
       }
     }
+
     "generate ACL annotations at method level" in {
       assertDescriptor[ViewWithMethodLevelAcl] { desc =>
         val extension = findKalixMethodOptions(desc, "GetEmployeeByEmail")
         val service = extension.getAcl.getAllow(0).getService
         service shouldBe "test"
+      }
+    }
+
+    "generate query with stream updates enabled" in {
+      assertDescriptor[UserByEmailWithStreamUpdates] { desc =>
+        val queryMethodOptions = this.findKalixMethodOptions(desc, "GetUser")
+        queryMethodOptions.getView.getQuery.getQuery shouldBe "SELECT * FROM users_view WHERE email = :email"
+        queryMethodOptions.getView.getJsonSchema.getOutput shouldBe "User"
+        queryMethodOptions.getView.getJsonSchema.getJsonBodyInputField shouldBe "json_body"
+        queryMethodOptions.getView.getJsonSchema.getInput shouldBe "ByEmail"
+
+        val streamUpdates = queryMethodOptions.getView.getQuery.getStreamUpdates
+        streamUpdates shouldBe true
+      }
+    }
+
+    "fail when using stream updates in unary methods" in {
+      intercept[ServiceIntrospectionException] {
+        descriptorFor[IllDefineUserByEmailWithStreamUpdates]
       }
     }
   }

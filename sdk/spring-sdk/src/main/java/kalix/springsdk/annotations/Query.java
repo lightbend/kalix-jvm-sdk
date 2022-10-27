@@ -34,4 +34,6 @@ public @interface Query {
    * for composition.
    */
   String value();
+
+  boolean streamUpdates() default false;
 }
