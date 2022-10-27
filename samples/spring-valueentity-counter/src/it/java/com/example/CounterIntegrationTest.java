@@ -1,6 +1,5 @@
-package ${package};
+package com.example;
 
-import ${package}.Main;
 import kalix.springsdk.testkit.KalixIntegrationTestKitSupport;
 
 import org.junit.jupiter.api.Assertions;
@@ -10,6 +9,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.reactive.function.client.WebClient;
+
+import java.time.Duration;
+
+import static java.time.temporal.ChronoUnit.SECONDS;
 
 
 /**
@@ -23,14 +26,25 @@ import org.springframework.web.reactive.function.client.WebClient;
  */
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = Main.class)
-public class IntegrationTest extends KalixIntegrationTestKitSupport {
+public class CounterIntegrationTest extends KalixIntegrationTestKitSupport {
 
   @Autowired
   private WebClient webClient;
 
+  private Duration timeout = Duration.of(10, SECONDS);
+
   @Test
-  public void test() throws Exception {
-    // implement your integration tests here by calling your
-    // REST endpoints using the provided WebClient
+  public void verifyCounterIncrease() {
+
+    Number counterIncrease =
+        webClient
+            .post()
+            .uri("/counter/foo/increase")
+            .bodyValue(new Number(10))
+            .retrieve()
+            .bodyToMono(Number.class)
+            .block(timeout);
+
+    Assertions.assertEquals(10, counterIncrease.value());
   }
 }
