@@ -94,7 +94,6 @@ The list of components are:
 * xref:spring:actions.adoc[Actions]
 * xref:spring:value-entity.adoc[Value Entities]
 * xref:spring:eventsourced.adoc[Event Sourced Entities]
-* Replicated Entities
 * xref:spring:views.adoc[Views]
 
 For this *Getting started* walk-through, we will implement a Counter based on a Value Entity. It's a simple counter
@@ -126,7 +125,7 @@ include::example$spring-valueentity-counter/src/main/java/com/example/Number.jav
 [sidebar]
 A Kalix component doesn't require any other annotation. They will be registered to Kalix and be exposed automatically.
 It suffices to add them on the same package or on a sub-package of your `Main` class. Please, refer to
-xref:spring:dependency-injection.adoc[Dependency injection] page for more details on how Kalix components integrates
+xref:spring:spring-boot-integration.adoc#_dependency_injection[Dependency injection] page for more details on how Kalix components integrates
 with Spring's application context.
 
 The project also includes a dependency on the *Kalix Spring SDK Test Kit*. Please consult the component specific pages to

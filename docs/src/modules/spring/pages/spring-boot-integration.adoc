@@ -1,0 +1,32 @@
+= Spring Boot Integration
+
+The Kalix Spring SDK provides a familiar developer experience for Java developers that are used to Spring. Its `Main`
+class is annotated with `@SpringBootApplication` and starts exactly the same way as in a Spring Boot application, namely
+by calling `SpringApplication.run(Main.class, args)`.
+
+For all matters, it's a Spring Boot application that runs and connects with the Kalix Proxy. As such, your application can benefit of most features available to Spring applications. However, some features are not available or are not recommended when building a Kalix application based on the Spring SDK. Those are explained in the sections below.
+
+== Dependency Injection
+
+*Actions*, *Entities* and *Views* are all Kalix components, and they get special treatment.
+
+When your application starts, it will scan the classpath for any class extending one of the Kalix components. Each time such a component is found, it's analysed in order to generate the necessary metadata that Kalix requires to be able to interact with them. The component is then registered to Kalix and made available to the Proxy through Kalix internal protocol.
+
+It's important to understand that it's not possible to interact directly with a Kalix component. All interaction must happen through the Proxy. That's how Kalix manages state and distribution. That said, it's not possible to use dependency injection to inject Kalix components inside other components. Doing so will raise a runtime error.
+
+On the other hand, is it possible to inject non-Kalix classes into Kalix components. Any Spring bean defined in your application can be injected into a Kalix component. However, you must keep in mind that Kalix components can only receive other dependencies through constructor injection.
+
+
+== @Transactional
+
+Kalix is a stateful serverless solution and as such it takes care of all the aspects of persisting data in a distributed environment. Using `@Transactional` annotations on methods have no effect because the database access and transactional management won't happen at the level of the Spring container. All database operations take place on the Proxy side.
+
+Moreover, and also related with the subject of transactions, each entity in Kalix lives in its own transactional boundary. Therefore, it's not possible to send two commands to two different entities and have the mutations be applied transitionally.
+
+Kalix is a distributed runtime and two different entities may be located on different JVMs, on different nodes, running on different hardware, making it, if not impossible, extremely expensive and inefficient to mutate two different entities on the same transaction.
+
+== Spring Repositories
+
+Spring developers are used to build Spring Data Repositories to persist and retrieve data. However, in Kalix this tasks is fulfilled by the Proxy, not by the Spring container. Therefore, the usage of Spring Data Repositories is not recommended.
+
+The equivalent of Spring repositories in Kalix are xref:spring:views.adoc[Views]. A View allows you to listen to events from Event Sourced entities or state updates from Value entities and build an indexed representation from them.

@@ -1,5 +1,6 @@
 ** xref:spring:index.adoc[]
 *** xref:spring:getting-started.adoc[Getting Started]
+*** xref:spring:spring-boot-integration.adoc[Spring Boot Integration]
 *** xref:spring:development-process-spring.adoc[Development Process]
 *** xref:spring:value-entity.adoc[Implementing Value Entities]
 *** xref:spring:event-sourced-entities.adoc[Implementing Event Sourced Entities]
