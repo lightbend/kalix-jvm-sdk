@@ -125,18 +125,16 @@ public class SpringSdkWiringIntegrationTest {
             .bodyToMono(Integer.class)
             .block(timeout);
 
-    webClient
+
+    Integer lastKnownValue =
+        webClient
             .post()
             .uri("counter/counterId2/increase/1234")
             .retrieve()
             .bodyToMono(Integer.class)
             .block(timeout);
 
-    Integer counterGet =
-            webClient.get().uri("/counter/counterId2").retrieve().bodyToMono(Integer.class).block(timeout);
-
-    //Before has time to process any action the counter has only the values from the POSTs
-    Assertions.assertEquals(1 * 2 + 1234, counterGet);
+    Assertions.assertEquals(1 * 2 + 1234, lastKnownValue);
 
     //Once the action IncreaseActionWithIgnore processes event 1234 it adds 1 more to the counter
     await()
