@@ -8,7 +8,7 @@ import kalix.springsdk.annotations.EntityType;
 import org.springframework.web.bind.annotation.*;
 
 // tag::order[]
-@EntityKey(entityKey = "id")
+@EntityKey("id")
 @EntityType("order")
 @RequestMapping("/order/{id}")
 public class OrderEntity extends ValueEntity<Order> {
