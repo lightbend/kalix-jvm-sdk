@@ -48,7 +48,7 @@ private[impl] object EntityDescriptorFactory extends ComponentDescriptorFactory 
           throw ServiceIntrospectionException(
             restMethod.javaMethod,
             "Invalid annotation usage. Found both @EntityKey and @GenerateEntityKey annotations. " +
-            "A method can only be annotated with of them, but not both.")
+            "A method can only be annotated with one of them, but not both.")
 
         val kalixMethod =
           if (generateEntityKey != null) {
