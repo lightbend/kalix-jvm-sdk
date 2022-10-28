@@ -39,7 +39,7 @@ The return value of the method is an `Action.Effect` with message `0`, but can b
 
 == Subscribing to a Value Entity
 
-You can subscribe an Action to events from an Value Entity. To receive messages from the entity, annotate a service method `@Subscribe.ValueEntiy` and specify the class of the entity. The same applies as for subscribing to an Event Sourced Entity.
+You can subscribe an Action to events from a Value Entity. To receive messages from the entity, annotate a service method `@Subscribe.ValueEntiy` and specify the class of the entity. The same applies as for subscribing to an Event Sourced Entity.
 
 
 == Subscribing to a Topic
