@@ -27,7 +27,7 @@ public class CounterEntity extends ValueEntity<Integer> {  // <2>
   }
 
   // tag::behaviour[]
-  @PutMapping("/counter/{id}/set")                          // <1>
+  @PutMapping("/counter/{counter_id}/set")                  // <1>
   public Effect<Number> set(@RequestBody Number number) {
     int newCounter = number.value();
     return effects()
@@ -35,7 +35,7 @@ public class CounterEntity extends ValueEntity<Integer> {  // <2>
         .thenReply(new Number(newCounter));                 // <3>
   }
 
-  @PostMapping("/counter/{id}/plusone")                     // <4>
+  @PostMapping("/counter/{counter_id}/plusone")             // <4>
   public Effect<Number> plusOne() {
     int newCounter = currentState() + 1;                    // <5>
     return effects()
@@ -45,7 +45,7 @@ public class CounterEntity extends ValueEntity<Integer> {  // <2>
   // end::behaviour[]
 
   // tag::query[]
-  @GetMapping("/counter/{id}")                   // <1>
+  @GetMapping("/counter/{counter_id}")           // <1>
   public Effect<Number> get() {
     return effects()
         .reply(new Number(currentState()));      // <2>
