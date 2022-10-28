@@ -1,1 +1,456 @@
 = Implementing Views
+
+include::ROOT:partial$include.adoc[]
+
+You can access a single https://docs.kalix.io/reference/glossary.html#entity[Entity] with its https://docs.kalix.io/reference/glossary.html#entity_key[Entity key]. You might want to retrieve multiple Entities, or retrieve them using an attribute other than the key. Kalix https://docs.kalix.io/reference/glossary.html#view[Views] allow you achieve this. By creating multiple Views, you can optimize for query performance against each one.
+
+Views can be defined from any of the following:
+
+* xref:value-entity[Value Entities state changes]
+* xref:event-sourced-entity[Event Sourced Entity events]
+* xref:topic-view[Messages received from subscribing to topics on a broker]
+
+The remainder of this page describes:
+
+* <<transform-results>>
+* <<#changing>>
+* <<#query>>
+
+IMPORTANT: Be aware that Views are not updated immediately when Entity state changes. Kalix does update Views as quickly as possible, but it is not instant and can take up to a few seconds for the changes to become visible in the query results. View updates might also take more time during failure scenarios than during normal operation.
+
+[#value-entity]
+== Creating a View from a Value Entity
+
+Consider an example of a Customer Registry service with a `customer` Value Entity. When `customer` state changes, the entire state is emitted as a value change. Value changes update any associated Views. To create a View that lists customers by their name:
+
+* <<_define_the_view_service_descriptor>> for a service that selects customers by name and associates a table name with the View. The table is created and used by Kalix to store the View.
+
+
+This example assumes the following `customer` exists
+
+[source,java,indent=0]
+.src/main/java/customer/api/Customer.java
+----
+include::example$spring-customer-registry-views-quickstart/src/main/java/customer/api/Customer.java[tags=class]
+----
+
+As well as a Value Entity service that will produce the state changes consumed by the View:
+
+
+
+=== Define the View service descriptor
+
+To get a View of multiple customers by their name, ...
+
+NOTE: In this sample we use the internal `domain.CustomerState` as the state of the view. This is convenient since it allows automatic updates of the view without any logic but has the draw back that it implicitly makes the `domain.CustomerState` type a part of the public service API. Transforming the state to another type than the incoming update to avoid this can be seen in <<#event-sourced-entity>>.
+
+
+? If the query should only return one result, remove the `stream` from the return type:
+
+
+
+? When no result is found, the request fails with gRPC status code `NOT_FOUND`. A streamed call completes with an empty stream when no result is found.
+
+
+
+[#event-sourced-entity]
+== Creating a View from an Event Sourced Entity
+
+Create a View from an Event Sourced Entity by using events that the Entity emits to build a state representation. Using a Customer Registry service example, to create a View for querying customers by name:
+
+. <<_define_a_view_descriptor_to_consume_events>>
+. <<_create_a_transformation_class>>
+
+
+The example assumes a Customer that defines the events that will update the View on name changes:
+
+... define Customer
+
+As well as an Event Sourced Entity service that will produce the events consumed by the View:
+
+
+=== Define the View to consume events
+
+
+
+See <<#query>> for more examples of valid query syntax.
+
+=== Create a transformation class
+
+Next, you need to define how to transforms events to state that can be used in the View. An Event Sourced entity can emit many types of events. You need to define a method for each event type. If a View does not use all events, you need to ignore unneeded events as shown in the `IgnoreOtherEvents` update method.
+
+View update handlers are implemented in the `CustomerByNameView` class  methods. The methods take the current view state as the first parameter and the event as the second parameter. They return an `UpdateEffect`, which describes next processing actions, such as updating the view state.
+
+NOTE: This type of update transformation is a natural fit for Events emitted by an Event Sourced Entity, but it can also be used for Value Entities. For example, if the View representation is different from the Entity state you might want to transform it before presenting the View to the client.
+
+== Ignoring events
+
+When consuming events, each event must be matched by a View service method. In case your View is only interested in certain events, you may declare a method to receive all events that are not received by the other methods. If an event type is not handled, ???the Action will fail???. Views are designed to restart, but since the handler is missing, it will fail again. Therefore, it's important to define methods for all events or define a catch-all method in case you want to discard some events.
+
+The `IgnoreOtherEvents` method here is defined as a catch-all because it has input type `Any`. Instead of using a catch-all it can be better to define concrete methods for all known event types that should be ignored because then there is no risk of accidentally ignoring events that are added in later evolution of the service.
+
+When adding the `ignore: true` annotation the corresponding implementation is not needed in the component. It is more efficient to use `ignore: true` than implementing the method with an immediate reply.
+
+
+[#topic-view]
+== Creating a View from a topic
+
+The source of a View can be an eventing topic. You define it in the same way as shown in <<event-sourced-entity>> or <<value-entity>>, but leave out the `eventing.in` annotation in the Protobuf file.
+
+
+[#transform-results]
+== How to transform results
+
+When creating a View, you can transform the results as a relational projection instead of using a `SELECT *` statement.
+
+ifdef::review[REVIEWERS: it would be nice to have use cases describing why they might want to use these different transformation techniques. And does this information apply to all views, regardless of whether they were created from entities or topics?]
+
+=== Relational projection
+
+Instead of using `SELECT *` you can define what columns that will be used in the response message:
+
+
+In a similar way, you can include values from the request message in the response, for example `:request_id`:
+
+[source,proto,indent=0]
+----
+SELECT :request_id, customer_id as id, name FROM customers WHERE name = :customer_name
+----
+
+=== Response message including the result
+
+Instead of streamed results you can include the results in a repeated field in the response message:
+
+
+
+
+[#changing]
+== How to modify a View
+
+Kalix creates indexes for the View based on the query. For example, the following query will result in a View with an index on the `name` column:
+
+[source,proto,indent=0]
+----
+SELECT * FROM customers WHERE name = :customer_name
+----
+
+If the query is changed, Kalix might need to add other indexes. For example, changing the above query to filter on the `city` would mean that Kalix needs to build a View with the index on the `city` column.
+
+[source,proto,indent=0]
+----
+SELECT * FROM customers WHERE address.city = :city
+----
+
+Such changes require you to define a new View. Kalix will then rebuild it from the source event log or value changes.
+
+WARNING: Views from topics cannot be rebuilt from the source messages, because it's not possible to consume all events from the topic again. The new View will be built from new messages published to the topic.
+
+Rebuilding a new View may take some time if there are many events that have to be processed. The recommended way when changing a View is multi-step, with two deployments:
+
+
+. Define the new View, and keep the old View intact. A new View is defined by a new View??. The `viewId` is the same as the `service` name, i.e. it will be a different `viewId` than the old View. Keep the old `register` of the old `service` in `Main`.
+. Deploy the new View, and let it rebuild. Verify that the new query works as expected. The old View can still be used.
+. Remove the old View definition and rename the new `service` to the old name if the public API is compatible, but keep the new `viewId` by defining it as shown below.
+. Deploy the second change.
+
+This is how to define a custom `viewId`: ...??? just changing the id would be enought right? 
+
+The View definitions are stored and validated when a new version is deployed. There will be an error message if the changes are not compatible.
+
+== Streaming view updates
+
+A query can provide a near real time stream of results for the query, emitting new entries matching the query as they are added or updated in
+the view.
+
+This is done by adding the option `stream_updates` to a query method with a `stream` reply:
+
+ ??? Flux ???
+
+This will first list the complete result for the query and then keep the response stream open, emitting new or updated
+entries matching the query as they are added to the view. The stream does not complete until the client closes it.
+
+Note: This is not intended as transport for service to service propagation of updates and does not guarantee delivery, for such use cases you
+should instead publish events to a topic, see xref:actions-publishing-subscribing.adoc[Publishing and Subscribing with Actions]
+
+[#query]
+== Query syntax reference
+
+Define View queries in a language that is similar to SQL. The following examples illustrate the syntax. To retrieve:
+
+* All customers without any filtering conditions (no WHERE clause):
++
+[source,proto,indent=0]
+----
+SELECT * FROM customers
+----
+
+* Customers with a name matching the `customer_name` property of the request message:
++
+[source,proto,indent=0]
+----
+SELECT * FROM customers WHERE name = :customer_name
+----
+
+* Customers matching the `customer_name` AND `city` properties of the request message:
++
+[source,proto,indent=0]
+----
+SELECT * FROM customers WHERE name = :customer_name AND address.city = :city
+----
+
+* Customers in a city matching a literal value:
++
+[source,proto,indent=0]
+----
+SELECT * FROM customers WHERE address.city = 'New York'
+----
+
+=== Filter predicates
+
+Use filter predicates in `WHERE` conditions to further refine results.
+
+==== Comparison operators
+
+The following comparison operators are supported:
+
+* `=` equals
+* `!=` not equals
+* `>` greater than
+* `>=` greater than or equals
+* `<` less than
+* `\<=` less than or equals
+
+==== Logical operators
+
+////
+Combine filter conditions with the `AND` and `OR` operators, and negate using the `NOT` operator. Group conditions using parentheses. Note that `AND` has precedence over `OR`.
+
+[source,proto,indent=0]
+----
+SELECT * FROM customers WHERE
+  name = :customer_name AND address.city = 'New York' OR
+  NOT (name = :customer_name AND address.city = 'San Francisco')
+----
+////
+
+Combine filter conditions with the `AND` operator, and negate using the `NOT` operator. Group conditions using parentheses.
+
+NOTE: `OR` support is currently disabled, until it can be more efficiently indexed.
+
+----
+SELECT * FROM customers WHERE
+  name = :customer_name AND NOT (address.city = 'New York' AND age > 65)
+----
+
+==== Array operators
+
+Use `IN` or `= ANY` to check whether a value is contained in a group of values or in an array column or parameter (a `repeated` field in the Protobuf message).
+
+Use `IN` with a list of values or parameters:
+
+----
+SELECT * FROM customers WHERE email IN ('bob@example.com', :some_email)
+----
+
+Use `= ANY` to check against an array column (a `repeated` field in the Protobuf message):
+
+----
+SELECT * FROM customers WHERE :some_email = ANY(emails)
+----
+
+Or use `= ANY` with a repeated field in the request parameters:
+
+----
+SELECT * FROM customers WHERE email = ANY(:some_emails)
+----
+
+==== Pattern matching
+
+Use `LIKE` to pattern match on strings. The standard SQL `LIKE` patterns are supported, with `_` (underscore) matching a single character, and `%` (percent sign) matching any sequence of zero or more characters.
+
+----
+SELECT * FROM customers WHERE name LIKE 'Bob%'
+----
+
+NOTE: For index efficiency, the pattern must have a non-wildcard prefix or suffix. A pattern like `'%foo%'` is not supported. Given this limitation, only constant patterns with literal strings are supported; patterns in request parameters are not allowed.
+
+==== Text search
+
+Use the `text_search` function to search text values for words, with automatic tokenization and normalization based on language-specific configuration. The `text_search` function takes the text column to search, the query (as a parameter or literal string), and an optional language configuration.
+
+----
+text_search(<column>, <query parameter or string>, [<configuration>])
+----
+
+If the query contains multiple words, the text search will find values that contain all of these words (logically combined with AND), with tokenization and normalization automatically applied.
+
+The following text search language configurations are supported: `'danish'`, `'dutch'`, `'english'`, `'finnish'`, `'french'`, `'german'`, `'hungarian'`, `'italian'`, `'norwegian'`, `'portuguese'`, `'romanian'`, `'russian'`, `'simple'`, `'spanish'`, `'swedish'`, `'turkish'`. By default, a `'simple'` configuration will be used, without language-specific features.
+
+----
+SELECT * FROM customers WHERE text_search(profile, :search_words, 'english')
+----
+
+NOTE: Text search is currently only available for deployed services, and can't be used in local testing.
+
+==== Data types
+
+The following data types are supported, for their corresponding Protobuf types. Arrays are created for a repeated field in a Protobuf message. Timestamps can be stored and compared using the `google.protobuf.Timestamp` message type.
+
+[cols="1,1"]
+|===
+| Data type | Protobuf type
+
+| Text
+| `string`
+
+| Integer
+| `int32`
+
+| Long (Big Integer)
+| `int64`
+
+| Float (Real)
+| `float`
+
+| Double
+| `double`
+
+| Boolean
+| `bool`
+
+| Byte String
+| `bytes`
+
+| Array
+| repeated fields
+
+| Timestamp
+| `google.protobuf.Timestamp`
+
+|===
+
+==== Optional fields
+
+Fields in a Protobuf message that were not given a value are handled as [the default value](https://developers.google.com/protocol-buffers/docs/proto3#default) of the field data type.
+
+In some use cases it is important to explicitly express that a value is missing, doing that in a view column can be done in three ways:
+
+ * mark the message field as `optional`
+ * use one of the Protobuf "wrapper" types for the field (messages in the package `google.protobuf` ending with `Value`)
+ * make the field a part of a nested message and omit that whole nested message, for example `address.street` where the lack of an `address` message implies there is no `street` field.
+
+Optional fields with values present can be queried just like regular view fields:
+
+----
+SELECT * FROM customers WHERE phone_number = :number
+----
+
+Finding results with missing values can be done using `IS NULL`:
+
+----
+SELECT * FROM customers WHERE phone_number IS NULL
+----
+
+Finding entries with any value present can be queried using `IS NOT NULL`:
+
+----
+SELECT * FROM customers WHERE phone_number IS NOT NULL
+----
+
+Optional fields in query requests messages are handled like normal fields if they have a value, however missing optional request parameters are seen as an invalid request and lead to a bad request response.
+
+=== Sorting
+
+Results for a view query can be sorted. Use `ORDER BY` with view columns to sort results in ascending (`ASC`, by default) or descending (`DESC`) order.
+
+If no explicit ordering is specified in a view query, results will be returned in the natural index order, which is based on the filter predicates in the query.
+
+----
+SELECT * FROM customers WHERE name = :name AND age > :min_age ORDER BY age DESC
+----
+
+NOTE: Some orderings may be rejected, if the view index cannot be efficiently ordered. Generally, to order by a column it should also appear in the `WHERE` conditions.
+
+=== Paging
+
+Splitting a query result into one "page" at a time rather than returning the entire result at once is possible in two ways:
+
+* with a count based offset or
+* a token based offset.
+
+In both cases `OFFSET` and `LIMIT` are used.
+
+`OFFSET` specifies at which offset in the result to start
+
+`LIMIT` specifies a maximum number of results to return
+
+==== Count based offset ====
+
+The values can either be static, defined up front in the query:
+
+[source,proto,indent=0]
+----
+SELECT * FROM customers LIMIT 10
+----
+
+Or come from fields in the request message:
+[source,proto,indent=0]
+----
+SELECT * FROM customers OFFSET :start_from LIMIT :max_customers
+----
+
+Note: Using numeric offsets can lead to missing or duplicated entries in the result if entries are added to or removed from the view between requests for the pages.
+
+==== Token based offset ====
+
+The count based offset requires that you keep track of how far you got by adding the page size to the offset for each query.
+
+An alternative to this is to use a string token emitted by Kalix identifying how far into the result set the paging has reached using the functions `next_page_token()` and `page_token_offset()`.
+
+When reading the first page, an empty token is provided to `page_token_offset`. For each returned result page a new token that can be used to read the next page is returned by `next_page_token()`, once the last page has been read, an empty token is returned (see also xref:has-more[has_more] for determining if the last page was reached).
+
+The size of each page can optionally be specified using `LIMIT`, if it is not present a default page size of 100 is used.
+
+With a request and response message for the view like this:
+[source,proto,indent=0]
+----
+message Request {
+    string page_token = 1;
+}
+
+message Response {
+    repeated Customer customers = 1;
+    string next_page_token = 2;
+}
+----
+
+A query like this will allow for reading through the view in pages, each containing 10 customers:
+[source,proto,indent=0]
+----
+SELECT * AS customers, next_page_token() AS next_page_token
+FROM customers
+OFFSET page_token_offset(:page_token)
+LIMIT 10
+----
+
+The token value is not meant to be parseable into any meaningful information other than being a token for reading the next page.
+
+==== Total count of results
+
+To get the total number of results that will be returned over all pages, use `COUNT(*)` in a query that projects its results into a field. The total count will be returned in the aliased field (using `AS`) or otherwise into a field named `count`.
+
+----
+SELECT * AS customers, COUNT(*) AS total, has_more() AS more FROM customers LIMIT 10
+----
+
+[#has-more]
+==== Check if there are more pages ====
+
+To check if there are more pages left, you can use the function `has_more()` providing a boolean value for the result. This works both for the count and token based offset paging, and also when only using `LIMIT` without any `OFFSET`:
+
+[source,proto,indent=0]
+----
+SELECT * AS customers, has_more() AS more_customers FROM customers LIMIT 10
+----
+
+This query will return `more_customers = true` when the view contains more than 10 customers.

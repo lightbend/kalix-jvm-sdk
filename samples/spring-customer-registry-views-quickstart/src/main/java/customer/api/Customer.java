@@ -1,4 +1,6 @@
 package customer.api;
+
+// tag::class[]
 public record Customer(String customerId, String email, String name, Address address) {
 
   public Customer withName(String newName){
@@ -9,3 +11,4 @@ public record Customer(String customerId, String email, String name, Address add
     return new Customer(customerId, email, name, newAddress);
   }
 }
+// end::class[]
