@@ -88,7 +88,7 @@ include::example$spring-eventsourced-counter/src/main/java/com/example/actions/C
 <3> setting the method input type to the events produced by the counter.
 <4> any return is valid. See NOTE in Subscribing to an Event Sourced Entity.
 
-Note that the messages stored in the topic are serialized as JSON. You cannot change this serialization.
+IMPORTANT: the messages stored in the topic are serialized as JSON. You cannot change this serialization.
 
 == Accessing the Entity ID
 
