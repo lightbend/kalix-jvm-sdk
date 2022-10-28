@@ -82,7 +82,7 @@ include::partial$testing-entity.adoc[]
 
 The following snippet shows how the `ValueEntityTestKit` is used to test the `CountertEntity` implementation. Kalix provides two main APIs for unit tests, the `ValueEntityTestKit` and the `ValueEntityResult`. The former gives us the overall state of the entity and the ability to call the command handlers while the latter only holds the effects produced for each individual call to the Entity.
 
-.src/test/java/com/example/CounterEntitySpec.java
+./src/test/java/com/example/CounterTest.java
 [source,java,indent=0]
 ----
 include::example$spring-valueentity-counter/src/test/java/com/example/CounterTest.java[tags=example]
@@ -94,3 +94,18 @@ include::example$spring-valueentity-counter/src/test/java/com/example/CounterTes
 <5> Asserts the state value after both operations is `11`.
 
 === Integration tests
+
+The skeleton of an Integration Test is generated for you if you use the archetype to start you Kalix app. Let's see what it could look like to test our Counter Entity:
+
+./src/test/java/com/example/CounterTest.java
+[source,java,indent=0]
+----
+include::example$spring-valueentity-counter/src/it/java/com/example/CounterIntegrationTest.java[tags=sample-it]
+----
+<1> Note the test class must extend `KalixIntegrationTestKitSupport`.
+<2> A built-in webclient is provided to interact with the components.
+<3> Request to get the current value of the counter named `bar`. Initial value of counter is expected to be `0`.
+<4> Request to increase the value of counter `bar`. Response should have value `1`.
+<5> Explicit `GET` request to retrieve value of `bar` that should be `1`.
+
+NOTE: The integration tests are under in a specific project profile `it` and can be run using `mvn verify -Pit`.

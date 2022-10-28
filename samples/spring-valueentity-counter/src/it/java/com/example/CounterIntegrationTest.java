@@ -24,15 +24,18 @@ import static java.time.temporal.ChronoUnit.SECONDS;
  * Since this is an integration tests, it interacts with the application using a WebClient
  * (already configured and provided automatically through injection).
  */
+
+// tag::sample-it[]
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = Main.class)
-public class CounterIntegrationTest extends KalixIntegrationTestKitSupport {
+public class CounterIntegrationTest extends KalixIntegrationTestKitSupport { // <1>
 
   @Autowired
-  private WebClient webClient;
+  private WebClient webClient; // <2>
 
   private Duration timeout = Duration.of(10, SECONDS);
 
+  // end::sample-it[]
   @Test
   public void verifyCounterIncrease() {
 
@@ -47,4 +50,38 @@ public class CounterIntegrationTest extends KalixIntegrationTestKitSupport {
 
     Assertions.assertEquals(10, counterIncrease.value());
   }
+
+  // tag::sample-it[]
+  @Test
+  public void verifyCounterSetAndIncrease() {
+
+    Number counterGet = // <3>
+        webClient
+            .get()
+            .uri("/counter/bar")
+            .retrieve()
+            .bodyToMono(Number.class)
+            .block(timeout);
+    Assertions.assertEquals(0, counterGet.value());
+
+    Number counterPlusOne = // <4>
+        webClient
+            .post()
+            .uri("/counter/bar/plusone")
+            .retrieve()
+            .bodyToMono(Number.class)
+            .block(timeout);
+
+    Assertions.assertEquals(1, counterPlusOne.value());
+
+    Number counterGetAfter = // <5>
+        webClient
+            .get()
+            .uri("/counter/bar")
+            .retrieve()
+            .bodyToMono(Number.class)
+            .block(timeout);
+    Assertions.assertEquals(1, counterGetAfter.value());
+  }
 }
+// end::sample-it[]
