@@ -103,7 +103,7 @@ The skeleton of an Integration Test is generated for you if you use the archetyp
 include::example$spring-valueentity-counter/src/it/java/com/example/CounterIntegrationTest.java[tags=sample-it]
 ----
 <1> Note the test class must extend `KalixIntegrationTestKitSupport`.
-<2> A built-in webclient is provided to interact with the components.
+<2> A built-in web-client is provided to interact with the components.
 <3> Request to get the current value of the counter named `bar`. Initial value of counter is expected to be `0`.
 <4> Request to increase the value of counter `bar`. Response should have value `1`.
 <5> Explicit `GET` request to retrieve value of `bar` that should be `1`.
