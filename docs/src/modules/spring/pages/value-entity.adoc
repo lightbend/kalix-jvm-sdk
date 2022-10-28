@@ -38,10 +38,11 @@ Let us start by showing how to create the Value Entity:
 ----
 include::example$spring-valueentity-counter/src/main/java/com/example/CounterEntity.java[tags=declarations]
 ----
-<1> Since this is an entity, we must annotate it with `@Entity` and indicate which path variable
-should be used as `entityKey` as well as how we want to name the `entityType`
-<2> The `CounterEntity` class should extend `kalix.javasdk.valueentity.ValueEntity`.
-<3> The initial state of each counter is defined as 0.
+<1> Every Entity must be annotated with `@EntityType` with a stable name. This name should be unique among the
+different existing entities within a Kalix application.
+<2> The `@EntityKey` value should be unique per entity and map to some field being received on the route path, in this example it's the `counter_id`.
+<3> The `CounterEntity` class should extend `kalix.javasdk.valueentity.ValueEntity`.
+<4> The initial state of each counter is defined as 0.
 
 === Updating state
 
@@ -97,7 +98,7 @@ include::example$spring-valueentity-counter/src/test/java/com/example/CounterTes
 
 The skeleton of an Integration Test is generated for you if you use the archetype to start you Kalix app. Let's see what it could look like to test our Counter Entity:
 
-./src/test/java/com/example/CounterTest.java
+./src/it/java/com/example/CounterIntegrationTest.java
 [source,java,indent=0]
 ----
 include::example$spring-valueentity-counter/src/it/java/com/example/CounterIntegrationTest.java[tags=sample-it]

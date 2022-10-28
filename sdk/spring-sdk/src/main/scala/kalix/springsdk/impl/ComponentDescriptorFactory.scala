@@ -214,7 +214,7 @@ private[impl] object ComponentDescriptorFactory {
 
   // TODO: add more validations here
   // we should let users know if components are missing required annotations,
-  // eg: entities require @Entity, view require @Table and @Subscription
+  // eg: entities require @EntityType, view require @Table and @Subscription
   def getFactoryFor(component: Class[_]): ComponentDescriptorFactory = {
     if (component.getAnnotation(classOf[EntityType]) != null)
       EntityDescriptorFactory
