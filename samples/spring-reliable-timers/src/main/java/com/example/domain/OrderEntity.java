@@ -25,8 +25,14 @@ public class OrderEntity extends ValueEntity<Order> {
   }
 
   @PutMapping("/place")
-  public Effect<Order> placeOrder(@PathVariable String id, @RequestBody OrderRequest orderRequest) {
-    var newOrder = new Order(id, false, true, orderRequest.item(), orderRequest.quantity());
+  public Effect<Order> placeOrder(@PathVariable String id,
+                                  @RequestBody OrderRequest orderRequest) {
+    var newOrder = new Order(
+        id,
+        false,
+        true, // <1>
+        orderRequest.item(),
+        orderRequest.quantity());
     return effects()
             .updateState(newOrder)
             .thenReply(newOrder);

@@ -1,31 +1,11 @@
 = Timers
 :page-supergroup-java-scala: Language
 
-Timers allow for scheduling calls in the future. For example, to verify that some process have been completed or not.
+include::ROOT:partial$timers-intro.adoc[]
 
-Timers are persisted in the https://docs.kalix.io/reference/glossary.html#proxy[Kalix proxy] and are guaranteed to run at least once. 
+To demonstrate its functionality, let's consider an Ordering Service composed of a xref:value-entity.adoc[Value Entity] and an xref:actions.adoc[Action]. The Action will work as a xref:actions-as-controller.adoc[Controller] receiving calls and delegating to the Order Entity.
 
-When a timer is triggered, the scheduled call is executed. If successfully executed, the timer completes and is automatically removed.
-In case of a failure, the timer is rescheduled with a delay of 3 seconds. This process repeats until the call succeeds.
-
-You can schedule a timer for any service method in Kalix, but you can only create a timer from within an Action and by passing a `DeferredCall`.
-
-**Timer features**:
-
-* Timers are guaranteed to run at least once.
-* Timers can be scheduled to run at any time in the future.
-* Timers can be cancelled.
-* Timers are automatically removed once successfully completed.
-* Timers are re-scheduled in case of failures.
-
-**Timer limitations**: 
-
-* Timers can only be scheduled from within an Action.
-* Timers can only call other components (e.g., Actions and Entities), therefore external service calls must be wrapped by an Action in the deployed service.
-
-To demonstrate its functionality, let's consider an Ordering Service composed of a xref:value-entity.adoc[Value Entity] and an xref:actions.adoc[Action]. The Action will work as a xref:actions-as-controller.adoc[Controller] receiving calls and delegating to the Order Entity. 
-
-Users can place an order, but the order must be confirmed within a period of time. You can compare it with an Ordering Food application where the restaurant needs to confirm if it can accept the order. If no confirmation is sent within some pre-defined period of time, the order is automatically cancelled. 
+Users can place an order, but the order must be confirmed within a period of time. You can compare it with an Ordering Food application where the restaurant needs to confirm if it can accept the order. If no confirmation is sent within some pre-defined period of time, the order is automatically cancelled.
 
 == Order Entity
 Let's have a look on how the Order Entity can be implemented.
@@ -75,13 +55,13 @@ Java::
 ----
 include::example$java-reliable-timers/src/main/java/com/example/actions/OrderAction.java[tags=timers;place-order]
 ----
-<1> First we generate a random identifier for the Order. We will use it for identifying the Order, but also as unique name for the timer.
+<1> First we generate a random identifier for the Order. We will use it for identifying the Order, but also as an unique name for the timer.
 <2> We call the timers API to register a new timer. Note that it returns `CompletionStage<Done>`. A successful completion means that Kalix registered the timer. 
 <3> Order number is used to generate a unique name for the timer.
 <4> We set the delay we want for the timer to trigger. 
 <5> We scheduled call to `OrderAction.expire` method. We will cover it in a while.
 <6> We build a request for the Order entity. 
-<7> Finally, we build an `asyncReply` by composing the `timerResgistration` CompletionStage with a call to place the order. We access the Order entity through `components.order` and we call `execute()` to run the call. 
+<7> Finally, we build an `asyncReply` by composing the `timerRegistration` CompletionStage with a call to place the order. We access the Order entity through `components.order` and we call `execute()` to run the call.
 
 Scala::
 +
@@ -119,7 +99,7 @@ include::example$java-reliable-timers/src/main/java/com/example/actions/OrderAct
 ----
 <1> When the `OrderAction` receives the expiration call, it immediately tries to cancel the Order. We use the `execute()` method to run it. This method returns a `CompletionStage`.
 <2> If the `CompletionStage` completes successfully, we are all good and we can simply return `Empty.getDefaultInstance()`. Since this method is returning normally, the timer will be considered as executed and will be removed from Kalix.
-<3> On the other hand, if the `CompletionStage` completes with a failure, we must decide if we will recover the call or not. If we recover, the timer will be considered as completed. If we will let the call fail, the timer will be re-scheduled. 
+<3> On the other hand, if the `CompletionStage` completes with a failure, we must decide if we will recover the call or not. If we recover, the timer will be considered as completed. If we let the call fail, the timer will be re-scheduled.
 
 Scala::
 +
@@ -167,4 +147,4 @@ In both methods, we pass the request to the entity and when it completes, we can
 
 Once more, the ordering is important. It's not a problem if the call to cancel the timer fails. As we have seen in the `OrderAction.expire` implementation, if the timer is triggered, but is obsolete, we will properly recover from it and signal to Kalix that the timer can be removed.
 
-TIP: We could have completely ignore the timer when handling the confirmation or the cancelling. The registered timer would then be triggered at some point later and the expire method would have handled the fact that it has become obsolete. However, it's always of good measure to do some housekeeping to save resources.
+TIP: We could have completely ignored the timer when handling the confirmation or the cancelling. The registered timer would then be triggered at some point later and the `expire` method would have handled the fact that it has become obsolete. However, it's always of good measure to do some housekeeping to save resources.
