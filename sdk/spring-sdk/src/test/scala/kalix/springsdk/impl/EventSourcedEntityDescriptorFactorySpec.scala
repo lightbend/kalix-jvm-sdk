@@ -28,6 +28,7 @@ import kalix.springsdk.testmodels.eventsourcedentity.EventSourcedEntitiesTestMod
 import kalix.springsdk.testmodels.eventsourcedentity.EventSourcedEntitiesTestModels.CounterEventSourcedEntityWithEntityKeyOnMethod
 import kalix.springsdk.testmodels.eventsourcedentity.EventSourcedEntitiesTestModels.CounterEventSourcedEntityWithJWT
 import kalix.springsdk.testmodels.eventsourcedentity.EventSourcedEntitiesTestModels.IllDefinedEntityWithEntityKeyGeneratorAndEntityKey
+import kalix.springsdk.testmodels.eventsourcedentity.EventSourcedEntitiesTestModels.IllDefinedEntityWithoutEntityKeyGeneratorNorEntityKey
 import org.scalatest.wordspec.AnyWordSpec
 
 class EventSourcedEntityDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSuite {
@@ -69,6 +70,12 @@ class EventSourcedEntityDescriptorFactorySpec extends AnyWordSpec with Component
       intercept[ServiceIntrospectionException] {
         descriptorFor[IllDefinedEntityWithEntityKeyGeneratorAndEntityKey]
       }.getMessage should include("Invalid annotation usage. Found both @EntityKey and @GenerateEntityKey annotations.")
+    }
+
+    "fail if no EntityKey nor GenerateEntityKey is defined" in {
+      intercept[ServiceIntrospectionException] {
+        descriptorFor[IllDefinedEntityWithoutEntityKeyGeneratorNorEntityKey]
+      }.getMessage should include("Invalid command method. No @EntityKey nor @GenerateEntityKey annotations found.")
     }
 
     "generate mappings for a Event Sourced with GenerateEntityKey" in {

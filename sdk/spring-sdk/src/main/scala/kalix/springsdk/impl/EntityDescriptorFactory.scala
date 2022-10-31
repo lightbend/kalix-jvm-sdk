@@ -61,6 +61,14 @@ private[impl] object EntityDescriptorFactory extends ComponentDescriptorFactory 
             val entityKeysToUse =
               if (entityKeyOnMethod != null) entityKeyOnMethod.value()
               else entityKeysOnType
+
+            if (entityKeysToUse.isEmpty)
+              throw ServiceIntrospectionException(
+                restMethod.javaMethod,
+                "Invalid command method. No @EntityKey nor @GenerateEntityKey annotations found. " +
+                "A command method should be annotated with either @EntityKey or @GenerateEntityKey, or " +
+                "the an @EntityKey annotation should be present at class level.")
+
             KalixMethod(restMethod, entityKeys = entityKeysToUse)
           }
 

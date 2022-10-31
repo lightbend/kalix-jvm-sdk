@@ -115,6 +115,14 @@ public class EventSourcedEntitiesTestModels {
     }
   }
 
+  @EntityType("counter")
+  public static class IllDefinedEntityWithoutEntityKeyGeneratorNorEntityKey extends EventSourcedEntity<Integer> {
+    @GetMapping("/eventsourced/{id}/int/{number}")
+    public Integer getInteger(@PathVariable Integer number) {
+      return number;
+    }
+  }
+
   @EntityKey("id")
   @EntityType("counter")
   @RequestMapping("/eventsourced/{id}")
