@@ -4,7 +4,7 @@ The Kalix Spring SDK provides a familiar developer experience for Java developer
 class is annotated with `@SpringBootApplication` and starts exactly the same way as a common Spring Boot application, namely
 by calling `SpringApplication.run(Main.class, args)`.
 
-For all matters, it's a Spring Boot application that runs and connects with the Kalix Proxy. As such, your application can benefit of most features available to Spring applications. However, some features are not available or are not recommended when building a Kalix application based on the Spring SDK. Those are explained in the sections below.
+For all matters, it's a Spring Boot application that runs and connects with the https://docs.kalix.io/reference/glossary.html#proxy[Kalix Proxy]. As such, your application can benefit of most features available to Spring applications. However, some features are not available or are not recommended when building a Kalix application based on the Spring SDK. Those are explained in the sections below.
 
 == Dependency Injection
 
@@ -16,6 +16,7 @@ It's important to understand that interacting directly with a Kalix component it
 
 On the other hand, it is possible to inject non-Kalix classes into Kalix components. Any Spring bean defined in your application can be injected into a Kalix component. However, you must keep in mind that Kalix components can only receive other dependencies through constructor injection.
 
+For more details on how Kalix manage state and distribution, consult the https://docs.kalix.io/services/programming-model.html[Programming model] page.
 
 == @Transactional
 
@@ -27,6 +28,12 @@ Kalix is a distributed runtime and two different entities may be located on diff
 
 == Spring Repositories
 
-Spring developers are used to build Spring Data Repositories to persist and retrieve data. However, in Kalix these tasks are fulfilled by the Proxy, not by the Spring container. Therefore, the usage of Spring Data Repositories is not recommended.
+Spring developers are used to build Spring Data Repositories to store and retrieve data. However, in Kalix these tasks are fulfilled by the Proxy, not by the Spring container. As stateful serverless solution, Kalix takes care of all data persistence for you. Configuring your own Spring Data Repositories means that you will need to manage the database yourself and that defeats the purpose of using Kalix. Therefore, the usage of Spring Data Repositories is not recommended.
 
-The equivalent of Spring repositories in Kalix are xref:spring:views.adoc[Views]. A View allows you to listen to events from Event Sourced entities or state updates from Value entities and build an indexed representation from them.
+In Kalix, data storage and retrieval follows the https://developer.lightbend.com/docs/akka-platform-guide/concepts/cqrs.html[Command Query Responsibility Segregation (CQRS)] pattern. In CQRS, we work with two models. One that is designed for writes, often called the command-model, and one that is optimized for reads, also known as the query-model.
+
+The persistent Kalix entities (xref:spring:event-sourced-entities.adoc[Event Sourced Entity] and xref:spring:value-entity.adoc[Value Entity]) represent the command-model in the CQRS pattern. They receive `Commands` and mutate data in their own transaction.
+
+Data produced by entities can be propagated to xref:spring:views.adoc[Views] in order to generate query-models, also known as view-models. Views are indexed representations of your model. You can query your data using different fields, while Entities are only accessible by their entity key.
+
+In both cases, Kalix manages all persistence aspects and your code only need to specify the business logic.
