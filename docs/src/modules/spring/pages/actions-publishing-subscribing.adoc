@@ -21,9 +21,9 @@ You can subscribe an Action to events from an Event Source Entity. To receive me
 The following example assumes the existence of an xref:eventsourced.adoc[Event Sourced Entity] counter that emits events of type `CounterEvent` with subtypes `ValueIncreased` and `ValueDecreased`.
 
 [source,java,indent=0]
-.src/main/java/com/example/actions/CounterJournalToTopicAction.java
+.src/main/java/com/example/actions/SubscribeAction.java
 ----
-include::example$spring-eventsourced-counter/src/main/java/com/example/actions/CounterJournalToTopicAction.java[tag=sub-ESE-action]
+include::example$spring-eventsourced-counter/src/main/java/com/example/actions/SubscribeAction.java[tags=class;sub-ESE-action]
 ----
 <1> subscribing to the events from the Counter.
 <2> setting the method input type to the events produced by the counter.
@@ -49,9 +49,9 @@ To receive messages from a Google Cloud Pub/Sub or Apache Kafka topic, annotate 
 The events from the topic are delivered to the Action and in this simplified example they are only logged.
 
 [source,java,indent=0]
-.src/main/java/com/example/actions/CounterJournalToTopicAction.java
+.src/main/java/com/example/actions/SubscribeAction.java
 ----
-include::example$spring-eventsourced-counter/src/main/java/com/example/actions/CounterJournalToTopicAction.java[tag=sub-topic-action]
+include::example$spring-eventsourced-counter/src/main/java/com/example/actions/SubscribeAction.java[tags=class;sub-topic-action]
 ----
 <1> subscribing to the events from topic 'counter-events'. 
 <2> setting the method input type to the events produced by the counter.
@@ -65,6 +65,23 @@ IMPORTANT: By default, Kalix assumes the messages in the topic were serialized a
 In the above example, you consumed JSON messages from a topic that you control. If you are consuming an external topic, the message format may not be under your control and may not be JSON. If this is the case the Spring SDK can't consume from that topic. 
 
 TODO https://github.com/lightbend/kalix/issues/7810
+
+== Type level annotations for subscribing 
+
+You can subscribe to a topic or an Event Source Entity by adding @Subscribe as a type level annotation, at the top of the class. This provides additional functionality for subscribing: all methods returning `Action.Effect` are selected to process incoming events. The Action will fail if it receives an event for which there is no method handler, unless the subscription is set with `ignoreUnknown = true`. 
+
+In the following example you can take a look at how the Action is configured to ignore unknown messages because it has only one method handler for `ValueIncrease`.    
+
+[source,java,indent=0]
+.src/main/java/com/example/actions/SubscribeTypeLevelAction.java
+----
+include::example$spring-eventsourced-counter/src/main/java/com/example/actions/SubscribeTypeLevelAction.java[tag=class]
+----
+<1> set to ignore unknown events
+<2> only processsing `ValueIncreased` events
+<3> any return is valid. See NOTE in Subscribing to an Event Sourced Entity.
+
+If you do not add `ignoreUnknown=true`, the action would fail when processing a `ValueMultiply`. By default is false.
 
 == Subscribing and acting upon
 
@@ -97,4 +114,4 @@ For many use cases, a subscriber to an event log will trigger other services and
 You can access the link:{attachmentsdir}/api/kalix/javasdk/action/ActionContext.html[`ActionContext`{tab-icon}, window="new"] through method `actionContext()`.
 
 
-TODO: add type level and ignore annotations when Spring SDK with them gets released
+
