@@ -79,7 +79,7 @@ This example assumes a Customer equal to the previous example. This example assu
 ----
 include::example$spring-eventsourced-customer-registry/src/main/java/customer/api/CustomerEvent.java[tags=class]
 ----
-<1> Includes the logical type name (defined in impl classes) as type 
+<1> Includes the logical type name (defined in implementation classes) as type 
 <2> Required for deserialization and to define the logical type name 
 
 Adding `@JsonTypeInfo` is needed so that Jackson can read back correctly the Object type when deserializing. By using `name`, you set its value as the fully qualified message name instead of the using the fully qualified Java class. This is called a `logical type name` and it allows you refactor the class to another package after you have serialized messages of this type. Otherwise, after such a refactor the objects serialized with the old package won't be recognized as the same type. 
@@ -170,7 +170,7 @@ Rebuilding a new View may take some time if there are many events that have to b
 . Remove the old View definition and rename the new `service` to the old name if the public API is compatible, but keep the new `viewId` by defining it as shown below.
 . Deploy the second change.
 
-This is how to define a custom `viewId`: ...??? just changing the id would be enought right? 
+This is how to define a custom `viewId`: ...??? just changing the id would be enough right? 
 
 The View definitions are stored and validated when a new version is deployed. There will be an error message if the changes are not compatible.
 
