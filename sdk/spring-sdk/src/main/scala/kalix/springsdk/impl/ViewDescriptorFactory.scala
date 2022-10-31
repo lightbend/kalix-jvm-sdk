@@ -17,9 +17,9 @@
 package kalix.springsdk.impl
 
 import kalix.Eventing
-
 import java.lang.reflect.Method
 import java.lang.reflect.ParameterizedType
+
 import kalix.MethodOptions
 import kalix.springsdk.annotations.Query
 import kalix.springsdk.annotations.Subscribe
@@ -37,6 +37,7 @@ import kalix.springsdk.impl.reflection.ReflectionUtils
 import kalix.springsdk.impl.reflection.RestServiceIntrospector
 import kalix.springsdk.impl.reflection.RestServiceIntrospector.BodyParameter
 import kalix.springsdk.impl.ComponentDescriptorFactory.hasUpdateEffectOutput
+import kalix.springsdk.impl.reflection.ServiceIntrospectionException
 import kalix.springsdk.impl.reflection.SubscriptionServiceMethod
 import kalix.springsdk.impl.reflection.SyntheticRequestServiceMethod
 import kalix.springsdk.impl.reflection.VirtualServiceMethod
@@ -93,44 +94,58 @@ private[impl] object ViewDescriptorFactory extends ComponentDescriptorFactory {
       queryMethod: KalixMethod,
       queryInputSchemaDescriptor: Option[ProtoMessageDescriptors],
       queryOutputSchemaDescriptor: ProtoMessageDescriptors) = {
-      val annotatedMethods = RestServiceIntrospector
+
+      val annotatedQueryMethods = RestServiceIntrospector
         .inspectService(component)
         .methods
         .filter(_.javaMethod.getAnnotation(classOf[Query]) != null)
-      if (annotatedMethods.isEmpty)
-        throw new IllegalArgumentException(
-          s"No valid query method found in class ${component.getName}. " +
-          "Views should have a method annotated with @Query and exposed by a REST annotation")
-      if (annotatedMethods.size > 1)
-        throw new IllegalArgumentException(
-          "Views can have only one method annotated with @Query, " +
-          s"found ${annotatedMethods.size} in class ${component.getName}")
 
-      val annotatedMethod: SyntheticRequestServiceMethod = annotatedMethods.head
+      if (annotatedQueryMethods.isEmpty)
+        throw ServiceIntrospectionException(
+          component,
+          s"No valid query method found. " +
+          "Views should have a method annotated with @Query and exposed by a REST annotation")
+
+      if (annotatedQueryMethods.size > 1)
+        throw ServiceIntrospectionException(
+          component,
+          "Views can have only one method annotated with @Query, " +
+          s"found ${annotatedQueryMethods.size}.")
+
+      val queryMethod: SyntheticRequestServiceMethod = annotatedQueryMethods.head
 
       val queryOutputType = {
-        val returnType = annotatedMethod.javaMethod.getReturnType
+        val returnType = queryMethod.javaMethod.getReturnType
         if (returnType == classOf[Flux[_]]) {
-          annotatedMethod.javaMethod.getGenericReturnType
+          queryMethod.javaMethod.getGenericReturnType
             .asInstanceOf[ParameterizedType] // Flux will be a ParameterizedType
             .getActualTypeArguments
             .head // only one type parameter, safe to pick the head
             .asInstanceOf[Class[_]]
         } else returnType
       }
+
       val queryOutputSchemaDescriptor =
         if (queryOutputType == tableType) tableTypeDescriptor
         else ProtoMessageDescriptors.generateMessageDescriptors(queryOutputType)
 
       val queryInputSchemaDescriptor =
-        annotatedMethod.params.find(_.isInstanceOf[BodyParameter]).map { case BodyParameter(param, _) =>
+        queryMethod.params.find(_.isInstanceOf[BodyParameter]).map { case BodyParameter(param, _) =>
           ProtoMessageDescriptors.generateMessageDescriptors(param.getParameterType)
         }
-      val queryStr = annotatedMethod.javaMethod.getAnnotation(classOf[Query]).value()
+
+      val queryAnnotation = queryMethod.javaMethod.getAnnotation(classOf[Query])
+      val queryStr = queryAnnotation.value()
+
+      if (queryAnnotation.streamUpdates() && !queryMethod.streamOut)
+        throw ServiceIntrospectionException(
+          queryMethod.javaMethod,
+          "Query.streamUpdates can only be enabled in stream methods returning Flux")
 
       val query = kalix.View.Query
         .newBuilder()
         .setQuery(queryStr)
+        .setStreamUpdates(queryAnnotation.streamUpdates())
         .build()
 
       val jsonSchema = {
@@ -160,8 +175,8 @@ private[impl] object ViewDescriptorFactory extends ComponentDescriptorFactory {
       // since it is a query, we don't actually ever want to handle any request in the SDK
       // the proxy does the work for us, mark the method as non-callable
       (
-        KalixMethod(annotatedMethod.copy(callable = false), methodOptions = Some(methodOptions))
-          .withKalixOptions(buildJWTOptions(annotatedMethod.javaMethod)),
+        KalixMethod(queryMethod.copy(callable = false), methodOptions = Some(methodOptions))
+          .withKalixOptions(buildJWTOptions(queryMethod.javaMethod)),
         queryInputSchemaDescriptor,
         queryOutputSchemaDescriptor)
     }
