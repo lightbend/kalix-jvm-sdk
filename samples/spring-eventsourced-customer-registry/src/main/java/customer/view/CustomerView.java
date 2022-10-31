@@ -11,5 +11,4 @@ public record CustomerView(String email, String name, Address address) {
   public CustomerView withAddress(Address newAddress) {
     return new CustomerView(email, name, newAddress);
   }
-
 }

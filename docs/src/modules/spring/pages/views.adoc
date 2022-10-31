@@ -2,7 +2,7 @@
 
 include::ROOT:partial$include.adoc[]
 
-You can access a single https://docs.kalix.io/reference/glossary.html#entity[Entity] with its https://docs.kalix.io/reference/glossary.html#entity_key[Entity key]. You might want to retrieve multiple Entities, or retrieve them using an attribute other than the key. Kalix https://docs.kalix.io/reference/glossary.html#view[Views] allow you achieve this. By creating multiple Views, you can optimize for query performance against each one.
+You can access a single https://docs.kalix.io/reference/glossary.html#entity[Entity] with its https://docs.kalix.io/reference/glossary.html#entity_key[Entity key]. But sometimes this is not enough. You might want to retrieve multiple Entities, or retrieve them using an attribute other than the key. Kalix https://docs.kalix.io/reference/glossary.html#view[Views] allow you achieve this. You can create each View, so each one is optimized for an specific query.
 
 Views can be defined from any of the following:
 
@@ -23,7 +23,7 @@ IMPORTANT: Be aware that Views are not updated immediately when Entity state cha
 
 Consider an example of a Customer Registry service with a `customer` Value Entity. When `customer` state changes, the entire state is emitted as a value change. Value changes update any associated Views. To create a View that lists customers by their name:
 
-* <<_define_the_view_service_descriptor>> for a service that selects customers by name and associates a table name with the View. The table is created and used by Kalix to store the View.
+* <<_define_the_view>> for a service that selects customers by name and associates a table name with the View. The table is created and used by Kalix to store the View.
 
 
 This example assumes the following `customer` exists
@@ -34,23 +34,37 @@ This example assumes the following `customer` exists
 include::example$spring-customer-registry-views-quickstart/src/main/java/customer/api/Customer.java[tags=class]
 ----
 
-As well as a Value Entity service that will produce the state changes consumed by the View:
+As well as a Value Entity service `CustomerEntity.java` that will produce the state changes consumed by the View:
 
 
+=== Define the View
 
-=== Define the View service descriptor
+To get a View of multiple customers by their name, you need the set the following:
 
-To get a View of multiple customers by their name, ...
+ - Define the name of the table with `@Table`.
+ - Subscribe to the Value Entity with `@Subscribe.ValueEntity`.
+ - Extend from the class `View`.
+ - Define an endpoint for the view with `@GetMapping`. Is this optional? Can the view be called by a component?
+ - Define the query with `@Query`. 
 
-NOTE: In this sample we use the internal `domain.CustomerState` as the state of the view. This is convenient since it allows automatic updates of the view without any logic but has the draw back that it implicitly makes the `domain.CustomerState` type a part of the public service API. Transforming the state to another type than the incoming update to avoid this can be seen in <<#event-sourced-entity>>.
+.src/main/java/customer/view/CustomerByNameView.java
+[source,java]
+----
+include::example$spring-customer-registry-views-quickstart/src/main/java/customer/view/CustomerByNameView.java[tags=class]
+----
+<1> defining table name
+<2> subscribing to `CustomerEntity`
+<3> extending from `View`
+<4> defining endpoint
+<5> defining the query
+<6> note that no return is needed
+
+IMPORTANT: Note that the return value of the method is `null`. You may ask yourself,  how is it that the endpoint respond with any `Customer` at all? The fact is that this customer object is created in the proxy and not in the View. When you call this endpoint, the view calls the proxy, which in turn calls the database. When the proxy receives the response, it sends it directly to you without any further intervention from the View. Therefore, null is valid as a return value in the endpoint of a View. The choice of null is a way to signal that the response doesn't come from the return of this method. 
+
+TODO: ? how do we know there is only one Customer? 
 
 
-? If the query should only return one result, remove the `stream` from the return type:
-
-
-
-? When no result is found, the request fails with gRPC status code `NOT_FOUND`. A streamed call completes with an empty stream when no result is found.
-
+TODO: ? When no result is found, the request fails with gRPC status code `NOT_FOUND`. A streamed call completes with an empty stream when no result is found.
 
 
 [#event-sourced-entity]
@@ -58,44 +72,47 @@ NOTE: In this sample we use the internal `domain.CustomerState` as the state of 
 
 Create a View from an Event Sourced Entity by using events that the Entity emits to build a state representation. Using a Customer Registry service example, to create a View for querying customers by name:
 
-. <<_define_a_view_descriptor_to_consume_events>>
-. <<_create_a_transformation_class>>
+This example assumes a Customer equal to the previous example. This example assumes an Event Sourced Entity that uses this Customer and it is in charge of producing the events that update the View. These events are defined as subtypes of the class `CustomerEvent` following standard https://github.com/FasterXML/jackson-annotations#handling-polymorphic-types[Jackson notation] like this: 
 
+.src/main/java/customer/api/CustomerEvent.java
+[source,java]
+----
+include::example$spring-eventsourced-customer-registry/src/main/java/customer/api/CustomerEvent.java[tags=class]
+----
+<1> Includes the logical type name (defined in impl classes) as type 
+<2> Required for deserialization and to define the logical type name 
 
-The example assumes a Customer that defines the events that will update the View on name changes:
-
-... define Customer
-
-As well as an Event Sourced Entity service that will produce the events consumed by the View:
+Adding `@JsonTypeInfo` is needed so that Jackson can read back correctly the Object type when deserializing. By using `name`, you set its value as the fully qualified message name instead of the using the fully qualified Java class. This is called a `logical type name` and it allows you refactor the class to another package after you have serialized messages of this type. Otherwise, after such a refactor the objects serialized with the old package won't be recognized as the same type. 
 
 
 === Define the View to consume events
 
+The definition of the view for an Event Sourced Entity is the same as for a Value Entity. However, in this example, the subscription is at the method level rather than the type level. The advantage of this approach is that you can create multiple methods to handle different events.  
 
+Every time an event is processed by the view, the state of the view can be updated. You can do this with the `.updateState` method, which is available through the `effects()` of the View. Here you can see how the view is updated with a new name: 
 
-See <<#query>> for more examples of valid query syntax.
+ .src/main/java/customer/view/CustomerByNameView.class
+[source,java]
+----
+include::example$spring-eventsourced-customer-registry/src/main/java/customer/view/CustomerByNameView.java[tags=class]
+----
+<1> updating the state of the view with the new name 
 
-=== Create a transformation class
-
-Next, you need to define how to transforms events to state that can be used in the View. An Event Sourced entity can emit many types of events. You need to define a method for each event type. If a View does not use all events, you need to ignore unneeded events as shown in the `IgnoreOtherEvents` update method.
-
-View update handlers are implemented in the `CustomerByNameView` class  methods. The methods take the current view state as the first parameter and the event as the second parameter. They return an `UpdateEffect`, which describes next processing actions, such as updating the view state.
+An Event Sourced entity can emit many types of events. You need to define a method for each event type. They return an `UpdateEffect`, which describes next processing actions, such as updating the view state.
 
 NOTE: This type of update transformation is a natural fit for Events emitted by an Event Sourced Entity, but it can also be used for Value Entities. For example, if the View representation is different from the Entity state you might want to transform it before presenting the View to the client.
 
+See <<#query>> for more examples of valid query syntax.
+
 == Ignoring events
 
-When consuming events, each event must be matched by a View service method. In case your View is only interested in certain events, you may declare a method to receive all events that are not received by the other methods. If an event type is not handled, ???the Action will fail???. Views are designed to restart, but since the handler is missing, it will fail again. Therefore, it's important to define methods for all events or define a catch-all method in case you want to discard some events.
-
-The `IgnoreOtherEvents` method here is defined as a catch-all because it has input type `Any`. Instead of using a catch-all it can be better to define concrete methods for all known event types that should be ignored because then there is no risk of accidentally ignoring events that are added in later evolution of the service.
-
-When adding the `ignore: true` annotation the corresponding implementation is not needed in the component. It is more efficient to use `ignore: true` than implementing the method with an immediate reply.
+When consuming events, each event must be matched by a View service method. In case your View is only interested in certain events, you may declare a catch-all method to receive the `sealed interface` and don't update the View. If an event type is not handled, the View will fail. Views are designed to restart, but since the handler is missing, it will fail again. Therefore, it's important to define methods for all events or define a catch-all method in case you want to discard some events.
 
 
 [#topic-view]
 == Creating a View from a topic
 
-The source of a View can be an eventing topic. You define it in the same way as shown in <<event-sourced-entity>> or <<value-entity>>, but leave out the `eventing.in` annotation in the Protobuf file.
+The source of a View can be a topic. It works the same way as shown in <<event-sourced-entity>> or <<value-entity>>, but you define it with `@Subscribe.Topic` instead.
 
 
 [#transform-results]
@@ -162,9 +179,8 @@ The View definitions are stored and validated when a new version is deployed. Th
 A query can provide a near real time stream of results for the query, emitting new entries matching the query as they are added or updated in
 the view.
 
-This is done by adding the option `stream_updates` to a query method with a `stream` reply:
 
- ??? Flux ???
+ TODO: Ask Renato as he just added it to the Spring SDK
 
 This will first list the complete result for the query and then keep the response stream open, emitting new or updated
 entries matching the query as they are added to the view. The stream does not complete until the client closes it.

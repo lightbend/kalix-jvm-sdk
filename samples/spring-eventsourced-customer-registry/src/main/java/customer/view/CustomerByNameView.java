@@ -1,5 +1,6 @@
 package customer.view;
 
+// tag::class[]
 import customer.api.CustomerEntity;
 import customer.api.CustomerEvent;
 import kalix.javasdk.view.View;
@@ -24,7 +25,7 @@ public class CustomerByNameView extends View<CustomerView> {
 
   @Subscribe.EventSourcedEntity(CustomerEntity.class)
   public UpdateEffect<CustomerView> onEvent(CustomerEvent.NameChanged event) {
-    return effects().updateState(viewState().withName(event.newName()));
+    return effects().updateState(viewState().withName(event.newName())); // <1>
   }
 
   @Subscribe.EventSourcedEntity(CustomerEntity.class)
@@ -32,3 +33,4 @@ public class CustomerByNameView extends View<CustomerView> {
     return effects().updateState(viewState().withAddress(event.address()));
   }
 }
+// end::class[]

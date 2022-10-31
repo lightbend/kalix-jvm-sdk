@@ -262,7 +262,7 @@ NOTE: This type of update transformation is a natural fit for Events emitted by 
 
 == Ignoring events
 
-When consuming events, each event must be matched by a Protobuf service method. In case your View is only interested in certain events, you may declare a method to receive all events that are not received by the other methods. If an event type is not handled, the Action will fail. Views are designed to restart, but since the handler is missing, it will fail again. Therefore, it's important to define methods for all events or define a catch-all method in case you want to discard some events.
+When consuming events, each event must be matched by a Protobuf service method. In case your View is only interested in certain events, you may declare a method to receive all events that are not received by the other methods. If an event type is not handled, the View will fail. Views are designed to restart, but since the handler is missing, it will fail again. Therefore, it's important to define methods for all events or define a catch-all method in case you want to discard some events.
 
 [.tabset]
 Java::
