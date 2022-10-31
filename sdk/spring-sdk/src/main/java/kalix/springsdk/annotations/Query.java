@@ -35,5 +35,12 @@ public @interface Query {
    */
   String value();
 
+  /**
+   * If enabled, initially, the normal query results are returned, but the stream
+   * does not complete once the full result has been streamed, instead the stream
+   * is kept open and updates and new entries added to the view are streamed.
+   *
+   * Can only be enabled in stream methods returning Flux.
+   */
   boolean streamUpdates() default false;
 }
