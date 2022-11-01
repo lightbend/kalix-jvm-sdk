@@ -1,11 +1,6 @@
 package com.example.actions;
 
-// tag::sub-ESE-pub-topic-action[]
-import kalix.javasdk.action.Action;
-import kalix.springsdk.annotations.Publish;
-import kalix.springsdk.annotations.Subscribe;
 
-// end::sub-ESE-pub-topic-action[]
 
 import com.example.CounterEvent;
 import com.example.CounterEvent.ValueIncreased;
@@ -13,10 +8,13 @@ import com.example.CounterEvent.ValueMultiplied;
 import com.example.Counter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-//TODO move to type level the subscription when SDK is released
 
-// tag::sub-ESE-pub-topic-action[]
-public class CounterJournalToTopicActionPubSub extends Action {
+// tag::class[]
+import kalix.javasdk.action.Action;
+import kalix.springsdk.annotations.Publish;
+import kalix.springsdk.annotations.Subscribe;
+
+public class CounterJournalToTopicAction extends Action {
 
     @Subscribe.EventSourcedEntity(value = Counter.class) // <1>
     @Publish.Topic("counter-events") // <2>
@@ -30,4 +28,4 @@ public class CounterJournalToTopicActionPubSub extends Action {
         } else return effects().reply(event); // <4>
     }
 }
-// end::sub-ESE-pub-topic-action[]
+// end::class[]
