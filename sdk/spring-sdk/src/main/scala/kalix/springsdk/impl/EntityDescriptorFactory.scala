@@ -16,11 +16,14 @@
 
 package kalix.springsdk.impl
 
+import kalix.EntityMethodOptions.Generator
 import kalix.springsdk.annotations.EntityKey
+import kalix.springsdk.annotations.GenerateEntityKey
 import kalix.springsdk.impl.ComponentDescriptorFactory.buildJWTOptions
 import kalix.springsdk.impl.reflection.KalixMethod
 import kalix.springsdk.impl.reflection.NameGenerator
 import kalix.springsdk.impl.reflection.RestServiceIntrospector
+import kalix.springsdk.impl.reflection.ServiceIntrospectionException
 
 private[impl] object EntityDescriptorFactory extends ComponentDescriptorFactory {
 
@@ -28,11 +31,48 @@ private[impl] object EntityDescriptorFactory extends ComponentDescriptorFactory 
       component: Class[_],
       messageCodec: SpringSdkMessageCodec,
       nameGenerator: NameGenerator): ComponentDescriptor = {
-    val entityKeys = component.getAnnotation(classOf[EntityKey]).value()
+
+    val entityKeysOnType = {
+      val anno = component.getAnnotation(classOf[EntityKey])
+      if (anno != null) anno.value()
+      else Array.empty[String]
+    }
 
     val kalixMethods =
       RestServiceIntrospector.inspectService(component).methods.map { restMethod =>
-        KalixMethod(restMethod, entityKeys = entityKeys).withKalixOptions(buildJWTOptions(restMethod.javaMethod))
+
+        val entityKeyOnMethod = restMethod.javaMethod.getAnnotation(classOf[EntityKey])
+        val generateEntityKey = restMethod.javaMethod.getAnnotation(classOf[GenerateEntityKey])
+
+        if (entityKeyOnMethod != null && generateEntityKey != null)
+          throw ServiceIntrospectionException(
+            restMethod.javaMethod,
+            "Invalid annotation usage. Found both @EntityKey and @GenerateEntityKey annotations. " +
+            "A method can only be annotated with one of them, but not both.")
+
+        val kalixMethod =
+          if (generateEntityKey != null) {
+            val entityOptions = kalix.EntityMethodOptions.newBuilder().setKeyGenerator(Generator.VERSION_4_UUID)
+            val methodOpts = kalix.MethodOptions.newBuilder().setEntity(entityOptions)
+            KalixMethod(restMethod).withKalixOptions(methodOpts.build())
+
+          } else {
+            // keys defined on Method level get precedence
+            val entityKeysToUse =
+              if (entityKeyOnMethod != null) entityKeyOnMethod.value()
+              else entityKeysOnType
+
+            if (entityKeysToUse.isEmpty)
+              throw ServiceIntrospectionException(
+                restMethod.javaMethod,
+                "Invalid command method. No @EntityKey nor @GenerateEntityKey annotations found. " +
+                "A command method should be annotated with either @EntityKey or @GenerateEntityKey, or " +
+                "an @EntityKey annotation should be present at class level.")
+
+            KalixMethod(restMethod, entityKeys = entityKeysToUse)
+          }
+
+        kalixMethod.withKalixOptions(buildJWTOptions(restMethod.javaMethod))
       }
 
     val serviceName = nameGenerator.getName(component.getSimpleName)

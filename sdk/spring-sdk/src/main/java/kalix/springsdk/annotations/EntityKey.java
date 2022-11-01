@@ -22,7 +22,7 @@ import java.lang.annotation.*;
  * Assign a key to the entity.
  * This should be unique per entity and map to some field being received on the route path.
  */
-@Target(ElementType.TYPE)
+@Target({ElementType.TYPE, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface EntityKey {
