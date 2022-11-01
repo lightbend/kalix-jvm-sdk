@@ -30,16 +30,16 @@ include::example$spring-eventsourced-counter/src/main/java/com/example/actions/C
 <1> subscribing to the events from the Counter.
 <2> publishing to a topic name 'counter-events'.
 <3> setting the method input type to the events produced by the counter.
-<4> any return is valid. See NOTE.
+<4> any return `Action.Effect` response is valid.
 
 
 
 IMPORTANT: The messages stored in the topic are serialized as JSON. You cannot change this serialization.
 
-[NOTE]
-====
-The return value of the method is an `Action.Effect` with message `0`, but can be any other of type `Action.Effect<Integer>` as the return type of the method indicates. The Kalix framework needs the response to ensure that the event was successfully processed. If no exception is thrown and the method returns a value, the framework assumes that the event was successfully processed and marks it as such. This allows the next event to be sent to the subscribing method.  However, if an exception is raised and not handled, this action will not process any more events until the necessary handling is added. It will raise the same error over and over again until the application is fixed and restarted.
-====
+
+The return value of the method is an `Action.Effect` with message `Confirmed`, but can be any other of type `Action.Effect<>` if the return type of the method defines it. The Kalix framework needs the type `Effect` to ensure that the event was successfully processed. If no exception is thrown and the method returns a `effects().reply`, the framework assumes that the event was successfully processed and marks it as such. This allows the next event to be sent to the subscribing method.  
+
+However, if an exception is raised and not handled, or the method return `effects().failed()` this action will not process any more events until the necessary handling of the current event is added such its return is a `reply`. Otherwise, it will raise the same error over and over again until the application is fixed and restarted.
 
 
 == Subscribing to a Value Entity

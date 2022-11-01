@@ -10,14 +10,14 @@ import org.slf4j.LoggerFactory;
 import kalix.javasdk.action.Action;
 import kalix.springsdk.annotations.Subscribe;
 
-@Subscribe.EventSourcedEntity(value = Counter.class, ignoreUnkown = true) // <1>
+@Subscribe.EventSourcedEntity(value = Counter.class, ignoreUnknown = true) // <1>
 public class SubscribeTypeLevelAction extends Action {
 
     private Logger logger = LoggerFactory.getLogger(SubscribeTypeLevelAction.class);
 
-    public Action.Effect<Integer> onIncrease(ValueIncreased event){ // <2>
+    public Action.Effect<Confirmed> onIncrease(ValueIncreased event){ // <2>
         logger.info("Received increased event: " + event.toString());
-        return effects().reply(0); // <3>
+        return effects().reply(Confirmed.defaultInstance()); // <3>
     }
 }
 // end::class[]

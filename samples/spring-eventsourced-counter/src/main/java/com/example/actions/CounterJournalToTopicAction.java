@@ -6,8 +6,6 @@ import com.example.CounterEvent;
 import com.example.CounterEvent.ValueIncreased;
 import com.example.CounterEvent.ValueMultiplied;
 import com.example.Counter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 // tag::class[]
 import kalix.javasdk.action.Action;
@@ -18,14 +16,14 @@ public class CounterJournalToTopicAction extends Action {
 
     @Subscribe.EventSourcedEntity(value = Counter.class) // <1>
     @Publish.Topic("counter-events") // <2>
-    public Action.Effect<CounterEvent> onEntityEventToTopic(CounterEvent event){ // <3>
+    public Action.Effect<Confirmed> onEntityEventToTopic(CounterEvent event){ // <3>
         if (event instanceof ValueIncreased){
             ValueIncreased vi = new ValueIncreased(((ValueIncreased) event).value() + 1);
-            return effects().reply(vi);
+            return effects().reply(Confirmed.defaultInstance());
         } else if (event instanceof ValueMultiplied){
             ValueMultiplied vm = new ValueMultiplied(((ValueMultiplied) event).value()*2);
-            return effects().reply(vm);
-        } else return effects().reply(event); // <4>
+            return effects().reply(Confirmed.defaultInstance());
+        } else return effects().reply(Confirmed.defaultInstance()); // <4>
     }
 }
 // end::class[]
