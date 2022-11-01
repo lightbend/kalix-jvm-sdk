@@ -65,14 +65,6 @@ class DiscoveryImpl(
   private def configuredIntOrElse(key: String, default: Int): Int =
     if (system.settings.config.hasPath(key)) system.settings.config.getInt(key) else default
 
-  private val serviceInfo = ServiceInfo(
-    serviceRuntime = sys.props.getOrElse("java.runtime.name", "")
-      + " " + sys.props.getOrElse("java.runtime.version", ""),
-    supportLibraryName = sdkName,
-    supportLibraryVersion = configuredOrElse("kalix.library.version", BuildInfo.version),
-    protocolMajorVersion = configuredIntOrElse("kalix.library.protocol-major-version", BuildInfo.protocolMajorVersion),
-    protocolMinorVersion = configuredIntOrElse("kalix.library.protocol-minor-version", BuildInfo.protocolMinorVersion))
-
   // detect hybrid proxy version probes when protocol version 0.0
   private def isVersionProbe(info: ProxyInfo): Boolean = {
     info.protocolMajorVersion == 0 && info.protocolMinorVersion == 0
@@ -90,6 +82,19 @@ class DiscoveryImpl(
       in.proxyPort,
       in.protocolMajorVersion,
       in.protocolMinorVersion)
+
+    val serviceInfo = ServiceInfo(
+      serviceRuntime = sys.props.getOrElse("java.runtime.name", "")
+        + " " + sys.props.getOrElse("java.runtime.version", ""),
+      supportLibraryName = sdkName,
+      supportLibraryVersion = configuredOrElse("kalix.library.version", BuildInfo.version),
+      protocolMajorVersion =
+        configuredIntOrElse("kalix.library.protocol-major-version", BuildInfo.protocolMajorVersion),
+      protocolMinorVersion =
+        configuredIntOrElse("kalix.library.protocol-minor-version", BuildInfo.protocolMinorVersion),
+      // passed along for substitution in options
+      env = sys.env)
+
     if (isVersionProbe(in)) {
       // only (silently) send service info for hybrid proxy version probe
       Future.successful(Spec(serviceInfo = Some(serviceInfo)))
