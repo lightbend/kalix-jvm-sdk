@@ -11,15 +11,15 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 // tag::declarations[]
 @EntityType("counter")                                     // <1>
-public class CounterEntity extends ValueEntity<Integer> {  // <2>
+@EntityKey("counter_id")                                   // <2>
+public class CounterEntity extends ValueEntity<Integer> {  // <3>
 
   @Override
-  public Integer emptyState() { return 0; }                  // <3>
+  public Integer emptyState() { return 0; }                  // <4>
   // end::declarations[]
 
   // tag::increase[]
 
-  @EntityKey("counter_id")                                   // <4>
   @PostMapping("/counter/{counter_id}/increase")             // <5>
   public Effect<Number> increaseBy(@RequestBody Number increaseBy) {
     int newCounter = currentState() + increaseBy.value();    // <6>
@@ -30,7 +30,6 @@ public class CounterEntity extends ValueEntity<Integer> {  // <2>
   // end::increase[]
 
   // tag::behaviour[]
-  @EntityKey("counter_id")
   @PutMapping("/counter/{counter_id}/set")                  // <1>
   public Effect<Number> set(@RequestBody Number number) {
     int newCounter = number.value();
@@ -39,7 +38,6 @@ public class CounterEntity extends ValueEntity<Integer> {  // <2>
         .thenReply(new Number(newCounter));                 // <3>
   }
 
-  @EntityKey("counter_id")
   @PostMapping("/counter/{counter_id}/plusone")             // <4>
   public Effect<Number> plusOne() {
     int newCounter = currentState() + 1;                    // <5>
@@ -50,7 +48,6 @@ public class CounterEntity extends ValueEntity<Integer> {  // <2>
   // end::behaviour[]
 
   // tag::query[]
-  @EntityKey("counter_id")
   @GetMapping("/counter/{counter_id}")           // <1>
   public Effect<Number> get() {
     return effects()
