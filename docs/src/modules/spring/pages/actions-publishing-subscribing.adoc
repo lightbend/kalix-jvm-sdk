@@ -82,7 +82,7 @@ In the following example you can take a look at how the Action is configured to 
 include::example$spring-eventsourced-counter/src/main/java/com/example/actions/SubscribeTypeLevelAction.java[tag=class]
 ----
 <1> set to ignore unknown events
-<2> only processsing `ValueIncreased` events
+<2> only processing `ValueIncreased` events
 <3> any return is valid. See NOTE in Subscribing to an Event Sourced Entity.
 
 If you do not add `ignoreUnknown=true`, the action would fail when processing a `ValueMultiply`. By default is false.
