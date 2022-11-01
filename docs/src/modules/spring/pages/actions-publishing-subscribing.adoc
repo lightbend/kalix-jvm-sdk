@@ -29,7 +29,7 @@ include::example$spring-eventsourced-counter/src/main/java/com/example/actions/S
 <2> setting the method input type to the events produced by the counter.
 <3> any return is valid. See NOTE.
 
-The events from the entity are delivered to the Action. The implementation may vary, for this simplified example you are just logging it, but it could a forward to some other component or external service.
+The events from the entity are delivered to the Action. The implementation may vary, for this simplified example you are just logging it, but it could be a forward to some other component or external service.
 
 [NOTE]
 ====
