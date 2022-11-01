@@ -103,7 +103,7 @@ that receives commands to increase the counter.
 .src/main/java/com/example/CounterEntity.java
 [source,java]
 ----
-include::example$spring-valueentity-counter/src/main/java/com/example/CounterEntity.java[]
+include::example$spring-valueentity-counter/src/main/java/com/example/CounterEntity.java[tags=declarations;increase;close]
 ----
 <1> Every Entity must be annotated with `@EntityType` with a stable name. This name should be unique among the
 different existing entities within a Kalix application.
