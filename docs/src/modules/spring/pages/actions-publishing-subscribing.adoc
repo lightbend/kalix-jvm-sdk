@@ -39,7 +39,7 @@ IMPORTANT: The messages stored in the topic are serialized as JSON. You cannot c
 
 The return value of the method is an `Action.Effect` with message `Confirmed`, but can be any other of type `Action.Effect<>` if the return type of the method defines it. The Kalix framework needs the type `Effect` to ensure that the event was successfully processed. If no exception is thrown and the method returns a `effects().reply`, the framework assumes that the event was successfully processed and marks it as such. This allows the next event to be sent to the subscribing method.  
 
-However, if an exception is raised and not handled, or the method return `effects().failed()` this action will not process any more events until the necessary handling of the current event is added such its return is a `reply`. Otherwise, it will raise the same error over and over again until the application is fixed and restarted.
+However, if an exception is raised and not handled, or the method return `effects().error()` this action will not process any more events until the necessary handling of the current event is added such its return is a `reply`. Otherwise, it will raise the same error over and over again until the application is fixed and restarted.
 
 
 == Subscribing to a Value Entity

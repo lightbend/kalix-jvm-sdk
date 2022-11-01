@@ -25,7 +25,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
 @Table("counters_by_value_with_ignore")
-@Subscribe.EventSourcedEntity(value = CounterEntity.class, ignoreUnkown = true)
+@Subscribe.EventSourcedEntity(value = CounterEntity.class, ignoreUnknown = true)
 public class CountersByValueWithIgnore extends View<Counter> {
 
   @Override

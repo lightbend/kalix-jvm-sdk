@@ -74,7 +74,7 @@ public @interface Subscribe {
      *   if ignoreUnknown is true the event is discarded.
      *   if false, an Exception is raised.
      * */
-    boolean ignoreUnkown() default false;
+    boolean ignoreUnknown() default false;
   }
 
   /** Annotation for subscribing to messages from a topic (i.e PubSub or Kafka topic). */
