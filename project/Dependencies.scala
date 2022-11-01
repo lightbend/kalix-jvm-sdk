@@ -10,17 +10,17 @@ object Dependencies {
   }
 
   // changing the Scala version of the Java SDK affects end users
-  val ScalaVersion = "2.13.8"
-  val ScalaVersionForSbtPlugin = "2.12.15"
+  val ScalaVersion = "2.13.10"
+  val ScalaVersionForSbtPlugin = "2.12.17"
   val ScalaVersionForCodegen = Seq(ScalaVersionForSbtPlugin)
 
   val ProtobufVersion = akka.grpc.gen.BuildInfo.googleProtobufVersion
 
-  val AkkaVersion = "2.6.20"
-  val AkkaHttpVersion = "10.2.10" // Note: should at least the Akka HTTP version required by Akka gRPC
+  val AkkaVersion = "2.7.0"
+  val AkkaHttpVersion = "10.4.0" // Note: should at least the Akka HTTP version required by Akka gRPC
   val ScalaTestVersion = "3.2.14"
   val JacksonVersion = "2.13.4"
-  val JacksonDatabindVersion = "2.13.4.1"
+  val JacksonDatabindVersion = "2.13.4.2"
   val DockerBaseImageVersion = "adoptopenjdk/openjdk11:debianslim-jre"
   val LogbackVersion = "1.2.11"
   val LogbackContribVersion = "0.1.5"
