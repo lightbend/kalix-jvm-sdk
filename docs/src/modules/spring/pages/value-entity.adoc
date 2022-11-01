@@ -46,21 +46,21 @@ different existing entities within a Kalix application.
 
 === Updating state
 
-We will now show how to add the command handlers for supporting the two desired operations (`set` and `plusone`). Command handlers are implemented as methods on the entity class but are also exposed for external interactions and always return an `Effect` of some type.
+We will now show how to add the command handlers for supporting the two desired operations (`set` and `plusOne`). Command handlers are implemented as methods on the entity class but are also exposed for external interactions and always return an `Effect` of some type.
 
 .src/main/java/com/example/CounterEntity.java
 [source,java,indent=0]
 ----
 include::example$spring-valueentity-counter/src/main/java/com/example/CounterEntity.java[tags=behaviour]
 ----
-<1> Expose the `set` command handler on path `/counter/\{id\}/set` as a PUT endpoint where `id` will be its unique identifier.
+<1> Expose the `set` command handler on path `/counter/\{counter_id\}/set` as a PUT endpoint where `id` will be its unique identifier.
 <2> Set the new counter value to the value received as body of the command request.
 <3> Reply with the new counter value wrapped within a `Number` object.
-<4> The method is accessible as a POST endpoint on `/counter/\{id\}/plusone`, where `id` will be its unique identifier.
-<5> Its `plusone` increases the counter by adding 1 to the current state.
+<4> The method is accessible as a POST endpoint on `/counter/\{counter_id\}/plusone`, where `id` will be its unique identifier.
+<5> `plusOne` increases the counter by adding 1 to the current state.
 <6> Finally, using the Effect API, we instruct Kalix to persist the new state, and we build a reply with the wrapper object.
 
-NOTE: The `id` parameter matches the `entityKey` value. Also, for this example, we have opted to always repeat the common route `/counter/\{id\}` for each command but a simpler option could be to use a `@RequestMethod("/counter/\{id\}")` at class level.
+NOTE: The `counter_id` parameter matches the `entityKey` value. Also, for this example, we have opted to always repeat the common route `/counter/\{counter_id\}` for each command but a simpler option could be to use a `@RequestMethod("/counter/\{counter_id\}")` at class level.
 
 === Retrieving state
 
@@ -71,7 +71,7 @@ The following example shows how to implement a simple endpoint to retrieve the c
 ----
 include::example$spring-valueentity-counter/src/main/java/com/example/CounterEntity.java[tags=query]
 ----
-<1> Expose the `get` query handler on path `/counter/\{id\}` as a GET endpoint where `id` will be its unique identifier.
+<1> Expose the `get` query handler on path `/counter/\{counter_id\}` as a GET endpoint where `id` will be its unique identifier.
 <2> Reply with the current state wrapped within a `Number`.
 
 == Testing the Entity
