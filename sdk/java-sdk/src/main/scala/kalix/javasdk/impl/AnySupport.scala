@@ -18,12 +18,10 @@ package kalix.javasdk.impl
 
 import java.io.ByteArrayOutputStream
 import java.util.Locale
-
 import scala.collection.concurrent.TrieMap
 import scala.jdk.CollectionConverters._
 import scala.reflect.ClassTag
 import scala.util.Try
-
 import com.google.common.base.CaseFormat
 import com.google.protobuf.ByteString
 import com.google.protobuf.CodedInputStream
@@ -41,6 +39,8 @@ import org.slf4j.LoggerFactory
 import scalapb.GeneratedMessage
 import scalapb.GeneratedMessageCompanion
 import scalapb.options.Scalapb
+
+import scala.collection.compat.immutable.ArraySeq
 
 object AnySupport {
 
@@ -146,7 +146,7 @@ object AnySupport {
 
   private def bytesToPrimitive[T](primitive: Primitive[T], bytes: ByteString) = {
     val stream = bytes.newCodedInput()
-    if (Stream
+    if (LazyList
         .continually(stream.readTag())
         .takeWhile(_ != 0)
         .exists { tag =>
@@ -200,7 +200,7 @@ class AnySupport(
     extends MessageCodec {
 
   import AnySupport._
-  private val allDescriptors = flattenDescriptors(descriptors)
+  private val allDescriptors = flattenDescriptors(ArraySeq.unsafeWrapArray(descriptors))
 
   private val allTypes = (for {
     descriptor <- allDescriptors.values

@@ -76,7 +76,7 @@ object ActionEffectImpl {
   case object IgnoreEffect extends PrimaryEffect[Nothing] {
     def isEmpty: Boolean = true
 
-    override def internalSideEffects = Nil
+    override def internalSideEffects() = Nil
 
     protected def withSideEffects(sideEffect: Seq[SideEffect]): PrimaryEffect[Nothing] = {
       throw new IllegalArgumentException("adding side effects to is not allowed.")

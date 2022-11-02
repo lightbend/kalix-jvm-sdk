@@ -36,8 +36,8 @@ private[kalix] class MetadataImpl(val impl: kalix.javasdk.impl.MetadataImpl) ext
   def clearDataschema(): CloudEvent = MetadataImpl(impl.clearDataschema()).asCloudEvent
   def clearSubject(): CloudEvent = MetadataImpl(impl.clearSubject()).asCloudEvent
   def clearTime(): CloudEvent = MetadataImpl(impl.clearTime()).asCloudEvent
-  def datacontenttype: Option[String] = impl.datacontenttypeScala
-  def dataschema: Option[java.net.URI] = impl.dataschemaScala
+  def datacontenttype: Option[String] = impl.datacontenttypeScala()
+  def dataschema: Option[java.net.URI] = impl.dataschemaScala()
   def id: String = impl.id
   def source: java.net.URI = impl.source
   def specversion: String = impl.specversion
