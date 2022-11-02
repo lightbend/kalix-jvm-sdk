@@ -19,4 +19,19 @@ public class CounterTest {
     assertEquals(10, testKit.getState());
   }
 
+  // tag::example[]
+  @Test
+  public void testSetAndIncrease() {
+    ValueEntityTestKit<Integer, CounterEntity> testKit = ValueEntityTestKit.of(CounterEntity::new); // <1>
+    ValueEntityResult<Number> resultSet = testKit.call(e -> e.set(new Number(10))); // <2>
+    assertTrue(resultSet.isReply());
+    assertEquals(10, resultSet.getReply().value()); // <3>
+
+    ValueEntityResult<Number> resultPlusOne = testKit.call(CounterEntity::plusOne); // <4>
+    assertTrue(resultPlusOne.isReply());
+    assertEquals(11, resultPlusOne.getReply().value());
+
+    assertEquals(11, testKit.getState()); // <5>
+  }
+  // end::example[]
 }
