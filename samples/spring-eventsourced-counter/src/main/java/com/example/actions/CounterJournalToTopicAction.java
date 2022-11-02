@@ -16,14 +16,9 @@ public class CounterJournalToTopicAction extends Action {
 
     @Subscribe.EventSourcedEntity(value = Counter.class) // <1>
     @Publish.Topic("counter-events") // <2>
-    public Action.Effect<Confirmed> onEntityEventToTopic(CounterEvent event){ // <3>
-        if (event instanceof ValueIncreased){
-            ValueIncreased vi = new ValueIncreased(((ValueIncreased) event).value() + 1);
-            return effects().reply(Confirmed.defaultInstance());
-        } else if (event instanceof ValueMultiplied){
-            ValueMultiplied vm = new ValueMultiplied(((ValueMultiplied) event).value()*2);
-            return effects().reply(Confirmed.defaultInstance());
-        } else return effects().reply(Confirmed.defaultInstance()); // <4>
+    public Action.Effect<ValueIncreased> onValueIncreased(ValueIncreased event){ // <3>
+        ValueIncreased vi = new ValueIncreased(event.value() + 1);
+        return effects().reply(vi); // <4>
     }
 }
 // end::class[]

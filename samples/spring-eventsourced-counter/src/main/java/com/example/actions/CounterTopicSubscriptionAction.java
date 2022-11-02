@@ -16,13 +16,16 @@ public class CounterTopicSubscriptionAction extends Action {
     private Logger logger = LoggerFactory.getLogger(CounterTopicSubscriptionAction.class);
 
     @Subscribe.Topic(value = "counter-events") // <1>
-    public Action.Effect<Confirmed> onTopicEvent(CounterEvent event){ // <2>
-        if (event instanceof ValueIncreased){
-            logger.info("Received increased event: " + event.toString());
-        } else if (event instanceof ValueMultiplied){
-            logger.info("Received multiplied event: " + event.toString());
-        }
+    public Action.Effect<Confirmed> onValueIncreased(ValueIncreased event){ // <2>
+        logger.info("Received increased event: " + event.toString());
         return effects().reply(Confirmed.defaultInstance()); // <3>
+    }
+
+
+    @Subscribe.Topic(value = "counter-events") // <4>
+    public Action.Effect<Confirmed> onValueMultiplied(ValueMultiplied event){ // <5>
+        logger.info("Received multiplied event: " + event.toString());
+        return effects().reply(Confirmed.defaultInstance()); // <6>
     }
 }
 // end::class[]
