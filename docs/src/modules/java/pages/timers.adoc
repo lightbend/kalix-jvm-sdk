@@ -70,7 +70,7 @@ Scala::
 ----
 include::example$scala-reliable-timers/src/main/scala/com/example/actions/OrderAction.scala[tags=timers;place-order]
 ----
-<1> First we generate a random identifier for the Order. We will use it for identifying the Order, but also as unique name for the timer.
+<1> First we generate a random identifier for the Order. We will use it for identifying the Order, but also as a unique name for the timer.
 <2> We call the timers API to register a new timer. Note that it returns `Future[Done]`. A successful completion means that Kalix registered the timer. 
 <3> Order number is used to generate a unique name for the timer.
 <4> We set the delay we want for the timer to trigger. 
@@ -97,9 +97,9 @@ Java::
 ----
 include::example$java-reliable-timers/src/main/java/com/example/actions/OrderAction.java[tags=timers;expire-order]
 ----
-<1> When the `OrderAction` receives the expiration call, it immediately tries to cancel the Order. We use the `execute()` method to run it. This method returns a `CompletionStage`.
-<2> If the `CompletionStage` completes successfully, we are all good and we can simply return `Empty.getDefaultInstance()`. Since this method is returning normally, the timer will be considered as executed and will be removed from Kalix.
-<3> On the other hand, if the `CompletionStage` completes with a failure, we must decide if we will recover the call or not. If we recover, the timer will be considered as completed. If we let the call fail, the timer will be re-scheduled.
+<1> When the `OrderAction` receives the expiration call, it immediately tries to cancel the Order. You use the `execute()` method to run it and this method returns a `CompletionStage`.
+<2> If the `CompletionStage` completes successfully, you are all good and can simply return `Empty.getDefaultInstance()`. Since this method is returning normally, the timer will be considered as executed and will be removed from Kalix.
+<3> On the other hand, if the `CompletionStage` completes with a failure, you must decide if you will recover the call or not. If you recover, the timer will be considered as completed. If you let the call fail, the timer will be re-scheduled.
 
 Scala::
 +
@@ -108,15 +108,15 @@ Scala::
 ----
 include::example$scala-reliable-timers/src/main/scala/com/example/actions/OrderAction.scala[tags=timers;expire-order]
 ----
-<1> When the `OrderAction` receives the expiration call, it immediately tries to cancel the Order. We use the `execute()` method to run it. This method returns a `Future`.
-<2> If the `Future` completes successfully, we are all good and we can simply return `Empty.defaultInstance`. Since this method is returning normally, the timer will be considered as executed and will be removed from Kalix.
-<3> On the other hand, if the `Future` completes with a failure, we must decide if we will recover the call or not. If we recover, the timer will be considered as completed. If we will let the call fail, the timer will be re-scheduled. 
+<1> When the `OrderAction` receives the expiration call, it immediately tries to cancel the Order. You use the `execute()` method to run it. This method returns a `Future`.
+<2> If the `Future` completes successfully, it's all good and can simply return `Empty.defaultInstance`. Since this method is returning normally, the timer will be considered as executed and will be removed from Kalix.
+<3> On the other hand, if the `Future` completes with a failure, you must decide if you will recover the call or not. If you recover, the timer will be considered as completed. If you let the call fail, the timer will be re-scheduled.
 
-We have seen the `Order.cancel` implementation and we know that if we get a `NOT_FOUND`, it means that either the Order never existed or it was already cancelled (deleted). Or, we may get an `INVALID_ARGUMENT` error, meaning that the order has been confirmed in the meantime. In both cases, we can consider that the timer has become obsolete and don't need to be rescheduled, therefore we recover the call.
+We have seen the `Order.cancel` implementation, so you know that if you get a `NOT_FOUND`, it means that either the Order never existed or it was already cancelled (deleted). Or, you may get an `INVALID_ARGUMENT` error, meaning that the order has been confirmed in the meantime. In both cases, you can consider that the timer has become obsolete and don't need to be rescheduled, therefore you recover the call.
 
 For all other possible errors, the call to `OrderAction.expire` will fail and the timer will be re-scheduled. 
 
-IMPORTANT: Whenever we implement a method that is called from a timer, we need to carefully handle errors inside that method. Failing to do so may cause the timer to keep re-scheduling. Therefore, we should ensure that any failure is properly handled and only propagated if the intention is to re-try the call.
+IMPORTANT: Whenever you implement a method that is called from a timer, you need to carefully handle errors inside that method. Failing to do so may cause the timer to keep re-scheduling. Therefore, you should ensure that any failure is properly handled and only propagated if the intention is to re-try the call.
 
 === Cancelling a timer
 
@@ -130,8 +130,8 @@ Java::
 ----
 include::example$java-reliable-timers/src/main/java/com/example/actions/OrderAction.java[tags=timers;confirm-cancel-order]
 ----
-<1> We first call the Order entity to execute the command.
-<2> If it succeeds, we remove the timer. 
+<1> Call the Order entity to execute the command.
+<2> If it succeeds, remove the timer.
 
 Scala::
 +
@@ -140,11 +140,11 @@ Scala::
 ----
 include::example$scala-reliable-timers/src/main/scala/com/example/actions/OrderAction.scala[tags=timers;confirm-cancel-order]
 ----
-<1> We first call the Order entity to execute the command.
-<2> If it succeeds, we remove the timer. 
+<1> Call the Order entity to execute the command.
+<2> If it succeeds, remove the timer.
 
-In both methods, we pass the request to the entity and when it completes, we cancel the timer.
+In both methods, you pass the request to the entity and when it completes, you cancel the timer.
 
-Once more, the ordering is important. It's not a problem if the call to cancel the timer fails. As we have seen in the `OrderAction.expire` implementation, if the timer is triggered, but is obsolete, we will properly recover from it and signal to Kalix that the timer can be removed.
+Once more, the ordering is important. It's not a problem if the call to cancel the timer fails. As we have seen in the `OrderAction.expire` implementation, if the timer is triggered, but is obsolete, you will properly recover from it and signal to Kalix that the timer can be removed.
 
 TIP: We could have completely ignored the timer when handling the confirmation or the cancelling. The registered timer would then be triggered at some point later and the `expire` method would have handled the fact that it has become obsolete. However, it's always of good measure to do some housekeeping to save resources.
