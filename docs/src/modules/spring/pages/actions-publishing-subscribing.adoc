@@ -36,12 +36,6 @@ include::example$spring-eventsourced-counter/src/main/java/com/example/actions/C
 
 IMPORTANT: The messages stored in the topic are serialized as JSON. You cannot change this serialization.
 
-
-The return value of the method is an `Action.Effect` with message `Confirmed`, but can be any other of type `Action.Effect<>` if the return type of the method defines it. The Kalix framework needs the type `Effect` to ensure that the event was successfully processed. If no exception is thrown and the method returns a `effects().reply`, the framework assumes that the event was successfully processed and marks it as such. This allows the next event to be sent to the subscribing method.  
-
-However, if an exception is raised and not handled, or the method return `effects().error()` this action will not process any more events until the necessary handling of the current event is added such its return is a `reply`. Otherwise, it will raise the same error over and over again until the application is fixed and restarted.
-
-
 == Subscribing to a Value Entity
 
 You can subscribe an Action to events from a Value Entity. It work the same as an Event Sourced Entity except for the annotation. To receive messages from the entity, annotate a service method `@Subscribe.ValueEntiy` and specify the class of the entity. 
@@ -50,20 +44,27 @@ You can subscribe an Action to events from a Value Entity. It work the same as a
 
 To receive messages from a Google Cloud Pub/Sub or Apache Kafka topic, annotate the service method `@Subscribe.Topic` and specify the topic name.
 
-In the following example the events from the topic are delivered to the Action are logged.
+In the following example the events from the topic are delivered to the Action and  logged.
 
 [source,java,indent=0]
 .src/main/java/com/example/actions/CounterTopicSubscriptionAction.java
 ----
 include::example$spring-eventsourced-counter/src/main/java/com/example/actions/CounterTopicSubscriptionAction.java[tags=class]
 ----
-<1> subscribing to the events from topic 'counter-events'. 
+<1> subscribing to the `ValueIncreased` from topic 'counter-events'. 
 <2> setting the method input type to the events produced by the counter.
-<3> any return is valid. See NOTE in Subscribing to an Event Sourced Entity.
+<3> any return is valid.
+<4> subscribing to the `ValueMultiplied` from topic 'counter-events'. 
+<5> setting the method input type to the events produced by the counter.
+<6> any return is valid.
 
 The events from the topic are delivered to the Action. The implementation may vary, for this simplified example you are just logging it, but it could be a forward to some other component or external service.
 
-IMPORTANT: By default, Kalix assumes the messages in the topic were serialized as JSON and as such deserialize them into `CounterEvent`. You can find here more about xref:serialization.adoc[]
+The return value of the method is an `Action.Effect` with message `Confirmed`, but can be any other of type `Action.Effect<>` if the return type of the method defines it. The Kalix framework needs the type `Effect` to ensure that the event was successfully processed. If no exception is thrown and the method returns a `effects().reply`, the framework assumes that the event was successfully processed and marks it as such. This allows the next event to be sent to the subscribing method. 
+
+However, if an exception is raised and not handled, or the method return `effects().error()` this action will not process any more events until the necessary handling of the current event is added such its return is a `reply`. Otherwise, it will raise the same error over and over again until the application is fixed and restarted. 
+
+IMPORTANT: By default, Kalix assumes the messages in the topic were serialized as JSON and as such deserialize them into the input type of your method. You can find more about this in xref:serialization.adoc[]
 
 == Receiving messages from an external Topic
 
@@ -81,11 +82,11 @@ In the following example you can take a look at how the Action is configured to 
 ----
 include::example$spring-eventsourced-counter/src/main/java/com/example/actions/SubscribeTypeLevelAction.java[tag=class]
 ----
-<1> set to ignore unknown events
-<2> only processing `ValueIncreased` events
-<3> any return is valid. See NOTE in Subscribing to an Event Sourced Entity.
+<1> set to ignore unknown events.
+<2> only processing `ValueIncreased` events.
+<3> any return is valid.
 
-If you do not add `ignoreUnknown=true`, the action would fail when processing a `ValueMultiply`. By default is false.
+If you do not add `ignoreUnknown=true`, the action would fail when processing a `ValueMultiplied`. By default is false.
 
 == Subscribing and acting upon
 
