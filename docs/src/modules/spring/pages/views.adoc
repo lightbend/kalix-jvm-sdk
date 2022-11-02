@@ -82,7 +82,7 @@ include::example$spring-eventsourced-customer-registry/src/main/java/customer/ap
 <1> Includes the logical type name (defined in implementation classes) as type 
 <2> Required for deserialization and to define the logical type name 
 
-Adding `@JsonTypeInfo` is needed so that Jackson can read back correctly the Object type when deserializing. By using `name`, you set its value as the fully qualified message name instead of the using the fully qualified Java class. This is called a `logical type name` and it allows you refactor the class to another package after you have serialized messages of this type. Otherwise, after such a refactor the objects serialized with the old package won't be recognized as the same type. 
+Adding `@JsonTypeInfo` is needed so that Jackson can read back correctly the Object type when deserializing. By using `name`, you set its value as the fully qualified message name instead of the using the fully qualified Java class. This is called a `logical type name` and it allows you to refactor the class to another package after you have serialized messages of this type. Otherwise, after such a refactor the objects serialized with the old package won't be recognized as the same type. 
 
 
 === Define the View to consume events
