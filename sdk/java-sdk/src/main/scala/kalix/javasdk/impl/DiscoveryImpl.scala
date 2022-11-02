@@ -18,13 +18,11 @@ package kalix.javasdk.impl
 
 import java.time.Duration
 import java.util.concurrent.atomic.AtomicReference
-
 import scala.concurrent.Future
 import scala.concurrent.Promise
 import scala.io.Source
 import scala.jdk.CollectionConverters._
 import scala.util.control.NonFatal
-
 import akka.Done
 import akka.actor.ActorSystem
 import akka.actor.CoordinatedShutdown
@@ -40,6 +38,8 @@ import kalix.protocol.discovery.PassivationStrategy.Strategy
 import kalix.protocol.discovery._
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+
+import java.util
 
 class DiscoveryImpl(
     system: ActorSystem,
@@ -83,6 +83,14 @@ class DiscoveryImpl(
       in.protocolMajorVersion,
       in.protocolMinorVersion)
 
+    // possibly filtered or hidden env, passed along for substitution in descriptor options
+    val env: Map[String, String] = system.settings.config.getAnyRef("kalix.discovery.pass-along-env-allow") match {
+      case false => Map.empty
+      case true  => sys.env
+      case allowed: util.ArrayList[String @unchecked] =>
+        allowed.asScala.flatMap(name => sys.env.get(name).map(value => name -> value)).toMap
+    }
+
     val serviceInfo = ServiceInfo(
       serviceRuntime = sys.props.getOrElse("java.runtime.name", "")
         + " " + sys.props.getOrElse("java.runtime.version", ""),
@@ -93,7 +101,7 @@ class DiscoveryImpl(
       protocolMinorVersion =
         configuredIntOrElse("kalix.library.protocol-minor-version", BuildInfo.protocolMinorVersion),
       // passed along for substitution in options
-      env = sys.env)
+      env = env)
 
     if (isVersionProbe(in)) {
       // only (silently) send service info for hybrid proxy version probe
