@@ -25,8 +25,14 @@ public class OrderEntity extends ValueEntity<Order> {
   }
 
   @PutMapping("/place")
-  public Effect<Order> placeOrder(@PathVariable String id, @RequestBody OrderRequest orderRequest) {
-    var newOrder = new Order(id, false, true, orderRequest.item(), orderRequest.quantity());
+  public Effect<Order> placeOrder(@PathVariable String id,
+                                  @RequestBody OrderRequest orderRequest) { // <1>
+    var newOrder = new Order(
+        id,
+        false,
+        true, // <2>
+        orderRequest.item(),
+        orderRequest.quantity());
     return effects()
             .updateState(newOrder)
             .thenReply(newOrder);
@@ -34,14 +40,14 @@ public class OrderEntity extends ValueEntity<Order> {
 
   @PostMapping("/confirm")
   public Effect<String> confirm(@PathVariable String id) {
-    if (currentState().placed()) { // <2>
+    if (currentState().placed()) { // <3>
       return effects()
           .updateState(currentState().confirm())
           .thenReply("Ok");
     } else {
       return effects().error(
         "No order found for '" + id + "'",
-          Status.Code.NOT_FOUND); // <3>
+          Status.Code.NOT_FOUND); // <4>
     }
   }
 
@@ -50,14 +56,14 @@ public class OrderEntity extends ValueEntity<Order> {
     if (!currentState().placed()) {
       return effects().error(
           "No order found for " + id,
-          Status.Code.NOT_FOUND); // <4>
+          Status.Code.NOT_FOUND); // <5>
     } else if (currentState().confirmed()) {
       return effects().error(
           "Cannot cancel an already confirmed order",
-          Status.Code.INVALID_ARGUMENT); // <5>
+          Status.Code.INVALID_ARGUMENT); // <6>
     } else {
       return effects().updateState(emptyState())
-          .thenReply("Ok"); // <6>
+          .thenReply("Ok"); // <7>
     }
   }
   // end::order[]

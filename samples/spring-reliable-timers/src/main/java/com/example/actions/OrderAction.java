@@ -43,7 +43,7 @@ public class OrderAction extends Action {
   @PostMapping("/place")
   public Effect<Order> placeOrder(@RequestBody OrderRequest orderRequest) {
 
-    var orderId = UUID.randomUUID().toString();
+    var orderId = UUID.randomUUID().toString(); // <1>
 
     CompletionStage<Done> timerRegistration = // <2>
         timers().startSingleTimer(
@@ -70,6 +70,8 @@ public class OrderAction extends Action {
   // end::place-order[]
 
   // tag::expire-order[]
+  // ...
+
   @PostMapping("/expire/{orderId}")
   public Effect<String> expire(@PathVariable String orderId) {
     logger.info("Expiring order '{}'", orderId);
@@ -100,6 +102,8 @@ public class OrderAction extends Action {
   // end::expire-order[]
 
   // tag::confirm-cancel-order[]
+  // ...
+
   @PostMapping("/confirm/{orderId}")
   public Effect<String> confirm(@PathVariable String orderId) {
     logger.info("Confirming order '{}'", orderId);

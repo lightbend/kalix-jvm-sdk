@@ -2,7 +2,6 @@ package com.example.actions;
 
 import akka.Done;
 import com.example.OrderServiceApi;
-import com.example.domain.OrderDomain;
 import com.google.protobuf.Empty;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
@@ -12,7 +11,6 @@ import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Predicate;
 
