@@ -55,7 +55,7 @@ Java::
 ----
 include::example$java-reliable-timers/src/main/java/com/example/actions/OrderAction.java[tags=timers;place-order]
 ----
-<1> First we generate a random identifier for the Order. We will use it for identifying the Order, but also as an unique name for the timer.
+<1> First we generate a random identifier for the Order. We will use it for identifying the Order, but also as a unique name for the timer.
 <2> We call the timers API to register a new timer. Note that it returns `CompletionStage<Done>`. A successful completion means that Kalix registered the timer. 
 <3> Order number is used to generate a unique name for the timer.
 <4> We set the delay we want for the timer to trigger. 

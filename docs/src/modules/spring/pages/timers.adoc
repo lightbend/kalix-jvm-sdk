@@ -65,7 +65,7 @@ We have seen the `OrderEntity.cancel` implementation, so we know that if we get 
 
 For all other possible errors, the call to `OrderAction.expire` will fail and the timer will be re-scheduled.
 
-IMPORTANT: Whenever we implement a method that is called from a timer, we need carefully handle errors inside that method. Failing to do so may cause the timer to keep re-scheduling. Therefore, we should ensure that any failure is properly handled and only propagated if the intention is to re-try the call.
+IMPORTANT: Whenever we implement a method that is called from a timer, we need to carefully handle errors inside that method. Failing to do so may cause the timer to keep re-scheduling. Therefore, we should ensure that any failure is properly handled and only propagated if the intention is to re-try the call.
 
 === Cancelling a timer
 
