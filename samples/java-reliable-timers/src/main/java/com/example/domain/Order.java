@@ -30,13 +30,13 @@ public class Order extends AbstractOrder {
 
 
   @Override
-  public Effect<Empty> placeOrder(OrderDomain.OrderState currentState, OrderServiceApi.OrderRequest orderRequest) {
+  public Effect<Empty> placeOrder(OrderDomain.OrderState currentState, OrderServiceApi.OrderRequest orderRequest) { // <1>
     OrderDomain.OrderState orderState =
         OrderDomain.OrderState.newBuilder()
             .setOrderNumber(orderRequest.getOrderNumber())
             .setItem(orderRequest.getItem())
             .setQuantity(orderRequest.getQuantity())
-            .setPlaced(true) // <1>
+            .setPlaced(true) // <2>
             .build();
 
     return effects().updateState(orderState).thenReply(Empty.getDefaultInstance());
@@ -44,14 +44,14 @@ public class Order extends AbstractOrder {
 
   @Override
   public Effect<Empty> confirm(OrderDomain.OrderState currentState, OrderServiceApi.ConfirmRequest confirmRequest) {
-    if (currentState.getPlaced()) { // <2>
+    if (currentState.getPlaced()) { // <3>
       return effects()
           .updateState(currentState.toBuilder().setConfirmed(true).build())
           .thenReply(Empty.getDefaultInstance());
     } else {
       return effects().error(
         "No order found for '" + confirmRequest.getOrderNumber() + "'",
-          Status.Code.NOT_FOUND); // <3>
+          Status.Code.NOT_FOUND); // <4>
     }
   }
 
@@ -60,14 +60,14 @@ public class Order extends AbstractOrder {
     if (!currentState.getPlaced()) {
       return effects().error(
           "No order found for " + cancelRequest.getOrderNumber(),
-          Status.Code.NOT_FOUND); // <4>
+          Status.Code.NOT_FOUND); // <5>
     } else if (currentState.getConfirmed()) {
       return effects().error(
           "Can not cancel an already confirmed order",
-          Status.Code.INVALID_ARGUMENT); // <5>
+          Status.Code.INVALID_ARGUMENT); // <6>
     } else {
       return effects().updateState(emptyState())
-          .thenReply(Empty.getDefaultInstance()); // <6>
+          .thenReply(Empty.getDefaultInstance()); // <7>
     }
   }
   // end::order[]

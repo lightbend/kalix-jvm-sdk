@@ -4,7 +4,7 @@ include::ROOT:partial$timers-intro.adoc[]
 
 To demonstrate its functionality, let's consider an Ordering Service composed of a xref:value-entity.adoc[Value Entity] and an xref:actions.adoc[Action]. The Action will work as a xref:actions-as-controller.adoc[Controller] receiving calls and delegating to the Order Entity.
 
-Users can place an order, but the order must be confirmed within a period of time. You can compare it with an Ordering Food application where the restaurant needs to confirm if it can accept the order. If no confirmation is sent within some pre-defined period of time, the order is automatically cancelled.
+Users can place an order, but the order must be confirmed within a period of time. You can think of it as an Ordering Food application where the restaurant needs to confirm if it can accept the order. If no confirmation is sent within some pre-defined period of time, the order is automatically cancelled.
 
 == Order Entity
 Let's have a look on how the Order Entity can be implemented.
@@ -14,12 +14,13 @@ Let's have a look on how the Order Entity can be implemented.
 ----
 include::example$spring-reliable-timers/src/main/java/com/example/domain/OrderEntity.java[tag=order]
 ----
-<1> The first method to look at is the `placeOrder`. It's basically the creation of an order. Note that we set the `placed` field to true.
-<2> When confirming an Order, we must ensure that the Order was created before.
-<3> If the Order was never created, we return `NOT_FOUND`.
-<4> Cancelling an Order that was never placed also returns `NOT_FOUND`.
-<5> While cancelling an already confirmed order returns `INVALID_ARGUMENT`.
-<6> Finally, if the Order is placed, but not confirmed, the cancel method resets the order to the `emptyState`.
+<1> The first method to look at is the `placeOrder`. It's basically the creation of an order.
+<2> Note that we set the `placed` field to true.
+<3> When confirming an Order, we must ensure that the Order was created before.
+<4> If the Order was never created, we return `NOT_FOUND`.
+<5> Cancelling an Order that was never placed also returns `NOT_FOUND`.
+<6> While cancelling an already confirmed order returns `INVALID_ARGUMENT`.
+<7> Finally, if the Order is placed, but not confirmed, the cancel method resets the order to the `emptyState`.
 
 == Order Action and Timers
 
