@@ -34,18 +34,12 @@ This example assumes the following `customer` exists
 include::example$spring-customer-registry-views-quickstart/src/main/java/customer/api/Customer.java[tags=class]
 ----
 
-As well as a Value Entity service `CustomerEntity.java` that will produce the state changes consumed by the View:
+As well as a Value Entity service `CustomerEntity.java` that will produce the state changes consumed by the View.
 
 
 === Define the View
 
-To get a View of multiple customers by their name, you need the set the following:
-
- - Define the name of the table. 
- - Subscribe to the Value Entity.
- - Extend from the class `View`.
- - Define an endpoint for the view.
- - Define the query. 
+You implement a View by extending `kalix.javasdk.view.View` and subscribing to changes from an entity. You specify how to query it by providing a method annotated with `query`, which is then made accessible via REST annotations.
 
 .src/main/java/customer/view/CustomerByNameView.java
 [source,java]
@@ -59,7 +53,7 @@ include::example$spring-customer-registry-views-quickstart/src/main/java/custome
 <5> defining the query
 <6> note that no return is needed
 
-IMPORTANT: Note that the return value of the method is `null`. You may ask yourself,  how is it that the endpoint respond with any `Customer` at all?. When you call this endpoint, it first hits the proxy, which calls directly to the database. When the proxy receives the response, it sends it directly to you without any further intervention from the View. Therefore, null is valid as a return value in the endpoint of a View. The choice of null is a way to signal that the response doesn't come from the return of this method. The return could be anything that is compatible with the return type. 
+IMPORTANT: Note that the return value of the method is `null`. You may ask yourself,  how is it that the endpoint respond with any `Customer` at all?. When you call this endpoint, it first hits the proxy, which calls directly to the database. When the proxy receives the response, it sends it directly to you without any further intervention from the View. Therefore, null is valid as a return value in the endpoint of a View. The choice of `null` is our way to make clear that the response doesn't come from the return of this method. But you can choose any response you like as long is compatible with the return type. 
 
 [#event-sourced-entity]
 == Creating a View from an Event Sourced Entity
@@ -76,7 +70,7 @@ include::example$spring-eventsourced-customer-registry/src/main/java/customer/ap
 <1> Includes the logical type name (defined in implementation classes) as type 
 <2> Required for deserialization and to define the logical type name 
 
-Adding `@JsonTypeInfo` is needed so that Jackson can read back correctly the Object type when deserializing. By using `name`, you set its value as the fully qualified message name instead of the using the fully qualified Java class. This is called a `logical type name` and it allows you to refactor the class to another package after you have serialized messages of this type. Otherwise, after such a refactor the objects serialized with the old package won't be recognized as the same type. 
+Adding `@JsonTypeInfo` is needed so that Jackson can read back correctly the Object type when deserializing. By using `name`, you set its value as the fully qualified message. This is called a `logical type name` and it allows you to refactor the class to another package after you have serialized messages of this type. Otherwise, after such a refactor the objects serialized with the old package won't be recognized as the same type. 
 
 
 === Define the View to consume events
@@ -159,12 +153,10 @@ WARNING: Views from topics cannot be rebuilt from the source messages, because i
 Rebuilding a new View may take some time if there are many events that have to be processed. The recommended way when changing a View is multi-step, with two deployments:
 
 
-. Define the new View, and keep the old View intact. A new View is defined by a new View??. The `viewId` is the same as the `service` name, i.e. it will be a different `viewId` than the old View. Keep the old `register` of the old `service` in `Main`.
+. Define the new View, and keep the old View intact. The `viewId` is the same as the `service` name, i.e. it will be a different `viewId` than the old View. 
 . Deploy the new View, and let it rebuild. Verify that the new query works as expected. The old View can still be used.
 . Remove the old View definition and rename the new `service` to the old name if the public API is compatible, but keep the new `viewId` by defining it as shown below.
 . Deploy the second change.
-
-This is how to define a custom `viewId`: ...??? just changing the id would be enough right? 
 
 The View definitions are stored and validated when a new version is deployed. There will be an error message if the changes are not compatible.
 
@@ -172,9 +164,6 @@ The View definitions are stored and validated when a new version is deployed. Th
 
 A query can provide a near real time stream of results for the query, emitting new entries matching the query as they are added or updated in
 the view.
-
-
- TODO: Ask Renato as he just added it to the Spring SDK
 
 This will first list the complete result for the query and then keep the response stream open, emitting new or updated
 entries matching the query as they are added to the view. The stream does not complete until the client closes it.
