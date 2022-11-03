@@ -44,7 +44,7 @@ You can subscribe an Action to events from a Value Entity. It work the same as a
 
 To receive messages from a Google Cloud Pub/Sub or Apache Kafka topic, annotate the service method `@Subscribe.Topic` and specify the topic name.
 
-In the following example the events from the topic are delivered to the Action and  logged.
+In the following example the events from the topic are delivered to the Action and logged.
 
 [source,java,indent=0]
 .src/main/java/com/example/actions/CounterTopicSubscriptionAction.java
