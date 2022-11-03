@@ -1,43 +1,38 @@
 = Handling Serialization
 
-You do not need to handle serialization for the messages of an Event Source Entity, an Value Entity. Kalix exposes endpoints with JSON messages for you. (rephrase) If you are using java lasses not Java 17 records you will need to annotate with the proper Jackson(link)
-
-When calling an endpoint if it has a body this has to be JSON and the response comes back as JSON as well.
+You do not need to handle serialization for the messages of an Event Source Entity or a Value Entity. On the other hand, Kalix exposes endpoints with JSON messages and you need to handle serialization of their inputs and outputs: if you are using Java classes you need to annotate them with the https://github.com/FasterXML/jackson-annotations#usage-general[proper Jackson annotation] but if you are using Java https://openjdk.org/jeps/395[record] no annotation is needed. 
 
 == When consuming Messages from Topics
 
+When consuming events from a topic deserialization works out of the box. By default Kalix serialize Java objects to JSON when publish to a topic, or when emiting events from an entity, whatever they are value changes or snapshots. Therefore it can deserialize them as JSON when consuming them. 
 
-TODO ? only sub? not pub? TODO ? We can't choose serialization right when publish
+When xref:actions-publishing-subscribing.adoc[subscribing], you can use as the input of your subscribing method the event class or record. In the following example you can see how the actions are subscribed to `ValueIncreased` and `ValueMultiplied`. 
 
-When consuming events from a topic in a View or an Action deserialization work out of the box. By default Kalix serialize Java objects to JSON when publish to a topic, or when emiting? event (value change and snapshots as well) from an entity. Therefore it deserialize them as JSON when consuming them. 
+[source,java,indent=0]
+.src/main/java/com/example/actions/CounterTopicSubscriptionAction.java
+----
+include::example$spring-eventsourced-counter/src/main/java/com/example/actions/CounterTopicSubscriptionAction.java[tags=class]
+----
+<1> subscribing to the `ValueIncreased` from topic 'counter-events'. 
+<2> setting the method input type to the events produced by the counter.
+<3> any return is valid.
+<4> subscribing to the `ValueMultiplied` from topic 'counter-events'. 
+<5> setting the method input type to the events produced by the counter.
+<6> any return is valid.
 
-If you hava a relation parent/child between the objects you need to annotate them as such. Like the following:
-
-When subscribing[link to subscribe to a topic] to a topic you can use an specific class or its parent. In the following example you can see how a subscription is using `CounterEvent`, the parent of the `ValueIncreased` and `ValueMultiplied`. 
-
-Another option to subscribe to this same topic is using only `ValueIncrease` to only process those event and discard the rest[link to ignore]. Kalix deserializes parent or child as long they are defined as such.
-
-
-
-
-If you consume an  
-
-TODO: ?? add the Any example with no sample?
-
+As we mentioned it works out of the box. No
 
 == Receiving CloudEvents
 Kalix uses the https://cloudevents.io/[CloudEvents] standard when receiving from and publishing to topics. The CloudEvents specification standardizes message metadata so that systems can integrate more easily.
 
 Describing the structure of the message payload is the CloudEvents feature most important to Kalix.
 
-"You can choose your own deserialization?"
+An example of that is the capability to send serialized JSON messages and have Kalix deserialize them accordingly.
 
-An example of that is the capability to send serialized Protobuf messages and have Kalix deserialize them accordingly.
-
-To allow proper reading of Protobuf messages from topics, the messages need to specify the message attributes:
+IMPORTANT: To allow proper reading of JSON messages from external topics, the messages need to specify the message attributes:
 
 - `Content-Type` = `application/application-json`
 - `ce-specversion` = `1.0`
-- `ce-type` = fully qualified protobuf message name (e.g., `??FQN of ValueIncrease???`)
+- `ce-type` = fully qualified name (e.g.  `com.example.ValueIncreased`)
 
 (The `ce-` prefixed attributes are part of the CloudEvents specification.)
