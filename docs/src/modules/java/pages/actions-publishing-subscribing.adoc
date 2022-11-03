@@ -222,3 +222,13 @@ include::example$scala-eventsourced-counter/src/main/proto/com/example/actions/c
 The `Ignore` method here is defined as a catch-all because it has input type `Any`. Instead of using a catch-all it can be better to define concrete methods for all known event types that should be ignored because then there is no risk of accidentally ignoring events that are added in later evolution of the service.
 
 When adding the `ignore: true` annotation the corresponding implementation is not needed in the component. It is more efficient to use `ignore: true` than implementing the method with an immediate reply.
+
+== Deployment dependent topic names
+
+It is possible to use environment variables to control the name of the topic that is used for consuming from or producing events to, this is useful for example for using the same image in staging and production deployments but having them interact with separate topics.
+
+Referencing environment variables is done with the syntax `${VAR_NAME}` in the `topic` string in `eventing.in.topic` or `eventing.out.topic` blocks.
+
+Note that if changing the `topic` name after it has once been deployed for an event consumer means the consumer will start over from the beginning of the topic.
+
+See https://docs.kalix.io/kalix/kalix_services_deploy.html[kalix service deploy] for details on how to set environment variables when deploying a service.
