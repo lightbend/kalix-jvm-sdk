@@ -114,7 +114,7 @@ include::example$scala-eventsourced-customer-registry-subscriber/src/main/proto/
 
 It is possible to use environment variables to control the name of the service that a consumer consumes from, this is useful for example for using the same image in staging and production deployments but having them consume from different source services.
 
-Referencing environment variables is done with the syntax `${VAR_NAME}` in the `service` string in the consumer `eventing.in.direct` block.
+Referencing environment variables is done with the syntax `$\{VAR_NAME}` in the `service` string in the consumer `eventing.in.direct` block.
 
 Note that if changing the `service` name after it has once been deployed means the consumer will start over from the beginning of the event stream.
 

@@ -227,7 +227,7 @@ When adding the `ignore: true` annotation the corresponding implementation is no
 
 It is possible to use environment variables to control the name of the topic that is used for consuming from or producing events to, this is useful for example for using the same image in staging and production deployments but having them interact with separate topics.
 
-Referencing environment variables is done with the syntax `${VAR_NAME}` in the `topic` string in `eventing.in.topic` or `eventing.out.topic` blocks.
+Referencing environment variables is done with the syntax `$\{VAR_NAME}` in the `topic` string in `eventing.in.topic` or `eventing.out.topic` blocks.
 
 Note that if changing the `topic` name after it has once been deployed for an event consumer means the consumer will start over from the beginning of the topic.
 
