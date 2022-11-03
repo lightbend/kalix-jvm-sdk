@@ -44,6 +44,18 @@ different existing entities within a Kalix application.
 <3> The `CounterEntity` class should extend `kalix.javasdk.valueentity.ValueEntity`.
 <4> The initial state of each counter is defined as 0.
 
+include::partial$entities-key.adoc[tag=intro]
+
+.src/main/java/com/example/CounterEntity.java
+[source,java]
+----
+include::example$spring-valueentity-counter/src/main/java/com/example/CounterEntity.java[tags=generateId]
+----
+<1> Annotate the command handler with `@GenerateEntityKey`.
+<2> Access the generated id and reply.
+
+include::partial$entities-key.adoc[tag=details]
+
 === Updating state
 
 We will now show how to add the command handlers for supporting the two desired operations (`set` and `plusOne`). Command handlers are implemented as methods on the entity class but are also exposed for external interactions and always return an `Effect` of some type.

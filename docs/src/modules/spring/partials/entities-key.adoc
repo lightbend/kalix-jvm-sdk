@@ -1,0 +1,10 @@
+// tag::intro[]
+==== Generated Entity Keys
+
+In some cases, you may wish to generate an Entity key, this is typically useful when creating an entity, and the key is a surrogate key. To indicate to Kalix that an Entity key should be generated rather than extracted from the path, be sure to annotate the corresponding command method with `@GenerateEntityKey`. It will often be necessary to access the generated entity key from inside the entities code. This can be done using the link:{attachmentsdir}/api/kalix/javasdk/EntityContext.html#entityId()[`EntityContext.entityId` {tab-icon}, window="new"] method, as exemplified below:
+//end::intro[]
+
+// tag::details[]
+
+NOTE: This will generate a version 4 (random) UUID for the Entity. Only version 4 UUIDs are currently supported for generated Entity keys.
+// end::details[]
