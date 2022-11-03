@@ -32,8 +32,6 @@ import kalix.javasdk.eventsourcedentity.EventSourcedEntity.Effect.Builder
 import kalix.javasdk.eventsourcedentity.EventSourcedEntity.Effect.OnSuccessBuilder
 import io.grpc.Status
 
-import scala.collection.convert.ImplicitConversions.`collection AsScalaIterable`
-
 object EventSourcedEntityEffectImpl {
   sealed trait PrimaryEffectImpl
   final case class EmitEvents(event: Iterable[Any]) extends PrimaryEffectImpl
@@ -69,7 +67,7 @@ class EventSourcedEntityEffectImpl[S] extends Builder[S] with OnSuccessBuilder[S
   }
 
   override def emitEvents(events: util.List[_]): EventSourcedEntityEffectImpl[S] = {
-    _primaryEffect = EmitEvents(events.toVector)
+    _primaryEffect = EmitEvents(events.asScala)
     this
   }
 

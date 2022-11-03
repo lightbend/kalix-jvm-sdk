@@ -22,7 +22,7 @@ import kalix.scalasdk.action.Action
 import kalix.scalasdk.action.ActionCreationContext
 
 class ActionTckModelImpl(ctx: ActionCreationContext) extends AbstractActionTckModelAction {
-  private implicit val mat = ctx.materializer
+  private implicit val mat = ctx.materializer()
 
   override def processUnary(request: Request): Action.Effect[Response] =
     response(request.groups)

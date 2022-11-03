@@ -84,9 +84,10 @@ final class ActionResultImpl[T](val effect: ActionEffectImpl.PrimaryEffect[T]) e
 
   private def effectName: String =
     effect match {
-      case _: ActionEffectImpl.ReplyEffect[_]   => "reply"
-      case _: ActionEffectImpl.ForwardEffect[_] => "forward"
-      case _: ActionEffectImpl.ErrorEffect[_]   => "error"
-      case _: ActionEffectImpl.AsyncEffect[_]   => "async effect"
+      case _: ActionEffectImpl.ReplyEffect[_]    => "reply"
+      case _: ActionEffectImpl.ForwardEffect[_]  => "forward"
+      case _: ActionEffectImpl.ErrorEffect[_]    => "error"
+      case _: ActionEffectImpl.AsyncEffect[_]    => "async effect"
+      case _: ActionEffectImpl.IgnoreEffect.type => "ignore"
     }
 }
