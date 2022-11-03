@@ -46,14 +46,17 @@ You implement a View by extending `kalix.javasdk.view.View` and subscribing to c
 ----
 include::example$spring-customer-registry-views-quickstart/src/main/java/customer/view/CustomerByNameView.java[tags=class]
 ----
-<1> defining table name
-<2> subscribing to `CustomerEntity`
-<3> extending from `View`
-<4> defining endpoint
-<5> defining the query
-<6> note that no return is needed
+<1> definging view ID
+<2> defining table name
+<3> subscribing to `CustomerEntity`
+<4> extending from `View`
+<5> defining endpoint
+<6> defining the query
+<7> note that no return is needed
 
 IMPORTANT: Note that the return value of the method is `null`. You may ask yourself,  how is it that the endpoint respond with any `Customer` at all?. When you call this endpoint, it first hits the proxy, which calls directly to the database. When the proxy receives the response, it sends it directly to you without any further intervention from the View. Therefore, null is valid as a return value in the endpoint of a View. The choice of `null` is our way to make clear that the response doesn't come from the return of this method. But you can choose any response you like as long is compatible with the return type. 
+
+Adding a view ID to your View allows you to refactor the name of the class later on without the risk of lossing the history of events. If you don't define a view ID the class name becomes its ID. Therefore, if you change the name of your class afterwards Kalix will not recognize this new name as the same view and will create a brand new view. This is resource consuming for a view from an entity because it will reprocess all the event of that entity to rebuild the view. While for a view built from a topic you will loose all the previous events because these views only proccess events from current time forwards.
 
 [#event-sourced-entity]
 == Creating a View from an Event Sourced Entity
@@ -75,7 +78,7 @@ Adding `@JsonTypeInfo` is needed so that Jackson can read back correctly the Obj
 
 === Define the View to consume events
 
-The definition of the view for an Event Sourced Entity is the same as for a Value Entity. However, in this example, the subscription is at the method level rather than the type level. The advantage of this approach is that you can create multiple methods to handle different events.  
+The definition of the view for an Event Sourced Entity is the same as for a Value Entity. However, in this example, the subscription is at the method level rather than the type level. The advantage of this approach is that you can create multiple methods to handle different events. It is recommended you add a view ID to your view. 
 
 Every time an event is processed by the view, the state of the view can be updated. You can do this with the `.updateState` method, which is available through the `effects()` API. Here you can see how the View is updated with a new name: 
 
@@ -84,11 +87,13 @@ Every time an event is processed by the view, the state of the view can be updat
 ----
 include::example$spring-eventsourced-customer-registry/src/main/java/customer/view/CustomerByNameView.java[tags=class]
 ----
-<1> updating the state of the view with the new name 
+<1> setting view ID 
+<2> updating the state of the view with the new name 
 
 An Event Sourced entity can emit many types of events. You need to define a method for each event type. They return an `UpdateEffect`, which describes next processing actions, such as updating the view state.
 
-NOTE: This type of update transformation is a natural fit for Events emitted by an Event Sourced Entity, but it can also be used for Value Entities. For example, if the View representation is different from the Entity state you might want to transform it before presenting the View to the client.
+
+
 
 See <<#query>> for more examples of valid query syntax.
 
@@ -103,13 +108,6 @@ When consuming events, each event must be matched by a View service method. In c
 The source of a View can be a topic. It works the same way as shown in <<event-sourced-entity>> or <<value-entity>>, but you define it with `@Subscribe.Topic` instead.
 
 
-[#transform-results]
-== How to transform results
-
-When creating a View, you can transform the results as a relational projection instead of using a `SELECT *` statement.
-
-ifdef::review[REVIEWERS: it would be nice to have use cases describing why they might want to use these different transformation techniques. And does this information apply to all views, regardless of whether they were created from entities or topics?]
-
 === Relational projection
 
 Instead of using `SELECT *` you can define what columns that will be used in the response message:
@@ -121,12 +119,6 @@ In a similar way, you can include values from the request message in the respons
 ----
 SELECT :request_id, customer_id as id, name FROM customers WHERE name = :customer_name
 ----
-
-=== Response message including the result
-
-Instead of streamed results you can include the results in a repeated field in the response message:
-
-
 
 
 [#changing]
@@ -153,12 +145,10 @@ WARNING: Views from topics cannot be rebuilt from the source messages, because i
 Rebuilding a new View may take some time if there are many events that have to be processed. The recommended way when changing a View is multi-step, with two deployments:
 
 
-. Define the new View, and keep the old View intact. The `viewId` is the same as the `service` name, i.e. it will be a different `viewId` than the old View. 
-. Deploy the new View, and let it rebuild. Verify that the new query works as expected. The old View can still be used.
-. Remove the old View definition and rename the new `service` to the old name if the public API is compatible, but keep the new `viewId` by defining it as shown below.
-. Deploy the second change.
+TODO: explain
 
 The View definitions are stored and validated when a new version is deployed. There will be an error message if the changes are not compatible.
+
 
 == Streaming view updates
 

@@ -7,8 +7,10 @@ import kalix.javasdk.view.View;
 import kalix.springsdk.annotations.Query;
 import kalix.springsdk.annotations.Subscribe;
 import kalix.springsdk.annotations.Table;
+import kalix.springsdk.annotations.ViewId;
 import org.springframework.web.bind.annotation.GetMapping;
 
+@ViewId("view_customers_by_name") // <1>
 @Table("customers_by_name")
 public class CustomerByNameView extends View<CustomerView> {
 
@@ -25,7 +27,7 @@ public class CustomerByNameView extends View<CustomerView> {
 
   @Subscribe.EventSourcedEntity(CustomerEntity.class)
   public UpdateEffect<CustomerView> onEvent(CustomerEvent.NameChanged event) {
-    return effects().updateState(viewState().withName(event.newName())); // <1>
+    return effects().updateState(viewState().withName(event.newName())); // <2>
   }
 
   @Subscribe.EventSourcedEntity(CustomerEntity.class)
