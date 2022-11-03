@@ -26,6 +26,7 @@ import kalix.springsdk.impl.ComponentDescriptorFactory.eventingOutForTopic
 import kalix.springsdk.impl.ComponentDescriptorFactory.findEventSourcedEntityType
 import kalix.springsdk.impl.ComponentDescriptorFactory.hasActionOutput
 import kalix.springsdk.impl.ComponentDescriptorFactory.hasEventSourcedEntitySubscription
+import kalix.springsdk.impl.ComponentDescriptorFactory.hasHandleDeletes
 import kalix.springsdk.impl.ComponentDescriptorFactory.hasTopicPublication
 import kalix.springsdk.impl.ComponentDescriptorFactory.hasTopicSubscription
 import kalix.springsdk.impl.ComponentDescriptorFactory.hasValueEntitySubscription
@@ -76,6 +77,7 @@ private[impl] object ActionDescriptorFactory extends ComponentDescriptorFactory 
     // methods annotated with @Subscribe.ValueEntity
     import ReflectionUtils.methodOrdering
     val subscriptionValueEntityMethods: IndexedSeq[KalixMethod] = component.getMethods
+      .filterNot(hasHandleDeletes)
       .filter(hasValueEntitySubscription)
       .sorted // make sure we get the methods in deterministic order
       .map { method =>

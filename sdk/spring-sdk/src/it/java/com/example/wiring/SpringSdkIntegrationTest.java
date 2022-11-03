@@ -23,6 +23,8 @@ import com.example.wiring.valueentities.user.User;
 import com.example.wiring.views.UserWithVersion;
 import kalix.springsdk.KalixConfigurationTest;
 import org.hamcrest.core.IsEqual;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -34,6 +36,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 
 import java.time.Duration;
 import java.util.List;
@@ -47,9 +50,10 @@ import static org.awaitility.Awaitility.await;
 @SpringBootTest(classes = Main.class)
 @Import(KalixConfigurationTest.class)
 @TestPropertySource(properties = "spring.main.allow-bean-definition-overriding=true")
-public class SpringSdkWiringIntegrationTest {
+public class SpringSdkIntegrationTest {
 
-  @Autowired private WebClient webClient;
+  @Autowired
+  private WebClient webClient;
 
   private Duration timeout = Duration.of(10, SECONDS);
 
@@ -109,7 +113,7 @@ public class SpringSdkWiringIntegrationTest {
   }
 
   @Test
-  public void verifyActionIsNotSubscribedToMultiplyAndRouterIgnores(){
+  public void verifyActionIsNotSubscribedToMultiplyAndRouterIgnores() {
 
     webClient
             .post()
@@ -287,26 +291,40 @@ public class SpringSdkWiringIntegrationTest {
   @Test
   public void verifyTransformedUserViewWiring() throws InterruptedException {
 
-    User u1 = new User("john@doe.com", "JohnDoe");
-    String userCreation =
-        webClient
-            .post()
-            .uri("/user/JohnDoe/" + u1.email + "/" + u1.name)
-            .retrieve()
-            .bodyToMono(String.class)
-            .block(timeout);
-    Assertions.assertEquals("\"Ok\"", userCreation);
+    TestUser user = new TestUser("123", "john@doe.com", "JohnDoe");
 
-    String userUpdate =
-        webClient
-            .post()
-            .uri("/user/JohnDoe/" + u1.email + "/JohnDoeJr")
-            .retrieve()
-            .bodyToMono(String.class)
-            .block(timeout);
-    Assertions.assertEquals("\"Ok\"", userUpdate);
+    createUser(user);
+    updateUser(user.withName("JohnDoeJr"));
+
 
     // the view is eventually updated
+    await()
+        .ignoreExceptions()
+        .atMost(15, TimeUnit.of(SECONDS))
+        .until(() -> getUserByEmail(user.email).version,
+            new IsEqual(2));
+  }
+
+  @Test
+  public void shouldDeleteValueEntityAndDeleteViewsState() throws InterruptedException {
+
+    TestUser user = new TestUser("userId", "john2@doe.com", "Bob");
+    createUser(user);
+
+    await()
+        .ignoreExceptions()
+        .atMost(15, TimeUnit.of(SECONDS))
+        .until(() -> getUserByEmail(user.email).version,
+            new IsEqual(1));
+
+    await()
+        .ignoreExceptions()
+        .atMost(15, TimeUnit.of(SECONDS))
+        .until(() -> getUsersByName(user.name).size(),
+            new IsEqual(1));
+
+    deleteUser(user);
+
     await()
         .ignoreExceptions()
         .atMost(15, TimeUnit.of(SECONDS))
@@ -314,26 +332,24 @@ public class SpringSdkWiringIntegrationTest {
             () ->
                 webClient
                     .get()
-                    .uri("/users/by-email/" + u1.email)
-                    .retrieve()
-                    .bodyToMono(UserWithVersion.class)
+                    .uri("/users/by-email/" + user.email)
+                    .exchangeToMono(clientResponse -> Mono.just(clientResponse.statusCode()))
                     .block(timeout)
-                    .version,
-            new IsEqual(2));
+                    .value(),
+            new IsEqual(404));
+
+    await()
+        .ignoreExceptions()
+        .atMost(15, TimeUnit.of(SECONDS))
+        .until(() -> getUsersByName(user.name).size(),
+            new IsEqual(0));
   }
 
   @Test
   public void verifyFindUsersByEmail() {
 
-    ResponseEntity<String> response =
-        webClient
-            .post()
-            .uri("/user/jane/jane.example.com/jane")
-            .retrieve()
-            .toEntity(String.class)
-            .block(timeout);
-
-    Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+    TestUser user = new TestUser("JohnDoe", "john3@doe.com", "JohnDoe");
+    createUser(user);
 
     // the view is eventually updated
     await()
@@ -343,55 +359,97 @@ public class SpringSdkWiringIntegrationTest {
             () ->
                 webClient
                     .get()
-                    .uri("/users/by_email/jane.example.com")
+                    .uri("/users/by_email/" + user.email)
                     .retrieve()
                     .bodyToMono(User.class)
                     .block()
                     .email,
-            new IsEqual("jane.example.com"));
+            new IsEqual(user.email));
   }
 
   @Test
   public void verifyFindUsersByNameStreaming() {
 
-    { // joe 1
-      ResponseEntity<String> response =
-          webClient
-              .post()
-              .uri("/user/user1/joe1.example.com/joe")
-              .retrieve()
-              .toEntity(String.class)
-              .block(timeout);
-
-      Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
-    }
-
-    { // joe 2
-      ResponseEntity<String> response =
-          webClient
-              .post()
-              .uri("/user/user2/joe2.example.com/joe")
-              .retrieve()
-              .toEntity(String.class)
-              .block(timeout);
-
-      Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
-    }
+    TestUser joe1 = new TestUser("user1", "john@doe.com", "joe");
+    TestUser joe2 = new TestUser("user2", "john@doe.com", "joe");
+    createUser(joe1);
+    createUser(joe2);
 
     // the view is eventually updated
     await()
         .ignoreExceptions()
         .atMost(20, TimeUnit.SECONDS)
-        .until(
-            () ->
-                webClient
-                    .get()
-                    .uri("/users/by_name/joe")
-                    .retrieve()
-                    .bodyToFlux(User.class)
-                    .toStream()
-                    .collect(Collectors.toList())
-                    .size(),
+        .until(() -> getUsersByName("joe").size(),
             new IsEqual(2));
+  }
+
+  @NotNull
+  private List<User> getUsersByName(String name) {
+    return webClient
+        .get()
+        .uri("/users/by-name/"+name)
+        .retrieve()
+        .bodyToFlux(User.class)
+        .toStream()
+        .collect(Collectors.toList());
+  }
+
+  @Nullable
+  private UserWithVersion getUserByEmail(String email) {
+    return webClient
+        .get()
+        .uri("/users/by-email/" + email)
+        .retrieve()
+        .bodyToMono(UserWithVersion.class)
+        .block(timeout);
+  }
+
+  private void updateUser(TestUser user) {
+    String userUpdate =
+        webClient
+            .post()
+            .uri("/user/" + user.id + "/" + user.email + "/" + user.name)
+            .retrieve()
+            .bodyToMono(String.class)
+            .block(timeout);
+    Assertions.assertEquals("\"Ok\"", userUpdate);
+  }
+
+  private void createUser(TestUser user) {
+    String userCreation =
+        webClient
+            .post()
+            .uri("/user/" + user.id + "/" + user.email + "/" + user.name)
+            .retrieve()
+            .bodyToMono(String.class)
+            .block(timeout);
+    Assertions.assertEquals("\"Ok\"", userCreation);
+  }
+
+  private void deleteUser(TestUser user) {
+    String deleteUser =
+        webClient
+            .delete()
+            .uri("/user/" + user.id)
+            .retrieve()
+            .bodyToMono(String.class)
+            .block(timeout);
+    Assertions.assertEquals("\"Ok from delete\"", deleteUser);
+  }
+}
+
+class TestUser {
+  public final String id;
+  public final String email;
+  public final String name;
+
+  public TestUser(String id, String email, String name) {
+    this.id = id;
+    this.email = email;
+    this.name = name;
+  }
+
+  public TestUser withName(String newName) {
+    return new TestUser(id, email, newName);
   }
 }

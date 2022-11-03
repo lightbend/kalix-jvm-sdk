@@ -35,6 +35,7 @@ import kalix.springsdk.annotations.EntityType
 import kalix.springsdk.annotations.JWT
 import kalix.springsdk.annotations.Publish
 import kalix.springsdk.annotations.Subscribe
+import kalix.springsdk.annotations.Subscribe.ValueEntity
 import kalix.springsdk.annotations.Table
 import kalix.springsdk.impl.reflection._
 
@@ -86,6 +87,11 @@ private[impl] object ComponentDescriptorFactory {
     Modifier.isPublic(javaMethod.getModifiers) &&
     javaMethod.getAnnotation(classOf[Subscribe.Topic]) != null
 
+  def hasHandleDeletes(javaMethod: Method): Boolean = {
+    val ann = javaMethod.getAnnotation(classOf[ValueEntity])
+    Modifier.isPublic(javaMethod.getModifiers) && ann != null && ann.handleDeletes()
+  }
+
   def hasTopicSubscription(clazz: Class[_]): Boolean =
     Modifier.isPublic(clazz.getModifiers) &&
     clazz.getAnnotation(classOf[Subscribe.Topic]) != null
@@ -116,10 +122,20 @@ private[impl] object ComponentDescriptorFactory {
     entityClass.getAnnotation(classOf[EntityType]).value()
   }
 
+  def findHandleDeletes(javaMethod: Method): Boolean = {
+    val ann = javaMethod.getAnnotation(classOf[Subscribe.ValueEntity])
+    ann.handleDeletes()
+  }
+
   def findValueEntityType(component: Class[_]): String = {
     val ann = component.getAnnotation(classOf[Subscribe.ValueEntity])
     val entityClass = ann.value()
     entityClass.getAnnotation(classOf[EntityType]).value()
+  }
+
+  def findHandleDeletes(component: Class[_]): Boolean = {
+    val ann = component.getAnnotation(classOf[Subscribe.ValueEntity])
+    ann.handleDeletes()
   }
 
   private def findSubscriptionTopicName(javaMethod: Method): String = {
@@ -178,8 +194,15 @@ private[impl] object ComponentDescriptorFactory {
 
   def eventingInForValueEntity(javaMethod: Method): Eventing = {
     val entityType = findValueEntityType(javaMethod)
-    val eventSource = EventSource.newBuilder().setValueEntity(entityType).build()
-    Eventing.newBuilder().setIn(eventSource).build()
+    val eventingBuilder = EventSource
+      .newBuilder()
+      .setValueEntity(entityType)
+    val handleDeletes = findHandleDeletes(javaMethod)
+    if (handleDeletes) {
+      //FIXME remove if, temporal fix for https://github.com/lightbend/kalix-proxy/pull/1706
+      eventingBuilder.setHandleDeletes(handleDeletes)
+    }
+    Eventing.newBuilder().setIn(eventingBuilder.build()).build()
   }
 
   def eventingInForEventSourcedEntity(javaMethod: Method): Eventing = {
@@ -237,9 +260,13 @@ private[impl] object ComponentDescriptorFactory {
     Eventing.newBuilder().setOut(eventSource).build()
   }
 
-  def eventingInForValueEntity(entityType: String): Eventing = {
-    val eventSource = EventSource.newBuilder().setValueEntity(entityType).build()
-    Eventing.newBuilder().setIn(eventSource).build()
+  def eventingInForValueEntity(entityType: String, handleDeletes: Boolean): Eventing = {
+    val eventSourceBuilder = EventSource.newBuilder().setValueEntity(entityType)
+    if (handleDeletes) {
+      //FIXME remove if, temporal fix for https://github.com/lightbend/kalix-proxy/pull/1706
+      eventSourceBuilder.setHandleDeletes(handleDeletes)
+    }
+    Eventing.newBuilder().setIn(eventSourceBuilder.build()).build()
   }
 
   def subscribeToEventStream(component: Class[_]): Option[kalix.ServiceOptions] = {

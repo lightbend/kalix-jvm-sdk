@@ -26,6 +26,7 @@ import kalix.springsdk.testmodels.view.ViewTestModels.SubscribeToEventSourcedEve
 import kalix.springsdk.testmodels.view.ViewTestModels.SubscribeToEventSourcedEventsWithMethodWithState
 import kalix.springsdk.testmodels.view.ViewTestModels.TransformedUserView
 import kalix.springsdk.testmodels.view.ViewTestModels.TransformedUserViewUsingState
+import kalix.springsdk.testmodels.view.ViewTestModels.TransformedUserViewWithDeletes
 import kalix.springsdk.testmodels.view.ViewTestModels.TransformedUserViewWithJWT
 import kalix.springsdk.testmodels.view.ViewTestModels.UserByEmailWithGet
 import kalix.springsdk.testmodels.view.ViewTestModels.UserByEmailWithPost
@@ -33,11 +34,17 @@ import kalix.springsdk.testmodels.view.ViewTestModels.UserByEmailWithPostRequest
 import kalix.springsdk.testmodels.view.ViewTestModels.UserByEmailWithStreamUpdates
 import kalix.springsdk.testmodels.view.ViewTestModels.UserByNameEmailWithPost
 import kalix.springsdk.testmodels.view.ViewTestModels.UserByNameStreamed
+import kalix.springsdk.testmodels.view.ViewTestModels.ViewDuplicatedHandleDeletesAnnotations
+import kalix.springsdk.testmodels.view.ViewTestModels.ViewDuplicatedSubscriptions
+import kalix.springsdk.testmodels.view.ViewTestModels.ViewWithHandleDeletesFalseOnMethodLevel
 import kalix.springsdk.testmodels.view.ViewTestModels.ViewWithMethodLevelAcl
+import kalix.springsdk.testmodels.view.ViewTestModels.ViewWithMissingSubscriptionForHandleDeletes
 import kalix.springsdk.testmodels.view.ViewTestModels.ViewWithNoQuery
 import kalix.springsdk.testmodels.view.ViewTestModels.ViewWithServiceLevelAcl
 import kalix.springsdk.testmodels.view.ViewTestModels.ViewWithSubscriptionsInMixedLevels
+import kalix.springsdk.testmodels.view.ViewTestModels.ViewWithSubscriptionsInMixedLevelsHandleDelete
 import kalix.springsdk.testmodels.view.ViewTestModels.ViewWithTwoQueries
+import kalix.springsdk.testmodels.view.ViewTestModels.ViewWithoutSubscriptionButWithHandleDelete
 import org.scalatest.wordspec.AnyWordSpec
 
 class ViewDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSuite {
@@ -89,12 +96,53 @@ class ViewDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSuit
       }.getMessage should startWith("Mixed usage of @Subscribe.ValueEntity annotations.")
     }
 
+    "not allow method level handle deletes with type level subscription" in {
+      intercept[InvalidComponentException] {
+        assertDescriptor[ViewWithSubscriptionsInMixedLevelsHandleDelete] { desc => }
+      }.getMessage should startWith("Mixed usage of @Subscribe.ValueEntity annotations.")
+    }
+
+    "not allow method level handle deletes without method level subscription" in {
+      intercept[InvalidComponentException] {
+        assertDescriptor[ViewWithoutSubscriptionButWithHandleDelete] { desc => }
+      }.getMessage should include("don't have matching subscription methods.")
+    }
+
+    "not allow duplicated handle deletes methods" in {
+      intercept[InvalidComponentException] {
+        assertDescriptor[ViewDuplicatedHandleDeletesAnnotations] { desc => }
+      }.getMessage should startWith("Duplicated subscription to the same ValueEntity")
+    }
+
+    "not allow handle deletes false on method level" in {
+      // on method level only true is acceptable
+      intercept[InvalidComponentException] {
+        assertDescriptor[ViewWithHandleDeletesFalseOnMethodLevel] { desc => }
+      }.getMessage should include("look like delete handlers but with handleDeletes flag eq false")
+    }
+
+    "not allow duplicated subscriptions methods" in {
+      // it should be annotated either on type or on method level
+      intercept[InvalidComponentException] {
+        assertDescriptor[ViewDuplicatedSubscriptions] { desc => }
+      }.getMessage should startWith("Duplicated subscription to the same ValueEntity")
+    }
+
+    "not allow handle deletes without matching subscription methods" in {
+      // it should be annotated either on type or on method level
+      intercept[InvalidComponentException] {
+        assertDescriptor[ViewWithMissingSubscriptionForHandleDeletes] { desc => }
+      }.getMessage should startWith("Some methods annotated with")
+    }
+
     "generate proto for a View using POST request with explicit update method" in {
       assertDescriptor[TransformedUserView] { desc =>
 
         val methodOptions = this.findKalixMethodOptions(desc, "OnChange")
         val entityType = methodOptions.getEventing.getIn.getValueEntity
+        val handleDeletes = methodOptions.getEventing.getIn.getHandleDeletes
         entityType shouldBe "user"
+        handleDeletes shouldBe false
 
         methodOptions.getView.getUpdate.getTable shouldBe "users_view"
         methodOptions.getView.getUpdate.getTransformUpdates shouldBe true
@@ -111,6 +159,21 @@ class ViewDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSuit
 
         val rule = findHttpRule(desc, "GetUser")
         rule.getPost shouldBe "/users/by-email"
+      }
+    }
+
+    "generate proto for a View with delete handler" in {
+      assertDescriptor[TransformedUserViewWithDeletes] { desc =>
+
+        val methodOptions = this.findKalixMethodOptions(desc, "OnChange")
+        val in = methodOptions.getEventing.getIn
+        in.getValueEntity shouldBe "user"
+        in.getHandleDeletes shouldBe false
+
+        val deleteMethodOptions = this.findKalixMethodOptions(desc, "OnDelete")
+        val deleteIn = deleteMethodOptions.getEventing.getIn
+        deleteIn.getValueEntity shouldBe "user"
+        deleteIn.getHandleDeletes shouldBe true
       }
     }
 
@@ -202,8 +265,12 @@ class ViewDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSuit
     "generate proto for a View using POST request with path param " in {
       assertDescriptor[UserByNameEmailWithPost] { desc =>
         val methodOptions = this.findKalixMethodOptions(desc, "OnChange")
-        val entityType = methodOptions.getEventing.getIn.getValueEntity
-        entityType shouldBe "user"
+        methodOptions.getEventing.getIn.getValueEntity shouldBe "user"
+        methodOptions.getEventing.getIn.getHandleDeletes shouldBe false
+
+        val deleteMethodOptions = this.findKalixMethodOptions(desc, "OnDelete")
+        deleteMethodOptions.getEventing.getIn.getValueEntity shouldBe "user"
+        deleteMethodOptions.getEventing.getIn.getHandleDeletes shouldBe true
 
         methodOptions.getView.getUpdate.getTable shouldBe "users_view"
         methodOptions.getView.getUpdate.getTransformUpdates shouldBe false

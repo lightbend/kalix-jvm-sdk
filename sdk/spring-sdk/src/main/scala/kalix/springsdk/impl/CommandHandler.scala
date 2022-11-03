@@ -69,6 +69,15 @@ object MethodInvoker {
 
 case class MethodInvoker(method: Method, parameterExtractors: Array[ParameterExtractor[InvocationContext, AnyRef]]) {
 
+  /**
+   * To invoke methods with parameters an InvocationContext is necessary extract them from the message.
+   */
   def invoke(componentInstance: AnyRef, invocationContext: InvocationContext): AnyRef =
     method.invoke(componentInstance, parameterExtractors.map(e => e.extract(invocationContext)): _*)
+
+  /**
+   * To invoke methods with arity zero.
+   */
+  def invoke(componentInstance: AnyRef): AnyRef =
+    method.invoke(componentInstance)
 }
