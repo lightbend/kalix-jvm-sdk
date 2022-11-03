@@ -24,6 +24,7 @@ import kalix.springsdk.impl.ComponentDescriptorFactory.eventingInForValueEntity
 import kalix.springsdk.impl.ComponentDescriptorFactory.eventingOutForTopic
 import kalix.springsdk.impl.ComponentDescriptorFactory.hasActionOutput
 import kalix.springsdk.impl.ComponentDescriptorFactory.hasEventSourcedEntitySubscription
+import kalix.springsdk.impl.ComponentDescriptorFactory.hasHandleDeletes
 import kalix.springsdk.impl.ComponentDescriptorFactory.hasTopicPublication
 import kalix.springsdk.impl.ComponentDescriptorFactory.hasTopicSubscription
 import kalix.springsdk.impl.ComponentDescriptorFactory.hasValueEntitySubscription
@@ -55,6 +56,21 @@ private[impl] object ActionDescriptorFactory extends ComponentDescriptorFactory 
       .sorted // make sure we get the methods in deterministic order
       .map { method =>
         val subscriptionOptions = eventingInForValueEntity(method)
+        val kalixOptions =
+          kalix.MethodOptions.newBuilder().setEventing(subscriptionOptions).build()
+
+        KalixMethod(SubscriptionServiceMethod(method))
+          .withKalixOptions(kalixOptions)
+      }
+
+    val handleDeletesMethod = component.getMethods
+      .filter(hasHandleDeletes)
+      .sorted // make sure we get the methods in deterministic order
+      .map { method =>
+        if (hasTopicSubscription(component))
+          throw InvalidComponentException(
+            s"You cannot use Subscribe annotation in both the methods and the class. You can do either one or the other.")
+        val subscriptionOptions = eventingInForTopic(method)
         val kalixOptions =
           kalix.MethodOptions.newBuilder().setEventing(subscriptionOptions).build()
 

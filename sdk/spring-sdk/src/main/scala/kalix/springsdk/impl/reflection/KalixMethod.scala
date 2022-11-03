@@ -21,10 +21,11 @@ import java.lang.reflect.Method
 import scala.annotation.tailrec
 
 import com.google.protobuf.Descriptors
-import com.google.protobuf.any.{ Any => ScalaPbAny }
+import com.google.protobuf.any.{Any => ScalaPbAny}
 import kalix.springsdk.impl.AclDescriptorFactory
 import kalix.springsdk.impl.path.PathPattern
 import kalix.springsdk.impl.path.PathPatternParser
+import kalix.springsdk.impl.reflection.PathBuilder.buildPathTemplate
 import kalix.springsdk.impl.reflection.RestServiceIntrospector.PathParameter
 import kalix.springsdk.impl.reflection.RestServiceIntrospector.RestMethodParameter
 import kalix.springsdk.impl.reflection.RestServiceIntrospector.isEmpty
@@ -65,11 +66,6 @@ sealed trait ServiceMethod {
 
 sealed trait AnyJsonRequestServiceMethod extends ServiceMethod {
   def inputType: Class[_]
-
-  protected def buildPathTemplate(componentName: String, methodName: String): String = {
-    val cls = componentName.replace("$", ".")
-    s"/$cls/${methodName.capitalize}" // FIXME: must pass through NameGenerator?
-  }
 }
 
 /**
@@ -126,6 +122,29 @@ case class SubscriptionServiceMethod(javaMethod: Method) extends AnyJsonRequestS
 
   val streamIn: Boolean = ServiceMethod.isStreamIn(javaMethod)
   val streamOut: Boolean = ServiceMethod.isStreamOut(javaMethod)
+}
+
+private[reflection] object PathBuilder {
+  def buildPathTemplate(componentName: String, methodName: String): String = {
+    val cls = componentName.replace("$", ".")
+    s"/$cls/${methodName.capitalize}" // FIXME: must pass through NameGenerator?
+  }
+}
+
+/**
+ * Build from methods annotated with @HandleDeletes. Those methods are not annotated with Spring REST annotations, but
+ * they become a REST method at the end.
+ */
+case class HandleDeletesServiceMethod(javaMethod: Method) extends ServiceMethod {
+  override def methodName: String = javaMethod.getName
+
+  override def requestMethod: RequestMethod = RequestMethod.POST
+  override def javaMethodOpt: Option[Method] = Some(javaMethod)
+
+  override def pathTemplate: String = buildPathTemplate(javaMethod.getDeclaringClass.getName, methodName)
+
+  override def streamIn: Boolean = false
+  override def streamOut: Boolean = false
 }
 
 /**

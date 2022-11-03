@@ -18,22 +18,22 @@ package kalix.springsdk.impl
 
 import java.lang.reflect.Method
 import java.lang.reflect.Modifier
+import java.lang.reflect.ParameterizedType
 
-import kalix.MethodOptions
-import kalix.springsdk.annotations.JWT
-import kalix.springsdk.annotations.Table
-import kalix.springsdk.annotations.Entity
-import kalix.springsdk.annotations.Publish
-import kalix.springsdk.annotations.Subscribe
-import kalix.springsdk.impl.reflection._
 import kalix.EventDestination
 import kalix.EventSource
 import kalix.Eventing
 import kalix.JwtMethodOptions
+import kalix.MethodOptions
 import kalix.javasdk.action.Action
 import kalix.javasdk.view.View
-
-import java.lang.reflect.ParameterizedType
+import kalix.springsdk.annotations.Entity
+import kalix.springsdk.annotations.JWT
+import kalix.springsdk.annotations.Publish
+import kalix.springsdk.annotations.Subscribe
+import kalix.springsdk.annotations.Subscribe.ValueEntity
+import kalix.springsdk.annotations.Table
+import kalix.springsdk.impl.reflection._
 
 private[impl] object ComponentDescriptorFactory {
 
@@ -71,6 +71,11 @@ private[impl] object ComponentDescriptorFactory {
     Modifier.isPublic(javaMethod.getModifiers) &&
     javaMethod.getAnnotation(classOf[Subscribe.Topic]) != null
 
+  def hasHandleDeletes(javaMethod: Method): Boolean = {
+    val ann = javaMethod.getAnnotation(classOf[ValueEntity.HandleDeletes])
+    ann != null
+  }
+
   def hasTopicSubscription(clazz: Class[_]): Boolean =
     Modifier.isPublic(clazz.getModifiers) &&
     clazz.getAnnotation(classOf[Subscribe.Topic]) != null
@@ -97,6 +102,12 @@ private[impl] object ComponentDescriptorFactory {
 
   def findValueEntityType(javaMethod: Method): String = {
     val ann = javaMethod.getAnnotation(classOf[Subscribe.ValueEntity])
+    val entityClass = ann.value()
+    entityClass.getAnnotation(classOf[Entity]).entityType()
+  }
+
+  def findValueEntityTypeForHandleDeletes(javaMethod: Method): String = {
+    val ann = javaMethod.getAnnotation(classOf[Subscribe.ValueEntity.HandleDeletes])
     val entityClass = ann.value()
     entityClass.getAnnotation(classOf[Entity]).entityType()
   }
@@ -164,6 +175,12 @@ private[impl] object ComponentDescriptorFactory {
   def eventingInForValueEntity(javaMethod: Method): Eventing = {
     val entityType = findValueEntityType(javaMethod)
     val eventSource = EventSource.newBuilder().setValueEntity(entityType).build()
+    Eventing.newBuilder().setIn(eventSource).build()
+  }
+
+  def eventingInForValueEntityHandleDeletes(javaMethod: Method): Eventing = {
+    val entityType = findValueEntityTypeForHandleDeletes(javaMethod)
+    val eventSource = EventSource.newBuilder().setValueEntity(entityType).setHandleDeletes(true).build()
     Eventing.newBuilder().setIn(eventSource).build()
   }
 

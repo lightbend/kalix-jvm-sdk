@@ -46,6 +46,25 @@ public @interface Subscribe {
      * kalix.javasdk.valueentity.ValueEntity ValueEntity}.
      */
     Class<? extends kalix.javasdk.valueentity.ValueEntity<?>> value();
+
+    /**
+     * Annotation used in the scope of a view or action for marking methods that should be invoked when an entity has been deleted.
+     * Currently supported only with the {@link kalix.springsdk.annotations.Subscribe.ValueEntity} subscriptions.
+     * If the method is in a view the return type should be the {@link kalix.javasdk.view.View.UpdateEffect} type, for actions
+     * the returned message type can be an arbitrary message, for example for publishing to eventing out on delete.
+     *
+     * <p><b>Note: </b>annotated method cannot have any parameters.
+     */
+    @Target(ElementType.METHOD)
+    @Retention(RetentionPolicy.RUNTIME)
+    @Documented
+    @interface HandleDeletes {
+      /**
+       * Assign the class type of the entity one intends to subscribe to, which must extend {@link
+       * kalix.javasdk.valueentity.ValueEntity ValueEntity}.
+       */
+      Class<? extends kalix.javasdk.valueentity.ValueEntity<?>> value();
+    }
   }
 
   /**

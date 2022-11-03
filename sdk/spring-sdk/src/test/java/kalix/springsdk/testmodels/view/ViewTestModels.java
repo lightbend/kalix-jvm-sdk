@@ -22,6 +22,7 @@ import kalix.springsdk.testmodels.eventsourcedentity.Employee;
 import kalix.springsdk.testmodels.eventsourcedentity.EmployeeCreated;
 import kalix.springsdk.testmodels.eventsourcedentity.EmployeeEvent;
 import kalix.springsdk.testmodels.eventsourcedentity.EventSourcedEntitiesTestModels;
+import kalix.springsdk.testmodels.valueentity.Counter;
 import kalix.springsdk.testmodels.valueentity.User;
 import kalix.springsdk.testmodels.valueentity.UserEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -90,6 +91,27 @@ public class ViewTestModels {
   }
 
   @Table("users_view")
+  public static class TransformedUserViewWithDeletes extends View<TransformedUser> {
+
+    @Subscribe.ValueEntity(UserEntity.class)
+    public UpdateEffect<TransformedUser> onChange(User user) {
+      return effects()
+          .updateState(new TransformedUser(user.lastName + ", " + user.firstName, user.email));
+    }
+
+    @Subscribe.ValueEntity.HandleDeletes(UserEntity.class)
+    public UpdateEffect<TransformedUser> onDelete() {
+      return effects().deleteState();
+    }
+
+    @Query("SELECT * FROM users_view WHERE email = :email")
+    @PostMapping("/users/by-email")
+    public TransformedUser getUser(@RequestBody ByEmail byEmail) {
+      return null;
+    }
+  }
+
+  @Table("users_view")
   public static class TransformedUserViewWithJWT extends View<TransformedUser> {
 
     // when methods are annotated, it's implicitly a transform = true
@@ -148,6 +170,122 @@ public class ViewTestModels {
       return null;
     }
   }
+
+  /**
+   * This should be illegal. Either we subscribe at type level, and it's a transform = false. Or we
+   * subscribe at method level, and it's a transform = true.
+   */
+  @Table("users_view")
+  @Subscribe.ValueEntity(UserEntity.class)
+  public static class ViewWithSubscriptionsInMixedLevelsHandleDelete extends View<TransformedUser> {
+
+    @Subscribe.ValueEntity.HandleDeletes(UserEntity.class)
+    public UpdateEffect<TransformedUser> onDelete() {
+      return effects().deleteState();
+    }
+
+    @Query("SELECT * FROM users_view WHERE email = :email")
+    @PostMapping("/users/by-email")
+    public TransformedUser getUser(@RequestBody ByEmail byEmail) {
+      return null;
+    }
+  }
+
+  @Table("users_view")
+  public static class ViewWithoutSubscriptionButWithHandleDelete extends View<TransformedUser> {
+
+    @Subscribe.ValueEntity.HandleDeletes(UserEntity.class)
+    public UpdateEffect<TransformedUser> onDelete() {
+      return effects().deleteState();
+    }
+
+    @Query("SELECT * FROM users_view WHERE email = :email")
+    @PostMapping("/users/by-email")
+    public TransformedUser getUser(@RequestBody ByEmail byEmail) {
+      return null;
+    }
+  }
+
+  @Table("users_view")
+  public static class ViewDuplicatedHandleDeletesAnnotations extends View<TransformedUser> {
+
+    @Subscribe.ValueEntity(UserEntity.class)
+    public UpdateEffect<TransformedUser> onChange(User user) {
+      return effects()
+          .updateState(new TransformedUser(user.lastName + ", " + user.firstName, user.email));
+    }
+
+    @Subscribe.ValueEntity.HandleDeletes(UserEntity.class)
+    public UpdateEffect<TransformedUser> onDelete() {
+      return effects().deleteState();
+    }
+
+    @Subscribe.ValueEntity.HandleDeletes(UserEntity.class)
+    public UpdateEffect<TransformedUser> onDelete2() {
+      return effects().deleteState();
+    }
+
+    @Query("SELECT * FROM users_view WHERE email = :email")
+    @PostMapping("/users/by-email")
+    public TransformedUser getUser(@RequestBody ByEmail byEmail) {
+      return null;
+    }
+  }
+
+  @Table("users_view")
+  public static class ViewDuplicatedSubscriptions extends View<TransformedUser> {
+
+    @Subscribe.ValueEntity(UserEntity.class)
+    public UpdateEffect<TransformedUser> onChange(User user) {
+      return effects()
+          .updateState(new TransformedUser(user.lastName + ", " + user.firstName, user.email));
+    }
+
+    @Subscribe.ValueEntity(UserEntity.class)
+    public UpdateEffect<TransformedUser> onChange2(User user) {
+      return effects()
+          .updateState(new TransformedUser(user.lastName + ", " + user.firstName, user.email));
+    }
+
+    @Subscribe.ValueEntity.HandleDeletes(UserEntity.class)
+    public UpdateEffect<TransformedUser> onDelete() {
+      return effects().deleteState();
+    }
+
+    @Query("SELECT * FROM users_view WHERE email = :email")
+    @PostMapping("/users/by-email")
+    public TransformedUser getUser(@RequestBody ByEmail byEmail) {
+      return null;
+    }
+  }
+
+  @Table("users_view")
+  public static class ViewWithMissingSubscriptionForHandleDeletes extends View<TransformedUser> {
+
+    @Subscribe.ValueEntity(UserEntity.class)
+    public UpdateEffect<TransformedUser> onChange(User user) {
+      return effects()
+          .updateState(new TransformedUser(user.lastName + ", " + user.firstName, user.email));
+    }
+
+    @Subscribe.ValueEntity.HandleDeletes(UserEntity.class)
+    public UpdateEffect<TransformedUser> onUserDelete() {
+      return effects().deleteState();
+    }
+
+    @Subscribe.ValueEntity.HandleDeletes(Counter.class)
+    public UpdateEffect<TransformedUser> onCounterDelete() {
+      return effects().deleteState();
+    }
+
+    @Query("SELECT * FROM users_view WHERE email = :email")
+    @PostMapping("/users/by-email")
+    public TransformedUser getUser(@RequestBody ByEmail byEmail) {
+      return null;
+    }
+  }
+
+
 
   @Table("users_view")
   @Subscribe.ValueEntity(UserEntity.class)

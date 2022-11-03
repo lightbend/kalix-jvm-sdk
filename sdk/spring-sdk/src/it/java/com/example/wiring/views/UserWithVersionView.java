@@ -34,6 +34,11 @@ public class UserWithVersionView extends View<UserWithVersion> {
     else return effects().updateState(new UserWithVersion(user.email, viewState().version + 1));
   }
 
+  @Subscribe.ValueEntity.HandleDeletes(UserEntity.class)
+  public UpdateEffect<UserWithVersion> onDelete() {
+    return effects().deleteState();
+  }
+
   @Query("SELECT * FROM user_view WHERE email = :email")
   @GetMapping("/users/by-email/{email}")
   public UserWithVersion getUser(@PathVariable String email) {

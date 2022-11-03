@@ -71,4 +71,7 @@ case class MethodInvoker(method: Method, parameterExtractors: Array[ParameterExt
 
   def invoke(componentInstance: AnyRef, invocationContext: InvocationContext): AnyRef =
     method.invoke(componentInstance, parameterExtractors.map(e => e.extract(invocationContext)): _*)
+
+  def invoke(componentInstance: AnyRef): AnyRef =
+    method.invoke(componentInstance)
 }

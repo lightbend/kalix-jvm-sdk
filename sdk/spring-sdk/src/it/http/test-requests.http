@@ -1,0 +1,14 @@
+POST {{url}}/user/{{userId}}/email/andrzej
+Content-Type: application/json
+
+{}
+
+###
+
+GET {{url}}/user/{{userId}}
+
+###
+
+DELETE {{url}}/user/{{userId}}
+
+###
