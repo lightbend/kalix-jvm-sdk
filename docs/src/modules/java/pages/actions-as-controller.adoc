@@ -78,7 +78,7 @@ include::example$scala-valueentity-shopping-cart/src/main/scala/com/example/shop
 <1> We generate a new UUID
 <2> We use `components.shoppingCart.create(...)` to create a `DeferredCall` for `create` on the shopping cart
 <3> `execute()` on the `DeferredCall` immediately triggers a call and returns a `Future` for the response
-<4>  On a successful response, we `map` the `Empty` reply to a reply effect with the reply `NewCartCreated`
+<4> On a successful response, we `map` the `Empty` reply to a reply effect with the reply `NewCartCreated`
 <5> If the call leads to an error, we `recover` and return an error effect asking the client to retry
 <6> `effects.asyncEffect()` allows us to reply with a `Future[Effect[NewCartCreated]]` rather than a reply we already have created
 
