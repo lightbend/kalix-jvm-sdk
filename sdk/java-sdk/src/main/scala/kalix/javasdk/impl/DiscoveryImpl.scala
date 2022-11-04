@@ -18,13 +18,11 @@ package kalix.javasdk.impl
 
 import java.time.Duration
 import java.util.concurrent.atomic.AtomicReference
-
 import scala.concurrent.Future
 import scala.concurrent.Promise
 import scala.io.Source
 import scala.jdk.CollectionConverters._
 import scala.util.control.NonFatal
-
 import akka.Done
 import akka.actor.ActorSystem
 import akka.actor.CoordinatedShutdown
@@ -40,6 +38,8 @@ import kalix.protocol.discovery.PassivationStrategy.Strategy
 import kalix.protocol.discovery._
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+
+import java.util
 
 class DiscoveryImpl(
     system: ActorSystem,
@@ -65,14 +65,6 @@ class DiscoveryImpl(
   private def configuredIntOrElse(key: String, default: Int): Int =
     if (system.settings.config.hasPath(key)) system.settings.config.getInt(key) else default
 
-  private val serviceInfo = ServiceInfo(
-    serviceRuntime = sys.props.getOrElse("java.runtime.name", "")
-      + " " + sys.props.getOrElse("java.runtime.version", ""),
-    supportLibraryName = sdkName,
-    supportLibraryVersion = configuredOrElse("kalix.library.version", BuildInfo.version),
-    protocolMajorVersion = configuredIntOrElse("kalix.library.protocol-major-version", BuildInfo.protocolMajorVersion),
-    protocolMinorVersion = configuredIntOrElse("kalix.library.protocol-minor-version", BuildInfo.protocolMinorVersion))
-
   // detect hybrid proxy version probes when protocol version 0.0
   private def isVersionProbe(info: ProxyInfo): Boolean = {
     info.protocolMajorVersion == 0 && info.protocolMinorVersion == 0
@@ -90,6 +82,30 @@ class DiscoveryImpl(
       in.proxyPort,
       in.protocolMajorVersion,
       in.protocolMinorVersion)
+
+    // possibly filtered or hidden env, passed along for substitution in descriptor options
+    val env: Map[String, String] = system.settings.config.getAnyRef("kalix.discovery.pass-along-env-allow") match {
+      case false => Map.empty
+      case true  => sys.env
+      case allowed: util.ArrayList[String @unchecked] =>
+        allowed.asScala.flatMap(name => sys.env.get(name).map(value => name -> value)).toMap
+      case unexpected =>
+        throw new IllegalArgumentException(
+          s"The setting 'kalix.discovery.pass-along-env-allow' can be true, false or a list of env val names, but was [${unexpected}]")
+    }
+
+    val serviceInfo = ServiceInfo(
+      serviceRuntime = sys.props.getOrElse("java.runtime.name", "")
+        + " " + sys.props.getOrElse("java.runtime.version", ""),
+      supportLibraryName = sdkName,
+      supportLibraryVersion = configuredOrElse("kalix.library.version", BuildInfo.version),
+      protocolMajorVersion =
+        configuredIntOrElse("kalix.library.protocol-major-version", BuildInfo.protocolMajorVersion),
+      protocolMinorVersion =
+        configuredIntOrElse("kalix.library.protocol-minor-version", BuildInfo.protocolMinorVersion),
+      // passed along for substitution in options
+      env = env)
+
     if (isVersionProbe(in)) {
       // only (silently) send service info for hybrid proxy version probe
       Future.successful(Spec(serviceInfo = Some(serviceInfo)))
