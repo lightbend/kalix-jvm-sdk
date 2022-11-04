@@ -89,6 +89,9 @@ class DiscoveryImpl(
       case true  => sys.env
       case allowed: util.ArrayList[String @unchecked] =>
         allowed.asScala.flatMap(name => sys.env.get(name).map(value => name -> value)).toMap
+      case unexpected =>
+        throw new IllegalArgumentException(
+          s"The setting 'kalix.discovery.pass-along-env-allow' can be true, false or a list of env val names, but was [${unexpected}]")
     }
 
     val serviceInfo = ServiceInfo(
