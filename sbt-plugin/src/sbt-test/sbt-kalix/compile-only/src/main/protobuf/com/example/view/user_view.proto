@@ -18,6 +18,7 @@ package com.example.view;
 
 option java_outer_classname = "UserViewModel";
 
+import "google/protobuf/empty.proto";
 import "com/example/valueentity/domain/user_domain.proto";
 import "kalix/annotations.proto";
 
@@ -36,6 +37,17 @@ service UserByName {
   rpc UpdateCustomer(valueentity.domain.UserState) returns (valueentity.domain.UserState) {
     option (kalix.method).eventing.in = {
       value_entity: "users"
+    };
+    option (kalix.method).view.update = {
+      table: "users"
+      transform_updates: true
+    };
+  }
+
+  rpc DeleteCustomer(google.protobuf.Empty) returns (valueentity.domain.UserState) {
+    option (kalix.method).eventing.in = {
+      value_entity: "users"
+      handle_deletes: true
     };
     option (kalix.method).view.update = {
       table: "users"

@@ -310,7 +310,8 @@ object ModelBuilder {
       streamedOutput: Boolean,
       inFromTopic: Boolean,
       outToTopic: Boolean,
-      ignore: Boolean) {
+      ignore: Boolean,
+      handleDeletes: Boolean) {
 
     def isUnary: Boolean = !streamedInput && !streamedOutput
     def isStreamIn: Boolean = streamedInput && !streamedOutput
@@ -331,7 +332,8 @@ object ModelBuilder {
         streamedOutput = method.isServerStreaming,
         inFromTopic = eventing.hasIn && eventing.getIn.hasTopic,
         outToTopic = eventing.hasOut && eventing.getOut.hasTopic,
-        ignore = eventing.hasIn && eventing.getIn.getIgnore)
+        ignore = eventing.hasIn && eventing.getIn.getIgnore,
+        handleDeletes = eventing.hasIn && eventing.getIn.getHandleDeletes)
     }
   }
 

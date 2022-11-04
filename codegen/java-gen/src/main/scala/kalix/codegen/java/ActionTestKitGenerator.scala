@@ -147,14 +147,23 @@ object ActionTestKitGenerator {
 
     commands
       .map { command =>
-        s"""|public ${selectOutputResult(command)} ${lowerFirst(command.name)}(${selectInputType(command)} ${lowerFirst(
-          command.inputType.protoName)}, Metadata metadata) {
+        if (command.handleDeletes) {
+          s"""|public ${selectOutputResult(command)} ${lowerFirst(command.name)}(Metadata metadata) {
           |  TestKitActionContext context = new TestKitActionContext(metadata, mockRegistry);
-          |  ${selectOutputEffect(command)} effect = createAction(context).${lowerFirst(command.name)}(${lowerFirst(
-          command.inputType.protoName)});
+          |  ${selectOutputEffect(command)} effect = createAction(context).${lowerFirst(command.name)}();
           |  return ${selectOutputReturn(command)}
           |}
           |""".stripMargin + "\n"
+        } else {
+          s"""|public ${selectOutputResult(command)} ${lowerFirst(command.name)}(${selectInputType(
+            command)} ${lowerFirst(command.inputType.protoName)}, Metadata metadata) {
+              |  TestKitActionContext context = new TestKitActionContext(metadata, mockRegistry);
+              |  ${selectOutputEffect(command)} effect = createAction(context).${lowerFirst(command.name)}(${lowerFirst(
+            command.inputType.protoName)});
+              |  return ${selectOutputReturn(command)}
+              |}
+              |""".stripMargin + "\n"
+        }
       }
       .mkString("")
   }
@@ -167,11 +176,18 @@ object ActionTestKitGenerator {
 
     commands
       .map { command =>
-        s"""|public ${selectOutputResult(command)} ${lowerFirst(command.name)}(${selectInputType(command)} ${lowerFirst(
-          command.inputType.protoName)}) {
-          |  return ${lowerFirst(command.name)}(${lowerFirst(command.inputType.protoName)}, Metadata.EMPTY);
-          |}
-          |""".stripMargin + "\n"
+        if (command.handleDeletes) {
+          s"""|public ${selectOutputResult(command)} ${lowerFirst(command.name)}() {
+              |  return ${lowerFirst(command.name)}(Metadata.EMPTY);
+              |}
+              |""".stripMargin + "\n"
+        } else {
+          s"""|public ${selectOutputResult(command)} ${lowerFirst(command.name)}(${selectInputType(
+            command)} ${lowerFirst(command.inputType.protoName)}) {
+              |  return ${lowerFirst(command.name)}(${lowerFirst(command.inputType.protoName)}, Metadata.EMPTY);
+              |}
+              |""".stripMargin + "\n"
+        }
       }
       .mkString("")
   }
