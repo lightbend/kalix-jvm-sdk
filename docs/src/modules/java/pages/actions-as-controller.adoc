@@ -39,7 +39,7 @@ include::example$scala-valueentity-shopping-cart/src/main/scala/com/example/shop
 <1> check if the added item is carrots
 <2> if it is "carrots" immediately return an error, disallowing adding the item
 <3> for allowed requests, use `components.shoppingCart.addItem()` to get a `DeferredCall`
-<4> The `DeferredCall` is used with `effects.forward()` to forward the request to the entity
+<4> the `DeferredCall` is used with `effects.forward()` to forward the request to the entity
 
 
 == Transform Request and Response to Another Component

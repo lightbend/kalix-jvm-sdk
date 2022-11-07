@@ -1,6 +1,7 @@
 package com.example;
 
 import com.example.api.ShoppingCartDTO;
+import com.example.api.ShoppingCartDTO.LineItemDTO;
 import com.example.domain.ShoppingCart;
 import kalix.springsdk.testkit.KalixIntegrationTestKitSupport;
 
@@ -49,7 +50,7 @@ public class IntegrationTest extends KalixIntegrationTestKitSupport {
   void addItem(String cartId, String productId, String name, int quantity) throws Exception {
         webClient.post()
             .uri("/cart/" + cartId + "/items/add")
-            .bodyValue(new ShoppingCart.LineItem(productId, name, quantity))
+            .bodyValue(new LineItemDTO(productId, name, quantity))
             .retrieve()
             .bodyToMono(ShoppingCartDTO.class)
             .block(timeout);
@@ -71,8 +72,8 @@ public class IntegrationTest extends KalixIntegrationTestKitSupport {
         .block(timeout);
   }
 
-  ShoppingCartDTO.LineItemDTO item(String productId, String name, int quantity) {
-    return new ShoppingCartDTO.LineItemDTO(productId, name, quantity);
+  LineItemDTO item(String productId, String name, int quantity) {
+    return new LineItemDTO(productId, name, quantity);
   }
 
   ShoppingCartDTO initializeCart() throws Exception {
@@ -84,16 +85,16 @@ public class IntegrationTest extends KalixIntegrationTestKitSupport {
           .block(timeout);
   }
 
-  ShoppingCartDTO createPrePopulated() throws Exception {
+  String createPrePopulated() throws Exception {
     return 
         webClient.post()
           .uri("/carts/prepopulated")
           .retrieve()
-          .bodyToMono(ShoppingCartDTO.class)
+          .bodyToMono(String.class)
           .block(timeout);
   }
 
-  ShoppingCartDTO verifiedAddItem(String cartId, ShoppingCart.LineItem in) throws Exception {
+  ShoppingCartDTO verifiedAddItem(String cartId, LineItemDTO in) throws Exception {
     return
         webClient.post()
             .uri("/carts/" + cartId + "/items/add")
@@ -155,10 +156,8 @@ public class IntegrationTest extends KalixIntegrationTestKitSupport {
 
   @Test
   public void createNewPrePopulatedCart() throws Exception {
-    ShoppingCartDTO newCartCreated = createPrePopulated();
-    String cartId = newCartCreated.cartId();
-
-    var cart = getCart(cartId);
+    String cartId = createPrePopulated();
+    var cart = getCart(cartId.substring(1, cartId.length() - 1)); // removing quotes
     assertEquals(1, cart.items().size());
   }
 
@@ -168,12 +167,12 @@ public class IntegrationTest extends KalixIntegrationTestKitSupport {
     assertThrows(Exception.class, () ->
         verifiedAddItem(
             cartId,
-            new ShoppingCart.LineItem("c","Carrot", 4)
+            new LineItemDTO("c","Carrot", 4)
         )
     );
     verifiedAddItem(
         cartId,
-        new ShoppingCart.LineItem("b", "Banana", 1));
+        new LineItemDTO("b", "Banana", 1));
     var cart = getCart(cartId);
     assertEquals(1, cart.items().size());
   }

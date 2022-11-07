@@ -9,7 +9,12 @@ import java.util.stream.Collectors;
 // tag::domain[]
 public record ShoppingCartDTO(String cartId, List<LineItemDTO> items) {
 
-  public record LineItemDTO(String productId, String name, int quantity) { }
+  public record LineItemDTO(String productId, String name, int quantity) {
+
+    public ShoppingCart.LineItem toDomain() {
+      return new ShoppingCart.LineItem(productId, name, quantity);
+    }
+  }
 
   public static ShoppingCartDTO of(ShoppingCart cart) {
     List<LineItemDTO> allItems =

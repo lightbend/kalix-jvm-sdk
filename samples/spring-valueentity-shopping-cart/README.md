@@ -32,9 +32,24 @@ To start the application locally, the `exec-maven-plugin` is used. Use the follo
 mvn spring-boot:run
 ```
 
+## Exercising the service
+
 With both the proxy and your application running, once you have defined endpoints they should be available at `http://localhost:9000`. 
 
 
+* Adding a new item:
+
+```shell
+curl -XPOST -H "Content-Type: application/json" localhost:9000/cart/cart1/items/add -d '{"productId": "akka-tshirt", "name": "Akka t-shirt", "quantity": 3}' 
+```
+
+* Removing a new item:
+
+```shell
+curl -XPOST -H "Content-Type: application/json" localhost:9000/cart/cart1/items/add -d '{"productId": "akka-tshirt", "name": "Akka t-shirt", "quantity": 3}' 
+```
+
+## Deploying
 
 To deploy your service, install the `kalix` CLI as documented in
 [Setting up a local development environment](https://docs.kalix.io/setting-up/)

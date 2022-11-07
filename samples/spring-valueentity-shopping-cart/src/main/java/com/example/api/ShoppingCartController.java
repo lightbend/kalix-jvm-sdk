@@ -1,9 +1,9 @@
-package com.example;
+package com.example.api;
 
 import com.example.api.ShoppingCartDTO;
+import com.example.api.ShoppingCartDTO.LineItemDTO;
 import com.example.domain.ShoppingCart;
 import com.google.protobuf.any.Any;
-import com.google.protobuf.Empty;
 import kalix.javasdk.DeferredCall;
 import kalix.javasdk.action.Action;
 import kalix.javasdk.action.ActionCreationContext;
@@ -13,25 +13,30 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletionStage;
 
+// tag::forward[]
 @RequestMapping("/carts")
 public class ShoppingCartController extends Action {
 
-  private KalixClient kalixClient;
+  private final KalixClient kalixClient;
 
-  public ShoppingCartController(ActionCreationContext creationContext, KalixClient kalixClient) {
-    this.kalixClient = kalixClient;
+  public ShoppingCartController(ActionCreationContext creationContext,
+                                KalixClient kalixClient) {
+    this.kalixClient = kalixClient; // <1>
   }
+
+  // end::forward[]
 
   // tag::initialize[]
   @PostMapping("/create")
   public Action.Effect<String> initializeCart() {
     final String cartId = UUID.randomUUID().toString(); // <1>
     CompletionStage<ShoppingCartDTO> shoppingCartCreated =
-        kalixClient.post("/cart/" + cartId + "/create", "", ShoppingCartDTO.class).execute(); // <3>
+        kalixClient
+            .post("/cart/" + cartId + "/create", "", ShoppingCartDTO.class) // <2>
+            .execute(); // <3>
 
     // transform response
     CompletionStage<Action.Effect<String>> effect =
@@ -48,14 +53,15 @@ public class ShoppingCartController extends Action {
   // end::initialize[]
 
   // tag::forward[]
-  @PostMapping("/{cartId}/items/add")
-  public Action.Effect<ShoppingCartDTO> verifiedAddItem(@PathVariable String cartId, @RequestBody ShoppingCart.LineItem addLineItem) {
-    if (addLineItem.name().equalsIgnoreCase("carrot")) { // <1>
-      return effects().error("Carrots no longer for sale"); // <2>
+  @PostMapping("/{cartId}/items/add") // <2>
+  public Action.Effect<ShoppingCartDTO> verifiedAddItem(@PathVariable String cartId,
+                                                        @RequestBody LineItemDTO addLineItem) {
+    if (addLineItem.name().equalsIgnoreCase("carrot")) { // <3>
+      return effects().error("Carrots no longer for sale"); // <4>
     } else {
       DeferredCall<Any, ShoppingCartDTO> call =
-          kalixClient.post("/cart/" + cartId + "/items/add", addLineItem, ShoppingCartDTO.class); // <3>
-      return effects().forward(call); // <4>
+          kalixClient.post("/cart/" + cartId + "/items/add", addLineItem, ShoppingCartDTO.class); // <5>
+      return effects().forward(call); // <6>
     }
   }
   // end::forward[]
@@ -63,32 +69,38 @@ public class ShoppingCartController extends Action {
 
   // tag::createPrePopulated[]
   @PostMapping("/prepopulated")
-  public Action.Effect<ShoppingCartDTO> createPrePopulated() {
+  public Action.Effect<String> createPrePopulated() {
     final String cartId = UUID.randomUUID().toString();
-    CompletionStage<ShoppingCart> shoppingCartCreated =
-        kalixClient.post("/cart/" + cartId + "/create", "", ShoppingCart.class).execute();
+    CompletionStage<ShoppingCartDTO> shoppingCartCreated =
+        kalixClient.post("/cart/" + cartId + "/create", "", ShoppingCartDTO.class).execute();
 
-    CompletionStage<ShoppingCartDTO> cartPopulated = shoppingCartCreated.thenCompose(empty -> { // <1>
-      ShoppingCart.LineItem initialItem = new ShoppingCart.LineItem("e", "eggplant", 1);
+    CompletionStage<ShoppingCartDTO> cartPopulated =
+        shoppingCartCreated.thenCompose(empty -> { // <1>
+          var initialItem = new LineItemDTO("e", "eggplant", 1);
 
-      return kalixClient.post("/cart/" + cartId + "/items/add", initialItem, ShoppingCartDTO.class).execute(); // <3>
-    });
+          return kalixClient
+              .post("/cart/" + cartId + "/items/add", initialItem, ShoppingCartDTO.class) // <2>
+              .execute(); // <3>
+        });
+
+    CompletionStage<String> reply = cartPopulated.thenApply(ShoppingCartDTO::cartId); // <4>
 
     return effects()
-        .asyncReply(cartPopulated.thenApply(reply -> reply)); // <5>
+        .asyncReply(reply); // <5>
   }
   // end::createPrePopulated[]
 
   // tag::unsafeValidation[]
   @PostMapping("/{cartId}/unsafeAddItem")
-  public Action.Effect<String> unsafeValidation(@PathVariable String cartId, @RequestBody ShoppingCart.LineItem addLineItem) {
+  public Action.Effect<String> unsafeValidation(@PathVariable String cartId,
+                                                @RequestBody LineItemDTO addLineItem) {
     // NOTE: This is an example of an anti-pattern, do not copy this
-    CompletionStage<ShoppingCart> cartReply =
-        kalixClient.get("/cart/" + cartId, ShoppingCart.class).execute(); // <1>
+    CompletionStage<ShoppingCartDTO> cartReply =
+        kalixClient.get("/cart/" + cartId, ShoppingCartDTO.class).execute(); // <1>
 
     CompletionStage<Action.Effect<String>> effect = cartReply.thenApply(cart -> {
       int totalCount = cart.items().stream()
-          .mapToInt(ShoppingCart.LineItem::quantity)
+          .mapToInt(LineItemDTO::quantity)
           .sum();
 
       if (totalCount < 10) {

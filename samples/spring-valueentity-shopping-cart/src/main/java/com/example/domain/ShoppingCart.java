@@ -1,7 +1,5 @@
 package com.example.domain;
 
-import com.example.ShoppingCartEntity;
-
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;

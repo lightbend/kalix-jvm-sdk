@@ -13,10 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.example;
+package com.example.api;
 
 import com.example.api.ShoppingCartDTO;
+import com.example.api.ShoppingCartDTO.LineItemDTO;
 import com.example.domain.ShoppingCart;
+import io.grpc.Status;
 import kalix.javasdk.valueentity.ValueEntity;
 import kalix.javasdk.valueentity.ValueEntityContext;
 import kalix.springsdk.annotations.EntityKey;
@@ -60,13 +62,13 @@ public class ShoppingCartEntity extends ValueEntity<ShoppingCart> {
 
   // tag::add-item[]
   @PostMapping("/items/add")
-  public ValueEntity.Effect<ShoppingCartDTO> addItem(@RequestBody ShoppingCart.LineItem addLineItem) {
+  public ValueEntity.Effect<ShoppingCartDTO> addItem(@RequestBody LineItemDTO addLineItem) {
     if (addLineItem.quantity() <= 0) {
       return effects()
           .error("Quantity for item " + addLineItem.productId() + " must be greater than zero.");
     }
 
-    var newState = currentState().withItem(addLineItem);
+    var newState = currentState().withItem(addLineItem.toDomain());
     return effects()
         .updateState(newState)
         .thenReply(ShoppingCartDTO.of(newState));
