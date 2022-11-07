@@ -1,2 +1,2 @@
 
-ifdef::todo[TODO: placeholder for https://github.com/lightbend/kalix/issues/7844]
+ifdef::todo[TODO: placeholder for github.com/lightbend/kalix/issues/7844]
