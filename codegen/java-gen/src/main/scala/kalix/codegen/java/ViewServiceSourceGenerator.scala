@@ -43,11 +43,17 @@ object ViewServiceSourceGenerator {
       .map { cmd =>
         val methodName = cmd.name
         val inputType = cmd.inputType
-        c"""|case "$methodName":
-            |  return view().${lowerFirst(methodName)}(
-            |      state,
-            |      (${inputType}) event);
-            |"""
+        if (cmd.handleDeletes) {
+          c"""|case "$methodName":
+              |  return view().${lowerFirst(methodName)}(state);
+              |"""
+        } else {
+          c"""|case "$methodName":
+              |  return view().${lowerFirst(methodName)}(
+              |      state,
+              |      (${inputType}) event);
+              |"""
+        }
       }
 
     JavaGeneratorUtils.generate(
@@ -164,11 +170,19 @@ object ViewServiceSourceGenerator {
 
     val handlers = view.transformedUpdates.map { update =>
       val stateType = update.outputType
-      c"""@Override
-         |public $View.UpdateEffect<${stateType}> ${lowerFirst(update.name)}(
-         |  $stateType state, ${update.inputType} ${lowerFirst(update.inputType.name)}) {
-         |  throw new UnsupportedOperationException("Update handler for '${update.name}' not implemented yet");
-         |}"""
+      if (update.handleDeletes) {
+        c"""@Override
+           |public $View.UpdateEffect<${stateType}> ${lowerFirst(update.name)}(
+           |  $stateType state) {
+           |  throw new UnsupportedOperationException("Delete handler for '${update.name}' not implemented yet");
+           |}"""
+      } else {
+        c"""@Override
+           |public $View.UpdateEffect<${stateType}> ${lowerFirst(update.name)}(
+           |  $stateType state, ${update.inputType} ${lowerFirst(update.inputType.name)}) {
+           |  throw new UnsupportedOperationException("Update handler for '${update.name}' not implemented yet");
+           |}"""
+      }
     }
 
     JavaGeneratorUtils.generate(
@@ -201,8 +215,13 @@ object ViewServiceSourceGenerator {
 
     val handlers = view.transformedUpdates.map { update =>
       val stateType = update.outputType
-      c"""public abstract $View.UpdateEffect<$stateType> ${lowerFirst(update.name)}(
-         |  $stateType state, ${update.inputType} ${lowerFirst(update.inputType.name)});"""
+      if (update.handleDeletes) {
+        c"""public abstract $View.UpdateEffect<$stateType> ${lowerFirst(update.name)}(
+           |  $stateType state);"""
+      } else {
+        c"""public abstract $View.UpdateEffect<$stateType> ${lowerFirst(update.name)}(
+           |  $stateType state, ${update.inputType} ${lowerFirst(update.inputType.name)});"""
+      }
 
     }
 
