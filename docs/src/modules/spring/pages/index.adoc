@@ -15,7 +15,7 @@ NOTE: If you're new to Kalix and the different types of entities that exist in a
 
 The following are required to develop services in Java:
 
-Kalix requires Java {spring-java-version} or later.
+Java:: Kalix requires Java {spring-java-version} or later.
 
 Apache Maven:: Kalix relies on https://maven.apache.org/[Apache Maven {tab-icon}, window="new"] as build tool. 
 
