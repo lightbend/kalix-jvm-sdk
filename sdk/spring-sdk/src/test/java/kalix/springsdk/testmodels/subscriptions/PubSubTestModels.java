@@ -92,7 +92,7 @@ public class PubSubTestModels {//TODO shall we remove this class and move things
     }
   }
 
-  @Subscribe.EventSourcedEntity(value = CounterEventSourcedEntity.class, ignoreUnkown = true)
+  @Subscribe.EventSourcedEntity(value = CounterEventSourcedEntity.class, ignoreUnknown = true)
   public static class SubscribeOnlyOneToEventSourcedEntityActionTypeLevel extends Action {
 
     public Action.Effect<Integer> methodOne(Integer message) {
@@ -100,7 +100,7 @@ public class PubSubTestModels {//TODO shall we remove this class and move things
     }
   }
 
-  @Subscribe.EventSourcedEntity(value = CounterEventSourcedEntity.class, ignoreUnkown = true)
+  @Subscribe.EventSourcedEntity(value = CounterEventSourcedEntity.class, ignoreUnknown = true)
   public static class InvalidSubscribeToEventSourcedEntityAction extends Action {
 
     public Action.Effect<Integer> methodOne(Integer message) {
@@ -194,7 +194,7 @@ public class PubSubTestModels {//TODO shall we remove this class and move things
   }
 
   @Table(value = "employee_table")
-  @Subscribe.EventSourcedEntity(value = EmployeeEntity.class, ignoreUnkown = true)
+  @Subscribe.EventSourcedEntity(value = EmployeeEntity.class, ignoreUnknown = true)
   public static class SubscribeOnTypeToEventSourcedEventsWithMethodWithState extends View<Employee> {
 
     public UpdateEffect<Employee> onCreate(Employee employee, EmployeeCreated evt) {

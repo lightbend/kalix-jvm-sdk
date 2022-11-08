@@ -26,7 +26,7 @@ import org.springframework.context.annotation.Import;
 import java.util.concurrent.CompletionStage;
 
 @Import(KalixConfigurationTest.class)
-@Subscribe.EventSourcedEntity(value = CounterEntity.class, ignoreUnkown = true)
+@Subscribe.EventSourcedEntity(value = CounterEntity.class, ignoreUnknown = true)
 public class IncreaseActionWithIgnore extends Action {
 
     private KalixClient kalixClient;
