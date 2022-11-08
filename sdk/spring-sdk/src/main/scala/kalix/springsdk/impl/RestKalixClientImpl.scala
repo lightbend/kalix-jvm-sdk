@@ -149,6 +149,24 @@ final class RestKalixClientImpl(messageCodec: SpringSdkMessageCodec) extends Kal
     }
   }
 
+  override def post[R](uriStr: String, returnType: Class[R]): DeferredCall[Any, R] = {
+    matchMethodOrThrow(HttpMethods.POST, uriStr) { httpDef =>
+      requestToRestDefCall(
+        uriStr,
+        None,
+        httpDef,
+        () =>
+          webClient.flatMap {
+            _.post()
+              .uri(uriStr)
+              .retrieve()
+              .bodyToMono(returnType)
+              .toFuture
+              .asScala
+          }.asJava)
+    }
+  }
+
   override def put[P, R](uriStr: String, body: P, returnType: Class[R]): DeferredCall[Any, R] = {
     matchMethodOrThrow(HttpMethods.PUT, uriStr) { httpDef =>
       requestToRestDefCall(
