@@ -179,6 +179,8 @@
         <configuration>
           <executable>java</executable>
           <arguments>
+            <!--  the shopping cart service is running at 8080, this service at 8081 -->
+            <argument>-Dkalix.user-function-port=8081</argument>
             <argument>-classpath</argument>
             <classpath/>
             <argument>${mainClass}</argument>
