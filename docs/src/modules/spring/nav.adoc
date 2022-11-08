@@ -16,3 +16,4 @@
 *** xref:spring:call-another-service.adoc[Calling other services]
 *** xref:spring:failures-and-errors.adoc[Failures and Errors]
 *** xref:spring:access-control.adoc[Access Control Lists (ACLs)]
+*** xref:spring:using-acls.adoc[Using ACLs]
