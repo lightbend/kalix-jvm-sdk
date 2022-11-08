@@ -50,11 +50,21 @@ object ActionTestKitGenerator {
     val actionClassName = service.className
 
     val methods = commands.map { cmd =>
-      s"""def ${lowerFirst(cmd.name)}(command: ${selectInput(
-        cmd)}, metadata: Metadata = Metadata.empty): ${selectOutputResult(cmd)} = {\n""" +
-      "  val context = new TestKitActionContext(metadata, mockRegistry)\n" +
+      val methodBeginning = if (cmd.handleDeletes) {
+        s"""def ${lowerFirst(cmd.name)}(metadata: Metadata = Metadata.empty): ${selectOutputResult(cmd)} = {\n""" +
+        "  val context = new TestKitActionContext(metadata, mockRegistry)\n"
+      } else {
+        s"""def ${lowerFirst(cmd.name)}(command: ${selectInput(
+          cmd)}, metadata: Metadata = Metadata.empty): ${selectOutputResult(cmd)} = {\n""" +
+        "  val context = new TestKitActionContext(metadata, mockRegistry)\n"
+      }
+      methodBeginning +
       (if (cmd.isUnary || cmd.isStreamIn) {
-         s"""  new ActionResultImpl(newActionInstance(context).${lowerFirst(cmd.name)}(command))"""
+         if (cmd.handleDeletes) {
+           s"""  new ActionResultImpl(newActionInstance(context).${lowerFirst(cmd.name)}())"""
+         } else {
+           s"""  new ActionResultImpl(newActionInstance(context).${lowerFirst(cmd.name)}(command))"""
+         }
        } else {
          s"""  newActionInstance(context).${lowerFirst(
            cmd.name)}(command).map(effect => new ActionResultImpl(effect))"""

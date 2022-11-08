@@ -53,11 +53,18 @@ object ViewServiceSourceGenerator {
     val cases = view.transformedUpdates
       .map { cmd =>
         val methodName = cmd.name
-        s"""|case "$methodName" =>
-            |  view.${lowerFirst(methodName)}(
-            |      state,
-            |      event.asInstanceOf[${typeName(cmd.inputType)}])
-            |""".stripMargin
+        if (cmd.handleDeletes) {
+          s"""|case "$methodName" =>
+              |  view.${lowerFirst(methodName)}(
+              |      state)
+              |""".stripMargin
+        } else {
+          s"""|case "$methodName" =>
+              |  view.${lowerFirst(methodName)}(
+              |      state,
+              |      event.asInstanceOf[${typeName(cmd.inputType)}])
+              |""".stripMargin
+        }
       }
 
     File.scala(
@@ -168,10 +175,17 @@ object ViewServiceSourceGenerator {
 
     val handlers = view.transformedUpdates.map { update =>
       val stateType = typeName(update.outputType)
-      s"""override def ${lowerFirst(update.name)}(
-         |  state: $stateType, ${lowerFirst(update.inputType.name)}: ${typeName(update.inputType)}): UpdateEffect[$stateType] =
-         |  throw new UnsupportedOperationException("Update handler for '${update.name}' not implemented yet")
-         |""".stripMargin
+      if (update.handleDeletes) {
+        s"""override def ${lowerFirst(update.name)}(
+           |  state: $stateType): UpdateEffect[$stateType] =
+           |  throw new UnsupportedOperationException("Delete handler for '${update.name}' not implemented yet")
+           |""".stripMargin
+      } else {
+        s"""override def ${lowerFirst(update.name)}(
+           |  state: $stateType, ${lowerFirst(update.inputType.name)}: ${typeName(update.inputType)}): UpdateEffect[$stateType] =
+           |  throw new UnsupportedOperationException("Update handler for '${update.name}' not implemented yet")
+           |""".stripMargin
+      }
     }
 
     File.scala(
@@ -209,9 +223,14 @@ object ViewServiceSourceGenerator {
 
     val handlers = view.transformedUpdates.map { update =>
       val stateType = typeName(update.outputType)
-      s"""def ${lowerFirst(update.name)}(
-         |  state: $stateType, ${lowerFirst(update.inputType.name)}: ${typeName(
-        update.inputType)}): View.UpdateEffect[$stateType]""".stripMargin
+      if (update.handleDeletes) {
+        s"""def ${lowerFirst(update.name)}(
+           |  state: $stateType): View.UpdateEffect[$stateType]""".stripMargin
+      } else {
+        s"""def ${lowerFirst(update.name)}(
+           |  state: $stateType, ${lowerFirst(update.inputType.name)}: ${typeName(
+          update.inputType)}): View.UpdateEffect[$stateType]""".stripMargin
+      }
 
     }
 
