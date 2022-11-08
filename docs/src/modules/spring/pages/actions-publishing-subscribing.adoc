@@ -64,7 +64,7 @@ The return value of the method is an `Action.Effect` with message `Confirmed`, b
 
 However, if an exception is raised and not handled, or the method return `effects().error()` this action will not process any more events until the necessary handling of the current event is added such its return is a `reply`. Otherwise, it will raise the same error over and over again until the application is fixed and restarted. 
 
-IMPORTANT: By default, Kalix assumes the messages in the topic were serialized as JSON and as such deserialize them into the input type of your method. You can find more about this in xref:serialization.adoc[]
+IMPORTANT: By default, Kalix assumes the messages in the topic were serialized as JSON and as such, deserializes them into the input type of your method. You can find more about this in xref:serialization.adoc[].
 
 == Receiving messages from an external Topic
 
