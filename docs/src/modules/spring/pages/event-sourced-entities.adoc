@@ -63,11 +63,22 @@ include::example$spring-eventsourced-shopping-cart/src/main/java/com/example/sho
 <2> Annotate such class with `@EntityKey`  and pass the name of the key that will be used as the
 entity unique identifier.
 <3> Make sure to annotate such class with `@EntityType` and pass a unique name for this entity type.
-<4> Make use of Spring's RequestMapping annotation to define the routes to your entity.
+<4> Use Spring's RequestMapping annotation to define the route to your entity.
 
 
 NOTE: The EntityKey `cartId` must match a path parameter (i.e. `cartId`) and such value needs to be unique per entity. On the other hand, the EntityType `shopping-cart` is common for all instances of this entity but must be stable - cannot be changed after a production deploy - and unique across the different entity types.
 
+include::partial$generate-entity-keys.adoc[tag=intro]
+
+[source,java]
+.src/main/java/com/example/shoppingcart/ShoppingCartEntity.java
+----
+include::example$spring-eventsourced-shopping-cart/src/main/java/com/example/shoppingcart/ShoppingCartEntity.java[tag=generateId]
+----
+<1> Annotate the command handler with `@GenerateEntityKey`.
+<2> Access the generated id and reply.
+
+include::partial$generate-entity-keys.adoc[tag=details]
 
 
 === Updating state

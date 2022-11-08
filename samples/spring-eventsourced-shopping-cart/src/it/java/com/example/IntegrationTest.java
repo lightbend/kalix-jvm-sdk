@@ -16,7 +16,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.time.Duration;
-import java.util.UUID;
 
 import static java.time.temporal.ChronoUnit.SECONDS;
 
@@ -37,17 +36,17 @@ public class IntegrationTest extends KalixIntegrationTestKitSupport {
   @Autowired
   private WebClient webClient;
 
-  @Test
-  public void test() throws Exception {
-    // implement your integration tests here by calling your
-    // REST endpoints using the provided WebClient
-  }
-
   private Duration timeout = Duration.of(5, SECONDS);
 
   @Test
   public void createAndManageCart() {
-    String cartId = "my-cart";
+    String cartId =
+        webClient.post()
+            .uri("/cart/create")
+            .retrieve()
+            .bodyToMono(String.class)
+            .block(timeout);
+
     var item1 = new LineItem("tv", "Super TV 55'", 1);
 
     ResponseEntity<String> itemOne =

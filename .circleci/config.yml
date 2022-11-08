@@ -678,7 +678,7 @@ jobs:
             echo "Running mvn with SDK version: '$SDK_VERSION'"
             mvn -Dkalix-sdk.version=$SDK_VERSION test-compile
             mvn -Dkalix-sdk.version=$SDK_VERSION test
-            # FIXME add eventing integration tests (related to https://github.com/lightbend/kalix-jvm-sdk/issues/297)
+            # FIXME add eventing integration tests (related to https://github.com/lightbend/kalix/issues/7811)
             docker-compose -f ~/project/.circleci/google-pubsub-emulator-docker-compose.yml up -d
             mvn -Dkalix-sdk.version=$SDK_VERSION verify -Pit
             echo "==== Verifying that generated unmanaged sources compile ===="
@@ -953,7 +953,7 @@ jobs:
           command: |
             cd samples/scala-eventsourced-counter
             echo "Running sbt with SDK version: '$SDK_VERSION'"
-            # FIXME add eventing integration tests (related to https://github.com/lightbend/kalix-jvm-sdk/issues/297)
+            # FIXME add eventing integration tests (related to https://github.com/lightbend/kalix/issues/7811)
             docker-compose -f ~/project/.circleci/google-pubsub-emulator-docker-compose.yml up -d
             sbt -Dkalix-sdk.version=$SDK_VERSION test
             echo "==== Verifying that generated unmanaged sources compile ===="
@@ -1129,6 +1129,8 @@ jobs:
           command: |
             cd samples/spring-eventsourced-counter
             echo "Running mvn with SDK version: '$SDK_VERSION'"
+            # FIXME add eventing integration tests (related to https://github.com/lightbend/kalix/issues/7811)
+            docker-compose -f ~/project/.circleci/google-pubsub-emulator-docker-compose.yml up -d
             mvn -Dkalix-sdk.version=$SDK_VERSION clean verify -Pit       
 
   sample-spring-eventsourced-customer-registry:

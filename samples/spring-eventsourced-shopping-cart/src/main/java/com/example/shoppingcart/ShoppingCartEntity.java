@@ -8,6 +8,7 @@ import kalix.javasdk.eventsourcedentity.EventSourcedEntityContext;
 import kalix.springsdk.annotations.EntityKey;
 import kalix.springsdk.annotations.EntityType;
 import kalix.springsdk.annotations.EventHandler;
+import kalix.springsdk.annotations.GenerateEntityKey;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collections;
@@ -15,7 +16,7 @@ import java.util.Collections;
 // tag::class[]
 @EntityKey("cartId") // <2>
 @EntityType("shopping-cart") // <3>
-@RequestMapping("/cart/{cartId}") // <4>
+@RequestMapping("/cart") // <4>
 public class ShoppingCartEntity extends EventSourcedEntity<ShoppingCart> { // <1>
   // end::class[]
 
@@ -32,8 +33,18 @@ public class ShoppingCartEntity extends EventSourcedEntity<ShoppingCart> { // <1
   }
 
   // end::getCart[]
+
+  // tag::generateId[]
+  @GenerateEntityKey // <1>
+  @PostMapping("/create")
+  public Effect<String> create() {
+    return effects()
+        .reply(commandContext().entityId()); // <2>
+  }
+  // end::generateId[]
+
   // tag::addItem[]
-  @PostMapping("/add")
+  @PostMapping("/{cartId}/add")
   public Effect<String> addItem(@RequestBody LineItem item) {
     if (item.quantity() <= 0) { // <1>
       return effects().error("Quantity for item " + item.productId() + " must be greater than zero.");
@@ -48,7 +59,7 @@ public class ShoppingCartEntity extends EventSourcedEntity<ShoppingCart> { // <1
 
   // end::addItem[]
 
-  @PostMapping("/items/{productId}/remove")
+  @PostMapping("/{cartId}/items/{productId}/remove")
   public Effect<String> removeItem(@PathVariable String productId) {
     if (currentState().findItemByProductId(productId).isEmpty()) {
       return effects().error("Cannot remove item " + productId + " because it is not in the cart.");
@@ -62,7 +73,7 @@ public class ShoppingCartEntity extends EventSourcedEntity<ShoppingCart> { // <1
   }
 
   // tag::getCart[]
-  @GetMapping // <3>
+  @GetMapping("/{cartId}") // <3>
   public Effect<ShoppingCart> getCart() {
     return effects().reply(currentState()); // <4>
   }

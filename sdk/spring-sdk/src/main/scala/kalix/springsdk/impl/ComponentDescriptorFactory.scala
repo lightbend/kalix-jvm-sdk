@@ -138,7 +138,7 @@ private[impl] object ComponentDescriptorFactory {
 
   def hasIgnoreForEventSourcedEntity(clazz: Class[_]): Boolean = {
     val ann = clazz.getAnnotation(classOf[Subscribe.EventSourcedEntity])
-    ann.ignoreUnkown()
+    ann.ignoreUnknown()
   }
 
   def findIgnore(clazz: Class[_]): Boolean = {

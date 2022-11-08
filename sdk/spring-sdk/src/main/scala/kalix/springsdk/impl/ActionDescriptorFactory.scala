@@ -140,7 +140,7 @@ private[impl] object ActionDescriptorFactory extends ComponentDescriptorFactory 
           KalixMethod(
             CombinedSubscriptionServiceMethod(
               component.getName,
-              "KalixSyntheticMethodOnTopic" + topic.capitalize,
+              "KalixSyntheticMethodOnTopic" + topic.capitalize.replaceAll("[\\._\\-]", ""),
               methodsMap))
             .withKalixOptions(kMethods.head.methodOptions)
         case (_, kMethod +: Nil) =>
