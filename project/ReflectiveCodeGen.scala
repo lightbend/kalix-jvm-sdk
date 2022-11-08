@@ -43,10 +43,7 @@ object ReflectiveCodeGen extends AutoPlugin {
               "kalix.codegen.scalasdk.KalixTestGenerator$") -> (Test / sourceManaged).value,
             gen(
               akkaGrpcCodeGeneratorSettings.value ++ Seq("enable-debug", "flat_package"),
-              "kalix.codegen.scalasdk.KalixUnmanagedGenerator$") -> (Compile / temporaryUnmanagedDirectory).value,
-            gen(
-              akkaGrpcCodeGeneratorSettings.value ++ Seq("enable-debug", "flat_package"),
-              "kalix.codegen.scalasdk.KalixUnmanagedTestGenerator$") -> (Test / temporaryUnmanagedDirectory).value)
+              "kalix.codegen.scalasdk.KalixUnmanagedGenerator$") -> (Compile / temporaryUnmanagedDirectory).value)
         else Seq.empty
       },
       PB.artifactResolver := Def.taskDyn {
