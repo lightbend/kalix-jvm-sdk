@@ -35,8 +35,8 @@ service AllCustomersView {
   option (kalix.service).eventing.in.direct = { // <1>
     // end::view[]
     // Normally the Kalix service deployment name
-    // (but localhost + hardcoded port here to be able to run both locally)
-    service: "localhost:9000"
+    // (but host.docker.internal + hardcoded port here to be able to run both locally with docker)
+    service: "host.docker.internal:9000"
     /*
     // tag::view[]
     service: "customer-registry" // <2>
