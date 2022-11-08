@@ -6,11 +6,11 @@ A very common use case when building Microservices is to publish and subscribe t
 
 With Actions you can:
 
-- subscribe to events emitted by an event sourced entity within the same service.
-- subscribe to state changes emitted by a value entity within the same service.
-- subscribe to events from Event Sourced Entities published as xref:service-to-service.adoc[service to service eventing]
-- subscribe to external events from Google Cloud Pub/Sub or Apache Kafka.
-- publish events to a Google Cloud Pub/Sub or Apache Kafka topic.
+- Subscribe to events emitted by an event sourced entity within the same service.
+- Subscribe to state changes emitted by a value entity within the same service.
+- Subscribe to events from Event Sourced Entities published as xref:service-to-service.adoc[service to service eventing]
+- Subscribe to external events from Google Cloud Pub/Sub or Apache Kafka.
+- Publish events to a Google Cloud Pub/Sub or Apache Kafka topic.
 
 Messages are guaranteed to be delivered at least once. This means that receivers must be able to handle duplicate messages.
 
@@ -86,7 +86,7 @@ include::example$spring-eventsourced-counter/src/main/java/com/example/actions/S
 <2> only processing `ValueIncreased` events.
 <3> any return is valid.
 
-If you do not add `ignoreUnknown=true`, the action would fail when processing a `ValueMultiplied`. By default is false.
+If you don't add `ignoreUnknown=true`, the action would fail when processing a `ValueMultiplied`. The default is false.
 
 == Subscribing and acting upon
 
