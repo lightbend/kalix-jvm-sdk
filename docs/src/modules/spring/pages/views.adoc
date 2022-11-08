@@ -131,21 +131,23 @@ Kalix creates indexes for the View based on the query. For example, the followin
 SELECT * FROM customers WHERE name = :customer_name
 ----
 
-If the query is changed, Kalix might need to add other indexes. For example, changing the above query to filter on the `city` would mean that Kalix needs to build a View with the index on the `city` column.
+You may realize after a deployment that you forgot adding some parameters to the query Parameters that aren't exposed to the endpoint of the View. After adding these parameters the query is changed and therefore Kalix needs to add indexes for these new columns. For example, changing the above query to filter to add users that are active would mean that Kalix needs to build a View with the index on the `is-active` column.
 
 [source,proto,indent=0]
 ----
-SELECT * FROM customers WHERE address.city = :city
+SELECT * FROM customers WHERE name = :customer_name AND is-active = true
 ----
 
 Such changes require you to define a new View. Kalix will then rebuild it from the source event log or value changes.
 
-WARNING: Views from topics cannot be rebuilt from the source messages, because it's not possible to consume all events from the topic again. The new View will be built from new messages published to the topic.
+WARNING: Views from topics cannot be rebuilt from the source messages, because it's not possible to consume all events from the topic again. The new View is built from new messages published to the topic.
 
 Rebuilding a new View may take some time if there are many events that have to be processed. The recommended way when changing a View is multi-step, with two deployments:
 
-
-TODO: explain
+. Define the new View, and keep the old View intact. 
+. Deploy the new View, and let it rebuild. Verify that the new query works as expected. The old View can still be used.
+. Remove the old View but keep its `@ViewId` and `@GetMapping` path, and use them in the new View.
+. Deploy the second change.
 
 The View definitions are stored and validated when a new version is deployed. There will be an error message if the changes are not compatible.
 
