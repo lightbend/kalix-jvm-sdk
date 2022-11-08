@@ -58,7 +58,7 @@ include::example$spring-eventsourced-counter/src/main/java/com/example/actions/C
 <5> setting the method input type to the events produced by the counter.
 <6> any return is valid.
 
-The events from the topic are delivered to the Action. The implementation may vary, for this simplified example you are just logging it, but it could be a forward to some other component or external service.
+The events from the topic are delivered to the Action. The implementation may vary: for this simplified example you are just logging it, but it could be a forward to some other component or external service.
 
 The return value of the method is an `Action.Effect` with message `Confirmed`, but can be any other of type `Action.Effect<>` if the return type of the method defines it. The Kalix framework needs the type `Effect` to ensure that the event was successfully processed. If no exception is thrown and the method returns a `effects().reply`, the framework assumes that the event was successfully processed and marks it as such. This allows the next event to be sent to the subscribing method. 
 
