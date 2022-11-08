@@ -3,11 +3,10 @@ package com.example;
 import kalix.javasdk.valueentity.ValueEntity;
 import kalix.springsdk.annotations.EntityKey;
 import kalix.springsdk.annotations.EntityType;
+import kalix.springsdk.annotations.GenerateEntityKey;
 
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+
+import org.springframework.web.bind.annotation.*;
 
 // tag::declarations[]
 @EntityType("counter")                                     // <1>
@@ -17,6 +16,16 @@ public class CounterEntity extends ValueEntity<Integer> {  // <3>
   @Override
   public Integer emptyState() { return 0; }                  // <4>
   // end::declarations[]
+
+  // tag::generateId[]
+  @GenerateEntityKey // <1>
+  @PostMapping("/counter/{number}")
+  public Effect<String> create(@PathVariable Integer number) {
+    return effects()
+        .updateState(number)
+        .thenReply(commandContext().entityId()); // <2>
+  }
+  // end::generateId[]
 
   // tag::increase[]
 
