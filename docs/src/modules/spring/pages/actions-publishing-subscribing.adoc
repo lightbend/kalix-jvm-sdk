@@ -38,7 +38,7 @@ IMPORTANT: The messages stored in the topic are serialized as JSON. You cannot c
 
 == Subscribing to a Value Entity
 
-You can subscribe an Action to events from a Value Entity. It work the same as an Event Sourced Entity except for the annotation. To receive messages from the entity, annotate a service method `@Subscribe.ValueEntiy` and specify the class of the entity. 
+You can subscribe an Action to events from a Value Entity. It works the same as an Event Sourced Entity except for the annotation. To receive messages from the entity, annotate a service method `@Subscribe.ValueEntiy` and specify the class of the entity. 
 
 == Subscribing to a Topic
 
