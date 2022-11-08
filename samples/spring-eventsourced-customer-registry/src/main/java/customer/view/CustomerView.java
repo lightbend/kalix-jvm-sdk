@@ -1,6 +1,6 @@
 package customer.view;
 
-import customer.api.Address;
+import customer.domain.Address;
 
 public record CustomerView(String email, String name, Address address) {
 

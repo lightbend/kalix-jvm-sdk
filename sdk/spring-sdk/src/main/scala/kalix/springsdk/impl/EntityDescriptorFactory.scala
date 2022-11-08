@@ -69,7 +69,7 @@ private[impl] object EntityDescriptorFactory extends ComponentDescriptorFactory 
                 "A command method should be annotated with either @EntityKey or @GenerateEntityKey, or " +
                 "an @EntityKey annotation should be present at class level.")
 
-            KalixMethod(restMethod, entityKeys = entityKeysToUse)
+            KalixMethod(restMethod, entityKeys = entityKeysToUse.toIndexedSeq)
           }
 
         kalixMethod.withKalixOptions(buildJWTOptions(restMethod.javaMethod))

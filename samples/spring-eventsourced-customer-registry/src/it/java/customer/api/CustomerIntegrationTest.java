@@ -2,6 +2,8 @@ package customer.api;
 
 
 import customer.Main;
+import customer.domain.Address;
+import customer.domain.Customer;
 import customer.view.CustomerView;
 import kalix.springsdk.testkit.KalixIntegrationTestKitSupport;
 import org.hamcrest.core.IsEqual;

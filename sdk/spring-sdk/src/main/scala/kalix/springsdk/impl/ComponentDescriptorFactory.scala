@@ -20,11 +20,15 @@ import java.lang.reflect.Method
 import java.lang.reflect.Modifier
 import java.lang.reflect.ParameterizedType
 
+import kalix.DirectDestination
+import kalix.DirectSource
 import kalix.EventDestination
 import kalix.EventSource
 import kalix.Eventing
 import kalix.JwtMethodOptions
 import kalix.MethodOptions
+import kalix.ServiceEventing
+import kalix.ServiceEventingOut
 import kalix.javasdk.action.Action
 import kalix.javasdk.view.View
 import kalix.springsdk.annotations.EntityType
@@ -47,6 +51,12 @@ private[impl] object ComponentDescriptorFactory {
   def hasEventSourcedEntitySubscription(clazz: Class[_]): Boolean =
     Modifier.isPublic(clazz.getModifiers) &&
     clazz.getAnnotation(classOf[Subscribe.EventSourcedEntity]) != null
+
+  def eventSourcedEntitySubscription(clazz: Class[_]): Option[Subscribe.EventSourcedEntity] =
+    if (Modifier.isPublic(clazz.getModifiers))
+      Option(clazz.getAnnotation(classOf[Subscribe.EventSourcedEntity]))
+    else
+      None
 
   def hasActionOutput(javaMethod: Method): Boolean = {
     javaMethod.getGenericReturnType match {
@@ -179,6 +189,27 @@ private[impl] object ComponentDescriptorFactory {
     Eventing.newBuilder().setIn(eventSource).build()
   }
 
+  def eventingInForEventSourcedEntityServiceLevel(clazz: Class[_]): Option[kalix.ServiceOptions] = {
+    eventSourcedEntitySubscription(clazz).map { ann =>
+
+      val entityType = findEventSourcedEntityType(clazz)
+
+      val in = EventSource
+        .newBuilder()
+        .setEventSourcedEntity(entityType)
+
+      val eventing =
+        ServiceEventing
+          .newBuilder()
+          .setIn(in)
+
+      kalix.ServiceOptions
+        .newBuilder()
+        .setEventing(eventing)
+        .build()
+    }
+  }
+
   def eventingInForTopic(javaMethod: Method): Eventing = {
     val topicName = findSubscriptionTopicName(javaMethod)
     val consumerGroup = findSubscriptionConsumerGroup(javaMethod)
@@ -205,6 +236,52 @@ private[impl] object ComponentDescriptorFactory {
     Eventing.newBuilder().setIn(eventSource).build()
   }
 
+  def subscribeToEventStream(component: Class[_]): Option[kalix.ServiceOptions] = {
+    Option(component.getAnnotation(classOf[Subscribe.Stream])).map { streamAnn =>
+      val direct = DirectSource
+        .newBuilder()
+        .setEventStreamId(streamAnn.id())
+        .setService(streamAnn.service())
+
+      val in = EventSource
+        .newBuilder()
+        .setDirect(direct)
+
+      val eventing =
+        ServiceEventing
+          .newBuilder()
+          .setIn(in)
+
+      kalix.ServiceOptions
+        .newBuilder()
+        .setEventing(eventing)
+        .build()
+    }
+  }
+
+  def publishToEventStream(component: Class[_]): Option[kalix.ServiceOptions] = {
+    Option(component.getAnnotation(classOf[Publish.Stream])).map { streamAnn =>
+
+      val direct = DirectDestination
+        .newBuilder()
+        .setEventStreamId(streamAnn.id())
+
+      val out = ServiceEventingOut
+        .newBuilder()
+        .setDirect(direct)
+
+      val eventing =
+        ServiceEventing
+          .newBuilder()
+          .setOut(out)
+
+      kalix.ServiceOptions
+        .newBuilder()
+        .setEventing(eventing)
+        .build()
+    }
+  }
+
   def validateRestMethod(javaMethod: Method): Boolean =
     if (hasValueEntitySubscription(javaMethod) || hasEventSourcedEntitySubscription(javaMethod))
       throw new IllegalArgumentException(
@@ -228,6 +305,7 @@ private[impl] object ComponentDescriptorFactory {
       subscriptions: Seq[KalixMethod],
       messageCodec: SpringSdkMessageCodec,
       component: Class[_]): Seq[KalixMethod] = {
+
     def groupByES(methods: Seq[KalixMethod]): Map[String, Seq[KalixMethod]] = {
       val withEventSourcedIn = methods.filter(kalixMethod =>
         kalixMethod.methodOptions.exists(option =>
@@ -235,7 +313,14 @@ private[impl] object ComponentDescriptorFactory {
       //Assuming there is only one eventing.in annotation per method, therefore head is as good as any other
       withEventSourcedIn.groupBy(m => m.methodOptions.head.getEventing.getIn.getEventSourcedEntity)
     }
-    groupByES(subscriptions).collect {
+    combineByES(groupByES(subscriptions), messageCodec, component)
+  }
+
+  def combineByES(
+      groupedSubscriptions: Map[String, Seq[KalixMethod]],
+      messageCodec: SpringSdkMessageCodec,
+      component: Class[_]): Seq[KalixMethod] = {
+    groupedSubscriptions.collect {
       case (eventSourcedEntity, kMethods) if kMethods.size > 1 =>
         val methodsMap =
           kMethods.map { k =>
@@ -247,15 +332,14 @@ private[impl] object ComponentDescriptorFactory {
             (typeUrl, k.serviceMethod.javaMethodOpt.get)
           }.toMap
 
-        val subscriptions = kMethods.map(_.serviceMethod.asInstanceOf[SubscriptionServiceMethod])
         KalixMethod(
           CombinedSubscriptionServiceMethod(
             component.getName,
             "KalixSyntheticMethodOnES" + eventSourcedEntity.capitalize,
             methodsMap))
           .withKalixOptions(kMethods.head.methodOptions)
-      case (eventSourcedEntity, kMethod +: Nil) =>
-        kMethod
+
+      case (_, kMethod +: Nil) => kMethod
     }.toSeq
   }
 

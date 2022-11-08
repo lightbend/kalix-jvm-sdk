@@ -19,7 +19,8 @@ package kalix.springsdk.impl
 import com.google.protobuf.Descriptors.FieldDescriptor.JavaType
 import kalix.JwtMethodOptions.JwtMethodMode
 import kalix.springsdk.impl.reflection.ServiceIntrospectionException
-import kalix.springsdk.testmodels.subscriptions.PubSubTestModels.SubscribeOnTypeToEventSourcedEventsWithMethodWithState
+import kalix.springsdk.testmodels.subscriptions.PubSubTestModels.EventStreamSubscriptionView
+import kalix.springsdk.testmodels.subscriptions.PubSubTestModels.SubscribeOnTypeToEventSourcedEvents
 import kalix.springsdk.testmodels.view.ViewTestModels.IllDefineUserByEmailWithStreamUpdates
 import kalix.springsdk.testmodels.view.ViewTestModels.SubscribeToEventSourcedEvents
 import kalix.springsdk.testmodels.view.ViewTestModels.SubscribeToEventSourcedEventsWithMethodWithState
@@ -374,16 +375,34 @@ class ViewDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSuit
     }
 
     "generate proto for a View with multiple methods to handle different events" in {
-      assertDescriptor[SubscribeOnTypeToEventSourcedEventsWithMethodWithState] { desc =>
+      assertDescriptor[SubscribeOnTypeToEventSourcedEvents] { desc =>
+
+        val serviceOptions = findKalixServiceOptions(desc)
+        val eveningIn = serviceOptions.getEventing.getIn
+        eveningIn.getEventSourcedEntity shouldBe "employee"
+
         val methodOptions = this.findKalixMethodOptions(desc, "KalixSyntheticMethodOnESEmployee")
-
-        val entityType = methodOptions.getEventing.getIn.getEventSourcedEntity
-        entityType shouldBe "employee"
-
         methodOptions.getView.getUpdate.getTable shouldBe "employee_table"
         methodOptions.getView.getUpdate.getTransformUpdates shouldBe true
         methodOptions.getView.getJsonSchema.getOutput shouldBe "Employee"
         methodOptions.getEventing.getIn.getIgnore shouldBe false // we don't set the property so the proxy won't ignore. Ignore is only internal to the SDK
+      }
+    }
+
+    "generate mappings for service to service subscription " in {
+      assertDescriptor[EventStreamSubscriptionView] { desc =>
+
+        val serviceOptions = findKalixServiceOptions(desc)
+        val eventingInDirect = serviceOptions.getEventing.getIn.getDirect
+        eventingInDirect.getService shouldBe "employee_service"
+        eventingInDirect.getEventStreamId shouldBe "employee_events"
+
+        val methodOptions = this.findKalixMethodOptions(desc, "KalixSyntheticMethodOnESEmployee_events")
+
+        methodOptions.hasEventing shouldBe false
+        methodOptions.getView.getUpdate.getTable shouldBe "employee_table"
+        methodOptions.getView.getUpdate.getTransformUpdates shouldBe true
+        methodOptions.getView.getJsonSchema.getOutput shouldBe "Employee"
 
       }
     }

@@ -5,7 +5,7 @@ include::ROOT:partial$include.adoc[]
 
 Kalix provides brokerless at-least-once event delivery across Kalix services through the Service to Service eventing.
 
-The source of the events is an xref:event-sourced-entities.adoc[Event Sourced Entity], that the service provides a Service to Service publisher for.
+The source of the events is an xref:event-sourced-entities.adoc[Event Sourced Entity]. Its events can be published as a stream and consumed by another Kalix service without the need to set up a message broker.
 
 Note:: For eventing from an entity inside the same Kalix service as the consuming component, use regular xref:actions-publishing-subscribing.adoc[Subscription to the entity] instead of Service to Service eventing.
 

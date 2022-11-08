@@ -19,38 +19,62 @@ package kalix.springsdk.impl
 import kalix.springsdk.impl.ComponentDescriptorFactory.buildJWTOptions
 import kalix.springsdk.impl.ComponentDescriptorFactory.combineByES
 import kalix.springsdk.impl.ComponentDescriptorFactory.eventingInForEventSourcedEntity
+import kalix.springsdk.impl.ComponentDescriptorFactory.eventingInForEventSourcedEntityServiceLevel
 import kalix.springsdk.impl.ComponentDescriptorFactory.eventingInForTopic
 import kalix.springsdk.impl.ComponentDescriptorFactory.eventingInForValueEntity
 import kalix.springsdk.impl.ComponentDescriptorFactory.eventingOutForTopic
+import kalix.springsdk.impl.ComponentDescriptorFactory.findEventSourcedEntityType
 import kalix.springsdk.impl.ComponentDescriptorFactory.hasActionOutput
 import kalix.springsdk.impl.ComponentDescriptorFactory.hasEventSourcedEntitySubscription
 import kalix.springsdk.impl.ComponentDescriptorFactory.hasTopicPublication
 import kalix.springsdk.impl.ComponentDescriptorFactory.hasTopicSubscription
 import kalix.springsdk.impl.ComponentDescriptorFactory.hasValueEntitySubscription
+import kalix.springsdk.impl.ComponentDescriptorFactory.publishToEventStream
+import kalix.springsdk.impl.ComponentDescriptorFactory.subscribeToEventStream
 import kalix.springsdk.impl.ComponentDescriptorFactory.validateRestMethod
 import kalix.springsdk.impl.reflection.CombinedSubscriptionServiceMethod
 import kalix.springsdk.impl.reflection.KalixMethod
 import kalix.springsdk.impl.reflection.NameGenerator
+import kalix.springsdk.impl.reflection.SubscriptionServiceMethod
 import kalix.springsdk.impl.reflection.ReflectionUtils
 import kalix.springsdk.impl.reflection.RestServiceIntrospector
-import kalix.springsdk.impl.reflection.SubscriptionServiceMethod
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 private[impl] object ActionDescriptorFactory extends ComponentDescriptorFactory {
+
+  private val logger: Logger = LoggerFactory.getLogger(classOf[ActionDescriptorFactory.type])
 
   override def buildDescriptorFor(
       component: Class[_],
       messageCodec: SpringSdkMessageCodec,
       nameGenerator: NameGenerator): ComponentDescriptor = {
+
+    // TODO: we need more robust validation covering all the corner cases
+    // verify component is correctly configured
+    if (hasEventSourcedEntitySubscription(component) &&
+      component.getMethods.exists(hasEventSourcedEntitySubscription))
+      throw InvalidComponentException(
+        "You cannot use @Subscribe.EventSourcedEntity annotation in " +
+        "methods and class. You can do either one or the other.")
+
+    if (hasTopicSubscription(component) && component.getMethods.exists(hasTopicSubscription))
+      throw InvalidComponentException(
+        "You cannot use @Subscribe.Topic annotation in " +
+        "both methods and class. You can do either one or the other.")
+
     //we should merge from here
-    val syntheticMethods =
+    // methods with REST annotations
+    val syntheticMethods: Seq[KalixMethod] =
       RestServiceIntrospector.inspectService(component).methods.map { serviceMethod =>
         validateRestMethod(serviceMethod.javaMethod)
         KalixMethod(serviceMethod).withKalixOptions(buildJWTOptions(serviceMethod.javaMethod))
       }
 
     //TODO make sure no subscription should be exposed via REST.
+    // methods annotated with @Subscribe.ValueEntity
     import ReflectionUtils.methodOrdering
-    val subscriptionValueEntityMethods = component.getMethods
+    val subscriptionValueEntityMethods: IndexedSeq[KalixMethod] = component.getMethods
       .filter(hasValueEntitySubscription)
       .sorted // make sure we get the methods in deterministic order
       .map { method =>
@@ -61,43 +85,40 @@ private[impl] object ActionDescriptorFactory extends ComponentDescriptorFactory 
         KalixMethod(SubscriptionServiceMethod(method))
           .withKalixOptions(kalixOptions)
       }
+      .toIndexedSeq
 
-    val subscriptionEventSourcedEntityMethods = component.getMethods
+    // methods annotated with @Subscribe.EventSourcedEntity
+    val subscriptionEventSourcedEntityMethods: IndexedSeq[KalixMethod] = component.getMethods
       .filter(hasEventSourcedEntitySubscription)
       .sorted // make sure we get the methods in deterministic order
       .map { method =>
-        if (hasEventSourcedEntitySubscription(component))
-          throw InvalidComponentException(
-            s"You cannot use Subscribe annotation in both the methods and the class. You can do either one or the other.")
         val subscriptionOptions = eventingInForEventSourcedEntity(method)
         val kalixOptions =
           kalix.MethodOptions.newBuilder().setEventing(subscriptionOptions).build()
-
         KalixMethod(SubscriptionServiceMethod(method))
           .withKalixOptions(kalixOptions)
       }
+      .toIndexedSeq
 
-    val subscriptionEventSourcedEntityClass =
+    val subscriptionEventSourcedEntityClass: Map[String, Seq[KalixMethod]] =
       if (hasEventSourcedEntitySubscription(component)) {
-        component.getMethods.sorted // make sure we get the methods in deterministic order
-          .filter(hasActionOutput)
-          .collect { case method =>
-            val subscriptionOptions = eventingInForEventSourcedEntity(component)
-            val kalixOptions =
-              kalix.MethodOptions.newBuilder().setEventing(subscriptionOptions).build()
+        val kalixMethods =
+          component.getMethods
+            .filter(hasActionOutput)
+            .sorted // make sure we get the methods in deterministic order
+            .map { method => KalixMethod(SubscriptionServiceMethod(method)) }
+            .toSeq
 
-            KalixMethod(SubscriptionServiceMethod(method))
-              .withKalixOptions(kalixOptions)
-          }
-      } else Array.empty[KalixMethod]
+        val entityType = findEventSourcedEntityType(component)
+        Map(entityType -> kalixMethods)
 
-    val subscriptionTopicMethods = component.getMethods
+      } else Map.empty
+
+    // methods annotated with @Subscribe.Topic
+    val subscriptionTopicMethods: IndexedSeq[KalixMethod] = component.getMethods
       .filter(hasTopicSubscription)
       .sorted // make sure we get the methods in deterministic order
       .map { method =>
-        if (hasTopicSubscription(component))
-          throw InvalidComponentException(
-            s"You cannot use Subscribe annotation in both the methods and the class. You can do either one or the other.")
         val subscriptionOptions = eventingInForTopic(method)
         val kalixOptions =
           kalix.MethodOptions.newBuilder().setEventing(subscriptionOptions).build()
@@ -105,12 +126,15 @@ private[impl] object ActionDescriptorFactory extends ComponentDescriptorFactory 
         KalixMethod(SubscriptionServiceMethod(method))
           .withKalixOptions(kalixOptions)
       }
+      .toIndexedSeq
 
-    val subscriptionTopicClass: Array[KalixMethod] =
+    // type level @Subscribe.Topic, methods eligible for subscription
+    val subscriptionTopicClass: IndexedSeq[KalixMethod] =
       if (hasTopicSubscription(component)) {
-        component.getMethods.sorted // make sure we get the methods in deterministic order
+        component.getMethods
           .filter(hasActionOutput)
-          .collect { case method =>
+          .sorted // make sure we get the methods in deterministic order
+          .map { method =>
             val subscriptionOptions = eventingInForTopic(component)
             val kalixOptions =
               kalix.MethodOptions.newBuilder().setEventing(subscriptionOptions).build()
@@ -118,7 +142,8 @@ private[impl] object ActionDescriptorFactory extends ComponentDescriptorFactory 
             KalixMethod(SubscriptionServiceMethod(method))
               .withKalixOptions(kalixOptions)
           }
-      } else Array.empty[KalixMethod]
+          .toIndexedSeq
+      } else IndexedSeq.empty
 
     def combineByTopic(kalixMethods: Seq[KalixMethod]): Seq[KalixMethod] = {
       def groupByTopic(methods: Seq[KalixMethod]): Map[String, Seq[KalixMethod]] = {
@@ -148,8 +173,8 @@ private[impl] object ActionDescriptorFactory extends ComponentDescriptorFactory 
       }.toSeq
     }
 
-    // TODO: we need to revisit this. A Publish should not be a Subscription
-    val publicationTopicMethods = component.getMethods
+    // methods annotated with @Publish.Topic
+    val publicationTopicMethods: IndexedSeq[KalixMethod] = component.getMethods
       .filter(hasTopicPublication)
       .sorted // make sure we get the methods in deterministic order
       .map { method =>
@@ -160,6 +185,8 @@ private[impl] object ActionDescriptorFactory extends ComponentDescriptorFactory 
         KalixMethod(SubscriptionServiceMethod(method))
           .withKalixOptions(kalixOptions)
       }
+      .toIndexedSeq
+
     val serviceName = nameGenerator.getName(component.getSimpleName)
 
     def addKalixOptions(to: Seq[KalixMethod], from: Seq[KalixMethod]): Seq[KalixMethod] = {
@@ -183,11 +210,31 @@ private[impl] object ActionDescriptorFactory extends ComponentDescriptorFactory 
         springMethods.exists(s => p.serviceMethod.methodName.equals(s.serviceMethod.methodName)))
     }
 
+    val serviceLevelOptions = {
+
+      val allOptions =
+        AclDescriptorFactory.serviceLevelAclAnnotation(component) ::
+        eventingInForEventSourcedEntityServiceLevel(component) ::
+        subscribeToEventStream(component) ::
+        publishToEventStream(component) :: Nil
+
+      val mergedOptions =
+        allOptions.flatten
+          .foldLeft(kalix.ServiceOptions.newBuilder()) { case (builder, serviceOptions) =>
+            builder.mergeFrom(serviceOptions)
+          }
+          .build()
+
+      // if builder produces the default one, we can returns a None
+      if (mergedOptions == kalix.ServiceOptions.getDefaultInstance) None
+      else Some(mergedOptions)
+    }
+
     ComponentDescriptor(
       nameGenerator,
       messageCodec,
       serviceName,
-      serviceOptions = AclDescriptorFactory.serviceLevelAclAnnotation(component),
+      serviceOptions = serviceLevelOptions,
       component.getPackageName,
       addKalixOptions(syntheticMethods, publicationTopicMethods)
       ++ subscriptionValueEntityMethods

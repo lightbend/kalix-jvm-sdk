@@ -32,4 +32,18 @@ public @interface Publish {
     /** Assign the name of the topic to be used for eventing out. */
     String value();
   }
+
+
+  /**
+   * Annotation to configure the component to publish an event stream to other Kalix services.
+   */
+  @Target(ElementType.TYPE)
+  @Retention(RetentionPolicy.RUNTIME)
+  @Documented
+  @interface Stream {
+    /**
+     * Identifier for the event stream. Must be unique inside the same Kalix service.
+     */
+    String id();
+  }
 }

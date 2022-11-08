@@ -1,19 +1,23 @@
 package customer.view;
 
 import customer.api.CustomerEntity;
-import customer.api.CustomerEvent;
+import customer.domain.CustomerEvent;
 import kalix.javasdk.view.View;
 import kalix.springsdk.annotations.Query;
 import kalix.springsdk.annotations.Subscribe;
 import kalix.springsdk.annotations.Table;
+import kalix.springsdk.annotations.ViewId;
+import reactor.core.publisher.Flux;
+
 import org.springframework.web.bind.annotation.GetMapping;
 
+@ViewId("view_customers_by_email")
 @Table("customers_by_email")
 public class CustomerByEmailView extends View<CustomerView> {
 
   @GetMapping("/customer/by_email/{email}")
   @Query("SELECT * FROM customers_by_email WHERE email = :email")
-  public CustomerView getCustomer(String email) {
+  public Flux<CustomerView> getCustomer(String email) {
     return null;
   }
 

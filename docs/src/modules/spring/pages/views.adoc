@@ -69,7 +69,7 @@ This example assumes a Customer equal to the previous example and an Event Sourc
 .src/main/java/customer/api/CustomerEvent.java
 [source,java]
 ----
-include::example$spring-eventsourced-customer-registry/src/main/java/customer/api/CustomerEvent.java[tags=class]
+include::example$spring-eventsourced-customer-registry/src/main/java/customer/domain/CustomerEvent.java[tags=class]
 ----
 <1> Includes the logical type name (defined in implementation classes) as type 
 <2> Required for deserialization and to define the logical type name 

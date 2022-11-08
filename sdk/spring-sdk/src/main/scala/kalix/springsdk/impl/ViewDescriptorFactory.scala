@@ -16,10 +16,10 @@
 
 package kalix.springsdk.impl
 
-import kalix.Eventing
 import java.lang.reflect.Method
 import java.lang.reflect.ParameterizedType
 
+import kalix.Eventing
 import kalix.MethodOptions
 import kalix.springsdk.annotations.Query
 import kalix.springsdk.annotations.Subscribe
@@ -27,18 +27,23 @@ import kalix.springsdk.annotations.Table
 import kalix.springsdk.impl.ComponentDescriptorFactory.buildJWTOptions
 import kalix.springsdk.impl.ComponentDescriptorFactory.combineByES
 import kalix.springsdk.impl.ComponentDescriptorFactory.eventingInForEventSourcedEntity
+import kalix.springsdk.impl.ComponentDescriptorFactory.eventingInForEventSourcedEntityServiceLevel
 import kalix.springsdk.impl.ComponentDescriptorFactory.eventingInForValueEntity
+import kalix.springsdk.impl.ComponentDescriptorFactory.findEventSourcedEntityType
 import kalix.springsdk.impl.ComponentDescriptorFactory.findValueEntityType
 import kalix.springsdk.impl.ComponentDescriptorFactory.hasEventSourcedEntitySubscription
+import kalix.springsdk.impl.ComponentDescriptorFactory.hasTopicSubscription
+import kalix.springsdk.impl.ComponentDescriptorFactory.hasUpdateEffectOutput
 import kalix.springsdk.impl.ComponentDescriptorFactory.hasValueEntitySubscription
+import kalix.springsdk.impl.ComponentDescriptorFactory.publishToEventStream
+import kalix.springsdk.impl.ComponentDescriptorFactory.subscribeToEventStream
 import kalix.springsdk.impl.reflection.KalixMethod
 import kalix.springsdk.impl.reflection.NameGenerator
+import kalix.springsdk.impl.reflection.SubscriptionServiceMethod
 import kalix.springsdk.impl.reflection.ReflectionUtils
 import kalix.springsdk.impl.reflection.RestServiceIntrospector
 import kalix.springsdk.impl.reflection.RestServiceIntrospector.BodyParameter
-import kalix.springsdk.impl.ComponentDescriptorFactory.hasUpdateEffectOutput
 import kalix.springsdk.impl.reflection.ServiceIntrospectionException
-import kalix.springsdk.impl.reflection.SubscriptionServiceMethod
 import kalix.springsdk.impl.reflection.SyntheticRequestServiceMethod
 import kalix.springsdk.impl.reflection.VirtualServiceMethod
 import reactor.core.publisher.Flux
@@ -65,6 +70,7 @@ private[impl] object ViewDescriptorFactory extends ComponentDescriptorFactory {
     val hasTypeLevelEventSourcedEntitySubs = hasEventSourcedEntitySubscription(component)
     val hasTypeLevelValueEntitySubs = component.getAnnotation(classOf[Subscribe.ValueEntity]) != null
     val hasMethodLevelValueEntitySubs = component.getMethods.exists(hasValueEntitySubscription)
+    val hasStreamSubscription = component.getAnnotation(classOf[Subscribe.Stream]) != null
 
     val updateMethods = {
       if (hasTypeLevelValueEntitySubs && hasMethodLevelValueEntitySubs)
@@ -81,8 +87,20 @@ private[impl] object ViewDescriptorFactory extends ComponentDescriptorFactory {
           throw InvalidComponentException(
             s"You cannot use Subscribe annotation in both the methods and the class. You can do either one or the other.")
 
+        if (hasTypeLevelEventSourcedEntitySubs) {
+          val kalixSubscriptionMethods =
+            methodsForTypeLevelESSubscriptions(component, tableName, tableProtoMessageName)
+          combineByES(kalixSubscriptionMethods, messageCodec, component)
+
+        } else {
+          val methodsForMethodLevelESSubscriptions =
+            subscriptionEventSourcedEntityMethodLevel(component, tableType, tableName, tableProtoMessageName)
+          combineByES(methodsForMethodLevelESSubscriptions, messageCodec, component)
+        }
+
+      } else if (hasStreamSubscription) {
         val kalixSubscriptionMethods =
-          eventSourcedEntitySubscription(component, tableType, tableName, tableProtoMessageName)
+          methodsForTypeLevelStreamSubscriptions(component, tableName, tableProtoMessageName)
         combineByES(kalixSubscriptionMethods, messageCodec, component)
       } else
         Seq.empty
@@ -184,71 +202,116 @@ private[impl] object ViewDescriptorFactory extends ComponentDescriptorFactory {
     val kalixMethods: Seq[KalixMethod] = queryMethod +: updateMethods
     val serviceName = nameGenerator.getName(component.getSimpleName)
     val additionalMessages = Set(tableTypeDescriptor, queryOutputSchemaDescriptor) ++ queryInputSchemaDescriptor.toSet
+
+    val serviceLevelOptions = {
+
+      val allOptions =
+        AclDescriptorFactory.serviceLevelAclAnnotation(component) ::
+        eventingInForEventSourcedEntityServiceLevel(component) ::
+        subscribeToEventStream(component) ::
+        Nil
+
+      val mergedOptions =
+        allOptions.flatten
+          .foldLeft(kalix.ServiceOptions.newBuilder()) { case (builder, serviceOptions) =>
+            builder.mergeFrom(serviceOptions)
+          }
+          .build()
+
+      // if builder produces the default one, we can returns a None
+      if (mergedOptions == kalix.ServiceOptions.getDefaultInstance) None
+      else Some(mergedOptions)
+    }
+
     ComponentDescriptor(
       nameGenerator,
       messageCodec,
       serviceName,
-      serviceOptions = AclDescriptorFactory.serviceLevelAclAnnotation(component),
+      serviceOptions = serviceLevelOptions,
       component.getPackageName,
       kalixMethods,
       additionalMessages.toSeq)
   }
 
-  private def eventSourcedEntitySubscription(
+  private def validateSameType(methods: Seq[Method], tableType: Class[_]): Seq[Method] = {
+
+    def invalidComponentException(method: Method, extraMessage: String) = {
+      throw InvalidComponentException(
+        s"Method [${method.getName}] annotated with '@Subscribe.EventSourcedEntity' should either receive " +
+        "a single parameter of one of the event types or " +
+        s"two ordered parameters  of type [${tableType.getName}] and an event type. $extraMessage")
+    }
+
+    import ReflectionUtils.methodOrdering
+    var previousEntityClass: Option[Class[_]] = None
+
+    methods.sorted // make sure we get the methods in deterministic order
+      .map { method =>
+        // validate that all updates return the same type
+        val entityClass = method.getAnnotation(classOf[Subscribe.EventSourcedEntity]).value().asInstanceOf[Class[_]]
+
+        previousEntityClass match {
+          case Some(`entityClass`) => // ok
+          case Some(other) =>
+            throw InvalidComponentException(
+              s"All update methods must return the same type, but [${method.getName}] returns [${entityClass.getName}] while a previous update method returns [${other.getName}]")
+          case None => previousEntityClass = Some(entityClass)
+        }
+
+        method.getParameterTypes.toList match {
+          case params if params.size > 2 =>
+            invalidComponentException(
+              method,
+              s"Subscription method should not have more than 2 parameters, found ${params.size}")
+          case _ => // happy days, dev did good with the signature
+        }
+      }
+    methods
+  }
+
+  private def methodsForTypeLevelStreamSubscriptions(
+      component: Class[_],
+      tableName: String,
+      tableProtoMessageName: String): Map[String, Seq[KalixMethod]] = {
+    val methods = eligibleSubscriptionMethods(component, tableName, tableProtoMessageName)
+    val ann = component.getAnnotation(classOf[Subscribe.Stream])
+    val key = ann.id().capitalize
+    Map(key -> methods)
+  }
+
+  private def methodsForTypeLevelESSubscriptions(
+      component: Class[_],
+      tableName: String,
+      tableProtoMessageName: String): Map[String, Seq[KalixMethod]] = {
+
+    val methods = eligibleSubscriptionMethods(component, tableName, tableProtoMessageName)
+    val entityType = findEventSourcedEntityType(component)
+    Map(entityType -> methods)
+  }
+
+  private def eligibleSubscriptionMethods(component: Class[_], tableName: String, tableProtoMessageName: String) =
+    component.getMethods.filter(hasUpdateEffectOutput).map { method =>
+      // event sourced or topic subscription updates
+      val methodOptionsBuilder = kalix.MethodOptions.newBuilder()
+
+      addTableOptionsToUpdateMethod(tableName, tableProtoMessageName, methodOptionsBuilder, true)
+
+      KalixMethod(SubscriptionServiceMethod(method))
+        .withKalixOptions(methodOptionsBuilder.build())
+    }
+
+  private def subscriptionEventSourcedEntityMethodLevel(
       component: Class[_],
       tableType: Class[_],
       tableName: String,
       tableProtoMessageName: String): Seq[KalixMethod] = {
 
     def getMethodsWithSubscription(component: Class[_]): Seq[Method] = {
-      val methodsTypeLevel: Array[Method] =
-        if (hasEventSourcedEntitySubscription(component))
-          component.getMethods
-            .filter(hasUpdateEffectOutput)
-        else Array.empty
-      val methodsMethodLevel = component.getMethods
-        .filter(hasEventSourcedEntitySubscription)
-
-      if (!methodsTypeLevel.isEmpty && !methodsMethodLevel.isEmpty) {
-        throw InvalidComponentException("Can't annotate the class and individual methods at the same time.")
-      }
-      (methodsTypeLevel ++ validateSameType(methodsMethodLevel, tableType)).toSeq // this means one or the other
-    }
-
-    def validateSameType(methods: Seq[Method], tableType: Class[_]): Seq[Method] = {
-
-      def invalidComponentException(method: Method, extraMessage: String) = {
-        throw InvalidComponentException(
-          s"Method [${method.getName}] annotated with '@Subscribe.EventSourcedEntity' should either receive " +
-          "a single parameter of one of the event types or " +
-          s"two ordered parameters  of type [${tableType.getName}] and an event type. $extraMessage")
-      }
-
-      import ReflectionUtils.methodOrdering
-      var previousEntityClass: Option[Class[_]] = None
-
-      methods.sorted // make sure we get the methods in deterministic order
-        .map { method =>
-          // validate that all updates return the same type
-          val entityClass = method.getAnnotation(classOf[Subscribe.EventSourcedEntity]).value().asInstanceOf[Class[_]]
-
-          previousEntityClass match {
-            case Some(`entityClass`) => // ok
-            case Some(other) =>
-              throw InvalidComponentException(
-                s"All update methods must return the same type, but [${method.getName}] returns [${entityClass.getName}] while a previous update method returns [${other.getName}]")
-            case None => previousEntityClass = Some(entityClass)
-          }
-
-          method.getParameterTypes.toList match {
-            case params if params.size > 2 =>
-              invalidComponentException(
-                method,
-                s"Subscription method should not have more than 2 parameters, found ${params.size}")
-            case _ => // happy days, dev did good with the signature
-          }
-        }
-      methods
+      val methodsMethodLevel =
+        component.getMethods
+          .filter(hasEventSourcedEntitySubscription)
+          .toIndexedSeq
+      (validateSameType(methodsMethodLevel, tableType)).toSeq // this means one or the other
     }
 
     def getEventing(method: Method, component: Class[_]): Eventing =
@@ -258,7 +321,10 @@ private[impl] object ViewDescriptorFactory extends ComponentDescriptorFactory {
     getMethodsWithSubscription(component).map { method =>
       // event sourced or topic subscription updates
       val methodOptionsBuilder = kalix.MethodOptions.newBuilder()
-      methodOptionsBuilder.setEventing(getEventing(method, component))
+
+      if (hasEventSourcedEntitySubscription(method))
+        methodOptionsBuilder.setEventing(getEventing(method, component))
+
       addTableOptionsToUpdateMethod(tableName, tableProtoMessageName, methodOptionsBuilder, true)
 
       KalixMethod(SubscriptionServiceMethod(method))

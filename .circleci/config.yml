@@ -1150,6 +1150,25 @@ jobs:
             echo "Running mvn with SDK version: '$SDK_VERSION'"
             mvn -Dkalix-sdk.version=$SDK_VERSION verify -Pit  
 
+  sample-spring-eventsourced-customer-registry-subscriber:
+    machine:
+      image: ubuntu-2004:202201-02
+    steps:
+      - checkout-and-merge-to-main
+      - setup_sbt
+      - restore_deps_cache
+      # note: `copy-from-workspace` requires `publish-local` to be run first as declared in workflow section below
+      - copy-from-workspace
+      - set-sdk-version
+      - run:
+          name: Spring SDK Customer Registry Subscriber
+          command: |
+            cd samples/spring-eventsourced-customer-registry-subscriber
+            echo "Running mvn with SDK version: '$SDK_VERSION'"
+             mvn -Dkalix-sdk.version=$SDK_VERSION test-compile
+            # no it tests here
+            # mvn -Dkalix-sdk.version=$SDK_VERSION verify -Pit
+            
   sample-spring-reliable-timers:
     machine:
       image: ubuntu-2004:202201-02
@@ -1467,6 +1486,10 @@ workflows:
             - spring-sdk-integration-tests
             - publish-local
       - sample-spring-eventsourced-customer-registry:
+          requires:
+            - spring-sdk-integration-tests
+            - publish-local
+      - sample-spring-eventsourced-customer-registry-subscriber:
           requires:
             - spring-sdk-integration-tests
             - publish-local

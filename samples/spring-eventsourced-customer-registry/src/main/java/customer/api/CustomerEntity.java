@@ -1,5 +1,7 @@
 package customer.api;
 
+import customer.domain.Address;
+import customer.domain.Customer;
 import kalix.javasdk.eventsourcedentity.EventSourcedEntity;
 import kalix.javasdk.eventsourcedentity.EventSourcedEntityContext;
 import kalix.springsdk.annotations.EntityKey;
@@ -7,7 +9,7 @@ import kalix.springsdk.annotations.EntityType;
 import kalix.springsdk.annotations.EventHandler;
 import org.springframework.web.bind.annotation.*;
 
-import static customer.api.CustomerEvent.*;
+import static customer.domain.CustomerEvent.*;
 
 @EntityKey("id")
 @EntityType("customer")
