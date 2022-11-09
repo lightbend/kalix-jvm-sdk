@@ -34,7 +34,7 @@ object ValueEntity {
 
       def updateState(newState: S): OnSuccessBuilder[S]
 
-      def deleteState: OnSuccessBuilder[S]
+      def deleteState(): OnSuccessBuilder[S]
 
       /**
        * Create a message reply.

@@ -67,9 +67,15 @@ object ActionServiceSourceGenerator {
           else ""
         }
 
-        c"""|override def ${lowerFirst(methodName)}($input: $inputType): $Action.Effect[$outputType] = {
-            |  ${jsonTopicHint}throw new RuntimeException("The command handler for `$methodName` is not implemented, yet")
-            |}"""
+        if (cmd.handleDeletes) {
+          c"""|override def ${lowerFirst(methodName)}(): $Action.Effect[$outputType] = {
+              |  ${jsonTopicHint}throw new RuntimeException("The delete handler for `$methodName` is not implemented, yet")
+              |}"""
+        } else {
+          c"""|override def ${lowerFirst(methodName)}($input: $inputType): $Action.Effect[$outputType] = {
+              |  ${jsonTopicHint}throw new RuntimeException("The command handler for `$methodName` is not implemented, yet")
+              |}"""
+        }
       } else if (cmd.isStreamOut) {
         c"""
            |override def ${lowerFirst(methodName)}($input: $inputType): $Source[$Action.Effect[$outputType], $NotUsed] = {
@@ -112,7 +118,11 @@ object ActionServiceSourceGenerator {
       val outputType = cmd.outputType
 
       if (cmd.isUnary) {
-        c"""|def ${lowerFirst(methodName)}($input: $inputType): $Action.Effect[$outputType]"""
+        if (cmd.handleDeletes) {
+          c"""|def ${lowerFirst(methodName)}(): $Action.Effect[$outputType]"""
+        } else {
+          c"""|def ${lowerFirst(methodName)}($input: $inputType): $Action.Effect[$outputType]"""
+        }
       } else if (cmd.isStreamOut) {
         c"""
            |def ${lowerFirst(methodName)}($input: $inputType): $Source[$Action.Effect[$outputType], $NotUsed]"""
@@ -154,9 +164,15 @@ object ActionServiceSourceGenerator {
       val methodName = cmd.name
       val inputType = cmd.inputType
 
-      c"""|case "$methodName" =>
-          |  action.${lowerFirst(methodName)}(message.payload.asInstanceOf[$inputType])
-          |"""
+      if (cmd.handleDeletes) {
+        c"""|case "$methodName" =>
+            |  action.${lowerFirst(methodName)}()
+            |"""
+      } else {
+        c"""|case "$methodName" =>
+            |  action.${lowerFirst(methodName)}(message.payload.asInstanceOf[$inputType])
+            |"""
+      }
     }
 
     val streamOutCases = commands.filter(_.isStreamOut).map { cmd =>
