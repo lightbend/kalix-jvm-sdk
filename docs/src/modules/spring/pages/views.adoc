@@ -144,7 +144,7 @@ WARNING: Views from topics cannot be rebuilt from the source messages, because i
 
 Rebuilding a new View may take some time if there are many events that have to be processed. The recommended way when changing a View is multi-step, with two deployments:
 
-. Define the new View, and keep the old View intact. 
+. Define the new View with a new `@ViewId`, and keep the old View intact. 
 . Deploy the new View, and let it rebuild. Verify that the new query works as expected. The old View can still be used.
 . Remove the old View but keep its `@ViewId` and `@GetMapping` path, and use them in the new View.
 . Deploy the second change.
