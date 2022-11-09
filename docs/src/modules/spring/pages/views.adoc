@@ -21,7 +21,7 @@ IMPORTANT: Be aware that Views are not updated immediately when Entity state cha
 [#value-entity]
 == Creating a View from a Value Entity
 
-Consider an example of a Customer Registry service with a `customer` Value Entity. When `customer` state changes, the entire state is emitted as a value change. Value changes update any associated Views. To create a View that lists customers by their name:
+Consider an example of a Customer Registry service with a `customer` Value Entity. When `customer` state changes, the entire state is emitted as a value change. Value changes update any associated Views. To create a View that lists customers by their name.
 
 <<_define_the_view>> for a service that selects customers by name and associates a table name with the View. The table is created and used by Kalix to store the View.
 
