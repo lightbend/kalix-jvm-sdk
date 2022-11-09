@@ -91,8 +91,6 @@ trait KalixClient {
    * @param uri
    *   The resource path where the target endpoint will be reached at. Query parameters can be passed in as part of the
    *   URI but should be encoded if containing special characters.
-   * @param body
-   *   The HTTP body type expected by the target endpoint
    * @param returnType
    *   The type returned by the target endpoint
    * @tparam R
@@ -145,8 +143,6 @@ trait KalixClient {
    * @param uri
    *   The resource path where the target endpoint will be reached at. Query parameters can be passed in as part of the
    *   URI but should be encoded if containing special characters.
-   * @param body
-   *   The HTTP body type expected by the target endpoint
    * @param returnType
    *   The type returned by the target endpoint
    * @tparam R
@@ -199,8 +195,6 @@ trait KalixClient {
    * @param uri
    *   The resource path where the target endpoint will be reached at. Query parameters can be passed in as part of the
    *   URI but should be encoded if containing special characters.
-   * @param body
-   *   The HTTP body type expected by the target endpoint
    * @param returnType
    *   The type returned by the target endpoint
    * @tparam R
