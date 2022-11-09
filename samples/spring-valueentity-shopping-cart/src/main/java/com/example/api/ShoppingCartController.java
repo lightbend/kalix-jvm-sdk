@@ -1,8 +1,6 @@
 package com.example.api;
 
-import com.example.api.ShoppingCartDTO;
 import com.example.api.ShoppingCartDTO.LineItemDTO;
-import com.example.domain.ShoppingCart;
 import com.google.protobuf.any.Any;
 import kalix.javasdk.DeferredCall;
 import kalix.javasdk.action.Action;
@@ -22,8 +20,7 @@ public class ShoppingCartController extends Action {
 
   private final KalixClient kalixClient;
 
-  public ShoppingCartController(ActionCreationContext creationContext,
-                                KalixClient kalixClient) {
+  public ShoppingCartController(KalixClient kalixClient) {
     this.kalixClient = kalixClient; // <1>
   }
 
