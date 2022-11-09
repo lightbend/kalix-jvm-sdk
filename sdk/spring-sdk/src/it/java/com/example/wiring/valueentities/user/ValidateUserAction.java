@@ -38,7 +38,7 @@ public class ValidateUserAction extends Action {
     if (email.isEmpty() || name.isEmpty())
       return effects().error("No field can be empty", Status.Code.INVALID_ARGUMENT);
 
-    var defCall = kalixClient.put("/user/" + user + "/" + email + "/" + name, "", String.class);
+    var defCall = kalixClient.put("/user/" + user + "/" + email + "/" + name, String.class);
     return effects().forward(defCall);
   }
 
@@ -47,13 +47,13 @@ public class ValidateUserAction extends Action {
     if (email.isEmpty())
       return effects().error("No field can be empty", Status.Code.INVALID_ARGUMENT);
 
-    var defCall = kalixClient.patch("/user/" + user + "/email/" + email, "", String.class);
+    var defCall = kalixClient.patch("/user/" + user + "/email/" + email, String.class);
     return effects().forward(defCall);
   }
 
   @DeleteMapping
   public Action.Effect<String> delete(@PathVariable String user) {
-    var defCall = kalixClient.delete("/user/" + user, "", String.class);
+    var defCall = kalixClient.delete("/user/" + user, String.class);
     return effects().forward(defCall);
   }
 }
