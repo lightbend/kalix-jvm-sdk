@@ -149,6 +149,24 @@ final class RestKalixClientImpl(messageCodec: SpringSdkMessageCodec) extends Kal
     }
   }
 
+  override def post[R](uriStr: String, returnType: Class[R]): DeferredCall[Any, R] = {
+    matchMethodOrThrow(HttpMethods.POST, uriStr) { httpDef =>
+      requestToRestDefCall(
+        uriStr,
+        None,
+        httpDef,
+        () =>
+          webClient.flatMap {
+            _.post()
+              .uri(uriStr)
+              .retrieve()
+              .bodyToMono(returnType)
+              .toFuture
+              .asScala
+          }.asJava)
+    }
+  }
+
   override def put[P, R](uriStr: String, body: P, returnType: Class[R]): DeferredCall[Any, R] = {
     matchMethodOrThrow(HttpMethods.PUT, uriStr) { httpDef =>
       requestToRestDefCall(
@@ -160,6 +178,24 @@ final class RestKalixClientImpl(messageCodec: SpringSdkMessageCodec) extends Kal
             _.put()
               .uri(uriStr)
               .bodyValue(body)
+              .retrieve()
+              .bodyToMono(returnType)
+              .toFuture
+              .asScala
+          }.asJava)
+    }
+  }
+
+  override def put[R](uriStr: String, returnType: Class[R]): DeferredCall[Any, R] = {
+    matchMethodOrThrow(HttpMethods.PUT, uriStr) { httpDef =>
+      requestToRestDefCall(
+        uriStr,
+        None,
+        httpDef,
+        () =>
+          webClient.flatMap {
+            _.put()
+              .uri(uriStr)
               .retrieve()
               .bodyToMono(returnType)
               .toFuture
@@ -187,17 +223,34 @@ final class RestKalixClientImpl(messageCodec: SpringSdkMessageCodec) extends Kal
     }
   }
 
-  override def delete[P, R](uriStr: String, body: P, returnType: Class[R]): DeferredCall[Any, R] = {
-    matchMethodOrThrow(HttpMethods.DELETE, uriStr) { httpDef =>
+  override def patch[R](uriStr: String, returnType: Class[R]): DeferredCall[Any, R] = {
+    matchMethodOrThrow(HttpMethods.PATCH, uriStr) { httpDef =>
       requestToRestDefCall(
         uriStr,
-        Some(body),
+        None,
         httpDef,
         () =>
           webClient.flatMap {
-            _.method(SpringHttpMethod.DELETE)
+            _.patch()
               .uri(uriStr)
-              .bodyValue(body)
+              .retrieve()
+              .bodyToMono(returnType)
+              .toFuture
+              .asScala
+          }.asJava)
+    }
+  }
+
+  override def delete[R](uriStr: String, returnType: Class[R]): DeferredCall[Any, R] = {
+    matchMethodOrThrow(HttpMethods.DELETE, uriStr) { httpDef =>
+      requestToRestDefCall(
+        uriStr,
+        None,
+        httpDef,
+        () =>
+          webClient.flatMap {
+            _.delete()
+              .uri(uriStr)
               .retrieve()
               .bodyToMono(returnType)
               .toFuture

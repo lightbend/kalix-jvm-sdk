@@ -46,7 +46,7 @@ public class IncreaseAction extends Action {
     String entityId = this.actionContext().metadata().asCloudEvent().subject().get();
     if (event.value == 42) {
       CompletionStage<Integer> res =
-          kalixClient.post("/counter/" + entityId + "/increase/1", "", Integer.class).execute();
+          kalixClient.post("/counter/" + entityId + "/increase/1", Integer.class).execute();
       return effects().asyncReply(res);
     }
     return effects().reply(event.value);
