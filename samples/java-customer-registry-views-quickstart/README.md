@@ -65,6 +65,10 @@ With both the proxy and your application running, any defined endpoints should b
   ```shell
   grpcurl --plaintext -d '{"customer_id": "wip", "new_address": {"street": "Street 1", "city": "The City"}}' localhost:9000 customer.api.CustomerService/ChangeAddress
   ```
+* Delete the customer:
+  ```shell
+  grpcurl --plaintext -d '{"customer_id": "wip"}' localhost:9000  customer.api.CustomerService/Delete
+  ```
 
 ## Deploying
 

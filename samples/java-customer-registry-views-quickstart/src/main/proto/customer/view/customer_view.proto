@@ -21,6 +21,7 @@ option java_outer_classname = "CustomerViewModel"; // <3>
 
 import "customer/domain/customer_domain.proto"; // <4>
 import "kalix/annotations.proto";
+import "google/protobuf/empty.proto";
 // end::declarations[]
 
 // tag::CustomerByEmail[]
@@ -62,7 +63,7 @@ service CustomerByName {
   option (kalix.service).acl.allow = { principal: ALL };
   // tag::CustomerByName[]
 
-  rpc UpdateCustomer(domain.CustomerState) returns (CustomerViewState) { // <1>
+  rpc UpdateCustomer(domain.CustomerState) returns (CustomerViewState) {// <1>
     option (kalix.method).eventing.in = {
       value_entity: "customers"
     };
@@ -72,7 +73,18 @@ service CustomerByName {
     };
   }
 
-  rpc GetCustomers(ByNameRequest) returns (stream CustomerViewState) { // <3>
+  rpc DeleteCustomer(google.protobuf.Empty) returns (CustomerViewState) {// <3>
+    option (kalix.method).eventing.in = {
+      value_entity: "customers"
+      handle_deletes: true
+    };
+    option (kalix.method).view.update = {
+      table: "customers_by_name"
+      transform_updates: true
+    };
+  }
+
+  rpc GetCustomers(ByNameRequest) returns (stream CustomerViewState) {// <4>
     option (kalix.method).view.query = {
       query: "SELECT * FROM customers_by_name WHERE name = :customer_name"
     };
