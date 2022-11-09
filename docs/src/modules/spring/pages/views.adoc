@@ -39,7 +39,7 @@ As well as a Value Entity service `CustomerEntity.java` that will produce the st
 
 === Define the View
 
-You implement a View by extending `kalix.javasdk.view.View` and subscribing to changes from an entity. You specify how to query it by providing a method annotated with `query`, which is then made accessible via REST annotations.
+You implement a View by extending `kalix.javasdk.view.View` and subscribing to changes from an entity. You specify how to query it by providing a method annotated with `@Query`, which is then made accessible via REST annotations.
 
 .src/main/java/customer/view/CustomerByNameView.java
 [source,java]
