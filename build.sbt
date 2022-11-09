@@ -387,7 +387,7 @@ lazy val codegenScalaCompilationTest = project
   // and the goal is to verify if it compiles
   .dependsOn(sdkScalaTestKit)
   .settings(common)
-  .settings(libraryDependencies ++= Seq(Dependencies.junit4, Dependencies.kalixSdkProtocol % "protobuf-src"))
+  .settings(libraryDependencies ++= Seq(Dependencies.kalixSdkProtocol % "protobuf-src"))
   .settings(
     akkaGrpcGeneratedLanguages := Seq(AkkaGrpc.Scala),
     (publish / skip) := true,
