@@ -1,11 +1,10 @@
 package com.example.api;
 
 import com.example.api.ShoppingCartDTO.LineItemDTO;
-import com.google.protobuf.any.Any;
-import kalix.javasdk.DeferredCall;
+// tag::forward[]
 import kalix.javasdk.action.Action;
-import kalix.javasdk.action.ActionCreationContext;
 import kalix.springsdk.KalixClient;
+// end::forward[]
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
