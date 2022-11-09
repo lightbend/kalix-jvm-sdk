@@ -17,6 +17,7 @@ syntax = "proto3";
 
 package customer.view;
 
+import "google/protobuf/empty.proto";
 import "customer/domain/customer_domain.proto";
 import "kalix/annotations.proto";
 
@@ -33,6 +34,16 @@ service CustomerByName {
   rpc UpdateCustomer(domain.CustomerState) returns (domain.CustomerState) {
     option (kalix.method).eventing.in = {
       value_entity: "customers"
+    };
+    option (kalix.method).view.update = {
+      table: "customers"
+    };
+  }
+
+  rpc DeleteCustomer(google.protobuf.Empty) returns (domain.CustomerState) {
+    option (kalix.method).eventing.in = {
+      value_entity: "customers"
+      handle_deletes: true
     };
     option (kalix.method).view.update = {
       table: "customers"
