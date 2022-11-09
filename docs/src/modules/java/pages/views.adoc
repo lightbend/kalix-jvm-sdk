@@ -97,12 +97,14 @@ This identifier is defined in the `entity_type: "customers"` property of the `(k
 You must define the `table` attribute for the table to be used in the query.
 Pick any name and use it in the query `SELECT` statement.
 <5> The `(kalix.method).eventing.in` annotation with `handle_deletes: true` and (required) `google.protobuf.Empty` as a parameter defines that this method is used for deleting the View.
-Kalix will automatically delete the View state, but you can also write your own delete handler when `transform_updates` flag is `true`.
+Kalix will automatically delete the View state, but you can also write your own delete handler when transform_updates` flag is `true`.
 If you don't provide such a method then, by default, your View state will not be deleted.
 <6> The `GetCustomers` method defines the query to retrieve a stream of customers.
 <7> The `(kalix.method).view.query` annotation defines that this method is used as a query of the View.
 
-NOTE: In this sample we use the internal `domain.CustomerState` as the state of the view.This is convenient since it allows automatic updates of the view without any logic but has the draw back that it implicitly makes the `domain.CustomerState` type a part of the public service API.Transforming the state to another type than the incoming update to avoid this can be seen in <<#event-sourced-entity>>.
+NOTE: In this sample we use the internal `domain.CustomerState` as the state of the view.
+This is convenient since it allows automatic updates of the view without any logic but has the draw back that it implicitly makes the `domain.CustomerState` type a part of the public service API.
+Transforming the state to another type than the incoming update to avoid this can be seen in <<#event-sourced-entity>>.
 
 If the query should only return one result, remove the `stream` from the return type:
 
@@ -146,11 +148,6 @@ Scala::
 ----
 include::example$scala-valueentity-customer-registry/src/main/scala/customer/Main.scala[tag=register]
 ----
-
-[#handle-deletes]
-=== Handling deletes
-
-For Views based on Value Entities you can control the behavior when Value Entity state was deleted.
 
 [#event-sourced-entity]
 == Creating a View from an Event Sourced Entity
