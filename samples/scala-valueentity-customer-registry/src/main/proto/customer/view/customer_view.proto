@@ -19,7 +19,7 @@ package customer.view;
 
 import "customer/domain/customer_domain.proto";
 import "kalix/annotations.proto";
-import "google/protobuf/any.proto";
+import "google/protobuf/empty.proto";
 
 // end::declarations[]
 
@@ -38,8 +38,18 @@ service CustomerByName {
     };
   }
 
-  rpc GetCustomers(ByNameRequest) returns (stream domain.CustomerState) { // <5>
-    option (kalix.method).view.query = { // <6>
+  rpc DeleteCustomer(google.protobuf.Empty) returns (domain.CustomerState) {
+    option (kalix.method).eventing.in = {
+      value_entity: "customers"
+      handle_deletes: true // <5>
+    };
+    option (kalix.method).view.update = {
+      table: "customers"
+    };
+  }
+
+  rpc GetCustomers(ByNameRequest) returns (stream domain.CustomerState) { // <6>
+    option (kalix.method).view.query = { // <7>
       query: "SELECT * FROM customers WHERE name = :customer_name"
     };
   }

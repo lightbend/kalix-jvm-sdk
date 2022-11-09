@@ -48,6 +48,11 @@ public class CustomerValueEntity extends AbstractCustomerValueEntity {
     return effects().updateState(updatedState).thenReply(Empty.getDefaultInstance());
   }
 
+  @Override
+  public Effect<Empty> delete(CustomerDomain.CustomerState currentState, CustomerApi.DeleteCustomerRequest deleteCustomerRequest) {
+    return effects().deleteState().thenReply(Empty.getDefaultInstance());
+  }
+
   private CustomerApi.Customer convertToApi(CustomerDomain.CustomerState state) {
     CustomerApi.Address address = CustomerApi.Address.getDefaultInstance();
     if (state.hasAddress()) {

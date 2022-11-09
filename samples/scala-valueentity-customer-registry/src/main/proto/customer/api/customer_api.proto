@@ -35,6 +35,10 @@ message GetCustomerRequest {
   string customer_id = 1 [(kalix.field).entity_key = true];
 }
 
+message DeleteCustomerRequest {
+  string customer_id = 1 [(kalix.field).entity_key = true];
+}
+
 message ChangeNameRequest {
   string customer_id = 1 [(kalix.field).entity_key = true];
   string new_name = 2;
@@ -59,5 +63,6 @@ service CustomerService {
   rpc ChangeName(ChangeNameRequest) returns (google.protobuf.Empty) {}
   rpc ChangeAddress(ChangeAddressRequest) returns (google.protobuf.Empty) {}
   rpc GetCustomer(GetCustomerRequest) returns (Customer) {}
+  rpc Delete(DeleteCustomerRequest) returns (google.protobuf.Empty) {}
 }
 // end::value-entity[]
