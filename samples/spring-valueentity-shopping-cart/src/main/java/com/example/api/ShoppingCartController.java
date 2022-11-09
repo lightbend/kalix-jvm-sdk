@@ -56,9 +56,9 @@ public class ShoppingCartController extends Action {
     if (addLineItem.name().equalsIgnoreCase("carrot")) { // <3>
       return effects().error("Carrots no longer for sale"); // <4>
     } else {
-      DeferredCall<Any, ShoppingCartDTO> call =
+      var deferredCall =
           kalixClient.post("/cart/" + cartId + "/items/add", addLineItem, ShoppingCartDTO.class); // <5>
-      return effects().forward(call); // <6>
+      return effects().forward(deferredCall); // <6>
     }
   }
   // end::forward[]
