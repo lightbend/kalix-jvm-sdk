@@ -1,33 +1,30 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
-                      http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>customer</groupId>
-  <artifactId>customer-registry</artifactId>
+  <groupId>com.example</groupId>
+  <artifactId>spring-customer-registry</artifactId>
   <version>1.0-SNAPSHOT</version>
   <packaging>jar</packaging>
 
-  <name>Customer Registry (Quickstart)</name>
-
+  <name>Customer Registry (Spring Quickstart)</name>
   <properties>
+
     <!-- TODO Update to your own Docker repository or Docker Hub scope -->
-    <dockerImage>octonato/${project.artifactId}</dockerImage>
+    <dockerImage>my-docker-repo/${project.artifactId}</dockerImage>
     <dockerTag>${project.version}-${build.timestamp}</dockerTag>
     <maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
     <mainClass>customer.Main</mainClass>
 
-    <jdk.target>11</jdk.target>
+    <jdk.target>17</jdk.target>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
     <kalix-sdk.version>1.0.11</kalix-sdk.version>
     <akka-grpc.version>2.1.4</akka-grpc.version>
   </properties>
 
   <build>
     <resources>
-      <!-- Add the generated protobuf descriptor to the classpath, so that source mapping works -->
-      <resource>
-        <directory>${project.build.directory}/generated-resources</directory>
-      </resource>
       <resource>
         <directory>src/main/resources</directory>
       </resource>
@@ -51,39 +48,9 @@
           <target>${jdk.target}</target>
           <compilerArgs>
             <arg>-Xlint:deprecation</arg>
+            <arg>-parameters</arg>
           </compilerArgs>
         </configuration>
-      </plugin>
-
-      <plugin>
-        <groupId>org.xolstice.maven.plugins</groupId>
-        <artifactId>protobuf-maven-plugin</artifactId>
-        <version>0.6.1</version>
-        <executions>
-          <execution>
-            <!-- generate Java code for protobuf types -->
-            <id>protobuf</id>
-            <goals>
-              <goal>compile</goal>
-            </goals>
-            <configuration>
-              <writeDescriptorSet>true</writeDescriptorSet>
-              <includeSourceInfoInDescriptorSet>true</includeSourceInfoInDescriptorSet>
-              <descriptorSetFileName>user-function.desc</descriptorSetFileName>
-              <checkStaleness>true</checkStaleness>
-              <protocArtifact>com.google.protobuf:protoc:3.19.2:exe:${os.detected.classifier}</protocArtifact>
-              <protocPlugins>
-                <protocPlugin>
-                  <id>akka-grpc</id>
-                  <groupId>com.lightbend.akka.grpc</groupId>
-                  <artifactId>akka-grpc-scalapb-protoc-plugin_2.12</artifactId>
-                  <version>${akka-grpc.version}</version>
-                  <mainClass>akka.grpc.gen.Main</mainClass>
-                </protocPlugin>
-              </protocPlugins>
-            </configuration>
-          </execution>
-      </executions>
       </plugin>
 
       <plugin>
@@ -120,7 +87,7 @@
               <name>${dockerImage}:%l</name>
               <build>
                 <!-- Base Docker image which contains jre-->
-                <from>docker.io/library/adoptopenjdk:${jdk.target}-jre-hotspot</from>
+                <from>docker.io/library/eclipse-temurin:${jdk.target}-alpine</from>
                 <createImageOptions>
                   <platform>linux/amd64</platform>
                 </createImageOptions>
@@ -236,13 +203,18 @@
       </plugin>
 
       <plugin>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-maven-plugin</artifactId>
+        <version>2.7.4</version>
+      </plugin>
+
+      <plugin>
         <groupId>io.kalix</groupId>
         <artifactId>kalix-maven-plugin</artifactId>
         <version>${kalix-sdk.version}</version>
         <executions>
           <execution>
             <goals>
-              <goal>generate</goal>
               <goal>deploy</goal>
             </goals>
           </execution>
@@ -299,19 +271,39 @@
   <dependencies>
     <dependency>
       <groupId>io.kalix</groupId>
-      <artifactId>kalix-java-sdk</artifactId>
+      <artifactId>kalix-spring-sdk</artifactId>
       <version>${kalix-sdk.version}</version>
     </dependency>
     <dependency>
       <groupId>io.kalix</groupId>
-      <artifactId>kalix-java-sdk-testkit</artifactId>
+      <artifactId>kalix-spring-sdk-testkit</artifactId>
       <version>${kalix-sdk.version}</version>
       <scope>test</scope>
     </dependency>
+
     <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>4.13.2</version>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-test</artifactId>
+      <version>2.7.0</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-api</artifactId>
+      <version>5.5.2</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter</artifactId>
+      <version>5.5.2</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.awaitility</groupId>
+      <artifactId>awaitility</artifactId>
+      <version>4.1.0</version>
       <scope>test</scope>
     </dependency>
   </dependencies>

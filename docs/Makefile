@@ -80,6 +80,7 @@ bundles:
 	bin/bundle.sh --zip "${java_managed_attachments}/java-customer-registry-kafka-quickstart.zip" ../samples/java-customer-registry-kafka-quickstart
 	bin/bundle.sh --zip "${java_managed_attachments}/java-shopping-cart-quickstart.zip" ../samples/java-shopping-cart-quickstart
 	bin/bundle.sh --zip "${java_managed_attachments}/scala-customer-registry-quickstart.zip" ../samples/scala-customer-registry-quickstart
+	bin/bundle.sh --zip "${spring_managed_attachments}/spring-customer-registry-quickstart.zip" ../samples/spring-customer-registry-quickstart
 
 dev: clean managed validate-xrefs dev-html
 
