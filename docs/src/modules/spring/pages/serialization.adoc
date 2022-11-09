@@ -4,7 +4,7 @@ You do not need to handle serialization for the messages of an Event Source Enti
 
 == When consuming Messages from Topics
 
-When consuming events from a topic deserialization works out of the box. By default Kalix serialize Java objects to JSON when publish to a topic, or when emitting events from an entity, whatever they are value changes or snapshots. Therefore it can deserialize them as JSON when consuming them. 
+When consuming events from a topic deserialization works out of the box. By default Kalix serialize Java objects to JSON when publishing to a topic, or when emitting events from an entity, whatever they are value changes or snapshots. Therefore it can deserialize them as JSON when consuming them. 
 
 When xref:actions-publishing-subscribing.adoc[subscribing], you can use as the input of your subscribing method the event class or record. In the following example you can see how the actions are subscribed to `ValueIncreased` and `ValueMultiplied`. 
 
