@@ -400,7 +400,7 @@ jobs:
       - copy-from-workspace
       - set-sdk-version
       - run:
-          name: Java Customer Registry quickstart
+          name: Java Customer Registry Quickstart
           command: |
             cd samples/java-customer-registry-quickstart
             echo "Running mvn with SDK version: '$SDK_VERSION'"
@@ -422,7 +422,7 @@ jobs:
       - copy-from-workspace
       - set-sdk-version
       - run:
-          name: Java Customer Registry Kafka quickstart
+          name: Java Customer Registry Kafka Quickstart
           command: |
             cd samples/java-customer-registry-kafka-quickstart
             echo "Running mvn with SDK version: '$SDK_VERSION'"
@@ -444,7 +444,7 @@ jobs:
       - copy-from-workspace
       - set-sdk-version
       - run:
-          name: Java Customer Registry Views quickstart
+          name: Java Customer Registry Views Quickstart
           command: |
             cd samples/java-customer-registry-views-quickstart
             echo "Running mvn with SDK version: '$SDK_VERSION'"
@@ -466,7 +466,7 @@ jobs:
       - copy-from-workspace
       - set-sdk-version
       - run:
-          name: Java Shopping Cart quickstart
+          name: Java Shopping Cart Quickstart
           command: |
             cd samples/java-shopping-cart-quickstart
             echo "Running mvn with SDK version: '$SDK_VERSION'"
@@ -1080,6 +1080,24 @@ jobs:
             echo "Running mvn with SDK version: '$SDK_VERSION'"
             mvn -Dkalix-sdk.version=$SDK_VERSION verify -Pit 
 
+
+  sample-spring-customer-registry-quickstart:
+    machine:
+      image: ubuntu-2004:202201-02
+    steps:
+      - checkout-and-merge-to-main
+      - setup_sbt
+      - restore_deps_cache
+      # note: `copy-from-workspace` requires `publish-local` to be run first as declared in workflow section below
+      - copy-from-workspace
+      - set-sdk-version
+      - run:
+          name: Spring SDK Customer Registry Quickstart
+          command: |
+            cd samples/spring-customer-registry-quickstart
+            echo "Running mvn with SDK version: '$SDK_VERSION'"
+            mvn -Dkalix-sdk.version=$SDK_VERSION verify -Pit            
+
   sample-spring-customer-registry-views-quickstart:
     machine:
       image: ubuntu-2004:202201-02
@@ -1091,7 +1109,7 @@ jobs:
       - copy-from-workspace
       - set-sdk-version
       - run:
-          name: Spring SDK Customer Registry quickstart
+          name: Spring SDK Customer Registry with Views Quickstart
           command: |
             cd samples/spring-customer-registry-views-quickstart
             echo "Running mvn with SDK version: '$SDK_VERSION'"
@@ -1451,6 +1469,10 @@ workflows:
             - checks
             - publish-local
       - sample-spring-fibonacci-action:
+          requires:
+            - spring-sdk-integration-tests
+            - publish-local
+      - sample-spring-customer-registry-quickstart:
           requires:
             - spring-sdk-integration-tests
             - publish-local
