@@ -45,7 +45,7 @@ With both the proxy and your application running, any defined endpoints should b
   curl localhost:9000/customer/one/create \
     --header "Content-Type: application/json" \
     -XPOST \
-    --data '{"customerId":"one","email":"test@example.com","name":"Test Testsson","address":{"street":"Teststreet 25","city":"Testcity"}}'
+    --data '{"email":"test@example.com","name":"Test Testsson","address":{"street":"Teststreet 25","city":"Testcity"}}'
   ```
 * Retrieve the customer:
   ```shell
