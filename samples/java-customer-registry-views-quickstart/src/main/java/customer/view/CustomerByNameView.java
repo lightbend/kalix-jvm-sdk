@@ -31,10 +31,5 @@ public class CustomerByNameView extends AbstractCustomerByNameView {
 
     return effects().updateState(newViewState); // <3>
   }
-
-  @Override
-  public UpdateEffect<CustomerViewModel.CustomerViewState> deleteCustomer(CustomerViewModel.CustomerViewState state) {
-    return effects().deleteState();
-  }
 }
 // #end::view[]

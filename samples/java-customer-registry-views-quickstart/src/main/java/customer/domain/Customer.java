@@ -105,8 +105,6 @@ public class Customer extends AbstractCustomer {
     return effects().updateState(updatedState).thenReply(Empty.getDefaultInstance());
   }
 
-  @Override
-  public Effect<Empty> delete(CustomerDomain.CustomerState currentState, CustomerApi.DeleteCustomerRequest deleteCustomerRequest) {
-    return effects().deleteState().thenReply(Empty.getDefaultInstance());
-  }
+
+
 }
