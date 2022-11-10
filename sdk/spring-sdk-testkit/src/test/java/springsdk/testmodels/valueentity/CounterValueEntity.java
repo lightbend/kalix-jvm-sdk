@@ -30,4 +30,8 @@ public class CounterValueEntity extends ValueEntity<Integer> {
     if (value < 0) return effects().error("Can't increase with a negative value");
     else return effects().updateState(state + value).thenReply("Ok");
   }
+
+  public Effect<String> delete() {
+    return effects().deleteState().thenReply("Deleted");
+  }
 }
