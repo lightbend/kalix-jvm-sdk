@@ -17,9 +17,7 @@
 package kalix.springsdk.impl.reflection
 
 import java.lang.reflect.Method
-
 import scala.annotation.tailrec
-
 import com.google.protobuf.Descriptors
 import com.google.protobuf.any.{ Any => ScalaPbAny }
 import kalix.springsdk.impl.AclDescriptorFactory
@@ -34,9 +32,14 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestMethod
 import reactor.core.publisher.Flux
 
+import java.util
+
 object ServiceMethod {
   def isStreamOut(method: Method): Boolean =
     method.getReturnType == classOf[Flux[_]]
+
+  def isCollectionOut(method: Method): Boolean =
+    classOf[util.Collection[_]].isAssignableFrom(method.getReturnType)
 
   // this is more for early validation. We don't support stream-in over http,
   // we block it before deploying anything
@@ -139,7 +142,8 @@ case class SyntheticRequestServiceMethod(
     mapping: RequestMapping,
     javaMethod: Method,
     params: Seq[RestMethodParameter],
-    callable: Boolean = true)
+    callable: Boolean = true,
+    outputTypeName: String = "google.protobuf.Any")
     extends ServiceMethod {
 
   override def javaMethodOpt: Option[Method] = Some(javaMethod)
@@ -147,6 +151,7 @@ case class SyntheticRequestServiceMethod(
 
   val streamIn: Boolean = ServiceMethod.isStreamIn(javaMethod)
   val streamOut: Boolean = ServiceMethod.isStreamOut(javaMethod)
+  val collectionOut: Boolean = ServiceMethod.isCollectionOut(javaMethod)
 
   // First fail on unsupported mapping values. Should all default to empty arrays, but let's not trust that
   validateRequestMapping(javaMethod, mapping)

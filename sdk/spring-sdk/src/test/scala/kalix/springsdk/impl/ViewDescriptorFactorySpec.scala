@@ -73,6 +73,17 @@ class ViewDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSuit
       }
     }
 
+    "generate query with collection return type" in {
+      assertDescriptor[UserByEmailWithCollectionReturn] { desc =>
+        val queryMethodOptions = this.findKalixMethodOptions(desc, "GetUser")
+        queryMethodOptions.getView.getQuery.getQuery shouldBe "SELECT * AS results FROM users_view WHERE name = :name"
+        queryMethodOptions.getView.getJsonSchema.getOutput shouldBe "User"
+
+        val streamUpdates = queryMethodOptions.getView.getQuery.getStreamUpdates
+        streamUpdates shouldBe false
+      }
+    }
+
     "fail when using stream updates in unary methods" in {
       intercept[ServiceIntrospectionException] {
         descriptorFor[IllDefineUserByEmailWithStreamUpdates]
