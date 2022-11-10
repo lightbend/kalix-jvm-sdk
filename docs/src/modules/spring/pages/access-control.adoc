@@ -6,7 +6,7 @@ This section describes functionality in the Java/Scala SDK related to ACLs (Acce
 
 If no ACLs is defined at all in a Kalix service Kalix will allow requests from both other services and the internet to all components of a Kalix service.
 
-The Kalix quickstarts and [.group-java]#Maven archetypes# [.group-scala]#the sbt g8-template# all include a less permissive ACL for the entire service, to not accidentally make services available to the public internet, just like the one described in the next section.
+The Kalix quickstart is and the Maven archetype include a less permissive ACL for the entire service, to not accidentally make services available to the public internet, just like the one described in the next section.
 
 == Defining an ACL for the entire Kalix Service
 
