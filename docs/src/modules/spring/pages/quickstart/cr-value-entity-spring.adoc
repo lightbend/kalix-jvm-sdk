@@ -3,7 +3,7 @@
 include::ROOT:partial$include.adoc[]
 include::spring:partial$attributes.adoc[]
 
-Learn how to create a customer registry with the Spring SDK, package it into a container, and run it on Kalix.
+In this section, you will learn how to create a customer registry with the Spring SDK, package it into a container, and run it on Kalix.
 
 == Before you begin
 
@@ -28,7 +28,7 @@ include::partial$maven-archetype.adoc[]
 
 == Customer Registry Service
 
-The Service will contain only one ValueEntity that will expose the operation to mutate a Customer model. The entity itself exposes service endpoints and eventually encapsulates some basic validation. The incoming commands/request are then applied to model and the entity instructs Kalix, thought the `Effect` API what needs to be done next.
+The service contains only one ValueEntity that exposes the operation to mutate a Customer model. The entity itself exposes service endpoints and eventually encapsulates some basic validation. The incoming commands/request are then applied to the model and the entity instructs Kalix, through the `Effect` API what needs to be done next.
 
 == Define the domain model
 
