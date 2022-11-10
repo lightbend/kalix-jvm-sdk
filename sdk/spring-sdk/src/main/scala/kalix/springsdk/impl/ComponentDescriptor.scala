@@ -91,19 +91,15 @@ private[impl] object ComponentDescriptor {
 
       val httpRuleBuilder = buildHttpRule(kalixMethod.serviceMethod)
 
-      val (
-        inputMessageName: String,
-        extractors: Map[Int, ExtractorCreator],
-        inputProto: Option[DescriptorProto],
-        outputName: Option[String]) =
+      val (inputMessageName: String, extractors: Map[Int, ExtractorCreator], inputProto: Option[DescriptorProto]) =
         kalixMethod.serviceMethod match {
           case serviceMethod: SyntheticRequestServiceMethod =>
             val (inputProto, extractors) =
               buildSyntheticMessageAndExtractors(nameGenerator, serviceMethod, httpRuleBuilder, kalixMethod.entityKeys)
-            (inputProto.getName, extractors, Some(inputProto), Some(serviceMethod.outputTypeName))
+            (inputProto.getName, extractors, Some(inputProto))
 
           case _: AnyJsonRequestServiceMethod =>
-            (JavaPbAny.getDescriptor.getFullName, Map.empty[Int, ExtractorCreator], None, None)
+            (JavaPbAny.getDescriptor.getFullName, Map.empty[Int, ExtractorCreator], None)
         }
 
       val grpcMethodName = nameGenerator.getName(kalixMethod.serviceMethod.methodName.capitalize)
@@ -112,8 +108,7 @@ private[impl] object ComponentDescriptor {
           grpcMethodName,
           inputMessageName,
           kalixMethod.serviceMethod.streamIn,
-          kalixMethod.serviceMethod.streamOut,
-          outputName)
+          kalixMethod.serviceMethod.streamOut)
 
       val methodOptions = MethodOptions.newBuilder()
       kalixMethod.methodOptions.foreach(option => methodOptions.setExtension(kalix.Annotations.method, option))
@@ -387,15 +382,14 @@ private[impl] object ComponentDescriptor {
       grpcMethodName: String,
       inputTypeName: String,
       streamIn: Boolean,
-      streamOut: Boolean,
-      outputTypeName: Option[String]): MethodDescriptorProto.Builder =
+      streamOut: Boolean): MethodDescriptorProto.Builder =
     MethodDescriptorProto
       .newBuilder()
       .setName(grpcMethodName)
       .setInputType(inputTypeName)
       .setClientStreaming(streamIn)
       .setServerStreaming(streamOut)
-      .setOutputType(outputTypeName.getOrElse("google.protobuf.Any"))
+      .setOutputType("google.protobuf.Any")
 
 }
 

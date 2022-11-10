@@ -35,14 +35,15 @@ object ProtoMessageDescriptors {
 
   def generateWrappedCollectionDescriptors(javaClass: Class[_]): ProtoMessageDescriptors = {
 
+    val resultType = javaClass.getSimpleName
     val outputMessageDescriptor = DescriptorProto.newBuilder()
-    outputMessageDescriptor.setName(javaClass.getSimpleName + "Collection")
+    outputMessageDescriptor.setName(resultType + "Collection")
 
     val fieldDescriptor = FieldDescriptorProto.newBuilder()
     fieldDescriptor.setName("results")
     fieldDescriptor.setNumber(1)
     fieldDescriptor.setType(FieldDescriptorProto.Type.TYPE_MESSAGE)
-    fieldDescriptor.setTypeName("google.protobuf.Any")
+    fieldDescriptor.setTypeName(resultType)
     fieldDescriptor.setLabel(FieldDescriptorProto.Label.LABEL_REPEATED)
     outputMessageDescriptor.addField(fieldDescriptor)
 

@@ -77,7 +77,7 @@ class ViewDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSuit
       assertDescriptor[UserByEmailWithCollectionReturn] { desc =>
         val queryMethodOptions = this.findKalixMethodOptions(desc, "GetUser")
         queryMethodOptions.getView.getQuery.getQuery shouldBe "SELECT * AS results FROM users_view WHERE name = :name"
-        queryMethodOptions.getView.getJsonSchema.getOutput shouldBe "User"
+        queryMethodOptions.getView.getJsonSchema.getOutput shouldBe "UserCollection"
 
         val streamUpdates = queryMethodOptions.getView.getQuery.getStreamUpdates
         streamUpdates shouldBe false

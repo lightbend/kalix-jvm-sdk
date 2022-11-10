@@ -179,11 +179,7 @@ private[impl] object ViewDescriptorFactory extends ComponentDescriptorFactory {
       val jsonSchema = {
         val builder = kalix.JsonSchema
           .newBuilder()
-          .setOutput(
-            if (queryMethod.collectionOut)
-              tableType.getSimpleName
-            else
-              queryOutputSchemaDescriptor.mainMessageDescriptor.getName)
+          .setOutput(queryOutputSchemaDescriptor.mainMessageDescriptor.getName)
 
         queryInputSchemaDescriptor.foreach { inputSchema =>
           builder
