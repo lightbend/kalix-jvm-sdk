@@ -1,23 +1,23 @@
 = Access Control Lists (ACLs)
 
-This section describes functionality in the Java/Scala SDK related to ACLs (Access Control Lists), for information about how the ACLs are defined and control access see xref:spring:using-acls.adoc[Using ACLs]
+This section describes functionality in Spring SDK related to ACLs (Access Control Lists), for information about how the ACLs are defined and control access see xref:spring:using-acls.adoc[Using ACLs]
 
 == Default ACL in project templates
 
-If no ACLs is defined at all in a Kalix service Kalix will allow requests from both other services and the internet to all components of a Kalix service.
+If no ACLs is defined at all in a Kalix service, Kalix will allow requests from both other services and the internet to all components of a Kalix service.
 
-The Kalix quickstart is and the Maven archetype include a less permissive ACL for the entire service, to not accidentally make services available to the public internet, just like the one described in the next section.
+The Maven archetype include a less permissive ACL for the entire service, to not accidentally make services available to the public internet, just like the one described in the next section.
 
 == Defining an ACL for the entire Kalix Service
 
 A default ACL for the entire Kalix Service can be defined by placing a on the Main of your service:
 
 ```java
-@Acl(allow = @Acl.Matcher(service = "*"))
+@Acl(allow = @Acl.Matcher(service = ""))
 public class Main { ... } 
 ```
 
-This is the default ACL included in the quickstarts and project templates, it allows calls from any other Kalix service deployed in the same Kalix project, but denies access from the internet.
+This is the default ACL. It allows calls from any other Kalix service deployed in the same Kalix project and from the internet.
 
 == Inspecting the principal inside a service
 

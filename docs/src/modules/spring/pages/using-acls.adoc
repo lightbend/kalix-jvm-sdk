@@ -4,7 +4,7 @@ include::ROOT:partial$include.adoc[]
 
 Access Control Lists (ACLs) allow you to control which services and sources of requests may access your services.
 
-Within a Kalix project, all communication between services uses Mutual TLS (mTLS). This is injected transparently by Kalix. The clients you use to make calls from one service to another do not need to be configured to do this. Kalix transparently captures outgoing requests to other services and wraps them in an mTLS connection.
+Within a Kalix project, all communication between services uses Mutual TLS (mTLS). This is injected transparently by Kalix. The clients you use to make calls from one service to another do NOT need to be configured to do this. Kalix transparently captures outgoing requests to other services and wraps them in an mTLS connection.
 
 Based on this mTLS support, Kalix is able to read and apply policies based on where the request was made from.
 
@@ -16,7 +16,7 @@ Note that requests that have the internet principal are requests that Kalix has 
 
 == Configuring ACLs
 
-Kalix ACLs consist of a list of principal matchers that are allowed to invoke a method, and a list of principal matchers that should be denied to invoke a method. For a request to be allowed, at least one principal associated with a request must be matched by at least one principal matcher in the allow list, and no principals associated with the request may match any principal matchers in the deny list.
+Kalix ACLs consist of two lists of principal matchers. One to allow to invoke a method, and the other to deny to invoke a method. For a request to be allowed, at least one principal associated with a request must be matched by at least one principal matcher in the allow list, and no principals associated with the request may match any principal matchers in the deny list.
 
 Here is an example ACL on a method:
 
@@ -30,7 +30,9 @@ Here is an example ACL on a method:
     }
 ```
 
-The above ACL allows all services except the service called `my-service`. To allow all traffic:
+The above ACL allows traffic to all services except the service called `my-service`. 
+
+To allow all traffic:
 
 ```java
 @Acl(allow = @Acl.Matcher(principal = Acl.Principal.ALL) 
@@ -93,7 +95,7 @@ An ACL declared at the project level is used as the default for all services tha
 
 === Customizing the deny code
 
-When a request is denied, by default, a gRPC error code of 7, `PERMISSION_DENIED`, is sent. This gets transcoded to an HTTP status code of 403, forbidden. The code that is returned when a request is denied can be customised using the `deny_code` property. The deny code must be a valid gRPC error code, which is any integer from 1 to 16, described https://grpc.github.io/grpc/core/md_doc_statuscodes.html[here]. Each one maps to Akka HTTP status code described https://doc.akka.io/japi/akka-http/current/akka/http/scaladsl/model/StatusCodes.html[here] as follows:
+When a request is denied, by default, a gRPC error code of 7, `PERMISSION_DENIED`, is sent. This gets transcoded to an HTTP status code of 403, forbidden. The code that is returned when a request is denied can be customised using the `deny_code` property. The deny code must be a valid gRPC error code, which is any integer from 1 to 16, described https://grpc.github.io/grpc/core/md_doc_statuscodes.html[here]. Each one maps as follows to an https://doc.akka.io/japi/akka-http/current/akka/http/scaladsl/model/StatusCodes.html[Akka HTTP status code].
 
 ```
     Status.Code.OK                  => StatusCodes.OK
