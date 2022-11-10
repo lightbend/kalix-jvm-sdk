@@ -189,8 +189,7 @@ Add the service endpoint
 ----
 include::example$java-customer-registry-views-quickstart/src/main/proto/customer/view/customer_view.proto[tag=CustomerByName]
 ----
-<1> The `UpdateCustomer` method defines how Kalix will update the view.
-In this case use a `CustomerViewState` that is different from the incoming `domain.CustomerState`.
+<1> The `UpdateCustomer` method defines how Kalix will update the view. In this case use a `CustomerViewState` that is different from the incoming `domain.CustomerState`.
 <2> `transform_updates: true` defines that you want custom code in the `UpdateCustomer` method.
 <3> The `DeleteCustomer` method defines how you want to handle deletion of the view state `domain.CustomerState`.
 <4> The `GetCustomers` method defines the query to retrieve customers by name.
@@ -201,9 +200,7 @@ In this case use a `CustomerViewState` that is different from the incoming `doma
 mvn compile
 ----
 +
-Again, this will result in a compilation error in the `Main` class.
-That is expected because you added a new component.
-Fix the compilation error by adding `CustomerByNameView::new` as the third parameter to `KalixFactory.withComponents` in `src/main/java/customer/Main.java`.
+Again, this will result in a compilation error in the `Main` class. That is expected because you added a new component. Fix the compilation error by adding `CustomerByNameView::new` as the third parameter to `KalixFactory.withComponents` in `src/main/java/customer/Main.java`.
 
 == Implement UpdateCustomer
 
