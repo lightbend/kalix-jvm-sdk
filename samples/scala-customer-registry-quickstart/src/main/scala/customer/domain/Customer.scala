@@ -59,8 +59,4 @@ class Customer(context: ValueEntityContext) extends AbstractCustomer {
   override def changeAddress(currentState: CustomerState, changeAddressRequest: api.ChangeAddressRequest): ValueEntity.Effect[Empty] =
     effects.updateState(currentState.copy(address = changeAddressRequest.newAddress.map(convertToDomain)))
       .thenReply(Empty.defaultInstance)
-
-  override def delete(currentState: CustomerState,deleteCustomerRequest: api.DeleteCustomerRequest): ValueEntity.Effect[Empty] =
-    effects.deleteState()
-      .thenReply(Empty.defaultInstance)
 }

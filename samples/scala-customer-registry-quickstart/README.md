@@ -56,10 +56,6 @@ With both the proxy and your application running, any defined endpoints should b
   ```shell
   grpcurl --plaintext -d '{"customer_name": "Very Important"}' localhost:9000 customer.view.CustomerByName/GetCustomers
   ```
-* Query by email:
-  ```shell
-  grpcurl --plaintext -d '{"email": "wip@example.com"}' localhost:9000 customer.view.CustomerByEmail/GetCustomer
-  ```
 * Change name:
   ```shell
   grpcurl --plaintext -d '{"customer_id": "wip", "new_name": "Most Important"}' localhost:9000 customer.api.CustomerService/ChangeName
@@ -67,10 +63,6 @@ With both the proxy and your application running, any defined endpoints should b
 * Change address:
   ```shell
   grpcurl --plaintext -d '{"customer_id": "wip", "new_address": {"street": "Street 1", "city": "The City"}}' localhost:9000 customer.api.CustomerService/ChangeAddress
-  ```
-* Delete the customer:
-  ```shell
-  grpcurl --plaintext -d '{"customer_id": "wip"}' localhost:9000 customer.api.CustomerService/Delete
   ```
 
 ## Deploying
