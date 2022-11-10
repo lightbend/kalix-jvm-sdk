@@ -1,6 +1,95 @@
 = Access Control Lists (ACLs)
 
-This section describes functionality in Spring SDK related to ACLs (Access Control Lists), for information about how the ACLs are defined and control access see xref:spring:using-acls.adoc[Using ACLs]
+Access Control Lists (ACLs) allow you to control which services and sources of requests may access your services.
+
+Within a Kalix project, all communication between services uses Mutual TLS (mTLS). This is injected transparently by Kalix. The clients you use to make calls from one service to another do NOT need to be configured to do this. Kalix transparently captures outgoing requests to other services and wraps them in an mTLS connection.
+
+Based on this mTLS support, Kalix is able to read and apply policies based on where the request was made from.
+
+== Principals
+
+A principal in Kalix is an abstract concept that represents anything that can make or be the source of a request. Principals that are currently supported by Kalix include other services, and the internet. Kalix uses the above described mTLS support to associate requests with one or more principals.
+
+Note that requests that have the internet principal are requests that Kalix has identified as coming through the Kalix ingress, according to a configured route. This is identified by mTLS, however it does not imply that mTLS has been used to connect to the ingress from the client in the internet. These are separate hops. To configure mTLS from internet clients, see https://docs.kalix.io/services/using-client-certificates.html[Client certificates]
+
+== Configuring ACLs
+
+Kalix ACLs consist of two lists of principal matchers. One to allow to invoke a method, and the other to deny to invoke a method. For a request to be allowed, at least one principal associated with a request must be matched by at least one principal matcher in the allow list, and no principals associated with the request may match any principal matchers in the deny list.
+
+Here is an example ACL on a method:
+
+```java
+    @PostMapping
+    @Acl(
+       allow = @Acl.Matcher(service = "*"), 
+       deny =  @Acl.Matcher(service = "my-service"))
+    public Effect<String> createUser(@RequestBody CreateEmployee create) {
+     ...
+    }
+```
+
+The above ACL allows traffic to all services except the service called `my-service`. 
+
+To allow all traffic:
+
+```java
+@Acl(allow = @Acl.Matcher(principal = Acl.Principal.ALL) 
+```
+
+To allow only traffic from the internet:
+
+```java
+@Acl(allow = @Acl.Matcher(principal = Acl.Principal.INTERNET) 
+```
+
+To allow traffic from `service-a` and `service-b`:
+
+```java
+ @Acl(allow = {
+        @Acl.Matcher(service = "service-a"), 
+        @Acl.Matcher(service = "my-service")}) 
+```
+
+To block all traffic, an ACL with no allows can be configured:
+
+```java
+ @Acl(allow = {})
+```
+
+=== Sharing ACLs between methods
+
+The above examples show how to configure an ACL on a method. ACLs can also be shared between all methods on a service by specifying them on the class, at type level:
+
+```java
+@Acl(allow = @Acl.Matcher(principal = Acl.Principal.INTERNET))
+public class MyAction extends Action { ... } 
+```
+
+The service's ACL can be overridden by individual methods, by specifying the ACL on the method. Note that an ACL defined on a method completely overrides an ACL defined on a service. It does not add to it. So for example, in the following service:
+
+```java
+@Acl(allow = @Acl.Matcher(service = "service-a"))
+ public class MyAction extends Action {
+    @PostMapping
+    @Acl(allow = @Acl.Matcher(service = "service-b"))
+    public Effect<String> createUser(@RequestBody CreateEmployee create) {
+      return ...;
+    }
+}
+```
+
+The `MyMethod` rpc method will allow calls by `service-b`, but not by `service-a`.
+
+=== Configuring the default policy
+
+The default policy can be configured by specifying a project level annotation in the `Main`, for example, to set a default policy of allowing all local services:
+
+```java
+@Acl(allow = @Acl.Matcher(service = "*"))
+public class Main { ... } 
+```
+
+An ACL declared at the project level is used as the default for all services that don't declare their own explicit ACL.
 
 == Default ACL in project templates
 
@@ -8,16 +97,103 @@ If no ACLs is defined at all in a Kalix service, Kalix will allow requests from 
 
 The Maven archetype include a less permissive ACL for the entire service, to not accidentally make services available to the public internet, just like the one described in the next section.
 
-== Defining an ACL for the entire Kalix Service
+=== Customizing the deny code
 
-A default ACL for the entire Kalix Service can be defined by placing a on the Main of your service:
+When a request is denied, by default, a gRPC error code of 7, `PERMISSION_DENIED`, is sent. This gets transcoded to an HTTP status code of 403, forbidden. The code that is returned when a request is denied can be customised using the `deny_code` property. The deny code must be a valid gRPC error code, which is any integer from 1 to 16, described https://grpc.github.io/grpc/core/md_doc_statuscodes.html[here]. Each one maps as follows to an https://doc.akka.io/japi/akka-http/current/akka/http/scaladsl/model/StatusCodes.html[Akka HTTP status code].
 
-```java
-@Acl(allow = @Acl.Matcher(service = ""))
-public class Main { ... } 
+```
+    Status.Code.OK                  => StatusCodes.OK
+    Status.Code.CANCELLED           => StatusCodes.InternalServerError
+    Status.Code.UNKNOWN             => StatusCodes.InternalServerError
+    Status.Code.INVALID_ARGUMENT    => StatusCodes.BadRequest
+    Status.Code.DEADLINE_EXCEEDED   => StatusCodes.GatewayTimeout
+    Status.Code.NOT_FOUND           => StatusCodes.NotFound
+    Status.Code.ALREADY_EXISTS      => StatusCodes.Conflict
+    Status.Code.PERMISSION_DENIED   => StatusCodes.Forbidden
+    Status.Code.RESOURCE_EXHAUSTED  => StatusCodes.EnhanceYourCalm
+    Status.Code.FAILED_PRECONDITION => StatusCodes.BadRequest
+    Status.Code.ABORTED             => StatusCodes.InternalServerError
+    Status.Code.OUT_OF_RANGE        => StatusCodes.BadRequest
+    Status.Code.UNIMPLEMENTED       => StatusCodes.NotFound // Note: not the same as HTTP NotImplemented
+    Status.Code.INTERNAL            => StatusCodes.InternalServerError
+    Status.Code.UNAVAILABLE         => StatusCodes.ServiceUnavailable
+    Status.Code.DATA_LOSS           => StatusCodes.InternalServerError
+    Status.Code.UNAUTHENTICATED     => StatusCodes.Forbidden
+
 ```
 
-This is the default ACL. It allows calls from any other Kalix service deployed in the same Kalix project and from the internet.
+For example, to make Kalix reply with 404, `NOT_FOUND`:
+
+```java
+    @PostMapping
+    @Acl(
+       allow = @Acl.Matcher(service = "*"), 
+       denyCode = 5 )
+    public Effect<String> createUser(@RequestBody CreateEmployee create) {
+      return ...;
+    }
+```
+
+Deny codes, if not specified on an ACL, are inherited from the service, or the default, so updating the `deny_code` in the default ACL policy will set it for all methods:
+
+```java
+@Acl(allow = @Acl.Matcher(deny_code = 5))
+public class MyAction extends Action { ... } 
+```
+
+== ACLs on eventing methods
+
+
+Any method with an `@Subscribe` annotation on it will not automatically inherit either the default or its component's ACL, rather, all outside communication will be blocked, since it's assumed that a method that subscribes to an event stream must only be intended to be invoked in response to events on that stream. This can be overridden by explicitly defining an ACL on that method:
+
+
+== Backoffice and self invocations
+
+Invocations of methods from the same service, or from the backoffice using the `kalix service proxy` command, are always permitted, regardless of what ACLs are defined on them.
+
+== Local development with ACLs
+
+When testing or running in development, by default, all calls to your service will be considered to have come from the internet. You can impersonate a local service by setting the `Impersonate-Kalix-Service` header on the requests you make.
+
+=== Disabling ACLs in local development
+
+When running a service during local development, it may be convenient to turn ACL checking off. This can be done by adding the `ACL_ENABLED` environment variable and setting it to `false` in your `docker-compose.yml` file:
+
+```yaml
+kalix-proxy:
+  image: gcr.io/kalix-public/kalix-proxy:latest
+  command: -Dconfig.resource=dev-mode.conf -Dkalix.proxy.eventing.support=google-pubsub-emulator
+  ports:
+    - "9000:9000"
+  environment:
+    USER_FUNCTION_HOST: ${USER_FUNCTION_HOST:-host.docker.internal}
+    USER_FUNCTION_PORT: 8080
+    ACL_ENABLED: false
+```
+
+=== Service identification in local development
+
+If running multiple services in local development, you may want to run with ACLs enabled to verify that they work for cross-service communication. In order to do this, you need to ensure that when services communicate with each other, they are able to identify themselves to one another. This can be done by setting the `SERVICE_NAME` environment variable in your `docker-compose.yml` file:
+
+```yaml
+kalix-proxy:
+  image: gcr.io/kalix-public/kalix-proxy:latest
+  command: -Dconfig.resource=dev-mode.conf -Dkalix.proxy.eventing.support=google-pubsub-emulator
+  ports:
+    - "9000:9000"
+  environment:
+    USER_FUNCTION_HOST: ${USER_FUNCTION_HOST:-host.docker.internal}
+    USER_FUNCTION_PORT: 8080
+    SERVICE_NAME: my-service-name
+```
+
+Note that in local development, the services don't actually authenticate with each other, they only pass their identity in a header. It is assumed in local development that a client can be trusted to set that header correctly.
+
+== Programmatically accessing principals
+
+The current principal associated with a request can be accessed by reading metadata headers. If the request came from another service, the `_kalix-src-svc` header will be set to the name of the service that made the request. Kalix guarantees that this header will only be present from an authenticated principal, it can't be spoofed.
+
+For internet, self and backoffice requests, the `_kalix-src` header will be set to `internet`, `self` and `backoffice` respectively. Backoffice requests are requests that have been made using the `kalix service proxy` command, they are authenticated and authorized to ensure only developers of your project can make them.
 
 == Inspecting the principal inside a service
 
