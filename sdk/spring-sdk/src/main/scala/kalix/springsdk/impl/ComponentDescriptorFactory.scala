@@ -52,6 +52,12 @@ private[impl] object ComponentDescriptorFactory {
     Modifier.isPublic(clazz.getModifiers) &&
     clazz.getAnnotation(classOf[Subscribe.EventSourcedEntity]) != null
 
+  def streamSubscription(clazz: Class[_]): Option[Subscribe.Stream] =
+    if (Modifier.isPublic(clazz.getModifiers))
+      Option(clazz.getAnnotation(classOf[Subscribe.Stream]))
+    else
+      None
+
   def eventSourcedEntitySubscription(clazz: Class[_]): Option[Subscribe.EventSourcedEntity] =
     if (Modifier.isPublic(clazz.getModifiers))
       Option(clazz.getAnnotation(classOf[Subscribe.EventSourcedEntity]))

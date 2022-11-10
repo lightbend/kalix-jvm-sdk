@@ -30,14 +30,15 @@ import kalix.springsdk.impl.ComponentDescriptorFactory.hasTopicPublication
 import kalix.springsdk.impl.ComponentDescriptorFactory.hasTopicSubscription
 import kalix.springsdk.impl.ComponentDescriptorFactory.hasValueEntitySubscription
 import kalix.springsdk.impl.ComponentDescriptorFactory.publishToEventStream
+import kalix.springsdk.impl.ComponentDescriptorFactory.streamSubscription
 import kalix.springsdk.impl.ComponentDescriptorFactory.subscribeToEventStream
 import kalix.springsdk.impl.ComponentDescriptorFactory.validateRestMethod
 import kalix.springsdk.impl.reflection.CombinedSubscriptionServiceMethod
 import kalix.springsdk.impl.reflection.KalixMethod
 import kalix.springsdk.impl.reflection.NameGenerator
-import kalix.springsdk.impl.reflection.SubscriptionServiceMethod
 import kalix.springsdk.impl.reflection.ReflectionUtils
 import kalix.springsdk.impl.reflection.RestServiceIntrospector
+import kalix.springsdk.impl.reflection.SubscriptionServiceMethod
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -113,6 +114,22 @@ private[impl] object ActionDescriptorFactory extends ComponentDescriptorFactory 
         Map(entityType -> kalixMethods)
 
       } else Map.empty
+
+    val subscriptionStreamClass: Map[String, Seq[KalixMethod]] = {
+      streamSubscription(component)
+        .map { ann =>
+          val kalixMethods =
+            component.getMethods
+              .filter(hasActionOutput)
+              .sorted // make sure we get the methods in deterministic order
+              .map { method => KalixMethod(SubscriptionServiceMethod(method)) }
+              .toSeq
+
+          val streamId = ann.id()
+          Map(streamId -> kalixMethods)
+        }
+        .getOrElse(Map.empty)
+    }
 
     // methods annotated with @Subscribe.Topic
     val subscriptionTopicMethods: IndexedSeq[KalixMethod] = component.getMethods
@@ -240,6 +257,7 @@ private[impl] object ActionDescriptorFactory extends ComponentDescriptorFactory 
       ++ subscriptionValueEntityMethods
       ++ combineByES(subscriptionEventSourcedEntityMethods, messageCodec, component)
       ++ combineByES(subscriptionEventSourcedEntityClass, messageCodec, component)
+      ++ combineByES(subscriptionStreamClass, messageCodec, component)
       ++ combineByTopic(subscriptionTopicClass)
       ++ combineByTopic(subscriptionTopicMethods)
       ++ removeDuplicates(syntheticMethods, publicationTopicMethods))

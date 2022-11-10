@@ -232,7 +232,6 @@ public class PubSubTestModels {//TODO shall we remove this class and move things
 
     }
 
-    @Subscribe.EventSourcedEntity(EmployeeEntity.class)
     @Subscribe.Stream(service = "employee_service", id = "employee_events", ignoreUnknown = true)
     public static class EventStreamSubscriptionAction extends Action {
 
@@ -240,6 +239,9 @@ public class PubSubTestModels {//TODO shall we remove this class and move things
         return effects().reply(created.toString());
       }
 
+      public Effect<String> transform(EmployeeEmailUpdated emailUpdated) {
+        return effects().reply(emailUpdated.toString());
+      }
     }
 
     @Table(value = "employee_table")

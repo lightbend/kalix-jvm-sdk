@@ -475,6 +475,10 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
         // we don't set the property so the proxy won't ignore. Ignore is only internal to the SDK
         eventingIn.getIgnore shouldBe false
         eventingIn.getIgnoreUnknown shouldBe false
+
+        val methodDescriptor = findMethodByName(desc, "KalixSyntheticMethodOnESEmployee_events")
+        methodDescriptor.isServerStreaming shouldBe false
+        methodDescriptor.isClientStreaming shouldBe false
       }
     }
   }
