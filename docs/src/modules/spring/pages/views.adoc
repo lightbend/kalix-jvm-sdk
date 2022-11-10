@@ -1,1 +1,179 @@
 = Implementing Views
+
+include::ROOT:partial$include.adoc[]
+
+You can access a single https://docs.kalix.io/reference/glossary.html#entity[Entity] with its https://docs.kalix.io/reference/glossary.html#entity_key[Entity key]. But sometimes this is not enough. You might want to retrieve multiple Entities, or retrieve them using an attribute other than the key. Kalix https://docs.kalix.io/reference/glossary.html#view[Views] allow you achieve this. You can create each View, so each one is optimized for an specific query.
+
+Views can be defined from any of the following:
+
+* xref:value-entity[Value Entities state changes]
+* xref:event-sourced-entity[Event Sourced Entity events]
+* xref:topic-view[Messages received from subscribing to topics on a broker]
+
+The remainder of this page describes:
+
+* <<#relational-projection>>
+* <<#changing>>
+* <<#query>>
+
+IMPORTANT: Be aware that Views are not updated immediately when Entity state changes. Kalix does update Views as quickly as possible, but it is not instant and can take up to a few seconds for the changes to become visible in the query results. View updates might also take more time during failure scenarios than during normal operation.
+
+[#value-entity]
+== Creating a View from a Value Entity
+
+Consider an example of a Customer Registry service with a `customer` Value Entity. When `customer` state changes, the entire state is emitted as a value change. Value changes update any associated Views. To create a View that lists customers by their name.
+
+<<_define_the_view>> for a service that selects customers by name and associates a table name with the View. The table is created and used by Kalix to store the View.
+
+
+This example assumes the following `customer` exists
+
+[source,java,indent=0]
+.src/main/java/customer/api/Customer.java
+----
+include::example$spring-customer-registry-views-quickstart/src/main/java/customer/api/Customer.java[tags=class]
+----
+
+As well as a Value Entity service `CustomerEntity.java` that will produce the state changes consumed by the View.
+
+
+=== Define the View
+
+You implement a View by extending `kalix.javasdk.view.View` and subscribing to changes from an entity. You specify how to query it by providing a method annotated with `@Query`, which is then made accessible via REST annotations.
+
+.src/main/java/customer/view/CustomerByNameView.java
+[source,java]
+----
+include::example$spring-customer-registry-views-quickstart/src/main/java/customer/view/CustomerByNameView.java[tags=class]
+----
+<1> defining view ID
+<2> defining table name
+<3> subscribing to `CustomerEntity`
+<4> extending from `View`
+<5> defining endpoint
+<6> defining the query
+<7> note that no return is needed
+
+
+NOTE: Note that the return value of the method is `null`. You may ask yourself,  how is it that the endpoint respond with any `Customer` at all?. When you call this endpoint, it first hits the proxy, which calls directly to the database. When the proxy receives the response, it sends it directly to you without any further intervention from the View. Therefore, null is valid as a return value in the endpoint of a View. The choice of `null` is our way to make clear that the response doesn't come from the return of this method. But you can choose any response you like as long is compatible with the return type. 
+
+IMPORTANT: Adding a view ID to your View allows you to refactor the name of the class later on without the risk of losing the view. If you don't define a view ID the class name becomes its ID. Therefore, if you change the name of your class afterwards Kalix will not recognize this new name as the same view and will create a brand new view. This is resource consuming for a view from an Event Sourced Entity because it will reprocess all the events of that entity to rebuild it. While for a view built from a topic you can loose all the previous events because depending on the topic configuration you may only process events from current time forwards. Last but not least, it's also a problem for Value Entities because it will need to index again them when grouping them by some value. 
+
+[#event-sourced-entity]
+== Creating a View from an Event Sourced Entity
+
+You can create a View from an Event Sourced Entity by using events that the Entity emits to build a state representation. Using a Customer Registry service example, to create a View for querying customers by name:
+
+This example assumes a Customer equal to the previous example and an Event Sourced Entity that uses this Customer and it is in charge of producing the events that update the View. These events are defined as subtypes of the class `CustomerEvent` following standard https://github.com/FasterXML/jackson-annotations#handling-polymorphic-types[Jackson notation] like this: 
+
+.src/main/java/customer/api/CustomerEvent.java
+[source,java]
+----
+include::example$spring-eventsourced-customer-registry/src/main/java/customer/api/CustomerEvent.java[tags=class]
+----
+<1> Includes the logical type name (defined in implementation classes) as type 
+<2> Required for deserialization and to define the logical type name 
+
+Adding `@JsonTypeInfo` is needed so that Jackson can read back correctly the Object type when deserializing. By using `name`, you set its value as the fully qualified message. This is called a `logical type name` and it allows you to refactor the class to another package after you have serialized messages of this type. Otherwise, after such a refactor the objects serialized with the old package won't be recognized as the same type. 
+
+
+=== Define the View to consume events
+
+The definition of the view for an Event Sourced Entity is the same as for a Value Entity. However, in this example, the subscription is at the method level rather than the type level. The advantage of this approach is that you can create multiple methods to handle different events. It is recommended you add a view ID to your view. 
+
+Every time an event is processed by the view, the state of the view can be updated. You can do this with the `.updateState` method, which is available through the `effects()` API. Here you can see how the View is updated with a new name: 
+
+ .src/main/java/customer/view/CustomerByNameView.class
+[source,java]
+----
+include::example$spring-eventsourced-customer-registry/src/main/java/customer/view/CustomerByNameView.java[tags=class]
+----
+<1> setting view ID 
+<2> updating the state of the view with the new name 
+
+An Event Sourced entity can emit many types of events. You need to define a method for each event type. They return an `UpdateEffect`, which describes next processing actions, such as updating the view state.
+
+
+
+
+See <<#query>> for more examples of valid query syntax.
+
+== Ignoring events
+
+When consuming events, each event must be matched by a View service method. In case your View is only interested in certain events:
+
+. You can add event handlers for all of them and return `Effect.ignore` for those you are not interested.
+
+. You can add `ignoreUnknown = true` to your `@Subcribe` annotation but only if it is a type level annotation. This works in a View the same way as in an Action. Check out this example in xref:spring:actions-publishing-subscribing.adoc#_type_level_annotations_for_subscribing[type level subscribing for an action]. 
+
+If there is not handler for an incoming event and there is no `ignoreUnknown = true` at type level, the View will fail. Views are designed to restart, but since it can't process the event, the view will keep failing trying to reprocess it.
+
+
+[#topic-view]
+== Creating a View from a topic
+
+The source of a View can be a topic. It works the same way as shown in <<event-sourced-entity>> or <<value-entity>>, but you define it with `@Subscribe.Topic` instead.
+
+[#relational-projection]
+== How to transform results
+
+When creating a View, you can transform the results as a relational projection instead of using a `SELECT *` statement.
+
+
+=== Relational projection
+
+Instead of using `SELECT *` you can define what columns that will be used in the response message:
+
+
+In a similar way, you can include values from the request message in the response, for example `:request_id`:
+
+[source,proto,indent=0]
+----
+SELECT :request_id, customer_id as id, name FROM customers WHERE name = :customer_name
+----
+
+
+[#changing]
+== How to modify a View
+
+Kalix creates indexes for the View based on the query. For example, the following query will result in a View with an index on the `name` column:
+
+[source,proto,indent=0]
+----
+SELECT * FROM customers WHERE name = :customer_name
+----
+
+You may realize after a deployment that you forgot adding some parameters to the query Parameters that aren't exposed to the endpoint of the View. After adding these parameters the query is changed and therefore Kalix needs to add indexes for these new columns. For example, changing the above query to filter to add users that are active would mean that Kalix needs to build a View with the index on the `is-active` column.
+
+[source,proto,indent=0]
+----
+SELECT * FROM customers WHERE name = :customer_name AND is-active = true
+----
+
+Such changes require you to define a new View. Kalix will then rebuild it from the source event log or value changes.
+
+WARNING: Views from topics cannot be rebuilt from the source messages, because it might not be possible to consume all events from the topic again. The new View is built from new messages published to the topic.
+
+Rebuilding a new View may take some time if there are many events that have to be processed. The recommended way when changing a View is multi-step, with two deployments:
+
+. Define the new View with a new `@ViewId`, and keep the old View intact. 
+. Deploy the new View, and let it rebuild. Verify that the new query works as expected. The old View can still be used.
+. Remove the old View but keep its `@GetMapping` path, and use it in the new View.
+. Deploy the second change.
+
+The View definitions are stored and validated when a new version is deployed. There will be an error message if the changes are not compatible.
+
+
+== Streaming view updates
+
+A query can provide a near real time stream of results for the query, emitting new entries matching the query as they are added or updated in
+the view.
+
+This will first list the complete result for the query and then keep the response stream open, emitting new or updated
+entries matching the query as they are added to the view. The stream does not complete until the client closes it.
+
+Note: This is not intended as transport for xref:service-to-service.adoc[service to service] propagation of updates and does not guarantee delivery, for such use cases you
+should instead publish events to a topic, see xref:actions-publishing-subscribing.adoc[Publishing and Subscribing with Actions]
+
+[#query]
+include::ROOT:partial$query-syntax-reference.adoc[]

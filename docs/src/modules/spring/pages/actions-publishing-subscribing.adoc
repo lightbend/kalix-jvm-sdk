@@ -75,7 +75,7 @@ In the above example, you consumed JSON messages from a topic that you control. 
 
 You can subscribe to a topic or an Event Source Entity by adding `@Subscribe` as a type level annotation, at the top of the class. This provides additional functionality for subscribing: all methods returning `Action.Effect` are selected to process incoming events. The Action will fail if it receives an event for which there is no method handler, unless the subscription is set with `ignoreUnknown = true`. 
 
-In the following example you can take a look at how the Action is configured to ignore unknown messages because it has only one method handler for `ValueIncrease`.    
+In the following example you can take a look at how the Action is configured to ignore unknown messages because it only has a method handler for `ValueIncrease`, while it could also receive a `ValueMultiplied`.    
 
 [source,java,indent=0]
 .src/main/java/com/example/actions/SubscribeTypeLevelAction.java
