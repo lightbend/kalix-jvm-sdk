@@ -26,8 +26,9 @@ import java.util.function.Function;
 public final class CounterServiceEntityTestKit {
 
   private CounterDomain.CounterState state;
-  private CounterServiceEntity entity;
-  private String entityId;
+  private final CounterDomain.CounterState emptyState;
+  private final CounterServiceEntity entity;
+  private final String entityId;
 
   /**
    * Create a testkit instance of CounterServiceEntity
@@ -49,12 +50,14 @@ public final class CounterServiceEntityTestKit {
   private CounterServiceEntityTestKit(CounterServiceEntity entity, String entityId) {
     this.entityId = entityId;
     this.state = entity.emptyState();
+    this.emptyState = state;
     this.entity = entity;
   }
 
   private CounterServiceEntityTestKit(CounterServiceEntity entity, String entityId, CounterDomain.CounterState state) {
     this.entityId = entityId;
     this.state = state;
+    this.emptyState = state;
     this.entity = entity;
   }
 
@@ -70,6 +73,8 @@ public final class CounterServiceEntityTestKit {
     ValueEntityResultImpl<Reply> result = new ValueEntityResultImpl<>(effect);
     if (result.stateWasUpdated()) {
       this.state = (CounterDomain.CounterState) result.getUpdatedState();
+    } else if (result.stateWasDeleted()) {
+      this.state = emptyState;
     }
     return result;
   }

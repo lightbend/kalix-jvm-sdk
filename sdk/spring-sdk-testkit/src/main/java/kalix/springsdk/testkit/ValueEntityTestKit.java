@@ -48,7 +48,7 @@ public class ValueEntityTestKit<S, E extends ValueEntity<S>> {
     this.entityId = entityId;
     this.entity = entity;
     this.state = entity.emptyState();
-    this.emptyState = this.state;
+    this.emptyState = state;
   }
 
   /**

@@ -98,14 +98,14 @@ object ValueEntityTestKitGenerator {
        |  private ${testkitClassName}($entityClassName entity, String entityId) {
        |    this.entityId = entityId;
        |    this.state = entity.emptyState();
-       |    this.emptyState = this.state;
+       |    this.emptyState = state;
        |    this.entity = entity;
        |  }
        |
        |  private $testkitClassName($entityClassName entity, String entityId, $stateClassName state) {
        |    this.entityId = entityId;
        |    this.state = state;
-       |    this.emptyState = this.state;
+       |    this.emptyState = state;
        |    this.entity = entity;
        |  }
        |
