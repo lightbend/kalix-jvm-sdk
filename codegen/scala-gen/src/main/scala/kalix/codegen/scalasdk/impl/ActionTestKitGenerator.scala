@@ -127,18 +127,27 @@ object ActionTestKitGenerator {
 
     val testCases = commands.map { cmd =>
       s""""handle command ${cmd.name}" in {\n""" +
-      (if (cmd.isUnary || cmd.isStreamOut)
-         s"""|  val service = ${actionClassName}TestKit(new $actionClassName(_))
+      (if (cmd.isUnary || cmd.isStreamOut) {
+         if (cmd.handleDeletes) {
+           s"""|  val service = ${actionClassName}TestKit(new $actionClassName(_))
+              |      pending
+              |  // val result = service.${lowerFirst(cmd.name)}()
+              |}
+              |""".stripMargin
+         } else {
+           s"""|  val service = ${actionClassName}TestKit(new $actionClassName(_))
               |      pending
               |  // val result = service.${lowerFirst(cmd.name)}(${typeName(cmd.inputType)}(...))
               |}
               |""".stripMargin
-       else
+         }
+       } else {
          s"""|  val service = ${actionClassName}TestKit(new $actionClassName(_))
               |      pending
               |  // val result = service.${lowerFirst(cmd.name)}(Source.single(${typeName(cmd.inputType)}(...)))
               |}
-              |""".stripMargin)
+              |""".stripMargin
+       })
     }
 
     File.scala(
