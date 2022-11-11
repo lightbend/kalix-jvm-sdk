@@ -132,7 +132,7 @@ In a similar way, you can include values from the request message in the respons
 SELECT :request_id, customer_id as id, name FROM customers WHERE name = :customer_name
 ----
 
-ifdef::todo[TODO: complete with example for transformed results https://github.com/lightbend/kalix/issues/7884]
+ifdef::todo[TODO: complete with example for transformed results github.com/lightbend/kalix/issues/7884]
 
 [#changing]
 == How to modify a View
