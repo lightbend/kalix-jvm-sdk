@@ -1542,7 +1542,8 @@ workflows:
             - publish-local
       - sample-spring-acl-examples:
           requires:
-            
+            - spring-sdk-integration-tests
+            - publish-local 
       - publish:
           filters: # version tags only
             tags:
