@@ -74,8 +74,9 @@ object ValueEntityTestKitGenerator {
        |public final class ${testkitClassName} {
        |
        |  private $stateClassName state;
-       |  private $entityClassName entity;
-       |  private String entityId;
+       |  private final $stateClassName emptyState;
+       |  private final $entityClassName entity;
+       |  private final String entityId;
        |
        |  /**
        |   * Create a testkit instance of $entityClassName
@@ -97,12 +98,14 @@ object ValueEntityTestKitGenerator {
        |  private ${testkitClassName}($entityClassName entity, String entityId) {
        |    this.entityId = entityId;
        |    this.state = entity.emptyState();
+       |    this.emptyState = state;
        |    this.entity = entity;
        |  }
        |
        |  private $testkitClassName($entityClassName entity, String entityId, $stateClassName state) {
        |    this.entityId = entityId;
        |    this.state = state;
+       |    this.emptyState = state;
        |    this.entity = entity;
        |  }
        |
@@ -118,6 +121,8 @@ object ValueEntityTestKitGenerator {
        |    ValueEntityResultImpl<Reply> result = new ValueEntityResultImpl<>(effect);
        |    if (result.stateWasUpdated()) {
        |      this.state = ($stateClassName) result.getUpdatedState();
+       |    } else if (result.stateWasDeleted()) {
+       |      this.state = emptyState;
        |    }
        |    return result;
        |  }

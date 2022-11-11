@@ -43,4 +43,15 @@ public class CounterValueEntityTest {
     assertTrue(result.isError());
     assertEquals(result.getError(), "Can't increase with a negative value");
   }
+
+  @Test
+  public void testDeleteValueEntity() {
+    ValueEntityTestKit<Integer, CounterValueEntity> testKit =
+        ValueEntityTestKit.of(ctx -> new CounterValueEntity());
+    testKit.call(entity -> entity.increaseBy(10));
+    ValueEntityResult<String> result = testKit.call(entity -> entity.delete());
+    assertTrue(result.isReply());
+    assertEquals(result.getReply(), "Deleted");
+    assertEquals(testKit.getState(), 0);
+  }
 }

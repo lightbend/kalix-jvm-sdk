@@ -50,6 +50,8 @@ final class CounterServiceEntityTestKit private(entity: CounterServiceEntity, en
     val result = new ValueEntityResultImpl[Reply](effect)
     if (result.stateWasUpdated)
       this.state = result.updatedState.asInstanceOf[CounterState]
+    else if (result.stateWasDeleted)
+      this.state = entity.emptyState
     result
   }
 

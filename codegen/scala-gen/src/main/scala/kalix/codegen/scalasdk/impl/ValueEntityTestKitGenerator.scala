@@ -107,6 +107,8 @@ object ValueEntityTestKitGenerator {
           |    val result = new ValueEntityResultImpl[Reply](effect)
           |    if (result.stateWasUpdated)
           |      this.state = result.updatedState.asInstanceOf[${typeName(valueEntity.state.messageType)}]
+          |    else if (result.stateWasDeleted)
+          |      this.state = entity.emptyState
           |    result
           |  }
           |

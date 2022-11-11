@@ -40,6 +40,7 @@ import java.util.function.Supplier;
 public class ValueEntityTestKit<S, E extends ValueEntity<S>> {
 
   private S state;
+  private final S emptyState;
   private final E entity;
   private final String entityId;
 
@@ -47,6 +48,7 @@ public class ValueEntityTestKit<S, E extends ValueEntity<S>> {
     this.entityId = entityId;
     this.entity = entity;
     this.state = entity.emptyState();
+    this.emptyState = state;
   }
 
   /**
@@ -95,6 +97,8 @@ public class ValueEntityTestKit<S, E extends ValueEntity<S>> {
     ValueEntityResultImpl<Reply> result = new ValueEntityResultImpl<>(effect);
     if (result.stateWasUpdated()) {
       this.state = (S) result.getUpdatedState();
+    } else if (result.stateWasDeleted()) {
+      this.state = emptyState;
     }
     return result;
   }

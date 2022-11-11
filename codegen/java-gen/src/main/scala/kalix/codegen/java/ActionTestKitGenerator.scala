@@ -202,11 +202,19 @@ object ActionTestKitGenerator {
             |public void ${lowerFirst(command.name)}Test() {
             |  ${service.className}TestKit testKit = ${service.className}TestKit.of(${service.className}::new);""".stripMargin +
         (if (command.isUnary || command.isStreamOut) {
-           s"""
-            |  // ${selectOutputResult(command)} result = testKit.${lowerFirst(command.name)}(${command.inputType.fullName}.newBuilder()...build());
-            |}
-            |
-            |""".stripMargin
+           if (command.handleDeletes) {
+             s"""
+               |  // ${selectOutputResult(command)} result = testKit.${lowerFirst(command.name)}();
+               |}
+               |
+               |""".stripMargin
+           } else {
+             s"""
+               |  // ${selectOutputResult(command)} result = testKit.${lowerFirst(command.name)}(${command.inputType.fullName}.newBuilder()...build());
+               |}
+               |
+               |""".stripMargin
+           }
          } else {
            s"""
             |  // ${selectOutputResult(command)} result = testKit.${lowerFirst(command.name)}(Source.single(${command.inputType.fullName}.newBuilder()...build()));
