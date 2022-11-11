@@ -14,6 +14,7 @@ import java.util.UUID;
 import java.util.concurrent.CompletionStage;
 
 // tag::forward[]
+
 @RequestMapping("/carts")
 public class ShoppingCartController extends Action {
 

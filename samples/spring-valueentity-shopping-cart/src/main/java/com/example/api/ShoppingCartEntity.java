@@ -30,10 +30,12 @@ import java.time.Instant;
 /**
  * A value entity.
  */
+// tag::summary[]
 @EntityKey("cartId")
 @EntityType("shopping-cart")
-@RequestMapping("/cart/{cartId}")
+@RequestMapping("/cart/{cartId}") // <1>
 public class ShoppingCartEntity extends ValueEntity<ShoppingCart> {
+  // end::summary[]
   @SuppressWarnings("unused")
   private final String entityId;
 
@@ -47,8 +49,12 @@ public class ShoppingCartEntity extends ValueEntity<ShoppingCart> {
   }
 
   // tag::create[]
-  @PostMapping("/create")
+  // tag::summary[]
+
+  @PostMapping("/create") // <2>
   public ValueEntity.Effect<ShoppingCartDTO> create(@PathVariable String cartId) {
+    //...
+    // end::summary[]
     if (currentState().creationTimestamp() > 0L) {
       return effects().error("Cart was already created");
     } else {
@@ -61,8 +67,12 @@ public class ShoppingCartEntity extends ValueEntity<ShoppingCart> {
   // end::create[]
 
   // tag::add-item[]
-  @PostMapping("/items/add")
+  // tag::summary[]
+
+  @PostMapping("/items/add") // <3>
   public ValueEntity.Effect<ShoppingCartDTO> addItem(@RequestBody LineItemDTO addLineItem) {
+    //...
+    // end::summary[]
     if (addLineItem.quantity() <= 0) {
       return effects()
           .error("Quantity for item " + addLineItem.productId() + " must be greater than zero.");
@@ -91,8 +101,12 @@ public class ShoppingCartEntity extends ValueEntity<ShoppingCart> {
   }
 
   // tag::get-cart[]
-  @GetMapping
+  // tag::summary[]
+
+  @GetMapping // <4>
   public ValueEntity.Effect<ShoppingCartDTO> getCart() {
+    //...
+    // end::summary[]
     return effects().reply(ShoppingCartDTO.of(currentState()));
   }
   // end::get-cart[]
@@ -101,4 +115,7 @@ public class ShoppingCartEntity extends ValueEntity<ShoppingCart> {
   public ValueEntity.Effect<String> removeCart() {
     return effects().deleteState().thenReply("OK");
   }
+// tag::summary[]
 }
+// end::summary[]
+
