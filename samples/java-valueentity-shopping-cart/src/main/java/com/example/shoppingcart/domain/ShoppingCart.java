@@ -79,7 +79,7 @@ public class ShoppingCart extends AbstractShoppingCart {
     Optional<ShoppingCartDomain.LineItem> lineItem =
             findItemByProductId(currentState, removeLineItem.getProductId());
 
-    if (!lineItem.isPresent()) {
+    if (lineItem.isEmpty()) {
       return effects()
               .error(
                       "Cannot remove item "
