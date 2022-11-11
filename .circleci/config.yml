@@ -1221,7 +1221,7 @@ jobs:
             echo "Running mvn with SDK version: '$SDK_VERSION'"
             mvn -Dkalix-sdk.version=$SDK_VERSION verify -Pit
 
-    sample-spring-acl-examples:
+  sample-spring-acl-examples:
     machine:
       image: ubuntu-2004:202201-02
     steps:
@@ -1544,6 +1544,7 @@ workflows:
           requires:
             - spring-sdk-integration-tests
             - publish-local 
+
       - publish:
           filters: # version tags only
             tags:
