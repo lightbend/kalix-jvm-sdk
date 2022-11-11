@@ -71,7 +71,7 @@ public class MyAction extends Action {
         return null;
         // tag::open-subscription-acl[]
     }
-    // end::open-subscription-acl]
+    // end::open-subscription-acl[]
 
 
 }
