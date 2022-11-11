@@ -1,4 +1,4 @@
-package customer;
+package com.example;
 
 import kalix.springsdk.annotations.Acl;
 import kalix.springsdk.KalixConfiguration;
@@ -10,12 +10,13 @@ import org.springframework.context.annotation.Import;
 
 @SpringBootApplication
 @Import(KalixConfiguration.class)
-// NOTE: This default ACL settings is very permissive as it allows any traffic from the internet.
-// Our samples default to this permissive configuration to allow users to easily try it out.
-// However, this configuration is not intended to be reproduced in production environments.
-// Documentation at https://docs.kalix.io/spring/using-acls.html
-@Acl(allow = @Acl.Matcher(principal = Acl.Principal.INTERNET))
+// Allow all other Kalix services deployed in the same project to access the components of this
+// Kalix service, but disallow access from the internet. This can be overridden explicitly
+// per component or method using annotations.
+// tag::acl[]
+@Acl(allow = @Acl.Matcher(service = "*"))
 public class Main {
+// end::acl[]
 
   private static final Logger logger = LoggerFactory.getLogger(Main.class);
 
