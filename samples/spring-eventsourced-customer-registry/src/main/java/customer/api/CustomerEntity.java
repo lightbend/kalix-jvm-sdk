@@ -1,5 +1,7 @@
 package customer.api;
 
+import customer.domain.Address;
+import customer.domain.Customer;
 import kalix.javasdk.eventsourcedentity.EventSourcedEntity;
 import kalix.javasdk.eventsourcedentity.EventSourcedEntityContext;
 import kalix.springsdk.annotations.EntityKey;
@@ -7,18 +9,12 @@ import kalix.springsdk.annotations.EntityType;
 import kalix.springsdk.annotations.EventHandler;
 import org.springframework.web.bind.annotation.*;
 
-import static customer.api.CustomerEvent.*;
+import static customer.domain.CustomerEvent.*;
 
 @EntityKey("id")
 @EntityType("customer")
 @RequestMapping("/customer/{id}")
 public class CustomerEntity extends EventSourcedEntity<Customer> {
-
-  private final String entityId;
-
-  public CustomerEntity(EventSourcedEntityContext context) {
-    this.entityId = context.entityId();
-  }
 
   @GetMapping
   public Effect<Customer> getCustomer() {
@@ -34,7 +30,7 @@ public class CustomerEntity extends EventSourcedEntity<Customer> {
 
   @EventHandler
   public Customer onEvent(CustomerCreated created) {
-    return new Customer(entityId, created.email(), created.name(), created.address());
+    return new Customer(created.email(), created.name(), created.address());
   }
 
 

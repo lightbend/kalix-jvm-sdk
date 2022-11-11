@@ -2,12 +2,14 @@ package customer.view;
 
 // tag::class[]
 import customer.api.CustomerEntity;
-import customer.api.CustomerEvent;
+import customer.domain.CustomerEvent;
 import kalix.javasdk.view.View;
 import kalix.springsdk.annotations.Query;
 import kalix.springsdk.annotations.Subscribe;
 import kalix.springsdk.annotations.Table;
 import kalix.springsdk.annotations.ViewId;
+import reactor.core.publisher.Flux;
+
 import org.springframework.web.bind.annotation.GetMapping;
 
 @ViewId("view_customers_by_name") // <1>
@@ -16,7 +18,7 @@ public class CustomerByNameView extends View<CustomerView> {
 
   @GetMapping("/customer/by_name/{customer_name}")
   @Query("SELECT * FROM customers_by_name WHERE name = :customer_name")
-  public CustomerView getCustomer(String name) {
+  public Flux<CustomerView> getCustomer(String name) {
     return null;
   }
 

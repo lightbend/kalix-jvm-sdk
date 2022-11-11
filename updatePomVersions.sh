@@ -15,7 +15,7 @@ sbt 'publishM2; publishLocal'
 (
   cd maven-java
   mvn versions:set -DnewVersion=$SDK_VERSION
-  mvn install
+  mvn clean install
 
   # cleanup
   rm pom.xml.versionsBackup

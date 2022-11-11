@@ -75,8 +75,8 @@ sealed trait AnyJsonRequestServiceMethod extends ServiceMethod {
 /**
  * Build from methods annotated with @Subscription at type level.
  *
- * It's used as a 'virtual' method because there is not Java method backing it. It will exist only in the gRPC
- * descriptor and will be used for view updates with transform = false
+ * It's used as a 'virtual' method because there is no Java method backing it. It will exist only in the gRPC descriptor
+ * and will be used for view updates with transform = false
  */
 case class VirtualServiceMethod(component: Class[_], methodName: String, inputType: Class[_])
     extends AnyJsonRequestServiceMethod {
@@ -111,8 +111,8 @@ case class CombinedSubscriptionServiceMethod(
 }
 
 /**
- * Build from methods annotated with @Subscription. Those methods are not annotated with Spring REST annotations, but
- * they become a REST method at the end.
+ * Build from methods annotated with @Subscription or @Publish. Those methods are not annotated with Spring REST
+ * annotations, but they become a REST method at the end.
  */
 case class SubscriptionServiceMethod(javaMethod: Method) extends AnyJsonRequestServiceMethod {
 

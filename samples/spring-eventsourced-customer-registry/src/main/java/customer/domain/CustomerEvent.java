@@ -1,11 +1,10 @@
-package customer.api;
+package customer.domain;
 
 // tag::class[]
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.annotation.JsonTypeName;
 
-import static customer.api.CustomerEvent.*;
+import static customer.domain.CustomerEvent.*;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type") // <1>
 @JsonSubTypes(

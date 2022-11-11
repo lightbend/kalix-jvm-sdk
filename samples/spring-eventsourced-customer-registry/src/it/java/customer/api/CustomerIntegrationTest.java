@@ -2,6 +2,8 @@ package customer.api;
 
 
 import customer.Main;
+import customer.domain.Address;
+import customer.domain.Customer;
 import customer.view.CustomerView;
 import kalix.springsdk.testkit.KalixIntegrationTestKitSupport;
 import org.hamcrest.core.IsEqual;
@@ -36,7 +38,7 @@ public class CustomerIntegrationTest extends KalixIntegrationTestKitSupport {
   @Test
   public void create() {
     String id = UUID.randomUUID().toString();
-    Customer customer = new Customer(id, "foo@example.com", "Johanna", null);
+    Customer customer = new Customer("foo@example.com", "Johanna", null);
 
     ResponseEntity<String> response =
         webClient.post()
@@ -53,7 +55,7 @@ public class CustomerIntegrationTest extends KalixIntegrationTestKitSupport {
   @Test
   public void changeName() {
     String id = UUID.randomUUID().toString();
-    Customer customer = new Customer(id, "foo@example.com", "Johanna", null);
+    Customer customer = new Customer("foo@example.com", "Johanna", null);
 
     ResponseEntity<String> resCreation =
         webClient.post()
@@ -80,7 +82,7 @@ public class CustomerIntegrationTest extends KalixIntegrationTestKitSupport {
   @Test
   public void changeAddress() {
     String id = UUID.randomUUID().toString();
-    Customer customer = new Customer(id, "foo@example.com", "Johanna", null);
+    Customer customer = new Customer("foo@example.com", "Johanna", null);
 
     ResponseEntity<String> resCreation =
         webClient.post()
@@ -110,7 +112,7 @@ public class CustomerIntegrationTest extends KalixIntegrationTestKitSupport {
   @Test
   public void findByName() {
     String id = UUID.randomUUID().toString();
-    Customer customer = new Customer(id, "foo@example.com", "Foo", null);
+    Customer customer = new Customer("foo@example.com", "Foo", null);
     ResponseEntity<String> response =
         webClient.post()
             .uri("/customer/" + id + "/create")
@@ -139,7 +141,7 @@ public class CustomerIntegrationTest extends KalixIntegrationTestKitSupport {
   @Test
   public void findByEmail() {
     String id = UUID.randomUUID().toString();
-    Customer customer = new Customer(id, "bar@example.com", "Bar", null);
+    Customer customer = new Customer("bar@example.com", "Bar", null);
     ResponseEntity<String> response =
         webClient.post()
             .uri("/customer/" + id + "/create")

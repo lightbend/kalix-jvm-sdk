@@ -64,7 +64,7 @@ object RestServiceIntrospector {
         SyntheticRequestServiceMethod(classMapping, mapping, method, restParams)
       }
 
-    RestService(methodMappings)
+    RestService(methodMappings.toIndexedSeq)
   }
 
   // This method may become more dynamic, eg, certain component types may define their own annotations for parameters,

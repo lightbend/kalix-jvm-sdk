@@ -39,6 +39,8 @@ import kalix.springsdk.testmodels.action.ActionsTestModels.StreamOutAction
 import kalix.springsdk.testmodels.subscriptions.PubSubTestModels.ActionWithMethodLevelAcl
 import kalix.springsdk.testmodels.subscriptions.PubSubTestModels.ActionWithMethodLevelAclAndSubscription
 import kalix.springsdk.testmodels.subscriptions.PubSubTestModels.ActionWithServiceLevelAcl
+import kalix.springsdk.testmodels.subscriptions.PubSubTestModels.EventStreamPublishingAction
+import kalix.springsdk.testmodels.subscriptions.PubSubTestModels.EventStreamSubscriptionAction
 import kalix.springsdk.testmodels.subscriptions.PubSubTestModels.InvalidSubscribeToEventSourcedEntityAction
 import kalix.springsdk.testmodels.subscriptions.PubSubTestModels.InvalidSubscribeToTopicAction
 import kalix.springsdk.testmodels.subscriptions.PubSubTestModels.PublishToTopicAction
@@ -107,12 +109,12 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
 
     "generate JWT mappings for an Action with POST" in {
       assertDescriptor[PostWithoutParamWithJWT] { desc =>
-        val methodDescriptor = desc.serviceDescriptor.findMethodByName("Message")
+        val methodDescriptor = findMethodByName(desc, "Message")
         methodDescriptor.isServerStreaming shouldBe false
         methodDescriptor.isClientStreaming shouldBe false
 
         val method = desc.commandHandlers("Message")
-        val jwtOption = findKalixMethodOptions(desc, method.grpcMethodName).getJwt
+        val jwtOption = findKalixMethodOptions(methodDescriptor).getJwt
         jwtOption.getBearerTokenIssuer(0) shouldBe "a"
         jwtOption.getBearerTokenIssuer(1) shouldBe "b"
         jwtOption.getValidate(0) shouldBe JwtMethodMode.BEARER_TOKEN
@@ -228,14 +230,14 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
 
     "generate combined mapping with Event Sourced Entity Subscription annotation" in {
       assertDescriptor[SubscribeToEventSourcedEntityAction] { desc =>
-        val methodDescriptor = desc.serviceDescriptor.findMethodByName("KalixSyntheticMethodOnESCounter")
+        val methodDescriptor = findMethodByName(desc, "KalixSyntheticMethodOnESCounter")
         methodDescriptor.isServerStreaming shouldBe false
         methodDescriptor.isClientStreaming shouldBe false
 
         val methodOne = desc.commandHandlers("KalixSyntheticMethodOnESCounter")
         methodOne.requestMessageDescriptor.getFullName shouldBe JavaPbAny.getDescriptor.getFullName
 
-        val eventSourceOne = findKalixMethodOptions(desc, "KalixSyntheticMethodOnESCounter").getEventing.getIn
+        val eventSourceOne = findKalixMethodOptions(methodDescriptor).getEventing.getIn
         eventSourceOne.getEventSourcedEntity shouldBe "counter"
 
         val ruleOne = findHttpRule(desc, "KalixSyntheticMethodOnESCounter")
@@ -252,14 +254,14 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
     "generate mapping with Value Entity Subscription annotations" in {
       assertDescriptor[SubscribeToValueEntityAction] { desc =>
 
-        val methodDescriptorOne = desc.serviceDescriptor.findMethodByName("MessageOne")
+        val methodDescriptorOne = findMethodByName(desc, "MessageOne")
         methodDescriptorOne.isServerStreaming shouldBe false
         methodDescriptorOne.isClientStreaming shouldBe false
 
         val methodOne = desc.commandHandlers("MessageOne")
         methodOne.requestMessageDescriptor.getFullName shouldBe JavaPbAny.getDescriptor.getFullName
 
-        val eventSourceOne = findKalixMethodOptions(desc, "MessageOne").getEventing.getIn
+        val eventSourceOne = findKalixMethodOptions(methodDescriptorOne).getEventing.getIn
         eventSourceOne.getValueEntity shouldBe "ve-counter"
         val rule = findHttpRule(desc, "MessageOne")
 
@@ -270,13 +272,13 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
         val javaMethod = methodOne.methodInvokers.values.head
         javaMethod.parameterExtractors.length shouldBe 1
 
-        val methodDescriptorTwo = desc.serviceDescriptor.findMethodByName("MessageTwo")
+        val methodDescriptorTwo = findMethodByName(desc, "MessageTwo")
         methodDescriptorTwo.isServerStreaming shouldBe false
         methodDescriptorTwo.isClientStreaming shouldBe false
 
         val methodTwo = desc.commandHandlers("MessageTwo")
         methodTwo.requestMessageDescriptor.getFullName shouldBe JavaPbAny.getDescriptor.getFullName
-        val eventSourceTwo = findKalixMethodOptions(desc, "MessageTwo").getEventing.getIn
+        val eventSourceTwo = findKalixMethodOptions(methodDescriptorTwo).getEventing.getIn
         eventSourceTwo.getValueEntity shouldBe "ve-counter"
       }
     }
@@ -350,16 +352,18 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
 
     "generate mapping with Event Sourced Entity Subscription annotation type level with only one method" in {
       assertDescriptor[SubscribeOnlyOneToEventSourcedEntityActionTypeLevel] { desc =>
-        val methodDescriptor = desc.serviceDescriptor.findMethodByName("MethodOne")
+        val methodDescriptor = findMethodByName(desc, "MethodOne")
         methodDescriptor.isServerStreaming shouldBe false
         methodDescriptor.isClientStreaming shouldBe false
 
         val methodOne = desc.commandHandlers("MethodOne")
         methodOne.requestMessageDescriptor.getFullName shouldBe JavaPbAny.getDescriptor.getFullName
 
-        val eventSourceOne = findKalixMethodOptions(desc, "MethodOne").getEventing.getIn
+        val eventSourceOne = findKalixServiceOptions(desc).getEventing.getIn
         eventSourceOne.getEventSourcedEntity shouldBe "counter"
-        eventSourceOne.getIgnore shouldBe false // we don't set the property so the proxy won't ignore. Ignore is only internal to the SDK
+        // we don't set the property so the proxy won't ignore. Ignore is only internal to the SDK
+        eventSourceOne.getIgnore shouldBe false
+        eventSourceOne.getIgnoreUnknown shouldBe false
 
         val ruleOne = findHttpRule(desc, "MethodOne")
         ruleOne.getPost shouldBe "/kalix.springsdk.testmodels.subscriptions.PubSubTestModels.SubscribeOnlyOneToEventSourcedEntityActionTypeLevel/MethodOne"
@@ -435,6 +439,46 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
     "fail if it's subscription method exposed with ACL" in {
       intercept[ServiceIntrospectionException] {
         descriptorFor[ActionWithMethodLevelAclAndSubscription]
+      }
+    }
+
+    "generate mappings for service to service publishing " in {
+      assertDescriptor[EventStreamPublishingAction] { desc =>
+        val serviceOptions = findKalixServiceOptions(desc)
+
+        val eventingOut = serviceOptions.getEventing.getOut
+        eventingOut.getDirect.getEventStreamId shouldBe "employee_events"
+
+        val methodDescriptor = findMethodByName(desc, "KalixSyntheticMethodOnESEmployee")
+        methodDescriptor.isServerStreaming shouldBe false
+        methodDescriptor.isClientStreaming shouldBe false
+
+        val eventingIn = serviceOptions.getEventing.getIn
+        val entityType = eventingIn.getEventSourcedEntity
+        entityType shouldBe "employee"
+
+        val methodOne = desc.commandHandlers("KalixSyntheticMethodOnESEmployee")
+        methodOne.requestMessageDescriptor.getFullName shouldBe JavaPbAny.getDescriptor.getFullName
+
+      }
+    }
+
+    "generate mappings for service to service subscription " in {
+      assertDescriptor[EventStreamSubscriptionAction] { desc =>
+        val serviceOptions = findKalixServiceOptions(desc)
+
+        val eventingIn = serviceOptions.getEventing.getIn
+        val eventingInDirect = eventingIn.getDirect
+        eventingInDirect.getService shouldBe "employee_service"
+        eventingInDirect.getEventStreamId shouldBe "employee_events"
+
+        // we don't set the property so the proxy won't ignore. Ignore is only internal to the SDK
+        eventingIn.getIgnore shouldBe false
+        eventingIn.getIgnoreUnknown shouldBe false
+
+        val methodDescriptor = findMethodByName(desc, "KalixSyntheticMethodOnESEmployee_events")
+        methodDescriptor.isServerStreaming shouldBe false
+        methodDescriptor.isClientStreaming shouldBe false
       }
     }
   }

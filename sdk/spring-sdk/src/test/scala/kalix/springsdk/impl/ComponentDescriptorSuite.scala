@@ -23,8 +23,10 @@ import com.google.api.HttpRule
 import com.google.protobuf.Descriptors
 import com.google.protobuf.Descriptors.FieldDescriptor.JavaType
 import kalix.MethodOptions
+import kalix.ServiceOptions
 import org.scalatest.Assertion
 import org.scalatest.matchers.should.Matchers
+import scalapb.descriptors.MethodDescriptor
 
 trait ComponentDescriptorSuite extends Matchers {
 
@@ -57,17 +59,23 @@ trait ComponentDescriptorSuite extends Matchers {
     fieldOption.getEntityKey shouldBe true
   }
 
-  private def findMethod(desc: ComponentDescriptor, methodName: String) = {
+  def findMethodByName(desc: ComponentDescriptor, methodName: String): Descriptors.MethodDescriptor = {
     val grpcMethod = desc.serviceDescriptor.findMethodByName(methodName)
     if (grpcMethod != null) grpcMethod
     else throw new NoSuchElementException(s"Method '$methodName' not found")
   }
 
   def findKalixMethodOptions(desc: ComponentDescriptor, methodName: String): MethodOptions =
-    findMethod(desc, methodName).toProto.getOptions.getExtension(kalix.Annotations.method)
+    findKalixMethodOptions(findMethodByName(desc, methodName))
+
+  def findKalixMethodOptions(methodDescriptor: Descriptors.MethodDescriptor): MethodOptions =
+    methodDescriptor.toProto.getOptions.getExtension(kalix.Annotations.method)
+
+  def findKalixServiceOptions(desc: ComponentDescriptor): ServiceOptions =
+    desc.serviceDescriptor.getOptions.getExtension(kalix.Annotations.service)
 
   def findHttpRule(desc: ComponentDescriptor, methodName: String): HttpRule =
-    findMethod(desc, methodName).toProto.getOptions.getExtension(AnnotationsProto.http)
+    findMethodByName(desc, methodName).toProto.getOptions.getExtension(AnnotationsProto.http)
 
   private def findField(method: CommandHandler, fieldName: String): Descriptors.FieldDescriptor = {
     val field = method.requestMessageDescriptor.findFieldByName(fieldName)

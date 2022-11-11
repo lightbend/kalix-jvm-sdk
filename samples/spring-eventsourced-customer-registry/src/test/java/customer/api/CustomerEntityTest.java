@@ -1,16 +1,18 @@
 package customer.api;
 
+import customer.domain.Address;
+import customer.domain.Customer;
 import kalix.javasdk.testkit.EventSourcedResult;
 import kalix.springsdk.testkit.EventSourcedTestKit;
 import org.junit.jupiter.api.Test;
 
-import static customer.api.CustomerEvent.*;
+import static customer.domain.CustomerEvent.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class CustomerEntityTest {
 
   private Address address = new Address("Acme Street", "Acme City");
-  private Customer customer = new Customer("id", "info@acme.com", "Acme Inc.", address);
+  private Customer customer = new Customer("info@acme.com", "Acme Inc.", address);
 
 
   @Test

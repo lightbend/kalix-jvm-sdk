@@ -48,36 +48,30 @@ object AclDescriptorFactory {
 
     aclJavaAnnotation.allow.zipWithIndex.foreach { case (allow, idx) =>
       val principalMatcher = PrincipalMatcher.newBuilder()
-      if (allow.principal != Acl.Principal.UNSPECIFIED) {
-        allow.principal match {
-          case Acl.Principal.ALL =>
-            principalMatcher.setPrincipal(PrincipalMatcher.Principal.ALL)
-          case Acl.Principal.INTERNET =>
-            principalMatcher.setPrincipal(PrincipalMatcher.Principal.INTERNET)
-        }
-        aclBuilder.addAllow(idx, principalMatcher)
-
-      } else {
-        principalMatcher.setService(allow.service())
-        aclBuilder.addAllow(idx, principalMatcher)
+      allow.principal match {
+        case Acl.Principal.ALL =>
+          principalMatcher.setPrincipal(PrincipalMatcher.Principal.ALL)
+        case Acl.Principal.INTERNET =>
+          principalMatcher.setPrincipal(PrincipalMatcher.Principal.INTERNET)
+        case Acl.Principal.UNSPECIFIED =>
+          principalMatcher.setService(allow.service())
       }
+
+      aclBuilder.addAllow(idx, principalMatcher)
     }
 
     aclJavaAnnotation.deny.zipWithIndex.foreach { case (deny, idx) =>
       val principalMatcher = PrincipalMatcher.newBuilder()
-      if (deny.principal != Acl.Principal.UNSPECIFIED) {
-        deny.principal match {
-          case Acl.Principal.ALL =>
-            principalMatcher.setPrincipal(PrincipalMatcher.Principal.ALL)
-          case Acl.Principal.INTERNET =>
-            principalMatcher.setPrincipal(PrincipalMatcher.Principal.INTERNET)
-        }
-        aclBuilder.addDeny(idx, principalMatcher)
+      deny.principal match {
+        case Acl.Principal.ALL =>
+          principalMatcher.setPrincipal(PrincipalMatcher.Principal.ALL)
+        case Acl.Principal.INTERNET =>
+          principalMatcher.setPrincipal(PrincipalMatcher.Principal.INTERNET)
+        case Acl.Principal.UNSPECIFIED =>
+          principalMatcher.setService(deny.service())
 
-      } else {
-        principalMatcher.setService(deny.service())
-        aclBuilder.addDeny(idx, principalMatcher)
       }
+      aclBuilder.addDeny(idx, principalMatcher)
     }
 
     aclBuilder.setDenyCode(aclJavaAnnotation.denyCode())
