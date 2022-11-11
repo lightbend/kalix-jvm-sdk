@@ -86,4 +86,22 @@ public class CounterTest {
     assertEquals(0, testKit.getState().getValue());
   }
 
+  @Test
+  public void deleteCounterTest() {
+    CounterTestKit testKit = CounterTestKit.of(Counter::new);
+
+    CounterApi.IncreaseValue increaseValueCommand = CounterApi.IncreaseValue.newBuilder()
+        .setValue(1)
+        .build();
+    ValueEntityResult<Empty> result1 = testKit.increase(increaseValueCommand);
+    assertEquals(Empty.getDefaultInstance(), result1.getReply());
+    assertEquals(1, testKit.getState().getValue());
+
+    CounterApi.DeleteCounter deleteCommand = CounterApi.DeleteCounter.getDefaultInstance();
+    ValueEntityResult<Empty> resetResult = testKit.delete(deleteCommand);
+    assertEquals(Empty.getDefaultInstance(), resetResult.getReply());
+
+    assertEquals(0, testKit.getState().getValue());
+  }
+
 }

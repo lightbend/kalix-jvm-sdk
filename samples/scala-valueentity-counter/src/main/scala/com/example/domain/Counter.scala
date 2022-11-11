@@ -9,6 +9,7 @@ import kalix.scalasdk.valueentity.ValueEntity
 import kalix.scalasdk.valueentity.ValueEntityContext
 import com.example
 import com.example.CurrentCounter
+import com.example.DeleteCounter
 import com.google.protobuf.empty.Empty
 import io.grpc.Status.Code
 
@@ -34,7 +35,7 @@ class Counter(context: ValueEntityContext) extends AbstractCounter { // <1>
     if (command.value < 0) // <1>
       effects.error(s"Increase requires a positive value. It was [${command.value}].", Code.INVALID_ARGUMENT)
     else {
-      if (commandContext.metadata.get("myKey") == Some("myValue")) {
+      if (commandContext.metadata.get("myKey").contains("myValue")) {
       val newState = currentState.copy(value = currentState.value + command.value*2)
       effects
         .updateState(newState) 
@@ -63,4 +64,11 @@ class Counter(context: ValueEntityContext) extends AbstractCounter { // <1>
       command: example.GetCounter): ValueEntity.Effect[example.CurrentCounter] =
     effects.reply(CurrentCounter(currentState.value)) // <2>
   // end::getCurrentCounter[]
+
+  // tag::delete[]
+  override def delete(currentState: CounterState, deleteCounter: DeleteCounter): ValueEntity.Effect[Empty] =
+    effects
+      .deleteState() // <1>
+      .thenReply(Empty.defaultInstance)
+  // end::delete[]
 }

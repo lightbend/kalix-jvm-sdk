@@ -1,10 +1,12 @@
 package com.example.actions;
 
-import kalix.javasdk.testkit.ActionResult;
+import akka.stream.javadsl.Source;
 import com.example.actions.CounterStateSubscriptionAction;
 import com.example.actions.CounterStateSubscriptionActionTestKit;
 import com.example.domain.CounterDomain;
 import com.google.protobuf.Empty;
+import kalix.javasdk.testkit.ActionResult;
+import org.junit.Ignore;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -16,19 +18,29 @@ import static org.junit.Assert.*;
 public class CounterStateSubscriptionActionTest {
 
   @Test
+  @Ignore("to be implemented")
   public void exampleTest() {
-    CounterStateSubscriptionActionTestKit testKit = CounterStateSubscriptionActionTestKit.of(CounterStateSubscriptionAction::new);
-    // use the testkit to execute a command
-    // ActionResult<SomeResponse> result = testKit.someOperation(SomeRequest);
-    // verify the response
-    // SomeResponse actualResponse = result.getReply();
-    // assertEquals(expectedResponse, actualResponse);
+    CounterStateSubscriptionActionTestKit service = CounterStateSubscriptionActionTestKit.of(CounterStateSubscriptionAction::new);
+    // // use the testkit to execute a command
+    // SomeCommand command = SomeCommand.newBuilder()...build();
+    // ActionResult<SomeResponse> result = service.someOperation(command);
+    // // verify the reply
+    // SomeReply reply = result.getReply();
+    // assertEquals(expectedReply, reply);
   }
 
   @Test
+  @Ignore("to be implemented")
   public void onUpdateStateTest() {
     CounterStateSubscriptionActionTestKit testKit = CounterStateSubscriptionActionTestKit.of(CounterStateSubscriptionAction::new);
     // ActionResult<Empty> result = testKit.onUpdateState(CounterDomain.CounterState.newBuilder()...build());
+  }
+
+  @Test
+  @Ignore("to be implemented")
+  public void onDeleteStateTest() {
+    CounterStateSubscriptionActionTestKit testKit = CounterStateSubscriptionActionTestKit.of(CounterStateSubscriptionAction::new);
+    // ActionResult<Empty> result = testKit.onDeleteState();
   }
 
 }
