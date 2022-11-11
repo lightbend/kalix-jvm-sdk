@@ -18,76 +18,68 @@ Kalix ACLs consist of two lists of principal matchers. One to allow to invoke a 
 
 Here is an example ACL on a method:
 
-```java
-    @PostMapping
-    @Acl(
-       allow = @Acl.Matcher(service = "*"), 
-       deny =  @Acl.Matcher(service = "my-service"))
-    public Effect<String> createUser(@RequestBody CreateEmployee create) {
-     ...
-    }
-```
+
+[source, java]
+----
+include::example$spring-acl-examples/src/main/java/com/example/MyAction.java[tag=acl1]
+----
 
 The above ACL allows traffic to all services except the service called `my-service`. 
 
 To allow all traffic:
 
-```java
-@Acl(allow = @Acl.Matcher(principal = Acl.Principal.ALL) 
-```
+[source, java]
+----
+include::example$spring-acl-examples/src/main/java/com/example/MyAction.java[tag=acl2]
+----
 
 To allow only traffic from the internet:
 
-```java
-@Acl(allow = @Acl.Matcher(principal = Acl.Principal.INTERNET) 
-```
-
+[source, java]
+----
+include::example$spring-acl-examples/src/main/java/com/example/MyAction.java[tag=acl3]
+----
 To allow traffic from `service-a` and `service-b`:
 
-```java
- @Acl(allow = {
-        @Acl.Matcher(service = "service-a"), 
-        @Acl.Matcher(service = "my-service")}) 
-```
-
+[source, java]
+----
+include::example$spring-acl-examples/src/main/java/com/example/MyAction.java[tag=acl4]
+----
 To block all traffic, an ACL with no allows can be configured:
 
-```java
- @Acl(allow = {})
-```
-
+[source, java]
+----
+include::example$spring-acl-examples/src/main/java/com/example/MyAction.java[tag=acl5]
+----
 === Sharing ACLs between methods
 
-The above examples show how to configure an ACL on a method. ACLs can also be shared between all methods on a service by specifying them on the class, at type level:
+The above examples show how to configure an ACL on a method. ACLs can also be shared between all methods on a component by specifying them on the class, at type level:
 
-```java
-@Acl(allow = @Acl.Matcher(principal = Acl.Principal.INTERNET))
-public class MyAction extends Action { ... } 
-```
+[source, java]
+----
+include::example$spring-acl-examples/src/main/java/com/example/EmployeeAction.java[tag=acl]
+----
 
-The service's ACL can be overridden by individual methods, by specifying the ACL on the method. Note that an ACL defined on a method completely overrides an ACL defined on a service. It does not add to it. So for example, in the following service:
 
-```java
-@Acl(allow = @Acl.Matcher(service = "service-a"))
- public class MyAction extends Action {
-    @PostMapping
-    @Acl(allow = @Acl.Matcher(service = "service-b"))
-    public Effect<String> createUser(@RequestBody CreateEmployee create) {
-      return ...;
-    }
-}
-```
+The component's ACL can be overridden by individual methods, by specifying the ACL on the method. Note that an ACL defined on a method completely overrides an ACL defined on a component. It does not add to it. So for example, in the following component:
 
-The `MyMethod` rpc method will allow calls by `service-b`, but not by `service-a`.
+[source, java]
+----
+include::example$spring-acl-examples/src/main/java/com/example/EmployeeAction.java[tag=acl1]
+----
+
+
+The `createEmployee` method will allow calls by `service-b`, but not by `service-a`.
 
 === Configuring the default policy
 
 The default policy can be configured by specifying a project level annotation in the `Main`, for example, to set a default policy of allowing all local services:
 
-```java
-@Acl(allow = @Acl.Matcher(service = "*"))
-public class Main { ... } 
-```
+[source, java]
+----
+include::example$spring-acl-examples/src/main/java/com/example/Main.java[tag=acl]
+----
+
 
 An ACL declared at the project level is used as the default for all services that don't declare their own explicit ACL.
 
@@ -124,22 +116,19 @@ When a request is denied, by default, a gRPC error code of 7, `PERMISSION_DENIED
 
 For example, to make Kalix reply with 404, `NOT_FOUND`:
 
-```java
-    @PostMapping
-    @Acl(
-       allow = @Acl.Matcher(service = "*"), 
-       denyCode = 5 )
-    public Effect<String> createUser(@RequestBody CreateEmployee create) {
-      return ...;
-    }
-```
+
+[source, java]
+----
+include::example$spring-acl-examples/src/main/java/com/example/MyAction.java[tag=acl6]
+----
 
 Deny codes, if not specified on an ACL, are inherited from the service, or the default, so updating the `deny_code` in the default ACL policy will set it for all methods:
 
-```java
-@Acl(allow = @Acl.Matcher(deny_code = 5))
-public class MyAction extends Action { ... } 
-```
+
+[source, java]
+----
+include::example$spring-acl-examples/src/main/java/com/example/UserAction.java[tag=acl]
+----
 
 == ACLs on eventing methods
 
