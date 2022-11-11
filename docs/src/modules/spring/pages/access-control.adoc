@@ -21,7 +21,7 @@ Here is an example ACL on a method:
 
 [source, java]
 ----
-include::example$spring-acl-examples/src/main/java/com/example/MyAction.java[tag=acl1]
+include::example$spring-acl-examples/src/main/java/com/example/MyAction.java[tag=allow-deny]
 ----
 
 The above ACL allows traffic to all services except the service called `my-service`. 
@@ -30,26 +30,26 @@ To allow all traffic:
 
 [source, java]
 ----
-include::example$spring-acl-examples/src/main/java/com/example/MyAction.java[tag=acl2]
+include::example$spring-acl-examples/src/main/java/com/example/MyAction.java[tag=all-traffic]
 ----
 
 To allow only traffic from the internet:
 
 [source, java]
 ----
-include::example$spring-acl-examples/src/main/java/com/example/MyAction.java[tag=acl3]
+include::example$spring-acl-examples/src/main/java/com/example/MyAction.java[tag=internet]
 ----
 To allow traffic from `service-a` and `service-b`:
 
 [source, java]
 ----
-include::example$spring-acl-examples/src/main/java/com/example/MyAction.java[tag=acl4]
+include::example$spring-acl-examples/src/main/java/com/example/MyAction.java[tag=multiple-services]
 ----
 To block all traffic, an ACL with no allows can be configured:
 
 [source, java]
 ----
-include::example$spring-acl-examples/src/main/java/com/example/MyAction.java[tag=acl5]
+include::example$spring-acl-examples/src/main/java/com/example/MyAction.java[tag=block-traffic]
 ----
 === Sharing ACLs between methods
 
@@ -119,7 +119,7 @@ For example, to make Kalix reply with 404, `NOT_FOUND`:
 
 [source, java]
 ----
-include::example$spring-acl-examples/src/main/java/com/example/MyAction.java[tag=acl6]
+include::example$spring-acl-examples/src/main/java/com/example/MyAction.java[tag=deny-code]
 ----
 
 Deny codes, if not specified on an ACL, are inherited from the service, or the default, so updating the `deny_code` in the default ACL policy will set it for all methods:
@@ -135,6 +135,10 @@ include::example$spring-acl-examples/src/main/java/com/example/UserAction.java[t
 
 Any method with an `@Subscribe` annotation on it will not automatically inherit either the default or its component's ACL, rather, all outside communication will be blocked, since it's assumed that a method that subscribes to an event stream must only be intended to be invoked in response to events on that stream. This can be overridden by explicitly defining an ACL on that method:
 
+[source, java]
+----
+include::example$spring-acl-examples/src/main/java/com/example/MyAction.java[tag=open-subscription-acl]
+----
 
 == Backoffice and self invocations
 
@@ -196,6 +200,4 @@ In the generated unit test testkits, the ACLs are ignored.
 
 == ACLs when running integration tests
 
-When running integration tests, ACLs are disabled by default but can be explicitly enabled per test by running the test with `Settings.withAclEnabled`.
-
-For integration tests that call other services that have ACLs limiting access to specific service names `Settings.withServiceName` allows specifying what the service identifies itself as to other services.
+When running integration tests, ACLs are disabled by default. 

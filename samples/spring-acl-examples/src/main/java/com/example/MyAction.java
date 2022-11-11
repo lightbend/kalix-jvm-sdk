@@ -1,7 +1,11 @@
 package com.example;
 
+import akka.Done;
 import kalix.javasdk.action.Action;
+import kalix.javasdk.valueentity.ValueEntity;
+import kalix.protocol.value_entity.ValueEntities;
 import kalix.springsdk.annotations.Acl;
+import kalix.springsdk.annotations.Subscribe;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
@@ -9,55 +13,69 @@ import org.springframework.web.bind.annotation.RequestBody;
 @Acl(allow = @Acl.Matcher(principal = Acl.Principal.INTERNET))
 public class MyAction extends Action {
 
-    // tag::acl1[]
+    // tag::allow-deny[]
     @PostMapping
     @Acl(allow = @Acl.Matcher(service = "*"),
             deny = @Acl.Matcher(service = "my-service"))
     public Effect<String> createUser(@RequestBody CreateUser create) {
         //...
-        // end::acl1[]
+        // end::allow-deny[]
         return null;
-        // tag::acl1[]
+        // tag::allow-deny[]
     }
-    // end::acl1[]
+    // end::allow-deny[]
 
-    // tag::acl2[]
+    // tag::all-traffic[]
     @Acl(allow = @Acl.Matcher(principal = Acl.Principal.ALL))
-    // end::acl2[]
+    // end::all-traffic[]
     public void example2() {
     }
 
-    // tag::acl3[]
+    // tag::internet[]
     @Acl(allow = @Acl.Matcher(principal = Acl.Principal.INTERNET))
-    // end::acl3[]
+    // end::internet[]
     public void example3() {
     }
 
-    // tag::acl4[]
+    // tag::multiple-services[]
     @Acl(allow = {
             @Acl.Matcher(service = "service-a"),
             @Acl.Matcher(service = "my-service")})
-    // end::acl4[]
+    // end::multiple-services[]
     public void example4() {}
 
-    // tag::acl5[]
+    // tag::block-traffic[]
     @Acl(allow = {})
-    // end::acl5[]
+    // end::block-traffic[]
     public void example5() {
     }
 
-    // tag::acl6[]
+    // tag::deny-code[]
     @PostMapping
     @Acl(allow = @Acl.Matcher(service = "*"), denyCode = 5)
     public Effect<String> updateUser(@RequestBody CreateUser create) {
         //...
-        // end::acl6[]
+        // end::deny-code[]
         return null;
-        // tag::acl6[]
+        // tag::deny-code[]
     }
-    // end::acl6[]
+    // end::deny-code[]
 
-// tag::acl[]
+    // tag::open-subscription-acl[]
+    @Subscribe.ValueEntity(Counter.class)
+    @PostMapping("/counter")
+    @Acl(allow = @Acl.Matcher(service = "*")) 
+    public Effect<Done> changes(@RequestBody CounterState counterState) {
+     //...
+        // end::open-subscription-acl[]
+        return null;
+        // tag::open-subscription-acl[]
+    }
+    // end::open-subscription-acl]
+
+
 }
-// end::acl[]
+
 class CreateUser{}
+class Counter extends ValueEntity<Integer> {}
+class CounterState{}

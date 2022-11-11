@@ -1232,7 +1232,7 @@ jobs:
       - copy-from-workspace
       - set-sdk-version
       - run:
-          name: Spring SDK Reliable Timers
+          name: Spring SDK ACL Examples
           command: |
             cd samples/spring-acl-examples
             echo "Running mvn with SDK version: '$SDK_VERSION'"
@@ -1540,6 +1540,9 @@ workflows:
           requires:
             - spring-sdk-integration-tests
             - publish-local
+      - sample-spring-acl-examples:
+          requires:
+            
       - publish:
           filters: # version tags only
             tags:
