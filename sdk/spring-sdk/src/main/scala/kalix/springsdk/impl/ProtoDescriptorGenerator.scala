@@ -35,7 +35,7 @@ private[impl] object ProtoDescriptorGenerator {
       name: String,
       packageName: String,
       service: DescriptorProtos.ServiceDescriptorProto,
-      messages: Seq[DescriptorProtos.DescriptorProto]): Descriptors.FileDescriptor = {
+      messages: Set[DescriptorProtos.DescriptorProto]): Descriptors.FileDescriptor = {
 
     val protoBuilder = DescriptorProtos.FileDescriptorProto.newBuilder
     protoBuilder

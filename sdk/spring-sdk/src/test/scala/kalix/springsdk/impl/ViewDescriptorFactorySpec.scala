@@ -27,6 +27,7 @@ import kalix.springsdk.testmodels.view.ViewTestModels.SubscribeToEventSourcedEve
 import kalix.springsdk.testmodels.view.ViewTestModels.TransformedUserView
 import kalix.springsdk.testmodels.view.ViewTestModels.TransformedUserViewUsingState
 import kalix.springsdk.testmodels.view.ViewTestModels.TransformedUserViewWithJWT
+import kalix.springsdk.testmodels.view.ViewTestModels.UserByEmailWithCollectionReturn
 import kalix.springsdk.testmodels.view.ViewTestModels.UserByEmailWithGet
 import kalix.springsdk.testmodels.view.ViewTestModels.UserByEmailWithPost
 import kalix.springsdk.testmodels.view.ViewTestModels.UserByEmailWithPostRequestBodyOnly
@@ -76,7 +77,7 @@ class ViewDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSuit
     "generate query with collection return type" in {
       assertDescriptor[UserByEmailWithCollectionReturn] { desc =>
         val queryMethodOptions = this.findKalixMethodOptions(desc, "GetUser")
-        queryMethodOptions.getView.getQuery.getQuery shouldBe "SELECT * AS results FROM users_view WHERE name = :name"
+        queryMethodOptions.getView.getQuery.getQuery shouldBe "SELECT * AS users FROM users_view WHERE name = :name"
         queryMethodOptions.getView.getJsonSchema.getOutput shouldBe "UserCollection"
 
         val streamUpdates = queryMethodOptions.getView.getQuery.getStreamUpdates

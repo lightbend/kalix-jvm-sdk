@@ -16,14 +16,11 @@
 
 package kalix.springsdk.impl
 
-import com.google.protobuf.{ DescriptorProtos, Descriptors, Message, RepeatedFieldBuilder, RepeatedFieldBuilderV3 }
+import com.google.protobuf.DescriptorProtos
 import com.fasterxml.jackson.dataformat.protobuf.ProtobufMapper
 import com.fasterxml.jackson.dataformat.protobuf.schema.ProtobufMessage
 import com.fasterxml.jackson.dataformat.protobuf.{ schema => jacksonSchema }
-import com.google.protobuf.Any.Builder
-import com.google.protobuf.DescriptorProtos.{ DescriptorProto, FieldDescriptorProto }
-import com.google.protobuf.Descriptors.FieldDescriptor
-import scalapb.options.ScalapbProto
+import com.google.protobuf.DescriptorProtos.FieldDescriptorProto
 
 import scala.jdk.CollectionConverters._
 
@@ -32,23 +29,6 @@ import scala.jdk.CollectionConverters._
  */
 object ProtoMessageDescriptors {
   private val protobufMapper = new ProtobufMapper()
-
-  def generateWrappedCollectionDescriptors(javaClass: Class[_]): ProtoMessageDescriptors = {
-
-    val resultType = javaClass.getSimpleName
-    val outputMessageDescriptor = DescriptorProto.newBuilder()
-    outputMessageDescriptor.setName(resultType + "Collection")
-
-    val fieldDescriptor = FieldDescriptorProto.newBuilder()
-    fieldDescriptor.setName("results")
-    fieldDescriptor.setNumber(1)
-    fieldDescriptor.setType(FieldDescriptorProto.Type.TYPE_MESSAGE)
-    fieldDescriptor.setTypeName(resultType)
-    fieldDescriptor.setLabel(FieldDescriptorProto.Label.LABEL_REPEATED)
-    outputMessageDescriptor.addField(fieldDescriptor)
-
-    ProtoMessageDescriptors(outputMessageDescriptor.build(), Seq.empty)
-  }
 
   def generateMessageDescriptors(javaClass: Class[_]): ProtoMessageDescriptors = {
     val jacksonProtoSchema = protobufMapper.generateSchemaFor(javaClass)

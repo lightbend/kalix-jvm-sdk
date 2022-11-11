@@ -265,9 +265,9 @@ public class ViewTestModels {
   @Subscribe.ValueEntity(UserEntity.class)
   public static class UserByEmailWithCollectionReturn extends View<User> {
 
-    @Query(value = "SELECT * FROM users_view WHERE name = :name")
+    @Query(value = "SELECT * AS users FROM users_view WHERE name = :name")
     @PostMapping("/users/by-name/{name}")
-    public Collection<User> getUser() {
+    public UserCollection getUser() {
       return null;
     }
   }

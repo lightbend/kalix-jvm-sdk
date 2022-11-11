@@ -130,7 +130,7 @@ private[impl] object ComponentDescriptor {
     }
 
     val namedMethods: Seq[NamedComponentMethod] = kalixMethods.map(methodToNamedComponentMethod)
-    val inputMessageProtos: Seq[DescriptorProtos.DescriptorProto] = namedMethods.flatMap(_.inputProto)
+    val inputMessageProtos: Set[DescriptorProtos.DescriptorProto] = namedMethods.flatMap(_.inputProto).toSet
 
     val fileDescriptor: Descriptors.FileDescriptor =
       ProtoDescriptorGenerator.genFileDescriptor(

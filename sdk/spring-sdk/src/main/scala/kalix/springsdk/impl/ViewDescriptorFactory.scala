@@ -48,8 +48,6 @@ import kalix.springsdk.impl.reflection.SyntheticRequestServiceMethod
 import kalix.springsdk.impl.reflection.VirtualServiceMethod
 import reactor.core.publisher.Flux
 
-import java.util
-
 private[impl] object ViewDescriptorFactory extends ComponentDescriptorFactory {
 
   override def buildDescriptorFor(
@@ -134,24 +132,20 @@ private[impl] object ViewDescriptorFactory extends ComponentDescriptorFactory {
 
       val queryMethod: SyntheticRequestServiceMethod = annotatedQueryMethods.head
 
-      val queryOutputSchemaDescriptor = {
-        val queryOutputType = {
-          if (queryMethod.streamOut || queryMethod.collectionOut) {
-            queryMethod.javaMethod.getGenericReturnType
-              .asInstanceOf[ParameterizedType] // Flux will be a ParameterizedType
-              .getActualTypeArguments
-              .head // only one type parameter, safe to pick the head
-              .asInstanceOf[Class[_]]
-          } else queryMethod.javaMethod.getReturnType
-        }
-
-        if (queryMethod.collectionOut) {
-          ProtoMessageDescriptors.generateWrappedCollectionDescriptors(queryOutputType)
-        } else {
-          if (queryOutputType == tableType) tableTypeDescriptor
-          else ProtoMessageDescriptors.generateMessageDescriptors(queryOutputType)
-        }
+      val queryOutputType = {
+        val returnType = queryMethod.javaMethod.getReturnType
+        if (returnType == classOf[Flux[_]]) {
+          queryMethod.javaMethod.getGenericReturnType
+            .asInstanceOf[ParameterizedType] // Flux will be a ParameterizedType
+            .getActualTypeArguments
+            .head // only one type parameter, safe to pick the head
+            .asInstanceOf[Class[_]]
+        } else returnType
       }
+
+      val queryOutputSchemaDescriptor =
+        if (queryOutputType == tableType) tableTypeDescriptor
+        else ProtoMessageDescriptors.generateMessageDescriptors(queryOutputType)
 
       val queryInputSchemaDescriptor =
         queryMethod.params.find(_.isInstanceOf[BodyParameter]).map { case BodyParameter(param, _) =>
@@ -159,11 +153,7 @@ private[impl] object ViewDescriptorFactory extends ComponentDescriptorFactory {
         }
 
       val queryAnnotation = queryMethod.javaMethod.getAnnotation(classOf[Query])
-      val queryStr =
-        if (queryMethod.collectionOut) // FIXME not sure we want to do this
-          queryAnnotation.value().replace("SELECT * FROM", "SELECT * AS results FROM")
-        else
-          queryAnnotation.value()
+      val queryStr = queryAnnotation.value()
 
       if (queryAnnotation.streamUpdates() && !queryMethod.streamOut)
         throw ServiceIntrospectionException(
@@ -203,15 +193,8 @@ private[impl] object ViewDescriptorFactory extends ComponentDescriptorFactory {
       // since it is a query, we don't actually ever want to handle any request in the SDK
       // the proxy does the work for us, mark the method as non-callable
       (
-        {
-          val outputTypeName =
-            if (queryMethod.collectionOut) queryOutputSchemaDescriptor.mainMessageDescriptor.getName
-            else queryMethod.outputTypeName
-          KalixMethod(
-            queryMethod.copy(callable = false, outputTypeName = outputTypeName),
-            methodOptions = Some(methodOptions))
-            .withKalixOptions(buildJWTOptions(queryMethod.javaMethod))
-        },
+        KalixMethod(queryMethod.copy(callable = false), methodOptions = Some(methodOptions))
+          .withKalixOptions(buildJWTOptions(queryMethod.javaMethod)),
         queryInputSchemaDescriptor,
         queryOutputSchemaDescriptor)
     }

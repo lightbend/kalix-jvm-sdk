@@ -21,6 +21,7 @@ import com.example.wiring.actions.echo.Message;
 import com.example.wiring.eventsourcedentities.counter.Counter;
 import com.example.wiring.valueentities.user.User;
 import com.example.wiring.views.UserWithVersion;
+import com.example.wiring.views.UsersCollection;
 import kalix.springsdk.KalixConfigurationTest;
 import org.hamcrest.core.IsEqual;
 import org.junit.jupiter.api.Assertions;
@@ -392,6 +393,49 @@ public class SpringSdkWiringIntegrationTest {
                     .toStream()
                     .collect(Collectors.toList())
                     .size(),
+            new IsEqual(2));
+  }
+
+  @Test
+  public void verifyFindUsersByNameCollection() {
+
+    { // joe 1
+      ResponseEntity<String> response =
+          webClient
+              .post()
+              .uri("/user/user-colllection-1/joe1.example.com/joe")
+              .retrieve()
+              .toEntity(String.class)
+              .block(timeout);
+
+      Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+    }
+
+    { // joe 2
+      ResponseEntity<String> response =
+          webClient
+              .post()
+              .uri("/user/user-colllection-2/joe2.example.com/joe")
+              .retrieve()
+              .toEntity(String.class)
+              .block(timeout);
+
+      Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+    }
+
+    // the view is eventually updated
+    await()
+        .ignoreExceptions()
+        .atMost(20, TimeUnit.SECONDS)
+        .until(
+            () ->
+                webClient
+                    .get()
+                    .uri("/users/by_name/joe")
+                    .retrieve()
+                    .bodyToMono(UsersCollection.class)
+                    .block(timeout)
+                    .users.size(),
             new IsEqual(2));
   }
 }
