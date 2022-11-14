@@ -15,7 +15,7 @@
 # deploy author
 
 readonly deploy_name="Kalix Bot"
-readonly deploy_email="bot@kalix.io"
+readonly deploy_email="kalix.github@lightbend.com"
 
 # locations
 
