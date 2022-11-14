@@ -12,7 +12,7 @@ Learn how to create a customer registry in Java, package it into a container, an
 * For this quickstart, you'll also need
 ** https://docs.docker.com/engine/install[Docker {minimum_docker_version} or higher, window="new"]
 ** Java {java-version} or higher
-** https://maven.apache.org/download.cgi[Maven 3.x or higher, window="new"]
+** https://maven.apache.org/download.cgi[Maven {minimum_maven_version} or higher, window="new"]
 ** https://github.com/fullstorydev/grpcurl#installation[`grpcurl`, window="new"]
 
 [NOTE]
@@ -54,7 +54,7 @@ curl -OL https://raw.githubusercontent.com/lightbend/kalix-jvm-sdk/main/samples/
 
 The Customer Registry service will create or retrieve a customer, including their email, phone number and mailing address. The `customer_api.proto` will contain the external API your clients will invoke.
 
-. In your project, create two directories for you protobuf files, `src/main/proto/customer/domain` and `src/main/proto/customer/api`.
+. In your project, create two directories for your protobuf files, `src/main/proto/customer/domain` and `src/main/proto/customer/api`.
 [.tabset]
 Linux or macOS::
 +

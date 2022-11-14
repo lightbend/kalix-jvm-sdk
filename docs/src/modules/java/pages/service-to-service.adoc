@@ -5,7 +5,7 @@ include::ROOT:partial$include.adoc[]
 
 Kalix provides brokerless at-least-once event delivery across Kalix services through the Service to Service eventing.
 
-The source of the events is an xref:event-sourced-entities.adoc[Event Sourced Entity], that the service provides a Service to Service publisher for.
+The source of the events is an xref:event-sourced-entities.adoc[Event Sourced Entity]. Its events can be published as a stream and consumed by another Kalix service without the need to set up a message broker.
 
 Note:: For eventing from an entity inside the same Kalix service as the consuming component, use regular xref:actions-publishing-subscribing.adoc[Subscription to the entity] instead of Service to Service eventing.
 
@@ -109,3 +109,13 @@ include::example$scala-eventsourced-customer-registry-subscriber/src/main/proto/
 <2> The name of the Kalix service publishing the event stream
 <3> The public `event_stream_id` of the specific stream from the publisher
 <4> One update method per message type that the stream may contain
+
+=== Deployment dependent source of events
+
+It is possible to use environment variables to control the name of the service that a consumer consumes from, this is useful for example for using the same image in staging and production deployments but having them consume from different source services.
+
+Referencing environment variables is done with the syntax `$\{VAR_NAME}` in the `service` string in the consumer `eventing.in.direct` block.
+
+Note that if changing the `service` name after it has once been deployed means the consumer will start over from the beginning of the event stream.
+
+See https://docs.kalix.io/kalix/kalix_services_deploy.html[kalix service deploy] for details on how to set environment variables when deploying a service.

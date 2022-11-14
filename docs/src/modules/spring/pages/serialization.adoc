@@ -1,0 +1,42 @@
+= Handling Serialization
+
+You do not need to create serializers for the messages, events, or the state of Kalix components but you need to make them serializable. The same is true with Kalix endpoints. Kalix exposes the inputs and outputs of endpoints as JSON and you need to make them serializable. You have two ways to do this. 
+
+
+1. If you are using Java https://openjdk.org/jeps/395[record] then no annotation is needed. It just works. It's as simple as using `record` instead of `class`. Kalix leverages https://github.com/FasterXML/[Jackson] under the hood and makes these records serializable for you. 
+2. If you are using Java `class` then you need to annotate them with the https://github.com/FasterXML/jackson-annotations#usage-general[proper Jackson annotation].
+
+== When consuming Messages from Topics
+
+When consuming events from a topic deserialization works out of the box. By default Kalix serialize Java objects to JSON when publishing to a topic, or when emitting events from an entity, whatever they are value changes or snapshots. Therefore it can deserialize them as JSON when consuming them. 
+
+When xref:actions-publishing-subscribing.adoc[subscribing], you can use as the input of your subscribing method the event class or record. In the following example you can see how the actions are subscribed to `ValueIncreased` and `ValueMultiplied`. 
+
+[source,java,indent=0]
+.src/main/java/com/example/actions/CounterTopicSubscriptionAction.java
+----
+include::example$spring-eventsourced-counter/src/main/java/com/example/actions/CounterTopicSubscriptionAction.java[tags=class]
+----
+<1> subscribing to the `ValueIncreased` from topic 'counter-events'. 
+<2> setting the method input type to the events produced by the counter.
+<3> any return is valid.
+<4> subscribing to the `ValueMultiplied` from topic 'counter-events'. 
+<5> setting the method input type to the events produced by the counter.
+<6> any return is valid.
+
+As we mentioned it works out of the box.
+
+== Receiving CloudEvents
+Kalix uses the https://cloudevents.io/[CloudEvents] standard when receiving from and publishing to topics. The CloudEvents specification standardizes message metadata so that systems can integrate more easily.
+
+Describing the structure of the message payload is the CloudEvents feature most important to Kalix.
+
+An example of that is the capability to send serialized JSON messages and have Kalix deserialize them accordingly.
+
+IMPORTANT: To allow proper reading of JSON messages from external topics, the messages need to specify the message attributes:
+
+- `Content-Type` = `application/application-json`
+- `ce-specversion` = `1.0`
+- `ce-type` = fully qualified name (e.g.  `com.example.ValueIncreased`)
+
+(The `ce-` prefixed attributes are part of the CloudEvents specification.)
