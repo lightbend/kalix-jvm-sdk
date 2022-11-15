@@ -33,7 +33,7 @@ public class CustomerIntegrationTest extends KalixIntegrationTestKitSupport {
   @Test
   public void create() throws InterruptedException {
     String id = UUID.randomUUID().toString();
-    Customer customer = new Customer("foo@example.com", "Johanna", null);
+    Customer customer = new Customer(id, "foo@example.com", "Johanna", null);
 
     ResponseEntity<String> response =
         webClient.post()

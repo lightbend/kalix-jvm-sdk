@@ -122,17 +122,56 @@ When creating a View, you can transform the results as a relational projection i
 
 === Relational projection
 
-Instead of using `SELECT *` you can define what columns that will be used in the response message:
+Instead of using `SELECT *` you can define which columns will be used in the response message. So, if you want to use a `CustomerSummary` as below as the response:
 
-
-In a similar way, you can include values from the request message in the response, for example `:request_id`:
-
-[source,proto,indent=0]
+[source,java]
+.src/main/java/com/example/api/CustomerSummary.java
 ----
-SELECT :request_id, customer_id as id, name FROM customers WHERE name = :customer_name
+include::example$spring-valueentity-customer-registry/src/main/java/com/example/api/CustomerSummary.java[tag=record]
 ----
 
-ifdef::todo[TODO: complete with example for transformed results github.com/lightbend/kalix/issues/7884]
+You will need to define your entity as this:
+
+[source,java]
+.src/main/java/com/example/api/CustomerSummaryByName.java
+----
+include::example$spring-valueentity-customer-registry/src/main/java/com/example/api/CustomerSummaryByName.java[tag=class]
+----
+<1> View state type is the original `Customer` as shown at the beginning of this section.
+<2> Query is mapped to an external route as usual receiving a `customerName` as parameter.
+<3> Note the renaming from `customerId` as `id` on the query, as `id` and `name` match the record `CustomerSummary`.
+<4> Since this query can return multiple results, mark it as streaming updates.
+<5> Return type of the query is `Flux<CustomerSummary>`.
+
+NOTE: In the example, when not interested in having multiple results, the `streamUpdates` flag could be removed and the return type would be only `CustomerSummary`.
+
+In a similar way, you can include values from the request in the response, for example `:requestId`:
+
+[source,sql]
+----
+SELECT :requestId, customerId as id, name FROM customers
+WHERE name = :customerName
+----
+
+=== Response message including the result
+
+Instead of streamed results you can include the results in a `Collection` field in the response object:
+
+[source,java]
+.src/main/java/com/example/api/CustomersResponse.java
+----
+include::example$spring-valueentity-customer-registry/src/main/java/com/example/api/CustomersResponse.java[tag=record]
+----
+
+[source,java,indent=0]
+.src/main/java/com/example/api/CustomersResponseByName.java
+----
+include::example$spring-valueentity-customer-registry/src/main/java/com/example/api/CustomersResponseByName.java[tag=class]
+----
+<1> View state type is the original `Customer` as shown at the beginning of this section.
+<2> Query is mapped to an external route as usual receiving a `customerName` as parameter.
+<3> Note the use of `* AS results` so records are matched to the collection in `CustomersResponse`.
+<4> Return type of the query is `CustomersResponse`.
 
 [#changing]
 == How to modify a View

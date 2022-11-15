@@ -50,7 +50,7 @@ With both the proxy and your application running, once you have defined endpoint
   ```shell
   curl localhost:9000/wrapped/by_name/Test%20Testsson
   ```
-* Query by name with a streamed response using a summary:
+* Query by name with a response using a summary:
   ```shell
   curl localhost:9000/summary/by_name/Test%20Testsson
   ```
