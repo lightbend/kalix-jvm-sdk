@@ -31,6 +31,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import reactor.core.publisher.Flux;
 
+import java.util.Collection;
+
 public class ViewTestModels {
 
   @Table(value = "users_view")
@@ -410,6 +412,17 @@ public class ViewTestModels {
     @Query(value = "SELECT * FROM users_view WHERE email = :email", streamUpdates = true)
     @PostMapping("/users/by-email")
     public Flux<User> getUser(@RequestBody ByEmail byEmail) {
+      return null;
+    }
+  }
+
+  @Table(value = "users_view_collection")
+  @Subscribe.ValueEntity(UserEntity.class)
+  public static class UserByEmailWithCollectionReturn extends View<User> {
+
+    @Query(value = "SELECT * AS users FROM users_view WHERE name = :name")
+    @PostMapping("/users/by-name/{name}")
+    public UserCollection getUser() {
       return null;
     }
   }

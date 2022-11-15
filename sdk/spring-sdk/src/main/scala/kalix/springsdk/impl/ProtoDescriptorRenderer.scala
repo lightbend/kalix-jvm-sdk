@@ -16,9 +16,9 @@
 
 package kalix.springsdk.impl
 
-import scala.collection.mutable
+import com.google.protobuf.DescriptorProtos.FieldDescriptorProto
 
-import com.google.protobuf.DescriptorProtos
+import scala.collection.mutable
 import com.google.protobuf.Descriptors.FileDescriptor
 
 object ProtoDescriptorRenderer {
@@ -59,6 +59,8 @@ object ProtoDescriptorRenderer {
       builder ++= " {\n"
       messageType.getFieldList.forEach { field =>
         builder ++= "  "
+        if (field.getLabel == FieldDescriptorProto.Label.LABEL_REPEATED)
+          builder ++= "repeated "
         if (field.hasTypeName)
           builder ++= field.getTypeName
         else

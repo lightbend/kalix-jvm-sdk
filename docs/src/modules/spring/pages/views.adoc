@@ -83,7 +83,7 @@ The definition of the view for an Event Sourced Entity is the same as for a Valu
 
 Every time an event is processed by the view, the state of the view can be updated. You can do this with the `.updateState` method, which is available through the `effects()` API. Here you can see how the View is updated with a new name: 
 
- .src/main/java/customer/view/CustomerByNameView.class
+.src/main/java/customer/view/CustomerByNameView.class
 [source,java]
 ----
 include::example$spring-eventsourced-customer-registry/src/main/java/customer/view/CustomerByNameView.java[tags=class]
@@ -106,7 +106,7 @@ When consuming events, each event must be matched by a View service method. In c
 
 . You can add `ignoreUnknown = true` to your `@Subcribe` annotation but only if it is a type level annotation. This works in a View the same way as in an Action. Check out this example in xref:spring:actions-publishing-subscribing.adoc#_type_level_annotations_for_subscribing[type level subscribing for an action]. 
 
-If there is not handler for an incoming event and there is no `ignoreUnknown = true` at type level, the View will fail. Views are designed to restart, but since it can't process the event, the view will keep failing trying to reprocess it.
+If there is no handler for an incoming event and there is no `ignoreUnknown = true` at type level, the View will fail. Views are designed to restart, but since it can't process the event, the view will keep failing trying to reprocess it.
 
 
 [#topic-view]
@@ -132,6 +132,7 @@ In a similar way, you can include values from the request message in the respons
 SELECT :request_id, customer_id as id, name FROM customers WHERE name = :customer_name
 ----
 
+ifdef::todo[TODO: complete with example for transformed results github.com/lightbend/kalix/issues/7884]
 
 [#changing]
 == How to modify a View
@@ -172,8 +173,10 @@ the view.
 This will first list the complete result for the query and then keep the response stream open, emitting new or updated
 entries matching the query as they are added to the view. The stream does not complete until the client closes it.
 
-Note: This is not intended as transport for xref:service-to-service.adoc[service to service] propagation of updates and does not guarantee delivery, for such use cases you
+NOTE: This is not intended as transport for xref:service-to-service.adoc[service to service] propagation of updates and it does not guarantee delivery. For such use cases you
 should instead publish events to a topic, see xref:actions-publishing-subscribing.adoc[Publishing and Subscribing with Actions]
 
 [#query]
 include::ROOT:partial$query-syntax-reference.adoc[]
+
+include::ROOT:partial$query-syntax-paging.adoc[tag=spring]
