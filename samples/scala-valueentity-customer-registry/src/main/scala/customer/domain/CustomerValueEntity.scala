@@ -9,6 +9,7 @@ import kalix.scalasdk.valueentity.ValueEntity
 import kalix.scalasdk.valueentity.ValueEntityContext
 import com.google.protobuf.empty.Empty
 import customer.api
+import customer.api.DeleteCustomerRequest
 
 class CustomerValueEntity(context: ValueEntityContext) extends AbstractCustomerValueEntity {
 
@@ -31,6 +32,12 @@ class CustomerValueEntity(context: ValueEntityContext) extends AbstractCustomerV
       command: api.ChangeAddressRequest): ValueEntity.Effect[Empty] = {
     val updatedState = currentState.copy(address = command.newAddress.map(convertAddressToDomain))
     effects.updateState(updatedState).thenReply(Empty())
+  }
+
+  override def delete(
+      currentState: CustomerState,
+      command: api.DeleteCustomerRequest): ValueEntity.Effect[Empty] = {
+    effects.deleteState().thenReply(Empty())
   }
 
   override def getCustomer(

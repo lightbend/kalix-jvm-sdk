@@ -15,4 +15,6 @@ class CounterStateSubscriptionAction(creationContext: ActionCreationContext)
   override def onUpdateState(counterState: CounterState): Action.Effect[Empty] =
     effects.reply(Empty.defaultInstance)
 
+  override def onDeleteState(): Action.Effect[Empty] =
+    effects.reply(Empty.defaultInstance)
 }

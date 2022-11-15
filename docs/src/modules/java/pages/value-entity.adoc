@@ -126,9 +126,9 @@ When adding or changing the `rpc` definitions, including name, parameter, and re
 
 === Updating state
 
-In the example below, the `Increase` service call uses the value from the request message `IncreaseValue`. It returns an `Effect` to update the entity state and send a reply.
+In the example below, the `increase` service call uses the value from the request message `IncreaseValue`. It returns an `Effect` to update the entity state and send a reply.
 
-NOTE: For value entities, modify the state and then trigger a save of that state in the returned `Effect`. The Java SDK has an `effects().updateState(newState)` method for this purpose. If you change the state but do not call `updateState` in the returned `Effect`, that state change is lost.
+NOTE: For Value Entities, modify the state and then trigger a save of that state in the returned `Effect`. The Java SDK has an `effects().updateState(newState)` method for this purpose. If you change the state but do not call `updateState` in the returned `Effect`, that state change is lost.
 
 
 [.tabset]
@@ -155,6 +155,32 @@ include::java:example$scala-valueentity-counter/src/main/scala/com/example/domai
 <2> From the current state we create a new state with the increased value.
 <3> We store the new state by returning an `Effect` with `effects.updateState`.
 <4> The acknowledgment that the command was successfully processed is only sent if the state update was successful, otherwise there will be an error reply.
+
+=== Deleting state
+
+The next example shows how to delete a Value Entity state by returning special `deleteState()` effect.
+
+NOTE: After deleting the Value Entity it is possible to create it again, with the same entity ID.
+
+[.tabset]
+Java::
++
+[source,java,indent=0]
+./src/main/java/com/example/domain/Counter.java
+----
+include::java:example$java-valueentity-counter/src/main/java/com/example/domain/Counter.java[tag=delete]
+----
+<1> We delete the state by returning an `Effect` with `effects().deleteState()`.
+
+Scala::
++
+[source,scala,indent=0]
+./src/main/java/com/example/domain/Counter.scala
+----
+include::java:example$scala-valueentity-counter/src/main/scala/com/example/domain/Counter.scala[tag=delete]
+----
+<1> We delete the state by returning an `Effect` with `effects.deleteState()`.
+
 
 === Retrieving state
 

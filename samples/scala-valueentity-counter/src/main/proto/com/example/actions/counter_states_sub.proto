@@ -31,5 +31,12 @@ service CounterStateSubscription {
     };
   }
 
+  rpc OnDeleteState (google.protobuf.Empty) returns (google.protobuf.Empty) {
+    option (kalix.method).eventing.in = {
+      value_entity: "counter"
+      handle_deletes: true // <4>
+    };
+  }
+
 }
 // end::state-subscription[]
