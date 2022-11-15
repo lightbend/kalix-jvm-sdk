@@ -18,7 +18,7 @@ package kalix.springsdk.impl
 
 import com.google.protobuf.Descriptors.FieldDescriptor.JavaType
 import com.google.protobuf.empty.Empty
-import com.google.protobuf.{Any => JavaPbAny}
+import com.google.protobuf.{ Any => JavaPbAny }
 import kalix.JwtMethodOptions.JwtMethodMode
 import kalix.springsdk.impl.reflection.ServiceIntrospectionException
 import kalix.springsdk.testmodels.action.ActionsTestModels.DeleteWithOneParam
@@ -292,8 +292,7 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
         val rule = findHttpRule(desc, "OnUpdate")
 
         rule.getPost shouldBe
-          "/kalix.springsdk.testmodels.subscriptions.PubSubTestModels.SubscribeToValueEntityWithDeletesAction/OnUpdate"
-
+        "/kalix.springsdk.testmodels.subscriptions.PubSubTestModels.SubscribeToValueEntityWithDeletesAction/OnUpdate"
 
         val onDeleteMethodDescriptor = findMethodByName(desc, "OnDelete")
         onDeleteMethodDescriptor.isServerStreaming shouldBe false
@@ -307,7 +306,7 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
         deleteEventing.hasHandleDeletes shouldBe true
         val deleteRule = findHttpRule(desc, "OnUpdate")
         deleteRule.getPost shouldBe
-          "/kalix.springsdk.testmodels.subscriptions.PubSubTestModels.SubscribeToValueEntityWithDeletesAction/OnUpdate"
+        "/kalix.springsdk.testmodels.subscriptions.PubSubTestModels.SubscribeToValueEntityWithDeletesAction/OnUpdate"
       }
     }
 
