@@ -7,19 +7,21 @@ import kalix.springsdk.annotations.Subscribe;
 import kalix.springsdk.annotations.Table;
 import kalix.springsdk.annotations.ViewId;
 import org.springframework.web.bind.annotation.GetMapping;
-import reactor.core.publisher.Flux;
 
-@ViewId("view_summary_customers_by_name")
-@Table("customers")
+@ViewId("view_summary_customer_by_name")
 // tag::class[]
-@Subscribe.ValueEntity(CustomerEntity.class)
-public class CustomerSummaryByName extends View<Customer> { // <1>
+@Table("customers")
+public class CustomerSummaryByName extends View<CustomerSummary> { // <1>
 
-  @GetMapping("/summary/by_name/{customerName}")   // <2>
-  @Query(
-      value = "SELECT customerId AS id, name FROM customers WHERE name = :customerName", // <3>
-      streamUpdates = true) // <4>
-  public Flux<CustomerSummary> getCustomer() { // <5>
+  @Subscribe.ValueEntity(CustomerEntity.class) // <2>
+  public UpdateEffect<CustomerSummary> onChange(Customer customer) { // <3>
+    return effects()
+        .updateState(new CustomerSummary(customer.email(), customer.name())); // <4>
+  }
+
+  @GetMapping("/summary/by_name/{customerName}")   // <5>
+  @Query("SELECT * FROM customers WHERE name = :customerName") // <6>
+  public CustomerSummary getCustomer() { // <7>
     return null;
   }
 }
