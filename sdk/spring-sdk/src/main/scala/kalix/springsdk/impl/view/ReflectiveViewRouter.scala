@@ -20,6 +20,7 @@ import java.lang.reflect.ParameterizedType
 
 import com.google.protobuf.any.{ Any => ScalaPbAny }
 import kalix.javasdk.JsonSupport
+import kalix.javasdk.impl.AnySupport.ProtobufEmptyTypeUrl
 import kalix.javasdk.impl.view.ViewRouter
 import kalix.javasdk.impl.view.ViewUpdateEffectImpl
 import kalix.javasdk.view.View
@@ -58,17 +59,25 @@ class ReflectiveViewRouter[S, V <: View[S]](
     }
 
     val commandHandler = commandHandlerLookup(commandName)
-    val context =
-      InvocationContext(event.asInstanceOf[ScalaPbAny], commandHandler.requestMessageDescriptor)
 
-    val inputTypeUrl = event.asInstanceOf[ScalaPbAny].typeUrl
+    val anyEvent = event.asInstanceOf[ScalaPbAny]
+    val inputTypeUrl = anyEvent.typeUrl
     val methodInvoker = commandHandler.lookupInvoker(inputTypeUrl)
 
     methodInvoker match {
       case Some(invoker) =>
-        invoker
-          .invoke(view, context)
-          .asInstanceOf[View.UpdateEffect[S]]
+        inputTypeUrl match {
+          case ProtobufEmptyTypeUrl =>
+            invoker
+              .invoke(view)
+              .asInstanceOf[View.UpdateEffect[S]]
+          case _ =>
+            val context =
+              InvocationContext(anyEvent, commandHandler.requestMessageDescriptor)
+            invoker
+              .invoke(view, context)
+              .asInstanceOf[View.UpdateEffect[S]]
+        }
       case None if ignoreUnknown => ViewUpdateEffectImpl.builder().ignore()
       case None =>
         throw new NoSuchElementException(s"Couldn't find any method with input type [$inputTypeUrl] in View [$view].")

@@ -20,6 +20,7 @@ import com.google.api.{ AnnotationsProto => HttpAnnotationsProto }
 import com.google.protobuf.AnyProto
 import com.google.protobuf.DescriptorProtos
 import com.google.protobuf.Descriptors
+import com.google.protobuf.EmptyProto
 import kalix.{ Annotations => KalixAnnotations }
 import org.slf4j.LoggerFactory
 
@@ -29,7 +30,11 @@ private[impl] object ProtoDescriptorGenerator {
 
   // do we need to recurse into the dependencies of the dependencies? Probably not, just top level imports.
   private val dependencies: Array[Descriptors.FileDescriptor] =
-    Array(AnyProto.getDescriptor, HttpAnnotationsProto.getDescriptor, KalixAnnotations.getDescriptor)
+    Array(
+      AnyProto.getDescriptor,
+      EmptyProto.getDescriptor,
+      HttpAnnotationsProto.getDescriptor,
+      KalixAnnotations.getDescriptor)
 
   def genFileDescriptor(
       name: String,
@@ -45,6 +50,7 @@ private[impl] object ProtoDescriptorGenerator {
       .setOptions(DescriptorProtos.FileOptions.newBuilder.setJavaMultipleFiles(true).build)
 
     protoBuilder.addDependency("google/protobuf/any.proto")
+    protoBuilder.addDependency("google/protobuf/empty.proto")
     protoBuilder.addService(service)
     messages.foreach(protoBuilder.addMessageType)
 

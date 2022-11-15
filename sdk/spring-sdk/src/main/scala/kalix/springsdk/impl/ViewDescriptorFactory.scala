@@ -21,8 +21,10 @@ import java.lang.reflect.ParameterizedType
 
 import kalix.Eventing
 import kalix.MethodOptions
+import kalix.javasdk.valueentity
 import kalix.springsdk.annotations.Query
 import kalix.springsdk.annotations.Subscribe
+import kalix.springsdk.annotations.Subscribe.ValueEntity
 import kalix.springsdk.annotations.Table
 import kalix.springsdk.impl.ComponentDescriptorFactory.buildJWTOptions
 import kalix.springsdk.impl.ComponentDescriptorFactory.combineByES
@@ -30,13 +32,14 @@ import kalix.springsdk.impl.ComponentDescriptorFactory.eventingInForEventSourced
 import kalix.springsdk.impl.ComponentDescriptorFactory.eventingInForEventSourcedEntityServiceLevel
 import kalix.springsdk.impl.ComponentDescriptorFactory.eventingInForValueEntity
 import kalix.springsdk.impl.ComponentDescriptorFactory.findEventSourcedEntityType
+import kalix.springsdk.impl.ComponentDescriptorFactory.findHandleDeletes
 import kalix.springsdk.impl.ComponentDescriptorFactory.findValueEntityType
 import kalix.springsdk.impl.ComponentDescriptorFactory.hasEventSourcedEntitySubscription
-import kalix.springsdk.impl.ComponentDescriptorFactory.hasTopicSubscription
+import kalix.springsdk.impl.ComponentDescriptorFactory.hasHandleDeletes
 import kalix.springsdk.impl.ComponentDescriptorFactory.hasUpdateEffectOutput
 import kalix.springsdk.impl.ComponentDescriptorFactory.hasValueEntitySubscription
-import kalix.springsdk.impl.ComponentDescriptorFactory.publishToEventStream
 import kalix.springsdk.impl.ComponentDescriptorFactory.subscribeToEventStream
+import kalix.springsdk.impl.reflection.HandleDeletesServiceMethod
 import kalix.springsdk.impl.reflection.KalixMethod
 import kalix.springsdk.impl.reflection.NameGenerator
 import kalix.springsdk.impl.reflection.SubscriptionServiceMethod
@@ -45,6 +48,7 @@ import kalix.springsdk.impl.reflection.RestServiceIntrospector
 import kalix.springsdk.impl.reflection.RestServiceIntrospector.BodyParameter
 import kalix.springsdk.impl.reflection.ServiceIntrospectionException
 import kalix.springsdk.impl.reflection.SyntheticRequestServiceMethod
+import kalix.springsdk.impl.reflection.VirtualDeleteServiceMethod
 import kalix.springsdk.impl.reflection.VirtualServiceMethod
 import reactor.core.publisher.Flux
 
@@ -77,7 +81,6 @@ private[impl] object ViewDescriptorFactory extends ComponentDescriptorFactory {
         throw InvalidComponentException(
           "Mixed usage of @Subscribe.ValueEntity annotations. " +
           "You should either use it at type level or at method level, not both.")
-
       if (hasTypeLevelValueEntitySubs)
         subscriptionForTypeLevelValueEntity(component, tableType, tableName, tableProtoMessageName)
       else if (hasMethodLevelValueEntitySubs)
@@ -336,19 +339,47 @@ private[impl] object ViewDescriptorFactory extends ComponentDescriptorFactory {
       component: Class[_],
       tableType: Class[_],
       tableName: String,
-      tableProtoMessageName: String) = {
+      tableProtoMessageName: String): Seq[KalixMethod] = {
     var previousEntityClass: Option[Class[_]] = None
 
     import ReflectionUtils.methodOrdering
 
-    def invalidComponentException(method: Method, stateClass: Class[_], extraMessage: String) = {
+    def invalidParametersException(method: Method, stateClass: Class[_], extraMessage: String) = {
       throw InvalidComponentException(
         s"Method [${method.getName}] annotated with '@Subscribe.ValueEntity' should either receive " +
         s"a single parameter of type [${stateClass.getName}] or " +
         s"two ordered parameters of type [${tableType.getName}, ${stateClass.getName}]. $extraMessage")
     }
 
-    component.getMethods
+    def invalidParametersForHandleDeletesException(method: Method, extraMessage: String) = {
+      throw InvalidComponentException(
+        s"Method [${method.getName}] annotated with '@Subscribe.ValueEntity' and handleDeletes=true must not have parameters. $extraMessage")
+    }
+
+    validateHandleDeletesTrueOnMethodLevel(component)
+    validateIfHandleDeletesMethodsMatchesSubscriptions(component)
+
+    val handleDeletesMethods = component.getMethods
+      .filter(hasHandleDeletes)
+      .sorted
+      .map { method =>
+        method.getParameterTypes.toList match {
+          case params if params.nonEmpty =>
+            invalidParametersForHandleDeletesException(method, s"Found ${params.size} method parameters.")
+          case _ => // happy days, dev did good with the signature
+        }
+
+        val methodOptionsBuilder = kalix.MethodOptions.newBuilder()
+        methodOptionsBuilder.setEventing(eventingInForValueEntity(method))
+        addTableOptionsToUpdateMethod(tableName, tableProtoMessageName, methodOptionsBuilder, transform = true)
+
+        KalixMethod(HandleDeletesServiceMethod(method))
+          .withKalixOptions(methodOptionsBuilder.build())
+          .withKalixOptions(buildJWTOptions(method))
+      }
+
+    val valueEntitySubscriptionMethods = component.getMethods
+      .filterNot(hasHandleDeletes)
       .filter(hasValueEntitySubscription)
       .sorted // make sure we get the methods in deterministic order
       .map { method =>
@@ -363,29 +394,79 @@ private[impl] object ViewDescriptorFactory extends ComponentDescriptorFactory {
           case Some(`entityClass`) => // ok
           case Some(other) =>
             throw InvalidComponentException(
-              s"All update methods must return the same type, but [${method.getName}] returns [${entityClass.getName}] while a previous update method returns [${other.getName}]")
+              s"All update methods must subscribe to the same type, but [${method.getName}] subscribes to [${entityClass.getName}] while a previous update method subscribes to [${other.getName}]")
           case None => previousEntityClass = Some(entityClass)
         }
 
         method.getParameterTypes.toList match {
           case params if params.size > 2 =>
-            invalidComponentException(
+            invalidParametersException(
               method,
               stateClass,
               s"Subscription method should have only one parameter, found ${params.size}")
           case _ => // happy days, dev did good with the signature
         }
 
-        // event sourced or topic subscription updates
         val methodOptionsBuilder = kalix.MethodOptions.newBuilder()
         methodOptionsBuilder.setEventing(eventingInForValueEntity(method))
-        addTableOptionsToUpdateMethod(tableName, tableProtoMessageName, methodOptionsBuilder, true)
+        addTableOptionsToUpdateMethod(tableName, tableProtoMessageName, methodOptionsBuilder, transform = true)
 
         KalixMethod(SubscriptionServiceMethod(method))
           .withKalixOptions(methodOptionsBuilder.build())
           .withKalixOptions(buildJWTOptions(method))
       }
-      .toSeq
+
+    (handleDeletesMethods ++ valueEntitySubscriptionMethods).toSeq
+  }
+
+  private def validateHandleDeletesTrueOnMethodLevel(component: Class[_]) = {
+    val incorrectDeleteHandlers = component.getMethods
+      .filter(hasValueEntitySubscription)
+      .filter(_.getParameterTypes.isEmpty) //maybe a delete handler
+      .filterNot(hasHandleDeletes)
+      .map(_.getName)
+
+    if (incorrectDeleteHandlers.nonEmpty) {
+      throw InvalidComponentException(
+        s"Methods: '${incorrectDeleteHandlers.mkString(", ")}' look like delete handlers but with handleDeletes flag eq false. " +
+        s"Change flag to true, or fix method signature to accept one parameter.")
+    }
+  }
+
+  private def validateIfHandleDeletesMethodsMatchesSubscriptions(component: Class[_]) = {
+    val handleDeletesValueEntityClasses = component.getMethods
+      .filter(hasHandleDeletes)
+      .map(method => (method.getName, method.getAnnotation(classOf[ValueEntity]).value()))
+      .toMap
+
+    val valueEntitySubscriptionMethods = component.getMethods
+      .filterNot(hasHandleDeletes)
+      .filter(hasValueEntitySubscription)
+      .map(method => (method.getName, method.getAnnotation(classOf[ValueEntity]).value()))
+      .toMap
+
+    validateDuplicatedClasses(handleDeletesValueEntityClasses)
+    validateDuplicatedClasses(valueEntitySubscriptionMethods)
+
+    val deletesVEClasses = handleDeletesValueEntityClasses.values.map(_.getName).toSet
+    val subscriptionVEClasses = valueEntitySubscriptionMethods.values.map(_.getName).toSet
+
+    val diff = deletesVEClasses.diff(subscriptionVEClasses)
+
+    if (diff.nonEmpty) {
+      throw InvalidComponentException(
+        s"Some methods annotated with handleDeletes=true don't have matching subscription methods. " +
+        s"Add subscription annotated with '@Subscribe.ValueEntity' for types: ${diff.mkString(", ")}")
+    }
+  }
+
+  def validateDuplicatedClasses(methodWithValueEntityClass: Map[String, Class[_ <: valueentity.ValueEntity[_]]]) = {
+    methodWithValueEntityClass.groupBy(_._2.getName).map {
+      case (className, groupedMethods) if groupedMethods.size > 1 =>
+        throw new InvalidComponentException(
+          s"Duplicated subscription to the same ValueEntity: $className from methods: ${groupedMethods.keys.mkString(", ")}")
+      case _ => //ok
+    }
   }
 
   private def subscriptionForTypeLevelValueEntity(
@@ -407,14 +488,22 @@ private[impl] object ViewDescriptorFactory extends ComponentDescriptorFactory {
         "the types of the entity and the subscribing must be the same.")
 
     val entityType = findValueEntityType(component)
-    methodOptionsBuilder.setEventing(eventingInForValueEntity(entityType))
+    methodOptionsBuilder.setEventing(eventingInForValueEntity(entityType, handleDeletes = false))
 
-    addTableOptionsToUpdateMethod(tableName, tableProtoMessageName, methodOptionsBuilder, false)
+    addTableOptionsToUpdateMethod(tableName, tableProtoMessageName, methodOptionsBuilder, transform = false)
     val kalixOptions = methodOptionsBuilder.build()
 
-    Seq(
-      KalixMethod(VirtualServiceMethod(component, "OnChange", tableType))
-        .withKalixOptions(kalixOptions))
+    if (findHandleDeletes(component)) {
+      val deleteMethodOptionsBuilder = kalix.MethodOptions.newBuilder()
+      deleteMethodOptionsBuilder.setEventing(eventingInForValueEntity(entityType, handleDeletes = true))
+      addTableOptionsToUpdateMethod(tableName, tableProtoMessageName, deleteMethodOptionsBuilder, transform = false)
+      Seq(
+        KalixMethod(VirtualServiceMethod(component, "OnChange", tableType)).withKalixOptions(kalixOptions),
+        KalixMethod(VirtualDeleteServiceMethod(component, "OnDelete")).withKalixOptions(
+          deleteMethodOptionsBuilder.build()))
+    } else {
+      Seq(KalixMethod(VirtualServiceMethod(component, "OnChange", tableType)).withKalixOptions(kalixOptions))
+    }
   }
 
   private def addTableOptionsToUpdateMethod(

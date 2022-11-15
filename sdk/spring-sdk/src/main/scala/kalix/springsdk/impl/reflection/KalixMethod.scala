@@ -25,6 +25,7 @@ import com.google.protobuf.any.{ Any => ScalaPbAny }
 import kalix.springsdk.impl.AclDescriptorFactory
 import kalix.springsdk.impl.path.PathPattern
 import kalix.springsdk.impl.path.PathPatternParser
+import kalix.springsdk.impl.reflection.PathBuilder.buildPathTemplate
 import kalix.springsdk.impl.reflection.RestServiceIntrospector.PathParameter
 import kalix.springsdk.impl.reflection.RestServiceIntrospector.RestMethodParameter
 import kalix.springsdk.impl.reflection.RestServiceIntrospector.isEmpty
@@ -65,11 +66,6 @@ sealed trait ServiceMethod {
 
 sealed trait AnyJsonRequestServiceMethod extends ServiceMethod {
   def inputType: Class[_]
-
-  protected def buildPathTemplate(componentName: String, methodName: String): String = {
-    val cls = componentName.replace("$", ".")
-    s"/$cls/${methodName.capitalize}" // FIXME: must pass through NameGenerator?
-  }
 }
 
 /**
@@ -107,7 +103,6 @@ case class CombinedSubscriptionServiceMethod(
 
   val streamIn: Boolean = false
   val streamOut: Boolean = false
-
 }
 
 /**
@@ -126,6 +121,52 @@ case class SubscriptionServiceMethod(javaMethod: Method) extends AnyJsonRequestS
 
   val streamIn: Boolean = ServiceMethod.isStreamIn(javaMethod)
   val streamOut: Boolean = ServiceMethod.isStreamOut(javaMethod)
+}
+
+private[reflection] object PathBuilder {
+  def buildPathTemplate(componentName: String, methodName: String): String = {
+    val cls = componentName.replace("$", ".")
+    s"/$cls/${methodName.capitalize}" // FIXME: must pass through NameGenerator?
+  }
+}
+
+/**
+ * Additional trait to simplify pattern matching for actual and virtual delete service method
+ */
+trait DeleteServiceMethod extends ServiceMethod
+
+/**
+ * A special case for subscription method with arity zero, in comparison to SubscriptionServiceMethod with required
+ * arity one.
+ */
+case class HandleDeletesServiceMethod(javaMethod: Method) extends DeleteServiceMethod {
+  override def methodName: String = javaMethod.getName
+
+  override def requestMethod: RequestMethod = RequestMethod.POST
+
+  override def javaMethodOpt: Option[Method] = Some(javaMethod)
+
+  override def pathTemplate: String = buildPathTemplate(javaMethod.getDeclaringClass.getName, methodName)
+
+  override def streamIn: Boolean = false
+
+  override def streamOut: Boolean = false
+}
+
+/**
+ * Similar to VirtualServiceMethod but for deletes.
+ */
+case class VirtualDeleteServiceMethod(component: Class[_], methodName: String) extends DeleteServiceMethod {
+
+  override def requestMethod: RequestMethod = RequestMethod.POST
+
+  override def javaMethodOpt: Option[Method] = None
+
+  override def pathTemplate: String = buildPathTemplate(component.getName, methodName)
+
+  override def streamIn: Boolean = false
+
+  override def streamOut: Boolean = false
 }
 
 /**

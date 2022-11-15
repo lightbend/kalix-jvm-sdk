@@ -47,6 +47,7 @@ object AnySupport {
   private final val KalixPrimitiveFieldNumber = 1
   final val KalixPrimitive = "type.kalix.io/"
   final val DefaultTypeUrlPrefix = "type.googleapis.com"
+  final val ProtobufEmptyTypeUrl = "type.googleapis.com/google.protobuf.Empty"
 
   private val log = LoggerFactory.getLogger(classOf[AnySupport])
 

@@ -17,7 +17,9 @@
 package kalix.springsdk.impl
 
 import java.lang.reflect.Type
+
 import scala.jdk.CollectionConverters.CollectionHasAsScala
+
 import com.google.api.AnnotationsProto
 import com.google.api.CustomHttpPattern
 import com.google.api.HttpRule
@@ -30,10 +32,13 @@ import com.google.protobuf.DescriptorProtos.MethodOptions
 import com.google.protobuf.DescriptorProtos.ServiceDescriptorProto
 import com.google.protobuf.Descriptors
 import com.google.protobuf.Descriptors.FileDescriptor
+import com.google.protobuf.Empty
 import com.google.protobuf.{ Any => JavaPbAny }
 import kalix.javasdk.impl.AnySupport
+import kalix.javasdk.impl.AnySupport.ProtobufEmptyTypeUrl
 import kalix.springsdk.impl.reflection.AnyJsonRequestServiceMethod
 import kalix.springsdk.impl.reflection.CombinedSubscriptionServiceMethod
+import kalix.springsdk.impl.reflection.DeleteServiceMethod
 import kalix.springsdk.impl.reflection.DynamicMessageContext
 import kalix.springsdk.impl.reflection.ExtractorCreator
 import kalix.springsdk.impl.reflection.KalixMethod
@@ -100,6 +105,9 @@ private[impl] object ComponentDescriptor {
 
           case _: AnyJsonRequestServiceMethod =>
             (JavaPbAny.getDescriptor.getFullName, Map.empty[Int, ExtractorCreator], None)
+
+          case _: DeleteServiceMethod =>
+            (Empty.getDescriptor.getFullName, Map.empty[Int, ExtractorCreator], None)
         }
 
       val grpcMethodName = nameGenerator.getName(kalixMethod.serviceMethod.methodName.capitalize)
@@ -225,17 +233,23 @@ private[impl] object ComponentDescriptor {
           CommandHandler(grpcMethodName, messageCodec, JavaPbAny.getDescriptor, methodInvokers)
 
         case method: AnyJsonRequestServiceMethod =>
-          val methodInvokers =
-            serviceMethod.javaMethodOpt.map { meth =>
+          val methodInvokers = serviceMethod.javaMethodOpt.map { meth =>
 
-              val parameterExtractors: ParameterExtractorsArray =
-                Array(ParameterExtractors.AnyBodyExtractor(method.inputType))
+            val parameterExtractors: ParameterExtractorsArray =
+              Array(ParameterExtractors.AnyBodyExtractor(method.inputType))
 
-              val typeUrl = messageCodec.typeUrlFor(method.inputType)
-              (typeUrl, MethodInvoker(meth, parameterExtractors))
-            }.toMap
+            val typeUrl = messageCodec.typeUrlFor(method.inputType)
+            (typeUrl, MethodInvoker(meth, parameterExtractors))
+          }.toMap
 
           CommandHandler(grpcMethodName, messageCodec, JavaPbAny.getDescriptor, methodInvokers)
+
+        case _: DeleteServiceMethod =>
+          val methodInvokers = serviceMethod.javaMethodOpt.map { meth =>
+            (ProtobufEmptyTypeUrl, MethodInvoker(meth, Array.empty[ParameterExtractor[InvocationContext, AnyRef]]))
+          }.toMap
+
+          CommandHandler(grpcMethodName, messageCodec, Empty.getDescriptor, methodInvokers)
       }
 
     }
