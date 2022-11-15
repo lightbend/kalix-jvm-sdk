@@ -65,6 +65,8 @@ final class GrpcClients(system: ExtendedActorSystem) extends Extension {
   @volatile private var identificationInfo: Option[IdentificationInfo] = None
   private implicit val ec: ExecutionContext = system.dispatcher
   private val clients = new ConcurrentHashMap[Key, AnyRef]()
+  private val MaxCrossServiceResponseContentLength =
+    system.settings.config.getBytes("kalix.cross-service.max-content-length").toInt
 
   CoordinatedShutdown(system).addTask(CoordinatedShutdown.PhaseServiceStop, "stop-grpc-clients")(() =>
     Future
@@ -163,6 +165,8 @@ final class GrpcClients(system: ExtendedActorSystem) extends Extension {
         .connectToServiceAt(key.service, key.port)(system)
         // (TLS is handled for us by Kalix infra)
         .withTls(false)
+        .withChannelBuilderOverrides(channelBuilder =>
+          channelBuilder.maxInboundMessageSize(MaxCrossServiceResponseContentLength))
     } else {
       log.debug("Creating gRPC client for external service [{}]", key.service)
       // external service, defined in config
