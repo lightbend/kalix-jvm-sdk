@@ -21,6 +21,7 @@ import akka.stream.javadsl.Source
 import com.google.protobuf.any.{ Any => ScalaPbAny }
 import kalix.javasdk.action.Action
 import kalix.javasdk.action.MessageEnvelope
+import kalix.javasdk.impl.AnySupport.ProtobufEmptyTypeUrl
 import kalix.javasdk.impl.action.ActionEffectImpl
 import kalix.javasdk.impl.action.ActionRouter
 import kalix.springsdk.impl.CommandHandler
@@ -51,9 +52,16 @@ class ReflectiveActionRouter[A <: Action](
 
     methodInvoker match {
       case Some(invoker) =>
-        invoker
-          .invoke(action, context)
-          .asInstanceOf[Action.Effect[_]]
+        inputTypeUrl match {
+          case ProtobufEmptyTypeUrl =>
+            invoker
+              .invoke(action)
+              .asInstanceOf[Action.Effect[_]]
+          case _ =>
+            invoker
+              .invoke(action, context)
+              .asInstanceOf[Action.Effect[_]]
+        }
       case None if ignoreUnknown => ActionEffectImpl.Builder.ignore()
       case None =>
         throw new NoSuchElementException(
