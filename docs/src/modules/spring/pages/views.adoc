@@ -178,14 +178,14 @@ include::example$spring-valueentity-customer-registry/src/main/java/com/example/
 
 Kalix creates indexes for the View based on the query. For example, the following query will result in a View with an index on the `name` column:
 
-[source,proto,indent=0]
+[source,sql,indent=0]
 ----
 SELECT * FROM customers WHERE name = :customer_name
 ----
 
 You may realize after a deployment that you forgot adding some parameters to the query Parameters that aren't exposed to the endpoint of the View. After adding these parameters the query is changed and therefore Kalix needs to add indexes for these new columns. For example, changing the above query to filter to add users that are active would mean that Kalix needs to build a View with the index on the `is-active` column.
 
-[source,proto,indent=0]
+[source,sql,indent=0]
 ----
 SELECT * FROM customers WHERE name = :customer_name AND is-active = true
 ----
