@@ -34,7 +34,7 @@ This example assumes the following `Customer` exists:
 include::example$spring-customer-registry-views-quickstart/src/main/java/customer/api/Customer.java[tags=class]
 ----
 
-As well as a Value Entity service `CustomerEntity.java` that will produce the state changes consumed by the View.
+As well as a Value Entity service `CustomerEntity.java` that will produce the state changes consumed by the View. You can consult xref:value-entity#entity-behavior[Value Entity] documentation on how to create such an entity if in need.
 
 
 === Define the View
@@ -74,7 +74,7 @@ In this scenario, the view state should be of type `CustomerSummary` and you wil
 [source,java]
 .src/main/java/com/example/api/CustomerSummaryByName.java
 ----
-include::example$spring-valueentity-customer-registry/src/main/java/com/example/api/CustomerSummaryByName.java[tag=class]
+include::example$spring-valueentity-customer-registry/src/main/java/com/example/view/CustomerSummaryByName.java[tag=class]
 ----
 <1> View is of type `CustomerSummary`.
 <2> `@Subscribe` annotation is at method level rather than at class level.
@@ -154,7 +154,7 @@ You will need to define your entity as this:
 [source,java]
 .src/main/java/com/example/api/CustomersStreamByName.java
 ----
-include::example$spring-valueentity-customer-registry/src/main/java/com/example/api/CustomersStreamByName.java[tag=class]
+include::example$spring-valueentity-customer-registry/src/main/java/com/example/view/CustomersStreamByName.java[tag=class]
 ----
 <1> View state type is the original `Customer` as shown at the beginning of this section.
 <2> Query is mapped to an external route as usual receiving a `customerName` as parameter.
@@ -185,7 +185,7 @@ include::example$spring-valueentity-customer-registry/src/main/java/com/example/
 [source,java,indent=0]
 .src/main/java/com/example/api/CustomersResponseByName.java
 ----
-include::example$spring-valueentity-customer-registry/src/main/java/com/example/api/CustomersResponseByName.java[tag=class]
+include::example$spring-valueentity-customer-registry/src/main/java/com/example/view/CustomersResponseByName.java[tag=class]
 ----
 <1> View state type is the original `Customer` as shown at the beginning of this section.
 <2> Query is mapped to an external route as usual receiving a `customerName` as parameter.
