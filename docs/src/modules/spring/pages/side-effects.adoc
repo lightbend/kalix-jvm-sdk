@@ -1,4 +1,4 @@
-= Running Side Effects in Java
+= Running Side Effects
 
 include::ROOT:partial$include.adoc[]
 
