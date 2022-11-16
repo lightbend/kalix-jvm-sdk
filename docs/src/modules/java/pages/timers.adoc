@@ -1,7 +1,7 @@
 = Timers
 :page-supergroup-java-scala: Language
 
-include::ROOT:partial$timers-intro.adoc[]
+include::partial$timers-intro.adoc[]
 
 To demonstrate its functionality, let's consider an Ordering Service composed of a xref:value-entity.adoc[Value Entity] and an xref:actions.adoc[Action]. The Action will work as a xref:actions-as-controller.adoc[Controller] receiving calls and delegating to the Order Entity.
 
