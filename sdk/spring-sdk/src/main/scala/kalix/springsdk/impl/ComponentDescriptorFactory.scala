@@ -194,15 +194,12 @@ private[impl] object ComponentDescriptorFactory {
 
   def eventingInForValueEntity(javaMethod: Method): Eventing = {
     val entityType = findValueEntityType(javaMethod)
-    val eventingBuilder = EventSource
+    val eventSource = EventSource
       .newBuilder()
       .setValueEntity(entityType)
-    val handleDeletes = findHandleDeletes(javaMethod)
-    if (handleDeletes) {
-      //FIXME remove if, temporal fix for https://github.com/lightbend/kalix-proxy/pull/1706
-      eventingBuilder.setHandleDeletes(handleDeletes)
-    }
-    Eventing.newBuilder().setIn(eventingBuilder.build()).build()
+      .setHandleDeletes(findHandleDeletes(javaMethod))
+      .build()
+    Eventing.newBuilder().setIn(eventSource).build()
   }
 
   def eventingInForEventSourcedEntity(javaMethod: Method): Eventing = {
@@ -261,12 +258,12 @@ private[impl] object ComponentDescriptorFactory {
   }
 
   def eventingInForValueEntity(entityType: String, handleDeletes: Boolean): Eventing = {
-    val eventSourceBuilder = EventSource.newBuilder().setValueEntity(entityType)
-    if (handleDeletes) {
-      //FIXME remove if, temporal fix for https://github.com/lightbend/kalix-proxy/pull/1706
-      eventSourceBuilder.setHandleDeletes(handleDeletes)
-    }
-    Eventing.newBuilder().setIn(eventSourceBuilder.build()).build()
+    val eventSource = EventSource
+      .newBuilder()
+      .setValueEntity(entityType)
+      .setHandleDeletes(handleDeletes)
+      .build()
+    Eventing.newBuilder().setIn(eventSource).build()
   }
 
   def subscribeToEventStream(component: Class[_]): Option[kalix.ServiceOptions] = {

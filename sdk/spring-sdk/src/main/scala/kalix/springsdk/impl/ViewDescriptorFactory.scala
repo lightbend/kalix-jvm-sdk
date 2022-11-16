@@ -21,10 +21,8 @@ import java.lang.reflect.ParameterizedType
 
 import kalix.Eventing
 import kalix.MethodOptions
-import kalix.javasdk.valueentity
 import kalix.springsdk.annotations.Query
 import kalix.springsdk.annotations.Subscribe
-import kalix.springsdk.annotations.Subscribe.ValueEntity
 import kalix.springsdk.annotations.Table
 import kalix.springsdk.impl.ComponentDescriptorFactory.buildJWTOptions
 import kalix.springsdk.impl.ComponentDescriptorFactory.combineByES
