@@ -22,7 +22,7 @@ public class DoubleCounterAction extends Action {
         var counterId = actionContext().eventSubject().get(); // <1>
         var doubleIncrease = increase.value() * 2; // <2>
         var deferredCall = kalixClient.post("/counter/" + counterId + "/increase/" + doubleIncrease, Number.class);
-        return effects().reply(Confirmed.getDefaultInstance()).addSideEffect(SideEffect.of(deferredCall));  // <3>
+        return effects().reply(Confirmed.instance).addSideEffect(SideEffect.of(deferredCall));  // <3>
     }
     // end::controller-side-effect[]
 }

@@ -17,7 +17,7 @@ public class SubscribeTypeLevelAction extends Action {
 
     public Action.Effect<Confirmed> onIncrease(ValueIncreased event){ // <2>
         logger.info("Received increased event: " + event.toString());
-        return effects().reply(Confirmed.defaultInstance()); // <3>
+        return effects().reply(Confirmed.instance); // <3>
     }
 }
 // end::class[]

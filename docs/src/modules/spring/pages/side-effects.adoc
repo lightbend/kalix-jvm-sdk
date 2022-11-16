@@ -35,7 +35,7 @@ include::example$spring-valueentity-counter/src/main/java/com/example/action/Dou
 <2> On incoming request, doubling the value of `increase`, 
 <3> Building a reply using `Confirmed.getDefaultInstance()`. And attaching a side effect, i.e. calling to the `Counter` to increase double the previous amount.
 
-Please note that, the result of a side effect is ignored by the command meaning that even if the call to
+Please note that, the response of the side effect is ignored by the command meaning that even if the deferred call to
 the `Counter` entity fails, the `Action` reply will succeed.
 
 == Unit testing the side effects
