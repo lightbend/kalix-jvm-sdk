@@ -19,6 +19,7 @@ import java.nio.file.Path;
 import kalix.codegen.Log;
 import kalix.codegen.ModelBuilder;
 import scala.collection.Iterable;
+import scala.collection.immutable.List$;
 import scala.util.Either;
 
 /**
@@ -98,7 +99,9 @@ public class GenerateMojo extends AbstractMojo {
                 Either<DescriptorSet.ReadFailure, Iterable<Descriptors.FileDescriptor>> protoFile = descriptors.right().get();
                 if (protoFile.isRight()){
                   Iterable<FileDescriptor> fileDescriptors = protoFile.right().get();
-                  ModelBuilder.Model model = ModelBuilder.introspectProtobufClasses(fileDescriptors, log, ProtoMessageTypeExtractor$.MODULE$);
+                  // additionalDescriptors is empty, because problems with missing descriptors for imports
+                  // can be solved by `includeDependenciesInDescriptorSet` flag, more: https://www.xolstice.org/protobuf-maven-plugin/usage.html
+                  ModelBuilder.Model model = ModelBuilder.introspectProtobufClasses(fileDescriptors, List$.MODULE$.empty(), log, ProtoMessageTypeExtractor$.MODULE$);
                   log.debug("Model: " + model);
                   Iterable<Path> generated = SourceGenerator.generate(
                           model,
