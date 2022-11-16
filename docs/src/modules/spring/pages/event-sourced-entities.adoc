@@ -3,7 +3,7 @@
 :sample-url: https://github.com/lightbend/kalix-jvm-sdk/tree/main/samples/spring-eventsourced-shopping-cart
 
 include::ROOT:partial$include.adoc[]
-include::ROOT:partial$eventsourced.adoc[]
+include::java:partial$eventsourced.adoc[]
 
 https://docs.kalix.io/reference/glossary.html#event_sourced_entity[Event Sourced Entities] persist changes as events and snapshots. Kalix needs to serialize that data to send it to the underlying data store. However, we recommend that you do not persist your service's public API messages. This may introduce some overhead to convert from one type to an internal one but allows the service public interface logic to evolve independently of the data storage format, which should be private.
 
@@ -133,7 +133,7 @@ IMPORTANT: For simplicity purposes, we are returning the internal state directly
 
 == Snapshots
 
-include::ROOT:partial$eventsourced-snapshots.adoc[]
+include::java:partial$eventsourced-snapshots.adoc[]
 
 == Testing the Entity
 

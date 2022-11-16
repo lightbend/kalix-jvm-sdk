@@ -177,6 +177,6 @@ NOTE: This is not intended as transport for xref:service-to-service.adoc[service
 should instead publish events to a topic, see xref:actions-publishing-subscribing.adoc[Publishing and Subscribing with Actions]
 
 [#query]
-include::ROOT:partial$query-syntax-reference.adoc[]
+include::java:partial$query-syntax-reference.adoc[]
 
-include::ROOT:partial$query-syntax-paging.adoc[tag=spring]
+include::java:partial$query-syntax-paging.adoc[tag=spring]
