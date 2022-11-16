@@ -288,7 +288,7 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
 
         val eventing = findKalixMethodOptions(onUpdateMethodDescriptor).getEventing.getIn
         eventing.getValueEntity shouldBe "ve-counter"
-        eventing.hasHandleDeletes shouldBe false
+        eventing.getHandleDeletes shouldBe false
         val rule = findHttpRule(desc, "OnUpdate")
 
         rule.getPost shouldBe
@@ -303,7 +303,7 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
 
         val deleteEventing = findKalixMethodOptions(onDeleteMethodDescriptor).getEventing.getIn
         deleteEventing.getValueEntity shouldBe "ve-counter"
-        deleteEventing.hasHandleDeletes shouldBe true
+        deleteEventing.getHandleDeletes shouldBe true
         val deleteRule = findHttpRule(desc, "OnUpdate")
         deleteRule.getPost shouldBe
         "/kalix.springsdk.testmodels.subscriptions.PubSubTestModels.SubscribeToValueEntityWithDeletesAction/OnUpdate"
