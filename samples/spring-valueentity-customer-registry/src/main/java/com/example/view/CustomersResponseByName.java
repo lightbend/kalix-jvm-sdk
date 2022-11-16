@@ -1,5 +1,7 @@
-package com.example.api;
+package com.example.view;
 
+import com.example.api.CustomerEntity;
+import com.example.api.CustomersResponse;
 import com.example.domain.Customer;
 import kalix.javasdk.view.View;
 import kalix.springsdk.annotations.Query;

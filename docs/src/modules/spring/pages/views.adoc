@@ -61,7 +61,7 @@ IMPORTANT: Adding a view ID to your View allows you to refactor the name of the 
 
 === Using a transformed model
 
-Often times, you will want to transform the entity model to which the view is subscribing into a different representation. To do that, let's have a look at the example in which we store a summary of the `Customer` used in the previous section instead of the original one:
+Often, you will want to transform the entity model to which the view is subscribing into a different representation. To do that, let's have a look at the example in which we store a summary of the `Customer` used in the previous section instead of the original one:
 
 [source,java]
 .src/main/java/com/example/api/CustomerSummary.java
