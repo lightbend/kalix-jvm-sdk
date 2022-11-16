@@ -4,6 +4,7 @@
  */
 package com.example.domain
 
+import com.example.DeleteCounter
 import kalix.scalasdk.Metadata
 import com.example.{ DecreaseValue, IncreaseValue, ResetValue }
 import com.google.protobuf.empty.Empty
@@ -59,6 +60,18 @@ class CounterSpec extends AnyWordSpec with Matchers {
 
       val resetResult = testKit.reset(ResetValue())
       resetResult.reply shouldBe Empty.defaultInstance
+      testKit.currentState().value shouldBe 0
+    }
+
+    "handle command Delete" in {
+      val testKit = CounterTestKit(new Counter(_))
+
+      val result1 = testKit.increase(IncreaseValue(value = 1))
+      result1.reply shouldBe Empty.defaultInstance
+      testKit.currentState().value shouldBe 1
+
+      val deleteResult = testKit.delete(DeleteCounter())
+      deleteResult.reply shouldBe Empty.defaultInstance
       testKit.currentState().value shouldBe 0
     }
 

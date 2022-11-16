@@ -2,12 +2,7 @@ package com.example.actions;
 
 public class Confirmed {
 
-	private static Confirmed instance = null;
+    public static Confirmed instance = new Confirmed();
 
-	private Confirmed(){}
-	
-	public static Confirmed defaultInstance(){
-	  if(instance == null) instance = new Confirmed();
-	  return instance;	
-	}
+    private Confirmed(){}
 }

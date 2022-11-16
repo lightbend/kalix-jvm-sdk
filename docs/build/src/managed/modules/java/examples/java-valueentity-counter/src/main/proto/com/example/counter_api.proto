@@ -27,6 +27,10 @@ message GetCounter {
   string counter_id = 1 [(kalix.field).entity_key = true];
 }
 
+message DeleteCounter {
+  string counter_id = 1 [(kalix.field).entity_key = true];
+}
+
 message CurrentCounter { // <6>
   int32 value = 1;
 }
@@ -45,4 +49,5 @@ service CounterService { // <7>
   rpc Decrease (DecreaseValue) returns (google.protobuf.Empty);
   rpc Reset (ResetValue) returns (google.protobuf.Empty);
   rpc GetCurrentCounter (GetCounter) returns (CurrentCounter);
+  rpc Delete (DeleteCounter) returns (google.protobuf.Empty);
 }
