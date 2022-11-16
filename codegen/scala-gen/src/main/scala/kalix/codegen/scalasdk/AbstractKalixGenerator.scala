@@ -39,7 +39,7 @@ abstract class AbstractKalixGenerator extends CodeGenApp {
 
   override def process(request: CodeGenRequest): CodeGenResponse = {
     val debugEnabled = request.parameter.contains(enableDebug)
-    val model = ModelBuilder.introspectProtobufClasses(request.filesToGenerate)(
+    val model = ModelBuilder.introspectProtobufClasses(request.filesToGenerate, request.allProtos)(
       DebugPrintlnLog(debugEnabled),
       ProtoMessageTypeExtractor(request))
     try {

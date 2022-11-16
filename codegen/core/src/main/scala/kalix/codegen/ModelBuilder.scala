@@ -356,14 +356,19 @@ object ModelBuilder {
    *
    * @param descriptors
    *   the protobuf descriptors containing service entities
+   * @param additionalDescriptors
+   *   additional descriptors, e.g. from imports
    * @return
    *   the entities found
    */
-  def introspectProtobufClasses(descriptors: Iterable[Descriptors.FileDescriptor])(implicit
+  def introspectProtobufClasses(
+      descriptors: Iterable[Descriptors.FileDescriptor],
+      additionalDescriptors: Iterable[Descriptors.FileDescriptor] = Seq.empty)(implicit
       log: Log,
       messageExtractor: ProtoMessageTypeExtractor): Model = {
 
     val descriptorSeq = descriptors.toSeq
+    val additionalDescriptorSeq = (descriptorSeq.toSet ++ additionalDescriptors.toSet).toSeq
 
     descriptorSeq.foldLeft(Model.empty) { case (accModel, fileDescriptor) =>
       log.debug("Looking at descriptor " + fileDescriptor.getName)
@@ -371,7 +376,7 @@ object ModelBuilder {
       val modelFromServices =
         fileDescriptor.getServices.asScala.foldLeft(accModel) { (model, serviceDescriptor) =>
           if (serviceDescriptor.getOptions.hasExtension(kalix.Annotations.codegen)) {
-            model ++ modelFromCodegenOptions(serviceDescriptor, descriptorSeq)
+            model ++ modelFromCodegenOptions(serviceDescriptor, additionalDescriptorSeq)
 
           } else if (serviceDescriptor.getOptions.hasExtension(kalix.Annotations.service)) {
             // FIXME: old format, builds service model from old service annotation
@@ -383,8 +388,8 @@ object ModelBuilder {
 
       // FIXME: old format, builds entity model from domain.proto file
       val modelFromDomainFile =
-        extractEventSourcedEntityDefinitionFromFileOptions(fileDescriptor, descriptorSeq) ++
-        extractValueEntityDefinitionFromFileOptions(fileDescriptor, descriptorSeq) ++
+        extractEventSourcedEntityDefinitionFromFileOptions(fileDescriptor, additionalDescriptorSeq) ++
+        extractValueEntityDefinitionFromFileOptions(fileDescriptor, additionalDescriptorSeq) ++
         extractReplicatedEntityDefinitionFromFileOptions(fileDescriptor)
 
       modelFromServices ++ modelFromDomainFile
