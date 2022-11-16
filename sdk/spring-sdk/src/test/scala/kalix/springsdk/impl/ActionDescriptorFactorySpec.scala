@@ -17,6 +17,7 @@
 package kalix.springsdk.impl
 
 import com.google.protobuf.Descriptors.FieldDescriptor.JavaType
+import com.google.protobuf.empty.Empty
 import com.google.protobuf.{ Any => JavaPbAny }
 import kalix.JwtMethodOptions.JwtMethodMode
 import kalix.springsdk.impl.reflection.ServiceIntrospectionException
@@ -52,6 +53,7 @@ import kalix.springsdk.testmodels.subscriptions.PubSubTestModels.SubscribeToEven
 import kalix.springsdk.testmodels.subscriptions.PubSubTestModels.SubscribeToTopicAction
 import kalix.springsdk.testmodels.subscriptions.PubSubTestModels.SubscribeToTwoTopicsAction
 import kalix.springsdk.testmodels.subscriptions.PubSubTestModels.SubscribeToValueEntityAction
+import kalix.springsdk.testmodels.subscriptions.PubSubTestModels.SubscribeToValueEntityWithDeletesAction
 import org.scalatest.wordspec.AnyWordSpec
 
 class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSuite {
@@ -254,32 +256,57 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
     "generate mapping with Value Entity Subscription annotations" in {
       assertDescriptor[SubscribeToValueEntityAction] { desc =>
 
-        val methodDescriptorOne = findMethodByName(desc, "MessageOne")
-        methodDescriptorOne.isServerStreaming shouldBe false
-        methodDescriptorOne.isClientStreaming shouldBe false
+        val onUpdateMethodDescriptor = findMethodByName(desc, "OnUpdate")
+        onUpdateMethodDescriptor.isServerStreaming shouldBe false
+        onUpdateMethodDescriptor.isClientStreaming shouldBe false
 
-        val methodOne = desc.commandHandlers("MessageOne")
-        methodOne.requestMessageDescriptor.getFullName shouldBe JavaPbAny.getDescriptor.getFullName
+        val onUpdateMethod = desc.commandHandlers("OnUpdate")
+        onUpdateMethod.requestMessageDescriptor.getFullName shouldBe JavaPbAny.getDescriptor.getFullName
 
-        val eventSourceOne = findKalixMethodOptions(methodDescriptorOne).getEventing.getIn
-        eventSourceOne.getValueEntity shouldBe "ve-counter"
-        val rule = findHttpRule(desc, "MessageOne")
+        val eventing = findKalixMethodOptions(onUpdateMethodDescriptor).getEventing.getIn
+        eventing.getValueEntity shouldBe "ve-counter"
+        val rule = findHttpRule(desc, "OnUpdate")
 
         rule.getPost shouldBe
-        "/kalix.springsdk.testmodels.subscriptions.PubSubTestModels.SubscribeToValueEntityAction/MessageOne"
+        "/kalix.springsdk.testmodels.subscriptions.PubSubTestModels.SubscribeToValueEntityAction/OnUpdate"
 
         // should have a default extractor for any payload
-        val javaMethod = methodOne.methodInvokers.values.head
+        val javaMethod = onUpdateMethod.methodInvokers.values.head
         javaMethod.parameterExtractors.length shouldBe 1
+      }
+    }
 
-        val methodDescriptorTwo = findMethodByName(desc, "MessageTwo")
-        methodDescriptorTwo.isServerStreaming shouldBe false
-        methodDescriptorTwo.isClientStreaming shouldBe false
+    "generate mapping with Value Entity and delete handler" in {
+      assertDescriptor[SubscribeToValueEntityWithDeletesAction] { desc =>
 
-        val methodTwo = desc.commandHandlers("MessageTwo")
-        methodTwo.requestMessageDescriptor.getFullName shouldBe JavaPbAny.getDescriptor.getFullName
-        val eventSourceTwo = findKalixMethodOptions(methodDescriptorTwo).getEventing.getIn
-        eventSourceTwo.getValueEntity shouldBe "ve-counter"
+        val onUpdateMethodDescriptor = findMethodByName(desc, "OnUpdate")
+        onUpdateMethodDescriptor.isServerStreaming shouldBe false
+        onUpdateMethodDescriptor.isClientStreaming shouldBe false
+
+        val onUpdateMethod = desc.commandHandlers("OnUpdate")
+        onUpdateMethod.requestMessageDescriptor.getFullName shouldBe JavaPbAny.getDescriptor.getFullName
+
+        val eventing = findKalixMethodOptions(onUpdateMethodDescriptor).getEventing.getIn
+        eventing.getValueEntity shouldBe "ve-counter"
+        eventing.getHandleDeletes shouldBe false
+        val rule = findHttpRule(desc, "OnUpdate")
+
+        rule.getPost shouldBe
+        "/kalix.springsdk.testmodels.subscriptions.PubSubTestModels.SubscribeToValueEntityWithDeletesAction/OnUpdate"
+
+        val onDeleteMethodDescriptor = findMethodByName(desc, "OnDelete")
+        onDeleteMethodDescriptor.isServerStreaming shouldBe false
+        onDeleteMethodDescriptor.isClientStreaming shouldBe false
+
+        val onDeleteMethod = desc.commandHandlers("OnDelete")
+        onDeleteMethod.requestMessageDescriptor.getFullName shouldBe Empty.javaDescriptor.getFullName
+
+        val deleteEventing = findKalixMethodOptions(onDeleteMethodDescriptor).getEventing.getIn
+        deleteEventing.getValueEntity shouldBe "ve-counter"
+        deleteEventing.getHandleDeletes shouldBe true
+        val deleteRule = findHttpRule(desc, "OnUpdate")
+        deleteRule.getPost shouldBe
+        "/kalix.springsdk.testmodels.subscriptions.PubSubTestModels.SubscribeToValueEntityWithDeletesAction/OnUpdate"
       }
     }
 

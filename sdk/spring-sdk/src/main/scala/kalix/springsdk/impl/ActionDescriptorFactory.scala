@@ -34,7 +34,10 @@ import kalix.springsdk.impl.ComponentDescriptorFactory.publishToEventStream
 import kalix.springsdk.impl.ComponentDescriptorFactory.streamSubscription
 import kalix.springsdk.impl.ComponentDescriptorFactory.subscribeToEventStream
 import kalix.springsdk.impl.ComponentDescriptorFactory.validateRestMethod
+import kalix.springsdk.impl.DescriptorValidationCommon.validateHandleDeletesTrueOnMethodLevel
+import kalix.springsdk.impl.DescriptorValidationCommon.validateIfHandleDeletesMethodsMatchesSubscriptions
 import kalix.springsdk.impl.reflection.CombinedSubscriptionServiceMethod
+import kalix.springsdk.impl.reflection.HandleDeletesServiceMethod
 import kalix.springsdk.impl.reflection.KalixMethod
 import kalix.springsdk.impl.reflection.NameGenerator
 import kalix.springsdk.impl.reflection.ReflectionUtils
@@ -73,9 +76,25 @@ private[impl] object ActionDescriptorFactory extends ComponentDescriptorFactory 
         KalixMethod(serviceMethod).withKalixOptions(buildJWTOptions(serviceMethod.javaMethod))
       }
 
+    validateHandleDeletesTrueOnMethodLevel(component)
+    validateIfHandleDeletesMethodsMatchesSubscriptions(component)
+
     //TODO make sure no subscription should be exposed via REST.
     // methods annotated with @Subscribe.ValueEntity
     import ReflectionUtils.methodOrdering
+    val handleDeletesMethods = component.getMethods
+      .filter(hasHandleDeletes)
+      .sorted
+      .map { method =>
+        DescriptorValidationCommon.validateHandleDeletesMethodArity(method)
+
+        val methodOptionsBuilder = kalix.MethodOptions.newBuilder()
+        methodOptionsBuilder.setEventing(eventingInForValueEntity(method))
+
+        KalixMethod(HandleDeletesServiceMethod(method))
+          .withKalixOptions(methodOptionsBuilder.build())
+      }
+
     val subscriptionValueEntityMethods: IndexedSeq[KalixMethod] = component.getMethods
       .filterNot(hasHandleDeletes)
       .filter(hasValueEntitySubscription)
@@ -256,6 +275,7 @@ private[impl] object ActionDescriptorFactory extends ComponentDescriptorFactory 
       serviceOptions = serviceLevelOptions,
       component.getPackageName,
       addKalixOptions(syntheticMethods, publicationTopicMethods)
+      ++ handleDeletesMethods
       ++ subscriptionValueEntityMethods
       ++ combineByES(subscriptionEventSourcedEntityMethods, messageCodec, component)
       ++ combineByES(subscriptionEventSourcedEntityClass, messageCodec, component)

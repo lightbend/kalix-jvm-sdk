@@ -29,6 +29,7 @@ import kalix.springsdk.testmodels.eventsourcedentity.Employee;
 import kalix.springsdk.testmodels.eventsourcedentity.EmployeeCreated;
 import kalix.springsdk.testmodels.eventsourcedentity.EmployeeEmailUpdated;
 import kalix.springsdk.testmodels.valueentity.Counter;
+import kalix.springsdk.testmodels.valueentity.CounterState;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -40,13 +41,21 @@ public class PubSubTestModels {//TODO shall we remove this class and move things
   public static class SubscribeToValueEntityAction extends Action {
 
     @Subscribe.ValueEntity(Counter.class)
-    public Action.Effect<Message> messageOne(Message message) {
+    public Action.Effect<CounterState> onUpdate(CounterState message) {
+      return effects().reply(message);
+    }
+  }
+
+  public static class SubscribeToValueEntityWithDeletesAction extends Action {
+
+    @Subscribe.ValueEntity(Counter.class)
+    public Action.Effect<CounterState> onUpdate(CounterState message) {
       return effects().reply(message);
     }
 
-    @Subscribe.ValueEntity(Counter.class)
-    public Action.Effect<Message> messageTwo(Message message) {
-      return effects().reply(message);
+    @Subscribe.ValueEntity(value = Counter.class, handleDeletes = true)
+    public Action.Effect<CounterState> onDelete() {
+      return effects().ignore();
     }
   }
 

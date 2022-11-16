@@ -20,9 +20,11 @@ import com.example.Main;
 import com.example.wiring.actions.echo.Message;
 import com.example.wiring.eventsourcedentities.counter.Counter;
 import com.example.wiring.valueentities.user.User;
+import com.example.wiring.valueentities.user.UserSideEffect;
 import com.example.wiring.views.UserWithVersion;
 import kalix.springsdk.KalixConfigurationTest;
 import org.hamcrest.core.IsEqual;
+import org.hamcrest.core.IsNull;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.Assertions;
@@ -304,6 +306,29 @@ public class SpringSdkIntegrationTest {
         .until(() -> getUserByEmail(user.email).version,
             new IsEqual(2));
   }
+
+  @Test
+  public void verifyUserSubscriptionAction() throws InterruptedException {
+
+    TestUser user = new TestUser("123", "john@doe.com", "JohnDoe");
+
+    createUser(user);
+
+    await()
+        .ignoreExceptions()
+        .atMost(15, TimeUnit.of(SECONDS))
+        .until(() -> UserSideEffect.getUsers().get(user.id),
+            new IsEqual(new User(user.email, user.name)));
+
+    deleteUser(user);
+
+    await()
+        .ignoreExceptions()
+        .atMost(15, TimeUnit.of(SECONDS))
+        .until(() -> UserSideEffect.getUsers().get(user.id),
+            new IsNull<>());
+  }
+
 
   @Test
   public void shouldDeleteValueEntityAndDeleteViewsState() throws InterruptedException {

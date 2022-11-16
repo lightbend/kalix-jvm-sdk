@@ -21,10 +21,8 @@ import java.lang.reflect.ParameterizedType
 
 import kalix.Eventing
 import kalix.MethodOptions
-import kalix.javasdk.valueentity
 import kalix.springsdk.annotations.Query
 import kalix.springsdk.annotations.Subscribe
-import kalix.springsdk.annotations.Subscribe.ValueEntity
 import kalix.springsdk.annotations.Table
 import kalix.springsdk.impl.ComponentDescriptorFactory.buildJWTOptions
 import kalix.springsdk.impl.ComponentDescriptorFactory.combineByES
@@ -39,6 +37,9 @@ import kalix.springsdk.impl.ComponentDescriptorFactory.hasHandleDeletes
 import kalix.springsdk.impl.ComponentDescriptorFactory.hasUpdateEffectOutput
 import kalix.springsdk.impl.ComponentDescriptorFactory.hasValueEntitySubscription
 import kalix.springsdk.impl.ComponentDescriptorFactory.subscribeToEventStream
+import kalix.springsdk.impl.DescriptorValidationCommon.validateHandleDeletesMethodArity
+import kalix.springsdk.impl.DescriptorValidationCommon.validateHandleDeletesTrueOnMethodLevel
+import kalix.springsdk.impl.DescriptorValidationCommon.validateIfHandleDeletesMethodsMatchesSubscriptions
 import kalix.springsdk.impl.reflection.HandleDeletesServiceMethod
 import kalix.springsdk.impl.reflection.KalixMethod
 import kalix.springsdk.impl.reflection.NameGenerator
@@ -351,11 +352,6 @@ private[impl] object ViewDescriptorFactory extends ComponentDescriptorFactory {
         s"two ordered parameters of type [${tableType.getName}, ${stateClass.getName}]. $extraMessage")
     }
 
-    def invalidParametersForHandleDeletesException(method: Method, extraMessage: String) = {
-      throw InvalidComponentException(
-        s"Method [${method.getName}] annotated with '@Subscribe.ValueEntity' and handleDeletes=true must not have parameters. $extraMessage")
-    }
-
     validateHandleDeletesTrueOnMethodLevel(component)
     validateIfHandleDeletesMethodsMatchesSubscriptions(component)
 
@@ -363,11 +359,7 @@ private[impl] object ViewDescriptorFactory extends ComponentDescriptorFactory {
       .filter(hasHandleDeletes)
       .sorted
       .map { method =>
-        method.getParameterTypes.toList match {
-          case params if params.nonEmpty =>
-            invalidParametersForHandleDeletesException(method, s"Found ${params.size} method parameters.")
-          case _ => // happy days, dev did good with the signature
-        }
+        validateHandleDeletesMethodArity(method)
 
         val methodOptionsBuilder = kalix.MethodOptions.newBuilder()
         methodOptionsBuilder.setEventing(eventingInForValueEntity(method))
@@ -417,56 +409,6 @@ private[impl] object ViewDescriptorFactory extends ComponentDescriptorFactory {
       }
 
     (handleDeletesMethods ++ valueEntitySubscriptionMethods).toSeq
-  }
-
-  private def validateHandleDeletesTrueOnMethodLevel(component: Class[_]) = {
-    val incorrectDeleteHandlers = component.getMethods
-      .filter(hasValueEntitySubscription)
-      .filter(_.getParameterTypes.isEmpty) //maybe a delete handler
-      .filterNot(hasHandleDeletes)
-      .map(_.getName)
-
-    if (incorrectDeleteHandlers.nonEmpty) {
-      throw InvalidComponentException(
-        s"Methods: '${incorrectDeleteHandlers.mkString(", ")}' look like delete handlers but with handleDeletes flag eq false. " +
-        s"Change flag to true, or fix method signature to accept one parameter.")
-    }
-  }
-
-  private def validateIfHandleDeletesMethodsMatchesSubscriptions(component: Class[_]) = {
-    val handleDeletesValueEntityClasses = component.getMethods
-      .filter(hasHandleDeletes)
-      .map(method => (method.getName, method.getAnnotation(classOf[ValueEntity]).value()))
-      .toMap
-
-    val valueEntitySubscriptionMethods = component.getMethods
-      .filterNot(hasHandleDeletes)
-      .filter(hasValueEntitySubscription)
-      .map(method => (method.getName, method.getAnnotation(classOf[ValueEntity]).value()))
-      .toMap
-
-    validateDuplicatedClasses(handleDeletesValueEntityClasses)
-    validateDuplicatedClasses(valueEntitySubscriptionMethods)
-
-    val deletesVEClasses = handleDeletesValueEntityClasses.values.map(_.getName).toSet
-    val subscriptionVEClasses = valueEntitySubscriptionMethods.values.map(_.getName).toSet
-
-    val diff = deletesVEClasses.diff(subscriptionVEClasses)
-
-    if (diff.nonEmpty) {
-      throw InvalidComponentException(
-        s"Some methods annotated with handleDeletes=true don't have matching subscription methods. " +
-        s"Add subscription annotated with '@Subscribe.ValueEntity' for types: ${diff.mkString(", ")}")
-    }
-  }
-
-  def validateDuplicatedClasses(methodWithValueEntityClass: Map[String, Class[_ <: valueentity.ValueEntity[_]]]) = {
-    methodWithValueEntityClass.groupBy(_._2.getName).map {
-      case (className, groupedMethods) if groupedMethods.size > 1 =>
-        throw new InvalidComponentException(
-          s"Duplicated subscription to the same ValueEntity: $className from methods: ${groupedMethods.keys.mkString(", ")}")
-      case _ => //ok
-    }
   }
 
   private def subscriptionForTypeLevelValueEntity(
