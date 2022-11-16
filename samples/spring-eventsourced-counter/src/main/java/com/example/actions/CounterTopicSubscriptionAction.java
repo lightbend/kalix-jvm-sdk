@@ -18,14 +18,14 @@ public class CounterTopicSubscriptionAction extends Action {
     @Subscribe.Topic(value = "counter-events") // <1>
     public Action.Effect<Confirmed> onValueIncreased(ValueIncreased event){ // <2>
         logger.info("Received increased event: " + event.toString());
-        return effects().reply(Confirmed.defaultInstance()); // <3>
+        return effects().reply(Confirmed.instance); // <3>
     }
 
 
     @Subscribe.Topic(value = "counter-events") // <4>
     public Action.Effect<Confirmed> onValueMultiplied(ValueMultiplied event){ // <5>
         logger.info("Received multiplied event: " + event.toString());
-        return effects().reply(Confirmed.defaultInstance()); // <6>
+        return effects().reply(Confirmed.instance); // <6>
     }
 }
 // end::class[]
