@@ -22,7 +22,7 @@ As mentioned above, to help us illustrate a Value Entity, you will be implementi
 include::example$spring-valueentity-counter/src/main/java/com/example/Number.java[]
 ----
 
-
+[#entity-behavior]
 == Implementing behavior
 
 Now that you have a good idea of what we want to build and what its API looks like, you will need to:
