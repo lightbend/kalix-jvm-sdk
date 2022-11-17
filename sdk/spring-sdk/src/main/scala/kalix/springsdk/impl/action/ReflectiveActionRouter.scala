@@ -41,7 +41,7 @@ class ReflectiveActionRouter[A <: Action](
 
     val commandHandler = commandHandlerLookup(commandName)
 
-    val context =
+    val invocationContext =
       InvocationContext(
         message.payload().asInstanceOf[ScalaPbAny],
         commandHandler.requestMessageDescriptor,
@@ -59,7 +59,7 @@ class ReflectiveActionRouter[A <: Action](
               .asInstanceOf[Action.Effect[_]]
           case _ =>
             invoker
-              .invoke(action, context)
+              .invoke(action, invocationContext)
               .asInstanceOf[Action.Effect[_]]
         }
       case None if ignoreUnknown => ActionEffectImpl.Builder.ignore()
