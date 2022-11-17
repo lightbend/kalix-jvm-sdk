@@ -3,11 +3,11 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>com.example</groupId>
-  <artifactId>spring-reliable-timers</artifactId>
-  <version>0.0.1</version>
+  <artifactId>spring-doc-snippets</artifactId>
+  <version>1.0-SNAPSHOT</version>
   <packaging>jar</packaging>
 
-  <name>spring-reliable-timer</name>
+  <name>spring-doc-snippets</name>
   <properties>
 
     <!-- TODO Update to your own Docker repository or Docker Hub scope -->
@@ -298,5 +298,6 @@
       <version>5.5.2</version>
       <scope>test</scope>
     </dependency>
+    
   </dependencies>
 </project>

@@ -83,6 +83,8 @@ class DiscoveryImpl(
       in.protocolMajorVersion,
       in.protocolMinorVersion)
 
+    ProxyInfoHolder(system).setProxyInfo(in)
+
     // possibly filtered or hidden env, passed along for substitution in descriptor options
     val env: Map[String, String] = system.settings.config.getAnyRef("kalix.discovery.pass-along-env-allow") match {
       case false => Map.empty
@@ -119,17 +121,6 @@ class DiscoveryImpl(
       val unsupportedServices = services.values.filterNot { service =>
         in.supportedEntityTypes.contains(service.componentType)
       }
-
-      val grpcClients = GrpcClients(system)
-      // pass the deployed name of the service on to GrpcClients for cross component calls
-      if (in.internalProxyHostname.isEmpty) {
-        // for backward compatibility with proxy 1.0.14 or older
-        grpcClients.setProxyHostname(in.proxyHostname)
-      } else {
-        grpcClients.setProxyHostname(in.internalProxyHostname)
-      }
-      grpcClients.setProxyPort(in.proxyPort)
-      grpcClients.setIdentificationInfo(in.identificationInfo)
 
       if (unsupportedServices.nonEmpty) {
         log.error(

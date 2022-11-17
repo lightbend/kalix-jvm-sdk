@@ -26,6 +26,7 @@ import kalix.javasdk.Principal;
 import kalix.javasdk.impl.GrpcClients;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
+import kalix.javasdk.impl.ProxyInfoHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -186,8 +187,11 @@ public class KalixTestKit {
     proxyContainer.addEnv("ACL_ENABLED", Boolean.toString(settings.aclEnabled));
     proxyContainer.start();
     started = true;
-    // pass on proxy and host to GrpcClients to allow for inter-component communication
-    GrpcClients.get(runner.system()).setProxyPort(proxyContainer.getProxyPort());
+
+    // the proxy will announce its default port, but to communicate with it,
+    // we need the use the port that testcontainers will expose
+    // therefore, we set a port override in ProxyInfoHolder to allow for inter-component communication
+    ProxyInfoHolder.get(runner.system()).overridePort(proxyContainer.getProxyPort());
     return this;
   }
 
