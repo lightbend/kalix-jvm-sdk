@@ -5,9 +5,6 @@
 
 package com.example;
 
-import com.example.CounterApi;
-import com.example.CounterService;
-import com.example.Main;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
 import kalix.javasdk.testkit.junit.KalixTestKitResource;
@@ -16,7 +13,6 @@ import org.junit.ClassRule;
 import org.junit.Test;
 
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeoutException;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.hamcrest.CoreMatchers.is;

@@ -20,7 +20,17 @@ public class CustomerSummaryByName extends View<CustomerSummary> { // <1>
     return effects()
         .updateState(new CustomerSummary(customer.email(), customer.name())); // <4>
   }
+  // end::class[]
 
+  // tag::delete[]
+  @Subscribe.ValueEntity(value = CustomerEntity.class, handleDeletes = true) // <1>
+  public UpdateEffect<CustomerSummary> onDelete() { // <2>
+    return effects()
+        .deleteState(); // <3>
+  }
+  // end::delete[]
+
+  // tag:class[]
   @GetMapping("/summary/by_name/{customerName}")   // <5>
   @Query("SELECT * FROM customers WHERE name = :customerName") // <6>
   public CustomerSummary getCustomer() { // <7>
