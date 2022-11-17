@@ -30,7 +30,7 @@ public class CustomerSummaryByName extends View<CustomerSummary> { // <1>
   }
   // end::delete[]
 
-  // tag:class[]
+  // tag::class[]
   @GetMapping("/summary/by_name/{customerName}")   // <5>
   @Query("SELECT * FROM customers WHERE name = :customerName") // <6>
   public CustomerSummary getCustomer() { // <7>
