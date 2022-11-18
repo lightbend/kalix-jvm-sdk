@@ -36,19 +36,19 @@ import org.scalatest
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
-
 import scala.jdk.CollectionConverters.{ CollectionHasAsScala, MapHasAsScala }
+
+import org.springframework.http.HttpHeaders
+import org.springframework.http.MediaType
+import org.springframework.web.reactive.function.client.WebClient
 
 class RestKalixClientImplSpec extends AnyWordSpec with Matchers with BeforeAndAfterEach with ComponentDescriptorSuite {
 
   var restKalixClient: RestKalixClientImpl = _
   val messageCodec = new SpringSdkMessageCodec
 
-  override def beforeEach(): Unit = {
+  override def beforeEach(): Unit =
     restKalixClient = new RestKalixClientImpl(new SpringSdkMessageCodec)
-    restKalixClient.setIdentificationInfo(
-      IdentificationInfo(serviceIdentificationHeader = "testServiceHeader", selfDeploymentName = "testName"))
-  }
 
   "The Rest Kalix Client" should {
     "return a DeferredCall for a simple GET request" in {
@@ -62,7 +62,6 @@ class RestKalixClientImplSpec extends AnyWordSpec with Matchers with BeforeAndAf
         restDefCall.fullServiceName shouldBe targetMethod.getService.getFullName
         restDefCall.methodName shouldBe targetMethod.getName
         assertMethodParamsMatch(targetMethod, restDefCall.message)
-        restDefCall.metadata.get("testServiceHeader").get() shouldBe "testName"
       }
 
     }
@@ -103,7 +102,6 @@ class RestKalixClientImplSpec extends AnyWordSpec with Matchers with BeforeAndAf
         val targetMethod = actionWithTwoParams.serviceDescriptor.findMethodByName("Message")
         restDefCall.fullServiceName shouldBe targetMethod.getService.getFullName
         restDefCall.methodName shouldBe targetMethod.getName
-        restDefCall.metadata.get("testServiceHeader").get() shouldBe "testName"
 
         assertMethodBodyMatch(targetMethod, restDefCall.message) { body =>
           decodeJson(body, classOf[Message]).value shouldBe msgSent.value

@@ -288,17 +288,17 @@ case class KalixServer(applicationContext: ApplicationContext, config: Config) {
         if (hasContextConstructor(clz, classOf[ActionCreationContext]))
           ActionCreationContextFactoryBean.set(context)
 
-        val proxyInfoHolder = ProxyInfoHolder(context.materializer().system)
+        val webClientProviderHolder = WebClientProviderHolder(context.materializer().system)
 
         if (hasContextConstructor(clz, classOf[KalixClient])) {
-          kalixClient.setWebClient(new WebClientProviderImpl(proxyInfoHolder).localWebClient)
+          kalixClient.setWebClient(webClientProviderHolder.webClientProvider.localWebClient)
           // we only have one KalixClient, but we only set it to the ThreadLocalFactoryBean
           // when building actions, because it's only allowed to inject it in Actions
           KalixClientFactoryBean.set(kalixClient)
         }
 
         if (hasContextConstructor(clz, classOf[WebClientProvider])) {
-          val webClientProvider = new WebClientProviderImpl(proxyInfoHolder)
+          val webClientProvider = webClientProviderHolder.webClientProvider
           WebClientProviderFactoryBean.set(webClientProvider)
         }
 
