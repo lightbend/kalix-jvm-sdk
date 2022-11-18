@@ -16,12 +16,32 @@
 
 package kalix.springsdk.testmodels.eventsourcedentity;
 
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import kalix.springsdk.annotations.TypeName;
 
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
-@JsonSubTypes({
-@JsonSubTypes.Type(value = EmployeeCreated.class, name = "created"),
-@JsonSubTypes.Type(value = EmployeeEmailUpdated.class, name = "emailUpdated")
- })
-public interface EmployeeEvent {}
+public interface EmployeeEvent {
+
+  @TypeName("created")
+  class EmployeeCreated implements EmployeeEvent {
+
+    public final String firstName;
+    public final String lastName;
+    public final String email;
+
+    public EmployeeCreated(String firstName, String lastName, String email) {
+      this.firstName = firstName;
+      this.lastName = lastName;
+      this.email = email;
+    }
+  }
+
+  @TypeName("emailUpdated")
+  class EmployeeEmailUpdated implements EmployeeEvent {
+
+    public final String email;
+
+    public EmployeeEmailUpdated(String email) {
+      this.email = email;
+    }
+  }
+
+}

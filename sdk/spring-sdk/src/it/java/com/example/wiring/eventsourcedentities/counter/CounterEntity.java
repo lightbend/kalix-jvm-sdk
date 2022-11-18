@@ -48,7 +48,7 @@ public class CounterEntity extends EventSourcedEntity<Counter> {
 
   @PostMapping("/increase/{value}")
   public Effect<Integer> increase(@PathVariable Integer value) {
-    return effects().emitEvent(new ValueIncreased(value)).thenReply(c -> c.value);
+    return effects().emitEvent(new CounterEvent.ValueIncreased(value)).thenReply(c -> c.value);
   }
 
   @GetMapping
@@ -66,16 +66,16 @@ public class CounterEntity extends EventSourcedEntity<Counter> {
         currentState(),
         value);
 
-    return effects().emitEvent(new ValueMultiplied(value)).thenReply(c -> c.value);
+    return effects().emitEvent(new CounterEvent.ValueMultiplied(value)).thenReply(c -> c.value);
   }
 
   @EventHandler
-  public Counter handleIncrease(ValueIncreased increased) {
+  public Counter handleIncrease(CounterEvent.ValueIncreased increased) {
     return currentState().onValueIncreased(increased);
   }
 
   @EventHandler
-  public Counter handleMultiply(ValueMultiplied multiplied) {
+  public Counter handleMultiply(CounterEvent.ValueMultiplied multiplied) {
     return currentState().onValueMultiplied(multiplied);
   }
 }

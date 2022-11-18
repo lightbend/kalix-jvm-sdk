@@ -28,19 +28,11 @@ public class Counter {
     this.value = value;
   }
 
-  public Counter increase(int byNum) {
-    return new Counter(this.value + byNum);
-  }
-
-  public Counter onValueIncreased(ValueIncreased evt) {
+  public Counter onValueIncreased(CounterEvent.ValueIncreased evt) {
     return new Counter(this.value + evt.value);
   }
 
-  public Counter multiply(int times) {
-    return new Counter(this.value * times);
-  }
-
-  public Counter onValueMultiplied(ValueMultiplied evt) {
+  public Counter onValueMultiplied(CounterEvent.ValueMultiplied evt) {
     return new Counter(this.value * evt.value);
   }
 }

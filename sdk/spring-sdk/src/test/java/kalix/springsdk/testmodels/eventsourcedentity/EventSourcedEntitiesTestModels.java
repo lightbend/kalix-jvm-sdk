@@ -30,13 +30,13 @@ public class EventSourcedEntitiesTestModels {
     @PostMapping
     public Effect<String> createUser(@RequestBody CreateEmployee create) {
       return effects()
-          .emitEvent(new EmployeeCreated(create.firstName, create.lastName, create.email))
+          .emitEvent(new EmployeeEvent.EmployeeCreated(create.firstName, create.lastName, create.email))
           .thenReply(__ -> "ok");
     }
 
     @EventHandler
     public Employee onEvent(EmployeeEvent event) {
-      EmployeeCreated create = (EmployeeCreated) event;
+      EmployeeEvent.EmployeeCreated create = (EmployeeEvent.EmployeeCreated) event;
       return new Employee(create.firstName, create.lastName, create.email);
     }
   }
@@ -198,7 +198,7 @@ public class EventSourcedEntitiesTestModels {
     @Acl(allow = @Acl.Matcher(service = "test"))
     public Effect<String> createUser(@RequestBody CreateEmployee create) {
       return effects()
-          .emitEvent(new EmployeeCreated(create.firstName, create.lastName, create.email))
+          .emitEvent(new EmployeeEvent.EmployeeCreated(create.firstName, create.lastName, create.email))
           .thenReply(__ -> "ok");
     }
   }

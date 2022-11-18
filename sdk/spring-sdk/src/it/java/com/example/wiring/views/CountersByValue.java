@@ -39,14 +39,14 @@ public class CountersByValue extends View<Counter> {
   }
 
   @Subscribe.EventSourcedEntity(CounterEntity.class)
-  public UpdateEffect<Counter> onEvent(CounterEvent event) {
+  public UpdateEffect<Counter> onEvent(CounterEvent.ValueIncreased event) {
     Counter counter = viewState();
-    if (event instanceof ValueIncreased) {
-      return effects().updateState(counter.onValueIncreased((ValueIncreased) event));
-    } else if (event instanceof ValueMultiplied) {
-      return effects().updateState(counter.onValueMultiplied((ValueMultiplied) event));
-    } else {
-      return effects().updateState(counter);
-    }
+    return effects().updateState(counter.onValueIncreased(event));
+  }
+
+  @Subscribe.EventSourcedEntity(CounterEntity.class)
+  public UpdateEffect<Counter> onEvent(CounterEvent.ValueMultiplied event) {
+    Counter counter = viewState();
+    return effects().updateState(counter.onValueMultiplied(event));
   }
 }

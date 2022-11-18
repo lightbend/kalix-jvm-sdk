@@ -39,7 +39,7 @@ public class CountersByValueWithIgnore extends View<Counter> {
     return null;
   }
 
-  public UpdateEffect<Counter> onValueIncreased(ValueIncreased event){
+  public UpdateEffect<Counter> onValueIncreased(CounterEvent.ValueIncreased event){
     Counter counter = viewState();
     return effects().updateState(counter.onValueIncreased(event));
   }

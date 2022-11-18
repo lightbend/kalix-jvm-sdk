@@ -1,23 +1,17 @@
 package com.example.shoppingcart.domain;
 
 
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-
 // tag::events[]
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type") // <1>
-@JsonSubTypes( // <2>
-    {
-        @JsonSubTypes.Type(value = ShoppingCartEvent.ItemAdded.class, name = "item-added"),
-        @JsonSubTypes.Type(value = ShoppingCartEvent.ItemRemoved.class, name = "item-removed"),
-        @JsonSubTypes.Type(value = ShoppingCartEvent.CheckedOut.class, name = "checked-out")
-    })
-public sealed interface ShoppingCartEvent { // <3>
+import kalix.springsdk.annotations.TypeName;
+public sealed interface ShoppingCartEvent { // <1>
 
-  record ItemAdded(ShoppingCart.LineItem item) implements ShoppingCartEvent { }
+  @TypeName("item-added") // <2>
+  record ItemAdded(ShoppingCart.LineItem item) implements ShoppingCartEvent {}
 
-  record ItemRemoved(String productId) implements ShoppingCartEvent { }
+  @TypeName("item-removed")
+  record ItemRemoved(String productId) implements ShoppingCartEvent {}
 
-  record CheckedOut(int timestamp) implements ShoppingCartEvent { }
+  @TypeName("checked-out")
+  record CheckedOut(int timestamp) implements ShoppingCartEvent {}
 }
 // end::events[]

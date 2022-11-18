@@ -16,12 +16,34 @@
 
 package com.example.wiring.eventsourcedentities.counter;
 
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import kalix.springsdk.annotations.TypeName;
 
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
-@JsonSubTypes({
-  @JsonSubTypes.Type(value = ValueIncreased.class, name = "increased"),
-  @JsonSubTypes.Type(value = ValueMultiplied.class, name = "multiplied")
-})
-public interface CounterEvent {}
+public interface CounterEvent {
+
+  @TypeName("increased")
+  class ValueIncreased implements CounterEvent {
+
+    public final int value;
+
+    @JsonCreator
+    public ValueIncreased(@JsonProperty("value") int value) {
+      this.value = value;
+    }
+  }
+
+  @TypeName("multiplied")
+  class ValueMultiplied implements CounterEvent {
+
+    public final int value;
+
+    @JsonCreator
+    public ValueMultiplied(@JsonProperty("value") int value) {
+      this.value = value;
+    }
+  }
+
+
+
+}

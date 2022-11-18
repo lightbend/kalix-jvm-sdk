@@ -21,6 +21,7 @@ import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import com.fasterxml.jackson.annotation.JsonTypeName
 import kalix.javasdk.JsonSupport
+import kalix.springsdk.annotations.TypeName
 import kalix.springsdk.impl.SpringSdkMessageCodecSpec.SimpleClass
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
@@ -29,6 +30,28 @@ object SpringSdkMessageCodecSpec {
 
   @JsonCreator
   case class SimpleClass(str: String, in: Int)
+
+  object AnnotatedWithTypeName {
+
+    sealed trait Animal
+
+    @TypeName("lion")
+    final case class Lion(name: String) extends Animal
+
+    @TypeName("elephant")
+    final case class Elephant(name: String, age: Int) extends Animal
+  }
+
+  object AnnotatedWithEmptyTypeName {
+
+    sealed trait Animal
+
+    @TypeName("")
+    final case class Lion(name: String) extends Animal
+
+    @TypeName(" ")
+    final case class Elephant(name: String, age: Int) extends Animal
+  }
 
   object AnnotatedWithSingleName {
 
@@ -59,6 +82,7 @@ object SpringSdkMessageCodecSpec {
     final case class Elephant(name: String, age: Int) extends Animal
 
   }
+
   object AnnotatedWIthJsonTypeName {
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
@@ -94,14 +118,64 @@ class SpringSdkMessageCodecSpec extends AnyWordSpec with Matchers {
 
   "The SpringSdkMessageCodec" should {
 
-    "by default FQCN for typeUrl (java)" in {
+    "default to FQCN for typeUrl (java)" in {
       val encoded = messageCodec.encodeJava(SimpleClass("abc", 10))
       encoded.getTypeUrl shouldBe jsonTypeUrlWith("kalix.springsdk.impl.SpringSdkMessageCodecSpec$SimpleClass")
     }
 
-    "by default FQCN for typeUrl (scala)" in {
+    "default to FQCN for typeUrl (scala)" in {
       val encoded = messageCodec.encodeScala(SimpleClass("abc", 10))
       encoded.typeUrl shouldBe jsonTypeUrlWith("kalix.springsdk.impl.SpringSdkMessageCodecSpec$SimpleClass")
+    }
+
+    {
+      import kalix.springsdk.impl.SpringSdkMessageCodecSpec.AnnotatedWithTypeName.Elephant
+      import kalix.springsdk.impl.SpringSdkMessageCodecSpec.AnnotatedWithTypeName.Lion
+
+      "use TypeName if available (java)" in {
+
+        val encodedLion = messageCodec.encodeJava(Lion("Simba"))
+        encodedLion.getTypeUrl shouldBe jsonTypeUrlWith("lion")
+
+        val encodedElephant = messageCodec.encodeJava(Elephant("Dumbo", 1))
+        encodedElephant.getTypeUrl shouldBe jsonTypeUrlWith("elephant")
+      }
+
+      "use TypeName if available  (scala)" in {
+
+        val encodedLion = messageCodec.encodeScala(Lion("Simba"))
+        encodedLion.typeUrl shouldBe jsonTypeUrlWith("lion")
+
+        val encodedElephant = messageCodec.encodeScala(Elephant("Dumbo", 1))
+        encodedElephant.typeUrl shouldBe jsonTypeUrlWith("elephant")
+      }
+    }
+
+    {
+      import kalix.springsdk.impl.SpringSdkMessageCodecSpec.AnnotatedWithEmptyTypeName.Elephant
+      import kalix.springsdk.impl.SpringSdkMessageCodecSpec.AnnotatedWithEmptyTypeName.Lion
+
+      "default to FQCN  if TypeName is has empty string (java)" in {
+
+        val encodedLion = messageCodec.encodeJava(Lion("Simba"))
+        encodedLion.getTypeUrl shouldBe jsonTypeUrlWith(
+          "kalix.springsdk.impl.SpringSdkMessageCodecSpec$AnnotatedWithEmptyTypeName$Lion")
+
+        val encodedElephant = messageCodec.encodeJava(Elephant("Dumbo", 1))
+        encodedElephant.getTypeUrl shouldBe jsonTypeUrlWith(
+          "kalix.springsdk.impl.SpringSdkMessageCodecSpec$AnnotatedWithEmptyTypeName$Elephant")
+      }
+
+      "default to FQCN  if TypeName is has empty string" in {
+
+        val encodedLion = messageCodec.encodeScala(Lion("Simba"))
+        encodedLion.typeUrl shouldBe jsonTypeUrlWith(
+          "kalix.springsdk.impl.SpringSdkMessageCodecSpec$AnnotatedWithEmptyTypeName$Lion")
+
+        val encodedElephant = messageCodec.encodeScala(Elephant("Dumbo", 1))
+        encodedElephant.typeUrl shouldBe jsonTypeUrlWith(
+          "kalix.springsdk.impl.SpringSdkMessageCodecSpec$AnnotatedWithEmptyTypeName$Elephant")
+      }
     }
 
     {

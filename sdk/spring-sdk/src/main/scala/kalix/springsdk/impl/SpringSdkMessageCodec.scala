@@ -25,6 +25,7 @@ import com.google.protobuf.any.{ Any => ScalaPbAny }
 import com.google.protobuf.{ Any => JavaPbAny }
 import kalix.javasdk.JsonSupport
 import kalix.javasdk.impl.MessageCodec
+import kalix.springsdk.annotations.TypeName
 
 private[springsdk] class SpringSdkMessageCodec extends MessageCodec {
 
@@ -43,7 +44,7 @@ private[springsdk] class SpringSdkMessageCodec extends MessageCodec {
     lookupTypeHint(value.getClass)
 
   private def lookupTypeHint(clz: Class[_]): String =
-    cache.computeIfAbsent(clz, clz => SpringSdkMessageCodec.findTypeHint(clz))
+    cache.computeIfAbsent(clz, clz => SpringSdkMessageCodec.findLogicalTypeName(clz))
 
   def typeUrlFor(clz: Class[_]) =
     JsonSupport.KALIX_JSON + lookupTypeHint(clz)
@@ -63,7 +64,7 @@ private[springsdk] object SpringSdkMessageCodec {
    *
    * In the absence of any annotation from the JsonTypeInfo family, it will fallback to use the FQCN as a type hint.
    */
-  private def findTypeHint(messageClass: Class[_]): String = {
+  private def findLogicalTypeName(messageClass: Class[_]): String = {
 
     def annotatedParents(clz: Class[_], listOfParents: Seq[Class[_]]): Seq[Class[_]] = {
 
@@ -82,8 +83,13 @@ private[springsdk] object SpringSdkMessageCodec {
       }
     }
 
-    // straightforward case: class is annotated with JsonTypeName
-    if (messageClass.getAnnotation(classOf[JsonTypeName]) != null) {
+    if (messageClass.getAnnotation(classOf[TypeName]) != null && messageClass
+        .getAnnotation(classOf[TypeName])
+        .value()
+        .trim
+        .nonEmpty) {
+      messageClass.getAnnotation(classOf[TypeName]).value()
+    } else if (messageClass.getAnnotation(classOf[JsonTypeName]) != null) {
       messageClass.getAnnotation(classOf[JsonTypeName]).value()
     } else {
       // otherwise needs to scan hierarchy until we find JsonSubTypes annotations
