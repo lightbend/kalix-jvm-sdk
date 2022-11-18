@@ -1074,7 +1074,7 @@ jobs:
       - copy-from-workspace
       - set-sdk-version
       - run:
-          name: Java Doc snippets
+          name: Spring Doc snippets
           command: |
             cd samples/spring-doc-snippets
             echo "Running mvn with SDK version: '$SDK_VERSION'"
