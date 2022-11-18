@@ -47,7 +47,7 @@ private[springsdk] class SpringSdkMessageCodec extends MessageCodec {
       clz => {
         Option(clz.getAnnotation(classOf[TypeName]))
           .collect { case ann if ann.value().trim.nonEmpty => ann.value() }
-          .getOrElse(clz.getName)
+          .getOrElse(clz.getSimpleName)
       })
 
   def typeUrlFor(clz: Class[_]) =

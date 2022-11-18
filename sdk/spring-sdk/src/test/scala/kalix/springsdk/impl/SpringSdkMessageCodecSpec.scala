@@ -64,12 +64,12 @@ class SpringSdkMessageCodecSpec extends AnyWordSpec with Matchers {
 
     "default to FQCN for typeUrl (java)" in {
       val encoded = messageCodec.encodeJava(SimpleClass("abc", 10))
-      encoded.getTypeUrl shouldBe jsonTypeUrlWith("kalix.springsdk.impl.SpringSdkMessageCodecSpec$SimpleClass")
+      encoded.getTypeUrl shouldBe jsonTypeUrlWith("SimpleClass")
     }
 
     "default to FQCN for typeUrl (scala)" in {
       val encoded = messageCodec.encodeScala(SimpleClass("abc", 10))
-      encoded.typeUrl shouldBe jsonTypeUrlWith("kalix.springsdk.impl.SpringSdkMessageCodecSpec$SimpleClass")
+      encoded.typeUrl shouldBe jsonTypeUrlWith("SimpleClass")
     }
 
     {
@@ -102,23 +102,19 @@ class SpringSdkMessageCodecSpec extends AnyWordSpec with Matchers {
       "default to FQCN  if TypeName is has empty string (java)" in {
 
         val encodedLion = messageCodec.encodeJava(Lion("Simba"))
-        encodedLion.getTypeUrl shouldBe jsonTypeUrlWith(
-          "kalix.springsdk.impl.SpringSdkMessageCodecSpec$AnnotatedWithEmptyTypeName$Lion")
+        encodedLion.getTypeUrl shouldBe jsonTypeUrlWith("Lion")
 
         val encodedElephant = messageCodec.encodeJava(Elephant("Dumbo", 1))
-        encodedElephant.getTypeUrl shouldBe jsonTypeUrlWith(
-          "kalix.springsdk.impl.SpringSdkMessageCodecSpec$AnnotatedWithEmptyTypeName$Elephant")
+        encodedElephant.getTypeUrl shouldBe jsonTypeUrlWith("Elephant")
       }
 
       "default to FQCN  if TypeName is has empty string" in {
 
         val encodedLion = messageCodec.encodeScala(Lion("Simba"))
-        encodedLion.typeUrl shouldBe jsonTypeUrlWith(
-          "kalix.springsdk.impl.SpringSdkMessageCodecSpec$AnnotatedWithEmptyTypeName$Lion")
+        encodedLion.typeUrl shouldBe jsonTypeUrlWith("Lion")
 
         val encodedElephant = messageCodec.encodeScala(Elephant("Dumbo", 1))
-        encodedElephant.typeUrl shouldBe jsonTypeUrlWith(
-          "kalix.springsdk.impl.SpringSdkMessageCodecSpec$AnnotatedWithEmptyTypeName$Elephant")
+        encodedElephant.typeUrl shouldBe jsonTypeUrlWith("Elephant")
       }
     }
   }
