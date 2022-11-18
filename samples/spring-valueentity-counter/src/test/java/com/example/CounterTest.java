@@ -34,4 +34,14 @@ public class CounterTest {
     assertEquals(11, testKit.getState()); // <5>
   }
   // end::example[]
+
+  @Test
+  public void testDelete() {
+    ValueEntityTestKit<Integer, CounterEntity> testKit = ValueEntityTestKit.of(CounterEntity::new);
+    testKit.call(e -> e.increaseBy(new Number(10)));
+
+    testKit.call(e -> e.delete());
+
+    assertEquals(0, testKit.getState());
+  }
 }
