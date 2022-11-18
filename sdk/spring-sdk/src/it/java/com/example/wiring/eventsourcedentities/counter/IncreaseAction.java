@@ -37,12 +37,12 @@ public class IncreaseAction extends Action {
   }
 
   @Subscribe.EventSourcedEntity(value = CounterEntity.class)
-  public Effect<ValueMultiplied> printMultiply(ValueMultiplied event) {
+  public Effect<CounterEvent.ValueMultiplied> printMultiply(CounterEvent.ValueMultiplied event) {
     return effects().reply(event);
   }
 
   @Subscribe.EventSourcedEntity(value = CounterEntity.class)
-  public Effect<Integer> printIncrease(ValueIncreased event) {
+  public Effect<Integer> printIncrease(CounterEvent.ValueIncreased event) {
     String entityId = this.actionContext().metadata().asCloudEvent().subject().get();
     if (event.value == 42) {
       CompletionStage<Integer> res =
