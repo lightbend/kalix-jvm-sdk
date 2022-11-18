@@ -29,7 +29,6 @@ import kalix.javasdk.action.ActionProvider
 import kalix.javasdk.eventsourcedentity.EventSourcedEntity
 import kalix.javasdk.eventsourcedentity.EventSourcedEntityContext
 import kalix.javasdk.eventsourcedentity.EventSourcedEntityProvider
-import kalix.javasdk.impl.ProxyInfoHolder
 import kalix.javasdk.replicatedentity.ReplicatedEntity
 import kalix.javasdk.valueentity.ValueEntity
 import kalix.javasdk.valueentity.ValueEntityContext

@@ -16,7 +16,16 @@
 
 package kalix.javasdk.impl
 
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.Executor
+
+import scala.concurrent.ExecutionContext
+import scala.concurrent.Future
+import scala.jdk.CollectionConverters._
+import scala.jdk.FutureConverters._
+
 import akka.Done
+import akka.actor.ActorSystem
 import akka.actor.ClassicActorSystemProvider
 import akka.actor.CoordinatedShutdown
 import akka.actor.ExtendedActorSystem
@@ -26,17 +35,9 @@ import akka.actor.ExtensionIdProvider
 import akka.grpc.GrpcClientSettings
 import akka.grpc.javadsl.{ AkkaGrpcClient => AkkaGrpcJavaClient }
 import akka.grpc.scaladsl.{ AkkaGrpcClient => AkkaGrpcScalaClient }
+import io.grpc.CallCredentials
+import io.grpc.Metadata
 import org.slf4j.LoggerFactory
-import java.util.concurrent.{ ConcurrentHashMap, Executor }
-
-import scala.concurrent.ExecutionContext
-import scala.concurrent.Future
-import scala.jdk.CollectionConverters._
-import scala.jdk.FutureConverters._
-import akka.actor.ActorSystem
-import io.grpc.{ CallCredentials, Metadata }
-import kalix.javasdk.Principal
-import kalix.protocol.discovery.IdentificationInfo
 
 /**
  * INTERNAL API

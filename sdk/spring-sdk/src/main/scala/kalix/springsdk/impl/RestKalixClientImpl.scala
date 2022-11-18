@@ -27,9 +27,9 @@ import scala.jdk.FutureConverters._
 import akka.http.scaladsl.model.HttpMethod
 import akka.http.scaladsl.model.HttpMethods
 import akka.http.scaladsl.model.Uri
-import com.google.protobuf.any.Any
 import com.google.protobuf.Descriptors
 import com.google.protobuf.DynamicMessage
+import com.google.protobuf.any.Any
 import kalix.javasdk.DeferredCall
 import kalix.javasdk.impl.AnySupport
 import kalix.javasdk.impl.MetadataImpl

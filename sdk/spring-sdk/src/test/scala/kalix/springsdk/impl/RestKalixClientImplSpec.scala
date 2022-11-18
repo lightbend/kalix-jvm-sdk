@@ -16,31 +16,29 @@
 
 package kalix.springsdk.impl
 
-import com.google.protobuf.{ ByteString, Descriptors, DynamicMessage }
+import scala.jdk.CollectionConverters.CollectionHasAsScala
+
 import com.google.protobuf.any.{ Any => ScalaPbAny }
 import com.google.protobuf.{ Any => JavaPbAny }
-import kalix.javasdk.{ DeferredCall, JsonSupport }
-import kalix.javasdk.impl.{ AnySupport, RestDeferredCall }
-import kalix.protocol.discovery.IdentificationInfo
-import kalix.springsdk.testmodels.action.ActionsTestModels.{
-  GetClassLevel,
-  GetWithOneParam,
-  GetWithOneQueryParam,
-  GetWithoutParam,
-  PostWithOneQueryParam,
-  PostWithTwoParam,
-  PostWithoutParam
-}
+import com.google.protobuf.ByteString
+import com.google.protobuf.Descriptors
+import com.google.protobuf.DynamicMessage
+import kalix.javasdk.impl.AnySupport
+import kalix.javasdk.impl.RestDeferredCall
+import kalix.javasdk.DeferredCall
+import kalix.javasdk.JsonSupport
 import kalix.springsdk.testmodels.Message
+import kalix.springsdk.testmodels.action.ActionsTestModels.GetClassLevel
+import kalix.springsdk.testmodels.action.ActionsTestModels.GetWithOneParam
+import kalix.springsdk.testmodels.action.ActionsTestModels.GetWithOneQueryParam
+import kalix.springsdk.testmodels.action.ActionsTestModels.GetWithoutParam
+import kalix.springsdk.testmodels.action.ActionsTestModels.PostWithOneQueryParam
+import kalix.springsdk.testmodels.action.ActionsTestModels.PostWithTwoParam
+import kalix.springsdk.testmodels.action.ActionsTestModels.PostWithoutParam
 import org.scalatest
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
-import scala.jdk.CollectionConverters.{ CollectionHasAsScala, MapHasAsScala }
-
-import org.springframework.http.HttpHeaders
-import org.springframework.http.MediaType
-import org.springframework.web.reactive.function.client.WebClient
 
 class RestKalixClientImplSpec extends AnyWordSpec with Matchers with BeforeAndAfterEach with ComponentDescriptorSuite {
 

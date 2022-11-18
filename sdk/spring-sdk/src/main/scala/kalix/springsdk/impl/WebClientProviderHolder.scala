@@ -30,7 +30,6 @@ import kalix.javasdk.impl.ProxyInfoHolder
 import kalix.springsdk.WebClientProvider
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
-import org.springframework.web.reactive.function.client.ExchangeFilterFunction
 import org.springframework.web.reactive.function.client.ExchangeFilterFunctions
 import org.springframework.web.reactive.function.client.WebClient
 

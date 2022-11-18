@@ -17,29 +17,30 @@
 package kalix.javasdk.impl
 
 import java.time.Duration
+import java.util
 import java.util.concurrent.atomic.AtomicReference
+
 import scala.concurrent.Future
 import scala.concurrent.Promise
 import scala.io.Source
 import scala.jdk.CollectionConverters._
 import scala.util.control.NonFatal
+
 import akka.Done
 import akka.actor.ActorSystem
 import akka.actor.CoordinatedShutdown
 import com.google.protobuf.DescriptorProtos
 import com.google.protobuf.DescriptorProtos.FileDescriptorProto
 import com.google.protobuf.empty.Empty
-import kalix.javasdk.replicatedentity.ReplicatedEntityOptions
-import kalix.javasdk.replicatedentity.WriteConsistency
 import kalix.javasdk.BuildInfo
 import kalix.javasdk.EntityOptions
+import kalix.javasdk.replicatedentity.ReplicatedEntityOptions
+import kalix.javasdk.replicatedentity.WriteConsistency
 import kalix.protocol.action.Actions
 import kalix.protocol.discovery.PassivationStrategy.Strategy
 import kalix.protocol.discovery._
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-
-import java.util
 
 class DiscoveryImpl(
     system: ActorSystem,
