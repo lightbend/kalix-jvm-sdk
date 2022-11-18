@@ -94,7 +94,7 @@ Value Entities can be xref:value-entity#deleting_state[deleted]. We can update o
 include::example$spring-valueentity-customer-registry/src/main/java/com/example/view/CustomerSummaryByName.java[tag=delete]
 ----
 <1> `@Subscribe` annotation with `handleDeletes=true`.
-<2> Dedicated (parameter less) handler for deletion.
+<2> Dedicated (parameter-less) handler for deletion.
 <3> An effect to delete the view state `effects().deleteState()`. It could be also an update of a special column, to mark view state as deleted.
 
 NOTE: When using @Subscribe on a class level, `handleDeletes=true` will also work. Kalix will automatically delete the View state.
