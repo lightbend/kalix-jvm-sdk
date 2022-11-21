@@ -289,6 +289,7 @@ object ModelBuilder {
 
     updates.toSeq
       .diff(transformedUpdates.toSeq)
+      .filterNot(_.handleDeletes)
       .find(command => command.inputType.fullyQualifiedProtoName != command.outputType.fullyQualifiedProtoName)
       .foreach { command =>
         throw new IllegalStateException(
