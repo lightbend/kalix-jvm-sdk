@@ -4,7 +4,7 @@
 *** xref:spring:development-process-spring.adoc[Development Process]
 *** xref:spring:value-entity.adoc[Implementing Value Entities]
 *** xref:spring:event-sourced-entities.adoc[Implementing Event Sourced Entities]
-*** xref:spring:replicated-entity.adoc[Implementing Replicated Entities]
+// *** xref:spring:replicated-entity.adoc[Implementing Replicated Entities] to be implemented
 *** xref:spring:views.adoc[Implementing Views]
 *** xref:spring:actions.adoc[Implementing Actions]
 *** xref:spring:actions-as-controller.adoc[Actions as Controllers]
