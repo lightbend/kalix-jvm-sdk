@@ -19,7 +19,6 @@ package kalix.springsdk.testmodels.view;
 import kalix.javasdk.view.View;
 import kalix.springsdk.annotations.*;
 import kalix.springsdk.testmodels.eventsourcedentity.Employee;
-import kalix.springsdk.testmodels.eventsourcedentity.EmployeeCreated;
 import kalix.springsdk.testmodels.eventsourcedentity.EmployeeEvent;
 import kalix.springsdk.testmodels.eventsourcedentity.EventSourcedEntitiesTestModels;
 import kalix.springsdk.testmodels.valueentity.Counter;
@@ -30,8 +29,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import reactor.core.publisher.Flux;
-
-import java.util.Collection;
 
 public class ViewTestModels {
 
@@ -356,7 +353,7 @@ public class ViewTestModels {
 
     @Subscribe.EventSourcedEntity(EventSourcedEntitiesTestModels.EmployeeEntity.class)
     public UpdateEffect<Employee> onEvent(EmployeeEvent evt) {
-      EmployeeCreated created = (EmployeeCreated) evt;
+      EmployeeEvent.EmployeeCreated created = (EmployeeEvent.EmployeeCreated) evt;
       return effects()
           .updateState(new Employee(created.firstName, created.lastName, created.email));
     }
@@ -373,7 +370,7 @@ public class ViewTestModels {
 
     @Subscribe.EventSourcedEntity(EventSourcedEntitiesTestModels.EmployeeEntity.class)
     public UpdateEffect<Employee> onEvent(Employee employee, EmployeeEvent evt) {
-      EmployeeCreated created = (EmployeeCreated) evt;
+      EmployeeEvent.EmployeeCreated created = (EmployeeEvent.EmployeeCreated) evt;
       return effects()
           .updateState(new Employee(created.firstName, created.lastName, created.email));
     }

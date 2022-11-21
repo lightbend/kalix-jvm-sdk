@@ -21,6 +21,7 @@ import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import com.fasterxml.jackson.annotation.JsonTypeName
 import kalix.javasdk.JsonSupport
+import kalix.springsdk.annotations.TypeName
 import kalix.springsdk.impl.SpringSdkMessageCodecSpec.SimpleClass
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
@@ -30,61 +31,28 @@ object SpringSdkMessageCodecSpec {
   @JsonCreator
   case class SimpleClass(str: String, in: Int)
 
-  object AnnotatedWithSingleName {
+  object AnnotatedWithTypeName {
 
-    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
-    @JsonSubTypes(
-      Array(
-        new JsonSubTypes.Type(value = classOf[Lion], name = "lion"),
-        new JsonSubTypes.Type(value = classOf[Elephant], name = "elephant")))
     sealed trait Animal
 
+    @TypeName("lion")
     final case class Lion(name: String) extends Animal
 
+    @TypeName("elephant")
     final case class Elephant(name: String, age: Int) extends Animal
-
   }
 
-  object AnnotatedWithManyNames {
+  object AnnotatedWithEmptyTypeName {
 
-    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
-    @JsonSubTypes(
-      Array(
-        new JsonSubTypes.Type(value = classOf[Lion], names = Array("lion", "noil")),
-        new JsonSubTypes.Type(value = classOf[Elephant], names = Array("elephant", "tnahpele"))))
     sealed trait Animal
 
+    @TypeName("")
     final case class Lion(name: String) extends Animal
 
-    final case class Elephant(name: String, age: Int) extends Animal
-
-  }
-  object AnnotatedWIthJsonTypeName {
-
-    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
-    @JsonSubTypes(Array(new JsonSubTypes.Type(value = classOf[Lion]), new JsonSubTypes.Type(value = classOf[Elephant])))
-    sealed trait Animal
-
-    @JsonTypeName("lion")
-    final case class Lion(name: String) extends Animal
-    @JsonTypeName("elephant")
+    @TypeName(" ")
     final case class Elephant(name: String, age: Int) extends Animal
   }
 
-  object HierarchyWithAbstractClass {
-
-    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
-    @JsonSubTypes(
-      Array(
-        new JsonSubTypes.Type(value = classOf[Lion], name = "lion"),
-        new JsonSubTypes.Type(value = classOf[Elephant], name = "elephant")))
-    abstract class Animal
-
-    final case class Lion(name: String) extends Animal
-
-    final case class Elephant(name: String, age: Int) extends Animal
-
-  }
 }
 class SpringSdkMessageCodecSpec extends AnyWordSpec with Matchers {
 
@@ -94,21 +62,21 @@ class SpringSdkMessageCodecSpec extends AnyWordSpec with Matchers {
 
   "The SpringSdkMessageCodec" should {
 
-    "by default FQCN for typeUrl (java)" in {
+    "default to FQCN for typeUrl (java)" in {
       val encoded = messageCodec.encodeJava(SimpleClass("abc", 10))
-      encoded.getTypeUrl shouldBe jsonTypeUrlWith("kalix.springsdk.impl.SpringSdkMessageCodecSpec$SimpleClass")
+      encoded.getTypeUrl shouldBe jsonTypeUrlWith("SimpleClass")
     }
 
-    "by default FQCN for typeUrl (scala)" in {
+    "default to FQCN for typeUrl (scala)" in {
       val encoded = messageCodec.encodeScala(SimpleClass("abc", 10))
-      encoded.typeUrl shouldBe jsonTypeUrlWith("kalix.springsdk.impl.SpringSdkMessageCodecSpec$SimpleClass")
+      encoded.typeUrl shouldBe jsonTypeUrlWith("SimpleClass")
     }
 
     {
-      import kalix.springsdk.impl.SpringSdkMessageCodecSpec.AnnotatedWIthJsonTypeName.Elephant
-      import kalix.springsdk.impl.SpringSdkMessageCodecSpec.AnnotatedWIthJsonTypeName.Lion
+      import kalix.springsdk.impl.SpringSdkMessageCodecSpec.AnnotatedWithTypeName.Elephant
+      import kalix.springsdk.impl.SpringSdkMessageCodecSpec.AnnotatedWithTypeName.Lion
 
-      "use JsonTypeName if available (java)" in {
+      "use TypeName if available (java)" in {
 
         val encodedLion = messageCodec.encodeJava(Lion("Simba"))
         encodedLion.getTypeUrl shouldBe jsonTypeUrlWith("lion")
@@ -117,7 +85,7 @@ class SpringSdkMessageCodecSpec extends AnyWordSpec with Matchers {
         encodedElephant.getTypeUrl shouldBe jsonTypeUrlWith("elephant")
       }
 
-      "use JsonTypeName if available  (scala)" in {
+      "use TypeName if available  (scala)" in {
 
         val encodedLion = messageCodec.encodeScala(Lion("Simba"))
         encodedLion.typeUrl shouldBe jsonTypeUrlWith("lion")
@@ -128,73 +96,26 @@ class SpringSdkMessageCodecSpec extends AnyWordSpec with Matchers {
     }
 
     {
-      import kalix.springsdk.impl.SpringSdkMessageCodecSpec.AnnotatedWithSingleName.Elephant
-      import kalix.springsdk.impl.SpringSdkMessageCodecSpec.AnnotatedWithSingleName.Lion
+      import kalix.springsdk.impl.SpringSdkMessageCodecSpec.AnnotatedWithEmptyTypeName.Elephant
+      import kalix.springsdk.impl.SpringSdkMessageCodecSpec.AnnotatedWithEmptyTypeName.Lion
 
-      "use JsonTypeInfo if available (java)" in {
-
-        val encodedLion = messageCodec.encodeJava(Lion("Simba"))
-        encodedLion.getTypeUrl shouldBe jsonTypeUrlWith("lion")
-
-        val encodedElephant = messageCodec.encodeJava(Elephant("Dumbo", 1))
-        encodedElephant.getTypeUrl shouldBe jsonTypeUrlWith("elephant")
-      }
-
-      "use JsonTypeInfo if available (scala)" in {
-
-        val encodedLion = messageCodec.encodeScala(Lion("Simba"))
-        encodedLion.typeUrl shouldBe jsonTypeUrlWith("lion")
-
-        val encodedElephant = messageCodec.encodeScala(Elephant("Dumbo", 1))
-        encodedElephant.typeUrl shouldBe jsonTypeUrlWith("elephant")
-      }
-    }
-
-    {
-      import kalix.springsdk.impl.SpringSdkMessageCodecSpec.AnnotatedWithManyNames.Elephant
-      import kalix.springsdk.impl.SpringSdkMessageCodecSpec.AnnotatedWithManyNames.Lion
-
-      "use JsonTypeInfo first name if multiple names are available (java)" in {
+      "default to FQCN  if TypeName is has empty string (java)" in {
 
         val encodedLion = messageCodec.encodeJava(Lion("Simba"))
-        encodedLion.getTypeUrl shouldBe jsonTypeUrlWith("lion")
+        encodedLion.getTypeUrl shouldBe jsonTypeUrlWith("Lion")
 
         val encodedElephant = messageCodec.encodeJava(Elephant("Dumbo", 1))
-        encodedElephant.getTypeUrl shouldBe jsonTypeUrlWith("elephant")
+        encodedElephant.getTypeUrl shouldBe jsonTypeUrlWith("Elephant")
       }
 
-      "use JsonTypeInfo first name if multiple names are available (scala)" in {
+      "default to FQCN  if TypeName is has empty string" in {
 
         val encodedLion = messageCodec.encodeScala(Lion("Simba"))
-        encodedLion.typeUrl shouldBe jsonTypeUrlWith("lion")
+        encodedLion.typeUrl shouldBe jsonTypeUrlWith("Lion")
 
         val encodedElephant = messageCodec.encodeScala(Elephant("Dumbo", 1))
-        encodedElephant.typeUrl shouldBe jsonTypeUrlWith("elephant")
+        encodedElephant.typeUrl shouldBe jsonTypeUrlWith("Elephant")
       }
     }
-
-    {
-      import kalix.springsdk.impl.SpringSdkMessageCodecSpec.HierarchyWithAbstractClass.Elephant
-      import kalix.springsdk.impl.SpringSdkMessageCodecSpec.HierarchyWithAbstractClass.Lion
-
-      "use JsonTypeInfo if available in abstract class parent (java)" in {
-
-        val encodedLion = messageCodec.encodeJava(Lion("Simba"))
-        encodedLion.getTypeUrl shouldBe jsonTypeUrlWith("lion")
-
-        val encodedElephant = messageCodec.encodeJava(Elephant("Dumbo", 1))
-        encodedElephant.getTypeUrl shouldBe jsonTypeUrlWith("elephant")
-      }
-
-      "use JsonTypeInfo if available in abstract class parent (scala)" in {
-
-        val encodedLion = messageCodec.encodeScala(Lion("Simba"))
-        encodedLion.typeUrl shouldBe jsonTypeUrlWith("lion")
-
-        val encodedElephant = messageCodec.encodeScala(Elephant("Dumbo", 1))
-        encodedElephant.typeUrl shouldBe jsonTypeUrlWith("elephant")
-      }
-    }
-
   }
 }

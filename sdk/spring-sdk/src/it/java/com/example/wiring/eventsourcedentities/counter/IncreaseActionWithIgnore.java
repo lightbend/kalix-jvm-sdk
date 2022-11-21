@@ -38,7 +38,7 @@ public class IncreaseActionWithIgnore extends Action {
         this.context = context;
     }
 
-    public Effect<Integer> oneShallPass(ValueIncreased event) {
+    public Effect<Integer> oneShallPass(CounterEvent.ValueIncreased event) {
         String entityId = this.actionContext().metadata().asCloudEvent().subject().get();
         if (event.value == 1234) {
             CompletionStage<Integer> res =

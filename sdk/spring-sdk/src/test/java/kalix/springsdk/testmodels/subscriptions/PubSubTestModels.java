@@ -26,8 +26,7 @@ import kalix.javasdk.view.View;
 import kalix.springsdk.annotations.Query;
 import kalix.springsdk.annotations.Table;
 import kalix.springsdk.testmodels.eventsourcedentity.Employee;
-import kalix.springsdk.testmodels.eventsourcedentity.EmployeeCreated;
-import kalix.springsdk.testmodels.eventsourcedentity.EmployeeEmailUpdated;
+import kalix.springsdk.testmodels.eventsourcedentity.EmployeeEvent;
 import kalix.springsdk.testmodels.valueentity.Counter;
 import kalix.springsdk.testmodels.valueentity.CounterState;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -209,12 +208,12 @@ public class PubSubTestModels {//TODO shall we remove this class and move things
   @Subscribe.EventSourcedEntity(value = EmployeeEntity.class, ignoreUnknown = true)
   public static class SubscribeOnTypeToEventSourcedEvents extends View<Employee> {
 
-      public UpdateEffect<Employee> onCreate(EmployeeCreated evt) {
+      public UpdateEffect<Employee> onCreate(EmployeeEvent.EmployeeCreated evt) {
         return effects()
             .updateState(new Employee(evt.firstName, evt.lastName, evt.email));
       }
 
-      public UpdateEffect<Employee> onEmailUpdate(EmployeeEmailUpdated eeu) {
+      public UpdateEffect<Employee> onEmailUpdate(EmployeeEvent.EmployeeEmailUpdated eeu) {
         var employee = viewState();
         return effects().updateState(new Employee(employee.firstName, employee.lastName, eeu.email));
       }
@@ -231,11 +230,11 @@ public class PubSubTestModels {//TODO shall we remove this class and move things
     @Publish.Stream(id = "employee_events")
     public static class EventStreamPublishingAction extends Action {
 
-      public Effect<String> transform(EmployeeCreated created) {
+      public Effect<String> transform(EmployeeEvent.EmployeeCreated created) {
         return effects().reply(created.toString());
       }
 
-      public Effect<String> transform(EmployeeEmailUpdated emailUpdated) {
+      public Effect<String> transform(EmployeeEvent.EmployeeEmailUpdated emailUpdated) {
         return effects().reply(emailUpdated.toString());
       }
 
@@ -244,11 +243,11 @@ public class PubSubTestModels {//TODO shall we remove this class and move things
     @Subscribe.Stream(service = "employee_service", id = "employee_events", ignoreUnknown = true)
     public static class EventStreamSubscriptionAction extends Action {
 
-      public Effect<String> transform(EmployeeCreated created) {
+      public Effect<String> transform(EmployeeEvent.EmployeeCreated created) {
         return effects().reply(created.toString());
       }
 
-      public Effect<String> transform(EmployeeEmailUpdated emailUpdated) {
+      public Effect<String> transform(EmployeeEvent.EmployeeEmailUpdated emailUpdated) {
         return effects().reply(emailUpdated.toString());
       }
     }
@@ -257,12 +256,12 @@ public class PubSubTestModels {//TODO shall we remove this class and move things
     @Subscribe.Stream(service = "employee_service", id = "employee_events")
     public static class EventStreamSubscriptionView extends View<Employee> {
 
-      public UpdateEffect<Employee> onCreate(EmployeeCreated evt) {
+      public UpdateEffect<Employee> onCreate(EmployeeEvent.EmployeeCreated evt) {
         return effects()
             .updateState(new Employee(evt.firstName, evt.lastName, evt.email));
       }
 
-      public UpdateEffect<Employee> onEmailUpdate(EmployeeEmailUpdated eeu) {
+      public UpdateEffect<Employee> onEmailUpdate(EmployeeEvent.EmployeeEmailUpdated eeu) {
         var employee = viewState();
         return effects().updateState(new Employee(employee.firstName, employee.lastName, eeu.email));
       }
