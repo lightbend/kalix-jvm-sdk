@@ -42,8 +42,7 @@ class ProxyInfoHolder(system: ExtendedActorSystem) extends Extension {
 
   @volatile private var _proxyHostname: Option[String] = None
   @volatile private var _portOverride: Option[Int] = None
-  @volatile private var _chosenPort: Int = 0
-
+  @volatile private var _proxyAnnouncedPort: Int = 0
   @volatile private var _identificationInfo: Option[IdentificationInfo] = None
 
   def setProxyInfo(proxyInfo: ProxyInfo): Unit = {
@@ -58,15 +57,10 @@ class ProxyInfoHolder(system: ExtendedActorSystem) extends Extension {
 
     this._proxyHostname = Some(chosenProxyName)
 
-    // if portOverride is filled, we choose it.
-    // Otherwise we use the announced one.
-    // Note: with old proxy versions `proxyInfo.proxyPort` will default to 0
-    this._chosenPort = _portOverride.getOrElse(proxyInfo.proxyPort)
-
     this._identificationInfo = proxyInfo.identificationInfo
 
     log.debug("Proxy hostname: [{}]", chosenProxyName)
-    log.debug("Proxy port to: [{}]", _chosenPort)
+    log.debug("Proxy port to: [{}]", proxyInfo)
     log.debug("Identification name: [{}]", proxyInfo.identificationInfo)
   }
 
@@ -75,10 +69,14 @@ class ProxyInfoHolder(system: ExtendedActorSystem) extends Extension {
   def identificationInfo: Option[IdentificationInfo] = _identificationInfo
 
   def proxyPort: Option[Int] = {
+    // If portOverride is filled, we choose it. Otherwise we use the announced one.
+    // Note: with old proxy versions `proxyInfo.proxyPort` will default to 0
+    val chosenPort = _portOverride.getOrElse(_proxyAnnouncedPort)
+
     // We should never return the default Int 0, so we make it a None
     // This can happen if somehow this method called before we receive the ProxyInfo
     // or if an old version of the proxy is being used
-    if (_chosenPort != 0) Some(_chosenPort)
+    if (chosenPort != 0) Some(chosenPort)
     else None
   }
 
