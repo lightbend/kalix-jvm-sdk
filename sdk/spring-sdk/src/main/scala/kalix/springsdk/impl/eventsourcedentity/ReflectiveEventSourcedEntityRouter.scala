@@ -48,13 +48,16 @@ class ReflectiveEventSourcedEntityRouter[S, E <: EventSourcedEntity[S]](
       commandName: String,
       state: S,
       command: Any,
-      context: CommandContext): EventSourcedEntity.Effect[_] = {
+      commandContext: CommandContext): EventSourcedEntity.Effect[_] = {
 
     entity._internalSetCurrentState(state)
 
     val commandHandler = commandHandlerLookup(commandName)
     val invocationContext =
-      InvocationContext(command.asInstanceOf[ScalaPbAny], commandHandler.requestMessageDescriptor)
+      InvocationContext(
+        command.asInstanceOf[ScalaPbAny],
+        commandHandler.requestMessageDescriptor,
+        commandContext.metadata())
 
     val inputTypeUrl = command.asInstanceOf[ScalaPbAny].typeUrl
 
