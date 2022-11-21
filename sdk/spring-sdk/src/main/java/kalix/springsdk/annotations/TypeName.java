@@ -27,10 +27,10 @@ import java.lang.annotation.Target;
  * Kalix needs to identify each event in order to deliver them to the right event handlers.
  * If a logical type name isn't specified, Kalix will use the non-qualified class name.
  *
- * However, once a class name is persisted in Kalix, you won't be able to rename your class,
- * as Kalix won't be able to recognize previously persisted event.
- *
- * Therefore, we recommend all event classes to use a logical type name.
+ * Once an event is persisted in Kalix, you won't be able to rename your class if no logical type name 
+ * has been specified, as Kalix won't be able to recognize previously persisted events. 
+ * 
+ * Therefore, we recommend all event classes use a logical type name.
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
