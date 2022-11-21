@@ -18,6 +18,8 @@ package kalix.springsdk.impl
 
 import scala.jdk.CollectionConverters.CollectionHasAsScala
 import scala.jdk.OptionConverters.RichOption
+import scala.reflect.ClassTag
+
 import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
 import kalix.javasdk.Kalix
@@ -27,7 +29,6 @@ import kalix.javasdk.action.ActionProvider
 import kalix.javasdk.eventsourcedentity.EventSourcedEntity
 import kalix.javasdk.eventsourcedentity.EventSourcedEntityContext
 import kalix.javasdk.eventsourcedentity.EventSourcedEntityProvider
-import kalix.javasdk.impl.GrpcClients
 import kalix.javasdk.replicatedentity.ReplicatedEntity
 import kalix.javasdk.valueentity.ValueEntity
 import kalix.javasdk.valueentity.ValueEntityContext
@@ -37,6 +38,7 @@ import kalix.javasdk.view.ViewCreationContext
 import kalix.javasdk.view.ViewProvider
 import kalix.springsdk.KalixClient
 import kalix.springsdk.SpringSdkBuildInfo
+import kalix.springsdk.WebClientProvider
 import kalix.springsdk.action.ReflectiveActionProvider
 import kalix.springsdk.eventsourced.ReflectiveEventSourcedEntityProvider
 import kalix.springsdk.impl.KalixServer.ActionCreationContextFactoryBean
@@ -46,6 +48,7 @@ import kalix.springsdk.impl.KalixServer.KalixComponentProvider
 import kalix.springsdk.impl.KalixServer.MainClassProvider
 import kalix.springsdk.impl.KalixServer.ValueEntityContextFactoryBean
 import kalix.springsdk.impl.KalixServer.ViewCreationContextFactoryBean
+import kalix.springsdk.impl.KalixServer.WebClientProviderFactoryBean
 import kalix.springsdk.valueentity.ReflectiveValueEntityProvider
 import kalix.springsdk.view.ReflectiveViewProvider
 import org.slf4j.Logger
@@ -142,48 +145,47 @@ object KalixServer {
     }
   }
 
-  class ActionCreationContextFactoryBean(loco: ThreadLocal[ActionCreationContext])
-      extends FactoryBean[ActionCreationContext] {
+  abstract class ThreadLocalFactoryBean[T: ClassTag] extends FactoryBean[T] {
+    val threadLocal = new ThreadLocal[T]
+    def set(value: T) = threadLocal.set(value)
+    override def getObject: T = threadLocal.get()
+    override def getObjectType: Class[_] = implicitly[ClassTag[T]].runtimeClass
+  }
 
+  object ActionCreationContextFactoryBean extends ThreadLocalFactoryBean[ActionCreationContext] {
     // ActionCreationContext is a singleton, so strictly speaking this could return 'true'
     // However, we still need the ThreadLocal hack to let Spring have access to it.
     // and we don't want to give it direct access to it, because the impl is private (and better keep it so).
     // because the testkit uses another ActionCreationContext impl. Therefore we want it to be defined at runtime.
     override def isSingleton: Boolean = false
-
-    override def getObject: ActionCreationContext = loco.get()
-    override def getObjectType: Class[_] = classOf[ActionCreationContext]
   }
 
-  class EventSourcedEntityContextFactoryBean(loco: ThreadLocal[EventSourcedEntityContext])
-      extends FactoryBean[EventSourcedEntityContext] {
+  object EventSourcedEntityContextFactoryBean extends ThreadLocalFactoryBean[EventSourcedEntityContext] {
     override def isSingleton: Boolean = false // never!!
-    override def getObject: EventSourcedEntityContext = loco.get()
-    override def getObjectType: Class[_] = classOf[EventSourcedEntityContext]
   }
 
-  class ValueEntityContextFactoryBean(loco: ThreadLocal[ValueEntityContext]) extends FactoryBean[ValueEntityContext] {
+  object ValueEntityContextFactoryBean extends ThreadLocalFactoryBean[ValueEntityContext] {
     override def isSingleton: Boolean = false // never!!
-    override def getObject: ValueEntityContext = loco.get()
-    override def getObjectType: Class[_] = classOf[ValueEntityContext]
   }
 
-  class ViewCreationContextFactoryBean(loco: ThreadLocal[ViewCreationContext])
-      extends FactoryBean[ViewCreationContext] {
+  object ViewCreationContextFactoryBean extends ThreadLocalFactoryBean[ViewCreationContext] {
     override def isSingleton: Boolean = false // never!!
-    override def getObject: ViewCreationContext = loco.get()
-    override def getObjectType: Class[_] = classOf[ViewCreationContext]
   }
 
-  class KalixClientFactoryBean(loco: ThreadLocal[KalixClient]) extends FactoryBean[KalixClient] {
+  object KalixClientFactoryBean extends ThreadLocalFactoryBean[KalixClient] {
     override def isSingleton: Boolean = true // yes, we only need one
-    override def getObject: KalixClient = {
-      if (loco.get() != null) loco.get()
+    override def getObject: KalixClient =
+      if (threadLocal.get() != null) threadLocal.get()
       else
         throw new BeanCreationException("KalixClient can only be injected in Kalix Actions.")
-    }
+  }
 
-    override def getObjectType: Class[_] = classOf[KalixClient]
+  object WebClientProviderFactoryBean extends ThreadLocalFactoryBean[WebClientProvider] {
+    override def isSingleton: Boolean = true // yes, we only need one
+    override def getObject: WebClientProvider =
+      if (threadLocal.get() != null) threadLocal.get()
+      else
+        throw new BeanCreationException("WebClientProvider can only be injected in Kalix Actions.")
   }
 }
 
@@ -192,37 +194,17 @@ case class KalixServer(applicationContext: ApplicationContext, config: Config) {
   private val logger: Logger = LoggerFactory.getLogger(getClass)
 
   private val messageCodec = new SpringSdkMessageCodec
+
   private val kalixClient = new RestKalixClientImpl(messageCodec)
-  private val threadLocalActionContext = new ThreadLocal[ActionCreationContext]
-  private val threadLocalEventSourcedEntityContext = new ThreadLocal[EventSourcedEntityContext]
-  private val threadLocalValueEntityContext = new ThreadLocal[ValueEntityContext]
-  private val threadLocalViewContext = new ThreadLocal[ViewCreationContext]
-  private val threadLocalKalixClient = new ThreadLocal[KalixClient]
 
   private val kalixBeanFactory = new DefaultListableBeanFactory(applicationContext)
 
-  // the FactoryBeans below will allow Spring to find an instance of the respective context
-  // whenever it needs to instantiate a Kalix component requiring a context
-  private val actionCreationContextFactoryBean: ActionCreationContextFactoryBean =
-    new ActionCreationContextFactoryBean(threadLocalActionContext)
-
-  private val eventSourcedEntityContextFactoryBean: EventSourcedEntityContextFactoryBean =
-    new EventSourcedEntityContextFactoryBean(threadLocalEventSourcedEntityContext)
-
-  private val valueEntityContextFactoryBean: ValueEntityContextFactoryBean =
-    new ValueEntityContextFactoryBean(threadLocalValueEntityContext)
-
-  private val viewCreationContextFactoryBean: ViewCreationContextFactoryBean =
-    new ViewCreationContextFactoryBean(threadLocalViewContext)
-
-  private val kalixClientFactoryBean: KalixClientFactoryBean =
-    new KalixClientFactoryBean(threadLocalKalixClient)
-
-  kalixBeanFactory.registerSingleton("actionCreationContextFactoryBean", actionCreationContextFactoryBean)
-  kalixBeanFactory.registerSingleton("eventSourcedEntityContext", eventSourcedEntityContextFactoryBean)
-  kalixBeanFactory.registerSingleton("valueEntityContext", valueEntityContextFactoryBean)
-  kalixBeanFactory.registerSingleton("viewCreationContext", viewCreationContextFactoryBean)
-  kalixBeanFactory.registerSingleton("kalixClient", kalixClientFactoryBean)
+  kalixBeanFactory.registerSingleton("actionCreationContextFactoryBean", ActionCreationContextFactoryBean)
+  kalixBeanFactory.registerSingleton("eventSourcedEntityContext", EventSourcedEntityContextFactoryBean)
+  kalixBeanFactory.registerSingleton("valueEntityContext", ValueEntityContextFactoryBean)
+  kalixBeanFactory.registerSingleton("viewCreationContext", ViewCreationContextFactoryBean)
+  kalixBeanFactory.registerSingleton("kalixClient", KalixClientFactoryBean)
+  kalixBeanFactory.registerSingleton("webClientProvider", WebClientProviderFactoryBean)
 
   // there should be only one class annotated with SpringBootApplication in the applicationContext
   private val cglibEnhanceMainClass =
@@ -303,14 +285,20 @@ case class KalixServer(applicationContext: ApplicationContext, config: Config) {
       messageCodec,
       context => {
         if (hasContextConstructor(clz, classOf[ActionCreationContext]))
-          threadLocalActionContext.set(context)
+          ActionCreationContextFactoryBean.set(context)
+
+        val webClientProviderHolder = WebClientProviderHolder(context.materializer().system)
 
         if (hasContextConstructor(clz, classOf[KalixClient])) {
-          val grpcClients = GrpcClients(context.materializer().system)
-          grpcClients.getProxyHostname.foreach(kalixClient.setHost)
-          grpcClients.getProxyPort.foreach(kalixClient.setPort)
-          grpcClients.getIdentificationInfo.foreach(kalixClient.setIdentificationInfo)
-          threadLocalKalixClient.set(kalixClient)
+          kalixClient.setWebClient(webClientProviderHolder.webClientProvider.localWebClient)
+          // we only have one KalixClient, but we only set it to the ThreadLocalFactoryBean
+          // when building actions, because it's only allowed to inject it in Actions
+          KalixClientFactoryBean.set(kalixClient)
+        }
+
+        if (hasContextConstructor(clz, classOf[WebClientProvider])) {
+          val webClientProvider = webClientProviderHolder.webClientProvider
+          WebClientProviderFactoryBean.set(webClientProvider)
         }
 
         kalixBeanFactory.getBean(clz)
@@ -323,7 +311,7 @@ case class KalixServer(applicationContext: ApplicationContext, config: Config) {
       messageCodec,
       context => {
         if (hasContextConstructor(clz, classOf[EventSourcedEntityContext]))
-          threadLocalEventSourcedEntityContext.set(context)
+          EventSourcedEntityContextFactoryBean.set(context)
         kalixBeanFactory.getBean(clz)
       })
 
@@ -333,7 +321,7 @@ case class KalixServer(applicationContext: ApplicationContext, config: Config) {
       messageCodec,
       context => {
         if (hasContextConstructor(clz, classOf[ValueEntityContext]))
-          threadLocalValueEntityContext.set(context)
+          ValueEntityContextFactoryBean.set(context)
         kalixBeanFactory.getBean(clz)
       })
 
@@ -343,7 +331,7 @@ case class KalixServer(applicationContext: ApplicationContext, config: Config) {
       messageCodec,
       context => {
         if (hasContextConstructor(clz, classOf[ViewCreationContext]))
-          threadLocalViewContext.set(context)
+          ViewCreationContextFactoryBean.set(context)
         kalixBeanFactory.getBean(clz)
       })
 }

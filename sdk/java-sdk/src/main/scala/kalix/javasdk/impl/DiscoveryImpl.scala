@@ -17,29 +17,30 @@
 package kalix.javasdk.impl
 
 import java.time.Duration
+import java.util
 import java.util.concurrent.atomic.AtomicReference
+
 import scala.concurrent.Future
 import scala.concurrent.Promise
 import scala.io.Source
 import scala.jdk.CollectionConverters._
 import scala.util.control.NonFatal
+
 import akka.Done
 import akka.actor.ActorSystem
 import akka.actor.CoordinatedShutdown
 import com.google.protobuf.DescriptorProtos
 import com.google.protobuf.DescriptorProtos.FileDescriptorProto
 import com.google.protobuf.empty.Empty
-import kalix.javasdk.replicatedentity.ReplicatedEntityOptions
-import kalix.javasdk.replicatedentity.WriteConsistency
 import kalix.javasdk.BuildInfo
 import kalix.javasdk.EntityOptions
+import kalix.javasdk.replicatedentity.ReplicatedEntityOptions
+import kalix.javasdk.replicatedentity.WriteConsistency
 import kalix.protocol.action.Actions
 import kalix.protocol.discovery.PassivationStrategy.Strategy
 import kalix.protocol.discovery._
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-
-import java.util
 
 class DiscoveryImpl(
     system: ActorSystem,
@@ -83,6 +84,8 @@ class DiscoveryImpl(
       in.protocolMajorVersion,
       in.protocolMinorVersion)
 
+    ProxyInfoHolder(system).setProxyInfo(in)
+
     // possibly filtered or hidden env, passed along for substitution in descriptor options
     val env: Map[String, String] = system.settings.config.getAnyRef("kalix.discovery.pass-along-env-allow") match {
       case false => Map.empty
@@ -119,17 +122,6 @@ class DiscoveryImpl(
       val unsupportedServices = services.values.filterNot { service =>
         in.supportedEntityTypes.contains(service.componentType)
       }
-
-      val grpcClients = GrpcClients(system)
-      // pass the deployed name of the service on to GrpcClients for cross component calls
-      if (in.internalProxyHostname.isEmpty) {
-        // for backward compatibility with proxy 1.0.14 or older
-        grpcClients.setProxyHostname(in.proxyHostname)
-      } else {
-        grpcClients.setProxyHostname(in.internalProxyHostname)
-      }
-      grpcClients.setProxyPort(in.proxyPort)
-      grpcClients.setIdentificationInfo(in.identificationInfo)
 
       if (unsupportedServices.nonEmpty) {
         log.error(

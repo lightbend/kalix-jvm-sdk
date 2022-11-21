@@ -16,39 +16,37 @@
 
 package kalix.springsdk.impl
 
-import com.google.protobuf.{ ByteString, Descriptors, DynamicMessage }
+import scala.jdk.CollectionConverters.CollectionHasAsScala
+
 import com.google.protobuf.any.{ Any => ScalaPbAny }
 import com.google.protobuf.{ Any => JavaPbAny }
-import kalix.javasdk.{ DeferredCall, JsonSupport }
-import kalix.javasdk.impl.{ AnySupport, RestDeferredCall }
-import kalix.protocol.discovery.IdentificationInfo
-import kalix.springsdk.testmodels.action.ActionsTestModels.{
-  GetClassLevel,
-  GetWithOneParam,
-  GetWithOneQueryParam,
-  GetWithoutParam,
-  PostWithOneQueryParam,
-  PostWithTwoParam,
-  PostWithoutParam
-}
+import com.google.protobuf.ByteString
+import com.google.protobuf.Descriptors
+import com.google.protobuf.DynamicMessage
+import kalix.javasdk.impl.AnySupport
+import kalix.javasdk.impl.RestDeferredCall
+import kalix.javasdk.DeferredCall
+import kalix.javasdk.JsonSupport
 import kalix.springsdk.testmodels.Message
+import kalix.springsdk.testmodels.action.ActionsTestModels.GetClassLevel
+import kalix.springsdk.testmodels.action.ActionsTestModels.GetWithOneParam
+import kalix.springsdk.testmodels.action.ActionsTestModels.GetWithOneQueryParam
+import kalix.springsdk.testmodels.action.ActionsTestModels.GetWithoutParam
+import kalix.springsdk.testmodels.action.ActionsTestModels.PostWithOneQueryParam
+import kalix.springsdk.testmodels.action.ActionsTestModels.PostWithTwoParam
+import kalix.springsdk.testmodels.action.ActionsTestModels.PostWithoutParam
 import org.scalatest
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
-
-import scala.jdk.CollectionConverters.{ CollectionHasAsScala, MapHasAsScala }
 
 class RestKalixClientImplSpec extends AnyWordSpec with Matchers with BeforeAndAfterEach with ComponentDescriptorSuite {
 
   var restKalixClient: RestKalixClientImpl = _
   val messageCodec = new SpringSdkMessageCodec
 
-  override def beforeEach(): Unit = {
+  override def beforeEach(): Unit =
     restKalixClient = new RestKalixClientImpl(new SpringSdkMessageCodec)
-    restKalixClient.setIdentificationInfo(
-      IdentificationInfo(serviceIdentificationHeader = "testServiceHeader", selfDeploymentName = "testName"))
-  }
 
   "The Rest Kalix Client" should {
     "return a DeferredCall for a simple GET request" in {
@@ -62,7 +60,6 @@ class RestKalixClientImplSpec extends AnyWordSpec with Matchers with BeforeAndAf
         restDefCall.fullServiceName shouldBe targetMethod.getService.getFullName
         restDefCall.methodName shouldBe targetMethod.getName
         assertMethodParamsMatch(targetMethod, restDefCall.message)
-        restDefCall.metadata.get("testServiceHeader").get() shouldBe "testName"
       }
 
     }
@@ -103,7 +100,6 @@ class RestKalixClientImplSpec extends AnyWordSpec with Matchers with BeforeAndAf
         val targetMethod = actionWithTwoParams.serviceDescriptor.findMethodByName("Message")
         restDefCall.fullServiceName shouldBe targetMethod.getService.getFullName
         restDefCall.methodName shouldBe targetMethod.getName
-        restDefCall.metadata.get("testServiceHeader").get() shouldBe "testName"
 
         assertMethodBodyMatch(targetMethod, restDefCall.message) { body =>
           decodeJson(body, classOf[Message]).value shouldBe msgSent.value

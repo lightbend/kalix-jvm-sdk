@@ -16,7 +16,16 @@
 
 package kalix.javasdk.impl
 
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.Executor
+
+import scala.concurrent.ExecutionContext
+import scala.concurrent.Future
+import scala.jdk.CollectionConverters._
+import scala.jdk.FutureConverters._
+
 import akka.Done
+import akka.actor.ActorSystem
 import akka.actor.ClassicActorSystemProvider
 import akka.actor.CoordinatedShutdown
 import akka.actor.ExtendedActorSystem
@@ -26,17 +35,9 @@ import akka.actor.ExtensionIdProvider
 import akka.grpc.GrpcClientSettings
 import akka.grpc.javadsl.{ AkkaGrpcClient => AkkaGrpcJavaClient }
 import akka.grpc.scaladsl.{ AkkaGrpcClient => AkkaGrpcScalaClient }
+import io.grpc.CallCredentials
+import io.grpc.Metadata
 import org.slf4j.LoggerFactory
-import java.util.concurrent.{ ConcurrentHashMap, Executor }
-
-import scala.concurrent.ExecutionContext
-import scala.concurrent.Future
-import scala.jdk.CollectionConverters._
-import scala.jdk.FutureConverters._
-import akka.actor.ActorSystem
-import io.grpc.{ CallCredentials, Metadata }
-import kalix.javasdk.Principal
-import kalix.protocol.discovery.IdentificationInfo
 
 /**
  * INTERNAL API
@@ -60,9 +61,7 @@ final class GrpcClients(system: ExtendedActorSystem) extends Extension {
   import GrpcClients._
   private val log = LoggerFactory.getLogger(classOf[GrpcClients])
 
-  @volatile private var proxyHostname: Option[String] = None
-  @volatile private var proxyPort: Option[Int] = None
-  @volatile private var identificationInfo: Option[IdentificationInfo] = None
+  private val proxyInfoHolder = ProxyInfoHolder(system)
   private implicit val ec: ExecutionContext = system.dispatcher
   private val clients = new ConcurrentHashMap[Key, AnyRef]()
   private val MaxCrossServiceResponseContentLength =
@@ -76,21 +75,6 @@ final class GrpcClients(system: ExtendedActorSystem) extends Extension {
       }
       .map(_ => Done))
 
-  def setProxyHostname(hostname: String): Unit = {
-    log.debug("Setting proxy hostname to: [{}]", hostname)
-    proxyHostname = Some(hostname)
-  }
-
-  def setIdentificationInfo(info: Option[IdentificationInfo]): Unit = {
-    log.debug("Setting identification info to name to: [{}]", info)
-    identificationInfo = info
-  }
-
-  def setProxyPort(port: Int): Unit = {
-    log.debug("Setting port to: [{}]", port)
-    proxyPort = Some(port)
-  }
-
   def getComponentGrpcClient[T](serviceClass: Class[T]): T = {
     getProxyGrpcClient(serviceClass)
   }
@@ -98,47 +82,35 @@ final class GrpcClients(system: ExtendedActorSystem) extends Extension {
     getLocalGrpcClient(serviceClass)
   }
 
-  // FIXME we might be able to revert this once we implement transcoding of Rest calls to Grpc calls so this is not needed outside
-  def getProxyHostname: Option[String] = proxyHostname
-  def getProxyPort: Option[Int] = proxyPort
-  def getIdentificationInfo: Option[IdentificationInfo] = identificationInfo
-
   /**
    * This gets called from the action context to get a client to another service, and hence needs to add a service
    * identification header (in dev/test mode) to ensure calls get associated with this service.
    */
-  def getGrpcClient[T](serviceClass: Class[T], service: String): T =
+  def getGrpcClient[T](serviceClass: Class[T], service: String): T = {
+    val remoteAddHeader = proxyInfoHolder.remoteIdentificationHeader
     getGrpcClient(serviceClass, service, port = 80, remoteAddHeader)
+  }
 
   /** gRPC clients point to services (user components or Kalix services) in the same deployable */
   private def getLocalGrpcClient[T](serviceClass: Class[T]): T = {
-    (proxyHostname, proxyPort) match {
+
+    val localAddHeader = proxyInfoHolder.localIdentificationHeader
+
+    (proxyInfoHolder.proxyHostname, proxyInfoHolder.proxyPort) match {
       case (Some(internalProxyHostname), Some(port)) =>
         getGrpcClient(serviceClass, internalProxyHostname, port, localAddHeader)
-      // for backward compatibiliy with proxy 1.0.14 or older.
       case (Some("localhost"), None) =>
+        // for backward compatibility with proxy 1.0.14 or older.
         log.warn("you are using an old version of the Kalix proxy")
-        getGrpcClient(serviceClass, "localhost", proxyPort.getOrElse(9000), localAddHeader)
-      // for backward compatibiliy with proxy 1.0.14 or older
+        getGrpcClient(serviceClass, "localhost", proxyInfoHolder.proxyPort.getOrElse(9000), localAddHeader)
       case (Some(proxyHostname), None) =>
+        // for backward compatibility with proxy 1.0.14 or older
         log.warn("you are using an old version of the Kalix proxy")
         getGrpcClient(serviceClass, proxyHostname, 80, localAddHeader)
       case _ =>
         throw new IllegalStateException(
           "Service proxy hostname and port are not set by proxy at discovery, too old proxy version?")
     }
-  }
-
-  private def localAddHeader: Option[(String, String)] = identificationInfo match {
-    case Some(IdentificationInfo(header, token, _, _, _)) if header.nonEmpty && token.nonEmpty =>
-      Some((header, token))
-    case _ => None
-  }
-
-  private def remoteAddHeader: Option[(String, String)] = identificationInfo match {
-    case Some(IdentificationInfo(_, _, header, name, _)) if header.nonEmpty && name.nonEmpty =>
-      Some((header, name))
-    case _ => None
   }
 
   /** This gets called by the testkit, so shouldn't add any headers. */
@@ -158,20 +130,21 @@ final class GrpcClients(system: ExtendedActorSystem) extends Extension {
   }
 
   private def createClient(key: Key): AnyRef = {
-    val settings = if (!system.settings.config.hasPath(s"""akka.grpc.client."${key.service}"""")) {
-      // "service" is not present in the config, treat it as an Akka gRPC inter-service call
-      log.debug("Creating gRPC client for Kalix service [{}:{}]", key.service, key.port)
-      GrpcClientSettings
-        .connectToServiceAt(key.service, key.port)(system)
-        // (TLS is handled for us by Kalix infra)
-        .withTls(false)
-        .withChannelBuilderOverrides(channelBuilder =>
-          channelBuilder.maxInboundMessageSize(MaxCrossServiceResponseContentLength))
-    } else {
-      log.debug("Creating gRPC client for external service [{}]", key.service)
-      // external service, defined in config
-      GrpcClientSettings.fromConfig(key.service)(system)
-    }
+    val settings =
+      if (!system.settings.config.hasPath(s"""akka.grpc.client."${key.service}"""")) {
+        // "service" is not present in the config, treat it as an Akka gRPC inter-service call
+        log.debug("Creating gRPC client for Kalix service [{}:{}]", key.service, key.port)
+        GrpcClientSettings
+          .connectToServiceAt(key.service, key.port)(system)
+          // (TLS is handled for us by Kalix infra)
+          .withTls(false)
+          .withChannelBuilderOverrides(channelBuilder =>
+            channelBuilder.maxInboundMessageSize(MaxCrossServiceResponseContentLength))
+      } else {
+        log.debug("Creating gRPC client for external service [{}]", key.service)
+        // external service, defined in config
+        GrpcClientSettings.fromConfig(key.service)(system)
+      }
 
     val settingsWithCallCredentials = key.addHeader match {
       case Some((key, value)) =>

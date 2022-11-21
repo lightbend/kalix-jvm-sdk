@@ -1063,6 +1063,23 @@ jobs:
             rm -rf src/main/scala src/test/scala src/it/scala
             sbt -Dkalix-sdk.version=$SDK_VERSION Test/compile
 
+  sample-spring-doc-snippets:
+    machine:
+      image: ubuntu-2004:202201-02
+    steps:
+      - checkout-and-merge-to-main
+      - setup_sbt
+      - restore_deps_cache
+      # note: `copy-from-workspace` requires `publish-local` to be run first as declared in workflow section below
+      - copy-from-workspace
+      - set-sdk-version
+      - run:
+          name: Spring Doc snippets
+          command: |
+            cd samples/spring-doc-snippets
+            echo "Running mvn with SDK version: '$SDK_VERSION'"
+            mvn -Dkalix-sdk.version=$SDK_VERSION test-compile
+
   sample-spring-fibonacci-action:
     machine:
       image: ubuntu-2004:202201-02
@@ -1079,7 +1096,6 @@ jobs:
             cd samples/spring-fibonacci-action
             echo "Running mvn with SDK version: '$SDK_VERSION'"
             mvn -Dkalix-sdk.version=$SDK_VERSION verify -Pit 
-
 
   sample-spring-customer-registry-quickstart:
     machine:
@@ -1537,6 +1553,10 @@ workflows:
       - sample-scala-reliable-timers:
           requires:
             - checks
+            - publish-local
+      - sample-spring-doc-snippets:
+          requires:
+            - spring-sdk-integration-tests
             - publish-local
       - sample-spring-fibonacci-action:
           requires:
