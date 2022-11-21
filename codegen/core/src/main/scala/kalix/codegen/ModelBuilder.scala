@@ -287,6 +287,16 @@ object ModelBuilder {
       throw new IllegalArgumentException(
         s"At least one view method must have `option (kalix.method).view.update` in ${messageType.protoName} (${messageType.parent.protoFileName}).")
 
+    updates.toSeq
+      .diff(transformedUpdates.toSeq)
+      .find(command => command.inputType.fullyQualifiedProtoName != command.outputType.fullyQualifiedProtoName)
+      .foreach { command =>
+        throw new IllegalStateException(
+          s"A View method ${command.name} with input param ${command.inputType.fullyQualifiedProtoName} " +
+          s"and different output param ${command.outputType.fullyQualifiedProtoName} " +
+          s"must have `option (kalix.method).view.update.transform_updates` equals `true`")
+      }
+
     val state = State(updates.head.outputType)
   }
 
