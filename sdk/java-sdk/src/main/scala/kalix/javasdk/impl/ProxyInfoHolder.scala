@@ -26,6 +26,9 @@ import kalix.protocol.discovery.IdentificationInfo
 import kalix.protocol.discovery.ProxyInfo
 import org.slf4j.LoggerFactory
 
+import java.util.concurrent.atomic.AtomicReference
+import java.util.concurrent.atomic.AtomicReference
+
 object ProxyInfoHolder extends ExtensionId[ProxyInfoHolder] with ExtensionIdProvider {
   override def get(system: ActorSystem): ProxyInfoHolder = super.get(system)
 
@@ -40,9 +43,8 @@ class ProxyInfoHolder(system: ExtendedActorSystem) extends Extension {
 
   private val log = LoggerFactory.getLogger(classOf[ProxyInfoHolder])
 
-  @volatile private var _proxyHostname: Option[String] = None
-  @volatile private var _portOverride: Option[Int] = None
-  @volatile private var _proxyAnnouncedPort: Int = 0
+  private val _proxyHostname = new AtomicReference[String]()
+  private val _proxyPort = new AtomicReference[Int](-1)
   @volatile private var _identificationInfo: Option[IdentificationInfo] = None
 
   def setProxyInfo(proxyInfo: ProxyInfo): Unit = {
@@ -56,25 +58,23 @@ class ProxyInfoHolder(system: ExtendedActorSystem) extends Extension {
       }
 
     // don't set if already overridden (by testkit)
-    if (this._proxyHostname.isEmpty) {
-      this._proxyHostname = Some(chosenProxyName)
-    }
-
-    this._identificationInfo = proxyInfo.identificationInfo
+    _proxyHostname.compareAndSet(null, chosenProxyName)
+    _proxyPort.compareAndSet(-1, proxyInfo.proxyPort)
+    _identificationInfo = proxyInfo.identificationInfo
 
     log.debug("Proxy hostname: [{}]", chosenProxyName)
     log.debug("Proxy port to: [{}]", proxyInfo)
     log.debug("Identification name: [{}]", proxyInfo.identificationInfo)
   }
 
-  def proxyHostname: Option[String] = _proxyHostname
+  def proxyHostname: Option[String] = Option(_proxyHostname.get())
 
   def identificationInfo: Option[IdentificationInfo] = _identificationInfo
 
   def proxyPort: Option[Int] = {
     // If portOverride is filled, we choose it. Otherwise we use the announced one.
     // Note: with old proxy versions `proxyInfo.proxyPort` will default to 0
-    val chosenPort = _portOverride.getOrElse(_proxyAnnouncedPort)
+    val chosenPort = _proxyPort.get()
 
     // We should never return the default Int 0, so we make it a None
     // This can happen if somehow this method called before we receive the ProxyInfo
@@ -100,11 +100,11 @@ class ProxyInfoHolder(system: ExtendedActorSystem) extends Extension {
    * INTERNAL API
    */
   private[kalix] def overridePort(port: Int): Unit =
-    _portOverride = Some(port)
+    _proxyPort.set(port)
 
   /**
    * INTERNAL API
    */
   private[kalix] def overrideProxyHost(host: String): Unit =
-    _proxyHostname = Some(host)
+    _proxyHostname.set(host)
 }
