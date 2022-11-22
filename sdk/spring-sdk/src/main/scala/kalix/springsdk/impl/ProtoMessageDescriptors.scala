@@ -76,6 +76,7 @@ object ProtoMessageDescriptors {
       case "VINT64_STD" => DescriptorProtos.FieldDescriptorProto.Type.TYPE_INT64
       case "DOUBLE"     => DescriptorProtos.FieldDescriptorProto.Type.TYPE_DOUBLE
       case "FLOAT"      => DescriptorProtos.FieldDescriptorProto.Type.TYPE_FLOAT
+      case "ENUM"       => DescriptorProtos.FieldDescriptorProto.Type.TYPE_ENUM
       /* case "uint32"     => DescriptorProtos.FieldDescriptorProto.Type.TYPE_UINT32
       case "uint64"     => DescriptorProtos.FieldDescriptorProto.Type.TYPE_UINT64
       case "sint32"     => DescriptorProtos.FieldDescriptorProto.Type.TYPE_SINT32
