@@ -93,7 +93,15 @@ class ProxyInfoHolder(system: ExtendedActorSystem) extends Extension {
   /**
    * Change port disregarding what is announced in ProxyInfo This is required for the testkit because the port to use is
    * defined by testcontainers
+   *
+   * INTERNAL API
    */
   private[kalix] def overridePort(port: Int): Unit =
     _portOverride = Some(port)
+
+  /**
+   * INTERNAL API
+   */
+  private[kalix] def overrideProxyHost(host: String): Unit =
+    _proxyHostname = Some(host)
 }
