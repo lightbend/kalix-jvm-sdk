@@ -17,6 +17,7 @@
 package kalix.springsdk.impl
 
 import com.google.protobuf.DescriptorProtos.FieldDescriptorProto.{ Type => ProtoType }
+import kalix.springsdk.testmodels.TimeEnum
 import kalix.springsdk.testmodels.{ NestedMessage, SimpleMessage }
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
@@ -74,6 +75,10 @@ class MessageDescriptorGeneratorSpec extends AnyWordSpec with Matchers {
 
       messageDescriptor.additionalMessageDescriptors should have size 1
       messageDescriptor.additionalMessageDescriptors.head.getName shouldBe "SimpleMessage"
+    }
+
+    "create a schema for a message with Java Instant and enum doesn't break" in {
+      ProtoMessageDescriptors.generateMessageDescriptors(classOf[TimeEnum])
     }
   }
 

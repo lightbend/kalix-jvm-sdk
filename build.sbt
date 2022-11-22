@@ -123,7 +123,7 @@ lazy val sdkSpring = project
     buildInfoPackage := "kalix.springsdk",
     Compile / akkaGrpcGeneratedSources := Seq(AkkaGrpc.Server),
     Compile / akkaGrpcGeneratedLanguages := Seq(AkkaGrpc.Scala),
-    Test / javacOptions += "-parameters", // for Jackson
+    Test / javacOptions ++= Seq("-parameters", "--release", "17"), // for Jackson
     IntegrationTest / javacOptions += "-parameters", // for Jackson
     inTask(doc)(
       Seq(

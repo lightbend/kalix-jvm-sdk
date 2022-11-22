@@ -20,6 +20,7 @@ import com.google.protobuf.DescriptorProtos
 import com.fasterxml.jackson.dataformat.protobuf.ProtobufMapper
 import com.fasterxml.jackson.dataformat.protobuf.schema.ProtobufMessage
 import com.fasterxml.jackson.dataformat.protobuf.{ schema => jacksonSchema }
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.google.protobuf.DescriptorProtos.FieldDescriptorProto
 
 import scala.jdk.CollectionConverters._
@@ -28,7 +29,7 @@ import scala.jdk.CollectionConverters._
  * Extracts a protobuf schema for a message, used only for assigning a typed schema to view state and results
  */
 object ProtoMessageDescriptors {
-  private val protobufMapper = new ProtobufMapper()
+  private val protobufMapper = ProtobufMapper.builder.addModule(new JavaTimeModule).build;
 
   def generateMessageDescriptors(javaClass: Class[_]): ProtoMessageDescriptors = {
     val jacksonProtoSchema = protobufMapper.generateSchemaFor(javaClass)
@@ -75,6 +76,7 @@ object ProtoMessageDescriptors {
       case "VINT64_STD" => DescriptorProtos.FieldDescriptorProto.Type.TYPE_INT64
       case "DOUBLE"     => DescriptorProtos.FieldDescriptorProto.Type.TYPE_DOUBLE
       case "FLOAT"      => DescriptorProtos.FieldDescriptorProto.Type.TYPE_FLOAT
+      case "ENUM"       => DescriptorProtos.FieldDescriptorProto.Type.TYPE_ENUM
       /* case "uint32"     => DescriptorProtos.FieldDescriptorProto.Type.TYPE_UINT32
       case "uint64"     => DescriptorProtos.FieldDescriptorProto.Type.TYPE_UINT64
       case "sint32"     => DescriptorProtos.FieldDescriptorProto.Type.TYPE_SINT32
