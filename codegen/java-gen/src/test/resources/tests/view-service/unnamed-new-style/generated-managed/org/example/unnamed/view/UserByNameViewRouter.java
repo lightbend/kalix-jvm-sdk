@@ -27,5 +27,13 @@ public class UserByNameViewRouter extends ViewRouter<UserByNameView> {
     }
   }
 
+  @Override
+  public String viewTable(String eventName, Object event) {
+    switch (eventName) {
+
+      default: return "";
+    }
+  }
+
 }
 

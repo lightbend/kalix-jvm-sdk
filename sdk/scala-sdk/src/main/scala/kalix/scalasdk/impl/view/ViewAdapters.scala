@@ -66,6 +66,8 @@ private[scalasdk] class JavaViewRouterAdapter[V <: View](javaSdkView: javasdk.vi
       case effect: ViewUpdateEffectImpl.PrimaryUpdateEffect[S] => effect.toJavaSdk
     }
   }
+
+  override def viewTable(commandName: String, event: Any): String = scalaSdkHandler.viewTable(commandName, event)
 }
 
 private[scalasdk] final class ScalaViewCreationContextAdapter(javaSdkContext: javasdk.view.ViewCreationContext)
@@ -89,6 +91,9 @@ private[scalasdk] final class ScalaUpdateContextAdapter(val javaSdkContext: java
 
   override def viewId: String =
     javaSdkContext.viewId()
+
+  override def viewTable: String =
+    javaSdkContext.viewTable()
 
   override def materializer(): Materializer = javaSdkContext.materializer()
 }

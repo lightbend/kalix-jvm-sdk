@@ -32,4 +32,7 @@ public interface UpdateContext extends ViewContext, MetadataContext {
 
   /** The name of the event being handled. */
   String eventName();
+
+  /** The view table being updated. */
+  String viewTable();
 }

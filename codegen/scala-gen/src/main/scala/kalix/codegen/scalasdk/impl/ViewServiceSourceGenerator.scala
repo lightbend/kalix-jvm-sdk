@@ -70,6 +70,10 @@ object ViewServiceSourceGenerator {
         }
       }
 
+    val viewTableCases = view.transformedUpdates.map { cmd =>
+      s"""case "${cmd.name}" => "${cmd.viewTable}""""
+    }
+
     File.scala(
       view.messageType.parent.scalaPackage,
       view.routerName,
@@ -92,6 +96,13 @@ object ViewServiceSourceGenerator {
         |
         |      case _ =>
         |        throw new UpdateHandlerNotFound(eventName)
+        |    }
+        |  }
+        |
+        |  override def viewTable(eventName: String, event: Any): String = {
+        |    eventName match {
+        |      ${Format.indent(viewTableCases, 6)}
+        |      case _ => ""
         |    }
         |  }
         |
@@ -172,7 +183,8 @@ object ViewServiceSourceGenerator {
       if (view.transformedUpdates.isEmpty)
         ""
       else {
-        val stateType = typeName(view.transformedUpdates.head.outputType)
+        val stateType =
+          if (view.transformedUpdates.size == 1) typeName(view.transformedUpdates.head.outputType) else "Any"
         s"""|  override def emptyState: $stateType =
             |    throw new UnsupportedOperationException("Not implemented yet, replace with your empty view state")
             |""".stripMargin

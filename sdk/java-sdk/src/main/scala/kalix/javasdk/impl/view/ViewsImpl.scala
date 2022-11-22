@@ -104,8 +104,9 @@ final class ViewsImpl(system: ActorSystem, _services: Map[String, ViewService], 
 
               val commandName = receiveEvent.commandName
               val msg = service.messageCodec.decodeMessage(receiveEvent.payload.get)
+              val viewTable = handler.viewTable(commandName, msg)
               val metadata = new MetadataImpl(receiveEvent.metadata.map(_.entries.toVector).getOrElse(Nil))
-              val context = new UpdateContextImpl(service.viewId, commandName, metadata)
+              val context = new UpdateContextImpl(service.viewId, viewTable, commandName, metadata)
 
               val effect =
                 try {
@@ -156,6 +157,7 @@ final class ViewsImpl(system: ActorSystem, _services: Map[String, ViewService], 
 
   private final class UpdateContextImpl(
       override val viewId: String,
+      override val viewTable: String,
       override val eventName: String,
       override val metadata: Metadata)
       extends AbstractContext(system)

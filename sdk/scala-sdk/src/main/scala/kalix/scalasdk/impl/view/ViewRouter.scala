@@ -23,4 +23,5 @@ import kalix.scalasdk.view.View
  */
 abstract class ViewRouter[V <: View](val view: V) {
   def handleUpdate[S](commandName: String, state: S, event: Any): View.UpdateEffect[S]
+  def viewTable(commandName: String, event: Any): String
 }

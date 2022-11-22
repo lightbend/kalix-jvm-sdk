@@ -29,4 +29,7 @@ trait UpdateContext extends ViewContext with MetadataContext {
 
   /** The name of the event being handled. */
   def eventName: String
+
+  /** The view table being updated. */
+  def viewTable: String
 }

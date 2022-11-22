@@ -322,7 +322,8 @@ object ModelBuilder {
       inFromTopic: Boolean,
       outToTopic: Boolean,
       ignore: Boolean,
-      handleDeletes: Boolean) {
+      handleDeletes: Boolean,
+      viewTable: String) {
 
     def isUnary: Boolean = !streamedInput && !streamedOutput
     def isStreamIn: Boolean = streamedInput && !streamedOutput
@@ -335,6 +336,7 @@ object ModelBuilder {
   object Command {
     def from(method: Descriptors.MethodDescriptor)(implicit messageExtractor: ProtoMessageTypeExtractor): Command = {
       val eventing = method.getOptions.getExtension(kalix.Annotations.method).getEventing
+      val viewUpdate = method.getOptions.getExtension(kalix.Annotations.method).getView.getUpdate
       Command(
         method.getName,
         messageExtractor(method.getInputType),
@@ -344,7 +346,8 @@ object ModelBuilder {
         inFromTopic = eventing.hasIn && eventing.getIn.hasTopic,
         outToTopic = eventing.hasOut && eventing.getOut.hasTopic,
         ignore = eventing.hasIn && eventing.getIn.getIgnore,
-        handleDeletes = eventing.hasIn && eventing.getIn.getHandleDeletes)
+        handleDeletes = eventing.hasIn && eventing.getIn.getHandleDeletes,
+        viewUpdate.getTable)
     }
   }
 

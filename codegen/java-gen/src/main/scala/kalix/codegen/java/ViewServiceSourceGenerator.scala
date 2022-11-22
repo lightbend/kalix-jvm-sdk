@@ -59,6 +59,15 @@ object ViewServiceSourceGenerator {
         }
       }
 
+    val viewTableCases = view.transformedUpdates
+      .map { cmd =>
+        val methodName = cmd.name
+        val viewTable = cmd.viewTable
+        c"""|case "$methodName":
+            |  return "$viewTable";
+            |"""
+      }
+
     JavaGeneratorUtils.generate(
       packageName,
       c"""|$managedComment
@@ -79,6 +88,14 @@ object ViewServiceSourceGenerator {
           |      $cases
           |      default:
           |        throw new $UpdateHandlerNotFound(eventName);
+          |    }
+          |  }
+          |
+          |  @Override
+          |  public String viewTable(String eventName, Object event) {
+          |    switch (eventName) {
+          |      $viewTableCases
+          |      default: return "";
           |    }
           |  }
           |
@@ -163,7 +180,14 @@ object ViewServiceSourceGenerator {
     val emptyState =
       if (view.transformedUpdates.isEmpty)
         c""
-      else {
+      else if (view.transformedUpdates.size > 1) {
+        c"""|
+            |@Override
+            |public Object emptyState() {
+            |  throw new UnsupportedOperationException("Not implemented yet, replace with your empty view state");
+            |}
+            |"""
+      } else {
         val stateType = view.transformedUpdates.head.outputType
         c"""|
             |@Override

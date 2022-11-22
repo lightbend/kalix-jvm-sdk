@@ -25,6 +25,7 @@ import kalix.javasdk.impl.view.ViewRouter
 import kalix.javasdk.impl.view.ViewUpdateEffectImpl
 import kalix.javasdk.view.View
 import kalix.springsdk.impl.CommandHandler
+import kalix.springsdk.impl.ComponentDescriptorFactory.findTableName
 import kalix.springsdk.impl.InvocationContext
 
 class ReflectiveViewRouter[V <: View](view: V, commandHandlers: Map[String, CommandHandler], ignoreUnknown: Boolean)
@@ -80,4 +81,10 @@ class ReflectiveViewRouter[V <: View](view: V, commandHandlers: Map[String, Comm
     }
   }
 
+  override def viewTable(commandName: String, event: Any): String = {
+    commandHandlerLookup(commandName).lookupInvoker(event.asInstanceOf[ScalaPbAny].typeUrl) match {
+      case Some(invoker) => findTableName(view.getClass, invoker.method)
+      case None          => ""
+    }
+  }
 }

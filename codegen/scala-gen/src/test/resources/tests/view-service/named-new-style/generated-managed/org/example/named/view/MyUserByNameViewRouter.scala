@@ -24,4 +24,11 @@ class MyUserByNameViewRouter(view: MyUserByNameView)
     }
   }
 
+  override def viewTable(eventName: String, event: Any): String = {
+    eventName match {
+      
+      case _ => ""
+    }
+  }
+
 }
