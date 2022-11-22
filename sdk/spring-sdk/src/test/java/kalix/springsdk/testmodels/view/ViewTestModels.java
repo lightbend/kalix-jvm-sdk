@@ -42,10 +42,27 @@ public class ViewTestModels {
     public User getUser(String email) {
       return null; // TODO: user should not implement this. we need to find a nice API for this
     }
+  }
 
-    @Override
-    public User emptyState() {
-      return null; // TODO: user should not have to implement this when not transforming
+
+  @Subscribe.ValueEntity(UserEntity.class)
+  public static class ViewWithoutTableAnnotation extends View<User> {
+
+    @Query("SELECT * FROM users_view WHERE email = :email")
+    @GetMapping("/users/{email}")
+    public User getUser(String email) {
+      return null; // TODO: user should not implement this. we need to find a nice API for this
+    }
+  }
+
+  @Table(" ")
+  @Subscribe.ValueEntity(UserEntity.class)
+  public static class ViewWithoutEmptyTableAnnotation extends View<User> {
+
+    @Query("SELECT * FROM users_view WHERE email = :email")
+    @GetMapping("/users/{email}")
+    public User getUser(String email) {
+      return null; // TODO: user should not implement this. we need to find a nice API for this
     }
   }
 
@@ -227,6 +244,29 @@ public class ViewTestModels {
     }
   }
 
+
+  @Table("users_view")
+  public static class ViewHandleDeletesWithParam extends View<TransformedUser> {
+
+    @Subscribe.ValueEntity(UserEntity.class)
+    public UpdateEffect<TransformedUser> onChange(User user) {
+      return effects()
+          .updateState(new TransformedUser(user.lastName + ", " + user.firstName, user.email));
+    }
+
+    @Subscribe.ValueEntity(value = UserEntity.class, handleDeletes = true)
+    public UpdateEffect<TransformedUser> onDelete(User user) {
+      return effects().deleteState();
+    }
+
+    @Query("SELECT * FROM users_view WHERE email = :email")
+    @PostMapping("/users/by-email")
+    public TransformedUser getUser(@RequestBody ByEmail byEmail) {
+      return null;
+    }
+  }
+
+
   @Table("users_view")
   public static class ViewWithHandleDeletesFalseOnMethodLevel extends View<TransformedUser> {
 
@@ -274,33 +314,6 @@ public class ViewTestModels {
       return null;
     }
   }
-
-  @Table("users_view")
-  public static class ViewWithMissingSubscriptionForHandleDeletes extends View<TransformedUser> {
-
-    @Subscribe.ValueEntity(UserEntity.class)
-    public UpdateEffect<TransformedUser> onChange(User user) {
-      return effects()
-          .updateState(new TransformedUser(user.lastName + ", " + user.firstName, user.email));
-    }
-
-    @Subscribe.ValueEntity(value = UserEntity.class, handleDeletes = true)
-    public UpdateEffect<TransformedUser> onUserDelete() {
-      return effects().deleteState();
-    }
-
-    @Subscribe.ValueEntity(value = Counter.class, handleDeletes = true)
-    public UpdateEffect<TransformedUser> onCounterDelete() {
-      return effects().deleteState();
-    }
-
-    @Query("SELECT * FROM users_view WHERE email = :email")
-    @PostMapping("/users/by-email")
-    public TransformedUser getUser(@RequestBody ByEmail byEmail) {
-      return null;
-    }
-  }
-
 
 
   @Table("users_view")

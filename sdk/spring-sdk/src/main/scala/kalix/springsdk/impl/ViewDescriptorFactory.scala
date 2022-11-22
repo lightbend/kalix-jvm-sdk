@@ -37,17 +37,13 @@ import kalix.springsdk.impl.ComponentDescriptorFactory.hasHandleDeletes
 import kalix.springsdk.impl.ComponentDescriptorFactory.hasUpdateEffectOutput
 import kalix.springsdk.impl.ComponentDescriptorFactory.hasValueEntitySubscription
 import kalix.springsdk.impl.ComponentDescriptorFactory.subscribeToEventStream
-import kalix.springsdk.impl.DescriptorValidationCommon.validateHandleDeletesMethodArity
-import kalix.springsdk.impl.DescriptorValidationCommon.validateHandleDeletesTrueOnMethodLevel
-import kalix.springsdk.impl.DescriptorValidationCommon.validateIfHandleDeletesMethodsMatchesSubscriptions
 import kalix.springsdk.impl.reflection.HandleDeletesServiceMethod
 import kalix.springsdk.impl.reflection.KalixMethod
 import kalix.springsdk.impl.reflection.NameGenerator
-import kalix.springsdk.impl.reflection.SubscriptionServiceMethod
 import kalix.springsdk.impl.reflection.ReflectionUtils
 import kalix.springsdk.impl.reflection.RestServiceIntrospector
 import kalix.springsdk.impl.reflection.RestServiceIntrospector.BodyParameter
-import kalix.springsdk.impl.reflection.ServiceIntrospectionException
+import kalix.springsdk.impl.reflection.SubscriptionServiceMethod
 import kalix.springsdk.impl.reflection.SyntheticRequestServiceMethod
 import kalix.springsdk.impl.reflection.VirtualDeleteServiceMethod
 import kalix.springsdk.impl.reflection.VirtualServiceMethod
@@ -65,9 +61,6 @@ private[impl] object ViewDescriptorFactory extends ComponentDescriptorFactory {
       component.getGenericSuperclass.asInstanceOf[ParameterizedType].getActualTypeArguments.head.asInstanceOf[Class[_]]
 
     val tableName: String = component.getAnnotation(classOf[Table]).value()
-    if (tableName == null || tableName.trim.isEmpty) {
-      throw InvalidComponentException(s"Table name for [${component.getName}] is empty, must be a non-empty string.")
-    }
     val tableTypeDescriptor = ProtoMessageDescriptors.generateMessageDescriptors(tableType)
     val tableProtoMessageName = tableTypeDescriptor.mainMessageDescriptor.getName
 
@@ -78,18 +71,11 @@ private[impl] object ViewDescriptorFactory extends ComponentDescriptorFactory {
     val hasStreamSubscription = component.getAnnotation(classOf[Subscribe.Stream]) != null
 
     val updateMethods = {
-      if (hasTypeLevelValueEntitySubs && hasMethodLevelValueEntitySubs)
-        throw InvalidComponentException(
-          "Mixed usage of @Subscribe.ValueEntity annotations. " +
-          "You should either use it at type level or at method level, not both.")
       if (hasTypeLevelValueEntitySubs)
         subscriptionForTypeLevelValueEntity(component, tableType, tableName, tableProtoMessageName)
       else if (hasMethodLevelValueEntitySubs)
         subscriptionForMethodLevelValueEntity(component, tableType, tableName, tableProtoMessageName)
       else if (hasMethodLevelEventSourcedEntitySubs || hasTypeLevelEventSourcedEntitySubs) {
-        if (hasMethodLevelEventSourcedEntitySubs && hasTypeLevelEventSourcedEntitySubs)
-          throw InvalidComponentException(
-            s"You cannot use Subscribe annotation in both the methods and the class. You can do either one or the other.")
 
         if (hasTypeLevelEventSourcedEntitySubs) {
           val kalixSubscriptionMethods =
@@ -122,18 +108,6 @@ private[impl] object ViewDescriptorFactory extends ComponentDescriptorFactory {
         .methods
         .filter(_.javaMethod.getAnnotation(classOf[Query]) != null)
 
-      if (annotatedQueryMethods.isEmpty)
-        throw ServiceIntrospectionException(
-          component,
-          s"No valid query method found. " +
-          "Views should have a method annotated with @Query and exposed by a REST annotation")
-
-      if (annotatedQueryMethods.size > 1)
-        throw ServiceIntrospectionException(
-          component,
-          "Views can have only one method annotated with @Query, " +
-          s"found ${annotatedQueryMethods.size}.")
-
       val queryMethod: SyntheticRequestServiceMethod = annotatedQueryMethods.head
 
       val queryOutputType = {
@@ -158,11 +132,6 @@ private[impl] object ViewDescriptorFactory extends ComponentDescriptorFactory {
 
       val queryAnnotation = queryMethod.javaMethod.getAnnotation(classOf[Query])
       val queryStr = queryAnnotation.value()
-
-      if (queryAnnotation.streamUpdates() && !queryMethod.streamOut)
-        throw ServiceIntrospectionException(
-          queryMethod.javaMethod,
-          "Query.streamUpdates can only be enabled in stream methods returning Flux")
 
       val query = kalix.View.Query
         .newBuilder()
@@ -239,13 +208,6 @@ private[impl] object ViewDescriptorFactory extends ComponentDescriptorFactory {
 
   private def validateSameType(methods: Seq[Method], tableType: Class[_]): Seq[Method] = {
 
-    def invalidComponentException(method: Method, extraMessage: String) = {
-      throw InvalidComponentException(
-        s"Method [${method.getName}] annotated with '@Subscribe.EventSourcedEntity' should either receive " +
-        "a single parameter of one of the event types or " +
-        s"two ordered parameters  of type [${tableType.getName}] and an event type. $extraMessage")
-    }
-
     import ReflectionUtils.methodOrdering
     var previousEntityClass: Option[Class[_]] = None
 
@@ -257,18 +219,11 @@ private[impl] object ViewDescriptorFactory extends ComponentDescriptorFactory {
         previousEntityClass match {
           case Some(`entityClass`) => // ok
           case Some(other) =>
-            throw InvalidComponentException(
+            throw InvalidComponentException( // TODO: move this to Validations
               s"All update methods must return the same type, but [${method.getName}] returns [${entityClass.getName}] while a previous update method returns [${other.getName}]")
           case None => previousEntityClass = Some(entityClass)
         }
 
-        method.getParameterTypes.toList match {
-          case params if params.size > 2 =>
-            invalidComponentException(
-              method,
-              s"Subscription method should not have more than 2 parameters, found ${params.size}")
-          case _ => // happy days, dev did good with the signature
-        }
       }
     methods
   }
@@ -277,7 +232,7 @@ private[impl] object ViewDescriptorFactory extends ComponentDescriptorFactory {
       component: Class[_],
       tableName: String,
       tableProtoMessageName: String): Map[String, Seq[KalixMethod]] = {
-    val methods = eligibleSubscriptionMethods(component, tableName, tableProtoMessageName)
+    val methods = eligibleSubscriptionMethods(component, tableName, tableProtoMessageName).toIndexedSeq
     val ann = component.getAnnotation(classOf[Subscribe.Stream])
     val key = ann.id().capitalize
     Map(key -> methods)
@@ -288,7 +243,7 @@ private[impl] object ViewDescriptorFactory extends ComponentDescriptorFactory {
       tableName: String,
       tableProtoMessageName: String): Map[String, Seq[KalixMethod]] = {
 
-    val methods = eligibleSubscriptionMethods(component, tableName, tableProtoMessageName)
+    val methods = eligibleSubscriptionMethods(component, tableName, tableProtoMessageName).toIndexedSeq
     val entityType = findEventSourcedEntityType(component)
     Map(entityType -> methods)
   }
@@ -315,7 +270,7 @@ private[impl] object ViewDescriptorFactory extends ComponentDescriptorFactory {
         component.getMethods
           .filter(hasEventSourcedEntitySubscription)
           .toIndexedSeq
-      (validateSameType(methodsMethodLevel, tableType)).toSeq // this means one or the other
+      validateSameType(methodsMethodLevel, tableType) // this means one or the other
     }
 
     def getEventing(method: Method, component: Class[_]): Eventing =
@@ -345,22 +300,10 @@ private[impl] object ViewDescriptorFactory extends ComponentDescriptorFactory {
 
     import ReflectionUtils.methodOrdering
 
-    def invalidParametersException(method: Method, stateClass: Class[_], extraMessage: String) = {
-      throw InvalidComponentException(
-        s"Method [${method.getName}] annotated with '@Subscribe.ValueEntity' should either receive " +
-        s"a single parameter of type [${stateClass.getName}] or " +
-        s"two ordered parameters of type [${tableType.getName}, ${stateClass.getName}]. $extraMessage")
-    }
-
-    validateHandleDeletesTrueOnMethodLevel(component)
-    validateIfHandleDeletesMethodsMatchesSubscriptions(component)
-
     val handleDeletesMethods = component.getMethods
       .filter(hasHandleDeletes)
       .sorted
       .map { method =>
-        validateHandleDeletesMethodArity(method)
-
         val methodOptionsBuilder = kalix.MethodOptions.newBuilder()
         methodOptionsBuilder.setEventing(eventingInForValueEntity(method))
         addTableOptionsToUpdateMethod(tableName, tableProtoMessageName, methodOptionsBuilder, transform = true)
@@ -377,26 +320,13 @@ private[impl] object ViewDescriptorFactory extends ComponentDescriptorFactory {
       .map { method =>
         // validate that all updates return the same type
         val entityClass = method.getAnnotation(classOf[Subscribe.ValueEntity]).value().asInstanceOf[Class[_]]
-        val stateClass = entityClass.getGenericSuperclass
-          .asInstanceOf[ParameterizedType]
-          .getActualTypeArguments
-          .head
-          .asInstanceOf[Class[_]]
+
         previousEntityClass match {
           case Some(`entityClass`) => // ok
           case Some(other) =>
-            throw InvalidComponentException(
+            throw InvalidComponentException( // TODO: move this to Validations
               s"All update methods must subscribe to the same type, but [${method.getName}] subscribes to [${entityClass.getName}] while a previous update method subscribes to [${other.getName}]")
           case None => previousEntityClass = Some(entityClass)
-        }
-
-        method.getParameterTypes.toList match {
-          case params if params.size > 2 =>
-            invalidParametersException(
-              method,
-              stateClass,
-              s"Subscription method should have only one parameter, found ${params.size}")
-          case _ => // happy days, dev did good with the signature
         }
 
         val methodOptionsBuilder = kalix.MethodOptions.newBuilder()
@@ -424,7 +354,7 @@ private[impl] object ViewDescriptorFactory extends ComponentDescriptorFactory {
       component.getAnnotation(classOf[Subscribe.ValueEntity]).value().asInstanceOf[Class[_]]
     val entityStateClass = valueEntityStateClassOf(valueEntityClass)
     if (entityStateClass != tableType)
-      throw InvalidComponentException(
+      throw InvalidComponentException( // TODO: move this to Validations
         s"View subscribes to ValueEntity [${valueEntityClass.getName}] and subscribes to state changes " +
         s"which will be of type [${entityStateClass.getName}] but view type parameter is [${tableType.getName}] which does not match, " +
         "the types of the entity and the subscribing must be the same.")

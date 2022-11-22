@@ -16,9 +16,12 @@
 
 package kalix.springsdk.impl
 
+import java.lang.annotation.Annotation
 import java.lang.reflect.Method
 import java.lang.reflect.Modifier
 import java.lang.reflect.ParameterizedType
+
+import scala.reflect.ClassTag
 
 import kalix.DirectDestination
 import kalix.DirectSource
@@ -31,6 +34,7 @@ import kalix.ServiceEventing
 import kalix.ServiceEventingOut
 import kalix.javasdk.action.Action
 import kalix.javasdk.view.View
+import kalix.springsdk.annotations.Acl
 import kalix.springsdk.annotations.EntityType
 import kalix.springsdk.annotations.JWT
 import kalix.springsdk.annotations.Publish
@@ -38,16 +42,35 @@ import kalix.springsdk.annotations.Subscribe
 import kalix.springsdk.annotations.Subscribe.ValueEntity
 import kalix.springsdk.annotations.Table
 import kalix.springsdk.impl.reflection._
+import org.springframework.core.annotation.AnnotatedElementUtils
+import org.springframework.web.bind.annotation.RequestMapping
 
 private[impl] object ComponentDescriptorFactory {
 
+  implicit class MethodOps(javaMethod: Method) {
+    def isPublic = Modifier.isPublic(javaMethod.getModifiers)
+
+    def hasAnnotation[A <: Annotation](implicit ev: ClassTag[A]) =
+      javaMethod.getAnnotation(ev.runtimeClass.asInstanceOf[Class[Annotation]]) != null
+  }
+
+  def hasRestAnnotation(javaMethod: Method): Boolean = {
+    val restAnnotation = AnnotatedElementUtils.findMergedAnnotation(javaMethod, classOf[RequestMapping])
+    javaMethod.isPublic && restAnnotation != null
+  }
+
+  def hasAcl(javaMethod: Method): Boolean =
+    javaMethod.isPublic && javaMethod.hasAnnotation[Acl]
+
+  def hasValueEntitySubscription(clazz: Class[_]): Boolean =
+    Modifier.isPublic(clazz.getModifiers) &&
+    clazz.getAnnotation(classOf[Subscribe.ValueEntity]) != null
+
   def hasValueEntitySubscription(javaMethod: Method): Boolean =
-    Modifier.isPublic(javaMethod.getModifiers) &&
-    javaMethod.getAnnotation(classOf[Subscribe.ValueEntity]) != null
+    javaMethod.isPublic && javaMethod.hasAnnotation[Subscribe.ValueEntity]
 
   def hasEventSourcedEntitySubscription(javaMethod: Method): Boolean =
-    Modifier.isPublic(javaMethod.getModifiers) &&
-    javaMethod.getAnnotation(classOf[Subscribe.EventSourcedEntity]) != null
+    javaMethod.isPublic && javaMethod.hasAnnotation[Subscribe.EventSourcedEntity]
 
   def hasEventSourcedEntitySubscription(clazz: Class[_]): Boolean =
     Modifier.isPublic(clazz.getModifiers) &&
@@ -58,6 +81,11 @@ private[impl] object ComponentDescriptorFactory {
       Option(clazz.getAnnotation(classOf[Subscribe.Stream]))
     else
       None
+
+  def hasSubscription(javaMethod: Method): Boolean =
+    hasValueEntitySubscription(javaMethod) ||
+    hasEventSourcedEntitySubscription(javaMethod) ||
+    hasTopicSubscription(javaMethod)
 
   def eventSourcedEntitySubscription(clazz: Class[_]): Option[Subscribe.EventSourcedEntity] =
     if (Modifier.isPublic(clazz.getModifiers))
@@ -84,8 +112,7 @@ private[impl] object ComponentDescriptorFactory {
   }
 
   def hasTopicSubscription(javaMethod: Method): Boolean =
-    Modifier.isPublic(javaMethod.getModifiers) &&
-    javaMethod.getAnnotation(classOf[Subscribe.Topic]) != null
+    javaMethod.isPublic && javaMethod.hasAnnotation[Subscribe.Topic]
 
   def hasHandleDeletes(javaMethod: Method): Boolean = {
     val ann = javaMethod.getAnnotation(classOf[ValueEntity])
@@ -97,12 +124,10 @@ private[impl] object ComponentDescriptorFactory {
     clazz.getAnnotation(classOf[Subscribe.Topic]) != null
 
   def hasTopicPublication(javaMethod: Method): Boolean =
-    Modifier.isPublic(javaMethod.getModifiers) &&
-    javaMethod.getAnnotation(classOf[Publish.Topic]) != null
+    javaMethod.isPublic && javaMethod.hasAnnotation[Publish.Topic]
 
-  def hasJwtMethodOptions(javaMehod: Method): Boolean =
-    Modifier.isPublic(javaMehod.getModifiers) &&
-    javaMehod.getAnnotation(classOf[JWT]) != null
+  def hasJwtMethodOptions(javaMethod: Method): Boolean =
+    javaMethod.isPublic && javaMethod.hasAnnotation[JWT]
 
   private def findEventSourcedEntityType(javaMethod: Method): String = {
     val ann = javaMethod.getAnnotation(classOf[Subscribe.EventSourcedEntity])
@@ -311,13 +336,6 @@ private[impl] object ComponentDescriptorFactory {
         .build()
     }
   }
-
-  def validateRestMethod(javaMethod: Method): Boolean =
-    if (hasValueEntitySubscription(javaMethod) || hasEventSourcedEntitySubscription(javaMethod))
-      throw new IllegalArgumentException(
-        "Methods annotated with Kalix @Subscription annotations" +
-        " can not be annotated with REST annotations ")
-    else true
 
   // TODO: add more validations here
   // we should let users know if components are missing required annotations,

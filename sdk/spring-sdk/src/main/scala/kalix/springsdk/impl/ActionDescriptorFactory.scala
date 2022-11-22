@@ -33,9 +33,6 @@ import kalix.springsdk.impl.ComponentDescriptorFactory.hasValueEntitySubscriptio
 import kalix.springsdk.impl.ComponentDescriptorFactory.publishToEventStream
 import kalix.springsdk.impl.ComponentDescriptorFactory.streamSubscription
 import kalix.springsdk.impl.ComponentDescriptorFactory.subscribeToEventStream
-import kalix.springsdk.impl.ComponentDescriptorFactory.validateRestMethod
-import kalix.springsdk.impl.DescriptorValidationCommon.validateHandleDeletesTrueOnMethodLevel
-import kalix.springsdk.impl.DescriptorValidationCommon.validateIfHandleDeletesMethodsMatchesSubscriptions
 import kalix.springsdk.impl.reflection.CombinedSubscriptionServiceMethod
 import kalix.springsdk.impl.reflection.HandleDeletesServiceMethod
 import kalix.springsdk.impl.reflection.KalixMethod
@@ -43,41 +40,20 @@ import kalix.springsdk.impl.reflection.NameGenerator
 import kalix.springsdk.impl.reflection.ReflectionUtils
 import kalix.springsdk.impl.reflection.RestServiceIntrospector
 import kalix.springsdk.impl.reflection.SubscriptionServiceMethod
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 
 private[impl] object ActionDescriptorFactory extends ComponentDescriptorFactory {
-
-  private val logger: Logger = LoggerFactory.getLogger(classOf[ActionDescriptorFactory.type])
 
   override def buildDescriptorFor(
       component: Class[_],
       messageCodec: SpringSdkMessageCodec,
       nameGenerator: NameGenerator): ComponentDescriptor = {
 
-    // TODO: we need more robust validation covering all the corner cases
-    // verify component is correctly configured
-    if (hasEventSourcedEntitySubscription(component) &&
-      component.getMethods.exists(hasEventSourcedEntitySubscription))
-      throw InvalidComponentException(
-        "You cannot use @Subscribe.EventSourcedEntity annotation in " +
-        "methods and class. You can do either one or the other.")
-
-    if (hasTopicSubscription(component) && component.getMethods.exists(hasTopicSubscription))
-      throw InvalidComponentException(
-        "You cannot use @Subscribe.Topic annotation in " +
-        "both methods and class. You can do either one or the other.")
-
-    //we should merge from here
+    // we should merge from here
     // methods with REST annotations
     val syntheticMethods: Seq[KalixMethod] =
       RestServiceIntrospector.inspectService(component).methods.map { serviceMethod =>
-        validateRestMethod(serviceMethod.javaMethod)
         KalixMethod(serviceMethod).withKalixOptions(buildJWTOptions(serviceMethod.javaMethod))
       }
-
-    validateHandleDeletesTrueOnMethodLevel(component)
-    validateIfHandleDeletesMethodsMatchesSubscriptions(component)
 
     //TODO make sure no subscription should be exposed via REST.
     // methods annotated with @Subscribe.ValueEntity
@@ -86,11 +62,8 @@ private[impl] object ActionDescriptorFactory extends ComponentDescriptorFactory 
       .filter(hasHandleDeletes)
       .sorted
       .map { method =>
-        DescriptorValidationCommon.validateHandleDeletesMethodArity(method)
-
         val methodOptionsBuilder = kalix.MethodOptions.newBuilder()
         methodOptionsBuilder.setEventing(eventingInForValueEntity(method))
-
         KalixMethod(HandleDeletesServiceMethod(method))
           .withKalixOptions(methodOptionsBuilder.build())
       }

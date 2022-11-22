@@ -18,7 +18,6 @@ package kalix.springsdk.impl
 
 import com.google.protobuf.Descriptors.FieldDescriptor.JavaType
 import kalix.JwtMethodOptions.JwtMethodMode
-import kalix.springsdk.impl.reflection.ServiceIntrospectionException
 import kalix.springsdk.testmodels.subscriptions.PubSubTestModels.EventStreamSubscriptionView
 import kalix.springsdk.testmodels.subscriptions.PubSubTestModels.SubscribeOnTypeToEventSourcedEvents
 import kalix.springsdk.testmodels.view.ViewTestModels.IllDefineUserByEmailWithStreamUpdates
@@ -37,15 +36,17 @@ import kalix.springsdk.testmodels.view.ViewTestModels.UserByNameEmailWithPost
 import kalix.springsdk.testmodels.view.ViewTestModels.UserByNameStreamed
 import kalix.springsdk.testmodels.view.ViewTestModels.ViewDuplicatedHandleDeletesAnnotations
 import kalix.springsdk.testmodels.view.ViewTestModels.ViewDuplicatedSubscriptions
+import kalix.springsdk.testmodels.view.ViewTestModels.ViewHandleDeletesWithParam
 import kalix.springsdk.testmodels.view.ViewTestModels.ViewWithHandleDeletesFalseOnMethodLevel
 import kalix.springsdk.testmodels.view.ViewTestModels.ViewWithMethodLevelAcl
-import kalix.springsdk.testmodels.view.ViewTestModels.ViewWithMissingSubscriptionForHandleDeletes
 import kalix.springsdk.testmodels.view.ViewTestModels.ViewWithNoQuery
 import kalix.springsdk.testmodels.view.ViewTestModels.ViewWithServiceLevelAcl
 import kalix.springsdk.testmodels.view.ViewTestModels.ViewWithSubscriptionsInMixedLevels
 import kalix.springsdk.testmodels.view.ViewTestModels.ViewWithSubscriptionsInMixedLevelsHandleDelete
 import kalix.springsdk.testmodels.view.ViewTestModels.ViewWithTwoQueries
+import kalix.springsdk.testmodels.view.ViewTestModels.ViewWithoutEmptyTableAnnotation
 import kalix.springsdk.testmodels.view.ViewTestModels.ViewWithoutSubscriptionButWithHandleDelete
+import kalix.springsdk.testmodels.view.ViewTestModels.ViewWithoutTableAnnotation
 import org.scalatest.wordspec.AnyWordSpec
 
 class ViewDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSuite {
@@ -93,58 +94,70 @@ class ViewDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSuit
     }
 
     "fail when using stream updates in unary methods" in {
-      intercept[ServiceIntrospectionException] {
-        descriptorFor[IllDefineUserByEmailWithStreamUpdates]
+      intercept[InvalidComponentException] {
+        Validations.validate(classOf[IllDefineUserByEmailWithStreamUpdates]).failIfInvalid
       }
     }
   }
 
   "View descriptor factory (for Value Entity)" should {
 
+    "not allow View without Table annotation" in {
+      intercept[InvalidComponentException] {
+        Validations.validate(classOf[ViewWithoutTableAnnotation]).failIfInvalid
+      }.getMessage should include("A View should be annotated with @Table.")
+    }
+
+    "not allow View with empty Table name" in {
+      intercept[InvalidComponentException] {
+        Validations.validate(classOf[ViewWithoutEmptyTableAnnotation]).failIfInvalid
+      }.getMessage should include("@Table name is empty, must be a non-empty string.")
+    }
+
     "not allow @Subscribe annotations in mixed levels" in {
       // it should be annotated either on type or on method level
       intercept[InvalidComponentException] {
-        assertDescriptor[ViewWithSubscriptionsInMixedLevels] { desc => }
-      }.getMessage should startWith("Mixed usage of @Subscribe.ValueEntity annotations.")
+        Validations.validate(classOf[ViewWithSubscriptionsInMixedLevels]).failIfInvalid
+      }.getMessage should include("You cannot use @Subscribe.ValueEntity annotation in both methods and class.")
     }
 
     "not allow method level handle deletes with type level subscription" in {
       intercept[InvalidComponentException] {
-        assertDescriptor[ViewWithSubscriptionsInMixedLevelsHandleDelete] { desc => }
-      }.getMessage should startWith("Mixed usage of @Subscribe.ValueEntity annotations.")
+        Validations.validate(classOf[ViewWithSubscriptionsInMixedLevelsHandleDelete]).failIfInvalid
+      }.getMessage should include("You cannot use @Subscribe.ValueEntity annotation in both methods and class.")
     }
 
     "not allow method level handle deletes without method level subscription" in {
       intercept[InvalidComponentException] {
-        assertDescriptor[ViewWithoutSubscriptionButWithHandleDelete] { desc => }
-      }.getMessage should include("don't have matching subscription methods.")
+        Validations.validate(classOf[ViewWithoutSubscriptionButWithHandleDelete]).failIfInvalid
+      }.getMessage should include("Method annotated with handleDeletes=true don't have matching update methods.")
     }
 
     "not allow duplicated handle deletes methods" in {
       intercept[InvalidComponentException] {
-        assertDescriptor[ViewDuplicatedHandleDeletesAnnotations] { desc => }
-      }.getMessage should startWith("Duplicated subscription to the same ValueEntity")
+        Validations.validate(classOf[ViewDuplicatedHandleDeletesAnnotations]).failIfInvalid
+      }.getMessage should include("Duplicated handle delete methods for ValueEntity subscription.")
+    }
+
+    "not allow handle deletes method with param" in {
+      intercept[InvalidComponentException] {
+        Validations.validate(classOf[ViewHandleDeletesWithParam]).failIfInvalid
+      }.getMessage should include(
+        "Method annotated with '@Subscribe.ValueEntity' and handleDeletes=true must not have parameters.")
     }
 
     "not allow handle deletes false on method level" in {
       // on method level only true is acceptable
       intercept[InvalidComponentException] {
-        assertDescriptor[ViewWithHandleDeletesFalseOnMethodLevel] { desc => }
-      }.getMessage should include("look like delete handlers but with handleDeletes flag eq false")
+        Validations.validate(classOf[ViewWithHandleDeletesFalseOnMethodLevel]).failIfInvalid
+      }.getMessage should include("Subscription method must have one parameter, unless it's marked as handleDeletes.")
     }
 
     "not allow duplicated subscriptions methods" in {
       // it should be annotated either on type or on method level
       intercept[InvalidComponentException] {
-        assertDescriptor[ViewDuplicatedSubscriptions] { desc => }
-      }.getMessage should startWith("Duplicated subscription to the same ValueEntity")
-    }
-
-    "not allow handle deletes without matching subscription methods" in {
-      // it should be annotated either on type or on method level
-      intercept[InvalidComponentException] {
-        assertDescriptor[ViewWithMissingSubscriptionForHandleDeletes] { desc => }
-      }.getMessage should startWith("Some methods annotated with")
+        Validations.validate(classOf[ViewDuplicatedSubscriptions]).failIfInvalid
+      }.getMessage should include("Duplicated update methods for ValueEntity subscription.")
     }
 
     "generate proto for a View using POST request with explicit update method" in {
@@ -388,13 +401,13 @@ class ViewDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSuit
 
     "fail if no query method found" in {
       intercept[InvalidComponentException] {
-        descriptorFor[ViewWithNoQuery]
+        Validations.validate(classOf[ViewWithNoQuery]).failIfInvalid
       }
     }
 
     "fail if more than one query method is found" in {
       intercept[InvalidComponentException] {
-        descriptorFor[ViewWithTwoQueries]
+        Validations.validate(classOf[ViewWithTwoQueries]).failIfInvalid
       }
     }
   }

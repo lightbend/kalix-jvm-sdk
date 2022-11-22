@@ -41,6 +41,10 @@ import kalix.springsdk.SpringSdkBuildInfo
 import kalix.springsdk.WebClientProvider
 import kalix.springsdk.action.ReflectiveActionProvider
 import kalix.springsdk.eventsourced.ReflectiveEventSourcedEntityProvider
+import kalix.springsdk.impl.Validations.Invalid
+import kalix.springsdk.impl.Validations.Valid
+import kalix.springsdk.impl.Validations.Valid
+import kalix.springsdk.impl.Validations.Validation
 import kalix.springsdk.impl.KalixServer.ActionCreationContextFactoryBean
 import kalix.springsdk.impl.KalixServer.EventSourcedEntityContextFactoryBean
 import kalix.springsdk.impl.KalixServer.KalixClientFactoryBean
@@ -219,12 +223,29 @@ case class KalixServer(applicationContext: ApplicationContext, config: Config) {
 
   private val provider = new KalixComponentProvider(cglibEnhanceMainClass.getClass)
 
-  // all Kalix components found in the classpath
-  provider.findKalixComponents
-    .foreach { bean =>
+  // load all Kalix components found in the classpath
+  val classBeanMap =
+    provider.findKalixComponents.map { bean =>
+      Class.forName(bean.getBeanClassName) -> bean
+    }.toMap
 
-      val clz = Class.forName(bean.getBeanClassName)
+  // each loaded class needs to be validated before registration
+  val validation =
+    classBeanMap.keySet
+      .foldLeft(Valid: Validation) { case (validations, cls) =>
+        validations ++ Validations.validate(cls)
+      }
 
+  validation match { // if any invalid component, log and throw
+    case Valid => ()
+    case Invalid(messages) =>
+      messages.foreach { msg => logger.error(msg) }
+      validation.failIfInvalid
+  }
+
+  // register them if all valid
+  classBeanMap
+    .foreach { case (clz, bean) =>
       kalixBeanFactory.registerBeanDefinition(bean.getBeanClassName, bean)
 
       if (classOf[Action].isAssignableFrom(clz)) {
@@ -254,8 +275,6 @@ case class KalixServer(applicationContext: ApplicationContext, config: Config) {
         kalix.register(view)
         kalixClient.registerComponent(view.serviceDescriptor())
       }
-
-    // TODO: missing Replicated Entities
     }
 
   def start() = {

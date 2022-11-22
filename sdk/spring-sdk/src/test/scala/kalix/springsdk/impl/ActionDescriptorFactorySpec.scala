@@ -20,7 +20,6 @@ import com.google.protobuf.Descriptors.FieldDescriptor.JavaType
 import com.google.protobuf.empty.Empty
 import com.google.protobuf.{ Any => JavaPbAny }
 import kalix.JwtMethodOptions.JwtMethodMode
-import kalix.springsdk.impl.reflection.ServiceIntrospectionException
 import kalix.springsdk.testmodels.action.ActionsTestModels.DeleteWithOneParam
 import kalix.springsdk.testmodels.action.ActionsTestModels.GetClassLevel
 import kalix.springsdk.testmodels.action.ActionsTestModels.GetWithOneParam
@@ -248,9 +247,12 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
     }
 
     "fail if has both Event Sourced Entity Subscription and REST annotations" in {
-      intercept[IllegalArgumentException] {
-        descriptorFor[RestAnnotatedSubscribeToEventSourcedEntityAction]
-      }
+      intercept[InvalidComponentException] {
+        Validations
+          .validate(classOf[RestAnnotatedSubscribeToEventSourcedEntityAction])
+          .failIfInvalid
+      }.getMessage should include(
+        "Methods annotated with Kalix @Subscription annotations can not be annotated with REST annotations.")
     }
 
     "generate mapping with Value Entity Subscription annotations" in {
@@ -311,9 +313,12 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
     }
 
     "fail if has both Value Entity Subscription and REST annotations" in {
-      intercept[IllegalArgumentException] {
-        descriptorFor[RestAnnotatedSubscribeToValueEntityAction]
-      }
+      intercept[InvalidComponentException] {
+        Validations
+          .validate(classOf[RestAnnotatedSubscribeToValueEntityAction])
+          .failIfInvalid
+      }.getMessage should include(
+        "Methods annotated with Kalix @Subscription annotations can not be annotated with REST annotations.")
     }
 
     "generate stream out methods" in {
@@ -325,15 +330,19 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
     }
 
     "generate stream in methods" in {
-      intercept[IllegalArgumentException] {
-        descriptorFor[StreamInAction]
-      }
+      intercept[InvalidComponentException] {
+        Validations
+          .validate(classOf[StreamInAction])
+          .failIfInvalid
+      }.getMessage should include("Stream in calls are not supported.")
     }
 
     "generate stream in/out methods" in {
-      intercept[IllegalArgumentException] {
-        descriptorFor[StreamInOutAction]
-      }
+      intercept[InvalidComponentException] {
+        Validations
+          .validate(classOf[StreamInOutAction])
+          .failIfInvalid
+      }.getMessage should include("Stream in calls are not supported.")
     }
 
     "generate mapping for an Action with a subscription to a topic" in {
@@ -399,14 +408,14 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
 
     "validates it is forbidden Entity Subscription at annotation type level and method level at the same time" in {
       intercept[InvalidComponentException] {
-        descriptorFor[InvalidSubscribeToEventSourcedEntityAction]
-      }
+        Validations.validate(classOf[InvalidSubscribeToEventSourcedEntityAction]).failIfInvalid
+      }.getMessage should include("You cannot use @Subscribe.EventSourcedEntity annotation in both methods and class.")
     }
 
     "validates it is forbidden Topic Subscription at annotation type level and method level at the same time" in {
       intercept[InvalidComponentException] {
-        descriptorFor[InvalidSubscribeToTopicAction]
-      }
+        Validations.validate(classOf[InvalidSubscribeToTopicAction]).failIfInvalid
+      }.getMessage should include("You cannot use @Subscribe.Topic annotation in both methods and class.")
     }
 
     "generate mapping for an Action with a publication to a topic" in {
@@ -464,9 +473,10 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
     }
 
     "fail if it's subscription method exposed with ACL" in {
-      intercept[ServiceIntrospectionException] {
-        descriptorFor[ActionWithMethodLevelAclAndSubscription]
-      }
+      intercept[InvalidComponentException] {
+        Validations.validate(classOf[ActionWithMethodLevelAclAndSubscription]).failIfInvalid
+      }.getMessage should include(
+        "Subscription methods are for internal use only and cannot be combined with ACL annotations.")
     }
 
     "generate mappings for service to service publishing " in {
