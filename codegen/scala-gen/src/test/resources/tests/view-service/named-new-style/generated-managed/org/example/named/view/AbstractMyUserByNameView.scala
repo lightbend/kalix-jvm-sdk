@@ -6,9 +6,9 @@ import kalix.scalasdk.view.View
 // It will be re-generated to reflect any changes to your protobuf definitions.
 // DO NOT EDIT
 
-abstract class AbstractMyUserByNameView extends View[UserState] {
+abstract class AbstractMyUserByNameView extends View {
 
-  override def emptyState: UserState =
+  override def emptyState: Any =
     null // emptyState is only used with transform_updates=true
 
   

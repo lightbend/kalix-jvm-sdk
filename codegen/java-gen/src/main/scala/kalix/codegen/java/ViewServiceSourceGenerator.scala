@@ -42,16 +42,19 @@ object ViewServiceSourceGenerator {
     val cases = view.transformedUpdates
       .map { cmd =>
         val methodName = cmd.name
+        val outputType = cmd.outputType
         val inputType = cmd.inputType
         if (cmd.handleDeletes) {
           c"""|case "$methodName":
-              |  return view().${lowerFirst(methodName)}(state);
+              |  return ($View.UpdateEffect<S>)
+              |      view().${lowerFirst(methodName)}((${outputType}) state);
               |"""
         } else {
           c"""|case "$methodName":
-              |  return view().${lowerFirst(methodName)}(
-              |      state,
-              |      (${inputType}) event);
+              |  return ($View.UpdateEffect<S>)
+              |      view().${lowerFirst(methodName)}(
+              |          (${outputType}) state,
+              |          (${inputType}) event);
               |"""
         }
       }
@@ -60,16 +63,16 @@ object ViewServiceSourceGenerator {
       packageName,
       c"""|$managedComment
           |
-          |public class ${view.routerName} extends $ViewRouter<${view.state.messageType}, ${view.impl}> {
+          |public class ${view.routerName} extends $ViewRouter<${view.impl}> {
           |
           |  public ${view.routerName}(${view.impl} view) {
           |    super(view);
           |  }
           |
           |  @Override
-          |  public $View.UpdateEffect<${view.state.messageType}> handleUpdate(
+          |  public <S> $View.UpdateEffect<S> handleUpdate(
           |      String eventName,
-          |      ${view.state.messageType} state,
+          |      S state,
           |      Object event) {
           |
           |    switch (eventName) {
@@ -92,7 +95,7 @@ object ViewServiceSourceGenerator {
       packageName,
       c"""|$managedComment
           |
-          |public class ${view.providerName} implements $ViewProvider<${view.state.messageType}, ${view.impl}> {
+          |public class ${view.providerName} implements $ViewProvider<${view.impl}> {
           |
           |  private final $Function<$ViewCreationContext, ${view.className}> viewFactory;
           |  private final String viewId;
@@ -160,13 +163,15 @@ object ViewServiceSourceGenerator {
     val emptyState =
       if (view.transformedUpdates.isEmpty)
         c""
-      else
+      else {
+        val stateType = view.transformedUpdates.head.outputType
         c"""|
             |@Override
-            |public ${view.state.messageType} emptyState() {
+            |public $stateType emptyState() {
             |  throw new UnsupportedOperationException("Not implemented yet, replace with your empty view state");
             |}
             |"""
+      }
 
     val handlers = view.transformedUpdates.map { update =>
       val stateType = update.outputType
@@ -206,7 +211,7 @@ object ViewServiceSourceGenerator {
       if (view.transformedUpdates.isEmpty)
         c"""|
             |@Override
-            |public ${view.state.messageType} emptyState() {
+            |public Object emptyState() {
             |  return null; // emptyState is only used with transform_updates=true
             |}
             |"""
@@ -229,7 +234,7 @@ object ViewServiceSourceGenerator {
       packageName,
       c"""$managedComment
          |
-         |public abstract class ${view.abstractViewName} extends $View<${view.state.messageType}> {
+         |public abstract class ${view.abstractViewName} extends $View {
          |  $emptyState
          |  $handlers
          |}

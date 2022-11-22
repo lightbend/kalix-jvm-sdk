@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 @Table("counters_by_value_with_ignore")
 @Subscribe.EventSourcedEntity(value = CounterEntity.class, ignoreUnknown = true)
-public class CountersByValueWithIgnore extends View<Counter> {
+public class CountersByValueWithIgnore extends View {
 
   @Override
   public Counter emptyState() {
@@ -40,7 +40,7 @@ public class CountersByValueWithIgnore extends View<Counter> {
   }
 
   public UpdateEffect<Counter> onValueIncreased(CounterEvent.ValueIncreased event){
-    Counter counter = viewState();
+    Counter counter = (Counter) viewState();
     return effects().updateState(counter.onValueIncreased(event));
   }
 }

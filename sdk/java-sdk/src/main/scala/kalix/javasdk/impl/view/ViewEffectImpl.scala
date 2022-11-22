@@ -25,12 +25,12 @@ object ViewUpdateEffectImpl {
   case object Ignore extends PrimaryUpdateEffect[Any]
   case class Error[T](description: String) extends PrimaryUpdateEffect[T]
 
-  private val _builder = new View.UpdateEffect.Builder[Any] {
-    override def updateState(newState: Any): View.UpdateEffect[Any] = Update(newState)
-    override def deleteState(): View.UpdateEffect[Any] = Delete.asInstanceOf[PrimaryUpdateEffect[Any]]
-    override def ignore(): View.UpdateEffect[Any] = Ignore.asInstanceOf[PrimaryUpdateEffect[Any]]
-    override def error(description: String): View.UpdateEffect[Any] = Error(description)
+  private val _builder = new View.UpdateEffect.Builder {
+    override def updateState[S](newState: S): View.UpdateEffect[S] = Update(newState)
+    override def deleteState[S](): View.UpdateEffect[S] = Delete.asInstanceOf[PrimaryUpdateEffect[S]]
+    override def ignore[S](): View.UpdateEffect[S] = Ignore.asInstanceOf[PrimaryUpdateEffect[S]]
+    override def error[S](description: String): View.UpdateEffect[S] = Error(description)
   }
-  def builder[S](): View.UpdateEffect.Builder[S] =
-    _builder.asInstanceOf[View.UpdateEffect.Builder[S]]
+
+  def builder(): View.UpdateEffect.Builder = _builder
 }

@@ -25,7 +25,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
 @Table("counters_by_value")
-public class CountersByValue extends View<Counter> {
+public class CountersByValue extends View {
 
   @Override
   public Counter emptyState() {
@@ -40,13 +40,13 @@ public class CountersByValue extends View<Counter> {
 
   @Subscribe.EventSourcedEntity(CounterEntity.class)
   public UpdateEffect<Counter> onEvent(CounterEvent.ValueIncreased event) {
-    Counter counter = viewState();
+    Counter counter = (Counter) viewState();
     return effects().updateState(counter.onValueIncreased(event));
   }
 
   @Subscribe.EventSourcedEntity(CounterEntity.class)
   public UpdateEffect<Counter> onEvent(CounterEvent.ValueMultiplied event) {
-    Counter counter = viewState();
+    Counter counter = (Counter) viewState();
     return effects().updateState(counter.onValueMultiplied(event));
   }
 }

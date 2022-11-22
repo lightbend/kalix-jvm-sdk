@@ -19,7 +19,7 @@ package kalix.springsdk.annotations;
 import java.lang.annotation.*;
 
 /** Annotation for providing a table name for View-type Kalix components. */
-@Target({ElementType.TYPE})
+@Target({ElementType.TYPE, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface Table {

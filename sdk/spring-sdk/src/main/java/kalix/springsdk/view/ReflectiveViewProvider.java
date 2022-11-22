@@ -32,7 +32,7 @@ import kalix.springsdk.impl.view.ReflectiveViewRouter;
 import java.util.Optional;
 import java.util.function.Function;
 
-public class ReflectiveViewProvider<S, V extends View<S>> implements ViewProvider<S, V> {
+public class ReflectiveViewProvider<V extends View> implements ViewProvider<V> {
   private final Function<ViewCreationContext, V> factory;
 
   private final String viewId;
@@ -44,7 +44,7 @@ public class ReflectiveViewProvider<S, V extends View<S>> implements ViewProvide
 
   private final SpringSdkMessageCodec messageCodec;
 
-  public static <S, V extends View<S>> ReflectiveViewProvider<S, V> of(
+  public static <V extends View> ReflectiveViewProvider<V> of(
       Class<V> cls, SpringSdkMessageCodec messageCodec, Function<ViewCreationContext, V> factory) {
 
     String viewId =
@@ -88,7 +88,7 @@ public class ReflectiveViewProvider<S, V extends View<S>> implements ViewProvide
   }
 
   @Override
-  public ViewRouter<S, V> newRouter(ViewCreationContext context) {
+  public ViewRouter<V> newRouter(ViewCreationContext context) {
     V view = factory.apply(context);
     return new ReflectiveViewRouter<>(view, componentDescriptor.commandHandlers(), ComponentDescriptorFactory.findIgnore(view.getClass()));
   }

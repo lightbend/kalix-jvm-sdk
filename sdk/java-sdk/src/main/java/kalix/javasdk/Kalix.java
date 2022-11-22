@@ -460,7 +460,7 @@ public final class Kalix {
    *
    * @return This stateful service builder.
    */
-  public Kalix register(ViewProvider<?, ?> provider) {
+  public Kalix register(ViewProvider<?> provider) {
     return provider
         .alternativeCodec()
         .map(

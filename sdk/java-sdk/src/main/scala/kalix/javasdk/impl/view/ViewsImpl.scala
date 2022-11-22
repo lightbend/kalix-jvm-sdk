@@ -96,9 +96,7 @@ final class ViewsImpl(system: ActorSystem, _services: Map[String, ViewService], 
                   "and not reach the user function")
 
               // FIXME should we really create a new handler instance per incoming command ???
-              val handler = service.factory.get
-                .create(new ViewContextImpl(service.viewId))
-                .asInstanceOf[ViewRouter[Any, View[Any]]]
+              val handler = service.factory.get.create(new ViewContextImpl(service.viewId))
 
               val state: Option[Any] =
                 receiveEvent.bySubjectLookupResult.flatMap(row =>

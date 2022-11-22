@@ -298,7 +298,7 @@ object ModelBuilder {
           s"must have `option (kalix.method).view.update.transform_updates` equals `true`")
       }
 
-    val state = State(updates.head.outputType)
+    val stateTypes: Seq[ProtoMessageType] = updates.map(_.outputType).toSeq.distinct
   }
 
   /**

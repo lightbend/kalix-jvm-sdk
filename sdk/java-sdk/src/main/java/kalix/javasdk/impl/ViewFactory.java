@@ -32,5 +32,5 @@ public interface ViewFactory {
    * @param context The context.
    * @return The handler for the given context.
    */
-  ViewRouter<?, ?> create(ViewCreationContext context);
+  ViewRouter<?> create(ViewCreationContext context);
 }

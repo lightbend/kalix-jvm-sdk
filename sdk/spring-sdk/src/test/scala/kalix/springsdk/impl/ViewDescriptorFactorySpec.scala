@@ -387,15 +387,20 @@ class ViewDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSuit
     }
 
     "fail if no query method found" in {
-      intercept[InvalidComponentException] {
+      intercept[ServiceIntrospectionException] {
         descriptorFor[ViewWithNoQuery]
-      }
+      }.getMessage should be(
+        "On kalix.springsdk.testmodels.view.ViewTestModels$ViewWithNoQuery: " +
+        "No valid query method found. " +
+        "Views should have a method annotated with @Query and exposed by a REST annotation")
     }
 
     "fail if more than one query method is found" in {
-      intercept[InvalidComponentException] {
+      intercept[ServiceIntrospectionException] {
         descriptorFor[ViewWithTwoQueries]
-      }
+      }.getMessage should be(
+        "On kalix.springsdk.testmodels.view.ViewTestModels$ViewWithTwoQueries: " +
+        "Views can have only one method annotated with @Query, found 2.")
     }
   }
 

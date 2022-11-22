@@ -15,7 +15,7 @@ import reactor.core.publisher.Flux;
 // tag::class[]
 @Table("customers")
 @Subscribe.ValueEntity(CustomerEntity.class)
-public class CustomersStreamByName extends View<Customer> { // <1>
+public class CustomersStreamByName extends View { // <1>
 
   @GetMapping("/summary/by_name/{customerName}")   // <2>
   @Query(

@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 @ViewId("view_summary_customer_by_name")
 // tag::class[]
 @Table("customers")
-public class CustomerSummaryByName extends View<CustomerSummary> { // <1>
+public class CustomerSummaryByName extends View { // <1>
 
   @Subscribe.ValueEntity(CustomerEntity.class) // <2>
   public UpdateEffect<CustomerSummary> onChange(Customer customer) { // <3>

@@ -35,7 +35,7 @@ public class ViewTestModels {
   @Table(value = "users_view")
   @Subscribe.ValueEntity(
       UserEntity.class) // when types are annotated, it's implicitly a transform = false
-  public static class UserByEmailWithGet extends View<User> {
+  public static class UserByEmailWithGet extends View {
 
     @Query("SELECT * FROM users_view WHERE email = :email")
     @GetMapping("/users/{email}")
@@ -51,7 +51,7 @@ public class ViewTestModels {
 
   @Table(value = "users_view")
   @Subscribe.ValueEntity(UserEntity.class)
-  public static class UserByEmailWithPost extends View<User> {
+  public static class UserByEmailWithPost extends View {
 
     @Query("SELECT * FROM users_view WHERE email = :email")
     @PostMapping("/users/by-email")
@@ -62,7 +62,7 @@ public class ViewTestModels {
 
   @Table(value = "users_view")
   @Subscribe.ValueEntity(value = UserEntity.class, handleDeletes = true)
-  public static class UserByNameEmailWithPost extends View<User> {
+  public static class UserByNameEmailWithPost extends View {
 
     // mixing request body and path variable
     @Query("SELECT * FROM users_view WHERE email = :email")
@@ -73,7 +73,7 @@ public class ViewTestModels {
   }
 
   @Table("users_view")
-  public static class TransformedUserView extends View<TransformedUser> {
+  public static class TransformedUserView extends View {
 
     // when methods are annotated, it's implicitly a transform = true
     @Subscribe.ValueEntity(UserEntity.class)
@@ -90,7 +90,7 @@ public class ViewTestModels {
   }
 
   @Table("users_view")
-  public static class TransformedUserViewWithDeletes extends View<TransformedUser> {
+  public static class TransformedUserViewWithDeletes extends View {
 
     @Subscribe.ValueEntity(UserEntity.class)
     public UpdateEffect<TransformedUser> onChange(User user) {
@@ -111,7 +111,7 @@ public class ViewTestModels {
   }
 
   @Table("users_view")
-  public static class TransformedUserViewWithJWT extends View<TransformedUser> {
+  public static class TransformedUserViewWithJWT extends View {
 
     // when methods are annotated, it's implicitly a transform = true
     @Subscribe.ValueEntity(UserEntity.class)
@@ -132,7 +132,7 @@ public class ViewTestModels {
   }
 
   @Table("users_view")
-  public static class TransformedUserViewUsingState extends View<TransformedUser> {
+  public static class TransformedUserViewUsingState extends View {
 
     // when methods are annotated, it's implicitly a transform = true
     @Subscribe.ValueEntity(UserEntity.class)
@@ -154,7 +154,7 @@ public class ViewTestModels {
    */
   @Table("users_view")
   @Subscribe.ValueEntity(UserEntity.class)
-  public static class ViewWithSubscriptionsInMixedLevels extends View<TransformedUser> {
+  public static class ViewWithSubscriptionsInMixedLevels extends View {
 
     // when methods are annotated, it's implicitly a transform = true
     @Subscribe.ValueEntity(UserEntity.class)
@@ -172,7 +172,7 @@ public class ViewTestModels {
 
   @Table("users_view")
   @Subscribe.ValueEntity(UserEntity.class)
-  public static class ViewWithSubscriptionsInMixedLevelsHandleDelete extends View<User> {
+  public static class ViewWithSubscriptionsInMixedLevelsHandleDelete extends View {
 
     @Subscribe.ValueEntity(value = UserEntity.class, handleDeletes = true)
     public UpdateEffect<User> onDelete() {
@@ -187,7 +187,7 @@ public class ViewTestModels {
   }
 
   @Table("users_view")
-  public static class ViewWithoutSubscriptionButWithHandleDelete extends View<TransformedUser> {
+  public static class ViewWithoutSubscriptionButWithHandleDelete extends View {
 
     @Subscribe.ValueEntity(value = UserEntity.class, handleDeletes = true)
     public UpdateEffect<TransformedUser> onDelete() {
@@ -202,7 +202,7 @@ public class ViewTestModels {
   }
 
   @Table("users_view")
-  public static class ViewDuplicatedHandleDeletesAnnotations extends View<TransformedUser> {
+  public static class ViewDuplicatedHandleDeletesAnnotations extends View {
 
     @Subscribe.ValueEntity(UserEntity.class)
     public UpdateEffect<TransformedUser> onChange(User user) {
@@ -228,7 +228,7 @@ public class ViewTestModels {
   }
 
   @Table("users_view")
-  public static class ViewWithHandleDeletesFalseOnMethodLevel extends View<TransformedUser> {
+  public static class ViewWithHandleDeletesFalseOnMethodLevel extends View {
 
     @Subscribe.ValueEntity(UserEntity.class)
     public UpdateEffect<TransformedUser> onChange(User user) {
@@ -249,7 +249,7 @@ public class ViewTestModels {
   }
 
   @Table("users_view")
-  public static class ViewDuplicatedSubscriptions extends View<TransformedUser> {
+  public static class ViewDuplicatedSubscriptions extends View {
 
     @Subscribe.ValueEntity(UserEntity.class)
     public UpdateEffect<TransformedUser> onChange(User user) {
@@ -276,7 +276,7 @@ public class ViewTestModels {
   }
 
   @Table("users_view")
-  public static class ViewWithMissingSubscriptionForHandleDeletes extends View<TransformedUser> {
+  public static class ViewWithMissingSubscriptionForHandleDeletes extends View {
 
     @Subscribe.ValueEntity(UserEntity.class)
     public UpdateEffect<TransformedUser> onChange(User user) {
@@ -305,11 +305,11 @@ public class ViewTestModels {
 
   @Table("users_view")
   @Subscribe.ValueEntity(UserEntity.class)
-  public static class ViewWithNoQuery extends View<TransformedUser> {}
+  public static class ViewWithNoQuery extends View {}
 
   @Table("users_view")
   @Subscribe.ValueEntity(UserEntity.class)
-  public static class ViewWithTwoQueries extends View<TransformedUser> {
+  public static class ViewWithTwoQueries extends View {
 
     @Query("SELECT * FROM users_view WHERE email = :email")
     @PostMapping("/users/by-email")
@@ -327,7 +327,7 @@ public class ViewTestModels {
 
   @Table(value = "users_view")
   @Subscribe.ValueEntity(UserEntity.class)
-  public static class UserByEmailWithPostRequestBodyOnly extends View<User> {
+  public static class UserByEmailWithPostRequestBodyOnly extends View {
 
     // not path variables, only request body
     @Query("SELECT * FROM users_view WHERE email = :email")
@@ -339,7 +339,7 @@ public class ViewTestModels {
 
   @Table(value = "users_view")
   @Subscribe.ValueEntity(UserEntity.class)
-  public static class UserByNameStreamed extends View<User> {
+  public static class UserByNameStreamed extends View {
 
     @Query("SELECT * FROM users_view WHERE name = :name")
     @GetMapping("/users/{name}")
@@ -349,7 +349,7 @@ public class ViewTestModels {
   }
   
   @Table(value = "employees_view")
-  public static class SubscribeToEventSourcedEvents extends View<Employee> {
+  public static class SubscribeToEventSourcedEvents extends View {
 
     @Subscribe.EventSourcedEntity(EventSourcedEntitiesTestModels.EmployeeEntity.class)
     public UpdateEffect<Employee> onEvent(EmployeeEvent evt) {
@@ -366,7 +366,7 @@ public class ViewTestModels {
   }
 
   @Table(value = "employees_view")
-  public static class SubscribeToEventSourcedEventsWithMethodWithState extends View<Employee> {
+  public static class SubscribeToEventSourcedEventsWithMethodWithState extends View {
 
     @Subscribe.EventSourcedEntity(EventSourcedEntitiesTestModels.EmployeeEntity.class)
     public UpdateEffect<Employee> onEvent(Employee employee, EmployeeEvent evt) {
@@ -384,7 +384,7 @@ public class ViewTestModels {
 
   @Table(value = "employees_view")
   @Acl(allow = @Acl.Matcher(service = "test"))
-  public static class ViewWithServiceLevelAcl extends View<Employee> {
+  public static class ViewWithServiceLevelAcl extends View {
     @Query("SELECT * FROM employees_view WHERE email = :email")
     @PostMapping("/employees/by-email/{email}")
     public Employee getEmployeeByEmail(@PathVariable String email) {
@@ -393,7 +393,7 @@ public class ViewTestModels {
   }
 
   @Table(value = "employees_view")
-  public static class ViewWithMethodLevelAcl extends View<Employee> {
+  public static class ViewWithMethodLevelAcl extends View {
     @Query("SELECT * FROM employees_view WHERE email = :email")
     @PostMapping("/employees/by-email/{email}")
     @Acl(allow = @Acl.Matcher(service = "test"))
@@ -404,7 +404,7 @@ public class ViewTestModels {
 
   @Table(value = "users_view")
   @Subscribe.ValueEntity(UserEntity.class)
-  public static class UserByEmailWithStreamUpdates extends View<User> {
+  public static class UserByEmailWithStreamUpdates extends View {
 
     @Query(value = "SELECT * FROM users_view WHERE email = :email", streamUpdates = true)
     @PostMapping("/users/by-email")
@@ -415,7 +415,7 @@ public class ViewTestModels {
 
   @Table(value = "users_view_collection")
   @Subscribe.ValueEntity(UserEntity.class)
-  public static class UserByEmailWithCollectionReturn extends View<User> {
+  public static class UserByEmailWithCollectionReturn extends View {
 
     @Query(value = "SELECT * AS users FROM users_view WHERE name = :name")
     @PostMapping("/users/by-name/{name}")
@@ -426,7 +426,7 @@ public class ViewTestModels {
 
   @Table(value = "users_view")
   @Subscribe.ValueEntity(UserEntity.class)
-  public static class IllDefineUserByEmailWithStreamUpdates extends View<User> {
+  public static class IllDefineUserByEmailWithStreamUpdates extends View {
 
     @Query(value = "SELECT * FROM users_view WHERE email = :email", streamUpdates = true)
     @PostMapping("/users/by-email")

@@ -32,14 +32,14 @@ object View {
    */
   object UpdateEffect {
 
-    sealed trait Builder[S] {
+    sealed trait Builder {
 
-      def updateState(newState: S): View.UpdateEffect[S]
+      def updateState[S](newState: S): View.UpdateEffect[S]
 
-      def deleteState(): View.UpdateEffect[S]
+      def deleteState[S](): View.UpdateEffect[S]
 
       /** Ignore this event (and continue to process the next). */
-      def ignore(): View.UpdateEffect[S]
+      def ignore[S](): View.UpdateEffect[S]
 
       /**
        * Trigger an error for the event. Returning this effect is equivalent to throwing an exception from the handler
@@ -48,33 +48,29 @@ object View {
        * @param description
        *   The description of the error.
        */
-      def error(description: String): View.UpdateEffect[S]
+      def error[S](description: String): View.UpdateEffect[S]
     }
 
-    def builder[S](): Builder[S] =
-      _builder.asInstanceOf[Builder[S]]
+    def builder(): Builder = _builder
 
-    private[scalasdk] val _builder = new Builder[Any] {
+    private[scalasdk] val _builder = new Builder {
 
-      override def updateState(newState: Any): View.UpdateEffect[Any] =
+      override def updateState[S](newState: S): View.UpdateEffect[S] =
         ViewUpdateEffectImpl.Update(newState)
 
-      override def deleteState(): View.UpdateEffect[Any] = ViewUpdateEffectImpl.Delete
+      override def deleteState[S](): View.UpdateEffect[S] =
+        ViewUpdateEffectImpl.Delete
 
-      override def ignore(): View.UpdateEffect[Any] =
+      override def ignore[S](): View.UpdateEffect[S] =
         ViewUpdateEffectImpl.Ignore
 
-      override def error(description: String): View.UpdateEffect[Any] =
+      override def error[S](description: String): View.UpdateEffect[S] =
         ViewUpdateEffectImpl.Error(description)
     }
   }
 }
 
-/**
- * @tparam S
- *   The type of the state for this view.
- */
-abstract class View[S] {
+abstract class View {
 
   private var _updateContext: Option[UpdateContext] = None
 
@@ -91,7 +87,7 @@ abstract class View[S] {
   private[scalasdk] def _internalSetUpdateContext(context: Option[UpdateContext]): Unit =
     _updateContext = context
 
-  protected final def effects: View.UpdateEffect.Builder[S] =
+  protected final def effects: View.UpdateEffect.Builder =
     View.UpdateEffect.builder()
 
   /**
@@ -99,6 +95,6 @@ abstract class View[S] {
    *   an empty state object or `null` to hand to the process method when an event for a previously unknown subject id
    *   is seen.
    */
-  def emptyState: S
+  def emptyState: Any
 
 }

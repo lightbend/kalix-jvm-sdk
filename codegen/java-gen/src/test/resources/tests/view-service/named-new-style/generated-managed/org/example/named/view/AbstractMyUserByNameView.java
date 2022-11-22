@@ -6,10 +6,10 @@ import kalix.javasdk.view.View;
 // It will be re-generated to reflect any changes to your protobuf definitions.
 // DO NOT EDIT
 
-public abstract class AbstractMyUserByNameView extends View<UserViewModel.UserState> {
+public abstract class AbstractMyUserByNameView extends View {
 
   @Override
-  public UserViewModel.UserState emptyState() {
+  public Object emptyState() {
     return null; // emptyState is only used with transform_updates=true
   }
 

@@ -22,4 +22,4 @@ import org.springframework.stereotype.Component;
 
 @Table("test")
 @Component
-public class IllDefinedView extends View<String> {}
+public class IllDefinedView extends View {}

@@ -9,12 +9,12 @@ import kalix.scalasdk.view.View
 // DO NOT EDIT
 
 class UserByNameViewRouter(view: UserByNameViewImpl)
-  extends ViewRouter[UserState, UserByNameViewImpl](view) {
+  extends ViewRouter[UserByNameViewImpl](view) {
 
-  override def handleUpdate(
+  override def handleUpdate[S](
       eventName: String,
-      state: UserState,
-      event: Any): View.UpdateEffect[UserState] = {
+      state: S,
+      event: Any): View.UpdateEffect[S] = {
 
     eventName match {
       

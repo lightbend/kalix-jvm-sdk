@@ -21,6 +21,6 @@ import kalix.scalasdk.view.View
 /**
  * INTERNAL API, but used by generated code.
  */
-abstract class ViewRouter[S, V <: View[S]](val view: V) {
-  def handleUpdate(commandName: String, state: S, event: Any): View.UpdateEffect[S]
+abstract class ViewRouter[V <: View](val view: V) {
+  def handleUpdate[S](commandName: String, state: S, event: Any): View.UpdateEffect[S]
 }

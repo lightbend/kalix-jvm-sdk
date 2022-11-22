@@ -45,6 +45,10 @@ private[impl] object ComponentDescriptorFactory {
     Modifier.isPublic(javaMethod.getModifiers) &&
     javaMethod.getAnnotation(classOf[Subscribe.ValueEntity]) != null
 
+  def hasValueEntitySubscription(clazz: Class[_]): Boolean =
+    Modifier.isPublic(clazz.getModifiers) &&
+    clazz.getAnnotation(classOf[Subscribe.ValueEntity]) != null
+
   def hasEventSourcedEntitySubscription(javaMethod: Method): Boolean =
     Modifier.isPublic(javaMethod.getModifiers) &&
     javaMethod.getAnnotation(classOf[Subscribe.EventSourcedEntity]) != null
@@ -52,6 +56,10 @@ private[impl] object ComponentDescriptorFactory {
   def hasEventSourcedEntitySubscription(clazz: Class[_]): Boolean =
     Modifier.isPublic(clazz.getModifiers) &&
     clazz.getAnnotation(classOf[Subscribe.EventSourcedEntity]) != null
+
+  def hasStreamSubscription(clazz: Class[_]): Boolean =
+    Modifier.isPublic(clazz.getModifiers) &&
+    clazz.getAnnotation(classOf[Subscribe.Stream]) != null
 
   def streamSubscription(clazz: Class[_]): Option[Subscribe.Stream] =
     if (Modifier.isPublic(clazz.getModifiers))
@@ -80,6 +88,16 @@ private[impl] object ComponentDescriptorFactory {
         p.getRawType.equals(classOf[View.UpdateEffect[_]]) &&
           Modifier.isPublic(javaMethod.getModifiers)
       case _ => false
+    }
+  }
+
+  def getUpdateEffectType(javaMethod: Method): Option[Class[_]] = {
+    javaMethod.getGenericReturnType match {
+      case p: ParameterizedType
+          if p.getRawType.equals(classOf[View.UpdateEffect[_]]) &&
+            Modifier.isPublic(javaMethod.getModifiers) =>
+        p.getActualTypeArguments.headOption.map(_.asInstanceOf[Class[_]])
+      case _ => None
     }
   }
 
@@ -125,6 +143,17 @@ private[impl] object ComponentDescriptorFactory {
   def findHandleDeletes(javaMethod: Method): Boolean = {
     val ann = javaMethod.getAnnotation(classOf[Subscribe.ValueEntity])
     ann.handleDeletes()
+  }
+
+  def findTableName(component: Class[_], method: Method): String = {
+    method.getAnnotation(classOf[Table]) match {
+      case null =>
+        component.getAnnotation(classOf[Table]) match {
+          case null            => ""
+          case tableAnnotation => tableAnnotation.value()
+        }
+      case tableAnnotation => tableAnnotation.value()
+    }
   }
 
   def findValueEntityType(component: Class[_]): String = {
@@ -325,7 +354,7 @@ private[impl] object ComponentDescriptorFactory {
   def getFactoryFor(component: Class[_]): ComponentDescriptorFactory = {
     if (component.getAnnotation(classOf[EntityType]) != null)
       EntityDescriptorFactory
-    else if (component.getAnnotation(classOf[Table]) != null)
+    else if (classOf[View].isAssignableFrom(component))
       ViewDescriptorFactory
     else
       ActionDescriptorFactory

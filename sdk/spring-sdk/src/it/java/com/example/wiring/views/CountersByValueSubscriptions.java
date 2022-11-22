@@ -27,7 +27,7 @@ import reactor.core.publisher.Flux;
 
 // With Multiple Subscriptions
 @Table("counters_by_value_ms")
-public class CountersByValueSubscriptions extends View<Counter> {
+public class CountersByValueSubscriptions extends View {
 
   @Override
   public Counter emptyState() {
@@ -42,11 +42,11 @@ public class CountersByValueSubscriptions extends View<Counter> {
 
   @Subscribe.EventSourcedEntity(CounterEntity.class)
   public UpdateEffect<Counter> onEvent(CounterEvent.ValueIncreased event) {
-    return effects().updateState(viewState().onValueIncreased(event));
+    return effects().updateState(((Counter) viewState()).onValueIncreased(event));
   }
 
   @Subscribe.EventSourcedEntity(CounterEntity.class)
   public UpdateEffect<Counter> onEvent(CounterEvent.ValueMultiplied event) {
-    return effects().updateState(viewState().onValueMultiplied(event));
+    return effects().updateState(((Counter) viewState()).onValueMultiplied(event));
   }
 }

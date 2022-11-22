@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 @Table("customers_by_name")
 // tag::class[]
 @Subscribe.ValueEntity(CustomerEntity.class)
-public class CustomersResponseByName extends View<Customer> { // <1>
+public class CustomersResponseByName extends View { // <1>
 
   @GetMapping("/wrapped/by_name/{customerName}")   // <2>
   @Query("SELECT * AS results FROM customers_by_name WHERE name = :customerName") // <3>

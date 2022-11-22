@@ -42,7 +42,7 @@ object ViewServiceSourceGenerator {
   private[codegen] def viewRouter(view: ModelBuilder.ViewService): File = {
     implicit val imports =
       generateImports(
-        Seq(view.state.messageType) ++ view.commandTypes,
+        view.stateTypes ++ view.commandTypes,
         view.messageType.parent.scalaPackage,
         otherImports = Seq(
           "kalix.javasdk.impl.view.UpdateHandlerNotFound",
@@ -56,13 +56,16 @@ object ViewServiceSourceGenerator {
         if (cmd.handleDeletes) {
           s"""|case "$methodName" =>
               |  view.${lowerFirst(methodName)}(
-              |      state)
+              |    state.asInstanceOf[${typeName(cmd.outputType)}]
+              |  ).asInstanceOf[View.UpdateEffect[S]]
+              |  
               |""".stripMargin
         } else {
           s"""|case "$methodName" =>
               |  view.${lowerFirst(methodName)}(
-              |      state,
-              |      event.asInstanceOf[${typeName(cmd.inputType)}])
+              |    state.asInstanceOf[${typeName(cmd.outputType)}],
+              |    event.asInstanceOf[${typeName(cmd.inputType)}]
+              |  ).asInstanceOf[View.UpdateEffect[S]]
               |""".stripMargin
         }
       }
@@ -77,12 +80,12 @@ object ViewServiceSourceGenerator {
         |$managedComment
         |
         |class ${view.routerName}(view: ${view.className})
-        |  extends ViewRouter[${typeName(view.state.messageType)}, ${view.className}](view) {
+        |  extends ViewRouter[${view.className}](view) {
         |
-        |  override def handleUpdate(
+        |  override def handleUpdate[S](
         |      eventName: String,
-        |      state: ${typeName(view.state.messageType)},
-        |      event: Any): View.UpdateEffect[${typeName(view.state.messageType)}] = {
+        |      state: S,
+        |      event: Any): View.UpdateEffect[S] = {
         |
         |    eventName match {
         |      ${Format.indent(cases, 6)}
@@ -99,7 +102,7 @@ object ViewServiceSourceGenerator {
   private[codegen] def viewProvider(view: ModelBuilder.ViewService): File = {
     implicit val imports =
       generateImports(
-        Seq(view.state.messageType, view.messageType.descriptorImport),
+        view.stateTypes :+ view.messageType.descriptorImport,
         view.messageType.parent.scalaPackage,
         otherImports = Seq(
           "kalix.javasdk.impl.view.UpdateHandlerNotFound",
@@ -132,7 +135,7 @@ object ViewServiceSourceGenerator {
         |    viewFactory: ViewCreationContext => ${view.className},
         |    override val viewId: String,
         |    override val options: ViewOptions)
-        |  extends ViewProvider[${typeName(view.state.messageType)}, ${view.className}] {
+        |  extends ViewProvider[${view.className}] {
         |
         |  /**
         |   * Use a custom view identifier. By default, the viewId is the same as the proto service name.
@@ -160,7 +163,7 @@ object ViewServiceSourceGenerator {
   private[codegen] def viewSource(view: ModelBuilder.ViewService): File = {
     implicit val imports =
       generateImports(
-        Seq(view.state.messageType) ++ view.commandTypes,
+        view.stateTypes ++ view.commandTypes,
         view.messageType.parent.scalaPackage,
         otherImports = Seq("kalix.scalasdk.view.View.UpdateEffect", "kalix.scalasdk.view.ViewContext"),
         packageImports = Nil)
@@ -168,10 +171,12 @@ object ViewServiceSourceGenerator {
     val emptyState =
       if (view.transformedUpdates.isEmpty)
         ""
-      else
-        s"""|  override def emptyState: ${typeName(view.state.messageType)} =
+      else {
+        val stateType = typeName(view.transformedUpdates.head.outputType)
+        s"""|  override def emptyState: $stateType =
             |    throw new UnsupportedOperationException("Not implemented yet, replace with your empty view state")
             |""".stripMargin
+      }
 
     val handlers = view.transformedUpdates.map { update =>
       val stateType = typeName(update.outputType)
@@ -208,14 +213,14 @@ object ViewServiceSourceGenerator {
   private[codegen] def abstractView(view: ModelBuilder.ViewService): File = {
     implicit val imports =
       generateImports(
-        Seq(view.state.messageType) ++ view.commandTypes,
+        view.stateTypes ++ view.commandTypes,
         view.messageType.parent.scalaPackage,
         otherImports = Seq("kalix.scalasdk.view.View"),
         packageImports = Nil)
 
     val emptyState =
       if (view.transformedUpdates.isEmpty)
-        s"""|  override def emptyState: ${typeName(view.state.messageType)} =
+        s"""|  override def emptyState: Any =
             |    null // emptyState is only used with transform_updates=true
             |""".stripMargin
       else
@@ -243,7 +248,7 @@ object ViewServiceSourceGenerator {
         |
         |$managedComment
         |
-        |abstract class ${view.abstractViewName} extends View[${typeName(view.state.messageType)}] {
+        |abstract class ${view.abstractViewName} extends View {
         |
         |$emptyState
         |  ${Format.indent(handlers, 2)}

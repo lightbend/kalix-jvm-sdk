@@ -206,7 +206,7 @@ public class PubSubTestModels {//TODO shall we remove this class and move things
 
   @Table(value = "employee_table")
   @Subscribe.EventSourcedEntity(value = EmployeeEntity.class, ignoreUnknown = true)
-  public static class SubscribeOnTypeToEventSourcedEvents extends View<Employee> {
+  public static class SubscribeOnTypeToEventSourcedEvents extends View {
 
       public UpdateEffect<Employee> onCreate(EmployeeEvent.EmployeeCreated evt) {
         return effects()
@@ -214,7 +214,7 @@ public class PubSubTestModels {//TODO shall we remove this class and move things
       }
 
       public UpdateEffect<Employee> onEmailUpdate(EmployeeEvent.EmployeeEmailUpdated eeu) {
-        var employee = viewState();
+        var employee = (Employee) viewState();
         return effects().updateState(new Employee(employee.firstName, employee.lastName, eeu.email));
       }
 
@@ -254,7 +254,7 @@ public class PubSubTestModels {//TODO shall we remove this class and move things
 
     @Table(value = "employee_table")
     @Subscribe.Stream(service = "employee_service", id = "employee_events")
-    public static class EventStreamSubscriptionView extends View<Employee> {
+    public static class EventStreamSubscriptionView extends View {
 
       public UpdateEffect<Employee> onCreate(EmployeeEvent.EmployeeCreated evt) {
         return effects()
@@ -262,7 +262,7 @@ public class PubSubTestModels {//TODO shall we remove this class and move things
       }
 
       public UpdateEffect<Employee> onEmailUpdate(EmployeeEvent.EmployeeEmailUpdated eeu) {
-        var employee = viewState();
+        var employee = (Employee) viewState();
         return effects().updateState(new Employee(employee.firstName, employee.lastName, eeu.email));
       }
 

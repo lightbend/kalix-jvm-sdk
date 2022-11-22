@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 
 @Table("users_by_email")
 @Subscribe.ValueEntity(UserEntity.class)
-public class UsersByEmail extends View<User> {
+public class UsersByEmail extends View {
 
   @GetMapping("/users/by_email/{email}")
   @Query("SELECT * FROM users_by_email WHERE email = :email")

@@ -24,7 +24,7 @@ import reactor.core.publisher.Flux;
     // tag::view[]
     id = "customer_events" // <3>
 )
-public class CustomersByNameView extends View<Customer> {
+public class CustomersByNameView extends View {
 
   public UpdateEffect<Customer> onEvent( // <4>
       CustomerPublicEvent.Created created) {
@@ -35,7 +35,7 @@ public class CustomersByNameView extends View<Customer> {
 
   public UpdateEffect<Customer> onEvent(
       CustomerPublicEvent.NameChanged nameChanged) {
-    var updated = viewState().withName(nameChanged.newName());
+    var updated = ((Customer) viewState()).withName(nameChanged.newName());
     return effects().updateState(updated);
   }
 

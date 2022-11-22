@@ -8,16 +8,16 @@ import kalix.javasdk.view.View;
 // It will be re-generated to reflect any changes to your protobuf definitions.
 // DO NOT EDIT
 
-public class UserByNameViewRouter extends ViewRouter<UserViewModel.UserState, UserByNameView> {
+public class UserByNameViewRouter extends ViewRouter<UserByNameView> {
 
   public UserByNameViewRouter(UserByNameView view) {
     super(view);
   }
 
   @Override
-  public View.UpdateEffect<UserViewModel.UserState> handleUpdate(
+  public <S> View.UpdateEffect<S> handleUpdate(
       String eventName,
-      UserViewModel.UserState state,
+      S state,
       Object event) {
 
     switch (eventName) {

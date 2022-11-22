@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 @ViewId("view_customers_by_email")
 @Table("customers_by_email")
 @Subscribe.ValueEntity(CustomerEntity.class)
-public class CustomerByEmailView extends View<Customer> {
+public class CustomerByEmailView extends View {
 
   @GetMapping("/customer/by_email/{email}")
   @Query("SELECT * FROM customers_by_email WHERE email = :email")

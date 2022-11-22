@@ -27,36 +27,13 @@ import kalix.javasdk.view.View
 import kalix.springsdk.impl.CommandHandler
 import kalix.springsdk.impl.InvocationContext
 
-class ReflectiveViewRouter[S, V <: View[S]](
-    view: V,
-    commandHandlers: Map[String, CommandHandler],
-    ignoreUnknown: Boolean)
-    extends ViewRouter[S, V](view) {
+class ReflectiveViewRouter[V <: View](view: V, commandHandlers: Map[String, CommandHandler], ignoreUnknown: Boolean)
+    extends ViewRouter(view) {
 
   private def commandHandlerLookup(commandName: String) =
     commandHandlers.getOrElse(commandName, throw new RuntimeException(s"no matching method for '$commandName'"))
 
-  override def handleUpdate(commandName: String, state: S, event: Any): View.UpdateEffect[S] = {
-
-    val viewStateType: Class[S] =
-      this.view.getClass.getGenericSuperclass
-        .asInstanceOf[ParameterizedType]
-        .getActualTypeArguments
-        .head
-        .asInstanceOf[Class[S]]
-
-    // the state: S received can either be of the view "state" type (if coming from emptyState)
-    // or PB Any type (if coming from the proxy)
-    state match {
-      case s if s == null || state.getClass == viewStateType =>
-        // note that we set the state even if null, this is needed in order to
-        // be able to call viewState() later
-        view._internalSetViewState(s)
-      case s =>
-        val deserializedState =
-          JsonSupport.decodeJson(viewStateType, ScalaPbAny.toJavaProto(s.asInstanceOf[ScalaPbAny]))
-        view._internalSetViewState(deserializedState)
-    }
+  override def handleUpdate[S](commandName: String, state: S, event: Any): View.UpdateEffect[S] = {
 
     val commandHandler = commandHandlerLookup(commandName)
 
@@ -66,6 +43,25 @@ class ReflectiveViewRouter[S, V <: View[S]](
 
     methodInvoker match {
       case Some(invoker) =>
+        val viewStateType = invoker.method.getGenericReturnType
+          .asInstanceOf[ParameterizedType]
+          .getActualTypeArguments
+          .head
+          .asInstanceOf[Class[S]]
+
+        // the state: S received can either be of the view "state" type (if coming from emptyState)
+        // or PB Any type (if coming from the proxy)
+        state match {
+          case s if s == null || state.getClass == viewStateType =>
+            // note that we set the state even if null, this is needed in order to
+            // be able to call viewState() later
+            view._internalSetViewState(s)
+          case s =>
+            val deserializedState =
+              JsonSupport.decodeJson(viewStateType, ScalaPbAny.toJavaProto(s.asInstanceOf[ScalaPbAny]))
+            view._internalSetViewState(deserializedState)
+        }
+
         inputTypeUrl match {
           case ProtobufEmptyTypeUrl =>
             invoker

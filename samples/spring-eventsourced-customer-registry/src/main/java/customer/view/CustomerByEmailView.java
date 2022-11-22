@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 
 @ViewId("view_customers_by_email")
 @Table("customers_by_email")
-public class CustomerByEmailView extends View<CustomerView> {
+public class CustomerByEmailView extends View {
 
   @GetMapping("/customer/by_email/{email}")
   @Query("SELECT * FROM customers_by_email WHERE email = :email")
@@ -28,11 +28,11 @@ public class CustomerByEmailView extends View<CustomerView> {
 
   @Subscribe.EventSourcedEntity(CustomerEntity.class)
   public UpdateEffect<CustomerView> onEvent(CustomerEvent.NameChanged event) {
-    return effects().updateState(viewState().withName(event.newName()));
+    return effects().updateState(((CustomerView) viewState()).withName(event.newName()));
   }
 
   @Subscribe.EventSourcedEntity(CustomerEntity.class)
   public UpdateEffect<CustomerView> onEvent(CustomerEvent.AddressChanged event) {
-    return effects().updateState(viewState().withAddress(event.address()));
+    return effects().updateState(((CustomerView) viewState()).withAddress(event.address()));
   }
 }

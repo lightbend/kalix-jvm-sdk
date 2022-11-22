@@ -21,13 +21,11 @@ import kalix.javasdk.impl.view.ViewUpdateEffectImpl;
 
 import java.util.Optional;
 
-/** @param <S> The type of the state for this view. */
-public abstract class View<S> {
+public abstract class View {
 
   private Optional<UpdateContext> updateContext = Optional.empty();
 
-  private Optional<S> viewState = Optional.empty();
-
+  private Optional<Object> viewState = Optional.empty();
 
   private boolean handlingUpdates = false;
 
@@ -47,9 +45,8 @@ public abstract class View<S> {
     updateContext = context;
   }
 
-
   /** INTERNAL API */
-  public void _internalSetViewState(S state) {
+  public void _internalSetViewState(Object state) {
     handlingUpdates = true;
     viewState = Optional.ofNullable(state);
   }
@@ -66,15 +63,14 @@ public abstract class View<S> {
    * @throws IllegalStateException if accessed outside a handler method
    */
   @ApiMayChange
-  protected final S viewState() {
+  protected final Object viewState() {
     // user may call this method inside a command handler and get a null because it's legal
     // to have emptyState set to null.
     if (handlingUpdates) return viewState.orElse(null);
-    else
-      throw new IllegalStateException("Current state is only available when handling updates.");
+    else throw new IllegalStateException("Current state is only available when handling updates.");
   }
 
-  protected final UpdateEffect.Builder<S> effects() {
+  protected final UpdateEffect.Builder effects() {
     return ViewUpdateEffectImpl.builder();
   }
 
@@ -85,26 +81,25 @@ public abstract class View<S> {
    * @return an empty state object or `null` to hand to the process method when an event for a
    *     previously unknown subject id is seen.
    */
-  public S emptyState() {
+  public Object emptyState() {
     return null;
   }
 
   /**
-   * Construct the effect that is returned by the command handler. The effect describes next
-   * processing actions, such as emitting events and sending a reply.
-   *
-   * @param <S> The type of the state for this entity.
+   * Construct the effect that is returned by the update handler. The effect describes the action to
+   * take for an update event, such as updating or deleting state, ignoring an event, or triggering
+   * an error.
    */
   public interface UpdateEffect<S> {
 
-    interface Builder<S> {
+    interface Builder {
 
-      UpdateEffect<S> updateState(S newState);
+      <S> UpdateEffect<S> updateState(S newState);
 
-      UpdateEffect<S> deleteState();
+      <S> UpdateEffect<S> deleteState();
 
       /** Ignore this event (and continue to process the next). */
-      UpdateEffect<S> ignore();
+      <S> UpdateEffect<S> ignore();
 
       /**
        * Trigger an error for the event. Returning this effect is equivalent to throwing an
@@ -113,7 +108,7 @@ public abstract class View<S> {
        *
        * @param description The description of the error.
        */
-      UpdateEffect<S> error(String description);
+      <S> UpdateEffect<S> error(String description);
     }
   }
 }

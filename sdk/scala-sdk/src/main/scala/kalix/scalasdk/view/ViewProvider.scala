@@ -21,14 +21,14 @@ import scala.collection.immutable.Seq
 
 import kalix.scalasdk.impl.view.ViewRouter
 
-trait ViewProvider[S, V <: View[S]] {
+trait ViewProvider[V <: View] {
   def serviceDescriptor: Descriptors.ServiceDescriptor
 
   def viewId: String
 
   def options: ViewOptions
 
-  def newRouter(context: ViewCreationContext): ViewRouter[S, V]
+  def newRouter(context: ViewCreationContext): ViewRouter[V]
 
   def additionalDescriptors: Seq[Descriptors.FileDescriptor]
 }

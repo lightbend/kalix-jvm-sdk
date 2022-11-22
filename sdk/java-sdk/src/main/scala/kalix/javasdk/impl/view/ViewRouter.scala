@@ -20,16 +20,13 @@ import kalix.javasdk.view.{ UpdateContext, View }
 
 import java.util.Optional
 
-abstract class ViewRouter[S, V <: View[S]](protected val view: V) {
+abstract class ViewRouter[V <: View](protected val view: V) {
 
   /** INTERNAL API */
   final def _internalHandleUpdate(state: Option[Any], event: Any, context: UpdateContext): View.UpdateEffect[_] = {
-    val stateOrEmpty: S = state match {
-      case Some(preExisting) => preExisting.asInstanceOf[S]
-      case None              => view.emptyState()
-    }
     try {
       view._internalSetUpdateContext(Optional.of(context))
+      val stateOrEmpty: Any = state.getOrElse(view.emptyState())
       handleUpdate(context.eventName(), stateOrEmpty, event)
     } catch {
       case missing: UpdateHandlerNotFound =>
@@ -43,6 +40,6 @@ abstract class ViewRouter[S, V <: View[S]](protected val view: V) {
     }
   }
 
-  def handleUpdate(commandName: String, state: S, event: Any): View.UpdateEffect[S]
+  def handleUpdate[S](commandName: String, state: S, event: Any): View.UpdateEffect[S]
 
 }

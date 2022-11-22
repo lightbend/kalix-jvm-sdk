@@ -24,7 +24,7 @@ class UserByNameViewProvider private(
     viewFactory: ViewCreationContext => UserByNameViewImpl,
     override val viewId: String,
     override val options: ViewOptions)
-  extends ViewProvider[UserState, UserByNameViewImpl] {
+  extends ViewProvider[UserByNameViewImpl] {
 
   /**
    * Use a custom view identifier. By default, the viewId is the same as the proto service name.

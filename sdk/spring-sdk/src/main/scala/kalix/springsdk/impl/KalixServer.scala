@@ -73,7 +73,7 @@ object KalixServer {
     classOf[EventSourcedEntity[_]] ::
     classOf[ValueEntity[_]] ::
     classOf[ReplicatedEntity[_]] ::
-    classOf[View[_]] ::
+    classOf[View] ::
     Nil
 
   private val kalixComponentsNames = kalixComponents.map(_.getName)
@@ -248,9 +248,9 @@ case class KalixServer(applicationContext: ApplicationContext, config: Config) {
         kalixClient.registerComponent(valueEntity.serviceDescriptor())
       }
 
-      if (classOf[View[_]].isAssignableFrom(clz)) {
+      if (classOf[View].isAssignableFrom(clz)) {
         logger.info(s"Registering View provider for [${clz.getName}]")
-        val view = viewProvider(clz.asInstanceOf[Class[View[Nothing]]])
+        val view = viewProvider(clz.asInstanceOf[Class[View]])
         kalix.register(view)
         kalixClient.registerComponent(view.serviceDescriptor())
       }
@@ -325,7 +325,7 @@ case class KalixServer(applicationContext: ApplicationContext, config: Config) {
         kalixBeanFactory.getBean(clz)
       })
 
-  private def viewProvider[S, V <: View[S]](clz: Class[V]): ViewProvider[S, V] =
+  private def viewProvider[V <: View](clz: Class[V]): ViewProvider[V] =
     ReflectiveViewProvider.of(
       clz,
       messageCodec,

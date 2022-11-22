@@ -31,15 +31,15 @@ import java.util.Optional
 import scala.jdk.CollectionConverters.SetHasAsJava
 import scala.jdk.OptionConverters._
 
-private[scalasdk] final class JavaViewAdapter[S](scalaSdkView: View[S]) extends javasdk.view.View[S] {
-  override def emptyState(): S = scalaSdkView.emptyState
+private[scalasdk] final class JavaViewAdapter(scalaSdkView: View) extends javasdk.view.View {
+  override def emptyState(): Any = scalaSdkView.emptyState
 
   override def _internalSetUpdateContext(context: Optional[javasdk.view.UpdateContext]): Unit =
     scalaSdkView._internalSetUpdateContext(context.map(new ScalaUpdateContextAdapter(_)).toScala)
 }
 
-private[scalasdk] final class JavaViewProviderAdapter[S, V <: View[S]](scalaSdkProvider: ViewProvider[S, V])
-    extends javasdk.view.ViewProvider[S, javasdk.view.View[S]] {
+private[scalasdk] final class JavaViewProviderAdapter[V <: View](scalaSdkProvider: ViewProvider[V])
+    extends javasdk.view.ViewProvider[javasdk.view.View] {
   override def serviceDescriptor(): Descriptors.ServiceDescriptor =
     scalaSdkProvider.serviceDescriptor
 
@@ -49,24 +49,19 @@ private[scalasdk] final class JavaViewProviderAdapter[S, V <: View[S]](scalaSdkP
   override def options(): ViewOptions =
     javasdk.impl.view.ViewOptionsImpl(scalaSdkProvider.options.forwardHeaders.asJava)
 
-  override def newRouter(
-      context: javasdk.view.ViewCreationContext): javasdk.impl.view.ViewRouter[S, javasdk.view.View[S]] = {
-    val scalaSdkRouter = scalaSdkProvider
-      .newRouter(new ScalaViewCreationContextAdapter(context))
-      .asInstanceOf[ViewRouter[S, View[S]]]
-    new JavaViewRouterAdapter[S](new JavaViewAdapter[S](scalaSdkRouter.view), scalaSdkRouter)
+  override def newRouter(context: javasdk.view.ViewCreationContext): javasdk.impl.view.ViewRouter[javasdk.view.View] = {
+    val scalaSdkRouter = scalaSdkProvider.newRouter(new ScalaViewCreationContextAdapter(context))
+    new JavaViewRouterAdapter(new JavaViewAdapter(scalaSdkRouter.view), scalaSdkRouter)
   }
 
   override def additionalDescriptors(): Array[Descriptors.FileDescriptor] =
     scalaSdkProvider.additionalDescriptors.toArray
 }
 
-private[scalasdk] class JavaViewRouterAdapter[S](
-    javaSdkView: javasdk.view.View[S],
-    scalaSdkHandler: ViewRouter[S, View[S]])
-    extends javasdk.impl.view.ViewRouter[S, javasdk.view.View[S]](javaSdkView) {
+private[scalasdk] class JavaViewRouterAdapter[V <: View](javaSdkView: javasdk.view.View, scalaSdkHandler: ViewRouter[V])
+    extends javasdk.impl.view.ViewRouter(javaSdkView) {
 
-  override def handleUpdate(commandName: String, state: S, event: Any): javasdk.view.View.UpdateEffect[S] = {
+  override def handleUpdate[S](commandName: String, state: S, event: Any): javasdk.view.View.UpdateEffect[S] = {
     scalaSdkHandler.handleUpdate(commandName, state, event) match {
       case effect: ViewUpdateEffectImpl.PrimaryUpdateEffect[S] => effect.toJavaSdk
     }

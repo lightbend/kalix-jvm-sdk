@@ -27,7 +27,7 @@ import reactor.core.publisher.Flux;
 
 @Table("users_by_name")
 @Subscribe.ValueEntity(value = UserEntity.class, handleDeletes = true)
-public class UsersByName extends View<User> {
+public class UsersByName extends View {
 
   @GetMapping("/users/by-name/{name}")
   @Query("SELECT * FROM users_by_name WHERE name = :name")

@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 
 @ViewId("view_customers_by_name") // <1>
 @Table("customers_by_name")
-public class CustomerByNameView extends View<CustomerView> {
+public class CustomerByNameView extends View {
 
   @GetMapping("/customer/by_name/{customer_name}")
   @Query("SELECT * FROM customers_by_name WHERE name = :customer_name")
@@ -29,12 +29,12 @@ public class CustomerByNameView extends View<CustomerView> {
 
   @Subscribe.EventSourcedEntity(CustomerEntity.class)
   public UpdateEffect<CustomerView> onEvent(CustomerEvent.NameChanged event) {
-    return effects().updateState(viewState().withName(event.newName())); // <2>
+    return effects().updateState(((CustomerView) viewState()).withName(event.newName())); // <2>
   }
 
   @Subscribe.EventSourcedEntity(CustomerEntity.class)
   public UpdateEffect<CustomerView> onEvent(CustomerEvent.AddressChanged event) {
-    return effects().updateState(viewState().withAddress(event.address()));
+    return effects().updateState(((CustomerView) viewState()).withAddress(event.address()));
   }
 }
 // end::class[]

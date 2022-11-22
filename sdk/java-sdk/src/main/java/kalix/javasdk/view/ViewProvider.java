@@ -22,7 +22,7 @@ import com.google.protobuf.Descriptors;
 
 import java.util.Optional;
 
-public interface ViewProvider<S, V extends View<S>> {
+public interface ViewProvider<V extends View> {
 
   Descriptors.ServiceDescriptor serviceDescriptor();
 
@@ -30,7 +30,7 @@ public interface ViewProvider<S, V extends View<S>> {
 
   ViewOptions options();
 
-  ViewRouter<S, V> newRouter(ViewCreationContext context);
+  ViewRouter<V> newRouter(ViewCreationContext context);
 
   Descriptors.FileDescriptor[] additionalDescriptors();
 
