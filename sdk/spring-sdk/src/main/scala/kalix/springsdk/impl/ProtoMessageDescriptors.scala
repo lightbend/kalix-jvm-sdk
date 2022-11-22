@@ -20,6 +20,7 @@ import com.google.protobuf.DescriptorProtos
 import com.fasterxml.jackson.dataformat.protobuf.ProtobufMapper
 import com.fasterxml.jackson.dataformat.protobuf.schema.ProtobufMessage
 import com.fasterxml.jackson.dataformat.protobuf.{ schema => jacksonSchema }
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.google.protobuf.DescriptorProtos.FieldDescriptorProto
 
 import scala.jdk.CollectionConverters._
@@ -28,7 +29,7 @@ import scala.jdk.CollectionConverters._
  * Extracts a protobuf schema for a message, used only for assigning a typed schema to view state and results
  */
 object ProtoMessageDescriptors {
-  private val protobufMapper = new ProtobufMapper()
+  private val protobufMapper = ProtobufMapper.builder.addModule(new JavaTimeModule).build;
 
   def generateMessageDescriptors(javaClass: Class[_]): ProtoMessageDescriptors = {
     val jacksonProtoSchema = protobufMapper.generateSchemaFor(javaClass)
