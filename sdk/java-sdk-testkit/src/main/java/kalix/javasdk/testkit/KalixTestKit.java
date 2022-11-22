@@ -194,6 +194,8 @@ public class KalixTestKit {
     ProxyInfoHolder holder = ProxyInfoHolder.get(runner.system());
     holder.overridePort(proxyContainer.getProxyPort());
     holder.overrideProxyHost(proxyContainer.getHost());
+    if (log.isDebugEnabled())
+      log.debug("TestKit using [{}:{}] for calls to proxy from service", proxyContainer.getHost(), proxyContainer.getProxyPort());
     return this;
   }
 
