@@ -27,7 +27,6 @@ import kalix.protocol.discovery.ProxyInfo
 import org.slf4j.LoggerFactory
 
 import java.util.concurrent.atomic.AtomicReference
-import java.util.concurrent.atomic.AtomicReference
 
 object ProxyInfoHolder extends ExtensionId[ProxyInfoHolder] with ExtensionIdProvider {
   override def get(system: ActorSystem): ProxyInfoHolder = super.get(system)
