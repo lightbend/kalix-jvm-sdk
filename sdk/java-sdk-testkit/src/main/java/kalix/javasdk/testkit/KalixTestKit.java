@@ -188,10 +188,14 @@ public class KalixTestKit {
     proxyContainer.start();
     started = true;
 
-    // the proxy will announce its default port, but to communicate with it,
-    // we need the use the port that testcontainers will expose
+    // the proxy will announce its host and default port, but to communicate with it,
+    // we need the use the port and host that testcontainers will expose
     // therefore, we set a port override in ProxyInfoHolder to allow for inter-component communication
-    ProxyInfoHolder.get(runner.system()).overridePort(proxyContainer.getProxyPort());
+    ProxyInfoHolder holder = ProxyInfoHolder.get(runner.system());
+    holder.overridePort(proxyContainer.getProxyPort());
+    holder.overrideProxyHost(proxyContainer.getHost());
+    if (log.isDebugEnabled())
+      log.debug("TestKit using [{}:{}] for calls to proxy from service", proxyContainer.getHost(), proxyContainer.getProxyPort());
     return this;
   }
 
