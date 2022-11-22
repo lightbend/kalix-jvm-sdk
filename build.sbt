@@ -21,8 +21,8 @@ lazy val `kalix-jvm-sdk` = project
 
 def common: Seq[Setting[_]] =
   Seq(
-    Compile / javacOptions ++= Seq("-encoding", "UTF-8", "--release", "17"),
-    Compile / scalacOptions ++= Seq("-encoding", "UTF-8", "-release", "17", "-deprecation"))
+    Compile / javacOptions ++= Seq("-encoding", "UTF-8", "--release", "11"),
+    Compile / scalacOptions ++= Seq("-encoding", "UTF-8", "-release", "11", "-deprecation"))
 
 lazy val sdkCore = project
   .in(file("sdk/core"))
@@ -123,7 +123,7 @@ lazy val sdkSpring = project
     buildInfoPackage := "kalix.springsdk",
     Compile / akkaGrpcGeneratedSources := Seq(AkkaGrpc.Server),
     Compile / akkaGrpcGeneratedLanguages := Seq(AkkaGrpc.Scala),
-    Test / javacOptions += "-parameters", // for Jackson
+    Test / javacOptions ++= Seq("-parameters","--release","17"), // for Jackson
     IntegrationTest / javacOptions += "-parameters", // for Jackson
     inTask(doc)(
       Seq(
