@@ -62,7 +62,7 @@ class ProxyInfoHolder(system: ExtendedActorSystem) extends Extension {
     _identificationInfo = proxyInfo.identificationInfo
 
     log.debug("Proxy hostname: [{}]", chosenProxyName)
-    log.debug("Proxy port to: [{}]", proxyInfo)
+    log.debug("Proxy port to: [{}]", proxyInfo.proxyPort)
     log.debug("Identification name: [{}]", proxyInfo.identificationInfo)
   }
 
