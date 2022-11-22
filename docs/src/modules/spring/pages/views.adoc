@@ -16,7 +16,7 @@ The remainder of this page describes:
 * <<#changing>>
 * <<#query>>
 
-IMPORTANT: Be aware that Views are not updated immediately when Entity state changes. Kalix does update Views as quickly as possible, but it is not instant and can take up to a few seconds for the changes to become visible in the query results. View updates might also take more time during failure scenarios than during normal operation.
+IMPORTANT: Be aware that Views are not updated immediately when Entity state changes. Kalix does update Views as quickly as possible. It is not instant but eventually all changes will become visible in the query results. View updates might also take more time during failure scenarios than during normal operation.
 
 [#value-entity]
 == Creating a View from a Value Entity
@@ -84,6 +84,21 @@ include::example$spring-valueentity-customer-registry/src/main/java/com/example/
 <6> Define the query matching by name.
 <7> Query method returns a `CustomerSummary`.
 
+=== Handling Value Entity deletes
+
+Value Entities can be xref:value-entity#deleting_state[deleted]. We can update our view model based on that fact with an additional flag `handleDeletes` for the subscription.
+
+[source,java]
+.src/main/java/com/example/api/CustomerSummaryByName.java
+----
+include::example$spring-valueentity-customer-registry/src/main/java/com/example/view/CustomerSummaryByName.java[tag=delete]
+----
+<1> `@Subscribe` annotation with `handleDeletes=true`.
+<2> Dedicated (parameter-less) handler for deletion.
+<3> An effect to delete the view state `effects().deleteState()`. It could be also an update of a special column, to mark view state as deleted.
+
+NOTE: When using @Subscribe on a class level, `handleDeletes=true` will also work. Kalix will automatically delete the View state.
+
 [#event-sourced-entity]
 == Creating a View from an Event Sourced Entity
 
@@ -91,15 +106,14 @@ You can create a View from an Event Sourced Entity by using events that the Enti
 
 This example assumes a Customer equal to the previous example and an Event Sourced Entity that uses this Customer, and it is in charge of producing the events that update the View. These events are defined as subtypes of the class `CustomerEvent` following standard https://github.com/FasterXML/jackson-annotations#handling-polymorphic-types[Jackson notation] like this:
 
-.src/main/java/customer/api/CustomerEvent.java
+.src/main/java/customer/domain/CustomerEvent.java
 [source,java]
 ----
 include::example$spring-eventsourced-customer-registry/src/main/java/customer/domain/CustomerEvent.java[tags=class]
 ----
-<1> Includes the logical type name (defined in implementation classes) as type 
-<2> Required for deserialization and to define the logical type name 
+<1> Includes the logical type name using `@TypeName` annotation.
 
-Adding `@JsonTypeInfo` is needed so that Jackson can read back correctly the Object type when deserializing. By using `name`, you set its value as the fully qualified message. This is called a `logical type name` and it allows you to refactor the class to another package after you have serialized messages of this type. Otherwise, after such a refactor the objects serialized with the old package won't be recognized as the same type. 
+IMPORTANT: It's highly recommended to add a `@TypeName` to your persisted events. Kalix needs to identify each event in order to deliver them to the right event handlers. If no logical type name is specified, Kalix uses the non-qualified class name. Once an event is persisted in Kalix, you won't be able to rename your class if no logical type name has been specified, as Kalix won't be able to recognize previously persisted events. Therefore, we recommend all event classes use a logical type name.
 
 
 === Define the View to consume events
