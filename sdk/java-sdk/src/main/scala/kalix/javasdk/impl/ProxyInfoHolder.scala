@@ -55,7 +55,10 @@ class ProxyInfoHolder(system: ExtendedActorSystem) extends Extension {
         proxyInfo.internalProxyHostname
       }
 
-    this._proxyHostname = Some(chosenProxyName)
+    // don't set if already overriden (by testkit)
+    if (this._proxyHostname.isEmpty) {
+      this._proxyHostname = Some(chosenProxyName)
+    }
 
     this._identificationInfo = proxyInfo.identificationInfo
 
