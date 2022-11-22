@@ -62,8 +62,13 @@ class EventSourcedEntityEffectImpl[S] extends Builder[S] with OnSuccessBuilder[S
   }
 
   override def emitEvent(event: Any): EventSourcedEntityEffectImpl[S] = {
-    _primaryEffect = EmitEvents(Vector(event))
-    this
+    if (event.isInstanceOf[Iterable[_]] || event.isInstanceOf[java.lang.Iterable[_]]) {
+      throw new IllegalStateException(
+        s"You are trying to emit collection (${event.getClass}) of events. Use `emitEvents` method instead.")
+    } else {
+      _primaryEffect = EmitEvents(Vector(event))
+      this
+    }
   }
 
   override def emitEvents(events: util.List[_]): EventSourcedEntityEffectImpl[S] = {
