@@ -57,8 +57,6 @@ sealed trait ServiceMethod {
   def methodName: String
   def javaMethodOpt: Option[Method]
 
-//  def requestMethod: RequestMethod
-//  def pathTemplate: String
   def streamIn: Boolean
   def streamOut: Boolean
 }
