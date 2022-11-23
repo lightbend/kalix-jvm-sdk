@@ -19,6 +19,7 @@ package kalix.codegen.scalasdk.impl
 import kalix.codegen.File
 import kalix.codegen.Format
 import kalix.codegen.ModelBuilder
+import kalix.codegen.ProtoMessageType
 
 /**
  * Responsible for generating Scala sources for a view
@@ -179,29 +180,25 @@ object ViewServiceSourceGenerator {
         otherImports = Seq("kalix.scalasdk.view.View.UpdateEffect", "kalix.scalasdk.view.ViewContext"),
         packageImports = Nil)
 
-    val updateTypes = view.transformedUpdates.map(_.outputType).toSeq.distinct
+    val updateTypes =
+      view.transformedUpdates.map(command => command.viewTable -> command.outputType).toSeq.distinct
 
     val emptyState =
       if (updateTypes.isEmpty)
         ""
       else if (updateTypes.size > 1) {
-        val tableNames = view.transformedUpdates.map(_.viewTable).toSeq.distinct
-        val emptyStateCases = tableNames.map { tableName =>
-          s"""|case "$tableName" =>
+        val emptyStateMethods = updateTypes.map { case (tableName, updateType) =>
+          s"""|override def ${emptyStateMethodName(updateType)}: ${typeName(updateType)} =
               |  throw new UnsupportedOperationException("Not implemented yet, replace with your empty view state for '$tableName'");
-              |""".stripMargin.trim
+              |""".stripMargin
         }
-        s"""|  override def emptyState: Any = {
-            |    updateContext.viewTable match {
-            |      ${Format.indent(emptyStateCases, 6)}
-            |      case _ => null
-            |    }
-            |  }
+        s"""|  ${Format.indent(emptyStateMethods, 2)}
             |""".stripMargin
       } else {
-        """|  override def emptyState: Any =
-           |    throw new UnsupportedOperationException("Not implemented yet, replace with your empty view state")
-           |""".stripMargin
+        val stateType = typeName(updateTypes.head._2)
+        s"""|  override def emptyState: $stateType =
+            |    throw new UnsupportedOperationException("Not implemented yet, replace with your empty view state")
+            |""".stripMargin
       }
 
     val handlers = view.transformedUpdates.map { update =>
@@ -244,12 +241,33 @@ object ViewServiceSourceGenerator {
         otherImports = Seq("kalix.scalasdk.view.View"),
         packageImports = Nil)
 
+    val updateTypes =
+      view.transformedUpdates.map(command => command.viewTable -> command.outputType).toSeq.distinct
+
     val emptyState =
-      if (view.transformedUpdates.isEmpty)
+      if (updateTypes.isEmpty)
         s"""|  override def emptyState: Any =
             |    null // emptyState is only used with transform_updates=true
             |""".stripMargin
-      else
+      else if (updateTypes.size > 1) {
+        val emptyStateCases = updateTypes.map { case (tableName, updateType) =>
+          s"""|case "$tableName" => ${emptyStateMethodName(updateType)}
+              |""".stripMargin.trim
+        }
+        val abstractEmptyStateMethods = updateTypes.map { case (_, updateType) =>
+          s"""|def ${emptyStateMethodName(updateType)}: ${typeName(updateType)}
+              |""".stripMargin
+        }
+        s"""|  override def emptyState: Any = {
+            |    updateContext().viewTable match {
+            |      ${Format.indent(emptyStateCases, 6)}
+            |      case _ => null
+            |    }
+            |  }
+            |
+            |  ${Format.indent(abstractEmptyStateMethods, 2)}
+            |""".stripMargin
+      } else
         ""
 
     val handlers = view.transformedUpdates.map { update =>
@@ -281,6 +299,12 @@ object ViewServiceSourceGenerator {
         |  ${Format.indent(handlers, 2)}
         |}
         |""".stripMargin)
+  }
+
+  private def emptyStateMethodName(updateType: ProtoMessageType): String = {
+    val name = updateType.name
+    val suffix = if (name.endsWith("State")) "" else "State"
+    s"empty$name$suffix"
   }
 
 }

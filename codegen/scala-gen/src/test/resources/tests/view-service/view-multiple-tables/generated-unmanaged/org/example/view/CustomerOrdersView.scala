@@ -10,15 +10,11 @@ import kalix.scalasdk.view.ViewContext
 
 class CustomerOrdersView(context: ViewContext) extends AbstractCustomerOrdersView {
 
-  override def emptyState: Any = {
-    updateContext.viewTable match {
-      case "customers" =>
-        throw new UnsupportedOperationException("Not implemented yet, replace with your empty view state for 'customers'");
-      case "products" =>
-        throw new UnsupportedOperationException("Not implemented yet, replace with your empty view state for 'products'");
-      case _ => null
-    }
-  }
+  override def emptyCustomerState: CustomerState =
+    throw new UnsupportedOperationException("Not implemented yet, replace with your empty view state for 'customers'");
+
+  override def emptyProductState: ProductState =
+    throw new UnsupportedOperationException("Not implemented yet, replace with your empty view state for 'products'");
 
   override def updateCustomerCreated(
     state: CustomerState, customerCreated: CustomerCreated): UpdateEffect[CustomerState] =

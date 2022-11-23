@@ -8,6 +8,17 @@ import kalix.scalasdk.view.View
 
 abstract class AbstractCustomerOrdersView extends View {
 
+  override def emptyState: Any = {
+    updateContext().viewTable match {
+      case "customers" => emptyCustomerState
+      case "products" => emptyProductState
+      case _ => null
+    }
+  }
+
+  def emptyCustomerState: CustomerState
+
+  def emptyProductState: ProductState
 
   def updateCustomerCreated(
     state: CustomerState, customerCreated: CustomerCreated): View.UpdateEffect[CustomerState]

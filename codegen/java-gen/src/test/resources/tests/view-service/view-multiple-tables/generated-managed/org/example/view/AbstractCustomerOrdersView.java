@@ -8,6 +8,24 @@ import kalix.javasdk.view.View;
 
 public abstract class AbstractCustomerOrdersView extends View {
 
+  @Override
+  public Object emptyState() {
+    switch (updateContext().viewTable()) {
+      case "customers":
+        return emptyCustomerState();
+
+      case "products":
+        return emptyProductState();
+
+      default:
+        return null;
+    }
+  }
+
+  public abstract CustomerOrdersViewModel.CustomerState emptyCustomerState();
+
+  public abstract CustomerOrdersViewModel.ProductState emptyProductState();
+
   public abstract View.UpdateEffect<CustomerOrdersViewModel.CustomerState> updateCustomerCreated(
     CustomerOrdersViewModel.CustomerState state, CustomerOrdersViewModel.CustomerCreated customerCreated);
 

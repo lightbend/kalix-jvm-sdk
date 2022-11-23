@@ -178,30 +178,24 @@ object ViewServiceSourceGenerator {
   private[codegen] def viewSource(view: ModelBuilder.ViewService, packageName: PackageNaming): String = {
     import Types.View._
 
-    val updateTypes = view.transformedUpdates.map(_.outputType).toSeq.distinct
+    val updateTypes =
+      view.transformedUpdates.map(command => command.viewTable -> command.outputType).toSeq.distinct
 
     val emptyState =
       if (updateTypes.isEmpty)
         c""
       else if (updateTypes.size > 1) {
-        val tableNames = view.transformedUpdates.map(_.viewTable).toSeq.distinct
-        val emptyStateCases = tableNames.map { tableName =>
-          c"""|case "$tableName":
+        val emptyStateMethods = updateTypes.map { case (tableName, updateType) =>
+          c"""|@Override
+              |public $updateType ${emptyStateMethodName(updateType)}() {
               |  throw new UnsupportedOperationException("Not implemented yet, replace with your empty view state for '$tableName'");
+              |}
               |"""
         }
         c"""|
-            |@Override
-            |public Object emptyState() {
-            |  switch (updateContext().viewTable()) {
-            |    $emptyStateCases
-            |    default:
-            |      return null;
-            |  }
-            |}
-            |"""
+            |$emptyStateMethods"""
       } else {
-        val stateType = updateTypes.head
+        val (_, stateType) = updateTypes.head
         c"""|
             |@Override
             |public $stateType emptyState() {
@@ -246,15 +240,39 @@ object ViewServiceSourceGenerator {
   private[codegen] def abstractView(view: ModelBuilder.ViewService, packageName: PackageNaming): String = {
     import Types.View._
 
+    val updateTypes =
+      view.transformedUpdates.map(command => command.viewTable -> command.outputType).toSeq.distinct
+
     val emptyState =
-      if (view.transformedUpdates.isEmpty)
+      if (updateTypes.isEmpty)
         c"""|
             |@Override
             |public Object emptyState() {
             |  return null; // emptyState is only used with transform_updates=true
             |}
             |"""
-      else
+      else if (updateTypes.size > 1) {
+        val emptyStateCases = updateTypes.map { case (tableName, updateType) =>
+          c"""|case "$tableName":
+              |  return ${emptyStateMethodName(updateType)}();
+              |"""
+        }
+        val abstractEmptyStateMethods = updateTypes.map { case (_, updateType) =>
+          c"""|public abstract $updateType ${emptyStateMethodName(updateType)}();
+              |"""
+        }
+        c"""|
+            |@Override
+            |public Object emptyState() {
+            |  switch (updateContext().viewTable()) {
+            |    $emptyStateCases
+            |    default:
+            |      return null;
+            |  }
+            |}
+            |
+            |$abstractEmptyStateMethods"""
+      } else
         c""
 
     val handlers = view.transformedUpdates.map { update =>
@@ -281,6 +299,12 @@ object ViewServiceSourceGenerator {
          |}
          |""",
       Nil)
+  }
+
+  private def emptyStateMethodName(updateType: ProtoMessageType): String = {
+    val name = updateType.name
+    val suffix = if (name.endsWith("State")) "" else "State"
+    s"empty$name$suffix"
   }
 
 }
