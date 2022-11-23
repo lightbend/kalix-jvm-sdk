@@ -28,7 +28,7 @@ import protocgen.{ CodeGenApp, CodeGenRequest, CodeGenResponse }
 abstract class AbstractKalixGenerator extends CodeGenApp {
   val enableDebug = "enableDebug"
   def rootPackage(packageName: String) = s"rootPackage=$packageName"
-  val rootPackageRegex = """rootPackage=(\w+)""".r
+  val rootPackageRegex = """rootPackage=([\w.]+)""".r
   def extractRootPackage(parameter: String): Option[String] =
     rootPackageRegex.findFirstMatchIn(parameter).map(found => found.group(1))
 

@@ -95,7 +95,8 @@ object ViewServiceSourceGenerator {
           |  public String viewTable(String eventName, Object event) {
           |    switch (eventName) {
           |      $viewTableCases
-          |      default: return "";
+          |      default:
+          |        return "";
           |    }
           |  }
           |
@@ -177,18 +178,30 @@ object ViewServiceSourceGenerator {
   private[codegen] def viewSource(view: ModelBuilder.ViewService, packageName: PackageNaming): String = {
     import Types.View._
 
+    val updateTypes = view.transformedUpdates.map(_.outputType).toSeq.distinct
+
     val emptyState =
-      if (view.transformedUpdates.isEmpty)
+      if (updateTypes.isEmpty)
         c""
-      else if (view.transformedUpdates.size > 1) {
+      else if (updateTypes.size > 1) {
+        val tableNames = view.transformedUpdates.map(_.viewTable).toSeq.distinct
+        val emptyStateCases = tableNames.map { tableName =>
+          c"""|case "$tableName":
+              |  throw new UnsupportedOperationException("Not implemented yet, replace with your empty view state for '$tableName'");
+              |"""
+        }
         c"""|
             |@Override
             |public Object emptyState() {
-            |  throw new UnsupportedOperationException("Not implemented yet, replace with your empty view state");
+            |  switch (updateContext().viewTable()) {
+            |    $emptyStateCases
+            |    default:
+            |      return null;
+            |  }
             |}
             |"""
       } else {
-        val stateType = view.transformedUpdates.head.outputType
+        val stateType = updateTypes.head
         c"""|
             |@Override
             |public $stateType emptyState() {
@@ -204,13 +217,15 @@ object ViewServiceSourceGenerator {
            |public $View.UpdateEffect<${stateType}> ${lowerFirst(update.name)}(
            |  $stateType state) {
            |  throw new UnsupportedOperationException("Delete handler for '${update.name}' not implemented yet");
-           |}"""
+           |}
+           |"""
       } else {
         c"""@Override
            |public $View.UpdateEffect<${stateType}> ${lowerFirst(update.name)}(
            |  $stateType state, ${update.inputType} ${lowerFirst(update.inputType.name)}) {
            |  throw new UnsupportedOperationException("Update handler for '${update.name}' not implemented yet");
-           |}"""
+           |}
+           |"""
       }
     }
 
@@ -246,10 +261,12 @@ object ViewServiceSourceGenerator {
       val stateType = update.outputType
       if (update.handleDeletes) {
         c"""public abstract $View.UpdateEffect<$stateType> ${lowerFirst(update.name)}(
-           |  $stateType state);"""
+           |  $stateType state);
+           |"""
       } else {
         c"""public abstract $View.UpdateEffect<$stateType> ${lowerFirst(update.name)}(
-           |  $stateType state, ${update.inputType} ${lowerFirst(update.inputType.name)});"""
+           |  $stateType state, ${update.inputType} ${lowerFirst(update.inputType.name)});
+           |"""
       }
 
     }

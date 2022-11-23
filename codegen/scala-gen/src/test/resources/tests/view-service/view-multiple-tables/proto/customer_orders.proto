@@ -1,0 +1,122 @@
+// Copyright 2021 Lightbend Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+syntax = "proto3";
+
+package org.example.view;
+
+import "kalix/annotations.proto";
+
+message CustomerOrdersRequest {
+  string customer_id = 1;
+}
+
+message CustomerOrder {
+  string order_id = 1;
+  string customer_id = 2;
+  string product_id = 3;
+  string product_name = 4;
+  int32 quantity = 5;
+  string name = 6;
+  string email = 7;
+}
+
+message CustomerCreated {
+  string customer_id = 1;
+  string email = 2;
+  string name = 3;
+}
+
+message CustomerNameChanged {
+  string customer_id = 1;
+  string new_name = 3;
+}
+
+message CustomerState {
+  string customer_id = 1;
+  string email = 2;
+  string name = 3;
+}
+
+message ProductCreated {
+  string product_id = 1;
+  string product_name = 2;
+}
+
+message ProductState {
+  string product_id = 1;
+  string product_name = 2;
+}
+
+message OrderState {
+  string order_id = 1;
+  string product_id = 2;
+  string customer_id = 3;
+  int32 quantity = 4;
+}
+
+service CustomerOrders {
+  option (kalix.codegen) = {
+    view: {}
+  };
+
+  rpc UpdateCustomerCreated(CustomerCreated) returns (CustomerState) {
+    option (kalix.method).eventing.in = {
+      event_sourced_entity: "customers"
+    };
+    option (kalix.method).view.update = {
+      table: "customers",
+      transform_updates: true
+    };
+  }
+
+  rpc UpdateCustomerNameChanged(CustomerNameChanged) returns (CustomerState) {
+    option (kalix.method).eventing.in = {
+      event_sourced_entity: "customers"
+    };
+    option (kalix.method).view.update = {
+      table: "customers",
+      transform_updates: true
+    };
+  }
+
+  rpc UpdateProduct(ProductCreated) returns (ProductState) {
+    option (kalix.method).eventing.in = {
+      event_sourced_entity: "products"
+    };
+    option (kalix.method).view.update = {
+      table: "products",
+      transform_updates: true
+    };
+  }
+
+  rpc UpdateOrder(OrderState) returns (OrderState) {
+    option (kalix.method).eventing.in = {
+      value_entity: "orders"
+    };
+    option (kalix.method).view.update = {
+      table: "orders"
+    };
+  }
+
+  rpc Get(CustomerOrdersRequest) returns (stream CustomerOrder) {
+    option (kalix.method).view.query = {
+      query: "SELECT * "
+             "FROM customers "
+             "JOIN orders ON orders.customer_id = customers.customer_id "
+             "JOIN products ON products.product_id = orders.product_id "
+             "WHERE customers.customer_id = :customer_id"
+    };
+  }
+}

@@ -179,15 +179,29 @@ object ViewServiceSourceGenerator {
         otherImports = Seq("kalix.scalasdk.view.View.UpdateEffect", "kalix.scalasdk.view.ViewContext"),
         packageImports = Nil)
 
+    val updateTypes = view.transformedUpdates.map(_.outputType).toSeq.distinct
+
     val emptyState =
-      if (view.transformedUpdates.isEmpty)
+      if (updateTypes.isEmpty)
         ""
-      else {
-        val stateType =
-          if (view.transformedUpdates.size == 1) typeName(view.transformedUpdates.head.outputType) else "Any"
-        s"""|  override def emptyState: $stateType =
-            |    throw new UnsupportedOperationException("Not implemented yet, replace with your empty view state")
+      else if (updateTypes.size > 1) {
+        val tableNames = view.transformedUpdates.map(_.viewTable).toSeq.distinct
+        val emptyStateCases = tableNames.map { tableName =>
+          s"""|case "$tableName" =>
+              |  throw new UnsupportedOperationException("Not implemented yet, replace with your empty view state for '$tableName'");
+              |""".stripMargin.trim
+        }
+        s"""|  override def emptyState: Any = {
+            |    updateContext.viewTable match {
+            |      ${Format.indent(emptyStateCases, 6)}
+            |      case _ => null
+            |    }
+            |  }
             |""".stripMargin
+      } else {
+        """|  override def emptyState: Any =
+           |    throw new UnsupportedOperationException("Not implemented yet, replace with your empty view state")
+           |""".stripMargin
       }
 
     val handlers = view.transformedUpdates.map { update =>
@@ -242,11 +256,12 @@ object ViewServiceSourceGenerator {
       val stateType = typeName(update.outputType)
       if (update.handleDeletes) {
         s"""def ${lowerFirst(update.name)}(
-           |  state: $stateType): View.UpdateEffect[$stateType]""".stripMargin
+           |  state: $stateType): View.UpdateEffect[$stateType]
+           |""".stripMargin
       } else {
         s"""def ${lowerFirst(update.name)}(
-           |  state: $stateType, ${lowerFirst(update.inputType.name)}: ${typeName(
-          update.inputType)}): View.UpdateEffect[$stateType]""".stripMargin
+           |  state: $stateType, ${lowerFirst(update.inputType.name)}: ${typeName(update.inputType)}): View.UpdateEffect[$stateType]
+           |""".stripMargin
       }
 
     }
