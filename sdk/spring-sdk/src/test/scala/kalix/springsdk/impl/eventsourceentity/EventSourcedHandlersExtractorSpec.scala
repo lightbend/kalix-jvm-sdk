@@ -16,6 +16,7 @@
 
 package kalix.springsdk.impl.eventsourceentity
 
+import kalix.springsdk.impl.SpringSdkMessageCodec
 import kalix.springsdk.impl.eventsourcedentity.EventSourcedHandlersExtractor
 import kalix.springsdk.testmodels.eventsourcedentity.EventSourcedEntitiesTestModels.{
   CounterEventSourcedEntity,
@@ -27,24 +28,28 @@ import org.scalatest.wordspec.AnyWordSpec
 
 class EventSourcedHandlersExtractorSpec extends AnyWordSpec with Matchers {
 
+  private final val messageCodec = new SpringSdkMessageCodec()
+  private final val intTypeUrl = messageCodec.typeUrlFor(classOf[Integer])
+  private final val stringTypeUrl = messageCodec.typeUrlFor(classOf[String])
+
   "EventSourcedHandlersExtractor" should {
 
     "extract public well-annotated handlers keyed by event type received as unique parameter" in {
-      val result = EventSourcedHandlersExtractor.handlersFrom(classOf[CounterEventSourcedEntity])
+      val result = EventSourcedHandlersExtractor.handlersFrom(classOf[CounterEventSourcedEntity], messageCodec)
       result.handlers.size shouldBe 2
-      result.handlers.get(classOf[Integer]).map { m =>
-        m.getName shouldBe "receivedIntegerEvent"
-        m.getParameterCount shouldBe 1
+      result.handlers.get(intTypeUrl).map { m =>
+        m.method.getName shouldBe "receivedIntegerEvent"
+        m.method.getParameterCount shouldBe 1
       }
-      result.handlers.get(classOf[String]).map { m =>
-        m.getName shouldBe "receiveStringEvent"
-        m.getParameterCount shouldBe 1
+      result.handlers.get(stringTypeUrl).map { m =>
+        m.method.getName shouldBe "receiveStringEvent"
+        m.method.getParameterCount shouldBe 1
       }
       result.errors shouldBe empty
     }
 
     "report error on annotated handlers with wrong return type or number of params" in {
-      val result = EventSourcedHandlersExtractor.handlersFrom(classOf[ErrorWrongSignaturesEntity])
+      val result = EventSourcedHandlersExtractor.handlersFrom(classOf[ErrorWrongSignaturesEntity], messageCodec)
       result.handlers shouldBe empty
       result.errors.size shouldBe 1
       val offendingMethods = result.errors.map(_.methods.map(_.getName).sorted)
@@ -52,11 +57,11 @@ class EventSourcedHandlersExtractorSpec extends AnyWordSpec with Matchers {
     }
 
     "report error on annotated handlers with duplicates signatures (receiving the same event type)" in {
-      val result = EventSourcedHandlersExtractor.handlersFrom(classOf[ErrorDuplicatedEventsEntity])
+      val result = EventSourcedHandlersExtractor.handlersFrom(classOf[ErrorDuplicatedEventsEntity], messageCodec)
       result.handlers.size shouldBe 1
-      result.handlers.get(classOf[Integer]).map { m =>
-        m.getName shouldBe "receivedIntegerEvent"
-        m.getParameterCount shouldBe 1
+      result.handlers.get(intTypeUrl).map { m =>
+        m.method.getName shouldBe "receivedIntegerEvent"
+        m.method.getParameterCount shouldBe 1
       }
 
       result.errors.size shouldBe 1
