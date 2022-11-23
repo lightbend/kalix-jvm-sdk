@@ -17,31 +17,51 @@
 package kalix.springsdk.impl.eventsourcedentity
 
 import com.google.protobuf.any.{ Any => ScalaPbAny }
+import com.google.protobuf.{ Any => JavaPbAny }
+import kalix.javasdk.Metadata
 import kalix.javasdk.eventsourcedentity.{ CommandContext, EventSourcedEntity }
 import kalix.javasdk.impl.eventsourcedentity.EventSourcedEntityRouter
+import kalix.springsdk.impl.MethodInvoker
+import kalix.springsdk.impl.SpringSdkMessageCodec
 import kalix.springsdk.impl.{ CommandHandler, InvocationContext }
-
-import java.lang.reflect.Method
 
 class ReflectiveEventSourcedEntityRouter[S, E <: EventSourcedEntity[S]](
     override protected val entity: E,
     commandHandlers: Map[String, CommandHandler],
-    eventHandlerMethods: Map[Class[_], Method])
+    eventHandlerMethods: Map[String, MethodInvoker],
+    messageCodec: SpringSdkMessageCodec)
     extends EventSourcedEntityRouter[S, E](entity) {
 
   private def commandHandlerLookup(commandName: String) =
-    commandHandlers.getOrElse(commandName, throw new RuntimeException(s"no matching method for '$commandName'"))
+    commandHandlers.getOrElse(
+      commandName,
+      throw new HandlerNotFoundException("command", commandName, commandHandlers.keySet))
 
-  private def eventHandlerLookup(eventClass: Class[_]) =
-    eventHandlerMethods.getOrElse(eventClass, throw new RuntimeException(s"no matching handler for '$eventClass'"))
+  private def eventHandlerLookup(eventName: String) =
+    eventHandlerMethods.getOrElse(
+      eventName,
+      throw new HandlerNotFoundException("event", eventName, commandHandlers.keySet))
 
   override def handleEvent(state: S, event: Any): S = {
 
     entity._internalSetCurrentState(state)
 
-    eventHandlerLookup(event.getClass)
-      .invoke(entity, event.asInstanceOf[event.type])
-      .asInstanceOf[S]
+    event match {
+      case s: ScalaPbAny => // replaying event coming from proxy
+        // FIXME: where should we get the metadata from here?
+        val invocationContext = InvocationContext(s, JavaPbAny.getDescriptor, Metadata.EMPTY)
+
+        eventHandlerLookup(s.typeUrl)
+          .invoke(entity, invocationContext)
+          .asInstanceOf[S]
+
+      case _ => // processing runtime event coming from memory
+        val typeName = messageCodec.typeUrlFor(event.getClass)
+
+        eventHandlerLookup(typeName).method
+          .invoke(entity, event.asInstanceOf[event.type])
+          .asInstanceOf[S]
+    }
   }
 
   override def handleCommand(
@@ -67,3 +87,8 @@ class ReflectiveEventSourcedEntityRouter[S, E <: EventSourcedEntity[S]](
       .asInstanceOf[EventSourcedEntity.Effect[_]]
   }
 }
+
+final class HandlerNotFoundException(handlerType: String, name: String, availableHandlers: Set[String])
+    extends RuntimeException(
+      s"no matching $handlerType handler for '$name'. " +
+      s"Available handlers are: [${availableHandlers.mkString(", ")}]")

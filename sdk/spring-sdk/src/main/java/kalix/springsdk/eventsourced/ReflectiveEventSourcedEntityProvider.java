@@ -66,7 +66,7 @@ public class ReflectiveEventSourcedEntityProvider<S, E extends EventSourcedEntit
       throw new IllegalArgumentException(
           "Event Sourced Entity [" + entityClass.getName() + "] is missing '@EntityType' annotation");
 
-    this.eventHandlers = EventSourcedHandlersExtractor.handlersFrom(entityClass);
+    this.eventHandlers = EventSourcedHandlersExtractor.handlersFrom(entityClass, messageCodec);
     if (this.eventHandlers.errors().nonEmpty()) {
       throw new IllegalArgumentException(
           "Event Sourced Entity ["
@@ -103,7 +103,7 @@ public class ReflectiveEventSourcedEntityProvider<S, E extends EventSourcedEntit
   public EventSourcedEntityRouter<S, E> newRouter(EventSourcedEntityContext context) {
     E entity = factory.apply(context);
     return new ReflectiveEventSourcedEntityRouter<>(
-        entity, componentDescriptor.commandHandlers(), eventHandlers.handlers());
+        entity, componentDescriptor.commandHandlers(), eventHandlers.handlers(), messageCodec);
   }
 
   @Override

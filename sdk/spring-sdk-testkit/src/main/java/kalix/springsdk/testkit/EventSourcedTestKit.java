@@ -22,9 +22,11 @@ import kalix.javasdk.eventsourcedentity.EventSourcedEntityContext;
 import kalix.javasdk.testkit.EventSourcedResult;
 import kalix.javasdk.testkit.impl.EventSourcedEntityEffectsRunner;
 import kalix.javasdk.testkit.impl.TestKitEventSourcedEntityContext;
+import kalix.springsdk.impl.SpringSdkMessageCodec;
 import kalix.springsdk.impl.eventsourcedentity.EventSourceEntityHandlers;
 import kalix.springsdk.impl.eventsourcedentity.EventSourcedHandlersExtractor;
 
+import javax.swing.*;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.NoSuchElementException;
@@ -46,10 +48,13 @@ public class EventSourcedTestKit<S, E extends EventSourcedEntity<S>>
   private final E entity;
   private final EventSourceEntityHandlers eventHandlers;
 
+  private final SpringSdkMessageCodec messageCodec;
+
   private EventSourcedTestKit(E entity) {
     super(entity);
     this.entity = entity;
-    eventHandlers = EventSourcedHandlersExtractor.handlersFrom(entity.getClass());
+    this.messageCodec = new SpringSdkMessageCodec();
+    eventHandlers = EventSourcedHandlersExtractor.handlersFrom(entity.getClass(), messageCodec);
   }
 
   /**
@@ -107,7 +112,7 @@ public class EventSourcedTestKit<S, E extends EventSourcedEntity<S>>
   @Override
   protected final S handleEvent(S state, Object event) {
     try {
-      Method method = eventHandlers.handlers().apply(event.getClass());
+      Method method = eventHandlers.handlers().apply(messageCodec.typeUrlFor(event.getClass())).method();
       return (S) method.invoke(entity, event);
     } catch (NoSuchElementException e) {
       throw new RuntimeException(
