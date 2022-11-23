@@ -96,7 +96,7 @@ class ViewDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSuit
     "fail when using stream updates in unary methods" in {
       intercept[InvalidComponentException] {
         Validations.validate(classOf[IllDefineUserByEmailWithStreamUpdates]).failIfInvalid
-      }
+      }.getMessage should include("@Query.streamUpdates can only be enabled in stream methods returning Flux")
     }
   }
 
@@ -130,13 +130,14 @@ class ViewDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSuit
     "not allow method level handle deletes without method level subscription" in {
       intercept[InvalidComponentException] {
         Validations.validate(classOf[ViewWithoutSubscriptionButWithHandleDelete]).failIfInvalid
-      }.getMessage should include("Method annotated with handleDeletes=true don't have matching update methods.")
+      }.getMessage should include("Method annotated with handleDeletes=true has no matching update method.")
     }
 
     "not allow duplicated handle deletes methods" in {
       intercept[InvalidComponentException] {
         Validations.validate(classOf[ViewDuplicatedHandleDeletesAnnotations]).failIfInvalid
-      }.getMessage should include("Duplicated handle delete methods for ValueEntity subscription.")
+      }.getMessage should include(
+        "Multiple methods annotated with @Subscription.ValueEntity(handleDeletes=true) is not allowed.")
     }
 
     "not allow handle deletes method with param" in {

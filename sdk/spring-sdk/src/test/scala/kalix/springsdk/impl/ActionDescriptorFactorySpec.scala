@@ -252,7 +252,7 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
           .validate(classOf[RestAnnotatedSubscribeToEventSourcedEntityAction])
           .failIfInvalid
       }.getMessage should include(
-        "Methods annotated with Kalix @Subscription annotations can not be annotated with REST annotations.")
+        "Methods annotated with Kalix @Subscription annotations are for internal use only and cannot be annotated with REST annotations.")
     }
 
     "generate mapping with Value Entity Subscription annotations" in {
@@ -318,7 +318,7 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
           .validate(classOf[RestAnnotatedSubscribeToValueEntityAction])
           .failIfInvalid
       }.getMessage should include(
-        "Methods annotated with Kalix @Subscription annotations can not be annotated with REST annotations.")
+        "Methods annotated with Kalix @Subscription annotations are for internal use only and cannot be annotated with REST annotations.")
     }
 
     "generate stream out methods" in {
@@ -476,7 +476,7 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
       intercept[InvalidComponentException] {
         Validations.validate(classOf[ActionWithMethodLevelAclAndSubscription]).failIfInvalid
       }.getMessage should include(
-        "Subscription methods are for internal use only and cannot be combined with ACL annotations.")
+        "Methods annotated with Kalix @Subscription annotations are for internal use only and cannot be annotated with ACL annotations.")
     }
 
     "generate mappings for service to service publishing " in {

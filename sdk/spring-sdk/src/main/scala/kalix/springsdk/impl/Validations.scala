@@ -336,7 +336,9 @@ object Validations {
       if (offendingMethods.size >= 2) {
         val messages =
           offendingMethods.map { method =>
-            errorMessage(method, "Multiple annotated methods with @Subscription.ValueEntity(handleDeletes=true) is not allowed.")
+            errorMessage(
+              method,
+              "Multiple methods annotated with @Subscription.ValueEntity(handleDeletes=true) is not allowed.")
           }
         Validation(messages)
       } else Valid
