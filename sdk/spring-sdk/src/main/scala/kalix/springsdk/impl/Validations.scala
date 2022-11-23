@@ -166,7 +166,7 @@ object Validations {
     Option(component.getAnnotation(classOf[Publish.Stream]))
       .map { ann =>
         when(ann.id().trim.isEmpty) {
-          Seq("Publish.Stream id can not be an empty string")
+          Seq("@Publish.Stream id can not be an empty string")
         }
       }
       .getOrElse(Valid)
@@ -180,7 +180,7 @@ object Validations {
       component.getMethods.toIndexedSeq.filter(hasSubscriptionAndAcl).map { method =>
         errorMessage(
           method,
-          "Subscription methods are for internal use only and cannot be combined with ACL annotations.")
+          "Methods annotated with Kalix @Subscription annotations are for internal use only and cannot be annotated with ACL annotations.")
       }
 
     Validation(messages)
@@ -194,7 +194,7 @@ object Validations {
       component.getMethods.toIndexedSeq.filter(hasSubscriptionAndRest).map { method =>
         errorMessage(
           method,
-          "Methods annotated with Kalix @Subscription annotations can not be annotated with REST annotations.")
+          "Methods annotated with Kalix @Subscription annotations are for internal use only and cannot be annotated with REST annotations.")
       }
 
     Validation(messages)
@@ -269,7 +269,7 @@ object Validations {
         }
 
     val messages = offendingMethods.map { method =>
-      errorMessage(method, "Query.streamUpdates can only be enabled in stream methods returning Flux")
+      errorMessage(method, "@Query.streamUpdates can only be enabled in stream methods returning Flux")
     }
 
     Validation(messages)
@@ -336,7 +336,7 @@ object Validations {
       if (offendingMethods.size >= 2) {
         val messages =
           offendingMethods.map { method =>
-            errorMessage(method, "Duplicated handle delete methods for ValueEntity subscription.")
+            errorMessage(method, "Multiple annotated methods with @Subscription.ValueEntity(handleDeletes=true) is not allowed.")
           }
         Validation(messages)
       } else Valid
@@ -346,7 +346,7 @@ object Validations {
       if (handleDeleteMethods.nonEmpty && updatedMethods.isEmpty) {
         val messages =
           handleDeleteMethods.map { method =>
-            errorMessage(method, "Method annotated with handleDeletes=true don't have matching update methods. ")
+            errorMessage(method, "Method annotated with handleDeletes=true has no matching update method.")
           }
         Validation(messages)
       } else Valid
