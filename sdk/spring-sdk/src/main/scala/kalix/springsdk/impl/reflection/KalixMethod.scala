@@ -25,7 +25,6 @@ import com.google.protobuf.any.{ Any => ScalaPbAny }
 import kalix.springsdk.impl.AclDescriptorFactory
 import kalix.springsdk.impl.path.PathPattern
 import kalix.springsdk.impl.path.PathPatternParser
-import kalix.springsdk.impl.reflection.PathBuilder.buildPathTemplate
 import kalix.springsdk.impl.reflection.RestServiceIntrospector.PathParameter
 import kalix.springsdk.impl.reflection.RestServiceIntrospector.RestMethodParameter
 import kalix.springsdk.impl.reflection.RestServiceIntrospector.isEmpty
@@ -58,8 +57,8 @@ sealed trait ServiceMethod {
   def methodName: String
   def javaMethodOpt: Option[Method]
 
-  def requestMethod: RequestMethod
-  def pathTemplate: String
+//  def requestMethod: RequestMethod
+//  def pathTemplate: String
   def streamIn: Boolean
   def streamOut: Boolean
 }
@@ -77,11 +76,7 @@ sealed trait AnyJsonRequestServiceMethod extends ServiceMethod {
 case class VirtualServiceMethod(component: Class[_], methodName: String, inputType: Class[_])
     extends AnyJsonRequestServiceMethod {
 
-  override def requestMethod: RequestMethod = RequestMethod.POST
-
   override def javaMethodOpt: Option[Method] = None
-
-  val pathTemplate: String = buildPathTemplate(component.getName, methodName)
 
   val streamIn: Boolean = false
   val streamOut: Boolean = false
@@ -96,10 +91,7 @@ case class CombinedSubscriptionServiceMethod(
   val methodName: String = combinedMethodName
   override def inputType: Class[_] = classOf[ScalaPbAny]
 
-  override def requestMethod: RequestMethod = RequestMethod.POST
   override def javaMethodOpt: Option[Method] = None
-
-  val pathTemplate: String = buildPathTemplate(componentName, methodName)
 
   val streamIn: Boolean = false
   val streamOut: Boolean = false
@@ -114,20 +106,10 @@ case class SubscriptionServiceMethod(javaMethod: Method) extends AnyJsonRequestS
   val methodName: String = javaMethod.getName
   val inputType: Class[_] = javaMethod.getParameterTypes()(0)
 
-  override def requestMethod: RequestMethod = RequestMethod.POST
   override def javaMethodOpt: Option[Method] = Some(javaMethod)
-
-  val pathTemplate: String = buildPathTemplate(javaMethod.getDeclaringClass.getName, methodName)
 
   val streamIn: Boolean = ServiceMethod.isStreamIn(javaMethod)
   val streamOut: Boolean = ServiceMethod.isStreamOut(javaMethod)
-}
-
-private[reflection] object PathBuilder {
-  def buildPathTemplate(componentName: String, methodName: String): String = {
-    val cls = componentName.replace("$", ".")
-    s"/$cls/${methodName.capitalize}" // FIXME: must pass through NameGenerator?
-  }
 }
 
 /**
@@ -142,11 +124,7 @@ trait DeleteServiceMethod extends ServiceMethod
 case class HandleDeletesServiceMethod(javaMethod: Method) extends DeleteServiceMethod {
   override def methodName: String = javaMethod.getName
 
-  override def requestMethod: RequestMethod = RequestMethod.POST
-
   override def javaMethodOpt: Option[Method] = Some(javaMethod)
-
-  override def pathTemplate: String = buildPathTemplate(javaMethod.getDeclaringClass.getName, methodName)
 
   override def streamIn: Boolean = false
 
@@ -158,11 +136,7 @@ case class HandleDeletesServiceMethod(javaMethod: Method) extends DeleteServiceM
  */
 case class VirtualDeleteServiceMethod(component: Class[_], methodName: String) extends DeleteServiceMethod {
 
-  override def requestMethod: RequestMethod = RequestMethod.POST
-
   override def javaMethodOpt: Option[Method] = None
-
-  override def pathTemplate: String = buildPathTemplate(component.getName, methodName)
 
   override def streamIn: Boolean = false
 
@@ -221,7 +195,7 @@ case class SyntheticRequestServiceMethod(
 
   val parsedPath: PathPattern = PathPatternParser.parse(pathFromAnnotation)
 
-  override def pathTemplate: String = parsedPath.toGrpcTranscodingPattern
+  val pathTemplate: String = parsedPath.toGrpcTranscodingPattern
 
   val pathParameters: Seq[PathParameter] = params.collect { case p: PathParameter => p }
 

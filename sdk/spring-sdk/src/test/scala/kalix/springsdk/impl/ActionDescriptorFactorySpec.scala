@@ -241,9 +241,6 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
 
         val eventSourceOne = findKalixMethodOptions(methodDescriptor).getEventing.getIn
         eventSourceOne.getEventSourcedEntity shouldBe "counter"
-
-        val ruleOne = findHttpRule(desc, "KalixSyntheticMethodOnESCounter")
-        ruleOne.getPost shouldBe "/kalix.springsdk.testmodels.subscriptions.PubSubTestModels.SubscribeToEventSourcedEntityAction/KalixSyntheticMethodOnESCounter"
       }
     }
 
@@ -265,10 +262,6 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
 
         val eventing = findKalixMethodOptions(onUpdateMethodDescriptor).getEventing.getIn
         eventing.getValueEntity shouldBe "ve-counter"
-        val rule = findHttpRule(desc, "OnUpdate")
-
-        rule.getPost shouldBe
-        "/kalix.springsdk.testmodels.subscriptions.PubSubTestModels.SubscribeToValueEntityAction/OnUpdate"
 
         // should have a default extractor for any payload
         val javaMethod = onUpdateMethod.methodInvokers.values.head
@@ -289,10 +282,6 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
         val eventing = findKalixMethodOptions(onUpdateMethodDescriptor).getEventing.getIn
         eventing.getValueEntity shouldBe "ve-counter"
         eventing.getHandleDeletes shouldBe false
-        val rule = findHttpRule(desc, "OnUpdate")
-
-        rule.getPost shouldBe
-        "/kalix.springsdk.testmodels.subscriptions.PubSubTestModels.SubscribeToValueEntityWithDeletesAction/OnUpdate"
 
         val onDeleteMethodDescriptor = findMethodByName(desc, "OnDelete")
         onDeleteMethodDescriptor.isServerStreaming shouldBe false
@@ -304,9 +293,6 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
         val deleteEventing = findKalixMethodOptions(onDeleteMethodDescriptor).getEventing.getIn
         deleteEventing.getValueEntity shouldBe "ve-counter"
         deleteEventing.getHandleDeletes shouldBe true
-        val deleteRule = findHttpRule(desc, "OnUpdate")
-        deleteRule.getPost shouldBe
-        "/kalix.springsdk.testmodels.subscriptions.PubSubTestModels.SubscribeToValueEntityWithDeletesAction/OnUpdate"
       }
     }
 
@@ -344,10 +330,6 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
         val eventSourceOne = findKalixMethodOptions(desc, "MessageOne").getEventing.getIn
         eventSourceOne.getTopic shouldBe "topicXYZ"
         eventSourceOne.getConsumerGroup shouldBe "cg"
-        val rule = findHttpRule(desc, "MessageOne")
-
-        rule.getPost shouldBe
-        "/kalix.springsdk.testmodels.subscriptions.PubSubTestModels.SubscribeToTopicAction/MessageOne"
 
         // should have a default extractor for any payload
         val javaMethod = methodOne.methodInvokers.values.head
@@ -363,10 +345,6 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
 
         val eventSourceOne = findKalixMethodOptions(desc, "KalixSyntheticMethodOnTopicTopicXYZ").getEventing.getIn
         eventSourceOne.getTopic shouldBe "topicXYZ"
-        val rule = findHttpRule(desc, "KalixSyntheticMethodOnTopicTopicXYZ")
-
-        rule.getPost shouldBe
-        "/kalix.springsdk.testmodels.subscriptions.PubSubTestModels.SubscribeToTwoTopicsAction/KalixSyntheticMethodOnTopicTopicXYZ"
 
         methodOne.methodInvokers.size shouldBe 3
 
@@ -391,9 +369,6 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
         // we don't set the property so the proxy won't ignore. Ignore is only internal to the SDK
         eventSourceOne.getIgnore shouldBe false
         eventSourceOne.getIgnoreUnknown shouldBe false
-
-        val ruleOne = findHttpRule(desc, "MethodOne")
-        ruleOne.getPost shouldBe "/kalix.springsdk.testmodels.subscriptions.PubSubTestModels.SubscribeOnlyOneToEventSourcedEntityActionTypeLevel/MethodOne"
       }
     }
 
@@ -416,10 +391,6 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
 
         val eventDestinationOne = findKalixMethodOptions(desc, "MessageOne").getEventing.getOut
         eventDestinationOne.getTopic shouldBe "topicAlpha"
-        val rule = findHttpRule(desc, "MessageOne")
-
-        rule.getPost shouldBe
-        "/kalix.springsdk.testmodels.subscriptions.PubSubTestModels.PublishToTopicAction/MessageOne"
 
         // should have a default extractor for any payload
         val javaMethod = methodOne.methodInvokers.values.head
