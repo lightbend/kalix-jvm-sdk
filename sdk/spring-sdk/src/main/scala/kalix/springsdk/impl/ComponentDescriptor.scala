@@ -94,13 +94,11 @@ private[impl] object ComponentDescriptor {
 
       kalixMethod.validate()
 
-      val httpRuleBuilder = buildHttpRule(kalixMethod.serviceMethod)
-
       val (inputMessageName: String, extractors: Map[Int, ExtractorCreator], inputProto: Option[DescriptorProto]) =
         kalixMethod.serviceMethod match {
           case serviceMethod: SyntheticRequestServiceMethod =>
             val (inputProto, extractors) =
-              buildSyntheticMessageAndExtractors(nameGenerator, serviceMethod, httpRuleBuilder, kalixMethod.entityKeys)
+              buildSyntheticMessageAndExtractors(nameGenerator, serviceMethod, kalixMethod.entityKeys)
             (inputProto.getName, extractors, Some(inputProto))
 
           case _: AnyJsonRequestServiceMethod =>
@@ -118,12 +116,7 @@ private[impl] object ComponentDescriptor {
           kalixMethod.serviceMethod.streamIn,
           kalixMethod.serviceMethod.streamOut)
 
-      val methodOptions = MethodOptions.newBuilder()
-      kalixMethod.methodOptions.foreach(option => methodOptions.setExtension(kalix.Annotations.method, option))
-
-      methodOptions.setExtension(AnnotationsProto.http, httpRuleBuilder.build())
-
-      grpcMethodBuilder.setOptions(methodOptions.build())
+      grpcMethodBuilder.setOptions(createMethodOptions(kalixMethod))
 
       val grpcMethod = grpcMethodBuilder.build()
       grpcService.addMethod(grpcMethod)
@@ -154,6 +147,24 @@ private[impl] object ComponentDescriptor {
       fileDescriptor.findServiceByName(grpcService.getName)
 
     new ComponentDescriptor(serviceName, packageName, methods, serviceDescriptor, fileDescriptor)
+  }
+
+  private def createMethodOptions(kalixMethod: KalixMethod): MethodOptions = {
+
+    val methodOptions = MethodOptions.newBuilder()
+
+    kalixMethod.serviceMethod match {
+      case syntheticRequestServiceMethod: SyntheticRequestServiceMethod =>
+        val httpRuleBuilder = buildHttpRule(syntheticRequestServiceMethod)
+        syntheticRequestServiceMethod.params.collectFirst { case BodyParameter(_, _) =>
+          httpRuleBuilder.setBody("json_body")
+        }
+        methodOptions.setExtension(AnnotationsProto.http, httpRuleBuilder.build())
+      case _ => //ignore
+    }
+
+    kalixMethod.methodOptions.foreach(option => methodOptions.setExtension(kalix.Annotations.method, option))
+    methodOptions.build()
   }
 
   // intermediate format that references input message by name
@@ -258,7 +269,6 @@ private[impl] object ComponentDescriptor {
   private def buildSyntheticMessageAndExtractors(
       nameGenerator: NameGenerator,
       serviceMethod: SyntheticRequestServiceMethod,
-      httpRule: HttpRule.Builder,
       entityKeys: Seq[String] = Seq.empty): (DescriptorProto, Map[Int, ExtractorCreator]) = {
 
     val inputMessageName = nameGenerator.getName(serviceMethod.methodName.capitalize + "KalixSyntheticRequest")
@@ -280,7 +290,6 @@ private[impl] object ComponentDescriptor {
 
     val indexedParams = serviceMethod.params.zipWithIndex
     val bodyField = indexedParams.collectFirst { case (BodyParameter(param, _), idx) =>
-      httpRule.setBody("json_body")
       val fieldDescriptor = FieldDescriptorProto.newBuilder()
       // todo ensure this is unique among field names
       fieldDescriptor.setName("json_body")
@@ -368,7 +377,7 @@ private[impl] object ComponentDescriptor {
     }
   }
 
-  private def buildHttpRule(serviceMethod: ServiceMethod) = {
+  private def buildHttpRule(serviceMethod: SyntheticRequestServiceMethod) = {
     val httpRule = HttpRule.newBuilder()
     val pathTemplate = serviceMethod.pathTemplate
     serviceMethod.requestMethod match {
