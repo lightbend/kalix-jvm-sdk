@@ -80,6 +80,7 @@ object HttpEndpointMethodDefinition {
     for {
       methodDescriptor <- serviceDescriptor.getMethods.asScala.toSeq
       ruleBinding <- ruleBindings(serviceDescriptor, methodDescriptor)
+        .filter(_.pattern != HttpRule.Pattern.Empty)
     } yield {
       val (methodPattern, pathTemplate, pathExtractor, bodyDescriptor, responseBodyDescriptor) =
         extractAndValidate(methodDescriptor, ruleBinding)
@@ -135,7 +136,9 @@ object HttpEndpointMethodDefinition {
 
     val rule = convertMethodOptions(method).extension(AnnotationsProto.http) match {
       case Some(rule) =>
-        log.info(s"Using configured HTTP API endpoint using [$rule]")
+        if (rule.pattern != HttpRule.Pattern.Empty) {
+          log.info(s"Using configured HTTP API endpoint using [$rule]")
+        }
         rule
       case None =>
         val rule = HttpRule.of(
