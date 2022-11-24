@@ -196,35 +196,6 @@ public class SpringSdkIntegrationTest {
   }
 
   @Test
-  public void verifyCounterEventSourcedWiring() {
-
-    Integer counterIncrease =
-        webClient
-            .post()
-            .uri("/counter/hello/increase/10")
-            .retrieve()
-            .bodyToMono(Integer.class)
-            .block(timeout);
-
-    Assertions.assertEquals(10, counterIncrease);
-
-    Integer counterMultiply =
-        webClient
-            .post()
-            .uri("/counter/hello/multiply/20")
-            .retrieve()
-            .bodyToMono(Integer.class)
-            .block(timeout);
-
-    Assertions.assertEquals(200, counterMultiply);
-
-    String counterGet =
-        webClient.get().uri("/counter/hello").retrieve().bodyToMono(String.class).block(timeout);
-
-    Assertions.assertEquals("\"200\"", counterGet);
-  }
-
-  @Test
   public void verifyFindCounterByValue() {
 
     ResponseEntity<String> response =

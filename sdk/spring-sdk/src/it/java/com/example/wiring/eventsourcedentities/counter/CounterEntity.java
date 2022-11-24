@@ -69,6 +69,18 @@ public class CounterEntity extends EventSourcedEntity<Counter> {
     return effects().emitEvent(new CounterEvent.ValueMultiplied(value)).thenReply(c -> c.value);
   }
 
+  @PostMapping("/restart")
+  public Effect<Integer> restart() { // force entity restart, useful for testing
+    logger.info(
+        "Restarting counter with commandId={} commandName={} seqNr={} current={}",
+        commandContext().commandId(),
+        commandContext().commandName(),
+        commandContext().sequenceNumber(),
+        currentState());
+
+    throw new RuntimeException("Forceful restarting entity!");
+  }
+
   @EventHandler
   public Counter handleIncrease(CounterEvent.ValueIncreased increased) {
     return currentState().onValueIncreased(increased);

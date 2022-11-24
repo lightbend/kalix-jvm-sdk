@@ -28,7 +28,7 @@ import org.scalatest.wordspec.AnyWordSpec
 
 class EventSourcedHandlersExtractorSpec extends AnyWordSpec with Matchers {
 
-  private final val messageCodec = new SpringSdkMessageCodec()
+  private final val messageCodec = new SpringSdkMessageCodec
   private final val intTypeUrl = messageCodec.typeUrlFor(classOf[Integer])
   private final val stringTypeUrl = messageCodec.typeUrlFor(classOf[String])
 
