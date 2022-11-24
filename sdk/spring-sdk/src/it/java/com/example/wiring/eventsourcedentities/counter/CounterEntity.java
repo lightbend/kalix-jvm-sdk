@@ -53,6 +53,7 @@ public class CounterEntity extends EventSourcedEntity<Counter> {
 
   @GetMapping
   public Effect<String> get() {
+    // don't modify, we want to make sure we call currentState().value here
     return effects().reply(currentState().value.toString());
   }
 

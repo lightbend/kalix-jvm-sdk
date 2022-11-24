@@ -18,12 +18,15 @@ package kalix.springsdk.impl.eventsourcedentity
 
 import com.google.protobuf.any.{ Any => ScalaPbAny }
 import com.google.protobuf.{ Any => JavaPbAny }
+import kalix.javasdk.JsonSupport
 import kalix.javasdk.Metadata
 import kalix.javasdk.eventsourcedentity.{ CommandContext, EventSourcedEntity }
 import kalix.javasdk.impl.eventsourcedentity.EventSourcedEntityRouter
 import kalix.springsdk.impl.MethodInvoker
 import kalix.springsdk.impl.SpringSdkMessageCodec
 import kalix.springsdk.impl.{ CommandHandler, InvocationContext }
+
+import java.lang.reflect.ParameterizedType
 
 class ReflectiveEventSourcedEntityRouter[S, E <: EventSourcedEntity[S]](
     override protected val entity: E,
@@ -44,7 +47,7 @@ class ReflectiveEventSourcedEntityRouter[S, E <: EventSourcedEntity[S]](
 
   override def handleEvent(state: S, event: Any): S = {
 
-    entity._internalSetCurrentState(state)
+    _extractAndSetCurrentState(state)
 
     event match {
       case s: ScalaPbAny => // replaying event coming from proxy
@@ -70,7 +73,7 @@ class ReflectiveEventSourcedEntityRouter[S, E <: EventSourcedEntity[S]](
       command: Any,
       commandContext: CommandContext): EventSourcedEntity.Effect[_] = {
 
-    entity._internalSetCurrentState(state)
+    _extractAndSetCurrentState(state)
 
     val commandHandler = commandHandlerLookup(commandName)
     val invocationContext =
@@ -85,6 +88,28 @@ class ReflectiveEventSourcedEntityRouter[S, E <: EventSourcedEntity[S]](
       .getInvoker(inputTypeUrl)
       .invoke(entity, invocationContext)
       .asInstanceOf[EventSourcedEntity.Effect[_]]
+  }
+
+  private def _extractAndSetCurrentState(state: S): Unit = {
+    val entityStateType: Class[S] =
+      this.entity.getClass.getGenericSuperclass
+        .asInstanceOf[ParameterizedType]
+        .getActualTypeArguments
+        .head
+        .asInstanceOf[Class[S]]
+
+    // the state: S received can either be of the entity "state" type (if coming from emptyState/memory)
+    // or PB Any type (if coming from the proxy)
+    state match {
+      case s if s == null || state.getClass == entityStateType =>
+        // note that we set the state even if null, this is needed in order to
+        // be able to call currentState() later
+        entity._internalSetCurrentState(s)
+      case s =>
+        val deserializedState =
+          JsonSupport.decodeJson(entityStateType, ScalaPbAny.toJavaProto(s.asInstanceOf[ScalaPbAny]))
+        entity._internalSetCurrentState(deserializedState)
+    }
   }
 }
 

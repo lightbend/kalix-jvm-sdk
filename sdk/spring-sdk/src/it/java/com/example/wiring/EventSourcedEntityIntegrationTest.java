@@ -68,14 +68,7 @@ public class EventSourcedEntityIntegrationTest {
     Integer counterIncrease = increaseCounter(counterId, 10);
     Assertions.assertEquals(10, counterIncrease);
 
-    Integer counterMultiply =
-        webClient
-            .post()
-            .uri("/counter/" + counterId + "/multiply/20")
-            .retrieve()
-            .bodyToMono(Integer.class)
-            .block(timeout);
-
+    Integer counterMultiply = multiplyCounter(counterId, 20);
     Assertions.assertEquals(200, counterMultiply);
 
     int counterGet = getCounter(counterId);
@@ -87,24 +80,37 @@ public class EventSourcedEntityIntegrationTest {
 
     var counterId = "helloRestart";
 
-    Integer counterIncrease = increaseCounter(counterId, 10);
-    Assertions.assertEquals(10, counterIncrease);
-
+    increaseCounter(counterId, 15);
+    multiplyCounter(counterId, 2);
     int counterGet = getCounter(counterId);
-    Assertions.assertEquals(10, counterGet);
+    Assertions.assertEquals(30, counterGet);
 
-    try {
-      webClient
-          .post()
-          .uri("/counter/" + counterId +"/restart")
-          .retrieve()
-          .bodyToMono(Integer.class)
-          .block(timeout);
-      fail("This should not be reached");
-    } catch (Exception ignored) { }
+    // force restart of counter entity
+    restartCounterEntity(counterId);
 
+    // events should be replayed successfully and
+    // counter value should be the same as previously
     int counterGet2 = getCounter(counterId);
-    Assertions.assertEquals(10, counterGet2);
+    Assertions.assertEquals(30, counterGet2);
+  }
+
+  @Test
+  public void verifyCounterEventSourcedAfterRestartFromSnapshot() {
+
+    // snapshotting with kalix.event-sourced-entity.snapshot-every = 10
+    var counterId = "restartFromSnapshot";
+
+    // force the entity to snapshot - snapshots every 100
+    for (int i = 0; i < 10; i++) {
+      increaseCounter(counterId, 1);
+    }
+    Assertions.assertEquals(10, getCounter(counterId));
+
+    // force restart of counter entity
+    restartCounterEntity(counterId);
+
+    // current state is based on snapshot and should be the same as previously
+    Assertions.assertEquals(10, getCounter(counterId));
   }
 
   private Integer increaseCounter(String name, int value) {
@@ -114,6 +120,27 @@ public class EventSourcedEntityIntegrationTest {
         .retrieve()
         .bodyToMono(Integer.class)
         .block(timeout);
+  }
+
+  private Integer multiplyCounter(String name, int value) {
+    return webClient
+        .post()
+        .uri("/counter/"+ name +"/multiply/" + value)
+        .retrieve()
+        .bodyToMono(Integer.class)
+        .block(timeout);
+  }
+
+  private void restartCounterEntity(String name) {
+    try {
+      webClient
+          .post()
+          .uri("/counter/" + name +"/restart")
+          .retrieve()
+          .bodyToMono(Integer.class)
+          .block(timeout);
+      fail("This should not be reached");
+    } catch (Exception ignored) { }
   }
 
   private Integer getCounter(String name) {
