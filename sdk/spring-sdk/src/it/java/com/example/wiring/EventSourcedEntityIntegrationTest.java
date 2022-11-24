@@ -100,7 +100,7 @@ public class EventSourcedEntityIntegrationTest {
     // snapshotting with kalix.event-sourced-entity.snapshot-every = 10
     var counterId = "restartFromSnapshot";
 
-    // force the entity to snapshot - snapshots every 100
+    // force the entity to snapshot
     for (int i = 0; i < 10; i++) {
       increaseCounter(counterId, 1);
     }
