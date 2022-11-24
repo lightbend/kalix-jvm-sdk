@@ -17,16 +17,21 @@
 package com.example.wiring.valueentities.user;
 
 import io.grpc.Status;
+import kalix.javasdk.eventsourcedentity.EventSourcedEntity;
 import kalix.javasdk.valueentity.ValueEntity;
 import kalix.javasdk.valueentity.ValueEntityContext;
 import kalix.springsdk.annotations.EntityKey;
 import kalix.springsdk.annotations.EntityType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
 
 @EntityKey("id")
 @EntityType("user")
 @RequestMapping("/user/{id}")
 public class UserEntity extends ValueEntity<User> {
+
+  private Logger logger = LoggerFactory.getLogger(getClass());
 
   private final ValueEntityContext context;
 
@@ -53,12 +58,23 @@ public class UserEntity extends ValueEntity<User> {
   }
 
   @PatchMapping("/email/{email}")
-  public Effect<String> createUser(@PathVariable String email) {
+  public Effect<String> updateEmail(@PathVariable String email) {
     return effects().updateState(new User(email, currentState().name)).thenReply("Ok from patch");
   }
 
   @DeleteMapping
   public Effect<String> deleteUser() {
     return effects().deleteState().thenReply("Ok from delete");
+  }
+
+  @PostMapping("/restart")
+  public EventSourcedEntity.Effect<Integer> restart() { // force entity restart, useful for testing
+    logger.info(
+        "Restarting counter with commandId={} commandName={} current={}",
+        commandContext().commandId(),
+        commandContext().commandName(),
+        currentState());
+
+    throw new RuntimeException("Forceful restarting entity!");
   }
 }

@@ -17,11 +17,14 @@
 package kalix.springsdk.impl.valueentity
 
 import com.google.protobuf.any.{ Any => ScalaPbAny }
+import kalix.javasdk.JsonSupport
 import kalix.javasdk.impl.valueentity.ValueEntityRouter
 import kalix.javasdk.valueentity.CommandContext
 import kalix.javasdk.valueentity.ValueEntity
 import kalix.springsdk.impl.CommandHandler
 import kalix.springsdk.impl.InvocationContext
+
+import java.lang.reflect.ParameterizedType
 
 class ReflectiveValueEntityRouter[S, E <: ValueEntity[S]](
     override protected val entity: E,
@@ -37,8 +40,7 @@ class ReflectiveValueEntityRouter[S, E <: ValueEntity[S]](
       command: Any,
       commandContext: CommandContext): ValueEntity.Effect[_] = {
 
-    // pass current state to entity
-    entity._internalSetCurrentState(state)
+    _extractAndSetCurrentState(state)
 
     val commandHandler = commandHandlerLookup(commandName)
     val invocationContext =
@@ -53,5 +55,27 @@ class ReflectiveValueEntityRouter[S, E <: ValueEntity[S]](
       .getInvoker(inputTypeUrl)
       .invoke(entity, invocationContext)
       .asInstanceOf[ValueEntity.Effect[_]]
+  }
+
+  private def _extractAndSetCurrentState(state: S): Unit = {
+    val entityStateType: Class[S] =
+      this.entity.getClass.getGenericSuperclass
+        .asInstanceOf[ParameterizedType]
+        .getActualTypeArguments
+        .head
+        .asInstanceOf[Class[S]]
+
+    // the state: S received can either be of the entity "state" type (if coming from emptyState/memory)
+    // or PB Any type (if coming from the proxy)
+    state match {
+      case s if s == null || state.getClass == entityStateType =>
+        // note that we set the state even if null, this is needed in order to
+        // be able to call currentState() later
+        entity._internalSetCurrentState(s)
+      case s =>
+        val deserializedState =
+          JsonSupport.decodeJson(entityStateType, ScalaPbAny.toJavaProto(s.asInstanceOf[ScalaPbAny]))
+        entity._internalSetCurrentState(deserializedState)
+    }
   }
 }
