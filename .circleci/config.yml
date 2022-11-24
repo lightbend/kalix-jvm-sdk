@@ -1423,7 +1423,7 @@ workflows:
             - publish-local
       - spring-sdk-integration-tests:
           requires:
-            - tests
+            - checks
 
       # individual samples as jobs to allow parallelizing them
       - sample-java-customer-registry-quickstart:
