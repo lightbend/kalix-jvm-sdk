@@ -236,7 +236,7 @@ jobs:
             git checkout -b $BRANCH
             git config user.name "Kalix Bot"
             git config user.email "kalix.github@lightbend.com"
-            git commit . -m "Bump SDK versions to $SDK_VERSION"
+            git commit . -m "chore: bump SDK versions to $SDK_VERSION"
             git remote add origin-rw https://$GITHUB_TOKEN@github.com/lightbend/kalix-jvm-sdk
             git push --set-upstream origin-rw $BRANCH
             
@@ -1423,7 +1423,7 @@ workflows:
             - publish-local
       - spring-sdk-integration-tests:
           requires:
-            - tests
+            - checks
 
       # individual samples as jobs to allow parallelizing them
       - sample-java-customer-registry-quickstart:
