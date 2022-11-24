@@ -53,6 +53,7 @@ public class CounterEntity extends EventSourcedEntity<Counter> {
 
   @GetMapping
   public Effect<String> get() {
+    // don't modify, we want to make sure we call currentState().value here
     return effects().reply(currentState().value.toString());
   }
 
@@ -67,6 +68,18 @@ public class CounterEntity extends EventSourcedEntity<Counter> {
         value);
 
     return effects().emitEvent(new CounterEvent.ValueMultiplied(value)).thenReply(c -> c.value);
+  }
+
+  @PostMapping("/restart")
+  public Effect<Integer> restart() { // force entity restart, useful for testing
+    logger.info(
+        "Restarting counter with commandId={} commandName={} seqNr={} current={}",
+        commandContext().commandId(),
+        commandContext().commandName(),
+        commandContext().sequenceNumber(),
+        currentState());
+
+    throw new RuntimeException("Forceful restarting entity!");
   }
 
   @EventHandler

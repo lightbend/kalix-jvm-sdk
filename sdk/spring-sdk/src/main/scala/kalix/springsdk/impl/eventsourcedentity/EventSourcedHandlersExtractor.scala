@@ -17,11 +17,14 @@
 package kalix.springsdk.impl.eventsourcedentity
 
 import kalix.springsdk.annotations.EventHandler
+import kalix.springsdk.impl.MethodInvoker
+import kalix.springsdk.impl.SpringSdkMessageCodec
+import kalix.springsdk.impl.reflection.ParameterExtractors
 
-import java.lang.reflect.{ Method, Modifier, ParameterizedType, Type }
+import java.lang.reflect.{ Method, Modifier, ParameterizedType }
 
 object EventSourcedHandlersExtractor {
-  def handlersFrom(entityClass: Class[_]): EventSourceEntityHandlers = {
+  def handlersFrom(entityClass: Class[_], messageCodec: SpringSdkMessageCodec): EventSourceEntityHandlers = {
 
     val annotatedHandlers = entityClass.getDeclaredMethods
       .filter(_.getAnnotation(classOf[EventHandler]) != null)
@@ -57,13 +60,17 @@ object EventSourcedHandlersExtractor {
           "cannot have duplicate event handlers for the same event type: '" + elem._1.getName + "'")
 
     EventSourceEntityHandlers(
-      handlers = validHandlers.transform { case (_, v) => v.head },
+      handlers = validHandlers.map { case (classType, methods) =>
+        messageCodec.typeUrlFor(classType) -> MethodInvoker(
+          methods.head,
+          ParameterExtractors.AnyBodyExtractor[AnyRef](classType))
+      },
       errors = errorsForSignatures ++ errorsForDuplicates.toList)
   }
 }
 
 private[springsdk] final case class EventSourceEntityHandlers private (
-    handlers: Map[Class[_], Method],
+    handlers: Map[String, MethodInvoker],
     errors: List[HandlerValidationError])
 
 private[springsdk] final case class HandlerValidationError(methods: List[Method], description: String) {
