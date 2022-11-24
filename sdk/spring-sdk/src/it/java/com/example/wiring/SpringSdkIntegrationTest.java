@@ -448,4 +448,7 @@ class TestUser {
   public TestUser withName(String newName) {
     return new TestUser(id, email, newName);
   }
+  public TestUser withEmail(String newEmail) {
+    return new TestUser(id, newEmail, name);
+  }
 }
