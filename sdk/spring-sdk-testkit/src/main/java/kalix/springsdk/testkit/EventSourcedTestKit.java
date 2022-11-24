@@ -26,7 +26,6 @@ import kalix.springsdk.impl.SpringSdkMessageCodec;
 import kalix.springsdk.impl.eventsourcedentity.EventSourceEntityHandlers;
 import kalix.springsdk.impl.eventsourcedentity.EventSourcedHandlersExtractor;
 
-import javax.swing.*;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.NoSuchElementException;
