@@ -48,7 +48,7 @@ public class ValueEntityIntegrationTest {
   @Test
   public void verifyValueEntityCurrentState() {
 
-    var joe1 = new TestUser("veUser1", "john@doe.com", "joe");
+    var joe1 = new TestUser("veUser1", "john@doe.com", "veJane");
     createUser(joe1);
 
     var newEmail = joe1.email + "2";
@@ -61,7 +61,7 @@ public class ValueEntityIntegrationTest {
   @Test
   public void verifyValueEntityCurrentStateAfterRestart() {
 
-    var joe2 = new TestUser("veUser2", "john@doe.com", "joe");
+    var joe2 = new TestUser("veUser2", "veJane@doe.com", "veJane");
     createUser(joe2);
 
     restartUserEntity(joe2);
