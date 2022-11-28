@@ -26,6 +26,7 @@ import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
+import org.springframework.core.env.Environment;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -37,8 +38,11 @@ public class KalixConfigurationTest {
 
   private Logger logger = LoggerFactory.getLogger(getClass());
 
+  @Autowired private Environment env;
   @Autowired private ApplicationContext applicationContext;
   @Autowired private KalixConfiguration kalixConfiguration;
+
+  KalixTestKit.Settings settings = KalixTestKit.Settings.DEFAULT;
 
   @Bean
   public KalixServer kalixServer() {
@@ -57,7 +61,11 @@ public class KalixConfigurationTest {
   @Bean
   public KalixTestKit kalixTestKit() {
     logger.info("Starting Kalix TestKit...");
-    KalixTestKit kalixTestKit = new KalixTestKit(kalixServer().kalix());
+    if(env.getProperty("kalix.settings.aclEnabled",Boolean.class, false)){
+      settings = settings.withAclEnabled();
+      logger.info("Testkit with Acl enabled");
+    }
+    KalixTestKit kalixTestKit = new KalixTestKit(kalixServer().kalix(), settings);
     kalixTestKit.start(kalixConfiguration.config());
     logger.info("Kalix Proxy running on port: " + kalixTestKit.getPort());
     return kalixTestKit;
