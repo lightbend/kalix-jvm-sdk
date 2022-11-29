@@ -60,7 +60,6 @@ import com.google.protobuf.Descriptors
 
 import java.util
 import java.util.Optional
-import scala.collection.immutable.Set
 import scala.jdk.CollectionConverters.SetHasAsJava
 import scala.jdk.CollectionConverters.SetHasAsScala
 import scala.jdk.OptionConverters.RichOptional
@@ -100,7 +99,11 @@ private[scalasdk] final case class JavaReplicatedEntityRouterAdapter[D <: Replic
       command: Any,
       context: JavaSdkCommandContext): JavaSdkReplicatedEntity.Effect[_] = {
 
-    scalaSdkRouter.handleCommand(commandName, data, command, ScalaCommandContextAdapter(context)) match {
+    scalaSdkRouter.handleCommand(
+      commandName,
+      ScalaReplicatedDataConverter.convert(data),
+      command,
+      ScalaCommandContextAdapter(context)) match {
       case ReplicatedEntityEffectImpl(javaSdkEffect) => javaSdkEffect
     }
   }
@@ -215,4 +218,26 @@ private[scalasdk] final case class ScalaReplicatedDataFactoryAdapter(factory: Ja
   /** Create a new Vote. */
   override def newVote: ReplicatedVote =
     new ReplicatedVote(factory.newVote().asInstanceOf[ReplicatedVoteImpl])
+}
+
+private[scalasdk] object ScalaReplicatedDataConverter {
+
+  def convert[D <: ReplicatedData](data: D): D =
+    data match {
+      case counter: ReplicatedCounterImpl =>
+        new ReplicatedCounter(counter).asInstanceOf[D]
+      case register: ReplicatedRegisterImpl[D] =>
+        new ReplicatedRegister[D](register).asInstanceOf[D]
+      case set: ReplicatedSetImpl[D] =>
+        new ReplicatedSet[D](set).asInstanceOf[D]
+      case counterMap: ReplicatedCounterMapImpl[D] =>
+        new ReplicatedCounterMap[D](counterMap).asInstanceOf[D]
+      case registerMap: ReplicatedRegisterMapImpl[Any @unchecked, Any @unchecked] =>
+        new ReplicatedRegisterMap[Any, Any](registerMap).asInstanceOf[D]
+      case multiMap: ReplicatedMultiMapImpl[Any @unchecked, Any @unchecked] =>
+        new ReplicatedMultiMap[Any, Any](multiMap).asInstanceOf[D]
+      case map: ReplicatedMapImpl[Any @unchecked, D] =>
+        new ReplicatedMap[Any, D](map).asInstanceOf[D]
+      case _ => data
+    }
 }
