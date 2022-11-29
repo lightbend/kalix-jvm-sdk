@@ -38,7 +38,6 @@ public class KalixConfigurationTest {
 
   private Logger logger = LoggerFactory.getLogger(getClass());
 
-  @Autowired private Environment env;
   @Autowired private ApplicationContext applicationContext;
   @Autowired private KalixConfiguration kalixConfiguration;
 
@@ -59,15 +58,16 @@ public class KalixConfigurationTest {
   }
 
   @Bean
-  public KalixTestKit kalixTestKit() {
+  public KalixTestKit kalixTestKit(KalixTestKit.Settings settings) {
     logger.info("Starting Kalix TestKit...");
-    if(env.getProperty("kalix.settings.aclEnabled",Boolean.class, false)){
-      settings = settings.withAclEnabled();
-      logger.info("Testkit with Acl enabled");
-    }
     KalixTestKit kalixTestKit = new KalixTestKit(kalixServer().kalix(), settings);
     kalixTestKit.start(kalixConfiguration.config());
     logger.info("Kalix Proxy running on port: " + kalixTestKit.getPort());
     return kalixTestKit;
+  }
+
+  @Bean
+  public KalixTestKit.Settings settings() {
+    return KalixTestKit.Settings.DEFAULT;
   }
 }

@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Import;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -13,10 +14,13 @@ import org.springframework.web.reactive.function.client.WebClient;
 import java.time.Duration;
 
 import static java.time.temporal.ChronoUnit.SECONDS;
-
+// tag::class[]
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = Main.class)
+@Import(TestConfig.class)  // <1>
 public class CounterIntegrationTest extends KalixIntegrationTestKitSupport {
+// end::class[]
+
 
     @Autowired
     private WebClient webClient;
@@ -51,4 +55,16 @@ public class CounterIntegrationTest extends KalixIntegrationTestKitSupport {
 
         Assertions.assertEquals("\"200\"", counterGet);
     }
+
+    @Test
+    public void forbiddenCall(){
+         webClient
+                .post()
+                .uri("/counter/id1/forbiddenIncrease/1")
+                .retrieve()
+                .bodyToMono(String.class)
+                .block(timeout);
+    }
+// tag::class[]
 }
+// end::class[]
