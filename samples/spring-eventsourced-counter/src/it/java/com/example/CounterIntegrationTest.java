@@ -55,16 +55,6 @@ public class CounterIntegrationTest extends KalixIntegrationTestKitSupport {
 
         Assertions.assertEquals("\"200\"", counterGet);
     }
-
-    @Test
-    public void forbiddenCall(){
-         webClient
-                .post()
-                .uri("/counter/id1/forbiddenIncrease/1")
-                .retrieve()
-                .bodyToMono(String.class)
-                .block(timeout);
-    }
 // tag::class[]
 }
 // end::class[]
