@@ -29,7 +29,7 @@ import com.google.protobuf.ByteString
 import com.google.protobuf.DescriptorProtos
 import com.google.protobuf.Descriptors
 import com.google.protobuf.Empty
-import com.google.protobuf.{Any => JavaPbAny}
+import com.google.protobuf.{ Any => JavaPbAny }
 import kalix.javasdk.impl.AnySupport
 import kalix.javasdk.impl.AnySupport.ProtobufEmptyTypeUrl
 import kalix.springsdk.impl.reflection.ParameterExtractors.HeaderExtractor
