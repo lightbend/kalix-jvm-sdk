@@ -115,6 +115,49 @@ service CustomerSummaryByName {
 }
 // end::summary[]
 
+// tag::restructured[]
+message CustomerDetails {
+  string id = 1;
+  string name = 2;
+  BillingDetails billing_details = 3;
+}
+
+message BillingDetails {
+  string address = 1;
+  string city = 2;
+  string email = 3;
+}
+
+service CustomerDetailsByName {
+// end::restructured[]
+  option (kalix.codegen) = {
+    view: {}
+  };
+// tag::restructured[]
+  rpc GetCustomers(ByNameRequest) returns (stream CustomerDetails) {
+    option (kalix.method).view.query = {
+      query: "SELECT"
+             " customer_id AS id," // <1>
+             " name," // <2>
+             " (address.street AS address, address.city, email) AS billing_details " // <3>
+             "FROM customers "
+             "WHERE name = :customer_name"
+    };
+  }
+// end::restructured[]
+
+  rpc UpdateCustomer(domain.CustomerState) returns (domain.CustomerState) {
+    option (kalix.method).eventing.in = {
+      value_entity: "customers"
+    };
+    option (kalix.method).view.update = {
+      table: "customers"
+    };
+  }
+// tag::restructured[]
+}
+// end::restructured[]
+
 // tag::wrap-repeated[]
 message CustomersResponse {
   repeated domain.CustomerState customers = 1; // <1>

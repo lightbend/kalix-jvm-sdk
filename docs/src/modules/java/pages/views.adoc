@@ -365,6 +365,29 @@ In a similar way, you can include values from the request message in the respons
 SELECT :request_id, customer_id as id, name FROM customers WHERE name = :customer_name
 ----
 
+Along with renaming fields, results can be projected into a different message structure than the one used for storing the view state. Nested messages can be created by grouping together fields in parentheses. For example, the customer state is projected into a different result structure in this view:
+
+[.tabset]
+Java::
++
+[source,proto,indent=0]
+----
+include::example$java-valueentity-customer-registry/src/main/proto/customer/view/customer_view.proto[tag=restructured]
+----
+<1> The `customer_id` column is projected into the `id` field in the result message.
+<2> The customer `name` column is projected directly into the result message.
+<3> A nested message is constructed with the address `street` (renamed to `address`), the address `city`, and the `email` columns, projected into `billing_details`.
+
+Scala::
++
+[source,proto,indent=0]
+----
+include::example$scala-valueentity-customer-registry/src/main/proto/customer/view/customer_view.proto[tag=restructured]
+----
+<1> The `customer_id` column is projected into the `id` field in the result message.
+<2> The customer `name` column is projected directly into the result message.
+<3> A nested message is constructed with the address `street` (renamed to `address`), the address `city`, and the `email` columns, projected into `billing_details`.
+
 === Response message including the result
 
 Instead of streamed results you can include the results in a repeated field in the response message:
