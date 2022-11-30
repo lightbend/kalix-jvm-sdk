@@ -16,45 +16,45 @@
 
 package kalix.springsdk.impl
 
-import java.lang.reflect.Type
-
-import scala.jdk.CollectionConverters.CollectionHasAsScala
-
-import com.google.api.AnnotationsProto
-import com.google.api.CustomHttpPattern
-import com.google.api.HttpRule
-import com.google.protobuf.ByteString
-import com.google.protobuf.DescriptorProtos
-import com.google.protobuf.DescriptorProtos.DescriptorProto
-import com.google.protobuf.DescriptorProtos.FieldDescriptorProto
-import com.google.protobuf.DescriptorProtos.MethodDescriptorProto
-import com.google.protobuf.DescriptorProtos.MethodOptions
-import com.google.protobuf.DescriptorProtos.ServiceDescriptorProto
-import com.google.protobuf.Descriptors
+import com.google.api.{ AnnotationsProto, CustomHttpPattern, HttpRule }
+import com.google.protobuf.DescriptorProtos.{
+  DescriptorProto,
+  FieldDescriptorProto,
+  MethodDescriptorProto,
+  MethodOptions,
+  ServiceDescriptorProto
+}
 import com.google.protobuf.Descriptors.FileDescriptor
-import com.google.protobuf.Empty
-import com.google.protobuf.{ Any => JavaPbAny }
+import com.google.protobuf.{ Any => JavaPbAny, ByteString, DescriptorProtos, Descriptors, Empty }
 import kalix.javasdk.impl.AnySupport
 import kalix.javasdk.impl.AnySupport.ProtobufEmptyTypeUrl
-import kalix.springsdk.impl.reflection.AnyJsonRequestServiceMethod
-import kalix.springsdk.impl.reflection.CombinedSubscriptionServiceMethod
-import kalix.springsdk.impl.reflection.DeleteServiceMethod
-import kalix.springsdk.impl.reflection.DynamicMessageContext
-import kalix.springsdk.impl.reflection.ExtractorCreator
-import kalix.springsdk.impl.reflection.KalixMethod
-import kalix.springsdk.impl.reflection.NameGenerator
-import kalix.springsdk.impl.reflection.ParameterExtractor
-import kalix.springsdk.impl.reflection.ParameterExtractors
 import kalix.springsdk.impl.reflection.ParameterExtractors.HeaderExtractor
-import kalix.springsdk.impl.reflection.RestServiceIntrospector.BodyParameter
-import kalix.springsdk.impl.reflection.RestServiceIntrospector.HeaderParameter
-import kalix.springsdk.impl.reflection.RestServiceIntrospector.PathParameter
-import kalix.springsdk.impl.reflection.RestServiceIntrospector.QueryParamParameter
-import kalix.springsdk.impl.reflection.RestServiceIntrospector.UnhandledParameter
-import kalix.springsdk.impl.reflection.ServiceMethod
-import kalix.springsdk.impl.reflection.SubscriptionServiceMethod
-import kalix.springsdk.impl.reflection.SyntheticRequestServiceMethod
+import kalix.springsdk.impl.reflection.RestServiceIntrospector.{
+  BodyParameter,
+  HeaderParameter,
+  PathParameter,
+  QueryParamParameter,
+  UnhandledParameter
+}
+import kalix.springsdk.impl.reflection.{
+  AnyJsonRequestServiceMethod,
+  CombinedSubscriptionServiceMethod,
+  DeleteServiceMethod,
+  DynamicMessageContext,
+  ExtractorCreator,
+  KalixMethod,
+  NameGenerator,
+  ParameterExtractor,
+  ParameterExtractors,
+  RestServiceIntrospector,
+  ServiceMethod,
+  SubscriptionServiceMethod,
+  SyntheticRequestServiceMethod
+}
 import org.springframework.web.bind.annotation.RequestMethod
+
+import java.lang.reflect.Type
+import scala.jdk.CollectionConverters._
 
 /**
  * The component descriptor is both used for generating the protobuf service descriptor to communicate the service type
@@ -276,84 +276,154 @@ private[impl] object ComponentDescriptor {
     val inputMessageDescriptor = DescriptorProto.newBuilder()
     inputMessageDescriptor.setName(inputMessageName)
 
-    def addEntityKeyIfNeeded(paramName: String, fieldDescriptor: FieldDescriptorProto.Builder) =
-      if (entityKeys.contains(paramName)) {
-        val fieldOptions = kalix.FieldOptions.newBuilder().setEntityKey(true).build()
-        val options =
-          DescriptorProtos.FieldOptions
-            .newBuilder()
-            .setExtension(kalix.Annotations.field, fieldOptions)
-            .build()
-
-        fieldDescriptor.setOptions(options)
-      }
-
     val indexedParams = serviceMethod.params.zipWithIndex
-    val bodyField = indexedParams.collectFirst { case (BodyParameter(param, _), idx) =>
-      val fieldDescriptor = FieldDescriptorProto.newBuilder()
-      // todo ensure this is unique among field names
-      fieldDescriptor.setName("json_body")
-      // Always put the body at position 1 - even if there's no body, leave position 1 free. This keeps the body
-      // parameter stable in case the user adds a body.
-      fieldDescriptor.setNumber(1)
-      fieldDescriptor.setType(FieldDescriptorProto.Type.TYPE_MESSAGE)
-      fieldDescriptor.setTypeName("google.protobuf.Any")
-      inputMessageDescriptor.addField(fieldDescriptor)
+
+    val bodyFieldDescs = bodyFieldDescriptors(indexedParams)
+    val pathParamOffset = 2 //1 is reserved for json_body
+    val pathParamFieldDescs = pathParamFieldDescriptors(serviceMethod, indexedParams, entityKeys, pathParamOffset)
+    val queryFieldsOffset = pathParamFieldDescs.size + pathParamOffset
+    val queryFieldDescs = queryParamFieldDescriptors(indexedParams, queryFieldsOffset, entityKeys)
+
+    inputMessageDescriptor.addAllField((bodyFieldDescs ++ pathParamFieldDescs ++ queryFieldDescs).asJava)
+
+    val bodyField: Option[(Int, ExtractorCreator)] = bodyFieldExtractors(indexedParams)
+    val pathParamFieldsExtractors = pathParamExtractors(indexedParams, pathParamFieldDescs)
+    val queryFieldExtractors = queryParamExtractors(indexedParams, queryFieldDescs)
+
+    val inputProto = inputMessageDescriptor.build()
+    val extractors = (bodyField ++ pathParamFieldsExtractors ++ queryFieldExtractors).toMap
+    (inputProto, extractors)
+  }
+
+  private def queryParamExtractors(
+      indexedParams: Seq[(RestServiceIntrospector.RestMethodParameter, Int)],
+      queryFieldDescs: Seq[FieldDescriptorProto]): Seq[(Int, ExtractorCreator)] = {
+    indexedParams
+      .collect { case (qp: QueryParamParameter, idx) =>
+        idx -> qp
+      }
+      .map { case (paramIdx, param) =>
+        paramIdx -> new ExtractorCreator {
+          override def apply(descriptor: Descriptors.Descriptor): ParameterExtractor[DynamicMessageContext, AnyRef] = {
+            new ParameterExtractors.FieldExtractor[AnyRef](
+              descriptor.findFieldByNumber(fieldNumber(param.name, queryFieldDescs)),
+              identity)
+          }
+        }
+      }
+  }
+
+  private def queryParamFieldDescriptors(
+      indexedParams: Seq[(RestServiceIntrospector.RestMethodParameter, Int)],
+      queryFieldsOffset: Int,
+      entityKeys: Seq[String]): Seq[FieldDescriptorProto] = {
+    indexedParams
+      .collect { case (qp: QueryParamParameter, idx) =>
+        idx -> qp
+      }
+      .sortBy(_._2.name)
+      .zipWithIndex
+      .map { case ((_, param), fieldIdx) =>
+        val fieldNumber = fieldIdx + queryFieldsOffset
+        FieldDescriptorProto
+          .newBuilder()
+          .setName(param.name)
+          .setNumber(fieldNumber)
+          .setType(mapJavaTypeToProtobuf(param.param.getGenericParameterType))
+          .setOptions(addEntityKeyIfNeeded(entityKeys, param.name))
+          .build()
+      }
+  }
+
+  private def pathParamExtractors(
+      indexedParams: Seq[(RestServiceIntrospector.RestMethodParameter, Int)],
+      pathParamFieldDescs: Seq[FieldDescriptorProto]): Seq[(Int, ExtractorCreator)] = {
+    indexedParams
+      .collect { case (p: PathParameter, idx) =>
+        idx -> p
+      }
+      .map { case (idx, p) =>
+        idx -> new ExtractorCreator {
+          override def apply(descriptor: Descriptors.Descriptor): ParameterExtractor[DynamicMessageContext, AnyRef] = {
+            new ParameterExtractors.FieldExtractor[AnyRef](
+              descriptor.findFieldByNumber(fieldNumber(p.name, pathParamFieldDescs)),
+              identity)
+          }
+        }
+      }
+  }
+
+  private def pathParamFieldDescriptors(
+      serviceMethod: SyntheticRequestServiceMethod,
+      indexedParams: Seq[(RestServiceIntrospector.RestMethodParameter, Int)],
+      entityKeys: Seq[String],
+      pathParamOffset: Int): Seq[FieldDescriptorProto] = {
+    serviceMethod.parsedPath.fields.zipWithIndex.map { case (paramName, fieldIdx) =>
+      val fieldNumber = fieldIdx + pathParamOffset
+      FieldDescriptorProto
+        .newBuilder()
+        .setName(paramName)
+        .setNumber(fieldNumber)
+        .setType(mapJavaTypeToProtobuf(paramType(indexedParams, paramName)))
+        .setOptions(addEntityKeyIfNeeded(entityKeys, paramName))
+        .build()
+    }
+  }
+
+  private def addEntityKeyIfNeeded(entityKeys: Seq[String], paramName: String): DescriptorProtos.FieldOptions =
+    if (entityKeys.contains(paramName)) {
+      val fieldOptions = kalix.FieldOptions.newBuilder().setEntityKey(true).build()
+      DescriptorProtos.FieldOptions
+        .newBuilder()
+        .setExtension(kalix.Annotations.field, fieldOptions)
+        .build()
+    } else {
+      DescriptorProtos.FieldOptions.getDefaultInstance
+    }
+
+  private def paramType(
+      indexedParams: Seq[(RestServiceIntrospector.RestMethodParameter, Int)],
+      paramName: String): Type = {
+    indexedParams
+      .collectFirst {
+        case (p: PathParameter, idx) if p.name == paramName =>
+          p.param.getGenericParameterType
+      }
+      .getOrElse(classOf[String])
+  }
+
+  private def fieldNumber(fieldName: String, pathParamFieldsDesc: Seq[FieldDescriptorProto]): Int = {
+    pathParamFieldsDesc
+      .find(_.getName == fieldName)
+      .map(_.getNumber)
+      .getOrElse(throw new IllegalStateException(s"Missing field descriptor for field name: $fieldName"))
+  }
+
+  private def bodyFieldDescriptors(
+      indexedParams: Seq[(RestServiceIntrospector.RestMethodParameter, Int)]): Seq[FieldDescriptorProto] = {
+    indexedParams.collectFirst { case (BodyParameter(_, _), _) =>
+      FieldDescriptorProto
+        .newBuilder()
+        // todo ensure this is unique among field names
+        .setName("json_body")
+        // Always put the body at position 1 - even if there's no body, leave position 1 free. This keeps the body
+        // parameter stable in case the user adds a body.
+        .setNumber(1)
+        .setType(FieldDescriptorProto.Type.TYPE_MESSAGE)
+        .setTypeName("google.protobuf.Any")
+        .build()
+    }.toSeq
+  }
+
+  private def bodyFieldExtractors(
+      indexedParams: Seq[(RestServiceIntrospector.RestMethodParameter, Int)]): Option[(Int, ExtractorCreator)] = {
+    indexedParams.collectFirst { case (BodyParameter(param, _), idx) =>
       idx -> new ExtractorCreator {
         override def apply(descriptor: Descriptors.Descriptor): ParameterExtractor[DynamicMessageContext, AnyRef] = {
           new ParameterExtractors.BodyExtractor(descriptor.findFieldByNumber(1), param.getParameterType)
         }
       }
     }
-
-    val pathParamFields = serviceMethod.parsedPath.fields.zipWithIndex.flatMap { case (paramName, fieldIdx) =>
-      val (maybeParamIdx, paramType) = indexedParams
-        .collectFirst {
-          case (p: PathParameter, idx) if p.name == paramName =>
-            Some(idx) -> p.param.getGenericParameterType
-        }
-        .getOrElse(None -> classOf[String])
-
-      val fieldDescriptor = FieldDescriptorProto.newBuilder()
-      fieldDescriptor.setName(paramName)
-      val fieldNumber = fieldIdx + 2
-      fieldDescriptor.setNumber(fieldNumber)
-      fieldDescriptor.setType(mapJavaTypeToProtobuf(paramType))
-      addEntityKeyIfNeeded(paramName, fieldDescriptor)
-      inputMessageDescriptor.addField(fieldDescriptor)
-      maybeParamIdx.map(_ -> new ExtractorCreator {
-        override def apply(descriptor: Descriptors.Descriptor): ParameterExtractor[DynamicMessageContext, AnyRef] = {
-          new ParameterExtractors.FieldExtractor[AnyRef](descriptor.findFieldByNumber(fieldNumber), identity)
-        }
-      })
-    }
-
-    val queryFieldsOffset = pathParamFields.size + 2
-
-    val queryFields = indexedParams
-      .collect { case (qp: QueryParamParameter, idx) =>
-        idx -> qp
-      }
-      .sortBy(_._2.name)
-      .zipWithIndex
-      .map { case ((paramIdx, param), fieldIdx) =>
-        val fieldNumber = fieldIdx + queryFieldsOffset
-        val fieldDescriptor = FieldDescriptorProto.newBuilder()
-        fieldDescriptor.setName(param.name)
-        fieldDescriptor.setNumber(fieldNumber)
-        fieldDescriptor.setType(mapJavaTypeToProtobuf(param.param.getGenericParameterType))
-        inputMessageDescriptor.addField(fieldDescriptor)
-        addEntityKeyIfNeeded(param.name, fieldDescriptor)
-        paramIdx -> new ExtractorCreator {
-          override def apply(descriptor: Descriptors.Descriptor): ParameterExtractor[DynamicMessageContext, AnyRef] = {
-            new ParameterExtractors.FieldExtractor[AnyRef](descriptor.findFieldByNumber(fieldNumber), identity)
-          }
-        }
-      }
-
-    val inputProto = inputMessageDescriptor.build()
-    val extractors = (bodyField.toSeq ++ pathParamFields ++ queryFields).toMap
-    (inputProto, extractors)
   }
 
   private def mapJavaTypeToProtobuf(javaType: Type): FieldDescriptorProto.Type = {
