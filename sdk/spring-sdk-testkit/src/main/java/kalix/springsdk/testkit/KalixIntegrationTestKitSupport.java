@@ -46,7 +46,7 @@ public abstract class KalixIntegrationTestKitSupport {
 
   private Logger logger = LoggerFactory.getLogger(getClass());
 
-  @Autowired public KalixTestKit kalixTestKit;
+  @Autowired private KalixTestKit kalixTestKit;
 
   @AfterAll
   public void afterAll() {

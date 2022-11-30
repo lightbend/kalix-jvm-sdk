@@ -204,7 +204,7 @@ When running integration tests, ACLs are disabled by default but can be explicit
 
 [source, java]
 ----
-include::example$spring-eventsourced-counter/src/it/java/com/example/TestConfig.java[tag=class]
+include::example$spring-eventsourced-counter/src/it/java/com/example/TestkitConfig.java[tag=class]
 ----
 <1> Using the DEFAULT `Settings` and enabling ACL. 
 
@@ -216,6 +216,6 @@ Once this `@Configuration` is available you can `@Import` it to your integration
 ----
 include::example$spring-eventsourced-counter/src/it/java/com/example/CounterIntegrationTest.java[tag=class]
 ----
-<1> Importing `TestConfig` as `@Configuration`.
+<1> Importing `TestkitConfig` as `@Configuration`.
 
 For integration tests that call other services that have ACLs limiting access to specific service names `Settings.withServiceName` allows specifying what the service identifies itself as to other services.

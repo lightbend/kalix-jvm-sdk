@@ -5,7 +5,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class TestConfig {
+public class TestkitConfig {
     @Bean
     public KalixTestKit.Settings settings() {
         return KalixTestKit.Settings.DEFAULT.withAclEnabled(); // <1>

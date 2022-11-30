@@ -17,7 +17,7 @@ import static java.time.temporal.ChronoUnit.SECONDS;
 // tag::class[]
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = Main.class)
-@Import(TestConfig.class)  // <1>
+@Import(TestkitConfig.class)  // <1>
 public class CounterIntegrationTest extends KalixIntegrationTestKitSupport {
 // end::class[]
 
