@@ -45,9 +45,9 @@ In our delegating service implementation:
 Java::
 +
 [source,java,indent=0]
-.src/main/java/com/example/DelegatingServiceAction.java
+.src/main/java/com/example/callanotherservice/DelegatingServiceAction.java
 ----
-include::java:example$java-doc-snippets/src/main/java/com/example/DelegatingServiceAction.java[tag=delegating-action]
+include::java:example$java-doc-snippets/src/main/java/com/example/callanotherservice/DelegatingServiceAction.java[tag=delegating-action]
 ----
 +
 <1> We call `actionContext().getGrpcClient` with the service interface of the API and the name that the service was deployed with.
