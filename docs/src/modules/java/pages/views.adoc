@@ -500,3 +500,5 @@ should instead publish events to a topic, see xref:actions-publishing-subscribin
 include::partial$query-syntax-reference.adoc[]
 
 include::partial$query-syntax-paging.adoc[tags=grpc]
+
+include::partial$query-syntax-advanced.adoc[tags=grpc]

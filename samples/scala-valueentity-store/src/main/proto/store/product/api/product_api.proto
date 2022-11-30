@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+package store.product.api;
+
+import "google/protobuf/empty.proto";
+import "kalix/annotations.proto";
+
+message Product {
+  string product_id = 1 [(kalix.field).entity_key = true];
+  string product_name = 2;
+  Money price = 3;
+}
+
+message Money {
+  string currency = 1;
+  int64 units = 2;
+  int32 cents = 3;
+}
+
+message GetProduct {
+  string product_id = 1 [(kalix.field).entity_key = true];
+}
+
+service Products {
+  option (kalix.codegen) = {
+    value_entity: {
+      name: "store.product.domain.ProductValueEntity"
+      entity_type: "products"
+      state: "store.product.domain.ProductState"
+    }
+  };
+
+  rpc Create(Product) returns (google.protobuf.Empty);
+  rpc Get(GetProduct) returns (Product);
+}
