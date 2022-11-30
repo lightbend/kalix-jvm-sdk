@@ -41,8 +41,6 @@ public class KalixConfigurationTest {
   @Autowired private ApplicationContext applicationContext;
   @Autowired private KalixConfiguration kalixConfiguration;
 
-  KalixTestKit.Settings settings = KalixTestKit.Settings.DEFAULT;
-
   @Bean
   public KalixServer kalixServer() {
     return new KalixServer(applicationContext, kalixConfiguration.config());
