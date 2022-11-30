@@ -16,41 +16,41 @@
 
 package kalix.springsdk.impl
 
-import com.google.api.{ AnnotationsProto, CustomHttpPattern, HttpRule }
-import com.google.protobuf.DescriptorProtos.{
-  DescriptorProto,
-  FieldDescriptorProto,
-  MethodDescriptorProto,
-  MethodOptions,
-  ServiceDescriptorProto
-}
+import com.google.api.AnnotationsProto
+import com.google.api.CustomHttpPattern
+import com.google.api.HttpRule
+import com.google.protobuf.DescriptorProtos.DescriptorProto
+import com.google.protobuf.DescriptorProtos.FieldDescriptorProto
+import com.google.protobuf.DescriptorProtos.MethodDescriptorProto
+import com.google.protobuf.DescriptorProtos.MethodOptions
+import com.google.protobuf.DescriptorProtos.ServiceDescriptorProto
 import com.google.protobuf.Descriptors.FileDescriptor
-import com.google.protobuf.{ Any => JavaPbAny, ByteString, DescriptorProtos, Descriptors, Empty }
+import com.google.protobuf.ByteString
+import com.google.protobuf.DescriptorProtos
+import com.google.protobuf.Descriptors
+import com.google.protobuf.Empty
+import com.google.protobuf.{Any => JavaPbAny}
 import kalix.javasdk.impl.AnySupport
 import kalix.javasdk.impl.AnySupport.ProtobufEmptyTypeUrl
 import kalix.springsdk.impl.reflection.ParameterExtractors.HeaderExtractor
-import kalix.springsdk.impl.reflection.RestServiceIntrospector.{
-  BodyParameter,
-  HeaderParameter,
-  PathParameter,
-  QueryParamParameter,
-  UnhandledParameter
-}
-import kalix.springsdk.impl.reflection.{
-  AnyJsonRequestServiceMethod,
-  CombinedSubscriptionServiceMethod,
-  DeleteServiceMethod,
-  DynamicMessageContext,
-  ExtractorCreator,
-  KalixMethod,
-  NameGenerator,
-  ParameterExtractor,
-  ParameterExtractors,
-  RestServiceIntrospector,
-  ServiceMethod,
-  SubscriptionServiceMethod,
-  SyntheticRequestServiceMethod
-}
+import kalix.springsdk.impl.reflection.RestServiceIntrospector.BodyParameter
+import kalix.springsdk.impl.reflection.RestServiceIntrospector.HeaderParameter
+import kalix.springsdk.impl.reflection.RestServiceIntrospector.PathParameter
+import kalix.springsdk.impl.reflection.RestServiceIntrospector.QueryParamParameter
+import kalix.springsdk.impl.reflection.RestServiceIntrospector.UnhandledParameter
+import kalix.springsdk.impl.reflection.AnyJsonRequestServiceMethod
+import kalix.springsdk.impl.reflection.CombinedSubscriptionServiceMethod
+import kalix.springsdk.impl.reflection.DeleteServiceMethod
+import kalix.springsdk.impl.reflection.DynamicMessageContext
+import kalix.springsdk.impl.reflection.ExtractorCreator
+import kalix.springsdk.impl.reflection.KalixMethod
+import kalix.springsdk.impl.reflection.NameGenerator
+import kalix.springsdk.impl.reflection.ParameterExtractor
+import kalix.springsdk.impl.reflection.ParameterExtractors
+import kalix.springsdk.impl.reflection.RestServiceIntrospector
+import kalix.springsdk.impl.reflection.ServiceMethod
+import kalix.springsdk.impl.reflection.SubscriptionServiceMethod
+import kalix.springsdk.impl.reflection.SyntheticRequestServiceMethod
 import org.springframework.web.bind.annotation.RequestMethod
 
 import java.lang.reflect.Type
