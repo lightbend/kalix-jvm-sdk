@@ -41,6 +41,7 @@ object ServiceMethod {
   // this is more for early validation. We don't support stream-in over http,
   // we block it before deploying anything
   def isStreamIn(method: Method): Boolean = {
+    // TODO: remove this once is validations completely moved to Validations object
     val paramWithRequestBody =
       method.getParameters.collect {
         case param if param.getAnnotation(classOf[RequestBody]) != null => param
@@ -50,7 +51,6 @@ object ServiceMethod {
       throw new IllegalArgumentException("Stream in calls are not supported")
     else
       false
-
   }
 }
 sealed trait ServiceMethod {
