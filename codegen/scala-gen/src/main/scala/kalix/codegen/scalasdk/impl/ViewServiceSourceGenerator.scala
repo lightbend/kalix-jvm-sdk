@@ -339,28 +339,29 @@ object ViewServiceSourceGenerator {
       stateType: MessageType,
       transformedUpdates: Iterable[ModelBuilder.Command])(implicit imports: Imports): String = {
 
-    val methods = transformedUpdates.map { update =>
-      val stateType = typeName(update.outputType)
-      if (update.handleDeletes) {
-        s"""|def ${lowerFirst(update.name)}(
-            |    state: $stateType): View.UpdateEffect[$stateType]
-            |""".stripMargin
-      } else {
-        s"""|def ${lowerFirst(update.name)}(
-            |    state: $stateType,
-            |    ${lowerFirst(update.inputType.name)}: ${typeName(update.inputType)}): View.UpdateEffect[$stateType]
-            |""".stripMargin
-      }
-    }
-
-    val content =
-      if (methods.isEmpty) ""
+    val methods =
+      if (transformedUpdates.isEmpty)
+        Seq(s"""|override def emptyState: ${typeName(stateType)} =
+                |  null // emptyState is only used with transform_updates=true
+                |""".stripMargin)
       else
-        s"""| {
-            |  ${Format.indent(methods, 2)}
-            |}""".stripMargin
+        transformedUpdates.map { update =>
+          val stateType = typeName(update.outputType)
+          if (update.handleDeletes) {
+            s"""|def ${lowerFirst(update.name)}(
+                |    state: $stateType): View.UpdateEffect[$stateType]
+                |""".stripMargin
+          } else {
+            s"""|def ${lowerFirst(update.name)}(
+                |    state: $stateType,
+                |    ${lowerFirst(update.inputType.name)}: ${typeName(update.inputType)}): View.UpdateEffect[$stateType]
+                |""".stripMargin
+          }
+        }
 
-    s"""abstract class $className extends View[${typeName(stateType)}]$content"""
+    s"""|abstract class $className extends View[${typeName(stateType)}] {
+        |  ${Format.indent(methods, 2)}
+        |}""".stripMargin
   }
 
   private[codegen] def abstractViewMultiTable(view: ModelBuilder.ViewService)(implicit imports: Imports): String = {
