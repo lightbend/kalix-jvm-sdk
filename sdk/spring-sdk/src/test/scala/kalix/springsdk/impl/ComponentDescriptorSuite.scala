@@ -45,6 +45,16 @@ trait ComponentDescriptorSuite extends Matchers {
     field.getJavaType shouldBe expectedType
   }
 
+  def assertRequestFieldNumberAndJavaType(
+      method: CommandHandler,
+      fieldName: String,
+      number: Int,
+      expectedType: JavaType): Assertion = {
+    val field = findField(method, fieldName)
+    field.getJavaType shouldBe expectedType
+    field.getNumber shouldBe number
+  }
+
   def assertRequestFieldMessageType(
       method: CommandHandler,
       fieldName: String,

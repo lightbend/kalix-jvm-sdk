@@ -21,9 +21,12 @@ import kalix.springsdk.annotations.Acl;
 import kalix.springsdk.annotations.EntityKey;
 import kalix.springsdk.annotations.EntityType;
 import kalix.springsdk.testmodels.Done;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 public class ValueEntitiesTestModels {
 
@@ -38,6 +41,32 @@ public class ValueEntitiesTestModels {
 
     @PostMapping("/create")
     public ValueEntity.Effect<Done> createEntity(@RequestBody CreateUser createUser) {
+      return effects().reply(Done.instance);
+    }
+  }
+
+  @EntityKey({"userId", "cartId"})
+  @EntityType("user")
+  @RequestMapping()
+  public static class GetWithQueryParams extends ValueEntity<User> {
+    @Override
+    public User emptyState() {
+      return null;
+    }
+
+    @PostMapping("/user/{userId}/{cartId}/create")
+    public ValueEntity.Effect<Done> createEntity(@RequestBody CreateUser createUser) {
+      return effects().reply(Done.instance);
+    }
+
+    @PostMapping("/user/{cartId}/create/{otherParam}")
+    public ValueEntity.Effect<Done> createEntity2(@RequestParam String someParam, @RequestParam String userId,
+                                                  @PathVariable Integer otherParam, @PathVariable String cartId, @RequestBody CreateUser createUser) {
+      return effects().reply(Done.instance);
+    }
+
+    @GetMapping("/user/{userId}/{cartId}/get")
+    public ValueEntity.Effect<Done> getUser(@RequestParam String someParam, @RequestParam Integer otherParam) {
       return effects().reply(Done.instance);
     }
   }

@@ -18,9 +18,12 @@ package kalix.springsdk.impl
 
 import com.google.protobuf.Any
 import com.google.protobuf.Descriptors.FieldDescriptor.JavaType
-import kalix.springsdk.testmodels.valueentity.ValueEntitiesTestModels.PostWithEntityKeys
-import kalix.springsdk.testmodels.valueentity.ValueEntitiesTestModels.ValueEntityWithMethodLevelAcl
-import kalix.springsdk.testmodels.valueentity.ValueEntitiesTestModels.ValueEntityWithServiceLevelAcl
+import kalix.springsdk.testmodels.valueentity.ValueEntitiesTestModels.{
+  GetWithQueryParams,
+  PostWithEntityKeys,
+  ValueEntityWithMethodLevelAcl,
+  ValueEntityWithServiceLevelAcl
+}
 import org.scalatest.wordspec.AnyWordSpec
 
 class ValueEntityDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSuite {
@@ -37,6 +40,25 @@ class ValueEntityDescriptorFactorySpec extends AnyWordSpec with ComponentDescrip
 
         assertRequestFieldJavaType(method, "cartId", JavaType.STRING)
         assertEntityKeyField(method, "cartId")
+      }
+    }
+
+    "generate mappings for a Value Entity query params in path" in {
+      assertDescriptor[GetWithQueryParams] { desc =>
+        val method = desc.commandHandlers("GetUser")
+
+        assertRequestFieldNumberAndJavaType(method, "userId", 2, JavaType.STRING)
+        assertRequestFieldNumberAndJavaType(method, "cartId", 3, JavaType.STRING)
+        assertRequestFieldNumberAndJavaType(method, "otherParam", 4, JavaType.INT)
+        assertRequestFieldNumberAndJavaType(method, "someParam", 5, JavaType.STRING)
+
+        val createMethod = desc.commandHandlers("CreateEntity2")
+
+        assertRequestFieldNumberAndJavaType(createMethod, "json_body", 1, JavaType.MESSAGE)
+        assertRequestFieldNumberAndJavaType(createMethod, "cartId", 2, JavaType.STRING)
+        assertRequestFieldNumberAndJavaType(createMethod, "otherParam", 3, JavaType.INT)
+        assertRequestFieldNumberAndJavaType(createMethod, "someParam", 4, JavaType.STRING)
+        assertRequestFieldNumberAndJavaType(createMethod, "userId", 5, JavaType.STRING)
       }
     }
 
