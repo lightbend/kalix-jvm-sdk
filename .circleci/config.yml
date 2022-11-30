@@ -556,7 +556,7 @@ jobs:
             rm -rf src/main/java src/test/java src/it/java
             mvn -Dkalix-sdk.version=$SDK_VERSION test-compile
 
-  sample-java-valueentity-store:
+  sample-java-view-store:
     machine:
       image: ubuntu-2004:202201-02
     steps:
@@ -569,7 +569,7 @@ jobs:
       - run:
           name: Java Value Entity "Store" sample for advanced Views
           command: |
-            cd samples/java-valueentity-store
+            cd samples/java-view-store
             echo "Running mvn with SDK version: '$SDK_VERSION'"
             mvn -Dkalix-sdk.version=$SDK_VERSION test-compile
             mvn -Dkalix-sdk.version=$SDK_VERSION verify -Pit
@@ -855,7 +855,7 @@ jobs:
             rm -rf src/main/scala src/test/scala src/it/scala
             sbt -Dkalix-sdk.version=$SDK_VERSION Test/compile
 
-  sample-scala-valueentity-store:
+  sample-scala-view-store:
     machine:
       image: ubuntu-2004:202201-02
     steps:
@@ -866,9 +866,9 @@ jobs:
       - copy-from-workspace
       - set-sdk-version
       - run:
-          name: Scala Value Entity "Store" sample for advanced Views
+          name: Scala "Store" sample for advanced Views
           command: |
-            cd samples/scala-valueentity-store
+            cd samples/scala-view-store
             echo "Running sbt with SDK version: '$SDK_VERSION'"
             echo "Version check: $VERSION_CHECK_ON_STARTUP"
             sbt -Dkalix-sdk.version=$SDK_VERSION test
@@ -1484,7 +1484,7 @@ workflows:
           requires:
             - checks
             - publish-local
-      - sample-java-valueentity-store:
+      - sample-java-view-store:
           requires:
             - checks
             - publish-local
@@ -1540,7 +1540,7 @@ workflows:
           requires:
             - checks
             - publish-local
-      - sample-scala-valueentity-store:
+      - sample-scala-view-store:
           requires:
             - checks
             - publish-local

@@ -14,7 +14,7 @@ Advanced views can subscribe to events and changes from multiple entities or eve
 * `RIGHT (OUTER) JOIN` - returns all entries in the right table, joined with any matching entries from the left table
 * `FULL (OUTER) JOIN` - returns all entries from both tables, with joined entries for matching values
 
-In these examples, the Customer Registry used for simple views is extended to be a simple Store, adding Products and Orders for Customers.
+In these examples, the Customer Registry used for simple views is extended to be a simple Store, adding Products and Orders for Customers. Customers and Products are implemented using Event Sourced Entities, while Orders is a Value Entity.
 
 Each Product includes an id, name, and a price:
 
@@ -24,7 +24,7 @@ Java::
 [source,proto,indent=0]
 .src/main/proto/store/product/domain/product_domain.proto
 ----
-include::example$java-valueentity-store/src/main/proto/store/product/domain/product_domain.proto[tag=domain]
+include::example$java-view-store/src/main/proto/store/product/domain/product_domain.proto[tag=domain]
 ----
 
 Scala::
@@ -32,7 +32,7 @@ Scala::
 [source,proto,indent=0]
 .src/main/proto/store/product/domain/product_domain.proto
 ----
-include::example$scala-valueentity-store/src/main/proto/store/product/domain/product_domain.proto[tag=domain]
+include::example$scala-view-store/src/main/proto/store/product/domain/product_domain.proto[tag=domain]
 ----
 
 Each Order has an id, refers to the Customer and Product ids for this order, has the quantity of the ordered product, and a timestamp for when the order was created:
@@ -43,7 +43,7 @@ Java::
 [source,proto,indent=0]
 .src/main/proto/store/order/domain/order_domain.proto
 ----
-include::example$java-valueentity-store/src/main/proto/store/order/domain/order_domain.proto[tag=domain]
+include::example$java-view-store/src/main/proto/store/order/domain/order_domain.proto[tag=domain]
 ----
 
 Scala::
@@ -51,7 +51,7 @@ Scala::
 [source,proto,indent=0]
 .src/main/proto/store/order/domain/order_domain.proto
 ----
-include::example$scala-valueentity-store/src/main/proto/store/order/domain/order_domain.proto[tag=domain]
+include::example$scala-view-store/src/main/proto/store/order/domain/order_domain.proto[tag=domain]
 ----
 
 A view can then subscribe to the events or changes for each of the Customer, Order, and Product entities, with multiple update methods on the service, but for different tables.
@@ -62,18 +62,18 @@ Java::
 [source,proto,indent=0]
 .src/main/proto/store/view/joined/orders_view.proto
 ----
-include::example$java-valueentity-store/src/main/proto/store/view/joined/orders_view.proto[tag=updates]
+include::example$java-view-store/src/main/proto/store/view/joined/orders_view.proto[tag=updates]
 ----
-<1> Each update method stores its state type in a different table.
+<1> Each update method stores its state type in a different table for `customers`, `products`, and `orders`.
 
 Scala::
 +
 [source,proto,indent=0]
 .src/main/proto/store/view/joined/orders_view.proto
 ----
-include::example$scala-valueentity-store/src/main/proto/store/view/joined/orders_view.proto[tag=updates]
+include::example$scala-view-store/src/main/proto/store/view/joined/orders_view.proto[tag=updates]
 ----
-<1> Each update method stores its state type in a different table.
+<1> Each update method stores its state type in a different table for `customers`, `products`, and `orders`.
 
 The view query can then JOIN across these tables, to return all orders for a specified customer, and include the customer and product details with each order:
 
@@ -83,7 +83,7 @@ Java::
 [source,proto,indent=0]
 .src/main/proto/store/view/joined/orders_view.proto
 ----
-include::example$java-valueentity-store/src/main/proto/store/view/joined/orders_view.proto[tag=query]
+include::example$java-view-store/src/main/proto/store/view/joined/orders_view.proto[tag=query]
 ----
 <1> The service method returns a stream of customer orders.
 <2> Select all columns from the joined entries to project into the combined `CustomerOrder` result type.
@@ -97,7 +97,7 @@ Scala::
 [source,proto,indent=0]
 .src/main/proto/store/view/joined/orders_view.proto
 ----
-include::example$scala-valueentity-store/src/main/proto/store/view/joined/orders_view.proto[tag=query]
+include::example$scala-view-store/src/main/proto/store/view/joined/orders_view.proto[tag=query]
 ----
 <1> The service method returns a stream of customer orders.
 <2> Select all columns from the joined entries to project into the combined `CustomerOrder` result type.
@@ -114,7 +114,7 @@ Java::
 [source,proto,indent=0]
 .src/main/proto/store/view/nested/orders_view.proto
 ----
-include::example$java-valueentity-store/src/main/proto/store/view/nested/orders_view.proto[tag=query]
+include::example$java-view-store/src/main/proto/store/view/nested/orders_view.proto[tag=query]
 ----
 <1> A single `CustomerOrders` message is returned, which will have the customer details and all orders for this customer.
 <2> The customer columns are projected into the result message, and the order and product columns are combined into a nested message and projected into the `orders` field.
@@ -125,7 +125,7 @@ Scala::
 [source,proto,indent=0]
 .src/main/proto/store/view/nested/orders_view.proto
 ----
-include::example$scala-valueentity-store/src/main/proto/store/view/nested/orders_view.proto[tag=query]
+include::example$scala-view-store/src/main/proto/store/view/nested/orders_view.proto[tag=query]
 ----
 <1> A single `CustomerOrders` message is returned, which will have the customer details and all orders for this customer.
 <2> The customer columns are projected into the result message, and the order and product columns are combined into a nested message and projected into the `orders` field.
@@ -139,7 +139,7 @@ Java::
 [source,proto,indent=0]
 .src/main/proto/store/view/structured/orders_view.proto
 ----
-include::example$java-valueentity-store/src/main/proto/store/view/structured/orders_view.proto[tag=query]
+include::example$java-view-store/src/main/proto/store/view/structured/orders_view.proto[tag=query]
 ----
 <1> The `customer_id` is renamed to just `id` in the result type.
 <2> Customer shipping details are transformed and combined into a nested message.
@@ -152,7 +152,7 @@ Scala::
 [source,proto,indent=0]
 .src/main/proto/store/view/structured/orders_view.proto
 ----
-include::example$scala-valueentity-store/src/main/proto/store/view/structured/orders_view.proto[tag=query]
+include::example$scala-view-store/src/main/proto/store/view/structured/orders_view.proto[tag=query]
 ----
 <1> The `customer_id` is renamed to just `id` in the result type.
 <2> Customer shipping details are transformed and combined into a nested message.
@@ -174,7 +174,7 @@ Java::
 [source,java,indent=0]
 .src/it/java/store/view/joined/JoinedCustomerOrdersViewIntegrationTest.java
 ----
-include::example$java-valueentity-store/src/it/java/store/view/joined/JoinedCustomerOrdersViewIntegrationTest.java[tag=testkit-advanced-views]
+include::example$java-view-store/src/it/java/store/view/joined/JoinedCustomerOrdersViewIntegrationTest.java[tag=testkit-advanced-views]
 ----
 
 Scala::
@@ -182,7 +182,7 @@ Scala::
 [source,scala,indent=0]
 .src/test/scala/store/view/joined/JoinedCustomerOrdersIntegrationSpec.scala
 ----
-include::example$scala-valueentity-store/src/test/scala/store/view/joined/JoinedCustomerOrdersIntegrationSpec.scala[tag=testkit-advanced-views]
+include::example$scala-view-store/src/test/scala/store/view/joined/JoinedCustomerOrdersIntegrationSpec.scala[tag=testkit-advanced-views]
 ----
 
 For running a local proxy in Docker, with advanced view features enabled, use the environment variable `VIEW_FEATURES_ALL=on`.
