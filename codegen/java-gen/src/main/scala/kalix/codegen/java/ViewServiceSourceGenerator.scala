@@ -38,8 +38,28 @@ object ViewServiceSourceGenerator {
   }
 
   private[codegen] def viewRouter(view: ModelBuilder.ViewService, packageName: PackageNaming): String = {
+    JavaGeneratorUtils.generate(
+      packageName,
+      c"""|$managedComment
+          |
+          |${viewRouterContent(view)}
+          |""",
+      Nil)
+  }
+
+  private[codegen] def viewRouterContent(view: ModelBuilder.ViewService): CodeBlock = {
+    if (view.tables.size > 1) viewRouterMultiTable(view)
+    else viewRouterClass(view.routerName, view.className, view.state.messageType, view.transformedUpdates)
+  }
+
+  private[codegen] def viewRouterClass(
+      className: String,
+      implClassName: String,
+      stateType: MessageType,
+      transformedUpdates: Iterable[ModelBuilder.Command],
+      static: Boolean = false): CodeBlock = {
     import Types.View._
-    val cases = view.transformedUpdates
+    val cases = transformedUpdates
       .map { cmd =>
         val methodName = cmd.name
         val inputType = cmd.inputType
@@ -51,37 +71,94 @@ object ViewServiceSourceGenerator {
           c"""|case "$methodName":
               |  return view().${lowerFirst(methodName)}(
               |      state,
-              |      (${inputType}) event);
+              |      ($inputType) event);
               |"""
         }
       }
 
-    JavaGeneratorUtils.generate(
-      packageName,
-      c"""|$managedComment
-          |
-          |public class ${view.routerName} extends $ViewRouter<${view.state.messageType}, ${view.impl}> {
-          |
-          |  public ${view.routerName}(${view.impl} view) {
-          |    super(view);
-          |  }
-          |
-          |  @Override
-          |  public $View.UpdateEffect<${view.state.messageType}> handleUpdate(
-          |      String eventName,
-          |      ${view.state.messageType} state,
-          |      Object event) {
-          |
-          |    switch (eventName) {
-          |      $cases
-          |      default:
-          |        throw new $UpdateHandlerNotFound(eventName);
-          |    }
-          |  }
-          |
-          |}
-          |""",
-      Nil)
+    val modifiers = if (static) "public static" else "public"
+
+    c"""|$modifiers class $className extends $ViewRouter<$stateType, $implClassName> {
+        |
+        |  public $className($implClassName view) {
+        |    super(view);
+        |  }
+        |
+        |  @Override
+        |  public $View.UpdateEffect<$stateType> handleUpdate(
+        |      String eventName,
+        |      $stateType state,
+        |      Object event) {
+        |
+        |    switch (eventName) {
+        |      $cases
+        |      default:
+        |        throw new $UpdateHandlerNotFound(eventName);
+        |    }
+        |  }
+        |
+        |}
+        |"""
+  }
+
+  private[codegen] def viewRouterMultiTable(view: ModelBuilder.ViewService): CodeBlock = {
+    import Types.View._
+    val routerClasses = view.tables.flatMap { table =>
+      val transformedUpdates = view.tableTransformedUpdates(table)
+      if (transformedUpdates.isEmpty) None
+      else {
+        val className = view.tableClassName(table)
+        val stateType = view.tableType(table)
+        Some(
+          viewRouterClass(
+            s"${className}Router",
+            s"Abstract${view.className}.Abstract$className",
+            stateType,
+            transformedUpdates,
+            static = true))
+      }
+    }
+    val routerVariables = view.tables.flatMap { table =>
+      if (view.tableTransformedUpdates(table).isEmpty) None
+      else {
+        val className = view.tableClassName(table)
+        Some(c"""private ${className}Router ${lowerFirst(className)}Router;""")
+      }
+    }
+    val routerInits = view.tables.flatMap { table =>
+      if (view.tableTransformedUpdates(table).isEmpty) None
+      else {
+        val className = view.tableClassName(table)
+        Some(c"""${lowerFirst(className)}Router = new ${className}Router(view.${lowerFirst(className)}());""")
+      }
+    }
+    val routerCases = view.transformedUpdates.map { update =>
+      val className = view.tableClassName(update.viewTable)
+      c"""|case "${update.name}":
+          |  return ${lowerFirst(className)}Router;
+          |"""
+    }
+    c"""|public class ${view.routerName} extends $ViewMultiTableRouter {
+        |
+        |  $routerVariables
+        |
+        |  public ${view.routerName}(${view.impl} view) {
+        |    $routerInits
+        |  }
+        |
+        |  $routerClasses
+        |
+        |  @Override
+        |  public $ViewRouter<?, ?> viewRouter(String eventName, Object event) {
+        |    switch (eventName) {
+        |      $routerCases
+        |      default:
+        |        throw new $UpdateHandlerNotFound(eventName);
+        |    }
+        |  }
+        |
+        |}
+        |"""
   }
 
   private[codegen] def viewProvider(view: ModelBuilder.ViewService, packageName: PackageNaming): String = {
@@ -92,7 +169,7 @@ object ViewServiceSourceGenerator {
       packageName,
       c"""|$managedComment
           |
-          |public class ${view.providerName} implements $ViewProvider<${view.state.messageType}, ${view.impl}> {
+          |public class ${view.providerName} implements $ViewProvider {
           |
           |  private final $Function<$ViewCreationContext, ${view.className}> viewFactory;
           |  private final String viewId;
@@ -155,86 +232,191 @@ object ViewServiceSourceGenerator {
   }
 
   private[codegen] def viewSource(view: ModelBuilder.ViewService, packageName: PackageNaming): String = {
-    import Types.View._
-
-    val emptyState =
-      if (view.transformedUpdates.isEmpty)
-        c""
-      else
-        c"""|
-            |@Override
-            |public ${view.state.messageType} emptyState() {
-            |  throw new UnsupportedOperationException("Not implemented yet, replace with your empty view state");
-            |}
-            |"""
-
-    val handlers = view.transformedUpdates.map { update =>
-      val stateType = update.outputType
-      if (update.handleDeletes) {
-        c"""@Override
-           |public $View.UpdateEffect<${stateType}> ${lowerFirst(update.name)}(
-           |  $stateType state) {
-           |  throw new UnsupportedOperationException("Delete handler for '${update.name}' not implemented yet");
-           |}"""
-      } else {
-        c"""@Override
-           |public $View.UpdateEffect<${stateType}> ${lowerFirst(update.name)}(
-           |  $stateType state, ${update.inputType} ${lowerFirst(update.inputType.name)}) {
-           |  throw new UnsupportedOperationException("Update handler for '${update.name}' not implemented yet");
-           |}"""
-      }
-    }
-
     JavaGeneratorUtils.generate(
       packageName,
-      c"""${unmanagedComment(Left(view))}
-       |
-       |public class ${view.className} extends ${view.abstractView} {
-       |
-       |  public ${view.className}($ViewContext context) {}
-       |  $emptyState
-       |  $handlers
-       |}
-       |""",
+      c"""|${unmanagedComment(Left(view))}
+          |
+          |${viewSourceContent(view)}
+          |""",
       Nil)
   }
 
-  private[codegen] def abstractView(view: ModelBuilder.ViewService, packageName: PackageNaming): String = {
+  private[codegen] def viewSourceContent(view: ModelBuilder.ViewService): CodeBlock = {
+    if (view.tables.size > 1) viewSourceMultiTable(view)
+    else viewSourceClass(view.className, view.abstractViewName, view.state.messageType, view.transformedUpdates)
+  }
+
+  private[codegen] def viewSourceClass(
+      className: String,
+      abstractClassName: String,
+      stateType: MessageType,
+      transformedUpdates: Iterable[ModelBuilder.Command],
+      static: Boolean = false): CodeBlock = {
     import Types.View._
 
-    val emptyState =
-      if (view.transformedUpdates.isEmpty)
-        c"""|
-            |@Override
-            |public ${view.state.messageType} emptyState() {
-            |  return null; // emptyState is only used with transform_updates=true
-            |}
-            |"""
-      else
-        c""
+    val methods =
+      if (transformedUpdates.isEmpty) Seq.empty
+      else {
+        val emptyState =
+          c"""|@Override
+              |public $stateType emptyState() {
+              |  throw new UnsupportedOperationException("Not implemented yet, replace with your empty view state");
+              |}
+              |"""
 
-    val handlers = view.transformedUpdates.map { update =>
-      val stateType = update.outputType
-      if (update.handleDeletes) {
-        c"""public abstract $View.UpdateEffect<$stateType> ${lowerFirst(update.name)}(
-           |  $stateType state);"""
-      } else {
-        c"""public abstract $View.UpdateEffect<$stateType> ${lowerFirst(update.name)}(
-           |  $stateType state, ${update.inputType} ${lowerFirst(update.inputType.name)});"""
+        val updateHandlers = transformedUpdates.toSeq.map { update =>
+          val stateType = update.outputType
+          if (update.handleDeletes) {
+            c"""|@Override
+                |public $View.UpdateEffect<$stateType> ${lowerFirst(update.name)}(
+                |    $stateType state) {
+                |  throw new UnsupportedOperationException("Delete handler for '${update.name}' not implemented yet");
+                |}
+                |"""
+          } else {
+            c"""|@Override
+                |public $View.UpdateEffect<$stateType> ${lowerFirst(update.name)}(
+                |    $stateType state,
+                |    ${update.inputType} ${lowerFirst(update.inputType.name)}) {
+                |  throw new UnsupportedOperationException("Update handler for '${update.name}' not implemented yet");
+                |}
+                |"""
+          }
+        }
+
+        emptyState +: updateHandlers
       }
 
+    val modifiers = if (static) "public static" else "public"
+
+    c"""|$modifiers class $className extends $abstractClassName {
+        |
+        |  public $className($ViewContext context) {}
+        |
+        |  $methods
+        |}"""
+  }
+
+  private[codegen] def viewSourceMultiTable(view: ModelBuilder.ViewService): CodeBlock = {
+    import Types.View._
+
+    val viewTables = view.tables.flatMap { table =>
+      val transformedUpdates = view.tableTransformedUpdates(table)
+      if (transformedUpdates.isEmpty) None
+      else {
+        val className = view.tableClassName(table)
+        val stateType = view.tableType(table)
+        Some(c"""|@Override
+                 |public $className create$className($ViewContext context) {
+                 |  return new $className(context);
+                 |}
+                 |
+                 |${viewSourceClass(className, s"Abstract$className", stateType, transformedUpdates, static = true)}
+                 |""")
+      }
     }
 
+    c"""|public class ${view.className} extends ${view.abstractViewName} {
+        |
+        |  public ${view.className}($ViewContext context) {
+        |    super(context);
+        |  }
+        |
+        |  $viewTables
+        |}"""
+  }
+
+  private[codegen] def abstractView(view: ModelBuilder.ViewService, packageName: PackageNaming): String = {
     JavaGeneratorUtils.generate(
       packageName,
-      c"""$managedComment
-         |
-         |public abstract class ${view.abstractViewName} extends $View<${view.state.messageType}> {
-         |  $emptyState
-         |  $handlers
-         |}
-         |""",
+      c"""|$managedComment
+          |
+          |${abstractViewContent(view)}
+          |""",
       Nil)
+  }
+
+  private[codegen] def abstractViewContent(view: ModelBuilder.ViewService): CodeBlock = {
+    if (view.tables.size > 1) abstractViewMultiTable(view)
+    else abstractViewClass(view.abstractViewName, view.state.messageType, view.transformedUpdates)
+  }
+
+  private[codegen] def abstractViewClass(
+      className: String,
+      stateType: MessageType,
+      transformedUpdates: Iterable[ModelBuilder.Command],
+      static: Boolean = false): CodeBlock = {
+    import Types.View._
+
+    val handlers = transformedUpdates.map { update =>
+      val stateType = update.outputType
+      if (update.handleDeletes) {
+        c"""|public abstract $View.UpdateEffect<$stateType> ${lowerFirst(update.name)}(
+            |    $stateType state);
+            |"""
+      } else {
+        c"""|public abstract $View.UpdateEffect<$stateType> ${lowerFirst(update.name)}(
+            |    $stateType state,
+            |    ${update.inputType} ${lowerFirst(update.inputType.name)});
+            |"""
+      }
+    }
+
+    val modifiers = if (static) "public static abstract" else "public abstract"
+
+    c"""|$modifiers class $className extends $View<$stateType> {
+        |
+        |  $handlers
+        |}"""
+  }
+
+  private[codegen] def abstractViewMultiTable(view: ModelBuilder.ViewService): CodeBlock = {
+    import Types.View._
+
+    val viewTableVariables = view.tables.flatMap { table =>
+      val transformedUpdates = view.tableTransformedUpdates(table)
+      if (transformedUpdates.isEmpty) None
+      else {
+        val className = view.tableClassName(table)
+        Some(c"""private Abstract$className ${lowerFirst(className)};""")
+      }
+    }
+
+    val viewTableInits = view.tables.flatMap { table =>
+      val transformedUpdates = view.tableTransformedUpdates(table)
+      if (transformedUpdates.isEmpty) None
+      else {
+        val className = view.tableClassName(table)
+        Some(c"""${lowerFirst(className)} = create$className(context);""")
+      }
+    }
+
+    val viewTables = view.tables.flatMap { table =>
+      val transformedUpdates = view.tableTransformedUpdates(table)
+      if (transformedUpdates.isEmpty) None
+      else {
+        val className = view.tableClassName(table)
+        val stateType = view.tableType(table)
+        Some(c"""|public Abstract$className ${lowerFirst(className)}() {
+                 |  return ${lowerFirst(className)};
+                 |}
+                 |
+                 |public abstract Abstract$className create$className($ViewContext context);
+                 |
+                 |${abstractViewClass(s"Abstract$className", stateType, transformedUpdates, static = true)}
+                 |""")
+      }
+    }
+    c"""|public abstract class ${view.abstractViewName} {
+        |
+        |  $viewTableVariables
+        |
+        |  public ${view.abstractViewName}($ViewContext context) {
+        |    $viewTableInits
+        |  }
+        |
+        |  $viewTables
+        |}"""
   }
 
 }

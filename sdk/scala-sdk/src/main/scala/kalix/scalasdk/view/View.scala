@@ -99,6 +99,6 @@ abstract class View[S] {
    *   an empty state object or `null` to hand to the process method when an event for a previously unknown subject id
    *   is seen.
    */
-  def emptyState: S
+  def emptyState: S = null.asInstanceOf[S]
 
 }

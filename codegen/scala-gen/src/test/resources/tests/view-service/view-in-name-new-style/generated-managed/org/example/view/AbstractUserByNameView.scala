@@ -7,9 +7,7 @@ import kalix.scalasdk.view.View
 // DO NOT EDIT
 
 abstract class AbstractUserByNameView extends View[UserState] {
-
-  override def emptyState: UserState =
-    null // emptyState is only used with transform_updates=true
-
-  
+  def updateCustomer(
+      state: UserState,
+      userState: UserState): View.UpdateEffect[UserState]
 }

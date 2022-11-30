@@ -8,11 +8,9 @@ import kalix.javasdk.view.View;
 
 public abstract class AbstractUserByNameView extends View<UserViewModel.UserState> {
 
-  @Override
-  public UserViewModel.UserState emptyState() {
-    return null; // emptyState is only used with transform_updates=true
-  }
-
+  public abstract View.UpdateEffect<UserViewModel.UserState> updateCustomer(
+      UserViewModel.UserState state,
+      UserViewModel.UserState userState);
 
 }
 

@@ -19,16 +19,16 @@ package kalix.scalasdk.view
 import com.google.protobuf.Descriptors
 import scala.collection.immutable.Seq
 
-import kalix.scalasdk.impl.view.ViewRouter
+import kalix.scalasdk.impl.view.ViewUpdateRouter
 
-trait ViewProvider[S, V <: View[S]] {
+trait ViewProvider {
   def serviceDescriptor: Descriptors.ServiceDescriptor
 
   def viewId: String
 
   def options: ViewOptions
 
-  def newRouter(context: ViewCreationContext): ViewRouter[S, V]
+  def newRouter(context: ViewCreationContext): ViewUpdateRouter
 
   def additionalDescriptors: Seq[Descriptors.FileDescriptor]
 }

@@ -325,8 +325,8 @@ case class KalixServer(applicationContext: ApplicationContext, config: Config) {
         kalixBeanFactory.getBean(clz)
       })
 
-  private def viewProvider[S, V <: View[S]](clz: Class[V]): ViewProvider[S, V] =
-    ReflectiveViewProvider.of(
+  private def viewProvider[S, V <: View[S]](clz: Class[V]): ViewProvider =
+    ReflectiveViewProvider.of[S, V](
       clz,
       messageCodec,
       context => {

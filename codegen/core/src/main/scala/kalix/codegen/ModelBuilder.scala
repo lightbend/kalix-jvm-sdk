@@ -16,15 +16,17 @@
 
 package kalix.codegen
 
+import java.util.Locale
 import scala.jdk.CollectionConverters._
 
+import com.google.common.base.CaseFormat
+import com.google.protobuf.Descriptors
+import com.google.protobuf.Descriptors.ServiceDescriptor
 import kalix.CodegenOptions
 import kalix.EventSourcedEntityDef
 import kalix.ReplicatedEntityDef
 import kalix.ServiceOptions.ServiceType
 import kalix.ValueEntityDef
-import com.google.protobuf.Descriptors
-import com.google.protobuf.Descriptors.ServiceDescriptor
 
 /**
  * Builds a model of entities and their properties from a protobuf descriptor
@@ -299,6 +301,23 @@ object ModelBuilder {
       }
 
     val state = State(updates.head.outputType)
+
+    val stateTypes: Seq[ProtoMessageType] = updates.map(_.outputType).toSeq.distinct
+
+    val tables: Seq[String] = updates.map(_.viewTable).toSeq.distinct
+
+    def tableClassName(tableName: String): String = {
+      val lowerUnderscoreName = tableName.toLowerCase(Locale.ROOT).replaceAll("[^a-z]+", "_")
+      CaseFormat.LOWER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, lowerUnderscoreName) + "ViewTable"
+    }
+
+    def tableType(tableName: String): ProtoMessageType = updates
+      .find(_.viewTable == tableName)
+      .map(_.outputType)
+      .getOrElse(throw new IllegalArgumentException(s"Expected update method for table '$tableName''"))
+
+    def tableTransformedUpdates(tableName: String): Iterable[Command] =
+      transformedUpdates.filter(_.viewTable == tableName)
   }
 
   /**
@@ -322,7 +341,8 @@ object ModelBuilder {
       inFromTopic: Boolean,
       outToTopic: Boolean,
       ignore: Boolean,
-      handleDeletes: Boolean) {
+      handleDeletes: Boolean,
+      viewTable: String) {
 
     def isUnary: Boolean = !streamedInput && !streamedOutput
     def isStreamIn: Boolean = streamedInput && !streamedOutput
@@ -335,6 +355,7 @@ object ModelBuilder {
   object Command {
     def from(method: Descriptors.MethodDescriptor)(implicit messageExtractor: ProtoMessageTypeExtractor): Command = {
       val eventing = method.getOptions.getExtension(kalix.Annotations.method).getEventing
+      val viewUpdate = method.getOptions.getExtension(kalix.Annotations.method).getView.getUpdate
       Command(
         method.getName,
         messageExtractor(method.getInputType),
@@ -344,7 +365,8 @@ object ModelBuilder {
         inFromTopic = eventing.hasIn && eventing.getIn.hasTopic,
         outToTopic = eventing.hasOut && eventing.getOut.hasTopic,
         ignore = eventing.hasIn && eventing.getIn.getIgnore,
-        handleDeletes = eventing.hasIn && eventing.getIn.getHandleDeletes)
+        handleDeletes = eventing.hasIn && eventing.getIn.getHandleDeletes,
+        viewUpdate.getTable)
     }
   }
 

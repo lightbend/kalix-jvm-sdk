@@ -20,7 +20,6 @@ option java_outer_classname = "UserViewModel";
 
 import "kalix/annotations.proto";
 
-
 message ByNameRequest {
   string user_name = 1;
 }
@@ -38,11 +37,10 @@ service UserByNameView {
     view: {}
   };
 
-
   rpc UpdateCustomer(UserState) returns (UserState) {
-
     option (kalix.method).view.update = {
       table: "users"
+      transform_updates: true
     };
   }
 

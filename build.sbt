@@ -124,6 +124,7 @@ lazy val sdkSpring = project
     Compile / akkaGrpcGeneratedSources := Seq(AkkaGrpc.Server),
     Compile / akkaGrpcGeneratedLanguages := Seq(AkkaGrpc.Scala),
     Test / javacOptions ++= Seq("-parameters", "--release", "17"), // for Jackson
+    Test / scalacOptions ++= Seq("-release", "17"),
     IntegrationTest / javacOptions += "-parameters", // for Jackson
     inTask(doc)(
       Seq(

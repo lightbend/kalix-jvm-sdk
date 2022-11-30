@@ -32,7 +32,7 @@ import kalix.springsdk.impl.view.ReflectiveViewRouter;
 import java.util.Optional;
 import java.util.function.Function;
 
-public class ReflectiveViewProvider<S, V extends View<S>> implements ViewProvider<S, V> {
+public class ReflectiveViewProvider<S, V extends View<S>> implements ViewProvider {
   private final Function<ViewCreationContext, V> factory;
 
   private final String viewId;

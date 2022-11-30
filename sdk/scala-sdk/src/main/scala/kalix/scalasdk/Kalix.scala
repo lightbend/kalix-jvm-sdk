@@ -137,7 +137,7 @@ class Kalix private (private[kalix] val delegate: javasdk.Kalix) {
    * @return
    *   This stateful service builder.
    */
-  def register[S, V <: View[S]](provider: ViewProvider[S, V]): Kalix =
+  def register(provider: ViewProvider): Kalix =
     Kalix(delegate.register(new JavaViewProviderAdapter(provider)))
 
   /**
