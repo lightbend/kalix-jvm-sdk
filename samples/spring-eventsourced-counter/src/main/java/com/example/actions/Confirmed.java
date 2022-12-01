@@ -1,8 +1,5 @@
 package com.example.actions;
-
-public class Confirmed {
+public record Confirmed() {
 
     public static Confirmed instance = new Confirmed();
-
-    private Confirmed(){}
 }

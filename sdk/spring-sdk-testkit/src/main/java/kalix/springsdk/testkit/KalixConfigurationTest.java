@@ -26,6 +26,7 @@ import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
+import org.springframework.core.env.Environment;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -55,11 +56,16 @@ public class KalixConfigurationTest {
   }
 
   @Bean
-  public KalixTestKit kalixTestKit() {
+  public KalixTestKit kalixTestKit(KalixTestKit.Settings settings) {
     logger.info("Starting Kalix TestKit...");
-    KalixTestKit kalixTestKit = new KalixTestKit(kalixServer().kalix());
+    KalixTestKit kalixTestKit = new KalixTestKit(kalixServer().kalix(), settings);
     kalixTestKit.start(kalixConfiguration.config());
     logger.info("Kalix Proxy running on port: " + kalixTestKit.getPort());
     return kalixTestKit;
+  }
+
+  @Bean
+  public KalixTestKit.Settings settings() {
+    return KalixTestKit.Settings.DEFAULT;
   }
 }

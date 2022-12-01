@@ -50,7 +50,7 @@ import static org.awaitility.Awaitility.await;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = Main.class)
-@Import(KalixConfigurationTest.class)
+@Import({KalixConfigurationTest.class, TestkitConfig.class})
 @TestPropertySource(properties = "spring.main.allow-bean-definition-overriding=true")
 public class SpringSdkIntegrationTest {
 
