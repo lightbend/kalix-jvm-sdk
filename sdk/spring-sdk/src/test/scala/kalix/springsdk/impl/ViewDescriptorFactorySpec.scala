@@ -217,7 +217,6 @@ class ViewDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSuit
         jwtOption.getBearerTokenIssuer(0) shouldBe "a"
         jwtOption.getBearerTokenIssuer(1) shouldBe "b"
         jwtOption.getValidate(0) shouldBe JwtMethodMode.BEARER_TOKEN
-        jwtOption.getSign(0) shouldBe JwtMethodMode.MESSAGE
         assertRequestFieldJavaType(method, "json_body", JavaType.MESSAGE)
       }
     }

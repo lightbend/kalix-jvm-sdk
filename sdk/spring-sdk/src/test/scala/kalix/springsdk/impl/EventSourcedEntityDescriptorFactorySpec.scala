@@ -99,7 +99,6 @@ class EventSourcedEntityDescriptorFactorySpec extends AnyWordSpec with Component
         jwtOption.getBearerTokenIssuer(0) shouldBe "a"
         jwtOption.getBearerTokenIssuer(1) shouldBe "b"
         jwtOption.getValidate(0) shouldBe JwtMethodMode.BEARER_TOKEN
-        jwtOption.getSign(0) shouldBe JwtMethodMode.MESSAGE
 
         val postMethod = desc.commandHandlers("ChangeInteger")
         assertRequestFieldJavaType(postMethod, "id", JavaType.STRING)
@@ -110,7 +109,6 @@ class EventSourcedEntityDescriptorFactorySpec extends AnyWordSpec with Component
         jwtOption2.getBearerTokenIssuer(0) shouldBe "a"
         jwtOption2.getBearerTokenIssuer(1) shouldBe "b"
         jwtOption2.getValidate(0) shouldBe JwtMethodMode.BEARER_TOKEN
-        jwtOption2.getSign(0) shouldBe JwtMethodMode.MESSAGE
       }
     }
 

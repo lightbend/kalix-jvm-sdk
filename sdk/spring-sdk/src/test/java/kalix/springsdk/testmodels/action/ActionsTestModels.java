@@ -65,7 +65,6 @@ public class ActionsTestModels {
     @PostMapping("/message")
     @JWT(
         validate = JWT.JwtMethodMode.BEARER_TOKEN,
-        sign = JWT.JwtMethodMode.MESSAGE,
         bearerTokenIssuer = {"a", "b"})
     public Action.Effect<Message> message(@RequestBody Message msg) {
       return effects().reply(msg);

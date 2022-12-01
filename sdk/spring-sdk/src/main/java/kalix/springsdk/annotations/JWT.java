@@ -25,29 +25,18 @@ public @interface JWT {
 
   enum JwtMethodMode {
     /**
-     * No validation/signing.
+     * No validation.
      */
     UNSPECIFIED,
 
     /**
-     * When used to {@code validate()} it validates that the bearer token is present on the request, in the Authorization header.
-     * When used to {@code sign()}. signs the response with the bearer token from the Authorization header.
+     * Validates that the bearer token is present on the request, in the 'Authorization' header.
      */
     BEARER_TOKEN,
 
-    /**
-     * When used to {@code validate()} it validates the request message.
-     * When used to {@code sign()} signs the response message.
-     *
-     * If present, the message must have a token annotated field or the message itself must have
-     * validate_bearer_token set to true.
-     */
-    MESSAGE
   }
 
   JwtMethodMode[] validate() default JwtMethodMode.UNSPECIFIED;
-
-  JwtMethodMode[] sign() default JwtMethodMode.UNSPECIFIED;
 
   /**
    * If set, then the token extracted from the bearer token must have this issuer.
