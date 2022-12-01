@@ -11,7 +11,7 @@ import java.util.function.Function;
 // It will be re-generated to reflect any changes to your protobuf definitions.
 // DO NOT EDIT
 
-public class UserByNameViewProvider implements ViewProvider<UserViewModel.UserState, UserByNameView> {
+public class UserByNameViewProvider implements ViewProvider {
 
   private final Function<ViewCreationContext, UserByNameView> viewFactory;
   private final String viewId;

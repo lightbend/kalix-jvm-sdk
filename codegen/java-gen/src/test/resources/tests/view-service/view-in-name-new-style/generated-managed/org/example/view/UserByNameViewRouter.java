@@ -21,6 +21,10 @@ public class UserByNameViewRouter extends ViewRouter<UserViewModel.UserState, Us
       Object event) {
 
     switch (eventName) {
+      case "UpdateCustomer":
+        return view().updateCustomer(
+            state,
+            (UserViewModel.UserState) event);
 
       default:
         throw new UpdateHandlerNotFound(eventName);

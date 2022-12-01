@@ -21,6 +21,18 @@ import kalix.scalasdk.view.View
 /**
  * INTERNAL API, but used by generated code.
  */
-abstract class ViewRouter[S, V <: View[S]](val view: V) {
+abstract class ViewUpdateRouter
+
+/**
+ * INTERNAL API, but used by generated code.
+ */
+abstract class ViewRouter[S, V <: View[S]](val view: V) extends ViewUpdateRouter {
   def handleUpdate(commandName: String, state: S, event: Any): View.UpdateEffect[S]
+}
+
+/**
+ * INTERNAL API, but used by generated code.
+ */
+abstract class ViewMultiTableRouter extends ViewUpdateRouter {
+  def viewRouter(eventName: String, event: Any): ViewRouter[_, _]
 }

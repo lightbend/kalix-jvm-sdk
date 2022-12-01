@@ -22,6 +22,7 @@ object Types {
   object View {
     val UpdateHandlerNotFound = ClassMessageType("kalix.javasdk.impl.view.UpdateHandlerNotFound")
     val ViewRouter = ClassMessageType("kalix.javasdk.impl.view.ViewRouter")
+    val ViewMultiTableRouter = ClassMessageType("kalix.javasdk.impl.view.ViewMultiTableRouter")
     val View = ClassMessageType("kalix.javasdk.view.View")
     val ViewProvider = ClassMessageType("kalix.javasdk.view.ViewProvider")
     val ViewCreationContext = ClassMessageType("kalix.javasdk.view.ViewCreationContext")

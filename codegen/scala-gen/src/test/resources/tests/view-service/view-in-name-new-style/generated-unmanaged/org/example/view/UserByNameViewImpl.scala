@@ -10,6 +10,12 @@ import kalix.scalasdk.view.ViewContext
 
 class UserByNameViewImpl(context: ViewContext) extends AbstractUserByNameView {
 
+  override def emptyState: UserState =
+    throw new UnsupportedOperationException("Not implemented yet, replace with your empty view state")
 
-  
+  override def updateCustomer(
+      state: UserState,
+      userState: UserState): UpdateEffect[UserState] =
+    throw new UnsupportedOperationException("Update handler for 'UpdateCustomer' not implemented yet")
+
 }

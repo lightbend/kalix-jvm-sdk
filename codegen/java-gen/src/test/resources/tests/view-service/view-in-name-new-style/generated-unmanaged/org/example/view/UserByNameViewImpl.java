@@ -1,5 +1,6 @@
 package org.example.view;
 
+import kalix.javasdk.view.View;
 import kalix.javasdk.view.ViewContext;
 
 // This class was initially generated based on the .proto definition by Kalix tooling.
@@ -12,6 +13,16 @@ public class UserByNameViewImpl extends AbstractUserByNameView {
 
   public UserByNameViewImpl(ViewContext context) {}
 
+  @Override
+  public UserViewModel.UserState emptyState() {
+    throw new UnsupportedOperationException("Not implemented yet, replace with your empty view state");
+  }
+
+  @Override
+  public View.UpdateEffect<UserViewModel.UserState> updateCustomer(
+      UserViewModel.UserState state,
+      UserViewModel.UserState userState) {
+    throw new UnsupportedOperationException("Update handler for 'UpdateCustomer' not implemented yet");
+  }
 
 }
-

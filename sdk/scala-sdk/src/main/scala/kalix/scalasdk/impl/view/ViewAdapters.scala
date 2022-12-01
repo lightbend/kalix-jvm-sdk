@@ -17,6 +17,7 @@
 package kalix.scalasdk.impl.view
 
 import akka.stream.Materializer
+import com.google.protobuf.Descriptors
 import kalix.javasdk
 import kalix.javasdk.view.ViewOptions
 import kalix.scalasdk.Metadata
@@ -25,7 +26,6 @@ import kalix.scalasdk.view.UpdateContext
 import kalix.scalasdk.view.View
 import kalix.scalasdk.view.ViewCreationContext
 import kalix.scalasdk.view.ViewProvider
-import com.google.protobuf.Descriptors
 
 import java.util.Optional
 import scala.jdk.CollectionConverters.SetHasAsJava
@@ -38,8 +38,8 @@ private[scalasdk] final class JavaViewAdapter[S](scalaSdkView: View[S]) extends 
     scalaSdkView._internalSetUpdateContext(context.map(new ScalaUpdateContextAdapter(_)).toScala)
 }
 
-private[scalasdk] final class JavaViewProviderAdapter[S, V <: View[S]](scalaSdkProvider: ViewProvider[S, V])
-    extends javasdk.view.ViewProvider[S, javasdk.view.View[S]] {
+private[scalasdk] final class JavaViewProviderAdapter(scalaSdkProvider: ViewProvider)
+    extends javasdk.view.ViewProvider {
   override def serviceDescriptor(): Descriptors.ServiceDescriptor =
     scalaSdkProvider.serviceDescriptor
 
@@ -49,27 +49,47 @@ private[scalasdk] final class JavaViewProviderAdapter[S, V <: View[S]](scalaSdkP
   override def options(): ViewOptions =
     javasdk.impl.view.ViewOptionsImpl(scalaSdkProvider.options.forwardHeaders.asJava)
 
-  override def newRouter(
-      context: javasdk.view.ViewCreationContext): javasdk.impl.view.ViewRouter[S, javasdk.view.View[S]] = {
-    val scalaSdkRouter = scalaSdkProvider
-      .newRouter(new ScalaViewCreationContextAdapter(context))
-      .asInstanceOf[ViewRouter[S, View[S]]]
-    new JavaViewRouterAdapter[S](new JavaViewAdapter[S](scalaSdkRouter.view), scalaSdkRouter)
+  override def newRouter(context: javasdk.view.ViewCreationContext): javasdk.impl.view.ViewUpdateRouter = {
+    scalaSdkProvider.newRouter(new ScalaViewCreationContextAdapter(context)) match {
+      case scalaSdkRouter: ViewRouter[_, _]          => JavaViewRouterAdapter(scalaSdkRouter)
+      case scalaSdkMultiRouter: ViewMultiTableRouter => JavaViewMultiTableRouterAdapter(scalaSdkMultiRouter)
+    }
   }
 
   override def additionalDescriptors(): Array[Descriptors.FileDescriptor] =
     scalaSdkProvider.additionalDescriptors.toArray
 }
 
+private[scalasdk] object JavaViewRouterAdapter {
+  def apply[S](scalaSdkRouter: ViewRouter[_, _]): JavaViewRouterAdapter[S] = {
+    val typedRouter = scalaSdkRouter.asInstanceOf[ViewRouter[S, View[S]]]
+    new JavaViewRouterAdapter[S](new JavaViewAdapter[S](typedRouter.view), typedRouter)
+  }
+}
+
 private[scalasdk] class JavaViewRouterAdapter[S](
     javaSdkView: javasdk.view.View[S],
-    scalaSdkHandler: ViewRouter[S, View[S]])
+    scalaSdkRouter: ViewRouter[S, View[S]])
     extends javasdk.impl.view.ViewRouter[S, javasdk.view.View[S]](javaSdkView) {
 
   override def handleUpdate(commandName: String, state: S, event: Any): javasdk.view.View.UpdateEffect[S] = {
-    scalaSdkHandler.handleUpdate(commandName, state, event) match {
+    scalaSdkRouter.handleUpdate(commandName, state, event) match {
       case effect: ViewUpdateEffectImpl.PrimaryUpdateEffect[S] => effect.toJavaSdk
     }
+  }
+}
+
+private[scalasdk] object JavaViewMultiTableRouterAdapter {
+  def apply[V](scalaSdkRouter: ViewMultiTableRouter): JavaViewMultiTableRouterAdapter =
+    new JavaViewMultiTableRouterAdapter(scalaSdkRouter)
+}
+
+private[scalasdk] class JavaViewMultiTableRouterAdapter(scalaSdkMultiRouter: ViewMultiTableRouter)
+    extends javasdk.impl.view.ViewMultiTableRouter {
+
+  override def viewRouter(eventName: String, event: Any): javasdk.impl.view.ViewRouter[_, _] = {
+    val scalaSdkRouter = scalaSdkMultiRouter.viewRouter(eventName, event)
+    JavaViewRouterAdapter(scalaSdkRouter)
   }
 }
 

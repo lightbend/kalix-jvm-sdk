@@ -8,8 +8,4 @@ import kalix.scalasdk.view.ViewContext
 // As long as this file exists it will not be overwritten: you can maintain it yourself,
 // or delete it so it is regenerated as needed.
 
-class MyUserByNameView(context: ViewContext) extends AbstractMyUserByNameView {
-
-
-  
-}
+class MyUserByNameView(context: ViewContext) extends AbstractMyUserByNameView

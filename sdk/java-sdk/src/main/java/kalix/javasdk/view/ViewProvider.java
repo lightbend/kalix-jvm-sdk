@@ -16,13 +16,13 @@
 
 package kalix.javasdk.view;
 
-import kalix.javasdk.impl.MessageCodec;
-import kalix.javasdk.impl.view.ViewRouter;
 import com.google.protobuf.Descriptors;
+import kalix.javasdk.impl.MessageCodec;
+import kalix.javasdk.impl.view.ViewUpdateRouter;
 
 import java.util.Optional;
 
-public interface ViewProvider<S, V extends View<S>> {
+public interface ViewProvider {
 
   Descriptors.ServiceDescriptor serviceDescriptor();
 
@@ -30,7 +30,7 @@ public interface ViewProvider<S, V extends View<S>> {
 
   ViewOptions options();
 
-  ViewRouter<S, V> newRouter(ViewCreationContext context);
+  ViewUpdateRouter newRouter(ViewCreationContext context);
 
   Descriptors.FileDescriptor[] additionalDescriptors();
 
