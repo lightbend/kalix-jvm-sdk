@@ -161,7 +161,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9
 
 If you want to assert that only tokens from a particular issuer are allowed, that be can be done using the `bearerTokenIssuer` option:
 
-[source, java]
+[source, java, indent=0]
 ----
 include::example$spring-doc-snippets/src/main/java/com/example/jwt/JWTAction.java[tag=bearer-token-issuer]
 ----
