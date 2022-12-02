@@ -145,7 +145,7 @@ Kalix’s JWT support is configured by placing annotations on methods in your en
 
 If you want to validate that a bearer token is present on a request, this can be done by annotating you endpoint like:
 
-[source, java]
+[source, java, indent=0]
 ----
 include::example$spring-doc-snippets/src/main/java/com/example/jwt/JWTAction.java[tag=bearer-token]
 ----
