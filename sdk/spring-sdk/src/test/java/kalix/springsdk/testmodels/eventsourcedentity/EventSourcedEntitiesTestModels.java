@@ -131,7 +131,6 @@ public class EventSourcedEntitiesTestModels {
     @GetMapping("/int/{number}")
     @JWT(
         validate = JWT.JwtMethodMode.BEARER_TOKEN,
-        sign = JWT.JwtMethodMode.MESSAGE,
         bearerTokenIssuer = {"a", "b"})
     public Integer getInteger(@PathVariable Integer number) {
       return number;
@@ -140,7 +139,6 @@ public class EventSourcedEntitiesTestModels {
     @PostMapping("/changeInt/{number}")
     @JWT(
         validate = JWT.JwtMethodMode.BEARER_TOKEN,
-        sign = JWT.JwtMethodMode.MESSAGE,
         bearerTokenIssuer = {"a", "b"})
     public Integer changeInteger(@PathVariable Integer number) {
       return number;

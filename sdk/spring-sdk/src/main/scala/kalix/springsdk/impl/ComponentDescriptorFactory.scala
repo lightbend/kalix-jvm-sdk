@@ -210,9 +210,6 @@ private[impl] object ComponentDescriptorFactory {
     ann
       .validate()
       .map(springValidate => jwt.addValidate(JwtMethodOptions.JwtMethodMode.forNumber(springValidate.ordinal())))
-    ann
-      .sign()
-      .map(springSign => jwt.addSign(JwtMethodOptions.JwtMethodMode.forNumber(springSign.ordinal())))
     ann.bearerTokenIssuer().map(jwt.addBearerTokenIssuer)
     jwt.build()
   }

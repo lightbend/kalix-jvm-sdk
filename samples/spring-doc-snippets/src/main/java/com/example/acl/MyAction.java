@@ -1,9 +1,8 @@
-package com.example;
+package com.example.acl;
 
 import akka.Done;
 import kalix.javasdk.action.Action;
 import kalix.javasdk.valueentity.ValueEntity;
-import kalix.protocol.value_entity.ValueEntities;
 import kalix.springsdk.annotations.Acl;
 import kalix.springsdk.annotations.Subscribe;
 import org.springframework.web.bind.annotation.PostMapping;

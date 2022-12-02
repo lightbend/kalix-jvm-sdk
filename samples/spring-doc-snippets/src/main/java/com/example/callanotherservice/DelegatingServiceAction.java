@@ -1,4 +1,4 @@
-package com.example;
+package com.example.callanotherservice;
 
 import kalix.javasdk.action.Action;
 import kalix.springsdk.WebClientProvider;

@@ -1,1 +1,0 @@
-This project is only intended to provide examples of ACLs and is not intended to be run. 

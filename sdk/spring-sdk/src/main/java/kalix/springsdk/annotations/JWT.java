@@ -24,27 +24,28 @@ import java.lang.annotation.*;
 public @interface JWT {
 
   enum JwtMethodMode {
-    // No validation.
+    /**
+     * No validation.
+     */
     UNSPECIFIED,
-    // Validate the bearer token.
+
+    /**
+     * Validates that the bearer token is present on the request, in the 'Authorization' header.
+     */
     BEARER_TOKEN,
-    // Validate/sign a token field in the message against the message fields.
-    //
-    // If present, the message must have a token annotated field or the message itself must have
-    // validate_bearer_token
-    // set to true.
-    MESSAGE
+
   }
 
-  JwtMethodMode[] validate();
+  JwtMethodMode[] validate() default JwtMethodMode.UNSPECIFIED;
 
-  JwtMethodMode[] sign();
-  // If set, then the token extracted from the bearer token must have this issuer.
-  //
-  // This can be used in combination with the issuer field of configuration for JWT secrets, if
-  // there is at least one
-  // secret that has this issuer set, then only those secrets with that issuer set will be used
-  // for validating or
-  // signing this token, so you can be sure that the token did come from a particular issuer.
-  String[] bearerTokenIssuer();
+  /**
+   * If set, then the token extracted from the bearer token must have this issuer.
+   *
+   * This can be used in combination with the issuer field of configuration for JWT secrets, if
+   * there is at least one secret that has this issuer set, then only those secrets with that issuer
+   * set will be used for validating or signing this token, so you can be sure that the token did
+   * come from a particular issuer.`
+   *
+   */
+  String[] bearerTokenIssuer() default {};
 }

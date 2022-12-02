@@ -1,4 +1,4 @@
-package com.example;
+package com.example.callanotherservice;
 
 import kalix.springsdk.annotations.Acl;
 import kalix.springsdk.KalixConfiguration;

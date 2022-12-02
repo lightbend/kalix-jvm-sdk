@@ -141,7 +141,6 @@ public class ViewTestModels {
     @PostMapping("/users/by-email")
     @JWT(
         validate = JWT.JwtMethodMode.BEARER_TOKEN,
-        sign = JWT.JwtMethodMode.MESSAGE,
         bearerTokenIssuer = {"a", "b"})
     public TransformedUser getUser(@RequestBody ByEmail byEmail) {
       return null;

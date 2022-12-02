@@ -1,4 +1,4 @@
-package com.example;
+package com.example.acl;
 
 import kalix.javasdk.action.Action;
 import kalix.springsdk.annotations.Acl;
