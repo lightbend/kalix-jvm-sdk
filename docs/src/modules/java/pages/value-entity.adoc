@@ -267,6 +267,9 @@ Scala::
 include::example$scala-valueentity-counter/src/test/scala/com/example/domain/CounterSpec.scala[tag=sample-unit-test]
 ----
 +
+
+NOTE: The `CounterTestKit` is stateful, and it holds the state of a single entity instance in memory. If you want to test more than one entity in a test, you need to create multiple instance of `CounterTestKit`.
+
 By default, the integration and unit tests are both invoked by `sbt test`. To only run unit tests run `sbt -DonlyUnitTest test`, or `sbt -DonlyUnitTest=true test`, or set up that value to `true` in the sbt session by `set onlyUnitTest := true` and then run `test`
 
 === Integration tests
