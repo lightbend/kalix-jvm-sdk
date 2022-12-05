@@ -117,7 +117,7 @@ service CustomerSummaryByName {
 
 // tag::wrap-repeated[]
 message CustomersResponse {
-  repeated domain.CustomerState results = 1; // <1>
+  repeated domain.CustomerState customers = 1; // <1>
 }
 
 service CustomersResponseByName {
@@ -127,7 +127,7 @@ service CustomersResponseByName {
 
   rpc GetCustomers(ByNameRequest) returns (CustomersResponse) { // <2>
     option (kalix.method).view.query = {
-      query: "SELECT * AS results FROM customers WHERE name = :customer_name" // <3>
+      query: "SELECT * AS customers FROM customers WHERE name = :customer_name" // <3>
     };
   }
 
