@@ -203,7 +203,7 @@ include::example$spring-valueentity-customer-registry/src/main/java/com/example/
 ----
 <1> View state type is the original `Customer` as shown at the beginning of this section.
 <2> Query is mapped to an external route as usual receiving a `customerName` as parameter.
-<3> Note the use of `* AS results` so records are matched to the collection in `CustomersResponse`.
+<3> Note the use of `* AS customers` so records are matched to the collection in `CustomersResponse`.
 <4> Return type of the query is `CustomersResponse`.
 
 [#changing]

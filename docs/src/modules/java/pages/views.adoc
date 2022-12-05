@@ -386,7 +386,7 @@ include::example$scala-valueentity-customer-registry/src/main/proto/customer/vie
 
 <1> The response message contains a `repeated` field.
 <2> The return type is not `streamed`.
-<3> The `repeated` field is referenced in the query with `* AS results`.
+<3> The `repeated` field is referenced in the query with `* AS customers`.
 
 // anchor for error messages, do not remove.
 [#changing]
