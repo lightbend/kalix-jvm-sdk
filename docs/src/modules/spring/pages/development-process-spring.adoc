@@ -47,7 +47,7 @@ Services can interact asynchronously with other services and with external syste
 
 === Views
 
-A View provides a way to retrieve state from multiple Entities based on a query. You can query non-key data items. You can create views from Value Entity state, Event Sourced Entity events, and by subscribing to topics. For more information about writing actions see xref:spring:views.adoc[Implementing Views].
+A View provides a way to retrieve state from multiple Entities based on a query. You can query non-key data items. You can create views from Value Entity state, Event Sourced Entity events, and by subscribing to topics. For more information about writing views see xref:spring:views.adoc[Implementing Views].
 
 
 [#_create_unit_tests]
