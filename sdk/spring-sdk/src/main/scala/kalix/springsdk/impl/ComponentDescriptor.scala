@@ -318,7 +318,7 @@ private[impl] object ComponentDescriptor {
             _.asInstanceOf[java.lang.Integer].toShort)
         }
       }
-    } else if(typeName == "byte") {
+    } else if (typeName == "byte") {
       new ExtractorCreator {
         override def apply(descriptor: Descriptors.Descriptor): ParameterExtractor[DynamicMessageContext, AnyRef] = {
           new ParameterExtractors.FieldExtractor[java.lang.Byte](
