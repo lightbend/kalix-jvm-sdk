@@ -11,8 +11,8 @@ public class CounterTest {
 
   @Test
   public void testIncrease() {
-    ValueEntityTestKit<Integer, CounterEntity> testKit = ValueEntityTestKit.of(CounterEntity::new);
-    ValueEntityResult<Number> result = testKit.call(e -> e.increaseBy(new Number(10)));
+    var testKit = ValueEntityTestKit.of(CounterEntity::new);
+    var result = testKit.call(e -> e.increaseBy(new Number(10)));
 
     assertTrue(result.isReply());
     assertEquals(10, result.getReply().value());
@@ -22,12 +22,13 @@ public class CounterTest {
   // tag::example[]
   @Test
   public void testSetAndIncrease() {
-    ValueEntityTestKit<Integer, CounterEntity> testKit = ValueEntityTestKit.of(CounterEntity::new); // <1>
-    ValueEntityResult<Number> resultSet = testKit.call(e -> e.set(new Number(10))); // <2>
+    var testKit = ValueEntityTestKit.of(CounterEntity::new); // <1>
+
+    var resultSet = testKit.call(e -> e.set(new Number(10))); // <2>
     assertTrue(resultSet.isReply());
     assertEquals(10, resultSet.getReply().value()); // <3>
 
-    ValueEntityResult<Number> resultPlusOne = testKit.call(CounterEntity::plusOne); // <4>
+    var resultPlusOne = testKit.call(CounterEntity::plusOne); // <4>
     assertTrue(resultPlusOne.isReply());
     assertEquals(11, resultPlusOne.getReply().value());
 
@@ -37,7 +38,7 @@ public class CounterTest {
 
   @Test
   public void testDelete() {
-    ValueEntityTestKit<Integer, CounterEntity> testKit = ValueEntityTestKit.of(CounterEntity::new);
+    var testKit = ValueEntityTestKit.of(CounterEntity::new);
     testKit.call(e -> e.increaseBy(new Number(10)));
 
     testKit.call(e -> e.delete());
