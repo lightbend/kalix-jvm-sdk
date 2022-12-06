@@ -139,7 +139,7 @@ Kalix can validate the signature of JWT tokens provided in an Authorization head
 
 === Bearer token validation
 
-If you want to validate the bearer token of a request, you need to annotate you endpoint like:
+If you want to validate the bearer token of a request, you need to annotate your endpoint like:
 
 [source, java, indent=0]
 ----
