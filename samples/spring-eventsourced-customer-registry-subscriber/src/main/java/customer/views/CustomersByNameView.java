@@ -40,7 +40,7 @@ public class CustomersByNameView extends View<Customer> {
   }
 
   @GetMapping("/customers/by_name/{name}")
-  @Query("select * from customers_by_name where name = :name")
+  @Query("SELECT * FROM customers_by_name WHERE name = :name")
   @Acl(allow = @Acl.Matcher(principal = Acl.Principal.INTERNET))
   public Flux<Customer> findByName(@PathVariable String name) {
     return null;
