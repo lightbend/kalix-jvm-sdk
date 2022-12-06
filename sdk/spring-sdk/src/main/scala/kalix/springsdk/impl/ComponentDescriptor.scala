@@ -51,6 +51,7 @@ import kalix.springsdk.impl.reflection.RestServiceIntrospector
 import kalix.springsdk.impl.reflection.ServiceMethod
 import kalix.springsdk.impl.reflection.SubscriptionServiceMethod
 import kalix.springsdk.impl.reflection.SyntheticRequestServiceMethod
+import org.springframework.core.MethodParameter
 import org.springframework.web.bind.annotation.RequestMethod
 
 import java.lang.reflect.Type
@@ -303,14 +304,45 @@ private[impl] object ComponentDescriptor {
         idx -> qp
       }
       .map { case (paramIdx, param) =>
-        paramIdx -> new ExtractorCreator {
-          override def apply(descriptor: Descriptors.Descriptor): ParameterExtractor[DynamicMessageContext, AnyRef] = {
-            new ParameterExtractors.FieldExtractor[AnyRef](
-              descriptor.findFieldByNumber(fieldNumber(param.name, queryFieldDescs)),
-              identity)
-          }
+        paramIdx -> toExtractor(param.param, queryFieldDescs)
+      }
+  }
+
+  private def toExtractor(methodParameter: MethodParameter, queryFieldDescs: Seq[FieldDescriptorProto]) = {
+    val typeName = methodParameter.getGenericParameterType.getTypeName
+    if (typeName == "short") {
+      new ExtractorCreator {
+        override def apply(descriptor: Descriptors.Descriptor): ParameterExtractor[DynamicMessageContext, AnyRef] = {
+          new ParameterExtractors.FieldExtractor[java.lang.Short](
+            descriptor.findFieldByNumber(fieldNumber(methodParameter.getParameterName, queryFieldDescs)),
+            _.asInstanceOf[java.lang.Integer].toShort)
         }
       }
+    } else if (typeName == "byte") {
+      new ExtractorCreator {
+        override def apply(descriptor: Descriptors.Descriptor): ParameterExtractor[DynamicMessageContext, AnyRef] = {
+          new ParameterExtractors.FieldExtractor[java.lang.Byte](
+            descriptor.findFieldByNumber(fieldNumber(methodParameter.getParameterName, queryFieldDescs)),
+            _.asInstanceOf[java.lang.Integer].byteValue())
+        }
+      }
+    } else if (typeName == "char") {
+      new ExtractorCreator {
+        override def apply(descriptor: Descriptors.Descriptor): ParameterExtractor[DynamicMessageContext, AnyRef] = {
+          new ParameterExtractors.FieldExtractor[java.lang.Character](
+            descriptor.findFieldByNumber(fieldNumber(methodParameter.getParameterName, queryFieldDescs)),
+            Int.unbox(_).toChar)
+        }
+      }
+    } else {
+      new ExtractorCreator {
+        override def apply(descriptor: Descriptors.Descriptor): ParameterExtractor[DynamicMessageContext, AnyRef] = {
+          new ParameterExtractors.FieldExtractor[AnyRef](
+            descriptor.findFieldByNumber(fieldNumber(methodParameter.getParameterName, queryFieldDescs)),
+            identity)
+        }
+      }
+    }
   }
 
   private def queryParamFieldDescriptors(
@@ -343,13 +375,7 @@ private[impl] object ComponentDescriptor {
         idx -> p
       }
       .map { case (idx, p) =>
-        idx -> new ExtractorCreator {
-          override def apply(descriptor: Descriptors.Descriptor): ParameterExtractor[DynamicMessageContext, AnyRef] = {
-            new ParameterExtractors.FieldExtractor[AnyRef](
-              descriptor.findFieldByNumber(fieldNumber(p.name, pathParamFieldDescs)),
-              identity)
-          }
-        }
+        idx -> toExtractor(p.param, pathParamFieldDescs)
       }
   }
 
@@ -430,15 +456,18 @@ private[impl] object ComponentDescriptor {
     // todo make this smarter, eg, customizable parameter deserializers, UUIDs, byte arrays, enums etc
     if (javaType == classOf[String]) {
       FieldDescriptorProto.Type.TYPE_STRING
-    } else if (javaType == classOf[java.lang.Long]) {
+    } else if (javaType == classOf[java.lang.Long] || javaType.getTypeName == "long") {
       FieldDescriptorProto.Type.TYPE_INT64
-    } else if (javaType == classOf[java.lang.Integer]) {
+    } else if (javaType == classOf[java.lang.Integer] || javaType.getTypeName == "int"
+      || javaType.getTypeName == "short"
+      || javaType.getTypeName == "byte"
+      || javaType.getTypeName == "char") {
       FieldDescriptorProto.Type.TYPE_INT32
-    } else if (javaType == classOf[java.lang.Double]) {
+    } else if (javaType == classOf[java.lang.Double] || javaType.getTypeName == "double") {
       FieldDescriptorProto.Type.TYPE_DOUBLE
-    } else if (javaType == classOf[java.lang.Float]) {
+    } else if (javaType == classOf[java.lang.Float] || javaType.getTypeName == "float") {
       FieldDescriptorProto.Type.TYPE_FLOAT
-    } else if (javaType == classOf[java.lang.Boolean]) {
+    } else if (javaType == classOf[java.lang.Boolean] || javaType.getTypeName == "boolean") {
       FieldDescriptorProto.Type.TYPE_BOOL
     } else if (javaType == classOf[ByteString]) {
       FieldDescriptorProto.Type.TYPE_BYTES
