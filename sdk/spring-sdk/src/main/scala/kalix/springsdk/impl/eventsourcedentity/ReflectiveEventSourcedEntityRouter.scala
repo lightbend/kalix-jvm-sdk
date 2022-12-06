@@ -51,7 +51,6 @@ class ReflectiveEventSourcedEntityRouter[S, E <: EventSourcedEntity[S]](
 
     event match {
       case s: ScalaPbAny => // replaying event coming from proxy
-        // FIXME: where should we get the metadata from here?
         val invocationContext = InvocationContext(s, JavaPbAny.getDescriptor, Metadata.EMPTY)
 
         eventHandlerLookup(s.typeUrl)
