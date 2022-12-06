@@ -1,4 +1,4 @@
-= Implementing Event Sourced Entities with Spring
+= Implementing Event Sourced Entities
 :page-aliases: spring:eventsourced.adoc
 :sample-url: https://github.com/lightbend/kalix-jvm-sdk/tree/main/samples/spring-eventsourced-shopping-cart
 
