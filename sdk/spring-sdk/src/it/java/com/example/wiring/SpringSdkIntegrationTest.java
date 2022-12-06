@@ -60,6 +60,20 @@ public class SpringSdkIntegrationTest {
   private Duration timeout = Duration.of(10, SECONDS);
 
   @Test
+  public void verifyJavaPrimitivesAsParams() {
+
+    Message response =
+        webClient
+            .get()
+            .uri("/action/1.0/2.0/3/4?shortValue=5&byteValue=6&charValue=97&booleanValue=true")
+            .retrieve()
+            .bodyToMono(Message.class)
+            .block(timeout);
+
+    Assertions.assertEquals("1.02.03456atrue", response.text);
+  }
+
+  @Test
   public void verifyEchoActionWiring() {
 
     Message response =
