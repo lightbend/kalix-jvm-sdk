@@ -34,7 +34,6 @@ public class ShoppingCartEntity extends EventSourcedEntity<ShoppingCart> { // <1
 
   // end::getCart[]
 
-  @GenerateEntityKey
   @PostMapping("/create")
   public Effect<String> create() {
     return effects().reply("OK");

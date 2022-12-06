@@ -12,7 +12,7 @@ The entity key can be defined in different ways.
 === Single keys
 
 The most common use is to annotate the class with `@EntityKey` and assign one path variable name to it.
-For instance, `@EntityKey("id")` will instruct Kalix to look up for a path variable in any endpoint that matches `id`. For an endpoint defined with `@RequestMapping("/users/\{id}")`, Kalix will extract whatever path segment is used to replace `\{id}` and treat it as the Entity unique identifier.
+For instance, `@EntityKey("id")` will instruct Kalix to look up a matching path variable. For an endpoint defined with `@RequestMapping("/users/\{id}")`, Kalix will extract whatever path segment is used to replace `\{id}` and treat it as the Entity unique identifier.
 
 === Composite keys
 
@@ -20,7 +20,7 @@ It's also possible to have composite keys. For example, `@EntityKey(\{"groupId",
 
 === Generated keys
 
-Finally, you can ask Kalix to generate an Entity key, this is typically useful when creating an entity, and the key is a surrogate key. To indicate to Kalix that an Entity key should be generated rather than extracted from the path, be sure to annotate the corresponding command method with `@GenerateEntityKey`. Typically, an Entity has only one method annotated with `@GenerateEntityKey`. The one that creates the entity. All other methods will have `@EntityKey` annotation in order to extract the surrogate key from the endpoint path.
+Finally, you can ask Kalix to generate an Entity key, this is typically useful when creating an Entity, and the key is a surrogate key. To indicate to Kalix that an Entity key should be generated rather than extracted from the path, be sure to annotate the corresponding command method with `@GenerateEntityKey`. Typically, an Entity has only one method annotated with `@GenerateEntityKey`. The one that creates the Entity. All other methods will have `@EntityKey` annotation in order to extract the surrogate key from the endpoint path.
 
 It will often be necessary to access the generated entity key from inside the entities code. This can be done using the link:{attachmentsdir}/api/kalix/javasdk/EntityContext.html#entityId()[`EntityContext.entityId` {tab-icon}, window="new"] method.
 
