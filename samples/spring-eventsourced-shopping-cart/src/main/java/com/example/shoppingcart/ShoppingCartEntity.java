@@ -16,7 +16,7 @@ import java.util.Collections;
 // tag::class[]
 @EntityKey("cartId") // <2>
 @EntityType("shopping-cart") // <3>
-@RequestMapping("/cart") // <4>
+@RequestMapping("/cart/{cartId}") // <4>
 public class ShoppingCartEntity extends EventSourcedEntity<ShoppingCart> { // <1>
   // end::class[]
 
@@ -34,17 +34,13 @@ public class ShoppingCartEntity extends EventSourcedEntity<ShoppingCart> { // <1
 
   // end::getCart[]
 
-  // tag::generateId[]
-  @GenerateEntityKey // <1>
   @PostMapping("/create")
   public Effect<String> create() {
-    return effects()
-        .reply(commandContext().entityId()); // <2>
+    return effects().reply("OK");
   }
-  // end::generateId[]
 
   // tag::addItem[]
-  @PostMapping("/{cartId}/add")
+  @PostMapping("/add")
   public Effect<String> addItem(@RequestBody LineItem item) {
     if (item.quantity() <= 0) { // <1>
       return effects().error("Quantity for item " + item.productId() + " must be greater than zero.");
@@ -59,7 +55,7 @@ public class ShoppingCartEntity extends EventSourcedEntity<ShoppingCart> { // <1
 
   // end::addItem[]
 
-  @PostMapping("/{cartId}/items/{productId}/remove")
+  @PostMapping("/items/{productId}/remove")
   public Effect<String> removeItem(@PathVariable String productId) {
     if (currentState().findItemByProductId(productId).isEmpty()) {
       return effects().error("Cannot remove item " + productId + " because it is not in the cart.");
@@ -73,7 +69,7 @@ public class ShoppingCartEntity extends EventSourcedEntity<ShoppingCart> { // <1
   }
 
   // tag::getCart[]
-  @GetMapping("/{cartId}") // <3>
+  @GetMapping() // <3>
   public Effect<ShoppingCart> getCart() {
     return effects().reply(currentState()); // <4>
   }

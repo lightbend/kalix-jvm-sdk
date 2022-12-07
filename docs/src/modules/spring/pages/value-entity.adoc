@@ -12,7 +12,7 @@ The steps necessary to implement a Value Entity include:
 
 The following sections walk through these steps using a counter service as an example.
 
-== Modeling the entity
+== Modeling the Entity
 
 As mentioned above, to help us illustrate a Value Entity, you will be implementing a Counter service. For such service, you will want to be able to set the initial counter value but also to increase the counter modifying its state. The state will be a simple `Integer` but you will use a wrapper class `Number` for our API, as shown below:
 
@@ -21,6 +21,8 @@ As mentioned above, to help us illustrate a Value Entity, you will be implementi
 ----
 include::example$spring-valueentity-counter/src/main/java/com/example/Number.java[]
 ----
+
+include::partial$entity-keys.adoc[]
 
 [#entity-behavior]
 == Implementing behavior
@@ -43,18 +45,6 @@ different existing entities within a Kalix application.
 <2> The `@EntityKey` value should be unique per entity and map to some field being received on the route path, in this example it's the `counter_id`.
 <3> The `CounterEntity` class should extend `kalix.javasdk.valueentity.ValueEntity`.
 <4> The initial state of each counter is defined as 0.
-
-include::partial$generate-entity-keys.adoc[tag=intro]
-
-.src/main/java/com/example/CounterEntity.java
-[source,java]
-----
-include::example$spring-valueentity-counter/src/main/java/com/example/CounterEntity.java[tags=generateId]
-----
-<1> Annotate the command handler with `@GenerateEntityKey`.
-<2> Access the generated id and reply.
-
-include::partial$generate-entity-keys.adoc[tag=details]
 
 === Updating state
 

@@ -17,18 +17,7 @@ public class CounterEntity extends ValueEntity<Integer> { // <3>
   public Integer emptyState() { return 0; } // <4>
   // end::declarations[]
 
-  // tag::generateId[]
-  @GenerateEntityKey // <1>
-  @PostMapping("/counter/{number}")
-  public Effect<String> create(@PathVariable Integer number) {
-    return effects()
-        .updateState(number)
-        .thenReply(commandContext().entityId()); // <2>
-  }
-  // end::generateId[]
-
   // tag::increase[]
-
   @PostMapping("/counter/{counter_id}/increase") // <5>
   public Effect<Number> increaseBy(@RequestBody Number increaseBy) {
     int newCounter = currentState() + increaseBy.value(); // <6>
@@ -57,7 +46,7 @@ public class CounterEntity extends ValueEntity<Integer> { // <3>
   // end::behaviour[]
 
   // tag::delete[]
-  @DeleteMapping("/counter/{counter_id}/delete")
+  @DeleteMapping("/counter/{counter_id}")
   public Effect<String> delete() {
     return effects()
         .deleteState() // <1>
