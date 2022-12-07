@@ -2,8 +2,9 @@
 == Identifying the Entity
 
 In order to interact with an Entity in Kalix, we need to assign an *entity type* and one or more *entity keys*: 
-- *entity type* is a unique identifier for all entities of a given type. To define the entity type, the entity class must be annotated with `@EntityType` and have a unique and stable name assigned.
-- *entity key*, on the other hand, is unique per instance. In most cases, the entity key is passed as a path parameter of a REST request. The exception to the rule is when we request Kalix to auto-generate a key for us. In such a case, Kalix won't try to extract the key from the endpoint path.
+
+* *entity type* is a unique identifier for all entities of a given type. To define the entity type, the entity class must be annotated with `@EntityType` and have a unique and stable name assigned.
+* *entity key*, on the other hand, is unique per instance. In most cases, the entity key is passed as a path parameter of a REST request. The exception to the rule is when we request Kalix to auto-generate a key for us. In such a case, Kalix won't try to extract the key from the endpoint path.
 
 The entity key can be defined in different ways, as detailed below.
 
