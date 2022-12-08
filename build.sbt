@@ -95,13 +95,24 @@ lazy val sdkJavaTestKit = project
       "proxyVersion" -> Kalix.ProxyVersion,
       "scalaVersion" -> scalaVersion.value),
     buildInfoPackage := "kalix.javasdk.testkit",
-    // Generate javadocs by just including non generated Java/Scala sources
+    // Generate javadocs by just including non generated Java sources
     Compile / doc / sources := {
       val javaSourceDir = (Compile / javaSource).value.getAbsolutePath
-      val scalaSourceDir = (Compile / scalaSource).value.getAbsolutePath
-      (Compile / doc / sources).value.filter(f =>
-        f.getAbsolutePath.startsWith(javaSourceDir) || f.getAbsolutePath.startsWith(scalaSourceDir))
-    })
+      (Compile / doc / sources).value.filter(_.getAbsolutePath.startsWith(javaSourceDir))
+    },
+    // javadoc (I think java 9 onwards) refuses to compile javadocs if it can't compile the entire source path.
+    // but since we have java files depending on Scala files, we need to include ourselves on the classpath.
+    Compile / doc / dependencyClasspath := (Compile / fullClasspath).value,
+    Compile / doc / javacOptions ++= Seq(
+      "-Xdoclint:none",
+      "-overview",
+      ((Compile / javaSource).value / "overview.html").getAbsolutePath,
+      "-notimestamp",
+      "-doctitle",
+      "Kalix Java SDK Testkit",
+      "-noqualifier",
+      "java.lang")
+  )
   .settings(Dependencies.sdkJavaTestKit)
 
 lazy val sdkSpring = project
@@ -126,12 +137,24 @@ lazy val sdkSpring = project
     Test / javacOptions ++= Seq("-parameters", "--release", "17"), // for Jackson
     Test / scalacOptions ++= Seq("-release", "17"),
     IntegrationTest / javacOptions += "-parameters", // for Jackson
-    inTask(doc)(
-      Seq(
-        Compile / scalacOptions ++= scaladocOptions(
-          "Kalix Spring SDK",
-          version.value,
-          (ThisBuild / baseDirectory).value))))
+    // Generate javadocs by just including non generated Java sources
+    Compile / doc / sources := {
+      val javaSourceDir = (Compile / javaSource).value.getAbsolutePath
+      (Compile / doc / sources).value.filter(_.getAbsolutePath.startsWith(javaSourceDir))
+    },
+    // javadoc (I think java 9 onwards) refuses to compile javadocs if it can't compile the entire source path.
+    // but since we have java files depending on Scala files, we need to include ourselves on the classpath.
+    Compile / doc / dependencyClasspath := (Compile / fullClasspath).value,
+    Compile / doc / javacOptions ++= Seq(
+      "-Xdoclint:none",
+      "-overview",
+      ((Compile / javaSource).value / "overview.html").getAbsolutePath,
+      "-notimestamp",
+      "-doctitle",
+      "Kalix Spring SDK",
+      "-noqualifier",
+      "java.lang")
+  )
   .settings(inConfig(IntegrationTest)(JupiterPlugin.scopedSettings): _*)
   .settings(Dependencies.sdkSpring)
 
@@ -152,12 +175,24 @@ lazy val sdkSpringTestKit = project
       "scalaVersion" -> scalaVersion.value),
     buildInfoPackage := "kalix.springsdk.testkit",
     // Generate javadocs by just including non generated Java/Scala sources
+    // Generate javadocs by just including non generated Java sources
     Compile / doc / sources := {
       val javaSourceDir = (Compile / javaSource).value.getAbsolutePath
-      val scalaSourceDir = (Compile / scalaSource).value.getAbsolutePath
-      (Compile / doc / sources).value.filter(f =>
-        f.getAbsolutePath.startsWith(javaSourceDir) || f.getAbsolutePath.startsWith(scalaSourceDir))
-    })
+      (Compile / doc / sources).value.filter(_.getAbsolutePath.startsWith(javaSourceDir))
+    },
+    // javadoc (I think java 9 onwards) refuses to compile javadocs if it can't compile the entire source path.
+    // but since we have java files depending on Scala files, we need to include ourselves on the classpath.
+    Compile / doc / dependencyClasspath := (Compile / fullClasspath).value,
+    Compile / doc / javacOptions ++= Seq(
+      "-Xdoclint:none",
+      "-overview",
+      ((Compile / javaSource).value / "overview.html").getAbsolutePath,
+      "-notimestamp",
+      "-doctitle",
+      "Kalix Spring SDK Testkit",
+      "-noqualifier",
+      "java.lang")
+  )
   .settings(Dependencies.sdkSpringTestKit)
 
 lazy val sdkScala = project
