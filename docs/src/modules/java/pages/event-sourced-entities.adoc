@@ -292,7 +292,7 @@ Calling a command handler through the TestKit gives us back an link:{attachments
 
 Scala::
 +
-Calling a command handler through the TestKit gives us back an link:{attachmentsdir}/testkit-scala/kalix/scalasdk/testkit/EventSourcedResult.html[`EventSourcedResult` {tab-icon}, window="new"]. This class has methods that we can use to assert the result of handling the command, such as:
+Calling a command handler through the TestKit gives us back an link:{attachmentsdir}/scala-testkit-api/kalix/scalasdk/testkit/EventSourcedResult.html[`EventSourcedResult` {tab-icon}, window="new"]. This class has methods that we can use to assert the result of handling the command, such as:
 +
 * `reply` - the response from the command handler if there was one, if not an, exception is thrown, failing the test.
 * `events` - all the events emitted by handling the command.
