@@ -114,7 +114,7 @@ NOTE: The `ValueEntityTestKit` is stateful, and it holds the state of a single e
 
 === Integration tests
 
-The skeleton of an Integration Test is generated for you if you use the archetype to start you Kalix app. Let's see what it could look like to test our Counter Entity:
+The skeleton of an Integration Test is generated for you if you use the archetype to start your Kalix app. Let's see what it could look like to test our Counter Entity:
 
 ./src/it/java/com/example/CounterIntegrationTest.java
 [source,java,indent=0]
