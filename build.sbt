@@ -111,8 +111,7 @@ lazy val sdkJavaTestKit = project
       "-doctitle",
       "Kalix Java SDK Testkit",
       "-noqualifier",
-      "java.lang")
-  )
+      "java.lang"))
   .settings(Dependencies.sdkJavaTestKit)
 
 lazy val sdkSpring = project
@@ -153,8 +152,7 @@ lazy val sdkSpring = project
       "-doctitle",
       "Kalix Spring SDK",
       "-noqualifier",
-      "java.lang")
-  )
+      "java.lang"))
   .settings(inConfig(IntegrationTest)(JupiterPlugin.scopedSettings): _*)
   .settings(Dependencies.sdkSpring)
 
@@ -174,7 +172,6 @@ lazy val sdkSpringTestKit = project
       "proxyVersion" -> Kalix.ProxyVersion,
       "scalaVersion" -> scalaVersion.value),
     buildInfoPackage := "kalix.springsdk.testkit",
-    // Generate javadocs by just including non generated Java/Scala sources
     // Generate javadocs by just including non generated Java sources
     Compile / doc / sources := {
       val javaSourceDir = (Compile / javaSource).value.getAbsolutePath
@@ -191,8 +188,7 @@ lazy val sdkSpringTestKit = project
       "-doctitle",
       "Kalix Spring SDK Testkit",
       "-noqualifier",
-      "java.lang")
-  )
+      "java.lang"))
   .settings(Dependencies.sdkSpringTestKit)
 
 lazy val sdkScala = project
