@@ -73,7 +73,7 @@ object ActionTestKitGenerator {
         |  }
         |
         |  public static $testKitClassName of(Function<ActionCreationContext, $className> actionFactory) {
-        |    return new $testKitClassName(actionFactory, MockRegistry.EMPTY);
+        |    return new $testKitClassName(actionFactory, MockRegistryImpl.empty);
         |  }
         |
         |  public static $testKitClassName of(Function<ActionCreationContext, $className> actionFactory, MockRegistry mockRegistry) {

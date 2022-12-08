@@ -23,12 +23,14 @@ import kalix.javasdk.valueentity.ValueEntityContext
 /**
  * INTERNAL API Used by the generated testkit
  */
-final class TestKitValueEntityContext(override val entityId: String, mockRegistry: MockRegistry = MockRegistry.EMPTY)
+final class TestKitValueEntityContext(
+    override val entityId: String,
+    mockRegistry: MockRegistry = MockRegistryImpl.empty)
     extends AbstractTestKitContext(mockRegistry)
     with ValueEntityContext {
 
   def this(entityId: String) = {
-    this(entityId, MockRegistry.EMPTY)
+    this(entityId, MockRegistryImpl.empty)
   }
 
   override def materializer(): Materializer = throw new UnsupportedOperationException(

@@ -71,7 +71,7 @@ public class ActionTestkit<A extends Action> {
    * @param <R> The type of reply that is expected from invoking a command handler
    */
   public <R> ActionResult<R> call(Function<A, Action.Effect<R>> func) {
-    TestKitActionContext context = new TestKitActionContext(Metadata.EMPTY, MockRegistry.EMPTY);
+    TestKitActionContext context = new TestKitActionContext(Metadata.EMPTY, MockRegistryImpl.empty);
     return new ActionResultImpl<>(func.apply(createAction(context)));
   }
 
@@ -85,7 +85,7 @@ public class ActionTestkit<A extends Action> {
    * @param <R> The type of reply that is expected from invoking a command handler
    */
   public <R> Flux<ActionResult<R>> streamedCall(Function<A, Flux<Action.Effect<R>>> func){
-    TestKitActionContext var2 = new TestKitActionContext(Metadata.EMPTY, MockRegistry.EMPTY);
+    TestKitActionContext var2 = new TestKitActionContext(Metadata.EMPTY, MockRegistryImpl.empty);
     Flux<Action.Effect<R>> res =  func.apply(this.createAction(var2));
     return res.map( i -> new ActionResultImpl<R>(i));
   }

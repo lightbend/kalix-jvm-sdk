@@ -24,18 +24,18 @@ import kalix.javasdk.testkit.MockRegistry
 /**
  * INTERNAL API Used by the generated testkit
  */
-final class TestKitActionContext(metadata: Metadata, mockRegistry: MockRegistry = MockRegistry.EMPTY)
+final class TestKitActionContext(metadata: Metadata, mockRegistry: MockRegistry = MockRegistryImpl.empty)
     extends AbstractTestKitContext(mockRegistry)
     with ActionContext
     with ActionCreationContext
     with InternalContext {
 
   def this() = {
-    this(Metadata.EMPTY, MockRegistry.EMPTY)
+    this(Metadata.EMPTY, MockRegistryImpl.empty)
   }
 
   def this(metadata: Metadata) = {
-    this(metadata, MockRegistry.EMPTY)
+    this(metadata, MockRegistryImpl.empty)
   }
 
   override def metadata() = metadata

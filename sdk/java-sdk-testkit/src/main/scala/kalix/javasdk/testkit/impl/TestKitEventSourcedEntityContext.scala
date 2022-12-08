@@ -25,12 +25,12 @@ import kalix.javasdk.testkit.MockRegistry
  */
 final class TestKitEventSourcedEntityContext(
     override val entityId: String,
-    mockRegistry: MockRegistry = MockRegistry.EMPTY)
+    mockRegistry: MockRegistry = MockRegistryImpl.empty)
     extends AbstractTestKitContext(mockRegistry)
     with EventSourcedEntityContext {
 
   def this(entityId: String) = {
-    this(entityId, MockRegistry.EMPTY)
+    this(entityId, MockRegistryImpl.empty)
   }
 
   override def materializer(): Materializer = throw new UnsupportedOperationException(

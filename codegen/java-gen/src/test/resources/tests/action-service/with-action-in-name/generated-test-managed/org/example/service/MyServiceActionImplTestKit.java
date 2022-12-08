@@ -31,7 +31,7 @@ public final class MyServiceActionImplTestKit {
   }
 
   public static MyServiceActionImplTestKit of(Function<ActionCreationContext, MyServiceActionImpl> actionFactory) {
-    return new MyServiceActionImplTestKit(actionFactory, MockRegistry.EMPTY);
+    return new MyServiceActionImplTestKit(actionFactory, MockRegistryImpl.empty);
   }
 
   public static MyServiceActionImplTestKit of(Function<ActionCreationContext, MyServiceActionImpl> actionFactory, MockRegistry mockRegistry) {
