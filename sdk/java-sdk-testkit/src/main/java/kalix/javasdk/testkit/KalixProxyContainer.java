@@ -16,6 +16,8 @@
 
 package kalix.javasdk.testkit;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testcontainers.Testcontainers;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
@@ -24,15 +26,8 @@ import org.testcontainers.utility.DockerImageName;
 /** Docker test container of Kalix proxy for local development and testing. */
 public class KalixProxyContainer extends GenericContainer<KalixProxyContainer> {
 
-  /** Default Kalix proxy image for local testing. */
-  public static final String DEFAULT_PROXY_IMAGE = BuildInfo.proxyImage();
-
-  /** Default Kalix proxy version, compatible with this version of the SDK and testkit. */
-  public static final String DEFAULT_PROXY_VERSION = BuildInfo.proxyVersion();
-
   /** Default Testcontainers DockerImageName for the Kalix proxy. */
-  public static final DockerImageName DEFAULT_PROXY_IMAGE_NAME =
-      DockerImageName.parse(DEFAULT_PROXY_IMAGE).withTag(DEFAULT_PROXY_VERSION);
+  public static final DockerImageName DEFAULT_PROXY_IMAGE_NAME;
 
   /** Default proxy port (9000). */
   public static final int DEFAULT_PROXY_PORT = 9000;
@@ -42,6 +37,18 @@ public class KalixProxyContainer extends GenericContainer<KalixProxyContainer> {
 
   /** Default local port where the Google Pub/Sub emulator is available (8085). */
   public static final int DEFAULT_GOOGLE_PUBSUB_PORT = 8085;
+
+  static {
+    String customImage = System.getenv("KALIX_TESTKIT_PROXY_IMAGE");
+    if (customImage == null) {
+      DEFAULT_PROXY_IMAGE_NAME = DockerImageName.parse(BuildInfo.proxyImage()).withTag(BuildInfo.proxyVersion());
+    } else {
+      Logger logger = LoggerFactory.getLogger(KalixProxyContainer.class);
+      DEFAULT_PROXY_IMAGE_NAME = DockerImageName.parse(customImage);
+      logger.info("Using custom proxy image [{}]", customImage);
+    }
+  }
+
 
   private final int userFunctionPort;
   private final int googlePubSubPort;
