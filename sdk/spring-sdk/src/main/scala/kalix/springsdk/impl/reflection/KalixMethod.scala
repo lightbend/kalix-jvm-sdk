@@ -96,8 +96,8 @@ case class CombinedSubscriptionServiceMethod(
 }
 
 /**
- * Build from methods annotated with @Subscription or @Publish. Those methods are not annotated with Spring REST
- * annotations, but they become a REST method at the end.
+ * Build from methods annotated with @Subscription. Those methods are not annotated with Spring REST annotations and are
+ * only used internally (between proxy and user function).
  */
 case class SubscriptionServiceMethod(javaMethod: Method) extends AnyJsonRequestServiceMethod {
 
