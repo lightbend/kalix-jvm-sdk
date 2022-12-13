@@ -174,5 +174,10 @@ public abstract class Action {
      * @return A new reply with the attached effects.
      */
     Effect<T> addSideEffects(Collection<SideEffect> sideEffects);
+
+    /**
+     * @return true if this effect supports attaching side effects, if returning false addSideEffects will throw an exception.
+     */
+    boolean canHaveSideEffects();
   }
 }

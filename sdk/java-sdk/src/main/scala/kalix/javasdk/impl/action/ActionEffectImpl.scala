@@ -36,7 +36,7 @@ object ActionEffectImpl {
       withSideEffects(internalSideEffects() ++ sideEffects)
     override def addSideEffects(sideEffects: util.Collection[SideEffect]): Action.Effect[T] =
       withSideEffects(internalSideEffects() ++ sideEffects.asScala)
-
+    override def canHaveSideEffects: Boolean = true
     def internalSideEffects(): Seq[SideEffect]
     protected def withSideEffects(sideEffects: Seq[SideEffect]): Action.Effect[T]
   }
@@ -75,11 +75,12 @@ object ActionEffectImpl {
   def IgnoreEffect[T](): PrimaryEffect[T] = IgnoreEffect.asInstanceOf[PrimaryEffect[T]]
   case object IgnoreEffect extends PrimaryEffect[Nothing] {
     def isEmpty: Boolean = true
+    override def canHaveSideEffects: Boolean = false
 
     override def internalSideEffects() = Nil
 
     protected def withSideEffects(sideEffect: Seq[SideEffect]): PrimaryEffect[Nothing] = {
-      throw new IllegalArgumentException("adding side effects to is not allowed.")
+      throw new IllegalArgumentException("adding side effects to 'ignore' is not allowed.")
     }
   }
 

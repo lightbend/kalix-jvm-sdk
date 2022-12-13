@@ -285,6 +285,38 @@ class ActionHandlerSpec
 
     }
 
+    "allow async ignore" in {
+      val dummyResolvedMethod = ResolvedServiceMethod(
+        serviceDescriptor.getMethods.get(0),
+        anySupport.resolveTypeDescriptor(serviceDescriptor.getMethods.get(0).getInputType),
+        anySupport.resolveTypeDescriptor(serviceDescriptor.getMethods.get(0).getOutputType))
+
+      val service = create(new AbstractHandler {
+
+        override def handleUnary(commandName: String, message: MessageEnvelope[Any]): Action.Effect[Any] = {
+          createAsyncReplyEffect(Future.successful(createIgnoreEffect())).addSideEffect(
+            // will be ignored
+            SideEffectImpl(
+              GrpcDeferredCall(
+                message.payload(),
+                MetadataImpl.Empty,
+                serviceName,
+                dummyResolvedMethod.descriptor.getName,
+                () => ???),
+              true))
+        }
+      })
+
+      val reply =
+        Await.result(service.handleUnary(ActionCommand(serviceName, "Unary", createInPayload("in"))), 10.seconds)
+
+      reply match {
+        case ActionResponse(ActionResponse.Response.Empty, sideEffects, _) =>
+          sideEffects should have size 0
+        case e => fail(s"Unexpected response: $e")
+      }
+    }
+
     "turn async failure into failure response" in {
       val service = create(new AbstractHandler {
 
@@ -308,6 +340,9 @@ class ActionHandlerSpec
 
   private def createReplyEffect(field: String): Action.Effect[Any] =
     ActionEffectImpl.ReplyEffect(createOutAny(field), None, Nil)
+
+  private def createIgnoreEffect(): Action.Effect[Any] =
+    ActionEffectImpl.IgnoreEffect()
 
   private def createAsyncReplyEffect(future: Future[Action.Effect[Any]]): Action.Effect[Any] =
     ActionEffectImpl.AsyncEffect(future, Nil)

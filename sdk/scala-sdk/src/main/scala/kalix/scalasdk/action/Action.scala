@@ -48,6 +48,12 @@ object Action {
     def addSideEffect(sideEffects: SideEffect*): Action.Effect[T]
 
     def addSideEffects(sideEffects: Seq[SideEffect]): Action.Effect[T]
+
+    /**
+     * @return
+     *   true if this effect supports attaching side effects, if returning false addSideEffects will throw an exception.
+     */
+    def canHaveSideEffects: Boolean
   }
 
   /**
