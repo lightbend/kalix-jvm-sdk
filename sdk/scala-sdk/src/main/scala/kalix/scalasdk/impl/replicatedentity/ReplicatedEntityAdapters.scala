@@ -226,17 +226,17 @@ private[scalasdk] object ScalaReplicatedDataConverter {
     data match {
       case counter: ReplicatedCounterImpl =>
         new ReplicatedCounter(counter).asInstanceOf[D]
-      case register: ReplicatedRegisterImpl[D] =>
+      case register: ReplicatedRegisterImpl[D @unchecked] =>
         new ReplicatedRegister[D](register).asInstanceOf[D]
-      case set: ReplicatedSetImpl[D] =>
+      case set: ReplicatedSetImpl[D @unchecked] =>
         new ReplicatedSet[D](set).asInstanceOf[D]
-      case counterMap: ReplicatedCounterMapImpl[D] =>
+      case counterMap: ReplicatedCounterMapImpl[D @unchecked] =>
         new ReplicatedCounterMap[D](counterMap).asInstanceOf[D]
       case registerMap: ReplicatedRegisterMapImpl[Any @unchecked, Any @unchecked] =>
         new ReplicatedRegisterMap[Any, Any](registerMap).asInstanceOf[D]
       case multiMap: ReplicatedMultiMapImpl[Any @unchecked, Any @unchecked] =>
         new ReplicatedMultiMap[Any, Any](multiMap).asInstanceOf[D]
-      case map: ReplicatedMapImpl[Any @unchecked, D] =>
+      case map: ReplicatedMapImpl[Any @unchecked, D @unchecked] =>
         new ReplicatedMap[Any, D](map).asInstanceOf[D]
       case _ => data
     }
