@@ -40,6 +40,8 @@ private[scalasdk] object ActionEffectImpl {
 
     protected def internalSideEffects(): Seq[SideEffect]
     protected def withSideEffects(sideEffects: Seq[SideEffect]): Action.Effect[T]
+
+    def canHaveSideEffects: Boolean = true
   }
 
   final case class ReplyEffect[T](msg: T, metadata: Option[Metadata], internalSideEffects: Seq[SideEffect])
@@ -117,6 +119,8 @@ private[scalasdk] object ActionEffectImpl {
   final case object IgnoreEffect extends PrimaryEffect[Nothing] {
     def isEmpty: Boolean = true
     override def internalSideEffects() = Nil
+
+    override def canHaveSideEffects: Boolean = false
 
     protected def withSideEffects(sideEffect: Seq[SideEffect]): PrimaryEffect[Nothing] =
       throw new IllegalArgumentException("adding side effects to is not allowed.")

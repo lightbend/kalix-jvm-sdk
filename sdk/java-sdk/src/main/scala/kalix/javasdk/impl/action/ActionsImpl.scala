@@ -142,7 +142,14 @@ private[javasdk] final class ActionsImpl(
       case AsyncEffect(futureEffect, sideEffects) =>
         futureEffect
           .flatMap { effect =>
-            val withSurroundingSideEffects = effect.addSideEffects(sideEffects.asJava)
+            val withSurroundingSideEffects =
+              if (sideEffects.isEmpty) effect
+              else if (!effect.canHaveSideEffects) {
+                log.warn(
+                  "Side effects added to asyncEffect, but the inner effect [{}] does not support side effects, side effects dropped",
+                  effect.getClass.getName)
+                effect
+              } else effect.addSideEffects(sideEffects.asJava)
             effectToResponse(service, command, withSurroundingSideEffects, messageCodec)
           }
           .recover { case NonFatal(ex) =>
