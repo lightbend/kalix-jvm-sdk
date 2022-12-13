@@ -5,6 +5,7 @@ import customer.action.CustomerActionImpl
 import customer.domain.CustomerValueEntity
 import customer.view.CustomerByEmailView
 import customer.view.CustomerByNameView
+import customer.view.CustomerDetailsByNameView
 import customer.view.CustomerSummaryByNameView
 import customer.view.CustomersResponseByNameView
 import kalix.scalasdk.Kalix
@@ -32,6 +33,7 @@ object Main {
       new CustomerActionImpl(_),
       new CustomerByEmailView(_),
       new CustomerByNameView(_),
+      new CustomerDetailsByNameView(_),
       new CustomerSummaryByNameView(_),
       new CustomersResponseByNameView(_))
   }

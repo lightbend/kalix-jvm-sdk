@@ -19,53 +19,53 @@ Kalix ACLs consist of two lists of principal matchers. One to allow to invoke a 
 Here is an example ACL on a method:
 
 
-[source, java]
+[source, java, indent=0]
 ----
-include::example$spring-acl-examples/src/main/java/com/example/MyAction.java[tag=allow-deny]
+include::example$spring-doc-snippets/src/main/java/com/example/acl/MyAction.java[tag=allow-deny]
 ----
 
 The above ACL allows traffic to all services except the service called `my-service`. 
 
 To allow all traffic:
 
-[source, java]
+[source, java, indent=0]
 ----
-include::example$spring-acl-examples/src/main/java/com/example/MyAction.java[tag=all-traffic]
+include::example$spring-doc-snippets/src/main/java/com/example/acl/MyAction.java[tag=all-traffic]
 ----
 
 To allow only traffic from the internet:
 
-[source, java]
+[source, java, indent=0]
 ----
-include::example$spring-acl-examples/src/main/java/com/example/MyAction.java[tag=internet]
+include::example$spring-doc-snippets/src/main/java/com/example/acl/MyAction.java[tag=internet]
 ----
 To allow traffic from `service-a` and `service-b`:
 
-[source, java]
+[source, java, indent=0]
 ----
-include::example$spring-acl-examples/src/main/java/com/example/MyAction.java[tag=multiple-services]
+include::example$spring-doc-snippets/src/main/java/com/example/acl/MyAction.java[tag=multiple-services]
 ----
 To block all traffic, an ACL with no allows can be configured:
 
-[source, java]
+[source, java, indent=0]
 ----
-include::example$spring-acl-examples/src/main/java/com/example/MyAction.java[tag=block-traffic]
+include::example$spring-doc-snippets/src/main/java/com/example/acl/MyAction.java[tag=block-traffic]
 ----
 === Sharing ACLs between methods
 
 The above examples show how to configure an ACL on a method. ACLs can also be shared between all methods on a component by specifying them on the class, at type level:
 
-[source, java]
+[source, java, indent=0]
 ----
-include::example$spring-acl-examples/src/main/java/com/example/EmployeeAction.java[tag=acl]
+include::example$spring-doc-snippets/src/main/java/com/example/acl/EmployeeAction.java[tag=acl]
 ----
 
 
 The component's ACL can be overridden by individual methods, by specifying the ACL on the method. Note that an ACL defined on a method completely overrides an ACL defined on a component. It does not add to it. So for example, in the following component:
 
-[source, java]
+[source, java, indent=0]
 ----
-include::example$spring-acl-examples/src/main/java/com/example/EmployeeAction.java[tag=acl1]
+include::example$spring-doc-snippets/src/main/java/com/example/acl/EmployeeAction.java[tag=acl1]
 ----
 
 
@@ -75,9 +75,9 @@ The `createEmployee` method will allow calls by `service-b`, but not by `service
 
 The default policy can be configured by specifying a project level annotation in the `Main`, for example, to set a default policy of allowing all local services:
 
-[source, java]
+[source, java, indent=0]
 ----
-include::example$spring-acl-examples/src/main/java/com/example/Main.java[tag=acl]
+include::example$spring-doc-snippets/src/main/java/com/example/acl/Main.java[tag=acl]
 ----
 
 
@@ -117,17 +117,17 @@ When a request is denied, by default, a gRPC error code of 7, `PERMISSION_DENIED
 For example, to make Kalix reply with 404, `NOT_FOUND`:
 
 
-[source, java]
+[source, java, indent=0]
 ----
-include::example$spring-acl-examples/src/main/java/com/example/MyAction.java[tag=deny-code]
+include::example$spring-doc-snippets/src/main/java/com/example/acl/MyAction.java[tag=deny-code]
 ----
 
 Deny codes, if not specified on an ACL, are inherited from the service, or the default, so updating the `deny_code` in the default ACL policy will set it for all methods:
 
 
-[source, java]
+[source, java, indent=0]
 ----
-include::example$spring-acl-examples/src/main/java/com/example/UserAction.java[tag=acl]
+include::example$spring-doc-snippets/src/main/java/com/example/acl/UserAction.java[tag=acl]
 ----
 
 == ACLs on eventing methods
@@ -135,9 +135,9 @@ include::example$spring-acl-examples/src/main/java/com/example/UserAction.java[t
 
 Any method with an `@Subscribe` annotation on it will not automatically inherit either the default or its component's ACL, rather, all outside communication will be blocked, since it's assumed that a method that subscribes to an event stream must only be intended to be invoked in response to events on that stream. This can be overridden by explicitly defining an ACL on that method:
 
-[source, java]
+[source, java, indent=0]
 ----
-include::example$spring-acl-examples/src/main/java/com/example/MyAction.java[tag=open-subscription-acl]
+include::example$spring-doc-snippets/src/main/java/com/example/acl/MyAction.java[tag=open-subscription-acl]
 ----
 
 == Backoffice and self invocations
@@ -200,4 +200,22 @@ In the generated unit test testkits, the ACLs are ignored.
 
 == ACLs when running integration tests
 
-When running integration tests, ACLs are disabled by default. 
+When running integration tests, ACLs are disabled by default but can be explicitly enabled per test by adding a `@Configuration` class with a `@Bean` creating a  `kalix.javasdk.testkit.KalixTestKit.Settings` with ACL enabled like this:
+
+[source, java]
+----
+include::example$spring-eventsourced-counter/src/it/java/com/example/TestkitConfig.java[tag=class]
+----
+<1> Using the DEFAULT `Settings` and enabling ACL. 
+
+
+
+Once this `@Configuration` is available you can `@Import` it to your integration test like the following:
+
+[source, java]
+----
+include::example$spring-eventsourced-counter/src/it/java/com/example/CounterIntegrationTest.java[tag=class]
+----
+<1> Importing `TestkitConfig` as `@Configuration`.
+
+For integration tests that call other services that have ACLs limiting access to specific service names `Settings.withServiceName` allows specifying what the service identifies itself as to other services.

@@ -19,7 +19,11 @@ public class CustomersStreamByName extends View<Customer> { // <1>
 
   @GetMapping("/summary/by_name/{customerName}")   // <2>
   @Query(
-      value = "SELECT customerId AS id, name FROM customers WHERE name = :customerName", // <3>
+      value = """
+        SELECT customerId AS id, name
+          FROM customers
+          WHERE name = :customerName
+        """, // <3>
       streamUpdates = true) // <4>
   public Flux<CustomerSummary> getCustomer() { // <5>
     return null;

@@ -4,6 +4,7 @@ import customer.action.CustomerActionImpl;
 import customer.domain.CustomerValueEntity;
 import customer.view.CustomerByEmailView;
 import customer.view.CustomerByNameView;
+import customer.view.CustomerDetailsByNameView;
 import customer.view.CustomerSummaryByNameView;
 import customer.view.CustomersResponseByNameView;
 import kalix.javasdk.Kalix;
@@ -32,6 +33,7 @@ public final class Main {
       CustomerActionImpl::new,
       CustomerByEmailView::new,
       CustomerByNameView::new,
+      CustomerDetailsByNameView::new,
       CustomerSummaryByNameView::new,
       CustomersResponseByNameView::new);
   }

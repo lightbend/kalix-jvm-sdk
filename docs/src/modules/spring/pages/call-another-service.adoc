@@ -12,9 +12,9 @@ The Kalix Spring SDK provides a utility class `WebClientProvider` that can provi
 In our delegating service implementation:
 
 [source,java,indent=0]
-.src/main/java/com/example/DelegatingServiceAction.java
+.src/main/java/com/example/callanotherservice/DelegatingServiceAction.java
 ----
-include::spring:example$spring-doc-snippets/src/main/java/com/example/DelegatingServiceAction.java[tag=delegating-action]
+include::spring:example$spring-doc-snippets/src/main/java/com/example/callanotherservice/DelegatingServiceAction.java[tag=delegating-action]
 ----
 
 
