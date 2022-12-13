@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+package store.product.domain;
+
+// tag::domain[]
+message ProductState {
+  string product_id = 1;
+  string product_name = 2;
+  Money price = 3;
+}
+
+message Money {
+  string currency = 1;
+  int64 units = 2;
+  int32 cents = 3;
+}
+
+message ProductCreated {
+  ProductState product = 1;
+}
+
+message ProductNameChanged {
+  string new_name = 1;
+}
+
+message ProductPriceChanged {
+  Money new_price = 1;
+}
+// end::domain[]

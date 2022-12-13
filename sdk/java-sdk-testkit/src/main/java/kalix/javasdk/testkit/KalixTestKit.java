@@ -64,6 +64,9 @@ public class KalixTestKit {
     /** Whether ACL checking is enabled. */
     public final boolean aclEnabled;
 
+    /** Whether advanced View features are enabled. */
+    public final boolean advancedViews;
+
     /**
      * Create new settings for KalixTestkit.
      *
@@ -72,14 +75,18 @@ public class KalixTestKit {
      */
     @Deprecated
     public Settings(final Duration stopTimeout) {
-      this(stopTimeout, "self", false);
+      this(stopTimeout, "self", false, false);
     }
 
     private Settings(
-        final Duration stopTimeout, final String serviceName, final boolean aclEnabled) {
+        final Duration stopTimeout,
+        final String serviceName,
+        final boolean aclEnabled,
+        final boolean advancedViews) {
       this.stopTimeout = stopTimeout;
       this.serviceName = serviceName;
       this.aclEnabled = aclEnabled;
+      this.advancedViews = advancedViews;
     }
 
     /**
@@ -89,7 +96,7 @@ public class KalixTestKit {
      * @return updated Settings
      */
     public Settings withStopTimeout(final Duration stopTimeout) {
-      return new Settings(stopTimeout, serviceName, aclEnabled);
+      return new Settings(stopTimeout, serviceName, aclEnabled, advancedViews);
     }
 
     /**
@@ -101,7 +108,7 @@ public class KalixTestKit {
      * @return The updated settings.
      */
     public Settings withServiceName(final String serviceName) {
-      return new Settings(stopTimeout, serviceName, aclEnabled);
+      return new Settings(stopTimeout, serviceName, aclEnabled, advancedViews);
     }
 
     /**
@@ -110,7 +117,7 @@ public class KalixTestKit {
      * @return The updated settings.
      */
     public Settings withAclDisabled() {
-      return new Settings(stopTimeout, serviceName, false);
+      return new Settings(stopTimeout, serviceName, false, advancedViews);
     }
 
     /**
@@ -119,7 +126,16 @@ public class KalixTestKit {
      * @return The updated settings.
      */
     public Settings withAclEnabled() {
-      return new Settings(stopTimeout, serviceName, true);
+      return new Settings(stopTimeout, serviceName, true, advancedViews);
+    }
+
+    /**
+     * Enable advanced View features for this service.
+     *
+     * @return The updated settings.
+     */
+    public Settings withAdvancedViews() {
+      return new Settings(stopTimeout, serviceName, aclEnabled, true);
     }
   }
 
@@ -185,6 +201,7 @@ public class KalixTestKit {
     proxyContainer = new KalixProxyContainer(port);
     proxyContainer.addEnv("SERVICE_NAME", settings.serviceName);
     proxyContainer.addEnv("ACL_ENABLED", Boolean.toString(settings.aclEnabled));
+    proxyContainer.addEnv("VIEW_FEATURES_ALL", Boolean.toString(settings.advancedViews));
     proxyContainer.start();
     started = true;
 

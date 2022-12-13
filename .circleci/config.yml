@@ -556,6 +556,27 @@ jobs:
             rm -rf src/main/java src/test/java src/it/java
             mvn -Dkalix-sdk.version=$SDK_VERSION test-compile
 
+  sample-java-view-store:
+    machine:
+      image: ubuntu-2004:202201-02
+    steps:
+      - checkout-and-merge-to-main
+      - setup_sbt
+      - restore_deps_cache
+      # note: `copy-from-workspace` requires `publish-local` to be run first as declared in workflow section below
+      - copy-from-workspace
+      - set-sdk-version
+      - run:
+          name: Java Value Entity "Store" sample for advanced Views
+          command: |
+            cd samples/java-view-store
+            echo "Running mvn with SDK version: '$SDK_VERSION'"
+            mvn -Dkalix-sdk.version=$SDK_VERSION test-compile
+            mvn -Dkalix-sdk.version=$SDK_VERSION verify -Pit
+            echo "==== Verifying that generated unmanaged sources compile ===="
+            rm -rf src/main/java src/test/java src/it/java
+            mvn -Dkalix-sdk.version=$SDK_VERSION test-compile
+
   sample-java-eventsourced-customer-registry:
     machine:
       image: ubuntu-2004:202201-02
@@ -598,6 +619,7 @@ jobs:
             echo "==== Verifying that generated unmanaged sources compile ===="
             rm -rf src/main/java src/test/java src/it/java
             mvn -Dkalix-sdk.version=$SDK_VERSION test-compile
+
   sample-java-valueentity-shopping-cart:
     machine:
       image: ubuntu-2004:202201-02
@@ -829,6 +851,27 @@ jobs:
             echo "Running sbt with SDK version: '$SDK_VERSION'"
             sbt -Dkalix-sdk.version=$SDK_VERSION test
             # FIXME integration tests
+            echo "==== Verifying that generated unmanaged sources compile ===="
+            rm -rf src/main/scala src/test/scala src/it/scala
+            sbt -Dkalix-sdk.version=$SDK_VERSION Test/compile
+
+  sample-scala-view-store:
+    machine:
+      image: ubuntu-2004:202201-02
+    steps:
+      - checkout-and-merge-to-main
+      - setup_sbt
+      - restore_deps_cache
+      # note: `copy-from-workspace` requires `publish-local` to be run first as declared in workflow section below
+      - copy-from-workspace
+      - set-sdk-version
+      - run:
+          name: Scala "Store" sample for advanced Views
+          command: |
+            cd samples/scala-view-store
+            echo "Running sbt with SDK version: '$SDK_VERSION'"
+            echo "Version check: $VERSION_CHECK_ON_STARTUP"
+            sbt -Dkalix-sdk.version=$SDK_VERSION test
             echo "==== Verifying that generated unmanaged sources compile ===="
             rm -rf src/main/scala src/test/scala src/it/scala
             sbt -Dkalix-sdk.version=$SDK_VERSION Test/compile
@@ -1441,6 +1484,10 @@ workflows:
           requires:
             - checks
             - publish-local
+      - sample-java-view-store:
+          requires:
+            - checks
+            - publish-local
       - sample-java-eventsourced-customer-registry:
           requires:
             - checks
@@ -1490,6 +1537,10 @@ workflows:
             - checks
             - publish-local
       - sample-scala-valueentity-customer-registry:
+          requires:
+            - checks
+            - publish-local
+      - sample-scala-view-store:
           requires:
             - checks
             - publish-local

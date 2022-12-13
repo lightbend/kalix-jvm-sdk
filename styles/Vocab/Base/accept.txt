@@ -98,6 +98,7 @@ src
 stackdriver
 Stackdriver
 subcommand
+subquery
 telemedicine
 Telemedicine
 Tink

@@ -49,6 +49,7 @@ object KalixTestKit {
     def withServiceName(name: String): Settings = new Settings(jSettings.withServiceName(name))
     def withAclDisabled(): Settings = new Settings(jSettings.withAclDisabled())
     def withAclEnabled(): Settings = new Settings(jSettings.withAclEnabled())
+    def withAdvancedViews(): Settings = new Settings(jSettings.withAdvancedViews())
   }
 
   val DefaultSettings: Settings = new Settings(JTestKit.Settings.DEFAULT)
