@@ -57,6 +57,9 @@ public interface ActionResult<T> {
    */
   CompletionStage<ActionResult<T>> getAsyncResult();
 
+  /** @return true if the returned effect was ignore, false if not */
+  boolean isIgnore();
+
   /** @return true if the call was an error, false if not */
   boolean isError();
 
