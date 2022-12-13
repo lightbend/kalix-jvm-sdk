@@ -72,6 +72,8 @@ final class ActionResultImpl[T](val effect: ActionEffectImpl.PrimaryEffect[T]) e
 
   override def isError: Boolean = effect.isInstanceOf[ActionEffectImpl.ErrorEffect[_]]
 
+  override def isIgnore: Boolean = effect == ActionEffectImpl.IgnoreEffect()
+
   override def errorDescription: String = effect match {
     case e: ActionEffectImpl.ErrorEffect[_] => e.description
     case _ => throw new IllegalStateException(s"The effect was not an error but [$effectName]")

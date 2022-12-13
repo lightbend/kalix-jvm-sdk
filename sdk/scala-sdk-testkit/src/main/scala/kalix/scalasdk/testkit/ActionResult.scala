@@ -57,6 +57,9 @@ trait ActionResult[T] {
    */
   def asyncResult: Future[ActionResult[T]]
 
+  /** @return true if the returned effect was ignore, false if not */
+  def isIgnore: Boolean
+
   /** @return true if the call was an error, false if not */
   def isError: Boolean
 

@@ -50,12 +50,12 @@ final class ActionResultImpl[T](effect: ActionEffectImpl.PrimaryEffect[T]) exten
 
   def this(effect: Action.Effect[T]) = this(effect.asInstanceOf[ActionEffectImpl.PrimaryEffect[T]])
 
-  implicit val ec = ExecutionContext.Implicits.global
+  private implicit val ec = ExecutionContext.Implicits.global
 
   /** @return true if the call had an effect with a reply, false if not */
-  def isReply(): Boolean = effect.isInstanceOf[ActionEffectImpl.ReplyEffect[T]]
+  override def isReply(): Boolean = effect.isInstanceOf[ActionEffectImpl.ReplyEffect[T]]
 
-  def getReply(): T = {
+  override def getReply(): T = {
     val reply = getEffectOfType(classOf[ActionEffectImpl.ReplyEffect[T]])
     reply.msg
   }
@@ -63,9 +63,9 @@ final class ActionResultImpl[T](effect: ActionEffectImpl.PrimaryEffect[T]) exten
   //TODO add metadata??
 
   /** @return true if the call was forwarded, false if not */
-  def isForward(): Boolean = effect.isInstanceOf[ActionEffectImpl.ForwardEffect[T]]
+  override def isForward(): Boolean = effect.isInstanceOf[ActionEffectImpl.ForwardEffect[T]]
 
-  def getForward(): DeferredCallDetails[Any, T] =
+  override def getForward(): DeferredCallDetails[Any, T] =
     effect match {
       case ActionEffectImpl.ForwardEffect(serviceCall: GrpcDeferredCall[Any @unchecked, T @unchecked], _) =>
         TestKitDeferredCall(serviceCall)
@@ -76,22 +76,24 @@ final class ActionResultImpl[T](effect: ActionEffectImpl.PrimaryEffect[T]) exten
 
   // TODO rewrite
   /** @return true if the call was async, false if not */
-  def isAsync(): Boolean = effect.isInstanceOf[ActionEffectImpl.AsyncEffect[T]]
+  override def isAsync(): Boolean = effect.isInstanceOf[ActionEffectImpl.AsyncEffect[T]]
 
-  def getAsyncResult(): CompletionStage[ActionResult[T]] = {
+  override def getAsyncResult(): CompletionStage[ActionResult[T]] = {
     val async = getEffectOfType(classOf[ActionEffectImpl.AsyncEffect[T]])
     async.effect.map(new ActionResultImpl(_).asInstanceOf[ActionResult[T]]).toJava
   }
 
   /** @return true if the call was an error, false if not */
-  def isError(): Boolean = effect.isInstanceOf[ActionEffectImpl.ErrorEffect[T]]
+  override def isError(): Boolean = effect.isInstanceOf[ActionEffectImpl.ErrorEffect[T]]
 
-  def getError(): String = {
+  override def getError(): String = {
     val error = getEffectOfType(classOf[ActionEffectImpl.ErrorEffect[T]])
     error.description
   }
 
-  def getErrorStatusCode(): Status.Code = {
+  override def isIgnore(): Boolean = effect == ActionEffectImpl.IgnoreEffect()
+
+  override def getErrorStatusCode(): Status.Code = {
     val error = getEffectOfType(classOf[ActionEffectImpl.ErrorEffect[T]])
     error.statusCode.getOrElse(Status.Code.UNKNOWN)
   }
@@ -109,7 +111,7 @@ final class ActionResultImpl[T](effect: ActionEffectImpl.PrimaryEffect[T]) exten
         "expected effect type [" + expectedClass.getName + "] but found [" + effect.getClass.getName + "]")
   }
 
-  def getSideEffects(): JList[DeferredCallDetails[_, _]] =
+  override def getSideEffects(): JList[DeferredCallDetails[_, _]] =
     toDeferredCallDetails(effect.internalSideEffects())
 
 }
