@@ -154,4 +154,6 @@ class ReplicatedCounterMap[K] private[scalasdk] (override val delegate: Replicat
 
   final override def applyDelta: PartialFunction[ReplicatedEntityDelta.Delta, ReplicatedCounterMap[K]] =
     delegate.applyDelta.andThen(new ReplicatedCounterMap(_))
+
+  final override def toString: String = delegate.toString
 }

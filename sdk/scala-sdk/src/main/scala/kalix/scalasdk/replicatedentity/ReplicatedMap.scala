@@ -19,6 +19,7 @@ package kalix.scalasdk.replicatedentity
 import kalix.javasdk.impl.replicatedentity.ReplicatedMapImpl
 import kalix.protocol.replicated_entity.ReplicatedEntityDelta
 import kalix.replicatedentity.ReplicatedData
+import kalix.scalasdk.impl.replicatedentity.ScalaReplicatedDataConverter
 import kalix.scalasdk.impl.replicatedentity.ScalaReplicatedDataFactoryAdapter
 
 /**
@@ -94,10 +95,13 @@ class ReplicatedMap[K, V <: ReplicatedData] private[scalasdk] (override val dele
    * @return
    *   the [[ReplicatedData]] for the key
    */
-  def getOrElse[ValueT <: ReplicatedData](key: K, create: ReplicatedDataFactory => ValueT): ValueT =
-    delegate
-      .getOrElse(key, factory => create(ScalaReplicatedDataFactoryAdapter(factory)).asInstanceOf[V])
+  def getOrElse[ValueT <: ReplicatedData](key: K, create: ReplicatedDataFactory => ValueT): ValueT = {
+    ScalaReplicatedDataConverter
+      .convert(
+        delegate
+          .getOrElse(key, factory => create(ScalaReplicatedDataFactoryAdapter(factory)).asInstanceOf[V]))
       .asInstanceOf[ValueT]
+  }
 
   /**
    * Update the [[ReplicatedData]] value associated with the given key.
