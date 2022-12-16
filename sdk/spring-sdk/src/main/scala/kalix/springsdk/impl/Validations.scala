@@ -35,6 +35,8 @@ import kalix.springsdk.impl.ComponentDescriptorFactory.hasSubscription
 import kalix.springsdk.impl.ComponentDescriptorFactory.hasTopicSubscription
 import kalix.springsdk.impl.ComponentDescriptorFactory.hasValueEntitySubscription
 import kalix.springsdk.impl.reflection.ServiceMethod
+import kalix.springsdk.view.MultiTableView
+import kalix.springsdk.view.ViewTable
 import org.springframework.web.bind.annotation.RequestBody
 import reactor.core.publisher.Flux
 
@@ -86,11 +88,14 @@ object Validations {
   private def when(cond: Boolean)(messages: => Seq[String]): Validation =
     if (cond) Invalid(messages) else Valid
 
-  private def when[T: ClassTag](component: Class[_])(block: => Validation): Validation = {
-    val castedTag = implicitly[ClassTag[T]].runtimeClass.asInstanceOf[Class[T]]
-    if (castedTag.isAssignableFrom(component)) block
-    else Valid
-  }
+  private def when[T: ClassTag](component: Class[_])(block: => Validation): Validation =
+    if (assignable[T](component)) block else Valid
+
+  private def whenExcluding[T: ClassTag, X: ClassTag](component: Class[_])(block: => Validation): Validation =
+    if (assignable[T](component) && !assignable[X](component)) block else Valid
+
+  private def assignable[T: ClassTag](component: Class[_]): Boolean =
+    implicitly[ClassTag[T]].runtimeClass.asInstanceOf[Class[T]].isAssignableFrom(component)
 
   private def commonValidation(component: Class[_]): Validation = {
     noRestStreamIn(component)
@@ -121,8 +126,13 @@ object Validations {
       commonValidation(component) ++
       commonSubscriptionValidation(component) ++
       viewMustHaveTableName(component) ++
-      viewMustHaveOneQueryMethod(component) ++
       streamUpdatesQueryMustReturnFlux(component)
+    } ++
+    whenExcluding[View[_], ViewTable[_]](component) {
+      viewMustHaveOneQueryMethod(component)
+    } ++
+    when[MultiTableView](component) {
+      viewMustHaveOneQueryMethod(component)
     }
   }
 

@@ -149,7 +149,7 @@ object ViewServiceSourceGenerator {
         |  $routerClasses
         |
         |  @Override
-        |  public $ViewRouter<?, ?> viewRouter(String eventName, Object event) {
+        |  public $ViewRouter<?, ?> viewRouter(String eventName) {
         |    switch (eventName) {
         |      $routerCases
         |      default:

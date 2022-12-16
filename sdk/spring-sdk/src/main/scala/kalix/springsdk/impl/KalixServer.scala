@@ -43,7 +43,6 @@ import kalix.springsdk.action.ReflectiveActionProvider
 import kalix.springsdk.eventsourced.ReflectiveEventSourcedEntityProvider
 import kalix.springsdk.impl.Validations.Invalid
 import kalix.springsdk.impl.Validations.Valid
-import kalix.springsdk.impl.Validations.Valid
 import kalix.springsdk.impl.Validations.Validation
 import kalix.springsdk.impl.KalixServer.ActionCreationContextFactoryBean
 import kalix.springsdk.impl.KalixServer.EventSourcedEntityContextFactoryBean
@@ -54,7 +53,10 @@ import kalix.springsdk.impl.KalixServer.ValueEntityContextFactoryBean
 import kalix.springsdk.impl.KalixServer.ViewCreationContextFactoryBean
 import kalix.springsdk.impl.KalixServer.WebClientProviderFactoryBean
 import kalix.springsdk.valueentity.ReflectiveValueEntityProvider
+import kalix.springsdk.view.MultiTableView
+import kalix.springsdk.view.ReflectiveMultiTableViewProvider
 import kalix.springsdk.view.ReflectiveViewProvider
+import kalix.springsdk.view.ViewTable
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.BeanCreationException
@@ -78,6 +80,8 @@ object KalixServer {
     classOf[ValueEntity[_]] ::
     classOf[ReplicatedEntity[_]] ::
     classOf[View[_]] ::
+    classOf[MultiTableView] ::
+    classOf[ViewTable[_]] ::
     Nil
 
   private val kalixComponentsNames = kalixComponents.map(_.getName)
@@ -269,9 +273,16 @@ case class KalixServer(applicationContext: ApplicationContext, config: Config) {
         kalixClient.registerComponent(valueEntity.serviceDescriptor())
       }
 
-      if (classOf[View[_]].isAssignableFrom(clz)) {
+      if (classOf[View[_]].isAssignableFrom(clz) && !classOf[ViewTable[_]].isAssignableFrom(clz)) {
         logger.info(s"Registering View provider for [${clz.getName}]")
         val view = viewProvider(clz.asInstanceOf[Class[View[Nothing]]])
+        kalix.register(view)
+        kalixClient.registerComponent(view.serviceDescriptor())
+      }
+
+      if (classOf[MultiTableView].isAssignableFrom(clz)) {
+        logger.info(s"Registering MultiTableView provider for [${clz.getName}]")
+        val view = multiTableViewProvider(clz.asInstanceOf[Class[MultiTableView]])
         kalix.register(view)
         kalixClient.registerComponent(view.serviceDescriptor())
       }
@@ -352,5 +363,15 @@ case class KalixServer(applicationContext: ApplicationContext, config: Config) {
         if (hasContextConstructor(clz, classOf[ViewCreationContext]))
           ViewCreationContextFactoryBean.set(context)
         kalixBeanFactory.getBean(clz)
+      })
+
+  private def multiTableViewProvider[V <: MultiTableView](clz: Class[V]): ViewProvider =
+    ReflectiveMultiTableViewProvider.of[V](
+      clz,
+      messageCodec,
+      (viewTableClass, context) => {
+        if (hasContextConstructor(viewTableClass, classOf[ViewCreationContext]))
+          ViewCreationContextFactoryBean.set(context)
+        kalixBeanFactory.getBean(viewTableClass)
       })
 }

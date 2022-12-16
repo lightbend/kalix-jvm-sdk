@@ -1,4 +1,5 @@
 // tag::grpc[]
+// tag::spring[]
 == Advanced view queries
 
 Advanced view queries include additional sort operations, grouping operations, joins across tables, and subquery support.
@@ -16,8 +17,9 @@ Advanced views can subscribe to events and changes from multiple entities or eve
 
 In these examples, the Customer Registry used for simple views is extended to be a simple Store, adding Products and Orders for Customers. Customers and Products are implemented using Event Sourced Entities, while Orders is a Value Entity.
 
-Each Product includes an id, name, and a price:
+Each Product includes a name and a price:
 
+// end::spring[]
 [.tabset]
 Java::
 +
@@ -34,9 +36,23 @@ Scala::
 ----
 include::example$scala-view-store/src/main/proto/store/product/domain/product_domain.proto[tag=domain]
 ----
+// end::grpc[]
+// tag::spring[]
+[source,java,indent=0]
+.src/main/java/store/product/domain/Product.java
+----
+include::spring:example$spring-view-store/src/main/java/store/product/domain/Product.java[tag=domain]
+----
+[source,java,indent=0]
+.src/main/java/store/product/domain/Money.java
+----
+include::spring:example$spring-view-store/src/main/java/store/product/domain/Money.java[tag=domain]
+----
+// tag::grpc[]
 
 Each Order has an id, refers to the Customer and Product ids for this order, has the quantity of the ordered product, and a timestamp for when the order was created:
 
+// end::spring[]
 [.tabset]
 Java::
 +
@@ -53,6 +69,15 @@ Scala::
 ----
 include::example$scala-view-store/src/main/proto/store/order/domain/order_domain.proto[tag=domain]
 ----
+// end::grpc[]
+// tag::spring[]
+[source,java,indent=0]
+.src/main/java/store/order/domain/Order.java
+----
+include::spring:example$spring-view-store/src/main/java/store/order/domain/Order.java[tag=domain]
+----
+// end::spring[]
+// tag::grpc[]
 
 A view can then subscribe to the events or changes for each of the Customer, Order, and Product entities, with multiple update methods on the service, but for different tables.
 
@@ -105,9 +130,41 @@ include::example$scala-view-store/src/main/proto/store/view/joined/orders_view.p
 <4> Join products with orders on a matching product id.
 <5> Find orders for a particular customer.
 <6> Sort all the orders by their created timestamp.
+// end::grpc[]
+// tag::spring[]
+
+A view can subscribe to the events or changes for each of the Customer, Order, and Product entities.
+
+To do this, implement a `MultiViewTable` component, with a nested `ViewTable` component for each of the entities, where each `ViewTable` is implemented in a similar way to a single-table `View`.
+
+The view query can then JOIN across these tables, to return all orders for a specified customer, and include the customer and product details with each order.
+
+[source,java,indent=0]
+.src/main/java/store/view/joined/CustomerOrder.java
+----
+include::spring:example$spring-view-store/src/main/java/store/view/joined/CustomerOrder.java[tag=joined]
+----
+
+[source,java,indent=0]
+.src/main/java/store/view/joined/JoinedCustomerOrdersView.java
+----
+include::spring:example$spring-view-store/src/main/java/store/view/joined/JoinedCustomerOrdersView.java[tag=join]
+----
+<1> An optional view id for this multi-table view.
+<2> Create a `MultiTableView` component.
+<3> The view query does the following:
+  * Select all columns from the joined entries to project into the combined `CustomerOrder` result type.
+  * Join customers with orders on a matching customer id.
+  * Join products with orders on a matching product id.
+  * Find orders for a particular customer.
+  * Sort all the orders by their created timestamp.
+<4> The query method returns a stream of customer orders.
+<5> Each `ViewTable` stores its state type in a different table for `customers`, `products`, and `orders`.
+// tag::grpc[]
 
 In the example above, each `CustomerOrder` returned will contain the same customer details. The results can instead include the customer details once, and then all of the ordered products in a collection, using a <<_relational_projection,relational projection>> in the SELECT clause:
 
+// end::spring[]
 [.tabset]
 Java::
 +
@@ -130,9 +187,33 @@ include::example$scala-view-store/src/main/proto/store/view/nested/orders_view.p
 <1> A single `CustomerOrders` message is returned, which will have the customer details and all orders for this customer.
 <2> The customer columns are projected into the result message, and the order and product columns are combined into a nested message and projected into the `orders` field.
 <3> The `orders` (repeated) field will contain the nested `CustomerOrder` messages.
+// end::grpc[]
+// tag::spring[]
+[source,java,indent=0]
+.src/main/java/store/view/nested/CustomerOrders.java
+----
+include::spring:example$spring-view-store/src/main/java/store/view/nested/CustomerOrders.java[tag=nested]
+----
+<1> The `orders` field will contain the nested `CustomerOrder` objects.
+
+[source,java,indent=0]
+.src/main/java/store/view/nested/CustomerOrder.java
+----
+include::spring:example$spring-view-store/src/main/java/store/view/nested/CustomerOrder.java[tag=nested]
+----
+
+[source,java,indent=0]
+.src/main/java/store/view/nested/NestedCustomerOrdersView.java
+----
+include::spring:example$spring-view-store/src/main/java/store/view/nested/NestedCustomerOrdersView.java[tag=query]
+----
+<1> In the view query, the customer columns are projected into the result, and the order and product columns are combined into a nested object and projected into the `orders` field.
+<2> A single `CustomerOrders` object is returned, which will have the customer details and all orders for this customer.
+// tag::grpc[]
 
 A <<_relational_projection,relational projection>> for a JOIN query can also restructure the results. For example, the shipping details for a customer can be constructed in a particular form, and the product orders transformed into a different nested message structure:
 
+// end::spring[]
 [.tabset]
 Java::
 +
@@ -161,6 +242,46 @@ include::example$scala-view-store/src/main/proto/store/view/structured/orders_vi
 <5> The nested orders in the result will still be sorted by their created timestamps.
 
 NOTE: Rather than transforming results in a relational projection, it's also possible to transform the stored state in the update methods for the view, using the `transform_updates` option.
+// end::grpc[]
+// tag::spring[]
+[source,java,indent=0]
+.src/main/java/store/view/structured/CustomerOrders.java
+----
+include::spring:example$spring-view-store/src/main/java/store/view/structured/CustomerOrders.java[tag=structured]
+----
+
+[source,java,indent=0]
+.src/main/java/store/view/structured/CustomerShipping.java
+----
+include::spring:example$spring-view-store/src/main/java/store/view/structured/CustomerShipping.java[tag=structured]
+----
+
+[source,java,indent=0]
+.src/main/java/store/view/structured/ProductOrder.java
+----
+include::spring:example$spring-view-store/src/main/java/store/view/structured/ProductOrder.java[tag=structured]
+----
+
+[source,java,indent=0]
+.src/main/java/store/view/structured/ProductValue.java
+----
+include::spring:example$spring-view-store/src/main/java/store/view/structured/ProductValue.java[tag=structured]
+----
+
+[source,java,indent=0]
+.src/main/java/store/view/structured/StructuredCustomerOrdersView.java
+----
+include::spring:example$spring-view-store/src/main/java/store/view/structured/StructuredCustomerOrdersView.java[tag=query]
+----
+<1> The view query does the following:
+  * The `customerId` is renamed to just `id` in the result.
+  * Customer shipping details are transformed and combined into a nested object.
+  * The product price is reconstructed into a `ProductValue` object, nested within the order object.
+  * The order and associated product information is transformed and combined into a collection of `ProductOrder` objects.
+  * The nested orders in the result will still be sorted by their created timestamps.
+
+NOTE: Rather than transforming results in a relational projection, it's also possible to transform the stored state in the update methods for the view table.
+// tag::grpc[]
 
 === Enable advanced views
 
@@ -168,6 +289,7 @@ Advanced view queries are not available by default. Please contact the Kalix tea
 
 For local development, the advanced view features can be enabled in integration tests using the testkit settings:
 
+// end::spring[]
 [.tabset]
 Java::
 +
@@ -184,8 +306,17 @@ Scala::
 ----
 include::example$scala-view-store/src/test/scala/store/view/joined/JoinedCustomerOrdersIntegrationSpec.scala[tag=testkit-advanced-views]
 ----
+// end::grpc[]
+// tag::spring[]
+[source,java,indent=0]
+.src/it/java/store/view/TestKitConfig.java
+----
+include::spring:example$spring-view-store/src/it/java/store/view/TestKitConfig.java[tag=testkit-advanced-views]
+----
+// tag::grpc[]
 
 For running a local proxy in Docker, with advanced view features enabled, use the environment variable `VIEW_FEATURES_ALL=on`.
 
 
+// end::spring[]
 // end::grpc[]

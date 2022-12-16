@@ -66,7 +66,7 @@ class CustomerOrdersViewRouter(view: CustomerOrdersView) extends ViewMultiTableR
   private val productsViewTableRouter =
     new CustomerOrdersViewRouter.ProductsViewTableRouter(view.ProductsViewTable)
 
-  override def viewRouter(eventName: String, event: Any): ViewRouter[_, _] = {
+  override def viewRouter(eventName: String): ViewRouter[_, _] = {
     eventName match {
       case "UpdateCustomerCreated" =>
         customersViewTableRouter

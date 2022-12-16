@@ -17,15 +17,21 @@
 package kalix.springsdk.impl.view
 
 import java.lang.reflect.ParameterizedType
+import java.util.{ Map => JMap }
+
+import scala.jdk.CollectionConverters._
 
 import com.google.protobuf.any.{ Any => ScalaPbAny }
 import kalix.javasdk.JsonSupport
 import kalix.javasdk.impl.AnySupport.ProtobufEmptyTypeUrl
+import kalix.javasdk.impl.view.ViewMultiTableRouter
 import kalix.javasdk.impl.view.ViewRouter
 import kalix.javasdk.impl.view.ViewUpdateEffectImpl
 import kalix.javasdk.view.View
 import kalix.springsdk.impl.CommandHandler
+import kalix.springsdk.impl.ComponentDescriptorFactory
 import kalix.springsdk.impl.InvocationContext
+import kalix.springsdk.view.ViewTable
 
 class ReflectiveViewRouter[S, V <: View[S]](
     view: V,
@@ -84,4 +90,37 @@ class ReflectiveViewRouter[S, V <: View[S]](
     }
   }
 
+}
+
+class ReflectiveViewMultiTableRouter(
+    viewTables: JMap[Class[ViewTable[_]], ViewTable[_]],
+    commandHandlers: Map[String, CommandHandler])
+    extends ViewMultiTableRouter {
+
+  private val routers: Map[Class[_], ReflectiveViewRouter[Any, ViewTable[Any]]] = viewTables.asScala.toMap.map {
+    case (viewTableClass, viewTable) => viewTableClass -> createViewRouter(viewTableClass, viewTable)
+  }
+
+  private val commandRouters: Map[String, ReflectiveViewRouter[Any, ViewTable[Any]]] = commandHandlers.flatMap {
+    case (commandName, commandHandler) =>
+      commandHandler.methodInvokers.values.headOption.flatMap { methodInvoker =>
+        routers.get(methodInvoker.method.getDeclaringClass).map(commandName -> _)
+      }
+  }
+
+  private def createViewRouter(
+      viewTableClass: Class[ViewTable[_]],
+      viewTable: ViewTable[_]): ReflectiveViewRouter[Any, ViewTable[Any]] = {
+    val ignoreUnknown = ComponentDescriptorFactory.findIgnore(viewTableClass)
+    val tableCommandHandlers = commandHandlers.filter { case (_, commandHandler) =>
+      commandHandler.methodInvokers.exists { case (_, methodInvoker) =>
+        methodInvoker.method.getDeclaringClass eq viewTableClass
+      }
+    }
+    new ReflectiveViewRouter(viewTable.asInstanceOf[ViewTable[Any]], tableCommandHandlers, ignoreUnknown)
+  }
+
+  override def viewRouter(commandName: String): ViewRouter[_, _] = {
+    commandRouters.getOrElse(commandName, throw new RuntimeException(s"No view router for '$commandName'"))
+  }
 }

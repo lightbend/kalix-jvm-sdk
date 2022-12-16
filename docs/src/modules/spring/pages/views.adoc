@@ -252,3 +252,5 @@ should instead publish events to a topic, see xref:actions-publishing-subscribin
 include::java:partial$query-syntax-reference.adoc[]
 
 include::java:partial$query-syntax-paging.adoc[tag=spring]
+
+include::java:partial$query-syntax-advanced.adoc[tag=spring]

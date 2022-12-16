@@ -16,11 +16,16 @@
 
 package kalix.springsdk.impl
 
+import com.google.protobuf.Descriptors.FieldDescriptor
 import com.google.protobuf.Descriptors.FieldDescriptor.JavaType
 import kalix.JwtMethodOptions.JwtMethodMode
 import kalix.springsdk.testmodels.subscriptions.PubSubTestModels.EventStreamSubscriptionView
 import kalix.springsdk.testmodels.subscriptions.PubSubTestModels.SubscribeOnTypeToEventSourcedEvents
 import kalix.springsdk.testmodels.view.ViewTestModels.IllDefineUserByEmailWithStreamUpdates
+import kalix.springsdk.testmodels.view.ViewTestModels.MultiTableViewValidation
+import kalix.springsdk.testmodels.view.ViewTestModels.MultiTableViewWithJoinQuery
+import kalix.springsdk.testmodels.view.ViewTestModels.MultiTableViewWithMultipleQueries
+import kalix.springsdk.testmodels.view.ViewTestModels.MultiTableViewWithoutQuery
 import kalix.springsdk.testmodels.view.ViewTestModels.SubscribeToEventSourcedEvents
 import kalix.springsdk.testmodels.view.ViewTestModels.SubscribeToEventSourcedEventsWithMethodWithState
 import kalix.springsdk.testmodels.view.ViewTestModels.TransformedUserView
@@ -496,6 +501,122 @@ class ViewDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSuit
         methodOptions.getView.getUpdate.getTransformUpdates shouldBe true
         methodOptions.getView.getJsonSchema.getOutput shouldBe "Employee"
 
+      }
+    }
+  }
+
+  "View descriptor factory (for multi-table views)" should {
+
+    "not allow ViewTable without Table annotation" in {
+      intercept[InvalidComponentException] {
+        Validations.validate(classOf[MultiTableViewValidation.ViewTableWithoutTableAnnotation]).failIfInvalid
+      }.getMessage should include("A View should be annotated with @Table.")
+    }
+
+    "not allow ViewTable with empty Table name" in {
+      intercept[InvalidComponentException] {
+        Validations.validate(classOf[MultiTableViewValidation.ViewTableWithEmptyTableAnnotation]).failIfInvalid
+      }.getMessage should include("@Table name is empty, must be a non-empty string.")
+    }
+
+    "not allow @Subscribe annotations in mixed levels on a ViewTable" in {
+      intercept[InvalidComponentException] {
+        Validations.validate(classOf[MultiTableViewValidation.ViewTableWithMixedLevelSubscriptions]).failIfInvalid
+      }.getMessage should include("You cannot use @Subscribe.ValueEntity annotation in both methods and class.")
+    }
+
+    "fail if no query method found" in {
+      intercept[InvalidComponentException] {
+        Validations.validate(classOf[MultiTableViewWithoutQuery]).failIfInvalid
+      }
+    }
+
+    "fail if more than one query method is found" in {
+      intercept[InvalidComponentException] {
+        Validations.validate(classOf[MultiTableViewWithMultipleQueries]).failIfInvalid
+      }
+    }
+
+    "generate proto for multi-table view with join query" in {
+      assertDescriptor[MultiTableViewWithJoinQuery] { desc =>
+        val queryMethodOptions = findKalixMethodOptions(desc, "Get")
+        queryMethodOptions.getView.getQuery.getQuery should be(
+          "SELECT employees.*, counters.* as counters"
+          + " FROM employees"
+          + " JOIN assigned ON assigned.assigneeId = employees.email"
+          + " JOIN counters ON assigned.counterId = counters.id"
+          + " WHERE employees.email = :email")
+        queryMethodOptions.getView.getJsonSchema.getOutput shouldBe "EmployeeCounters"
+        // not defined when query body not used
+        queryMethodOptions.getView.getJsonSchema.getJsonBodyInputField shouldBe ""
+        queryMethodOptions.getView.getJsonSchema.getInput shouldBe ""
+
+        val queryHttpRule = findHttpRule(desc, "Get")
+        queryHttpRule.getGet shouldBe "/employee-counters-by-email/{email}"
+
+        val employeeCountersMessage = desc.fileDescriptor.findMessageTypeByName("EmployeeCounters")
+        employeeCountersMessage should not be null
+        val firstNameField = employeeCountersMessage.findFieldByName("firstName")
+        firstNameField should not be null
+        firstNameField.getType shouldBe FieldDescriptor.Type.STRING
+        val lastNameField = employeeCountersMessage.findFieldByName("lastName")
+        lastNameField should not be null
+        lastNameField.getType shouldBe FieldDescriptor.Type.STRING
+        val emailField = employeeCountersMessage.findFieldByName("email")
+        emailField should not be null
+        emailField.getType shouldBe FieldDescriptor.Type.STRING
+        val countersField = employeeCountersMessage.findFieldByName("counters")
+        countersField should not be null
+        countersField.getMessageType.getName shouldBe "CounterState"
+        countersField.isRepeated shouldBe true
+
+        val employeeOnEventOptions = findKalixMethodOptions(desc, "OnEvent")
+        employeeOnEventOptions.getEventing.getIn.getEventSourcedEntity shouldBe "employee"
+        employeeOnEventOptions.getView.getUpdate.getTable shouldBe "employees"
+        employeeOnEventOptions.getView.getUpdate.getTransformUpdates shouldBe true
+        employeeOnEventOptions.getView.getJsonSchema.getOutput shouldBe "Employee"
+
+        val employeeMessage = desc.fileDescriptor.findMessageTypeByName("Employee")
+        employeeMessage should not be null
+        val employeeFirstNameField = employeeMessage.findFieldByName("firstName")
+        employeeFirstNameField should not be null
+        employeeFirstNameField.getType shouldBe FieldDescriptor.Type.STRING
+        val employeeLastNameField = employeeMessage.findFieldByName("lastName")
+        employeeLastNameField should not be null
+        employeeLastNameField.getType shouldBe FieldDescriptor.Type.STRING
+        val employeeEmailField = employeeMessage.findFieldByName("email")
+        employeeEmailField should not be null
+        employeeEmailField.getType shouldBe FieldDescriptor.Type.STRING
+
+        val counterOnChangeOptions = findKalixMethodOptions(desc, "OnChange1")
+        counterOnChangeOptions.getEventing.getIn.getValueEntity shouldBe "ve-counter"
+        counterOnChangeOptions.getView.getUpdate.getTable shouldBe "counters"
+        counterOnChangeOptions.getView.getUpdate.getTransformUpdates shouldBe false
+        counterOnChangeOptions.getView.getJsonSchema.getOutput shouldBe "CounterState"
+
+        val counterStateMessage = desc.fileDescriptor.findMessageTypeByName("CounterState")
+        counterStateMessage should not be null
+        val counterStateIdField = counterStateMessage.findFieldByName("id")
+        counterStateIdField should not be null
+        counterStateIdField.getType shouldBe FieldDescriptor.Type.STRING
+        val counterStateValueField = counterStateMessage.findFieldByName("value")
+        counterStateValueField should not be null
+        counterStateValueField.getType shouldBe FieldDescriptor.Type.INT32
+
+        val assignedCounterOnChangeOptions = findKalixMethodOptions(desc, "OnChange")
+        assignedCounterOnChangeOptions.getEventing.getIn.getValueEntity shouldBe "assigned-counter"
+        assignedCounterOnChangeOptions.getView.getUpdate.getTable shouldBe "assigned"
+        assignedCounterOnChangeOptions.getView.getUpdate.getTransformUpdates shouldBe false
+        assignedCounterOnChangeOptions.getView.getJsonSchema.getOutput shouldBe "AssignedCounterState"
+
+        val assignedCounterStateMessage = desc.fileDescriptor.findMessageTypeByName("AssignedCounterState")
+        assignedCounterStateMessage should not be null
+        val counterIdField = assignedCounterStateMessage.findFieldByName("counterId")
+        counterIdField should not be null
+        counterIdField.getType shouldBe FieldDescriptor.Type.STRING
+        val assigneeIdField = assignedCounterStateMessage.findFieldByName("assigneeId")
+        assigneeIdField should not be null
+        assigneeIdField.getType shouldBe FieldDescriptor.Type.STRING
       }
     }
   }

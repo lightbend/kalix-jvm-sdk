@@ -87,8 +87,8 @@ private[scalasdk] object JavaViewMultiTableRouterAdapter {
 private[scalasdk] class JavaViewMultiTableRouterAdapter(scalaSdkMultiRouter: ViewMultiTableRouter)
     extends javasdk.impl.view.ViewMultiTableRouter {
 
-  override def viewRouter(eventName: String, event: Any): javasdk.impl.view.ViewRouter[_, _] = {
-    val scalaSdkRouter = scalaSdkMultiRouter.viewRouter(eventName, event)
+  override def viewRouter(eventName: String): javasdk.impl.view.ViewRouter[_, _] = {
+    val scalaSdkRouter = scalaSdkMultiRouter.viewRouter(eventName)
     JavaViewRouterAdapter(scalaSdkRouter)
   }
 }
