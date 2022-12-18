@@ -135,7 +135,7 @@ include::example$scala-view-store/src/main/proto/store/view/joined/orders_view.p
 
 A view can subscribe to the events or changes for each of the Customer, Order, and Product entities.
 
-To do this, implement a `MultiViewTable` component, with a nested `ViewTable` component for each of the entities, where each `ViewTable` is implemented in a similar way to a single-table `View`.
+To do this, create a class with a `ViewId` annotation, and with a nested `View` component (a static member class) for each of the view tables. Each nested view table subscribes to one of the entities.
 
 The view query can then JOIN across these tables, to return all orders for a specified customer, and include the customer and product details with each order.
 
@@ -150,16 +150,15 @@ include::spring:example$spring-view-store/src/main/java/store/view/joined/Custom
 ----
 include::spring:example$spring-view-store/src/main/java/store/view/joined/JoinedCustomerOrdersView.java[tag=join]
 ----
-<1> An optional view id for this multi-table view.
-<2> Create a `MultiTableView` component.
-<3> The view query does the following:
+<1> Add a view id for this multi-table view.
+<2> The view query does the following:
   * Select all columns from the joined entries to project into the combined `CustomerOrder` result type.
   * Join customers with orders on a matching customer id.
   * Join products with orders on a matching product id.
   * Find orders for a particular customer.
   * Sort all the orders by their created timestamp.
-<4> The query method returns a stream of customer orders.
-<5> Each `ViewTable` stores its state type in a different table for `customers`, `products`, and `orders`.
+<3> The query method returns a stream of customer orders.
+<4> Each nested `View` stores its state type in a different table for `customers`, `products`, and `orders`.
 // tag::grpc[]
 
 In the example above, each `CustomerOrder` returned will contain the same customer details. The results can instead include the customer details once, and then all of the ordered products in a collection, using a <<_relational_projection,relational projection>> in the SELECT clause:

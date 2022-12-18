@@ -16,6 +16,8 @@
 
 package kalix.springsdk.impl
 
+import java.lang.reflect.Modifier
+
 import scala.jdk.CollectionConverters.CollectionHasAsScala
 import scala.jdk.OptionConverters.RichOption
 import scala.reflect.ClassTag
@@ -40,6 +42,7 @@ import kalix.springsdk.KalixClient
 import kalix.springsdk.SpringSdkBuildInfo
 import kalix.springsdk.WebClientProvider
 import kalix.springsdk.action.ReflectiveActionProvider
+import kalix.springsdk.annotations.ViewId
 import kalix.springsdk.eventsourced.ReflectiveEventSourcedEntityProvider
 import kalix.springsdk.impl.Validations.Invalid
 import kalix.springsdk.impl.Validations.Valid
@@ -53,10 +56,8 @@ import kalix.springsdk.impl.KalixServer.ValueEntityContextFactoryBean
 import kalix.springsdk.impl.KalixServer.ViewCreationContextFactoryBean
 import kalix.springsdk.impl.KalixServer.WebClientProviderFactoryBean
 import kalix.springsdk.valueentity.ReflectiveValueEntityProvider
-import kalix.springsdk.view.MultiTableView
 import kalix.springsdk.view.ReflectiveMultiTableViewProvider
 import kalix.springsdk.view.ReflectiveViewProvider
-import kalix.springsdk.view.ViewTable
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.BeanCreationException
@@ -80,11 +81,28 @@ object KalixServer {
     classOf[ValueEntity[_]] ::
     classOf[ReplicatedEntity[_]] ::
     classOf[View[_]] ::
-    classOf[MultiTableView] ::
-    classOf[ViewTable[_]] ::
     Nil
 
   private val kalixComponentsNames = kalixComponents.map(_.getName)
+
+  /**
+   * A multi-table view has a ViewId annotation, doesn't extend View itself, but contains at least one View class.
+   */
+  def isMultiTableView(component: Class[_]): Boolean = {
+    (component.getAnnotation(classOf[ViewId]) ne null) &&
+    !classOf[View[_]].isAssignableFrom(component) &&
+    component.getDeclaredClasses.exists(classOf[View[_]].isAssignableFrom)
+  }
+
+  /**
+   * A view table component is a View which is a nested class (static member class) of a multi-table view.
+   */
+  def isNestedViewTable(component: Class[_]): Boolean = {
+    classOf[View[_]].isAssignableFrom(component) &&
+    (component.getDeclaringClass ne null) &&
+    Modifier.isStatic(component.getModifiers) &&
+    (component.getDeclaringClass.getAnnotation(classOf[ViewId]) ne null)
+  }
 
   /**
    * Classpath scanning provider that will lookup for the original main class. Spring doesn't make the original main
@@ -128,8 +146,16 @@ object KalixServer {
 
     private object KalixComponentTypeFilter extends TypeFilter {
       override def `match`(metadataReader: MetadataReader, metadataReaderFactory: MetadataReaderFactory): Boolean = {
-        kalixComponentsNames.contains(metadataReader.getClassMetadata.getSuperClassName)
+        kalixComponentsNames.contains(metadataReader.getClassMetadata.getSuperClassName) ||
+        multiTableViewMatch(metadataReader)
+      }
 
+      /**
+       * A potential multi-table view component has a ViewId annotation but doesn't extend View.
+       */
+      private def multiTableViewMatch(metadataReader: MetadataReader): Boolean = {
+        metadataReader.getAnnotationMetadata.hasAnnotation(classOf[ViewId].getName) &&
+        metadataReader.getClassMetadata.getSuperClassName != classOf[View[_]].getName
       }
     }
 
@@ -273,16 +299,16 @@ case class KalixServer(applicationContext: ApplicationContext, config: Config) {
         kalixClient.registerComponent(valueEntity.serviceDescriptor())
       }
 
-      if (classOf[View[_]].isAssignableFrom(clz) && !classOf[ViewTable[_]].isAssignableFrom(clz)) {
+      if (classOf[View[_]].isAssignableFrom(clz) && !KalixServer.isNestedViewTable(clz)) {
         logger.info(s"Registering View provider for [${clz.getName}]")
         val view = viewProvider(clz.asInstanceOf[Class[View[Nothing]]])
         kalix.register(view)
         kalixClient.registerComponent(view.serviceDescriptor())
       }
 
-      if (classOf[MultiTableView].isAssignableFrom(clz)) {
-        logger.info(s"Registering MultiTableView provider for [${clz.getName}]")
-        val view = multiTableViewProvider(clz.asInstanceOf[Class[MultiTableView]])
+      if (KalixServer.isMultiTableView(clz)) {
+        logger.info(s"Registering multi-table View provider for [${clz.getName}]")
+        val view = multiTableViewProvider(clz)
         kalix.register(view)
         kalixClient.registerComponent(view.serviceDescriptor())
       }
@@ -365,7 +391,7 @@ case class KalixServer(applicationContext: ApplicationContext, config: Config) {
         kalixBeanFactory.getBean(clz)
       })
 
-  private def multiTableViewProvider[V <: MultiTableView](clz: Class[V]): ViewProvider =
+  private def multiTableViewProvider[V](clz: Class[V]): ViewProvider =
     ReflectiveMultiTableViewProvider.of[V](
       clz,
       messageCodec,

@@ -41,8 +41,8 @@ import kalix.springsdk.annotations.Publish
 import kalix.springsdk.annotations.Subscribe
 import kalix.springsdk.annotations.Subscribe.ValueEntity
 import kalix.springsdk.annotations.Table
+import kalix.springsdk.annotations.ViewId
 import kalix.springsdk.impl.reflection._
-import kalix.springsdk.view.MultiTableView
 import org.springframework.core.annotation.AnnotatedElementUtils
 import org.springframework.web.bind.annotation.RequestMapping
 
@@ -341,9 +341,7 @@ private[impl] object ComponentDescriptorFactory {
   def getFactoryFor(component: Class[_]): ComponentDescriptorFactory = {
     if (component.getAnnotation(classOf[EntityType]) != null)
       EntityDescriptorFactory
-    else if (component.getAnnotation(classOf[Table]) != null)
-      ViewDescriptorFactory
-    else if (classOf[MultiTableView].isAssignableFrom(component))
+    else if (component.getAnnotation(classOf[Table]) != null || component.getAnnotation(classOf[ViewId]) != null)
       ViewDescriptorFactory
     else
       ActionDescriptorFactory

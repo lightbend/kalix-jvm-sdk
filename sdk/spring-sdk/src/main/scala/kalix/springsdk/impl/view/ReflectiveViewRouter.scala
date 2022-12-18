@@ -31,7 +31,6 @@ import kalix.javasdk.view.View
 import kalix.springsdk.impl.CommandHandler
 import kalix.springsdk.impl.ComponentDescriptorFactory
 import kalix.springsdk.impl.InvocationContext
-import kalix.springsdk.view.ViewTable
 
 class ReflectiveViewRouter[S, V <: View[S]](
     view: V,
@@ -93,15 +92,15 @@ class ReflectiveViewRouter[S, V <: View[S]](
 }
 
 class ReflectiveViewMultiTableRouter(
-    viewTables: JMap[Class[ViewTable[_]], ViewTable[_]],
+    viewTables: JMap[Class[View[_]], View[_]],
     commandHandlers: Map[String, CommandHandler])
     extends ViewMultiTableRouter {
 
-  private val routers: Map[Class[_], ReflectiveViewRouter[Any, ViewTable[Any]]] = viewTables.asScala.toMap.map {
+  private val routers: Map[Class[_], ReflectiveViewRouter[Any, View[Any]]] = viewTables.asScala.toMap.map {
     case (viewTableClass, viewTable) => viewTableClass -> createViewRouter(viewTableClass, viewTable)
   }
 
-  private val commandRouters: Map[String, ReflectiveViewRouter[Any, ViewTable[Any]]] = commandHandlers.flatMap {
+  private val commandRouters: Map[String, ReflectiveViewRouter[Any, View[Any]]] = commandHandlers.flatMap {
     case (commandName, commandHandler) =>
       commandHandler.methodInvokers.values.headOption.flatMap { methodInvoker =>
         routers.get(methodInvoker.method.getDeclaringClass).map(commandName -> _)
@@ -109,15 +108,15 @@ class ReflectiveViewMultiTableRouter(
   }
 
   private def createViewRouter(
-      viewTableClass: Class[ViewTable[_]],
-      viewTable: ViewTable[_]): ReflectiveViewRouter[Any, ViewTable[Any]] = {
+      viewTableClass: Class[View[_]],
+      viewTable: View[_]): ReflectiveViewRouter[Any, View[Any]] = {
     val ignoreUnknown = ComponentDescriptorFactory.findIgnore(viewTableClass)
     val tableCommandHandlers = commandHandlers.filter { case (_, commandHandler) =>
       commandHandler.methodInvokers.exists { case (_, methodInvoker) =>
         methodInvoker.method.getDeclaringClass eq viewTableClass
       }
     }
-    new ReflectiveViewRouter(viewTable.asInstanceOf[ViewTable[Any]], tableCommandHandlers, ignoreUnknown)
+    new ReflectiveViewRouter(viewTable.asInstanceOf[View[Any]], tableCommandHandlers, ignoreUnknown)
   }
 
   override def viewRouter(commandName: String): ViewRouter[_, _] = {

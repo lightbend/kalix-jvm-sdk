@@ -1,11 +1,10 @@
 package store.view.nested;
 
+import kalix.javasdk.view.View;
 import kalix.springsdk.annotations.Query;
 import kalix.springsdk.annotations.Subscribe;
 import kalix.springsdk.annotations.Table;
 import kalix.springsdk.annotations.ViewId;
-import kalix.springsdk.view.MultiTableView;
-import kalix.springsdk.view.ViewTable;
 import org.springframework.web.bind.annotation.GetMapping;
 import store.customer.api.CustomerEntity;
 import store.customer.domain.CustomerEvent;
@@ -17,7 +16,7 @@ import store.view.model.Customer;
 import store.view.model.Product;
 
 @ViewId("nested-customer-orders")
-public class NestedCustomerOrdersView extends MultiTableView {
+public class NestedCustomerOrdersView {
 
   // tag::query[]
   @GetMapping("/nested-customer-orders/{customerId}")
@@ -37,7 +36,7 @@ public class NestedCustomerOrdersView extends MultiTableView {
 
   @Table("customers")
   @Subscribe.EventSourcedEntity(CustomerEntity.class)
-  public static class Customers extends ViewTable<Customer> {
+  public static class Customers extends View<Customer> {
     public UpdateEffect<Customer> onEvent(CustomerEvent.CustomerCreated created) {
       String id = updateContext().eventSubject().orElse("");
       return effects()
@@ -55,7 +54,7 @@ public class NestedCustomerOrdersView extends MultiTableView {
 
   @Table("products")
   @Subscribe.EventSourcedEntity(ProductEntity.class)
-  public static class Products extends ViewTable<Product> {
+  public static class Products extends View<Product> {
     public UpdateEffect<Product> onEvent(ProductEvent.ProductCreated created) {
       String id = updateContext().eventSubject().orElse("");
       return effects().updateState(new Product(id, created.name(), created.price()));
@@ -72,5 +71,5 @@ public class NestedCustomerOrdersView extends MultiTableView {
 
   @Table("orders")
   @Subscribe.ValueEntity(OrderEntity.class)
-  public static class Orders extends ViewTable<Order> {}
+  public static class Orders extends View<Order> {}
 }

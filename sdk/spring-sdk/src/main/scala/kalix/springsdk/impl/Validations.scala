@@ -35,8 +35,6 @@ import kalix.springsdk.impl.ComponentDescriptorFactory.hasSubscription
 import kalix.springsdk.impl.ComponentDescriptorFactory.hasTopicSubscription
 import kalix.springsdk.impl.ComponentDescriptorFactory.hasValueEntitySubscription
 import kalix.springsdk.impl.reflection.ServiceMethod
-import kalix.springsdk.view.MultiTableView
-import kalix.springsdk.view.ViewTable
 import org.springframework.web.bind.annotation.RequestBody
 import reactor.core.publisher.Flux
 
@@ -85,14 +83,11 @@ object Validations {
 
   }
 
-  private def when(cond: Boolean)(messages: => Seq[String]): Validation =
-    if (cond) Invalid(messages) else Valid
+  private def when(cond: Boolean)(block: => Validation): Validation =
+    if (cond) block else Valid
 
   private def when[T: ClassTag](component: Class[_])(block: => Validation): Validation =
     if (assignable[T](component)) block else Valid
-
-  private def whenExcluding[T: ClassTag, X: ClassTag](component: Class[_])(block: => Validation): Validation =
-    if (assignable[T](component) && !assignable[X](component)) block else Valid
 
   private def assignable[T: ClassTag](component: Class[_]): Boolean =
     implicitly[ClassTag[T]].runtimeClass.asInstanceOf[Class[T]].isAssignableFrom(component)
@@ -123,15 +118,15 @@ object Validations {
 
   private def validateView(component: Class[_]): Validation = {
     when[View[_]](component) {
+      when(!KalixServer.isNestedViewTable(component)) {
+        viewMustHaveOneQueryMethod(component)
+      } ++
       commonValidation(component) ++
       commonSubscriptionValidation(component) ++
       viewMustHaveTableName(component) ++
       streamUpdatesQueryMustReturnFlux(component)
     } ++
-    whenExcluding[View[_], ViewTable[_]](component) {
-      viewMustHaveOneQueryMethod(component)
-    } ++
-    when[MultiTableView](component) {
+    when(KalixServer.isMultiTableView(component)) {
       viewMustHaveOneQueryMethod(component)
     }
   }
@@ -152,11 +147,12 @@ object Validations {
       hasEventSourcedEntitySubscription(component) &&
       methods.exists(hasEventSourcedEntitySubscription)) {
       // collect offending methods
-      methods.filter(hasEventSourcedEntitySubscription).map { method =>
+      val messages = methods.filter(hasEventSourcedEntitySubscription).map { method =>
         errorMessage(
           method,
           "You cannot use @Subscribe.EventSourcedEntity annotation in both methods and class. You can do either one or the other.")
       }
+      Validation(messages)
     }
   }
 
@@ -164,11 +160,12 @@ object Validations {
     val methods = component.getMethods.toIndexedSeq
     when(hasTopicSubscription(component) && methods.exists(hasTopicSubscription)) {
       // collect offending methods
-      methods.filter(hasTopicSubscription).map { method =>
+      val messages = methods.filter(hasTopicSubscription).map { method =>
         errorMessage(
           method,
           "You cannot use @Subscribe.Topic annotation in both methods and class. You can do either one or the other.")
       }
+      Validation(messages)
     }
   }
 
@@ -176,7 +173,7 @@ object Validations {
     Option(component.getAnnotation(classOf[Publish.Stream]))
       .map { ann =>
         when(ann.id().trim.isEmpty) {
-          Seq("@Publish.Stream id can not be an empty string")
+          Validation(Seq("@Publish.Stream id can not be an empty string"))
         }
       }
       .getOrElse(Valid)
@@ -311,11 +308,12 @@ object Validations {
     val noMixedLevelValueEntitySubscription =
       when(hasValueEntitySubscription(component) && subscriptionMethods.nonEmpty) {
         // collect offending methods
-        subscriptionMethods.map { method =>
+        val messages = subscriptionMethods.map { method =>
           errorMessage(
             method,
             "You cannot use @Subscribe.ValueEntity annotation in both methods and class. You can do either one or the other.")
         }
+        Validation(messages)
       }
 
     val handleDeletesMustHaveZeroArity = {

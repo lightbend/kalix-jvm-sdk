@@ -47,8 +47,6 @@ import kalix.springsdk.impl.reflection.SubscriptionServiceMethod
 import kalix.springsdk.impl.reflection.SyntheticRequestServiceMethod
 import kalix.springsdk.impl.reflection.VirtualDeleteServiceMethod
 import kalix.springsdk.impl.reflection.VirtualServiceMethod
-import kalix.springsdk.view.MultiTableView
-import kalix.springsdk.view.ViewTable
 import reactor.core.publisher.Flux
 
 private[impl] object ViewDescriptorFactory extends ComponentDescriptorFactory {
@@ -58,10 +56,10 @@ private[impl] object ViewDescriptorFactory extends ComponentDescriptorFactory {
       messageCodec: SpringSdkMessageCodec,
       nameGenerator: NameGenerator): ComponentDescriptor = {
 
-    val isMultiTable = classOf[MultiTableView].isAssignableFrom(component)
+    val isMultiTable = KalixServer.isMultiTableView(component)
 
     val tableComponents =
-      if (isMultiTable) component.getDeclaredClasses.toSeq.filter(classOf[ViewTable[_]].isAssignableFrom)
+      if (isMultiTable) component.getDeclaredClasses.toSeq.filter(KalixServer.isNestedViewTable)
       else Seq(component)
 
     val (tableTypeDescriptors, updateMethods) = {

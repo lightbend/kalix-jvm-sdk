@@ -17,7 +17,6 @@
 package kalix.springsdk.testmodels.view;
 
 import kalix.javasdk.view.View;
-import kalix.javasdk.view.View.UpdateEffect;
 import kalix.springsdk.annotations.*;
 import kalix.springsdk.testmodels.eventsourcedentity.Employee;
 import kalix.springsdk.testmodels.eventsourcedentity.EmployeeEvent;
@@ -28,8 +27,6 @@ import kalix.springsdk.testmodels.valueentity.Counter;
 import kalix.springsdk.testmodels.valueentity.CounterState;
 import kalix.springsdk.testmodels.valueentity.User;
 import kalix.springsdk.testmodels.valueentity.UserEntity;
-import kalix.springsdk.view.MultiTableView;
-import kalix.springsdk.view.ViewTable;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -449,13 +446,13 @@ public class ViewTestModels {
     }
   }
 
-  public static class MultiTableViewValidation extends MultiTableView {
+  public static class MultiTableViewValidation {
     @Subscribe.ValueEntity(UserEntity.class)
-    public static class ViewTableWithoutTableAnnotation extends ViewTable<User> {}
+    public static class ViewTableWithoutTableAnnotation extends View<User> {}
 
     @Table(" ")
     @Subscribe.ValueEntity(UserEntity.class)
-    public static class ViewTableWithEmptyTableAnnotation extends ViewTable<User> {}
+    public static class ViewTableWithEmptyTableAnnotation extends View<User> {}
 
     @Table("users_view")
     @Subscribe.ValueEntity(UserEntity.class)
@@ -468,9 +465,13 @@ public class ViewTestModels {
     }
   }
 
-  public static class MultiTableViewWithoutQuery extends MultiTableView {}
+  @ViewId("multi-table-view-without-query")
+  public static class MultiTableViewWithoutQuery {
+    public static class Users extends View<User> {}
+  }
 
-  public static class MultiTableViewWithMultipleQueries extends MultiTableView {
+  @ViewId("multi-table-view-with-multiple-queries")
+  public static class MultiTableViewWithMultipleQueries {
     @Query("SELECT * FROM users_view")
     @PostMapping("/users/query1")
     public User query1() {
@@ -482,9 +483,12 @@ public class ViewTestModels {
     public User query2() {
       return null;
     }
+
+    public static class Users extends View<User> {}
   }
 
-  public static class MultiTableViewWithJoinQuery extends MultiTableView {
+  @ViewId("multi-table-view-with-join-query")
+  public static class MultiTableViewWithJoinQuery {
     @GetMapping("/employee-counters-by-email/{email}")
     @Query(
         "SELECT employees.*, counters.* as counters"
@@ -498,7 +502,7 @@ public class ViewTestModels {
 
     @Table("employees")
     @Subscribe.EventSourcedEntity(EventSourcedEntitiesTestModels.EmployeeEntity.class)
-    public static class Employees extends ViewTable<Employee> {
+    public static class Employees extends View<Employee> {
       public UpdateEffect<Employee> onEvent(EmployeeEvent.EmployeeCreated created) {
         return effects()
             .updateState(new Employee(created.firstName, created.lastName, created.email));
@@ -507,10 +511,10 @@ public class ViewTestModels {
 
     @Table("counters")
     @Subscribe.ValueEntity(Counter.class)
-    public static class Counters extends ViewTable<CounterState> {}
+    public static class Counters extends View<CounterState> {}
 
     @Table("assigned")
     @Subscribe.ValueEntity(AssignedCounter.class)
-    public static class Assigned extends ViewTable<AssignedCounterState> {}
+    public static class Assigned extends View<AssignedCounterState> {}
   }
 }

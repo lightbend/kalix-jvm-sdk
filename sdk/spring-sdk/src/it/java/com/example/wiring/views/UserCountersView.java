@@ -22,16 +22,17 @@ import com.example.wiring.valueentities.user.AssignedCounter;
 import com.example.wiring.valueentities.user.AssignedCounterEntity;
 import com.example.wiring.valueentities.user.User;
 import com.example.wiring.valueentities.user.UserEntity;
+import kalix.javasdk.view.View;
 import kalix.springsdk.annotations.Query;
 import kalix.springsdk.annotations.Subscribe;
 import kalix.springsdk.annotations.Table;
-import kalix.springsdk.view.MultiTableView;
-import kalix.springsdk.view.ViewTable;
+import kalix.springsdk.annotations.ViewId;
 import org.springframework.web.bind.annotation.GetMapping;
 
 import java.util.Optional;
 
-public class UserCountersView extends MultiTableView {
+@ViewId("user-counters")
+public class UserCountersView {
   @GetMapping("/user-counters/{user_id}")
   @Query(
       "SELECT users.*, counters.* as counters"
@@ -45,7 +46,7 @@ public class UserCountersView extends MultiTableView {
   }
 
   @Table("users")
-  public static class Users extends ViewTable<UserWithId> {
+  public static class Users extends View<UserWithId> {
     @Subscribe.ValueEntity(UserEntity.class)
     public UpdateEffect<UserWithId> onChange(User user) {
       return effects()
@@ -56,7 +57,7 @@ public class UserCountersView extends MultiTableView {
 
   @Table("counters")
   @Subscribe.EventSourcedEntity(CounterEntity.class)
-  public static class Counters extends ViewTable<UserCounter> {
+  public static class Counters extends View<UserCounter> {
     private UserCounter counterState() {
       return Optional.ofNullable(viewState())
           .orElseGet(() -> new UserCounter(updateContext().eventSubject().orElse(""), 0));
@@ -73,5 +74,5 @@ public class UserCountersView extends MultiTableView {
 
   @Table("assigned")
   @Subscribe.ValueEntity(AssignedCounterEntity.class)
-  public static class Assigned extends ViewTable<AssignedCounter> {}
+  public static class Assigned extends View<AssignedCounter> {}
 }

@@ -19,11 +19,13 @@ package kalix.springsdk.view;
 import com.google.protobuf.Descriptors;
 import kalix.javasdk.impl.MessageCodec;
 import kalix.javasdk.impl.view.ViewMultiTableRouter;
+import kalix.javasdk.view.View;
 import kalix.javasdk.view.ViewCreationContext;
 import kalix.javasdk.view.ViewOptions;
 import kalix.javasdk.view.ViewProvider;
 import kalix.springsdk.annotations.ViewId;
 import kalix.springsdk.impl.ComponentDescriptor;
+import kalix.springsdk.impl.KalixServer;
 import kalix.springsdk.impl.SpringSdkMessageCodec;
 import kalix.springsdk.impl.view.ReflectiveViewMultiTableRouter;
 
@@ -32,19 +34,19 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.BiFunction;
 
-public class ReflectiveMultiTableViewProvider<V extends MultiTableView> implements ViewProvider {
+public class ReflectiveMultiTableViewProvider<V> implements ViewProvider {
 
   private final Class<V> viewClass;
-  private final BiFunction<Class<ViewTable<?>>, ViewCreationContext, ViewTable<?>> factory;
+  private final BiFunction<Class<View<?>>, ViewCreationContext, View<?>> factory;
   private final String viewId;
   private final ViewOptions options;
   private final SpringSdkMessageCodec messageCodec;
   private final ComponentDescriptor componentDescriptor;
 
-  public static <V extends MultiTableView> ReflectiveMultiTableViewProvider<V> of(
+  public static <V> ReflectiveMultiTableViewProvider<V> of(
       Class<V> viewClass,
       SpringSdkMessageCodec messageCodec,
-      BiFunction<Class<ViewTable<?>>, ViewCreationContext, ViewTable<?>> factory) {
+      BiFunction<Class<View<?>>, ViewCreationContext, View<?>> factory) {
 
     String viewId =
         Optional.ofNullable(viewClass.getAnnotation(ViewId.class))
@@ -57,7 +59,7 @@ public class ReflectiveMultiTableViewProvider<V extends MultiTableView> implemen
 
   private ReflectiveMultiTableViewProvider(
       Class<V> viewClass,
-      BiFunction<Class<ViewTable<?>>, ViewCreationContext, ViewTable<?>> factory,
+      BiFunction<Class<View<?>>, ViewCreationContext, View<?>> factory,
       String viewId,
       ViewOptions options,
       SpringSdkMessageCodec messageCodec) {
@@ -86,11 +88,11 @@ public class ReflectiveMultiTableViewProvider<V extends MultiTableView> implemen
 
   @Override
   public ViewMultiTableRouter newRouter(ViewCreationContext context) {
-    Map<Class<ViewTable<?>>, ViewTable<?>> viewTables = new HashMap<>();
+    Map<Class<View<?>>, View<?>> viewTables = new HashMap<>();
     for (Class<?> innerClass : viewClass.getDeclaredClasses()) {
-      if (ViewTable.class.isAssignableFrom(innerClass)) {
+      if (KalixServer.isNestedViewTable(innerClass)) {
         @SuppressWarnings("unchecked")
-        Class<ViewTable<?>> viewTableClass = (Class<ViewTable<?>>) innerClass;
+        Class<View<?>> viewTableClass = (Class<View<?>>) innerClass;
         viewTables.put(viewTableClass, factory.apply(viewTableClass, context));
       }
     }
