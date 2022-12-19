@@ -56,7 +56,7 @@ final class ViewService(
 
   override final val componentType = pv.Views.name
 
-  override def entityType: String = viewId
+  override def workflowName: String = viewId
 
   override def componentOptions: Option[ComponentOptions] = viewOptions
 }

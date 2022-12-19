@@ -45,7 +45,7 @@ trait Service {
    * @return
    *   the entity type name used for the entities represented by this service
    */
-  def entityType: String = descriptor.getName
+  def workflowName: String = descriptor.getName
 
   /**
    * @return

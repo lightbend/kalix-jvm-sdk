@@ -57,8 +57,7 @@ public class CartEntity extends AbstractCartEntity {
         removeItemByProductId(currentState, addLineItem.getProductId());
     lineItems.add(lineItem);
     lineItems.sort(Comparator.comparing(ShoppingCartDomain.LineItem::getProductId));
-    return effects()
-        .updateState(ShoppingCartDomain.Cart.newBuilder().addAllItems(lineItems).build())
+    return effects()        .updateState(ShoppingCartDomain.Cart.newBuilder().addAllItems(lineItems).build())
         .thenReply(Empty.getDefaultInstance());
   }
 
