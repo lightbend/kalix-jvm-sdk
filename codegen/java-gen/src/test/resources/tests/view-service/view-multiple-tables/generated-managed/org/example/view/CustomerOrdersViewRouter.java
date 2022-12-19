@@ -76,7 +76,7 @@ public class CustomerOrdersViewRouter extends ViewMultiTableRouter {
 
 
   @Override
-  public ViewRouter<?, ?> viewRouter(String eventName, Object event) {
+  public ViewRouter<?, ?> viewRouter(String eventName) {
     switch (eventName) {
       case "UpdateCustomerCreated":
         return customersViewTableRouter;

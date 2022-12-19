@@ -34,5 +34,5 @@ abstract class ViewRouter[S, V <: View[S]](val view: V) extends ViewUpdateRouter
  * INTERNAL API, but used by generated code.
  */
 abstract class ViewMultiTableRouter extends ViewUpdateRouter {
-  def viewRouter(eventName: String, event: Any): ViewRouter[_, _]
+  def viewRouter(eventName: String): ViewRouter[_, _]
 }

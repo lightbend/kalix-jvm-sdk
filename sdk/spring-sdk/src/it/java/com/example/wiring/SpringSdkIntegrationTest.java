@@ -21,6 +21,7 @@ import com.example.wiring.actions.echo.Message;
 import com.example.wiring.eventsourcedentities.counter.Counter;
 import com.example.wiring.valueentities.user.User;
 import com.example.wiring.valueentities.user.UserSideEffect;
+import com.example.wiring.views.UserCounters;
 import com.example.wiring.views.UserWithVersion;
 import kalix.springsdk.KalixConfigurationTest;
 import org.hamcrest.core.IsEqual;
@@ -393,6 +394,56 @@ public class SpringSdkIntegrationTest {
             new IsEqual(2));
   }
 
+  @Test
+  public void verifyMultiTableViewForUserCounters() {
+
+    TestUser alice = new TestUser("alice", "alice@foo.com", "Alice Foo");
+    TestUser bob = new TestUser("bob", "bob@bar.com", "Bob Bar");
+
+    createUser(alice);
+    createUser(bob);
+
+    assignCounter("c1", alice.id);
+    assignCounter("c2", bob.id);
+    assignCounter("c3", alice.id);
+    assignCounter("c4", bob.id);
+
+    increaseCounter("c1", 11);
+    increaseCounter("c2", 22);
+    increaseCounter("c3", 33);
+    increaseCounter("c4", 44);
+
+    // the view is eventually updated
+
+    await()
+        .ignoreExceptions()
+        .atMost(20, TimeUnit.SECONDS)
+        .until(() -> getUserCounters(alice.id).counters.size(), new IsEqual<>(2));
+
+    await()
+        .ignoreExceptions()
+        .atMost(20, TimeUnit.SECONDS)
+        .until(() -> getUserCounters(bob.id).counters.size(), new IsEqual<>(2));
+
+    UserCounters aliceCounters = getUserCounters(alice.id);
+    Assertions.assertEquals(alice.id, aliceCounters.id);
+    Assertions.assertEquals(alice.email, aliceCounters.email);
+    Assertions.assertEquals(alice.name, aliceCounters.name);
+    Assertions.assertEquals("c1", aliceCounters.counters.get(0).id);
+    Assertions.assertEquals(11, aliceCounters.counters.get(0).value);
+    Assertions.assertEquals("c3", aliceCounters.counters.get(1).id);
+    Assertions.assertEquals(33, aliceCounters.counters.get(1).value);
+
+    UserCounters bobCounters = getUserCounters(bob.id);
+    Assertions.assertEquals(bob.id, bobCounters.id);
+    Assertions.assertEquals(bob.email, bobCounters.email);
+    Assertions.assertEquals(bob.name, bobCounters.name);
+    Assertions.assertEquals("c2", bobCounters.counters.get(0).id);
+    Assertions.assertEquals(22, bobCounters.counters.get(0).value);
+    Assertions.assertEquals("c4", bobCounters.counters.get(1).id);
+    Assertions.assertEquals(44, bobCounters.counters.get(1).value);
+  }
+
   @NotNull
   private List<User> getUsersByName(String name) {
     return webClient
@@ -445,6 +496,42 @@ public class SpringSdkIntegrationTest {
             .bodyToMono(String.class)
             .block(timeout);
     Assertions.assertEquals("\"Ok from delete\"", deleteUser);
+  }
+
+  private void increaseCounter(String id, int value) {
+    webClient
+        .post()
+        .uri("counter/" + id + "/increase/" + value)
+        .retrieve()
+        .bodyToMono(Integer.class)
+        .block(timeout);
+  }
+
+  private void multiplyCounter(String id, int value) {
+    webClient
+        .post()
+        .uri("counter/" + id + "/multiply/" + value)
+        .retrieve()
+        .bodyToMono(Integer.class)
+        .block(timeout);
+  }
+
+  private void assignCounter(String id, String assignee) {
+    webClient
+        .post()
+        .uri("assigned-counter/" + id + "/assign/" + assignee)
+        .retrieve()
+        .bodyToMono(String.class)
+        .block(timeout);
+  }
+
+  private UserCounters getUserCounters(String userId) {
+    return webClient
+        .get()
+        .uri("user-counters/" + userId)
+        .retrieve()
+        .bodyToMono(UserCounters.class)
+        .block();
   }
 }
 

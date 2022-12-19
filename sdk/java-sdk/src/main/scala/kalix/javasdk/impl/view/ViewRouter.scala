@@ -61,9 +61,9 @@ abstract class ViewMultiTableRouter extends ViewUpdateRouter {
       state: Option[Any],
       event: Any,
       context: UpdateContext): View.UpdateEffect[_] = {
-    viewRouter(context.eventName(), event)._internalHandleUpdate(state, event, context)
+    viewRouter(context.eventName())._internalHandleUpdate(state, event, context)
   }
 
-  def viewRouter(eventName: String, event: Any): ViewRouter[_, _]
+  def viewRouter(eventName: String): ViewRouter[_, _]
 
 }

@@ -151,7 +151,7 @@ object ViewServiceSourceGenerator {
         |
         |  ${Format.indent(routerInstances, 2)}
         |
-        |  override def viewRouter(eventName: String, event: Any): ViewRouter[_, _] = {
+        |  override def viewRouter(eventName: String): ViewRouter[_, _] = {
         |    eventName match {
         |      ${Format.indent(routerCases, 6)}
         |

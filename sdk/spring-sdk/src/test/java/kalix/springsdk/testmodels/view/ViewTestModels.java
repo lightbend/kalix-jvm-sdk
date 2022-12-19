@@ -21,7 +21,10 @@ import kalix.springsdk.annotations.*;
 import kalix.springsdk.testmodels.eventsourcedentity.Employee;
 import kalix.springsdk.testmodels.eventsourcedentity.EmployeeEvent;
 import kalix.springsdk.testmodels.eventsourcedentity.EventSourcedEntitiesTestModels;
+import kalix.springsdk.testmodels.valueentity.AssignedCounter;
+import kalix.springsdk.testmodels.valueentity.AssignedCounterState;
 import kalix.springsdk.testmodels.valueentity.Counter;
+import kalix.springsdk.testmodels.valueentity.CounterState;
 import kalix.springsdk.testmodels.valueentity.User;
 import kalix.springsdk.testmodels.valueentity.UserEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -43,7 +46,6 @@ public class ViewTestModels {
       return null; // TODO: user should not implement this. we need to find a nice API for this
     }
   }
-
 
   @Subscribe.ValueEntity(UserEntity.class)
   public static class ViewWithoutTableAnnotation extends View<User> {
@@ -243,7 +245,6 @@ public class ViewTestModels {
     }
   }
 
-
   @Table("users_view")
   public static class ViewHandleDeletesWithParam extends View<TransformedUser> {
 
@@ -264,7 +265,6 @@ public class ViewTestModels {
       return null;
     }
   }
-
 
   @Table("users_view")
   public static class ViewWithHandleDeletesFalseOnMethodLevel extends View<TransformedUser> {
@@ -314,7 +314,6 @@ public class ViewTestModels {
     }
   }
 
-
   @Table("users_view")
   @Subscribe.ValueEntity(UserEntity.class)
   public static class ViewWithNoQuery extends View<TransformedUser> {}
@@ -359,7 +358,7 @@ public class ViewTestModels {
       return null;
     }
   }
-  
+
   @Table(value = "employees_view")
   public static class SubscribeToEventSourcedEvents extends View<Employee> {
 
@@ -447,4 +446,75 @@ public class ViewTestModels {
     }
   }
 
+  public static class MultiTableViewValidation {
+    @Subscribe.ValueEntity(UserEntity.class)
+    public static class ViewTableWithoutTableAnnotation extends View<User> {}
+
+    @Table(" ")
+    @Subscribe.ValueEntity(UserEntity.class)
+    public static class ViewTableWithEmptyTableAnnotation extends View<User> {}
+
+    @Table("users_view")
+    @Subscribe.ValueEntity(UserEntity.class)
+    public static class ViewTableWithMixedLevelSubscriptions extends View<TransformedUser> {
+      @Subscribe.ValueEntity(UserEntity.class)
+      public UpdateEffect<TransformedUser> onChange(User user) {
+        return effects()
+            .updateState(new TransformedUser(user.lastName + ", " + user.firstName, user.email));
+      }
+    }
+  }
+
+  @ViewId("multi-table-view-without-query")
+  public static class MultiTableViewWithoutQuery {
+    public static class Users extends View<User> {}
+  }
+
+  @ViewId("multi-table-view-with-multiple-queries")
+  public static class MultiTableViewWithMultipleQueries {
+    @Query("SELECT * FROM users_view")
+    @PostMapping("/users/query1")
+    public User query1() {
+      return null;
+    }
+
+    @Query("SELECT * FROM users_view")
+    @PostMapping("/users/query2")
+    public User query2() {
+      return null;
+    }
+
+    public static class Users extends View<User> {}
+  }
+
+  @ViewId("multi-table-view-with-join-query")
+  public static class MultiTableViewWithJoinQuery {
+    @GetMapping("/employee-counters-by-email/{email}")
+    @Query(
+        "SELECT employees.*, counters.* as counters"
+            + " FROM employees"
+            + " JOIN assigned ON assigned.assigneeId = employees.email"
+            + " JOIN counters ON assigned.counterId = counters.id"
+            + " WHERE employees.email = :email")
+    public EmployeeCounters get(String email) {
+      return null;
+    }
+
+    @Table("employees")
+    @Subscribe.EventSourcedEntity(EventSourcedEntitiesTestModels.EmployeeEntity.class)
+    public static class Employees extends View<Employee> {
+      public UpdateEffect<Employee> onEvent(EmployeeEvent.EmployeeCreated created) {
+        return effects()
+            .updateState(new Employee(created.firstName, created.lastName, created.email));
+      }
+    }
+
+    @Table("counters")
+    @Subscribe.ValueEntity(Counter.class)
+    public static class Counters extends View<CounterState> {}
+
+    @Table("assigned")
+    @Subscribe.ValueEntity(AssignedCounter.class)
+    public static class Assigned extends View<AssignedCounterState> {}
+  }
 }

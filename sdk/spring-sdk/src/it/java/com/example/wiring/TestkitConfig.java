@@ -22,8 +22,9 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class TestkitConfig {
-    @Bean
-    public KalixTestKit.Settings settings() {
-        return KalixTestKit.Settings.DEFAULT.withAclEnabled(); // here only to show how to set different `Settings` in a test. See SpringSdkIntegrationTest.java
-    }
+  @Bean
+  public KalixTestKit.Settings settings() {
+    // here only to show how to set different `Settings` in a test. See SpringSdkIntegrationTest.java
+    return KalixTestKit.Settings.DEFAULT.withAclEnabled().withAdvancedViews();
+  }
 }
