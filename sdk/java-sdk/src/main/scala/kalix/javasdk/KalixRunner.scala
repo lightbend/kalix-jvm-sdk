@@ -17,6 +17,7 @@
 package kalix.javasdk
 
 import java.lang.management.ManagementFactory
+import java.time.Duration
 
 import akka.Done
 import akka.actor.CoordinatedShutdown.Reason
@@ -51,13 +52,18 @@ import org.slf4j.LoggerFactory
 object KalixRunner {
   object BindFailure extends Reason
 
-  final case class Configuration(userFunctionInterface: String, userFunctionPort: Int, snapshotEvery: Int) {
+  final case class Configuration(
+      userFunctionInterface: String,
+      userFunctionPort: Int,
+      snapshotEvery: Int,
+      cleanupDeletedEventSourcedEntityAfter: Duration) {
     validate()
     def this(config: Config) = {
       this(
         userFunctionInterface = config.getString("user-function-interface"),
         userFunctionPort = config.getInt("user-function-port"),
-        snapshotEvery = config.getInt("event-sourced-entity.snapshot-every"))
+        snapshotEvery = config.getInt("event-sourced-entity.snapshot-every"),
+        cleanupDeletedEventSourcedEntityAfter = config.getDuration("event-sourced-entity.cleanup-deleted-after"))
     }
 
     private def validate(): Unit = {

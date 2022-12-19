@@ -56,6 +56,8 @@ object EventSourcedEntity {
 
       def emitEvents(event: List[_]): OnSuccessBuilder[S]
 
+      def deleteEntity(finalEvent: Object): OnSuccessBuilder[S]
+
       /**
        * Create a message reply.
        *

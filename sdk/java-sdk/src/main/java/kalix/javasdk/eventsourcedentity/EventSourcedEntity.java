@@ -129,6 +129,8 @@ public abstract class EventSourcedEntity<S> {
 
       OnSuccessBuilder<S> emitEvents(List<?> event);
 
+      OnSuccessBuilder<S> deleteEntity(Object finalEvent);
+
       /**
        * Create a message reply.
        *
