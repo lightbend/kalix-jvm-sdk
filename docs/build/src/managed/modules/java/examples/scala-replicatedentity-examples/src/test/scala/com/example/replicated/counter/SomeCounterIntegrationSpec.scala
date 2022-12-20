@@ -41,6 +41,17 @@ class SomeCounterIntegrationSpec extends AnyWordSpec with Matchers with BeforeAn
       getResult.futureValue.value shouldBe (42 - 32)
     }
 
+    // FIXME remove test once TCK tests are updated to include replicated entities
+    "Test value after passivation" in {
+      val counterId = "1"
+
+      counter.increase(IncreaseValue(counterId, 1)).futureValue
+      Thread.sleep(5000)
+
+      val getResult = counter.get(GetValue(counterId))
+      getResult.futureValue.value shouldBe 1
+    }
+
   }
 
   override def afterAll(): Unit = {
