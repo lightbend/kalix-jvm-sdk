@@ -43,11 +43,8 @@ Test / parallelExecution := false
 Test / testOptions += Tests.Argument("-oDF")
 Test / logBuffered := false
 
-Compile / run := {
-  // needed for the proxy to access the user function on all platforms
-  sys.props += "kalix.user-function-interface" -> "0.0.0.0"
-  (Compile / run).evaluated
-}
+// needed for the proxy to access the user function on all platforms
+run / javaOptions ++= Seq("-Dkalix.user-function-interface=0.0.0.0")
 run / fork := true
 Global / cancelable := false // ctrl-c
 
