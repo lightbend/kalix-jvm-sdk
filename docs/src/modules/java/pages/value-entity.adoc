@@ -158,7 +158,7 @@ include::java:example$scala-valueentity-counter/src/main/scala/com/example/domai
 
 === Deleting state
 
-The next example shows how to delete a Value Entity state by returning special `deleteState()` effect.
+The next example shows how to delete a Value Entity state by returning special `deleteEntity()` effect.
 
 NOTE: After deleting the Value Entity it is possible to create it again, with the same entity ID.
 
@@ -170,7 +170,7 @@ Java::
 ----
 include::java:example$java-valueentity-counter/src/main/java/com/example/domain/Counter.java[tag=delete]
 ----
-<1> We delete the state by returning an `Effect` with `effects().deleteState()`.
+<1> We delete the state by returning an `Effect` with `effects().deleteEntity()`.
 
 Scala::
 +
@@ -179,7 +179,7 @@ Scala::
 ----
 include::java:example$scala-valueentity-counter/src/main/scala/com/example/domain/Counter.scala[tag=delete]
 ----
-<1> We delete the state by returning an `Effect` with `effects.deleteState()`.
+<1> We delete the state by returning an `Effect` with `effects.deleteEntity()`.
 
 
 === Retrieving state

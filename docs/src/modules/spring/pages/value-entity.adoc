@@ -67,7 +67,7 @@ NOTE: The `counter_id` parameter matches the `entityKey` value. Also, for this e
 [#deleting-state]
 === Deleting state
 
-The next example shows how to delete a Value Entity state by returning special `deleteState()` effect.
+The next example shows how to delete a Value Entity state by returning special `deleteEntity()` effect.
 
 NOTE: After deleting the Value Entity it is possible to create it again, with the same entity ID.
 
@@ -76,7 +76,7 @@ NOTE: After deleting the Value Entity it is possible to create it again, with th
 ----
 include::example$spring-valueentity-counter/src/main/java/com/example/CounterEntity.java[tags=delete]
 ----
-<1> We delete the state by returning an `Effect` with `effects().deleteState()`.
+<1> We delete the state by returning an `Effect` with `effects().deleteEntity()`.
 
 === Retrieving state
 

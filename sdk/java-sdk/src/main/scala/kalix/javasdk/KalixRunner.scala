@@ -56,14 +56,16 @@ object KalixRunner {
       userFunctionInterface: String,
       userFunctionPort: Int,
       snapshotEvery: Int,
-      cleanupDeletedEventSourcedEntityAfter: Duration) {
+      cleanupDeletedEventSourcedEntityAfter: Duration,
+      cleanupDeletedValueEntityAfter: Duration) {
     validate()
     def this(config: Config) = {
       this(
         userFunctionInterface = config.getString("user-function-interface"),
         userFunctionPort = config.getInt("user-function-port"),
         snapshotEvery = config.getInt("event-sourced-entity.snapshot-every"),
-        cleanupDeletedEventSourcedEntityAfter = config.getDuration("event-sourced-entity.cleanup-deleted-after"))
+        cleanupDeletedEventSourcedEntityAfter = config.getDuration("event-sourced-entity.cleanup-deleted-after"),
+        cleanupDeletedValueEntityAfter = config.getDuration("value-entity.cleanup-deleted-after"))
     }
 
     private def validate(): Unit = {
@@ -176,7 +178,7 @@ final class KalixRunner private[javasdk] (
 
         case (route, (serviceClass, entityServices: Map[String, ValueEntityService] @unchecked))
             if serviceClass == classOf[ValueEntityService] =>
-          val valueEntityImpl = new ValueEntitiesImpl(system, entityServices)
+          val valueEntityImpl = new ValueEntitiesImpl(system, entityServices, configuration)
           route.orElse(ValueEntitiesHandler.partial(valueEntityImpl))
 
         case (route, (serviceClass, viewServices: Map[String, ViewService] @unchecked))
