@@ -56,8 +56,6 @@ object EventSourcedEntity {
 
       def emitEvents(event: List[_]): OnSuccessBuilder[S]
 
-      def deleteEntity(finalEvent: Object): OnSuccessBuilder[S]
-
       /**
        * Create a message reply.
        *
@@ -124,6 +122,11 @@ object EventSourcedEntity {
     }
 
     trait OnSuccessBuilder[S] {
+
+      /**
+       * Delete the entity. No addition events are allowed.
+       */
+      def deleteEntity(): OnSuccessBuilder[S]
 
       /**
        * Reply after for example <code>emitEvent</code>.

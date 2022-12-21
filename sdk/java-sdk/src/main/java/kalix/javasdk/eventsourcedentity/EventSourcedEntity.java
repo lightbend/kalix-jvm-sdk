@@ -129,8 +129,6 @@ public abstract class EventSourcedEntity<S> {
 
       OnSuccessBuilder<S> emitEvents(List<?> event);
 
-      OnSuccessBuilder<S> deleteEntity(Object finalEvent);
-
       /**
        * Create a message reply.
        *
@@ -180,6 +178,11 @@ public abstract class EventSourcedEntity<S> {
     }
 
     interface OnSuccessBuilder<S> {
+
+      /**
+       * Delete the entity. No addition events are allowed.
+       */
+      OnSuccessBuilder<S> deleteEntity();
 
       /**
        * Reply after for example <code>emitEvent</code>.

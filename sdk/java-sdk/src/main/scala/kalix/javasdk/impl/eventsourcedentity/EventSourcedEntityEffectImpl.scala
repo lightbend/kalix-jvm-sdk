@@ -76,15 +76,12 @@ class EventSourcedEntityEffectImpl[S] extends Builder[S] with OnSuccessBuilder[S
     this
   }
 
-  override def deleteEntity(finalEvent: Any): EventSourcedEntityEffectImpl[S] = {
-    if (finalEvent.isInstanceOf[Iterable[_]] || finalEvent.isInstanceOf[java.lang.Iterable[_]]) {
-      throw new IllegalStateException(
-        s"You are trying to emit collection (${finalEvent.getClass}) of events. " +
-        s"Only one final event is supported when deleting the entity.")
-    } else {
-      _primaryEffect = EmitEvents(Vector(finalEvent), deleteEntity = true)
-      this
+  override def deleteEntity(): EventSourcedEntityEffectImpl[S] = {
+    _primaryEffect = _primaryEffect match {
+      case NoPrimaryEffect        => EmitEvents(Vector.empty, deleteEntity = true)
+      case emitEvents: EmitEvents => emitEvents.copy(deleteEntity = true)
     }
+    this
   }
 
   override def reply[T](message: T): EventSourcedEntityEffectImpl[T] =
