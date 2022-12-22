@@ -72,6 +72,16 @@ public class SpringSdkIntegrationTest {
             .block(timeout);
 
     Assertions.assertEquals("1.02.03456atrue", response.text);
+
+    Message responseCollections =
+        webClient
+            .get()
+            .uri("/action_collections?ints=1&ints=2")
+            .retrieve()
+            .bodyToMono(Message.class)
+            .block(timeout);
+
+    Assertions.assertEquals("1,2", responseCollections.text);
   }
 
   @Test
