@@ -12,6 +12,6 @@ public sealed interface ShoppingCartEvent { // <1>
   record ItemRemoved(String productId) implements ShoppingCartEvent {}
 
   @TypeName("checked-out")
-  record CheckedOut(int timestamp) implements ShoppingCartEvent {}
+  record CheckedOut() implements ShoppingCartEvent {}
 }
 // end::events[]

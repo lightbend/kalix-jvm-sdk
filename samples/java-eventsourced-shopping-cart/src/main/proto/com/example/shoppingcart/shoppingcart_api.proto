@@ -26,6 +26,10 @@ message GetShoppingCart {
   string cart_id = 1 [(kalix.field).entity_key = true];
 }
 
+message CheckoutShoppingCart {
+  string cart_id = 1 [(kalix.field).entity_key = true];
+}
+
 message LineItem {
   string product_id = 1;
   string name = 2;
@@ -34,6 +38,7 @@ message LineItem {
 
 message Cart { // <6>
   repeated LineItem items = 1;
+  bool checked_out = 2;
 }
 
 service ShoppingCartService { // <7>
@@ -44,7 +49,8 @@ service ShoppingCartService { // <7>
       state: "com.example.shoppingcart.domain.Cart" // <12>
       events: [
         "com.example.shoppingcart.domain.ItemAdded", // <13>
-        "com.example.shoppingcart.domain.ItemRemoved"]
+        "com.example.shoppingcart.domain.ItemRemoved",
+        "com.example.shoppingcart.domain.CheckedOut"]
     }
   };
 
@@ -66,5 +72,12 @@ service ShoppingCartService { // <7>
           get: "/carts/{cart_id}/items"
           response_body: "items"
       } };
+  }
+
+  rpc Checkout (CheckoutShoppingCart) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/cart/{cart_id}/checkout"
+      body: "*"
+    };
   }
 }

@@ -69,14 +69,22 @@ NOTE: The `counter_id` parameter matches the `entityKey` value. Also, for this e
 
 The next example shows how to delete a Value Entity state by returning special `deleteEntity()` effect.
 
-NOTE: After deleting the Value Entity it is possible to create it again, with the same entity ID.
-
 .src/main/java/com/example/CounterEntity.java
 [source,java,indent=0]
 ----
 include::example$spring-valueentity-counter/src/main/java/com/example/CounterEntity.java[tags=delete]
 ----
 <1> We delete the state by returning an `Effect` with `effects().deleteEntity()`.
+
+When you give the instruction to delete the entity it will still exist with an empty state from some time. The actual removal happens later to give downstream consumers time to process the change. By default, the existence of the entity is completely cleaned up after a week.
+
+It is not allowed to make further changes after the entity has been "marked" as deleted. You can still handle read requests of the entity until it has been completely removed, but be the current state will be empty.
+
+NOTE: If you want to make changes after deleting the state you should use the `updateState` effect with an empty state instead of using `deleteEntity`.
+
+It is best to not reuse the same entity key after deletion, but if that happens after the entity has been completely removed it will be instantiated as a completely new entity without any knowledge of previous state.
+
+Note that xref:views.adoc#ve_delete[deleting View state] must be handled explicitly.
 
 === Retrieving state
 
