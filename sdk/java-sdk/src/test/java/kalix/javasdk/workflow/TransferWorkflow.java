@@ -112,11 +112,6 @@ public class TransferWorkflow extends Workflow<TransferWorkflow.State> {
     throw new IllegalArgumentException("Account is blocked");
   }
 
-  public Effect<String> get() {
-    return effects().updateState(currentState()).end().thenReply("done");
-  }
-
-
   private <I, O> DeferredCall<I, O> deferredCall(I input, Class<O> cls) {
     return new DeferredCall<I, O>() {
       @Override
