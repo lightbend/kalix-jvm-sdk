@@ -16,21 +16,27 @@
 
 package kalix.javasdk.impl
 
-import kalix.javasdk.{ CloudEvent, JwtClaims, Metadata, Principal, Principals }
-import kalix.protocol.component.MetadataEntry
-import com.google.protobuf.ByteString
 import java.net.URI
 import java.nio.ByteBuffer
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
-import java.{ lang, util }
-import java.util.{ Objects, Optional }
+import java.util.Objects
+import java.util.Optional
+import java.lang
+import java.util
 
-import kalix.javasdk.impl.MetadataImpl.JwtClaimPrefix
-
-import scala.jdk.CollectionConverters._
-import scala.collection.immutable.Seq
 import scala.compat.java8.OptionConverters._
+import scala.jdk.CollectionConverters._
+
+import com.google.protobuf.ByteString
+import kalix.javasdk.impl.MetadataImpl.JwtClaimPrefix
+import kalix.javasdk.CloudEvent
+import kalix.javasdk.JwtClaims
+import kalix.javasdk.Metadata
+import kalix.javasdk.Principal
+import kalix.javasdk.Principals
+import kalix.protocol.component
+import kalix.protocol.component.MetadataEntry
 
 private[kalix] class MetadataImpl(val entries: Seq[MetadataEntry]) extends Metadata with CloudEvent {
 
@@ -254,4 +260,14 @@ object MetadataImpl {
 
   val PrincipalsSource = "_kalix-src"
   val PrincipalsService = "_kalix-src-svc"
+
+  def toProtocol(metadata: kalix.javasdk.Metadata): Option[component.Metadata] =
+    metadata match {
+      case impl: MetadataImpl if impl.entries.nonEmpty =>
+        Some(component.Metadata(impl.entries))
+      case _: MetadataImpl => None
+      case other =>
+        throw new RuntimeException(s"Unknown metadata implementation: ${other.getClass}, cannot send")
+    }
+
 }
