@@ -17,18 +17,21 @@
 package kalix.javasdk.impl.workflow
 
 import com.example.workflow.transfer.MoneyTransferApi
-import io.grpc.Status
+import com.google.protobuf.Empty
 import io.grpc.Status.Code.INVALID_ARGUMENT
+import kalix.javasdk.impl.AnySupport
 import kalix.javasdk.impl.workflow.WorkflowImplSpec.MoneyTransfer
 import kalix.javasdk.workflow.TransferWorkflow
 import kalix.javasdk.workflow.TransferWorkflowProvider
 import kalix.protocol.workflow_entity.WorkflowStreamIn
 import kalix.testkit.TestProtocol
 import org.scalatest.BeforeAndAfterAll
+import org.scalatest.OptionValues
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
+import com.google.protobuf.any.{ Any => ScalaPbAny }
 
-class WorkflowImplSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll {
+class WorkflowImplSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll with OptionValues {
   import kalix.testkit.workflow.WorkflowMessages._
 
   private val service: TestWorkflow = MoneyTransfer.testWorkflow
@@ -133,11 +136,27 @@ class WorkflowImplSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll 
       }
     }
 
-    "start workflow" in {
+    "run workflow to completion" in {
       val workflow = protocol.workflow.connect()
       workflow.send(init(MoneyTransfer.Name, "transfer"))
       workflow.send(command(1, "transfer", "Start", MoneyTransfer.transfer("transfer", "foo", "bar", 10)))
-      pending
+      val response = workflow.expectNext()
+      response.isEffect shouldBe true
+      val effect = response.effect.value
+
+      val state = MoneyTransfer.decode[MoneyTransferApi.State](effect.userState.value)
+      state.getFrom shouldBe "foo"
+      state.getTo shouldBe "bar"
+      state.getAmount shouldBe 10.0
+
+      val transitionWithdraw = effect.transition.stepTransition.value
+      // cast will fail if not Withdraw type
+      MoneyTransfer.decode[MoneyTransferApi.Withdraw](transitionWithdraw.input.value)
+      transitionWithdraw.stepName shouldBe "withdraw"
+
+      val clientAction = effect.clientAction.value
+      // cast will fail if not Empty type
+      MoneyTransfer.decode[Empty](clientAction.action.reply.value.payload.value)
     }
 
   }
@@ -146,6 +165,9 @@ class WorkflowImplSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll 
 object WorkflowImplSpec {
 
   object MoneyTransfer {
+
+    val anySupport = new AnySupport(Array(MoneyTransferApi.getDescriptor), this.getClass.getClassLoader)
+    def decode[T](any: ScalaPbAny): T = anySupport.decodeMessage(any).asInstanceOf[T]
 
     val Name: String = MoneyTransferApi.getDescriptor.findServiceByName("TransferWorkflowService").getFullName
 

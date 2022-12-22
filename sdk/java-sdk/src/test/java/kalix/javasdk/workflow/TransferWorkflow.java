@@ -16,9 +16,8 @@
 
 package kalix.javasdk.workflow;
 
-import akka.Done;
 import com.example.workflow.transfer.MoneyTransferApi;
-import com.google.protobuf.EmptyProto;
+import com.google.protobuf.Empty;
 import kalix.javasdk.DeferredCall;
 import kalix.javasdk.Metadata;
 
@@ -26,46 +25,13 @@ import java.util.concurrent.CompletionStage;
 
 import static io.grpc.Status.Code.INVALID_ARGUMENT;
 
-public class TransferWorkflow extends Workflow<TransferWorkflow.State> {
+public class TransferWorkflow extends Workflow<MoneyTransferApi.State> {
 
 
-  public static class State {
-
-    final public String from;
-    final public String to;
-    final public Double amount;
-
-    public State(String from, String to, Double amount) {
-      this.from = from;
-      this.to = to;
-      this.amount = amount;
-    }
-  }
-
-
-  public static class Deposit {
-    final public String accountNumber;
-    final public Double amount;
-
-    public Deposit(String accountNumber, Double amount) {
-      this.accountNumber = accountNumber;
-      this.amount = amount;
-    }
-  }
-
-  public static class Withdraw {
-    final public String accountNumber;
-    final public Double amount;
-
-    public Withdraw(String accountNumber, Double amount) {
-      this.accountNumber = accountNumber;
-      this.amount = amount;
-    }
-  }
 
   @Override
-  public State emptyState() {
-    return null;
+  public MoneyTransferApi.State emptyState() {
+    return MoneyTransferApi.State.getDefaultInstance();
   }
 
 
@@ -73,22 +39,28 @@ public class TransferWorkflow extends Workflow<TransferWorkflow.State> {
   private final String depositStepName = "deposit";
 
   @Override
-  public WorkflowDef<State> definition() {
+  public WorkflowDef<MoneyTransferApi.State> definition() {
 
     var withdraw =
       step(withdrawStepName, "withdraw from account")
-        .call((Withdraw cmd) -> deferredCall(cmd, String.class))
+        .call((MoneyTransferApi.Withdraw cmd) -> deferredCall(cmd, String.class))
         .andThen((String confirmation) -> {
           var state = currentState();
+          var depositInput =
+            MoneyTransferApi.Deposit
+              .newBuilder()
+              .setAccount(state.getTo())
+              .setAmount(state.getAmount())
+              .build();
           return effects()
             .updateState(state)
-            .transition(new Deposit(state.to, state.amount), depositStepName);
+            .transition(depositInput, depositStepName);
         });
 
 
     var deposit =
       step(depositStepName, "deposit to account")
-        .call((Deposit cmd) -> deferredCall(cmd, String.class))
+        .call((MoneyTransferApi.Deposit cmd) -> deferredCall(cmd, String.class))
         .andThen(__ -> effects().end());
 
     return workflow("transfer-workflow")
@@ -96,15 +68,31 @@ public class TransferWorkflow extends Workflow<TransferWorkflow.State> {
       .add(deposit);
   }
 
-  public Effect<String> start(MoneyTransferApi.Transfer transfer) {
+  public Effect<Empty> start(MoneyTransferApi.Transfer transfer) {
 
     if (transfer.getAmount() <= 0.0)
       return effects().error("Transfer amount cannot be negative.", INVALID_ARGUMENT);
-    else
+    else {
+
+      var newState =
+        MoneyTransferApi.State.newBuilder()
+          .setTo(transfer.getTo())
+          .setFrom(transfer.getFrom())
+          .setAmount(transfer.getAmount())
+          .build();
+
+      var withdrawInput =
+        MoneyTransferApi.Withdraw
+          .newBuilder()
+          .setAccount(transfer.getFrom())
+          .setAmount(transfer.getAmount())
+          .build();
+
       return effects()
-        .updateState(new State(transfer.getFrom(), transfer.getTo(), transfer.getAmount()))
-        .transition(new Withdraw(transfer.getFrom(), transfer.getAmount()), withdrawStepName)
-        .thenReply("started");
+        .updateState(newState)
+        .transition(withdrawInput, withdrawStepName)
+        .thenReply(Empty.getDefaultInstance());
+    }
   }
 
 

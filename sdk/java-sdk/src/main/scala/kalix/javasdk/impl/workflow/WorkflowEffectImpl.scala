@@ -48,7 +48,7 @@ object WorkflowEffectImpl {
   case object NoPersistence extends Persistence[Nothing]
 
   sealed trait Reply[+R]
-  case class ReplyValue[R](reply: R, metadata: Metadata) extends Reply[R]
+  case class ReplyValue[R](value: R, metadata: Metadata) extends Reply[R]
   case object NoReply extends Reply[Nothing]
 
   def apply[S](): WorkflowEffectImpl[S, S] = WorkflowEffectImpl(NoPersistence, Wait, NoReply)

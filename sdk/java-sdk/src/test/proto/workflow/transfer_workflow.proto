@@ -31,6 +31,22 @@ message Transfer {
   double amount = 4;
 }
 
+message State {
+  string from = 1;
+  string to = 2;
+  double amount = 3;
+}
+
+message Deposit{
+  string account = 1;
+  double amount = 2;
+}
+
+
+message Withdraw{
+  string account = 1;
+  double amount = 2;
+}
 
 service TransferWorkflowService {
   rpc Start(Transfer) returns (google.protobuf.Empty) {}

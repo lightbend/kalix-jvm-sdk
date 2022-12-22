@@ -149,7 +149,7 @@ final class WorkflowImpl(system: ActorSystem, val services: Map[String, Workflow
         persistence match {
           case UpdateState(newState) =>
             WorkflowEffect.defaultInstance.withUserState(service.messageCodec.encodeScala(newState))
-          // TODO: saving should be optional, but we must ensure that we don't save it back to null
+          // TODO: persistence should be optional, but we must ensure that we don't save it back to null
           // and preferably we should not even send it over the wire.
           case NoPersistence => WorkflowEffect.defaultInstance
           case DeleteState   => throw new RuntimeException("Workflow state deleted not yet supported")
@@ -160,27 +160,25 @@ final class WorkflowImpl(system: ActorSystem, val services: Map[String, Workflow
           case StepTransition(input, transitionTo) =>
             WorkflowEffect.Transition.StepTransition(
               ProtoStepTransition(transitionTo, Option(service.messageCodec.encodeScala(input))))
-          case End => WorkflowEffect.Transition.EndTransition(ProtoEndTransition.defaultInstance)
-
+          case End  => WorkflowEffect.Transition.EndTransition(ProtoEndTransition.defaultInstance)
           case Wait => throw new RuntimeException("Workflow pausing not yet supported")
         }
 
-      val protoReply =
-        reply match {
-          case ReplyValue(value, metadata) =>
-            ProtoReply.defaultInstance
-              .withPayload(service.messageCodec.encodeScala(value))
-//              .withMetadata(metadata) // TODO convert metadata
-          case NoReply => ProtoReply.defaultInstance
-        }
-      val clientAction =
-        WorkflowClientAction.defaultInstance
-          .withReply(protoReply)
+      val clientAction = {
+        val protoReply =
+          reply match {
+            case ReplyValue(value, metadata) =>
+              ProtoReply.defaultInstance
+                .withPayload(service.messageCodec.encodeScala(value))
+            //.withMetadata(metadata) // TODO convert metadata
+            case NoReply => ProtoReply.defaultInstance
+          }
+        WorkflowClientAction.defaultInstance.withReply(protoReply)
+      }
 
       effect
         .withTransition(toProtoTransition)
         .withClientAction(clientAction)
-
     }
 
     Flow[WorkflowStreamIn]
@@ -210,7 +208,8 @@ final class WorkflowImpl(system: ActorSystem, val services: Map[String, Workflow
             try {
               router._internalHandleCommand(command.name, cmd, context)
             } catch {
-              case e: WorkflowException => throw e
+              case e: WorkflowException =>
+                throw e
               case NonFatal(error) =>
                 throw WorkflowException(command, s"Unexpected failure: $error", Some(error))
             } finally {
@@ -225,16 +224,16 @@ final class WorkflowImpl(system: ActorSystem, val services: Map[String, Workflow
               WorkflowStreamOut(message)
 
             case WorkflowEffectImpl(persistence, transition, reply) =>
-              val effect =
+              val protoEffect =
                 effectMessage(persistence, transition, reply)
                   .withCommandId(command.id)
-              WorkflowStreamOut(WorkflowStreamOut.Message.Effect(effect))
+              WorkflowStreamOut(WorkflowStreamOut.Message.Effect(protoEffect))
 
             case TransitionalEffectImpl(persistence, transition) =>
-              val effect =
+              val protoEffect =
                 effectMessage(persistence, transition, NoReply)
                   .withCommandId(command.id)
-              WorkflowStreamOut(WorkflowStreamOut.Message.Effect(effect))
+              WorkflowStreamOut(WorkflowStreamOut.Message.Effect(protoEffect))
           }
 
         case Step(value) =>
