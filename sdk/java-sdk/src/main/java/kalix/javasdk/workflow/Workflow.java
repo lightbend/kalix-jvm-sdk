@@ -58,9 +58,7 @@ public abstract class Workflow<S> {
    * @throws IllegalStateException if accessed outside a handler method
    */
   protected final kalix.javasdk.workflow.CommandContext commandContext() {
-    return commandContext.orElseThrow(
-      () ->
-        new IllegalStateException("CommandContext is only available when handling a command."));
+    return commandContext.orElseThrow(() -> new IllegalStateException("CommandContext is only available when handling a command."));
   }
 
   /**
@@ -94,8 +92,7 @@ public abstract class Workflow<S> {
     // user may call this method inside a command handler and get a null because it's legal
     // to have emptyState set to null.
     if (handlingCommands) return currentState.orElse(null);
-    else
-      throw new IllegalStateException("Current state is only available when handling a command.");
+    else throw new IllegalStateException("Current state is only available when handling a command.");
   }
 
   public abstract WorkflowDef<S> definition();
@@ -125,13 +122,13 @@ public abstract class Workflow<S> {
       PersistenceEffect<S> updateState(S newState);
 
       // TODO: document
-      TransitionalEffect<Done> waitForInput();
+      TransitionalEffect<Void> waitForInput();
 
       // TODO: document
-      <I> TransitionalEffect<Done> transition(I input, String transitionTo);
+      <I> TransitionalEffect<Void> transition(I input, String transitionTo);
 
       // TODO: document
-      TransitionalEffect<Done> end();
+      TransitionalEffect<Void> end();
 
       /**
        * Create a message reply.
@@ -146,9 +143,9 @@ public abstract class Workflow<S> {
       /**
        * Reply after for example <code>updateState</code>.
        *
-       * @param message The payload of the reply.
+       * @param message  The payload of the reply.
        * @param metadata The metadata for the message.
-       * @param <R> The type of the message that must be returned by this call.
+       * @param <R>      The type of the message that must be returned by this call.
        * @return A message reply.
        */
       <R> Effect<R> reply(R message, Metadata metadata);
@@ -173,7 +170,8 @@ public abstract class Workflow<S> {
       <R> ErrorEffect<R> error(String description, Status.Code statusCode);
     }
 
-    interface ErrorEffect<T> extends Effect<T> { }
+    interface ErrorEffect<T> extends Effect<T> {
+    }
 
     interface TransitionalEffect<T> extends Effect<T> {
 
@@ -181,7 +179,7 @@ public abstract class Workflow<S> {
        * Reply after for example <code>updateState</code>.
        *
        * @param message The payload of the reply.
-       * @param <R> The type of the message that must be returned by this call.
+       * @param <R>     The type of the message that must be returned by this call.
        * @return A message reply.
        */
       <R> Effect<R> thenReply(R message);
@@ -189,9 +187,9 @@ public abstract class Workflow<S> {
       /**
        * Reply after for example <code>updateState</code>.
        *
-       * @param message The payload of the reply.
+       * @param message  The payload of the reply.
        * @param metadata The metadata for the message.
-       * @param <R> The type of the message that must be returned by this call.
+       * @param <R>      The type of the message that must be returned by this call.
        * @return A message reply.
        */
       <R> Effect<R> thenReply(R message, Metadata metadata);
@@ -200,13 +198,13 @@ public abstract class Workflow<S> {
     interface PersistenceEffect<T> {
 
       // TODO: document
-      TransitionalEffect<Done> waitForInput();
+      TransitionalEffect<Void> waitForInput();
 
       // TODO: document
-      <I> TransitionalEffect<Done> transition(I input, String transitionTo);
+      <I> TransitionalEffect<Void> transition(I input, String transitionTo);
 
       // TODO: document
-      TransitionalEffect<Done> end();
+      TransitionalEffect<Void> end();
     }
 
 
@@ -249,9 +247,11 @@ public abstract class Workflow<S> {
 
     final private String _name;
     final public Function<CallInput, DeferredCall<DefCallInput, DefCallOutput>> callFunc;
-    final public Function<DefCallOutput, Effect<Done>> transitionFunc;
+    final public Function<DefCallOutput, Effect<Void>> transitionFunc;
 
-    public Call(String name, Function<CallInput, DeferredCall<DefCallInput, DefCallOutput>> callFunc, Function<DefCallOutput, Effect<Done>> transitionFunc) {
+    public Call(String name, Function<CallInput,
+                DeferredCall<DefCallInput, DefCallOutput>> callFunc,
+                Function<DefCallOutput, Effect<Void>> transitionFunc) {
       _name = name;
       this.callFunc = callFunc;
       this.transitionFunc = transitionFunc;
@@ -291,13 +291,12 @@ public abstract class Workflow<S> {
       final private Function<Input, DeferredCall<DefCallInput, DefCallOutput>> callFunc;
 
 
-      public CallBuilder(String name,
-                         Function<Input, DeferredCall<DefCallInput, DefCallOutput>> callFunc) {
+      public CallBuilder(String name, Function<Input, DeferredCall<DefCallInput, DefCallOutput>> callFunc) {
         this.name = name;
         this.callFunc = callFunc;
       }
 
-      public Call<Input, DefCallInput, DefCallOutput> andThen(Function<DefCallOutput, Effect<Done>> transitionFunc) {
+      public Call<Input, DefCallInput, DefCallOutput> andThen(Function<DefCallOutput, Effect<Void>> transitionFunc) {
         return new Call<>(name, callFunc, transitionFunc);
       }
 

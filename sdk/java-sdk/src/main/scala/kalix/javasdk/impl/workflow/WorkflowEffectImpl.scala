@@ -55,13 +55,13 @@ object WorkflowEffectImpl {
 
   final case class PersistenceEffectImpl[S](persistence: Persistence[S]) extends PersistenceEffect[S] {
 
-    override def waitForInput(): TransitionalEffect[Done] =
+    override def waitForInput(): TransitionalEffect[Void] =
       TransitionalEffectImpl(persistence, Wait)
 
-    override def transition[I](input: I, transitionTo: String): TransitionalEffect[Done] =
+    override def transition[I](input: I, transitionTo: String): TransitionalEffect[Void] =
       TransitionalEffectImpl(persistence, StepTransition(input, transitionTo))
 
-    override def end(): TransitionalEffect[Done] =
+    override def end(): TransitionalEffect[Void] =
       TransitionalEffectImpl(persistence, End)
 
   }
@@ -85,13 +85,13 @@ case class WorkflowEffectImpl[S, T](persistence: Persistence[S], transition: Tra
   override def updateState(newState: S): PersistenceEffect[S] =
     PersistenceEffectImpl(UpdateState(newState))
 
-  override def waitForInput(): TransitionalEffect[Done] =
+  override def waitForInput(): TransitionalEffect[Void] =
     TransitionalEffectImpl(NoPersistence, Wait)
 
-  override def transition[I](input: I, transitionTo: String): TransitionalEffect[Done] =
+  override def transition[I](input: I, transitionTo: String): TransitionalEffect[Void] =
     TransitionalEffectImpl(NoPersistence, StepTransition(input, transitionTo))
 
-  override def end(): TransitionalEffect[Done] =
+  override def end(): TransitionalEffect[Void] =
     TransitionalEffectImpl(NoPersistence, End)
 
   override def reply[R](reply: R): Effect[R] =
