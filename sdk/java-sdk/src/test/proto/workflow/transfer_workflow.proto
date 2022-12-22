@@ -35,6 +35,7 @@ message State {
   string from = 1;
   string to = 2;
   double amount = 3;
+  string lastStep  = 4;
 }
 
 message Deposit{

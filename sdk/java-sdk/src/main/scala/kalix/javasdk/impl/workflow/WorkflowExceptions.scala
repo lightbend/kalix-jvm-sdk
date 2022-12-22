@@ -16,7 +16,6 @@
 
 package kalix.javasdk.impl.workflow
 
-import kalix.javasdk.impl.EntityExceptions.EntityException
 import kalix.javasdk.workflow.CommandContext
 import kalix.protocol.entity.Command
 import kalix.protocol.workflow_entity.WorkflowInit

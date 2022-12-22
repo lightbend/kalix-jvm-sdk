@@ -25,8 +25,6 @@ import kalix.protocol.workflow_entity.WorkflowStreamIn.{ Message => InMessage }
 import kalix.protocol.workflow_entity.WorkflowStreamOut.{ Message => OutMessage }
 import kalix.protocol.workflow_entity._
 import kalix.testkit.entity.EntityMessages
-import kalix.testkit.valueentity.ValueEntityMessages.messagePayload
-import kalix.testkit.valueentity.ValueEntityMessages.reply
 import scalapb.{ GeneratedMessage => ScalaPbMessage }
 
 object WorkflowMessages extends EntityMessages {
@@ -61,26 +59,26 @@ object WorkflowMessages extends EntityMessages {
   def command(id: Long, workflowId: String, name: String, payload: Option[ScalaPbAny]): InMessage =
     InMessage.Command(Command(workflowId, id, name, payload))
 
-  def reply(id: Long, payload: JavaPbMessage): OutMessage =
-    reply(id, messagePayload(payload), None)
+  def executeStep(id: Long, stepName: String, input: JavaPbMessage, userState: JavaPbMessage): InMessage = {
+    val executeStep =
+      ExecuteStep.defaultInstance
+        .withCommandId(id)
+        .withStepName(stepName)
+        .withInput(protobufAny(input))
+        .withUserState(protobufAny(userState))
 
-  def reply(id: Long, payload: ScalaPbMessage): OutMessage =
-    reply(id, messagePayload(payload), None)
-
-//  def reply(id: Long, payload: JavaPbMessage, effects: Effects): OutMessage =
-//    reply(id, messagePayload(payload), effects)
-//
-//  def reply(id: Long, payload: ScalaPbMessage, effects: Effects): OutMessage =
-//    reply(id, messagePayload(payload), effects)
-//
-  private def reply(id: Long, payload: Option[ScalaPbAny], action: Option[WorkflowClientAction]): OutMessage = {
-
-    ???
+    InMessage.Step(executeStep)
   }
-  //.Reply(ValueEntityReply(id, clientActionReply(payload), Seq.empty, crudAction))
-//
-//  private def reply(id: Long, payload: Option[ScalaPbAny], effects: Effects): OutMessage =
-//    OutMessage.Reply(ValueEntityReply(id, clientActionReply(payload), effects.sideEffects, effects.valueEntityAction))
+
+  def getNextStep(id: Long, stepName: String, input: JavaPbMessage, userState: JavaPbMessage): InMessage = {
+    val nextStep =
+      GetNextStep.defaultInstance
+        .withCommandId(id)
+        .withStepName(stepName)
+        .withResult(protobufAny(input))
+        .withUserState(protobufAny(userState))
+    InMessage.Transition(nextStep)
+  }
 
   def actionFailure(id: Long, description: String, statusCode: Status.Code): OutMessage = {
     val failure = component.Failure(id, description, statusCode.value())

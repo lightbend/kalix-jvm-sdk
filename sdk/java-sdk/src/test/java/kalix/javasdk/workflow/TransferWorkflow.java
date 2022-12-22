@@ -19,9 +19,8 @@ package kalix.javasdk.workflow;
 import com.example.workflow.transfer.MoneyTransferApi;
 import com.google.protobuf.Empty;
 import kalix.javasdk.DeferredCall;
-import kalix.javasdk.Metadata;
-
-import java.util.concurrent.CompletionStage;
+import kalix.javasdk.impl.GrpcDeferredCall;
+import kalix.javasdk.impl.MetadataImpl;
 
 import static io.grpc.Status.Code.INVALID_ARGUMENT;
 
@@ -42,16 +41,18 @@ public class TransferWorkflow extends Workflow<MoneyTransferApi.State> {
   public WorkflowDef<MoneyTransferApi.State> definition() {
 
     var withdraw =
-      step(withdrawStepName, "withdraw from account")
-        .call((MoneyTransferApi.Withdraw cmd) -> deferredCall(cmd, String.class))
-        .andThen((String confirmation) -> {
-          var state = currentState();
+      step(withdrawStepName)
+        .call((MoneyTransferApi.Withdraw cmd) -> deferredCall(cmd, Empty.class))
+        .andThen(i -> {
+          var state = currentState().toBuilder().setLastStep("withdrawn").build();
+
           var depositInput =
             MoneyTransferApi.Deposit
               .newBuilder()
               .setAccount(state.getTo())
               .setAmount(state.getAmount())
               .build();
+
           return effects()
             .updateState(state)
             .transition(depositInput, depositStepName);
@@ -59,9 +60,12 @@ public class TransferWorkflow extends Workflow<MoneyTransferApi.State> {
 
 
     var deposit =
-      step(depositStepName, "deposit to account")
-        .call((MoneyTransferApi.Deposit cmd) -> deferredCall(cmd, String.class))
-        .andThen(__ -> effects().end());
+      step(depositStepName)
+        .call((MoneyTransferApi.Deposit cmd ) -> deferredCall(cmd, Empty.class))
+        .andThen(__ -> {
+          var state = currentState().toBuilder().setLastStep("deposited").build();
+          return effects().updateState(state).end();
+        });
 
     return workflow("transfer-workflow")
       .add(withdraw)
@@ -79,6 +83,7 @@ public class TransferWorkflow extends Workflow<MoneyTransferApi.State> {
           .setTo(transfer.getTo())
           .setFrom(transfer.getFrom())
           .setAmount(transfer.getAmount())
+          .setLastStep("started")
           .build();
 
       var withdrawInput =
@@ -96,26 +101,19 @@ public class TransferWorkflow extends Workflow<MoneyTransferApi.State> {
   }
 
 
+  /* to test what happens when a command throws an exception */
   public Effect<String> illegalCall(MoneyTransferApi.Transfer transfer) {
     throw new IllegalArgumentException("Account is blocked");
   }
 
+  // fake a deferred call
   private <I, O> DeferredCall<I, O> deferredCall(I input, Class<O> cls) {
-    return new DeferredCall<I, O>() {
-      @Override
-      public I message() {
-        return input;
-      }
-
-      @Override
-      public Metadata metadata() {
-        return Metadata.EMPTY;
-      }
-
-      @Override
-      public CompletionStage<O> execute() {
-        return null;
-      }
-    };
+    return new GrpcDeferredCall<>(
+      input,
+      MetadataImpl.Empty(),
+      "fake.Service",
+      "FakeMethod",
+      () -> {throw new RuntimeException("Fake DeferredCall can't be executed");}
+    );
   }
 }

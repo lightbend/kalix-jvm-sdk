@@ -16,23 +16,22 @@
 
 package kalix.javasdk.impl.workflow
 
-import akka.Done
 import io.grpc.Status
 import kalix.javasdk.Metadata
 import kalix.javasdk.impl.workflow.WorkflowEffectImpl.End
 import kalix.javasdk.impl.workflow.WorkflowEffectImpl.ErrorEffectImpl
 import kalix.javasdk.impl.workflow.WorkflowEffectImpl.NoPersistence
 import kalix.javasdk.impl.workflow.WorkflowEffectImpl.Persistence
+import kalix.javasdk.impl.workflow.WorkflowEffectImpl.PersistenceEffectBuilderImpl
 import kalix.javasdk.impl.workflow.WorkflowEffectImpl.Reply
-import kalix.javasdk.impl.workflow.WorkflowEffectImpl.TransitionalEffectImpl
 import kalix.javasdk.impl.workflow.WorkflowEffectImpl.StepTransition
 import kalix.javasdk.impl.workflow.WorkflowEffectImpl.Transition
-import kalix.javasdk.impl.workflow.WorkflowEffectImpl.PersistenceEffectImpl
+import kalix.javasdk.impl.workflow.WorkflowEffectImpl.TransitionalEffectImpl
 import kalix.javasdk.impl.workflow.WorkflowEffectImpl.UpdateState
 import kalix.javasdk.impl.workflow.WorkflowEffectImpl.Wait
 import kalix.javasdk.workflow.Workflow.Effect
 import kalix.javasdk.workflow.Workflow.Effect.Builder
-import kalix.javasdk.workflow.Workflow.Effect.PersistenceEffect
+import kalix.javasdk.workflow.Workflow.Effect.PersistenceEffectBuilder
 import kalix.javasdk.workflow.Workflow.Effect.TransitionalEffect
 
 object WorkflowEffectImpl {
@@ -53,7 +52,7 @@ object WorkflowEffectImpl {
 
   def apply[S](): WorkflowEffectImpl[S, S] = WorkflowEffectImpl(NoPersistence, Wait, NoReply)
 
-  final case class PersistenceEffectImpl[S](persistence: Persistence[S]) extends PersistenceEffect[S] {
+  final case class PersistenceEffectBuilderImpl[S](persistence: Persistence[S]) extends PersistenceEffectBuilder[S] {
 
     override def waitForInput(): TransitionalEffect[Void] =
       TransitionalEffectImpl(persistence, Wait)
@@ -82,8 +81,8 @@ case class WorkflowEffectImpl[S, T](persistence: Persistence[S], transition: Tra
     extends Builder[S]
     with Effect[T] {
 
-  override def updateState(newState: S): PersistenceEffect[S] =
-    PersistenceEffectImpl(UpdateState(newState))
+  override def updateState(newState: S): PersistenceEffectBuilder[S] =
+    PersistenceEffectBuilderImpl(UpdateState(newState))
 
   override def waitForInput(): TransitionalEffect[Void] =
     TransitionalEffectImpl(NoPersistence, Wait)

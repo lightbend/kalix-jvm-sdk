@@ -19,7 +19,6 @@ package kalix.javasdk.impl.workflow
 import java.util
 import java.util.Collections
 
-import kalix.javasdk.PassivationStrategy
 import kalix.javasdk.workflow.WorkflowOptions
 
 case class WorkflowOptionsImpl(override val forwardHeaders: java.util.Set[String]) extends WorkflowOptions {

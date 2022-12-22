@@ -16,7 +16,6 @@
 
 package kalix.javasdk.workflow;
 
-import akka.Done;
 import akka.annotation.ApiMayChange;
 import io.grpc.Status;
 import kalix.javasdk.DeferredCall;
@@ -109,7 +108,7 @@ public abstract class Workflow<S> {
   public interface Effect<T> {
 
     /**
-     * Construct the effect that is returned by the command handler or as .
+     * Construct the effect that is returned by the command handler or a step transition.
      * <p>
      * The effect describes next processing actions, such as updating state, transition to another step
      * and sending a reply.
@@ -119,7 +118,7 @@ public abstract class Workflow<S> {
     interface Builder<S> {
 
       // TODO: document
-      PersistenceEffect<S> updateState(S newState);
+      PersistenceEffectBuilder<S> updateState(S newState);
 
       // TODO: document
       TransitionalEffect<Void> waitForInput();
@@ -195,7 +194,7 @@ public abstract class Workflow<S> {
       <R> Effect<R> thenReply(R message, Metadata metadata);
     }
 
-    interface PersistenceEffect<T> {
+    interface PersistenceEffectBuilder<T> {
 
       // TODO: document
       TransitionalEffect<Void> waitForInput();
@@ -249,8 +248,8 @@ public abstract class Workflow<S> {
     final public Function<CallInput, DeferredCall<DefCallInput, DefCallOutput>> callFunc;
     final public Function<DefCallOutput, Effect<Void>> transitionFunc;
 
-    public Call(String name, Function<CallInput,
-                DeferredCall<DefCallInput, DefCallOutput>> callFunc,
+    public Call(String name,
+                Function<CallInput, DeferredCall<DefCallInput, DefCallOutput>> callFunc,
                 Function<DefCallOutput, Effect<Void>> transitionFunc) {
       _name = name;
       this.callFunc = callFunc;
@@ -265,18 +264,16 @@ public abstract class Workflow<S> {
   }
 
 
-  public static Workflow.StepBuilder step(String name, String description) {
-    return new Workflow.StepBuilder(name, description);
+  public static Workflow.StepBuilder step(String name) {
+    return new Workflow.StepBuilder(name);
   }
 
   public static class StepBuilder {
 
     final private String name;
-    final private String description;
 
-    public StepBuilder(String name, String description) {
+    public StepBuilder(String name) {
       this.name = name;
-      this.description = description;
     }
 
     public <Input, DefCallInput, DefCallOutput> CallBuilder<Input, DefCallInput, DefCallOutput> call(Function<Input, DeferredCall<DefCallInput, DefCallOutput>> callFactory) {
@@ -287,11 +284,12 @@ public abstract class Workflow<S> {
 
       final private String name;
 
+
       /* callFactory builds the DeferredCall that will be passed to proxy for execution */
       final private Function<Input, DeferredCall<DefCallInput, DefCallOutput>> callFunc;
 
 
-      public CallBuilder(String name, Function<Input, DeferredCall<DefCallInput, DefCallOutput>> callFunc) {
+      public CallBuilder(String name,  Function<Input, DeferredCall<DefCallInput, DefCallOutput>> callFunc) {
         this.name = name;
         this.callFunc = callFunc;
       }

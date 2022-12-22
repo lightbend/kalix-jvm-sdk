@@ -138,25 +138,86 @@ class WorkflowImplSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll 
 
     "run workflow to completion" in {
       val workflow = protocol.workflow.connect()
-      workflow.send(init(MoneyTransfer.Name, "transfer"))
-      workflow.send(command(1, "transfer", "Start", MoneyTransfer.transfer("transfer", "foo", "bar", 10)))
-      val response = workflow.expectNext()
-      response.isEffect shouldBe true
-      val effect = response.effect.value
+      val workflowId = "transfer"
+      workflow.send(init(MoneyTransfer.Name, workflowId))
 
-      val state = MoneyTransfer.decode[MoneyTransferApi.State](effect.userState.value)
-      state.getFrom shouldBe "foo"
-      state.getTo shouldBe "bar"
-      state.getAmount shouldBe 10.0
+      // start the workflow
+      workflow.send(command(1, workflowId, "Start", MoneyTransfer.transfer(workflowId, "foo", "bar", 10)))
 
-      val transitionWithdraw = effect.transition.stepTransition.value
+      val messageFromStartCmd = workflow.expectNext()
+      messageFromStartCmd.isEffect shouldBe true
+
+      val startEffect = messageFromStartCmd.effect.value
+      val startState = MoneyTransfer.decode[MoneyTransferApi.State](startEffect.userState.value)
+      startState.getFrom shouldBe "foo"
+      startState.getTo shouldBe "bar"
+      startState.getAmount shouldBe 10.0
+      startState.getLastStep shouldBe "started"
+
+      val transitionToWithdraw = startEffect.transition.stepTransition.value
+      transitionToWithdraw.stepName shouldBe "withdraw"
       // cast will fail if not Withdraw type
-      MoneyTransfer.decode[MoneyTransferApi.Withdraw](transitionWithdraw.input.value)
-      transitionWithdraw.stepName shouldBe "withdraw"
+      val withdrawInput = MoneyTransfer.decode[MoneyTransferApi.Withdraw](transitionToWithdraw.input.value)
 
-      val clientAction = effect.clientAction.value
+      val startClientAction = startEffect.clientAction.value
       // cast will fail if not Empty type
-      MoneyTransfer.decode[Empty](clientAction.action.reply.value.payload.value)
+      MoneyTransfer.decode[Empty](startClientAction.action.reply.value.payload.value)
+      //-----------------------------------------------------------------
+
+      // run next step, ie: Withdraw
+      workflow.send(executeStep(2, transitionToWithdraw.stepName, withdrawInput, startState))
+      val messageFromWithdraw = workflow.expectNext()
+      messageFromWithdraw.isResponse shouldBe true
+      val responseFromWithdraw = messageFromWithdraw.response.value
+      val defCallFromWithdraw = responseFromWithdraw.response.deferredCall.value
+      // cast will fail if not Withdraw type
+      MoneyTransfer.decode[MoneyTransferApi.Withdraw](defCallFromWithdraw.payload.value)
+      //-----------------------------------------------------------------
+
+      // simulate withdraw successful, ask for the transition
+      workflow.send(getNextStep(3, transitionToWithdraw.stepName, Empty.getDefaultInstance, startState))
+      val effectAfterWithdraw = workflow.expectNext()
+      effectAfterWithdraw.isEffect shouldBe true
+
+      val withdrawEffect = effectAfterWithdraw.effect.value
+
+      val stateAfterWithdraw = MoneyTransfer.decode[MoneyTransferApi.State](withdrawEffect.userState.value)
+      stateAfterWithdraw.getFrom shouldBe "foo"
+      stateAfterWithdraw.getTo shouldBe "bar"
+      stateAfterWithdraw.getAmount shouldBe 10.0
+      stateAfterWithdraw.getLastStep shouldBe "withdrawn"
+
+      val transitionToDeposit = withdrawEffect.transition.stepTransition.value
+      transitionToDeposit.stepName shouldBe "deposit"
+      val depositInput = MoneyTransfer.decode[MoneyTransferApi.Deposit](transitionToDeposit.input.value)
+      //-----------------------------------------------------------------
+
+      // run next step, ie: Withdraw
+      workflow.send(executeStep(2, transitionToDeposit.stepName, depositInput, stateAfterWithdraw))
+
+      val messageFromDeposit = workflow.expectNext()
+      messageFromDeposit.isResponse shouldBe true
+      val responseFromDeposit = messageFromDeposit.response.value
+      val defCallFromDeposit = responseFromDeposit.response.deferredCall.value
+      // cast will fail if not Deposit type
+      MoneyTransfer.decode[MoneyTransferApi.Deposit](defCallFromDeposit.payload.value)
+      //-----------------------------------------------------------------
+
+      // simulate deposit successful, ask for the transition
+      workflow.send(getNextStep(3, transitionToDeposit.stepName, Empty.getDefaultInstance, stateAfterWithdraw))
+      val effectAfterDeposit = workflow.expectNext()
+      effectAfterDeposit.isEffect shouldBe true
+
+      val depositEffect = effectAfterDeposit.effect.value
+
+      val stateAfterDeposit = MoneyTransfer.decode[MoneyTransferApi.State](depositEffect.userState.value)
+      stateAfterDeposit.getFrom shouldBe "foo"
+      stateAfterDeposit.getTo shouldBe "bar"
+      stateAfterDeposit.getAmount shouldBe 10.0
+      stateAfterDeposit.getLastStep shouldBe "deposited"
+
+      depositEffect.transition.isEndTransition shouldBe true
+      //-----------------------------------------------------------------
     }
 
   }
@@ -174,10 +235,10 @@ object WorkflowImplSpec {
     def testWorkflow: TestWorkflow =
       TestWorkflow.service(TransferWorkflowProvider.of(_ => new TransferWorkflow()));
 
-    def transfer(id: String, from: String, to: String, amount: Double) =
+    def transfer(workflowId: String, from: String, to: String, amount: Double) =
       MoneyTransferApi.Transfer
         .newBuilder()
-        .setWorkflowId(id)
+        .setWorkflowId(workflowId)
         .setFrom(from)
         .setTo(to)
         .setAmount(amount)

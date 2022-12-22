@@ -17,17 +17,32 @@
 package kalix.javasdk.impl.workflow
 
 import java.util.Optional
+import java.util.function.{ Function => JFunc }
 
+import scala.jdk.OptionConverters.RichOptional
+
+import com.google.protobuf.any.{ Any => ScalaPbAny }
+import kalix.javasdk.DeferredCall
+import kalix.javasdk.impl.GrpcDeferredCall
+import kalix.javasdk.impl.MessageCodec
+import kalix.javasdk.impl.MetadataImpl
+import kalix.javasdk.impl.RestDeferredCall
+import kalix.javasdk.impl.workflow.WorkflowExceptions.ProtocolException
 import kalix.javasdk.impl.workflow.WorkflowRouter.CommandHandlerNotFound
 import kalix.javasdk.impl.workflow.WorkflowRouter.CommandResult
+import kalix.javasdk.impl.workflow.WorkflowRouter.WorkflowStepNotFound
 import kalix.javasdk.workflow.CommandContext
 import kalix.javasdk.workflow.Workflow
+import kalix.javasdk.workflow.Workflow.Call
 import kalix.javasdk.workflow.Workflow.Effect
+import kalix.protocol.workflow_entity.StepDeferredCall
+import kalix.protocol.workflow_entity.StepResponse
 
 object WorkflowRouter {
   final case class CommandResult(effect: Workflow.Effect[_])
 
   final case class CommandHandlerNotFound(commandName: String) extends RuntimeException
+  final case class WorkflowStepNotFound(stepName: String) extends RuntimeException
 }
 
 abstract class WorkflowRouter[S, W <: Workflow[S]](protected val workflow: W) {
@@ -69,59 +84,64 @@ abstract class WorkflowRouter[S, W <: Workflow[S]](protected val workflow: W) {
         workflow._internalSetCommandContext(Optional.empty())
       }
 
-//    if (!commandEffect.hasError()) {
-//      commandEffect.primaryEffect match {
-//        case UpdateState(newState) =>
-//          if (newState == null)
-//            throw new IllegalArgumentException("updateState with null state is not allowed.")
-//          state = Some(newState.asInstanceOf[S])
-//        case DeleteState => state = None
-//        case _           =>
-//      }
-//    }
-
     CommandResult(commandEffect)
   }
 
   protected def handleCommand(commandName: String, state: S, command: Any, context: CommandContext): Workflow.Effect[_]
 
-//  // def onInput(state: S, input: Any, commandName: String)
-//
-//  def onInput(state: S, input: Any, stepName: Option[String]): S = {
-//
-//    val workflowDef = workflow.definition()
-//    val step =
-//      stepName
-//        .flatMap { name => workflowDef.findByName(name).toScala }
-//        .getOrElse(???)
-//
-//    step match {
-//      case call: Call[_, _, _] =>
-//        val defCall =
-//          call.callFunc
-//            .asInstanceOf[Function[Any, DeferredCall[Any, Any]]]
-//            .apply(input)
-//        ???
-//      case _ => ???
-//    }
-//
-//  }
-//
-//  def onSuccess(state: S, result: Any, executedStepName: String): S = {
-//    val workflowDef = workflow.definition()
-//    // TODO: if empty means we executed something that was removed
-//    // need to fail workflow with enough context to users
-//    val step = workflowDef.findByName(executedStepName).get()
-//
-//    step match {
-//      case action: Call[_, _, _] =>
-//        val transformedResult =
-//          action.transitionFunc
-//            .asInstanceOf[JFunc[Any, Any]]
-//            .apply(result)
-//        ???
-//      case _ => ???
-//    }
-//  }
+  /** INTERNAL API */
+  // "public" api against the impl/testkit
+  final def _internalHandleStep(input: ScalaPbAny, stepName: String, messageCodec: MessageCodec): StepResponse = {
 
+    workflow._internalSetCurrentState(stateOrEmpty())
+
+    val workflowDef = workflow.definition()
+    workflowDef.findByName(stepName).toScala match {
+      case Some(call: Call[_, _, _]) =>
+        val defCall =
+          call.callFunc
+            .asInstanceOf[JFunc[Any, DeferredCall[Any, Any]]]
+            .apply(messageCodec.decodeMessage(input))
+
+        val (commandName, serviceName) =
+          defCall match {
+            case grpcDefCall: GrpcDeferredCall[_, _] =>
+              (grpcDefCall.methodName, grpcDefCall.fullServiceName)
+            case restDefCall: RestDeferredCall[_, _] =>
+              (restDefCall.methodName, restDefCall.fullServiceName)
+          }
+
+        val stepDefCall =
+          StepDeferredCall(
+            serviceName,
+            commandName,
+            payload = Some(messageCodec.encodeScala(defCall.message())),
+            metadata = MetadataImpl.toProtocol(defCall.metadata()))
+
+        StepResponse.defaultInstance
+          .withResponse(StepResponse.Response.DeferredCall(stepDefCall))
+
+      case Some(_) => throw ProtocolException("Unknown step type") // just making compiler happy
+      case None    => throw WorkflowStepNotFound(stepName)
+    }
+
+  }
+
+  def _internalGetNextStep(stepName: String, result: ScalaPbAny, messageCodec: MessageCodec): CommandResult = {
+
+    val workflowDef = workflow.definition()
+
+    workflowDef.findByName(stepName).toScala match {
+      case Some(call: Call[_, _, _]) =>
+        val effect =
+          call.transitionFunc
+            .asInstanceOf[JFunc[Any, Effect[Any]]]
+            .apply(messageCodec.decodeMessage(result))
+
+        CommandResult(effect)
+
+      case Some(_) => throw ProtocolException("Unknown step type") // just making compiler happy
+      case None    => throw WorkflowStepNotFound(stepName)
+    }
+  }
 }
