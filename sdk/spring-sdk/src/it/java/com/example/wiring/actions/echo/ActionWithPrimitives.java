@@ -21,6 +21,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.util.Collection;
+import java.util.stream.Collectors;
+
 public class ActionWithPrimitives extends Action {
 
   @GetMapping("/action/{doubleValue}/{floatValue}/{intValue}/{longValue}")
@@ -43,4 +46,12 @@ public class ActionWithPrimitives extends Action {
 
     return effects().reply(new Message(response));
   }
+
+  @GetMapping("/action_collections")
+  public Effect<Message> listMessage(@RequestParam Collection<Integer> ints) {
+    String response = ints.stream().map(Object::toString).collect(Collectors.joining(","));
+
+    return effects().reply(new Message(response));
+  }
+
 }

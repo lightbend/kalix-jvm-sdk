@@ -54,7 +54,10 @@ import kalix.springsdk.impl.reflection.SyntheticRequestServiceMethod
 import org.springframework.core.MethodParameter
 import org.springframework.web.bind.annotation.RequestMethod
 
+import java.lang.reflect.ParameterizedType
 import java.lang.reflect.Type
+import java.util
+import scala.annotation.tailrec
 import scala.jdk.CollectionConverters._
 
 /**
@@ -362,6 +365,7 @@ private[impl] object ComponentDescriptor {
           .setName(param.name)
           .setNumber(fieldNumber)
           .setType(mapJavaTypeToProtobuf(param.param.getGenericParameterType))
+          .setLabel(mapJavaWrapperToLabel(param.param.getGenericParameterType))
           .setOptions(addEntityKeyIfNeeded(entityKeys, param.name))
           .build()
       }
@@ -391,6 +395,7 @@ private[impl] object ComponentDescriptor {
         .setName(paramName)
         .setNumber(fieldNumber)
         .setType(mapJavaTypeToProtobuf(paramType(indexedParams, paramName)))
+        .setLabel(mapJavaWrapperToLabel(paramType(indexedParams, paramName)))
         .setOptions(addEntityKeyIfNeeded(entityKeys, paramName))
         .build()
     }
@@ -452,6 +457,7 @@ private[impl] object ComponentDescriptor {
     }
   }
 
+  @tailrec
   private def mapJavaTypeToProtobuf(javaType: Type): FieldDescriptorProto.Type = {
     // todo make this smarter, eg, customizable parameter deserializers, UUIDs, byte arrays, enums etc
     if (javaType == classOf[String]) {
@@ -471,10 +477,22 @@ private[impl] object ComponentDescriptor {
       FieldDescriptorProto.Type.TYPE_BOOL
     } else if (javaType == classOf[ByteString]) {
       FieldDescriptorProto.Type.TYPE_BYTES
+    } else if (isCollection(javaType)) {
+      mapJavaTypeToProtobuf(javaType.asInstanceOf[ParameterizedType].getActualTypeArguments.head)
     } else {
       throw new RuntimeException("Don't know how to extract type " + javaType + " from path.")
     }
   }
+
+  private def mapJavaWrapperToLabel(javaType: Type): FieldDescriptorProto.Label =
+    if (isCollection(javaType))
+      FieldDescriptorProto.Label.LABEL_REPEATED
+    else
+      FieldDescriptorProto.Label.LABEL_OPTIONAL
+
+  private def isCollection(javaType: Type): Boolean = javaType.isInstanceOf[ParameterizedType] &&
+    classOf[util.Collection[_]]
+      .isAssignableFrom(javaType.asInstanceOf[ParameterizedType].getRawType.asInstanceOf[Class[_]])
 
   private def buildHttpRule(serviceMethod: SyntheticRequestServiceMethod) = {
     val httpRule = HttpRule.newBuilder()
