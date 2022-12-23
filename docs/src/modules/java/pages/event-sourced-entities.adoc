@@ -233,7 +233,7 @@ When more components are added the `KalixFactory` is regenerated and you have to
 
 include::java:partial$eventsourced-snapshots.adoc[]
 
-== Deleting Entity
+== Deleting an Entity
 
 Normally, Event Sourced Entities are not deleted because the history of the events typically provide business value.
 For certain use cases or for regulatory reasons the entity can be deleted.
@@ -246,7 +246,7 @@ Java::
 ----
 include::example$java-eventsourced-shopping-cart/src/main/java/com/example/shoppingcart/domain/ShoppingCart.java[tag=checkout]
 ----
-<1> Emit final event before deletion, which is handled as any other event.
+<1> Emit a final event before deletion, which is handled as any other event.
 <2> Instruction to delete the entity.
 
 Scala::
@@ -256,10 +256,10 @@ Scala::
 ----
 include::example$scala-eventsourced-shopping-cart/src/main/scala/com/example/shoppingcart/domain/ShoppingCart.scala[tag=checkout]
 ----
-<1> Emit final event before deletion, which is handled as any other event.
+<1> Emit a final event before deletion, which is handled as any other event.
 <2> Instruction to delete the entity.
 
-When you give the instruction to delete the entity it will still exist from some time, including its events and snapshots. The actual removal of events and snapshots will be deleted later to give downstream consumers time to process all prior events, including the final event that was emitted together with the `deleteEntity` effect. By default, the existence of the entity is completely cleaned up after a week.
+When you give the instruction to delete the entity it will still exist for some time, including its events and snapshots. The actual removal of events and snapshots will be deleted later to give downstream consumers time to process all prior events, including the final event that was emitted together with the `deleteEntity` effect. By default, the existence of the entity is completely cleaned up after a week.
 
 It is not allowed to emit more events after the entity has been "marked" as deleted. You can still handle read requests of the entity until it has been completely removed.
 

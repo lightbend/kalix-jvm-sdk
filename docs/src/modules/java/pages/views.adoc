@@ -121,7 +121,7 @@ include::example$scala-valueentity-customer-registry/src/main/proto/customer/vie
 When no result is found, the request fails with gRPC status code `NOT_FOUND`. A streamed call completes with an empty stream when no result is found.
 
 [#ve_delete]
-=== Handling Event Sourced Entity deletes
+=== Handling Value Entity deletes
 
 The View state corresponding to an Entity is not automatically deleted when the Entity is deleted.
 

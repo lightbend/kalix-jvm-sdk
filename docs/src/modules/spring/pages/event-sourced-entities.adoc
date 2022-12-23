@@ -123,7 +123,7 @@ IMPORTANT: For simplicity purposes, we are returning the internal state directly
 
 include::java:partial$eventsourced-snapshots.adoc[]
 
-== Deleting Entity
+== Deleting an Entity
 
 Normally, Event Sourced Entities are not deleted because the history of the events typically provide business value.
 For certain use cases or for regulatory reasons the entity can be deleted.
