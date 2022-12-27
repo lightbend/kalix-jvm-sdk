@@ -24,6 +24,7 @@ import kalix.javasdk.view.ViewCreationContext;
 import kalix.javasdk.view.ViewOptions;
 import kalix.javasdk.view.ViewProvider;
 import kalix.springsdk.annotations.ViewId;
+import kalix.springsdk.common.ForwardHeadersExtractor;
 import kalix.springsdk.impl.ComponentDescriptor;
 import kalix.springsdk.impl.ComponentDescriptorFactory;
 import kalix.springsdk.impl.SpringSdkMessageCodec;
@@ -62,7 +63,7 @@ public class ReflectiveViewProvider<S, V extends View<S>> implements ViewProvide
       Function<ViewCreationContext, V> factory,
       ViewOptions options) {
     this.factory = factory;
-    this.options = options;
+    this.options = options.withForwardHeaders(ForwardHeadersExtractor.extractFrom(cls));
     this.messageCodec = messageCodec;
     this.viewId = viewId;
 
