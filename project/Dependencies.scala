@@ -28,7 +28,7 @@ object Dependencies {
   val JUnitVersion = "4.13.2"
   val JUnitInterfaceVersion = "0.11"
   val JUnitJupiterVersion = "5.7.1"
-  val SpringVersion = "2.7.4"
+  val SpringVersion = "3.0.1"
 
   val CommonsIoVersion = "2.11.0"
   val MunitVersion = "0.7.29"
