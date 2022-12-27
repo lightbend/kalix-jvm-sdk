@@ -24,6 +24,7 @@ import kalix.javasdk.view.ViewCreationContext;
 import kalix.javasdk.view.ViewOptions;
 import kalix.javasdk.view.ViewProvider;
 import kalix.springsdk.annotations.ViewId;
+import kalix.springsdk.common.ForwardHeadersExtractor;
 import kalix.springsdk.impl.ComponentDescriptor;
 import kalix.springsdk.impl.KalixServer;
 import kalix.springsdk.impl.SpringSdkMessageCodec;
@@ -66,7 +67,7 @@ public class ReflectiveMultiTableViewProvider<V> implements ViewProvider {
     this.viewClass = viewClass;
     this.factory = factory;
     this.viewId = viewId;
-    this.options = options;
+    this.options = options.withForwardHeaders(ForwardHeadersExtractor.extractFrom(viewClass));
     this.messageCodec = messageCodec;
     this.componentDescriptor = ComponentDescriptor.descriptorFor(viewClass, messageCodec);
   }

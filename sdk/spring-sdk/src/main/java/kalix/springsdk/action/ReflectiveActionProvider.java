@@ -23,6 +23,7 @@ import kalix.javasdk.action.ActionOptions;
 import kalix.javasdk.action.ActionProvider;
 import kalix.javasdk.impl.MessageCodec;
 import kalix.javasdk.impl.action.ActionRouter;
+import kalix.springsdk.common.ForwardHeadersExtractor;
 import kalix.springsdk.impl.ComponentDescriptor;
 import kalix.springsdk.impl.ComponentDescriptorFactory;
 import kalix.springsdk.impl.SpringSdkMessageCodec;
@@ -55,7 +56,7 @@ public class ReflectiveActionProvider<A extends Action> implements ActionProvide
       ActionOptions options) {
 
     this.factory = factory;
-    this.options = options;
+    this.options = options.withForwardHeaders(ForwardHeadersExtractor.extractFrom(cls));
     this.messageCodec = messageCodec;
 
     this.componentDescriptor = ComponentDescriptor.descriptorFor(cls, messageCodec);

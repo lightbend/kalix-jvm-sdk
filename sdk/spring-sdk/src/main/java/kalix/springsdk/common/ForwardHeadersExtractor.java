@@ -14,13 +14,20 @@
  * limitations under the License.
  */
 
-package kalix.javasdk.impl.action
+package kalix.springsdk.common;
 
-import kalix.javasdk.action.ActionOptions
+import kalix.springsdk.annotations.ForwardHeaders;
 
-import java.util
+import java.util.Set;
 
-private[kalix] final case class ActionOptionsImpl(override val forwardHeaders: java.util.Set[String])
-    extends ActionOptions {
-  def withForwardHeaders(headers: util.Set[String]): ActionOptions = copy(forwardHeaders = headers)
+public class ForwardHeadersExtractor {
+
+  public static Set<String> extractFrom(Class<?> clazz) {
+    ForwardHeaders forwardHeaders = clazz.getAnnotation(ForwardHeaders.class);
+    if (forwardHeaders != null) {
+      return Set.of(forwardHeaders.value());
+    } else {
+      return Set.of();
+    }
+  }
 }

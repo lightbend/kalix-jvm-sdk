@@ -16,7 +16,6 @@
 
 package kalix.javasdk.impl.eventsourcedentity
 
-import kalix.javasdk.EntityOptions
 import kalix.javasdk.PassivationStrategy
 import kalix.javasdk.eventsourcedentity.EventSourcedEntityOptions
 
@@ -35,7 +34,7 @@ private[impl] final case class EventSourcedEntityOptionsImpl(
   override def withPassivationStrategy(strategy: PassivationStrategy): EventSourcedEntityOptions =
     copy(passivationStrategy = strategy)
 
-  override def withForwardHeaders(headers: util.Set[String]): EntityOptions =
+  override def withForwardHeaders(headers: util.Set[String]): EventSourcedEntityOptions =
     copy(forwardHeaders = Collections.unmodifiableSet(new util.HashSet(headers)));
 
 }
