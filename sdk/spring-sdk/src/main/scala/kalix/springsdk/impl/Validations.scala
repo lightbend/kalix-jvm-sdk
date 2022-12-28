@@ -244,18 +244,21 @@ object Validations {
   }
 
   private def viewMustHaveMethodLevelSubscriptionWhenTransformingUpdates(component: Class[_]): Validation = {
+    if (hasValueEntitySubscription(component)) {
+      val tableType: Class[_] = tableTypeOf(component)
+      val valueEntityClass: Class[_] =
+        component.getAnnotation(classOf[Subscribe.ValueEntity]).value().asInstanceOf[Class[_]]
+      val entityStateClass = valueEntityStateClassOf(valueEntityClass)
 
-    val tableType: Class[_] = tableTypeOf(component)
-    val valueEntityClass: Class[_] =
-      component.getAnnotation(classOf[Subscribe.ValueEntity]).value().asInstanceOf[Class[_]]
-    val entityStateClass = valueEntityStateClassOf(valueEntityClass)
-
-    when(hasValueEntitySubscription(component) && entityStateClass != tableType) {
-      val message = s"View subscribes to ValueEntity [${valueEntityClass.getName}] and subscribes to state changes " +
-        s"which will be of type [${entityStateClass.getName}] but view type parameter is [${tableType.getName}] which does not match, " +
-        "the types of the entity and the subscribing must be the same. Make sure that @Subscribe.ValueEntity annotation is used on a method like " +
-        s"`UpdateEffect<${tableType.getName}> onChange(${entityStateClass.getName} state)`."
-      Validation(Seq(errorMessage(component, message)))
+      when(entityStateClass != tableType) {
+        val message = s"View subscribes to ValueEntity [${valueEntityClass.getName}] and subscribes to state changes " +
+          s"which will be of type [${entityStateClass.getName}] but view type parameter is [${tableType.getName}] which does not match, " +
+          "the types of the entity and the subscribing must be the same. Make sure that @Subscribe.ValueEntity annotation is used on a method like " +
+          s"`UpdateEffect<${tableType.getName}> onChange(${entityStateClass.getName} state)`."
+        Validation(Seq(errorMessage(component, message)))
+      }
+    } else {
+      Valid
     }
   }
 
