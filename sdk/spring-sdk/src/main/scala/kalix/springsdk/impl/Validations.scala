@@ -18,13 +18,12 @@ package kalix.springsdk.impl
 
 import java.lang.reflect.AnnotatedElement
 import java.lang.reflect.Method
-
 import scala.reflect.ClassTag
-
 import kalix.javasdk.action.Action
 import kalix.javasdk.view.View
 import kalix.springsdk.annotations.Publish
 import kalix.springsdk.annotations.Query
+import kalix.springsdk.annotations.Subscribe
 import kalix.springsdk.annotations.Table
 import kalix.springsdk.impl.ComponentDescriptorFactory.MethodOps
 import kalix.springsdk.impl.ComponentDescriptorFactory.hasAcl
@@ -37,6 +36,8 @@ import kalix.springsdk.impl.ComponentDescriptorFactory.hasValueEntitySubscriptio
 import kalix.springsdk.impl.reflection.ServiceMethod
 import org.springframework.web.bind.annotation.RequestBody
 import reactor.core.publisher.Flux
+
+import java.lang.reflect.ParameterizedType
 
 object Validations {
 
@@ -299,8 +300,11 @@ object Validations {
   private def valueEntitySubscriptionValidations(component: Class[_]): Validation = {
 
     val subscriptionMethods = component.getMethods.toIndexedSeq.filter(hasValueEntitySubscription)
-
     val updatedMethods = subscriptionMethods.filterNot(hasHandleDeletes).filter(_.getParameterTypes.nonEmpty)
+    val tableType: Class[_] = tableTypeOf(component)
+    val valueEntityClass: Class[_] =
+      component.getAnnotation(classOf[Subscribe.ValueEntity]).value().asInstanceOf[Class[_]]
+    val entityStateClass = valueEntityStateClassOf(valueEntityClass)
 
     val (handleDeleteMethods, handleDeleteMethodsWithParam) =
       subscriptionMethods.filter(hasHandleDeletes).partition(_.getParameterTypes.isEmpty)
@@ -314,6 +318,15 @@ object Validations {
             "You cannot use @Subscribe.ValueEntity annotation in both methods and class. You can do either one or the other.")
         }
         Validation(messages)
+      }
+
+    val useMethodLevelSubscriptionForTransformation =
+      when(hasValueEntitySubscription(component) && entityStateClass != tableType) {
+        val message = s"View subscribes to ValueEntity [${valueEntityClass.getName}] and subscribes to state changes " +
+          s"which will be of type [${entityStateClass.getName}] but view type parameter is [${tableType.getName}] which does not match, " +
+          "the types of the entity and the subscribing must be the same. Make sure that @Subscribe.ValueEntity annotation is used on a method like " +
+          s"`UpdateEffect<${tableType.getName}> onChange(${entityStateClass.getName} state)`."
+        Validation(Seq(errorMessage(component, message)))
       }
 
     val handleDeletesMustHaveZeroArity = {
@@ -363,10 +376,27 @@ object Validations {
     }
 
     noMixedLevelValueEntitySubscription ++
+    useMethodLevelSubscriptionForTransformation ++
     handleDeletesMustHaveZeroArity ++
     onlyOneValueEntityUpdateIsAllowed ++
     onlyOneHandlesDeleteIsAllowed ++
     standaloneMethodLevelHandleDeletesIsNotAllowed
+  }
+
+  private def tableTypeOf(component: Class[_]) = {
+    component.getGenericSuperclass
+      .asInstanceOf[ParameterizedType]
+      .getActualTypeArguments
+      .head
+      .asInstanceOf[Class[_]]
+  }
+
+  private def valueEntityStateClassOf(valueEntityClass: Class[_]): Class[_] = {
+    valueEntityClass.getGenericSuperclass
+      .asInstanceOf[ParameterizedType]
+      .getActualTypeArguments
+      .head
+      .asInstanceOf[Class[_]]
   }
 
 }

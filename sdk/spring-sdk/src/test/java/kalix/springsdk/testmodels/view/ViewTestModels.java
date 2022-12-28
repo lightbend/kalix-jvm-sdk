@@ -189,6 +189,22 @@ public class ViewTestModels {
   }
 
   @Table("users_view")
+  @Subscribe.ValueEntity(UserEntity.class) //it's implicitly a transform = false
+  public static class TransformedViewWithoutSubscriptionOnMethodLevel extends View<TransformedUser> {
+
+    public UpdateEffect<TransformedUser> onChange(User user) {
+      return effects()
+          .updateState(new TransformedUser(user.lastName + ", " + user.firstName, user.email));
+    }
+
+    @Query("SELECT * FROM users_view WHERE email = :email")
+    @PostMapping("/users/by-email")
+    public TransformedUser getUser(@RequestBody ByEmail byEmail) {
+      return null;
+    }
+  }
+
+  @Table("users_view")
   @Subscribe.ValueEntity(UserEntity.class)
   public static class ViewWithSubscriptionsInMixedLevelsHandleDelete extends View<User> {
 
