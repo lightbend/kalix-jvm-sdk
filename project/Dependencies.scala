@@ -22,7 +22,7 @@ object Dependencies {
   val JacksonVersion = "2.13.4"
   val JacksonDatabindVersion = "2.13.4.1"
   val DockerBaseImageVersion = "adoptopenjdk/openjdk11:debianslim-jre"
-  val LogbackVersion = "1.2.11"
+  val LogbackVersion = "1.4.5"
   val LogbackContribVersion = "0.1.5"
   val TestContainersVersion = "1.17.5"
   val JUnitVersion = "4.13.2"
