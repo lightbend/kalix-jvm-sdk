@@ -250,11 +250,16 @@ object Validations {
         component.getAnnotation(classOf[Subscribe.ValueEntity]).value().asInstanceOf[Class[_]]
       val entityStateClass = valueEntityStateClassOf(valueEntityClass)
 
+      /**
+       * You are using a type level annotation in this View and that requires the View type to match the ValueEntity type [${entityStateClass.getName}]. If your intention is to transform the type, you should instead add a method like UpdateEffect<${tableType.getName}> onChange(${entityStateClass.getName} state) and move the @Subscribe.ValueEntity to it.
+       */
       when(entityStateClass != tableType) {
-        val message = s"View subscribes to ValueEntity [${valueEntityClass.getName}] and subscribes to state changes " +
-          s"which will be of type [${entityStateClass.getName}] but view type parameter is [${tableType.getName}] which does not match, " +
-          "the types of the entity and the subscribing must be the same. Make sure that @Subscribe.ValueEntity annotation is used on a method like " +
-          s"`UpdateEffect<${tableType.getName}> onChange(${entityStateClass.getName} state)`."
+        val message = s"You are using a type level annotation in this View and that requires the View type [${tableType.getName}] " +
+          s"to match the ValueEntity type [${entityStateClass.getName}]. " +
+          s"If your intention is to transform the type, you should instead add a method like " +
+          s"`UpdateEffect<${tableType.getName}> onChange(${entityStateClass.getName} state)`" +
+          " and move the @Subscribe.ValueEntity to it."
+
         Validation(Seq(errorMessage(component, message)))
       }
     } else {

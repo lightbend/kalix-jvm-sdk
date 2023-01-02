@@ -131,7 +131,7 @@ class ViewDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSuit
       // it should be annotated either on type or on method level
       intercept[InvalidComponentException] {
         Validations.validate(classOf[TransformedViewWithoutSubscriptionOnMethodLevel]).failIfInvalid
-      }.getMessage should include("Make sure that @Subscribe.ValueEntity annotation is used on a method")
+      }.getMessage should include("and move the @Subscribe.ValueEntity to it")
     }
 
     "not allow method level handle deletes with type level subscription" in {
