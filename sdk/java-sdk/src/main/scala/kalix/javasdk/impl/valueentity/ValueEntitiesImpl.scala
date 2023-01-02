@@ -142,9 +142,6 @@ final class ValueEntitiesImpl(system: ActorSystem, val services: Map[String, Val
           throw ProtocolException(command, "No command payload for Value entity")
 
         case InCommand(command) =>
-          if (thisEntityId != command.entityId)
-            throw ProtocolException(command, "Receiving entity is not the intended recipient of command")
-
           val metadata = new MetadataImpl(command.metadata.map(_.entries.toVector).getOrElse(Nil))
           val cmd =
             service.messageCodec.decodeMessage(

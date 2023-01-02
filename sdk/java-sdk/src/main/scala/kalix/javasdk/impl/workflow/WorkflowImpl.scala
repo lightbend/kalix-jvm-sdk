@@ -216,9 +216,6 @@ final class WorkflowImpl(system: ActorSystem, val services: Map[String, Workflow
           throw ProtocolException(command, "No command payload for Workflow")
 
         case InCommand(command) =>
-          if (workflowId != command.entityId)
-            throw ProtocolException(command, "Receiving Workflow is not the intended recipient of command")
-
           val metadata = new MetadataImpl(command.metadata.map(_.entries.toVector).getOrElse(Nil))
 
           val context =
