@@ -76,7 +76,6 @@ object WorkflowMessages extends EntityMessages {
         .withCommandId(id)
         .withStepName(stepName)
         .withResult(protobufAny(input))
-        .withUserState(protobufAny(userState))
     InMessage.Transition(nextStep)
   }
 

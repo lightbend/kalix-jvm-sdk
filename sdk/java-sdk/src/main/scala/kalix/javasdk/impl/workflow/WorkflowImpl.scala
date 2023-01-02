@@ -257,8 +257,6 @@ final class WorkflowImpl(system: ActorSystem, val services: Map[String, Workflow
         case Transition(cmd) =>
           val CommandResult(effect) =
             try {
-              val decoded = service.messageCodec.decodeMessage(cmd.userState.get)
-              router._internalSetInitState(decoded)
               router._internalGetNextStep(cmd.stepName, cmd.result.get, service.messageCodec)
             } catch {
               case e: WorkflowException => throw e

@@ -34,7 +34,7 @@ public abstract class Workflow<S> {
 
   private Optional<S> currentState = Optional.empty();
 
-  private boolean handlingCommands = false;
+  private boolean stateHasBeenSet = false;
 
   /**
    * Implement by returning the initial empty state object. This object will be passed into the
@@ -71,7 +71,7 @@ public abstract class Workflow<S> {
    * INTERNAL API
    */
   public void _internalSetCurrentState(S state) {
-    handlingCommands = true;
+    stateHasBeenSet = true;
     currentState = Optional.ofNullable(state);
   }
 
@@ -90,7 +90,7 @@ public abstract class Workflow<S> {
   protected final S currentState() {
     // user may call this method inside a command handler and get a null because it's legal
     // to have emptyState set to null.
-    if (handlingCommands) return currentState.orElse(null);
+    if (stateHasBeenSet) return currentState.orElse(null);
     else throw new IllegalStateException("Current state is only available when handling a command.");
   }
 

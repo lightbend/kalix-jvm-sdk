@@ -94,8 +94,8 @@ abstract class WorkflowRouter[S, W <: Workflow[S]](protected val workflow: W) {
   final def _internalHandleStep(input: ScalaPbAny, stepName: String, messageCodec: MessageCodec): StepResponse = {
 
     workflow._internalSetCurrentState(stateOrEmpty())
-
     val workflowDef = workflow.definition()
+
     workflowDef.findByName(stepName).toScala match {
       case Some(call: Call[_, _, _]) =>
         val defCall =
@@ -129,6 +129,7 @@ abstract class WorkflowRouter[S, W <: Workflow[S]](protected val workflow: W) {
 
   def _internalGetNextStep(stepName: String, result: ScalaPbAny, messageCodec: MessageCodec): CommandResult = {
 
+    workflow._internalSetCurrentState(stateOrEmpty())
     val workflowDef = workflow.definition()
 
     workflowDef.findByName(stepName).toScala match {
