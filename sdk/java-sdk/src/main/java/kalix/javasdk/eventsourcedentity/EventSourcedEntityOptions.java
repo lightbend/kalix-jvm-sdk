@@ -39,7 +39,11 @@ public interface EventSourcedEntityOptions extends EntityOptions {
    */
   EventSourcedEntityOptions withSnapshotEvery(int numberOfEvents);
 
+  /**
+   * @deprecated passivation strategy is ignored
+   */
   @Override
+  @Deprecated(since = "1.1.4", forRemoval = true)
   EventSourcedEntityOptions withPassivationStrategy(PassivationStrategy strategy);
 
   @Override

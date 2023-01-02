@@ -16,8 +16,6 @@
 
 package kalix.scalasdk
 
-import scala.collection.immutable.Set
-
 import kalix.scalasdk.impl.ComponentOptions
 
 /** Options used for configuring an entity. */

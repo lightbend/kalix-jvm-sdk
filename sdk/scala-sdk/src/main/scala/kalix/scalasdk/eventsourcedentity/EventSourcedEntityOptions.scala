@@ -36,6 +36,7 @@ trait EventSourcedEntityOptions extends EntityOptions {
    */
   def withSnapshotEvery(numberOfEvents: Int): EventSourcedEntityOptions
 
+  @deprecated(message = "passivation strategy is ignored", since = "1.1.4")
   override def withPassivationStrategy(strategy: PassivationStrategy): EventSourcedEntityOptions
   override def withForwardHeaders(headers: Set[String]): EventSourcedEntityOptions
 }

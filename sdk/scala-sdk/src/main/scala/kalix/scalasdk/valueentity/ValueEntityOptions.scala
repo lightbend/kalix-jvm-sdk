@@ -16,14 +16,13 @@
 
 package kalix.scalasdk.valueentity
 
-import scala.collection.immutable.Set
-
 import kalix.scalasdk
 import kalix.scalasdk.EntityOptions
 import kalix.scalasdk.PassivationStrategy
 
 /** Root entity options for all value based entities. */
 trait ValueEntityOptions extends EntityOptions {
+  @deprecated(message = "passivation strategy is ignored", since = "1.1.4")
   def withPassivationStrategy(strategy: PassivationStrategy): ValueEntityOptions
   def withForwardHeaders(headers: Set[String]): ValueEntityOptions
 }
