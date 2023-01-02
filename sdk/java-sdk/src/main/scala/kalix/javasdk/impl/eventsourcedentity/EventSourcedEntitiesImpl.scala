@@ -52,7 +52,7 @@ final class EventSourcedEntityService(
     override val descriptor: Descriptors.ServiceDescriptor,
     override val additionalDescriptors: Array[Descriptors.FileDescriptor],
     val messageCodec: MessageCodec,
-    override val workflowName: String,
+    override val serviceName: String,
     val snapshotEvery: Int, // FIXME remove and only use entityOptions snapshotEvery?
     val entityOptions: Option[EventSourcedEntityOptions])
     extends Service {
@@ -82,7 +82,7 @@ final class EventSourcedEntityService(
         this.descriptor,
         this.additionalDescriptors,
         this.messageCodec,
-        this.workflowName,
+        this.serviceName,
         snapshotEvery,
         this.entityOptions)
     else
@@ -101,7 +101,7 @@ final class EventSourcedEntitiesImpl(
   private val log = LoggerFactory.getLogger(this.getClass)
   private final val services = _services.iterator.map { case (name, service) =>
     if (service.snapshotEvery < 0)
-      log.warn("Snapshotting disabled for entity [{}], this is not recommended.", service.workflowName)
+      log.warn("Snapshotting disabled for entity [{}], this is not recommended.", service.serviceName)
     // FIXME overlay configuration provided by _system
     (name, if (service.snapshotEvery == 0) service.withSnapshotEvery(configuration.snapshotEvery) else service)
   }.toMap

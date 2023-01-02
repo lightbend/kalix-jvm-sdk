@@ -42,7 +42,7 @@ final class ReplicatedEntityService(
     override val descriptor: Descriptors.ServiceDescriptor,
     override val additionalDescriptors: Array[Descriptors.FileDescriptor],
     val anySupport: AnySupport,
-    override val workflowName: String,
+    override val serviceName: String,
     val entityOptions: Option[ReplicatedEntityOptions])
     extends Service {
 

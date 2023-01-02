@@ -52,7 +52,7 @@ final class ValueEntityService(
     override val descriptor: Descriptors.ServiceDescriptor,
     override val additionalDescriptors: Array[Descriptors.FileDescriptor],
     val messageCodec: MessageCodec,
-    override val workflowName: String,
+    override val serviceName: String,
     val entityOptions: Option[ValueEntityOptions])
     extends Service {
 
