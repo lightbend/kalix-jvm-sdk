@@ -67,7 +67,7 @@ public class ReflectiveMultiTableViewProvider<V> implements ViewProvider {
     this.viewClass = viewClass;
     this.factory = factory;
     this.viewId = viewId;
-    this.options = options.withForwardHeaders(ForwardHeadersExtractor.extractFrom(viewClass));
+    this.options = options;
     this.messageCodec = messageCodec;
     this.componentDescriptor = ComponentDescriptor.descriptorFor(viewClass, messageCodec);
   }

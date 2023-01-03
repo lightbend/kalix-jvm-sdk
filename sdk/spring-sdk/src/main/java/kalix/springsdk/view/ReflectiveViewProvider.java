@@ -63,7 +63,7 @@ public class ReflectiveViewProvider<S, V extends View<S>> implements ViewProvide
       Function<ViewCreationContext, V> factory,
       ViewOptions options) {
     this.factory = factory;
-    this.options = options.withForwardHeaders(ForwardHeadersExtractor.extractFrom(cls));
+    this.options = options;
     this.messageCodec = messageCodec;
     this.viewId = viewId;
 
