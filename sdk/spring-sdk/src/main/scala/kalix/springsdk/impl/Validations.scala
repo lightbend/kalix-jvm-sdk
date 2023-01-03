@@ -16,15 +16,11 @@
 
 package kalix.springsdk.impl
 
-import java.lang.reflect.AnnotatedElement
-import java.lang.reflect.Method
-
-import scala.reflect.ClassTag
-
 import kalix.javasdk.action.Action
 import kalix.javasdk.view.View
 import kalix.springsdk.annotations.Publish
 import kalix.springsdk.annotations.Query
+import kalix.springsdk.annotations.Subscribe
 import kalix.springsdk.annotations.Table
 import kalix.springsdk.impl.ComponentDescriptorFactory.MethodOps
 import kalix.springsdk.impl.ComponentDescriptorFactory.hasAcl
@@ -37,6 +33,11 @@ import kalix.springsdk.impl.ComponentDescriptorFactory.hasValueEntitySubscriptio
 import kalix.springsdk.impl.reflection.ServiceMethod
 import org.springframework.web.bind.annotation.RequestBody
 import reactor.core.publisher.Flux
+
+import java.lang.reflect.AnnotatedElement
+import java.lang.reflect.Method
+import java.lang.reflect.ParameterizedType
+import scala.reflect.ClassTag
 
 object Validations {
 
@@ -124,6 +125,7 @@ object Validations {
       commonValidation(component) ++
       commonSubscriptionValidation(component) ++
       viewMustHaveTableName(component) ++
+      viewMustHaveMethodLevelSubscriptionWhenTransformingUpdates(component) ++
       streamUpdatesQueryMustReturnFlux(component)
     } ++
     when(KalixServer.isMultiTableView(component)) {
@@ -241,6 +243,28 @@ object Validations {
     }
   }
 
+  private def viewMustHaveMethodLevelSubscriptionWhenTransformingUpdates(component: Class[_]): Validation = {
+    if (hasValueEntitySubscription(component)) {
+      val tableType: Class[_] = tableTypeOf(component)
+      val valueEntityClass: Class[_] =
+        component.getAnnotation(classOf[Subscribe.ValueEntity]).value().asInstanceOf[Class[_]]
+      val entityStateClass = valueEntityStateClassOf(valueEntityClass)
+
+      when(entityStateClass != tableType) {
+        val message =
+          s"You are using a type level annotation in this View and that requires the View type [${tableType.getName}] " +
+          s"to match the ValueEntity type [${entityStateClass.getName}]. " +
+          s"If your intention is to transform the type, you should instead add a method like " +
+          s"`UpdateEffect<${tableType.getName}> onChange(${entityStateClass.getName} state)`" +
+          " and move the @Subscribe.ValueEntity to it."
+
+        Validation(Seq(errorMessage(component, message)))
+      }
+    } else {
+      Valid
+    }
+  }
+
   private def viewMustHaveOneQueryMethod(component: Class[_]): Validation = {
 
     val annotatedQueryMethods =
@@ -299,7 +323,6 @@ object Validations {
   private def valueEntitySubscriptionValidations(component: Class[_]): Validation = {
 
     val subscriptionMethods = component.getMethods.toIndexedSeq.filter(hasValueEntitySubscription)
-
     val updatedMethods = subscriptionMethods.filterNot(hasHandleDeletes).filter(_.getParameterTypes.nonEmpty)
 
     val (handleDeleteMethods, handleDeleteMethodsWithParam) =
@@ -367,6 +390,22 @@ object Validations {
     onlyOneValueEntityUpdateIsAllowed ++
     onlyOneHandlesDeleteIsAllowed ++
     standaloneMethodLevelHandleDeletesIsNotAllowed
+  }
+
+  private def tableTypeOf(component: Class[_]) = {
+    component.getGenericSuperclass
+      .asInstanceOf[ParameterizedType]
+      .getActualTypeArguments
+      .head
+      .asInstanceOf[Class[_]]
+  }
+
+  private def valueEntityStateClassOf(valueEntityClass: Class[_]): Class[_] = {
+    valueEntityClass.getGenericSuperclass
+      .asInstanceOf[ParameterizedType]
+      .getActualTypeArguments
+      .head
+      .asInstanceOf[Class[_]]
   }
 
 }

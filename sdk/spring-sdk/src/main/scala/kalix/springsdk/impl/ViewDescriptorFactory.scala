@@ -380,16 +380,6 @@ private[impl] object ViewDescriptorFactory extends ComponentDescriptorFactory {
     // create a virtual method
     val methodOptionsBuilder = kalix.MethodOptions.newBuilder()
 
-    // validate
-    val valueEntityClass: Class[_] =
-      component.getAnnotation(classOf[Subscribe.ValueEntity]).value().asInstanceOf[Class[_]]
-    val entityStateClass = valueEntityStateClassOf(valueEntityClass)
-    if (entityStateClass != tableType)
-      throw InvalidComponentException( // TODO: move this to Validations
-        s"View subscribes to ValueEntity [${valueEntityClass.getName}] and subscribes to state changes " +
-        s"which will be of type [${entityStateClass.getName}] but view type parameter is [${tableType.getName}] which does not match, " +
-        "the types of the entity and the subscribing must be the same.")
-
     val entityType = findValueEntityType(component)
     methodOptionsBuilder.setEventing(eventingInForValueEntity(entityType, handleDeletes = false))
 
@@ -432,11 +422,4 @@ private[impl] object ViewDescriptorFactory extends ComponentDescriptorFactory {
     builder.setView(view)
   }
 
-  private def valueEntityStateClassOf(valueEntityClass: Class[_]): Class[_] = {
-    valueEntityClass.getGenericSuperclass
-      .asInstanceOf[ParameterizedType]
-      .getActualTypeArguments
-      .head
-      .asInstanceOf[Class[_]]
-  }
 }

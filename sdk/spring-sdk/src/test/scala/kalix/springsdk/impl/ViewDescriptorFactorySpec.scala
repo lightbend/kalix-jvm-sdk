@@ -32,6 +32,7 @@ import kalix.springsdk.testmodels.view.ViewTestModels.TransformedUserView
 import kalix.springsdk.testmodels.view.ViewTestModels.TransformedUserViewUsingState
 import kalix.springsdk.testmodels.view.ViewTestModels.TransformedUserViewWithDeletes
 import kalix.springsdk.testmodels.view.ViewTestModels.TransformedUserViewWithJWT
+import kalix.springsdk.testmodels.view.ViewTestModels.TransformedViewWithoutSubscriptionOnMethodLevel
 import kalix.springsdk.testmodels.view.ViewTestModels.UserByEmailWithCollectionReturn
 import kalix.springsdk.testmodels.view.ViewTestModels.UserByEmailWithGet
 import kalix.springsdk.testmodels.view.ViewTestModels.UserByEmailWithPost
@@ -124,6 +125,13 @@ class ViewDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSuit
       intercept[InvalidComponentException] {
         Validations.validate(classOf[ViewWithSubscriptionsInMixedLevels]).failIfInvalid
       }.getMessage should include("You cannot use @Subscribe.ValueEntity annotation in both methods and class.")
+    }
+
+    "not allow @Subscribe annotations on type level with transformation" in {
+      // it should be annotated either on type or on method level
+      intercept[InvalidComponentException] {
+        Validations.validate(classOf[TransformedViewWithoutSubscriptionOnMethodLevel]).failIfInvalid
+      }.getMessage should include("and move the @Subscribe.ValueEntity to it")
     }
 
     "not allow method level handle deletes with type level subscription" in {
