@@ -18,7 +18,7 @@ package kalix.javasdk.impl
 
 import java.time.Instant
 import java.util.Optional
-import kalix.javasdk.{Metadata, Principal}
+import kalix.javasdk.{ Metadata, Principal }
 import kalix.protocol.component.MetadataEntry
 import org.scalatest.OptionValues
 import org.scalatest.matchers.should.Matchers
@@ -104,7 +104,8 @@ class MetadataImplSpec extends AnyWordSpec with Matchers with OptionValues {
     "support adding meta entries" in {
       val meta = metadata("k1" -> "v1", "k2" -> "v2")
 
-      val updatedMeta = meta.asInstanceOf[MetadataImpl].addAll(List(stringEntry("k3", "v3"), byteEntry("k4", "v4")).asJava)
+      val updatedMeta =
+        meta.asInstanceOf[MetadataImpl].addAll(List(stringEntry("k3", "v3"), byteEntry("k4", "v4")).asJava)
 
       updatedMeta.getAllKeys.asScala should have size 4
       updatedMeta.get("k3") shouldBe Optional.of("v3")
