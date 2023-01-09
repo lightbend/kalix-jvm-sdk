@@ -18,6 +18,7 @@ package com.example.wiring;
 
 import com.example.Main;
 import com.example.wiring.actions.echo.Message;
+import com.example.wiring.actions.headers.ForwardHeadersAction;
 import com.example.wiring.eventsourcedentities.counter.Counter;
 import com.example.wiring.valueentities.user.User;
 import com.example.wiring.valueentities.user.UserSideEffect;
@@ -452,6 +453,41 @@ public class SpringSdkIntegrationTest {
     Assertions.assertEquals(22, bobCounters.counters.get(0).value);
     Assertions.assertEquals("c4", bobCounters.counters.get(1).id);
     Assertions.assertEquals(44, bobCounters.counters.get(1).value);
+  }
+
+  @Test
+  public void verifyForwardHeaders() throws InterruptedException {
+
+    String actionHeaderValue = "action-value";
+    String veHeaderValue = "ve-value";
+    String esHeaderValue = "es-value";
+
+    String actionResponse = webClient.get().uri("/forward-headers-action")
+        .header(ForwardHeadersAction.SOME_HEADER, actionHeaderValue)
+        .retrieve()
+        .bodyToMono(Message.class)
+        .map(m -> m.text)
+        .block(timeout);
+
+    Assertions.assertEquals(actionHeaderValue, actionResponse);
+
+    String veResponse = webClient.put().uri("/forward-headers-ve/1")
+        .header(ForwardHeadersAction.SOME_HEADER, veHeaderValue)
+        .retrieve()
+        .bodyToMono(Message.class)
+        .map(m -> m.text)
+        .block(timeout);
+
+    Assertions.assertEquals(veHeaderValue, veResponse);
+
+    String esResponse = webClient.put().uri("/forward-headers-es/1")
+        .header(ForwardHeadersAction.SOME_HEADER, esHeaderValue)
+        .retrieve()
+        .bodyToMono(Message.class)
+        .map(m -> m.text)
+        .block(timeout);
+
+    Assertions.assertEquals(esHeaderValue, esResponse);
   }
 
   @NotNull

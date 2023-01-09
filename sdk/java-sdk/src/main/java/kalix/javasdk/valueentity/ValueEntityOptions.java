@@ -19,12 +19,20 @@ package kalix.javasdk.valueentity;
 import kalix.javasdk.PassivationStrategy;
 import kalix.javasdk.impl.valueentity.ValueEntityOptionsImpl;
 
-import java.util.Collections;
+import java.util.Set;
 
 /** Root entity options for all value based entities. */
 public interface ValueEntityOptions extends kalix.javasdk.EntityOptions {
 
+  /**
+   * @deprecated passivation strategy is ignored
+   */
+  @Override
+  @Deprecated(since = "1.1.4", forRemoval = true)
   ValueEntityOptions withPassivationStrategy(PassivationStrategy strategy);
+
+  @Override
+  ValueEntityOptions withForwardHeaders(Set<String> headers);
 
   /**
    * Create a default entity option for a value based entity.

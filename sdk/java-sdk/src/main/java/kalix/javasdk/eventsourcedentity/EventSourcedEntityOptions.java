@@ -19,9 +19,9 @@ package kalix.javasdk.eventsourcedentity;
 import kalix.javasdk.EntityOptions;
 import kalix.javasdk.PassivationStrategy;
 import kalix.javasdk.impl.eventsourcedentity.EventSourcedEntityOptionsImpl;
-import scala.collection.immutable.Set;
 
 import java.util.Collections;
+import java.util.Set;
 
 /** Root entity options for all event sourcing entities. */
 public interface EventSourcedEntityOptions extends EntityOptions {
@@ -39,7 +39,15 @@ public interface EventSourcedEntityOptions extends EntityOptions {
    */
   EventSourcedEntityOptions withSnapshotEvery(int numberOfEvents);
 
+  /**
+   * @deprecated passivation strategy is ignored
+   */
+  @Override
+  @Deprecated(since = "1.1.4", forRemoval = true)
   EventSourcedEntityOptions withPassivationStrategy(PassivationStrategy strategy);
+
+  @Override
+  EventSourcedEntityOptions withForwardHeaders(Set<String> headers);
 
   /**
    * Create a default entity option for an event sourced entity.

@@ -24,6 +24,7 @@ import kalix.javasdk.eventsourcedentity.EventSourcedEntityProvider;
 import kalix.javasdk.impl.MessageCodec;
 import kalix.javasdk.impl.eventsourcedentity.EventSourcedEntityRouter;
 import kalix.springsdk.annotations.EntityType;
+import kalix.springsdk.common.ForwardHeadersExtractor;
 import kalix.springsdk.impl.ComponentDescriptor;
 import kalix.springsdk.impl.SpringSdkMessageCodec;
 import kalix.springsdk.impl.eventsourcedentity.EventSourcedHandlersExtractor;
@@ -77,7 +78,7 @@ public class ReflectiveEventSourcedEntityProvider<S, E extends EventSourcedEntit
 
     this.entityType = annotation.value();
     this.factory = factory;
-    this.options = options;
+    this.options = options.withForwardHeaders(ForwardHeadersExtractor.extractFrom(entityClass));
     this.messageCodec = messageCodec;
     this.componentDescriptor = ComponentDescriptor.descriptorFor(entityClass, messageCodec);
     this.fileDescriptor = componentDescriptor.fileDescriptor();

@@ -14,13 +14,21 @@
  * limitations under the License.
  */
 
-package kalix.javasdk.impl.action
+package kalix.springsdk.annotations;
 
-import kalix.javasdk.action.ActionOptions
 
-import java.util
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-private[kalix] final case class ActionOptionsImpl(override val forwardHeaders: java.util.Set[String])
-    extends ActionOptions {
-  def withForwardHeaders(headers: util.Set[String]): ActionOptions = copy(forwardHeaders = headers)
+/**
+ * Header names to ask the proxy to forward from the request as metadata to the component calls
+ */
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.RUNTIME)
+@Documented
+public @interface ForwardHeaders {
+  String[] value();
 }

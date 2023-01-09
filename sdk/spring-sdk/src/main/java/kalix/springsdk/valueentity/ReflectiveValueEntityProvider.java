@@ -24,6 +24,7 @@ import kalix.javasdk.valueentity.ValueEntityContext;
 import kalix.javasdk.valueentity.ValueEntityOptions;
 import kalix.javasdk.valueentity.ValueEntityProvider;
 import kalix.springsdk.annotations.EntityType;
+import kalix.springsdk.common.ForwardHeadersExtractor;
 import kalix.springsdk.impl.ComponentDescriptor;
 import kalix.springsdk.impl.SpringSdkMessageCodec;
 import kalix.springsdk.impl.valueentity.ReflectiveValueEntityRouter;
@@ -62,7 +63,7 @@ public class ReflectiveValueEntityProvider<S, E extends ValueEntity<S>>
     this.entityType = annotation.value();
 
     this.factory = factory;
-    this.options = options;
+    this.options = options.withForwardHeaders(ForwardHeadersExtractor.extractFrom(entityClass));
     this.messageCodec = messageCodec;
 
     this.componentDescriptor = ComponentDescriptor.descriptorFor(entityClass, messageCodec);
