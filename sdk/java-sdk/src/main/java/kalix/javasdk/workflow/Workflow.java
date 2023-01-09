@@ -245,11 +245,11 @@ public abstract class Workflow<S> {
 
     final private String _name;
     final public Function<CallInput, DeferredCall<DefCallInput, DefCallOutput>> callFunc;
-    final public Function<DefCallOutput, Effect<Void>> transitionFunc;
+    final public Function<DefCallOutput, Effect.TransitionalEffect<Void>> transitionFunc;
 
     public Call(String name,
                 Function<CallInput, DeferredCall<DefCallInput, DefCallOutput>> callFunc,
-                Function<DefCallOutput, Effect<Void>> transitionFunc) {
+                Function<DefCallOutput, Effect.TransitionalEffect<Void>> transitionFunc) {
       _name = name;
       this.callFunc = callFunc;
       this.transitionFunc = transitionFunc;
@@ -293,7 +293,7 @@ public abstract class Workflow<S> {
         this.callFunc = callFunc;
       }
 
-      public Call<Input, DefCallInput, DefCallOutput> andThen(Function<DefCallOutput, Effect<Void>> transitionFunc) {
+      public Call<Input, DefCallInput, DefCallOutput> andThen(Function<DefCallOutput, Effect.TransitionalEffect<Void>> transitionFunc) {
         return new Call<>(name, callFunc, transitionFunc);
       }
 
