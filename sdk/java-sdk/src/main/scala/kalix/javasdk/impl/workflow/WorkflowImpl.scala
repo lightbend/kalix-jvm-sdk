@@ -132,8 +132,8 @@ final class WorkflowImpl(system: ActorSystem, val services: Map[String, Workflow
     val workflowId = init.workflowId
 
     init.snapshot match {
-      case Some(workflowSnapshot) =>
-        workflowSnapshot.snapshot match {
+      case Some(workflowState) =>
+        workflowState.userState match {
           case Some(state) =>
             val decoded = service.messageCodec.decodeMessage(state)
             router._internalSetInitState(decoded)
@@ -209,7 +209,7 @@ final class WorkflowImpl(system: ActorSystem, val services: Map[String, Workflow
       .map(_.message)
       .map {
 
-        case InCommand(command) if workflowId != command.entityId =>
+        case InCommand(command) if workflowId != command.workflowId =>
           throw ProtocolException(command, "Receiving Workflow is not the intended recipient of command")
 
         case InCommand(command) if command.payload.isEmpty =>

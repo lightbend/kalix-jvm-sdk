@@ -16,7 +16,7 @@
 
 package kalix.springsdk.impl
 
-import kalix.EntityMethodOptions.Generator
+import kalix.KeyGeneratorMethodOptions.Generator
 import kalix.springsdk.annotations.EntityKey
 import kalix.springsdk.annotations.GenerateEntityKey
 import kalix.springsdk.impl.ComponentDescriptorFactory.buildJWTOptions
@@ -52,8 +52,8 @@ private[impl] object EntityDescriptorFactory extends ComponentDescriptorFactory 
 
         val kalixMethod =
           if (generateEntityKey != null) {
-            val entityOptions = kalix.EntityMethodOptions.newBuilder().setKeyGenerator(Generator.VERSION_4_UUID)
-            val methodOpts = kalix.MethodOptions.newBuilder().setEntity(entityOptions)
+            val keyGenOptions = kalix.KeyGeneratorMethodOptions.newBuilder().setKeyGenerator(Generator.VERSION_4_UUID)
+            val methodOpts = kalix.MethodOptions.newBuilder().setEntity(keyGenOptions)
             KalixMethod(restMethod).withKalixOptions(methodOpts.build())
 
           } else {

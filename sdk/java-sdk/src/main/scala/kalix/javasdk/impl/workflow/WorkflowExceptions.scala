@@ -17,7 +17,7 @@
 package kalix.javasdk.impl.workflow
 
 import kalix.javasdk.workflow.CommandContext
-import kalix.protocol.entity.Command
+import kalix.protocol.workflow_entity.Command
 import kalix.protocol.workflow_entity.WorkflowInit
 
 object WorkflowExceptions {
@@ -37,7 +37,7 @@ object WorkflowExceptions {
   object WorkflowException {
 
     def apply(command: Command, message: String, cause: Option[Throwable]): WorkflowException =
-      WorkflowException(command.entityId, command.id, command.name, message, cause)
+      WorkflowException(command.workflowId, command.id, command.name, message, cause)
 
     def apply(context: CommandContext, message: String, cause: Option[Throwable]): WorkflowException =
       WorkflowException(context.workflowId, context.commandId, context.commandName, message, cause)
@@ -47,7 +47,7 @@ object WorkflowExceptions {
       WorkflowException(workflowId = "", commandId = 0, commandName = "", "Protocol error: " + message, None)
 
     def apply(command: Command, message: String): WorkflowException =
-      WorkflowException(command.entityId, command.id, command.name, "Protocol error: " + message, None)
+      WorkflowException(command.workflowId, command.id, command.name, "Protocol error: " + message, None)
 
     def apply(workflowId: String, message: String): WorkflowException =
       WorkflowException(workflowId, commandId = 0, commandName = "", "Protocol error: " + message, None)

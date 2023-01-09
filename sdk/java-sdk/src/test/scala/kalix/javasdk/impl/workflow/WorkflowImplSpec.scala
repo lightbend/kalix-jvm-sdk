@@ -175,7 +175,7 @@ class WorkflowImplSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll 
       //-----------------------------------------------------------------
 
       // simulate withdraw successful, ask for the transition
-      workflow.send(getNextStep(3, transitionToWithdraw.stepName, Empty.getDefaultInstance, startState))
+      workflow.send(getNextStep(3, transitionToWithdraw.stepName, Empty.getDefaultInstance))
       val effectAfterWithdraw = workflow.expectNext()
       effectAfterWithdraw.isEffect shouldBe true
 
@@ -204,7 +204,7 @@ class WorkflowImplSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll 
       //-----------------------------------------------------------------
 
       // simulate deposit successful, ask for the transition
-      workflow.send(getNextStep(3, transitionToDeposit.stepName, Empty.getDefaultInstance, stateAfterWithdraw))
+      workflow.send(getNextStep(3, transitionToDeposit.stepName, Empty.getDefaultInstance))
       val effectAfterDeposit = workflow.expectNext()
       effectAfterDeposit.isEffect shouldBe true
 

@@ -20,7 +20,7 @@ import com.google.protobuf.any.{ Any => ScalaPbAny }
 import com.google.protobuf.{ Message => JavaPbMessage }
 import io.grpc.Status
 import kalix.protocol.component
-import kalix.protocol.entity.Command
+import kalix.protocol.workflow_entity.Command
 import kalix.protocol.workflow_entity.WorkflowStreamIn.{ Message => InMessage }
 import kalix.protocol.workflow_entity.WorkflowStreamOut.{ Message => OutMessage }
 import kalix.protocol.workflow_entity._
@@ -35,11 +35,11 @@ object WorkflowMessages extends EntityMessages {
   def init(serviceName: String, workflowId: String, payload: JavaPbMessage): InMessage = {
     // FIXME: workflow payload should not be a snapshot
     // entity in proxy is ES, but its snapshot is not the workflow state
-    init(serviceName, workflowId, WorkflowSnapshot(1, messagePayload(payload)))
+    init(serviceName, workflowId, WorkflowSnapshot(messagePayload(payload)))
   }
 
   def init(serviceName: String, workflowId: String, payload: ScalaPbMessage): InMessage =
-    init(serviceName, workflowId, WorkflowSnapshot(1, messagePayload(payload)))
+    init(serviceName, workflowId, WorkflowSnapshot(messagePayload(payload)))
 
   def init(serviceName: String, workflowId: String, state: WorkflowSnapshot): InMessage =
     init(serviceName, workflowId, Some(state))
@@ -70,7 +70,7 @@ object WorkflowMessages extends EntityMessages {
     InMessage.Step(executeStep)
   }
 
-  def getNextStep(id: Long, stepName: String, input: JavaPbMessage, userState: JavaPbMessage): InMessage = {
+  def getNextStep(id: Long, stepName: String, input: JavaPbMessage): InMessage = {
     val nextStep =
       GetNextStep.defaultInstance
         .withCommandId(id)
