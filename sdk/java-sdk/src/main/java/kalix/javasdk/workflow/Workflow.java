@@ -22,9 +22,7 @@ import kalix.javasdk.DeferredCall;
 import kalix.javasdk.Metadata;
 import kalix.javasdk.impl.workflow.WorkflowEffectImpl;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Function;
 
 public abstract class Workflow<S> {
@@ -211,30 +209,31 @@ public abstract class Workflow<S> {
 
   public static class WorkflowDef<S> {
 
-    final public String name;
+    final private List<Step> steps = new ArrayList<Step>();
+    final private Set<String> uniqueNames = new HashSet<>();
 
-    final private List<Step> steps;
 
-
-    public WorkflowDef(String name, List<Step> steps) {
-      this.name = name;
-      this.steps = steps;
+    private WorkflowDef() {
     }
 
     public Optional<Step> findByName(String name) {
       return steps.stream().filter(s -> s.name().equals(name)).findFirst();
     }
 
-    public WorkflowDef<S> add(Step step) {
+    public WorkflowDef<S> addStep(Step step) {
+      if (uniqueNames.contains(step.name()))
+        throw new IllegalArgumentException("Name '" + step.name() + "' is already in use by another step in this workflow");
+
+
       this.steps.add(step);
+      this.uniqueNames.add(step.name());
       return this;
     }
   }
 
 
-  public WorkflowDef<S> workflow(String name) {
-    var steps = new ArrayList<Step>();
-    return new WorkflowDef<>(name, steps);
+  public WorkflowDef<S> workflow() {
+    return new WorkflowDef<>();
   }
 
 

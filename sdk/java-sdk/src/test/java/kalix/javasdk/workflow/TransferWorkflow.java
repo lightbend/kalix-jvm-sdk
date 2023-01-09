@@ -67,9 +67,9 @@ public class TransferWorkflow extends Workflow<MoneyTransferApi.State> {
           return effects().updateState(state).end();
         });
 
-    return workflow("transfer-workflow")
-      .add(withdraw)
-      .add(deposit);
+    return workflow()
+      .addStep(withdraw)
+      .addStep(deposit);
   }
 
   public Effect<Empty> start(MoneyTransferApi.Transfer transfer) {
