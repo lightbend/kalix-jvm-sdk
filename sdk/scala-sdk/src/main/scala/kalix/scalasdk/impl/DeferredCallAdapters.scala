@@ -19,11 +19,13 @@ package kalix.scalasdk.impl
 import kalix.javasdk
 import kalix.scalasdk.DeferredCall
 import kalix.scalasdk.Metadata
+import kalix.scalasdk.MetadataEntry
 import kalix.scalasdk.SideEffect
 
-import java.util.concurrent.CompletionStage
+import java.nio.ByteBuffer
 import scala.jdk.FutureConverters._
 import scala.concurrent.Future
+import scala.jdk.CollectionConverters._
 
 /**
  * INTERNAL API
@@ -48,6 +50,27 @@ private[scalasdk] final case class ScalaDeferredCallAdapter[I, O](javaSdkDeferre
     new MetadataImpl(javaSdkDeferredCall.metadata.asInstanceOf[kalix.javasdk.impl.MetadataImpl])
 
   def execute(): Future[O] = javaSdkDeferredCall.execute().asScala
+
+  override def withMetadata(entries: Seq[MetadataEntry]): ScalaDeferredCallAdapter[I, O] = {
+    val updatedDefCall = javaSdkDeferredCall.withMetadata(
+      entries
+        .map(entry =>
+          new kalix.javasdk.Metadata.MetadataEntry {
+
+            override def getKey: String = entry.key
+
+            override def getValue: String = entry.value
+
+            override def getBinaryValue: ByteBuffer = entry.binaryValue
+
+            override def isText: Boolean = entry.isText
+
+            override def isBinary: Boolean = entry.isBinary
+          })
+        .toList
+        .asJava)
+    ScalaDeferredCallAdapter(updatedDefCall)
+  }
 }
 
 private[scalasdk] object ScalaSideEffectAdapter {

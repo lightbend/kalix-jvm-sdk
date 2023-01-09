@@ -16,6 +16,7 @@
 
 package kalix.javasdk;
 
+import java.util.List;
 import java.util.concurrent.CompletionStage;
 
 /**
@@ -41,4 +42,10 @@ public interface DeferredCall<I, O> {
    * effects().asyncReply} and {@code effects().asyncEffect}
    */
   CompletionStage<O> execute();
+
+  /**
+   * Add given entries to metadata
+   * @return DeferredCall with updated metadata
+   */
+  DeferredCall<I, O> withMetadata(List<Metadata.MetadataEntry> entries);
 }

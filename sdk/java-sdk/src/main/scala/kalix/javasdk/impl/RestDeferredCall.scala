@@ -17,7 +17,9 @@
 package kalix.javasdk.impl
 
 import kalix.javasdk.DeferredCall
+import kalix.javasdk.Metadata
 
+import java.util
 import java.util.concurrent.CompletionStage
 
 /**
@@ -31,4 +33,8 @@ final case class RestDeferredCall[I, O](
     asyncCall: () => CompletionStage[O])
     extends DeferredCall[I, O] {
   override def execute(): CompletionStage[O] = asyncCall()
+
+  override def withMetadata(entries: util.List[Metadata.MetadataEntry]): RestDeferredCall[I, O] = {
+    this.copy(metadata = metadata.addAll(entries))
+  }
 }

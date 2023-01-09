@@ -18,13 +18,15 @@ package kalix.javasdk.impl
 
 import java.time.Instant
 import java.util.Optional
-
-import kalix.javasdk.{ Metadata, Principal }
+import kalix.javasdk.{Metadata, Principal}
 import kalix.protocol.component.MetadataEntry
 import org.scalatest.OptionValues
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 
+import java.nio.ByteBuffer
+import java.nio.charset.Charset
+import java.nio.charset.Charset.defaultCharset
 import scala.jdk.OptionConverters._
 import scala.jdk.CollectionConverters._
 
@@ -99,6 +101,16 @@ class MetadataImplSpec extends AnyWordSpec with Matchers with OptionValues {
       meta.jwtClaims().getStringList("foo").toScala shouldBe None
     }
 
+    "support adding meta entries" in {
+      val meta = metadata("k1" -> "v1", "k2" -> "v2")
+
+      val updatedMeta = meta.asInstanceOf[MetadataImpl].addAll(List(stringEntry("k3", "v3"), byteEntry("k4", "v4")).asJava)
+
+      updatedMeta.getAllKeys.asScala should have size 4
+      updatedMeta.get("k3") shouldBe Optional.of("v3")
+      defaultCharset().decode(updatedMeta.getBinary("k4").get()).toString shouldBe "v4"
+    }
+
     "support accessing principals" when {
       "the principal is the internet" in {
         val meta = metadata("_kalix-src" -> "internet")
@@ -145,6 +157,34 @@ class MetadataImplSpec extends AnyWordSpec with Matchers with OptionValues {
         meta.principals().isAnyLocalService shouldBe false
         meta.principals().get().asScala should have size 0
       }
+    }
+  }
+
+  private def stringEntry(key: String, value: String): Metadata.MetadataEntry = {
+    new Metadata.MetadataEntry {
+      override def getKey: String = key
+
+      override def getValue: String = value
+
+      override def getBinaryValue: ByteBuffer = null
+
+      override def isText: Boolean = true
+
+      override def isBinary: Boolean = false
+    }
+  }
+
+  private def byteEntry(key: String, value: String): Metadata.MetadataEntry = {
+    new Metadata.MetadataEntry {
+      override def getKey: String = key
+
+      override def getValue: String = null
+
+      override def getBinaryValue: ByteBuffer = ByteBuffer.wrap(value.getBytes)
+
+      override def isText: Boolean = false
+
+      override def isBinary: Boolean = true
     }
   }
 
