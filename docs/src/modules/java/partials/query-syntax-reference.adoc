@@ -156,7 +156,7 @@ The following data types are supported, for their corresponding Protobuf types. 
 
 ==== Optional fields
 
-Fields in a Protobuf message that were not given a value are handled as [the default value](https://developers.google.com/protocol-buffers/docs/proto3#default) of the field data type.
+Fields in a Protobuf message that were not given a value are handled as https://developers.google.com/protocol-buffers/docs/proto3#default[the default value] of the field data type.
 
 In some use cases it is important to explicitly express that a value is missing, doing that in a view column can be done in three ways:
 
