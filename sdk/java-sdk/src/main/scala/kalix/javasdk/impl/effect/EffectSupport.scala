@@ -25,17 +25,11 @@ import kalix.javasdk.impl.MetadataImpl
 import kalix.protocol.component
 
 object EffectSupport {
-  private def asProtocol(metadata: javasdk.Metadata): Option[component.Metadata] =
-    metadata match {
-      case impl: MetadataImpl if impl.entries.nonEmpty =>
-        Some(component.Metadata(impl.entries))
-      case _: MetadataImpl => None
-      case other =>
-        throw new RuntimeException(s"Unknown metadata implementation: ${other.getClass}, cannot send")
-    }
 
   def asProtocol(messageReply: MessageReplyImpl[JavaPbAny]): component.Reply =
-    component.Reply(Some(ScalaPbAny.fromJavaProto(messageReply.message)), asProtocol(messageReply.metadata))
+    component.Reply(
+      Some(ScalaPbAny.fromJavaProto(messageReply.message)),
+      MetadataImpl.toProtocol(messageReply.metadata))
 
   def asProtocol(messageCodec: MessageCodec, forward: ForwardReplyImpl[_]): component.Forward = {
     forward match {
@@ -44,7 +38,7 @@ object EffectSupport {
           deferredCall.fullServiceName,
           deferredCall.methodName,
           Some(messageCodec.encodeScala(forward.deferredCall.message)),
-          asProtocol(forward.deferredCall.metadata))
+          MetadataImpl.toProtocol(forward.deferredCall.metadata))
       case _ =>
         throw new IllegalArgumentException(s"Unsupported type of deferred call: ${forward.deferredCall.getClass}")
     }
@@ -61,7 +55,7 @@ object EffectSupport {
           deferred.methodName,
           Some(messageCodec.encodeScala(deferred.message)),
           synchronous,
-          asProtocol(deferred.metadata))
+          MetadataImpl.toProtocol(deferred.metadata))
     }
     encodedSideEffects
   }

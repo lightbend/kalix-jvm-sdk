@@ -45,7 +45,10 @@ import scala.util.Success
 
 import com.google.protobuf.DescriptorProtos.FileDescriptorProto
 import kalix.javasdk.impl.view.ViewsImpl
+import kalix.javasdk.impl.workflow.WorkflowImpl
+import kalix.javasdk.impl.workflow.WorkflowService
 import kalix.protocol.view.ViewsHandler
+import kalix.protocol.workflow_entity.WorkflowEntitiesHandler
 import org.slf4j.LoggerFactory
 
 object KalixRunner {
@@ -163,15 +166,20 @@ final class KalixRunner private[javasdk] (
           val replicatedEntitiesImpl = new ReplicatedEntitiesImpl(system, services)
           route.orElse(ReplicatedEntitiesHandler.partial(replicatedEntitiesImpl))
 
-        case (route, (serviceClass, actionServices: Map[String, ActionService] @unchecked))
-            if serviceClass == classOf[ActionService] =>
-          val actionImpl = new ActionsImpl(system, actionServices, rootContext)
-          route.orElse(ActionsHandler.partial(actionImpl))
-
         case (route, (serviceClass, entityServices: Map[String, ValueEntityService] @unchecked))
             if serviceClass == classOf[ValueEntityService] =>
           val valueEntityImpl = new ValueEntitiesImpl(system, entityServices)
           route.orElse(ValueEntitiesHandler.partial(valueEntityImpl))
+
+        case (route, (serviceClass, workflowServices: Map[String, WorkflowService] @unchecked))
+            if serviceClass == classOf[WorkflowService] =>
+          val workflowImpl = new WorkflowImpl(system, workflowServices)
+          route.orElse(WorkflowEntitiesHandler.partial(workflowImpl))
+
+        case (route, (serviceClass, actionServices: Map[String, ActionService] @unchecked))
+            if serviceClass == classOf[ActionService] =>
+          val actionImpl = new ActionsImpl(system, actionServices, rootContext)
+          route.orElse(ActionsHandler.partial(actionImpl))
 
         case (route, (serviceClass, viewServices: Map[String, ViewService] @unchecked))
             if serviceClass == classOf[ViewService] =>

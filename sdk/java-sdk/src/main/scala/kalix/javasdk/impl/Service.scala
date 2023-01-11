@@ -42,14 +42,14 @@ trait Service {
   def componentType: String
 
   /**
-   * @return
-   *   the entity type name used for the entities represented by this service
+   * The service name used for by this service. By default, we use the descriptor name, but may be overwritten by user
+   * definitions, for instance, viewId in the case of Views.
    */
-  def entityType: String = descriptor.getName
+  def serviceName: String = descriptor.getName
 
   /**
    * @return
-   *   the options [[ComponentOptions]] or [[EntityOptions]] used by this service
+   *   the options [[ComponentOptions]] or [[kalix.javasdk.EntityOptions]] used by this service
    */
   def componentOptions: Option[ComponentOptions]
 

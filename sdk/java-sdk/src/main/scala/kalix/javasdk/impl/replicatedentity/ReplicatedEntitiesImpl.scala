@@ -42,7 +42,7 @@ final class ReplicatedEntityService(
     override val descriptor: Descriptors.ServiceDescriptor,
     override val additionalDescriptors: Array[Descriptors.FileDescriptor],
     val anySupport: AnySupport,
-    override val entityType: String,
+    override val serviceName: String,
     val entityOptions: Option[ReplicatedEntityOptions])
     extends Service {
 
@@ -132,7 +132,7 @@ final class ReplicatedEntitiesImpl(system: ActorSystem, services: Map[String, Re
       }
       .recover { case error =>
         ErrorHandling.withCorrelationId { correlationId =>
-          LoggerFactory.getLogger(runner.handler.entityClass).error(failureMessageForLog(error), error)
+          LoggerFactory.getLogger(runner.router.entityClass).error(failureMessageForLog(error), error)
           ReplicatedEntityStreamOut(Out.Failure(Failure(description = s"Unexpected error [$correlationId]")))
         }
       }
@@ -148,7 +148,7 @@ object ReplicatedEntitiesImpl {
       initialData: Option[InternalReplicatedData],
       system: ActorSystem) {
 
-    val handler = {
+    val router = {
       val context = new ReplicatedEntityCreationContext(entityId, system)
       try {
         service.factory.create(context)
@@ -157,10 +157,10 @@ object ReplicatedEntitiesImpl {
       }
     }
 
-    handler._internalInitialData(initialData, service.anySupport)
+    router._internalInitialData(initialData, service.anySupport)
 
     def handleDelta(delta: ReplicatedEntityDelta): Unit = {
-      handler._internalApplyDelta(entityId, delta)
+      router._internalApplyDelta(entityId, delta)
     }
 
     def handleCommand(command: Command): ReplicatedEntityStreamOut = {
@@ -173,7 +173,7 @@ object ReplicatedEntitiesImpl {
 
       val CommandResult(effect: ReplicatedEntityEffectImpl[_, _]) =
         try {
-          handler._internalHandleCommand(command.name, cmd, context)
+          router._internalHandleCommand(command.name, cmd, context)
         } catch {
           case e: EntityException => throw e
           case NonFatal(error)    => throw EntityException(command, s"Unexpected failure: $error", Some(error))
@@ -192,7 +192,7 @@ object ReplicatedEntitiesImpl {
 
       serializedSecondaryEffect match {
         case error: ErrorReplyImpl[_] =>
-          if (handler._internalHasDelta)
+          if (router._internalHasDelta)
             throw EntityException(command, s"Replicated entity was changed for a failed command, this is not allowed.")
           ReplicatedEntityStreamOut(
             ReplicatedEntityStreamOut.Message.Reply(
@@ -203,8 +203,8 @@ object ReplicatedEntitiesImpl {
             case DeleteEntity =>
               Some(ReplicatedEntityStateAction(ReplicatedEntityStateAction.Action.Delete(ReplicatedEntityDelete())))
             case _ =>
-              if (handler._internalHasDelta) {
-                val delta = handler._internalGetAndResetDelta
+              if (router._internalHasDelta) {
+                val delta = router._internalGetAndResetDelta
                 Some(
                   ReplicatedEntityStateAction(ReplicatedEntityStateAction.Action.Update(ReplicatedEntityDelta(delta))))
               } else {

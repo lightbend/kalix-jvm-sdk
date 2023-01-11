@@ -52,7 +52,7 @@ final class ValueEntityService(
     override val descriptor: Descriptors.ServiceDescriptor,
     override val additionalDescriptors: Array[Descriptors.FileDescriptor],
     val messageCodec: MessageCodec,
-    override val entityType: String,
+    override val serviceName: String,
     val entityOptions: Option[ValueEntityOptions])
     extends Service {
 
@@ -116,7 +116,7 @@ final class ValueEntitiesImpl(system: ActorSystem, val services: Map[String, Val
   private def runEntity(init: ValueEntityInit): Flow[ValueEntityStreamIn, ValueEntityStreamOut, NotUsed] = {
     val service =
       services.getOrElse(init.serviceName, throw ProtocolException(init, s"Service not found: ${init.serviceName}"))
-    val handler =
+    val router =
       service.factory.create(new ValueEntityContextImpl(init.entityId, system))
     val thisEntityId = init.entityId
 
@@ -125,7 +125,7 @@ final class ValueEntitiesImpl(system: ActorSystem, val services: Map[String, Val
         stateOpt match {
           case Some(state) =>
             val decoded = service.messageCodec.decodeMessage(state)
-            handler._internalSetInitState(decoded)
+            router._internalSetInitState(decoded)
           case None => // no initial state
         }
       case None =>
@@ -142,9 +142,6 @@ final class ValueEntitiesImpl(system: ActorSystem, val services: Map[String, Val
           throw ProtocolException(command, "No command payload for Value entity")
 
         case InCommand(command) =>
-          if (thisEntityId != command.entityId)
-            throw ProtocolException(command, "Receiving entity is not the intended recipient of command")
-
           val metadata = new MetadataImpl(command.metadata.map(_.entries.toVector).getOrElse(Nil))
           val cmd =
             service.messageCodec.decodeMessage(
@@ -154,7 +151,7 @@ final class ValueEntitiesImpl(system: ActorSystem, val services: Map[String, Val
 
           val CommandResult(effect: ValueEntityEffectImpl[_]) =
             try {
-              handler._internalHandleCommand(command.name, cmd, context)
+              router._internalHandleCommand(command.name, cmd, context)
             } catch {
               case e: EntityException => throw e
               case NonFatal(error) =>
@@ -197,14 +194,14 @@ final class ValueEntitiesImpl(system: ActorSystem, val services: Map[String, Val
           }
 
         case InInit(_) =>
-          throw ProtocolException(init, "Value entity already inited")
+          throw ProtocolException(init, "Value entity already initiated")
 
         case InEmpty =>
           throw ProtocolException(init, "Value entity received empty/unknown message")
       }
       .recover { case error =>
         ErrorHandling.withCorrelationId { correlationId =>
-          LoggerFactory.getLogger(handler.entityClass).error(failureMessageForLog(error), error)
+          LoggerFactory.getLogger(router.entityClass).error(failureMessageForLog(error), error)
           ValueEntityStreamOut(OutFailure(Failure(description = s"Unexpected error [$correlationId]")))
         }
       }

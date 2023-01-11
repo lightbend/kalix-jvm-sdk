@@ -81,8 +81,8 @@ object EntityExceptions {
   def failureMessageForLog(cause: Throwable): String = cause match {
     case EntityException(entityId, commandId, commandName, _, _) =>
       val commandDescription = if (commandId != 0) s" for command [$commandName]" else ""
-      val entityDescription = if (entityId.nonEmpty) s"entity [$entityId]" else "entity"
-      s"Terminating $entityDescription due to unexpected failure$commandDescription"
+      val entityDescription = if (entityId.nonEmpty) s" [$entityId]" else ""
+      s"Terminating entity$entityDescription due to unexpected failure$commandDescription"
     case _ => "Terminating entity due to unexpected failure"
   }
 }

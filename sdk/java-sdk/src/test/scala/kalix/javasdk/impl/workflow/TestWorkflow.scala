@@ -14,22 +14,26 @@
  * limitations under the License.
  */
 
-package kalix.javasdk.impl.valueentity
+package kalix.javasdk.impl.workflow
 
 import akka.actor.testkit.typed.scaladsl.LoggingTestKit
 import akka.actor.typed.scaladsl.adapter._
 import akka.testkit.SocketUtil
-import kalix.javasdk.{ Kalix, KalixRunner }
-import kalix.javasdk.valueentity.ValueEntityProvider
 import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
+import kalix.javasdk.Kalix
+import kalix.javasdk.KalixRunner
+import kalix.javasdk.workflow.WorkflowProvider
 
-object TestValueEntity {
-  def service(entityProvider: ValueEntityProvider[_, _]): TestValueService =
-    new TestValueService(entityProvider)
+object TestWorkflow {
+
+  def service(workflowProvider: WorkflowProvider[_, _]): TestWorkflow =
+    new TestWorkflow(workflowProvider)
+
 }
 
-class TestValueService(entityProvider: ValueEntityProvider[_, _]) {
+class TestWorkflow(workflowProvider: WorkflowProvider[_, _]) {
+
   val port: Int = SocketUtil.temporaryLocalPort()
 
   val config: Config = ConfigFactory.load(ConfigFactory.parseString(s"""
@@ -43,7 +47,7 @@ class TestValueService(entityProvider: ValueEntityProvider[_, _]) {
   """))
 
   val runner: KalixRunner = new Kalix()
-    .register(entityProvider)
+    .register(workflowProvider)
     .createRunner(config)
 
   runner.run()
@@ -53,4 +57,5 @@ class TestValueService(entityProvider: ValueEntityProvider[_, _]) {
   }
 
   def terminate(): Unit = runner.terminate()
+
 }
