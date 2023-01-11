@@ -17,7 +17,6 @@
 package kalix.javasdk.view;
 
 import kalix.javasdk.Context;
-import kalix.javasdk.MetadataContext;
 
 /** Context for views. */
 public interface ViewContext extends Context {

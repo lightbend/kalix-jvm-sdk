@@ -16,20 +16,16 @@
 
 package kalix.javasdk.action;
 
-import akka.Done;
 import kalix.javasdk.CloudEvent;
-import kalix.javasdk.DeferredCall;
 import kalix.javasdk.Metadata;
 import kalix.javasdk.MetadataContext;
 
-import java.time.Duration;
 import java.util.Optional;
-import java.util.concurrent.CompletionStage;
 
 /** Context for action calls. */
 public interface ActionContext extends MetadataContext {
 
-  // FIX: remove this method and move docs currently pointing
+  // FIXME: remove this method and move docs currently pointing
   // to this method toMetadataContext
   /**
    * Get the metadata associated with this call.
