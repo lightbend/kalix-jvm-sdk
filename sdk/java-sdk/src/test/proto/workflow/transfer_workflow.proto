@@ -24,8 +24,7 @@ import "kalix/annotations.proto";
 import "google/protobuf/empty.proto";
 
 message Transfer {
-  // TODO: we should better introduce (kalix.field).workflow_id
-  string workflow_id = 1 [(kalix.field).entity_key = true];
+  string workflow_id = 1 [(kalix.field).workflow_key = true];
   string from = 2;
   string to = 3;
   double amount = 4;
