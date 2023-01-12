@@ -44,8 +44,7 @@ public interface DeferredCall<I, O> {
   CompletionStage<O> execute();
 
   /**
-   * Add given entries to metadata
    * @return DeferredCall with updated metadata
    */
-  DeferredCall<I, O> withMetadata(List<Metadata.MetadataEntry> entries);
+  DeferredCall<I, O> withMetadata(Metadata metadata);
 }

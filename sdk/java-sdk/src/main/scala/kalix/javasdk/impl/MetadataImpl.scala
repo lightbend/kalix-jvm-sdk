@@ -44,16 +44,6 @@ private[kalix] class MetadataImpl(val entries: Seq[MetadataEntry]) extends Metad
         value
     }
 
-  private[kalix] def addAll(entries: util.List[Metadata.MetadataEntry]): MetadataImpl = {
-    entries.asScala.foldLeft(this) { (metadata, entry) =>
-      if (entry.isText) {
-        metadata.add(entry.getKey, entry.getValue)
-      } else {
-        metadata.addBinary(entry.getKey, entry.getBinaryValue)
-      }
-    }
-  }
-
   override def getAll(key: String): util.List[String] =
     getAllScala(key).asJava
 
@@ -87,7 +77,7 @@ private[kalix] class MetadataImpl(val entries: Seq[MetadataEntry]) extends Metad
   override def set(key: String, value: String): MetadataImpl = {
     Objects.requireNonNull(key, "Key must not be null")
     Objects.requireNonNull(value, "Value must not be null")
-    new MetadataImpl(removeKey(key) :+ stringValueEntry(key, value))
+    new MetadataImpl(removeKey(key) :+ MetadataEntry(key, MetadataEntry.Value.StringValue(value)))
   }
 
   override def setBinary(key: String, value: ByteBuffer): MetadataImpl = {
@@ -99,11 +89,7 @@ private[kalix] class MetadataImpl(val entries: Seq[MetadataEntry]) extends Metad
   override def add(key: String, value: String): MetadataImpl = {
     Objects.requireNonNull(key, "Key must not be null")
     Objects.requireNonNull(value, "Value must not be null")
-    new MetadataImpl(entries :+ stringValueEntry(key, value))
-  }
-
-  private def stringValueEntry(key: String, value: String) = {
-    MetadataEntry(key, MetadataEntry.Value.StringValue(value))
+    new MetadataImpl(entries :+ MetadataEntry(key, MetadataEntry.Value.StringValue(value)))
   }
 
   override def addBinary(key: String, value: ByteBuffer): MetadataImpl = {
@@ -142,10 +128,10 @@ private[kalix] class MetadataImpl(val entries: Seq[MetadataEntry]) extends Metad
     new MetadataImpl(
       entries.filterNot(e => MetadataImpl.CeRequired(e.key)) ++
       Seq(
-        stringValueEntry(MetadataImpl.CeSpecversion, MetadataImpl.CeSpecversionValue),
-        stringValueEntry(MetadataImpl.CeId, id),
-        stringValueEntry(MetadataImpl.CeSource, source.toString),
-        stringValueEntry(MetadataImpl.CeType, `type`)))
+        MetadataEntry(MetadataImpl.CeSpecversion, MetadataEntry.Value.StringValue(MetadataImpl.CeSpecversionValue)),
+        MetadataEntry(MetadataImpl.CeId, MetadataEntry.Value.StringValue(id)),
+        MetadataEntry(MetadataImpl.CeSource, MetadataEntry.Value.StringValue(source.toString)),
+        MetadataEntry(MetadataImpl.CeType, MetadataEntry.Value.StringValue(`type`))))
 
   private def getRequiredCloudEventField(key: String) =
     entries
@@ -262,6 +248,19 @@ object MetadataImpl {
   val CeRequired: Set[String] = Set(CeSpecversion, CeId, CeSource, CeType)
 
   val Empty = new MetadataImpl(Vector.empty)
+
+  def of(metadata: Metadata): MetadataImpl = {
+    metadata
+      .iterator()
+      .asScala
+      .foldLeft(MetadataImpl.Empty)((meta, entry) => {
+        if (entry.isText) {
+          meta.add(entry.getKey, entry.getValue)
+        } else {
+          meta.addBinary(entry.getKey, entry.getBinaryValue)
+        }
+      })
+  }
 
   val JwtClaimPrefix = "_kalix-jwt-claim-"
 

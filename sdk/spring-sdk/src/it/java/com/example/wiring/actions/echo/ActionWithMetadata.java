@@ -36,7 +36,7 @@ public class ActionWithMetadata extends Action {
   @GetMapping("/action-with-meta/{key}/{value}")
   public Effect<Message> actionWithMeta(@PathVariable String key, @PathVariable String value) {
     var def = kalixClient.get("/return-meta/" + key, Message.class);
-    return effects().forward(def.withMetadata(List.of(stringValue(key, value))));
+    return effects().forward(def.withMetadata(Metadata.EMPTY.add(key, value)));
   }
 
 

@@ -101,15 +101,14 @@ class MetadataImplSpec extends AnyWordSpec with Matchers with OptionValues {
       meta.jwtClaims().getStringList("foo").toScala shouldBe None
     }
 
-    "support adding meta entries" in {
+    "support creating metadata from metadata" in {
       val meta = metadata("k1" -> "v1", "k2" -> "v2")
 
-      val updatedMeta =
-        meta.asInstanceOf[MetadataImpl].addAll(List(stringEntry("k3", "v3"), byteEntry("k4", "v4")).asJava)
+      val result = MetadataImpl.of(meta)
 
-      updatedMeta.getAllKeys.asScala should have size 4
-      updatedMeta.get("k3") shouldBe Optional.of("v3")
-      defaultCharset().decode(updatedMeta.getBinary("k4").get()).toString shouldBe "v4"
+      meta.iterator().asScala should have size 2
+      result.get("k1").get() shouldBe "v1"
+      result.get("k2").get() shouldBe "v2"
     }
 
     "support accessing principals" when {
@@ -158,34 +157,6 @@ class MetadataImplSpec extends AnyWordSpec with Matchers with OptionValues {
         meta.principals().isAnyLocalService shouldBe false
         meta.principals().get().asScala should have size 0
       }
-    }
-  }
-
-  private def stringEntry(key: String, value: String): Metadata.MetadataEntry = {
-    new Metadata.MetadataEntry {
-      override def getKey: String = key
-
-      override def getValue: String = value
-
-      override def getBinaryValue: ByteBuffer = null
-
-      override def isText: Boolean = true
-
-      override def isBinary: Boolean = false
-    }
-  }
-
-  private def byteEntry(key: String, value: String): Metadata.MetadataEntry = {
-    new Metadata.MetadataEntry {
-      override def getKey: String = key
-
-      override def getValue: String = null
-
-      override def getBinaryValue: ByteBuffer = ByteBuffer.wrap(value.getBytes)
-
-      override def isText: Boolean = false
-
-      override def isBinary: Boolean = true
     }
   }
 

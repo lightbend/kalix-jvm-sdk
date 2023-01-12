@@ -19,12 +19,9 @@ package kalix.scalasdk.testkit.impl
 import kalix.javasdk.impl.GrpcDeferredCall
 import kalix.scalasdk.DeferredCall
 import kalix.scalasdk.Metadata
-import kalix.scalasdk.MetadataEntry
 import kalix.scalasdk.impl.MetadataConverters
 import kalix.scalasdk.testkit.DeferredCallDetails
 
-import java.nio.ByteBuffer
-import scala.jdk.CollectionConverters._
 import scala.concurrent.Future
 
 final case class TestKitDeferredCall[I, O](deferredCall: GrpcDeferredCall[I, O]) extends DeferredCallDetails[I, O] {
@@ -36,24 +33,7 @@ final case class TestKitDeferredCall[I, O](deferredCall: GrpcDeferredCall[I, O])
   def execute(): Future[O] =
     throw new UnsupportedOperationException("Async calls to other components not supported by the testkit")
 
-  override def withMetadata(entries: Seq[MetadataEntry]): DeferredCall[I, O] = {
-    val updatedDefCall = deferredCall.withMetadata(
-      entries
-        .map(entry =>
-          new kalix.javasdk.Metadata.MetadataEntry {
-
-            override def getKey: String = entry.key
-
-            override def getValue: String = entry.value
-
-            override def getBinaryValue: ByteBuffer = entry.binaryValue
-
-            override def isText: Boolean = entry.isText
-
-            override def isBinary: Boolean = entry.isBinary
-          })
-        .toList
-        .asJava)
-    TestKitDeferredCall(updatedDefCall)
+  override def withMetadata(metadata: Metadata): DeferredCall[I, O] = {
+    TestKitDeferredCall(deferredCall.withMetadata(metadata.impl))
   }
 }

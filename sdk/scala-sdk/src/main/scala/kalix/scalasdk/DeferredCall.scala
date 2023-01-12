@@ -50,5 +50,5 @@ trait DeferredCall[I, O] {
   /**
    * Add this entries to metadata
    */
-  def withMetadata(entries: Seq[MetadataEntry]): DeferredCall[I, O]
+  def withMetadata(metadata: Metadata): DeferredCall[I, O]
 }
