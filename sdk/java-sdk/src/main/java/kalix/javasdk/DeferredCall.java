@@ -16,7 +16,6 @@
 
 package kalix.javasdk;
 
-import java.util.List;
 import java.util.concurrent.CompletionStage;
 
 /**

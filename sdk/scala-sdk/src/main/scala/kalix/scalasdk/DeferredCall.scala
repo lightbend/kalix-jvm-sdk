@@ -48,7 +48,7 @@ trait DeferredCall[I, O] {
   def execute(): Future[O]
 
   /**
-   * Add this entries to metadata
+   * Update with given metadata
    */
   def withMetadata(metadata: Metadata): DeferredCall[I, O]
 }

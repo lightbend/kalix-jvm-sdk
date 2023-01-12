@@ -45,33 +45,4 @@ public class ActionWithMetadata extends Action {
     var metaValue = actionContext().metadata().get(key).get();
     return effects().reply(new Message(metaValue));
   }
-
-  private Metadata.MetadataEntry stringValue(String key, String value) {
-    return new Metadata.MetadataEntry() {
-      @Override
-      public String getKey() {
-        return key;
-      }
-
-      @Override
-      public String getValue() {
-        return value;
-      }
-
-      @Override
-      public ByteBuffer getBinaryValue() {
-        return null;
-      }
-
-      @Override
-      public boolean isText() {
-        return true;
-      }
-
-      @Override
-      public boolean isBinary() {
-        return false;
-      }
-    };
-  }
 }
