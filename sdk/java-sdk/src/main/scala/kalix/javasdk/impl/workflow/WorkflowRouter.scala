@@ -91,7 +91,11 @@ abstract class WorkflowRouter[S, W <: Workflow[S]](protected val workflow: W) {
 
   /** INTERNAL API */
   // "public" api against the impl/testkit
-  final def _internalHandleStep(input: ScalaPbAny, stepName: String, messageCodec: MessageCodec): StepResponse = {
+  final def _internalHandleStep(
+      commandId: Long,
+      input: ScalaPbAny,
+      stepName: String,
+      messageCodec: MessageCodec): StepResponse = {
 
     workflow._internalSetCurrentState(stateOrEmpty())
     val workflowDef = workflow.definition()
@@ -118,11 +122,10 @@ abstract class WorkflowRouter[S, W <: Workflow[S]](protected val workflow: W) {
             payload = Some(messageCodec.encodeScala(defCall.message())),
             metadata = MetadataImpl.toProtocol(defCall.metadata()))
 
-        StepResponse.defaultInstance
-          .withResponse(StepResponse.Response.DeferredCall(stepDefCall))
+        StepResponse(commandId, stepName, StepResponse.Response.DeferredCall(stepDefCall))
 
-      case Some(_) => throw ProtocolException("Unknown step type") // just making compiler happy
-      case None    => throw WorkflowStepNotFound(stepName)
+      case Some(other) => throw ProtocolException("Unknown step type: " + other) // just making compiler happy
+      case None        => throw WorkflowStepNotFound(stepName)
     }
 
   }

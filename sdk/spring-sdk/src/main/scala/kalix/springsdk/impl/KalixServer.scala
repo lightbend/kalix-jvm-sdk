@@ -17,11 +17,9 @@
 package kalix.springsdk.impl
 
 import java.lang.reflect.Modifier
-
 import scala.jdk.CollectionConverters.CollectionHasAsScala
 import scala.jdk.OptionConverters.RichOption
 import scala.reflect.ClassTag
-
 import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
 import kalix.javasdk.Kalix
@@ -38,6 +36,9 @@ import kalix.javasdk.valueentity.ValueEntityProvider
 import kalix.javasdk.view.View
 import kalix.javasdk.view.ViewCreationContext
 import kalix.javasdk.view.ViewProvider
+import kalix.javasdk.workflow.Workflow
+import kalix.javasdk.workflow.WorkflowContext
+import kalix.javasdk.workflow.WorkflowProvider
 import kalix.springsdk.KalixClient
 import kalix.springsdk.SpringSdkBuildInfo
 import kalix.springsdk.WebClientProvider
@@ -55,9 +56,11 @@ import kalix.springsdk.impl.KalixServer.MainClassProvider
 import kalix.springsdk.impl.KalixServer.ValueEntityContextFactoryBean
 import kalix.springsdk.impl.KalixServer.ViewCreationContextFactoryBean
 import kalix.springsdk.impl.KalixServer.WebClientProviderFactoryBean
+import kalix.springsdk.impl.KalixServer.WorkflowContextFactoryBean
 import kalix.springsdk.valueentity.ReflectiveValueEntityProvider
 import kalix.springsdk.view.ReflectiveMultiTableViewProvider
 import kalix.springsdk.view.ReflectiveViewProvider
+import kalix.springsdk.workflow.ReflectiveWorkflowProvider
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.BeanCreationException
@@ -78,6 +81,7 @@ object KalixServer {
   val kalixComponents: Seq[Class[_]] =
     classOf[Action] ::
     classOf[EventSourcedEntity[_]] ::
+    classOf[Workflow[_]] ::
     classOf[ValueEntity[_]] ::
     classOf[ReplicatedEntity[_]] ::
     classOf[View[_]] ::
@@ -198,6 +202,10 @@ object KalixServer {
     override def isSingleton: Boolean = false // never!!
   }
 
+  object WorkflowContextFactoryBean extends ThreadLocalFactoryBean[WorkflowContext] {
+    override def isSingleton: Boolean = false // never!!
+  }
+
   object ValueEntityContextFactoryBean extends ThreadLocalFactoryBean[ValueEntityContext] {
     override def isSingleton: Boolean = false // never!!
   }
@@ -292,6 +300,13 @@ case class KalixServer(applicationContext: ApplicationContext, config: Config) {
         kalixClient.registerComponent(esEntity.serviceDescriptor())
       }
 
+      if (classOf[Workflow[_]].isAssignableFrom(clz)) {
+        logger.info(s"Registering Workflow provider for [${clz.getName}]")
+        val workflow = workflowProvider(clz.asInstanceOf[Class[Workflow[Nothing]]])
+        kalix.register(workflow)
+        kalixClient.registerComponent(workflow.serviceDescriptor())
+      }
+
       if (classOf[ValueEntity[_]].isAssignableFrom(clz)) {
         logger.info(s"Registering ValueEntity provider for [${clz.getName}]")
         val valueEntity = valueEntityProvider(clz.asInstanceOf[Class[ValueEntity[Nothing]]])
@@ -368,6 +383,26 @@ case class KalixServer(applicationContext: ApplicationContext, config: Config) {
       context => {
         if (hasContextConstructor(clz, classOf[EventSourcedEntityContext]))
           EventSourcedEntityContextFactoryBean.set(context)
+        kalixBeanFactory.getBean(clz)
+      })
+
+  private def workflowProvider[S, E <: Workflow[S]](clz: Class[E]): WorkflowProvider[S, E] =
+    ReflectiveWorkflowProvider.of(
+      clz,
+      messageCodec,
+      context => {
+        if (hasContextConstructor(clz, classOf[WorkflowContext])) {
+          WorkflowContextFactoryBean.set(context)
+        }
+
+        val webClientProviderHolder = WebClientProviderHolder(context.materializer().system)
+
+        if (hasContextConstructor(clz, classOf[KalixClient])) {
+          kalixClient.setWebClient(webClientProviderHolder.webClientProvider.localWebClient)
+          // we only have one KalixClient, but we only set it to the ThreadLocalFactoryBean
+          // when building actions, because it's only allowed to inject it in Actions
+          KalixClientFactoryBean.set(kalixClient)
+        }
         kalixBeanFactory.getBean(clz)
       })
 
