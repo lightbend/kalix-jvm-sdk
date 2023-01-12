@@ -14,7 +14,8 @@ dockerRepository := sys.props.get("docker.registry")
 dockerEntrypoint := Seq("bin/main")
 dockerUpdateLatest := true
 dockerBuildCommand := {
-  if (sys.props("os.arch") != "amd64") {
+  val arch = sys.props("os.arch")
+  if (arch != "amd64" && !arch.contains("x86")) {
     // use buildx with platform to build supported amd64 images on other CPU architectures
     // this may require that you have first run 'docker buildx create' to set docker buildx up
     dockerExecCommand.value ++ Seq(
