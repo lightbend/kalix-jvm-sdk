@@ -17,10 +17,7 @@
 package kalix.javasdk.action;
 
 import kalix.javasdk.impl.ComponentOptions;
-import kalix.javasdk.PassivationStrategy;
-import kalix.javasdk.eventsourcedentity.EventSourcedEntityOptions;
 import kalix.javasdk.impl.action.ActionOptionsImpl;
-import kalix.javasdk.impl.eventsourcedentity.EventSourcedEntityOptionsImpl;
 
 import java.util.Collections;
 
