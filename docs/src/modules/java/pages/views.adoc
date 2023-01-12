@@ -497,7 +497,7 @@ Note: This is not intended as transport for service to service propagation of up
 should instead publish events to a topic, see xref:actions-publishing-subscribing.adoc[Publishing and Subscribing with Actions]
 
 [#query]
-include::partial$query-syntax-reference.adoc[]
+include::partial$query-syntax-reference.adoc[tags=grpc]
 
 include::partial$query-syntax-paging.adoc[tags=grpc]
 
