@@ -24,11 +24,14 @@ import com.example.wiring.valueentities.user.User;
 import com.example.wiring.valueentities.user.UserSideEffect;
 import com.example.wiring.views.UserCounters;
 import com.example.wiring.views.UserWithVersion;
+import com.example.wiring.workflow.Balance;
+import com.example.wiring.workflow.Transfer;
 import kalix.springsdk.KalixConfigurationTest;
 import org.hamcrest.core.IsEqual;
 import org.hamcrest.core.IsNull;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.junit.Ignore;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -48,6 +51,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static java.time.temporal.ChronoUnit.SECONDS;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 
 @ExtendWith(SpringExtension.class)
@@ -456,7 +460,7 @@ public class SpringSdkIntegrationTest {
   }
 
   @Test
-  public void verifyForwardHeaders() throws InterruptedException {
+  public void verifyForwardHeaders() {
 
     String actionHeaderValue = "action-value";
     String veHeaderValue = "ve-value";
@@ -488,6 +492,70 @@ public class SpringSdkIntegrationTest {
         .block(timeout);
 
     Assertions.assertEquals(esHeaderValue, esResponse);
+  }
+
+  @Test
+  @Ignore("waiting for the fix in sdk")
+  public void shouldNotStartTransferForWithNegativeAmount() {
+    var walletId1 = "1";
+    var walletId2 = "2";
+    createWallet(walletId1);
+    createWallet(walletId2);
+    var transfer = new Transfer(walletId1, walletId2, -10);
+
+    ResponseEntity<Void> response = webClient.put().uri("/transfer/123")
+        .bodyValue(transfer)
+        .retrieve()
+        .toBodilessEntity()
+        .block(timeout);
+
+    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+  }
+
+  @Test
+  public void shouldTransferMoney() {
+    var walletId1 = "1";
+    var walletId2 = "2";
+    createWallet(walletId1);
+    createWallet(walletId2);
+    var transfer = new Transfer(walletId1, walletId2, 10);
+
+    String response = webClient.put().uri("/transfer/123")
+        .bodyValue(transfer)
+        .retrieve()
+        .bodyToMono(kalix.springsdk.testmodels.Message.class)
+        .map(m -> m.value)
+        .block(timeout);
+
+    assertThat(response).isEqualTo("transfer started");
+
+    await()
+        .atMost(10, TimeUnit.of(SECONDS))
+        .untilAsserted(() -> {
+          var balance1 = getWalletBalance(walletId1);
+          var balance2 = getWalletBalance(walletId2);
+
+          assertThat(balance1).isEqualTo(90);
+          assertThat(balance2).isEqualTo(110);
+        });
+  }
+
+  private void createWallet(String walletId) {
+    ResponseEntity<Void> response = webClient.post().uri("/wallet/"+walletId + "/create")
+        .retrieve()
+        .toBodilessEntity()
+        .block(timeout);
+
+    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+  }
+
+  private int getWalletBalance(String walletId) {
+    Balance response = webClient.get().uri("/wallet/"+walletId)
+        .retrieve()
+        .bodyToMono(Balance.class)
+        .block(timeout);
+
+    return response.value;
   }
 
   @NotNull

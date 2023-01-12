@@ -190,6 +190,7 @@ final class WorkflowImpl(system: ActorSystem, val services: Map[String, Workflow
         case error: ErrorEffectImpl[_] =>
           val statusCode = error.status.map(_.value()).getOrElse(Status.Code.UNKNOWN.value())
           val failure = component.Failure(commandId, error.description, statusCode)
+          //TODO fix this and return an effect with error
           val message = WorkflowStreamOut.Message.Failure(failure)
           WorkflowStreamOut(message)
 
@@ -247,15 +248,17 @@ final class WorkflowImpl(system: ActorSystem, val services: Map[String, Workflow
               val decoded = service.messageCodec.decodeMessage(executeStep.userState.get)
               router._internalSetInitState(decoded)
               router._internalHandleStep(
+                executeStep.commandId,
                 executeStep.input.get,
                 executeStep.stepName,
                 service.messageCodec,
                 workflowContext)
             } catch {
               case e: WorkflowException => throw e
-              case NonFatal(_)          =>
+              case NonFatal(ex)         =>
                 // FIXME: not want we need.
                 // We need an exception with more context about the failed step
+                log.error(s"protocol exception for $executeStep", ex)
                 throw ProtocolException(executeStep.stepName)
             }
 

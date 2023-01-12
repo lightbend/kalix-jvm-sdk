@@ -20,9 +20,7 @@ import java.lang.annotation.Annotation
 import java.lang.reflect.Method
 import java.lang.reflect.Modifier
 import java.lang.reflect.ParameterizedType
-
 import scala.reflect.ClassTag
-
 import kalix.DirectDestination
 import kalix.DirectSource
 import kalix.EventDestination
@@ -42,6 +40,7 @@ import kalix.springsdk.annotations.Subscribe
 import kalix.springsdk.annotations.Subscribe.ValueEntity
 import kalix.springsdk.annotations.Table
 import kalix.springsdk.annotations.ViewId
+import kalix.springsdk.annotations.WorkflowType
 import kalix.springsdk.impl.reflection._
 import org.springframework.core.annotation.AnnotatedElementUtils
 import org.springframework.web.bind.annotation.RequestMapping
@@ -341,6 +340,8 @@ private[impl] object ComponentDescriptorFactory {
   def getFactoryFor(component: Class[_]): ComponentDescriptorFactory = {
     if (component.getAnnotation(classOf[EntityType]) != null)
       EntityDescriptorFactory
+    else if (component.getAnnotation(classOf[WorkflowType]) != null)
+      WorkflowDescriptorFactory
     else if (component.getAnnotation(classOf[Table]) != null || component.getAnnotation(classOf[ViewId]) != null)
       ViewDescriptorFactory
     else
