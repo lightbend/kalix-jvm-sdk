@@ -42,8 +42,6 @@ public interface DeferredCall<I, O> {
    */
   CompletionStage<O> execute();
 
-  /**
-   * @return DeferredCall with updated metadata
-   */
+  /** @return DeferredCall with updated metadata */
   DeferredCall<I, O> withMetadata(Metadata metadata);
 }
