@@ -46,7 +46,7 @@ public class ReflectiveWorkflowProvider<S, W extends Workflow<S>> implements Wor
     EntityType annotation = workflowClass.getAnnotation(EntityType.class);
     if (annotation == null)
       throw new IllegalArgumentException(
-          "Event Sourced Entity [" + workflowClass.getName() + "] is missing '@EntityType' annotation");
+          "Workflow Entity [" + workflowClass.getName() + "] is missing '@EntityType' annotation");
 
     this.workflowClass = workflowClass;
     this.messageCodec = messageCodec;
