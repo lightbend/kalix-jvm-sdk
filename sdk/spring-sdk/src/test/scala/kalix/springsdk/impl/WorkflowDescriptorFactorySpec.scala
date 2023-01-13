@@ -37,7 +37,7 @@ class WorkflowDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptor
       }
     }
 
-    "generate mappings for a Workflow with  keys in path and EntityKey on method" in {
+    "generate mappings for a Workflow with keys in path and EntityKey on method" in {
       assertDescriptor[WorkflowTestModels.WorkflowWithMethodLevelKey] { desc =>
         val method = desc.commandHandlers("StartTransfer")
         val fieldKey = "transferId"
