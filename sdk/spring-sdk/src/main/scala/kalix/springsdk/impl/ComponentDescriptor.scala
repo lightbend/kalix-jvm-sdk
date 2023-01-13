@@ -56,6 +56,7 @@ import org.springframework.web.bind.annotation.RequestMethod
 
 import java.lang.reflect.ParameterizedType
 import java.lang.reflect.Type
+import java.time.Instant
 import java.util
 import scala.annotation.tailrec
 import scala.jdk.CollectionConverters._
@@ -360,14 +361,18 @@ private[impl] object ComponentDescriptor {
       .zipWithIndex
       .map { case ((_, param), fieldIdx) =>
         val fieldNumber = fieldIdx + queryFieldsOffset
-        FieldDescriptorProto
+        val (pbType, pbTypeNameOpt) = mapJavaTypeToProtobuf(param.param.getGenericParameterType)
+
+        val fd = FieldDescriptorProto
           .newBuilder()
           .setName(param.name)
           .setNumber(fieldNumber)
-          .setType(mapJavaTypeToProtobuf(param.param.getGenericParameterType))
+          .setType(pbType)
           .setLabel(mapJavaWrapperToLabel(param.param.getGenericParameterType))
           .setOptions(addEntityKeyIfNeeded(entityKeys, param.name))
-          .build()
+        pbTypeNameOpt.foreach(n => fd.setTypeName(n))
+
+        fd.build()
       }
   }
 
@@ -390,14 +395,19 @@ private[impl] object ComponentDescriptor {
       pathParamOffset: Int): Seq[FieldDescriptorProto] = {
     serviceMethod.parsedPath.fields.zipWithIndex.map { case (paramName, fieldIdx) =>
       val fieldNumber = fieldIdx + pathParamOffset
-      FieldDescriptorProto
+      val paramT = paramType(indexedParams, paramName)
+      val (pbType, pbTypeNameOpt) = mapJavaTypeToProtobuf(paramT)
+
+      val pb = FieldDescriptorProto
         .newBuilder()
         .setName(paramName)
         .setNumber(fieldNumber)
-        .setType(mapJavaTypeToProtobuf(paramType(indexedParams, paramName)))
-        .setLabel(mapJavaWrapperToLabel(paramType(indexedParams, paramName)))
+        .setType(pbType)
+        .setLabel(mapJavaWrapperToLabel(paramT))
         .setOptions(addEntityKeyIfNeeded(entityKeys, paramName))
-        .build()
+      pbTypeNameOpt.foreach(n => pb.setTypeName(n))
+
+      pb.build()
     }
   }
 
@@ -457,8 +467,11 @@ private[impl] object ComponentDescriptor {
     }
   }
 
+  type PBTypeName = Option[String]
   @tailrec
-  private def mapJavaTypeToProtobuf(javaType: Type): FieldDescriptorProto.Type = {
+  private def mapJavaTypeToProtobuf(javaType: Type): (FieldDescriptorProto.Type, PBTypeName) = {
+    implicit def defaultTypeName(t: FieldDescriptorProto.Type): (FieldDescriptorProto.Type, PBTypeName) = (t, None)
+
     // todo make this smarter, eg, customizable parameter deserializers, UUIDs, byte arrays, enums etc
     if (javaType == classOf[String]) {
       FieldDescriptorProto.Type.TYPE_STRING
@@ -475,8 +488,10 @@ private[impl] object ComponentDescriptor {
       FieldDescriptorProto.Type.TYPE_FLOAT
     } else if (javaType == classOf[java.lang.Boolean] || javaType.getTypeName == "boolean") {
       FieldDescriptorProto.Type.TYPE_BOOL
-    } else if (javaType == classOf[ByteString]) {
-      FieldDescriptorProto.Type.TYPE_BYTES
+      //} else if (javaType == classOf[ByteString]) {
+      //  FieldDescriptorProto.Type.TYPE_BYTES
+    } else if (javaType == classOf[java.sql.Timestamp] || javaType == classOf[java.time.Instant]) {
+      (FieldDescriptorProto.Type.TYPE_MESSAGE, Some("google.protobuf.Timestamp"))
     } else if (isCollection(javaType)) {
       mapJavaTypeToProtobuf(javaType.asInstanceOf[ParameterizedType].getActualTypeArguments.head)
     } else {

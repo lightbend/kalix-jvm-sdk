@@ -10,6 +10,9 @@ import kalix.springsdk.annotations.Table;
 import kalix.springsdk.annotations.ViewId;
 import org.springframework.web.bind.annotation.GetMapping;
 
+import java.sql.Timestamp;
+import java.time.Instant;
+
 @ViewId("view_summary_customer_by_name")
 // tag::class[]
 @Table("customers")
@@ -18,7 +21,7 @@ public class CustomerSummaryByName extends View<CustomerSummary> { // <1>
   @Subscribe.ValueEntity(CustomerEntity.class) // <2>
   public UpdateEffect<CustomerSummary> onChange(Customer customer) { // <3>
     return effects()
-        .updateState(new CustomerSummary(customer.email(), customer.name())); // <4>
+        .updateState(new CustomerSummary(customer.email(), customer.name(), customer.createdAt())); // <4>
   }
   // end::class[]
 

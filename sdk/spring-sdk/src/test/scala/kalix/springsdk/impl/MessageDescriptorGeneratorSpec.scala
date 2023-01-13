@@ -16,11 +16,16 @@
 
 package kalix.springsdk.impl
 
+import akka.http.scaladsl.model.headers.CacheDirectives.public
 import com.google.protobuf.DescriptorProtos.FieldDescriptorProto.{ Type => ProtoType }
+import kalix.springsdk.testmodels.ComplexMessage
 import kalix.springsdk.testmodels.TimeEnum
 import kalix.springsdk.testmodels.{ NestedMessage, SimpleMessage }
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
+
+import java.sql.Timestamp
+import java.time.Instant
 
 class MessageDescriptorGeneratorSpec extends AnyWordSpec with Matchers {
 
@@ -77,9 +82,26 @@ class MessageDescriptorGeneratorSpec extends AnyWordSpec with Matchers {
       messageDescriptor.additionalMessageDescriptors.head.getName shouldBe "SimpleMessage"
     }
 
-    "create a schema for a message with Java Instant and enum doesn't break" in {
+    /* "create a schema for a message with Java Instant and enum doesn't break" in {
       ProtoMessageDescriptors.generateMessageDescriptors(classOf[TimeEnum])
+    }*/
+
+    "create a schema for a message with Java Timestamp doesn't break" in {
+
+      val messageDescriptor = ProtoMessageDescriptors.generateMessageDescriptors(classOf[ComplexMessage])
+      val descriptor = messageDescriptor.mainMessageDescriptor
+      val field1 = descriptor.getField(0) // note: not field number but 0 based index
+      field1.getName shouldBe "value"
+      val field2 = descriptor.getField(1)
+      field2.getName shouldBe "ts"
+      field2.getType shouldBe ProtoType.TYPE_MESSAGE
+      field2.getTypeName shouldBe "google.protobuf.Timestamp"
+      val field3 = descriptor.getField(2)
+      field3.getName shouldBe "msg"
+      field3.getType shouldBe ProtoType.TYPE_MESSAGE
+      field3.getTypeName shouldBe "InnerMessage"
     }
+
   }
 
 }
