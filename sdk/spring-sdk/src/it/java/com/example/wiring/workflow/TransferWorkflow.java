@@ -18,15 +18,15 @@ package com.example.wiring.workflow;
 
 import kalix.javasdk.workflow.Workflow;
 import kalix.springsdk.KalixClient;
-import kalix.springsdk.annotations.WorkflowKey;
-import kalix.springsdk.annotations.WorkflowType;
+import kalix.springsdk.annotations.EntityKey;
+import kalix.springsdk.annotations.EntityType;
 import kalix.springsdk.testmodels.Message;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-@WorkflowType("transfer-workflow")
-@WorkflowKey("transferId")
+@EntityType("transfer-workflow")
+@EntityKey("transferId")
 @RequestMapping("/transfer/{transferId}")
 public class TransferWorkflow extends Workflow<TransferState> {
 

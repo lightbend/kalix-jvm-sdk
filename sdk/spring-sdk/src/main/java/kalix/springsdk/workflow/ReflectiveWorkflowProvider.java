@@ -23,7 +23,7 @@ import kalix.javasdk.workflow.Workflow;
 import kalix.javasdk.workflow.WorkflowContext;
 import kalix.javasdk.workflow.WorkflowOptions;
 import kalix.javasdk.workflow.WorkflowProvider;
-import kalix.springsdk.annotations.WorkflowType;
+import kalix.springsdk.annotations.EntityType;
 import kalix.springsdk.impl.ComponentDescriptor;
 import kalix.springsdk.impl.SpringSdkMessageCodec;
 import kalix.springsdk.impl.workflow.ReflectiveWorkflowRouter;
@@ -43,10 +43,10 @@ public class ReflectiveWorkflowProvider<S, W extends Workflow<S>> implements Wor
   private final ComponentDescriptor componentDescriptor;
 
   public ReflectiveWorkflowProvider(Class<W> workflowClass, SpringSdkMessageCodec messageCodec, Function<WorkflowContext, W> factory, WorkflowOptions options) {
-    WorkflowType annotation = workflowClass.getAnnotation(WorkflowType.class);
+    EntityType annotation = workflowClass.getAnnotation(EntityType.class);
     if (annotation == null)
       throw new IllegalArgumentException(
-          "Event Sourced Entity [" + workflowClass.getName() + "] is missing '@WorkflowType' annotation");
+          "Event Sourced Entity [" + workflowClass.getName() + "] is missing '@EntityType' annotation");
 
     this.workflowClass = workflowClass;
     this.messageCodec = messageCodec;

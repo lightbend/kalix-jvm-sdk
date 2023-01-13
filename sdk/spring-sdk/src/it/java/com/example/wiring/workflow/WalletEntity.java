@@ -41,13 +41,13 @@ public class WalletEntity extends ValueEntity<Wallet> {
 
   @PatchMapping("/withdraw/{amount}")
   public Effect<String> withdraw(@PathVariable int amount) {
-    logger.info("Withdraw from {} amount {}", currentState().id, amount);
+    logger.info("Withdraw from {} amount -{}", currentState().id, amount);
     return effects().updateState(currentState().withdraw(amount)).thenReply("Ok");
   }
 
   @PatchMapping("/deposit/{amount}")
   public Effect<String> deposit(@PathVariable int amount) {
-    logger.info("Deposit from {} amount {}", currentState().id, amount);
+    logger.info("Deposit from {} amount +{}", currentState().id, amount);
     return effects().updateState(currentState().deposit(amount)).thenReply("Ok");
   }
 
