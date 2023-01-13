@@ -29,7 +29,6 @@ import java.util.{ Objects, Optional }
 import kalix.javasdk.impl.MetadataImpl.JwtClaimPrefix
 
 import scala.jdk.CollectionConverters._
-import scala.collection.immutable.Seq
 import scala.compat.java8.OptionConverters._
 
 private[kalix] class MetadataImpl(val entries: Seq[MetadataEntry]) extends Metadata with CloudEvent {

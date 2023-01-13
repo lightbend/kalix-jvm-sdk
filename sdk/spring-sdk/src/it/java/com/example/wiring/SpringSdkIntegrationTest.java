@@ -490,6 +490,19 @@ public class SpringSdkIntegrationTest {
     Assertions.assertEquals(esHeaderValue, esResponse);
   }
 
+  @Test
+  public void shouldPropagateMetadataWithHttpDeferredCall() {
+    String value = "someValue";
+
+    String actionResponse = webClient.get().uri("/action-with-meta/myKey/" + value)
+        .retrieve()
+        .bodyToMono(Message.class)
+        .map(m -> m.text)
+        .block(timeout);
+
+    Assertions.assertEquals(value, actionResponse);
+  }
+
   @NotNull
   private List<User> getUsersByName(String name) {
     return webClient

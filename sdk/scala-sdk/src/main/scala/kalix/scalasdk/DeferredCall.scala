@@ -46,4 +46,9 @@ trait DeferredCall[I, O] {
    * an [[kalix.scalasdk.action.Action]] using {{{effects.asyncReply}}} and {{{effects.asyncEffect}}}.
    */
   def execute(): Future[O]
+
+  /**
+   * Update with given metadata
+   */
+  def withMetadata(metadata: Metadata): DeferredCall[I, O]
 }
