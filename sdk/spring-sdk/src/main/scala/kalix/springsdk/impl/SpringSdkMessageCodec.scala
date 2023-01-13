@@ -82,12 +82,7 @@ private[springsdk] class SpringSdkMessageCodec extends MessageCodec {
 
   def decodeToJson(value: ScalaPbAny): Any = {
     if (value.typeUrl.startsWith(JsonSupport.KALIX_JSON)) {
-      val any =
-        JavaPbAny
-          .newBuilder()
-          .setTypeUrl(value.typeUrl)
-          .setValue(value.value)
-          .build()
+      val any = ScalaPbAny.toJavaProto(value)
 
       val typeName = value.typeUrl.replace(JsonSupport.KALIX_JSON, "")
       JsonSupport.decodeJson(reversedCache.get(typeName), any)
