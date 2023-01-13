@@ -34,6 +34,6 @@ final case class GrpcDeferredCall[I, O](
   override def execute(): CompletionStage[O] = asyncCall()
 
   override def withMetadata(metadata: Metadata): GrpcDeferredCall[I, O] = {
-    this.copy(metadata = MetadataImpl.of(metadata))
+    this.copy(metadata = metadata.asInstanceOf[MetadataImpl])
   }
 }

@@ -249,19 +249,6 @@ object MetadataImpl {
 
   val Empty = new MetadataImpl(Vector.empty)
 
-  def of(metadata: Metadata): MetadataImpl = {
-    metadata
-      .iterator()
-      .asScala
-      .foldLeft(MetadataImpl.Empty)((meta, entry) => {
-        if (entry.isText) {
-          meta.add(entry.getKey, entry.getValue)
-        } else {
-          meta.addBinary(entry.getKey, entry.getBinaryValue)
-        }
-      })
-  }
-
   val JwtClaimPrefix = "_kalix-jwt-claim-"
 
   val PrincipalsSource = "_kalix-src"

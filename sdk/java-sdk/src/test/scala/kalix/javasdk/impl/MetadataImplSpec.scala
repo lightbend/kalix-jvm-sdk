@@ -101,16 +101,6 @@ class MetadataImplSpec extends AnyWordSpec with Matchers with OptionValues {
       meta.jwtClaims().getStringList("foo").toScala shouldBe None
     }
 
-    "support creating metadata from metadata" in {
-      val meta = metadata("k1" -> "v1", "k2" -> "v2")
-
-      val result = MetadataImpl.of(meta)
-
-      meta.iterator().asScala should have size 2
-      result.get("k1").get() shouldBe "v1"
-      result.get("k2").get() shouldBe "v2"
-    }
-
     "support accessing principals" when {
       "the principal is the internet" in {
         val meta = metadata("_kalix-src" -> "internet")
