@@ -16,7 +16,7 @@
 
 package kalix.springsdk.impl.workflow
 
-import com.google.protobuf.any.{Any => ScalaPbAny}
+import com.google.protobuf.any.{ Any => ScalaPbAny }
 import kalix.javasdk.JsonSupport
 import kalix.javasdk.impl.MessageCodec
 import kalix.javasdk.impl.workflow.WorkflowRouter

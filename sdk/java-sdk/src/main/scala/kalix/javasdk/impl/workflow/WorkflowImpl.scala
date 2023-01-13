@@ -270,7 +270,7 @@ final class WorkflowImpl(system: ActorSystem, val services: Map[String, Workflow
               router._internalGetNextStep(cmd.stepName, cmd.result.get, service.messageCodec)
             } catch {
               case e: WorkflowException => throw e
-              case NonFatal(ex)          =>
+              case NonFatal(ex)         =>
                 // FIXME: not want we need.
                 // We need an exception with more context about the failed step
                 log.error(s"transition execution protocol exception for $cmd", ex)
