@@ -523,8 +523,8 @@ public class SpringSdkIntegrationTest {
     String response = webClient.put().uri("/transfer/123")
         .bodyValue(transfer)
         .retrieve()
-        .bodyToMono(kalix.springsdk.testmodels.Message.class)
-        .map(m -> m.value)
+        .bodyToMono(Message.class)
+        .map(m -> m.text)
         .block(timeout);
 
     assertThat(response).isEqualTo("transfer started");

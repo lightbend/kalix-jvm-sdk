@@ -16,11 +16,11 @@
 
 package com.example.wiring.workflow;
 
+import com.example.wiring.actions.echo.Message;
 import kalix.javasdk.workflow.Workflow;
 import kalix.springsdk.KalixClient;
 import kalix.springsdk.annotations.EntityKey;
 import kalix.springsdk.annotations.EntityType;
-import kalix.springsdk.testmodels.Message;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
