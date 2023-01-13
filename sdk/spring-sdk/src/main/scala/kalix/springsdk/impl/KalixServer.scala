@@ -360,12 +360,7 @@ case class KalixServer(applicationContext: ApplicationContext, config: Config) {
 
         val webClientProviderHolder = WebClientProviderHolder(context.materializer().system)
 
-        if (hasContextConstructor(clz, classOf[KalixClient])) {
-          kalixClient.setWebClient(webClientProviderHolder.webClientProvider.localWebClient)
-          // we only have one KalixClient, but we only set it to the ThreadLocalFactoryBean
-          // when building actions, because it's only allowed to inject it in Actions
-          KalixClientFactoryBean.set(kalixClient)
-        }
+        setKalixClient(clz, webClientProviderHolder)
 
         if (hasContextConstructor(clz, classOf[WebClientProvider])) {
           val webClientProvider = webClientProviderHolder.webClientProvider
@@ -374,6 +369,15 @@ case class KalixServer(applicationContext: ApplicationContext, config: Config) {
 
         kalixBeanFactory.getBean(clz)
       })
+
+  private def setKalixClient[A <: Action](clz: Class[A], webClientProviderHolder: WebClientProviderHolder): Unit = {
+    if (hasContextConstructor(clz, classOf[KalixClient])) {
+      kalixClient.setWebClient(webClientProviderHolder.webClientProvider.localWebClient)
+      // we only have one KalixClient, but we only set it to the ThreadLocalFactoryBean
+      // when building actions, because it's only allowed to inject it in Actions and Workflow Entities
+      KalixClientFactoryBean.set(kalixClient)
+    }
+  }
 
   private def eventSourcedEntityProvider[S, E <: EventSourcedEntity[S]](
       clz: Class[E]): EventSourcedEntityProvider[S, E] =
@@ -397,12 +401,8 @@ case class KalixServer(applicationContext: ApplicationContext, config: Config) {
 
         val webClientProviderHolder = WebClientProviderHolder(context.materializer().system)
 
-        if (hasContextConstructor(clz, classOf[KalixClient])) {
-          kalixClient.setWebClient(webClientProviderHolder.webClientProvider.localWebClient)
-          // we only have one KalixClient, but we only set it to the ThreadLocalFactoryBean
-          // when building actions, because it's only allowed to inject it in Actions
-          KalixClientFactoryBean.set(kalixClient)
-        }
+        setKalixClient(clz, webClientProviderHolder)
+
         kalixBeanFactory.getBean(clz)
       })
 
