@@ -17,6 +17,7 @@
 package kalix.javasdk.impl.workflow
 
 import scala.concurrent.ExecutionContext
+import scala.concurrent.Future
 import scala.util.control.NonFatal
 
 import akka.NotUsed
@@ -60,6 +61,7 @@ import kalix.protocol.workflow_entity.WorkflowStreamOut
 import kalix.protocol.workflow_entity.WorkflowStreamOut.Message.{ Failure => OutFailure }
 import kalix.protocol.workflow_entity.{ EndTransition => ProtoEndTransition }
 import kalix.protocol.workflow_entity.{ StepTransition => ProtoStepTransition }
+import kalix.protocol.workflow_entity.{ WaitingForInput => ProtoWaitingForInput }
 import org.slf4j.LoggerFactory
 
 // FIXME these don't seem to be 'public API', more internals?
@@ -151,6 +153,7 @@ final class WorkflowImpl(system: ActorSystem, val services: Map[String, Workflow
         val protoEffect =
           persistence match {
             case UpdateState(newState) =>
+              router._internalSetInitState(newState)
               WorkflowEffect.defaultInstance.withUserState(service.messageCodec.encodeScala(newState))
             // TODO: persistence should be optional, but we must ensure that we don't save it back to null
             // and preferably we should not even send it over the wire.
@@ -163,8 +166,8 @@ final class WorkflowImpl(system: ActorSystem, val services: Map[String, Workflow
             case StepTransition(input, transitionTo) =>
               WorkflowEffect.Transition.StepTransition(
                 ProtoStepTransition(transitionTo, Option(service.messageCodec.encodeScala(input))))
+            case Wait => WorkflowEffect.Transition.WaitForInput(ProtoWaitingForInput.defaultInstance)
             case End  => WorkflowEffect.Transition.EndTransition(ProtoEndTransition.defaultInstance)
-            case Wait => throw new RuntimeException("Workflow pausing not yet supported")
           }
 
         val clientAction = {
@@ -178,7 +181,6 @@ final class WorkflowImpl(system: ActorSystem, val services: Map[String, Workflow
             }
           WorkflowClientAction.defaultInstance.withReply(protoReply)
         }
-
         protoEffect
           .withTransition(toProtoTransition)
           .withClientAction(clientAction)
@@ -207,13 +209,13 @@ final class WorkflowImpl(system: ActorSystem, val services: Map[String, Workflow
 
     Flow[WorkflowStreamIn]
       .map(_.message)
-      .map {
+      .mapAsync(1) {
 
         case InCommand(command) if workflowId != command.workflowId =>
-          throw ProtocolException(command, "Receiving Workflow is not the intended recipient of command")
+          Future.failed(ProtocolException(command, "Receiving Workflow is not the intended recipient of command"))
 
         case InCommand(command) if command.payload.isEmpty =>
-          throw ProtocolException(command, "No command payload for Workflow")
+          Future.failed(throw ProtocolException(command, "No command payload for Workflow"))
 
         case InCommand(command) =>
           val metadata = new MetadataImpl(command.metadata.map(_.entries.toVector).getOrElse(Nil))
@@ -236,14 +238,19 @@ final class WorkflowImpl(system: ActorSystem, val services: Map[String, Workflow
               context.deactivate() // Very important!
             }
 
-          toProtoEffect(effect, command.id)
+          Future.successful(toProtoEffect(effect, command.id))
 
         case Step(executeStep) =>
+          val workflowContext = new WorkflowContextImpl(workflowId, system)
           val stepResponse =
             try {
               val decoded = service.messageCodec.decodeMessage(executeStep.userState.get)
               router._internalSetInitState(decoded)
-              router._internalHandleStep(executeStep.input.get, executeStep.stepName, service.messageCodec)
+              router._internalHandleStep(
+                executeStep.input.get,
+                executeStep.stepName,
+                service.messageCodec,
+                workflowContext)
             } catch {
               case e: WorkflowException => throw e
               case NonFatal(_)          =>
@@ -252,7 +259,9 @@ final class WorkflowImpl(system: ActorSystem, val services: Map[String, Workflow
                 throw ProtocolException(executeStep.stepName)
             }
 
-          WorkflowStreamOut(WorkflowStreamOut.Message.Response(stepResponse))
+          stepResponse.map { stp =>
+            WorkflowStreamOut(WorkflowStreamOut.Message.Response(stp))
+          }
 
         case Transition(cmd) =>
           val CommandResult(effect) =
@@ -264,10 +273,9 @@ final class WorkflowImpl(system: ActorSystem, val services: Map[String, Workflow
                 // FIXME: not want we need.
                 // We need an exception with more context about the failed step
                 throw ProtocolException(cmd.stepName)
-
             }
 
-          toProtoEffect(effect, cmd.commandId)
+          Future.successful(toProtoEffect(effect, cmd.commandId))
 
         case Init(_) =>
           throw ProtocolException(init, "Workflow already initiated")

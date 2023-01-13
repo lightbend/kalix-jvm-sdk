@@ -30,6 +30,8 @@ public class TransferWorkflowRouter extends WorkflowRouter<MoneyTransferApi.Stat
     switch (commandName) {
       case "Start":
         return workflow().start((MoneyTransferApi.Transfer) command);
+      case "SignOff":
+        return workflow().singOff((MoneyTransferApi.Owner) command);
       case "IllegalCall":
         return workflow().illegalCall((MoneyTransferApi.Transfer) command);
       default:

@@ -22,10 +22,11 @@ import kalix.javasdk.DeferredCall;
 import kalix.javasdk.impl.GrpcDeferredCall;
 import kalix.javasdk.impl.MetadataImpl;
 
+import java.util.concurrent.CompletableFuture;
+
 import static io.grpc.Status.Code.INVALID_ARGUMENT;
 
 public class TransferWorkflow extends Workflow<MoneyTransferApi.State> {
-
 
 
   @Override
@@ -36,15 +37,36 @@ public class TransferWorkflow extends Workflow<MoneyTransferApi.State> {
 
   private final String withdrawStepName = "withdraw";
   private final String depositStepName = "deposit";
+  private final String remoteCallStepName = "remoteCall";
 
   @Override
   public WorkflowDef<MoneyTransferApi.State> definition() {
+
+    var remoteCall =
+      step(remoteCallStepName)
+        // just a dummy 'remote' call to exercise the API
+        .asyncCall((Empty start) ->
+          CompletableFuture.completedFuture(Empty.getDefaultInstance()))
+        .andThen(i -> {
+          var state = currentState().toBuilder().setLog("remote-call").build();
+          var withdrawInput =
+            MoneyTransferApi.Withdraw
+              .newBuilder()
+              .setAccount(state.getFrom())
+              .setAmount(state.getAmount())
+              .build();
+
+          return effects()
+            .updateState(state)
+            .transition(withdrawInput, withdrawStepName);
+        });
+
 
     var withdraw =
       step(withdrawStepName)
         .call((MoneyTransferApi.Withdraw cmd) -> deferredCall(cmd, Empty.class))
         .andThen(i -> {
-          var state = currentState().toBuilder().setLastStep("withdrawn").build();
+          var state = currentState().toBuilder().setLog("withdrawn").build();
 
           var depositInput =
             MoneyTransferApi.Deposit
@@ -61,13 +83,14 @@ public class TransferWorkflow extends Workflow<MoneyTransferApi.State> {
 
     var deposit =
       step(depositStepName)
-        .call((MoneyTransferApi.Deposit cmd ) -> deferredCall(cmd, Empty.class))
+        .call((MoneyTransferApi.Deposit cmd) -> deferredCall(cmd, Empty.class))
         .andThen(__ -> {
-          var state = currentState().toBuilder().setLastStep("deposited").build();
+          var state = currentState().toBuilder().setLog("deposited").build();
           return effects().updateState(state).end();
         });
 
     return workflow()
+      .addStep(remoteCall)
       .addStep(withdraw)
       .addStep(deposit);
   }
@@ -83,21 +106,34 @@ public class TransferWorkflow extends Workflow<MoneyTransferApi.State> {
           .setTo(transfer.getTo())
           .setFrom(transfer.getFrom())
           .setAmount(transfer.getAmount())
-          .setLastStep("started")
-          .build();
-
-      var withdrawInput =
-        MoneyTransferApi.Withdraw
-          .newBuilder()
-          .setAccount(transfer.getFrom())
-          .setAmount(transfer.getAmount())
+          .setLog("started")
           .build();
 
       return effects()
         .updateState(newState)
-        .transition(withdrawInput, withdrawStepName)
+        .waitForInput()
         .thenReply(Empty.getDefaultInstance());
     }
+  }
+
+  public Effect<Empty> singOff(MoneyTransferApi.Owner signOff) {
+
+    var newState =
+      currentState().toBuilder()
+        .addSignOffs(signOff.getName())
+        .setLog("sign-off: " + signOff.getName())
+        .build();
+
+    var effect = effects().updateState(newState);
+
+    if (newState.getSignOffsList().size() < 2)
+      return effect
+        .waitForInput()
+        .thenReply(Empty.getDefaultInstance());
+    else {
+      return effect
+        .transition(Empty.getDefaultInstance(), remoteCallStepName)
+        .thenReply(Empty.getDefaultInstance());}
   }
 
 
@@ -113,7 +149,9 @@ public class TransferWorkflow extends Workflow<MoneyTransferApi.State> {
       MetadataImpl.Empty(),
       "fake.Service",
       "FakeMethod",
-      () -> {throw new RuntimeException("Fake DeferredCall can't be executed");}
+      () -> {
+        throw new RuntimeException("Fake DeferredCall can't be executed");
+      }
     );
   }
 }

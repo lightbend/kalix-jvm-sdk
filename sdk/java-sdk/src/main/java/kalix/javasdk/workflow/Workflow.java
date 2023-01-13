@@ -23,6 +23,7 @@ import kalix.javasdk.Metadata;
 import kalix.javasdk.impl.workflow.WorkflowEffectImpl;
 
 import java.util.*;
+import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
 
 public abstract class Workflow<S> {
@@ -255,13 +256,31 @@ public abstract class Workflow<S> {
       this.transitionFunc = transitionFunc;
     }
 
-
     @Override
     public String name() {
       return this._name;
     }
   }
 
+  public static class AsyncCall<I, O> implements Step {
+
+    final private String _name;
+    final public Function<I, CompletionStage<O>> callFunc;
+    final public Function<O, Effect.TransitionalEffect<Void>> transitionFunc;
+
+    public AsyncCall(String name,
+                Function<I, CompletionStage<O>> callFunc,
+                Function<O, Effect.TransitionalEffect<Void>> transitionFunc) {
+      _name = name;
+      this.callFunc = callFunc;
+      this.transitionFunc = transitionFunc;
+    }
+
+    @Override
+    public String name() {
+      return this._name;
+    }
+  }
 
   public static Workflow.StepBuilder step(String name) {
     return new Workflow.StepBuilder(name);
@@ -279,10 +298,14 @@ public abstract class Workflow<S> {
       return new CallBuilder<>(name, callFactory);
     }
 
+    public <Input, Output> AsyncCallBuilder<Input, Output> asyncCall(Function<Input, CompletionStage<Output>> callFactory) {
+      return new AsyncCallBuilder<>(name, callFactory);
+    }
+
+
     public static class CallBuilder<Input, DefCallInput, DefCallOutput> {
 
       final private String name;
-
 
       /* callFactory builds the DeferredCall that will be passed to proxy for execution */
       final private Function<Input, DeferredCall<DefCallInput, DefCallOutput>> callFunc;
@@ -296,8 +319,27 @@ public abstract class Workflow<S> {
       public Call<Input, DefCallInput, DefCallOutput> andThen(Function<DefCallOutput, Effect.TransitionalEffect<Void>> transitionFunc) {
         return new Call<>(name, callFunc, transitionFunc);
       }
-
     }
+
+    public static class AsyncCallBuilder<I, O> {
+
+      final private String name;
+
+      /* callFactory builds the DeferredCall that will be passed to proxy for execution */
+      final private Function<I, CompletionStage<O>> callFunc;
+
+
+      public AsyncCallBuilder(String name,  Function<I, CompletionStage<O>> callFunc) {
+        this.name = name;
+        this.callFunc = callFunc;
+      }
+
+      public AsyncCall<I, O> andThen(Function<O, Effect.TransitionalEffect<Void>> transitionFunc) {
+        return new AsyncCall<>(name, callFunc, transitionFunc);
+      }
+    }
+
+
 
   }
 
