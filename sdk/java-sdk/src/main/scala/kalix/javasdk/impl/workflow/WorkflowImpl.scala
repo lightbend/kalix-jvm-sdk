@@ -137,8 +137,7 @@ final class WorkflowImpl(system: ActorSystem, val services: Map[String, Workflow
       case Some(workflowState) =>
         workflowState.userState match {
           case Some(state) =>
-            val decoded = service.messageCodec.decodeMessage(state)
-            router._internalSetInitState(decoded)
+            router._internalSetInitState(state, service.messageCodec)
           case None => // no initial state
         }
       case None =>
@@ -245,8 +244,7 @@ final class WorkflowImpl(system: ActorSystem, val services: Map[String, Workflow
           val workflowContext = new WorkflowContextImpl(workflowId, system)
           val stepResponse =
             try {
-              val decoded = service.messageCodec.decodeMessage(executeStep.userState.get)
-              router._internalSetInitState(decoded)
+              router._internalSetInitState(executeStep.userState.get, service.messageCodec)
               router._internalHandleStep(
                 executeStep.commandId,
                 executeStep.input.get,
@@ -258,7 +256,7 @@ final class WorkflowImpl(system: ActorSystem, val services: Map[String, Workflow
               case NonFatal(ex)         =>
                 // FIXME: not want we need.
                 // We need an exception with more context about the failed step
-                log.error(s"protocol exception for $executeStep", ex)
+                log.error(s"step execution protocol exception for $executeStep", ex)
                 throw ProtocolException(executeStep.stepName)
             }
 
@@ -272,9 +270,10 @@ final class WorkflowImpl(system: ActorSystem, val services: Map[String, Workflow
               router._internalGetNextStep(cmd.stepName, cmd.result.get, service.messageCodec)
             } catch {
               case e: WorkflowException => throw e
-              case NonFatal(_)          =>
+              case NonFatal(ex)          =>
                 // FIXME: not want we need.
                 // We need an exception with more context about the failed step
+                log.error(s"transition execution protocol exception for $cmd", ex)
                 throw ProtocolException(cmd.stepName)
             }
 

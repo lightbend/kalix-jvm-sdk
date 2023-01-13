@@ -67,8 +67,8 @@ abstract class WorkflowRouter[S, W <: Workflow[S]](protected val workflow: W) {
 
   /** INTERNAL API */
   // "public" api against the impl/testkit
-  def _internalSetInitState(s: Any): Unit = {
-    state = Some(s.asInstanceOf[S])
+  def _internalSetInitState(s: ScalaPbAny, messageCodec: MessageCodec): Unit = {
+    state = Some(decodeToAny(s, messageCodec).asInstanceOf[S])
   }
 
   /** INTERNAL API */
@@ -95,6 +95,10 @@ abstract class WorkflowRouter[S, W <: Workflow[S]](protected val workflow: W) {
 
   protected def handleCommand(commandName: String, state: S, command: Any, context: CommandContext): Workflow.Effect[_]
 
+  protected def decodeToAny(input: ScalaPbAny, messageCodec: MessageCodec): Any = {
+    messageCodec.decodeMessage(input)
+  }
+
   /** INTERNAL API */
   // "public" api against the impl/testkit
   final def _internalHandleStep(
@@ -114,7 +118,7 @@ abstract class WorkflowRouter[S, W <: Workflow[S]](protected val workflow: W) {
         val defCall =
           call.callFunc
             .asInstanceOf[JFunc[Any, DeferredCall[Any, Any]]]
-            .apply(messageCodec.decodeMessage(input))
+            .apply(decodeToAny(input, messageCodec))
 
         val (commandName, serviceName) =
           defCall match {
@@ -164,7 +168,7 @@ abstract class WorkflowRouter[S, W <: Workflow[S]](protected val workflow: W) {
         val effect =
           call.transitionFunc
             .asInstanceOf[JFunc[Any, Effect[Any]]]
-            .apply(messageCodec.decodeMessage(result))
+            .apply(decodeToAny(result, messageCodec))
 
         CommandResult(effect)
 

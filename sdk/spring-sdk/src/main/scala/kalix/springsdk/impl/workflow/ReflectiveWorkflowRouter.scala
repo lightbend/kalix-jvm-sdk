@@ -16,8 +16,9 @@
 
 package kalix.springsdk.impl.workflow
 
-import com.google.protobuf.any.{ Any => ScalaPbAny }
+import com.google.protobuf.any.{Any => ScalaPbAny}
 import kalix.javasdk.JsonSupport
+import kalix.javasdk.impl.MessageCodec
 import kalix.javasdk.impl.workflow.WorkflowRouter
 import kalix.javasdk.workflow.CommandContext
 import kalix.javasdk.workflow.Workflow
@@ -81,6 +82,10 @@ class ReflectiveWorkflowRouter[S, W <: Workflow[S]](
           JsonSupport.decodeJson(workflowStateType, ScalaPbAny.toJavaProto(s.asInstanceOf[ScalaPbAny]))
         workflow._internalSetCurrentState(deserializedState)
     }
+  }
+
+  override protected def decodeToAny(input: ScalaPbAny, messageCodec: MessageCodec): Any = {
+    messageCodec.asInstanceOf[SpringSdkMessageCodec].decodeToJson(input)
   }
 }
 

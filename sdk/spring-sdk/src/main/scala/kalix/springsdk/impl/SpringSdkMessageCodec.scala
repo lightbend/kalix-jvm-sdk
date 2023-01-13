@@ -77,6 +77,10 @@ private[springsdk] class SpringSdkMessageCodec extends MessageCodec {
     JsonSupport.KALIX_JSON + lookupTypeHint(clz)
 
   override def decodeMessage(value: ScalaPbAny): Any = {
+    value
+  }
+
+  def decodeToJson(value: ScalaPbAny): Any = {
     if (value.typeUrl.startsWith(JsonSupport.KALIX_JSON)) {
       val any =
         JavaPbAny
