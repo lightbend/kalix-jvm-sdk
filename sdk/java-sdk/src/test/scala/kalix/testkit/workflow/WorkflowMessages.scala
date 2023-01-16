@@ -59,7 +59,7 @@ object WorkflowMessages extends EntityMessages {
   def command(id: Long, workflowId: String, name: String, payload: Option[ScalaPbAny]): InMessage =
     InMessage.Command(Command(workflowId, id, name, payload))
 
-  def executeStep(id: Long, stepName: String, input: JavaPbMessage, userState: JavaPbMessage): InMessage = {
+  def executeStep(id: Long, stepName: String, input: JavaPbMessage, userState: ScalaPbMessage): InMessage = {
     val executeStep =
       ExecuteStep.defaultInstance
         .withCommandId(id)

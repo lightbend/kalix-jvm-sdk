@@ -40,8 +40,10 @@ class WorkflowImplSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll 
   override def afterAll(): Unit = {
     protocol.terminate()
     service.terminate()
-
   }
+
+  private def assertState(state: Option[ScalaPbAny])(assertFunc: MoneyTransferApi.State => Unit): Unit =
+    assertFunc(MoneyTransfer.decode[MoneyTransferApi.State](state.value))
 
   "WorkflowEntityImpl" should {
     "fail when first message is not init" in {
@@ -148,79 +150,95 @@ class WorkflowImplSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll 
       messageFromStartCmd.isEffect shouldBe true
 
       val startEffect = messageFromStartCmd.effect.value
-      val startState = MoneyTransfer.decode[MoneyTransferApi.State](startEffect.userState.value)
-      startState.getFrom shouldBe "foo"
-      startState.getTo shouldBe "bar"
-      startState.getAmount shouldBe 10.0
-      startState.getLastStep shouldBe "started"
 
-      val transitionToWithdraw = startEffect.transition.stepTransition.value
-      transitionToWithdraw.stepName shouldBe "withdraw"
-      // cast will fail if not Withdraw type
-      val withdrawInput = MoneyTransfer.decode[MoneyTransferApi.Withdraw](transitionToWithdraw.input.value)
+      startEffect.transition.isWaitForInput shouldBe true
+      assertState(startEffect.userState) { state =>
+        state.getFrom shouldBe "foo"
+        state.getTo shouldBe "bar"
+        state.getAmount shouldBe 10.0
+        state.getLog shouldBe "started"
+      }
 
-      val startClientAction = startEffect.clientAction.value
-      // cast will fail if not Empty type
-      MoneyTransfer.decode[Empty](startClientAction.action.reply.value.payload.value)
+      // first sign-off - covert waitForInput
+      workflow.send(command(1, workflowId, "SignOff", MoneyTransfer.owner("Alice")))
+      val effectFromFirstSignOff = workflow.expectNext().effect.value
+      assertState(effectFromFirstSignOff.userState) { state =>
+        state.getLog shouldBe "sign-off: Alice"
+      }
       //-----------------------------------------------------------------
 
+      // second sign-off - covert waitForInput
+      workflow.send(command(1, workflowId, "SignOff", MoneyTransfer.owner("John")))
+      val effectFromSecondSignOff = workflow.expectNext().effect.value
+      assertState(effectFromSecondSignOff.userState) { state =>
+        state.getLog shouldBe "sign-off: John"
+      }
+
+      val transitionToRemote = effectFromSecondSignOff.transition.stepTransition.value
+      transitionToRemote.stepName shouldBe "remoteCall"
+      val removeCallClientAction = startEffect.clientAction.value
+      // cast will fail if not Empty type
+      MoneyTransfer.decode[Empty](removeCallClientAction.action.reply.value.payload.value)
+      //-----------------------------------------------------------------
+
+      // run next step, ie: RemoteCall (asyncCall)
+      workflow.send(
+        executeStep(2, transitionToRemote.stepName, Empty.getDefaultInstance, effectFromSecondSignOff.userState.value))
+      val messageFromRemoteCall = workflow.expectNext()
+      messageFromRemoteCall.isResponse shouldBe true
+      messageFromRemoteCall.response.value.response.isExecuted shouldBe true
+
+      val asyncCallStep = messageFromRemoteCall.response.value.stepName
+      // after successful call, ask for next transition
+      workflow.send(getNextStep(3, asyncCallStep, Empty.getDefaultInstance))
+      val effectAfterAsyncCall = workflow.expectNext().effect.value
+
+      assertState(effectAfterAsyncCall.userState) { state =>
+        state.getLog shouldBe "remote-call"
+      }
+
+      //-----------------------------------------------------------------
       // run next step, ie: Withdraw
-      workflow.send(executeStep(2, transitionToWithdraw.stepName, withdrawInput, startState))
-      val messageFromWithdraw = workflow.expectNext()
-      messageFromWithdraw.isResponse shouldBe true
-      val responseFromWithdraw = messageFromWithdraw.response.value
+      val transitionToWithdraw = effectAfterAsyncCall.transition.stepTransition.value
+      val withdrawInput = MoneyTransfer.decode[MoneyTransferApi.Withdraw](transitionToWithdraw.input.value)
+
+      workflow.send(executeStep(4, transitionToWithdraw.stepName, withdrawInput, effectAfterAsyncCall.userState.value))
+      val responseFromWithdraw = workflow.expectNext().response.value
       val defCallFromWithdraw = responseFromWithdraw.response.deferredCall.value
       // cast will fail if not Withdraw type
       MoneyTransfer.decode[MoneyTransferApi.Withdraw](defCallFromWithdraw.payload.value)
       //-----------------------------------------------------------------
 
       // simulate withdraw successful, ask for the transition
-      workflow.send(getNextStep(3, transitionToWithdraw.stepName, Empty.getDefaultInstance))
-      val effectAfterWithdraw = workflow.expectNext()
-      effectAfterWithdraw.isEffect shouldBe true
-
-      val withdrawEffect = effectAfterWithdraw.effect.value
-
-      val stateAfterWithdraw = MoneyTransfer.decode[MoneyTransferApi.State](withdrawEffect.userState.value)
-      stateAfterWithdraw.getFrom shouldBe "foo"
-      stateAfterWithdraw.getTo shouldBe "bar"
-      stateAfterWithdraw.getAmount shouldBe 10.0
-      stateAfterWithdraw.getLastStep shouldBe "withdrawn"
-
+      workflow.send(getNextStep(5, transitionToWithdraw.stepName, Empty.getDefaultInstance))
+      val withdrawEffect = workflow.expectNext().effect.value
+      assertState(withdrawEffect.userState) { state =>
+        state.getLog shouldBe "withdrawn"
+      }
       val transitionToDeposit = withdrawEffect.transition.stepTransition.value
       transitionToDeposit.stepName shouldBe "deposit"
       val depositInput = MoneyTransfer.decode[MoneyTransferApi.Deposit](transitionToDeposit.input.value)
       //-----------------------------------------------------------------
 
-      // run next step, ie: Withdraw
-      workflow.send(executeStep(2, transitionToDeposit.stepName, depositInput, stateAfterWithdraw))
-
-      val messageFromDeposit = workflow.expectNext()
-      messageFromDeposit.isResponse shouldBe true
-      val responseFromDeposit = messageFromDeposit.response.value
+      // run next step, ie: Deposit
+      workflow.send(executeStep(6, transitionToDeposit.stepName, depositInput, withdrawEffect.userState.value))
+      val responseFromDeposit = workflow.expectNext().response.value
       val defCallFromDeposit = responseFromDeposit.response.deferredCall.value
       // cast will fail if not Deposit type
       MoneyTransfer.decode[MoneyTransferApi.Deposit](defCallFromDeposit.payload.value)
       //-----------------------------------------------------------------
 
       // simulate deposit successful, ask for the transition
-      workflow.send(getNextStep(3, transitionToDeposit.stepName, Empty.getDefaultInstance))
-      val effectAfterDeposit = workflow.expectNext()
-      effectAfterDeposit.isEffect shouldBe true
-
-      val depositEffect = effectAfterDeposit.effect.value
-
-      val stateAfterDeposit = MoneyTransfer.decode[MoneyTransferApi.State](depositEffect.userState.value)
-      stateAfterDeposit.getFrom shouldBe "foo"
-      stateAfterDeposit.getTo shouldBe "bar"
-      stateAfterDeposit.getAmount shouldBe 10.0
-      stateAfterDeposit.getLastStep shouldBe "deposited"
-
+      workflow.send(getNextStep(7, transitionToDeposit.stepName, Empty.getDefaultInstance))
+      val depositEffect = workflow.expectNext().effect.value
+      assertState(depositEffect.userState) { state =>
+        state.getLog shouldBe "deposited"
+      }
       depositEffect.transition.isEndTransition shouldBe true
       //-----------------------------------------------------------------
     }
-
   }
+
 }
 
 object WorkflowImplSpec {
@@ -234,6 +252,9 @@ object WorkflowImplSpec {
 
     def testWorkflow: TestWorkflow =
       TestWorkflow.service(TransferWorkflowProvider.of(_ => new TransferWorkflow()));
+
+    def owner(name: String) =
+      MoneyTransferApi.Owner.newBuilder().setName(name).build()
 
     def transfer(workflowId: String, from: String, to: String, amount: Double) =
       MoneyTransferApi.Transfer

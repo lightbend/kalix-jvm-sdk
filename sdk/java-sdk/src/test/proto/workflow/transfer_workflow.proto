@@ -34,7 +34,8 @@ message State {
   string from = 1;
   string to = 2;
   double amount = 3;
-  string lastStep  = 4;
+  string log  = 4;
+  repeated string sign_offs = 5;
 }
 
 message Deposit{
@@ -42,12 +43,16 @@ message Deposit{
   double amount = 2;
 }
 
-
 message Withdraw{
   string account = 1;
   double amount = 2;
 }
 
+message Owner {
+  string name = 1;
+}
+
 service TransferWorkflowService {
   rpc Start(Transfer) returns (google.protobuf.Empty) {}
+  rpc SignOff(Owner) returns (google.protobuf.Empty) {}
 }

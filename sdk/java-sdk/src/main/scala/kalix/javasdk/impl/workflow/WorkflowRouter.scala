@@ -17,8 +17,11 @@
 package kalix.javasdk.impl.workflow
 
 import java.util.Optional
+import java.util.concurrent.CompletionStage
 import java.util.function.{ Function => JFunc }
 
+import scala.compat.java8.FutureConverters.CompletionStageOps
+import scala.concurrent.Future
 import scala.jdk.OptionConverters.RichOptional
 
 import com.google.protobuf.any.{ Any => ScalaPbAny }
@@ -33,9 +36,12 @@ import kalix.javasdk.impl.workflow.WorkflowRouter.CommandResult
 import kalix.javasdk.impl.workflow.WorkflowRouter.WorkflowStepNotFound
 import kalix.javasdk.workflow.CommandContext
 import kalix.javasdk.workflow.Workflow
+import kalix.javasdk.workflow.Workflow.AsyncCall
 import kalix.javasdk.workflow.Workflow.Call
 import kalix.javasdk.workflow.Workflow.Effect
+import kalix.javasdk.workflow.WorkflowContext
 import kalix.protocol.workflow_entity.StepDeferredCall
+import kalix.protocol.workflow_entity.StepExecuted
 import kalix.protocol.workflow_entity.StepResponse
 
 object WorkflowRouter {
@@ -91,7 +97,13 @@ abstract class WorkflowRouter[S, W <: Workflow[S]](protected val workflow: W) {
 
   /** INTERNAL API */
   // "public" api against the impl/testkit
-  final def _internalHandleStep(input: ScalaPbAny, stepName: String, messageCodec: MessageCodec): StepResponse = {
+  final def _internalHandleStep(
+      input: ScalaPbAny,
+      stepName: String,
+      messageCodec: MessageCodec,
+      workflowContext: WorkflowContext): Future[StepResponse] = {
+
+    implicit val ec = workflowContext.materializer().executionContext
 
     workflow._internalSetCurrentState(stateOrEmpty())
     val workflowDef = workflow.definition()
@@ -118,11 +130,29 @@ abstract class WorkflowRouter[S, W <: Workflow[S]](protected val workflow: W) {
             payload = Some(messageCodec.encodeScala(defCall.message())),
             metadata = MetadataImpl.toProtocol(defCall.metadata()))
 
-        StepResponse.defaultInstance
-          .withResponse(StepResponse.Response.DeferredCall(stepDefCall))
+        Future.successful {
+          StepResponse.defaultInstance
+            .withStepName(call.name())
+            .withResponse(StepResponse.Response.DeferredCall(stepDefCall))
+        }
 
-      case Some(_) => throw ProtocolException("Unknown step type") // just making compiler happy
-      case None    => throw WorkflowStepNotFound(stepName)
+      case Some(call: AsyncCall[_, _]) =>
+        val future =
+          call.callFunc
+            .asInstanceOf[JFunc[Any, CompletionStage[Any]]]
+            .apply(messageCodec.decodeMessage(input))
+            .toScala
+
+        future.map { res =>
+          val encoded = messageCodec.encodeScala(res)
+          val executedRes = StepExecuted(Some(encoded))
+          StepResponse.defaultInstance
+            .withStepName(call.name())
+            .withResponse(StepResponse.Response.Executed(executedRes))
+
+        }
+      case None =>
+        Future.failed(throw WorkflowStepNotFound(stepName))
     }
 
   }
@@ -141,8 +171,15 @@ abstract class WorkflowRouter[S, W <: Workflow[S]](protected val workflow: W) {
 
         CommandResult(effect)
 
-      case Some(_) => throw ProtocolException("Unknown step type") // just making compiler happy
-      case None    => throw WorkflowStepNotFound(stepName)
+      case Some(call: AsyncCall[_, _]) =>
+        val effect =
+          call.transitionFunc
+            .asInstanceOf[JFunc[Any, Effect[Any]]]
+            .apply(messageCodec.decodeMessage(result))
+
+        CommandResult(effect)
+
+      case None => throw WorkflowStepNotFound(stepName)
     }
   }
 }
