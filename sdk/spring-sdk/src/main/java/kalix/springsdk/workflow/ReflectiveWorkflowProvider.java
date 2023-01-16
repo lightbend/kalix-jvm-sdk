@@ -38,7 +38,7 @@ public class ReflectiveWorkflowProvider<S, W extends Workflow<S>> implements Wor
   private final MessageCodec messageCodec;
   private final Function<WorkflowContext, W> factory;
   private final WorkflowOptions options;
-  private final String workflowType;
+  private final String entityType;
   private final Descriptors.FileDescriptor fileDescriptor;
   private final Descriptors.ServiceDescriptor serviceDescriptor;
   private final ComponentDescriptor componentDescriptor;
@@ -54,7 +54,7 @@ public class ReflectiveWorkflowProvider<S, W extends Workflow<S>> implements Wor
     this.messageCodec = new SpringSdkMessageCodecJson(messageCodec);
     this.factory = factory;
     this.options = options;
-    this.workflowType = annotation.value();
+    this.entityType = annotation.value();
     this.componentDescriptor = ComponentDescriptor.descriptorFor(workflowClass, messageCodec);
     this.fileDescriptor = componentDescriptor.fileDescriptor();
     this.serviceDescriptor = componentDescriptor.serviceDescriptor();
@@ -70,7 +70,7 @@ public class ReflectiveWorkflowProvider<S, W extends Workflow<S>> implements Wor
 
   @Override
   public String workflowName() {
-    return workflowType;
+    return entityType;
   }
 
   @Override
