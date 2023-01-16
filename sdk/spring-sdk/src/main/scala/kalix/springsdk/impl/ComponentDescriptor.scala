@@ -365,7 +365,8 @@ private[impl] object ComponentDescriptor {
           .setName(param.name)
           .setNumber(fieldNumber)
           .setType(mapJavaTypeToProtobuf(param.param.getGenericParameterType))
-          .setLabel(mapJavaWrapperToLabel(param.param.getGenericParameterType))
+          .setLabel(
+            mapJavaWrapperToLabel(param.param.getGenericParameterType, isRequired = param.annotation.required()))
           .setOptions(addEntityKeyIfNeeded(entityKeys, param.name))
           .build()
       }
@@ -390,12 +391,13 @@ private[impl] object ComponentDescriptor {
       pathParamOffset: Int): Seq[FieldDescriptorProto] = {
     serviceMethod.parsedPath.fields.zipWithIndex.map { case (paramName, fieldIdx) =>
       val fieldNumber = fieldIdx + pathParamOffset
+      val (paramType, isRequired) = paramDetails(indexedParams, paramName)
       FieldDescriptorProto
         .newBuilder()
         .setName(paramName)
         .setNumber(fieldNumber)
-        .setType(mapJavaTypeToProtobuf(paramType(indexedParams, paramName)))
-        .setLabel(mapJavaWrapperToLabel(paramType(indexedParams, paramName)))
+        .setType(mapJavaTypeToProtobuf(paramType))
+        .setLabel(mapJavaWrapperToLabel(paramType, isRequired))
         .setOptions(addEntityKeyIfNeeded(entityKeys, paramName))
         .build()
     }
@@ -412,15 +414,15 @@ private[impl] object ComponentDescriptor {
       DescriptorProtos.FieldOptions.getDefaultInstance
     }
 
-  private def paramType(
+  private def paramDetails(
       indexedParams: Seq[(RestServiceIntrospector.RestMethodParameter, Int)],
-      paramName: String): Type = {
+      paramName: String): (Type, Boolean) = {
     indexedParams
       .collectFirst {
-        case (p: PathParameter, idx) if p.name == paramName =>
-          p.param.getGenericParameterType
+        case (p: PathParameter, _) if p.name == paramName =>
+          (p.param.getGenericParameterType, p.annotation.required())
       }
-      .getOrElse(classOf[String])
+      .getOrElse((classOf[String], true))
   }
 
   private def fieldNumber(fieldName: String, pathParamFieldsDesc: Seq[FieldDescriptorProto]): Int = {
@@ -484,9 +486,11 @@ private[impl] object ComponentDescriptor {
     }
   }
 
-  private def mapJavaWrapperToLabel(javaType: Type): FieldDescriptorProto.Label =
+  private def mapJavaWrapperToLabel(javaType: Type, isRequired: Boolean): FieldDescriptorProto.Label =
     if (isCollection(javaType))
       FieldDescriptorProto.Label.LABEL_REPEATED
+    else if (isRequired)
+      FieldDescriptorProto.Label.LABEL_REQUIRED
     else
       FieldDescriptorProto.Label.LABEL_OPTIONAL
 

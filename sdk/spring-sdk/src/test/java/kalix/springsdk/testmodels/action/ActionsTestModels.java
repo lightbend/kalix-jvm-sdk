@@ -16,7 +16,6 @@
 
 package kalix.springsdk.testmodels.action;
 
-import kalix.JwtMethodOptions.JwtMethodMode;
 import kalix.javasdk.action.Action;
 import kalix.springsdk.annotations.JWT;
 import kalix.springsdk.testmodels.Message;
@@ -39,9 +38,23 @@ public class ActionsTestModels {
     }
   }
 
+  public static class GetWithOneOptionalPathParam extends Action {
+    @GetMapping("/message/{one}")
+    public Action.Effect<Message> message(@PathVariable(required = false) String one) {
+      return effects().reply(new Message(one));
+    }
+  }
+
   public static class GetWithOneQueryParam extends Action {
     @GetMapping("/message")
     public Action.Effect<Message> message(@RequestParam String one) {
+      return effects().reply(new Message(one));
+    }
+  }
+
+  public static class GetWithOneOptionalQueryParam extends Action {
+    @GetMapping("/message")
+    public Action.Effect<Message> message(@RequestParam(required = false) String one) {
       return effects().reply(new Message(one));
     }
   }

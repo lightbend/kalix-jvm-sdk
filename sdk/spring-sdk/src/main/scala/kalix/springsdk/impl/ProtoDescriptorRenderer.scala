@@ -61,6 +61,8 @@ object ProtoDescriptorRenderer {
         builder ++= "  "
         if (field.getLabel == FieldDescriptorProto.Label.LABEL_REPEATED)
           builder ++= "repeated "
+        else if (field.getLabel == FieldDescriptorProto.Label.LABEL_REQUIRED)
+          builder ++= "required "
         if (field.hasTypeName)
           builder ++= field.getTypeName
         else
