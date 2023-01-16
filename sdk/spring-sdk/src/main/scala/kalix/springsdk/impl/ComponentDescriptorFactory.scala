@@ -20,9 +20,7 @@ import java.lang.annotation.Annotation
 import java.lang.reflect.Method
 import java.lang.reflect.Modifier
 import java.lang.reflect.ParameterizedType
-
 import scala.reflect.ClassTag
-
 import kalix.DirectDestination
 import kalix.DirectSource
 import kalix.EventDestination

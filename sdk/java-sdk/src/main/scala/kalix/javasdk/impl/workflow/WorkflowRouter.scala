@@ -98,6 +98,7 @@ abstract class WorkflowRouter[S, W <: Workflow[S]](protected val workflow: W) {
   /** INTERNAL API */
   // "public" api against the impl/testkit
   final def _internalHandleStep(
+      commandId: Long,
       input: ScalaPbAny,
       stepName: String,
       messageCodec: MessageCodec,
@@ -131,9 +132,7 @@ abstract class WorkflowRouter[S, W <: Workflow[S]](protected val workflow: W) {
             metadata = MetadataImpl.toProtocol(defCall.metadata()))
 
         Future.successful {
-          StepResponse.defaultInstance
-            .withStepName(call.name())
-            .withResponse(StepResponse.Response.DeferredCall(stepDefCall))
+          StepResponse(commandId, stepName, StepResponse.Response.DeferredCall(stepDefCall))
         }
 
       case Some(call: AsyncCall[_, _]) =>
@@ -146,10 +145,8 @@ abstract class WorkflowRouter[S, W <: Workflow[S]](protected val workflow: W) {
         future.map { res =>
           val encoded = messageCodec.encodeScala(res)
           val executedRes = StepExecuted(Some(encoded))
-          StepResponse.defaultInstance
-            .withStepName(call.name())
-            .withResponse(StepResponse.Response.Executed(executedRes))
 
+          StepResponse(commandId, stepName, StepResponse.Response.Executed(executedRes))
         }
       case None =>
         Future.failed(throw WorkflowStepNotFound(stepName))

@@ -41,7 +41,7 @@ public class ShortenedEchoAction extends Action {
     return effects().asyncReply(result);
   }
 
-  @GetMapping("/echo/message/short")
+  @GetMapping("/echo/message-short")
   public Effect<Message> leetShortUsingFwd(@RequestParam String msg) {
     var shortenedMsg = URLEncoder.encode(leetShort(msg), StandardCharsets.UTF_8);
     var result = kalixClient.get("/echo/message?msg=" + shortenedMsg, Message.class);
