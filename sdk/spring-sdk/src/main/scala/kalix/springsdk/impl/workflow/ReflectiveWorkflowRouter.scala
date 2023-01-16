@@ -84,8 +84,8 @@ class ReflectiveWorkflowRouter[S, W <: Workflow[S]](
     }
   }
 
-  override protected def decodeToAny(input: ScalaPbAny, messageCodec: MessageCodec): Any = {
-    messageCodec.asInstanceOf[SpringSdkMessageCodec].decodeToJson(input)
+  override protected def decodeToAny(input: ScalaPbAny, codec: MessageCodec): Any = {
+    messageCodec.decodeToJson(input)
   }
 }
 

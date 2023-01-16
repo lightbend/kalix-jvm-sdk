@@ -79,14 +79,14 @@ class SpringSdkMessageCodecSpec extends AnyWordSpec with Matchers {
       encoded.getTypeUrl shouldBe jsonTypeUrlWith("SimpleClass")
     }
 
-    "not encode java twice" in {
-      val encoded = messageCodec.encodeJava(SimpleClass("abc", 10))
+    "not re-encode (wrap) to JavaPbAny" in {
+      val encoded: JavaPbAny = messageCodec.encodeJava(SimpleClass("abc", 10))
       val reEncoded = messageCodec.encodeJava(encoded)
       reEncoded shouldBe encoded
     }
 
-    "not encode scala to java" in {
-      val encoded = messageCodec.encodeScala(SimpleClass("abc", 10))
+    "not re-encode (wrap) from ScalaPbAny to JavaPbAny" in {
+      val encoded: ScalaPbAny = messageCodec.encodeScala(SimpleClass("abc", 10))
       val reEncoded = messageCodec.encodeJava(encoded)
       reEncoded shouldBe an[JavaPbAny]
       reEncoded.getTypeUrl shouldBe encoded.typeUrl
@@ -98,14 +98,14 @@ class SpringSdkMessageCodecSpec extends AnyWordSpec with Matchers {
       encoded.typeUrl shouldBe jsonTypeUrlWith("SimpleClass")
     }
 
-    "not encode scala twice" in {
-      val encoded = messageCodec.encodeScala(SimpleClass("abc", 10))
+    "not re-encode (wrap) to ScalaPbAny" in {
+      val encoded: ScalaPbAny = messageCodec.encodeScala(SimpleClass("abc", 10))
       val reEncoded = messageCodec.encodeScala(encoded)
       reEncoded shouldBe encoded
     }
 
-    "not encode java to scala" in {
-      val encoded = messageCodec.encodeJava(SimpleClass("abc", 10))
+    "not re-encode (wrap) from JavaPbAny to ScalaPbAny" in {
+      val encoded: JavaPbAny = messageCodec.encodeJava(SimpleClass("abc", 10))
       val reEncoded = messageCodec.encodeScala(encoded)
       reEncoded shouldBe an[ScalaPbAny]
       reEncoded.typeUrl shouldBe encoded.getTypeUrl
