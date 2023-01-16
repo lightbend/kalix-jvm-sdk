@@ -67,8 +67,8 @@ abstract class WorkflowRouter[S, W <: Workflow[S]](protected val workflow: W) {
 
   /** INTERNAL API */
   // "public" api against the impl/testkit
-  def _internalSetInitState(s: ScalaPbAny, messageCodec: MessageCodec): Unit = {
-    state = Some(messageCodec.decodeMessage(s).asInstanceOf[S])
+  def _internalSetInitState(s: Any): Unit = {
+    state = Some(s.asInstanceOf[S])
   }
 
   /** INTERNAL API */

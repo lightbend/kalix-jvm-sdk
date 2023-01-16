@@ -137,7 +137,8 @@ final class WorkflowImpl(system: ActorSystem, val services: Map[String, Workflow
       case Some(workflowState) =>
         workflowState.userState match {
           case Some(state) =>
-            router._internalSetInitState(state, service.messageCodec)
+            val decoded = service.messageCodec.decodeMessage(state)
+            router._internalSetInitState(decoded)
           case None => // no initial state
         }
       case None =>
@@ -244,7 +245,8 @@ final class WorkflowImpl(system: ActorSystem, val services: Map[String, Workflow
           val workflowContext = new WorkflowContextImpl(workflowId, system)
           val stepResponse =
             try {
-              router._internalSetInitState(executeStep.userState.get, service.messageCodec)
+              val decoded = service.messageCodec.decodeMessage(executeStep.userState.get)
+              router._internalSetInitState(decoded)
               router._internalHandleStep(
                 executeStep.commandId,
                 executeStep.input.get,
