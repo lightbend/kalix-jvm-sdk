@@ -15,7 +15,8 @@ commands:
             git config user.email "circleci@example.com"
             git config user.name "CircleCI"
       - build-tools/merge-with-parent:
-          parent: main
+          # TODO revert before merging to main
+          parent: kalix-workflows
 
   install-java:
     description: install openjdk-17
