@@ -370,7 +370,7 @@ case class KalixServer(applicationContext: ApplicationContext, config: Config) {
         kalixBeanFactory.getBean(clz)
       })
 
-  private def setKalixClient[A <: Action](clz: Class[A], webClientProviderHolder: WebClientProviderHolder): Unit = {
+  private def setKalixClient[T](clz: Class[T], webClientProviderHolder: WebClientProviderHolder): Unit = {
     if (hasContextConstructor(clz, classOf[KalixClient])) {
       kalixClient.setWebClient(webClientProviderHolder.webClientProvider.localWebClient)
       // we only have one KalixClient, but we only set it to the ThreadLocalFactoryBean

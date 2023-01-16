@@ -26,6 +26,7 @@ import kalix.javasdk.workflow.WorkflowProvider;
 import kalix.springsdk.annotations.EntityType;
 import kalix.springsdk.impl.ComponentDescriptor;
 import kalix.springsdk.impl.SpringSdkMessageCodec;
+import kalix.springsdk.impl.SpringSdkMessageCodecJson;
 import kalix.springsdk.impl.workflow.ReflectiveWorkflowRouter;
 
 import java.util.Optional;
@@ -34,7 +35,7 @@ import java.util.function.Function;
 public class ReflectiveWorkflowProvider<S, W extends Workflow<S>> implements WorkflowProvider<S, W> {
 
   private final Class<W> workflowClass;
-  private final SpringSdkMessageCodec messageCodec;
+  private final MessageCodec messageCodec;
   private final Function<WorkflowContext, W> factory;
   private final WorkflowOptions options;
   private final String workflowType;
@@ -44,12 +45,13 @@ public class ReflectiveWorkflowProvider<S, W extends Workflow<S>> implements Wor
 
   public ReflectiveWorkflowProvider(Class<W> workflowClass, SpringSdkMessageCodec messageCodec, Function<WorkflowContext, W> factory, WorkflowOptions options) {
     EntityType annotation = workflowClass.getAnnotation(EntityType.class);
-    if (annotation == null)
+    if (annotation == null) {
       throw new IllegalArgumentException(
           "Workflow Entity [" + workflowClass.getName() + "] is missing '@EntityType' annotation");
+    }
 
     this.workflowClass = workflowClass;
-    this.messageCodec = messageCodec;
+    this.messageCodec = new SpringSdkMessageCodecJson(messageCodec);
     this.factory = factory;
     this.options = options;
     this.workflowType = annotation.value();
@@ -85,7 +87,7 @@ public class ReflectiveWorkflowProvider<S, W extends Workflow<S>> implements Wor
   public WorkflowRouter<S, W> newRouter(WorkflowContext context) {
     W workflow = factory.apply(context);
     return new ReflectiveWorkflowRouter<>(
-        workflow, componentDescriptor.commandHandlers(), messageCodec);
+        workflow, componentDescriptor.commandHandlers());
   }
 
   @Override

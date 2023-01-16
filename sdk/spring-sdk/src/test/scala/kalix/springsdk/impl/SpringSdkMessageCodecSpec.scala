@@ -124,7 +124,7 @@ class SpringSdkMessageCodecSpec extends AnyWordSpec with Matchers {
       val value = SimpleClass("abc", 10)
       val encoded = messageCodec.encodeScala(value)
 
-      val decoded = messageCodec.decodeToJson(encoded)
+      val decoded = new SpringSdkMessageCodecJson(messageCodec).decodeMessage(encoded)
 
       decoded shouldBe value
     }

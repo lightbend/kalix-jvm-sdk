@@ -27,7 +27,7 @@ import kalix.springsdk.annotations.TypeName
 private[springsdk] class SpringSdkMessageCodec extends MessageCodec {
 
   private val cache: ConcurrentMap[Class[_], String] = new ConcurrentHashMap()
-  private val reversedCache: ConcurrentMap[String, Class[_]] = new ConcurrentHashMap()
+  private[springsdk] val reversedCache: ConcurrentMap[String, Class[_]] = new ConcurrentHashMap()
 
   /**
    * In the Spring SDK, output data are encoded to Json.
@@ -79,16 +79,27 @@ private[springsdk] class SpringSdkMessageCodec extends MessageCodec {
   override def decodeMessage(value: ScalaPbAny): Any = {
     value
   }
+}
 
-  def decodeToJson(value: ScalaPbAny): Any = {
+/**
+ * Used in workflows where it is necessary to decode message directly to Java class for calls and transitions. This
+ * behavior is not correct for other components (Action, Views) where e.g. subscription can't decode the payload to Java
+ * class too early (typeUrl is used for the component logic). It must reuse the same cache as SpringSdkMessageCodec.
+ */
+private[springsdk] class SpringSdkMessageCodecJson(delegate: SpringSdkMessageCodec) extends MessageCodec {
+
+  override def decodeMessage(value: ScalaPbAny): Any =
     if (value.typeUrl.startsWith(JsonSupport.KALIX_JSON)) {
       val any = ScalaPbAny.toJavaProto(value)
-
       val typeName = value.typeUrl.replace(JsonSupport.KALIX_JSON, "")
-      JsonSupport.decodeJson(reversedCache.get(typeName), any)
+      JsonSupport.decodeJson(delegate.reversedCache.get(typeName), any)
     } else {
       value
     }
-  }
 
+  override def encodeScala(value: Any): ScalaPbAny =
+    delegate.encodeScala(value)
+
+  override def encodeJava(value: Any): JavaPbAny =
+    delegate.encodeJava(value)
 }

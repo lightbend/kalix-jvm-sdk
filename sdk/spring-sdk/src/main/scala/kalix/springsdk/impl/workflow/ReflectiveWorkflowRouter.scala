@@ -18,20 +18,17 @@ package kalix.springsdk.impl.workflow
 
 import com.google.protobuf.any.{ Any => ScalaPbAny }
 import kalix.javasdk.JsonSupport
-import kalix.javasdk.impl.MessageCodec
 import kalix.javasdk.impl.workflow.WorkflowRouter
 import kalix.javasdk.workflow.CommandContext
 import kalix.javasdk.workflow.Workflow
 import kalix.springsdk.impl.CommandHandler
 import kalix.springsdk.impl.InvocationContext
-import kalix.springsdk.impl.SpringSdkMessageCodec
 
 import java.lang.reflect.ParameterizedType
 
 class ReflectiveWorkflowRouter[S, W <: Workflow[S]](
     override protected val workflow: W,
-    commandHandlers: Map[String, CommandHandler],
-    messageCodec: SpringSdkMessageCodec)
+    commandHandlers: Map[String, CommandHandler])
     extends WorkflowRouter[S, W](workflow) {
 
   private def commandHandlerLookup(commandName: String) =
@@ -82,10 +79,6 @@ class ReflectiveWorkflowRouter[S, W <: Workflow[S]](
           JsonSupport.decodeJson(workflowStateType, ScalaPbAny.toJavaProto(s.asInstanceOf[ScalaPbAny]))
         workflow._internalSetCurrentState(deserializedState)
     }
-  }
-
-  override protected def decodeToAny(input: ScalaPbAny, codec: MessageCodec): Any = {
-    messageCodec.decodeToJson(input)
   }
 }
 
