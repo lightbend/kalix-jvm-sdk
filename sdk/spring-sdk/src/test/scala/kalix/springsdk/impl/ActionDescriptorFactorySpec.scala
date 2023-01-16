@@ -22,7 +22,10 @@ import com.google.protobuf.{ Any => JavaPbAny }
 import kalix.JwtMethodOptions.JwtMethodMode
 import kalix.springsdk.testmodels.action.ActionsTestModels.DeleteWithOneParam
 import kalix.springsdk.testmodels.action.ActionsTestModels.GetClassLevel
+import kalix.springsdk.testmodels.action.ActionsTestModels.GetWithOneOptionalPathParam
+import kalix.springsdk.testmodels.action.ActionsTestModels.GetWithOneOptionalQueryParam
 import kalix.springsdk.testmodels.action.ActionsTestModels.GetWithOneParam
+import kalix.springsdk.testmodels.action.ActionsTestModels.GetWithOneQueryParam
 import kalix.springsdk.testmodels.action.ActionsTestModels.GetWithoutParam
 import kalix.springsdk.testmodels.action.ActionsTestModels.PatchWithOneParam
 import kalix.springsdk.testmodels.action.ActionsTestModels.PatchWithoutParam
@@ -80,6 +83,34 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
 
         val method = desc.commandHandlers("Message")
         assertRequestFieldJavaType(method, "one", JavaType.STRING)
+        assertRequestFieldRequested(method, "one", isRequired = true)
+      }
+    }
+
+    "generate mappings for an Action with GET and one optional path param" in {
+      assertDescriptor[GetWithOneOptionalPathParam] { desc =>
+        val method = desc.commandHandlers("Message")
+        assertRequestFieldRequested(method, "one", isRequired = false)
+      }
+    }
+
+    "generate mappings for an Action with GET and one query param" in {
+      assertDescriptor[GetWithOneQueryParam] { desc =>
+
+        val methodDescriptor = desc.serviceDescriptor.findMethodByName("Message")
+        methodDescriptor.isServerStreaming shouldBe false
+        methodDescriptor.isClientStreaming shouldBe false
+
+        val method = desc.commandHandlers("Message")
+        assertRequestFieldJavaType(method, "one", JavaType.STRING)
+        assertRequestFieldRequested(method, "one", isRequired = true)
+      }
+    }
+
+    "generate mappings for an Action with GET and one optional query param" in {
+      assertDescriptor[GetWithOneOptionalQueryParam] { desc =>
+        val method = desc.commandHandlers("Message")
+        assertRequestFieldRequested(method, "one", isRequired = false)
       }
     }
 

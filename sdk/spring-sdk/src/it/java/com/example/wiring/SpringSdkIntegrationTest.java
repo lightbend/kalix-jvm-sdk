@@ -100,6 +100,32 @@ public class SpringSdkIntegrationTest {
   }
 
   @Test
+  public void verifyEchoActionRequestParam() {
+
+    Message response =
+        webClient
+            .get()
+            .uri(uriBuilder -> uriBuilder
+                .path("/echo/message")
+                .queryParam("msg", "queryParam")
+                .build())
+            .retrieve()
+            .bodyToMono(Message.class)
+            .block(timeout);
+
+    Assertions.assertEquals("Parrot says: 'queryParam'", response.text);
+
+    var failedReq =
+        webClient
+            .get()
+            .uri("/echo/message")
+            .exchangeToMono(clientResponse -> clientResponse.bodyToMono(String.class))
+            .block(timeout);
+    Assertions.assertTrue(failedReq.contains("Message missing required fields: msg"));
+
+  }
+
+  @Test
   public void verifyStreamActions() {
 
     List<Message> messageList =
