@@ -36,9 +36,9 @@ import kalix.javasdk.valueentity.ValueEntityProvider
 import kalix.javasdk.view.View
 import kalix.javasdk.view.ViewCreationContext
 import kalix.javasdk.view.ViewProvider
-import kalix.javasdk.workflow.Workflow
-import kalix.javasdk.workflow.WorkflowContext
-import kalix.javasdk.workflow.WorkflowProvider
+import kalix.javasdk.workflowentity.WorkflowEntity
+import kalix.javasdk.workflowentity.WorkflowEntityContext
+import kalix.javasdk.workflowentity.WorkflowEntityProvider
 import kalix.springsdk.KalixClient
 import kalix.springsdk.SpringSdkBuildInfo
 import kalix.springsdk.WebClientProvider
@@ -60,7 +60,7 @@ import kalix.springsdk.impl.KalixServer.WorkflowContextFactoryBean
 import kalix.springsdk.valueentity.ReflectiveValueEntityProvider
 import kalix.springsdk.view.ReflectiveMultiTableViewProvider
 import kalix.springsdk.view.ReflectiveViewProvider
-import kalix.springsdk.workflow.ReflectiveWorkflowProvider
+import kalix.springsdk.workflowentity.ReflectiveWorkflowEntityProvider
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.BeanCreationException
@@ -81,7 +81,7 @@ object KalixServer {
   val kalixComponents: Seq[Class[_]] =
     classOf[Action] ::
     classOf[EventSourcedEntity[_]] ::
-    classOf[Workflow[_]] ::
+    classOf[WorkflowEntity[_]] ::
     classOf[ValueEntity[_]] ::
     classOf[ReplicatedEntity[_]] ::
     classOf[View[_]] ::
@@ -202,7 +202,7 @@ object KalixServer {
     override def isSingleton: Boolean = false // never!!
   }
 
-  object WorkflowContextFactoryBean extends ThreadLocalFactoryBean[WorkflowContext] {
+  object WorkflowContextFactoryBean extends ThreadLocalFactoryBean[WorkflowEntityContext] {
     override def isSingleton: Boolean = false // never!!
   }
 
@@ -300,9 +300,9 @@ case class KalixServer(applicationContext: ApplicationContext, config: Config) {
         kalixClient.registerComponent(esEntity.serviceDescriptor())
       }
 
-      if (classOf[Workflow[_]].isAssignableFrom(clz)) {
+      if (classOf[WorkflowEntity[_]].isAssignableFrom(clz)) {
         logger.info(s"Registering Workflow provider for [${clz.getName}]")
-        val workflow = workflowProvider(clz.asInstanceOf[Class[Workflow[Nothing]]])
+        val workflow = workflowProvider(clz.asInstanceOf[Class[WorkflowEntity[Nothing]]])
         kalix.register(workflow)
         kalixClient.registerComponent(workflow.serviceDescriptor())
       }
@@ -390,12 +390,12 @@ case class KalixServer(applicationContext: ApplicationContext, config: Config) {
         kalixBeanFactory.getBean(clz)
       })
 
-  private def workflowProvider[S, E <: Workflow[S]](clz: Class[E]): WorkflowProvider[S, E] =
-    ReflectiveWorkflowProvider.of(
+  private def workflowProvider[S, E <: WorkflowEntity[S]](clz: Class[E]): WorkflowEntityProvider[S, E] =
+    ReflectiveWorkflowEntityProvider.of(
       clz,
       messageCodec,
       context => {
-        if (hasContextConstructor(clz, classOf[WorkflowContext])) {
+        if (hasContextConstructor(clz, classOf[WorkflowEntityContext])) {
           WorkflowContextFactoryBean.set(context)
         }
 

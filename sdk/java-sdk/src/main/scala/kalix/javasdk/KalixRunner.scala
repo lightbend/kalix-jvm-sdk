@@ -45,8 +45,8 @@ import scala.util.Success
 
 import com.google.protobuf.DescriptorProtos.FileDescriptorProto
 import kalix.javasdk.impl.view.ViewsImpl
-import kalix.javasdk.impl.workflow.WorkflowImpl
-import kalix.javasdk.impl.workflow.WorkflowService
+import kalix.javasdk.impl.workflowentity.WorkflowEntityImpl
+import kalix.javasdk.impl.workflowentity.WorkflowEntityService
 import kalix.protocol.view.ViewsHandler
 import kalix.protocol.workflow_entity.WorkflowEntitiesHandler
 import org.slf4j.LoggerFactory
@@ -171,9 +171,9 @@ final class KalixRunner private[javasdk] (
           val valueEntityImpl = new ValueEntitiesImpl(system, entityServices)
           route.orElse(ValueEntitiesHandler.partial(valueEntityImpl))
 
-        case (route, (serviceClass, workflowServices: Map[String, WorkflowService] @unchecked))
-            if serviceClass == classOf[WorkflowService] =>
-          val workflowImpl = new WorkflowImpl(system, workflowServices)
+        case (route, (serviceClass, workflowServices: Map[String, WorkflowEntityService] @unchecked))
+            if serviceClass == classOf[WorkflowEntityService] =>
+          val workflowImpl = new WorkflowEntityImpl(system, workflowServices)
           route.orElse(WorkflowEntitiesHandler.partial(workflowImpl))
 
         case (route, (serviceClass, actionServices: Map[String, ActionService] @unchecked))
