@@ -18,6 +18,4 @@ package kalix.javasdk.workflowentity;
 
 import kalix.javasdk.EntityContext;
 
-public interface WorkflowEntityContext extends EntityContext {
-
-}
+public interface WorkflowEntityContext extends EntityContext {}
