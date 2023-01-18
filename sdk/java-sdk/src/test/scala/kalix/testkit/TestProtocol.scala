@@ -23,7 +23,7 @@ import kalix.testkit.eventsourcedentity.TestEventSourcedProtocol
 import kalix.testkit.replicatedentity.TestReplicatedEntityProtocol
 import kalix.testkit.valueentity.TestValueEntityProtocol
 import com.typesafe.config.{ Config, ConfigFactory }
-import kalix.testkit.workflow.TestWorkflowProtocol
+import kalix.testkit.workflowentity.TestWorkflowProtocol
 
 // FIXME: should we be doing protocol-level testing in the SDK?
 // Copied over from Kalix framework (parts that are used here).
