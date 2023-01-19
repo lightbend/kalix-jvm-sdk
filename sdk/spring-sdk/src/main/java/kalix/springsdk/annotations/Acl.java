@@ -42,23 +42,27 @@ public @interface Acl {
 
 
   /**
-   * The gRPC status code to respond with when access is denied.
+   * The status code to respond with when access is denied.
    *
-   * By default, this will be 7 (permission denied), but alternatives might include 16 (unauthenticated) or 5 (not
-   * found). If 0, indicates that the code should be inherited from the parent (regardless of the inherit field).
+   * By default, this will be 'Forbidden', but alternatives might include 'Authentication required' or 'Not
+   * Found'. If 'Inherited', indicates that the code should be inherited from the parent (regardless of the inherit field).
    *
-   * When HTTP transcoding is in use, this code will be translated to an equivalent HTTP status code.
    */
   DenyStatusCode denyCode() default  DenyStatusCode.FORBIDDEN_403;
 
   enum DenyStatusCode {
-    BAD_REQUEST_400(4),
-    FORBIDDEN_403(8),
-    NOT_FOUND_404(6),
-    CONFLICT_409(7),
-    INTERNAL_SERVER_ERROR_500(2),
-    SERVICE_UNAVAILABLE_503(9),
-    GATEWAY_TIMEOUT_504(5);
+    INHERITED(0),
+    BAD_REQUEST_400(3),
+    FORBIDDEN_403(7),
+    NOT_FOUND_404(5),
+
+    AUTHENTICATION_REQUIRED_407(16),
+    CONFLICT_409(6),
+    INTERNAL_SERVER_ERROR_500(13),
+    SERVICE_UNAVAILABLE_503(14),
+    GATEWAY_TIMEOUT_504(4);
+
+
 
     public final int value;
     DenyStatusCode(int value){
