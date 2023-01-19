@@ -372,7 +372,7 @@ class AnySupport(
         ScalaPbAny(typeUrlPrefix + "/" + scalaPbMessage.companion.scalaDescriptor.fullName, scalaPbMessage.toByteString)
 
       case null =>
-        throw SerializationException(s"Don't know how to serialize object of type null.")
+        throw NullSerializationException
 
       case _ if ClassToPrimitives.contains(value.getClass) =>
         val primitive = ClassToPrimitives(value.getClass)
@@ -472,6 +472,7 @@ class AnySupport(
 }
 
 final case class SerializationException(msg: String, cause: Throwable = null) extends RuntimeException(msg, cause)
+object NullSerializationException extends RuntimeException("Don't know how to serialize object of type null.")
 
 /**
  * INTERNAL API
