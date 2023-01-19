@@ -84,9 +84,9 @@ object AclDescriptorFactory {
 
   /**
    * It translates HTTP status codes from {@code DenyStatusCode} to GRPC codes (see
-   * https://grpc.github.io/grpc/core/md_doc_statuscodes.html).
-   * Note: it is only maps the common statuses between gRPC and normal HTTP
-   * Note: If 'Inherited', indicates that the code should be inherited from the parent (regardless of the inherit field).
+   * https://grpc.github.io/grpc/core/md_doc_statuscodes.html). Note: it is only maps the common statuses between gRPC
+   * and normal HTTP Note: If 'Inherited', indicates that the code should be inherited from the parent (regardless of
+   * the inherit field).
    * @param code
    */
   def denyCodeHTTPtogRPC(code: DenyStatusCode): Int = {
@@ -99,8 +99,8 @@ object AclDescriptorFactory {
         Acl.DenyStatusCode.AUTHENTICATION_REQUIRED_407 -> Status.Code.UNAUTHENTICATED.value(),
         Acl.DenyStatusCode.CONFLICT_409 -> Status.Code.ALREADY_EXISTS.value(),
         Acl.DenyStatusCode.INTERNAL_SERVER_ERROR_500 -> Status.Code.INTERNAL.value(),
-        Acl.DenyStatusCode.SERVICE_UNAVAILABLE_503 -> Status.Code.UNAVAILABLE.value())
-        Acl.DenyStatusCode.GATEWAY_TIMEOUT_504 -> Status.Code.DEADLINE_EXCEEDED.value(),
+        Acl.DenyStatusCode.SERVICE_UNAVAILABLE_503 -> Status.Code.UNAVAILABLE.value(),
+        Acl.DenyStatusCode.GATEWAY_TIMEOUT_504 -> Status.Code.DEADLINE_EXCEEDED.value())
     map(code)
   }
 
