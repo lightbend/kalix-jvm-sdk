@@ -77,31 +77,9 @@ object AclDescriptorFactory {
       aclBuilder.addDeny(idx, principalMatcher)
     }
 
-    aclBuilder.setDenyCode(denyCodeHTTPtogRPC(aclJavaAnnotation.denyCode()))
+    aclBuilder.setDenyCode(aclJavaAnnotation.denyCode().value)
 
     aclBuilder.build()
-  }
-
-  /**
-   * It translates HTTP status codes from {@code DenyStatusCode} to GRPC codes (see
-   * https://grpc.github.io/grpc/core/md_doc_statuscodes.html). Note: it is only maps the common statuses between gRPC
-   * and normal HTTP Note: If 'Inherited', indicates that the code should be inherited from the parent (regardless of
-   * the inherit field).
-   * @param code
-   */
-  def denyCodeHTTPtogRPC(code: DenyStatusCode): Int = {
-    val map: Map[DenyStatusCode, Int] =
-      Map(
-        Acl.DenyStatusCode.INHERITED -> 0,
-        Acl.DenyStatusCode.BAD_REQUEST_400 -> Status.Code.INVALID_ARGUMENT.value(),
-        Acl.DenyStatusCode.FORBIDDEN_403 -> Status.Code.PERMISSION_DENIED.value(),
-        Acl.DenyStatusCode.NOT_FOUND_404 -> Status.Code.NOT_FOUND.value(),
-        Acl.DenyStatusCode.AUTHENTICATION_REQUIRED_407 -> Status.Code.UNAUTHENTICATED.value(),
-        Acl.DenyStatusCode.CONFLICT_409 -> Status.Code.ALREADY_EXISTS.value(),
-        Acl.DenyStatusCode.INTERNAL_SERVER_ERROR_500 -> Status.Code.INTERNAL.value(),
-        Acl.DenyStatusCode.SERVICE_UNAVAILABLE_503 -> Status.Code.UNAVAILABLE.value(),
-        Acl.DenyStatusCode.GATEWAY_TIMEOUT_504 -> Status.Code.DEADLINE_EXCEEDED.value())
-    map(code)
   }
 
   def defaultAclFileDescriptor(cls: Class[_]): Option[DescriptorProtos.FileDescriptorProto] = {

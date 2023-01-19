@@ -48,19 +48,18 @@ public @interface Acl {
    * Found'. If 'Inherited', indicates that the code should be inherited from the parent (regardless of the inherit field).
    *
    */
-  DenyStatusCode denyCode() default  DenyStatusCode.FORBIDDEN_403;
+  DenyStatusCode denyCode() default DenyStatusCode.FORBIDDEN;
 
   enum DenyStatusCode {
     INHERITED(0),
-    BAD_REQUEST_400(3),
-    FORBIDDEN_403(7),
-    NOT_FOUND_404(5),
-
-    AUTHENTICATION_REQUIRED_407(16),
-    CONFLICT_409(6),
-    INTERNAL_SERVER_ERROR_500(13),
-    SERVICE_UNAVAILABLE_503(14),
-    GATEWAY_TIMEOUT_504(4);
+    BAD_REQUEST(3),
+    FORBIDDEN(7),
+    NOT_FOUND(5),
+    AUTHENTICATION_REQUIRED(16),
+    CONFLICT(6),
+    INTERNAL_SERVER_ERROR(13),
+    SERVICE_UNAVAILABLE(14),
+    GATEWAY_TIMEOUT(4);
 
 
 
