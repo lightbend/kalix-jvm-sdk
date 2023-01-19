@@ -16,12 +16,15 @@
 
 package kalix.springsdk.impl
 
-import java.lang.reflect.Method
+import akka.http.javadsl.model.StatusCode
 
+import java.lang.reflect.Method
 import com.google.protobuf.DescriptorProtos
 import com.google.protobuf.Descriptors
+import io.grpc.Status
 import kalix.PrincipalMatcher
 import kalix.springsdk.annotations.Acl
+import kalix.springsdk.annotations.Acl.DenyStatusCode
 import kalix.{ Acl => ProtoAcl }
 import kalix.{ Annotations => KalixAnnotations }
 import org.slf4j.LoggerFactory
@@ -74,9 +77,28 @@ object AclDescriptorFactory {
       aclBuilder.addDeny(idx, principalMatcher)
     }
 
-    aclBuilder.setDenyCode(aclJavaAnnotation.denyCode())
+    aclBuilder.setDenyCode(denyCodeHTTPtogRPC(aclJavaAnnotation.denyCode()))
 
     aclBuilder.build()
+  }
+
+  /**
+   * It translates HTTP status codes from {@code DenyStatusCode} to GRPC codes (see
+   * https://grpc.github.io/grpc/core/md_doc_statuscodes.html) Note it is only a subset of the common status of both,
+   * gRPC and normal HTTP
+   * @param code
+   */
+  def denyCodeHTTPtogRPC(code: DenyStatusCode): Int = {
+    val map: Map[DenyStatusCode, Int] =
+      Map(
+        Acl.DenyStatusCode.INTERNAL_SERVER_ERROR_500 -> Status.Code.INTERNAL.value(),
+        Acl.DenyStatusCode.BAD_REQUEST_400 -> Status.Code.INVALID_ARGUMENT.value(),
+        Acl.DenyStatusCode.GATEWAY_TIMEOUT_504 -> Status.Code.DEADLINE_EXCEEDED.value(),
+        Acl.DenyStatusCode.NOT_FOUND_404 -> Status.Code.NOT_FOUND.value(),
+        Acl.DenyStatusCode.FORBIDDEN_403 -> Status.Code.PERMISSION_DENIED.value(),
+        Acl.DenyStatusCode.CONFLICT_409 -> Status.Code.ALREADY_EXISTS.value(),
+        Acl.DenyStatusCode.SERVICE_UNAVAILABLE_503 -> Status.Code.UNAVAILABLE.value())
+    map(code)
   }
 
   def defaultAclFileDescriptor(cls: Class[_]): Option[DescriptorProtos.FileDescriptorProto] = {

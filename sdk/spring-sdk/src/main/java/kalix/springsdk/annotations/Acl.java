@@ -49,7 +49,23 @@ public @interface Acl {
    *
    * When HTTP transcoding is in use, this code will be translated to an equivalent HTTP status code.
    */
-  int denyCode() default 0;
+  DenyStatusCode denyCode() default  DenyStatusCode.FORBIDDEN_403;
+
+  enum DenyStatusCode {
+    BAD_REQUEST_400(4),
+    FORBIDDEN_403(8),
+    NOT_FOUND_404(6),
+    CONFLICT_409(7),
+    INTERNAL_SERVER_ERROR_500(2),
+    SERVICE_UNAVAILABLE_503(9),
+    GATEWAY_TIMEOUT_504(5);
+
+    public final int value;
+    DenyStatusCode(int value){
+      this.value = value;
+    }
+
+  }
 
 
   /**
