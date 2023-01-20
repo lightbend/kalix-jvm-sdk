@@ -17,9 +17,6 @@
 package kalix.springsdk.impl
 
 import com.fasterxml.jackson.annotation.JsonCreator
-import com.fasterxml.jackson.annotation.JsonSubTypes
-import com.fasterxml.jackson.annotation.JsonTypeInfo
-import com.fasterxml.jackson.annotation.JsonTypeName
 import kalix.javasdk.JsonSupport
 import kalix.springsdk.annotations.TypeName
 import kalix.springsdk.impl.SpringSdkMessageCodecSpec.SimpleClass
@@ -116,6 +113,20 @@ class SpringSdkMessageCodecSpec extends AnyWordSpec with Matchers {
         val encodedElephant = messageCodec.encodeScala(Elephant("Dumbo", 1))
         encodedElephant.typeUrl shouldBe jsonTypeUrlWith("Elephant")
       }
+    }
+
+    "throw if receiving null (scala)" in {
+      val failed = intercept[RuntimeException] {
+        messageCodec.encodeScala(null)
+      }
+      failed.getMessage shouldBe "Don't know how to serialize object of type null."
+    }
+
+    "throw if receiving null (java)" in {
+      val failed = intercept[RuntimeException] {
+        messageCodec.encodeJava(null)
+      }
+      failed.getMessage shouldBe "Don't know how to serialize object of type null."
     }
   }
 }

@@ -18,11 +18,11 @@ package kalix.springsdk.impl
 
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentMap
-
 import com.google.protobuf.any.{ Any => ScalaPbAny }
 import com.google.protobuf.{ Any => JavaPbAny }
 import kalix.javasdk.JsonSupport
 import kalix.javasdk.impl.MessageCodec
+import kalix.javasdk.impl.NullSerializationException
 import kalix.springsdk.annotations.TypeName
 
 private[springsdk] class SpringSdkMessageCodec extends MessageCodec {
@@ -32,11 +32,15 @@ private[springsdk] class SpringSdkMessageCodec extends MessageCodec {
   /**
    * In the Spring SDK, output data are encoded to Json.
    */
-  override def encodeScala(value: Any): ScalaPbAny =
+  override def encodeScala(value: Any): ScalaPbAny = {
+    if (value == null) throw NullSerializationException
     ScalaPbAny.fromJavaProto(JsonSupport.encodeJson(value, lookupTypeHint(value)))
+  }
 
-  override def encodeJava(value: Any): JavaPbAny =
+  override def encodeJava(value: Any): JavaPbAny = {
+    if (value == null) throw NullSerializationException
     JsonSupport.encodeJson(value, lookupTypeHint(value))
+  }
 
   private def lookupTypeHint(value: Any): String =
     lookupTypeHint(value.getClass)
