@@ -34,9 +34,9 @@ public class WalletEntity extends ValueEntity<Wallet> {
 
   private static final Logger logger = LoggerFactory.getLogger(WalletEntity.class);
 
-  @PostMapping("/create")
-  public Effect<String> create(@PathVariable String id) {
-    return effects().updateState(new Wallet(id, 100)).thenReply("Ok");
+  @PostMapping("/create/{amount}")
+  public Effect<String> create(@PathVariable String id, @PathVariable int amount) {
+    return effects().updateState(new Wallet(id, amount)).thenReply("Ok");
   }
 
   @PatchMapping("/withdraw/{amount}")

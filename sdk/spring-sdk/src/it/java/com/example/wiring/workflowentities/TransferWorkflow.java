@@ -28,14 +28,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @EntityType("transfer-workflow")
 @EntityKey("transferId")
 @RequestMapping("/transfer/{transferId}")
-public class TransferWorkflowEntity extends WorkflowEntity<TransferState> {
+public class TransferWorkflow extends WorkflowEntity<TransferState> {
 
   private final String withdrawStepName = "withdraw";
   private final String depositStepName = "deposit";
 
   private KalixClient kalixClient;
 
-  public TransferWorkflowEntity(KalixClient kalixClient) {
+  public TransferWorkflow(KalixClient kalixClient) {
     this.kalixClient = kalixClient;
   }
 
@@ -45,7 +45,7 @@ public class TransferWorkflowEntity extends WorkflowEntity<TransferState> {
         step(withdrawStepName)
             .call((Withdraw cmd) -> kalixClient.patch("/wallet/" + cmd.from + "/withdraw/" + cmd.amount, String.class))
             .andThen(response -> {
-              var state = currentState().withLastStep("withdrawn");
+              var state = currentState().withLastStep("withdrawn").accepted();
 
               var depositInput = new Deposit(currentState().transfer.to, currentState().transfer.amount);
 
@@ -58,7 +58,7 @@ public class TransferWorkflowEntity extends WorkflowEntity<TransferState> {
         step(depositStepName)
             .call((Deposit cmd) -> kalixClient.patch("/wallet/" + cmd.to + "/deposit/" + cmd.amount, String.class))
             .andThen(__ -> {
-              var state = currentState().withLastStep("deposited");
+              var state = currentState().withLastStep("deposited").finished();
               return effects().updateState(state).end();
             });
 
