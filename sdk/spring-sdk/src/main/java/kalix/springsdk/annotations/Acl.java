@@ -55,7 +55,7 @@ public @interface Acl {
    * If set to `true` in the top most parent - like the `Main` class - then it will be equivalent to set {@code denyCode} to 'FORBIDDEN'
    * @return
    */
-  boolean inherit() default false;
+  boolean inheritDenyCode() default false;
 
   enum DenyStatusCode {
     BAD_REQUEST(3),
