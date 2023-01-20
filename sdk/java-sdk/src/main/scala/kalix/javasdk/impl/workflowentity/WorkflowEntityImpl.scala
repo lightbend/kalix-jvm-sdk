@@ -33,13 +33,14 @@ import kalix.javasdk.impl.workflowentity.WorkflowEntityEffectImpl.End
 import kalix.javasdk.impl.workflowentity.WorkflowEntityEffectImpl.ErrorEffectImpl
 import kalix.javasdk.impl.workflowentity.WorkflowEntityEffectImpl.NoPersistence
 import kalix.javasdk.impl.workflowentity.WorkflowEntityEffectImpl.NoReply
+import kalix.javasdk.impl.workflowentity.WorkflowEntityEffectImpl.NoTransition
 import kalix.javasdk.impl.workflowentity.WorkflowEntityEffectImpl.Persistence
 import kalix.javasdk.impl.workflowentity.WorkflowEntityEffectImpl.Reply
 import kalix.javasdk.impl.workflowentity.WorkflowEntityEffectImpl.ReplyValue
 import kalix.javasdk.impl.workflowentity.WorkflowEntityEffectImpl.StepTransition
 import kalix.javasdk.impl.workflowentity.WorkflowEntityEffectImpl.TransitionalEffectImpl
 import kalix.javasdk.impl.workflowentity.WorkflowEntityEffectImpl.UpdateState
-import kalix.javasdk.impl.workflowentity.WorkflowEntityEffectImpl.Wait
+import kalix.javasdk.impl.workflowentity.WorkflowEntityEffectImpl.Pause
 import kalix.javasdk.impl.workflowentity.WorkflowEntityRouter.CommandResult
 import kalix.javasdk.workflowentity.CommandContext
 import kalix.javasdk.workflowentity.WorkflowEntity
@@ -61,7 +62,8 @@ import kalix.protocol.workflow_entity.WorkflowStreamOut
 import kalix.protocol.workflow_entity.WorkflowStreamOut.Message.{ Failure => OutFailure }
 import kalix.protocol.workflow_entity.{ EndTransition => ProtoEndTransition }
 import kalix.protocol.workflow_entity.{ StepTransition => ProtoStepTransition }
-import kalix.protocol.workflow_entity.{ WaitingForInput => ProtoWaitingForInput }
+import kalix.protocol.workflow_entity.{ Pause => ProtoPause }
+import kalix.protocol.workflow_entity.{ NoTransition => ProtoNoTransition }
 import org.slf4j.LoggerFactory
 
 // FIXME these don't seem to be 'public API', more internals?
@@ -163,8 +165,9 @@ final class WorkflowEntityImpl(system: ActorSystem, val services: Map[String, Wo
             case StepTransition(input, transitionTo) =>
               WorkflowEffect.Transition.StepTransition(
                 ProtoStepTransition(transitionTo, Option(service.messageCodec.encodeScala(input))))
-            case Wait => WorkflowEffect.Transition.WaitForInput(ProtoWaitingForInput.defaultInstance)
-            case End  => WorkflowEffect.Transition.EndTransition(ProtoEndTransition.defaultInstance)
+            case Pause        => WorkflowEffect.Transition.Pause(ProtoPause.defaultInstance)
+            case NoTransition => WorkflowEffect.Transition.NoTransition(ProtoNoTransition.defaultInstance)
+            case End          => WorkflowEffect.Transition.EndTransition(ProtoEndTransition.defaultInstance)
           }
 
         val clientAction = {

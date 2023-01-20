@@ -111,7 +111,7 @@ public class TransferWorkflowEntity extends WorkflowEntity<MoneyTransferApi.Stat
 
       return effects()
         .updateState(newState)
-        .waitForInput()
+        .pause()
         .thenReply(Empty.getDefaultInstance());
     }
   }
@@ -128,7 +128,7 @@ public class TransferWorkflowEntity extends WorkflowEntity<MoneyTransferApi.Stat
 
     if (newState.getSignOffsList().size() < 2)
       return effect
-        .waitForInput()
+        .pause()
         .thenReply(Empty.getDefaultInstance());
     else {
       return effect
