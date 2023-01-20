@@ -20,7 +20,7 @@ import com.example.wiring.actions.echo.Message;
 import com.example.wiring.workflowentities.FraudDetectionResult.TransferRejected;
 import com.example.wiring.workflowentities.FraudDetectionResult.TransferRequiresManualAcceptation;
 import com.example.wiring.workflowentities.FraudDetectionResult.TransferVerified;
-import kalix.javasdk.workflow.Workflow;
+import kalix.javasdk.workflowentity.WorkflowEntity;
 import kalix.springsdk.KalixClient;
 import kalix.springsdk.annotations.EntityKey;
 import kalix.springsdk.annotations.EntityType;
@@ -37,7 +37,7 @@ import static java.util.concurrent.CompletableFuture.completedFuture;
 @EntityType("transfer-workflow-with-fraud-detection")
 @EntityKey("transferId")
 @RequestMapping("/transfer-with-fraud-detection/{transferId}")
-public class TransferWorkflowWithFraudDetection extends Workflow<TransferState> {
+public class TransferWorkflowWithFraudDetection extends WorkflowEntity<TransferState> {
 
   private final String fraudDetectionStepName = "fraud-detection";
   private final String withdrawStepName = "withdraw";
@@ -50,7 +50,7 @@ public class TransferWorkflowWithFraudDetection extends Workflow<TransferState> 
   }
 
   @Override
-  public WorkflowDef<TransferState> definition() {
+  public Workflow<TransferState> definition() {
     var fraudDetection =
         step(fraudDetectionStepName)
             .asyncCall(this::checkFrauds)
