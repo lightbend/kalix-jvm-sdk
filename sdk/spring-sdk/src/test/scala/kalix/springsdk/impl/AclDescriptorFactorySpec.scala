@@ -16,8 +16,6 @@
 
 package kalix.springsdk.impl
 
-import io.grpc.Status
-
 import scala.reflect.ClassTag
 import kalix.FileOptions
 import kalix.PrincipalMatcher
