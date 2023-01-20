@@ -16,15 +16,11 @@
 
 package kalix.springsdk.impl
 
-import akka.http.javadsl.model.StatusCode
-
 import java.lang.reflect.Method
 import com.google.protobuf.DescriptorProtos
 import com.google.protobuf.Descriptors
-import io.grpc.Status
 import kalix.PrincipalMatcher
 import kalix.springsdk.annotations.Acl
-import kalix.springsdk.annotations.Acl.DenyStatusCode
 import kalix.{ Acl => ProtoAcl }
 import kalix.{ Annotations => KalixAnnotations }
 import org.slf4j.LoggerFactory
