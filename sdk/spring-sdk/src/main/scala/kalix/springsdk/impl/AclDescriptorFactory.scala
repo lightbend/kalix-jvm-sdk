@@ -73,7 +73,11 @@ object AclDescriptorFactory {
       aclBuilder.addDeny(idx, principalMatcher)
     }
 
-    aclBuilder.setDenyCode(aclJavaAnnotation.denyCode().value)
+    if(aclJavaAnnotation.inherit()){
+      aclBuilder.setDenyCode(0)
+    } else {
+      aclBuilder.setDenyCode(aclJavaAnnotation.denyCode().value)
+    }
 
     aclBuilder.build()
   }

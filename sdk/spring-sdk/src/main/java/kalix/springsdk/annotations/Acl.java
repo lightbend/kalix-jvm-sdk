@@ -45,13 +45,19 @@ public @interface Acl {
    * The status code to respond with when access is denied.
    *
    * By default, this will be 'Forbidden', but alternatives might include 'Authentication required' or 'Not
-   * Found'. If 'Inherited', indicates that the code should be inherited from the parent (regardless of the inherit field).
+   * Found'.
    *
    */
   DenyStatusCode denyCode() default DenyStatusCode.FORBIDDEN;
 
+  /**
+   * If `true`, indicates that the {@code denyCode} should be inherited from the parent.
+   * If set to `true` in the top most parent - like the `Main` class - then it will be equivalent to set {@code denyCode} to 'FORBIDDEN'
+   * @return
+   */
+  boolean inherit() default false;
+
   enum DenyStatusCode {
-    INHERITED(0),
     BAD_REQUEST(3),
     FORBIDDEN(7),
     NOT_FOUND(5),
