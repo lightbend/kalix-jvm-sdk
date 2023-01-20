@@ -54,6 +54,6 @@ public class AclTestModels {
   @Acl(allow = @Matcher(principal = Principal.ALL, service = "*"))
   public static class MainWithInvalidDenyAnnotation {}
 
-  @Acl(denyCode = 7)
+  @Acl(denyCode = DenyStatusCode.CONFLICT)
   public static class MainDenyWithCode {}
 }

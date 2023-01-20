@@ -3,7 +3,7 @@ package com.example.acl;
 import kalix.javasdk.action.Action;
 import kalix.springsdk.annotations.Acl;
 // tag::acl[]
-@Acl(denyCode = 5)
+@Acl(denyCode = Acl.DenyStatusCode.NOT_FOUND)
 public class UserAction extends Action {
     //...
 }
