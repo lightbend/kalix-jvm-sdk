@@ -54,7 +54,7 @@ class AclDescriptorFactorySpec extends AnyWordSpec with Matchers {
     "generate a default ACL file descriptor with deny code" in {
       val extension = lookupExtension[MainDenyWithCode].get
       val denyCode = extension.getAcl.getDenyCode
-      denyCode shouldBe Acl.DenyStatusCode.CONFLICT
+      denyCode shouldBe Acl.DenyStatusCode.CONFLICT.value
     }
 
     "generate a default ACL file descriptor with allow all services" in {
