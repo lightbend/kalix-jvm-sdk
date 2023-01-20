@@ -124,11 +124,11 @@ Invocations of methods from the same service, or from the backoffice using the `
 
 == Local development with ACLs
 
-When testing or running in development, by default, all calls to your service will be considered to have come from the internet. You can impersonate a local service by setting the `Impersonate-Kalix-Service` header on the requests you make.
+When testing or running in development, by default, all calls to your service will be accessible as ACLs are disabled by default.
 
-=== Disabling ACLs in local development
+=== Enabling ACLs in local development
 
-When running a service during local development, it may be convenient to turn ACL checking off. This can be done by adding the `ACL_ENABLED` environment variable and setting it to `false` in your `docker-compose.yml` file:
+When running a service during local development, it may be useful to enable ACL check. This can be done by setting the `ACL_ENABLED` environment variable to `true` in your `docker-compose.yml` file:
 
 ```yaml
 kalix-proxy:
@@ -139,8 +139,12 @@ kalix-proxy:
   environment:
     USER_FUNCTION_HOST: ${USER_FUNCTION_HOST:-host.docker.internal}
     USER_FUNCTION_PORT: 8080
-    ACL_ENABLED: false
+    ACL_ENABLED: 'true'
 ```
+
+Once you enable ACL, calls to the proxy are treated as if they are coming from the Internet. 
+
+If the ACL is configured to only allow calls from other Kalix services, you will have to impersonate a local service. This can be done by setting the `Impersonate-Kalix-Service` header on the requests you make.
 
 === Service identification in local development
 
