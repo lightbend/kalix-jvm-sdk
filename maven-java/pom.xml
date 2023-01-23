@@ -128,6 +128,7 @@
     <module>kalix-maven-plugin</module>
     <module>kalix-maven-archetype-value-entity</module>
     <module>kalix-spring-boot-archetype</module>
+    <module>kalix-spring-boot-kotlin-archetype</module>
     <module>kalix-maven-archetype-event-sourced-entity</module>
   </modules>
 </project>
