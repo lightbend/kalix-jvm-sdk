@@ -26,7 +26,7 @@ public class CustomerSummaryByName extends View<CustomerSummary> { // <1>
   @Subscribe.ValueEntity(value = CustomerEntity.class, handleDeletes = true) // <1>
   public UpdateEffect<CustomerSummary> onDelete() { // <2>
     return effects()
-        .deleteEntity(); // <3>
+        .deleteState(); // <3>
   }
   // end::delete[]
 
