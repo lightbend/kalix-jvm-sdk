@@ -1429,11 +1429,11 @@ jobs:
             fossa list-targets
             # separate reports for the different SDKs
             ## Java SDK including Maven codegen
-            fossa analyze --only-target scala@sdk/java-sdk/target/ --only-target scala@codegen/java-gen/target/scala-2.12/ kalix-java-sdk
+            fossa analyze --only-target scala@sdk/java-sdk/target/ --only-target scala@codegen/java-gen/target/scala-2.12/ -p kalix-java-sdk
             ## Scala SDK including sbt codegen
-            fossa analyze --only-target scala@sdk/scala-sdk/target/scala-2.13/ --only-target scala@codegen/scala-gen/target/scala-2.12/ kalix-scala-sdk
+            fossa analyze --only-target scala@sdk/scala-sdk/target/scala-2.13/ --only-target scala@codegen/scala-gen/target/scala-2.12/ -p kalix-scala-sdk
             ## Spring SDK
-            fossa analyze --only-target scala@sdk/spring-sdk/target/ kalix-spring-sdk
+            fossa analyze --only-target scala@sdk/spring-sdk/target/ -p kalix-spring-sdk
             # report all parts including testkits, tests, and samples
             fossa analyze -p kalix-jvm-sdk
 
