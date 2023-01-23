@@ -152,8 +152,8 @@ public class KalixTestKit {
   private final Settings settings;
 
   private boolean started = false;
-  private String proxyHost = "localhost";
-  private int proxyPort = 9000;
+  private String proxyHost;
+  private int proxyPort;
   private Optional<KalixProxyContainer> proxyContainer;
   private KalixRunner runner;
   private ActorSystem testSystem;
@@ -231,8 +231,10 @@ public class KalixTestKit {
       proxyHost = proxyContainer.getHost();
 
     } else {
-      Http http = Http.get(testSystem);
+      proxyPort = 9000;
+      proxyHost = "localhost";
 
+      Http http = Http.get(testSystem);
       log.info("Checking kalix-proxy status");
       CompletionStage<String> checkingProxyStatus = Patterns.retry(() -> http.singleRequest(HttpRequest.GET("http://localhost:8558/ready")).thenCompose(response -> {
         int responseCode = response.status().intValue();
