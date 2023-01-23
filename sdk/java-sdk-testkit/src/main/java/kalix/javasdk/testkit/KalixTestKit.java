@@ -44,8 +44,6 @@ import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
-import static java.util.Optional.ofNullable;
-
 /**
  * Testkit for running Kalix services locally.
  *
@@ -198,7 +196,7 @@ public class KalixTestKit {
   public KalixTestKit start(final Config config) {
     if (started) {throw new IllegalStateException("KalixTestkit already started");}
 
-    Boolean useTestContainers = ofNullable(System.getenv("KALIX_TESTKIT_USE_TEST_CONTAINERS")).map(Boolean::valueOf).orElse(true);
+    Boolean useTestContainers = Optional.ofNullable(System.getenv("KALIX_TESTKIT_USE_TEST_CONTAINERS")).map(Boolean::valueOf).orElse(true);
     int port = userFunctionPort(useTestContainers);
     Map<String, Object> conf = new HashMap<>();
     conf.put("kalix.user-function-port", port);
