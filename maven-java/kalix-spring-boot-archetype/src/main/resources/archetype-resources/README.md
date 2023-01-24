@@ -1,15 +1,12 @@
 # ${artifactId}
 
-
 ## Designing
 
 To understand the Kalix concepts that are the basis for this example, see [Designing services](https://docs.kalix.io/services/development-process.html) in the documentation.
 
-
 ## Developing
 
-This project contains the framework to create a Kalix application by adding Kalix components. To understand more about these components, see [Developing services](https://docs.kalix.io/services/). Spring-SDK is an experimental feature and so far there is no [official](https://docs.kalix.io/) documentation. Examples can be found [here](https://github.com/lightbend/kalix-jvm-sdk/tree/main/samples) in the folders with "spring" in their name.
-
+This project contains the framework to create a Kalix application by adding Kalix components. To understand more about these components, see [Developing services](https://docs.kalix.io/services/) and check Spring-SDK [official documention](https://docs.kalix.io/spring/index.html). Examples can be found [here](https://github.com/lightbend/kalix-jvm-sdk/tree/main/samples) in the folders with "spring" in their name.
 
 ## Building
 
@@ -18,7 +15,6 @@ Use Maven to build your project:
 ```shell
 mvn compile
 ```
-
 
 ## Running Locally
 
@@ -36,8 +32,7 @@ To start the application locally, the `exec-maven-plugin` is used. Use the follo
 mvn spring-boot:run
 ```
 
-With both the proxy and your application running, once you have defined endpoints they should be available at `http://localhost:9000`. 
-
+With both the proxy and your application running, once you have defined endpoints they should be available at `http://localhost:9000`.
 
 ## Deploying
 
