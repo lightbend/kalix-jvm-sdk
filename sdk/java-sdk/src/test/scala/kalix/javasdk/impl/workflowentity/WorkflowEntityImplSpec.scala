@@ -151,7 +151,7 @@ class WorkflowEntityImplSpec extends AnyWordSpec with Matchers with BeforeAndAft
 
       val startEffect = messageFromStartCmd.effect.value
 
-      startEffect.transition.isWaitForInput shouldBe true
+      startEffect.transition.isPause shouldBe true
       assertState(startEffect.userState) { state =>
         state.getFrom shouldBe "foo"
         state.getTo shouldBe "bar"
