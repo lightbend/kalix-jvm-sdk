@@ -10,7 +10,7 @@ To kickstart a project on Linux and macOS:
 mvn \
   archetype:generate \
   -DarchetypeGroupId=io.kalix \
-  -DarchetypeArtifactId=kalix-spring-boot-kotlin--archetype \
+  -DarchetypeArtifactId=kalix-spring-boot-kotlin-archetype \
   -DarchetypeVersion=LATEST
 ```
 
@@ -20,6 +20,6 @@ To kickstart a project on Windows 10 or later:
 mvn ^
   archetype:generate ^
   -DarchetypeGroupId=io.kalix ^
-  -DarchetypeArtifactId=kalix-spring-boot-kotlin--archetype ^
+  -DarchetypeArtifactId=kalix-spring-boot-kotlin-archetype ^
   -DarchetypeVersion=LATEST
 ```
