@@ -41,3 +41,24 @@ object PublishSonatype extends AutoPlugin {
     publishTo := sonatypePublishToBundle.value,
     dynverSonatypeSnapshots := true)
 }
+
+/**
+ * Publish to the public Kalix repo in Cloudsmith.
+ */
+object PublishKalixPublic extends AutoPlugin {
+
+  import DynVerPlugin.autoImport._
+
+  override def requires = DefaultPublishSettings
+
+  override def projectSettings = Seq(
+    publish / skip := false, // re-enable publishing
+    credentials += Credentials(
+      "Cloudsmith API",
+      "maven.cloudsmith.io",
+      sys.env.getOrElse("CLOUDSMITH_API_USERNAME", ""),
+      sys.env.getOrElse("CLOUDSMITH_API_PASSWORD", "")),
+    publishMavenStyle := false,
+    publishTo := Some("Cloudsmith API".at("https://maven.cloudsmith.io/lightbend/kalix/")),
+    dynverSonatypeSnapshots := true)
+}
