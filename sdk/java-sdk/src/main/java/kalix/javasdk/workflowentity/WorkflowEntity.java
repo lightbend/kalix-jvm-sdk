@@ -120,7 +120,7 @@ public abstract class WorkflowEntity<S> {
       PersistenceEffectBuilder<S> updateState(S newState);
 
       // TODO: document
-      TransitionalEffect<Void> waitForInput();
+      TransitionalEffect<Void> pause();
 
       // TODO: document
       <I> TransitionalEffect<Void> transition(I input, String transitionTo);
@@ -196,7 +196,7 @@ public abstract class WorkflowEntity<S> {
     interface PersistenceEffectBuilder<T> {
 
       // TODO: document
-      TransitionalEffect<Void> waitForInput();
+      TransitionalEffect<Void> pause();
 
       // TODO: document
       <I> TransitionalEffect<Void> transition(I input, String transitionTo);

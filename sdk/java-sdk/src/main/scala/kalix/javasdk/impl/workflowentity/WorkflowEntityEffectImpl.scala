@@ -21,6 +21,7 @@ import kalix.javasdk.Metadata
 import kalix.javasdk.impl.workflowentity.WorkflowEntityEffectImpl.End
 import kalix.javasdk.impl.workflowentity.WorkflowEntityEffectImpl.ErrorEffectImpl
 import kalix.javasdk.impl.workflowentity.WorkflowEntityEffectImpl.NoPersistence
+import kalix.javasdk.impl.workflowentity.WorkflowEntityEffectImpl.NoTransition
 import kalix.javasdk.impl.workflowentity.WorkflowEntityEffectImpl.Persistence
 import kalix.javasdk.impl.workflowentity.WorkflowEntityEffectImpl.PersistenceEffectBuilderImpl
 import kalix.javasdk.impl.workflowentity.WorkflowEntityEffectImpl.Reply
@@ -28,7 +29,7 @@ import kalix.javasdk.impl.workflowentity.WorkflowEntityEffectImpl.StepTransition
 import kalix.javasdk.impl.workflowentity.WorkflowEntityEffectImpl.Transition
 import kalix.javasdk.impl.workflowentity.WorkflowEntityEffectImpl.TransitionalEffectImpl
 import kalix.javasdk.impl.workflowentity.WorkflowEntityEffectImpl.UpdateState
-import kalix.javasdk.impl.workflowentity.WorkflowEntityEffectImpl.Wait
+import kalix.javasdk.impl.workflowentity.WorkflowEntityEffectImpl.Pause
 import kalix.javasdk.workflowentity.WorkflowEntity.Effect
 import kalix.javasdk.workflowentity.WorkflowEntity.Effect.Builder
 import kalix.javasdk.workflowentity.WorkflowEntity.Effect.PersistenceEffectBuilder
@@ -38,7 +39,8 @@ object WorkflowEntityEffectImpl {
 
   sealed trait Transition
   case class StepTransition[I](input: I, transitionTo: String) extends Transition
-  object Wait extends Transition
+  object Pause extends Transition
+  object NoTransition extends Transition
   object End extends Transition
 
   sealed trait Persistence[+S]
@@ -50,12 +52,12 @@ object WorkflowEntityEffectImpl {
   case class ReplyValue[R](value: R, metadata: Metadata) extends Reply[R]
   case object NoReply extends Reply[Nothing]
 
-  def apply[S](): WorkflowEntityEffectImpl[S, S] = WorkflowEntityEffectImpl(NoPersistence, Wait, NoReply)
+  def apply[S](): WorkflowEntityEffectImpl[S, S] = WorkflowEntityEffectImpl(NoPersistence, Pause, NoReply)
 
   final case class PersistenceEffectBuilderImpl[S](persistence: Persistence[S]) extends PersistenceEffectBuilder[S] {
 
-    override def waitForInput(): TransitionalEffect[Void] =
-      TransitionalEffectImpl(persistence, Wait)
+    override def pause(): TransitionalEffect[Void] =
+      TransitionalEffectImpl(persistence, Pause)
 
     override def transition[I](input: I, transitionTo: String): TransitionalEffect[Void] =
       TransitionalEffectImpl(persistence, StepTransition(input, transitionTo))
@@ -84,8 +86,8 @@ case class WorkflowEntityEffectImpl[S, T](persistence: Persistence[S], transitio
   override def updateState(newState: S): PersistenceEffectBuilder[S] =
     PersistenceEffectBuilderImpl(UpdateState(newState))
 
-  override def waitForInput(): TransitionalEffect[Void] =
-    TransitionalEffectImpl(NoPersistence, Wait)
+  override def pause(): TransitionalEffect[Void] =
+    TransitionalEffectImpl(NoPersistence, Pause)
 
   override def transition[I](input: I, transitionTo: String): TransitionalEffect[Void] =
     TransitionalEffectImpl(NoPersistence, StepTransition(input, transitionTo))
@@ -94,10 +96,10 @@ case class WorkflowEntityEffectImpl[S, T](persistence: Persistence[S], transitio
     TransitionalEffectImpl(NoPersistence, End)
 
   override def reply[R](reply: R): Effect[R] =
-    TransitionalEffectImpl(NoPersistence, Wait).thenReply(reply)
+    TransitionalEffectImpl(NoPersistence, NoTransition).thenReply(reply)
 
   override def reply[R](reply: R, metadata: Metadata): Effect[R] =
-    TransitionalEffectImpl(NoPersistence, Wait).thenReply(reply, metadata)
+    TransitionalEffectImpl(NoPersistence, NoTransition).thenReply(reply, metadata)
 
   override def error[R](description: String): Effect.ErrorEffect[R] =
     ErrorEffectImpl(description, None)

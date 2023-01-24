@@ -151,7 +151,7 @@ public class TransferWorkflowWithFraudDetection extends WorkflowEntity<TransferS
     } else if (result instanceof TransferRequiresManualAcceptation) {
       return effects()
           .updateState(state)
-          .waitForInput();
+          .pause();
     } else if (result instanceof TransferRejected) {
       return effects()
           .updateState(state.finished())
