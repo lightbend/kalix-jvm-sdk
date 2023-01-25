@@ -2,6 +2,8 @@ package org.example
 
 import kalix.scalasdk.Kalix
 import kalix.scalasdk.view.ViewCreationContext
+import org.example.view.AnotherCustomerOrdersViewImpl
+import org.example.view.AnotherCustomerOrdersViewProvider
 import org.example.view.CustomerOrdersView
 import org.example.view.CustomerOrdersViewProvider
 
@@ -12,9 +14,11 @@ import org.example.view.CustomerOrdersViewProvider
 object KalixFactory {
 
   def withComponents(
+      createAnotherCustomerOrdersViewImpl: ViewCreationContext => AnotherCustomerOrdersViewImpl,
       createCustomerOrdersView: ViewCreationContext => CustomerOrdersView): Kalix = {
     val kalix = Kalix()
     kalix
+      .register(AnotherCustomerOrdersViewProvider(createAnotherCustomerOrdersViewImpl))
       .register(CustomerOrdersViewProvider(createCustomerOrdersView))
   }
 }

@@ -120,3 +120,59 @@ service CustomerOrders {
     };
   }
 }
+
+// with `View` in the name
+service AnotherCustomerOrdersView {
+  option (kalix.codegen) = {
+    view: {}
+  };
+
+  rpc UpdateCustomerCreated(CustomerCreated) returns (CustomerState) {
+    option (kalix.method).eventing.in = {
+      event_sourced_entity: "customers"
+    };
+    option (kalix.method).view.update = {
+      table: "customers",
+      transform_updates: true
+    };
+  }
+
+  rpc UpdateCustomerNameChanged(CustomerNameChanged) returns (CustomerState) {
+    option (kalix.method).eventing.in = {
+      event_sourced_entity: "customers"
+    };
+    option (kalix.method).view.update = {
+      table: "customers",
+      transform_updates: true
+    };
+  }
+
+  rpc UpdateProduct(ProductCreated) returns (ProductState) {
+    option (kalix.method).eventing.in = {
+      event_sourced_entity: "products"
+    };
+    option (kalix.method).view.update = {
+      table: "products",
+      transform_updates: true
+    };
+  }
+
+  rpc UpdateOrder(OrderState) returns (OrderState) {
+    option (kalix.method).eventing.in = {
+      value_entity: "orders"
+    };
+    option (kalix.method).view.update = {
+      table: "orders"
+    };
+  }
+
+  rpc Get(CustomerOrdersRequest) returns (stream CustomerOrder) {
+    option (kalix.method).view.query = {
+      query: "SELECT * "
+          "FROM customers "
+          "JOIN orders ON orders.customer_id = customers.customer_id "
+          "JOIN products ON products.product_id = orders.product_id "
+          "WHERE customers.customer_id = :customer_id"
+    };
+  }
+}

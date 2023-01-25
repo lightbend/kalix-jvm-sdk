@@ -1421,12 +1421,22 @@ jobs:
     steps:
       - checkout
       - setup_sbt
+      - restore_deps_cache
       - install_fossa
       - run:
           name: Run Fossa
           command: |
             sbt "compile; makePom"
-            fossa analyze -p kalix-jvm-sdk && fossa test -p kalix-jvm-sdk
+            fossa list-targets
+            # separate reports for the different SDKs
+            ## Java SDK including Maven codegen
+            fossa analyze --only-target scala@sdk/java-sdk/target/ --only-target scala@codegen/java-gen/target/scala-2.12/ -p kalix-java-sdk
+            ## Scala SDK including sbt codegen
+            fossa analyze --only-target scala@sdk/scala-sdk/target/scala-2.13/ --only-target scala@codegen/scala-gen/target/scala-2.12/ -p kalix-scala-sdk
+            ## Spring SDK
+            fossa analyze --only-target scala@sdk/spring-sdk/target/ -p kalix-spring-sdk
+            # report all parts including testkits, tests, and samples
+            fossa analyze -p kalix-jvm-sdk
 
 workflows:
   CI:

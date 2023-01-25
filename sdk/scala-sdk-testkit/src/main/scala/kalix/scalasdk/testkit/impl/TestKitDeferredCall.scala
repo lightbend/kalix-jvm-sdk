@@ -17,6 +17,7 @@
 package kalix.scalasdk.testkit.impl
 
 import kalix.javasdk.impl.GrpcDeferredCall
+import kalix.scalasdk.DeferredCall
 import kalix.scalasdk.Metadata
 import kalix.scalasdk.impl.MetadataConverters
 import kalix.scalasdk.testkit.DeferredCallDetails
@@ -31,4 +32,8 @@ final case class TestKitDeferredCall[I, O](deferredCall: GrpcDeferredCall[I, O])
   override def metadata: Metadata = MetadataConverters.toScala(deferredCall.metadata)
   def execute(): Future[O] =
     throw new UnsupportedOperationException("Async calls to other components not supported by the testkit")
+
+  override def withMetadata(metadata: Metadata): DeferredCall[I, O] = {
+    TestKitDeferredCall(deferredCall.withMetadata(metadata.impl))
+  }
 }

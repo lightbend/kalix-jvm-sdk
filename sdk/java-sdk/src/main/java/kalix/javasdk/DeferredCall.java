@@ -41,4 +41,7 @@ public interface DeferredCall<I, O> {
    * effects().asyncReply} and {@code effects().asyncEffect}
    */
   CompletionStage<O> execute();
+
+  /** @return DeferredCall with updated metadata */
+  DeferredCall<I, O> withMetadata(Metadata metadata);
 }

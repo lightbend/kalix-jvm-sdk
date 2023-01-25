@@ -21,9 +21,8 @@ import kalix.scalasdk.DeferredCall
 import kalix.scalasdk.Metadata
 import kalix.scalasdk.SideEffect
 
-import java.util.concurrent.CompletionStage
-import scala.jdk.FutureConverters._
 import scala.concurrent.Future
+import scala.jdk.FutureConverters._
 
 /**
  * INTERNAL API
@@ -48,6 +47,10 @@ private[scalasdk] final case class ScalaDeferredCallAdapter[I, O](javaSdkDeferre
     new MetadataImpl(javaSdkDeferredCall.metadata.asInstanceOf[kalix.javasdk.impl.MetadataImpl])
 
   def execute(): Future[O] = javaSdkDeferredCall.execute().asScala
+
+  override def withMetadata(metadata: Metadata): ScalaDeferredCallAdapter[I, O] = {
+    ScalaDeferredCallAdapter(javaSdkDeferredCall.withMetadata(metadata.impl))
+  }
 }
 
 private[scalasdk] object ScalaSideEffectAdapter {

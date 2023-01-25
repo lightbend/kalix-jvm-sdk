@@ -1,6 +1,7 @@
 package org.example
 
 import kalix.scalasdk.Kalix
+import org.example.view.AnotherCustomerOrdersViewImpl
 import org.example.view.CustomerOrdersView
 import org.slf4j.LoggerFactory
 
@@ -19,6 +20,7 @@ object Main {
     // If you prefer, you may remove this and manually register these components in a
     // `Kalix()` instance.
     KalixFactory.withComponents(
+      new AnotherCustomerOrdersViewImpl(_),
       new CustomerOrdersView(_))
   }
 

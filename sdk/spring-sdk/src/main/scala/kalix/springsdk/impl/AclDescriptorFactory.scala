@@ -17,7 +17,6 @@
 package kalix.springsdk.impl
 
 import java.lang.reflect.Method
-
 import com.google.protobuf.DescriptorProtos
 import com.google.protobuf.Descriptors
 import kalix.PrincipalMatcher
@@ -74,7 +73,11 @@ object AclDescriptorFactory {
       aclBuilder.addDeny(idx, principalMatcher)
     }
 
-    aclBuilder.setDenyCode(aclJavaAnnotation.denyCode())
+    if (aclJavaAnnotation.inheritDenyCode()) {
+      aclBuilder.setDenyCode(0)
+    } else {
+      aclBuilder.setDenyCode(aclJavaAnnotation.denyCode().value)
+    }
 
     aclBuilder.build()
   }

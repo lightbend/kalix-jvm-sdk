@@ -17,9 +17,9 @@
 package kalix.springsdk.impl
 
 import scala.reflect.ClassTag
-
 import kalix.FileOptions
 import kalix.PrincipalMatcher
+import kalix.springsdk.annotations.Acl
 import kalix.springsdk.testmodels.AclTestModels.MainAllowAllServices
 import kalix.springsdk.testmodels.AclTestModels.MainAllowListOfServices
 import kalix.springsdk.testmodels.AclTestModels.MainAllowPrincipalAll
@@ -54,7 +54,7 @@ class AclDescriptorFactorySpec extends AnyWordSpec with Matchers {
     "generate a default ACL file descriptor with deny code" in {
       val extension = lookupExtension[MainDenyWithCode].get
       val denyCode = extension.getAcl.getDenyCode
-      denyCode shouldBe 7
+      denyCode shouldBe Acl.DenyStatusCode.CONFLICT.value
     }
 
     "generate a default ACL file descriptor with allow all services" in {

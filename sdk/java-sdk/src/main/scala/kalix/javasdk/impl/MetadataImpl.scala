@@ -16,27 +16,26 @@
 
 package kalix.javasdk.impl
 
-import java.net.URI
-import java.nio.ByteBuffer
-import java.time.ZonedDateTime
-import java.time.format.DateTimeFormatter
-import java.util.Objects
-import java.util.Optional
-import java.lang
-import java.util
-
-import scala.compat.java8.OptionConverters._
-import scala.jdk.CollectionConverters._
-
 import com.google.protobuf.ByteString
-import kalix.javasdk.impl.MetadataImpl.JwtClaimPrefix
 import kalix.javasdk.CloudEvent
 import kalix.javasdk.JwtClaims
 import kalix.javasdk.Metadata
 import kalix.javasdk.Principal
 import kalix.javasdk.Principals
+import kalix.javasdk.impl.MetadataImpl.JwtClaimPrefix
 import kalix.protocol.component
 import kalix.protocol.component.MetadataEntry
+
+import java.lang
+import java.net.URI
+import java.nio.ByteBuffer
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
+import java.util
+import java.util.Objects
+import java.util.Optional
+import scala.compat.java8.OptionConverters._
+import scala.jdk.CollectionConverters._
 
 private[kalix] class MetadataImpl(val entries: Seq[MetadataEntry]) extends Metadata with CloudEvent {
 

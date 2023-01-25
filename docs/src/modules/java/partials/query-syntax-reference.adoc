@@ -1,3 +1,5 @@
+// tag::grpc[]
+// tag::spring[]
 == Query syntax reference
 
 Define View queries in a language that is similar to SQL. The following examples illustrate the syntax. To retrieve:
@@ -118,6 +120,7 @@ SELECT * FROM customers WHERE text_search(profile, :search_words, 'english')
 NOTE: Text search is currently only available for deployed services, and can't be used in local testing.
 
 ==== Data types
+// end::spring[]
 
 The following data types are supported, for their corresponding Protobuf types. Arrays are created for a repeated field in a Protobuf message. Timestamps can be stored and compared using the `google.protobuf.Timestamp` message type.
 
@@ -156,7 +159,7 @@ The following data types are supported, for their corresponding Protobuf types. 
 
 ==== Optional fields
 
-Fields in a Protobuf message that were not given a value are handled as [the default value](https://developers.google.com/protocol-buffers/docs/proto3#default) of the field data type.
+Fields in a Protobuf message that were not given a value are handled as https://developers.google.com/protocol-buffers/docs/proto3#default[the default value] of the field data type.
 
 In some use cases it is important to explicitly express that a value is missing, doing that in a view column can be done in three ways:
 
@@ -165,6 +168,60 @@ In some use cases it is important to explicitly express that a value is missing,
  * make the field a part of a nested message and omit that whole nested message, for example `address.street` where the lack of an `address` message implies there is no `street` field.
 
 Optional fields with values present can be queried just like regular view fields:
+
+// end::grpc[]
+
+
+// tag::spring[]
+
+When modeling your queries, the following data types are supported:
+
+[cols="1,1"]
+|===
+| Data type | Java type
+
+| Text
+| `String`
+
+| Integer
+| `int` / `Integer`
+
+| Long (Big Integer)
+| `long` / `Long`
+
+| Float (Real)
+| `float` / `Float`
+
+| Double
+| `double` / `Double`
+
+| Boolean
+| `boolean` / `Boolean`
+
+| Byte String
+| `ByteString`
+
+| Array
+| `Collection<T>` and derived
+
+// not supported at the moment, see https://github.com/lightbend/kalix-jvm-sdk/issues/1391
+//| Timestamp
+//| `Instant`
+
+|===
+
+==== Optional fields
+
+Fields in a view type that were not given a value are handled as the default value for primitive Java data types.
+
+However, in some use cases it is important to explicitly express that a value is missing, doing that in a view column can be done in two ways:
+
+* use one of the Java non-primitive types for the field (e.g. use `Integer` instead of `int`)
+* make the field a part of another class and leave it uninitialized (i.e. `null`), for example `address.street` where the lack of an `address` message implies there is no `street` field.
+
+Optional fields with values present can be queried just like regular view fields:
+
+// tag::grpc[]
 
 ----
 SELECT * FROM customers WHERE phone_number = :number
@@ -195,3 +252,6 @@ SELECT * FROM customers WHERE name = :name AND age > :min_age ORDER BY age DESC
 ----
 
 NOTE: Some orderings may be rejected, if the view index cannot be efficiently ordered. Generally, to order by a column it should also appear in the `WHERE` conditions.
+
+// end::grpc[]
+// end::spring[]

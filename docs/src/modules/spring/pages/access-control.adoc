@@ -91,31 +91,9 @@ The Maven archetype include a less permissive ACL for the entire service, to not
 
 === Customizing the deny code
 
-When a request is denied, by default, a gRPC error code of 7, `PERMISSION_DENIED`, is sent. This gets transcoded to an HTTP status code of 403, forbidden. The code that is returned when a request is denied can be customised using the `deny_code` property. The deny code must be a valid gRPC error code, which is any integer from 1 to 16, described https://grpc.github.io/grpc/core/md_doc_statuscodes.html[here]. Each one maps as follows to an https://doc.akka.io/japi/akka-http/current/akka/http/scaladsl/model/StatusCodes.html[Akka HTTP status code].
+When a request is denied, by default a 403 `Forbbiden`, is sent. The code that is returned when a request is denied can be customised using the `deny_code` property.
 
-```
-    Status.Code.OK                  => StatusCodes.OK
-    Status.Code.CANCELLED           => StatusCodes.InternalServerError
-    Status.Code.UNKNOWN             => StatusCodes.InternalServerError
-    Status.Code.INVALID_ARGUMENT    => StatusCodes.BadRequest
-    Status.Code.DEADLINE_EXCEEDED   => StatusCodes.GatewayTimeout
-    Status.Code.NOT_FOUND           => StatusCodes.NotFound
-    Status.Code.ALREADY_EXISTS      => StatusCodes.Conflict
-    Status.Code.PERMISSION_DENIED   => StatusCodes.Forbidden
-    Status.Code.RESOURCE_EXHAUSTED  => StatusCodes.EnhanceYourCalm
-    Status.Code.FAILED_PRECONDITION => StatusCodes.BadRequest
-    Status.Code.ABORTED             => StatusCodes.InternalServerError
-    Status.Code.OUT_OF_RANGE        => StatusCodes.BadRequest
-    Status.Code.UNIMPLEMENTED       => StatusCodes.NotFound // Note: not the same as HTTP NotImplemented
-    Status.Code.INTERNAL            => StatusCodes.InternalServerError
-    Status.Code.UNAVAILABLE         => StatusCodes.ServiceUnavailable
-    Status.Code.DATA_LOSS           => StatusCodes.InternalServerError
-    Status.Code.UNAUTHENTICATED     => StatusCodes.Forbidden
-
-```
-
-For example, to make Kalix reply with 404, `NOT_FOUND`:
-
+For example, to make Kalix reply with 404, `Not Found`:
 
 [source, java, indent=0]
 ----
@@ -146,11 +124,11 @@ Invocations of methods from the same service, or from the backoffice using the `
 
 == Local development with ACLs
 
-When testing or running in development, by default, all calls to your service will be considered to have come from the internet. You can impersonate a local service by setting the `Impersonate-Kalix-Service` header on the requests you make.
+When testing or running in development, by default, all calls to your service will be accessible as ACLs are disabled by default.
 
-=== Disabling ACLs in local development
+=== Enabling ACLs in local development
 
-When running a service during local development, it may be convenient to turn ACL checking off. This can be done by adding the `ACL_ENABLED` environment variable and setting it to `false` in your `docker-compose.yml` file:
+When running a service during local development, it may be useful to enable ACL check. This can be done by setting the `ACL_ENABLED` environment variable to `true` in your `docker-compose.yml` file:
 
 ```yaml
 kalix-proxy:
@@ -161,8 +139,12 @@ kalix-proxy:
   environment:
     USER_FUNCTION_HOST: ${USER_FUNCTION_HOST:-host.docker.internal}
     USER_FUNCTION_PORT: 8080
-    ACL_ENABLED: false
+    ACL_ENABLED: 'true'
 ```
+
+Once you enable ACL, calls to the proxy are treated as if they are coming from the Internet. 
+
+If the ACL is configured to only allow calls from other Kalix services, you will have to impersonate a local service. This can be done by setting the `Impersonate-Kalix-Service` header on the requests you make.
 
 === Service identification in local development
 

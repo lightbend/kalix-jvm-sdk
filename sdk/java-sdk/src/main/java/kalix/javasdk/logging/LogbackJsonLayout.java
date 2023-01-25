@@ -16,9 +16,6 @@
 
 package kalix.javasdk.logging;
 
-import kalix.javasdk.impl.ErrorHandling;
-import kalix.javasdk.impl.ErrorHandling$;
-
 /**
  * This Logback JSON layout uses the name `severity` (instead of `level`).
  *

@@ -18,13 +18,15 @@ package kalix.javasdk.impl
 
 import java.time.Instant
 import java.util.Optional
-
 import kalix.javasdk.{ Metadata, Principal }
 import kalix.protocol.component.MetadataEntry
 import org.scalatest.OptionValues
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 
+import java.nio.ByteBuffer
+import java.nio.charset.Charset
+import java.nio.charset.Charset.defaultCharset
 import scala.jdk.OptionConverters._
 import scala.jdk.CollectionConverters._
 

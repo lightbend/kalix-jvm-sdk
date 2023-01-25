@@ -123,7 +123,7 @@ object ViewServiceSourceGenerator {
         Some(
           viewRouterClass(
             s"${className}Router",
-            s"Abstract${view.className}#Abstract$className",
+            s"${view.abstractViewName}#Abstract$className",
             stateType,
             transformedUpdates))
       }

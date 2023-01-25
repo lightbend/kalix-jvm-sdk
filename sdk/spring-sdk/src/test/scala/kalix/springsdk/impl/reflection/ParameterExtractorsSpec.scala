@@ -46,9 +46,11 @@ class ParameterExtractorsSpec extends AnyWordSpec with Matchers {
       val jsonBody = JsonSupport.encodeJson(new Message("test"))
 
       val field = method.requestMessageDescriptor.findFieldByNumber(1)
+      val field2 = method.requestMessageDescriptor.findFieldByNumber(2)
       val message = DynamicMessage
         .newBuilder(method.requestMessageDescriptor)
         .setField(field, jsonBody)
+        .setField(field2, "param")
         .build()
 
       val wrappedMessage = ScalaPbAny().withValue(message.toByteString)
@@ -75,9 +77,11 @@ class ParameterExtractorsSpec extends AnyWordSpec with Matchers {
           .build()
 
       val field = method.requestMessageDescriptor.findFieldByNumber(1)
+      val field2 = method.requestMessageDescriptor.findFieldByNumber(2)
       val message = DynamicMessage
         .newBuilder(method.requestMessageDescriptor)
         .setField(field, nonJsonBody)
+        .setField(field2, "param")
         .build()
 
       val wrappedMessage = ScalaPbAny().withValue(message.toByteString)

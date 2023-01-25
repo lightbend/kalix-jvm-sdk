@@ -18,6 +18,9 @@ package kalix.javasdk.testkit;
 
 import akka.actor.ActorSystem;
 import akka.grpc.GrpcClientSettings;
+import akka.http.javadsl.Http;
+import akka.http.javadsl.model.HttpRequest;
+import akka.pattern.Patterns;
 import akka.stream.Materializer;
 import akka.stream.SystemMaterializer;
 import com.typesafe.config.Config;
@@ -35,6 +38,10 @@ import java.net.ServerSocket;
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -145,7 +152,9 @@ public class KalixTestKit {
   private final Settings settings;
 
   private boolean started = false;
-  private KalixProxyContainer proxyContainer;
+  private String proxyHost;
+  private int proxyPort;
+  private Optional<KalixProxyContainer> proxyContainer;
   private KalixRunner runner;
   private ActorSystem testSystem;
 
@@ -185,9 +194,10 @@ public class KalixTestKit {
    * @return this KalixTestkit
    */
   public KalixTestKit start(final Config config) {
-    if (started) throw new IllegalStateException("KalixTestkit already started");
+    if (started) {throw new IllegalStateException("KalixTestkit already started");}
 
-    int port = availableLocalPort();
+    Boolean useTestContainers = Optional.ofNullable(System.getenv("KALIX_TESTKIT_USE_TEST_CONTAINERS")).map(Boolean::valueOf).orElse(true);
+    int port = userFunctionPort(useTestContainers);
     Map<String, Object> conf = new HashMap<>();
     conf.put("kalix.user-function-port", port);
     // don't kill the test JVM when terminating the KalixRunner
@@ -198,22 +208,65 @@ public class KalixTestKit {
     runner.run();
 
     testSystem = ActorSystem.create("KalixTestkit");
-    proxyContainer = new KalixProxyContainer(port);
-    proxyContainer.addEnv("SERVICE_NAME", settings.serviceName);
-    proxyContainer.addEnv("ACL_ENABLED", Boolean.toString(settings.aclEnabled));
-    proxyContainer.addEnv("VIEW_FEATURES_ALL", Boolean.toString(settings.advancedViews));
-    proxyContainer.start();
+
+    runProxy(useTestContainers, port);
+
     started = true;
 
+    if (log.isDebugEnabled()) {log.debug("TestKit using [{}:{}] for calls to proxy from service", proxyHost, proxyPort);}
+    return this;
+  }
+
+  private void runProxy(Boolean useTestContainers, int port) {
+
+    if (useTestContainers) {
+      var proxyContainer = new KalixProxyContainer(port);
+      this.proxyContainer = Optional.of(proxyContainer);
+      proxyContainer.addEnv("SERVICE_NAME", settings.serviceName);
+      proxyContainer.addEnv("ACL_ENABLED", Boolean.toString(settings.aclEnabled));
+      proxyContainer.addEnv("VIEW_FEATURES_ALL", Boolean.toString(settings.advancedViews));
+      proxyContainer.start();
+
+      proxyPort = proxyContainer.getProxyPort();
+      proxyHost = proxyContainer.getHost();
+
+    } else {
+      proxyPort = 9000;
+      proxyHost = "localhost";
+
+      Http http = Http.get(testSystem);
+      log.info("Checking kalix-proxy status");
+      CompletionStage<String> checkingProxyStatus = Patterns.retry(() -> http.singleRequest(HttpRequest.GET("http://localhost:8558/ready")).thenCompose(response -> {
+        int responseCode = response.status().intValue();
+        if (responseCode == 200) {
+          log.info("Kalix-proxy started");
+          return CompletableFuture.completedStage("Ok");
+        } else {
+          log.info("Waiting for kalix-proxy, current response code is {}", responseCode);
+          return CompletableFuture.failedFuture(new IllegalStateException("Proxy not started."));
+        }
+      }), 10, Duration.ofSeconds(1), testSystem);
+
+      try {
+        checkingProxyStatus.toCompletableFuture().get();
+      } catch (InterruptedException | ExecutionException e) {
+        throw new RuntimeException(e);
+      }
+    }
     // the proxy will announce its host and default port, but to communicate with it,
     // we need the use the port and host that testcontainers will expose
     // therefore, we set a port override in ProxyInfoHolder to allow for inter-component communication
     ProxyInfoHolder holder = ProxyInfoHolder.get(runner.system());
-    holder.overridePort(proxyContainer.getProxyPort());
-    holder.overrideProxyHost(proxyContainer.getHost());
-    if (log.isDebugEnabled())
-      log.debug("TestKit using [{}:{}] for calls to proxy from service", proxyContainer.getHost(), proxyContainer.getProxyPort());
-    return this;
+    holder.overridePort(proxyPort);
+    holder.overrideProxyHost(proxyHost);
+  }
+
+  private int userFunctionPort(Boolean useTestContainers) {
+    if (useTestContainers) {
+      return availableLocalPort();
+    } else {
+      return KalixProxyContainer.DEFAULT_USER_FUNCTION_PORT;
+    }
   }
 
   /**
@@ -223,9 +276,8 @@ public class KalixTestKit {
    * @return Kalix host
    */
   public String getHost() {
-    if (!started)
-      throw new IllegalStateException("Need to start KalixTestkit before accessing the host name");
-    return proxyContainer.getHost();
+    if (!started) {throw new IllegalStateException("Need to start KalixTestkit before accessing the host name");}
+    return proxyHost;
   }
 
   /**
@@ -234,9 +286,8 @@ public class KalixTestKit {
    * @return local Kalix port
    */
   public int getPort() {
-    if (!started)
-      throw new IllegalStateException("Need to start KalixTestkit before accessing the port");
-    return proxyContainer.getProxyPort();
+    if (!started) {throw new IllegalStateException("Need to start KalixTestkit before accessing the port");}
+    return proxyPort;
   }
 
   /**
@@ -312,7 +363,7 @@ public class KalixTestKit {
   /** Stop the testkit and local Kalix. */
   public void stop() {
     try {
-      proxyContainer.stop();
+      proxyContainer.ifPresent(container -> container.stop());
     } catch (Exception e) {
       log.error("KalixTestkit proxy container failed to stop", e);
     }

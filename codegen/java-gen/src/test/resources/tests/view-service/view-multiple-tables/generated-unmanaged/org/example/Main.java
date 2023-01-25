@@ -1,6 +1,7 @@
 package org.example;
 
 import kalix.javasdk.Kalix;
+import org.example.view.AnotherCustomerOrdersViewImpl;
 import org.example.view.CustomerOrdersView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,6 +21,7 @@ public final class Main {
     // If you prefer, you may remove this and manually register these components in a
     // `new Kalix()` instance.
     return KalixFactory.withComponents(
+      AnotherCustomerOrdersViewImpl::new,
       CustomerOrdersView::new);
   }
 

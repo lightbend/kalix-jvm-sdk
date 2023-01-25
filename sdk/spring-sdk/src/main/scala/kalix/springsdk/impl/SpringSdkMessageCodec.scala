@@ -22,6 +22,7 @@ import com.google.protobuf.any.{ Any => ScalaPbAny }
 import com.google.protobuf.{ Any => JavaPbAny }
 import kalix.javasdk.JsonSupport
 import kalix.javasdk.impl.MessageCodec
+import kalix.javasdk.impl.NullSerializationException
 import kalix.springsdk.annotations.TypeName
 
 private[springsdk] class SpringSdkMessageCodec extends MessageCodec {
@@ -33,6 +34,7 @@ private[springsdk] class SpringSdkMessageCodec extends MessageCodec {
    * In the Spring SDK, output data are encoded to Json.
    */
   override def encodeScala(value: Any): ScalaPbAny = {
+    if (value == null) throw NullSerializationException
     value match {
       case javaPbAny: JavaPbAny   => ScalaPbAny.fromJavaProto(javaPbAny)
       case scalaPbAny: ScalaPbAny => scalaPbAny
@@ -41,6 +43,7 @@ private[springsdk] class SpringSdkMessageCodec extends MessageCodec {
   }
 
   override def encodeJava(value: Any): JavaPbAny = {
+    if (value == null) throw NullSerializationException
     value match {
       case javaPbAny: JavaPbAny   => javaPbAny
       case scalaPbAny: ScalaPbAny => ScalaPbAny.toJavaProto(scalaPbAny)
