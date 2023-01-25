@@ -545,14 +545,3 @@ public class FibonacciActionIntegrationTest extends KalixIntegrationTestKitSuppo
 ```
 
 > **Note:** all samples mentioned earlier include some Integration Tests as well that can be consulted if one is looking for real examples. 
-
-## Upcoming features
-
-Here's a list of the features that we are working on for the short-term:
-
-- ACLs definition
-- Timers support
-- Unit testing
-- Calling other Kalix services 
-
-And much more to come later. :)
