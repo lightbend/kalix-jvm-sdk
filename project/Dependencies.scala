@@ -43,6 +43,11 @@ object Dependencies {
   val logbackJson = "ch.qos.logback.contrib" % "logback-json-classic" % LogbackContribVersion
   val logbackJackson = "ch.qos.logback.contrib" % "logback-jackson" % LogbackContribVersion
 
+  // akka-slf4j pulls in slf4j-api v1.7.36 and but we want v2.0.6
+  // because of Logback v1.4.5 and because of Spring 3. Therefore we have to explicitly bump slf4j-api to v2.0.6.
+  // Version 2.0.6 is also problematic for Akka, but only when using the BehaviorTestKit which is not used in the SDK
+  val slf4jApi = "org.slf4j" % "slf4j-api" % "2.0.6"
+
   val protobufJava = "com.google.protobuf" % "protobuf-java" % ProtobufVersion
   val protobufJavaUtil = "com.google.protobuf" % "protobuf-java-util" % ProtobufVersion
 
@@ -87,6 +92,7 @@ object Dependencies {
     akkaDependency("akka-stream-testkit") % Test,
     akkaHttpDependency("akka-http-testkit") % Test,
     scalaTest % Test,
+    slf4jApi,
     logback,
     logbackJson,
     logbackJackson,
@@ -141,7 +147,7 @@ object Dependencies {
     //        See https://github.com/lightbend/kalix-jvm-sdk/issues/605
     //  kalixTckProtocol % "protobuf-src",
     //  "io.kalix" % "kalix-tck-protocol" % Kalix.ProxyVersion % "protobuf-src",
-    "ch.qos.logback" % "logback-classic" % LogbackVersion)
+    logback)
 
   val codegenCore = deps ++= Seq(
     protobufJava,
