@@ -190,9 +190,13 @@ final class WorkflowEntityImpl(system: ActorSystem, val services: Map[String, Wo
         case error: ErrorEffectImpl[_] =>
           val statusCode = error.status.map(_.value()).getOrElse(Status.Code.UNKNOWN.value())
           val failure = component.Failure(commandId, error.description, statusCode)
-          //TODO fix this and return an effect with error
-          val message = WorkflowStreamOut.Message.Failure(failure)
-          WorkflowStreamOut(message)
+          val failureClientAction = WorkflowClientAction.defaultInstance.withFailure(failure)
+          val noTransition = WorkflowEffect.Transition.NoTransition(ProtoNoTransition.defaultInstance)
+          val failureEffect = WorkflowEffect.defaultInstance
+            .withClientAction(failureClientAction)
+            .withTransition(noTransition)
+            .withCommandId(commandId)
+          WorkflowStreamOut(WorkflowStreamOut.Message.Effect(failureEffect))
 
         case WorkflowEntityEffectImpl(persistence, transition, reply) =>
           val protoEffect =
@@ -216,7 +220,7 @@ final class WorkflowEntityImpl(system: ActorSystem, val services: Map[String, Wo
           Future.failed(ProtocolException(command, "Receiving Workflow is not the intended recipient of command"))
 
         case InCommand(command) if command.payload.isEmpty =>
-          Future.failed(throw ProtocolException(command, "No command payload for Workflow"))
+          Future.failed(ProtocolException(command, "No command payload for Workflow"))
 
         case InCommand(command) =>
           val metadata = new MetadataImpl(command.metadata.map(_.entries.toVector).getOrElse(Nil))
@@ -258,8 +262,9 @@ final class WorkflowEntityImpl(system: ActorSystem, val services: Map[String, Wo
               case NonFatal(ex)       =>
                 // FIXME: not want we need.
                 // We need an exception with more context about the failed step
-                log.error(s"step execution protocol exception for $executeStep", ex)
-                throw ProtocolException(executeStep.stepName)
+                throw EntityException(
+                  s"unexpected exception [${ex.getMessage}] while executing step [${executeStep.stepName}]",
+                  Some(ex))
             }
 
           stepResponse.map { stp =>
@@ -275,8 +280,9 @@ final class WorkflowEntityImpl(system: ActorSystem, val services: Map[String, Wo
               case NonFatal(ex)       =>
                 // FIXME: not want we need.
                 // We need an exception with more context about the failed step
-                log.error(s"transition execution protocol exception for $cmd", ex)
-                throw ProtocolException(cmd.stepName)
+                throw EntityException(
+                  s"unexpected exception [${ex.getMessage}] while executing transition for step [${cmd.stepName}]",
+                  Some(ex))
             }
 
           Future.successful(toProtoEffect(effect, cmd.commandId))
