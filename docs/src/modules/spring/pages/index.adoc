@@ -1,4 +1,4 @@
-= Developing with Spring (beta)
+= Developing with Spring
 
 include::ROOT:partial$include.adoc[]
 include::partial$attributes.adoc[]
