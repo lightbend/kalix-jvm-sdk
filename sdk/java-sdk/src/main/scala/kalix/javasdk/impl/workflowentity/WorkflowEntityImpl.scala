@@ -260,8 +260,6 @@ final class WorkflowEntityImpl(system: ActorSystem, val services: Map[String, Wo
             } catch {
               case e: EntityException => throw e
               case NonFatal(ex)       =>
-                // FIXME: not want we need.
-                // We need an exception with more context about the failed step
                 throw EntityException(
                   s"unexpected exception [${ex.getMessage}] while executing step [${executeStep.stepName}]",
                   Some(ex))
@@ -278,8 +276,6 @@ final class WorkflowEntityImpl(system: ActorSystem, val services: Map[String, Wo
             } catch {
               case e: EntityException => throw e
               case NonFatal(ex)       =>
-                // FIXME: not want we need.
-                // We need an exception with more context about the failed step
                 throw EntityException(
                   s"unexpected exception [${ex.getMessage}] while executing transition for step [${cmd.stepName}]",
                   Some(ex))
