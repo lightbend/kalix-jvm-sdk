@@ -259,7 +259,7 @@ final class WorkflowEntityImpl(system: ActorSystem, val services: Map[String, Wo
                 workflowContext)
             } catch {
               case e: EntityException => throw e
-              case NonFatal(ex)       =>
+              case NonFatal(ex) =>
                 throw EntityException(
                   s"unexpected exception [${ex.getMessage}] while executing step [${executeStep.stepName}]",
                   Some(ex))
@@ -275,7 +275,7 @@ final class WorkflowEntityImpl(system: ActorSystem, val services: Map[String, Wo
               router._internalGetNextStep(cmd.stepName, cmd.result.get, service.messageCodec)
             } catch {
               case e: EntityException => throw e
-              case NonFatal(ex)       =>
+              case NonFatal(ex) =>
                 throw EntityException(
                   s"unexpected exception [${ex.getMessage}] while executing transition for step [${cmd.stepName}]",
                   Some(ex))
