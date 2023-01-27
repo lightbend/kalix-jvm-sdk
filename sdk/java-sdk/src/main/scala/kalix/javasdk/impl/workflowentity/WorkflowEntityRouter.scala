@@ -47,8 +47,12 @@ import kalix.protocol.workflow_entity.StepResponse
 object WorkflowEntityRouter {
   final case class CommandResult(effect: WorkflowEntity.Effect[_])
 
-  final case class CommandHandlerNotFound(commandName: String) extends RuntimeException
-  final case class WorkflowStepNotFound(stepName: String) extends RuntimeException
+  final case class CommandHandlerNotFound(commandName: String) extends RuntimeException {
+    override def getMessage: String = commandName
+  }
+  final case class WorkflowStepNotFound(stepName: String) extends RuntimeException {
+    override def getMessage: String = stepName
+  }
 }
 
 abstract class WorkflowEntityRouter[S, W <: WorkflowEntity[S]](protected val workflow: W) {
@@ -153,7 +157,7 @@ abstract class WorkflowEntityRouter[S, W <: WorkflowEntity[S]](protected val wor
           StepResponse(commandId, stepName, StepResponse.Response.Executed(executedRes))
         }
       case None =>
-        Future.failed(throw WorkflowStepNotFound(stepName))
+        Future.failed(WorkflowStepNotFound(stepName))
     }
 
   }

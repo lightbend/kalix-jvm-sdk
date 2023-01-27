@@ -30,6 +30,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 
 import java.time.Duration;
 import java.util.UUID;
@@ -52,7 +53,6 @@ public class SpringWorkflowIntegrationTest {
 
 
   @Test
-  @Disabled("waiting for the fix in sdk")
   public void shouldNotStartTransferForWithNegativeAmount() {
     var walletId1 = "1";
     var walletId2 = "2";
@@ -65,6 +65,9 @@ public class SpringWorkflowIntegrationTest {
     ResponseEntity<Void> response = webClient.put().uri(transferUrl)
         .bodyValue(transfer)
         .retrieve()
+        .onStatus(HttpStatus::is4xxClientError, clientResponse ->
+            Mono.empty()
+        )
         .toBodilessEntity()
         .block(timeout);
 

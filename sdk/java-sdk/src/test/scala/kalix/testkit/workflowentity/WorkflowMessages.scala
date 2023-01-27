@@ -26,6 +26,7 @@ import kalix.protocol.workflow_entity.WorkflowStreamOut.{ Message => OutMessage 
 import kalix.protocol.workflow_entity._
 import kalix.testkit.entity.EntityMessages
 import scalapb.{ GeneratedMessage => ScalaPbMessage }
+import kalix.protocol.workflow_entity.{ NoTransition => ProtoNoTransition }
 
 object WorkflowMessages extends EntityMessages {
 
@@ -78,7 +79,12 @@ object WorkflowMessages extends EntityMessages {
 
   def actionFailure(id: Long, description: String, statusCode: Status.Code): OutMessage = {
     val failure = component.Failure(id, description, statusCode.value())
-    OutMessage.Failure(failure)
-
+    val failureClientAction = WorkflowClientAction.defaultInstance.withFailure(failure)
+    val noTransition = WorkflowEffect.Transition.NoTransition(ProtoNoTransition.defaultInstance)
+    val failureEffect = WorkflowEffect.defaultInstance
+      .withClientAction(failureClientAction)
+      .withTransition(noTransition)
+      .withCommandId(id)
+    WorkflowStreamOut.Message.Effect(failureEffect)
   }
 }

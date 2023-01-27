@@ -40,6 +40,9 @@ object EntityExceptions {
     def apply(message: String): EntityException =
       EntityException(entityId = "", commandId = 0, commandName = "", message, None)
 
+    def apply(message: String, cause: Option[Throwable]): EntityException =
+      EntityException(entityId = "", commandId = 0, commandName = "", message, cause)
+
     def apply(command: Command, message: String): EntityException =
       EntityException(command.entityId, command.id, command.name, message, None)
 
