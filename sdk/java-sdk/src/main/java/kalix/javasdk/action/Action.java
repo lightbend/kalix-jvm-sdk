@@ -24,6 +24,7 @@ import kalix.javasdk.impl.action.ActionContextImpl;
 import kalix.javasdk.impl.action.ActionEffectImpl;
 import kalix.javasdk.timer.TimerScheduler;
 import kalix.javasdk.impl.timer.TimerSchedulerImpl;
+import reactor.core.publisher.Mono;
 
 import java.util.Collection;
 import java.util.Optional;
@@ -148,6 +149,24 @@ public abstract class Action {
        * @param <S> The type of the message that must be returned by this call.
        */
       <S> Effect<S> asyncEffect(CompletionStage<Effect<S>> futureEffect);
+
+      /**
+       * Create a message reply from an async operation result.
+       *
+       * @param message The future payload of the reply.
+       * @return A message reply.
+       * @param <S> The type of the message that must be returned by this call.
+       */
+      <S> Effect<S> asyncReply(Mono<S> message);
+
+      /**
+       * Create a reply from an async operation result returning an effect.
+       *
+       * @param futureEffect The future effect to reply with.
+       * @return A reply, the actual type depends on the nested Effect.
+       * @param <S> The type of the message that must be returned by this call.
+       */
+      <S> Effect<S> asyncEffect(Mono<Effect<S>> futureEffect);
 
       /**
        * Ignore the current element and proceed with processing the next element if returned for an

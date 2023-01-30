@@ -60,6 +60,7 @@ object Dependencies {
   val jacksonParameterNames = "com.fasterxml.jackson.module" % "jackson-module-parameter-names" % JacksonVersion
   val jacksonScala = "com.fasterxml.jackson.module" %% "jackson-module-scala" % JacksonVersion
   val jacksonDataFormatProto = "com.fasterxml.jackson.dataformat" % "jackson-dataformat-protobuf" % JacksonVersion
+  val reactorCore = "io.projectreactor" % "reactor-core" % "3.5.2"
 
   val scalaTest = "org.scalatest" %% "scalatest" % ScalaTestVersion
   val munit = "org.scalameta" %% "munit" % MunitVersion
@@ -101,7 +102,8 @@ object Dependencies {
     jacksonDatabind,
     jacksonJdk8,
     jacksonJsr310,
-    jacksonParameterNames)
+    jacksonParameterNames,
+    reactorCore)
 
   val sdkCore = deps ++= coreDeps
 

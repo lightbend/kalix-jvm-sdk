@@ -21,8 +21,8 @@ import kalix.javasdk.action.Action
 
 import java.util
 import java.util.concurrent.CompletionStage
-
 import io.grpc.Status
+import reactor.core.publisher.Mono
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
@@ -95,8 +95,10 @@ object ActionEffectImpl {
     }
     def asyncReply[S](futureMessage: CompletionStage[S]): Action.Effect[S] =
       AsyncEffect(futureMessage.asScala.map(s => Builder.reply[S](s))(ExecutionContext.parasitic), Nil)
+    def asyncReply[S](futureMessage: Mono[S]): Action.Effect[S] = asyncReply(futureMessage.toFuture)
     def asyncEffect[S](futureEffect: CompletionStage[Action.Effect[S]]): Action.Effect[S] =
       AsyncEffect(futureEffect.asScala, Nil)
+    def asyncEffect[S](futureEffect: Mono[Action.Effect[S]]): Action.Effect[S] = asyncEffect(futureEffect.toFuture)
     def ignore[S](): Action.Effect[S] =
       IgnoreEffect()
   }
