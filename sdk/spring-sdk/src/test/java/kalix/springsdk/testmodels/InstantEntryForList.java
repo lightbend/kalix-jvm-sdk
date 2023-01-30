@@ -16,13 +16,6 @@
 
 package kalix.springsdk.testmodels;
 
-import java.util.List;
+import java.time.Instant;
 
-public class NestedMessage {
-  public String string;
-  public SimpleMessage simpleMessage;
-
-  public InstantWrapper instantWrapper;
-  public List<InstantEntryForList> instantsList;
-  public InstantEntryForArray[] instantArrays;
-}
+public record InstantEntryForList(Instant instant) { }

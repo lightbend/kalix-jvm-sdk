@@ -16,14 +16,21 @@
 
 package kalix.springsdk.impl
 
-import com.google.protobuf.DescriptorProtos
+import java.lang.reflect.AnnotatedParameterizedType
+import java.lang.reflect.Field
+import java.lang.reflect.ParameterizedType
+import java.time.Instant
+
+import scala.annotation.tailrec
+import scala.jdk.CollectionConverters._
+
 import com.fasterxml.jackson.dataformat.protobuf.ProtobufMapper
+import com.fasterxml.jackson.dataformat.protobuf.schema.ProtobufField
 import com.fasterxml.jackson.dataformat.protobuf.schema.ProtobufMessage
 import com.fasterxml.jackson.dataformat.protobuf.{ schema => jacksonSchema }
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
+import com.google.protobuf.DescriptorProtos
 import com.google.protobuf.DescriptorProtos.FieldDescriptorProto
-
-import scala.jdk.CollectionConverters._
 
 /**
  * Extracts a protobuf schema for a message, used only for assigning a typed schema to view state and results
@@ -32,18 +39,87 @@ object ProtoMessageDescriptors {
   private val protobufMapper = ProtobufMapper.builder.addModule(new JavaTimeModule).build;
 
   def generateMessageDescriptors(javaClass: Class[_]): ProtoMessageDescriptors = {
+
     val jacksonProtoSchema = protobufMapper.generateSchemaFor(javaClass)
 
     val messages = jacksonProtoSchema.getMessageTypes.asScala.toSeq.map { messageType =>
       val jacksonType = jacksonProtoSchema.withRootType(messageType).getRootType
-      toProto(jacksonType)
+      toProto(jacksonType, javaClass)
     }
     val (Seq(mainDescriptor), otherDescriptors) =
       messages.partition(_.getName.endsWith(jacksonProtoSchema.getRootType.getName))
+
     ProtoMessageDescriptors(mainDescriptor, otherDescriptors)
   }
 
-  private def toProto(jacksonType: ProtobufMessage): DescriptorProtos.DescriptorProto = {
+  private def isTimestampField(
+      jacksonType: ProtobufMessage,
+      protoField: ProtobufField,
+      javaClass: Class[_]): Boolean = {
+
+    def lookupOriginalJavaType(jacksonType: ProtobufMessage, javaClass: Class[_]): Option[Class[_]] = {
+
+      def isClassMatch(cls: Class[_]): Boolean = cls.getSimpleName == jacksonType.getName
+      def isFieldMatch(field: Field): Boolean = isClassMatch(field.getType)
+
+      if (isClassMatch(javaClass)) Some(javaClass)
+      else {
+        javaClass.getDeclaredFields
+          .collectFirst {
+            // if current class has a field matching jacksonType,
+            // we can already stop search and return this type
+            case field if isFieldMatch(field) => field.getType
+          }
+          .orElse {
+            // if current class doesn't have a matching field,
+            // we need to scan its underling fields
+
+            // we are only interested in fields for types that can potentially
+            // have a field of type Instant, therefore we use the filter below will reduce the search space.
+            val filterOutNonApplicable = (field: Field) => {
+              val typ = field.getType
+              typ != classOf[Instant] && // certainly not a type we want to scan in
+              typ != javaClass && // eliminate recursive types (types having itself as fields)
+              !typ.getPackageName.startsWith("java.lang") // exclude all 'java.lang' types
+            }
+
+            javaClass.getDeclaredFields
+              .filter(filterOutNonApplicable)
+              .collect {
+                // for repeated fields (collections), we need the type parameter instead
+                case field if field.getType.getPackageName.startsWith("java.util") =>
+                  field.getAnnotatedType
+                    .asInstanceOf[AnnotatedParameterizedType]
+                    .getAnnotatedActualTypeArguments
+                    .head // repeated fields are collections of one type param
+                    .getType
+                    .asInstanceOf[Class[_]]
+                case field if field.getType.isArray => field.getType.getComponentType
+                case field                          => field.getType
+              }
+              .flatMap(typ => lookupOriginalJavaType(jacksonType, typ))
+              .headOption
+          }
+      }
+    }
+
+    if (!protoField.isObject && protoField.`type`.name() == "DOUBLE") {
+      val originalJavaClass = lookupOriginalJavaType(jacksonType, javaClass)
+      originalJavaClass match {
+        case Some(cls) =>
+          val instantField = cls.getDeclaredFields.find { field =>
+            field.getName == protoField.name && field.getType == classOf[Instant]
+          }
+          instantField.nonEmpty
+        case _ => false
+      }
+    } else {
+      false
+    }
+  }
+
+  private def toProto(jacksonType: ProtobufMessage, javaClass: Class[_]): DescriptorProtos.DescriptorProto = {
+
     val builder = DescriptorProtos.DescriptorProto.newBuilder()
     builder.setName(jacksonType.getName)
     jacksonType.fields().forEach { field =>
@@ -52,9 +128,12 @@ object ProtoMessageDescriptors {
         .setName(field.name)
         .setNumber(field.id)
 
-      if (!field.isObject)
+      if (isTimestampField(jacksonType, field, javaClass)) {
+        fieldDescriptor.setType(DescriptorProtos.FieldDescriptorProto.Type.TYPE_MESSAGE)
+        fieldDescriptor.setTypeName("google.protobuf.Timestamp")
+      } else if (!field.isObject) {
         fieldDescriptor.setType(protoTypeFor(field))
-      else {
+      } else {
         fieldDescriptor.setType(DescriptorProtos.FieldDescriptorProto.Type.TYPE_MESSAGE)
         fieldDescriptor.setTypeName(field.getMessageType.getName)
       }

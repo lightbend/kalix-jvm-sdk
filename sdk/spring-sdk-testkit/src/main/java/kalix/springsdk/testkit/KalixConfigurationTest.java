@@ -16,6 +16,7 @@
 
 package kalix.springsdk.testkit;
 
+import kalix.javasdk.JsonSupport;
 import kalix.javasdk.testkit.KalixTestKit;
 import kalix.springsdk.KalixConfiguration;
 import kalix.springsdk.impl.KalixServer;
@@ -26,9 +27,9 @@ import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
-import org.springframework.core.env.Environment;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.http.codec.json.Jackson2JsonEncoder;
 import org.springframework.web.reactive.function.client.WebClient;
 
 /** Spring test configuration for Kalix integration tests. */
@@ -52,6 +53,10 @@ public class KalixConfigurationTest {
     return WebClient.builder()
         .baseUrl("http://localhost:" + kalixTestKit.getPort())
         .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+        .codecs(configurer -> {
+          configurer.defaultCodecs().jackson2JsonEncoder(
+            new Jackson2JsonEncoder(JsonSupport.getObjectMapper(), MediaType.APPLICATION_JSON));
+        })
         .build();
   }
 

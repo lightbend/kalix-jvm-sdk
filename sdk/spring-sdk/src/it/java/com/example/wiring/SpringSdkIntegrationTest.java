@@ -20,8 +20,10 @@ import com.example.Main;
 import com.example.wiring.actions.echo.Message;
 import com.example.wiring.actions.headers.ForwardHeadersAction;
 import com.example.wiring.eventsourcedentities.counter.Counter;
+import com.example.wiring.valueentities.customer.CustomerEntity;
 import com.example.wiring.valueentities.user.User;
 import com.example.wiring.valueentities.user.UserSideEffect;
+import com.example.wiring.views.CustomerByCreationTime;
 import com.example.wiring.views.UserCounters;
 import com.example.wiring.views.UserWithVersion;
 import kalix.springsdk.KalixConfigurationTest;
@@ -43,6 +45,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
 import java.time.Duration;
+import java.time.Instant;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -529,6 +532,28 @@ public class SpringSdkIntegrationTest {
     Assertions.assertEquals(value, actionResponse);
   }
 
+  @Test
+  public void searchUsingInstant() {
+
+    var now = Instant.now();
+    var later = now.plusSeconds(60 * 5);
+
+    createCustomer(new CustomerEntity.Customer("customer1", later));
+
+
+    // the view is eventually updated
+    await()
+      .ignoreExceptions()
+      .atMost(20, TimeUnit.SECONDS)
+      .until(() -> getCustomersByCreationDate(now).size(), new IsEqual(1));
+
+    await()
+      .ignoreExceptions()
+      .atMost(20, TimeUnit.SECONDS)
+      .until(() -> getCustomersByCreationDate(later).size(), new IsEqual(0));
+  }
+
+
   @NotNull
   private List<User> getUsersByName(String name) {
     return webClient
@@ -571,6 +596,33 @@ public class SpringSdkIntegrationTest {
             .block(timeout);
     Assertions.assertEquals("\"Ok\"", userCreation);
   }
+
+
+  private void createCustomer(CustomerEntity.Customer customer) {
+    String created =
+      webClient
+        .put()
+        .uri("/customers/" + customer.name)
+        .bodyValue(customer)
+        .retrieve()
+        .bodyToMono(String.class)
+        .block(timeout);
+    Assertions.assertEquals("\"Ok\"", created);
+  }
+
+
+  @NotNull
+  private List<CustomerEntity.Customer> getCustomersByCreationDate(Instant createdOn) {
+    return webClient
+      .post()
+      .uri("/customers/by_creation_time")
+      .bodyValue(new CustomerByCreationTime.ByTimeRequest(createdOn))
+      .retrieve()
+      .bodyToFlux(CustomerEntity.Customer.class)
+      .toStream()
+      .collect(Collectors.toList());
+  }
+
 
   private void deleteUser(TestUser user) {
     String deleteUser =

@@ -26,10 +26,12 @@ import akka.actor.Extension
 import akka.actor.ExtensionId
 import akka.actor.ExtensionIdProvider
 import akka.annotation.InternalApi
+import kalix.javasdk.JsonSupport
 import kalix.javasdk.impl.ProxyInfoHolder
 import kalix.springsdk.WebClientProvider
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
+import org.springframework.http.codec.json.Jackson2JsonEncoder
 import org.springframework.web.reactive.function.client.ExchangeFilterFunctions
 import org.springframework.web.reactive.function.client.WebClient
 
@@ -94,6 +96,10 @@ private[springsdk] class WebClientProviderImpl(system: ExtendedActorSystem) exte
       WebClient.builder
         .baseUrl(s"http://$host:$port")
         .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+        .codecs(configurer => {
+          configurer.defaultCodecs.jackson2JsonEncoder(
+            new Jackson2JsonEncoder(JsonSupport.getObjectMapper, MediaType.APPLICATION_JSON))
+        })
         .filter(ExchangeFilterFunctions.limitResponseSize(MaxCrossServiceResponseContentLength))
 
     identificationHeader.foreach { case (key, value) =>
