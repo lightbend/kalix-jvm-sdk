@@ -31,7 +31,8 @@ object EventSourcedEntityRouter {
       events: Vector[Any],
       secondaryEffect: SecondaryEffectImpl,
       snapshot: Option[Any],
-      endSequenceNumber: Long)
+      endSequenceNumber: Long,
+      deleteEntity: Boolean)
 
   final case class CommandHandlerNotFound(commandName: String) extends RuntimeException
 
@@ -106,7 +107,7 @@ abstract class EventSourcedEntityRouter[S, E <: EventSourcedEntity[S]](protected
       }
     var currentSequence = context.sequenceNumber()
     commandEffect.primaryEffect match {
-      case EmitEvents(events) =>
+      case EmitEvents(events, deleteEntity) =>
         var shouldSnapshot = false
         events.foreach { event =>
           try {
@@ -135,7 +136,12 @@ abstract class EventSourcedEntityRouter[S, E <: EventSourcedEntity[S]](protected
         try {
           // side effect callbacks may want to access context or components which is valid
           entity._internalSetCommandContext(Optional.of(context))
-          CommandResult(events.toVector, commandEffect.secondaryEffect(endState), snapshot, currentSequence)
+          CommandResult(
+            events.toVector,
+            commandEffect.secondaryEffect(endState),
+            snapshot,
+            currentSequence,
+            deleteEntity)
         } finally {
           entity._internalSetCommandContext(Optional.empty())
         }
@@ -143,7 +149,12 @@ abstract class EventSourcedEntityRouter[S, E <: EventSourcedEntity[S]](protected
         try {
           // side effect callbacks may want to access context or components which is valid
           entity._internalSetCommandContext(Optional.of(context))
-          CommandResult(Vector.empty, commandEffect.secondaryEffect(_stateOrEmpty()), None, context.sequenceNumber())
+          CommandResult(
+            Vector.empty,
+            commandEffect.secondaryEffect(_stateOrEmpty()),
+            None,
+            context.sequenceNumber(),
+            deleteEntity = false)
         } finally {
           entity._internalSetCommandContext(Optional.empty())
         }

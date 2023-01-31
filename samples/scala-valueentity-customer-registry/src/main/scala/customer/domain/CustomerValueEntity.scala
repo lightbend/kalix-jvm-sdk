@@ -37,7 +37,7 @@ class CustomerValueEntity(context: ValueEntityContext) extends AbstractCustomerV
   override def delete(
       currentState: CustomerState,
       command: api.DeleteCustomerRequest): ValueEntity.Effect[Empty] = {
-    effects.deleteState().thenReply(Empty())
+    effects.deleteEntity().thenReply(Empty())
   }
 
   override def getCustomer(

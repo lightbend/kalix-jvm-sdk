@@ -124,6 +124,11 @@ object EventSourcedEntity {
     trait OnSuccessBuilder[S] {
 
       /**
+       * Delete the entity. No addition events are allowed.
+       */
+      def deleteEntity(): OnSuccessBuilder[S]
+
+      /**
        * Reply after for example <code>emitEvent</code>.
        *
        * @param replyMessage

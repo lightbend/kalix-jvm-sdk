@@ -20,7 +20,7 @@ import java.util.Optional
 
 import kalix.javasdk.valueentity.CommandContext
 import kalix.javasdk.impl.EntityExceptions
-import kalix.javasdk.impl.valueentity.ValueEntityEffectImpl.DeleteState
+import kalix.javasdk.impl.valueentity.ValueEntityEffectImpl.DeleteEntity
 import kalix.javasdk.impl.valueentity.ValueEntityEffectImpl.UpdateState
 import kalix.javasdk.valueentity.ValueEntity
 
@@ -83,8 +83,8 @@ abstract class ValueEntityRouter[S, E <: ValueEntity[S]](protected val entity: E
           if (newState == null)
             throw new IllegalArgumentException("updateState with null state is not allowed.")
           state = Some(newState.asInstanceOf[S])
-        case DeleteState => state = None
-        case _           =>
+        case DeleteEntity => state = None
+        case _            =>
       }
     }
 

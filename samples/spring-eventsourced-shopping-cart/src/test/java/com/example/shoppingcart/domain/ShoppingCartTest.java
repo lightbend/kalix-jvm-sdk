@@ -41,7 +41,7 @@ public class ShoppingCartTest {
       assertEquals(testKit.getAllEvents().size(), 2); // <6>
       var result = testKit.call(ShoppingCartEntity::getCart); // <7>
       assertEquals(
-        new ShoppingCart("testkit-entity-id", List.of(akkaTshirt.withQuantity(15))),
+        new ShoppingCart("testkit-entity-id", List.of(akkaTshirt.withQuantity(15)), false),
         result.getReply());
     }
 

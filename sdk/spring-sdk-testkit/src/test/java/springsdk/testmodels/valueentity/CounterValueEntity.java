@@ -32,6 +32,6 @@ public class CounterValueEntity extends ValueEntity<Integer> {
   }
 
   public Effect<String> delete() {
-    return effects().deleteState().thenReply("Deleted");
+    return effects().deleteEntity().thenReply("Deleted");
   }
 }

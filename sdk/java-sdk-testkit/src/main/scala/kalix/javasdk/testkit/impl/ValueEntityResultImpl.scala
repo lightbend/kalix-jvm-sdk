@@ -87,7 +87,7 @@ private[kalix] final class ValueEntityResultImpl[R](effect: ValueEntityEffectImp
     case _                                    => throw new IllegalStateException("State was not updated by the effect")
   }
 
-  override def stateWasDeleted(): Boolean = effect.primaryEffect eq ValueEntityEffectImpl.DeleteState
+  override def stateWasDeleted(): Boolean = effect.primaryEffect eq ValueEntityEffectImpl.DeleteEntity
 
   private def toDeferredCallDetails(sideEffects: Vector[SideEffect]): JList[DeferredCallDetails[_, _]] = {
     sideEffects

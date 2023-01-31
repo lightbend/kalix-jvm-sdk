@@ -76,7 +76,7 @@ class ShoppingCart(context: ValueEntityContext) extends AbstractShoppingCart {
   // end::get-cart[]
 
   override def removeCart(currentState: Cart, removeShoppingCart: shoppingcart.RemoveShoppingCart): ValueEntity.Effect[Empty] =
-    effects.deleteState.thenReply(Empty.defaultInstance)
+    effects.deleteEntity.thenReply(Empty.defaultInstance)
 
 }
 

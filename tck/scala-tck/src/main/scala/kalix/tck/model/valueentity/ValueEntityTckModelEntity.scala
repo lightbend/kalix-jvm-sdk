@@ -34,7 +34,7 @@ class ValueEntityTckModelEntity(context: ValueEntityContext) extends AbstractVal
           case RequestAction.Action.Update(Update(newValue, _)) =>
             copy(state = newValue, effect = Left(effects.updateState(Persisted(newValue))))
           case RequestAction.Action.Delete(Delete(_)) =>
-            copy(state = "", effect = Left(effects.deleteState()))
+            copy(state = "", effect = Left(effects.deleteEntity()))
           case RequestAction.Action.Fail(Fail(message, _)) =>
             copy(effect = Right(effects.error(message)))
           case RequestAction.Action.Effect(Effect(id, sync, _)) =>

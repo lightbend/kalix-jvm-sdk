@@ -38,9 +38,9 @@ public class CounterStateSubscriptionActionTest {
 
   @Test
   @Ignore("to be implemented")
-  public void onDeleteStateTest() {
+  public void onDeleteEntityTest() {
     CounterStateSubscriptionActionTestKit testKit = CounterStateSubscriptionActionTestKit.of(CounterStateSubscriptionAction::new);
-    // ActionResult<Empty> result = testKit.onDeleteState();
+    // ActionResult<Empty> result = testKit.onDeleteEntity();
   }
 
 }

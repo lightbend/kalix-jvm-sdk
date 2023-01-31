@@ -31,7 +31,7 @@ service CounterStateSubscription {
     };
   }
 
-  rpc OnDeleteState (google.protobuf.Empty) returns (google.protobuf.Empty) {
+  rpc OnDeleteEntity (google.protobuf.Empty) returns (google.protobuf.Empty) {
     option (kalix.method).eventing.in = {
       value_entity: "counter"
       handle_deletes: true // <4>

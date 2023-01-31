@@ -50,7 +50,7 @@ public class CustomerValueEntity extends AbstractCustomerValueEntity {
 
   @Override
   public Effect<Empty> delete(CustomerDomain.CustomerState currentState, CustomerApi.DeleteCustomerRequest deleteCustomerRequest) {
-    return effects().deleteState().thenReply(Empty.getDefaultInstance());
+    return effects().deleteEntity().thenReply(Empty.getDefaultInstance());
   }
 
   private CustomerApi.Customer convertToApi(CustomerDomain.CustomerState state) {

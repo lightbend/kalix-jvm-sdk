@@ -82,7 +82,7 @@ public class CartEntity extends AbstractCartEntity {
   @Override
   public Effect<Empty> removeCart(
       ShoppingCartDomain.Cart currentState, ShoppingCartApi.RemoveShoppingCart removeShoppingCart) {
-    return effects().deleteState().thenReply(Empty.getDefaultInstance());
+    return effects().deleteEntity().thenReply(Empty.getDefaultInstance());
   }
 
   private ShoppingCartDomain.LineItem updateItem(

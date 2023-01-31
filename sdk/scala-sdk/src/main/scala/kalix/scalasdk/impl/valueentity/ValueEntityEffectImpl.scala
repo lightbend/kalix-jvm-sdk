@@ -35,7 +35,9 @@ private[scalasdk] final case class ValueEntityEffectImpl[S](
     with ValueEntity.Effect.OnSuccessBuilder[S]
     with ValueEntity.Effect[S] {
 
-  def deleteState(): ValueEntity.Effect.OnSuccessBuilder[S] = new ValueEntityEffectImpl(javasdkEffect.deleteState())
+  def deleteEntity(): ValueEntity.Effect.OnSuccessBuilder[S] = new ValueEntityEffectImpl(javasdkEffect.deleteEntity())
+
+  def deleteState(): ValueEntity.Effect.OnSuccessBuilder[S] = deleteEntity()
 
   def error[T](description: String): ValueEntity.Effect[T] = new ValueEntityEffectImpl(
     javasdkEffect.error[T](description))
