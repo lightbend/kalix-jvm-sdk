@@ -25,6 +25,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Stream;
 
 public class EchoAction extends Action {
 
@@ -63,5 +64,12 @@ public class EchoAction extends Action {
     return effects()
         .asyncReply(Mono.fromCompletionStage(
             CompletableFuture.completedFuture(new Message(response))));
+  }
+
+  @GetMapping("/async-echo-flux/message/{msg}")
+  public Effect<Message> stringMessageAsyncReplyFlux(@PathVariable String msg) {
+    String response = this.parrot.repeat(msg);
+    return effects()
+        .asyncReply(Flux.fromStream(Stream.of(new Message(response), new Message("ignored"))));
   }
 }

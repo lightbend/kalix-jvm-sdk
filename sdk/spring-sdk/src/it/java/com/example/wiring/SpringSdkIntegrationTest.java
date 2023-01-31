@@ -114,6 +114,20 @@ public class SpringSdkIntegrationTest {
   }
 
   @Test
+  public void verifyAsyncFluxReplyEchoActionWiring() {
+
+    Message response =
+        webClient
+            .get()
+            .uri("/async-echo-flux/message/ghi")
+            .retrieve()
+            .bodyToMono(Message.class)
+            .block(timeout);
+
+    Assertions.assertEquals("Parrot says: 'ghi'", response.text);
+  }
+
+  @Test
   public void verifyEchoActionRequestParam() {
 
     Message response =
