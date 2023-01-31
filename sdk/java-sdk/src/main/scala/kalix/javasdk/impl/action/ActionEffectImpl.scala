@@ -22,12 +22,18 @@ import kalix.javasdk.action.Action
 import java.util
 import java.util.concurrent.CompletionStage
 import io.grpc.Status
-import reactor.core.publisher.Mono
+import org.reactivestreams.Publisher
+import org.reactivestreams.Subscriber
+import org.reactivestreams.Subscription
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
+import scala.concurrent.Promise
 import scala.jdk.CollectionConverters._
 import scala.jdk.FutureConverters.CompletionStageOps
+import scala.jdk.FutureConverters.FutureOps
+import scala.util.Failure
+import scala.util.Success
 
 /** INTERNAL API */
 object ActionEffectImpl {
@@ -85,6 +91,19 @@ object ActionEffectImpl {
   }
 
   object Builder extends Action.Effect.Builder {
+
+    private class FirstOnlySubscriber[S] extends Subscriber[S] {
+      private val promise = Promise[S]
+      def toFuture: Future[S] = promise.future
+
+      override def onSubscribe(s: Subscription): Unit = s.request(1) // we will be using only the first element to reply
+      override def onNext(t: S): Unit = if (!promise.isCompleted) promise.complete(Success(t))
+      override def onError(t: Throwable): Unit = if (!promise.isCompleted) promise.complete(Failure(t))
+      override def onComplete(): Unit =
+        if (!promise.isCompleted)
+          promise.complete(Failure(throw new RuntimeException("Stream closed without any element received")))
+    }
+
     def reply[S](message: S): Action.Effect[S] = ReplyEffect(message, None, Nil)
     def reply[S](message: S, metadata: Metadata): Action.Effect[S] = ReplyEffect(message, Some(metadata), Nil)
     def forward[S](serviceCall: DeferredCall[_, S]): Action.Effect[S] = ForwardEffect(serviceCall, Nil)
@@ -95,10 +114,18 @@ object ActionEffectImpl {
     }
     def asyncReply[S](futureMessage: CompletionStage[S]): Action.Effect[S] =
       AsyncEffect(futureMessage.asScala.map(s => Builder.reply[S](s))(ExecutionContext.parasitic), Nil)
-    def asyncReply[S](futureMessage: Mono[S]): Action.Effect[S] = asyncReply(futureMessage.toFuture)
+    def asyncReply[S](messagePublisher: Publisher[S]): Action.Effect[S] = {
+      val sub = new FirstOnlySubscriber[S]
+      messagePublisher.subscribe(sub)
+      asyncReply(sub.toFuture.asJava)
+    }
     def asyncEffect[S](futureEffect: CompletionStage[Action.Effect[S]]): Action.Effect[S] =
       AsyncEffect(futureEffect.asScala, Nil)
-    def asyncEffect[S](futureEffect: Mono[Action.Effect[S]]): Action.Effect[S] = asyncEffect(futureEffect.toFuture)
+    def asyncEffect[S](effectPublisher: Publisher[Action.Effect[S]]): Action.Effect[S] = {
+      val sub = new FirstOnlySubscriber[Action.Effect[S]]
+      effectPublisher.subscribe(sub)
+      asyncEffect(sub.toFuture.asJava)
+    }
     def ignore[S](): Action.Effect[S] =
       IgnoreEffect()
   }

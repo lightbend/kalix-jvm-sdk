@@ -60,7 +60,7 @@ object Dependencies {
   val jacksonParameterNames = "com.fasterxml.jackson.module" % "jackson-module-parameter-names" % JacksonVersion
   val jacksonScala = "com.fasterxml.jackson.module" %% "jackson-module-scala" % JacksonVersion
   val jacksonDataFormatProto = "com.fasterxml.jackson.dataformat" % "jackson-dataformat-protobuf" % JacksonVersion
-  val reactorCore = "io.projectreactor" % "reactor-core" % "3.5.2"
+  val reactiveStreams = "org.reactivestreams" % "reactive-streams" % "1.0.4"
 
   val scalaTest = "org.scalatest" %% "scalatest" % ScalaTestVersion
   val munit = "org.scalameta" %% "munit" % MunitVersion
@@ -103,7 +103,7 @@ object Dependencies {
     jacksonJdk8,
     jacksonJsr310,
     jacksonParameterNames,
-    reactorCore)
+    reactiveStreams)
 
   val sdkCore = deps ++= coreDeps
 

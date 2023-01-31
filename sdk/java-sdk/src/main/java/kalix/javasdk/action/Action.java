@@ -24,7 +24,7 @@ import kalix.javasdk.impl.action.ActionContextImpl;
 import kalix.javasdk.impl.action.ActionEffectImpl;
 import kalix.javasdk.timer.TimerScheduler;
 import kalix.javasdk.impl.timer.TimerSchedulerImpl;
-import reactor.core.publisher.Mono;
+import org.reactivestreams.Publisher;
 
 import java.util.Collection;
 import java.util.Optional;
@@ -151,22 +151,25 @@ public abstract class Action {
       <S> Effect<S> asyncEffect(CompletionStage<Effect<S>> futureEffect);
 
       /**
-       * Create a message reply from an async operation result.
+       * Create a message reply from a {@link org.reactivestreams.Publisher}.
+       * Note: only the first element will be requested and used to create the reply,
+       * further elements being ignored.
        *
-       * @param message The future payload of the reply.
+       * @param publisher The publisher from which the message will be consumed to create the reply.
        * @return A message reply.
        * @param <S> The type of the message that must be returned by this call.
        */
-      <S> Effect<S> asyncReply(Mono<S> message);
+      <S> Effect<S> asyncReply(Publisher<S> publisher);
 
       /**
        * Create a reply from an async operation result returning an effect.
-       *
-       * @param futureEffect The future effect to reply with.
+       * Note: only the first element will be requested and used to create the effect,
+       * further elements being ignored.
+       * @param futureEffect The publisher from which the effect will be consumed to create the reply.
        * @return A reply, the actual type depends on the nested Effect.
        * @param <S> The type of the message that must be returned by this call.
        */
-      <S> Effect<S> asyncEffect(Mono<Effect<S>> futureEffect);
+      <S> Effect<S> asyncEffect(Publisher<Effect<S>> futureEffect);
 
       /**
        * Ignore the current element and proceed with processing the next element if returned for an

@@ -56,4 +56,12 @@ public class EchoAction extends Action {
             i -> Mono.fromCompletionStage(CompletableFuture.supplyAsync(() -> parrot.repeat(msg))))
         .map(m -> effects().reply(new Message(m)));
   }
+
+  @GetMapping("/async-echo/message/{msg}")
+  public Effect<Message> stringMessageAsyncReply(@PathVariable String msg) {
+    String response = this.parrot.repeat(msg);
+    return effects()
+        .asyncReply(Mono.fromCompletionStage(
+            CompletableFuture.completedFuture(new Message(response))));
+  }
 }

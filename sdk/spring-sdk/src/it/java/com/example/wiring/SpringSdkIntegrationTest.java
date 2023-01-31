@@ -100,6 +100,20 @@ public class SpringSdkIntegrationTest {
   }
 
   @Test
+  public void verifyAsyncReplyEchoActionWiring() {
+
+    Message response =
+        webClient
+            .get()
+            .uri("/async-echo/message/def")
+            .retrieve()
+            .bodyToMono(Message.class)
+            .block(timeout);
+
+    Assertions.assertEquals("Parrot says: 'def'", response.text);
+  }
+
+  @Test
   public void verifyEchoActionRequestParam() {
 
     Message response =
