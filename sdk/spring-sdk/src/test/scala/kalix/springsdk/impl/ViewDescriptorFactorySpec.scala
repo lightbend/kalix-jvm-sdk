@@ -18,6 +18,7 @@ package kalix.springsdk.impl
 
 import com.google.protobuf.Descriptors.FieldDescriptor
 import com.google.protobuf.Descriptors.FieldDescriptor.JavaType
+import com.google.protobuf.timestamp.Timestamp
 import kalix.JwtMethodOptions.JwtMethodMode
 import kalix.springsdk.testmodels.subscriptions.PubSubTestModels.EventStreamSubscriptionView
 import kalix.springsdk.testmodels.subscriptions.PubSubTestModels.SubscribeOnTypeToEventSourcedEvents
@@ -28,6 +29,7 @@ import kalix.springsdk.testmodels.view.ViewTestModels.MultiTableViewWithMultiple
 import kalix.springsdk.testmodels.view.ViewTestModels.MultiTableViewWithoutQuery
 import kalix.springsdk.testmodels.view.ViewTestModels.SubscribeToEventSourcedEvents
 import kalix.springsdk.testmodels.view.ViewTestModels.SubscribeToEventSourcedEventsWithMethodWithState
+import kalix.springsdk.testmodels.view.ViewTestModels.TimeTrackerView
 import kalix.springsdk.testmodels.view.ViewTestModels.TransformedUserView
 import kalix.springsdk.testmodels.view.ViewTestModels.TransformedUserViewUsingState
 import kalix.springsdk.testmodels.view.ViewTestModels.TransformedUserViewWithDeletes
@@ -198,6 +200,23 @@ class ViewDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSuit
 
         val rule = findHttpRule(desc, "GetUser")
         rule.getPost shouldBe "/users/by-email"
+      }
+
+    }
+
+    "convert Interval fields to proto Timestamp" in {
+      assertDescriptor[TimeTrackerView] { desc =>
+
+        val timerStateMsg = desc.fileDescriptor.findMessageTypeByName("TimerState")
+        val createdTimeField = timerStateMsg.findFieldByName("createdTime")
+        createdTimeField.getMessageType shouldBe Timestamp.javaDescriptor
+
+        val timerEntry = desc.fileDescriptor.findMessageTypeByName("TimerEntry")
+        val startedField = timerEntry.findFieldByName("started")
+        startedField.getMessageType shouldBe Timestamp.javaDescriptor
+
+        val stoppedField = timerEntry.findFieldByName("stopped")
+        stoppedField.getMessageType shouldBe Timestamp.javaDescriptor
       }
     }
 
