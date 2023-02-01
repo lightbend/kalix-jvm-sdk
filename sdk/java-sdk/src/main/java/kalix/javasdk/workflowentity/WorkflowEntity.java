@@ -96,7 +96,7 @@ public abstract class WorkflowEntity<S> {
   }
 
   /**
-   * @return A workflow definition in a form of loosely coupled steps and transition between them.
+   * @return A workflow definition in a form of steps and transitions between them.
    */
   @ApiMayChange
   public abstract Workflow<S> definition();
