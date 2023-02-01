@@ -375,7 +375,7 @@ public abstract class WorkflowEntity<S> {
       }
 
       /**
-       * Transition to a next step based on step action result.
+       * Transition to the next step based on the result of the step action.
        *
        * @param transitionFunc Function that transform the action result to a {@link Effect.TransitionalEffect}
        * @return CallStep
@@ -400,7 +400,7 @@ public abstract class WorkflowEntity<S> {
       }
 
       /**
-       * Transition to a next step based on step action result.
+       * Transition to the next step based on the result of the step action.
        *
        * @param transitionFunc Function that transform the action result to a {@link Effect.TransitionalEffect}
        * @return AsyncCallStep
