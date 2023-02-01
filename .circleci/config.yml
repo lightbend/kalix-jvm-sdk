@@ -1343,7 +1343,7 @@ jobs:
 
   publish-maven:
     docker:
-      - image: circleci/openjdk:11
+      - image: cimg/openjdk:17.0
     steps:
       - checkout
       - restore_deps_cache
