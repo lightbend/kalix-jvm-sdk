@@ -275,15 +275,15 @@ public abstract class WorkflowEntity<S> {
     String name();
   }
 
-  public static class Call<CallInput, DefCallInput, DefCallOutput> implements Step {
+  public static class CallStep<CallInput, DefCallInput, DefCallOutput> implements Step {
 
     final private String _name;
     final public Function<CallInput, DeferredCall<DefCallInput, DefCallOutput>> callFunc;
     final public Function<DefCallOutput, Effect.TransitionalEffect<Void>> transitionFunc;
 
-    public Call(String name,
-                Function<CallInput, DeferredCall<DefCallInput, DefCallOutput>> callFunc,
-                Function<DefCallOutput, Effect.TransitionalEffect<Void>> transitionFunc) {
+    public CallStep(String name,
+                    Function<CallInput, DeferredCall<DefCallInput, DefCallOutput>> callFunc,
+                    Function<DefCallOutput, Effect.TransitionalEffect<Void>> transitionFunc) {
       _name = name;
       this.callFunc = callFunc;
       this.transitionFunc = transitionFunc;
@@ -295,15 +295,15 @@ public abstract class WorkflowEntity<S> {
     }
   }
 
-  public static class AsyncCall<I, O> implements Step {
+  public static class AsyncCallStep<I, O> implements Step {
 
     final private String _name;
     final public Function<I, CompletionStage<O>> callFunc;
     final public Function<O, Effect.TransitionalEffect<Void>> transitionFunc;
 
-    public AsyncCall(String name,
-                Function<I, CompletionStage<O>> callFunc,
-                Function<O, Effect.TransitionalEffect<Void>> transitionFunc) {
+    public AsyncCallStep(String name,
+                         Function<I, CompletionStage<O>> callFunc,
+                         Function<O, Effect.TransitionalEffect<Void>> transitionFunc) {
       _name = name;
       this.callFunc = callFunc;
       this.transitionFunc = transitionFunc;
@@ -378,11 +378,11 @@ public abstract class WorkflowEntity<S> {
        * Transition to a next step based on step action result.
        *
        * @param transitionFunc Function that transform the action result to a {@link Effect.TransitionalEffect}
-       * @return ???
+       * @return CallStep
        */
       @ApiMayChange
-      public Call<Input, DefCallInput, DefCallOutput> andThen(Function<DefCallOutput, Effect.TransitionalEffect<Void>> transitionFunc) {
-        return new Call<>(name, callFunc, transitionFunc);
+      public CallStep<Input, DefCallInput, DefCallOutput> andThen(Function<DefCallOutput, Effect.TransitionalEffect<Void>> transitionFunc) {
+        return new CallStep<>(name, callFunc, transitionFunc);
       }
     }
 
@@ -403,11 +403,11 @@ public abstract class WorkflowEntity<S> {
        * Transition to a next step based on step action result.
        *
        * @param transitionFunc Function that transform the action result to a {@link Effect.TransitionalEffect}
-       * @return ???
+       * @return AsyncCallStep
        */
       @ApiMayChange
-      public AsyncCall<I, O> andThen(Function<O, Effect.TransitionalEffect<Void>> transitionFunc) {
-        return new AsyncCall<>(name, callFunc, transitionFunc);
+      public AsyncCallStep<I, O> andThen(Function<O, Effect.TransitionalEffect<Void>> transitionFunc) {
+        return new AsyncCallStep<>(name, callFunc, transitionFunc);
       }
     }
   }
