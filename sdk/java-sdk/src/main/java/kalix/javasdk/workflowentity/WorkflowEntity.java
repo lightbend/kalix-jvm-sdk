@@ -343,8 +343,8 @@ public abstract class WorkflowEntity<S> {
      * @param <DefCallOutput> Output of deferred call.
      */
     @ApiMayChange
-    public <Input, DefCallInput, DefCallOutput> CallBuilder<Input, DefCallInput, DefCallOutput> call(Function<Input, DeferredCall<DefCallInput, DefCallOutput>> callFactory) {
-      return new CallBuilder<>(name, callFactory);
+    public <Input, DefCallInput, DefCallOutput> CallStepBuilder<Input, DefCallInput, DefCallOutput> call(Function<Input, DeferredCall<DefCallInput, DefCallOutput>> callFactory) {
+      return new CallStepBuilder<>(name, callFactory);
     }
 
     /**
@@ -356,12 +356,12 @@ public abstract class WorkflowEntity<S> {
      * @param <Output> Output of async call.
      */
     @ApiMayChange
-    public <Input, Output> AsyncCallBuilder<Input, Output> asyncCall(Function<Input, CompletionStage<Output>> callFactory) {
-      return new AsyncCallBuilder<>(name, callFactory);
+    public <Input, Output> AsyncCallStepBuilder<Input, Output> asyncCall(Function<Input, CompletionStage<Output>> callFactory) {
+      return new AsyncCallStepBuilder<>(name, callFactory);
     }
 
 
-    public static class CallBuilder<Input, DefCallInput, DefCallOutput> {
+    public static class CallStepBuilder<Input, DefCallInput, DefCallOutput> {
 
       final private String name;
 
@@ -369,7 +369,7 @@ public abstract class WorkflowEntity<S> {
       final private Function<Input, DeferredCall<DefCallInput, DefCallOutput>> callFunc;
 
 
-      public CallBuilder(String name,  Function<Input, DeferredCall<DefCallInput, DefCallOutput>> callFunc) {
+      public CallStepBuilder(String name, Function<Input, DeferredCall<DefCallInput, DefCallOutput>> callFunc) {
         this.name = name;
         this.callFunc = callFunc;
       }
@@ -386,7 +386,7 @@ public abstract class WorkflowEntity<S> {
       }
     }
 
-    public static class AsyncCallBuilder<I, O> {
+    public static class AsyncCallStepBuilder<I, O> {
 
       final private String name;
 
@@ -394,7 +394,7 @@ public abstract class WorkflowEntity<S> {
       final private Function<I, CompletionStage<O>> callFunc;
 
 
-      public AsyncCallBuilder(String name,  Function<I, CompletionStage<O>> callFunc) {
+      public AsyncCallStepBuilder(String name, Function<I, CompletionStage<O>> callFunc) {
         this.name = name;
         this.callFunc = callFunc;
       }
