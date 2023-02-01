@@ -38,7 +38,7 @@ public abstract class WorkflowEntity<S> {
   private boolean stateHasBeenSet = false;
 
   /**
-   * Implement by returning the initial empty state object. This object will be passed into the
+   * Returns the initial empty state object. This object will be passed into the
    * command and step handlers, until a new state replaces it.
    *
    * <p>Also known as "zero state" or "neutral state".
