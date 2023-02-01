@@ -190,7 +190,7 @@ public abstract class WorkflowEntity<S> {
     }
 
     /**
-     * A workflow effect type that contains information about transition to next step. This could be also special transition to pause or end the workflow.
+     * A workflow effect type that contains information about the transition to the next step. This could be also a special transition to pause or end the workflow.
      */
     interface TransitionalEffect<T> extends Effect<T> {
 
