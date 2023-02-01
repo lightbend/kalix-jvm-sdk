@@ -20,6 +20,7 @@ import io.grpc.Status;
 import kalix.javasdk.DeferredCall;
 import kalix.javasdk.Metadata;
 import kalix.javasdk.SideEffect;
+import kalix.javasdk.StatusCode;
 import kalix.javasdk.impl.action.ActionContextImpl;
 import kalix.javasdk.impl.action.ActionEffectImpl;
 import kalix.javasdk.timer.TimerScheduler;
@@ -122,7 +123,7 @@ public abstract class Action {
       <S> Effect<S> error(String description);
 
       /**
-       * Create an error reply.
+       * Create an error reply with a custom gRPC status code.
        *
        * @param description The description of the error.
        * @param statusCode A custom gRPC status code.
@@ -130,6 +131,16 @@ public abstract class Action {
        * @param <T> The type of the message that must be returned by this call.
        */
       <T> Effect<T> error(String description, Status.Code statusCode);
+
+      /**
+       * Create an error reply with a custom HTTP status code.
+       *
+       * @param description The description of the error.
+       * @param statusCode A custom HTTP status code.
+       * @return An error reply.
+       * @param <T> The type of the message that must be returned by this call.
+       */
+      <T> Effect<T> error(String description, StatusCode statusCode);
 
       /**
        * Create a message reply from an async operation result.
