@@ -29,6 +29,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import reactor.core.publisher.Flux;
 
 import java.time.Instant;
+import java.util.List;
 
 
 @ViewId("view_customers_by_creation_time")
@@ -36,6 +37,7 @@ import java.time.Instant;
 @Subscribe.ValueEntity(CustomerEntity.class)
 public class CustomerByCreationTime extends View<CustomerEntity.Customer> {
 
+  public record CustomerList(List<CustomerEntity.Customer> customers){}
   public static class ByTimeRequest {
     final public Instant createdOn;
 
@@ -46,8 +48,8 @@ public class CustomerByCreationTime extends View<CustomerEntity.Customer> {
   }
 
   @PostMapping("/customers/by_creation_time")
-  @Query("SELECT * FROM customers_by_creation_time WHERE createdOn >= :createdOn")
-  public Flux<CustomerEntity.Customer> getCustomerByTime(@RequestBody ByTimeRequest request) {
+  @Query("SELECT * as customers FROM customers_by_creation_time WHERE createdOn >= :createdOn")
+  public Flux<CustomerList> getCustomerByTime(@RequestBody ByTimeRequest request) {
     return null;
   }
 

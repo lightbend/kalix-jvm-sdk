@@ -616,9 +616,9 @@ public class SpringSdkIntegrationTest {
       .uri("/customers/by_creation_time")
       .bodyValue(new CustomerByCreationTime.ByTimeRequest(createdOn))
       .retrieve()
-      .bodyToFlux(CustomerEntity.Customer.class)
-      .toStream()
-      .collect(Collectors.toList());
+      .bodyToMono(CustomerByCreationTime.CustomerList.class)
+      .block(timeout)
+      .customers();
   }
 
 
