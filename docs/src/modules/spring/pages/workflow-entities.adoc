@@ -4,9 +4,21 @@
 
 //TODO prepare opening paragraph
 
-== Modeling workflow state
+== Modeling state
 
-Workflow state design should be oriented around data that are not required to run all workflow step but also to track workflow progress.
+We want to build a simple workflow that transfers funds between two wallets. Before that, we will create a wallet subdomain with some basic functionalities that we could use later. For simplicity a `WalletEntity` is implemented as a `ValueEntity`, but for a production-ready solution an `EventSourcedEntity` would be much better choice.
+
+[source,java]
+.src/main/java/com/example/wallet/WalletEntity.java
+----
+include::example$spring-transfer-workflow/src/main/java/com/example/wallet/WalletEntity.java[tag=wallet]
+----
+<1> An endpoint to create a wallet with an initial balance.
+<2> An endpoint to withdraw funds from the wallet.
+<2> An endpoint to deposit funds to the wallet.
+<2> An endpoint to get current wallet balance.
+
+Now we could focus on the workflow implementation itself. A workflow has state, which can be updated in command handlers and transition methods. During the state modeling we might consider the data required for validation, running the steps, collecting the information from steps or tracking the workflow progress.
 
 [source,java]
 .src/main/java/com/example/transfer/TransferState.java
@@ -18,14 +30,14 @@ include::example$spring-transfer-workflow/src/main/java/com/example/transfer/Tra
 
 == Implementing behavior
 
-Now that we have our workflow state defined, the remaining steps can be summarized as follows:
+Now that we have our workflow state defined, the remaining tasks can be summarized as follows:
 
 - declare your entity and pick an entity type and key (it needs to be unique as it will be used for sharding purposes);
 - define an access point (i.e. a route path) to your entity;
 - implement endpoint(s) to interact with the workflow (e.g. to start a workflow, or provide additional data);
 - provide a workflow definition with all possible steps and transitions between them.
 
-Let's have a look at what our transfer workflow entity will look like for the first 2 steps from the above list:
+Let's have a look at what our transfer workflow entity will look like for the first 2 points from the above list:
 
 [source,java]
 .src/main/java/com/example/transfer/TransferWorkflowEntity.java
@@ -43,7 +55,7 @@ NOTE: The EntityKey `transferId` must match a path parameter (i.e. `transferId`)
 
 === Starting workflow
 
-Having created the basis of our workflow entity, we will now define how to launch a workflow with a command handler. In the example below, we define a new endpoint that will accept `StartTransfer` command and return an `Effect` to start a workflow by providing a transition to the first step. Also, we will update the state with an initial value.
+Having created the basis of our workflow entity, we will now define how to launch a workflow with a command handler. In the example below, we define a new endpoint that will accept `StartTransfer` command and return an `Effect` to start a workflow by providing a `transition` to the first step. Also, we will update the state with an initial value.
 
 
 [source,java]
@@ -52,17 +64,17 @@ Having created the basis of our workflow entity, we will now define how to launc
 include::example$spring-transfer-workflow/src/main/java/com/example/transfer/TransferWorkflowEntity.java[tag=start]
 ----
 <1> The validation ensures the transfer amount is greater than zero and it fails for calls with illegal values by returning an `Effect` with `effects().error`.
-<2> From the incoming command we create an initial `TransferState`.
-<3> We instruct Kalix to persist the new state.
-<4> With the `transition` method, we inform that the input for the first step is a `Withdraw` class and the name of the step is `withdrawStepName="withdraw"`.
-<5> The last instruction is to inform the caller that the workflow was successfully started.
-<6> We should handle the situation when the workflow is already running and return a proper message. Otherwise, we might corrupt the running workflow.
+<2> We should handle the situation when the workflow is already running and return a proper message. Otherwise, we might corrupt the running workflow.
+<3> From the incoming command we create an initial `TransferState`.
+<4> We instruct Kalix to persist the new state.
+<5> With the `transition` method, we inform that the input for the first step is a `Withdraw` class and the name of the step is `"withdraw"`.
+<6> The last instruction is to inform the caller that the workflow was successfully started.
 
 IMPORTANT: For simplicity purposes, we are reusing the internal `Transfer` record as a request body. This should be a separate class and our domain state model shouldn't be exposed as an entity public `API`.
 
 === Workflow definition
 
-One missing piece of our transfer workflow implementation is a workflow `definition` method, which provides all steps connected with transitions. A workflow `Step` has a unique name, an action to perform (e.g. deferred call to an existing Kalix component, or asynchronous call to any external service) and a transition to point the next step or `end` transition to finish the workflow (in case of the last step).
+One missing piece of our transfer workflow implementation is a workflow `definition` method, which composes all steps connected with transitions. A workflow `Step` has a unique name, an action to perform (e.g. deferred call to an existing Kalix component, or asynchronous call to any external service) and a transition to select the next step (or `end` transition to finish the workflow, in case of the last step).
 
 //TODO add some diagram or sth
 

@@ -9,35 +9,15 @@ public record TransferState(Transfer transfer, TransferStatus status) {
   }
 
   public enum TransferStatus { // <2>
-    STARTED, MANUAL_APPROVAL_REQUIRED, ACCEPTED, SUCCESSFUL_WITHDRAWAL, COMPLETED, REJECTED
+    STARTED, SUCCESSFUL_WITHDRAWAL, COMPLETED
   }
-  // end::domain[]
 
   public TransferState(Transfer transfer) {
     this(transfer, STARTED);
   }
 
-  public TransferState asAccepted() {
-    return new TransferState(transfer, ACCEPTED);
-  }
-
-  public TransferState asCompleted() {
-    return new TransferState(transfer, COMPLETED);
-  }
-
-  public TransferState asManualApprovalRequired() {
-    return new TransferState(transfer, MANUAL_APPROVAL_REQUIRED);
-  }
-
-  public TransferState asSuccessfulWithdrawal() {
-    return new TransferState(transfer, SUCCESSFUL_WITHDRAWAL);
-  }
-
-  public TransferState asRejected() {
-    return new TransferState(transfer, REJECTED);
-  }
-
-  public boolean requiresApproval() {
-    return status == MANUAL_APPROVAL_REQUIRED;
+  public TransferState withStatus(TransferStatus newStatus){
+    return new TransferState(transfer, newStatus);
   }
 }
+// end::domain[]

@@ -337,10 +337,10 @@ public abstract class WorkflowEntity<S> {
      * Build a step action with a call to an existing Kalix component via {@link DeferredCall}.
      *
      * @param callFactory Factory method for creating deferred call.
-     * @return Step builder.
      * @param <Input> Input for deferred call factory, provided by transition method.
      * @param <DefCallInput> Input for deferred call.
      * @param <DefCallOutput> Output of deferred call.
+     * @return Step builder.
      */
     @ApiMayChange
     public <Input, DefCallInput, DefCallOutput> CallStepBuilder<Input, DefCallInput, DefCallOutput> call(Function<Input, DeferredCall<DefCallInput, DefCallOutput>> callFactory) {
@@ -351,9 +351,9 @@ public abstract class WorkflowEntity<S> {
      * Build a step action with an async call.
      *
      * @param callFactory Factory method for creating async call.
-     * @return Step builder.
      * @param <Input> Input for async call factory, provided by transition method.
      * @param <Output> Output of async call.
+     * @return Step builder.
      */
     @ApiMayChange
     public <Input, Output> AsyncCallStepBuilder<Input, Output> asyncCall(Function<Input, CompletionStage<Output>> callFactory) {

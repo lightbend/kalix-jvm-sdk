@@ -2,7 +2,7 @@ package com.example.transfer;
 
 import com.example.Main;
 import com.example.transfer.TransferState.Transfer;
-import com.example.wallet.Balance;
+import com.example.wallet.WalletEntity.Balance;
 import kalix.springsdk.testkit.KalixIntegrationTestKitSupport;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
@@ -17,9 +17,6 @@ import java.time.Duration;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
-import static com.example.transfer.TransferState.TransferStatus.COMPLETED;
-import static com.example.transfer.TransferState.TransferStatus.MANUAL_APPROVAL_REQUIRED;
-import static com.example.transfer.TransferState.TransferStatus.REJECTED;
 import static java.time.temporal.ChronoUnit.SECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
@@ -64,87 +61,6 @@ public class TransferWorkflowIntegrationTest extends KalixIntegrationTestKitSupp
         });
   }
 
-  @Test
-  public void shouldRejectTransfer() {
-    var walletId1 = "1";
-    var walletId2 = "2";
-    createWallet(walletId1, 100);
-    createWallet(walletId2, 100);
-    var transferId = randomTransferId();
-    var transferUrl = "/transfer/" + transferId;
-    var transfer = new Transfer(walletId1, walletId2, 1_000_001);
-
-    String response = webClient.put().uri(transferUrl)
-        .bodyValue(transfer)
-        .retrieve()
-        .bodyToMono(Message.class)
-        .map(Message::value)
-        .block(timeout);
-
-    assertThat(response).isEqualTo("transfer started");
-
-    await()
-        .atMost(10, TimeUnit.of(SECONDS))
-        .untilAsserted(() -> {
-          var balance1 = getWalletBalance(walletId1);
-          var balance2 = getWalletBalance(walletId2);
-
-          assertThat(balance1).isEqualTo(100);
-          assertThat(balance2).isEqualTo(100);
-
-          TransferState transferState = getTransferState(transferUrl);
-          assertThat(transferState.status()).isEqualTo(REJECTED);
-        });
-  }
-
-  @Test
-  public void shouldConfirmTransfer() {
-    var walletId1 = "1";
-    var walletId2 = "2";
-    createWallet(walletId1, 1001);
-    createWallet(walletId2, 100);
-    var transferId = randomTransferId();
-    var transferUrl = "/transfer/" + transferId;
-    var transfer = new Transfer(walletId1, walletId2, 1_001);
-
-    String response = webClient.put().uri(transferUrl)
-        .bodyValue(transfer)
-        .retrieve()
-        .bodyToMono(Message.class)
-        .map(Message::value)
-        .block(timeout);
-
-    assertThat(response).isEqualTo("transfer started");
-
-    await()
-        .atMost(10, TimeUnit.of(SECONDS))
-        .untilAsserted(() -> {
-          TransferState transferState = getTransferState(transferUrl);
-          assertThat(transferState.status()).isEqualTo(MANUAL_APPROVAL_REQUIRED);
-        });
-
-    String acceptationResponse = webClient.patch().uri(transferUrl + "/accept")
-        .bodyValue(transfer)
-        .retrieve()
-        .bodyToMono(Message.class)
-        .map(Message::value)
-        .block(timeout);
-
-    assertThat(acceptationResponse).isEqualTo("transfer accepted");
-
-    await()
-        .atMost(10, TimeUnit.of(SECONDS))
-        .untilAsserted(() -> {
-          var balance1 = getWalletBalance(walletId1);
-          var balance2 = getWalletBalance(walletId2);
-
-          assertThat(balance1).isEqualTo(0);
-          assertThat(balance2).isEqualTo(1101);
-
-          TransferState transferState = getTransferState(transferUrl);
-          assertThat(transferState.status()).isEqualTo(COMPLETED);
-        });
-  }
 
   private String randomTransferId(){
     return UUID.randomUUID().toString().substring(0, 8);
