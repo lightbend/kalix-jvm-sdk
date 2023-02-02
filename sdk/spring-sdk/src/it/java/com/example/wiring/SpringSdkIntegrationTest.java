@@ -533,13 +533,10 @@ public class SpringSdkIntegrationTest {
   }
 
   @Test
-  public void searchUsingInstant() {
+  public void searchWithInstant() {
 
     var now = Instant.now();
-    var later = now.plusSeconds(60 * 5);
-
-    createCustomer(new CustomerEntity.Customer("customer1", later));
-
+    createCustomer(new CustomerEntity.Customer("customer1", now));
 
     // the view is eventually updated
     await()
@@ -547,6 +544,7 @@ public class SpringSdkIntegrationTest {
       .atMost(20, TimeUnit.SECONDS)
       .until(() -> getCustomersByCreationDate(now).size(), new IsEqual(1));
 
+    var later = now.plusSeconds(60 * 5);
     await()
       .ignoreExceptions()
       .atMost(20, TimeUnit.SECONDS)
@@ -618,9 +616,9 @@ public class SpringSdkIntegrationTest {
       .uri("/customers/by_creation_time")
       .bodyValue(new CustomerByCreationTime.ByTimeRequest(createdOn))
       .retrieve()
-      .bodyToFlux(CustomerEntity.Customer.class)
-      .toStream()
-      .collect(Collectors.toList());
+      .bodyToMono(CustomerByCreationTime.CustomerList.class)
+      .block(timeout)
+      .customers();
   }
 
 
