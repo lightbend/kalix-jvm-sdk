@@ -49,7 +49,7 @@ public class OrderActionIntegrationTest extends KalixIntegrationTestKitSupport {
 
     await()
         .ignoreExceptions()
-        .atMost(20, TimeUnit.of(SECONDS))
+        .atMost(Duration.ofSeconds(20))
         .until(
             () ->
                 webClient.get()
@@ -67,7 +67,7 @@ public class OrderActionIntegrationTest extends KalixIntegrationTestKitSupport {
 
     await()
         .ignoreExceptions()
-        .atMost(20, TimeUnit.of(SECONDS))
+        .atMost(Duration.ofSeconds(20))
         .until(
             () ->
                 webClient.get()
@@ -100,7 +100,7 @@ public class OrderActionIntegrationTest extends KalixIntegrationTestKitSupport {
     // After the default timeout, status changed to not placed as order is reverted
     await()
         .ignoreExceptions()
-        .atMost(20, TimeUnit.of(SECONDS))
+        .atMost(Duration.ofSeconds(20))
         .until(
             () ->
                 webClient.get()

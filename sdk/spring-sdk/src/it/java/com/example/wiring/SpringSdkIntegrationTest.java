@@ -35,6 +35,8 @@ import org.junit.Ignore;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
@@ -64,6 +66,8 @@ public class SpringSdkIntegrationTest {
   private WebClient webClient;
 
   private Duration timeout = Duration.of(10, SECONDS);
+
+  final private Logger logger = LoggerFactory.getLogger(getClass());
 
   @Test
   public void verifyJavaPrimitivesAsParams() {
@@ -303,7 +307,7 @@ public class SpringSdkIntegrationTest {
 
     await()
         .ignoreExceptions()
-        .atMost(20, TimeUnit.SECONDS)
+        .atMost(Duration.ofSeconds(20))
         .until(
             () ->
                 webClient
@@ -406,7 +410,7 @@ public class SpringSdkIntegrationTest {
     // the view is eventually updated
     await()
         .ignoreExceptions()
-        .atMost(20, TimeUnit.SECONDS)
+        .atMost(Duration.ofSeconds(20))
         .until(
             () ->
                 webClient
@@ -430,7 +434,7 @@ public class SpringSdkIntegrationTest {
     // the view is eventually updated
     await()
         .ignoreExceptions()
-        .atMost(20, TimeUnit.SECONDS)
+        .atMost(Duration.ofSeconds(20))
         .until(() -> getUsersByName("joe").size(),
             new IsEqual(2));
   }
@@ -458,12 +462,12 @@ public class SpringSdkIntegrationTest {
 
     await()
         .ignoreExceptions()
-        .atMost(20, TimeUnit.SECONDS)
+        .atMost(Duration.ofSeconds(20))
         .until(() -> getUserCounters(alice.id).counters.size(), new IsEqual<>(2));
 
     await()
         .ignoreExceptions()
-        .atMost(20, TimeUnit.SECONDS)
+        .atMost(Duration.ofSeconds(20))
         .until(() -> getUserCounters(bob.id).counters.size(), new IsEqual<>(2));
 
     UserCounters aliceCounters = getUserCounters(alice.id);
@@ -533,7 +537,7 @@ public class SpringSdkIntegrationTest {
     Assertions.assertEquals(value, actionResponse);
   }
 
-  @Ignore
+  @Test
   public void searchWithInstant() {
 
     var now = Instant.now();
@@ -542,13 +546,13 @@ public class SpringSdkIntegrationTest {
     // the view is eventually updated
     await()
       .ignoreExceptions()
-      .atMost(20, TimeUnit.SECONDS)
+      .atMost(Duration.ofSeconds(20))
       .until(() -> getCustomersByCreationDate(now).size(), new IsEqual(1));
 
     var later = now.plusSeconds(60 * 5);
     await()
       .ignoreExceptions()
-      .atMost(20, TimeUnit.SECONDS)
+      .atMost(Duration.ofSeconds(20))
       .until(() -> getCustomersByCreationDate(later).size(), new IsEqual(0));
   }
 
@@ -612,7 +616,8 @@ public class SpringSdkIntegrationTest {
 
   @NotNull
   private List<CustomerEntity.Customer> getCustomersByCreationDate(Instant createdOn) {
-    return webClient
+    var start = Instant.now();
+    var results = webClient
       .post()
       .uri("/customers/by_creation_time")
       .bodyValue(new CustomerByCreationTime.ByTimeRequest(createdOn))
@@ -620,6 +625,10 @@ public class SpringSdkIntegrationTest {
       .bodyToMono(CustomerByCreationTime.CustomerList.class)
       .block(timeout)
       .customers();
+
+    var timeElapsed = Duration.between(start, Instant.now());
+    logger.info("Searching customer by creation time took: " + timeElapsed.toMillis());
+    return results;
   }
 
 

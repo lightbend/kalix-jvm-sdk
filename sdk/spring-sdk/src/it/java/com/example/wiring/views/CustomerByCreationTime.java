@@ -38,14 +38,7 @@ import java.util.List;
 public class CustomerByCreationTime extends View<CustomerEntity.Customer> {
 
   public record CustomerList(List<CustomerEntity.Customer> customers){}
-  public static class ByTimeRequest {
-    final public Instant createdOn;
-
-    @JsonCreator
-    public ByTimeRequest(@JsonProperty("createdOn") Instant createdOn) {
-      this.createdOn = createdOn;
-    }
-  }
+  public record ByTimeRequest(Instant createdOn) {}
 
   @PostMapping("/customers/by_creation_time")
   @Query("SELECT * as customers FROM customers_by_creation_time WHERE createdOn >= :createdOn")
