@@ -1,0 +1,100 @@
+= Implementing Workflow Entities
+:page-aliases: spring:workflow.adoc
+:sample-url: https://github.com/lightbend/kalix-jvm-sdk/tree/main/samples/spring-transfer-workflow
+
+//TODO prepare opening paragraph
+
+== Modeling workflow state
+
+Workflow state design should be oriented around data that are not required to run all workflow step but also to track workflow progress.
+
+[source,java]
+.src/main/java/com/example/transfer/TransferState.java
+----
+include::example$spring-transfer-workflow/src/main/java/com/example/transfer/TransferState.java[tag=domain]
+----
+<1> A `Transfer` record encapsulates data required to withdraw and deposit funds.
+<2> A `TransferStatus` enum is used to track workflow progress.
+
+== Implementing behavior
+
+Now that we have our workflow state defined, the remaining steps can be summarized as follows:
+
+- declare your entity and pick an entity type and key (it needs to be unique as it will be used for sharding purposes);
+- define an access point (i.e. a route path) to your entity;
+- implement endpoint(s) to interact with the workflow (e.g. to start a workflow, or provide additional data);
+- provide a workflow definition with all possible steps and transitions between them.
+
+Let's have a look at what our transfer workflow entity will look like for the first 2 steps from the above list:
+
+[source,java]
+.src/main/java/com/example/transfer/TransferWorkflowEntity.java
+----
+include::example$spring-transfer-workflow/src/main/java/com/example/transfer/TransferWorkflowEntity.java[tag=class]
+----
+<1> Create a class that extends `EventSourcedEntity<S>`, where `S` is the state type this entity will store (i.e. `TransferState`).
+<2> Make sure to annotate such class with `@EntityType` and pass a unique name for this entity type.
+<3> Annotate such class with `@EntityKey`  and pass the name of the key that will be used as the
+entity unique identifier.
+<4> Use Spring's RequestMapping annotation to define the route to your entity.
+
+
+NOTE: The EntityKey `transferId` must match a path parameter (i.e. `transferId`) and such value needs to be unique per entity. On the other hand, the EntityType `transfer` is common for all instances of this workflow entity but must be stable - cannot be changed after a production deploy - and unique across the different entity types.
+
+=== Starting workflow
+
+Having created the basis of our workflow entity, we will now define how to launch a workflow with a command handler. In the example below, we define a new endpoint that will accept `StartTransfer` command and return an `Effect` to start a workflow by providing a transition to the first step. Also, we will update the state with an initial value.
+
+
+[source,java]
+.src/main/java/com/example/transfer/TransferWorkflowEntity.java
+----
+include::example$spring-transfer-workflow/src/main/java/com/example/transfer/TransferWorkflowEntity.java[tag=start]
+----
+<1> The validation ensures the transfer amount is greater than zero and it fails for calls with illegal values by returning an `Effect` with `effects().error`.
+<2> From the incoming command we create an initial `TransferState`.
+<3> We instruct Kalix to persist the new state.
+<4> With the `transition` method, we inform that the input for the first step is a `Withdraw` class and the name of the step is `withdrawStepName="withdraw"`.
+<5> The last instruction is to inform the caller that the workflow was successfully started.
+<6> We should handle the situation when the workflow is already running and return a proper message. Otherwise, we might corrupt the running workflow.
+
+IMPORTANT: For simplicity purposes, we are reusing the internal `Transfer` record as a request body. This should be a separate class and our domain state model shouldn't be exposed as an entity public `API`.
+
+=== Workflow definition
+
+One missing piece of our transfer workflow implementation is a workflow `definition` method, which provides all steps connected with transitions. A workflow `Step` has a unique name, an action to perform (e.g. deferred call to an existing Kalix component, or asynchronous call to any external service) and a transition to point the next step or `end` transition to finish the workflow (in case of the last step).
+
+//TODO add some diagram or sth
+
+
+[source,java]
+.src/main/java/com/example/transfer/TransferWorkflowEntity.java
+----
+include::example$spring-transfer-workflow/src/main/java/com/example/transfer/TransferWorkflowEntity.java[tag=definition]
+----
+<1> Each step should have a unique name.
+<2> We instruct Kalix to run a given deferred call to withdraw funds from a wallet.
+<3> After successful withdrawal we return an `Effect` that will update the workflow state and move to the next step, `depositStepName="deposit"`.
+<4> An input parameter for `deposit` step is a `Deposit` record.
+<5> Another workflow step action to deposit funds to a given wallet.
+<6> This time we return an effect that will stop workflow processing, by using special `end` method.
+<7> We collect all steps to form a workflow definition.
+
+=== Retrieving state
+
+To have access to the current state of the workflow entity we can use `currentState()` (similar to other entities). However, if this is the first command we are receiving for this workflow entity, the state will be `null`. We can change it by overriding the `emptyState` method. The following example shows the implementation of the read-only command handler (accessed through `GET /transfer/transferId`):
+
+[source,java]
+.src/main/java/com/example/transfer/TransferWorkflowEntity.java
+----
+include::example$spring-transfer-workflow/src/main/java/com/example/transfer/TransferWorkflowEntity.java[tag=get-transfer]
+----
+<1> Marks this method as a command handler for `GET` requests.
+<2> Returns the current state as reply for the request.
+
+
+IMPORTANT: For simplicity purposes, we are returning the internal state directly back to the requester. In a real-world scenario, it's usually better to instead convert this internal domain model into a public model so the internal representation is free to evolve without breaking clients code.
+
+== Testing the Entity
+
+//TODO

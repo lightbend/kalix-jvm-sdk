@@ -1,8 +1,7 @@
-package com.example;
+package com.example.transfer;
 
-import com.example.transfer.Message;
-import com.example.transfer.Transfer;
-import com.example.transfer.TransferState;
+import com.example.Main;
+import com.example.transfer.TransferState.Transfer;
 import com.example.wallet.Balance;
 import kalix.springsdk.testkit.KalixIntegrationTestKitSupport;
 import org.junit.jupiter.api.Test;
@@ -18,9 +17,9 @@ import java.time.Duration;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
-import static com.example.transfer.TransferStatus.COMPLETED;
-import static com.example.transfer.TransferStatus.MANUAL_APPROVAL_REQUIRED;
-import static com.example.transfer.TransferStatus.REJECTED;
+import static com.example.transfer.TransferState.TransferStatus.COMPLETED;
+import static com.example.transfer.TransferState.TransferStatus.MANUAL_APPROVAL_REQUIRED;
+import static com.example.transfer.TransferState.TransferStatus.REJECTED;
 import static java.time.temporal.ChronoUnit.SECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
@@ -94,7 +93,6 @@ public class TransferWorkflowIntegrationTest extends KalixIntegrationTestKitSupp
           assertThat(balance2).isEqualTo(100);
 
           TransferState transferState = getTransferState(transferUrl);
-          assertThat(transferState.finished()).isTrue();
           assertThat(transferState.status()).isEqualTo(REJECTED);
         });
   }
@@ -122,7 +120,6 @@ public class TransferWorkflowIntegrationTest extends KalixIntegrationTestKitSupp
         .atMost(10, TimeUnit.of(SECONDS))
         .untilAsserted(() -> {
           TransferState transferState = getTransferState(transferUrl);
-          assertThat(transferState.finished()).isFalse();
           assertThat(transferState.status()).isEqualTo(MANUAL_APPROVAL_REQUIRED);
         });
 
@@ -145,7 +142,6 @@ public class TransferWorkflowIntegrationTest extends KalixIntegrationTestKitSupp
           assertThat(balance2).isEqualTo(1101);
 
           TransferState transferState = getTransferState(transferUrl);
-          assertThat(transferState.finished()).isTrue();
           assertThat(transferState.status()).isEqualTo(COMPLETED);
         });
   }
