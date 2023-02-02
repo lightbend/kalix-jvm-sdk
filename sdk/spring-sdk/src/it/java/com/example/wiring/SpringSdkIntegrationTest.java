@@ -616,8 +616,7 @@ public class SpringSdkIntegrationTest {
 
   @NotNull
   private List<CustomerEntity.Customer> getCustomersByCreationDate(Instant createdOn) {
-    var start = Instant.now();
-    var results = webClient
+    return webClient
       .post()
       .uri("/customers/by_creation_time")
       .bodyValue(new CustomerByCreationTime.ByTimeRequest(createdOn))
@@ -625,10 +624,6 @@ public class SpringSdkIntegrationTest {
       .bodyToMono(CustomerByCreationTime.CustomerList.class)
       .block(timeout)
       .customers();
-
-    var timeElapsed = Duration.between(start, Instant.now());
-    logger.info("Searching customer by creation time took: " + timeElapsed.toMillis());
-    return results;
   }
 
 

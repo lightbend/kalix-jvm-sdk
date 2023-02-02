@@ -32,6 +32,8 @@ import kalix.javasdk.impl.GrpcClients;
 import kalix.javasdk.impl.ProxyInfoHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.testcontainers.containers.BindMode;
+import org.testcontainers.containers.output.Slf4jLogConsumer;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -220,12 +222,20 @@ public class KalixTestKit {
   private void runProxy(Boolean useTestContainers, int port) {
 
     if (useTestContainers) {
+
       var proxyContainer = new KalixProxyContainer(port);
       this.proxyContainer = Optional.of(proxyContainer);
-      proxyContainer.addEnv("SERVICE_NAME", settings.serviceName);
-      proxyContainer.addEnv("ACL_ENABLED", Boolean.toString(settings.aclEnabled));
-      proxyContainer.addEnv("VIEW_FEATURES_ALL", Boolean.toString(settings.advancedViews));
-      proxyContainer.start();
+      proxyContainer
+        .withEnv("SERVICE_NAME", settings.serviceName)
+        .withEnv("ACL_ENABLED", Boolean.toString(settings.aclEnabled))
+        .withEnv("VIEW_FEATURES_ALL", Boolean.toString(settings.advancedViews))
+         // copy logback config into the container,
+        .withClasspathResourceMapping("it-test-logback.xml", "/kalix/it-test-logback.xml", BindMode.READ_WRITE)
+         // configure logback to use it-test-logback.xml instead
+        .withEnv("JAVA_OPTS", "-Dlogback.configurationFile=/kalix/it-test-logback.xml")
+        // kalix container logs are forwarded to a local logger 'kalix.proxy.container'
+        .withLogConsumer(new Slf4jLogConsumer(LoggerFactory.getLogger("kalix.proxy.container")))
+        .start();
 
       proxyPort = proxyContainer.getProxyPort();
       proxyHost = proxyContainer.getHost();
