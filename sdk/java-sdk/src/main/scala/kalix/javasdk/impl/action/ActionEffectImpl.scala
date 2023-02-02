@@ -23,7 +23,8 @@ import java.util
 import java.util.concurrent.CompletionStage
 import io.grpc.Status
 import kalix.javasdk.StatusCode
-import kalix.javasdk.impl.KalixStatusCode
+import kalix.javasdk.StatusCode.ErrorCode
+import kalix.javasdk.impl.StatusCodeConverter
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
@@ -94,8 +95,8 @@ object ActionEffectImpl {
       if (statusCode.toStatus.isOk) throw new IllegalArgumentException("Cannot fail with a success status")
       ErrorEffect(description, Some(statusCode), Nil)
     }
-    def error[T](description: String, statusCode: StatusCode): Action.Effect[T] =
-      error(description, KalixStatusCode.toGrpcCode(statusCode))
+    def error[S](description: String, errorCode: ErrorCode): Action.Effect[S] =
+      error(description, StatusCodeConverter.toGrpcCode(errorCode))
     def asyncReply[S](futureMessage: CompletionStage[S]): Action.Effect[S] =
       AsyncEffect(futureMessage.asScala.map(s => Builder.reply[S](s))(ExecutionContext.parasitic), Nil)
     def asyncEffect[S](futureEffect: CompletionStage[Action.Effect[S]]): Action.Effect[S] =

@@ -19,6 +19,7 @@ package kalix.javasdk.replicatedentity;
 import kalix.javasdk.Metadata;
 import kalix.javasdk.DeferredCall;
 import kalix.javasdk.SideEffect;
+import kalix.javasdk.StatusCode;
 import kalix.javasdk.impl.replicatedentity.ReplicatedEntityEffectImpl;
 import kalix.replicatedentity.ReplicatedData;
 import io.grpc.Status;
@@ -137,7 +138,19 @@ public abstract class ReplicatedEntity<D extends ReplicatedData> {
        * @return An error reply.
        * @param <T> The type of the message that must be returned by this call.
        */
+      @Deprecated
       <T> Effect<T> error(String description, Status.Code statusCode);
+      /**
+       * Create an error reply with a custom status code.
+       * This status code will be translated to an HTTP or gRPC code
+       * depending on the type of service being exposed.
+       *
+       * @param description The description of the error.
+       * @param errorCode A custom Kalix status code to represent the error.
+       * @return An error reply.
+       * @param <T> The type of the message that must be returned by this call.
+       */
+      <T> Effect<T> error(String description, StatusCode.ErrorCode errorCode);
     }
 
     interface OnSuccessBuilder {

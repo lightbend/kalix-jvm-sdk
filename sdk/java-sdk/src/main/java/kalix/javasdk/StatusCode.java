@@ -19,30 +19,24 @@ package kalix.javasdk;
 
 /**
  *  Interface used to represent a status code, typically used when replying with an error.
- *
+ *  **NOT** for user extension.
  */
-
 public interface StatusCode {
   /**
-   * The supported HTTP error codes that can be used when replying from the Kalix user function.
-   * Note: this list is not an exhaustive list of all the possible HTTP codes but only the ones available for use currently.
+   * The supported error codes that can be used when replying from the Kalix user function.
    *
+   * Note: the error code will be transcoded to a respective HTTP or gRPC code depending on the type of service being exposed.
    */
-  enum HttpErrorCode implements StatusCode {
-    BAD_REQUEST(400),
-    UNAUTHORIZED(401),
-    FORBIDDEN(403),
-    NOT_FOUND(404),
-    CONFLICT(409),
-    TOO_MANY_REQUESTS(429),
-    INTERNAL_SERVER_ERROR(500),
-    SERVICE_UNAVAILABLE(503),
-    GATEWAY_TIMEOUT(504);
-
-    public final int httpCode;
-    HttpErrorCode(int httpCode) {
-      this.httpCode = httpCode;
-    }
+  enum ErrorCode implements StatusCode {
+    BAD_REQUEST,
+    UNAUTHORIZED,
+    FORBIDDEN,
+    NOT_FOUND,
+    CONFLICT,
+    TOO_MANY_REQUESTS,
+    INTERNAL_SERVER_ERROR,
+    SERVICE_UNAVAILABLE,
+    GATEWAY_TIMEOUT
   }
 
 }

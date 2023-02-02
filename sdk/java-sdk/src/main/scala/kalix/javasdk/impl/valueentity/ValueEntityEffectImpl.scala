@@ -17,7 +17,6 @@
 package kalix.javasdk.impl.valueentity
 
 import java.util
-
 import scala.jdk.CollectionConverters._
 import kalix.javasdk.impl.effect.ErrorReplyImpl
 import kalix.javasdk.impl.effect.ForwardReplyImpl
@@ -29,6 +28,8 @@ import kalix.javasdk.valueentity.ValueEntity.Effect
 import Effect.Builder
 import Effect.OnSuccessBuilder
 import io.grpc.Status
+import kalix.javasdk.StatusCode.ErrorCode
+import kalix.javasdk.impl.StatusCodeConverter
 
 object ValueEntityEffectImpl {
   sealed trait PrimaryEffectImpl[+S]
@@ -81,6 +82,12 @@ class ValueEntityEffectImpl[S] extends Builder[S] with OnSuccessBuilder[S] with 
   override def error[T](description: String, statusCode: Status.Code): ValueEntityEffectImpl[T] = {
     if (statusCode.toStatus.isOk) throw new IllegalArgumentException("Cannot fail with a success status")
     _secondaryEffect = ErrorReplyImpl(description, Some(statusCode), _secondaryEffect.sideEffects)
+    this.asInstanceOf[ValueEntityEffectImpl[T]]
+  }
+
+  override def error[T](description: String, errorCode: ErrorCode): ValueEntityEffectImpl[T] = {
+    _secondaryEffect =
+      ErrorReplyImpl(description, Some(StatusCodeConverter.toGrpcCode(errorCode)), _secondaryEffect.sideEffects)
     this.asInstanceOf[ValueEntityEffectImpl[T]]
   }
 

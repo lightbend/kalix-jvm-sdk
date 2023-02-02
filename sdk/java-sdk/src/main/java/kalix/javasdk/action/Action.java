@@ -130,17 +130,20 @@ public abstract class Action {
        * @return An error reply.
        * @param <T> The type of the message that must be returned by this call.
        */
+      @Deprecated
       <T> Effect<T> error(String description, Status.Code statusCode);
 
       /**
-       * Create an error reply with a custom HTTP status code.
+       * Create an error reply with a custom status code.
+       * This status code will be translated to an HTTP or gRPC code
+       * depending on the type of service being exposed.
        *
        * @param description The description of the error.
-       * @param statusCode A custom HTTP status code.
+       * @param errorCode A custom Kalix status code to represent the error.
        * @return An error reply.
        * @param <T> The type of the message that must be returned by this call.
        */
-      <T> Effect<T> error(String description, StatusCode statusCode);
+      <T> Effect<T> error(String description, StatusCode.ErrorCode errorCode);
 
       /**
        * Create a message reply from an async operation result.

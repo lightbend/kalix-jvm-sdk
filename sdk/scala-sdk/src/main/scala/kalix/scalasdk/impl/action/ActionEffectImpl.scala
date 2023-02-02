@@ -18,14 +18,14 @@ package kalix.scalasdk.impl.action
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
-
 import kalix.javasdk
 import kalix.scalasdk.{ DeferredCall, Metadata, SideEffect }
 import kalix.scalasdk.action.Action
 import kalix.scalasdk.impl.ScalaDeferredCallAdapter
 import kalix.scalasdk.impl.ScalaSideEffectAdapter
-
 import io.grpc.Status
+import kalix.javasdk.StatusCode
+import kalix.javasdk.impl.StatusCodeConverter
 
 private[scalasdk] object ActionEffectImpl {
 
@@ -140,12 +140,16 @@ private[scalasdk] object ActionEffectImpl {
       if (statusCode.toStatus.isOk) throw new IllegalArgumentException("Cannot fail with a success status")
       else ErrorEffect(description, Some(statusCode), Nil)
 
+    override def error[S](description: String, statusCode: StatusCode.ErrorCode): Action.Effect[S] =
+      ErrorEffect(description, Some(StatusCodeConverter.toGrpcCode(statusCode)), Nil)
+
     override def asyncReply[S](futureMessage: Future[S]): Action.Effect[S] =
       AsyncEffect(futureMessage.map(s => Builder.reply[S](s))(ExecutionContext.parasitic), Nil)
     override def asyncEffect[S](futureEffect: Future[Action.Effect[S]]): Action.Effect[S] =
       AsyncEffect(futureEffect, Nil)
     override def ignore[S]: Action.Effect[S] =
       IgnoreEffect()
+
   }
 
   def builder(): Action.Effect.Builder = Builder

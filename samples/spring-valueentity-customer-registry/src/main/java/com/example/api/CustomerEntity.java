@@ -45,9 +45,7 @@ public class CustomerEntity extends ValueEntity<Customer> { // <4>
   public Effect<Customer> getCustomer() {
     if (currentState() == null)
       return effects().error(
-          "No customer found for id '" + commandContext().entityId() + "'",
-          Status.Code.NOT_FOUND
-        );
+          "No customer found for id '" + commandContext().entityId() + "'", Err);
     else   
       return effects().reply(currentState());
   }

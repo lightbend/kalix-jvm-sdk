@@ -19,6 +19,7 @@ package kalix.scalasdk.eventsourcedentity
 import kalix.scalasdk.{ Context, DeferredCall, Metadata, SideEffect }
 import kalix.scalasdk.impl.eventsourcedentity.EventSourcedEntityEffectImpl
 import io.grpc.Status
+import kalix.scalasdk.ErrorCode
 
 object EventSourcedEntity {
 
@@ -118,7 +119,23 @@ object EventSourcedEntity {
        * @tparam T
        *   The type of the message that must be returned by this call.
        */
+      @deprecated("Replaced by \"error(String, ErrorCode)\"")
       def error[T](description: String, statusCode: Status.Code): Effect[T]
+
+      /**
+       * Create an error reply with a custom status code. This status code will be translated to an HTTP or gRPC code
+       * depending on the type of service being exposed.
+       *
+       * @param description
+       *   The description of the error.
+       * @param errorCode
+       *   A custom Kalix status code to represent the error.
+       * @return
+       *   An error reply.
+       * @tparam T
+       *   The type of the message that must be returned by this call.
+       */
+      def error[T](description: String, errorCode: ErrorCode): Effect[T]
     }
 
     trait OnSuccessBuilder[S] {
