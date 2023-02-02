@@ -16,16 +16,16 @@
 
 package kalix.javasdk;
 
-
 /**
- *  Interface used to represent a status code, typically used when replying with an error.
- *  **NOT** for user extension.
+ * Interface used to represent a status code, typically used when replying with an error. **NOT**
+ * for user extension.
  */
 public interface StatusCode {
   /**
    * The supported error codes that can be used when replying from the Kalix user function.
    *
-   * Note: the error code will be transcoded to a respective HTTP or gRPC code depending on the type of service being exposed.
+   * <p>Note: the error code will be transcoded to a respective HTTP or gRPC code depending on the
+   * type of service being exposed.
    */
   enum ErrorCode implements StatusCode {
     BAD_REQUEST,
@@ -38,7 +38,4 @@ public interface StatusCode {
     SERVICE_UNAVAILABLE,
     GATEWAY_TIMEOUT
   }
-
 }
-
-
