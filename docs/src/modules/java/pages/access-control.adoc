@@ -1,7 +1,9 @@
-= Access Control Lists (ACLs)
+= Using ACLs
 :page-supergroup-java-scala: Language
 
-This section describes functionality in the Java/Scala SDK related to ACLs (Access Control Lists), for information about how the ACLs are defined and control access see https://docs.kalix.io/services/using-acls.html[Using ACLs]
+This section describes the practical aspects of configuring Access Control Lists (ACLs) with the Java/Scala SDKs, if you are not sure what ACLs are or how they work, see https://docs.kalix.io/security/acls.html[Access Control Lists] first.
+
+include::ROOT:partial$grpc/using-acls.adoc[]
 
 == Default ACL in project templates
 

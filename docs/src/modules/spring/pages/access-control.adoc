@@ -1,16 +1,6 @@
-= Access Control Lists (ACLs)
+= Using ACLs
 
-Access Control Lists (ACLs) allow you to control which services and sources of requests may access your services.
-
-Within a Kalix project, all communication between services uses Mutual TLS (mTLS). This is injected transparently by Kalix. The clients you use to make calls from one service to another do NOT need to be configured to do this. Kalix transparently captures outgoing requests to other services and wraps them in an mTLS connection.
-
-Based on this mTLS support, Kalix is able to read and apply policies based on where the request was made from.
-
-== Principals
-
-A principal in Kalix is an abstract concept that represents anything that can make or be the source of a request. Principals that are currently supported by Kalix include other services, and the internet. Kalix uses the above described mTLS support to associate requests with one or more principals.
-
-Note that requests that have the internet principal are requests that Kalix has identified as coming through the Kalix ingress, according to a configured route. This is identified by mTLS, however it does not imply that mTLS has been used to connect to the ingress from the client in the internet. These are separate hops. To configure mTLS from internet clients, see https://docs.kalix.io/services/using-client-certificates.html[Client certificates]
+This section describes the practical aspects of configuring Access Control Lists (ACLs) with the Spring SDK, if you are not sure what ACLs are or how they work, see https://docs.kalix.io/security/acls.html[Understanding ACLs] first.
 
 == Configuring ACLs
 

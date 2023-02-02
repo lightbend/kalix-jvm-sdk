@@ -1,0 +1,2 @@
+// this is just a placeholder so we can compile sdk docs here
+// the real file can be found in kalix-docs repo
