@@ -106,4 +106,6 @@ include::example$spring-transfer-workflow/src/main/java/com/example/transfer/Tra
 
 IMPORTANT: For simplicity purposes, we are returning the internal state directly back to the requester. In a real-world scenario, it's usually better to instead convert this internal domain model into a public model so the internal representation is free to evolve without breaking clients code.
 
-A full transfer workflow source code is available https://github.com/lightbend/kalix-jvm-sdk/tree/main/samples/spring-transfer-workflow[here]. Follow the Readme file to run and test it.
+//TODO update the `here` link after merge, otherwise the docs validation complain
+
+A full transfer workflow source code is available here. Follow the Readme file to run and test it.
