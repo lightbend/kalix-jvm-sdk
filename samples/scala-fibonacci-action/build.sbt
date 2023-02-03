@@ -37,5 +37,6 @@ Test / logBuffered := false
 
 run / fork := true
 Global / cancelable := false // ctrl-c
+run / javaOptions ++= Seq("-Dkalix.user-function-interface=0.0.0.0", "-Dlogback.configurationFile=logback-dev-mode.xml")
 
 libraryDependencies ++= Seq("org.scalatest" %% "scalatest" % "3.2.12" % Test)
