@@ -75,9 +75,10 @@ public class TransferWorkflowEntity extends WorkflowEntity<TransferState> { // <
   private Effect.TransitionalEffect<Void> moveToDeposit(String response) {
     TransferState transferState = currentState();
     TransferState successfulWithdrawal = transferState.withStatus(SUCCESSFUL_WITHDRAWAL);
+    Deposit depositInput = new Deposit(transferState.transfer().to(), transferState.transfer().amount());
     return effects()
         .updateState(successfulWithdrawal)
-        .transition(new Deposit(transferState.transfer().to(), transferState.transfer().amount()), "deposit"); // <3>
+        .transition(depositInput, "deposit"); // <3>
   }
 
   private Effect.TransitionalEffect<Void> finishWithSuccess(String response) {
@@ -99,9 +100,11 @@ public class TransferWorkflowEntity extends WorkflowEntity<TransferState> { // <
 
       TransferState initialState = new TransferState(transfer); // <3>
 
+      Withdraw withdrawInput = new Withdraw(transfer.from(), transfer.amount());
+
       return effects()
           .updateState(initialState) // <4>
-          .transition(new Withdraw(transfer.from(), transfer.amount()), "withdraw") // <5>
+          .transition(withdrawInput, "withdraw") // <5>
           .thenReply(new Message("transfer started")); // <6>
     }
   }

@@ -2,7 +2,7 @@
 :page-aliases: spring:workflow.adoc
 :sample-url: https://github.com/lightbend/kalix-jvm-sdk/tree/main/samples/spring-transfer-workflow
 
-//TODO prepare opening paragraph
+Implementing a business transaction that spans multiple services is one of the major distributes system challenges. Fortunately, with Kalix ecosystem, and concepts like https://docs.kalix.io/spring/actions-publishing-subscribing.html[Subscription], it's very easy to build event driven choreography that covers a complex business process. A https://microservices.io/patterns/data/saga.html[Saga pattern] that generalizes this solution was never so easy to implement. For some use cases a different flavor of the Saga pattern, a choreography, might be more suitable. That was the main driver behind a new Kalix component type called a Workflow Entity. From a high level perspective it joins the power of https://docs.kalix.io/concepts/state-model.html[Kalix Entities state model] (durability, consistency guaranties) and https://docs.kalix.io/spring/actions.html[Kalix Actions] ability to call other components and services. This time you can model your business process in a single place that will keep it running or rollback in case of a failure.
 
 == Modeling state
 
@@ -53,7 +53,7 @@ entity unique identifier.
 
 NOTE: The EntityKey `transferId` must match a path parameter (i.e. `transferId`) and such value needs to be unique per entity. On the other hand, the EntityType `transfer` is common for all instances of this workflow entity but must be stable - cannot be changed after a production deploy - and unique across the different entity types.
 
-=== Starting workflow
+== Starting workflow
 
 Having created the basis of our workflow entity, we will now define how to launch a workflow with a command handler. In the example below, we define a new endpoint that will accept `StartTransfer` command and return an `Effect` to start a workflow by providing a `transition` to the first step. Also, we will update the state with an initial value.
 
@@ -67,17 +67,16 @@ include::example$spring-transfer-workflow/src/main/java/com/example/transfer/Tra
 <2> We should handle the situation when the workflow is already running and return a proper message. Otherwise, we might corrupt the running workflow.
 <3> From the incoming command we create an initial `TransferState`.
 <4> We instruct Kalix to persist the new state.
-<5> With the `transition` method, we inform that the input for the first step is a `Withdraw` class and the name of the step is `"withdraw"`.
+<5> With the `transition` method, we inform that the input for the first step is a `Withdraw` object and the name of the step is `"withdraw"`.
 <6> The last instruction is to inform the caller that the workflow was successfully started.
 
 IMPORTANT: For simplicity purposes, we are reusing the internal `Transfer` record as a request body. This should be a separate class and our domain state model shouldn't be exposed as an entity public `API`.
 
-=== Workflow definition
+== Workflow definition
 
 One missing piece of our transfer workflow implementation is a workflow `definition` method, which composes all steps connected with transitions. A workflow `Step` has a unique name, an action to perform (e.g. deferred call to an existing Kalix component, or asynchronous call to any external service) and a transition to select the next step (or `end` transition to finish the workflow, in case of the last step).
 
 //TODO add some diagram or sth
-
 
 [source,java]
 .src/main/java/com/example/transfer/TransferWorkflowEntity.java
@@ -92,7 +91,7 @@ include::example$spring-transfer-workflow/src/main/java/com/example/transfer/Tra
 <6> This time we return an effect that will stop workflow processing, by using special `end` method.
 <7> We collect all steps to form a workflow definition.
 
-=== Retrieving state
+== Retrieving state
 
 To have access to the current state of the workflow entity we can use `currentState()` (similar to other entities). However, if this is the first command we are receiving for this workflow entity, the state will be `null`. We can change it by overriding the `emptyState` method. The following example shows the implementation of the read-only command handler (accessed through `GET /transfer/transferId`):
 
@@ -107,6 +106,4 @@ include::example$spring-transfer-workflow/src/main/java/com/example/transfer/Tra
 
 IMPORTANT: For simplicity purposes, we are returning the internal state directly back to the requester. In a real-world scenario, it's usually better to instead convert this internal domain model into a public model so the internal representation is free to evolve without breaking clients code.
 
-== Testing the Entity
-
-//TODO
+A full transfer workflow source code is available https://github.com/lightbend/kalix-jvm-sdk/tree/main/samples/spring-transfer-workflow[here]. Follow the Readme file to run and test it.
