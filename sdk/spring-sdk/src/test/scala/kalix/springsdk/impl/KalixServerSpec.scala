@@ -16,6 +16,8 @@
 
 package kalix.springsdk.impl
 
+import scala.util.control.NonFatal
+
 import kalix.springsdk.KalixConfiguration
 import kalix.springsdk.badwiring.action
 import kalix.springsdk.badwiring.action.IllDefinedAction
@@ -33,12 +35,21 @@ class KalixServerSpec extends AnyWordSpec with Matchers {
 
   val message = "is a Kalix component and is marked as a Spring bean for automatic wiring."
 
+  def tryCatch(f: () => Unit): Unit = {
+    try {
+      f()
+    } catch {
+      case NonFatal(ex) =>
+        ex.printStackTrace()
+        throw ex
+    }
+  }
   "The KalixServer" should {
 
     "block direct wiring of Kalix Actions" in {
       val errorMessage =
         intercept[BeanCreationException] {
-          action.Main.main(Array.empty)
+          tryCatch(() => action.Main.main(Array.empty))
         }.getCause.getMessage
 
       errorMessage shouldBe KalixConfiguration.beanPostProcessorErrorMessage(classOf[IllDefinedAction])
@@ -47,7 +58,7 @@ class KalixServerSpec extends AnyWordSpec with Matchers {
     "block direct wiring of Kalix Event Sourced entities" in {
       val errorMessage =
         intercept[BeanCreationException] {
-          Main.main(Array.empty)
+          tryCatch(() => Main.main(Array.empty))
         }.getCause.getMessage
 
       errorMessage shouldBe KalixConfiguration.beanPostProcessorErrorMessage(classOf[IllDefinedEventSourcedEntity])
@@ -56,7 +67,7 @@ class KalixServerSpec extends AnyWordSpec with Matchers {
     "block direct wiring of Kalix Value entities" in {
       val errorMessage =
         intercept[BeanCreationException] {
-          valueentity.Main.main(Array.empty)
+          tryCatch(() => valueentity.Main.main(Array.empty))
         }.getCause.getMessage
 
       errorMessage shouldBe KalixConfiguration.beanPostProcessorErrorMessage(classOf[IllDefinedValueEntity])
@@ -66,7 +77,7 @@ class KalixServerSpec extends AnyWordSpec with Matchers {
     "block direct wiring of Kalix Views" in {
       val errorMessage =
         intercept[BeanCreationException] {
-          view.Main.main(Array.empty)
+          tryCatch(() => view.Main.main(Array.empty))
         }.getCause.getMessage
 
       errorMessage shouldBe KalixConfiguration.beanPostProcessorErrorMessage(classOf[IllDefinedView])

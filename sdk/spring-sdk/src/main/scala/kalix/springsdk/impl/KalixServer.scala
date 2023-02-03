@@ -18,6 +18,7 @@ package kalix.springsdk.impl
 
 import java.lang.reflect.Modifier
 import scala.jdk.CollectionConverters.CollectionHasAsScala
+import scala.jdk.FutureConverters.CompletionStageOps
 import scala.jdk.OptionConverters.RichOption
 import scala.reflect.ClassTag
 import com.typesafe.config.Config
@@ -261,6 +262,17 @@ case class KalixServer(applicationContext: ApplicationContext, config: Config) {
     .withSdkName(SpringSdkBuildInfo.name)
     .withDefaultAclFileDescriptor(AclDescriptorFactory.defaultAclFileDescriptor(mainClass).toJava)
 
+  private lazy val kalixRunner = {
+    val finalConfig =
+      ConfigFactory
+        // it doesn't make sense to try to load descriptor source for
+        // the Spring SDK, so better to just disable it
+        .parseString("kalix.discovery.protobuf-descriptor-with-source-info-path=disabled")
+        .withFallback(config)
+
+    kalix.createRunner(finalConfig)
+  }
+
   private val provider = new KalixComponentProvider(cglibEnhanceMainClass.getClass)
 
   // load all Kalix components found in the classpath
@@ -332,17 +344,16 @@ case class KalixServer(applicationContext: ApplicationContext, config: Config) {
     }
 
   def start() = {
-    logger.info("Starting Kalix Server!")
-
-    val finalConfig =
-      ConfigFactory
-        // it doesn't make sense to try to load descriptor source for
-        // the Spring SDK, so better to just disable it
-        .parseString("kalix.discovery.protobuf-descriptor-with-source-info-path=disabled")
-        .withFallback(config)
-
-    kalix.createRunner(finalConfig).run()
+    logger.info("Starting Kalix Server...")
+    Await.ready(kalixRunner.run().asScala, 10.seconds)
   }
+
+  def stop() = {
+    logger.info("Stopping Kalix Server...")
+    Await.ready(kalixRunner.terminate().asScala, 10.seconds)
+  }
+
+  def port = kalixRunner.configuration.userFunctionPort
 
   /* Each component may have a creation context passed to its constructor.
    * This method checks if there is a constructor in `clz` that receives a `context`.

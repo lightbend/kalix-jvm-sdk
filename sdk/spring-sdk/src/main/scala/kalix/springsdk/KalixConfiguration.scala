@@ -18,8 +18,10 @@ package kalix.springsdk
 
 import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
+import kalix.springboot.KalixReactiveWebServerFactory
 import kalix.springsdk.impl.KalixServer
 import org.springframework.beans.factory.config.BeanPostProcessor
+import org.springframework.boot.autoconfigure.AutoConfiguration
 import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -32,25 +34,25 @@ object KalixConfiguration {
     "In order to interact with a Kalix component, you should call it using the provided KalixClient."
 }
 
-@Configuration
+@AutoConfiguration
 class KalixConfiguration(applicationContext: ApplicationContext) {
 
   @Bean
   def config: Config = ConfigFactory.load()
 
   @Bean
-  def kalixServer: KalixServer = {
-    val kalix = new KalixServer(applicationContext, config)
-    kalix.start()
-    kalix
-  }
+  def kalixReactiveWebServerFactory: KalixReactiveWebServerFactory =
+    new KalixReactiveWebServerFactory(kalixServer)
+
+  @Bean
+  def kalixServer: KalixServer =
+    new KalixServer(applicationContext, config)
 
   @Component
   class KalixComponentInjectionBlocker extends BeanPostProcessor {
     override def postProcessBeforeInitialization(bean: AnyRef, beanName: String): AnyRef = {
       if (KalixServer.kalixComponents.exists(_.isAssignableFrom(bean.getClass)))
         throw new IllegalArgumentException(KalixConfiguration.beanPostProcessorErrorMessage(bean.getClass))
-
       bean
     }
   }

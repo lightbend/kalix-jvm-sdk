@@ -17,9 +17,21 @@
 package kalix.springsdk.badwiring.view;
 
 import kalix.javasdk.view.View;
+import kalix.springsdk.annotations.Query;
 import kalix.springsdk.annotations.Table;
 import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.GetMapping;
 
 @Table("test")
 @Component
-public class IllDefinedView extends View<String> {}
+public class IllDefinedView extends View<IllDefinedView.DummyUser> {
+
+  record DummyUser(String s){}
+
+  @Query("SELECT * FROM users_view WHERE email = :email")
+  @GetMapping("/users/{email}")
+  public DummyUser getUser(String email) {
+    return null; // TODO: user should not implement this. we need to find a nice API for this
+  }
+
+}

@@ -28,11 +28,11 @@ object Dependencies {
   val JUnitVersion = "4.13.2"
   val JUnitInterfaceVersion = "0.11"
   val JUnitJupiterVersion = "5.7.1"
-  val SpringVersion = "3.0.2"
+  val SpringFrameworkVersion = "6.0.4"
+  val SpringBootVersion = "3.0.2"
 
   val CommonsIoVersion = "2.11.0"
   val MunitVersion = "0.7.29"
-  val ScoptVersions = "4.0.0"
 
   val kalixProxyProtocol = "io.kalix" % "kalix-proxy-protocol" % Kalix.ProxyVersion
   val kalixSdkProtocol = "io.kalix" % "kalix-sdk-protocol" % Kalix.ProxyVersion
@@ -51,7 +51,6 @@ object Dependencies {
   val protobufJava = "com.google.protobuf" % "protobuf-java" % ProtobufVersion
   val protobufJavaUtil = "com.google.protobuf" % "protobuf-java-util" % ProtobufVersion
 
-  val scopt = "com.github.scopt" %% "scopt" % ScoptVersions
   val jacksonCore = "com.fasterxml.jackson.core" % "jackson-core" % JacksonVersion
   val jacksonAnnotations = "com.fasterxml.jackson.core" % "jackson-annotations" % JacksonVersion
   val jacksonDatabind = "com.fasterxml.jackson.core" % "jackson-databind" % JacksonDatabindVersion
@@ -72,7 +71,6 @@ object Dependencies {
   val sbtProtoc = "com.thesamet" % "sbt-protoc" % "1.0.0"
 
   val akkaGrpc = "com.lightbend.akka.grpc" % "sbt-akka-grpc" % akka.grpc.gen.BuildInfo.version
-  val webflux = "org.springframework.boot" % "spring-boot-starter-webflux" % SpringVersion
 
   val typeTools = "net.jodah" % "typetools" % "0.6.3"
 
@@ -121,11 +119,19 @@ object Dependencies {
     junit5 % Provided,
     scalaTest % Test)
 
-  val springDeps = Seq(jacksonDataFormatProto, "org.springframework.boot" % "spring-boot" % SpringVersion, webflux)
+  val springDeps = Seq(
+    jacksonDataFormatProto,
+    "org.springframework.boot" % "spring-boot" % SpringBootVersion,
+    "org.springframework" % "spring-web" % SpringFrameworkVersion,
+    "org.springframework" % "spring-webflux" % SpringFrameworkVersion,
+    "org.springframework" % "spring-webmvc" % SpringFrameworkVersion,
+    "org.springframework.boot" % "spring-boot-starter" % SpringBootVersion,
+    "org.springframework.boot" % "spring-boot-starter-json" % SpringBootVersion,
+    "jakarta.websocket" % "jakarta.websocket-api" % "2.1.0")
 
   val sdkSpring = deps ++= coreDeps ++ springDeps ++ Seq(
     "net.aichler" % "jupiter-interface" % JupiterKeys.jupiterVersion.value % IntegrationTest,
-    "org.springframework.boot" % "spring-boot-starter-test" % SpringVersion % IntegrationTest,
+    "org.springframework.boot" % "spring-boot-starter-test" % SpringBootVersion % IntegrationTest,
     junit5 % IntegrationTest,
     "org.assertj" % "assertj-core" % "3.24.0" % IntegrationTest,
     "org.awaitility" % "awaitility" % "4.2.0" % IntegrationTest)
@@ -135,7 +141,7 @@ object Dependencies {
     Seq(
       junit5 % Test,
       "net.aichler" % "jupiter-interface" % JupiterKeys.jupiterVersion.value % Test,
-      "org.springframework.boot" % "spring-boot-starter-test" % SpringVersion)
+      "org.springframework.boot" % "spring-boot-starter-test" % SpringBootVersion)
 
   // FIXME
   val sdkScala = deps ++= coreDeps ++ Seq(jacksonScala)

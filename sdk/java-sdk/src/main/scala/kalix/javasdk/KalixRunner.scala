@@ -93,7 +93,7 @@ final class KalixRunner private[javasdk] (
   private[kalix] implicit val system: ActorSystem = _system
   private val log = LoggerFactory.getLogger(getClass)
 
-  private[this] final val configuration =
+  private[kalix] final val configuration =
     new KalixRunner.Configuration(system.settings.config.getConfig("kalix"))
 
   private val services = serviceFactories.toSeq.map { case (serviceName, factory) =>
