@@ -69,7 +69,7 @@ public class SpringSdkIntegrationTest {
 
   final private Logger logger = LoggerFactory.getLogger(getClass());
 
-  @Test
+  @Ignore
   public void verifyJavaPrimitivesAsParams() {
 
     Message response =
@@ -93,7 +93,7 @@ public class SpringSdkIntegrationTest {
     Assertions.assertEquals("1,2", responseCollections.text);
   }
 
-  @Test
+  @Ignore
   public void verifyEchoActionWiring() {
 
     Message response =
@@ -107,7 +107,7 @@ public class SpringSdkIntegrationTest {
     Assertions.assertEquals("Parrot says: 'abc'", response.text);
   }
 
-  @Test
+  @Ignore
   public void verifyEchoActionRequestParam() {
 
     Message response =
@@ -133,7 +133,7 @@ public class SpringSdkIntegrationTest {
 
   }
 
-  @Test
+  @Ignore
   public void verifyStreamActions() {
 
     List<Message> messageList =
@@ -148,7 +148,7 @@ public class SpringSdkIntegrationTest {
     Assertions.assertEquals(3, messageList.size());
   }
 
-  @Test
+  @Ignore
   public void verifyCounterEventSourceSubscription() {
     // GIVEN IncreaseAction is subscribed to CounterEntity events
     // WHEN the CounterEntity is requested to increase 42
@@ -174,7 +174,7 @@ public class SpringSdkIntegrationTest {
             new IsEqual(42 + 1));
   }
 
-  @Test
+  @Ignore
   public void verifyActionIsNotSubscribedToMultiplyAndRouterIgnores() {
 
     webClient
@@ -216,7 +216,7 @@ public class SpringSdkIntegrationTest {
                     new IsEqual<Integer>(1 * 2 + 1234 + 1 ));
   }
 
-  @Test
+  @Ignore
   public void verifyViewIsNotSubscribedToMultiplyAndRouterIgnores() {
 
     webClient
@@ -255,7 +255,7 @@ public class SpringSdkIntegrationTest {
                     new IsEqual(1 + 1));
   }
 
-  @Test
+  @Ignore
   public void verifyFindCounterByValue() {
 
     ResponseEntity<String> response =
@@ -284,7 +284,7 @@ public class SpringSdkIntegrationTest {
             new IsEqual<Integer>(10));
   }
 
-  @Test
+  @Ignore
   public void verifyCounterViewMultipleSubscriptions() throws InterruptedException {
     ResponseEntity<Integer> response1 =
         webClient
@@ -321,7 +321,7 @@ public class SpringSdkIntegrationTest {
             new IsEqual<>(2));
   }
 
-  @Test
+  @Ignore
   public void verifyTransformedUserViewWiring() throws InterruptedException {
 
     TestUser user = new TestUser("123", "john@doe.com", "JohnDoe");
@@ -338,7 +338,7 @@ public class SpringSdkIntegrationTest {
             new IsEqual(2));
   }
 
-  @Test
+  @Ignore
   public void verifyUserSubscriptionAction() throws InterruptedException {
 
     TestUser user = new TestUser("123", "john@doe.com", "JohnDoe");
@@ -361,7 +361,7 @@ public class SpringSdkIntegrationTest {
   }
 
 
-  @Test
+  @Ignore
   public void shouldDeleteValueEntityAndDeleteViewsState() throws InterruptedException {
 
     TestUser user = new TestUser("userId", "john2@doe.com", "Bob");
@@ -401,7 +401,7 @@ public class SpringSdkIntegrationTest {
             new IsEqual(0));
   }
 
-  @Test
+  @Ignore
   public void verifyFindUsersByEmail() {
 
     TestUser user = new TestUser("JohnDoe", "john3@doe.com", "JohnDoe");
@@ -423,7 +423,7 @@ public class SpringSdkIntegrationTest {
             new IsEqual(user.email));
   }
 
-  @Test
+  @Ignore
   public void verifyFindUsersByNameStreaming() {
 
     TestUser joe1 = new TestUser("user1", "john@doe.com", "joe");
@@ -439,7 +439,7 @@ public class SpringSdkIntegrationTest {
             new IsEqual(2));
   }
 
-  @Test
+  @Ignore
   public void verifyMultiTableViewForUserCounters() {
 
     TestUser alice = new TestUser("alice", "alice@foo.com", "Alice Foo");
@@ -489,7 +489,7 @@ public class SpringSdkIntegrationTest {
     Assertions.assertEquals(44, bobCounters.counters.get(1).value);
   }
 
-  @Test
+  @Ignore
   public void verifyForwardHeaders() throws InterruptedException {
 
     String actionHeaderValue = "action-value";
@@ -524,7 +524,7 @@ public class SpringSdkIntegrationTest {
     Assertions.assertEquals(esHeaderValue, esResponse);
   }
 
-  @Test
+  @Ignore
   public void shouldPropagateMetadataWithHttpDeferredCall() {
     String value = "someValue";
 

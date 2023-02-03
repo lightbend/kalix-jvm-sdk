@@ -76,6 +76,7 @@ public class KalixTestKit {
     /** Whether advanced View features are enabled. */
     public final boolean advancedViews;
 
+    public final  Optional<String> proxyLoggerConfig;
     /**
      * Create new settings for KalixTestkit.
      *
@@ -84,18 +85,21 @@ public class KalixTestKit {
      */
     @Deprecated
     public Settings(final Duration stopTimeout) {
-      this(stopTimeout, "self", false, false);
+      this(stopTimeout, "self", false, false, Optional.empty());
     }
 
     private Settings(
         final Duration stopTimeout,
         final String serviceName,
         final boolean aclEnabled,
-        final boolean advancedViews) {
+        final boolean advancedViews,
+        final Optional<String> proxyLoggerConfig) {
       this.stopTimeout = stopTimeout;
       this.serviceName = serviceName;
       this.aclEnabled = aclEnabled;
       this.advancedViews = advancedViews;
+      this.proxyLoggerConfig =  proxyLoggerConfig;
+
     }
 
     /**
@@ -105,7 +109,7 @@ public class KalixTestKit {
      * @return updated Settings
      */
     public Settings withStopTimeout(final Duration stopTimeout) {
-      return new Settings(stopTimeout, serviceName, aclEnabled, advancedViews);
+      return new Settings(stopTimeout, serviceName, aclEnabled, advancedViews, proxyLoggerConfig);
     }
 
     /**
@@ -117,7 +121,7 @@ public class KalixTestKit {
      * @return The updated settings.
      */
     public Settings withServiceName(final String serviceName) {
-      return new Settings(stopTimeout, serviceName, aclEnabled, advancedViews);
+      return new Settings(stopTimeout, serviceName, aclEnabled, advancedViews, proxyLoggerConfig);
     }
 
     /**
@@ -126,7 +130,7 @@ public class KalixTestKit {
      * @return The updated settings.
      */
     public Settings withAclDisabled() {
-      return new Settings(stopTimeout, serviceName, false, advancedViews);
+      return new Settings(stopTimeout, serviceName, false, advancedViews, proxyLoggerConfig);
     }
 
     /**
@@ -135,7 +139,7 @@ public class KalixTestKit {
      * @return The updated settings.
      */
     public Settings withAclEnabled() {
-      return new Settings(stopTimeout, serviceName, true, advancedViews);
+      return new Settings(stopTimeout, serviceName, true, advancedViews, proxyLoggerConfig);
     }
 
     /**
@@ -144,7 +148,11 @@ public class KalixTestKit {
      * @return The updated settings.
      */
     public Settings withAdvancedViews() {
-      return new Settings(stopTimeout, serviceName, aclEnabled, true);
+      return new Settings(stopTimeout, serviceName, aclEnabled, true, proxyLoggerConfig);
+    }
+
+    public Settings withProxyLoggerConfig(String proxyLoggerConfig) {
+      return new Settings(stopTimeout, serviceName, aclEnabled, advancedViews, Optional.of(proxyLoggerConfig));
     }
   }
 
@@ -228,14 +236,20 @@ public class KalixTestKit {
       proxyContainer
         .withEnv("SERVICE_NAME", settings.serviceName)
         .withEnv("ACL_ENABLED", Boolean.toString(settings.aclEnabled))
-        .withEnv("VIEW_FEATURES_ALL", Boolean.toString(settings.advancedViews))
-         // copy logback config into the container,
-        .withClasspathResourceMapping("it-test-logback.xml", "/kalix/it-test-logback.xml", BindMode.READ_WRITE)
-         // configure logback to use it-test-logback.xml instead
-        .withEnv("JAVA_OPTS", "-Dlogback.configurationFile=/kalix/it-test-logback.xml")
-        // kalix container logs are forwarded to a local logger 'kalix.proxy.container'
-        .withLogConsumer(new Slf4jLogConsumer(LoggerFactory.getLogger("kalix.proxy.container")))
-        .start();
+        .withEnv("VIEW_FEATURES_ALL", Boolean.toString(settings.advancedViews));
+
+      if (settings.proxyLoggerConfig.isPresent()) {
+        var cngFile = settings.proxyLoggerConfig.get();
+        log.info("Configuring logback in Kalix Proxy container with '" + cngFile + "'");
+        proxyContainer
+          // copy logback config into the container,
+          .withClasspathResourceMapping(cngFile, "/kalix/" + cngFile, BindMode.READ_ONLY)
+          // configure logback to use it-test-logback.xml instead
+          .withEnv("JAVA_OPTS", "-Dlogback.configurationFile=/kalix/" + cngFile)
+          // kalix container logs are forwarded to a local logger 'kalix.proxy.container'
+          .withLogConsumer(new Slf4jLogConsumer(LoggerFactory.getLogger("kalix.proxy.container")));
+      }
+      proxyContainer.start();
 
       proxyPort = proxyContainer.getProxyPort();
       proxyHost = proxyContainer.getHost();

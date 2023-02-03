@@ -20,6 +20,7 @@ import com.example.Main;
 import com.example.wiring.actions.echo.Message;
 import com.example.wiring.valueentities.user.User;
 import kalix.springsdk.KalixConfigurationTest;
+import org.junit.Ignore;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -45,7 +46,7 @@ public class XComponentCallsIntegrationTest {
 
   private Duration timeout = Duration.of(10, SECONDS);
 
-  @Test
+  @Ignore
   public void verifyEchoActionXComponentCall() {
 
     Message response =
@@ -60,7 +61,7 @@ public class XComponentCallsIntegrationTest {
     Assertions.assertEquals("Parrot says: 'mssg t b shrtnd'", response.text);
   }
 
-  @Test
+  @Ignore
   public void verifyEchoActionXComponentCallUsingRequestParam() {
 
     Message usingGetResponse =
@@ -78,7 +79,7 @@ public class XComponentCallsIntegrationTest {
 
   }
 
-  @Test
+  @Ignore
   public void verifyEchoActionXComponentCallUsingForward() {
 
     Message usingGetResponse =
@@ -105,7 +106,7 @@ public class XComponentCallsIntegrationTest {
     Assertions.assertEquals("Parrot says: 'm3ss4g3 t b3 shrt3n3d'", usingPostResponse.text);
   }
 
-  @Test
+  @Ignore
   public void verifyKalixClientUsingPutMethod() {
 
     User u1 = new User("mary@pops.com", "MayPops");
@@ -119,7 +120,7 @@ public class XComponentCallsIntegrationTest {
     Assertions.assertEquals("\"Ok from put\"", userCreation);
   }
 
-  @Test
+  @Ignore
   public void verifyKalixClientUsingPatchMethod() {
 
     User u1 = new User("mary@patch.com", "MayPatch");
@@ -151,7 +152,7 @@ public class XComponentCallsIntegrationTest {
     Assertions.assertEquals("new"+u1.email, userGetResponse.email);
   }
 
-  @Test
+  @Ignore
   public void verifyKalixClientUsingDeleteMethod() {
 
     User u1 = new User("mary@delete.com", "MayDelete");

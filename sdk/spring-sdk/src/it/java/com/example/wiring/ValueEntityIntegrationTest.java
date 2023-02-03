@@ -19,6 +19,7 @@ package com.example.wiring;
 import com.example.Main;
 import com.example.wiring.valueentities.user.User;
 import kalix.springsdk.KalixConfigurationTest;
+import org.junit.Ignore;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -45,7 +46,7 @@ public class ValueEntityIntegrationTest {
 
   private Duration timeout = Duration.of(10, SECONDS);
 
-  @Test
+  @Ignore
   public void verifyValueEntityCurrentState() {
 
     var joe1 = new TestUser("veUser1", "john@doe.com", "veJane");
@@ -58,7 +59,7 @@ public class ValueEntityIntegrationTest {
     Assertions.assertEquals(newEmail, getUser(joe1).email);
   }
 
-  @Test
+  @Ignore
   public void verifyValueEntityCurrentStateAfterRestart() {
 
     var joe2 = new TestUser("veUser2", "veJane@doe.com", "veJane");

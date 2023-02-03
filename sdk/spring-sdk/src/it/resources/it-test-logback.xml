@@ -8,6 +8,7 @@
   </appender>
 
   <logger name="kalix.proxy.views" level="DEBUG"/>
+  <logger name="kalix.proxy.DiscoveryManager" level="INFO"/>
 
   <root level="WARN">
     <appender-ref ref="STDOUT"/>
