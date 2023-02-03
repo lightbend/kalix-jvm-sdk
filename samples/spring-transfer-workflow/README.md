@@ -82,21 +82,6 @@ Get transfer state
 curl http://localhost:9000/transfer/1
 ```
 
-Start transfer that requires manual acceptation
-
-```shell
-curl http://localhost:9000/transfer/2 \
-  -X PUT \
-  --header "Content-Type: application/json" \
-  --data '{"from": "a", "to": "b", "amount": 1001}'
-```
-
-Manually accept transfer
-
-```shell
-curl -X PATCH http://localhost:9000/transfer/2/accept
-```
-
 
 ## Running integration tests
 
