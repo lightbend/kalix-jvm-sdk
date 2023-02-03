@@ -36,7 +36,9 @@ final case class GrpcDeferredCall[I, O](
   override def execute(): CompletionStage[O] = asyncCall().exceptionally {
     case sre: StatusRuntimeException =>
       throw new StatusRuntimeException(
-        sre.getStatus.augmentDescription(s"When calling Kalix service $fullServiceName/$methodName"))
+        sre.getStatus
+          .augmentDescription(s"When calling Kalix service $fullServiceName/$methodName")
+          .withCause(sre.getCause))
     case other: Throwable => throw other
   }
 
