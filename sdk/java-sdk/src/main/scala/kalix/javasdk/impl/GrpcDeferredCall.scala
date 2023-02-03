@@ -16,6 +16,8 @@
 
 package kalix.javasdk.impl
 
+import akka.pattern.StatusReply
+import io.grpc.StatusRuntimeException
 import kalix.javasdk.DeferredCall
 import kalix.javasdk.Metadata
 
@@ -31,7 +33,12 @@ final case class GrpcDeferredCall[I, O](
     methodName: String,
     asyncCall: () => CompletionStage[O])
     extends DeferredCall[I, O] {
-  override def execute(): CompletionStage[O] = asyncCall()
+  override def execute(): CompletionStage[O] = asyncCall().exceptionally {
+    case sre: StatusRuntimeException =>
+      throw new StatusRuntimeException(
+        sre.getStatus.augmentDescription(s"When calling Kalix service $fullServiceName/$methodName"))
+    case other: Throwable => throw other
+  }
 
   override def withMetadata(metadata: Metadata): GrpcDeferredCall[I, O] = {
     this.copy(metadata = metadata.asInstanceOf[MetadataImpl])
