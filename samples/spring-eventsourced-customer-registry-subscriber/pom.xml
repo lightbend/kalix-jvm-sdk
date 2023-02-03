@@ -151,6 +151,7 @@
             <argument>-Dkalix.user-function-port=8081</argument>
             <argument>-classpath</argument>
             <classpath/>
+            <argument>-Dlogback.configurationFile=logback-dev-mode.xml</argument>
             <argument>${mainClass}</argument>
           </arguments>
           <environmentVariables>
