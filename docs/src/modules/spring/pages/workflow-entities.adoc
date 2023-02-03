@@ -15,8 +15,8 @@ include::example$spring-transfer-workflow/src/main/java/com/example/wallet/Walle
 ----
 <1> An endpoint to create a wallet with an initial balance.
 <2> An endpoint to withdraw funds from the wallet.
-<2> An endpoint to deposit funds to the wallet.
-<2> An endpoint to get current wallet balance.
+<3> An endpoint to deposit funds to the wallet.
+<4> An endpoint to get current wallet balance.
 
 Now we could focus on the workflow implementation itself. A workflow has state, which can be updated in command handlers and transition methods. During the state modeling we might consider the data required for validation, running the steps, collecting the information from steps or tracking the workflow progress.
 
