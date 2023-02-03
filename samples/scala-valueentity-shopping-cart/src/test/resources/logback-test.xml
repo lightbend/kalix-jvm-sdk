@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <configuration>
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
@@ -12,7 +11,7 @@
     <logger name="io.grpc.netty" level="INFO"/>
     <logger name="org.testcontainers" level="INFO"/>
 
-    <root level="INFO">
+    <root level="DEBUG">
         <appender-ref ref="STDOUT"/>
     </root>
 </configuration>
