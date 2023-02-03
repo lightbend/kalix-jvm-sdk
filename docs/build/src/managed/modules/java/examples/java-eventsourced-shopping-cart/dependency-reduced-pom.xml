@@ -248,19 +248,13 @@
           </plugin>
         </plugins>
       </build>
-      <properties>
-        <os.detected.arch>x86_64</os.detected.arch>
-        <os.detected.bitness>64</os.detected.bitness>
-        <os.detected.name>osx</os.detected.name>
-        <os.detected.classifier>osx-x86_64</os.detected.classifier>
-      </properties>
     </profile>
   </profiles>
   <dependencies>
     <dependency>
       <groupId>io.kalix</groupId>
       <artifactId>kalix-java-sdk-testkit</artifactId>
-      <version>1.1.1-3-b692465f-SNAPSHOT</version>
+      <version>1.0.2-15-92bf063e-dev-SNAPSHOT</version>
       <scope>test</scope>
       <exclusions>
         <exclusion>
@@ -293,7 +287,7 @@
     <akka-grpc.version>2.1.4</akka-grpc.version>
     <maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <kalix-sdk.version>1.1.1</kalix-sdk.version>
+    <kalix-sdk.version>1.0.8</kalix-sdk.version>
     <dockerTag>${project.version}-${build.timestamp}</dockerTag>
   </properties>
 </project>

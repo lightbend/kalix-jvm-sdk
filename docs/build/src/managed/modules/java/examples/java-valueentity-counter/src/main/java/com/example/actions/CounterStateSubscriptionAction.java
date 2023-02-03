@@ -19,7 +19,7 @@ public class CounterStateSubscriptionAction extends AbstractCounterStateSubscrip
   }
 
   @Override
-  public Effect<Empty> onDeleteState() {
+  public Effect<Empty> onDeleteEntity() {
     return effects().reply(Empty.getDefaultInstance());
   }
 }

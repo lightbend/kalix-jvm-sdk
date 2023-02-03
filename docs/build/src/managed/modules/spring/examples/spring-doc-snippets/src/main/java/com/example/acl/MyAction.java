@@ -51,7 +51,7 @@ public class MyAction extends Action {
 
     // tag::deny-code[]
     @PostMapping
-    @Acl(allow = @Acl.Matcher(service = "*"), denyCode = 5)
+    @Acl(allow = @Acl.Matcher(service = "*"), denyCode = Acl.DenyStatusCode.NOT_FOUND)
     public Effect<String> updateUser(@RequestBody CreateUser create) {
         //...
         // end::deny-code[]

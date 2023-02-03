@@ -84,7 +84,10 @@ include::example$spring-valueentity-customer-registry/src/main/java/com/example/
 <6> Define the query matching by name.
 <7> Query method returns a `CustomerSummary`.
 
+[#ve_delete]
 === Handling Value Entity deletes
+
+The View state corresponding to an Entity is not automatically deleted when the Entity is deleted.
 
 Value Entities can be xref:value-entity#deleting_state[deleted]. We can update our view model based on that fact with an additional flag `handleDeletes` for the subscription.
 
@@ -132,12 +135,9 @@ include::example$spring-eventsourced-customer-registry/src/main/java/customer/vi
 
 An Event Sourced entity can emit many types of events. You need to define a method for each event type. They return an `UpdateEffect`, which describes next processing actions, such as updating the view state.
 
-
-
-
 See <<#query>> for more examples of valid query syntax.
 
-== Ignoring events
+=== Ignoring events
 
 When consuming events, each event must be matched by a View service method. In case your View is only interested in certain events:
 
@@ -147,6 +147,12 @@ When consuming events, each event must be matched by a View service method. In c
 
 If there is no handler for an incoming event and there is no `ignoreUnknown = true` at type level, the View will fail. Views are designed to restart, but since it can't process the event, the view will keep failing trying to reprocess it.
 
+[#es_delete]
+=== Handling Event Sourced Entity deletes
+
+The View state corresponding to an Entity is not automatically deleted when the Entity is deleted.
+
+To delete from the View you can use the `deleteState()` effect from an event transformation method.
 
 [#topic-view]
 == Creating a View from a topic
@@ -249,7 +255,7 @@ NOTE: This is not intended as transport for xref:service-to-service.adoc[service
 should instead publish events to a topic, see xref:actions-publishing-subscribing.adoc[Publishing and Subscribing with Actions]
 
 [#query]
-include::java:partial$query-syntax-reference.adoc[]
+include::java:partial$query-syntax-reference.adoc[tag=spring]
 
 include::java:partial$query-syntax-paging.adoc[tag=spring]
 

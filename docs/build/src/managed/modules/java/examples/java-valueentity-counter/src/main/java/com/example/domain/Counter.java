@@ -114,7 +114,7 @@ public class Counter extends AbstractCounter { // <1>
   public Effect<Empty> delete(CounterDomain.CounterState currentState,
                               CounterApi.DeleteCounter deleteCounter) {
     return effects()
-        .deleteState() // <1>
+        .deleteEntity() // <1>
         .thenReply(Empty.getDefaultInstance());
   }
   // end::delete[]

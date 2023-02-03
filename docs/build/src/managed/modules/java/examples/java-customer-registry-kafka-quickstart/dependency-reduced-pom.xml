@@ -248,12 +248,6 @@
           </plugin>
         </plugins>
       </build>
-      <properties>
-        <os.detected.arch>x86_64</os.detected.arch>
-        <os.detected.bitness>64</os.detected.bitness>
-        <os.detected.name>osx</os.detected.name>
-        <os.detected.classifier>osx-x86_64</os.detected.classifier>
-      </properties>
     </profile>
   </profiles>
   <dependencies>
@@ -293,7 +287,7 @@
     <akka-grpc.version>2.1.4</akka-grpc.version>
     <maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <kalix-sdk.version>1.0.3</kalix-sdk.version>
+    <kalix-sdk.version>1.0.7</kalix-sdk.version>
     <dockerTag>${project.version}-${build.timestamp}</dockerTag>
   </properties>
 </project>

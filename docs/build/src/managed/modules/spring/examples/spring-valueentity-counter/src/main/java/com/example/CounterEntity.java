@@ -49,7 +49,7 @@ public class CounterEntity extends ValueEntity<Integer> { // <3>
   @DeleteMapping("/counter/{counter_id}")
   public Effect<String> delete() {
     return effects()
-        .deleteState() // <1>
+        .deleteEntity() // <1>
         .thenReply("deleted: " + commandContext().entityId());
   }
   // end::delete[]

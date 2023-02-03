@@ -1,4 +1,4 @@
-:kalix-jvm-sdk-version: 1.1.4
+:kalix-jvm-sdk-version: 1.1.6
 :java-version: 11
 :spring-java-version: 17
 :minimum_maven_version: 3.6

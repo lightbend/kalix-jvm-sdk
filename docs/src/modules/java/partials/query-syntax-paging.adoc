@@ -60,7 +60,7 @@ With the query return type like this:
 
 [source,java,indent=0]
 ----
-public record Response(List<Customer> customers, string next_page_token) { }
+public record Response(List<Customer> customers, String next_page_token) { }
 ----
 // tag::grpc[]
 

@@ -12,7 +12,8 @@ dockerUsername := sys.props.get("docker.username")
 dockerRepository := sys.props.get("docker.registry")
 dockerUpdateLatest := true
 dockerBuildCommand := {
-  if (sys.props("os.arch") != "amd64") {
+  val arch = sys.props("os.arch")
+  if (arch != "amd64" && !arch.contains("x86")) {
     // use buildx with platform to build supported amd64 images on other CPU architectures
     // this may require that you have first run 'docker buildx create' to set docker buildx up
     dockerExecCommand.value ++ Seq("buildx", "build", "--platform=linux/amd64", "--load") ++ dockerBuildOptions.value :+ "."
@@ -34,11 +35,8 @@ Test / parallelExecution := false
 Test / testOptions += Tests.Argument("-oDF")
 Test / logBuffered := false
 
-Compile / run := {
-  // needed for the proxy to access the user function on all platforms
-  sys.props += "kalix.user-function-interface" -> "0.0.0.0"
-  (Compile / run).evaluated
-}
+// needed for the proxy to access the user function on all platforms
+run / javaOptions ++= Seq("-Dkalix.user-function-interface=0.0.0.0")
 run / fork := true
 Global / cancelable := false // ctrl-c
 

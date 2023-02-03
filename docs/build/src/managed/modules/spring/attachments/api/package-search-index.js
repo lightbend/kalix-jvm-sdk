@@ -1,1 +1,1 @@
-packageSearchIndex = [{"l":"All Packages","url":"allpackages-index.html"},{"l":"kalix.springsdk.action"},{"l":"kalix.springsdk.annotations"},{"l":"kalix.springsdk.eventsourced"},{"l":"kalix.springsdk.valueentity"},{"l":"kalix.springsdk.view"}]
+packageSearchIndex = [{"l":"All Packages","u":"allpackages-index.html"},{"l":"kalix.springsdk.action"},{"l":"kalix.springsdk.annotations"},{"l":"kalix.springsdk.common"},{"l":"kalix.springsdk.eventsourced"},{"l":"kalix.springsdk.valueentity"},{"l":"kalix.springsdk.view"}];updateSearchResults();
