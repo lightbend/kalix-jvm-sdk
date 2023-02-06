@@ -2,11 +2,11 @@
 :page-aliases: spring:workflow.adoc
 :sample-url: TODO
 
-Implementing a business transaction that spans multiple services is one of the major distributes system challenges. Fortunately, with Kalix ecosystem, and concepts like https://docs.kalix.io/spring/actions-publishing-subscribing.html[Subscription], it's very easy to build event driven choreography that covers a complex business process. A https://microservices.io/patterns/data/saga.html[Saga pattern] that generalizes this solution was never so easy to implement. For some use cases a different flavor of the Saga pattern, a choreography, might be more suitable. That was the main driver behind a new Kalix component type called a Workflow Entity. From a high level perspective it joins the power of https://docs.kalix.io/concepts/state-model.html[Kalix Entities state model] (durability, consistency guaranties) and https://docs.kalix.io/spring/actions.html[Kalix Actions] ability to call other components and services. This time you can model your business process in a single place that will keep it running or rollback in case of a failure.
+Implementing a business transaction that spans multiple services is one of the major challenges in distributed systems implementation. Fortunately, with Kalix ecosystem and concepts like https://docs.kalix.io/spring/actions-publishing-subscribing.html[Subscription], it's very easy to build an event driven choreography that covers a complex business process. A https://microservices.io/patterns/data/saga.html[Saga pattern] that generalizes this solution was never so easy to implement. However, for some use cases a different flavor of the Saga pattern -- a choreography -- might be more suitable. That was the main driver behind a Kalix component type called a Workflow Entity. From a high-level perspective it joins the power of https://docs.kalix.io/concepts/state-model.html[Kalix Entities state model] (durability, consistency guaranties) and https://docs.kalix.io/spring/actions.html[Kalix Actions] ability to call other components and services. You can model your business process in a single place and the Workflow Entity will keep it running or rollback in case of a failure.
 
 == Modeling state
 
-We want to build a simple workflow that transfers funds between two wallets. Before that, we will create a wallet subdomain with some basic functionalities that we could use later. For simplicity a `WalletEntity` is implemented as a `ValueEntity`, but for a production-ready solution an `EventSourcedEntity` would be much better choice.
+We want to build a simple workflow that transfers funds between two wallets. Before that, we will create a wallet subdomain with some basic functionalities that we could use later. For simplicity a `WalletEntity` is implemented as a `ValueEntity`, but for a production-ready solution an `EventSourcedEntity` would be a better choice.
 
 [source,java]
 .src/main/java/com/example/wallet/WalletEntity.java
@@ -18,7 +18,7 @@ include::example$spring-transfer-workflow/src/main/java/com/example/wallet/Walle
 <3> An endpoint to deposit funds to the wallet.
 <4> An endpoint to get current wallet balance.
 
-Now we could focus on the workflow implementation itself. A workflow has state, which can be updated in command handlers and transition methods. During the state modeling we might consider the data required for validation, running the steps, collecting the information from steps or tracking the workflow progress.
+Now we can focus on the workflow implementation itself. A workflow has state, which can be updated in command handlers and transition methods. During the state modeling we might consider the information is required for validation, running the steps, collecting data from steps or tracking the workflow progress.
 
 [source,java]
 .src/main/java/com/example/transfer/TransferState.java
