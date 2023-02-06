@@ -42,7 +42,7 @@ class ReflectiveWorkflowEntityRouter[S, W <: WorkflowEntity[S]](
       command: Any,
       commandContext: CommandContext): WorkflowEntity.Effect[_] = {
 
-    _extractAndSetCurrentState(state)
+    workflow._internalSetCurrentState(state)
 
     val commandHandler = commandHandlerLookup(commandName)
     val invocationContext =
@@ -57,28 +57,6 @@ class ReflectiveWorkflowEntityRouter[S, W <: WorkflowEntity[S]](
       .getInvoker(inputTypeUrl)
       .invoke(workflow, invocationContext)
       .asInstanceOf[WorkflowEntity.Effect[_]]
-  }
-
-  private def _extractAndSetCurrentState(state: S): Unit = {
-    val workflowStateType: Class[S] =
-      this.workflow.getClass.getGenericSuperclass
-        .asInstanceOf[ParameterizedType]
-        .getActualTypeArguments
-        .head
-        .asInstanceOf[Class[S]]
-
-    // the state: S received can either be of the entity "state" type (if coming from emptyState/memory)
-    // or PB Any type (if coming from the proxy)
-    state match {
-      case s if s == null || state.getClass == workflowStateType =>
-        // note that we set the state even if null, this is needed in order to
-        // be able to call currentState() later
-        workflow._internalSetCurrentState(s)
-      case s =>
-        val deserializedState =
-          JsonSupport.decodeJson(workflowStateType, ScalaPbAny.toJavaProto(s.asInstanceOf[ScalaPbAny]))
-        workflow._internalSetCurrentState(deserializedState)
-    }
   }
 }
 

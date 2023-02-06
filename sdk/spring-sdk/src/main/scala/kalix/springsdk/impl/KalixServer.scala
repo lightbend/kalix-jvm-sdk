@@ -76,6 +76,8 @@ import org.springframework.core.`type`.classreading.MetadataReader
 import org.springframework.core.`type`.classreading.MetadataReaderFactory
 import org.springframework.core.`type`.filter.TypeFilter
 
+import java.lang.reflect.ParameterizedType
+
 object KalixServer {
 
   val kalixComponents: Seq[Class[_]] =
@@ -403,7 +405,29 @@ case class KalixServer(applicationContext: ApplicationContext, config: Config) {
 
         setKalixClient(clz, webClientProviderHolder)
 
-        kalixBeanFactory.getBean(clz)
+        val workflowEntity = kalixBeanFactory.getBean(clz)
+
+        val workflowStateType: Class[S] =
+          workflowEntity.getClass.getGenericSuperclass
+            .asInstanceOf[ParameterizedType]
+            .getActualTypeArguments
+            .head
+            .asInstanceOf[Class[S]]
+
+        messageCodec.lookupTypeHint(workflowStateType)
+
+        workflowEntity
+          .definition()
+          .forEachStep {
+            case asyncCallStep: WorkflowEntity.AsyncCallStep[_, _] =>
+              messageCodec.lookupTypeHint(asyncCallStep.callInputClass)
+              messageCodec.lookupTypeHint(asyncCallStep.transitionInputClass)
+            case callStep: WorkflowEntity.CallStep[_, _, _] =>
+              messageCodec.lookupTypeHint(callStep.callInputClass)
+              messageCodec.lookupTypeHint(callStep.transitionInputClass)
+          }
+
+        workflowEntity
       })
 
   private def valueEntityProvider[S, E <: ValueEntity[S]](clz: Class[E]): ValueEntityProvider[S, E] =
