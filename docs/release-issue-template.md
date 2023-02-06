@@ -21,7 +21,7 @@ You can see the proxy version on prod [on grafana](https://lightbendcloud.grafan
 
 ### Fix and publish docs
 
-- [ ] In case there were important updates, update the [supported version in the main docs](https://github.com/lightbend/kalix-docs/blob/main/docs/modules/ROOT/partials/include.adoc#L21) (affects [Supported Languages](https://docs.kalix.io/reference/supported-languages.html))
+- [ ] In case there were important updates, update the [supported version in the main docs](https://github.com/lightbend/kalix-docs/blob/main/docs/modules/ROOT/partials/include.adoc#L21) (affects [Supported Languages](https://docs.kalix.io/sdk-support/supported-languages.html))
 - [ ] Add an item to the [Release Notes](https://github.com/lightbend/kalix-docs/blob/main/docs/modules/release-notes/pages/index.adoc) in the documentation
 - [ ] Release the Kalix documentation to get the SDK docs updates published
 
@@ -35,6 +35,7 @@ You can see the proxy version on prod [on grafana](https://lightbendcloud.grafan
 ### Check docs update
 
 - [ ] Check for [updated docs](https://docs.kalix.io/index.html) (see the timestamp on the bottom of the page)
+- [ ] Check for the latest version on the [dependency configuration example](https://docs.kalix.io/java/index.html#_reference_the_kalix_sdk) 
 
 ### Announcements
 
