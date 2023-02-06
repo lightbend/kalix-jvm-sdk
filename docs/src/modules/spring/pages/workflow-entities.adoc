@@ -55,7 +55,7 @@ NOTE: The EntityKey `transferId` must match a path parameter (i.e. `transferId`)
 
 == Starting workflow
 
-Having created the basis of our workflow entity, we will now define how to launch a workflow with a command handler. In the example below, we define a new endpoint that will accept `StartTransfer` command and return an `Effect` to start a workflow by providing a `transition` to the first step. Also, we will update the state with an initial value.
+Having created the basis of our workflow entity, we will now define how to launch a workflow with a command handler. In the example below, we define a new endpoint that will accept `StartTransfer` command and return an `Effect` to start a workflow by providing a transition to the first step. Also, we will update the state with an initial value.
 
 
 [source,java]
@@ -67,7 +67,7 @@ include::example$spring-transfer-workflow/src/main/java/com/example/transfer/Tra
 <2> We should handle the situation when the workflow is already running and return a proper message. Otherwise, we might corrupt the running workflow.
 <3> From the incoming command we create an initial `TransferState`.
 <4> We instruct Kalix to persist the new state.
-<5> With the `transition` method, we inform that the input for the first step is a `Withdraw` object and the name of the step is `"withdraw"`.
+<5> With the `transitionTo` method, we inform that the name of the first step is `"withdraw"` and the input for this step is a `Withdraw` object.
 <6> The last instruction is to inform the caller that the workflow was successfully started.
 
 IMPORTANT: For simplicity purposes, we are reusing the internal `Transfer` record as a request body. This should be a separate class and our domain state model shouldn't be exposed as an entity public `API`.
@@ -85,11 +85,10 @@ include::example$spring-transfer-workflow/src/main/java/com/example/transfer/Tra
 ----
 <1> Each step should have a unique name.
 <2> We instruct Kalix to run a given deferred call to withdraw funds from a wallet.
-<3> After successful withdrawal we return an `Effect` that will update the workflow state and move to the next step, `depositStepName="deposit"`.
-<4> An input parameter for `deposit` step is a `Deposit` record.
-<5> Another workflow step action to deposit funds to a given wallet.
-<6> This time we return an effect that will stop workflow processing, by using special `end` method.
-<7> We collect all steps to form a workflow definition.
+<3> After successful withdrawal we return an `Effect` that will update the workflow state and move to the next step called `"deposit"`. An input parameter for this step is a `Deposit` record.
+<4> Another workflow step action to deposit funds to a given wallet.
+<5> This time we return an effect that will stop workflow processing, by using special `end` method.
+<6> We collect all steps to form a workflow definition.
 
 == Retrieving state
 

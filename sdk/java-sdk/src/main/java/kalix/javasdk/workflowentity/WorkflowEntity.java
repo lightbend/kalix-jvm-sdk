@@ -134,11 +134,11 @@ public abstract class WorkflowEntity<S> {
       /**
        * Set the step that should be executed.
        *
-       * @param input The input param for the step.
        * @param stepName The step name that should be executed.
+       * @param input    The input param for the step.
        */
       @ApiMayChange
-      <I> TransitionalEffect<Void> transition(I input, String stepName);
+      <I> TransitionalEffect<Void> transitionTo(String stepName, I input);
 
       /**
        * Finish the workflow execution.
@@ -225,11 +225,11 @@ public abstract class WorkflowEntity<S> {
       /**
        * Set the step that should be executed.
        *
-       * @param input The input param for the step.
        * @param stepName The step name that should be executed.
+       * @param input    The input param for the step.
        */
       @ApiMayChange
-      <I> TransitionalEffect<Void> transition(I input, String stepName);
+      <I> TransitionalEffect<Void> transitionTo(String stepName, I input);
 
       /**
        * Finish the workflow execution.

@@ -35,7 +35,7 @@ public class TransferWorkflowEntity extends WorkflowEntity<TransferState> { // <
   // end::start[]
 
   // tag::definition[]
-  public record Deposit(String to, int amount) { // <4>
+  public record Deposit(String to, int amount) {
   }
 
   // end::definition[]
@@ -57,35 +57,28 @@ public class TransferWorkflowEntity extends WorkflowEntity<TransferState> { // <
               String withdrawUri = "/wallet/" + cmd.from() + "/withdraw/" + cmd.amount();
               return kalixClient.patch(withdrawUri, String.class);
             }) // <2>
-            .andThen(this::moveToDeposit);
+            .andThen(__ -> {
+              Deposit depositInput = new Deposit(currentState().transfer().to(), currentState().transfer().amount());
+              return effects()
+                  .updateState(currentState().withStatus(SUCCESSFUL_WITHDRAWAL))
+                  .transitionTo("deposit", depositInput); // <3>
+            });
 
     Step deposit =
         step("deposit") // <1>
             .call((Deposit cmd) -> {
               String depositUri = "/wallet/" + cmd.to() + "/deposit/" + cmd.amount();
               return kalixClient.patch(depositUri, String.class);
-            }) // <5>
-            .andThen(this::finishWithSuccess);
+            }) // <4>
+            .andThen(__ -> {
+              return effects()
+                  .updateState(currentState().withStatus(COMPLETED))
+                  .end(); // <5>
+            });
 
-    return workflow() // <7>
+    return workflow() // <6>
         .addStep(withdraw)
         .addStep(deposit);
-  }
-
-  private Effect.TransitionalEffect<Void> moveToDeposit(String response) {
-    TransferState transferState = currentState();
-    TransferState successfulWithdrawal = transferState.withStatus(SUCCESSFUL_WITHDRAWAL);
-    Deposit depositInput = new Deposit(transferState.transfer().to(), transferState.transfer().amount());
-    return effects()
-        .updateState(successfulWithdrawal)
-        .transition(depositInput, "deposit"); // <3>
-  }
-
-  private Effect.TransitionalEffect<Void> finishWithSuccess(String response) {
-    TransferState completed = currentState().withStatus(COMPLETED);
-    return effects()
-        .updateState(completed)
-        .end(); // <6>
   }
   // end::definition[]
 
@@ -104,7 +97,7 @@ public class TransferWorkflowEntity extends WorkflowEntity<TransferState> { // <
 
       return effects()
           .updateState(initialState) // <4>
-          .transition(withdrawInput, "withdraw") // <5>
+          .transitionTo("withdraw", withdrawInput) // <5>
           .thenReply(new Message("transfer started")); // <6>
     }
   }
