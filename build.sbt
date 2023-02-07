@@ -9,6 +9,7 @@ lazy val `kalix-jvm-sdk` = project
     sdkSpring,
     sdkSpringTestKit,
     sdkSpringBootStarter,
+    sdkSpringBootStarterTest,
     sdkScala,
     sdkScalaTestKit,
     tckJava,
@@ -210,13 +211,15 @@ lazy val sdkSpringBootStarter = project
   .settings(
     name := "kalix-spring-boot-starter",
     crossPaths := false,
+    Compile / javacOptions ++= Seq("--release", "17"),
+    Compile / scalacOptions ++= Seq("-release", "17"),
     buildInfoKeys := Seq[BuildInfoKey](
       name,
       version,
-      "proxyImage" -> "gcr.io/kalix-public/kalix-proxy",
-      "proxyVersion" -> Kalix.ProxyVersion,
+      "protocolMajorVersion" -> Kalix.ProtocolVersionMajor,
+      "protocolMinorVersion" -> Kalix.ProtocolVersionMinor,
       "scalaVersion" -> scalaVersion.value),
-    buildInfoPackage := "kalix.spring.boot",
+    buildInfoPackage := "kalix.springboot",
     // Generate javadocs by just including non generated Java sources
     Compile / doc / sources := {
       val javaSourceDir = (Compile / javaSource).value.getAbsolutePath
@@ -232,6 +235,43 @@ lazy val sdkSpringBootStarter = project
       "-notimestamp",
       "-doctitle",
       "Kalix Spring Boot Starter",
+      "-noqualifier",
+      "java.lang"))
+  .settings(Dependencies.sdkSpringBootStarter)
+
+lazy val sdkSpringBootStarterTest = project
+  .in(file("sdk/spring-boot-starter-test"))
+  .dependsOn(sdkSpring)
+  .dependsOn(sdkSpringTestKit)
+  .enablePlugins(BuildInfoPlugin, PublishSonatype)
+  .settings(common)
+  .settings(
+    name := "kalix-spring-boot-starter-test",
+    crossPaths := false,
+    Compile / javacOptions ++= Seq("--release", "17"),
+    Compile / scalacOptions ++= Seq("-release", "17"),
+    buildInfoKeys := Seq[BuildInfoKey](
+      name,
+      version,
+      "proxyImage" -> "gcr.io/kalix-public/kalix-proxy",
+      "proxyVersion" -> Kalix.ProxyVersion,
+      "scalaVersion" -> scalaVersion.value),
+    buildInfoPackage := "kalix.springboot",
+    // Generate javadocs by just including non generated Java sources
+    Compile / doc / sources := {
+      val javaSourceDir = (Compile / javaSource).value.getAbsolutePath
+      (Compile / doc / sources).value.filter(_.getAbsolutePath.startsWith(javaSourceDir))
+    },
+    // javadoc (I think java 9 onwards) refuses to compile javadocs if it can't compile the entire source path.
+    // but since we have java files depending on Scala files, we need to include ourselves on the classpath.
+    Compile / doc / dependencyClasspath := (Compile / fullClasspath).value,
+    Compile / doc / javacOptions ++= Seq(
+      "-Xdoclint:none",
+      "-overview",
+      ((Compile / javaSource).value / "overview.html").getAbsolutePath,
+      "-notimestamp",
+      "-doctitle",
+      "Kalix Spring Boot Starter Test",
       "-noqualifier",
       "java.lang"))
   .settings(Dependencies.sdkSpringTestKit)

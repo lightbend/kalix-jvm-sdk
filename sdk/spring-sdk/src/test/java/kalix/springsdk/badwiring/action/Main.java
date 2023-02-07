@@ -16,7 +16,7 @@
 
 package kalix.springsdk.badwiring.action;
 
-import kalix.springsdk.KalixConfiguration;
+import kalix.springboot.KalixConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;

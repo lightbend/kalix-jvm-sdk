@@ -121,10 +121,10 @@ object Dependencies {
 
   val springDeps = Seq(
     jacksonDataFormatProto,
-    "org.springframework.boot" % "spring-boot" % SpringBootVersion,
     "org.springframework" % "spring-web" % SpringFrameworkVersion,
     "org.springframework" % "spring-webflux" % SpringFrameworkVersion,
     "org.springframework" % "spring-webmvc" % SpringFrameworkVersion,
+    "org.springframework.boot" % "spring-boot" % SpringBootVersion,
     "org.springframework.boot" % "spring-boot-starter" % SpringBootVersion,
     "org.springframework.boot" % "spring-boot-starter-json" % SpringBootVersion,
     "jakarta.websocket" % "jakarta.websocket-api" % "2.1.0")
@@ -135,6 +135,8 @@ object Dependencies {
     junit5 % IntegrationTest,
     "org.assertj" % "assertj-core" % "3.24.0" % IntegrationTest,
     "org.awaitility" % "awaitility" % "4.2.0" % IntegrationTest)
+
+  val sdkSpringBootStarter = deps ++= springDeps
 
   val sdkSpringTestKit =
     deps ++= springDeps ++

@@ -37,8 +37,13 @@ class KalixReactiveWebServerFactory(kalixServer: KalixServer) extends ReactiveWe
       }
 
       override def stop(): Unit = {
-        if (started) kalixServer.stop()
-        else ()
+        if (started) {
+          try {
+            kalixServer.stop()
+          } finally {
+            started = false
+          }
+        } else ()
       }
 
       override def getPort: Int = kalixServer.port

@@ -344,12 +344,12 @@ case class KalixServer(applicationContext: ApplicationContext, config: Config) {
     }
 
   def start() = {
-    logger.info("Starting Kalix Server...")
-    Await.ready(kalixRunner.run().asScala, 10.seconds)
+    logger.info("Starting Kalix Application...")
+    kalixRunner.run()
   }
 
   def stop() = {
-    logger.info("Stopping Kalix Server...")
+    logger.info("Stopping Kalix Application...")
     Await.ready(kalixRunner.terminate().asScala, 10.seconds)
   }
 

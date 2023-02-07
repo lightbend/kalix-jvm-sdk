@@ -14,17 +14,16 @@
  * limitations under the License.
  */
 
-package kalix.springsdk
+package kalix.springboot
 
 import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
-import kalix.springboot.KalixReactiveWebServerFactory
 import kalix.springsdk.impl.KalixServer
 import org.springframework.beans.factory.config.BeanPostProcessor
 import org.springframework.boot.autoconfigure.AutoConfiguration
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass
 import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.Bean
-import org.springframework.context.annotation.Configuration
 import org.springframework.stereotype.Component
 
 object KalixConfiguration {
@@ -35,17 +34,18 @@ object KalixConfiguration {
 }
 
 @AutoConfiguration
+@ConditionalOnMissingClass(Array("kalix.springboot.KalixConfigurationTest"))
 class KalixConfiguration(applicationContext: ApplicationContext) {
 
   @Bean
-  def config: Config = ConfigFactory.load()
+  def config(): Config = ConfigFactory.load()
 
   @Bean
-  def kalixReactiveWebServerFactory: KalixReactiveWebServerFactory =
+  def kalixReactiveWebServerFactory(kalixServer: KalixServer): KalixReactiveWebServerFactory =
     new KalixReactiveWebServerFactory(kalixServer)
 
   @Bean
-  def kalixServer: KalixServer =
+  def kalixServer(config: Config): KalixServer =
     new KalixServer(applicationContext, config)
 
   @Component
