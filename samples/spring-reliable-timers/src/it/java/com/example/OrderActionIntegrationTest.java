@@ -5,6 +5,7 @@ import com.example.domain.OrderRequest;
 import com.example.domain.OrderStatus;
 import kalix.springsdk.testkit.KalixIntegrationTestKitSupport;
 
+import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
@@ -34,16 +35,7 @@ public class OrderActionIntegrationTest extends KalixIntegrationTestKitSupport {
   public void placeOrder() {
 
     var orderReq = new OrderRequest("nice swag tshirt", 10);
-
-    String orderId =
-        webClient.post()
-            .uri("/orders/place")
-            .bodyValue(orderReq)
-            .retrieve()
-            .bodyToMono(Order.class)
-            .block(timeout)
-            .id();
-
+    String orderId = placeOrder(orderReq);
     Assertions.assertNotNull(orderId);
     Assertions.assertFalse(orderId.isEmpty());
 
@@ -51,30 +43,17 @@ public class OrderActionIntegrationTest extends KalixIntegrationTestKitSupport {
         .ignoreExceptions()
         .atMost(20, TimeUnit.of(SECONDS))
         .until(
-            () ->
-                webClient.get()
-                    .uri("/order/" + orderId)
-                    .retrieve()
-                    .bodyToMono(OrderStatus.class)
-                    .block(timeout),
+            () -> getOrderStatus(orderId),
             s -> s.quantity() == 10 && s.item().equals("nice swag tshirt"));
 
-    webClient.post()
-        .uri("/orders/confirm/" + orderId)
-        .retrieve()
-        .bodyToMono(String.class)
-        .block(timeout);
+    var confirmResp = confirmOrder(orderId);
+    Assertions.assertEquals("\"Ok\"", confirmResp);
 
     await()
         .ignoreExceptions()
         .atMost(20, TimeUnit.of(SECONDS))
         .until(
-            () ->
-                webClient.get()
-                    .uri("/order/" + orderId)
-                    .retrieve()
-                    .bodyToMono(OrderStatus.class)
-                    .block(timeout),
+            () -> getOrderStatus(orderId),
             OrderStatus::confirmed);
 
   }
@@ -83,16 +62,7 @@ public class OrderActionIntegrationTest extends KalixIntegrationTestKitSupport {
   public void expiredOrder() {
 
     var orderReq = new OrderRequest("nice swag tshirt", 20);
-
-    String orderId =
-        webClient.post()
-            .uri("/orders/place")
-            .bodyValue(orderReq)
-            .retrieve()
-            .bodyToMono(Order.class)
-            .block(timeout)
-            .id();
-
+    String orderId = placeOrder(orderReq);
 
     Assertions.assertNotNull(orderId);
     Assertions.assertFalse(orderId.isEmpty());
@@ -108,6 +78,67 @@ public class OrderActionIntegrationTest extends KalixIntegrationTestKitSupport {
                     .exchangeToMono((resp) -> Mono.just(resp.statusCode().value()))
                     .block(timeout),
             s -> s == 404);
+  }
+
+  @Test
+  public void expireNonexistentOrder() {
+    // the expire endpoint is made to be used internally by timers
+    // thus, in case the order does not exist, it should return successfully so the timer is not rescheduled
+    String resp = expireOrder("made-up-id");
+    Assertions.assertNotNull(resp);
+    Assertions.assertEquals("\"Ok\"", resp);
+  }
+
+  @Test
+  public void expireConfirmedOrder() {
+    // the expire endpoint is made to be used internally by timers
+    // thus, in case the order is already confirmed, it should return successfully so the timer is not rescheduled
+
+    var orderReq = new OrderRequest("nice swag tshirt", 20);
+    String orderId = placeOrder(orderReq);
+
+    var confirmResp = confirmOrder(orderId);
+    Assertions.assertEquals("\"Ok\"", confirmResp);
+
+    String resp = expireOrder("made-up-id");
+    Assertions.assertNotNull(resp);
+    Assertions.assertEquals("\"Ok\"", resp);
+  }
+
+  private String confirmOrder(String orderId) {
+    return webClient.post()
+        .uri("/orders/confirm/" + orderId)
+        .retrieve()
+        .bodyToMono(String.class)
+        .block(timeout);
+  }
+
+  @Nullable
+  private String expireOrder(String orderId) {
+    return webClient.post()
+        .uri("/orders/expire/" + orderId)
+        .retrieve()
+        .bodyToMono(String.class)
+        .block(timeout);
+  }
+
+  private String placeOrder(OrderRequest orderReq) {
+    return webClient.post()
+        .uri("/orders/place")
+        .bodyValue(orderReq)
+        .retrieve()
+        .bodyToMono(Order.class)
+        .block(timeout)
+        .id();
+  }
+
+  @Nullable
+  private OrderStatus getOrderStatus(String orderId) {
+    return webClient.get()
+        .uri("/order/" + orderId)
+        .retrieve()
+        .bodyToMono(OrderStatus.class)
+        .block(timeout);
   }
 
 }

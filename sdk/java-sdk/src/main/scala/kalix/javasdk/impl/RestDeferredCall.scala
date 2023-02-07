@@ -18,6 +18,8 @@ package kalix.javasdk.impl
 
 import kalix.javasdk.DeferredCall
 import kalix.javasdk.Metadata
+import kalix.javasdk.StatusCode.ErrorCode
+import org.springframework.web.reactive.function.client.WebClientResponseException
 
 import java.util.concurrent.CompletionStage
 
@@ -31,9 +33,19 @@ final case class RestDeferredCall[I, O](
     methodName: String,
     asyncCall: () => CompletionStage[O])
     extends DeferredCall[I, O] {
-  override def execute(): CompletionStage[O] = asyncCall()
+  override def execute(): CompletionStage[O] = asyncCall().exceptionally {
+    case responseException: WebClientResponseException =>
+      throw DeferredCallResponseException(
+        responseException.getMessage,
+        StatusCodeConverter.fromWebClientResponse(responseException),
+        responseException)
+    case other: Throwable => throw other
+  }
 
   override def withMetadata(metadata: Metadata): RestDeferredCall[I, O] = {
     this.copy(metadata = metadata.asInstanceOf[MetadataImpl])
   }
 }
+
+case class DeferredCallResponseException(description: String, errorCode: ErrorCode, throwable: Throwable)
+    extends RuntimeException(throwable)

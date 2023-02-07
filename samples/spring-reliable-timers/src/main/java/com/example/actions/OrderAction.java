@@ -5,8 +5,10 @@ import com.example.domain.OrderRequest;
 import com.example.domain.Order;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
+import kalix.javasdk.StatusCode.ErrorCode;
 import kalix.javasdk.action.Action;
 import kalix.javasdk.action.ActionCreationContext;
+import kalix.javasdk.impl.DeferredCallResponseException;
 import kalix.springsdk.KalixClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.Duration;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Predicate;
@@ -75,12 +78,6 @@ public class OrderAction extends Action {
   @PostMapping("/expire/{orderId}")
   public Effect<String> expire(@PathVariable String orderId) {
     logger.info("Expiring order '{}'", orderId);
-
-    Predicate<StatusRuntimeException> validateErrorCodes = exception -> {
-      Status.Code code = exception.getStatus().getCode();
-      return code == Status.Code.NOT_FOUND || code == Status.Code.INVALID_ARGUMENT;
-    };
-
     var cancelRequest = kalixClient.post("/order/"+orderId+"/cancel", "", String.class);
 
     CompletionStage<String> reply =
@@ -88,7 +85,8 @@ public class OrderAction extends Action {
             .execute() // <1>
             .thenApply(cancelled -> "Ok") // <2>
             .exceptionally(e -> { // <3>
-                  if (e instanceof StatusRuntimeException && validateErrorCodes.test((StatusRuntimeException) e)) {
+                  if (e.getCause() instanceof DeferredCallResponseException ere &&
+                      Set.of(ErrorCode.NOT_FOUND, ErrorCode.BAD_REQUEST).contains(ere.errorCode())) {
                     // if NotFound or InvalidArgument, we don't need to re-try, and we can move on
                     // other kind of failures are not recovered and will trigger a re-try
                     return "Ok";

@@ -5,6 +5,8 @@ import kalix.javasdk.valueentity.ValueEntity;
 import kalix.javasdk.valueentity.ValueEntityContext;
 import kalix.springsdk.annotations.EntityKey;
 import kalix.springsdk.annotations.EntityType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
 
 // tag::order[]
@@ -12,6 +14,8 @@ import org.springframework.web.bind.annotation.*;
 @EntityType("order")
 @RequestMapping("/order/{id}")
 public class OrderEntity extends ValueEntity<Order> {
+
+  private static final Logger logger = LoggerFactory.getLogger(OrderEntity.class);
 
   private final String entityId;
 
@@ -27,6 +31,7 @@ public class OrderEntity extends ValueEntity<Order> {
   @PutMapping("/place")
   public Effect<Order> placeOrder(@PathVariable String id,
                                   @RequestBody OrderRequest orderRequest) { // <1>
+    logger.info("Placing orderId={} request={}", id, orderRequest);
     var newOrder = new Order(
         id,
         false,
@@ -40,6 +45,7 @@ public class OrderEntity extends ValueEntity<Order> {
 
   @PostMapping("/confirm")
   public Effect<String> confirm(@PathVariable String id) {
+    logger.info("Confirming orderId={}", id);
     if (currentState().placed()) { // <3>
       return effects()
           .updateState(currentState().confirm())
@@ -53,6 +59,7 @@ public class OrderEntity extends ValueEntity<Order> {
 
   @PostMapping("/cancel")
   public Effect<String> cancel(@PathVariable String id) {
+    logger.info("Cancelling orderId={} currentState={}", id, currentState());
     if (!currentState().placed()) {
       return effects().error(
           "No order found for " + id,

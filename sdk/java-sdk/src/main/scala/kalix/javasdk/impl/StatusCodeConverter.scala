@@ -19,6 +19,7 @@ package kalix.javasdk.impl
 import io.grpc.Status
 import kalix.javasdk.StatusCode
 import kalix.javasdk.StatusCode.{ ErrorCode => JErrorCode }
+import org.springframework.web.reactive.function.client.WebClientResponseException
 
 object StatusCodeConverter {
   def toGrpcCode(statusCode: StatusCode): Status.Code = {
@@ -33,6 +34,36 @@ object StatusCodeConverter {
       case JErrorCode.INTERNAL_SERVER_ERROR => Status.Code.INTERNAL
       case JErrorCode.SERVICE_UNAVAILABLE   => Status.Code.UNAVAILABLE
       case _                                => Status.Code.INTERNAL
+    }
+  }
+
+  def fromGrpcCode(statusCode: Status.Code): JErrorCode = {
+    statusCode match {
+      case Status.Code.INVALID_ARGUMENT   => JErrorCode.BAD_REQUEST
+      case Status.Code.UNAUTHENTICATED    => JErrorCode.UNAUTHORIZED
+      case Status.Code.PERMISSION_DENIED  => JErrorCode.FORBIDDEN
+      case Status.Code.NOT_FOUND          => JErrorCode.NOT_FOUND
+      case Status.Code.DEADLINE_EXCEEDED  => JErrorCode.GATEWAY_TIMEOUT
+      case Status.Code.ALREADY_EXISTS     => JErrorCode.CONFLICT
+      case Status.Code.RESOURCE_EXHAUSTED => JErrorCode.TOO_MANY_REQUESTS
+      case Status.Code.INTERNAL           => JErrorCode.INTERNAL_SERVER_ERROR
+      case Status.Code.UNAVAILABLE        => JErrorCode.SERVICE_UNAVAILABLE
+      case _                              => JErrorCode.INTERNAL_SERVER_ERROR
+    }
+  }
+
+  def fromWebClientResponse(webClientResponseException: WebClientResponseException): JErrorCode = {
+    webClientResponseException match {
+      case _: WebClientResponseException.NotFound            => JErrorCode.NOT_FOUND
+      case _: WebClientResponseException.BadRequest          => JErrorCode.BAD_REQUEST
+      case _: WebClientResponseException.Conflict            => JErrorCode.CONFLICT
+      case _: WebClientResponseException.Forbidden           => JErrorCode.FORBIDDEN
+      case _: WebClientResponseException.Unauthorized        => JErrorCode.UNAUTHORIZED
+      case _: WebClientResponseException.GatewayTimeout      => JErrorCode.GATEWAY_TIMEOUT
+      case _: WebClientResponseException.ServiceUnavailable  => JErrorCode.SERVICE_UNAVAILABLE
+      case _: WebClientResponseException.TooManyRequests     => JErrorCode.TOO_MANY_REQUESTS
+      case _: WebClientResponseException.InternalServerError => JErrorCode.INTERNAL_SERVER_ERROR
+      case _                                                 => JErrorCode.INTERNAL_SERVER_ERROR
     }
   }
 }
