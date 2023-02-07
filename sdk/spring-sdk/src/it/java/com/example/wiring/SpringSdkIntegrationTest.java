@@ -31,7 +31,6 @@ import org.hamcrest.core.IsEqual;
 import org.hamcrest.core.IsNull;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.junit.Ignore;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -47,6 +46,7 @@ import reactor.core.publisher.Mono;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -533,10 +533,10 @@ public class SpringSdkIntegrationTest {
     Assertions.assertEquals(value, actionResponse);
   }
 
-  @Ignore
+  @Test
   public void searchWithInstant() {
 
-    var now = Instant.now();
+    var now = Instant.now().truncatedTo(SECONDS);
     createCustomer(new CustomerEntity.Customer("customer1", now));
 
     // the view is eventually updated
