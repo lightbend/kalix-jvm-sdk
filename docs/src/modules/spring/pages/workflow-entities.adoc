@@ -8,7 +8,7 @@ Implementing a business transaction that spans multiple services is one of the m
 
 We want to build a simple workflow that transfers funds between two wallets. Before that, we will create a wallet subdomain with some basic functionalities that we could use later. For simplicity a `WalletEntity` is implemented as a `ValueEntity`, but for a production-ready solution an `EventSourcedEntity` would be a better choice.
 
-[source,java]
+[source,java,indent=0]
 .src/main/java/com/example/wallet/WalletEntity.java
 ----
 include::example$spring-transfer-workflow/src/main/java/com/example/wallet/WalletEntity.java[tag=wallet]
@@ -20,7 +20,7 @@ include::example$spring-transfer-workflow/src/main/java/com/example/wallet/Walle
 
 Now we can focus on the workflow implementation itself. A workflow has state, which can be updated in command handlers and transition methods. During the state modeling we might consider the information is required for validation, running the steps, collecting data from steps or tracking the workflow progress.
 
-[source,java]
+[source,java,indent=0]
 .src/main/java/com/example/transfer/TransferState.java
 ----
 include::example$spring-transfer-workflow/src/main/java/com/example/transfer/TransferState.java[tag=domain]
@@ -39,7 +39,7 @@ Now that we have our workflow state defined, the remaining tasks can be summariz
 
 Let's have a look at what our transfer workflow entity will look like for the first 2 points from the above list:
 
-[source,java]
+[source,java,indent=0]
 .src/main/java/com/example/transfer/TransferWorkflowEntity.java
 ----
 include::example$spring-transfer-workflow/src/main/java/com/example/transfer/TransferWorkflowEntity.java[tag=class]
@@ -58,7 +58,7 @@ NOTE: The EntityKey `transferId` must match a path parameter (i.e. `transferId`)
 Having created the basis of our workflow entity, we will now define how to launch a workflow with a command handler. In the example below, we define a new endpoint that will accept `StartTransfer` command and return an `Effect` to start a workflow by providing a transition to the first step. Also, we will update the state with an initial value.
 
 
-[source,java]
+[source,java,indent=0]
 .src/main/java/com/example/transfer/TransferWorkflowEntity.java
 ----
 include::example$spring-transfer-workflow/src/main/java/com/example/transfer/TransferWorkflowEntity.java[tag=start]
@@ -78,7 +78,7 @@ One missing piece of our transfer workflow implementation is a workflow `definit
 
 //TODO add some diagram or sth
 
-[source,java]
+[source,java,indent=0]
 .src/main/java/com/example/transfer/TransferWorkflowEntity.java
 ----
 include::example$spring-transfer-workflow/src/main/java/com/example/transfer/TransferWorkflowEntity.java[tag=definition]
@@ -94,7 +94,7 @@ include::example$spring-transfer-workflow/src/main/java/com/example/transfer/Tra
 
 To have access to the current state of the workflow entity we can use `currentState()` (similar to other entities). However, if this is the first command we are receiving for this workflow entity, the state will be `null`. We can change it by overriding the `emptyState` method. The following example shows the implementation of the read-only command handler (accessed through `GET /transfer/transferId`):
 
-[source,java]
+[source,java,indent=0]
 .src/main/java/com/example/transfer/TransferWorkflowEntity.java
 ----
 include::example$spring-transfer-workflow/src/main/java/com/example/transfer/TransferWorkflowEntity.java[tag=get-transfer]
