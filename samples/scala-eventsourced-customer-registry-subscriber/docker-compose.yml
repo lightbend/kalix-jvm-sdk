@@ -4,7 +4,7 @@ services:
   # on the same local machine as the scala-customer-registry-
   kalix-proxy:
     image: gcr.io/kalix-public/kalix-proxy:1.0.34
-    command: -Dconfig.resource=dev-mode.conf -Dkalix.proxy.http-port=9001 -Dkalix.proxy.eventing.support=google-pubsub-emulator
+    command: -Dconfig.resource=dev-mode.conf -Dlogback.configurationFile=logback-dev-mode.xml -Dkalix.proxy.http-port=9001 -Dkalix.proxy.eventing.support=google-pubsub-emulator
     ports:
       - "9001:9001"
     extra_hosts:
