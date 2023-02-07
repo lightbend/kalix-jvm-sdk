@@ -1,7 +1,7 @@
 version: "3"
 services:
   kalix-proxy:
-    image: gcr.io/kalix-public/kalix-proxy:1.0.33
+    image: gcr.io/kalix-public/kalix-proxy:1.0.34
     command: -Dconfig.resource=dev-mode.conf -Dkalix.proxy.eventing.support=google-pubsub-emulator
     ports:
       - "9000:9000"
