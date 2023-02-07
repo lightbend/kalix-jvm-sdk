@@ -21,9 +21,15 @@ import io.grpc.Status;
 import kalix.javasdk.DeferredCall;
 import kalix.javasdk.Metadata;
 import kalix.javasdk.impl.workflowentity.WorkflowEntityEffectImpl;
+import net.jodah.typetools.TypeResolver;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.CompletionStage;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 /** @param <S> The type of the state for this entity. */
@@ -263,6 +269,10 @@ public abstract class WorkflowEntity<S> {
       this.uniqueNames.add(step.name());
       return this;
     }
+
+    public void forEachStep(Consumer<Step> stepConsumer){
+      steps.forEach(stepConsumer);
+    }
   }
 
 
@@ -280,6 +290,8 @@ public abstract class WorkflowEntity<S> {
     final private String _name;
     final public Function<CallInput, DeferredCall<DefCallInput, DefCallOutput>> callFunc;
     final public Function<DefCallOutput, Effect.TransitionalEffect<Void>> transitionFunc;
+    final public Class<CallInput> callInputClass;
+    final public Class<DefCallOutput> transitionInputClass;
 
     public CallStep(String name,
                     Function<CallInput, DeferredCall<DefCallInput, DefCallOutput>> callFunc,
@@ -287,6 +299,10 @@ public abstract class WorkflowEntity<S> {
       _name = name;
       this.callFunc = callFunc;
       this.transitionFunc = transitionFunc;
+      Class<?>[] callClasses = TypeResolver.resolveRawArguments(Function.class, callFunc.getClass());
+      Class<?>[] transitionClasses = TypeResolver.resolveRawArguments(Function.class, transitionFunc.getClass());
+      this.callInputClass = (Class<CallInput>) callClasses[0];
+      this.transitionInputClass = (Class<DefCallOutput>) transitionClasses[0];
     }
 
     @Override
@@ -300,6 +316,8 @@ public abstract class WorkflowEntity<S> {
     final private String _name;
     final public Function<I, CompletionStage<O>> callFunc;
     final public Function<O, Effect.TransitionalEffect<Void>> transitionFunc;
+    final public Class<I> callInputClass;
+    final public Class<O> transitionInputClass;
 
     public AsyncCallStep(String name,
                          Function<I, CompletionStage<O>> callFunc,
@@ -307,6 +325,10 @@ public abstract class WorkflowEntity<S> {
       _name = name;
       this.callFunc = callFunc;
       this.transitionFunc = transitionFunc;
+      Class<?>[] callClasses = TypeResolver.resolveRawArguments(Function.class, callFunc.getClass());
+      Class<?>[] transitionClasses = TypeResolver.resolveRawArguments(Function.class, transitionFunc.getClass());
+      this.callInputClass = (Class<I>) callClasses[0];
+      this.transitionInputClass = (Class<O>) transitionClasses[0];
     }
 
     @Override

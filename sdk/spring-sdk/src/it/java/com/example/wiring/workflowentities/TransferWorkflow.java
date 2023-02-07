@@ -22,6 +22,7 @@ import kalix.javasdk.workflowentity.WorkflowEntity;
 import kalix.springsdk.KalixClient;
 import kalix.springsdk.annotations.EntityKey;
 import kalix.springsdk.annotations.EntityType;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;

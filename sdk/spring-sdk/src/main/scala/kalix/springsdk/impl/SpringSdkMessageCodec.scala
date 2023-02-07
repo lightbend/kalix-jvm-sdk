@@ -54,7 +54,7 @@ private[springsdk] class SpringSdkMessageCodec extends MessageCodec {
   private def lookupTypeHint(value: Any): String =
     lookupTypeHint(value.getClass)
 
-  private def lookupTypeHint(clz: Class[_]): String = {
+  private[kalix] def lookupTypeHint(clz: Class[_]): String = {
     val typeName = Option(clz.getAnnotation(classOf[TypeName]))
       .collect { case ann if ann.value().trim.nonEmpty => ann.value() }
       .getOrElse(clz.getSimpleName) //TODO getName to minimize collision chance, is it backward compatible
@@ -95,7 +95,12 @@ private[springsdk] class SpringSdkMessageCodecJson(delegate: SpringSdkMessageCod
     if (value.typeUrl.startsWith(JsonSupport.KALIX_JSON)) {
       val any = ScalaPbAny.toJavaProto(value)
       val typeName = value.typeUrl.replace(JsonSupport.KALIX_JSON, "")
-      JsonSupport.decodeJson(delegate.reversedCache.get(typeName), any)
+      val typeClass = delegate.reversedCache.get(typeName)
+      if (typeClass == null) {
+        throw new IllegalStateException(s"Cannot decode ${value.typeUrl} message type. Class mapping not found.")
+      } else {
+        JsonSupport.decodeJson(typeClass, any)
+      }
     } else {
       value
     }
