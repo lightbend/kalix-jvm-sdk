@@ -119,10 +119,7 @@ object Dependencies {
     junit5 % Provided,
     scalaTest % Test)
 
-  val springDeps = Seq(
-    jacksonDataFormatProto,
-    "org.springframework.boot" % "spring-boot" % SpringVersion,
-    webflux)
+  val springDeps = Seq(jacksonDataFormatProto, "org.springframework.boot" % "spring-boot" % SpringVersion, webflux)
 
   val sdkSpring = deps ++= coreDeps ++ springDeps ++ Seq(
     "net.aichler" % "jupiter-interface" % JupiterKeys.jupiterVersion.value % IntegrationTest,
