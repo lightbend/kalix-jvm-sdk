@@ -34,7 +34,7 @@ Now that we have our workflow state defined, the remaining tasks can be summariz
 
 - declare your entity and pick an entity type and key (it needs to be unique as it will be used for sharding purposes);
 - define an access point (i.e. a route path) to your entity;
-- implement endpoint(s) to interact with the workflow (e.g. to start a workflow, or provide additional data);
+- implement endpoint(s) to interact with the workflow (e.g. to start a workflow, or provide additional data) or retrieve its current state;
 - provide a workflow definition with all possible steps and transitions between them.
 
 Let's have a look at what our transfer workflow entity will look like for the first 2 points from the above list:
