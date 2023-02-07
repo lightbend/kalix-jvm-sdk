@@ -5,7 +5,6 @@ import com.example.domain.OrderRequest;
 import com.example.domain.OrderStatus;
 import kalix.springsdk.testkit.KalixIntegrationTestKitSupport;
 
-import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
@@ -113,7 +112,6 @@ public class OrderActionIntegrationTest extends KalixIntegrationTestKitSupport {
         .block(timeout);
   }
 
-  @Nullable
   private String expireOrder(String orderId) {
     return webClient.post()
         .uri("/orders/expire/" + orderId)
@@ -132,7 +130,6 @@ public class OrderActionIntegrationTest extends KalixIntegrationTestKitSupport {
         .id();
   }
 
-  @Nullable
   private OrderStatus getOrderStatus(String orderId) {
     return webClient.get()
         .uri("/order/" + orderId)

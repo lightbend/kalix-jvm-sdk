@@ -85,8 +85,8 @@ public class OrderAction extends Action {
             .execute() // <1>
             .thenApply(cancelled -> "Ok") // <2>
             .exceptionally(e -> { // <3>
-                  if (e.getCause() instanceof DeferredCallResponseException ere &&
-                      Set.of(ErrorCode.NOT_FOUND, ErrorCode.BAD_REQUEST).contains(ere.errorCode())) {
+                  if (e.getCause() instanceof DeferredCallResponseException dcre &&
+                      Set.of(ErrorCode.NOT_FOUND, ErrorCode.BAD_REQUEST).contains(dcre.errorCode())) {
                     // if NotFound or InvalidArgument, we don't need to re-try, and we can move on
                     // other kind of failures are not recovered and will trigger a re-try
                     return "Ok";
