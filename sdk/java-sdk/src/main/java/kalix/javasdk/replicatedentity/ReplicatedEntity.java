@@ -138,7 +138,6 @@ public abstract class ReplicatedEntity<D extends ReplicatedData> {
        * @return An error reply.
        * @param <T> The type of the message that must be returned by this call.
        */
-      @Deprecated
       <T> Effect<T> error(String description, Status.Code statusCode);
       /**
        * Create an error reply with a custom status code.

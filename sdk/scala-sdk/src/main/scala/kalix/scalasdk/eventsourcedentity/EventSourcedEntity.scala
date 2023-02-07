@@ -119,7 +119,6 @@ object EventSourcedEntity {
        * @tparam T
        *   The type of the message that must be returned by this call.
        */
-      @deprecated("Replaced by \"error(String, ErrorCode)\"")
       def error[T](description: String, statusCode: Status.Code): Effect[T]
 
       /**

@@ -176,7 +176,6 @@ public abstract class EventSourcedEntity<S> {
        * @return An error reply.
        * @param <T> The type of the message that must be returned by this call.
        */
-      @Deprecated
       <T> Effect<T> error(String description, Status.Code statusCode);
 
       /**

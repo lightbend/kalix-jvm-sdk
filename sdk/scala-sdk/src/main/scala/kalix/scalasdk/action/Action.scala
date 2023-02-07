@@ -125,7 +125,6 @@ object Action {
        * @tparam S
        *   The type of the message that must be returned by this call.
        */
-      @deprecated
       def error[S](description: String, statusCode: Status.Code): Action.Effect[S]
 
       /**
