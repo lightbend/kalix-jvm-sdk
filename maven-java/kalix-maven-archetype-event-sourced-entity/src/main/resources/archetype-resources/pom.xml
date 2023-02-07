@@ -181,6 +181,7 @@
           <arguments>
             <argument>-classpath</argument>
             <classpath/>
+            <argument>-Dlogback.configurationFile=logback-dev-mode.xml</argument>
             <argument>${D}{mainClass}</argument>
           </arguments>
           <environmentVariables>
