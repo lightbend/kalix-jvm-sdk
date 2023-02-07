@@ -80,7 +80,7 @@ public class TransferWorkflowWithFraudDetection extends WorkflowEntity<TransferS
       if (currentState() == null) {
         return effects()
             .updateState(new TransferState(transfer, "started"))
-            .transition(transfer, fraudDetectionStepName)
+            .transitionTo(fraudDetectionStepName, transfer)
             .thenReply(new Message("transfer started"));
       } else {
         return effects().reply(new Message("transfer already started"));
@@ -96,7 +96,7 @@ public class TransferWorkflowWithFraudDetection extends WorkflowEntity<TransferS
       var withdrawInput = new Withdraw(currentState().transfer.from, currentState().transfer.amount);
       return effects()
           .updateState(currentState().accepted())
-          .transition(withdrawInput, withdrawStepName)
+          .transitionTo(withdrawStepName, withdrawInput)
           .thenReply(new Message("transfer accepted"));
     } else {
       return effects().reply(new Message("transfer cannot be accepted"));
@@ -124,7 +124,7 @@ public class TransferWorkflowWithFraudDetection extends WorkflowEntity<TransferS
 
     return effects()
         .updateState(state)
-        .transition(depositInput, depositStepName);
+        .transitionTo(depositStepName, depositInput);
   }
 
   private CompletionStage<FraudDetectionResult> checkFrauds(Transfer transfer) {
@@ -146,7 +146,7 @@ public class TransferWorkflowWithFraudDetection extends WorkflowEntity<TransferS
 
       return effects()
           .updateState(state)
-          .transition(withdrawInput, withdrawStepName);
+          .transitionTo(withdrawStepName, withdrawInput);
 
     } else if (result instanceof TransferRequiresManualAcceptation) {
       return effects()

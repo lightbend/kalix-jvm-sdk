@@ -35,10 +35,10 @@ import kalix.javasdk.impl.workflowentity.WorkflowEntityRouter.CommandHandlerNotF
 import kalix.javasdk.impl.workflowentity.WorkflowEntityRouter.CommandResult
 import kalix.javasdk.impl.workflowentity.WorkflowEntityRouter.WorkflowStepNotFound
 import kalix.javasdk.workflowentity.CommandContext
-import kalix.javasdk.workflowentity.WorkflowEntity.AsyncCall
-import kalix.javasdk.workflowentity.WorkflowEntity.Call
 import kalix.javasdk.workflowentity.WorkflowEntity.Effect
 import kalix.javasdk.workflowentity.WorkflowEntity
+import kalix.javasdk.workflowentity.WorkflowEntity.AsyncCallStep
+import kalix.javasdk.workflowentity.WorkflowEntity.CallStep
 import kalix.javasdk.workflowentity.WorkflowEntityContext
 import kalix.protocol.workflow_entity.StepDeferredCall
 import kalix.protocol.workflow_entity.StepExecuted
@@ -118,7 +118,7 @@ abstract class WorkflowEntityRouter[S, W <: WorkflowEntity[S]](protected val wor
     val workflowDef = workflow.definition()
 
     workflowDef.findByName(stepName).toScala match {
-      case Some(call: Call[_, _, _]) =>
+      case Some(call: CallStep[_, _, _]) =>
         val defCall =
           call.callFunc
             .asInstanceOf[JFunc[Any, DeferredCall[Any, Any]]]
@@ -143,7 +143,7 @@ abstract class WorkflowEntityRouter[S, W <: WorkflowEntity[S]](protected val wor
           StepResponse(commandId, stepName, StepResponse.Response.DeferredCall(stepDefCall))
         }
 
-      case Some(call: AsyncCall[_, _]) =>
+      case Some(call: AsyncCallStep[_, _]) =>
         val future =
           call.callFunc
             .asInstanceOf[JFunc[Any, CompletionStage[Any]]]
@@ -168,7 +168,7 @@ abstract class WorkflowEntityRouter[S, W <: WorkflowEntity[S]](protected val wor
     val workflowDef = workflow.definition()
 
     workflowDef.findByName(stepName).toScala match {
-      case Some(call: Call[_, _, _]) =>
+      case Some(call: CallStep[_, _, _]) =>
         val effect =
           call.transitionFunc
             .asInstanceOf[JFunc[Any, Effect[Any]]]
@@ -176,7 +176,7 @@ abstract class WorkflowEntityRouter[S, W <: WorkflowEntity[S]](protected val wor
 
         CommandResult(effect)
 
-      case Some(call: AsyncCall[_, _]) =>
+      case Some(call: AsyncCallStep[_, _]) =>
         val effect =
           call.transitionFunc
             .asInstanceOf[JFunc[Any, Effect[Any]]]

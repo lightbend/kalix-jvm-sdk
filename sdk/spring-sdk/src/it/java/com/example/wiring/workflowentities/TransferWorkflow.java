@@ -52,7 +52,7 @@ public class TransferWorkflow extends WorkflowEntity<TransferState> {
 
               return effects()
                   .updateState(state)
-                  .transition(depositInput, depositStepName);
+                  .transitionTo(depositStepName, depositInput);
             });
 
     var deposit =
@@ -76,7 +76,7 @@ public class TransferWorkflow extends WorkflowEntity<TransferState> {
       if (currentState() == null) {
         return effects()
             .updateState(new TransferState(transfer, "started"))
-            .transition(new Withdraw(transfer.from, transfer.amount), withdrawStepName)
+            .transitionTo(withdrawStepName, new Withdraw(transfer.from, transfer.amount))
             .thenReply(new Message("transfer started"));
       } else {
         return effects().reply(new Message("transfer already started"));

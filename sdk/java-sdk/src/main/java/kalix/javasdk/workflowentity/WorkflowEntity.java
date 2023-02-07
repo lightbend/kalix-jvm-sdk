@@ -26,6 +26,8 @@ import java.util.*;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
 
+/** @param <S> The type of the state for this entity. */
+@ApiMayChange
 public abstract class WorkflowEntity<S> {
 
 
@@ -36,8 +38,8 @@ public abstract class WorkflowEntity<S> {
   private boolean stateHasBeenSet = false;
 
   /**
-   * Implement by returning the initial empty state object. This object will be passed into the
-   * command handlers, until a new state replaces it.
+   * Returns the initial empty state object. This object will be passed into the
+   * command and step handlers, until a new state replaces it.
    *
    * <p>Also known as "zero state" or "neutral state".
    *
@@ -93,6 +95,10 @@ public abstract class WorkflowEntity<S> {
     else throw new IllegalStateException("Current state is only available when handling a command.");
   }
 
+  /**
+   * @return A workflow definition in a form of steps and transitions between them.
+   */
+  @ApiMayChange
   public abstract Workflow<S> definition();
 
   protected final Effect.Builder<S> effects() {
@@ -100,7 +106,7 @@ public abstract class WorkflowEntity<S> {
   }
 
   /**
-   * A return type to allow returning forwards or failures, and attaching effects to messages.
+   * A return type to allow returning failures or attaching effects to messages.
    *
    * @param <T> The type of the message that must be returned by this call.
    */
@@ -116,16 +122,28 @@ public abstract class WorkflowEntity<S> {
      */
     interface Builder<S> {
 
-      // TODO: document
+      @ApiMayChange
       PersistenceEffectBuilder<S> updateState(S newState);
 
-      // TODO: document
+      /**
+       * Pause the workflow execution and wait for an external input, e.g. via command handler.
+       */
+      @ApiMayChange
       TransitionalEffect<Void> pause();
 
-      // TODO: document
-      <I> TransitionalEffect<Void> transition(I input, String transitionTo);
+      /**
+       * Set the step that should be executed.
+       *
+       * @param stepName The step name that should be executed.
+       * @param input    The input param for the step.
+       */
+      @ApiMayChange
+      <I> TransitionalEffect<Void> transitionTo(String stepName, I input);
 
-      // TODO: document
+      /**
+       * Finish the workflow execution.
+       */
+      @ApiMayChange
       TransitionalEffect<Void> end();
 
       /**
@@ -171,6 +189,9 @@ public abstract class WorkflowEntity<S> {
     interface ErrorEffect<T> extends Effect<T> {
     }
 
+    /**
+     * A workflow effect type that contains information about the transition to the next step. This could be also a special transition to pause or end the workflow.
+     */
     interface TransitionalEffect<T> extends Effect<T> {
 
       /**
@@ -195,13 +216,25 @@ public abstract class WorkflowEntity<S> {
 
     interface PersistenceEffectBuilder<T> {
 
-      // TODO: document
+      /**
+       * Pause the workflow execution and wait for an external input, e.g. via command handler.
+       */
+      @ApiMayChange
       TransitionalEffect<Void> pause();
 
-      // TODO: document
-      <I> TransitionalEffect<Void> transition(I input, String transitionTo);
+      /**
+       * Set the step that should be executed.
+       *
+       * @param stepName The step name that should be executed.
+       * @param input    The input param for the step.
+       */
+      @ApiMayChange
+      <I> TransitionalEffect<Void> transitionTo(String stepName, I input);
 
-      // TODO: document
+      /**
+       * Finish the workflow execution.
+       */
+      @ApiMayChange
       TransitionalEffect<Void> end();
     }
 
@@ -242,15 +275,15 @@ public abstract class WorkflowEntity<S> {
     String name();
   }
 
-  public static class Call<CallInput, DefCallInput, DefCallOutput> implements Step {
+  public static class CallStep<CallInput, DefCallInput, DefCallOutput> implements Step {
 
     final private String _name;
     final public Function<CallInput, DeferredCall<DefCallInput, DefCallOutput>> callFunc;
     final public Function<DefCallOutput, Effect.TransitionalEffect<Void>> transitionFunc;
 
-    public Call(String name,
-                Function<CallInput, DeferredCall<DefCallInput, DefCallOutput>> callFunc,
-                Function<DefCallOutput, Effect.TransitionalEffect<Void>> transitionFunc) {
+    public CallStep(String name,
+                    Function<CallInput, DeferredCall<DefCallInput, DefCallOutput>> callFunc,
+                    Function<DefCallOutput, Effect.TransitionalEffect<Void>> transitionFunc) {
       _name = name;
       this.callFunc = callFunc;
       this.transitionFunc = transitionFunc;
@@ -262,15 +295,15 @@ public abstract class WorkflowEntity<S> {
     }
   }
 
-  public static class AsyncCall<I, O> implements Step {
+  public static class AsyncCallStep<I, O> implements Step {
 
     final private String _name;
     final public Function<I, CompletionStage<O>> callFunc;
     final public Function<O, Effect.TransitionalEffect<Void>> transitionFunc;
 
-    public AsyncCall(String name,
-                Function<I, CompletionStage<O>> callFunc,
-                Function<O, Effect.TransitionalEffect<Void>> transitionFunc) {
+    public AsyncCallStep(String name,
+                         Function<I, CompletionStage<O>> callFunc,
+                         Function<O, Effect.TransitionalEffect<Void>> transitionFunc) {
       _name = name;
       this.callFunc = callFunc;
       this.transitionFunc = transitionFunc;
@@ -282,6 +315,12 @@ public abstract class WorkflowEntity<S> {
     }
   }
 
+  /**
+   * Start a step definition with a given step name.
+   * @param name Step name.
+   * @return Step builder.
+   */
+  @ApiMayChange
   public static WorkflowEntity.StepBuilder step(String name) {
     return new WorkflowEntity.StepBuilder(name);
   }
@@ -294,16 +333,35 @@ public abstract class WorkflowEntity<S> {
       this.name = name;
     }
 
-    public <Input, DefCallInput, DefCallOutput> CallBuilder<Input, DefCallInput, DefCallOutput> call(Function<Input, DeferredCall<DefCallInput, DefCallOutput>> callFactory) {
-      return new CallBuilder<>(name, callFactory);
+    /**
+     * Build a step action with a call to an existing Kalix component via {@link DeferredCall}.
+     *
+     * @param callFactory Factory method for creating deferred call.
+     * @param <Input> Input for deferred call factory, provided by transition method.
+     * @param <DefCallInput> Input for deferred call.
+     * @param <DefCallOutput> Output of deferred call.
+     * @return Step builder.
+     */
+    @ApiMayChange
+    public <Input, DefCallInput, DefCallOutput> CallStepBuilder<Input, DefCallInput, DefCallOutput> call(Function<Input, DeferredCall<DefCallInput, DefCallOutput>> callFactory) {
+      return new CallStepBuilder<>(name, callFactory);
     }
 
-    public <Input, Output> AsyncCallBuilder<Input, Output> asyncCall(Function<Input, CompletionStage<Output>> callFactory) {
-      return new AsyncCallBuilder<>(name, callFactory);
+    /**
+     * Build a step action with an async call.
+     *
+     * @param callFactory Factory method for creating async call.
+     * @param <Input> Input for async call factory, provided by transition method.
+     * @param <Output> Output of async call.
+     * @return Step builder.
+     */
+    @ApiMayChange
+    public <Input, Output> AsyncCallStepBuilder<Input, Output> asyncCall(Function<Input, CompletionStage<Output>> callFactory) {
+      return new AsyncCallStepBuilder<>(name, callFactory);
     }
 
 
-    public static class CallBuilder<Input, DefCallInput, DefCallOutput> {
+    public static class CallStepBuilder<Input, DefCallInput, DefCallOutput> {
 
       final private String name;
 
@@ -311,17 +369,24 @@ public abstract class WorkflowEntity<S> {
       final private Function<Input, DeferredCall<DefCallInput, DefCallOutput>> callFunc;
 
 
-      public CallBuilder(String name,  Function<Input, DeferredCall<DefCallInput, DefCallOutput>> callFunc) {
+      public CallStepBuilder(String name, Function<Input, DeferredCall<DefCallInput, DefCallOutput>> callFunc) {
         this.name = name;
         this.callFunc = callFunc;
       }
 
-      public Call<Input, DefCallInput, DefCallOutput> andThen(Function<DefCallOutput, Effect.TransitionalEffect<Void>> transitionFunc) {
-        return new Call<>(name, callFunc, transitionFunc);
+      /**
+       * Transition to the next step based on the result of the step action.
+       *
+       * @param transitionFunc Function that transform the action result to a {@link Effect.TransitionalEffect}
+       * @return CallStep
+       */
+      @ApiMayChange
+      public CallStep<Input, DefCallInput, DefCallOutput> andThen(Function<DefCallOutput, Effect.TransitionalEffect<Void>> transitionFunc) {
+        return new CallStep<>(name, callFunc, transitionFunc);
       }
     }
 
-    public static class AsyncCallBuilder<I, O> {
+    public static class AsyncCallStepBuilder<I, O> {
 
       final private String name;
 
@@ -329,18 +394,21 @@ public abstract class WorkflowEntity<S> {
       final private Function<I, CompletionStage<O>> callFunc;
 
 
-      public AsyncCallBuilder(String name,  Function<I, CompletionStage<O>> callFunc) {
+      public AsyncCallStepBuilder(String name, Function<I, CompletionStage<O>> callFunc) {
         this.name = name;
         this.callFunc = callFunc;
       }
 
-      public AsyncCall<I, O> andThen(Function<O, Effect.TransitionalEffect<Void>> transitionFunc) {
-        return new AsyncCall<>(name, callFunc, transitionFunc);
+      /**
+       * Transition to the next step based on the result of the step action.
+       *
+       * @param transitionFunc Function that transform the action result to a {@link Effect.TransitionalEffect}
+       * @return AsyncCallStep
+       */
+      @ApiMayChange
+      public AsyncCallStep<I, O> andThen(Function<O, Effect.TransitionalEffect<Void>> transitionFunc) {
+        return new AsyncCallStep<>(name, callFunc, transitionFunc);
       }
     }
-
-
-
   }
-
 }

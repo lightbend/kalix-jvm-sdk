@@ -16,7 +16,7 @@ The steps necessary to implement an Event Sourced Entity include:
 
 The following sections walk through these steps using a shopping cart service as an example (working sample available {sample-url}[here {tab-icon}, window="new"]).
 
-== Model the entity
+== Modeling the Entity
 
 Through our "Shopping Cart" Event Sourced Entity we expect to manage our cart, adding and removing items as we please. Being event-sourced means it will represent changes to state as a series of domain events. So let's have a look at what kind of model we expect to store and the events our entity might generate.
 

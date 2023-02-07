@@ -58,7 +58,7 @@ public class TransferWorkflowEntity extends WorkflowEntity<MoneyTransferApi.Stat
 
           return effects()
             .updateState(state)
-            .transition(withdrawInput, withdrawStepName);
+            .transitionTo(withdrawStepName, withdrawInput);
         });
 
 
@@ -77,7 +77,7 @@ public class TransferWorkflowEntity extends WorkflowEntity<MoneyTransferApi.Stat
 
           return effects()
             .updateState(state)
-            .transition(depositInput, depositStepName);
+            .transitionTo(depositStepName, depositInput);
         });
 
 
@@ -132,7 +132,7 @@ public class TransferWorkflowEntity extends WorkflowEntity<MoneyTransferApi.Stat
         .thenReply(Empty.getDefaultInstance());
     else {
       return effect
-        .transition(Empty.getDefaultInstance(), remoteCallStepName)
+        .transitionTo(remoteCallStepName, Empty.getDefaultInstance())
         .thenReply(Empty.getDefaultInstance());}
   }
 
