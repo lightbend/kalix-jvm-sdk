@@ -1,13 +1,18 @@
 package com.example;
 
-import com.example.domain.OrderDomain;
-import com.google.protobuf.Empty;
+import com.example.actions.Order;
+import com.example.actions.OrderApi;
+import io.grpc.Status;
+import io.grpc.StatusRuntimeException;
 import kalix.javasdk.testkit.junit.KalixTestKitResource;
+import org.junit.Assert;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.Ignore;
 
-import static java.util.concurrent.TimeUnit.*;
+import java.util.concurrent.ExecutionException;
+
+import static java.util.concurrent.TimeUnit.SECONDS;
 
 // This class was initially generated based on the .proto definition by Kalix tooling.
 //
@@ -28,10 +33,12 @@ public class OrderIntegrationTest {
   /**
    * Use the generated gRPC client to call the service through the Kalix proxy.
    */
-  private final OrderService client;
+  private final OrderService orderClient;
+  private final Order actionClient;
 
   public OrderIntegrationTest() {
-    client = testKit.getGrpcClient(OrderService.class);
+    orderClient = testKit.getGrpcClient(OrderService.class);
+    actionClient = testKit.getGrpcClient(Order.class);
   }
 
   @Test
@@ -51,11 +58,15 @@ public class OrderIntegrationTest {
   }
 
   @Test
-  @Ignore("to be implemented")
-  public void cancelOnNonExistingEntity() throws Exception {
-    // TODO: set fields in command, and provide assertions to match replies
-    // client.cancel(OrderServiceApi.CancelRequest.newBuilder().build())
-    //         .toCompletableFuture().get(5, SECONDS);
+  public void expireOnNonExistingEntity() throws Exception {
+    // the expire endpoint is made to be used internally by timers
+    // thus, in case the order does not exist, it should return successfully so the timer is not rescheduled
+    try {
+      actionClient.expire(OrderApi.OrderNumber.newBuilder().setNumber("unknown-number").build())
+          .toCompletableFuture().get(5, SECONDS);
+    } catch (Exception e) {
+      Assert.fail("Should not reach this");
+    }
   }
 
   @Test
