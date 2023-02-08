@@ -6,7 +6,6 @@ package com.example.fibonacci
 
 import akka.NotUsed
 import akka.stream.scaladsl.Source
-import kalix.scalasdk.ErrorCode
 import kalix.scalasdk.action.Action
 import kalix.scalasdk.action.ActionCreationContext
 
@@ -59,7 +58,7 @@ class FibonacciAction(creationContext: ActionCreationContext) extends AbstractFi
   override def nextNumberOfEach(numberSrc: Source[Number, NotUsed]): Source[Action.Effect[Number], NotUsed] = {
     numberSrc.map(number =>
       if (!isFibonacci(number.value))
-        effects.error(s"Input number is not a Fibonacci number, received '${number.value}'", ErrorCode.BadRequest)
+        effects.error(s"Input number is not a Fibonacci number, received '${number.value}'")
       else effects.reply(Number(nextFib(number.value))))
   }
 
