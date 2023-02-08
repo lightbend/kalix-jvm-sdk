@@ -24,8 +24,6 @@ import kalix.scalasdk.eventsourcedentity.EventSourcedEntity
 import kalix.scalasdk.impl.ScalaDeferredCallAdapter
 import kalix.scalasdk.impl.ScalaSideEffectAdapter
 import io.grpc.Status
-import kalix.scalasdk.ErrorCode
-import kalix.scalasdk.StatusCodeConverters
 
 private[scalasdk] object EventSourcedEntityEffectImpl {
   def apply[R, S](): EventSourcedEntityEffectImpl[R, S] = EventSourcedEntityEffectImpl(
@@ -50,11 +48,8 @@ private[scalasdk] final case class EventSourcedEntityEffectImpl[R, S](
   def error[T](description: String): EventSourcedEntity.Effect[T] =
     EventSourcedEntityEffectImpl(javasdkEffect.error[T](description))
 
-  def error[T](description: String, grpcErrorCode: Status.Code): EventSourcedEntity.Effect[T] =
-    EventSourcedEntityEffectImpl(javasdkEffect.error[T](description, grpcErrorCode))
-
-  def error[T](description: String, httpErrorCode: ErrorCode): EventSourcedEntity.Effect[T] =
-    EventSourcedEntityEffectImpl(javasdkEffect.error[T](description, StatusCodeConverters.toJava(httpErrorCode)))
+  def error[T](description: String, statusCode: Status.Code): EventSourcedEntity.Effect[T] =
+    EventSourcedEntityEffectImpl(javasdkEffect.error[T](description, statusCode))
 
   def forward[T](deferredCall: DeferredCall[_, T]): EventSourcedEntity.Effect[T] =
     deferredCall match {

@@ -18,10 +18,10 @@ package kalix.scalasdk.action
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
+
 import kalix.scalasdk.{ DeferredCall, Metadata, SideEffect }
 import kalix.scalasdk.impl.action.ActionEffectImpl
 import io.grpc.Status
-import kalix.javasdk.StatusCode.ErrorCode
 import kalix.javasdk.impl.action.ActionContextImpl
 import kalix.scalasdk.impl.action.ScalaActionContextAdapter
 import kalix.scalasdk.timer.TimerScheduler
@@ -125,22 +125,7 @@ object Action {
        * @tparam S
        *   The type of the message that must be returned by this call.
        */
-      def error[S](description: String, grpcErrorCode: Status.Code): Action.Effect[S]
-
-      /**
-       * Create an error reply with a custom status code. This status code will be translated to an HTTP or gRPC code
-       * depending on the type of service being exposed.
-       *
-       * @param description
-       *   The description of the error.
-       * @param errorCode
-       *   A custom Kalix status code to represent the error.
-       * @return
-       *   An error reply.
-       * @tparam S
-       *   The type of the message that must be returned by this call.
-       */
-      def error[S](description: String, httpErrorCode: ErrorCode): Action.Effect[S]
+      def error[S](description: String, statusCode: Status.Code): Action.Effect[S]
 
       /**
        * Create a message reply from an async operation result.

@@ -23,8 +23,6 @@ import kalix.scalasdk.impl.ScalaDeferredCallAdapter
 import kalix.scalasdk.impl.ScalaSideEffectAdapter
 import kalix.scalasdk.valueentity.ValueEntity
 import io.grpc.Status
-import kalix.scalasdk.ErrorCode
-import kalix.scalasdk.StatusCodeConverters
 
 private[scalasdk] object ValueEntityEffectImpl {
   def apply[S](): ValueEntityEffectImpl[S] = ValueEntityEffectImpl(
@@ -44,11 +42,8 @@ private[scalasdk] final case class ValueEntityEffectImpl[S](
   def error[T](description: String): ValueEntity.Effect[T] = new ValueEntityEffectImpl(
     javasdkEffect.error[T](description))
 
-  def error[T](description: String, grpcErrorCode: Status.Code): ValueEntity.Effect[T] =
-    new ValueEntityEffectImpl(javasdkEffect.error[T](description, grpcErrorCode))
-
-  def error[T](description: String, httpErrorCode: ErrorCode): ValueEntity.Effect[T] =
-    new ValueEntityEffectImpl(javasdkEffect.error[T](description, StatusCodeConverters.toJava(httpErrorCode)))
+  def error[T](description: String, statusCode: Status.Code): ValueEntity.Effect[T] =
+    new ValueEntityEffectImpl(javasdkEffect.error[T](description, statusCode))
 
   def forward[T](deferredCall: kalix.scalasdk.DeferredCall[_, T]): ValueEntity.Effect[T] = {
     deferredCall match {

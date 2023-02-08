@@ -25,8 +25,6 @@ import kalix.scalasdk.impl.ScalaSideEffectAdapter
 import kalix.scalasdk.replicatedentity.ReplicatedEntity
 import kalix.scalasdk.replicatedentity.ReplicatedEntity.Effect
 import io.grpc.Status
-import kalix.scalasdk.ErrorCode
-import kalix.scalasdk.StatusCodeConverters
 
 import scala.jdk.CollectionConverters.IterableHasAsJava
 
@@ -61,11 +59,8 @@ private[scalasdk] final case class ReplicatedEntityEffectImpl[D <: ReplicatedDat
   def error[T](description: String): ReplicatedEntity.Effect[T] =
     ReplicatedEntityEffectImpl(javaSdkEffect.error(description))
 
-  def error[T](description: String, grpcErrorCode: Status.Code): ReplicatedEntity.Effect[T] =
-    ReplicatedEntityEffectImpl(javaSdkEffect.error(description, grpcErrorCode))
-
-  def error[T](description: String, httpErrorCode: ErrorCode): ReplicatedEntity.Effect[T] =
-    ReplicatedEntityEffectImpl(javaSdkEffect.error(description, StatusCodeConverters.toJava(httpErrorCode)))
+  def error[T](description: String, statusCode: Status.Code): ReplicatedEntity.Effect[T] =
+    ReplicatedEntityEffectImpl(javaSdkEffect.error(description, statusCode))
 
   override def thenReply[T](message: T): ReplicatedEntity.Effect[T] =
     ReplicatedEntityEffectImpl(javaSdkEffect.thenReply(message))
