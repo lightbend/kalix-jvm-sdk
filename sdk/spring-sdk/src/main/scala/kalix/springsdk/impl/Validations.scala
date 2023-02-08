@@ -119,7 +119,7 @@ object Validations {
 
   private def validateView(component: Class[_]): Validation = {
     when[View[_]](component) {
-      when(!KalixServer.isNestedViewTable(component)) {
+      when(!KalixSpringApplication.isNestedViewTable(component)) {
         viewMustHaveOneQueryMethod(component)
       } ++
       commonValidation(component) ++
@@ -128,7 +128,7 @@ object Validations {
       viewMustHaveMethodLevelSubscriptionWhenTransformingUpdates(component) ++
       streamUpdatesQueryMustReturnFlux(component)
     } ++
-    when(KalixServer.isMultiTableView(component)) {
+    when(KalixSpringApplication.isMultiTableView(component)) {
       viewMustHaveOneQueryMethod(component)
     }
   }

@@ -30,7 +30,7 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.springframework.beans.factory.BeanCreationException
 
-class KalixServerSpec extends AnyWordSpec with Matchers {
+class KalixSpringApplicationSpec extends AnyWordSpec with Matchers {
 
   val message = "is a Kalix component and is marked as a Spring bean for automatic wiring."
 
@@ -43,7 +43,7 @@ class KalixServerSpec extends AnyWordSpec with Matchers {
         throw ex
     }
   }
-  "The KalixServer" should {
+  "The KalixSpringApplication" should {
 
     "block direct wiring of Kalix Actions" in {
       val errorMessage =

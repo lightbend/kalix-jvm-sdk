@@ -19,13 +19,12 @@ package kalix.springboot
 import com.typesafe.config.Config
 import kalix.javasdk.JsonSupport
 import kalix.javasdk.testkit.KalixTestKit
-import kalix.springsdk.impl.KalixServer
+import kalix.springsdk.impl.KalixSpringApplication
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.autoconfigure.AutoConfiguration
 import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.Bean
-import org.springframework.context.annotation.Scope
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
 import org.springframework.http.codec.json.Jackson2JsonEncoder
@@ -53,12 +52,12 @@ class KalixConfigurationTest(applicationContext: ApplicationContext) extends Kal
 
   @Bean
   def kalixTestKit(
-      kalixServer: KalixServer,
+      kalixSpringApplication: KalixSpringApplication,
       config: Config,
       settingsOpt: Option[KalixTestKit.Settings]): KalixTestKit = {
 
     val settings = settingsOpt.getOrElse(KalixTestKit.Settings.DEFAULT)
-    val kalixTestKit = new KalixTestKit(kalixServer.kalix, settings)
+    val kalixTestKit = new KalixTestKit(kalixSpringApplication.kalix, settings)
 
     logger.info(s"Starting Kalix TestKit with: $settings")
     kalixTestKit.start(config)

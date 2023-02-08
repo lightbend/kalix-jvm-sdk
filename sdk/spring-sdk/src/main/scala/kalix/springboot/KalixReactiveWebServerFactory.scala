@@ -16,12 +16,18 @@
 
 package kalix.springboot
 
-import kalix.springsdk.impl.KalixServer
+import scala.concurrent.Await
+import scala.concurrent.duration.DurationInt
+
+import kalix.springsdk.impl.KalixSpringApplication
+import org.slf4j.LoggerFactory
 import org.springframework.boot.web.reactive.server.ReactiveWebServerFactory
 import org.springframework.boot.web.server.WebServer
 import org.springframework.http.server.reactive.HttpHandler
 
-class KalixReactiveWebServerFactory(kalixServer: KalixServer) extends ReactiveWebServerFactory {
+class KalixReactiveWebServerFactory(kalixApp: KalixSpringApplication) extends ReactiveWebServerFactory {
+
+  private val logger = LoggerFactory.getLogger(this.getClass)
 
   override def getWebServer(httpHandler: HttpHandler): WebServer = {
 
@@ -30,23 +36,26 @@ class KalixReactiveWebServerFactory(kalixServer: KalixServer) extends ReactiveWe
     // That doesn't play well for us (sbt/ActorSystem/Akka Http), therefore we use this flag to keep track of it.
     @volatile var started = false
 
+    logger.info("Instantiating Kalix ReactiveWebServer")
     new WebServer {
       override def start(): Unit = {
-        kalixServer.start()
+        logger.info("Starting Kalix ReactiveWebServer...")
+        Await.ready(kalixApp.start(), 10.seconds)
         started = true
       }
 
       override def stop(): Unit = {
         if (started) {
+          logger.info("Stopping Kalix ReactiveWebServer...")
           try {
-            kalixServer.stop()
+            Await.ready(kalixApp.stop(), 10.seconds)
           } finally {
             started = false
           }
         } else ()
       }
 
-      override def getPort: Int = kalixServer.port
+      override def getPort: Int = kalixApp.port
     }
   }
 

@@ -127,7 +127,7 @@ object Dependencies {
     "org.springframework.boot" % "spring-boot" % SpringBootVersion,
     "org.springframework.boot" % "spring-boot-starter" % SpringBootVersion,
     "org.springframework.boot" % "spring-boot-starter-json" % SpringBootVersion,
-    "jakarta.websocket" % "jakarta.websocket-api" % "2.1.0")
+    "jakarta.websocket" % "jakarta.websocket-api" % "2.0.0")
 
   val sdkSpring = deps ++= coreDeps ++ springDeps ++ Seq(
     "net.aichler" % "jupiter-interface" % JupiterKeys.jupiterVersion.value % IntegrationTest,

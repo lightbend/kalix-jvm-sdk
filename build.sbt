@@ -205,7 +205,6 @@ lazy val sdkSpringTestKit = project
 lazy val sdkSpringBootStarter = project
   .in(file("sdk/spring-boot-starter"))
   .dependsOn(sdkSpring)
-  .dependsOn(sdkSpringTestKit)
   .enablePlugins(BuildInfoPlugin, PublishSonatype)
   .settings(common)
   .settings(
@@ -256,7 +255,7 @@ lazy val sdkSpringBootStarterTest = project
       "proxyImage" -> "gcr.io/kalix-public/kalix-proxy",
       "proxyVersion" -> Kalix.ProxyVersion,
       "scalaVersion" -> scalaVersion.value),
-    buildInfoPackage := "kalix.springboot",
+    buildInfoPackage := "kalix.springboot.test",
     // Generate javadocs by just including non generated Java sources
     Compile / doc / sources := {
       val javaSourceDir = (Compile / javaSource).value.getAbsolutePath

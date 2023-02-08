@@ -19,7 +19,7 @@ package kalix.springsdk.testkit;
 import kalix.javasdk.JsonSupport;
 import kalix.javasdk.testkit.KalixTestKit;
 import kalix.springboot.KalixConfiguration;
-import kalix.springsdk.impl.KalixServer;
+import kalix.springsdk.impl.KalixSpringApplication;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,8 +43,8 @@ public class KalixConfigurationTest {
   @Autowired private KalixConfiguration kalixConfiguration;
 
   @Bean
-  public KalixServer kalixServer() {
-    return new KalixServer(applicationContext, kalixConfiguration.config());
+  public KalixSpringApplication kalixSpringApplication() {
+    return new KalixSpringApplication(applicationContext, kalixConfiguration.config());
   }
 
   /** WebClient pointing to the proxy. */
@@ -63,7 +63,7 @@ public class KalixConfigurationTest {
   @Bean
   public KalixTestKit kalixTestKit(KalixTestKit.Settings settings) {
     logger.info("Starting Kalix TestKit...");
-    KalixTestKit kalixTestKit = new KalixTestKit(kalixServer().kalix(), settings);
+    KalixTestKit kalixTestKit = new KalixTestKit(kalixSpringApplication().kalix(), settings);
     kalixTestKit.start(kalixConfiguration.config());
     logger.info("Kalix Proxy running on port: " + kalixTestKit.getPort());
     return kalixTestKit;

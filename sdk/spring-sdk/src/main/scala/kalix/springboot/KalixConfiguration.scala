@@ -18,7 +18,7 @@ package kalix.springboot
 
 import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
-import kalix.springsdk.impl.KalixServer
+import kalix.springsdk.impl.KalixSpringApplication
 import org.springframework.beans.factory.config.BeanPostProcessor
 import org.springframework.boot.autoconfigure.AutoConfiguration
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass
@@ -41,17 +41,17 @@ class KalixConfiguration(applicationContext: ApplicationContext) {
   def config(): Config = ConfigFactory.load()
 
   @Bean
-  def kalixReactiveWebServerFactory(kalixServer: KalixServer): KalixReactiveWebServerFactory =
-    new KalixReactiveWebServerFactory(kalixServer)
+  def kalixReactiveWebServerFactory(kalixSpringApplication: KalixSpringApplication): KalixReactiveWebServerFactory =
+    new KalixReactiveWebServerFactory(kalixSpringApplication)
 
   @Bean
-  def kalixServer(config: Config): KalixServer =
-    new KalixServer(applicationContext, config)
+  def kalixSpringApplication(config: Config): KalixSpringApplication =
+    new KalixSpringApplication(applicationContext, config)
 
   @Component
   class KalixComponentInjectionBlocker extends BeanPostProcessor {
     override def postProcessBeforeInitialization(bean: AnyRef, beanName: String): AnyRef = {
-      if (KalixServer.kalixComponents.exists(_.isAssignableFrom(bean.getClass)))
+      if (KalixSpringApplication.kalixComponents.exists(_.isAssignableFrom(bean.getClass)))
         throw new IllegalArgumentException(KalixConfiguration.beanPostProcessorErrorMessage(bean.getClass))
       bean
     }

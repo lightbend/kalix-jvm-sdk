@@ -56,10 +56,10 @@ private[impl] object ViewDescriptorFactory extends ComponentDescriptorFactory {
       messageCodec: SpringSdkMessageCodec,
       nameGenerator: NameGenerator): ComponentDescriptor = {
 
-    val isMultiTable = KalixServer.isMultiTableView(component)
+    val isMultiTable = KalixSpringApplication.isMultiTableView(component)
 
     val tableComponents =
-      if (isMultiTable) component.getDeclaredClasses.toSeq.filter(KalixServer.isNestedViewTable)
+      if (isMultiTable) component.getDeclaredClasses.toSeq.filter(KalixSpringApplication.isNestedViewTable)
       else Seq(component)
 
     val (tableTypeDescriptors, updateMethods) = {
