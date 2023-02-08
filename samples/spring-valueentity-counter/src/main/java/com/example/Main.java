@@ -1,16 +1,13 @@
 package com.example;
 
 import kalix.springsdk.annotations.Acl;
-import kalix.springsdk.KalixConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.Import;
 
 // tag::main[]
 @SpringBootApplication // <1>
-@Import(KalixConfiguration.class) // <2>
 // end::main[]
 // Allow all other Kalix services deployed in the same project to access the components of this
 // Kalix service, but disallow access from the internet. This can be overridden explicitly
@@ -24,7 +21,7 @@ public class Main {
 
   public static void main(String[] args) {
     logger.info("Starting Kalix - Spring SDK");
-    SpringApplication.run(Main.class, args); // <3>
+    SpringApplication.run(Main.class, args); // <2>
   }
 }
 // end::main[]
