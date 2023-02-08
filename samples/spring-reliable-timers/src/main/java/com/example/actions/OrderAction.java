@@ -3,8 +3,6 @@ package com.example.actions;
 import akka.Done;
 import com.example.domain.OrderRequest;
 import com.example.domain.Order;
-import io.grpc.Status;
-import io.grpc.StatusRuntimeException;
 import kalix.javasdk.StatusCode.ErrorCode;
 import kalix.javasdk.action.Action;
 import kalix.javasdk.action.ActionCreationContext;
@@ -15,11 +13,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Duration;
-import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletionStage;
-import java.util.function.Predicate;
 
 // tag::timers[]
 @RequestMapping("/orders")
@@ -91,7 +87,7 @@ public class OrderAction extends Action {
                     // other kind of failures are not recovered and will trigger a re-try
                     return "Ok";
                   } else {
-                    throw new StatusRuntimeException(Status.fromThrowable(e));
+                    throw new RuntimeException(e);
                   }
                 }
             );

@@ -1,6 +1,6 @@
 package com.example.domain;
 
-import io.grpc.Status;
+import kalix.javasdk.StatusCode.ErrorCode;
 import kalix.javasdk.valueentity.ValueEntity;
 import kalix.javasdk.valueentity.ValueEntityContext;
 import kalix.springsdk.annotations.EntityKey;
@@ -53,7 +53,7 @@ public class OrderEntity extends ValueEntity<Order> {
     } else {
       return effects().error(
         "No order found for '" + id + "'",
-          Status.Code.NOT_FOUND); // <4>
+          ErrorCode.NOT_FOUND); // <4>
     }
   }
 
@@ -63,11 +63,11 @@ public class OrderEntity extends ValueEntity<Order> {
     if (!currentState().placed()) {
       return effects().error(
           "No order found for " + id,
-          Status.Code.NOT_FOUND); // <5>
+          ErrorCode.NOT_FOUND); // <5>
     } else if (currentState().confirmed()) {
       return effects().error(
           "Cannot cancel an already confirmed order",
-          Status.Code.INVALID_ARGUMENT); // <6>
+          ErrorCode.BAD_REQUEST); // <6>
     } else {
       return effects().updateState(emptyState())
           .thenReply("Ok"); // <7>
@@ -83,7 +83,7 @@ public class OrderEntity extends ValueEntity<Order> {
     } else {
       return effects().error(
           "No order found for '" + id + "'",
-          Status.Code.NOT_FOUND);
+          ErrorCode.NOT_FOUND);
     }
   }
 // tag::order[]
