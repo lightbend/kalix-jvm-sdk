@@ -125,7 +125,7 @@ object Action {
        * @tparam S
        *   The type of the message that must be returned by this call.
        */
-      def error[S](description: String, statusCode: Status.Code): Action.Effect[S]
+      def error[S](description: String, grpcErrorCode: Status.Code): Action.Effect[S]
 
       /**
        * Create an error reply with a custom status code. This status code will be translated to an HTTP or gRPC code
@@ -140,7 +140,7 @@ object Action {
        * @tparam S
        *   The type of the message that must be returned by this call.
        */
-      def error[S](description: String, errorCode: ErrorCode): Action.Effect[S]
+      def error[S](description: String, httpErrorCode: ErrorCode): Action.Effect[S]
 
       /**
        * Create a message reply from an async operation result.

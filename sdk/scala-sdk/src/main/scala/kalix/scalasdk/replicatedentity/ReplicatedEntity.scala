@@ -109,7 +109,7 @@ object ReplicatedEntity {
        * @tparam T
        *   The type of the message that must be returned by this call.
        */
-      def error[T](description: String, statusCode: Status.Code): ReplicatedEntity.Effect[T]
+      def error[T](description: String, grpcErrorCode: Status.Code): ReplicatedEntity.Effect[T]
 
       /**
        * Create an error reply with a custom status code. This status code will be translated to an HTTP or gRPC code
@@ -124,7 +124,7 @@ object ReplicatedEntity {
        * @tparam T
        *   The type of the message that must be returned by this call.
        */
-      def error[T](description: String, errorCode: ErrorCode): ReplicatedEntity.Effect[T]
+      def error[T](description: String, httpErrorCode: ErrorCode): ReplicatedEntity.Effect[T]
     }
 
     trait OnSuccessBuilder {

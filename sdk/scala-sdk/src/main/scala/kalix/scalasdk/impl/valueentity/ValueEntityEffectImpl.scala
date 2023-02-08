@@ -44,11 +44,11 @@ private[scalasdk] final case class ValueEntityEffectImpl[S](
   def error[T](description: String): ValueEntity.Effect[T] = new ValueEntityEffectImpl(
     javasdkEffect.error[T](description))
 
-  def error[T](description: String, statusCode: Status.Code): ValueEntity.Effect[T] =
-    new ValueEntityEffectImpl(javasdkEffect.error[T](description, statusCode))
+  def error[T](description: String, grpcErrorCode: Status.Code): ValueEntity.Effect[T] =
+    new ValueEntityEffectImpl(javasdkEffect.error[T](description, grpcErrorCode))
 
-  def error[T](description: String, errorCode: ErrorCode): ValueEntity.Effect[T] =
-    new ValueEntityEffectImpl(javasdkEffect.error[T](description, StatusCodeConverters.toJava(errorCode)))
+  def error[T](description: String, httpErrorCode: ErrorCode): ValueEntity.Effect[T] =
+    new ValueEntityEffectImpl(javasdkEffect.error[T](description, StatusCodeConverters.toJava(httpErrorCode)))
 
   def forward[T](deferredCall: kalix.scalasdk.DeferredCall[_, T]): ValueEntity.Effect[T] = {
     deferredCall match {

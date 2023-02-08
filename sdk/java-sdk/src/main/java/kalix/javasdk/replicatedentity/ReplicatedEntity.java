@@ -134,11 +134,11 @@ public abstract class ReplicatedEntity<D extends ReplicatedData> {
        * Create an error reply.
        *
        * @param description The description of the error.
-       * @param statusCode A custom gRPC status code.
+       * @param grpcErrorCode A custom gRPC status code.
        * @return An error reply.
        * @param <T> The type of the message that must be returned by this call.
        */
-      <T> Effect<T> error(String description, Status.Code statusCode);
+      <T> Effect<T> error(String description, Status.Code grpcErrorCode);
       /**
        * Create an error reply with a custom status code.
        * This status code will be translated to an HTTP or gRPC code
@@ -149,7 +149,7 @@ public abstract class ReplicatedEntity<D extends ReplicatedData> {
        * @return An error reply.
        * @param <T> The type of the message that must be returned by this call.
        */
-      <T> Effect<T> error(String description, StatusCode.ErrorCode errorCode);
+      <T> Effect<T> error(String description, StatusCode.ErrorCode httpErrorCode);
     }
 
     interface OnSuccessBuilder {

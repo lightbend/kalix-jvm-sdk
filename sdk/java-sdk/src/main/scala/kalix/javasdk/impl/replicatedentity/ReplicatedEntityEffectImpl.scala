@@ -79,15 +79,15 @@ class ReplicatedEntityEffectImpl[D <: ReplicatedData, R]
     this.asInstanceOf[ReplicatedEntityEffectImpl[D, T]]
   }
 
-  override def error[T](description: String, statusCode: Status.Code): ReplicatedEntityEffectImpl[D, T] = {
-    if (statusCode.toStatus.isOk) throw new IllegalArgumentException("Cannot fail with a success status")
-    _secondaryEffect = ErrorReplyImpl(description, Some(statusCode), _secondaryEffect.sideEffects)
+  override def error[T](description: String, grpcErrorCode: Status.Code): ReplicatedEntityEffectImpl[D, T] = {
+    if (grpcErrorCode.toStatus.isOk) throw new IllegalArgumentException("Cannot fail with a success status")
+    _secondaryEffect = ErrorReplyImpl(description, Some(grpcErrorCode), _secondaryEffect.sideEffects)
     this.asInstanceOf[ReplicatedEntityEffectImpl[D, T]]
   }
 
-  override def error[T](description: String, errorCode: ErrorCode): ReplicatedEntityEffectImpl[D, T] = {
+  override def error[T](description: String, httpErrorCode: ErrorCode): ReplicatedEntityEffectImpl[D, T] = {
     _secondaryEffect =
-      ErrorReplyImpl(description, Some(StatusCodeConverter.toGrpcCode(errorCode)), _secondaryEffect.sideEffects)
+      ErrorReplyImpl(description, Some(StatusCodeConverter.toGrpcCode(httpErrorCode)), _secondaryEffect.sideEffects)
     this.asInstanceOf[ReplicatedEntityEffectImpl[D, T]]
   }
 

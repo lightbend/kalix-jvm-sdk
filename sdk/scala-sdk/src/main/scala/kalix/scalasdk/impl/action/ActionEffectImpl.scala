@@ -136,12 +136,12 @@ private[scalasdk] object ActionEffectImpl {
     override def error[S](description: String): Action.Effect[S] =
       ErrorEffect(description, None, Nil)
 
-    override def error[S](description: String, statusCode: Status.Code): Action.Effect[S] =
-      if (statusCode.toStatus.isOk) throw new IllegalArgumentException("Cannot fail with a success status")
-      else ErrorEffect(description, Some(statusCode), Nil)
+    override def error[S](description: String, grpcErrorCode: Status.Code): Action.Effect[S] =
+      if (grpcErrorCode.toStatus.isOk) throw new IllegalArgumentException("Cannot fail with a success status")
+      else ErrorEffect(description, Some(grpcErrorCode), Nil)
 
-    override def error[S](description: String, statusCode: StatusCode.ErrorCode): Action.Effect[S] =
-      ErrorEffect(description, Some(StatusCodeConverter.toGrpcCode(statusCode)), Nil)
+    override def error[S](description: String, httpErrorCode: StatusCode.ErrorCode): Action.Effect[S] =
+      ErrorEffect(description, Some(StatusCodeConverter.toGrpcCode(httpErrorCode)), Nil)
 
     override def asyncReply[S](futureMessage: Future[S]): Action.Effect[S] =
       AsyncEffect(futureMessage.map(s => Builder.reply[S](s))(ExecutionContext.parasitic), Nil)

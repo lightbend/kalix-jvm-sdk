@@ -91,12 +91,12 @@ object ActionEffectImpl {
     def reply[S](message: S, metadata: Metadata): Action.Effect[S] = ReplyEffect(message, Some(metadata), Nil)
     def forward[S](serviceCall: DeferredCall[_, S]): Action.Effect[S] = ForwardEffect(serviceCall, Nil)
     def error[S](description: String): Action.Effect[S] = ErrorEffect(description, None, Nil)
-    def error[S](description: String, statusCode: Status.Code): Action.Effect[S] = {
-      if (statusCode.toStatus.isOk) throw new IllegalArgumentException("Cannot fail with a success status")
-      ErrorEffect(description, Some(statusCode), Nil)
+    def error[S](description: String, grpcErrorCode: Status.Code): Action.Effect[S] = {
+      if (grpcErrorCode.toStatus.isOk) throw new IllegalArgumentException("Cannot fail with a success status")
+      ErrorEffect(description, Some(grpcErrorCode), Nil)
     }
-    def error[S](description: String, errorCode: ErrorCode): Action.Effect[S] =
-      error(description, StatusCodeConverter.toGrpcCode(errorCode))
+    def error[S](description: String, httpErrorCode: ErrorCode): Action.Effect[S] =
+      error(description, StatusCodeConverter.toGrpcCode(httpErrorCode))
     def asyncReply[S](futureMessage: CompletionStage[S]): Action.Effect[S] =
       AsyncEffect(futureMessage.asScala.map(s => Builder.reply[S](s))(ExecutionContext.parasitic), Nil)
     def asyncEffect[S](futureEffect: CompletionStage[Action.Effect[S]]): Action.Effect[S] =

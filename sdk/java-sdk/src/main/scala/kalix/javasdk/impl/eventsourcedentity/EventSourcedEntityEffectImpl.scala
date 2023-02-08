@@ -104,15 +104,15 @@ class EventSourcedEntityEffectImpl[S] extends Builder[S] with OnSuccessBuilder[S
     this.asInstanceOf[EventSourcedEntityEffectImpl[T]]
   }
 
-  override def error[T](description: String, statusCode: Status.Code): EventSourcedEntityEffectImpl[T] = {
-    if (statusCode.toStatus.isOk) throw new IllegalArgumentException("Cannot fail with a success status")
-    _secondaryEffect = ErrorReplyImpl(description, Some(statusCode), _secondaryEffect.sideEffects)
+  override def error[T](description: String, grpcErrorCode: Status.Code): EventSourcedEntityEffectImpl[T] = {
+    if (grpcErrorCode.toStatus.isOk) throw new IllegalArgumentException("Cannot fail with a success status")
+    _secondaryEffect = ErrorReplyImpl(description, Some(grpcErrorCode), _secondaryEffect.sideEffects)
     this.asInstanceOf[EventSourcedEntityEffectImpl[T]]
   }
 
-  override def error[T](description: String, errorCode: ErrorCode): EventSourcedEntityEffectImpl[T] = {
+  override def error[T](description: String, httpErrorCode: ErrorCode): EventSourcedEntityEffectImpl[T] = {
     _secondaryEffect =
-      ErrorReplyImpl(description, Some(StatusCodeConverter.toGrpcCode(errorCode)), _secondaryEffect.sideEffects)
+      ErrorReplyImpl(description, Some(StatusCodeConverter.toGrpcCode(httpErrorCode)), _secondaryEffect.sideEffects)
     this.asInstanceOf[EventSourcedEntityEffectImpl[T]]
   }
 

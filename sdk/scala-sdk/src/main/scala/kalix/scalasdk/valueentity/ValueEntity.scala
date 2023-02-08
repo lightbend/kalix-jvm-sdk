@@ -108,7 +108,7 @@ object ValueEntity {
        * @tparam T
        *   The type of the message that must be returned by this call.
        */
-      def error[T](description: String, statusCode: Status.Code): Effect[T]
+      def error[T](description: String, grpcErrorCode: Status.Code): Effect[T]
 
       /**
        * Create an error reply with a custom status code. This status code will be translated to an HTTP or gRPC code
@@ -123,7 +123,7 @@ object ValueEntity {
        * @tparam T
        *   The type of the message that must be returned by this call.
        */
-      def error[T](description: String, errorCode: ErrorCode): Effect[T]
+      def error[T](description: String, httpErrorCode: ErrorCode): Effect[T]
     }
 
     trait OnSuccessBuilder[S] {

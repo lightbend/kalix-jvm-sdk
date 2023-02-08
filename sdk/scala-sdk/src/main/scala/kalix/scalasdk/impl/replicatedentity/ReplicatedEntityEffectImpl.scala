@@ -61,11 +61,11 @@ private[scalasdk] final case class ReplicatedEntityEffectImpl[D <: ReplicatedDat
   def error[T](description: String): ReplicatedEntity.Effect[T] =
     ReplicatedEntityEffectImpl(javaSdkEffect.error(description))
 
-  def error[T](description: String, statusCode: Status.Code): ReplicatedEntity.Effect[T] =
-    ReplicatedEntityEffectImpl(javaSdkEffect.error(description, statusCode))
+  def error[T](description: String, grpcErrorCode: Status.Code): ReplicatedEntity.Effect[T] =
+    ReplicatedEntityEffectImpl(javaSdkEffect.error(description, grpcErrorCode))
 
-  def error[T](description: String, errorCode: ErrorCode): ReplicatedEntity.Effect[T] =
-    ReplicatedEntityEffectImpl(javaSdkEffect.error(description, StatusCodeConverters.toJava(errorCode)))
+  def error[T](description: String, httpErrorCode: ErrorCode): ReplicatedEntity.Effect[T] =
+    ReplicatedEntityEffectImpl(javaSdkEffect.error(description, StatusCodeConverters.toJava(httpErrorCode)))
 
   override def thenReply[T](message: T): ReplicatedEntity.Effect[T] =
     ReplicatedEntityEffectImpl(javaSdkEffect.thenReply(message))

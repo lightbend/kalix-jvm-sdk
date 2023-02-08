@@ -50,11 +50,11 @@ private[scalasdk] final case class EventSourcedEntityEffectImpl[R, S](
   def error[T](description: String): EventSourcedEntity.Effect[T] =
     EventSourcedEntityEffectImpl(javasdkEffect.error[T](description))
 
-  def error[T](description: String, statusCode: Status.Code): EventSourcedEntity.Effect[T] =
-    EventSourcedEntityEffectImpl(javasdkEffect.error[T](description, statusCode))
+  def error[T](description: String, grpcErrorCode: Status.Code): EventSourcedEntity.Effect[T] =
+    EventSourcedEntityEffectImpl(javasdkEffect.error[T](description, grpcErrorCode))
 
-  def error[T](description: String, errorCode: ErrorCode): EventSourcedEntity.Effect[T] =
-    EventSourcedEntityEffectImpl(javasdkEffect.error[T](description, StatusCodeConverters.toJava(errorCode)))
+  def error[T](description: String, httpErrorCode: ErrorCode): EventSourcedEntity.Effect[T] =
+    EventSourcedEntityEffectImpl(javasdkEffect.error[T](description, StatusCodeConverters.toJava(httpErrorCode)))
 
   def forward[T](deferredCall: DeferredCall[_, T]): EventSourcedEntity.Effect[T] =
     deferredCall match {
