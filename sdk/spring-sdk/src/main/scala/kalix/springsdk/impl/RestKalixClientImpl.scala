@@ -17,13 +17,11 @@
 package kalix.springsdk.impl
 
 import java.util.concurrent.CompletionStage
-
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.concurrent.Promise
 import scala.jdk.CollectionConverters.CollectionHasAsScala
 import scala.jdk.FutureConverters._
-
 import akka.http.scaladsl.model.HttpMethod
 import akka.http.scaladsl.model.HttpMethods
 import akka.http.scaladsl.model.Uri
@@ -31,6 +29,8 @@ import com.google.protobuf.Descriptors
 import com.google.protobuf.DynamicMessage
 import com.google.protobuf.any.Any
 import kalix.javasdk.DeferredCall
+import kalix.javasdk.DeferredCallResponseException
+import kalix.javasdk.StatusCode.ErrorCode
 import kalix.javasdk.impl.AnySupport
 import kalix.javasdk.impl.MetadataImpl
 import kalix.javasdk.impl.RestDeferredCall
@@ -40,6 +40,7 @@ import kalix.springsdk.impl.http.HttpEndpointMethodDefinition.ANY_METHOD
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.web.reactive.function.client.WebClient
+import org.springframework.web.reactive.function.client.WebClientResponseException
 
 /**
  * INTERNAL API
@@ -255,10 +256,40 @@ final class RestKalixClientImpl(messageCodec: SpringSdkMessageCodec) extends Kal
       metadata = MetadataImpl.Empty,
       fullServiceName = httpDef.methodDescriptor.getService.getFullName,
       methodName = httpDef.methodDescriptor.getName,
-      asyncCall = asyncCall)
+      asyncCall = () =>
+        asyncCall().exceptionally {
+          case responseException: WebClientResponseException =>
+            throw DeferredCallResponseExceptionImpl(
+              responseException.getMessage,
+              fromWebClientResponse(responseException),
+              responseException)
+          case other: Throwable => throw other
+        })
+  }
+
+  private def fromWebClientResponse(webClientResponseException: WebClientResponseException): ErrorCode = {
+    webClientResponseException match {
+      case _: WebClientResponseException.NotFound            => ErrorCode.NOT_FOUND
+      case _: WebClientResponseException.BadRequest          => ErrorCode.BAD_REQUEST
+      case _: WebClientResponseException.Conflict            => ErrorCode.CONFLICT
+      case _: WebClientResponseException.Forbidden           => ErrorCode.FORBIDDEN
+      case _: WebClientResponseException.Unauthorized        => ErrorCode.UNAUTHORIZED
+      case _: WebClientResponseException.GatewayTimeout      => ErrorCode.GATEWAY_TIMEOUT
+      case _: WebClientResponseException.ServiceUnavailable  => ErrorCode.SERVICE_UNAVAILABLE
+      case _: WebClientResponseException.TooManyRequests     => ErrorCode.TOO_MANY_REQUESTS
+      case _: WebClientResponseException.InternalServerError => ErrorCode.INTERNAL_SERVER_ERROR
+      case _                                                 => ErrorCode.INTERNAL_SERVER_ERROR
+    }
   }
 
 }
+
+case class DeferredCallResponseExceptionImpl(
+    override val description: String,
+    override val errorCode: ErrorCode,
+    override val cause: Throwable)
+    extends RuntimeException(cause)
+    with DeferredCallResponseException
 
 final case class HttpMethodNotFoundException(httpMethod: HttpMethod, uriStr: String)
     extends RuntimeException(s"No matching service for method=$httpMethod path=$uriStr")

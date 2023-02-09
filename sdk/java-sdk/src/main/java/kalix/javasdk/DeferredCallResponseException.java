@@ -14,26 +14,28 @@
  * limitations under the License.
  */
 
-package kalix.javasdk.impl
-
-import kalix.javasdk.DeferredCall
-import kalix.javasdk.Metadata
-
-import java.util.concurrent.CompletionStage
+package kalix.javasdk;
 
 /**
- * INTERNAL API
+ * Exception used when a DeferredCall fails to wrap the origin error, plus the error code associated.
  */
-final case class RestDeferredCall[I, O](
-    message: I,
-    metadata: MetadataImpl,
-    fullServiceName: String,
-    methodName: String,
-    asyncCall: () => CompletionStage[O])
-    extends DeferredCall[I, O] {
-  override def execute(): CompletionStage[O] = asyncCall()
+public interface DeferredCallResponseException {
 
-  override def withMetadata(metadata: Metadata): RestDeferredCall[I, O] = {
-    this.copy(metadata = metadata.asInstanceOf[MetadataImpl])
-  }
+  /**
+   * A description of the original problem that caused the error.
+   */
+  String description();
+
+  /**
+   * The error code associated with the failure.
+   * E.g. if the original call fails with a 404 this will return a StatusCode.NOT_FOUND.
+   */
+  StatusCode.ErrorCode errorCode();
+
+  /**
+   * The original exception that caused the deferred call to fail.
+   */
+  Throwable cause();
 }
+
+

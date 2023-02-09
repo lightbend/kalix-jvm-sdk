@@ -21,12 +21,7 @@ package kalix.javasdk;
  * for user extension.
  */
 public interface StatusCode {
-  /**
-   * The supported error codes that can be used when replying from the Kalix user function.
-   *
-   * <p>Note: the error code will be transcoded to a respective HTTP or gRPC code depending on the
-   * type of service being exposed.
-   */
+  /** The supported HTTP error codes that can be used when replying from the Kalix user function. */
   enum ErrorCode implements StatusCode {
     BAD_REQUEST,
     UNAUTHORIZED,

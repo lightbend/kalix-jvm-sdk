@@ -105,7 +105,6 @@ object Dependencies {
     jacksonJdk8,
     jacksonJsr310,
     jacksonParameterNames,
-    webflux,
     typeTools)
 
   val sdkCore = deps ++= coreDeps
