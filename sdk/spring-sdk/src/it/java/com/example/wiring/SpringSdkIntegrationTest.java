@@ -547,7 +547,7 @@ public class SpringSdkIntegrationTest {
 //      .until(() -> getCustomersByCreationDate(now).size(), new IsEqual(1));
 
     for (int i = 0; i < 1000; i++) {
-      var now = Instant.now().truncatedTo(ChronoUnit.MICROS);
+      var now = Instant.now();
       System.out.println("Instant value: " + now.getEpochSecond() + ", " + now.getNano());
       createCustomer(new CustomerEntity.Customer("customer1", now));
 
