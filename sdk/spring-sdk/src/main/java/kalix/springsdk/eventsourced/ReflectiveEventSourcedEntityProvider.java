@@ -34,11 +34,11 @@ import kalix.springsdk.impl.eventsourcedentity.ReflectiveEventSourcedEntityRoute
 import java.util.Optional;
 import java.util.function.Function;
 
-public class ReflectiveEventSourcedEntityProvider<S, E extends EventSourcedEntity<S>>
-    implements EventSourcedEntityProvider<S, E> {
+public class ReflectiveEventSourcedEntityProvider<S, E, ES extends EventSourcedEntity<S, E>>
+    implements EventSourcedEntityProvider<S, E, ES> {
 
   private final String entityType;
-  private final Function<EventSourcedEntityContext, E> factory;
+  private final Function<EventSourcedEntityContext, ES> factory;
   private final EventSourcedEntityOptions options;
   private final Descriptors.FileDescriptor fileDescriptor;
   private final Descriptors.ServiceDescriptor serviceDescriptor;
@@ -48,18 +48,18 @@ public class ReflectiveEventSourcedEntityProvider<S, E extends EventSourcedEntit
 
   private final EventSourceEntityHandlers eventHandlers;
 
-  public static <S, E extends EventSourcedEntity<S>> ReflectiveEventSourcedEntityProvider<S, E> of(
-      Class<E> cls,
+  public static <S, E, ES extends EventSourcedEntity<S, E>> ReflectiveEventSourcedEntityProvider<S, E, ES> of(
+      Class<ES> cls,
       SpringSdkMessageCodec messageCodec,
-      Function<EventSourcedEntityContext, E> factory) {
+      Function<EventSourcedEntityContext, ES> factory) {
     return new ReflectiveEventSourcedEntityProvider<>(
         cls, messageCodec, factory, EventSourcedEntityOptions.defaults());
   }
 
   public ReflectiveEventSourcedEntityProvider(
-      Class<E> entityClass,
+      Class<ES> entityClass,
       SpringSdkMessageCodec messageCodec,
-      Function<EventSourcedEntityContext, E> factory,
+      Function<EventSourcedEntityContext, ES> factory,
       EventSourcedEntityOptions options) {
 
     EntityType annotation = entityClass.getAnnotation(EntityType.class);
@@ -101,8 +101,8 @@ public class ReflectiveEventSourcedEntityProvider<S, E extends EventSourcedEntit
   }
 
   @Override
-  public EventSourcedEntityRouter<S, E> newRouter(EventSourcedEntityContext context) {
-    E entity = factory.apply(context);
+  public EventSourcedEntityRouter<S, E, ES> newRouter(EventSourcedEntityContext context) {
+    ES entity = factory.apply(context);
     return new ReflectiveEventSourcedEntityRouter<>(
         entity, componentDescriptor.commandHandlers(), eventHandlers.handlers(), messageCodec);
   }

@@ -104,7 +104,7 @@ object EventSourcedResultImpl {
     effect match {
       case ei: EventSourcedEntityEffectImpl[_, _] =>
         ei.javasdkEffect.primaryEffect match {
-          case ee: EmitEvents          => ee.event.toList
+          case ee: EmitEvents[_]       => ee.event.toList
           case _: NoPrimaryEffect.type => Nil
         }
     }

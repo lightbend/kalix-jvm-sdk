@@ -41,11 +41,11 @@ import scala.jdk.CollectionConverters._
  * INTERNAL API
  */
 private[kalix] object EventSourcedResultImpl {
-  def eventsOf(effect: EventSourcedEntity.Effect[_]): JList[Any] = {
+  def eventsOf[E](effect: EventSourcedEntity.Effect[_]): JList[E] = {
     effect match {
-      case ei: EventSourcedEntityEffectImpl[_] =>
+      case ei: EventSourcedEntityEffectImpl[_, E @unchecked] =>
         ei.primaryEffect match {
-          case ee: EmitEvents          => ee.event.toList.asJava
+          case ee: EmitEvents[E]       => ee.event.toList.asJava
           case _: NoPrimaryEffect.type => Collections.emptyList()
         }
     }
@@ -53,7 +53,7 @@ private[kalix] object EventSourcedResultImpl {
 
   def secondaryEffectOf[S](effect: EventSourcedEntity.Effect[_], state: S): SecondaryEffectImpl = {
     effect match {
-      case ei: EventSourcedEntityEffectImpl[S @unchecked] =>
+      case ei: EventSourcedEntityEffectImpl[S @unchecked, _] =>
         ei.secondaryEffect(state)
     }
   }
@@ -73,15 +73,15 @@ private[kalix] object EventSourcedResultImpl {
 /**
  * INTERNAL API
  */
-private[kalix] final class EventSourcedResultImpl[R, S](
-    effect: EventSourcedEntityEffectImpl[S],
+private[kalix] final class EventSourcedResultImpl[R, S, E](
+    effect: EventSourcedEntityEffectImpl[S, E],
     state: S,
     secondaryEffect: SecondaryEffectImpl)
-    extends EventSourcedResult[R] {
+    extends EventSourcedResult[R, E] {
   import EventSourcedResultImpl._
 
   def this(effect: EventSourcedEntity.Effect[R], state: S, secondaryEffect: SecondaryEffectImpl) =
-    this(effect.asInstanceOf[EventSourcedEntityEffectImpl[S]], state, secondaryEffect)
+    this(effect.asInstanceOf[EventSourcedEntityEffectImpl[S, E]], state, secondaryEffect)
 
   private lazy val eventsIterator = getAllEvents().iterator
 
@@ -93,7 +93,7 @@ private[kalix] final class EventSourcedResultImpl[R, S](
   }
 
   /** All emitted events. */
-  override def getAllEvents(): java.util.List[Any] = eventsOf(effect)
+  override def getAllEvents: java.util.List[E] = eventsOf(effect)
 
   override def isReply: Boolean = secondaryEffect.isInstanceOf[MessageReplyImpl[_]]
 
@@ -126,11 +126,11 @@ private[kalix] final class EventSourcedResultImpl[R, S](
 
   override def didEmitEvents(): Boolean = !getAllEvents().isEmpty
 
-  override def getNextEventOfType[E](expectedClass: Class[E]): E =
+  override def getNextEventOfType[T](expectedClass: Class[T]): T =
     if (!eventsIterator.hasNext) throw new NoSuchElementException("No more events found")
     else {
       @SuppressWarnings(Array("unchecked")) val next = eventsIterator.next
-      if (expectedClass.isInstance(next)) next.asInstanceOf[E]
+      if (expectedClass.isInstance(next)) next.asInstanceOf[T]
       else
         throw new NoSuchElementException(
           "expected event type [" + expectedClass.getName + "] but found [" + next.getClass.getName + "]")

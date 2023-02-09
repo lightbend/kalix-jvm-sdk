@@ -27,8 +27,9 @@ import java.util.List;
  * <p>Not for user extension, returned by the testkit.
  *
  * @param <R> The type of reply that is expected from invoking a command handler
+ * @param <E> The parent type of events produced by the ES entity
  */
-public interface EventSourcedResult<R> {
+public interface EventSourcedResult<R, E> {
 
   /** @return true if the call had an effect with a reply, false if not */
   boolean isReply();
@@ -68,7 +69,7 @@ public interface EventSourcedResult<R> {
   boolean didEmitEvents();
 
   /** @return All the events that were emitted by handling this command. */
-  List<Object> getAllEvents();
+  List<E> getAllEvents();
 
   /**
    * Look at the next event and verify that it is of type E or fail if not or if there is no next
@@ -77,7 +78,7 @@ public interface EventSourcedResult<R> {
    *
    * @return The next event if it is of type E, for additional assertions.
    */
-  <E> E getNextEventOfType(Class<E> expectedClass);
+  <T> T getNextEventOfType(Class<T> expectedClass);
 
   /** @return The list of side effects */
   List<DeferredCallDetails<?, ?>> getSideEffects();

@@ -32,5 +32,5 @@ public interface EventSourcedEntityFactory {
    * @param context The context.
    * @return The handler for the given context.
    */
-  EventSourcedEntityRouter<?, ?> create(EventSourcedEntityContext context);
+  EventSourcedEntityRouter<?, ?, ?> create(EventSourcedEntityContext context);
 }

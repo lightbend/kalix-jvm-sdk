@@ -146,7 +146,7 @@ final class EventSourcedEntitiesImpl(
       services.getOrElse(init.serviceName, throw ProtocolException(init, s"Service not found: ${init.serviceName}"))
     val router = service.factory
       .create(new EventSourcedEntityContextImpl(init.entityId))
-      .asInstanceOf[EventSourcedEntityRouter[Any, EventSourcedEntity[Any]]]
+      .asInstanceOf[EventSourcedEntityRouter[Any, Any, EventSourcedEntity[Any, Any]]]
     val thisEntityId = init.entityId
 
     val startingSequenceNumber = (for {

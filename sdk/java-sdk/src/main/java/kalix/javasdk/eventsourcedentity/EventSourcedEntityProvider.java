@@ -29,7 +29,7 @@ import java.util.Optional;
  * generated for the specific entities defined in Protobuf, for example <code>CustomerEntityProvider
  * </code>.
  */
-public interface EventSourcedEntityProvider<S, E extends EventSourcedEntity<S>> {
+public interface EventSourcedEntityProvider<S, E, ES extends EventSourcedEntity<S, E>> {
 
   EventSourcedEntityOptions options();
 
@@ -37,7 +37,7 @@ public interface EventSourcedEntityProvider<S, E extends EventSourcedEntity<S>> 
 
   String entityType();
 
-  EventSourcedEntityRouter<S, E> newRouter(EventSourcedEntityContext context);
+  EventSourcedEntityRouter<S, E, ES> newRouter(EventSourcedEntityContext context);
 
   Descriptors.FileDescriptor[] additionalDescriptors();
 

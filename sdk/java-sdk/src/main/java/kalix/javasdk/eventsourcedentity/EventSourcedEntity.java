@@ -30,8 +30,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 
-/** @param <S> The type of the state for this entity. */
-public abstract class EventSourcedEntity<S> {
+/**
+ * @param <S> The type of the state for this entity.
+ * @param <E> The parent type of the event hierarchy for this entity.
+ */
+public abstract class EventSourcedEntity<S, E> {
 
   private Optional<CommandContext> commandContext = Optional.empty();
   private Optional<EventContext> eventContext = Optional.empty();
@@ -108,8 +111,8 @@ public abstract class EventSourcedEntity<S> {
       throw new IllegalStateException("Current state is only available when handling a command.");
   }
 
-  protected final Effect.Builder<S> effects() {
-    return new EventSourcedEntityEffectImpl<S>();
+  protected final Effect.Builder<S, E> effects() {
+    return new EventSourcedEntityEffectImpl<S, E>();
   }
 
   /**
@@ -125,11 +128,11 @@ public abstract class EventSourcedEntity<S> {
      *
      * @param <S> The type of the state for this entity.
      */
-    interface Builder<S> {
+    interface Builder<S, E> {
 
-      OnSuccessBuilder<S> emitEvent(Object event);
+      OnSuccessBuilder<S> emitEvent(E event);
 
-      OnSuccessBuilder<S> emitEvents(List<?> event);
+      OnSuccessBuilder<S> emitEvents(List<? extends E> event);
 
       /**
        * Create a message reply.

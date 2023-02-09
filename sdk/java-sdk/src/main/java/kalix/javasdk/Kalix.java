@@ -479,8 +479,8 @@ public final class Kalix {
    *
    * @return This stateful service builder.
    */
-  public <S, E extends EventSourcedEntity<S>> Kalix register(
-    EventSourcedEntityProvider<S, E> provider) {
+  public <S, E, ES extends EventSourcedEntity<S, E>> Kalix register(
+      EventSourcedEntityProvider<S, E, ES> provider) {
     return provider
       .alternativeCodec()
       .map(

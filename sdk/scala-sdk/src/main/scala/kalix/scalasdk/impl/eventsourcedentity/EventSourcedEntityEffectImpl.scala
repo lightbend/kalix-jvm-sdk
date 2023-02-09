@@ -27,11 +27,11 @@ import io.grpc.Status
 
 private[scalasdk] object EventSourcedEntityEffectImpl {
   def apply[R, S](): EventSourcedEntityEffectImpl[R, S] = EventSourcedEntityEffectImpl(
-    new javasdk.impl.eventsourcedentity.EventSourcedEntityEffectImpl[S]())
+    new javasdk.impl.eventsourcedentity.EventSourcedEntityEffectImpl[S, Any]())
 }
 
 private[scalasdk] final case class EventSourcedEntityEffectImpl[R, S](
-    javasdkEffect: javasdk.impl.eventsourcedentity.EventSourcedEntityEffectImpl[S])
+    javasdkEffect: javasdk.impl.eventsourcedentity.EventSourcedEntityEffectImpl[S, Any])
     extends EventSourcedEntity.Effect.Builder[S]
     with EventSourcedEntity.Effect.OnSuccessBuilder[S]
     with EventSourcedEntity.Effect[R] {
