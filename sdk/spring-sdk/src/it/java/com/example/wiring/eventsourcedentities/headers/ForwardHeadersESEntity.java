@@ -30,7 +30,7 @@ import static com.example.wiring.actions.headers.ForwardHeadersAction.SOME_HEADE
 @EntityType("forward-headers-es")
 @RequestMapping("/forward-headers-es/{id}")
 @ForwardHeaders(SOME_HEADER)
-public class ForwardHeadersESEntity extends EventSourcedEntity<String> {
+public class ForwardHeadersESEntity extends EventSourcedEntity<String, Object> {
 
   @PutMapping()
   public Effect<Message> createUser() {

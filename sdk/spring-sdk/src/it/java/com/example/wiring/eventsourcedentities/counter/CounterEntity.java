@@ -31,7 +31,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @EntityKey("id")
 @EntityType("counter")
 @RequestMapping("/counter/{id}")
-public class CounterEntity extends EventSourcedEntity<Counter> {
+public class CounterEntity extends EventSourcedEntity<Counter, CounterEvent> {
 
   private Logger logger = LoggerFactory.getLogger(getClass());
 
