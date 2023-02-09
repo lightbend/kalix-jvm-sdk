@@ -4,7 +4,7 @@ organization := "io.kalix.samples"
 organizationHomepage := Some(url("https://kalix.io"))
 licenses := Seq(("CC0", url("https://creativecommons.org/publicdomain/zero/1.0")))
 
-scalaVersion := "2.13.8"
+scalaVersion := "2.13.10"
 
 enablePlugins(KalixPlugin, JavaAppPackaging, DockerPlugin)
 dockerBaseImage := "docker.io/library/adoptopenjdk:11-jre-hotspot"
