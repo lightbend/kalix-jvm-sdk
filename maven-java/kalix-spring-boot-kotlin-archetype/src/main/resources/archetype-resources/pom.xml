@@ -155,7 +155,7 @@
         <executions>
           <execution>
             <id>build-docker-image</id>
-            <phase>package</phase>
+            <phase>install</phase>
             <goals>
               <goal>build</goal>
             </goals>

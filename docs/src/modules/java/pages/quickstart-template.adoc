@@ -248,7 +248,7 @@ Java::
 +
 [source,bash]
 ----
-mvn package
+mvn install
 ----
 
 Scala::
