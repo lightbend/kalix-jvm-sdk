@@ -6,7 +6,7 @@ object Dependencies {
   object Kalix {
     val ProtocolVersionMajor = 1
     val ProtocolVersionMinor = 0
-    val ProxyVersion = System.getProperty("kalix-proxy.version", "1.0.33")
+    val ProxyVersion = System.getProperty("kalix-proxy.version", "1.0.34")
   }
 
   // changing the Scala version of the Java SDK affects end users
