@@ -10,7 +10,7 @@ object Dependencies {
   }
 
   // changing the Scala version of the Java SDK affects end users
-  val ScalaVersion = "2.13.8"
+  val ScalaVersion = "2.13.10"
   val ScalaVersionForSbtPlugin = "2.12.15"
   val ScalaVersionForCodegen = Seq(ScalaVersionForSbtPlugin)
 
