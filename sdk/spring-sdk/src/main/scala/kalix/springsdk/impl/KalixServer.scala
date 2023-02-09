@@ -17,11 +17,9 @@
 package kalix.springsdk.impl
 
 import java.lang.reflect.Modifier
-
 import scala.jdk.CollectionConverters.CollectionHasAsScala
 import scala.jdk.OptionConverters.RichOption
 import scala.reflect.ClassTag
-
 import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
 import kalix.javasdk.Kalix
@@ -38,6 +36,9 @@ import kalix.javasdk.valueentity.ValueEntityProvider
 import kalix.javasdk.view.View
 import kalix.javasdk.view.ViewCreationContext
 import kalix.javasdk.view.ViewProvider
+import kalix.javasdk.workflowentity.WorkflowEntity
+import kalix.javasdk.workflowentity.WorkflowEntityContext
+import kalix.javasdk.workflowentity.WorkflowEntityProvider
 import kalix.springsdk.KalixClient
 import kalix.springsdk.SpringSdkBuildInfo
 import kalix.springsdk.WebClientProvider
@@ -55,9 +56,11 @@ import kalix.springsdk.impl.KalixServer.MainClassProvider
 import kalix.springsdk.impl.KalixServer.ValueEntityContextFactoryBean
 import kalix.springsdk.impl.KalixServer.ViewCreationContextFactoryBean
 import kalix.springsdk.impl.KalixServer.WebClientProviderFactoryBean
+import kalix.springsdk.impl.KalixServer.WorkflowContextFactoryBean
 import kalix.springsdk.valueentity.ReflectiveValueEntityProvider
 import kalix.springsdk.view.ReflectiveMultiTableViewProvider
 import kalix.springsdk.view.ReflectiveViewProvider
+import kalix.springsdk.workflowentity.ReflectiveWorkflowEntityProvider
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.BeanCreationException
@@ -73,11 +76,14 @@ import org.springframework.core.`type`.classreading.MetadataReader
 import org.springframework.core.`type`.classreading.MetadataReaderFactory
 import org.springframework.core.`type`.filter.TypeFilter
 
+import java.lang.reflect.ParameterizedType
+
 object KalixServer {
 
   val kalixComponents: Seq[Class[_]] =
     classOf[Action] ::
     classOf[EventSourcedEntity[_]] ::
+    classOf[WorkflowEntity[_]] ::
     classOf[ValueEntity[_]] ::
     classOf[ReplicatedEntity[_]] ::
     classOf[View[_]] ::
@@ -198,6 +204,10 @@ object KalixServer {
     override def isSingleton: Boolean = false // never!!
   }
 
+  object WorkflowContextFactoryBean extends ThreadLocalFactoryBean[WorkflowEntityContext] {
+    override def isSingleton: Boolean = false // never!!
+  }
+
   object ValueEntityContextFactoryBean extends ThreadLocalFactoryBean[ValueEntityContext] {
     override def isSingleton: Boolean = false // never!!
   }
@@ -292,6 +302,13 @@ case class KalixServer(applicationContext: ApplicationContext, config: Config) {
         kalixClient.registerComponent(esEntity.serviceDescriptor())
       }
 
+      if (classOf[WorkflowEntity[_]].isAssignableFrom(clz)) {
+        logger.info(s"Registering Workflow provider for [${clz.getName}]")
+        val workflow = workflowProvider(clz.asInstanceOf[Class[WorkflowEntity[Nothing]]])
+        kalix.register(workflow)
+        kalixClient.registerComponent(workflow.serviceDescriptor())
+      }
+
       if (classOf[ValueEntity[_]].isAssignableFrom(clz)) {
         logger.info(s"Registering ValueEntity provider for [${clz.getName}]")
         val valueEntity = valueEntityProvider(clz.asInstanceOf[Class[ValueEntity[Nothing]]])
@@ -345,12 +362,7 @@ case class KalixServer(applicationContext: ApplicationContext, config: Config) {
 
         val webClientProviderHolder = WebClientProviderHolder(context.materializer().system)
 
-        if (hasContextConstructor(clz, classOf[KalixClient])) {
-          kalixClient.setWebClient(webClientProviderHolder.webClientProvider.localWebClient)
-          // we only have one KalixClient, but we only set it to the ThreadLocalFactoryBean
-          // when building actions, because it's only allowed to inject it in Actions
-          KalixClientFactoryBean.set(kalixClient)
-        }
+        setKalixClient(clz, webClientProviderHolder)
 
         if (hasContextConstructor(clz, classOf[WebClientProvider])) {
           val webClientProvider = webClientProviderHolder.webClientProvider
@@ -359,6 +371,15 @@ case class KalixServer(applicationContext: ApplicationContext, config: Config) {
 
         kalixBeanFactory.getBean(clz)
       })
+
+  private def setKalixClient[T](clz: Class[T], webClientProviderHolder: WebClientProviderHolder): Unit = {
+    if (hasContextConstructor(clz, classOf[KalixClient])) {
+      kalixClient.setWebClient(webClientProviderHolder.webClientProvider.localWebClient)
+      // we only have one KalixClient, but we only set it to the ThreadLocalFactoryBean
+      // when building actions, because it's only allowed to inject it in Actions and Workflow Entities
+      KalixClientFactoryBean.set(kalixClient)
+    }
+  }
 
   private def eventSourcedEntityProvider[S, E <: EventSourcedEntity[S]](
       clz: Class[E]): EventSourcedEntityProvider[S, E] =
@@ -369,6 +390,44 @@ case class KalixServer(applicationContext: ApplicationContext, config: Config) {
         if (hasContextConstructor(clz, classOf[EventSourcedEntityContext]))
           EventSourcedEntityContextFactoryBean.set(context)
         kalixBeanFactory.getBean(clz)
+      })
+
+  private def workflowProvider[S, E <: WorkflowEntity[S]](clz: Class[E]): WorkflowEntityProvider[S, E] =
+    ReflectiveWorkflowEntityProvider.of(
+      clz,
+      messageCodec,
+      context => {
+        if (hasContextConstructor(clz, classOf[WorkflowEntityContext])) {
+          WorkflowContextFactoryBean.set(context)
+        }
+
+        val webClientProviderHolder = WebClientProviderHolder(context.materializer().system)
+
+        setKalixClient(clz, webClientProviderHolder)
+
+        val workflowEntity = kalixBeanFactory.getBean(clz)
+
+        val workflowStateType: Class[S] =
+          workflowEntity.getClass.getGenericSuperclass
+            .asInstanceOf[ParameterizedType]
+            .getActualTypeArguments
+            .head
+            .asInstanceOf[Class[S]]
+
+        messageCodec.lookupTypeHint(workflowStateType)
+
+        workflowEntity
+          .definition()
+          .forEachStep {
+            case asyncCallStep: WorkflowEntity.AsyncCallStep[_, _] =>
+              messageCodec.lookupTypeHint(asyncCallStep.callInputClass)
+              messageCodec.lookupTypeHint(asyncCallStep.transitionInputClass)
+            case callStep: WorkflowEntity.CallStep[_, _, _] =>
+              messageCodec.lookupTypeHint(callStep.callInputClass)
+              messageCodec.lookupTypeHint(callStep.transitionInputClass)
+          }
+
+        workflowEntity
       })
 
   private def valueEntityProvider[S, E <: ValueEntity[S]](clz: Class[E]): ValueEntityProvider[S, E] =

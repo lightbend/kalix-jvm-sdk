@@ -486,7 +486,7 @@ public class SpringSdkIntegrationTest {
   }
 
   @Test
-  public void verifyForwardHeaders() throws InterruptedException {
+  public void verifyForwardHeaders() {
 
     String actionHeaderValue = "action-value";
     String veHeaderValue = "ve-value";

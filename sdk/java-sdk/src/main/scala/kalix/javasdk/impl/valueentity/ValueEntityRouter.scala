@@ -18,10 +18,10 @@ package kalix.javasdk.impl.valueentity
 
 import java.util.Optional
 
-import kalix.javasdk.valueentity.CommandContext
 import kalix.javasdk.impl.EntityExceptions
 import kalix.javasdk.impl.valueentity.ValueEntityEffectImpl.DeleteEntity
 import kalix.javasdk.impl.valueentity.ValueEntityEffectImpl.UpdateState
+import kalix.javasdk.valueentity.CommandContext
 import kalix.javasdk.valueentity.ValueEntity
 
 object ValueEntityRouter {

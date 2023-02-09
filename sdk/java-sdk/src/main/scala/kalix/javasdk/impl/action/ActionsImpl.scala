@@ -17,16 +17,17 @@
 package kalix.javasdk.impl.action
 
 import java.util.Optional
-import scala.collection.immutable.Seq
+
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters.SeqHasAsJava
 import scala.util.control.NonFatal
+
 import akka.NotUsed
 import akka.actor.ActorSystem
 import akka.stream.scaladsl.Sink
 import akka.stream.scaladsl.Source
+import com.google.protobuf.Descriptors
 import com.google.protobuf.any.Any
-import com.google.protobuf.{ Descriptors, DynamicMessage }
 import kalix.javasdk._
 import kalix.javasdk.action._
 import kalix.javasdk.impl.ActionFactory
@@ -120,7 +121,7 @@ private[javasdk] final class ActionsImpl(
     effect match {
       case ReplyEffect(message, metadata, sideEffects) =>
         val response =
-          component.Reply(Some(messageCodec.encodeScala(message)), metadata.flatMap(toProtocol))
+          component.Reply(Some(messageCodec.encodeScala(message)), metadata.flatMap(MetadataImpl.toProtocol))
         Future.successful(
           ActionResponse(ActionResponse.Response.Reply(response), toProtocol(messageCodec, sideEffects)))
       case ForwardEffect(forward: GrpcDeferredCall[_, _], sideEffects) =>
@@ -128,7 +129,7 @@ private[javasdk] final class ActionsImpl(
           forward.fullServiceName,
           forward.methodName,
           Some(messageCodec.encodeScala(forward.message)),
-          toProtocol(forward.metadata))
+          MetadataImpl.toProtocol(forward.metadata))
         Future.successful(
           ActionResponse(ActionResponse.Response.Forward(response), toProtocol(messageCodec, sideEffects)))
       case ForwardEffect(forward: RestDeferredCall[Any @unchecked, _], sideEffects) =>
@@ -136,7 +137,7 @@ private[javasdk] final class ActionsImpl(
           forward.fullServiceName,
           forward.methodName,
           Some(forward.message),
-          toProtocol(forward.metadata))
+          MetadataImpl.toProtocol(forward.metadata))
         Future.successful(
           ActionResponse(ActionResponse.Response.Forward(response), toProtocol(messageCodec, sideEffects)))
       case AsyncEffect(futureEffect, sideEffects) =>
@@ -175,16 +176,7 @@ private[javasdk] final class ActionsImpl(
         deferred.methodName,
         Some(messageCodec.encodeScala(deferred.message)),
         synchronous,
-        toProtocol(deferred.metadata))
-    }
-
-  private def toProtocol(metadata: kalix.javasdk.Metadata): Option[component.Metadata] =
-    metadata match {
-      case impl: MetadataImpl if impl.entries.nonEmpty =>
-        Some(component.Metadata(impl.entries))
-      case _: MetadataImpl => None
-      case other =>
-        throw new RuntimeException(s"Unknown metadata implementation: ${other.getClass}, cannot send")
+        MetadataImpl.toProtocol(deferred.metadata))
     }
 
   /**

@@ -23,6 +23,7 @@ import kalix.testkit.eventsourcedentity.TestEventSourcedProtocol
 import kalix.testkit.replicatedentity.TestReplicatedEntityProtocol
 import kalix.testkit.valueentity.TestValueEntityProtocol
 import com.typesafe.config.{ Config, ConfigFactory }
+import kalix.testkit.workflowentity.TestWorkflowProtocol
 
 // FIXME: should we be doing protocol-level testing in the SDK?
 // Copied over from Kalix framework (parts that are used here).
@@ -34,6 +35,7 @@ final class TestProtocol(host: String, port: Int) {
   val eventSourced = new TestEventSourcedProtocol(context)
   val valueEntity = new TestValueEntityProtocol(context)
   val replicatedEntity = new TestReplicatedEntityProtocol(context)
+  val workflow = new TestWorkflowProtocol(context)
 
   def settings: GrpcClientSettings = context.clientSettings
 
@@ -41,6 +43,7 @@ final class TestProtocol(host: String, port: Int) {
     eventSourced.terminate()
     valueEntity.terminate()
     replicatedEntity.terminate()
+    workflow.terminate()
   }
 }
 

@@ -153,7 +153,7 @@ class DiscoveryImpl(
               name,
               Component.ComponentSettings.Entity(
                 EntitySettings(
-                  service.entityType,
+                  service.serviceName,
                   passivationStrategy,
                   service.componentOptions.map(_.forwardHeaders().asScala.toSeq).getOrElse(Nil),
                   replicatedEntitySpecificSettings)))

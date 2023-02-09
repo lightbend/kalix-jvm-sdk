@@ -18,7 +18,6 @@ package kalix.javasdk.impl.valueentity
 
 import akka.actor.testkit.typed.scaladsl.LoggingTestKit
 import akka.actor.typed.scaladsl.adapter._
-import akka.testkit.EventFilter
 import akka.testkit.SocketUtil
 import kalix.javasdk.{ Kalix, KalixRunner }
 import kalix.javasdk.valueentity.ValueEntityProvider
