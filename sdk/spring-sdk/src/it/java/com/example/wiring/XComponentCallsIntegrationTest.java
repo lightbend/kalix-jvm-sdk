@@ -66,7 +66,7 @@ public class XComponentCallsIntegrationTest {
     Message usingGetResponse =
             webClient
                     .get()
-                    .uri(builder -> builder.path("/echo/message/short")
+                    .uri(builder -> builder.path("/echo/message-short")
                             .queryParam("msg", "message to be shortened")
                             .build())
                     .retrieve()

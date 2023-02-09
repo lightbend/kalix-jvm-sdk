@@ -52,7 +52,7 @@ final class EventSourcedEntityService(
     override val descriptor: Descriptors.ServiceDescriptor,
     override val additionalDescriptors: Array[Descriptors.FileDescriptor],
     val messageCodec: MessageCodec,
-    override val entityType: String,
+    override val serviceName: String,
     val snapshotEvery: Int, // FIXME remove and only use entityOptions snapshotEvery?
     val entityOptions: Option[EventSourcedEntityOptions])
     extends Service {
@@ -82,7 +82,7 @@ final class EventSourcedEntityService(
         this.descriptor,
         this.additionalDescriptors,
         this.messageCodec,
-        this.entityType,
+        this.serviceName,
         snapshotEvery,
         this.entityOptions)
     else
@@ -101,7 +101,7 @@ final class EventSourcedEntitiesImpl(
   private val log = LoggerFactory.getLogger(this.getClass)
   private final val services = _services.iterator.map { case (name, service) =>
     if (service.snapshotEvery < 0)
-      log.warn("Snapshotting disabled for entity [{}], this is not recommended.", service.entityType)
+      log.warn("Snapshotting disabled for entity [{}], this is not recommended.", service.serviceName)
     // FIXME overlay configuration provided by _system
     (name, if (service.snapshotEvery == 0) service.withSnapshotEvery(configuration.snapshotEvery) else service)
   }.toMap
@@ -144,7 +144,7 @@ final class EventSourcedEntitiesImpl(
   private def runEntity(init: EventSourcedInit): Flow[EventSourcedStreamIn, EventSourcedStreamOut, NotUsed] = {
     val service =
       services.getOrElse(init.serviceName, throw ProtocolException(init, s"Service not found: ${init.serviceName}"))
-    val handler = service.factory
+    val router = service.factory
       .create(new EventSourcedEntityContextImpl(init.entityId))
       .asInstanceOf[EventSourcedEntityRouter[Any, EventSourcedEntity[Any]]]
     val thisEntityId = init.entityId
@@ -154,7 +154,7 @@ final class EventSourcedEntitiesImpl(
       any <- snapshot.snapshot
     } yield {
       val snapshotSequence = snapshot.snapshotSequence
-      handler._internalHandleSnapshot(service.messageCodec.decodeMessage(any))
+      router._internalHandleSnapshot(service.messageCodec.decodeMessage(any))
       snapshotSequence
     }).getOrElse(0L)
 
@@ -168,7 +168,7 @@ final class EventSourcedEntitiesImpl(
             service.messageCodec
               .decodeMessage(event.payload.get)
               .asInstanceOf[AnyRef] // FIXME empty?
-          handler._internalHandleEvent(ev, context)
+          router._internalHandleEvent(ev, context)
           (event.sequence, None)
         case ((sequence, _), InCommand(command)) =>
           if (thisEntityId != command.entityId)
@@ -188,7 +188,7 @@ final class EventSourcedEntitiesImpl(
             endSequenceNumber,
             deleteEntity) =
             try {
-              handler._internalHandleCommand(
+              router._internalHandleCommand(
                 command.name,
                 cmd,
                 context,
@@ -237,12 +237,10 @@ final class EventSourcedEntitiesImpl(
           }
         case ((sequence, _), InSnapshotRequest(request)) =>
           val reply =
-            EventSourcedSnapshotReply(
-              request.requestId,
-              Some(service.messageCodec.encodeScala(handler._stateOrEmpty())))
+            EventSourcedSnapshotReply(request.requestId, Some(service.messageCodec.encodeScala(router._stateOrEmpty())))
           (sequence, Some(OutSnapshotReply(reply)))
         case (_, InInit(_)) =>
-          throw ProtocolException(init, "Entity already inited")
+          throw ProtocolException(init, "Entity already initiated")
         case (_, InEmpty) =>
           throw ProtocolException(init, "Received empty/unknown message")
       }
@@ -252,7 +250,7 @@ final class EventSourcedEntitiesImpl(
       .recover { case error =>
         // only "unexpected" exceptions should end up here
         ErrorHandling.withCorrelationId { correlationId =>
-          LoggerFactory.getLogger(handler.entityClass).error(failureMessageForLog(error), error)
+          LoggerFactory.getLogger(router.entityClass).error(failureMessageForLog(error), error)
           EventSourcedStreamOut(OutFailure(Failure(description = s"Unexpected failure [$correlationId]")))
         }
       }

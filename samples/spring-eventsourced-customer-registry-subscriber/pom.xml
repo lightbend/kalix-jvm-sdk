@@ -151,7 +151,7 @@
             <argument>-Dkalix.user-function-port=8081</argument>
             <argument>-classpath</argument>
             <classpath/>
-            <argument>-Dlogback.configurationFile=logback-dev-mode.xml</argument>
+            <argument>-Dlogging.config=src/main/resources/logback-dev-mode.xml</argument>
             <argument>${mainClass}</argument>
           </arguments>
           <environmentVariables>
@@ -230,6 +230,11 @@
        <groupId>org.springframework.boot</groupId>
        <artifactId>spring-boot-maven-plugin</artifactId>
        <version>3.0.2</version>
+        <configuration>
+            <systemPropertyVariables>
+                <logging.config>src/main/resources/logback-dev-mode.xml</logging.config>
+            </systemPropertyVariables>
+          </configuration>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>

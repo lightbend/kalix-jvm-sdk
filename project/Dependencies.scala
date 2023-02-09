@@ -5,12 +5,12 @@ import sbt.Keys._
 object Dependencies {
   object Kalix {
     val ProtocolVersionMajor = 1
-    val ProtocolVersionMinor = 0
-    val ProxyVersion = System.getProperty("kalix-proxy.version", "1.0.33")
+    val ProtocolVersionMinor = 1
+    val ProxyVersion = System.getProperty("kalix-proxy.version", "1.1.0")
   }
 
   // changing the Scala version of the Java SDK affects end users
-  val ScalaVersion = "2.13.8"
+  val ScalaVersion = "2.13.10"
   val ScalaVersionForSbtPlugin = "2.12.15"
   val ScalaVersionForCodegen = Seq(ScalaVersionForSbtPlugin)
 
@@ -74,6 +74,8 @@ object Dependencies {
   val akkaGrpc = "com.lightbend.akka.grpc" % "sbt-akka-grpc" % akka.grpc.gen.BuildInfo.version
   val webflux = "org.springframework.boot" % "spring-boot-starter-webflux" % SpringVersion
 
+  val typeTools = "net.jodah" % "typetools" % "0.6.3"
+
   private val deps = libraryDependencies
 
   private val coreDeps = Seq(
@@ -103,7 +105,8 @@ object Dependencies {
     jacksonJdk8,
     jacksonJsr310,
     jacksonParameterNames,
-    webflux)
+    webflux,
+    typeTools)
 
   val sdkCore = deps ++= coreDeps
 
@@ -125,6 +128,7 @@ object Dependencies {
     "net.aichler" % "jupiter-interface" % JupiterKeys.jupiterVersion.value % IntegrationTest,
     "org.springframework.boot" % "spring-boot-starter-test" % SpringVersion % IntegrationTest,
     junit5 % IntegrationTest,
+    "org.assertj" % "assertj-core" % "3.24.0" % IntegrationTest,
     "org.awaitility" % "awaitility" % "4.2.0" % IntegrationTest)
 
   val sdkSpringTestKit =

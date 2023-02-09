@@ -26,12 +26,11 @@
     </appender>
 
     <logger name="akka" level="INFO"/>
-    <logger name="kalix" level="DEBUG"/>
+    <logger name="kalix" level="INFO"/>
     <logger name="akka.http" level="INFO"/>
     <logger name="io.grpc" level="INFO"/>
 
     <root level="INFO">
-<!--        <appender-ref ref="STDOUT"/>-->
-        <appender-ref ref="STDOUT"/>
+        <appender-ref ref="ASYNC-JSON-STDOUT"/>
     </root>
 </configuration>

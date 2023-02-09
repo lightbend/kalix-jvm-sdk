@@ -37,6 +37,8 @@ import kalix.javasdk.impl.replicatedentity.ResolvedReplicatedEntityFactory;
 import kalix.javasdk.impl.valueentity.ResolvedValueEntityFactory;
 import kalix.javasdk.impl.valueentity.ValueEntityService;
 import kalix.javasdk.impl.view.ViewService;
+import kalix.javasdk.impl.workflowentity.ResolvedWorkflowEntityFactory;
+import kalix.javasdk.impl.workflowentity.WorkflowEntityService;
 import kalix.javasdk.replicatedentity.ReplicatedEntity;
 import kalix.javasdk.replicatedentity.ReplicatedEntityOptions;
 import kalix.javasdk.replicatedentity.ReplicatedEntityProvider;
@@ -45,8 +47,10 @@ import kalix.javasdk.valueentity.ValueEntityOptions;
 import kalix.javasdk.valueentity.ValueEntityProvider;
 import kalix.javasdk.view.ViewOptions;
 import kalix.javasdk.view.ViewProvider;
+import kalix.javasdk.workflowentity.WorkflowEntity;
+import kalix.javasdk.workflowentity.WorkflowEntityOptions;
+import kalix.javasdk.workflowentity.WorkflowEntityProvider;
 import kalix.replicatedentity.ReplicatedData;
-import scala.Option;
 import scala.jdk.javaapi.OptionConverters;
 
 import java.util.HashMap;
@@ -75,53 +79,99 @@ public final class Kalix {
      *
      * <p>This is a low level API intended for custom mechanisms for implementing the entity.
      *
-     * @param factory The event sourced factory.
-     * @param descriptor The descriptor for the service that this entity implements.
-     * @param entityType The persistence id for this entity.
-     * @param entityOptions the options for this entity.
+     * @param factory               The event sourced factory.
+     * @param descriptor            The descriptor for the service that this entity implements.
+     * @param entityType            The persistence id for this entity.
+     * @param entityOptions         the options for this entity.
      * @param additionalDescriptors Any additional descriptors that should be used to look up
-     *     protobuf types when needed.
+     *                              protobuf types when needed.
      * @return This stateful service builder.
      */
     public Kalix registerEventSourcedEntity(
-        EventSourcedEntityFactory factory,
-        Descriptors.ServiceDescriptor descriptor,
-        String entityType,
-        EventSourcedEntityOptions entityOptions,
-        Descriptors.FileDescriptor... additionalDescriptors) {
+      EventSourcedEntityFactory factory,
+      Descriptors.ServiceDescriptor descriptor,
+      String entityType,
+      EventSourcedEntityOptions entityOptions,
+      Descriptors.FileDescriptor... additionalDescriptors) {
 
       AnySupport anySupport = newAnySupport(additionalDescriptors);
       EventSourcedEntityFactory resolvedFactory =
-          new ResolvedEventSourcedEntityFactory(
-              factory, anySupport.resolveServiceDescriptor(descriptor));
+        new ResolvedEventSourcedEntityFactory(
+          factory, anySupport.resolveServiceDescriptor(descriptor));
 
       return registerEventSourcedEntity(
-          descriptor,
-          entityType,
-          entityOptions,
-          anySupport,
-          resolvedFactory,
-          additionalDescriptors);
+        descriptor,
+        entityType,
+        entityOptions,
+        anySupport,
+        resolvedFactory,
+        additionalDescriptors);
     }
 
     public Kalix registerEventSourcedEntity(
-        Descriptors.ServiceDescriptor descriptor,
-        String entityType,
-        EventSourcedEntityOptions entityOptions,
-        MessageCodec messageCodec,
-        EventSourcedEntityFactory resolvedFactory,
-        Descriptors.FileDescriptor[] additionalDescriptors) {
+      Descriptors.ServiceDescriptor descriptor,
+      String entityType,
+      EventSourcedEntityOptions entityOptions,
+      MessageCodec messageCodec,
+      EventSourcedEntityFactory resolvedFactory,
+      Descriptors.FileDescriptor[] additionalDescriptors) {
       services.put(
-          descriptor.getFullName(),
-          system ->
-              new EventSourcedEntityService(
-                  resolvedFactory,
-                  descriptor,
-                  additionalDescriptors,
-                  messageCodec,
-                  entityType,
-                  entityOptions.snapshotEvery(),
-                  entityOptions));
+        descriptor.getFullName(),
+        system ->
+          new EventSourcedEntityService(
+            resolvedFactory,
+            descriptor,
+            additionalDescriptors,
+            messageCodec,
+            entityType,
+            entityOptions.snapshotEvery(),
+            entityOptions));
+
+      return Kalix.this;
+    }
+
+
+    public Kalix registerWorkflow(
+      WorkflowEntityFactory factory,
+      Descriptors.ServiceDescriptor descriptor,
+      String workflowName,
+      WorkflowEntityOptions workflowEntityOptions,
+      Descriptors.FileDescriptor... additionalDescriptors) {
+
+      AnySupport anySupport = newAnySupport(additionalDescriptors);
+      WorkflowEntityFactory resolvedFactory =
+        new ResolvedWorkflowEntityFactory(factory, anySupport.resolveServiceDescriptor(descriptor));
+
+      return registerWorkflow(descriptor,
+        workflowName,
+        workflowEntityOptions,
+        anySupport,
+        resolvedFactory,
+        additionalDescriptors
+      );
+    }
+
+
+    public Kalix registerWorkflow(
+      Descriptors.ServiceDescriptor descriptor,
+      String workflowName,
+      WorkflowEntityOptions workflowEntityOptions,
+      MessageCodec messageCodec,
+      WorkflowEntityFactory resolvedFactory,
+      Descriptors.FileDescriptor[] additionalDescriptors) {
+
+      services.put(
+        descriptor.getFullName(),
+        system ->
+          new WorkflowEntityService(
+            resolvedFactory,
+            descriptor,
+            additionalDescriptors,
+            messageCodec,
+            workflowName,
+            workflowEntityOptions
+          )
+      );
 
       return Kalix.this;
     }
@@ -131,35 +181,35 @@ public final class Kalix {
      *
      * <p>This is a low level API intended for custom mechanisms for implementing the action.
      *
-     * @param descriptor The descriptor for the service that this action implements.
+     * @param descriptor            The descriptor for the service that this action implements.
      * @param additionalDescriptors Any additional descriptors that should be used to look up
-     *     protobuf types when needed.
+     *                              protobuf types when needed.
      * @return This Kalix builder.
      */
     public Kalix registerAction(
-        ActionFactory actionFactory,
-        ActionOptions actionOptions,
-        Descriptors.ServiceDescriptor descriptor,
-        Descriptors.FileDescriptor... additionalDescriptors) {
+      ActionFactory actionFactory,
+      ActionOptions actionOptions,
+      Descriptors.ServiceDescriptor descriptor,
+      Descriptors.FileDescriptor... additionalDescriptors) {
 
       final AnySupport anySupport = newAnySupport(additionalDescriptors);
       ActionFactory resolvedActionFactory =
-          new ResolvedActionFactory(actionFactory, anySupport.resolveServiceDescriptor(descriptor));
+        new ResolvedActionFactory(actionFactory, anySupport.resolveServiceDescriptor(descriptor));
 
       return registerAction(
-          resolvedActionFactory, anySupport, actionOptions, descriptor, additionalDescriptors);
+        resolvedActionFactory, anySupport, actionOptions, descriptor, additionalDescriptors);
     }
 
     public Kalix registerAction(
-        ActionFactory actionFactory,
-        MessageCodec messageCodec,
-        ActionOptions actionOptions,
-        Descriptors.ServiceDescriptor descriptor,
-        Descriptors.FileDescriptor... additionalDescriptors) {
+      ActionFactory actionFactory,
+      MessageCodec messageCodec,
+      ActionOptions actionOptions,
+      Descriptors.ServiceDescriptor descriptor,
+      Descriptors.FileDescriptor... additionalDescriptors) {
 
       ActionService service =
-          new ActionService(
-              actionFactory, descriptor, additionalDescriptors, messageCodec, actionOptions);
+        new ActionService(
+          actionFactory, descriptor, additionalDescriptors, messageCodec, actionOptions);
 
       services.put(descriptor.getFullName(), system -> service);
 
@@ -171,43 +221,43 @@ public final class Kalix {
      *
      * <p>This is a low level API intended for custom mechanisms for implementing the entity.
      *
-     * @param factory The value based entity factory.
-     * @param descriptor The descriptor for the service that this entity implements.
-     * @param entityType The entity type name
+     * @param factory       The value based entity factory.
+     * @param descriptor    The descriptor for the service that this entity implements.
+     * @param entityType    The entity type name
      * @param entityOptions The options for this entity.
      * @return This stateful service builder.
      */
     public Kalix registerValueEntity(
-        ValueEntityFactory factory,
-        Descriptors.ServiceDescriptor descriptor,
-        String entityType,
-        ValueEntityOptions entityOptions,
-        Descriptors.FileDescriptor... additionalDescriptors) {
+      ValueEntityFactory factory,
+      Descriptors.ServiceDescriptor descriptor,
+      String entityType,
+      ValueEntityOptions entityOptions,
+      Descriptors.FileDescriptor... additionalDescriptors) {
 
       AnySupport anySupport = newAnySupport(additionalDescriptors);
       ValueEntityFactory resolvedFactory =
-          new ResolvedValueEntityFactory(factory, anySupport.resolveServiceDescriptor(descriptor));
+        new ResolvedValueEntityFactory(factory, anySupport.resolveServiceDescriptor(descriptor));
 
       return registerValueEntity(
-          resolvedFactory,
-          anySupport,
-          descriptor,
-          entityType,
-          entityOptions,
-          additionalDescriptors);
+        resolvedFactory,
+        anySupport,
+        descriptor,
+        entityType,
+        entityOptions,
+        additionalDescriptors);
     }
 
     public Kalix registerValueEntity(
-        ValueEntityFactory factory,
-        MessageCodec messageCodec,
-        Descriptors.ServiceDescriptor descriptor,
-        String entityType,
-        ValueEntityOptions entityOptions,
-        Descriptors.FileDescriptor... additionalDescriptors) {
+      ValueEntityFactory factory,
+      MessageCodec messageCodec,
+      Descriptors.ServiceDescriptor descriptor,
+      String entityType,
+      ValueEntityOptions entityOptions,
+      Descriptors.FileDescriptor... additionalDescriptors) {
 
       ValueEntityService service =
-          new ValueEntityService(
-              factory, descriptor, additionalDescriptors, messageCodec, entityType, entityOptions);
+        new ValueEntityService(
+          factory, descriptor, additionalDescriptors, messageCodec, entityType, entityOptions);
 
       services.put(descriptor.getFullName(), system -> service);
 
@@ -219,34 +269,34 @@ public final class Kalix {
      *
      * <p>This is a low level API intended for custom mechanisms for implementing the entity.
      *
-     * @param factory The replicated entity factory.
-     * @param descriptor The descriptor for the service that this entity implements.
-     * @param entityType The entity type name.
+     * @param factory       The replicated entity factory.
+     * @param descriptor    The descriptor for the service that this entity implements.
+     * @param entityType    The entity type name.
      * @param entityOptions The options for this entity.
      * @return This stateful service builder.
      */
     public Kalix registerReplicatedEntity(
-        ReplicatedEntityFactory factory,
-        Descriptors.ServiceDescriptor descriptor,
-        String entityType,
-        ReplicatedEntityOptions entityOptions,
-        Descriptors.FileDescriptor... additionalDescriptors) {
+      ReplicatedEntityFactory factory,
+      Descriptors.ServiceDescriptor descriptor,
+      String entityType,
+      ReplicatedEntityOptions entityOptions,
+      Descriptors.FileDescriptor... additionalDescriptors) {
 
       AnySupport anySupport = newAnySupport(additionalDescriptors);
       ReplicatedEntityFactory resolvedFactory =
-          new ResolvedReplicatedEntityFactory(
-              factory, anySupport.resolveServiceDescriptor(descriptor));
+        new ResolvedReplicatedEntityFactory(
+          factory, anySupport.resolveServiceDescriptor(descriptor));
 
       services.put(
-          descriptor.getFullName(),
-          system ->
-              new ReplicatedEntityService(
-                  resolvedFactory,
-                  descriptor,
-                  additionalDescriptors,
-                  anySupport,
-                  entityType,
-                  entityOptions));
+        descriptor.getFullName(),
+        system ->
+          new ReplicatedEntityService(
+            resolvedFactory,
+            descriptor,
+            additionalDescriptors,
+            anySupport,
+            entityType,
+            entityOptions));
 
       return Kalix.this;
     }
@@ -256,41 +306,41 @@ public final class Kalix {
      *
      * <p>This is a low level API intended for custom mechanisms for implementing the view.
      *
-     * @param factory The view factory.
-     * @param descriptor The descriptor for the service that this entity implements.
-     * @param viewId The id of this view, used for persistence.
+     * @param factory               The view factory.
+     * @param descriptor            The descriptor for the service that this entity implements.
+     * @param viewId                The id of this view, used for persistence.
      * @param additionalDescriptors Any additional descriptors that should be used to look up
-     *     protobuf types when needed.
+     *                              protobuf types when needed.
      * @return This stateful service builder.
      */
     private Kalix registerView(
-        ViewFactory factory,
-        Descriptors.ServiceDescriptor descriptor,
-        String viewId,
-        ViewOptions viewOptions,
-        Descriptors.FileDescriptor... additionalDescriptors) {
+      ViewFactory factory,
+      Descriptors.ServiceDescriptor descriptor,
+      String viewId,
+      ViewOptions viewOptions,
+      Descriptors.FileDescriptor... additionalDescriptors) {
 
       AnySupport anySupport = newAnySupport(additionalDescriptors);
       return registerView(
-          factory, anySupport, descriptor, viewId, viewOptions, additionalDescriptors);
+        factory, anySupport, descriptor, viewId, viewOptions, additionalDescriptors);
     }
 
     private Kalix registerView(
-        ViewFactory factory,
-        MessageCodec messageCodec,
-        Descriptors.ServiceDescriptor descriptor,
-        String viewId,
-        ViewOptions viewOptions,
-        Descriptors.FileDescriptor... additionalDescriptors) {
+      ViewFactory factory,
+      MessageCodec messageCodec,
+      Descriptors.ServiceDescriptor descriptor,
+      String viewId,
+      ViewOptions viewOptions,
+      Descriptors.FileDescriptor... additionalDescriptors) {
 
       ViewService service =
-          new ViewService(
-              Optional.ofNullable(factory),
-              descriptor,
-              additionalDescriptors,
-              messageCodec,
-              viewId,
-              viewOptions);
+        new ViewService(
+          Optional.ofNullable(factory),
+          descriptor,
+          additionalDescriptors,
+          messageCodec,
+          viewId,
+          viewOptions);
       services.put(descriptor.getFullName(), system -> service);
 
       return Kalix.this;
@@ -311,7 +361,7 @@ public final class Kalix {
 
   /**
    * Sets the type URL prefix to be used when serializing and deserializing types from and to
-   * Protobyf Any values. Defaults to "type.googleapis.com".
+   * Protobuf Any values. Defaults to "type.googleapis.com".
    *
    * @param prefix the type URL prefix to be used.
    * @return This Kalix instance.
@@ -359,8 +409,7 @@ public final class Kalix {
    * INTERNAL API - subject to change without notice
    *
    * @param aclDescriptor - the default ACL file descriptor
-   * @return
-   *   This Kalix instance.
+   * @return This Kalix instance.
    */
   public Kalix withDefaultAclFileDescriptor(Optional<DescriptorProtos.FileDescriptorProto> aclDescriptor) {
     this.aclDescriptor = aclDescriptor;
@@ -379,13 +428,13 @@ public final class Kalix {
    * @return This stateful service builder.
    */
   public <D extends ReplicatedData, E extends ReplicatedEntity<D>> Kalix register(
-      ReplicatedEntityProvider<D, E> provider) {
+    ReplicatedEntityProvider<D, E> provider) {
     return lowLevel.registerReplicatedEntity(
-        provider::newRouter,
-        provider.serviceDescriptor(),
-        provider.entityType(),
-        provider.options(),
-        provider.additionalDescriptors());
+      provider::newRouter,
+      provider.serviceDescriptor(),
+      provider.entityType(),
+      provider.options(),
+      provider.additionalDescriptors());
   }
 
   /**
@@ -399,24 +448,24 @@ public final class Kalix {
    */
   public <S, E extends ValueEntity<S>> Kalix register(ValueEntityProvider<S, E> provider) {
     return provider
-        .alternativeCodec()
-        .map(
-            codec ->
-                lowLevel.registerValueEntity(
-                    provider::newRouter,
-                    codec,
-                    provider.serviceDescriptor(),
-                    provider.entityType(),
-                    provider.options(),
-                    provider.additionalDescriptors()))
-        .orElseGet(
-            () ->
-                lowLevel.registerValueEntity(
-                    provider::newRouter,
-                    provider.serviceDescriptor(),
-                    provider.entityType(),
-                    provider.options(),
-                    provider.additionalDescriptors()));
+      .alternativeCodec()
+      .map(
+        codec ->
+          lowLevel.registerValueEntity(
+            provider::newRouter,
+            codec,
+            provider.serviceDescriptor(),
+            provider.entityType(),
+            provider.options(),
+            provider.additionalDescriptors()))
+      .orElseGet(
+        () ->
+          lowLevel.registerValueEntity(
+            provider::newRouter,
+            provider.serviceDescriptor(),
+            provider.entityType(),
+            provider.options(),
+            provider.additionalDescriptors()));
   }
 
   /**
@@ -431,26 +480,52 @@ public final class Kalix {
    * @return This stateful service builder.
    */
   public <S, E extends EventSourcedEntity<S>> Kalix register(
-      EventSourcedEntityProvider<S, E> provider) {
+    EventSourcedEntityProvider<S, E> provider) {
     return provider
-        .alternativeCodec()
-        .map(
-            codec ->
-                lowLevel.registerEventSourcedEntity(
-                    provider.serviceDescriptor(),
-                    provider.entityType(),
-                    provider.options(),
-                    codec,
-                    provider::newRouter,
-                    provider.additionalDescriptors()))
-        .orElseGet(
-            () ->
-                lowLevel.registerEventSourcedEntity(
-                    provider::newRouter,
-                    provider.serviceDescriptor(),
-                    provider.entityType(),
-                    provider.options(),
-                    provider.additionalDescriptors()));
+      .alternativeCodec()
+      .map(
+        codec ->
+          lowLevel.registerEventSourcedEntity(
+            provider.serviceDescriptor(),
+            provider.entityType(),
+            provider.options(),
+            codec,
+            provider::newRouter,
+            provider.additionalDescriptors()))
+      .orElseGet(
+        () ->
+          lowLevel.registerEventSourcedEntity(
+            provider::newRouter,
+            provider.serviceDescriptor(),
+            provider.entityType(),
+            provider.options(),
+            provider.additionalDescriptors()));
+  }
+
+
+  public <S, W extends WorkflowEntity<S>> Kalix register(WorkflowEntityProvider<S, W> provider) {
+    return provider
+      .alternativeCodec()
+      .map(
+        codec ->
+          lowLevel.registerWorkflow(
+            provider.serviceDescriptor(),
+            provider.workflowName(),
+            provider.options(),
+            codec,
+            provider::newRouter,
+            provider.additionalDescriptors()
+          )
+      ).orElseGet(
+        () ->
+          lowLevel.registerWorkflow(
+            provider::newRouter,
+            provider.serviceDescriptor(),
+            provider.workflowName(),
+            provider.options(),
+            provider.additionalDescriptors()
+          )
+      );
   }
 
   /**
@@ -462,24 +537,24 @@ public final class Kalix {
    */
   public Kalix register(ViewProvider provider) {
     return provider
-        .alternativeCodec()
-        .map(
-            codec ->
-                lowLevel.registerView(
-                    provider::newRouter,
-                    codec,
-                    provider.serviceDescriptor(),
-                    provider.viewId(),
-                    provider.options(),
-                    provider.additionalDescriptors()))
-        .orElseGet(
-            () ->
-                lowLevel.registerView(
-                    provider::newRouter,
-                    provider.serviceDescriptor(),
-                    provider.viewId(),
-                    provider.options(),
-                    provider.additionalDescriptors()));
+      .alternativeCodec()
+      .map(
+        codec ->
+          lowLevel.registerView(
+            provider::newRouter,
+            codec,
+            provider.serviceDescriptor(),
+            provider.viewId(),
+            provider.options(),
+            provider.additionalDescriptors()))
+      .orElseGet(
+        () ->
+          lowLevel.registerView(
+            provider::newRouter,
+            provider.serviceDescriptor(),
+            provider.viewId(),
+            provider.options(),
+            provider.additionalDescriptors()));
   }
 
   /**
@@ -491,22 +566,22 @@ public final class Kalix {
    */
   public <A extends Action> Kalix register(ActionProvider<A> provider) {
     return provider
-        .alternativeCodec()
-        .map(
-            codec ->
-                lowLevel.registerAction(
-                    provider::newRouter,
-                    codec,
-                    provider.options(),
-                    provider.serviceDescriptor(),
-                    provider.additionalDescriptors()))
-        .orElseGet(
-            () ->
-                lowLevel.registerAction(
-                    provider::newRouter,
-                    provider.options(),
-                    provider.serviceDescriptor(),
-                    provider.additionalDescriptors()));
+      .alternativeCodec()
+      .map(
+        codec ->
+          lowLevel.registerAction(
+            provider::newRouter,
+            codec,
+            provider.options(),
+            provider.serviceDescriptor(),
+            provider.additionalDescriptors()))
+      .orElseGet(
+        () ->
+          lowLevel.registerAction(
+            provider::newRouter,
+            provider.options(),
+            provider.serviceDescriptor(),
+            provider.additionalDescriptors()));
   }
 
   /**
@@ -535,9 +610,9 @@ public final class Kalix {
    */
   public KalixRunner createRunner() {
     return new KalixRunner(
-        services,
-        OptionConverters.toScala(aclDescriptor),
-        sdkName);
+      services,
+      OptionConverters.toScala(aclDescriptor),
+      sdkName);
   }
 
   /**
@@ -549,10 +624,10 @@ public final class Kalix {
    */
   public KalixRunner createRunner(Config config) {
     return new KalixRunner(
-        services,
-        config,
-        OptionConverters.toScala(aclDescriptor),
-        sdkName);
+      services,
+      config,
+      OptionConverters.toScala(aclDescriptor),
+      sdkName);
   }
 
   private AnySupport newAnySupport(Descriptors.FileDescriptor[] descriptors) {

@@ -1331,6 +1331,23 @@ jobs:
             echo "Running mvn with SDK version: '$SDK_VERSION'"
             mvn -Dkalix-sdk.version=$SDK_VERSION verify -Pit
 
+  sample-spring-transfer-workflow:
+    machine:
+      image: ubuntu-2004:202201-02
+    steps:
+      - checkout-and-merge-to-main
+      - setup_sbt
+      - restore_deps_cache
+      # note: `copy-from-workspace` requires `publish-local` to be run first as declared in workflow section below
+      - copy-from-workspace
+      - set-sdk-version
+      - run:
+          name: Spring SDK transfer Workflow Entity
+          command: |
+            cd samples/spring-transfer-workflow
+            echo "Running mvn with SDK version: '$SDK_VERSION'"
+            mvn -Dkalix-sdk.version=$SDK_VERSION verify -Pit
+
   publish:
     docker:
       - image: cimg/openjdk:17.0
@@ -1664,6 +1681,10 @@ workflows:
             - spring-sdk-integration-tests
             - publish-local
       - sample-spring-view-store:
+          requires:
+            - spring-sdk-integration-tests
+            - publish-local
+      - sample-spring-transfer-workflow:
           requires:
             - spring-sdk-integration-tests
             - publish-local

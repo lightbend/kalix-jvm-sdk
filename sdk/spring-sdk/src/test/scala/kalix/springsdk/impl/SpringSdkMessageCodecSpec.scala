@@ -22,8 +22,20 @@ import kalix.springsdk.annotations.TypeName
 import kalix.springsdk.impl.SpringSdkMessageCodecSpec.SimpleClass
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
+import com.google.protobuf.any.{ Any => ScalaPbAny }
+import com.google.protobuf.{ Any => JavaPbAny }
+import kalix.springsdk.impl.SpringSdkMessageCodecSpec.Cat
+import kalix.springsdk.impl.SpringSdkMessageCodecSpec.Dog
 
 object SpringSdkMessageCodecSpec {
+
+  @JsonCreator
+  @TypeName("animal")
+  case class Dog(str: String)
+
+  @JsonCreator
+  @TypeName("animal")
+  case class Cat(str: String)
 
   @JsonCreator
   case class SimpleClass(str: String, in: Int)
@@ -64,9 +76,54 @@ class SpringSdkMessageCodecSpec extends AnyWordSpec with Matchers {
       encoded.getTypeUrl shouldBe jsonTypeUrlWith("SimpleClass")
     }
 
+    "not re-encode (wrap) to JavaPbAny" in {
+      val encoded: JavaPbAny = messageCodec.encodeJava(SimpleClass("abc", 10))
+      val reEncoded = messageCodec.encodeJava(encoded)
+      reEncoded shouldBe encoded
+    }
+
+    "not re-encode (wrap) from ScalaPbAny to JavaPbAny" in {
+      val encoded: ScalaPbAny = messageCodec.encodeScala(SimpleClass("abc", 10))
+      val reEncoded = messageCodec.encodeJava(encoded)
+      reEncoded shouldBe an[JavaPbAny]
+      reEncoded.getTypeUrl shouldBe encoded.typeUrl
+      reEncoded.getValue shouldBe encoded.value
+    }
+
     "default to FQCN for typeUrl (scala)" in {
       val encoded = messageCodec.encodeScala(SimpleClass("abc", 10))
       encoded.typeUrl shouldBe jsonTypeUrlWith("SimpleClass")
+    }
+
+    "not re-encode (wrap) to ScalaPbAny" in {
+      val encoded: ScalaPbAny = messageCodec.encodeScala(SimpleClass("abc", 10))
+      val reEncoded = messageCodec.encodeScala(encoded)
+      reEncoded shouldBe encoded
+    }
+
+    "not re-encode (wrap) from JavaPbAny to ScalaPbAny" in {
+      val encoded: JavaPbAny = messageCodec.encodeJava(SimpleClass("abc", 10))
+      val reEncoded = messageCodec.encodeScala(encoded)
+      reEncoded shouldBe an[ScalaPbAny]
+      reEncoded.typeUrl shouldBe encoded.getTypeUrl
+      reEncoded.value shouldBe encoded.getValue
+    }
+
+    "fail with the same" in {
+      //fill the cache
+      messageCodec.encodeJava(Dog("abc"))
+      assertThrows[IllegalStateException] {
+        messageCodec.encodeJava(Cat("abc"))
+      }
+    }
+
+    "decode message" in {
+      val value = SimpleClass("abc", 10)
+      val encoded = messageCodec.encodeScala(value)
+
+      val decoded = new SpringSdkMessageCodecJson(messageCodec).decodeMessage(encoded)
+
+      decoded shouldBe value
     }
 
     {

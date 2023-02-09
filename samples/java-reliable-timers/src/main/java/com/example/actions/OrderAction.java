@@ -94,7 +94,8 @@ public class OrderAction extends AbstractOrderAction {
             .execute() // <1>
             .thenApply(cancelled -> Empty.getDefaultInstance()) // <2>
             .exceptionally(e -> { // <3>
-                  if (e instanceof StatusRuntimeException && validateErrorCodes.test((StatusRuntimeException) e)) {
+                  if (e.getCause() instanceof StatusRuntimeException &&
+                      validateErrorCodes.test((StatusRuntimeException) e.getCause())) {
                     // if NotFound or InvalidArgument, we don't need to re-try, and we can move on
                     // other kind of failures are not recovered and will trigger a re-try
                     return Empty.getDefaultInstance();
