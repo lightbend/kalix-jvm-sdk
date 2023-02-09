@@ -20,7 +20,7 @@ package com.example.api;
 
 import com.example.domain.Address;
 import com.example.domain.Customer;
-import io.grpc.Status;
+import kalix.javasdk.StatusCode;
 import kalix.javasdk.valueentity.ValueEntity;
 import kalix.springsdk.annotations.EntityKey;
 import kalix.springsdk.annotations.EntityType;
@@ -45,9 +45,7 @@ public class CustomerEntity extends ValueEntity<Customer> { // <4>
   public Effect<Customer> getCustomer() {
     if (currentState() == null)
       return effects().error(
-          "No customer found for id '" + commandContext().entityId() + "'",
-          Status.Code.NOT_FOUND
-        );
+          "No customer found for id '" + commandContext().entityId() + "'", StatusCode.ErrorCode.NOT_FOUND);
     else   
       return effects().reply(currentState());
   }

@@ -16,7 +16,7 @@
 
 package com.example.wiring.valueentities.user;
 
-import io.grpc.Status;
+import kalix.javasdk.StatusCode;
 import kalix.javasdk.eventsourcedentity.EventSourcedEntity;
 import kalix.javasdk.valueentity.ValueEntity;
 import kalix.javasdk.valueentity.ValueEntityContext;
@@ -42,7 +42,7 @@ public class UserEntity extends ValueEntity<User> {
   @GetMapping
   public Effect<User> getUser() {
     if (currentState() == null)
-      return effects().error("User not found", Status.Code.NOT_FOUND);
+      return effects().error("User not found", StatusCode.ErrorCode.NOT_FOUND);
 
     return effects().reply(currentState());
   }

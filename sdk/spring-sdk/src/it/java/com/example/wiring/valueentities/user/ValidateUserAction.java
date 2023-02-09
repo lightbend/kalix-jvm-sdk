@@ -16,7 +16,7 @@
 
 package com.example.wiring.valueentities.user;
 
-import io.grpc.Status;
+import kalix.javasdk.StatusCode;
 import kalix.javasdk.action.Action;
 import kalix.javasdk.action.ActionCreationContext;
 import kalix.springsdk.KalixClient;
@@ -40,7 +40,7 @@ public class ValidateUserAction extends Action {
   @PutMapping("/{email}/{name}")
   public Action.Effect<String> createOrUpdateUser(@PathVariable String user, @PathVariable String email, @PathVariable String name) {
     if (email.isEmpty() || name.isEmpty())
-      return effects().error("No field can be empty", Status.Code.INVALID_ARGUMENT);
+      return effects().error("No field can be empty", StatusCode.ErrorCode.BAD_REQUEST);
 
     var defCall = kalixClient.put("/user/" + user + "/" + email + "/" + name, String.class);
     return effects().forward(defCall);
@@ -49,7 +49,7 @@ public class ValidateUserAction extends Action {
   @PatchMapping("/email/{email}")
   public Action.Effect<String> updateEmail(@PathVariable String user, @PathVariable String email) {
     if (email.isEmpty())
-      return effects().error("No field can be empty", Status.Code.INVALID_ARGUMENT);
+      return effects().error("No field can be empty", StatusCode.ErrorCode.BAD_REQUEST);
 
     var defCall = kalixClient.patch("/user/" + user + "/email/" + email, String.class);
     return effects().forward(defCall);

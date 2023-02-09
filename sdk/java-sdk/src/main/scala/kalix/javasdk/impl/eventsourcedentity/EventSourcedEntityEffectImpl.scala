@@ -17,9 +17,9 @@
 package kalix.javasdk.impl.eventsourcedentity
 
 import kalix.javasdk.{ DeferredCall, Metadata, SideEffect }
+
 import java.util
 import java.util.function.{ Function => JFunction }
-
 import scala.jdk.CollectionConverters._
 import kalix.javasdk.Metadata
 import kalix.javasdk.impl.effect.ErrorReplyImpl
@@ -31,6 +31,8 @@ import kalix.javasdk.eventsourcedentity.EventSourcedEntity.Effect
 import kalix.javasdk.eventsourcedentity.EventSourcedEntity.Effect.Builder
 import kalix.javasdk.eventsourcedentity.EventSourcedEntity.Effect.OnSuccessBuilder
 import io.grpc.Status
+import kalix.javasdk.StatusCode.ErrorCode
+import kalix.javasdk.impl.StatusCodeConverter
 
 object EventSourcedEntityEffectImpl {
   sealed trait PrimaryEffectImpl
@@ -102,9 +104,15 @@ class EventSourcedEntityEffectImpl[S] extends Builder[S] with OnSuccessBuilder[S
     this.asInstanceOf[EventSourcedEntityEffectImpl[T]]
   }
 
-  override def error[T](description: String, statusCode: Status.Code): EventSourcedEntityEffectImpl[T] = {
-    if (statusCode.toStatus.isOk) throw new IllegalArgumentException("Cannot fail with a success status")
-    _secondaryEffect = ErrorReplyImpl(description, Some(statusCode), _secondaryEffect.sideEffects)
+  override def error[T](description: String, grpcErrorCode: Status.Code): EventSourcedEntityEffectImpl[T] = {
+    if (grpcErrorCode.toStatus.isOk) throw new IllegalArgumentException("Cannot fail with a success status")
+    _secondaryEffect = ErrorReplyImpl(description, Some(grpcErrorCode), _secondaryEffect.sideEffects)
+    this.asInstanceOf[EventSourcedEntityEffectImpl[T]]
+  }
+
+  override def error[T](description: String, httpErrorCode: ErrorCode): EventSourcedEntityEffectImpl[T] = {
+    _secondaryEffect =
+      ErrorReplyImpl(description, Some(StatusCodeConverter.toGrpcCode(httpErrorCode)), _secondaryEffect.sideEffects)
     this.asInstanceOf[EventSourcedEntityEffectImpl[T]]
   }
 

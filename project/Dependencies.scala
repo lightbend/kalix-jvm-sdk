@@ -72,6 +72,7 @@ object Dependencies {
   val sbtProtoc = "com.thesamet" % "sbt-protoc" % "1.0.0"
 
   val akkaGrpc = "com.lightbend.akka.grpc" % "sbt-akka-grpc" % akka.grpc.gen.BuildInfo.version
+  val webflux = "org.springframework.boot" % "spring-boot-starter-webflux" % SpringVersion
 
   val typeTools = "net.jodah" % "typetools" % "0.6.3"
 
@@ -104,6 +105,7 @@ object Dependencies {
     jacksonJdk8,
     jacksonJsr310,
     jacksonParameterNames,
+    webflux,
     typeTools)
 
   val sdkCore = deps ++= coreDeps
@@ -120,10 +122,7 @@ object Dependencies {
     junit5 % Provided,
     scalaTest % Test)
 
-  val springDeps = Seq(
-    jacksonDataFormatProto,
-    "org.springframework.boot" % "spring-boot" % SpringVersion,
-    "org.springframework.boot" % "spring-boot-starter-webflux" % SpringVersion)
+  val springDeps = Seq(jacksonDataFormatProto, "org.springframework.boot" % "spring-boot" % SpringVersion, webflux)
 
   val sdkSpring = deps ++= coreDeps ++ springDeps ++ Seq(
     "net.aichler" % "jupiter-interface" % JupiterKeys.jupiterVersion.value % IntegrationTest,

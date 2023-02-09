@@ -17,11 +17,13 @@
 package kalix.javasdk.eventsourcedentity;
 
 import akka.annotation.ApiMayChange;
+import kalix.javasdk.StatusCode;
 import kalix.javasdk.impl.eventsourcedentity.EventSourcedEntityEffectImpl;
 import kalix.javasdk.Metadata;
 import kalix.javasdk.DeferredCall;
 import kalix.javasdk.SideEffect;
 import io.grpc.Status;
+import kalix.javasdk.valueentity.ValueEntity;
 
 import java.util.Collection;
 import java.util.List;
@@ -174,7 +176,19 @@ public abstract class EventSourcedEntity<S> {
        * @return An error reply.
        * @param <T> The type of the message that must be returned by this call.
        */
-      <T> Effect<T> error(String description, Status.Code statusCode);
+      <T> Effect<T> error(String description, Status.Code grpcErrorCode);
+
+      /**
+       * Create an error reply with a custom status code.
+       * This status code will be translated to a HTTP or gRPC code
+       * depending on the type of service being exposed.
+       *
+       * @param description The description of the error.
+       * @param errorCode A custom Kalix status code.
+       * @return An error reply.
+       * @param <T> The type of the message that must be returned by this call.
+       */
+      <T> Effect<T> error(String description, StatusCode.ErrorCode httpErrorCode);
     }
 
     interface OnSuccessBuilder<S> {

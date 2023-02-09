@@ -35,7 +35,8 @@ class FibonacciAction(creationContext: ActionCreationContext) extends AbstractFi
   // end::implemented-action[]
 
   override def nextNumbers(number: Number): Source[Action.Effect[Number], NotUsed] =
-    if (!isFibonacci(number.value)) Source.failed(new IllegalArgumentException(s"Input number is not a Fibonacci number, received '${number.value}'"))
+    if (!isFibonacci(number.value))
+      Source.failed(new IllegalArgumentException(s"Input number is not a Fibonacci number, received '${number.value}'"))
     else
       Source.unfold(number.value) { previous =>
         val next = nextFib(previous)
@@ -45,7 +46,8 @@ class FibonacciAction(creationContext: ActionCreationContext) extends AbstractFi
   override def nextNumberOfSum(numberSrc: Source[Number, NotUsed]): Action.Effect[Number] = {
     // contrived but just to stay in fibonacci land with a streamed in call
     implicit val materializer = actionContext.materializer()
-    val futureEffect = numberSrc.runFold(0L)((acc, number) => acc + number.value)
+    val futureEffect = numberSrc
+      .runFold(0L)((acc, number) => acc + number.value)
       .map { sum =>
         if (!isFibonacci(sum)) effects.error(s"Input sum is not a Fibonacci number, received '$sum'")
         else effects.reply(Number(nextFib(sum)))
@@ -55,9 +57,9 @@ class FibonacciAction(creationContext: ActionCreationContext) extends AbstractFi
 
   override def nextNumberOfEach(numberSrc: Source[Number, NotUsed]): Source[Action.Effect[Number], NotUsed] = {
     numberSrc.map(number =>
-      if (!isFibonacci(number.value)) effects.error(s"Input number is not a Fibonacci number, received '${number.value}'")
-      else effects.reply(Number(nextFib(number.value)))
-    )
+      if (!isFibonacci(number.value))
+        effects.error(s"Input number is not a Fibonacci number, received '${number.value}'")
+      else effects.reply(Number(nextFib(number.value))))
   }
 
 }

@@ -23,11 +23,13 @@ import kalix.javasdk.impl.effect.MessageReplyImpl
 import kalix.javasdk.impl.effect.NoSecondaryEffectImpl
 import kalix.javasdk.impl.effect.SecondaryEffectImpl
 import kalix.javasdk.replicatedentity.ReplicatedEntity.Effect
-import java.util.{ Collection => JCollection }
 
+import java.util.{ Collection => JCollection }
 import scala.jdk.CollectionConverters._
 import kalix.replicatedentity.ReplicatedData
 import io.grpc.Status
+import kalix.javasdk.StatusCode.ErrorCode
+import kalix.javasdk.impl.StatusCodeConverter
 
 object ReplicatedEntityEffectImpl {
   sealed trait PrimaryEffectImpl
@@ -77,9 +79,15 @@ class ReplicatedEntityEffectImpl[D <: ReplicatedData, R]
     this.asInstanceOf[ReplicatedEntityEffectImpl[D, T]]
   }
 
-  override def error[T](description: String, statusCode: Status.Code): ReplicatedEntityEffectImpl[D, T] = {
-    if (statusCode.toStatus.isOk) throw new IllegalArgumentException("Cannot fail with a success status")
-    _secondaryEffect = ErrorReplyImpl(description, Some(statusCode), _secondaryEffect.sideEffects)
+  override def error[T](description: String, grpcErrorCode: Status.Code): ReplicatedEntityEffectImpl[D, T] = {
+    if (grpcErrorCode.toStatus.isOk) throw new IllegalArgumentException("Cannot fail with a success status")
+    _secondaryEffect = ErrorReplyImpl(description, Some(grpcErrorCode), _secondaryEffect.sideEffects)
+    this.asInstanceOf[ReplicatedEntityEffectImpl[D, T]]
+  }
+
+  override def error[T](description: String, httpErrorCode: ErrorCode): ReplicatedEntityEffectImpl[D, T] = {
+    _secondaryEffect =
+      ErrorReplyImpl(description, Some(StatusCodeConverter.toGrpcCode(httpErrorCode)), _secondaryEffect.sideEffects)
     this.asInstanceOf[ReplicatedEntityEffectImpl[D, T]]
   }
 
