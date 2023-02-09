@@ -34,7 +34,7 @@ import io.grpc.Status
 
 object EventSourcedEntityEffectImpl {
   sealed trait PrimaryEffectImpl
-  final case class EmitEvents(event: Iterable[Any]) extends PrimaryEffectImpl
+  final case class EmitEvents(event: Iterable[Any], deleteEntity: Boolean = false) extends PrimaryEffectImpl
   case object NoPrimaryEffect extends PrimaryEffectImpl
 }
 
@@ -73,6 +73,14 @@ class EventSourcedEntityEffectImpl[S] extends Builder[S] with OnSuccessBuilder[S
 
   override def emitEvents(events: util.List[_]): EventSourcedEntityEffectImpl[S] = {
     _primaryEffect = EmitEvents(events.asScala)
+    this
+  }
+
+  override def deleteEntity(): EventSourcedEntityEffectImpl[S] = {
+    _primaryEffect = _primaryEffect match {
+      case NoPrimaryEffect        => EmitEvents(Vector.empty, deleteEntity = true)
+      case emitEvents: EmitEvents => emitEvents.copy(deleteEntity = true)
+    }
     this
   }
 

@@ -1,11 +1,9 @@
-= Developing with Spring (beta)
+= Developing with Spring
 
 include::ROOT:partial$include.adoc[]
 include::partial$attributes.adoc[]
 
-The Spring SDK provides a code-first approach to developing Kalix applications so that a developer does not need to worry about learning protobuf upfront.
-
-This SDK offers a way to develop applications which should be familiar to someone who has worked with Spring applications by making use of annotations to assemble Kalix and its components.
+The Spring SDK provides a code-first approach to developing Kalix applications. This SDK offers a way to develop applications which should be familiar to someone who has worked with Spring applications by making use of annotations to assemble Kalix and its components.
 
 When using the Kalix Spring SDK, your services are exposed using traditional Spring REST annotations and serialization is backed by the ubiquitous Jackson library. 
 

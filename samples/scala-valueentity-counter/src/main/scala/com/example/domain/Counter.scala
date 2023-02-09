@@ -68,7 +68,7 @@ class Counter(context: ValueEntityContext) extends AbstractCounter { // <1>
   // tag::delete[]
   override def delete(currentState: CounterState, deleteCounter: DeleteCounter): ValueEntity.Effect[Empty] =
     effects
-      .deleteState() // <1>
+      .deleteEntity() // <1>
       .thenReply(Empty.defaultInstance)
   // end::delete[]
 }

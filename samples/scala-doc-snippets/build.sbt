@@ -36,7 +36,7 @@ Test / testOptions += Tests.Argument("-oDF")
 Test / logBuffered := false
 
 // needed for the proxy to access the user function on all platforms
-run / javaOptions ++= Seq("-Dkalix.user-function-interface=0.0.0.0")
+run / javaOptions ++= Seq("-Dkalix.user-function-interface=0.0.0.0", "-Dlogback.configurationFile=logback-dev-mode.xml")
 run / fork := true
 Global / cancelable := false // ctrl-c
 

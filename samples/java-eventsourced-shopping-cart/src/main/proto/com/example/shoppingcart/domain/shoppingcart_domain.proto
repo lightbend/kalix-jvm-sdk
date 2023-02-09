@@ -26,11 +26,11 @@ message ItemRemoved {
 
 // The checked out event.
 message CheckedOut {
-  int64 checked_out_timestamp = 1;
 }
 
 // The shopping cart state.
 message Cart {
   repeated LineItem items = 1;
+  bool checked_out = 2;
 }
 // end::domain[]

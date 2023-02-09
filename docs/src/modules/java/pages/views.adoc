@@ -120,6 +120,13 @@ include::example$scala-valueentity-customer-registry/src/main/proto/customer/vie
 
 When no result is found, the request fails with gRPC status code `NOT_FOUND`. A streamed call completes with an empty stream when no result is found.
 
+[#ve_delete]
+=== Handling Value Entity deletes
+
+The View state corresponding to an Entity is not automatically deleted when the Entity is deleted.
+
+When the source of the `eventing.in` is a Value Entity the `handle_deletes: true` annotation of `(kalix.method).eventing.in` defines that this method is used for handling Value Entity deletes. The method must have `google.protobuf.Empty` as a parameter. Kalix will automatically delete the View state, but you can also write your own delete handler when `transform_updates` flag is `true`. If you don't provide such method then, by default, your View state will not be deleted.
+
 [#register-view]
 === Registering a View
 
@@ -261,7 +268,7 @@ include::example$scala-eventsourced-customer-registry/src/main/scala/customer/vi
 
 NOTE: This type of update transformation is a natural fit for Events emitted by an Event Sourced Entity, but it can also be used for Value Entities. For example, if the View representation is different from the Entity state you might want to transform it before presenting the View to the client.
 
-== Ignoring events
+=== Ignoring events
 
 When consuming events, each event must be matched by a Protobuf service method. In case your View is only interested in certain events, you may declare a method to receive all events that are not received by the other methods. If an event type is not handled, the View will fail. Views are designed to restart, but since the handler is missing, it will fail again. Therefore, it's important to define methods for all events or define a catch-all method in case you want to discard some events.
 
@@ -285,6 +292,13 @@ include::example$scala-eventsourced-customer-registry/src/main/proto/customer/vi
 The `IgnoreOtherEvents` method here is defined as a catch-all because it has input type `Any`. Instead of using a catch-all it can be better to define concrete methods for all known event types that should be ignored because then there is no risk of accidentally ignoring events that are added in later evolution of the service.
 
 When adding the `ignore: true` annotation the corresponding implementation is not needed in the component. It is more efficient to use `ignore: true` than implementing the method with an immediate reply.
+
+[#es_delete]
+=== Handling Event Sourced Entity deletes
+
+The View state corresponding to an Entity is not automatically deleted when the Entity is deleted.
+
+To delete from the View you can use the `deleteState()` effect from an event transformation method.
 
 [#es_register]
 === Register the View

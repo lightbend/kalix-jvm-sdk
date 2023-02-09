@@ -16,6 +16,7 @@
 
 package kalix.springsdk;
 
+import kalix.javasdk.JsonSupport;
 import kalix.javasdk.testkit.KalixTestKit;
 import kalix.springsdk.impl.KalixServer;
 import org.slf4j.Logger;
@@ -27,6 +28,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.http.codec.json.Jackson2JsonEncoder;
 import org.springframework.web.reactive.function.client.WebClient;
 
 @Import(KalixConfiguration.class)
@@ -35,8 +37,10 @@ public class KalixConfigurationTest {
 
   private Logger logger = LoggerFactory.getLogger(getClass());
 
-  @Autowired private ApplicationContext applicationContext;
-  @Autowired private KalixConfiguration kalixConfiguration;
+  @Autowired
+  private ApplicationContext applicationContext;
+  @Autowired
+  private KalixConfiguration kalixConfiguration;
 
   @Bean
   public KalixServer kalixServer() {
@@ -45,13 +49,19 @@ public class KalixConfigurationTest {
     return new KalixServer(applicationContext, kalixConfiguration.config());
   }
 
-  /** WebClient pointing to the proxy. */
+  /**
+   * WebClient pointing to the proxy.
+   */
   @Bean
   public WebClient createWebClient(KalixTestKit kalixTestKit) {
     return WebClient.builder()
-        .baseUrl("http://localhost:" + kalixTestKit.getPort())
-        .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-        .build();
+      .baseUrl("http://localhost:" + kalixTestKit.getPort())
+      .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+      .codecs(configurer -> {
+        configurer.defaultCodecs().jackson2JsonEncoder(
+          new Jackson2JsonEncoder(JsonSupport.getObjectMapper(), MediaType.APPLICATION_JSON));
+      })
+      .build();
   }
 
   @Bean

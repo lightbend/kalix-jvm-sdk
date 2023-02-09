@@ -23,6 +23,7 @@ import akka.NotUsed
 import akka.actor.ActorSystem
 import akka.stream.scaladsl.Flow
 import akka.stream.scaladsl.Source
+import kalix.javasdk.KalixRunner.Configuration
 import kalix.protocol.component.Failure
 import org.slf4j.LoggerFactory
 
@@ -34,7 +35,7 @@ import kalix.javasdk.impl._
 import kalix.javasdk.impl.effect.EffectSupport
 import kalix.javasdk.impl.effect.ErrorReplyImpl
 import kalix.javasdk.impl.effect.MessageReplyImpl
-import kalix.javasdk.impl.valueentity.ValueEntityEffectImpl.DeleteState
+import kalix.javasdk.impl.valueentity.ValueEntityEffectImpl.DeleteEntity
 import kalix.javasdk.impl.valueentity.ValueEntityEffectImpl.UpdateState
 import kalix.javasdk.impl.valueentity.ValueEntityRouter.CommandResult
 import kalix.javasdk.valueentity._
@@ -76,13 +77,19 @@ final class ValueEntityService(
   override def componentOptions: Option[ComponentOptions] = entityOptions
 }
 
-final class ValueEntitiesImpl(system: ActorSystem, val services: Map[String, ValueEntityService])
+final class ValueEntitiesImpl(
+    system: ActorSystem,
+    val services: Map[String, ValueEntityService],
+    configuration: Configuration)
     extends ValueEntities {
 
   import EntityExceptions._
 
   private implicit val ec: ExecutionContext = system.dispatcher
   private final val log = LoggerFactory.getLogger(this.getClass)
+
+  private val pbCleanupDeletedValueEntityAfter =
+    Some(com.google.protobuf.duration.Duration(configuration.cleanupDeletedValueEntityAfter))
 
   /**
    * One stream will be established per active entity. Once established, the first message sent will be Init, which
@@ -175,8 +182,8 @@ final class ValueEntitiesImpl(system: ActorSystem, val services: Map[String, Val
 
             case _ => // non-error
               val action: Option[ValueEntityAction] = effect.primaryEffect match {
-                case DeleteState =>
-                  Some(ValueEntityAction(Delete(ValueEntityDelete())))
+                case DeleteEntity =>
+                  Some(ValueEntityAction(Delete(ValueEntityDelete(pbCleanupDeletedValueEntityAfter))))
                 case UpdateState(newState) =>
                   val newStateScalaPbAny = service.messageCodec.encodeScala(newState)
                   Some(ValueEntityAction(Update(ValueEntityUpdate(Some(newStateScalaPbAny)))))

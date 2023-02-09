@@ -180,6 +180,11 @@ public abstract class EventSourcedEntity<S> {
     interface OnSuccessBuilder<S> {
 
       /**
+       * Delete the entity. No addition events are allowed.
+       */
+      OnSuccessBuilder<S> deleteEntity();
+
+      /**
        * Reply after for example <code>emitEvent</code>.
        *
        * @param replyMessage Function to create the reply message from the new state.

@@ -64,7 +64,7 @@ public class UserEntity extends ValueEntity<User> {
 
   @DeleteMapping
   public Effect<String> deleteUser() {
-    return effects().deleteState().thenReply("Ok from delete");
+    return effects().deleteEntity().thenReply("Ok from delete");
   }
 
   @PostMapping("/restart")

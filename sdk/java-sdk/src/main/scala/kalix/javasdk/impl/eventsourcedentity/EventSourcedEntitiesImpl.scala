@@ -106,6 +106,9 @@ final class EventSourcedEntitiesImpl(
     (name, if (service.snapshotEvery == 0) service.withSnapshotEvery(configuration.snapshotEvery) else service)
   }.toMap
 
+  private val pbCleanupDeletedEventSourcedEntityAfter =
+    Some(com.google.protobuf.duration.Duration(configuration.cleanupDeletedEventSourcedEntityAfter))
+
   /**
    * The stream. One stream will be established per active entity. Once established, the first message sent will be
    * Init, which contains the entity ID, and, if the entity has previously persisted a snapshot, it will contain that
@@ -182,7 +185,8 @@ final class EventSourcedEntitiesImpl(
             events: Vector[Any],
             secondaryEffect: SecondaryEffectImpl,
             snapshot: Option[Any],
-            endSequenceNumber) =
+            endSequenceNumber,
+            deleteEntity) =
             try {
               router._internalHandleCommand(
                 command.name,
@@ -218,6 +222,7 @@ final class EventSourcedEntitiesImpl(
                 events.map(event => ScalaPbAny.fromJavaProto(service.messageCodec.encodeJava(event)))
               val serializedSnapshot =
                 snapshot.map(state => ScalaPbAny.fromJavaProto(service.messageCodec.encodeJava(state)))
+              val delete = if (deleteEntity) pbCleanupDeletedEventSourcedEntityAfter else None
               (
                 endSequenceNumber,
                 Some(
@@ -227,7 +232,8 @@ final class EventSourcedEntitiesImpl(
                       clientAction,
                       EffectSupport.sideEffectsFrom(service.messageCodec, serializedSecondaryEffect),
                       serializedEvents,
-                      serializedSnapshot))))
+                      serializedSnapshot,
+                      delete))))
           }
         case ((sequence, _), InSnapshotRequest(request)) =>
           val reply =

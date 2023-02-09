@@ -22,5 +22,6 @@ make examples dev-html
 Docs are automatically published on releases. To deploy the docs manually run:
 
 ```
+git fetch --tags
 make deploy
 ```

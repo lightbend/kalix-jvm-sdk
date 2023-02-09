@@ -204,11 +204,11 @@ When modeling your queries, the following data types are supported:
 | Array
 | `Collection<T>` and derived
 
-// not supported at the moment, see https://github.com/lightbend/kalix-jvm-sdk/issues/1391
-//| Timestamp
-//| `Instant`
-
+| Timestamp
+| `java.time.Instant`
 |===
+
+NOTE: `Instant` are only supported for queries with a `@RequestBody`. It's currently not possible to pass an `Instant` as a `@PathVariable` or `@RequestParam`.
 
 ==== Optional fields
 

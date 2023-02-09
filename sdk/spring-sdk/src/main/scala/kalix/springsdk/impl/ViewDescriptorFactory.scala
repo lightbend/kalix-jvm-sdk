@@ -75,6 +75,7 @@ private[impl] object ViewDescriptorFactory extends ComponentDescriptorFactory {
 
           val tableName: String = component.getAnnotation(classOf[Table]).value()
           val tableTypeDescriptor = ProtoMessageDescriptors.generateMessageDescriptors(tableType)
+
           val tableProtoMessageName = tableTypeDescriptor.mainMessageDescriptor.getName
 
           val hasMethodLevelEventSourcedEntitySubs = component.getMethods.exists(hasEventSourcedEntitySubscription)

@@ -26,6 +26,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -65,7 +66,7 @@ public class SpringWorkflowIntegrationTest {
     ResponseEntity<Void> response = webClient.put().uri(transferUrl)
         .bodyValue(transfer)
         .retrieve()
-        .onStatus(HttpStatus::is4xxClientError, clientResponse ->
+        .onStatus(HttpStatusCode::is4xxClientError, clientResponse ->
             Mono.empty()
         )
         .toBodilessEntity()

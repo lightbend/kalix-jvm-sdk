@@ -110,7 +110,12 @@ public class EventSourcedEntityIntegrationTest {
     restartCounterEntity(counterId);
 
     // current state is based on snapshot and should be the same as previously
-    Assertions.assertEquals(10, getCounter(counterId));
+    await()
+      .ignoreExceptions()
+      .atMost(20, TimeUnit.of(SECONDS))
+      .until(
+        () -> getCounter(counterId),
+        new IsEqual(10));
   }
 
   private Integer increaseCounter(String name, int value) {

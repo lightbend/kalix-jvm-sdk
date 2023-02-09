@@ -42,6 +42,9 @@ private[scalasdk] final case class EventSourcedEntityEffectImpl[R, S](
   def emitEvents(event: List[_]): EventSourcedEntity.Effect.OnSuccessBuilder[S] =
     EventSourcedEntityEffectImpl(javasdkEffect.emitEvents(event.asJava))
 
+  def deleteEntity(): EventSourcedEntity.Effect.OnSuccessBuilder[S] = EventSourcedEntityEffectImpl(
+    javasdkEffect.deleteEntity())
+
   def error[T](description: String): EventSourcedEntity.Effect[T] =
     EventSourcedEntityEffectImpl(javasdkEffect.error[T](description))
 

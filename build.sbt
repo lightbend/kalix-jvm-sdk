@@ -21,8 +21,8 @@ lazy val `kalix-jvm-sdk` = project
 
 def common: Seq[Setting[_]] =
   Seq(
-    Compile / javacOptions ++= Seq("-encoding", "UTF-8", "--release", "11"),
-    Compile / scalacOptions ++= Seq("-encoding", "UTF-8", "-release", "11", "-deprecation"))
+    Compile / javacOptions ++= Seq("-encoding", "UTF-8"),
+    Compile / scalacOptions ++= Seq("-encoding", "UTF-8", "-deprecation"))
 
 lazy val sdkCore = project
   .in(file("sdk/core"))
@@ -31,6 +31,8 @@ lazy val sdkCore = project
   .settings(
     name := "kalix-jvm-core-sdk",
     crossPaths := false,
+    Compile / javacOptions ++= Seq("--release", "11"),
+    Compile / scalacOptions ++= Seq("-release", "11"),
     // Generate javadocs by just including non generated Java sources
     Compile / doc / sources := {
       val javaSourceDir = (Compile / javaSource).value.getAbsolutePath
@@ -46,6 +48,8 @@ lazy val sdkJava = project
   .settings(
     name := "kalix-java-sdk",
     crossPaths := false,
+    Compile / javacOptions ++= Seq("--release", "11"),
+    Compile / scalacOptions ++= Seq("-release", "11"),
     buildInfoKeys := Seq[BuildInfoKey](
       name,
       version,
@@ -88,6 +92,8 @@ lazy val sdkJavaTestKit = project
   .settings(
     name := "kalix-java-sdk-testkit",
     crossPaths := false,
+    Compile / javacOptions ++= Seq("--release", "11"),
+    Compile / scalacOptions ++= Seq("-release", "11"),
     buildInfoKeys := Seq[BuildInfoKey](
       name,
       version,
@@ -123,6 +129,8 @@ lazy val sdkSpring = project
   .settings(
     name := "kalix-spring-sdk",
     crossPaths := false,
+    Compile / javacOptions ++= Seq("--release", "17"),
+    Compile / scalacOptions ++= Seq("-release", "17"),
     buildInfoObject := "SpringSdkBuildInfo",
     buildInfoKeys := Seq[BuildInfoKey](
       name,
@@ -133,8 +141,7 @@ lazy val sdkSpring = project
     buildInfoPackage := "kalix.springsdk",
     Compile / akkaGrpcGeneratedSources := Seq(AkkaGrpc.Server),
     Compile / akkaGrpcGeneratedLanguages := Seq(AkkaGrpc.Scala),
-    Test / javacOptions ++= Seq("-parameters", "--release", "17"), // for Jackson
-    Test / scalacOptions ++= Seq("-release", "17"),
+    Test / javacOptions ++= Seq("-parameters"), // for Jackson
     IntegrationTest / javacOptions += "-parameters", // for Jackson
     // Generate javadocs by just including non generated Java sources
     Compile / doc / sources := {
@@ -165,6 +172,8 @@ lazy val sdkSpringTestKit = project
   .settings(
     name := "kalix-spring-sdk-testkit",
     crossPaths := false,
+    Compile / javacOptions ++= Seq("--release", "17"),
+    Compile / scalacOptions ++= Seq("-release", "17"),
     buildInfoKeys := Seq[BuildInfoKey](
       name,
       version,
@@ -198,6 +207,8 @@ lazy val sdkScala = project
   .settings(common)
   .settings(
     name := "kalix-scala-sdk",
+    Compile / javacOptions ++= Seq("--release", "11"),
+    Compile / scalacOptions ++= Seq("-release", "11"),
     buildInfoObject := "ScalaSdkBuildInfo",
     buildInfoKeys := Seq[BuildInfoKey](
       name,
@@ -225,6 +236,8 @@ lazy val sdkScalaTestKit = project
   .settings(common)
   .settings(
     name := "kalix-scala-sdk-testkit",
+    Compile / javacOptions ++= Seq("--release", "11"),
+    Compile / scalacOptions ++= Seq("-release", "11"),
     buildInfoKeys := Seq[BuildInfoKey](
       name,
       version,
@@ -267,6 +280,8 @@ lazy val tckJava = project
   .settings(common)
   .settings(
     name := "kalix-tck-java-sdk",
+    Compile / javacOptions ++= Seq("--release", "11"),
+    Compile / scalacOptions ++= Seq("-release", "11"),
     akkaGrpcGeneratedLanguages := Seq(AkkaGrpc.Java),
     ReflectiveCodeGen.copyUnmanagedSources := true,
     Compile / mainClass := Some("kalix.javasdk.tck.JavaSdkTck"),
@@ -281,6 +296,8 @@ lazy val tckScala = project
   .settings(common)
   .settings(
     name := "kalix-tck-scala-sdk",
+    Compile / javacOptions ++= Seq("--release", "11"),
+    Compile / scalacOptions ++= Seq("-release", "11"),
     akkaGrpcGeneratedLanguages := Seq(AkkaGrpc.Scala),
     libraryDependencies ++= Seq(Dependencies.kalixSdkProtocol % "protobuf-src"),
     ReflectiveCodeGen.copyUnmanagedSources := true,
@@ -301,6 +318,8 @@ lazy val codegenCore =
     .settings(Dependencies.codegenCore)
     .settings(Compile / akkaGrpcGeneratedLanguages := Seq(AkkaGrpc.Java))
     .settings(
+      Compile / javacOptions ++= Seq("--release", "11"),
+      Compile / scalacOptions ++= Seq("-release", "11"),
       crossScalaVersions := Dependencies.ScalaVersionForCodegen,
       scalaVersion := Dependencies.ScalaVersionForCodegen.head)
 
@@ -326,6 +345,8 @@ lazy val codegenJava =
     .settings(name := "kalix-codegen-java", testFrameworks += new TestFramework("munit.Framework"))
     .settings(Dependencies.codegenJava)
     .settings(
+      Compile / javacOptions ++= Seq("--release", "11"),
+      Compile / scalacOptions ++= Seq("-release", "11"),
       crossScalaVersions := Dependencies.ScalaVersionForCodegen,
       scalaVersion := Dependencies.ScalaVersionForCodegen.head)
 
@@ -393,6 +414,8 @@ lazy val codegenScala =
     .settings(common)
     .settings(
       name := "kalix-codegen-scala",
+      Compile / javacOptions ++= Seq("--release", "11"),
+      Compile / scalacOptions ++= Seq("-release", "11"),
       scalaVersion := Dependencies.ScalaVersionForSbtPlugin,
       Test / fork := false, // needed to pass -D properties to ExampleSuite
       buildInfoKeys := Seq[BuildInfoKey](
@@ -449,6 +472,8 @@ lazy val sbtPlugin = Project(id = "sbt-kalix", base = file("sbt-plugin"))
   .settings(Dependencies.sbtPlugin)
   .settings(common)
   .settings(
+    Compile / javacOptions ++= Seq("--release", "11"),
+    Compile / scalacOptions ++= Seq("-release", "11"),
     scalaVersion := Dependencies.ScalaVersionForSbtPlugin,
     scriptedLaunchOpts := {
       scriptedLaunchOpts.value ++
