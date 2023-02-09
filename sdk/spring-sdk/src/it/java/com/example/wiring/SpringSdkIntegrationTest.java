@@ -536,7 +536,8 @@ public class SpringSdkIntegrationTest {
   @Test
   public void searchWithInstant() {
 
-    var now = Instant.now().truncatedTo(SECONDS);
+    var now = Instant.now().truncatedTo(ChronoUnit.MICROS);
+    System.out.println("Instant value: " + now.getEpochSecond() + ", " + now.getNano());
     createCustomer(new CustomerEntity.Customer("customer1", now));
 
     // the view is eventually updated
