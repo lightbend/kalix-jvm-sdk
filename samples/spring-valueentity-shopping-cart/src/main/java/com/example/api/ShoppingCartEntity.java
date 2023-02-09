@@ -113,7 +113,7 @@ public class ShoppingCartEntity extends ValueEntity<ShoppingCart> {
 
   @PostMapping("/remove")
   public ValueEntity.Effect<String> removeCart() {
-    return effects().deleteState().thenReply("OK");
+    return effects().deleteEntity().thenReply("OK");
   }
 // tag::summary[]
 }

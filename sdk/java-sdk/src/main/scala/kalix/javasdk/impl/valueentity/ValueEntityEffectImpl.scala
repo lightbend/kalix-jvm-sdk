@@ -33,7 +33,7 @@ import io.grpc.Status
 object ValueEntityEffectImpl {
   sealed trait PrimaryEffectImpl[+S]
   final case class UpdateState[S](newState: S) extends PrimaryEffectImpl[S]
-  case object DeleteState extends PrimaryEffectImpl[Nothing]
+  case object DeleteEntity extends PrimaryEffectImpl[Nothing]
   case object NoPrimaryEffect extends PrimaryEffectImpl[Nothing]
 }
 
@@ -52,10 +52,13 @@ class ValueEntityEffectImpl[S] extends Builder[S] with OnSuccessBuilder[S] with 
     this
   }
 
-  override def deleteState(): ValueEntityEffectImpl[S] = {
-    _primaryEffect = DeleteState
+  override def deleteEntity(): ValueEntityEffectImpl[S] = {
+    _primaryEffect = DeleteEntity
     this
   }
+
+  override def deleteState(): ValueEntityEffectImpl[S] =
+    deleteEntity()
 
   override def reply[T](message: T): ValueEntityEffectImpl[T] =
     reply(message, Metadata.EMPTY)

@@ -7,10 +7,9 @@
 
     <logger name="akka" level="INFO"/>
     <logger name="kalix" level="INFO"/>
-    <logger name="akka.http" level="INFO"/>
-    <logger name="io.grpc" level="INFO"/>
-    <logger name="org.testcontainers" level="INFO"/>
     <logger name="com.github.dockerjava" level="INFO"/>
+    <logger name="io.grpc.netty" level="INFO"/>
+    <logger name="org.testcontainers" level="INFO"/>
 
     <root level="DEBUG">
         <appender-ref ref="STDOUT"/>

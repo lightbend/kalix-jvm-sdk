@@ -21,12 +21,7 @@ import kalix.springsdk.annotations.*;
 import kalix.springsdk.testmodels.eventsourcedentity.Employee;
 import kalix.springsdk.testmodels.eventsourcedentity.EmployeeEvent;
 import kalix.springsdk.testmodels.eventsourcedentity.EventSourcedEntitiesTestModels;
-import kalix.springsdk.testmodels.valueentity.AssignedCounter;
-import kalix.springsdk.testmodels.valueentity.AssignedCounterState;
-import kalix.springsdk.testmodels.valueentity.Counter;
-import kalix.springsdk.testmodels.valueentity.CounterState;
-import kalix.springsdk.testmodels.valueentity.User;
-import kalix.springsdk.testmodels.valueentity.UserEntity;
+import kalix.springsdk.testmodels.valueentity.*;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -532,5 +527,17 @@ public class ViewTestModels {
     @Table("assigned")
     @Subscribe.ValueEntity(AssignedCounter.class)
     public static class Assigned extends View<AssignedCounterState> {}
+  }
+
+  @ViewId("time-tracker-view")
+  @Table("time-tracker-view")
+  @Subscribe.ValueEntity(TimeTrackerEntity.class)
+  public static class TimeTrackerView extends View<TimeTrackerEntity.TimerState> {
+
+    @Query(value = "SELECT * FROM time-tracker-view WHERE name = :name")
+    @PostMapping("/timer/query2")
+    public TimeTrackerEntity.TimerState query2() {
+      return null;
+    }
   }
 }

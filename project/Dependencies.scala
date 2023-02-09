@@ -5,8 +5,8 @@ import sbt.Keys._
 object Dependencies {
   object Kalix {
     val ProtocolVersionMajor = 1
-    val ProtocolVersionMinor = 0
-    val ProxyVersion = System.getProperty("kalix-proxy.version", "1.0.33-17-7e0ad701")
+    val ProtocolVersionMinor = 1
+    val ProxyVersion = System.getProperty("kalix-proxy.version", "1.1.0")
   }
 
   // changing the Scala version of the Java SDK affects end users
@@ -19,16 +19,16 @@ object Dependencies {
   val AkkaVersion = "2.6.20"
   val AkkaHttpVersion = "10.2.10" // Note: should at least the Akka HTTP version required by Akka gRPC
   val ScalaTestVersion = "3.2.14"
-  val JacksonVersion = "2.13.4"
-  val JacksonDatabindVersion = "2.13.4.1"
+  val JacksonVersion = "2.14.1"
+  val JacksonDatabindVersion = "2.14.1"
   val DockerBaseImageVersion = "adoptopenjdk/openjdk11:debianslim-jre"
-  val LogbackVersion = "1.2.11"
+  val LogbackVersion = "1.4.5"
   val LogbackContribVersion = "0.1.5"
   val TestContainersVersion = "1.17.5"
   val JUnitVersion = "4.13.2"
   val JUnitInterfaceVersion = "0.11"
   val JUnitJupiterVersion = "5.7.1"
-  val SpringVersion = "2.7.4"
+  val SpringVersion = "3.0.2"
 
   val CommonsIoVersion = "2.11.0"
   val MunitVersion = "0.7.29"
@@ -42,6 +42,11 @@ object Dependencies {
   val logback = "ch.qos.logback" % "logback-classic" % LogbackVersion
   val logbackJson = "ch.qos.logback.contrib" % "logback-json-classic" % LogbackContribVersion
   val logbackJackson = "ch.qos.logback.contrib" % "logback-jackson" % LogbackContribVersion
+
+  // akka-slf4j pulls in slf4j-api v1.7.36 and but we want v2.0.6
+  // because of Logback v1.4.5 and because of Spring 3. Therefore we have to explicitly bump slf4j-api to v2.0.6.
+  // Version 2.0.6 is also problematic for Akka, but only when using the BehaviorTestKit which is not used in the SDK
+  val slf4jApi = "org.slf4j" % "slf4j-api" % "2.0.6"
 
   val protobufJava = "com.google.protobuf" % "protobuf-java" % ProtobufVersion
   val protobufJavaUtil = "com.google.protobuf" % "protobuf-java-util" % ProtobufVersion
@@ -89,6 +94,7 @@ object Dependencies {
     akkaDependency("akka-stream-testkit") % Test,
     akkaHttpDependency("akka-http-testkit") % Test,
     scalaTest % Test,
+    slf4jApi,
     logback,
     logbackJson,
     logbackJackson,
@@ -145,7 +151,7 @@ object Dependencies {
     //        See https://github.com/lightbend/kalix-jvm-sdk/issues/605
     //  kalixTckProtocol % "protobuf-src",
     //  "io.kalix" % "kalix-tck-protocol" % Kalix.ProxyVersion % "protobuf-src",
-    "ch.qos.logback" % "logback-classic" % LogbackVersion)
+    logback)
 
   val codegenCore = deps ++= Seq(
     protobufJava,

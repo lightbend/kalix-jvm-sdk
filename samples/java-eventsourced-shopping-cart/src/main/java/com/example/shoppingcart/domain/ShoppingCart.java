@@ -47,6 +47,8 @@ public class ShoppingCart extends AbstractShoppingCart { // <1>
   public Effect<Empty> addItem(
       ShoppingCartDomain.Cart currentState,
       ShoppingCartApi.AddLineItem command) {
+    if (currentState.getCheckedOut())
+      return effects().error("Cart is already checked out.");
     if (command.getQuantity() <= 0) { // <1>
       return effects().error("Quantity for item " + command.getProductId() + " must be greater than zero.");
     }
@@ -71,6 +73,8 @@ public class ShoppingCart extends AbstractShoppingCart { // <1>
   public Effect<Empty> removeItem(
       ShoppingCartDomain.Cart currentState,
       ShoppingCartApi.RemoveLineItem command) {
+    if (currentState.getCheckedOut())
+      return effects().error("Cart is already checked out.");
     if (findItemByProductId(currentState, command.getProductId()).isEmpty()) {
       return effects()
           .error(
@@ -96,7 +100,9 @@ public class ShoppingCart extends AbstractShoppingCart { // <1>
             .sorted(Comparator.comparing(ShoppingCartApi.LineItem::getProductId))
             .collect(Collectors.toList());
     ShoppingCartApi.Cart apiCart =
-            ShoppingCartApi.Cart.newBuilder().addAllItems(apiItems).build(); // <2>
+            ShoppingCartApi.Cart.newBuilder().addAllItems(apiItems)
+                .setCheckedOut(currentState.getCheckedOut())
+                .build(); // <2>
     return effects().reply(apiCart);
   }
 
@@ -108,6 +114,18 @@ public class ShoppingCart extends AbstractShoppingCart { // <1>
             .build();
   }
   // end::getCart[]
+
+  // tag::checkout[]
+  @Override
+  public Effect<Empty> checkout(ShoppingCartDomain.Cart currentState, ShoppingCartApi.CheckoutShoppingCart checkoutShoppingCart) {
+    if (currentState.getCheckedOut())
+      return effects().error("Cart is already checked out.");
+    return effects()
+        .emitEvent(ShoppingCartDomain.CheckedOut.getDefaultInstance()) // <1>
+        .deleteEntity() // <2>
+        .thenReply(newState -> Empty.getDefaultInstance());
+  }
+  // end::checkout[]
 
   // tag::itemAdded[]
   @Override
@@ -157,4 +175,11 @@ public class ShoppingCart extends AbstractShoppingCart { // <1>
         .collect(Collectors.toList());
   }
   // end::itemAdded[]
+
+  @Override
+  public ShoppingCartDomain.Cart checkedOut(
+      ShoppingCartDomain.Cart currentState,
+      ShoppingCartDomain.CheckedOut checkedOut) {
+    return ShoppingCartDomain.Cart.newBuilder(currentState).setCheckedOut(true).build();
+  }
 }

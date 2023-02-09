@@ -81,7 +81,7 @@ final class ValueEntityResultImpl[R](effect: ValueEntityEffectImpl[R]) extends V
     }
 
   override def stateWasDeleted: Boolean =
-    primaryEffect eq JValueEntityEffectImpl.DeleteState
+    primaryEffect eq JValueEntityEffectImpl.DeleteEntity
 
   override def sideEffects: Seq[DeferredCallDetails[_, _]] =
     EffectUtils.toDeferredCallDetails(secondaryEffect.sideEffects)

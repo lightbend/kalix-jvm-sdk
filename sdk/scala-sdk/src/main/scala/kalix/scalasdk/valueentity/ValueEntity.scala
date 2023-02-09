@@ -34,6 +34,15 @@ object ValueEntity {
 
       def updateState(newState: S): OnSuccessBuilder[S]
 
+      /**
+       * Delete the entity. No additional updates are allowed afterwards.
+       */
+      def deleteEntity(): OnSuccessBuilder[S]
+
+      /**
+       * Delete the entity. No additional updates are allowed afterwards.
+       */
+      @deprecated("Renamed to deleteEntity", "1.1.5")
       def deleteState(): OnSuccessBuilder[S]
 
       /**

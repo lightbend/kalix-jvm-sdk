@@ -16,9 +16,13 @@
 
 package kalix.springsdk.testmodels;
 
-import kalix.springsdk.testmodels.SimpleMessage;
+import java.util.List;
 
 public class NestedMessage {
-  public String one;
-  public SimpleMessage two;
+  public String string;
+  public SimpleMessage simpleMessage;
+
+  public InstantWrapper instantWrapper;
+  public List<InstantEntryForList> instantsList;
+  public InstantEntryForArray[] instantArrays;
 }

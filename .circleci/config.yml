@@ -1351,7 +1351,7 @@ jobs:
 
   publish:
     docker:
-      - image: circleci/openjdk:11
+      - image: cimg/openjdk:17.0
     steps:
       - checkout
       - setup_sbt
@@ -1361,7 +1361,7 @@ jobs:
 
   publish-maven:
     docker:
-      - image: circleci/openjdk:11
+      - image: cimg/openjdk:17.0
     steps:
       - checkout
       - restore_deps_cache
@@ -1425,7 +1425,7 @@ jobs:
       # deploy key for pushing docs to branch
       - add_ssh_keys:
           fingerprints:
-            - "fd:fd:d3:9d:88:2c:df:5c:5d:b9:c0:2f:43:c6:b8:82"
+            - "92:20:53:ff:db:d1:3f:f3:79:85:53:b5:9e:4b:b4:b4"
       - run:
           name: Publish docs
           command: make -C docs deploy

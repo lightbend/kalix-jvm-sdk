@@ -156,32 +156,6 @@ include::java:example$scala-valueentity-counter/src/main/scala/com/example/domai
 <3> We store the new state by returning an `Effect` with `effects.updateState`.
 <4> The acknowledgment that the command was successfully processed is only sent if the state update was successful, otherwise there will be an error reply.
 
-=== Deleting state
-
-The next example shows how to delete a Value Entity state by returning special `deleteState()` effect.
-
-NOTE: After deleting the Value Entity it is possible to create it again, with the same entity ID.
-
-[.tabset]
-Java::
-+
-[source,java,indent=0]
-./src/main/java/com/example/domain/Counter.java
-----
-include::java:example$java-valueentity-counter/src/main/java/com/example/domain/Counter.java[tag=delete]
-----
-<1> We delete the state by returning an `Effect` with `effects().deleteState()`.
-
-Scala::
-+
-[source,scala,indent=0]
-./src/main/java/com/example/domain/Counter.scala
-----
-include::java:example$scala-valueentity-counter/src/main/scala/com/example/domain/Counter.scala[tag=delete]
-----
-<1> We delete the state by returning an `Effect` with `effects.deleteState()`.
-
-
 === Retrieving state
 
 The following example shows the implementation of the `GetCurrentCounter` command handler. This command handler is a read-only command handler--it doesn't update the state, it just returns it:
@@ -234,6 +208,39 @@ include::java:example$scala-valueentity-counter/src/main/scala/com/example/Main.
 By default, the generated constructor has a `ValueEntityContext` parameter, but you can change this to accept other parameters. If you change the constructor of the `Counter` class you will see a compilation error here, and you have to adjust the factory function that is passed to `KalixFactory.withComponents`.
 
 When more components are added the `KalixFactory` is regenerated, and you have to adjust the registration from the `Main` class.
+
+=== Deleting state
+
+The next example shows how to delete a Value Entity state by returning special `deleteEntity()` effect.
+
+[.tabset]
+Java::
++
+[source,java,indent=0]
+./src/main/java/com/example/domain/Counter.java
+----
+include::java:example$java-valueentity-counter/src/main/java/com/example/domain/Counter.java[tag=delete]
+----
+<1> We delete the state by returning an `Effect` with `effects().deleteEntity()`.
+
+Scala::
++
+[source,scala,indent=0]
+./src/main/java/com/example/domain/Counter.scala
+----
+include::java:example$scala-valueentity-counter/src/main/scala/com/example/domain/Counter.scala[tag=delete]
+----
+<1> We delete the state by returning an `Effect` with `effects.deleteEntity()`.
+
+When you give the instruction to delete the entity it will still exist with an empty state for some time. The actual removal happens later to give downstream consumers time to process the change. By default, the existence of the entity is completely cleaned up after a week.
+
+It is not allowed to make further changes after the entity has been "marked" as deleted. You can still handle read requests of the entity until it has been completely removed, but be the current state will be empty.
+
+NOTE: If you want to make changes after deleting the state you should use the `updateState` effect with an empty state, as a logical delete, instead of using `deleteEntity`.
+
+It is best to not reuse the same entity key after deletion, but if that happens after the entity has been completely removed it will be instantiated as a completely new entity without any knowledge of previous state.
+
+Note that xref:views.adoc#ve_delete[deleting View state] must be handled explicitly.
 
 == Testing the Entity
 

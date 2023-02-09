@@ -84,6 +84,10 @@ function __deploy_checkout {
     info "Cloning $repo repository ..."
     git clone --origin upstream $repo_url "$dir"
   fi
+  if [ $? -ne 0 ]; then
+    error "Failed to clone/fetch repository"
+    exit 1
+  fi
   local local_branch_exists=$(git -C "$dir" rev-parse --verify $branch &> /dev/null; echo $?)
   local remote_branch_exists=$(git -C "$dir" ls-remote --exit-code --heads $repo_url $branch &> /dev/null; echo $?)
   if [ $local_branch_exists -ne 0 ] && [ $remote_branch_exists -ne 0 ] ; then

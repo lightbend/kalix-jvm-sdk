@@ -39,7 +39,9 @@ object ValueEntityMessages extends EntityMessages {
       copy(valueEntityAction = Some(ValueEntityAction(Update(ValueEntityUpdate(messagePayload(message))))))
 
     def withDeleteAction(): Effects =
-      copy(valueEntityAction = Some(ValueEntityAction(Delete(ValueEntityDelete()))))
+      copy(valueEntityAction = Some(
+        ValueEntityAction(Delete(ValueEntityDelete(cleanupAfter =
+          Some(com.google.protobuf.duration.Duration.of(7 * 24 * 60 * 60, 0 /* 7 days default config */ )))))))
 
     def withSideEffect(service: String, command: String, message: ScalaPbMessage, synchronous: Boolean): Effects =
       withSideEffect(service, command, messagePayload(message), synchronous)

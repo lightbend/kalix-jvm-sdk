@@ -186,6 +186,7 @@
           <arguments>
             <argument>-classpath</argument>
             <classpath/>
+            <argument>-Dlogging.config=src/main/resources/logback-dev-mode.xml</argument>
             <argument>${mainClass}</argument>
           </arguments>
           <environmentVariables>
@@ -262,7 +263,12 @@
       <plugin>
        <groupId>org.springframework.boot</groupId>
        <artifactId>spring-boot-maven-plugin</artifactId>
-       <version>2.7.4</version>
+       <version>3.0.2</version>
+        <configuration>
+            <systemPropertyVariables>
+                <logging.config>src/main/resources/logback-dev-mode.xml</logging.config>
+            </systemPropertyVariables>
+          </configuration>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -322,7 +328,7 @@
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-test</artifactId>
-      <version>2.7.0</version>
+      <version>3.0.2</version>
       <scope>test</scope>
     </dependency>
 

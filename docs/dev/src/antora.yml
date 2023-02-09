@@ -2,5 +2,5 @@ name: ""
 version: master
 
 nav:
-- modules/java/nav.adoc
-- modules/spring/nav.adoc
+  - modules/spring/nav.adoc
+  - modules/java/nav.adoc

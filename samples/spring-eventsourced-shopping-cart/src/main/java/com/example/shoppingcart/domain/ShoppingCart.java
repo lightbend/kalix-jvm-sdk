@@ -7,7 +7,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 // tag::domain[]
-public record ShoppingCart(String cartId, List<LineItem> items) { // <1>
+public record ShoppingCart(String cartId, List<LineItem> items, boolean checkedOut) { // <1>
 
   public record LineItem(String productId, String name, int quantity) { // <2>
     // end::domain[]
@@ -26,7 +26,7 @@ public record ShoppingCart(String cartId, List<LineItem> items) { // <1>
         removeItemByProductId(this, item.productId()); // <2>
     lineItems.add(lineItem); // <3>
     lineItems.sort(Comparator.comparing(LineItem::productId));
-    return new ShoppingCart(cartId, lineItems); // <4>
+    return new ShoppingCart(cartId, lineItems, checkedOut); // <4>
   }
   // end::itemAdded[]
 
@@ -34,7 +34,7 @@ public record ShoppingCart(String cartId, List<LineItem> items) { // <1>
     List<LineItem> updatedItems =
         removeItemByProductId(this, itemRemoved.productId());
     updatedItems.sort(Comparator.comparing(LineItem::productId));
-    return new ShoppingCart(cartId, updatedItems);
+    return new ShoppingCart(cartId, updatedItems, checkedOut);
   }
 
   // tag::itemAdded[]
@@ -59,6 +59,11 @@ public record ShoppingCart(String cartId, List<LineItem> items) { // <1>
   }
 
   // end::itemAdded[]
+
+  public ShoppingCart onCheckedOut() {
+    return new ShoppingCart(cartId, items, true);
+  }
+
   // tag::domain[]
 }
 

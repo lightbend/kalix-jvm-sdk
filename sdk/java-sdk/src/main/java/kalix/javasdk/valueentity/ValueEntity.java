@@ -113,6 +113,17 @@ public abstract class ValueEntity<S> {
 
       OnSuccessBuilder<S> updateState(S newState);
 
+      /**
+       * Delete the entity. No additional updates are allowed afterwards.
+       */
+      OnSuccessBuilder<S> deleteEntity();
+
+      /**
+       * Delete the entity. No additional updates are allowed afterwards.
+       *
+       * @deprecated Renamed to deleteEntity
+       */
+      @Deprecated(since = "1.1.5", forRemoval = true)
       OnSuccessBuilder<S> deleteState();
 
       /**

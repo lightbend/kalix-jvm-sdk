@@ -21,6 +21,7 @@ import com.google.protobuf.AnyProto
 import com.google.protobuf.DescriptorProtos
 import com.google.protobuf.Descriptors
 import com.google.protobuf.EmptyProto
+import com.google.protobuf.TimestampProto
 import kalix.{ Annotations => KalixAnnotations }
 import org.slf4j.LoggerFactory
 
@@ -33,6 +34,7 @@ private[impl] object ProtoDescriptorGenerator {
     Array(
       AnyProto.getDescriptor,
       EmptyProto.getDescriptor,
+      TimestampProto.getDescriptor,
       HttpAnnotationsProto.getDescriptor,
       KalixAnnotations.getDescriptor)
 
@@ -51,6 +53,7 @@ private[impl] object ProtoDescriptorGenerator {
 
     protoBuilder.addDependency("google/protobuf/any.proto")
     protoBuilder.addDependency("google/protobuf/empty.proto")
+    protoBuilder.addDependency("google/protobuf/timestamp.proto")
     protoBuilder.addService(service)
     messages.foreach(protoBuilder.addMessageType)
 

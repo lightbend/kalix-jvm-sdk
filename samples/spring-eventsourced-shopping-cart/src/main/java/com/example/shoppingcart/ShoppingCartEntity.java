@@ -29,7 +29,7 @@ public class ShoppingCartEntity extends EventSourcedEntity<ShoppingCart> { // <1
 
   @Override
   public ShoppingCart emptyState() { // <2>
-    return new ShoppingCart(entityId, Collections.emptyList());
+    return new ShoppingCart(entityId, Collections.emptyList(), false);
   }
 
   // end::getCart[]
@@ -42,6 +42,8 @@ public class ShoppingCartEntity extends EventSourcedEntity<ShoppingCart> { // <1
   // tag::addItem[]
   @PostMapping("/add")
   public Effect<String> addItem(@RequestBody LineItem item) {
+    if (currentState().checkedOut())
+      return effects().error("Cart is already checked out.");
     if (item.quantity() <= 0) { // <1>
       return effects().error("Quantity for item " + item.productId() + " must be greater than zero.");
     }
@@ -57,6 +59,8 @@ public class ShoppingCartEntity extends EventSourcedEntity<ShoppingCart> { // <1
 
   @PostMapping("/items/{productId}/remove")
   public Effect<String> removeItem(@PathVariable String productId) {
+    if (currentState().checkedOut())
+      return effects().error("Cart is already checked out.");
     if (currentState().findItemByProductId(productId).isEmpty()) {
       return effects().error("Cannot remove item " + productId + " because it is not in the cart.");
     }
@@ -74,6 +78,20 @@ public class ShoppingCartEntity extends EventSourcedEntity<ShoppingCart> { // <1
     return effects().reply(currentState()); // <4>
   }
   // end::getCart[]
+
+  // tag::checkout[]
+  @PostMapping("/checkout")
+  public Effect<String> checkout() {
+    if (currentState().checkedOut())
+      return effects().error("Cart is already checked out.");
+
+    return effects()
+        .emitEvent(new ShoppingCartEvent.CheckedOut()) // <1>
+        .deleteEntity() // <2>
+        .thenReply(newState -> "OK"); // <4>
+  }
+
+  // end::checkout[]
 
   // tag::addItem[]
   @EventHandler // <5>

@@ -16,6 +16,8 @@
 
 package kalix.springsdk.testmodels;
 
+import java.time.Instant;
+
 public class SimpleMessage {
   // all them primitives
   public char c;
@@ -38,4 +40,5 @@ public class SimpleMessage {
   // arrays
   public int[] iA;
   public String[] sA;
+  public Instant inst;
 }

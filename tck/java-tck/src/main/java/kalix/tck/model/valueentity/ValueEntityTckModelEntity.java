@@ -42,7 +42,7 @@ public class ValueEntityTckModelEntity extends AbstractValueEntityTckModelEntity
           break;
         case DELETE:
           value = "";
-          builder = effects().deleteState();
+          builder = effects().deleteEntity();
           break;
         case FORWARD:
           if (builder == null) {
