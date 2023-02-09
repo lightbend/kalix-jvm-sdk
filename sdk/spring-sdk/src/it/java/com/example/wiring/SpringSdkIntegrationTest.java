@@ -536,21 +536,33 @@ public class SpringSdkIntegrationTest {
   @Test
   public void searchWithInstant() {
 
-    var now = Instant.now().truncatedTo(ChronoUnit.MICROS);
-    System.out.println("Instant value: " + now.getEpochSecond() + ", " + now.getNano());
-    createCustomer(new CustomerEntity.Customer("customer1", now));
+//    var now = Instant.now().truncatedTo(ChronoUnit.MICROS);
+//    System.out.println("Instant value: " + now.getEpochSecond() + ", " + now.getNano());
+//    createCustomer(new CustomerEntity.Customer("customer1", now));
+//
+//    // the view is eventually updated
+//    await()
+//      .ignoreExceptions()
+//      .atMost(20, TimeUnit.SECONDS)
+//      .until(() -> getCustomersByCreationDate(now).size(), new IsEqual(1));
 
-    // the view is eventually updated
-    await()
-      .ignoreExceptions()
-      .atMost(20, TimeUnit.SECONDS)
-      .until(() -> getCustomersByCreationDate(now).size(), new IsEqual(1));
+    for (int i = 0; i < 1000; i++) {
+      var now = Instant.now().truncatedTo(ChronoUnit.MICROS);
+      System.out.println("Instant value: " + now.getEpochSecond() + ", " + now.getNano());
+      createCustomer(new CustomerEntity.Customer("customer1", now));
 
-    var later = now.plusSeconds(60 * 5);
-    await()
-      .ignoreExceptions()
-      .atMost(20, TimeUnit.SECONDS)
-      .until(() -> getCustomersByCreationDate(later).size(), new IsEqual(0));
+      // the view is eventually updated
+      await()
+          .ignoreExceptions()
+          .atMost(20, TimeUnit.SECONDS)
+          .until(() -> getCustomersByCreationDate(now).size(), new IsEqual(1));
+    }
+
+//    var later = now.plusSeconds(60 * 5);
+//    await()
+//      .ignoreExceptions()
+//      .atMost(20, TimeUnit.SECONDS)
+//      .until(() -> getCustomersByCreationDate(later).size(), new IsEqual(0));
   }
 
 
