@@ -7,13 +7,14 @@ import kalix.springsdk.annotations.EntityKey;
 import kalix.springsdk.annotations.EntityType;
 import kalix.springsdk.annotations.EventHandler;
 import org.springframework.web.bind.annotation.*;
+import store.product.domain.ProductEvent;
 
 import static store.product.domain.ProductEvent.*;
 
 @EntityType("product")
 @EntityKey("id")
 @RequestMapping("/product/{id}")
-public class ProductEntity extends EventSourcedEntity<Product> {
+public class ProductEntity extends EventSourcedEntity<Product, ProductEvent> {
 
   @GetMapping
   public Effect<Product> get() {

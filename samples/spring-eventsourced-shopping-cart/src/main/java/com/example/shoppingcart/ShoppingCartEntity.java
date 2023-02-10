@@ -17,7 +17,7 @@ import java.util.Collections;
 @EntityKey("cartId") // <2>
 @EntityType("shopping-cart") // <3>
 @RequestMapping("/cart/{cartId}") // <4>
-public class ShoppingCartEntity extends EventSourcedEntity<ShoppingCart> { // <1>
+public class ShoppingCartEntity extends EventSourcedEntity<ShoppingCart, ShoppingCartEvent> { // <1>
   // end::class[]
 
 // tag::getCart[]

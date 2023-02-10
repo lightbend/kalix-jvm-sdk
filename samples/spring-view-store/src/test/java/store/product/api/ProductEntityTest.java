@@ -14,7 +14,7 @@ public class ProductEntityTest {
   @Test
   public void testProductNameChange() {
 
-    EventSourcedTestKit<Product, ProductEntity> testKit =
+    EventSourcedTestKit<Product, ProductEvent, ProductEntity> testKit =
         EventSourcedTestKit.of(ProductEntity::new);
 
     {
@@ -38,7 +38,7 @@ public class ProductEntityTest {
   @Test
   public void testProductPriceChange() {
 
-    EventSourcedTestKit<Product, ProductEntity> testKit =
+    EventSourcedTestKit<Product, ProductEvent, ProductEntity> testKit =
         EventSourcedTestKit.of(ProductEntity::new);
 
     {
