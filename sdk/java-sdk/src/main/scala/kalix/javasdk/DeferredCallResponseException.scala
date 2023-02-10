@@ -14,28 +14,10 @@
  * limitations under the License.
  */
 
-package kalix.javasdk;
+package kalix.javasdk
 
-/**
- * Exception used when a DeferredCall fails to wrap the origin error, plus the error code associated.
- */
-public interface DeferredCallResponseException {
+import kalix.javasdk.StatusCode.ErrorCode
 
-  /**
-   * A description of the original problem that caused the error.
-   */
-  String description();
-
-  /**
-   * The error code associated with the failure.
-   * E.g. if the original call fails with a 404 this will return a StatusCode.NOT_FOUND.
-   */
-  StatusCode.ErrorCode errorCode();
-
-  /**
-   * The original exception that caused the deferred call to fail.
-   */
-  Throwable cause();
-}
-
-
+/** Exception used when a DeferredCall fails to wrap the origin error, plus the error code associated. */
+case class DeferredCallResponseException(description: String, errorCode: ErrorCode, cause: Throwable)
+    extends RuntimeException(cause)

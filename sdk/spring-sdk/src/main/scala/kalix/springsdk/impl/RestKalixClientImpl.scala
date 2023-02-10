@@ -259,7 +259,7 @@ final class RestKalixClientImpl(messageCodec: SpringSdkMessageCodec) extends Kal
       asyncCall = () =>
         asyncCall().exceptionally {
           case responseException: WebClientResponseException =>
-            throw DeferredCallResponseExceptionImpl(
+            throw DeferredCallResponseException(
               responseException.getMessage,
               fromWebClientResponse(responseException),
               responseException)
@@ -283,13 +283,6 @@ final class RestKalixClientImpl(messageCodec: SpringSdkMessageCodec) extends Kal
   }
 
 }
-
-case class DeferredCallResponseExceptionImpl(
-    override val description: String,
-    override val errorCode: ErrorCode,
-    override val cause: Throwable)
-    extends RuntimeException(cause)
-    with DeferredCallResponseException
 
 final case class HttpMethodNotFoundException(httpMethod: HttpMethod, uriStr: String)
     extends RuntimeException(s"No matching service for method=$httpMethod path=$uriStr")
