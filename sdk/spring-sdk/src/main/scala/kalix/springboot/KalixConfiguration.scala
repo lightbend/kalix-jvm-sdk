@@ -22,6 +22,7 @@ import kalix.springsdk.impl.KalixSpringApplication
 import org.springframework.beans.factory.config.BeanPostProcessor
 import org.springframework.boot.autoconfigure.AutoConfiguration
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass
+import org.springframework.boot.autoconfigure.web.reactive.ReactiveWebServerFactoryAutoConfiguration
 import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.Bean
 import org.springframework.stereotype.Component
@@ -33,7 +34,13 @@ object KalixConfiguration {
     "In order to interact with a Kalix component, you should call it using the provided KalixClient."
 }
 
-@AutoConfiguration
+@AutoConfiguration(
+  // ReactiveWebServerFactoryAutoConfiguration is responsible for auto-configure the ReactiveWebServer
+  // it has different pre-defined configs, ie: Tomcat, Netty, Jetty. And it will load one of them if its server is in
+  // the classpath. It turns out that we need reactor-netty dependency for the WebClient, but we don't want Spring Boot
+  // to configure it as the main ReactiveWebServer. Therefore, we must require our AutoConfigure to be loaded
+  // before NettyReactiveWebServer is loaded
+  before = Array(classOf[ReactiveWebServerFactoryAutoConfiguration]))
 @ConditionalOnMissingClass(Array("kalix.springboot.KalixConfigurationTest"))
 class KalixConfiguration(applicationContext: ApplicationContext) {
 
@@ -41,12 +48,12 @@ class KalixConfiguration(applicationContext: ApplicationContext) {
   def config(): Config = ConfigFactory.load()
 
   @Bean
-  def kalixReactiveWebServerFactory(kalixSpringApplication: KalixSpringApplication): KalixReactiveWebServerFactory =
-    new KalixReactiveWebServerFactory(kalixSpringApplication)
-
-  @Bean
   def kalixSpringApplication(config: Config): KalixSpringApplication =
     new KalixSpringApplication(applicationContext, config)
+
+  @Bean
+  def kalixReactiveWebServerFactory(kalixSpringApplication: KalixSpringApplication) =
+    new KalixReactiveWebServerFactory(kalixSpringApplication)
 
   @Component
   class KalixComponentInjectionBlocker extends BeanPostProcessor {

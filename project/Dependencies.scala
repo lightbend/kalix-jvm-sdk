@@ -127,6 +127,7 @@ object Dependencies {
     "org.springframework.boot" % "spring-boot" % SpringBootVersion,
     "org.springframework.boot" % "spring-boot-starter" % SpringBootVersion,
     "org.springframework.boot" % "spring-boot-starter-json" % SpringBootVersion,
+    "org.springframework.boot" % "spring-boot-starter-reactor-netty" % SpringBootVersion,
     "jakarta.websocket" % "jakarta.websocket-api" % "2.0.0")
 
   val sdkSpring = deps ++= coreDeps ++ springDeps ++ Seq(
