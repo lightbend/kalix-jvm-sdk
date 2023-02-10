@@ -10,7 +10,7 @@ import org.example.eventsourcedentity.domain.CounterDomain;
 // It will be re-generated to reflect any changes to your protobuf definitions.
 // DO NOT EDIT
 
-public abstract class AbstractCounterServiceEntity extends EventSourcedEntity<CounterDomain.CounterState> {
+public abstract class AbstractCounterServiceEntity extends EventSourcedEntity<CounterDomain.CounterState, Object> {
 
   protected final Components components() {
     return new ComponentsImpl(commandContext());

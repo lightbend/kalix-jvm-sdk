@@ -27,7 +27,7 @@ import java.util.function.Function;
 
 /** An event sourced entity provider */
 public class EventSourcedEntityTwoProvider
-    implements EventSourcedEntityProvider<String, EventSourcedEntityTwo> {
+    implements EventSourcedEntityProvider<String, Object, EventSourcedEntityTwo> {
 
   private final Function<EventSourcedEntityContext, EventSourcedEntityTwo> entityFactory;
   private final EventSourcedEntityOptions options;

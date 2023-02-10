@@ -24,4 +24,4 @@ import org.springframework.stereotype.Component;
 @EntityKey("id")
 @EntityType("test")
 @Component
-public class IllDefinedEventSourcedEntity extends EventSourcedEntity<String> {}
+public class IllDefinedEventSourcedEntity extends EventSourcedEntity<String, Object> {}

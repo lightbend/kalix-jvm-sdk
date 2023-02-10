@@ -24,11 +24,11 @@ import com.typesafe.config.{ Config, ConfigFactory }
 import kalix.javasdk.eventsourcedentity.EventSourcedEntityProvider
 
 object TestEventSourced {
-  def service(entityProvider: EventSourcedEntityProvider[_, _]): TestEventSourcedService =
+  def service(entityProvider: EventSourcedEntityProvider[_, _, _]): TestEventSourcedService =
     new TestEventSourcedService(entityProvider)
 }
 
-class TestEventSourcedService(entityProvider: EventSourcedEntityProvider[_, _]) {
+class TestEventSourcedService(entityProvider: EventSourcedEntityProvider[_, _, _]) {
   val port: Int = SocketUtil.temporaryLocalPort()
 
   val config: Config = ConfigFactory.load(ConfigFactory.parseString(s"""

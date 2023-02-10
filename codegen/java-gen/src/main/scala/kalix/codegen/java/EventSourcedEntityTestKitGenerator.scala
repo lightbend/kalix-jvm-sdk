@@ -72,7 +72,7 @@ object EventSourcedEntityTestKitGenerator {
           |/**
           | * TestKit for unit testing $entityClassName
           | */
-          |public final class ${testkitClassName} extends EventSourcedEntityEffectsRunner<$stateClassName> {
+          |public final class ${testkitClassName} extends EventSourcedEntityEffectsRunner<$stateClassName, Object> {
           |
           |  /**
           |   * Create a testkit instance of $entityClassName

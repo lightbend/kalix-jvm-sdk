@@ -25,7 +25,7 @@ import com.google.protobuf.Any;
 
 /** An event sourced entity handler */
 public class EventSourcedEntityTwoRouter
-    extends EventSourcedEntityRouter<String, EventSourcedEntityTwo> {
+    extends EventSourcedEntityRouter<String, Object, EventSourcedEntityTwo> {
 
   public EventSourcedEntityTwoRouter(EventSourcedEntityTwo entity) {
     super(entity);

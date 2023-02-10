@@ -81,7 +81,7 @@ object EventSourcedEntitySourceGenerator {
        | * An event sourced entity handler that is the glue between the Protobuf service <code>${service.messageType.name}</code>
        | * and the command and event handler methods in the <code>${entity.messageType.name}</code> class.
        | */
-       |public class ${className}Router extends EventSourcedEntityRouter<$stateType, ${entity.messageType.name}> {
+       |public class ${className}Router extends EventSourcedEntityRouter<$stateType, Object, ${entity.messageType.name}> {
        |
        |  public ${className}Router(${entity.messageType.name} entity) {
        |    super(entity);
@@ -146,7 +146,7 @@ object EventSourcedEntitySourceGenerator {
        | *
        | * Should be used with the <code>register</code> method in {@link kalix.javasdk.Kalix}.
        | */
-       |public class ${className}Provider implements EventSourcedEntityProvider<${entity.state.messageType.fullName}, $className> {
+       |public class ${className}Provider implements EventSourcedEntityProvider<${entity.state.messageType.fullName}, Object, $className> {
        |
        |  private final Function<EventSourcedEntityContext, $className> entityFactory;
        |  private final EventSourcedEntityOptions options;
@@ -301,7 +301,7 @@ object EventSourcedEntitySourceGenerator {
        |
        |$managedComment
        |
-       |public abstract class Abstract${className} extends EventSourcedEntity<${qualifiedType(entity.state.messageType)}> {
+       |public abstract class Abstract${className} extends EventSourcedEntity<${qualifiedType(entity.state.messageType)}, Object> {
        |
        |  protected final Components components() {
        |    return new ComponentsImpl(commandContext());

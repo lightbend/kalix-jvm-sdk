@@ -28,7 +28,7 @@ import java.util.function.Function;
 /**
  * TestKit for unit testing CounterServiceEntity
  */
-public final class CounterServiceEntityTestKit extends EventSourcedEntityEffectsRunner<CounterDomain.CounterState> {
+public final class CounterServiceEntityTestKit extends EventSourcedEntityEffectsRunner<CounterDomain.CounterState, Object> {
 
   /**
    * Create a testkit instance of CounterServiceEntity

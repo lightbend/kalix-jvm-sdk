@@ -20,7 +20,7 @@ import java.util.function.Function;
  *
  * Should be used with the <code>register</code> method in {@link kalix.javasdk.Kalix}.
  */
-public class CounterServiceEntityProvider implements EventSourcedEntityProvider<CounterDomain.CounterState, CounterServiceEntity> {
+public class CounterServiceEntityProvider implements EventSourcedEntityProvider<CounterDomain.CounterState, Object, CounterServiceEntity> {
 
   private final Function<EventSourcedEntityContext, CounterServiceEntity> entityFactory;
   private final EventSourcedEntityOptions options;

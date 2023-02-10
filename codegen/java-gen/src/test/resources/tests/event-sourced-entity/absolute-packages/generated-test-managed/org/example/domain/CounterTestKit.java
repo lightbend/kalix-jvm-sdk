@@ -30,7 +30,7 @@ import java.util.function.Function;
 /**
  * TestKit for unit testing Counter
  */
-public final class CounterTestKit extends EventSourcedEntityEffectsRunner<OuterCounterState.CounterState> {
+public final class CounterTestKit extends EventSourcedEntityEffectsRunner<OuterCounterState.CounterState, Object> {
 
   /**
    * Create a testkit instance of Counter

@@ -21,7 +21,7 @@ import kalix.springsdk.annotations.EventHandler;
 
 import java.util.List;
 
-public class CounterEventSourcedEntity extends EventSourcedEntity<Integer> {
+public class CounterEventSourcedEntity extends EventSourcedEntity<Integer, Increased> {
 
   public Effect<String> increaseBy(Integer value) {
     if (value <= 0) return effects().error("Can't increase with a negative value");

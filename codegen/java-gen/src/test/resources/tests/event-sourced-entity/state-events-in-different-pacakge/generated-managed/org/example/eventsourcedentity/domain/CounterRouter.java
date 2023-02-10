@@ -16,7 +16,7 @@ import org.example.eventsourcedentity.state.OuterCounterState;
  * An event sourced entity handler that is the glue between the Protobuf service <code>CounterService</code>
  * and the command and event handler methods in the <code>Counter</code> class.
  */
-public class CounterRouter extends EventSourcedEntityRouter<OuterCounterState.CounterState, Counter> {
+public class CounterRouter extends EventSourcedEntityRouter<OuterCounterState.CounterState, Object, Counter> {
 
   public CounterRouter(Counter entity) {
     super(entity);
