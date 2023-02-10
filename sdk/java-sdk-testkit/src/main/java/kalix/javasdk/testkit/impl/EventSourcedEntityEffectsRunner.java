@@ -31,7 +31,7 @@ public abstract class EventSourcedEntityEffectsRunner<S, E> {
 
   private EventSourcedEntity<S, E> entity;
   private S _state;
-  private List<E> events = new ArrayList();
+  private List<Object> events = new ArrayList();
 
   public EventSourcedEntityEffectsRunner(EventSourcedEntity<S, E> entity) {
     this.entity = entity;
@@ -47,7 +47,7 @@ public abstract class EventSourcedEntityEffectsRunner<S, E> {
   }
 
   /** @return All events emitted by command handlers of this entity up to now */
-  public List<E> getAllEvents() {
+  public List<Object> getAllEvents() {
     return events;
   }
 
@@ -58,7 +58,7 @@ public abstract class EventSourcedEntityEffectsRunner<S, E> {
    *
    * @return the result of the side effects
    */
-  protected <R> EventSourcedResult<R, E> interpretEffects(
+  protected <R> EventSourcedResult<R> interpretEffects(
       Supplier<EventSourcedEntity.Effect<R>> effect, Metadata metadata) {
     var commandContext = new TestKitEventSourcedEntityCommandContext(metadata);
     EventSourcedEntity.Effect<R> effectExecuted;
@@ -79,7 +79,7 @@ public abstract class EventSourcedEntityEffectsRunner<S, E> {
     } finally {
       entity._internalSetEventContext(Optional.empty());
     }
-    EventSourcedResult<R, E> result;
+    EventSourcedResult<R> result;
     try {
       entity._internalSetCommandContext(Optional.of(commandContext));
       var secondaryEffect = EventSourcedResultImpl.secondaryEffectOf(effectExecuted, _state);

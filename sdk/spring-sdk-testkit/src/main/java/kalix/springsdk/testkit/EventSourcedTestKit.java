@@ -104,7 +104,7 @@ public class EventSourcedTestKit<S, E, ES extends EventSourcedEntity<S, E>>
    * @return a EventSourcedResult
    * @param <R> The type of reply that is expected from invoking a command handler
    */
-  public <R> EventSourcedResult<R, E> call(Function<ES, EventSourcedEntity.Effect<R>> func) {
+  public <R> EventSourcedResult<R> call(Function<ES, EventSourcedEntity.Effect<R>> func) {
     return interpretEffects(() -> func.apply(entity), Metadata.EMPTY);
   }
 

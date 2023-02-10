@@ -45,8 +45,8 @@ private[kalix] object EventSourcedResultImpl {
     effect match {
       case ei: EventSourcedEntityEffectImpl[_, E @unchecked] =>
         ei.primaryEffect match {
-          case ee: EmitEvents[E]       => ee.event.toList.asJava
-          case _: NoPrimaryEffect.type => Collections.emptyList()
+          case ee: EmitEvents[E @unchecked] => ee.event.toList.asJava
+          case _: NoPrimaryEffect.type      => Collections.emptyList()
         }
     }
   }
@@ -77,7 +77,7 @@ private[kalix] final class EventSourcedResultImpl[R, S, E](
     effect: EventSourcedEntityEffectImpl[S, E],
     state: S,
     secondaryEffect: SecondaryEffectImpl)
-    extends EventSourcedResult[R, E] {
+    extends EventSourcedResult[R] {
   import EventSourcedResultImpl._
 
   def this(effect: EventSourcedEntity.Effect[R], state: S, secondaryEffect: SecondaryEffectImpl) =
@@ -93,7 +93,7 @@ private[kalix] final class EventSourcedResultImpl[R, S, E](
   }
 
   /** All emitted events. */
-  override def getAllEvents: java.util.List[E] = eventsOf(effect)
+  override def getAllEvents: java.util.List[Any] = eventsOf(effect)
 
   override def isReply: Boolean = secondaryEffect.isInstanceOf[MessageReplyImpl[_]]
 
