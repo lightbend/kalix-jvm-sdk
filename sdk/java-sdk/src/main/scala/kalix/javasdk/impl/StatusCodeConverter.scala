@@ -19,7 +19,6 @@ package kalix.javasdk.impl
 import io.grpc.Status
 import kalix.javasdk.StatusCode
 import kalix.javasdk.StatusCode.{ ErrorCode => JErrorCode }
-import org.springframework.web.reactive.function.client.WebClientResponseException
 
 object StatusCodeConverter {
   def toGrpcCode(statusCode: StatusCode): Status.Code = {
@@ -52,18 +51,4 @@ object StatusCodeConverter {
     }
   }
 
-  def fromWebClientResponse(webClientResponseException: WebClientResponseException): JErrorCode = {
-    webClientResponseException match {
-      case _: WebClientResponseException.NotFound            => JErrorCode.NOT_FOUND
-      case _: WebClientResponseException.BadRequest          => JErrorCode.BAD_REQUEST
-      case _: WebClientResponseException.Conflict            => JErrorCode.CONFLICT
-      case _: WebClientResponseException.Forbidden           => JErrorCode.FORBIDDEN
-      case _: WebClientResponseException.Unauthorized        => JErrorCode.UNAUTHORIZED
-      case _: WebClientResponseException.GatewayTimeout      => JErrorCode.GATEWAY_TIMEOUT
-      case _: WebClientResponseException.ServiceUnavailable  => JErrorCode.SERVICE_UNAVAILABLE
-      case _: WebClientResponseException.TooManyRequests     => JErrorCode.TOO_MANY_REQUESTS
-      case _: WebClientResponseException.InternalServerError => JErrorCode.INTERNAL_SERVER_ERROR
-      case _                                                 => JErrorCode.INTERNAL_SERVER_ERROR
-    }
-  }
 }
