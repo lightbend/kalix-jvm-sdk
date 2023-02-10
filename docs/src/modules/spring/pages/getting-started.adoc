@@ -102,7 +102,7 @@ This uses JDK {spring-java-version} and the image is based on the link:https://a
 
 [source,bash]
 ----
-mvn package
+mvn install
 ----
 
 TIP: For more details see xref:spring:development-process-spring.adoc#_package_service[Development Process - Package service].
