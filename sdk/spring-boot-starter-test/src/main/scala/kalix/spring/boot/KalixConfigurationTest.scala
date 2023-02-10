@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package kalix.springboot
+package kalix.spring.boot
 
 import com.typesafe.config.Config
 import kalix.javasdk.JsonSupport

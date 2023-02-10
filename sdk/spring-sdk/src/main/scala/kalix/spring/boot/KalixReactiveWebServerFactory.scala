@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package kalix.springboot
+package kalix.spring.boot
 
 import scala.concurrent.Await
 import scala.concurrent.duration.DurationInt
@@ -52,7 +52,7 @@ class KalixReactiveWebServerFactory(kalixApp: KalixSpringApplication) extends Re
           } finally {
             started = false
           }
-        } else ()
+        }
       }
 
       override def getPort: Int = kalixApp.port

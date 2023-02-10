@@ -18,7 +18,7 @@ package kalix.springsdk;
 
 import kalix.javasdk.JsonSupport;
 import kalix.javasdk.testkit.KalixTestKit;
-import kalix.springboot.KalixConfiguration;
+import kalix.spring.boot.KalixConfiguration;
 import kalix.springsdk.impl.KalixSpringApplication;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

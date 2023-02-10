@@ -17,7 +17,7 @@
 package kalix.springsdk.impl
 
 import scala.util.control.NonFatal
-import kalix.springboot.KalixConfiguration
+import kalix.spring.boot.KalixConfiguration
 import kalix.springsdk.badwiring.action
 import kalix.springsdk.badwiring.action.IllDefinedAction
 import kalix.springsdk.badwiring.eventsourced.IllDefinedEventSourcedEntity

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package kalix.springboot
+package kalix.spring.boot
 
 import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
@@ -41,7 +41,7 @@ object KalixConfiguration {
   // to configure it as the main ReactiveWebServer. Therefore, we must require our AutoConfigure to be loaded
   // before NettyReactiveWebServer is loaded
   before = Array(classOf[ReactiveWebServerFactoryAutoConfiguration]))
-@ConditionalOnMissingClass(Array("kalix.springboot.KalixConfigurationTest"))
+@ConditionalOnMissingClass(Array("kalix.spring.boot.KalixConfigurationTest"))
 class KalixConfiguration(applicationContext: ApplicationContext) {
 
   @Bean
