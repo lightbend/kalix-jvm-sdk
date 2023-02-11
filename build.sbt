@@ -218,7 +218,7 @@ lazy val sdkSpringBootStarter = project
       "protocolMajorVersion" -> Kalix.ProtocolVersionMajor,
       "protocolMinorVersion" -> Kalix.ProtocolVersionMinor,
       "scalaVersion" -> scalaVersion.value),
-    buildInfoPackage := "kalix.springboot",
+    buildInfoPackage := "kalix.spring.boot",
     // Generate javadocs by just including non generated Java sources
     Compile / doc / sources := {
       val javaSourceDir = (Compile / javaSource).value.getAbsolutePath
@@ -255,7 +255,7 @@ lazy val sdkSpringBootStarterTest = project
       "proxyImage" -> "gcr.io/kalix-public/kalix-proxy",
       "proxyVersion" -> Kalix.ProxyVersion,
       "scalaVersion" -> scalaVersion.value),
-    buildInfoPackage := "kalix.springboot.test",
+    buildInfoPackage := "kalix.spring.boot.test",
     // Generate javadocs by just including non generated Java sources
     Compile / doc / sources := {
       val javaSourceDir = (Compile / javaSource).value.getAbsolutePath
