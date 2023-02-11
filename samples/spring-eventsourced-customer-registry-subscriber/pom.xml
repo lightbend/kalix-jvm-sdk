@@ -281,20 +281,13 @@
   <dependencies>
     <dependency>
       <groupId>io.kalix</groupId>
-      <artifactId>kalix-spring-sdk</artifactId>
+      <artifactId>kalix-spring-boot-starter</artifactId>
       <version>${kalix-sdk.version}</version>
     </dependency>
     <dependency>
       <groupId>io.kalix</groupId>
-      <artifactId>kalix-spring-sdk-testkit</artifactId>
+      <artifactId>kalix-spring-boot-starter-test</artifactId>
       <version>${kalix-sdk.version}</version>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-test</artifactId>
-      <version>3.0.2</version>
       <scope>test</scope>
     </dependency>
 

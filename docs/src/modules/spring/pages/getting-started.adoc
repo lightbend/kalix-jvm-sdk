@@ -34,9 +34,8 @@ include::partial$maven-archetype.adoc[]
 
 == Examine the project
 
-The initial project contains a `Main` class for a Spring Boot application with one extra import for
-the `KalixConfiguration`. The `KalixConfiguration` ensures that the application wires and registers all Kalix components
-it finds in the classpath.
+The initial project contains a `Main` class for a Spring Boot application. The application is already configured to wire and register all Kalix components
+it finds in the classpath. 
 
 .src/main/java/com/example/Main.java
 [source,java]
@@ -44,8 +43,7 @@ it finds in the classpath.
 include::example$spring-valueentity-counter/src/main/java/com/example/Main.java[tag=main]
 ----
 <1> Main class is annotated with `@SpringBootApplication`
-<2> Import `KalixConfiguration`
-<3> The application is started like any other Spring Boot application.
+<2> The application is started like any other Spring Boot application.
 
 == Implementing first component
 

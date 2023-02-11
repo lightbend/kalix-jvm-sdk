@@ -16,25 +16,17 @@
 
 package kalix.springsdk.impl.http
 
-import akka.grpc.internal.{ GrpcProtocolNative, Identity }
-import akka.grpc.scaladsl.headers.`Message-Accept-Encoding`
-import akka.http.scaladsl.model.{ ErrorInfo, IllegalRequestException, StatusCode, StatusCodes }
+import java.lang.{ Boolean => JBoolean }
+import java.lang.{ Integer => JInteger }
+import java.lang.{ Double => JDouble }
+import java.lang.{ Short => JShort }
+import java.lang.{ Long => JLong }
+import java.lang.{ Float => JFloat }
+
 import akka.parboiled2.util.Base64
-import akka.util.ByteString
 import com.google.protobuf.Descriptors.FieldDescriptor
 import com.google.protobuf.Descriptors.FieldDescriptor.JavaType
-import com.google.protobuf.util.{ Durations, Timestamps }
 import com.google.protobuf.{ ByteString => ProtobufByteString }
-import io.grpc.Status
-
-import java.lang.{
-  Boolean => JBoolean,
-  Double => JDouble,
-  Float => JFloat,
-  Integer => JInteger,
-  Long => JLong,
-  Short => JShort
-}
 
 /**
  * INTERNAL API

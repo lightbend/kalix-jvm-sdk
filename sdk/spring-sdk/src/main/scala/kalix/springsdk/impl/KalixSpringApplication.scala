@@ -17,9 +17,15 @@
 package kalix.springsdk.impl
 
 import java.lang.reflect.Modifier
+import java.lang.reflect.ParameterizedType
+
+import scala.concurrent.Future
 import scala.jdk.CollectionConverters.CollectionHasAsScala
+import scala.jdk.FutureConverters.CompletionStageOps
 import scala.jdk.OptionConverters.RichOption
 import scala.reflect.ClassTag
+
+import akka.Done
 import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
 import kalix.javasdk.Kalix
@@ -45,18 +51,18 @@ import kalix.springsdk.WebClientProvider
 import kalix.springsdk.action.ReflectiveActionProvider
 import kalix.springsdk.annotations.ViewId
 import kalix.springsdk.eventsourced.ReflectiveEventSourcedEntityProvider
+import kalix.springsdk.impl.KalixSpringApplication.ActionCreationContextFactoryBean
+import kalix.springsdk.impl.KalixSpringApplication.EventSourcedEntityContextFactoryBean
+import kalix.springsdk.impl.KalixSpringApplication.KalixClientFactoryBean
+import kalix.springsdk.impl.KalixSpringApplication.KalixComponentProvider
+import kalix.springsdk.impl.KalixSpringApplication.MainClassProvider
+import kalix.springsdk.impl.KalixSpringApplication.ValueEntityContextFactoryBean
+import kalix.springsdk.impl.KalixSpringApplication.ViewCreationContextFactoryBean
+import kalix.springsdk.impl.KalixSpringApplication.WebClientProviderFactoryBean
+import kalix.springsdk.impl.KalixSpringApplication.WorkflowContextFactoryBean
 import kalix.springsdk.impl.Validations.Invalid
 import kalix.springsdk.impl.Validations.Valid
 import kalix.springsdk.impl.Validations.Validation
-import kalix.springsdk.impl.KalixServer.ActionCreationContextFactoryBean
-import kalix.springsdk.impl.KalixServer.EventSourcedEntityContextFactoryBean
-import kalix.springsdk.impl.KalixServer.KalixClientFactoryBean
-import kalix.springsdk.impl.KalixServer.KalixComponentProvider
-import kalix.springsdk.impl.KalixServer.MainClassProvider
-import kalix.springsdk.impl.KalixServer.ValueEntityContextFactoryBean
-import kalix.springsdk.impl.KalixServer.ViewCreationContextFactoryBean
-import kalix.springsdk.impl.KalixServer.WebClientProviderFactoryBean
-import kalix.springsdk.impl.KalixServer.WorkflowContextFactoryBean
 import kalix.springsdk.valueentity.ReflectiveValueEntityProvider
 import kalix.springsdk.view.ReflectiveMultiTableViewProvider
 import kalix.springsdk.view.ReflectiveViewProvider
@@ -76,9 +82,7 @@ import org.springframework.core.`type`.classreading.MetadataReader
 import org.springframework.core.`type`.classreading.MetadataReaderFactory
 import org.springframework.core.`type`.filter.TypeFilter
 
-import java.lang.reflect.ParameterizedType
-
-object KalixServer {
+object KalixSpringApplication {
 
   val kalixComponents: Seq[Class[_]] =
     classOf[Action] ::
@@ -233,7 +237,7 @@ object KalixServer {
   }
 }
 
-case class KalixServer(applicationContext: ApplicationContext, config: Config) {
+case class KalixSpringApplication(applicationContext: ApplicationContext, config: Config) {
 
   private val logger: Logger = LoggerFactory.getLogger(getClass)
 
@@ -316,14 +320,14 @@ case class KalixServer(applicationContext: ApplicationContext, config: Config) {
         kalixClient.registerComponent(valueEntity.serviceDescriptor())
       }
 
-      if (classOf[View[_]].isAssignableFrom(clz) && !KalixServer.isNestedViewTable(clz)) {
+      if (classOf[View[_]].isAssignableFrom(clz) && !KalixSpringApplication.isNestedViewTable(clz)) {
         logger.info(s"Registering View provider for [${clz.getName}]")
         val view = viewProvider(clz.asInstanceOf[Class[View[Nothing]]])
         kalix.register(view)
         kalixClient.registerComponent(view.serviceDescriptor())
       }
 
-      if (KalixServer.isMultiTableView(clz)) {
+      if (KalixSpringApplication.isMultiTableView(clz)) {
         logger.info(s"Registering multi-table View provider for [${clz.getName}]")
         val view = multiTableViewProvider(clz)
         kalix.register(view)
@@ -331,9 +335,7 @@ case class KalixServer(applicationContext: ApplicationContext, config: Config) {
       }
     }
 
-  def start() = {
-    logger.info("Starting Kalix Server!")
-
+  private lazy val kalixRunner = {
     val finalConfig =
       ConfigFactory
         // it doesn't make sense to try to load descriptor source for
@@ -341,8 +343,20 @@ case class KalixServer(applicationContext: ApplicationContext, config: Config) {
         .parseString("kalix.discovery.protobuf-descriptor-with-source-info-path=disabled")
         .withFallback(config)
 
-    kalix.createRunner(finalConfig).run()
+    kalix.createRunner(finalConfig)
   }
+
+  def start(): Future[Done] = {
+    logger.info("Starting Kalix Server...")
+    kalixRunner.run().asScala
+  }
+
+  def stop(): Future[Done] = {
+    logger.info("Stopping Kalix Server...")
+    kalixRunner.terminate().asScala
+  }
+
+  def port: Int = kalixRunner.configuration.userFunctionPort
 
   /* Each component may have a creation context passed to its constructor.
    * This method checks if there is a constructor in `clz` that receives a `context`.

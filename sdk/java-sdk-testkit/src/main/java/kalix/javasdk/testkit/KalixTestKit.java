@@ -144,6 +144,16 @@ public class KalixTestKit {
     public Settings withAdvancedViews() {
       return new Settings(stopTimeout, serviceName, aclEnabled, true);
     }
+
+    @Override
+    public String toString() {
+      return "Settings(" +
+        "stopTimeout=" + stopTimeout +
+        ", serviceName='" + serviceName + '\'' +
+        ", aclEnabled=" + aclEnabled +
+        ", advancedViews=" + advancedViews +
+        ')';
+    }
   }
 
   private static final Logger log = LoggerFactory.getLogger(KalixTestKit.class);

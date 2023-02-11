@@ -16,7 +16,7 @@
 
 package com.example.wiring.workflowentities;
 
-import kalix.springsdk.KalixConfiguration;
+import kalix.spring.boot.KalixConfiguration;
 import kalix.springsdk.annotations.Acl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -16,7 +16,7 @@
 
 package kalix.springsdk.badwiring.eventsourced;
 
-import kalix.springsdk.KalixConfiguration;
+import kalix.spring.boot.KalixConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
@@ -30,7 +30,7 @@ public class Main {
   private static final Logger logger = LoggerFactory.getLogger(Main.class);
 
   public static void main(String[] args) {
-    logger.info("Starting Kalix - Spring SDK");
+    logger.info("Starting Kalix Application");
     SpringApplication.run(Main.class, args);
   }
 }

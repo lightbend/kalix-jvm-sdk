@@ -22,8 +22,6 @@ import org.junit.jupiter.api.TestInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Import;
-import org.springframework.test.context.TestPropertySource;
 
 /**
  * This class provided the necessary infrastructure to run Kalix integration test for projects built
@@ -39,8 +37,6 @@ import org.springframework.test.context.TestPropertySource;
  *
  * <p>On test teardown, the Kalix server and the Kalix proxy (docker container) will be stopped.
  */
-@Import(KalixConfigurationTest.class)
-@TestPropertySource(properties = "spring.main.allow-bean-definition-overriding=true")
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public abstract class KalixIntegrationTestKitSupport {
 

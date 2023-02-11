@@ -18,7 +18,8 @@ package kalix.springsdk;
 
 import kalix.javasdk.JsonSupport;
 import kalix.javasdk.testkit.KalixTestKit;
-import kalix.springsdk.impl.KalixServer;
+import kalix.spring.boot.KalixConfiguration;
+import kalix.springsdk.impl.KalixSpringApplication;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,10 +44,10 @@ public class KalixConfigurationTest {
   private KalixConfiguration kalixConfiguration;
 
   @Bean
-  public KalixServer kalixServer() {
+  public KalixSpringApplication kalixSpringApplication() {
     // for this internal integration tests, we need to explicitly pass the Main class we want
     // because otherwise it will detect sbt.ForkMain instead
-    return new KalixServer(applicationContext, kalixConfiguration.config());
+    return new KalixSpringApplication(applicationContext, kalixConfiguration.config());
   }
 
   /**
@@ -67,7 +68,7 @@ public class KalixConfigurationTest {
   @Bean
   public KalixTestKit kalixTestKit(KalixTestKit.Settings settings) {
     logger.info("Starting Kalix TestKit...");
-    KalixTestKit kalixTestKit = new KalixTestKit(kalixServer().kalix(), settings);
+    KalixTestKit kalixTestKit = new KalixTestKit(kalixSpringApplication().kalix(), settings);
     kalixTestKit.start(kalixConfiguration.config());
     logger.info("Kalix Proxy running on port: " + kalixTestKit.getPort());
     return kalixTestKit;

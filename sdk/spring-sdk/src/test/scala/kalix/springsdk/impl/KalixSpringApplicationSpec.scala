@@ -16,7 +16,8 @@
 
 package kalix.springsdk.impl
 
-import kalix.springsdk.KalixConfiguration
+import scala.util.control.NonFatal
+import kalix.spring.boot.KalixConfiguration
 import kalix.springsdk.badwiring.action
 import kalix.springsdk.badwiring.action.IllDefinedAction
 import kalix.springsdk.badwiring.eventsourced.IllDefinedEventSourcedEntity
@@ -29,16 +30,25 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.springframework.beans.factory.BeanCreationException
 
-class KalixServerSpec extends AnyWordSpec with Matchers {
+class KalixSpringApplicationSpec extends AnyWordSpec with Matchers {
 
   val message = "is a Kalix component and is marked as a Spring bean for automatic wiring."
 
-  "The KalixServer" should {
+  def tryCatch(f: () => Unit): Unit = {
+    try {
+      f()
+    } catch {
+      case NonFatal(ex) =>
+        ex.printStackTrace()
+        throw ex
+    }
+  }
+  "The KalixSpringApplication" should {
 
     "block direct wiring of Kalix Actions" in {
       val errorMessage =
         intercept[BeanCreationException] {
-          action.Main.main(Array.empty)
+          tryCatch(() => action.Main.main(Array.empty))
         }.getCause.getMessage
 
       errorMessage shouldBe KalixConfiguration.beanPostProcessorErrorMessage(classOf[IllDefinedAction])
@@ -47,7 +57,7 @@ class KalixServerSpec extends AnyWordSpec with Matchers {
     "block direct wiring of Kalix Event Sourced entities" in {
       val errorMessage =
         intercept[BeanCreationException] {
-          Main.main(Array.empty)
+          tryCatch(() => Main.main(Array.empty))
         }.getCause.getMessage
 
       errorMessage shouldBe KalixConfiguration.beanPostProcessorErrorMessage(classOf[IllDefinedEventSourcedEntity])
@@ -56,7 +66,7 @@ class KalixServerSpec extends AnyWordSpec with Matchers {
     "block direct wiring of Kalix Value entities" in {
       val errorMessage =
         intercept[BeanCreationException] {
-          valueentity.Main.main(Array.empty)
+          tryCatch(() => valueentity.Main.main(Array.empty))
         }.getCause.getMessage
 
       errorMessage shouldBe KalixConfiguration.beanPostProcessorErrorMessage(classOf[IllDefinedValueEntity])
@@ -66,7 +76,7 @@ class KalixServerSpec extends AnyWordSpec with Matchers {
     "block direct wiring of Kalix Views" in {
       val errorMessage =
         intercept[BeanCreationException] {
-          view.Main.main(Array.empty)
+          tryCatch(() => view.Main.main(Array.empty))
         }.getCause.getMessage
 
       errorMessage shouldBe KalixConfiguration.beanPostProcessorErrorMessage(classOf[IllDefinedView])
