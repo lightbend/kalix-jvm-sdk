@@ -19,7 +19,7 @@ package kalix.springsdk.impl
 import com.google.protobuf.Descriptors.FieldDescriptor.JavaType
 import kalix.JwtMethodOptions.JwtMethodMode
 import kalix.KeyGeneratorMethodOptions.Generator
-import kalix.springsdk.impl.reflection.ServiceIntrospectionException
+import kalix.javasdk.impl.reflection.ServiceIntrospectionException
 import kalix.springsdk.testmodels.workflowentity.WorkflowTestModels
 import kalix.springsdk.testmodels.workflowentity.WorkflowTestModels.WorkflowEntityWithAcl
 import kalix.springsdk.testmodels.workflowentity.WorkflowTestModels.WorkflowEntityWithIdGenerator

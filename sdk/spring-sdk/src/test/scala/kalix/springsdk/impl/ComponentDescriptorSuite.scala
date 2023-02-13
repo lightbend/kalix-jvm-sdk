@@ -24,6 +24,10 @@ import com.google.protobuf.Descriptors
 import com.google.protobuf.Descriptors.FieldDescriptor.JavaType
 import kalix.MethodOptions
 import kalix.ServiceOptions
+import kalix.javasdk.impl.CommandHandler
+import kalix.javasdk.impl.ComponentDescriptor
+import kalix.javasdk.impl.ProtoDescriptorRenderer
+import kalix.javasdk.impl.JsonMessageCodec
 import org.scalatest.Assertion
 import org.scalatest.matchers.should.Matchers
 import scalapb.descriptors.MethodDescriptor
@@ -31,7 +35,7 @@ import scalapb.descriptors.MethodDescriptor
 trait ComponentDescriptorSuite extends Matchers {
 
   def descriptorFor[T](implicit ev: ClassTag[T]): ComponentDescriptor =
-    ComponentDescriptor.descriptorFor(ev.runtimeClass, new SpringSdkMessageCodec)
+    ComponentDescriptor.descriptorFor(ev.runtimeClass, new JsonMessageCodec)
 
   def assertDescriptor[E](assertFunc: ComponentDescriptor => Unit)(implicit ev: ClassTag[E]): Unit = {
     val descriptor = descriptorFor[E]

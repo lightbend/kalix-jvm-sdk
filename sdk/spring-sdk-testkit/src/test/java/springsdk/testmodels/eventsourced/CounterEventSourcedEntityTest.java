@@ -17,7 +17,7 @@
 package springsdk.testmodels.eventsourced;
 
 import kalix.javasdk.testkit.EventSourcedResult;
-import kalix.springsdk.testkit.EventSourcedTestKit;
+import kalix.javasdk.testkit.EventSourcedTestKit;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;

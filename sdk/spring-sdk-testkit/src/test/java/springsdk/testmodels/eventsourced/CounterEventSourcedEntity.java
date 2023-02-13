@@ -17,7 +17,7 @@
 package springsdk.testmodels.eventsourced;
 
 import kalix.javasdk.eventsourcedentity.EventSourcedEntity;
-import kalix.springsdk.annotations.EventHandler;
+import kalix.javasdk.annotations.EventHandler;
 
 import java.util.List;
 

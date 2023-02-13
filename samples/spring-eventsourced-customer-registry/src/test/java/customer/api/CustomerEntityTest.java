@@ -4,7 +4,7 @@ import customer.domain.Address;
 import customer.domain.Customer;
 import customer.domain.CustomerEvent;
 import kalix.javasdk.testkit.EventSourcedResult;
-import kalix.springsdk.testkit.EventSourcedTestKit;
+import kalix.javasdk.testkit.EventSourcedTestKit;
 import org.junit.jupiter.api.Test;
 
 import static customer.domain.CustomerEvent.*;

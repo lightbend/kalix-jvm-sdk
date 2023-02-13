@@ -21,9 +21,9 @@ import com.example.wiring.workflowentities.FraudDetectionResult.TransferRejected
 import com.example.wiring.workflowentities.FraudDetectionResult.TransferRequiresManualAcceptation;
 import com.example.wiring.workflowentities.FraudDetectionResult.TransferVerified;
 import kalix.javasdk.workflowentity.WorkflowEntity;
-import kalix.springsdk.KalixClient;
-import kalix.springsdk.annotations.EntityKey;
-import kalix.springsdk.annotations.EntityType;
+import kalix.spring.KalixClient;
+import kalix.javasdk.annotations.EntityKey;
+import kalix.javasdk.annotations.EntityType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PutMapping;

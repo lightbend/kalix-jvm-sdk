@@ -20,6 +20,8 @@ import com.google.protobuf.Descriptors.FieldDescriptor
 import com.google.protobuf.Descriptors.FieldDescriptor.JavaType
 import com.google.protobuf.timestamp.Timestamp
 import kalix.JwtMethodOptions.JwtMethodMode
+import kalix.javasdk.impl.InvalidComponentException
+import kalix.javasdk.impl.Validations
 import kalix.springsdk.testmodels.subscriptions.PubSubTestModels.EventStreamSubscriptionView
 import kalix.springsdk.testmodels.subscriptions.PubSubTestModels.SubscribeOnTypeToEventSourcedEvents
 import kalix.springsdk.testmodels.view.ViewTestModels.IllDefineUserByEmailWithStreamUpdates

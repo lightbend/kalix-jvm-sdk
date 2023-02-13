@@ -16,6 +16,8 @@
 
 package kalix.springsdk.impl.reflection
 
+import kalix.javasdk.impl.reflection.KalixMethod
+import kalix.javasdk.impl.reflection.VirtualServiceMethod
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 

@@ -17,11 +17,11 @@
 package kalix.springsdk.testmodels.workflowentity;
 
 import kalix.javasdk.workflowentity.WorkflowEntity;
-import kalix.springsdk.annotations.Acl;
-import kalix.springsdk.annotations.EntityKey;
-import kalix.springsdk.annotations.EntityType;
-import kalix.springsdk.annotations.GenerateEntityKey;
-import kalix.springsdk.annotations.JWT;
+import kalix.javasdk.annotations.Acl;
+import kalix.javasdk.annotations.EntityKey;
+import kalix.javasdk.annotations.EntityType;
+import kalix.javasdk.annotations.GenerateEntityKey;
+import kalix.javasdk.annotations.JWT;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;

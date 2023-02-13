@@ -2,7 +2,7 @@ package customer.api;
 
 
 import customer.Main;
-import kalix.springsdk.testkit.KalixIntegrationTestKitSupport;
+import kalix.spring.testkit.KalixIntegrationTestKitSupport;
 import org.hamcrest.core.IsEqual;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

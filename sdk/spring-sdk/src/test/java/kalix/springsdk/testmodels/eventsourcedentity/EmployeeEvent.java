@@ -16,7 +16,7 @@
 
 package kalix.springsdk.testmodels.eventsourcedentity;
 
-import kalix.springsdk.annotations.TypeName;
+import kalix.javasdk.annotations.TypeName;
 
 public interface EmployeeEvent {
 

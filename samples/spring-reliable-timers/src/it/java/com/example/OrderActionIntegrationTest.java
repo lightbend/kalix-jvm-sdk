@@ -3,7 +3,7 @@ package com.example;
 import com.example.domain.Order;
 import com.example.domain.OrderRequest;
 import com.example.domain.OrderStatus;
-import kalix.springsdk.testkit.KalixIntegrationTestKitSupport;
+import kalix.spring.testkit.KalixIntegrationTestKitSupport;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

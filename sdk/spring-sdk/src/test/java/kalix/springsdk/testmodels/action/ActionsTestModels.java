@@ -17,7 +17,7 @@
 package kalix.springsdk.testmodels.action;
 
 import kalix.javasdk.action.Action;
-import kalix.springsdk.annotations.JWT;
+import kalix.javasdk.annotations.JWT;
 import kalix.springsdk.testmodels.Message;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;

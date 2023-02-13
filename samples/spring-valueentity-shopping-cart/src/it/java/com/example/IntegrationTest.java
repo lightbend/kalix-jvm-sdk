@@ -3,7 +3,7 @@ package com.example;
 import com.example.api.ShoppingCartDTO;
 import com.example.api.ShoppingCartDTO.LineItemDTO;
 import com.example.domain.ShoppingCart;
-import kalix.springsdk.testkit.KalixIntegrationTestKitSupport;
+import kalix.spring.testkit.KalixIntegrationTestKitSupport;
 
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;

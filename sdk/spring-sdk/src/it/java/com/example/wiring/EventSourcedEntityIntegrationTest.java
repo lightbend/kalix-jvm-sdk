@@ -17,33 +17,20 @@
 package com.example.wiring;
 
 import com.example.Main;
-import com.example.wiring.actions.echo.Message;
-import com.example.wiring.eventsourcedentities.counter.Counter;
-import com.example.wiring.valueentities.user.User;
-import com.example.wiring.valueentities.user.UserSideEffect;
-import com.example.wiring.views.UserWithVersion;
-import kalix.springsdk.KalixConfigurationTest;
+import kalix.spring.KalixConfigurationTest;
 import org.hamcrest.core.IsEqual;
-import org.hamcrest.core.IsNull;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Mono;
 
 import java.time.Duration;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 import static java.time.temporal.ChronoUnit.SECONDS;
 import static org.awaitility.Awaitility.await;

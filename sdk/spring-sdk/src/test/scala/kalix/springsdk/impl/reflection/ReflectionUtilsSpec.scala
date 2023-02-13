@@ -33,7 +33,7 @@ class ReflectionUtilsSpec extends AnyWordSpec with Matchers {
 
   "The reflection utils" must {
     "deterministically sort methods of the same class" in {
-      import ReflectionUtils.methodOrdering
+      import kalix.javasdk.impl.reflection.ReflectionUtils.methodOrdering
       val methods =
         classOf[SomeClass].getDeclaredMethods.toList.sorted.map(m =>
           (m.getName, m.getParameterTypes.map(_.getSimpleName).toList))

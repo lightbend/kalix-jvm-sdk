@@ -27,6 +27,9 @@ import kalix.javasdk.impl.AnySupport
 import kalix.javasdk.impl.RestDeferredCall
 import kalix.javasdk.DeferredCall
 import kalix.javasdk.JsonSupport
+import kalix.javasdk.impl.ComponentDescriptor
+import kalix.javasdk.impl.JsonMessageCodec
+import kalix.spring.impl.RestKalixClientImpl
 import kalix.springsdk.testmodels.Message
 import kalix.springsdk.testmodels.action.ActionsTestModels.GetClassLevel
 import kalix.springsdk.testmodels.action.ActionsTestModels.GetWithOneParam
@@ -43,10 +46,10 @@ import org.scalatest.wordspec.AnyWordSpec
 class RestKalixClientImplSpec extends AnyWordSpec with Matchers with BeforeAndAfterEach with ComponentDescriptorSuite {
 
   var restKalixClient: RestKalixClientImpl = _
-  val messageCodec = new SpringSdkMessageCodec
+  val messageCodec = new JsonMessageCodec
 
   override def beforeEach(): Unit =
-    restKalixClient = new RestKalixClientImpl(new SpringSdkMessageCodec)
+    restKalixClient = new RestKalixClientImpl(new JsonMessageCodec)
 
   "The Rest Kalix Client" should {
     "return a DeferredCall for a simple GET request" in {

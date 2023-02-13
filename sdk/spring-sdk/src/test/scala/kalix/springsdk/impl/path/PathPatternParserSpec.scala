@@ -16,6 +16,7 @@
 
 package kalix.springsdk.impl.path
 
+import kalix.javasdk.impl.path.PathPatternParser
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 

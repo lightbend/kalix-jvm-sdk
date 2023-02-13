@@ -17,7 +17,7 @@
 package springsdk.testmodels.valueentity;
 
 import kalix.javasdk.testkit.ValueEntityResult;
-import kalix.springsdk.testkit.ValueEntityTestKit;
+import kalix.javasdk.testkit.ValueEntityTestKit;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;

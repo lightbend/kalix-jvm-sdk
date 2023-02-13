@@ -3,7 +3,7 @@ package com.example.transfer;
 import com.example.Main;
 import com.example.transfer.TransferState.Transfer;
 import com.example.wallet.WalletEntity.Balance;
-import kalix.springsdk.testkit.KalixIntegrationTestKitSupport;
+import kalix.spring.testkit.KalixIntegrationTestKitSupport;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;

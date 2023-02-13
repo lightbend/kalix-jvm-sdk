@@ -17,8 +17,8 @@
 package kalix.springsdk.badwiring.eventsourced;
 
 import kalix.javasdk.eventsourcedentity.EventSourcedEntity;
-import kalix.springsdk.annotations.EntityKey;
-import kalix.springsdk.annotations.EntityType;
+import kalix.javasdk.annotations.EntityKey;
+import kalix.javasdk.annotations.EntityType;
 import org.springframework.stereotype.Component;
 
 @EntityKey("id")

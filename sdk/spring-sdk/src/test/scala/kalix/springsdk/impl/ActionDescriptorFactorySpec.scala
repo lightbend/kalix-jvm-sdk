@@ -20,6 +20,8 @@ import com.google.protobuf.Descriptors.FieldDescriptor.JavaType
 import com.google.protobuf.empty.Empty
 import com.google.protobuf.{ Any => JavaPbAny }
 import kalix.JwtMethodOptions.JwtMethodMode
+import kalix.javasdk.impl.InvalidComponentException
+import kalix.javasdk.impl.Validations
 import kalix.springsdk.testmodels.action.ActionsTestModels.DeleteWithOneParam
 import kalix.springsdk.testmodels.action.ActionsTestModels.GetClassLevel
 import kalix.springsdk.testmodels.action.ActionsTestModels.GetWithOneOptionalPathParam

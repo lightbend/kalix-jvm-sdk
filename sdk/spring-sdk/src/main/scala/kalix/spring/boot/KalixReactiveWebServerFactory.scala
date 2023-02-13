@@ -18,8 +18,7 @@ package kalix.spring.boot
 
 import scala.concurrent.Await
 import scala.concurrent.duration.DurationInt
-
-import kalix.springsdk.impl.KalixSpringApplication
+import kalix.spring.impl.KalixSpringApplication
 import org.slf4j.LoggerFactory
 import org.springframework.boot.web.reactive.server.ReactiveWebServerFactory
 import org.springframework.boot.web.server.WebServer

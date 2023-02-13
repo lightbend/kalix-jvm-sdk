@@ -16,8 +16,8 @@
 
 package kalix.springsdk.impl.eventsourceentity
 
-import kalix.springsdk.impl.SpringSdkMessageCodec
-import kalix.springsdk.impl.eventsourcedentity.EventSourcedHandlersExtractor
+import kalix.javasdk.impl.JsonMessageCodec
+import kalix.javasdk.impl.eventsourcedentity.EventSourcedHandlersExtractor
 import kalix.springsdk.testmodels.eventsourcedentity.EventSourcedEntitiesTestModels.{
   CounterEventSourcedEntity,
   ErrorDuplicatedEventsEntity,
@@ -28,7 +28,7 @@ import org.scalatest.wordspec.AnyWordSpec
 
 class EventSourcedHandlersExtractorSpec extends AnyWordSpec with Matchers {
 
-  private final val messageCodec = new SpringSdkMessageCodec
+  private final val messageCodec = new JsonMessageCodec
   private final val intTypeUrl = messageCodec.typeUrlFor(classOf[Integer])
   private final val stringTypeUrl = messageCodec.typeUrlFor(classOf[String])
 

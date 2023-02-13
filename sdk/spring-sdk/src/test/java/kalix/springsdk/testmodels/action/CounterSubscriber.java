@@ -17,7 +17,7 @@
 package kalix.springsdk.testmodels.action;
 
 import kalix.javasdk.action.Action;
-import kalix.springsdk.annotations.Subscribe;
+import kalix.javasdk.annotations.Subscribe;
 import kalix.springsdk.testmodels.Done;
 import kalix.springsdk.testmodels.valueentity.Counter;
 import kalix.springsdk.testmodels.valueentity.CounterState;

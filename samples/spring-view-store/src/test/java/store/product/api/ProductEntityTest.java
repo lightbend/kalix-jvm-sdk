@@ -1,7 +1,7 @@
 package store.product.api;
 
 import kalix.javasdk.testkit.EventSourcedResult;
-import kalix.springsdk.testkit.EventSourcedTestKit;
+import kalix.javasdk.testkit.EventSourcedTestKit;
 import org.junit.jupiter.api.Test;
 import store.product.domain.Money;
 import store.product.domain.Product;

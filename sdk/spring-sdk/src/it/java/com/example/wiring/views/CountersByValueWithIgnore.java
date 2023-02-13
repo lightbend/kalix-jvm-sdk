@@ -18,9 +18,9 @@ package com.example.wiring.views;
 
 import com.example.wiring.eventsourcedentities.counter.*;
 import kalix.javasdk.view.View;
-import kalix.springsdk.annotations.Query;
-import kalix.springsdk.annotations.Subscribe;
-import kalix.springsdk.annotations.Table;
+import kalix.javasdk.annotations.Query;
+import kalix.javasdk.annotations.Subscribe;
+import kalix.javasdk.annotations.Table;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 

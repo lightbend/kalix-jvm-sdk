@@ -17,7 +17,7 @@
 package springsdk.testmodels.actions;
 
 import kalix.javasdk.testkit.ActionResult;
-import kalix.springsdk.testkit.ActionTestkit;
+import kalix.javasdk.testkit.ActionTestkit;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

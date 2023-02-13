@@ -16,9 +16,10 @@
 
 package kalix.springsdk.testmodels;
 
-import kalix.springsdk.annotations.Acl;
-
-import static kalix.springsdk.annotations.Acl.*;
+import kalix.javasdk.annotations.Acl;
+import kalix.javasdk.annotations.Acl.DenyStatusCode;
+import kalix.javasdk.annotations.Acl.Matcher;
+import kalix.javasdk.annotations.Acl.Principal;
 
 public class AclTestModels {
 

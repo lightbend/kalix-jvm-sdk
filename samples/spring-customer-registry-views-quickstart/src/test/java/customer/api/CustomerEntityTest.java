@@ -2,7 +2,7 @@ package customer.api;
 
 import kalix.javasdk.testkit.ValueEntityResult;
 import kalix.javasdk.valueentity.ValueEntity;
-import kalix.springsdk.testkit.ValueEntityTestKit;
+import kalix.javasdk.testkit.ValueEntityTestKit;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

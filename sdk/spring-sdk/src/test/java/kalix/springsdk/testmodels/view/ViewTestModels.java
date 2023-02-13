@@ -16,8 +16,8 @@
 
 package kalix.springsdk.testmodels.view;
 
+import kalix.javasdk.annotations.*;
 import kalix.javasdk.view.View;
-import kalix.springsdk.annotations.*;
 import kalix.springsdk.testmodels.eventsourcedentity.Employee;
 import kalix.springsdk.testmodels.eventsourcedentity.EmployeeEvent;
 import kalix.springsdk.testmodels.eventsourcedentity.EventSourcedEntitiesTestModels;

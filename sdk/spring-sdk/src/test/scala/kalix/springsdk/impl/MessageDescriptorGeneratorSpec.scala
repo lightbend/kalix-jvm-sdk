@@ -19,6 +19,7 @@ package kalix.springsdk.impl
 import com.google.protobuf.DescriptorProtos
 import com.google.protobuf.DescriptorProtos.FieldDescriptorProto.Label
 import com.google.protobuf.DescriptorProtos.FieldDescriptorProto.{ Type => ProtoType }
+import kalix.javasdk.impl.ProtoMessageDescriptors
 import kalix.springsdk.testmodels.InstantEntryForList
 import kalix.springsdk.testmodels.TimeEnum
 import kalix.springsdk.testmodels.TimeEnum

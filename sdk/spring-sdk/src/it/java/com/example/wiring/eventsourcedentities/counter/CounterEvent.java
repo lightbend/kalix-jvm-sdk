@@ -18,7 +18,7 @@ package com.example.wiring.eventsourcedentities.counter;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import kalix.springsdk.annotations.TypeName;
+import kalix.javasdk.annotations.TypeName;
 
 public interface CounterEvent {
 

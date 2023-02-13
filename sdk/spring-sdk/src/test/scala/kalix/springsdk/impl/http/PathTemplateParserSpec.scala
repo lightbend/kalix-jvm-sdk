@@ -16,8 +16,9 @@
 
 package kalix.springsdk.impl.http
 
-import kalix.springsdk.impl.http.PathTemplateParser.TemplateVariable
-import kalix.springsdk.impl.path.PathPatternParseException
+import kalix.javasdk.impl.http.PathTemplateParser
+import kalix.javasdk.impl.path.PathPatternParseException
+import kalix.javasdk.impl.http.PathTemplateParser.TemplateVariable
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 

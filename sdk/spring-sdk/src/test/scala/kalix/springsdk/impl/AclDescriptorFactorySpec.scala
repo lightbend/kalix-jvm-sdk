@@ -17,9 +17,11 @@
 package kalix.springsdk.impl
 
 import scala.reflect.ClassTag
+
 import kalix.FileOptions
 import kalix.PrincipalMatcher
-import kalix.springsdk.annotations.Acl
+import kalix.javasdk.annotations.Acl
+import kalix.javasdk.impl.AclDescriptorFactory
 import kalix.springsdk.testmodels.AclTestModels.MainAllowAllServices
 import kalix.springsdk.testmodels.AclTestModels.MainAllowListOfServices
 import kalix.springsdk.testmodels.AclTestModels.MainAllowPrincipalAll

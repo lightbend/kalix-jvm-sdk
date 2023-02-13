@@ -16,8 +16,8 @@
 
 package kalix.springsdk.testmodels.eventsourcedentity;
 
+import kalix.javasdk.annotations.*;
 import kalix.javasdk.eventsourcedentity.EventSourcedEntity;
-import kalix.springsdk.annotations.*;
 import org.springframework.web.bind.annotation.*;
 
 public class EventSourcedEntitiesTestModels {

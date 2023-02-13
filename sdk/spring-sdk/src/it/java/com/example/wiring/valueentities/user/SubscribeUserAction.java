@@ -17,7 +17,7 @@
 package com.example.wiring.valueentities.user;
 
 import kalix.javasdk.action.Action;
-import kalix.springsdk.annotations.Subscribe;
+import kalix.javasdk.annotations.Subscribe;
 
 public class SubscribeUserAction extends Action {
 

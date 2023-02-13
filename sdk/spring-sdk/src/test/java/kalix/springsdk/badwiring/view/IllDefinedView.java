@@ -17,8 +17,8 @@
 package kalix.springsdk.badwiring.view;
 
 import kalix.javasdk.view.View;
-import kalix.springsdk.annotations.Query;
-import kalix.springsdk.annotations.Table;
+import kalix.javasdk.annotations.Query;
+import kalix.javasdk.annotations.Table;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.GetMapping;
 

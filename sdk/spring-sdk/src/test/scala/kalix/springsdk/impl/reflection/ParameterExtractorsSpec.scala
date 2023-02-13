@@ -23,10 +23,10 @@ import com.google.protobuf.DynamicMessage
 import com.google.protobuf.any.{ Any => ScalaPbAny }
 import com.google.protobuf.{ Any => JavaPbAny }
 import kalix.javasdk.JsonSupport
-import kalix.springsdk.impl.ComponentDescriptor
-import kalix.springsdk.impl.InvocationContext
-import kalix.springsdk.impl.SpringSdkMessageCodec
-import kalix.springsdk.impl.reflection.ParameterExtractors.BodyExtractor
+import kalix.javasdk.impl.ComponentDescriptor
+import kalix.javasdk.impl.InvocationContext
+import kalix.javasdk.impl.JsonMessageCodec
+import kalix.javasdk.impl.reflection.ParameterExtractors.BodyExtractor
 import kalix.springsdk.testmodels.Message
 import kalix.springsdk.testmodels.action.EchoAction
 import org.scalatest.matchers.should.Matchers
@@ -35,7 +35,7 @@ import org.scalatest.wordspec.AnyWordSpec
 class ParameterExtractorsSpec extends AnyWordSpec with Matchers {
 
   def descriptorFor[T](implicit ev: ClassTag[T]): ComponentDescriptor =
-    ComponentDescriptor.descriptorFor(ev.runtimeClass, new SpringSdkMessageCodec)
+    ComponentDescriptor.descriptorFor(ev.runtimeClass, new JsonMessageCodec)
 
   "BodyExtractor" should {
 

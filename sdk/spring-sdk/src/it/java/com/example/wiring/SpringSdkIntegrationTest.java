@@ -26,7 +26,7 @@ import com.example.wiring.valueentities.user.UserSideEffect;
 import com.example.wiring.views.CustomerByCreationTime;
 import com.example.wiring.views.UserCounters;
 import com.example.wiring.views.UserWithVersion;
-import kalix.springsdk.KalixConfigurationTest;
+import kalix.spring.KalixConfigurationTest;
 import org.hamcrest.core.IsEqual;
 import org.hamcrest.core.IsNull;
 import org.jetbrains.annotations.NotNull;
@@ -46,7 +46,6 @@ import reactor.core.publisher.Mono;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;

@@ -17,14 +17,14 @@
 package kalix.springsdk.testmodels.subscriptions;
 
 import kalix.javasdk.action.Action;
-import kalix.springsdk.annotations.Acl;
-import kalix.springsdk.annotations.Publish;
-import kalix.springsdk.annotations.Subscribe;
+import kalix.javasdk.annotations.Acl;
+import kalix.javasdk.annotations.Publish;
+import kalix.javasdk.annotations.Subscribe;
 import kalix.springsdk.testmodels.Message;
 import kalix.springsdk.testmodels.Message2;
 import kalix.javasdk.view.View;
-import kalix.springsdk.annotations.Query;
-import kalix.springsdk.annotations.Table;
+import kalix.javasdk.annotations.Query;
+import kalix.javasdk.annotations.Table;
 import kalix.springsdk.testmodels.eventsourcedentity.Employee;
 import kalix.springsdk.testmodels.eventsourcedentity.EmployeeEvent;
 import kalix.springsdk.testmodels.valueentity.Counter;

@@ -18,12 +18,9 @@ package com.example.wiring.actions.echo;
 
 import kalix.javasdk.Metadata;
 import kalix.javasdk.action.Action;
-import kalix.springsdk.KalixClient;
+import kalix.spring.KalixClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-
-import java.nio.ByteBuffer;
-import java.util.List;
 
 public class ActionWithMetadata extends Action {
 
