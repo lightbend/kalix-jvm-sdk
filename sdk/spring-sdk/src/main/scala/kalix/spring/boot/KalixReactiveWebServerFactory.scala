@@ -40,7 +40,6 @@ class KalixReactiveWebServerFactory(kalixApp: KalixSpringApplication) extends Re
     new WebServer {
       override def start(): Unit = {
         logger.info("Starting Kalix ReactiveWebServer...")
-        Await.ready(kalixApp.start(), 10.seconds)
         started = true
       }
 
