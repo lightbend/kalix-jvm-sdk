@@ -8,7 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 // tag::class[]
 import kalix.javasdk.action.Action;
-import kalix.springsdk.annotations.Subscribe;
+import kalix.javasdk.annotations.Subscribe;
 
 @Subscribe.EventSourcedEntity(value = Counter.class, ignoreUnknown = true) // <1>
 public class SubscribeTypeLevelAction extends Action {

@@ -1,7 +1,7 @@
 package com.example.acl;
 
 import kalix.javasdk.action.Action;
-import kalix.springsdk.annotations.Acl;
+import kalix.javasdk.annotations.Acl;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 

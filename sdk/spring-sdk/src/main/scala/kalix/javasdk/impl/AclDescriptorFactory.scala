@@ -95,7 +95,7 @@ object AclDescriptorFactory {
         DescriptorProtos.FileDescriptorProto.newBuilder
           .setName(policyFile)
           .setSyntax("proto3")
-          .setPackage("kalix.springsdk")
+          .setPackage("kalix.javasdk")
 
       val kalixFileOptions = kalix.FileOptions.newBuilder
       kalixFileOptions.setAcl(deriveProtoAnnotation(cls.getAnnotation(classOf[Acl])))

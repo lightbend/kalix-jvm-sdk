@@ -3,7 +3,7 @@ package com.example.fibonacci;
 import io.grpc.Status;
 import kalix.javasdk.action.Action;
 import kalix.javasdk.action.ActionCreationContext;
-import kalix.springsdk.KalixClient;
+import kalix.spring.KalixClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;

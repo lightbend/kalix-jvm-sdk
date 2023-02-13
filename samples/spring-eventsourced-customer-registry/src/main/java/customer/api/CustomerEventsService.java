@@ -2,9 +2,9 @@ package customer.api;
 
 import customer.domain.CustomerEvent;
 import kalix.javasdk.action.Action;
-import kalix.springsdk.annotations.Publish;
-import kalix.springsdk.annotations.Subscribe;
-import kalix.springsdk.annotations.Acl;
+import kalix.javasdk.annotations.Publish;
+import kalix.javasdk.annotations.Subscribe;
+import kalix.javasdk.annotations.Acl;
 
 // tag::producer[]
 @Subscribe.EventSourcedEntity(

@@ -1,9 +1,9 @@
 package com.example;
 
 import kalix.javasdk.valueentity.ValueEntity;
-import kalix.springsdk.annotations.EntityKey;
-import kalix.springsdk.annotations.EntityType;
-import kalix.springsdk.annotations.GenerateEntityKey;
+import kalix.javasdk.annotations.EntityKey;
+import kalix.javasdk.annotations.EntityType;
+import kalix.javasdk.annotations.GenerateEntityKey;
 
 
 import org.springframework.web.bind.annotation.*;

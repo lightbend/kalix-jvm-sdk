@@ -4,8 +4,8 @@ import com.example.CounterEntity;
 import kalix.javasdk.SideEffect;
 import kalix.javasdk.action.Action;
 import com.example.Number;
-import kalix.springsdk.KalixClient;
-import kalix.springsdk.annotations.Subscribe;
+import kalix.spring.KalixClient;
+import kalix.javasdk.annotations.Subscribe;
 
 
 @Subscribe.ValueEntity(CounterEntity.class)

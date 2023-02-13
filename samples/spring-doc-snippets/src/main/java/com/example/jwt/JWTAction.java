@@ -1,7 +1,7 @@
 package com.example.jwt;
 
 import kalix.javasdk.action.Action;
-import kalix.springsdk.annotations.JWT;
+import kalix.javasdk.annotations.JWT;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 

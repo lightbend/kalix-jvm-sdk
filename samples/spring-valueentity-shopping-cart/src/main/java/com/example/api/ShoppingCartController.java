@@ -3,7 +3,7 @@ package com.example.api;
 import com.example.api.ShoppingCartDTO.LineItemDTO;
 // tag::forward[]
 import kalix.javasdk.action.Action;
-import kalix.springsdk.KalixClient;
+import kalix.spring.KalixClient;
 // end::forward[]
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;

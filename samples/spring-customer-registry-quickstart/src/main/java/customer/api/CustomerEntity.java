@@ -18,8 +18,8 @@ package customer.api;
 
 // tag::customer[]
 import kalix.javasdk.valueentity.ValueEntity;
-import kalix.springsdk.annotations.EntityKey;
-import kalix.springsdk.annotations.EntityType;
+import kalix.javasdk.annotations.EntityKey;
+import kalix.javasdk.annotations.EntityType;
 import org.springframework.web.bind.annotation.*;
 import io.grpc.Status;
 import customer.domain.Address;

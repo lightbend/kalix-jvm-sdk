@@ -9,8 +9,8 @@ import com.example.Counter;
 
 // tag::class[]
 import kalix.javasdk.action.Action;
-import kalix.springsdk.annotations.Publish;
-import kalix.springsdk.annotations.Subscribe;
+import kalix.javasdk.annotations.Publish;
+import kalix.javasdk.annotations.Subscribe;
 
 public class CounterJournalToTopicAction extends Action {
 

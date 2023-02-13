@@ -3,9 +3,9 @@ package store.customer.api;
 import store.customer.domain.Address;
 import store.customer.domain.Customer;
 import kalix.javasdk.eventsourcedentity.EventSourcedEntity;
-import kalix.springsdk.annotations.EntityKey;
-import kalix.springsdk.annotations.EntityType;
-import kalix.springsdk.annotations.EventHandler;
+import kalix.javasdk.annotations.EntityKey;
+import kalix.javasdk.annotations.EntityType;
+import kalix.javasdk.annotations.EventHandler;
 import org.springframework.web.bind.annotation.*;
 import store.customer.domain.CustomerEvent;
 

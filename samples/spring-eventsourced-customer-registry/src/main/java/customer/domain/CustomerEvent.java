@@ -1,7 +1,7 @@
 package customer.domain;
 
 // tag::class[]
-import kalix.springsdk.annotations.TypeName;
+import kalix.javasdk.annotations.TypeName;
 import static customer.domain.CustomerEvent.*;
 
 public sealed interface CustomerEvent {
