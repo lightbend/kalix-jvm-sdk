@@ -26,12 +26,14 @@ mvn compile
 ## Running Locally
 ]]#
 In order to run your application locally, you must run the Kalix proxy. The included `docker-compose` file contains the configuration required to run the proxy for a locally running application.
-It also contains the configuration to start a local Google Pub/Sub emulator that the Kalix proxy will connect to.
 To start the proxy, run the following command from this directory:
 
 ```shell
 docker-compose up
 ```
+
+> Note: if you're looking to use Google Pub/Sub, see comments inside [docker-compose.yml](./docker-compose.yml) 
+> on how to enable a Google Pub/Sub emulator that Kalix proxy will connect to.
 
 To start the application locally, the `exec-maven-plugin` is used. Use the following command:
 
