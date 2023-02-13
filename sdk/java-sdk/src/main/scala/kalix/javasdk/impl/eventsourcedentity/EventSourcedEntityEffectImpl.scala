@@ -21,7 +21,6 @@ import kalix.javasdk.{ DeferredCall, Metadata, SideEffect }
 import java.util
 import java.util.function.{ Function => JFunction }
 import scala.jdk.CollectionConverters._
-import kalix.javasdk.Metadata
 import kalix.javasdk.impl.effect.ErrorReplyImpl
 import kalix.javasdk.impl.effect.ForwardReplyImpl
 import kalix.javasdk.impl.effect.MessageReplyImpl
@@ -36,11 +35,11 @@ import kalix.javasdk.impl.StatusCodeConverter
 
 object EventSourcedEntityEffectImpl {
   sealed trait PrimaryEffectImpl
-  final case class EmitEvents(event: Iterable[Any], deleteEntity: Boolean = false) extends PrimaryEffectImpl
+  final case class EmitEvents[E](event: Iterable[E], deleteEntity: Boolean = false) extends PrimaryEffectImpl
   case object NoPrimaryEffect extends PrimaryEffectImpl
 }
 
-class EventSourcedEntityEffectImpl[S] extends Builder[S] with OnSuccessBuilder[S] with Effect[S] {
+class EventSourcedEntityEffectImpl[S, E] extends Builder[S, E] with OnSuccessBuilder[S] with Effect[S] {
   import EventSourcedEntityEffectImpl._
 
   private var _primaryEffect: PrimaryEffectImpl = NoPrimaryEffect
@@ -63,7 +62,7 @@ class EventSourcedEntityEffectImpl[S] extends Builder[S] with OnSuccessBuilder[S
     secondary
   }
 
-  override def emitEvent(event: Any): EventSourcedEntityEffectImpl[S] = {
+  override def emitEvent(event: E): EventSourcedEntityEffectImpl[S, E] = {
     if (event.isInstanceOf[Iterable[_]] || event.isInstanceOf[java.lang.Iterable[_]]) {
       throw new IllegalStateException(
         s"You are trying to emit collection (${event.getClass}) of events. Use `emitEvents` method instead.")
@@ -73,73 +72,73 @@ class EventSourcedEntityEffectImpl[S] extends Builder[S] with OnSuccessBuilder[S
     }
   }
 
-  override def emitEvents(events: util.List[_]): EventSourcedEntityEffectImpl[S] = {
+  override def emitEvents(events: util.List[_ <: E]): EventSourcedEntityEffectImpl[S, E] = {
     _primaryEffect = EmitEvents(events.asScala)
     this
   }
 
-  override def deleteEntity(): EventSourcedEntityEffectImpl[S] = {
+  override def deleteEntity(): EventSourcedEntityEffectImpl[S, E] = {
     _primaryEffect = _primaryEffect match {
-      case NoPrimaryEffect        => EmitEvents(Vector.empty, deleteEntity = true)
-      case emitEvents: EmitEvents => emitEvents.copy(deleteEntity = true)
+      case NoPrimaryEffect           => EmitEvents[E](Vector.empty, deleteEntity = true)
+      case emitEvents: EmitEvents[_] => emitEvents.copy(deleteEntity = true)
     }
     this
   }
 
-  override def reply[T](message: T): EventSourcedEntityEffectImpl[T] =
+  override def reply[T](message: T): EventSourcedEntityEffectImpl[T, E] =
     reply(message, Metadata.EMPTY)
 
-  override def reply[T](message: T, metadata: Metadata): EventSourcedEntityEffectImpl[T] = {
+  override def reply[T](message: T, metadata: Metadata): EventSourcedEntityEffectImpl[T, E] = {
     _secondaryEffect = MessageReplyImpl(message, metadata, _secondaryEffect.sideEffects)
-    this.asInstanceOf[EventSourcedEntityEffectImpl[T]]
+    this.asInstanceOf[EventSourcedEntityEffectImpl[T, E]]
   }
 
-  override def forward[T](serviceCall: DeferredCall[_, T]): EventSourcedEntityEffectImpl[T] = {
+  override def forward[T](serviceCall: DeferredCall[_, T]): EventSourcedEntityEffectImpl[T, E] = {
     _secondaryEffect = ForwardReplyImpl(serviceCall, _secondaryEffect.sideEffects)
-    this.asInstanceOf[EventSourcedEntityEffectImpl[T]]
+    this.asInstanceOf[EventSourcedEntityEffectImpl[T, E]]
   }
 
-  override def error[T](description: String): EventSourcedEntityEffectImpl[T] = {
+  override def error[T](description: String): EventSourcedEntityEffectImpl[T, E] = {
     _secondaryEffect = ErrorReplyImpl(description, None, _secondaryEffect.sideEffects)
-    this.asInstanceOf[EventSourcedEntityEffectImpl[T]]
+    this.asInstanceOf[EventSourcedEntityEffectImpl[T, E]]
   }
 
-  override def error[T](description: String, grpcErrorCode: Status.Code): EventSourcedEntityEffectImpl[T] = {
+  override def error[T](description: String, grpcErrorCode: Status.Code): EventSourcedEntityEffectImpl[T, E] = {
     if (grpcErrorCode.toStatus.isOk) throw new IllegalArgumentException("Cannot fail with a success status")
     _secondaryEffect = ErrorReplyImpl(description, Some(grpcErrorCode), _secondaryEffect.sideEffects)
-    this.asInstanceOf[EventSourcedEntityEffectImpl[T]]
+    this.asInstanceOf[EventSourcedEntityEffectImpl[T, E]]
   }
 
-  override def error[T](description: String, httpErrorCode: ErrorCode): EventSourcedEntityEffectImpl[T] = {
+  override def error[T](description: String, httpErrorCode: ErrorCode): EventSourcedEntityEffectImpl[T, E] = {
     _secondaryEffect =
       ErrorReplyImpl(description, Some(StatusCodeConverter.toGrpcCode(httpErrorCode)), _secondaryEffect.sideEffects)
-    this.asInstanceOf[EventSourcedEntityEffectImpl[T]]
+    this.asInstanceOf[EventSourcedEntityEffectImpl[T, E]]
   }
 
-  override def thenReply[T](replyMessage: JFunction[S, T]): EventSourcedEntityEffectImpl[T] =
+  override def thenReply[T](replyMessage: JFunction[S, T]): EventSourcedEntityEffectImpl[T, E] =
     thenReply(replyMessage, Metadata.EMPTY)
 
-  override def thenReply[T](replyMessage: JFunction[S, T], metadata: Metadata): EventSourcedEntityEffectImpl[T] = {
+  override def thenReply[T](replyMessage: JFunction[S, T], metadata: Metadata): EventSourcedEntityEffectImpl[T, E] = {
     _functionSecondaryEffect = state => MessageReplyImpl(replyMessage.apply(state), metadata, Vector.empty)
-    this.asInstanceOf[EventSourcedEntityEffectImpl[T]]
+    this.asInstanceOf[EventSourcedEntityEffectImpl[T, E]]
   }
 
-  override def thenForward[T](serviceCall: JFunction[S, DeferredCall[_, T]]): EventSourcedEntityEffectImpl[T] = {
+  override def thenForward[T](serviceCall: JFunction[S, DeferredCall[_, T]]): EventSourcedEntityEffectImpl[T, E] = {
     _functionSecondaryEffect = state => ForwardReplyImpl(serviceCall.apply(state), Vector.empty)
-    this.asInstanceOf[EventSourcedEntityEffectImpl[T]]
+    this.asInstanceOf[EventSourcedEntityEffectImpl[T, E]]
   }
 
-  override def thenAddSideEffect(sideEffect: JFunction[S, SideEffect]): EventSourcedEntityEffectImpl[S] = {
+  override def thenAddSideEffect(sideEffect: JFunction[S, SideEffect]): EventSourcedEntityEffectImpl[S, E] = {
     _functionSideEffects :+= sideEffect
     this
   }
 
-  override def addSideEffects(sideEffects: util.Collection[SideEffect]): EventSourcedEntityEffectImpl[S] = {
+  override def addSideEffects(sideEffects: util.Collection[SideEffect]): EventSourcedEntityEffectImpl[S, E] = {
     _secondaryEffect = _secondaryEffect.addSideEffects(sideEffects.asScala)
     this
   }
 
-  override def addSideEffects(sideEffects: SideEffect*): EventSourcedEntityEffectImpl[S] = {
+  override def addSideEffects(sideEffects: SideEffect*): EventSourcedEntityEffectImpl[S, E] = {
     _secondaryEffect = _secondaryEffect.addSideEffects(sideEffects)
     this
   }

@@ -7,13 +7,14 @@ import kalix.springsdk.annotations.EntityKey;
 import kalix.springsdk.annotations.EntityType;
 import kalix.springsdk.annotations.EventHandler;
 import org.springframework.web.bind.annotation.*;
+import store.customer.domain.CustomerEvent;
 
 import static store.customer.domain.CustomerEvent.*;
 
 @EntityType("customer")
 @EntityKey("id")
 @RequestMapping("/customer/{id}")
-public class CustomerEntity extends EventSourcedEntity<Customer> {
+public class CustomerEntity extends EventSourcedEntity<Customer, CustomerEvent> {
 
   @GetMapping
   public Effect<Customer> get() {

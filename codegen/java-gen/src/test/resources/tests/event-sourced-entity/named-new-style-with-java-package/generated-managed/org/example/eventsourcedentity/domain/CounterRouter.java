@@ -14,7 +14,7 @@ import org.example.eventsourcedentity.CounterApi;
  * An event sourced entity handler that is the glue between the Protobuf service <code>CounterService</code>
  * and the command and event handler methods in the <code>Counter</code> class.
  */
-public class CounterRouter extends EventSourcedEntityRouter<CounterDomain.CounterState, Counter> {
+public class CounterRouter extends EventSourcedEntityRouter<CounterDomain.CounterState, Object, Counter> {
 
   public CounterRouter(Counter entity) {
     super(entity);

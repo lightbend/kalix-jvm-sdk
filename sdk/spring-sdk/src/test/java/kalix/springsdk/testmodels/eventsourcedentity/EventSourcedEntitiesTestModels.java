@@ -25,7 +25,7 @@ public class EventSourcedEntitiesTestModels {
   @EntityKey("id")
   @EntityType("employee")
   @RequestMapping("/employee/{id}")
-  public static class EmployeeEntity extends EventSourcedEntity<Employee> {
+  public static class EmployeeEntity extends EventSourcedEntity<Employee, EmployeeEvent> {
 
     @PostMapping
     public Effect<String> createUser(@RequestBody CreateEmployee create) {
@@ -44,7 +44,7 @@ public class EventSourcedEntitiesTestModels {
   @EntityKey("id")
   @EntityType("counter")
   @RequestMapping("/eventsourced/{id}")
-  public static class CounterEventSourcedEntity extends EventSourcedEntity<Integer> {
+  public static class CounterEventSourcedEntity extends EventSourcedEntity<Integer, Object> {
 
     @GetMapping("/int/{number}")
     public Integer getInteger(@PathVariable Integer number) {
@@ -77,7 +77,7 @@ public class EventSourcedEntitiesTestModels {
 
 
   @EntityType("counter")
-  public static class CounterEventSourcedEntityWithEntityKeyOnMethod extends EventSourcedEntity<Integer> {
+  public static class CounterEventSourcedEntityWithEntityKeyOnMethod extends EventSourcedEntity<Integer, Object> {
     @EntityKey("id")
     @GetMapping("/eventsourced/{id}/int/{number}")
     public Integer getInteger(@PathVariable Integer number) {
@@ -87,7 +87,7 @@ public class EventSourcedEntitiesTestModels {
 
   @EntityKey("id")
   @EntityType("counter")
-  public static class CounterEventSourcedEntityWithEntityKeyMethodOverride extends EventSourcedEntity<Integer> {
+  public static class CounterEventSourcedEntityWithEntityKeyMethodOverride extends EventSourcedEntity<Integer, Object> {
 
     @EntityKey("counter_id")
     @GetMapping("/eventsourced/{counter_id}/int/{number}")
@@ -97,7 +97,7 @@ public class EventSourcedEntitiesTestModels {
   }
 
   @EntityType("counter")
-  public static class CounterEventSourcedEntityWithEntityKeyGenerator extends EventSourcedEntity<Integer> {
+  public static class CounterEventSourcedEntityWithEntityKeyGenerator extends EventSourcedEntity<Integer, Object> {
     @GenerateEntityKey
     @PutMapping("/eventsourced/int/{number}")
     public Integer getInteger(@PathVariable Integer number) {
@@ -106,7 +106,7 @@ public class EventSourcedEntitiesTestModels {
   }
 
   @EntityType("counter")
-  public static class IllDefinedEntityWithEntityKeyGeneratorAndEntityKey extends EventSourcedEntity<Integer> {
+  public static class IllDefinedEntityWithEntityKeyGeneratorAndEntityKey extends EventSourcedEntity<Integer, Object> {
     @GenerateEntityKey
     @EntityKey("id")
     @GetMapping("/eventsourced/{id}/int/{number}")
@@ -116,7 +116,7 @@ public class EventSourcedEntitiesTestModels {
   }
 
   @EntityType("counter")
-  public static class IllDefinedEntityWithoutEntityKeyGeneratorNorEntityKey extends EventSourcedEntity<Integer> {
+  public static class IllDefinedEntityWithoutEntityKeyGeneratorNorEntityKey extends EventSourcedEntity<Integer, Object> {
     @GetMapping("/eventsourced/{id}/int/{number}")
     public Integer getInteger(@PathVariable Integer number) {
       return number;
@@ -126,7 +126,7 @@ public class EventSourcedEntitiesTestModels {
   @EntityKey("id")
   @EntityType("counter")
   @RequestMapping("/eventsourced/{id}")
-  public static class CounterEventSourcedEntityWithJWT extends EventSourcedEntity<Integer> {
+  public static class CounterEventSourcedEntityWithJWT extends EventSourcedEntity<Integer, Object> {
 
     @GetMapping("/int/{number}")
     @JWT(
@@ -147,7 +147,7 @@ public class EventSourcedEntitiesTestModels {
 
   @EntityKey("id")
   @EntityType("counter")
-  public static class ErrorDuplicatedEventsEntity extends EventSourcedEntity<Integer> {
+  public static class ErrorDuplicatedEventsEntity extends EventSourcedEntity<Integer, Object> {
 
     @EventHandler
     public Integer receiveStringEvent(String event) {
@@ -167,7 +167,7 @@ public class EventSourcedEntitiesTestModels {
 
   @EntityKey("id")
   @EntityType("counter")
-  public static class ErrorWrongSignaturesEntity extends EventSourcedEntity<Integer> {
+  public static class ErrorWrongSignaturesEntity extends EventSourcedEntity<Integer, Object> {
 
     @EventHandler
     public String receivedIntegerEvent(Integer event) {
@@ -183,7 +183,7 @@ public class EventSourcedEntitiesTestModels {
   @EntityKey("id")
   @EntityType("counter")
   @Acl(allow = @Acl.Matcher(service = "test"))
-  public static class EventSourcedEntityWithServiceLevelAcl extends EventSourcedEntity<Integer> {
+  public static class EventSourcedEntityWithServiceLevelAcl extends EventSourcedEntity<Integer, Object> {
 
   }
 
@@ -191,7 +191,7 @@ public class EventSourcedEntitiesTestModels {
   @EntityKey("id")
   @EntityType("counter")
   @RequestMapping("/employee/{id}")
-  public static class EventSourcedEntityWithMethodLevelAcl extends EventSourcedEntity<Integer> {
+  public static class EventSourcedEntityWithMethodLevelAcl extends EventSourcedEntity<Integer, Object> {
     @PostMapping
     @Acl(allow = @Acl.Matcher(service = "test"))
     public Effect<String> createUser(@RequestBody CreateEmployee create) {

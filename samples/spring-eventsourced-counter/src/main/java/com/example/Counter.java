@@ -27,13 +27,15 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import java.util.List;
+
 import static com.example.CounterEvent.ValueIncreased;
 import static com.example.CounterEvent.ValueMultiplied;
 
 @EntityKey("id")
 @EntityType("counter")
 @RequestMapping("/counter/{id}")
-public class Counter extends EventSourcedEntity<Integer> {
+public class Counter extends EventSourcedEntity<Integer, CounterEvent> {
 
     private Logger logger = LoggerFactory.getLogger(getClass());
 

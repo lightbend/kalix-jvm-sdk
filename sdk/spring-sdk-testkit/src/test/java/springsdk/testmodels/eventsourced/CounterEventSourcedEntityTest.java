@@ -27,7 +27,7 @@ public class CounterEventSourcedEntityTest {
 
   @Test
   public void testIncrease() {
-    EventSourcedTestKit<Integer, CounterEventSourcedEntity> testKit =
+    EventSourcedTestKit<Integer, Increased, CounterEventSourcedEntity> testKit =
         EventSourcedTestKit.of(ctx -> new CounterEventSourcedEntity());
     EventSourcedResult<String> result = testKit.call(entity -> entity.increaseBy(10));
     assertTrue(result.isReply());
@@ -38,7 +38,7 @@ public class CounterEventSourcedEntityTest {
 
   @Test
   public void testDoubleIncrease() {
-    EventSourcedTestKit<Integer, CounterEventSourcedEntity> testKit =
+    EventSourcedTestKit<Integer, Increased, CounterEventSourcedEntity> testKit =
         EventSourcedTestKit.of(ctx -> new CounterEventSourcedEntity());
     EventSourcedResult<String> result = testKit.call(entity -> entity.doubleIncreaseBy(10));
     assertTrue(result.isReply());
@@ -49,7 +49,7 @@ public class CounterEventSourcedEntityTest {
 
   @Test
   public void testIncreaseWithNegativeValue() {
-    EventSourcedTestKit<Integer, CounterEventSourcedEntity> testKit =
+    EventSourcedTestKit<Integer, Increased, CounterEventSourcedEntity> testKit =
         EventSourcedTestKit.of(ctx -> new CounterEventSourcedEntity());
     EventSourcedResult<String> result = testKit.call(entity -> entity.increaseBy(-10));
     assertTrue(result.isError());

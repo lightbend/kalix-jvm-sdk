@@ -12,7 +12,7 @@ import org.example.eventsourcedentity.state.OuterCounterState;
 // It will be re-generated to reflect any changes to your protobuf definitions.
 // DO NOT EDIT
 
-public abstract class AbstractCounter extends EventSourcedEntity<OuterCounterState.CounterState> {
+public abstract class AbstractCounter extends EventSourcedEntity<OuterCounterState.CounterState, Object> {
 
   protected final Components components() {
     return new ComponentsImpl(commandContext());

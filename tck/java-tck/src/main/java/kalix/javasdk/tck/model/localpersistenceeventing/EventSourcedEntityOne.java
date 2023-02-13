@@ -20,7 +20,7 @@ import kalix.javasdk.eventsourcedentity.*;
 import kalix.tck.model.eventing.LocalPersistenceEventing;
 import com.google.protobuf.Empty;
 
-public class EventSourcedEntityOne extends EventSourcedEntity<String> {
+public class EventSourcedEntityOne extends EventSourcedEntity<String, Object> {
 
   public EventSourcedEntityOne(EventSourcedEntityContext context) {}
 

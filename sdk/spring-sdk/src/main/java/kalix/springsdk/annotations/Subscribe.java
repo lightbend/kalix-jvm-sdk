@@ -77,7 +77,7 @@ public @interface Subscribe {
      * Assign the class type of the entity one intends to subscribe to, which must extend {@link
      * kalix.javasdk.eventsourcedentity.EventSourcedEntity EventSourcedEntity}.
      */
-    Class<? extends kalix.javasdk.eventsourcedentity.EventSourcedEntity<?>> value();
+    Class<? extends kalix.javasdk.eventsourcedentity.EventSourcedEntity<?, ?>> value();
 
     /**
      * This option is only available for classes. Using it in a method has no effect.

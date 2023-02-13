@@ -27,19 +27,19 @@ import java.util.function.Supplier;
 import scala.jdk.javaapi.CollectionConverters;
 
 /** Extended by generated code, not meant for user extension */
-public abstract class EventSourcedEntityEffectsRunner<S> {
+public abstract class EventSourcedEntityEffectsRunner<S, E> {
 
-  private EventSourcedEntity<S> entity;
+  private EventSourcedEntity<S, E> entity;
   private S _state;
-  private List<Object> events = new ArrayList();
+  private List<E> events = new ArrayList();
 
-  public EventSourcedEntityEffectsRunner(EventSourcedEntity<S> entity) {
+  public EventSourcedEntityEffectsRunner(EventSourcedEntity<S, E> entity) {
     this.entity = entity;
     this._state = entity.emptyState();
   }
 
   /** @return The current state of the entity after applying the event */
-  protected abstract S handleEvent(S state, Object event);
+  protected abstract S handleEvent(S state, E event);
 
   /** @return The current state of the entity */
   public S getState() {
@@ -47,7 +47,7 @@ public abstract class EventSourcedEntityEffectsRunner<S> {
   }
 
   /** @return All events emitted by command handlers of this entity up to now */
-  public List<Object> getAllEvents() {
+  public List<E> getAllEvents() {
     return events;
   }
 
@@ -73,7 +73,7 @@ public abstract class EventSourcedEntityEffectsRunner<S> {
     try {
       entity._internalSetEventContext(Optional.of(new TestKitEventSourcedEntityEventContext()));
       for (Object event : EventSourcedResultImpl.eventsOf(effectExecuted)) {
-        this._state = handleEvent(this._state, event);
+        this._state = handleEvent(this._state, (E) event);
         entity._internalSetCurrentState(this._state);
       }
     } finally {
@@ -83,7 +83,7 @@ public abstract class EventSourcedEntityEffectsRunner<S> {
     try {
       entity._internalSetCommandContext(Optional.of(commandContext));
       var secondaryEffect = EventSourcedResultImpl.secondaryEffectOf(effectExecuted, _state);
-      result = new EventSourcedResultImpl<R, S>(effectExecuted, _state, secondaryEffect);
+      result = new EventSourcedResultImpl<>(effectExecuted, _state, secondaryEffect);
     } finally {
       entity._internalSetCommandContext(Optional.empty());
     }

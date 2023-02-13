@@ -2,6 +2,7 @@ package customer.api;
 
 import customer.domain.Address;
 import customer.domain.Customer;
+import customer.domain.CustomerEvent;
 import kalix.javasdk.testkit.EventSourcedResult;
 import kalix.springsdk.testkit.EventSourcedTestKit;
 import org.junit.jupiter.api.Test;
@@ -18,7 +19,7 @@ public class CustomerEntityTest {
   @Test
   public void testCustomerNameChange() {
 
-    EventSourcedTestKit<Customer, CustomerEntity> testKit = EventSourcedTestKit.of(CustomerEntity::new);
+    EventSourcedTestKit<Customer, CustomerEvent, CustomerEntity> testKit = EventSourcedTestKit.of(CustomerEntity::new);
     {
       EventSourcedResult<String> result = testKit.call(e -> e.create(customer));
       assertEquals("OK", result.getReply());
@@ -37,7 +38,7 @@ public class CustomerEntityTest {
   @Test
   public void testCustomerAddressChange() {
 
-    EventSourcedTestKit<Customer, CustomerEntity> testKit = EventSourcedTestKit.of(CustomerEntity::new);
+    EventSourcedTestKit<Customer, CustomerEvent, CustomerEntity> testKit = EventSourcedTestKit.of(CustomerEntity::new);
     {
       EventSourcedResult<String> result = testKit.call(e -> e.create(customer));
       assertEquals("OK", result.getReply());

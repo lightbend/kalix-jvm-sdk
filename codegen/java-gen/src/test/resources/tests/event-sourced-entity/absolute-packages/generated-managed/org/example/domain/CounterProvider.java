@@ -22,7 +22,7 @@ import java.util.function.Function;
  *
  * Should be used with the <code>register</code> method in {@link kalix.javasdk.Kalix}.
  */
-public class CounterProvider implements EventSourcedEntityProvider<OuterCounterState.CounterState, Counter> {
+public class CounterProvider implements EventSourcedEntityProvider<OuterCounterState.CounterState, Object, Counter> {
 
   private final Function<EventSourcedEntityContext, Counter> entityFactory;
   private final EventSourcedEntityOptions options;

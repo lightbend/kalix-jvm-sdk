@@ -17,7 +17,6 @@
 package kalix.javasdk.impl.eventsourcedentity
 
 import java.util.Optional
-
 import kalix.javasdk.eventsourcedentity.CommandContext
 import kalix.javasdk.eventsourcedentity.EventContext
 import kalix.javasdk.eventsourcedentity.EventSourcedEntity
@@ -45,7 +44,7 @@ object EventSourcedEntityRouter {
  *
  * The concrete <code>EventSourcedEntityRouter</code> is generated for the specific entities defined in Protobuf.
  */
-abstract class EventSourcedEntityRouter[S, E <: EventSourcedEntity[S]](protected val entity: E) {
+abstract class EventSourcedEntityRouter[S, E, ES <: EventSourcedEntity[S, E]](protected val entity: ES) {
   import EventSourcedEntityRouter._
 
   private var state: Option[S] = None
@@ -70,7 +69,7 @@ abstract class EventSourcedEntityRouter[S, E <: EventSourcedEntity[S]](protected
 
   /** INTERNAL API */
   // "public" api against the impl/testkit
-  final def _internalHandleEvent(event: Object, context: EventContext): Unit = {
+  final def _internalHandleEvent(event: E, context: EventContext): Unit = {
     entity._internalSetEventContext(Optional.of(context))
     try {
       val newState = handleEvent(_stateOrEmpty(), event)
@@ -94,7 +93,7 @@ abstract class EventSourcedEntityRouter[S, E <: EventSourcedEntity[S]](protected
     val commandEffect =
       try {
         entity._internalSetCommandContext(Optional.of(context))
-        handleCommand(commandName, _stateOrEmpty(), command, context).asInstanceOf[EventSourcedEntityEffectImpl[Any]]
+        handleCommand(commandName, _stateOrEmpty(), command, context).asInstanceOf[EventSourcedEntityEffectImpl[Any, E]]
       } catch {
         case CommandHandlerNotFound(name) =>
           throw new EntityExceptions.EntityException(
@@ -112,7 +111,7 @@ abstract class EventSourcedEntityRouter[S, E <: EventSourcedEntity[S]](protected
         events.foreach { event =>
           try {
             entity._internalSetEventContext(Optional.of(eventContextFactory(currentSequence)))
-            val newState = handleEvent(_stateOrEmpty(), event)
+            val newState = handleEvent(_stateOrEmpty(), event.asInstanceOf[E])
             if (newState == null)
               throw new IllegalArgumentException("Event handler must not return null as the updated state.")
             setState(newState)
@@ -161,7 +160,7 @@ abstract class EventSourcedEntityRouter[S, E <: EventSourcedEntity[S]](protected
     }
   }
 
-  def handleEvent(state: S, event: Any): S
+  def handleEvent(state: S, event: E): S
 
   def handleCommand(commandName: String, state: S, command: Any, context: CommandContext): EventSourcedEntity.Effect[_]
 

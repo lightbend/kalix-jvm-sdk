@@ -13,7 +13,7 @@ public class CounterTest {
 
   @Test
   public void testIncrease() {
-    EventSourcedTestKit<Integer, Counter> testKit = EventSourcedTestKit.of(Counter::new);
+    EventSourcedTestKit<Integer, CounterEvent, Counter> testKit = EventSourcedTestKit.of(Counter::new);
     EventSourcedResult<String> result = testKit.call(e -> e.increase(10));
 
     assertTrue(result.isReply());
@@ -25,7 +25,7 @@ public class CounterTest {
 
   @Test
   public void testMultiply() {
-    EventSourcedTestKit<Integer, Counter> testKit = EventSourcedTestKit.of(Counter::new);
+    EventSourcedTestKit<Integer, CounterEvent, Counter> testKit = EventSourcedTestKit.of(Counter::new);
     // set initial value to 2
     testKit.call(e -> e.increase(2));
 

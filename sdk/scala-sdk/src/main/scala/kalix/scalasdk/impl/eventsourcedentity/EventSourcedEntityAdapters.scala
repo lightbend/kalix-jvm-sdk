@@ -43,7 +43,7 @@ import scala.jdk.CollectionConverters.SetHasAsScala
 import scala.jdk.OptionConverters._
 
 private[scalasdk] final class JavaEventSourcedEntityAdapter[S](scalaSdkEventSourcedEntity: EventSourcedEntity[S])
-    extends JavaSdkEventSourcedEntity[S] {
+    extends JavaSdkEventSourcedEntity[S, Any] {
 
   override def emptyState(): S = scalaSdkEventSourcedEntity.emptyState
 
@@ -55,16 +55,16 @@ private[scalasdk] final class JavaEventSourcedEntityAdapter[S](scalaSdkEventSour
 
 }
 
-private[scalasdk] final class JavaEventSourcedEntityProviderAdapter[S, E <: EventSourcedEntity[S]](
-    scalaSdkProvider: EventSourcedEntityProvider[S, E])
-    extends JavaSdkEventSourcedEntityProvider[S, JavaSdkEventSourcedEntity[S]] {
+private[scalasdk] final class JavaEventSourcedEntityProviderAdapter[S, ES <: EventSourcedEntity[S]](
+    scalaSdkProvider: EventSourcedEntityProvider[S, ES])
+    extends JavaSdkEventSourcedEntityProvider[S, Any, JavaSdkEventSourcedEntity[S, Any]] {
 
   def additionalDescriptors(): Array[Descriptors.FileDescriptor] = scalaSdkProvider.additionalDescriptors.toArray
 
   def entityType(): String = scalaSdkProvider.entityType
 
-  def newRouter(
-      context: JavaSdkEventSourcedEntityContext): JavaSdkEventSourcedEntityRouter[S, JavaSdkEventSourcedEntity[S]] = {
+  def newRouter(context: JavaSdkEventSourcedEntityContext)
+      : JavaSdkEventSourcedEntityRouter[S, Any, JavaSdkEventSourcedEntity[S, Any]] = {
     val scaladslRouter = scalaSdkProvider
       .newRouter(new ScalaEventSourcedEntityContextAdapter(context))
       .asInstanceOf[EventSourcedEntityRouter[S, EventSourcedEntity[S]]]
@@ -102,9 +102,9 @@ private[scalasdk] final class JavaEventSourcedEntityOptionsAdapter(
 }
 
 private[scalasdk] final class JavaEventSourcedEntityRouterAdapter[S](
-    javaSdkEventSourcedEntity: JavaSdkEventSourcedEntity[S],
+    javaSdkEventSourcedEntity: JavaSdkEventSourcedEntity[S, Any],
     scalaSdkRouter: EventSourcedEntityRouter[S, EventSourcedEntity[S]])
-    extends JavaSdkEventSourcedEntityRouter[S, JavaSdkEventSourcedEntity[S]](javaSdkEventSourcedEntity) {
+    extends JavaSdkEventSourcedEntityRouter[S, Any, JavaSdkEventSourcedEntity[S, Any]](javaSdkEventSourcedEntity) {
 
   override def handleEvent(state: S, event: Any): S = {
     scalaSdkRouter.handleEvent(state, event)

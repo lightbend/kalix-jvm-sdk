@@ -86,7 +86,7 @@ object KalixSpringApplication {
 
   val kalixComponents: Seq[Class[_]] =
     classOf[Action] ::
-    classOf[EventSourcedEntity[_]] ::
+    classOf[EventSourcedEntity[_, _]] ::
     classOf[WorkflowEntity[_]] ::
     classOf[ValueEntity[_]] ::
     classOf[ReplicatedEntity[_]] ::
@@ -299,9 +299,9 @@ case class KalixSpringApplication(applicationContext: ApplicationContext, config
         kalixClient.registerComponent(action.serviceDescriptor())
       }
 
-      if (classOf[EventSourcedEntity[_]].isAssignableFrom(clz)) {
+      if (classOf[EventSourcedEntity[_, _]].isAssignableFrom(clz)) {
         logger.info(s"Registering EventSourcedEntity provider for [${clz.getName}]")
-        val esEntity = eventSourcedEntityProvider(clz.asInstanceOf[Class[EventSourcedEntity[Nothing]]])
+        val esEntity = eventSourcedEntityProvider(clz.asInstanceOf[Class[EventSourcedEntity[Nothing, Nothing]]])
         kalix.register(esEntity)
         kalixClient.registerComponent(esEntity.serviceDescriptor())
       }
@@ -395,8 +395,8 @@ case class KalixSpringApplication(applicationContext: ApplicationContext, config
     }
   }
 
-  private def eventSourcedEntityProvider[S, E <: EventSourcedEntity[S]](
-      clz: Class[E]): EventSourcedEntityProvider[S, E] =
+  private def eventSourcedEntityProvider[S, E, ES <: EventSourcedEntity[S, E]](
+      clz: Class[ES]): EventSourcedEntityProvider[S, E, ES] =
     ReflectiveEventSourcedEntityProvider.of(
       clz,
       messageCodec,

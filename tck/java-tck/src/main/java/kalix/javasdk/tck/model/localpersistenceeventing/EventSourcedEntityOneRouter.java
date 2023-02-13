@@ -23,7 +23,7 @@ import kalix.tck.model.eventing.LocalPersistenceEventing;
 
 /** An event sourced entity handler */
 public class EventSourcedEntityOneRouter
-    extends EventSourcedEntityRouter<String, EventSourcedEntityOne> {
+    extends EventSourcedEntityRouter<String, Object, EventSourcedEntityOne> {
 
   public EventSourcedEntityOneRouter(EventSourcedEntityOne entity) {
     super(entity);

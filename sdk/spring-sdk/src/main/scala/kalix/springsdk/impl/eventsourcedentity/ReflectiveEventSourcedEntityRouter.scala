@@ -28,12 +28,12 @@ import kalix.springsdk.impl.{ CommandHandler, InvocationContext }
 
 import java.lang.reflect.ParameterizedType
 
-class ReflectiveEventSourcedEntityRouter[S, E <: EventSourcedEntity[S]](
-    override protected val entity: E,
+class ReflectiveEventSourcedEntityRouter[S, E, ES <: EventSourcedEntity[S, E]](
+    override protected val entity: ES,
     commandHandlers: Map[String, CommandHandler],
     eventHandlerMethods: Map[String, MethodInvoker],
     messageCodec: SpringSdkMessageCodec)
-    extends EventSourcedEntityRouter[S, E](entity) {
+    extends EventSourcedEntityRouter[S, E, ES](entity) {
 
   private def commandHandlerLookup(commandName: String) =
     commandHandlers.getOrElse(
@@ -45,7 +45,7 @@ class ReflectiveEventSourcedEntityRouter[S, E <: EventSourcedEntity[S]](
       eventName,
       throw new HandlerNotFoundException("event", eventName, commandHandlers.keySet))
 
-  override def handleEvent(state: S, event: Any): S = {
+  override def handleEvent(state: S, event: E): S = {
 
     _extractAndSetCurrentState(state)
 

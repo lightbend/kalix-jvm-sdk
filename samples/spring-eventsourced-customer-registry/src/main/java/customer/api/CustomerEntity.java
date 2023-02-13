@@ -2,6 +2,7 @@ package customer.api;
 
 import customer.domain.Address;
 import customer.domain.Customer;
+import customer.domain.CustomerEvent;
 import kalix.javasdk.eventsourcedentity.EventSourcedEntity;
 import kalix.javasdk.eventsourcedentity.EventSourcedEntityContext;
 import kalix.springsdk.annotations.EntityKey;
@@ -14,7 +15,7 @@ import static customer.domain.CustomerEvent.*;
 @EntityKey("id")
 @EntityType("customer")
 @RequestMapping("/customer/{id}")
-public class CustomerEntity extends EventSourcedEntity<Customer> {
+public class CustomerEntity extends EventSourcedEntity<Customer, CustomerEvent> {
 
   @GetMapping
   public Effect<Customer> getCustomer() {

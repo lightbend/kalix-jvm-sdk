@@ -41,15 +41,15 @@ import java.util.function.Supplier;
  *
  * <p>Use the {@code call} methods to interact with the testkit.
  */
-public class EventSourcedTestKit<S, E extends EventSourcedEntity<S>>
-    extends EventSourcedEntityEffectsRunner<S> {
+public class EventSourcedTestKit<S, E, ES extends EventSourcedEntity<S, E>>
+    extends EventSourcedEntityEffectsRunner<S, E> {
 
-  private final E entity;
+  private final ES entity;
   private final EventSourceEntityHandlers eventHandlers;
 
   private final SpringSdkMessageCodec messageCodec;
 
-  private EventSourcedTestKit(E entity) {
+  private EventSourcedTestKit(ES entity) {
     super(entity);
     this.entity = entity;
     this.messageCodec = new SpringSdkMessageCodec();
@@ -61,8 +61,8 @@ public class EventSourcedTestKit<S, E extends EventSourcedEntity<S>>
    *
    * <p>A default test entity id will be automatically provided.
    */
-  public static <S, E extends EventSourcedEntity<S>> EventSourcedTestKit<S, E> of(
-      Supplier<E> entityFactory) {
+  public static <S, E, ES extends EventSourcedEntity<S, E>> EventSourcedTestKit<S, E, ES> of(
+      Supplier<ES> entityFactory) {
     return of("testkit-entity-id", entityFactory);
   }
 
@@ -71,8 +71,8 @@ public class EventSourcedTestKit<S, E extends EventSourcedEntity<S>>
    *
    * <p>A default test entity id will be automatically provided.
    */
-  public static <S, E extends EventSourcedEntity<S>> EventSourcedTestKit<S, E> of(
-      Function<EventSourcedEntityContext, E> entityFactory) {
+  public static <S, E, ES extends EventSourcedEntity<S, E>> EventSourcedTestKit<S, E, ES> of(
+      Function<EventSourcedEntityContext, ES> entityFactory) {
     return of("testkit-entity-id", entityFactory);
   }
 
@@ -80,8 +80,8 @@ public class EventSourcedTestKit<S, E extends EventSourcedEntity<S>>
    * Creates a new testkit instance from a user defined entity id and an EventSourcedEntity
    * Supplier.
    */
-  public static <S, E extends EventSourcedEntity<S>> EventSourcedTestKit<S, E> of(
-      String entityId, Supplier<E> entityFactory) {
+  public static <S, E, ES extends EventSourcedEntity<S, E>> EventSourcedTestKit<S, E, ES> of(
+      String entityId, Supplier<ES> entityFactory) {
     return of(entityId, ctx -> entityFactory.get());
   }
 
@@ -89,8 +89,8 @@ public class EventSourcedTestKit<S, E extends EventSourcedEntity<S>>
    * Creates a new testkit instance from a user defined entity id and a function
    * EventSourcedEntityContext to EventSourcedEntity.
    */
-  public static <S, E extends EventSourcedEntity<S>> EventSourcedTestKit<S, E> of(
-      String entityId, Function<EventSourcedEntityContext, E> entityFactory) {
+  public static <S, E, ES extends EventSourcedEntity<S, E>> EventSourcedTestKit<S, E, ES> of(
+      String entityId, Function<EventSourcedEntityContext, ES> entityFactory) {
     EventSourcedEntityContext context = new TestKitEventSourcedEntityContext(entityId);
     return new EventSourcedTestKit<>(entityFactory.apply(context));
   }
@@ -104,12 +104,12 @@ public class EventSourcedTestKit<S, E extends EventSourcedEntity<S>>
    * @return a EventSourcedResult
    * @param <R> The type of reply that is expected from invoking a command handler
    */
-  public <R> EventSourcedResult<R> call(Function<E, EventSourcedEntity.Effect<R>> func) {
+  public <R> EventSourcedResult<R> call(Function<ES, EventSourcedEntity.Effect<R>> func) {
     return interpretEffects(() -> func.apply(entity), Metadata.EMPTY);
   }
 
   @Override
-  protected final S handleEvent(S state, Object event) {
+  protected final S handleEvent(S state, E event) {
     try {
       Method method = eventHandlers.handlers().apply(messageCodec.typeUrlFor(event.getClass())).method();
       return (S) method.invoke(entity, event);

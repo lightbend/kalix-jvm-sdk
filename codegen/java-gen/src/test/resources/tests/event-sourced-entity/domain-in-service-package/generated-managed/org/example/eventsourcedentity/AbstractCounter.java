@@ -9,7 +9,7 @@ import org.example.ComponentsImpl;
 // It will be re-generated to reflect any changes to your protobuf definitions.
 // DO NOT EDIT
 
-public abstract class AbstractCounter extends EventSourcedEntity<CounterDomain.CounterState> {
+public abstract class AbstractCounter extends EventSourcedEntity<CounterDomain.CounterState, Object> {
 
   protected final Components components() {
     return new ComponentsImpl(commandContext());

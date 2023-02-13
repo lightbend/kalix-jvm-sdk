@@ -25,7 +25,7 @@ import java.util.function.Function;
 
 /** An event sourced entity provider */
 public class CartEntityProvider
-    implements EventSourcedEntityProvider<ShoppingCartDomain.Cart, CartEntity> {
+    implements EventSourcedEntityProvider<ShoppingCartDomain.Cart, Object, CartEntity> {
 
   private final Function<EventSourcedEntityContext, CartEntity> entityFactory;
   private final EventSourcedEntityOptions options;
