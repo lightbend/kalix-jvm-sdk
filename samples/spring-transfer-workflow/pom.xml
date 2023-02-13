@@ -211,6 +211,7 @@
         <configuration>
           <systemPropertyVariables>
             <logging.config>src/main/resources/logback-dev-mode.xml</logging.config>
+            <kalix.user-function-interface>0.0.0.0</kalix.user-function-interface>
           </systemPropertyVariables>
         </configuration>
       </plugin>
