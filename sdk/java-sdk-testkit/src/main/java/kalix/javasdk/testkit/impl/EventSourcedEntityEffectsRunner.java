@@ -31,7 +31,7 @@ public abstract class EventSourcedEntityEffectsRunner<S, E> {
 
   private EventSourcedEntity<S, E> entity;
   private S _state;
-  private List<Object> events = new ArrayList();
+  private List<E> events = new ArrayList();
 
   public EventSourcedEntityEffectsRunner(EventSourcedEntity<S, E> entity) {
     this.entity = entity;
@@ -47,7 +47,7 @@ public abstract class EventSourcedEntityEffectsRunner<S, E> {
   }
 
   /** @return All events emitted by command handlers of this entity up to now */
-  public List<Object> getAllEvents() {
+  public List<E> getAllEvents() {
     return events;
   }
 
