@@ -36,8 +36,17 @@ public class DeployMojo extends AbstractMojo {
     @Parameter(property = "kalixContext")
     private String kalixContext;
 
+    @Parameter(property = "projectToDeploy", required = true)
+    private String kalixProjectToDeploy;
+
+    @Parameter(defaultValue = "false", property = "kalixDeploymentOn", required = true)
+    private Boolean kalixDeploymentOn;
+
     @Parameter(defaultValue = "30000", property = "cliTimeoutMs", required = true)
     private Long cliTimeoutMs;
+
+    @Component
+    private Prompter prompter;
 
     private final Log log = getLog();
 
@@ -45,27 +54,32 @@ public class DeployMojo extends AbstractMojo {
      * We deploy by invoking the services deploy command
      */
     public void execute() throws MojoExecutionException {
-        log.info("Deploying project to Kalix");
-        try {
             final List<String> commandLine;
-            if (kalixContext != null) {
+            final int deploymentResult;
+            if (kalixContext != null && kalixDeploymentOn) {
                 commandLine = Arrays.asList(kalixPath, "--context", kalixContext, "service", "deploy", service, dockerImage);
-            } else {
+                deploymentResult = deploy(commandLine);
+            } else if (kalixDeploymentOn){
                 commandLine = Arrays.asList(kalixPath, "service", "deploy", service, dockerImage);
-            }
-            log.info("Executing `" + String.join(" ", commandLine) + "`");
-            Process process = new ProcessBuilder().directory(baseDir).command(commandLine).start();
-            synchronized (process) {
-                process.wait(cliTimeoutMs);
-            }
-            int status = process.exitValue();
-            if (status == 0) {
+                deploymentResult = deploy(commandLine);
+            } 
+            if (deploymentResult == 0) {
                 log.info("Done.");
             } else {
                 log.error("Unable to deploy. Ensure you can deploy by using the kalix command line directly.");
             }
+    }
+
+    public int deploy(List<String> commandLine) throws MojoExecutionException {
+        try {
+            log.info("Deploying project to Kalix");
+            log.info("Executing `" + String.join(" ", commandLine) + "`");
+            Process process = new ProcessBuilder().directory(baseDir).command(commandLine).start();
+            synchronized (process) {
+                process.wait(cliTimeoutMs);
+            } 
+            return process.exitValue();
         } catch (IOException | InterruptedException e) {
             throw new MojoExecutionException("There was a problem deploying", e);
         }
-    }
 }
