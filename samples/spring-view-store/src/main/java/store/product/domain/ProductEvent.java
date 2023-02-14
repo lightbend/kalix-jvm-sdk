@@ -1,6 +1,6 @@
 package store.product.domain;
 
-import kalix.springsdk.annotations.TypeName;
+import kalix.javasdk.annotations.TypeName;
 
 public sealed interface ProductEvent {
   @TypeName("product-created")

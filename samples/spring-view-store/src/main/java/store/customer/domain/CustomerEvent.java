@@ -1,6 +1,6 @@
 package store.customer.domain;
 
-import kalix.springsdk.annotations.TypeName;
+import kalix.javasdk.annotations.TypeName;
 
 public sealed interface CustomerEvent {
   @TypeName("customer-created")

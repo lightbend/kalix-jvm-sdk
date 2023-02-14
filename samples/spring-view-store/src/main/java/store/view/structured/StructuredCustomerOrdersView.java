@@ -1,10 +1,10 @@
 package store.view.structured;
 
 import kalix.javasdk.view.View;
-import kalix.springsdk.annotations.Query;
-import kalix.springsdk.annotations.Subscribe;
-import kalix.springsdk.annotations.Table;
-import kalix.springsdk.annotations.ViewId;
+import kalix.javasdk.annotations.Query;
+import kalix.javasdk.annotations.Subscribe;
+import kalix.javasdk.annotations.Table;
+import kalix.javasdk.annotations.ViewId;
 import org.springframework.web.bind.annotation.GetMapping;
 import store.customer.api.CustomerEntity;
 import store.customer.domain.CustomerEvent;

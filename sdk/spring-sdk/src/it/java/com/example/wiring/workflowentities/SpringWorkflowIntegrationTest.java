@@ -18,7 +18,7 @@ package com.example.wiring.workflowentities;
 
 import com.example.wiring.TestkitConfig;
 import com.example.wiring.actions.echo.Message;
-import kalix.springsdk.KalixConfigurationTest;
+import kalix.spring.KalixConfigurationTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;

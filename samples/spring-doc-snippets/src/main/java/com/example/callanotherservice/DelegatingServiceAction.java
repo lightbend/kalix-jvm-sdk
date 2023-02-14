@@ -1,7 +1,7 @@
 package com.example.callanotherservice;
 
 import kalix.javasdk.action.Action;
-import kalix.springsdk.WebClientProvider;
+import kalix.spring.WebClientProvider;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;

@@ -18,9 +18,9 @@ package com.example.wiring.eventsourcedentities.headers;
 
 import com.example.wiring.actions.echo.Message;
 import kalix.javasdk.eventsourcedentity.EventSourcedEntity;
-import kalix.springsdk.annotations.EntityKey;
-import kalix.springsdk.annotations.EntityType;
-import kalix.springsdk.annotations.ForwardHeaders;
+import kalix.javasdk.annotations.EntityKey;
+import kalix.javasdk.annotations.EntityType;
+import kalix.javasdk.annotations.ForwardHeaders;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 

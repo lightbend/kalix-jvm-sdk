@@ -18,7 +18,7 @@ package kalix.spring.boot
 
 import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
-import kalix.springsdk.impl.KalixSpringApplication
+import kalix.spring.impl.KalixSpringApplication
 import org.springframework.beans.factory.config.BeanPostProcessor
 import org.springframework.boot.autoconfigure.AutoConfiguration
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass

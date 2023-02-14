@@ -19,7 +19,7 @@ package com.example.wiring;
 import com.example.Main;
 import com.example.wiring.actions.echo.Message;
 import com.example.wiring.valueentities.user.User;
-import kalix.springsdk.KalixConfigurationTest;
+import kalix.spring.KalixConfigurationTest;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

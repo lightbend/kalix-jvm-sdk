@@ -19,7 +19,7 @@ package kalix.spring.boot
 import com.typesafe.config.Config
 import kalix.javasdk.JsonSupport
 import kalix.javasdk.testkit.KalixTestKit
-import kalix.springsdk.impl.KalixSpringApplication
+import kalix.spring.impl.KalixSpringApplication
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.autoconfigure.AutoConfiguration

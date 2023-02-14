@@ -2,7 +2,7 @@ package com.example.fibonacci;
 
 // tag::testing-action[]
 import kalix.javasdk.testkit.ActionResult;
-import kalix.springsdk.testkit.ActionTestkit;
+import kalix.javasdk.testkit.ActionTestkit;
 import org.junit.jupiter.api.Test;
 
 // end::testing-action[]

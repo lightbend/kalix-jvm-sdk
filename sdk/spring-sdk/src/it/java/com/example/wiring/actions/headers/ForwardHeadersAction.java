@@ -18,7 +18,7 @@ package com.example.wiring.actions.headers;
 
 import com.example.wiring.actions.echo.Message;
 import kalix.javasdk.action.Action;
-import kalix.springsdk.annotations.ForwardHeaders;
+import kalix.javasdk.annotations.ForwardHeaders;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 

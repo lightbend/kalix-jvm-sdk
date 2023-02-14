@@ -2,7 +2,7 @@ package com.example.shoppingcart.domain;
 
 
 // tag::events[]
-import kalix.springsdk.annotations.TypeName;
+import kalix.javasdk.annotations.TypeName;
 public sealed interface ShoppingCartEvent { // <1>
 
   @TypeName("item-added") // <2>

@@ -19,9 +19,9 @@ package com.example.wiring.views;
 import com.example.wiring.valueentities.user.User;
 import com.example.wiring.valueentities.user.UserEntity;
 import kalix.javasdk.view.View;
-import kalix.springsdk.annotations.Query;
-import kalix.springsdk.annotations.Subscribe;
-import kalix.springsdk.annotations.Table;
+import kalix.javasdk.annotations.Query;
+import kalix.javasdk.annotations.Subscribe;
+import kalix.javasdk.annotations.Table;
 import org.springframework.web.bind.annotation.GetMapping;
 import reactor.core.publisher.Flux;
 

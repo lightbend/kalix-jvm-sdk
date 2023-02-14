@@ -18,7 +18,7 @@ package com.example.wiring.actions.echo;
 
 import kalix.javasdk.action.Action;
 import kalix.javasdk.action.ActionCreationContext;
-import kalix.springsdk.KalixClient;
+import kalix.spring.KalixClient;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URLEncoder;

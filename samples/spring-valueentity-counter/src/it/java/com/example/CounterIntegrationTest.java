@@ -1,6 +1,6 @@
 package com.example;
 
-import kalix.springsdk.testkit.KalixIntegrationTestKitSupport;
+import kalix.spring.testkit.KalixIntegrationTestKitSupport;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

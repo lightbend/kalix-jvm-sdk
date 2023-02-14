@@ -2,7 +2,7 @@ package com.example.shoppingcart.domain;
 
 import com.example.shoppingcart.ShoppingCartEntity;
 import kalix.javasdk.testkit.EventSourcedResult;
-import kalix.springsdk.testkit.EventSourcedTestKit;
+import kalix.javasdk.testkit.EventSourcedTestKit;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;

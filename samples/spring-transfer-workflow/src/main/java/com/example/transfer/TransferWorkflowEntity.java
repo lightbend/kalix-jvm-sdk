@@ -5,9 +5,9 @@ import com.example.transfer.FraudDetectionResult.TransferRequiresManualAcceptati
 import com.example.transfer.FraudDetectionResult.TransferVerified;
 import com.example.transfer.TransferState.Transfer;
 import kalix.javasdk.workflowentity.WorkflowEntity;
-import kalix.springsdk.KalixClient;
-import kalix.springsdk.annotations.EntityKey;
-import kalix.springsdk.annotations.EntityType;
+import kalix.spring.KalixClient;
+import kalix.javasdk.annotations.EntityKey;
+import kalix.javasdk.annotations.EntityType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.GetMapping;

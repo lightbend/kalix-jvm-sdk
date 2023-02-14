@@ -1,7 +1,7 @@
 package com.example;
 
 import kalix.javasdk.testkit.EventSourcedResult;
-import kalix.springsdk.testkit.EventSourcedTestKit;
+import kalix.javasdk.testkit.EventSourcedTestKit;
 import org.junit.jupiter.api.Test;
 
 import static com.example.CounterEvent.ValueIncreased;

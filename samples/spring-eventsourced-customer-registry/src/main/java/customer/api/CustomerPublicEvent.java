@@ -1,6 +1,6 @@
 package customer.api;
 
-import kalix.springsdk.annotations.TypeName;
+import kalix.javasdk.annotations.TypeName;
 
 public interface CustomerPublicEvent {
 

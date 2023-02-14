@@ -1,6 +1,6 @@
 package com.example;
 
-import kalix.springsdk.annotations.TypeName;
+import kalix.javasdk.annotations.TypeName;
 
 import static com.example.CounterEvent.*;
 

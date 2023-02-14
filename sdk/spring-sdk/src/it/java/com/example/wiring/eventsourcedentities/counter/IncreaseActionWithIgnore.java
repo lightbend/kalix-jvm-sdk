@@ -18,9 +18,9 @@ package com.example.wiring.eventsourcedentities.counter;
 
 import kalix.javasdk.action.Action;
 import kalix.javasdk.action.ActionCreationContext;
-import kalix.springsdk.KalixClient;
-import kalix.springsdk.KalixConfigurationTest;
-import kalix.springsdk.annotations.Subscribe;
+import kalix.javasdk.annotations.Subscribe;
+import kalix.spring.KalixClient;
+import kalix.spring.KalixConfigurationTest;
 import org.springframework.context.annotation.Import;
 
 import java.util.concurrent.CompletionStage;

@@ -17,8 +17,8 @@
 package customer.api;
 
 import kalix.javasdk.valueentity.ValueEntity;
-import kalix.springsdk.annotations.EntityKey;
-import kalix.springsdk.annotations.EntityType;
+import kalix.javasdk.annotations.EntityKey;
+import kalix.javasdk.annotations.EntityType;
 import org.springframework.web.bind.annotation.*;
 
 @EntityKey("id")

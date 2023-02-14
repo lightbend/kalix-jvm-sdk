@@ -9,7 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 // tag::class[]
 import kalix.javasdk.action.Action;
-import kalix.springsdk.annotations.Subscribe;
+import kalix.javasdk.annotations.Subscribe;
 
 public class CounterTopicSubscriptionAction extends Action {
 

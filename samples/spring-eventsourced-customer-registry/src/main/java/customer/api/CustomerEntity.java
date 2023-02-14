@@ -5,9 +5,9 @@ import customer.domain.Customer;
 import customer.domain.CustomerEvent;
 import kalix.javasdk.eventsourcedentity.EventSourcedEntity;
 import kalix.javasdk.eventsourcedentity.EventSourcedEntityContext;
-import kalix.springsdk.annotations.EntityKey;
-import kalix.springsdk.annotations.EntityType;
-import kalix.springsdk.annotations.EventHandler;
+import kalix.javasdk.annotations.EntityKey;
+import kalix.javasdk.annotations.EntityType;
+import kalix.javasdk.annotations.EventHandler;
 import org.springframework.web.bind.annotation.*;
 
 import static customer.domain.CustomerEvent.*;

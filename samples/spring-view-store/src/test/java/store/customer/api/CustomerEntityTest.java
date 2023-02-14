@@ -3,7 +3,7 @@ package store.customer.api;
 import store.customer.domain.Address;
 import store.customer.domain.Customer;
 import kalix.javasdk.testkit.EventSourcedResult;
-import kalix.springsdk.testkit.EventSourcedTestKit;
+import kalix.javasdk.testkit.EventSourcedTestKit;
 import org.junit.jupiter.api.Test;
 import store.customer.domain.CustomerEvent;
 
