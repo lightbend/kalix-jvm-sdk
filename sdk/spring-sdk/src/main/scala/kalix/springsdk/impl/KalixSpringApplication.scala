@@ -266,6 +266,7 @@ case class KalixSpringApplication(applicationContext: ApplicationContext, config
     .withDefaultAclFileDescriptor(AclDescriptorFactory.defaultAclFileDescriptor(mainClass).toJava)
 
   private val provider = new KalixComponentProvider(cglibEnhanceMainClass.getClass)
+  provider.setEnvironment(applicationContext.getEnvironment) //use the same environment to get access to properties
 
   // load all Kalix components found in the classpath
   val classBeanMap =
