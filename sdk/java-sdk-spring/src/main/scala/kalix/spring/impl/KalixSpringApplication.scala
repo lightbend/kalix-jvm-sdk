@@ -69,7 +69,7 @@ import kalix.spring.impl.KalixSpringApplication.ValueEntityContextFactoryBean
 import kalix.spring.impl.KalixSpringApplication.ViewCreationContextFactoryBean
 import kalix.spring.impl.KalixSpringApplication.WebClientProviderFactoryBean
 import kalix.spring.impl.KalixSpringApplication.WorkflowContextFactoryBean
-import kalix.springsdk.SpringSdkBuildInfo
+import kalix.spring.BuildInfo
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.BeanCreationException
@@ -268,7 +268,7 @@ case class KalixSpringApplication(applicationContext: ApplicationContext, config
   private val mainClass = new MainClassProvider(cglibEnhanceMainClass.getClass).findOriginalMainClass
 
   val kalix: Kalix = (new Kalix)
-    .withSdkName(SpringSdkBuildInfo.name)
+    .withSdkName(BuildInfo.name)
     .withDefaultAclFileDescriptor(AclDescriptorFactory.defaultAclFileDescriptor(mainClass).toJava)
 
   private val provider = new KalixComponentProvider(cglibEnhanceMainClass.getClass)

@@ -258,14 +258,14 @@ jobs:
   spring-sdk-integration-tests:
     machine:
       image: ubuntu-2004:202201-02
-    description: "Spring SDK -  Integration Test"
+    description: "Java SDK with Spring -  Integration Test"
     steps:
       - checkout-and-merge-to-main
       - setup_sbt
       - restore_deps_cache
       - run:
           name: Run tests
-          command: sbt sdkSpring/IntegrationTest/test
+          command: sbt sdkJavaSpring/IntegrationTest/test
       - save_deps_cache
 
   scripted-tests:
@@ -1450,7 +1450,7 @@ jobs:
             ## Scala SDK including sbt codegen
             fossa analyze --only-target scala@sdk/scala-sdk/target/scala-2.13/ --only-target scala@codegen/scala-gen/target/scala-2.12/ -p kalix-scala-sdk
             ## Spring SDK
-            fossa analyze --only-target scala@sdk/spring-sdk/target/ -p kalix-spring-sdk
+            fossa analyze --only-target scala@sdk/java-sdk-spring/target/ -p kalix-spring-sdk
             # report all parts including testkits, tests, and samples
             fossa analyze -p kalix-jvm-sdk
 
