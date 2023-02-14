@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package spring.testmodels.eventsourced;
+package kalix.javasdk.testmodels.eventsourced;
 
 import kalix.javasdk.testkit.EventSourcedResult;
 import kalix.javasdk.testkit.EventSourcedTestKit;

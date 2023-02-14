@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package spring.testmodels.actions;
+package kalix.javasdk.testmodels.actions;
 
 import kalix.javasdk.testkit.ActionResult;
 import kalix.javasdk.testkit.ActionTestkit;

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package spring.testmodels.valueentity;
+package kalix.javasdk.testmodels.valueentity;
 
 import kalix.javasdk.valueentity.ValueEntity;
 

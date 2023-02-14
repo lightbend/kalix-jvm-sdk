@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package spring.testmodels.actions;
+package kalix.javasdk.testmodels.eventsourced;
 
-import kalix.javasdk.action.Action;
+public class Increased {
 
-public class EchoAction extends Action {
+  public final Integer value;
 
-  public Effect<String> echo(String msg) {
-    return effects().reply(msg);
+  public Increased(Integer value) {
+    this.value = value;
   }
 }
