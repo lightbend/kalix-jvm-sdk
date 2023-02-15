@@ -12,7 +12,7 @@ lazy val `kalix-jvm-sdk` = project
     springBootStarterTest,
     scalaSdk,
     scalaSdkTestKit,
-    tckJava,
+    javaTck,
     tckScala,
     codegenCore,
     codegenJava,
@@ -345,7 +345,7 @@ def githubUrl(v: String): String = {
   "https://github.com/lightbend/kalix-jvm-sdk/tree/" + branch
 }
 
-lazy val tckJava = project
+lazy val javaTck = project
   .in(file("tck/java-tck"))
   .dependsOn(javaSdk, javaSdkTestKit)
   .enablePlugins(AkkaGrpcPlugin, PublicDockerImage, ReflectiveCodeGen)

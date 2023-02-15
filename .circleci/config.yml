@@ -292,7 +292,7 @@ jobs:
       - restore_deps_cache
       - run:
           name: Run Java TCK tests
-          command: sbt tckJava/Test/run
+          command: sbt javaTck/Test/run
       - run:
           name: Run Scala TCK tests
           command: sbt tckScala/Test/run
@@ -1410,7 +1410,7 @@ jobs:
       - setup_sbt
       - restore_deps_cache
       - run: bin/docker-login-public-gcr.sh
-      - run: sbt tckJava/Docker/publish
+      - run: sbt javaTck/Docker/publish
       - run: sbt tckScala/Docker/publish
       - save_deps_cache
 
