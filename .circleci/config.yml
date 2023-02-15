@@ -295,7 +295,7 @@ jobs:
           command: sbt javaTck/Test/run
       - run:
           name: Run Scala TCK tests
-          command: sbt tckScala/Test/run
+          command: sbt scalaTck/Test/run
       - save_deps_cache
 
   # by setting a snapshot version with set-sdk-version we publish the deps so that
@@ -1411,7 +1411,7 @@ jobs:
       - restore_deps_cache
       - run: bin/docker-login-public-gcr.sh
       - run: sbt javaTck/Docker/publish
-      - run: sbt tckScala/Docker/publish
+      - run: sbt scalaTck/Docker/publish
       - save_deps_cache
 
   publish-docs:

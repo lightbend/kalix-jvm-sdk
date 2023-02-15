@@ -13,7 +13,7 @@ lazy val `kalix-jvm-sdk` = project
     scalaSdk,
     scalaSdkTestKit,
     javaTck,
-    tckScala,
+    scalaTck,
     codegenCore,
     codegenJava,
     codegenJavaCompilationTest,
@@ -361,7 +361,7 @@ lazy val javaTck = project
     dockerExposedPorts += 8080)
   .settings(Dependencies.tck)
 
-lazy val tckScala = project
+lazy val scalaTck = project
   .in(file("tck/scala-tck"))
   .dependsOn(scalaSdk, scalaSdkTestKit)
   .enablePlugins(AkkaGrpcPlugin, PublicDockerImage, ReflectiveCodeGen)
