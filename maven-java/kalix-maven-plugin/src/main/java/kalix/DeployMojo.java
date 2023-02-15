@@ -88,7 +88,7 @@ public class DeployMojo extends AbstractMojo {
               }
               if(!currentProjectInfo.contains(kalixCurrentProject) || kalixCurrentProject.isEmpty()){
                   log.info("Your current Kalix project ID is not [" + kalixCurrentProject + "]. Therefore, not deploying to Kalix");
-                  log.info("Your current Kalix project (`kalix config get-project`) is:");
+                  log.info("Your current Kalix project is:");
                   int newLine = currentProjectInfo.indexOf("\n");
                   log.info(currentProjectInfo.substring(0, newLine));
                   log.info(currentProjectInfo.substring(newLine + 1));
