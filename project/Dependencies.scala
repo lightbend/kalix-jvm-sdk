@@ -137,8 +137,6 @@ object Dependencies {
     "org.assertj" % "assertj-core" % "3.24.0" % IntegrationTest,
     "org.awaitility" % "awaitility" % "4.2.0" % IntegrationTest)
 
-  val springBootStarter = deps ++= springDeps
-
   val javaSdkSpringTestKit =
     deps ++= springDeps ++
     Seq(

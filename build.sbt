@@ -235,7 +235,6 @@ lazy val springBootStarter = project
       "Kalix Spring Boot Starter",
       "-noqualifier",
       "java.lang"))
-  .settings(Dependencies.springBootStarter)
 
 lazy val springBootStarterTest = project
   .in(file("sdk/spring-boot-starter-test"))
@@ -272,7 +271,6 @@ lazy val springBootStarterTest = project
       "Kalix Spring Boot Starter Test",
       "-noqualifier",
       "java.lang"))
-  .settings(Dependencies.javaSdkSpringTestKit)
 
 lazy val scalaSdk = project
   .in(file("sdk/scala-sdk"))
