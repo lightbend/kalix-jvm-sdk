@@ -1,15 +1,23 @@
+
 # this script updates all maven projects versions (maven-java and samples) to align with the current sdk version
 # if SDK_VERSION env var is defined, it will use it, otherwise it will take the version from sbt
 # after running this script, you may run local tests or simply send a PR with the updates. 
 
 # you can pass the path to a sample to only change the version for single sample, 
 # eg: ./updatePomVersions.sh samples/java-eventsourced-counter
+# or you can pass 'all' to it and all java samples (pom.xml) will be updated
+# eg: ./updatePomVersions.sh all
 # useful when testing out new functionality locally.
 
 
 if [ -z ${SDK_VERSION+x} ]; then 
   SDK_VERSION=$(sbt "print sdkJava/version" | tail -1)
 fi
+
+echo
+echo "------------------------------------------------------------------------"
+echo "Publishing version $SDK_VERSION"
+echo "------------------------------------------------------------------------"
 
 sbt 'publishM2; publishLocal'
 (
@@ -26,8 +34,5 @@ sbt 'publishM2; publishLocal'
   git checkout */pom.xml
 )
 
-if [ $1 ]; then
-  SDK_VERSION=$SDK_VERSION sh ./updateSdkVersions.sh java $1
-else
-  SDK_VERSION=$SDK_VERSION sh ./updateSdkVersions.sh all
-fi
+
+echo $SDK_VERSION
