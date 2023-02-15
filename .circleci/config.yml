@@ -91,7 +91,7 @@ commands:
               # tail 2 + head 1 because CircleCI adds an extra line
               # the SDK_VERSION is later used to run the maven tests (see below)
               echo "Extracting version from sbt build"
-              echo 'export SDK_VERSION='`sbt "print sdkJava/version" | tail -n 2 | head -n 1` >> $BASH_ENV
+              echo 'export SDK_VERSION='`sbt "print javaSdk/version" | tail -n 2 | head -n 1` >> $BASH_ENV
             fi
 
   publish-local:
@@ -178,7 +178,7 @@ jobs:
           name: Protoc version
           command: |
             # tail 2 + head 1 because CircleCI adds an extra line
-            AKKA_GRPC_PROTOC=$(sbt "print sdkCore/protocVersion" 2>/dev/null | tail -n 2 | head -n 1)
+            AKKA_GRPC_PROTOC=$(sbt "print coreSdk/protocVersion" 2>/dev/null | tail -n 2 | head -n 1)
             POM_PROTOC_VERSIONS=$(find ./samples ./maven-java/ -name pom.xml | xargs egrep -h "com.google.protobuf:protoc:" | sed 's/.*:protoc://' | sed 's/:exe.*//' | sort | uniq)
             if [ $(echo "$POM_PROTOC_VERSIONS" | wc -l) -ne 1 ]; then
               echo  "Not all Java Samples an Archetypes have the same protoc version:"
@@ -265,7 +265,7 @@ jobs:
       - restore_deps_cache
       - run:
           name: Run tests
-          command: sbt sdkJavaSpring/IntegrationTest/test
+          command: sbt javaSdkSpring/IntegrationTest/test
       - save_deps_cache
 
   scripted-tests:
@@ -279,7 +279,7 @@ jobs:
       - run:
           name: Run tests
           # would be nice to just depend on publish-local but that's slow because of maven part
-          command: sbt sdkCore/publishLocal sdkJava/publishLocal sdkScala/publishLocal sdkJavaTestKit/publishLocal sdkScalaTestKit/publishLocal scripted
+          command: sbt coreSdk/publishLocal javaSdk/publishLocal scalaSdk/publishLocal javaSdkTestKit/publishLocal scalaSdkTestKit/publishLocal scripted
       - save_deps_cache
 
   tck-tests:

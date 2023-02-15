@@ -105,12 +105,12 @@ object Dependencies {
     jacksonParameterNames,
     typeTools)
 
-  val sdkCore = deps ++= coreDeps
+  val coreSdk = deps ++= coreDeps
 
   // FIXME
-  val sdkJava = sdkCore
+  val javaSdk = coreSdk
 
-  val sdkJavaTestKit = deps ++= Seq(
+  val javaSdkTestKit = deps ++= Seq(
     testContainers,
     // Override for security vulnerabilities. Can be removed once testcontainers is updated:
     // https://github.com/testcontainers/testcontainers-java/issues/4308
@@ -130,16 +130,16 @@ object Dependencies {
     "org.springframework.boot" % "spring-boot-starter-reactor-netty" % SpringBootVersion,
     "jakarta.websocket" % "jakarta.websocket-api" % "2.0.0")
 
-  val sdkSpring = deps ++= coreDeps ++ springDeps ++ Seq(
+  val javaSdkSpring = deps ++= coreDeps ++ springDeps ++ Seq(
     "net.aichler" % "jupiter-interface" % JupiterKeys.jupiterVersion.value % IntegrationTest,
     "org.springframework.boot" % "spring-boot-starter-test" % SpringBootVersion % IntegrationTest,
     junit5 % IntegrationTest,
     "org.assertj" % "assertj-core" % "3.24.0" % IntegrationTest,
     "org.awaitility" % "awaitility" % "4.2.0" % IntegrationTest)
 
-  val sdkSpringBootStarter = deps ++= springDeps
+  val springBootStarter = deps ++= springDeps
 
-  val sdkSpringTestKit =
+  val javaSdkSpringTestKit =
     deps ++= springDeps ++
     Seq(
       junit5 % Test,
@@ -147,9 +147,9 @@ object Dependencies {
       "org.springframework.boot" % "spring-boot-starter-test" % SpringBootVersion)
 
   // FIXME
-  val sdkScala = deps ++= coreDeps ++ Seq(jacksonScala)
+  val scalaSdk = deps ++= coreDeps ++ Seq(jacksonScala)
 
-  val sdkScalaTestKit = deps ++= Seq(testContainers, logback % "test;provided", scalaTest % Test)
+  val scalaSdkTestKit = deps ++= Seq(testContainers, logback % "test;provided", scalaTest % Test)
 
   val tck = deps ++= Seq(
     // FIXME: For now TCK protos have been copied and adapted into this project.
