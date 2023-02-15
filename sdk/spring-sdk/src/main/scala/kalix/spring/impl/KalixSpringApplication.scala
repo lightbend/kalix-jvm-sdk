@@ -121,8 +121,8 @@ object KalixSpringApplication {
    * Classpath scanning provider that will lookup for the original main class. Spring doesn't make the original main
    * class available in the application context, but a cglib enhanced variant.
    *
-   * The enhanced variant doesn't contain all the annotations, but only the SpringBootApplication one. Therefore we need
-   * to lookup for the original one. We need it to find the default ACL annotation.
+   * The enhanced variant doesn't contain all the annotations, but only the SpringBootApplication one. Therefore, we
+   * need to lookup for the original one. We need it to find the default ACL annotation.
    */
   class MainClassProvider(cglibMain: Class[_]) extends ClassPathScanningCandidateComponentProvider {
 
@@ -136,11 +136,14 @@ object KalixSpringApplication {
 
     addIncludeFilter(OriginalMainClassFilter)
 
-    def findOriginalMailClass: Class[_] =
+    def findOriginalMainClass: Class[_] =
       this
         .findCandidateComponents(cglibMain.getPackageName)
         .asScala
-        .map { bean => Class.forName(bean.getBeanClassName) }
+        .map { bean =>
+          // to avoid surprises, we load it using same classloader as the cglibMain
+          cglibMain.getClassLoader.loadClass(bean.getBeanClassName)
+        }
         .head
 
   }
@@ -262,7 +265,7 @@ case class KalixSpringApplication(applicationContext: ApplicationContext, config
     applicationContext.getBeansWithAnnotation(classOf[SpringBootApplication]).values().asScala.head
 
   // lookup for the original main class, not the one enhanced by CGLIB
-  private val mainClass = new MainClassProvider(cglibEnhanceMainClass.getClass).findOriginalMailClass
+  private val mainClass = new MainClassProvider(cglibEnhanceMainClass.getClass).findOriginalMainClass
 
   val kalix: Kalix = (new Kalix)
     .withSdkName(SpringSdkBuildInfo.name)
@@ -274,7 +277,10 @@ case class KalixSpringApplication(applicationContext: ApplicationContext, config
   // load all Kalix components found in the classpath
   val classBeanMap =
     provider.findKalixComponents.map { bean =>
-      Class.forName(bean.getBeanClassName) -> bean
+      // here we need to load the components using the same loader as the Main class
+      // this is needed to have it loaded in the RestartClassLoader when using auto-reload
+      // see MainClassProvider.findOriginalMainClass where we load Main using same CL as cglibEnhanceMainClass
+      mainClass.getClassLoader.loadClass(bean.getBeanClassName) -> bean
     }.toMap
 
   // each loaded class needs to be validated before registration
