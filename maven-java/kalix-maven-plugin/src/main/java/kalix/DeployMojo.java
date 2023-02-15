@@ -57,7 +57,7 @@ public class DeployMojo extends AbstractMojo {
        if (!Boolean.valueOf(deployToKalix)){
            log.info("The variable `deployToKalix` hasn't been set to `true`. Therefore, not deploying to Kalix");
            log.info("To deploy to Kalix via `mvn deploy` you need to set `deployToKalix` to `true` " +
-                   "and `kalixCurrentProject` to your current Kalix project (`kalix config get-project`)");
+                   "and `kalixCurrentProject` to your current Kalix project Name (`kalix config get-project`)");
            return;
        }
        if (!currentKalixProjectMatches()){
