@@ -3,17 +3,17 @@ import Dependencies.Kalix
 lazy val `kalix-jvm-sdk` = project
   .in(file("."))
   .aggregate(
-    sdkCore,
-    sdkJava,
-    sdkJavaTestKit,
-    sdkSpring,
-    sdkSpringTestKit,
-    sdkSpringBootStarter,
-    sdkSpringBootStarterTest,
-    sdkScala,
-    sdkScalaTestKit,
-    tckJava,
-    tckScala,
+    coreSdk,
+    javaSdk,
+    javaSdkTestKit,
+    javaSdkSpring,
+    javaSdkSpringTestKit,
+    springBootStarter,
+    springBootStarterTest,
+    scalaSdk,
+    scalaSdkTestKit,
+    javaTck,
+    scalaTck,
     codegenCore,
     codegenJava,
     codegenJavaCompilationTest,
@@ -26,7 +26,7 @@ def common: Seq[Setting[_]] =
     Compile / javacOptions ++= Seq("-encoding", "UTF-8"),
     Compile / scalacOptions ++= Seq("-encoding", "UTF-8", "-deprecation"))
 
-lazy val sdkCore = project
+lazy val coreSdk = project
   .in(file("sdk/core"))
   .enablePlugins(PublishSonatype)
   .settings(common)
@@ -40,11 +40,11 @@ lazy val sdkCore = project
       val javaSourceDir = (Compile / javaSource).value.getAbsolutePath
       (Compile / doc / sources).value.filter(_.getAbsolutePath.startsWith(javaSourceDir))
     })
-  .settings(Dependencies.sdkCore)
+  .settings(Dependencies.coreSdk)
 
-lazy val sdkJava = project
+lazy val javaSdk = project
   .in(file("sdk/java-sdk"))
-  .dependsOn(sdkCore)
+  .dependsOn(coreSdk)
   .enablePlugins(AkkaGrpcPlugin, BuildInfoPlugin, PublishSonatype)
   .settings(common)
   .settings(
@@ -84,11 +84,11 @@ lazy val sdkJava = project
     Test / akkaGrpcGeneratedSources := Seq(AkkaGrpc.Client),
     Test / PB.protoSources ++= (Compile / PB.protoSources).value,
     Test / PB.targets += PB.gens.java -> crossTarget.value / "akka-grpc" / "test")
-  .settings(Dependencies.sdkJava)
+  .settings(Dependencies.javaSdk)
 
-lazy val sdkJavaTestKit = project
+lazy val javaSdkTestKit = project
   .in(file("sdk/java-sdk-testkit"))
-  .dependsOn(sdkJava)
+  .dependsOn(javaSdk)
   .enablePlugins(BuildInfoPlugin, PublishSonatype)
   .settings(common)
   .settings(
@@ -120,27 +120,26 @@ lazy val sdkJavaTestKit = project
       "Kalix Java SDK Testkit",
       "-noqualifier",
       "java.lang"))
-  .settings(Dependencies.sdkJavaTestKit)
+  .settings(Dependencies.javaSdkTestKit)
 
-lazy val sdkSpring = project
-  .in(file("sdk/spring-sdk"))
-  .dependsOn(sdkJava)
-  .dependsOn(sdkJavaTestKit % IntegrationTest)
+lazy val javaSdkSpring = project
+  .in(file("sdk/java-sdk-spring"))
+  .dependsOn(javaSdk)
+  .dependsOn(javaSdkTestKit % IntegrationTest)
   .enablePlugins(AkkaGrpcPlugin, BuildInfoPlugin, PublishSonatype, IntegrationTests)
   .settings(common)
   .settings(
-    name := "kalix-spring-sdk",
+    name := "kalix-java-sdk-spring",
     crossPaths := false,
     Compile / javacOptions ++= Seq("--release", "17"),
     Compile / scalacOptions ++= Seq("-release", "17"),
-    buildInfoObject := "SpringSdkBuildInfo",
     buildInfoKeys := Seq[BuildInfoKey](
       name,
       version,
       "protocolMajorVersion" -> Kalix.ProtocolVersionMajor,
       "protocolMinorVersion" -> Kalix.ProtocolVersionMinor,
       "scalaVersion" -> scalaVersion.value),
-    buildInfoPackage := "kalix.springsdk",
+    buildInfoPackage := "kalix.spring",
     Compile / akkaGrpcGeneratedSources := Seq(AkkaGrpc.Server),
     Compile / akkaGrpcGeneratedLanguages := Seq(AkkaGrpc.Scala),
     Test / javacOptions ++= Seq("-parameters"), // for Jackson
@@ -159,20 +158,20 @@ lazy val sdkSpring = project
       ((Compile / javaSource).value / "overview.html").getAbsolutePath,
       "-notimestamp",
       "-doctitle",
-      "Kalix Spring SDK",
+      "Kalix Java SDK for Spring",
       "-noqualifier",
       "java.lang"))
   .settings(inConfig(IntegrationTest)(JupiterPlugin.scopedSettings): _*)
-  .settings(Dependencies.sdkSpring)
+  .settings(Dependencies.javaSdkSpring)
 
-lazy val sdkSpringTestKit = project
-  .in(file("sdk/spring-sdk-testkit"))
-  .dependsOn(sdkSpring)
-  .dependsOn(sdkJavaTestKit)
+lazy val javaSdkSpringTestKit = project
+  .in(file("sdk/java-sdk-spring-testkit"))
+  .dependsOn(javaSdkSpring)
+  .dependsOn(javaSdkTestKit)
   .enablePlugins(BuildInfoPlugin, PublishSonatype)
   .settings(common)
   .settings(
-    name := "kalix-spring-sdk-testkit",
+    name := "kalix-java-sdk-spring-testkit",
     crossPaths := false,
     Compile / javacOptions ++= Seq("--release", "17"),
     Compile / scalacOptions ++= Seq("-release", "17"),
@@ -182,7 +181,7 @@ lazy val sdkSpringTestKit = project
       "proxyImage" -> "gcr.io/kalix-public/kalix-proxy",
       "proxyVersion" -> Kalix.ProxyVersion,
       "scalaVersion" -> scalaVersion.value),
-    buildInfoPackage := "kalix.springsdk.testkit",
+    buildInfoPackage := "kalix.spring.testkit",
     // Generate javadocs by just including non generated Java sources
     Compile / doc / sources := {
       val javaSourceDir = (Compile / javaSource).value.getAbsolutePath
@@ -197,14 +196,14 @@ lazy val sdkSpringTestKit = project
       ((Compile / javaSource).value / "overview.html").getAbsolutePath,
       "-notimestamp",
       "-doctitle",
-      "Kalix Spring SDK Testkit",
+      "Kalix Java SDK Testkit for Spring",
       "-noqualifier",
       "java.lang"))
-  .settings(Dependencies.sdkSpringTestKit)
+  .settings(Dependencies.javaSdkSpringTestKit)
 
-lazy val sdkSpringBootStarter = project
+lazy val springBootStarter = project
   .in(file("sdk/spring-boot-starter"))
-  .dependsOn(sdkSpring)
+  .dependsOn(javaSdkSpring)
   .enablePlugins(BuildInfoPlugin, PublishSonatype)
   .settings(common)
   .settings(
@@ -236,12 +235,11 @@ lazy val sdkSpringBootStarter = project
       "Kalix Spring Boot Starter",
       "-noqualifier",
       "java.lang"))
-  .settings(Dependencies.sdkSpringBootStarter)
 
-lazy val sdkSpringBootStarterTest = project
+lazy val springBootStarterTest = project
   .in(file("sdk/spring-boot-starter-test"))
-  .dependsOn(sdkSpring)
-  .dependsOn(sdkSpringTestKit)
+  .dependsOn(javaSdkSpring)
+  .dependsOn(javaSdkSpringTestKit)
   .enablePlugins(BuildInfoPlugin, PublishSonatype)
   .settings(common)
   .settings(
@@ -273,11 +271,10 @@ lazy val sdkSpringBootStarterTest = project
       "Kalix Spring Boot Starter Test",
       "-noqualifier",
       "java.lang"))
-  .settings(Dependencies.sdkSpringTestKit)
 
-lazy val sdkScala = project
+lazy val scalaSdk = project
   .in(file("sdk/scala-sdk"))
-  .dependsOn(sdkJava)
+  .dependsOn(javaSdk)
   .enablePlugins(AkkaGrpcPlugin, BuildInfoPlugin, PublishSonatype)
   .settings(common)
   .settings(
@@ -301,12 +298,12 @@ lazy val sdkScala = project
           "Kalix Scala SDK",
           version.value,
           (ThisBuild / baseDirectory).value))))
-  .settings(Dependencies.sdkScala)
+  .settings(Dependencies.scalaSdk)
 
-lazy val sdkScalaTestKit = project
+lazy val scalaSdkTestKit = project
   .in(file("sdk/scala-sdk-testkit"))
-  .dependsOn(sdkScala)
-  .dependsOn(sdkJavaTestKit)
+  .dependsOn(scalaSdk)
+  .dependsOn(javaSdkTestKit)
   .enablePlugins(BuildInfoPlugin, PublishSonatype)
   .settings(common)
   .settings(
@@ -326,7 +323,7 @@ lazy val sdkScalaTestKit = project
           "Kalix Scala SDK TestKit",
           version.value,
           (ThisBuild / baseDirectory).value))))
-  .settings(Dependencies.sdkScalaTestKit)
+  .settings(Dependencies.scalaSdkTestKit)
 
 def scaladocOptions(title: String, ver: String, base: File): List[String] = {
   val urlString = githubUrl(ver) + "/€{FILE_PATH_EXT}#L€{FILE_LINE}"
@@ -348,9 +345,9 @@ def githubUrl(v: String): String = {
   "https://github.com/lightbend/kalix-jvm-sdk/tree/" + branch
 }
 
-lazy val tckJava = project
+lazy val javaTck = project
   .in(file("tck/java-tck"))
-  .dependsOn(sdkJava, sdkJavaTestKit)
+  .dependsOn(javaSdk, javaSdkTestKit)
   .enablePlugins(AkkaGrpcPlugin, PublicDockerImage, ReflectiveCodeGen)
   .settings(common)
   .settings(
@@ -364,9 +361,9 @@ lazy val tckJava = project
     dockerExposedPorts += 8080)
   .settings(Dependencies.tck)
 
-lazy val tckScala = project
+lazy val scalaTck = project
   .in(file("tck/scala-tck"))
-  .dependsOn(sdkScala, sdkScalaTestKit)
+  .dependsOn(scalaSdk, scalaSdkTestKit)
   .enablePlugins(AkkaGrpcPlugin, PublicDockerImage, ReflectiveCodeGen)
   .settings(common)
   .settings(
@@ -428,11 +425,11 @@ lazy val codegenJava =
 lazy val codegenJavaCompilationTest = project
   .in(file("codegen/java-gen-compilation-tests"))
   .enablePlugins(ReflectiveCodeGen)
-  .dependsOn(sdkJava)
+  .dependsOn(javaSdk)
   // code generated by the codegen requires the testkit, junit4
   // Note: we don't use test scope since all code is generated in src_managed
   // and the goal is to verify if it compiles
-  .dependsOn(sdkJavaTestKit)
+  .dependsOn(javaSdkTestKit)
   .settings(common)
   .settings(libraryDependencies ++= Seq(Dependencies.junit4))
   .settings(
@@ -444,7 +441,7 @@ lazy val codegenJavaCompilationTest = project
 
 lazy val javaValueentityCustomerRegistry = project
   .in(file("samples/java-valueentity-customer-registry"))
-  .dependsOn(sdkJava)
+  .dependsOn(javaSdk)
   .enablePlugins(AkkaGrpcPlugin, IntegrationTests, LocalDockerImage)
   .settings(common)
   .settings(
@@ -463,7 +460,7 @@ lazy val javaValueentityCustomerRegistry = project
 
 lazy val javaEventsourcedCustomerRegistry = project
   .in(file("samples/java-eventsourced-customer-registry"))
-  .dependsOn(sdkJava)
+  .dependsOn(javaSdk)
   .enablePlugins(AkkaGrpcPlugin, IntegrationTests, LocalDockerImage)
   .settings(common)
   .settings(
@@ -511,11 +508,11 @@ lazy val codegenScala =
 lazy val codegenScalaCompilationTest = project
   .in(file("codegen/scala-gen-compilation-tests"))
   .enablePlugins(ReflectiveCodeGen)
-  .dependsOn(sdkScala)
+  .dependsOn(scalaSdk)
   // code generated by the codegen requires the testkit, scalatest
   // Note: we don't use test scope since all code is generated in src_managed
   // and the goal is to verify if it compiles
-  .dependsOn(sdkScalaTestKit)
+  .dependsOn(scalaSdkTestKit)
   .settings(common)
   .settings(libraryDependencies ++= Seq(Dependencies.kalixSdkProtocol % "protobuf-src"))
   .settings(
@@ -528,14 +525,14 @@ lazy val codegenScalaCompilationTest = project
 lazy val codegenJavaCompilationExampleSuite: CompositeProject =
   ExampleSuiteCompilationProject.compilationProject(AkkaGrpc.Java, "codegen/java-gen/src/test/resources/tests") {
     testProject =>
-      testProject.dependsOn(sdkJava % "compile", sdkJavaTestKit % "test")
+      testProject.dependsOn(javaSdk % "compile", javaSdkTestKit % "test")
   }
 
 lazy val codegenScalaCompilationExampleSuite: CompositeProject =
   ExampleSuiteCompilationProject.compilationProject(AkkaGrpc.Scala, "codegen/scala-gen/src/test/resources/tests") {
     testProject =>
       testProject
-        .dependsOn(sdkScala % "compile", sdkScalaTestKit % "test")
+        .dependsOn(scalaSdk % "compile", scalaSdkTestKit % "test")
         .settings(
           akkaGrpcCodeGeneratorSettings += "flat_package",
           libraryDependencies ++= Seq(Dependencies.kalixSdkProtocol % "protobuf-src"))

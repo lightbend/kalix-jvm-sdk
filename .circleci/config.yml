@@ -91,7 +91,7 @@ commands:
               # tail 2 + head 1 because CircleCI adds an extra line
               # the SDK_VERSION is later used to run the maven tests (see below)
               echo "Extracting version from sbt build"
-              echo 'export SDK_VERSION='`sbt "print sdkJava/version" | tail -n 2 | head -n 1` >> $BASH_ENV
+              echo 'export SDK_VERSION='`sbt "print javaSdk/version" | tail -n 2 | head -n 1` >> $BASH_ENV
             fi
 
   publish-local:
@@ -178,7 +178,7 @@ jobs:
           name: Protoc version
           command: |
             # tail 2 + head 1 because CircleCI adds an extra line
-            AKKA_GRPC_PROTOC=$(sbt "print sdkCore/protocVersion" 2>/dev/null | tail -n 2 | head -n 1)
+            AKKA_GRPC_PROTOC=$(sbt "print coreSdk/protocVersion" 2>/dev/null | tail -n 2 | head -n 1)
             POM_PROTOC_VERSIONS=$(find ./samples ./maven-java/ -name pom.xml | xargs egrep -h "com.google.protobuf:protoc:" | sed 's/.*:protoc://' | sed 's/:exe.*//' | sort | uniq)
             if [ $(echo "$POM_PROTOC_VERSIONS" | wc -l) -ne 1 ]; then
               echo  "Not all Java Samples an Archetypes have the same protoc version:"
@@ -258,14 +258,14 @@ jobs:
   spring-sdk-integration-tests:
     machine:
       image: ubuntu-2004:202201-02
-    description: "Spring SDK -  Integration Test"
+    description: "Java SDK with Spring -  Integration Test"
     steps:
       - checkout-and-merge-to-main
       - setup_sbt
       - restore_deps_cache
       - run:
           name: Run tests
-          command: sbt sdkSpring/IntegrationTest/test
+          command: sbt javaSdkSpring/IntegrationTest/test
       - save_deps_cache
 
   scripted-tests:
@@ -279,7 +279,7 @@ jobs:
       - run:
           name: Run tests
           # would be nice to just depend on publish-local but that's slow because of maven part
-          command: sbt sdkCore/publishLocal sdkJava/publishLocal sdkScala/publishLocal sdkJavaTestKit/publishLocal sdkScalaTestKit/publishLocal scripted
+          command: sbt coreSdk/publishLocal javaSdk/publishLocal scalaSdk/publishLocal javaSdkTestKit/publishLocal scalaSdkTestKit/publishLocal scripted
       - save_deps_cache
 
   tck-tests:
@@ -292,10 +292,10 @@ jobs:
       - restore_deps_cache
       - run:
           name: Run Java TCK tests
-          command: sbt tckJava/Test/run
+          command: sbt javaTck/Test/run
       - run:
           name: Run Scala TCK tests
-          command: sbt tckScala/Test/run
+          command: sbt scalaTck/Test/run
       - save_deps_cache
 
   # by setting a snapshot version with set-sdk-version we publish the deps so that
@@ -1410,8 +1410,8 @@ jobs:
       - setup_sbt
       - restore_deps_cache
       - run: bin/docker-login-public-gcr.sh
-      - run: sbt tckJava/Docker/publish
-      - run: sbt tckScala/Docker/publish
+      - run: sbt javaTck/Docker/publish
+      - run: sbt scalaTck/Docker/publish
       - save_deps_cache
 
   publish-docs:
@@ -1450,7 +1450,7 @@ jobs:
             ## Scala SDK including sbt codegen
             fossa analyze --only-target scala@sdk/scala-sdk/target/scala-2.13/ --only-target scala@codegen/scala-gen/target/scala-2.12/ -p kalix-scala-sdk
             ## Spring SDK
-            fossa analyze --only-target scala@sdk/spring-sdk/target/ -p kalix-spring-sdk
+            fossa analyze --only-target scala@sdk/java-sdk-spring/target/ -p kalix-spring-sdk
             # report all parts including testkits, tests, and samples
             fossa analyze -p kalix-jvm-sdk
 

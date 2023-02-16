@@ -1,7 +1,7 @@
 # This script will publish the current snapshot of all artifacts. 
 # Including the maven plugin and archetypes.
 
-SDK_VERSION=$(sbt "print sdkJava/version" | tail -1)
+SDK_VERSION=$(sbt "print javaSdk/version" | tail -1)
 
 echo
 echo "------------------------------------------------------------------------"
