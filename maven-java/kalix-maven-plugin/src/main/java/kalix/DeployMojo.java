@@ -7,8 +7,10 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Scanner;
 
 /**
  * Goal which deploys the current project to Kalix.
@@ -73,6 +75,11 @@ public class DeployMojo extends AbstractMojo {
             if (deploymentResult == 0) {
                 log.info("Done.");
             } else {
+                InputStream errorStream = process.getErrorStream();
+                Scanner scanner = new Scanner(errorStream, StandardCharsets.UTF_8.name());
+                while(scanner.hasNext()){
+                    log.error(scanner.useDelimiter("\\A").next().replaceAll("[\\n\\r]", ""));
+                }
                 log.error("Unable to deploy. Ensure you can deploy by using the kalix command line directly.");
             }
         } catch (IOException | InterruptedException e) {
