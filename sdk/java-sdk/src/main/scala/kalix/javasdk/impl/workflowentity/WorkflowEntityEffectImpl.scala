@@ -38,7 +38,7 @@ import kalix.javasdk.workflowentity.WorkflowEntity.Effect.TransitionalEffect
 object WorkflowEntityEffectImpl {
 
   sealed trait Transition
-  case class StepTransition[I](input: I, transitionTo: String) extends Transition
+  case class StepTransition[I](stepName: String, input: Option[I]) extends Transition
   object Pause extends Transition
   object NoTransition extends Transition
   object End extends Transition
@@ -59,12 +59,14 @@ object WorkflowEntityEffectImpl {
     override def pause(): TransitionalEffect[Void] =
       TransitionalEffectImpl(persistence, Pause)
 
-    override def transitionTo[I](transitionTo: String, input: I): TransitionalEffect[Void] =
-      TransitionalEffectImpl(persistence, StepTransition(input, transitionTo))
+    override def transitionTo[I](stepName: String, input: I): TransitionalEffect[Void] =
+      TransitionalEffectImpl(persistence, StepTransition(stepName, Some(input)))
+
+    override def transitionTo(stepName: String): TransitionalEffect[Void] =
+      TransitionalEffectImpl(persistence, StepTransition(stepName, None))
 
     override def end(): TransitionalEffect[Void] =
       TransitionalEffectImpl(persistence, End)
-
   }
 
   final case class TransitionalEffectImpl[S, T](persistence: Persistence[S], transition: Transition)
@@ -89,8 +91,8 @@ case class WorkflowEntityEffectImpl[S, T](persistence: Persistence[S], transitio
   override def pause(): TransitionalEffect[Void] =
     TransitionalEffectImpl(NoPersistence, Pause)
 
-  override def transitionTo[I](transitionTo: String, input: I): TransitionalEffect[Void] =
-    TransitionalEffectImpl(NoPersistence, StepTransition(input, transitionTo))
+  override def transitionTo[I](stepName: String, input: I): TransitionalEffect[Void] =
+    TransitionalEffectImpl(NoPersistence, StepTransition(stepName, Some(input)))
 
   override def end(): TransitionalEffect[Void] =
     TransitionalEffectImpl(NoPersistence, End)

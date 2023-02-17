@@ -104,6 +104,38 @@ public class SpringWorkflowIntegrationTest {
         });
   }
 
+
+  @Test
+  public void shouldTransferMoneyWithoutStepInputs() {
+    var walletId1 = "1";
+    var walletId2 = "2";
+    createWallet(walletId1, 100);
+    createWallet(walletId2, 100);
+    var transferId = randomTransferId();
+    var transferUrl = "/transfer-without-inputs/" + transferId;
+    var transfer = new Transfer(walletId1, walletId2, 10);
+
+    String response = webClient.put().uri(transferUrl)
+        .bodyValue(transfer)
+        .retrieve()
+        .bodyToMono(Message.class)
+        .map(m -> m.text)
+        .block(timeout);
+
+    assertThat(response).isEqualTo("transfer started");
+
+    await()
+        .atMost(10, TimeUnit.of(SECONDS))
+        .untilAsserted(() -> {
+          var balance1 = getWalletBalance(walletId1);
+          var balance2 = getWalletBalance(walletId2);
+
+          assertThat(balance1).isEqualTo(90);
+          assertThat(balance2).isEqualTo(110);
+        });
+  }
+
+
   @Test
   public void shouldTransferMoneyWithFraudDetection() {
     var walletId1 = "1";

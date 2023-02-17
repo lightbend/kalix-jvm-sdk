@@ -19,11 +19,9 @@ package kalix.javasdk.impl.workflowentity
 import java.util.Optional
 import java.util.concurrent.CompletionStage
 import java.util.function.{ Function => JFunc }
-
 import scala.compat.java8.FutureConverters.CompletionStageOps
 import scala.concurrent.Future
 import scala.jdk.OptionConverters.RichOptional
-
 import com.google.protobuf.any.{ Any => ScalaPbAny }
 import kalix.javasdk.DeferredCall
 import kalix.javasdk.impl.EntityExceptions.EntityException
@@ -34,6 +32,7 @@ import kalix.javasdk.impl.RestDeferredCall
 import kalix.javasdk.impl.workflowentity.WorkflowEntityRouter.CommandHandlerNotFound
 import kalix.javasdk.impl.workflowentity.WorkflowEntityRouter.CommandResult
 import kalix.javasdk.impl.workflowentity.WorkflowEntityRouter.WorkflowStepNotFound
+import kalix.javasdk.impl.workflowentity.WorkflowEntityRouter.WorkflowStepNotSupported
 import kalix.javasdk.workflowentity.CommandContext
 import kalix.javasdk.workflowentity.WorkflowEntity.Effect
 import kalix.javasdk.workflowentity.WorkflowEntity
@@ -44,6 +43,8 @@ import kalix.protocol.workflow_entity.StepDeferredCall
 import kalix.protocol.workflow_entity.StepExecuted
 import kalix.protocol.workflow_entity.StepResponse
 
+import java.util.function.Supplier
+
 object WorkflowEntityRouter {
   final case class CommandResult(effect: WorkflowEntity.Effect[_])
 
@@ -51,6 +52,10 @@ object WorkflowEntityRouter {
     override def getMessage: String = commandName
   }
   final case class WorkflowStepNotFound(stepName: String) extends RuntimeException {
+    override def getMessage: String = stepName
+  }
+
+  final case class WorkflowStepNotSupported(stepName: String) extends RuntimeException {
     override def getMessage: String = stepName
   }
 }
@@ -107,7 +112,7 @@ abstract class WorkflowEntityRouter[S, W <: WorkflowEntity[S]](protected val wor
   // "public" api against the impl/testkit
   final def _internalHandleStep(
       commandId: Long,
-      input: ScalaPbAny,
+      input: Option[ScalaPbAny],
       stepName: String,
       messageCodec: MessageCodec,
       workflowContext: WorkflowEntityContext): Future[StepResponse] = {
@@ -119,10 +124,16 @@ abstract class WorkflowEntityRouter[S, W <: WorkflowEntity[S]](protected val wor
 
     workflowDef.findByName(stepName).toScala match {
       case Some(call: CallStep[_, _, _]) =>
-        val defCall =
-          call.callFunc
-            .asInstanceOf[JFunc[Any, DeferredCall[Any, Any]]]
-            .apply(messageCodec.decodeMessage(input))
+        val defCall = input match {
+          case Some(inputValue) =>
+            call.callFunc
+              .asInstanceOf[JFunc[Any, DeferredCall[Any, Any]]]
+              .apply(messageCodec.decodeMessage(inputValue))
+          case None =>
+            call.callSupplier
+              .asInstanceOf[Supplier[DeferredCall[Any, Any]]]
+              .get()
+        }
 
         val (commandName, serviceName) =
           defCall match {
@@ -147,7 +158,7 @@ abstract class WorkflowEntityRouter[S, W <: WorkflowEntity[S]](protected val wor
         val future =
           call.callFunc
             .asInstanceOf[JFunc[Any, CompletionStage[Any]]]
-            .apply(messageCodec.decodeMessage(input))
+            .apply(messageCodec.decodeMessage(???)) //TODO
             .toScala
 
         future.map { res =>
@@ -156,8 +167,8 @@ abstract class WorkflowEntityRouter[S, W <: WorkflowEntity[S]](protected val wor
 
           StepResponse(commandId, stepName, StepResponse.Response.Executed(executedRes))
         }
-      case None =>
-        Future.failed(WorkflowStepNotFound(stepName))
+      case Some(any) => Future.failed(WorkflowStepNotSupported(any.getClass.getSimpleName))
+      case None      => Future.failed(WorkflowStepNotFound(stepName))
     }
 
   }
@@ -184,7 +195,8 @@ abstract class WorkflowEntityRouter[S, W <: WorkflowEntity[S]](protected val wor
 
         CommandResult(effect)
 
-      case None => throw WorkflowStepNotFound(stepName)
+      case Some(any) => throw WorkflowStepNotSupported(any.getClass.getSimpleName)
+      case None      => throw WorkflowStepNotFound(stepName)
     }
   }
 }

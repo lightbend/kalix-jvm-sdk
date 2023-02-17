@@ -31,6 +31,7 @@ import java.util.Set;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 /** @param <S> The type of the state for this entity. */
 @ApiMayChange
@@ -238,6 +239,14 @@ public abstract class WorkflowEntity<S> {
       <I> TransitionalEffect<Void> transitionTo(String stepName, I input);
 
       /**
+       * Set the step that should be executed.
+       *
+       * @param stepName The step name that should be executed.
+       */
+      @ApiMayChange
+      TransitionalEffect<Void> transitionTo(String stepName);
+
+      /**
        * Finish the workflow execution.
        */
       @ApiMayChange
@@ -270,7 +279,7 @@ public abstract class WorkflowEntity<S> {
       return this;
     }
 
-    public void forEachStep(Consumer<Step> stepConsumer){
+    public void forEachStep(Consumer<Step> stepConsumer) {
       steps.forEach(stepConsumer);
     }
   }
@@ -289,19 +298,26 @@ public abstract class WorkflowEntity<S> {
 
     final private String _name;
     final public Function<CallInput, DeferredCall<DefCallInput, DefCallOutput>> callFunc;
+    final public Supplier<DeferredCall<DefCallInput, DefCallOutput>> callSupplier;
     final public Function<DefCallOutput, Effect.TransitionalEffect<Void>> transitionFunc;
-    final public Class<CallInput> callInputClass;
+    final public Optional<Class<CallInput>> callInputClass;
     final public Class<DefCallOutput> transitionInputClass;
 
     public CallStep(String name,
                     Function<CallInput, DeferredCall<DefCallInput, DefCallOutput>> callFunc,
+                    Supplier<DeferredCall<DefCallInput, DefCallOutput>> callSupplier,
                     Function<DefCallOutput, Effect.TransitionalEffect<Void>> transitionFunc) {
       _name = name;
-      this.callFunc = callFunc;
+      this.callSupplier = callSupplier;
       this.transitionFunc = transitionFunc;
-      Class<?>[] callClasses = TypeResolver.resolveRawArguments(Function.class, callFunc.getClass());
+      this.callFunc = callFunc;
+      if (callFunc != null) {
+        Class<?>[] callClasses = TypeResolver.resolveRawArguments(Function.class, callFunc.getClass());
+        this.callInputClass = Optional.of((Class<CallInput>) callClasses[0]);
+      } else {
+        this.callInputClass = Optional.empty();
+      }
       Class<?>[] transitionClasses = TypeResolver.resolveRawArguments(Function.class, transitionFunc.getClass());
-      this.callInputClass = (Class<CallInput>) callClasses[0];
       this.transitionInputClass = (Class<DefCallOutput>) transitionClasses[0];
     }
 
@@ -339,6 +355,7 @@ public abstract class WorkflowEntity<S> {
 
   /**
    * Start a step definition with a given step name.
+   *
    * @param name Step name.
    * @return Step builder.
    */
@@ -358,15 +375,28 @@ public abstract class WorkflowEntity<S> {
     /**
      * Build a step action with a call to an existing Kalix component via {@link DeferredCall}.
      *
-     * @param callFactory Factory method for creating deferred call.
-     * @param <Input> Input for deferred call factory, provided by transition method.
-     * @param <DefCallInput> Input for deferred call.
+     * @param callFactory     Factory method for creating deferred call.
+     * @param <Input>         Input for deferred call factory, provided by transition method.
+     * @param <DefCallInput>  Input for deferred call.
      * @param <DefCallOutput> Output of deferred call.
      * @return Step builder.
      */
     @ApiMayChange
     public <Input, DefCallInput, DefCallOutput> CallStepBuilder<Input, DefCallInput, DefCallOutput> call(Function<Input, DeferredCall<DefCallInput, DefCallOutput>> callFactory) {
       return new CallStepBuilder<>(name, callFactory);
+    }
+
+    /**
+     * Build a step action with a call to an existing Kalix component via {@link DeferredCall}.
+     *
+     * @param callSupplier     Factory method for creating deferred call.
+     * @param <DefCallInput>  Input for deferred call.
+     * @param <DefCallOutput> Output of deferred call.
+     * @return Step builder.
+     */
+    @ApiMayChange
+    public <DefCallInput, DefCallOutput> CallStepBuilder<Void, DefCallInput, DefCallOutput> call(Supplier<DeferredCall<DefCallInput, DefCallOutput>> callSupplier) {
+      return new CallStepBuilder<>(name, callSupplier);
     }
 
     /**
@@ -389,11 +419,19 @@ public abstract class WorkflowEntity<S> {
 
       /* callFactory builds the DeferredCall that will be passed to proxy for execution */
       final private Function<Input, DeferredCall<DefCallInput, DefCallOutput>> callFunc;
+      final private Supplier<DeferredCall<DefCallInput, DefCallOutput>> callSupplier;
 
 
       public CallStepBuilder(String name, Function<Input, DeferredCall<DefCallInput, DefCallOutput>> callFunc) {
         this.name = name;
         this.callFunc = callFunc;
+        this.callSupplier = null;
+      }
+
+      public CallStepBuilder(String name, Supplier<DeferredCall<DefCallInput, DefCallOutput>> callSupplier) {
+        this.name = name;
+        this.callFunc = null;
+        this.callSupplier = callSupplier;
       }
 
       /**
@@ -404,7 +442,7 @@ public abstract class WorkflowEntity<S> {
        */
       @ApiMayChange
       public CallStep<Input, DefCallInput, DefCallOutput> andThen(Function<DefCallOutput, Effect.TransitionalEffect<Void>> transitionFunc) {
-        return new CallStep<>(name, callFunc, transitionFunc);
+        return new CallStep<>(name, callFunc, callSupplier, transitionFunc);
       }
     }
 
