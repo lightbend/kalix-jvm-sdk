@@ -107,4 +107,4 @@ IMPORTANT: For simplicity purposes, we are returning the internal state directly
 
 //TODO update the `here` link after merge, otherwise the docs validation complain
 
-A full transfer workflow source code is available https://github.com/lightbend/kalix-jvm-sdk/tree/main/samples/spring-transfer-workflow[here]. Follow the `Readme` file to run and test it.
+A full transfer workflow source code is available https://github.com/lightbend/kalix-jvm-sdk/tree/main/samples/spring-transfer-workflow[here]. Follow the `README` file to run and test it.
