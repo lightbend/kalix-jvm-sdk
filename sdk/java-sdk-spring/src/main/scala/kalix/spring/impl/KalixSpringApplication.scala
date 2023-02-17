@@ -444,7 +444,7 @@ case class KalixSpringApplication(applicationContext: ApplicationContext, config
           .definition()
           .forEachStep {
             case asyncCallStep: WorkflowEntity.AsyncCallStep[_, _] =>
-              messageCodec.lookupTypeHint(asyncCallStep.callInputClass)
+              asyncCallStep.callInputClass.ifPresent(messageCodec.lookupTypeHint)
               messageCodec.lookupTypeHint(asyncCallStep.transitionInputClass)
             case callStep: WorkflowEntity.CallStep[_, _, _] =>
               callStep.callInputClass.ifPresent(messageCodec.lookupTypeHint)

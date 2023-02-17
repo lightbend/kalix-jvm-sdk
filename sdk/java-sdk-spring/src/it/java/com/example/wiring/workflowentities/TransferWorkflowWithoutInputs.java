@@ -32,7 +32,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 public class TransferWorkflowWithoutInputs extends WorkflowEntity<TransferState> {
 
   private final String withdrawStepName = "withdraw";
+  private final String withdrawAsyncStepName = "withdraw-async";
   private final String depositStepName = "deposit";
+  private final String depositAsyncStepName = "deposit-async";
 
   private KalixClient kalixClient;
 
@@ -55,6 +57,20 @@ public class TransferWorkflowWithoutInputs extends WorkflowEntity<TransferState>
                   .transitionTo(depositStepName);
             });
 
+    var withdrawAsync =
+        step(withdrawAsyncStepName)
+            .asyncCall(() -> {
+              var transfer = currentState().transfer;
+              return kalixClient.patch("/wallet/" + transfer.from + "/withdraw/" + transfer.amount, String.class).execute();
+            })
+            .andThen(response -> {
+              var state = currentState().withLastStep("withdrawn").accepted();
+              return effects()
+                  .updateState(state)
+                  .transitionTo(depositAsyncStepName);
+            });
+
+
     var deposit =
         step(depositStepName)
             .call(() -> {
@@ -66,13 +82,35 @@ public class TransferWorkflowWithoutInputs extends WorkflowEntity<TransferState>
               return effects().updateState(state).end();
             });
 
+    var depositAsync =
+        step(depositAsyncStepName)
+            .asyncCall(() -> {
+              var transfer = currentState().transfer;
+              return kalixClient.patch("/wallet/" + transfer.to + "/deposit/" + transfer.amount, String.class).execute();
+            })
+            .andThen(__ -> {
+              var state = currentState().withLastStep("deposited").finished();
+              return effects().updateState(state).end();
+            });
+
     return workflow()
         .addStep(withdraw)
-        .addStep(deposit);
+        .addStep(deposit)
+        .addStep(withdrawAsync)
+        .addStep(depositAsync);
   }
 
   @PutMapping()
   public Effect<Message> startTransfer(@RequestBody Transfer transfer) {
+    return start(transfer, withdrawStepName);
+  }
+
+  @PutMapping("/async")
+  public Effect<Message> startTransferAsync(@RequestBody Transfer transfer) {
+    return start(transfer, withdrawAsyncStepName);
+  }
+
+  private Effect<Message> start(Transfer transfer, String withdrawStepName) {
     if (transfer.amount <= 0.0) {
       return effects().error("Transfer amount should be greater than zero", Status.Code.INVALID_ARGUMENT);
     } else {

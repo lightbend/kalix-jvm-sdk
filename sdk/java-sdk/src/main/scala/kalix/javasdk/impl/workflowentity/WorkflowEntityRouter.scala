@@ -155,11 +155,18 @@ abstract class WorkflowEntityRouter[S, W <: WorkflowEntity[S]](protected val wor
         }
 
       case Some(call: AsyncCallStep[_, _]) =>
-        val future =
-          call.callFunc
-            .asInstanceOf[JFunc[Any, CompletionStage[Any]]]
-            .apply(messageCodec.decodeMessage(???)) //TODO
-            .toScala
+        val future = input match {
+          case Some(inputValue) =>
+            call.callFunc
+              .asInstanceOf[JFunc[Any, CompletionStage[Any]]]
+              .apply(messageCodec.decodeMessage(inputValue))
+              .toScala
+          case None =>
+            call.callSupplier
+              .asInstanceOf[Supplier[CompletionStage[Any]]]
+              .get()
+              .toScala
+        }
 
         future.map { res =>
           val encoded = messageCodec.encodeScala(res)
