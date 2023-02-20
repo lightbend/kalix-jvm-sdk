@@ -53,7 +53,8 @@ public interface TimerScheduler {
    *
    * <p>When a timer is triggered, the scheduled call is executed. If successfully executed, the
    * timer completes and is automatically removed. In case of a failure, the timer is rescheduled
-   * with a delay of 3 seconds. This process repeats until the call succeeds or the maxRetries limit is reached.
+   * with a delay of 3 seconds. This process repeats until the call succeeds or the maxRetries limit
+   * is reached.
    *
    * <p>Each timer has a `name` and if a new timer with same `name` is registered the previous is
    * cancelled.
