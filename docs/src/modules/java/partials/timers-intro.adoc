@@ -14,6 +14,7 @@ You can schedule a timer for any service method in Kalix, but you can only creat
 * Timers can be cancelled.
 * Timers are automatically removed once successfully completed.
 * Timers are re-scheduled in case of failures.
+* Timers failing can be limited to a maximum number of retries.
 
 **Timer limitations**:
 

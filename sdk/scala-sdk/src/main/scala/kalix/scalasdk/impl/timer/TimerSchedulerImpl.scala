@@ -41,8 +41,14 @@ private[kalix] final class TimerSchedulerImpl(messageCodec: MessageCodec, system
   override def startSingleTimer[I, O](
       name: String,
       delay: FiniteDuration,
-      deferredCall: DeferredCall[I, O]): Future[Done] = {
+      deferredCall: DeferredCall[I, O]): Future[Done] =
+    startSingleTimer(name, delay, 0, deferredCall)
 
+  override def startSingleTimer[I, O](
+      name: String,
+      delay: FiniteDuration,
+      maxRetries: Int,
+      deferredCall: DeferredCall[I, O]): Future[Done] = {
     val timerServiceClient = GrpcClients(system).getProxyGrpcClient(classOf[TimerService])
 
     val deferredCallImpl =
@@ -62,6 +68,7 @@ private[kalix] final class TimerSchedulerImpl(messageCodec: MessageCodec, system
 
     val singleTimer = SingleTimer(name, Some(call), Some(ProtoDuration(delay.toJava)))
     timerServiceClient.addSingle(singleTimer).map(_ => Done)(ExecutionContext.parasitic)
+
   }
 
   override def cancel(name: String): Future[Done] = {
