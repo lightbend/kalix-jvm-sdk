@@ -135,7 +135,7 @@ public class ShoppingCartIntegrationTest {
         List.of(item("a", "Apple", 42)));
     removeCart("cart4");
     exceptionRule.expect(ExecutionException.class);
-    exceptionRule.expectMessage("UNKNOWN: Entity deleted");
+    exceptionRule.expectMessage("INTERNAL: Entity deleted");
     exceptionRule.expectCause(instanceOf(StatusRuntimeException.class));
     getCart("cart4");
   }
