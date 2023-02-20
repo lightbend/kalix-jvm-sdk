@@ -118,6 +118,13 @@ For all other possible errors, the call to `OrderAction.expire` will fail and th
 
 IMPORTANT: Whenever you implement a method that is called from a timer, you need to carefully handle errors inside that method. Failing to do so may cause the timer to keep re-scheduling. Therefore, you should ensure that any failure is properly handled and only propagated if the intention is to re-try the call.
 
+=== Failures and retries
+
+If a scheduled call fails it will be retried, retries are backed off exponentially, starting at 3 seconds and can
+reach a maximum backoff of 30 seconds if consecutive retries keep failing.
+
+The default is to keep retrying indefinitely, but it is possible to limit the number of retries before giving up via the `startSingleTimer` overload parameter `maxRetries`.
+
 === Cancelling a timer
 
 Next, we can have a look at `OrderAction.confirm` and `OrderAction.cancel` implementations. They are very similar. The only difference being the method they call on the Order entity. 
