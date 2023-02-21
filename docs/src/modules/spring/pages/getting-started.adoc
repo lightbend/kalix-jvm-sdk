@@ -137,9 +137,12 @@ To deploy your service to Kalix:
 
 First make sure you have updated the `dockerImage` property in the `pom.xml` to point at your Docker registry. Then:
 
-- Run `mvn deploy`, which conveniently packages and publishes your Docker image prior to deployment.
+- Run `mvn deploy kalix:deploy`.
 
-- When using the CLI, in your command window, set your Kalix project to be the current project:
+The first target, `deploy`, packages and publishes your Docker image to your repository and the second target, `kalix:deploy`, deploys the service with this image to Kalix. If `kalixProject` is set, that is the project where the service will be deployed. If it is not set, the service will be deployed in your currently selected project.
+IMPORTANT: If you time stamp your image. For example, ` <dockerTag>${project.version}-${build.timestamp}</dockerTag>` you must always run both targets in one pass, i.e. `mvn deploy kalix:deploy`. You cannot run `mvn deploy` first and then `mvn kalix:deploy` because they have different timestamps and thus different `dockerTag`s. This makes it impossible to reference the image in the repository from the second target.
+
+- When using the CLI, in your command window, you can set your Kalix project to be the current project:
 
 +
 [source, command window]

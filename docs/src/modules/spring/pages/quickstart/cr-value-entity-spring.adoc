@@ -81,11 +81,13 @@ To build and publish the container image and then deploy the service, follow the
 kalix auth login
 ----
 
-. Use the `deploy` target to build the container image, publish it to the container registry as configured in the `pom.xml` file, and then automatically https://docs.kalix.io/services/deploy-service.html#_deploy[deploy the service] to Kalix using `kalix`:
+. Use the `deploy` target to build the container image, publish it to the container registry as configured in the `pom.xml` file, and the target `kalix:deploy` to automatically https://docs.kalix.io/services/deploy-service.html#_deploy[deploy the service] to Kalix using `kalix` CLI:
+IMPORTANT: If you time stamp your image. For example, `<dockerTag>${project.version}-${build.timestamp}</dockerTag>` you must always run both targets in one pass, i.e. `mvn deploy kalix:deploy`. You cannot run `mvn deploy` first and then `mvn kalix:deploy` because they will have different timestamps and thus different `dockerTag`s. This makes it impossible to reference the image in the repository from the second target.
+
 +
 [source,command line]
 ----
-mvn deploy
+mvn deploy kalix:deploy
 ----
 
 . You can https://docs.kalix.io/services/deploy-service.html#_verify_service_status[verify the status of the deployed service] using:

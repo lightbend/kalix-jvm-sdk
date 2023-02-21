@@ -51,7 +51,7 @@ public class DeployMojo extends AbstractMojo {
         final List<String> commandLine;
         final int deploymentResult = 0;
         if (kalixProject.isEmpty()) {
-            log.info("The variable `kalixProject` hasn't been set. Therefore, deploying to the currently selected project configured via Kalix CLI");
+            log.info("`kalixProject` hasn't been set. Therefore, deploying to the currently selected project configured via Kalix CLI");
             return;
         }
         if (kalixContext != null) {
