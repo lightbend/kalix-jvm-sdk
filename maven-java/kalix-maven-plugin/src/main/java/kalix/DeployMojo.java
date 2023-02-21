@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Scanner;
 
 /**
- * Goal which deploys the current project to Kalix.
+ * Goal which deploys the current project to the repository and Kalix.
  */
 @SuppressWarnings("unused")
 @Mojo(name = "deploy")
@@ -44,23 +44,23 @@ public class DeployMojo extends AbstractMojo {
     private final Log log = getLog();
 
     /**
-     * We deploy by invoking the services deploy command only when `deployToKalix` is `true`
-     * and the current Kalix project matches with 'kalixCurrentProject'.
+     * We deploy by invoking the services deploy command to 'kalixProject' if set.
+     * If 'kalixProject' is not set then deploying to the currently selected project.
      */
     public void execute() throws MojoExecutionException {
-       final List<String> commandLine;
-       final int deploymentResult = 0;
-       if (kalixProject.isEmpty()){
-           log.info("The variable `kalixProject` hasn't been set. Therefore, not deploying to Kalix");
-           return;
-       }
-       if (kalixContext != null) {
-           commandLine = Arrays.asList(kalixPath, "--context", kalixContext,"--project", kalixProject, "service", "deploy", service, dockerImage);
-           deploy(commandLine);
-           } else {
-           commandLine = Arrays.asList(kalixPath,"--project", kalixProject, "service", "deploy", service, dockerImage);
-           deploy(commandLine);
-       }
+        final List<String> commandLine;
+        final int deploymentResult = 0;
+        if (kalixProject.isEmpty()) {
+            log.info("The variable `kalixProject` hasn't been set. Therefore, deploying to the currently selected project configured via Kalix CLI");
+            return;
+        }
+        if (kalixContext != null) {
+            commandLine = Arrays.asList(kalixPath, "--context", kalixContext, "--project", kalixProject, "service", "deploy", service, dockerImage);
+            deploy(commandLine);
+        } else {
+            commandLine = Arrays.asList(kalixPath, "--project", kalixProject, "service", "deploy", service, dockerImage);
+            deploy(commandLine);
+        }
     }
 
     private void deploy(List<String> commandLine) throws MojoExecutionException {
