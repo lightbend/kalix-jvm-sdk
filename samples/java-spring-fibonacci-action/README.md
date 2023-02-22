@@ -63,7 +63,7 @@ You will need to update the `dockerImage` property in the `pom.xml` and refer to
 for more information on how to make your docker image available to Kalix.
 
 Finally, you can use the [Kalix Console](https://console.kalix.io)
-to create a project and then deploy your service into the project either by using `mvn deploy` which
-will also conveniently package and publish your docker image prior to deployment, or by first packaging and
-publishing the docker image through `mvn clean package docker:push -DskipTests` and then deploying the image
+to create a project and then deploy your service into the project either by using `mvn deploy kalix:deploy` which
+will conveniently package, publish your docker image, and deploy your service to Kalix, or by first packaging and
+publishing the docker image through `mvn deploy` and then deploying the image
 through the `kalix` CLI.
