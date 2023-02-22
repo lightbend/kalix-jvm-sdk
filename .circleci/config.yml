@@ -88,9 +88,10 @@ commands:
               echo "Extracting version from previous publish step"
               echo 'export SDK_VERSION='`cat workspace/published-version` >> $BASH_ENV
             else
+              # tail 2 + head 1 because CircleCI adds an extra line
               # the SDK_VERSION is later used to run the maven tests (see below)
               echo "Extracting version from sbt build"
-              echo 'export SDK_VERSION='`sbt "print javaSdk/version" | tail -n 2` >> $BASH_ENV
+              echo 'export SDK_VERSION='`sbt "print javaSdk/version" | tail -n 2 | head -n 1` >> $BASH_ENV
             fi
 
   publish-local:
