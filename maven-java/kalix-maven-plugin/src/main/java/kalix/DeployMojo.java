@@ -48,18 +48,15 @@ public class DeployMojo extends AbstractMojo {
      * If 'kalixProject' is not set then deploying to the currently selected project.
      */
     public void execute() throws MojoExecutionException {
-        final List<String> commandLine;
-        final int deploymentResult = 0;
         if (kalixProject.isEmpty()) {
             log.info("`kalixProject` hasn't been set. Therefore, deploying to the currently selected project configured via Kalix CLI");
+            deploy(Arrays.asList(kalixPath, "--context", kalixProject, "service", "deploy", service, dockerImage));
             return;
         }
         if (kalixContext != null) {
-            commandLine = Arrays.asList(kalixPath, "--context", kalixContext, "--project", kalixProject, "service", "deploy", service, dockerImage);
-            deploy(commandLine);
+            deploy(Arrays.asList(kalixPath, "--context", kalixContext, "--project", kalixProject, "service", "deploy", service, dockerImage);
         } else {
-            commandLine = Arrays.asList(kalixPath, "--project", kalixProject, "service", "deploy", service, dockerImage);
-            deploy(commandLine);
+            deploy(Arrays.asList(kalixPath, "--project", kalixProject, "service", "deploy", service, dockerImage));
         }
     }
 
@@ -77,10 +74,10 @@ public class DeployMojo extends AbstractMojo {
             } else {
                 InputStream errorStream = process.getErrorStream();
                 Scanner scanner = new Scanner(errorStream, StandardCharsets.UTF_8.name());
+                log.error("Unable to deploy. Ensure you can deploy by using the kalix command line directly.");
                 while(scanner.hasNext()){
                     log.error(scanner.useDelimiter("\\A").next().replaceAll("[\\n\\r]", ""));
                 }
-                log.error("Unable to deploy. Ensure you can deploy by using the kalix command line directly.");
             }
         } catch (IOException | InterruptedException e) {
             throw new MojoExecutionException("There was a problem deploying", e);
