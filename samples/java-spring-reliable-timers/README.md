@@ -1,4 +1,4 @@
-# java-spring-reliable-timers
+# java-spring-transfer-workflow
 
 This project provides an example for how to take advantage of the timers API using the Spring SDK.
 
