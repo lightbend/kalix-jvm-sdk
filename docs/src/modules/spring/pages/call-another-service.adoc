@@ -7,7 +7,7 @@ Calling other Kalix services in the same project from an Action is done by invok
 
 In this sample we will make an action that does a call to the xref:value-entity.adoc[Value Entity Counter] service, deployed with the service name "counter."
 
-The Kalix Spring SDK provides a utility class `WebClientProvider` that can provide previously configured `WebClient`s to reach other Kalix services deployed on the same Kalix project.
+The Kalix Java SDK provides a utility class `WebClientProvider` that can provide previously configured `WebClient`s to reach other Kalix services deployed on the same Kalix project.
 
 In our delegating service implementation:
 

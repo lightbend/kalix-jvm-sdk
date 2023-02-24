@@ -68,7 +68,7 @@ IMPORTANT: By default, Kalix assumes the messages in the topic were serialized a
 
 == Receiving messages from an external Topic
 
-In the above example, you consumed JSON messages from a topic that you control. If you are consuming an external topic, the message format may not be under your control and may not be JSON. If this is the case the Spring SDK can't consume from that topic. 
+In the above example, you consumed JSON messages from a topic that you control. If you are consuming an external topic, the message format may not be under your control and may not be JSON. If this is the case the Java SDK can't consume from that topic.
 
 
 == Type level annotations for subscribing 

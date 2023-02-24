@@ -1,11 +1,11 @@
-= Developing with Spring
+= Java SDK
 
 include::ROOT:partial$include.adoc[]
 include::partial$attributes.adoc[]
 
-The Spring SDK provides a code-first approach to developing Kalix applications. This SDK offers a way to develop applications which should be familiar to someone who has worked with Spring applications by making use of annotations to assemble Kalix and its components.
+The Java SDK provides a code-first approach to developing Kalix applications. This SDK offers a way to develop applications which should be familiar to someone who has worked with Spring applications by making use of annotations to assemble Kalix and its components.
 
-When using the Kalix Spring SDK, your services are exposed using traditional Spring REST annotations and serialization is backed by the ubiquitous Jackson library. 
+When using the Kalix Java SDK, your services are exposed using traditional Spring REST annotations and serialization is backed by the ubiquitous Jackson library.
 
 NOTE: If you're new to Kalix and the different types of entities that exist in a Kalix app, consider reading https://docs.kalix.io/services/programming-model.html#_what_is_a_kalix_service[this section] before continuing.
 
@@ -23,7 +23,7 @@ Docker:: Kalix requires https://docs.docker.com/get-docker/[Docker {tab-icon}, w
 
 == Features
 
-As the Spring SDK is more recent than their gRPC-first counterparts, not all features are supported at this time. However, there's already a lot to play with:
+As the Java SDK is more recent than their gRPC-first counterparts, not all features are supported at this time. However, there's already a lot to play with:
 
 * xref:spring:actions.adoc[Actions]
 * xref:spring:value-entity.adoc[Value Entities]
