@@ -11,7 +11,7 @@ In this sample we will make an action that does two sequential calls to the xref
 
 We start by adding the public API of the counter to the `src/main/proto` directory of our project.
 
-Since the proto file of a Kalix service contains annotations that cause the Java SDK code generation to generate services, and we only want to consume the service, we need to start by removing the annotations.
+Since the proto file of a Kalix service contains annotations that cause the Java/Protobuf SDK code generation to generate services, and we only want to consume the service, we need to start by removing the annotations.
 
 Copy the API definition proto file from the other service into the `proto` directory but remove all `kalix.service` option blocks as well as all other Kalix annotations and the `import "kalix/annotations.proto"` from it.
 

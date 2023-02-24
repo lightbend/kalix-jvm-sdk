@@ -55,7 +55,7 @@ A View provides a way to retrieve state from multiple Entities based on a query.
 
 It is good practice to write unit tests and integration tests as you implement your services.
 
-Kalix Spring SDK provides a test kit dependency that you can use to write unit tests for Actions and Entities as well as
+Kalix Java SDK provides a test kit dependency that you can use to write unit tests for Actions and Entities as well as
 integration tests. Please consult the component specific pages to learn more about writing unit tests and integration tests for your application.
 
 
