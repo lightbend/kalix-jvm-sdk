@@ -1119,7 +1119,7 @@ jobs:
       - run:
           name: Spring Doc snippets
           command: |
-            cd samples/spring-doc-snippets
+            cd samples/java-spring-doc-snippets
             echo "Running mvn with SDK version: '$SDK_VERSION'"
             mvn -Dkalix-sdk.version=$SDK_VERSION test-compile
 
@@ -1327,7 +1327,7 @@ jobs:
       - run:
           name: Spring View Store (for advanced Views)
           command: |
-            cd samples/spring-view-store
+            cd samples/java-spring-view-store
             echo "Running mvn with SDK version: '$SDK_VERSION'"
             mvn -Dkalix-sdk.version=$SDK_VERSION verify -Pit
 
@@ -1688,6 +1688,11 @@ workflows:
           requires:
             - spring-sdk-integration-tests
             - publish-local
+      - sample-java-spring-transfer-workflow:
+          requires:
+            - spring-sdk-integration-tests
+            - publish-local
+
 
       - publish:
           filters: # version tags only
