@@ -3,7 +3,7 @@
 include::ROOT:partial$include.adoc[]
 include::partial$attributes.adoc[]
 
-The Kalix Java/Scala SDK has two mechanisms dealing with something going wrong.
+The Kalix Java/Scala Protobuf SDK has two mechanisms dealing with something going wrong.
 
 == Errors
 

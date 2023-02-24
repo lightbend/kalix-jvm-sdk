@@ -88,7 +88,7 @@ It suffices to add them on the same package or on a sub-package of your `Main` c
 xref:spring:spring-boot-integration.adoc#_dependency_injection[Dependency injection] page for more details on how Kalix components integrates
 with Spring's application context.
 
-The project also includes a dependency on the *Kalix Spring SDK Test Kit*. Please consult the component specific pages to
+The project also includes a dependency on the *Kalix Java SDK Test Kit*. Please consult the component specific pages to
 learn more about writing unit tests and integration tests for your application.
 
 == Package service

@@ -4,8 +4,8 @@ include::ROOT:partial$include.adoc[]
 
 API documentation:
 
-* link:{attachmentsdir}/api/index.html[Java SDK {tab-icon}, window="new"]
-* link:{attachmentsdir}/testkit/index.html[Java SDK TestKit {tab-icon}, window="new"]
-* link:{attachmentsdir}/scala-api/index.html[Scala SDK {tab-icon}, window="new"]
-* link:{attachmentsdir}/scala-testkit-api/index.html[Scala SDK TestKit {tab-icon}, window="new"]
+* link:{attachmentsdir}/api/index.html[Java/Protobuf SDK {tab-icon}, window="new"]
+* link:{attachmentsdir}/testkit/index.html[Java/Protobuf SDK TestKit {tab-icon}, window="new"]
+* link:{attachmentsdir}/scala-api/index.html[Scala/Protobuf SDK {tab-icon}, window="new"]
+* link:{attachmentsdir}/scala-testkit-api/index.html[Scala/Protobuf SDK TestKit {tab-icon}, window="new"]
 

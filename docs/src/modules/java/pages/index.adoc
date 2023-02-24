@@ -1,4 +1,4 @@
-= Developing with Java or Scala
+= Java/Scala Protobuf SDKs
 :page-supergroup-java-scala: Language
 
 include::ROOT:partial$include.adoc[]
@@ -29,7 +29,7 @@ sbt:: For Scala-based services, Kalix relies on https://www.scala-sbt.org/[sbt {
 Docker:: Kalix requires https://docs.docker.com/get-docker/[Docker {tab-icon}, window="new"] {minimum_docker_version} for building your service images. Most popular build tools have plugins that assist in building Docker images.
 
 
-== Reference the Kalix SDK
+== Reference the Kalix Protobuf SDKs
 
 The following examples show how to install the SDK to build your services with Maven. The code generation tools include a Kalix xref:quickstart-template.adoc[project template] that generates the recommended project structure, including a [.group-java]#`.pom` file# [.group-scala]#build.sbt# with the necessary references.
 
@@ -123,10 +123,10 @@ This section provides details on how to accomplish common tasks:
 * xref:eventsourced.adoc[Implementing Event Sourced Entities]
 * xref:replicated-entity.adoc[Implementing Replicated Entities]
 * xref:actions.adoc[Actions (stateless functions)]
-* xref:java:actions-as-controller.adoc[Actions as Controllers]
-* xref:java:actions-publishing-subscribing.adoc[Publishing and Subscribing with Actions]
-* xref:java:views.adoc[Implementing Views]
-* xref:java:side-effects.adoc[Running Side Effects]
+* xref:actions-as-controller.adoc[Actions as Controllers]
+* xref:actions-publishing-subscribing.adoc[Publishing and Subscribing with Actions]
+* xref:views.adoc[Implementing Views]
+* xref:side-effects.adoc[Running Side Effects]
 * xref:serialization.adoc[Serialization]
 * xref:access-control.adoc[Access Control (ACL)]
 * xref:api.adoc[API docs]
