@@ -1331,7 +1331,7 @@ jobs:
             echo "Running mvn with SDK version: '$SDK_VERSION'"
             mvn -Dkalix-sdk.version=$SDK_VERSION verify -Pit
 
-  sample-java-spring-reliable-timers:
+  sample-java-spring-transfer-workflow:
     machine:
       image: ubuntu-2004:202201-02
     steps:
@@ -1344,7 +1344,7 @@ jobs:
       - run:
           name: Spring SDK transfer Workflow Entity
           command: |
-            cd samples/java-spring-reliable-timers
+            cd samples/java-spring-transfer-workflow
             echo "Running mvn with SDK version: '$SDK_VERSION'"
             mvn -Dkalix-sdk.version=$SDK_VERSION verify -Pit
 
