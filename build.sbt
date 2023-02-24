@@ -440,12 +440,12 @@ lazy val codegenJavaCompilationTest = project
     ReflectiveCodeGen.copyUnmanagedSources := false)
 
 lazy val javaValueentityCustomerRegistry = project
-  .in(file("samples/java-valueentity-customer-registry"))
+  .in(file("samples/java-protobuf-valueentity-customer-registry"))
   .dependsOn(javaSdk)
   .enablePlugins(AkkaGrpcPlugin, IntegrationTests, LocalDockerImage)
   .settings(common)
   .settings(
-    name := "java-valueentity-customer-registry",
+    name := "java-protobuf-valueentity-customer-registry",
     libraryDependencies ++= Seq(
       "ch.qos.logback" % "logback-classic" % Dependencies.LogbackVersion,
       "ch.qos.logback.contrib" % "logback-json-classic" % Dependencies.LogbackContribVersion,
@@ -459,12 +459,12 @@ lazy val javaValueentityCustomerRegistry = project
     IntegrationTest / PB.protoSources ++= (Compile / PB.protoSources).value)
 
 lazy val javaEventsourcedCustomerRegistry = project
-  .in(file("samples/java-eventsourced-customer-registry"))
+  .in(file("samples/java-protobuf-eventsourced-customer-registry"))
   .dependsOn(javaSdk)
   .enablePlugins(AkkaGrpcPlugin, IntegrationTests, LocalDockerImage)
   .settings(common)
   .settings(
-    name := "java-eventsourced-customer-registry",
+    name := "java-protobuf-eventsourced-customer-registry",
     libraryDependencies ++= Seq(
       "ch.qos.logback" % "logback-classic" % Dependencies.LogbackVersion,
       "ch.qos.logback.contrib" % "logback-json-classic" % Dependencies.LogbackContribVersion,

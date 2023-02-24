@@ -18,7 +18,7 @@ that one Kalix service can publish more than one of the entity types it contains
 [source,java,indent=0]
 .src/main/java/customer/api/CustomerEventsService.java
 ----
-include::example$spring-eventsourced-customer-registry/src/main/java/customer/api/CustomerEventsService.java[tag=producer]
+include::example$java-spring-eventsourced-customer-registry/src/main/java/customer/api/CustomerEventsService.java[tag=producer]
 ----
 <1> Identifying which event sourced entity to publish events for.
 <2> Ignore any event types not handled by a method and move on with the event stream, rather than fail which is the default.
@@ -38,7 +38,7 @@ Java::
 [source,java,indent=0]
 .src/main/java/customer/views/CustomersByNameView.java
 ----
-include::example$spring-eventsourced-customer-registry-subscriber/src/main/java/customer/views/CustomersByNameView.java[tag=view]
+include::example$java-spring-eventsourced-customer-registry-subscriber/src/main/java/customer/views/CustomersByNameView.java[tag=view]
 ----
 <1> Annotate the component with `@Subscribe.Stream` to subscribe to an event stream from another Kalix service.
 <2> The name of the Kalix service publishing the event stream.

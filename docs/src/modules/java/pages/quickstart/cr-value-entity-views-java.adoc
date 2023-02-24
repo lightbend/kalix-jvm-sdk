@@ -69,7 +69,7 @@ mkdir src/main/proto/customer/view
 [source,proto,indent=0]
 .src/main/proto/customer/view/customer_view.proto
 ----
-include::example$java-customer-registry-views-quickstart/src/main/proto/customer/view/customer_view.proto[tag=declarations]
+include::example$java-protobuf-customer-registry-views-quickstart/src/main/proto/customer/view/customer_view.proto[tag=declarations]
 ----
 <1> The protobuf syntax version, `proto3`.
 <2> The package name, `customer.view`.
@@ -81,7 +81,7 @@ include::example$java-customer-registry-views-quickstart/src/main/proto/customer
 [source,proto,indent=0]
 .src/main/proto/customer/view/customer_view.proto
 ----
-include::example$java-customer-registry-views-quickstart/src/main/proto/customer/view/customer_view.proto[tag=CustomerByEmail]
+include::example$java-protobuf-customer-registry-views-quickstart/src/main/proto/customer/view/customer_view.proto[tag=CustomerByEmail]
 ----
 <1> The Protobuf `service` for the View.
 <2> The option that the Maven plugin will use to generate the `CustomerByEmail` View.
@@ -187,7 +187,7 @@ Add the service endpoint
 [source,proto,indent=0]
 .src/main/proto/customer/view/customer_view.proto
 ----
-include::example$java-customer-registry-views-quickstart/src/main/proto/customer/view/customer_view.proto[tag=CustomerByName]
+include::example$java-protobuf-customer-registry-views-quickstart/src/main/proto/customer/view/customer_view.proto[tag=CustomerByName]
 ----
 <1> The `UpdateCustomer` method defines how Kalix will update the view. In this case use a `CustomerViewState` that is different from the incoming `domain.CustomerState`.
 <2> `transform_updates: true` defines that you want custom code in the `UpdateCustomer` method.
@@ -208,7 +208,7 @@ Again, this will result in a compilation error in the `Main` class. That is expe
 [source, java, indent=0]
 .src/main/java/customer/view/CustomerByEmailView.java
 ----
-include::example$java-customer-registry-views-quickstart/src/main/java/customer/view/CustomerByNameView.java[tag=view]
+include::example$java-protobuf-customer-registry-views-quickstart/src/main/java/customer/view/CustomerByNameView.java[tag=view]
 ----
 <1> Empty state that will be used if no previous state has been stored for the View.
 <2> From the incoming `CustomerDomain.CustomerState` that represents the change from the Value Entity create a `CustomerViewModel.CustomerViewState`.

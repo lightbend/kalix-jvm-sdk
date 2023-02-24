@@ -18,7 +18,7 @@ To implement this action you need the following:
 [source,java,indent=0]
 .src/main/java/com/example/fibonacci/FibonacciAction.java
 ----
-include::example$spring-fibonacci-action/src/main/java/com/example/fibonacci/FibonacciAction.java[tag=implementing-action]
+include::example$java-spring-fibonacci-action/src/main/java/com/example/fibonacci/FibonacciAction.java[tag=implementing-action]
 ----
 <1> `isFibonacci` checks if a number is a Fibonacci number
 <2> `nextFib` calculates the next number.
@@ -55,7 +55,7 @@ Java::
 .src/test/java/com/example/actions/FibonacciActionTest.java
 [source,java]
 ----
-include::example$spring-fibonacci-action/src/test/java/com/example/fibonacci/FibonacciActionTest.java[tag=testing-action]
+include::example$java-spring-fibonacci-action/src/test/java/com/example/fibonacci/FibonacciActionTest.java[tag=testing-action]
 ----
 <1> The test kit is created to allow us to test the Action's method.
 <2> Calling `nextNumber` method with some value.

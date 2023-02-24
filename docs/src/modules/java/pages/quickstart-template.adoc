@@ -103,7 +103,7 @@ Default API protobuf file::
 --
 [source,protobuf]
 ----
-include::example$java-first-service/src/main/proto/com/example/counter_api.proto[]
+include::example$java-protobuf-first-service/src/main/proto/com/example/counter_api.proto[]
 ----
 --
 Default domain protobuf file::
@@ -112,7 +112,7 @@ Default domain protobuf file::
 --
 [source,protobuf]
 ----
-include::example$java-first-service/src/main/proto/com/example/domain/counter_domain.proto[]
+include::example$java-protobuf-first-service/src/main/proto/com/example/domain/counter_domain.proto[]
 ----
 --
 
@@ -132,7 +132,7 @@ Java::
 [source,java]
 .src/main/java/com/example/domain/Counter.java
 ----
-include::example$java-first-service/src/main/java/com/example/domain/Counter.java[]
+include::example$java-protobuf-first-service/src/main/java/com/example/domain/Counter.java[]
 ----
 
 Scala::
@@ -140,7 +140,7 @@ Scala::
 .src/main/scala/com/example/domain/Counter.scala
 [source,scala]
 ----
-include::example$scala-first-service/src/main/scala/com/example/domain/Counter.scala[]
+include::example$scala-protobuf-first-service/src/main/scala/com/example/domain/Counter.scala[]
 ----
 
 The plugin provides the `Main` class implementation that registers service components with Kalix.
@@ -151,7 +151,7 @@ Java::
 .src/main/java/com/example/Main.java
 [source,java]
 ----
-include::example$java-first-service/src/main/java/com/example/Main.java[]
+include::example$java-protobuf-first-service/src/main/java/com/example/Main.java[]
 ----
 
 Scala::
@@ -159,7 +159,7 @@ Scala::
 .src/main/scala/com/example/Main.scala
 [source,scala]
 ----
-include::example$scala-first-service/src/main/scala/com/example/Main.scala[]
+include::example$scala-protobuf-first-service/src/main/scala/com/example/Main.scala[]
 ----
 
 This class is the entry point for running Kalix within the container.
@@ -176,7 +176,7 @@ Java::
 .src/test/java/com/example/domain/CounterTest.java
 [source,java]
 ----
-include::example$java-first-service/src/test/java/com/example/domain/CounterTest.java[]
+include::example$java-protobuf-first-service/src/test/java/com/example/domain/CounterTest.java[]
 ----
 
 Scala::
@@ -184,7 +184,7 @@ Scala::
 .src/test/scala/com/example/domain/CounterSpec.scala
 [source,scala]
 ----
-include::example$scala-first-service/src/test/scala/com/example/domain/CounterSpec.scala[]
+include::example$scala-protobuf-first-service/src/test/scala/com/example/domain/CounterSpec.scala[]
 ----
 
 Use [.group-java]#`mvn verify`# [.group-scala]#`sbt -DonlyUnitTest test`# to run all unit tests.
@@ -216,7 +216,7 @@ The Maven plugin also provides you with an initial setup for integration tests b
 .src/it/java/com/example/domain/CounterIntegrationTest.java
 [source,java]
 ----
-include::example$java-first-service/src/it/java/com/example/CounterIntegrationTest.java[]
+include::example$java-protobuf-first-service/src/it/java/com/example/CounterIntegrationTest.java[]
 ----
 
 [.group-java]

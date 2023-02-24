@@ -79,7 +79,7 @@ mkdir src/main/proto/customer/action
 [source,proto,indent=0]
 .src/main/proto/customer/action/customer_action.proto
 ----
-include::example$java-customer-registry-kafka-quickstart/src/main/proto/customer/action/customer_action.proto[tag=declarations]
+include::example$java-protobuf-customer-registry-kafka-quickstart/src/main/proto/customer/action/customer_action.proto[tag=declarations]
 ----
 
 . Add the service definition. The service definition is annotated with `kalix.codegen` indicating we want to generate an Action for this service.
@@ -91,7 +91,7 @@ include::example$java-customer-registry-kafka-quickstart/src/main/proto/customer
 [source,proto,indent=0]
 .src/main/proto/customer/action/customer_action.proto
 ----
-include::example$java-customer-registry-kafka-quickstart/src/main/proto/customer/action/customer_action.proto[tag=service]
+include::example$java-protobuf-customer-registry-kafka-quickstart/src/main/proto/customer/action/customer_action.proto[tag=service]
 ----
 
 . Run `mvn compile` from the project root directory to generate source classes in which you add business logic.
@@ -111,7 +111,7 @@ Actions are stateless functions that can be triggered in multiple ways. In this 
 [source, java]
 .src/main/java/customer/action/CustomerStateSubscriptionAction.java
 ----
-include::example$java-customer-registry-kafka-quickstart/src/main/java/customer/action/CustomerStateSubscriptionAction.java[tag=upsert]
+include::example$java-protobuf-customer-registry-kafka-quickstart/src/main/java/customer/action/CustomerStateSubscriptionAction.java[tag=upsert]
 ----
 +
 * The incoming message contains the updated state of the customer entity and this action converts it to a `CustomerApi.Customer` and passes it to the xref:java:actions-publishing-subscribing.adoc[Pub/Sub] mechanism of choice. In this example Kafka.

@@ -13,7 +13,7 @@ Below you can find a summary of the shopping cart value entity we will use in th
 .src/main/java/com/example/api/ShoppingCartEntity.java
 [source,java]
 ----
-include::example$spring-valueentity-shopping-cart/src/main/java/com/example/api/ShoppingCartEntity.java[tag=summary]
+include::example$java-spring-valueentity-shopping-cart/src/main/java/com/example/api/ShoppingCartEntity.java[tag=summary]
 ----
 <1> Common path being used: `/cart/` suffixed with a `cartId`.
 <2> `POST` endpoint exposed at `(...)/create` used to create a new cart with `cartId`.
@@ -33,7 +33,7 @@ request and only conditionally forward the request to the entity if the verifica
 .src/main/java/com/example/api/ShoppingCartController.java
 [source,java]
 ----
-include::example$spring-valueentity-shopping-cart/src/main/java/com/example/api/ShoppingCartController.java[tag=forward]
+include::example$java-spring-valueentity-shopping-cart/src/main/java/com/example/api/ShoppingCartController.java[tag=forward]
 ----
 <1> `KalixClient` is injected on the constructor. It will be used to build calls to the underlining Entity.
 <2> Expose the command handler as a `POST` endpoint at specified path.
@@ -55,7 +55,7 @@ This example implements an `initializeCart` command for the controller Action wh
 .src/main/java/com/example/api/ShoppingCartController.java
 [source,java]
 ----
-include::example$spring-valueentity-shopping-cart/src/main/java/com/example/api/ShoppingCartController.java[tag=initialize]
+include::example$java-spring-valueentity-shopping-cart/src/main/java/com/example/api/ShoppingCartController.java[tag=initialize]
 ----
 <1> Generate a new UUID.
 <2> Use the `kalixClient` to create a call to endpoint `create` on the shopping cart - note the use of the full path, empty body and the expected reply type `ShoppingCartDTO`.
@@ -78,7 +78,7 @@ In this case you mark that the entity has been created using a creation timestam
 .src/main/java/com/example/api/ShoppingCartEntity.java
 [source,java]
 ----
-include::example$spring-valueentity-shopping-cart/src/main/java/com/example/api/ShoppingCartEntity.java[tag=create]
+include::example$java-spring-valueentity-shopping-cart/src/main/java/com/example/api/ShoppingCartEntity.java[tag=create]
 ----
 
 
@@ -93,7 +93,7 @@ but before it returns the new id to the client:
 .src/main/java/com/example/api/ShoppingCartController.java
 [source,java]
 ----
-include::example$spring-valueentity-shopping-cart/src/main/java/com/example/api/ShoppingCartController.java[tag=createPrePopulated]
+include::example$java-spring-valueentity-shopping-cart/src/main/java/com/example/api/ShoppingCartController.java[tag=createPrePopulated]
 ----
 <1> `CompletionStage#thenCompose` allow you to perform an additional async operation, returning a `CompletionStage` once the current one completes successfully.
 <2> Create a request to add an initial item to the cart.
@@ -115,7 +115,7 @@ already in the cart, and once that has been verified, it adds the item to the ca
 .src/main/java/com/example/api/ShoppingCartController.java
 [source,java]
 ----
-include::example$spring-valueentity-shopping-cart/src/main/java/com/example/api/ShoppingCartController.java[tag=unsafeValidation]
+include::example$java-spring-valueentity-shopping-cart/src/main/java/com/example/api/ShoppingCartController.java[tag=unsafeValidation]
 ----
 <1> Between this call returning
 <2> And this next call to the same entity, the entity could accept other commands that change the total count of items in the cart

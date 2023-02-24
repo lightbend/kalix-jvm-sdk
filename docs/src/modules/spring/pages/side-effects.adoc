@@ -29,7 +29,7 @@ The class `DoubleCounterAction` listens to the counter state changes. When the c
 [source,java,indent=0]
 .src/main/java/com/example/actions/DoubleCounterAction.java
 ----
-include::example$spring-valueentity-counter/src/main/java/com/example/action/DoubleCounterAction.java[tag=controller-side-effect]
+include::example$java-spring-valueentity-counter/src/main/java/com/example/action/DoubleCounterAction.java[tag=controller-side-effect]
 ----
 <1> Retrieving the id of the counter 
 <2> On incoming request, doubling the value of `increase`, 

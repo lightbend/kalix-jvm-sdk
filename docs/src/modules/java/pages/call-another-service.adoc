@@ -23,7 +23,7 @@ Java::
 [source,protobuf,indent=0]
 .src/main/proto/com/example/counter_api.proto
 ----
-include::java:example$java-doc-snippets/src/main/proto/com/example/counter_api.proto[tag=other-service-api]
+include::java:example$java-protobuf-doc-snippets/src/main/proto/com/example/counter_api.proto[tag=other-service-api]
 ----
 
 Scala::
@@ -31,7 +31,7 @@ Scala::
 [source,protobuf,indent=0]
 .src/main/proto/com/example/counter_api.proto
 ----
-include::example$scala-doc-snippets/src/main/proto/com/example/counter_api.proto[tag=other-service-api]
+include::example$scala-protobuf-doc-snippets/src/main/proto/com/example/counter_api.proto[tag=other-service-api]
 ----
 
 
@@ -47,7 +47,7 @@ Java::
 [source,java,indent=0]
 .src/main/java/com/example/DelegatingServiceAction.java
 ----
-include::java:example$java-doc-snippets/src/main/java/com/example/DelegatingServiceAction.java[tag=delegating-action]
+include::java:example$java-protobuf-doc-snippets/src/main/java/com/example/DelegatingServiceAction.java[tag=delegating-action]
 ----
 +
 <1> We call `actionContext().getGrpcClient` with the service interface of the API and the name that the service was deployed with.
@@ -61,7 +61,7 @@ Scala::
 [source,scala,indent=0]
 .src/main/scala/com/example/DelegatingServiceAction.scala
 ----
-include::example$scala-doc-snippets/src/main/scala/com/example/DelegatingServiceAction.scala[tag=delegating-action]
+include::example$scala-protobuf-doc-snippets/src/main/scala/com/example/DelegatingServiceAction.scala[tag=delegating-action]
 ----
 +
 <1> We call `actionContext.getGrpcClient` with the service interface of the API and the name that the service was deployed with.

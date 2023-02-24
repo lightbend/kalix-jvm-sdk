@@ -19,7 +19,7 @@ As mentioned above, to help us illustrate a Value Entity, you will be implementi
 .src/main/java/com/example/Number.java
 [source,java]
 ----
-include::example$spring-valueentity-counter/src/main/java/com/example/Number.java[]
+include::example$java-spring-valueentity-counter/src/main/java/com/example/Number.java[]
 ----
 
 include::partial$entity-keys.adoc[]
@@ -38,7 +38,7 @@ Let us start by showing how to create the Value Entity:
 .src/main/java/com/example/CounterEntity.java
 [source,java]
 ----
-include::example$spring-valueentity-counter/src/main/java/com/example/CounterEntity.java[tags=declarations]
+include::example$java-spring-valueentity-counter/src/main/java/com/example/CounterEntity.java[tags=declarations]
 ----
 <1> Every Entity must be annotated with `@EntityType` with a stable name. This name should be unique among the
 different existing entities within a Kalix application.
@@ -53,7 +53,7 @@ We will now show how to add the command handlers for supporting the two desired 
 .src/main/java/com/example/CounterEntity.java
 [source,java,indent=0]
 ----
-include::example$spring-valueentity-counter/src/main/java/com/example/CounterEntity.java[tags=behaviour]
+include::example$java-spring-valueentity-counter/src/main/java/com/example/CounterEntity.java[tags=behaviour]
 ----
 <1> Expose the `set` command handler on path `/counter/\{counter_id\}/set` as a PUT endpoint where `counter_id` will be its unique identifier.
 <2> Set the new counter value to the value received as body of the command request.
@@ -72,7 +72,7 @@ The next example shows how to delete a Value Entity state by returning special `
 .src/main/java/com/example/CounterEntity.java
 [source,java,indent=0]
 ----
-include::example$spring-valueentity-counter/src/main/java/com/example/CounterEntity.java[tags=delete]
+include::example$java-spring-valueentity-counter/src/main/java/com/example/CounterEntity.java[tags=delete]
 ----
 <1> We delete the state by returning an `Effect` with `effects().deleteEntity()`.
 
@@ -93,7 +93,7 @@ The following example shows how to implement a simple endpoint to retrieve the c
 .src/main/java/com/example/CounterEntity.java
 [source,java,indent=0]
 ----
-include::example$spring-valueentity-counter/src/main/java/com/example/CounterEntity.java[tags=query]
+include::example$java-spring-valueentity-counter/src/main/java/com/example/CounterEntity.java[tags=query]
 ----
 <1> Expose the `get` query handler on path `/counter/\{counter_id\}` as a GET endpoint where `counter_id` will be its unique identifier.
 <2> Reply with the current state wrapped within a `Number`.
@@ -110,7 +110,7 @@ The following snippet shows how the `ValueEntityTestKit` is used to test the `Co
 ./src/test/java/com/example/CounterTest.java
 [source,java,indent=0]
 ----
-include::example$spring-valueentity-counter/src/test/java/com/example/CounterTest.java[tags=example]
+include::example$java-spring-valueentity-counter/src/test/java/com/example/CounterTest.java[tags=example]
 ----
 <1> Creates the TestKit passing the constructor of the Entity.
 <2> Calls the method `set` from the Entity in the `ValueEntityTestKit` with value `10`.
@@ -127,7 +127,7 @@ The skeleton of an Integration Test is generated for you if you use the archetyp
 ./src/it/java/com/example/CounterIntegrationTest.java
 [source,java,indent=0]
 ----
-include::example$spring-valueentity-counter/src/it/java/com/example/CounterIntegrationTest.java[tags=sample-it]
+include::example$java-spring-valueentity-counter/src/it/java/com/example/CounterIntegrationTest.java[tags=sample-it]
 ----
 <1> Note the test class must extend `KalixIntegrationTestKitSupport`.
 <2> A built-in web-client is provided to interact with the components.

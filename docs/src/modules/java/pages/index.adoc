@@ -85,7 +85,7 @@ JSON formatted logging is enabled by default in the projects created by the xref
 .src/main/resources/logback.xml
 [source,xml]
 ----
-include::example$java-first-service/src/main/resources/logback.xml[]
+include::example$java-protobuf-first-service/src/main/resources/logback.xml[]
 ----
 
 In the `logback.xml` you may want to adjust the log level for different loggers (typically a package or class name).
@@ -103,14 +103,14 @@ Java::
 +
 [source,java,indent=0]
 ----
-include::example$java-eventsourced-shopping-cart/src/main/java/com/example/shoppingcart/Main.java[tag=RegisterEventSourcedEntity]
+include::example$java-protobuf-eventsourced-shopping-cart/src/main/java/com/example/shoppingcart/Main.java[tag=RegisterEventSourcedEntity]
 ----
 
 Scala::
 +
 [source,scala,indent=0]
 ----
-include::example$scala-valueentity-customer-registry/src/main/scala/customer/Main.scala[tag=RegisterComponents]
+include::example$scala-protobuf-valueentity-customer-registry/src/main/scala/customer/Main.scala[tag=RegisterComponents]
 ----
 
 == What's next

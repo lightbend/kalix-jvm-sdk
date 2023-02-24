@@ -389,7 +389,7 @@ jobs:
             mvn -B compile
       - save_deps_cache
 
-  sample-java-customer-registry-quickstart:
+  sample-java-protobuf-customer-registry-quickstart:
     machine:
       image: ubuntu-2004:202201-02
     steps:
@@ -402,7 +402,7 @@ jobs:
       - run:
           name: Java Customer Registry Quickstart
           command: |
-            cd samples/java-customer-registry-quickstart
+            cd samples/java-protobuf-customer-registry-quickstart
             echo "Running mvn with SDK version: '$SDK_VERSION'"
             # must also compile without the profile!
             mvn -Dkalix-sdk.version=$SDK_VERSION test-compile
@@ -411,7 +411,7 @@ jobs:
             rm -rf src/main/java src/test/java src/it/java
             mvn -Dkalix-sdk.version=$SDK_VERSION test-compile
 
-  sample-java-customer-registry-kafka-quickstart:
+  sample-java-protobuf-customer-registry-kafka-quickstart:
     machine:
       image: ubuntu-2004:202201-02
     steps:
@@ -424,7 +424,7 @@ jobs:
       - run:
           name: Java Customer Registry Kafka Quickstart
           command: |
-            cd samples/java-customer-registry-kafka-quickstart
+            cd samples/java-protobuf-customer-registry-kafka-quickstart
             echo "Running mvn with SDK version: '$SDK_VERSION'"
             # must also compile without the profile!
             mvn -Dkalix-sdk.version=$SDK_VERSION test-compile
@@ -433,7 +433,7 @@ jobs:
             rm -rf src/main/java src/test/java src/it/java
             mvn -Dkalix-sdk.version=$SDK_VERSION test-compile
 
-  sample-java-customer-registry-views-quickstart:
+  sample-java-protobuf-customer-registry-views-quickstart:
     machine:
       image: ubuntu-2004:202201-02
     steps:
@@ -446,7 +446,7 @@ jobs:
       - run:
           name: Java Customer Registry Views Quickstart
           command: |
-            cd samples/java-customer-registry-views-quickstart
+            cd samples/java-protobuf-customer-registry-views-quickstart
             echo "Running mvn with SDK version: '$SDK_VERSION'"
             # must also compile without the profile!
             mvn -Dkalix-sdk.version=$SDK_VERSION test-compile
@@ -455,7 +455,7 @@ jobs:
             rm -rf src/main/java src/test/java src/it/java
             mvn -Dkalix-sdk.version=$SDK_VERSION test-compile
 
-  sample-java-shopping-cart-quickstart:
+  sample-java-protobuf-shopping-cart-quickstart:
     machine:
       image: ubuntu-2004:202201-02
     steps:
@@ -468,7 +468,7 @@ jobs:
       - run:
           name: Java Shopping Cart Quickstart
           command: |
-            cd samples/java-shopping-cart-quickstart
+            cd samples/java-protobuf-shopping-cart-quickstart
             echo "Running mvn with SDK version: '$SDK_VERSION'"
             # must also compile without the profile!
             mvn -Dkalix-sdk.version=$SDK_VERSION test-compile
@@ -477,7 +477,7 @@ jobs:
             rm -rf src/main/java src/test/java src/it/java
             mvn -Dkalix-sdk.version=$SDK_VERSION test-compile
 
-  sample-java-fibonacci-action:
+  sample-java-protobuf-fibonacci-action:
     machine:
       image: ubuntu-2004:202201-02
     steps:
@@ -490,7 +490,7 @@ jobs:
       - run:
           name: Java Fibonacci Action
           command: |
-            cd samples/java-fibonacci-action
+            cd samples/java-protobuf-fibonacci-action
             echo "Running mvn with SDK version: '$SDK_VERSION'"
             mvn -Dkalix-sdk.version=$SDK_VERSION test-compile
             mvn -Dkalix-sdk.version=$SDK_VERSION verify -Pit
@@ -498,7 +498,7 @@ jobs:
             rm -rf src/main/java src/test/java src/it/java
             mvn -Dkalix-sdk.version=$SDK_VERSION test-compile
 
-  sample-java-doc-snippets:
+  sample-java-protobuf-doc-snippets:
     machine:
       image: ubuntu-2004:202201-02
     steps:
@@ -511,11 +511,11 @@ jobs:
       - run:
           name: Java Doc snippets
           command: |
-            cd samples/java-doc-snippets
+            cd samples/java-protobuf-doc-snippets
             echo "Running mvn with SDK version: '$SDK_VERSION'"
             mvn -Dkalix-sdk.version=$SDK_VERSION test-compile
 
-  sample-java-first-service:
+  sample-java-protobuf-first-service:
     machine:
       image: ubuntu-2004:202201-02
     steps:
@@ -528,14 +528,14 @@ jobs:
       - run:
           name: Java first-service by archetype
           command: |
-            cd samples/java-first-service
+            cd samples/java-protobuf-first-service
             echo "Running mvn with SDK version: '$SDK_VERSION'"
             mvn -Dkalix-sdk.version=$SDK_VERSION test-compile
             echo "==== Verifying that generated unmanaged sources compile ===="
             rm -rf src/main/java src/test/java src/it/java
             mvn -Dkalix-sdk.version=$SDK_VERSION test-compile
 
-  sample-java-valueentity-customer-registry:
+  sample-java-protobuf-valueentity-customer-registry:
     machine:
       image: ubuntu-2004:202201-02
     steps:
@@ -548,7 +548,7 @@ jobs:
       - run:
           name: Java Value Entity Views "Customer Registry" sample
           command: |
-            cd samples/java-valueentity-customer-registry
+            cd samples/java-protobuf-valueentity-customer-registry
             echo "Running mvn with SDK version: '$SDK_VERSION'"
             mvn -Dkalix-sdk.version=$SDK_VERSION test-compile
             mvn -Dkalix-sdk.version=$SDK_VERSION verify -Pit
@@ -556,7 +556,7 @@ jobs:
             rm -rf src/main/java src/test/java src/it/java
             mvn -Dkalix-sdk.version=$SDK_VERSION test-compile
 
-  sample-java-view-store:
+  sample-java-protobuf-view-store:
     machine:
       image: ubuntu-2004:202201-02
     steps:
@@ -569,7 +569,7 @@ jobs:
       - run:
           name: Java Value Entity "Store" sample for advanced Views
           command: |
-            cd samples/java-view-store
+            cd samples/java-protobuf-view-store
             echo "Running mvn with SDK version: '$SDK_VERSION'"
             mvn -Dkalix-sdk.version=$SDK_VERSION test-compile
             mvn -Dkalix-sdk.version=$SDK_VERSION verify -Pit
@@ -577,7 +577,7 @@ jobs:
             rm -rf src/main/java src/test/java src/it/java
             mvn -Dkalix-sdk.version=$SDK_VERSION test-compile
 
-  sample-java-eventsourced-customer-registry:
+  sample-java-protobuf-eventsourced-customer-registry:
     machine:
       image: ubuntu-2004:202201-02
     steps:
@@ -590,7 +590,7 @@ jobs:
       - run:
           name: Java Event Sourced Views "Customer Registry" sample
           command: |
-            cd samples/java-eventsourced-customer-registry
+            cd samples/java-protobuf-eventsourced-customer-registry
             echo "Running mvn with SDK version: '$SDK_VERSION'"
             mvn -Dkalix-sdk.version=$SDK_VERSION test-compile
             mvn -Dkalix-sdk.version=$SDK_VERSION verify -Pit
@@ -598,7 +598,7 @@ jobs:
             rm -rf src/main/java src/test/java src/it/java
             mvn -Dkalix-sdk.version=$SDK_VERSION test-compile
 
-  sample-java-eventsourced-customer-registry-subscriber:
+  sample-java-protobuf-eventsourced-customer-registry-subscriber:
     machine:
       image: ubuntu-2004:202201-02
     steps:
@@ -611,7 +611,7 @@ jobs:
       - run:
           name: Java Event Sourced Customer Registry Subscriber sample
           command: |
-            cd samples/java-eventsourced-customer-registry-subscriber
+            cd samples/java-protobuf-eventsourced-customer-registry-subscriber
             echo "Running mvn with SDK version: '$SDK_VERSION'"
             mvn -Dkalix-sdk.version=$SDK_VERSION test-compile
             # no it tests here
@@ -620,7 +620,7 @@ jobs:
             rm -rf src/main/java src/test/java src/it/java
             mvn -Dkalix-sdk.version=$SDK_VERSION test-compile
 
-  sample-java-valueentity-shopping-cart:
+  sample-java-protobuf-valueentity-shopping-cart:
     machine:
       image: ubuntu-2004:202201-02
     steps:
@@ -633,7 +633,7 @@ jobs:
       - run:
           name: Java Value Entity "Shopping Cart" sample
           command: |
-            cd samples/java-valueentity-shopping-cart
+            cd samples/java-protobuf-valueentity-shopping-cart
             echo "Running mvn with SDK version: '$SDK_VERSION'"
             mvn -Dkalix-sdk.version=$SDK_VERSION test-compile
             mvn -Dkalix-sdk.version=$SDK_VERSION verify -Pit
@@ -641,7 +641,7 @@ jobs:
             rm -rf src/main/java src/test/java src/it/java
             mvn -Dkalix-sdk.version=$SDK_VERSION test-compile
 
-  sample-java-eventsourced-shopping-cart:
+  sample-java-protobuf-eventsourced-shopping-cart:
     machine:
       image: ubuntu-2004:202201-02
     steps:
@@ -654,7 +654,7 @@ jobs:
       - run:
           name: Java Event Sourced Entity "Shopping Cart" sample
           command: |
-            cd samples/java-eventsourced-shopping-cart
+            cd samples/java-protobuf-eventsourced-shopping-cart
             echo "Running mvn with SDK version: '$SDK_VERSION'"
             mvn -Dkalix-sdk.version=$SDK_VERSION test-compile
             mvn -Dkalix-sdk.version=$SDK_VERSION verify -Pit
@@ -662,7 +662,7 @@ jobs:
             rm -rf src/main/java src/test/java src/it/java
             mvn -Dkalix-sdk.version=$SDK_VERSION test-compile
 
-  sample-java-replicatedentity-shopping-cart:
+  sample-java-protobuf-replicatedentity-shopping-cart:
     machine:
       image: ubuntu-2004:202201-02
     steps:
@@ -675,7 +675,7 @@ jobs:
       - run:
           name: Java Replicated Entity "Shopping Cart" sample
           command: |
-            cd samples/java-replicatedentity-shopping-cart
+            cd samples/java-protobuf-replicatedentity-shopping-cart
             echo "Running mvn with SDK version: '$SDK_VERSION'"
             mvn -Dkalix-sdk.version=$SDK_VERSION test-compile
             mvn -Dkalix-sdk.version=$SDK_VERSION verify -Pit
@@ -683,7 +683,7 @@ jobs:
             rm -rf src/main/java src/test/java src/it/java
             mvn -Dkalix-sdk.version=$SDK_VERSION test-compile
 
-  sample-java-eventsourced-counter:
+  sample-java-protobuf-eventsourced-counter:
     machine:
       image: ubuntu-2004:202201-02
     steps:
@@ -696,7 +696,7 @@ jobs:
       - run:
           name: Java Event Sourced "Counter" sample
           command: |
-            cd samples/java-eventsourced-counter
+            cd samples/java-protobuf-eventsourced-counter
             echo "Running mvn with SDK version: '$SDK_VERSION'"
             mvn -Dkalix-sdk.version=$SDK_VERSION test-compile
             mvn -Dkalix-sdk.version=$SDK_VERSION test
@@ -707,7 +707,7 @@ jobs:
             rm -rf src/main/java src/test/java src/it/java
             mvn -Dkalix-sdk.version=$SDK_VERSION test-compile
 
-  sample-java-valueentity-counter:
+  sample-java-protobuf-valueentity-counter:
     machine:
       image: ubuntu-2004:202201-02
     steps:
@@ -720,7 +720,7 @@ jobs:
       - run:
           name: Java Value Entity "Counter" sample
           command: |
-            cd samples/java-valueentity-counter
+            cd samples/java-protobuf-valueentity-counter
             echo "Running mvn with SDK version: '$SDK_VERSION'"
             mvn -Dkalix-sdk.version=$SDK_VERSION test-compile
             mvn -Dkalix-sdk.version=$SDK_VERSION verify -Pit
@@ -728,7 +728,7 @@ jobs:
             rm -rf src/main/java src/test/java src/it/java
             mvn -Dkalix-sdk.version=$SDK_VERSION test-compile
 
-  sample-java-valueentity-counter-spring-client:
+  sample-java-protobuf-valueentity-counter-spring-client:
     machine:
       image: ubuntu-2004:202201-02
     steps:
@@ -741,7 +741,7 @@ jobs:
       - run:
           name: Spring Client for Java Value Entity "Counter" sample
           command: |
-            cd samples/java-valueentity-counter-spring-client
+            cd samples/java-protobuf-valueentity-counter-spring-client
             echo "Running mvn with SDK version: '$SDK_VERSION'"
             mvn -Dkalix-sdk.version=$SDK_VERSION compile
             mvn -Dkalix-sdk.version=$SDK_VERSION verify
@@ -749,7 +749,7 @@ jobs:
             rm -rf src/main/java src/test/java src/it/java
             mvn -Dkalix-sdk.version=$SDK_VERSION compile
 
-  sample-java-replicatedentity-examples:
+  sample-java-protobuf-replicatedentity-examples:
     machine:
       image: ubuntu-2004:202201-02
     steps:
@@ -762,7 +762,7 @@ jobs:
       - run:
           name: Java Replicated Entity examples
           command: |
-            cd samples/java-replicatedentity-examples
+            cd samples/java-protobuf-replicatedentity-examples
             echo "Running mvn with SDK version: '$SDK_VERSION'"
             mvn -Dkalix-sdk.version=$SDK_VERSION test-compile
             mvn -Dkalix-sdk.version=$SDK_VERSION verify -Pit
@@ -770,7 +770,7 @@ jobs:
             rm -rf src/main/java src/test/java src/it/java
             mvn -Dkalix-sdk.version=$SDK_VERSION test-compile
 
-  sample-java-reliable-timers:
+  sample-java-protobuf-reliable-timers:
       machine:
         image: ubuntu-2004:202201-02
       steps:
@@ -783,7 +783,7 @@ jobs:
         - run:
             name: Java Value Entity Counter with Reliable Timers
             command: |
-              cd samples/java-reliable-timers
+              cd samples/java-protobuf-reliable-timers
               echo "Running mvn with SDK version: '$SDK_VERSION'"
               mvn -Dkalix-sdk.version=$SDK_VERSION test-compile
               # no tests yet
@@ -792,7 +792,7 @@ jobs:
               rm -rf src/main/java src/test/java src/it/java
               mvn -Dkalix-sdk.version=$SDK_VERSION test-compile            
 
-  sample-scala-doc-snippets:
+  sample-scala-protobuf-doc-snippets:
     machine:
       image: ubuntu-2004:202201-02
     steps:
@@ -805,7 +805,7 @@ jobs:
       - run:
           name: Scala Documentation Snippets
           command: |
-            cd samples/scala-doc-snippets
+            cd samples/scala-protobuf-doc-snippets
             echo "Running sbt with SDK version: '$SDK_VERSION'"
             sbt -Dkalix-sdk.version=$SDK_VERSION compile
             # FIXME tests && integration tests
@@ -813,7 +813,7 @@ jobs:
             rm -rf src/main/scala src/test/scala src/it/scala
             sbt -Dkalix-sdk.version=$SDK_VERSION Test/compile
 
-  sample-scala-fibonacci-action:
+  sample-scala-protobuf-fibonacci-action:
     machine:
       image: ubuntu-2004:202201-02
     steps:
@@ -826,7 +826,7 @@ jobs:
       - run:
           name: Scala Fibonacci Action
           command: |
-            cd samples/scala-fibonacci-action
+            cd samples/scala-protobuf-fibonacci-action
             echo "Running sbt with SDK version: '$SDK_VERSION'"
             sbt -Dkalix-sdk.version=$SDK_VERSION test
             # FIXME tests && integration tests
@@ -834,7 +834,7 @@ jobs:
             rm -rf src/main/scala src/test/scala src/it/scala
             sbt -Dkalix-sdk.version=$SDK_VERSION Test/compile
 
-  sample-scala-valueentity-customer-registry:
+  sample-scala-protobuf-valueentity-customer-registry:
     machine:
       image: ubuntu-2004:202201-02
     steps:
@@ -847,7 +847,7 @@ jobs:
       - run:
           name: Scala Value Entity Customer Registry
           command: |
-            cd samples/scala-valueentity-customer-registry
+            cd samples/scala-protobuf-valueentity-customer-registry
             echo "Running sbt with SDK version: '$SDK_VERSION'"
             sbt -Dkalix-sdk.version=$SDK_VERSION test
             # FIXME integration tests
@@ -855,7 +855,7 @@ jobs:
             rm -rf src/main/scala src/test/scala src/it/scala
             sbt -Dkalix-sdk.version=$SDK_VERSION Test/compile
 
-  sample-scala-view-store:
+  sample-scala-protobuf-view-store:
     machine:
       image: ubuntu-2004:202201-02
     steps:
@@ -868,7 +868,7 @@ jobs:
       - run:
           name: Scala "Store" sample for advanced Views
           command: |
-            cd samples/scala-view-store
+            cd samples/scala-protobuf-view-store
             echo "Running sbt with SDK version: '$SDK_VERSION'"
             echo "Version check: $VERSION_CHECK_ON_STARTUP"
             sbt -Dkalix-sdk.version=$SDK_VERSION test
@@ -876,7 +876,7 @@ jobs:
             rm -rf src/main/scala src/test/scala src/it/scala
             sbt -Dkalix-sdk.version=$SDK_VERSION Test/compile
 
-  sample-scala-customer-registry-quickstart:
+  sample-scala-protobuf-customer-registry-quickstart:
     machine:
       image: ubuntu-2004:202201-02
     steps:
@@ -889,7 +889,7 @@ jobs:
       - run:
           name: Scala Customer Registry Quickstart
           command: |
-            cd samples/scala-customer-registry-quickstart
+            cd samples/scala-protobuf-customer-registry-quickstart
             echo "Running sbt with SDK version: '$SDK_VERSION'"
             sbt -Dkalix-sdk.version=$SDK_VERSION test
             # FIXME integration tests
@@ -897,7 +897,7 @@ jobs:
             rm -rf src/main/scala src/test/scala src/it/scala
             sbt -Dkalix-sdk.version=$SDK_VERSION Test/compile
 
-  sample-scala-eventsourced-customer-registry:
+  sample-scala-protobuf-eventsourced-customer-registry:
     machine:
       image: ubuntu-2004:202201-02
     steps:
@@ -910,7 +910,7 @@ jobs:
       - run:
           name: Scala Event Sourced Customer Registry
           command: |
-            cd samples/scala-eventsourced-customer-registry
+            cd samples/scala-protobuf-eventsourced-customer-registry
             echo "Running sbt with SDK version: '$SDK_VERSION'"
             sbt -Dkalix-sdk.version=$SDK_VERSION test
             # FIXME integration tests
@@ -919,7 +919,7 @@ jobs:
             sbt -Dkalix-sdk.version=$SDK_VERSION Test/compile
             
 
-  sample-scala-eventsourced-customer-registry-subscriber:
+  sample-scala-protobuf-eventsourced-customer-registry-subscriber:
     machine:
       image: ubuntu-2004:202201-02
     steps:
@@ -932,14 +932,14 @@ jobs:
       - run:
           name: Scala Event Sourced Customer Registry Subscriber
           command: |
-            cd samples/scala-eventsourced-customer-registry-subscriber
+            cd samples/scala-protobuf-eventsourced-customer-registry-subscriber
             echo "Running sbt with SDK version: '$SDK_VERSION'"
             sbt -Dkalix-sdk.version=$SDK_VERSION test
             echo "==== Verifying that generated unmanaged sources compile ===="
             rm -rf src/main/scala src/test/scala src/it/scala
             sbt -Dkalix-sdk.version=$SDK_VERSION Test/compile
 
-  sample-scala-first-service:
+  sample-scala-protobuf-first-service:
     machine:
       image: ubuntu-2004:202201-02
     steps:
@@ -952,7 +952,7 @@ jobs:
       - run:
           name: Scala Service
           command: |
-            cd samples/scala-first-service
+            cd samples/scala-protobuf-first-service
             echo "Running sbt with SDK version: '$SDK_VERSION'"
             sbt -Dkalix-sdk.version=$SDK_VERSION Test/compile
             # FIXME integration tests
@@ -960,7 +960,7 @@ jobs:
             rm -rf src/main/scala src/test/scala src/it/scala
             sbt -Dkalix-sdk.version=$SDK_VERSION Test/compile
 
-  sample-scala-valueentity-counter:
+  sample-scala-protobuf-valueentity-counter:
     machine:
       image: ubuntu-2004:202201-02
     steps:
@@ -973,7 +973,7 @@ jobs:
       - run:
           name: Scala Value Entity Counter
           command: |
-            cd samples/scala-valueentity-counter
+            cd samples/scala-protobuf-valueentity-counter
             echo "Running sbt with SDK version: '$SDK_VERSION'"
             sbt -Dkalix-sdk.version=$SDK_VERSION test
             # FIXME integration tests
@@ -981,7 +981,7 @@ jobs:
             rm -rf src/main/scala src/test/scala src/it/scala
             sbt -Dkalix-sdk.version=$SDK_VERSION Test/compile
 
-  sample-scala-eventsourced-counter:
+  sample-scala-protobuf-eventsourced-counter:
     machine:
       image: ubuntu-2004:202201-02
     steps:
@@ -994,7 +994,7 @@ jobs:
       - run:
           name: Scala Event Sourced Entity Counter
           command: |
-            cd samples/scala-eventsourced-counter
+            cd samples/scala-protobuf-eventsourced-counter
             echo "Running sbt with SDK version: '$SDK_VERSION'"
             # FIXME add eventing integration tests (related to https://github.com/lightbend/kalix/issues/7811)
             docker-compose -f ~/project/.circleci/google-pubsub-emulator-docker-compose.yml up -d
@@ -1003,7 +1003,7 @@ jobs:
             rm -rf src/main/scala src/test/scala src/it/scala
             sbt -Dkalix-sdk.version=$SDK_VERSION Test/compile
 
-  sample-scala-eventsourced-shopping-cart:
+  sample-scala-protobuf-eventsourced-shopping-cart:
     machine:
       image: ubuntu-2004:202201-02
     steps:
@@ -1016,7 +1016,7 @@ jobs:
       - run:
           name: Scala Event Sourced Shopping Cart
           command: |
-            cd samples/scala-eventsourced-shopping-cart
+            cd samples/scala-protobuf-eventsourced-shopping-cart
             echo "Running sbt with SDK version: '$SDK_VERSION'"
             sbt -Dkalix-sdk.version=$SDK_VERSION test
             # FIXME integration tests
@@ -1024,7 +1024,7 @@ jobs:
             rm -rf src/main/scala src/test/scala src/it/scala
             sbt -Dkalix-sdk.version=$SDK_VERSION Test/compile
 
-  sample-scala-replicatedentity-shopping-cart:
+  sample-scala-protobuf-replicatedentity-shopping-cart:
     machine:
       image: ubuntu-2004:202201-02
     steps:
@@ -1037,14 +1037,14 @@ jobs:
       - run:
           name: Scala Replicated Entity "Shopping Cart" sample
           command: |
-            cd samples/scala-replicatedentity-shopping-cart
+            cd samples/scala-protobuf-replicatedentity-shopping-cart
             echo "Running sbt with SDK version: '$SDK_VERSION'"
             sbt -Dkalix-sdk.version=$SDK_VERSION test
             echo "==== Verifying that generated unmanaged sources compile ===="
             rm -rf src/main/java src/test/java src/it/java
             sbt -Dkalix-sdk.version=$SDK_VERSION Test/compile
 
-  sample-scala-replicatedentity-examples:
+  sample-scala-protobuf-replicatedentity-examples:
     machine:
       image: ubuntu-2004:202201-02
     steps:
@@ -1057,14 +1057,14 @@ jobs:
       - run:
           name: Scala Replicated Entity examples
           command: |
-            cd samples/scala-replicatedentity-examples
+            cd samples/scala-protobuf-replicatedentity-examples
             echo "Running sbt with SDK version: '$SDK_VERSION'"
             sbt -Dkalix-sdk.version=$SDK_VERSION test
             echo "==== Verifying that generated unmanaged sources compile ===="
             rm -rf src/main/java src/test/java src/it/java
             sbt -Dkalix-sdk.version=$SDK_VERSION Test/compile
 
-  sample-scala-valueentity-shopping-cart:
+  sample-scala-protobuf-valueentity-shopping-cart:
     machine:
       image: ubuntu-2004:202201-02
     steps:
@@ -1077,7 +1077,7 @@ jobs:
       - run:
           name: Scala Value Entity Shopping Cart
           command: |
-            cd samples/scala-valueentity-shopping-cart
+            cd samples/scala-protobuf-valueentity-shopping-cart
             echo "Running sbt with SDK version: '$SDK_VERSION'"
             echo "Version check: $VERSION_CHECK_ON_STARTUP"
             sbt -Dkalix-sdk.version=$SDK_VERSION test
@@ -1085,7 +1085,7 @@ jobs:
             rm -rf src/main/java src/test/java src/it/java
             sbt -Dkalix-sdk.version=$SDK_VERSION Test/compile
 
-  sample-scala-reliable-timers:
+  sample-scala-protobuf-reliable-timers:
     machine:
       image: ubuntu-2004:202201-02
     steps:
@@ -1098,7 +1098,7 @@ jobs:
       - run:
           name: Scala Value Entity Counter with Reliable Timers
           command: |
-            cd samples/scala-reliable-timers
+            cd samples/scala-protobuf-reliable-timers
             echo "Running sbt with SDK version: '$SDK_VERSION'"
             # FIXME integration tests - no tests yet
             sbt -Dkalix-sdk.version=$SDK_VERSION compile
@@ -1106,7 +1106,7 @@ jobs:
             rm -rf src/main/scala src/test/scala src/it/scala
             sbt -Dkalix-sdk.version=$SDK_VERSION Test/compile
 
-  sample-spring-doc-snippets:
+  sample-java-spring-doc-snippets:
     machine:
       image: ubuntu-2004:202201-02
     steps:
@@ -1123,7 +1123,7 @@ jobs:
             echo "Running mvn with SDK version: '$SDK_VERSION'"
             mvn -Dkalix-sdk.version=$SDK_VERSION test-compile
 
-  sample-spring-fibonacci-action:
+  sample-java-spring-fibonacci-action:
     machine:
       image: ubuntu-2004:202201-02
     steps:
@@ -1136,11 +1136,11 @@ jobs:
       - run:
           name: Spring SDK Fibonacci Action
           command: |
-            cd samples/spring-fibonacci-action
+            cd samples/java-spring-fibonacci-action
             echo "Running mvn with SDK version: '$SDK_VERSION'"
             mvn -Dkalix-sdk.version=$SDK_VERSION verify -Pit 
 
-  sample-spring-customer-registry-quickstart:
+  sample-java-spring-customer-registry-quickstart:
     machine:
       image: ubuntu-2004:202201-02
     steps:
@@ -1153,11 +1153,11 @@ jobs:
       - run:
           name: Spring SDK Customer Registry Quickstart
           command: |
-            cd samples/spring-customer-registry-quickstart
+            cd samples/java-spring-customer-registry-quickstart
             echo "Running mvn with SDK version: '$SDK_VERSION'"
             mvn -Dkalix-sdk.version=$SDK_VERSION verify -Pit            
 
-  sample-spring-customer-registry-views-quickstart:
+  sample-java-spring-customer-registry-views-quickstart:
     machine:
       image: ubuntu-2004:202201-02
     steps:
@@ -1170,11 +1170,11 @@ jobs:
       - run:
           name: Spring SDK Customer Registry with Views Quickstart
           command: |
-            cd samples/spring-customer-registry-views-quickstart
+            cd samples/java-spring-customer-registry-views-quickstart
             echo "Running mvn with SDK version: '$SDK_VERSION'"
             mvn -Dkalix-sdk.version=$SDK_VERSION verify -Pit             
 
-  sample-spring-valueentity-counter:
+  sample-java-spring-valueentity-counter:
     machine:
       image: ubuntu-2004:202201-02
     steps:
@@ -1187,11 +1187,11 @@ jobs:
       - run:
           name: Spring SDK Counter
           command: |
-            cd samples/spring-valueentity-counter
+            cd samples/java-spring-valueentity-counter
             echo "Running mvn with SDK version: '$SDK_VERSION'"
             mvn -Dkalix-sdk.version=$SDK_VERSION verify -Pit       
 
-  sample-spring-eventsourced-counter:
+  sample-java-spring-eventsourced-counter:
     machine:
       image: ubuntu-2004:202201-02
     steps:
@@ -1204,13 +1204,13 @@ jobs:
       - run:
           name: Spring SDK Counter
           command: |
-            cd samples/spring-eventsourced-counter
+            cd samples/java-spring-eventsourced-counter
             echo "Running mvn with SDK version: '$SDK_VERSION'"
             # FIXME add eventing integration tests (related to https://github.com/lightbend/kalix/issues/7811)
             docker-compose -f ~/project/.circleci/google-pubsub-emulator-docker-compose.yml up -d
             mvn -Dkalix-sdk.version=$SDK_VERSION clean verify -Pit       
 
-  sample-spring-eventsourced-customer-registry:
+  sample-java-spring-eventsourced-customer-registry:
     machine:
       image: ubuntu-2004:202201-02
     steps:
@@ -1223,11 +1223,11 @@ jobs:
       - run:
           name: Spring SDK Customer Registry quickstart
           command: |
-            cd samples/spring-eventsourced-customer-registry
+            cd samples/java-spring-eventsourced-customer-registry
             echo "Running mvn with SDK version: '$SDK_VERSION'"
             mvn -Dkalix-sdk.version=$SDK_VERSION verify -Pit  
 
-  sample-spring-eventsourced-customer-registry-subscriber:
+  sample-java-spring-eventsourced-customer-registry-subscriber:
     machine:
       image: ubuntu-2004:202201-02
     steps:
@@ -1240,13 +1240,13 @@ jobs:
       - run:
           name: Spring SDK Customer Registry Subscriber
           command: |
-            cd samples/spring-eventsourced-customer-registry-subscriber
+            cd samples/java-spring-eventsourced-customer-registry-subscriber
             echo "Running mvn with SDK version: '$SDK_VERSION'"
              mvn -Dkalix-sdk.version=$SDK_VERSION test-compile
             # no it tests here
             # mvn -Dkalix-sdk.version=$SDK_VERSION verify -Pit
 
-  sample-spring-reliable-timers:
+  sample-java-spring-reliable-timers:
     machine:
       image: ubuntu-2004:202201-02
     steps:
@@ -1259,11 +1259,11 @@ jobs:
       - run:
           name: Spring SDK Reliable Timers
           command: |
-            cd samples/spring-reliable-timers
+            cd samples/java-spring-reliable-timers
             echo "Running mvn with SDK version: '$SDK_VERSION'"
             mvn -Dkalix-sdk.version=$SDK_VERSION verify -Pit
 
-  sample-spring-eventsourced-shopping-cart:
+  sample-java-spring-eventsourced-shopping-cart:
     machine:
       image: ubuntu-2004:202201-02
     steps:
@@ -1276,11 +1276,11 @@ jobs:
       - run:
           name: Spring SDK Event Sourced Shopping Cart
           command: |
-            cd samples/spring-eventsourced-shopping-cart
+            cd samples/java-spring-eventsourced-shopping-cart
             echo "Running mvn with SDK version: '$SDK_VERSION'"
             mvn -Dkalix-sdk.version=$SDK_VERSION verify -Pit
 
-  sample-spring-valueentity-shopping-cart:
+  sample-java-spring-valueentity-shopping-cart:
     machine:
       image: ubuntu-2004:202201-02
     steps:
@@ -1293,11 +1293,11 @@ jobs:
       - run:
           name: Spring SDK Value Entity Shopping Cart
           command: |
-            cd samples/spring-valueentity-shopping-cart
+            cd samples/java-spring-valueentity-shopping-cart
             echo "Running mvn with SDK version: '$SDK_VERSION'"
             mvn -Dkalix-sdk.version=$SDK_VERSION verify -Pit
 
-  sample-spring-valueentity-customer-registry:
+  sample-java-spring-valueentity-customer-registry:
     machine:
       image: ubuntu-2004:202201-02
     steps:
@@ -1310,11 +1310,11 @@ jobs:
       - run:
           name: Spring SDK Value Entity Customer Registry
           command: |
-            cd samples/spring-valueentity-customer-registry
+            cd samples/java-spring-valueentity-customer-registry
             echo "Running mvn with SDK version: '$SDK_VERSION'"
             mvn -Dkalix-sdk.version=$SDK_VERSION verify -Pit 
 
-  sample-spring-view-store:
+  sample-java-spring-view-store:
     machine:
       image: ubuntu-2004:202201-02
     steps:
@@ -1331,7 +1331,7 @@ jobs:
             echo "Running mvn with SDK version: '$SDK_VERSION'"
             mvn -Dkalix-sdk.version=$SDK_VERSION verify -Pit
 
-  sample-spring-transfer-workflow:
+  sample-java-spring-reliable-timers:
     machine:
       image: ubuntu-2004:202201-02
     steps:
@@ -1344,7 +1344,7 @@ jobs:
       - run:
           name: Spring SDK transfer Workflow Entity
           command: |
-            cd samples/spring-transfer-workflow
+            cd samples/java-spring-reliable-timers
             echo "Running mvn with SDK version: '$SDK_VERSION'"
             mvn -Dkalix-sdk.version=$SDK_VERSION verify -Pit
 
@@ -1496,195 +1496,195 @@ workflows:
             - checks
 
       # individual samples as jobs to allow parallelizing them
-      - sample-java-customer-registry-quickstart:
+      - sample-java-protobuf-customer-registry-quickstart:
           requires:
             - checks
             - publish-local
-      - sample-java-customer-registry-kafka-quickstart:
+      - sample-java-protobuf-customer-registry-kafka-quickstart:
           requires:
             - checks
             - publish-local
-      - sample-java-customer-registry-views-quickstart:
+      - sample-java-protobuf-customer-registry-views-quickstart:
           requires:
             - checks
             - publish-local
-      - sample-java-shopping-cart-quickstart:
+      - sample-java-protobuf-shopping-cart-quickstart:
           requires:
             - checks
             - publish-local
-      - sample-java-fibonacci-action:
+      - sample-java-protobuf-fibonacci-action:
           requires:
             - checks
             - publish-local
-      - sample-java-doc-snippets:
+      - sample-java-protobuf-doc-snippets:
           requires:
             - checks
             - publish-local
-      - sample-java-first-service:
+      - sample-java-protobuf-first-service:
           requires:
             - checks
             - publish-local
-      - sample-java-valueentity-customer-registry:
+      - sample-java-protobuf-valueentity-customer-registry:
           requires:
             - checks
             - publish-local
-      - sample-java-view-store:
+      - sample-java-protobuf-view-store:
           requires:
             - checks
             - publish-local
-      - sample-java-eventsourced-customer-registry:
+      - sample-java-protobuf-eventsourced-customer-registry:
           requires:
             - checks
             - publish-local
-      - sample-java-eventsourced-customer-registry-subscriber:
+      - sample-java-protobuf-eventsourced-customer-registry-subscriber:
           requires:
             - checks
             - publish-local
-      - sample-java-valueentity-shopping-cart:
+      - sample-java-protobuf-valueentity-shopping-cart:
           requires:
             - checks
             - publish-local
-      - sample-java-eventsourced-shopping-cart:
+      - sample-java-protobuf-eventsourced-shopping-cart:
           requires:
             - checks
             - publish-local
-      - sample-java-replicatedentity-shopping-cart:
+      - sample-java-protobuf-replicatedentity-shopping-cart:
           requires:
             - checks
             - publish-local
-      - sample-java-eventsourced-counter:
+      - sample-java-protobuf-eventsourced-counter:
           requires:
             - checks
             - publish-local
-      - sample-java-valueentity-counter:
+      - sample-java-protobuf-valueentity-counter:
           requires:
             - checks
             - publish-local
-      - sample-java-valueentity-counter-spring-client:
+      - sample-java-protobuf-valueentity-counter-spring-client:
           requires:
             - checks
             - publish-local
-      - sample-java-replicatedentity-examples:
+      - sample-java-protobuf-replicatedentity-examples:
           requires:
             - checks
             - publish-local
-      - sample-java-reliable-timers:
+      - sample-java-protobuf-reliable-timers:
           requires:
             - checks
             - publish-local
-      - sample-scala-doc-snippets:
+      - sample-scala-protobuf-doc-snippets:
           requires:
             - checks
             - publish-local
-      - sample-scala-fibonacci-action:
+      - sample-scala-protobuf-fibonacci-action:
           requires:
             - checks
             - publish-local
-      - sample-scala-valueentity-customer-registry:
+      - sample-scala-protobuf-valueentity-customer-registry:
           requires:
             - checks
             - publish-local
-      - sample-scala-view-store:
+      - sample-scala-protobuf-view-store:
           requires:
             - checks
             - publish-local
-      - sample-scala-eventsourced-customer-registry:
+      - sample-scala-protobuf-eventsourced-customer-registry:
           requires:
             - checks
             - publish-local
-      - sample-scala-eventsourced-customer-registry-subscriber:
+      - sample-scala-protobuf-eventsourced-customer-registry-subscriber:
           requires:
             - checks
             - publish-local
-      - sample-scala-eventsourced-shopping-cart:
+      - sample-scala-protobuf-eventsourced-shopping-cart:
           requires:
             - checks
             - publish-local
-      - sample-scala-valueentity-counter:
+      - sample-scala-protobuf-valueentity-counter:
           requires:
             - checks
             - publish-local
-      - sample-scala-eventsourced-counter:
+      - sample-scala-protobuf-eventsourced-counter:
           requires:
             - checks
             - publish-local
-      - sample-scala-replicatedentity-examples:
+      - sample-scala-protobuf-replicatedentity-examples:
           requires:
             - checks
             - publish-local
-      - sample-scala-replicatedentity-shopping-cart:
+      - sample-scala-protobuf-replicatedentity-shopping-cart:
           requires:
             - checks
             - publish-local
-      - sample-scala-valueentity-shopping-cart:
+      - sample-scala-protobuf-valueentity-shopping-cart:
           requires:
             - checks
             - publish-local
-      - sample-scala-customer-registry-quickstart:
+      - sample-scala-protobuf-customer-registry-quickstart:
           requires:
             - checks
             - publish-local
-      - sample-scala-first-service:
+      - sample-scala-protobuf-first-service:
           requires:
             - checks
             - publish-local
-      - sample-scala-reliable-timers:
+      - sample-scala-protobuf-reliable-timers:
           requires:
             - checks
             - publish-local
-      - sample-spring-doc-snippets:
+      - sample-java-spring-doc-snippets:
           requires:
             - spring-sdk-integration-tests
             - publish-local
-      - sample-spring-fibonacci-action:
+      - sample-java-spring-fibonacci-action:
           requires:
             - spring-sdk-integration-tests
             - publish-local
-      - sample-spring-customer-registry-quickstart:
+      - sample-java-spring-customer-registry-quickstart:
           requires:
             - spring-sdk-integration-tests
             - publish-local
-      - sample-spring-customer-registry-views-quickstart:
+      - sample-java-spring-customer-registry-views-quickstart:
           requires:
             - spring-sdk-integration-tests
             - publish-local
-      - sample-spring-valueentity-counter:
+      - sample-java-spring-valueentity-counter:
           requires:
             - spring-sdk-integration-tests
             - publish-local
-      - sample-spring-eventsourced-counter:
+      - sample-java-spring-eventsourced-counter:
           requires:
             - spring-sdk-integration-tests
             - publish-local
-      - sample-spring-eventsourced-customer-registry:
+      - sample-java-spring-eventsourced-customer-registry:
           requires:
             - spring-sdk-integration-tests
             - publish-local
-      - sample-spring-eventsourced-customer-registry-subscriber:
+      - sample-java-spring-eventsourced-customer-registry-subscriber:
           requires:
             - spring-sdk-integration-tests
             - publish-local
-      - sample-spring-reliable-timers:
+      - sample-java-spring-reliable-timers:
           requires:
             - spring-sdk-integration-tests
             - publish-local
-      - sample-spring-eventsourced-shopping-cart:
+      - sample-java-spring-eventsourced-shopping-cart:
           requires:
             - spring-sdk-integration-tests
             - publish-local
-      - sample-spring-valueentity-shopping-cart:
+      - sample-java-spring-valueentity-shopping-cart:
           requires:
             - spring-sdk-integration-tests
             - publish-local
-      - sample-spring-valueentity-customer-registry:
+      - sample-java-spring-valueentity-customer-registry:
           requires:
             - spring-sdk-integration-tests
             - publish-local
-      - sample-spring-view-store:
+      - sample-java-spring-view-store:
           requires:
             - spring-sdk-integration-tests
             - publish-local
-      - sample-spring-transfer-workflow:
+      - sample-java-spring-reliable-timers:
           requires:
             - spring-sdk-integration-tests
             - publish-local

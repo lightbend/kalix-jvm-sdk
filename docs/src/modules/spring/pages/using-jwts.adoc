@@ -16,7 +16,7 @@ If you want to validate the bearer token of a request, you need to annotate your
 
 [source, java, indent=0]
 ----
-include::example$spring-doc-snippets/src/main/java/com/example/jwt/JWTAction.java[tag=bearer-token]
+include::example$java-spring-doc-snippets/src/main/java/com/example/jwt/JWTAction.java[tag=bearer-token]
 ----
 <1> Validating the Bearer is present in the Authorization header.
 
@@ -32,7 +32,7 @@ If you want to assert that only tokens from a particular issuer are allowed, tha
 
 [source, java, indent=0]
 ----
-include::example$spring-doc-snippets/src/main/java/com/example/jwt/JWTAction.java[tag=bearer-token-issuer]
+include::example$java-spring-doc-snippets/src/main/java/com/example/jwt/JWTAction.java[tag=bearer-token-issuer]
 ----
 <1> The token extracted from the bearer token must have this issuer.
 

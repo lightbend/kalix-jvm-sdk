@@ -1,6 +1,6 @@
 = Implementing Event Sourced Entities
 :page-aliases: spring:eventsourced.adoc
-:sample-url: https://github.com/lightbend/kalix-jvm-sdk/tree/main/samples/spring-eventsourced-shopping-cart
+:sample-url: https://github.com/lightbend/kalix-jvm-sdk/tree/main/samples/java-spring-eventsourced-shopping-cart
 
 include::ROOT:partial$include.adoc[]
 include::java:partial$eventsourced.adoc[]
@@ -23,7 +23,7 @@ Through our "Shopping Cart" Event Sourced Entity we expect to manage our cart, a
 [source,java]
 .src/main/java/com/example/shoppingcart/domain/ShoppingCart.java
 ----
-include::example$spring-eventsourced-shopping-cart/src/main/java/com/example/shoppingcart/domain/ShoppingCart.java[tag=domain]
+include::example$java-spring-eventsourced-shopping-cart/src/main/java/com/example/shoppingcart/domain/ShoppingCart.java[tag=domain]
 ----
 <1> Our `ShoppingCart` is fairly simple, being composed only by a `cartId` and a list of line items.
 <2> A `LineItem` represents a single product and the quantity we intend to buy.
@@ -35,7 +35,7 @@ Another fundamental aspect of our entity will be its domain events. For now, we 
 [source,java]
 .src/main/java/com/example/shoppingcart/domain/ShoppingCartEvent.java
 ----
-include::example$spring-eventsourced-shopping-cart/src/main/java/com/example/shoppingcart/domain/ShoppingCartEvent.java[tag=events]
+include::example$java-spring-eventsourced-shopping-cart/src/main/java/com/example/shoppingcart/domain/ShoppingCartEvent.java[tag=events]
 ----
 <1> The 3 types of event all derive from the same type `ShoppingCartEvent`.
 <2> Includes the logical type name using `@TypeName` annotation.
@@ -58,7 +58,7 @@ Let's have a look at what our shopping cart entity will look like for the first 
 [source,java]
 .src/main/java/com/example/shoppingcart/ShoppingCartEntity.java
 ----
-include::example$spring-eventsourced-shopping-cart/src/main/java/com/example/shoppingcart/ShoppingCartEntity.java[tag=class]
+include::example$java-spring-eventsourced-shopping-cart/src/main/java/com/example/shoppingcart/ShoppingCartEntity.java[tag=class]
 ----
 <1> Create a class that extends `EventSourcedEntity<S>`, where `S` is the state type this entity will store (i.e. `ShoppingCart`).
 <2> Annotate such class with `@EntityKey`  and pass the name of the key that will be used as the
@@ -78,7 +78,7 @@ IMPORTANT: The **only** way for a command handler to modify the Entity's state i
 [source,java,indent=0]
 .src/main/java/com/example/shoppingcart/ShoppingCartEntity.java
 ----
-include::example$spring-eventsourced-shopping-cart/src/main/java/com/example/shoppingcart/ShoppingCartEntity.java[tag=addItem]
+include::example$java-spring-eventsourced-shopping-cart/src/main/java/com/example/shoppingcart/ShoppingCartEntity.java[tag=addItem]
 ----
 <1> The validation ensures the quantity of items added is greater than zero and it fails for calls with illegal values by returning an `Effect` with `effects().error`.
 <2> From the current incoming `LineItem` we create a new `ItemAdded` event representing the change of the cart.
@@ -95,7 +95,7 @@ As mentioned above, the business logic that allows us to transition between stat
 [source,java,indent=0]
 .src/main/java/com/example/shoppingcart/domain/ShoppingCart.java
 ----
-include::example$spring-eventsourced-shopping-cart/src/main/java/com/example/shoppingcart/domain/ShoppingCart.java[tag=itemAdded]
+include::example$java-spring-eventsourced-shopping-cart/src/main/java/com/example/shoppingcart/domain/ShoppingCart.java[tag=itemAdded]
 ----
 <1> For an existing item, we will make sure to sum the existing quantity with the incoming one.
 <2> Returns an update list of items without the existing item.
@@ -110,7 +110,7 @@ To have access to the current state of the entity we can use `currentState()` as
 [source,java,indent=0]
 .src/main/java/com/example/shoppingcart/ShoppingCartEntity.java
 ----
-include::example$spring-eventsourced-shopping-cart/src/main/java/com/example/shoppingcart/ShoppingCartEntity.java[tag=getCart]
+include::example$java-spring-eventsourced-shopping-cart/src/main/java/com/example/shoppingcart/ShoppingCartEntity.java[tag=getCart]
 ----
 <1> Stores the `entityId` on an internal attribute so we can use it later.
 <2> Provides initial state - overriding `emptyState()` is optional but if not doing it, be careful to deal with a currentState() with a `null` value when receiving the first command or event.
@@ -131,7 +131,7 @@ For certain use cases or for regulatory reasons the entity can be deleted.
 [source,java,indent=0]
 .src/main/java/com/example/shoppingcart/ShoppingCartEntity.java
 ----
-include::example$spring-eventsourced-shopping-cart/src/main/java/com/example/shoppingcart/ShoppingCartEntity.java[tag=checkout]
+include::example$java-spring-eventsourced-shopping-cart/src/main/java/com/example/shoppingcart/ShoppingCartEntity.java[tag=checkout]
 ----
 <1> Emit final event before deletion, which is handled as any other event.
 <2> Instruction to delete the entity.
@@ -151,7 +151,7 @@ The following snippet shows how the `EventSourcedTestKit` is used to test the `S
 .src/test/java/com/example/shoppingcart/domain/ShoppingCartTest.java
 [source,java]
 ----
-include::example$spring-eventsourced-shopping-cart/src/test/java/com/example/shoppingcart/domain/ShoppingCartTest.java[]
+include::example$java-spring-eventsourced-shopping-cart/src/test/java/com/example/shoppingcart/domain/ShoppingCartTest.java[]
 ----
 <1> Creates the TestKit passing the constructor of the Entity.
 <2> Calls the method `addItem` from the Entity in the `EventSourcedTestKit` with quantity `10`.

@@ -35,7 +35,7 @@ A `proto` definition of an Action that consumes JSON messages and produces JSON 
 [source,proto,indent=0]
 .src/main/proto/com/example/json/json_api.proto
 ----
-include::example$java-doc-snippets/src/main/proto/com/example/json/json_api.proto[tag=service]
+include::example$java-protobuf-doc-snippets/src/main/proto/com/example/json/json_api.proto[tag=service]
 ----
 <1> When consuming JSON messages from a topic the input type must be `google.protobuf.Any`.
 <2> When producing a JSON message to a topic the return type must be `google.protobuf.Any`.
@@ -51,7 +51,7 @@ A `proto` definition of an Action that consumes JSON messages and produces JSON 
 [source,proto,indent=0]
 .src/main/proto/com/example/json/json_api.proto
 ----
-include::example$scala-doc-snippets/src/main/proto/com/example/json/json_api.proto[tag=service]
+include::example$scala-protobuf-doc-snippets/src/main/proto/com/example/json/json_api.proto[tag=service]
 ----
 <1> When consuming JSON messages from a topic the input type must be `google.protobuf.any.Any`.
 <2> When producing a JSON message to a topic the return type must be `google.protobuf.any.Any`.
@@ -66,7 +66,7 @@ Java::
 [source,java,indent=0]
 .src/main/java/com/example/json/MyServiceAction.java
 ----
-include::example$java-doc-snippets/src/main/java/com/example/json/MyServiceAction.java[tag=action]
+include::example$java-protobuf-doc-snippets/src/main/java/com/example/json/MyServiceAction.java[tag=action]
 ----
 <1> Decode the JSON message to a Java class `JsonKeyValueMessage`.
 <2> Convert the Protobuf message `KeyValue` to a Java class `JsonKeyValueMessage`.
@@ -77,7 +77,7 @@ Scala::
 [source,scala,indent=0]
 .src/main/scala/com/example/json/MyServiceAction.scala
 ----
-include::example$scala-doc-snippets/src/main/scala/com/example/json/MyServiceAction.scala[tag=action]
+include::example$scala-protobuf-doc-snippets/src/main/scala/com/example/json/MyServiceAction.scala[tag=action]
 ----
 <1> Decode the JSON message to a Scala class `JsonKeyValueMessage`.
 <2> Convert the Protobuf message `KeyValue` to a Scala class `JsonKeyValueMessage`.
@@ -97,7 +97,7 @@ A `proto` definition of an Action that consumes String messages can look like th
 [source,proto,indent=0]
 .src/main/proto/com/example/json/json_api.proto
 ----
-include::example$java-doc-snippets/src/main/proto/com/example/topics_action.proto[tag=text]
+include::example$java-protobuf-doc-snippets/src/main/proto/com/example/topics_action.proto[tag=text]
 ----
 <1> `google.protobuf.StringValue` requires the import `google/protobuf/wrappers.proto`.
 <2> When consuming text messages from a topic the input type must be `google.protobuf.StringValue`.
@@ -109,7 +109,7 @@ A `proto` definition of an Action that consumes String messages can look like th
 [source,proto,indent=0]
 .src/main/proto/com/example/topics_action.proto
 ----
-include::example$scala-doc-snippets/src/main/proto/com/example/topics_action.proto[tag=text]
+include::example$scala-protobuf-doc-snippets/src/main/proto/com/example/topics_action.proto[tag=text]
 ----
 <1> `google.protobuf.StringValue` requires the import `google/protobuf/wrappers.proto`.
 <2> When consuming text messages from a topic the input type must be `google.protobuf.StringValue`.
@@ -128,7 +128,7 @@ A `proto` definition of an Action that consumes binary messages with raw bytes c
 [source,proto,indent=0]
 .src/main/proto/com/example/topics_action.proto
 ----
-include::example$java-doc-snippets/src/main/proto/com/example/topics_action.proto[tag=bytes]
+include::example$java-protobuf-doc-snippets/src/main/proto/com/example/topics_action.proto[tag=bytes]
 ----
 <1> `google.protobuf.BytesValue` requires the import `google/protobuf/wrappers.proto`.
 <2> When consuming raw bytes messages from a topic the input type must be `google.protobuf.BytesValue`.
@@ -140,7 +140,7 @@ A `proto` definition of an Action that consumes binary messages with raw bytes c
 [source,proto,indent=0]
 .src/main/proto/com/example/json/json_api.proto
 ----
-include::example$scala-doc-snippets/src/main/proto/com/example/topics_action.proto[tag=bytes]
+include::example$scala-protobuf-doc-snippets/src/main/proto/com/example/topics_action.proto[tag=bytes]
 ----
 <1> `google.protobuf.BytesValue` requires the import `google/protobuf/wrappers.proto`.
 <2> When consuming text messages from a topic the input type must be `google.protobuf.BytesValue`.
@@ -172,7 +172,7 @@ A `proto` definition of an Action that consumes CloudEvent messages can look lik
 [source,proto,indent=0]
 .src/main/proto/com/example/topics_action.proto
 ----
-include::example$java-doc-snippets/src/main/proto/com/example/topics_action.proto[tag=cloudEvent]
+include::example$java-protobuf-doc-snippets/src/main/proto/com/example/topics_action.proto[tag=cloudEvent]
 ----
 <1> When consuming a CloudEvent containing a Protobuf message the handler request must have the message type specified in the metadata
 
@@ -183,6 +183,6 @@ A `proto` definition of an Action that consumes CloudEvent messages can look lik
 [source,proto,indent=0]
 .src/main/proto/com/example/json/json_api.proto
 ----
-include::example$scala-doc-snippets/src/main/proto/com/example/topics_action.proto[tag=cloudEvent]
+include::example$scala-protobuf-doc-snippets/src/main/proto/com/example/topics_action.proto[tag=cloudEvent]
 ----
 <1> When consuming a CloudEvent containing a Protobuf message the handler request must have the message type specified in the metadata
