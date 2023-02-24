@@ -3,7 +3,7 @@
 include::ROOT:partial$include.adoc[]
 include::spring:partial$attributes.adoc[]
 
-In this section, you will learn how to create a customer registry with the Spring SDK, package it into a container, and run it on Kalix.
+In this section, you will learn how to create a customer registry with the Java SDK, package it into a container, and run it on Kalix.
 
 == Before you begin
 

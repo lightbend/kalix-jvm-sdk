@@ -128,7 +128,7 @@ When adding or changing the `rpc` definitions, including name, parameter, and re
 
 In the example below, the `increase` service call uses the value from the request message `IncreaseValue`. It returns an `Effect` to update the entity state and send a reply.
 
-NOTE: For Value Entities, modify the state and then trigger a save of that state in the returned `Effect`. The Java SDK has an `effects().updateState(newState)` method for this purpose. If you change the state but do not call `updateState` in the returned `Effect`, that state change is lost.
+NOTE: For Value Entities, modify the state and then trigger a save of that state in the returned `Effect`. The Java/Protobuf SDK has an `effects().updateState(newState)` method for this purpose. If you change the state but do not call `updateState` in the returned `Effect`, that state change is lost.
 
 
 [.tabset]

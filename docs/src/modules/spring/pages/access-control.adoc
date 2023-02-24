@@ -1,6 +1,6 @@
 = Using ACLs
 
-This section describes the practical aspects of configuring Access Control Lists (ACLs) with the Spring SDK, if you are not sure what ACLs are or how they work, see https://docs.kalix.io/security/acls.html[Understanding ACLs] first.
+This section describes the practical aspects of configuring Access Control Lists (ACLs) with the Java SDK, if you are not sure what ACLs are or how they work, see https://docs.kalix.io/security/acls.html[Understanding ACLs] first.
 
 == Configuring ACLs
 
