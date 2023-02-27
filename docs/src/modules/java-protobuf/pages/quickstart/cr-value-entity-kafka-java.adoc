@@ -1,7 +1,7 @@
 = Quickstart: Customer Registry with Kafka in Java
 
 include::ROOT:partial$include.adoc[]
-include::java:partial$attributes.adoc[]
+include::java-protobuf:partial$attributes.adoc[]
 
 
 Create a customer registry that includes publishing to Kafka. Package it into a container, and run it on Kalix.
@@ -35,7 +35,7 @@ If you want to bypass writing code and jump straight to the deployment:
 
 == Start from the Customer Registry Entity
 
-Start by downloading the  xref:java:quickstart/cr-value-entity-java.adoc[Customer Registry Quickstart] source code using the Kalix CLI:
+Start by downloading the  xref:java-protobuf:quickstart/cr-value-entity-java.adoc[Customer Registry Quickstart] source code using the Kalix CLI:
 
 [source,command line]
 ----
@@ -114,7 +114,7 @@ Actions are stateless functions that can be triggered in multiple ways. In this 
 include::example$java-customer-registry-kafka-quickstart/src/main/java/customer/action/CustomerStateSubscriptionAction.java[tag=upsert]
 ----
 +
-* The incoming message contains the updated state of the customer entity and this action converts it to a `CustomerApi.Customer` and passes it to the xref:java:actions-publishing-subscribing.adoc[Pub/Sub] mechanism of choice. In this example Kafka.
+* The incoming message contains the updated state of the customer entity and this action converts it to a `CustomerApi.Customer` and passes it to the xref:java-protobuf:actions-publishing-subscribing.adoc[Pub/Sub] mechanism of choice. In this example Kafka.
 
 == Package and deploy your service
 
@@ -180,5 +180,5 @@ Check the change made to the Customer appears in the topic `customer_changes` in
 
 == Next steps
 
-* You can learn more about Value Entities in the xref:java:value-entity.adoc[reference documentation].
-* Continue this example by xref:java:quickstart/cr-value-entity-views-java.adoc[adding Views], which makes it possible to query the customer registry.
+* You can learn more about Value Entities in the xref:java-protobuf:value-entity.adoc[reference documentation].
+* Continue this example by xref:java-protobuf:quickstart/cr-value-entity-views-java.adoc[adding Views], which makes it possible to query the customer registry.

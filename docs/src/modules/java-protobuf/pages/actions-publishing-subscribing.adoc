@@ -17,7 +17,7 @@ Messages are guaranteed to be delivered at least once. This means that receivers
 
 == Publishing Entity events to a Topic
 
-To illustrate how to publish entity events, we will assume the existence of an xref:eventsourced.adoc[Event Sourced] Counter entity that emits events of types: `ValueIncreased` and `ValueDecreased`. We will get the events delivered to an Action, apply some transformation and let them be published to a topic.
+To illustrate how to publish entity events, we will assume the existence of an xref:event-sourced-entities.adoc[Event Sourced] Counter entity that emits events of types: `ValueIncreased` and `ValueDecreased`. We will get the events delivered to an Action, apply some transformation and let them be published to a topic.
 
 include::partial$pubsub-note.adoc[]
 
@@ -70,7 +70,7 @@ include::example$scala-eventsourced-counter/src/main/scala/com/example/actions/C
 ----
 <1> We convert the incoming domain event `ValueIncreased` to the outgoing topic API `Increased` and return that as a reply.
 
-In this example we have published Protobuf messages to the topic which is convenient if the consuming end is also a Kalix service. For an external consumer Protobuf may not be a supported format, for details on publishing other formats see xref:java:serialization.adoc[Handling Serialization].
+In this example we have published Protobuf messages to the topic which is convenient if the consuming end is also a Kalix service. For an external consumer Protobuf may not be a supported format, for details on publishing other formats see xref:java-protobuf:serialization.adoc[Handling Serialization].
 
 == Subscribing to state changes from a Value Entity
 
@@ -84,7 +84,7 @@ Java::
 ----
 include::example$java-valueentity-counter/src/main/proto/com/example/actions/counter_states_sub.proto[tag=state-subscription]
 ----
-<1> Import the Counter Domain from the Value Entity example (see xref:java:value-entity.adoc[Implementing Value Entities])
+<1> Import the Counter Domain from the Value Entity example (see xref:java-protobuf:value-entity.adoc[Implementing Value Entities])
 <2> The protobuf option (kalix.codegen) is specific to code-generation as provided by the Kalix Maven plugin. This annotation indicates to the code-generation that an Action must be generated.
 <3> The `(kalix.method).eventing.in` annotation indicates that state changes from the value entity type `counter` should be delivered to this method.
 <4> The second `(kalix.method).eventing.in` annotation with `handle_deletes: true` and (required) `google.protobuf.Empty` as a parameter defines that this method is used for handling value entity deletes.
@@ -96,7 +96,7 @@ Scala::
 ----
 include::example$scala-valueentity-counter/src/main/proto/com/example/actions/counter_states_sub.proto[tag=state-subscription]
 ----
-<1> Import the Counter Domain from the Value Entity example (see xref:java:value-entity.adoc[Implementing Value Entities])
+<1> Import the Counter Domain from the Value Entity example (see xref:java-protobuf:value-entity.adoc[Implementing Value Entities])
 <2> The protobuf option (kalix.codegen) is specific to code-generation as provided by the Kalix sbt plugin. This annotation indicates to the code-generation that an Action must be generated.
 <3> The `(kalix.method).eventing.in` annotation indicates that state changes from the value entity type `counter` should be delivered to this method.
 <4> The second `(kalix.method).eventing.in` annotation with `handle_deletes: true` and (required) `google.protobuf.Empty` as a parameter defines that this method is used for handling value entity deletes.
@@ -158,7 +158,7 @@ but it could a forward to some other component or external service.
 
 In the example above, we consumed Protobuf messages from a topic that we control ourselves. When consuming an external topic, it's very likely that the message format is not under your control and is not known by Kalix.
 
-In such case, the Action definition should receive a type depending on the type of the message payload. See xref:java:serialization.adoc[Handling Serialization] for more information on how to deal with data formats.
+In such case, the Action definition should receive a type depending on the type of the message payload. See xref:java-protobuf:serialization.adoc[Handling Serialization] for more information on how to deal with data formats.
 
 == Subscribing and acting upon
 

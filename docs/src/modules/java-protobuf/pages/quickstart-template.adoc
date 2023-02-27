@@ -116,7 +116,7 @@ include::example$java-first-service/src/main/proto/com/example/domain/counter_do
 ----
 --
 
-For more information on descriptors, see xref:java:proto.adoc[].
+For more information on descriptors, see xref:java-protobuf:proto.adoc[].
 
 === Component implementation
 
@@ -164,7 +164,7 @@ include::example$scala-first-service/src/main/scala/com/example/Main.scala[]
 
 This class is the entry point for running Kalix within the container.
 
-For more details see xref:java:value-entity.adoc[].
+For more details see xref:java-protobuf:value-entity.adoc[].
 
 === Unit [.source-java]#and integration# tests
 
@@ -205,9 +205,9 @@ sbt -DonlyUnitTest test
 ----
 By default the integration and unit test are both invoked by `sbt test`. To only run unit tests run `sbt -DonlyUnitTest test`, or `sbt -DonlyUnitTest=true test`, or set up that value to `true` in the sbt session by `set onlyUnitTest := true` and then run `test`
 
-For more details, see xref:java:value-entity.adoc#_testing_the_entity[Testing a Value Entity].
-xref:java:event-sourced-entities.adoc#_testing_the_entity[Testing an Event Sourced Entity].
-xref:java:actions.adoc#_testing_the_action[Testing an Action].
+For more details, see xref:java-protobuf:value-entity.adoc#_testing_the_entity[Testing a Value Entity].
+xref:java-protobuf:event-sourced-entities.adoc#_testing_the_entity[Testing an Event Sourced Entity].
+xref:java-protobuf:actions.adoc#_testing_the_action[Testing an Action].
 
 [.group-java]
 The Maven plugin also provides you with an initial setup for integration tests based on the Kalix Java/Protobuf SDK test kit which leverages link:https://www.testcontainers.org/[TestContainers] and link:https://junit.org/junit4/[JUnit].

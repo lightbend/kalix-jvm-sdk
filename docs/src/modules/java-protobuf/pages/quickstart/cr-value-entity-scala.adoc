@@ -1,7 +1,7 @@
 = Quickstart: Customer Registry in Scala
 
 include::ROOT:partial$include.adoc[]
-include::java:partial$attributes.adoc[]
+include::java-protobuf:partial$attributes.adoc[]
 
 Learn how to create a customer registry in Scala, package it into a container, and run it on Kalix.
 
@@ -295,4 +295,4 @@ grpcurl \
 
 == Next steps
 
-* You can learn more about xref:java:value-entity.adoc[Value Entities].
+* You can learn more about xref:java-protobuf:value-entity.adoc[Value Entities].

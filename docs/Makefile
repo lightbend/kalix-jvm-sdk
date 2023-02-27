@@ -5,11 +5,11 @@ branch   := docs/kalix-current
 sources  := src build/src/managed
 
 src_managed := build/src/managed
-java_managed_attachments := ${src_managed}/modules/java/attachments
-java_managed_examples := ${src_managed}/modules/java/examples
-java_managed_partials := ${src_managed}/modules/java/partials
+java_managed_attachments := ${src_managed}/modules/java-protobuf/attachments
+java_managed_examples := ${src_managed}/modules/java-protobuf/examples
+java_managed_partials := ${src_managed}/modules/java-protobuf/partials
 
-scala_managed_attachments := ${src_managed}/modules/scala/attachments
+scala_managed_attachments := ${src_managed}/modules/scala-protobuf/attachments
 
 spring_managed_attachments := ${src_managed}/modules/spring/attachments
 spring_managed_examples := ${src_managed}/modules/spring/examples
@@ -80,12 +80,12 @@ examples:
 	rsync -a --exclude-from=.examplesignore ../samples/spring-* "${spring_managed_examples}/"
 
 bundles:
-	bin/bundle.sh --zip "${java_managed_attachments}/java-customer-registry-quickstart.zip" ../samples/java-customer-registry-quickstart
-	bin/bundle.sh --zip "${java_managed_attachments}/java-customer-registry-views-quickstart.zip" ../samples/java-customer-registry-views-quickstart
-	bin/bundle.sh --zip "${java_managed_attachments}/java-customer-registry-kafka-quickstart.zip" ../samples/java-customer-registry-kafka-quickstart
-	bin/bundle.sh --zip "${java_managed_attachments}/java-shopping-cart-quickstart.zip" ../samples/java-shopping-cart-quickstart
-	bin/bundle.sh --zip "${java_managed_attachments}/scala-customer-registry-quickstart.zip" ../samples/scala-customer-registry-quickstart
-	bin/bundle.sh --zip "${spring_managed_attachments}/spring-customer-registry-quickstart.zip" ../samples/spring-customer-registry-quickstart
+	bin/bundle.sh --zip "${java_managed_attachments}/java-protobuf-customer-registry-quickstart.zip" ../samples/java-customer-registry-quickstart
+	bin/bundle.sh --zip "${java_managed_attachments}/java-protobuf-customer-registry-views-quickstart.zip" ../samples/java-customer-registry-views-quickstart
+	bin/bundle.sh --zip "${java_managed_attachments}/java-protobuf-customer-registry-kafka-quickstart.zip" ../samples/java-customer-registry-kafka-quickstart
+	bin/bundle.sh --zip "${java_managed_attachments}/java-protobuf-shopping-cart-quickstart.zip" ../samples/java-shopping-cart-quickstart
+	bin/bundle.sh --zip "${java_managed_attachments}/scala-protobuf-customer-registry-quickstart.zip" ../samples/scala-customer-registry-quickstart
+	bin/bundle.sh --zip "${spring_managed_attachments}/java-spring-customer-registry-quickstart.zip" ../samples/spring-customer-registry-quickstart
 
 dev: clean managed validate-xrefs dev-html
 

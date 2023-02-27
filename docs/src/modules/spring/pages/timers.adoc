@@ -1,6 +1,6 @@
 = Timers
 
-include::java:partial$timers-intro.adoc[]
+include::java-protobuf:partial$timers-intro.adoc[]
 
 To demonstrate its functionality, let's consider an Ordering Service composed of a xref:value-entity.adoc[Value Entity] and an xref:actions.adoc[Action]. The Action will work as a xref:actions-as-controller.adoc[Controller] receiving calls and delegating to the Order Entity.
 

@@ -5,7 +5,7 @@ include::ROOT:partial$include.adoc[]
 
 You do not need to handle serialization for messages. Kalix functions serve gRPC interfaces, and the input and output messages are `protobuf` messages that get serialized to the `protobuf` format.
 
-The gRPC services are also exposed as HTTP endpoints with JSON messages. See xref:proto.adoc#_transcoding_http[Transcoding HTTP].
+The gRPC services are also exposed as HTTP endpoints with JSON messages. See xref:writing-grpc-descriptors-protobuf.adoc#_transcoding_http[Transcoding HTTP].
 
 == When consuming Messages from Topics
 
