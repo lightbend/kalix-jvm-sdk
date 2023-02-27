@@ -23,6 +23,7 @@ import kalix.javasdk.Metadata;
 import kalix.javasdk.impl.workflowentity.WorkflowEntityEffectImpl;
 import net.jodah.typetools.TypeResolver;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -260,6 +261,7 @@ public abstract class WorkflowEntity<S> {
 
     final private List<Step> steps = new ArrayList<Step>();
     final private Set<String> uniqueNames = new HashSet<>();
+    private Optional<Duration> workflowTimeout = Optional.empty();
 
 
     private Workflow() {
@@ -280,6 +282,19 @@ public abstract class WorkflowEntity<S> {
 
     public void forEachStep(Consumer<Step> stepConsumer) {
       steps.forEach(stepConsumer);
+    }
+
+    /**
+     * Define a timeout for the duration of the entire workflow. When the timeout expires, the workflow is finished and no transitions are allowed.
+     * @param duration Timeout duration
+     */
+    public Workflow<S> timeout(Duration duration) {
+      this.workflowTimeout = Optional.of(duration);
+      return this;
+    }
+
+    public Optional<Duration> getWorkflowTimeout() {
+      return workflowTimeout;
     }
   }
 

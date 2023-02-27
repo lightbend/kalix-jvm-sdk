@@ -26,6 +26,8 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import java.time.Duration;
+
 @EntityType("transfer-workflow")
 @EntityKey("transferId")
 @RequestMapping("/transfer/{transferId}")
@@ -64,6 +66,7 @@ public class TransferWorkflow extends WorkflowEntity<TransferState> {
             });
 
     return workflow()
+        .timeout(Duration.ofSeconds(10))
         .addStep(withdraw)
         .addStep(deposit);
   }

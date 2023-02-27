@@ -74,6 +74,10 @@ abstract class WorkflowEntityRouter[S, W <: WorkflowEntity[S]](protected val wor
       state
   }
 
+  def _getWorkflowDefinition(): WorkflowEntity.Workflow[S] = {
+    workflow.definition()
+  }
+
   /** INTERNAL API */
   // "public" api against the impl/testkit
   def _internalSetInitState(s: Any): Unit = {

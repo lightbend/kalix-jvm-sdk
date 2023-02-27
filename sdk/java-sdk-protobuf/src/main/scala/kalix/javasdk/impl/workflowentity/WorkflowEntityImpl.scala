@@ -23,6 +23,7 @@ import akka.NotUsed
 import akka.actor.ActorSystem
 import akka.stream.scaladsl.Flow
 import akka.stream.scaladsl.Source
+import com.google.protobuf.duration.Duration
 import io.grpc.Status
 import kalix.javasdk.impl.EntityExceptions.EntityException
 import kalix.javasdk.impl.EntityExceptions.ProtocolException
@@ -66,6 +67,7 @@ import kalix.protocol.workflow_entity.{ Pause => ProtoPause }
 import kalix.protocol.workflow_entity.{ NoTransition => ProtoNoTransition }
 import org.slf4j.LoggerFactory
 
+import scala.jdk.OptionConverters._
 // FIXME these don't seem to be 'public API', more internals?
 import com.google.protobuf.Descriptors
 import kalix.javasdk.Metadata
@@ -133,12 +135,14 @@ final class WorkflowEntityImpl(system: ActorSystem, val services: Map[String, Wo
       init: WorkflowEntityInit): (Flow[WorkflowStreamIn, WorkflowStreamOut, NotUsed], WorkflowStreamOut) = {
     val service =
       services.getOrElse(init.serviceName, throw ProtocolException(init, s"Service not found: ${init.serviceName}"))
-    val router =
+    val router: WorkflowEntityRouter[_, _] =
       service.factory.create(new WorkflowEntityContextImpl(init.entityId, system))
     val entityId = init.entityId
 
+    val workflowTimeout =
+      router._getWorkflowDefinition().getWorkflowTimeout.toScala.map(Duration(_))
     val workflowConfig =
-      WorkflowStreamOut(WorkflowStreamOut.Message.Config(WorkflowConfig()))
+      WorkflowStreamOut(WorkflowStreamOut.Message.Config(WorkflowConfig(workflowTimeout)))
 
     init.userState match {
       case Some(state) =>
@@ -294,6 +298,7 @@ final class WorkflowEntityImpl(system: ActorSystem, val services: Map[String, Wo
         case Empty =>
           throw ProtocolException(init, "Workflow received empty/unknown message")
       }
+
     (flow, workflowConfig)
   }
 
