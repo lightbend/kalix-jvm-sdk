@@ -175,7 +175,7 @@ public class SpringSdkIntegrationTest {
     // WHEN the CounterEntity is requested to increase 4422
     webClient
         .post()
-        .uri("/counter/hello1/increase/4422")
+        .uri("/counter/hello2/increase/4422")
         .retrieve()
         .bodyToMono(Integer.class)
         .block(timeout);
@@ -188,7 +188,7 @@ public class SpringSdkIntegrationTest {
             () ->
                 webClient
                     .get()
-                    .uri("/counter/hello1")
+                    .uri("/counter/hello2")
                     .retrieve()
                     .bodyToMono(Integer.class)
                     .block(timeout),
