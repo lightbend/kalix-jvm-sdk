@@ -17,11 +17,9 @@
 package kalix.javasdk.impl.action
 
 import java.util.Optional
-
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters.SeqHasAsJava
 import scala.util.control.NonFatal
-
 import akka.NotUsed
 import akka.actor.ActorSystem
 import akka.stream.scaladsl.Sink
@@ -32,7 +30,7 @@ import kalix.javasdk._
 import kalix.javasdk.action._
 import kalix.javasdk.impl.ActionFactory
 import kalix.javasdk.impl._
-import kalix.javasdk.impl.effect.SideEffectImpl
+import kalix.javasdk.impl.effect.EffectSupport.asProtocol
 import kalix.protocol.action.ActionCommand
 import kalix.protocol.action.ActionResponse
 import kalix.protocol.action.Actions
@@ -170,14 +168,7 @@ private[javasdk] final class ActionsImpl(
   }
 
   private def toProtocol(messageCodec: MessageCodec, sideEffects: Seq[SideEffect]): Seq[component.SideEffect] =
-    sideEffects.map { case SideEffectImpl(deferred: GrpcDeferredCall[_, _], synchronous) =>
-      component.SideEffect(
-        deferred.fullServiceName,
-        deferred.methodName,
-        Some(messageCodec.encodeScala(deferred.message)),
-        synchronous,
-        MetadataImpl.toProtocol(deferred.metadata))
-    }
+    sideEffects.map(asProtocol(messageCodec, _))
 
   /**
    * Handle a unary command. The input command will contain the service name, command name, request metadata and the
