@@ -1,5 +1,5 @@
-** xref:java-protobuf:index.adoc[]
-*** xref:java-protobuf:developer-tools.adoc[]
+** xref:index.adoc[]
+*** xref:developer-tools.adoc[]
 *** xref:developing:development-process-java.adoc[]
 *** xref:quickstart-template.adoc[]
 *** xref:writing-grpc-descriptors-protobuf.adoc[]

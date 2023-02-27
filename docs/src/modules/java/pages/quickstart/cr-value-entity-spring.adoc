@@ -1,7 +1,7 @@
 = Quickstart: Customer Registry with Spring
 
 include::ROOT:partial$include.adoc[]
-include::spring:partial$attributes.adoc[]
+include::java:partial$attributes.adoc[]
 
 In this section, you will learn how to create a customer registry with the Java SDK, package it into a container, and run it on Kalix.
 
@@ -147,4 +147,4 @@ curl <generated hostname>:443/customer/abc123
 
 == Next steps
 
-* You can learn more about xref:spring:value-entity.adoc[Value Entities].
+* You can learn more about xref:java:value-entity.adoc[Value Entities].
