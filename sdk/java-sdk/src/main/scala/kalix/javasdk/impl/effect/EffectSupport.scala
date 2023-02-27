@@ -68,8 +68,7 @@ object EffectSupport {
   def sideEffectsFrom(
       messageCodec: MessageCodec,
       secondaryEffect: SecondaryEffectImpl): Vector[component.SideEffect] = {
-    val encodedSideEffects = secondaryEffect.sideEffects.map(asProtocol(messageCodec, _))
-    encodedSideEffects
+    secondaryEffect.sideEffects.map(asProtocol(messageCodec, _))
   }
 
 }
