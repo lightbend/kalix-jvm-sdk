@@ -3,21 +3,21 @@ package kalix;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.logging.Log;
-import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Path;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
+import java.util.Scanner;
 
 /**
- * Goal which deploys the current project to Kalix.
+ * Goal which deploys the current project to the repository and Kalix.
  */
 @SuppressWarnings("unused")
-@Mojo(name = "deploy", defaultPhase = LifecyclePhase.DEPLOY)
+@Mojo(name = "deploy")
 public class DeployMojo extends AbstractMojo {
 
     @SuppressWarnings("unused")
@@ -36,33 +36,57 @@ public class DeployMojo extends AbstractMojo {
     @Parameter(property = "kalixContext")
     private String kalixContext;
 
+    @Parameter(property = "kalixProject")
+    private String kalixProject;
+
     @Parameter(defaultValue = "30000", property = "cliTimeoutMs", required = true)
     private Long cliTimeoutMs;
 
     private final Log log = getLog();
 
     /**
-     * We deploy by invoking the services deploy command
+     * Deploys to Kalix if set to 'kalixProject' by invoking the `kalix services deploy` command.
+     * If 'kalixProject' is not set then deploying to the currently selected project.
      */
     public void execute() throws MojoExecutionException {
-        log.info("Deploying project to Kalix");
+       deploy(service, dockerImage,Optional.ofNullable(kalixProject),Optional.ofNullable(kalixContext));
+    }
+
+    private void deploy(String service, String dockerImage, Optional<String> kalixProject, Optional<String> kalixContext) throws MojoExecutionException {
         try {
-            final List<String> commandLine;
-            if (kalixContext != null) {
-                commandLine = Arrays.asList(kalixPath, "--context", kalixContext, "service", "deploy", service, dockerImage);
+            List<String> commandLine = (Arrays.asList(kalixPath, "service", "deploy", service, dockerImage));
+            String messageExtraInfo = "";
+
+            if (kalixProject.isPresent()){
+                commandLine.add("--project");
+                commandLine.add(kalixProject.get());
+                messageExtraInfo += " in project ["+kalixProject.get()+"]";
             } else {
-                commandLine = Arrays.asList(kalixPath, "service", "deploy", service, dockerImage);
+                log.info("`kalixProject` hasn't been set. Therefore, deploying to the currently selected project configured via Kalix CLI.");
             }
-            log.info("Executing `" + String.join(" ", commandLine) + "`");
+            if (kalixContext.isPresent()){
+                commandLine.add( "--context");
+                commandLine.add(kalixContext.get());
+                messageExtraInfo += " with context ["+kalixContext.get()+"]";
+            }
+
+            log.info("Deploying project to Kalix.");
+            String commandLineString = String.join(" ", commandLine);
+            log.info("Executing `" + commandLineString + "`.");
             Process process = new ProcessBuilder().directory(baseDir).command(commandLine).start();
             synchronized (process) {
                 process.wait(cliTimeoutMs);
             }
-            int status = process.exitValue();
-            if (status == 0) {
-                log.info("Done.");
+            final int deploymentResult = process.exitValue();
+            if (deploymentResult == 0) {
+                log.info("Successfully deployed service ["+service+"]" + messageExtraInfo + ".");
             } else {
-                log.error("Unable to deploy. Ensure you can deploy by using the kalix command line directly.");
+                InputStream errorStream = process.getErrorStream();
+                Scanner scanner = new Scanner(errorStream, StandardCharsets.UTF_8.name());
+                log.error("Unable to deploy. Error executing `" + commandLineString + "`.");
+                while(scanner.hasNext()){
+                    log.error(scanner.useDelimiter("\\A").next().replaceAll("[\\n\\r]", ""));
+                }
             }
         } catch (IOException | InterruptedException e) {
             throw new MojoExecutionException("There was a problem deploying", e);

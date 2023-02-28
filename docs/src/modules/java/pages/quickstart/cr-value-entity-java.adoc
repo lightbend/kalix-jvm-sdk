@@ -204,12 +204,13 @@ To build and publish the container image and then deploy the service, follow the
 kalix auth login
 ----
 
-. Use the `deploy` target to build the container image, publish it to the container registry as configured in the `pom.xml` file, and then automatically https://docs.kalix.io/services/deploy-service.html#_deploy[deploy the service] to Kalix using `kalix`:
+. Use the `deploy` target to build the container image, publish it to the container registry as configured in the `pom.xml` file, and use the target `kalix:deploy` to automatically deploy the service to Kalix:
 +
 [source,command line]
 ----
-mvn deploy
+mvn deploy kalix:deploy
 ----
+include::partial$important-mvn-kalixdeploy.adoc[]
 
 . You can https://docs.kalix.io/services/deploy-service.html#_verify_service_status[verify the status of the deployed service] using:
 +

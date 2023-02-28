@@ -135,11 +135,16 @@ curl -XPOST -H "Content-Type: application/json" localhost:9000/counter/foo/incre
 
 To deploy your service to Kalix:
 
-First make sure you have updated the `dockerImage` property in the `pom.xml` to point at your Docker registry. Then:
+First make sure you have updated the `dockerImage` property in the `pom.xml` to point at your Docker registry.
+Then use the `deploy` target to build the container image, publish it to the container registry as configured in the `pom.xml` file, and the target `kalix:deploy` to automatically deploy the service to Kalix:
 
-- Run `mvn deploy`, which conveniently packages and publishes your Docker image prior to deployment.
+[source,command line]
+----
+mvn deploy kalix:deploy
+----
+include::partial$important-mvn-kalixdeploy.adoc[]
 
-- When using the CLI, in your command window, set your Kalix project to be the current project:
+- When using the CLI, in your command window, you can set your Kalix project to be the current project:
 
 +
 [source, command window]
