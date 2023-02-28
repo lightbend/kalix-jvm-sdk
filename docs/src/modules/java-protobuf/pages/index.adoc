@@ -1,4 +1,4 @@
-= Java/Scala Protobuf SDKs
+= Java/Scala Protobuf SDK
 :page-supergroup-java-scala: Language
 
 include::ROOT:partial$include.adoc[]

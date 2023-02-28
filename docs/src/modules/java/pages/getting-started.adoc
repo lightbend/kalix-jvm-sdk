@@ -50,10 +50,10 @@ include::example$java-spring-valueentity-counter/src/main/java/com/example/Main.
 Kalix have different kinds of components that you can use to implement your application.
 The list of components are:
 
-* xref:spring:actions.adoc[Actions]
-* xref:spring:value-entity.adoc[Value Entities]
-* xref:spring:eventsourced.adoc[Event Sourced Entities]
-* xref:spring:views.adoc[Views]
+* xref:java:actions.adoc[Actions]
+* xref:java:value-entity.adoc[Value Entities]
+* xref:java:event-sourced-entities.adoc[Event Sourced Entities]
+* xref:java:views.adoc[Views]
 
 For this *Getting started* walk-through, we will implement a Counter based on a Value Entity. It's a simple counter
 that receives commands to increase the counter.
@@ -85,7 +85,7 @@ include::example$java-spring-valueentity-counter/src/main/java/com/example/Numbe
 [sidebar]
 A Kalix component doesn't require any other annotation. They will be registered to Kalix and be exposed automatically.
 It suffices to add them on the same package or on a sub-package of your `Main` class. Please, refer to
-xref:spring:spring-boot-integration.adoc#_dependency_injection[Dependency injection] page for more details on how Kalix components integrates
+xref:java:spring-boot-integration.adoc#_dependency_injection[Dependency injection] page for more details on how Kalix components integrates
 with Spring's application context.
 
 The project also includes a dependency on the *Kalix Java SDK Test Kit*. Please consult the component specific pages to
@@ -103,7 +103,7 @@ This uses JDK {spring-java-version} and the image is based on the link:https://a
 mvn install
 ----
 
-TIP: For more details see xref:spring:development-process-spring.adoc#_package_service[Development Process - Package service].
+TIP: For more details see xref:java:development-process-spring.adoc#_package_service[Development Process - Package service].
 
 == Run locally
 
@@ -152,4 +152,4 @@ include::partial$important-mvn-kalixdeploy.adoc[]
 kalix config set project <project-name>
 ----
 
-- Deploy your service following the instructions at xref:spring:development-process-spring.adoc#_deploy_to_kalix[Development Process - Deploy to Kalix].
+- Deploy your service following the instructions at xref:java:development-process-spring.adoc#_deploy_to_kalix[Development Process - Deploy to Kalix].

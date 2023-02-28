@@ -41,12 +41,12 @@ include::example$scala-protobuf-view-store/src/main/proto/store/product/domain/p
 [source,java,indent=0]
 .src/main/java/store/product/domain/Product.java
 ----
-include::spring:example$java-spring-view-store/src/main/java/store/product/domain/Product.java[tag=domain]
+include::java:example$java-spring-view-store/src/main/java/store/product/domain/Product.java[tag=domain]
 ----
 [source,java,indent=0]
 .src/main/java/store/product/domain/Money.java
 ----
-include::spring:example$java-spring-view-store/src/main/java/store/product/domain/Money.java[tag=domain]
+include::java:example$java-spring-view-store/src/main/java/store/product/domain/Money.java[tag=domain]
 ----
 // tag::grpc[]
 
@@ -74,7 +74,7 @@ include::example$scala-protobuf-view-store/src/main/proto/store/order/domain/ord
 [source,java,indent=0]
 .src/main/java/store/order/domain/Order.java
 ----
-include::spring:example$java-spring-view-store/src/main/java/store/order/domain/Order.java[tag=domain]
+include::java:example$java-spring-view-store/src/main/java/store/order/domain/Order.java[tag=domain]
 ----
 // end::spring[]
 // tag::grpc[]
@@ -142,13 +142,13 @@ The view query can then JOIN across these tables, to return all orders for a spe
 [source,java,indent=0]
 .src/main/java/store/view/joined/CustomerOrder.java
 ----
-include::spring:example$java-spring-view-store/src/main/java/store/view/joined/CustomerOrder.java[tag=joined]
+include::java:example$java-spring-view-store/src/main/java/store/view/joined/CustomerOrder.java[tag=joined]
 ----
 
 [source,java,indent=0]
 .src/main/java/store/view/joined/JoinedCustomerOrdersView.java
 ----
-include::spring:example$java-spring-view-store/src/main/java/store/view/joined/JoinedCustomerOrdersView.java[tag=join]
+include::java:example$java-spring-view-store/src/main/java/store/view/joined/JoinedCustomerOrdersView.java[tag=join]
 ----
 <1> Add a view id for this multi-table view.
 <2> The view query does the following:
@@ -191,20 +191,20 @@ include::example$scala-protobuf-view-store/src/main/proto/store/view/nested/orde
 [source,java,indent=0]
 .src/main/java/store/view/nested/CustomerOrders.java
 ----
-include::spring:example$java-spring-view-store/src/main/java/store/view/nested/CustomerOrders.java[tag=nested]
+include::java:example$java-spring-view-store/src/main/java/store/view/nested/CustomerOrders.java[tag=nested]
 ----
 <1> The `orders` field will contain the nested `CustomerOrder` objects.
 
 [source,java,indent=0]
 .src/main/java/store/view/nested/CustomerOrder.java
 ----
-include::spring:example$java-spring-view-store/src/main/java/store/view/nested/CustomerOrder.java[tag=nested]
+include::java:example$java-spring-view-store/src/main/java/store/view/nested/CustomerOrder.java[tag=nested]
 ----
 
 [source,java,indent=0]
 .src/main/java/store/view/nested/NestedCustomerOrdersView.java
 ----
-include::spring:example$java-spring-view-store/src/main/java/store/view/nested/NestedCustomerOrdersView.java[tag=query]
+include::java:example$java-spring-view-store/src/main/java/store/view/nested/NestedCustomerOrdersView.java[tag=query]
 ----
 <1> In the view query, the customer columns are projected into the result, and the order and product columns are combined into a nested object and projected into the `orders` field.
 <2> A single `CustomerOrders` object is returned, which will have the customer details and all orders for this customer.
@@ -246,31 +246,31 @@ NOTE: Rather than transforming results in a relational projection, it's also pos
 [source,java,indent=0]
 .src/main/java/store/view/structured/CustomerOrders.java
 ----
-include::spring:example$java-spring-view-store/src/main/java/store/view/structured/CustomerOrders.java[tag=structured]
+include::java:example$java-spring-view-store/src/main/java/store/view/structured/CustomerOrders.java[tag=structured]
 ----
 
 [source,java,indent=0]
 .src/main/java/store/view/structured/CustomerShipping.java
 ----
-include::spring:example$java-spring-view-store/src/main/java/store/view/structured/CustomerShipping.java[tag=structured]
+include::java:example$java-spring-view-store/src/main/java/store/view/structured/CustomerShipping.java[tag=structured]
 ----
 
 [source,java,indent=0]
 .src/main/java/store/view/structured/ProductOrder.java
 ----
-include::spring:example$java-spring-view-store/src/main/java/store/view/structured/ProductOrder.java[tag=structured]
+include::java:example$java-spring-view-store/src/main/java/store/view/structured/ProductOrder.java[tag=structured]
 ----
 
 [source,java,indent=0]
 .src/main/java/store/view/structured/ProductValue.java
 ----
-include::spring:example$java-spring-view-store/src/main/java/store/view/structured/ProductValue.java[tag=structured]
+include::java:example$java-spring-view-store/src/main/java/store/view/structured/ProductValue.java[tag=structured]
 ----
 
 [source,java,indent=0]
 .src/main/java/store/view/structured/StructuredCustomerOrdersView.java
 ----
-include::spring:example$java-spring-view-store/src/main/java/store/view/structured/StructuredCustomerOrdersView.java[tag=query]
+include::java:example$java-spring-view-store/src/main/java/store/view/structured/StructuredCustomerOrdersView.java[tag=query]
 ----
 <1> The view query does the following:
   * The `customerId` is renamed to just `id` in the result.
@@ -310,7 +310,7 @@ include::example$scala-protobuf-view-store/src/test/scala/store/view/joined/Join
 [source,java,indent=0]
 .src/it/java/store/view/TestKitConfig.java
 ----
-include::spring:example$java-spring-view-store/src/it/java/store/view/TestKitConfig.java[tag=testkit-advanced-views]
+include::java:example$java-spring-view-store/src/it/java/store/view/TestKitConfig.java[tag=testkit-advanced-views]
 ----
 // tag::grpc[]
 
