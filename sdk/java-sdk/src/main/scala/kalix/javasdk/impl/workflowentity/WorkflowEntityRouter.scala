@@ -124,16 +124,14 @@ abstract class WorkflowEntityRouter[S, W <: WorkflowEntity[S]](protected val wor
 
     workflowDef.findByName(stepName).toScala match {
       case Some(call: CallStep[_, _, _]) =>
-        val defCall = input match {
-          case Some(inputValue) =>
-            call.callFunc
-              .asInstanceOf[JFunc[Any, DeferredCall[Any, Any]]]
-              .apply(messageCodec.decodeMessage(inputValue))
-          case None =>
-            call.callSupplier
-              .asInstanceOf[Supplier[DeferredCall[Any, Any]]]
-              .get()
+        val decodedInput = input match {
+          case Some(inputValue) => messageCodec.decodeMessage(inputValue)
+          case None             => null // to meet a signature of supplier expressed as a function
         }
+
+        val defCall = call.callFunc
+          .asInstanceOf[JFunc[Any, DeferredCall[Any, Any]]]
+          .apply(decodedInput)
 
         val (commandName, serviceName) =
           defCall match {
@@ -155,18 +153,15 @@ abstract class WorkflowEntityRouter[S, W <: WorkflowEntity[S]](protected val wor
         }
 
       case Some(call: AsyncCallStep[_, _]) =>
-        val future = input match {
-          case Some(inputValue) =>
-            call.callFunc
-              .asInstanceOf[JFunc[Any, CompletionStage[Any]]]
-              .apply(messageCodec.decodeMessage(inputValue))
-              .toScala
-          case None =>
-            call.callSupplier
-              .asInstanceOf[Supplier[CompletionStage[Any]]]
-              .get()
-              .toScala
+        val decodedInput = input match {
+          case Some(inputValue) => messageCodec.decodeMessage(inputValue)
+          case None             => null // to meet a signature of supplier expressed as a function
         }
+
+        val future = call.callFunc
+          .asInstanceOf[JFunc[Any, CompletionStage[Any]]]
+          .apply(decodedInput)
+          .toScala
 
         future.map { res =>
           val encoded = messageCodec.encodeScala(res)

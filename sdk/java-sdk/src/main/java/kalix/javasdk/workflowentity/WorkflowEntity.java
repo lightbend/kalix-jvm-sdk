@@ -273,7 +273,6 @@ public abstract class WorkflowEntity<S> {
       if (uniqueNames.contains(step.name()))
         throw new IllegalArgumentException("Name '" + step.name() + "' is already in use by another step in this workflow");
 
-
       this.steps.add(step);
       this.uniqueNames.add(step.name());
       return this;
@@ -298,25 +297,18 @@ public abstract class WorkflowEntity<S> {
 
     final private String _name;
     final public Function<CallInput, DeferredCall<DefCallInput, DefCallOutput>> callFunc;
-    final public Supplier<DeferredCall<DefCallInput, DefCallOutput>> callSupplier;
     final public Function<DefCallOutput, Effect.TransitionalEffect<Void>> transitionFunc;
-    final public Optional<Class<CallInput>> callInputClass;
+    final public Class<CallInput> callInputClass;
     final public Class<DefCallOutput> transitionInputClass;
 
     public CallStep(String name,
                     Function<CallInput, DeferredCall<DefCallInput, DefCallOutput>> callFunc,
-                    Supplier<DeferredCall<DefCallInput, DefCallOutput>> callSupplier,
                     Function<DefCallOutput, Effect.TransitionalEffect<Void>> transitionFunc) {
       _name = name;
-      this.callSupplier = callSupplier;
       this.transitionFunc = transitionFunc;
       this.callFunc = callFunc;
-      if (callFunc != null) {
-        Class<?>[] callClasses = TypeResolver.resolveRawArguments(Function.class, callFunc.getClass());
-        this.callInputClass = Optional.of((Class<CallInput>) callClasses[0]);
-      } else {
-        this.callInputClass = Optional.empty();
-      }
+      Class<?>[] callClasses = TypeResolver.resolveRawArguments(Function.class, callFunc.getClass());
+      this.callInputClass = (Class<CallInput>) callClasses[0];
       Class<?>[] transitionClasses = TypeResolver.resolveRawArguments(Function.class, transitionFunc.getClass());
       this.transitionInputClass = (Class<DefCallOutput>) transitionClasses[0];
     }
@@ -331,25 +323,17 @@ public abstract class WorkflowEntity<S> {
 
     final private String _name;
     final public Function<CallInput, CompletionStage<CallOutput>> callFunc;
-    final public Supplier<CompletionStage<CallOutput>> callSupplier;
     final public Function<CallOutput, Effect.TransitionalEffect<Void>> transitionFunc;
-    final public Optional<Class<CallInput>> callInputClass;
+    final public Class<CallInput> callInputClass;
     final public Class<CallOutput> transitionInputClass;
 
     public AsyncCallStep(String name,
                          Function<CallInput, CompletionStage<CallOutput>> callFunc,
-                         Supplier<CompletionStage<CallOutput>> callSupplier,
                          Function<CallOutput, Effect.TransitionalEffect<Void>> transitionFunc) {
       _name = name;
       this.callFunc = callFunc;
-      if (callFunc != null) {
-        Class<?>[] callClasses = TypeResolver.resolveRawArguments(Function.class, callFunc.getClass());
-        this.callInputClass = Optional.of((Class<CallInput>) callClasses[0]);
-      } else {
-        this.callInputClass = Optional.empty();
-      }
-      this.callSupplier = callSupplier;
-
+      Class<?>[] callClasses = TypeResolver.resolveRawArguments(Function.class, callFunc.getClass());
+      this.callInputClass = (Class<CallInput>) callClasses[0];
       this.transitionFunc = transitionFunc;
       Class<?>[] transitionClasses = TypeResolver.resolveRawArguments(Function.class, transitionFunc.getClass());
       this.transitionInputClass = (Class<CallOutput>) transitionClasses[0];
@@ -404,7 +388,7 @@ public abstract class WorkflowEntity<S> {
      */
     @ApiMayChange
     public <DefCallInput, DefCallOutput> CallStepBuilder<Void, DefCallInput, DefCallOutput> call(Supplier<DeferredCall<DefCallInput, DefCallOutput>> callSupplier) {
-      return new CallStepBuilder<>(name, callSupplier);
+      return new CallStepBuilder<>(name, (Void v) -> callSupplier.get());
     }
 
     /**
@@ -430,7 +414,7 @@ public abstract class WorkflowEntity<S> {
      */
     @ApiMayChange
     public <Output> AsyncCallStepBuilder<Void, Output> asyncCall(Supplier<CompletionStage<Output>> callSupplier) {
-      return new AsyncCallStepBuilder<>(name, callSupplier);
+      return new AsyncCallStepBuilder<>(name, (Void v) -> callSupplier.get());
     }
 
 
@@ -440,19 +424,10 @@ public abstract class WorkflowEntity<S> {
 
       /* callFactory builds the DeferredCall that will be passed to proxy for execution */
       final private Function<Input, DeferredCall<DefCallInput, DefCallOutput>> callFunc;
-      final private Supplier<DeferredCall<DefCallInput, DefCallOutput>> callSupplier;
-
 
       public CallStepBuilder(String name, Function<Input, DeferredCall<DefCallInput, DefCallOutput>> callFunc) {
         this.name = name;
         this.callFunc = callFunc;
-        this.callSupplier = null;
-      }
-
-      public CallStepBuilder(String name, Supplier<DeferredCall<DefCallInput, DefCallOutput>> callSupplier) {
-        this.name = name;
-        this.callFunc = null;
-        this.callSupplier = callSupplier;
       }
 
       /**
@@ -463,7 +438,7 @@ public abstract class WorkflowEntity<S> {
        */
       @ApiMayChange
       public CallStep<Input, DefCallInput, DefCallOutput> andThen(Function<DefCallOutput, Effect.TransitionalEffect<Void>> transitionFunc) {
-        return new CallStep<>(name, callFunc, callSupplier, transitionFunc);
+        return new CallStep<>(name, callFunc, transitionFunc);
       }
     }
 
@@ -473,19 +448,10 @@ public abstract class WorkflowEntity<S> {
 
       /* callFactory builds the DeferredCall that will be passed to proxy for execution */
       final private Function<CallInput, CompletionStage<CallOutput>> callFunc;
-      final private Supplier<CompletionStage<CallOutput>> callSupplier;
-
 
       public AsyncCallStepBuilder(String name, Function<CallInput, CompletionStage<CallOutput>> callFunc) {
         this.name = name;
         this.callFunc = callFunc;
-        this.callSupplier = null;
-      }
-
-      public AsyncCallStepBuilder(String name, Supplier<CompletionStage<CallOutput>> callSupplier) {
-        this.name = name;
-        this.callFunc = null;
-        this.callSupplier = callSupplier;
       }
 
       /**
@@ -496,7 +462,7 @@ public abstract class WorkflowEntity<S> {
        */
       @ApiMayChange
       public AsyncCallStep<CallInput, CallOutput> andThen(Function<CallOutput, Effect.TransitionalEffect<Void>> transitionFunc) {
-        return new AsyncCallStep<>(name, callFunc, callSupplier, transitionFunc);
+        return new AsyncCallStep<>(name, callFunc, transitionFunc);
       }
     }
   }
