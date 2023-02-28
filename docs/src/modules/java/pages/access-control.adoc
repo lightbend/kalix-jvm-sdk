@@ -21,7 +21,7 @@ Java::
 [source,proto,indent=0]
 .src/main/proto/com/example/kalix_policy.proto
 ----
-include::example$java-doc-snippets/src/main/proto/com/example/kalix_policy.proto[tag=default]
+include::example$java-protobuf-doc-snippets/src/main/proto/com/example/kalix_policy.proto[tag=default]
 ----
 <1> Import the needed Kalix annotations from `kalix/annotations.proto`
 <2> Allow access from all other services, but not the public internet
@@ -31,7 +31,7 @@ Scala::
 [source,proto,indent=0]
 .src/main/proto/com/example/kalix_policy.proto
 ----
-include::example$scala-doc-snippets/src/main/proto/com/example/kalix_policy.proto[tag=default]
+include::example$scala-protobuf-doc-snippets/src/main/proto/com/example/kalix_policy.proto[tag=default]
 ----
 <1> Import the needed Kalix annotations from `kalix/annotations.proto`
 <2> Allow access from all other services, but not the public internet

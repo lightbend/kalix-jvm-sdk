@@ -16,7 +16,7 @@ Java::
 [source,proto,indent=0]
 .src/main/proto/com/example/fibonacci/fibonacci.proto
 ----
-include::example$java-fibonacci-action/src/main/proto/com/example/fibonacci/fibonacci.proto[tag=actions]
+include::example$java-protobuf-fibonacci-action/src/main/proto/com/example/fibonacci/fibonacci.proto[tag=actions]
 ----
 <1> Any classes generated from this protobuf file will be in the `com.example.fibonacci` package.
 <2> Import the Kalix protobuf annotations or options.
@@ -28,7 +28,7 @@ Scala::
 [source,proto,indent=0]
 .src/main/proto/com/example/fibonacci/fibonacci.proto
 ----
-include::example$scala-fibonacci-action/src/main/proto/com/example/fibonacci/fibonacci.proto[tag=actions]
+include::example$scala-protobuf-fibonacci-action/src/main/proto/com/example/fibonacci/fibonacci.proto[tag=actions]
 ----
 <1> Any classes generated from this protobuf file will be in the `com.example.fibonacci` package.
 <2> Import the Kalix protobuf annotations or options.
@@ -52,7 +52,7 @@ Java::
 [source,java,indent=0]
 .src/main/java/com/example/fibonacci/FibonacciAction.java
 ----
-include::example$java-fibonacci-action/src/main/java/com/example/fibonacci/FibonacciActionGenerated.java[tag=generated-action]
+include::example$java-protobuf-fibonacci-action/src/main/java/com/example/fibonacci/FibonacciActionGenerated.java[tag=generated-action]
 ----
 <1> Extends the generated `AbstractFibonacciAction`, which extends link:{attachmentsdir}/api/kalix/javasdk/action/Action.html[`Action` {tab-icon}, window="new"].
 <2> A `nextNumber` method is generated. We will implement it next.
@@ -62,7 +62,7 @@ Scala::
 [source,scala,indent=0]
 .src/main/scala/com/example/fibonacci/FibonacciAction.scala
 ----
-include::example$scala-fibonacci-action/src/main/scala/com/example/fibonacci/FibonacciActionGenerated.scala[tag=generated-action]
+include::example$scala-protobuf-fibonacci-action/src/main/scala/com/example/fibonacci/FibonacciActionGenerated.scala[tag=generated-action]
 ----
 <1> Extends the generated `AbstractFibonacciAction`, which extends link:{attachmentsdir}/scala-api/kalix/scalasdk/action/Action.html[`Action` {tab-icon}, window="new"].
 <2> A `nextNumber` method is generated. We will implement it next.
@@ -75,7 +75,7 @@ Java::
 [source,java,indent=0]
 .src/main/java/com/example/fibonacci/FibonacciAction.java
 ----
-include::example$java-fibonacci-action/src/main/java/com/example/fibonacci/FibonacciAction.java[tag=implemented-action]
+include::example$java-protobuf-fibonacci-action/src/main/java/com/example/fibonacci/FibonacciAction.java[tag=implemented-action]
 ----
 <1> We add two private methods to support the computation. `isFibonacci` checks if a number is a Fibonacci number and
 `nextFib` calculates the next number.
@@ -88,7 +88,7 @@ Scala::
 [source,scala,indent=0]
 .src/main/scala/com/example/fibonacci/FibonacciAction.scala
 ----
-include::example$scala-fibonacci-action/src/main/scala/com/example/fibonacci/FibonacciAction.scala[tag=implemented-action]
+include::example$scala-protobuf-fibonacci-action/src/main/scala/com/example/fibonacci/FibonacciAction.scala[tag=implemented-action]
 ----
 <1> We add two private methods to support the computation. `isFibonacci` checks if a number is a Fibonacci number and
 `nextFib` calculates the next number.
@@ -119,7 +119,7 @@ Java::
 [source,java]
 ./src/main/java/com/example/Main.java
 ----
-include::java:example$java-fibonacci-action/src/main/java/com/example/Main.java[]
+include::java:example$java-protobuf-fibonacci-action/src/main/java/com/example/Main.java[]
 ----
 
 Scala::
@@ -127,7 +127,7 @@ Scala::
 [source,scala]
 ./src/main/scala/com/example/fibonacci/Main.scala
 ----
-include::example$scala-fibonacci-action/src/main/scala/com/example/fibonacci/Main.scala[]
+include::example$scala-protobuf-fibonacci-action/src/main/scala/com/example/fibonacci/Main.scala[]
 ----
 
 By default, the generated constructor has an `ActionCreationContext` parameter, but you can change this to accept other parameters.
@@ -155,7 +155,7 @@ Java::
 .src/test/java/com/example/actions/FibonacciActionTest.java
 [source,java]
 ----
-include::example$java-fibonacci-action/src/test/java/com/example/fibonacci/FibonacciActionTest.java[tag=class]
+include::example$java-protobuf-fibonacci-action/src/test/java/com/example/fibonacci/FibonacciActionTest.java[tag=class]
 ----
 <1> The test kit is created to allow us to test the Action's method.
 <2> We call `nextNumber` method with some value.
@@ -175,7 +175,7 @@ Scala::
 .src/test/java/com/example/actions/FibonacciActionSpec.scala
 [source,java]
 ----
-include::example$scala-fibonacci-action/src/test/scala/com/example/fibonacci/FibonacciActionSpec.scala[tag=class]
+include::example$scala-protobuf-fibonacci-action/src/test/scala/com/example/fibonacci/FibonacciActionSpec.scala[tag=class]
 ----
 <1> The test kit is created to allow us to test the Action's method.
 <2> We call `nextNumber` method with some value.

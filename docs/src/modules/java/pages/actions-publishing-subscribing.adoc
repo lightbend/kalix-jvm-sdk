@@ -27,7 +27,7 @@ Java::
 [source,protobuf,indent=0]
 .src/main/proto/com/example/actions/counter_topic.proto
 ----
-include::example$java-eventsourced-counter/src/main/proto/com/example/actions/counter_topic.proto[tag=counter-topic]
+include::example$java-protobuf-eventsourced-counter/src/main/proto/com/example/actions/counter_topic.proto[tag=counter-topic]
 ----
 <1> Import the Counter Domain file containing the definitions of the events. This is typically a proto definition within the same service.
 <2> The protobuf option (kalix.codegen) is specific to code-generation as provided by the Kalix Maven plugin. This annotation indicates to the code-generation that an Action must be generated.
@@ -40,7 +40,7 @@ Scala::
 [source,proto,indent=0]
 .src/main/proto/customer/domain/customer_domain.proto
 ----
-include::example$scala-eventsourced-counter/src/main/proto/com/example/actions/counter_topic.proto[tag=counter-topic]
+include::example$scala-protobuf-eventsourced-counter/src/main/proto/com/example/actions/counter_topic.proto[tag=counter-topic]
 ----
 <1> Import the Counter Domain file containing the definitions of the events. This is typically a proto definition within the same service.
 <2> The protobuf option (kalix.codegen) is specific to code-generation as provided by the Kalix sbt plugin. This annotation indicates to the code-generation that an Action must be generated.
@@ -56,7 +56,7 @@ Java::
 [source,java,indent=0]
 .src/main/java/com/example/actions/CounterJournalToTopicAction.java
 ----
-include::example$java-eventsourced-counter/src/main/java/com/example/actions/CounterJournalToTopicAction.java[tag=counter-topic]
+include::example$java-protobuf-eventsourced-counter/src/main/java/com/example/actions/CounterJournalToTopicAction.java[tag=counter-topic]
 ----
 <1> We convert the incoming domain event `CounterDomain.ValueIncreased` to the outgoing topic API `CounterTopicApi.Increased`.
 <2> We use the converted object to build a reply. The `CounterTopicApi.Increased` message will be published to the topic.
@@ -66,7 +66,7 @@ Scala::
 [source,scala,indent=0]
 .src/main/scala/com/example/actions/CounterJournalToTopicAction.scala
 ----
-include::example$scala-eventsourced-counter/src/main/scala/com/example/actions/CounterJournalToTopicAction.scala[tag=counter-topic]
+include::example$scala-protobuf-eventsourced-counter/src/main/scala/com/example/actions/CounterJournalToTopicAction.scala[tag=counter-topic]
 ----
 <1> We convert the incoming domain event `ValueIncreased` to the outgoing topic API `Increased` and return that as a reply.
 
@@ -82,7 +82,7 @@ Java::
 [source,proto,indent=0]
 .src/main/proto/com/example/actions/counter_states_sub.proto
 ----
-include::example$java-valueentity-counter/src/main/proto/com/example/actions/counter_states_sub.proto[tag=state-subscription]
+include::example$java-protobuf-valueentity-counter/src/main/proto/com/example/actions/counter_states_sub.proto[tag=state-subscription]
 ----
 <1> Import the Counter Domain from the Value Entity example (see xref:java:value-entity.adoc[Implementing Value Entities])
 <2> The protobuf option (kalix.codegen) is specific to code-generation as provided by the Kalix Maven plugin. This annotation indicates to the code-generation that an Action must be generated.
@@ -94,7 +94,7 @@ Scala::
 [source,proto,indent=0]
 .src/main/proto/com/example/actions/counter_states_sub.proto
 ----
-include::example$scala-valueentity-counter/src/main/proto/com/example/actions/counter_states_sub.proto[tag=state-subscription]
+include::example$scala-protobuf-valueentity-counter/src/main/proto/com/example/actions/counter_states_sub.proto[tag=state-subscription]
 ----
 <1> Import the Counter Domain from the Value Entity example (see xref:java:value-entity.adoc[Implementing Value Entities])
 <2> The protobuf option (kalix.codegen) is specific to code-generation as provided by the Kalix sbt plugin. This annotation indicates to the code-generation that an Action must be generated.
@@ -115,7 +115,7 @@ Java::
 [source,java,indent=0]
 .src/main/proto/com/example/actions/counter_topic_sub.proto
 ----
-include::example$java-eventsourced-counter/src/main/proto/com/example/actions/counter_topic_sub.proto[tag=counter-topic-sub]
+include::example$java-protobuf-eventsourced-counter/src/main/proto/com/example/actions/counter_topic_sub.proto[tag=counter-topic-sub]
 ----
 <1> Import the Counter Topic types from previous example.
 <2> The protobuf option (kalix.codegen) is specific to code-generation as provided by the Kalix Maven plugin. This annotation indicates to the code-generation that an Action must be generated.
@@ -126,7 +126,7 @@ Scala::
 [source,scala,indent=0]
 .src/main/proto/customer/domain/customer_domain.proto
 ----
-include::example$scala-eventsourced-counter/src/main/proto/com/example/actions/counter_topic_sub.proto[tag=counter-topic-sub]
+include::example$scala-protobuf-eventsourced-counter/src/main/proto/com/example/actions/counter_topic_sub.proto[tag=counter-topic-sub]
 ----
 <1> Import the Counter Topic types from previous example.
 <2> The protobuf option (kalix.codegen) is specific to code-generation as provided by the Kalix sbt plugin. This annotation indicates to the code-generation that an Action must be generated.
@@ -140,7 +140,7 @@ Java::
 [source,java,indent=0]
 .src/main/java/com/example/actions/CounterTopicSubscriptionAction.java
 ----
-include::example$java-eventsourced-counter/src/main/java/com/example/actions/CounterTopicSubscriptionAction.java[tag=counter-topic-sub]
+include::example$java-protobuf-eventsourced-counter/src/main/java/com/example/actions/CounterTopicSubscriptionAction.java[tag=counter-topic-sub]
 ----
 
 Scala::
@@ -148,7 +148,7 @@ Scala::
 [source,scala,indent=0]
 .src/main/java/com/example/actions/CounterTopicSubscriptionAction.java
 ----
-include::example$scala-eventsourced-counter/src/main/scala/com/example/actions/CounterTopicSubscriptionAction.scala[tag=counter-topic-sub]
+include::example$scala-protobuf-eventsourced-counter/src/main/scala/com/example/actions/CounterTopicSubscriptionAction.scala[tag=counter-topic-sub]
 ----
 
 The events from the topic are delivered to the new Action. The implementation may vary, for this simplified example we are just logging it,
@@ -180,7 +180,7 @@ You can access the link:{attachmentsdir}/api/kalix/javasdk/action/ActionContext.
 [source,java,indent=0]
 .src/main/java/com/example/actions/CounterJournalToTopicAction.java
 ----
-include::example$java-eventsourced-counter/src/main/java/com/example/actions/CounterJournalToTopicAction.java[tag=counter-topic-event-subject]
+include::example$java-protobuf-eventsourced-counter/src/main/java/com/example/actions/CounterJournalToTopicAction.java[tag=counter-topic-event-subject]
 ----
 
 Scala::
@@ -192,7 +192,7 @@ You can access the link:{attachmentsdir}/scala-api/kalix/scalasdk/action/ActionC
 [source,scala,indent=0]
 .src/main/proto/customer/domain/customer_domain.proto
 ----
-include::example$scala-eventsourced-counter/src/main/scala/com/example/actions/CounterJournalToTopicAction.scala[tag=counter-topic-event-subject]
+include::example$scala-protobuf-eventsourced-counter/src/main/scala/com/example/actions/CounterJournalToTopicAction.scala[tag=counter-topic-event-subject]
 ----
 
 == Ignoring events
@@ -206,7 +206,7 @@ Java::
 [source,protobuf,indent=0]
 .src/main/proto/com/example/actions/counter_topic.proto
 ----
-include::example$java-eventsourced-counter/src/main/proto/com/example/actions/counter_topic.proto[tag=counter-ignore]
+include::example$java-protobuf-eventsourced-counter/src/main/proto/com/example/actions/counter_topic.proto[tag=counter-ignore]
 ----
 <1> We must annotate it with a `(kalix.method).eventing.in`.
 <2> Set `ignore: true` option.
@@ -216,7 +216,7 @@ Scala::
 [source,proto,indent=0]
 .src/main/proto/customer/domain/customer_domain.proto
 ----
-include::example$scala-eventsourced-counter/src/main/proto/com/example/actions/counter_topic.proto[tag=counter-ignore]
+include::example$scala-protobuf-eventsourced-counter/src/main/proto/com/example/actions/counter_topic.proto[tag=counter-ignore]
 ----
 <1> We must annotate it with a `(kalix.method).eventing.in`.
 <2> Set `ignore: true` option.

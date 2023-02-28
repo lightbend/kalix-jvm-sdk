@@ -11,7 +11,7 @@ Here is an example ACL on a method:
 
 [source, java, indent=0]
 ----
-include::example$spring-doc-snippets/src/main/java/com/example/acl/MyAction.java[tag=allow-deny]
+include::example$java-spring-doc-snippets/src/main/java/com/example/acl/MyAction.java[tag=allow-deny]
 ----
 
 The above ACL allows traffic to all services except the service called `my-service`. 
@@ -20,26 +20,26 @@ To allow all traffic:
 
 [source, java, indent=0]
 ----
-include::example$spring-doc-snippets/src/main/java/com/example/acl/MyAction.java[tag=all-traffic]
+include::example$java-spring-doc-snippets/src/main/java/com/example/acl/MyAction.java[tag=all-traffic]
 ----
 
 To allow only traffic from the internet:
 
 [source, java, indent=0]
 ----
-include::example$spring-doc-snippets/src/main/java/com/example/acl/MyAction.java[tag=internet]
+include::example$java-spring-doc-snippets/src/main/java/com/example/acl/MyAction.java[tag=internet]
 ----
 To allow traffic from `service-a` and `service-b`:
 
 [source, java, indent=0]
 ----
-include::example$spring-doc-snippets/src/main/java/com/example/acl/MyAction.java[tag=multiple-services]
+include::example$java-spring-doc-snippets/src/main/java/com/example/acl/MyAction.java[tag=multiple-services]
 ----
 To block all traffic, an ACL with no allows can be configured:
 
 [source, java, indent=0]
 ----
-include::example$spring-doc-snippets/src/main/java/com/example/acl/MyAction.java[tag=block-traffic]
+include::example$java-spring-doc-snippets/src/main/java/com/example/acl/MyAction.java[tag=block-traffic]
 ----
 === Sharing ACLs between methods
 
@@ -47,7 +47,7 @@ The above examples show how to configure an ACL on a method. ACLs can also be sh
 
 [source, java, indent=0]
 ----
-include::example$spring-doc-snippets/src/main/java/com/example/acl/EmployeeAction.java[tag=acl]
+include::example$java-spring-doc-snippets/src/main/java/com/example/acl/EmployeeAction.java[tag=acl]
 ----
 
 
@@ -55,7 +55,7 @@ The component's ACL can be overridden by individual methods, by specifying the A
 
 [source, java, indent=0]
 ----
-include::example$spring-doc-snippets/src/main/java/com/example/acl/EmployeeAction.java[tag=acl1]
+include::example$java-spring-doc-snippets/src/main/java/com/example/acl/EmployeeAction.java[tag=acl1]
 ----
 
 
@@ -67,7 +67,7 @@ The default policy can be configured by specifying a project level annotation in
 
 [source, java, indent=0]
 ----
-include::example$spring-doc-snippets/src/main/java/com/example/acl/Main.java[tag=acl]
+include::example$java-spring-doc-snippets/src/main/java/com/example/acl/Main.java[tag=acl]
 ----
 
 
@@ -87,7 +87,7 @@ For example, to make Kalix reply with 404, `Not Found`:
 
 [source, java, indent=0]
 ----
-include::example$spring-doc-snippets/src/main/java/com/example/acl/MyAction.java[tag=deny-code]
+include::example$java-spring-doc-snippets/src/main/java/com/example/acl/MyAction.java[tag=deny-code]
 ----
 
 Deny codes, if not specified on an ACL, are inherited from the service, or the default, so updating the `deny_code` in the default ACL policy will set it for all methods:
@@ -95,7 +95,7 @@ Deny codes, if not specified on an ACL, are inherited from the service, or the d
 
 [source, java, indent=0]
 ----
-include::example$spring-doc-snippets/src/main/java/com/example/acl/UserAction.java[tag=acl]
+include::example$java-spring-doc-snippets/src/main/java/com/example/acl/UserAction.java[tag=acl]
 ----
 
 == ACLs on eventing methods
@@ -105,7 +105,7 @@ Any method with an `@Subscribe` annotation on it will not automatically inherit 
 
 [source, java, indent=0]
 ----
-include::example$spring-doc-snippets/src/main/java/com/example/acl/MyAction.java[tag=open-subscription-acl]
+include::example$java-spring-doc-snippets/src/main/java/com/example/acl/MyAction.java[tag=open-subscription-acl]
 ----
 
 == Backoffice and self invocations
@@ -176,7 +176,7 @@ When running integration tests, ACLs are disabled by default but can be explicit
 
 [source, java]
 ----
-include::example$spring-eventsourced-counter/src/it/java/com/example/TestkitConfig.java[tag=class]
+include::example$java-spring-eventsourced-counter/src/it/java/com/example/TestkitConfig.java[tag=class]
 ----
 <1> Using the DEFAULT `Settings` and enabling ACL. 
 
@@ -186,7 +186,7 @@ Once this `@Configuration` is available you can `@Import` it to your integration
 
 [source, java]
 ----
-include::example$spring-eventsourced-counter/src/it/java/com/example/CounterIntegrationTest.java[tag=class]
+include::example$java-spring-eventsourced-counter/src/it/java/com/example/CounterIntegrationTest.java[tag=class]
 ----
 <1> Importing `TestkitConfig` as `@Configuration`.
 

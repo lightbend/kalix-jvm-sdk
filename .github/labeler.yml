@@ -8,14 +8,14 @@ java-protobuf-sdk:
   - sdk/java-sdk-testkit/**/*
   - maven-java/**/*
   - codegen/java-gen/**/*
-  - samples/java-*/**/*
+  - samples/java-protobuf-*/**/*
 
 scala-protobuf-sdk:
   - sdk/scala-sdk/**/*
   - sdk/scala-sdk-testkit/**/*
   - sbt-plugin/**/*
   - codegen/scala-gen/**/*
-  - samples/scala-*/**/*
+  - samples/scala-protobuf-*/**/*
 
 
 java-sdk:
@@ -23,7 +23,7 @@ java-sdk:
   - sdk/spring-sdk-testkit/**/*
   - sdk/java-sdk-spring/**/*
   - sdk/java-sdk-spring-testkit/**/*
-  - samples/spring-*/**/*
+  - samples/java-spring-*/**/*
 
 Documentation:
   - docs/**/*

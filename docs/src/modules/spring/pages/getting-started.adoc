@@ -40,7 +40,7 @@ it finds in the classpath.
 .src/main/java/com/example/Main.java
 [source,java]
 ----
-include::example$spring-valueentity-counter/src/main/java/com/example/Main.java[tag=main]
+include::example$java-spring-valueentity-counter/src/main/java/com/example/Main.java[tag=main]
 ----
 <1> Main class is annotated with `@SpringBootApplication`
 <2> The application is started like any other Spring Boot application.
@@ -61,7 +61,7 @@ that receives commands to increase the counter.
 .src/main/java/com/example/CounterEntity.java
 [source,java]
 ----
-include::example$spring-valueentity-counter/src/main/java/com/example/CounterEntity.java[tags=declarations;increase;close]
+include::example$java-spring-valueentity-counter/src/main/java/com/example/CounterEntity.java[tags=declarations;increase;close]
 ----
 <1> Every Entity must be annotated with `@EntityType` with a stable name. This name should be unique among the
 different existing entities within a Kalix application.
@@ -79,7 +79,7 @@ counter's current state.
 .src/main/java/com/example/Number.java
 [source,java]
 ----
-include::example$spring-valueentity-counter/src/main/java/com/example/Number.java[]
+include::example$java-spring-valueentity-counter/src/main/java/com/example/Number.java[]
 ----
 
 [sidebar]

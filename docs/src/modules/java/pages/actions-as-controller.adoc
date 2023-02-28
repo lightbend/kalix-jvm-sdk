@@ -22,7 +22,7 @@ Java::
 .src/main/java/com/example/shoppingcart/ShoppingCartActionImpl.java
 [source,java]
 ----
-include::example$java-valueentity-shopping-cart/src/main/java/com/example/shoppingcart/ShoppingCartActionImpl.java[tag=forward]
+include::example$java-protobuf-valueentity-shopping-cart/src/main/java/com/example/shoppingcart/ShoppingCartActionImpl.java[tag=forward]
 ----
 <1> check if the added item is carrots
 <2> if it is "carrots" immediately return an error, disallowing adding the item
@@ -34,7 +34,7 @@ Scala::
 .src/main/java/com/example/shoppingcart/ShoppingCartActionImpl.scala
 [source,scala]
 ----
-include::example$scala-valueentity-shopping-cart/src/main/scala/com/example/shoppingcart/ShoppingCartActionImpl.scala[tag=forward]
+include::example$scala-protobuf-valueentity-shopping-cart/src/main/scala/com/example/shoppingcart/ShoppingCartActionImpl.scala[tag=forward]
 ----
 <1> check if the added item is carrots
 <2> if it is "carrots" immediately return an error, disallowing adding the item
@@ -57,7 +57,7 @@ Java::
 .src/main/java/com/example/shoppingcart/ShoppingCartActionImpl.java
 [source,java]
 ----
-include::example$java-valueentity-shopping-cart/src/main/java/com/example/shoppingcart/ShoppingCartActionImpl.java[tag=initialize]
+include::example$java-protobuf-valueentity-shopping-cart/src/main/java/com/example/shoppingcart/ShoppingCartActionImpl.java[tag=initialize]
 ----
 <1> We generate a new UUID
 <2> We use `components().shoppingCart().create(...)` to create a `DeferredCall` for `create` on the shopping cart
@@ -73,7 +73,7 @@ Scala::
 .src/main/java/com/example/shoppingcart/ShoppingCartActionImpl.scala
 [source,scala]
 ----
-include::example$scala-valueentity-shopping-cart/src/main/scala/com/example/shoppingcart/ShoppingCartActionImpl.scala[tag=initialize]
+include::example$scala-protobuf-valueentity-shopping-cart/src/main/scala/com/example/shoppingcart/ShoppingCartActionImpl.scala[tag=initialize]
 ----
 <1> We generate a new UUID
 <2> We use `components.shoppingCart.create(...)` to create a `DeferredCall` for `create` on the shopping cart
@@ -97,7 +97,7 @@ Java::
 .src/main/java/com/example/shoppingcart/domain/ShoppingCart.java
 [source,java]
 ----
-include::example$java-valueentity-shopping-cart/src/main/java/com/example/shoppingcart/domain/ShoppingCart.java[tag=create]
+include::example$java-protobuf-valueentity-shopping-cart/src/main/java/com/example/shoppingcart/domain/ShoppingCart.java[tag=create]
 ----
 
 Scala::
@@ -105,7 +105,7 @@ Scala::
 .src/main/java/com/example/shoppingcart/domain/ShoppingCart.scala
 [source,scala]
 ----
-include::example$scala-valueentity-shopping-cart/src/main/scala/com/example/shoppingcart/domain/ShoppingCart.scala[tag=create]
+include::example$scala-protobuf-valueentity-shopping-cart/src/main/scala/com/example/shoppingcart/domain/ShoppingCart.scala[tag=create]
 ----
 
 
@@ -123,7 +123,7 @@ Java::
 .src/main/java/com/example/shoppingcart/ShoppingCartActionImpl.java
 [source,java]
 ----
-include::example$java-valueentity-shopping-cart/src/main/java/com/example/shoppingcart/ShoppingCartActionImpl.java[tag=createPrePopulated]
+include::example$java-protobuf-valueentity-shopping-cart/src/main/java/com/example/shoppingcart/ShoppingCartActionImpl.java[tag=createPrePopulated]
 ----
 <1> `CompletionStage#thenCompose` allow us to perform an additional async operation, returning a `CompletionStage` once the current one completes successfully
 <2> Create a request to add an initial item to the cart
@@ -136,7 +136,7 @@ Scala::
 .src/main/java/com/example/shoppingcart/ShoppingCartActionImpl.scala
 [source,scala]
 ----
-include::example$scala-valueentity-shopping-cart/src/main/scala/com/example/shoppingcart/ShoppingCartActionImpl.scala[tag=createPrePopulated]
+include::example$scala-protobuf-valueentity-shopping-cart/src/main/scala/com/example/shoppingcart/ShoppingCartActionImpl.scala[tag=createPrePopulated]
 ----
 <1> For comprehensions (or directly using `flatMap`) allow us to compose the individual async steps returning `Future`
 <2> Once both steps have completed, create a `NewCartCreated` leading to a `Future[NewCartCreated]` coming out of the for-comprehension
@@ -158,7 +158,7 @@ Java::
 .src/main/java/com/example/shoppingcart/ShoppingCartActionImpl.java
 [source,java]
 ----
-include::example$java-valueentity-shopping-cart/src/main/java/com/example/shoppingcart/ShoppingCartActionImpl.java[tag=unsafeValidation]
+include::example$java-protobuf-valueentity-shopping-cart/src/main/java/com/example/shoppingcart/ShoppingCartActionImpl.java[tag=unsafeValidation]
 ----
 <1> Between this call returning
 <2> And this next call to the same entity, the entity could accept other commands that change the total count of items in the cart
@@ -168,7 +168,7 @@ Scala::
 .src/main/java/com/example/shoppingcart/ShoppingCartActionImpl.scala
 [source,scala]
 ----
-include::example$scala-valueentity-shopping-cart/src/main/scala/com/example/shoppingcart/ShoppingCartActionImpl.scala[tag=unsafeValidation]
+include::example$scala-protobuf-valueentity-shopping-cart/src/main/scala/com/example/shoppingcart/ShoppingCartActionImpl.scala[tag=unsafeValidation]
 ----
 <1> Between this call returning
 <2> And this next call to the same entity, the entity could accept other commands that changes the total count of items in the cart
@@ -192,7 +192,7 @@ Java::
 .src/test/java/com/example/shoppingcart/ShoppingCartActionImplTest.java
 [source,java]
 ----
-include::example$java-valueentity-shopping-cart/src/test/java/com/example/shoppingcart/ShoppingCartActionImplTest.java[tag=createPrePopulated]
+include::example$java-protobuf-valueentity-shopping-cart/src/test/java/com/example/shoppingcart/ShoppingCartActionImplTest.java[tag=createPrePopulated]
 ----
 <1> First step is to declare our mock object. In this example, `shoppingCartService` is a `@Mock` object by https://site.mockito.org/[Mockito framework].
 <2> We start by configuring our mock service how to reply to the two calls: `create` and `addItem`.
@@ -205,7 +205,7 @@ Scala::
 .src/main/test/com/example/shoppingcart/ShoppingCartActionImplSpec.scala
 [source,scala]
 ----
-include::example$scala-valueentity-shopping-cart/src/test/scala/com/example/shoppingcart/ShoppingCartActionImplSpec.scala[tag=createPrePopulated]
+include::example$scala-protobuf-valueentity-shopping-cart/src/test/scala/com/example/shoppingcart/ShoppingCartActionImplSpec.scala[tag=createPrePopulated]
 ----
 <1> First step is to declare our mock object. In this case, `shoppingCartService` is a `stub` object provided by https://scalamock.org/[ScalaMock framework].
 <2> Then we configure our mock service how to reply to the two calls: `create` and `addItem`.

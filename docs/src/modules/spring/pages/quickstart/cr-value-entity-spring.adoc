@@ -37,7 +37,7 @@ First, define the domain classes in package `customer.domain`.
 [source,java,indent=0]
 .src/main/java/customer/domain/Customer.java
 ----
-include::example$spring-customer-registry-quickstart/src/main/java/customer/domain/Customer.java[]
+include::example$java-spring-customer-registry-quickstart/src/main/java/customer/domain/Customer.java[]
 ----
 <1> Define a Java record `email`, `name` and `Address`.
 <2> Defined methods implementing the mutations. Note that both methods return a new version of the Customer record and only modify one field.
@@ -47,7 +47,7 @@ Finally, the `Address` record.
 [source,java,indent=0]
 .src/main/java/customer/domain/Address.java
 ----
-include::example$spring-customer-registry-quickstart/src/main/java/customer/domain/Address.java[]
+include::example$java-spring-customer-registry-quickstart/src/main/java/customer/domain/Address.java[]
 ----
 
 === Define the external API
@@ -59,7 +59,7 @@ Create a class names `CustomerEntity` in package `customer.api`.
 [source,java,indent=0]
 .src/main/java/customer/api/CustomerEntity.java
 ----
-include::example$spring-customer-registry-quickstart/src/main/java/customer/api/CustomerEntity.java[tag=customer]
+include::example$java-spring-customer-registry-quickstart/src/main/java/customer/api/CustomerEntity.java[tag=customer]
 ----
 <1> Each Entity needs a unique logical type name. This must be unique per Kalix service.
 <2> The entity needs to be address by a unique identifier. The `@EntityKey` declares the name of the path variable that Kalix should use as unique identifier.

@@ -20,7 +20,7 @@ Java::
 [source,protobuf,indent=0]
 .src/main/proto/customer/api/direct_customer_events.proto
 ----
-include::example$java-eventsourced-customer-registry/src/main/proto/customer/api/direct_customer_events.proto[tag=publisher]
+include::example$java-protobuf-eventsourced-customer-registry/src/main/proto/customer/api/direct_customer_events.proto[tag=publisher]
 ----
 <1> `eventing.in` identifying which event sourced entity to publish events for
 <2> Ignore any event types not handled by a method and move on with the event stream, rather than fail which is the default
@@ -33,7 +33,7 @@ Scala::
 [source,protobuf,indent=0]
 .src/main/proto/customer/api/direct_customer_events.proto
 ----
-include::example$scala-eventsourced-customer-registry/src/main/proto/customer/api/direct_customer_events.proto[tag=publisher]
+include::example$scala-protobuf-eventsourced-customer-registry/src/main/proto/customer/api/direct_customer_events.proto[tag=publisher]
 ----
 <1> `eventing.in` identifying which event sourced entity to publish events for
 <2> Ignore any event types not handled by a method and move on with the event stream, rather than fail which is the default
@@ -49,7 +49,7 @@ Java::
 [source,java,indent=0]
 .src/main/java/customer/api/CustomerEventsServiceAction.java
 ----
-include::example$java-eventsourced-customer-registry/src/main/java/customer/api/CustomerEventsServiceAction.java[tag=transform]
+include::example$java-protobuf-eventsourced-customer-registry/src/main/java/customer/api/CustomerEventsServiceAction.java[tag=transform]
 ----
 
 Scala::
@@ -57,7 +57,7 @@ Scala::
 [source,scala,indent=0]
 .src/main/scala/customer/api/CustomerEventsServiceAction.scala
 ----
-include::example$scala-eventsourced-customer-registry/src/main/scala/customer/api/CustomerEventsServiceAction.scala[tag=transform]
+include::example$scala-protobuf-eventsourced-customer-registry/src/main/scala/customer/api/CustomerEventsServiceAction.scala[tag=transform]
 ----
 
 == Event Consumer
@@ -72,7 +72,7 @@ Java::
 [source,protobuf,indent=0]
 .src/main/proto/customer/api/publisher_api.proto
 ----
-include::example$java-eventsourced-customer-registry-subscriber/src/main/proto/customer/api/publisher_api.proto[tag=messages]
+include::example$java-protobuf-eventsourced-customer-registry-subscriber/src/main/proto/customer/api/publisher_api.proto[tag=messages]
 ----
 
 Scala::
@@ -80,7 +80,7 @@ Scala::
 [source,protobuf,indent=0]
 .src/main/proto/customer/api/publisher_api.proto
 ----
-include::example$scala-eventsourced-customer-registry-subscriber/src/main/proto/customer/api/publisher_api.proto[tag=messages]
+include::example$scala-protobuf-eventsourced-customer-registry-subscriber/src/main/proto/customer/api/publisher_api.proto[tag=messages]
 ----
 
 We then define a component subscribing to the service to service publisher. In this example we do that with a View:
@@ -91,7 +91,7 @@ Java::
 [source,protobuf,indent=0]
 .src/main/proto/customer/view/customer_view.proto
 ----
-include::example$java-eventsourced-customer-registry-subscriber/src/main/proto/customer/view/customer_view.proto[tag=view]
+include::example$java-protobuf-eventsourced-customer-registry-subscriber/src/main/proto/customer/view/customer_view.proto[tag=view]
 ----
 <1> Service level `eventing.in.direct` block
 <2> The name of the Kalix service publishing the event stream
@@ -103,7 +103,7 @@ Scala::
 [source,protobuf,indent=0]
 .src/main/proto/customer/view/customer_view.proto
 ----
-include::example$scala-eventsourced-customer-registry-subscriber/src/main/proto/customer/view/customer_view.proto[tag=view]
+include::example$scala-protobuf-eventsourced-customer-registry-subscriber/src/main/proto/customer/view/customer_view.proto[tag=view]
 ----
 <1> Service level `eventing.in.direct` block
 <2> The name of the Kalix service publishing the event stream

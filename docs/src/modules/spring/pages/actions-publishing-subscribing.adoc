@@ -25,7 +25,7 @@ To publish the events you need to add the annotation `@Publish.Topic` to the met
 [source,java,indent=0]
 .src/main/java/com/example/actions/CounterJournalToTopicAction.java
 ----
-include::example$spring-eventsourced-counter/src/main/java/com/example/actions/CounterJournalToTopicAction.java[tag=class]
+include::example$java-spring-eventsourced-counter/src/main/java/com/example/actions/CounterJournalToTopicAction.java[tag=class]
 ----
 <1> subscribing to the events from the Counter.
 <2> publishing to a topic name 'counter-events'.
@@ -49,7 +49,7 @@ In the following example the events from the topic are delivered to the Action a
 [source,java,indent=0]
 .src/main/java/com/example/actions/CounterTopicSubscriptionAction.java
 ----
-include::example$spring-eventsourced-counter/src/main/java/com/example/actions/CounterTopicSubscriptionAction.java[tags=class]
+include::example$java-spring-eventsourced-counter/src/main/java/com/example/actions/CounterTopicSubscriptionAction.java[tags=class]
 ----
 <1> subscribing to the `ValueIncreased` from topic 'counter-events'. 
 <2> setting the method input type to the events produced by the counter.
@@ -80,7 +80,7 @@ In the following example you can take a look at how the Action is configured to 
 [source,java,indent=0]
 .src/main/java/com/example/actions/SubscribeTypeLevelAction.java
 ----
-include::example$spring-eventsourced-counter/src/main/java/com/example/actions/SubscribeTypeLevelAction.java[tag=class]
+include::example$java-spring-eventsourced-counter/src/main/java/com/example/actions/SubscribeTypeLevelAction.java[tag=class]
 ----
 <1> set to ignore unknown events.
 <2> only processing `ValueIncreased` events.

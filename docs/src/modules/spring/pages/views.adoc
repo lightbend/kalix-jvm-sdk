@@ -31,7 +31,7 @@ This example assumes the following `Customer` exists:
 [source,java,indent=0]
 .src/main/java/customer/api/Customer.java
 ----
-include::example$spring-customer-registry-views-quickstart/src/main/java/customer/api/Customer.java[tags=class]
+include::example$java-spring-customer-registry-views-quickstart/src/main/java/customer/api/Customer.java[tags=class]
 ----
 
 As well as a Value Entity service `CustomerEntity.java` that will produce the state changes consumed by the View. You can consult xref:value-entity#entity-behavior[Value Entity] documentation on how to create such an entity if in need.
@@ -44,7 +44,7 @@ You implement a View by extending `kalix.javasdk.view.View` and subscribing to c
 .src/main/java/customer/view/CustomerByNameView.java
 [source,java]
 ----
-include::example$spring-customer-registry-views-quickstart/src/main/java/customer/view/CustomerByNameView.java[tags=class]
+include::example$java-spring-customer-registry-views-quickstart/src/main/java/customer/view/CustomerByNameView.java[tags=class]
 ----
 <1> defining view ID
 <2> defining table name
@@ -66,7 +66,7 @@ Often, you will want to transform the entity model to which the view is subscrib
 [source,java]
 .src/main/java/com/example/api/CustomerSummary.java
 ----
-include::example$spring-valueentity-customer-registry/src/main/java/com/example/api/CustomerSummary.java[tag=record]
+include::example$java-spring-valueentity-customer-registry/src/main/java/com/example/api/CustomerSummary.java[tag=record]
 ----
 
 In this scenario, the view state should be of type `CustomerSummary` and you will need to handle and transform the incoming state changes into it, as shown below:
@@ -74,7 +74,7 @@ In this scenario, the view state should be of type `CustomerSummary` and you wil
 [source,java]
 .src/main/java/com/example/api/CustomerSummaryByName.java
 ----
-include::example$spring-valueentity-customer-registry/src/main/java/com/example/view/CustomerSummaryByName.java[tag=class]
+include::example$java-spring-valueentity-customer-registry/src/main/java/com/example/view/CustomerSummaryByName.java[tag=class]
 ----
 <1> View is of type `CustomerSummary`.
 <2> `@Subscribe` annotation is at method level rather than at class level.
@@ -94,7 +94,7 @@ Value Entities can be xref:value-entity#deleting_state[deleted]. We can update o
 [source,java]
 .src/main/java/com/example/api/CustomerSummaryByName.java
 ----
-include::example$spring-valueentity-customer-registry/src/main/java/com/example/view/CustomerSummaryByName.java[tag=delete]
+include::example$java-spring-valueentity-customer-registry/src/main/java/com/example/view/CustomerSummaryByName.java[tag=delete]
 ----
 <1> `@Subscribe` annotation with `handleDeletes=true`.
 <2> Dedicated (parameter-less) handler for deletion.
@@ -112,7 +112,7 @@ This example assumes a Customer equal to the previous example and an Event Sourc
 .src/main/java/customer/domain/CustomerEvent.java
 [source,java]
 ----
-include::example$spring-eventsourced-customer-registry/src/main/java/customer/domain/CustomerEvent.java[tags=class]
+include::example$java-spring-eventsourced-customer-registry/src/main/java/customer/domain/CustomerEvent.java[tags=class]
 ----
 <1> Includes the logical type name using `@TypeName` annotation.
 
@@ -128,7 +128,7 @@ Every time an event is processed by the view, the state of the view can be updat
 .src/main/java/customer/view/CustomerByNameView.class
 [source,java]
 ----
-include::example$spring-eventsourced-customer-registry/src/main/java/customer/view/CustomerByNameView.java[tags=class]
+include::example$java-spring-eventsourced-customer-registry/src/main/java/customer/view/CustomerByNameView.java[tags=class]
 ----
 <1> setting view ID 
 <2> updating the state of the view with the new name 
@@ -174,7 +174,7 @@ You will need to define your entity as this:
 [source,java]
 .src/main/java/com/example/api/CustomersStreamByName.java
 ----
-include::example$spring-valueentity-customer-registry/src/main/java/com/example/view/CustomersStreamByName.java[tag=class]
+include::example$java-spring-valueentity-customer-registry/src/main/java/com/example/view/CustomersStreamByName.java[tag=class]
 ----
 <1> View state type is the original `Customer` as shown at the beginning of this section.
 <2> Query is mapped to an external route as usual receiving a `customerName` as parameter.
@@ -199,13 +199,13 @@ Instead of streamed results you can include the results in a `Collection` field 
 [source,java]
 .src/main/java/com/example/api/CustomersResponse.java
 ----
-include::example$spring-valueentity-customer-registry/src/main/java/com/example/api/CustomersResponse.java[tag=record]
+include::example$java-spring-valueentity-customer-registry/src/main/java/com/example/api/CustomersResponse.java[tag=record]
 ----
 
 [source,java,indent=0]
 .src/main/java/com/example/api/CustomersResponseByName.java
 ----
-include::example$spring-valueentity-customer-registry/src/main/java/com/example/view/CustomersResponseByName.java[tag=class]
+include::example$java-spring-valueentity-customer-registry/src/main/java/com/example/view/CustomersResponseByName.java[tag=class]
 ----
 <1> View state type is the original `Customer` as shown at the beginning of this section.
 <2> Query is mapped to an external route as usual receiving a `customerName` as parameter.

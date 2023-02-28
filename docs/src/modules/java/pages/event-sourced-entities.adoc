@@ -30,7 +30,7 @@ Java::
 [source,proto]
 .src/main/proto/com/example/shoppingcart/domain/shoppingcart_domain.proto
 ----
-include::example$java-eventsourced-shopping-cart/src/main/proto/com/example/shoppingcart/domain/shoppingcart_domain.proto[tag=domain]
+include::example$java-protobuf-eventsourced-shopping-cart/src/main/proto/com/example/shoppingcart/domain/shoppingcart_domain.proto[tag=domain]
 ----
 <1> Any classes generated from this protobuf file will be in the Java package `com.example.shoppingcart.domain`.
 <2> Let the messages declared in this protobuf file be inner classes to the Java class `ShoppingCartDomain`.
@@ -40,7 +40,7 @@ Scala::
 [source,proto]
 .src/main/proto/com/example/shoppingcart/domain/shoppingcart_domain.proto
 ----
-include::example$scala-eventsourced-shopping-cart/src/main/proto/com/example/shoppingcart/domain/shoppingcart_domain.proto[tag=domain]
+include::example$scala-protobuf-eventsourced-shopping-cart/src/main/proto/com/example/shoppingcart/domain/shoppingcart_domain.proto[tag=domain]
 ----
 <1> Any classes generated from this protobuf file will be in the Scala package `com.example.shoppingcart.domain`.
 
@@ -52,7 +52,7 @@ Java::
 [source,proto]
 .src/main/proto/com/example/shoppingcart/shoppingcart_api.proto
 ----
-include::example$java-eventsourced-shopping-cart/src/main/proto/com/example/shoppingcart/shoppingcart_api.proto[]
+include::example$java-protobuf-eventsourced-shopping-cart/src/main/proto/com/example/shoppingcart/shoppingcart_api.proto[]
 ----
 <1> Any classes generated from this protobuf file will be in the Java package `com.example.shoppingcart`.
 <2> Import the Kalix protobuf annotations or options.
@@ -74,7 +74,7 @@ Scala::
 [source,proto]
 .src/main/proto/com/example/shoppingcart/shoppingcart_api.proto
 ----
-include::example$scala-eventsourced-shopping-cart/src/main/proto/com/example/shoppingcart/shoppingcart_api.proto[]
+include::example$scala-protobuf-eventsourced-shopping-cart/src/main/proto/com/example/shoppingcart/shoppingcart_api.proto[]
 ----
 <1> Any classes generated from this protobuf file will be in the Scala package `com.example.shoppingcart`.
 <2> Import the Kalix protobuf annotations or options.
@@ -100,7 +100,7 @@ Java::
 [source,java]
 .src/main/java/com/example/shoppingcart/domain/ShoppingCart.java
 ----
-include::example$java-eventsourced-shopping-cart/src/main/java/com/example/shoppingcart/domain/ShoppingCart.java[tag=class]
+include::example$java-protobuf-eventsourced-shopping-cart/src/main/java/com/example/shoppingcart/domain/ShoppingCart.java[tag=class]
 ----
 <1> Extends the generated `AbstractShoppingCart`, which extends link:{attachmentsdir}/api/kalix/javasdk/eventsourcedentity/EventSourcedEntity.html[`EventSourcedEntity` {tab-icon}, window="new"].
 <2> Defines the initial, empty, state that is used before any updates.
@@ -111,7 +111,7 @@ Scala::
 [source,scala]
 .src/main/scala/com/example/shoppingcart/domain/ShoppingCart.scala
 ----
-include::example$scala-eventsourced-shopping-cart/src/main/scala/com/example/shoppingcart/domain/ShoppingCart.scala[tag=class]
+include::example$scala-protobuf-eventsourced-shopping-cart/src/main/scala/com/example/shoppingcart/domain/ShoppingCart.scala[tag=class]
 ----
 <1> Extends the generated `AbstractShoppingCart`, which extends link:{attachmentsdir}/scala-api/kalix/scalasdk/eventsourcedentity/EventSourcedEntity.html[`EventSourcedEntity` {tab-icon}, window="new"].
 <2> Defines the initial, empty, state that is used before any updates.
@@ -136,7 +136,7 @@ Java::
 [source,java,indent=0]
 .src/main/java/com/example/shoppingcart/domain/ShoppingCart.java
 ----
-include::example$java-eventsourced-shopping-cart/src/main/java/com/example/shoppingcart/domain/ShoppingCart.java[tag=addItem]
+include::example$java-protobuf-eventsourced-shopping-cart/src/main/java/com/example/shoppingcart/domain/ShoppingCart.java[tag=addItem]
 ----
 <1> The validation ensures the quantity of items added is greater than zero and it fails calls with illegal values by returning an `Effect` with `effects().error`.
 <2> From the current incoming `AddLineItem` we create a new `ItemAdded` event representing the change of the cart.
@@ -148,7 +148,7 @@ Scala::
 [source,scala,indent=0]
 .src/main/scala/com/example/shoppingcart/domain/ShoppingCart.scala
 ----
-include::example$scala-eventsourced-shopping-cart/src/main/scala/com/example/shoppingcart/domain/ShoppingCart.scala[tag=addItem]
+include::example$scala-protobuf-eventsourced-shopping-cart/src/main/scala/com/example/shoppingcart/domain/ShoppingCart.scala[tag=addItem]
 ----
 <1> The validation ensures the quantity of items added is greater than zero and it fails calls with illegal values by returning an `Effect` with `effects.error`.
 <2> From the current incoming `AddLineItem` we create a new `ItemAdded` event representing the change of the cart.
@@ -163,7 +163,7 @@ Java::
 [source,java,indent=0]
 .src/main/java/com/example/shoppingcart/domain/ShoppingCart.java
 ----
-include::example$java-eventsourced-shopping-cart/src/main/java/com/example/shoppingcart/domain/ShoppingCart.java[tag=itemAdded]
+include::example$java-protobuf-eventsourced-shopping-cart/src/main/java/com/example/shoppingcart/domain/ShoppingCart.java[tag=itemAdded]
 ----
 
 Scala::
@@ -171,7 +171,7 @@ Scala::
 [source,scala,indent=0]
 .src/main/scala/com/example/shoppingcart/domain/ShoppingCart.scala
 ----
-include::example$scala-eventsourced-shopping-cart/src/main/scala/com/example/shoppingcart/domain/ShoppingCart.scala[tag=itemAdded]
+include::example$scala-protobuf-eventsourced-shopping-cart/src/main/scala/com/example/shoppingcart/domain/ShoppingCart.scala[tag=itemAdded]
 ----
 
 
@@ -185,7 +185,7 @@ Java::
 [source,java,indent=0]
 .src/main/java/com/example/shoppingcart/domain/ShoppingCart.java
 ----
-include::example$java-eventsourced-shopping-cart/src/main/java/com/example/shoppingcart/domain/ShoppingCart.java[tag=getCart]
+include::example$java-protobuf-eventsourced-shopping-cart/src/main/java/com/example/shoppingcart/domain/ShoppingCart.java[tag=getCart]
 ----
 <1> The current state is passed to the method.
 <2> We convert the domain representation to the API representation that is sent as a reply by returning an `Effect` with `effects().reply`.
@@ -195,7 +195,7 @@ Scala::
 [source,scala,indent=0]
 .src/main/scala/com/example/shoppingcart/domain/ShoppingCart.scala
 ----
-include::example$scala-eventsourced-shopping-cart/src/main/scala/com/example/shoppingcart/domain/ShoppingCart.scala[tag=getCart]
+include::example$scala-protobuf-eventsourced-shopping-cart/src/main/scala/com/example/shoppingcart/domain/ShoppingCart.scala[tag=getCart]
 ----
 <1> The current state is passed to the method.
 <2> We convert the domain representation to the API representation that is sent as a reply by returning an `Effect` with `effects.reply`.
@@ -213,7 +213,7 @@ Java::
 [source,java]
 .src/main/java/com/example/shoppingcart/Main.java
 ----
-include::example$java-eventsourced-shopping-cart/src/main/java/com/example/shoppingcart/Main.java[]
+include::example$java-protobuf-eventsourced-shopping-cart/src/main/java/com/example/shoppingcart/Main.java[]
 ----
 
 Scala::
@@ -221,7 +221,7 @@ Scala::
 [source,scala]
 .src/main/scala/com/example/shoppingcart/Main.scala
 ----
-include::example$scala-eventsourced-shopping-cart/src/main/scala/com/example/shoppingcart/Main.scala[]
+include::example$scala-protobuf-eventsourced-shopping-cart/src/main/scala/com/example/shoppingcart/Main.scala[]
 ----
 
 
@@ -244,7 +244,7 @@ Java::
 [source,java,indent=0]
 .src/main/java/com/example/shoppingcart/domain/ShoppingCart.java
 ----
-include::example$java-eventsourced-shopping-cart/src/main/java/com/example/shoppingcart/domain/ShoppingCart.java[tag=checkout]
+include::example$java-protobuf-eventsourced-shopping-cart/src/main/java/com/example/shoppingcart/domain/ShoppingCart.java[tag=checkout]
 ----
 <1> Emit a final event before deletion, which is handled as any other event.
 <2> Instruction to delete the entity.
@@ -254,7 +254,7 @@ Scala::
 [source,scala,indent=0]
 .src/main/scala/com/example/shoppingcart/domain/ShoppingCart.scala
 ----
-include::example$scala-eventsourced-shopping-cart/src/main/scala/com/example/shoppingcart/domain/ShoppingCart.scala[tag=checkout]
+include::example$scala-protobuf-eventsourced-shopping-cart/src/main/scala/com/example/shoppingcart/domain/ShoppingCart.scala[tag=checkout]
 ----
 <1> Emit a final event before deletion, which is handled as any other event.
 <2> Instruction to delete the entity.
@@ -277,7 +277,7 @@ Java::
 .src/test/java/com/example/shoppingcart/domain/ShoppingCartTest.java
 [source,java]
 ----
-include::example$java-eventsourced-shopping-cart/src/test/java/com/example/shoppingcart/domain/ShoppingCartTest.java[]
+include::example$java-protobuf-eventsourced-shopping-cart/src/test/java/com/example/shoppingcart/domain/ShoppingCartTest.java[]
 ----
 <1> creating the TestKit passing the constructor of the Entity.
 <2> calling the method `addItem` from the Entity in the `ShoppingCartTestKit`.
@@ -294,7 +294,7 @@ Scala::
 .src/test/scala/com/example/shoppingcart/domain/ShoppingCartSpec.scala
 [source,java]
 ----
-include::example$scala-eventsourced-shopping-cart/src/test/scala/com/example/shoppingcart/domain/ShoppingCartSpec.scala[]
+include::example$scala-protobuf-eventsourced-shopping-cart/src/test/scala/com/example/shoppingcart/domain/ShoppingCartSpec.scala[]
 ----
 <1> creating the TestKit passing the constructor of the Entity.
 <2> calling the method `addItem` from the Entity in the `ShoppingCartTestKit`.

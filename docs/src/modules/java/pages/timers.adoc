@@ -16,7 +16,7 @@ Java::
 .src/main/java/com/example/domain/Order.java
 [source,java]
 ----
-include::example$java-reliable-timers/src/main/java/com/example/domain/Order.java[tag=order]
+include::example$java-protobuf-reliable-timers/src/main/java/com/example/domain/Order.java[tag=order]
 ----
 <1> The first method to look at is the `placeOrder`. It's basically the creation of an order. Note that we set the `placed` field to true.
 <2> When confirming an Order, we must ensure that the Order was created before. 
@@ -30,7 +30,7 @@ Scala::
 .src/main/scala/com/example/domain/Order.scala
 [source,scala]
 ----
-include::example$scala-reliable-timers/src/main/scala/com/example/domain/Order.scala[tag=order]
+include::example$scala-protobuf-reliable-timers/src/main/scala/com/example/domain/Order.scala[tag=order]
 ----
 <1> The first method to look at is the `placeOrder`. It's basically the creation of an order. Note that we set the `placed` field to true.
 <2> When confirming an Order, we must ensure that the Order was created before. 
@@ -53,7 +53,7 @@ Java::
 .src/main/java/com/example/actions/OrderAction.java
 [source,java]
 ----
-include::example$java-reliable-timers/src/main/java/com/example/actions/OrderAction.java[tags=timers;place-order]
+include::example$java-protobuf-reliable-timers/src/main/java/com/example/actions/OrderAction.java[tags=timers;place-order]
 ----
 <1> First we generate a random identifier for the Order. We will use it for identifying the Order, but also as a unique name for the timer.
 <2> We call the timers API to register a new timer. Note that it returns `CompletionStage<Done>`. A successful completion means that Kalix registered the timer. 
@@ -68,7 +68,7 @@ Scala::
 .src/main/java/com/example/actions/OrderAction.scala
 [source,scala]
 ----
-include::example$scala-reliable-timers/src/main/scala/com/example/actions/OrderAction.scala[tags=timers;place-order]
+include::example$scala-protobuf-reliable-timers/src/main/scala/com/example/actions/OrderAction.scala[tags=timers;place-order]
 ----
 <1> First we generate a random identifier for the Order. We will use it for identifying the Order, but also as a unique name for the timer.
 <2> We call the timers API to register a new timer. Note that it returns `Future[Done]`. A successful completion means that Kalix registered the timer. 
@@ -95,7 +95,7 @@ Java::
 .src/main/java/com/example/actions/OrderAction.java
 [source,java]
 ----
-include::example$java-reliable-timers/src/main/java/com/example/actions/OrderAction.java[tags=timers;expire-order]
+include::example$java-protobuf-reliable-timers/src/main/java/com/example/actions/OrderAction.java[tags=timers;expire-order]
 ----
 <1> When the `OrderAction` receives the expiration call, it immediately tries to cancel the Order. You use the `execute()` method to run it and this method returns a `CompletionStage`.
 <2> If the `CompletionStage` completes successfully, you are all good and can simply return `Empty.getDefaultInstance()`. Since this method is returning normally, the timer will be considered as executed and will be removed from Kalix.
@@ -106,7 +106,7 @@ Scala::
 .src/main/java/com/example/actions/OrderAction.scala
 [source,scala]
 ----
-include::example$scala-reliable-timers/src/main/scala/com/example/actions/OrderAction.scala[tags=timers;expire-order]
+include::example$scala-protobuf-reliable-timers/src/main/scala/com/example/actions/OrderAction.scala[tags=timers;expire-order]
 ----
 <1> When the `OrderAction` receives the expiration call, it immediately tries to cancel the Order. You use the `execute()` method to run it. This method returns a `Future`.
 <2> If the `Future` completes successfully, it's all good and can simply return `Empty.defaultInstance`. Since this method is returning normally, the timer will be considered as executed and will be removed from Kalix.
@@ -135,7 +135,7 @@ Java::
 .src/main/java/com/example/actions/OrderAction.java
 [source,java]
 ----
-include::example$java-reliable-timers/src/main/java/com/example/actions/OrderAction.java[tags=timers;confirm-cancel-order]
+include::example$java-protobuf-reliable-timers/src/main/java/com/example/actions/OrderAction.java[tags=timers;confirm-cancel-order]
 ----
 <1> Call the Order entity to execute the command.
 <2> If it succeeds, remove the timer.
@@ -145,7 +145,7 @@ Scala::
 .src/main/java/com/example/actions/OrderAction.scala
 [source,scala]
 ----
-include::example$scala-reliable-timers/src/main/scala/com/example/actions/OrderAction.scala[tags=timers;confirm-cancel-order]
+include::example$scala-protobuf-reliable-timers/src/main/scala/com/example/actions/OrderAction.scala[tags=timers;confirm-cancel-order]
 ----
 <1> Call the Order entity to execute the command.
 <2> If it succeeds, remove the timer.

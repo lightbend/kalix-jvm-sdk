@@ -45,7 +45,7 @@ cd customerregistry
 +
 [source,command line]
 ----
-curl -OL https://raw.githubusercontent.com/lightbend/kalix-jvm-sdk/main/samples/scala-customer-registry-quickstart/build.sbt
+curl -OL https://raw.githubusercontent.com/lightbend/kalix-jvm-sdk/main/samples/scala-protobuf-customer-registry-quickstart/build.sbt
 ----
 
 . Create the sbt `project` directory
@@ -59,7 +59,7 @@ mkdir project
 +
 [source,command line]
 ----
-curl -L https://raw.githubusercontent.com/lightbend/kalix-jvm-sdk/main/samples/scala-customer-registry-quickstart/project/plugins.sbt -o project/plugins.sbt
+curl -L https://raw.githubusercontent.com/lightbend/kalix-jvm-sdk/main/samples/scala-protobuf-customer-registry-quickstart/project/plugins.sbt -o project/plugins.sbt
 ----
 
 
@@ -99,7 +99,7 @@ mkdir src/main/proto/customer/domain
 [source,proto,indent=0]
 .src/main/proto/customer/api/customer_api.proto
 ----
-include::example$scala-customer-registry-quickstart/src/main/proto/customer/api/customer_api.proto[tag=declarations]
+include::example$scala-protobuf-customer-registry-quickstart/src/main/proto/customer/api/customer_api.proto[tag=declarations]
 ----
 
 . Add the service endpoint. The service endpoint is annotated with `kalix.codegen` indicating we want to generate a Value Entity for this service.
@@ -107,7 +107,7 @@ include::example$scala-customer-registry-quickstart/src/main/proto/customer/api/
 [source,proto,indent=0]
 .src/main/proto/customer/api/customer_api.proto
 ----
-include::example$scala-customer-registry-quickstart/src/main/proto/customer/api/customer_api.proto[tag=service]
+include::example$scala-protobuf-customer-registry-quickstart/src/main/proto/customer/api/customer_api.proto[tag=service]
 ----
 
 . Add messages to define the fields that comprise a `Customer` object (and its compound `Address`)
@@ -115,7 +115,7 @@ include::example$scala-customer-registry-quickstart/src/main/proto/customer/api/
 [source,proto,indent=0]
 .src/main/proto/customer/api/customer_api.proto
 ----
-include::example$scala-customer-registry-quickstart/src/main/proto/customer/api/customer_api.proto[tag=messages]
+include::example$scala-protobuf-customer-registry-quickstart/src/main/proto/customer/api/customer_api.proto[tag=messages]
 ----
 
 . Add the message that will identify which customer to retrieve for the `GetCustomer` message:
@@ -123,7 +123,7 @@ include::example$scala-customer-registry-quickstart/src/main/proto/customer/api/
 [source,proto,indent=0]
 .src/main/proto/customer/api/customer_api.proto
 ----
-include::example$scala-customer-registry-quickstart/src/main/proto/customer/api/customer_api.proto[tag=method-messages]
+include::example$scala-protobuf-customer-registry-quickstart/src/main/proto/customer/api/customer_api.proto[tag=method-messages]
 ----
 
 == Define the domain model
@@ -137,7 +137,7 @@ The `customer_domain.proto` contains all the internal data objects (https://docs
 [source,proto,indent=0]
 .src/main/proto/customer/domain/customer_domain.proto
 ----
-include::example$scala-customer-registry-quickstart/src/main/proto/customer/domain/customer_domain.proto[tag=declarations]
+include::example$scala-protobuf-customer-registry-quickstart/src/main/proto/customer/domain/customer_domain.proto[tag=declarations]
 ----
 
 . Add the `CustomerState` message with fields for entity data, and the `Address` message that defines the compound address:
@@ -145,7 +145,7 @@ include::example$scala-customer-registry-quickstart/src/main/proto/customer/doma
 [source,proto,indent=0]
 .src/main/proto/customer/domain/customer_domain.proto
 ----
-include::example$scala-customer-registry-quickstart/src/main/proto/customer/domain/customer_domain.proto[tag=domain]
+include::example$scala-protobuf-customer-registry-quickstart/src/main/proto/customer/domain/customer_domain.proto[tag=domain]
 ----
 
 . Run `sbt compile` from the project root directory to generate source classes in which you add business logic.
@@ -166,7 +166,7 @@ Command handlers, as the name suggests, handle incoming requests before persisti
 [source, scala]
 .src/main/scala/customer/domain/Customer.scala
 ----
-include::example$scala-customer-registry-quickstart/src/main/scala/customer/domain/Customer.scala[tag=create]
+include::example$scala-protobuf-customer-registry-quickstart/src/main/scala/customer/domain/Customer.scala[tag=create]
 ----
 +
 * The incoming message contains the request data from your client and the command handler updates the state of the customer.
@@ -177,7 +177,7 @@ include::example$scala-customer-registry-quickstart/src/main/scala/customer/doma
 [source, scala, indent=0]
 .src/main/scala/customer/domain/Customer.scala
 ----
-include::example$scala-customer-registry-quickstart/src/main/scala/customer/domain/Customer.scala[tag=getCustomer]
+include::example$scala-protobuf-customer-registry-quickstart/src/main/scala/customer/domain/Customer.scala[tag=getCustomer]
 ----
 +
 * If that customer doesn't exist, processing the command fails.
@@ -200,7 +200,7 @@ To give the domain model a starting point, the initial state for the entity need
 [source, scala]
 .src/main/scala/customer/domain/Customer.scala
 ----
-include::example$scala-customer-registry-quickstart/src/main/scala/customer/domain/Customer.scala[tag=emptyState]
+include::example$scala-protobuf-customer-registry-quickstart/src/main/scala/customer/domain/Customer.scala[tag=emptyState]
 ----
 
 == Package and deploy your service

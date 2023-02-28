@@ -15,7 +15,7 @@ The first line of the example `shoppingcart_api.proto` file defines the version 
 .src/main/proto/com/example/shoppingcart/shoppingcart_api.proto
 [source,proto]
 ----
-include::example$java-valueentity-shopping-cart/src/main/proto/com/example/shoppingcart/shoppingcart_api.proto[tag=proto_syntax]
+include::example$java-protobuf-valueentity-shopping-cart/src/main/proto/com/example/shoppingcart/shoppingcart_api.proto[tag=proto_syntax]
 ----
 
 The following imports provide Kalix and gRPC functionality:
@@ -23,7 +23,7 @@ The following imports provide Kalix and gRPC functionality:
 .src/main/proto/com/example/shoppingcart/shoppingcart_api.proto
 [source,proto]
 ----
-include::example$java-valueentity-shopping-cart/src/main/proto/com/example/shoppingcart/shoppingcart_api.proto[tag=proto_imports]
+include::example$java-protobuf-valueentity-shopping-cart/src/main/proto/com/example/shoppingcart/shoppingcart_api.proto[tag=proto_imports]
 ----
 
 The `package` specifies a namespace for this `proto` file and its imports--names must be unique within each namespace:
@@ -31,7 +31,7 @@ The `package` specifies a namespace for this `proto` file and its imports--names
 .src/main/proto/com/example/shoppingcart/shoppingcart_api.proto
 [source,proto]
 ----
-include::example$java-valueentity-shopping-cart/src/main/proto/com/example/shoppingcart/shoppingcart_api.proto[tag=proto_package]
+include::example$java-protobuf-valueentity-shopping-cart/src/main/proto/com/example/shoppingcart/shoppingcart_api.proto[tag=proto_package]
 ----
 
 It is recommended that you align the `proto` directory structure with the package structure, just like with Java classes, so that files defining services and messages in `com.example.shoppingcart` can be found in `src/main/proto/com/example/shoppingcart`.
@@ -47,7 +47,7 @@ Each input message for an Entity that is input to a RPC command, *must* be assoc
 .src/main/proto/com/example/shoppingcart/shoppingcart_api.proto
 [source,proto]
 ----
-include::example$java-valueentity-shopping-cart/src/main/proto/com/example/shoppingcart/shoppingcart_api.proto[tag=proto_messages]
+include::example$java-protobuf-valueentity-shopping-cart/src/main/proto/com/example/shoppingcart/shoppingcart_api.proto[tag=proto_messages]
 ----
 
 
@@ -87,7 +87,7 @@ Most importantly, in this file we instruct the Kalix code generation tooling (co
 .src/main/proto/com/example/shoppingcart/shoppingcart_api.proto
 [source,proto]
 ----
-include::example$java-valueentity-shopping-cart/src/main/proto/com/example/shoppingcart/shoppingcart_api.proto[tag=proto_service]
+include::example$java-protobuf-valueentity-shopping-cart/src/main/proto/com/example/shoppingcart/shoppingcart_api.proto[tag=proto_service]
 ----
 
 <1> Indicates to the codegen that we want to generate a Value Entity
@@ -103,7 +103,7 @@ The `shoppingcart_domain.proto` file specifies the state and messages for an Eve
 .src/main/proto/com/example/shoppingcart/domain/shoppingcart_domain.proto
 [source,proto]
 ----
-include::example$java-valueentity-shopping-cart/src/main/proto/com/example/shoppingcart/domain/shoppingcart_domain.proto[tag=domain]
+include::example$java-protobuf-valueentity-shopping-cart/src/main/proto/com/example/shoppingcart/domain/shoppingcart_domain.proto[tag=domain]
 ----
 
 <1> Defines the gRPC version
@@ -120,7 +120,7 @@ In the example below, the optional transcoding of the service to bind the variou
 [source,proto]
 .src/main/proto/com/example/shoppingcart/shoppingcart_api.proto
 ----
-include::example$java-valueentity-shopping-cart/src/main/proto/com/example/shoppingcart/shoppingcart_api.proto[tag=http-transcoding]
+include::example$java-protobuf-valueentity-shopping-cart/src/main/proto/com/example/shoppingcart/shoppingcart_api.proto[tag=http-transcoding]
 ----
 <1> This extra annotation specifies that you can call this endpoint using the POST method with the URI `/cart/\{user_id}/items/add`, where `\{user_id}` is the actual user id we want the cart for.
 <2> A URL that accepts a POST method to remove a line item.

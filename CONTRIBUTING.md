@@ -29,7 +29,7 @@ FIXME contribution guidelines like in other LB projects
 3. Pass that version to the sample projects when building:
 
     ```shell
-    cd samples/java-valueentity-shopping-cart
+    cd samples/java-protobuf-valueentity-shopping-cart
     mvn -Dkalix-sdk.version="0.7...-SNAPSHOT" compile
     ```
 
@@ -52,7 +52,7 @@ Ensure to remove/update generated files under `src` if they cause problems.
 2. Pass that version to the sample projects when building:
 
     ```shell
-    cd samples/scala-valueentity-customer-registry
+    cd samples/scala-protobuf-valueentity-customer-registry
     sbt -Dkalix-sdk.version="0.7...-SNAPSHOT" compile
     ```
 

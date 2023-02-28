@@ -27,7 +27,7 @@ Java::
 [source,proto]
 .src/main/proto/com/example/domain/counter_domain.proto
 ----
-include::example$java-valueentity-counter/src/main/proto/com/example/domain/counter_domain.proto[]
+include::example$java-protobuf-valueentity-counter/src/main/proto/com/example/domain/counter_domain.proto[]
 ----
 <1> Any classes generated from this protobuf file will be in the Java package `com.example.domain`.
 <2> Let the messages declared in this protobuf file be inner classes to the Java class `CounterDomain`.
@@ -38,7 +38,7 @@ Scala::
 [source,proto]
 .src/main/proto/com/example/domain/counter_domain.proto
 ----
-include::example$scala-valueentity-counter/src/main/proto/com/example/domain/counter_domain.proto[]
+include::example$scala-protobuf-valueentity-counter/src/main/proto/com/example/domain/counter_domain.proto[]
 ----
 <1> Any classes generated from this protobuf file will be in the Scala package `com.example.domain`.
 <2> The `CounterState` protobuf message is what Kalix stores for this entity.
@@ -55,7 +55,7 @@ Java::
 [source,proto]
 .src/main/proto/com/example/counter_api.proto
 ----
-include::example$java-valueentity-counter/src/main/proto/com/example/counter_api.proto[]
+include::example$java-protobuf-valueentity-counter/src/main/proto/com/example/counter_api.proto[]
 ----
 <1> Any classes generated from this protobuf file will be in the Java package `com.example`.
 <2> Import the Kalix protobuf annotations, or options.
@@ -75,7 +75,7 @@ Scala::
 [source,proto]
 .src/main/proto/com/example/counter_api.proto
 ----
-include::example$scala-valueentity-counter/src/main/proto/com/example/counter_api.proto[]
+include::example$scala-protobuf-valueentity-counter/src/main/proto/com/example/counter_api.proto[]
 ----
 <1> Any classes generated from this protobuf file will be in the Scala package `com.example`.
 <2> Import the Kalix protobuf annotations or options.
@@ -101,7 +101,7 @@ Java::
 [source,java]
 .src/main/java/com/example/domain/Counter.java
 ----
-include::java:example$java-valueentity-counter/src/main/java/com/example/domain/Counter.java[tag=class]
+include::java:example$java-protobuf-valueentity-counter/src/main/java/com/example/domain/Counter.java[tag=class]
 ----
 <1> Extends the generated `AbstractCounter`, which extends link:{attachmentsdir}/api/kalix/javasdk/valueentity/ValueEntity.html[`ValueEntity` {tab-icon}, window="new"].
 <2> Defines the initial, empty, state that is used before any updates.
@@ -111,7 +111,7 @@ Scala::
 [source,scala]
 .src/main/java/com/example/domain/Counter.scala
 ----
-include::java:example$scala-valueentity-counter/src/main/scala/com/example/domain/Counter.scala[tag=class]
+include::java:example$scala-protobuf-valueentity-counter/src/main/scala/com/example/domain/Counter.scala[tag=class]
 ----
 <1> Extends the generated `AbstractCounter`, which extends link:{attachmentsdir}/api/kalix/scalasdk/valueentity/ValueEntity.html[`ValueEntity` {tab-icon}, window="new"].
 <2> Defines the initial, empty, state that is used before any updates.
@@ -137,7 +137,7 @@ Java::
 [source,java,indent=0]
 ./src/main/java/com/example/domain/Counter.java
 ----
-include::java:example$java-valueentity-counter/src/main/java/com/example/domain/Counter.java[tag=increase]
+include::java:example$java-protobuf-valueentity-counter/src/main/java/com/example/domain/Counter.java[tag=increase]
 ----
 <1> The validation ensures acceptance of positive values and it fails calls with illegal values by returning an `Effect` with `effects().error`.
 <2> From the current state we create a new state with the increased value.
@@ -149,7 +149,7 @@ Scala::
 [source,scala,indent=0]
 ./src/main/java/com/example/domain/Counter.scala
 ----
-include::java:example$scala-valueentity-counter/src/main/scala/com/example/domain/Counter.scala[tag=increase]
+include::java:example$scala-protobuf-valueentity-counter/src/main/scala/com/example/domain/Counter.scala[tag=increase]
 ----
 <1> The validation ensures acceptance of positive values and it fails calls with illegal values by returning an `Effect` with `effects.error`.
 <2> From the current state we create a new state with the increased value.
@@ -166,7 +166,7 @@ Java::
 [source,java,indent=0]
 .src/main/java/com/example/domain/Counter.java
 ----
-include::java:example$java-valueentity-counter/src/main/java/com/example/domain/Counter.java[tag=getCurrentCounter]
+include::java:example$java-protobuf-valueentity-counter/src/main/java/com/example/domain/Counter.java[tag=getCurrentCounter]
 ----
 <1> The current state is passed to the method
 <2> We use its value to create the `CurrentCounter` value that is sent as a reply by returning an `Effect` with `effects().reply`.
@@ -176,7 +176,7 @@ Scala::
 [source,scala,indent=0]
 .src/main/scala/com/example/domain/Counter.scala
 ----
-include::java:example$scala-valueentity-counter/src/main/scala/com/example/domain/Counter.scala[tag=getCurrentCounter]
+include::java:example$scala-protobuf-valueentity-counter/src/main/scala/com/example/domain/Counter.scala[tag=getCurrentCounter]
 ----
 <1> The current state is passed to the method
 <2> We use its value to create the `CurrentCounter` value that is sent as a reply by returning an `Effect` with `effects.reply`.
@@ -194,7 +194,7 @@ Java::
 [source,java]
 ./src/main/java/com/example/Main.java
 ----
-include::example$java-valueentity-counter/src/main/java/com/example/Main.java[tag=registration-value-entity]
+include::example$java-protobuf-valueentity-counter/src/main/java/com/example/Main.java[tag=registration-value-entity]
 ----
 
 Scala::
@@ -202,7 +202,7 @@ Scala::
 [source,scala]
 ./src/main/scala/com/example/Main.scala
 ----
-include::java:example$scala-valueentity-counter/src/main/scala/com/example/Main.scala[tag=registration-value-entity]
+include::java:example$scala-protobuf-valueentity-counter/src/main/scala/com/example/Main.scala[tag=registration-value-entity]
 ----
 
 By default, the generated constructor has a `ValueEntityContext` parameter, but you can change this to accept other parameters. If you change the constructor of the `Counter` class you will see a compilation error here, and you have to adjust the factory function that is passed to `KalixFactory.withComponents`.
@@ -219,7 +219,7 @@ Java::
 [source,java,indent=0]
 ./src/main/java/com/example/domain/Counter.java
 ----
-include::java:example$java-valueentity-counter/src/main/java/com/example/domain/Counter.java[tag=delete]
+include::java:example$java-protobuf-valueentity-counter/src/main/java/com/example/domain/Counter.java[tag=delete]
 ----
 <1> We delete the state by returning an `Effect` with `effects().deleteEntity()`.
 
@@ -228,7 +228,7 @@ Scala::
 [source,scala,indent=0]
 ./src/main/java/com/example/domain/Counter.scala
 ----
-include::java:example$scala-valueentity-counter/src/main/scala/com/example/domain/Counter.scala[tag=delete]
+include::java:example$scala-protobuf-valueentity-counter/src/main/scala/com/example/domain/Counter.scala[tag=delete]
 ----
 <1> We delete the state by returning an `Effect` with `effects.deleteEntity()`.
 
@@ -261,7 +261,7 @@ Java::
 [source,java]
 ./src/test/java/com/example/domain/CounterTest.java
 ----
-include::example$java-valueentity-counter/src/test/java/com/example/domain/CounterTest.java[tag=sample-unit-test]
+include::example$java-protobuf-valueentity-counter/src/test/java/com/example/domain/CounterTest.java[tag=sample-unit-test]
 ----
 +
 The unit tests can be run from maven using `mvn test` or if you prefer from inside your IDE the same way you usually run tests.
@@ -271,7 +271,7 @@ Scala::
 [source,scala]
 ./src/test/scala/com/example/domain/CounterSpec.scala
 ----
-include::example$scala-valueentity-counter/src/test/scala/com/example/domain/CounterSpec.scala[tag=sample-unit-test]
+include::example$scala-protobuf-valueentity-counter/src/test/scala/com/example/domain/CounterSpec.scala[tag=sample-unit-test]
 ----
 +
 
@@ -289,7 +289,7 @@ Java::
 [source,java]
 ./src/it/java/com/example/domain/CounterTest.java
 ----
-include::example$java-valueentity-counter/src/it/java/com/example/CounterIntegrationTest.java[tag=sample-it-test]
+include::example$java-protobuf-valueentity-counter/src/it/java/com/example/CounterIntegrationTest.java[tag=sample-it-test]
 ----
 +
 The integration tests are in a special profile `it` of the project and can be run using `mvn verify -Pit`.
@@ -299,7 +299,7 @@ Scala::
 [source,scala]
 ./src/test/scala/com/example/CounterServiceIntegrationSpec.scala
 ----
-include::example$scala-valueentity-counter/src/test/scala/com/example/CounterServiceIntegrationSpec.scala[]
+include::example$scala-protobuf-valueentity-counter/src/test/scala/com/example/CounterServiceIntegrationSpec.scala[]
 ----
 By default, the integration and unit test are both invoked by `sbt test`.
 

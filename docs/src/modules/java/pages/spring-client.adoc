@@ -28,7 +28,7 @@ To get started, do the following:
 
 `git clone https://github.com/lightbend/kalix-jvm-sdk.git`
 
-- cd into `kalix-jvm-sdk/samples/java-valueentity-counter`
+- cd into `kalix-jvm-sdk/samples/java-protobuf-valueentity-counter`
 
 == Build and Run the Kalix Service Locally
 
@@ -80,14 +80,14 @@ Download the resulting ZIP file, which is an archive of a web application that i
 
 Creating a Spring REST WebClient would allow Spring application to communicate with the REST Endpoints exposed via Kalix Service.
 
-cd into `kalix-jvm-sdk/samples/java-valueentity-counter-spring-client`.
+cd into `kalix-jvm-sdk/samples/java-protobuf-valueentity-counter-spring-client`.
 
 Now you can create a `WebClient`. You need to configure the WebClient to use the Kalix Service's host and port. The following listing shows how to do so:
 
 [source,java,indent=0]
 .src/main/java/com/example/client/spring/rest/config/WebClientConfig.java
 ----
-include::example$java-valueentity-counter-spring-client/src/main/java/com/example/client/spring/rest/config/WebClientConfig.java[tag=webclientconfig]
+include::example$java-protobuf-valueentity-counter-spring-client/src/main/java/com/example/client/spring/rest/config/WebClientConfig.java[tag=webclientconfig]
 ----
 
 === Create a Spring Service
@@ -99,7 +99,7 @@ The `CounterServiceImpl` shown in the following listing uses the Spring REST Web
 [source,java,indent=0]
 .src/main/java/com/example/client/spring/rest/service/CounterServiceImpl.java
 ----
-include::example$java-valueentity-counter-spring-client/src/main/java/com/example/client/spring/rest/service/CounterServiceImpl.java[tag=getCurrentCounterCall]
+include::example$java-protobuf-valueentity-counter-spring-client/src/main/java/com/example/client/spring/rest/service/CounterServiceImpl.java[tag=getCurrentCounterCall]
 ----
 
 === Create a Spring Controller
@@ -111,7 +111,7 @@ The `CounterController` shown in the following listing uses the Spring service t
 [source,java,indent=0]
 ./src/main/java/com/example/client/spring/rest/controller/CounterController.java
 ----
-include::example$java-valueentity-counter-spring-client/src/main/java/com/example/client/spring/rest/controller/CounterController.java[tag=getCounterEndpoint]
+include::example$java-protobuf-valueentity-counter-spring-client/src/main/java/com/example/client/spring/rest/controller/CounterController.java[tag=getCounterEndpoint]
 ----
 
 === Create a Spring Main Application
@@ -123,7 +123,7 @@ The `CounterClientApplication` shown in the following listing starts spring appl
 [source,java,indent=0]
 .src/main/java/com/example/client/spring/rest/CounterClientApplication.java
 ----
-include::example$java-valueentity-counter-spring-client/src/main/java/com/example/client/spring/rest/CounterClientApplication.java[tag=counterApplication]
+include::example$java-protobuf-valueentity-counter-spring-client/src/main/java/com/example/client/spring/rest/CounterClientApplication.java[tag=counterApplication]
 ----
 
 ===  Build and Run the Spring Application Locally
@@ -235,7 +235,7 @@ Download the resulting ZIP file, which is an archive of a web application that i
 === Generate gRPC stubs
 
 - Get all the proto files from relevant Kalix service and copy under `src/main/proto` folder. Remove all the Kalix annotations from the proto files. For instance `[(kalix.field).entity_key = true]` and `kalix.codegen` etc.
- For instance,  copying proto files from to `java-valueentity-counter/src/main/proto/com/example`.
+ For instance,  copying proto files from to `java-protobuf-valueentity-counter/src/main/proto/com/example`.
 
 - Run `mvn compile` to generate stubs.
 
@@ -243,14 +243,14 @@ Download the resulting ZIP file, which is an archive of a web application that i
 
 Creating a Spring gRPC would allow Spring application to communicate with the gRPC Services exposed via Kalix Service.
 
-cd into `kalix-jvm-sdk/samples/java-valueentity-counter-spring-client`.
+cd into `kalix-jvm-sdk/samples/java-protobuf-valueentity-counter-spring-client`.
 
 Now you can create a `GrpcClientConfig`. You need to configure the gRPC Client to use the Kalix Service's host and port. The following listing shows how to do so:
 
 [source,java,indent=0]
 .src/main/java/com/example/client/spring/rest/config/GrpcClientConfig.java
 ----
-include::example$java-valueentity-counter-spring-client/src/main/java/com/example/client/spring/rest/config/GrpcClientConfig.java[tag=grpcclientconfig]
+include::example$java-protobuf-valueentity-counter-spring-client/src/main/java/com/example/client/spring/rest/config/GrpcClientConfig.java[tag=grpcclientconfig]
 ----
 
 === Create a Spring Service
@@ -262,7 +262,7 @@ The `GrpcClientService` shown in the following listing uses the Spring REST WebC
 [source,java,indent=0]
 .src/main/java/com/example/client/spring/rest/service/GrpcClientService.java
 ----
-include::example$java-valueentity-counter-spring-client/src/main/java/com/example/client/spring/rest/service/GrpcClientService.java[tag=decreaseCounterCall]
+include::example$java-protobuf-valueentity-counter-spring-client/src/main/java/com/example/client/spring/rest/service/GrpcClientService.java[tag=decreaseCounterCall]
 ----
 
 === Create a Spring Controller
@@ -274,7 +274,7 @@ The `CounterController` shown in the following listing uses the Spring service t
 [source,java,indent=0]
 ./src/main/java/com/example/client/spring/rest/controller/CounterController.java
 ----
-include::example$java-valueentity-counter-spring-client/src/main/java/com/example/client/spring/rest/controller/CounterController.java[tag=getCounterEndpoint]
+include::example$java-protobuf-valueentity-counter-spring-client/src/main/java/com/example/client/spring/rest/controller/CounterController.java[tag=getCounterEndpoint]
 ----
 
 === Create a Spring Main Application
@@ -286,7 +286,7 @@ The `CounterClientApplication` shown in the following listing starts spring appl
 [source,java,indent=0]
 .src/main/java/com/example/client/spring/rest/CounterClientApplication.java
 ----
-include::example$java-valueentity-counter-spring-client/src/main/java/com/example/client/spring/rest/CounterClientApplication.java[tag=counterApplication]
+include::example$java-protobuf-valueentity-counter-spring-client/src/main/java/com/example/client/spring/rest/CounterClientApplication.java[tag=counterApplication]
 ----
 
 === Build and Run the Spring Application Locally

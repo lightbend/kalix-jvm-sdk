@@ -31,7 +31,7 @@ Java::
 [source,proto]
 .src/main/proto/com/example/shoppingcart/domain/shoppingcart_domain.proto
 ----
-include::example$java-replicatedentity-shopping-cart/src/main/proto/com/example/shoppingcart/domain/shoppingcart_domain.proto[]
+include::example$java-protobuf-replicatedentity-shopping-cart/src/main/proto/com/example/shoppingcart/domain/shoppingcart_domain.proto[]
 ----
 <1> Any classes generated from this protobuf file will be in the Java package `com.example.shoppingcart.domain`.
 <2> Let the messages declared in this protobuf file be inner classes to the Java class `ShoppingCartDomain`.
@@ -41,7 +41,7 @@ Scala::
 [source,proto]
 .src/main/proto/com/example/shoppingcart/domain/shoppingcart_domain.proto
 ----
-include::example$scala-replicatedentity-shopping-cart/src/main/proto/com/example/shoppingcart/domain/shoppingcart_domain.proto[]
+include::example$scala-protobuf-replicatedentity-shopping-cart/src/main/proto/com/example/shoppingcart/domain/shoppingcart_domain.proto[]
 ----
 <1> Any classes generated from this protobuf file will be in the package `com.example.shoppingcart.domain`.
 
@@ -56,7 +56,7 @@ Java::
 [source,proto]
 .src/main/proto/com/example/shoppingcart/shoppingcart_api.proto
 ----
-include::example$java-replicatedentity-shopping-cart/src/main/proto/com/example/shoppingcart/shoppingcart_api.proto[]
+include::example$java-protobuf-replicatedentity-shopping-cart/src/main/proto/com/example/shoppingcart/shoppingcart_api.proto[]
 ----
 <1> Any classes generated from this protobuf file will be in the Java package `com.example.shoppingcart`.
 <2> Import the Kalix protobuf annotations, or options.
@@ -77,7 +77,7 @@ Scala::
 [source,proto]
 .src/main/proto/com/example/shoppingcart/shoppingcart_api.proto
 ----
-include::example$scala-replicatedentity-shopping-cart/src/main/proto/com/example/shoppingcart/shoppingcart_api.proto[]
+include::example$scala-protobuf-replicatedentity-shopping-cart/src/main/proto/com/example/shoppingcart/shoppingcart_api.proto[]
 ----
 <1> Any classes generated from this protobuf file will be in the package `com.example.shoppingcart`.
 <2> Import the Kalix protobuf annotations, or options.
@@ -103,7 +103,7 @@ Java::
 [source,java]
 .src/main/java/com/example/shoppingcart/domain/ShoppingCart.java
 ----
-include::example$java-replicatedentity-shopping-cart/src/main/java/com/example/shoppingcart/domain/ShoppingCart.java[tag=class]
+include::example$java-protobuf-replicatedentity-shopping-cart/src/main/java/com/example/shoppingcart/domain/ShoppingCart.java[tag=class]
 ----
 <1> Extends the generated `AbstractShoppingCart`, which extends link:{attachmentsdir}/api/kalix/javasdk/replicatedentity/ReplicatedCounterMapEntity.html[`ReplicatedCounterMapEntity` {tab-icon}, window="new"].
 
@@ -112,7 +112,7 @@ Scala::
 [source,scala]
 .src/main/scala/com/example/shoppingcart/domain/ShoppingCart.scala
 ----
-include::example$scala-replicatedentity-shopping-cart/src/main/scala/com/example/shoppingcart/domain/ShoppingCart.scala[tag=class]
+include::example$scala-protobuf-replicatedentity-shopping-cart/src/main/scala/com/example/shoppingcart/domain/ShoppingCart.scala[tag=class]
 ----
 <1> Extends the generated `AbstractShoppingCart`, which extends link:{attachmentsdir}/scala-api/kalix/scalasdk/replicatedentity/ReplicatedCounterMapEntity.html[`ReplicatedCounterMapEntity` {tab-icon}, window="new"].
 
@@ -136,7 +136,7 @@ Java::
 [source,java,indent=0]
 .src/main/java/com/example/shoppingcart/domain/ShoppingCart.java
 ----
-include::example$java-replicatedentity-shopping-cart/src/main/java/com/example/shoppingcart/domain/ShoppingCart.java[tag=addItem]
+include::example$java-protobuf-replicatedentity-shopping-cart/src/main/java/com/example/shoppingcart/domain/ShoppingCart.java[tag=addItem]
 ----
 <1> The validation ensures quantity of items added is greater than zero and it fails calls with illegal values by returning an `Effect` with `effects().error`.
 <2> From the current incoming `AddLineItem` we create a new `Product` object to represent the item's key in the counter map.
@@ -149,7 +149,7 @@ Scala::
 [source,scala,indent=0]
 .src/main/scala/com/example/shoppingcart/domain/ShoppingCart.scala
 ----
-include::example$scala-replicatedentity-shopping-cart/src/main/scala/com/example/shoppingcart/domain/ShoppingCart.scala[tag=addItem]
+include::example$scala-protobuf-replicatedentity-shopping-cart/src/main/scala/com/example/shoppingcart/domain/ShoppingCart.scala[tag=addItem]
 ----
 <1> The validation ensures quantity of items added is greater than zero and it fails calls with illegal values by returning an `Effect` with `effects.error`.
 <2> From the current incoming `AddLineItem` we create a new `Product` object to represent the item's key in the counter map.
@@ -169,7 +169,7 @@ Java::
 [source,java,indent=0]
 .src/main/java/com/example/shoppingcart/domain/ShoppingCart.java
 ----
-include::example$java-replicatedentity-shopping-cart/src/main/java/com/example/shoppingcart/domain/ShoppingCart.java[tag=getCart]
+include::example$java-protobuf-replicatedentity-shopping-cart/src/main/java/com/example/shoppingcart/domain/ShoppingCart.java[tag=getCart]
 ----
 <1> The current data is passed to the method. Note that this may not be the most up-to-date value, with concurrent modifications made by other instances of this Replicated Entity being replicated eventually.
 <2> We convert the domain representation to the API representation that is sent as a reply by returning an `Effect` with `effects().reply`.
@@ -179,7 +179,7 @@ Scala::
 [source,scala,indent=0]
 .src/main/scala/com/example/shoppingcart/domain/ShoppingCart.scala
 ----
-include::example$scala-replicatedentity-shopping-cart/src/main/scala/com/example/shoppingcart/domain/ShoppingCart.scala[tag=getCart]
+include::example$scala-protobuf-replicatedentity-shopping-cart/src/main/scala/com/example/shoppingcart/domain/ShoppingCart.scala[tag=getCart]
 ----
 <1> The current data is passed to the method. Note that this may not be the most up-to-date value, with concurrent modifications made by other instances of this Replicated Entity being replicated eventually.
 <2> We convert the domain representation to the API representation that is sent as a reply by returning an `Effect` with `effects.reply`.
@@ -196,7 +196,7 @@ Java::
 [source,java,indent=0]
 .src/main/java/com/example/shoppingcart/domain/ShoppingCart.java
 ----
-include::example$java-replicatedentity-shopping-cart/src/main/java/com/example/shoppingcart/domain/ShoppingCart.java[tag=removeCart]
+include::example$java-protobuf-replicatedentity-shopping-cart/src/main/java/com/example/shoppingcart/domain/ShoppingCart.java[tag=removeCart]
 ----
 <1> The Replicated Entity instances for the associated entity key are deleted by using `effects().delete`.
 
@@ -205,7 +205,7 @@ Scala::
 [source,scala,indent=0]
 .src/main/scala/com/example/shoppingcart/domain/ShoppingCart.scala
 ----
-include::example$scala-replicatedentity-shopping-cart/src/main/scala/com/example/shoppingcart/domain/ShoppingCart.scala[tag=removeCart]
+include::example$scala-protobuf-replicatedentity-shopping-cart/src/main/scala/com/example/shoppingcart/domain/ShoppingCart.scala[tag=removeCart]
 ----
 <1> The Replicated Entity instances for the associated entity key are deleted by using `effects.delete`.
 
@@ -221,7 +221,7 @@ Java::
 [source,java]
 .src/main/java/com/example/shoppingcart/Main.java
 ----
-include::example$java-replicatedentity-shopping-cart/src/main/java/com/example/shoppingcart/Main.java[]
+include::example$java-protobuf-replicatedentity-shopping-cart/src/main/java/com/example/shoppingcart/Main.java[]
 ----
 
 Scala::
@@ -229,7 +229,7 @@ Scala::
 [source,scala]
 .src/main/scala/com/example/shoppingcart/Main.scala
 ----
-include::example$scala-replicatedentity-shopping-cart/src/main/scala/com/example/shoppingcart/Main.scala[]
+include::example$scala-protobuf-replicatedentity-shopping-cart/src/main/scala/com/example/shoppingcart/Main.scala[]
 ----
 
 By default, the generated constructor has a `ReplicatedEntityContext` parameter, but you can change this to accept other parameters. If you change the constructor of the `ShoppingCart` class you will see a compilation error here, and you have to adjust the factory function that is passed to `KalixFactory.withComponents`.
@@ -256,7 +256,7 @@ Java::
 [source,proto]
 .src/main/proto/com/example/replicated/counter/counter_api.proto
 ----
-include::example$java-replicatedentity-examples/src/main/proto/com/example/replicated/counter/counter_api.proto[tag=replicated_entity]
+include::example$java-protobuf-replicatedentity-examples/src/main/proto/com/example/replicated/counter/counter_api.proto[tag=replicated_entity]
 ----
 +
 <1> The fully-qualified class name for this replicated entity.
@@ -267,7 +267,7 @@ Scala::
 [source,proto]
 .src/main/proto/com/example/replicated/counter/counter_api.proto
 ----
-include::example$scala-replicatedentity-examples/src/main/proto/com/example/replicated/counter/counter_api.proto[tag=replicated_entity]
+include::example$scala-protobuf-replicatedentity-examples/src/main/proto/com/example/replicated/counter/counter_api.proto[tag=replicated_entity]
 ----
 +
 <1> The fully-qualified class name for this replicated entity.
@@ -281,7 +281,7 @@ Java::
 [source,java,indent=0]
 .src/main/java/com/example/replicated/counter/domain/SomeCounter.java
 ----
-include::example$java-replicatedentity-examples/src/main/java/com/example/replicated/counter/domain/SomeCounter.java[tag=update]
+include::example$java-protobuf-replicatedentity-examples/src/main/java/com/example/replicated/counter/domain/SomeCounter.java[tag=update]
 ----
 <1> Modify the Replicated Counter with `increment` or `decrement` and trigger a replicated update by returning an `Effect` with `effects().update`.
 
@@ -290,7 +290,7 @@ Scala::
 [source,scala,indent=0]
 .src/main/scala/com/example/replicated/counter/domain/SomeCounter.scala
 ----
-include::example$scala-replicatedentity-examples/src/main/scala/com/example/replicated/counter/domain/SomeCounter.scala[tag=update]
+include::example$scala-protobuf-replicatedentity-examples/src/main/scala/com/example/replicated/counter/domain/SomeCounter.scala[tag=update]
 ----
 <1> Modify the Replicated Counter with `increment` or `decrement` and trigger a replicated update by returning an `Effect` with `effects.update`.
 
@@ -302,7 +302,7 @@ The current value of a Replicated Counter can be retrieved using `getValue`:
 [source,java,indent=0]
 .src/main/java/com/example/replicated/counter/domain/SomeCounter.java
 ----
-include::example$java-replicatedentity-examples/src/main/java/com/example/replicated/counter/domain/SomeCounter.java[tag=get]
+include::example$java-protobuf-replicatedentity-examples/src/main/java/com/example/replicated/counter/domain/SomeCounter.java[tag=get]
 ----
 <1> Get the current value of a Replicated Counter using `getValue`.
 
@@ -313,7 +313,7 @@ The current value of a Replicated Counter can be retrieved using `value`:
 [source,scala,indent=0]
 .src/main/scala/com/example/replicated/counter/domain/SomeCounter.scala
 ----
-include::example$scala-replicatedentity-examples/src/main/scala/com/example/replicated/counter/domain/SomeCounter.scala[tag=get]
+include::example$scala-protobuf-replicatedentity-examples/src/main/scala/com/example/replicated/counter/domain/SomeCounter.scala[tag=get]
 ----
 <1> Get the current value of a Replicated Counter using `value`.
 
@@ -334,7 +334,7 @@ Java::
 [source,proto]
 .src/main/proto/com/example/replicated/register/register_api.proto
 ----
-include::example$java-replicatedentity-examples/src/main/proto/com/example/replicated/register/register_api.proto[tag=replicated_entity]
+include::example$java-protobuf-replicatedentity-examples/src/main/proto/com/example/replicated/register/register_api.proto[tag=replicated_entity]
 ----
 <1> The fully-qualified class name for this replicated entity.
 <2> Specify the Replicated Data type as a Replicated Register.
@@ -345,7 +345,7 @@ Scala::
 [source,proto]
 .src/main/proto/com/example/replicated/register/register_api.proto
 ----
-include::example$scala-replicatedentity-examples/src/main/proto/com/example/replicated/register/register_api.proto[tag=replicated_entity]
+include::example$scala-protobuf-replicatedentity-examples/src/main/proto/com/example/replicated/register/register_api.proto[tag=replicated_entity]
 ----
 <1> The fully-qualified class name for this replicated entity.
 <2> Specify the Replicated Data type as a Replicated Register.
@@ -361,7 +361,7 @@ Java::
 [source,java,indent=0]
 .src/main/java/com/example/replicated/register/domain/SomeRegister.java
 ----
-include::example$java-replicatedentity-examples/src/main/java/com/example/replicated/register/domain/SomeRegister.java[tag=emptyValue]
+include::example$java-protobuf-replicatedentity-examples/src/main/java/com/example/replicated/register/domain/SomeRegister.java[tag=emptyValue]
 ----
 
 Scala::
@@ -369,7 +369,7 @@ Scala::
 [source,scala,indent=0]
 .src/main/scala/com/example/replicated/register/domain/SomeRegister.scala
 ----
-include::example$scala-replicatedentity-examples/src/main/scala/com/example/replicated/register/domain/SomeRegister.scala[tag=emptyValue]
+include::example$scala-protobuf-replicatedentity-examples/src/main/scala/com/example/replicated/register/domain/SomeRegister.scala[tag=emptyValue]
 ----
 
 
@@ -381,7 +381,7 @@ Java::
 [source,java,indent=0]
 .src/main/java/com/example/replicated/register/domain/SomeRegister.java
 ----
-include::example$java-replicatedentity-examples/src/main/java/com/example/replicated/register/domain/SomeRegister.java[tag=update]
+include::example$java-protobuf-replicatedentity-examples/src/main/java/com/example/replicated/register/domain/SomeRegister.java[tag=update]
 ----
 <1> Create a domain object for the new value.
 <2> Update the Replicated Register value with `set` and trigger a replicated update by returning an `Effect` with `effects().update`.
@@ -391,7 +391,7 @@ Scala::
 [source,scala,indent=0]
 .src/main/scala/com/example/replicated/register/domain/SomeRegister.scala
 ----
-include::example$scala-replicatedentity-examples/src/main/scala/com/example/replicated/register/domain/SomeRegister.scala[tag=update]
+include::example$scala-protobuf-replicatedentity-examples/src/main/scala/com/example/replicated/register/domain/SomeRegister.scala[tag=update]
 ----
 <1> Create a domain object for the new value.
 <2> Update the Replicated Register value with `set` and trigger a replicated update by returning an `Effect` with `effects().update`.
@@ -404,7 +404,7 @@ Java::
 [source,java,indent=0]
 .src/main/java/com/example/replicated/register/domain/SomeRegister.java
 ----
-include::example$java-replicatedentity-examples/src/main/java/com/example/replicated/register/domain/SomeRegister.java[tag=get]
+include::example$java-protobuf-replicatedentity-examples/src/main/java/com/example/replicated/register/domain/SomeRegister.java[tag=get]
 ----
 <1> Get the current value of a Replicated Register using `get`.
 <2> Convert from the domain object to the API object.
@@ -414,7 +414,7 @@ Scala::
 [source,scala,indent=0]
 .src/main/scala/com/example/replicated/register/domain/SomeRegister.scala
 ----
-include::example$scala-replicatedentity-examples/src/main/scala/com/example/replicated/register/domain/SomeRegister.scala[tag=get]
+include::example$scala-protobuf-replicatedentity-examples/src/main/scala/com/example/replicated/register/domain/SomeRegister.scala[tag=get]
 ----
 <1> Get the current value of a Replicated Register using `apply`.
 <2> Convert from the domain object to the API object.
@@ -434,7 +434,7 @@ Java::
 [source,proto]
 .src/main/proto/com/example/replicated/set/set_api.proto
 ----
-include::example$java-replicatedentity-examples/src/main/proto/com/example/replicated/set/set_api.proto[tag=replicated_entity]
+include::example$java-protobuf-replicatedentity-examples/src/main/proto/com/example/replicated/set/set_api.proto[tag=replicated_entity]
 ----
 <1> The fully-qualified class name for this replicated entity.
 <2> Specify the Replicated Data type as a Replicated Set.
@@ -445,7 +445,7 @@ Scala::
 [source,proto]
 .src/main/proto/com/example/replicated/set/set_api.proto
 ----
-include::example$scala-replicatedentity-examples/src/main/proto/com/example/replicated/set/set_api.proto[tag=replicated_entity]
+include::example$scala-protobuf-replicatedentity-examples/src/main/proto/com/example/replicated/set/set_api.proto[tag=replicated_entity]
 ----
 <1> The fully-qualified class name for this replicated entity.
 <2> Specify the Replicated Data type as a Replicated Set.
@@ -464,7 +464,7 @@ Java::
 [source,java,indent=0]
 .src/main/java/com/example/replicated/set/domain/SomeSet.java
 ----
-include::example$java-replicatedentity-examples/src/main/java/com/example/replicated/set/domain/SomeSet.java[tag=update]
+include::example$java-protobuf-replicatedentity-examples/src/main/java/com/example/replicated/set/domain/SomeSet.java[tag=update]
 ----
 <1> Modify the elements of the Replicated Set with `add` or `remove` and trigger a replicated update by returning an `Effect` with `effects().update`.
 
@@ -473,7 +473,7 @@ Scala::
 [source,scala,indent=0]
 .src/main/scala/com/example/replicated/set/domain/SomeSet.scala
 ----
-include::example$scala-replicatedentity-examples/src/main/scala/com/example/replicated/set/domain/SomeSet.scala[tag=update]
+include::example$scala-protobuf-replicatedentity-examples/src/main/scala/com/example/replicated/set/domain/SomeSet.scala[tag=update]
 ----
 <1> Modify the elements of the Replicated Set with `add` or `remove` and trigger a replicated update by returning an `Effect` with `effects.update`.
 
@@ -486,7 +486,7 @@ The `elements` method for Replicated Set returns a regular `java.util.Set` that 
 [source,java,indent=0]
 .src/main/java/com/example/replicated/set/domain/SomeSet.java
 ----
-include::example$java-replicatedentity-examples/src/main/java/com/example/replicated/set/domain/SomeSet.java[tag=get]
+include::example$java-protobuf-replicatedentity-examples/src/main/java/com/example/replicated/set/domain/SomeSet.java[tag=get]
 ----
 <1> Iterate over the current elements of a Replicated Set.
 
@@ -497,7 +497,7 @@ The `elements` method for Replicated Set returns a regular Scala `Set` that cont
 [source,scala,indent=0]
 .src/main/scala/com/example/replicated/set/domain/SomeSet.scala
 ----
-include::example$scala-replicatedentity-examples/src/main/scala/com/example/replicated/set/domain/SomeSet.scala[tag=get]
+include::example$scala-protobuf-replicatedentity-examples/src/main/scala/com/example/replicated/set/domain/SomeSet.scala[tag=get]
 ----
 <1> Turn the `Set` into a `Seq` for the response.
 
@@ -518,7 +518,7 @@ Java::
 [source,proto]
 .src/main/proto/com/example/replicated/countermap/counter_map_api.proto
 ----
-include::example$java-replicatedentity-examples/src/main/proto/com/example/replicated/countermap/counter_map_api.proto[tag=replicated_entity]
+include::example$java-protobuf-replicatedentity-examples/src/main/proto/com/example/replicated/countermap/counter_map_api.proto[tag=replicated_entity]
 ----
 <1> The fully-qualified class name for this replicated entity.
 <2> Specify the Replicated Data type as a Replicated Counter Map.
@@ -530,7 +530,7 @@ Scala::
 [source,proto]
 .src/main/proto/com/example/replicated/countermap/counter_map_api.proto
 ----
-include::example$scala-replicatedentity-examples/src/main/proto/com/example/replicated/countermap/counter_map_api.proto[tag=replicated_entity]
+include::example$scala-protobuf-replicatedentity-examples/src/main/proto/com/example/replicated/countermap/counter_map_api.proto[tag=replicated_entity]
 ----
 <1> The fully-qualified class name for this replicated entity.
 <2> Specify the Replicated Data type as a Replicated Counter Map.
@@ -547,7 +547,7 @@ Java::
 [source,java,indent=0]
 .src/main/java/com/example/replicated/countermap/domain/SomeCounterMap.java
 ----
-include::example$java-replicatedentity-examples/src/main/java/com/example/replicated/countermap/domain/SomeCounterMap.java[tag=update]
+include::example$java-protobuf-replicatedentity-examples/src/main/java/com/example/replicated/countermap/domain/SomeCounterMap.java[tag=update]
 ----
 <1> Modify the values of the Replicated Counter Map with `increment`, `decrement`, or `remove` and trigger a replicated update by returning an `Effect` with `effects().update`.
 
@@ -556,7 +556,7 @@ Scala::
 [source,scala,indent=0]
 .src/main/scala/com/example/replicated/countermap/domain/SomeCounterMap.scala
 ----
-include::example$scala-replicatedentity-examples/src/main/scala/com/example/replicated/countermap/domain/SomeCounterMap.scala[tag=update]
+include::example$scala-protobuf-replicatedentity-examples/src/main/scala/com/example/replicated/countermap/domain/SomeCounterMap.scala[tag=update]
 ----
 <1> Modify the values of the Replicated Counter Map with `increment`, `decrement`, or `remove` and trigger a replicated update by returning an `Effect` with `effects.update`.
 
@@ -569,7 +569,7 @@ Java::
 [source,java,indent=0]
 .src/main/java/com/example/replicated/countermap/domain/SomeCounterMap.java
 ----
-include::example$java-replicatedentity-examples/src/main/java/com/example/replicated/countermap/domain/SomeCounterMap.java[tag=get]
+include::example$java-protobuf-replicatedentity-examples/src/main/java/com/example/replicated/countermap/domain/SomeCounterMap.java[tag=get]
 ----
 <1> Get the current counter value for a key using `get`.
 <2> Iterate over the current entries of a Replicated Counter Map using `keySet`.
@@ -579,7 +579,7 @@ Scala::
 [source,scala,indent=0]
 .src/main/scala/com/example/replicated/countermap/domain/SomeCounterMap.scala
 ----
-include::example$scala-replicatedentity-examples/src/main/scala/com/example/replicated/countermap/domain/SomeCounterMap.scala[tag=get]
+include::example$scala-protobuf-replicatedentity-examples/src/main/scala/com/example/replicated/countermap/domain/SomeCounterMap.scala[tag=get]
 ----
 <1> Get the current counter value for a key using `apply`.
 <2> Iterate over the current entries of a Replicated Counter Map using `keySet`.
@@ -603,7 +603,7 @@ Java::
 [source,proto]
 .src/main/proto/com/example/replicated/registermap/register_map_api.proto
 ----
-include::example$java-replicatedentity-examples/src/main/proto/com/example/replicated/registermap/register_map_api.proto[tag=replicated_entity]
+include::example$java-protobuf-replicatedentity-examples/src/main/proto/com/example/replicated/registermap/register_map_api.proto[tag=replicated_entity]
 ----
 <1> The fully-qualified class name for this replicated entity.
 <2> Specify the Replicated Data type as a Replicated Register Map.
@@ -615,7 +615,7 @@ Scala::
 [source,proto]
 .src/main/proto/com/example/replicated/registermap/domain/register_map_domain.proto
 ----
-include::example$scala-replicatedentity-examples/src/main/proto/com/example/replicated/registermap/register_map_api.proto[tag=replicated_entity]
+include::example$scala-protobuf-replicatedentity-examples/src/main/proto/com/example/replicated/registermap/register_map_api.proto[tag=replicated_entity]
 ----
 <1> The fully-qualified class name for this replicated entity.
 <2> Specify the Replicated Data type as a Replicated Register Map.
@@ -632,7 +632,7 @@ Java::
 [source,java,indent=0]
 .src/main/java/com/example/replicated/registermap/domain/SomeRegisterMap.java
 ----
-include::example$java-replicatedentity-examples/src/main/java/com/example/replicated/registermap/domain/SomeRegisterMap.java[tag=update]
+include::example$java-protobuf-replicatedentity-examples/src/main/java/com/example/replicated/registermap/domain/SomeRegisterMap.java[tag=update]
 ----
 <1> Create a domain object for the key.
 <2> Create a domain object for the value.
@@ -643,7 +643,7 @@ Scala::
 [source,scala,indent=0]
 .src/main/scala/com/example/replicated/registermap/domain/SomeRegisterMap.scala
 ----
-include::example$scala-replicatedentity-examples/src/main/scala/com/example/replicated/registermap/domain/SomeRegisterMap.scala[tag=update]
+include::example$scala-protobuf-replicatedentity-examples/src/main/scala/com/example/replicated/registermap/domain/SomeRegisterMap.scala[tag=update]
 ----
 <1> Create a domain object for the key.
 <2> Create a domain object for the value.
@@ -658,7 +658,7 @@ Java::
 [source,java,indent=0]
 .src/main/java/com/example/replicated/registermap/domain/SomeRegisterMap.java
 ----
-include::example$java-replicatedentity-examples/src/main/java/com/example/replicated/registermap/domain/SomeRegisterMap.java[tag=get]
+include::example$java-protobuf-replicatedentity-examples/src/main/java/com/example/replicated/registermap/domain/SomeRegisterMap.java[tag=get]
 ----
 <1> Create a domain object for the key.
 <2> Get the current register value for a key using `getValue`.
@@ -671,7 +671,7 @@ Scala::
 [source,scala,indent=0]
 .src/main/scala/com/example/replicated/registermap/domain/SomeRegisterMap.scala
 ----
-include::example$scala-replicatedentity-examples/src/main/scala/com/example/replicated/registermap/domain/SomeRegisterMap.scala[tag=get]
+include::example$scala-protobuf-replicatedentity-examples/src/main/scala/com/example/replicated/registermap/domain/SomeRegisterMap.scala[tag=get]
 ----
 <1> Create a domain object for the key.
 <2> Get the current register value for a key using `get`.
@@ -694,7 +694,7 @@ Java::
 [source,proto]
 .src/main/proto/com/example/replicated/multimap/multi_map_api.proto
 ----
-include::example$java-replicatedentity-examples/src/main/proto/com/example/replicated/multimap/multi_map_api.proto[tag=replicated_entity]
+include::example$java-protobuf-replicatedentity-examples/src/main/proto/com/example/replicated/multimap/multi_map_api.proto[tag=replicated_entity]
 ----
 <1> The fully-qualified class name for this replicated entity.
 <2> Specify the Replicated Data type as a Replicated Multi-Map.
@@ -706,7 +706,7 @@ Scala::
 [source,proto]
 .src/main/proto/com/example/replicated/multimap/domain/multi_map_domain.proto
 ----
-include::example$scala-replicatedentity-examples/src/main/proto/com/example/replicated/multimap/multi_map_api.proto[tag=replicated_entity]
+include::example$scala-protobuf-replicatedentity-examples/src/main/proto/com/example/replicated/multimap/multi_map_api.proto[tag=replicated_entity]
 ----
 <1> The fully-qualified class name for this replicated entity.
 <2> Specify the Replicated Data type as a Replicated Multi-Map.
@@ -724,7 +724,7 @@ Java::
 [source,java,indent=0]
 .src/main/java/com/example/replicated/multimap/domain/SomeMultiMap.java
 ----
-include::example$java-replicatedentity-examples/src/main/java/com/example/replicated/multimap/domain/SomeMultiMap.java[tag=update]
+include::example$java-protobuf-replicatedentity-examples/src/main/java/com/example/replicated/multimap/domain/SomeMultiMap.java[tag=update]
 ----
 <1> Modify the values of the Replicated Multi-Map with `put`, `putAll`, `remove`, or `removeAll` and trigger a replicated update by returning an `Effect` with `effects().update`.
 
@@ -733,7 +733,7 @@ Scala::
 [source,scala,indent=0]
 .src/main/scala/com/example/replicated/multimap/domain/SomeMultiMap.scala
 ----
-include::example$scala-replicatedentity-examples/src/main/scala/com/example/replicated/multimap/domain/SomeMultiMap.scala[tag=update]
+include::example$scala-protobuf-replicatedentity-examples/src/main/scala/com/example/replicated/multimap/domain/SomeMultiMap.scala[tag=update]
 ----
 <1> Modify the values of the Replicated Multi-Map with `put`, `putAll`, `remove`, or `removeAll` and trigger a replicated update by returning an `Effect` with `effects().update`.
 
@@ -746,7 +746,7 @@ Java::
 [source,java,indent=0]
 .src/main/java/com/example/replicated/multimap/domain/SomeMultiMap.java
 ----
-include::example$java-replicatedentity-examples/src/main/java/com/example/replicated/multimap/domain/SomeMultiMap.java[tag=get]
+include::example$java-protobuf-replicatedentity-examples/src/main/java/com/example/replicated/multimap/domain/SomeMultiMap.java[tag=get]
 ----
 <1> Get the current set of values for a key using `get`.
 <2> Iterate over the current entries of a Replicated Multi-Map using `keySet`.
@@ -756,7 +756,7 @@ Scala::
 [source,scala,indent=0]
 .src/main/scala/com/example/replicated/multimap/domain/SomeMultiMap.scala
 ----
-include::example$scala-replicatedentity-examples/src/main/scala/com/example/replicated/multimap/domain/SomeMultiMap.scala[tag=get]
+include::example$scala-protobuf-replicatedentity-examples/src/main/scala/com/example/replicated/multimap/domain/SomeMultiMap.scala[tag=get]
 ----
 <1> Get the current set of values for a key using `get`.
 <2> Iterate over the current entries of a Replicated Multi-Map using `keySet`.
@@ -778,7 +778,7 @@ Java::
 [source,proto]
 .src/main/proto/com/example/replicated/map/map_api.proto
 ----
-include::example$java-replicatedentity-examples/src/main/proto/com/example/replicated/map/map_api.proto[tag=replicated_entity]
+include::example$java-protobuf-replicatedentity-examples/src/main/proto/com/example/replicated/map/map_api.proto[tag=replicated_entity]
 ----
 <1> The fully-qualified class name for this replicated entity.
 <2> Specify the Replicated Data type as a Replicated Map.
@@ -789,7 +789,7 @@ Scala::
 [source,proto]
 .src/main/proto/com/example/replicated/map/map_api.proto
 ----
-include::example$scala-replicatedentity-examples/src/main/proto/com/example/replicated/map/map_api.proto[tag=replicated_entity]
+include::example$scala-protobuf-replicatedentity-examples/src/main/proto/com/example/replicated/map/map_api.proto[tag=replicated_entity]
 ----
 <1> The fully-qualified class name for this replicated entity.
 <2> Specify the Replicated Data type as a Replicated Map.
@@ -810,7 +810,7 @@ Java::
 [source,java,indent=0]
 .src/main/java/com/example/replicated/map/domain/SomeMap.java
 ----
-include::example$java-replicatedentity-examples/src/main/java/com/example/replicated/map/domain/SomeMap.java[tag=update]
+include::example$java-protobuf-replicatedentity-examples/src/main/java/com/example/replicated/map/domain/SomeMap.java[tag=update]
 ----
 <1> Get the Replicated Data value for a key using an accessor method for the Replicated Data type.
 <2> Modify the Replicated Data value using its modifying methods and `update` on the Replicated Map.
@@ -821,7 +821,7 @@ Scala::
 [source,scala,indent=0]
 .src/main/scala/com/example/replicated/map/domain/SomeMap.scala
 ----
-include::example$scala-replicatedentity-examples/src/main/scala/com/example/replicated/map/domain/SomeMap.scala[tag=update]
+include::example$scala-protobuf-replicatedentity-examples/src/main/scala/com/example/replicated/map/domain/SomeMap.scala[tag=update]
 ----
 <1> Get the Replicated Data value for a key using an accessor method for the Replicated Data type.
 <2> Modify the Replicated Data value using its modifying methods and `update` on the Replicated Map.
@@ -836,7 +836,7 @@ Java::
 [source,java,indent=0]
 .src/main/java/com/example/replicated/map/domain/SomeMap.java
 ----
-include::example$java-replicatedentity-examples/src/main/java/com/example/replicated/map/domain/SomeMap.java[tag=get]
+include::example$java-protobuf-replicatedentity-examples/src/main/java/com/example/replicated/map/domain/SomeMap.java[tag=get]
 ----
 <1> Get the Replicated Data value for a key using an accessor method for the Replicated Data type.
 
@@ -845,7 +845,7 @@ Scala::
 [source,scala,indent=0]
 .src/main/scala/com/example/replicated/map/domain/SomeMap.scala
 ----
-include::example$scala-replicatedentity-examples/src/main/scala/com/example/replicated/map/domain/SomeMap.scala[tag=get]
+include::example$scala-protobuf-replicatedentity-examples/src/main/scala/com/example/replicated/map/domain/SomeMap.scala[tag=get]
 ----
 <1> Get the Replicated Data value for a key using an accessor method for the Replicated Data type.
 

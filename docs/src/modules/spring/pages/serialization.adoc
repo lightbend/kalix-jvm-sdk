@@ -15,7 +15,7 @@ When xref:actions-publishing-subscribing.adoc[subscribing], you can use as the i
 [source,java,indent=0]
 .src/main/java/com/example/actions/CounterTopicSubscriptionAction.java
 ----
-include::example$spring-eventsourced-counter/src/main/java/com/example/actions/CounterTopicSubscriptionAction.java[tags=class]
+include::example$java-spring-eventsourced-counter/src/main/java/com/example/actions/CounterTopicSubscriptionAction.java[tags=class]
 ----
 <1> subscribing to the `ValueIncreased` from topic 'counter-events'. 
 <2> setting the method input type to the events produced by the counter.
