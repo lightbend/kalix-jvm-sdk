@@ -162,9 +162,9 @@ final class WorkflowEntityImpl(system: ActorSystem, val services: Map[String, Wo
 
         val toProtoTransition =
           transition match {
-            case StepTransition(input, transitionTo) =>
+            case StepTransition(stepName, input) =>
               WorkflowEffect.Transition.StepTransition(
-                ProtoStepTransition(transitionTo, Option(service.messageCodec.encodeScala(input))))
+                ProtoStepTransition(stepName, input.map(service.messageCodec.encodeScala)))
             case Pause        => WorkflowEffect.Transition.Pause(ProtoPause.defaultInstance)
             case NoTransition => WorkflowEffect.Transition.NoTransition(ProtoNoTransition.defaultInstance)
             case End          => WorkflowEffect.Transition.EndTransition(ProtoEndTransition.defaultInstance)
@@ -253,7 +253,7 @@ final class WorkflowEntityImpl(system: ActorSystem, val services: Map[String, Wo
               router._internalSetInitState(decoded)
               router._internalHandleStep(
                 executeStep.commandId,
-                executeStep.input.get,
+                executeStep.input,
                 executeStep.stepName,
                 service.messageCodec,
                 workflowContext)
