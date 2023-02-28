@@ -231,7 +231,7 @@ object KalixSpringApplication {
     override def getObject: KalixClient =
       if (threadLocal.get() != null) threadLocal.get()
       else
-        throw new BeanCreationException("KalixClient can only be injected in Kalix Actions.")
+        throw new BeanCreationException("KalixClient can only be injected in Kalix Actions and Workflows.")
   }
 
   object WebClientProviderFactoryBean extends ThreadLocalFactoryBean[WebClientProvider] {
@@ -239,7 +239,7 @@ object KalixSpringApplication {
     override def getObject: WebClientProvider =
       if (threadLocal.get() != null) threadLocal.get()
       else
-        throw new BeanCreationException("WebClientProvider can only be injected in Kalix Actions.")
+        throw new BeanCreationException("WebClientProvider can only be injected in Kalix Actions and Workflows.")
   }
 }
 

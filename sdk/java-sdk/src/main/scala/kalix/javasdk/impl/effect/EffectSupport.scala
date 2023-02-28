@@ -18,10 +18,11 @@ package kalix.javasdk.impl.effect
 
 import com.google.protobuf.any.{ Any => ScalaPbAny }
 import com.google.protobuf.{ Any => JavaPbAny }
-import kalix.javasdk
+import kalix.javasdk.SideEffect
 import kalix.javasdk.impl.GrpcDeferredCall
 import kalix.javasdk.impl.MessageCodec
 import kalix.javasdk.impl.MetadataImpl
+import kalix.javasdk.impl.RestDeferredCall
 import kalix.protocol.component
 
 object EffectSupport {
@@ -45,10 +46,8 @@ object EffectSupport {
 
   }
 
-  def sideEffectsFrom(
-      messageCodec: MessageCodec,
-      secondaryEffect: SecondaryEffectImpl): Vector[component.SideEffect] = {
-    val encodedSideEffects = secondaryEffect.sideEffects.map {
+  def asProtocol(messageCodec: MessageCodec, sideEffect: SideEffect): component.SideEffect = {
+    sideEffect match {
       case SideEffectImpl(deferred: GrpcDeferredCall[_, _], synchronous) =>
         component.SideEffect(
           deferred.fullServiceName,
@@ -56,8 +55,20 @@ object EffectSupport {
           Some(messageCodec.encodeScala(deferred.message)),
           synchronous,
           MetadataImpl.toProtocol(deferred.metadata))
+      case SideEffectImpl(deferred: RestDeferredCall[_, _], synchronous) =>
+        component.SideEffect(
+          deferred.fullServiceName,
+          deferred.methodName,
+          Some(messageCodec.encodeScala(deferred.message)),
+          synchronous,
+          MetadataImpl.toProtocol(deferred.metadata))
     }
-    encodedSideEffects
+  }
+
+  def sideEffectsFrom(
+      messageCodec: MessageCodec,
+      secondaryEffect: SecondaryEffectImpl): Vector[component.SideEffect] = {
+    secondaryEffect.sideEffects.map(asProtocol(messageCodec, _))
   }
 
 }

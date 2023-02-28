@@ -16,6 +16,9 @@
 
 package com.example.wiring.eventsourcedentities.counter;
 
+import com.google.protobuf.any.Any;
+import kalix.javasdk.DeferredCall;
+import kalix.javasdk.SideEffect;
 import kalix.javasdk.action.Action;
 import kalix.javasdk.action.ActionCreationContext;
 import kalix.javasdk.annotations.Subscribe;
@@ -49,6 +52,10 @@ public class IncreaseAction extends Action {
       CompletionStage<Integer> res =
           kalixClient.post("/counter/" + entityId + "/increase/1", Integer.class).execute();
       return effects().asyncReply(res);
+    } else if (event.value == 4422) {
+      DeferredCall<Any, Integer> inc = kalixClient.post("/counter/" + entityId + "/increase/1", Integer.class);
+      return effects().reply(event.value)
+          .addSideEffect(SideEffect.of(inc));
     }
     return effects().reply(event.value);
   }

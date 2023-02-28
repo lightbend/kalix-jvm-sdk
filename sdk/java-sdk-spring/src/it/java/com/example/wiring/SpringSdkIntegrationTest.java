@@ -170,6 +170,32 @@ public class SpringSdkIntegrationTest {
   }
 
   @Test
+  public void verifySideEffects() {
+    // GIVEN IncreaseAction is subscribed to CounterEntity events
+    // WHEN the CounterEntity is requested to increase 4422
+    webClient
+        .post()
+        .uri("/counter/hello4422/increase/4422")
+        .retrieve()
+        .bodyToMono(Integer.class)
+        .block(timeout);
+
+    // THEN IncreaseAction receives the event 4422 and increases the counter 1 more
+    await()
+        .ignoreExceptions()
+        .atMost(10, TimeUnit.of(SECONDS))
+        .until(
+            () ->
+                webClient
+                    .get()
+                    .uri("/counter/hello4422")
+                    .retrieve()
+                    .bodyToMono(Integer.class)
+                    .block(timeout),
+            new IsEqual(4422 + 1));
+  }
+
+  @Test
   public void verifyActionIsNotSubscribedToMultiplyAndRouterIgnores() {
 
     webClient
