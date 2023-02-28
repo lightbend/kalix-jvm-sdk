@@ -5,7 +5,7 @@ Snapshots are stored and handled automatically by Kalix without any specific cod
 [source,conf,indent=0]
 .src/main/resources/application.conf
 ----
-include::java:example$java-protobuf-eventsourced-shopping-cart/src/main/resources/application.conf[tag=snapshot-every]
+include::java-protobuf:example$java-protobuf-eventsourced-shopping-cart/src/main/resources/application.conf[tag=snapshot-every]
 ----
 
 When the Event Sourced Entity is loaded again, the snapshot will be loaded before any other events are received.

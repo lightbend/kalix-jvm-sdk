@@ -101,7 +101,7 @@ Java::
 [source,java]
 .src/main/java/com/example/domain/Counter.java
 ----
-include::java:example$java-protobuf-valueentity-counter/src/main/java/com/example/domain/Counter.java[tag=class]
+include::java-protobuf:example$java-protobuf-valueentity-counter/src/main/java/com/example/domain/Counter.java[tag=class]
 ----
 <1> Extends the generated `AbstractCounter`, which extends link:{attachmentsdir}/api/kalix/javasdk/valueentity/ValueEntity.html[`ValueEntity` {tab-icon}, window="new"].
 <2> Defines the initial, empty, state that is used before any updates.
@@ -111,7 +111,7 @@ Scala::
 [source,scala]
 .src/main/java/com/example/domain/Counter.scala
 ----
-include::java:example$scala-protobuf-valueentity-counter/src/main/scala/com/example/domain/Counter.scala[tag=class]
+include::java-protobuf:example$scala-protobuf-valueentity-counter/src/main/scala/com/example/domain/Counter.scala[tag=class]
 ----
 <1> Extends the generated `AbstractCounter`, which extends link:{attachmentsdir}/api/kalix/scalasdk/valueentity/ValueEntity.html[`ValueEntity` {tab-icon}, window="new"].
 <2> Defines the initial, empty, state that is used before any updates.
@@ -137,7 +137,7 @@ Java::
 [source,java,indent=0]
 ./src/main/java/com/example/domain/Counter.java
 ----
-include::java:example$java-protobuf-valueentity-counter/src/main/java/com/example/domain/Counter.java[tag=increase]
+include::java-protobuf:example$java-protobuf-valueentity-counter/src/main/java/com/example/domain/Counter.java[tag=increase]
 ----
 <1> The validation ensures acceptance of positive values and it fails calls with illegal values by returning an `Effect` with `effects().error`.
 <2> From the current state we create a new state with the increased value.
@@ -149,7 +149,7 @@ Scala::
 [source,scala,indent=0]
 ./src/main/java/com/example/domain/Counter.scala
 ----
-include::java:example$scala-protobuf-valueentity-counter/src/main/scala/com/example/domain/Counter.scala[tag=increase]
+include::java-protobuf:example$scala-protobuf-valueentity-counter/src/main/scala/com/example/domain/Counter.scala[tag=increase]
 ----
 <1> The validation ensures acceptance of positive values and it fails calls with illegal values by returning an `Effect` with `effects.error`.
 <2> From the current state we create a new state with the increased value.
@@ -166,7 +166,7 @@ Java::
 [source,java,indent=0]
 .src/main/java/com/example/domain/Counter.java
 ----
-include::java:example$java-protobuf-valueentity-counter/src/main/java/com/example/domain/Counter.java[tag=getCurrentCounter]
+include::java-protobuf:example$java-protobuf-valueentity-counter/src/main/java/com/example/domain/Counter.java[tag=getCurrentCounter]
 ----
 <1> The current state is passed to the method
 <2> We use its value to create the `CurrentCounter` value that is sent as a reply by returning an `Effect` with `effects().reply`.
@@ -176,7 +176,7 @@ Scala::
 [source,scala,indent=0]
 .src/main/scala/com/example/domain/Counter.scala
 ----
-include::java:example$scala-protobuf-valueentity-counter/src/main/scala/com/example/domain/Counter.scala[tag=getCurrentCounter]
+include::java-protobuf:example$scala-protobuf-valueentity-counter/src/main/scala/com/example/domain/Counter.scala[tag=getCurrentCounter]
 ----
 <1> The current state is passed to the method
 <2> We use its value to create the `CurrentCounter` value that is sent as a reply by returning an `Effect` with `effects.reply`.
@@ -202,7 +202,7 @@ Scala::
 [source,scala]
 ./src/main/scala/com/example/Main.scala
 ----
-include::java:example$scala-protobuf-valueentity-counter/src/main/scala/com/example/Main.scala[tag=registration-value-entity]
+include::java-protobuf:example$scala-protobuf-valueentity-counter/src/main/scala/com/example/Main.scala[tag=registration-value-entity]
 ----
 
 By default, the generated constructor has a `ValueEntityContext` parameter, but you can change this to accept other parameters. If you change the constructor of the `Counter` class you will see a compilation error here, and you have to adjust the factory function that is passed to `KalixFactory.withComponents`.
@@ -219,7 +219,7 @@ Java::
 [source,java,indent=0]
 ./src/main/java/com/example/domain/Counter.java
 ----
-include::java:example$java-protobuf-valueentity-counter/src/main/java/com/example/domain/Counter.java[tag=delete]
+include::java-protobuf:example$java-protobuf-valueentity-counter/src/main/java/com/example/domain/Counter.java[tag=delete]
 ----
 <1> We delete the state by returning an `Effect` with `effects().deleteEntity()`.
 
@@ -228,7 +228,7 @@ Scala::
 [source,scala,indent=0]
 ./src/main/java/com/example/domain/Counter.scala
 ----
-include::java:example$scala-protobuf-valueentity-counter/src/main/scala/com/example/domain/Counter.scala[tag=delete]
+include::java-protobuf:example$scala-protobuf-valueentity-counter/src/main/scala/com/example/domain/Counter.scala[tag=delete]
 ----
 <1> We delete the state by returning an `Effect` with `effects.deleteEntity()`.
 

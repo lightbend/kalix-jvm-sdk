@@ -1,9 +1,9 @@
 = Implementing Event Sourced Entities in Java
-:page-aliases: java:eventsourced.adoc
+:page-aliases: java-protobuf:eventsourced.adoc
 :page-supergroup-java-scala: Language
 
 include::ROOT:partial$include.adoc[]
-include::java:partial$eventsourced.adoc[]
+include::java-protobuf:partial$eventsourced.adoc[]
 
 https://docs.kalix.io/reference/glossary.html#event_sourced_entity[Event Sourced Entities] persist changes as events and snapshots. Kalix needs to serialize that data to send it to the underlying data store, this is done with Protocol Buffers using `protobuf` types.
 
@@ -231,7 +231,7 @@ When more components are added the `KalixFactory` is regenerated and you have to
 
 == Snapshots
 
-include::java:partial$eventsourced-snapshots.adoc[]
+include::java-protobuf:partial$eventsourced-snapshots.adoc[]
 
 == Deleting an Entity
 

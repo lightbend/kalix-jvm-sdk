@@ -1,9 +1,9 @@
-= Quickstart: Customer Registry in Scala
+= Quickstart: Customer Registry in Java
 
 include::ROOT:partial$include.adoc[]
-include::java:partial$attributes.adoc[]
+include::java-protobuf:partial$attributes.adoc[]
 
-Learn how to create a customer registry in Scala, package it into a container, and run it on Kalix.
+Learn how to create a customer registry in Java, package it into a container, and run it on Kalix.
 
 == Before you begin
 
@@ -12,7 +12,7 @@ Learn how to create a customer registry in Scala, package it into a container, a
 * For this quickstart, you'll also need
 ** https://docs.docker.com/engine/install[Docker {minimum_docker_version} or higher, window="new"]
 ** Java {java-version} or higher
-** https://www.scala-sbt.org/download.html[sbt 1.4 or higher, window="new"]
+** https://maven.apache.org/download.cgi[Maven {minimum_maven_version} or higher, window="new"]
 ** https://github.com/fullstorydev/grpcurl#installation[`grpcurl`, window="new"]
 
 [NOTE]
@@ -20,7 +20,7 @@ Learn how to create a customer registry in Scala, package it into a container, a
 If you want to bypass writing code and jump straight to the deployment:
 
 . Download the source code using the Kalix CLI:
-`kalix quickstart download customer-registry-scala`
+`kalix quickstart download customer-registry-java`
 
 . Skip to <<Package and deploy your service>>.
 ====
@@ -41,33 +41,20 @@ mkdir customerregistry
 cd customerregistry
 ----
 
-. Download the `build.sbt` file
+. Download the `pom.xml` file
 +
 [source,command line]
 ----
-curl -OL https://raw.githubusercontent.com/lightbend/kalix-jvm-sdk/main/samples/scala-protobuf-customer-registry-quickstart/build.sbt
+curl -OL https://raw.githubusercontent.com/lightbend/kalix-jvm-sdk/main/samples/java-protobuf-customer-registry-quickstart/pom.xml
 ----
 
-. Create the sbt `project` directory
-+
-[source,command line]
-----
-mkdir project
-----
-
-. Download the `plugins.sbt`
-+
-[source,command line]
-----
-curl -L https://raw.githubusercontent.com/lightbend/kalix-jvm-sdk/main/samples/scala-protobuf-customer-registry-quickstart/project/plugins.sbt -o project/plugins.sbt
-----
-
+. Update the `dockerImage` property (line 13 of the `pom.xml` file) with your container registry name.
 
 == Define the external API
 
 The Customer Registry service will create or retrieve a customer, including their email, phone number and mailing address. The `customer_api.proto` will contain the external API your clients will invoke.
 
-. In your project, create two directories for you protobuf files, `src/main/proto/customer/domain` and `src/main/proto/customer/api`.
+. In your project, create two directories for your protobuf files, `src/main/proto/customer/domain` and `src/main/proto/customer/api`.
 [.tabset]
 Linux or macOS::
 +
@@ -94,12 +81,13 @@ mkdir src/main/proto/customer/domain
 +
 * The protobuf syntax version, `proto3`.
 * The package name, `customer.api`.
-* Import `google/protobuf/empty.proto`.
+* The required Java outer classname, `CustomerAPI`. Messages defined in this file will be generated as inner classes.
+* Import `google/protobuf/empty.proto` and Kalix `kalix/annotations.proto`.
 +
 [source,proto,indent=0]
 .src/main/proto/customer/api/customer_api.proto
 ----
-include::example$scala-protobuf-customer-registry-quickstart/src/main/proto/customer/api/customer_api.proto[tag=declarations]
+include::example$java-protobuf-customer-registry-quickstart/src/main/proto/customer/api/customer_api.proto[tag=declarations]
 ----
 
 . Add the service endpoint. The service endpoint is annotated with `kalix.codegen` indicating we want to generate a Value Entity for this service.
@@ -107,7 +95,7 @@ include::example$scala-protobuf-customer-registry-quickstart/src/main/proto/cust
 [source,proto,indent=0]
 .src/main/proto/customer/api/customer_api.proto
 ----
-include::example$scala-protobuf-customer-registry-quickstart/src/main/proto/customer/api/customer_api.proto[tag=service]
+include::example$java-protobuf-customer-registry-quickstart/src/main/proto/customer/api/customer_api.proto[tag=service]
 ----
 
 . Add messages to define the fields that comprise a `Customer` object (and its compound `Address`)
@@ -115,7 +103,7 @@ include::example$scala-protobuf-customer-registry-quickstart/src/main/proto/cust
 [source,proto,indent=0]
 .src/main/proto/customer/api/customer_api.proto
 ----
-include::example$scala-protobuf-customer-registry-quickstart/src/main/proto/customer/api/customer_api.proto[tag=messages]
+include::example$java-protobuf-customer-registry-quickstart/src/main/proto/customer/api/customer_api.proto[tag=messages]
 ----
 
 . Add the message that will identify which customer to retrieve for the `GetCustomer` message:
@@ -123,21 +111,24 @@ include::example$scala-protobuf-customer-registry-quickstart/src/main/proto/cust
 [source,proto,indent=0]
 .src/main/proto/customer/api/customer_api.proto
 ----
-include::example$scala-protobuf-customer-registry-quickstart/src/main/proto/customer/api/customer_api.proto[tag=method-messages]
+include::example$java-protobuf-customer-registry-quickstart/src/main/proto/customer/api/customer_api.proto[tag=method-messages]
 ----
 
 == Define the domain model
 
-The `customer_domain.proto` contains all the internal data objects (https://docs.kalix.io/reference/glossary.html#entity[Entities, window="new"]). The https://docs.kalix.io/reference/glossary.html#value_entity[Value Entity, window="new"]  in this quickstart is a Key/Value store that stores only the latest updates.
+The `customer_domain.proto` contains all the internal data objects (https://docs.kalix.io/reference/glossary.html#entity[Entities, window="new"]). The https://docs.kalix.io/reference/glossary.html#value_entity[Value Entity, window="new"] in this quickstart is a Key/Value store that stores only the latest updates.
 
 . Create a `customer_domain.proto` file and save it in the `src/main/proto/customer/domain` directory.
 
 . Add declarations for the proto syntax and domain package.
 +
+* The package name, `customer.domain`.
+* The Java outer classname, `CustomerDomain`.
++
 [source,proto,indent=0]
 .src/main/proto/customer/domain/customer_domain.proto
 ----
-include::example$scala-protobuf-customer-registry-quickstart/src/main/proto/customer/domain/customer_domain.proto[tag=declarations]
+include::example$java-protobuf-customer-registry-quickstart/src/main/proto/customer/domain/customer_domain.proto[tag=declarations]
 ----
 
 . Add the `CustomerState` message with fields for entity data, and the `Address` message that defines the compound address:
@@ -145,28 +136,28 @@ include::example$scala-protobuf-customer-registry-quickstart/src/main/proto/cust
 [source,proto,indent=0]
 .src/main/proto/customer/domain/customer_domain.proto
 ----
-include::example$scala-protobuf-customer-registry-quickstart/src/main/proto/customer/domain/customer_domain.proto[tag=domain]
+include::example$java-protobuf-customer-registry-quickstart/src/main/proto/customer/domain/customer_domain.proto[tag=domain]
 ----
 
-. Run `sbt compile` from the project root directory to generate source classes in which you add business logic.
+. Run `mvn compile` from the project root directory to generate source classes in which you add business logic.
 +
 [source,command line]
 ----
-sbt compile
+mvn compile
 ----
 
 == Create command handlers
 
 Command handlers, as the name suggests, handle incoming requests before persisting them.
 
-. If it's not open already, open `src/main/scala/customer/domain/Customer.scala` for editing.
+. If it's not open already, open `src/main/java/customer/domain/Customer.java` for editing.
 
 . Modify the `create` method by adding the logic to handle the command. The complete method should include the following:
 +
-[source, scala]
-.src/main/scala/customer/domain/Customer.scala
+[source, java]
+.src/main/java/customer/domain/Customer.java
 ----
-include::example$scala-protobuf-customer-registry-quickstart/src/main/scala/customer/domain/Customer.scala[tag=create]
+include::example$java-protobuf-customer-registry-quickstart/src/main/java/customer/domain/Customer.java[tag=create]
 ----
 +
 * The incoming message contains the request data from your client and the command handler updates the state of the customer.
@@ -174,10 +165,10 @@ include::example$scala-protobuf-customer-registry-quickstart/src/main/scala/cust
 
 . Modify the `getCustomer` method as follows to handle the `GetCustomerRequest` command:
 +
-[source, scala, indent=0]
-.src/main/scala/customer/domain/Customer.scala
+[source, java, indent=0]
+.src/main/java/customer/domain/Customer.java
 ----
-include::example$scala-protobuf-customer-registry-quickstart/src/main/scala/customer/domain/Customer.scala[tag=getCustomer]
+include::example$java-protobuf-customer-registry-quickstart/src/main/java/customer/domain/Customer.java[tag=getCustomer]
 ----
 +
 * If that customer doesn't exist, processing the command fails.
@@ -187,32 +178,24 @@ include::example$scala-protobuf-customer-registry-quickstart/src/main/scala/cust
 
 [NOTE]
 ====
-The `src/main/scala/customer/Main.scala` file already contains the required code to start your service and register it with Kalix.
+The `src/main/java/customer/Main.java` file already contains the required code to start your service and register it with Kalix.
 ====
-
 
 == Define the initial entity state
 
 To give the domain model a starting point, the initial state for the entity needs to be defined.
 
-. Implement the `emptyState` method by returning an instance of the `CustomerState` case class:
+. Implement the `emptyState` method by returning a default instance of the `CustomerState` class:
 +
-[source, scala]
-.src/main/scala/customer/domain/Customer.scala
+[source, java]
+.src/main/java/customer/domain/Customer.java
 ----
-include::example$scala-protobuf-customer-registry-quickstart/src/main/scala/customer/domain/Customer.scala[tag=emptyState]
+include::example$java-protobuf-customer-registry-quickstart/src/main/java/customer/domain/Customer.java[tag=emptyState]
 ----
 
 == Package and deploy your service
 
 To build and publish the container image and then deploy the service, follow these steps:
-
-. Use the `Docker/publish` task to build the container image and publish it to your container registry. At the end of this command sbt will show you the container image URL you'll need in the next part of this quickstart.
-+
-[source,command line]
-----
-sbt Docker/publish -Ddocker.username=[your-docker-hub-username]
-----
 
 . If you haven't done so yet, sign in to your Kalix account. If this is your first time using Kalix, this will let you register an account, https://docs.kalix.io/projects/create-project.html[create your first project], and set this project as the default.
 +
@@ -221,11 +204,11 @@ sbt Docker/publish -Ddocker.username=[your-docker-hub-username]
 kalix auth login
 ----
 
-. https://docs.kalix.io/services/deploy-service.html#_deploy[Deploy the service] with the published container image from above:
+. Use the `deploy` target to build the container image, publish it to the container registry as configured in the `pom.xml` file, and then automatically https://docs.kalix.io/services/deploy-service.html#_deploy[deploy the service] to Kalix using `kalix`:
 +
 [source,command line]
 ----
-kalix service deploy <service name> <container image>
+mvn deploy
 ----
 
 . You can https://docs.kalix.io/services/deploy-service.html#_verify_service_status[verify the status of the deployed service] using:
@@ -295,4 +278,5 @@ grpcurl \
 
 == Next steps
 
-* You can learn more about xref:java:value-entity.adoc[Value Entities].
+* You can learn more about xref:java-protobuf:value-entity.adoc[Value Entities].
+* Continue this example by xref:java-protobuf:quickstart/cr-value-entity-views-java.adoc[adding Views], which makes it possible to query the customer registry.
