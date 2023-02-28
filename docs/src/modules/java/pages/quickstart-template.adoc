@@ -300,8 +300,9 @@ First make sure you have updated the `dockerImage` property in the `pom.xml` to 
 [.group-java]
 `deploy` packages and publishes your Docker image to your repository and `kalix:deploy` deploys the service with your image to Kalix. If `kalixProject` is set, that is the project where the service will be deployed. If it is not set, the service will be deployed in your currently selected project.
 [.group-java]
-IMPORTANT: If you time stamp your image. For example, `<dockerTag>${project.version}-${build.timestamp}</dockerTag>` you must always run both targets in one pass, i.e. `mvn deploy kalix:deploy`. You cannot run `mvn deploy` first and then `mvn kalix:deploy` because they have different timestamps and thus different `dockerTag`s. Making it impossible to reference the image in the repository from the second target.
+include::partial$important-mvn-kalixdeploy.adoc[]
 [.group-java]
+If you time stamp your image. For example,
 When using the CLI, in your command window, set your Kalix project to be the current project:
 
 [source, command window]

@@ -87,7 +87,7 @@ kalix auth login
 ----
 mvn deploy kalix:deploy
 ----
-IMPORTANT: If you time stamp your image. For example, `<dockerTag>${project.version}-${build.timestamp}</dockerTag>` you must always run both targets in one pass, i.e. `mvn deploy kalix:deploy`. You cannot run `mvn deploy` first and then `mvn kalix:deploy` because they will have different timestamps and thus different `dockerTag`s. This makes it impossible to reference the image in the repository from the second target.
+include::partial$important-mvn-kalixdeploy.adoc[]
 
 . You can https://docs.kalix.io/services/deploy-service.html#_verify_service_status[verify the status of the deployed service] using:
 +
