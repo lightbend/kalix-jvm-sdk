@@ -1,7 +1,7 @@
 = Quickstart: Customer Registry with Views in Java
 
 include::ROOT:partial$include.adoc[]
-include::java:partial$attributes.adoc[]
+include::java-protobuf:partial$attributes.adoc[]
 
 Create a customer registry that includes queries in Java, package it into a container, and run it on Kalix.
 
@@ -33,7 +33,7 @@ If you want to bypass writing code and jump straight to the deployment:
 
 == Start from the Customer Registry Entity
 
-Start by downloading the  xref:java:quickstart/cr-value-entity-java.adoc[Customer Registry Quickstart] source code using the Kalix CLI:
+Start by downloading the  xref:java-protobuf:quickstart/cr-value-entity-java.adoc[Customer Registry Quickstart] source code using the Kalix CLI:
 
 [source,command line]
 ----
@@ -230,4 +230,4 @@ NOTE: The state of the View is still per Entity. The `CustomerDomain.CustomerSta
 
 == Next steps
 
-* You can read more about xref:java:views.adoc[Views].
+* You can read more about xref:java-protobuf:views.adoc[Views].

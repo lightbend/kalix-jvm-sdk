@@ -119,7 +119,7 @@ Java::
 [source,java]
 ./src/main/java/com/example/Main.java
 ----
-include::java:example$java-protobuf-fibonacci-action/src/main/java/com/example/Main.java[]
+include::java-protobuf:example$java-protobuf-fibonacci-action/src/main/java/com/example/Main.java[]
 ----
 
 Scala::
