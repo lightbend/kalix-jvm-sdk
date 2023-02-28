@@ -1,7 +1,7 @@
 = Quickstart: Customer Registry in Java
 
 include::ROOT:partial$include.adoc[]
-include::java:partial$attributes.adoc[]
+include::java-protobuf:partial$attributes.adoc[]
 
 Learn how to create a customer registry in Java, package it into a container, and run it on Kalix.
 
@@ -279,5 +279,5 @@ grpcurl \
 
 == Next steps
 
-* You can learn more about xref:java:value-entity.adoc[Value Entities].
-* Continue this example by xref:java:quickstart/cr-value-entity-views-java.adoc[adding Views], which makes it possible to query the customer registry.
+* You can learn more about xref:java-protobuf:value-entity.adoc[Value Entities].
+* Continue this example by xref:java-protobuf:quickstart/cr-value-entity-views-java.adoc[adding Views], which makes it possible to query the customer registry.

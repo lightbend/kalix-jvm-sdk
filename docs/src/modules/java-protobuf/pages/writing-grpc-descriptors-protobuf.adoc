@@ -1,5 +1,5 @@
 = Writing gRPC descriptors
-:page-aliases: java:proto.adoc
+:page-aliases: java-protobuf:proto.adoc
 
 include::ROOT:partial$include.adoc[]
 include::partial$attributes.adoc[]

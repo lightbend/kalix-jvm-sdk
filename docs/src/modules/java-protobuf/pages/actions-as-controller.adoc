@@ -5,7 +5,7 @@ Actions can be used to implement link:https://en.wikipedia.org/wiki/Model%E2%80%
 acting as the external interface of a service, receiving requests, operating over the requests values and forwarding the call
 to other components in the same service.
 
-To illustrate how you can use an Action as a Controller, we will build on top of the xref:writing-grpc-descriptors-protobuf.adoc[Value Entity Shopping Cart] example, adding a new Action to the existing shopping cart service.
+To illustrate how you can use an Action as a Controller, we will build on top of the xref:proto.adoc[Value Entity Shopping Cart] example, adding a new Action to the existing shopping cart service.
 
 == Forwarding Commands
 
