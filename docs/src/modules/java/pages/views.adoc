@@ -143,7 +143,7 @@ When consuming events, each event must be matched by a View service method. In c
 
 . You can add event handlers for all of them and return `Effect.ignore` for those you are not interested.
 
-. You can add `ignoreUnknown = true` to your `@Subcribe` annotation but only if it is a type level annotation. This works in a View the same way as in an Action. Check out this example in xref:spring:actions-publishing-subscribing.adoc#_type_level_annotations_for_subscribing[type level subscribing for an action]. 
+. You can add `ignoreUnknown = true` to your `@Subcribe` annotation but only if it is a type level annotation. This works in a View the same way as in an Action. Check out this example in xref:java:actions-publishing-subscribing.adoc#_type_level_annotations_for_subscribing[type level subscribing for an action].
 
 If there is no handler for an incoming event and there is no `ignoreUnknown = true` at type level, the View will fail. Views are designed to restart, but since it can't process the event, the view will keep failing trying to reprocess it.
 

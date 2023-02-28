@@ -11,9 +11,9 @@ java_managed_partials := ${src_managed}/modules/java-protobuf/partials
 
 scala_managed_attachments := ${src_managed}/modules/scala-protobuf/attachments
 
-spring_managed_attachments := ${src_managed}/modules/spring/attachments
-spring_managed_examples := ${src_managed}/modules/spring/examples
-spring_managed_partials := ${src_managed}/modules/spring/partials
+spring_managed_attachments := ${src_managed}/modules/java/attachments
+spring_managed_examples := ${src_managed}/modules/java/examples
+spring_managed_partials := ${src_managed}/modules/java/partials
 
 antora_docker_image := gcr.io/kalix-public/kalix-docbuilder
 antora_docker_image_tag := 0.0.5

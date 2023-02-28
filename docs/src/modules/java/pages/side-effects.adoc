@@ -17,7 +17,7 @@ You might want to run side effects to notify interested parties of a change in s
 
 == Emitting a side effect
 
-To illustrate how you can emit a side effect, you can build on top of the xref:spring:actions-as-controller.adoc[Action as a Controller] example. In that previous example, you  build a controller around the xref:value-entity.adoc[Value Entity Counter] and forwarded the incoming request
+To illustrate how you can emit a side effect, you can build on top of the xref:java:actions-as-controller.adoc[Action as a Controller] example. In that previous example, you  build a controller around the xref:value-entity.adoc[Value Entity Counter] and forwarded the incoming request
 after modifying it.
 
 This time, instead of using a `forward`, you will call the entity using a side effect.
