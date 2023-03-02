@@ -1,4 +1,4 @@
-= Quickstart: Customer Registry with Kafka in Java
+= Quickstart: Customer Registry with Kafka in Java/Protobuf
 
 include::ROOT:partial$include.adoc[]
 include::java-protobuf:partial$attributes.adoc[]

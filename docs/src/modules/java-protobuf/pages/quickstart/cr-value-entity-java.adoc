@@ -1,4 +1,4 @@
-= Quickstart: Customer Registry in Java
+= Quickstart: Customer Registry in Java/Protobuf
 
 include::ROOT:partial$include.adoc[]
 include::java-protobuf:partial$attributes.adoc[]

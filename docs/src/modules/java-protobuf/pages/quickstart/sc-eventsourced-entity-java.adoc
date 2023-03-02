@@ -1,4 +1,4 @@
-= Quickstart: Shopping Cart in Java
+= Quickstart: Shopping Cart in Java/Protobuf
 
 include::ROOT:partial$include.adoc[]
 include::java-protobuf:partial$attributes.adoc[]

@@ -103,7 +103,7 @@ This uses JDK {spring-java-version} and the image is based on the link:https://a
 mvn install
 ----
 
-TIP: For more details see xref:java:development-process-spring.adoc#_package_service[Development Process - Package service].
+TIP: For more details see xref:java:development-process.adoc#_package_service[Development Process - Package service].
 
 == Run locally
 
@@ -152,4 +152,4 @@ include::partial$important-mvn-kalixdeploy.adoc[]
 kalix config set project <project-name>
 ----
 
-- Deploy your service following the instructions at xref:java:development-process-spring.adoc#_deploy_to_kalix[Development Process - Deploy to Kalix].
+- Deploy your service following the instructions at xref:java:development-process.adoc#_deploy_to_kalix[Development Process - Deploy to Kalix].

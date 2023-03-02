@@ -1,4 +1,4 @@
-= Quickstart: Customer Registry with Spring
+= Quickstart: Customer Registry with Java
 
 include::ROOT:partial$include.adoc[]
 include::java:partial$attributes.adoc[]

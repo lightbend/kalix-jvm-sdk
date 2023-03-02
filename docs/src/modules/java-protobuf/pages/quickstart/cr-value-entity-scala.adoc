@@ -1,4 +1,4 @@
-= Quickstart: Customer Registry in Scala
+= Quickstart: Customer Registry in Scala/Protobuf
 
 include::ROOT:partial$include.adoc[]
 include::java-protobuf:partial$attributes.adoc[]
