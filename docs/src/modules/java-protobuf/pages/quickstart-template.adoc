@@ -87,7 +87,7 @@ As you develop your own logic, you can change the `.proto` file definitions and 
 
 == Examine the project
 
-The template created the source files outlined in xref:developing:development-process-java.adoc[]. Take a look at the pieces it provided for you:
+The template created the source files outlined in xref:developing:development-process-proto.adoc[]. Take a look at the pieces it provided for you:
 
 === Descriptors for the service interface and domain model
 
@@ -258,7 +258,7 @@ Scala::
 sbt -Ddocker.username=alice Docker/publish
 ----
 
-TIP: For more details see xref:developing:development-process-java.adoc#_package_service[Development Process - Package service].
+TIP: For more details see xref:developing:development-process-proto.adoc#_package_service[Development Process - Package service].
 
 == Run locally
 
@@ -313,4 +313,4 @@ kalix config set project <project-name>
 [.group-scala]
 - Run `sbt Docker/publish` which conveniently packages and publishes your Docker image prior to deployment.
 
-- Deploy your service following the instructions at xref:developing:development-process-java.adoc#_deploy_to_kalix[Development Process - Deploy to Kalix].
+- Deploy your service following the instructions at xref:developing:development-process-proto.adoc#_deploy_to_kalix[Development Process - Deploy to Kalix].

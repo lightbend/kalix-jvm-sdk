@@ -1,6 +1,6 @@
 ** xref:index.adoc[]
 *** xref:developer-tools.adoc[]
-*** xref:developing:development-process-java.adoc[]
+*** xref:developing:development-process-proto.adoc[]
 *** xref:quickstart-template.adoc[]
 *** xref:writing-grpc-descriptors-protobuf.adoc[]
 *** xref:value-entity.adoc[Implementing Value Entities]
