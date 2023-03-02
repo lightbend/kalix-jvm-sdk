@@ -476,6 +476,31 @@ include::example$scala-protobuf-eventsourced-customer-registry/src/main/scala/cu
 
 The View definitions are stored and validated when a new version is deployed. There will be an error message if the changes are not compatible.
 
+=== Drop obsolete view data
+
+The data for old Views, that are no longer actively used, can be dropped using the `kalix` CLI https://docs.kalix.io/kalix/kalix_services_views.html[service view commands].
+
+A summary of all views for a running service can be listed using the https://docs.kalix.io/kalix/kalix_services_views_list.html[views list command]:
+
+----
+> kalix service views list customer-registry
+NAME               ACTIVE   LAST UPDATED
+CustomerByName     false    1d
+CustomerByNameV2   true     5m
+----
+
+Any views that are inactive and no longer needed can be dropped using the https://docs.kalix.io/kalix/kalix_services_views_drop.html[views drop command]:
+
+----
+> kalix service views drop customer-registry CustomerByName
+The data for view 'CustomerByName' of service 'customer-registry' has successfully been dropped.
+
+> kalix service views list customer-registry
+NAME               ACTIVE   LAST UPDATED
+CustomerByNameV2   true     10m
+----
+
+
 == Streaming view updates
 
 A query can provide a near real time stream of results for the query, emitting new entries matching the query as they are added or updated in
