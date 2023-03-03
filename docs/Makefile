@@ -17,6 +17,8 @@ java_managed_partials := ${src_managed}/modules/java/partials
 
 #to remove, kept for now so users can still do version checks
 spring_managed_attachments := ${src_managed}/modules/spring/attachments
+#proxy uses sdk-flavor to check latest version although java-spring docs will be at /java/
+java_spring_managed_attachments := ${src_managed}/modules/java-spring/attachments
 
 antora_docker_image := gcr.io/kalix-public/kalix-docbuilder
 antora_docker_image_tag := 0.0.5
@@ -72,10 +74,12 @@ apidocs:
 	rsync -a ../sdk/java-sdk-spring-testkit/target/api/ "${java_managed_attachments}/testkit/"
 	mkdir -p "${scala_pb_managed_attachments}"
 	mkdir -p "${spring_managed_attachments}"
+	mkdir -p "${java_spring_managed_attachments}"
 	bin/version.sh > "${java_pb_managed_attachments}/latest-version.txt" \
 		&& cp "${java_pb_managed_attachments}/latest-version.txt" "${scala_pb_managed_attachments}" \
 		&& cp "${java_pb_managed_attachments}/latest-version.txt" "${java_managed_attachments}" \
-        && cp "${java_pb_managed_attachments}/latest-version.txt" "${spring_managed_attachments}"
+        && cp "${java_pb_managed_attachments}/latest-version.txt" "${spring_managed_attachments}" \
+        && cp "${java_pb_managed_attachments}/latest-version.txt" "${java_spring_managed_attachments}"
 
 examples:
 	mkdir -p "${java_pb_managed_examples}"
