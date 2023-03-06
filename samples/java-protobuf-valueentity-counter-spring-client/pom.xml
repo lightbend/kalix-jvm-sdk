@@ -56,7 +56,7 @@
         </dependency>
         <dependency>
             <groupId>io.kalix</groupId>
-            <artifactId>kalix-java-sdk</artifactId>
+            <artifactId>kalix-java-sdk-protobuf</artifactId>
             <version>${kalix-sdk.version}</version>
         </dependency>
         <dependency>

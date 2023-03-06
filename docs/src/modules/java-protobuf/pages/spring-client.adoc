@@ -190,7 +190,7 @@ Download the resulting ZIP file, which is an archive of a web application that i
         </dependency>
         <dependency>
             <groupId>io.kalix</groupId>
-            <artifactId>kalix-java-sdk</artifactId>
+            <artifactId>kalix-java-sdk-protobuf</artifactId>
             <version>${kalix-sdk.version}</version>
         </dependency>
     </dependencies>
