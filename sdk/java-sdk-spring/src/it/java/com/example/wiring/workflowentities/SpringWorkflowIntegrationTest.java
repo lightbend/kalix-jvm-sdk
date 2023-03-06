@@ -280,7 +280,41 @@ public class SpringWorkflowIntegrationTest {
         });
   }
 
+  @Test
+  public void shouldStartFailingCounterWorkflow() {
+    //given
+    var counterId = randomId();
+    var workflowId = randomId();
+
+    //when
+    String response = webClient.put().uri("/workflow-with-error-handling/" + workflowId + "/" + counterId)
+        .retrieve()
+        .bodyToMono(Message.class)
+        .map(m -> m.text)
+        .block(timeout);
+
+    assertThat(response).isEqualTo("workflow started");
+
+    //then
+    await()
+        .atMost(10, TimeUnit.of(SECONDS))
+        .untilAsserted(() -> {
+          String counterValue = webClient.get().uri("/failing-counter/" + counterId)
+              .retrieve()
+              .bodyToMono(String.class)
+              .map(s -> s.replace("\"", ""))
+              .block(Duration.ofSeconds(20));
+
+          assertThat(counterValue).isEqualTo("3");
+        });
+
+  }
+
   private String randomTransferId() {
+    return randomId();
+  }
+
+  private static String randomId() {
     return UUID.randomUUID().toString().substring(0, 8);
   }
 

@@ -23,6 +23,7 @@ import akka.NotUsed
 import akka.actor.ActorSystem
 import akka.stream.scaladsl.Flow
 import akka.stream.scaladsl.Source
+import com.google.protobuf.duration
 import com.google.protobuf.duration.Duration
 import io.grpc.Status
 import kalix.javasdk.impl.EntityExceptions.EntityException
@@ -48,6 +49,8 @@ import kalix.javasdk.workflowentity.WorkflowEntityContext
 import kalix.javasdk.workflowentity.WorkflowEntityOptions
 import kalix.protocol.component
 import kalix.protocol.component.{ Reply => ProtoReply }
+import kalix.protocol.workflow_entity.RecoverStrategy
+import kalix.protocol.workflow_entity.StepConfig
 import kalix.protocol.workflow_entity.WorkflowClientAction
 import kalix.protocol.workflow_entity.WorkflowConfig
 import kalix.protocol.workflow_entity.WorkflowEffect
@@ -67,11 +70,13 @@ import kalix.protocol.workflow_entity.{ Pause => ProtoPause }
 import kalix.protocol.workflow_entity.{ NoTransition => ProtoNoTransition }
 import org.slf4j.LoggerFactory
 
+import java.util.Optional
 import scala.jdk.OptionConverters._
 // FIXME these don't seem to be 'public API', more internals?
 import com.google.protobuf.Descriptors
 import kalix.javasdk.Metadata
 import kalix.javasdk.impl._
+import scala.jdk.CollectionConverters._
 
 final class WorkflowEntityService(
     val factory: WorkflowEntityFactory,
@@ -131,6 +136,41 @@ final class WorkflowEntityImpl(system: ActorSystem, val services: Map[String, Wo
       }
       .async
 
+  private def toRecoveryStrategy(messageCodec: MessageCodec)(
+      recoverStrategy: WorkflowEntity.RecoverStrategy[_]): RecoverStrategy = {
+    RecoverStrategy(
+      maxRetries = recoverStrategy.maxRetries,
+      failoverStepName = recoverStrategy.failoverToStepName,
+      failoverStepInput = recoverStrategy.failoverStepInput.toScala.map(messageCodec.encodeScala))
+  }
+
+  private def toStepConfig(
+      name: String,
+      timeout: Optional[java.time.Duration],
+      recoverStrategy: Option[WorkflowEntity.RecoverStrategy[_]],
+      messageCodec: MessageCodec) = {
+    val stepTimeout = timeout.toScala.map(duration.Duration(_))
+    val stepRecoveryStrategy = recoverStrategy.map(toRecoveryStrategy(messageCodec))
+    StepConfig(name, stepTimeout, stepRecoveryStrategy)
+  }
+
+  private def toWorkflowConfig(
+      workflowDefinition: WorkflowEntity.Workflow[_],
+      messageCodec: MessageCodec): WorkflowConfig = {
+    val workflowTimeout = workflowDefinition.getWorkflowTimeout.toScala.map(Duration(_))
+    val stepConfigs = workflowDefinition.getSteps.asScala
+      .map(s => toStepConfig(s.name(), s.timeout(), s.recoverStrategy().toScala, messageCodec))
+      .toSeq
+    val stepConfig =
+      toStepConfig(
+        "",
+        workflowDefinition.getStepTimeout,
+        workflowDefinition.getStepRecoverStrategy.toScala,
+        messageCodec)
+
+    WorkflowConfig(workflowTimeout, Some(stepConfig), stepConfigs)
+  }
+
   private def runWorkflow(
       init: WorkflowEntityInit): (Flow[WorkflowStreamIn, WorkflowStreamOut, NotUsed], WorkflowStreamOut) = {
     val service =
@@ -139,10 +179,9 @@ final class WorkflowEntityImpl(system: ActorSystem, val services: Map[String, Wo
       service.factory.create(new WorkflowEntityContextImpl(init.entityId, system))
     val entityId = init.entityId
 
-    val workflowTimeout =
-      router._getWorkflowDefinition().getWorkflowTimeout.toScala.map(Duration(_))
     val workflowConfig =
-      WorkflowStreamOut(WorkflowStreamOut.Message.Config(WorkflowConfig(workflowTimeout)))
+      WorkflowStreamOut(
+        WorkflowStreamOut.Message.Config(toWorkflowConfig(router._getWorkflowDefinition(), service.messageCodec)))
 
     init.userState match {
       case Some(state) =>

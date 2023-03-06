@@ -259,9 +259,12 @@ public abstract class WorkflowEntity<S> {
 
   public static class Workflow<S> {
 
-    final private List<Step> steps = new ArrayList<Step>();
+    final private List<Step> steps = new ArrayList<>();
     final private Set<String> uniqueNames = new HashSet<>();
     private Optional<Duration> workflowTimeout = Optional.empty();
+    private Optional<Duration> stepTimeout = Optional.empty();
+    private Optional<RecoverStrategy<?>> stepRecoverStrategy = Optional.empty();
+
 
 
     private Workflow() {
@@ -286,15 +289,43 @@ public abstract class WorkflowEntity<S> {
 
     /**
      * Define a timeout for the duration of the entire workflow. When the timeout expires, the workflow is finished and no transitions are allowed.
-     * @param duration Timeout duration
+     * @param timeout Timeout duration
      */
-    public Workflow<S> timeout(Duration duration) {
-      this.workflowTimeout = Optional.of(duration);
+    public Workflow<S> timeout(Duration timeout) {
+      this.workflowTimeout = Optional.of(timeout);
+      return this;
+    }
+
+    /**
+     * Define a default timeout for the duration of the step. Can be overridden with step configuration.
+     */
+    public Workflow<S> stepTimeout(Duration timeout) {
+      this.stepTimeout = Optional.of(timeout);
+      return this;
+    }
+
+    /**
+     * Define a default step recovery strategy. Can be overridden with step configuration.
+     */
+    public Workflow<S> stepRecoveryStrategy(RecoverStrategy recoverStrategy) {
+      this.stepRecoverStrategy = Optional.of(recoverStrategy);
       return this;
     }
 
     public Optional<Duration> getWorkflowTimeout() {
       return workflowTimeout;
+    }
+
+    public Optional<Duration> getStepTimeout() {
+      return stepTimeout;
+    }
+
+    public Optional<RecoverStrategy<?>> getStepRecoverStrategy() {
+      return stepRecoverStrategy;
+    }
+
+    public List<Step> getSteps() {
+      return steps;
     }
   }
 
@@ -304,17 +335,21 @@ public abstract class WorkflowEntity<S> {
   }
 
 
-  public interface Step {
+  public interface Step<FailoverInput> {
     String name();
+    Optional<Duration> timeout();
+    Optional<RecoverStrategy<FailoverInput>> recoverStrategy();
   }
 
-  public static class CallStep<CallInput, DefCallInput, DefCallOutput> implements Step {
+  public static class CallStep<CallInput, DefCallInput, DefCallOutput, FailoverInput> implements Step<FailoverInput> {
 
     final private String _name;
     final public Function<CallInput, DeferredCall<DefCallInput, DefCallOutput>> callFunc;
     final public Function<DefCallOutput, Effect.TransitionalEffect<Void>> transitionFunc;
     final public Class<CallInput> callInputClass;
     final public Class<DefCallOutput> transitionInputClass;
+    private Optional<Duration> _timeout = Optional.empty();
+    private Optional<RecoverStrategy<FailoverInput>> _recoverStrategy = Optional.empty();
 
     public CallStep(String name,
                     Function<CallInput, DeferredCall<DefCallInput, DefCallOutput>> callFunc,
@@ -332,15 +367,43 @@ public abstract class WorkflowEntity<S> {
     public String name() {
       return this._name;
     }
+
+    @Override
+    public Optional<Duration> timeout() {
+      return this._timeout;
+    }
+
+    @Override
+    public Optional<RecoverStrategy<FailoverInput>> recoverStrategy() {
+      return this._recoverStrategy;
+    }
+
+    /**
+     * Define a step timeout.
+     */
+    public CallStep<CallInput, DefCallInput, DefCallOutput, FailoverInput> timeout(Duration timeout){
+      this._timeout = Optional.of(timeout);
+      return this;
+    }
+
+    /**
+     * Define a step recovery strategy.
+     */
+    public CallStep<CallInput, DefCallInput, DefCallOutput, FailoverInput> recoveryStrategy(RecoverStrategy<FailoverInput> recoverStrategy){
+      this._recoverStrategy = Optional.of(recoverStrategy);
+      return this;
+    }
   }
 
-  public static class AsyncCallStep<CallInput, CallOutput> implements Step {
+  public static class AsyncCallStep<CallInput, CallOutput, FailoverInput> implements Step<FailoverInput> {
 
     final private String _name;
     final public Function<CallInput, CompletionStage<CallOutput>> callFunc;
     final public Function<CallOutput, Effect.TransitionalEffect<Void>> transitionFunc;
     final public Class<CallInput> callInputClass;
     final public Class<CallOutput> transitionInputClass;
+    private Optional<Duration> _timeout = Optional.empty();
+    private Optional<RecoverStrategy<FailoverInput>> _recoverStrategy = Optional.empty();
 
     public AsyncCallStep(String name,
                          Function<CallInput, CompletionStage<CallOutput>> callFunc,
@@ -358,6 +421,32 @@ public abstract class WorkflowEntity<S> {
     public String name() {
       return this._name;
     }
+
+    @Override
+    public Optional<Duration> timeout() {
+      return this._timeout;
+    }
+
+    @Override
+    public Optional<RecoverStrategy<FailoverInput>> recoverStrategy() {
+      return this._recoverStrategy;
+    }
+
+    /**
+     * Define a step timeout.
+     */
+    public AsyncCallStep<CallInput, CallOutput, FailoverInput> timeout(Duration timeout){
+      this._timeout = Optional.of(timeout);
+      return this;
+    }
+
+    /**
+     * Define a step recovery strategy.
+     */
+    public AsyncCallStep<CallInput, CallOutput, FailoverInput> recoveryStrategy(RecoverStrategy<FailoverInput> recoverStrategy){
+      this._recoverStrategy = Optional.of(recoverStrategy);
+      return this;
+    }
   }
 
   /**
@@ -369,6 +458,48 @@ public abstract class WorkflowEntity<S> {
   @ApiMayChange
   public static WorkflowEntity.StepBuilder step(String name) {
     return new WorkflowEntity.StepBuilder(name);
+  }
+
+  public static class RecoverStrategy<T> {
+
+    public final int maxRetries;
+    public final String failoverToStepName;
+    public final Optional<T> failoverStepInput;
+
+    public RecoverStrategy(int maxRetries, String failoverToStepName, Optional<T> failoverStepInput) {
+      this.maxRetries = maxRetries;
+      this.failoverToStepName = failoverToStepName;
+      this.failoverStepInput = failoverStepInput;
+    }
+
+    public static class RecoverStrategyBuilder{
+      private final int maxRetries;
+
+      public RecoverStrategyBuilder(int maxRetries) {
+        this.maxRetries = maxRetries;
+      }
+
+      /**
+       * Once max retries is exceeded, transition to a given step name.
+       */
+      public RecoverStrategy failoverTo(String stepName) {
+        return new RecoverStrategy(maxRetries, stepName, Optional.<Void>empty());
+      }
+
+      /**
+       * Once max retries is exceeded, transition to a given step name with input parameter.
+       */
+      public <T> RecoverStrategy<T> failoverTo(String stepName, T input) {
+        return new RecoverStrategy(maxRetries, stepName, Optional.of(input));
+      }
+    }
+
+    /**
+     * Set the number of retires, <code>maxRetries</code> equals 1 means that the step will be launched only once.
+     */
+    public static RecoverStrategyBuilder maxRetries(int maxRetries){
+      return new RecoverStrategyBuilder(maxRetries);
+    }
   }
 
   public static class StepBuilder {
@@ -452,7 +583,7 @@ public abstract class WorkflowEntity<S> {
        * @return CallStep
        */
       @ApiMayChange
-      public CallStep<Input, DefCallInput, DefCallOutput> andThen(Function<DefCallOutput, Effect.TransitionalEffect<Void>> transitionFunc) {
+      public CallStep<Input, DefCallInput, DefCallOutput, ?> andThen(Function<DefCallOutput, Effect.TransitionalEffect<Void>> transitionFunc) {
         return new CallStep<>(name, callFunc, transitionFunc);
       }
     }
@@ -476,7 +607,7 @@ public abstract class WorkflowEntity<S> {
        * @return AsyncCallStep
        */
       @ApiMayChange
-      public AsyncCallStep<CallInput, CallOutput> andThen(Function<CallOutput, Effect.TransitionalEffect<Void>> transitionFunc) {
+      public AsyncCallStep<CallInput, CallOutput, ?> andThen(Function<CallOutput, Effect.TransitionalEffect<Void>> transitionFunc) {
         return new AsyncCallStep<>(name, callFunc, transitionFunc);
       }
     }
