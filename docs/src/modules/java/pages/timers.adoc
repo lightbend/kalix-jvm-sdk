@@ -1,4 +1,5 @@
 = Timers
+:page-aliases: spring:timers.adoc
 
 include::java-protobuf:partial$timers-intro.adoc[]
 

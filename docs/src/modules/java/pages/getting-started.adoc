@@ -1,6 +1,5 @@
 = Getting started
-:page-aliases: spring:kickstart.adoc
-:page-aliases: spring:quickstart-java-maven.adoc
+:page-aliases: spring:kickstart.adoc, spring:quickstart-java-maven.adoc, spring:getting-started.adoc
 
 include::ROOT:partial$include.adoc[]
 include::partial$attributes.adoc[]

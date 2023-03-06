@@ -1,4 +1,5 @@
 = Service to Service Eventing
+:page-aliases: spring:service-to-service.adoc
 
 include::ROOT:partial$include.adoc[]
 

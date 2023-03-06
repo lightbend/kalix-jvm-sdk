@@ -1,4 +1,5 @@
 = Handling Serialization
+:page-aliases: spring:serialization.adoc
 
 You do not need to create serializers for the messages, events, or the state of Kalix components but you need to make them serializable. The same is true with Kalix endpoints. Kalix exposes the inputs and outputs of endpoints as JSON and you need to make them serializable. You have two ways to do this. 
 

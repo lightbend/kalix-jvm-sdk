@@ -1,4 +1,5 @@
 = Running Side Effects
+:page-aliases: spring:side-effects.adoc
 
 include::ROOT:partial$include.adoc[]
 
