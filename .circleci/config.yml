@@ -279,7 +279,7 @@ jobs:
       - run:
           name: Run tests
           # would be nice to just depend on publish-local but that's slow because of maven part
-          command: sbt coreSdk/publishLocal javaSdk/publishLocal scalaSdk/publishLocal javaSdkTestKit/publishLocal scalaSdkTestKit/publishLocal scripted
+          command: sbt coreSdk/publishLocal javaSdkProtobuf/publishLocal scalaSdkProtobuf/publishLocal javaSdkProtobufTestKit/publishLocal scalaSdkProtobufTestKit/publishLocal scripted
       - save_deps_cache
 
   tck-tests:

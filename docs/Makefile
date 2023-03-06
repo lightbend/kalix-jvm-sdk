@@ -63,13 +63,13 @@ attributes:
 apidocs:
 	mkdir -p "${java_pb_managed_attachments}"
 	mkdir -p "${java_managed_attachments}"
-	cd .. && sbt javaSdk/doc javaSdkTestKit/doc scalaSdk/doc scalaSdkTestKit/doc javaSdkSpring/doc javaSdkSpringTestKit/doc
-	rsync -a ../sdk/java-sdk/target/api/ "${java_pb_managed_attachments}/api/"
-	rsync -a ../sdk/java-sdk-testkit/target/api/ "${java_pb_managed_attachments}/testkit/"
-	rsync -a ../sdk/scala-sdk/target/scala-2.13/api/ "${java_pb_managed_attachments}/scala-api/"
-	rsync -a ../sdk/scala-sdk-testkit/target/scala-2.13/api/ "${java_pb_managed_attachments}/scala-testkit-api/"
-	rsync -a ../sdk/java-sdk/target/api/ "${java_managed_attachments}/api/"
-	rsync -a ../sdk/java-sdk-testkit/target/api/ "${java_managed_attachments}/testkit/"
+	cd .. && sbt javaSdkProtobuf/doc javaSdkProtobufTestKit/doc scalaSdkProtobuf/doc scalaSdkProtobufTestKit/doc javaSdkSpring/doc javaSdkSpringTestKit/doc
+	rsync -a ../sdk/java-sdk-protobuf/target/api/ "${java_pb_managed_attachments}/api/"
+	rsync -a ../sdk/java-sdk-protobuf-testkit/target/api/ "${java_pb_managed_attachments}/testkit/"
+	rsync -a ../sdk/scala-sdk-protobuf/target/scala-2.13/api/ "${java_pb_managed_attachments}/scala-api/"
+	rsync -a ../sdk/scala-sdk-protobuf-testkit/target/scala-2.13/api/ "${java_pb_managed_attachments}/scala-testkit-api/"
+	rsync -a ../sdk/java-sdk-protobuf/target/api/ "${java_managed_attachments}/api/"
+	rsync -a ../sdk/java-sdk-protobuf-testkit/target/api/ "${java_managed_attachments}/testkit/"
 	rsync -a ../sdk/java-sdk-spring/target/api/ "${java_managed_attachments}/api/"
 	rsync -a ../sdk/java-sdk-spring-testkit/target/api/ "${java_managed_attachments}/testkit/"
 	mkdir -p "${scala_pb_managed_attachments}"
