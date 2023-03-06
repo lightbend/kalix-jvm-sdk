@@ -56,7 +56,7 @@ object KalixPlugin extends AutoPlugin {
     libraryDependencies ++= Seq(
       "io.kalix" % "kalix-sdk-protocol" % KalixProtocolVersion % "protobuf-src",
       "com.google.protobuf" % "protobuf-java" % "3.17.3" % "protobuf",
-      "io.kalix" %% "kalix-scala-sdk-testkit" % KalixSdkVersion % Test),
+      "io.kalix" %% "kalix-scala-sdk-protobuf-testkit" % KalixSdkVersion % Test),
     Compile / PB.targets +=
       gen(
         (akkaGrpcCodeGeneratorSettings.value :+ KalixGenerator.enableDebug)

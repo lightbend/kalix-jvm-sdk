@@ -30,6 +30,6 @@ object KalixGenerator extends AbstractKalixGenerator {
     Artifact(
       BuildInfo.organization,
       // FIXME determine scala version properly
-      "kalix-scala-sdk" + "_2.13",
+      "kalix-scala-sdk-protobuf" + "_2.13",
       BuildInfo.version))
 }
