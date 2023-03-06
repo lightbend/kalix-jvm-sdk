@@ -1,4 +1,5 @@
 = Process overview
+:page-aliases: spring:development-process.adoc
 include::ROOT:partial$include.adoc[]
 
 The main steps in developing a service include:

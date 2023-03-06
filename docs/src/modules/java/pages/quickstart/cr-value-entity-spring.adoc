@@ -1,4 +1,5 @@
 = Quickstart: Customer Registry with Java
+:page-aliases: spring:quickstart/cr-value-entity-spring.adoc
 
 include::ROOT:partial$include.adoc[]
 include::java:partial$attributes.adoc[]

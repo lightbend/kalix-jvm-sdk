@@ -1,4 +1,5 @@
 = Spring Boot Integration
+:page-aliases: spring:spring-boot-integration.adoc
 
 The Kalix Java SDK provides a familiar developer experience for Java developers that are used to Spring. Its `Main`
 class is annotated with `@SpringBootApplication` and starts exactly the same way as a common Spring Boot application, namely

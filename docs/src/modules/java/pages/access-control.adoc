@@ -1,4 +1,5 @@
 = Using ACLs
+:page-aliases: spring:access-control.adoc
 
 This section describes the practical aspects of configuring Access Control Lists (ACLs) with the Java SDK, if you are not sure what ACLs are or how they work, see https://docs.kalix.io/security/acls.html[Understanding ACLs] first.
 

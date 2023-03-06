@@ -1,4 +1,5 @@
 = Failures and errors
+:page-aliases: spring:failures-and-errors.adoc
 
 include::ROOT:partial$include.adoc[]
 include::partial$attributes.adoc[]

@@ -1,4 +1,5 @@
 = Actions as Controllers
+:page-aliases: spring:actions-as-controller.adoc
 
 Actions can be used to implement link:https://en.wikipedia.org/wiki/Model%E2%80%93view%E2%80%93controller[MVC Controllers] by
 acting as the external interface of a service, receiving requests, operating over the requests values and forwarding the call

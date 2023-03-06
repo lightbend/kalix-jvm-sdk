@@ -1,4 +1,5 @@
 = Calling other services
+:page-aliases: spring:call-another-service.adoc
 
 
 == Kalix services

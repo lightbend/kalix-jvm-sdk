@@ -1,4 +1,5 @@
 = Java SDK
+:page-aliases: spring:index.adoc
 
 include::ROOT:partial$include.adoc[]
 include::partial$attributes.adoc[]
