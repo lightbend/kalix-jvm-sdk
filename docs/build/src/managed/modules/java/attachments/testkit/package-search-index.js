@@ -1,1 +1,1 @@
-packageSearchIndex = [{"l":"All Packages","u":"allpackages-index.html"},{"l":"kalix.javasdk.testkit"},{"l":"kalix.javasdk.testkit.impl"},{"l":"kalix.javasdk.testkit.junit"},{"l":"kalix.javasdk.testkit.junit.jupiter"}];updateSearchResults();
+packageSearchIndex = [{"l":"All Packages","u":"allpackages-index.html"},{"l":"kalix.javasdk.testkit"},{"l":"kalix.spring.testkit"}];updateSearchResults();

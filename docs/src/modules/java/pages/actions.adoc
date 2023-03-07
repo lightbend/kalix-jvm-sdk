@@ -1,153 +1,54 @@
-= Implementing Actions in Java
-:page-supergroup-java-scala: Language
+= Implementing Actions
+:page-aliases: spring:actions.adoc
 
 include::ROOT:partial$include.adoc[]
 include::partial$actions.adoc[]
 
-== Defining the `proto` file
-
-An Action may implement any service method defined in a Protobuf definition. In this first example, we will show how to
-implement an Action as a pure stateless function. We will define a `FibonacciAction` that takes a number and return the
+In this first example, you will learn how to implement an Action as a pure stateless function. You will create a `FibonacciAction` that takes a number and returns the
 next number in the Fibonacci series.
-
-[.tabset]
-Java::
-+
-[source,proto,indent=0]
-.src/main/proto/com/example/fibonacci/fibonacci.proto
-----
-include::example$java-fibonacci-action/src/main/proto/com/example/fibonacci/fibonacci.proto[tag=actions]
-----
-<1> Any classes generated from this protobuf file will be in the `com.example.fibonacci` package.
-<2> Import the Kalix protobuf annotations or options.
-<3> Let the messages declared in this protobuf file be inner classes to the Java class `FibonacciApi`.
-<4> The protobuf option (kalix.codegen) is specific to code-generation as provided by the Kalix Maven plugin. This annotation indicates to the code-generation that an Action must be generated.
-
-Scala::
-+
-[source,proto,indent=0]
-.src/main/proto/com/example/fibonacci/fibonacci.proto
-----
-include::example$scala-fibonacci-action/src/main/proto/com/example/fibonacci/fibonacci.proto[tag=actions]
-----
-<1> Any classes generated from this protobuf file will be in the `com.example.fibonacci` package.
-<2> Import the Kalix protobuf annotations or options.
-<3> The protobuf option (kalix.codegen) is specific to code-generation as provided by the Kalix sbt plugin. This annotation indicates to the code-generation that an Action must be generated.
 
 == Implementing the Action
 
-An Action implementation is a class where you define how each message is handled. The class
-`FibonacciAction` gets generated for us based on the proto file defined above. Once the
-[.group-java]#`FibonacciAction.java`# [.group-scala]#`FibonacciAction.scala`# file exists, it is not overwritten, so you can freely add logic to it.
-`FibonacciAction` extends the generated class `AbstractFibonacciAction` which we're
-not supposed to change as it gets regenerated in case we update the protobuf descriptors.
+To implement this action you need the following:
 
-`AbstractFibonacciAction` contains all method signatures corresponding to the API of the service.
-If you change the API you will see compilation errors in the `FibonacciAction` class, and you have to
-implement the methods required by `AbstractFibonacciAction`.
+- Extend our class from `kalix.javasdk.action.Action`. This is generic. No matter what action you want to create you always need to extend from link:{attachmentsdir}/testkit/kalix/javasdk/action/Action.html[`Action` {tab-icon}, window="new"].
+- Add the Spring annotation @RequestMapping to provide a REST endpoint for the function. Here the stateless function should be reachable via HTTP.
+- Add the Spring annotations @GetMapping and @PostMapping to provide paths for GET and POST to calculate the Fibonacci of a number. Both functions do the same thing and implementation-wise the function exposed with GET calls the function exposed with POST.  
 
-[.tabset]
-Java::
-+
+
 [source,java,indent=0]
 .src/main/java/com/example/fibonacci/FibonacciAction.java
 ----
-include::example$java-fibonacci-action/src/main/java/com/example/fibonacci/FibonacciActionGenerated.java[tag=generated-action]
+include::example$java-spring-fibonacci-action/src/main/java/com/example/fibonacci/FibonacciAction.java[tag=implementing-action]
 ----
-<1> Extends the generated `AbstractFibonacciAction`, which extends link:{attachmentsdir}/api/kalix/javasdk/action/Action.html[`Action` {tab-icon}, window="new"].
-<2> A `nextNumber` method is generated. We will implement it next.
-
-Scala::
-+
-[source,scala,indent=0]
-.src/main/scala/com/example/fibonacci/FibonacciAction.scala
-----
-include::example$scala-fibonacci-action/src/main/scala/com/example/fibonacci/FibonacciActionGenerated.scala[tag=generated-action]
-----
-<1> Extends the generated `AbstractFibonacciAction`, which extends link:{attachmentsdir}/scala-api/kalix/scalasdk/action/Action.html[`Action` {tab-icon}, window="new"].
-<2> A `nextNumber` method is generated. We will implement it next.
-
-Next, we can implement `nextNumber` method to complete our Action.
-
-[.tabset]
-Java::
-+
-[source,java,indent=0]
-.src/main/java/com/example/fibonacci/FibonacciAction.java
-----
-include::example$java-fibonacci-action/src/main/java/com/example/fibonacci/FibonacciAction.java[tag=implemented-action]
-----
-<1> We add two private methods to support the computation. `isFibonacci` checks if a number is a Fibonacci number and
-`nextFib` calculates the next number.
-<2> The `nextNumber` implementation first checks if the input number belongs to the Fibonacci series. If so, it calculates the
+<1> `isFibonacci` checks if a number is a Fibonacci number
+<2> `nextFib` calculates the next number.
+<3> This `nextNumber` implementation calls the `nextNumber` implementation below.
+<4> The `nextNumber` implementation first checks if the input number belongs to the Fibonacci series. If so, it calculates the
 next number and builds a reply using `effects().reply()`.
-<3> Otherwise, if the input number doesn't belong to the Fibonacci series, it builds an `Effect` reply error.
+<5> Otherwise, if the input number doesn't belong to the Fibonacci series, it builds an `Effect` reply error.
 
-Scala::
-+
-[source,scala,indent=0]
-.src/main/scala/com/example/fibonacci/FibonacciAction.scala
-----
-include::example$scala-fibonacci-action/src/main/scala/com/example/fibonacci/FibonacciAction.scala[tag=implemented-action]
-----
-<1> We add two private methods to support the computation. `isFibonacci` checks if a number is a Fibonacci number and
-`nextFib` calculates the next number.
-<2> The `nextNumber` implementation first checks if the input number belongs to the Fibonacci series. If so, it calculates the
-next number and builds a reply using `effects.reply()`.
-<3> Otherwise, if the input number doesn't belong to the Fibonacci series, it builds an `Effect` reply error.
+Actions return effects (i.e. `Action.Effect`) and there are different types of effects: a reply, an error, a forward call to another component, and to all of those you can add side effects. Here you want only the result of the calculation or an error. Therefore you are using `.reply` and `.error`.
 
 === Multiple replies / reply streaming
 
-An Action may return data conditionally by marking the return type as `stream` in Protobuf. The Java method implementing
-that service must return an https://doc.akka.io/docs/akka/current/stream/stream-flows-and-basics.html[Akka Streams Source]
-to fulfill that contract.
+An Action may return a stream of integers. To do this you need to define the return type as `reactor.core.publisher.Flux<Effect<Integer>>`. 
 
-The Source may publish an arbitrary number of replies.
+The stream may publish an arbitrary number of replies.
 
 ifdef::todo[TODO: add a streamed Fib series calculation]
 
-
-== Registering the Action
-
-To make Kalix aware of the Action, we need to register it with the service.
-
-From the code-generation, the registration gets automatically inserted in the generated `KalixFactory.withComponents` method from the `Main` class.
-
-[.tabset]
-Java::
-+
-[source,java]
-./src/main/java/com/example/Main.java
-----
-include::java:example$java-fibonacci-action/src/main/java/com/example/Main.java[]
-----
-
-Scala::
-+
-[source,scala]
-./src/main/scala/com/example/fibonacci/Main.scala
-----
-include::example$scala-fibonacci-action/src/main/scala/com/example/fibonacci/Main.scala[]
-----
-
-By default, the generated constructor has an `ActionCreationContext` parameter, but you can change this to accept other parameters.
-If you change the constructor of the `FibonacciAction` class you will see a compilation error here, and you have to adjust the
-factory function that is passed to `KalixFactory.withComponents`.
-
-When more components are added the `KalixFactory` is regenerated, and you have to adjust the registration from the `Main` class.
 
 == Testing the Action
 
 
 === Unit tests
 
-The following snippet shows how the `FibonacciActionTestKit` is used to test the `FibonacciAction` implementation.
+The following snippet shows how the `ActionTestkit` is used to test the `FibonacciAction` implementation.
 
-Kalix generates the `FibonacciActionTestKit` that allows us to call the methods of `FibonacciAction`. For each `Action` Kalix generates a specific test kit for it, with the name `[ActionName]TestKit`. Each call we execute over to the test kit returns an `ActionResult` that holds the effect produced by the underlying action method.
+With the `ActionTestkit` you can call the methods of `FibonacciAction`. Each call you pass over to the test kit returns an `ActionResult` that contains the effect produced by the underlying action method.
 
-Apart from the test kit Kalix generates test classes based on the Action defined in the `.proto` files. This is shown in the snippet below.
-
-NOTE: Actions are unique units of computation where no local state is shared with previous or subsequent calls. The framework doesn't reuse an Action instance but creates a new one for each command handled and therefore it is also how the test kit behaves.
+NOTE: Actions are unique units of computation where no local state is shared with previous or subsequent calls. The framework does not reuse an `Action` instance but creates a new one for each command handled and therefore this is also how the test kit behaves.
 
 [.tabset]
 Java::
@@ -155,38 +56,19 @@ Java::
 .src/test/java/com/example/actions/FibonacciActionTest.java
 [source,java]
 ----
-include::example$java-fibonacci-action/src/test/java/com/example/fibonacci/FibonacciActionTest.java[tag=class]
+include::example$java-spring-fibonacci-action/src/test/java/com/example/fibonacci/FibonacciActionTest.java[tag=testing-action]
 ----
 <1> The test kit is created to allow us to test the Action's method.
-<2> We call `nextNumber` method with some value.
-<3> The reply message from the result is retrieved using `getReply()`.
+<2> Calling `nextNumber` method with some value.
 +
 *ActionResult*
 +
-Calling an action method through the test kit gives us back an link:{attachmentsdir}/testkit/kalix/javasdk/testkit/ActionResult.html[`ActionResult` {tab-icon}, window="new"]. This class has methods that we can use to assert our expectations, such as:
+Calling an action method through the test kit gives us back an link:{attachmentsdir}/testkit/kalix/javasdk/testkit/ActionResult.html[`ActionResult` {tab-icon}, window="new"]. This class has methods that you can use to assert your expectations, such as:
 +
 * `getReply()` returns the reply message passed to `effects().reply()` or throws an exception failing the test, if the effect returned was not a reply.
 * `getError()` returns the error description when `effects().error()` was returned to signal an error.
 * `getForward()` returns details about what message was forwarded and where the call was forwarded (since it is a unit test the forward is not actually executed).
 
-Scala::
-+
-[source,scala]
-.src/test/java/com/example/actions/FibonacciActionSpec.scala
-[source,java]
-----
-include::example$scala-fibonacci-action/src/test/scala/com/example/fibonacci/FibonacciActionSpec.scala[tag=class]
-----
-<1> The test kit is created to allow us to test the Action's method.
-<2> We call `nextNumber` method with some value.
-<3> The reply message from the result is retrieved using `reply`.
-+
-*ActionResult*
-+
-Calling an action method through the test kit gives us back an link:{attachmentsdir}/scala-testkit-api/kalix/scalasdk/testkit/ActionResult.html[`ActionResult` {tab-icon}, window="new"]. This class has methods that we can use to assert our expectations, such as:
-+
-* `reply` returns the reply message passed to `effects.reply()` or throws an exception failing the test, if the effect returned was not a reply.
-* `errorDescription` returns the error description when `effects().error()` was returned to signal an error.
-* `forwardedTo` returns details about what message was forwarded and where the call was forwarded (since it is a unit test the forward is not actually executed).
-+
-[.group-scala]#By default the integration and unit test are both invoked by `sbt test`. To only run unit tests run `sbt -DonlyUnitTest test`, or `sbt -DonlyUnitTest=true test`, or set up that value to `true` in the sbt session by `set onlyUnitTest := true` and then run `test`#
+
+
+TODO: add links to before and after

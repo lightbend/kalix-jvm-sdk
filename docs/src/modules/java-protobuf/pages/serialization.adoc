@@ -1,0 +1,188 @@
+= Serialization options for Java and Scala services
+:page-supergroup-java-scala: Language
+
+include::ROOT:partial$include.adoc[]
+
+You do not need to handle serialization for messages. Kalix functions serve gRPC interfaces, and the input and output messages are `protobuf` messages that get serialized to the `protobuf` format.
+
+The gRPC services are also exposed as HTTP endpoints with JSON messages. See xref:writing-grpc-descriptors-protobuf.adoc#_transcoding_http[Transcoding HTTP].
+
+== When consuming Messages from Topics
+
+When a message arrives from a topic, Kalix detects the message payload type based on the `Content-Type` or `ce-datacontenttype` header or attribute of the message. If there is no such metadata, the content is handled as raw bytes.
+
+If the content type starts with `application/protobuf`, `application/x-protobuf` or `application/vnd.google.protobuf` the payload is expected to also have a `ce-type` header or attribute identifying the concrete protobuf message type. Such messages will be decoded into the described message type before being handed to a topic subscriber method, which must accept that specific message type.
+
+If the publishing service is also a Kalix service, this is handled transparently for you as shown in xref:actions-publishing-subscribing.adoc[].
+
+For messages that are consumed from or published to topics when interacting with external services, it can be a requirement to use a format other than `protobuf`. Other supported message formats include JSON, text, or raw bytes.
+
+include::partial$pubsub-note.adoc[]
+
+== JSON
+
+If the incoming content type starts with `application/json` or `application/...+json` and possibly a `ce-type` field identifying a specific type object in the JSON. The topic subscriber method must accept a protobuf `Any` message.
+
+Kalix provides a utility to serialize and deserialize JSON messages based on Jackson.
+
+[.tabset]
+Java::
++
+Kalix provides the link:{attachmentsdir}/api/kalix/javasdk/JsonSupport.html[`JsonSupport` {tab-icon}, window="new"] utility to serialize and deserialize JSON messages.
++
+A `proto` definition of an Action that consumes JSON messages and produces JSON messages can look like this:
++
+[source,proto,indent=0]
+.src/main/proto/com/example/json/json_api.proto
+----
+include::example$java-protobuf-doc-snippets/src/main/proto/com/example/json/json_api.proto[tag=service]
+----
+<1> When consuming JSON messages from a topic the input type must be `google.protobuf.Any`.
+<2> When producing a JSON message to a topic the return type must be `google.protobuf.Any`.
++
+NOTE: The `type_url` in the `google.protobuf.Any` must start with `json.kalix.io/`. The suffix of the `type_url` is a type hint of the concrete message type that is encoded.
+
+
+Scala::
++
+Kalix provides the link:{attachmentsdir}/scala-api/kalix/scalasdk/JsonSupport$.html[`JsonSupport` {tab-icon}, window="new"] utility to serialize and deserialize JSON messages.
+A `proto` definition of an Action that consumes JSON messages and produces JSON messages can look like this:
++
+[source,proto,indent=0]
+.src/main/proto/com/example/json/json_api.proto
+----
+include::example$scala-protobuf-doc-snippets/src/main/proto/com/example/json/json_api.proto[tag=service]
+----
+<1> When consuming JSON messages from a topic the input type must be `google.protobuf.any.Any`.
+<2> When producing a JSON message to a topic the return type must be `google.protobuf.any.Any`.
++
+NOTE: The `type_url` in the `google.protobuf.any.Any` must start with `json.kalix.io/`. The suffix of the `type_url` is a type hint of the concrete message type that is encoded.
+
+The corresponding implementation class:
+
+[.tabset]
+Java::
++
+[source,java,indent=0]
+.src/main/java/com/example/json/MyServiceAction.java
+----
+include::example$java-protobuf-doc-snippets/src/main/java/com/example/json/MyServiceAction.java[tag=action]
+----
+<1> Decode the JSON message to a Java class `JsonKeyValueMessage`.
+<2> Convert the Protobuf message `KeyValue` to a Java class `JsonKeyValueMessage`.
+<3> Encode the Java class `JsonKeyValueMessage` to JSON.
+
+Scala::
++
+[source,scala,indent=0]
+.src/main/scala/com/example/json/MyServiceAction.scala
+----
+include::example$scala-protobuf-doc-snippets/src/main/scala/com/example/json/MyServiceAction.scala[tag=action]
+----
+<1> Decode the JSON message to a Scala class `JsonKeyValueMessage`.
+<2> Convert the Protobuf message `KeyValue` to a Scala class `JsonKeyValueMessage`.
+<3> Encode the Scala class `JsonKeyValueMessage` to JSON.
+
+Kalix uses https://github.com/FasterXML/jackson[Jackson] to serialize JSON.
+
+== Text
+
+If the content type starts with `text/` it is treated as a string message. The topic subscriber method must accept the `google.protobuf.StringValue` message.
+
+[.tabset]
+Java::
++
+A `proto` definition of an Action that consumes String messages can look like this:
++
+[source,proto,indent=0]
+.src/main/proto/com/example/json/json_api.proto
+----
+include::example$java-protobuf-doc-snippets/src/main/proto/com/example/topics_action.proto[tag=text]
+----
+<1> `google.protobuf.StringValue` requires the import `google/protobuf/wrappers.proto`.
+<2> When consuming text messages from a topic the input type must be `google.protobuf.StringValue`.
+
+Scala::
++
+A `proto` definition of an Action that consumes String messages can look like this:
++
+[source,proto,indent=0]
+.src/main/proto/com/example/topics_action.proto
+----
+include::example$scala-protobuf-doc-snippets/src/main/proto/com/example/topics_action.proto[tag=text]
+----
+<1> `google.protobuf.StringValue` requires the import `google/protobuf/wrappers.proto`.
+<2> When consuming text messages from a topic the input type must be `google.protobuf.StringValue`.
+
+If an action has a return type of `StringValue` and publishes to a topic, the events published to the topic will have content-type `text/plain; charset=utf-8`.
+
+== Bytes
+
+If the content type is `application/octet-stream`, no content type is present, or the type is unknown to Kalix the message is treated as a binary message. The topic subscriber method must accept the `google.protobuf.BytesValue` message.
+
+[.tabset]
+Java::
++
+A `proto` definition of an Action that consumes binary messages with raw bytes can look like this:
++
+[source,proto,indent=0]
+.src/main/proto/com/example/topics_action.proto
+----
+include::example$java-protobuf-doc-snippets/src/main/proto/com/example/topics_action.proto[tag=bytes]
+----
+<1> `google.protobuf.BytesValue` requires the import `google/protobuf/wrappers.proto`.
+<2> When consuming raw bytes messages from a topic the input type must be `google.protobuf.BytesValue`.
+
+Scala::
++
+A `proto` definition of an Action that consumes binary messages with raw bytes can look like this:
++
+[source,proto,indent=0]
+.src/main/proto/com/example/json/json_api.proto
+----
+include::example$scala-protobuf-doc-snippets/src/main/proto/com/example/topics_action.proto[tag=bytes]
+----
+<1> `google.protobuf.BytesValue` requires the import `google/protobuf/wrappers.proto`.
+<2> When consuming text messages from a topic the input type must be `google.protobuf.BytesValue`.
+
+If an action has a return type of `BytesValue` and publishes to a topic, the events published to the topic will have content-type `application/octet-stream`.
+
+== Receiving CloudEvents
+Kalix uses the https://cloudevents.io/[CloudEvents] standard when receiving from and publishing to topics. The CloudEvents specification standardizes message metadata so that systems can integrate more easily.
+
+Describing the structure of the message payload is the CloudEvents feature most important to Kalix.
+
+An example of that is the capability to send serialized Protobuf messages and have Kalix deserialize them accordingly.
+
+To allow proper reading of Protobuf messages from topics, the messages need to specify the message attributes:
+
+- `Content-Type` = `application/protobuf`
+- `ce-specversion` = `1.0`
+- `ce-type` = fully qualified protobuf message name (e.g., `shopping.cart.api.TopicOperation`)
+
+(The `ce-` prefixed attributes are part of the CloudEvents specification.)
+
+The Protobuf rpc declaration uses the expected Protobuf message type and specifies the topic to subscribe to. You'll normally want to share the exact Protobuf message declaration with the sending system.
+
+[.tabset]
+Java::
++
+A `proto` definition of an Action that consumes CloudEvent messages can look like this:
++
+[source,proto,indent=0]
+.src/main/proto/com/example/topics_action.proto
+----
+include::example$java-protobuf-doc-snippets/src/main/proto/com/example/topics_action.proto[tag=cloudEvent]
+----
+<1> When consuming a CloudEvent containing a Protobuf message the handler request must have the message type specified in the metadata
+
+Scala::
++
+A `proto` definition of an Action that consumes CloudEvent messages can look like this:
++
+[source,proto,indent=0]
+.src/main/proto/com/example/json/json_api.proto
+----
+include::example$scala-protobuf-doc-snippets/src/main/proto/com/example/topics_action.proto[tag=cloudEvent]
+----
+<1> When consuming a CloudEvent containing a Protobuf message the handler request must have the message type specified in the metadata

@@ -1,0 +1,11 @@
+Snapshots are an important optimization for Event Sourced Entities that emit many events. Rather than reading the entire journal upon loading or restart, Kalix can initiate them from a snapshot.
+
+Snapshots are stored and handled automatically by Kalix without any specific code required. Snapshots are stored after a configured number of events:
+
+[source,conf,indent=0]
+.src/main/resources/application.conf
+----
+include::java-protobuf:example$java-protobuf-eventsourced-shopping-cart/src/main/resources/application.conf[tag=snapshot-every]
+----
+
+When the Event Sourced Entity is loaded again, the snapshot will be loaded before any other events are received.

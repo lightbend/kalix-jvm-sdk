@@ -1,132 +1,42 @@
-= Developing with Java or Scala
-:page-supergroup-java-scala: Language
+= Java SDK
+:page-aliases: spring:index.adoc
 
 include::ROOT:partial$include.adoc[]
 include::partial$attributes.adoc[]
 
-Select your preferred language (Java/Scala) above.
+The Java SDK provides a code-first approach to developing Kalix applications. This SDK offers a way to develop applications which should be familiar to someone who has worked with Spring applications by making use of annotations to assemble Kalix and its components.
 
-The Kalix [.group-java]#Java# [.group-scala]#Scala# SDK guides you through implementing components matching the protobuf APIs you design. This page describes prerequisites for [.group-java]#Java# [.group-scala]#Scala# development and basic requirements for a development project.
+When using the Kalix Java SDK, your services are exposed using traditional Spring REST annotations and serialization is backed by the ubiquitous Jackson library.
 
-NOTE: Lightbend provides Tier 1 support for the [.group-java]#Java# [.group-scala]#Scala# SDK. See https://docs.kalix.io/faq/index.html#_what_languages_are_supported[an explanation of support tiers] for more information.
-
-Your development project needs to include the Kalix [.group-java]#Java# [.group-scala]#Scala# SDK and logic to start the gRPC server. You define your components in gRPC descriptors and use `protoc` to compile them. Finally, you implement business logic for service components.
-
-To save the work of starting from scratch, the Java xref:java:quickstart-template.adoc[code generation tool] creates a project from a template, complete with descriptors and implementations. Or, you can start from one of our fully implemented https://docs.kalix.io/quickstart/index.html[Quickstart applications].
+NOTE: If you're new to Kalix and the different types of entities that exist in a Kalix app, consider reading https://docs.kalix.io/services/programming-model.html#_what_is_a_kalix_service[this section] before continuing.
 
 == Prerequisites
 
 The following are required to develop services in Java:
 
-Java:: Kalix requires Java {java-version} or later.
+Java:: Kalix requires Java {spring-java-version} or later.
 
-[.group-java]
-Apache Maven:: For Java-based services, Kalix relies on https://maven.apache.org/[Apache Maven {tab-icon}, window="new"] as build tool. The Kalix Maven plugin creates initial Java code for your components and the required surrounding code.
-
-[.group-scala]
-sbt:: For Scala-based services, Kalix relies on https://www.scala-sbt.org/[sbt {tab-icon}, window="new"] as build tool. The Kalix sbt plugin creates initial Scala code for your components and the required surrounding code.
+Apache Maven:: Kalix relies on https://maven.apache.org/[Apache Maven {tab-icon}, window="new"] as build tool. 
 
 Docker:: Kalix requires https://docs.docker.com/get-docker/[Docker {tab-icon}, window="new"] {minimum_docker_version} for building your service images. Most popular build tools have plugins that assist in building Docker images.
 
 
-== Reference the Kalix SDK
 
-The following examples show how to install the SDK to build your services with Maven. The code generation tools include a Kalix xref:quickstart-template.adoc[project template] that generates the recommended project structure, including a [.group-java]#`.pom` file# [.group-scala]#build.sbt# with the necessary references.
+== Features
 
-In your [.group-java]#`.pom` file# [.group-scala]#build.sbt#, add the following:
+As the Java SDK is more recent than their gRPC-first counterparts, not all features are supported at this time. However, there's already a lot to play with:
 
-[.tabset]
-Java::
-+
-[source,xml,subs="attributes+"]
-----
-<dependencies>
-    <dependency>
-        <groupId>io.kalix</groupId>
-        <artifactId>kalix-java-sdk</artifactId>
-        <version>{kalix-jvm-sdk-version}</version>
-    </dependency>
-    <dependency>
-        <groupId>io.kalix</groupId>
-        <artifactId>kalix-java-sdk-testkit</artifactId>
-        <version>{kalix-jvm-sdk-version}</version>
-        <scope>test</scope>
-    </dependency>
-</dependencies>
-----
+* xref:java:actions.adoc[Actions]
+* xref:java:value-entity.adoc[Value Entities]
+* xref:java:event-sourced-entities.adoc[Event Sourced Entities]
+* xref:java:views.adoc[Views]
+* xref:java:actions-publishing-subscribing.adoc[Publishing and Subscribing to Topics]
+* xref:java:timers.adoc[Timers]
+* xref:java:service-to-service.adoc[]
+* Test kit for Unit Tests and Integration Tests
 
-Scala::
-+
-[.group-scala]
-[source,scala,subs="attributes+"]
-----
-scalaVersion := "2.13.8"
 
-enablePlugins(KalixPlugin)
-----
+== Getting Started
 
-[.group-scala]
-And in `project/plugins.sbt`:
-
-[.group-scala]
-[source,scala,subs="attributes+"]
-----
-addSbtPlugin("io.kalix" % "sbt-kalix" % "{kalix-jvm-sdk-version}")
-----
-
-== Configure JSON formatted logging
-Kalix supports JSON formatted logging to provide multi-line messages formatted in JSON syntax. Always use JSON formatted logging for your Kalix projects to efficiently analyze and easily leverage logging information.
-
-[TIP]
-xref:java:quickstart/cr-value-entity-java.adoc[Build and deploy the Quickstart example] to see JSON formatted logging in action.
-
-JSON formatted logging is enabled by default in the projects created by the xref:quickstart-template.adoc[Kalix project template]. It includes a transitive dependency on `logback-json-classic` and a `logback.xml` file as shown here:
-
-.src/main/resources/logback.xml
-[source,xml]
-----
-include::example$java-first-service/src/main/resources/logback.xml[]
-----
-
-In the `logback.xml` you may want to adjust the log level for different loggers (typically a package or class name).
-
-For local development you can switch to the `STDOUT` appender to make the logs more readable, or use `<prettyPrint>true</prettyPrint>` in the `jsonFormatter`. Don't use `prettyPrint` in production since the logging infrastructure will not handle multi-line log messages.
-
-NOTE: There is a separate `src/test/resources/logback-test.xml` that is used when running tests.
-
-== Create a main class
-
-The Kalix plugin will create a main class for you and make sure all components get registered with the Kalix server. The following code snippet shows an example that registers an Event Sourced Entity and starts the server:
-
-[.tabset]
-Java::
-+
-[source,java,indent=0]
-----
-include::example$java-eventsourced-shopping-cart/src/main/java/com/example/shoppingcart/Main.java[tag=RegisterEventSourcedEntity]
-----
-
-Scala::
-+
-[source,scala,indent=0]
-----
-include::example$scala-valueentity-customer-registry/src/main/scala/customer/Main.scala[tag=RegisterComponents]
-----
-
-== What's next
-
-This section provides details on how to accomplish common tasks:
-
-* xref:quickstart-template.adoc[]
-* xref:proto.adoc[]
-* xref:value-entity.adoc[Implementing Value Entities]
-* xref:eventsourced.adoc[Implementing Event Sourced Entities]
-* xref:replicated-entity.adoc[Implementing Replicated Entities]
-* xref:actions.adoc[Actions (stateless functions)]
-* xref:java:actions-as-controller.adoc[Actions as Controllers]
-* xref:java:actions-publishing-subscribing.adoc[Publishing and Subscribing with Actions]
-* xref:java:views.adoc[Implementing Views]
-* xref:java:side-effects.adoc[Running Side Effects]
-* xref:serialization.adoc[Serialization]
-* xref:access-control.adoc[Access Control (ACL)]
-* xref:api.adoc[API docs]
+You can start a new Kalix project using our xref:java:getting-started.adoc[Getting started] guide. If you prefer to
+first explore a fully implemented Kalix application, you can try our xref:java:quickstart/cr-value-entity-spring.adoc[Quickstart application].
