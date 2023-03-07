@@ -91,7 +91,7 @@ commands:
               # tail 2 + head 1 because CircleCI adds an extra line
               # the SDK_VERSION is later used to run the maven tests (see below)
               echo "Extracting version from sbt build"
-              echo 'export SDK_VERSION='`sbt "print javaSdk/version" | tail -n 2 | head -n 1` >> $BASH_ENV
+              echo 'export SDK_VERSION='`sbt "print javaSdkProtobuf/version" | tail -n 2 | head -n 1` >> $BASH_ENV
             fi
 
   publish-local:
@@ -279,7 +279,7 @@ jobs:
       - run:
           name: Run tests
           # would be nice to just depend on publish-local but that's slow because of maven part
-          command: sbt coreSdk/publishLocal javaSdk/publishLocal scalaSdk/publishLocal javaSdkTestKit/publishLocal scalaSdkTestKit/publishLocal scripted
+          command: sbt coreSdk/publishLocal javaSdkProtobuf/publishLocal scalaSdkProtobuf/publishLocal javaSdkProtobufTestKit/publishLocal scalaSdkProtobufTestKit/publishLocal scripted
       - save_deps_cache
 
   tck-tests:
