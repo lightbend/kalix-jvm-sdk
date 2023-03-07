@@ -19,21 +19,23 @@ package kalix.javasdk.impl
 import java.lang.reflect.AnnotatedElement
 import java.lang.reflect.Method
 import java.lang.reflect.ParameterizedType
-
 import scala.reflect.ClassTag
-
 import kalix.javasdk.action.Action
 import kalix.javasdk.annotations.Publish
 import kalix.javasdk.annotations.Query
 import kalix.javasdk.annotations.Subscribe
 import kalix.javasdk.annotations.Table
 import kalix.javasdk.impl.ComponentDescriptorFactory.MethodOps
+import kalix.javasdk.impl.ComponentDescriptorFactory.eventSourcedEntitySubscription
+import kalix.javasdk.impl.ComponentDescriptorFactory.findEventSourcedEntityClass
 import kalix.javasdk.impl.ComponentDescriptorFactory.hasAcl
+import kalix.javasdk.impl.ComponentDescriptorFactory.hasActionOutput
 import kalix.javasdk.impl.ComponentDescriptorFactory.hasEventSourcedEntitySubscription
 import kalix.javasdk.impl.ComponentDescriptorFactory.hasHandleDeletes
 import kalix.javasdk.impl.ComponentDescriptorFactory.hasRestAnnotation
 import kalix.javasdk.impl.ComponentDescriptorFactory.hasSubscription
 import kalix.javasdk.impl.ComponentDescriptorFactory.hasTopicSubscription
+import kalix.javasdk.impl.ComponentDescriptorFactory.hasUpdateEffectOutput
 import kalix.javasdk.impl.ComponentDescriptorFactory.hasValueEntitySubscription
 import kalix.javasdk.impl.reflection.ServiceMethod
 import kalix.javasdk.view.View
@@ -55,8 +57,14 @@ object Validations {
 
   sealed trait Validation {
     def isValid: Boolean
+
     final def isInvalid: Boolean = !isInvalid
     def ++(validation: Validation): Validation
+
+    /**
+     * add this validation when the current one is Valid
+     */
+    def combineWhenValid(validation: Validation): Validation
 
     def failIfInvalid: Validation
   }
@@ -66,6 +74,8 @@ object Validations {
     override def ++(validation: Validation): Validation = validation
 
     override def failIfInvalid: Validation = this
+
+    override def combineWhenValid(validation: Validation): Validation = validation
   }
 
   object Invalid {
@@ -85,6 +95,13 @@ object Validations {
     override def failIfInvalid: Validation =
       throw InvalidComponentException(messages.mkString(", "))
 
+    override def combineWhenValid(validation: Validation): Validation = {
+      if (isValid) {
+        validation
+      } else {
+        this
+      }
+    }
   }
 
   private def when(cond: Boolean)(block: => Validation): Validation =
@@ -100,8 +117,11 @@ object Validations {
     noRestStreamIn(component)
   }
 
-  private def commonSubscriptionValidation(component: Class[_]): Validation = {
-    eventSourcedEntitySubscriptionValidations(component) ++
+  private def commonSubscriptionValidation(
+      component: Class[_],
+      updateMethodPredicate: Method => Boolean): Validation = {
+    eventSourcedEntitySubscriptionValidations(component)
+      .combineWhenValid(missingEventHandlerValidations(component, updateMethodPredicate)) ++
     valueEntitySubscriptionValidations(component) ++
     topicSubscriptionValidations(component) ++
     publishStreamIdMustBeFilled(component) ++
@@ -116,7 +136,8 @@ object Validations {
 
   private def validateAction(component: Class[_]): Validation = {
     when[Action](component) {
-      commonValidation(component) ++ commonSubscriptionValidation(component)
+      commonValidation(component) ++
+      commonSubscriptionValidation(component, hasActionOutput)
     }
   }
 
@@ -126,7 +147,7 @@ object Validations {
         viewMustHaveOneQueryMethod(component)
       } ++
       commonValidation(component) ++
-      commonSubscriptionValidation(component) ++
+      commonSubscriptionValidation(component, hasUpdateEffectOutput) ++
       viewMustHaveTableName(component) ++
       viewMustHaveMethodLevelSubscriptionWhenTransformingUpdates(component) ++
       streamUpdatesQueryMustReturnFlux(component)
@@ -158,6 +179,58 @@ object Validations {
           "You cannot use @Subscribe.EventSourcedEntity annotation in both methods and class. You can do either one or the other.")
       }
       Validation(messages)
+    }
+  }
+
+  private def getEventType(esEntity: Class[_]): Class[_] = {
+    val genericTypeArguments = esEntity.getGenericSuperclass
+      .asInstanceOf[ParameterizedType]
+      .getActualTypeArguments
+    genericTypeArguments(1).asInstanceOf[Class[_]]
+  }
+
+  private def missingEventHandlerValidations(
+      component: Class[_],
+      updateMethodPredicate: Method => Boolean): Validation = {
+    val methods = component.getMethods.toIndexedSeq
+
+    if (hasEventSourcedEntitySubscription(component)) {
+      eventSourcedEntitySubscription(component)
+        .map { classLevel =>
+          val eventType = getEventType(classLevel.value())
+          if (!classLevel.ignoreUnknown() && eventType.isSealed) {
+            val effectMethodsInputParams: Seq[Class[_]] = methods
+              .filter(updateMethodPredicate)
+              .map(_.getParameterTypes.last) //last because it could be a view update methods with 2 params
+            val errors = eventType.getPermittedSubclasses
+              .filterNot(effectMethodsInputParams.contains)
+              .map(clazz => s"Missing event handler for ${clazz.getName}")
+            Validation(errors)
+          } else {
+            Valid
+          }
+        }
+        .getOrElse(Valid)
+    } else {
+      //method level
+      val effectOutputMethodsGrouped = methods
+        .filter(hasEventSourcedEntitySubscription)
+        .filter(updateMethodPredicate)
+        .groupBy(findEventSourcedEntityClass)
+
+      val errors = effectOutputMethodsGrouped.flatMap { case (entityClass, methods) =>
+        val eventType = getEventType(entityClass)
+        if (eventType.isSealed) {
+          val effectOutputInputParams: Seq[Class[_]] = methods.map(_.getParameterTypes.last)
+          eventType.getPermittedSubclasses
+            .filterNot(effectOutputInputParams.contains)
+            .map(clazz => s"Missing ${entityClass.getSimpleName} event handler for ${clazz.getName}")
+            .toList
+        } else {
+          List.empty
+        }
+      }
+      Validation(errors.toSeq)
     }
   }
 

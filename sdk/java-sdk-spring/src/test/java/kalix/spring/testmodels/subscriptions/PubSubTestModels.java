@@ -22,6 +22,7 @@ import kalix.javasdk.annotations.Publish;
 import kalix.javasdk.annotations.Subscribe;
 import kalix.spring.testmodels.Message;
 import kalix.spring.testmodels.Message2;
+import kalix.spring.testmodels.eventsourcedentity.EmployeeEvent.EmployeeCreated;
 import kalix.spring.testmodels.valueentity.Counter;
 import kalix.spring.testmodels.valueentity.CounterState;
 import kalix.javasdk.view.View;
@@ -121,6 +122,30 @@ public class PubSubTestModels {//TODO shall we remove this class and move things
     }
   }
 
+  @Subscribe.EventSourcedEntity(value = EmployeeEntity.class)
+  public static class MissingHandlersWhenSubscribeToEventSourcedEntityAction extends Action {
+
+    public Action.Effect<Integer> methodOne(Integer message) {
+      return effects().reply(message);
+    }
+
+    public Action.Effect<String> onEvent(EmployeeCreated message) {
+      return effects().reply(message.toString());
+    }
+  }
+
+  public static class MissingHandlersWhenSubscribeToEventSourcedOnMethodLevelEntityAction extends Action {
+
+    public Action.Effect<Integer> methodOne(Integer message) {
+      return effects().reply(message);
+    }
+
+    @Subscribe.EventSourcedEntity(value = EmployeeEntity.class)
+    public Action.Effect<String> onEvent(EmployeeCreated message) {
+      return effects().reply(message.toString());
+    }
+  }
+
   public static class SubscribeToTopicAction extends Action {
 
     @Subscribe.Topic(value = "topicXYZ", consumerGroup = "cg")
@@ -208,7 +233,7 @@ public class PubSubTestModels {//TODO shall we remove this class and move things
   @Subscribe.EventSourcedEntity(value = EmployeeEntity.class, ignoreUnknown = true)
   public static class SubscribeOnTypeToEventSourcedEvents extends View<Employee> {
 
-      public UpdateEffect<Employee> onCreate(EmployeeEvent.EmployeeCreated evt) {
+      public UpdateEffect<Employee> onCreate(EmployeeCreated evt) {
         return effects()
             .updateState(new Employee(evt.firstName, evt.lastName, evt.email));
       }
@@ -230,7 +255,7 @@ public class PubSubTestModels {//TODO shall we remove this class and move things
     @Publish.Stream(id = "employee_events")
     public static class EventStreamPublishingAction extends Action {
 
-      public Effect<String> transform(EmployeeEvent.EmployeeCreated created) {
+      public Effect<String> transform(EmployeeCreated created) {
         return effects().reply(created.toString());
       }
 
@@ -243,7 +268,7 @@ public class PubSubTestModels {//TODO shall we remove this class and move things
     @Subscribe.Stream(service = "employee_service", id = "employee_events", ignoreUnknown = true)
     public static class EventStreamSubscriptionAction extends Action {
 
-      public Effect<String> transform(EmployeeEvent.EmployeeCreated created) {
+      public Effect<String> transform(EmployeeCreated created) {
         return effects().reply(created.toString());
       }
 
@@ -256,7 +281,7 @@ public class PubSubTestModels {//TODO shall we remove this class and move things
     @Subscribe.Stream(service = "employee_service", id = "employee_events")
     public static class EventStreamSubscriptionView extends View<Employee> {
 
-      public UpdateEffect<Employee> onCreate(EmployeeEvent.EmployeeCreated evt) {
+      public UpdateEffect<Employee> onCreate(EmployeeCreated evt) {
         return effects()
             .updateState(new Employee(evt.firstName, evt.lastName, evt.email));
       }

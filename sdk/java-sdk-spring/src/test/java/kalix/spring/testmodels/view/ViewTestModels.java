@@ -391,8 +391,23 @@ public class ViewTestModels {
   public static class SubscribeToEventSourcedEventsWithMethodWithState extends View<Employee> {
 
     @Subscribe.EventSourcedEntity(EventSourcedEntitiesTestModels.EmployeeEntity.class)
-    public UpdateEffect<Employee> onEvent(Employee employee, EmployeeEvent evt) {
-      EmployeeEvent.EmployeeCreated created = (EmployeeEvent.EmployeeCreated) evt;
+    public UpdateEffect<Employee> onEvent(Employee employee, EmployeeEvent.EmployeeCreated created) {
+      return effects()
+          .updateState(new Employee(created.firstName, created.lastName, created.email));
+    }
+
+    @Query("SELECT * FROM employees_view WHERE email = :email")
+    @PostMapping("/employees/by-email/{email}")
+    public Employee getEmployeeByEmail(@PathVariable String email) {
+      return null;
+    }
+  }
+
+  @Table(value = "employees_view")
+  @Subscribe.EventSourcedEntity(value = EventSourcedEntitiesTestModels.EmployeeEntity.class, ignoreUnknown = false)
+  public static class TypeLevelSubscribeToEventSourcedEventsWithState extends View<Employee> {
+
+    public UpdateEffect<Employee> onEvent(Employee employee, EmployeeEvent.EmployeeCreated created) {
       return effects()
           .updateState(new Employee(created.firstName, created.lastName, created.email));
     }

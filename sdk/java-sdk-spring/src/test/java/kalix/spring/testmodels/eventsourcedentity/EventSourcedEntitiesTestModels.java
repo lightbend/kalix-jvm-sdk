@@ -181,6 +181,24 @@ public class EventSourcedEntitiesTestModels {
   }
 
   @EntityKey("id")
+  @EntityType("employee")
+  @RequestMapping("/employee/{id}")
+  public static class EmployeeEntityWithMissingHandler extends EventSourcedEntity<Employee, EmployeeEvent> {
+
+    @PostMapping
+    public Effect<String> createUser(@RequestBody CreateEmployee create) {
+      return effects()
+          .emitEvent(new EmployeeEvent.EmployeeCreated(create.firstName, create.lastName, create.email))
+          .thenReply(__ -> "ok");
+    }
+
+    @EventHandler
+    public Employee onEvent(EmployeeEvent.EmployeeCreated created) {
+      return new Employee(created.firstName, created.lastName, created.email);
+    }
+  }
+
+  @EntityKey("id")
   @EntityType("counter")
   @Acl(allow = @Acl.Matcher(service = "test"))
   public static class EventSourcedEntityWithServiceLevelAcl extends EventSourcedEntity<Integer, Object> {

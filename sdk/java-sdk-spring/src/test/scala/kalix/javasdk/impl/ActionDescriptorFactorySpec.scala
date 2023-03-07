@@ -46,6 +46,8 @@ import kalix.spring.testmodels.subscriptions.PubSubTestModels.EventStreamPublish
 import kalix.spring.testmodels.subscriptions.PubSubTestModels.EventStreamSubscriptionAction
 import kalix.spring.testmodels.subscriptions.PubSubTestModels.InvalidSubscribeToEventSourcedEntityAction
 import kalix.spring.testmodels.subscriptions.PubSubTestModels.InvalidSubscribeToTopicAction
+import kalix.spring.testmodels.subscriptions.PubSubTestModels.MissingHandlersWhenSubscribeToEventSourcedEntityAction
+import kalix.spring.testmodels.subscriptions.PubSubTestModels.MissingHandlersWhenSubscribeToEventSourcedOnMethodLevelEntityAction
 import kalix.spring.testmodels.subscriptions.PubSubTestModels.PublishToTopicAction
 import kalix.spring.testmodels.subscriptions.PubSubTestModels.RestAnnotatedSubscribeToEventSourcedEntityAction
 import kalix.spring.testmodels.subscriptions.PubSubTestModels.RestAnnotatedSubscribeToValueEntityAction
@@ -415,6 +417,20 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
       intercept[InvalidComponentException] {
         Validations.validate(classOf[InvalidSubscribeToEventSourcedEntityAction]).failIfInvalid
       }.getMessage should include("You cannot use @Subscribe.EventSourcedEntity annotation in both methods and class.")
+    }
+
+    "validates if there are missing event handlers for event sourced Entity Subscription at type level" in {
+      intercept[InvalidComponentException] {
+        Validations.validate(classOf[MissingHandlersWhenSubscribeToEventSourcedEntityAction]).failIfInvalid
+      }.getMessage should include(
+        "Missing event handler for kalix.spring.testmodels.eventsourcedentity.EmployeeEvent$EmployeeEmailUpdated")
+    }
+
+    "validates if there are missing event handlers for event sourced Entity Subscription at method level" in {
+      intercept[InvalidComponentException] {
+        Validations.validate(classOf[MissingHandlersWhenSubscribeToEventSourcedOnMethodLevelEntityAction]).failIfInvalid
+      }.getMessage should include(
+        "Missing EmployeeEntity event handler for kalix.spring.testmodels.eventsourcedentity.EmployeeEvent$EmployeeEmailUpdated")
     }
 
     "validates it is forbidden Topic Subscription at annotation type level and method level at the same time" in {

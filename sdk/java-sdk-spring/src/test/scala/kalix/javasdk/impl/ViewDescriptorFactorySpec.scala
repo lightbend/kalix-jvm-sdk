@@ -35,6 +35,7 @@ import kalix.spring.testmodels.view.ViewTestModels.TransformedUserViewUsingState
 import kalix.spring.testmodels.view.ViewTestModels.TransformedUserViewWithDeletes
 import kalix.spring.testmodels.view.ViewTestModels.TransformedUserViewWithJWT
 import kalix.spring.testmodels.view.ViewTestModels.TransformedViewWithoutSubscriptionOnMethodLevel
+import kalix.spring.testmodels.view.ViewTestModels.TypeLevelSubscribeToEventSourcedEventsWithState
 import kalix.spring.testmodels.view.ViewTestModels.UserByEmailWithCollectionReturn
 import kalix.spring.testmodels.view.ViewTestModels.UserByEmailWithGet
 import kalix.spring.testmodels.view.ViewTestModels.UserByEmailWithPost
@@ -529,6 +530,20 @@ class ViewDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSuit
         methodOptions.getView.getJsonSchema.getOutput shouldBe "Employee"
 
       }
+    }
+
+    "validate missing handlers for method level subscription" in {
+      intercept[InvalidComponentException] {
+        Validations.validate(classOf[SubscribeToEventSourcedEventsWithMethodWithState]).failIfInvalid
+      }.getMessage should include(
+        "Missing EmployeeEntity event handler for kalix.spring.testmodels.eventsourcedentity.EmployeeEvent$EmployeeEmailUpdated")
+    }
+
+    "validate missing handlers for type level subscription" in {
+      intercept[InvalidComponentException] {
+        Validations.validate(classOf[TypeLevelSubscribeToEventSourcedEventsWithState]).failIfInvalid
+      }.getMessage should include(
+        "Missing event handler for kalix.spring.testmodels.eventsourcedentity.EmployeeEvent$EmployeeEmailUpdated")
     }
   }
 

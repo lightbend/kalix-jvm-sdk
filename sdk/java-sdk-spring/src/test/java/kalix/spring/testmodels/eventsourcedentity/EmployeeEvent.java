@@ -21,7 +21,7 @@ import kalix.javasdk.annotations.TypeName;
 public interface EmployeeEvent {
 
   @TypeName("created")
-  class EmployeeCreated implements EmployeeEvent {
+  final class EmployeeCreated implements EmployeeEvent {
 
     public final String firstName;
     public final String lastName;
@@ -35,7 +35,7 @@ public interface EmployeeEvent {
   }
 
   @TypeName("emailUpdated")
-  class EmployeeEmailUpdated implements EmployeeEvent {
+  final class EmployeeEmailUpdated implements EmployeeEvent {
 
     public final String email;
 
