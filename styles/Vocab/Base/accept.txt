@@ -66,6 +66,7 @@ namespace
 newname
 npx
 onboarding
+onwards
 parseable
 passivates
 plaintext
