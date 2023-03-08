@@ -215,7 +215,7 @@ private[kalix] object ComponentDescriptor {
           // synthetic request always have proto messages as input,
           // their type url will are prefixed by DefaultTypeUrlPrefix
           // It's possible for a user to configure another prefix, but this is done through the Kalix instance
-          // and the Spring SDK doesn't expose it.
+          // and the Java SDK doesn't expose it.
           val typeUrl = AnySupport.DefaultTypeUrlPrefix + "/" + syntheticMessageDescriptor.getFullName
 
           CommandHandler(

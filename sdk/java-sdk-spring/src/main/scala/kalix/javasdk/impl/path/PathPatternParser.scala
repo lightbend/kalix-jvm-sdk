@@ -94,7 +94,7 @@ final class PathPattern(val path: String, template: PathPatternParser.Template) 
       // First apply validation rules to the parts
       segment.parts.foreach {
         case dc @ DynamicChar() =>
-          throw new PathPatternParseException("Single character matchers not supported by Kalix Spring SDK", path, dc)
+          throw new PathPatternParseException("Single character matchers not supported by Kalix Java SDK", path, dc)
         case cp @ CapturingPart(name, regex, rest) =>
           if (rest && !last) {
             throw new PathPatternParseException(
@@ -103,7 +103,7 @@ final class PathPattern(val path: String, template: PathPatternParser.Template) 
               cp)
           }
           if (regex.isDefined) {
-            throw new RuntimeException("Regex matchers not supported by Kalix Spring SDK")
+            throw new RuntimeException("Regex matchers not supported by Kalix Java SDK")
           }
         case w @ Wildcard(true) if !last =>
           throw new PathPatternParseException(s"Rest of path matcher is not at the end of the pattern.", path, w)
@@ -112,7 +112,7 @@ final class PathPattern(val path: String, template: PathPatternParser.Template) 
       // Now validate that there is only zero or one parts
       if (segment.parts.size > 1) {
         throw new PathPatternParseException(
-          "Kalix Spring SDK only supports capturing or dynamically matching whole path segments, partial segment matching not allowed.",
+          "Kalix Java SDK only supports capturing or dynamically matching whole path segments, partial segment matching not allowed.",
           path,
           segment)
       }
