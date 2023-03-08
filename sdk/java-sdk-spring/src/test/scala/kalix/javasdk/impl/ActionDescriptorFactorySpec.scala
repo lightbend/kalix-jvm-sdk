@@ -18,7 +18,7 @@ package kalix.javasdk.impl
 
 import com.google.protobuf.Descriptors.FieldDescriptor.JavaType
 import com.google.protobuf.empty.Empty
-import com.google.protobuf.{Any => JavaPbAny}
+import com.google.protobuf.{ Any => JavaPbAny }
 import kalix.JwtMethodOptions.JwtMethodMode
 import kalix.spring.testmodels.action.ActionsTestModels.DeleteWithOneParam
 import kalix.spring.testmodels.action.ActionsTestModels.GetClassLevel
