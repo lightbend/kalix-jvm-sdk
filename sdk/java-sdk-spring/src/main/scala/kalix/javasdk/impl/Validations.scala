@@ -187,10 +187,7 @@ object Validations {
             val effectMethodsInputParams: Seq[Class[_]] = methods
               .filter(updateMethodPredicate)
               .map(_.getParameterTypes.last) //last because it could be a view update methods with 2 params
-            val errors = eventType.getPermittedSubclasses
-              .filterNot(effectMethodsInputParams.contains)
-              .map(clazz => s"Missing event handler for '${clazz.getName}'")
-            Validation(errors)
+            Validation(missingErrors(effectMethodsInputParams, eventType, component))
           } else {
             Valid
           }
@@ -206,18 +203,20 @@ object Validations {
       val errors = effectOutputMethodsGrouped.flatMap { case (entityClass, methods) =>
         val eventType = getEventType(entityClass)
         if (eventType.isSealed) {
-          val effectOutputInputParams: Seq[Class[_]] = methods.map(_.getParameterTypes.last)
-          eventType.getPermittedSubclasses
-            .filterNot(effectOutputInputParams.contains)
-            .map(clazz =>
-              s"Component ${component.getSimpleName} missing event handler for ${clazz.getName} from ${entityClass.getSimpleName}")
-            .toList
+          missingErrors(methods.map(_.getParameterTypes.last), eventType, component)
         } else {
           List.empty
         }
       }
       Validation(errors.toSeq)
     }
+  }
+
+  private def missingErrors(effectOutputInputParams: Seq[Class[_]], eventType: Class[_], component: Class[_]) = {
+    eventType.getPermittedSubclasses
+      .filterNot(effectOutputInputParams.contains)
+      .map(clazz => s"Component '${component.getSimpleName}' is missing event handler for '${clazz.getName}'")
+      .toList
   }
 
   private def topicSubscriptionValidations(component: Class[_]): Validation = {

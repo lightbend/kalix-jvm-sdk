@@ -425,7 +425,7 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
       intercept[InvalidComponentException] {
         Validations.validate(classOf[MissingHandlersWhenSubscribeToEventSourcedEntityAction]).failIfInvalid
       }.getMessage should include(
-        "Missing event handler for kalix.spring.testmodels.eventsourcedentity.EmployeeEvent$EmployeeEmailUpdated")
+        "Component `MissingHandlersWhenSubscribeToEventSourcedEntityAction` is missing event handler for `kalix.spring.testmodels.eventsourcedentity.EmployeeEvent$EmployeeEmailUpdated`")
     }
 
     //TODO remove ignore after updating to Scala 2.13.11 (https://github.com/scala/scala/pull/10105)
@@ -433,7 +433,7 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
       intercept[InvalidComponentException] {
         Validations.validate(classOf[MissingHandlersWhenSubscribeToEventSourcedOnMethodLevelEntityAction]).failIfInvalid
       }.getMessage should include(
-        "Missing EmployeeEntity event handler for kalix.spring.testmodels.eventsourcedentity.EmployeeEvent$EmployeeEmailUpdated")
+        "Component `MissingHandlersWhenSubscribeToEventSourcedOnMethodLevelEntityAction` is missing event handler for `kalix.spring.testmodels.eventsourcedentity.EmployeeEvent$EmployeeEmailUpdated`")
     }
 
     "validates it is forbidden Topic Subscription at annotation type level and method level at the same time" in {

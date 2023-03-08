@@ -71,7 +71,7 @@ object EventSourcedHandlersExtractor {
         if (missingHandlerClasses.isEmpty) {
           List.empty
         } else {
-          List(HandlerValidationError(List.empty, s"missing event handler", missingHandlerClasses))
+          List(HandlerValidationError(List.empty, "missing event handler", missingHandlerClasses))
         }
       } else {
         List.empty
