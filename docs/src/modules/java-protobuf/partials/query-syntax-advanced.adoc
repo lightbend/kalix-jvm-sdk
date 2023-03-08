@@ -314,7 +314,7 @@ include::java:example$java-spring-view-store/src/it/java/store/view/TestKitConfi
 ----
 // tag::grpc[]
 
-For running a local proxy in Docker, with advanced view features enabled, use the environment variable `VIEW_FEATURES_ALL=on`.
+For running a local proxy in Docker, with advanced view features enabled, set the environment variable `VIEW_FEATURES_ALL: "true"`.
 
 
 // end::spring[]
