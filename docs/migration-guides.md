@@ -101,7 +101,7 @@ The following configurations are no longer needed and should be removed:
 
 #### EventSourcedEntity with typed events
 
-A `EventSourcedEntity<S>` is now `EventSourcedEntity<S, E>` where `E` is the top type for all the different event types such event-sourced entity will be allowed to emit. 
+An `EventSourcedEntity<S>` is now `EventSourcedEntity<S, E>` where `E` is the top type for all the different event types such event-sourced entity will be allowed to emit. Although on the protocol-first SDKs mentioned in the previous sections this is taken care of automatically, for the code-first approach you need to provide that type. 
 
 Thus, instead of :
 ```java
