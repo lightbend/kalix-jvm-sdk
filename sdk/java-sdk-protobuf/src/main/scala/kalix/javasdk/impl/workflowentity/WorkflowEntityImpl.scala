@@ -19,7 +19,6 @@ package kalix.javasdk.impl.workflowentity
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 import scala.util.control.NonFatal
-
 import akka.NotUsed
 import akka.actor.ActorSystem
 import akka.stream.scaladsl.Flow
@@ -49,6 +48,7 @@ import kalix.javasdk.workflowentity.WorkflowEntityOptions
 import kalix.protocol.component
 import kalix.protocol.component.{ Reply => ProtoReply }
 import kalix.protocol.workflow_entity.WorkflowClientAction
+import kalix.protocol.workflow_entity.WorkflowConfig
 import kalix.protocol.workflow_entity.WorkflowEffect
 import kalix.protocol.workflow_entity.WorkflowEntities
 import kalix.protocol.workflow_entity.WorkflowEntityInit
@@ -110,7 +110,8 @@ final class WorkflowEntityImpl(system: ActorSystem, val services: Map[String, Wo
     in.prefixAndTail(1)
       .flatMapConcat {
         case (Seq(WorkflowStreamIn(Init(init), _)), source) =>
-          source.via(runWorkflow(init))
+          val (flow, config) = runWorkflow(init)
+          Source.single(config).concat(source.via(flow))
 
         case (Seq(), _) =>
           // if error during recovery in proxy the stream will be completed before init
@@ -128,12 +129,16 @@ final class WorkflowEntityImpl(system: ActorSystem, val services: Map[String, Wo
       }
       .async
 
-  private def runWorkflow(init: WorkflowEntityInit): Flow[WorkflowStreamIn, WorkflowStreamOut, NotUsed] = {
+  private def runWorkflow(
+      init: WorkflowEntityInit): (Flow[WorkflowStreamIn, WorkflowStreamOut, NotUsed], WorkflowStreamOut) = {
     val service =
       services.getOrElse(init.serviceName, throw ProtocolException(init, s"Service not found: ${init.serviceName}"))
     val router =
       service.factory.create(new WorkflowEntityContextImpl(init.entityId, system))
     val entityId = init.entityId
+
+    val workflowConfig =
+      WorkflowStreamOut(WorkflowStreamOut.Message.Config(WorkflowConfig()))
 
     init.userState match {
       case Some(state) =>
@@ -212,7 +217,7 @@ final class WorkflowEntityImpl(system: ActorSystem, val services: Map[String, Wo
       }
     }
 
-    Flow[WorkflowStreamIn]
+    val flow = Flow[WorkflowStreamIn]
       .map(_.message)
       .mapAsync(1) {
 
@@ -289,6 +294,7 @@ final class WorkflowEntityImpl(system: ActorSystem, val services: Map[String, Wo
         case Empty =>
           throw ProtocolException(init, "Workflow received empty/unknown message")
       }
+    (flow, workflowConfig)
   }
 
 }
