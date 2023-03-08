@@ -20,5 +20,14 @@ public class CounterJournalToTopicAction extends Action {
         ValueIncreased vi = new ValueIncreased(event.value() + 1);
         return effects().reply(vi); // <4>
     }
+    // end::class[]
+
+    @Subscribe.EventSourcedEntity(value = Counter.class)
+    @Publish.Topic("counter-events")
+    public Action.Effect<ValueIncreased> onValueMultiplied(ValueMultiplied event){
+        ValueIncreased vi = new ValueIncreased(event.value() + 1);
+        return effects().reply(vi);
+    }
+// tag::class[]
 }
 // end::class[]
