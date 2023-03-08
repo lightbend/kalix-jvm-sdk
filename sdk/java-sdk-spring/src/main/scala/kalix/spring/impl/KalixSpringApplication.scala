@@ -357,12 +357,12 @@ case class KalixSpringApplication(applicationContext: ApplicationContext, config
   }
 
   def start(): Future[Done] = {
-    logger.info("Starting Kalix Server...")
+    logger.info("Starting Kalix Application...")
     kalixRunner.run().asScala
   }
 
   def stop(): Future[Done] = {
-    logger.info("Stopping Kalix Server...")
+    logger.info("Stopping Kalix Application...")
     kalixRunner.terminate().asScala
   }
 
