@@ -118,13 +118,13 @@ public class ShoppingCartEntity extends EventSourcedEntity<ShoppingCart, Shoppin
 
 Where an example of this `ShoppingCartEvent`, could be:
 ```java
-public sealed interface Events {
+public sealed interface ShoppingCartEvent {
 
   @TypeName("item-added")
-  record ItemAdded(ShoppingCart.LineItem item) implements Events { }
+  record ItemAdded(ShoppingCart.LineItem item) implements ShoppingCartEvent { }
 
   @TypeName("item-removed")
-  record ItemRemoved(String productId) implements Events { }
+  record ItemRemoved(String productId) implements ShoppingCartEvent { }
 }
 ```
 
