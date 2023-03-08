@@ -3,14 +3,14 @@
 kalix-proxy:
   - '**/*'
 
-java-protobuf-sdk:
+java-sdk-protobuf:
   - sdk/java-sdk/**/*
   - sdk/java-sdk-testkit/**/*
   - maven-java/**/*
   - codegen/java-gen/**/*
   - samples/java-protobuf-*/**/*
 
-scala-protobuf-sdk:
+scala-sdk-protobuf:
   - sdk/scala-sdk/**/*
   - sdk/scala-sdk-testkit/**/*
   - sbt-plugin/**/*
