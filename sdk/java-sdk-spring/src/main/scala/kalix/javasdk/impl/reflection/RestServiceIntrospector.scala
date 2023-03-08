@@ -121,33 +121,33 @@ object RestServiceIntrospector {
     if (!isEmpty(mapping.consumes())) {
       throw ServiceIntrospectionException(
         element,
-        "Unsupported RequestMapping attribute: consumes. Kalix Spring SDK does not support mapping requests by consumes, all methods are assumed to handle JSON and only JSON.")
+        "Unsupported RequestMapping attribute: consumes. Kalix Java SDK does not support mapping requests by consumes, all methods are assumed to handle JSON and only JSON.")
     }
     if (!isEmpty(mapping.produces())) {
       throw ServiceIntrospectionException(
         element,
-        "Unsupported RequestMapping attribute: produces. Kalix Spring SDK does not support mapping requests by what it produces, all methods are assumed to produce JSON and only JSON.")
+        "Unsupported RequestMapping attribute: produces. Kalix Java SDK does not support mapping requests by what it produces, all methods are assumed to produce JSON and only JSON.")
     }
     if (!isEmpty(mapping.headers())) {
       throw ServiceIntrospectionException(
         element,
-        "Unsupported RequestMapping attribute: headers. Kalix Spring SDK does not support mapping requests by headers.")
+        "Unsupported RequestMapping attribute: headers. Kalix Java SDK does not support mapping requests by headers.")
     }
     if (!isEmpty(mapping.params())) {
       throw ServiceIntrospectionException(
         element,
-        "Unsupported RequestMapping attribute: params. Kalix Spring SDK does not support mapping requests by request parameters.")
+        "Unsupported RequestMapping attribute: params. Kalix Java SDK does not support mapping requests by request parameters.")
     }
     // This could be relaxed, since gRPC transcoding does have an additionalBindings field.
     if (!isEmpty(mapping.path()) && mapping.path().length > 1) {
       throw ServiceIntrospectionException(
         element,
-        "Invalid multiple path mapping. Kalix Spring SDK only supports mapping methods to one HTTP request path.")
+        "Invalid multiple path mapping. Kalix Java SDK only supports mapping methods to one HTTP request path.")
     }
     if (!isEmpty(mapping.method()) && mapping.method().length > 1) {
       throw ServiceIntrospectionException(
         element,
-        "Invalid multiple request method mapping. Kalix Spring SDK only supports mapping methods to one HTTP request method.")
+        "Invalid multiple request method mapping. Kalix Java SDK only supports mapping methods to one HTTP request method.")
     }
   }
 

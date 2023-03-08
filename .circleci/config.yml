@@ -400,7 +400,7 @@ jobs:
       - copy-from-workspace
       - set-sdk-version
       - run:
-          name: Java Customer Registry Quickstart
+          name: Customer Registry Quickstart (Java/Protobuf SDK)
           command: |
             cd samples/java-protobuf-customer-registry-quickstart
             echo "Running mvn with SDK version: '$SDK_VERSION'"
@@ -422,7 +422,7 @@ jobs:
       - copy-from-workspace
       - set-sdk-version
       - run:
-          name: Java Customer Registry Kafka Quickstart
+          name: Customer Registry Kafka Quickstart (Java/Protobuf SDK)
           command: |
             cd samples/java-protobuf-customer-registry-kafka-quickstart
             echo "Running mvn with SDK version: '$SDK_VERSION'"
@@ -444,7 +444,7 @@ jobs:
       - copy-from-workspace
       - set-sdk-version
       - run:
-          name: Java Customer Registry Views Quickstart
+          name: Customer Registry Views Quickstart (Java/Protobuf SDK)
           command: |
             cd samples/java-protobuf-customer-registry-views-quickstart
             echo "Running mvn with SDK version: '$SDK_VERSION'"
@@ -466,7 +466,7 @@ jobs:
       - copy-from-workspace
       - set-sdk-version
       - run:
-          name: Java Shopping Cart Quickstart
+          name: Shopping Cart Quickstart (Java/Protobuf SDK)
           command: |
             cd samples/java-protobuf-shopping-cart-quickstart
             echo "Running mvn with SDK version: '$SDK_VERSION'"
@@ -488,7 +488,7 @@ jobs:
       - copy-from-workspace
       - set-sdk-version
       - run:
-          name: Java Fibonacci Action
+          name: Fibonacci Action (Java/Protobuf SDK)
           command: |
             cd samples/java-protobuf-fibonacci-action
             echo "Running mvn with SDK version: '$SDK_VERSION'"
@@ -509,7 +509,7 @@ jobs:
       - copy-from-workspace
       - set-sdk-version
       - run:
-          name: Java Doc snippets
+          name: Doc snippets (Java/Protobuf SDK)
           command: |
             cd samples/java-protobuf-doc-snippets
             echo "Running mvn with SDK version: '$SDK_VERSION'"
@@ -526,7 +526,7 @@ jobs:
       - copy-from-workspace
       - set-sdk-version
       - run:
-          name: Java first-service by archetype
+          name: first-service by archetype (Java/Protobuf SDK)
           command: |
             cd samples/java-protobuf-first-service
             echo "Running mvn with SDK version: '$SDK_VERSION'"
@@ -546,7 +546,7 @@ jobs:
       - copy-from-workspace
       - set-sdk-version
       - run:
-          name: Java Value Entity Views "Customer Registry" sample
+          name: Value Entity Views "Customer Registry" sample (Java/Protobuf SDK)
           command: |
             cd samples/java-protobuf-valueentity-customer-registry
             echo "Running mvn with SDK version: '$SDK_VERSION'"
@@ -567,7 +567,7 @@ jobs:
       - copy-from-workspace
       - set-sdk-version
       - run:
-          name: Java Value Entity "Store" sample for advanced Views
+          name: View Store (for advanced Views) (Java/Protobuf SDK)
           command: |
             cd samples/java-protobuf-view-store
             echo "Running mvn with SDK version: '$SDK_VERSION'"
@@ -588,7 +588,7 @@ jobs:
       - copy-from-workspace
       - set-sdk-version
       - run:
-          name: Java Event Sourced Views "Customer Registry" sample
+          name: Event Sourced Views "Customer Registry" sample (Java/Protobuf SDK)
           command: |
             cd samples/java-protobuf-eventsourced-customer-registry
             echo "Running mvn with SDK version: '$SDK_VERSION'"
@@ -609,7 +609,7 @@ jobs:
       - copy-from-workspace
       - set-sdk-version
       - run:
-          name: Java Event Sourced Customer Registry Subscriber sample
+          name: Event Sourced Customer Registry Subscriber sample (Java/Protobuf SDK)
           command: |
             cd samples/java-protobuf-eventsourced-customer-registry-subscriber
             echo "Running mvn with SDK version: '$SDK_VERSION'"
@@ -631,7 +631,7 @@ jobs:
       - copy-from-workspace
       - set-sdk-version
       - run:
-          name: Java Value Entity "Shopping Cart" sample
+          name: Value Entity "Shopping Cart" sample (Java/Protobuf SDK)
           command: |
             cd samples/java-protobuf-valueentity-shopping-cart
             echo "Running mvn with SDK version: '$SDK_VERSION'"
@@ -652,7 +652,7 @@ jobs:
       - copy-from-workspace
       - set-sdk-version
       - run:
-          name: Java Event Sourced Entity "Shopping Cart" sample
+          name: Event Sourced Entity "Shopping Cart" sample (Java/Protobuf SDK)
           command: |
             cd samples/java-protobuf-eventsourced-shopping-cart
             echo "Running mvn with SDK version: '$SDK_VERSION'"
@@ -673,7 +673,7 @@ jobs:
       - copy-from-workspace
       - set-sdk-version
       - run:
-          name: Java Replicated Entity "Shopping Cart" sample
+          name: Replicated Entity "Shopping Cart" sample (Java/Protobuf SDK)
           command: |
             cd samples/java-protobuf-replicatedentity-shopping-cart
             echo "Running mvn with SDK version: '$SDK_VERSION'"
@@ -694,7 +694,7 @@ jobs:
       - copy-from-workspace
       - set-sdk-version
       - run:
-          name: Java Event Sourced "Counter" sample
+          name: Event Sourced "Counter" sample (Java/Protobuf SDK)
           command: |
             cd samples/java-protobuf-eventsourced-counter
             echo "Running mvn with SDK version: '$SDK_VERSION'"
@@ -718,7 +718,7 @@ jobs:
       - copy-from-workspace
       - set-sdk-version
       - run:
-          name: Java Value Entity "Counter" sample
+          name: Value Entity "Counter" sample (Java/Protobuf SDK)
           command: |
             cd samples/java-protobuf-valueentity-counter
             echo "Running mvn with SDK version: '$SDK_VERSION'"
@@ -739,7 +739,7 @@ jobs:
       - copy-from-workspace
       - set-sdk-version
       - run:
-          name: Spring Client for Java Value Entity "Counter" sample
+          name: Spring Client for Java Value Entity "Counter" sample (Java/Protobuf SDK)
           command: |
             cd samples/java-protobuf-valueentity-counter-spring-client
             echo "Running mvn with SDK version: '$SDK_VERSION'"
@@ -760,7 +760,7 @@ jobs:
       - copy-from-workspace
       - set-sdk-version
       - run:
-          name: Java Replicated Entity examples
+          name: Replicated Entity examples (Java/Protobuf SDK)
           command: |
             cd samples/java-protobuf-replicatedentity-examples
             echo "Running mvn with SDK version: '$SDK_VERSION'"
@@ -781,7 +781,7 @@ jobs:
         - copy-from-workspace
         - set-sdk-version
         - run:
-            name: Java Value Entity Counter with Reliable Timers
+            name: Value Entity Counter with Reliable Timers (Java/Protobuf SDK)
             command: |
               cd samples/java-protobuf-reliable-timers
               echo "Running mvn with SDK version: '$SDK_VERSION'"
@@ -803,7 +803,7 @@ jobs:
       - copy-from-workspace
       - set-sdk-version
       - run:
-          name: Scala Documentation Snippets
+          name: Doc Snippets  (Scala/Protobuf SDK)
           command: |
             cd samples/scala-protobuf-doc-snippets
             echo "Running sbt with SDK version: '$SDK_VERSION'"
@@ -824,7 +824,7 @@ jobs:
       - copy-from-workspace
       - set-sdk-version
       - run:
-          name: Scala Fibonacci Action
+          name: Fibonacci Action (Scala/Protobuf SDK)
           command: |
             cd samples/scala-protobuf-fibonacci-action
             echo "Running sbt with SDK version: '$SDK_VERSION'"
@@ -845,7 +845,7 @@ jobs:
       - copy-from-workspace
       - set-sdk-version
       - run:
-          name: Scala Value Entity Customer Registry
+          name: Value Entity Customer Registry (Scala/Protobuf SDK)
           command: |
             cd samples/scala-protobuf-valueentity-customer-registry
             echo "Running sbt with SDK version: '$SDK_VERSION'"
@@ -866,7 +866,7 @@ jobs:
       - copy-from-workspace
       - set-sdk-version
       - run:
-          name: Scala "Store" sample for advanced Views
+          name: View Store (for advanced Views) (Scala/Protobuf SDK)
           command: |
             cd samples/scala-protobuf-view-store
             echo "Running sbt with SDK version: '$SDK_VERSION'"
@@ -887,7 +887,7 @@ jobs:
       - copy-from-workspace
       - set-sdk-version
       - run:
-          name: Scala Customer Registry Quickstart
+          name: Customer Registry Quickstart (Scala/Protobuf SDK)
           command: |
             cd samples/scala-protobuf-customer-registry-quickstart
             echo "Running sbt with SDK version: '$SDK_VERSION'"
@@ -908,7 +908,7 @@ jobs:
       - copy-from-workspace
       - set-sdk-version
       - run:
-          name: Scala Event Sourced Customer Registry
+          name: Event Sourced Customer Registry (Scala/Protobuf SDK)
           command: |
             cd samples/scala-protobuf-eventsourced-customer-registry
             echo "Running sbt with SDK version: '$SDK_VERSION'"
@@ -930,7 +930,7 @@ jobs:
       - copy-from-workspace
       - set-sdk-version
       - run:
-          name: Scala Event Sourced Customer Registry Subscriber
+          name: Event Sourced Customer Registry Subscriber (Scala/Protobuf SDK)
           command: |
             cd samples/scala-protobuf-eventsourced-customer-registry-subscriber
             echo "Running sbt with SDK version: '$SDK_VERSION'"
@@ -950,7 +950,7 @@ jobs:
       - copy-from-workspace
       - set-sdk-version
       - run:
-          name: Scala Service
+          name: First Service (Scala/Protobuf SDK)
           command: |
             cd samples/scala-protobuf-first-service
             echo "Running sbt with SDK version: '$SDK_VERSION'"
@@ -971,7 +971,7 @@ jobs:
       - copy-from-workspace
       - set-sdk-version
       - run:
-          name: Scala Value Entity Counter
+          name: Value Entity Counter (Scala/Protobuf SDK)
           command: |
             cd samples/scala-protobuf-valueentity-counter
             echo "Running sbt with SDK version: '$SDK_VERSION'"
@@ -992,7 +992,7 @@ jobs:
       - copy-from-workspace
       - set-sdk-version
       - run:
-          name: Scala Event Sourced Entity Counter
+          name: Event Sourced Entity Counter (Scala/Protobuf SDK)
           command: |
             cd samples/scala-protobuf-eventsourced-counter
             echo "Running sbt with SDK version: '$SDK_VERSION'"
@@ -1014,7 +1014,7 @@ jobs:
       - copy-from-workspace
       - set-sdk-version
       - run:
-          name: Scala Event Sourced Shopping Cart
+          name: Event Sourced Shopping Cart (Scala/Protobuf SDK)
           command: |
             cd samples/scala-protobuf-eventsourced-shopping-cart
             echo "Running sbt with SDK version: '$SDK_VERSION'"
@@ -1035,7 +1035,7 @@ jobs:
       - copy-from-workspace
       - set-sdk-version
       - run:
-          name: Scala Replicated Entity "Shopping Cart" sample
+          name: Replicated Entity "Shopping Cart" sample (Scala/Protobuf SDK)
           command: |
             cd samples/scala-protobuf-replicatedentity-shopping-cart
             echo "Running sbt with SDK version: '$SDK_VERSION'"
@@ -1055,7 +1055,7 @@ jobs:
       - copy-from-workspace
       - set-sdk-version
       - run:
-          name: Scala Replicated Entity examples
+          name: Replicated Entity examples (Scala/Protobuf SDK)
           command: |
             cd samples/scala-protobuf-replicatedentity-examples
             echo "Running sbt with SDK version: '$SDK_VERSION'"
@@ -1075,7 +1075,7 @@ jobs:
       - copy-from-workspace
       - set-sdk-version
       - run:
-          name: Scala Value Entity Shopping Cart
+          name: Value Entity Shopping Cart (Scala/Protobuf SDK)
           command: |
             cd samples/scala-protobuf-valueentity-shopping-cart
             echo "Running sbt with SDK version: '$SDK_VERSION'"
@@ -1096,7 +1096,7 @@ jobs:
       - copy-from-workspace
       - set-sdk-version
       - run:
-          name: Scala Value Entity Counter with Reliable Timers
+          name: Value Entity Counter with Reliable Timers (Scala/Protobuf SDK)
           command: |
             cd samples/scala-protobuf-reliable-timers
             echo "Running sbt with SDK version: '$SDK_VERSION'"
@@ -1117,7 +1117,7 @@ jobs:
       - copy-from-workspace
       - set-sdk-version
       - run:
-          name: Spring Doc snippets
+          name: Doc snippets (Java SDK)
           command: |
             cd samples/java-spring-doc-snippets
             echo "Running mvn with SDK version: '$SDK_VERSION'"
@@ -1134,7 +1134,7 @@ jobs:
       - copy-from-workspace
       - set-sdk-version
       - run:
-          name: Spring SDK Fibonacci Action
+          name: Fibonacci Action (Java SDK)
           command: |
             cd samples/java-spring-fibonacci-action
             echo "Running mvn with SDK version: '$SDK_VERSION'"
@@ -1151,7 +1151,7 @@ jobs:
       - copy-from-workspace
       - set-sdk-version
       - run:
-          name: Spring SDK Customer Registry Quickstart
+          name: Customer Registry Quickstart (Java SDK)
           command: |
             cd samples/java-spring-customer-registry-quickstart
             echo "Running mvn with SDK version: '$SDK_VERSION'"
@@ -1168,7 +1168,7 @@ jobs:
       - copy-from-workspace
       - set-sdk-version
       - run:
-          name: Spring SDK Customer Registry with Views Quickstart
+          name: Customer Registry with Views Quickstart (Java SDK)
           command: |
             cd samples/java-spring-customer-registry-views-quickstart
             echo "Running mvn with SDK version: '$SDK_VERSION'"
@@ -1185,7 +1185,7 @@ jobs:
       - copy-from-workspace
       - set-sdk-version
       - run:
-          name: Spring SDK Counter
+          name: Value Entity Counter (Java SDK)
           command: |
             cd samples/java-spring-valueentity-counter
             echo "Running mvn with SDK version: '$SDK_VERSION'"
@@ -1202,7 +1202,7 @@ jobs:
       - copy-from-workspace
       - set-sdk-version
       - run:
-          name: Spring SDK Counter
+          name: Event Sourced Counter (Java SDK)
           command: |
             cd samples/java-spring-eventsourced-counter
             echo "Running mvn with SDK version: '$SDK_VERSION'"
@@ -1221,7 +1221,7 @@ jobs:
       - copy-from-workspace
       - set-sdk-version
       - run:
-          name: Spring SDK Customer Registry quickstart
+          name: Customer Registry quickstart (Java SDK)
           command: |
             cd samples/java-spring-eventsourced-customer-registry
             echo "Running mvn with SDK version: '$SDK_VERSION'"
@@ -1238,7 +1238,7 @@ jobs:
       - copy-from-workspace
       - set-sdk-version
       - run:
-          name: Spring SDK Customer Registry Subscriber
+          name: Customer Registry Subscriber (Java SDK)
           command: |
             cd samples/java-spring-eventsourced-customer-registry-subscriber
             echo "Running mvn with SDK version: '$SDK_VERSION'"
@@ -1257,7 +1257,7 @@ jobs:
       - copy-from-workspace
       - set-sdk-version
       - run:
-          name: Spring SDK Reliable Timers
+          name: Reliable Timers (Java SDK)
           command: |
             cd samples/java-spring-reliable-timers
             echo "Running mvn with SDK version: '$SDK_VERSION'"
@@ -1274,7 +1274,7 @@ jobs:
       - copy-from-workspace
       - set-sdk-version
       - run:
-          name: Spring SDK Event Sourced Shopping Cart
+          name: Event Sourced Shopping Cart (Java SDK)
           command: |
             cd samples/java-spring-eventsourced-shopping-cart
             echo "Running mvn with SDK version: '$SDK_VERSION'"
@@ -1291,7 +1291,7 @@ jobs:
       - copy-from-workspace
       - set-sdk-version
       - run:
-          name: Spring SDK Value Entity Shopping Cart
+          name: Value Entity Shopping Cart (Java SDK)
           command: |
             cd samples/java-spring-valueentity-shopping-cart
             echo "Running mvn with SDK version: '$SDK_VERSION'"
@@ -1308,7 +1308,7 @@ jobs:
       - copy-from-workspace
       - set-sdk-version
       - run:
-          name: Spring SDK Value Entity Customer Registry
+          name: Value Entity Customer Registry (Java SDK)
           command: |
             cd samples/java-spring-valueentity-customer-registry
             echo "Running mvn with SDK version: '$SDK_VERSION'"
@@ -1325,7 +1325,7 @@ jobs:
       - copy-from-workspace
       - set-sdk-version
       - run:
-          name: Spring View Store (for advanced Views)
+          name: View Store (for advanced Views) (Java SDK)
           command: |
             cd samples/java-spring-view-store
             echo "Running mvn with SDK version: '$SDK_VERSION'"
@@ -1342,7 +1342,7 @@ jobs:
       - copy-from-workspace
       - set-sdk-version
       - run:
-          name: Spring SDK transfer Workflow Entity
+          name: Transfer Workflow Entity (Java SDK)
           command: |
             cd samples/java-spring-transfer-workflow
             echo "Running mvn with SDK version: '$SDK_VERSION'"

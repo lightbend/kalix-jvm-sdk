@@ -30,7 +30,7 @@ private[kalix] class JsonMessageCodec extends MessageCodec {
   private[kalix] val reversedCache: ConcurrentMap[String, Class[_]] = new ConcurrentHashMap()
 
   /**
-   * In the Spring SDK, output data are encoded to Json.
+   * In the Java SDK, output data are encoded to Json.
    */
   override def encodeScala(value: Any): ScalaPbAny = {
     if (value == null) throw NullSerializationException

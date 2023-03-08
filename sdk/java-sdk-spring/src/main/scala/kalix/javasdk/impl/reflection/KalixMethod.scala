@@ -173,12 +173,12 @@ case class SyntheticRequestServiceMethod(
   if (isEmpty(mapping.path()) && classMapping.forall(cm => isEmpty(cm.path()))) {
     throw ServiceIntrospectionException(
       javaMethod,
-      "Missing path mapping. Kalix Spring SDK methods must have a path defined.")
+      "Missing path mapping. Kalix Java SDK methods must have a path defined.")
   }
   if (isEmpty(mapping.method()) && classMapping.forall(cm => isEmpty(cm.method()))) {
     throw ServiceIntrospectionException(
       javaMethod,
-      "Missing request method mapping. Kalix Spring SDK methods must have a request method defined.")
+      "Missing request method mapping. Kalix Java SDK methods must have a request method defined.")
   }
 
   private val pathFromAnnotation: String = {

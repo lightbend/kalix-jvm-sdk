@@ -21,7 +21,7 @@ import static java.time.temporal.ChronoUnit.SECONDS;
 
 
 /**
- * This is a skeleton for implementing integration tests for a Kalix application built with the Spring SDK.
+ * This is a skeleton for implementing integration tests for a Kalix application built with the Java SDK.
  * <p>
  * This test will initiate a Kalix Proxy using testcontainers and therefore it's required to have Docker installed
  * on your machine. This test will also start your Spring Boot application.

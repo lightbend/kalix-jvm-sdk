@@ -17,7 +17,7 @@ public class Main {
   private static final Logger logger = LoggerFactory.getLogger(Main.class);
 
   public static void main(String[] args) {
-    logger.info("Starting Kalix - Spring SDK");
+    logger.info("Starting Kalix Application");
     SpringApplication.run(Main.class, args);
   }
 }

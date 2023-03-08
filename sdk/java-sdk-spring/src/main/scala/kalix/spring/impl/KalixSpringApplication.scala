@@ -349,7 +349,7 @@ case class KalixSpringApplication(applicationContext: ApplicationContext, config
     val finalConfig =
       ConfigFactory
         // it doesn't make sense to try to load descriptor source for
-        // the Spring SDK, so better to just disable it
+        // the Java SDK, so better to just disable it
         .parseString("kalix.discovery.protobuf-descriptor-with-source-info-path=disabled")
         .withFallback(config)
 
