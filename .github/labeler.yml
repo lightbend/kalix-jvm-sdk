@@ -17,13 +17,11 @@ scala-sdk-protobuf:
   - codegen/scala-gen/**/*
   - samples/scala-protobuf-*/**/*
 
-
 java-sdk:
   - sdk/java-sdk-spring/**/*
   - sdk/java-sdk-spring-testkit/**/*
   - sdk/spring-boot-starter/**/*
   - sdk/spring-boot-starter-test/**/*
-  - sdk/spring-sdk-testkit/**/*
   - samples/java-spring-*/**/*
 
 Documentation:
