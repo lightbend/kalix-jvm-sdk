@@ -15,9 +15,9 @@ services:
       USER_FUNCTION_HOST: ${USER_FUNCTION_HOST:-host.docker.internal}
       USER_FUNCTION_PORT: ${USER_FUNCTION_PORT:-8080}
       # Comment to enable ACL check in dev-mode (see https://docs.kalix.io/services/using-acls.html#_local_development_with_acls)
-      ACL_ENABLED: 'false'
+      ACL_ENABLED: "false"
       # Uncomment to enable advanced view features locally (note: disabled in deployed services by default)
-      #VIEW_FEATURES_ALL: "on"
+      #VIEW_FEATURES_ALL: "true"
       # Uncomment to disable the JWT dev secret
       #JWT_DEV_SECRET: "false"
       # Uncomment to set the JWT dev secret issuer
