@@ -18,7 +18,7 @@ package kalix.javasdk.impl
 
 import com.google.protobuf.Descriptors.FieldDescriptor.JavaType
 import com.google.protobuf.empty.Empty
-import com.google.protobuf.{ Any => JavaPbAny }
+import com.google.protobuf.{Any => JavaPbAny}
 import kalix.JwtMethodOptions.JwtMethodMode
 import kalix.spring.testmodels.action.ActionsTestModels.DeleteWithOneParam
 import kalix.spring.testmodels.action.ActionsTestModels.GetClassLevel
@@ -58,6 +58,7 @@ import kalix.spring.testmodels.subscriptions.PubSubTestModels.SubscribeToTopicAc
 import kalix.spring.testmodels.subscriptions.PubSubTestModels.SubscribeToTwoTopicsAction
 import kalix.spring.testmodels.subscriptions.PubSubTestModels.SubscribeToValueEntityAction
 import kalix.spring.testmodels.subscriptions.PubSubTestModels.SubscribeToValueEntityWithDeletesAction
+import org.scalatest.Ignore
 import org.scalatest.wordspec.AnyWordSpec
 
 class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSuite {
@@ -419,14 +420,16 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
       }.getMessage should include("You cannot use @Subscribe.EventSourcedEntity annotation in both methods and class.")
     }
 
-    "validates if there are missing event handlers for event sourced Entity Subscription at type level" in {
+    //TODO remove ignore after updating to Scala 2.13.11 (https://github.com/scala/scala/pull/10105)
+    "validates if there are missing event handlers for event sourced Entity Subscription at type level" ignore {
       intercept[InvalidComponentException] {
         Validations.validate(classOf[MissingHandlersWhenSubscribeToEventSourcedEntityAction]).failIfInvalid
       }.getMessage should include(
         "Missing event handler for kalix.spring.testmodels.eventsourcedentity.EmployeeEvent$EmployeeEmailUpdated")
     }
 
-    "validates if there are missing event handlers for event sourced Entity Subscription at method level" in {
+    //TODO remove ignore after updating to Scala 2.13.11 (https://github.com/scala/scala/pull/10105)
+    "validates if there are missing event handlers for event sourced Entity Subscription at method level" ignore {
       intercept[InvalidComponentException] {
         Validations.validate(classOf[MissingHandlersWhenSubscribeToEventSourcedOnMethodLevelEntityAction]).failIfInvalid
       }.getMessage should include(

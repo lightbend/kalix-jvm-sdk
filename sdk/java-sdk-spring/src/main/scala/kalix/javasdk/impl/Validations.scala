@@ -61,11 +61,6 @@ object Validations {
     final def isInvalid: Boolean = !isInvalid
     def ++(validation: Validation): Validation
 
-    /**
-     * add this validation when the current one is Valid
-     */
-    def combineWhenValid(validation: Validation): Validation
-
     def failIfInvalid: Validation
   }
 
@@ -74,8 +69,6 @@ object Validations {
     override def ++(validation: Validation): Validation = validation
 
     override def failIfInvalid: Validation = this
-
-    override def combineWhenValid(validation: Validation): Validation = validation
   }
 
   object Invalid {
@@ -94,14 +87,6 @@ object Validations {
 
     override def failIfInvalid: Validation =
       throw InvalidComponentException(messages.mkString(", "))
-
-    override def combineWhenValid(validation: Validation): Validation = {
-      if (isValid) {
-        validation
-      } else {
-        this
-      }
-    }
   }
 
   private def when(cond: Boolean)(block: => Validation): Validation =
@@ -120,8 +105,8 @@ object Validations {
   private def commonSubscriptionValidation(
       component: Class[_],
       updateMethodPredicate: Method => Boolean): Validation = {
-    eventSourcedEntitySubscriptionValidations(component)
-      .combineWhenValid(missingEventHandlerValidations(component, updateMethodPredicate)) ++
+    eventSourcedEntitySubscriptionValidations(component) ++
+    missingEventHandlerValidations(component, updateMethodPredicate) ++
     valueEntitySubscriptionValidations(component) ++
     topicSubscriptionValidations(component) ++
     publishStreamIdMustBeFilled(component) ++
