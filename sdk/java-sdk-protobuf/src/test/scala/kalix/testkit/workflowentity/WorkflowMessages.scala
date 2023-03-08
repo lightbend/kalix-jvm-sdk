@@ -87,4 +87,7 @@ object WorkflowMessages extends EntityMessages {
       .withCommandId(id)
     WorkflowStreamOut.Message.Effect(failureEffect)
   }
+
+  def config(): OutMessage =
+    WorkflowStreamOut.Message.Config(WorkflowConfig())
 }

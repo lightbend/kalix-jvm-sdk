@@ -61,6 +61,7 @@ class WorkflowEntityImplSpec extends AnyWordSpec with Matchers with BeforeAndAft
       service.expectLogError("Terminating entity [transfer] due to unexpected failure") {
         val workflow = protocol.workflow.connect()
         workflow.send(init(MoneyTransfer.Name, "transfer"))
+        workflow.expect(config())
         workflow.send(init(MoneyTransfer.Name, "transfer"))
         workflow.expectFailure("Unexpected error")
         workflow.expectClosed()
@@ -80,6 +81,7 @@ class WorkflowEntityImplSpec extends AnyWordSpec with Matchers with BeforeAndAft
       service.expectLogError("Terminating entity [transfer2] due to unexpected failure for command [foo]") {
         val workflow = protocol.workflow.connect()
         workflow.send(init(MoneyTransfer.Name, "transfer"))
+        workflow.expect(config())
         workflow.send(command(1, "transfer2", "foo"))
         workflow.expectFailure("Unexpected error")
         workflow.expectClosed()
@@ -90,6 +92,7 @@ class WorkflowEntityImplSpec extends AnyWordSpec with Matchers with BeforeAndAft
       service.expectLogError("Terminating entity [transfer] due to unexpected failure for command [foo]") {
         val workflow = protocol.workflow.connect()
         workflow.send(init(MoneyTransfer.Name, "transfer"))
+        workflow.expect(config())
         workflow.send(command(1, "transfer", "foo", payload = None))
         workflow.expectFailure("Unexpected error")
         workflow.expectClosed()
@@ -100,6 +103,7 @@ class WorkflowEntityImplSpec extends AnyWordSpec with Matchers with BeforeAndAft
       service.expectLogError("Terminating entity [transfer] due to unexpected failure") {
         val workflow = protocol.workflow.connect()
         workflow.send(init(MoneyTransfer.Name, "transfer"))
+        workflow.expect(config())
         workflow.send(WorkflowStreamIn.Message.Empty)
         workflow.expectFailure("Unexpected error")
         workflow.expectClosed()
@@ -110,6 +114,7 @@ class WorkflowEntityImplSpec extends AnyWordSpec with Matchers with BeforeAndAft
       service.expectLogError("Terminating entity [transfer] due to unexpected failure for command [foo]") {
         val workflow = protocol.workflow.connect()
         workflow.send(init(MoneyTransfer.Name, "transfer"))
+        workflow.expect(config())
         workflow.send(command(1, "transfer", "foo"))
         workflow.expectFailure("Unexpected error")
         workflow.expectClosed()
@@ -119,6 +124,7 @@ class WorkflowEntityImplSpec extends AnyWordSpec with Matchers with BeforeAndAft
     "fail action when command handler returns error effect" in {
       val workflow = protocol.workflow.connect()
       workflow.send(init(MoneyTransfer.Name, "transfer"))
+      workflow.expect(config())
       workflow.send(command(1, "transfer", "Start", MoneyTransfer.transfer("transfer", "foo", "bar", -1)))
       workflow.expect(actionFailure(1, "Transfer amount cannot be negative.", INVALID_ARGUMENT))
 
@@ -132,6 +138,7 @@ class WorkflowEntityImplSpec extends AnyWordSpec with Matchers with BeforeAndAft
       service.expectLogError("Terminating entity [transfer] due to unexpected failure for command [IllegalCall]") {
         val workflow = protocol.workflow.connect()
         workflow.send(init(MoneyTransfer.Name, "transfer"))
+        workflow.expect(config())
         workflow.send(command(1, "transfer", "IllegalCall", MoneyTransfer.transfer("transfer", "foo", "bar", 10)))
         workflow.expectFailure("Unexpected error")
         workflow.expectClosed()
@@ -142,6 +149,7 @@ class WorkflowEntityImplSpec extends AnyWordSpec with Matchers with BeforeAndAft
       val workflow = protocol.workflow.connect()
       val workflowId = "transfer"
       workflow.send(init(MoneyTransfer.Name, workflowId))
+      workflow.expect(config())
 
       // start the workflow
       workflow.send(command(1, workflowId, "Start", MoneyTransfer.transfer(workflowId, "foo", "bar", 10)))
