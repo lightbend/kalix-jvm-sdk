@@ -189,7 +189,7 @@ object Validations {
               .map(_.getParameterTypes.last) //last because it could be a view update methods with 2 params
             val errors = eventType.getPermittedSubclasses
               .filterNot(effectMethodsInputParams.contains)
-              .map(clazz => s"Missing event handler for ${clazz.getName}")
+              .map(clazz => s"Missing event handler for '${clazz.getName}'")
             Validation(errors)
           } else {
             Valid
