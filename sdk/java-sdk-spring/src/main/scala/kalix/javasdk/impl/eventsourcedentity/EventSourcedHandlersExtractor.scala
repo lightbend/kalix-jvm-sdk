@@ -68,7 +68,11 @@ object EventSourcedHandlersExtractor {
         val missingHandlerClasses = eventType.getPermittedSubclasses
           .filterNot(validHandlers.contains)
           .toList
-        List(HandlerValidationError(List.empty, s"missing event handler", missingHandlerClasses))
+        if (missingHandlerClasses.isEmpty) {
+          List.empty
+        } else {
+          List(HandlerValidationError(List.empty, s"missing event handler", missingHandlerClasses))
+        }
       } else {
         List.empty
       }
