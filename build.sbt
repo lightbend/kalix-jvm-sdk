@@ -144,8 +144,6 @@ lazy val javaSdkSpring = project
     Compile / akkaGrpcGeneratedLanguages := Seq(AkkaGrpc.Scala),
     Test / javacOptions ++= Seq("-parameters"), // for Jackson
     IntegrationTest / javacOptions += "-parameters", // for Jackson
-    // FIXME remove filter after proxy release > 1.1.5
-    IntegrationTest / testOptions := Seq(Tests.Filter(!_.endsWith("SpringWorkflowIntegrationTest"))),
     // Generate javadocs by just including non generated Java sources
     Compile / doc / sources := {
       val javaSourceDir = (Compile / javaSource).value.getAbsolutePath
