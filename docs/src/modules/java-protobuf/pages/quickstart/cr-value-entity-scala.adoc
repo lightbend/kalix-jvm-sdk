@@ -20,7 +20,7 @@ Learn how to create a customer registry in Scala, package it into a container, a
 If you want to bypass writing code and jump straight to the deployment:
 
 . Download the source code using the Kalix CLI:
-`kalix quickstart download customer-registry-scala`
+`kalix quickstart download customer-registry-scala-protobuf`
 
 . Skip to <<Package and deploy your service>>.
 ====

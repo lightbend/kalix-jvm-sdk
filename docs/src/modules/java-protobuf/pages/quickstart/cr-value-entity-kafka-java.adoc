@@ -28,7 +28,7 @@ Create a customer registry that includes publishing to Kafka. Package it into a 
 If you want to bypass writing code and jump straight to the deployment:
 
 . Download the source code using the Kalix CLI:
-`kalix quickstart download customer-registry-kafka-java`
+`kalix quickstart download customer-registry-kafka-java-protobuf`
 
 . Skip to <<Package and deploy your service>>.
 ====

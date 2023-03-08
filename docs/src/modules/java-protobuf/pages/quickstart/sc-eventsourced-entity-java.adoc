@@ -20,7 +20,7 @@ Learn how to create a shopping cart in Java, package it into a container, and ru
 If you want to bypass writing code and jump straight to the deployment:
 
 . Download the source code using the Kalix CLI:
-`kalix quickstart download shopping-cart-java`
+`kalix quickstart download shopping-cart-java-protobuf`
 
 . Skip to <<Package and deploy your service>>.
 ====
