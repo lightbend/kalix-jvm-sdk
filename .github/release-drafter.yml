@@ -5,12 +5,12 @@ categories:
   - title: 'Java SDK'
     labels:
       - 'java-sdk'
-  - title: 'Scala SDK'
+  - title: 'Java/Protobuf SDK'
     labels:
-      - 'scala-sdk'
-  - title: 'Spring SDK'
+      - 'java-sdk-protobuf'
+  - title: 'Scala/Protobuf SDK'
     labels:
-      - 'spring-sdk'
+      - 'scala-sdk-protobuf'
   - title: 'Documentation'
     labels:
       - 'Documentation'
