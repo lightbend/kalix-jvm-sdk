@@ -1,0 +1,150 @@
+= Quickstart: Customer Registry with Spring
+
+include::ROOT:partial$include.adoc[]
+include::spring:partial$attributes.adoc[]
+
+In this section, you will learn how to create a customer registry with the Spring SDK, package it into a container, and run it on Kalix.
+
+== Before you begin
+
+* If you're new to Kalix, {console}[create an account, window="console"], so you can try out Kalix for free.
+* You'll also need to install the https://docs.kalix.io/kalix/install-kalix.html[Kalix CLI, window="new-doc"] to deploy from a terminal window.
+* For this quickstart, you'll also need
+** https://docs.docker.com/engine/install[Docker {minimum_docker_version} or higher, window="new"]
+** Java {spring-java-version} or higher
+** https://maven.apache.org/download.cgi[Maven {minimum_maven_version} or higher, window="new"]
+
+[NOTE]
+====
+If you want to bypass writing code and jump straight to the deployment:
+
+. Download the source code using the Kalix CLI:
+`kalix quickstart download customer-registry-spring`
+
+. Skip to <<Package and deploy your service>>.
+====
+
+include::partial$maven-archetype.adoc[]
+
+== Customer Registry Service
+
+The service contains only one Value Entity that exposes the operation to mutate a Customer model. The entity itself exposes service endpoints and eventually encapsulates some basic validation. The incoming commands/request are then applied to the model and the entity instructs Kalix, through the `Effect` API what needs to be done next.
+
+== Define the domain model
+
+First, define the domain classes in package `customer.domain`.
+
+[source,java,indent=0]
+.src/main/java/customer/domain/Customer.java
+----
+include::example$spring-customer-registry-quickstart/src/main/java/customer/domain/Customer.java[]
+----
+<1> Define a Java record `email`, `name` and `Address`.
+<2> Defined methods implementing the mutations. Note that both methods return a new version of the Customer record and only modify one field.
+
+Finally, the `Address` record.
+
+[source,java,indent=0]
+.src/main/java/customer/domain/Address.java
+----
+include::example$spring-customer-registry-quickstart/src/main/java/customer/domain/Address.java[]
+----
+
+=== Define the external API
+
+The `Customer` API is defined by the `CustomerEntity`.
+
+Create a class names `CustomerEntity` in package `customer.api`.
+
+[source,java,indent=0]
+.src/main/java/customer/api/CustomerEntity.java
+----
+include::example$spring-customer-registry-quickstart/src/main/java/customer/api/CustomerEntity.java[tag=customer]
+----
+<1> Each Entity needs a unique logical type name. This must be unique per Kalix service.
+<2> The entity needs to be address by a unique identifier. The `@EntityKey` declares the name of the path variable that Kalix should use as unique identifier.
+<3> The `@RequestMapping` defines the base path to access the entity. Note that the `\{customer_id\}` matches the value of `@EntityKey`.
+<4> `CustomerEntity` must inherit from `kalix.javasdk.valueentity.ValueEntity`.
+<5> Each API method must be exposed as a REST endpoint using Spring's REST annotations.
+<6> The implementation instructs Kalix to persist the state `customer`.
+<7> After persisting, Kalix is instructed to return the String 'Ok'.
+
+
+== Package and deploy your service
+
+To build and publish the container image and then deploy the service, follow these steps:
+
+. If you haven't done so yet, sign in to your Kalix account. If this is your first time using Kalix, this will let you register an account, https://docs.kalix.io/projects/create-project.html[create your first project], and set this project as the default.
++
+[source,command line]
+----
+kalix auth login
+----
+
+. Use the `deploy` target to build the container image, publish it to the container registry as configured in the `pom.xml` file, and then automatically https://docs.kalix.io/services/deploy-service.html#_deploy[deploy the service] to Kalix using `kalix`:
++
+[source,command line]
+----
+mvn deploy
+----
+
+. You can https://docs.kalix.io/services/deploy-service.html#_verify_service_status[verify the status of the deployed service] using:
++
+[source,command line]
+----
+kalix service list
+----
+
+== Invoke your service
+
+Once the service has started successfully, you can https://docs.kalix.io/services/invoke-service.html#_testing_and_development[start a proxy locally] to access the service:
+
+[source,command line]
+----
+kalix service proxy <service name>
+----
+
+
+You can use command line HTTP clients, such as `curl` or `httpie`, to invoke the service through the proxy at `localhost:8080`, using plaintext connections.
+
+A customer can be created using the `/customer/\{customer_id\}/create` endpoint on `CustomerEntity`:
+
+[source,command line]
+----
+curl localhost:8080/customer/abc123/create \
+  --header "Content-Type: application/json" \
+  -XPOST \
+  --data '{
+    "email": "someone@example.com",
+    "name": "Someone",
+    "address": {
+      "street": "123 Some Street",
+      "city": "Somewhere"
+    }
+  }'
+----
+
+The `/customer/abc123` endpoint can be used to retrieve this customer:
+
+[source,command line]
+----
+curl localhost:8080/customer/abc123
+----
+
+You can https://docs.kalix.io/services/invoke-service.html#_exposing_services_to_the_internet[expose the service to the internet]. A generated hostname will be returned from the expose command:
+
+[source,command line]
+----
+kalix service expose <service name>
+----
+
+Try to call the exposed service with `curl`:
+
+[source,command line]
+----
+curl <generated hostname>:443/customer/abc123
+----
+
+== Next steps
+
+* You can learn more about xref:spring:value-entity.adoc[Value Entities].

@@ -1,2 +1,4 @@
 kalix.javasdk.testkit
-kalix.spring.testkit
+kalix.javasdk.testkit.impl
+kalix.javasdk.testkit.junit
+kalix.javasdk.testkit.junit.jupiter

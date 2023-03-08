@@ -1,71 +1,86 @@
 = Actions as Controllers
-:page-aliases: spring:actions-as-controller.adoc
+:page-supergroup-java-scala: Language
 
 Actions can be used to implement link:https://en.wikipedia.org/wiki/Model%E2%80%93view%E2%80%93controller[MVC Controllers] by
 acting as the external interface of a service, receiving requests, operating over the requests values and forwarding the call
 to other components in the same service.
 
-To illustrate how you can use an Action as a Controller, we will build on top of a Value Entity used to implement a Shopping Cart example, adding a new Action to the existing shopping cart service.
-
-TIP: If you are hearing about `ValueEntity` for the first time, be sure to visit xref:value-entity.adoc[] before continuing.
-
-Below you can find a summary of the shopping cart value entity we will use in this chapter: it contains only the signatures of the available endpoints for brevity:
-
-.src/main/java/com/example/api/ShoppingCartEntity.java
-[source,java]
-----
-include::example$java-spring-valueentity-shopping-cart/src/main/java/com/example/api/ShoppingCartEntity.java[tag=summary]
-----
-<1> Common path being used: `/cart/` suffixed with a `cartId`.
-<2> `POST` endpoint exposed at `(...)/create` used to create a new cart with `cartId`.
-<3> `POST` endpoint exposed at `(...)/items/add` allowing to add an item to an cart
-<4> `GET` endpoint for retrieving the state of a cart.
+To illustrate how you can use an Action as a Controller, we will build on top of the xref:writing-grpc-descriptors-protobuf.adoc[Value Entity Shopping Cart] example, adding a new Action to the existing shopping cart service.
 
 == Forwarding Commands
 
-The `forward` effect allows you to transform or further validate an incoming request before passing it on to another
+The `forward` effect allows us to transform or further validate an incoming request before passing it on to another
 component and have the response message directly passed back to the client making the request. The response from the
 forwarded operation must have the same response type as the original request.
 
-In this example it accepts requests with the same structure as the `create` endpoint listed above, by receiving a `LineItemDTO`, but add some additional verification of the
+In this example we accept the same command as the entity, `AddLineItem`, but add some additional verification of the
 request and only conditionally forward the request to the entity if the verification is successful:
 
-
-.src/main/java/com/example/api/ShoppingCartController.java
+[.tabset]
+Java::
++
+.src/main/java/com/example/shoppingcart/ShoppingCartActionImpl.java
 [source,java]
 ----
-include::example$java-spring-valueentity-shopping-cart/src/main/java/com/example/api/ShoppingCartController.java[tag=forward]
+include::example$java-valueentity-shopping-cart/src/main/java/com/example/shoppingcart/ShoppingCartActionImpl.java[tag=forward]
 ----
-<1> `KalixClient` is injected on the constructor. It will be used to build calls to the underlining Entity.
-<2> Expose the command handler as a `POST` endpoint at specified path.
-<3> Check if the added item is carrots.
-<4> If it is "carrots" immediately return an error, disallowing adding the item.
-<5> For allowed requests, use `kalixClient` to get a deferred call to the entity.
-<6> The `deferredCall` is then used with `effects().forward()` to forward the request to the entity.
+<1> check if the added item is carrots
+<2> if it is "carrots" immediately return an error, disallowing adding the item
+<3> for allowed requests, use `components().shoppingCart().addItem()` to get a `DeferredCall`
+<4> The `DeferredCall` is used with `effects().forward()` to forward the request to the entity
 
-NOTE: You might be wondering what the `kalixClient` is about. For now, think of it as a lightweight HTTP client allowing you to reach out to other Kalix services. All details can be found at xref:call-another-service.adoc[] chapter.
+Scala::
++
+.src/main/java/com/example/shoppingcart/ShoppingCartActionImpl.scala
+[source,scala]
+----
+include::example$scala-valueentity-shopping-cart/src/main/scala/com/example/shoppingcart/ShoppingCartActionImpl.scala[tag=forward]
+----
+<1> check if the added item is carrots
+<2> if it is "carrots" immediately return an error, disallowing adding the item
+<3> for allowed requests, use `components.shoppingCart.addItem()` to get a `DeferredCall`
+<4> the `DeferredCall` is used with `effects.forward()` to forward the request to the entity
+
 
 == Transform Request and Response to Another Component
 
-The `asyncReply` and `asyncEffect` effects allow you to process and transform a request before calling another component and then also transform the response.
+The `asyncReply` and `asyncEffect` effects allow us to process and transform a request before calling another component and then also transform the response.
 
 As an example, let us look at the problem of creating a new entity with an id generated by another component.
 
-This example implements an `initializeCart` command for the controller Action which returns the generated id that can subsequently be used to interact with the cart.
+In this example we implement an `Initialize` command for the controller Action which returns the message `NewCartCreated`
+with the entity id that can subsequently be used to interact with the cart.
 
-.src/main/java/com/example/api/ShoppingCartController.java
+[.tabset]
+Java::
++
+.src/main/java/com/example/shoppingcart/ShoppingCartActionImpl.java
 [source,java]
 ----
-include::example$java-spring-valueentity-shopping-cart/src/main/java/com/example/api/ShoppingCartController.java[tag=initialize]
+include::example$java-valueentity-shopping-cart/src/main/java/com/example/shoppingcart/ShoppingCartActionImpl.java[tag=initialize]
 ----
-<1> Generate a new UUID.
-<2> Use the `kalixClient` to create a call to endpoint `create` on the shopping cart - note the use of the full path, empty body and the expected reply type `ShoppingCartDTO`.
-<3> `execute()` on the deferred call immediately triggers a call and returns a `CompletionStage` for the response.
+<1> We generate a new UUID
+<2> We use `components().shoppingCart().create(...)` to create a `DeferredCall` for `create` on the shopping cart
+<3> `execute()` on the `DeferredCall` immediately triggers a call and returns a `CompletionStage` for the response
 <4> Once the call succeeds or fails the `CompletionStage` is completed or failed, we can transform the result from `CompletionStage<Empty>`
-to `CompletionStage<Effect<String>>` using `handle`.
-<5> On a successful response, create a reply effect passing back the `cartId`.
-<6> If the call leads to an error, create an error effect asking the client to retry.
-<7> `effects().asyncEffect()` allows us to reply with a `CompletionStage<Effect<String>>`.
+    to `CompletionStage<Effect<NewCartCreated>>` using `handle`.
+<5> On a successful response, we create a reply effect with a `NewCartCreated`
+<6> If the call leads to an error, we create an error effect asking the client to retry
+<7> `effects().asyncEffect()` allows us to reply with a `CompletionStage<Effect<NewCartCreated>>`
+
+Scala::
++
+.src/main/java/com/example/shoppingcart/ShoppingCartActionImpl.scala
+[source,scala]
+----
+include::example$scala-valueentity-shopping-cart/src/main/scala/com/example/shoppingcart/ShoppingCartActionImpl.scala[tag=initialize]
+----
+<1> We generate a new UUID
+<2> We use `components.shoppingCart.create(...)` to create a `DeferredCall` for `create` on the shopping cart
+<3> `execute()` on the `DeferredCall` immediately triggers a call and returns a `Future` for the response
+<4> On a successful response, we `map` the `Empty` reply to a reply effect with the reply `NewCartCreated`
+<5> If the call leads to an error, we `recover` and return an error effect asking the client to retry
+<6> `effects.asyncEffect()` allows us to reply with a `Future[Effect[NewCartCreated]]` rather than a reply we already have created
 
 The action generates a link:https://en.wikipedia.org/wiki/Universally_unique_identifier[UUID] to use as entity id for the shopping cart. UUIDs are extremely unlikely to lead to the same id
 being generated, but to completely guarantee two calls can never be assigned the same shopping cart we
@@ -73,13 +88,24 @@ make use of the "boundary of consistency" provided by the entity - the entity wi
 and can safely make decisions based on its state - for example to only allow creation once by storing something in its state
 signifying that it has been created.
 
-In this case you mark that the entity has been created using a creation timestamp in the shopping cart state stored on first
-`create` call - when the timestamp has the default value of `0`. If the cart has already been stored with a timestamp it returns an error effect:
+In this case we mark that the entity has been created using a creation timestamp in the shopping cart state stored on first
+`create` call - when the timestamp has the default value of `0`). If the cart has already been stored with a timestamp we return an error effect:
 
-.src/main/java/com/example/api/ShoppingCartEntity.java
+[.tabset]
+Java::
++
+.src/main/java/com/example/shoppingcart/domain/ShoppingCart.java
 [source,java]
 ----
-include::example$java-spring-valueentity-shopping-cart/src/main/java/com/example/api/ShoppingCartEntity.java[tag=create]
+include::example$java-valueentity-shopping-cart/src/main/java/com/example/shoppingcart/domain/ShoppingCart.java[tag=create]
+----
+
+Scala::
++
+.src/main/java/com/example/shoppingcart/domain/ShoppingCart.scala
+[source,scala]
+----
+include::example$scala-valueentity-shopping-cart/src/main/scala/com/example/shoppingcart/domain/ShoppingCart.scala[tag=create]
 ----
 
 
@@ -88,40 +114,100 @@ include::example$java-spring-valueentity-shopping-cart/src/main/java/com/example
 
 The async call shown in the previous section, can also be used to chain or compose multiple calls to a single action response.
 
-This example builds on the previous cart creation by adding an initial item in the cart once it has been created,
-but before it returns the new id to the client:
+In this example we build on the previous cart creation by adding an initial item in the cart once it has been created,
+but before we return the new id to the client:
 
-.src/main/java/com/example/api/ShoppingCartController.java
+[.tabset]
+Java::
++
+.src/main/java/com/example/shoppingcart/ShoppingCartActionImpl.java
 [source,java]
 ----
-include::example$java-spring-valueentity-shopping-cart/src/main/java/com/example/api/ShoppingCartController.java[tag=createPrePopulated]
+include::example$java-valueentity-shopping-cart/src/main/java/com/example/shoppingcart/ShoppingCartActionImpl.java[tag=createPrePopulated]
 ----
-<1> `CompletionStage#thenCompose` allow you to perform an additional async operation, returning a `CompletionStage` once the current one completes successfully.
-<2> Create a request to add an initial item to the cart.
-<3> Execute the `addItem` call returns a `CompletionStage<ShoppingCartDTO>` once it succeeds.
-<4> Transform the successful completion of `addItem` with `ShoppingCartDTO` to the response type of this method - `String`.
-<5> `effects().asyncReply()` lets us reply once the `CompletionStage<String>` completes.
+<1> `CompletionStage#thenCompose` allow us to perform an additional async operation, returning a `CompletionStage` once the current one completes successfully
+<2> Create a request to add an initial item to the cart
+<3> Executing the `addItem` call returns a `CompletionStage<Empty>` once it succeeds
+<4> `handle` allows us to transform the successful completion of `addItem` with `Empty` to the response type of this method - `NewCartCreated`
+<5> `effects().asyncReply()` lets us reply once the `CompletionStage<NewCartCreated>` completes
+
+Scala::
++
+.src/main/java/com/example/shoppingcart/ShoppingCartActionImpl.scala
+[source,scala]
+----
+include::example$scala-valueentity-shopping-cart/src/main/scala/com/example/shoppingcart/ShoppingCartActionImpl.scala[tag=createPrePopulated]
+----
+<1> For comprehensions (or directly using `flatMap`) allow us to compose the individual async steps returning `Future`
+<2> Once both steps have completed, create a `NewCartCreated` leading to a `Future[NewCartCreated]` coming out of the for-comprehension
+<3> `effect.asyncReply` lets us reply once the `Future[NewCartCreated]` completes
 
 In this sample it is safe to base a subsequent call to the entity on the reply of the previous one, no client will know
 of the cart id until `createPrePopulated` replies.
 
-IMPORTANT: There is no transaction or consistency boundary outside of
+For many other use cases it is important to understand that there is no transaction or consistency boundary outside of
 the entity, so for a sequence of calls from an action to an entity, the state of the entity could be updated by other
 calls it receives in-between.
 
 For example, imagine an action that for a cart id retrieves the state using `getState` to verify if too many items are
 already in the cart, and once that has been verified, it adds the item to the cart.
 
-
-.src/main/java/com/example/api/ShoppingCartController.java
+[.tabset]
+Java::
++
+.src/main/java/com/example/shoppingcart/ShoppingCartActionImpl.java
 [source,java]
 ----
-include::example$java-spring-valueentity-shopping-cart/src/main/java/com/example/api/ShoppingCartController.java[tag=unsafeValidation]
+include::example$java-valueentity-shopping-cart/src/main/java/com/example/shoppingcart/ShoppingCartActionImpl.java[tag=unsafeValidation]
 ----
 <1> Between this call returning
 <2> And this next call to the same entity, the entity could accept other commands that change the total count of items in the cart
 
-The problem with this is that a `POST /cart/my-cart/items/add` call directly to the entity happening between the `GET /cart/my-cart`
-action returning and the subsequent "addItem" call from the action would lead to more items in the cart than the allowed limit.
+Scala::
++
+.src/main/java/com/example/shoppingcart/ShoppingCartActionImpl.scala
+[source,scala]
+----
+include::example$scala-valueentity-shopping-cart/src/main/scala/com/example/shoppingcart/ShoppingCartActionImpl.scala[tag=unsafeValidation]
+----
+<1> Between this call returning
+<2> And this next call to the same entity, the entity could accept other commands that changes the total count of items in the cart
+
+The problem with this is that an `addItem` call directly to the entity happening between the `getState`
+action returning and the `addItem` call from the action would lead to more items in the cart than the allowed limit.
 
 Such validation depending on state can only safely be done handling the command inside of the entity.
+
+[#_unit_tests_cross_component]
+=== Unit tests (with cross-component calls)
+
+Testing an Action serving as a controller, or more generally, one that depends on calling other components, requires
+that a mock registry containing the mocks to be used be provided to TestKit. Later, at runtime, the TestKit will try to find the appropriate mock object it needs by matching those with the dependency component's class type.
+
+So, let's say we want to test the xref:actions-as-controller.adoc#_composing_calls[previous example] where we rely on 2 `external` calls to create and populate the shopping cart before replying. A unit test for such action method would look like:
+
+[.tabset]
+Java::
++
+.src/test/java/com/example/shoppingcart/ShoppingCartActionImplTest.java
+[source,java]
+----
+include::example$java-valueentity-shopping-cart/src/test/java/com/example/shoppingcart/ShoppingCartActionImplTest.java[tag=createPrePopulated]
+----
+<1> First step is to declare our mock object. In this example, `shoppingCartService` is a `@Mock` object by https://site.mockito.org/[Mockito framework].
+<2> We start by configuring our mock service how to reply to the two calls: `create` and `addItem`.
+<3> Then we use the TestKit-provided `MockRegistry` to initialize and add `shoppingCartService` to serve as a mock for class type `ShoppingCartService`.
+<4> Finally, we just need to pass the `mockRegistry` while initializing the `ShoppingCartActionImplTestKit` and the TestKit will make sure to try to find our mock object when it needs.
+
+
+Scala::
++
+.src/main/test/com/example/shoppingcart/ShoppingCartActionImplSpec.scala
+[source,scala]
+----
+include::example$scala-valueentity-shopping-cart/src/test/scala/com/example/shoppingcart/ShoppingCartActionImplSpec.scala[tag=createPrePopulated]
+----
+<1> First step is to declare our mock object. In this case, `shoppingCartService` is a `stub` object provided by https://scalamock.org/[ScalaMock framework].
+<2> Then we configure our mock service how to reply to the two calls: `create` and `addItem`.
+<3> We use the TestKit-provided `MockRegistry` to initialize and add `shoppingCartService` to serve as a mock for class type `ShoppingCartService`.
+<4> Finally, we just need to pass the `mockRegistry` while initializing the `ShoppingCartActionImplTestKit` and the TestKit will make sure to try to find our mock object when it needs.

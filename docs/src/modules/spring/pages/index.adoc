@@ -1,0 +1,41 @@
+= Developing with Spring
+
+include::ROOT:partial$include.adoc[]
+include::partial$attributes.adoc[]
+
+The Spring SDK provides a code-first approach to developing Kalix applications. This SDK offers a way to develop applications which should be familiar to someone who has worked with Spring applications by making use of annotations to assemble Kalix and its components.
+
+When using the Kalix Spring SDK, your services are exposed using traditional Spring REST annotations and serialization is backed by the ubiquitous Jackson library. 
+
+NOTE: If you're new to Kalix and the different types of entities that exist in a Kalix app, consider reading https://docs.kalix.io/services/programming-model.html#_what_is_a_kalix_service[this section] before continuing.
+
+== Prerequisites
+
+The following are required to develop services in Java:
+
+Java:: Kalix requires Java {spring-java-version} or later.
+
+Apache Maven:: Kalix relies on https://maven.apache.org/[Apache Maven {tab-icon}, window="new"] as build tool. 
+
+Docker:: Kalix requires https://docs.docker.com/get-docker/[Docker {tab-icon}, window="new"] {minimum_docker_version} for building your service images. Most popular build tools have plugins that assist in building Docker images.
+
+
+
+== Features
+
+As the Spring SDK is more recent than their gRPC-first counterparts, not all features are supported at this time. However, there's already a lot to play with:
+
+* xref:spring:actions.adoc[Actions]
+* xref:spring:value-entity.adoc[Value Entities]
+* xref:spring:eventsourced.adoc[Event Sourced Entities]
+* xref:spring:views.adoc[Views]
+* xref:spring:actions-publishing-subscribing.adoc[Publishing and Subscribing to Topics]
+* xref:spring:timers.adoc[Timers]
+* xref:spring:service-to-service.adoc[]
+* Test kit for Unit Tests and Integration Tests
+
+
+== Getting Started
+
+You can start a new Kalix project using our xref:spring:getting-started.adoc[Getting started] guide. If you prefer to
+first explore a fully implemented Kalix application, you can try our xref:spring:quickstart/cr-value-entity-spring.adoc[Quickstart application].

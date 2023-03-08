@@ -1,0 +1,15 @@
+version: "3"
+services:
+  # note the ports being different from other sample docker-compose files to allow this service to run
+  # on the same local machine as the scala-customer-registry-
+  kalix-proxy:
+    image: gcr.io/kalix-public/kalix-proxy:1.0.33
+    command: -Dconfig.resource=dev-mode.conf -Dkalix.proxy.http-port=9001 -Dkalix.proxy.eventing.support=google-pubsub-emulator
+    ports:
+      - "9001:9001"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    environment:
+      USER_FUNCTION_HOST: ${USER_FUNCTION_HOST:-host.docker.internal}
+      USER_FUNCTION_PORT: ${USER_FUNCTION_PORT:-8081}
+# no google pub/sub to not conflict with producer service (and also no eventing out used in sample)
