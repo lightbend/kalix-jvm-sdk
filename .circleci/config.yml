@@ -1720,9 +1720,9 @@ workflows:
             - publish
 
       - publish-docs:
-          filters: # version tags only
+          filters: # version tags only (but no snapshots/milestones)
             tags:
-              only: /^v.*/
+              only: /^v\d+(\.\d+){1,2}$/
             branches:
               ignore: /.*/
           requires:
@@ -1732,9 +1732,9 @@ workflows:
             - publish-tck
 
       - create-pr-sdk-versions-update:
-          filters: # version tags only
+          filters: # version tags only (but no snapshots/milestones)
             tags:
-              only: /^v.*/
+              only: /^v\d+(\.\d+){1,2}$/
             branches:
               ignore: /.*/
           requires:
