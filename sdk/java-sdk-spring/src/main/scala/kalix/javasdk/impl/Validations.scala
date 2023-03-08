@@ -209,7 +209,8 @@ object Validations {
           val effectOutputInputParams: Seq[Class[_]] = methods.map(_.getParameterTypes.last)
           eventType.getPermittedSubclasses
             .filterNot(effectOutputInputParams.contains)
-            .map(clazz => s"Missing ${entityClass.getSimpleName} event handler for ${clazz.getName}")
+            .map(clazz =>
+              s"Component ${component.getSimpleName} missing event handler for ${clazz.getName} from ${entityClass.getSimpleName}")
             .toList
         } else {
           List.empty
