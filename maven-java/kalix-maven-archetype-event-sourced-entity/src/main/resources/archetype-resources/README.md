@@ -10,7 +10,7 @@ While designing your service it is useful to read [designing services](https://d
 ]]#
 This project has a bare-bones skeleton service ready to go, but in order to adapt and
 extend it, it may be useful to read up on [developing services](https://docs.kalix.io/services/)
-and in particular the [Java section](https://docs.kalix.io/java/index.html)
+and in particular the [Java Protobuf SDK section](https://docs.kalix.io/java-protobuf/index.html)
 
 #[[
 ## Building
@@ -41,7 +41,7 @@ To start the application locally, the `exec-maven-plugin` is used. Use the follo
 mvn compile exec:exec
 ```
 
-With both the proxy and your application running, any defined endpoints should be available at `http://localhost:9000`. In addition to the defined gRPC interface, each method has a corresponding HTTP endpoint. Unless configured otherwise (see [Transcoding HTTP](https://docs.kalix.io/java/writing-grpc-descriptors-protobuf.html#_transcoding_http)), this endpoint accepts POST requests at the path `/[package].[entity name]/[method]`. For example, using `curl`:
+With both the proxy and your application running, any defined endpoints should be available at `http://localhost:9000`. In addition to the defined gRPC interface, each method has a corresponding HTTP endpoint. Unless configured otherwise (see [Transcoding HTTP](https://docs.kalix.io/java-protobuf/writing-grpc-descriptors-protobuf.html#_transcoding_http)), this endpoint accepts POST requests at the path `/[package].[entity name]/[method]`. For example, using `curl`:
 
 ```shell
 > curl -XPOST -H "Content-Type: application/json" localhost:9000/${package}.MyServiceEntity/GetValue -d '{"entityId": "foo"}'

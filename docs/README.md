@@ -1,4 +1,4 @@
-# Java SDK docs
+# JVM SDKs docs
 
 
 ## Building docs

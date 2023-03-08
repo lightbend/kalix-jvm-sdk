@@ -9,7 +9,7 @@ To understand the Kalix concepts that are the basis for this example, see [Desig
 
 This project demonstrates the use of Value Entity and View components.
 To understand more about these components, see [Developing services](https://docs.kalix.io/services/)
-and in particular the [Java section](https://docs.kalix.io/java/)
+and in particular the [Java Protobuf SDK section](https://docs.kalix.io/java-protobuf/)
 
 
 ## Building
@@ -38,7 +38,7 @@ To start the application locally, the `exec-maven-plugin` is used. Use the follo
 mvn compile exec:exec
 ```
 
-With both the proxy and your application running, any defined endpoints should be available at `http://localhost:9000`. In addition to the defined gRPC interface, each method has a corresponding HTTP endpoint. Unless configured otherwise (see [Transcoding HTTP](https://docs.kalix.io/java/writing-grpc-descriptors-protobuf.html#_transcoding_http)), this endpoint accepts POST requests at the path `/[package].[entity name]/[method]`. For example, using `curl`:
+With both the proxy and your application running, any defined endpoints should be available at `http://localhost:9000`. In addition to the defined gRPC interface, each method has a corresponding HTTP endpoint. Unless configured otherwise (see [Transcoding HTTP](https://docs.kalix.io/java-protobuf/writing-grpc-descriptors-protobuf.html#_transcoding_http)), this endpoint accepts POST requests at the path `/[package].[entity name]/[method]`. For example, using `curl`:
 
 
 * Create a customer with:

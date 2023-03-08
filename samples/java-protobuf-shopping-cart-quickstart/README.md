@@ -9,7 +9,7 @@ To understand the Kalix concepts that are the basis for this example, see [Desig
 
 This project demonstrates the use of an Event Sourced Entity.
 To understand more about these components, see [Developing services](https://docs.kalix.io/services/)
-and in particular the [Java section](https://docs.kalix.io/java/)
+and in particular the [Java Protobuf SDK section](https://docs.kalix.io/java-protobuf/)
 
 
 ## Building
