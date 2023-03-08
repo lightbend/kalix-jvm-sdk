@@ -11,7 +11,7 @@ Learn how to create a customer registry in Scala, package it into a container, a
 * You'll also need to install the https://docs.kalix.io/kalix/install-kalix.html[Kalix CLI, window="new-doc"] to deploy from a terminal window.
 * For this quickstart, you'll also need
 ** https://docs.docker.com/engine/install[Docker {minimum_docker_version} or higher, window="new"]
-** Java {java-version} or higher
+** Java {java-pb-version} or higher
 ** https://www.scala-sbt.org/download.html[sbt 1.4 or higher, window="new"]
 ** https://github.com/fullstorydev/grpcurl#installation[`grpcurl`, window="new"]
 

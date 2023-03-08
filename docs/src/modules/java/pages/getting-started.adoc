@@ -16,7 +16,7 @@ The generated project also contains configuration for packaging and deploying th
 
 Before you start, make sure you have the following:
 
-* JDK {spring-java-version} or later
+* JDK {java-version} or later
 * Apache Maven {minimum_maven_version} or later
 * Docker {minimum_docker_version} or higher (to run locally)
 
@@ -95,7 +95,7 @@ learn more about writing unit tests and integration tests for your application.
 The project is configured to package your service into a Docker image which can be deployed to Kalix. The Docker image
 name can be changed in the `pom.xml` file's `properties` section. Update this file to publish your image to your Docker repository.
 
-This uses JDK {spring-java-version} and the image is based on the link:https://adoptium.net/[Eclipse Adoptium] JDK image (formerly Adopt OpenJDK). Choose a different image in the `docker-maven-plugin` configuration  `pom.xml` file.
+This uses JDK {java-version} and the image is based on the link:https://adoptium.net/[Eclipse Adoptium] JDK image (formerly Adopt OpenJDK). Choose a different image in the `docker-maven-plugin` configuration  `pom.xml` file.
 
 [source,bash]
 ----

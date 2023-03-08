@@ -1,4 +1,4 @@
-= Quickstart: Customer Registry with Java
+= Quickstart: Customer Registry in Java
 :page-aliases: spring:quickstart/cr-value-entity-spring.adoc
 
 include::ROOT:partial$include.adoc[]
@@ -6,13 +6,19 @@ include::java:partial$attributes.adoc[]
 
 In this section, you will learn how to create a customer registry with the Java SDK, package it into a container, and run it on Kalix.
 
+== In this Quickstart you will learn:
+
+* How to add additional functionality, allowing customers to be queried by name and email.
+* How to package the customer registry into a container.
+* How to deploy and run the customer registry on Kalix.
+
 == Before you begin
 
 * If you're new to Kalix, {console}[create an account, window="console"], so you can try out Kalix for free.
 * You'll also need to install the https://docs.kalix.io/kalix/install-kalix.html[Kalix CLI, window="new-doc"] to deploy from a terminal window.
 * For this quickstart, you'll also need
 ** https://docs.docker.com/engine/install[Docker {minimum_docker_version} or higher, window="new"]
-** Java {spring-java-version} or higher
+** Java {java-version} or higher
 ** https://maven.apache.org/download.cgi[Maven {minimum_maven_version} or higher, window="new"]
 
 [NOTE]
@@ -20,7 +26,7 @@ In this section, you will learn how to create a customer registry with the Java 
 If you want to bypass writing code and jump straight to the deployment:
 
 . Download the source code using the Kalix CLI:
-`kalix quickstart download customer-registry-spring`
+`kalix quickstart download customer-registry-java`
 
 . Skip to <<Package and deploy your service>>.
 ====

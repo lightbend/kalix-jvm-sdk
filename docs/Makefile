@@ -42,9 +42,9 @@ attributes:
 	mkdir -p "${java_pb_managed_partials}"
 	bin/version.sh | xargs -0  printf ":kalix-jvm-sdk-version: %s" \
 		> "${java_pb_managed_partials}/attributes.adoc"
-	echo ":java-version: 11" \
+	echo ":java-pb-version: 11" \
 		>> "${java_pb_managed_partials}/attributes.adoc"
-	echo ":spring-java-version: 17" \
+	echo ":java-version: 17" \
 		>> "${java_pb_managed_partials}/attributes.adoc"
 	echo ":minimum_maven_version: 3.6" \
 		>> "${java_pb_managed_partials}/attributes.adoc"
