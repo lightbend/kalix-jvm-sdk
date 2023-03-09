@@ -61,7 +61,7 @@ include::example$java-spring-customer-registry-quickstart/src/main/java/customer
 
 The `Customer` API is defined by the `CustomerEntity`.
 
-Create a class names `CustomerEntity` in package `customer.api`.
+Create a class named `CustomerEntity` in package `customer.api`.
 
 [source,java,indent=0]
 .src/main/java/customer/api/CustomerEntity.java

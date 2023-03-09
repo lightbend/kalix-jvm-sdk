@@ -96,7 +96,7 @@ include::example$scala-protobuf-valueentity-customer-registry/src/main/proto/cus
 <6> The `GetCustomers` method defines the query to retrieve a stream of customers.
 <7> The `(kalix.method).view.query` annotation defines that this method is used as a query of the View.
 
-NOTE: In this sample we use the internal `domain.CustomerState` as the state of the view. This is convenient since it allows automatic updates of the view without any logic but has the draw back that it implicitly makes the `domain.CustomerState` type a part of the public service API. Transforming the state to another type than the incoming update to avoid this can be seen in <<#event-sourced-entity>>.
+NOTE: In this sample we use the internal `domain.CustomerState` as the state of the view. This is convenient since it allows automatic updates of the view without any logic but has the drawback that it implicitly makes the `domain.CustomerState` type a part of the public service API. Transforming the state to another type than the incoming update to avoid this can be seen in <<#event-sourced-entity>>.
 
 
 If the query should only return one result, remove the `stream` from the return type:
