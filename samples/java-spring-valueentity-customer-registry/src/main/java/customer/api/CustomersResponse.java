@@ -1,6 +1,6 @@
-package com.example.api;
+package customer.api;
 
-import com.example.domain.Customer;
+import customer.domain.Customer;
 
 import java.util.Collection;
 

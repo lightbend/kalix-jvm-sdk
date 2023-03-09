@@ -1,4 +1,4 @@
-package com.example.domain;
+package customer.domain;
 
 public record Customer(String customerId, String email, String name, Address address) { // <1>
 

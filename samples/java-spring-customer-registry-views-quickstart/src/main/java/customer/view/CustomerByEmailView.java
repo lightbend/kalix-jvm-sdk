@@ -1,5 +1,6 @@
 package customer.view;
 
+// tag::class[]
 import customer.domain.Customer;
 import customer.api.CustomerEntity;
 import kalix.javasdk.view.View;
@@ -20,3 +21,4 @@ public class CustomerByEmailView extends View<Customer> {
     return null;
   }
 }
+// end::class[]

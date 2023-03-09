@@ -1,8 +1,8 @@
-package com.example.view;
+package customer.view;
 
-import com.example.api.CustomerEntity;
-import com.example.api.CustomerSummary;
-import com.example.domain.Customer;
+import customer.api.CustomerEntity;
+import customer.api.CustomerSummary;
+import customer.domain.Customer;
 import kalix.javasdk.view.View;
 import kalix.javasdk.annotations.Query;
 import kalix.javasdk.annotations.Subscribe;

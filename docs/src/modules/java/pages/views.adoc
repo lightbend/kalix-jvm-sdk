@@ -42,10 +42,10 @@ As well as a Value Entity service `CustomerEntity.java` that will produce the st
 
 You implement a View by extending `kalix.javasdk.view.View` and subscribing to changes from an entity. You specify how to query it by providing a method annotated with `@Query`, which is then made accessible via REST annotations.
 
-.src/main/java/customer/view/CustomerByNameView.java
+.src/main/java/customer/view/CustomersByNameView.java
 [source,java]
 ----
-include::example$java-spring-customer-registry-views-quickstart/src/main/java/customer/view/CustomerByNameView.java[tags=class]
+include::example$java-spring-valueentity-customer-registry/src/main/java/customer/view/CustomersByNameView.java[tags=class]
 ----
 <1> defining view ID
 <2> defining table name
@@ -53,7 +53,8 @@ include::example$java-spring-customer-registry-views-quickstart/src/main/java/cu
 <4> extending from `View`
 <5> defining endpoint
 <6> defining the query
-<7> note that no return is needed
+<7> the query method returns a `Flux`, meaning that the results will be streamed to the client
+<8> note that no return is needed
 
 
 NOTE: Note that the return value of the method is `null`. You may ask yourself, how is it that the endpoint respond with any `Customer` at all?. When you call this endpoint, it first hits the proxy, which calls directly to the database. When the proxy receives the response, it sends it directly to you without any further intervention from the View. Therefore, `null` is valid as a return value in the endpoint of a View. The choice of `null` is our way to make clear that the response doesn't come from the return of this method. But you can choose any response you like as long is compatible with the return type.
@@ -65,17 +66,17 @@ IMPORTANT: Adding a view ID to your View allows you to refactor the name of the 
 Often, you will want to transform the entity model to which the view is subscribing into a different representation. To do that, let's have a look at the example in which we store a summary of the `Customer` used in the previous section instead of the original one:
 
 [source,java]
-.src/main/java/com/example/api/CustomerSummary.java
+.src/main/java/customer/api/CustomerSummary.java
 ----
-include::example$java-spring-valueentity-customer-registry/src/main/java/com/example/api/CustomerSummary.java[tag=record]
+include::example$java-spring-valueentity-customer-registry/src/main/java/customer/api/CustomerSummary.java[tag=record]
 ----
 
 In this scenario, the view state should be of type `CustomerSummary` and you will need to handle and transform the incoming state changes into it, as shown below:
 
 [source,java]
-.src/main/java/com/example/api/CustomerSummaryByName.java
+.src/main/java/customer/api/CustomerSummaryByName.java
 ----
-include::example$java-spring-valueentity-customer-registry/src/main/java/com/example/view/CustomerSummaryByName.java[tag=class]
+include::example$java-spring-valueentity-customer-registry/src/main/java/customer/view/CustomerSummaryByName.java[tag=class]
 ----
 <1> View is of type `CustomerSummary`.
 <2> `@Subscribe` annotation is at method level rather than at class level.
@@ -93,9 +94,9 @@ The View state corresponding to an Entity is not automatically deleted when the 
 Value Entities can be xref:value-entity#deleting_state[deleted]. We can update our view model based on that fact with an additional flag `handleDeletes` for the subscription.
 
 [source,java]
-.src/main/java/com/example/api/CustomerSummaryByName.java
+.src/main/java/customer/api/CustomerSummaryByName.java
 ----
-include::example$java-spring-valueentity-customer-registry/src/main/java/com/example/view/CustomerSummaryByName.java[tag=delete]
+include::example$java-spring-valueentity-customer-registry/src/main/java/customer/view/CustomerSummaryByName.java[tag=delete]
 ----
 <1> `@Subscribe` annotation with `handleDeletes=true`.
 <2> Dedicated (parameter-less) handler for deletion.
@@ -173,9 +174,9 @@ Instead of using `SELECT *` you can define which columns will be used in the res
 You will need to define your entity as this:
 
 [source,java]
-.src/main/java/com/example/api/CustomersStreamByName.java
+.src/main/java/customer/api/CustomersStreamByName.java
 ----
-include::example$java-spring-valueentity-customer-registry/src/main/java/com/example/view/CustomersStreamByName.java[tag=class]
+include::example$java-spring-valueentity-customer-registry/src/main/java/customer/view/CustomersStreamByName.java[tag=class]
 ----
 <1> View state type is the original `Customer` as shown at the beginning of this section.
 <2> Query is mapped to an external route as usual receiving a `customerName` as parameter.
@@ -198,15 +199,15 @@ WHERE name = :customerName
 Instead of streamed results you can include the results in a `Collection` field in the response object:
 
 [source,java]
-.src/main/java/com/example/api/CustomersResponse.java
+.src/main/java/customer/api/CustomersResponse.java
 ----
-include::example$java-spring-valueentity-customer-registry/src/main/java/com/example/api/CustomersResponse.java[tag=record]
+include::example$java-spring-valueentity-customer-registry/src/main/java/customer/api/CustomersResponse.java[tag=record]
 ----
 
 [source,java,indent=0]
-.src/main/java/com/example/api/CustomersResponseByName.java
+.src/main/java/customer/api/CustomersResponseByName.java
 ----
-include::example$java-spring-valueentity-customer-registry/src/main/java/com/example/view/CustomersResponseByName.java[tag=class]
+include::example$java-spring-valueentity-customer-registry/src/main/java/customer/view/CustomersResponseByName.java[tag=class]
 ----
 <1> View state type is the original `Customer` as shown at the beginning of this section.
 <2> Query is mapped to an external route as usual receiving a `customerName` as parameter.

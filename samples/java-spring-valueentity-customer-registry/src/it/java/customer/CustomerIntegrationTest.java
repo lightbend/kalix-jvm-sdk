@@ -1,8 +1,8 @@
-package com.example;
+package customer;
 
 
-import com.example.domain.Address;
-import com.example.domain.Customer;
+import customer.domain.Address;
+import customer.domain.Customer;
 import kalix.spring.testkit.KalixIntegrationTestKitSupport;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

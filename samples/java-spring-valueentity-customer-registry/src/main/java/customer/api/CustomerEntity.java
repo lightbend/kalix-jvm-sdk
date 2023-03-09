@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package com.example.api;
+package customer.api;
 
 // tag::customer[]
 
-import com.example.domain.Address;
-import com.example.domain.Customer;
+import customer.domain.Address;
+import customer.domain.Customer;
 import kalix.javasdk.StatusCode;
 import kalix.javasdk.valueentity.ValueEntity;
 import kalix.javasdk.annotations.EntityKey;
