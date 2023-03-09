@@ -224,9 +224,9 @@ NOTE: The state of the View is still per Entity. The `CustomerDomain.CustomerSta
 
 == Invoke the CustomerByName
 
-. Similar to the steps in <<invoke>>
-. Create several customers with same name
-. Use the new `CustomerByName` instead of `CustomerByEmail` and then you should see multiple results from `CustomerByName/GetCustomers` for customers with the same name
+. Similar to the steps in <<invoke>>.
+. Create several customers with same name.
+. Use the new `CustomerByName` instead of `CustomerByEmail` and then you should see multiple results from `CustomerByName/GetCustomers` for customers with the same name.
 
 == Next steps
 
