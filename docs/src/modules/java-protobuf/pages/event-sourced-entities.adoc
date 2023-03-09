@@ -279,15 +279,15 @@ Java::
 ----
 include::example$java-protobuf-eventsourced-shopping-cart/src/test/java/com/example/shoppingcart/domain/ShoppingCartTest.java[]
 ----
-<1> creating the TestKit passing the constructor of the Entity.
-<2> calling the method `addItem` from the Entity in the `ShoppingCartTestKit`.
-<3> calling the method `addItem` from the Entity in the `ShoppingCartTestKit`.
-<4> checking the `EventSourcedResult` of the first call to `addItem`.
-<5> checking the `EventSourcedResult` of all the calls to `addItem`.
-<6> retrieving the first event generated from the first call to `addItem`.
-<7> retrieving the second event generated from the first call to `addItem`. There is no such event as our implementation only generates one event when addItem it's called.
-<8> retrieving the response from the call to `addItem`.
-<9> retrieving the state of the entity after all the calls to `addItem`.
+<1> Creating the TestKit passing the constructor of the Entity.
+<2> Calling the method `addItem` from the Entity in the `ShoppingCartTestKit`.
+<3> Calling the method `addItem` from the Entity in the `ShoppingCartTestKit`.
+<4> Checking the `EventSourcedResult` of the first call to `addItem`.
+<5> Checking the `EventSourcedResult` of all the calls to `addItem`.
+<6> Retrieving the first event generated from the first call to `addItem`.
+<7> Retrieving the second event generated from the first call to `addItem`. There is no such event as our implementation only generates one event when addItem it's called.
+<8> Retrieving the response from the call to `addItem`.
+<9> Retrieving the state of the entity after all the calls to `addItem`.
 
 Scala::
 +
@@ -296,15 +296,15 @@ Scala::
 ----
 include::example$scala-protobuf-eventsourced-shopping-cart/src/test/scala/com/example/shoppingcart/domain/ShoppingCartSpec.scala[]
 ----
-<1> creating the TestKit passing the constructor of the Entity.
-<2> calling the method `addItem` from the Entity in the `ShoppingCartTestKit`.
-<3> calling the method `addItem` from the Entity in the `ShoppingCartTestKit`.
-<4> checking the `EventSourcedResult` of the first call to `addItem`.
-<5> checking the `EventSourcedResult` of all the calls to `addItem`.
-<6> retrieving the first event generated from the first call to `addItem`.
-<7> retrieving the second event generated from the first call to `addItem`. There is no such event as our implementation only generates one event when addItem it's called.
-<8> retrieving the response from the call to `addItem`.
-<9> retrieving the state of the entity after all the calls to `addItem`.
+<1> Creating the TestKit passing the constructor of the Entity.
+<2> Calling the method `addItem` from the Entity in the `ShoppingCartTestKit`.
+<3> Calling the method `addItem` from the Entity in the `ShoppingCartTestKit`.
+<4> Checking the `EventSourcedResult` of the first call to `addItem`.
+<5> Checking the `EventSourcedResult` of all the calls to `addItem`.
+<6> Retrieving the first event generated from the first call to `addItem`.
+<7> Retrieving the second event generated from the first call to `addItem`. There is no such event as our implementation only generates one event when addItem it's called.
+<8> Retrieving the response from the call to `addItem`.
+<9> Retrieving the state of the entity after all the calls to `addItem`.
 +
 
 NOTE: The `ShoppingCartTestKit` is stateful, and it holds the state of a single entity instance in memory. If you want to test more than one entity in a test, you need to create multiple instance of `ShoppingCartTestKit`.

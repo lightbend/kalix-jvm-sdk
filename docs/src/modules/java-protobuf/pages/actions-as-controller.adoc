@@ -24,10 +24,10 @@ Java::
 ----
 include::example$java-protobuf-valueentity-shopping-cart/src/main/java/com/example/shoppingcart/ShoppingCartActionImpl.java[tag=forward]
 ----
-<1> check if the added item is carrots
-<2> if it is "carrots" immediately return an error, disallowing adding the item
-<3> for allowed requests, use `components().shoppingCart().addItem()` to get a `DeferredCall`
-<4> The `DeferredCall` is used with `effects().forward()` to forward the request to the entity
+<1> Check if the added item is carrots.
+<2> If it is "carrots" immediately return an error, disallowing adding the item.
+<3> For allowed requests, use `components().shoppingCart().addItem()` to get a `DeferredCall`.
+<4> The `DeferredCall` is used with `effects().forward()` to forward the request to the entity.
 
 Scala::
 +
@@ -36,10 +36,10 @@ Scala::
 ----
 include::example$scala-protobuf-valueentity-shopping-cart/src/main/scala/com/example/shoppingcart/ShoppingCartActionImpl.scala[tag=forward]
 ----
-<1> check if the added item is carrots
-<2> if it is "carrots" immediately return an error, disallowing adding the item
-<3> for allowed requests, use `components.shoppingCart.addItem()` to get a `DeferredCall`
-<4> the `DeferredCall` is used with `effects.forward()` to forward the request to the entity
+<1> Check if the added item is carrots.
+<2> If it is "carrots" immediately return an error, disallowing adding the item.
+<3> For allowed requests, use `components.shoppingCart.addItem()` to get a `DeferredCall`.
+<4> The `DeferredCall` is used with `effects.forward()` to forward the request to the entity.
 
 
 == Transform Request and Response to Another Component
@@ -59,14 +59,13 @@ Java::
 ----
 include::example$java-protobuf-valueentity-shopping-cart/src/main/java/com/example/shoppingcart/ShoppingCartActionImpl.java[tag=initialize]
 ----
-<1> We generate a new UUID
-<2> We use `components().shoppingCart().create(...)` to create a `DeferredCall` for `create` on the shopping cart
-<3> `execute()` on the `DeferredCall` immediately triggers a call and returns a `CompletionStage` for the response
-<4> Once the call succeeds or fails the `CompletionStage` is completed or failed, we can transform the result from `CompletionStage<Empty>`
-    to `CompletionStage<Effect<NewCartCreated>>` using `handle`.
-<5> On a successful response, we create a reply effect with a `NewCartCreated`
-<6> If the call leads to an error, we create an error effect asking the client to retry
-<7> `effects().asyncEffect()` allows us to reply with a `CompletionStage<Effect<NewCartCreated>>`
+<1> We generate a new UUID.
+<2> We use `components().shoppingCart().create(...)` to create a `DeferredCall` for `create` on the shopping cart.
+<3> `execute()` on the `DeferredCall` immediately triggers a call and returns a `CompletionStage` for the response.
+<4> Once the call succeeds or fails the `CompletionStage` is completed or failed, we can transform the result from `CompletionStage<Empty>` to `CompletionStage<Effect<NewCartCreated>>` using `handle`.
+<5> On a successful response, we create a reply effect with a `NewCartCreated`.
+<6> If the call leads to an error, we create an error effect asking the client to retry.
+<7> `effects().asyncEffect()` allows us to reply with a `CompletionStage<Effect<NewCartCreated>>`.
 
 Scala::
 +
@@ -75,12 +74,12 @@ Scala::
 ----
 include::example$scala-protobuf-valueentity-shopping-cart/src/main/scala/com/example/shoppingcart/ShoppingCartActionImpl.scala[tag=initialize]
 ----
-<1> We generate a new UUID
-<2> We use `components.shoppingCart.create(...)` to create a `DeferredCall` for `create` on the shopping cart
-<3> `execute()` on the `DeferredCall` immediately triggers a call and returns a `Future` for the response
-<4> On a successful response, we `map` the `Empty` reply to a reply effect with the reply `NewCartCreated`
-<5> If the call leads to an error, we `recover` and return an error effect asking the client to retry
-<6> `effects.asyncEffect()` allows us to reply with a `Future[Effect[NewCartCreated]]` rather than a reply we already have created
+<1> We generate a new UUID.
+<2> We use `components.shoppingCart.create(...)` to create a `DeferredCall` for `create` on the shopping cart.
+<3> `execute()` on the `DeferredCall` immediately triggers a call and returns a `Future` for the response.
+<4> On a successful response, we `map` the `Empty` reply to a reply effect with the reply `NewCartCreated`.
+<5> If the call leads to an error, we `recover` and return an error effect asking the client to retry.
+<6> `effects.asyncEffect()` allows us to reply with a `Future[Effect[NewCartCreated]]` rather than a reply we already have created.
 
 The action generates a link:https://en.wikipedia.org/wiki/Universally_unique_identifier[UUID] to use as entity id for the shopping cart. UUIDs are extremely unlikely to lead to the same id
 being generated, but to completely guarantee two calls can never be assigned the same shopping cart we
@@ -125,11 +124,11 @@ Java::
 ----
 include::example$java-protobuf-valueentity-shopping-cart/src/main/java/com/example/shoppingcart/ShoppingCartActionImpl.java[tag=createPrePopulated]
 ----
-<1> `CompletionStage#thenCompose` allow us to perform an additional async operation, returning a `CompletionStage` once the current one completes successfully
-<2> Create a request to add an initial item to the cart
-<3> Executing the `addItem` call returns a `CompletionStage<Empty>` once it succeeds
-<4> `handle` allows us to transform the successful completion of `addItem` with `Empty` to the response type of this method - `NewCartCreated`
-<5> `effects().asyncReply()` lets us reply once the `CompletionStage<NewCartCreated>` completes
+<1> `CompletionStage#thenCompose` allow us to perform an additional async operation, returning a `CompletionStage` once the current one completes successfully.
+<2> Create a request to add an initial item to the cart.
+<3> Executing the `addItem` call returns a `CompletionStage<Empty>` once it succeeds.
+<4> `handle` allows us to transform the successful completion of `addItem` with `Empty` to the response type of this method - `NewCartCreated`.
+<5> `effects().asyncReply()` lets us reply once the `CompletionStage<NewCartCreated>` completes.
 
 Scala::
 +
@@ -138,9 +137,9 @@ Scala::
 ----
 include::example$scala-protobuf-valueentity-shopping-cart/src/main/scala/com/example/shoppingcart/ShoppingCartActionImpl.scala[tag=createPrePopulated]
 ----
-<1> For comprehensions (or directly using `flatMap`) allow us to compose the individual async steps returning `Future`
-<2> Once both steps have completed, create a `NewCartCreated` leading to a `Future[NewCartCreated]` coming out of the for-comprehension
-<3> `effect.asyncReply` lets us reply once the `Future[NewCartCreated]` completes
+<1> For comprehensions (or directly using `flatMap`) allow us to compose the individual async steps returning `Future`.
+<2> Once both steps have completed, create a `NewCartCreated` leading to a `Future[NewCartCreated]` coming out of the for-comprehension.
+<3> `effect.asyncReply` lets us reply once the `Future[NewCartCreated]` completes.
 
 In this sample it is safe to base a subsequent call to the entity on the reply of the previous one, no client will know
 of the cart id until `createPrePopulated` replies.
@@ -160,8 +159,8 @@ Java::
 ----
 include::example$java-protobuf-valueentity-shopping-cart/src/main/java/com/example/shoppingcart/ShoppingCartActionImpl.java[tag=unsafeValidation]
 ----
-<1> Between this call returning
-<2> And this next call to the same entity, the entity could accept other commands that change the total count of items in the cart
+<1> Between this call returning.
+<2> And this next call to the same entity, the entity could accept other commands that change the total count of items in the cart.
 
 Scala::
 +
@@ -170,8 +169,8 @@ Scala::
 ----
 include::example$scala-protobuf-valueentity-shopping-cart/src/main/scala/com/example/shoppingcart/ShoppingCartActionImpl.scala[tag=unsafeValidation]
 ----
-<1> Between this call returning
-<2> And this next call to the same entity, the entity could accept other commands that changes the total count of items in the cart
+<1> Between this call returning.
+<2> And this next call to the same entity, the entity could accept other commands that changes the total count of items in the cart.
 
 The problem with this is that an `addItem` call directly to the entity happening between the `getState`
 action returning and the `addItem` call from the action would lead to more items in the cart than the allowed limit.

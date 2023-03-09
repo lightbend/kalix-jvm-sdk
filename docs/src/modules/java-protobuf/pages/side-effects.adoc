@@ -31,10 +31,10 @@ Java::
 ----
 include::example$java-protobuf-valueentity-counter/src/main/proto/com/example/actions/double-counter.proto[tag=whole-double-action-proto]
 ----
-<1> Import the Counter API definition
+<1> Import the Counter API definition.
 <2> The protobuf option (kalix.codegen) is specific to code-generation as provided by the Kalix Maven plugin. This annotation indicates to the code-generation that an Action must be generated.
-<3> The Action mimics the Counter API with a forward
-<4> The Action mimics the Counter API with a side effect
+<3> The Action mimics the Counter API with a forward.
+<4> The Action mimics the Counter API with a side effect.
 
 Scala::
 +
@@ -43,10 +43,10 @@ Scala::
 ----
 include::example$scala-protobuf-valueentity-counter/src/main/proto/com/example/actions/double-counter.proto[tag=whole-double-action-proto]
 ----
-<1> Import the Counter API definition
+<1> Import the Counter API definition.
 <2> The protobuf option (kalix.codegen) is specific to code-generation as provided by the Kalix Maven plugin. This annotation indicates to the code-generation that an Action must be generated.
-<3> The Action mimics the Counter API with a forward
-<4> The Action mimics the Counter API with a side effect
+<3> The Action mimics the Counter API with a forward.
+<4> The Action mimics the Counter API with a side effect.
 
 
 == Implementing the Action
@@ -58,9 +58,9 @@ The class `DoubleCounterAction` gets generated for us based on the same proto fi
 ----
 include::example$java-protobuf-valueentity-counter/src/main/java/com/example/actions/DoubleCounterAction.java[tag=controller-side-effect]
 ----
-<1> On incoming requests, we double the value of `IncreaseValue`
+<1> On incoming requests, we double the value of `IncreaseValue`.
 <2> We build a reply using `Empty.getDefaultInstance()`.
-<3> and we attach a side effect to it. The side effect is the call to the `Counter` entity.
+<3> And we attach a side effect to it. The side effect is the call to the `Counter` entity.
 
 Please note that, the result of a side effect is ignored by the current command meaning that even if the call to
 the `Counter` entity fails, the `Action` reply will succeed.
@@ -77,11 +77,11 @@ Java::
 ----
 include::example$java-protobuf-valueentity-counter/src/test/java/com/example/actions/DoubleCounterActionTest.java[tag=side-effect-test]
 ----
-<1> executing the `DoubleCounterAction.increase` RPC call through the test kit
-<2> retrieving the first side effect. There is only one in `DoubleConterAction.increase`. It's worth noting the side effects are `DeferredCall` objects that represent Kalix RPC services. `DeferredCallDetails` is the representation of a `DeferredCall` on the Kalix test kit framework.
-<3> retrieving and asserting the name of the service
-<4> retrieving and asserting the RPC's name of the service
-<5> retrieving and asserting the RPC's input
+<1> Executing the `DoubleCounterAction.increase` RPC call through the test kit.
+<2> Retrieving the first side effect. There is only one in `DoubleConterAction.increase`. It's worth noting the side effects are `DeferredCall` objects that represent Kalix RPC services. `DeferredCallDetails` is the representation of a `DeferredCall` on the Kalix test kit framework.
+<3> Retrieving and asserting the name of the service.
+<4> Retrieving and asserting the RPC's name of the service.
+<5> Retrieving and asserting the RPC's input.
 Scala::
 +
 [source,scala,indent=0]
@@ -89,8 +89,8 @@ Scala::
 ----
 include::example$scala-protobuf-valueentity-counter/src/test/scala/com/example/actions/DoubleCounterActionSpec.scala[tag=side-effect-test]
 ----
-<1> executing the `DoubleCounterAction.increaseWithSideEffect` RPC call through the test kit
-<2> retrieving the first side effect. There is only one in `DoubleConterAction.increaseWithSideEffect` implementation. It's worth noting the side effects are `DeferredCall` objects that represent Kalix RPC services. `DeferredCallDetails` is the representation of a `DeferredCall` on the Kalix test kit framework.
-<3> retrieving and asserting the name of the service
-<4> retrieving and asserting the RPC's name of the service
-<5> retrieving and asserting the RPC's input
+<1> Executing the `DoubleCounterAction.increaseWithSideEffect` RPC call through the test kit.
+<2> Retrieving the first side effect. There is only one in `DoubleConterAction.increaseWithSideEffect` implementation. It's worth noting the side effects are `DeferredCall` objects that represent Kalix RPC services. `DeferredCallDetails` is the representation of a `DeferredCall` on the Kalix test kit framework.
+<3> Retrieving and asserting the name of the service.
+<4> Retrieving and asserting the RPC's name of the service.
+<5> Retrieving and asserting the RPC's input.

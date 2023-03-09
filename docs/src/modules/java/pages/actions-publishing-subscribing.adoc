@@ -28,10 +28,10 @@ To publish the events you need to add the annotation `@Publish.Topic` to the met
 ----
 include::example$java-spring-eventsourced-counter/src/main/java/com/example/actions/CounterJournalToTopicAction.java[tag=class]
 ----
-<1> subscribing to the events from the Counter.
-<2> publishing to a topic name 'counter-events'.
-<3> setting the method input type to the events produced by the counter.
-<4> any return `Action.Effect` response is valid.
+<1> Subscribing to the events from the Counter.
+<2> Publishing to a topic name 'counter-events'.
+<3> Setting the method input type to the events produced by the counter.
+<4> Any return `Action.Effect` response is valid.
 
 
 
@@ -52,12 +52,12 @@ In the following example the events from the topic are delivered to the Action a
 ----
 include::example$java-spring-eventsourced-counter/src/main/java/com/example/actions/CounterTopicSubscriptionAction.java[tags=class]
 ----
-<1> subscribing to the `ValueIncreased` from topic 'counter-events'. 
-<2> setting the method input type to the events produced by the counter.
-<3> any return is valid.
-<4> subscribing to the `ValueMultiplied` from topic 'counter-events'. 
-<5> setting the method input type to the events produced by the counter.
-<6> any return is valid.
+<1> Subscribing to the `ValueIncreased` from topic 'counter-events'.
+<2> Setting the method input type to the events produced by the counter.
+<3> Any return is valid.
+<4> Subscribing to the `ValueMultiplied` from topic 'counter-events'.
+<5> Setting the method input type to the events produced by the counter.
+<6> Any return is valid.
 
 The events from the topic are delivered to the Action. The implementation may vary: for this simplified example you are just logging it, but it could be a forward to some other component or external service.
 
@@ -83,9 +83,9 @@ In the following example you can take a look at how the Action is configured to 
 ----
 include::example$java-spring-eventsourced-counter/src/main/java/com/example/actions/SubscribeTypeLevelAction.java[tag=class]
 ----
-<1> set to ignore unknown events.
-<2> only processing `ValueIncreased` events.
-<3> any return is valid.
+<1> Set to ignore unknown events.
+<2> Only processing `ValueIncreased` events.
+<3> Any return is valid.
 
 If you don't add `ignoreUnknown=true`, the action would fail when processing a `ValueMultiplied`. The default is false.
 

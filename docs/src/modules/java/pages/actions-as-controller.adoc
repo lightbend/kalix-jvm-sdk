@@ -18,7 +18,7 @@ include::example$java-spring-valueentity-shopping-cart/src/main/java/com/example
 ----
 <1> Common path being used: `/cart/` suffixed with a `cartId`.
 <2> `POST` endpoint exposed at `(...)/create` used to create a new cart with `cartId`.
-<3> `POST` endpoint exposed at `(...)/items/add` allowing to add an item to an cart
+<3> `POST` endpoint exposed at `(...)/items/add` allowing to add an item to an cart.
 <4> `GET` endpoint for retrieving the state of a cart.
 
 == Forwarding Commands
@@ -61,7 +61,7 @@ include::example$java-spring-valueentity-shopping-cart/src/main/java/com/example
 <1> Generate a new UUID.
 <2> Use the `kalixClient` to create a call to endpoint `create` on the shopping cart - note the use of the full path, empty body and the expected reply type `ShoppingCartDTO`.
 <3> `execute()` on the deferred call immediately triggers a call and returns a `CompletionStage` for the response.
-<4> Once the call succeeds or fails the `CompletionStage` is completed or failed, we can transform the result from `CompletionStage<Empty>`
+<4> Once the call succeeds or fails the `CompletionStage` is completed or failed, we can transform the result from `CompletionStage<Empty>`.
 to `CompletionStage<Effect<String>>` using `handle`.
 <5> On a successful response, create a reply effect passing back the `cartId`.
 <6> If the call leads to an error, create an error effect asking the client to retry.
@@ -118,8 +118,8 @@ already in the cart, and once that has been verified, it adds the item to the ca
 ----
 include::example$java-spring-valueentity-shopping-cart/src/main/java/com/example/api/ShoppingCartController.java[tag=unsafeValidation]
 ----
-<1> Between this call returning
-<2> And this next call to the same entity, the entity could accept other commands that change the total count of items in the cart
+<1> Between this call returning.
+<2> And this next call to the same entity, the entity could accept other commands that change the total count of items in the cart.
 
 The problem with this is that a `POST /cart/my-cart/items/add` call directly to the entity happening between the `GET /cart/my-cart`
 action returning and the subsequent "addItem" call from the action would lead to more items in the cart than the allowed limit.

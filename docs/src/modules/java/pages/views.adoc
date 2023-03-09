@@ -131,8 +131,8 @@ Every time an event is processed by the view, the state of the view can be updat
 ----
 include::example$java-spring-eventsourced-customer-registry/src/main/java/customer/view/CustomerByNameView.java[tags=class]
 ----
-<1> setting view ID 
-<2> updating the state of the view with the new name 
+<1> Setting view ID.
+<2> Updating the state of the view with the new name.
 
 An Event Sourced entity can emit many types of events. You need to define a method for each event type. They return an `UpdateEffect`, which describes next processing actions, such as updating the view state.
 

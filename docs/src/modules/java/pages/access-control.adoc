@@ -179,7 +179,7 @@ When running integration tests, ACLs are disabled by default but can be explicit
 ----
 include::example$java-spring-eventsourced-counter/src/it/java/com/example/TestkitConfig.java[tag=class]
 ----
-<1> Using the DEFAULT `Settings` and enabling ACL. 
+<1> Using the DEFAULT `Settings` and enabling ACL.
 
 
 

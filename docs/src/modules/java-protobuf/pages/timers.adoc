@@ -19,7 +19,7 @@ Java::
 include::example$java-protobuf-reliable-timers/src/main/java/com/example/domain/Order.java[tag=order]
 ----
 <1> The first method to look at is the `placeOrder`. It's basically the creation of an order. Note that we set the `placed` field to true.
-<2> When confirming an Order, we must ensure that the Order was created before. 
+<2> When confirming an Order, we must ensure that the Order was created before.
 <3> If the Order was never created, we return `NOT_FOUND`.
 <4> Cancelling an Order that was never placed also returns `NOT_FOUND`.
 <5> While cancelling an already confirmed order returns `INVALID_ARGUMENT`.
@@ -33,7 +33,7 @@ Scala::
 include::example$scala-protobuf-reliable-timers/src/main/scala/com/example/domain/Order.scala[tag=order]
 ----
 <1> The first method to look at is the `placeOrder`. It's basically the creation of an order. Note that we set the `placed` field to true.
-<2> When confirming an Order, we must ensure that the Order was created before. 
+<2> When confirming an Order, we must ensure that the Order was created before.
 <3> If the Order was never created, we return `NOT_FOUND`.
 <4> Cancelling an Order that was never placed also returns `NOT_FOUND`.
 <5> While cancelling an already confirmed order returns `INVALID_ARGUMENT`.
@@ -56,11 +56,11 @@ Java::
 include::example$java-protobuf-reliable-timers/src/main/java/com/example/actions/OrderAction.java[tags=timers;place-order]
 ----
 <1> First we generate a random identifier for the Order. We will use it for identifying the Order, but also as a unique name for the timer.
-<2> We call the timers API to register a new timer. Note that it returns `CompletionStage<Done>`. A successful completion means that Kalix registered the timer. 
+<2> We call the timers API to register a new timer. Note that it returns `CompletionStage<Done>`. A successful completion means that Kalix registered the timer.
 <3> Order number is used to generate a unique name for the timer.
-<4> We set the delay we want for the timer to trigger. 
+<4> We set the delay we want for the timer to trigger.
 <5> We scheduled call to `OrderAction.expire` method. We will cover it in a while.
-<6> We build a request for the Order entity. 
+<6> We build a request for the Order entity.
 <7> Finally, we build an `asyncReply` by composing the `timerRegistration` CompletionStage with a call to place the order. We access the Order entity through `components.order` and we call `execute()` to run the call.
 
 Scala::
@@ -71,12 +71,12 @@ Scala::
 include::example$scala-protobuf-reliable-timers/src/main/scala/com/example/actions/OrderAction.scala[tags=timers;place-order]
 ----
 <1> First we generate a random identifier for the Order. We will use it for identifying the Order, but also as a unique name for the timer.
-<2> We call the timers API to register a new timer. Note that it returns `Future[Done]`. A successful completion means that Kalix registered the timer. 
+<2> We call the timers API to register a new timer. Note that it returns `Future[Done]`. A successful completion means that Kalix registered the timer.
 <3> Order number is used to generate a unique name for the timer.
-<4> We set the delay we want for the timer to trigger. 
+<4> We set the delay we want for the timer to trigger.
 <5> We scheduled call to `OrderAction.expire` method. We will cover it in a while.
 <6> Next we define a method that will make a call to the Order entity.
-<7> We access the Order entity through `components.order` and we call `execute()` to run the call. 
+<7> We access the Order entity through `components.order` and we call `execute()` to run the call.
 <8> Finally, we build an `asyncReply` by chaining the `timerResgistration` and the `placeOrder` futures.
 
 In a nutshell, we first requested Kalix to register a timer. When it completes, we know that the timer is persisted and will run at the specified time. We then proceed by placing the order.

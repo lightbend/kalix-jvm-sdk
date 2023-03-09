@@ -84,7 +84,7 @@ Java::
 ----
 include::example$java-protobuf-valueentity-counter/src/main/proto/com/example/actions/counter_states_sub.proto[tag=state-subscription]
 ----
-<1> Import the Counter Domain from the Value Entity example (see xref:java-protobuf:value-entity.adoc[Implementing Value Entities])
+<1> Import the Counter Domain from the Value Entity example (see xref:java-protobuf:value-entity.adoc[Implementing Value Entities]).
 <2> The protobuf option (kalix.codegen) is specific to code-generation as provided by the Kalix Maven plugin. This annotation indicates to the code-generation that an Action must be generated.
 <3> The `(kalix.method).eventing.in` annotation indicates that state changes from the value entity type `counter` should be delivered to this method.
 <4> The second `(kalix.method).eventing.in` annotation with `handle_deletes: true` and (required) `google.protobuf.Empty` as a parameter defines that this method is used for handling value entity deletes.
@@ -96,7 +96,7 @@ Scala::
 ----
 include::example$scala-protobuf-valueentity-counter/src/main/proto/com/example/actions/counter_states_sub.proto[tag=state-subscription]
 ----
-<1> Import the Counter Domain from the Value Entity example (see xref:java-protobuf:value-entity.adoc[Implementing Value Entities])
+<1> Import the Counter Domain from the Value Entity example (see xref:java-protobuf:value-entity.adoc[Implementing Value Entities]).
 <2> The protobuf option (kalix.codegen) is specific to code-generation as provided by the Kalix sbt plugin. This annotation indicates to the code-generation that an Action must be generated.
 <3> The `(kalix.method).eventing.in` annotation indicates that state changes from the value entity type `counter` should be delivered to this method.
 <4> The second `(kalix.method).eventing.in` annotation with `handle_deletes: true` and (required) `google.protobuf.Empty` as a parameter defines that this method is used for handling value entity deletes.

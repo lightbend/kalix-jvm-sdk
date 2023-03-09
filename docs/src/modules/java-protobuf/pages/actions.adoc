@@ -77,10 +77,8 @@ Java::
 ----
 include::example$java-protobuf-fibonacci-action/src/main/java/com/example/fibonacci/FibonacciAction.java[tag=implemented-action]
 ----
-<1> We add two private methods to support the computation. `isFibonacci` checks if a number is a Fibonacci number and
-`nextFib` calculates the next number.
-<2> The `nextNumber` implementation first checks if the input number belongs to the Fibonacci series. If so, it calculates the
-next number and builds a reply using `effects().reply()`.
+<1> We add two private methods to support the computation. `isFibonacci` checks if a number is a Fibonacci number and `nextFib` calculates the next number.
+<2> The `nextNumber` implementation first checks if the input number belongs to the Fibonacci series. If so, it calculates the next number and builds a reply using `effects().reply()`.
 <3> Otherwise, if the input number doesn't belong to the Fibonacci series, it builds an `Effect` reply error.
 
 Scala::
@@ -90,10 +88,8 @@ Scala::
 ----
 include::example$scala-protobuf-fibonacci-action/src/main/scala/com/example/fibonacci/FibonacciAction.scala[tag=implemented-action]
 ----
-<1> We add two private methods to support the computation. `isFibonacci` checks if a number is a Fibonacci number and
-`nextFib` calculates the next number.
-<2> The `nextNumber` implementation first checks if the input number belongs to the Fibonacci series. If so, it calculates the
-next number and builds a reply using `effects.reply()`.
+<1> We add two private methods to support the computation. `isFibonacci` checks if a number is a Fibonacci number and `nextFib` calculates the next number.
+<2> The `nextNumber` implementation first checks if the input number belongs to the Fibonacci series. If so, it calculates the next number and builds a reply using `effects.reply()`.
 <3> Otherwise, if the input number doesn't belong to the Fibonacci series, it builds an `Effect` reply error.
 
 === Multiple replies / reply streaming

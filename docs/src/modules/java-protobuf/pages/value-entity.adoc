@@ -168,7 +168,7 @@ Java::
 ----
 include::java-protobuf:example$java-protobuf-valueentity-counter/src/main/java/com/example/domain/Counter.java[tag=getCurrentCounter]
 ----
-<1> The current state is passed to the method
+<1> The current state is passed to the method.
 <2> We use its value to create the `CurrentCounter` value that is sent as a reply by returning an `Effect` with `effects().reply`.
 
 Scala::
@@ -178,7 +178,7 @@ Scala::
 ----
 include::java-protobuf:example$scala-protobuf-valueentity-counter/src/main/scala/com/example/domain/Counter.scala[tag=getCurrentCounter]
 ----
-<1> The current state is passed to the method
+<1> The current state is passed to the method.
 <2> We use its value to create the `CurrentCounter` value that is sent as a reply by returning an `Effect` with `effects.reply`.
 
 
