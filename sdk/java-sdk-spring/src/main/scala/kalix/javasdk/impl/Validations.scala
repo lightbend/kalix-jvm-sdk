@@ -215,7 +215,7 @@ object Validations {
   private def missingErrors(effectOutputInputParams: Seq[Class[_]], eventType: Class[_], component: Class[_]) = {
     eventType.getPermittedSubclasses
       .filterNot(effectOutputInputParams.contains)
-      .map(clazz => s"Component '${component.getSimpleName}' is missing event handler for '${clazz.getName}'")
+      .map(clazz => s"Component '${component.getSimpleName}' is missing an event handler for '${clazz.getName}'")
       .toList
   }
 

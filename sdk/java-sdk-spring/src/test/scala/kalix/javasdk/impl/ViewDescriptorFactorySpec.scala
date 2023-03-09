@@ -537,7 +537,7 @@ class ViewDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSuit
       intercept[InvalidComponentException] {
         Validations.validate(classOf[SubscribeToEventSourcedEventsWithMethodWithState]).failIfInvalid
       }.getMessage should include(
-        "Missing EmployeeEntity event handler for kalix.spring.testmodels.eventsourcedentity.EmployeeEvent$EmployeeEmailUpdated")
+        "Component 'SubscribeToEventSourcedEventsWithMethodWithState' is missing an event handler for 'kalix.spring.testmodels.eventsourcedentity.EmployeeEvent$EmployeeEmailUpdated'")
     }
 
     //TODO remove ignore after updating to Scala 2.13.11 (https://github.com/scala/scala/pull/10105)
@@ -545,7 +545,7 @@ class ViewDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSuit
       intercept[InvalidComponentException] {
         Validations.validate(classOf[TypeLevelSubscribeToEventSourcedEventsWithState]).failIfInvalid
       }.getMessage should include(
-        "Missing event handler for kalix.spring.testmodels.eventsourcedentity.EmployeeEvent$EmployeeEmailUpdated")
+        "Component 'TypeLevelSubscribeToEventSourcedEventsWithState' is missing an event handler for 'kalix.spring.testmodels.eventsourcedentity.EmployeeEvent$EmployeeEmailUpdated'")
     }
   }
 
