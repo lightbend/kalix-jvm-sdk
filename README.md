@@ -13,7 +13,7 @@ If you’re just looking to get started, we advise you to start with the Java SD
 
 * User-facing packages
   * `kalix-spring-boot-starter`: The Java API to build services in Kalix with a code-first development approach using a Spring Boot Starter. See [Java SDK](https://docs.kalix.io/java/index.html).
-  * `kalix-spring-boot-starter-test`: A library to implement integration tests for services with Junit 4 or 5, based on [TestContainers](https://www.testcontainers.org/). Also contains library parts of unit TestKit.
+  * `kalix-spring-boot-starter-test`: A library to implement integration tests for services, based on [TestContainers](https://www.testcontainers.org/). Also contains library parts of unit TestKit.
 * [Samples](samples/): Small example services to illustrate Kalix features for this SDK are prefixed with `java-spring-`. The code also provides snippets for the documentation.
 * Developer tooling
   * `maven-java` Maven tooling
@@ -22,9 +22,9 @@ If you’re just looking to get started, we advise you to start with the Java SD
 ## Java/Scala Protobuf SDK
 
 * User-facing packages
-  * `kalix-java-sdk-protobuf` and `kalix-scala-sdk-protobuf`: The Java/Scala Protobuf API to build services in Kalix (backed by an implementation in Scala based on Akka gRPC). See [Java/Scala Protobuf SDK](https://docs.kalix.io/java-protobuf/index.html).
+  * `kalix-java-sdk-protobuf` and `kalix-scala-sdk-protobuf`: The Java/Scala Protobuf API to build services in Kalix. See [Java/Scala Protobuf SDK](https://docs.kalix.io/java-protobuf/index.html).
 
-  * `kalix-java-sdk-testkit` and `kalix-scala-sdk-testkit`: A library to implement integration tests for services with Junit 4 or 5, based on [TestContainers](https://www.testcontainers.org/). Also contains library parts of unit TestKit.
+  * `kalix-java-sdk-testkit` and `kalix-scala-sdk-testkit`: A library to implement integration tests for services, based on [TestContainers](https://www.testcontainers.org/). Also contains library parts of unit TestKit.
 
 * [Samples](samples/): Small example services to illustrate Kalix features are prefixed with `java-protobuf-` or `scala-protobuf-`. The code provides snippets for the documentation.
 
