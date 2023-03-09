@@ -88,7 +88,7 @@ include::example$java-spring-customer-registry-views-quickstart/src/main/java/cu
 
 . Similar to the steps in <<invoke>>.
 . Create several customers with same name.
-. Use the new `/customers/by_name/{customer_name}` endpoint instead of `/customer/by_email/{email}` and then you should see multiple results from `CustomerSummary` for customers with the same.
+. Use the new `/customers/by_name/\{customer_name}` endpoint instead of `/customer/by_email/\{email}` and then you should see multiple results from `CustomerSummary` for customers with the same.
 
 == Next steps
 
