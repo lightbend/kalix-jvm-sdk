@@ -1,4 +1,4 @@
-# Kalix TCK implementation for Java SDK
+# Kalix TCK implementation for Java Protobuf SDK
 
 Run the TCK (against the Kalix TCK docker image):
 

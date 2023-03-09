@@ -1,4 +1,4 @@
-# Contributing to Kalix Java SDK
+# Contributing to Kalix JVM SDKs
 
 FIXME contribution guidelines like in other LB projects
 
