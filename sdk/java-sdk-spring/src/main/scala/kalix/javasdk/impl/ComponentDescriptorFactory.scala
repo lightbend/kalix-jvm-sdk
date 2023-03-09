@@ -20,7 +20,6 @@ import java.lang.annotation.Annotation
 import java.lang.reflect.Method
 import java.lang.reflect.Modifier
 import java.lang.reflect.ParameterizedType
-
 import scala.reflect.ClassTag
 import kalix.DirectDestination
 import kalix.DirectSource
@@ -41,6 +40,7 @@ import kalix.javasdk.annotations.EntityType
 import kalix.javasdk.annotations.JWT
 import kalix.javasdk.annotations.Table
 import kalix.javasdk.annotations.ViewId
+import kalix.javasdk.eventsourcedentity.EventSourcedEntity
 import kalix.javasdk.impl.reflection.CombinedSubscriptionServiceMethod
 import kalix.javasdk.impl.reflection.KalixMethod
 import kalix.javasdk.impl.reflection.NameGenerator
@@ -136,6 +136,11 @@ private[impl] object ComponentDescriptorFactory {
     val ann = javaMethod.getAnnotation(classOf[Subscribe.EventSourcedEntity])
     val entityClass = ann.value()
     entityClass.getAnnotation(classOf[EntityType]).value()
+  }
+
+  def findEventSourcedEntityClass(javaMethod: Method): Class[_ <: EventSourcedEntity[_, _]] = {
+    val ann = javaMethod.getAnnotation(classOf[Subscribe.EventSourcedEntity])
+    ann.value()
   }
 
   def findEventSourcedEntityType(clazz: Class[_]): String = {

@@ -105,6 +105,11 @@ public class ShoppingCartEntity extends EventSourcedEntity<ShoppingCart, Shoppin
   public ShoppingCart itemRemoved(ShoppingCartEvent.ItemRemoved itemRemoved) {
     return currentState().onItemRemoved(itemRemoved);
   }
+
+  @EventHandler
+  public ShoppingCart checkedOut(ShoppingCartEvent.CheckedOut checkedOut) {
+    return currentState().onCheckedOut();
+  }
 // tag::class[]
 
 }

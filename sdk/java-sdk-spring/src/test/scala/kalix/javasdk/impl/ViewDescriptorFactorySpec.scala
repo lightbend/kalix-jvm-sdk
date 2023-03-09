@@ -35,6 +35,7 @@ import kalix.spring.testmodels.view.ViewTestModels.TransformedUserViewUsingState
 import kalix.spring.testmodels.view.ViewTestModels.TransformedUserViewWithDeletes
 import kalix.spring.testmodels.view.ViewTestModels.TransformedUserViewWithJWT
 import kalix.spring.testmodels.view.ViewTestModels.TransformedViewWithoutSubscriptionOnMethodLevel
+import kalix.spring.testmodels.view.ViewTestModels.TypeLevelSubscribeToEventSourcedEventsWithState
 import kalix.spring.testmodels.view.ViewTestModels.UserByEmailWithCollectionReturn
 import kalix.spring.testmodels.view.ViewTestModels.UserByEmailWithGet
 import kalix.spring.testmodels.view.ViewTestModels.UserByEmailWithPost
@@ -529,6 +530,22 @@ class ViewDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSuit
         methodOptions.getView.getJsonSchema.getOutput shouldBe "Employee"
 
       }
+    }
+
+    //TODO remove ignore after updating to Scala 2.13.11 (https://github.com/scala/scala/pull/10105)
+    "validate missing handlers for method level subscription" ignore {
+      intercept[InvalidComponentException] {
+        Validations.validate(classOf[SubscribeToEventSourcedEventsWithMethodWithState]).failIfInvalid
+      }.getMessage should include(
+        "Component 'SubscribeToEventSourcedEventsWithMethodWithState' is missing an event handler for 'kalix.spring.testmodels.eventsourcedentity.EmployeeEvent$EmployeeEmailUpdated'")
+    }
+
+    //TODO remove ignore after updating to Scala 2.13.11 (https://github.com/scala/scala/pull/10105)
+    "validate missing handlers for type level subscription" ignore {
+      intercept[InvalidComponentException] {
+        Validations.validate(classOf[TypeLevelSubscribeToEventSourcedEventsWithState]).failIfInvalid
+      }.getMessage should include(
+        "Component 'TypeLevelSubscribeToEventSourcedEventsWithState' is missing an event handler for 'kalix.spring.testmodels.eventsourcedentity.EmployeeEvent$EmployeeEmailUpdated'")
     }
   }
 

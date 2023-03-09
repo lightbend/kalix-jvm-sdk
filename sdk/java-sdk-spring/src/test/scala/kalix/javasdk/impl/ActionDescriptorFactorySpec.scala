@@ -46,6 +46,8 @@ import kalix.spring.testmodels.subscriptions.PubSubTestModels.EventStreamPublish
 import kalix.spring.testmodels.subscriptions.PubSubTestModels.EventStreamSubscriptionAction
 import kalix.spring.testmodels.subscriptions.PubSubTestModels.InvalidSubscribeToEventSourcedEntityAction
 import kalix.spring.testmodels.subscriptions.PubSubTestModels.InvalidSubscribeToTopicAction
+import kalix.spring.testmodels.subscriptions.PubSubTestModels.MissingHandlersWhenSubscribeToEventSourcedEntityAction
+import kalix.spring.testmodels.subscriptions.PubSubTestModels.MissingHandlersWhenSubscribeToEventSourcedOnMethodLevelEntityAction
 import kalix.spring.testmodels.subscriptions.PubSubTestModels.PublishToTopicAction
 import kalix.spring.testmodels.subscriptions.PubSubTestModels.RestAnnotatedSubscribeToEventSourcedEntityAction
 import kalix.spring.testmodels.subscriptions.PubSubTestModels.RestAnnotatedSubscribeToValueEntityAction
@@ -56,6 +58,7 @@ import kalix.spring.testmodels.subscriptions.PubSubTestModels.SubscribeToTopicAc
 import kalix.spring.testmodels.subscriptions.PubSubTestModels.SubscribeToTwoTopicsAction
 import kalix.spring.testmodels.subscriptions.PubSubTestModels.SubscribeToValueEntityAction
 import kalix.spring.testmodels.subscriptions.PubSubTestModels.SubscribeToValueEntityWithDeletesAction
+import org.scalatest.Ignore
 import org.scalatest.wordspec.AnyWordSpec
 
 class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSuite {
@@ -415,6 +418,22 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
       intercept[InvalidComponentException] {
         Validations.validate(classOf[InvalidSubscribeToEventSourcedEntityAction]).failIfInvalid
       }.getMessage should include("You cannot use @Subscribe.EventSourcedEntity annotation in both methods and class.")
+    }
+
+    //TODO remove ignore after updating to Scala 2.13.11 (https://github.com/scala/scala/pull/10105)
+    "validates if there are missing event handlers for event sourced Entity Subscription at type level" ignore {
+      intercept[InvalidComponentException] {
+        Validations.validate(classOf[MissingHandlersWhenSubscribeToEventSourcedEntityAction]).failIfInvalid
+      }.getMessage should include(
+        "Component 'MissingHandlersWhenSubscribeToEventSourcedEntityAction' is missing an event handler for 'kalix.spring.testmodels.eventsourcedentity.EmployeeEvent$EmployeeEmailUpdated'")
+    }
+
+    //TODO remove ignore after updating to Scala 2.13.11 (https://github.com/scala/scala/pull/10105)
+    "validates if there are missing event handlers for event sourced Entity Subscription at method level" ignore {
+      intercept[InvalidComponentException] {
+        Validations.validate(classOf[MissingHandlersWhenSubscribeToEventSourcedOnMethodLevelEntityAction]).failIfInvalid
+      }.getMessage should include(
+        "Component 'MissingHandlersWhenSubscribeToEventSourcedOnMethodLevelEntityAction' is missing an event handler for 'kalix.spring.testmodels.eventsourcedentity.EmployeeEvent$EmployeeEmailUpdated'")
     }
 
     "validates it is forbidden Topic Subscription at annotation type level and method level at the same time" in {
