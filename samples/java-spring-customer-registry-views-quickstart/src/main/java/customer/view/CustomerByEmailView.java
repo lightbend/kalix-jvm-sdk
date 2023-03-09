@@ -1,6 +1,6 @@
 package customer.view;
 
-import customer.api.Customer;
+import customer.domain.Customer;
 import customer.api.CustomerEntity;
 import kalix.javasdk.view.View;
 import kalix.javasdk.annotations.Query;

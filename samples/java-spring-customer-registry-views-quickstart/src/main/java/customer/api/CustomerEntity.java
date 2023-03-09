@@ -16,6 +16,8 @@
 
 package customer.api;
 
+import customer.domain.Address;
+import customer.domain.Customer;
 import kalix.javasdk.valueentity.ValueEntity;
 import kalix.javasdk.annotations.EntityKey;
 import kalix.javasdk.annotations.EntityType;
@@ -25,6 +27,7 @@ import org.springframework.web.bind.annotation.*;
 @EntityType("customer")
 @RequestMapping("/customer/{id}")
 public class CustomerEntity extends ValueEntity<Customer> {
+
 
   @PostMapping("/create")
   public ValueEntity.Effect<String> create(@RequestBody Customer customer) {

@@ -32,7 +32,7 @@ This example assumes the following `Customer` exists:
 [source,java,indent=0]
 .src/main/java/customer/api/Customer.java
 ----
-include::example$java-spring-customer-registry-views-quickstart/src/main/java/customer/api/Customer.java[tags=class]
+include::example$java-spring-customer-registry-views-quickstart/src/main/java/customer/domain/Customer.java[tags=class]
 ----
 
 As well as a Value Entity service `CustomerEntity.java` that will produce the state changes consumed by the View. You can consult xref:value-entity#entity-behavior[Value Entity] documentation on how to create such an entity if in need.
