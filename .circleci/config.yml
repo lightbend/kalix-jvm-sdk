@@ -1174,6 +1174,23 @@ jobs:
             echo "Running mvn with SDK version: '$SDK_VERSION'"
             mvn -Dkalix-sdk.version=$SDK_VERSION verify -Pit             
 
+  sample-java-spring-shopping-cart-quickstart:
+    machine:
+      image: ubuntu-2004:202201-02
+    steps:
+      - checkout-and-merge-to-main
+      - setup_sbt
+      - restore_deps_cache
+      # note: `copy-from-workspace` requires `publish-local` to be run first as declared in workflow section below
+      - copy-from-workspace
+      - set-sdk-version
+      - run:
+          name: Shopping Cart Quickstart (Java SDK)
+          command: |
+            cd samples/java-spring-shopping-cart-quickstart
+            echo "Running mvn with SDK version: '$SDK_VERSION'"
+            mvn -Dkalix-sdk.version=$SDK_VERSION verify -Pit  
+
   sample-java-spring-valueentity-counter:
     machine:
       image: ubuntu-2004:202201-02
@@ -1645,6 +1662,10 @@ workflows:
             - spring-sdk-integration-tests
             - publish-local
       - sample-java-spring-customer-registry-views-quickstart:
+          requires:
+            - spring-sdk-integration-tests
+            - publish-local
+      - sample-java-spring-shopping-cart-quickstart:
           requires:
             - spring-sdk-integration-tests
             - publish-local
