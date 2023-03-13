@@ -46,7 +46,7 @@ For example, given [`grpcurl`](https://github.com/fullstorydev/grpcurl):
 * Send an AddItem command:
 
 ```shell
-grpcurl --plaintext -d '{"cart_id": "cart1", "product_id": "akka-tshirt", "name": "Akka t-shirt", "quantity": 3}' localhost:9000  shopping.cart.api.ShoppingCart/AddItem
+grpcurl --plaintext -d '{"cart_id": "cart1", "product_id": "kalix-tshirt", "name": "Kalix t-shirt", "quantity": 3}' localhost:9000  shopping.cart.api.ShoppingCart/AddItem
 ```
 
 * Send a GetCart command:
@@ -58,7 +58,7 @@ grpcurl --plaintext -d '{"cart_id": "cart1"}' localhost:9000  shopping.cart.api.
 * Send a RemoveItem command:
 
 ```shell
-grpcurl --plaintext -d '{"cart_id": "cart1", "product_id": "akka-tshirt" }' localhost:9000 shopping.cart.api.ShoppingCart/RemoveItem
+grpcurl --plaintext -d '{"cart_id": "cart1", "product_id": "kalix-tshirt" }' localhost:9000 shopping.cart.api.ShoppingCart/RemoveItem
 ```
 
 In addition to the defined gRPC interface, each method has a corresponding HTTP endpoint. As defined in `shpping_cart_api.proto` (see [Transcoding HTTP](https://docs.kalix.io/java/writing-grpc-descriptors-protobuf.html#_transcoding_http)), this endpoint accepts POST requests at the path `/cart/<cart_id>/items/add`.
@@ -67,7 +67,7 @@ In addition to the defined gRPC interface, each method has a corresponding HTTP 
 * Send an AddItem command:
 
 ```shell
-curl -XPOST -H "Content-Type: application/json" localhost:9000/cart/cart1/items/add -d '{"cart_id": "cart1", "product_id": "akka-tshirt", "name": "Akka t-shirt", "quantity": 3}'
+curl -XPOST -H "Content-Type: application/json" localhost:9000/cart/cart1/items/add -d '{"cart_id": "cart1", "product_id": "kalix-tshirt", "name": "Kalix t-shirt", "quantity": 3}'
 ```
 
 ## Deploying

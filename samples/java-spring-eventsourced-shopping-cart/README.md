@@ -32,7 +32,7 @@ With both the proxy and your application running, any defined endpoints should b
 
 - Add items to shopping cart
 ```shell
-curl -i -XPOST -H "Content-Type: application/json" localhost:9000/cart/123/add -d '{"productId":"akka-tshirt", "name":"Akka Tshirt", "quantity": 10}'
+curl -i -XPOST -H "Content-Type: application/json" localhost:9000/cart/123/add -d '{"productId":"kalix-tshirt", "name":"Akka Tshirt", "quantity": 10}'
 curl -i -XPOST -H "Content-Type: application/json" localhost:9000/cart/123/add -d '{"productId":"scala-tshirt", "name":"Scala Tshirt", "quantity": 20}'
 ```
 
@@ -43,7 +43,7 @@ curl -i -XGET -H "Content-Type: application/json" localhost:9000/cart/123
 
 - Remove an item from the cart
 ```shell
-curl -XPOST -H "Content-Type: application/json" localhost:9000/cart/123/items/akka-tshirt/remove
+curl -XPOST -H "Content-Type: application/json" localhost:9000/cart/123/items/kalix-tshirt/remove
 ```
 
 ## Deploying
