@@ -40,13 +40,13 @@ With both the proxy and your application running, once you have defined endpoint
 * Adding a new item:
 
 ```shell
-curl -XPOST -H "Content-Type: application/json" localhost:9000/cart/cart1/items/add -d '{"productId": "akka-tshirt", "name": "Akka t-shirt", "quantity": 3}' 
+curl -XPOST -H "Content-Type: application/json" localhost:9000/cart/cart1/items/add -d '{"productId": "kalix-tshirt", "name": "Kalix t-shirt", "quantity": 3}' 
 ```
 
 * Removing a new item:
 
 ```shell
-curl -XPOST -H "Content-Type: application/json" localhost:9000/cart/cart1/items/add -d '{"productId": "akka-tshirt", "name": "Akka t-shirt", "quantity": 3}' 
+curl -XPOST -H "Content-Type: application/json" localhost:9000/cart/cart1/items/add -d '{"productId": "kalix-tshirt", "name": "Kalix t-shirt", "quantity": 3}' 
 ```
 
 ## Deploying

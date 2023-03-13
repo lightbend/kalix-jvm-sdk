@@ -41,7 +41,7 @@ endpoint accepts POST requests at the path `/[package].[entity name]/[method]`. 
 * Send an AddItem command:
 
 ```shell
-curl -XPOST -H "Content-Type: application/json" localhost:9000/cart/cart1/items/add -d '{"cart_id": "cart1", "product_id": "akka-tshirt", "name": "Akka t-shirt", "quantity": 3}' 
+curl -XPOST -H "Content-Type: application/json" localhost:9000/cart/cart1/items/add -d '{"cart_id": "cart1", "product_id": "kalix-tshirt", "name": "Kalix t-shirt", "quantity": 3}' 
 ```
 
 For example, given [`grpcurl`](https://github.com/fullstorydev/grpcurl):
@@ -49,7 +49,7 @@ For example, given [`grpcurl`](https://github.com/fullstorydev/grpcurl):
 * Send an AddItem command:
 
 ```shell
-grpcurl --plaintext -d '{"cart_id": "cart1", "product_id": "akka-tshirt", "name": "Akka t-shirt", "quantity": 3}' localhost:9000 com.example.shoppingcart.ShoppingCartService/AddItem
+grpcurl --plaintext -d '{"cart_id": "cart1", "product_id": "kalix-tshirt", "name": "Kalix t-shirt", "quantity": 3}' localhost:9000 com.example.shoppingcart.ShoppingCartService/AddItem
 ```
 
 * Send a GetCart command:
@@ -61,7 +61,7 @@ grpcurl --plaintext -d '{"cart_id": "cart1"}' localhost:9000 com.example.shoppin
 * Send a RemoveItem command:
 
 ```shell
-grpcurl --plaintext -d '{"cart_id": "cart1", "product_id": "akka-tshirt", "name": "Akka t-shirt" }' localhost:9000 com.example.shoppingcart.ShoppingCartService/RemoveItem
+grpcurl --plaintext -d '{"cart_id": "cart1", "product_id": "kalix-tshirt", "name": "Kalix t-shirt" }' localhost:9000 com.example.shoppingcart.ShoppingCartService/RemoveItem
 ```
 
 ## Running integration tests
