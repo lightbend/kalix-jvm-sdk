@@ -6,9 +6,4 @@ You can https://docs.kalix.io/services/invoke-service.html#_exposing_services_to
 kalix service expose <service name>
 ----
 
-Try to call the exposed service with `curl`:
 
-[source,command line]
-----
-curl <generated hostname>:443/customer/abc123
-----
