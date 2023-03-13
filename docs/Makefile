@@ -90,6 +90,7 @@ examples:
 bundles:
 	bin/bundle.sh --zip "${java_managed_attachments}/java-spring-customer-registry-quickstart.zip" ../samples/java-spring-customer-registry-quickstart
 	bin/bundle.sh --zip "${java_managed_attachments}/java-spring-customer-registry-views-quickstart.zip" ../samples/java-spring-customer-registry-views-quickstart
+	bin/bundle.sh --zip "${java_managed_attachments}/java-spring-shopping-cart-quickstart.zip" ../samples/java-spring-shopping-cart-quickstart
 	bin/bundle.sh --zip "${java_pb_managed_attachments}/java-protobuf-customer-registry-quickstart.zip" ../samples/java-protobuf-customer-registry-quickstart
 	bin/bundle.sh --zip "${java_pb_managed_attachments}/java-protobuf-customer-registry-views-quickstart.zip" ../samples/java-protobuf-customer-registry-views-quickstart
 	bin/bundle.sh --zip "${java_pb_managed_attachments}/java-protobuf-customer-registry-kafka-quickstart.zip" ../samples/java-protobuf-customer-registry-kafka-quickstart
