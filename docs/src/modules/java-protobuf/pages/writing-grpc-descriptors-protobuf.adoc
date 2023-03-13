@@ -90,10 +90,10 @@ Most importantly, in this file we instruct the Kalix code generation tooling (co
 include::example$java-protobuf-valueentity-shopping-cart/src/main/proto/com/example/shoppingcart/shoppingcart_api.proto[tag=proto_service]
 ----
 
-<1> Indicates to the codegen that we want to generate a Value Entity
-<2> The package and name of our Value Entity
+<1> Indicates to the codegen that we want to generate a Value Entity.
+<2> The package and name of our Value Entity.
 <3> Unique identifier of the "state storage" for this entity. The entity name may be changed even after data has been created, the `entity_type` can't.
-<4> The Entity state using a fully-qualified name. Note, the package and name follow the definition in the domain.proto file (see below)
+<4> The Entity state using a fully-qualified name. Note, the package and name follow the definition in the domain.proto file (see below).
 
 
 == The domain proto file
@@ -106,9 +106,9 @@ The `shoppingcart_domain.proto` file specifies the state and messages for an Eve
 include::example$java-protobuf-valueentity-shopping-cart/src/main/proto/com/example/shoppingcart/domain/shoppingcart_domain.proto[tag=domain]
 ----
 
-<1> Defines the gRPC version
-<2> The proto package for the state
-<3> The Entity's state defined as a proto message
+<1> Defines the gRPC version.
+<2> The proto package for the state.
+<3> The Entity's state defined as a proto message.
 
 [#_transcoding_http]
 == Transcoding HTTP

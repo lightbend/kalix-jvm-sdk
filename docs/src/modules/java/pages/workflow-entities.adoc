@@ -48,8 +48,7 @@ include::example$java-spring-transfer-workflow/src/main/java/com/example/transfe
 ----
 <1> Create a class that extends `WorkflowEntity<S>`, where `S` is the state type this entity will store (i.e. `TransferState`).
 <2> Make sure to annotate such class with `@EntityType` and pass a unique name for this entity type.
-<3> Annotate such class with `@EntityKey`  and pass the name of the key that will be used as the
-entity unique identifier.
+<3> Annotate such class with `@EntityKey`  and pass the name of the key that will be used as the entity unique identifier.
 <4> Use Spring's RequestMapping annotation to define the route to your entity.
 
 

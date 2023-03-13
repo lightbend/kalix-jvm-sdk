@@ -174,7 +174,7 @@ A `proto` definition of an Action that consumes CloudEvent messages can look lik
 ----
 include::example$java-protobuf-doc-snippets/src/main/proto/com/example/topics_action.proto[tag=cloudEvent]
 ----
-<1> When consuming a CloudEvent containing a Protobuf message the handler request must have the message type specified in the metadata
+<1> When consuming a CloudEvent containing a Protobuf message the handler request must have the message type specified in the metadata.
 
 Scala::
 +
@@ -185,4 +185,4 @@ A `proto` definition of an Action that consumes CloudEvent messages can look lik
 ----
 include::example$scala-protobuf-doc-snippets/src/main/proto/com/example/topics_action.proto[tag=cloudEvent]
 ----
-<1> When consuming a CloudEvent containing a Protobuf message the handler request must have the message type specified in the metadata
+<1> When consuming a CloudEvent containing a Protobuf message the handler request must have the message type specified in the metadata.

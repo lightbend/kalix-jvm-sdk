@@ -22,11 +22,11 @@ Java::
 ----
 include::example$java-protobuf-eventsourced-customer-registry/src/main/proto/customer/api/direct_customer_events.proto[tag=publisher]
 ----
-<1> `eventing.in` identifying which event sourced entity to publish events for
-<2> Ignore any event types not handled by a method and move on with the event stream, rather than fail which is the default
-<3> `eventing.out.direct.event_stream_id` marks the public identifier for consumers of this stream
-<4> An ACL annotation, allowing access from other Kalix services, but not the public internet
-<5> All methods on the service are transformer methods for turning internal event message types into public API message types for other services to consume
+<1> `eventing.in` identifying which event sourced entity to publish events for.
+<2> Ignore any event types not handled by a method and move on with the event stream, rather than fail which is the default.
+<3> `eventing.out.direct.event_stream_id` marks the public identifier for consumers of this stream.
+<4> An ACL annotation, allowing access from other Kalix services, but not the public internet.
+<5> All methods on the service are transformer methods for turning internal event message types into public API message types for other services to consume.
 
 Scala::
 +
@@ -35,11 +35,11 @@ Scala::
 ----
 include::example$scala-protobuf-eventsourced-customer-registry/src/main/proto/customer/api/direct_customer_events.proto[tag=publisher]
 ----
-<1> `eventing.in` identifying which event sourced entity to publish events for
-<2> Ignore any event types not handled by a method and move on with the event stream, rather than fail which is the default
-<3> `eventing.out.direct.event_stream_id` marks the public identifier for consumers of this stream
-<4> An ACL annotation, allowing access from other Kalix services, but not the public internet
-<5> All methods on the service are transformer methods for turning internal event message types into public API message types for other services to consume
+<1> `eventing.in` identifying which event sourced entity to publish events for.
+<2> Ignore any event types not handled by a method and move on with the event stream, rather than fail which is the default.
+<3> `eventing.out.direct.event_stream_id` marks the public identifier for consumers of this stream.
+<4> An ACL annotation, allowing access from other Kalix services, but not the public internet.
+<5> All methods on the service are transformer methods for turning internal event message types into public API message types for other services to consume.
 
 The implementation of the producer creates the public API messages and uses the regular Action `effects` API to return the messages to publish:
 
@@ -93,10 +93,10 @@ Java::
 ----
 include::example$java-protobuf-eventsourced-customer-registry-subscriber/src/main/proto/customer/view/customer_view.proto[tag=view]
 ----
-<1> Service level `eventing.in.direct` block
-<2> The name of the Kalix service publishing the event stream
-<3> The public `event_stream_id` of the specific stream from the publisher
-<4> One update method per message type that the stream may contain
+<1> Service level `eventing.in.direct` block.
+<2> The name of the Kalix service publishing the event stream.
+<3> The public `event_stream_id` of the specific stream from the publisher.
+<4> One update method per message type that the stream may contain.
 
 Scala::
 +
@@ -105,10 +105,10 @@ Scala::
 ----
 include::example$scala-protobuf-eventsourced-customer-registry-subscriber/src/main/proto/customer/view/customer_view.proto[tag=view]
 ----
-<1> Service level `eventing.in.direct` block
-<2> The name of the Kalix service publishing the event stream
-<3> The public `event_stream_id` of the specific stream from the publisher
-<4> One update method per message type that the stream may contain
+<1> Service level `eventing.in.direct` block.
+<2> The name of the Kalix service publishing the event stream.
+<3> The public `event_stream_id` of the specific stream from the publisher.
+<4> One update method per message type that the stream may contain.
 
 === Deployment dependent source of events
 

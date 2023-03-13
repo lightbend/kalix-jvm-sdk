@@ -25,7 +25,7 @@ include::example$java-spring-eventsourced-customer-registry/src/main/java/custom
 <2> Ignore any event types not handled by a method and move on with the event stream, rather than fail which is the default.
 <3> Public identifier for consumers of this stream.
 <4> Allowing access from other Kalix services, but not the public internet.
-<5> All methods on the service are transformer methods for turning internal event message types into public API message types for other services to consume
+<5> All methods on the service are transformer methods for turning internal event message types into public API message types for other services to consume.
 
 == Event Consumer
 

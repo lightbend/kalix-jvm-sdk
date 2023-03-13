@@ -52,7 +52,7 @@ include::java-protobuf:example$java-protobuf-doc-snippets/src/main/java/com/exam
 +
 <1> We call `actionContext().getGrpcClient` with the service interface of the API and the name that the service was deployed with.
 <2> Calling a unary gRPC method returns the reply as a `java.util.concurrent.CompletionStage`. When execution continues through our method, the result will likely not yet have arrived, so we cannot look at it like a regular variable.
-<3> Instead we register a callback to execute once the increase call completes successfully, here we ignore the empty increase response and call `getCurrentCounter`, this makes the two calls _sequential_. (Note however that some other client calling the counter API could have changed the counter in between the calls)
+<3> Instead we register a callback to execute once the increase call completes successfully, here we ignore the empty increase response and call `getCurrentCounter`, this makes the two calls _sequential_. (Note however that some other client calling the counter API could have changed the counter in between the calls).
 <4> Once we get a response for the `getCurrentCounter` we transform that into a `Response` - the response type of this action method.
 <5> We can reply with a `CompletionStage<Result>` using `effects().asyncReply`. Once the `CompletionStage` completes, the client will get the response back.
 
@@ -66,7 +66,7 @@ include::example$scala-protobuf-doc-snippets/src/main/scala/com/example/Delegati
 +
 <1> We call `actionContext.getGrpcClient` with the service interface of the API and the name that the service was deployed with.
 <2> Calling a unary gRPC method returns the reply as a `scala.concurrent.Future`. When execution continues through our method, the result will likely not yet have arrived, so we cannot look at it like a regular variable.
-<3> Instead we register a callback to execute once the increase call completes successfully, here we ignore the empty increase response and call `getCurrentCounter`, this makes the two calls _sequential_. (Note however that some other client calling the counter API could have changed the counter in between the calls)
+<3> Instead we register a callback to execute once the increase call completes successfully, here we ignore the empty increase response and call `getCurrentCounter`, this makes the two calls _sequential_. (Note however that some other client calling the counter API could have changed the counter in between the calls).
 <4> Once we get a response for the `getCurrentCounter` we transform that into a `Response` - the response type of this action method.
 <5> We can reply with a `Future[Result]` using `effects.asyncReply`. Once the `Future` completes, the client will get the response back.
 

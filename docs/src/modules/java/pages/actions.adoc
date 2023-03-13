@@ -21,11 +21,10 @@ To implement this action you need the following:
 ----
 include::example$java-spring-fibonacci-action/src/main/java/com/example/fibonacci/FibonacciAction.java[tag=implementing-action]
 ----
-<1> `isFibonacci` checks if a number is a Fibonacci number
+<1> `isFibonacci` checks if a number is a Fibonacci number.
 <2> `nextFib` calculates the next number.
 <3> This `nextNumber` implementation calls the `nextNumber` implementation below.
-<4> The `nextNumber` implementation first checks if the input number belongs to the Fibonacci series. If so, it calculates the
-next number and builds a reply using `effects().reply()`.
+<4> The `nextNumber` implementation first checks if the input number belongs to the Fibonacci series. If so, it calculates the next number and builds a reply using `effects().reply()`.
 <5> Otherwise, if the input number doesn't belong to the Fibonacci series, it builds an `Effect` reply error.
 
 Actions return effects (i.e. `Action.Effect`) and there are different types of effects: a reply, an error, a forward call to another component, and to all of those you can add side effects. Here you want only the result of the calculation or an error. Therefore you are using `.reply` and `.error`.

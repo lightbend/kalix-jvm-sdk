@@ -515,9 +515,9 @@ Java::
 ----
 include::example$java-protobuf-eventsourced-customer-registry/src/main/proto/customer/view/customer_view.proto[tag=stream-updates]
 ----
-<1> Return type must be a `stream`
-<2> A regular query, in this case showing all customers from a specific city
-<3> The `stream_updates` option set to `true`
+<1> Return type must be a `stream`.
+<2> A regular query, in this case showing all customers from a specific city.
+<3> The `stream_updates` option set to `true`.
 
 Scala::
 +
@@ -525,9 +525,9 @@ Scala::
 ----
 include::example$scala-protobuf-eventsourced-customer-registry/src/main/proto/customer/view/customer_view.proto[tag=stream-updates]
 ----
-<1> Return type must be a `stream`
-<2> A regular query, in this case showing all customers from a specific city
-<3> The `stream_updates` option set to `true`
+<1> Return type must be a `stream`.
+<2> A regular query, in this case showing all customers from a specific city.
+<3> The `stream_updates` option set to `true`.
 
 This will first list the complete result for the query and then keep the response stream open, emitting new or updated
 entries matching the query as they are added to the view. The stream does not complete until the client closes it.

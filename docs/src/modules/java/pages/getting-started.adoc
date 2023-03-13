@@ -41,7 +41,7 @@ it finds in the classpath.
 ----
 include::example$java-spring-valueentity-counter/src/main/java/com/example/Main.java[tag=main]
 ----
-<1> Main class is annotated with `@SpringBootApplication`
+<1> Main class is annotated with `@SpringBootApplication`.
 <2> The application is started like any other Spring Boot application.
 
 == Implementing first component
@@ -62,8 +62,7 @@ that receives commands to increase the counter.
 ----
 include::example$java-spring-valueentity-counter/src/main/java/com/example/CounterEntity.java[tags=declarations;increase;close]
 ----
-<1> Every Entity must be annotated with `@EntityType` with a stable name. This name should be unique among the
-different existing entities within a Kalix application.
+<1> Every Entity must be annotated with `@EntityType` with a stable name. This name should be unique among the different existing entities within a Kalix application.
 <2> The `@EntityKey` value should be unique per entity and map to some field being received on the route path, in this example it's the `counter_id`.
 <3> The `CounterEntity` class should extend `kalix.javasdk.valueentity.ValueEntity`.
 <4> The initial state of each counter is defined as 0.

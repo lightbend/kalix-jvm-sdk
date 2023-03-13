@@ -32,8 +32,8 @@ The class `DoubleCounterAction` listens to the counter state changes. When the c
 ----
 include::example$java-spring-valueentity-counter/src/main/java/com/example/action/DoubleCounterAction.java[tag=controller-side-effect]
 ----
-<1> Retrieving the id of the counter 
-<2> On incoming request, doubling the value of `increase`, 
+<1> Retrieving the id of the counter.
+<2> On incoming request, doubling the value of `increase`.
 <3> Building a reply using `Confirmed.getDefaultInstance()`. And attaching a side effect, i.e. calling to the `Counter` to increase double the previous amount.
 
 Please note that, the response of the side effect is ignored by the command meaning that even if the deferred call to
