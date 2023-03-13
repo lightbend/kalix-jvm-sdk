@@ -1,4 +1,4 @@
-package customer.api;
+package customer.domain;
 
 // tag::class[]
 public record Customer(String customerId, String email, String name, Address address) {

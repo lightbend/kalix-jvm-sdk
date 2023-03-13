@@ -18,7 +18,7 @@ To save the work of starting from scratch, the Java xref:java-protobuf:quickstar
 
 The following are required to develop services in Java:
 
-Java:: Kalix requires Java {java-version} or later.
+Java:: Kalix requires Java {java-pb-version} or later.
 
 [.group-java]
 Apache Maven:: For Java-based services, Kalix relies on https://maven.apache.org/[Apache Maven {tab-icon}, window="new"] as build tool. The Kalix Maven plugin creates initial Java code for your components and the required surrounding code.

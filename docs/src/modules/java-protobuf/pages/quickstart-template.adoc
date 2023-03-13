@@ -20,7 +20,7 @@ The generated project also contains configuration for packaging and deploying th
 
 Before running the code generation tools, make sure you have the following:
 
-* JDK {java-version} or later
+* JDK {java-pb-version} or later
 * [.group-java]#Apache Maven {minimum_maven_version} or later# [.group-scala]#sbt {minimum_sbt_version} or later#
 * Docker {minimum_docker_version} or higher (to run locally)
 
@@ -241,7 +241,7 @@ sbt test
 
 The project is configured to package your service into a Docker image which can be deployed to Kalix. The Docker image name can be changed in the [.group-java]#`pom.xml` file's `properties` section.# [.group-scala]#`build.sbt`.# Update this file to publish your image to your Docker repository.
 
-This uses JDK {java-version} and the image is based on the link:https://adoptium.net/[Eclipse Adoptium] JDK image (formerly Adopt OpenJDK). Choose a different image in the [.group-java]#`docker-maven-plugin` configuration  `pom.xml` file.# [.group-scala]#`build.sbt`.#
+This uses JDK {java-pb-version} and the image is based on the link:https://adoptium.net/[Eclipse Adoptium] JDK image (formerly Adopt OpenJDK). Choose a different image in the [.group-java]#`docker-maven-plugin` configuration  `pom.xml` file.# [.group-scala]#`build.sbt`.#
 
 [.tabset]
 Java::

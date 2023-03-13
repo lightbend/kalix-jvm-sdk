@@ -1,5 +1,7 @@
 package customer.api;
 
+import customer.domain.Address;
+import customer.domain.Customer;
 import kalix.javasdk.testkit.ValueEntityResult;
 import kalix.javasdk.valueentity.ValueEntity;
 import kalix.javasdk.testkit.ValueEntityTestKit;

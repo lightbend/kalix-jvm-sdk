@@ -17,7 +17,7 @@ Create a customer registry that includes queries in Java, package it into a cont
 * You'll also need to install the https://docs.kalix.io/kalix/install-kalix.html[Kalix CLI, window="new-doc"] to deploy from a terminal window.
 * For this quickstart, you'll also need
 ** https://docs.docker.com/engine/install[Docker {minimum_docker_version} or higher, window="new"]
-** Java {java-version} or higher
+** Java {java-pb-version} or higher
 ** https://maven.apache.org/download.cgi[Maven {minimum_maven_version} or higher, window="new"]
 ** https://github.com/fullstorydev/grpcurl#installation[`grpcurl`, window="new"]
 
@@ -26,7 +26,7 @@ Create a customer registry that includes queries in Java, package it into a cont
 If you want to bypass writing code and jump straight to the deployment:
 
 . Download the source code using the Kalix CLI:
-`kalix quickstart download customer-registry-views-java`
+`kalix quickstart download customer-registry-views-java-protobuf`
 
 . Skip to <<Package and deploy your service>>.
 ====
@@ -91,7 +91,7 @@ include::example$java-protobuf-customer-registry-views-quickstart/src/main/proto
 <6> The `GetCustomers` method defines the query to retrieve a customer by email.
 <7> The `(kalix.method).view.query` annotation defines that this method is used as a query of the View.
 +
-NOTE: In this sample we use the internal `domain.CustomerState` as the state of the view. This is convenient since it allows automatic updates of the view without any logic but has the draw back that it implicitly makes the `domain.CustomerState` type a part of the public service API. Transforming the state to another type than the incoming update will be illustrated in the `CustomerByName` example.
+NOTE: In this sample we use the internal `domain.CustomerState` as the state of the view. This is convenient since it allows automatic updates of the view without any logic but has the drawback that it implicitly makes the `domain.CustomerState` type a part of the public service API. Transforming the state to another type than the incoming update will be illustrated in the `CustomerByName` example.
 
 . Run `mvn compile` from the project root directory to generate source classes from the Protobuf definitions.
 +
@@ -224,9 +224,9 @@ NOTE: The state of the View is still per Entity. The `CustomerDomain.CustomerSta
 
 == Invoke the CustomerByName
 
-. Similar to the steps in <<invoke>>
-. Create several customers with same name
-. Use the new `CustomerByName` instead of `CustomerByEmail` and then you should see multiple results from `CustomerByName/GetCustomers` for customers with the same name
+. Similar to the steps in <<invoke>>.
+. Create several customers with same name.
+. Use the new `CustomerByName` instead of `CustomerByEmail` and then you should see multiple results from `CustomerByName/GetCustomers` for customers with the same name.
 
 == Next steps
 

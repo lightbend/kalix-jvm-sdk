@@ -14,7 +14,7 @@ NOTE: If you're new to Kalix and the different types of entities that exist in a
 
 The following are required to develop services in Java:
 
-Java:: Kalix requires Java {spring-java-version} or later.
+Java:: Kalix requires Java {java-version} or later.
 
 Apache Maven:: Kalix relies on https://maven.apache.org/[Apache Maven {tab-icon}, window="new"] as build tool. 
 
@@ -39,4 +39,4 @@ As the Java SDK is more recent than their gRPC-first counterparts, not all featu
 == Getting Started
 
 You can start a new Kalix project using our xref:java:getting-started.adoc[Getting started] guide. If you prefer to
-first explore a fully implemented Kalix application, you can try our xref:java:quickstart/cr-value-entity-spring.adoc[Quickstart application].
+first explore a fully implemented Kalix application, you can try our xref:java:quickstart/cr-value-entity-java.adoc[Quickstart application].

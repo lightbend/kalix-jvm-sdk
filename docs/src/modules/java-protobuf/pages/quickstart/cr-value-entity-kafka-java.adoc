@@ -18,7 +18,7 @@ Create a customer registry that includes publishing to Kafka. Package it into a 
 * You'll also need to install the https://docs.kalix.io/kalix/install-kalix.html[Kalix CLI, window="new-doc"] to deploy from a terminal window.
 * For this quickstart, you'll also need
 ** https://docs.docker.com/engine/install[Docker {minimum_docker_version} or higher, window="new"]
-** Java {java-version} or higher
+** Java {java-pb-version} or higher
 ** https://maven.apache.org/download.cgi[Maven {minimum_maven_version} or higher, window="new"]
 ** https://github.com/fullstorydev/grpcurl#installation[`grpcurl`, window="new"]
 ** Configure your project message broker to use Kafka and create the topic `customer_changes` by following the https://docs.kalix.io/projects/message-brokers.html[Configure message brokers] how-to. When setting the broker the configuration file you pass should be like `kafka/my-dev.kafka.properties` that you can find in this project.
@@ -28,7 +28,7 @@ Create a customer registry that includes publishing to Kafka. Package it into a 
 If you want to bypass writing code and jump straight to the deployment:
 
 . Download the source code using the Kalix CLI:
-`kalix quickstart download customer-registry-kafka-java`
+`kalix quickstart download customer-registry-kafka-java-protobuf`
 
 . Skip to <<Package and deploy your service>>.
 ====

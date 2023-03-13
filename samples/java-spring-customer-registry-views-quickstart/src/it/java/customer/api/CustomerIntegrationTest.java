@@ -2,6 +2,9 @@ package customer.api;
 
 
 import customer.Main;
+import customer.domain.Address;
+import customer.domain.Customer;
+import customer.view.CustomersByNameView;
 import kalix.spring.testkit.KalixIntegrationTestKitSupport;
 import org.hamcrest.core.IsEqual;
 import org.junit.jupiter.api.Assertions;
@@ -127,10 +130,10 @@ public class CustomerIntegrationTest extends KalixIntegrationTestKitSupport {
         .atMost(20, TimeUnit.SECONDS)
         .until(() ->
                 webClient.get()
-                    .uri("/customer/by_name/Foo")
+                    .uri("/customers/by_name/Foo")
                     .retrieve()
-                    .bodyToMono(Customer.class)
-                    .block(timeout)
+                    .bodyToFlux(CustomersByNameView.CustomerSummary.class)
+                    .blockFirst(timeout)
                     .name(),
             new IsEqual("Foo")
         );
