@@ -73,7 +73,7 @@ curl localhost:8080/cart/123/add \
   }'
 ----
 
-The state of the cart can be retreived with `/cart/\{cartId}`.
+The state of the cart can be retrieved with `/cart/\{cartId}`.
 
 [source, command line]
 ----
