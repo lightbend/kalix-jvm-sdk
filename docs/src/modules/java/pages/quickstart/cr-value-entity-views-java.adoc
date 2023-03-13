@@ -77,7 +77,7 @@ include::example$java-spring-customer-registry-views-quickstart/src/main/java/cu
 ----
 <1> View state type is defined as `CustomerSummary`.
 <2> For convenience, `CustomerSummary` is defined as an inner class record.
-<3> The Query method return a `Flux<CustomerSummary>`, meaning that the results will be streamed to the client
+<3> The Query method return a `Flux<CustomerSummary>`, meaning that the results will be streamed to the client.
 <4> The `onUpdate` method will receive state changes from the `CustomerEntity` and transform it to `CustomerSummary`. Note that the `@Subscribe.ValueEntity` is now added at method level performing the transformation. In the previous example, we didn't transform the type and therefore the subscription was at the class level.
 
 == Deploy the updated service
