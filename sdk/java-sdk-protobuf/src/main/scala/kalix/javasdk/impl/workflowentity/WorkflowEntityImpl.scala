@@ -140,8 +140,10 @@ final class WorkflowEntityImpl(system: ActorSystem, val services: Map[String, Wo
       recoverStrategy: WorkflowEntity.RecoverStrategy[_]): RecoverStrategy = {
     RecoverStrategy(
       maxRetries = recoverStrategy.maxRetries,
-      failoverStepName = recoverStrategy.failoverToStepName,
-      failoverStepInput = recoverStrategy.failoverStepInput.toScala.map(messageCodec.encodeScala))
+      failoverTo = Some(
+        ProtoStepTransition(
+          recoverStrategy.failoverToStepName,
+          recoverStrategy.failoverStepInput.toScala.map(messageCodec.encodeScala))))
   }
 
   private def toStepConfig(
@@ -158,8 +160,8 @@ final class WorkflowEntityImpl(system: ActorSystem, val services: Map[String, Wo
       workflowDefinition: WorkflowEntity.Workflow[_],
       messageCodec: MessageCodec): WorkflowConfig = {
     val workflowTimeout = workflowDefinition.getWorkflowTimeout.toScala.map(Duration(_))
-    val stepConfigs = workflowDefinition.getSteps.asScala
-      .map(s => toStepConfig(s.name(), s.timeout(), s.recoverStrategy().toScala, messageCodec))
+    val stepConfigs = workflowDefinition.getStepConfigs.asScala
+      .map(c => toStepConfig(c.stepName, c.timeout, c.recoverStrategy.toScala, messageCodec))
       .toSeq
     val stepConfig =
       toStepConfig(
@@ -168,7 +170,14 @@ final class WorkflowEntityImpl(system: ActorSystem, val services: Map[String, Wo
         workflowDefinition.getStepRecoverStrategy.toScala,
         messageCodec)
 
-    WorkflowConfig(workflowTimeout, Some(stepConfig), stepConfigs)
+    val failoverTo = workflowDefinition.getFailoverToStepName.toScala.map(stepName => {
+      ProtoStepTransition(stepName, workflowDefinition.getFailoverToStepInput.toScala.map(messageCodec.encodeScala))
+    })
+
+    val failoverRecovery =
+      workflowDefinition.getFailoverToRecoveryStrategy.toScala.map(strategy => RecoverStrategy(strategy.getMaxRetries))
+
+    WorkflowConfig(workflowTimeout, failoverTo, failoverRecovery, Some(stepConfig), stepConfigs)
   }
 
   private def runWorkflow(
