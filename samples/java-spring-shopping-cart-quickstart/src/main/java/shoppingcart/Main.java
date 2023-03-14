@@ -1,4 +1,4 @@
-package com.example.shoppingcart;
+package shoppingcart;
 
 import kalix.javasdk.annotations.Acl;
 import org.slf4j.Logger;

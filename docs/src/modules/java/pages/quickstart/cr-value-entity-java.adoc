@@ -30,7 +30,7 @@ include::partial$maven-archetype.adoc[]
 
 The service contains only one Value Entity that exposes the operation to mutate a Customer model. The entity itself exposes service endpoints and eventually encapsulates some basic validation. The incoming commands/request are then applied to the model and the entity instructs Kalix, through the `Effect` API what needs to be done next.
 
-== Define the domain model
+=== Define the domain model
 
 First, define the domain classes in package `customer.domain`.
 
@@ -72,6 +72,13 @@ include::example$java-spring-customer-registry-quickstart/src/main/java/customer
 include::page$quickstart/package-and-deploy.adoc[]
 include::page$quickstart/create-customer.adoc[]
 include::page$quickstart/expose-service.adoc[]
+
+Try to call the exposed service with `curl`:
+
+[source,command line]
+----
+curl <generated hostname>:443/customer/abc123
+----
 
 == Next steps
 

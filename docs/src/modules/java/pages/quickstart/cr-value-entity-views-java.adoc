@@ -62,6 +62,12 @@ curl localhost:8080/customer/by_email/someone@example.com
 
 include::page$quickstart/expose-service.adoc[]
 
+Try to call the exposed service with `curl`:
+
+[source,command line]
+----
+curl <generated hostname>:443/customer/abc123
+----
 
 == Define the CustomerByName View
 
