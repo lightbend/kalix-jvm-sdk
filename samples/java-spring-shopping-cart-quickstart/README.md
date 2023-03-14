@@ -13,8 +13,7 @@ and in particular the [Java SDK section](https://docs.kalix.io/java/)
 
 ## Building
 
-You can use Maven to build your project, which will also take care of
-generating code based on the `.proto` definitions:
+Use Maven to build your project:
 
 ```shell
 mvn compile

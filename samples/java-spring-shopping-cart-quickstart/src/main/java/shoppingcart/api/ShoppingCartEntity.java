@@ -23,7 +23,6 @@ import java.util.ArrayList;
 public class ShoppingCartEntity
   extends EventSourcedEntity<ShoppingCart, ShoppingCart.Event> { // <4>
 
-
   final private String cartId;
 
   public ShoppingCartEntity(EventSourcedEntityContext entityContext) {
