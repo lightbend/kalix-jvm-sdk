@@ -150,6 +150,15 @@ public abstract class WorkflowEntity<S> {
       <I> TransitionalEffect<Void> transitionTo(String stepName, I input);
 
       /**
+       * Set the step that should be executed.
+       *
+       * @param stepName The step name that should be executed.
+       */
+      @ApiMayChange
+      TransitionalEffect<Void> transitionTo(String stepName);
+
+
+      /**
        * Finish the workflow execution.
        */
       @ApiMayChange
@@ -265,7 +274,7 @@ public abstract class WorkflowEntity<S> {
     final private Set<String> uniqueNames = new HashSet<>();
     private Optional<Duration> workflowTimeout = Optional.empty();
     private Optional<String> failoverToStepName = Optional.empty();
-    private Optional<?> failoverToStepInput = Optional.empty();
+    private Optional<Object> failoverToStepInput = Optional.empty();
     private Optional<MaxRetriesRecoverStrategy> failoverToRecoveryStrategy = Optional.empty();
     private Optional<Duration> stepTimeout = Optional.empty();
     private Optional<RecoverStrategy<?>> stepRecoverStrategy = Optional.empty();
@@ -345,7 +354,8 @@ public abstract class WorkflowEntity<S> {
     }
 
     /**
-     * Define a default timeout for the duration of the step. Can be overridden with step configuration.
+     * Define a default timeout for the duration of the step. If not set, a default value of 5 seconds is used.
+     * Can be overridden with step configuration.
      */
     public Workflow<S> stepTimeout(Duration timeout) {
       this.stepTimeout = Optional.of(timeout);

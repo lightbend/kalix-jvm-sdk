@@ -89,5 +89,5 @@ object WorkflowMessages extends EntityMessages {
   }
 
   def config(): OutMessage =
-    WorkflowStreamOut.Message.Config(WorkflowConfig())
+    WorkflowStreamOut.Message.Config(WorkflowConfig(defaultStepConfig = Some(StepConfig("", None, None))))
 }

@@ -21,70 +21,57 @@ import kalix.javasdk.annotations.EntityKey;
 import kalix.javasdk.annotations.EntityType;
 import kalix.javasdk.workflowentity.WorkflowEntity;
 import kalix.spring.KalixClient;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
+import java.util.concurrent.TimeUnit;
 
+import static java.time.Duration.ofMillis;
 import static java.time.Duration.ofSeconds;
 import static kalix.javasdk.workflowentity.WorkflowEntity.RecoverStrategy.maxRetries;
 
-@EntityType("workflow-with-error-handling")
+@EntityType("workflow-with-step-timeout")
 @EntityKey("workflowId")
-@RequestMapping("/workflow-with-error-handling/{workflowId}")
-public class WorkflowWithErrorHandling extends WorkflowEntity<WorkflowWithErrorHandling.FailingCounterState> {
-
-  public record FailingCounterState(String counterId, int value, boolean finished) {
-    public FailingCounterState asFinished() {
-      return new FailingCounterState(counterId, value, true);
-    }
-
-    public FailingCounterState inc() {
-      return new FailingCounterState(counterId, value + 1, finished);
-    }
-  }
+@RequestMapping("/workflow-with-step-timeout/{workflowId}")
+public class WorkflowWithStepTimeout extends WorkflowEntity<FailingCounterState> {
 
   private final String counterStepName = "counter";
   private final String counterFailoverStepName = "counter-failover";
 
   private KalixClient kalixClient;
 
-  public WorkflowWithErrorHandling(KalixClient kalixClient) {
+  public WorkflowWithStepTimeout(KalixClient kalixClient) {
     this.kalixClient = kalixClient;
   }
 
 
+  public Executor delayedExecutor = CompletableFuture.delayedExecutor(1, TimeUnit.SECONDS);
+
   @Override
-  public Workflow<WorkflowWithErrorHandling.FailingCounterState> definition() {
+  public Workflow<FailingCounterState> definition() {
     var counterInc =
         step(counterStepName)
-            .call(() -> {
-              var nextValue = currentState().value() + 1;
-              return kalixClient.post("/failing-counter/" + currentState().counterId + "/increase/" + nextValue, Integer.class);
-            })
-            .andThen(__ -> effects()
-                .updateState(currentState().asFinished())
-                .end())
-            .timeout(ofSeconds(1))
-            .recoveryStrategy(maxRetries(1).failoverTo(counterFailoverStepName));
+            .asyncCall(() -> CompletableFuture.supplyAsync(() -> "produces time out", delayedExecutor))
+            .andThen(__ -> effects().transitionTo(counterFailoverStepName))
+            .timeout(ofMillis(20));
 
     var counterIncFailover =
         step(counterFailoverStepName)
             .asyncCall(() -> CompletableFuture.completedStage("nothing"))
-            .andThen(__ ->
-                effects()
-                    .updateState(currentState().inc())
-                    .transitionTo(counterStepName)
-            );
+            .andThen(__ -> effects()
+                .updateState(currentState().inc())
+                .transitionTo(counterStepName));
 
 
     return workflow()
-        .timeout(ofSeconds(30))
-        .stepTimeout(ofSeconds(10))
-        .stepRecoveryStrategy(maxRetries(1).failoverTo(counterStepName))
-        .addStep(counterInc)
+        .timeout(ofSeconds(10))
+        .stepTimeout(ofMillis(20))
+        .addStep(counterInc, maxRetries(2).failoverTo(counterFailoverStepName))
         .addStep(counterIncFailover);
   }
 
@@ -94,5 +81,10 @@ public class WorkflowWithErrorHandling extends WorkflowEntity<WorkflowWithErrorH
         .updateState(new FailingCounterState(counterId, 0, false))
         .transitionTo(counterStepName)
         .thenReply(new Message("workflow started"));
+  }
+
+  @GetMapping
+  public Effect<FailingCounterState> get() {
+    return effects().reply(currentState());
   }
 }

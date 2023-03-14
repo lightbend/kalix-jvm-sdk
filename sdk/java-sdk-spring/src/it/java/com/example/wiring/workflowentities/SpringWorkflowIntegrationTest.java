@@ -281,13 +281,14 @@ public class SpringWorkflowIntegrationTest {
   }
 
   @Test
-  public void shouldStartFailingCounterWorkflow() {
+  public void shouldRecoverFailingCounterWorkflowWithDefaultRecoveryStrategy() {
     //given
     var counterId = randomId();
     var workflowId = randomId();
+    String path = "/workflow-with-default-recover-strategy/" + workflowId;
 
     //when
-    String response = webClient.put().uri("/workflow-with-error-handling/" + workflowId + "/" + counterId)
+    String response = webClient.put().uri(path + "/" + counterId)
         .retrieve()
         .bodyToMono(Message.class)
         .map(m -> m.text)
@@ -299,15 +300,93 @@ public class SpringWorkflowIntegrationTest {
     await()
         .atMost(10, TimeUnit.of(SECONDS))
         .untilAsserted(() -> {
-          String counterValue = webClient.get().uri("/failing-counter/" + counterId)
-              .retrieve()
-              .bodyToMono(String.class)
-              .map(s -> s.replace("\"", ""))
-              .block(Duration.ofSeconds(20));
-
-          assertThat(counterValue).isEqualTo("3");
+          Integer counterValue = getFailingCounterValue(counterId);
+          assertThat(counterValue).isEqualTo(3);
         });
 
+    var state = getWorkflowState(path);
+    assertThat(state.finished()).isTrue();
+  }
+
+  @Test
+  public void shouldRecoverFailingCounterWorkflowWithRecoveryStrategy() {
+    //given
+    var counterId = randomId();
+    var workflowId = randomId();
+    String path = "/workflow-with-recover-strategy/" + workflowId;
+
+    //when
+    String response = webClient.put().uri(path + "/" + counterId)
+        .retrieve()
+        .bodyToMono(Message.class)
+        .map(m -> m.text)
+        .block(timeout);
+
+    assertThat(response).isEqualTo("workflow started");
+
+    //then
+    await()
+        .atMost(10, TimeUnit.of(SECONDS))
+        .untilAsserted(() -> {
+          Integer counterValue = getFailingCounterValue(counterId);
+          assertThat(counterValue).isEqualTo(3);
+        });
+
+    var state = getWorkflowState(path);
+    assertThat(state.finished()).isTrue();
+  }
+
+  @Test
+  public void shouldRecoverWorkflowTimeout() {
+    //given
+    var counterId = randomId();
+    var workflowId = randomId();
+    String path = "/workflow-with-timeout/" + workflowId;
+
+    //when
+    String response = webClient.put().uri(path + "/" + counterId)
+        .retrieve()
+        .bodyToMono(Message.class)
+        .map(m -> m.text)
+        .block(timeout);
+
+    assertThat(response).isEqualTo("workflow started");
+
+    //then
+    await()
+        .atMost(10, TimeUnit.of(SECONDS))
+        .untilAsserted(() -> {
+          Integer counterValue = getFailingCounterValue(counterId);
+          assertThat(counterValue).isEqualTo(3);
+        });
+
+    var state = getWorkflowState(path);
+    assertThat(state.finished()).isTrue();
+  }
+
+  @Test
+  public void shouldRecoverWorkflowStepTimeout() throws InterruptedException {
+    //given
+    var counterId = randomId();
+    var workflowId = randomId();
+    String path = "/workflow-with-step-timeout/" + workflowId;
+
+    //when
+    String response = webClient.put().uri(path + "/" + counterId)
+        .retrieve()
+        .bodyToMono(Message.class)
+        .map(m -> m.text)
+        .block(timeout);
+
+    assertThat(response).isEqualTo("workflow started");
+
+    //then
+    await()
+        .atMost(10, TimeUnit.of(SECONDS))
+        .untilAsserted(() -> {
+          var state = getWorkflowState(path);
+          assertThat(state.value()).isEqualTo(2);
+        });
   }
 
   private String randomTransferId() {
@@ -316,6 +395,22 @@ public class SpringWorkflowIntegrationTest {
 
   private static String randomId() {
     return UUID.randomUUID().toString().substring(0, 8);
+  }
+
+  private Integer getFailingCounterValue(String counterId) {
+    return webClient.get().uri("/failing-counter/" + counterId)
+        .retrieve()
+        .bodyToMono(String.class)
+        .map(s -> s.replace("\"", ""))
+        .map(Integer::valueOf)
+        .block(Duration.ofSeconds(20));
+  }
+
+  private FailingCounterState getWorkflowState(String url) {
+    return webClient.get().uri(url)
+        .retrieve()
+        .bodyToMono(FailingCounterState.class)
+        .block(Duration.ofSeconds(20));
   }
 
   private void createWallet(String walletId, int amount) {
