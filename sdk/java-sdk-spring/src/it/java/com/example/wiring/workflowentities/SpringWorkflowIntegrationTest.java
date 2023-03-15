@@ -298,7 +298,7 @@ public class SpringWorkflowIntegrationTest {
 
     //then
     await()
-        .atMost(10, TimeUnit.of(SECONDS))
+        .atMost(20, TimeUnit.of(SECONDS)) //TODO change it to 10 after bumping proxy-version
         .untilAsserted(() -> {
           Integer counterValue = getFailingCounterValue(counterId);
           assertThat(counterValue).isEqualTo(3);
@@ -326,7 +326,7 @@ public class SpringWorkflowIntegrationTest {
 
     //then
     await()
-        .atMost(10, TimeUnit.of(SECONDS))
+        .atMost(20, TimeUnit.of(SECONDS)) //TODO change it to 10 after bumping proxy-version
         .untilAsserted(() -> {
           Integer counterValue = getFailingCounterValue(counterId);
           assertThat(counterValue).isEqualTo(3);
@@ -354,7 +354,7 @@ public class SpringWorkflowIntegrationTest {
 
     //then
     await()
-        .atMost(10, TimeUnit.of(SECONDS))
+        .atMost(20, TimeUnit.of(SECONDS)) //TODO change it to 10 after bumping proxy-version
         .untilAsserted(() -> {
           Integer counterValue = getFailingCounterValue(counterId);
           assertThat(counterValue).isEqualTo(3);
