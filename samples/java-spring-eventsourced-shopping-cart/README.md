@@ -18,7 +18,7 @@ To start the proxy, run the following command from this directory:
 docker-compose up
 ```
 
-To start the application locally, the `exec-maven-plugin` is used. Use the following command:
+To start the application locally, the `spring-boot-maven-plugin` is used. Use the following command:
 
 ```shell
 mvn spring-boot:run
