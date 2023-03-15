@@ -69,8 +69,8 @@ public class WorkflowWithDefaultRecoverStrategy extends WorkflowEntity<FailingCo
 
     return workflow()
         .timeout(ofSeconds(30))
-        .stepTimeout(ofSeconds(10))
-        .stepRecoveryStrategy(maxRetries(1).failoverTo(counterFailoverStepName))
+        .defaultStepTimeout(ofSeconds(10))
+        .defaultStepRecoverStrategy(maxRetries(1).failoverTo(counterFailoverStepName))
         .addStep(counterInc)
         .addStep(counterIncFailover);
   }

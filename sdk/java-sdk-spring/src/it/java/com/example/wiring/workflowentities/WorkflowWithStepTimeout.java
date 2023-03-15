@@ -21,12 +21,13 @@ import kalix.javasdk.annotations.EntityKey;
 import kalix.javasdk.annotations.EntityType;
 import kalix.javasdk.workflowentity.WorkflowEntity;
 import kalix.spring.KalixClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
@@ -40,6 +41,7 @@ import static kalix.javasdk.workflowentity.WorkflowEntity.RecoverStrategy.maxRet
 @RequestMapping("/workflow-with-step-timeout/{workflowId}")
 public class WorkflowWithStepTimeout extends WorkflowEntity<FailingCounterState> {
 
+  private Logger logger = LoggerFactory.getLogger(getClass());
   private final String counterStepName = "counter";
   private final String counterFailoverStepName = "counter-failover";
 
@@ -56,21 +58,33 @@ public class WorkflowWithStepTimeout extends WorkflowEntity<FailingCounterState>
   public Workflow<FailingCounterState> definition() {
     var counterInc =
         step(counterStepName)
-            .asyncCall(() -> CompletableFuture.supplyAsync(() -> "produces time out", delayedExecutor))
+            .asyncCall(() -> {
+              logger.info("Running");
+              return CompletableFuture.supplyAsync(() -> "produces time out", delayedExecutor);
+            })
             .andThen(__ -> effects().transitionTo(counterFailoverStepName))
             .timeout(ofMillis(20));
 
     var counterIncFailover =
         step(counterFailoverStepName)
             .asyncCall(() -> CompletableFuture.completedStage("nothing"))
-            .andThen(__ -> effects()
-                .updateState(currentState().inc())
-                .transitionTo(counterStepName));
+            .andThen(__ -> {
+              var updatedState = currentState().inc();
+              if (updatedState.value() == 2) {
+                return effects()
+                    .updateState(updatedState.asFinished())
+                    .end();
+              } else {
+                return effects()
+                    .updateState(currentState().inc())
+                    .transitionTo(counterStepName);
+              }
+            });
 
 
     return workflow()
-        .timeout(ofSeconds(10))
-        .stepTimeout(ofMillis(20))
+        .timeout(ofSeconds(6))
+        .defaultStepTimeout(ofMillis(20))
         .addStep(counterInc, maxRetries(2).failoverTo(counterFailoverStepName))
         .addStep(counterIncFailover);
   }

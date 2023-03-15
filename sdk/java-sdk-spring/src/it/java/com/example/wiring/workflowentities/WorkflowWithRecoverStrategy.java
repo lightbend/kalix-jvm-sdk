@@ -70,7 +70,7 @@ public class WorkflowWithRecoverStrategy extends WorkflowEntity<FailingCounterSt
 
     return workflow()
         .timeout(ofSeconds(30))
-        .stepTimeout(ofSeconds(10))
+        .defaultStepTimeout(ofSeconds(10))
         .addStep(counterInc, maxRetries(1).failoverTo(counterFailoverStepName))
         .addStep(counterIncFailover);
   }

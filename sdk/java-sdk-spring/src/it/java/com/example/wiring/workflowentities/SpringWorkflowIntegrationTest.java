@@ -281,7 +281,7 @@ public class SpringWorkflowIntegrationTest {
   }
 
   @Test
-  public void shouldRecoverFailingCounterWorkflowWithDefaultRecoveryStrategy() {
+  public void shouldRecoverFailingCounterWorkflowWithDefaultRecoverStrategy() {
     //given
     var counterId = randomId();
     var workflowId = randomId();
@@ -309,7 +309,7 @@ public class SpringWorkflowIntegrationTest {
   }
 
   @Test
-  public void shouldRecoverFailingCounterWorkflowWithRecoveryStrategy() {
+  public void shouldRecoverFailingCounterWorkflowWithRecoverStrategy() {
     //given
     var counterId = randomId();
     var workflowId = randomId();
@@ -386,6 +386,7 @@ public class SpringWorkflowIntegrationTest {
         .untilAsserted(() -> {
           var state = getWorkflowState(path);
           assertThat(state.value()).isEqualTo(2);
+          assertThat(state.finished()).isTrue();
         });
   }
 

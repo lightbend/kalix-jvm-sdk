@@ -72,7 +72,7 @@ public class WorkflowWithTimeout extends WorkflowEntity<FailingCounterState> {
 
     return workflow()
         .timeout(ofSeconds(1))
-        .stepTimeout(ofMillis(100))
+        .defaultStepTimeout(ofMillis(100))
         .failoverTo(counterFailoverStepName, 3, maxRetries(0))
         .addStep(counterInc, maxRetries(1).failoverTo(counterStepName))
         .addStep(counterIncFailover);

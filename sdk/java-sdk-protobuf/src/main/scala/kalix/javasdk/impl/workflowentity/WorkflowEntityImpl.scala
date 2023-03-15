@@ -136,7 +136,7 @@ final class WorkflowEntityImpl(system: ActorSystem, val services: Map[String, Wo
       }
       .async
 
-  private def toRecoveryStrategy(messageCodec: MessageCodec)(
+  private def toRecoverStrategy(messageCodec: MessageCodec)(
       recoverStrategy: WorkflowEntity.RecoverStrategy[_]): RecoverStrategy = {
     RecoverStrategy(
       maxRetries = recoverStrategy.maxRetries,
@@ -152,8 +152,8 @@ final class WorkflowEntityImpl(system: ActorSystem, val services: Map[String, Wo
       recoverStrategy: Option[WorkflowEntity.RecoverStrategy[_]],
       messageCodec: MessageCodec) = {
     val stepTimeout = timeout.toScala.map(duration.Duration(_))
-    val stepRecoveryStrategy = recoverStrategy.map(toRecoveryStrategy(messageCodec))
-    StepConfig(name, stepTimeout, stepRecoveryStrategy)
+    val stepRecoverStrategy = recoverStrategy.map(toRecoverStrategy(messageCodec))
+    StepConfig(name, stepTimeout, stepRecoverStrategy)
   }
 
   private def toWorkflowConfig(
@@ -175,7 +175,7 @@ final class WorkflowEntityImpl(system: ActorSystem, val services: Map[String, Wo
     })
 
     val failoverRecovery =
-      workflowDefinition.getFailoverToRecoveryStrategy.toScala.map(strategy => RecoverStrategy(strategy.getMaxRetries))
+      workflowDefinition.getFailoverToRecoverStrategy.toScala.map(strategy => RecoverStrategy(strategy.getMaxRetries))
 
     WorkflowConfig(workflowTimeout, failoverTo, failoverRecovery, Some(stepConfig), stepConfigs)
   }
