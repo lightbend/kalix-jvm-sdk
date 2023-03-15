@@ -55,6 +55,14 @@ import java.util.concurrent.TimeUnit;
  */
 public class KalixTestKit {
 
+  public static class WorkflowConfig {
+    public final Duration tickInterval;
+
+    public WorkflowConfig(Duration tickInterval) {
+      this.tickInterval = tickInterval;
+    }
+  }
+
   /** Settings for KalixTestkit. */
   public static class Settings {
     /** Default stop timeout (10 seconds). */
@@ -74,6 +82,9 @@ public class KalixTestKit {
     /** Whether advanced View features are enabled. */
     public final boolean advancedViews;
 
+    /** To override some workflow settings for integration tests */
+    public final Optional<WorkflowConfig> workflowConfig;
+
     /**
      * Create new settings for KalixTestkit.
      *
@@ -82,18 +93,20 @@ public class KalixTestKit {
      */
     @Deprecated
     public Settings(final Duration stopTimeout) {
-      this(stopTimeout, "self", false, false);
+      this(stopTimeout, "self", false, false, Optional.empty());
     }
 
     private Settings(
         final Duration stopTimeout,
         final String serviceName,
         final boolean aclEnabled,
-        final boolean advancedViews) {
+        final boolean advancedViews,
+        final Optional<WorkflowConfig> workflowConfig) {
       this.stopTimeout = stopTimeout;
       this.serviceName = serviceName;
       this.aclEnabled = aclEnabled;
       this.advancedViews = advancedViews;
+      this.workflowConfig = workflowConfig;
     }
 
     /**
@@ -103,7 +116,7 @@ public class KalixTestKit {
      * @return updated Settings
      */
     public Settings withStopTimeout(final Duration stopTimeout) {
-      return new Settings(stopTimeout, serviceName, aclEnabled, advancedViews);
+      return new Settings(stopTimeout, serviceName, aclEnabled, advancedViews, workflowConfig);
     }
 
     /**
@@ -115,7 +128,7 @@ public class KalixTestKit {
      * @return The updated settings.
      */
     public Settings withServiceName(final String serviceName) {
-      return new Settings(stopTimeout, serviceName, aclEnabled, advancedViews);
+      return new Settings(stopTimeout, serviceName, aclEnabled, advancedViews, workflowConfig);
     }
 
     /**
@@ -124,7 +137,7 @@ public class KalixTestKit {
      * @return The updated settings.
      */
     public Settings withAclDisabled() {
-      return new Settings(stopTimeout, serviceName, false, advancedViews);
+      return new Settings(stopTimeout, serviceName, false, advancedViews, workflowConfig);
     }
 
     /**
@@ -133,7 +146,7 @@ public class KalixTestKit {
      * @return The updated settings.
      */
     public Settings withAclEnabled() {
-      return new Settings(stopTimeout, serviceName, true, advancedViews);
+      return new Settings(stopTimeout, serviceName, true, advancedViews, workflowConfig);
     }
 
     /**
@@ -142,17 +155,27 @@ public class KalixTestKit {
      * @return The updated settings.
      */
     public Settings withAdvancedViews() {
-      return new Settings(stopTimeout, serviceName, aclEnabled, true);
+      return new Settings(stopTimeout, serviceName, aclEnabled, true, workflowConfig);
+    }
+
+    /**
+     * Overrides some workflow settings.
+     *
+     * @return The updated settings.
+     */
+    public Settings withWorkflowConfig(WorkflowConfig workflowConfig) {
+      return new Settings(stopTimeout, serviceName, aclEnabled, true, Optional.of(workflowConfig));
     }
 
     @Override
     public String toString() {
       return "Settings(" +
-        "stopTimeout=" + stopTimeout +
-        ", serviceName='" + serviceName + '\'' +
-        ", aclEnabled=" + aclEnabled +
-        ", advancedViews=" + advancedViews +
-        ')';
+          "stopTimeout=" + stopTimeout +
+          ", serviceName='" + serviceName + '\'' +
+          ", aclEnabled=" + aclEnabled +
+          ", advancedViews=" + advancedViews +
+          ", workflowConfig=" + workflowConfig +
+          ')';
     }
   }
 
@@ -235,6 +258,7 @@ public class KalixTestKit {
       proxyContainer.addEnv("SERVICE_NAME", settings.serviceName);
       proxyContainer.addEnv("ACL_ENABLED", Boolean.toString(settings.aclEnabled));
       proxyContainer.addEnv("VIEW_FEATURES_ALL", Boolean.toString(settings.advancedViews));
+      settings.workflowConfig.ifPresent(workflowConfig -> proxyContainer.addEnv("WORKFLOW_TICK_INTERVAL",workflowConfig.tickInterval.toMillis() + ".millis"));
       proxyContainer.start();
 
       proxyPort = proxyContainer.getProxyPort();

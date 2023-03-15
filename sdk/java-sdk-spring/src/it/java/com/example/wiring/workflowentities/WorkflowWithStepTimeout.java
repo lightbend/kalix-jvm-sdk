@@ -76,16 +76,16 @@ public class WorkflowWithStepTimeout extends WorkflowEntity<FailingCounterState>
                     .end();
               } else {
                 return effects()
-                    .updateState(currentState().inc())
+                    .updateState(updatedState)
                     .transitionTo(counterStepName);
               }
             });
 
 
     return workflow()
-        .timeout(ofSeconds(6))
+        .timeout(ofSeconds(8))
         .defaultStepTimeout(ofMillis(20))
-        .addStep(counterInc, maxRetries(2).failoverTo(counterFailoverStepName))
+        .addStep(counterInc, maxRetries(1).failoverTo(counterFailoverStepName))
         .addStep(counterIncFailover);
   }
 

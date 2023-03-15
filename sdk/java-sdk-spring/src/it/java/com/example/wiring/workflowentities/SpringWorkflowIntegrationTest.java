@@ -383,6 +383,7 @@ public class SpringWorkflowIntegrationTest {
     //then
     await()
         .atMost(10, TimeUnit.of(SECONDS))
+        .ignoreExceptions()
         .untilAsserted(() -> {
           var state = getWorkflowState(path);
           assertThat(state.value()).isEqualTo(2);

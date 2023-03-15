@@ -41,7 +41,7 @@ public class KalixProxyContainer extends GenericContainer<KalixProxyContainer> {
   static {
     String customImage = System.getenv("KALIX_TESTKIT_PROXY_IMAGE");
     if (customImage == null) {
-      DEFAULT_PROXY_IMAGE_NAME = DockerImageName.parse(BuildInfo.proxyImage()).withTag(BuildInfo.proxyVersion());
+      DEFAULT_PROXY_IMAGE_NAME = DockerImageName.parse(BuildInfo.proxyImage()).withTag(BuildInfo.proxyVersion().replace("-SNAPSHOT", ""));
     } else {
       Logger logger = LoggerFactory.getLogger(KalixProxyContainer.class);
       DEFAULT_PROXY_IMAGE_NAME = DockerImageName.parse(customImage);

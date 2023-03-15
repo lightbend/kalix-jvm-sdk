@@ -17,14 +17,20 @@
 package com.example.wiring;
 
 import kalix.javasdk.testkit.KalixTestKit;
+import kalix.javasdk.testkit.KalixTestKit.WorkflowConfig;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import static java.time.Duration.ofSeconds;
 
 @Configuration
 public class TestkitConfig {
   @Bean
   public KalixTestKit.Settings settings() {
     // here only to show how to set different `Settings` in a test. See SpringSdkIntegrationTest.java
-    return KalixTestKit.Settings.DEFAULT.withAclEnabled().withAdvancedViews();
+    return KalixTestKit.Settings.DEFAULT
+        .withAclEnabled()
+        .withAdvancedViews()
+        .withWorkflowConfig(new WorkflowConfig(ofSeconds(1)));
   }
 }
