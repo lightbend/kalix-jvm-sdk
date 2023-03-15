@@ -273,9 +273,9 @@ public abstract class WorkflowEntity<S> {
     final private List<StepConfig> stepConfigs = new ArrayList<>();
     final private Set<String> uniqueNames = new HashSet<>();
     private Optional<Duration> workflowTimeout = Optional.empty();
-    private Optional<String> failoverToStepName = Optional.empty();
-    private Optional<Object> failoverToStepInput = Optional.empty();
-    private Optional<MaxRetries> failoverToRecoverStrategy = Optional.empty();
+    private Optional<String> failoverStepName = Optional.empty();
+    private Optional<Object> failoverStepInput = Optional.empty();
+    private Optional<MaxRetries> failoverMaxRetries = Optional.empty();
     private Optional<Duration> stepTimeout = Optional.empty();
     private Optional<RecoverStrategy<?>> stepRecoverStrategy = Optional.empty();
 
@@ -335,8 +335,8 @@ public abstract class WorkflowEntity<S> {
      * @param maxRetries A recovery strategy for failover step.
      */
     public Workflow<S> failoverTo(String stepName, MaxRetries maxRetries) {
-      this.failoverToStepName = Optional.of(stepName);
-      this.failoverToRecoverStrategy = Optional.of(maxRetries);
+      this.failoverStepName = Optional.of(stepName);
+      this.failoverMaxRetries = Optional.of(maxRetries);
       return this;
     }
 
@@ -347,9 +347,9 @@ public abstract class WorkflowEntity<S> {
      * @param maxRetries A recovery strategy for failover step.
      */
     public <I> Workflow<S> failoverTo(String stepName, I stepInput, MaxRetries maxRetries) {
-      this.failoverToStepName = Optional.of(stepName);
-      this.failoverToStepInput = Optional.of(stepInput);
-      this.failoverToRecoverStrategy = Optional.of(maxRetries);
+      this.failoverStepName = Optional.of(stepName);
+      this.failoverStepInput = Optional.of(stepInput);
+      this.failoverMaxRetries = Optional.of(maxRetries);
       return this;
     }
 
@@ -390,16 +390,16 @@ public abstract class WorkflowEntity<S> {
       return stepConfigs;
     }
 
-    public Optional<String> getFailoverToStepName() {
-      return failoverToStepName;
+    public Optional<String> getFailoverStepName() {
+      return failoverStepName;
     }
 
-    public Optional<?> getFailoverToStepInput() {
-      return failoverToStepInput;
+    public Optional<?> getFailoverStepInput() {
+      return failoverStepInput;
     }
 
-    public Optional<MaxRetries> getFailoverToRecoverStrategy() {
-      return failoverToRecoverStrategy;
+    public Optional<MaxRetries> getFailoverMaxRetries() {
+      return failoverMaxRetries;
     }
   }
 
@@ -520,12 +520,12 @@ public abstract class WorkflowEntity<S> {
   public static class RecoverStrategy<T> {
 
     public final int maxRetries;
-    public final String failoverToStepName;
+    public final String failoverStepName;
     public final Optional<T> failoverStepInput;
 
-    public RecoverStrategy(int maxRetries, String failoverToStepName, Optional<T> failoverStepInput) {
+    public RecoverStrategy(int maxRetries, String failoverStepName, Optional<T> failoverStepInput) {
       this.maxRetries = maxRetries;
-      this.failoverToStepName = failoverToStepName;
+      this.failoverStepName = failoverStepName;
       this.failoverStepInput = failoverStepInput;
     }
 

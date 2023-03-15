@@ -142,7 +142,7 @@ final class WorkflowEntityImpl(system: ActorSystem, val services: Map[String, Wo
       maxRetries = recoverStrategy.maxRetries,
       failoverTo = Some(
         ProtoStepTransition(
-          recoverStrategy.failoverToStepName,
+          recoverStrategy.failoverStepName,
           recoverStrategy.failoverStepInput.toScala.map(messageCodec.encodeScala))))
   }
 
@@ -170,12 +170,12 @@ final class WorkflowEntityImpl(system: ActorSystem, val services: Map[String, Wo
         workflowDefinition.getStepRecoverStrategy.toScala,
         messageCodec)
 
-    val failoverTo = workflowDefinition.getFailoverToStepName.toScala.map(stepName => {
-      ProtoStepTransition(stepName, workflowDefinition.getFailoverToStepInput.toScala.map(messageCodec.encodeScala))
+    val failoverTo = workflowDefinition.getFailoverStepName.toScala.map(stepName => {
+      ProtoStepTransition(stepName, workflowDefinition.getFailoverStepInput.toScala.map(messageCodec.encodeScala))
     })
 
     val failoverRecovery =
-      workflowDefinition.getFailoverToRecoverStrategy.toScala.map(strategy => RecoverStrategy(strategy.getMaxRetries))
+      workflowDefinition.getFailoverMaxRetries.toScala.map(strategy => RecoverStrategy(strategy.getMaxRetries))
 
     WorkflowConfig(workflowTimeout, failoverTo, failoverRecovery, Some(stepConfig), stepConfigs)
   }
