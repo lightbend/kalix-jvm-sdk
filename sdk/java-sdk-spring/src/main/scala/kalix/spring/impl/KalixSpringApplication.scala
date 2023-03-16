@@ -239,7 +239,7 @@ object KalixSpringApplication {
     override def getObject: WebClientProvider =
       if (threadLocal.get() != null) threadLocal.get()
       else
-        throw new BeanCreationException("WebClientProvider can only be injected in Kalix Actions and Workflows.")
+        throw new BeanCreationException("WebClient can only be injected in Kalix Actions and Workflows.")
   }
 }
 

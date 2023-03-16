@@ -3,6 +3,7 @@ import Dependencies.Kalix
 lazy val `kalix-jvm-sdk` = project
   .in(file("."))
   .aggregate(
+    devMode,
     coreSdk,
     javaSdkProtobuf,
     javaSdkProtobufTestKit,
@@ -25,6 +26,41 @@ def common: Seq[Setting[_]] =
   Seq(
     Compile / javacOptions ++= Seq("-encoding", "UTF-8"),
     Compile / scalacOptions ++= Seq("-encoding", "UTF-8", "-deprecation"))
+
+lazy val devMode = project
+  .in(file("devmode"))
+  .enablePlugins(BuildInfoPlugin, PublishSonatype)
+  .settings(common)
+  .settings(
+    name := "kalix-devmode",
+    crossPaths := false,
+    Compile / javacOptions ++= Seq("--release", "11"),
+    Compile / scalacOptions ++= Seq("-release", "11"),
+    buildInfoKeys := Seq[BuildInfoKey](
+      name,
+      version,
+      "proxyImage" -> "gcr.io/kalix-public/kalix-proxy",
+      "proxyVersion" -> Kalix.ProxyVersion,
+      "scalaVersion" -> scalaVersion.value),
+    buildInfoPackage := "kalix.devmode",
+    // Generate javadocs by just including non generated Java sources
+    Compile / doc / sources := {
+      val javaSourceDir = (Compile / javaSource).value.getAbsolutePath
+      (Compile / doc / sources).value.filter(_.getAbsolutePath.startsWith(javaSourceDir))
+    },
+    // javadoc (I think java 9 onwards) refuses to compile javadocs if it can't compile the entire source path.
+    // but since we have java files depending on Scala files, we need to include ourselves on the classpath.
+    Compile / doc / dependencyClasspath := (Compile / fullClasspath).value,
+    Compile / doc / javacOptions ++= Seq(
+      "-Xdoclint:none",
+      "-overview",
+      ((Compile / javaSource).value / "overview.html").getAbsolutePath,
+      "-notimestamp",
+      "-doctitle",
+      "Kalix Dev Tools",
+      "-noqualifier",
+      "java.lang"))
+  .settings(Dependencies.devtools)
 
 lazy val coreSdk = project
   .in(file("sdk/core"))
@@ -204,6 +240,7 @@ lazy val javaSdkSpringTestKit = project
 lazy val springBootStarter = project
   .in(file("sdk/spring-boot-starter"))
   .dependsOn(javaSdkSpring)
+  .dependsOn(devMode)
   .enablePlugins(BuildInfoPlugin, PublishSonatype)
   .settings(common)
   .settings(

@@ -73,6 +73,8 @@ object Dependencies {
 
   val akkaGrpc = "com.lightbend.akka.grpc" % "sbt-akka-grpc" % akka.grpc.gen.BuildInfo.version
 
+  val typesafeConfig = "com.typesafe" % "config" % "1.4.2"
+
   val typeTools = "net.jodah" % "typetools" % "0.6.3"
 
   private val deps = libraryDependencies
@@ -107,6 +109,8 @@ object Dependencies {
     typeTools)
 
   val coreSdk = deps ++= coreDeps
+
+  val devtools = deps ++= Seq(typesafeConfig, testContainers)
 
   // FIXME
   val javaSdk = coreSdk
