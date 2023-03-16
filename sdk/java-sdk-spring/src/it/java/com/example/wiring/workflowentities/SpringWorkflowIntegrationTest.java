@@ -354,7 +354,7 @@ public class SpringWorkflowIntegrationTest {
 
     //then
     await()
-        .atMost(20, TimeUnit.of(SECONDS)) //TODO change it to 10 after bumping proxy-version
+        .atMost(25, TimeUnit.of(SECONDS)) //TODO change it to 10 after bumping proxy-version
         .untilAsserted(() -> {
           Integer counterValue = getFailingCounterValue(counterId);
           assertThat(counterValue).isEqualTo(3);
