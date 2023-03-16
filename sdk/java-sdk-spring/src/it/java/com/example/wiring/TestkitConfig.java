@@ -17,7 +17,6 @@
 package com.example.wiring;
 
 import kalix.javasdk.testkit.KalixTestKit;
-import kalix.javasdk.testkit.KalixTestKit.WorkflowConfig;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -31,6 +30,6 @@ public class TestkitConfig {
     return KalixTestKit.Settings.DEFAULT
         .withAclEnabled()
         .withAdvancedViews()
-        .withWorkflowConfig(new WorkflowConfig(ofSeconds(1)));
+        .withWorkflowTickInterval(ofSeconds(1));
   }
 }
