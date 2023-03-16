@@ -227,6 +227,8 @@ public class KalixTestKit {
     conf.put("kalix.user-function-port", port);
     // don't kill the test JVM when terminating the KalixRunner
     conf.put("kalix.system.akka.coordinated-shutdown.exit-jvm", "off");
+    // dev-mode should be false when running integration tests
+    conf.put("kalix.dev-mode.enabled", false);
     Config testConfig = ConfigFactory.parseMap(conf);
 
     runner = kalix.createRunner(testConfig.withFallback(config));
@@ -280,7 +282,7 @@ public class KalixTestKit {
       }
     }
     // the proxy will announce its host and default port, but to communicate with it,
-    // we need the use the port and host that testcontainers will expose
+    // we need to use the port and host that testcontainers will expose
     // therefore, we set a port override in ProxyInfoHolder to allow for inter-component communication
     ProxyInfoHolder holder = ProxyInfoHolder.get(runner.system());
     holder.overridePort(proxyPort);

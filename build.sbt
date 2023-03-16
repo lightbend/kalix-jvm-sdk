@@ -3,6 +3,7 @@ import Dependencies.Kalix
 lazy val `kalix-jvm-sdk` = project
   .in(file("."))
   .aggregate(
+    devTools,
     coreSdk,
     javaSdkProtobuf,
     javaSdkProtobufTestKit,
@@ -25,6 +26,41 @@ def common: Seq[Setting[_]] =
   Seq(
     Compile / javacOptions ++= Seq("-encoding", "UTF-8"),
     Compile / scalacOptions ++= Seq("-encoding", "UTF-8", "-deprecation"))
+
+lazy val devTools = project
+  .in(file("devtools"))
+  .enablePlugins(BuildInfoPlugin, PublishSonatype)
+  .settings(common)
+  .settings(
+    name := "kalix-devtools",
+    Compile / javacOptions ++= Seq("--release", "11"),
+    Compile / scalacOptions ++= Seq("-release", "11"),
+    scalaVersion := Dependencies.ScalaVersionForDevTools,
+    buildInfoKeys := Seq[BuildInfoKey](
+      name,
+      version,
+      "proxyImage" -> "gcr.io/kalix-public/kalix-proxy",
+      "proxyVersion" -> Kalix.ProxyVersion,
+      "scalaVersion" -> scalaVersion.value),
+    buildInfoPackage := "kalix.devtools",
+    // Generate javadocs by just including non generated Java sources
+    Compile / doc / sources := {
+      val javaSourceDir = (Compile / javaSource).value.getAbsolutePath
+      (Compile / doc / sources).value.filter(_.getAbsolutePath.startsWith(javaSourceDir))
+    },
+    // javadoc (I think java 9 onwards) refuses to compile javadocs if it can't compile the entire source path.
+    // but since we have java files depending on Scala files, we need to include ourselves on the classpath.
+    Compile / doc / dependencyClasspath := (Compile / fullClasspath).value,
+    Compile / doc / javacOptions ++= Seq(
+      "-Xdoclint:none",
+      "-overview",
+      ((Compile / javaSource).value / "overview.html").getAbsolutePath,
+      "-notimestamp",
+      "-doctitle",
+      "Kalix Dev Tools",
+      "-noqualifier",
+      "java.lang"))
+  .settings(Dependencies.devtools)
 
 lazy val coreSdk = project
   .in(file("sdk/core"))
@@ -392,8 +428,7 @@ lazy val codegenCore =
     .settings(
       Compile / javacOptions ++= Seq("--release", "11"),
       Compile / scalacOptions ++= Seq("-release", "11"),
-      crossScalaVersions := Dependencies.ScalaVersionForCodegen,
-      scalaVersion := Dependencies.ScalaVersionForCodegen.head)
+      scalaVersion := Dependencies.ScalaVersionForDevTools)
 
 lazy val codegenJava =
   project
@@ -419,8 +454,7 @@ lazy val codegenJava =
     .settings(
       Compile / javacOptions ++= Seq("--release", "11"),
       Compile / scalacOptions ++= Seq("-release", "11"),
-      crossScalaVersions := Dependencies.ScalaVersionForCodegen,
-      scalaVersion := Dependencies.ScalaVersionForCodegen.head)
+      scalaVersion := Dependencies.ScalaVersionForDevTools)
 
 lazy val codegenJavaCompilationTest = project
   .in(file("codegen/java-gen-compilation-tests"))
@@ -450,7 +484,7 @@ lazy val codegenScala =
       name := "kalix-codegen-scala",
       Compile / javacOptions ++= Seq("--release", "11"),
       Compile / scalacOptions ++= Seq("-release", "11"),
-      scalaVersion := Dependencies.ScalaVersionForSbtPlugin,
+      scalaVersion := Dependencies.ScalaVersionForDevTools,
       Test / fork := false, // needed to pass -D properties to ExampleSuite
       buildInfoKeys := Seq[BuildInfoKey](
         name,
@@ -508,7 +542,7 @@ lazy val sbtPlugin = Project(id = "sbt-kalix", base = file("sbt-plugin"))
   .settings(
     Compile / javacOptions ++= Seq("--release", "11"),
     Compile / scalacOptions ++= Seq("-release", "11"),
-    scalaVersion := Dependencies.ScalaVersionForSbtPlugin,
+    scalaVersion := Dependencies.ScalaVersionForDevTools,
     scriptedLaunchOpts := {
       scriptedLaunchOpts.value ++
       Seq("-Xmx1024M", "-Dplugin.version=" + version.value)

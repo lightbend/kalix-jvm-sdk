@@ -11,8 +11,7 @@ object Dependencies {
 
   // changing the Scala version of the Java SDK affects end users
   val ScalaVersion = "2.13.10"
-  val ScalaVersionForSbtPlugin = "2.12.15"
-  val ScalaVersionForCodegen = Seq(ScalaVersionForSbtPlugin)
+  val ScalaVersionForDevTools = "2.12.15"
 
   val ProtobufVersion = akka.grpc.gen.BuildInfo.googleProtobufVersion
 
@@ -24,7 +23,7 @@ object Dependencies {
   val DockerBaseImageVersion = "adoptopenjdk/openjdk11:debianslim-jre"
   val LogbackVersion = "1.4.5"
   val LogbackContribVersion = "0.1.5"
-  val TestContainersVersion = "1.17.5"
+  val TestContainersVersion = "1.17.6"
   val JUnitVersion = "4.13.2"
   val JUnitInterfaceVersion = "0.11"
   val JUnitJupiterVersion = "5.7.1"
@@ -104,6 +103,8 @@ object Dependencies {
     jacksonParameterNames)
 
   val coreSdk = deps ++= coreDeps
+
+  val devtools = deps ++= Seq(testContainers)
 
   // FIXME
   val javaSdk = coreSdk
