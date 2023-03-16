@@ -29,7 +29,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @EntityKey("id")
-@EntityType("counter")
+@EntityType("counter-entity")
 @RequestMapping("/counter/{id}")
 public class CounterEntity extends EventSourcedEntity<Counter, CounterEvent> {
 

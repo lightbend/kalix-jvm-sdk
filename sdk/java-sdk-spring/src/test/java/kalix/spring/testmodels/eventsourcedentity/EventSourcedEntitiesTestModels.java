@@ -42,7 +42,7 @@ public class EventSourcedEntitiesTestModels {
   }
 
   @EntityKey("id")
-  @EntityType("counter")
+  @EntityType("counter-entity")
   @RequestMapping("/eventsourced/{id}")
   public static class CounterEventSourcedEntity extends EventSourcedEntity<Integer, Object> {
 

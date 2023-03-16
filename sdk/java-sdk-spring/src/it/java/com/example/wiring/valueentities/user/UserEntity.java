@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
 
 @EntityKey("id")
-@EntityType("user")
+@EntityType("user-entity")
 @RequestMapping("/user/{id}")
 public class UserEntity extends ValueEntity<User> {
 
