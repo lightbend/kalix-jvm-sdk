@@ -29,6 +29,7 @@ object Dependencies {
   val JUnitInterfaceVersion = "0.11"
   val JUnitJupiterVersion = "5.7.1"
   val SpringFrameworkVersion = "6.0.4"
+  // make sure to sync spring-boot-starter-parent version in samples and archetype to this version
   val SpringBootVersion = "3.0.4"
 
   val CommonsIoVersion = "2.11.0"
