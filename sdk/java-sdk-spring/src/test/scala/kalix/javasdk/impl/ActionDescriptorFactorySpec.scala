@@ -264,15 +264,15 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
 
     "generate combined mapping with Event Sourced Entity Subscription annotation" in {
       assertDescriptor[SubscribeToEventSourcedEntityAction] { desc =>
-        val methodDescriptor = findMethodByName(desc, "KalixSyntheticMethodOnESCounter")
+        val methodDescriptor = findMethodByName(desc, "KalixSyntheticMethodOnESCounterentity")
         methodDescriptor.isServerStreaming shouldBe false
         methodDescriptor.isClientStreaming shouldBe false
 
-        val methodOne = desc.commandHandlers("KalixSyntheticMethodOnESCounter")
+        val methodOne = desc.commandHandlers("KalixSyntheticMethodOnESCounterentity")
         methodOne.requestMessageDescriptor.getFullName shouldBe JavaPbAny.getDescriptor.getFullName
 
         val eventSourceOne = findKalixMethodOptions(methodDescriptor).getEventing.getIn
-        eventSourceOne.getEventSourcedEntity shouldBe "counter"
+        eventSourceOne.getEventSourcedEntity shouldBe "counter-entity"
       }
     }
 
@@ -407,7 +407,7 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
         methodOne.requestMessageDescriptor.getFullName shouldBe JavaPbAny.getDescriptor.getFullName
 
         val eventSourceOne = findKalixServiceOptions(desc).getEventing.getIn
-        eventSourceOne.getEventSourcedEntity shouldBe "counter"
+        eventSourceOne.getEventSourcedEntity shouldBe "counter-entity"
         // we don't set the property so the proxy won't ignore. Ignore is only internal to the SDK
         eventSourceOne.getIgnore shouldBe false
         eventSourceOne.getIgnoreUnknown shouldBe false
@@ -533,7 +533,7 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
         eventingIn.getIgnore shouldBe false
         eventingIn.getIgnoreUnknown shouldBe false
 
-        val methodDescriptor = findMethodByName(desc, "KalixSyntheticMethodOnESEmployee_events")
+        val methodDescriptor = findMethodByName(desc, "KalixSyntheticMethodOnESEmployeeevents")
         methodDescriptor.isServerStreaming shouldBe false
         methodDescriptor.isClientStreaming shouldBe false
       }

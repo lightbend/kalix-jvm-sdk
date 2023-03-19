@@ -388,12 +388,16 @@ private[impl] object ComponentDescriptorFactory {
         KalixMethod(
           CombinedSubscriptionServiceMethod(
             component.getName,
-            "KalixSyntheticMethodOnES" + eventSourcedEntity.capitalize,
+            "KalixSyntheticMethodOnES" + escapeMethodName(eventSourcedEntity.capitalize),
             methodsMap))
           .withKalixOptions(kMethods.head.methodOptions)
 
       case (_, kMethod +: Nil) => kMethod
     }.toSeq
+  }
+
+  private[impl] def escapeMethodName(value: String): String = {
+    value.replaceAll("[\\._\\-]", "")
   }
 
   private[impl] def buildJWTOptions(method: Method): Option[MethodOptions] = {

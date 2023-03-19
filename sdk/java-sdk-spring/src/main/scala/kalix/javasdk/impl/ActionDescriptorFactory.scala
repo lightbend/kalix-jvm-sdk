@@ -19,6 +19,7 @@ package kalix.javasdk.impl
 import kalix.javasdk.impl
 import kalix.javasdk.impl.ComponentDescriptorFactory.buildJWTOptions
 import kalix.javasdk.impl.ComponentDescriptorFactory.combineByES
+import kalix.javasdk.impl.ComponentDescriptorFactory.escapeMethodName
 import kalix.javasdk.impl.ComponentDescriptorFactory.eventingInForEventSourcedEntity
 import kalix.javasdk.impl.ComponentDescriptorFactory.eventingInForEventSourcedEntityServiceLevel
 import kalix.javasdk.impl.ComponentDescriptorFactory.eventingInForTopic
@@ -177,7 +178,7 @@ private[impl] object ActionDescriptorFactory extends ComponentDescriptorFactory 
           KalixMethod(
             CombinedSubscriptionServiceMethod(
               component.getName,
-              "KalixSyntheticMethodOnTopic" + topic.capitalize.replaceAll("[\\._\\-]", ""),
+              "KalixSyntheticMethodOnTopic" + escapeMethodName(topic.capitalize),
               methodsMap))
             .withKalixOptions(kMethods.head.methodOptions)
         case (_, kMethod +: Nil) =>
