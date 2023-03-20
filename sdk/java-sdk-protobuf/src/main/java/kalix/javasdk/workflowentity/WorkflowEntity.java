@@ -575,7 +575,7 @@ public abstract class WorkflowEntity<S> {
     /**
      * In case of a step failure don't retry but transition to a given step name with the input parameter.
      */
-    public <T> RecoverStrategy<T> failoverTo(String stepName, T input) {
+    public static <T> RecoverStrategy<T> failoverTo(String stepName, T input) {
       return new RecoverStrategy(0, stepName, Optional.of(input));
     }
   }
