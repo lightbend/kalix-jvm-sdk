@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-package kalix.devmode
+package kalix.devtools.impl
 
 import com.typesafe.config.Config
+import kalix.devtools.BuildInfo
 import org.slf4j.LoggerFactory
 import org.testcontainers.Testcontainers
 import org.testcontainers.containers.GenericContainer

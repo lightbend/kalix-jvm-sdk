@@ -14,15 +14,14 @@
  * limitations under the License.
  */
 
-package kalix.spring.boot
+package kalix.spring.devtools.impl
 
 import java.io.File
 
 import scala.concurrent.Future
 
-import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
-import kalix.devmode.KalixProxyContainer
+import kalix.devtools.impl.KalixProxyContainer
 import org.slf4j.LoggerFactory
 import org.springframework.context.ApplicationContextInitializer
 import org.springframework.context.ApplicationListener

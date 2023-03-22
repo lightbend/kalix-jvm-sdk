@@ -1,0 +1,2 @@
+org.springframework.context.ApplicationContextInitializer=kalix.spring.devtools.impl.KalixContainerInitializer
+org.springframework.context.ApplicationListener=kalix.spring.devtools.impl.KalixContainerInitializer
