@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <parent> 
+  <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
     <version>3.0.4</version>
@@ -43,11 +43,34 @@
       </extension>
     </extensions>
 
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-shade-plugin</artifactId>
+          <executions>
+            <execution>
+              <phase>package</phase>
+              <goals>
+                <goal>shade</goal>
+              </goals>
+              <configuration>
+                <transformers combine.children="append">
+                  <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+                    <resource>reference.conf</resource>
+                  </transformer>
+                </transformers>
+              </configuration>
+            </execution>
+          </executions>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.8.1</version>
         <configuration>
           <source>${jdk.target}</source>
           <target>${jdk.target}</target>
@@ -57,28 +80,6 @@
           </compilerArgs>
         </configuration>
       </plugin>
-
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-shade-plugin</artifactId>
-        <version>2.1</version>
-        <executions>
-          <execution>
-            <phase>package</phase>
-            <goals>
-              <goal>shade</goal>
-            </goals>
-            <configuration>
-              <transformers>
-                <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
-                  <resource>reference.conf</resource>
-                </transformer>
-              </transformers>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-
       <plugin>
         <groupId>io.fabric8</groupId>
         <artifactId>docker-maven-plugin</artifactId>
@@ -162,7 +163,6 @@
         <!-- configure src/it/java and src/it/resources -->
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>build-helper-maven-plugin</artifactId>
-        <version>3.2.0</version>
         <executions>
           <execution>
             <id>add-integration-test-source</id>
@@ -196,7 +196,6 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
-        <version>2.22.2</version>
         <configuration>
           <excludes>
             <!-- ignore integration test classes -->
@@ -205,17 +204,16 @@
         </configuration>
       </plugin>
 
-     <plugin>
-       <groupId>org.springframework.boot</groupId>
-       <artifactId>spring-boot-maven-plugin</artifactId>
-       <version>3.0.2</version>
-       <configuration>
+      <plugin>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-maven-plugin</artifactId>
+        <configuration>
           <systemPropertyVariables>
-              <logging.config>src/main/resources/logback-dev-mode.xml</logging.config>
-              <kalix.user-function-interface>0.0.0.0</kalix.user-function-interface>
+            <logging.config>src/main/resources/logback-dev-mode.xml</logging.config>
+            <kalix.user-function-interface>0.0.0.0</kalix.user-function-interface>
           </systemPropertyVariables>
         </configuration>
-     </plugin>
+      </plugin>
 
       <plugin>
         <groupId>io.kalix</groupId>
@@ -289,7 +287,7 @@
       <version>${kalix-sdk.version}</version>
       <scope>test</scope>
     </dependency>
-    
+
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-api</artifactId>
