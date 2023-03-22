@@ -14,22 +14,14 @@
  * limitations under the License.
  */
 
-package com.example.wiring;
+package com.example.wiring.workflowentities;
 
-import kalix.javasdk.testkit.KalixTestKit;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
+public record FailingCounterState(String counterId, int value, boolean finished) {
+  public FailingCounterState asFinished() {
+    return new FailingCounterState(counterId, value, true);
+  }
 
-import static java.time.Duration.ofSeconds;
-
-@Configuration
-public class TestkitConfig {
-  @Bean
-  public KalixTestKit.Settings settings() {
-    // here only to show how to set different `Settings` in a test. See SpringSdkIntegrationTest.java
-    return KalixTestKit.Settings.DEFAULT
-        .withAclEnabled()
-        .withAdvancedViews()
-        .withWorkflowTickInterval(ofSeconds(1));
+  public FailingCounterState inc() {
+    return new FailingCounterState(counterId, value + 1, finished);
   }
 }

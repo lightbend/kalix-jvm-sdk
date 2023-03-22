@@ -42,7 +42,11 @@ public class WalletEntity extends ValueEntity<Wallet> {
   @PatchMapping("/withdraw/{amount}")
   public Effect<String> withdraw(@PathVariable int amount) {
     logger.info("Withdraw from {} amount -{}", currentState().id, amount);
-    return effects().updateState(currentState().withdraw(amount)).thenReply("Ok");
+    if (amount > currentState().balance) {
+      return effects().error("not sufficient funds");
+    } else {
+      return effects().updateState(currentState().withdraw(amount)).thenReply("Ok");
+    }
   }
 
   @PatchMapping("/deposit/{amount}")

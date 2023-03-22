@@ -18,13 +18,15 @@ package com.example.wiring.workflowentities;
 
 import com.example.wiring.actions.echo.Message;
 import io.grpc.Status;
-import kalix.javasdk.workflowentity.WorkflowEntity;
-import kalix.spring.KalixClient;
 import kalix.javasdk.annotations.EntityKey;
 import kalix.javasdk.annotations.EntityType;
+import kalix.javasdk.workflowentity.WorkflowEntity;
+import kalix.spring.KalixClient;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+
+import java.time.Duration;
 
 @EntityType("transfer-workflow")
 @EntityKey("transferId")
@@ -64,6 +66,7 @@ public class TransferWorkflow extends WorkflowEntity<TransferState> {
             });
 
     return workflow()
+        .timeout(Duration.ofSeconds(10))
         .addStep(withdraw)
         .addStep(deposit);
   }

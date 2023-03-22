@@ -74,6 +74,9 @@ public class KalixTestKit {
     /** Whether advanced View features are enabled. */
     public final boolean advancedViews;
 
+    /** To override workflow tick interval for integration tests */
+    public final Optional<Duration> workflowTickInterval;
+
     /**
      * Create new settings for KalixTestkit.
      *
@@ -82,18 +85,20 @@ public class KalixTestKit {
      */
     @Deprecated
     public Settings(final Duration stopTimeout) {
-      this(stopTimeout, "self", false, false);
+      this(stopTimeout, "self", false, false, Optional.empty());
     }
 
     private Settings(
         final Duration stopTimeout,
         final String serviceName,
         final boolean aclEnabled,
-        final boolean advancedViews) {
+        final boolean advancedViews,
+        final Optional<Duration> workflowTickInterval) {
       this.stopTimeout = stopTimeout;
       this.serviceName = serviceName;
       this.aclEnabled = aclEnabled;
       this.advancedViews = advancedViews;
+      this.workflowTickInterval = workflowTickInterval;
     }
 
     /**
@@ -103,7 +108,7 @@ public class KalixTestKit {
      * @return updated Settings
      */
     public Settings withStopTimeout(final Duration stopTimeout) {
-      return new Settings(stopTimeout, serviceName, aclEnabled, advancedViews);
+      return new Settings(stopTimeout, serviceName, aclEnabled, advancedViews, workflowTickInterval);
     }
 
     /**
@@ -115,7 +120,7 @@ public class KalixTestKit {
      * @return The updated settings.
      */
     public Settings withServiceName(final String serviceName) {
-      return new Settings(stopTimeout, serviceName, aclEnabled, advancedViews);
+      return new Settings(stopTimeout, serviceName, aclEnabled, advancedViews, workflowTickInterval);
     }
 
     /**
@@ -124,7 +129,7 @@ public class KalixTestKit {
      * @return The updated settings.
      */
     public Settings withAclDisabled() {
-      return new Settings(stopTimeout, serviceName, false, advancedViews);
+      return new Settings(stopTimeout, serviceName, false, advancedViews, workflowTickInterval);
     }
 
     /**
@@ -133,7 +138,7 @@ public class KalixTestKit {
      * @return The updated settings.
      */
     public Settings withAclEnabled() {
-      return new Settings(stopTimeout, serviceName, true, advancedViews);
+      return new Settings(stopTimeout, serviceName, true, advancedViews, workflowTickInterval);
     }
 
     /**
@@ -142,17 +147,27 @@ public class KalixTestKit {
      * @return The updated settings.
      */
     public Settings withAdvancedViews() {
-      return new Settings(stopTimeout, serviceName, aclEnabled, true);
+      return new Settings(stopTimeout, serviceName, aclEnabled, true, workflowTickInterval);
+    }
+
+    /**
+     * Overrides workflow tick interval
+     *
+     * @return The updated settings.
+     */
+    public Settings withWorkflowTickInterval(Duration tickInterval) {
+      return new Settings(stopTimeout, serviceName, aclEnabled, true, Optional.of(tickInterval));
     }
 
     @Override
     public String toString() {
       return "Settings(" +
-        "stopTimeout=" + stopTimeout +
-        ", serviceName='" + serviceName + '\'' +
-        ", aclEnabled=" + aclEnabled +
-        ", advancedViews=" + advancedViews +
-        ')';
+          "stopTimeout=" + stopTimeout +
+          ", serviceName='" + serviceName + '\'' +
+          ", aclEnabled=" + aclEnabled +
+          ", advancedViews=" + advancedViews +
+          ", workflowTickInterval=" + workflowTickInterval +
+          ')';
     }
   }
 
@@ -235,6 +250,7 @@ public class KalixTestKit {
       proxyContainer.addEnv("SERVICE_NAME", settings.serviceName);
       proxyContainer.addEnv("ACL_ENABLED", Boolean.toString(settings.aclEnabled));
       proxyContainer.addEnv("VIEW_FEATURES_ALL", Boolean.toString(settings.advancedViews));
+      settings.workflowTickInterval.ifPresent(tickInterval -> proxyContainer.addEnv("WORKFLOW_TICK_INTERVAL", tickInterval.toMillis() + ".millis"));
       proxyContainer.start();
 
       proxyPort = proxyContainer.getProxyPort();

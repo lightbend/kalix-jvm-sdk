@@ -21,8 +21,10 @@ import io.grpc.Status;
 import kalix.javasdk.DeferredCall;
 import kalix.javasdk.Metadata;
 import kalix.javasdk.impl.workflowentity.WorkflowEntityEffectImpl;
+import kalix.javasdk.workflowentity.WorkflowEntity.RecoverStrategy.MaxRetries;
 import net.jodah.typetools.TypeResolver;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -148,6 +150,15 @@ public abstract class WorkflowEntity<S> {
       <I> TransitionalEffect<Void> transitionTo(String stepName, I input);
 
       /**
+       * Set the step that should be executed.
+       *
+       * @param stepName The step name that should be executed.
+       */
+      @ApiMayChange
+      TransitionalEffect<Void> transitionTo(String stepName);
+
+
+      /**
        * Finish the workflow execution.
        */
       @ApiMayChange
@@ -258,8 +269,16 @@ public abstract class WorkflowEntity<S> {
 
   public static class Workflow<S> {
 
-    final private List<Step> steps = new ArrayList<Step>();
+    final private List<Step> steps = new ArrayList<>();
+    final private List<StepConfig> stepConfigs = new ArrayList<>();
     final private Set<String> uniqueNames = new HashSet<>();
+    private Optional<Duration> workflowTimeout = Optional.empty();
+    private Optional<String> failoverStepName = Optional.empty();
+    private Optional<Object> failoverStepInput = Optional.empty();
+    private Optional<MaxRetries> failoverMaxRetries = Optional.empty();
+    private Optional<Duration> stepTimeout = Optional.empty();
+    private Optional<RecoverStrategy<?>> stepRecoverStrategy = Optional.empty();
+
 
 
     private Workflow() {
@@ -269,17 +288,118 @@ public abstract class WorkflowEntity<S> {
       return steps.stream().filter(s -> s.name().equals(name)).findFirst();
     }
 
+    /**
+     * Add step to workflow definition. Step name must be unique.
+     * @param step A workflow step
+     */
     public Workflow<S> addStep(Step step) {
+      addStepWithValidation(step);
+      return this;
+    }
+
+    /**
+     * Add step to workflow definition with a dedicated {@link RecoverStrategy}. Step name must be unique.
+     * @param step A workflow step
+     * @param recoverStrategy A Step recovery strategy
+     */
+    public Workflow<S> addStep(Step step, RecoverStrategy<?> recoverStrategy) {
+      addStepWithValidation(step);
+      stepConfigs.add(new StepConfig(step.name(), step.timeout(), Optional.of(recoverStrategy)));
+      return this;
+    }
+
+    private void addStepWithValidation(Step step) {
       if (uniqueNames.contains(step.name()))
         throw new IllegalArgumentException("Name '" + step.name() + "' is already in use by another step in this workflow");
 
       this.steps.add(step);
       this.uniqueNames.add(step.name());
-      return this;
     }
 
     public void forEachStep(Consumer<Step> stepConsumer) {
       steps.forEach(stepConsumer);
+    }
+
+    /**
+     * Define a timeout for the duration of the entire workflow. When the timeout expires, the workflow is finished and no transitions are allowed.
+     * @param timeout Timeout duration
+     */
+    public Workflow<S> timeout(Duration timeout) {
+      this.workflowTimeout = Optional.of(timeout);
+      return this;
+    }
+
+    /**
+     * Define a failover step name after workflow timeout. Note that recover strategy for this step can set only the number of max retries.
+     * @param stepName A failover step name
+     * @param maxRetries A recovery strategy for failover step.
+     */
+    public Workflow<S> failoverTo(String stepName, MaxRetries maxRetries) {
+      this.failoverStepName = Optional.of(stepName);
+      this.failoverMaxRetries = Optional.of(maxRetries);
+      return this;
+    }
+
+    /**
+     * Define a failover step name after workflow timeout. Note that recover strategy for this step can set only the number of max retries.
+     * @param stepName A failover step name
+     * @param stepInput A failover step input
+     * @param maxRetries A recovery strategy for failover step.
+     */
+    public <I> Workflow<S> failoverTo(String stepName, I stepInput, MaxRetries maxRetries) {
+      this.failoverStepName = Optional.of(stepName);
+      this.failoverStepInput = Optional.of(stepInput);
+      this.failoverMaxRetries = Optional.of(maxRetries);
+      return this;
+    }
+
+    /**
+     * Define a default step timeout. If not set, a default value of 5 seconds is used.
+     * Can be overridden with step configuration.
+     */
+    public Workflow<S> defaultStepTimeout(Duration timeout) {
+      this.stepTimeout = Optional.of(timeout);
+      return this;
+    }
+
+    /**
+     * Define a default step recovery strategy. Can be overridden with step configuration.
+     */
+    public Workflow<S> defaultStepRecoverStrategy(RecoverStrategy recoverStrategy) {
+      this.stepRecoverStrategy = Optional.of(recoverStrategy);
+      return this;
+    }
+
+    public Optional<Duration> getWorkflowTimeout() {
+      return workflowTimeout;
+    }
+
+    public Optional<Duration> getStepTimeout() {
+      return stepTimeout;
+    }
+
+    public Optional<RecoverStrategy<?>> getStepRecoverStrategy() {
+      return stepRecoverStrategy;
+    }
+
+    public List<Step> getSteps() {
+      return steps;
+    }
+
+    public List<StepConfig> getStepConfigs() {
+      return stepConfigs;
+    }
+
+    public Optional<String> getFailoverStepName() {
+      return failoverStepName;
+    }
+
+    public Optional<?> getFailoverStepInput() {
+      return failoverStepInput;
+    }
+
+    public Optional<MaxRetries> getFailoverMaxRetries() {
+      return failoverMaxRetries;
     }
   }
 
@@ -289,17 +409,19 @@ public abstract class WorkflowEntity<S> {
   }
 
 
-  public interface Step {
+  public interface Step<FailoverInput> {
     String name();
+    Optional<Duration> timeout();
   }
 
-  public static class CallStep<CallInput, DefCallInput, DefCallOutput> implements Step {
+  public static class CallStep<CallInput, DefCallInput, DefCallOutput, FailoverInput> implements Step<FailoverInput> {
 
     final private String _name;
     final public Function<CallInput, DeferredCall<DefCallInput, DefCallOutput>> callFunc;
     final public Function<DefCallOutput, Effect.TransitionalEffect<Void>> transitionFunc;
     final public Class<CallInput> callInputClass;
     final public Class<DefCallOutput> transitionInputClass;
+    private Optional<Duration> _timeout = Optional.empty();
 
     public CallStep(String name,
                     Function<CallInput, DeferredCall<DefCallInput, DefCallOutput>> callFunc,
@@ -317,15 +439,29 @@ public abstract class WorkflowEntity<S> {
     public String name() {
       return this._name;
     }
+
+    @Override
+    public Optional<Duration> timeout() {
+      return this._timeout;
+    }
+
+    /**
+     * Define a step timeout.
+     */
+    public CallStep<CallInput, DefCallInput, DefCallOutput, FailoverInput> timeout(Duration timeout){
+      this._timeout = Optional.of(timeout);
+      return this;
+    }
   }
 
-  public static class AsyncCallStep<CallInput, CallOutput> implements Step {
+  public static class AsyncCallStep<CallInput, CallOutput, FailoverInput> implements Step<FailoverInput> {
 
     final private String _name;
     final public Function<CallInput, CompletionStage<CallOutput>> callFunc;
     final public Function<CallOutput, Effect.TransitionalEffect<Void>> transitionFunc;
     final public Class<CallInput> callInputClass;
     final public Class<CallOutput> transitionInputClass;
+    private Optional<Duration> _timeout = Optional.empty();
 
     public AsyncCallStep(String name,
                          Function<CallInput, CompletionStage<CallOutput>> callFunc,
@@ -343,6 +479,19 @@ public abstract class WorkflowEntity<S> {
     public String name() {
       return this._name;
     }
+
+    @Override
+    public Optional<Duration> timeout() {
+      return this._timeout;
+    }
+
+    /**
+     * Define a step timeout.
+     */
+    public AsyncCallStep<CallInput, CallOutput, FailoverInput> timeout(Duration timeout){
+      this._timeout = Optional.of(timeout);
+      return this;
+    }
   }
 
   /**
@@ -354,6 +503,81 @@ public abstract class WorkflowEntity<S> {
   @ApiMayChange
   public static WorkflowEntity.StepBuilder step(String name) {
     return new WorkflowEntity.StepBuilder(name);
+  }
+
+  public static class StepConfig {
+    public final String stepName;
+    public final Optional<Duration> timeout;
+    public final Optional<RecoverStrategy<?>> recoverStrategy;
+
+    public StepConfig(String stepName, Optional<Duration> timeout, Optional<RecoverStrategy<?>> recoverStrategy) {
+      this.stepName = stepName;
+      this.timeout = timeout;
+      this.recoverStrategy = recoverStrategy;
+    }
+  }
+
+  public static class RecoverStrategy<T> {
+
+    public final int maxRetries;
+    public final String failoverStepName;
+    public final Optional<T> failoverStepInput;
+
+    public RecoverStrategy(int maxRetries, String failoverStepName, Optional<T> failoverStepInput) {
+      this.maxRetries = maxRetries;
+      this.failoverStepName = failoverStepName;
+      this.failoverStepInput = failoverStepInput;
+    }
+
+    /**
+     * Retry strategy without failover configuration
+     */
+    public static class MaxRetries {
+      public final int maxRetries;
+
+      public MaxRetries(int maxRetries) {
+        this.maxRetries = maxRetries;
+      }
+
+      /**
+       * Once max retries is exceeded, transition to a given step name.
+       */
+      public RecoverStrategy failoverTo(String stepName) {
+        return new RecoverStrategy(maxRetries, stepName, Optional.<Void>empty());
+      }
+
+      /**
+       * Once max retries is exceeded, transition to a given step name with the input parameter.
+       */
+      public <T> RecoverStrategy<T> failoverTo(String stepName, T input) {
+        return new RecoverStrategy(maxRetries, stepName, Optional.of(input));
+      }
+
+      public int getMaxRetries() {
+        return maxRetries;
+      }
+    }
+
+    /**
+     * Set the number of retires for a failed step, <code>maxRetries</code> equals 0 means that the step won't retry in case of failure.
+     */
+    public static MaxRetries maxRetries(int maxRetries){
+      return new MaxRetries(maxRetries);
+    }
+
+    /**
+     * In case of a step failure don't retry but transition to a given step name.
+     */
+    public static RecoverStrategy failoverTo(String stepName) {
+      return new RecoverStrategy(0, stepName, Optional.<Void>empty());
+    }
+
+    /**
+     * In case of a step failure don't retry but transition to a given step name with the input parameter.
+     */
+    public <T> RecoverStrategy<T> failoverTo(String stepName, T input) {
+      return new RecoverStrategy(0, stepName, Optional.of(input));
+    }
   }
 
   public static class StepBuilder {
@@ -437,7 +661,7 @@ public abstract class WorkflowEntity<S> {
        * @return CallStep
        */
       @ApiMayChange
-      public CallStep<Input, DefCallInput, DefCallOutput> andThen(Function<DefCallOutput, Effect.TransitionalEffect<Void>> transitionFunc) {
+      public CallStep<Input, DefCallInput, DefCallOutput, ?> andThen(Function<DefCallOutput, Effect.TransitionalEffect<Void>> transitionFunc) {
         return new CallStep<>(name, callFunc, transitionFunc);
       }
     }
@@ -461,7 +685,7 @@ public abstract class WorkflowEntity<S> {
        * @return AsyncCallStep
        */
       @ApiMayChange
-      public AsyncCallStep<CallInput, CallOutput> andThen(Function<CallOutput, Effect.TransitionalEffect<Void>> transitionFunc) {
+      public AsyncCallStep<CallInput, CallOutput, ?> andThen(Function<CallOutput, Effect.TransitionalEffect<Void>> transitionFunc) {
         return new AsyncCallStep<>(name, callFunc, transitionFunc);
       }
     }

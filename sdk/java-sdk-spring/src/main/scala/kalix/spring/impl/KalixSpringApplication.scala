@@ -443,10 +443,10 @@ case class KalixSpringApplication(applicationContext: ApplicationContext, config
         workflowEntity
           .definition()
           .forEachStep {
-            case asyncCallStep: WorkflowEntity.AsyncCallStep[_, _] =>
+            case asyncCallStep: WorkflowEntity.AsyncCallStep[_, _, _] =>
               messageCodec.lookupTypeHint(asyncCallStep.callInputClass)
               messageCodec.lookupTypeHint(asyncCallStep.transitionInputClass)
-            case callStep: WorkflowEntity.CallStep[_, _, _] =>
+            case callStep: WorkflowEntity.CallStep[_, _, _, _] =>
               messageCodec.lookupTypeHint(callStep.callInputClass)
               messageCodec.lookupTypeHint(callStep.transitionInputClass)
           }

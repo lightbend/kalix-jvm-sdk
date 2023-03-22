@@ -94,6 +94,9 @@ case class WorkflowEntityEffectImpl[S, T](persistence: Persistence[S], transitio
   override def transitionTo[I](stepName: String, input: I): TransitionalEffect[Void] =
     TransitionalEffectImpl(NoPersistence, StepTransition(stepName, Some(input)))
 
+  override def transitionTo(stepName: String): TransitionalEffect[Void] =
+    TransitionalEffectImpl(NoPersistence, StepTransition(stepName, None))
+
   override def end(): TransitionalEffect[Void] =
     TransitionalEffectImpl(NoPersistence, End)
 
@@ -108,5 +111,4 @@ case class WorkflowEntityEffectImpl[S, T](persistence: Persistence[S], transitio
 
   override def error[R](description: String, statusCode: Status.Code): Effect.ErrorEffect[R] =
     ErrorEffectImpl(description, Option(statusCode))
-
 }
