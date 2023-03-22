@@ -1,0 +1,157 @@
+= Timers
+:page-supergroup-java-scala: Language
+
+include::partial$timers-intro.adoc[]
+
+To demonstrate its functionality, let's consider an Ordering Service composed of a xref:value-entity.adoc[Value Entity] and an xref:actions.adoc[Action]. The Action will work as a xref:actions-as-controller.adoc[Controller] receiving calls and delegating to the Order Entity.
+
+Users can place an order, but the order must be confirmed within a period of time. You can think of it as an Ordering Food application where the restaurant needs to confirm if it can accept the order. If no confirmation is sent within some pre-defined period of time, the order is automatically cancelled.
+
+== Order Entity
+Let's have a look on how the Order Entity can be implemented.
+
+[.tabset]
+Java::
++
+.src/main/java/com/example/domain/Order.java
+[source,java]
+----
+include::example$java-protobuf-reliable-timers/src/main/java/com/example/domain/Order.java[tag=order]
+----
+<1> The first method to look at is the `placeOrder`. It's basically the creation of an order. Note that we set the `placed` field to true.
+<2> When confirming an Order, we must ensure that the Order was created before.
+<3> If the Order was never created, we return `NOT_FOUND`.
+<4> Cancelling an Order that was never placed also returns `NOT_FOUND`.
+<5> While cancelling an already confirmed order returns `INVALID_ARGUMENT`.
+<6> Finally, if the Order is placed, but not confirmed, the cancel method resets the order to the `emptyState`. This is the equivalent of deleting it.
+
+Scala::
++
+.src/main/scala/com/example/domain/Order.scala
+[source,scala]
+----
+include::example$scala-protobuf-reliable-timers/src/main/scala/com/example/domain/Order.scala[tag=order]
+----
+<1> The first method to look at is the `placeOrder`. It's basically the creation of an order. Note that we set the `placed` field to true.
+<2> When confirming an Order, we must ensure that the Order was created before.
+<3> If the Order was never created, we return `NOT_FOUND`.
+<4> Cancelling an Order that was never placed also returns `NOT_FOUND`.
+<5> While cancelling an already confirmed order returns `INVALID_ARGUMENT`.
+<6> Finally, if the Order is placed, but not confirmed, the cancel method resets the order to the `emptyState`. This is the equivalent of deleting it.
+
+== Order Action and Timers
+
+As said before, the `OrderAction` will act as a controller intercepting incoming messages, running some logic and then calling the Order Entity.
+
+=== Scheduling a timer
+
+We will first look at `OrderAction.placeOrder`. Before delegating the request to the Order Entity, the Action creates a timer.
+
+[.tabset]
+Java::
++
+.src/main/java/com/example/actions/OrderAction.java
+[source,java]
+----
+include::example$java-protobuf-reliable-timers/src/main/java/com/example/actions/OrderAction.java[tags=timers;place-order]
+----
+<1> First we generate a random identifier for the Order. We will use it for identifying the Order, but also as a unique name for the timer.
+<2> We call the timers API to register a new timer. Note that it returns `CompletionStage<Done>`. A successful completion means that Kalix registered the timer.
+<3> Order number is used to generate a unique name for the timer.
+<4> We set the delay we want for the timer to trigger.
+<5> We scheduled call to `OrderAction.expire` method. We will cover it in a while.
+<6> We build a request for the Order entity.
+<7> Finally, we build an `asyncReply` by composing the `timerRegistration` CompletionStage with a call to place the order. We access the Order entity through `components.order` and we call `execute()` to run the call.
+
+Scala::
++
+.src/main/java/com/example/actions/OrderAction.scala
+[source,scala]
+----
+include::example$scala-protobuf-reliable-timers/src/main/scala/com/example/actions/OrderAction.scala[tags=timers;place-order]
+----
+<1> First we generate a random identifier for the Order. We will use it for identifying the Order, but also as a unique name for the timer.
+<2> We call the timers API to register a new timer. Note that it returns `Future[Done]`. A successful completion means that Kalix registered the timer.
+<3> Order number is used to generate a unique name for the timer.
+<4> We set the delay we want for the timer to trigger.
+<5> We scheduled call to `OrderAction.expire` method. We will cover it in a while.
+<6> Next we define a method that will make a call to the Order entity.
+<7> We access the Order entity through `components.order` and we call `execute()` to run the call.
+<8> Finally, we build an `asyncReply` by chaining the `timerResgistration` and the `placeOrder` futures.
+
+In a nutshell, we first requested Kalix to register a timer. When it completes, we know that the timer is persisted and will run at the specified time. We then proceed by placing the order.
+
+The sequence of actions is important here. If we had called the entity first and then registered the timer, the Order could have been placed and the timer registration could have failed due to some network issue for example. In such a case, we would end up with an Order without an expiration timer.
+
+But the inverse is also true. There is still the risk of registering the timer and then failing to place the Order. However, the implementation of the `expire` method can take that into account.
+
+=== Handling the timer call
+
+Let's have a look at the `OrderAction.expire` method implementation.
+
+[.tabset]
+Java::
++
+.src/main/java/com/example/actions/OrderAction.java
+[source,java]
+----
+include::example$java-protobuf-reliable-timers/src/main/java/com/example/actions/OrderAction.java[tags=timers;expire-order]
+----
+<1> When the `OrderAction` receives the expiration call, it immediately tries to cancel the Order. You use the `execute()` method to run it and this method returns a `CompletionStage`.
+<2> If the `CompletionStage` completes successfully, you are all good and can simply return `Empty.getDefaultInstance()`. Since this method is returning normally, the timer will be considered as executed and will be removed from Kalix.
+<3> On the other hand, if the `CompletionStage` completes with a failure, you must decide if you will recover the call or not. If you recover, the timer will be considered as completed. If you let the call fail, the timer will be re-scheduled.
+
+Scala::
++
+.src/main/java/com/example/actions/OrderAction.scala
+[source,scala]
+----
+include::example$scala-protobuf-reliable-timers/src/main/scala/com/example/actions/OrderAction.scala[tags=timers;expire-order]
+----
+<1> When the `OrderAction` receives the expiration call, it immediately tries to cancel the Order. You use the `execute()` method to run it. This method returns a `Future`.
+<2> If the `Future` completes successfully, it's all good and can simply return `Empty.defaultInstance`. Since this method is returning normally, the timer will be considered as executed and will be removed from Kalix.
+<3> On the other hand, if the `Future` completes with a failure, you must decide if you will recover the call or not. If you recover, the timer will be considered as completed. If you let the call fail, the timer will be re-scheduled.
+
+We have seen the `Order.cancel` implementation, so you know that if you get a `NOT_FOUND`, it means that either the Order never existed or it was already cancelled (deleted). Or, you may get an `INVALID_ARGUMENT` error, meaning that the order has been confirmed in the meantime. In both cases, you can consider that the timer has become obsolete and don't need to be rescheduled, therefore you recover the call.
+
+For all other possible errors, the call to `OrderAction.expire` will fail and the timer will be re-scheduled. 
+
+IMPORTANT: Whenever you implement a method that is called from a timer, you need to carefully handle errors inside that method. Failing to do so may cause the timer to keep re-scheduling. Therefore, you should ensure that any failure is properly handled and only propagated if the intention is to re-try the call.
+
+=== Failures and retries
+
+If a scheduled call fails it will be retried, retries are backed off exponentially, starting at 3 seconds and can
+reach a maximum backoff of 30 seconds if consecutive retries keep failing.
+
+The default is to keep retrying indefinitely, but it is possible to limit the number of retries before giving up via the `startSingleTimer` overload parameter `maxRetries`.
+
+=== Cancelling a timer
+
+Next, we can have a look at `OrderAction.confirm` and `OrderAction.cancel` implementations. They are very similar. The only difference being the method they call on the Order entity. 
+
+[.tabset]
+Java::
++
+.src/main/java/com/example/actions/OrderAction.java
+[source,java]
+----
+include::example$java-protobuf-reliable-timers/src/main/java/com/example/actions/OrderAction.java[tags=timers;confirm-cancel-order]
+----
+<1> Call the Order entity to execute the command.
+<2> If it succeeds, remove the timer.
+
+Scala::
++
+.src/main/java/com/example/actions/OrderAction.scala
+[source,scala]
+----
+include::example$scala-protobuf-reliable-timers/src/main/scala/com/example/actions/OrderAction.scala[tags=timers;confirm-cancel-order]
+----
+<1> Call the Order entity to execute the command.
+<2> If it succeeds, remove the timer.
+
+In both methods, you pass the request to the entity and when it completes, you cancel the timer.
+
+Once more, the ordering is important. It's not a problem if the call to cancel the timer fails. As we have seen in the `OrderAction.expire` implementation, if the timer is triggered, but is obsolete, you will properly recover from it and signal to Kalix that the timer can be removed.
+
+TIP: We could have completely ignored the timer when handling the confirmation or the cancelling. The registered timer would then be triggered at some point later and the `expire` method would have handled the fact that it has become obsolete. However, it's always of good measure to do some housekeeping to save resources.

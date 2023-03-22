@@ -1,4 +1,5 @@
-= Running Side Effects in Java
+= Running Side Effects
+:page-aliases: spring:side-effects.adoc
 
 include::ROOT:partial$include.adoc[]
 
@@ -17,80 +18,27 @@ You might want to run side effects to notify interested parties of a change in s
 
 == Emitting a side effect
 
-To illustrate how you can emit a side effect, we can build on top of the xref:actions-as-controller.adoc[Action as a Controller] example.
-In that previous example, we build a controller around the xref:value-entity.adoc[Value Entity Counter] and forwarded the incoming request
+To illustrate how you can emit a side effect, you can build on top of the xref:java:actions-as-controller.adoc[Action as a Controller] example. In that previous example, you  build a controller around the xref:value-entity.adoc[Value Entity Counter] and forwarded the incoming request
 after modifying it.
 
-This time, instead of using a `forward`, we will call the entity using a side effect.
-
-[.tabset]
-Java::
-+
-[source,proto,indent=0]
-.src/main/proto/com/example/actions/double-counter.proto
-----
-include::example$java-valueentity-counter/src/main/proto/com/example/actions/double-counter.proto[tag=whole-double-action-proto]
-----
-<1> Import the Counter API definition
-<2> The protobuf option (kalix.codegen) is specific to code-generation as provided by the Kalix Maven plugin. This annotation indicates to the code-generation that an Action must be generated.
-<3> The Action mimics the Counter API with a forward
-<4> The Action mimics the Counter API with a side effect
-
-Scala::
-+
-[source,proto,indent=0]
-.src/main/proto/com/example/actions/double-counter.proto
-----
-include::example$scala-valueentity-counter/src/main/proto/com/example/actions/double-counter.proto[tag=whole-double-action-proto]
-----
-<1> Import the Counter API definition
-<2> The protobuf option (kalix.codegen) is specific to code-generation as provided by the Kalix Maven plugin. This annotation indicates to the code-generation that an Action must be generated.
-<3> The Action mimics the Counter API with a forward
-<4> The Action mimics the Counter API with a side effect
-
+This time, instead of using a `forward`, you will call the entity using a side effect.
 
 == Implementing the Action
 
-The class `DoubleCounterAction` gets generated for us based on the same proto file defined in xref:actions-as-controller.adoc[Action as a Controller].
+The class `DoubleCounterAction` listens to the counter state changes. When the counter value changes this action doubles doubles it. 
 
 [source,java,indent=0]
 .src/main/java/com/example/actions/DoubleCounterAction.java
 ----
-include::example$java-valueentity-counter/src/main/java/com/example/actions/DoubleCounterAction.java[tag=controller-side-effect]
+include::example$java-spring-valueentity-counter/src/main/java/com/example/action/DoubleCounterAction.java[tag=controller-side-effect]
 ----
-<1> On incoming requests, we double the value of `IncreaseValue`
-<2> We build a reply using `Empty.getDefaultInstance()`.
-<3> and we attach a side effect to it. The side effect is the call to the `Counter` entity.
+<1> Retrieving the id of the counter.
+<2> On incoming request, doubling the value of `increase`.
+<3> Building a reply using `Confirmed.getDefaultInstance()`. And attaching a side effect, i.e. calling to the `Counter` to increase double the previous amount.
 
-Please note that, the result of a side effect is ignored by the current command meaning that even if the call to
+Please note that, the response of the side effect is ignored by the command meaning that even if the deferred call to
 the `Counter` entity fails, the `Action` reply will succeed.
 
 == Unit testing the side effects
 
-The side effects of an Action can be tested in isolation. To test the side effects of `DoubleCounterAction`, shown on the previous snippet, we can leverage link:{attachmentsdir}/testkit/kalix/javasdk/testkit/ActionResult.html[`ActionResult` {tab-icon}, window="new"]. This class has the method `getSideEffects()` that returns the list of side effects added to the `Action`.
-
-[.tabset]
-Java::
-+
-[source,java,indent=0]
-.src/test/java/com/example/actions/DoubleCounterActionTest.java
-----
-include::example$java-valueentity-counter/src/test/java/com/example/actions/DoubleCounterActionTest.java[tag=side-effect-test]
-----
-<1> executing the `DoubleCounterAction.increase` RPC call through the test kit
-<2> retrieving the first side effect. There is only one in `DoubleConterAction.increase`. It's worth noting the side effects are `DeferredCall` objects that represent Kalix RPC services. `DeferredCallDetails` is the representation of a `DeferredCall` on the Kalix test kit framework.
-<3> retrieving and asserting the name of the service
-<4> retrieving and asserting the RPC's name of the service
-<5> retrieving and asserting the RPC's input
-Scala::
-+
-[source,scala,indent=0]
-.src/test/scala/com/example/actions/DoubleCounterActionSpec.java
-----
-include::example$scala-valueentity-counter/src/test/scala/com/example/actions/DoubleCounterActionSpec.scala[tag=side-effect-test]
-----
-<1> executing the `DoubleCounterAction.increaseWithSideEffect` RPC call through the test kit
-<2> retrieving the first side effect. There is only one in `DoubleConterAction.increaseWithSideEffect` implementation. It's worth noting the side effects are `DeferredCall` objects that represent Kalix RPC services. `DeferredCallDetails` is the representation of a `DeferredCall` on the Kalix test kit framework.
-<3> retrieving and asserting the name of the service
-<4> retrieving and asserting the RPC's name of the service
-<5> retrieving and asserting the RPC's input
+The side effects of an Action can NOT be tested in isolation at the moment.

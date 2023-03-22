@@ -1,0 +1,5 @@
+= Using JWTs
+
+This section describes the practical aspects of configuring JSON Web Tokens (JWTs) with the Java/Scala Protobuf SDKs, if you are not sure what JWTs are, how they work or how to generate them, see https://docs.kalix.io/security/jwts.html[JSON Web Tokens] first.
+
+include::ROOT:partial$grpc/using-jwts.adoc[]

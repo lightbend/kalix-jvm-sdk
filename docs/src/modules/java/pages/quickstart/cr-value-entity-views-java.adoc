@@ -3,23 +3,9 @@
 include::ROOT:partial$include.adoc[]
 include::java:partial$attributes.adoc[]
 
-Create a customer registry that includes queries in Java, package it into a container, and run it on Kalix.
+In this section, you will learn how to create a customer registry with the Java SDK, package it into a container, and run it on Kalix.
 
-== In this Quickstart you will learn:
-
-* How to add additional functionality, allowing customers to be queried by name and email.
-* How to package the customer registry into a container.
-* How to deploy and run the customer registry on Kalix.
-
-== Before you begin
-
-* If you're new to Kalix, {console}[create an account, window="console"] so you can try out Kalix for free.
-* You'll also need to install the https://docs.kalix.io/kalix/install-kalix.html[Kalix CLI, window="new-doc"] to deploy from a terminal window.
-* For this quickstart, you'll also need
-** https://docs.docker.com/engine/install[Docker {minimum_docker_version} or higher, window="new"]
-** Java {java-version} or higher
-** https://maven.apache.org/download.cgi[Maven {minimum_maven_version} or higher, window="new"]
-** https://github.com/fullstorydev/grpcurl#installation[`grpcurl`, window="new"]
+include::page$quickstart/before-you-begin.adoc[]
 
 [NOTE]
 ====
@@ -44,177 +30,61 @@ You can access the `Customer` https://docs.kalix.io/reference/glossary.html#enti
 
 == Define the CustomerByEmail View
 
-. In your project, create a directory for your views protobuf files, `src/main/proto/customer/view`.
-[.tabset]
-Linux or macOS::
-+
---
+Create a class named `CustomerByEmailView` in package `customer.view`.
+
+You implement a View by extending `kalix.javasdk.view.View` and subscribing to changes from an entity. You specify how to query it by providing a method annotated with `@Query`, which is then made accessible via REST annotations.
+
+.src/main/java/customer/view/CustomerByEmailView.java
+[source,java]
+----
+include::example$java-spring-customer-registry-views-quickstart/src/main/java/customer/view/CustomerByEmailView.java[tags=class]
+----
+<1> Defining view ID.
+<2> Defining table name.
+<3> Subscribing to `CustomerEntity`.
+<4> Extending from `View`.
+<5> Defining endpoint.
+<6> Defining the query.
+<7> Note that no return is needed. This method is used to declare in Kalix how the query index should be configured. The query execution is carried by Kalix and therefore the method can simply return `null`.
+
+NOTE: In this sample, we use the internal `domain.Customer` as the state of the view. This is convenient since it allows automatic updates of the view without any logic but has the drawback that it implicitly makes the `domain.Customer` type a part of the public service API. Transforming the state to another type than the incoming update will be illustrated in the `CustomersByName` example.
+
+include::page$quickstart/package-and-deploy.adoc[]
+
+include::page$quickstart/create-customer.adoc[]
+
+The customer can also be found through the `CustomerByEmail` view service.
+
 [source,command line]
 ----
-mkdir -p ./src/main/proto/customer/view
+curl localhost:8080/customer/by_email/someone@example.com
 ----
---
-Windows 10+::
-+
---
+
+include::page$quickstart/expose-service.adoc[]
+
+Try to call the exposed service with `curl`:
+
 [source,command line]
 ----
-mkdir src/main/proto/customer/view
-----
---
-
-. Create a `customer_view.proto` file and save it in the `src/main/proto/customer/view` directory.
-
-+
-[source,proto,indent=0]
-.src/main/proto/customer/view/customer_view.proto
-----
-include::example$java-customer-registry-views-quickstart/src/main/proto/customer/view/customer_view.proto[tag=declarations]
-----
-<1> The protobuf syntax version, `proto3`.
-<2> The package name, `customer.view`.
-<3> The Java outer classname, `CustomerViewModel`. Messages defined in this file will be generated as inner classes, for example `CustomerViewModel.ByEmailRequest`.
-<4> Import the proto files for your domain model `customer/domain/customer_domain.proto` and Kalix annotations `kalix/annotations.proto`.
-
-. Add the service endpoint
-+
-[source,proto,indent=0]
-.src/main/proto/customer/view/customer_view.proto
-----
-include::example$java-customer-registry-views-quickstart/src/main/proto/customer/view/customer_view.proto[tag=CustomerByEmail]
-----
-<1> The Protobuf `service` for the View.
-<2> The option that the Maven plugin will use to generate the `CustomerByEmail` View.
-<3> The `UpdateCustomer` method defines how Kalix will update the view.
-<4> The source of the View is the `"customers"` Value Entity. This identifier is defined in the `entity_type: "customers"` property of the `(kalix.codegen).value_entity` option in the `customer_api.proto` file.
-<5> The `(kalix.method).view.update` annotation defines that this method is used for updating the View. You must define the `table` attribute for the table to be used in the query. Pick any name and use it in the query `SELECT` statement.
-<6> The `GetCustomers` method defines the query to retrieve a customer by email.
-<7> The `(kalix.method).view.query` annotation defines that this method is used as a query of the View.
-+
-NOTE: In this sample we use the internal `domain.CustomerState` as the state of the view. This is convenient since it allows automatic updates of the view without any logic but has the draw back that it implicitly makes the `domain.CustomerState` type a part of the public service API. Transforming the state to another type than the incoming update will be illustrated in the `CustomerByName` example.
-
-. Run `mvn compile` from the project root directory to generate source classes from the Protobuf definitions.
-+
-----
-mvn compile
-----
-+
-This will result in a compilation error in the `Main` class. That is expected because you added a new component. Fix the compilation error by adding `CustomerByEmailView::new` as the second parameter to `KalixFactory.withComponents` in `src/main/java/customer/Main.java`.
-
-[#deploy]
-== Package and deploy your service
-
-To build and publish the container image and then deploy the service, follow these steps:
-
-. If you haven't done so yet, sign in to your Kalix account. If this is your first time using Kalix, this will let you register an account, https://docs.kalix.io/projects/create-project.html[create your first project], and set this project as the default.
-+
-----
-kalix auth login
-----
-
-. Use the `deploy` target to build the container image, publish it to the container registry as configured in the `pom.xml` file, and then automatically https://docs.kalix.io/services/deploy-service.html#_deploy[deploy the service] to Kalix using `kalix`:
-+
-----
-mvn deploy
-----
-
-. You can https://docs.kalix.io/services/deploy-service.html#_verify_service_status[verify the status of the deployed service] using:
-+
-----
-kalix service list
-----
-
-[#invoke]
-== Invoke your service
-
-Once the service has started successfully, you can https://docs.kalix.io/services/invoke-service.html#_testing_and_development[start a proxy locally] to access the service:
-
-----
-kalix service proxy <service name> --grpcui
-----
-
-The `--grpcui` option also starts and opens a https://docs.kalix.io/services/invoke-service.html#_using_the_built_in_graphical_client[gRPC web UI] for exploring and invoking the service (available at http://127.0.0.1:8080/ui/).
-
-Or you can use command line gRPC or HTTP clients, such as `grpcurl` or `curl`, to invoke the service through the proxy at `localhost:8080`, using plaintext connections.
-
-A customer can be created using the `Create` method on `CustomerService`, in the gRPC web UI, or with `grpcurl`:
-
-----
-grpcurl \
-  -d '{
-    "customer_id": "abc123",
-    "email": "someone@example.com",
-    "name": "Someone",
-    "address": {
-      "street": "123 Some Street",
-      "city": "Somewhere"
-    }
-  }' \
-  --plaintext localhost:8080 \
-  customer.api.CustomerService/Create
-----
-
-The `GetCustomer` method can be used to retrieve this customer, in the gRPC web UI, or with `grpcurl`:
-
-----
-grpcurl \
-  -d '{"customer_id": "abc123"}' \
-  --plaintext localhost:8080 \
-  customer.api.CustomerService/GetCustomer
-----
-
-The customer can also be found using the `GetCustomer` method on the `CustomerByEmail` view service, in the gRPC web UI, or with `grpcurl`:
-
-----
-grpcurl \
-  -d '{"email": "someone@example.com"}' \
-  --plaintext localhost:8080 \
-  customer.view.CustomerByEmail/GetCustomer
-----
-
-You can https://docs.kalix.io/services/invoke-service.html#_exposing_services_to_the_internet[expose the service to the internet]. A generated hostname will be returned from the expose command:
-
-----
-kalix service expose <service name>
+curl <generated hostname>:443/customer/abc123
 ----
 
 == Define the CustomerByName View
 
-. In the same `src/main/proto/customer/view/customer_view.proto` file add another View for finding customers by name.
-+
-Add the service endpoint
-+
-[source,proto,indent=0]
-.src/main/proto/customer/view/customer_view.proto
-----
-include::example$java-customer-registry-views-quickstart/src/main/proto/customer/view/customer_view.proto[tag=CustomerByName]
-----
-<1> The `UpdateCustomer` method defines how Kalix will update the view. In this case use a `CustomerViewState` that is different from the incoming `domain.CustomerState`.
-<2> `transform_updates: true` defines that you want custom code in the `UpdateCustomer` method.
-<3> The `GetCustomers` method defines the query to retrieve customers by name.
 
-. Run `mvn compile` from the project root directory to generate source classes from the Protobuf definitions.
-+
-----
-mvn compile
-----
-+
-Again, this will result in a compilation error in the `Main` class. That is expected because you added a new component. Fix the compilation error by adding `CustomerByNameView::new` as the third parameter to `KalixFactory.withComponents` in `src/main/java/customer/Main.java`.
+Create a class named `CustomersByNameView` in package `customer.view`.
 
-== Implement UpdateCustomer
+This time, we won't use `domain.Customer` as the state of the view. Instead, we introduce a new class record named `CustomerSummary` and we will transform the incoming `Customer` state change to `CustomerSummary`
 
-. Implement the `emptyState` and `updateCustomer` method in `CustomerByEmailView`:
-+
-[source, java, indent=0]
-.src/main/java/customer/view/CustomerByEmailView.java
+.src/main/java/customer/view/CustomersByNameView.java
+[source,java]
 ----
-include::example$java-customer-registry-views-quickstart/src/main/java/customer/view/CustomerByNameView.java[tag=view]
+include::example$java-spring-customer-registry-views-quickstart/src/main/java/customer/view/CustomersByNameView.java[tags=class]
 ----
-<1> Empty state that will be used if no previous state has been stored for the View.
-<2> From the incoming `CustomerDomain.CustomerState` that represents the change from the Value Entity create a `CustomerViewModel.CustomerViewState`.
-<3> Return `effects().updateState` with the new state for the View.
-+
-NOTE: The state of the View is still per Entity. The `CustomerDomain.CustomerState customerState` parameter represents the changed state of a specific Value Entity. The `state` parameter is the existing state, if any, of the View for the Entity, i.e. the state that was previously returned via `effects().updateState`. If no previous state has been stored the `emptyState()` is used.
+<1> View state type is defined as `CustomerSummary`.
+<2> For convenience, `CustomerSummary` is defined as an inner class record.
+<3> The Query method return a `Flux<CustomerSummary>`, meaning that the results will be streamed to the client.
+<4> The `onUpdate` method will receive state changes from the `CustomerEntity` and transform it to `CustomerSummary`. Note that the `@Subscribe.ValueEntity` is now added at method level performing the transformation. In the previous example, we didn't transform the type and therefore the subscription was at the class level.
 
 == Deploy the updated service
 
@@ -222,9 +92,9 @@ NOTE: The state of the View is still per Entity. The `CustomerDomain.CustomerSta
 
 == Invoke the CustomerByName
 
-. Similar to the steps in <<invoke>>
-. Create several customers with same name
-. Use the new `CustomerByName` instead of `CustomerByEmail` and then you should see multiple results from `CustomerByName/GetCustomers` for customers with the same name
+. Similar to the steps in <<invoke>>.
+. Create several customers with same name.
+. Use the new `/customers/by_name/\{customer_name}` endpoint instead of `/customer/by_email/\{email}` and then you should see multiple results from `CustomerSummary` for customers with the same.
 
 == Next steps
 
