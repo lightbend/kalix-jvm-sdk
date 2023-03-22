@@ -155,8 +155,8 @@ public class KalixTestKit {
      *
      * @return The updated settings.
      */
-    public Settings withWorkflowTickInterval(Duration workflowConfig) {
-      return new Settings(stopTimeout, serviceName, aclEnabled, true, Optional.of(workflowConfig));
+    public Settings withWorkflowTickInterval(Duration tickInterval) {
+      return new Settings(stopTimeout, serviceName, aclEnabled, true, Optional.of(tickInterval));
     }
 
     @Override
