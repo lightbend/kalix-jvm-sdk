@@ -86,9 +86,6 @@ class KalixProxyContainer private (image: DockerImageName, config: KalixProxyCon
   val userFunctionPort = config.userFunctionPort
   addFixedExposedPort(proxyPort, proxyPort)
 
-  // JVM are that should be passed to the proxy container on start-up
-  withCommand("-Dconfig.resource=dev-mode.conf -Dlogback.configurationFile=logback-dev-mode.xml")
-
   withEnv("HTTP_PORT", String.valueOf(proxyPort))
   withEnv("USER_FUNCTION_HOST", "host.testcontainers.internal")
   withEnv("USER_FUNCTION_PORT", String.valueOf(userFunctionPort))
@@ -104,12 +101,22 @@ class KalixProxyContainer private (image: DockerImageName, config: KalixProxyCon
     withCreateContainerCmdModifier(cmd => cmd.withName(config.serviceName))
   }
 
+  // FIXME: users must also indicate a folder to mount as volume
   if (config.brokerConfigFile.nonEmpty)
     withEnv("BROKER_CONFIG_FILE", config.brokerConfigFile)
 
-  // FIXME: we will probably need to as a HOST
-  if (config.pubsubEmulatorHost.nonEmpty)
-    withEnv("PUBSUB_EMULATOR_HOST", config.pubsubEmulatorHost)
+  // JVM are that should be passed to the proxy container on start-up
+  val containerArgs =
+    Seq("-Dconfig.resource=dev-mode.conf", "-Dlogback.configurationFile=logback-dev-mode.xml")
+
+  val pubSubContainerArg =
+    Option.when(config.pubsubEmulatorHost.nonEmpty) {
+      withEnv("PUBSUB_EMULATOR_HOST", config.pubsubEmulatorHost)
+      "-Dkalix.proxy.eventing.support=google-pubsub-emulator"
+    }
+
+  val finalArgs = containerArgs ++ pubSubContainerArg
+  withCommand(finalArgs: _*)
 
   override def start(): Unit = {
     containerLogger.info("Starting Kalix Server...")
