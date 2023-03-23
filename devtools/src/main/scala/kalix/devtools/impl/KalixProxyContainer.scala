@@ -18,24 +18,56 @@ package kalix.devtools.impl
 
 import com.typesafe.config.Config
 import kalix.devtools.BuildInfo
+import kalix.devtools.impl.KalixProxyContainer.KalixProxyContainerConfig
 import org.slf4j.LoggerFactory
 import org.testcontainers.Testcontainers
 import org.testcontainers.containers.GenericContainer
+import org.testcontainers.containers.output.Slf4jLogConsumer
 import org.testcontainers.utility.DockerImageName
 
 object KalixProxyContainer {
 
+  object KalixProxyContainerConfig {
+    def apply(config: Config): KalixProxyContainerConfig = {
+
+      // FIXME: core Kalix should be able to read dev-mode.conf from root folder as well
+      // as such, we can kalix.user-function-port configured to something else without touching the prod config
+      val userFunctionPort = config.getInt("kalix.user-function-port")
+      val containerConfig = config.getConfig("kalix.dev-mode.proxy-container")
+
+      KalixProxyContainerConfig(
+        proxyImage = containerConfig.getString("proxy-image"),
+        proxyPort = containerConfig.getInt("proxy-port"),
+        userFunctionPort = userFunctionPort,
+        serviceName = containerConfig.getString("service-name"),
+        aclEnabled = containerConfig.getBoolean("acl-enabled"),
+        viewFeaturesAll = containerConfig.getBoolean("view-features-all"),
+        brokerConfigFile = containerConfig.getString("broker-config-file"),
+        pubsubEmulatorHost = containerConfig.getString("pubsub-emulator-host"))
+
+    }
+  }
+
+  case class KalixProxyContainerConfig(
+      proxyImage: String,
+      proxyPort: Int,
+      userFunctionPort: Int,
+      serviceName: String,
+      aclEnabled: Boolean,
+      viewFeaturesAll: Boolean,
+      brokerConfigFile: String,
+      pubsubEmulatorHost: String)
+
   val logger = LoggerFactory.getLogger(classOf[KalixProxyContainer])
 
-  def apply(config: Config): KalixProxyContainer = {
+  def apply(config: KalixProxyContainerConfig): KalixProxyContainer = {
 
-    val customImage = System.getenv("KALIX_PROXY_IMAGE")
     val dockerImage: DockerImageName =
-      if (customImage == null)
+      if (config.proxyImage.trim.nonEmpty) {
+        logger.info("Using custom proxy image [{}]", config.proxyImage)
+        DockerImageName.parse(config.proxyImage)
+      } else {
         DockerImageName.parse(BuildInfo.proxyImage).withTag(BuildInfo.proxyVersion)
-      else {
-        logger.info("Using custom proxy image [{}]", customImage)
-        DockerImageName.parse(customImage)
       }
 
     new KalixProxyContainer(dockerImage, config)
@@ -43,31 +75,50 @@ object KalixProxyContainer {
 
 }
 
-class KalixProxyContainer private (image: DockerImageName, config: Config)
+class KalixProxyContainer private (image: DockerImageName, config: KalixProxyContainerConfig)
     extends GenericContainer[KalixProxyContainer](image) {
 
-  val proxyPort = config.getInt("kalix.dev-mode.proxy-port")
-  val userFunctionPort = config.getInt("kalix.user-function-port")
+  private val containerLogger = LoggerFactory.getLogger("kalix-proxy-server")
+  containerLogger.info("KalixProxyContainer config : {}", config)
+  withLogConsumer(new Slf4jLogConsumer(containerLogger))
 
+  val proxyPort = config.proxyPort
+  val userFunctionPort = config.userFunctionPort
   addFixedExposedPort(proxyPort, proxyPort)
+
+  // JVM are that should be passed to the proxy container on start-up
+  withCommand("-Dconfig.resource=dev-mode.conf -Dlogback.configurationFile=logback-dev-mode.xml")
+
   withEnv("HTTP_PORT", String.valueOf(proxyPort))
   withEnv("USER_FUNCTION_HOST", "host.testcontainers.internal")
   withEnv("USER_FUNCTION_PORT", String.valueOf(userFunctionPort))
 
-  withEnv("ACL_ENABLED", config.getBoolean("kalix.dev-mode.acl-enabled").toString)
-  withEnv("VIEW_FEATURES_ALL", config.getBoolean("kalix.dev-mode.view-features-all").toString)
-  withEnv("SERVICE_NAME", config.getString("kalix.dev-mode.service-name"))
+  withEnv("ACL_ENABLED", config.aclEnabled.toString)
+  withEnv("VIEW_FEATURES_ALL", config.viewFeaturesAll.toString)
 
-//  waitingFor(Wait.forLogMessage(".*gRPC proxy started.*", 1))
+  if (config.serviceName.nonEmpty) {
+    containerLogger.info("Service name set to {}", config.serviceName)
+    withEnv("SERVICE_NAME", config.serviceName)
+
+    // use service name as container instance name (instead of random one from testcontainer)
+    withCreateContainerCmdModifier(cmd => cmd.withName(config.serviceName))
+  }
+
+  if (config.brokerConfigFile.nonEmpty)
+    withEnv("BROKER_CONFIG_FILE", config.brokerConfigFile)
+
+  // FIXME: we will probably need to as a HOST
+  if (config.pubsubEmulatorHost.nonEmpty)
+    withEnv("PUBSUB_EMULATOR_HOST", config.pubsubEmulatorHost)
 
   override def start(): Unit = {
-    logger.info("Starting Kalix Proxy...")
+    containerLogger.info("Starting Kalix Server...")
     Testcontainers.exposeHostPorts(userFunctionPort)
     super.start()
   }
 
   override def stop(): Unit = {
-    logger.info("Stopping Kalix Proxy...")
+    containerLogger.info("Stopping Kalix Server...")
     super.stop()
   }
 }

@@ -22,6 +22,7 @@ import scala.concurrent.Future
 
 import com.typesafe.config.ConfigFactory
 import kalix.devtools.impl.KalixProxyContainer
+import kalix.devtools.impl.KalixProxyContainer.KalixProxyContainerConfig
 import org.slf4j.LoggerFactory
 import org.springframework.context.ApplicationContextInitializer
 import org.springframework.context.ApplicationListener
@@ -40,22 +41,21 @@ class KalixContainerInitializer
     val devConfigFile = new File(System.getProperty("user.dir"), "dev-mode.conf")
 
     if (devConfigFile.exists()) {
-      logger.info(s"Found def-mode config: $devConfigFile")
+      logger.info(s"Found Kalix dev-mode config: $devConfigFile")
       val devConfig = ConfigFactory.parseFile(devConfigFile)
       devConfig.withFallback(mainConfig)
     } else mainConfig
 
-  }
+  }.resolve()
 
-  private val container = KalixProxyContainer(config)
+  private val container = KalixProxyContainer(KalixProxyContainerConfig(config))
 
   override def initialize(applicationContext: ConfigurableApplicationContext): Unit = {
     if (config.hasPath("kalix.dev-mode.enabled") && config.getBoolean("kalix.dev-mode.enabled")) {
+      logger.info("Starting DevMode Kalix Server")
       // start it asynchronously
       import scala.concurrent.ExecutionContext.Implicits.global
       Future { container.start() }
-    } else {
-      logger.info("Dev mode not enabled")
     }
   }
 
