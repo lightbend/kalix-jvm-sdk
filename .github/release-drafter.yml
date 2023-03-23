@@ -1,5 +1,5 @@
 # Config for https://github.com/release-drafter/release-drafter
-name-template: 'Kalix Java and Scala SDKs $NEXT_PATCH_VERSION'
+name-template: 'v$NEXT_PATCH_VERSION'
 tag-template: 'v$NEXT_PATCH_VERSION'
 categories:
   - title: 'Java SDK'
