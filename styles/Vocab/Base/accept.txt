@@ -10,6 +10,8 @@ appender
 testkit
 TestKit
 Akka
+autoscaling
+Autoscaling
 kalix
 Kalix
 antora
@@ -20,6 +22,7 @@ backoffice
 Backoffice
 boolean
 Boolean
+brokerless
 Buildah
 brokerless
 CA's
@@ -95,6 +98,7 @@ sharding
 signup
 smallstep
 Sonatype
+SREs
 src
 stackdriver
 Stackdriver
