@@ -1,4 +1,4 @@
-# Workflow transfer sample
+# Workflow transfer with compensation sample
 
 A simple workflow example of funds transfer between two wallets.
 
