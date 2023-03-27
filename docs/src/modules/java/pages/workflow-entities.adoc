@@ -131,7 +131,7 @@ A default step timeout can be overridden in step builder.
 ----
 include::example$java-spring-transfer-workflow-compensation/src/main/java/com/example/transfer/TransferWorkflow.java[tag=step-timeout]
 ----
-<1> Overrides a step timeout for a specific step.
+<1> Overrides the step timeout for a specific step.
 
 === Recover strategy
 
