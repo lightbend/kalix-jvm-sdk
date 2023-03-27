@@ -167,6 +167,4 @@ include::example$java-spring-transfer-workflow-compensation/src/main/java/com/ex
 
 Compensating a workflow step (steps) might involve multiple logical steps and thus is part of the overall business logic that must be defined within the workflow itself. For simplicity, in the example above, the compensation is applied only to `withdraw` step. Whereas `deposit` step itself might also require a compensation. In case of a step timeout we can't be certain about step successful or error outcome.
 
-//TODO fix url
-
-A full error handling and compensation sample is available {sample-url}[here, {tab-icon}, window="new"]. Run `TransferWorkflowIntegrationTest` and examine the logs from the application.
+A full error handling and compensation sample is available https://github.com/lightbend/kalix-jvm-sdk/tree/main/samples/java-spring-transfer-workflow-compensation[here, {tab-icon}, window="new"]. Run `TransferWorkflowIntegrationTest` and examine the logs from the application.
