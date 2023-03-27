@@ -9,18 +9,27 @@ import kalix.scalasdk.action.Action
 import kalix.scalasdk.action.ActionCreationContext
 import com.example.IncreaseValue
 import com.google.protobuf.empty.Empty
+import scala.concurrent.duration._
 
 // tag::controller-forward[]
 // tag::controller-side-effect[]
 class DoubleCounterAction(creationContext: ActionCreationContext) extends AbstractDoubleCounterAction {
 
-
   override def increase(increaseValue: IncreaseValue): Action.Effect[Empty] = {
     // end::controller-side-effect[]
-    val doubled = increaseValue.value * 2
-    val increaseValueDoubled = increaseValue.copy(value = doubled) // <1>
+//    val doubled = increaseValue.value * 2
+//    val increaseValueDoubled = increaseValue.copy(value = doubled) // <1>
+//
+//    effects.forward(components.counter.increase(increaseValueDoubled)) // <2>
 
-    effects.forward(components.counter.increase(increaseValueDoubled)) // <2>
+    val timerRegistration = timers
+      .startSingleTimer(
+        name = s"expire-id-timer-1",
+        delay = 30.minutes,
+        deferredCall = components.counter.increase(IncreaseValue("123", 100)))
+      .map(_ => Empty.defaultInstance)
+
+    effects.asyncReply(timerRegistration)
   }
 
   // end::controller-forward[]
