@@ -7,7 +7,12 @@ on:
 jobs:
   triage:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
     steps:
-      - uses: actions/labeler@v3
+      # https://github.com/actions/labeler/releases
+      # v4.0.3
+      - uses: actions/labeler@ba790c862c380240c6d5e7427be5ace9a05c754b
         with:
           repo-token: "${{ secrets.GITHUB_TOKEN }}"
