@@ -8,9 +8,9 @@ Select your preferred language (Java/Scala) above.
 
 The Kalix [.group-java]#Java# [.group-scala]#Scala# SDK guides you through implementing components matching the protobuf APIs you design. This page describes prerequisites for [.group-java]#Java# [.group-scala]#Scala# development and basic requirements for a development project.
 
-NOTE: Lightbend provides Tier 1 support for the [.group-java]#Java# [.group-scala]#Scala# SDK. See https://docs.kalix.io/faq/index.html#_what_languages_are_supported[an explanation of support tiers] for more information.
+NOTE: Lightbend provides Tier 1 support for the [.group-java]#Java# [.group-scala]#Scala# Protobuf SDK. See https://docs.kalix.io/sdks/index.html#_sdk_support[an explanation of support tiers] for more information.
 
-Your development project needs to include the Kalix [.group-java]#Java# [.group-scala]#Scala# SDK and logic to start the gRPC server. You define your components in gRPC descriptors and use `protoc` to compile them. Finally, you implement business logic for service components.
+Your development project needs to include the Kalix [.group-java]#Java# [.group-scala]#Scala# Protobuf SDK and logic to start the gRPC server. You define your components in gRPC descriptors and use `protoc` to compile them. Finally, you implement business logic for service components.
 
 To save the work of starting from scratch, the Java xref:java-protobuf:quickstart-template.adoc[code generation tool] creates a project from a template, complete with descriptors and implementations. Or, you can start from one of our fully implemented https://docs.kalix.io/quickstart/index.html[Quickstart applications].
 
