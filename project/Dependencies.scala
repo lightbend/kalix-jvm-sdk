@@ -149,7 +149,8 @@ object Dependencies {
       "net.aichler" % "jupiter-interface" % JupiterKeys.jupiterVersion.value % Test,
       "org.springframework.boot" % "spring-boot-starter-test" % SpringBootVersion)
 
-  val javaSpringDevTools = deps ++= Seq("org.springframework" % "spring-context" % SpringFrameworkVersion % Provided)
+  val javaSpringDevTools =
+    deps ++= Seq(typesafeConfig, "org.springframework.boot" % "spring-boot-starter" % SpringBootVersion)
 
   // FIXME
   val scalaSdk = deps ++= coreDeps ++ Seq(jacksonScala)

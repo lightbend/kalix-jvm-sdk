@@ -18,6 +18,7 @@ package kalix.spring.boot
 
 import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
+import kalix.javasdk.KalixRunner
 import kalix.spring.impl.KalixSpringApplication
 import org.springframework.beans.factory.config.BeanPostProcessor
 import org.springframework.boot.autoconfigure.AutoConfiguration
@@ -45,7 +46,9 @@ object KalixConfiguration {
 class KalixConfiguration(applicationContext: ApplicationContext) {
 
   @Bean
-  def config(): Config = ConfigFactory.load()
+  def config(): Config = {
+    KalixRunner.prepareConfig(ConfigFactory.load())
+  }
 
   @Bean
   def kalixSpringApplication(config: Config): KalixSpringApplication =

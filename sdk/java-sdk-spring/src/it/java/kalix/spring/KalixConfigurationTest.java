@@ -69,6 +69,7 @@ public class KalixConfigurationTest {
   public KalixTestKit kalixTestKit(KalixTestKit.Settings settings) {
     logger.info("Starting Kalix TestKit...");
     KalixTestKit kalixTestKit = new KalixTestKit(kalixSpringApplication().kalix(), settings);
+
     kalixTestKit.start(kalixConfiguration.config());
     logger.info("Kalix Proxy running on port: " + kalixTestKit.getPort());
     return kalixTestKit;

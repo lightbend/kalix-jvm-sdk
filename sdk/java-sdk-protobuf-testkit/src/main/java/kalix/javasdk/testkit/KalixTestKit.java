@@ -227,6 +227,8 @@ public class KalixTestKit {
     conf.put("kalix.user-function-port", port);
     // don't kill the test JVM when terminating the KalixRunner
     conf.put("kalix.system.akka.coordinated-shutdown.exit-jvm", "off");
+    // dev-mode should be false when running integration tests
+    conf.put("kalix.dev-mode.enabled", false);
     Config testConfig = ConfigFactory.parseMap(conf);
 
     runner = kalix.createRunner(testConfig.withFallback(config));

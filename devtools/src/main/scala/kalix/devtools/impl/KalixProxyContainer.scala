@@ -30,8 +30,6 @@ object KalixProxyContainer {
   object KalixProxyContainerConfig {
     def apply(config: Config): KalixProxyContainerConfig = {
 
-      // FIXME: core Kalix should be able to read dev-mode.conf from root folder as well
-      // as such, we can kalix.user-function-port configured to something else without touching the prod config
       val userFunctionPort = config.getInt("kalix.user-function-port")
       val containerConfig = config.getConfig("kalix.dev-mode.proxy-container")
 
@@ -63,12 +61,10 @@ object KalixProxyContainer {
   def apply(config: KalixProxyContainerConfig): KalixProxyContainer = {
 
     val dockerImage: DockerImageName =
-      if (config.proxyImage.trim.nonEmpty) {
-        logger.info("Using custom proxy image [{}]", config.proxyImage)
+      if (config.proxyImage.trim.nonEmpty)
         DockerImageName.parse(config.proxyImage)
-      } else {
+      else
         DockerImageName.parse(BuildInfo.proxyImage).withTag(BuildInfo.proxyVersion)
-      }
 
     new KalixProxyContainer(dockerImage, config)
   }
@@ -79,7 +75,6 @@ class KalixProxyContainer private (image: DockerImageName, config: KalixProxyCon
     extends GenericContainer[KalixProxyContainer](image) {
 
   private val containerLogger = LoggerFactory.getLogger("kalix-proxy-server")
-  containerLogger.info("KalixProxyContainer config : {}", config)
   withLogConsumer(new Slf4jLogConsumer(containerLogger))
 
   val proxyPort = config.proxyPort
@@ -94,7 +89,6 @@ class KalixProxyContainer private (image: DockerImageName, config: KalixProxyCon
   withEnv("VIEW_FEATURES_ALL", config.viewFeaturesAll.toString)
 
   if (config.serviceName.nonEmpty) {
-    containerLogger.info("Service name set to {}", config.serviceName)
     withEnv("SERVICE_NAME", config.serviceName)
 
     // use service name as container instance name (instead of random one from testcontainer)
@@ -118,14 +112,21 @@ class KalixProxyContainer private (image: DockerImageName, config: KalixProxyCon
   val finalArgs = containerArgs ++ pubSubContainerArg
   withCommand(finalArgs: _*)
 
+  @volatile
+  private var started: Boolean = false
+
   override def start(): Unit = {
     containerLogger.info("Starting Kalix Server...")
+    logger.info("Using proxy image [{}]", image)
+    containerLogger.info("KalixProxyContainer config : {}", config)
     Testcontainers.exposeHostPorts(userFunctionPort)
     super.start()
+    started = true
   }
 
-  override def stop(): Unit = {
-    containerLogger.info("Stopping Kalix Server...")
-    super.stop()
-  }
+  override def stop(): Unit =
+    if (started) {
+      containerLogger.info("Stopping Kalix Server...")
+      super.stop()
+    }
 }
