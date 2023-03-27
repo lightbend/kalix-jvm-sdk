@@ -142,7 +142,7 @@ It's time to define what should happen in case of timeout or any other unhandled
 ----
 include::example$java-spring-transfer-workflow-compensation/src/main/java/com/example/transfer/TransferWorkflow.java[tag=recover-strategy]
 ----
-<1> Sets a failover transition in case of a workflow timeout
+<1> Sets a failover transition in case of a workflow timeout.
 <2> Sets a default failover transition for all steps with maximum number of retries.
 <3> Overrides a step recovery strategy only for `deposit` step.
 
