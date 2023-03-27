@@ -1,4 +1,4 @@
-# java-spring-transfer-workflow
+# Implementing an Order Service as a Value Entity in combination with Timers
 
 This project provides an example for how to take advantage of the timers API using the Java SDK.
 

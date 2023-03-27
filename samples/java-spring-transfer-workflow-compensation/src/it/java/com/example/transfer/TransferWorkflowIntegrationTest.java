@@ -17,6 +17,8 @@ import java.time.Duration;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
+import static com.example.transfer.TransferState.TransferStatus.COMPENSATION_COMPLETED;
+import static com.example.transfer.TransferState.TransferStatus.REQUIRES_MANUAL_INTERVENTION;
 import static java.time.temporal.ChronoUnit.SECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
@@ -33,11 +35,11 @@ public class TransferWorkflowIntegrationTest extends KalixIntegrationTestKitSupp
 
   @Test
   public void shouldTransferMoney() {
-    var walletId1 = "1";
-    var walletId2 = "2";
+    var walletId1 = randomId();
+    var walletId2 = randomId();
     createWallet(walletId1, 100);
     createWallet(walletId2, 100);
-    var transferId = randomTransferId();
+    var transferId = randomId();
     var transferUrl = "/transfer/" + transferId;
     var transfer = new Transfer(walletId1, walletId2, 10);
 
@@ -61,8 +63,65 @@ public class TransferWorkflowIntegrationTest extends KalixIntegrationTestKitSupp
       });
   }
 
+  @Test
+  public void shouldCompensateFailedMoneyTransfer() {
+    var walletId1 = randomId();
+    var walletId2 = randomId();
+    createWallet(walletId1, 100);
+    var transferId = randomId();
+    var transferUrl = "/transfer/" + transferId;
+    var transfer = new Transfer(walletId1, walletId2, 10); //walletId2 not exists
 
-  private String randomTransferId() {
+    String response = webClient.put().uri(transferUrl)
+      .bodyValue(transfer)
+      .retrieve()
+      .bodyToMono(Message.class)
+      .map(Message::value)
+      .block(timeout);
+
+    assertThat(response).isEqualTo("transfer started");
+
+    await()
+      .atMost(10, TimeUnit.of(SECONDS))
+      .ignoreExceptions()
+      .untilAsserted(() -> {
+        TransferState transferState = getTransferState(transferUrl);
+        assertThat(transferState.status()).isEqualTo(COMPENSATION_COMPLETED);
+
+        var balance1 = getWalletBalance(walletId1);
+
+        assertThat(balance1).isEqualTo(100);
+      });
+  }
+
+  @Test
+  public void shouldTimedOutTransferWorkflow() {
+    var walletId1 = randomId();
+    var walletId2 = randomId();
+    var transferId = randomId();
+    var transferUrl = "/transfer/" + transferId;
+    var transfer = new Transfer(walletId1, walletId2, 10); //both not exists
+
+    String response = webClient.put().uri(transferUrl)
+      .bodyValue(transfer)
+      .retrieve()
+      .bodyToMono(Message.class)
+      .map(Message::value)
+      .block(timeout);
+
+    assertThat(response).isEqualTo("transfer started");
+
+    await()
+      .atMost(10, TimeUnit.of(SECONDS))
+      .ignoreExceptions()
+      .untilAsserted(() -> {
+        TransferState transferState = getTransferState(transferUrl);
+        assertThat(transferState.status()).isEqualTo(REQUIRES_MANUAL_INTERVENTION);
+      });
+  }
+
+
+  private String randomId() {
     return UUID.randomUUID().toString().substring(0, 8);
   }
 
