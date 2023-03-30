@@ -6,13 +6,13 @@ import static customer.domain.CustomerEvent.*;
 
 public sealed interface CustomerEvent {
 
-  @TypeName("customer-created") // <1>
+  @TypeName("internal-customer-created") // <1>
   record CustomerCreated(String email, String name, Address address) implements CustomerEvent {}
 
-  @TypeName("name-changed")
+  @TypeName("internal-name-changed")
   record NameChanged(String newName) implements CustomerEvent {}
 
-  @TypeName("address-changed")
+  @TypeName("internal-address-changed")
   record AddressChanged(Address address) implements CustomerEvent {}
 }
 // end::class[]
