@@ -389,28 +389,6 @@ jobs:
             mvn -B compile
       - save_deps_cache
 
-  sample-java-protobuf-customer-registry-views-quickstart:
-    machine:
-      image: ubuntu-2004:202201-02
-    steps:
-      - checkout-and-merge-to-main
-      - setup_sbt
-      - restore_deps_cache
-      # note: `copy-from-workspace` requires `publish-local` to be run first as declared in workflow section below
-      - copy-from-workspace
-      - set-sdk-version
-      - run:
-          name: Customer Registry Views Quickstart (Java/Protobuf SDK)
-          command: |
-            cd samples/java-protobuf-customer-registry-views-quickstart
-            echo "Running mvn with SDK version: '$SDK_VERSION'"
-            # must also compile without the profile!
-            mvn -Dkalix-sdk.version=$SDK_VERSION test-compile
-            mvn -Dkalix-sdk.version=$SDK_VERSION verify -Pit
-            echo "==== Verifying that generated unmanaged sources compile ===="
-            rm -rf src/main/java src/test/java src/it/java
-            mvn -Dkalix-sdk.version=$SDK_VERSION test-compile
-
   sample-java-protobuf-fibonacci-action:
     machine:
       image: ubuntu-2004:202201-02
@@ -1464,10 +1442,6 @@ workflows:
             - checks
 
       # individual samples as jobs to allow parallelizing them
-      - sample-java-protobuf-customer-registry-views-quickstart:
-          requires:
-            - checks
-            - publish-local
       - sample-java-protobuf-fibonacci-action:
           requires:
             - checks

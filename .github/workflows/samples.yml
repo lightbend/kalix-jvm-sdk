@@ -80,7 +80,7 @@ jobs:
           - { sample: java-protobuf-shopping-cart-quickstart }
           - { sample: java-protobuf-customer-registry-quickstart }
           - { sample: java-protobuf-customer-registry-kafka-quickstart }
-#          - { sample: java-protobuf-customer-registry-views-quickstart }
+          - { sample: java-protobuf-customer-registry-views-quickstart }
 #
 #          - { sample: java-protobuf-fibonacci-action }
 #          - { sample: java-protobuf-doc-snippets }
