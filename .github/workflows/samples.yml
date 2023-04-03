@@ -93,7 +93,7 @@ jobs:
           - { sample: java-protobuf-eventsourced-counter }
           - { sample: java-protobuf-eventsourced-shopping-cart }
 
-#          - { sample: java-protobuf-valueentity-counter }
+          - { sample: java-protobuf-valueentity-counter }
 #          - { sample: java-protobuf-valueentity-counter-spring }
 #          - { sample: java-protobuf-valueentity-shopping-cart }
 #

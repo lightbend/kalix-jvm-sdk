@@ -431,27 +431,6 @@ jobs:
             rm -rf src/main/java src/test/java src/it/java
             mvn -Dkalix-sdk.version=$SDK_VERSION test-compile
 
-  sample-java-protobuf-valueentity-counter:
-    machine:
-      image: ubuntu-2004:202201-02
-    steps:
-      - checkout-and-merge-to-main
-      - setup_sbt
-      - restore_deps_cache
-      # note: `copy-from-workspace` requires `publish-local` to be run first as declared in workflow section below
-      - copy-from-workspace
-      - set-sdk-version
-      - run:
-          name: Value Entity "Counter" sample (Java/Protobuf SDK)
-          command: |
-            cd samples/java-protobuf-valueentity-counter
-            echo "Running mvn with SDK version: '$SDK_VERSION'"
-            mvn -Dkalix-sdk.version=$SDK_VERSION test-compile
-            mvn -Dkalix-sdk.version=$SDK_VERSION verify -Pit
-            echo "==== Verifying that generated unmanaged sources compile ===="
-            rm -rf src/main/java src/test/java src/it/java
-            mvn -Dkalix-sdk.version=$SDK_VERSION test-compile
-
   sample-java-protobuf-valueentity-counter-spring-client:
     machine:
       image: ubuntu-2004:202201-02
@@ -1259,10 +1238,6 @@ workflows:
             - checks
             - publish-local
       - sample-java-protobuf-replicatedentity-shopping-cart:
-          requires:
-            - checks
-            - publish-local
-      - sample-java-protobuf-valueentity-counter:
           requires:
             - checks
             - publish-local
