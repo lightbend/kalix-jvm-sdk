@@ -74,33 +74,33 @@ jobs:
     runs-on: ubuntu-22.04
 
     strategy:
-      fail-fast: true
+#      fail-fast: true
       matrix:
         include:
-          - { sample: java-protobuf-shopping-cart-quickstart }
-          - { sample: java-protobuf-customer-registry-quickstart }
-          - { sample: java-protobuf-customer-registry-kafka-quickstart }
-          - { sample: java-protobuf-customer-registry-views-quickstart }
+          - { sample: java-protobuf-shopping-cart-quickstart, it: true }
+          - { sample: java-protobuf-customer-registry-quickstart, it: true }
+          - { sample: java-protobuf-customer-registry-kafka-quickstart, it: true }
+          - { sample: java-protobuf-customer-registry-views-quickstart, it: true }
 
-          - { sample: java-protobuf-fibonacci-action }
-          - { sample: java-protobuf-doc-snippets }
-          - { sample: java-protobuf-first-service }
-          - { sample: java-protobuf-valueentity-customer-registry }
-          - { sample: java-protobuf-view-store }
+          - { sample: java-protobuf-fibonacci-action, it: false }
+          - { sample: java-protobuf-doc-snippets, it: false }
+          - { sample: java-protobuf-first-service, it: false }
+          - { sample: java-protobuf-valueentity-customer-registry, it: false }
+          - { sample: java-protobuf-view-store, it: true }
 
-          - { sample: java-protobuf-eventsourced-customer-registry }
-          - { sample: java-protobuf-eventsourced-customer-registry-subscriber }
-          - { sample: java-protobuf-eventsourced-counter }
-          - { sample: java-protobuf-eventsourced-shopping-cart }
+          - { sample: java-protobuf-eventsourced-customer-registry, it: true }
+          - { sample: java-protobuf-eventsourced-customer-registry-subscriber, it: false }
+          - { sample: java-protobuf-eventsourced-counter, pre_cmd: 'docker-compose -f ~/project/.circleci/google-pubsub-emulator-docker-compose.yml up -d', it: true }
+          - { sample: java-protobuf-eventsourced-shopping-cart, it: true }
 
-          - { sample: java-protobuf-valueentity-counter }
-          - { sample: java-protobuf-valueentity-counter-spring-client }
-          - { sample: java-protobuf-valueentity-shopping-cart }
+          - { sample: java-protobuf-valueentity-counter, it: true }
+          - { sample: java-protobuf-valueentity-counter-spring-client, verify: true, it: false }
+          - { sample: java-protobuf-valueentity-shopping-cart, it: true }
 
-          - { sample: java-protobuf-replicatedentity-shopping-cart }
-          - { sample: java-protobuf-replicatedentity-examples }
+          - { sample: java-protobuf-replicatedentity-shopping-cart, it: true }
+          - { sample: java-protobuf-replicatedentity-examples, it: true }
 
-          - { sample: java-protobuf-reliable-timers }
+          - { sample: java-protobuf-reliable-timers, it: false }
 
     steps:
       - name: Checkout
@@ -131,13 +131,20 @@ jobs:
       - name: ${{ matrix.sample }}
         env:
           DIR: ${{ matrix.sample }}
+          PRE_CMD: ${{ matrix.pre_cmd }}
         run: |-
           export SDK_VERSION=$(cat ~/kalix-sdk-version.txt)
           cd samples/${DIR}
           echo "Running mvn on ${DIR} with SDK version: '${SDK_VERSION}'"
           # must also compile without the profile!
           mvn -Dkalix-sdk.version=${SDK_VERSION} test-compile
-          mvn -Dkalix-sdk.version=${SDK_VERSION} verify -Pit
+          if [true == ${{matrix.verify}}]; then
+            mvn -Dkalix-sdk.version=${SDK_VERSION} verify
+          fi
+          if [true == ${{matrix.it}}]; then
+            ${PRE_CMD}
+            mvn -Dkalix-sdk.version=${SDK_VERSION} verify -Pit
+          fi
           echo "==== Verifying that generated unmanaged sources compile ===="
           rm -rf src/main/java src/test/java src/it/java
           mvn -Dkalix-sdk.version=${SDK_VERSION} test-compile
