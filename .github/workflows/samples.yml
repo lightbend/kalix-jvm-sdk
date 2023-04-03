@@ -100,7 +100,7 @@ jobs:
           - { sample: java-protobuf-replicatedentity-shopping-cart }
           - { sample: java-protobuf-replicatedentity-examples }
 
-#          - { sample: java-protobuf-reliable-timers }
+          - { sample: java-protobuf-reliable-timers }
 
     steps:
       - name: Checkout
