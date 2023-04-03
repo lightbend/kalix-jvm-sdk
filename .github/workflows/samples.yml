@@ -86,8 +86,8 @@ jobs:
           - { sample: java-protobuf-doc-snippets }
           - { sample: java-protobuf-first-service }
           - { sample: java-protobuf-valueentity-customer-registry }
-#          - { sample: java-protobuf-view-store }
-#
+          - { sample: java-protobuf-view-store }
+
 #          - { sample: java-protobuf-eventsourced-customer-registry }
 #          - { sample: java-protobuf-eventsourced-customer-registry-subscriber }
 #          - { sample: java-protobuf-eventsourced-counter }
