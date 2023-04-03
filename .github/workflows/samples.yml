@@ -83,7 +83,7 @@ jobs:
           - { sample: java-protobuf-customer-registry-views-quickstart }
 
           - { sample: java-protobuf-fibonacci-action }
-#          - { sample: java-protobuf-doc-snippets }
+          - { sample: java-protobuf-doc-snippets }
 #          - { sample: java-protobuf-first-service }
 #          - { sample: java-protobuf-valueentity-customer-registry }
 #          - { sample: java-protobuf-view-store }

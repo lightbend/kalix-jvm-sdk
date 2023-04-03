@@ -389,23 +389,6 @@ jobs:
             mvn -B compile
       - save_deps_cache
 
-  sample-java-protobuf-doc-snippets:
-    machine:
-      image: ubuntu-2004:202201-02
-    steps:
-      - checkout-and-merge-to-main
-      - setup_sbt
-      - restore_deps_cache
-      # note: `copy-from-workspace` requires `publish-local` to be run first as declared in workflow section below
-      - copy-from-workspace
-      - set-sdk-version
-      - run:
-          name: Doc snippets (Java/Protobuf SDK)
-          command: |
-            cd samples/java-protobuf-doc-snippets
-            echo "Running mvn with SDK version: '$SDK_VERSION'"
-            mvn -Dkalix-sdk.version=$SDK_VERSION test-compile
-
   sample-java-protobuf-first-service:
     machine:
       image: ubuntu-2004:202201-02
@@ -1421,10 +1404,6 @@ workflows:
             - checks
 
       # individual samples as jobs to allow parallelizing them
-      - sample-java-protobuf-doc-snippets:
-          requires:
-            - checks
-            - publish-local
       - sample-java-protobuf-first-service:
           requires:
             - checks
