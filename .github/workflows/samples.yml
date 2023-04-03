@@ -90,7 +90,7 @@ jobs:
 
           - { sample: java-protobuf-eventsourced-customer-registry }
           - { sample: java-protobuf-eventsourced-customer-registry-subscriber }
-#          - { sample: java-protobuf-eventsourced-counter }
+          - { sample: java-protobuf-eventsourced-counter }
 #          - { sample: java-protobuf-eventsourced-shopping-cart }
 #
 #          - { sample: java-protobuf-valueentity-counter }
