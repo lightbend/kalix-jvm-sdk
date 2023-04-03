@@ -78,7 +78,7 @@ jobs:
       matrix:
         include:
           - { sample: java-protobuf-shopping-cart-quickstart }
-#          - { sample: java-protobuf-customer-registry-quickstart }
+          - { sample: java-protobuf-customer-registry-quickstart }
 #          - { sample: java-protobuf-customer-registry-kafka-quickstart }
 #          - { sample: java-protobuf-customer-registry-views-quickstart }
 #
