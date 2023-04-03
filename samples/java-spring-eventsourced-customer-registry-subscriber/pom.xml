@@ -236,6 +236,7 @@
             <systemPropertyVariables>
                 <logging.config>src/main/resources/logback-dev-mode.xml</logging.config>
                 <kalix.user-function-interface>0.0.0.0</kalix.user-function-interface>
+                <kalix.user-function-port>8081</kalix.user-function-port>
             </systemPropertyVariables>
           </configuration>
       </plugin>

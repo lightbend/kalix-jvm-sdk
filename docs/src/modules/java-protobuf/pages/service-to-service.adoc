@@ -110,12 +110,14 @@ include::example$scala-protobuf-eventsourced-customer-registry-subscriber/src/ma
 <3> The public `event_stream_id` of the specific stream from the publisher.
 <4> One update method per message type that the stream may contain.
 
+TIP: If you're looking to test this locally, you will likely need to run the 2 services in different ports. For more details, consult https://docs.kalix.io/developing-services/running-locally.html#_running_multiple_services[Running multiple services].
+
 === Deployment dependent source of events
 
 It is possible to use environment variables to control the name of the service that a consumer consumes from, this is useful for example for using the same image in staging and production deployments but having them consume from different source services.
 
 Referencing environment variables is done with the syntax `$\{VAR_NAME}` in the `service` string in the consumer `eventing.in.direct` block.
 
-Note that if changing the `service` name after it has once been deployed means the consumer will start over from the beginning of the event stream.
+WARNING: Changing the `service` name after it has once been deployed means the consumer will start over from the beginning of the event stream.
 
 See https://docs.kalix.io/kalix/kalix_services_deploy.html[kalix service deploy] for details on how to set environment variables when deploying a service.

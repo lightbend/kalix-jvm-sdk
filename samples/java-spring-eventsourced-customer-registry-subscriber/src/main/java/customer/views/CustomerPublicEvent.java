@@ -5,8 +5,8 @@ import kalix.javasdk.annotations.TypeName;
 public interface CustomerPublicEvent {
 
   @TypeName("customer-created")
-  public record Created(String email, String name) implements CustomerPublicEvent {}
+  record Created(String email, String name) implements CustomerPublicEvent {}
 
   @TypeName("name-changed")
-  public record NameChanged(String newName) implements CustomerPublicEvent {}
+  record NameChanged(String newName) implements CustomerPublicEvent {}
 }
