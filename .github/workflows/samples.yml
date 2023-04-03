@@ -94,7 +94,7 @@ jobs:
           - { sample: java-protobuf-eventsourced-shopping-cart }
 
           - { sample: java-protobuf-valueentity-counter }
-#          - { sample: java-protobuf-valueentity-counter-spring }
+          - { sample: java-protobuf-valueentity-counter-spring-client }
 #          - { sample: java-protobuf-valueentity-shopping-cart }
 #
 #          - { sample: java-protobuf-replicatedentity-shopping-cart }
