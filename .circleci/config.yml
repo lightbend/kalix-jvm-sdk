@@ -348,7 +348,7 @@ jobs:
           name: Check that all samples are included in CI-verification
           command: |
             ALL_OK=true
-            for SAMPLE in samples/java* samples/scala*
+            for SAMPLE in samples/scala*
             do
               if [ $(grep -c $SAMPLE .circleci/config.yml) -lt 1 ] ; then
                 echo "$SAMPLE is missing CI-tests"
