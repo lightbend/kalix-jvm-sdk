@@ -53,12 +53,12 @@ public class TransferWorkflow extends WorkflowEntity<TransferState> {
   public Workflow<TransferState> definition() {
     Step withdraw =
       step("withdraw")
-        .call((Withdraw cmd) -> {
+        .call(Withdraw.class, cmd -> {
           logger.info("Running: " + cmd);
           String withdrawUri = "/wallet/" + cmd.from() + "/withdraw/" + cmd.amount();
           return kalixClient.patch(withdrawUri, WithdrawResult.class);
         })
-        .andThen(withdrawResult -> {
+        .andThen(WithdrawResult.class, withdrawResult -> {
           if (withdrawResult instanceof WithdrawSucceed) {
             Deposit depositInput = new Deposit(currentState().transfer().to(), currentState().transfer().amount());
             return effects()
@@ -77,14 +77,14 @@ public class TransferWorkflow extends WorkflowEntity<TransferState> {
     // tag::compensation[]
     Step deposit =
       step("deposit")
-        .call((Deposit cmd) -> {
+        .call(Deposit.class, cmd -> {
           // end::compensation[]
           logger.info("Running: " + cmd);
           // tag::compensation[]
           String depositUri = "/wallet/" + cmd.to() + "/deposit/" + cmd.amount();
           return kalixClient.patch(depositUri, DepositResult.class); // <1>
         })
-        .andThen(depositResult -> {
+        .andThen(DepositResult.class, depositResult -> {
           if (depositResult instanceof DepositSucceed) {
             return effects()
               .updateState(currentState().withStatus(COMPLETED))
@@ -111,7 +111,7 @@ public class TransferWorkflow extends WorkflowEntity<TransferState> {
           String refundUri = "/wallet/" + transfer.from() + "/deposit/" + transfer.amount();
           return kalixClient.patch(refundUri, DepositResult.class);
         })
-        .andThen(depositResult -> {
+        .andThen(DepositResult.class, depositResult -> {
           if (depositResult instanceof DepositSucceed) {
             return effects()
               .updateState(currentState().withStatus(COMPENSATION_COMPLETED))
@@ -131,7 +131,7 @@ public class TransferWorkflow extends WorkflowEntity<TransferState> {
           // tag::step-timeout[]
           return CompletableFuture.completedStage("handling failure");
         })
-        .andThen(__ -> effects()
+        .andThen(String.class, __ -> effects()
           .updateState(currentState().withStatus(REQUIRES_MANUAL_INTERVENTION))
           .end())
         .timeout(ofSeconds(1)); // <1>
