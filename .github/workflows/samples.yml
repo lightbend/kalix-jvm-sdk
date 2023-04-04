@@ -1,0 +1,165 @@
+name: Samples
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+    tags-ignore:
+      - v*
+
+permissions:
+  contents: read
+
+concurrency:
+  # Only run once for latest commit per ref and cancel other (previous) runs.
+  group: samples-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  publish-local:
+    name: Build and publish artifacts and plugins locally for other tests to use
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3.1.0
+
+      - name: Checkout GitHub merge
+        if: github.event.pull_request
+        run: |-
+          git fetch origin pull/${{ github.event.pull_request.number }}/merge:scratch
+          git checkout scratch
+
+      - name: Set up JDK 17
+        uses: coursier/setup-action@v1.3.0
+        with:
+          jvm: temurin:1.17
+
+      - name: Cache Coursier cache
+        uses: coursier/cache-action@v6.4.0
+
+      - name: Build and publish artifacts and plugins
+        id: build_sdk
+        run: |-
+          sbt publishM2 publishLocal -Ddisable.apidocs=true
+          # the SDK_VERSION is later used to run the maven tests (see below)
+          echo "Extracting version from sbt build"
+          echo 'sdk_version='$(sbt "print javaSdkProtobuf/version" | tail -n 2 | head -n 1) >> $GITHUB_OUTPUT
+
+      - name: Build maven-java
+        env:
+          SDK_VERSION: ${{ steps.build_sdk.outputs.sdk_version }}
+        run: |-
+          cd maven-java
+          echo "Running maven-java with SDK version: '${SDK_VERSION}'"
+          mvn versions:set -DnewVersion=${SDK_VERSION}
+          mvn verify install
+          echo $SDK_VERSION > ~/kalix-sdk-version.txt
+
+      - name: Package dependencies
+        run: |-
+          cd
+          tar -czf dependencies.tar.gz .m2/ .ivy2/ kalix-sdk-version.txt
+
+      - name: Upload
+        uses: actions/upload-artifact@v3
+        with:
+          name: m2-cache
+          path: ~/dependencies.tar.gz
+          if-no-files-found: error
+
+  maven-samples:
+    name: Maven samples
+    needs: publish-local
+    runs-on: ubuntu-22.04
+
+    strategy:
+#      fail-fast: true
+      matrix:
+        include:
+          - { sample: java-protobuf-shopping-cart-quickstart, it: true }
+          - { sample: java-protobuf-customer-registry-quickstart, it: true }
+          - { sample: java-protobuf-customer-registry-kafka-quickstart, it: true }
+          - { sample: java-protobuf-customer-registry-views-quickstart, it: true }
+
+          - { sample: java-protobuf-fibonacci-action, it: false }
+          - { sample: java-protobuf-doc-snippets, it: false }
+          - { sample: java-protobuf-first-service, it: false }
+          - { sample: java-protobuf-valueentity-customer-registry, it: false }
+          - { sample: java-protobuf-view-store, it: true }
+
+          - { sample: java-protobuf-eventsourced-customer-registry, it: true }
+          - { sample: java-protobuf-eventsourced-customer-registry-subscriber, it: false }
+          - { sample: java-protobuf-eventsourced-counter, pre_cmd: 'docker-compose -f ../../.circleci/google-pubsub-emulator-docker-compose.yml up -d', it: true }
+          - { sample: java-protobuf-eventsourced-shopping-cart, it: true }
+
+          - { sample: java-protobuf-valueentity-counter, it: true }
+          - { sample: java-protobuf-valueentity-counter-spring-client, verify: true, it: false }
+          - { sample: java-protobuf-valueentity-shopping-cart, it: true }
+
+          - { sample: java-protobuf-replicatedentity-shopping-cart, it: true }
+          - { sample: java-protobuf-replicatedentity-examples, it: true }
+
+          - { sample: java-protobuf-reliable-timers, it: false }
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3.1.0
+
+      - name: Checkout GitHub merge
+        if: github.event.pull_request
+        run: |-
+          git fetch origin pull/${{ github.event.pull_request.number }}/merge:scratch
+          git checkout scratch
+
+      - name: Set up JDK 17
+        uses: coursier/setup-action@v1.3.0
+        with:
+          jvm: temurin:1.17
+
+      - name: Download pre-built cache
+        uses: actions/download-artifact@v3
+        with:
+          name: m2-cache
+          path: ~/
+
+      - name: Unpack
+        run: |-
+          cd
+          tar -xf dependencies.tar.gz
+
+      - name: ${{ matrix.sample }} test-compile
+        env:
+          DIR: ${{ matrix.sample }}
+        run: |-
+          export SDK_VERSION=$(cat ~/kalix-sdk-version.txt)
+          cd samples/${DIR}
+          echo "Running mvn on ${DIR} with SDK version: '${SDK_VERSION}'"
+          # must also compile without the profile!
+          mvn -Dkalix-sdk.version=${SDK_VERSION} test-compile
+
+      - name: ${{ matrix.sample }} verify
+        if: matrix.verify || matrix.it
+        env:
+          DIR: ${{ matrix.sample }}
+          PRE_CMD: ${{ matrix.pre_cmd }}
+        run: |-
+          export SDK_VERSION=$(cat ~/kalix-sdk-version.txt)
+          cd samples/${DIR}
+          if [ true == '${{matrix.verify}}' ]; then
+            mvn -Dkalix-sdk.version=${SDK_VERSION} verify
+          fi
+          if [ true == '${{matrix.it}}' ]; then
+            ${PRE_CMD}
+            mvn -Dkalix-sdk.version=${SDK_VERSION} verify -Pit
+          fi
+
+      - name: ${{ matrix.sample }} rm & test-compile
+        env:
+          DIR: ${{ matrix.sample }}
+        run: |-
+          export SDK_VERSION=$(cat ~/kalix-sdk-version.txt)
+          cd samples/${DIR}
+          echo "==== Verifying that generated unmanaged sources compile ===="
+          rm -rf src/main/java src/test/java src/it/java
+          mvn -Dkalix-sdk.version=${SDK_VERSION} test-compile
