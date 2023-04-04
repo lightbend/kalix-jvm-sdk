@@ -69,7 +69,7 @@ jobs:
           if-no-files-found: error
 
   maven-samples:
-    name: Test Maven sample compilation
+    name: Maven samples
     needs: publish-local
     runs-on: ubuntu-22.04
 
@@ -90,7 +90,7 @@ jobs:
 
           - { sample: java-protobuf-eventsourced-customer-registry, it: true }
           - { sample: java-protobuf-eventsourced-customer-registry-subscriber, it: false }
-          - { sample: java-protobuf-eventsourced-counter, pre_cmd: 'docker-compose -f ~/project/.circleci/google-pubsub-emulator-docker-compose.yml up -d', it: true }
+          - { sample: java-protobuf-eventsourced-counter, pre_cmd: 'docker-compose -f ~/.circleci/google-pubsub-emulator-docker-compose.yml up -d', it: true }
           - { sample: java-protobuf-eventsourced-shopping-cart, it: true }
 
           - { sample: java-protobuf-valueentity-counter, it: true }
