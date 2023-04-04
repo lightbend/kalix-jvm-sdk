@@ -128,23 +128,38 @@ jobs:
           cd
           tar -xf dependencies.tar.gz
 
-      - name: ${{ matrix.sample }}
+      - name: ${{ matrix.sample }} test-compile
         env:
           DIR: ${{ matrix.sample }}
-          PRE_CMD: ${{ matrix.pre_cmd }}
         run: |-
           export SDK_VERSION=$(cat ~/kalix-sdk-version.txt)
           cd samples/${DIR}
           echo "Running mvn on ${DIR} with SDK version: '${SDK_VERSION}'"
           # must also compile without the profile!
           mvn -Dkalix-sdk.version=${SDK_VERSION} test-compile
-          if [true == ${{matrix.verify}}]; then
+
+      - name: ${{ matrix.sample }} verify
+        if: matrix.verify || matrix.it
+        env:
+          DIR: ${{ matrix.sample }}
+          PRE_CMD: ${{ matrix.pre_cmd }}
+        run: |-
+          export SDK_VERSION=$(cat ~/kalix-sdk-version.txt)
+          cd samples/${DIR}
+          if [ true == '${{matrix.verify}}' ]; then
             mvn -Dkalix-sdk.version=${SDK_VERSION} verify
           fi
-          if [true == ${{matrix.it}}]; then
+          if [ true == '${{matrix.it}}' ]; then
             ${PRE_CMD}
             mvn -Dkalix-sdk.version=${SDK_VERSION} verify -Pit
           fi
+
+      - name: ${{ matrix.sample }} rm & test-compile
+        env:
+          DIR: ${{ matrix.sample }}
+        run: |-
+          export SDK_VERSION=$(cat ~/kalix-sdk-version.txt)
+          cd samples/${DIR}
           echo "==== Verifying that generated unmanaged sources compile ===="
           rm -rf src/main/java src/test/java src/it/java
           mvn -Dkalix-sdk.version=${SDK_VERSION} test-compile
