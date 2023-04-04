@@ -47,11 +47,11 @@ public class TransferWorkflow extends WorkflowEntity<TransferState> { // <1>
   public Workflow<TransferState> definition() {
     Step withdraw =
       step("withdraw") // <1>
-        .call((Withdraw cmd) -> {
+        .call(Withdraw.class, cmd -> {
           String withdrawUri = "/wallet/" + cmd.from() + "/withdraw/" + cmd.amount();
           return kalixClient.patch(withdrawUri, String.class);
         }) // <2>
-        .andThen(__ -> {
+        .andThen(String.class, __ -> {
           Deposit depositInput = new Deposit(currentState().transfer().to(), currentState().transfer().amount());
           return effects()
             .updateState(currentState().withStatus(WITHDRAW_SUCCEED))
@@ -60,11 +60,11 @@ public class TransferWorkflow extends WorkflowEntity<TransferState> { // <1>
 
     Step deposit =
       step("deposit") // <1>
-        .call((Deposit cmd) -> {
+        .call(Deposit.class, cmd -> {
           String depositUri = "/wallet/" + cmd.to() + "/deposit/" + cmd.amount();
           return kalixClient.patch(depositUri, String.class);
         }) // <4>
-        .andThen(__ -> {
+        .andThen(String.class, __ -> {
           return effects()
             .updateState(currentState().withStatus(COMPLETED))
             .end(); // <5>

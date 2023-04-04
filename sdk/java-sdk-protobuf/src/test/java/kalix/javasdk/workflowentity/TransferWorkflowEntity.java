@@ -45,9 +45,9 @@ public class TransferWorkflowEntity extends WorkflowEntity<MoneyTransferApi.Stat
     var remoteCall =
       step(remoteCallStepName)
         // just a dummy 'remote' call to exercise the API
-        .asyncCall((Empty start) ->
+        .asyncCall(Empty.class, start ->
           CompletableFuture.completedFuture(Empty.getDefaultInstance()))
-        .andThen(i -> {
+        .andThen(Empty.class, i -> {
           var state = currentState().toBuilder().setLog("remote-call").build();
           var withdrawInput =
             MoneyTransferApi.Withdraw
@@ -64,8 +64,8 @@ public class TransferWorkflowEntity extends WorkflowEntity<MoneyTransferApi.Stat
 
     var withdraw =
       step(withdrawStepName)
-        .call((MoneyTransferApi.Withdraw cmd) -> deferredCall(cmd, Empty.class))
-        .andThen(i -> {
+        .call(MoneyTransferApi.Withdraw.class, cmd -> deferredCall(cmd, Empty.class))
+        .andThen(Empty.class, i -> {
           var state = currentState().toBuilder().setLog("withdrawn").build();
 
           var depositInput =
@@ -83,8 +83,8 @@ public class TransferWorkflowEntity extends WorkflowEntity<MoneyTransferApi.Stat
 
     var deposit =
       step(depositStepName)
-        .call((MoneyTransferApi.Deposit cmd) -> deferredCall(cmd, Empty.class))
-        .andThen(__ -> {
+        .call(MoneyTransferApi.Deposit.class, cmd -> deferredCall(cmd, Empty.class))
+        .andThen(Empty.class, __ -> {
           var state = currentState().toBuilder().setLog("deposited").build();
           return effects().updateState(state).end();
         });

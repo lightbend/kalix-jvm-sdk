@@ -22,7 +22,6 @@ import kalix.javasdk.DeferredCall;
 import kalix.javasdk.Metadata;
 import kalix.javasdk.impl.workflowentity.WorkflowEntityEffectImpl;
 import kalix.javasdk.workflowentity.WorkflowEntity.RecoverStrategy.MaxRetries;
-import net.jodah.typetools.TypeResolver;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -35,7 +34,9 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-/** @param <S> The type of the state for this entity. */
+/**
+ * @param <S> The type of the state for this entity.
+ */
 @ApiMayChange
 public abstract class WorkflowEntity<S> {
 
@@ -280,7 +281,6 @@ public abstract class WorkflowEntity<S> {
     private Optional<RecoverStrategy<?>> stepRecoverStrategy = Optional.empty();
 
 
-
     private Workflow() {
     }
 
@@ -290,6 +290,7 @@ public abstract class WorkflowEntity<S> {
 
     /**
      * Add step to workflow definition. Step name must be unique.
+     *
      * @param step A workflow step
      */
     public Workflow<S> addStep(Step step) {
@@ -299,7 +300,8 @@ public abstract class WorkflowEntity<S> {
 
     /**
      * Add step to workflow definition with a dedicated {@link RecoverStrategy}. Step name must be unique.
-     * @param step A workflow step
+     *
+     * @param step            A workflow step
      * @param recoverStrategy A Step recovery strategy
      */
     public Workflow<S> addStep(Step step, RecoverStrategy<?> recoverStrategy) {
@@ -322,6 +324,7 @@ public abstract class WorkflowEntity<S> {
 
     /**
      * Define a timeout for the duration of the entire workflow. When the timeout expires, the workflow is finished and no transitions are allowed.
+     *
      * @param timeout Timeout duration
      */
     public Workflow<S> timeout(Duration timeout) {
@@ -331,7 +334,8 @@ public abstract class WorkflowEntity<S> {
 
     /**
      * Define a failover step name after workflow timeout. Note that recover strategy for this step can set only the number of max retries.
-     * @param stepName A failover step name
+     *
+     * @param stepName   A failover step name
      * @param maxRetries A recovery strategy for failover step.
      */
     public Workflow<S> failoverTo(String stepName, MaxRetries maxRetries) {
@@ -342,8 +346,9 @@ public abstract class WorkflowEntity<S> {
 
     /**
      * Define a failover step name after workflow timeout. Note that recover strategy for this step can set only the number of max retries.
-     * @param stepName A failover step name
-     * @param stepInput A failover step input
+     *
+     * @param stepName   A failover step name
+     * @param stepInput  A failover step input
      * @param maxRetries A recovery strategy for failover step.
      */
     public <I> Workflow<S> failoverTo(String stepName, I stepInput, MaxRetries maxRetries) {
@@ -424,15 +429,15 @@ public abstract class WorkflowEntity<S> {
     private Optional<Duration> _timeout = Optional.empty();
 
     public CallStep(String name,
+                    Class<CallInput> callInputClass,
                     Function<CallInput, DeferredCall<DefCallInput, DefCallOutput>> callFunc,
+                    Class<DefCallOutput> transitionInputClass,
                     Function<DefCallOutput, Effect.TransitionalEffect<Void>> transitionFunc) {
       _name = name;
-      this.transitionFunc = transitionFunc;
+      this.callInputClass = callInputClass;
       this.callFunc = callFunc;
-      Class<?>[] callClasses = TypeResolver.resolveRawArguments(Function.class, callFunc.getClass());
-      this.callInputClass = (Class<CallInput>) callClasses[0];
-      Class<?>[] transitionClasses = TypeResolver.resolveRawArguments(Function.class, transitionFunc.getClass());
-      this.transitionInputClass = (Class<DefCallOutput>) transitionClasses[0];
+      this.transitionInputClass = transitionInputClass;
+      this.transitionFunc = transitionFunc;
     }
 
     @Override
@@ -448,7 +453,7 @@ public abstract class WorkflowEntity<S> {
     /**
      * Define a step timeout.
      */
-    public CallStep<CallInput, DefCallInput, DefCallOutput, FailoverInput> timeout(Duration timeout){
+    public CallStep<CallInput, DefCallInput, DefCallOutput, FailoverInput> timeout(Duration timeout) {
       this._timeout = Optional.of(timeout);
       return this;
     }
@@ -464,15 +469,15 @@ public abstract class WorkflowEntity<S> {
     private Optional<Duration> _timeout = Optional.empty();
 
     public AsyncCallStep(String name,
+                         Class<CallInput> callInputClass,
                          Function<CallInput, CompletionStage<CallOutput>> callFunc,
+                         Class<CallOutput> transitionInputClass,
                          Function<CallOutput, Effect.TransitionalEffect<Void>> transitionFunc) {
       _name = name;
+      this.callInputClass = callInputClass;
       this.callFunc = callFunc;
-      Class<?>[] callClasses = TypeResolver.resolveRawArguments(Function.class, callFunc.getClass());
-      this.callInputClass = (Class<CallInput>) callClasses[0];
+      this.transitionInputClass = transitionInputClass;
       this.transitionFunc = transitionFunc;
-      Class<?>[] transitionClasses = TypeResolver.resolveRawArguments(Function.class, transitionFunc.getClass());
-      this.transitionInputClass = (Class<CallOutput>) transitionClasses[0];
     }
 
     @Override
@@ -488,7 +493,7 @@ public abstract class WorkflowEntity<S> {
     /**
      * Define a step timeout.
      */
-    public AsyncCallStep<CallInput, CallOutput, FailoverInput> timeout(Duration timeout){
+    public AsyncCallStep<CallInput, CallOutput, FailoverInput> timeout(Duration timeout) {
       this._timeout = Optional.of(timeout);
       return this;
     }
@@ -561,7 +566,7 @@ public abstract class WorkflowEntity<S> {
     /**
      * Set the number of retires for a failed step, <code>maxRetries</code> equals 0 means that the step won't retry in case of failure.
      */
-    public static MaxRetries maxRetries(int maxRetries){
+    public static MaxRetries maxRetries(int maxRetries) {
       return new MaxRetries(maxRetries);
     }
 
@@ -591,6 +596,7 @@ public abstract class WorkflowEntity<S> {
     /**
      * Build a step action with a call to an existing Kalix component via {@link DeferredCall}.
      *
+     * @param callInputClass  Input class for call factory.
      * @param callFactory     Factory method for creating deferred call.
      * @param <Input>         Input for deferred call factory, provided by transition method.
      * @param <DefCallInput>  Input for deferred call.
@@ -598,8 +604,8 @@ public abstract class WorkflowEntity<S> {
      * @return Step builder.
      */
     @ApiMayChange
-    public <Input, DefCallInput, DefCallOutput> CallStepBuilder<Input, DefCallInput, DefCallOutput> call(Function<Input, DeferredCall<DefCallInput, DefCallOutput>> callFactory) {
-      return new CallStepBuilder<>(name, callFactory);
+    public <Input, DefCallInput, DefCallOutput> CallStepBuilder<Input, DefCallInput, DefCallOutput> call(Class<Input> callInputClass, Function<Input, DeferredCall<DefCallInput, DefCallOutput>> callFactory) {
+      return new CallStepBuilder<>(name, callInputClass, callFactory);
     }
 
     /**
@@ -612,20 +618,21 @@ public abstract class WorkflowEntity<S> {
      */
     @ApiMayChange
     public <DefCallInput, DefCallOutput> CallStepBuilder<Void, DefCallInput, DefCallOutput> call(Supplier<DeferredCall<DefCallInput, DefCallOutput>> callSupplier) {
-      return new CallStepBuilder<>(name, (Void v) -> callSupplier.get());
+      return new CallStepBuilder<>(name, Void.class, (Void v) -> callSupplier.get());
     }
 
     /**
      * Build a step action with an async call.
      *
-     * @param callFactory Factory method for creating async call.
-     * @param <Input>     Input for async call factory, provided by transition method.
-     * @param <Output>    Output of async call.
+     * @param callInputClass Input class for call factory.
+     * @param callFactory    Factory method for creating async call.
+     * @param <Input>        Input for async call factory, provided by transition method.
+     * @param <Output>       Output of async call.
      * @return Step builder.
      */
     @ApiMayChange
-    public <Input, Output> AsyncCallStepBuilder<Input, Output> asyncCall(Function<Input, CompletionStage<Output>> callFactory) {
-      return new AsyncCallStepBuilder<>(name, callFactory);
+    public <Input, Output> AsyncCallStepBuilder<Input, Output> asyncCall(Class<Input> callInputClass, Function<Input, CompletionStage<Output>> callFactory) {
+      return new AsyncCallStepBuilder<>(name, callInputClass, callFactory);
     }
 
 
@@ -638,7 +645,7 @@ public abstract class WorkflowEntity<S> {
      */
     @ApiMayChange
     public <Output> AsyncCallStepBuilder<Void, Output> asyncCall(Supplier<CompletionStage<Output>> callSupplier) {
-      return new AsyncCallStepBuilder<>(name, (Void v) -> callSupplier.get());
+      return new AsyncCallStepBuilder<>(name, Void.class, (Void v) -> callSupplier.get());
     }
 
 
@@ -646,23 +653,26 @@ public abstract class WorkflowEntity<S> {
 
       final private String name;
 
+      final private Class<Input> callInputClass;
       /* callFactory builds the DeferredCall that will be passed to proxy for execution */
       final private Function<Input, DeferredCall<DefCallInput, DefCallOutput>> callFunc;
 
-      public CallStepBuilder(String name, Function<Input, DeferredCall<DefCallInput, DefCallOutput>> callFunc) {
+      public CallStepBuilder(String name, Class<Input> callInputClass, Function<Input, DeferredCall<DefCallInput, DefCallOutput>> callFunc) {
         this.name = name;
+        this.callInputClass = callInputClass;
         this.callFunc = callFunc;
       }
 
       /**
        * Transition to the next step based on the result of the step action.
        *
-       * @param transitionFunc Function that transform the action result to a {@link Effect.TransitionalEffect}
+       * @param transitionInputClass Input class for transition.
+       * @param transitionFunc       Function that transform the action result to a {@link Effect.TransitionalEffect}
        * @return CallStep
        */
       @ApiMayChange
-      public CallStep<Input, DefCallInput, DefCallOutput, ?> andThen(Function<DefCallOutput, Effect.TransitionalEffect<Void>> transitionFunc) {
-        return new CallStep<>(name, callFunc, transitionFunc);
+      public CallStep<Input, DefCallInput, DefCallOutput, ?> andThen(Class<DefCallOutput> transitionInputClass, Function<DefCallOutput, Effect.TransitionalEffect<Void>> transitionFunc) {
+        return new CallStep<>(name, callInputClass, callFunc, transitionInputClass, transitionFunc);
       }
     }
 
@@ -670,23 +680,25 @@ public abstract class WorkflowEntity<S> {
 
       final private String name;
 
-      /* callFactory builds the DeferredCall that will be passed to proxy for execution */
+      final private Class<CallInput> callInputClass;
       final private Function<CallInput, CompletionStage<CallOutput>> callFunc;
 
-      public AsyncCallStepBuilder(String name, Function<CallInput, CompletionStage<CallOutput>> callFunc) {
+      public AsyncCallStepBuilder(String name, Class<CallInput> callInputClass, Function<CallInput, CompletionStage<CallOutput>> callFunc) {
         this.name = name;
+        this.callInputClass = callInputClass;
         this.callFunc = callFunc;
       }
 
       /**
        * Transition to the next step based on the result of the step action.
        *
+       * @param transitionInputClass Input class for transition.
        * @param transitionFunc Function that transform the action result to a {@link Effect.TransitionalEffect}
        * @return AsyncCallStep
        */
       @ApiMayChange
-      public AsyncCallStep<CallInput, CallOutput, ?> andThen(Function<CallOutput, Effect.TransitionalEffect<Void>> transitionFunc) {
-        return new AsyncCallStep<>(name, callFunc, transitionFunc);
+      public AsyncCallStep<CallInput, CallOutput, ?> andThen(Class<CallOutput> transitionInputClass, Function<CallOutput, Effect.TransitionalEffect<Void>> transitionFunc) {
+        return new AsyncCallStep<>(name, callInputClass, callFunc, transitionInputClass, transitionFunc);
       }
     }
   }

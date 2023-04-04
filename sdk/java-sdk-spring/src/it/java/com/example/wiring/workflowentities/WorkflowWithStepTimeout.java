@@ -62,13 +62,13 @@ public class WorkflowWithStepTimeout extends WorkflowEntity<FailingCounterState>
               logger.info("Running");
               return CompletableFuture.supplyAsync(() -> "produces time out", delayedExecutor);
             })
-            .andThen(__ -> effects().transitionTo(counterFailoverStepName))
+            .andThen(String.class, __ -> effects().transitionTo(counterFailoverStepName))
             .timeout(ofMillis(20));
 
     var counterIncFailover =
         step(counterFailoverStepName)
             .asyncCall(() -> CompletableFuture.completedStage("nothing"))
-            .andThen(__ -> {
+            .andThen(String.class, __ -> {
               var updatedState = currentState().inc();
               if (updatedState.value() == 2) {
                 return effects()

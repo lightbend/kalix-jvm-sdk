@@ -73,8 +73,6 @@ object Dependencies {
 
   val akkaGrpc = "com.lightbend.akka.grpc" % "sbt-akka-grpc" % akka.grpc.gen.BuildInfo.version
 
-  val typeTools = "net.jodah" % "typetools" % "0.6.3"
-
   private val deps = libraryDependencies
 
   private val coreDeps = Seq(
@@ -103,8 +101,7 @@ object Dependencies {
     jacksonDatabind,
     jacksonJdk8,
     jacksonJsr310,
-    jacksonParameterNames,
-    typeTools)
+    jacksonParameterNames)
 
   val coreSdk = deps ++= coreDeps
 

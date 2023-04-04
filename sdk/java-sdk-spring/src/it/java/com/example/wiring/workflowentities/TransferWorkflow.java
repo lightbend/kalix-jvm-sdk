@@ -46,8 +46,8 @@ public class TransferWorkflow extends WorkflowEntity<TransferState> {
   public Workflow<TransferState> definition() {
     var withdraw =
         step(withdrawStepName)
-            .call((Withdraw cmd) -> kalixClient.patch("/wallet/" + cmd.from + "/withdraw/" + cmd.amount, String.class))
-            .andThen(response -> {
+            .call(Withdraw.class, cmd -> kalixClient.patch("/wallet/" + cmd.from + "/withdraw/" + cmd.amount, String.class))
+            .andThen(String.class, __ -> {
               var state = currentState().withLastStep("withdrawn").accepted();
 
               var depositInput = new Deposit(currentState().transfer.to, currentState().transfer.amount);
@@ -59,8 +59,8 @@ public class TransferWorkflow extends WorkflowEntity<TransferState> {
 
     var deposit =
         step(depositStepName)
-            .call((Deposit cmd) -> kalixClient.patch("/wallet/" + cmd.to + "/deposit/" + cmd.amount, String.class))
-            .andThen(__ -> {
+            .call(Deposit.class, cmd -> kalixClient.patch("/wallet/" + cmd.to + "/deposit/" + cmd.amount, String.class))
+            .andThen(String.class, __ -> {
               var state = currentState().withLastStep("deposited").finished();
               return effects().updateState(state).end();
             });
