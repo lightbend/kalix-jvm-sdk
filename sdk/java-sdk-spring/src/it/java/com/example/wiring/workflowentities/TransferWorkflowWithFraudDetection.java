@@ -53,18 +53,18 @@ public class TransferWorkflowWithFraudDetection extends WorkflowEntity<TransferS
   public Workflow<TransferState> definition() {
     var fraudDetection =
         step(fraudDetectionStepName)
-            .asyncCall(this::checkFrauds)
-            .andThen(this::processFraudDetectionResult);
+            .asyncCall(Transfer.class, this::checkFrauds)
+            .andThen(FraudDetectionResult.class, this::processFraudDetectionResult);
 
     var withdraw =
         step(withdrawStepName)
-            .call((Withdraw cmd) -> kalixClient.patch("/wallet/" + cmd.from + "/withdraw/" + cmd.amount, String.class))
-            .andThen(this::moveToDeposit);
+            .call(Withdraw.class, cmd -> kalixClient.patch("/wallet/" + cmd.from + "/withdraw/" + cmd.amount, String.class))
+            .andThen(String.class, this::moveToDeposit);
 
     var deposit =
         step(depositStepName)
-            .call((Deposit cmd) -> kalixClient.patch("/wallet/" + cmd.to + "/deposit/" + cmd.amount, String.class))
-            .andThen(this::finishWithSuccess);
+            .call(Deposit.class, cmd -> kalixClient.patch("/wallet/" + cmd.to + "/deposit/" + cmd.amount, String.class))
+            .andThen(String.class, this::finishWithSuccess);
 
     return workflow()
         .addStep(fraudDetection)
