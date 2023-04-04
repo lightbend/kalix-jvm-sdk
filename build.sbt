@@ -439,44 +439,6 @@ lazy val codegenJavaCompilationTest = project
     Compile / PB.protoSources += baseDirectory.value / ".." / ".." / "sbt-plugin" / "src" / "sbt-test" / "sbt-kalix" / "compile-only" / "src" / "main" / "protobuf",
     ReflectiveCodeGen.copyUnmanagedSources := false)
 
-lazy val javaValueentityCustomerRegistry = project
-  .in(file("samples/java-protobuf-valueentity-customer-registry"))
-  .dependsOn(javaSdkProtobuf)
-  .enablePlugins(AkkaGrpcPlugin, IntegrationTests, LocalDockerImage)
-  .settings(common)
-  .settings(
-    name := "java-protobuf-valueentity-customer-registry",
-    libraryDependencies ++= Seq(
-      "ch.qos.logback" % "logback-classic" % Dependencies.LogbackVersion,
-      "ch.qos.logback.contrib" % "logback-json-classic" % Dependencies.LogbackContribVersion,
-      "ch.qos.logback.contrib" % "logback-jackson" % Dependencies.LogbackContribVersion,
-      "org.junit.jupiter" % "junit-jupiter" % Dependencies.JUnitJupiterVersion % IntegrationTest,
-      "net.aichler" % "jupiter-interface" % JupiterKeys.jupiterVersion.value % IntegrationTest),
-    Compile / akkaGrpcGeneratedLanguages := Seq(AkkaGrpc.Java),
-    testOptions += Tests.Argument(jupiterTestFramework, "-q", "-v"),
-    inConfig(IntegrationTest)(JupiterPlugin.scopedSettings),
-    IntegrationTest / akkaGrpcGeneratedSources := Seq(AkkaGrpc.Client),
-    IntegrationTest / PB.protoSources ++= (Compile / PB.protoSources).value)
-
-lazy val javaEventsourcedCustomerRegistry = project
-  .in(file("samples/java-protobuf-eventsourced-customer-registry"))
-  .dependsOn(javaSdkProtobuf)
-  .enablePlugins(AkkaGrpcPlugin, IntegrationTests, LocalDockerImage)
-  .settings(common)
-  .settings(
-    name := "java-protobuf-eventsourced-customer-registry",
-    libraryDependencies ++= Seq(
-      "ch.qos.logback" % "logback-classic" % Dependencies.LogbackVersion,
-      "ch.qos.logback.contrib" % "logback-json-classic" % Dependencies.LogbackContribVersion,
-      "ch.qos.logback.contrib" % "logback-jackson" % Dependencies.LogbackContribVersion,
-      "org.junit.jupiter" % "junit-jupiter" % Dependencies.JUnitJupiterVersion % IntegrationTest,
-      "net.aichler" % "jupiter-interface" % JupiterKeys.jupiterVersion.value % IntegrationTest),
-    Compile / akkaGrpcGeneratedLanguages := Seq(AkkaGrpc.Java),
-    testOptions += Tests.Argument(jupiterTestFramework, "-q", "-v"),
-    inConfig(IntegrationTest)(JupiterPlugin.scopedSettings),
-    IntegrationTest / akkaGrpcGeneratedSources := Seq(AkkaGrpc.Client),
-    IntegrationTest / PB.protoSources ++= (Compile / PB.protoSources).value)
-
 lazy val codegenScala =
   project
     .in(file("codegen/scala-gen"))
