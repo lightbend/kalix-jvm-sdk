@@ -57,13 +57,13 @@ public class WorkflowWithTimeout extends WorkflowEntity<FailingCounterState> {
     var counterInc =
         step(counterStepName)
             .asyncCall(() -> CompletableFuture.supplyAsync(() -> "nothing", delayedExecutor))
-            .andThen(__ -> effects().end())
+            .andThen(String.class, __ -> effects().end())
             .timeout(Duration.ofMillis(50));
 
     var counterIncFailover =
         step(counterFailoverStepName)
-            .call((Integer value) -> kalixClient.post("/failing-counter/" + currentState().counterId() + "/increase/" + value, Integer.class))
-            .andThen(__ ->
+            .call(Integer.class, value -> kalixClient.post("/failing-counter/" + currentState().counterId() + "/increase/" + value, Integer.class))
+            .andThen(Integer.class, __ ->
                 effects()
                     .updateState(currentState().asFinished())
                     .transitionTo(counterStepName)

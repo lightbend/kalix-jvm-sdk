@@ -50,7 +50,7 @@ public class TransferWorkflowWithoutInputs extends WorkflowEntity<TransferState>
               var transfer = currentState().transfer;
               return kalixClient.patch("/wallet/" + transfer.from + "/withdraw/" + transfer.amount, String.class);
             })
-            .andThen(response -> {
+            .andThen(String.class, response -> {
               var state = currentState().withLastStep("withdrawn").accepted();
               return effects()
                   .updateState(state)
@@ -63,7 +63,7 @@ public class TransferWorkflowWithoutInputs extends WorkflowEntity<TransferState>
               var transfer = currentState().transfer;
               return kalixClient.patch("/wallet/" + transfer.from + "/withdraw/" + transfer.amount, String.class).execute();
             })
-            .andThen(response -> {
+            .andThen(String.class, response -> {
               var state = currentState().withLastStep("withdrawn").accepted();
               return effects()
                   .updateState(state)
@@ -77,7 +77,7 @@ public class TransferWorkflowWithoutInputs extends WorkflowEntity<TransferState>
               var transfer = currentState().transfer;
               return kalixClient.patch("/wallet/" + transfer.to + "/deposit/" + transfer.amount, String.class);
             })
-            .andThen(__ -> {
+            .andThen(String.class, __ -> {
               var state = currentState().withLastStep("deposited").finished();
               return effects().updateState(state).end();
             });
@@ -88,7 +88,7 @@ public class TransferWorkflowWithoutInputs extends WorkflowEntity<TransferState>
               var transfer = currentState().transfer;
               return kalixClient.patch("/wallet/" + transfer.to + "/deposit/" + transfer.amount, String.class).execute();
             })
-            .andThen(__ -> {
+            .andThen(String.class, __ -> {
               var state = currentState().withLastStep("deposited").finished();
               return effects().updateState(state).end();
             });

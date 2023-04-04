@@ -53,14 +53,14 @@ public class WorkflowWithDefaultRecoverStrategy extends WorkflowEntity<FailingCo
               var nextValue = currentState().value() + 1;
               return kalixClient.post("/failing-counter/" + currentState().counterId() + "/increase/" + nextValue, Integer.class);
             })
-            .andThen(__ -> effects()
+            .andThen(Integer.class, __ -> effects()
                 .updateState(currentState().asFinished())
                 .end());
 
     var counterIncFailover =
         step(counterFailoverStepName)
             .asyncCall(() -> CompletableFuture.completedStage("nothing"))
-            .andThen(__ ->
+            .andThen(String.class, __ ->
                 effects()
                     .updateState(currentState().inc())
                     .transitionTo(counterStepName)
