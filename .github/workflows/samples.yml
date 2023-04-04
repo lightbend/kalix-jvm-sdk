@@ -108,10 +108,8 @@ jobs:
           - { sample: java-protobuf-valueentity-shopping-cart, it: true }
 
           - { sample: java-spring-valueentity-counter, it: true }
-          - {
-            # FIXME add eventing integration tests (related to https://github.com/lightbend/kalix/issues/7811)
-            sample: java-spring-eventsourced-counter, , pre_cmd: 'docker-compose -f ../../.circleci/google-pubsub-emulator-docker-compose.yml up -d', it: true
-          }
+          # FIXME add eventing integration tests (related to https://github.com/lightbend/kalix/issues/7811)
+          - { sample: java-spring-eventsourced-counter, pre_cmd: 'docker-compose -f ../../.circleci/google-pubsub-emulator-docker-compose.yml up -d', it: true }
 
           - { sample: java-protobuf-replicatedentity-shopping-cart, it: true }
           - { sample: java-protobuf-replicatedentity-examples, it: true }
