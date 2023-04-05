@@ -134,6 +134,7 @@ class RunMojo extends AbstractMojo {
         element(name("argument"), "-Dkalix.user-function-port=" + userFunctionPort),
         element(name("argument"), mainClass))
 
+    log.info("Log configuration: " + logConfig)
     val optionalArgs: Seq[Element] =
       if (logConfig.trim.nonEmpty)
         // when using SpringBoot, logback config is passed using logging.config
