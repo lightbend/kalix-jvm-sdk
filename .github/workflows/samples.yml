@@ -56,10 +56,10 @@ jobs:
       - name: Build and publish artifacts and plugins
         id: build_sdk
         run: |-
-          sbt --client "-Ddisable.apidocs=true publishM2; publishLocal"
+          sbt "-Ddisable.apidocs=true publishM2; publishLocal"
           # the SDK_VERSION is later used to run the maven tests (see below)
           echo "Extracting version from sbt build"
-          sbt --client "print javaSdkProtobuf/version" > version.txt
+          sbt "print javaSdkProtobuf/version" > version.txt
           cat version.txt
           echo 'sdk_version='$(cat version.txt | tail -n 3 | head -n 1) >> $GITHUB_OUTPUT
 
