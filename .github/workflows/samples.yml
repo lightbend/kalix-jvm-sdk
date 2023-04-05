@@ -211,7 +211,26 @@ jobs:
     strategy:
       matrix:
         include:
+          - { sample: scala-protobuf-customer-registry-quickstart }
+
+          - { sample: scala-protobuf-fibonacci-action }
+          - { sample: scala-protobuf-first-service }
           - { sample: scala-protobuf-doc-snippets }
+          - { sample: scala-protobuf-valueentity-customer-registry }
+          - { sample: scala-protobuf-view-store }
+
+          - { sample: scala-protobuf-eventsourced-customer-registry }
+          - { sample: scala-protobuf-eventsourced-customer-registry-subscriber }
+          - { sample: scala-protobuf-eventsourced-counter, pre_test: 'docker-compose -f ../../.circleci/google-pubsub-emulator-docker-compose.yml up -d', it: true }
+          - { sample: scala-protobuf-eventsourced-shopping-cart }
+
+          - { sample: scala-protobuf-valueentity-counter }
+          - { sample: scala-protobuf-valueentity-shopping-cart }
+
+          - { sample: scala-protobuf-replicatedentity-shopping-cart }
+          - { sample: scala-protobuf-replicatedentity-examples }
+
+          - { sample: scala-protobuf-reliable-timers }
 
     steps:
       - name: Checkout
@@ -242,10 +261,12 @@ jobs:
       - name: ${{ matrix.sample }} test
         env:
           DIR: ${{ matrix.sample }}
+          PRE_TEST_CMD: ${{ matrix.pre_test }}
         run: |-
           export SDK_VERSION=$(cat ~/kalix-sdk-version.txt)
           cd samples/${DIR}
           echo "Running sbt on ${DIR} with SDK version: '$SDK_VERSION'"
+          ${PRE_TEST_CMD}
           sbtn -Dkalix-sdk.version=$SDK_VERSION test
 
       - name: ${{ matrix.sample }} rm & Test/compile
