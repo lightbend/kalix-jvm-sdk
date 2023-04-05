@@ -103,6 +103,8 @@ class RunMojo extends AbstractMojo {
     // therefore we need to check if the port is free and it not, add some artificial delay. And we should keep trying
     // and notifying the user that we are waiting for the port.
     if (runProxy) {
+
+      log.info("Starting Kalix Proxy on port: " + proxyPort)
       val config = KalixProxyContainer.KalixProxyContainerConfig(
         proxyImage,
         proxyPort,
@@ -127,19 +129,20 @@ class RunMojo extends AbstractMojo {
 
   private def startUserFunction(): Unit = {
 
+    log.info("Starting Kalix Application on port: " + userFunctionPort)
     val mainArgs =
       Seq(
         element(name("argument"), "-classpath"),
         element(name("classpath")),
         element(name("argument"), "-Dkalix.user-function-port=" + userFunctionPort))
 
-    log.info("Log configuration: " + logConfig)
     val optionalArgs: Seq[Element] =
-      if (logConfig.trim.nonEmpty)
+      if (logConfig.trim.nonEmpty) {
+        log.info("Using logging configuration: " + logConfig)
         // when using SpringBoot, logback config is passed using logging.config
         element(name("argument"), "-Dlogging.config=" + logConfig) ::
         element(name("argument"), "-Dlogback.configurationFile=" + logConfig) :: Nil
-      else List.empty
+      } else List.empty
 
     val allArgs =
       mainArgs ++ optionalArgs :+
