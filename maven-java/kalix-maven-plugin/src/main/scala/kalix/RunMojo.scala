@@ -7,6 +7,7 @@ import kalix.devtools.impl.KalixProxyContainerFactory
 import org.apache.maven.execution.MavenSession
 import org.apache.maven.plugin.AbstractMojo
 import org.apache.maven.plugin.BuildPluginManager
+import org.apache.maven.plugin.logging.Log
 import org.apache.maven.plugins.annotations._
 import org.apache.maven.project.MavenProject
 import org.twdata.maven.mojoexecutor.MojoExecutor._
@@ -27,30 +28,30 @@ class RunMojo extends AbstractMojo {
   private var pluginManager: BuildPluginManager = null
 
   @Parameter(property = "mainClass")
-  private var mainClass = ""
+  private var mainClass: String = ""
 
   @Parameter(property = "kalix.log-config")
-  private var logConfig = null
+  private var logConfig: String = null
 
   @Parameter(property = "kalix.user-function-port")
-  private var userFunctionPort = 8080
+  private var userFunctionPort: Int = 8080
 
   /**
    * Enables dev-mode
    */
   @Parameter(property = "kalix.dev-mode.enabled")
-  private var devModeEnabled = true
+  private var devModeEnabled: Boolean = true
 
   @Parameter(property = "kalix.dev-mode.proxyPort")
-  private var proxyPort = 9000
+  private var proxyPort: Int = 9000
 
   @Parameter(property = "kalix.dev-mode.proxyImage")
-  private var proxyImage = ""
+  private var proxyImage: String = ""
 
   @Parameter(property = "kalix.dev-mode.serviceName")
-  private var serviceName = ""
+  private var serviceName: String = ""
 
-  private var log = getLog
+  private val log: Log = getLog
 
   override def execute(): Unit = {
     log.info("Using dev logging config: " + logConfig)
