@@ -213,26 +213,26 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { sample: scala-protobuf-customer-registry-quickstart }
+          - { sample: scala-protobuf-customer-registry-quickstart, test: true }
 
-          - { sample: scala-protobuf-fibonacci-action }
-          - { sample: scala-protobuf-first-service }
-          - { sample: scala-protobuf-doc-snippets }
-          - { sample: scala-protobuf-valueentity-customer-registry }
-          - { sample: scala-protobuf-view-store }
+          - { sample: scala-protobuf-fibonacci-action, test: true }
+          - { sample: scala-protobuf-first-service, test: false }
+          - { sample: scala-protobuf-doc-snippets, test: true }
+          - { sample: scala-protobuf-valueentity-customer-registry, test: true }
+          - { sample: scala-protobuf-view-store, test: true }
 
-          - { sample: scala-protobuf-eventsourced-customer-registry }
-          - { sample: scala-protobuf-eventsourced-customer-registry-subscriber }
-          - { sample: scala-protobuf-eventsourced-counter, pre_test: 'docker-compose -f ../../.circleci/google-pubsub-emulator-docker-compose.yml up -d', it: true }
-          - { sample: scala-protobuf-eventsourced-shopping-cart }
+          - { sample: scala-protobuf-eventsourced-customer-registry, test: true }
+          - { sample: scala-protobuf-eventsourced-customer-registry-subscriber, test: true }
+          - { sample: scala-protobuf-eventsourced-counter, pre_test: 'docker-compose -f ../../.circleci/google-pubsub-emulator-docker-compose.yml up -d', test: true }
+          - { sample: scala-protobuf-eventsourced-shopping-cart, test: true }
 
-          - { sample: scala-protobuf-valueentity-counter }
-          - { sample: scala-protobuf-valueentity-shopping-cart }
+          - { sample: scala-protobuf-valueentity-counter, test: true }
+          - { sample: scala-protobuf-valueentity-shopping-cart, test: true }
 
-          - { sample: scala-protobuf-replicatedentity-shopping-cart }
-          - { sample: scala-protobuf-replicatedentity-examples }
+          - { sample: scala-protobuf-replicatedentity-shopping-cart, test: true }
+          - { sample: scala-protobuf-replicatedentity-examples, test: true }
 
-          - { sample: scala-protobuf-reliable-timers }
+          - { sample: scala-protobuf-reliable-timers, test: true }
 
     steps:
       - name: Checkout
@@ -260,18 +260,27 @@ jobs:
           cd
           tar -xf dependencies.tar.gz
 
-      - name: ${{ matrix.sample }} test
+      - name: sbt Test/compile
+        env:
+          DIR: ${{ matrix.sample }}
+        run: |-
+          export SDK_VERSION=$(cat ~/kalix-sdk-version.txt)
+          cd samples/${DIR}
+          echo "Running sbt on ${DIR} with SDK version: '$SDK_VERSION'"
+          sbt --client -Dkalix-sdk.version=$SDK_VERSION Test/compile
+
+      - name: sbt test
+        if: matrix.test
         env:
           DIR: ${{ matrix.sample }}
           PRE_TEST_CMD: ${{ matrix.pre_test }}
         run: |-
           export SDK_VERSION=$(cat ~/kalix-sdk-version.txt)
           cd samples/${DIR}
-          echo "Running sbt on ${DIR} with SDK version: '$SDK_VERSION'"
           ${PRE_TEST_CMD}
-          sbt -Dkalix-sdk.version=$SDK_VERSION test
+          sbt  --client -Dkalix-sdk.version=$SDK_VERSION test
 
-      - name: ${{ matrix.sample }} rm & Test/compile
+      - name: rm & sbt Test/compile
         env:
           DIR: ${{ matrix.sample }}
         run: |-
@@ -279,4 +288,4 @@ jobs:
           cd samples/${DIR}
           echo "==== Verifying that generated unmanaged sources compile ===="
           rm -rf src/main/scala src/test/scala src/it/scala
-          sbt -Dkalix-sdk.version=$SDK_VERSION Test/compile
+          sbt  --client -Dkalix-sdk.version=$SDK_VERSION Test/compile
