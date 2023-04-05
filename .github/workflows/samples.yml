@@ -58,9 +58,8 @@ jobs:
         run: |-
           sbt --client "-Ddisable.apidocs=true publishM2; publishLocal"
           # the SDK_VERSION is later used to run the maven tests (see below)
-          sdk_version=$(sbt --client "print javaSdkProtobuf/version" | tail -n 3 | head -n 1)
-          echo "Extracted version from sbt build: '${sdk_version}'"
-          echo "sdk_version=${sdk_version}" >> $GITHUB_OUTPUT
+          echo "Extracting version from sbt build"
+          echo 'sdk_version='$(sbt --client "print javaSdkProtobuf/version" | tail -n 3 | head -n 1) >> $GITHUB_OUTPUT
 
       - name: Build maven-java
         env:
