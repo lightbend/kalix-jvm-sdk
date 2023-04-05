@@ -92,6 +92,7 @@ jobs:
 
     strategy:
       matrix:
+        fail-fast: false
         include:
           - { sample: java-protobuf-shopping-cart-quickstart, it: true }
           - { sample: java-protobuf-customer-registry-quickstart, it: true }
@@ -210,6 +211,7 @@ jobs:
 
     strategy:
       matrix:
+        fail-fast: false
         include:
           - { sample: scala-protobuf-customer-registry-quickstart }
 
@@ -267,7 +269,7 @@ jobs:
           cd samples/${DIR}
           echo "Running sbt on ${DIR} with SDK version: '$SDK_VERSION'"
           ${PRE_TEST_CMD}
-          sbtn -Dkalix-sdk.version=$SDK_VERSION test
+          sbt -Dkalix-sdk.version=$SDK_VERSION test
 
       - name: ${{ matrix.sample }} rm & Test/compile
         env:
@@ -277,4 +279,4 @@ jobs:
           cd samples/${DIR}
           echo "==== Verifying that generated unmanaged sources compile ===="
           rm -rf src/main/scala src/test/scala src/it/scala
-          sbtn -Dkalix-sdk.version=$SDK_VERSION Test/compile
+          sbt -Dkalix-sdk.version=$SDK_VERSION Test/compile
