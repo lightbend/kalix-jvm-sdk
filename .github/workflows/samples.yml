@@ -61,7 +61,7 @@ jobs:
           echo "Extracting version from sbt build"
           sbt "print javaSdkProtobuf/version" > version.txt
           cat version.txt
-          echo 'sdk_version='$(cat version.txt | tail -n 3 | head -n 1) >> $GITHUB_OUTPUT
+          echo 'sdk_version='$(cat version.txt | tail -n 2 | head -n 1) >> $GITHUB_OUTPUT
 
       - name: Build maven-java
         env:
