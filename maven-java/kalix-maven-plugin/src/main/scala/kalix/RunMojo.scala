@@ -3,7 +3,6 @@ package kalix
 import scala.concurrent.Future
 
 import kalix.devtools.impl.KalixProxyContainer
-import kalix.devtools.impl.KalixProxyContainerFactory
 import org.apache.maven.execution.MavenSession
 import org.apache.maven.plugin.AbstractMojo
 import org.apache.maven.plugin.BuildPluginManager
@@ -33,22 +32,28 @@ class RunMojo extends AbstractMojo {
   @Parameter(property = "kalix.log-config")
   private var logConfig: String = null
 
-  @Parameter(property = "kalix.user-function-port")
+  /**
+   * Overrides the user-function port, defaults to 8080
+   */
+  @Parameter(name = "kalix.dev-mode.user-function-port", property = "kalix.user-function-port")
   private var userFunctionPort: Int = 8080
 
   /**
    * Enables dev-mode
    */
-  @Parameter(property = "kalix.dev-mode.enabled")
+  @Parameter(property = "kalix.dev-mode.proxy.enabled")
   private var devModeEnabled: Boolean = true
 
-  @Parameter(property = "kalix.dev-mode.proxyPort")
+  /**
+   * Overrides the proxy port, defaults to 9000
+   */
+  @Parameter(property = "kalix.dev-mode.proxy.port")
   private var proxyPort: Int = 9000
 
-  @Parameter(property = "kalix.dev-mode.proxyImage")
+  @Parameter(property = "kalix.dev-mode.proxy.image")
   private var proxyImage: String = ""
 
-  @Parameter(property = "kalix.dev-mode.serviceName")
+  @Parameter(property = "kalix.dev-mode.service-name")
   private var serviceName: String = ""
 
   private val log: Log = getLog
@@ -65,7 +70,7 @@ class RunMojo extends AbstractMojo {
     // and notifying the user that we are waiting for the port.
     if (devModeEnabled) {
       log.info("Kalix DevMode is enabled")
-      val config = new KalixProxyContainer.KalixProxyContainerConfig(
+      val config = KalixProxyContainer.KalixProxyContainerConfig(
         proxyImage,
         proxyPort,
         userFunctionPort,
@@ -76,30 +81,38 @@ class RunMojo extends AbstractMojo {
         ""
       ) // pubsub emulator
 
-      val container = KalixProxyContainerFactory.apply(config)
+      val container = KalixProxyContainer(config)
       import scala.concurrent.ExecutionContext.Implicits.global
       Future(container.start())
 
     } else log.info("Kalix DevMode is disabled. Kalix Server won't start.")
   }
 
-  private def startUserFunction(): Unit =
+  private def startUserFunction(): Unit = {
+
+    def when(cond: Boolean)(elements: Element*): Seq[Element] =
+      if (cond) elements
+      else Seq.empty
+
+    val mainArgs =
+      Seq(
+        element(name("argument"), "-classpath"),
+        element(name("classpath")),
+        element(name("argument"), "-Dkalix.user-function-port=" + userFunctionPort),
+        element(name("argument"), mainClass))
+
+    val optionalArgs =
+      when(logConfig.trim.nonEmpty)(
+        element(name("argument"), "-Dlogback.configurationFile=" + logConfig),
+        // when using SpringBoot, logback config is passed using logging.config
+        element(name("argument"), "-Dlogging.config=" + logConfig))
+
     executeMojo(
       plugin("org.codehaus.mojo", "exec-maven-plugin", "3.0.0"),
       goal("exec"),
       configuration(
         element(name("executable"), "java"),
-        element(
-          name("arguments"),
-          element(name("argument"), "-classpath"),
-          element(name("classpath")),
-          element(
-            name("argument"),
-            "-Dlogback.configurationFile=" + logConfig
-          ), // when using SpringBoot, logback config is passed using logging.config
-          element(name("argument"), "-Dlogging.config=" + logConfig),
-          element(name("argument"), "-Dkalix.user-function-port=" + userFunctionPort),
-          element(name("argument"), mainClass)),
+        element(name("arguments"), (mainArgs ++ optionalArgs): _*),
         element(
           name("environmentVariables"),
           // needed for the proxy to access the user function on all platforms
@@ -108,4 +121,5 @@ class RunMojo extends AbstractMojo {
           // If using Spring, don't print it's banner as this is run by kalix:run, not spring-boot:run
           element("SPRING_MAIN_BANNER-MODE", "off"))),
       executionEnvironment(mavenProject, mavenSession, pluginManager))
+  }
 }

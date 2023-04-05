@@ -51,11 +51,6 @@ object KalixProxyContainer {
 
 }
 
-object KalixProxyContainerFactory {
-  def apply(config: KalixProxyContainerConfig): KalixProxyContainer =
-    KalixProxyContainer(config)
-}
-
 class KalixProxyContainer private (image: DockerImageName, config: KalixProxyContainerConfig)
     extends GenericContainer[KalixProxyContainer](image) {
 
