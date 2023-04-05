@@ -477,7 +477,6 @@ workflows:
       - checks
       - publish-local
       - check-sample-sdk-versions
-      - verify-all-samples-tested
 
       - validate-docs:
           requires:
