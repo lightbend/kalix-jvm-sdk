@@ -80,6 +80,9 @@ jobs:
     name: Ensure all sample projects are listed
     runs-on: ubuntu-22.04
     steps:
+      - name: Checkout
+        uses: actions/checkout@v3.1.0
+
       - run: .github/ci-check-samples.sh
 
   maven-samples:
