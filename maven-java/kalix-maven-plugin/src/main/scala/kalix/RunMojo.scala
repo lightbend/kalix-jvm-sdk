@@ -12,8 +12,9 @@ import org.apache.maven.project.MavenProject
 import org.twdata.maven.mojoexecutor.MojoExecutor._
 
 /**
- * Runs the current project. This goal will by default start a Kalix Server (Proxy) and the current application. Kalix
- * Server bootstrap is skipped if dev-mode is disabled, see `devModeEnabled` property.
+ * Runs the current project. This goal will by default start a Kalix Server (Proxy) and the current application.
+ *
+ * Kalix Server bootstrap can be skipped by setting `runProxy` to false.
  */
 @Mojo(name = "run", defaultPhase = LifecyclePhase.TEST, requiresDependencyResolution = ResolutionScope.TEST)
 class RunMojo extends AbstractMojo {
@@ -29,37 +30,70 @@ class RunMojo extends AbstractMojo {
   @Parameter(property = "mainClass")
   private var mainClass: String = ""
 
-  @Parameter(property = "kalix.log-config")
-  private var logConfig: String = null
+  @Parameter(property = "kalix.dev-mode.log-config")
+  private var logConfig: String = ""
 
   /**
    * Overrides the user-function port, defaults to 8080
    */
-  @Parameter(name = "kalix.dev-mode.user-function-port", property = "kalix.user-function-port")
+  @Parameter(property = "kalix.user-function-port")
   private var userFunctionPort: Int = 8080
 
   /**
-   * Enables dev-mode
+   * Runs a Kalix Proxy alongside the current application.
    */
-  @Parameter(property = "kalix.dev-mode.proxy.enabled")
-  private var devModeEnabled: Boolean = true
+  @Parameter(property = "kalix.dev-mode.run-proxy")
+  private var runProxy: Boolean = true
 
   /**
-   * Overrides the proxy port, defaults to 9000
+   * Allows for overriding the port the Kalix Proxy will run. Default to 9000. Useful when running more than one service
+   * in dev-mode.
    */
-  @Parameter(property = "kalix.dev-mode.proxy.port")
+  @Parameter(property = "kalix.dev-mode.proxy-port")
   private var proxyPort: Int = 9000
 
-  @Parameter(property = "kalix.dev-mode.proxy.image")
+  /**
+   * Allows for overriding the Kalix Proxy image. When empty, the image used when the SDK was built will be selected.
+   */
+  @Parameter(property = "kalix.dev-mode.proxy-image")
   private var proxyImage: String = ""
 
+  /**
+   * Defines a unique identification name for this service. Useful when running more than one service and testing
+   * intra-service calls.
+   */
   @Parameter(property = "kalix.dev-mode.service-name")
   private var serviceName: String = ""
+
+  /**
+   * Enable ACL checks in development. ACL checks are disabled by default during development.
+   */
+  @Parameter(property = "kalix.dev-mode.acl-enabled")
+  private var aclEnabled: Boolean = false
+
+  /**
+   * Enable advanced view features (multi-table joins).
+   */
+  @Parameter(property = "kalix.dev-mode.view-features-all")
+  private var viewFeaturesAll: Boolean = false
+
+  /**
+   * When configuring with a Kafka broker, this settings should point to a Kafka properties file, eg:
+   * /conf/kafka.properties.
+   */
+  @Parameter(property = "kalix.dev-mode.broker-config-file")
+  private var brokerConfigFile: String = ""
+
+  /**
+   * When running with a PubSub emulator, this settings must be configured to its host, eg: gcloud-pubsub-emulator.
+   */
+  @Parameter(property = "kalix.dev-mode.pubsub-emulator-host")
+  private var pubsubEmulatorHost: String = ""
 
   private val log: Log = getLog
 
   override def execute(): Unit = {
-    log.info("Using dev logging config: " + logConfig)
+    assert(mainClass.trim.nonEmpty, "Main class not set. Kalix maven plugin must have `mainClass` set to ")
     startKalixProxy()
     startUserFunction()
   }
@@ -68,31 +102,30 @@ class RunMojo extends AbstractMojo {
     // TODO: when restarting, it's possible that testcontainers haven't yet freed the port from previous run
     // therefore we need to check if the port is free and it not, add some artificial delay. And we should keep trying
     // and notifying the user that we are waiting for the port.
-    if (devModeEnabled) {
-      log.info("Kalix DevMode is enabled")
+    if (runProxy) {
       val config = KalixProxyContainer.KalixProxyContainerConfig(
         proxyImage,
         proxyPort,
         userFunctionPort,
-        serviceName, // TODO
-        false, // ACL enabled
-        false, // viewFeaturesAll
-        "", // broker config file
-        ""
-      ) // pubsub emulator
+        serviceName,
+        aclEnabled,
+        viewFeaturesAll,
+        brokerConfigFile,
+        pubsubEmulatorHost)
 
       val container = KalixProxyContainer(config)
       import scala.concurrent.ExecutionContext.Implicits.global
       Future(container.start())
 
-    } else log.info("Kalix DevMode is disabled. Kalix Server won't start.")
+    } else {
+      log.warn(
+        "Kalix Proxy won't start (ie: runProxy = false). " +
+        "To test this application locally you should either enable 'runProxy' or start the Kalix Proxy by hand using " +
+        "the provided docker-compose file.")
+    }
   }
 
   private def startUserFunction(): Unit = {
-
-    def when(cond: Boolean)(elements: Element*): Seq[Element] =
-      if (cond) elements
-      else Seq.empty
 
     val mainArgs =
       Seq(
@@ -101,11 +134,12 @@ class RunMojo extends AbstractMojo {
         element(name("argument"), "-Dkalix.user-function-port=" + userFunctionPort),
         element(name("argument"), mainClass))
 
-    val optionalArgs =
-      when(logConfig.trim.nonEmpty)(
-        element(name("argument"), "-Dlogback.configurationFile=" + logConfig),
+    val optionalArgs: Seq[Element] =
+      if (logConfig.trim.nonEmpty)
         // when using SpringBoot, logback config is passed using logging.config
-        element(name("argument"), "-Dlogging.config=" + logConfig))
+        element(name("argument"), "-Dlogging.config=" + logConfig) ::
+        element(name("argument"), "-Dlogback.configurationFile=" + logConfig) :: Nil
+      else List.empty
 
     executeMojo(
       plugin("org.codehaus.mojo", "exec-maven-plugin", "3.0.0"),
