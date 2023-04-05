@@ -104,7 +104,20 @@ class RunMojo extends AbstractMojo {
     // and notifying the user that we are waiting for the port.
     if (runProxy) {
 
-      log.info("Starting Kalix Proxy on port: " + proxyPort)
+      def renderString(value: String) = if (value.trim.isEmpty) "<not defined>" else value
+
+      log.info(s"Running Kalix in dev-mode with settings:")
+      log.info("--------------------------------------------------------------------------------------")
+      log.info(s"proxyImage         = ${renderString(proxyImage)}")
+      log.info(s"proxyPort          = $proxyPort")
+      log.info(s"userFunctionPort   = $userFunctionPort")
+      log.info(s"serviceName        = ${renderString(serviceName)}")
+      log.info(s"aclEnabled         = $aclEnabled")
+      log.info(s"viewFeaturesAll    = $viewFeaturesAll")
+      log.info(s"brokerConfigFile   = ${renderString(brokerConfigFile)}")
+      log.info(s"pubsubEmulatorHost = ${renderString(pubsubEmulatorHost)}")
+      log.info("--------------------------------------------------------------------------------------")
+
       val config = KalixProxyContainer.KalixProxyContainerConfig(
         proxyImage,
         proxyPort,
@@ -120,10 +133,11 @@ class RunMojo extends AbstractMojo {
       Future(container.start())
 
     } else {
-      log.warn(
-        "Kalix Proxy won't start (ie: runProxy = false). " +
-        "To test this application locally you should either enable 'runProxy' or start the Kalix Proxy by hand using " +
-        "the provided docker-compose file.")
+      log.info("Kalix Proxy won't start (ie: runProxy = false).")
+      log.info("--------------------------------------------------------------------------------------")
+      log.info("To test this application locally you should either enable 'runProxy'")
+      log.info("or start the Kalix Proxy by hand using the provided docker-compose file.")
+      log.info("--------------------------------------------------------------------------------------")
     }
   }
 

@@ -96,7 +96,7 @@ class KalixProxyContainer private (image: DockerImageName, config: KalixProxyCon
   private var started: Boolean = false
 
   override def start(): Unit = {
-    containerLogger.info("Starting Kalix Server...")
+    containerLogger.info("Starting Kalix Proxy Server...")
     containerLogger.info("Using proxy image [{}]", image)
     containerLogger.info("KalixProxyContainer config : {}", config)
     Testcontainers.exposeHostPorts(userFunctionPort)
@@ -106,7 +106,7 @@ class KalixProxyContainer private (image: DockerImageName, config: KalixProxyCon
 
   override def stop(): Unit =
     if (started) {
-      containerLogger.info("Stopping Kalix Server...")
+      containerLogger.info("Stopping Kalix Proxy Server...")
       super.stop()
     }
 }
