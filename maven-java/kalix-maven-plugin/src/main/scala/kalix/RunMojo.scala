@@ -131,8 +131,7 @@ class RunMojo extends AbstractMojo {
       Seq(
         element(name("argument"), "-classpath"),
         element(name("classpath")),
-        element(name("argument"), "-Dkalix.user-function-port=" + userFunctionPort),
-        element(name("argument"), mainClass))
+        element(name("argument"), "-Dkalix.user-function-port=" + userFunctionPort))
 
     log.info("Log configuration: " + logConfig)
     val optionalArgs: Seq[Element] =
@@ -142,12 +141,16 @@ class RunMojo extends AbstractMojo {
         element(name("argument"), "-Dlogback.configurationFile=" + logConfig) :: Nil
       else List.empty
 
+    val allArgs =
+      mainArgs ++ optionalArgs :+
+      element(name("argument"), mainClass) // mainClass must be last arg
+
     executeMojo(
       plugin("org.codehaus.mojo", "exec-maven-plugin", "3.0.0"),
       goal("exec"),
       configuration(
         element(name("executable"), "java"),
-        element(name("arguments"), (mainArgs ++ optionalArgs): _*),
+        element(name("arguments"), allArgs: _*),
         element(
           name("environmentVariables"),
           // needed for the proxy to access the user function on all platforms
