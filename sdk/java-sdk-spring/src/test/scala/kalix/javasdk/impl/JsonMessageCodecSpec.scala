@@ -73,7 +73,7 @@ class JsonMessageCodecSpec extends AnyWordSpec with Matchers {
 
     "default to FQCN for typeUrl (java)" in {
       val encoded = messageCodec.encodeJava(SimpleClass("abc", 10))
-      encoded.getTypeUrl shouldBe jsonTypeUrlWith("SimpleClass")
+      encoded.getTypeUrl shouldBe jsonTypeUrlWith("kalix.javasdk.impl.JsonMessageCodecSpec$SimpleClass")
     }
 
     "not re-encode (wrap) to JavaPbAny" in {
@@ -92,7 +92,7 @@ class JsonMessageCodecSpec extends AnyWordSpec with Matchers {
 
     "default to FQCN for typeUrl (scala)" in {
       val encoded = messageCodec.encodeScala(SimpleClass("abc", 10))
-      encoded.typeUrl shouldBe jsonTypeUrlWith("SimpleClass")
+      encoded.typeUrl shouldBe jsonTypeUrlWith("kalix.javasdk.impl.JsonMessageCodecSpec$SimpleClass")
     }
 
     "not re-encode (wrap) to ScalaPbAny" in {
@@ -153,22 +153,26 @@ class JsonMessageCodecSpec extends AnyWordSpec with Matchers {
       import JsonMessageCodecSpec.AnnotatedWithEmptyTypeName.Elephant
       import JsonMessageCodecSpec.AnnotatedWithEmptyTypeName.Lion
 
-      "default to FQCN  if TypeName is has empty string (java)" in {
+      "default to FQCN  if TypeName has empty string (java)" in {
 
         val encodedLion = messageCodec.encodeJava(Lion("Simba"))
-        encodedLion.getTypeUrl shouldBe jsonTypeUrlWith("Lion")
+        encodedLion.getTypeUrl shouldBe jsonTypeUrlWith(
+          "kalix.javasdk.impl.JsonMessageCodecSpec$AnnotatedWithEmptyTypeName$Lion")
 
         val encodedElephant = messageCodec.encodeJava(Elephant("Dumbo", 1))
-        encodedElephant.getTypeUrl shouldBe jsonTypeUrlWith("Elephant")
+        encodedElephant.getTypeUrl shouldBe jsonTypeUrlWith(
+          "kalix.javasdk.impl.JsonMessageCodecSpec$AnnotatedWithEmptyTypeName$Elephant")
       }
 
-      "default to FQCN  if TypeName is has empty string" in {
+      "default to FQCN  if TypeName has empty string" in {
 
         val encodedLion = messageCodec.encodeScala(Lion("Simba"))
-        encodedLion.typeUrl shouldBe jsonTypeUrlWith("Lion")
+        encodedLion.typeUrl shouldBe jsonTypeUrlWith(
+          "kalix.javasdk.impl.JsonMessageCodecSpec$AnnotatedWithEmptyTypeName$Lion")
 
         val encodedElephant = messageCodec.encodeScala(Elephant("Dumbo", 1))
-        encodedElephant.typeUrl shouldBe jsonTypeUrlWith("Elephant")
+        encodedElephant.typeUrl shouldBe jsonTypeUrlWith(
+          "kalix.javasdk.impl.JsonMessageCodecSpec$AnnotatedWithEmptyTypeName$Elephant")
       }
     }
 
