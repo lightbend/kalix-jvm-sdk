@@ -338,30 +338,6 @@ jobs:
             command: sbt -Dexample.suite.scala.enabled codegenScalaCompilationExampleSuite/compile
       - save_deps_cache
 
-  verify-all-samples-tested:
-    machine:
-      image: ubuntu-2004:202201-02
-    description: "Check that all samples are included in CI-verification"
-    steps:
-      - checkout-and-merge-to-main
-      - run:
-          name: Check that all samples are included in CI-verification
-          command: |
-            ALL_OK=true
-            for SAMPLE in samples/scala*
-            do
-              if [ $(grep -c $SAMPLE .circleci/config.yml) -lt 1 ] ; then
-                echo "$SAMPLE is missing CI-tests"
-                ALL_OK=false
-              fi
-              SAMPLE_JOB_NAME="sample-${SAMPLE#samples/}"
-              if [ $(grep -c $SAMPLE_JOB_NAME .circleci/config.yml) -lt 2 ] ; then
-                echo "$SAMPLE_JOB_NAME is missing from CI workflow"
-                ALL_OK=false
-              fi
-            done
-            $ALL_OK
-
   maven-java-tests:
     machine:
       image: ubuntu-2004:202201-02

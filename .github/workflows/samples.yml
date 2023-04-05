@@ -22,7 +22,8 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout
-        uses: actions/checkout@v3.1.0
+        # v3.1.0
+        uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8
 
       - name: Checkout GitHub merge
         if: github.event.pull_request
@@ -31,15 +32,21 @@ jobs:
           git checkout scratch
 
       - name: Set up JDK 17
-        uses: coursier/setup-action@v1.3.0
+        # https://github.com/coursier/setup-action/releases
+        # v1.3.0
+        uses: coursier/setup-action@70323223454ac2a9eb2de46f389b4d045cbcdea5
         with:
           jvm: temurin:1.17
 
       - name: Cache Coursier cache
-        uses: coursier/cache-action@v6.4.0
+        # https://github.com/coursier/cache-action/releases
+        # v6.4.3
+        uses: coursier/cache-action@566e01fea33492e5a89706b43fb0d3fc884154f9
 
       - name: Cache Maven repository
-        uses: actions/cache@v3
+        # https://github.com/actions/cache/releases
+        # v3.3.1
+        uses: actions/cache@88522ab9f39a2ea568f7027eddc7d8d8bc9d59c8
         with:
           path: ~/.m2/repository
           key: ${{ runner.os }}-maven-${{ hashFiles('maven-java/pom.xml') }}
@@ -70,7 +77,9 @@ jobs:
           tar -czf dependencies.tar.gz .m2/ .ivy2/ kalix-sdk-version.txt
 
       - name: Upload
-        uses: actions/upload-artifact@v3
+        # https://github.com/actions/upload-artifact/releases
+        # v3.1.2
+        uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce
         with:
           name: m2-cache
           path: ~/dependencies.tar.gz
@@ -81,7 +90,8 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout
-        uses: actions/checkout@v3.1.0
+        # v3.1.0
+        uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8
 
       - run: .github/ci-check-samples.sh
 
@@ -144,7 +154,8 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v3.1.0
+        # v3.1.0
+        uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8
 
       - name: Checkout GitHub merge
         if: github.event.pull_request
@@ -153,12 +164,16 @@ jobs:
           git checkout scratch
 
       - name: Set up JDK 17
-        uses: coursier/setup-action@v1.3.0
+        # https://github.com/coursier/setup-action/releases
+        # v1.3.0
+        uses: coursier/setup-action@70323223454ac2a9eb2de46f389b4d045cbcdea5
         with:
           jvm: temurin:1.17
 
       - name: Download pre-built cache
-        uses: actions/download-artifact@v3
+        # https://github.com/actions/download-artifact/releases
+        # v3.0.2
+        uses: actions/download-artifact@d2278a10efbd646909370fd49fb454cb04e368e3
         with:
           name: m2-cache
           path: ~/
@@ -236,7 +251,8 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v3.1.0
+        # v3.1.0
+        uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8
 
       - name: Checkout GitHub merge
         if: github.event.pull_request
@@ -245,12 +261,16 @@ jobs:
           git checkout scratch
 
       - name: Set up JDK 17
-        uses: coursier/setup-action@v1.3.0
+        # https://github.com/coursier/setup-action/releases
+        # v1.3.0
+        uses: coursier/setup-action@70323223454ac2a9eb2de46f389b4d045cbcdea5
         with:
           jvm: temurin:1.17
 
       - name: Download pre-built cache
-        uses: actions/download-artifact@v3
+        # https://github.com/actions/download-artifact/releases
+        # v3.0.2
+        uses: actions/download-artifact@d2278a10efbd646909370fd49fb454cb04e368e3
         with:
           name: m2-cache
           path: ~/
