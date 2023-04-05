@@ -38,6 +38,14 @@ jobs:
       - name: Cache Coursier cache
         uses: coursier/cache-action@v6.4.0
 
+      - name: Cache Maven repository
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('maven-java/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
       - name: Build and publish artifacts and plugins
         id: build_sdk
         run: |-
@@ -68,13 +76,17 @@ jobs:
           path: ~/dependencies.tar.gz
           if-no-files-found: error
 
+  all-samples-tested:
+    name: Ensure all sample projects are listed
+    runs-on: ubuntu-22.04
+    run: .github/ci-check-samples.sh
+
   maven-samples:
     name: Maven samples
     needs: publish-local
     runs-on: ubuntu-22.04
 
     strategy:
-#      fail-fast: true
       matrix:
         include:
           - { sample: java-protobuf-shopping-cart-quickstart, it: true }
@@ -186,3 +198,58 @@ jobs:
           echo "==== Verifying that generated unmanaged sources compile ===="
           rm -rf src/main/java src/test/java src/it/java
           mvn -Dkalix-sdk.version=${SDK_VERSION} test-compile
+
+  sbt-samples:
+    name: sbt
+    needs: publish-local
+    runs-on: ubuntu-22.04
+
+    strategy:
+      matrix:
+        include:
+          - { sample: scala-protobuf-doc-snippets }
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3.1.0
+
+      - name: Checkout GitHub merge
+        if: github.event.pull_request
+        run: |-
+          git fetch origin pull/${{ github.event.pull_request.number }}/merge:scratch
+          git checkout scratch
+
+      - name: Set up JDK 17
+        uses: coursier/setup-action@v1.3.0
+        with:
+          jvm: temurin:1.17
+
+      - name: Download pre-built cache
+        uses: actions/download-artifact@v3
+        with:
+          name: m2-cache
+          path: ~/
+
+      - name: Unpack
+        run: |-
+          cd
+          tar -xf dependencies.tar.gz
+
+      - name: ${{ matrix.sample }} test
+        env:
+          DIR: ${{ matrix.sample }}
+        run: |-
+          export SDK_VERSION=$(cat ~/kalix-sdk-version.txt)
+          cd samples/${DIR}
+          echo "Running sbt on ${DIR} with SDK version: '$SDK_VERSION'"
+          sbtn -Dkalix-sdk.version=$SDK_VERSION test
+
+      - name: ${{ matrix.sample }} rm & Test/compile
+        env:
+          DIR: ${{ matrix.sample }}
+        run: |-
+          export SDK_VERSION=$(cat ~/kalix-sdk-version.txt)
+          cd samples/${DIR}
+          echo "==== Verifying that generated unmanaged sources compile ===="
+          rm -rf src/main/scala src/test/scala src/it/scala
+          sbtn -Dkalix-sdk.version=$SDK_VERSION Test/compile
