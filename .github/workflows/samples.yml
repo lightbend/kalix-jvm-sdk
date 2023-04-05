@@ -79,7 +79,8 @@ jobs:
   all-samples-tested:
     name: Ensure all sample projects are listed
     runs-on: ubuntu-22.04
-    run: .github/ci-check-samples.sh
+    steps:
+      - run: .github/ci-check-samples.sh
 
   maven-samples:
     name: Maven samples
