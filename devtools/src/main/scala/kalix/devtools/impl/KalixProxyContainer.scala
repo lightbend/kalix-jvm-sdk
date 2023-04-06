@@ -40,11 +40,7 @@ object KalixProxyContainer {
 
   def apply(config: KalixProxyContainerConfig): KalixProxyContainer = {
 
-    val dockerImage: DockerImageName =
-      if (config.proxyImage.trim.nonEmpty)
-        DockerImageName.parse(config.proxyImage)
-      else
-        DockerImageName.parse(BuildInfo.proxyImage).withTag(BuildInfo.proxyVersion)
+    val dockerImage: DockerImageName = DockerImageName.parse(config.proxyImage)
 
     new KalixProxyContainer(dockerImage, config)
   }
