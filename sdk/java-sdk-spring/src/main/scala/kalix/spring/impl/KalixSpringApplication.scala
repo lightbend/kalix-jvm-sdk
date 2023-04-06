@@ -248,7 +248,6 @@ case class KalixSpringApplication(applicationContext: ApplicationContext, config
   private val logger: Logger = LoggerFactory.getLogger(getClass)
 
   private val messageCodec = new JsonMessageCodec
-
   private val kalixClient = new RestKalixClientImpl(messageCodec)
 
   private val kalixBeanFactory = new DefaultListableBeanFactory(applicationContext)
@@ -416,7 +415,7 @@ case class KalixSpringApplication(applicationContext: ApplicationContext, config
         kalixBeanFactory.getBean(clz)
       })
 
-  private def workflowProvider[S, E <: WorkflowEntity[S]](clz: Class[E]): WorkflowEntityProvider[S, E] =
+  private def workflowProvider[S, E <: WorkflowEntity[S]](clz: Class[E]): WorkflowEntityProvider[S, E] = {
     ReflectiveWorkflowEntityProvider.of(
       clz,
       messageCodec,
@@ -453,6 +452,7 @@ case class KalixSpringApplication(applicationContext: ApplicationContext, config
 
         workflowEntity
       })
+  }
 
   private def valueEntityProvider[S, E <: ValueEntity[S]](clz: Class[E]): ValueEntityProvider[S, E] =
     ReflectiveValueEntityProvider.of(

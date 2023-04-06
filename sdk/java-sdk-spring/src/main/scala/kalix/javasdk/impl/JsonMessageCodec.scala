@@ -18,13 +18,15 @@ package kalix.javasdk.impl
 
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentMap
-
 import com.google.protobuf.any.{ Any => ScalaPbAny }
 import com.google.protobuf.{ Any => JavaPbAny }
 import kalix.javasdk.JsonSupport
 import kalix.javasdk.annotations.TypeName
+import org.slf4j.LoggerFactory
 
 private[kalix] class JsonMessageCodec extends MessageCodec {
+
+  private val log = LoggerFactory.getLogger(getClass)
 
   private val cache: ConcurrentMap[Class[_], String] = new ConcurrentHashMap()
   private[kalix] val reversedCache: ConcurrentMap[String, Class[_]] = new ConcurrentHashMap()
@@ -56,7 +58,7 @@ private[kalix] class JsonMessageCodec extends MessageCodec {
   private[kalix] def lookupTypeHint(clz: Class[_]): String = {
     val typeName = Option(clz.getAnnotation(classOf[TypeName]))
       .collect { case ann if ann.value().trim.nonEmpty => ann.value() }
-      .getOrElse(clz.getSimpleName) //TODO getName to minimize collision chance, is it backward compatible
+      .getOrElse(clz.getName)
     cache.computeIfAbsent(clz, _ => typeName)
     //TODO verify if this could be replaced by sth smarter/safer
     reversedCache.compute(
