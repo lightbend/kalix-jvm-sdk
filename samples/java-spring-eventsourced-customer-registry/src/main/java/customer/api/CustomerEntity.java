@@ -4,10 +4,11 @@ import customer.domain.Address;
 import customer.domain.Customer;
 import customer.domain.CustomerEvent;
 import kalix.javasdk.eventsourcedentity.EventSourcedEntity;
-import kalix.javasdk.eventsourcedentity.EventSourcedEntityContext;
 import kalix.javasdk.annotations.EntityKey;
 import kalix.javasdk.annotations.EntityType;
 import kalix.javasdk.annotations.EventHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
 
 import static customer.domain.CustomerEvent.*;
@@ -16,6 +17,7 @@ import static customer.domain.CustomerEvent.*;
 @EntityType("customer")
 @RequestMapping("/customer/{id}")
 public class CustomerEntity extends EventSourcedEntity<Customer, CustomerEvent> {
+  private static final Logger logger = LoggerFactory.getLogger(CustomerEntity.class);
 
   @GetMapping
   public Effect<Customer> getCustomer() {
@@ -24,6 +26,7 @@ public class CustomerEntity extends EventSourcedEntity<Customer, CustomerEvent> 
 
   @PostMapping("/create")
   public Effect<String> create(@RequestBody Customer customer) {
+    logger.info("Creating {}", customer);
     return effects()
         .emitEvent(new CustomerCreated(customer.email(), customer.name(), customer.address()))
         .thenReply(__ -> "OK");

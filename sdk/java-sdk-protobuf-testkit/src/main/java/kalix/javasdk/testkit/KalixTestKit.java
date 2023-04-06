@@ -252,7 +252,9 @@ public class KalixTestKit {
       proxyContainer.addEnv("SERVICE_NAME", settings.serviceName);
       proxyContainer.addEnv("ACL_ENABLED", Boolean.toString(settings.aclEnabled));
       proxyContainer.addEnv("VIEW_FEATURES_ALL", Boolean.toString(settings.advancedViews));
+      proxyContainer.addEnv("JAVA_TOOL_OPTIONS", "-Dlogback.configurationFile=logback-dev-mode.xml");
       settings.workflowTickInterval.ifPresent(tickInterval -> proxyContainer.addEnv("WORKFLOW_TICK_INTERVAL", tickInterval.toMillis() + ".millis"));
+
       proxyContainer.start();
 
       proxyPort = proxyContainer.getProxyPort();
