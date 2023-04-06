@@ -64,7 +64,7 @@ class RunMojo extends AbstractMojo {
    * Defines a unique identification name for this service. Useful when running more than one service and testing
    * intra-service calls.
    */
-  @Parameter(property = "kalix.dev-mode.service-name")
+  @Parameter(property = "kalix.dev-mode.service-name", defaultValue = "${project.artifactId}")
   private var serviceName: String = ""
 
   /**
