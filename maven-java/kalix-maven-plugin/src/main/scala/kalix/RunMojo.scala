@@ -17,7 +17,7 @@ import org.twdata.maven.mojoexecutor.MojoExecutor._
  *
  * Kalix Server bootstrap can be skipped by setting `runProxy` to false.
  */
-@Mojo(name = "run", defaultPhase = LifecyclePhase.COMPILE, requiresDependencyResolution = ResolutionScope.RUNTIME)
+@Mojo(name = "run", defaultPhase = LifecyclePhase.VALIDATE, requiresDependencyResolution = ResolutionScope.RUNTIME)
 @Execute(phase = LifecyclePhase.COMPILE)
 class RunMojo extends AbstractMojo {
   @Component
