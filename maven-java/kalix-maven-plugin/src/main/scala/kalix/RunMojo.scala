@@ -2,6 +2,7 @@ package kalix
 
 import scala.concurrent.Future
 
+import kalix.devtools.BuildInfo
 import kalix.devtools.impl.KalixProxyContainer
 import org.apache.maven.execution.MavenSession
 import org.apache.maven.plugin.AbstractMojo
@@ -106,9 +107,13 @@ class RunMojo extends AbstractMojo {
 
       def renderString(value: String) = if (value.trim.isEmpty) "<not defined>" else value
 
+      val proxyImageToUse =
+        if (proxyImage.trim.isEmpty) s"${BuildInfo.proxyImage}:${BuildInfo.proxyVersion}"
+        else proxyImage
+
       log.info(s"Running Kalix in dev-mode with settings:")
       log.info("--------------------------------------------------------------------------------------")
-      log.info(s"proxyImage         = ${renderString(proxyImage)}")
+      log.info(s"proxyImage         = $proxyImageToUse")
       log.info(s"proxyPort          = $proxyPort")
       log.info(s"userFunctionPort   = $userFunctionPort")
       log.info(s"serviceName        = ${renderString(serviceName)}")
@@ -119,7 +124,7 @@ class RunMojo extends AbstractMojo {
       log.info("--------------------------------------------------------------------------------------")
 
       val config = KalixProxyContainer.KalixProxyContainerConfig(
-        proxyImage,
+        proxyImageToUse,
         proxyPort,
         userFunctionPort,
         serviceName,
