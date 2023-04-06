@@ -16,6 +16,7 @@
 
 package kalix.javasdk
 
+import java.io.File
 import java.lang.management.ManagementFactory
 import java.time.Duration
 
@@ -72,10 +73,25 @@ object KalixRunner {
     }
 
     private def validate(): Unit = {
-      require(userFunctionInterface.length > 0, s"user-function-interface must not be empty")
+      require(userFunctionInterface.nonEmpty, s"user-function-interface must not be empty")
       require(userFunctionPort > 0, s"user-function-port must be greater than 0")
     }
   }
+
+  def prepareConfig(config: Config): Config = {
+
+    val mainConfig = config.getConfig("kalix.system").withFallback(config)
+    val devConfigFile = new File(System.getProperty("user.dir"), "dev-mode.conf")
+
+    Option
+      .when(devConfigFile.exists()) {
+        ConfigFactory.parseFile(devConfigFile)
+      }
+      .map(_.withFallback(mainConfig))
+      .getOrElse(mainConfig)
+      .resolve()
+  }
+
 }
 
 /**
