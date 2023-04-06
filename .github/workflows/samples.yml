@@ -131,7 +131,7 @@ jobs:
           - { sample: java-protobuf-eventsourced-shopping-cart, it: true }
 
           - { sample: java-spring-eventsourced-customer-registry, it: true }
-          - { sample: java-spring-eventsourced-customer-registry-subscriber, it: false }
+          - { sample: java-spring-eventsourced-customer-registry-subscriber, pre_cmd: 'docker-compose -f ../java-spring-eventsourced-customer-registry/docker-compose.yml up -d; (cd ../java-spring-eventsourced-customer-registry/; mvn spring-boot:run &);sleep 10;', it: true }
           - { sample: java-spring-eventsourced-shopping-cart, it: true }
 
           - { sample: java-protobuf-valueentity-counter, it: true }
