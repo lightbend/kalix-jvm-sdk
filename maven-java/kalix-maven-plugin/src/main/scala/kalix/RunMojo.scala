@@ -1,5 +1,6 @@
 package kalix
 
+import java.net.BindException
 import java.net.ServerSocket
 
 import scala.annotation.tailrec
@@ -109,7 +110,7 @@ class RunMojo extends AbstractMojo {
       try {
         new ServerSocket(proxyPort).close()
         false
-      } catch { case _: Throwable => true }
+      } catch { case _: BindException => true }
 
     if (isInUse) {
       if (count == 20)
