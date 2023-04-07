@@ -165,7 +165,7 @@ class RunMojo extends AbstractMojo {
 
       // shutdown hook to stop the container as soon as possible
       // Note: this is not guaranteed to be called, but it's better than nothing
-      // also, the main reason it's wrapped in a Future is ensure that it runs
+      // also, the main reason it's wrapped in a Future is to ensure that it runs
       // on a thread that shares the same classloader
       sys.addShutdownHook(Future(container.stop()))
 
