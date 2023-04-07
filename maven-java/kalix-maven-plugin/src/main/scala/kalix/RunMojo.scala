@@ -4,7 +4,6 @@ import java.net.ServerSocket
 
 import scala.annotation.tailrec
 import scala.concurrent.Future
-import scala.concurrent.blocking
 
 import kalix.devtools.BuildInfo
 import kalix.devtools.impl.KalixProxyContainer
