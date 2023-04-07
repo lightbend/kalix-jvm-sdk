@@ -89,8 +89,8 @@ class RunMojo extends AbstractMojo {
   /**
    * When running with a PubSub emulator, this settings must be configured to its host, eg: gcloud-pubsub-emulator.
    */
-  @Parameter(property = "kalix.dev-mode.pubsub-emulator-host")
-  private var pubsubEmulatorHost: String = ""
+  @Parameter(property = "kalix.dev-mode.pubsub-emulator-port")
+  private var pubsubEmulatorPort: Int = 0
 
   private val log: Log = getLog
 
@@ -107,6 +107,7 @@ class RunMojo extends AbstractMojo {
     if (runProxy) {
 
       def renderString(value: String) = if (value.trim.isEmpty) "<not defined>" else value
+      def renderPort(value: Int) = if (value == 0) "<not defined>" else value
 
       val proxyImageToUse =
         if (proxyImage.trim.isEmpty) s"${BuildInfo.proxyImage}:${BuildInfo.proxyVersion}"
@@ -121,7 +122,7 @@ class RunMojo extends AbstractMojo {
       log.info(s"aclEnabled         = $aclEnabled")
       log.info(s"viewFeaturesAll    = $viewFeaturesAll")
       log.info(s"brokerConfigFile   = ${renderString(brokerConfigFile)}")
-      log.info(s"pubsubEmulatorHost = ${renderString(pubsubEmulatorHost)}")
+      log.info(s"pubsubEmulatorHost = ${renderPort(pubsubEmulatorPort)}")
       log.info("--------------------------------------------------------------------------------------")
 
       val config = KalixProxyContainer.KalixProxyContainerConfig(
@@ -132,7 +133,8 @@ class RunMojo extends AbstractMojo {
         aclEnabled,
         viewFeaturesAll,
         brokerConfigFile,
-        pubsubEmulatorHost)
+        Option(pubsubEmulatorPort).filter(_ > 0) // only set if port is > 0
+      )
 
       val container = KalixProxyContainer(config)
       import scala.concurrent.ExecutionContext.Implicits.global
