@@ -51,7 +51,7 @@ class KalixProxyContainer private (image: DockerImageName, config: KalixProxyCon
     extends GenericContainer[KalixProxyContainer](image) {
 
   private val containerLogger = LoggerFactory.getLogger("kalix-proxy-server")
-  withLogConsumer(new Slf4jLogConsumer(containerLogger))
+  withLogConsumer(new Slf4jLogConsumer(containerLogger).withSeparateOutputStreams)
 
   val proxyPort = config.proxyPort
   val userFunctionPort = config.userFunctionPort
@@ -92,7 +92,7 @@ class KalixProxyContainer private (image: DockerImageName, config: KalixProxyCon
   private var started: Boolean = false
 
   override def start(): Unit = {
-    containerLogger.info("Starting Kalix Proxy Server...")
+    containerLogger.info("Starting Kalix Proxy Server container...")
     containerLogger.info("Using proxy image [{}]", image)
     containerLogger.info("KalixProxyContainer config : {}", config)
     Testcontainers.exposeHostPorts(userFunctionPort)
