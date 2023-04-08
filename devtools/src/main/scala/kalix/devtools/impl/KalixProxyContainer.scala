@@ -34,14 +34,10 @@ object KalixProxyContainer {
       aclEnabled: Boolean,
       viewFeaturesAll: Boolean,
       brokerConfigFile: String,
-      pubsubEmulatorHost: String)
-
-  val logger = LoggerFactory.getLogger(classOf[KalixProxyContainer])
+      pubsubEmulatorPort: Option[Int])
 
   def apply(config: KalixProxyContainerConfig): KalixProxyContainer = {
-
     val dockerImage: DockerImageName = DockerImageName.parse(config.proxyImage)
-
     new KalixProxyContainer(dockerImage, config)
   }
 
@@ -67,7 +63,7 @@ class KalixProxyContainer private (image: DockerImageName, config: KalixProxyCon
   if (config.serviceName.nonEmpty) {
     withEnv("SERVICE_NAME", config.serviceName)
 
-    // use service name as container instance name (instead of random one from testcontainer)
+    // use service name as container instance name (instead of random one from testcontainers)
     withCreateContainerCmdModifier(cmd => cmd.withName(config.serviceName))
   }
 
@@ -79,10 +75,10 @@ class KalixProxyContainer private (image: DockerImageName, config: KalixProxyCon
     Seq("-Dconfig.resource=dev-mode.conf", "-Dlogback.configurationFile=logback-dev-mode.xml")
 
   val pubSubContainerArg =
-    if (config.pubsubEmulatorHost.nonEmpty) {
-      withEnv("PUBSUB_EMULATOR_HOST", config.pubsubEmulatorHost)
-      Some("-Dkalix.proxy.eventing.support=google-pubsub-emulator")
-    } else None
+    config.pubsubEmulatorPort.map { port =>
+      withEnv("PUBSUB_EMULATOR_HOST", "host.testcontainers.internal")
+      "-Dkalix.proxy.eventing.support=google-pubsub-emulator"
+    }
 
   val finalArgs = containerArgs ++ pubSubContainerArg
   withCommand(finalArgs: _*)
@@ -94,7 +90,10 @@ class KalixProxyContainer private (image: DockerImageName, config: KalixProxyCon
     containerLogger.info("Starting Kalix Proxy Server container...")
     containerLogger.info("Using proxy image [{}]", image)
     containerLogger.info("KalixProxyContainer config : {}", config)
+
     Testcontainers.exposeHostPorts(userFunctionPort)
+    config.pubsubEmulatorPort.foreach(Testcontainers.exposeHostPorts(_))
+
     super.start()
     started = true
   }
