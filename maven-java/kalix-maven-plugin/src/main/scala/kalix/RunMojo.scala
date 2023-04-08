@@ -1,5 +1,9 @@
 package kalix
 
+import java.net.BindException
+import java.net.ServerSocket
+
+import scala.annotation.tailrec
 import scala.concurrent.Future
 
 import kalix.devtools.BuildInfo
@@ -100,11 +104,32 @@ class RunMojo extends AbstractMojo {
     startUserFunction()
   }
 
+  @tailrec
+  private def checkPortAvailability(proxyPort: Int, count: Int = 0): Unit = {
+    def isInUse =
+      try {
+        new ServerSocket(proxyPort).close()
+        false
+      } catch { case _: BindException => true }
+
+    if (isInUse) {
+      if (count == 20)
+        throw new RuntimeException(
+          s"Port '$proxyPort' is still in use after 20 seconds. Please make sure that no other service is running on port '$proxyPort'.")
+
+      if (count == 0 || count % 5 == 0)
+        log.info(s"Port '$proxyPort' is in use. Waiting for port to become available.")
+
+      Thread.sleep(1000)
+      checkPortAvailability(proxyPort, count + 1)
+    }
+  }
+
   private def startKalixProxy(): Unit = {
-    // TODO: when restarting, it's possible that testcontainers haven't yet freed the port from previous run
-    // therefore we need to check if the port is free and it not, add some artificial delay. And we should keep trying
-    // and notifying the user that we are waiting for the port.
+
     if (runProxy) {
+
+      checkPortAvailability(proxyPort)
 
       def renderString(value: String) = if (value.trim.isEmpty) "<not defined>" else value
 
@@ -137,6 +162,12 @@ class RunMojo extends AbstractMojo {
       val container = KalixProxyContainer(config)
       import scala.concurrent.ExecutionContext.Implicits.global
       Future(container.start())
+
+      // shutdown hook to stop the container as soon as possible
+      // Note: this is not guaranteed to be called, but it's better than nothing
+      // also, the main reason it's wrapped in a Future is to ensure that it runs
+      // on a thread that shares the same classloader
+      sys.addShutdownHook(Future(container.stop()))
 
     } else {
       log.info("Kalix Proxy won't start (ie: runProxy = false).")

@@ -74,7 +74,6 @@ class KalixProxyContainer private (image: DockerImageName, config: KalixProxyCon
   // FIXME: users must also indicate a folder to mount as volume
   if (config.brokerConfigFile.nonEmpty)
     withEnv("BROKER_CONFIG_FILE", config.brokerConfigFile)
-
   // JVM are that should be passed to the proxy container on start-up
   val containerArgs =
     Seq("-Dconfig.resource=dev-mode.conf", "-Dlogback.configurationFile=logback-dev-mode.xml")
