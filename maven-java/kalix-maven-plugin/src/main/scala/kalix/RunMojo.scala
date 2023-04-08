@@ -87,7 +87,7 @@ class RunMojo extends AbstractMojo {
   private var brokerConfigFile: String = ""
 
   /**
-   * When running with a PubSub emulator, this settings must be configured to its host, eg: gcloud-pubsub-emulator.
+   * When running with a PubSub, this setting must be configured to its port.
    */
   @Parameter(property = "kalix.dev-mode.pubsub-emulator-port")
   private var pubsubEmulatorPort: Int = 0
