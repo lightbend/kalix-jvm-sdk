@@ -2,10 +2,10 @@ package kalix
 
 import java.net.BindException
 import java.net.ServerSocket
-
+import java.io.File
 import scala.annotation.tailrec
 import scala.concurrent.Future
-
+import scala.util.control.NonFatal
 import kalix.devtools.BuildInfo
 import kalix.devtools.impl.KalixProxyContainer
 import org.apache.maven.execution.MavenSession
@@ -36,7 +36,7 @@ class RunMojo extends AbstractMojo {
   @Parameter(property = "mainClass")
   private var mainClass: String = ""
 
-  @Parameter(property = "kalix.dev-mode.log-config")
+  @Parameter(property = "kalix.dev-mode.log-config", defaultValue = "src/main/resources/logback-dev-mode.xml")
   private var logConfig: String = ""
 
   /**
@@ -187,7 +187,7 @@ class RunMojo extends AbstractMojo {
         element(name("classpath")),
         element(name("argument"), "-Dkalix.user-function-port=" + userFunctionPort))
 
-    val optionalArgs: Seq[Element] =
+    val loggingArgs: Seq[Element] =
       if (logConfig.trim.nonEmpty) {
         log.info("Using logging configuration: " + logConfig)
         // when using SpringBoot, logback config is passed using logging.config
@@ -196,7 +196,7 @@ class RunMojo extends AbstractMojo {
       } else List.empty
 
     val allArgs =
-      mainArgs ++ optionalArgs :+
+      mainArgs ++ loggingArgs :+
       element(name("argument"), mainClass) // mainClass must be last arg
 
     executeMojo(
