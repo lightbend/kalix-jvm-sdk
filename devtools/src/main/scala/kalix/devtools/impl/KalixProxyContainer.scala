@@ -20,6 +20,7 @@ import kalix.devtools.BuildInfo
 import kalix.devtools.impl.KalixProxyContainer.KalixProxyContainerConfig
 import org.slf4j.LoggerFactory
 import org.testcontainers.Testcontainers
+import org.testcontainers.containers.BindMode
 import org.testcontainers.containers.GenericContainer
 import org.testcontainers.containers.output.Slf4jLogConsumer
 import org.testcontainers.utility.DockerImageName
@@ -49,8 +50,14 @@ class KalixProxyContainer private (image: DockerImageName, config: KalixProxyCon
   private val containerLogger = LoggerFactory.getLogger("kalix-proxy-server")
   withLogConsumer(new Slf4jLogConsumer(containerLogger).withSeparateOutputStreams)
 
-  val proxyPort = config.proxyPort
-  val userFunctionPort = config.userFunctionPort
+  private val defaultConfigDir = "/conf"
+  // make sure that the proxy container can access the local file system
+  // we will mount the current directory as /conf and use that as the location for the broker config file
+  // or any other config files that we might need in the future
+  withFileSystemBind(".", defaultConfigDir, BindMode.READ_ONLY)
+
+  private val proxyPort = config.proxyPort
+  private val userFunctionPort = config.userFunctionPort
   addFixedExposedPort(proxyPort, proxyPort)
 
   withEnv("HTTP_PORT", String.valueOf(proxyPort))
@@ -67,9 +74,9 @@ class KalixProxyContainer private (image: DockerImageName, config: KalixProxyCon
     withCreateContainerCmdModifier(cmd => cmd.withName(config.serviceName))
   }
 
-  // FIXME: users must also indicate a folder to mount as volume
   if (config.brokerConfigFile.nonEmpty)
-    withEnv("BROKER_CONFIG_FILE", config.brokerConfigFile)
+    withEnv("BROKER_CONFIG_FILE", defaultConfigDir + "/" + config.brokerConfigFile)
+
   // JVM are that should be passed to the proxy container on start-up
   val containerArgs =
     Seq("-Dconfig.resource=dev-mode.conf", "-Dlogback.configurationFile=logback-dev-mode.xml")
