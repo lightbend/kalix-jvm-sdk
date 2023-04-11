@@ -4,18 +4,15 @@ import kalix.spring.testkit.KalixIntegrationTestKitSupport;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Import;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.time.Duration;
 
 import static java.time.temporal.ChronoUnit.SECONDS;
 // tag::class[]
-@RunWith(SpringRunner.class)
 @SpringBootTest(classes = Main.class)
 @Import(TestkitConfig.class)  // <1>
 public class CounterIntegrationTest extends KalixIntegrationTestKitSupport {
