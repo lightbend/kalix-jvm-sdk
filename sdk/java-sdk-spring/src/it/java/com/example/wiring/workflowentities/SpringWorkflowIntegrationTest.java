@@ -20,7 +20,6 @@ import com.example.wiring.TestkitConfig;
 import com.example.wiring.actions.echo.Message;
 import kalix.spring.KalixConfigurationTest;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
@@ -28,7 +27,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
@@ -40,7 +38,6 @@ import static java.time.temporal.ChronoUnit.SECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 
-@ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = Main.class)
 @Import({KalixConfigurationTest.class, TestkitConfig.class})
 @TestPropertySource(properties = "spring.main.allow-bean-definition-overriding=true")
