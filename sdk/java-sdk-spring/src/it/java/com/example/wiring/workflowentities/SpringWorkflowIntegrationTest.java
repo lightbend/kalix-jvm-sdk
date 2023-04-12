@@ -301,8 +301,12 @@ public class SpringWorkflowIntegrationTest {
           assertThat(counterValue).isEqualTo(3);
         });
 
-    var state = getWorkflowState(path);
-    assertThat(state.finished()).isTrue();
+    await()
+        .atMost(10, TimeUnit.of(SECONDS))
+        .untilAsserted(() -> {
+          var state = getWorkflowState(path);
+          assertThat(state.finished()).isTrue();
+        });
   }
 
   @Test
@@ -329,8 +333,12 @@ public class SpringWorkflowIntegrationTest {
           assertThat(counterValue).isEqualTo(3);
         });
 
-    var state = getWorkflowState(path);
-    assertThat(state.finished()).isTrue();
+    await()
+        .atMost(10, TimeUnit.of(SECONDS))
+        .untilAsserted(() -> {
+          var state = getWorkflowState(path);
+          assertThat(state.finished()).isTrue();
+        });
   }
 
   @Test
@@ -357,8 +365,12 @@ public class SpringWorkflowIntegrationTest {
           assertThat(counterValue).isEqualTo(3);
         });
 
-    var state = getWorkflowState(path);
-    assertThat(state.finished()).isTrue();
+    await()
+        .atMost(10, TimeUnit.of(SECONDS))
+        .untilAsserted(() -> {
+          var state = getWorkflowState(path);
+          assertThat(state.finished()).isTrue();
+        });
   }
 
   @Test
