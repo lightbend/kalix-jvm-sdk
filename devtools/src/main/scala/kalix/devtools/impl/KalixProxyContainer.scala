@@ -16,7 +16,11 @@
 
 package kalix.devtools.impl
 
-import kalix.devtools.BuildInfo
+import java.io.StringReader
+import java.nio.file.Files
+import java.nio.file.Paths
+import java.util.Properties
+
 import kalix.devtools.impl.KalixProxyContainer.KalixProxyContainerConfig
 import org.slf4j.LoggerFactory
 import org.testcontainers.Testcontainers
@@ -81,10 +85,12 @@ class KalixProxyContainer private (image: DockerImageName, config: KalixProxyCon
   val eventingArgs =
     (config.brokerConfigFile, config.pubsubEmulatorPort) match {
       case (Some(kafkaConfigFile), None) =>
+        containerLogger.info("Configuring eventing support for Kafka broker")
         withEnv("BROKER_CONFIG_FILE", defaultConfigDir + "/" + kafkaConfigFile)
         Some("-Dkalix.proxy.eventing.support=kafka")
 
       case (None, Some(pubsubPort)) =>
+        containerLogger.info("Configuring eventing support for Google Pub/Sub emulator")
         withEnv("PUBSUB_EMULATOR_HOST", "host.testcontainers.internal")
         Some("-Dkalix.proxy.eventing.support=google-pubsub-emulator")
 
@@ -99,16 +105,62 @@ class KalixProxyContainer private (image: DockerImageName, config: KalixProxyCon
   val finalArgs = containerArgs ++ eventingArgs
   withCommand(finalArgs: _*)
 
+  private val kafkaBootstrapServers: Option[String] =
+    config.brokerConfigFile.flatMap { file =>
+
+      def toProperties(content: String) = {
+        val properties = new Properties()
+        properties.load(new StringReader(content))
+        properties
+      }
+
+      val path = Paths.get(file)
+      if (Files.exists(path)) {
+        val content = Files.readString(path)
+        Option(toProperties(content).getProperty("bootstrap.servers"))
+      } else {
+        throw new IllegalArgumentException(s"Broker config file [$file] does not exist.")
+      }
+    }
+
+  // we need to read the file to get the port number and expose it to the container running in testcontainers
+  private val kafkaPort: Option[Int] =
+    kafkaBootstrapServers.map { value =>
+      val split = value.split(":")
+      if (split.length != 2) {
+        throw new IllegalArgumentException(s"Invalid bootstrap.servers value [$value]. Port number is missing.")
+      } else
+        split.last.toInt
+    }
+
+  private val notDefined = "<not defined>"
+  private def renderString(value: String) = if (value.trim.isEmpty) notDefined else value
+  private val kafkaRendered =
+    for {
+      conf <- config.brokerConfigFile
+      server <- kafkaBootstrapServers
+    } yield s"$conf ($server)"
+
+  containerLogger.info(s"Starting Kalix Proxy Server container in dev-mode with settings:")
+  containerLogger.info("--------------------------------------------------------------------------------------")
+  containerLogger.info(s"proxyImage         = $image")
+  containerLogger.info(s"proxyPort          = $proxyPort")
+  containerLogger.info(s"userFunctionPort   = $userFunctionPort")
+  containerLogger.info(s"serviceName        = ${renderString(config.serviceName)}")
+  containerLogger.info(s"aclEnabled         = ${config.aclEnabled}")
+  containerLogger.info(s"viewFeaturesAll    = ${config.viewFeaturesAll}")
+  containerLogger.info(s"brokerConfigFile   = ${kafkaRendered.getOrElse(notDefined)}")
+  containerLogger.info(s"pubsubEmulatorHost = ${config.pubsubEmulatorPort.getOrElse(notDefined)}")
+  containerLogger.info("--------------------------------------------------------------------------------------")
+
   @volatile
   private var started: Boolean = false
 
   override def start(): Unit = {
-    containerLogger.info("Starting Kalix Proxy Server container...")
-    containerLogger.info("Using proxy image [{}]", image)
-    containerLogger.info("KalixProxyContainer config : {}", config)
 
     Testcontainers.exposeHostPorts(userFunctionPort)
     config.pubsubEmulatorPort.foreach(Testcontainers.exposeHostPorts(_))
+    kafkaPort.foreach(Testcontainers.exposeHostPorts(_))
 
     super.start()
     started = true
