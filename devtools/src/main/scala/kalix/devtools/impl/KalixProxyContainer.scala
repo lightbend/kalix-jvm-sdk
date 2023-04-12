@@ -34,7 +34,7 @@ object KalixProxyContainer {
       serviceName: String,
       aclEnabled: Boolean,
       viewFeaturesAll: Boolean,
-      brokerConfigFile: String,
+      brokerConfigFile: Option[String],
       pubsubEmulatorPort: Option[Int])
 
   def apply(config: KalixProxyContainerConfig): KalixProxyContainer = {
@@ -74,20 +74,29 @@ class KalixProxyContainer private (image: DockerImageName, config: KalixProxyCon
     withCreateContainerCmdModifier(cmd => cmd.withName(config.serviceName))
   }
 
-  if (config.brokerConfigFile.nonEmpty)
-    withEnv("BROKER_CONFIG_FILE", defaultConfigDir + "/" + config.brokerConfigFile)
-
   // JVM are that should be passed to the proxy container on start-up
   val containerArgs =
     Seq("-Dconfig.resource=dev-mode.conf", "-Dlogback.configurationFile=logback-dev-mode.xml")
 
-  val pubSubContainerArg =
-    config.pubsubEmulatorPort.map { port =>
-      withEnv("PUBSUB_EMULATOR_HOST", "host.testcontainers.internal")
-      "-Dkalix.proxy.eventing.support=google-pubsub-emulator"
+  val eventingArgs =
+    (config.brokerConfigFile, config.pubsubEmulatorPort) match {
+      case (Some(kafkaConfigFile), None) =>
+        withEnv("BROKER_CONFIG_FILE", defaultConfigDir + "/" + kafkaConfigFile)
+        Some("-Dkalix.proxy.eventing.support=kafka")
+
+      case (None, Some(pubsubPort)) =>
+        withEnv("PUBSUB_EMULATOR_HOST", "host.testcontainers.internal")
+        Some("-Dkalix.proxy.eventing.support=google-pubsub-emulator")
+
+      case (Some(_), Some(_)) =>
+        throw new IllegalArgumentException("Only one of brokerConfigFile or pubsubEmulatorPort can be set")
+
+      case _ =>
+        containerLogger.info("No eventing support configured")
+        None
     }
 
-  val finalArgs = containerArgs ++ pubSubContainerArg
+  val finalArgs = containerArgs ++ eventingArgs
   withCommand(finalArgs: _*)
 
   @volatile

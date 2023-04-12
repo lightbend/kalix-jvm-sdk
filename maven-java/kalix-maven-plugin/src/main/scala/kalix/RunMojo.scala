@@ -157,7 +157,7 @@ class RunMojo extends AbstractMojo {
         serviceName,
         aclEnabled,
         viewFeaturesAll,
-        brokerConfigFile,
+        Option(brokerConfigFile).filter(_.trim.nonEmpty), // only set if not empty
         Option(pubsubEmulatorPort).filter(_ > 0) // only set if port is > 0
       )
 
