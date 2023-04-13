@@ -3,7 +3,7 @@ services:
   # note the ports being different from other sample docker-compose files to allow this service to run
   # on the same local machine as the java-spring-customer-registry
   kalix-proxy:
-    image: gcr.io/kalix-public/kalix-proxy:1.1.6
+    image: gcr.io/kalix-public/kalix-proxy:1.1.7
     command: -Dconfig.resource=dev-mode.conf -Dlogback.configurationFile=logback-dev-mode.xml #-Dkalix.proxy.eventing.support=google-pubsub-emulator
     ports:
       - "9001:9000"
