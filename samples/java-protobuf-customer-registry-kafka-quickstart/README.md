@@ -39,7 +39,7 @@ It can make sense to delete the existing containers (if any exist) and start fro
 
 Every time a customer receives a change, the application also persists that change to a topic in Kafka called `customer_changes`. You can see that this is set in customer_action.proto. In order for the changes to be written to this topic, you need to manually create the topic in Kafka. To do this, run the following command after the Docker container `java-protobuf-customer-registry-kafka-quickstart-kafka-1` is running.
 
-    docker-compose exec broker kafka-topics --create --bootstrap-server \
+    docker-compose exec kafka kafka-topics --create --bootstrap-server \
     localhost:9092 --replication-factor 1 --partitions 1 --topic customer_changes
 
 ### Starting the application
