@@ -174,13 +174,18 @@ class RunMojo extends AbstractMojo {
         element(name("classpath")),
         element(name("argument"), "-Dkalix.user-function-port=" + userFunctionPort))
 
-    val loggingArgs: Seq[Element] =
-      if (logConfig.trim.nonEmpty) {
-        log.info("Using logging configuration: " + logConfig)
+    val loggingArgs: Seq[Element] = {
+      val logConfigFile = new File(logConfig.trim)
+      if (logConfigFile.exists) {
+        log.info(s"Using logging configuration file: '$logConfigFile' ")
         // when using SpringBoot, logback config is passed using logging.config
         element(name("argument"), "-Dlogging.config=" + logConfig) ::
         element(name("argument"), "-Dlogback.configurationFile=" + logConfig) :: Nil
-      } else List.empty
+      } else {
+        log.warn(s"Dev mode logging configuration file '$logConfig' not found")
+        List.empty
+      }
+    }
 
     val allArgs =
       mainArgs ++ loggingArgs :+
