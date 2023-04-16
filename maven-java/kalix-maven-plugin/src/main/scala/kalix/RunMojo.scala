@@ -131,24 +131,9 @@ class RunMojo extends AbstractMojo {
 
       checkPortAvailability(proxyPort)
 
-      def renderString(value: String) = if (value.trim.isEmpty) "<not defined>" else value
-      def renderPort(value: Int) = if (value == 0) "<not defined>" else value
-
       val proxyImageToUse =
         if (proxyImage.trim.isEmpty) s"${BuildInfo.proxyImage}:${BuildInfo.proxyVersion}"
         else proxyImage
-
-      log.info(s"Running Kalix in dev-mode with settings:")
-      log.info("--------------------------------------------------------------------------------------")
-      log.info(s"proxyImage         = $proxyImageToUse")
-      log.info(s"proxyPort          = $proxyPort")
-      log.info(s"userFunctionPort   = $userFunctionPort")
-      log.info(s"serviceName        = ${renderString(serviceName)}")
-      log.info(s"aclEnabled         = $aclEnabled")
-      log.info(s"viewFeaturesAll    = $viewFeaturesAll")
-      log.info(s"brokerConfigFile   = ${renderString(brokerConfigFile)}")
-      log.info(s"pubsubEmulatorHost = ${renderPort(pubsubEmulatorPort)}")
-      log.info("--------------------------------------------------------------------------------------")
 
       val config = KalixProxyContainer.KalixProxyContainerConfig(
         proxyImageToUse,
@@ -157,7 +142,7 @@ class RunMojo extends AbstractMojo {
         serviceName,
         aclEnabled,
         viewFeaturesAll,
-        brokerConfigFile,
+        Option(brokerConfigFile).filter(_.trim.nonEmpty), // only set if not empty
         Option(pubsubEmulatorPort).filter(_ > 0) // only set if port is > 0
       )
 
