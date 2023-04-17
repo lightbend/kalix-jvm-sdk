@@ -54,6 +54,8 @@ import kalix.protocol.workflow_entity.WorkflowEntitiesHandler
 import org.slf4j.LoggerFactory
 
 object KalixRunner {
+  val logger = LoggerFactory.getLogger(classOf[KalixRunner])
+
   object BindFailure extends Reason
 
   final case class Configuration(
@@ -81,16 +83,38 @@ object KalixRunner {
   def prepareConfig(config: Config): Config = {
 
     val mainConfig = config.getConfig("kalix.system").withFallback(config)
-    val devConfigFile = new File(System.getProperty("user.dir"), "dev-mode.conf")
 
-    Option
-      .when(devConfigFile.exists()) {
-        ConfigFactory.parseFile(devConfigFile)
+    // enrich config with extra dev-mode service port mappings
+    if (mainConfig.hasPath("kalix.dev-mode.service-port-mappings")) {
+
+      val mappings = mainConfig.getConfig("kalix.dev-mode.service-port-mappings")
+      // each kalix.dev-mode.service-port-mappings becomes a new akka.grpc.client service-discovery mapping
+      // that is then appended to the main configuration
+      mappings.entrySet().asScala.foldLeft(mainConfig) { (main, entry) =>
+        val serviceName = entry.getKey
+        val port = entry.getValue.render()
+
+        val mapping = ConfigFactory.parseString(s"""
+             |akka.grpc.client.$serviceName {
+             |  service-discovery {
+             |    service-name = "$serviceName"
+             |  }
+             |  host = "localhost"
+             |  port = $port
+             |  use-tls = false
+             |}
+             |""".stripMargin)
+
+        main.withFallback(mapping)
       }
-      .map(_.withFallback(mainConfig))
-      .getOrElse(mainConfig)
-      .resolve()
+
+    } else {
+      mainConfig
+    }
+
   }
+
+  def loadConfig(): Config = prepareConfig(ConfigFactory.load())
 
 }
 
@@ -120,30 +144,14 @@ final class KalixRunner private[javasdk] (
    * Creates a KalixRunner from the given services. Use the default config to create the internal ActorSystem.
    */
   def this(services: java.util.Map[String, java.util.function.Function[ActorSystem, Service]], sdkName: String) = {
-    this(
-      ActorSystem(
-        "kalix", {
-          val conf = ConfigFactory.load()
-          conf.getConfig("kalix.system").withFallback(conf)
-        }),
-      services.asScala.toMap,
-      aclDescriptor = None,
-      sdkName)
+    this(ActorSystem("kalix", KalixRunner.loadConfig()), services.asScala.toMap, aclDescriptor = None, sdkName)
   }
 
   def this(
       services: java.util.Map[String, java.util.function.Function[ActorSystem, Service]],
       aclDescriptor: Option[FileDescriptorProto],
       sdkName: String) =
-    this(
-      ActorSystem(
-        "kalix", {
-          val conf = ConfigFactory.load()
-          conf.getConfig("kalix.system").withFallback(conf)
-        }),
-      services.asScala.toMap,
-      aclDescriptor = aclDescriptor,
-      sdkName)
+    this(ActorSystem("kalix", KalixRunner.loadConfig()), services.asScala.toMap, aclDescriptor = aclDescriptor, sdkName)
 
   /**
    * Creates a KalixRunner from the given services and config. The config should have the same structure as the
@@ -153,25 +161,19 @@ final class KalixRunner private[javasdk] (
   def this(
       services: java.util.Map[String, java.util.function.Function[ActorSystem, Service]],
       config: Config,
-      sdkName: String) = {
-    this(
-      ActorSystem("kalix", config.getConfig("kalix.system").withFallback(config)),
-      services.asScala.toMap,
-      aclDescriptor = None,
-      sdkName)
-  }
+      sdkName: String) =
+    this(ActorSystem("kalix", KalixRunner.prepareConfig(config)), services.asScala.toMap, aclDescriptor = None, sdkName)
 
   def this(
       services: java.util.Map[String, java.util.function.Function[ActorSystem, Service]],
       config: Config,
       aclDescriptor: Option[FileDescriptorProto],
-      sdkName: String) = {
+      sdkName: String) =
     this(
-      ActorSystem("kalix", config.getConfig("kalix.system").withFallback(config)),
+      ActorSystem("kalix", KalixRunner.prepareConfig(config)),
       services.asScala.toMap,
       aclDescriptor = aclDescriptor,
       sdkName)
-  }
 
   private val rootContext: Context = new AbstractContext(system) {}
 

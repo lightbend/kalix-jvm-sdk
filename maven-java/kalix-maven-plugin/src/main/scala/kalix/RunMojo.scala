@@ -1,11 +1,17 @@
 package kalix
 
+import java.io.File
 import java.net.BindException
 import java.net.ServerSocket
-import java.io.File
+import java.util
+
 import scala.annotation.tailrec
 import scala.concurrent.Future
-import scala.util.control.NonFatal
+import scala.jdk.CollectionConverters.asScalaBufferConverter
+import scala.jdk.CollectionConverters.mapAsScalaMapConverter
+
+import com.typesafe.config.Config
+import com.typesafe.config.ConfigFactory
 import kalix.devtools.BuildInfo
 import kalix.devtools.impl.KalixProxyContainer
 import org.apache.maven.execution.MavenSession
@@ -24,6 +30,7 @@ import org.twdata.maven.mojoexecutor.MojoExecutor._
 @Mojo(name = "run", defaultPhase = LifecyclePhase.VALIDATE, requiresDependencyResolution = ResolutionScope.RUNTIME)
 @Execute(phase = LifecyclePhase.COMPILE)
 class RunMojo extends AbstractMojo {
+
   @Component
   private var mavenProject: MavenProject = null
 
@@ -96,6 +103,9 @@ class RunMojo extends AbstractMojo {
   @Parameter(property = "kalix.dev-mode.pubsub-emulator-port")
   private var pubsubEmulatorPort: Int = 0
 
+  @Parameter
+  private var servicePortMappings: java.util.Map[String, Integer] = new util.HashMap()
+
   private val log: Log = getLog
 
   override def execute(): Unit = {
@@ -165,6 +175,22 @@ class RunMojo extends AbstractMojo {
     }
   }
 
+  /*
+   * Collect any sys property starting with `kalix` and rebuild a -D property for each of them
+   * so we can pass it further to the forked process.
+   */
+  private def collectKalixSysProperties: Seq[String] = {
+    sys.props.collect {
+      case (key, value) if key.startsWith("kalix") => s"-D$key=$value"
+    }.toSeq
+  }
+
+  /** Collect port mappings added to pom.xml and make -D properties out of them */
+  private def collectServicePortMappings =
+    servicePortMappings.asScala.map { case (key, value) =>
+      s"-Dkalix.dev-mode.service-port-mappings.$key=$value"
+    }.toSeq
+
   private def startUserFunction(): Unit = {
 
     log.info("Starting Kalix Application on port: " + userFunctionPort)
@@ -187,8 +213,15 @@ class RunMojo extends AbstractMojo {
       }
     }
 
+    // first servicePortMappings, then kalixSysProps
+    // as it should be possible to override the servicePortMappings with -D args
+    val kalixSysProps =
+      (collectServicePortMappings ++ collectKalixSysProperties).map { arg =>
+        element(name("argument"), arg)
+      }
+
     val allArgs =
-      mainArgs ++ loggingArgs :+
+      mainArgs ++ loggingArgs ++ kalixSysProps :+
       element(name("argument"), mainClass) // mainClass must be last arg
 
     executeMojo(
