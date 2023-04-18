@@ -39,7 +39,8 @@ object KalixProxyContainer {
       aclEnabled: Boolean,
       viewFeaturesAll: Boolean,
       brokerConfigFile: Option[String],
-      pubsubEmulatorPort: Option[Int])
+      pubsubEmulatorPort: Option[Int],
+      servicePortMappings: Map[String, String])
 
   def apply(config: KalixProxyContainerConfig): KalixProxyContainer = {
     val dockerImage: DockerImageName = DockerImageName.parse(config.proxyImage)
@@ -102,7 +103,12 @@ class KalixProxyContainer private (image: DockerImageName, config: KalixProxyCon
         None
     }
 
-  val finalArgs = containerArgs ++ eventingArgs
+  val servicePortMappingsArgs =
+    config.servicePortMappings.map { case (key, value) =>
+      s"-Dkalix.dev-mode.service-port-mappings.$key=$value"
+    }
+
+  val finalArgs = containerArgs ++ eventingArgs ++ servicePortMappingsArgs
   withCommand(finalArgs: _*)
 
   private val kafkaBootstrapServers: Option[String] =
@@ -141,16 +147,24 @@ class KalixProxyContainer private (image: DockerImageName, config: KalixProxyCon
       server <- kafkaBootstrapServers
     } yield s"$conf ($server)"
 
+  val portMappingsRendered =
+    if (config.servicePortMappings.nonEmpty)
+      config.servicePortMappings
+        .map { case (key, value) => s"$key:$value" }
+        .mkString(", ")
+    else notDefined
+
   containerLogger.info(s"Starting Kalix Proxy Server container in dev-mode with settings:")
   containerLogger.info("--------------------------------------------------------------------------------------")
-  containerLogger.info(s"proxyImage         = $image")
-  containerLogger.info(s"proxyPort          = $proxyPort")
-  containerLogger.info(s"userFunctionPort   = $userFunctionPort")
-  containerLogger.info(s"serviceName        = ${renderString(config.serviceName)}")
-  containerLogger.info(s"aclEnabled         = ${config.aclEnabled}")
-  containerLogger.info(s"viewFeaturesAll    = ${config.viewFeaturesAll}")
-  containerLogger.info(s"brokerConfigFile   = ${kafkaRendered.getOrElse(notDefined)}")
-  containerLogger.info(s"pubsubEmulatorHost = ${config.pubsubEmulatorPort.getOrElse(notDefined)}")
+  containerLogger.info(s"proxyImage          = $image")
+  containerLogger.info(s"proxyPort           = $proxyPort")
+  containerLogger.info(s"userFunctionPort    = $userFunctionPort")
+  containerLogger.info(s"serviceName         = ${renderString(config.serviceName)}")
+  containerLogger.info(s"aclEnabled          = ${config.aclEnabled}")
+  containerLogger.info(s"viewFeaturesAll     = ${config.viewFeaturesAll}")
+  containerLogger.info(s"brokerConfigFile    = ${kafkaRendered.getOrElse(notDefined)}")
+  containerLogger.info(s"pubsubEmulatorHost  = ${config.pubsubEmulatorPort.getOrElse(notDefined)}")
+  containerLogger.info(s"servicePortMappings = $portMappingsRendered")
   containerLogger.info("--------------------------------------------------------------------------------------")
 
   @volatile

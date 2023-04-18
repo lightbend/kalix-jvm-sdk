@@ -103,6 +103,9 @@ class RunMojo extends AbstractMojo {
   @Parameter(property = "kalix.dev-mode.pubsub-emulator-port")
   private var pubsubEmulatorPort: Int = 0
 
+  /**
+   * Port mappings for local tests.
+   */
   @Parameter
   private var servicePortMappings: java.util.Map[String, Integer] = new util.HashMap()
 
@@ -141,6 +144,10 @@ class RunMojo extends AbstractMojo {
 
       checkPortAvailability(proxyPort)
 
+      val allServiceMappings =
+        collectServiceMappingsFromSysProps ++
+        servicePortMappings.asScala.mapValues(_.toString)
+
       val proxyImageToUse =
         if (proxyImage.trim.isEmpty) s"${BuildInfo.proxyImage}:${BuildInfo.proxyVersion}"
         else proxyImage
@@ -153,7 +160,8 @@ class RunMojo extends AbstractMojo {
         aclEnabled,
         viewFeaturesAll,
         Option(brokerConfigFile).filter(_.trim.nonEmpty), // only set if not empty
-        Option(pubsubEmulatorPort).filter(_ > 0) // only set if port is > 0
+        Option(pubsubEmulatorPort).filter(_ > 0), // only set if port is > 0
+        allServiceMappings
       )
 
       val container = KalixProxyContainer(config)
@@ -174,6 +182,13 @@ class RunMojo extends AbstractMojo {
       log.info("--------------------------------------------------------------------------------------")
     }
   }
+
+  private def collectServiceMappingsFromSysProps: Map[String, String] =
+    sys.props.collect {
+      case (key, value) if key.startsWith("kalix.dev-mode.service-port-mappings") =>
+        val serviceName = key.replace("kalix.dev-mode.service-port-mappings.", "")
+        serviceName -> value
+    }.toMap
 
   /*
    * Collect any sys property starting with `kalix` and rebuild a -D property for each of them
