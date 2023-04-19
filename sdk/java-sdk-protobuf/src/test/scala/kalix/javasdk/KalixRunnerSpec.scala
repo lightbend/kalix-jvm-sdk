@@ -98,7 +98,7 @@ class KalixRunnerSpec extends AnyWordSpec with Matchers {
 
       intercept[IllegalArgumentException] {
         KalixRunner.prepareConfig(config)
-      }.getMessage shouldBe "Invalid config type. Settings 'dev-mode.service-port-mappings.foo' should be of type String"
+      }.getMessage shouldBe "Invalid config type. Settings 'kalix.dev-mode.service-port-mappings.foo' should be of type String"
     }
   }
 }

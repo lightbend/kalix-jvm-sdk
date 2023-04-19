@@ -93,15 +93,22 @@ object KalixRunner {
 
     val mainConfig = config.getConfig("kalix.system").withFallback(config)
 
+    val portMappingKey = "kalix.dev-mode.service-port-mappings"
     // enrich config with extra dev-mode service port mappings
-    if (mainConfig.hasPath("kalix.dev-mode.service-port-mappings")) {
+    if (mainConfig.hasPath(portMappingKey)) {
 
-      val mappings = mainConfig.getConfig("kalix.dev-mode.service-port-mappings")
+      val mappings = mainConfig.getConfig(portMappingKey)
 
       // each kalix.dev-mode.service-port-mappings becomes a new akka.grpc.client service-discovery mapping
       // that is then appended to the main configuration
       mappings.entrySet().asScala.foldLeft(mainConfig) { (main, entry) =>
-
+        // when running locally, users can configure service port mappings associating a name and a port
+        // in such a case, we will resolve the to 0.0.0.0:port and that just enough
+        // however, we build a docker-compose file containing more than one service, the config will need to include
+        // the docker host address, for example:
+        //   -Dkalix.dev-mode.service-port-mappings.my-service=host.docker.internal:9001
+        // we should not default to host.docker.internal because it might depend on docker environment (Docker Desktop,
+        // Colima, Linux).
         val (host, port) =
           entry.getValue.unwrapped() match {
             case value: String =>
@@ -113,7 +120,7 @@ object KalixRunner {
               }
             case _ =>
               throw new IllegalArgumentException(
-                s"Invalid config type. Settings 'dev-mode.service-port-mappings.${entry.getKey}' should be of type String")
+                s"Invalid config type. Settings '$portMappingKey.${entry.getKey}' should be of type String")
           }
 
         val serviceName = entry.getKey

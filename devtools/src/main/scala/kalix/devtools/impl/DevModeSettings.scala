@@ -14,11 +14,17 @@
  * limitations under the License.
  */
 
-package kalix.serializer
-import com.google.protobuf.ByteString
-import com.google.protobuf.{ Any => JavaPbAny }
+package kalix.devtools.impl
 
-trait Serializer {
-  def serialize(any: Any): JavaPbAny
-  def deserialize(bytes: ByteString): Any
+object DevModeSettings {
+  val servicePortMappingsKey = "kalix.dev-mode.service-port-mappings"
+
+  def servicePortMappingsKeyFor(serviceName: String, value: String) =
+    s"-D$servicePortMappingsKey.$serviceName=$value"
+
+  def isPortMapping(key: String) =
+    key.startsWith("kalix.dev-mode.service-port-mappings")
+
+  def extractServiceName(key: String): String =
+    key.replace(servicePortMappingsKey + ".", "")
 }

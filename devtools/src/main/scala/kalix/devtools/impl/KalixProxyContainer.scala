@@ -105,7 +105,7 @@ class KalixProxyContainer private (image: DockerImageName, config: KalixProxyCon
 
   val servicePortMappingsArgs =
     config.servicePortMappings.map { case (key, value) =>
-      s"-Dkalix.dev-mode.service-port-mappings.$key=$value"
+      DevModeSettings.servicePortMappingsKeyFor(key, value)
     }
 
   val finalArgs = containerArgs ++ eventingArgs ++ servicePortMappingsArgs

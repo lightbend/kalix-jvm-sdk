@@ -14,6 +14,7 @@ import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
 import kalix.devtools.BuildInfo
 import kalix.devtools.impl.KalixProxyContainer
+import kalix.devtools.impl.DevModeSettings
 import org.apache.maven.execution.MavenSession
 import org.apache.maven.plugin.AbstractMojo
 import org.apache.maven.plugin.BuildPluginManager
@@ -21,7 +22,6 @@ import org.apache.maven.plugin.logging.Log
 import org.apache.maven.plugins.annotations._
 import org.apache.maven.project.MavenProject
 import org.twdata.maven.mojoexecutor.MojoExecutor._
-
 /**
  * Runs the current project. This goal will by default start a Kalix Server (Proxy) and the current application.
  *
@@ -185,8 +185,8 @@ class RunMojo extends AbstractMojo {
 
   private def collectServiceMappingsFromSysProps: Map[String, String] =
     sys.props.collect {
-      case (key, value) if key.startsWith("kalix.dev-mode.service-port-mappings") =>
-        val serviceName = key.replace("kalix.dev-mode.service-port-mappings.", "")
+      case (key, value) if DevModeSettings.isPortMapping(key) =>
+        val serviceName = DevModeSettings.extractServiceName(key)
         serviceName -> value
     }.toMap
 
@@ -203,7 +203,7 @@ class RunMojo extends AbstractMojo {
   /** Collect port mappings added to pom.xml and make -D properties out of them */
   private def collectServicePortMappings =
     servicePortMappings.asScala.map { case (key, value) =>
-      s"-Dkalix.dev-mode.service-port-mappings.$key=$value"
+      DevModeSettings.servicePortMappingsKeyFor(key, value)
     }.toSeq
 
   private def startUserFunction(): Unit = {
