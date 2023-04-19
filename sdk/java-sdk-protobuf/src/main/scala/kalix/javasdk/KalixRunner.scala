@@ -16,39 +16,45 @@
 
 package kalix.javasdk
 
-import java.io.File
 import java.lang.management.ManagementFactory
 import java.time.Duration
-
-import akka.Done
-import akka.actor.CoordinatedShutdown.Reason
-import akka.actor.{ ActorSystem, CoordinatedShutdown }
-import akka.http.scaladsl._
-import akka.http.scaladsl.model._
-import kalix.javasdk.impl.action.{ ActionService, ActionsImpl }
-import kalix.javasdk.impl.replicatedentity.{ ReplicatedEntitiesImpl, ReplicatedEntityService }
-import kalix.javasdk.impl.valueentity.{ ValueEntitiesImpl, ValueEntityService }
-import kalix.javasdk.impl.eventsourcedentity.{ EventSourcedEntitiesImpl, EventSourcedEntityService }
-import kalix.javasdk.impl.{ AbstractContext, DiscoveryImpl, Service }
-import kalix.protocol.action.ActionsHandler
-import kalix.protocol.discovery.DiscoveryHandler
-import kalix.protocol.event_sourced_entity.EventSourcedEntitiesHandler
-import kalix.protocol.replicated_entity.ReplicatedEntitiesHandler
-import kalix.protocol.value_entity.ValueEntitiesHandler
-import com.typesafe.config.{ Config, ConfigFactory }
 import java.util.concurrent.CompletionStage
 
-import kalix.javasdk.impl.view.ViewService
 import scala.compat.java8.FutureConverters
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters._
 import scala.util.Failure
 import scala.util.Success
 
+import akka.Done
+import akka.actor.CoordinatedShutdown.Reason
+import akka.actor.ActorSystem
+import akka.actor.CoordinatedShutdown
+import akka.http.scaladsl._
+import akka.http.scaladsl.model._
 import com.google.protobuf.DescriptorProtos.FileDescriptorProto
+import com.typesafe.config.Config
+import com.typesafe.config.ConfigFactory
+import kalix.javasdk.impl.action.ActionService
+import kalix.javasdk.impl.action.ActionsImpl
+import kalix.javasdk.impl.eventsourcedentity.EventSourcedEntitiesImpl
+import kalix.javasdk.impl.eventsourcedentity.EventSourcedEntityService
+import kalix.javasdk.impl.replicatedentity.ReplicatedEntitiesImpl
+import kalix.javasdk.impl.replicatedentity.ReplicatedEntityService
+import kalix.javasdk.impl.valueentity.ValueEntitiesImpl
+import kalix.javasdk.impl.valueentity.ValueEntityService
+import kalix.javasdk.impl.view.ViewService
 import kalix.javasdk.impl.view.ViewsImpl
 import kalix.javasdk.impl.workflowentity.WorkflowEntityImpl
 import kalix.javasdk.impl.workflowentity.WorkflowEntityService
+import kalix.javasdk.impl.AbstractContext
+import kalix.javasdk.impl.DiscoveryImpl
+import kalix.javasdk.impl.Service
+import kalix.protocol.action.ActionsHandler
+import kalix.protocol.discovery.DiscoveryHandler
+import kalix.protocol.event_sourced_entity.EventSourcedEntitiesHandler
+import kalix.protocol.replicated_entity.ReplicatedEntitiesHandler
+import kalix.protocol.value_entity.ValueEntitiesHandler
 import kalix.protocol.view.ViewsHandler
 import kalix.protocol.workflow_entity.WorkflowEntitiesHandler
 import org.slf4j.LoggerFactory
@@ -80,6 +86,9 @@ object KalixRunner {
     }
   }
 
+  private val HostPortPattern = """(.+):(\d+)""".r
+  private val PortPattern = """(\d+)""".r
+
   def prepareConfig(config: Config): Config = {
 
     val mainConfig = config.getConfig("kalix.system").withFallback(config)
@@ -88,18 +97,32 @@ object KalixRunner {
     if (mainConfig.hasPath("kalix.dev-mode.service-port-mappings")) {
 
       val mappings = mainConfig.getConfig("kalix.dev-mode.service-port-mappings")
+
       // each kalix.dev-mode.service-port-mappings becomes a new akka.grpc.client service-discovery mapping
       // that is then appended to the main configuration
       mappings.entrySet().asScala.foldLeft(mainConfig) { (main, entry) =>
-        val serviceName = entry.getKey
-        val port = entry.getValue.render()
 
+        val (host, port) =
+          entry.getValue.unwrapped() match {
+            case value: String =>
+              value match {
+                case HostPortPattern(host, port) => (host, port.toInt)
+                case PortPattern(port)           => ("0.0.0.0", port.toInt)
+                case _ =>
+                  throw new IllegalArgumentException(s"Invalid service port mapping: ${entry.getValue.unwrapped()}")
+              }
+            case _ =>
+              throw new IllegalArgumentException(
+                s"Invalid config type. Settings 'dev-mode.service-port-mappings.${entry.getKey}' should be of type String")
+          }
+
+        val serviceName = entry.getKey
         val mapping = ConfigFactory.parseString(s"""
              |akka.grpc.client.$serviceName {
              |  service-discovery {
              |    service-name = "$serviceName"
              |  }
-             |  host = "0.0.0.0"
+             |  host = "$host"
              |  port = $port
              |  use-tls = false
              |}
@@ -229,6 +252,7 @@ final class KalixRunner private[javasdk] (
    */
   def run(): CompletionStage[Done] = {
     import scala.concurrent.duration._
+
     import system.dispatcher
 
     logJvmInfo()
