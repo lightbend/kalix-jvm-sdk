@@ -94,13 +94,12 @@ object KalixRunner {
         val serviceName = entry.getKey
         val port = entry.getValue.render()
 
-        logger.info(s"Adding dev-mode service port mapping for $serviceName:$port")
         val mapping = ConfigFactory.parseString(s"""
              |akka.grpc.client.$serviceName {
              |  service-discovery {
              |    service-name = "$serviceName"
              |  }
-             |  host = "localhost"
+             |  host = "0.0.0.0"
              |  port = $port
              |  use-tls = false
              |}
