@@ -46,9 +46,7 @@ object KalixConfiguration {
 class KalixConfiguration(applicationContext: ApplicationContext) {
 
   @Bean
-  def config(): Config = {
-    KalixRunner.prepareConfig(ConfigFactory.load())
-  }
+  def config(): Config = ConfigFactory.load()
 
   @Bean
   def kalixSpringApplication(config: Config): KalixSpringApplication =

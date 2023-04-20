@@ -1,13 +1,20 @@
 package kalix
 
+import java.io.File
 import java.net.BindException
 import java.net.ServerSocket
-import java.io.File
+import java.util
+
 import scala.annotation.tailrec
 import scala.concurrent.Future
-import scala.util.control.NonFatal
+import scala.jdk.CollectionConverters.asScalaBufferConverter
+import scala.jdk.CollectionConverters.mapAsScalaMapConverter
+
+import com.typesafe.config.Config
+import com.typesafe.config.ConfigFactory
 import kalix.devtools.BuildInfo
 import kalix.devtools.impl.KalixProxyContainer
+import kalix.devtools.impl.DevModeSettings
 import org.apache.maven.execution.MavenSession
 import org.apache.maven.plugin.AbstractMojo
 import org.apache.maven.plugin.BuildPluginManager
@@ -15,7 +22,6 @@ import org.apache.maven.plugin.logging.Log
 import org.apache.maven.plugins.annotations._
 import org.apache.maven.project.MavenProject
 import org.twdata.maven.mojoexecutor.MojoExecutor._
-
 /**
  * Runs the current project. This goal will by default start a Kalix Server (Proxy) and the current application.
  *
@@ -24,6 +30,7 @@ import org.twdata.maven.mojoexecutor.MojoExecutor._
 @Mojo(name = "run", defaultPhase = LifecyclePhase.VALIDATE, requiresDependencyResolution = ResolutionScope.RUNTIME)
 @Execute(phase = LifecyclePhase.COMPILE)
 class RunMojo extends AbstractMojo {
+
   @Component
   private var mavenProject: MavenProject = null
 
@@ -96,6 +103,12 @@ class RunMojo extends AbstractMojo {
   @Parameter(property = "kalix.dev-mode.pubsub-emulator-port")
   private var pubsubEmulatorPort: Int = 0
 
+  /**
+   * Port mappings for local tests.
+   */
+  @Parameter
+  private var servicePortMappings: java.util.Map[String, String] = new util.HashMap()
+
   private val log: Log = getLog
 
   override def execute(): Unit = {
@@ -131,6 +144,10 @@ class RunMojo extends AbstractMojo {
 
       checkPortAvailability(proxyPort)
 
+      val allServiceMappings =
+        collectServiceMappingsFromSysProps ++
+        servicePortMappings.asScala
+
       val proxyImageToUse =
         if (proxyImage.trim.isEmpty) s"${BuildInfo.proxyImage}:${BuildInfo.proxyVersion}"
         else proxyImage
@@ -143,7 +160,8 @@ class RunMojo extends AbstractMojo {
         aclEnabled,
         viewFeaturesAll,
         Option(brokerConfigFile).filter(_.trim.nonEmpty), // only set if not empty
-        Option(pubsubEmulatorPort).filter(_ > 0) // only set if port is > 0
+        Option(pubsubEmulatorPort).filter(_ > 0), // only set if port is > 0
+        allServiceMappings
       )
 
       val container = KalixProxyContainer(config)
@@ -164,6 +182,29 @@ class RunMojo extends AbstractMojo {
       log.info("--------------------------------------------------------------------------------------")
     }
   }
+
+  private def collectServiceMappingsFromSysProps: Map[String, String] =
+    sys.props.collect {
+      case (key, value) if DevModeSettings.isPortMapping(key) =>
+        val serviceName = DevModeSettings.extractServiceName(key)
+        serviceName -> value
+    }.toMap
+
+  /*
+   * Collect any sys property starting with `kalix` and rebuild a -D property for each of them
+   * so we can pass it further to the forked process.
+   */
+  private def collectKalixSysProperties: Seq[String] = {
+    sys.props.collect {
+      case (key, value) if key.startsWith("kalix") => s"-D$key=$value"
+    }.toSeq
+  }
+
+  /** Collect port mappings added to pom.xml and make -D properties out of them */
+  private def collectServicePortMappings =
+    servicePortMappings.asScala.map { case (key, value) =>
+      DevModeSettings.portMappingsKeyFor(key, value)
+    }.toSeq
 
   private def startUserFunction(): Unit = {
 
@@ -187,8 +228,15 @@ class RunMojo extends AbstractMojo {
       }
     }
 
+    // first servicePortMappings, then kalixSysProps
+    // as it should be possible to override the servicePortMappings with -D args
+    val kalixSysProps =
+      (collectServicePortMappings ++ collectKalixSysProperties).map { arg =>
+        element(name("argument"), arg)
+      }
+
     val allArgs =
-      mainArgs ++ loggingArgs :+
+      mainArgs ++ loggingArgs ++ kalixSysProps :+
       element(name("argument"), mainClass) // mainClass must be last arg
 
     executeMojo(

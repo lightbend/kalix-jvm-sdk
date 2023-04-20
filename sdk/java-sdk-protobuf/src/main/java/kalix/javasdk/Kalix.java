@@ -51,6 +51,8 @@ import kalix.javasdk.workflowentity.WorkflowEntity;
 import kalix.javasdk.workflowentity.WorkflowEntityOptions;
 import kalix.javasdk.workflowentity.WorkflowEntityProvider;
 import kalix.replicatedentity.ReplicatedData;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import scala.jdk.javaapi.OptionConverters;
 
 import java.util.HashMap;
@@ -64,6 +66,8 @@ import java.util.function.Function;
  * starting a local server which will expose these entities to the Kalix proxy Sidecar.
  */
 public final class Kalix {
+
+  private final Logger logger = LoggerFactory.getLogger(getClass());
   private final Map<String, Function<ActorSystem, Service>> services = new HashMap<>();
   private ClassLoader classLoader = getClass().getClassLoader();
   private String typeUrlPrefix = AnySupport.DefaultTypeUrlPrefix();

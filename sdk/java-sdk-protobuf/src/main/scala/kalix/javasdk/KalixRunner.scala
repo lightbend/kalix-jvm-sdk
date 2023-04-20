@@ -16,44 +16,54 @@
 
 package kalix.javasdk
 
-import java.io.File
 import java.lang.management.ManagementFactory
 import java.time.Duration
-
-import akka.Done
-import akka.actor.CoordinatedShutdown.Reason
-import akka.actor.{ ActorSystem, CoordinatedShutdown }
-import akka.http.scaladsl._
-import akka.http.scaladsl.model._
-import kalix.javasdk.impl.action.{ ActionService, ActionsImpl }
-import kalix.javasdk.impl.replicatedentity.{ ReplicatedEntitiesImpl, ReplicatedEntityService }
-import kalix.javasdk.impl.valueentity.{ ValueEntitiesImpl, ValueEntityService }
-import kalix.javasdk.impl.eventsourcedentity.{ EventSourcedEntitiesImpl, EventSourcedEntityService }
-import kalix.javasdk.impl.{ AbstractContext, DiscoveryImpl, Service }
-import kalix.protocol.action.ActionsHandler
-import kalix.protocol.discovery.DiscoveryHandler
-import kalix.protocol.event_sourced_entity.EventSourcedEntitiesHandler
-import kalix.protocol.replicated_entity.ReplicatedEntitiesHandler
-import kalix.protocol.value_entity.ValueEntitiesHandler
-import com.typesafe.config.{ Config, ConfigFactory }
 import java.util.concurrent.CompletionStage
 
-import kalix.javasdk.impl.view.ViewService
 import scala.compat.java8.FutureConverters
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters._
 import scala.util.Failure
 import scala.util.Success
 
+import akka.Done
+import akka.actor.CoordinatedShutdown.Reason
+import akka.actor.ActorSystem
+import akka.actor.CoordinatedShutdown
+import akka.http.scaladsl._
+import akka.http.scaladsl.model._
 import com.google.protobuf.DescriptorProtos.FileDescriptorProto
+import com.typesafe.config.Config
+import com.typesafe.config.ConfigFactory
+import kalix.javasdk.impl.action.ActionService
+import kalix.javasdk.impl.action.ActionsImpl
+import kalix.javasdk.impl.eventsourcedentity.EventSourcedEntitiesImpl
+import kalix.javasdk.impl.eventsourcedentity.EventSourcedEntityService
+import kalix.javasdk.impl.replicatedentity.ReplicatedEntitiesImpl
+import kalix.javasdk.impl.replicatedentity.ReplicatedEntityService
+import kalix.javasdk.impl.valueentity.ValueEntitiesImpl
+import kalix.javasdk.impl.valueentity.ValueEntityService
+import kalix.javasdk.impl.view.ViewService
 import kalix.javasdk.impl.view.ViewsImpl
 import kalix.javasdk.impl.workflowentity.WorkflowEntityImpl
 import kalix.javasdk.impl.workflowentity.WorkflowEntityService
+import kalix.javasdk.impl.AbstractContext
+import kalix.javasdk.impl.DiscoveryImpl
+import kalix.javasdk.impl.Service
+import kalix.protocol.action.ActionsHandler
+import kalix.protocol.discovery.DiscoveryHandler
+import kalix.protocol.event_sourced_entity.EventSourcedEntitiesHandler
+import kalix.protocol.replicated_entity.ReplicatedEntitiesHandler
+import kalix.protocol.value_entity.ValueEntitiesHandler
 import kalix.protocol.view.ViewsHandler
 import kalix.protocol.workflow_entity.WorkflowEntitiesHandler
+import kalix.devtools.impl.DevModeSettings._
+import kalix.devtools.impl.DevModeSettings
 import org.slf4j.LoggerFactory
 
 object KalixRunner {
+  val logger = LoggerFactory.getLogger(classOf[KalixRunner])
+
   object BindFailure extends Reason
 
   final case class Configuration(
@@ -78,19 +88,48 @@ object KalixRunner {
     }
   }
 
-  def prepareConfig(config: Config): Config = {
+  private val HostPortPattern = """(.+):(\d+)""".r
+  private val PortPattern = """(\d+)""".r
 
+  private[kalix] def prepareConfig(config: Config): Config = {
     val mainConfig = config.getConfig("kalix.system").withFallback(config)
-    val devConfigFile = new File(System.getProperty("user.dir"), "dev-mode.conf")
+    // enrich config with extra dev-mode service port mappings if applicable
 
-    Option
-      .when(devConfigFile.exists()) {
-        ConfigFactory.parseFile(devConfigFile)
+    val portMappings = DevModeSettings.fromConfig(mainConfig).portMappings
+
+    portMappings.asScala
+      .foldLeft(mainConfig) { case (main, (key, value)) =>
+        // when running locally, users can configure service port mappings associating a name and a port
+        // in such a case, we will resolve the to 0.0.0.0:port and that just enough
+        // however, we build a docker-compose file containing more than one service, the config will need to include
+        // the docker host address, for example:
+        //   -Dkalix.dev-mode.service-port-mappings.my-service=host.docker.internal:9001
+        // we should not default to host.docker.internal because it might depend on docker environment
+        // (eg: Docker Desktop vs. Podman vs. Colima vs. Linux).
+        val (host, port) =
+          value match {
+            case HostPortPattern(h, p) => (h, p.toInt)
+            case PortPattern(p)        => ("0.0.0.0", p.toInt)
+            case _ =>
+              throw new IllegalArgumentException(s"Invalid service port mapping: $value")
+          }
+
+        val mapping = ConfigFactory.parseString(s"""
+           |akka.grpc.client.$key {
+           |  service-discovery {
+           |    service-name = "$key"
+           |  }
+           |  host = "$host"
+           |  port = $port
+           |  use-tls = false
+           |}
+           |""".stripMargin)
+
+        main.withFallback(mapping)
       }
-      .map(_.withFallback(mainConfig))
-      .getOrElse(mainConfig)
-      .resolve()
   }
+
+  private def loadConfig(): Config = prepareConfig(ConfigFactory.load())
 
 }
 
@@ -120,30 +159,14 @@ final class KalixRunner private[javasdk] (
    * Creates a KalixRunner from the given services. Use the default config to create the internal ActorSystem.
    */
   def this(services: java.util.Map[String, java.util.function.Function[ActorSystem, Service]], sdkName: String) = {
-    this(
-      ActorSystem(
-        "kalix", {
-          val conf = ConfigFactory.load()
-          conf.getConfig("kalix.system").withFallback(conf)
-        }),
-      services.asScala.toMap,
-      aclDescriptor = None,
-      sdkName)
+    this(ActorSystem("kalix", KalixRunner.loadConfig()), services.asScala.toMap, aclDescriptor = None, sdkName)
   }
 
   def this(
       services: java.util.Map[String, java.util.function.Function[ActorSystem, Service]],
       aclDescriptor: Option[FileDescriptorProto],
       sdkName: String) =
-    this(
-      ActorSystem(
-        "kalix", {
-          val conf = ConfigFactory.load()
-          conf.getConfig("kalix.system").withFallback(conf)
-        }),
-      services.asScala.toMap,
-      aclDescriptor = aclDescriptor,
-      sdkName)
+    this(ActorSystem("kalix", KalixRunner.loadConfig()), services.asScala.toMap, aclDescriptor = aclDescriptor, sdkName)
 
   /**
    * Creates a KalixRunner from the given services and config. The config should have the same structure as the
@@ -153,25 +176,19 @@ final class KalixRunner private[javasdk] (
   def this(
       services: java.util.Map[String, java.util.function.Function[ActorSystem, Service]],
       config: Config,
-      sdkName: String) = {
-    this(
-      ActorSystem("kalix", config.getConfig("kalix.system").withFallback(config)),
-      services.asScala.toMap,
-      aclDescriptor = None,
-      sdkName)
-  }
+      sdkName: String) =
+    this(ActorSystem("kalix", KalixRunner.prepareConfig(config)), services.asScala.toMap, aclDescriptor = None, sdkName)
 
   def this(
       services: java.util.Map[String, java.util.function.Function[ActorSystem, Service]],
       config: Config,
       aclDescriptor: Option[FileDescriptorProto],
-      sdkName: String) = {
+      sdkName: String) =
     this(
-      ActorSystem("kalix", config.getConfig("kalix.system").withFallback(config)),
+      ActorSystem("kalix", KalixRunner.prepareConfig(config)),
       services.asScala.toMap,
       aclDescriptor = aclDescriptor,
       sdkName)
-  }
 
   private val rootContext: Context = new AbstractContext(system) {}
 
@@ -227,6 +244,7 @@ final class KalixRunner private[javasdk] (
    */
   def run(): CompletionStage[Done] = {
     import scala.concurrent.duration._
+
     import system.dispatcher
 
     logJvmInfo()

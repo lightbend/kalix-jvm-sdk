@@ -27,47 +27,14 @@ def common: Seq[Setting[_]] =
     Compile / javacOptions ++= Seq("-encoding", "UTF-8"),
     Compile / scalacOptions ++= Seq("-encoding", "UTF-8", "-deprecation"))
 
-lazy val devTools = project
-  .in(file("devtools"))
-  .enablePlugins(BuildInfoPlugin, PublishSonatype)
-  .settings(common)
-  .settings(
-    name := "kalix-devtools",
-    Compile / javacOptions ++= Seq("--release", "11"),
-    Compile / scalacOptions ++= Seq("-release", "11"),
-    scalaVersion := Dependencies.ScalaVersionForDevTools,
-    buildInfoKeys := Seq[BuildInfoKey](
-      name,
-      version,
-      "proxyImage" -> "gcr.io/kalix-public/kalix-proxy",
-      "proxyVersion" -> Kalix.ProxyVersion,
-      "scalaVersion" -> scalaVersion.value),
-    buildInfoPackage := "kalix.devtools",
-    // Generate javadocs by just including non generated Java sources
-    Compile / doc / sources := {
-      val javaSourceDir = (Compile / javaSource).value.getAbsolutePath
-      (Compile / doc / sources).value.filter(_.getAbsolutePath.startsWith(javaSourceDir))
-    },
-    // javadoc (I think java 9 onwards) refuses to compile javadocs if it can't compile the entire source path.
-    // but since we have java files depending on Scala files, we need to include ourselves on the classpath.
-    Compile / doc / dependencyClasspath := (Compile / fullClasspath).value,
-    Compile / doc / javacOptions ++= Seq(
-      "-Xdoclint:none",
-      "-overview",
-      ((Compile / javaSource).value / "overview.html").getAbsolutePath,
-      "-notimestamp",
-      "-doctitle",
-      "Kalix Dev Tools",
-      "-noqualifier",
-      "java.lang"))
-  .settings(Dependencies.devtools)
-
 lazy val coreSdk = project
   .in(file("sdk/core"))
   .enablePlugins(PublishSonatype)
   .settings(common)
   .settings(
     name := "kalix-jvm-core-sdk",
+    // this module should only contain Java classes as it is used by the SDKs
+    // and the dev-tools (which in turn should only use scala 2.12).
     crossPaths := false,
     Compile / javacOptions ++= Seq("--release", "11"),
     Compile / scalacOptions ++= Seq("-release", "11"),
@@ -380,6 +347,42 @@ def githubUrl(v: String): String = {
   val branch = if (v.endsWith("SNAPSHOT")) "main" else "v" + v
   "https://github.com/lightbend/kalix-jvm-sdk/tree/" + branch
 }
+
+lazy val devTools = project
+  .in(file("devtools"))
+  .enablePlugins(BuildInfoPlugin, PublishSonatype)
+  .dependsOn(coreSdk)
+  .settings(common)
+  .settings(
+    name := "kalix-devtools",
+    Compile / javacOptions ++= Seq("--release", "11"),
+    Compile / scalacOptions ++= Seq("-release", "11"),
+    scalaVersion := Dependencies.ScalaVersionForDevTools,
+    buildInfoKeys := Seq[BuildInfoKey](
+      name,
+      version,
+      "proxyImage" -> "gcr.io/kalix-public/kalix-proxy",
+      "proxyVersion" -> Kalix.ProxyVersion,
+      "scalaVersion" -> scalaVersion.value),
+    buildInfoPackage := "kalix.devtools",
+    // Generate javadocs by just including non generated Java sources
+    Compile / doc / sources := {
+      val javaSourceDir = (Compile / javaSource).value.getAbsolutePath
+      (Compile / doc / sources).value.filter(_.getAbsolutePath.startsWith(javaSourceDir))
+    },
+    // javadoc (I think java 9 onwards) refuses to compile javadocs if it can't compile the entire source path.
+    // but since we have java files depending on Scala files, we need to include ourselves on the classpath.
+    Compile / doc / dependencyClasspath := (Compile / fullClasspath).value,
+    Compile / doc / javacOptions ++= Seq(
+      "-Xdoclint:none",
+      "-overview",
+      ((Compile / javaSource).value / "overview.html").getAbsolutePath,
+      "-notimestamp",
+      "-doctitle",
+      "Kalix Dev Tools",
+      "-noqualifier",
+      "java.lang"))
+  .settings(Dependencies.devtools)
 
 lazy val javaTck = project
   .in(file("tck/java-tck"))
