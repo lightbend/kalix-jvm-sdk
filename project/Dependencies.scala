@@ -74,7 +74,7 @@ object Dependencies {
 
   private val deps = libraryDependencies
 
-  private val coreDeps = Seq(
+  private val sdkDeps = Seq(
     akkaDependency("akka-stream"),
     akkaDependency("akka-slf4j"),
     akkaDependency("akka-discovery"),
@@ -102,12 +102,13 @@ object Dependencies {
     jacksonJsr310,
     jacksonParameterNames)
 
-  val coreSdk = deps ++= coreDeps
-
-  val devtools = deps ++= Seq(testContainers)
-
-  // FIXME
-  val javaSdk = coreSdk
+    
+  val coreSdk =
+      deps ++= Seq("com.typesafe" % "config" % "1.4.2")
+      
+      val devtools = deps ++= Seq(testContainers)
+      
+  val javaSdk = deps ++= sdkDeps
 
   val javaSdkTestKit = deps ++= Seq(
     testContainers,
@@ -129,7 +130,7 @@ object Dependencies {
     "org.springframework.boot" % "spring-boot-starter-reactor-netty" % SpringBootVersion,
     "jakarta.websocket" % "jakarta.websocket-api" % "2.0.0")
 
-  val javaSdkSpring = deps ++= coreDeps ++ springDeps ++ Seq(
+  val javaSdkSpring = deps ++= sdkDeps ++ springDeps ++ Seq(
     "net.aichler" % "jupiter-interface" % JupiterKeys.jupiterVersion.value % IntegrationTest,
     "org.springframework.boot" % "spring-boot-starter-test" % SpringBootVersion % IntegrationTest,
     junit5 % IntegrationTest,
@@ -144,7 +145,7 @@ object Dependencies {
       "org.springframework.boot" % "spring-boot-starter-test" % SpringBootVersion)
 
   // FIXME
-  val scalaSdk = deps ++= coreDeps ++ Seq(jacksonScala)
+  val scalaSdk = deps ++= sdkDeps ++ Seq(jacksonScala)
 
   val scalaSdkTestKit = deps ++= Seq(testContainers, logback % "test;provided", scalaTest % Test)
 

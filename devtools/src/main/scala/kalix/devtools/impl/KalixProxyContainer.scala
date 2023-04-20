@@ -103,12 +103,12 @@ class KalixProxyContainer private (image: DockerImageName, config: KalixProxyCon
         None
     }
 
-  val servicePortMappingsArgs =
+  private val servicePortMappingsArgs =
     config.servicePortMappings.map { case (key, value) =>
-      DevModeSettings.servicePortMappingsKeyFor(key, value)
+      DevModeSettings.portMappingsKeyFor(key, value)
     }
 
-  val finalArgs = containerArgs ++ eventingArgs ++ servicePortMappingsArgs
+  private val finalArgs = containerArgs ++ eventingArgs ++ servicePortMappingsArgs
   withCommand(finalArgs: _*)
 
   private val kafkaBootstrapServers: Option[String] =
@@ -150,7 +150,10 @@ class KalixProxyContainer private (image: DockerImageName, config: KalixProxyCon
   val portMappingsRendered =
     if (config.servicePortMappings.nonEmpty)
       config.servicePortMappings
-        .map { case (key, value) => s"$key:$value" }
+        .map {
+          case (key, value) if value.contains(":") => s"$key=$value"
+          case (key, value)                        => s"$key=0.0.0.0:$value"
+        }
         .mkString(", ")
     else notDefined
 

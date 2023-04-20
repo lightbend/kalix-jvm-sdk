@@ -57,6 +57,8 @@ import kalix.protocol.replicated_entity.ReplicatedEntitiesHandler
 import kalix.protocol.value_entity.ValueEntitiesHandler
 import kalix.protocol.view.ViewsHandler
 import kalix.protocol.workflow_entity.WorkflowEntitiesHandler
+import kalix.devtools.impl.DevModeSettings._
+import kalix.devtools.impl.DevModeSettings
 import org.slf4j.LoggerFactory
 
 object KalixRunner {
@@ -89,62 +91,45 @@ object KalixRunner {
   private val HostPortPattern = """(.+):(\d+)""".r
   private val PortPattern = """(\d+)""".r
 
-  def prepareConfig(config: Config): Config = {
-
+  private[kalix] def prepareConfig(config: Config): Config = {
     val mainConfig = config.getConfig("kalix.system").withFallback(config)
+    // enrich config with extra dev-mode service port mappings if applicable
 
-    val portMappingKey = "kalix.dev-mode.service-port-mappings"
-    // enrich config with extra dev-mode service port mappings
-    if (mainConfig.hasPath(portMappingKey)) {
+    val portMappings = DevModeSettings.fromConfig(mainConfig).portMappings
 
-      val mappings = mainConfig.getConfig(portMappingKey)
-
-      // each kalix.dev-mode.service-port-mappings becomes a new akka.grpc.client service-discovery mapping
-      // that is then appended to the main configuration
-      mappings.entrySet().asScala.foldLeft(mainConfig) { (main, entry) =>
+    portMappings.asScala
+      .foldLeft(mainConfig) { case (main, (key, value)) =>
         // when running locally, users can configure service port mappings associating a name and a port
         // in such a case, we will resolve the to 0.0.0.0:port and that just enough
         // however, we build a docker-compose file containing more than one service, the config will need to include
         // the docker host address, for example:
         //   -Dkalix.dev-mode.service-port-mappings.my-service=host.docker.internal:9001
-        // we should not default to host.docker.internal because it might depend on docker environment (Docker Desktop,
-        // Colima, Linux).
+        // we should not default to host.docker.internal because it might depend on docker environment
+        // (eg: Docker Desktop vs. Podman vs. Colima vs. Linux).
         val (host, port) =
-          entry.getValue.unwrapped() match {
-            case value: String =>
-              value match {
-                case HostPortPattern(host, port) => (host, port.toInt)
-                case PortPattern(port)           => ("0.0.0.0", port.toInt)
-                case _ =>
-                  throw new IllegalArgumentException(s"Invalid service port mapping: ${entry.getValue.unwrapped()}")
-              }
+          value match {
+            case HostPortPattern(h, p) => (h, p.toInt)
+            case PortPattern(p)        => ("0.0.0.0", p.toInt)
             case _ =>
-              throw new IllegalArgumentException(
-                s"Invalid config type. Settings '$portMappingKey.${entry.getKey}' should be of type String")
+              throw new IllegalArgumentException(s"Invalid service port mapping: $value")
           }
 
-        val serviceName = entry.getKey
         val mapping = ConfigFactory.parseString(s"""
-             |akka.grpc.client.$serviceName {
-             |  service-discovery {
-             |    service-name = "$serviceName"
-             |  }
-             |  host = "$host"
-             |  port = $port
-             |  use-tls = false
-             |}
-             |""".stripMargin)
+           |akka.grpc.client.$key {
+           |  service-discovery {
+           |    service-name = "$key"
+           |  }
+           |  host = "$host"
+           |  port = $port
+           |  use-tls = false
+           |}
+           |""".stripMargin)
 
         main.withFallback(mapping)
       }
-
-    } else {
-      mainConfig
-    }
-
   }
 
-  def loadConfig(): Config = prepareConfig(ConfigFactory.load())
+  private def loadConfig(): Config = prepareConfig(ConfigFactory.load())
 
 }
 

@@ -26,10 +26,8 @@ class KalixRunnerSpec extends AnyWordSpec with Matchers {
     "add local discovery config for 0.0.0.0:port in dev-mode" in {
       val config = ConfigFactory.parseString(s"""
            |kalix {
-           |  system {}
-           |  dev-mode.service-port-mappings {
-           |    foo = "9001"
-           |  }
+           |  system {} # needed because we build the main config from kalix.system
+           |  dev-mode.service-port-mappings.foo = "9001"
            |}
            |""".stripMargin)
 
@@ -42,10 +40,8 @@ class KalixRunnerSpec extends AnyWordSpec with Matchers {
     "add local discovery config for somehost:port in dev-mode" in {
       val config = ConfigFactory.parseString(s"""
            |kalix {
-           |  system {}
-           |  dev-mode.service-port-mappings {
-           |    foo = "somehost:9001"
-           |  }
+           |  system {} # needed because we build the main config from kalix.system
+           |  dev-mode.service-port-mappings.foo = "somehost:9001"
            |}
            |""".stripMargin)
 
@@ -58,10 +54,8 @@ class KalixRunnerSpec extends AnyWordSpec with Matchers {
     "add local discovery config for some.host:port in dev-mode" in {
       val config = ConfigFactory.parseString(s"""
            |kalix {
-           |  system {}
-           |  dev-mode.service-port-mappings {
-           |    foo = "some.host:9001"
-           |  }
+           |  system {} # needed because we build the main config from kalix.system
+           |  dev-mode.service-port-mappings.foo = "some.host:9001"
            |}
            |""".stripMargin)
 
@@ -74,10 +68,8 @@ class KalixRunnerSpec extends AnyWordSpec with Matchers {
     "fail config parsing if invalid host:port format" in {
       val config = ConfigFactory.parseString(s"""
            |kalix {
-           |  system {}
-           |  dev-mode.service-port-mappings {
-           |    foo = "some.host-9001"
-           |  }
+           |  system {} # needed because we build the main config from kalix.system
+           |  dev-mode.service-port-mappings.foo = "some.host-9001"
            |}
            |""".stripMargin)
 
@@ -89,7 +81,7 @@ class KalixRunnerSpec extends AnyWordSpec with Matchers {
     "fail config parsing if invalid config type" in {
       val config = ConfigFactory.parseString(s"""
            |kalix {
-           |  system {}
+           |  system {} # needed because we build the main config from kalix.system
            |  dev-mode.service-port-mappings {
            |    foo = 100
            |  }

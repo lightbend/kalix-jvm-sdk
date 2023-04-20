@@ -107,7 +107,7 @@ class RunMojo extends AbstractMojo {
    * Port mappings for local tests.
    */
   @Parameter
-  private var servicePortMappings: java.util.Map[String, Integer] = new util.HashMap()
+  private var servicePortMappings: java.util.Map[String, String] = new util.HashMap()
 
   private val log: Log = getLog
 
@@ -146,7 +146,7 @@ class RunMojo extends AbstractMojo {
 
       val allServiceMappings =
         collectServiceMappingsFromSysProps ++
-        servicePortMappings.asScala.mapValues(_.toString)
+        servicePortMappings.asScala
 
       val proxyImageToUse =
         if (proxyImage.trim.isEmpty) s"${BuildInfo.proxyImage}:${BuildInfo.proxyVersion}"
@@ -203,7 +203,7 @@ class RunMojo extends AbstractMojo {
   /** Collect port mappings added to pom.xml and make -D properties out of them */
   private def collectServicePortMappings =
     servicePortMappings.asScala.map { case (key, value) =>
-      DevModeSettings.servicePortMappingsKeyFor(key, value)
+      DevModeSettings.portMappingsKeyFor(key, value)
     }.toSeq
 
   private def startUserFunction(): Unit = {

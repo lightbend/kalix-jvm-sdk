@@ -33,6 +33,8 @@ lazy val coreSdk = project
   .settings(common)
   .settings(
     name := "kalix-jvm-core-sdk",
+    // this module should only contain Java classes as it is used by the SDKs
+    // and the dev-tools (which in turn should only use scala 2.12).
     crossPaths := false,
     Compile / javacOptions ++= Seq("--release", "11"),
     Compile / scalacOptions ++= Seq("-release", "11"),
@@ -349,6 +351,7 @@ def githubUrl(v: String): String = {
 lazy val devTools = project
   .in(file("devtools"))
   .enablePlugins(BuildInfoPlugin, PublishSonatype)
+  .dependsOn(coreSdk)
   .settings(common)
   .settings(
     name := "kalix-devtools",
