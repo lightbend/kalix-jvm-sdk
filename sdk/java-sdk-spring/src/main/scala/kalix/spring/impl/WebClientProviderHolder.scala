@@ -19,6 +19,9 @@ package kalix.spring.impl
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentMap
 
+import scala.jdk.CollectionConverters.MapHasAsScala
+import scala.jdk.OptionConverters.RichOptional
+
 import akka.actor.ActorSystem
 import akka.actor.ClassicActorSystemProvider
 import akka.actor.ExtendedActorSystem
@@ -26,7 +29,9 @@ import akka.actor.Extension
 import akka.actor.ExtensionId
 import akka.actor.ExtensionIdProvider
 import akka.annotation.InternalApi
+import kalix.devtools.impl.DevModeSettings
 import kalix.javasdk.JsonSupport
+import kalix.javasdk.impl.HostAndPort
 import kalix.javasdk.impl.ProxyInfoHolder
 import kalix.spring.WebClientProvider
 import org.springframework.http.HttpHeaders
@@ -62,15 +67,26 @@ private[kalix] class WebClientProviderImpl(system: ExtendedActorSystem) extends 
   private val proxyInfoHolder = ProxyInfoHolder(system)
   private val clients: ConcurrentMap[String, WebClient] = new ConcurrentHashMap()
 
+  private val devModeSettings = DevModeSettings.fromConfig(system.settings.config).portMappings.asScala
+
   private val MaxCrossServiceResponseContentLength =
     system.settings.config.getBytes("kalix.cross-service.max-content-length").toInt
 
   override def webClientFor(host: String): WebClient = {
+
+    // differently from the gRPC client, we don't need to create an extra config on the fly
+    // we can read the dev-mode settings directly and use it to override the host and port
+    val (mappedHost, mappedPort) =
+      devModeSettings
+        .get(host)
+        .map(HostAndPort.extract)
+        .getOrElse((host, 80))
+
     clients.computeIfAbsent(
       host,
       _ => {
         val remoteAddHeader = proxyInfoHolder.remoteIdentificationHeader
-        buildClient(host, 80, remoteAddHeader)
+        buildClient(mappedHost, mappedPort, remoteAddHeader)
       })
   }
 

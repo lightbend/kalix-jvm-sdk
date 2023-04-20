@@ -27,14 +27,19 @@ import scala.util.Failure
 import scala.util.Success
 
 import akka.Done
-import akka.actor.CoordinatedShutdown.Reason
 import akka.actor.ActorSystem
 import akka.actor.CoordinatedShutdown
+import akka.actor.CoordinatedShutdown.Reason
 import akka.http.scaladsl._
 import akka.http.scaladsl.model._
 import com.google.protobuf.DescriptorProtos.FileDescriptorProto
 import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
+import kalix.devtools.impl.DevModeSettings
+import kalix.javasdk.impl.AbstractContext
+import kalix.javasdk.impl.DiscoveryImpl
+import kalix.javasdk.impl.HostAndPort
+import kalix.javasdk.impl.Service
 import kalix.javasdk.impl.action.ActionService
 import kalix.javasdk.impl.action.ActionsImpl
 import kalix.javasdk.impl.eventsourcedentity.EventSourcedEntitiesImpl
@@ -47,9 +52,6 @@ import kalix.javasdk.impl.view.ViewService
 import kalix.javasdk.impl.view.ViewsImpl
 import kalix.javasdk.impl.workflowentity.WorkflowEntityImpl
 import kalix.javasdk.impl.workflowentity.WorkflowEntityService
-import kalix.javasdk.impl.AbstractContext
-import kalix.javasdk.impl.DiscoveryImpl
-import kalix.javasdk.impl.Service
 import kalix.protocol.action.ActionsHandler
 import kalix.protocol.discovery.DiscoveryHandler
 import kalix.protocol.event_sourced_entity.EventSourcedEntitiesHandler
@@ -57,8 +59,6 @@ import kalix.protocol.replicated_entity.ReplicatedEntitiesHandler
 import kalix.protocol.value_entity.ValueEntitiesHandler
 import kalix.protocol.view.ViewsHandler
 import kalix.protocol.workflow_entity.WorkflowEntitiesHandler
-import kalix.devtools.impl.DevModeSettings._
-import kalix.devtools.impl.DevModeSettings
 import org.slf4j.LoggerFactory
 
 object KalixRunner {
@@ -88,9 +88,6 @@ object KalixRunner {
     }
   }
 
-  private val HostPortPattern = """(.+):(\d+)""".r
-  private val PortPattern = """(\d+)""".r
-
   private[kalix] def prepareConfig(config: Config): Config = {
     val mainConfig = config.getConfig("kalix.system").withFallback(config)
     // enrich config with extra dev-mode service port mappings if applicable
@@ -99,21 +96,7 @@ object KalixRunner {
 
     portMappings.asScala
       .foldLeft(mainConfig) { case (main, (key, value)) =>
-        // when running locally, users can configure service port mappings associating a name and a port
-        // in such a case, we will resolve the to 0.0.0.0:port and that just enough
-        // however, we build a docker-compose file containing more than one service, the config will need to include
-        // the docker host address, for example:
-        //   -Dkalix.dev-mode.service-port-mappings.my-service=host.docker.internal:9001
-        // we should not default to host.docker.internal because it might depend on docker environment
-        // (eg: Docker Desktop vs. Podman vs. Colima vs. Linux).
-        val (host, port) =
-          value match {
-            case HostPortPattern(h, p) => (h, p.toInt)
-            case PortPattern(p)        => ("0.0.0.0", p.toInt)
-            case _ =>
-              throw new IllegalArgumentException(s"Invalid service port mapping: $value")
-          }
-
+        val (host, port) = HostAndPort.extract(value)
         val mapping = ConfigFactory.parseString(s"""
            |akka.grpc.client.$key {
            |  service-discovery {

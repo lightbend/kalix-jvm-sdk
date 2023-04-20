@@ -19,6 +19,7 @@ package kalix.devtools.impl;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigValue;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -55,7 +56,7 @@ public class DevModeSettings {
       }
       return new DevModeSettings(portMappings);
     } else {
-      return new DevModeSettings(new HashMap<>());
+      return new DevModeSettings(Collections.emptyMap());
     }
 
   }
@@ -63,7 +64,7 @@ public class DevModeSettings {
   public final Map<String, String> portMappings;
 
   public DevModeSettings(Map<String, String> portMappings) {
-    this.portMappings = portMappings;
+    this.portMappings = Collections.unmodifiableMap(portMappings);
   }
 
 }
