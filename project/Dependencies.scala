@@ -102,12 +102,11 @@ object Dependencies {
     jacksonJsr310,
     jacksonParameterNames)
 
-    
   val coreSdk =
-      deps ++= Seq("com.typesafe" % "config" % "1.4.2")
-      
-      val devtools = deps ++= Seq(testContainers)
-      
+    deps ++= Seq("com.typesafe" % "config" % "1.4.2")
+
+  val devtools = deps ++= Seq(testContainers)
+
   val javaSdk = deps ++= sdkDeps
 
   val javaSdkTestKit = deps ++= Seq(
