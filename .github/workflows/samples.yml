@@ -150,6 +150,8 @@ jobs:
           - { sample: java-protobuf-replicatedentity-shopping-cart, it: true }
           - { sample: java-protobuf-replicatedentity-examples, it: true }
 
+          - { sample: java-protobuf-web-resources, it: true }
+
           - { sample: java-protobuf-reliable-timers, it: false }
           - { sample: java-spring-reliable-timers, it: true }
 
@@ -252,6 +254,8 @@ jobs:
           - { sample: scala-protobuf-replicatedentity-examples, test: true }
 
           - { sample: scala-protobuf-reliable-timers, test: true }
+
+          - { sample: scala-protobuf-web-resources, test: true }
 
     steps:
       - name: Checkout

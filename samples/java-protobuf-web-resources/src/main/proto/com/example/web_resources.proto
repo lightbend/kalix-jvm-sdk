@@ -1,0 +1,36 @@
+// tag::file-service-api[]
+syntax = "proto3";
+package com.example;
+
+option java_outer_classname = "FileAction";
+
+import "google/api/annotations.proto";
+import "google/api/httpbody.proto";   // <1>
+import "kalix/annotations.proto";
+
+message File {
+  string file = 1;
+}
+
+message FileInDir {
+  string file = 1;
+  string directory = 2;
+}
+
+service FileService {
+  option (kalix.codegen) = {action: {}};
+  option (kalix.service).acl.allow = { principal: ALL };
+  rpc GetFile(File) returns (google.api.HttpBody) {   // <2>
+    option (google.api.http) = {   // <3>
+      get: "/{file}" // <4>
+    };
+  };
+
+  rpc GetFileInDir(FileInDir) returns (google.api.HttpBody) {
+    option (google.api.http) = {
+      get: "/{directory}/{file}"   // <5>
+    };
+  };
+}
+
+// end::file-service-api[]
