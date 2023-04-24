@@ -52,6 +52,7 @@ object KalixProxyContainer {
 class KalixProxyContainer private (image: DockerImageName, config: KalixProxyContainerConfig)
     extends GenericContainer[KalixProxyContainer](image) {
 
+  private val hostNetwork: String = "host.docker.internal"
   private val containerLogger = LoggerFactory.getLogger("kalix-proxy-server")
   withLogConsumer(new Slf4jLogConsumer(containerLogger).withSeparateOutputStreams)
 
@@ -66,7 +67,7 @@ class KalixProxyContainer private (image: DockerImageName, config: KalixProxyCon
   addFixedExposedPort(proxyPort, proxyPort)
 
   withEnv("HTTP_PORT", String.valueOf(proxyPort))
-  withEnv("USER_FUNCTION_HOST", "host.testcontainers.internal")
+  withEnv("USER_FUNCTION_HOST", hostNetwork)
   withEnv("USER_FUNCTION_PORT", String.valueOf(userFunctionPort))
 
   withEnv("ACL_ENABLED", config.aclEnabled.toString)
@@ -92,7 +93,7 @@ class KalixProxyContainer private (image: DockerImageName, config: KalixProxyCon
 
       case (None, Some(pubsubPort)) =>
         containerLogger.info("Configuring eventing support for Google Pub/Sub emulator")
-        withEnv("PUBSUB_EMULATOR_HOST", "host.testcontainers.internal")
+        withEnv("PUBSUB_EMULATOR_HOST", hostNetwork)
         Some("-Dkalix.proxy.eventing.support=google-pubsub-emulator")
 
       case (Some(_), Some(_)) =>
@@ -103,10 +104,21 @@ class KalixProxyContainer private (image: DockerImageName, config: KalixProxyCon
         None
     }
 
-  private val servicePortMappingsArgs =
-    config.servicePortMappings.map { case (key, value) =>
-      DevModeSettings.portMappingsKeyFor(key, value)
+  // When no host is specified, we should use host.docker.internal:port.
+  // That's because the proxy runs in a container and that's how
+  // it can reach the host OS or any other container (via the host OS bridge)
+  // However, users can still choose to use another host:port mapping, for example if they want to
+  // hit some other host (eg: some.kalix.cloud.url:port)
+  private val servicePortMappingsResolved =
+    config.servicePortMappings.mapValues {
+      case value if value.contains(":") => value
+      case value                        => s"$hostNetwork:$value"
     }
+
+  private val servicePortMappingsArgs =
+    servicePortMappingsResolved.map { case (key, value) =>
+      DevModeSettings.portMappingsKeyFor(key, value)
+    }.toSeq
 
   private val finalArgs = containerArgs ++ eventingArgs ++ servicePortMappingsArgs
   withCommand(finalArgs: _*)
@@ -148,12 +160,9 @@ class KalixProxyContainer private (image: DockerImageName, config: KalixProxyCon
     } yield s"$conf ($server)"
 
   val portMappingsRendered =
-    if (config.servicePortMappings.nonEmpty)
-      config.servicePortMappings
-        .map {
-          case (key, value) if value.contains(":") => s"$key=$value"
-          case (key, value)                        => s"$key=0.0.0.0:$value"
-        }
+    if (servicePortMappingsResolved.nonEmpty)
+      servicePortMappingsResolved
+        .map { case (key, value) => s"$key=$value" }
         .mkString(", ")
     else notDefined
 
