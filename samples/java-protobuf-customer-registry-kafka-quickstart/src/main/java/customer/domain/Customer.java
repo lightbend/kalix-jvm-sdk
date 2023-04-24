@@ -19,6 +19,8 @@ package customer.domain;
 import kalix.javasdk.valueentity.ValueEntityContext;
 import com.google.protobuf.Empty;
 import customer.api.CustomerApi;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Customer extends AbstractCustomer {
   @SuppressWarnings("unused")
@@ -27,6 +29,8 @@ public class Customer extends AbstractCustomer {
   public Customer(ValueEntityContext context) {
     this.entityId = context.entityId();
   }
+
+  private static final Logger LOG = LoggerFactory.getLogger(Customer.class);
 
   @Override
   public CustomerDomain.CustomerState emptyState() {
@@ -38,6 +42,7 @@ public class Customer extends AbstractCustomer {
   public Effect<Empty> create(
       CustomerDomain.CustomerState currentState, CustomerApi.Customer command) {
     CustomerDomain.CustomerState state = convertToDomain(command);
+    LOG.info("Creating customer {}", command);
     return effects().updateState(state).thenReply(Empty.getDefaultInstance());
   }
 
