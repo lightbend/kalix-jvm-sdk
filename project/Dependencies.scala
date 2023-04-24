@@ -38,6 +38,7 @@ object Dependencies {
   val kalixProxyProtocol = "io.kalix" % "kalix-proxy-protocol" % Kalix.ProxyVersion
   val kalixSdkProtocol = "io.kalix" % "kalix-sdk-protocol" % Kalix.ProxyVersion
   val kalixTckProtocol = "io.kalix" % "kalix-tck-protocol" % Kalix.ProxyVersion
+  val kalixTestkitProtocol = "io.kalix" % "kalix-testkit-protocol" % Kalix.ProxyVersion
 
   val commonsIo = "commons-io" % "commons-io" % CommonsIoVersion
   val logback = "ch.qos.logback" % "logback-classic" % LogbackVersion
@@ -117,7 +118,11 @@ object Dependencies {
     "org.apache.commons" % "commons-compress" % "1.21",
     junit4 % Provided,
     junit5 % Provided,
-    scalaTest % Test)
+    scalaTest % Test,
+    kalixTestkitProtocol % "protobuf-src",
+    scalapbCompilerPlugin,
+    akkaDependency("akka-testkit")
+    )
 
   val springDeps = Seq(
     jacksonDataFormatProto,

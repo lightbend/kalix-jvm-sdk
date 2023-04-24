@@ -90,6 +90,8 @@ public class KalixProxyContainer extends GenericContainer<KalixProxyContainer> {
   public void start() {
     Testcontainers.exposeHostPorts(userFunctionPort);
     Testcontainers.exposeHostPorts(googlePubSubPort);
+    //FIXME receive and use randomly generated port
+    Testcontainers.exposeHostPorts(9001);
     super.start();
     // Debug tooling: pass the Proxy logs into the client SLF4J
     // Slf4jLogConsumer logConsumer = new Slf4jLogConsumer(LoggerFactory.getLogger("proxy-logs"));

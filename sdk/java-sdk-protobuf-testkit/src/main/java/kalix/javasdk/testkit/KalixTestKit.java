@@ -30,6 +30,7 @@ import kalix.javasdk.KalixRunner;
 import kalix.javasdk.Principal;
 import kalix.javasdk.impl.GrpcClients;
 import kalix.javasdk.impl.ProxyInfoHolder;
+import kalix.javasdk.testkit.impl.EventingTestKitImpl$;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -202,6 +203,9 @@ public class KalixTestKit {
   private KalixRunner runner;
   private ActorSystem testSystem;
 
+  private EventingTestKit eventingTestKit;
+
+
   /**
    * Create a new testkit for a Kalix service descriptor.
    *
@@ -254,11 +258,16 @@ public class KalixTestKit {
     runner = kalix.createRunner(testConfig.withFallback(config));
     runner.run();
 
-    testSystem = ActorSystem.create("KalixTestkit");
+    testSystem = ActorSystem.create("KalixTestkit", ConfigFactory.parseString("akka.http.server.preview.enable-http2 = true"));
 
     runProxy(useTestContainers, port);
 
     started = true;
+
+    log.info("EventingTestKit booting up...");
+    // FIXME use random port for binding eventing testkit and pass that on to proxy
+    // FIXME move start method to java
+    eventingTestKit = EventingTestKitImpl$.MODULE$.start(getActorSystem(), "0.0.0.0", 9001);
 
     if (log.isDebugEnabled())
       log.debug("TestKit using [{}:{}] for calls to proxy from service", proxyHost, proxyPort);
@@ -310,6 +319,7 @@ public class KalixTestKit {
       try {
         checkingProxyStatus.toCompletableFuture().get();
       } catch (InterruptedException | ExecutionException e) {
+        log.error("Failed to connect to proxy with:", e);
         throw new RuntimeException(e);
       }
     }
@@ -422,6 +432,10 @@ public class KalixTestKit {
       throw new IllegalStateException(
         "Need to start KalixTestkit before accessing gRPC client settings");
     return GrpcClientSettings.connectToServiceAt(getHost(), getPort(), testSystem).withTls(false);
+  }
+
+  public EventingTestKit.Topic getTopic(String topic) {
+    return eventingTestKit.getTopic(topic);
   }
 
   /** Stop the testkit and local Kalix. */

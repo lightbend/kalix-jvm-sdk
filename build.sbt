@@ -93,7 +93,7 @@ lazy val javaSdkProtobuf = project
 lazy val javaSdkProtobufTestKit = project
   .in(file("sdk/java-sdk-protobuf-testkit"))
   .dependsOn(javaSdkProtobuf)
-  .enablePlugins(BuildInfoPlugin, PublishSonatype)
+  .enablePlugins(AkkaGrpcPlugin, BuildInfoPlugin, PublishSonatype)
   .settings(common)
   .settings(
     name := "kalix-java-sdk-protobuf-testkit",
