@@ -1,4 +1,4 @@
-name: Dependency License Scanning
+name: Dependency Scanning
 
 on:
   workflow_dispatch:
@@ -35,16 +35,34 @@ jobs:
         run: |-
           curl -H 'Cache-Control: no-cache' https://raw.githubusercontent.com/fossas/fossa-cli/master/install-latest.sh | bash
           sbt "compile; makePom"
+
+          echo ### List targets ###
           fossa list-targets
-          # separate reports for the different SDKs
-          ## Java SDK including Maven codegen
-          fossa analyze --only-target scala@sdk/java-sdk/target/ --only-target scala@codegen/java-gen/target/scala-2.12/ -p kalix-java-sdk
-          ## Scala SDK including sbt codegen
-          fossa analyze --only-target scala@sdk/scala-sdk/target/scala-2.13/ --only-target scala@codegen/scala-gen/target/scala-2.12/ -p kalix-scala-sdk
-          ## Spring SDK
-          fossa analyze --only-target scala@sdk/java-sdk-spring/target/ -p kalix-spring-sdk
-          # report all parts including testkits, tests, and samples
+
+          echo ### Java SDK (code-first) ###
+          fossa analyze -p kalix-java-sdk-spring \
+            --only-target scala@sdk/java-sdk-spring/target/ \
+            --only-target scala@sdk/java-sdk-spring-testkit/target/ \
+            --only-target scala@sdk/spring-boot-starter/target/
+
+          echo ### Java SDK (protobuf) including Maven codegen ###
+          fossa analyze -p kalix-java-sdk-protobuf \
+            --only-target scala@sdk/java-sdk-protobuf/target/ \
+            --only-target scala@sdk/java-sdk-protobuf-testkit/target/ \
+            --only-target scala@codegen/java-gen/target/scala-2.12/ \
+            --only-target maven@maven-java/
+
+          echo ### Scala SDK (protobuf) including core and sbt codegen ##
+          fossa analyze -p kalix-scala-sdk-protobuf \
+            --only-target scala@sdk/scala-sdk-protobuf/target/scala-2.13/ \
+            --only-target scala@sdk/scala-sdk-protobuf-testkit/target/scala-2.13/ \
+            --only-target scala@codegen/scala-gen/target/scala-2.12/ \
+            --only-target scala@codegen/core/target/scala-2.12/ \
+            --only-target scala@sbt-plugin/target/scala-2.12/sbt-1.0/
+
+          echo ### report all parts including testkits, tests, TCKs, and samples ###
           fossa analyze -p kalix-jvm-sdk
 
         env:
           FOSSA_API_KEY: "${{secrets.FOSSA_API_KEY}}"
+          FOSSA_TELEMETRY_SCOPE: off
