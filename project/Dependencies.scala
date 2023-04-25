@@ -13,7 +13,8 @@ object Dependencies {
   val ScalaVersion = "2.13.10"
   val ScalaVersionForDevTools = "2.12.15"
 
-  val ProtobufVersion = akka.grpc.gen.BuildInfo.googleProtobufVersion
+  val ProtobufVersion = // akka.grpc.gen.BuildInfo.googleProtobufVersion
+    "3.20.3" // explicitly overriding the 3.20.1 version from Akka gRPC 2.1.6
 
   val AkkaVersion = "2.6.20"
   val AkkaHttpVersion = "10.2.10" // Note: should at least the Akka HTTP version required by Akka gRPC
