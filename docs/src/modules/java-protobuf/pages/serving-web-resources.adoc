@@ -3,7 +3,7 @@
 
 This guide provides a simple example of how to serve arbitrary web resources like `.html` files.
 
-[.group-java]#To use proto files from artifacts in your schema, you need to adjust your maven build definition (as done in this full link:https://github.com/lightbend/kalix-jvm-sdk/tree/main/samples/java-protobuf-web-resources/pom.xml[example]):#
+[.group-java]#To use proto files from artifacts in your schema, you need to adjust your maven build definition:#
 [.tabset]
 Java::
 +
@@ -88,13 +88,4 @@ Scala::
 include::example$scala-protobuf-web-resources/src/main/scala/com/example/FileServiceAction.scala[tag=500-error]
 ----
 
-
-[.tabset]
-Java::
-+
-The code from this page is taken from the link:https://github.com/lightbend/kalix-jvm-sdk/tree/main/samples/java-protobuf-web-resources[full example].
-
-Scala::
-+
-The code from this page is taken from the link:https://github.com/lightbend/kalix-jvm-sdk/tree/main/samples/scala-protobuf-web-resources[full example].
 
