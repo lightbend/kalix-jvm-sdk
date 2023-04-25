@@ -28,7 +28,7 @@ include::example$java-protobuf-web-resources/src/main/proto/com/example/web_reso
 ----
 <1> Import Google's HttpBody dependency
 <2> Choose `HttpBody` as the return type.
-<3> Enable http-endpoints using.
+<3> Enable HTTP endpoints using.
 <4> Serve files in like `web/index.html`.
 <5> Optional: serve files in directories, e.g. `web/img/favicon.png`.
 Scala::
