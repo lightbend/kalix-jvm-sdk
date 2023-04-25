@@ -26,7 +26,7 @@ Java::
 ----
 include::example$java-protobuf-web-resources/src/main/proto/com/example/web_resources.proto[tag=file-service-api]
 ----
-<1> Use `import` to use proto files from dependencies.
+<1> Import Google's HttpBody dependency
 <2> Choose `HttpBody` as the return type.
 <3> Enable http-endpoints using.
 <4> Serve files in like `web/index.html`.
