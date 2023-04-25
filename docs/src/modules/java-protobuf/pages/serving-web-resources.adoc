@@ -43,7 +43,7 @@ include::example$scala-protobuf-web-resources/src/main/proto/com/example/web_res
 <4> Serve files in like `web/index.html`.
 <5> Optional: serve files in directories, e.g. `web/img/favicon.png`.
 
-Use [.group-java]#`effects().reply`# [.group-scala]#`effects.reply`# to serve content (e.g. by loading a file from disk with) a `200` http-response:
+Use [.group-java]#`effects().reply`# [.group-scala]#`effects.reply`# to serve content (e.g. by loading a file from disk with) a `200` HTTP response:
 [.tabset]
 Java::
 +
