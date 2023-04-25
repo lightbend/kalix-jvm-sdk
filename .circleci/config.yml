@@ -52,12 +52,6 @@ commands:
             # new cache if sbt version changed
             - sbt-cache-v3-{{ checksum "project/build.properties" }}-
 
-  install_fossa:
-    description: Install fossa (for license checking)
-    steps:
-      - run: |
-          curl -H 'Cache-Control: no-cache' https://raw.githubusercontent.com/fossas/fossa-cli/master/install-latest.sh | bash
-
   save_deps_cache:
     description: "Save sbt caches"
     steps:
@@ -447,30 +441,6 @@ jobs:
           command: make -C docs deploy
       - save_deps_cache
 
-  fossa_nightly:
-    description: "Nightly FOSSA checks"
-    machine:
-      image: ubuntu-2004:202107-02
-    steps:
-      - checkout
-      - setup_sbt
-      - restore_deps_cache
-      - install_fossa
-      - run:
-          name: Run Fossa
-          command: |
-            sbt "compile; makePom"
-            fossa list-targets
-            # separate reports for the different SDKs
-            ## Java SDK including Maven codegen
-            fossa analyze --only-target scala@sdk/java-sdk/target/ --only-target scala@codegen/java-gen/target/scala-2.12/ -p kalix-java-sdk
-            ## Scala SDK including sbt codegen
-            fossa analyze --only-target scala@sdk/scala-sdk/target/scala-2.13/ --only-target scala@codegen/scala-gen/target/scala-2.12/ -p kalix-scala-sdk
-            ## Spring SDK
-            fossa analyze --only-target scala@sdk/java-sdk-spring/target/ -p kalix-spring-sdk
-            # report all parts including testkits, tests, and samples
-            fossa analyze -p kalix-jvm-sdk
-
 workflows:
   CI:
     jobs:
@@ -557,14 +527,3 @@ workflows:
           requires:
             # we only create the versions bump PR after publish-docs is successful, which means release was successful
             - publish-docs
-
-  Nightly:
-    triggers:
-      - schedule:
-          cron: "0 0 * * 1-5"
-          filters:
-            branches:
-              only:
-                - main
-    jobs:
-      - fossa_nightly

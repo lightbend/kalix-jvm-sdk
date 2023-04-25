@@ -1,0 +1,50 @@
+name: Dependency License Scanning
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 0 * * 0' # At 00:00 on Sunday
+
+permissions:
+  contents: read # allow actions/checkout
+
+jobs:
+  fossa:
+    name: Fossa
+    runs-on: ubuntu-22.04
+    if: github.event.repository.fork == false
+    steps:
+      - name: Checkout
+        # https://github.com/actions/checkout/releases
+        # v3.5.0
+        uses: actions/checkout@8f4b7f84864484a7bf31766abe9204da3cbe65b3
+
+      - name: Cache Coursier cache
+        # https://github.com/coursier/cache-action/releases
+        # v6.4.3
+        uses: coursier/cache-action@566e01fea33492e5a89706b43fb0d3fc884154f9
+
+      - name: Set up JDK 17
+        # https://github.com/coursier/setup-action/releases
+        # v1.3.0
+        uses: coursier/setup-action@70323223454ac2a9eb2de46f389b4d045cbcdea5
+        with:
+          jvm: temurin:1.17
+
+      - name: FOSSA policy check
+        run: |-
+          curl -H 'Cache-Control: no-cache' https://raw.githubusercontent.com/fossas/fossa-cli/master/install-latest.sh | bash
+          sbt "compile; makePom"
+          fossa list-targets
+          # separate reports for the different SDKs
+          ## Java SDK including Maven codegen
+          fossa analyze --only-target scala@sdk/java-sdk/target/ --only-target scala@codegen/java-gen/target/scala-2.12/ -p kalix-java-sdk
+          ## Scala SDK including sbt codegen
+          fossa analyze --only-target scala@sdk/scala-sdk/target/scala-2.13/ --only-target scala@codegen/scala-gen/target/scala-2.12/ -p kalix-scala-sdk
+          ## Spring SDK
+          fossa analyze --only-target scala@sdk/java-sdk-spring/target/ -p kalix-spring-sdk
+          # report all parts including testkits, tests, and samples
+          fossa analyze -p kalix-jvm-sdk
+
+        env:
+          FOSSA_API_KEY: "${{secrets.FOSSA_API_KEY}}"
