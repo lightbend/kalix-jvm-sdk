@@ -551,6 +551,6 @@ lazy val sbtPlugin = Project(id = "sbt-kalix", base = file("sbt-plugin"))
       Seq("-Xmx1024M", "-Dplugin.version=" + version.value)
     },
     scriptedBufferLog := false)
-  .dependsOn(codegenScala)
+  .dependsOn(codegenScala, devTools)
 
 addCommandAlias("formatAll", "scalafmtAll; javafmtAll")
