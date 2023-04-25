@@ -59,7 +59,7 @@ include::example$scala-protobuf-web-resources/src/main/scala/com/example/FileSer
 ----
 The example also shows how to return additional HTTP headers.
 
-Use [.group-java]#`effects().ignore`# [.group-scala]#`effects.ignore`# to serve a `404` http-response:
+Use [.group-java]#`effects().ignore`# [.group-scala]#`effects.ignore`# to serve a `404` HTTP response:
 [.tabset]
 Java::
 +
@@ -74,7 +74,7 @@ Scala::
 include::example$scala-protobuf-web-resources/src/main/scala/com/example/FileServiceAction.scala[tag=404-not-found]
 ----
 
-Use [.group-java]#`effects().error`# [.group-scala]#`effects.error`# to serve a `500` http-response:
+Use [.group-java]#`effects().error`# [.group-scala]#`effects.error`# to serve a `500` HTTP response:
 [.tabset]
 Java::
 +
