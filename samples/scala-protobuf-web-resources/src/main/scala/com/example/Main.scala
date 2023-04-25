@@ -18,7 +18,7 @@ object Main {
     // If you prefer, you may remove this and manually register these components in a
     // `Kalix()` instance.
     KalixFactory.withComponents(
-      new FileServiceAction(_))
+      new FileServiceAction(_), new ShoppingCartServiceAction(_))
   }
 
   def main(args: Array[String]): Unit = {

@@ -2,6 +2,7 @@ package com.example
 
 import com.google.api.HttpBody
 import com.google.protobuf.ByteString
+import com.google.protobuf.empty.Empty
 import kalix.scalasdk.Metadata
 import kalix.scalasdk.action.Action.Effect
 import kalix.scalasdk.action.ActionCreationContext
@@ -55,9 +56,18 @@ class FileServiceAction(ctx: ActionCreationContext) extends AbstractFileServiceA
     }
   }
 
-  override def getFile(file: File): Effect[HttpBody] =
+  override def getFile(file: File): Effect[HttpBody] = {
+    log.info(s"getFile($file)")
     loadFile("", file.file)
+  }
 
-  override def getFileInDir(fileInDir: FileInDir): Effect[HttpBody] =
+  override def getFileInDir(fileInDir: FileInDir): Effect[HttpBody] = {
+    log.info(s"getFileInDir($fileInDir)")
     loadFile(s"/${fileInDir.directory}", fileInDir.file)
+  }
+
+  override def indexHtml(empty: Empty): Effect[HttpBody] = {
+    log.info(s"indexHtml()")
+    getFile(File("index.html"))
+  }
 }
