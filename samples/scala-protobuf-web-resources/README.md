@@ -10,8 +10,6 @@ To compile and test the code from the command line, use
 sbt test
 ```
 
-
-
 ## Running Locally
 
 In order to run your application locally, you must run the Kalix proxy. The included `docker compose` file contains the configuration required to run the proxy for a locally running application.
@@ -32,7 +30,7 @@ For further details see [Running a service locally](https://docs.kalix.io/develo
 
 ## Exercise the service
 
-With both the proxy and your application running open `http://localhost:9000/index.html` in your local browser.
+With both the proxy and your application running open `http://localhost:9000/` in your local browser.
 
 ## Deploying
 
@@ -50,4 +48,4 @@ for more information on how to make your docker image available to Kalix.
 
 Finally, you can use the [Kalix Console](https://console.kalix.io)
 to create a Kalix project and then deploy your service into it
-through the `kalix` CLI. 
+through the `kalix` CLI.

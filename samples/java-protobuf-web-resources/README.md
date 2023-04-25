@@ -34,7 +34,7 @@ For further details see [Running a service locally](https://docs.kalix.io/develo
 
 ## Exercise the service
 
-With both the proxy and your application running open `http://localhost:9000/index.html` in your local browser.
+With both the proxy and your application running open `http://localhost:9000/` in your local browser.
 
 ## Deploying
 
