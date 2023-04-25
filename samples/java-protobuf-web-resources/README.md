@@ -1,6 +1,6 @@
 # Serving arbitrary web resources
 
-Example how to serve web resources like html files, js, css and images through Kalix via http.
+Example of how to serve web resources like html files, js, css and images through Kalix via http.
 
 This project is based on the Kalix Maven archetype.
 

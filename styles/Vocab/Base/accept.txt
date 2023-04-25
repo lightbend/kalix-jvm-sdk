@@ -49,7 +49,6 @@ grpcui
 grpcurl
 gRPCurl
 has_more
-http-response
 hostname
 hostnames
 https
