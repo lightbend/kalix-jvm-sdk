@@ -50,6 +50,8 @@ object KalixTestKit {
     def withAclDisabled(): Settings = new Settings(jSettings.withAclDisabled())
     def withAclEnabled(): Settings = new Settings(jSettings.withAclEnabled())
     def withAdvancedViews(): Settings = new Settings(jSettings.withAdvancedViews())
+    def withServicePortMapping(serviceName: String, hostPort: String): Settings =
+      new Settings(jSettings.withServicePortMapping(serviceName, hostPort))
   }
 
   val DefaultSettings: Settings = new Settings(JTestKit.Settings.DEFAULT)

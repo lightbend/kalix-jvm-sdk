@@ -109,7 +109,7 @@ class KalixProxyContainer private (image: DockerImageName, config: KalixProxyCon
     }
 
   private val finalArgs = containerArgs ++ eventingArgs ++ servicePortMappingsArgs
-  withCommand(finalArgs: _*)
+  withEnv("JAVA_TOOL_OPTIONS", finalArgs.mkString(""))
 
   private val kafkaBootstrapServers: Option[String] =
     config.brokerConfigFile.flatMap { file =>

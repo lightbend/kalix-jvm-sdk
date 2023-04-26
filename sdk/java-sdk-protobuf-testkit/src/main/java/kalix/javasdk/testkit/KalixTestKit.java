@@ -36,13 +36,12 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.time.Duration;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 /**
  * Testkit for running Kalix services locally.
@@ -77,6 +76,9 @@ public class KalixTestKit {
     /** To override workflow tick interval for integration tests */
     public final Optional<Duration> workflowTickInterval;
 
+    /** Service port mappings from serviceName to host:port */
+    public final Map<String, String> servicePortMappings;
+
     /**
      * Create new settings for KalixTestkit.
      *
@@ -85,20 +87,22 @@ public class KalixTestKit {
      */
     @Deprecated
     public Settings(final Duration stopTimeout) {
-      this(stopTimeout, "self", false, false, Optional.empty());
+      this(stopTimeout, "self", false, false, Optional.empty(), Collections.emptyMap());
     }
 
     private Settings(
-        final Duration stopTimeout,
-        final String serviceName,
-        final boolean aclEnabled,
-        final boolean advancedViews,
-        final Optional<Duration> workflowTickInterval) {
+      final Duration stopTimeout,
+      final String serviceName,
+      final boolean aclEnabled,
+      final boolean advancedViews,
+      final Optional<Duration> workflowTickInterval,
+      final Map<String, String> servicePortMappings) {
       this.stopTimeout = stopTimeout;
       this.serviceName = serviceName;
       this.aclEnabled = aclEnabled;
       this.advancedViews = advancedViews;
       this.workflowTickInterval = workflowTickInterval;
+      this.servicePortMappings = servicePortMappings;
     }
 
     /**
@@ -108,7 +112,7 @@ public class KalixTestKit {
      * @return updated Settings
      */
     public Settings withStopTimeout(final Duration stopTimeout) {
-      return new Settings(stopTimeout, serviceName, aclEnabled, advancedViews, workflowTickInterval);
+      return new Settings(stopTimeout, serviceName, aclEnabled, advancedViews, workflowTickInterval, servicePortMappings);
     }
 
     /**
@@ -120,7 +124,7 @@ public class KalixTestKit {
      * @return The updated settings.
      */
     public Settings withServiceName(final String serviceName) {
-      return new Settings(stopTimeout, serviceName, aclEnabled, advancedViews, workflowTickInterval);
+      return new Settings(stopTimeout, serviceName, aclEnabled, advancedViews, workflowTickInterval, servicePortMappings);
     }
 
     /**
@@ -129,7 +133,7 @@ public class KalixTestKit {
      * @return The updated settings.
      */
     public Settings withAclDisabled() {
-      return new Settings(stopTimeout, serviceName, false, advancedViews, workflowTickInterval);
+      return new Settings(stopTimeout, serviceName, false, advancedViews, workflowTickInterval, servicePortMappings);
     }
 
     /**
@@ -138,7 +142,7 @@ public class KalixTestKit {
      * @return The updated settings.
      */
     public Settings withAclEnabled() {
-      return new Settings(stopTimeout, serviceName, true, advancedViews, workflowTickInterval);
+      return new Settings(stopTimeout, serviceName, true, advancedViews, workflowTickInterval, servicePortMappings);
     }
 
     /**
@@ -147,7 +151,7 @@ public class KalixTestKit {
      * @return The updated settings.
      */
     public Settings withAdvancedViews() {
-      return new Settings(stopTimeout, serviceName, aclEnabled, true, workflowTickInterval);
+      return new Settings(stopTimeout, serviceName, aclEnabled, true, workflowTickInterval, servicePortMappings);
     }
 
     /**
@@ -156,18 +160,33 @@ public class KalixTestKit {
      * @return The updated settings.
      */
     public Settings withWorkflowTickInterval(Duration tickInterval) {
-      return new Settings(stopTimeout, serviceName, aclEnabled, true, Optional.of(tickInterval));
+      return new Settings(stopTimeout, serviceName, aclEnabled, true, Optional.of(tickInterval), servicePortMappings);
+    }
+
+    /**
+     * Add a service port mapping from serviceName to host:port.
+     * @return The updated settings.
+     */
+    public Settings withServicePortMapping(String serviceName, String hostAndPort) {
+      var updatedMappings = new HashMap<>(servicePortMappings);
+      updatedMappings.put(serviceName, hostAndPort);
+      return new Settings(stopTimeout, serviceName, aclEnabled, advancedViews, workflowTickInterval, Map.copyOf(updatedMappings));
     }
 
     @Override
     public String toString() {
+      var portMappingsRendered =
+        servicePortMappings.entrySet().stream()
+          .map(e -> e.getKey() + "=" + e.getValue()).collect(Collectors.toList());
+
       return "Settings(" +
-          "stopTimeout=" + stopTimeout +
-          ", serviceName='" + serviceName + '\'' +
-          ", aclEnabled=" + aclEnabled +
-          ", advancedViews=" + advancedViews +
-          ", workflowTickInterval=" + workflowTickInterval +
-          ')';
+        "stopTimeout=" + stopTimeout +
+        ", serviceName='" + serviceName + '\'' +
+        ", aclEnabled=" + aclEnabled +
+        ", advancedViews=" + advancedViews +
+        ", workflowTickInterval=" + workflowTickInterval +
+        ", servicePortMappings=[" + String.join(", ", portMappingsRendered) + "]" +
+        ')';
     }
   }
 
@@ -195,7 +214,7 @@ public class KalixTestKit {
   /**
    * Create a new testkit for a Kalix service descriptor with custom settings.
    *
-   * @param kalix Kalix service descriptor
+   * @param kalix    Kalix service descriptor
    * @param settings custom testkit settings
    */
   public KalixTestKit(final Kalix kalix, final Settings settings) {
@@ -219,7 +238,8 @@ public class KalixTestKit {
    * @return this KalixTestkit
    */
   public KalixTestKit start(final Config config) {
-    if (started) {throw new IllegalStateException("KalixTestkit already started");}
+    if (started)
+      throw new IllegalStateException("KalixTestkit already started");
 
     Boolean useTestContainers = Optional.ofNullable(System.getenv("KALIX_TESTKIT_USE_TEST_CONTAINERS")).map(Boolean::valueOf).orElse(true);
     int port = userFunctionPort(useTestContainers);
@@ -240,7 +260,9 @@ public class KalixTestKit {
 
     started = true;
 
-    if (log.isDebugEnabled()) {log.debug("TestKit using [{}:{}] for calls to proxy from service", proxyHost, proxyPort);}
+    if (log.isDebugEnabled())
+      log.debug("TestKit using [{}:{}] for calls to proxy from service", proxyHost, proxyPort);
+
     return this;
   }
 
@@ -252,7 +274,15 @@ public class KalixTestKit {
       proxyContainer.addEnv("SERVICE_NAME", settings.serviceName);
       proxyContainer.addEnv("ACL_ENABLED", Boolean.toString(settings.aclEnabled));
       proxyContainer.addEnv("VIEW_FEATURES_ALL", Boolean.toString(settings.advancedViews));
-      proxyContainer.addEnv("JAVA_TOOL_OPTIONS", "-Dlogback.configurationFile=logback-dev-mode.xml");
+
+      List<String> javaOptions = new ArrayList<>();
+      javaOptions.add("-Dlogback.configurationFile=logback-dev-mode.xml");
+
+      settings.servicePortMappings.forEach((serviceName, hostPort) -> {
+        javaOptions.add("-Dkalix.dev-mode.service-port-mappings." + serviceName + "=" + hostPort);
+      });
+
+      proxyContainer.addEnv("JAVA_TOOL_OPTIONS", String.join(" ", javaOptions));
       settings.workflowTickInterval.ifPresent(tickInterval -> proxyContainer.addEnv("WORKFLOW_TICK_INTERVAL", tickInterval.toMillis() + ".millis"));
 
       proxyContainer.start();
@@ -306,7 +336,9 @@ public class KalixTestKit {
    * @return Kalix host
    */
   public String getHost() {
-    if (!started) {throw new IllegalStateException("Need to start KalixTestkit before accessing the host name");}
+    if (!started)
+      throw new IllegalStateException("Need to start KalixTestkit before accessing the host name");
+
     return proxyHost;
   }
 
@@ -316,7 +348,9 @@ public class KalixTestKit {
    * @return local Kalix port
    */
   public int getPort() {
-    if (!started) {throw new IllegalStateException("Need to start KalixTestkit before accessing the port");}
+    if (!started)
+      throw new IllegalStateException("Need to start KalixTestkit before accessing the port");
+
     return proxyPort;
   }
 
@@ -325,7 +359,7 @@ public class KalixTestKit {
    * test. The lifecycle of the client is managed by the SDK and it should not be stopped by user
    * code.
    *
-   * @param <T> The "service" interface generated for the service by Akka gRPC
+   * @param <T>         The "service" interface generated for the service by Akka gRPC
    * @param clientClass The class of a gRPC service generated by Akka gRPC
    */
   public <T> T getGrpcClient(Class<T> clientClass) {
@@ -337,9 +371,9 @@ public class KalixTestKit {
    * The same client instance is shared for the test. The lifecycle of the client is managed by the
    * SDK and it should not be stopped by user code.
    *
-   * @param <T> The "service" interface generated for the service by Akka gRPC
+   * @param <T>         The "service" interface generated for the service by Akka gRPC
    * @param clientClass The class of a gRPC service generated by Akka gRPC
-   * @param principal The principal to authenticate calls to the service as.
+   * @param principal   The principal to authenticate calls to the service as.
    */
   public <T> T getGrpcClientForPrincipal(Class<T> clientClass, Principal principal) {
     String serviceName = null;
@@ -350,7 +384,7 @@ public class KalixTestKit {
     }
     if (serviceName != null) {
       return GrpcClients.get(getActorSystem())
-          .getGrpcClient(clientClass, getHost(), getPort(), serviceName);
+        .getGrpcClient(clientClass, getHost(), getPort(), serviceName);
     } else {
       return GrpcClients.get(getActorSystem()).getGrpcClient(clientClass, getHost(), getPort());
     }
@@ -386,7 +420,7 @@ public class KalixTestKit {
   public GrpcClientSettings getGrpcClientSettings() {
     if (!started)
       throw new IllegalStateException(
-          "Need to start KalixTestkit before accessing gRPC client settings");
+        "Need to start KalixTestkit before accessing gRPC client settings");
     return GrpcClientSettings.connectToServiceAt(getHost(), getPort(), testSystem).withTls(false);
   }
 
@@ -400,17 +434,17 @@ public class KalixTestKit {
     try {
       testSystem.terminate();
       testSystem
-          .getWhenTerminated()
-          .toCompletableFuture()
-          .get(settings.stopTimeout.toMillis(), TimeUnit.MILLISECONDS);
+        .getWhenTerminated()
+        .toCompletableFuture()
+        .get(settings.stopTimeout.toMillis(), TimeUnit.MILLISECONDS);
     } catch (Exception e) {
       log.error("KalixTestkit ActorSystem failed to terminate", e);
     }
     try {
       runner
-          .terminate()
-          .toCompletableFuture()
-          .get(settings.stopTimeout.toMillis(), TimeUnit.MILLISECONDS);
+        .terminate()
+        .toCompletableFuture()
+        .get(settings.stopTimeout.toMillis(), TimeUnit.MILLISECONDS);
     } catch (Exception e) {
       log.error("KalixTestkit KalixRunner failed to terminate", e);
     }
