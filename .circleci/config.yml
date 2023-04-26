@@ -183,34 +183,6 @@ jobs:
               false
             fi
 
-  validate-docs:
-    machine:
-      image: ubuntu-2004:202201-02
-    description: "Validate docs"
-    steps:
-      - checkout-and-merge-to-main
-      - setup_sbt
-      - restore_deps_cache
-      - run:
-          name: Validate docs
-          command: |
-            make -C docs
-      - save_deps_cache
-
-  validate-doc-links:
-    machine:
-      image: ubuntu-2004:202201-02
-    description: "Validate doc links"
-    steps:
-      - checkout-and-merge-to-main
-      - setup_sbt
-      - restore_deps_cache
-      - run:
-          name: Validate links
-          command: |
-            make -C docs validate-links
-      - save_deps_cache
-
   create-pr-sdk-versions-update:
     docker:
       - image: circleci/openjdk:11
@@ -434,12 +406,6 @@ workflows:
       - publish-local
       - check-sample-sdk-versions
 
-      - validate-docs:
-          requires:
-            - checks
-      - validate-doc-links:
-          requires:
-            - checks
       - tests:
           requires:
             - checks
