@@ -12,8 +12,8 @@ permissions:
   contents: read
 
 jobs:
-  fossa:
-    name: Fossa
+  scripted-tests:
+    name: Run scripted tests
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout
