@@ -26,11 +26,12 @@ Java::
 ----
 include::example$java-protobuf-web-resources/src/main/proto/com/example/web_resources.proto[tag=file-service-api]
 ----
-<1> Import Google's HttpBody dependency
-<2> Choose `HttpBody` as the return type.
-<3> Enable HTTP endpoints using.
-<4> Serve files in like `web/index.html`.
-<5> Optional: serve files in directories, e.g. `web/img/favicon.png`.
+<1> Use `import` to use proto files from dependencies.
+<2> Serve the `index.html` under `/`.
+<3> Choose `google.api.HttpBody` as the return type.
+<4> Enable HTTP endpoints using `google.api.http`.
+<5> Serve files in like `web/index.js` under `/site/index.js`.
+<6> Optional: serve files in directories, e.g. `web/img/favicon.png` under `/site/img/favicon.png`.
 Scala::
 +
 [source,proto]

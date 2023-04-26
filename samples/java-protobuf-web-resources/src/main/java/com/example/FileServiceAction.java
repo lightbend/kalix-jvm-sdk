@@ -2,6 +2,7 @@ package com.example;
 
 import com.google.api.HttpBody;
 import com.google.protobuf.ByteString;
+import com.google.protobuf.Empty;
 import kalix.javasdk.Metadata;
 import kalix.javasdk.action.ActionCreationContext;
 import org.slf4j.Logger;
@@ -70,11 +71,16 @@ public class FileServiceAction extends AbstractFileServiceAction {
   }
 
   @Override
-  public Effect<HttpBody> getFile(FileAction.File file) {
+  public Effect<HttpBody> getFile(WebResources.File file) {
     return loadFile("", file.getFile());
   }
   @Override
-  public Effect<HttpBody> getFileInDir(FileAction.FileInDir fileInDir) {
+  public Effect<HttpBody> getFileInDir(WebResources.FileInDir fileInDir) {
     return loadFile("/"+fileInDir.getDirectory(), fileInDir.getFile());
+  }
+
+  @Override
+  public Effect<HttpBody> indexHtml(Empty empty) {
+    return loadFile("", "index.html");
   }
 }
