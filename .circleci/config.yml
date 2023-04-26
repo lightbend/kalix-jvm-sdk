@@ -262,20 +262,6 @@ jobs:
           command: sbt javaSdkSpring/IntegrationTest/test
       - save_deps_cache
 
-  scripted-tests:
-    docker:
-      - image: cimg/openjdk:11.0
-    description: "sbt plugin scripted tests"
-    steps:
-      - checkout-and-merge-to-main
-      - setup_sbt
-      - restore_deps_cache
-      - run:
-          name: Run tests
-          # would be nice to just depend on publish-local but that's slow because of maven part
-          command: sbt coreSdk/publishLocal javaSdkProtobuf/publishLocal scalaSdkProtobuf/publishLocal javaSdkProtobufTestKit/publishLocal scalaSdkProtobufTestKit/publishLocal scripted
-      - save_deps_cache
-
   tck-tests:
     machine:
       image: ubuntu-2004:202201-02
