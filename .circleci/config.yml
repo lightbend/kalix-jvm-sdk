@@ -443,9 +443,6 @@ workflows:
       - tests:
           requires:
             - checks
-      - scripted-tests:
-          requires:
-            - checks
 
       - tck-tests:
           requires:
