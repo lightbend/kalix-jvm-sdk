@@ -14,5 +14,5 @@ xhttp.onreadystatechange = function() {
         }
     }
 };
-xhttp.open("GET", "http://localhost:9000/get-cart", true);
+xhttp.open("GET", "/get-cart", true);
 xhttp.send();

@@ -26,7 +26,7 @@ public class FileServiceAction extends AbstractFileServiceAction {
   private String defaultContentType = "text/html";
   private Map<String, String> contentTypes = new HashMap();
   private static final Logger LOG = LoggerFactory.getLogger(FileServiceAction.class);
-  private String baseDir = "src/main/resources/web";
+  private String baseDir = "/web";
 
   public FileServiceAction(ActionCreationContext creationContext) {
     contentTypes.put(".js","text/javascript");
@@ -47,7 +47,7 @@ public class FileServiceAction extends AbstractFileServiceAction {
     String fullPath = baseDir+dir+"/"+file;
     try {
       // tag::200-ok[]
-      byte[] byteArray = Files.readAllBytes(Paths.get(fullPath));
+      byte[] byteArray = getClass().getResourceAsStream(fullPath).readAllBytes();
       String contentType = getContentTypeByFile(file);
       HttpBody response = HttpBody.newBuilder()
               .setContentType(contentType)
