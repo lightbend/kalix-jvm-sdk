@@ -1,7 +1,7 @@
 // This is the default Access Control List (ACL) for all components of this Kalix Service
 syntax = "proto3";
 
-package com.example.fibonacci;
+package com.example;
 
 import "kalix/annotations.proto";
 
