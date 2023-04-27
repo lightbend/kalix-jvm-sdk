@@ -32,6 +32,7 @@ import kalix.javasdk.impl.MetadataImpl
 import kalix.javasdk.testkit.EventingTestKit
 import kalix.javasdk.testkit.EventingTestKit.Topic
 import kalix.testkit.protocol.eventing_test_backend.EmitSingleResult
+import org.checkerframework.checker.units.qual.{ m, s }
 
 import java.util
 import java.util.concurrent.{ ConcurrentHashMap, ConcurrentLinkedQueue }
@@ -112,7 +113,6 @@ object EventingTestKitImpl {
  */
 private[testkit] final class EventingTestServiceImpl(system: ActorSystem, val host: String, var port: Int)
     extends EventingTestKit {
-  import EventingTestKitImpl._
 
   override def getHost(): String = host
   override def getPort(): Integer = port
@@ -125,8 +125,7 @@ private[testkit] final class EventingTestServiceImpl(system: ActorSystem, val ho
 
   override def getTopic(topic: String): Topic = {
     val dest = EventDestination.defaultInstance.withTopic(topic)
-    eventDestinationProbe.putIfAbsent(dest, TestProbe())
-    val probe = eventDestinationProbe.get(dest)
+    val probe = eventDestinationProbe.computeIfAbsent(dest, _ => TestProbe())
     new TopicImpl(probe)
   }
 
@@ -135,8 +134,8 @@ private[testkit] final class EventingTestServiceImpl(system: ActorSystem, val ho
       log.info("emitSingle request: [{}]", in)
 
       in.destination.foreach(dest => {
-        eventDestinationProbe.putIfAbsent(dest, TestProbe())
-        eventDestinationProbe.get(dest).ref ! in
+        val probe = eventDestinationProbe.computeIfAbsent(dest, _ => TestProbe())
+        probe.ref ! in
       })
 
       if (in.destination.isEmpty) {
@@ -155,18 +154,14 @@ class TopicImpl(private val probe: TestProbe) extends Topic {
   @ApiMayChange
   override def expectNext(): TestKitMessage[ByteString] = {
     val msg = probe.expectMsgType[EmitSingleCommand]
-
-    val metadata = new MetadataImpl(msg.getMessage.metadata.getOrElse(Metadata.defaultInstance).entries)
-    new TestKitMessageImpl(msg.getMessage.payload, metadata)
+    TestKitMessageImpl.ofMessage(msg.getMessage)
   }
 
   @ApiMayChange
   override def expectAll(): util.Collection[TestKitMessage[ByteString]] = {
     probe
       .receiveWhile(3 seconds) { case m: EmitSingleCommand =>
-        val metadata = new MetadataImpl(m.getMessage.metadata.getOrElse(Metadata.defaultInstance).entries)
-        new TestKitMessageImpl(m.getMessage.payload, metadata)
-          .asInstanceOf[TestKitMessage[ByteString]]
+        TestKitMessageImpl.ofMessage(m.getMessage)
       }
       .asJava
   }
@@ -176,4 +171,11 @@ class TopicImpl(private val probe: TestProbe) extends Topic {
 class TestKitMessageImpl[P](payload: P, metadata: SdkMetadata) extends TestKitMessage[P] {
   def getPayload(): P = payload
   def getMetadata(): SdkMetadata = metadata
+}
+
+object TestKitMessageImpl {
+  def ofMessage(m: kalix.testkit.protocol.eventing_test_backend.Message): TestKitMessage[ByteString] = {
+    val metadata = new MetadataImpl(m.metadata.getOrElse(Metadata.defaultInstance).entries)
+    new TestKitMessageImpl[ByteString](m.payload, metadata).asInstanceOf[TestKitMessage[ByteString]]
+  }
 }

@@ -16,26 +16,37 @@
 
 package kalix.javasdk.testkit;
 
+import akka.actor.ActorSystem;
+import akka.annotation.ApiMayChange;
 import akka.annotation.InternalApi;
 import com.google.protobuf.ByteString;
 import kalix.javasdk.Metadata;
+import kalix.javasdk.testkit.impl.EventingTestKitImpl;
 
 import java.util.Collection;
 
-@InternalApi
+
+// FIXME add docs
 public interface EventingTestKit {
 
+  static EventingTestKit start(ActorSystem system, String host, int port) {
+    return EventingTestKitImpl.start(system, host, port);
+  }
+
   String getHost();
+
   Integer getPort();
 
   Topic getTopic(String topic);
 
+  @ApiMayChange
   interface Topic {
     Message<ByteString> expectNext();
 
     Collection<Message<ByteString>> expectAll();
   }
 
+  @ApiMayChange
   interface Message<P> {
     P getPayload();
 

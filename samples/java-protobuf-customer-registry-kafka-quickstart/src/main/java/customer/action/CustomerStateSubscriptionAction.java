@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
 
 public class CustomerStateSubscriptionAction extends AbstractCustomerStateSubscriptionAction {
 
-  private static final Logger LOG = LoggerFactory.getLogger(CustomerStateSubscriptionAction.class);
+  private static final Logger logger = LoggerFactory.getLogger(CustomerStateSubscriptionAction.class);
 
   public CustomerStateSubscriptionAction(ActionCreationContext creationContext) {}
 // tag::upsert[]
@@ -29,7 +29,7 @@ public class CustomerStateSubscriptionAction extends AbstractCustomerStateSubscr
             .build();
 
 
-   LOG.info("Publishing public customer state out: {}", customer);
+   logger.info("Publishing public customer state out: {}", customer);
     return effects().reply(customer);
   }
 // end::upsert[]

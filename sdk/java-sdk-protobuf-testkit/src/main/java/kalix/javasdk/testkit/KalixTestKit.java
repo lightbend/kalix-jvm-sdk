@@ -30,7 +30,6 @@ import kalix.javasdk.KalixRunner;
 import kalix.javasdk.Principal;
 import kalix.javasdk.impl.GrpcClients;
 import kalix.javasdk.impl.ProxyInfoHolder;
-import kalix.javasdk.testkit.impl.EventingTestKitImpl$;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -260,14 +259,13 @@ public class KalixTestKit {
 
     testSystem = ActorSystem.create("KalixTestkit", ConfigFactory.parseString("akka.http.server.preview.enable-http2 = true"));
 
-    runProxy(useTestContainers, port);
+    int eventingBackendPort = availableLocalPort();
+    runProxy(useTestContainers, port, eventingBackendPort);
 
     started = true;
 
-    log.info("EventingTestKit booting up...");
-    // FIXME use random port for binding eventing testkit and pass that on to proxy
-    // FIXME move start method to java
-    eventingTestKit = EventingTestKitImpl$.MODULE$.start(getActorSystem(), "0.0.0.0", 9001);
+    log.info("Eventing TestKit booting up on port: " + eventingBackendPort);
+    eventingTestKit = EventingTestKit.start(getActorSystem(), "0.0.0.0", eventingBackendPort);
 
     if (log.isDebugEnabled())
       log.debug("TestKit using [{}:{}] for calls to proxy from service", proxyHost, proxyPort);
@@ -275,10 +273,10 @@ public class KalixTestKit {
     return this;
   }
 
-  private void runProxy(Boolean useTestContainers, int port) {
+  private void runProxy(Boolean useTestContainers, int port, int eventingBackendPort) {
 
     if (useTestContainers) {
-      var proxyContainer = new KalixProxyContainer(port);
+      var proxyContainer = new KalixProxyContainer(port, eventingBackendPort);
       this.proxyContainer = Optional.of(proxyContainer);
       proxyContainer.addEnv("SERVICE_NAME", settings.serviceName);
       proxyContainer.addEnv("ACL_ENABLED", Boolean.toString(settings.aclEnabled));
@@ -286,6 +284,8 @@ public class KalixTestKit {
 
       List<String> javaOptions = new ArrayList<>();
       javaOptions.add("-Dlogback.configurationFile=logback-dev-mode.xml");
+      javaOptions.add("-Dkalix.proxy.eventing.support=grpc-backend");
+      javaOptions.add("-Dkalix.proxy.eventing.grpc-backend.host=host.testcontainers.internal");
 
       settings.servicePortMappings.forEach((serviceName, hostPort) -> {
         javaOptions.add("-Dkalix.dev-mode.service-port-mappings." + serviceName + "=" + hostPort);

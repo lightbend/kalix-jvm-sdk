@@ -35,8 +35,8 @@ public class KalixProxyContainer extends GenericContainer<KalixProxyContainer> {
   /** Default user function port (8080). */
   public static final int DEFAULT_USER_FUNCTION_PORT = 8080;
 
-  /** Default local port where the Google Pub/Sub emulator is available (8085). */
-  public static final int DEFAULT_GOOGLE_PUBSUB_PORT = 8085;
+  /** Default local port to use for eventing. */
+  public static final int DEFAULT_EVENTING_PORT = 8999;
 
   static {
     String customImage = System.getenv("KALIX_TESTKIT_PROXY_IMAGE");
@@ -51,35 +51,35 @@ public class KalixProxyContainer extends GenericContainer<KalixProxyContainer> {
 
 
   private final int userFunctionPort;
-  private final int googlePubSubPort;
+  private final int eventingPort;
 
   public KalixProxyContainer() {
     this(DEFAULT_USER_FUNCTION_PORT);
   }
 
   public KalixProxyContainer(final int userFunctionPort) {
-    this(DEFAULT_PROXY_IMAGE_NAME, userFunctionPort, DEFAULT_GOOGLE_PUBSUB_PORT);
+    this(DEFAULT_PROXY_IMAGE_NAME, userFunctionPort, DEFAULT_EVENTING_PORT);
   }
 
-  public KalixProxyContainer(final int userFunctionPort, int googlePubSubPort) {
-    this(DEFAULT_PROXY_IMAGE_NAME, userFunctionPort, googlePubSubPort);
+  public KalixProxyContainer(final int userFunctionPort, int eventingPort) {
+    this(DEFAULT_PROXY_IMAGE_NAME, userFunctionPort, eventingPort);
   }
 
   public KalixProxyContainer(
       final DockerImageName dockerImageName,
       final int userFunctionPort,
-      final int googlePubSubPort) {
+      final int eventingPort) {
     super(dockerImageName);
     this.userFunctionPort = userFunctionPort;
-    this.googlePubSubPort = googlePubSubPort;
+    this.eventingPort = eventingPort;
     withExposedPorts(DEFAULT_PROXY_PORT);
     withEnv("USER_FUNCTION_HOST", "host.testcontainers.internal");
     withEnv("USER_FUNCTION_PORT", String.valueOf(userFunctionPort));
     withEnv("HTTP_PORT", String.valueOf(DEFAULT_PROXY_PORT));
     // connect to local Google Pub/Sub emulator
-    withEnv("EVENTING_SUPPORT", "google-pubsub-emulator");
-    withEnv("PUBSUB_EMULATOR_HOST", "host.testcontainers.internal");
-    withEnv("PUBSUB_EMULATOR_PORT", String.valueOf(googlePubSubPort));
+    withEnv("EVENTING_SUPPORT", "grpc-backend");
+    withEnv("GRPC_BACKEND_HOST", "host.testcontainers.internal");
+    withEnv("GRPC_BACKEND_PORT", String.valueOf(eventingPort));
     if ("false".equals(System.getenv("VERSION_CHECK_ON_STARTUP"))) {
       withEnv("VERSION_CHECK_ON_STARTUP", "false");
     }
@@ -89,9 +89,7 @@ public class KalixProxyContainer extends GenericContainer<KalixProxyContainer> {
   @Override
   public void start() {
     Testcontainers.exposeHostPorts(userFunctionPort);
-    Testcontainers.exposeHostPorts(googlePubSubPort);
-    //FIXME receive and use randomly generated port
-    Testcontainers.exposeHostPorts(9001);
+    Testcontainers.exposeHostPorts(eventingPort);
     super.start();
     // Debug tooling: pass the Proxy logs into the client SLF4J
     // Slf4jLogConsumer logConsumer = new Slf4jLogConsumer(LoggerFactory.getLogger("proxy-logs"));
