@@ -19,7 +19,7 @@ public final class Main {
     // If you prefer, you may remove this and manually register these components in a
     // `new Kalix()` instance.
     return KalixFactory.withComponents(
-      FileServiceAction::new);
+      FileServiceAction::new, ShoppingCartServiceAction::new);
   }
 
   public static void main(String[] args) throws Exception {
