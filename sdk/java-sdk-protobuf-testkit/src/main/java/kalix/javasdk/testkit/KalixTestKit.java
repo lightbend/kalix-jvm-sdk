@@ -167,9 +167,9 @@ public class KalixTestKit {
      * Add a service port mapping from serviceName to host:port.
      * @return The updated settings.
      */
-    public Settings withServicePortMapping(String serviceName, String hostAndPort) {
+    public Settings withServicePortMapping(String serviceName, String host, int port) {
       var updatedMappings = new HashMap<>(servicePortMappings);
-      updatedMappings.put(serviceName, hostAndPort);
+      updatedMappings.put(serviceName, host + ":" + port);
       return new Settings(stopTimeout, serviceName, aclEnabled, advancedViews, workflowTickInterval, Map.copyOf(updatedMappings));
     }
 
