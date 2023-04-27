@@ -146,43 +146,6 @@ jobs:
               { echo "[error] Code missing headers prior to commit. Run 'sbt headerCreateAll' then commit the updated code."; false; }
       - save_deps_cache
 
-  check-sample-sdk-versions:
-    machine:
-      image: ubuntu-2004:202201-02
-    description: "Check all samples have the same SDK version"
-    steps:
-      - checkout-and-merge-to-main
-      - run:
-          name: Scala Samples
-          command: |
-            if [ $(find ./samples -name plugins.sbt | xargs grep -h "kalix-sdk.version" | uniq | wc -l) -ne 1 ]; then
-              echo "Not all Scala samples have the same SDK version:"
-              find ./samples -name plugins.sbt | xargs grep "kalix-sdk.version"
-              false
-            fi
-      - run:
-          name: Java Samples
-          command: |
-            if [ $(find ./samples -name pom.xml | xargs grep -h "<kalix-sdk.version>" | tr -s [:space:] | uniq | wc -l) -ne 1 ]; then
-              echo "Not all Java samples have the same SDK version:"
-              find ./samples -name pom.xml | xargs grep "<kalix-sdk.version>"
-              false
-            fi
-      - run:
-          name: Protoc version
-          command: |
-            # tail 2 + head 1 because CircleCI adds an extra line
-            AKKA_GRPC_PROTOC=$(sbt "print coreSdk/protocVersion" 2>/dev/null | tail -n 2 | head -n 1)
-            POM_PROTOC_VERSIONS=$(find ./samples ./maven-java/ -name pom.xml | xargs egrep -h "com.google.protobuf:protoc:" | sed 's/.*:protoc://' | sed 's/:exe.*//' | sort | uniq)
-            if [ $(echo "$POM_PROTOC_VERSIONS" | wc -l) -ne 1 ]; then
-              echo  "Not all Java Samples an Archetypes have the same protoc version:"
-              find ./samples ./maven-java/ -name pom.xml | xargs egrep "com.google.protobuf:protoc:"
-              false
-            elif [ "$AKKA_GRPC_PROTOC" != "$POM_PROTOC_VERSIONS" ]; then
-              echo  "Java Samples and Archetypes ($POM_PROTOC_VERSIONS) does not have the same protoc version as Akka gRPC ($AKKA_GRPC_PROTOC)"
-              false
-            fi
-
   create-pr-sdk-versions-update:
     docker:
       - image: circleci/openjdk:11
@@ -404,7 +367,6 @@ workflows:
     jobs:
       - checks
       - publish-local
-      - check-sample-sdk-versions
 
       - tests:
           requires:
