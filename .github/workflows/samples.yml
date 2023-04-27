@@ -76,8 +76,8 @@ jobs:
       - name: Check Protoc version in samples
         # part of the publish-local pipeline as it requires sbt
         run: |-
-          # tail 2 + head 1 because CircleCI adds an extra line
-          AKKA_GRPC_PROTOC=$(sbt --client "print coreSdk/protocVersion" 2>/dev/null | tail -n 2 | head -n 1)
+          # tail 3 + head 1 to read the version
+          AKKA_GRPC_PROTOC=$(sbt --client "print coreSdk/protocVersion" 2>/dev/null | tail -n 3 | head -n 1)
           POM_PROTOC_VERSIONS=$(find ./samples ./maven-java/ -name pom.xml | xargs egrep -h "com.google.protobuf:protoc:" | sed 's/.*:protoc://' | sed 's/:exe.*//' | sort | uniq)
           if [ $(echo "$POM_PROTOC_VERSIONS" | wc -l) -ne 1 ]; then
             echo  "Not all Java Samples an Archetypes have the same protoc version:"
