@@ -18,7 +18,6 @@ package kalix.codegen
 
 import java.util.Locale
 import scala.jdk.CollectionConverters._
-
 import com.google.common.base.CaseFormat
 import com.google.protobuf.Descriptors
 import com.google.protobuf.Descriptors.ServiceDescriptor
@@ -27,6 +26,7 @@ import kalix.EventSourcedEntityDef
 import kalix.ReplicatedEntityDef
 import kalix.ServiceOptions.ServiceType
 import kalix.ValueEntityDef
+import kalix.View
 
 /**
  * Builds a model of entities and their properties from a protobuf descriptor
@@ -288,17 +288,6 @@ object ModelBuilder {
     if (updates.isEmpty)
       throw new IllegalArgumentException(
         s"At least one view method must have `option (kalix.method).view.update` in ${messageType.protoName} (${messageType.parent.protoFileName}).")
-
-    updates.toSeq
-      .diff(transformedUpdates.toSeq)
-      .filterNot(_.handleDeletes)
-      .find(command => command.inputType.fullyQualifiedProtoName != command.outputType.fullyQualifiedProtoName)
-      .foreach { command =>
-        throw new IllegalStateException(
-          s"A View method ${command.name} with input param ${command.inputType.fullyQualifiedProtoName} " +
-          s"and different output param ${command.outputType.fullyQualifiedProtoName} " +
-          s"must have `option (kalix.method).view.update.transform_updates` equals `true`")
-      }
 
     val state = State(updates.head.outputType)
 
@@ -564,6 +553,23 @@ object ModelBuilder {
     (resolvedPackage, resolvedName)
   }
 
+  private def isDeleteHandler(method: Descriptors.MethodDescriptor): Boolean = {
+    val eventing = method.getOptions.getExtension(kalix.Annotations.method).getEventing
+    eventing.hasIn && eventing.getIn.hasHandleDeletes
+  }
+
+  private def transformationRequired(method: Descriptors.MethodDescriptor, viewOptions: View): Boolean = {
+    if (viewOptions.hasUpdate) {
+      if (isDeleteHandler(method)) {
+        viewOptions.getUpdate.getTransformUpdates
+      } else {
+        method.getInputType.getFullName != method.getOutputType.getFullName || viewOptions.getUpdate.getTransformUpdates
+      }
+    } else {
+      false
+    }
+  }
+
   private def modelFromCodegenOptions(
       serviceDescriptor: ServiceDescriptor,
       additionalDescriptors: Seq[Descriptors.FileDescriptor])(implicit
@@ -593,8 +599,7 @@ object ModelBuilder {
         }
         val transformedUpdates = methodDetails
           .collect {
-            case (method, viewOptions) if viewOptions.hasUpdate && viewOptions.getUpdate.getTransformUpdates =>
-              Command.from(method)
+            case (method, viewOptions) if transformationRequired(method, viewOptions) => Command.from(method)
           }
           .filterNot(_.ignore)
         val queries = methodDetails.collect {
@@ -802,17 +807,18 @@ object ModelBuilder {
           case (method, viewOptions) if viewOptions.hasUpdate =>
             Command.from(method)
         }
+        val transformedUpdates = methodDetails
+          .collect {
+            case (method, viewOptions) if transformationRequired(method, viewOptions) => Command.from(method)
+          }
+
         Model.fromService(
           ViewService(
             serviceName.asJavaMultiFiles,
             commands,
             viewId = serviceDescriptor.getName,
             updates = updates,
-            transformedUpdates = methodDetails
-              .collect {
-                case (method, viewOptions) if viewOptions.hasUpdate && viewOptions.getUpdate.getTransformUpdates =>
-                  Command.from(method)
-              },
+            transformedUpdates = transformedUpdates,
             queries = methodDetails.collect {
               case (method, viewOptions) if viewOptions.hasQuery =>
                 Command.from(method)

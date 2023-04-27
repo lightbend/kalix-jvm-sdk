@@ -43,17 +43,15 @@ service CustomerByName {
     };
     option (kalix.method).view.update = {
       table: "customers"
-      transform_updates: true // <4>
     };
   }
 
   rpc ProcessCustomerNameChanged(domain.CustomerNameChanged) returns (api.Customer) { // <2>
     option (kalix.method).eventing.in = {
-      event_sourced_entity: "customers" // <5>
+      event_sourced_entity: "customers" // <4>
     };
     option (kalix.method).view.update = {
       table: "customers"
-      transform_updates: true // <6>
     };
   }
 
@@ -63,7 +61,6 @@ service CustomerByName {
     };
     option (kalix.method).view.update = {
       table: "customers"
-      transform_updates: true
     };
   }
 
@@ -92,7 +89,6 @@ service CustomerByNameFromTopic {
     };
     option (kalix.method).view.update = {
       table: "customers"
-      transform_updates: true
     };
   }
 
@@ -102,7 +98,6 @@ service CustomerByNameFromTopic {
     };
     option (kalix.method).view.update = {
       table: "customers"
-      transform_updates: true
     };
   }
 
@@ -112,7 +107,6 @@ service CustomerByNameFromTopic {
     };
     option (kalix.method).view.update = {
       table: "customers"
-      transform_updates: true
     };
   }
 
@@ -150,7 +144,6 @@ service CustomerByCityStreaming {
     };
     option (kalix.method).view.update = {
       table: "customers"
-      transform_updates: true
     };
   }
 
@@ -160,7 +153,6 @@ service CustomerByCityStreaming {
     };
     option (kalix.method).view.update = {
       table: "customers"
-      transform_updates: true
     };
   }
 
@@ -170,7 +162,6 @@ service CustomerByCityStreaming {
     };
     option (kalix.method).view.update = {
       table: "customers"
-      transform_updates: true
     };
   }
 

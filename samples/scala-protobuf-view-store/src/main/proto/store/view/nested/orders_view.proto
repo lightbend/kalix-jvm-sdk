@@ -21,7 +21,6 @@ service NestedCustomerOrders {
     };
     option (kalix.method).view.update = {
       table: "customers",
-      transform_updates: true
     };
   }
 
@@ -31,7 +30,6 @@ service NestedCustomerOrders {
     };
     option (kalix.method).view.update = {
       table: "customers",
-      transform_updates: true
     };
   }
 
@@ -41,7 +39,6 @@ service NestedCustomerOrders {
     };
     option (kalix.method).view.update = {
       table: "customers",
-      transform_updates: true
     };
   }
 
@@ -51,7 +48,6 @@ service NestedCustomerOrders {
     };
     option (kalix.method).view.update = {
       table: "products",
-      transform_updates: true
     };
   }
 
@@ -61,7 +57,6 @@ service NestedCustomerOrders {
     };
     option (kalix.method).view.update = {
       table: "products",
-      transform_updates: true
     };
   }
 
@@ -71,7 +66,6 @@ service NestedCustomerOrders {
     };
     option (kalix.method).view.update = {
       table: "products",
-      transform_updates: true
     };
   }
 
