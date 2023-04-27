@@ -89,6 +89,9 @@ class KalixTestKit private (delegate: JTestKit) {
   def getGrpcClientForPrincipal[T](clientClass: Class[T], principal: Principal): T =
     delegate.getGrpcClientForPrincipal(clientClass, Principal.toJava(principal))
 
+  //FIXME docs
+  def getTopic(topic: String): Topic = Topic(delegate.getTopic(topic))
+
   /**
    * An Akka Stream materializer to use for running streams. Needed for example in a command handler which accepts
    * streaming elements but returns a single async reply once all streamed elements has been consumed.

@@ -76,7 +76,7 @@ public class KalixProxyContainer extends GenericContainer<KalixProxyContainer> {
     withEnv("USER_FUNCTION_HOST", "host.testcontainers.internal");
     withEnv("USER_FUNCTION_PORT", String.valueOf(userFunctionPort));
     withEnv("HTTP_PORT", String.valueOf(DEFAULT_PROXY_PORT));
-    // connect to local Google Pub/Sub emulator
+    // connect to local gRPC backend
     withEnv("EVENTING_SUPPORT", "grpc-backend");
     withEnv("GRPC_BACKEND_HOST", "host.testcontainers.internal");
     withEnv("GRPC_BACKEND_PORT", String.valueOf(eventingPort));

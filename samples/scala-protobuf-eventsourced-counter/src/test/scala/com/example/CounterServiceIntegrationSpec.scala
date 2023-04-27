@@ -1,7 +1,9 @@
 package com.example
 
 import akka.actor.ActorSystem
-import kalix.scalasdk.testkit.KalixTestKit
+import com.example.actions.{Decreased, Increased}
+import com.example.domain.ValueIncreased
+import kalix.scalasdk.testkit.{KalixTestKit, Message}
 import com.google.protobuf.empty.Empty
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.concurrent.ScalaFutures
@@ -10,6 +12,8 @@ import org.scalatest.time.Millis
 import org.scalatest.time.Seconds
 import org.scalatest.time.Span
 import org.scalatest.wordspec.AnyWordSpec
+
+import scala.jdk.CollectionConverters.CollectionHasAsScala
 
 // This class was initially generated based on the .proto definition by Kalix tooling.
 //
@@ -26,15 +30,38 @@ class CounterServiceIntegrationSpec extends AnyWordSpec with Matchers with Befor
   private val client = testKit.getGrpcClient(classOf[CounterService])
 
   "CounterService" must {
+    val counterId = "xyz"
 
-    "handle side effect that adds the initial input multiplied by two" in {
-      val counterId = "xyz"
+    "handle side effect that adds the initial input multiplied by two and verify publishing" in {
 
-      client.increaseWithSideEffect(IncreaseValue(counterId, 42)).futureValue
-
+      client.increaseWithSideEffect(IncreaseValue(counterId, 10)).futureValue
       val counter = client.getCurrentCounter(GetCounter(counterId)).futureValue
+      counter.value shouldBe (10 + 10 * 2)
 
-      counter.value shouldBe (42 + 42 * 2)
+      // verify messages published to topic
+      val allMsgs = testKit.getTopic("counter-events").expectAll()
+      allMsgs.size shouldBe 2
+
+      val Seq(Message(payload1, md1), Message(payload2, md2)) = allMsgs
+      Increased.parseFrom(payload1.toByteArray) shouldBe Increased(10)
+      md1.get("ce-type") should contain(classOf[Increased].getName)
+      md1.get("Content-Type") should contain("application/protobuf")
+
+      Increased.parseFrom(payload2.toByteArray) shouldBe Increased(20)
+      md2.get("ce-type") should contain(classOf[Increased].getName)
+      md2.get("Content-Type") should contain("application/protobuf")
+    }
+
+    "handle decrease for the same counter and verify publishing" in {
+      client.decrease(DecreaseValue(counterId, 15)).futureValue
+      val counter = client.getCurrentCounter(GetCounter(counterId)).futureValue
+      counter.value shouldBe 15
+
+      // verify message published to topic
+      val Message(payload, md) = testKit.getTopic("counter-events").expectNext()
+      Decreased.parseFrom(payload.toByteArray) shouldBe Decreased(15)
+      md.get("ce-type") should contain(classOf[Decreased].getName)
+      md.get("Content-Type") should contain("application/protobuf")
     }
 
   }
