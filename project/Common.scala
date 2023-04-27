@@ -29,8 +29,8 @@ object CommonSettings extends AutoPlugin {
         ScmInfo(url("https://github.com/lightbend/kalix-jvm-sdk"), "scm:git@github.com:lightbend/kalix-jvm-sdk.git")),
       startYear := Some(2021),
       licenses := List("Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")),
-      scalafmtOnCompile := true,
-      javafmtOnCompile := true,
+      scalafmtOnCompile := !insideCI.value,
+      javafmtOnCompile := !insideCI.value,
       scalaVersion := Dependencies.ScalaVersion,
       run / javaOptions ++= {
         sys.props.collect { case (key, value) if key.startsWith("akka") => s"-D$key=$value" }(breakOut)
