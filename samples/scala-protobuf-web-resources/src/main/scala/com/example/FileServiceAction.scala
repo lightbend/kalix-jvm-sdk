@@ -8,6 +8,7 @@ import kalix.scalasdk.action.Action.Effect
 import kalix.scalasdk.action.ActionCreationContext
 import org.slf4j.LoggerFactory
 
+import java.io.{BufferedReader, InputStreamReader}
 import java.nio.file.{Files, NoSuchFileException, Paths}
 import scala.util.{Failure, Success, Try}
 
@@ -15,7 +16,7 @@ class FileServiceAction(ctx: ActionCreationContext) extends AbstractFileServiceA
 
   private val log = LoggerFactory.getLogger("com.example.FileServiceAction")
   private val defaultContentType = "text/html"
-  private val basDir = "src/main/resources/web"
+  private val basDir = "/web"
 
   private val contentTypes = Map(
     ".js" -> "text/javascript",
@@ -32,10 +33,10 @@ class FileServiceAction(ctx: ActionCreationContext) extends AbstractFileServiceA
 
   private def loadFile(dir: String, file: String): Effect[HttpBody] = {
     val fullPath = s"$basDir$dir/$file"
-    println(fullPath)
+    log.info(s"loadFile($fullPath)")
     Try {
       // tag::200-ok[]
-      val byteArray = Files.readAllBytes(Paths.get(fullPath))
+      val byteArray = getClass().getResourceAsStream(fullPath).readAllBytes()
       val contentType = contentTypeByFile(file)
       log.info(s"Serving $fullPath with $contentType")
       val header = Metadata.empty.add("Cache-Control", "no-cache")
@@ -43,7 +44,7 @@ class FileServiceAction(ctx: ActionCreationContext) extends AbstractFileServiceA
       // end::200-ok[]
     } match {
       case Failure(_: NoSuchFileException) =>
-        log.debug(s"404: File $fullPath does not exist")
+        log.info(s"404: File $fullPath does not exist")
         // tag::404-not-found[]
         effects.ignore
       // end::404-not-found[]
