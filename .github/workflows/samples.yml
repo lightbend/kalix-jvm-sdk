@@ -56,10 +56,10 @@ jobs:
       - name: Build and publish artifacts and plugins
         id: build_sdk
         run: |-
-          sbt -Ddisable.apidocs=true publishM2 publishLocal
+          sbt --client -Ddisable.apidocs=true publishM2 publishLocal
           # the SDK_VERSION is later used to run the maven tests (see below)
           echo "Extracting version from sbt build"
-          sbt "print javaSdkProtobuf/version" > version.txt
+          sbt --client "print javaSdkProtobuf/version" > version.txt
           cat version.txt
           echo 'sdk_version='$(cat version.txt | tail -n 2 | head -n 1) >> $GITHUB_OUTPUT
 
@@ -73,7 +73,7 @@ jobs:
           mvn verify install
           echo $SDK_VERSION > ~/kalix-sdk-version.txt
 
-      - name: Package dependencies
+      - name: Package io.kalix
         run: |-
           cd
           tar -czf dependencies.tar.gz .m2/repository/io/kalix/ .ivy2/local/io.kalix/ kalix-sdk-version.txt
