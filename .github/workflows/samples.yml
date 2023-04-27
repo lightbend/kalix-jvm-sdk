@@ -76,7 +76,7 @@ jobs:
       - name: Package dependencies
         run: |-
           cd
-          tar -czf dependencies.tar.gz .m2/repository/io/kalix/ .ivy2/local/io/kalix/ kalix-sdk-version.txt
+          tar -czf dependencies.tar.gz .m2/repository/io/kalix/ .ivy2/local/io.kalix/ kalix-sdk-version.txt
 
       - name: Upload
         # https://github.com/actions/upload-artifact/releases
