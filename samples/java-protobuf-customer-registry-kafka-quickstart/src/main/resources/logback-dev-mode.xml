@@ -9,9 +9,7 @@
         </encoder>
     </appender>
 
-    <logger name="akka" level="INFO"/>
-    <logger name="kalix" level="DEBUG"/>
-
+    <logger name="akka" level="WARN"/>
 
     <!-- Silence some details from Akka, should not be important to user/SDK dev mode -->
     <root level="INFO">

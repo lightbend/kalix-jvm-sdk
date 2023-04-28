@@ -30,7 +30,7 @@ public class Customer extends AbstractCustomer {
     this.entityId = context.entityId();
   }
 
-  private static final Logger LOG = LoggerFactory.getLogger(Customer.class);
+  private static final Logger logger = LoggerFactory.getLogger(Customer.class);
 
   @Override
   public CustomerDomain.CustomerState emptyState() {
@@ -42,7 +42,7 @@ public class Customer extends AbstractCustomer {
   public Effect<Empty> create(
       CustomerDomain.CustomerState currentState, CustomerApi.Customer command) {
     CustomerDomain.CustomerState state = convertToDomain(command);
-    LOG.info("Creating customer {}", command);
+    logger.info("Creating customer {}", command);
     return effects().updateState(state).thenReply(Empty.getDefaultInstance());
   }
 
