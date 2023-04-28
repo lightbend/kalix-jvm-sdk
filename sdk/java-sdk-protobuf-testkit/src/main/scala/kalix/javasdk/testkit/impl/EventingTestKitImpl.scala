@@ -114,9 +114,6 @@ object EventingTestKitImpl {
 private[testkit] final class EventingTestServiceImpl(system: ActorSystem, val host: String, var port: Int)
     extends EventingTestKit {
 
-  override def getHost(): String = host
-  override def getPort(): Integer = port
-
   private val log = LoggerFactory.getLogger(classOf[EventingTestKit])
   private implicit val sys = system
   private implicit val ec = sys.dispatcher

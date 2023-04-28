@@ -434,6 +434,12 @@ public class KalixTestKit {
     return GrpcClientSettings.connectToServiceAt(getHost(), getPort(), testSystem).withTls(false);
   }
 
+  /**
+   * Get {@link EventingTestKit.Topic} for mocking interactions, avoiding the need for a real broker instance.
+   *
+   * @param topic the name of the topic configured in your service which you want to mock
+   * @return mocked topic to read/publish messages from/to
+   */
   public EventingTestKit.Topic getTopic(String topic) {
     return eventingTestKit.getTopic(topic);
   }

@@ -89,7 +89,14 @@ class KalixTestKit private (delegate: JTestKit) {
   def getGrpcClientForPrincipal[T](clientClass: Class[T], principal: Principal): T =
     delegate.getGrpcClientForPrincipal(clientClass, Principal.toJava(principal))
 
-  //FIXME docs
+  /**
+   * Get a Topic for mocked interactions, avoiding the need for a real broker instance.
+   *
+   * @param topic
+   *   the name of the topic configured in your service which you want to mock
+   * @return
+   *   mocked topic to read/publish messages from/to
+   */
   def getTopic(topic: String): Topic = Topic(delegate.getTopic(topic))
 
   /**

@@ -22,12 +22,29 @@ import kalix.javasdk.testkit.{ EventingTestKit => JEventingTestKit }
 import kalix.scalasdk.Metadata
 import kalix.scalasdk.testkit.impl.TopicImpl
 
-//FIXME add docs
+/**
+ * Testkit utility to mock broker's topic. Useful when doing integration tests for services that do eventing (in or out)
+ * to a broker's topic.
+ */
 @ApiMayChange
 trait Topic {
 
+  /**
+   * Waits and returns the next unread message on this topic. Note the message might have been received before this
+   * method was called. If no message is received, a timeout exception is thrown.
+   *
+   * @return
+   *   message including ByteString payload and metadata
+   */
   def expectNext(): Message[ByteString]
 
+  /**
+   * Waits for a default amount of time before returning all unread messages in the topic. If no message is received, a
+   * timeout exception is thrown.
+   *
+   * @return
+   *   collection of messages, each message including ByteString payload and metadata
+   */
   def expectAll(): Seq[Message[ByteString]]
 }
 
