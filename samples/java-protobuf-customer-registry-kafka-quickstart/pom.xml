@@ -310,12 +310,6 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>io.kalix</groupId>
-      <artifactId>kalix-testkit-protocol</artifactId>
-      <version>1.1.7-5-dedf04ec-dev-SNAPSHOT</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <version>4.13.2</version>
