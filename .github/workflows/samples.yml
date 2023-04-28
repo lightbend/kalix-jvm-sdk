@@ -73,12 +73,12 @@ jobs:
           mvn verify install
           echo $SDK_VERSION > ~/kalix-sdk-version.txt
 
-      - name: Package dependencies
+      - name: Package io.kalix dependencies
         run: |-
           cd
-          tar -czf dependencies.tar.gz .m2/ .ivy2/ kalix-sdk-version.txt
+          tar -czf dependencies.tar.gz .m2/repository/io/kalix/ .ivy2/local/io.kalix/ kalix-sdk-version.txt
 
-      - name: Upload
+      - name: Upload io.kalix dependencies
         # https://github.com/actions/upload-artifact/releases
         # v3.1.2
         uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce
@@ -86,6 +86,7 @@ jobs:
           name: m2-cache
           path: ~/dependencies.tar.gz
           if-no-files-found: error
+          retention-days: 1
 
   all-samples-tested:
     name: Ensure all sample projects are listed
@@ -174,7 +175,17 @@ jobs:
         with:
           jvm: temurin:1.17
 
-      - name: Download pre-built cache
+      - name: Cache Maven repository
+        # https://github.com/actions/cache/releases
+        # v3.3.1
+        uses: actions/cache@88522ab9f39a2ea568f7027eddc7d8d8bc9d59c8
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('maven-java/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      - name: Download io.kalix depenencies
         # https://github.com/actions/download-artifact/releases
         # v3.0.2
         uses: actions/download-artifact@d2278a10efbd646909370fd49fb454cb04e368e3
@@ -182,7 +193,7 @@ jobs:
           name: m2-cache
           path: ~/
 
-      - name: Unpack
+      - name: Unpack io.kalix depenencies
         run: |-
           cd
           tar -xf dependencies.tar.gz
@@ -271,7 +282,17 @@ jobs:
         with:
           jvm: temurin:1.17
 
-      - name: Download pre-built cache
+      - name: Cache Maven repository
+        # https://github.com/actions/cache/releases
+        # v3.3.1
+        uses: actions/cache@88522ab9f39a2ea568f7027eddc7d8d8bc9d59c8
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('maven-java/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      - name: Download io.kalix depenencies
         # https://github.com/actions/download-artifact/releases
         # v3.0.2
         uses: actions/download-artifact@d2278a10efbd646909370fd49fb454cb04e368e3
@@ -279,7 +300,7 @@ jobs:
           name: m2-cache
           path: ~/
 
-      - name: Unpack
+      - name: Unpack io.kalix depenencies
         run: |-
           cd
           tar -xf dependencies.tar.gz
