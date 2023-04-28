@@ -84,9 +84,14 @@ abstract class WorkflowEntityRouter[S, W <: WorkflowEntity[S]](protected val wor
 
   /** INTERNAL API */
   // "public" api against the impl/testkit
-  final def _internalHandleCommand(commandName: String, command: Any, context: CommandContext): CommandResult = {
+  final def _internalHandleCommand(
+      commandName: String,
+      command: Any,
+      context: CommandContext,
+      workflowContext: WorkflowEntityContext): CommandResult = {
     val commandEffect =
       try {
+        workflow._internalSetWorkflowContext(Optional.of(workflowContext))
         workflow._internalSetCommandContext(Optional.of(context))
         workflow._internalSetCurrentState(stateOrEmpty())
         handleCommand(commandName, stateOrEmpty(), command, context).asInstanceOf[Effect[Any]]
@@ -122,6 +127,7 @@ abstract class WorkflowEntityRouter[S, W <: WorkflowEntity[S]](protected val wor
     implicit val ec = workflowContext.materializer().executionContext
 
     workflow._internalSetCurrentState(stateOrEmpty())
+    workflow._internalSetWorkflowContext(Optional.of(workflowContext))
     val workflowDef = workflow.definition()
 
     workflowDef.findByName(stepName).toScala match {

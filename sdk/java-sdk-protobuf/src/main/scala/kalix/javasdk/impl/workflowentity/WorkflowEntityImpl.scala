@@ -185,7 +185,7 @@ final class WorkflowEntityImpl(system: ActorSystem, val services: Map[String, Wo
     val service =
       services.getOrElse(init.serviceName, throw ProtocolException(init, s"Service not found: ${init.serviceName}"))
     val router: WorkflowEntityRouter[_, _] =
-      service.factory.create(new WorkflowEntityContextImpl(init.entityId, system))
+      service.factory.create(new WorkflowEntityContextImpl(init.entityId, service.messageCodec, system))
     val entityId = init.entityId
 
     val workflowConfig =
@@ -282,8 +282,8 @@ final class WorkflowEntityImpl(system: ActorSystem, val services: Map[String, Wo
         case InCommand(command) =>
           val metadata = new MetadataImpl(command.metadata.map(_.entries.toVector).getOrElse(Nil))
 
-          val context =
-            new CommandContextImpl(entityId, command.name, command.id, metadata, system)
+          val context = new CommandContextImpl(entityId, command.name, command.id, metadata, system)
+          val workflowContext = new WorkflowEntityContextImpl(entityId, service.messageCodec, system)
 
           val cmd =
             service.messageCodec.decodeMessage(
@@ -291,7 +291,7 @@ final class WorkflowEntityImpl(system: ActorSystem, val services: Map[String, Wo
 
           val CommandResult(effect) =
             try {
-              router._internalHandleCommand(command.name, cmd, context)
+              router._internalHandleCommand(command.name, cmd, context, workflowContext)
             } catch {
               case e: EntityException => throw e
               case NonFatal(error) =>
@@ -303,7 +303,7 @@ final class WorkflowEntityImpl(system: ActorSystem, val services: Map[String, Wo
           Future.successful(toProtoEffect(effect, command.id))
 
         case Step(executeStep) =>
-          val workflowContext = new WorkflowEntityContextImpl(entityId, system)
+          val workflowContext = new WorkflowEntityContextImpl(entityId, service.messageCodec, system)
           val stepResponse =
             try {
               val decoded = service.messageCodec.decodeMessage(executeStep.userState.get)
@@ -362,6 +362,9 @@ private[kalix] final class CommandContextImpl(
     with CommandContext
     with ActivatableContext
 
-private[kalix] final class WorkflowEntityContextImpl(override val entityId: String, system: ActorSystem)
+private[kalix] final class WorkflowEntityContextImpl(
+    override val entityId: String,
+    val messageCodec: MessageCodec,
+    val system: ActorSystem)
     extends AbstractContext(system)
     with WorkflowEntityContext
