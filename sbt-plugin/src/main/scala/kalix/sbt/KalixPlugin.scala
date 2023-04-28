@@ -19,17 +19,17 @@ package kalix.sbt
 import akka.grpc.sbt.AkkaGrpcPlugin
 import akka.grpc.sbt.AkkaGrpcPlugin.autoImport.{ akkaGrpcCodeGeneratorSettings, akkaGrpcGeneratedSources }
 import akka.grpc.sbt.AkkaGrpcPlugin.autoImport.AkkaGrpc
-
 import java.lang.{ Boolean => JBoolean }
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.nio.file.Files
+
 import kalix.codegen.scalasdk.{ gen, genTests, genUnmanaged, genUnmanagedTest, BuildInfo, KalixGenerator }
 import sbt.{ Compile, _ }
 import sbt.Keys._
 import sbtprotoc.ProtocPlugin
 import sbtprotoc.ProtocPlugin.autoImport.PB
-
+import kalix.devtools.impl.DockerComposeUtils
 object KalixPlugin extends AutoPlugin {
   override def trigger = noTrigger
   override def requires = ProtocPlugin && AkkaGrpcPlugin
@@ -44,6 +44,12 @@ object KalixPlugin extends AutoPlugin {
     val protobufDescriptorSetOut = settingKey[File]("The file to write the descriptor set to")
     val rootPackage = settingKey[Option[String]](
       "A root scala package to use for generated common classes such as Main, by default auto detected from protobuf files")
+
+    val dockerComposeFile = settingKey[String]("Path to docker compose file. Default to docker-compose.yml")
+
+    val userFunctionPort = settingKey[Int]("The port to use for the user function. Default to 8080")
+    val logConfig = settingKey[String]("The log config to use. Default to logback-dev-mode.xml")
+    lazy val runDockerCompose = taskKey[Unit]("Run docker compose")
   }
 
   object autoImport extends Keys
@@ -52,88 +58,99 @@ object KalixPlugin extends AutoPlugin {
   val KalixSdkVersion = BuildInfo.version
   val KalixProtocolVersion = BuildInfo.protocolVersion
 
-  override def projectSettings: Seq[sbt.Setting[_]] = Seq(
-    libraryDependencies ++= Seq(
-      "io.kalix" % "kalix-sdk-protocol" % KalixProtocolVersion % "protobuf-src",
-      "com.google.protobuf" % "protobuf-java" % "3.17.3" % "protobuf",
-      "io.kalix" %% "kalix-scala-sdk-protobuf-testkit" % KalixSdkVersion % Test),
-    Compile / PB.targets +=
-      gen(
-        (akkaGrpcCodeGeneratorSettings.value :+ KalixGenerator.enableDebug)
-        ++ rootPackage.value.map(KalixGenerator.rootPackage)) -> (Compile / sourceManaged).value,
-    Compile / temporaryUnmanagedDirectory := (Compile / crossTarget).value / "kalix-unmanaged",
-    Test / temporaryUnmanagedDirectory := (Test / crossTarget).value / "kalix-unmanaged-test",
-    protobufDescriptorSetOut := (Compile / resourceManaged).value / "protobuf" / "descriptor-sets" / "user-function.desc",
-    rootPackage := None,
-    // FIXME there is a name clash between the Akka gRPC server-side service 'handler'
-    // and the Kalix 'handler'. For now working around it by only generating
-    // the client, but we should probably resolve this before the first public release.
-    Compile / akkaGrpcGeneratedSources := Seq(AkkaGrpc.Client),
-    Compile / PB.targets ++= Seq(
-      genUnmanaged((akkaGrpcCodeGeneratorSettings.value :+ KalixGenerator.enableDebug)
-      ++ rootPackage.value.map(KalixGenerator.rootPackage)) -> (Compile / temporaryUnmanagedDirectory).value),
-    Compile / PB.generate := (Compile / PB.generate)
-      .dependsOn(Def.task {
-        protobufDescriptorSetOut.value.getParentFile.mkdirs()
+  override def projectSettings = {
+    addCommandAlias("runAll", "runDockerCompose;run") ++
+    Seq(
+      dockerComposeFile := "docker-compose.yml",
+      logConfig := "logback-dev-mode.xml",
+      userFunctionPort := 8080,
+      runDockerCompose := DockerComposeUtils.start(dockerComposeFile.value, userFunctionPort.value),
+      libraryDependencies ++= Seq(
+        "io.kalix" % "kalix-sdk-protocol" % KalixProtocolVersion % "protobuf-src",
+        "com.google.protobuf" % "protobuf-java" % "3.17.3" % "protobuf",
+        "io.kalix" %% "kalix-scala-sdk-protobuf-testkit" % KalixSdkVersion % Test),
+      run / javaOptions ++= Seq(
+        "-Dkalix.user-function-interface=0.0.0.0",
+        s"-Dlogback.configurationFile=${logConfig.value}",
+        s"-Dkalix.user-function-port=${userFunctionPort.value}"),
+      Compile / PB.targets +=
+        gen(
+          (akkaGrpcCodeGeneratorSettings.value :+ KalixGenerator.enableDebug)
+          ++ rootPackage.value.map(KalixGenerator.rootPackage)) -> (Compile / sourceManaged).value,
+      Compile / temporaryUnmanagedDirectory := (Compile / crossTarget).value / "kalix-unmanaged",
+      Test / temporaryUnmanagedDirectory := (Test / crossTarget).value / "kalix-unmanaged-test",
+      protobufDescriptorSetOut := (Compile / resourceManaged).value / "protobuf" / "descriptor-sets" / "user-function.desc",
+      rootPackage := None,
+      // FIXME there is a name clash between the Akka gRPC server-side service 'handler'
+      // and the Kalix 'handler'. For now working around it by only generating
+      // the client, but we should probably resolve this before the first public release.
+      Compile / akkaGrpcGeneratedSources := Seq(AkkaGrpc.Client),
+      Compile / PB.targets ++= Seq(
+        genUnmanaged((akkaGrpcCodeGeneratorSettings.value :+ KalixGenerator.enableDebug)
+        ++ rootPackage.value.map(KalixGenerator.rootPackage)) -> (Compile / temporaryUnmanagedDirectory).value),
+      Compile / PB.generate := (Compile / PB.generate)
+        .dependsOn(Def.task {
+          protobufDescriptorSetOut.value.getParentFile.mkdirs()
+        })
+        .value,
+      Compile / PB.protocOptions ++= Seq(
+        "--descriptor_set_out",
+        protobufDescriptorSetOut.value.getAbsolutePath,
+        "--include_source_info"),
+      Test / PB.targets ++= Seq(
+        genUnmanagedTest((akkaGrpcCodeGeneratorSettings.value :+ KalixGenerator.enableDebug)
+        ++ rootPackage.value.map(KalixGenerator.rootPackage)) -> (Test / temporaryUnmanagedDirectory).value),
+      Test / PB.protoSources ++= (Compile / PB.protoSources).value,
+      Test / PB.targets +=
+        genTests(
+          (akkaGrpcCodeGeneratorSettings.value :+ KalixGenerator.enableDebug)
+          ++ rootPackage.value.map(KalixGenerator.rootPackage)) -> (Test / sourceManaged).value,
+      Compile / generateUnmanaged := {
+        Files.createDirectories(Paths.get((Compile / temporaryUnmanagedDirectory).value.toURI))
+        // Make sure generation has happened
+        val _ = (Compile / PB.generate).value
+        // Then copy over any new generated unmanaged sources
+        copyIfNotExist(
+          Paths.get((Compile / temporaryUnmanagedDirectory).value.toURI),
+          Paths.get((Compile / sourceDirectory).value.toURI).resolve("scala"))
+      },
+      Test / generateUnmanaged := {
+        Files.createDirectories(Paths.get((Test / temporaryUnmanagedDirectory).value.toURI))
+        // Make sure generation has happened
+        val _ = (Test / PB.generate).value
+        // Then copy over any new generated unmanaged sources
+        copyIfNotExist(
+          Paths.get((Test / temporaryUnmanagedDirectory).value.toURI),
+          Paths.get((Test / sourceDirectory).value.toURI).resolve("scala"))
+      },
+      Compile / managedSources :=
+        (Compile / managedSources).value.filter(s => !isIn(s, (Compile / temporaryUnmanagedDirectory).value)),
+      Compile / managedResources += {
+        // make sure the file has been generated
+        val _ = (Compile / PB.generate).value
+        protobufDescriptorSetOut.value
+      },
+      Compile / unmanagedSources := {
+        val _ = (Test / unmanagedSources).value // touch unmanaged test sources, so that they are generated on `compile`
+        (Compile / generateUnmanaged).value ++ (Compile / unmanagedSources).value
+      },
+      Test / managedSources :=
+        (Test / managedSources).value.filter(s => !isIn(s, (Test / temporaryUnmanagedDirectory).value)),
+      Test / unmanagedSources :=
+        (Test / generateUnmanaged).value ++ (Test / unmanagedSources).value,
+      onlyUnitTest := {
+        sys.props.get("onlyUnitTest") match {
+          case Some("") => true
+          case Some(x)  => JBoolean.valueOf(x)
+          case None     => false
+        }
+      },
+      Test / testOptions ++= {
+        if (onlyUnitTest.value)
+          Seq(Tests.Filter(name => !name.endsWith("IntegrationSpec")))
+        else Nil
       })
-      .value,
-    Compile / PB.protocOptions ++= Seq(
-      "--descriptor_set_out",
-      protobufDescriptorSetOut.value.getAbsolutePath,
-      "--include_source_info"),
-    Test / PB.targets ++= Seq(
-      genUnmanagedTest((akkaGrpcCodeGeneratorSettings.value :+ KalixGenerator.enableDebug)
-      ++ rootPackage.value.map(KalixGenerator.rootPackage)) -> (Test / temporaryUnmanagedDirectory).value),
-    Test / PB.protoSources ++= (Compile / PB.protoSources).value,
-    Test / PB.targets +=
-      genTests(
-        (akkaGrpcCodeGeneratorSettings.value :+ KalixGenerator.enableDebug)
-        ++ rootPackage.value.map(KalixGenerator.rootPackage)) -> (Test / sourceManaged).value,
-    Compile / generateUnmanaged := {
-      Files.createDirectories(Paths.get((Compile / temporaryUnmanagedDirectory).value.toURI))
-      // Make sure generation has happened
-      val _ = (Compile / PB.generate).value
-      // Then copy over any new generated unmanaged sources
-      copyIfNotExist(
-        Paths.get((Compile / temporaryUnmanagedDirectory).value.toURI),
-        Paths.get((Compile / sourceDirectory).value.toURI).resolve("scala"))
-    },
-    Test / generateUnmanaged := {
-      Files.createDirectories(Paths.get((Test / temporaryUnmanagedDirectory).value.toURI))
-      // Make sure generation has happened
-      val _ = (Test / PB.generate).value
-      // Then copy over any new generated unmanaged sources
-      copyIfNotExist(
-        Paths.get((Test / temporaryUnmanagedDirectory).value.toURI),
-        Paths.get((Test / sourceDirectory).value.toURI).resolve("scala"))
-    },
-    Compile / managedSources :=
-      (Compile / managedSources).value.filter(s => !isIn(s, (Compile / temporaryUnmanagedDirectory).value)),
-    Compile / managedResources += {
-      // make sure the file has been generated
-      val _ = (Compile / PB.generate).value
-      protobufDescriptorSetOut.value
-    },
-    Compile / unmanagedSources := {
-      val _ = (Test / unmanagedSources).value // touch unmanaged test sources, so that they are generated on `compile`
-      (Compile / generateUnmanaged).value ++ (Compile / unmanagedSources).value
-    },
-    Test / managedSources :=
-      (Test / managedSources).value.filter(s => !isIn(s, (Test / temporaryUnmanagedDirectory).value)),
-    Test / unmanagedSources :=
-      (Test / generateUnmanaged).value ++ (Test / unmanagedSources).value,
-    onlyUnitTest := {
-      sys.props.get("onlyUnitTest") match {
-        case Some("") => true
-        case Some(x)  => JBoolean.valueOf(x)
-        case None     => false
-      }
-    },
-    Test / testOptions ++= {
-      if (onlyUnitTest.value)
-        Seq(Tests.Filter(name => !name.endsWith("IntegrationSpec")))
-      else Nil
-    })
+  }
 
   def isIn(file: File, dir: File): Boolean =
     Paths.get(file.toURI).startsWith(Paths.get(dir.toURI))
@@ -153,4 +170,5 @@ object KalixPlugin extends AutoPlugin {
       .toArray(new Array[File](_))
       .toVector
   }
+
 }
