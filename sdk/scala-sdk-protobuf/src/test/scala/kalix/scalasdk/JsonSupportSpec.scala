@@ -22,7 +22,7 @@ package kalix.scalasdk
 import akka.Done
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
-import kalix.javasdk.{JsonSupport => JavaJsonSupport}
+import kalix.javasdk.{ JsonSupport => JavaJsonSupport }
 import com.fasterxml.jackson.annotation.JsonCreator
 
 @JsonCreator
