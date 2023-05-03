@@ -185,7 +185,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
 
-      - name: Download io.kalix depenencies
+      - name: Download io.kalix dependencies
         # https://github.com/actions/download-artifact/releases
         # v3.0.2
         uses: actions/download-artifact@d2278a10efbd646909370fd49fb454cb04e368e3
@@ -193,7 +193,7 @@ jobs:
           name: m2-cache
           path: ~/
 
-      - name: Unpack io.kalix depenencies
+      - name: Unpack io.kalix dependencies
         run: |-
           cd
           tar -xf dependencies.tar.gz
@@ -292,7 +292,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
 
-      - name: Download io.kalix depenencies
+      - name: Download io.kalix dependencies
         # https://github.com/actions/download-artifact/releases
         # v3.0.2
         uses: actions/download-artifact@d2278a10efbd646909370fd49fb454cb04e368e3
@@ -300,7 +300,7 @@ jobs:
           name: m2-cache
           path: ~/
 
-      - name: Unpack io.kalix depenencies
+      - name: Unpack io.kalix dependencies
         run: |-
           cd
           tar -xf dependencies.tar.gz
