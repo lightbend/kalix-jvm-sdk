@@ -20,8 +20,6 @@ import akka.annotation.ApiMayChange;
 import io.grpc.Status;
 import kalix.javasdk.DeferredCall;
 import kalix.javasdk.Metadata;
-import kalix.javasdk.impl.timer.TimerSchedulerImpl;
-import kalix.javasdk.impl.workflowentity.WorkflowEntityContextImpl;
 import kalix.javasdk.impl.workflowentity.WorkflowEntityEffectImpl;
 import kalix.javasdk.timer.TimerScheduler;
 import kalix.javasdk.workflowentity.WorkflowEntity.RecoverStrategy.MaxRetries;
@@ -45,7 +43,7 @@ public abstract class WorkflowEntity<S> {
 
 
   private Optional<CommandContext> commandContext = Optional.empty();
-  private Optional<WorkflowEntityContext> workflowEntityContext = Optional.empty();
+  private Optional<TimerScheduler> timerScheduler = Optional.empty();
 
   private Optional<S> currentState = Optional.empty();
 
@@ -75,16 +73,6 @@ public abstract class WorkflowEntity<S> {
     return commandContext.orElseThrow(() -> new IllegalStateException("CommandContext is only available when handling a command."));
   }
 
-  /**
-   * Returns workflow entity context with additional information.
-   *
-   * <p>It will throw an exception if accessed from constructor.
-   *
-   * @throws IllegalStateException if accessed outside a handler method
-   */
-  protected final kalix.javasdk.workflowentity.WorkflowEntityContext workflowEntityContext() {
-    return workflowEntityContext.orElseThrow(() -> new IllegalStateException("WorkflowEntityContext is only available when handling a command or running a step action."));
-  }
 
   /**
    * INTERNAL API
@@ -96,20 +84,13 @@ public abstract class WorkflowEntity<S> {
   /**
    * INTERNAL API
    */
-  public void _internalSetWorkflowContext(Optional<WorkflowEntityContext> context) {
-    workflowEntityContext = context;
+  public void _internalSetTimerScheduler(Optional<TimerScheduler> timerScheduler) {
+    this.timerScheduler = timerScheduler;
   }
 
   /** Returns a {@link TimerScheduler} that can be used to schedule further in time. */
   public final TimerScheduler timers() {
-    WorkflowEntityContextImpl impl =
-        (WorkflowEntityContextImpl)
-            workflowContext("Timers can only be scheduled or cancelled when handling a command or running a step action.");
-    return new TimerSchedulerImpl(impl.messageCodec(), impl.system());
-  }
-
-  private WorkflowEntityContext workflowContext(String errorMessage) {
-    return workflowEntityContext.orElseThrow(() -> new IllegalStateException(errorMessage));
+    return timerScheduler.orElseThrow(() -> new IllegalStateException("Timers can only be scheduled or cancelled when handling a command or running a step action."));
   }
 
   /**

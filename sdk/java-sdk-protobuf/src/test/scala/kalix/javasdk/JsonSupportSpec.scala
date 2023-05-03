@@ -16,6 +16,7 @@
 
 package kalix.javasdk
 
+import akka.Done
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 
@@ -35,6 +36,12 @@ class JsonSupportSpec extends AnyWordSpec with Matchers {
       val any = JsonSupport.encodeJson(myJsonable)
       any.getTypeUrl should ===(JsonSupport.KALIX_JSON + classOf[MyJsonable].getName)
       JsonSupport.decodeJson(classOf[MyJsonable], any).field should ===("foo")
+    }
+    "serialize and deserialize Akka Done class" in {
+      val done = Done.getInstance()
+      val any = JsonSupport.encodeJson(done)
+      any.getTypeUrl should ===(JsonSupport.KALIX_JSON + Done.getClass.getName)
+      JsonSupport.decodeJson(classOf[Done], any) shouldBe Done.getInstance()
     }
     "serialize JSON with an explicit type url suffix" in {
       val any = JsonSupport.encodeJson(myJsonable, "bar")
