@@ -17,15 +17,11 @@
 package kalix.devtools.impl
 object UserFunctionPortExtractor {
 
-  private val ExtractPort = """\D+:*(\d+).?""".r
+  private val ExtractPort = """USER_FUNCTION_PORT:.*?(\d+).?""".r
 
-  def unapply(line: String): Option[Int] = {
-    val trimmed = line.trim
-    if (trimmed.startsWith("USER_FUNCTION_PORT"))
-      trimmed match {
-        case ExtractPort(port) => Some(port.toInt)
-        case _                 => None
-      }
-    else None
-  }
+  def unapply(line: String): Option[Int] =
+    line.trim match {
+      case ExtractPort(port) => Some(port.toInt)
+      case _                 => None
+    }
 }
