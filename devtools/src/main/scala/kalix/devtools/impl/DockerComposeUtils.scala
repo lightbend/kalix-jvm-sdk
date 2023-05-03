@@ -79,17 +79,8 @@ case class DockerComposeUtils(file: String, envVar: Map[String, String] = Map.em
       .getOrElse(8080)
   }
 
-  private val ExtractPort = """\D+:*(\d+)""".r
-  private def readUserFunctionPortFromFile: Option[Int] = {
-    lines
-      .find(_.trim.startsWith("USER_FUNCTION_PORT"))
-      // TODO: remove this hack
-      // regex doesn't match if the line contains a `}`
-      // strange enough I tested it online and in other programs and it works
-      // I guess this is something related to Java regex. Leaving as is for now
-      .map(_.trim.replace("}", ""))
-      .collect { case ExtractPort(port) => port.toInt }
-  }
+  private def readUserFunctionPortFromFile: Option[Int] =
+    lines.collectFirst { case UserFunctionPortExtractor(port) => port }
 
   def readServicePortMappings: Seq[String] =
     lines

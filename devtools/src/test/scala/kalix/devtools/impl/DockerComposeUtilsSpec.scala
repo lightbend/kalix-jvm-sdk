@@ -89,6 +89,26 @@ class DockerComposeUtilsSpec extends AnyWordSpec with Matchers {
       dockerComposeUtils.readUserFunctionPort shouldBe 8080
     }
 
+    "be able read user function port when env var is not used" in {
+      val fileWithoutEnvVar =
+        """
+          |version: "3"
+          |services:
+          |  kalix-proxy:
+          |    image: gcr.io/kalix-public/kalix-proxy:1.1.8
+          |    ports:
+          |      - "9000:9000"
+          |    extra_hosts:
+          |      - "host.docker.internal:host-gateway"
+          |    environment:
+          |      USER_FUNCTION_PORT:8081
+          |""".stripMargin
+
+      val dockerComposeFile = createTmpFile(fileWithoutEnvVar)
+      val dockerComposeUtils = DockerComposeUtils(dockerComposeFile)
+      dockerComposeUtils.readUserFunctionPort shouldBe 8081
+    }
+
     "read service port mappings from docker-compose file" in {
       val dockerComposeFile = createTmpFile(defaultFile)
       val dockerComposeUtils = DockerComposeUtils(dockerComposeFile)
