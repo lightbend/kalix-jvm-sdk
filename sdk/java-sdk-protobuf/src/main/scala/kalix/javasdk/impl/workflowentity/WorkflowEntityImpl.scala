@@ -316,7 +316,7 @@ final class WorkflowEntityImpl(system: ActorSystem, val services: Map[String, Wo
                 executeStep.stepName,
                 service.messageCodec,
                 timerScheduler,
-                system.dispatcher
+                system.dispatcher)
             } catch {
               case e: EntityException => throw e
               case NonFatal(ex) =>
