@@ -83,7 +83,8 @@ case class DockerComposeUtils(file: String, envVar: Map[String, String] = Map.em
     lines.collectFirst { case UserFunctionPortExtractor(port) => port }
 
   def readServicePortMappings: Seq[String] =
-    lines
-      .map(_.trim)
-      .filter(_.startsWith("-Dkalix.dev-mode.service-port-mappings"))
+    lines.flatten {
+      case ServicePortMappingsExtractor(mappings) => mappings
+      case _                                      => Seq.empty
+    }
 }
