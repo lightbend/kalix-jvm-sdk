@@ -21,9 +21,6 @@ object HostAndPort {
   private val HostPortPattern = """([\w+\-_.]+):(\d{1,5})""".r
   private val PortPattern = """(\d{1,5})""".r
 
-  // regex to match from 1 to 99999
-  // private val PortPattern = """(\d{1,5})""".r
-
   /**
    * When running locally, users can configure service port mappings associating a name and a port. In such a case, we
    * will resolve to 0.0.0.0:port and that's just enough. However, when building a docker-compose file containing more

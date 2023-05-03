@@ -19,11 +19,13 @@ package kalix.devtools.impl
 import java.nio.file.Files
 import java.nio.file.Paths
 
+import scala.io.Source
 import scala.sys.process._
+import scala.util.Try
 
-object DockerComposeUtils {
+case class DockerComposeUtils(file: String, envVar: Map[String, String] = Map.empty) {
 
-  private def execIfFileExists[T](file: String)(block: => T): T =
+  private def execIfFileExists[T](block: => T): T = {
     if (Files.exists(Paths.get(file)))
       block
     else {
@@ -35,22 +37,54 @@ object DockerComposeUtils {
 
       throw new IllegalArgumentException(s"File '$file' does not exist. $extraMsg")
     }
+  }
 
-  def start(file: String, userFunctionPort: Int): Unit = {
-
-    execIfFileExists(file) {
-      Process(s"docker-compose -f $file up", None, "USER_FUNCTION_PORT" -> userFunctionPort.toString).run
+  // read the file once and cache the lines
+  // we will need to iterate over it more than once
+  private lazy val lines: Seq[String] = {
+    if (Files.exists(Paths.get(file))) {
+      val src = Source.fromFile(file)
+      try {
+        src.getLines.toList
+      } finally {
+        src.close()
+      }
+    } else {
+      Seq.empty
     }
+  }
 
-    // shutdown hook to down containers when jvm exits
-    sys.addShutdownHook {
-      execIfFileExists(file) {
-        stop(file)
+  def start(): Unit = {
+    execIfFileExists {
+      Process(s"docker-compose -f $file up", None).run
+
+      // shutdown hook to down containers when jvm exits
+      sys.addShutdownHook {
+        execIfFileExists {
+          stop()
+        }
       }
     }
   }
 
-  private def stop(file: String): Unit = {
+  private def stop(): Unit = {
     s"docker compose -f $file stop".!
   }
+
+  def readUserFunctionPort: Int = {
+    envVar
+      .get("USER_FUNCTION_PORT")
+      .map(_.toInt)
+      .orElse(readUserFunctionPortFromFile)
+      .getOrElse(8080)
+  }
+
+  private def readUserFunctionPortFromFile: Option[Int] =
+    lines.collectFirst { case UserFunctionPortExtractor(port) => port }
+
+  def readServicePortMappings: Seq[String] =
+    lines.flatten {
+      case ServicePortMappingsExtractor(mappings) => mappings
+      case _                                      => Seq.empty
+    }
 }

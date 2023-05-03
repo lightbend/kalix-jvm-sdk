@@ -47,10 +47,13 @@ object KalixPlugin extends AutoPlugin {
 
     val dockerComposeFile = settingKey[String]("Path to docker compose file. Default to docker-compose.yml")
 
-    val userFunctionPort = settingKey[Int]("The port to use for the user function. Default to 8080")
     val logConfig = settingKey[String]("The log config to use. Default to logback-dev-mode.xml")
     lazy val runDockerCompose = taskKey[Unit]("Run docker compose")
+
   }
+
+  // defined as key so we can init it sooner and detected errors earlier
+  private val dockerComposeUtils = settingKey[DockerComposeUtils]("Docker compose utils")
 
   object autoImport extends Keys
   import autoImport._
@@ -62,17 +65,19 @@ object KalixPlugin extends AutoPlugin {
     addCommandAlias("runAll", "runDockerCompose;run") ++
     Seq(
       dockerComposeFile := "docker-compose.yml",
-      logConfig := "logback-dev-mode.xml",
-      userFunctionPort := 8080,
-      runDockerCompose := DockerComposeUtils.start(dockerComposeFile.value, userFunctionPort.value),
+      dockerComposeUtils := DockerComposeUtils(dockerComposeFile.value, sys.env),
+      runDockerCompose := dockerComposeUtils.value.start(),
       libraryDependencies ++= Seq(
         "io.kalix" % "kalix-sdk-protocol" % KalixProtocolVersion % "protobuf-src",
         "com.google.protobuf" % "protobuf-java" % "3.17.3" % "protobuf",
         "io.kalix" %% "kalix-scala-sdk-protobuf-testkit" % KalixSdkVersion % Test),
-      run / javaOptions ++= Seq(
-        "-Dkalix.user-function-interface=0.0.0.0",
-        s"-Dlogback.configurationFile=${logConfig.value}",
-        s"-Dkalix.user-function-port=${userFunctionPort.value}"),
+      logConfig := "logback-dev-mode.xml",
+      run / javaOptions ++=
+        dockerComposeUtils.value.readServicePortMappings
+        ++ Seq(
+          "-Dkalix.user-function-interface=0.0.0.0",
+          s"-Dlogback.configurationFile=${logConfig.value}",
+          s"-Dkalix.user-function-port=${dockerComposeUtils.value.readUserFunctionPort}"),
       Compile / PB.targets +=
         gen(
           (akkaGrpcCodeGeneratorSettings.value :+ KalixGenerator.enableDebug)
