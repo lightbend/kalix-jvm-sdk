@@ -104,5 +104,28 @@ class DockerComposeUtilsSpec extends AnyWordSpec with Matchers {
       dockerComposeUtils.readServicePortMappings shouldBe Seq.empty
     }
 
+    "select first UF port when more than one proxy is declared." in {
+
+      val extraProxy =
+        """
+          |  kalix-proxy-2:
+          |    image: gcr.io/kalix-public/kalix-proxy:1.1.8
+          |    ports:
+          |      - "9000:9000"
+          |    extra_hosts:
+          |      - "host.docker.internal:host-gateway"
+          |    environment:
+          |      JAVA_TOOL_OPTIONS: >
+          |        -Dconfig.resource=dev-mode.conf
+          |        -Dlogback.configurationFile=logback-dev-mode.xml
+          |      USER_FUNCTION_HOST:${USER_FUNCTION_HOST:-host.docker.internal}
+          |      USER_FUNCTION_PORT:${USER_FUNCTION_PORT:-8082}
+          |""".stripMargin
+
+      val dockerComposeFile = createTmpFile(defaultFile + extraProxy)
+      val dockerComposeUtils = DockerComposeUtils(dockerComposeFile)
+      dockerComposeUtils.readUserFunctionPort shouldBe 8081
+    }
+
   }
 }
