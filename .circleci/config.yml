@@ -214,32 +214,6 @@ jobs:
       - publish-local
       - save_deps_cache
 
-  compile-example-suite-java:
-    machine:
-      image: ubuntu-2004:202201-02
-    description: "Compile Test Projects from Example Suite (Java)"
-    steps:
-      - checkout-and-merge-to-main
-      - setup_sbt
-      - restore_deps_cache
-      - run:
-            name: Compile test projects from ExampleSuite (Java)
-            command: sbt -Dexample.suite.java.enabled codegenJavaCompilationExampleSuite/compile
-      - save_deps_cache
-
-  compile-example-suite-scala:
-    machine:
-      image: ubuntu-2004:202201-02
-    description: "Compile Test Projects from Example Suite (Scala)"
-    steps:
-      - checkout-and-merge-to-main
-      - setup_sbt
-      - restore_deps_cache
-      - run:
-            name: Compile test projects from ExampleSuite (Scala)
-            command: sbt -Dexample.suite.scala.enabled codegenScalaCompilationExampleSuite/compile
-      - save_deps_cache
-
   maven-java-tests:
     machine:
       image: ubuntu-2004:202201-02
@@ -356,14 +330,6 @@ workflows:
       - publish-local
 
       - tck-tests:
-          requires:
-            - checks
-
-      - compile-example-suite-java:
-          requires:
-            - checks
-
-      - compile-example-suite-scala:
           requires:
             - checks
 

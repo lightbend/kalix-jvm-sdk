@@ -17,38 +17,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  check-sample-sdk-versions:
-    name: "Check all samples have the same SDK version"
-    runs-on: ubuntu-22.04
-    steps:
-      - name: Checkout
-        # v3.1.0
-        uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8
-
-      - name: Checkout GitHub merge
-        if: github.event.pull_request
-        run: |-
-          git fetch origin pull/${{ github.event.pull_request.number }}/merge:scratch
-          git checkout scratch
-
-      - name: Scala Samples
-        run: |-
-          if [ $(find ./samples -name plugins.sbt | xargs grep -h "kalix-sdk.version" | uniq | wc -l) -ne 1 ]; then
-            echo "Not all Scala samples have the same SDK version:"
-            find ./samples -name plugins.sbt | xargs grep "kalix-sdk.version"
-            false
-          fi
-
-      - name: Java Samples
-        run: |-
-          if [ $(find ./samples -name pom.xml | xargs grep -h "<kalix-sdk.version>" | tr -s [:space:] | uniq | wc -l) -ne 1 ]; then
-            echo "Not all Java samples have the same SDK version:"
-            find ./samples -name pom.xml | xargs grep "<kalix-sdk.version>"
-            false
-          fi
-
   publish-local:
-    name: Build and publish artifacts and plugins locally for other tests to use
+    name: Build and publish artifacts and plugins locally
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout
@@ -72,10 +42,6 @@ jobs:
         # https://github.com/coursier/cache-action/releases
         # v6.4.3
         uses: coursier/cache-action@566e01fea33492e5a89706b43fb0d3fc884154f9
-
-      - name: Check Protoc version in samples
-        # part of the publish-local pipeline as it requires sbt
-        run: ./bin/check-sample-protoc-version.sh
 
       - name: Cache Maven repository
         # https://github.com/actions/cache/releases
@@ -123,7 +89,7 @@ jobs:
           retention-days: 1
 
   sbt-test:
-    name: sbt test & sbt scripted
+    name: Run sbt test
     needs: publish-local
     runs-on: ubuntu-22.04
 
@@ -164,24 +130,140 @@ jobs:
           tar -xf dependencies.tar.gz
 
       - name: sbt test
-        run: sbt --client test
+        run: sbt test
+
+  sbt-scripted:
+    name: Run sbt scripted
+    needs: publish-local
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout
+        # v3.1.0
+        uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8
+
+      - name: Checkout GitHub merge
+        if: github.event.pull_request
+        run: |-
+          git fetch origin pull/${{ github.event.pull_request.number }}/merge:scratch
+          git checkout scratch
+
+      - name: Set up JDK 17
+        # https://github.com/coursier/setup-action/releases
+        # v1.3.0
+        uses: coursier/setup-action@70323223454ac2a9eb2de46f389b4d045cbcdea5
+        with:
+          jvm: temurin:1.17
+
+      - name: Cache Coursier cache
+        # https://github.com/coursier/cache-action/releases
+        # v6.4.3
+        uses: coursier/cache-action@566e01fea33492e5a89706b43fb0d3fc884154f9
+
+      - name: Download io.kalix dependencies
+        # https://github.com/actions/download-artifact/releases
+        # v3.0.2
+        uses: actions/download-artifact@d2278a10efbd646909370fd49fb454cb04e368e3
+        with:
+          name: m2-cache
+          path: ~/
+
+      - name: Unpack io.kalix dependencies
+        run: |-
+          cd
+          tar -xf dependencies.tar.gz
 
       - name: sbt scripted
-        run: sbt --client scripted
+        run: sbt scripted
 
-  all-samples-tested:
-    name: Ensure all sample projects are listed
+  samples:
+    name: Compile Test Projects from Example Suite (Java & Scala)
+    needs: publish-local
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout
+        # v3.1.0
+        uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8
+
+      - name: Checkout GitHub merge
+        if: github.event.pull_request
+        run: |-
+          git fetch origin pull/${{ github.event.pull_request.number }}/merge:scratch
+          git checkout scratch
+
+      - name: Set up JDK 17
+        # https://github.com/coursier/setup-action/releases
+        # v1.3.0
+        uses: coursier/setup-action@70323223454ac2a9eb2de46f389b4d045cbcdea5
+        with:
+          jvm: temurin:1.17
+
+      - name: Cache Coursier cache
+        # https://github.com/coursier/cache-action/releases
+        # v6.4.3
+        uses: coursier/cache-action@566e01fea33492e5a89706b43fb0d3fc884154f9
+
+      - name: Download io.kalix dependencies
+        # https://github.com/actions/download-artifact/releases
+        # v3.0.2
+        uses: actions/download-artifact@d2278a10efbd646909370fd49fb454cb04e368e3
+        with:
+          name: m2-cache
+          path: ~/
+
+      - name: Unpack io.kalix dependencies
+        run: |-
+          cd
+          tar -xf dependencies.tar.gz
+
+      - name: Compile test projects from ExampleSuite (Java)
+        run: sbt -Dexample.suite.java.enabled codegenJavaCompilationExampleSuite/compile
+
+      - name: Compile test projects from ExampleSuite (Scala)
+        run: sbt -Dexample.suite.scala.enabled codegenScalaCompilationExampleSuite/compile
+
+      - name: Check Protoc version in samples
+        # part of the publish-local pipeline as it requires sbt
+        run: ./bin/check-sample-protoc-version.sh
+
+  check-sample-sdk-versions:
+    name: "Check all samples have the same SDK version"
+    needs: samples # not really, but deferring until more important stuff
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout
         # v3.1.0
         uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8
 
-      - run: .github/ci-check-samples.sh
+      - name: Checkout GitHub merge
+        if: github.event.pull_request
+        run: |-
+          git fetch origin pull/${{ github.event.pull_request.number }}/merge:scratch
+          git checkout scratch
+
+      - name: Ensure all sample projects are listed
+        run: .github/ci-check-samples.sh
+
+      - name: Scala Samples
+        run: |-
+          if [ $(find ./samples -name plugins.sbt | xargs grep -h "kalix-sdk.version" | uniq | wc -l) -ne 1 ]; then
+            echo "Not all Scala samples have the same SDK version:"
+            find ./samples -name plugins.sbt | xargs grep "kalix-sdk.version"
+            false
+          fi
+
+      - name: Java Samples
+        run: |-
+          if [ $(find ./samples -name pom.xml | xargs grep -h "<kalix-sdk.version>" | tr -s [:space:] | uniq | wc -l) -ne 1 ]; then
+            echo "Not all Java samples have the same SDK version:"
+            find ./samples -name pom.xml | xargs grep "<kalix-sdk.version>"
+            false
+          fi
 
   maven-samples:
     name: Maven samples
-    needs: publish-local
+    needs: samples
     runs-on: ubuntu-22.04
 
     strategy:
