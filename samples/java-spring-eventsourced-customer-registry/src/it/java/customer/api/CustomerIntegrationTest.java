@@ -38,12 +38,12 @@ public class CustomerIntegrationTest extends KalixIntegrationTestKitSupport {
     String id = UUID.randomUUID().toString();
     Customer customer = new Customer("foo@example.com", "Johanna", null);
 
-    ResponseEntity<String> response =
+    ResponseEntity<CustomerEntity.Confirm> response =
         webClient.post()
             .uri("/customer/" + id + "/create")
             .bodyValue(customer)
             .retrieve()
-            .toEntity(String.class)
+            .toEntity(CustomerEntity.Confirm.class)
             .block(timeout);
 
     Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -55,21 +55,21 @@ public class CustomerIntegrationTest extends KalixIntegrationTestKitSupport {
     String id = UUID.randomUUID().toString();
     Customer customer = new Customer("foo@example.com", "Johanna", null);
 
-    ResponseEntity<String> resCreation =
+    ResponseEntity<CustomerEntity.Confirm> resCreation =
         webClient.post()
             .uri("/customer/" + id + "/create")
             .body(Mono.just(customer), Customer.class)
             .retrieve()
-            .toEntity(String.class)
+            .toEntity(CustomerEntity.Confirm.class)
             .block(timeout);
 
     Assertions.assertEquals(HttpStatus.OK, resCreation.getStatusCode());
 
-    ResponseEntity<String> resUpdate =
+    ResponseEntity<CustomerEntity.Confirm> resUpdate =
         webClient.post()
             .uri("/customer/" + id + "/changeName/" + "Katarina")
             .retrieve()
-            .toEntity(String.class)
+            .toEntity(CustomerEntity.Confirm.class)
             .block(timeout);
 
 
@@ -82,23 +82,23 @@ public class CustomerIntegrationTest extends KalixIntegrationTestKitSupport {
     String id = UUID.randomUUID().toString();
     Customer customer = new Customer("foo@example.com", "Johanna", null);
 
-    ResponseEntity<String> resCreation =
+    ResponseEntity<CustomerEntity.Confirm> resCreation =
         webClient.post()
             .uri("/customer/" + id + "/create")
             .body(Mono.just(customer), Customer.class)
             .retrieve()
-            .toEntity(String.class)
+            .toEntity(CustomerEntity.Confirm.class)
             .block(timeout);
 
     Assertions.assertEquals(HttpStatus.OK, resCreation.getStatusCode());
 
     Address address = new Address("Elm st. 5", "New Orleans");
-    ResponseEntity<String> resUpdate =
+    ResponseEntity<CustomerEntity.Confirm> resUpdate =
         webClient.post()
             .uri("/customer/" + id + "/changeAddress")
             .body(Mono.just(address), Address.class)
             .retrieve()
-            .toEntity(String.class)
+            .toEntity(CustomerEntity.Confirm.class)
             .block(timeout);
 
 
@@ -111,12 +111,12 @@ public class CustomerIntegrationTest extends KalixIntegrationTestKitSupport {
   public void findByName() {
     String id = UUID.randomUUID().toString();
     Customer customer = new Customer("foo@example.com", "Foo", null);
-    ResponseEntity<String> response =
+    ResponseEntity<CustomerEntity.Confirm> response =
         webClient.post()
             .uri("/customer/" + id + "/create")
             .bodyValue(customer)
             .retrieve()
-            .toEntity(String.class)
+            .toEntity(CustomerEntity.Confirm.class)
             .block(timeout);
 
     Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -140,12 +140,12 @@ public class CustomerIntegrationTest extends KalixIntegrationTestKitSupport {
   public void findByEmail() {
     String id = UUID.randomUUID().toString();
     Customer customer = new Customer("bar@example.com", "Bar", null);
-    ResponseEntity<String> response =
+    ResponseEntity<CustomerEntity.Confirm> response =
         webClient.post()
             .uri("/customer/" + id + "/create")
             .bodyValue(customer)
             .retrieve()
-            .toEntity(String.class)
+            .toEntity(CustomerEntity.Confirm.class)
             .block(timeout);
 
     Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
