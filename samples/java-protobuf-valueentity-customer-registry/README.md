@@ -1,25 +1,32 @@
 # Customer Registry example (using a Value Entity)
 
-This example includes the code snippets that are used in the Views documentation.
+This example includes the code snippets that are used in the Value Entity documentation.
 
-To run the example locally:
+## Building
 
-* Start the example:
-  * publish relevant projects for use from Maven
-    ```
-    ./publishLocalM2.sh
-    ```
-  * trigger codegen, compile and run form Maven
-    ```
-    cd samples/java-protobuf-valueentity-customer-registry
-    mvn -Dkalix-sdk.version=0.7.0-beta....-dev-SNAPSHOT compile exec:exec
-    ```
+Use Maven to build your project:
 
-* Start the proxy
-  * with in-memory store: `sbt proxy-core/run`
-  * or with local Spanner emulator:
-    * start the Spanner emulator: `docker run -p 9010:9010 -p 9020:9020 gcr.io/cloud-spanner-emulator/emulator`
-    * `sbt proxy-spanner/run`
+```shell
+mvn compile
+```
+## Running Locally
+
+To run the example locally, you must run the Kalix proxy. The included `docker-compose` file contains the configuration required to run the proxy for a locally running application.
+It also contains the configuration to start a local Google Pub/Sub emulator that the Kalix proxy will connect to.
+To start the proxy, run the following command from this directory:
+
+```shell
+docker-compose up
+```
+
+To start the application locally, the `exec-maven-plugin` is used. Use the following command:
+
+```shell
+mvn compile exec:exec
+```
+
+With both the proxy and your application running, any defined endpoints should be available at `http://localhost:9000`.
+
 * Create a customer with:
   ```shell
   grpcurl --plaintext -d '{"customer_id": "wip", "email": "wip@example.com", "name": "Very Important", "address": {"street": "Road 1", "city": "The Capital"}}' localhost:9000  customer.api.CustomerService/Create
