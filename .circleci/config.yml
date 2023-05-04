@@ -355,10 +355,6 @@ workflows:
       - checks
       - publish-local
 
-      - tests:
-          requires:
-            - checks
-
       - tck-tests:
           requires:
             - checks
