@@ -1,4 +1,4 @@
-name: Samples
+name: CI Tests and Samples
 
 on:
   pull_request:
@@ -121,6 +121,53 @@ jobs:
           path: ~/dependencies.tar.gz
           if-no-files-found: error
           retention-days: 1
+
+  sbt-test:
+    name: sbt test & sbt scripted
+    needs: publish-local
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout
+        # v3.1.0
+        uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8
+
+      - name: Checkout GitHub merge
+        if: github.event.pull_request
+        run: |-
+          git fetch origin pull/${{ github.event.pull_request.number }}/merge:scratch
+          git checkout scratch
+
+      - name: Set up JDK 17
+        # https://github.com/coursier/setup-action/releases
+        # v1.3.0
+        uses: coursier/setup-action@70323223454ac2a9eb2de46f389b4d045cbcdea5
+        with:
+          jvm: temurin:1.17
+
+      - name: Cache Coursier cache
+        # https://github.com/coursier/cache-action/releases
+        # v6.4.3
+        uses: coursier/cache-action@566e01fea33492e5a89706b43fb0d3fc884154f9
+
+      - name: Download io.kalix dependencies
+        # https://github.com/actions/download-artifact/releases
+        # v3.0.2
+        uses: actions/download-artifact@d2278a10efbd646909370fd49fb454cb04e368e3
+        with:
+          name: m2-cache
+          path: ~/
+
+      - name: Unpack io.kalix dependencies
+        run: |-
+          cd
+          tar -xf dependencies.tar.gz
+
+      - name: sbt test
+        run: sbt --client test
+
+      - name: sbt scripted
+        run: sbt --client scripted
 
   all-samples-tested:
     name: Ensure all sample projects are listed

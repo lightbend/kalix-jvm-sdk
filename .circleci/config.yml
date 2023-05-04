@@ -171,19 +171,6 @@ jobs:
             
             gh pr create -B main -t "Auto PR - Bump SDK versions to $SDK_VERSION" -b "This PR should update all existing samples (pom.xml and plugins.sbt) and the maven-java poms. Please review, and merge if okay. [$CIRCLE_SHA1]($CIRCLE_BUILD_URL)" || echo "No changes"; exit 0
 
-  tests:
-    docker:
-      - image: cimg/openjdk:11.0
-    description: "Tests"
-    steps:
-      - checkout-and-merge-to-main
-      - setup_sbt
-      - restore_deps_cache
-      - run:
-          name: Run tests
-          command: sbt test
-      - save_deps_cache
-
   spring-sdk-integration-tests:
     machine:
       image: ubuntu-2004:202201-02
