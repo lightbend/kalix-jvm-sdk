@@ -17,6 +17,36 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  check-sample-sdk-versions:
+    name: "Check all samples have the same SDK version"
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout
+        # v3.1.0
+        uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8
+
+      - name: Checkout GitHub merge
+        if: github.event.pull_request
+        run: |-
+          git fetch origin pull/${{ github.event.pull_request.number }}/merge:scratch
+          git checkout scratch
+
+      - name: Scala Samples
+        run: |-
+          if [ $(find ./samples -name plugins.sbt | xargs grep -h "kalix-sdk.version" | uniq | wc -l) -ne 1 ]; then
+            echo "Not all Scala samples have the same SDK version:"
+            find ./samples -name plugins.sbt | xargs grep "kalix-sdk.version"
+            false
+          fi
+
+      - name: Java Samples
+        run: |-
+          if [ $(find ./samples -name pom.xml | xargs grep -h "<kalix-sdk.version>" | tr -s [:space:] | uniq | wc -l) -ne 1 ]; then
+            echo "Not all Java samples have the same SDK version:"
+            find ./samples -name pom.xml | xargs grep "<kalix-sdk.version>"
+            false
+          fi
+
   publish-local:
     name: Build and publish artifacts and plugins locally for other tests to use
     runs-on: ubuntu-22.04
@@ -42,6 +72,10 @@ jobs:
         # https://github.com/coursier/cache-action/releases
         # v6.4.3
         uses: coursier/cache-action@566e01fea33492e5a89706b43fb0d3fc884154f9
+
+      - name: Check Protoc version in samples
+        # part of the publish-local pipeline as it requires sbt
+        run: ./bin/check-sample-protoc-version.sh
 
       - name: Cache Maven repository
         # https://github.com/actions/cache/releases
