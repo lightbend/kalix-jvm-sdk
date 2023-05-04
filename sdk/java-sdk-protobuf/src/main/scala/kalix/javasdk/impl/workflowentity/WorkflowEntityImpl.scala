@@ -21,6 +21,7 @@ import scala.concurrent.Future
 import scala.util.control.NonFatal
 import akka.NotUsed
 import akka.actor.ActorSystem
+import akka.stream.SystemMaterializer
 import akka.stream.scaladsl.Flow
 import akka.stream.scaladsl.Source
 import com.google.protobuf.duration
@@ -29,6 +30,7 @@ import io.grpc.Status
 import kalix.javasdk.impl.EntityExceptions.EntityException
 import kalix.javasdk.impl.EntityExceptions.ProtocolException
 import kalix.javasdk.impl.EntityExceptions.failureMessageForLog
+import kalix.javasdk.impl.timer.TimerSchedulerImpl
 import kalix.javasdk.impl.workflowentity.WorkflowEntityEffectImpl.DeleteState
 import kalix.javasdk.impl.workflowentity.WorkflowEntityEffectImpl.End
 import kalix.javasdk.impl.workflowentity.WorkflowEntityEffectImpl.ErrorEffectImpl
@@ -282,8 +284,8 @@ final class WorkflowEntityImpl(system: ActorSystem, val services: Map[String, Wo
         case InCommand(command) =>
           val metadata = new MetadataImpl(command.metadata.map(_.entries.toVector).getOrElse(Nil))
 
-          val context =
-            new CommandContextImpl(entityId, command.name, command.id, metadata, system)
+          val context = new CommandContextImpl(entityId, command.name, command.id, metadata, system)
+          val timerScheduler = new TimerSchedulerImpl(service.messageCodec, system)
 
           val cmd =
             service.messageCodec.decodeMessage(
@@ -291,7 +293,7 @@ final class WorkflowEntityImpl(system: ActorSystem, val services: Map[String, Wo
 
           val CommandResult(effect) =
             try {
-              router._internalHandleCommand(command.name, cmd, context)
+              router._internalHandleCommand(command.name, cmd, context, timerScheduler)
             } catch {
               case e: EntityException => throw e
               case NonFatal(error) =>
@@ -303,7 +305,7 @@ final class WorkflowEntityImpl(system: ActorSystem, val services: Map[String, Wo
           Future.successful(toProtoEffect(effect, command.id))
 
         case Step(executeStep) =>
-          val workflowContext = new WorkflowEntityContextImpl(entityId, system)
+          val timerScheduler = new TimerSchedulerImpl(service.messageCodec, system)
           val stepResponse =
             try {
               val decoded = service.messageCodec.decodeMessage(executeStep.userState.get)
@@ -313,7 +315,8 @@ final class WorkflowEntityImpl(system: ActorSystem, val services: Map[String, Wo
                 executeStep.input,
                 executeStep.stepName,
                 service.messageCodec,
-                workflowContext)
+                timerScheduler,
+                system.dispatcher)
             } catch {
               case e: EntityException => throw e
               case NonFatal(ex) =>

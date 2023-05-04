@@ -21,6 +21,7 @@ import io.grpc.Status;
 import kalix.javasdk.DeferredCall;
 import kalix.javasdk.Metadata;
 import kalix.javasdk.impl.workflowentity.WorkflowEntityEffectImpl;
+import kalix.javasdk.timer.TimerScheduler;
 import kalix.javasdk.workflowentity.WorkflowEntity.RecoverStrategy.MaxRetries;
 
 import java.time.Duration;
@@ -42,6 +43,7 @@ public abstract class WorkflowEntity<S> {
 
 
   private Optional<CommandContext> commandContext = Optional.empty();
+  private Optional<TimerScheduler> timerScheduler = Optional.empty();
 
   private Optional<S> currentState = Optional.empty();
 
@@ -71,11 +73,24 @@ public abstract class WorkflowEntity<S> {
     return commandContext.orElseThrow(() -> new IllegalStateException("CommandContext is only available when handling a command."));
   }
 
+
   /**
    * INTERNAL API
    */
   public void _internalSetCommandContext(Optional<CommandContext> context) {
     commandContext = context;
+  }
+
+  /**
+   * INTERNAL API
+   */
+  public void _internalSetTimerScheduler(Optional<TimerScheduler> timerScheduler) {
+    this.timerScheduler = timerScheduler;
+  }
+
+  /** Returns a {@link TimerScheduler} that can be used to schedule further in time. */
+  public final TimerScheduler timers() {
+    return timerScheduler.orElseThrow(() -> new IllegalStateException("Timers can only be scheduled or cancelled when handling a command or running a step action."));
   }
 
   /**

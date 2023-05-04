@@ -10,7 +10,7 @@
     <logger name="io.grpc" level="INFO"/>
     <logger name="org.testcontainers" level="INFO"/>
 
-    <root level="DEBUG">
+    <root level="INFO">
         <appender-ref ref="STDOUT" />
     </root>
 </configuration>

@@ -20,7 +20,7 @@ import kalix.javasdk.testkit.KalixTestKit;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import static java.time.Duration.ofSeconds;
+import static java.time.Duration.ofMillis;
 
 @Configuration
 public class TestkitConfig {
@@ -30,6 +30,6 @@ public class TestkitConfig {
     return KalixTestKit.Settings.DEFAULT
         .withAclEnabled()
         .withAdvancedViews()
-        .withWorkflowTickInterval(ofSeconds(1));
+        .withWorkflowTickInterval(ofMillis(500));
   }
 }

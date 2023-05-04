@@ -295,7 +295,7 @@ public class SpringWorkflowIntegrationTest {
 
     //then
     await()
-        .atMost(20, TimeUnit.of(SECONDS)) //TODO change it to 10 after bumping proxy-version
+        .atMost(10, TimeUnit.of(SECONDS))
         .untilAsserted(() -> {
           Integer counterValue = getFailingCounterValue(counterId);
           assertThat(counterValue).isEqualTo(3);
@@ -327,7 +327,7 @@ public class SpringWorkflowIntegrationTest {
 
     //then
     await()
-        .atMost(20, TimeUnit.of(SECONDS)) //TODO change it to 10 after bumping proxy-version
+        .atMost(10, TimeUnit.of(SECONDS))
         .untilAsserted(() -> {
           Integer counterValue = getFailingCounterValue(counterId);
           assertThat(counterValue).isEqualTo(3);
@@ -359,7 +359,7 @@ public class SpringWorkflowIntegrationTest {
 
     //then
     await()
-        .atMost(25, TimeUnit.of(SECONDS)) //TODO change it to 10 after bumping proxy-version
+        .atMost(15, TimeUnit.of(SECONDS))
         .untilAsserted(() -> {
           Integer counterValue = getFailingCounterValue(counterId);
           assertThat(counterValue).isEqualTo(3);
@@ -397,6 +397,32 @@ public class SpringWorkflowIntegrationTest {
           var state = getWorkflowState(path);
           assertThat(state.value()).isEqualTo(2);
           assertThat(state.finished()).isTrue();
+        });
+  }
+
+  @Test
+  public void shouldUseTimerInWorkflowDefinition() {
+    //given
+    var counterId = randomId();
+    var workflowId = randomId();
+    String path = "/workflow-with-timer/" + workflowId;
+
+    //when
+    String response = webClient.put().uri(path + "/" + counterId)
+        .retrieve()
+        .bodyToMono(Message.class)
+        .map(m -> m.text)
+        .block(timeout);
+
+    assertThat(response).isEqualTo("workflow started");
+
+    //then
+    await()
+        .atMost(10, TimeUnit.of(SECONDS))
+        .untilAsserted(() -> {
+          var state = getWorkflowState(path);
+          assertThat(state.finished()).isTrue();
+          assertThat(state.value()).isEqualTo(12);
         });
   }
 

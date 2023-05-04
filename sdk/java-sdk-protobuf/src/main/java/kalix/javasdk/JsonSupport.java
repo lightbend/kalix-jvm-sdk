@@ -16,6 +16,17 @@
 
 package kalix.javasdk;
 
+import akka.Done;
+import com.fasterxml.jackson.core.JacksonException;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import kalix.javasdk.impl.ByteStringEncoding;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -55,6 +66,12 @@ public final class JsonSupport {
             JsonCreator.Mode.PROPERTIES));
     objectMapper.registerModule(new com.fasterxml.jackson.datatype.jdk8.Jdk8Module());
     objectMapper.registerModule(new com.fasterxml.jackson.datatype.jsr310.JavaTimeModule());
+
+    SimpleModule module = new SimpleModule();
+    module.addSerializer(Done.class, new DoneSerializer());
+    module.addDeserializer(Done.class, new DoneDeserializer());
+
+    objectMapper.registerModule(module);
   }
 
   /**
@@ -153,6 +170,27 @@ public final class JsonSupport {
       return Optional.of(decodeJson(valueClass, any));
     } else {
       return Optional.empty();
+    }
+  }
+}
+
+class DoneSerializer extends JsonSerializer<Done> {
+
+  @Override
+  public void serialize(Done value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
+    gen.writeStartObject();
+    gen.writeEndObject();
+  }
+}
+
+class DoneDeserializer extends JsonDeserializer<Done> {
+
+  @Override
+  public Done deserialize(JsonParser p, DeserializationContext ctxt) throws IOException, JacksonException {
+    if (p.currentToken() == JsonToken.START_OBJECT && p.nextToken() == JsonToken.END_OBJECT){
+    return Done.getInstance();
+    } else {
+      throw JsonMappingException.from(ctxt, "Cannot deserialize Done class, expecting empty object '{}'");
     }
   }
 }

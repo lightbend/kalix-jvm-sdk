@@ -254,6 +254,7 @@ case class KalixSpringApplication(applicationContext: ApplicationContext, config
 
   kalixBeanFactory.registerSingleton("actionCreationContextFactoryBean", ActionCreationContextFactoryBean)
   kalixBeanFactory.registerSingleton("eventSourcedEntityContext", EventSourcedEntityContextFactoryBean)
+  kalixBeanFactory.registerSingleton("workflowEntityContext", WorkflowContextFactoryBean)
   kalixBeanFactory.registerSingleton("valueEntityContext", ValueEntityContextFactoryBean)
   kalixBeanFactory.registerSingleton("viewCreationContext", ViewCreationContextFactoryBean)
   kalixBeanFactory.registerSingleton("kalixClient", KalixClientFactoryBean)

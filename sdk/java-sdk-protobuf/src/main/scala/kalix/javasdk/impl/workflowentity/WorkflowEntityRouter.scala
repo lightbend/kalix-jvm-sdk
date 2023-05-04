@@ -20,7 +20,7 @@ import java.util.Optional
 import java.util.concurrent.CompletionStage
 import java.util.function.{ Function => JFunc }
 import scala.compat.java8.FutureConverters.CompletionStageOps
-import scala.concurrent.Future
+import scala.concurrent.{ ExecutionContext, Future }
 import scala.jdk.OptionConverters.RichOptional
 import com.google.protobuf.any.{ Any => ScalaPbAny }
 import kalix.javasdk.DeferredCall
@@ -33,12 +33,12 @@ import kalix.javasdk.impl.workflowentity.WorkflowEntityRouter.CommandHandlerNotF
 import kalix.javasdk.impl.workflowentity.WorkflowEntityRouter.CommandResult
 import kalix.javasdk.impl.workflowentity.WorkflowEntityRouter.WorkflowStepNotFound
 import kalix.javasdk.impl.workflowentity.WorkflowEntityRouter.WorkflowStepNotSupported
+import kalix.javasdk.timer.TimerScheduler
 import kalix.javasdk.workflowentity.CommandContext
 import kalix.javasdk.workflowentity.WorkflowEntity.Effect
 import kalix.javasdk.workflowentity.WorkflowEntity
 import kalix.javasdk.workflowentity.WorkflowEntity.AsyncCallStep
 import kalix.javasdk.workflowentity.WorkflowEntity.CallStep
-import kalix.javasdk.workflowentity.WorkflowEntityContext
 import kalix.protocol.workflow_entity.StepDeferredCall
 import kalix.protocol.workflow_entity.StepExecuted
 import kalix.protocol.workflow_entity.StepResponse
@@ -84,9 +84,14 @@ abstract class WorkflowEntityRouter[S, W <: WorkflowEntity[S]](protected val wor
 
   /** INTERNAL API */
   // "public" api against the impl/testkit
-  final def _internalHandleCommand(commandName: String, command: Any, context: CommandContext): CommandResult = {
+  final def _internalHandleCommand(
+      commandName: String,
+      command: Any,
+      context: CommandContext,
+      timerScheduler: TimerScheduler): CommandResult = {
     val commandEffect =
       try {
+        workflow._internalSetTimerScheduler(Optional.of(timerScheduler))
         workflow._internalSetCommandContext(Optional.of(context))
         workflow._internalSetCurrentState(stateOrEmpty())
         handleCommand(commandName, stateOrEmpty(), command, context).asInstanceOf[Effect[Any]]
@@ -117,11 +122,13 @@ abstract class WorkflowEntityRouter[S, W <: WorkflowEntity[S]](protected val wor
       input: Option[ScalaPbAny],
       stepName: String,
       messageCodec: MessageCodec,
-      workflowContext: WorkflowEntityContext): Future[StepResponse] = {
+      timerScheduler: TimerScheduler,
+      executionContext: ExecutionContext): Future[StepResponse] = {
 
-    implicit val ec = workflowContext.materializer().executionContext
+    implicit val ec = executionContext
 
     workflow._internalSetCurrentState(stateOrEmpty())
+    workflow._internalSetTimerScheduler(Optional.of(timerScheduler))
     val workflowDef = workflow.definition()
 
     workflowDef.findByName(stepName).toScala match {

@@ -19,11 +19,11 @@
  */
 package kalix.scalasdk
 
+import akka.Done
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import kalix.javasdk.{ JsonSupport => JavaJsonSupport }
 import com.fasterxml.jackson.annotation.JsonCreator
-import com.fasterxml.jackson.annotation.JsonProperty
 
 @JsonCreator
 case class MyJsonable(field: String)
@@ -37,6 +37,12 @@ class JsonSupportSpec extends AnyWordSpec with Matchers {
       val any = JsonSupport.encodeJson(myJsonable)
       any.typeUrl should ===(JavaJsonSupport.KALIX_JSON + classOf[MyJsonable].getName)
       JsonSupport.decodeJson[MyJsonable](any).field should ===("foo")
+    }
+    "serialize and deserialize Akka Done class" in {
+      val done = Done
+      val any = JsonSupport.encodeJson(done)
+      any.typeUrl should ===(JavaJsonSupport.KALIX_JSON + Done.getClass.getName)
+      JsonSupport.decodeJson[Done](any) shouldBe Done
     }
     "serialize JSON with an explicit type url suffix" in {
       val any = JsonSupport.encodeJson(myJsonable, "bar")
