@@ -88,37 +88,37 @@ commands:
               echo 'export SDK_VERSION='`sbt "print javaSdkProtobuf/version" | tail -n 2 | head -n 1` >> $BASH_ENV
             fi
 
-  publish-local:
-    description: Build and publish artifacts and plugins locally for other tests to use
-    steps:
-      - run:
-          name: publish m2 and local
-          command: sbt publishM2 publishLocal -Ddisable.apidocs=true
-      - run:
-          name: "Build maven-java"
-          command: |
-            cd maven-java
-            echo "Running maven-java with SDK version: '$SDK_VERSION'"
-            mvn versions:set -DnewVersion=$SDK_VERSION
-            mvn verify install
-      - run: mkdir -p workspace
-      - run: cp -r ~/.m2 workspace/
-      - run: cp -r ~/.ivy2 workspace/
-      - run: echo $SDK_VERSION > workspace/published-version
-      # copy published files to workspace for other jobs to pick up rather than build their own
-      - persist_to_workspace:
-          root: workspace
-          paths:
-            - .m2
-            - .ivy2
-            - published-version
-  copy-from-workspace:
-    description: Copy locally published artifacts from workspace
-    steps:
-      - attach_workspace:
-          at: workspace
-      - run: rsync -rv workspace/.m2/ ~/.m2/
-      - run: rsync -rv workspace/.ivy2/ ~/.ivy2/
+#  publish-local:
+#    description: Build and publish artifacts and plugins locally for other tests to use
+#    steps:
+#      - run:
+#          name: publish m2 and local
+#          command: sbt publishM2 publishLocal -Ddisable.apidocs=true
+#      - run:
+#          name: "Build maven-java"
+#          command: |
+#            cd maven-java
+#            echo "Running maven-java with SDK version: '$SDK_VERSION'"
+#            mvn versions:set -DnewVersion=$SDK_VERSION
+#            mvn verify install
+#      - run: mkdir -p workspace
+#      - run: cp -r ~/.m2 workspace/
+#      - run: cp -r ~/.ivy2 workspace/
+#      - run: echo $SDK_VERSION > workspace/published-version
+#      # copy published files to workspace for other jobs to pick up rather than build their own
+#      - persist_to_workspace:
+#          root: workspace
+#          paths:
+#            - .m2
+#            - .ivy2
+#            - published-version
+#  copy-from-workspace:
+#    description: Copy locally published artifacts from workspace
+#    steps:
+#      - attach_workspace:
+#          at: workspace
+#      - run: rsync -rv workspace/.m2/ ~/.m2/
+#      - run: rsync -rv workspace/.ivy2/ ~/.ivy2/
 
 jobs:
   checks:
@@ -200,46 +200,19 @@ jobs:
           command: sbt scalaTck/Test/run
       - save_deps_cache
 
-  # by setting a snapshot version with set-sdk-version we publish the deps so that
-  # other jobs can use them by depending on this job in the workflow
-  publish-local:
-    machine:
-      image: ubuntu-2004:202201-02
-    description: "Build and publish a local version of the artifacts"
-    steps:
-      - checkout-and-merge-to-main
-      - restore_deps_cache
-      - setup_sbt
-      - set-sdk-version
-      - publish-local
-      - save_deps_cache
-
-  maven-java-tests:
-    machine:
-      image: ubuntu-2004:202201-02
-    description: "Maven Java (plugin and archetype tests)"
-    steps:
-      - checkout-and-merge-to-main
-      - restore_deps_cache
-      - setup_sbt
-      # note: `copy-from-workspace` requires `publish-local` to be run first as declared in workflow section below
-      - copy-from-workspace
-      - set-sdk-version
-      - run:
-          name: Run integration tests for Value Entity Archetype
-          command: |
-            cd maven-java
-            mvn -B archetype:generate -DgroupId=com.example -DartifactId=counter-value-entity -DarchetypeGroupId=io.kalix -DarchetypeArtifactId=kalix-maven-archetype -DarchetypeVersion=$SDK_VERSION
-            cd counter-value-entity
-            mvn -B compile
-      - run:
-          name: Run integration tests for Event Sourced Entity Archetype
-          command: |
-            cd maven-java
-            mvn -B archetype:generate  -DgroupId=com.example -DartifactId=counter-event-sourced-entity -DarchetypeGroupId=io.kalix -DarchetypeArtifactId=kalix-maven-archetype-event-sourced-entity -DarchetypeVersion=$SDK_VERSION
-            cd counter-event-sourced-entity
-            mvn -B compile
-      - save_deps_cache
+#  # by setting a snapshot version with set-sdk-version we publish the deps so that
+#  # other jobs can use them by depending on this job in the workflow
+#  publish-local:
+#    machine:
+#      image: ubuntu-2004:202201-02
+#    description: "Build and publish a local version of the artifacts"
+#    steps:
+#      - checkout-and-merge-to-main
+#      - restore_deps_cache
+#      - setup_sbt
+#      - set-sdk-version
+#      - publish-local
+#      - save_deps_cache
 
   publish:
     docker:
@@ -327,16 +300,11 @@ workflows:
   CI:
     jobs:
       - checks
-      - publish-local
 
       - tck-tests:
           requires:
             - checks
 
-      - maven-java-tests:
-          requires:
-            - checks
-            - publish-local
       - spring-sdk-integration-tests:
           requires:
             - checks

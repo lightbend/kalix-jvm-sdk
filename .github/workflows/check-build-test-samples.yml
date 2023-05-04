@@ -176,7 +176,69 @@ jobs:
       - name: sbt scripted
         run: sbt scripted
 
-  samples:
+  maven-java-tests:
+    name: "Maven Java (plugin and archetype tests)"
+    needs: publish-local
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout
+        # v3.1.0
+        uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8
+
+      - name: Checkout GitHub merge
+        if: github.event.pull_request
+        run: |-
+          git fetch origin pull/${{ github.event.pull_request.number }}/merge:scratch
+          git checkout scratch
+
+      - name: Set up JDK 17
+        # https://github.com/coursier/setup-action/releases
+        # v1.3.0
+        uses: coursier/setup-action@70323223454ac2a9eb2de46f389b4d045cbcdea5
+        with:
+          jvm: temurin:1.17
+
+      - name: Cache Maven repository
+        # https://github.com/actions/cache/releases
+        # v3.3.1
+        uses: actions/cache@88522ab9f39a2ea568f7027eddc7d8d8bc9d59c8
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('maven-java/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      - name: Download io.kalix dependencies
+        # https://github.com/actions/download-artifact/releases
+        # v3.0.2
+        uses: actions/download-artifact@d2278a10efbd646909370fd49fb454cb04e368e3
+        with:
+          name: m2-cache
+          path: ~/
+
+      - name: Unpack io.kalix dependencies
+        run: |-
+          cd
+          tar -xf dependencies.tar.gz
+
+      - name: Value Entity Archetype
+        run: |-
+          export SDK_VERSION=$(cat ~/kalix-sdk-version.txt)
+          cd maven-java
+          mvn -B archetype:generate -DgroupId=com.example -DartifactId=counter-value-entity -DarchetypeGroupId=io.kalix -DarchetypeArtifactId=kalix-maven-archetype -DarchetypeVersion=$SDK_VERSION
+          cd counter-value-entity
+          mvn -B compile
+          cd ..
+
+      - name: Event Sourced Entity Archetype
+        run: |-
+          mvn -B archetype:generate  -DgroupId=com.example -DartifactId=counter-event-sourced-entity -DarchetypeGroupId=io.kalix -DarchetypeArtifactId=kalix-maven-archetype-event-sourced-entity -DarchetypeVersion=$SDK_VERSION
+          cd counter-event-sourced-entity
+          mvn -B compile
+          cd ..
+
+  codegen-samples:
     name: Compile Test Projects from Example Suite (Java & Scala)
     needs: publish-local
     runs-on: ubuntu-22.04
@@ -229,7 +291,7 @@ jobs:
 
   check-sample-sdk-versions:
     name: "Check all samples have the same SDK version"
-    needs: samples # not really, but deferring until more important stuff
+    needs: publish-local # not really, but deferring until more important stuff
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout
@@ -263,7 +325,7 @@ jobs:
 
   maven-samples:
     name: Maven samples
-    needs: samples
+    needs: publish-local, check-sample-sdk-versions
     runs-on: ubuntu-22.04
 
     strategy:
@@ -401,7 +463,7 @@ jobs:
 
   sbt-samples:
     name: sbt
-    needs: publish-local
+    needs: publish-local, check-sample-sdk-versions
     runs-on: ubuntu-22.04
 
     strategy:
