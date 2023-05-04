@@ -1,42 +1,47 @@
-# Views documentation example
+# Event Sourced Customer Registry Subscriber Sample
 
-This example includes the code snippets that are used in the Views documentation.
+## Designing
 
-To run the example locally:
+To understand the Kalix concepts that are the basis for this example, see [Designing services](https://docs.kalix.io/developing/development-process-proto.html) in the documentation.
 
-* Start the example:
-  * publish relevant projects for use from Maven
-    ```
-    ./publishLocalM2.sh
-    ```
-  * trigger codegen, compile and run from Maven
-    ```
-    cd samples/java-protobuf-eventsourced-customer-registry
-    mvn -Dkalix-sdk.version=0.7.0-beta....-dev-SNAPSHOT compile exec:exec
-    ```
+The project `java-protobuf-eventsourced-customer-registry-subscriber` is a downstream consumer of the Service to Service event stream provided by `java-protobuf-eventsourced-customer-registry` project.
 
-* Start the proxy
-  * with in-memory store: `sbt proxy-core/run`
-  * or with local Spanner emulator:
-    * start the Spanner emulator: `docker run -p 9010:9010 -p 9020:9020 gcr.io/cloud-spanner-emulator/emulator`
-    * `sbt proxy-spanner/run`
+## Building
+
+Use Maven to build your project:
+
+```shell
+mvn compile
+```
+## Running Locally
+
+First start the `java-protobuf-eventsourced-customer-registry` service and proxy. It will run with the default service and proxy ports (`8080` and `9000`).
+
+To start the proxy, run the following command from this directory:
+
+```shell
+docker-compose up
+```
+
+To start the application locally, the `exec-maven-plugin` is used. Use the following command:
+
+```shell
+mvn compile exec:exec
+```
+Run commands against `java-protobuf-eventsourced-customer-registry` project.
+
 * Create a customer with:
   ```shell
   grpcurl --plaintext -d '{"customer_id": "wip", "email": "wip@example.com", "name": "Very Important", "address": {"street": "Road 1", "city": "The Capital"}}' localhost:9000  customer.api.CustomerService/Create
-  ```
-* Retrieve the customer:
-  ```shell
-  grpcurl --plaintext -d '{"customer_id": "wip"}' localhost:9000  customer.api.CustomerService/GetCustomer
-  ```
-* Query by name:
-  ```shell
-  grpcurl --plaintext -d '{"customer_name": "Very Important"}' localhost:9000 customer.view.CustomerByName/GetCustomers
   ```
 * Change name:
   ```shell
   grpcurl --plaintext -d '{"customer_id": "wip", "new_name": "Most Important"}' localhost:9000 customer.api.CustomerService/ChangeName
   ```
-* Change address:
+  
+Run a view query from this project.
+
+* Query all customers:
   ```shell
-  grpcurl --plaintext -d '{"customer_id": "wip", "new_address": {"street": "Street 1", "city": "The City"}}' localhost:9000 customer.api.CustomerService/ChangeAddress
+  grpcurl --plaintext localhost:9001 customer.view.AllCustomersView/GetCustomers
   ```

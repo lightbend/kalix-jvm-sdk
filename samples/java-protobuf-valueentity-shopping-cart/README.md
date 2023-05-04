@@ -5,7 +5,7 @@ This example project implements an API for a shopping cart using a Kalix Value E
 ## See also
 
 * process - for effective development it is useful to
-  read [development process](https://docs.kalix.io/services/development-process.html)
+  read [development process](https://docs.kalix.io/developing/development-process-proto.html)
 * developing - it may be useful to read up
   on [developing with Java](https://docs.kalix.io/java/index.html)
 

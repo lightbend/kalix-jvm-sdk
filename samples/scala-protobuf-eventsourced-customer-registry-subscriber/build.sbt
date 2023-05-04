@@ -38,7 +38,7 @@ Test / logBuffered := false
 run / javaOptions ++= Seq(
   // needed for the proxy to access the user function on all platforms
   "-Dkalix.user-function-interface=0.0.0.0",
-  // the shopping cart service is running at 8080, this service at 8081
+  // the customer registry service is running at 8080, this service at 8081
   "-Dkalix.user-function-port=8081",
   "-Dlogback.configurationFile=logback-dev-mode.xml"
 )
