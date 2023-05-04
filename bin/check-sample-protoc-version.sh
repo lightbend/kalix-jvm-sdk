@@ -11,7 +11,8 @@ if [ $(echo "$POM_PROTOC_VERSIONS" | wc -l) -ne 1 ]; then
   false
 elif [ "$AKKA_GRPC_PROTOC" != "$POM_PROTOC_VERSIONS" ]; then
   echo  "Java Samples and Archetypes ($POM_PROTOC_VERSIONS) does not have the same protoc version as Akka gRPC ($AKKA_GRPC_PROTOC)"
-  echo "DEBUG: POM_PROTOC_VERSIONS=\"\"\"$(POM_PROTOC_VERSIONS)\"\"\""
+  echo "DEBUG: POM_PROTOC_VERSIONS=\"\"\"$POM_PROTOC_VERSIONS\"\"\""
+  echo "DEBUG: AKKA_GRPC_PROTOC=\"\"\"$AKKA_GRPC_PROTOC\"\"\""
   echo "DEBUG: full Akka gRPC version text: \"\"\"$(cat /tmp/kalix-version.txt)\"\"\""
   false
 fi
