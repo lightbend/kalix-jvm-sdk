@@ -325,7 +325,7 @@ jobs:
 
   maven-samples:
     name: Maven samples
-    needs: publish-local, check-sample-sdk-versions
+    needs: check-sample-sdk-versions
     runs-on: ubuntu-22.04
 
     strategy:
@@ -463,7 +463,7 @@ jobs:
 
   sbt-samples:
     name: sbt
-    needs: publish-local, check-sample-sdk-versions
+    needs: check-sample-sdk-versions
     runs-on: ubuntu-22.04
 
     strategy:
