@@ -32,7 +32,6 @@ service ShoppingCartViewService {
     };
     option (kalix.method).view.update = {
       table: "carts"
-      transform_updates: true
     };
   }
   rpc ProcessRemoved(com.example.shoppingcart.domain.ItemRemoved) returns (CartViewState) {
@@ -41,7 +40,6 @@ service ShoppingCartViewService {
     };
     option (kalix.method).view.update = {
       table: "carts"
-      transform_updates: true
     };
   }
 
@@ -51,7 +49,6 @@ service ShoppingCartViewService {
     };
     option (kalix.method).view.update = {
       table: "carts"
-      transform_updates: true
     };
   }
 

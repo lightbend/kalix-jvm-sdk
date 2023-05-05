@@ -29,7 +29,6 @@ service ShoppingCartViewService {
     };
     option (kalix.method).view.update = {
       table: "carts"
-      transform_updates: true
     };
   }
   rpc ProcessRemoved(ItemRemoved) returns (CartViewState) {
@@ -38,7 +37,6 @@ service ShoppingCartViewService {
     };
     option (kalix.method).view.update = {
       table: "carts"
-      transform_updates: true
     };
   }
   rpc ProcessCheckedOut(CheckedOut) returns (CartViewState) {
@@ -47,7 +45,6 @@ service ShoppingCartViewService {
     };
     option (kalix.method).view.update = {
       table: "carts"
-      transform_updates: true
     };
   }
   rpc GetCheckedOutCarts(GetCheckedOutCartsRequest) returns (stream CartViewState) {

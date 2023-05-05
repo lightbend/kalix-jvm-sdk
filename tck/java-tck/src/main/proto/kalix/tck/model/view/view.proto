@@ -47,7 +47,6 @@ service ViewTckModel {
     };
     option (kalix.method).view.update = {
       table: "view_model"
-      transform_updates: true
     };
   }
 

@@ -192,8 +192,7 @@ Add the service endpoint
 include::example$java-protobuf-customer-registry-views-quickstart/src/main/proto/customer/view/customer_view.proto[tag=CustomerByName]
 ----
 <1> The `UpdateCustomer` method defines how Kalix will update the view. In this case use a `CustomerViewState` that is different from the incoming `domain.CustomerState`.
-<2> `transform_updates: true` defines that you want custom code in the `UpdateCustomer` method.
-<3> The `GetCustomers` method defines the query to retrieve customers by name.
+<2> The `GetCustomers` method defines the query to retrieve customers by name.
 
 . Run `mvn compile` from the project root directory to generate source classes from the Protobuf definitions.
 +

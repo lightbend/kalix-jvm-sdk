@@ -49,14 +49,12 @@ service AllCustomersView {
   rpc ProcessCustomerCreated(api.Created) returns (api.Customer) { // <4>
     option (kalix.method).view.update = {
       table: "all_customers"
-      transform_updates: true
     };
   }
 
   rpc ProcessCustomerNameChanged(api.NameChanged) returns (api.Customer) {
     option (kalix.method).view.update = {
       table: "all_customers"
-      transform_updates: true
     };
   }
 

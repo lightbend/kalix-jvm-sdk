@@ -77,7 +77,6 @@ service CustomerOrders {
     };
     option (kalix.method).view.update = {
       table: "customers",
-      transform_updates: true
     };
   }
 
@@ -87,7 +86,6 @@ service CustomerOrders {
     };
     option (kalix.method).view.update = {
       table: "customers",
-      transform_updates: true
     };
   }
 
@@ -97,7 +95,6 @@ service CustomerOrders {
     };
     option (kalix.method).view.update = {
       table: "products",
-      transform_updates: true
     };
   }
 
@@ -133,7 +130,6 @@ service AnotherCustomerOrdersView {
     };
     option (kalix.method).view.update = {
       table: "customers",
-      transform_updates: true
     };
   }
 
@@ -143,7 +139,6 @@ service AnotherCustomerOrdersView {
     };
     option (kalix.method).view.update = {
       table: "customers",
-      transform_updates: true
     };
   }
 
@@ -153,7 +148,6 @@ service AnotherCustomerOrdersView {
     };
     option (kalix.method).view.update = {
       table: "products",
-      transform_updates: true
     };
   }
 
