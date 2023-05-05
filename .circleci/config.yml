@@ -91,6 +91,8 @@ commands:
 jobs:
   checks:
     description: "Checks"
+    docker:
+      - image: circleci/openjdk:11
     steps:
       - run:
           command: echo "Dummy check as PR validation moved to the GH workflow"
