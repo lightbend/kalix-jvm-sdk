@@ -43,11 +43,6 @@ jobs:
         # v6.4.3
         uses: coursier/cache-action@566e01fea33492e5a89706b43fb0d3fc884154f9
 
-      - name: Run scalafmt checks
-        run: |
-          sbt --client "scalafmtCheckAll; scalafmtSbtCheck" || \
-            { echo "[error] Code not formatted prior to commit. Run 'sbt scalafmtAll scalafmtSbt' then commit the reformatted code."; false; }
-
       - name: Run javafmt checks
         run: |
           sbt --client javafmtCheckAll || \
@@ -57,6 +52,15 @@ jobs:
         run: |
           sbt --client headerCheckAll || \
             { echo "[error] Code missing headers prior to commit. Run 'sbt headerCreateAll' then commit the updated code."; false; }
+
+      - name: Run scalafmt checks
+        run: |
+          sbt --client "scalafmtCheckAll; scalafmtSbtCheck" || \
+            { echo "[error] Code not formatted prior to commit. Run 'sbt scalafmtAll scalafmtSbt' then commit the reformatted code."; false; }
+
+      - name: sbt shutdown
+        run: |
+          sbt --client shutdown
 
   publish-local:
     name: Build and publish artifacts and plugins locally
@@ -280,7 +284,7 @@ jobs:
           cd ..
 
   java-sdk-integration-tests:
-    name: Codegen Examples
+    name: "Java SDK integration tests"
     needs: [checks, publish-local]
     runs-on: ubuntu-22.04
 
