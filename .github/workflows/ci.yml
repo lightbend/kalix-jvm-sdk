@@ -31,17 +31,27 @@ jobs:
           git fetch origin pull/${{ github.event.pull_request.number }}/merge:scratch
           git checkout scratch
 
+      - name: Restore Coursier cache
+        # https://github.com/actions/cache/releases
+        # v3.3.1
+        uses: actions/cache/restore@88522ab9f39a2ea568f7027eddc7d8d8bc9d59c8
+        with:
+          path: |
+            ~/.cache/coursier
+            ~/.sbt
+            ~/.ivy2/cache
+          key: coursier-${{ hashFiles('project/plugins.sbt', 'project/build.properties') }}-${{ hashFiles('build.sbt', 'project/**.scala', 'project/**.sbt') }}
+          restore-keys: |
+            coursier-${{ hashFiles('project/plugins.sbt', 'project/build.properties') }}-${{ hashFiles('build.sbt', 'project/**.scala', 'project/**.sbt') }}
+            coursier-${{ hashFiles('project/plugins.sbt', 'project/build.properties') }}-
+            coursier-
+
       - name: Set up JDK 17
         # https://github.com/coursier/setup-action/releases
         # v1.3.0
         uses: coursier/setup-action@70323223454ac2a9eb2de46f389b4d045cbcdea5
         with:
           jvm: temurin:1.17
-
-      - name: Cache Coursier cache
-        # https://github.com/coursier/cache-action/releases
-        # v6.4.3
-        uses: coursier/cache-action@566e01fea33492e5a89706b43fb0d3fc884154f9
 
       - name: Run javafmt checks
         run: |
@@ -76,17 +86,27 @@ jobs:
           git fetch origin pull/${{ github.event.pull_request.number }}/merge:scratch
           git checkout scratch
 
+      - name: Cache Coursier cache
+        # https://github.com/actions/cache/releases
+        # v3.3.1
+        uses: actions/cache@88522ab9f39a2ea568f7027eddc7d8d8bc9d59c8
+        with:
+          path: |
+            ~/.cache/coursier
+            ~/.sbt
+            ~/.ivy2/cache
+          key: coursier-${{ hashFiles('project/plugins.sbt', 'project/build.properties') }}-${{ hashFiles('build.sbt', 'project/**.scala', 'project/**.sbt') }}
+          restore-keys: |
+            coursier-${{ hashFiles('project/plugins.sbt', 'project/build.properties') }}-${{ hashFiles('build.sbt', 'project/**.scala', 'project/**.sbt') }}
+            coursier-${{ hashFiles('project/plugins.sbt', 'project/build.properties') }}-
+            coursier-
+
       - name: Set up JDK 17
         # https://github.com/coursier/setup-action/releases
         # v1.3.0
         uses: coursier/setup-action@70323223454ac2a9eb2de46f389b4d045cbcdea5
         with:
           jvm: temurin:1.17
-
-      - name: Cache Coursier cache
-        # https://github.com/coursier/cache-action/releases
-        # v6.4.3
-        uses: coursier/cache-action@566e01fea33492e5a89706b43fb0d3fc884154f9
 
       - name: Cache Maven repository
         # https://github.com/actions/cache/releases
@@ -149,17 +169,27 @@ jobs:
           git fetch origin pull/${{ github.event.pull_request.number }}/merge:scratch
           git checkout scratch
 
+      - name: Restore Coursier cache
+        # https://github.com/actions/cache/releases
+        # v3.3.1
+        uses: actions/cache/restore@88522ab9f39a2ea568f7027eddc7d8d8bc9d59c8
+        with:
+          path: |
+            ~/.cache/coursier
+            ~/.sbt
+            ~/.ivy2/cache
+          key: coursier-${{ hashFiles('project/plugins.sbt', 'project/build.properties') }}-${{ hashFiles('build.sbt', 'project/**.scala', 'project/**.sbt') }}
+          restore-keys: |
+            coursier-${{ hashFiles('project/plugins.sbt', 'project/build.properties') }}-${{ hashFiles('build.sbt', 'project/**.scala', 'project/**.sbt') }}
+            coursier-${{ hashFiles('project/plugins.sbt', 'project/build.properties') }}-
+            coursier-
+
       - name: Set up JDK 17
         # https://github.com/coursier/setup-action/releases
         # v1.3.0
         uses: coursier/setup-action@70323223454ac2a9eb2de46f389b4d045cbcdea5
         with:
           jvm: temurin:1.17
-
-      - name: Cache Coursier cache
-        # https://github.com/coursier/cache-action/releases
-        # v6.4.3
-        uses: coursier/cache-action@566e01fea33492e5a89706b43fb0d3fc884154f9
 
       - name: Download io.kalix dependencies
         # https://github.com/actions/download-artifact/releases
@@ -193,17 +223,27 @@ jobs:
           git fetch origin pull/${{ github.event.pull_request.number }}/merge:scratch
           git checkout scratch
 
+      - name: Restore Coursier cache
+        # https://github.com/actions/cache/releases
+        # v3.3.1
+        uses: actions/cache/restore@88522ab9f39a2ea568f7027eddc7d8d8bc9d59c8
+        with:
+          path: |
+            ~/.cache/coursier
+            ~/.sbt
+            ~/.ivy2/cache
+          key: coursier-${{ hashFiles('project/plugins.sbt', 'project/build.properties') }}-${{ hashFiles('build.sbt', 'project/**.scala', 'project/**.sbt') }}
+          restore-keys: |
+            coursier-${{ hashFiles('project/plugins.sbt', 'project/build.properties') }}-${{ hashFiles('build.sbt', 'project/**.scala', 'project/**.sbt') }}
+            coursier-${{ hashFiles('project/plugins.sbt', 'project/build.properties') }}-
+            coursier-
+
       - name: Set up JDK 17
         # https://github.com/coursier/setup-action/releases
         # v1.3.0
         uses: coursier/setup-action@70323223454ac2a9eb2de46f389b4d045cbcdea5
         with:
           jvm: temurin:1.17
-
-      - name: Cache Coursier cache
-        # https://github.com/coursier/cache-action/releases
-        # v6.4.3
-        uses: coursier/cache-action@566e01fea33492e5a89706b43fb0d3fc884154f9
 
       - name: Download io.kalix dependencies
         # https://github.com/actions/download-artifact/releases
@@ -238,11 +278,12 @@ jobs:
           git checkout scratch
 
       - name: Set up JDK 17
-        # https://github.com/coursier/setup-action/releases
-        # v1.3.0
-        uses: coursier/setup-action@70323223454ac2a9eb2de46f389b4d045cbcdea5
+        # https://github.com/actions/setup-java/releases/
+        # v3.11.0
+        uses: actions/setup-java@5ffc13f4174014e2d4d4572b3d74c3fa61aeb2c2
         with:
-          jvm: temurin:1.17
+          distribution: 'temurin'
+          java-version: '17'
 
       - name: Cache Maven repository
         # https://github.com/actions/cache/releases
@@ -299,17 +340,27 @@ jobs:
           git fetch origin pull/${{ github.event.pull_request.number }}/merge:scratch
           git checkout scratch
 
+      - name: Restore Coursier cache
+        # https://github.com/actions/cache/releases
+        # v3.3.1
+        uses: actions/cache/restore@88522ab9f39a2ea568f7027eddc7d8d8bc9d59c8
+        with:
+          path: |
+            ~/.cache/coursier
+            ~/.sbt
+            ~/.ivy2/cache
+          key: coursier-${{ hashFiles('project/plugins.sbt', 'project/build.properties') }}-${{ hashFiles('build.sbt', 'project/**.scala', 'project/**.sbt') }}
+          restore-keys: |
+            coursier-${{ hashFiles('project/plugins.sbt', 'project/build.properties') }}-${{ hashFiles('build.sbt', 'project/**.scala', 'project/**.sbt') }}
+            coursier-${{ hashFiles('project/plugins.sbt', 'project/build.properties') }}-
+            coursier-
+
       - name: Set up JDK 17
         # https://github.com/coursier/setup-action/releases
         # v1.3.0
         uses: coursier/setup-action@70323223454ac2a9eb2de46f389b4d045cbcdea5
         with:
           jvm: temurin:1.17
-
-      - name: Cache Coursier cache
-        # https://github.com/coursier/cache-action/releases
-        # v6.4.3
-        uses: coursier/cache-action@566e01fea33492e5a89706b43fb0d3fc884154f9
 
       - name: Download io.kalix dependencies
         # https://github.com/actions/download-artifact/releases
@@ -343,17 +394,27 @@ jobs:
           git fetch origin pull/${{ github.event.pull_request.number }}/merge:scratch
           git checkout scratch
 
+      - name: Restore Coursier cache
+        # https://github.com/actions/cache/releases
+        # v3.3.1
+        uses: actions/cache/restore@88522ab9f39a2ea568f7027eddc7d8d8bc9d59c8
+        with:
+          path: |
+            ~/.cache/coursier
+            ~/.sbt
+            ~/.ivy2/cache
+          key: coursier-${{ hashFiles('project/plugins.sbt', 'project/build.properties') }}-${{ hashFiles('build.sbt', 'project/**.scala', 'project/**.sbt') }}
+          restore-keys: |
+            coursier-${{ hashFiles('project/plugins.sbt', 'project/build.properties') }}-${{ hashFiles('build.sbt', 'project/**.scala', 'project/**.sbt') }}
+            coursier-${{ hashFiles('project/plugins.sbt', 'project/build.properties') }}-
+            coursier-
+
       - name: Set up JDK 17
         # https://github.com/coursier/setup-action/releases
         # v1.3.0
         uses: coursier/setup-action@70323223454ac2a9eb2de46f389b4d045cbcdea5
         with:
           jvm: temurin:1.17
-
-      - name: Cache Coursier cache
-        # https://github.com/coursier/cache-action/releases
-        # v6.4.3
-        uses: coursier/cache-action@566e01fea33492e5a89706b43fb0d3fc884154f9
 
       - name: Download io.kalix dependencies
         # https://github.com/actions/download-artifact/releases
@@ -428,17 +489,27 @@ jobs:
           git fetch origin pull/${{ github.event.pull_request.number }}/merge:scratch
           git checkout scratch
 
+      - name: Restore Coursier cache
+        # https://github.com/actions/cache/releases
+        # v3.3.1
+        uses: actions/cache/restore@88522ab9f39a2ea568f7027eddc7d8d8bc9d59c8
+        with:
+          path: |
+            ~/.cache/coursier
+            ~/.sbt
+            ~/.ivy2/cache
+          key: coursier-${{ hashFiles('project/plugins.sbt', 'project/build.properties') }}-${{ hashFiles('build.sbt', 'project/**.scala', 'project/**.sbt') }}
+          restore-keys: |
+            coursier-${{ hashFiles('project/plugins.sbt', 'project/build.properties') }}-${{ hashFiles('build.sbt', 'project/**.scala', 'project/**.sbt') }}
+            coursier-${{ hashFiles('project/plugins.sbt', 'project/build.properties') }}-
+            coursier-
+
       - name: Set up JDK 17
         # https://github.com/coursier/setup-action/releases
         # v1.3.0
         uses: coursier/setup-action@70323223454ac2a9eb2de46f389b4d045cbcdea5
         with:
           jvm: temurin:1.17
-
-      - name: Cache Coursier cache
-        # https://github.com/coursier/cache-action/releases
-        # v6.4.3
-        uses: coursier/cache-action@566e01fea33492e5a89706b43fb0d3fc884154f9
 
       - name: Download io.kalix dependencies
         # https://github.com/actions/download-artifact/releases
@@ -640,22 +711,27 @@ jobs:
           git fetch origin pull/${{ github.event.pull_request.number }}/merge:scratch
           git checkout scratch
 
+      - name: Restore Coursier cache
+        # https://github.com/actions/cache/releases
+        # v3.3.1
+        uses: actions/cache/restore@88522ab9f39a2ea568f7027eddc7d8d8bc9d59c8
+        with:
+          path: |
+            ~/.cache/coursier
+            ~/.sbt
+            ~/.ivy2/cache
+          key: coursier-${{ hashFiles('project/plugins.sbt', 'project/build.properties') }}-${{ hashFiles('build.sbt', 'project/**.scala', 'project/**.sbt') }}
+          restore-keys: |
+            coursier-${{ hashFiles('project/plugins.sbt', 'project/build.properties') }}-${{ hashFiles('build.sbt', 'project/**.scala', 'project/**.sbt') }}
+            coursier-${{ hashFiles('project/plugins.sbt', 'project/build.properties') }}-
+            coursier-
+
       - name: Set up JDK 17
         # https://github.com/coursier/setup-action/releases
         # v1.3.0
         uses: coursier/setup-action@70323223454ac2a9eb2de46f389b4d045cbcdea5
         with:
           jvm: temurin:1.17
-
-      - name: Cache Maven repository
-        # https://github.com/actions/cache/releases
-        # v3.3.1
-        uses: actions/cache@88522ab9f39a2ea568f7027eddc7d8d8bc9d59c8
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('maven-java/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-maven-
 
       - name: Download io.kalix dependencies
         # https://github.com/actions/download-artifact/releases
