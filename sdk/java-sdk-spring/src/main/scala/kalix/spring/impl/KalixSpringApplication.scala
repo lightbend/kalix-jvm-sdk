@@ -345,16 +345,7 @@ case class KalixSpringApplication(applicationContext: ApplicationContext, config
       }
     }
 
-  private lazy val kalixRunner = {
-    val finalConfig =
-      ConfigFactory
-        // it doesn't make sense to try to load descriptor source for
-        // the Java SDK, so better to just disable it
-        .parseString("kalix.discovery.protobuf-descriptor-with-source-info-path=disabled")
-        .withFallback(config)
-
-    kalix.createRunner(finalConfig)
-  }
+  private lazy val kalixRunner = kalix.createRunner(config)
 
   def start(): Future[Done] = {
     logger.info("Starting Kalix Application...")
