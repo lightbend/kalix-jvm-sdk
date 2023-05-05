@@ -89,6 +89,12 @@ commands:
             fi
 
 jobs:
+  checks:
+    description: "Checks"
+    steps:
+      - run:
+          command: echo "Dummy check as PR validation moved to the GH workflow"
+
   create-pr-sdk-versions-update:
     docker:
       - image: circleci/openjdk:11
@@ -199,6 +205,8 @@ jobs:
 workflows:
   CI:
     jobs:
+      - checks
+
       - publish:
           filters: # version tags only
             tags:
