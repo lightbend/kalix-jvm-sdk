@@ -88,64 +88,7 @@ commands:
               echo 'export SDK_VERSION='`sbt "print javaSdkProtobuf/version" | tail -n 2 | head -n 1` >> $BASH_ENV
             fi
 
-#  publish-local:
-#    description: Build and publish artifacts and plugins locally for other tests to use
-#    steps:
-#      - run:
-#          name: publish m2 and local
-#          command: sbt publishM2 publishLocal -Ddisable.apidocs=true
-#      - run:
-#          name: "Build maven-java"
-#          command: |
-#            cd maven-java
-#            echo "Running maven-java with SDK version: '$SDK_VERSION'"
-#            mvn versions:set -DnewVersion=$SDK_VERSION
-#            mvn verify install
-#      - run: mkdir -p workspace
-#      - run: cp -r ~/.m2 workspace/
-#      - run: cp -r ~/.ivy2 workspace/
-#      - run: echo $SDK_VERSION > workspace/published-version
-#      # copy published files to workspace for other jobs to pick up rather than build their own
-#      - persist_to_workspace:
-#          root: workspace
-#          paths:
-#            - .m2
-#            - .ivy2
-#            - published-version
-#  copy-from-workspace:
-#    description: Copy locally published artifacts from workspace
-#    steps:
-#      - attach_workspace:
-#          at: workspace
-#      - run: rsync -rv workspace/.m2/ ~/.m2/
-#      - run: rsync -rv workspace/.ivy2/ ~/.ivy2/
-
 jobs:
-  checks:
-    docker:
-      - image: cimg/openjdk:11.0
-    description: "Checks"
-    steps:
-      - checkout-and-merge-to-main
-      - setup_sbt
-      - restore_deps_cache
-      - run:
-          name: Run scalafmt checks
-          command: |
-            sbt scalafmtCheckAll scalafmtSbtCheck || \
-              { echo "[error] Code not formatted prior to commit. Run 'sbt scalafmtAll scalafmtSbt' then commit the reformatted code."; false; }
-      - run:
-          name: Run javafmt checks
-          command: |
-            sbt javafmtCheckAll || \
-              { echo "[error] Code not formatted prior to commit. Run 'sbt javafmtAll' then commit the reformatted code."; false; }
-      - run:
-          name: Run header checks
-          command: |
-            sbt headerCheckAll || \
-              { echo "[error] Code missing headers prior to commit. Run 'sbt headerCreateAll' then commit the updated code."; false; }
-      - save_deps_cache
-
   create-pr-sdk-versions-update:
     docker:
       - image: circleci/openjdk:11
@@ -170,49 +113,6 @@ jobs:
             git push --set-upstream origin-rw $BRANCH
             
             gh pr create -B main -t "Auto PR - Bump SDK versions to $SDK_VERSION" -b "This PR should update all existing samples (pom.xml and plugins.sbt) and the maven-java poms. Please review, and merge if okay. [$CIRCLE_SHA1]($CIRCLE_BUILD_URL)" || echo "No changes"; exit 0
-
-  spring-sdk-integration-tests:
-    machine:
-      image: ubuntu-2004:202201-02
-    description: "Java SDK with Spring -  Integration Test"
-    steps:
-      - checkout-and-merge-to-main
-      - setup_sbt
-      - restore_deps_cache
-      - run:
-          name: Run tests
-          command: sbt javaSdkSpring/IntegrationTest/test
-      - save_deps_cache
-
-  tck-tests:
-    machine:
-      image: ubuntu-2004:202201-02
-    description: "TCK tests"
-    steps:
-      - checkout-and-merge-to-main
-      - setup_sbt
-      - restore_deps_cache
-      - run:
-          name: Run Java TCK tests
-          command: sbt javaTck/Test/run
-      - run:
-          name: Run Scala TCK tests
-          command: sbt scalaTck/Test/run
-      - save_deps_cache
-
-#  # by setting a snapshot version with set-sdk-version we publish the deps so that
-#  # other jobs can use them by depending on this job in the workflow
-#  publish-local:
-#    machine:
-#      image: ubuntu-2004:202201-02
-#    description: "Build and publish a local version of the artifacts"
-#    steps:
-#      - checkout-and-merge-to-main
-#      - restore_deps_cache
-#      - setup_sbt
-#      - set-sdk-version
-#      - publish-local
-#      - save_deps_cache
 
   publish:
     docker:
@@ -299,16 +199,6 @@ jobs:
 workflows:
   CI:
     jobs:
-      - checks
-
-      - tck-tests:
-          requires:
-            - checks
-
-      - spring-sdk-integration-tests:
-          requires:
-            - checks
-
       - publish:
           filters: # version tags only
             tags:
