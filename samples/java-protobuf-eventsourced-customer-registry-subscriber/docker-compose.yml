@@ -5,11 +5,12 @@ services:
   kalix-proxy:
     image: gcr.io/kalix-public/kalix-proxy:1.1.8
     ports:
-      - "9001:9000"
+      - "9001:9001"
     extra_hosts:
       - "host.docker.internal:host-gateway"
     environment:
       JAVA_TOOL_OPTIONS: >
+        -Dkalix.proxy.http-port=9001
         -Dconfig.resource=dev-mode.conf
         -Dlogback.configurationFile=logback-dev-mode.xml
       USER_FUNCTION_HOST: ${USER_FUNCTION_HOST:-host.docker.internal}
