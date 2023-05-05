@@ -124,7 +124,6 @@ When running a service during local development, it may be useful to enable ACL 
 ```yaml
 kalix-proxy:
   image: gcr.io/kalix-public/kalix-proxy:latest
-  command: -Dconfig.resource=dev-mode.conf -Dlogback.configurationFile=logback-dev-mode.xml -Dkalix.proxy.eventing.support=google-pubsub-emulator
   ports:
     - "9000:9000"
   environment:
@@ -144,7 +143,6 @@ If running multiple services in local development, you may want to run with ACLs
 ```yaml
 kalix-proxy:
   image: gcr.io/kalix-public/kalix-proxy:latest
-  command: -Dconfig.resource=dev-mode.conf -Dlogback.configurationFile=logback-dev-mode.xml -Dkalix.proxy.eventing.support=google-pubsub-emulator
   ports:
     - "9000:9000"
   environment:
