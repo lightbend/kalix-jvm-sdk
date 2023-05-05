@@ -45,7 +45,7 @@ jobs:
 
       - name: Run scalafmt checks
         run: |
-          sbt --client scalafmtCheckAll scalafmtSbtCheck || \
+          sbt --client "scalafmtCheckAll; scalafmtSbtCheck" || \
             { echo "[error] Code not formatted prior to commit. Run 'sbt scalafmtAll scalafmtSbt' then commit the reformatted code."; false; }
 
       - name: Run javafmt checks
