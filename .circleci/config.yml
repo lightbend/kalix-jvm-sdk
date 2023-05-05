@@ -88,63 +88,14 @@ commands:
               echo 'export SDK_VERSION='`sbt "print javaSdkProtobuf/version" | tail -n 2 | head -n 1` >> $BASH_ENV
             fi
 
-  publish-local:
-    description: Build and publish artifacts and plugins locally for other tests to use
-    steps:
-      - run:
-          name: publish m2 and local
-          command: sbt publishM2 publishLocal -Ddisable.apidocs=true
-      - run:
-          name: "Build maven-java"
-          command: |
-            cd maven-java
-            echo "Running maven-java with SDK version: '$SDK_VERSION'"
-            mvn versions:set -DnewVersion=$SDK_VERSION
-            mvn verify install
-      - run: mkdir -p workspace
-      - run: cp -r ~/.m2 workspace/
-      - run: cp -r ~/.ivy2 workspace/
-      - run: echo $SDK_VERSION > workspace/published-version
-      # copy published files to workspace for other jobs to pick up rather than build their own
-      - persist_to_workspace:
-          root: workspace
-          paths:
-            - .m2
-            - .ivy2
-            - published-version
-  copy-from-workspace:
-    description: Copy locally published artifacts from workspace
-    steps:
-      - attach_workspace:
-          at: workspace
-      - run: rsync -rv workspace/.m2/ ~/.m2/
-      - run: rsync -rv workspace/.ivy2/ ~/.ivy2/
-
 jobs:
   checks:
-    docker:
-      - image: cimg/openjdk:11.0
     description: "Checks"
+    docker:
+      - image: circleci/openjdk:11
     steps:
-      - checkout-and-merge-to-main
-      - setup_sbt
-      - restore_deps_cache
       - run:
-          name: Run scalafmt checks
-          command: |
-            sbt scalafmtCheckAll scalafmtSbtCheck || \
-              { echo "[error] Code not formatted prior to commit. Run 'sbt scalafmtAll scalafmtSbt' then commit the reformatted code."; false; }
-      - run:
-          name: Run javafmt checks
-          command: |
-            sbt javafmtCheckAll || \
-              { echo "[error] Code not formatted prior to commit. Run 'sbt javafmtAll' then commit the reformatted code."; false; }
-      - run:
-          name: Run header checks
-          command: |
-            sbt headerCheckAll || \
-              { echo "[error] Code missing headers prior to commit. Run 'sbt headerCreateAll' then commit the updated code."; false; }
-      - save_deps_cache
+          command: echo "Dummy check as PR validation moved to the GH workflow"
 
   create-pr-sdk-versions-update:
     docker:
@@ -170,115 +121,6 @@ jobs:
             git push --set-upstream origin-rw $BRANCH
             
             gh pr create -B main -t "Auto PR - Bump SDK versions to $SDK_VERSION" -b "This PR should update all existing samples (pom.xml and plugins.sbt) and the maven-java poms. Please review, and merge if okay. [$CIRCLE_SHA1]($CIRCLE_BUILD_URL)" || echo "No changes"; exit 0
-
-  tests:
-    docker:
-      - image: cimg/openjdk:11.0
-    description: "Tests"
-    steps:
-      - checkout-and-merge-to-main
-      - setup_sbt
-      - restore_deps_cache
-      - run:
-          name: Run tests
-          command: sbt test
-      - save_deps_cache
-
-  spring-sdk-integration-tests:
-    machine:
-      image: ubuntu-2004:202201-02
-    description: "Java SDK with Spring -  Integration Test"
-    steps:
-      - checkout-and-merge-to-main
-      - setup_sbt
-      - restore_deps_cache
-      - run:
-          name: Run tests
-          command: sbt javaSdkSpring/IntegrationTest/test
-      - save_deps_cache
-
-  tck-tests:
-    machine:
-      image: ubuntu-2004:202201-02
-    description: "TCK tests"
-    steps:
-      - checkout-and-merge-to-main
-      - setup_sbt
-      - restore_deps_cache
-      - run:
-          name: Run Java TCK tests
-          command: sbt javaTck/Test/run
-      - run:
-          name: Run Scala TCK tests
-          command: sbt scalaTck/Test/run
-      - save_deps_cache
-
-  # by setting a snapshot version with set-sdk-version we publish the deps so that
-  # other jobs can use them by depending on this job in the workflow
-  publish-local:
-    machine:
-      image: ubuntu-2004:202201-02
-    description: "Build and publish a local version of the artifacts"
-    steps:
-      - checkout-and-merge-to-main
-      - restore_deps_cache
-      - setup_sbt
-      - set-sdk-version
-      - publish-local
-      - save_deps_cache
-
-  compile-example-suite-java:
-    machine:
-      image: ubuntu-2004:202201-02
-    description: "Compile Test Projects from Example Suite (Java)"
-    steps:
-      - checkout-and-merge-to-main
-      - setup_sbt
-      - restore_deps_cache
-      - run:
-            name: Compile test projects from ExampleSuite (Java)
-            command: sbt -Dexample.suite.java.enabled codegenJavaCompilationExampleSuite/compile
-      - save_deps_cache
-
-  compile-example-suite-scala:
-    machine:
-      image: ubuntu-2004:202201-02
-    description: "Compile Test Projects from Example Suite (Scala)"
-    steps:
-      - checkout-and-merge-to-main
-      - setup_sbt
-      - restore_deps_cache
-      - run:
-            name: Compile test projects from ExampleSuite (Scala)
-            command: sbt -Dexample.suite.scala.enabled codegenScalaCompilationExampleSuite/compile
-      - save_deps_cache
-
-  maven-java-tests:
-    machine:
-      image: ubuntu-2004:202201-02
-    description: "Maven Java (plugin and archetype tests)"
-    steps:
-      - checkout-and-merge-to-main
-      - restore_deps_cache
-      - setup_sbt
-      # note: `copy-from-workspace` requires `publish-local` to be run first as declared in workflow section below
-      - copy-from-workspace
-      - set-sdk-version
-      - run:
-          name: Run integration tests for Value Entity Archetype
-          command: |
-            cd maven-java
-            mvn -B archetype:generate -DgroupId=com.example -DartifactId=counter-value-entity -DarchetypeGroupId=io.kalix -DarchetypeArtifactId=kalix-maven-archetype -DarchetypeVersion=$SDK_VERSION
-            cd counter-value-entity
-            mvn -B compile
-      - run:
-          name: Run integration tests for Event Sourced Entity Archetype
-          command: |
-            cd maven-java
-            mvn -B archetype:generate  -DgroupId=com.example -DartifactId=counter-event-sourced-entity -DarchetypeGroupId=io.kalix -DarchetypeArtifactId=kalix-maven-archetype-event-sourced-entity -DarchetypeVersion=$SDK_VERSION
-            cd counter-event-sourced-entity
-            mvn -B compile
-      - save_deps_cache
 
   publish:
     docker:
@@ -366,31 +208,6 @@ workflows:
   CI:
     jobs:
       - checks
-      - publish-local
-
-      - tests:
-          requires:
-            - checks
-
-      - tck-tests:
-          requires:
-            - checks
-
-      - compile-example-suite-java:
-          requires:
-            - checks
-
-      - compile-example-suite-scala:
-          requires:
-            - checks
-
-      - maven-java-tests:
-          requires:
-            - checks
-            - publish-local
-      - spring-sdk-integration-tests:
-          requires:
-            - checks
 
       - publish:
           filters: # version tags only
