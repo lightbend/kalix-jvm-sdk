@@ -92,7 +92,7 @@ include::example$scala-protobuf-valueentity-customer-registry/src/main/proto/cus
 <2> The `UpdateCustomer` method defines how Kalix will update the view.
 <3> The source of the View is the `"customers"` Value Entity. This identifier is defined in the `entity_type: "customers"` property of the `(kalix.codegen).value_entity` option in the `customer_api.proto` file.
 <4> The `(kalix.method).view.update` annotation defines that this method is used for updating the View. You must define the `table` attribute for the table to be used in the query. Pick any name and use it in the query `SELECT` statement. When a view model is the same as the method input parameter, Kalix will optimize the processing and won't call this method. However, this behavior can be overridden with the `(kalix.method).view.update.transform_updates` flag set to `true`.
-<5> The second `(kalix.method).eventing.in` annotation with `handle_deletes: true` and (required) `google.protobuf.Empty` as a parameter defines that this method is used for handling Value Entity deletes. If you don't provide such method then, by default, your View state will not be deleted. Similar to update methods, Kalix will optimise it and won't call the method if not necessary, unless you mark it with `(kalix.method).view.update.transform_updates: true`. In this case, you indicate to Kalix that you want to provide a custom delete handler implementation.
+<5> The second `(kalix.method).eventing.in` annotation with `handle_deletes: true` and (required) `google.protobuf.Empty` as a parameter defines that this method is used for handling Value Entity deletes. Similar to update methods, Kalix will optimise it and not call the method if not necessary, unless you mark it with `(kalix.method).view.update.transform_updates: true`. In this case, you indicate to Kalix that you want to provide a custom delete handler implementation.
 <6> The `GetCustomers` method defines the query to retrieve a stream of customers.
 <7> The `(kalix.method).view.query` annotation defines that this method is used as a query of the View.
 
@@ -125,7 +125,7 @@ When no result is found, the request fails with gRPC status code `NOT_FOUND`. A 
 
 The View state corresponding to an Entity is not automatically deleted when the Entity is deleted.
 
-When the source of the `eventing.in` is a Value Entity the `handle_deletes: true` annotation of `(kalix.method).eventing.in` defines that this method is used for handling Value Entity deletes. The method must have `google.protobuf.Empty` as a parameter. Kalix will automatically delete the View state, but you can also write your own delete handler when `(kalix.method).view.update.transform_updates` flag is `true`. If you don't provide such method then, by default, your View state will not be deleted.
+When the source of the `eventing.in` is a Value Entity the `handle_deletes: true` annotation of `(kalix.method).eventing.in` defines that this method is used for handling Value Entity deletes. The method must have `google.protobuf.Empty` as a parameter. Kalix will automatically delete the View state, but you can also write your own delete handler when `(kalix.method).view.update.transform_updates` flag is `true`.
 
 [#register-view]
 === Registering a View
