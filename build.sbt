@@ -382,7 +382,7 @@ lazy val devTools = project
       "Kalix Dev Tools",
       "-noqualifier",
       "java.lang"))
-  .settings(Dependencies.devtools)
+  .settings(Dependencies.devTools)
 
 lazy val javaTck = project
   .in(file("tck/java-tck"))

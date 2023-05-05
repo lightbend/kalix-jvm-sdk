@@ -106,7 +106,7 @@ object Dependencies {
   val coreSdk =
     deps ++= Seq("com.typesafe" % "config" % "1.4.2")
 
-  val devtools = deps ++= Seq(testContainers, scalaTest % Test)
+  val devTools = deps ++= Seq(scalaTest % Test)
 
   val javaSdk = deps ++= sdkDeps
 
