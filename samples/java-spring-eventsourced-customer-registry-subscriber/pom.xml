@@ -288,6 +288,13 @@
       <artifactId>kalix-spring-boot-starter</artifactId>
       <version>${kalix-sdk.version}</version>
     </dependency>
+
+    <dependency>
+      <groupId>io.kalix</groupId>
+      <artifactId>kalix-devtools_2.13</artifactId>
+      <version>${kalix-sdk.version}</version>
+      <scope>test</scope>
+    </dependency>
     <dependency>
       <groupId>io.kalix</groupId>
       <artifactId>kalix-spring-boot-starter-test</artifactId>

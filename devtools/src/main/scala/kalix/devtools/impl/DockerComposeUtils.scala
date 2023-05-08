@@ -20,12 +20,13 @@ import java.nio.file.Files
 import java.nio.file.Paths
 
 import scala.io.Source
+import scala.jdk.CollectionConverters._
 import scala.sys.process._
-import scala.util.Try
 
 object DockerComposeUtils {
   def apply(file: String): DockerComposeUtils = DockerComposeUtils(file, Map.empty)
 }
+
 case class DockerComposeUtils(file: String, envVar: Map[String, String]) {
 
   // mostly for using from Java code
@@ -77,23 +78,26 @@ case class DockerComposeUtils(file: String, envVar: Map[String, String]) {
 
   def stop(): Unit =
     if (started) {
-      s"docker compose -f $file stop".!
+      Process(s"docker-compose -f $file stop", None).run()
     }
 
-  def readUserFunctionPort: Int = {
+  def userFunctionPort: Int = {
     envVar
       .get("USER_FUNCTION_PORT")
       .map(_.toInt)
-      .orElse(readUserFunctionPortFromFile)
+      .orElse(userFunctionPortFromFile)
       .getOrElse(8080)
   }
 
-  private def readUserFunctionPortFromFile: Option[Int] =
+  private def userFunctionPortFromFile: Option[Int] =
     lines.collectFirst { case UserFunctionPortExtractor(port) => port }
 
-  def readServicePortMappings: Seq[String] =
+  def servicePortMappings: Seq[String] =
     lines.flatten {
       case ServicePortMappingsExtractor(mappings) => mappings
       case _                                      => Seq.empty
     }
+
+  def getServicePortMappings: java.util.List[String] =
+    servicePortMappings.asJava
 }

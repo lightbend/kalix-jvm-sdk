@@ -3,7 +3,7 @@ import Dependencies.Kalix
 lazy val `kalix-jvm-sdk` = project
   .in(file("."))
   .aggregate(
-    devTools,
+    devTools_2_13,
     devTools_2_12,
     coreSdk,
     javaSdkProtobuf,
@@ -349,10 +349,13 @@ def githubUrl(v: String): String = {
   "https://github.com/lightbend/kalix-jvm-sdk/tree/" + branch
 }
 
-lazy val devTools = devToolsCommon(
+lazy val devTools_2_13 = devToolsCommon(
   project
-    .in(file("devtools"))
-    .settings(scalaVersion := Dependencies.ScalaVersion))
+    .in(file("devtools-for-2.13"))
+    .settings(
+      scalaVersion := Dependencies.ScalaVersion,
+      Compile / sourceDirectory := baseDirectory.value / ".." / "devTools" / "src" / "main",
+      Test / sourceDirectory := baseDirectory.value / ".." / "devTools" / "src" / "test"))
 
 /*
   This variant devTools compiles with Scala 2.12, but uses the same source files as the 2.13 version (above).
@@ -361,13 +364,14 @@ lazy val devTools = devToolsCommon(
 lazy val devTools_2_12 =
   devToolsCommon(
     project
-      .in(file("devtools-for-2.12"))
-      .settings(
-        scalaVersion := Dependencies.ScalaVersionForTooling,
-        Compile / sourceDirectory := baseDirectory.value / ".." / "devTools" / "src" / "main",
-        Test / sourceDirectory := baseDirectory.value / ".." / "devTools" / "src" / "test"))
+      .in(file("devtools"))
+      .settings(scalaVersion := Dependencies.ScalaVersionForTooling))
 
-// common configuration to be applied to devTools modules (both 2.12 and 2.13)
+/*
+ Common configuration to be applied to devTools modules (both 2.12 and 2.13)
+ We need to have this 'split' module because compilation of sbt plugins don't play nice with cross-compiled modules.
+ Instead, it's easier to have a separate module for each Scala version, but share the same source files.
+ */
 def devToolsCommon(project: Project): Project =
   project
     .enablePlugins(BuildInfoPlugin, PublishSonatype)

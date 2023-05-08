@@ -62,14 +62,14 @@ class DockerComposeUtilsSpec extends AnyWordSpec with Matchers {
     "read user function port from docker-compose file" in {
       val dockerComposeFile = createTmpFile(defaultFile)
       val dockerComposeUtils = DockerComposeUtils(dockerComposeFile)
-      dockerComposeUtils.readUserFunctionPort shouldBe 8081
+      dockerComposeUtils.userFunctionPort shouldBe 8081
     }
 
     "favor USER_FUNCTION_PORT env var if set " in {
       val envVar = Map("USER_FUNCTION_PORT" -> "8082")
       val dockerComposeFile = createTmpFile(defaultFile)
       val dockerComposeUtils = DockerComposeUtils(dockerComposeFile, envVar)
-      dockerComposeUtils.readUserFunctionPort shouldBe 8082
+      dockerComposeUtils.userFunctionPort shouldBe 8082
     }
 
     "default to UF port 8080 when nothing is defined" in {
@@ -86,7 +86,7 @@ class DockerComposeUtilsSpec extends AnyWordSpec with Matchers {
           |""".stripMargin
       val dockerComposeFile = createTmpFile(fileContent)
       val dockerComposeUtils = DockerComposeUtils(dockerComposeFile)
-      dockerComposeUtils.readUserFunctionPort shouldBe 8080
+      dockerComposeUtils.userFunctionPort shouldBe 8080
     }
 
     "be able read user function port when env var is not used" in {
@@ -106,13 +106,13 @@ class DockerComposeUtilsSpec extends AnyWordSpec with Matchers {
 
       val dockerComposeFile = createTmpFile(fileWithoutEnvVar)
       val dockerComposeUtils = DockerComposeUtils(dockerComposeFile)
-      dockerComposeUtils.readUserFunctionPort shouldBe 8081
+      dockerComposeUtils.userFunctionPort shouldBe 8081
     }
 
     "read service port mappings from docker-compose file" in {
       val dockerComposeFile = createTmpFile(defaultFile)
       val dockerComposeUtils = DockerComposeUtils(dockerComposeFile)
-      dockerComposeUtils.readServicePortMappings shouldBe Seq(
+      dockerComposeUtils.servicePortMappings shouldBe Seq(
         "-Dkalix.dev-mode.service-port-mappings.foo=9001",
         "-Dkalix.dev-mode.service-port-mappings.bar=9002")
     }
@@ -120,8 +120,8 @@ class DockerComposeUtilsSpec extends AnyWordSpec with Matchers {
     "not fail if docker-compose file is absent" in {
       val dockerComposeUtils = DockerComposeUtils(UUID.randomUUID().toString)
       // in which case it should default to 8080
-      dockerComposeUtils.readUserFunctionPort shouldBe 8080
-      dockerComposeUtils.readServicePortMappings shouldBe Seq.empty
+      dockerComposeUtils.userFunctionPort shouldBe 8080
+      dockerComposeUtils.servicePortMappings shouldBe Seq.empty
     }
 
     "select first UF port when more than one proxy is declared." in {
@@ -144,7 +144,7 @@ class DockerComposeUtilsSpec extends AnyWordSpec with Matchers {
 
       val dockerComposeFile = createTmpFile(defaultFile + extraProxy)
       val dockerComposeUtils = DockerComposeUtils(dockerComposeFile)
-      dockerComposeUtils.readUserFunctionPort shouldBe 8081
+      dockerComposeUtils.userFunctionPort shouldBe 8081
     }
 
   }

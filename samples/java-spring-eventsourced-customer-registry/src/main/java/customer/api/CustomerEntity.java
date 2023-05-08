@@ -31,8 +31,6 @@ public class CustomerEntity extends EventSourcedEntity<Customer, CustomerEvent> 
   @PostMapping("/create")
   public Effect<Confirm> create(@RequestBody Customer customer) {
     logger.info("Creating {}", customer);
-
-    logger.info("what {}", Confirm.done);
     return effects()
         .emitEvent(new CustomerCreated(customer.email(), customer.name(), customer.address()))
         .thenReply(__ -> Confirm.done);
