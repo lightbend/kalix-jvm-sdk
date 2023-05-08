@@ -66,18 +66,19 @@ object KalixPlugin extends AutoPlugin {
     Seq(
       dockerComposeFile := "docker-compose.yml",
       dockerComposeUtils := DockerComposeUtils(dockerComposeFile.value, sys.env),
-      runDockerCompose := dockerComposeUtils.value.start(),
+//      runDockerCompose := dockerComposeUtils.start(),
       libraryDependencies ++= Seq(
         "io.kalix" % "kalix-sdk-protocol" % KalixProtocolVersion % "protobuf-src",
         "com.google.protobuf" % "protobuf-java" % "3.17.3" % "protobuf",
         "io.kalix" %% "kalix-scala-sdk-protobuf-testkit" % KalixSdkVersion % Test),
       logConfig := "logback-dev-mode.xml",
       run / javaOptions ++=
-        dockerComposeUtils.value.readServicePortMappings
-        ++ Seq(
+//        dockerComposeUtils.value.readServicePortMappings
+        Seq(
           "-Dkalix.user-function-interface=0.0.0.0",
-          s"-Dlogback.configurationFile=${logConfig.value}",
-          s"-Dkalix.user-function-port=${dockerComposeUtils.value.readUserFunctionPort}"),
+          s"-Dlogback.configurationFile=${logConfig.value}"
+//          s"-Dkalix.user-function-port=${dockerComposeUtils.value.readUserFunctionPort}"
+        ),
       Compile / PB.targets +=
         gen(
           (akkaGrpcCodeGeneratorSettings.value :+ KalixGenerator.enableDebug)

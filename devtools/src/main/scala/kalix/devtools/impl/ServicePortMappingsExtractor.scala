@@ -29,7 +29,7 @@ object ServicePortMappingsExtractor {
           case s if s.startsWith("-Dkalix.dev-mode.service-port-mappings") => s.trim
         }
 
-    if (portMappings.nonEmpty) Some(portMappings) else None
+    if (portMappings.nonEmpty) Some(portMappings.toIndexedSeq) else None
   }
 
 }

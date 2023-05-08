@@ -25,6 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.autoconfigure.AutoConfiguration
 import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Lazy
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
 import org.springframework.http.codec.json.Jackson2JsonEncoder
@@ -37,6 +38,7 @@ class KalixConfigurationTest(applicationContext: ApplicationContext) extends Kal
 
   /** WebClient pointing to the proxy. */
   @Bean
+  @Lazy
   def createWebClient(kalixTestKit: KalixTestKit): WebClient = WebClient.builder
     .baseUrl("http://localhost:" + kalixTestKit.getPort)
     .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
@@ -47,10 +49,12 @@ class KalixConfigurationTest(applicationContext: ApplicationContext) extends Kal
     .build
 
   @Bean
+  @Lazy
   def testkitSettings(@Autowired(required = false) settings: KalixTestKit.Settings): Option[KalixTestKit.Settings] =
     Option(settings)
 
   @Bean
+  @Lazy
   def kalixTestKit(
       kalixSpringApplication: KalixSpringApplication,
       config: Config,

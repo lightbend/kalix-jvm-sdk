@@ -23,7 +23,15 @@ import scala.io.Source
 import scala.sys.process._
 import scala.util.Try
 
-case class DockerComposeUtils(file: String, envVar: Map[String, String] = Map.empty) {
+object DockerComposeUtils {
+  def apply(file: String): DockerComposeUtils = DockerComposeUtils(file, Map.empty)
+}
+case class DockerComposeUtils(file: String, envVar: Map[String, String]) {
+
+  // mostly for using from Java code
+  def this(file: String) = this(file, Map.empty)
+
+  @volatile private var started = false
 
   private def execIfFileExists[T](block: => T): T = {
     if (Files.exists(Paths.get(file)))
@@ -45,7 +53,7 @@ case class DockerComposeUtils(file: String, envVar: Map[String, String] = Map.em
     if (Files.exists(Paths.get(file))) {
       val src = Source.fromFile(file)
       try {
-        src.getLines.toList
+        src.getLines().toList
       } finally {
         src.close()
       }
@@ -56,8 +64,8 @@ case class DockerComposeUtils(file: String, envVar: Map[String, String] = Map.em
 
   def start(): Unit = {
     execIfFileExists {
-      Process(s"docker-compose -f $file up", None).run
-
+      val proc = Process(s"docker-compose -f $file up", None).run()
+      started = proc.isAlive()
       // shutdown hook to down containers when jvm exits
       sys.addShutdownHook {
         execIfFileExists {
@@ -67,9 +75,10 @@ case class DockerComposeUtils(file: String, envVar: Map[String, String] = Map.em
     }
   }
 
-  private def stop(): Unit = {
-    s"docker compose -f $file stop".!
-  }
+  def stop(): Unit =
+    if (started) {
+      s"docker compose -f $file stop".!
+    }
 
   def readUserFunctionPort: Int = {
     envVar

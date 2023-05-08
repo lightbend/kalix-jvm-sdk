@@ -11,7 +11,7 @@ object Dependencies {
 
   // changing the Scala version of the Java SDK affects end users
   val ScalaVersion = "2.13.10"
-  val ScalaVersionForDevTools = "2.12.15"
+  val ScalaVersionForTooling = "2.12.15"
 
   val ProtobufVersion = // akka.grpc.gen.BuildInfo.googleProtobufVersion
     "3.20.3" // explicitly overriding the 3.20.1 version from Akka gRPC 2.1.6
