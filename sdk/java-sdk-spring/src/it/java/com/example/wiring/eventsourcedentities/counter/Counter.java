@@ -29,10 +29,14 @@ public class Counter {
   }
 
   public Counter onValueIncreased(CounterEvent.ValueIncreased evt) {
-    return new Counter(this.value + evt.value);
+    return new Counter(this.value + evt.value());
+  }
+
+  public Counter onValueSet(CounterEvent.ValueSet evt) {
+    return new Counter(evt.value());
   }
 
   public Counter onValueMultiplied(CounterEvent.ValueMultiplied evt) {
-    return new Counter(this.value * evt.value);
+    return new Counter(this.value * evt.value());
   }
 }

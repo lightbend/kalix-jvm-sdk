@@ -34,11 +34,11 @@ public class UserCounter {
   }
 
   public UserCounter onValueIncreased(CounterEvent.ValueIncreased event) {
-    return new UserCounter(id, value + event.value);
+    return new UserCounter(id, value + event.value());
   }
 
   public UserCounter onValueMultiplied(CounterEvent.ValueMultiplied event) {
-    return new UserCounter(id, value * event.value);
+    return new UserCounter(id, value * event.value());
   }
 
   @Override

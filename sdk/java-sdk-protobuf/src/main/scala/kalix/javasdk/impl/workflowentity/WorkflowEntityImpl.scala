@@ -21,15 +21,12 @@ import scala.concurrent.Future
 import scala.util.control.NonFatal
 import akka.NotUsed
 import akka.actor.ActorSystem
-import akka.stream.SystemMaterializer
 import akka.stream.scaladsl.Flow
 import akka.stream.scaladsl.Source
 import com.google.protobuf.duration
 import com.google.protobuf.duration.Duration
 import io.grpc.Status
-import kalix.javasdk.impl.EntityExceptions.EntityException
-import kalix.javasdk.impl.EntityExceptions.ProtocolException
-import kalix.javasdk.impl.EntityExceptions.failureMessageForLog
+import kalix.javasdk.impl.EntityExceptions.{ failureMessageForLog, failureResponse, EntityException, ProtocolException }
 import kalix.javasdk.impl.timer.TimerSchedulerImpl
 import kalix.javasdk.impl.workflowentity.WorkflowEntityEffectImpl.DeleteState
 import kalix.javasdk.impl.workflowentity.WorkflowEntityEffectImpl.End
@@ -133,7 +130,7 @@ final class WorkflowEntityImpl(system: ActorSystem, val services: Map[String, Wo
       .recover { case error =>
         ErrorHandling.withCorrelationId { correlationId =>
           log.error(failureMessageForLog(error), error)
-          WorkflowStreamOut(OutFailure(component.Failure(description = s"Unexpected error [$correlationId]")))
+          WorkflowStreamOut(OutFailure(failureResponse(correlationId, error)))
         }
       }
       .async

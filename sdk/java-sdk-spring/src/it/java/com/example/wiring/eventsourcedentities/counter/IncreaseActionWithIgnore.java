@@ -40,11 +40,11 @@ public class IncreaseActionWithIgnore extends Action {
 
     public Effect<Integer> oneShallPass(CounterEvent.ValueIncreased event) {
         String entityId = this.actionContext().metadata().asCloudEvent().subject().get();
-        if (event.value == 1234) {
+        if (event.value() == 1234) {
             CompletionStage<Integer> res =
                     kalixClient.post("/counter/" + entityId + "/increase/1", Integer.class).execute();
             return effects().asyncReply(res);
         }
-        return effects().reply(event.value);
+        return effects().reply(event.value());
     }
 }

@@ -18,13 +18,11 @@ package kalix.javasdk.impl.valueentity
 
 import scala.concurrent.ExecutionContext
 import scala.util.control.NonFatal
-
 import akka.NotUsed
 import akka.actor.ActorSystem
 import akka.stream.scaladsl.Flow
 import akka.stream.scaladsl.Source
 import kalix.javasdk.KalixRunner.Configuration
-import kalix.protocol.component.Failure
 import org.slf4j.LoggerFactory
 
 // FIXME these don't seem to be 'public API', more internals?
@@ -115,7 +113,7 @@ final class ValueEntitiesImpl(
       .recover { case error =>
         ErrorHandling.withCorrelationId { correlationId =>
           log.error(failureMessageForLog(error), error)
-          ValueEntityStreamOut(OutFailure(Failure(description = s"Unexpected error [$correlationId]")))
+          ValueEntityStreamOut(OutFailure(failureResponse(correlationId, error)))
         }
       }
       .async
@@ -209,7 +207,7 @@ final class ValueEntitiesImpl(
       .recover { case error =>
         ErrorHandling.withCorrelationId { correlationId =>
           LoggerFactory.getLogger(router.entityClass).error(failureMessageForLog(error), error)
-          ValueEntityStreamOut(OutFailure(Failure(description = s"Unexpected error [$correlationId]")))
+          ValueEntityStreamOut(OutFailure(failureResponse(correlationId, error)))
         }
       }
   }

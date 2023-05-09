@@ -137,7 +137,7 @@ final class EventSourcedEntitiesImpl(
         // only "unexpected" exceptions should end up here
         ErrorHandling.withCorrelationId { correlationId =>
           log.error(failureMessageForLog(error), error)
-          EventSourcedStreamOut(OutFailure(Failure(description = s"Unexpected failure [$correlationId]")))
+          EventSourcedStreamOut(OutFailure(failureResponse(correlationId, error)))
         }
       }
 
@@ -251,7 +251,7 @@ final class EventSourcedEntitiesImpl(
         // only "unexpected" exceptions should end up here
         ErrorHandling.withCorrelationId { correlationId =>
           LoggerFactory.getLogger(router.entityClass).error(failureMessageForLog(error), error)
-          EventSourcedStreamOut(OutFailure(Failure(description = s"Unexpected failure [$correlationId]")))
+          EventSourcedStreamOut(OutFailure(failureResponse(correlationId, error)))
         }
       }
       .async

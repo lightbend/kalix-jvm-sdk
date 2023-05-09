@@ -18,23 +18,21 @@ package kalix.javasdk.impl.replicatedentity
 
 import akka.NotUsed
 import akka.actor.ActorSystem
-import akka.stream.scaladsl.{ Flow, Source }
+import akka.stream.scaladsl.{Flow, Source}
 import kalix.javasdk.impl._
-import kalix.javasdk.impl.effect.{ EffectSupport, ErrorReplyImpl, MessageReplyImpl }
+import kalix.javasdk.impl.effect.{EffectSupport, ErrorReplyImpl, MessageReplyImpl}
 import kalix.javasdk.impl.replicatedentity.ReplicatedEntityEffectImpl.DeleteEntity
 import kalix.javasdk.impl.replicatedentity.ReplicatedEntityRouter.CommandResult
 import kalix.javasdk.replicatedentity._
-import kalix.javasdk.{ Context, Metadata }
+import kalix.javasdk.{Context, Metadata}
 import kalix.protocol.entity.Command
-import kalix.protocol.replicated_entity.ReplicatedEntityStreamIn.{ Message => In }
-import kalix.protocol.replicated_entity.ReplicatedEntityStreamOut.{ Message => Out }
+import kalix.protocol.replicated_entity.ReplicatedEntityStreamIn.{enumCompanionForFieldNumber, Message => In}
+import kalix.protocol.replicated_entity.ReplicatedEntityStreamOut.{Message => Out}
 import kalix.protocol.replicated_entity._
-import com.google.protobuf.any.{ Any => ScalaPbAny }
 import com.google.protobuf.Descriptors
 
 import scala.util.control.NonFatal
 import kalix.javasdk.impl.ReplicatedEntityFactory
-import kalix.protocol.component.Failure
 import org.slf4j.LoggerFactory
 
 final class ReplicatedEntityService(
@@ -97,7 +95,7 @@ final class ReplicatedEntitiesImpl(system: ActorSystem, services: Map[String, Re
       .recover { case error =>
         ErrorHandling.withCorrelationId { correlationId =>
           log.error(failureMessageForLog(error), error)
-          ReplicatedEntityStreamOut(Out.Failure(Failure(description = s"Unexpected error [$correlationId]")))
+          ReplicatedEntityStreamOut(Out.Failure(failureResponse(correlationId, error)))
         }
       }
       .async
@@ -133,7 +131,7 @@ final class ReplicatedEntitiesImpl(system: ActorSystem, services: Map[String, Re
       .recover { case error =>
         ErrorHandling.withCorrelationId { correlationId =>
           LoggerFactory.getLogger(runner.router.entityClass).error(failureMessageForLog(error), error)
-          ReplicatedEntityStreamOut(Out.Failure(Failure(description = s"Unexpected error [$correlationId]")))
+          ReplicatedEntityStreamOut(Out.Failure(failureResponse(correlationId, error)))
         }
       }
   }

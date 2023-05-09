@@ -44,6 +44,16 @@ trait ComponentDescriptorSuite extends Matchers {
     field.getJavaType shouldBe expectedType
   }
 
+  def assertFieldIsProto3Optional(
+      method: CommandHandler,
+      fieldName: String): Assertion = {
+    val field: Descriptors.FieldDescriptor = findField(method, fieldName)
+    field.hasOptionalKeyword shouldBe true
+    val oneofDesc = field.getContainingOneof
+    oneofDesc.getName shouldBe "_" + fieldName
+    method.requestMessageDescriptor.getOneofs should contain(oneofDesc)
+  }
+
   def assertRequestFieldRequested(method: CommandHandler, fieldName: String, isRequired: Boolean): Assertion = {
     val field = findField(method, fieldName)
     field.isRequired shouldBe isRequired
