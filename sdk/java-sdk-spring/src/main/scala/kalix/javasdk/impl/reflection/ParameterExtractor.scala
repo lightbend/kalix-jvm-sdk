@@ -17,13 +17,13 @@
 package kalix.javasdk.impl.reflection
 
 import scala.jdk.OptionConverters._
-
 import com.google.protobuf.ByteString
 import com.google.protobuf.Descriptors
 import com.google.protobuf.DynamicMessage
 import com.google.protobuf.{ Any => JavaPbAny }
 import kalix.javasdk.JsonSupport
 import kalix.javasdk.Metadata
+import kalix.javasdk.impl.ErrorHandling.BadRequestException
 
 /**
  * Extracts method parameters from an invocation context for the purpose of passing them to a reflective invocation call
@@ -73,10 +73,14 @@ object ParameterExtractors {
     }
   }
 
-  class FieldExtractor[T](field: Descriptors.FieldDescriptor, deserialize: AnyRef => T)
+  class FieldExtractor[T](field: Descriptors.FieldDescriptor, required: Boolean, deserialize: AnyRef => T)
       extends ParameterExtractor[DynamicMessageContext, T] {
     override def extract(context: DynamicMessageContext): T = {
-      deserialize(context.message.getField(field))
+      (required, field.isRepeated || context.message.hasField(field)) match {
+        case (_, true)      => deserialize(context.message.getField(field))
+        case (true, false)  => throw BadRequestException(s"Message missing required field: ${field.getName}")
+        case (false, false) => null.asInstanceOf[T] //could be mapped to optional later on
+      }
     }
   }
 

@@ -26,9 +26,11 @@ import akka.stream.scaladsl.Sink
 import akka.stream.scaladsl.Source
 import com.google.protobuf.Descriptors
 import com.google.protobuf.any.Any
+import io.grpc.Status
 import kalix.javasdk._
 import kalix.javasdk.action._
 import kalix.javasdk.impl.ActionFactory
+import kalix.javasdk.impl.ErrorHandling.BadRequestException
 import kalix.javasdk.impl._
 import kalix.javasdk.impl.effect.EffectSupport.asProtocol
 import kalix.protocol.action.ActionCommand
@@ -83,10 +85,26 @@ final class ActionService(
 private[javasdk] object ActionsImpl {
   private[action] val log = LoggerFactory.getLogger(classOf[ActionsImpl])
 
-  private def handleUnexpectedException(service: ActionService, command: ActionCommand, ex: Throwable): ActionResponse =
+  private def handleUnexpectedException(
+      service: ActionService,
+      command: ActionCommand,
+      ex: Throwable): ActionResponse = {
+    ex match {
+      case badReqEx: BadRequestException => handleBadRequest(service, command, badReqEx)
+      case _ =>
+        ErrorHandling.withCorrelationId { correlationId =>
+          service.log.error(s"Failure during handling of command ${command.serviceName}.${command.name}", ex)
+          protocolFailure(correlationId)
+        }
+    }
+  }
+
+  private def handleBadRequest(service: ActionService, command: ActionCommand, ex: Throwable): ActionResponse =
     ErrorHandling.withCorrelationId { correlationId =>
-      service.log.error(s"Failure during handling of command ${command.serviceName}.${command.name}", ex)
-      protocolFailure(correlationId)
+      service.log.error(s"Bad request when handling of command ${command.serviceName}.${command.name}", ex)
+      ActionResponse(
+        ActionResponse.Response.Failure(
+          Failure(0, s"Bad request [$correlationId]", Status.Code.INVALID_ARGUMENT.value())))
     }
 
   private def protocolFailure(correlationId: String): ActionResponse = {

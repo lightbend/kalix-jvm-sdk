@@ -24,6 +24,7 @@ import com.example.wiring.valueentities.customer.CustomerEntity;
 import com.example.wiring.valueentities.user.User;
 import com.example.wiring.valueentities.user.UserSideEffect;
 import com.example.wiring.views.CustomerByCreationTime;
+import com.example.wiring.views.UserCounter;
 import com.example.wiring.views.UserCounters;
 import com.example.wiring.views.UserWithVersion;
 import kalix.spring.KalixConfigurationTest;
@@ -31,7 +32,6 @@ import org.hamcrest.core.IsEqual;
 import org.hamcrest.core.IsNull;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -40,6 +40,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Mono;
 
 import java.time.Duration;
@@ -49,6 +50,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static java.time.temporal.ChronoUnit.SECONDS;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 
 @SpringBootTest(classes = Main.class)
@@ -62,6 +64,55 @@ public class SpringSdkIntegrationTest {
   private Duration timeout = Duration.of(10, SECONDS);
 
   @Test
+  public void failRequestWithRequiredQueryParam() {
+
+    ResponseEntity<Message> response =
+      webClient
+        .get()
+        .uri("/optional-params-action")
+        .retrieve()
+        .toEntity(Message.class)
+        .onErrorResume(WebClientResponseException.class, error -> {
+          if (error.getStatusCode().is4xxClientError()) {
+            return Mono.just(ResponseEntity.status(error.getStatusCode()).body(null));
+          } else {
+            return Mono.error(error);
+          }
+        })
+        .block(timeout);
+
+    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+  }
+
+  @Test
+  public void verifyRequestWithOptionalQueryParams() {
+
+    Message response =
+      webClient
+        .get()
+        .uri("/optional-params-action?longValue=1")
+        .retrieve()
+        .bodyToMono(Message.class)
+        .block(timeout);
+
+    assertThat(response.text).isEqualTo("1nullnull");
+  }
+
+  @Test
+  public void verifyRequestWithProtoDefaultValues() {
+
+    Message response =
+      webClient
+        .get()
+        .uri("/action/0/0/0/0?shortValue=0&byteValue=0&charValue=97&booleanValue=false")
+        .retrieve()
+        .bodyToMono(Message.class)
+        .block(timeout);
+
+    assertThat(response.text).isEqualTo("0.00.00000afalse");
+  }
+
+  @Test
   public void verifyJavaPrimitivesAsParams() {
 
     Message response =
@@ -72,17 +123,17 @@ public class SpringSdkIntegrationTest {
             .bodyToMono(Message.class)
             .block(timeout);
 
-    Assertions.assertEquals("1.02.03456atrue", response.text);
+    assertThat(response.text).isEqualTo("1.02.03456atrue");
 
     Message responseCollections =
         webClient
             .get()
-            .uri("/action_collections?ints=1&ints=2")
+            .uri("/action_collections?ints=1&ints=0&ints=2")
             .retrieve()
             .bodyToMono(Message.class)
             .block(timeout);
 
-    Assertions.assertEquals("1,2", responseCollections.text);
+    assertThat(responseCollections.text).isEqualTo("1,0,2");
   }
 
   @Test
@@ -96,7 +147,7 @@ public class SpringSdkIntegrationTest {
             .bodyToMono(Message.class)
             .block(timeout);
 
-    Assertions.assertEquals("Parrot says: 'abc'", response.text);
+    assertThat(response.text).isEqualTo("Parrot says: 'abc'");
   }
 
   @Test
@@ -113,16 +164,24 @@ public class SpringSdkIntegrationTest {
             .bodyToMono(Message.class)
             .block(timeout);
 
-    Assertions.assertEquals("Parrot says: 'queryParam'", response.text);
+    assertThat(response.text).isEqualTo("Parrot says: 'queryParam'");
 
     var failedReq =
         webClient
             .get()
             .uri("/echo/message")
-            .exchangeToMono(clientResponse -> clientResponse.bodyToMono(String.class))
+          .retrieve()
+          .toEntity(String.class)
+          .onErrorResume(WebClientResponseException.class, error -> {
+            if (error.getStatusCode().is4xxClientError()) {
+              return Mono.just(ResponseEntity.status(error.getStatusCode()).body(error.getResponseBodyAsString()));
+            } else {
+              return Mono.error(error);
+            }
+          })
             .block(timeout);
-    Assertions.assertTrue(failedReq.contains("Message missing required fields: msg"));
-
+    assertThat(failedReq.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+    assertThat(failedReq.getBody()).contains("Bad request");
   }
 
   @Test
@@ -137,7 +196,7 @@ public class SpringSdkIntegrationTest {
             .toStream()
             .collect(Collectors.toList());
 
-    Assertions.assertEquals(3, messageList.size());
+    assertThat(messageList).hasSize(3);
   }
 
   @Test
@@ -218,7 +277,7 @@ public class SpringSdkIntegrationTest {
             .bodyToMono(Integer.class)
             .block(timeout);
 
-    Assertions.assertEquals(1 * 2 + 1234, lastKnownValue);
+    assertThat(lastKnownValue).isEqualTo(1 * 2 + 1234);
 
     //Once the action IncreaseActionWithIgnore processes event 1234 it adds 1 more to the counter
     await()
@@ -257,7 +316,7 @@ public class SpringSdkIntegrationTest {
             .bodyToMono(Integer.class)
             .block(timeout);
 
-    Assertions.assertEquals(1 * 2 + 1, counterGet);
+    assertThat(counterGet).isEqualTo(1 * 2 + 1);
 
     await()
             .ignoreExceptions()
@@ -284,7 +343,7 @@ public class SpringSdkIntegrationTest {
             .toEntity(String.class)
             .block(timeout);
 
-    Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 
     // the view is eventually updated
     await()
@@ -312,7 +371,7 @@ public class SpringSdkIntegrationTest {
             .toEntity(Integer.class)
             .block(timeout);
 
-    Assertions.assertEquals(HttpStatus.OK, response1.getStatusCode());
+    assertThat(response1.getStatusCode()).isEqualTo(HttpStatus.OK);
     ResponseEntity<Integer> response2 =
         webClient
             .post()
@@ -321,7 +380,7 @@ public class SpringSdkIntegrationTest {
             .toEntity(Integer.class)
             .block(timeout);
 
-    Assertions.assertEquals(HttpStatus.OK, response2.getStatusCode());
+    assertThat(response2.getStatusCode()).isEqualTo(HttpStatus.OK);
 
     await()
         .ignoreExceptions()
@@ -489,22 +548,17 @@ public class SpringSdkIntegrationTest {
         .until(() -> getUserCounters(bob.id).counters.size(), new IsEqual<>(2));
 
     UserCounters aliceCounters = getUserCounters(alice.id);
-    Assertions.assertEquals(alice.id, aliceCounters.id);
-    Assertions.assertEquals(alice.email, aliceCounters.email);
-    Assertions.assertEquals(alice.name, aliceCounters.name);
-    Assertions.assertEquals("c1", aliceCounters.counters.get(0).id);
-    Assertions.assertEquals(11, aliceCounters.counters.get(0).value);
-    Assertions.assertEquals("c3", aliceCounters.counters.get(1).id);
-    Assertions.assertEquals(33, aliceCounters.counters.get(1).value);
+    assertThat(aliceCounters.id).isEqualTo(alice.id);
+    assertThat(aliceCounters.email).isEqualTo(alice.email);
+    assertThat(aliceCounters.name).isEqualTo(alice.name);
+    assertThat(aliceCounters.counters).containsOnly(new UserCounter("c1", 11), new UserCounter("c3", 33));
 
     UserCounters bobCounters = getUserCounters(bob.id);
-    Assertions.assertEquals(bob.id, bobCounters.id);
-    Assertions.assertEquals(bob.email, bobCounters.email);
-    Assertions.assertEquals(bob.name, bobCounters.name);
-    Assertions.assertEquals("c2", bobCounters.counters.get(0).id);
-    Assertions.assertEquals(22, bobCounters.counters.get(0).value);
-    Assertions.assertEquals("c4", bobCounters.counters.get(1).id);
-    Assertions.assertEquals(44, bobCounters.counters.get(1).value);
+
+    assertThat(bobCounters.id).isEqualTo(bob.id);
+    assertThat(bobCounters.email).isEqualTo(bob.email);
+    assertThat(bobCounters.name).isEqualTo(bob.name);
+    assertThat(bobCounters.counters).containsOnly(new UserCounter("c2", 22), new UserCounter("c4", 44));
   }
 
   @Test
@@ -521,7 +575,7 @@ public class SpringSdkIntegrationTest {
         .map(m -> m.text)
         .block(timeout);
 
-    Assertions.assertEquals(actionHeaderValue, actionResponse);
+    assertThat(actionResponse).isEqualTo(actionHeaderValue);
 
     String veResponse = webClient.put().uri("/forward-headers-ve/1")
         .header(ForwardHeadersAction.SOME_HEADER, veHeaderValue)
@@ -530,7 +584,7 @@ public class SpringSdkIntegrationTest {
         .map(m -> m.text)
         .block(timeout);
 
-    Assertions.assertEquals(veHeaderValue, veResponse);
+    assertThat(veResponse).isEqualTo(veHeaderValue);
 
     String esResponse = webClient.put().uri("/forward-headers-es/1")
         .header(ForwardHeadersAction.SOME_HEADER, esHeaderValue)
@@ -539,7 +593,7 @@ public class SpringSdkIntegrationTest {
         .map(m -> m.text)
         .block(timeout);
 
-    Assertions.assertEquals(esHeaderValue, esResponse);
+    assertThat(esResponse).isEqualTo(esHeaderValue);
   }
 
   @Test
@@ -552,7 +606,7 @@ public class SpringSdkIntegrationTest {
         .map(m -> m.text)
         .block(timeout);
 
-    Assertions.assertEquals(value, actionResponse);
+    assertThat(actionResponse).isEqualTo(value);
   }
 
   @Test
@@ -604,7 +658,7 @@ public class SpringSdkIntegrationTest {
             .retrieve()
             .bodyToMono(String.class)
             .block(timeout);
-    Assertions.assertEquals("\"Ok\"", userUpdate);
+    assertThat(userUpdate).isEqualTo("\"Ok\"");
   }
 
   private void createUser(TestUser user) {
@@ -615,7 +669,7 @@ public class SpringSdkIntegrationTest {
             .retrieve()
             .bodyToMono(String.class)
             .block(timeout);
-    Assertions.assertEquals("\"Ok\"", userCreation);
+    assertThat(userCreation).isEqualTo("\"Ok\"");
   }
 
 
@@ -628,7 +682,7 @@ public class SpringSdkIntegrationTest {
         .retrieve()
         .bodyToMono(String.class)
         .block(timeout);
-    Assertions.assertEquals("\"Ok\"", created);
+    assertThat(created).isEqualTo("\"Ok\"");
   }
 
 
@@ -653,7 +707,7 @@ public class SpringSdkIntegrationTest {
             .retrieve()
             .bodyToMono(String.class)
             .block(timeout);
-    Assertions.assertEquals("\"Ok from delete\"", deleteUser);
+    assertThat(deleteUser).isEqualTo("\"Ok from delete\"");
   }
 
   private void increaseCounter(String id, int value) {

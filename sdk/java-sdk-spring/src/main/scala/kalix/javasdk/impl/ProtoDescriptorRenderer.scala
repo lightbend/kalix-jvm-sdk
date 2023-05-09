@@ -63,6 +63,8 @@ object ProtoDescriptorRenderer {
           builder ++= "repeated "
         else if (field.getLabel == FieldDescriptorProto.Label.LABEL_REQUIRED)
           builder ++= "required "
+        else if (field.getProto3Optional)
+          builder ++= "optional "
         if (field.hasTypeName)
           builder ++= field.getTypeName
         else

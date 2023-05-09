@@ -26,6 +26,15 @@ import java.util.stream.Collectors;
 
 public class ActionWithPrimitives extends Action {
 
+  @GetMapping("/optional-params-action")
+  public Effect<Message> stringMessageWithOptionalParams(@RequestParam Long longValue,
+                                                         @RequestParam(required = false) Integer intValue,
+                                                         @RequestParam(required = false) String stringValue) {
+    String response = String.valueOf(longValue) + String.valueOf(intValue) + stringValue;
+
+    return effects().reply(new Message(response));
+  }
+
   @GetMapping("/action/{doubleValue}/{floatValue}/{intValue}/{longValue}")
   public Effect<Message> stringMessage(@PathVariable double doubleValue,
                                        @PathVariable float floatValue,
@@ -36,13 +45,13 @@ public class ActionWithPrimitives extends Action {
                                        @RequestParam char charValue,
                                        @RequestParam boolean booleanValue) {
     String response = String.valueOf(doubleValue) +
-        floatValue +
-        intValue +
-        longValue +
-        shortValue +
-        byteValue +
-        charValue +
-        booleanValue;
+      floatValue +
+      intValue +
+      longValue +
+      shortValue +
+      byteValue +
+      charValue +
+      booleanValue;
 
     return effects().reply(new Message(response));
   }

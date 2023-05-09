@@ -20,6 +20,8 @@ import com.example.wiring.eventsourcedentities.counter.CounterEvent;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.util.Objects;
+
 public class UserCounter {
 
   public final String id;
@@ -37,5 +39,18 @@ public class UserCounter {
 
   public UserCounter onValueMultiplied(CounterEvent.ValueMultiplied event) {
     return new UserCounter(id, value * event.value);
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {return true;}
+    if (o == null || getClass() != o.getClass()) {return false;}
+    UserCounter that = (UserCounter) o;
+    return Objects.equals(id, that.id) && Objects.equals(value, that.value);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(id, value);
   }
 }
