@@ -3,8 +3,8 @@ import Dependencies.Kalix
 lazy val `kalix-jvm-sdk` = project
   .in(file("."))
   .aggregate(
-    devTools_2_13,
-    devTools_2_12,
+    devTools,
+    devToolsInternal,
     coreSdk,
     javaSdkProtobuf,
     javaSdkProtobufTestKit,
@@ -349,23 +349,24 @@ def githubUrl(v: String): String = {
   "https://github.com/lightbend/kalix-jvm-sdk/tree/" + branch
 }
 
-lazy val devTools_2_13 = devToolsCommon(
+lazy val devTools = devToolsCommon(
   project
-    .in(file("devtools-for-2.13"))
-    .settings(
-      scalaVersion := Dependencies.ScalaVersion,
-      Compile / sourceDirectory := baseDirectory.value / ".." / "devTools" / "src" / "main",
-      Test / sourceDirectory := baseDirectory.value / ".." / "devTools" / "src" / "test"))
+    .in(file("devtools"))
+    .settings(name := "kalix-devtools", scalaVersion := Dependencies.ScalaVersion))
 
 /*
   This variant devTools compiles with Scala 2.12, but uses the same source files as the 2.13 version (above).
   This is needed because the devTools artifact is also used by the sbt and mvn plugins and therefore needs a 2.12 version.
  */
-lazy val devTools_2_12 =
+lazy val devToolsInternal =
   devToolsCommon(
     project
-      .in(file("devtools"))
-      .settings(scalaVersion := Dependencies.ScalaVersionForTooling))
+      .in(file("devtools-internal"))
+      .settings(
+        name := "kalix-devtools-internal",
+        scalaVersion := Dependencies.ScalaVersionForTooling,
+        Compile / sourceDirectory := baseDirectory.value / ".." / "devTools" / "src" / "main",
+        Test / sourceDirectory := baseDirectory.value / ".." / "devTools" / "src" / "test"))
 
 /*
  Common configuration to be applied to devTools modules (both 2.12 and 2.13)
@@ -378,7 +379,6 @@ def devToolsCommon(project: Project): Project =
     .dependsOn(coreSdk)
     .settings(common)
     .settings(
-      name := "kalix-devtools",
       Compile / javacOptions ++= Seq("--release", "11"),
       Compile / scalacOptions ++= Seq("-release", "11"),
       buildInfoKeys := Seq[BuildInfoKey](
@@ -573,6 +573,6 @@ lazy val sbtPlugin = Project(id = "sbt-kalix", base = file("sbt-plugin"))
       Seq("-Xmx1024M", "-Dplugin.version=" + version.value)
     },
     scriptedBufferLog := false)
-  .dependsOn(codegenScala, devTools_2_12)
+  .dependsOn(codegenScala, devToolsInternal)
 
 addCommandAlias("formatAll", "scalafmtAll; javafmtAll")
