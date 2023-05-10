@@ -117,6 +117,29 @@ class DockerComposeUtilsSpec extends AnyWordSpec with Matchers {
         "-Dkalix.dev-mode.service-port-mappings.bar=9002")
     }
 
+    "service mappings is docker-compose file are translated to mappings without host" in {
+      val defaultFile =
+        """
+            |version: "3"
+            |services:
+            |  kalix-proxy:
+            |    environment:
+            |      JAVA_TOOL_OPTIONS: >
+            |        -Dkalix.dev-mode.service-port-mappings.foo=9001
+            |        -Dkalix.dev-mode.service-port-mappings.bar=host.docker.internal:9002
+            |        -Dkalix.dev-mode.service-port-mappings.baz=somehost:9003
+            |        -Dkalix.dev-mode.service-port-mappings.qux=localhost:9004
+            |""".stripMargin
+
+      val dockerComposeFile = createTmpFile(defaultFile)
+      val dockerComposeUtils = DockerComposeUtils(dockerComposeFile)
+      dockerComposeUtils.localServicePortMappings shouldBe Seq(
+        "-Dkalix.dev-mode.service-port-mappings.foo=9001",
+        "-Dkalix.dev-mode.service-port-mappings.bar=9002",
+        "-Dkalix.dev-mode.service-port-mappings.baz=9003",
+        "-Dkalix.dev-mode.service-port-mappings.qux=9004")
+    }
+
     "not fail if docker-compose file is absent" in {
       val dockerComposeUtils = DockerComposeUtils(UUID.randomUUID().toString)
       // in which case it should default to 8080

@@ -34,7 +34,7 @@ case class DockerComposeUtils(file: String, envVar: Map[String, String]) {
 
   @volatile private var started = false
 
-  private def execIfFileExists[T](block: => T): T = {
+  private def execIfFileExists[T](block: => T): T =
     if (Files.exists(Paths.get(file)))
       block
     else {
@@ -46,11 +46,10 @@ case class DockerComposeUtils(file: String, envVar: Map[String, String]) {
 
       throw new IllegalArgumentException(s"File '$file' does not exist. $extraMsg")
     }
-  }
 
   // read the file once and cache the lines
   // we will need to iterate over it more than once
-  private lazy val lines: Seq[String] = {
+  private lazy val lines: Seq[String] =
     if (Files.exists(Paths.get(file))) {
       val src = Source.fromFile(file)
       try {
@@ -61,9 +60,8 @@ case class DockerComposeUtils(file: String, envVar: Map[String, String]) {
     } else {
       Seq.empty
     }
-  }
 
-  def start(): Unit = {
+  def start(): Unit =
     execIfFileExists {
       val proc = Process(s"docker-compose -f $file up", None).run()
       started = proc.isAlive()
@@ -74,20 +72,18 @@ case class DockerComposeUtils(file: String, envVar: Map[String, String]) {
         }
       }
     }
-  }
 
   def stop(): Unit =
     if (started) {
       Process(s"docker-compose -f $file stop", None).run()
     }
 
-  def userFunctionPort: Int = {
+  def userFunctionPort: Int =
     envVar
       .get("USER_FUNCTION_PORT")
       .map(_.toInt)
       .orElse(userFunctionPortFromFile)
       .getOrElse(8080)
-  }
 
   private def userFunctionPortFromFile: Option[Int] =
     lines.collectFirst { case UserFunctionPortExtractor(port) => port }
@@ -98,6 +94,32 @@ case class DockerComposeUtils(file: String, envVar: Map[String, String]) {
       case _                                      => Seq.empty
     }
 
+  /**
+   * Convenient Java API to servicePortMappings.
+   */
   def getServicePortMappings: java.util.List[String] =
     servicePortMappings.asJava
+
+  /**
+   * This method reads the service port mappings from the docker-compose file and translate them to the same properties,
+   * but without the host part.
+   *
+   * This is used to configure a local service. Local services are expected to run as a JVM process (not dockerized) and
+   * therefore they reach the proxy through localhost, not through host.docker.internal.
+   */
+  def localServicePortMappings: Seq[String] =
+    servicePortMappings.map { mapping =>
+      mapping.split("=") match {
+        case Array(service, hostAndPort) =>
+          val onlyPort = hostAndPort.split(":").last // we only need the port number
+          s"$service=$onlyPort"
+        case _ => throw new IllegalArgumentException(s"Invalid port mapping: $mapping")
+      }
+    }
+
+  /**
+   * Convenient Java API to localServicePortMappings.
+   */
+  def getLocalServicePortMappings: java.util.List[String] =
+    localServicePortMappings.asJava
 }

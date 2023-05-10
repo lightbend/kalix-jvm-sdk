@@ -74,7 +74,7 @@ object KalixPlugin extends AutoPlugin {
         "io.kalix" %% "kalix-scala-sdk-protobuf-testkit" % KalixSdkVersion % Test),
       logConfig := "logback-dev-mode.xml",
       run / javaOptions ++=
-        dockerComposeUtils.value.servicePortMappings ++
+        dockerComposeUtils.value.localServicePortMappings ++
         Seq(
           "-Dkalix.user-function-interface=0.0.0.0",
           s"-Dlogback.configurationFile=${logConfig.value}",

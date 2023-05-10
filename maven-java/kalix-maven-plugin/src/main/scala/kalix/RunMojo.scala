@@ -109,7 +109,7 @@ class RunMojo extends RunParameters with DockerParameters {
       mainClass,
       logConfig,
       dockerComposeUtils.userFunctionPort,
-      dockerComposeUtils.servicePortMappings,
+      dockerComposeUtils.localServicePortMappings,
       getLog,
       mavenProject,
       mavenSession,

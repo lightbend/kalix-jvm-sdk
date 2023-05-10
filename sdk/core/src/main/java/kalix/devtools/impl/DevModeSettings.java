@@ -25,7 +25,7 @@ import java.util.Map;
 
 public class DevModeSettings {
 
-  private final static String portMappingsKeyPrefix = "kalix.dev-mode.service-port-mappings";
+  public final static String portMappingsKeyPrefix = "kalix.dev-mode.service-port-mappings";
 
   public static String portMappingsKeyFor(String serviceName, String mapping) {
     return "-D" + portMappingsKeyPrefix + "." + serviceName + "=" + mapping;

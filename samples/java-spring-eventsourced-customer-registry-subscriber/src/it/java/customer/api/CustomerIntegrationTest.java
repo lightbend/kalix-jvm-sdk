@@ -28,6 +28,19 @@ import java.util.concurrent.TimeUnit;
 import static java.time.temporal.ChronoUnit.SECONDS;
 import static org.awaitility.Awaitility.await;
 
+/**
+ * This test exercises the integtration between the current service (customer-registry-subscriber) and the customer-registry service.
+ * 
+ * The customer registry service is started as a docker container as well as it own kalix proxy. The current service is as a local JVM process (not dockerized),
+ * but its own kalix proxy starts as a docker container. The `docker-compose-integration.yml` file is used to start all these services.
+ * 
+ * The subscriber service will first create a customer on customer-registry service. The customer will be streamed back to the subscriber service and update its view.
+ * 
+ * This test will exercise the following:
+ * - servcice under test can read settings from docker-compose file and correctly configured itself. 
+ * - resolution of service port mappings from docker-compose file allows for cross service calls (eg: create customer from subscriber service)
+ * - resolution of service port mappings passed to kalix-proxy allows for service to service streaming (eg: customer view is updated in subscriber service)
+ */
 @SpringBootTest(classes = Main.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class CustomerIntegrationTest {
@@ -45,9 +58,10 @@ public class CustomerIntegrationTest {
     confMap.put("kalix.system.akka.coordinated-shutdown.exit-jvm", "off");
     // dev-mode should be false when running integration tests
     confMap.put("kalix.dev-mode.enabled", false);
+    confMap.put("kalix.user-function-interface", "0.0.0.0");
 
     // read service-port-mappings and pass to UF
-    dockerComposeUtils.getServicePortMappings().forEach(entry -> {
+    dockerComposeUtils.getLocalServicePortMappings().forEach(entry -> {
         var split = entry.replace("-D", "").split("=");
         confMap.put(split[0], split[1]);
       }
@@ -70,9 +84,9 @@ public class CustomerIntegrationTest {
     dockerComposeUtils.stop();
   }
 
-  private HttpStatusCode assertSourceServiceIsUp(WebClient sourceServiceWebClient) {
+  private HttpStatusCode assertSourceServiceIsUp(WebClient webClient) {
     try {
-      return sourceServiceWebClient.get()
+      return webClient.get()
         .retrieve()
         .onStatus(HttpStatusCode::is4xxClientError, clientResponse ->
           Mono.empty()
@@ -86,17 +100,31 @@ public class CustomerIntegrationTest {
     }
   }
 
+  /* create the client but only return it after verifying that service is reachable */
   private WebClient createClient(String url) {
-    return WebClient
-      .builder()
-      .baseUrl(url)
-      .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-      .codecs(configurer ->
-        configurer.defaultCodecs().jackson2JsonEncoder(
-          new Jackson2JsonEncoder(JsonSupport.getObjectMapper(), MediaType.APPLICATION_JSON)
+
+    var webClient =
+      WebClient
+        .builder()
+        .baseUrl(url)
+        .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+        .codecs(configurer ->
+          configurer.defaultCodecs().jackson2JsonEncoder(
+            new Jackson2JsonEncoder(JsonSupport.getObjectMapper(), MediaType.APPLICATION_JSON)
+          )
         )
-      )
-      .build();
+        .build();
+
+    // wait until customer service is up
+    await()
+      .ignoreExceptions()
+      .pollInterval(5, TimeUnit.SECONDS)
+      .atMost(5, TimeUnit.MINUTES)
+      .until(() -> assertSourceServiceIsUp(webClient),
+        new IsEqual(HttpStatus.NOT_FOUND)  // NOT_FOUND is a sign that the customer registry service is there
+      );
+
+    return webClient;
   }
 
 
@@ -106,20 +134,10 @@ public class CustomerIntegrationTest {
   @Test
   public void create() throws InterruptedException {
 
-    WebClient customerRegistryService = createClient("http://host.docker.internal:9000");
+    WebClient customerRegistryService = createClient("http://localhost:9000");
+    WebClient localWebClient = createClient("http://localhost:9001");
 
-    // wait until customer service is up
-    await()
-      .ignoreExceptions()
-      .pollInterval(5, TimeUnit.SECONDS)
-      .atMost(5, TimeUnit.MINUTES)
-      .until(() -> assertSourceServiceIsUp(customerRegistryService),
-        new IsEqual(HttpStatus.NOT_FOUND)  // NOT_FOUND is a sign that the source service is there
-      );
-
-
-    WebClient localWebClient = createClient("http://host.docker.internal:9001");
-
+    // start the real test now  
     String id = UUID.randomUUID().toString();
     Customer customer = new Customer("Johanna", "foo@example.com", "Johanna");
 

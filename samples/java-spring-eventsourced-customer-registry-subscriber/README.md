@@ -18,14 +18,13 @@ mvn compile
 
 First start the `java-spring-eventsourced-customer-registry` service and proxy. It will run with the default service and proxy ports (`8080` and `9000`).
 
-
 To start the application locally, the `kalix-maven-plugin` is used. Use the following command:
 
 ```shell
 mvn kalix:runAll
 ```
 
-### Create a customer 
+### Create a customer
 
 ```shell
 curl localhost:9001/customer/one/create \
@@ -34,9 +33,7 @@ curl localhost:9001/customer/one/create \
   --data '{"email":"test@example.com","name":"Testsson","address":{"street":"Teststreet 25","city":"Testcity"}}'
 ```
 
-This call is made on the subscriber service and will be forwarded to the `java-spring-eventsourced-customer-registry`
-service.
-
+This call is made on the subscriber service and will be forwarded to the `java-spring-eventsourced-customer-registry` service.
 
 ### Run a view query from this project
 
@@ -46,13 +43,13 @@ curl localhost:9001/customers/by_name/Testsson
 
 The subscriber service will receive updates from customer-registry via service-to-service stream and update the view.
 
-### Change name 
+### Change name
 
 ```shell
 curl localhost:9000/customer/one/changeName/Jan%20Banan -XPOST
 ```
 
-This call is performed on the customer-registry directly. 
+This call is performed on the customer-registry directly.
   
 ### Check the view again
 

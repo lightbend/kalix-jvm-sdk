@@ -31,6 +31,19 @@ import org.springframework.http.MediaType
 import org.springframework.http.codec.json.Jackson2JsonEncoder
 import org.springframework.web.reactive.function.client.WebClient
 
+/**
+ * Auto-configuration for Kalix TestKit.
+ *
+ * When in the classpath, it disables the default KalixConfiguration that would normally start the Kalix proxy.
+ *
+ * This configuration is also marked as `@Lazy` to avoid starting the Kalix proxy automatically. The KalixTestKit, and
+ * by consequence the Kalix Proxy, will only start if a test requires it.
+ *
+ * For example, a test extending [[kalix.spring.testkit.KalixIntegrationTestKitSupport]] will automatically trigger the
+ * initialization of the testkit, but a regular test will not. This allows for a more flexible setup in case we want
+ * bootstrap the services maually.
+ */
+@Lazy
 @AutoConfiguration
 class KalixConfigurationTest(applicationContext: ApplicationContext) extends KalixConfiguration(applicationContext) {
 
@@ -38,7 +51,6 @@ class KalixConfigurationTest(applicationContext: ApplicationContext) extends Kal
 
   /** WebClient pointing to the proxy. */
   @Bean
-  @Lazy
   def createWebClient(kalixTestKit: KalixTestKit): WebClient = WebClient.builder
     .baseUrl("http://localhost:" + kalixTestKit.getPort)
     .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
@@ -49,12 +61,10 @@ class KalixConfigurationTest(applicationContext: ApplicationContext) extends Kal
     .build
 
   @Bean
-  @Lazy
   def testkitSettings(@Autowired(required = false) settings: KalixTestKit.Settings): Option[KalixTestKit.Settings] =
     Option(settings)
 
   @Bean
-  @Lazy
   def kalixTestKit(
       kalixSpringApplication: KalixSpringApplication,
       config: Config,
