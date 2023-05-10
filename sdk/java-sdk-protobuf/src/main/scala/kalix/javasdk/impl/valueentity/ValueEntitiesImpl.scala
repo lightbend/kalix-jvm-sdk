@@ -22,7 +22,10 @@ import akka.NotUsed
 import akka.actor.ActorSystem
 import akka.stream.scaladsl.Flow
 import akka.stream.scaladsl.Source
+import io.grpc.Status
 import kalix.javasdk.KalixRunner.Configuration
+import kalix.javasdk.impl.ErrorHandling.BadRequestException
+import kalix.protocol.component.Failure
 import org.slf4j.LoggerFactory
 
 // FIXME these don't seem to be 'public API', more internals?
@@ -113,7 +116,7 @@ final class ValueEntitiesImpl(
       .recover { case error =>
         ErrorHandling.withCorrelationId { correlationId =>
           log.error(failureMessageForLog(error), error)
-          ValueEntityStreamOut(OutFailure(failureResponse(correlationId, error)))
+          ValueEntityStreamOut(OutFailure(Failure(description = s"Unexpected error [$correlationId]")))
         }
       }
       .async
@@ -158,6 +161,8 @@ final class ValueEntitiesImpl(
             try {
               router._internalHandleCommand(command.name, cmd, context)
             } catch {
+              case BadRequestException(msg) =>
+                CommandResult(new ValueEntityEffectImpl[Any].error(msg, Status.Code.INVALID_ARGUMENT))
               case e: EntityException => throw e
               case NonFatal(error) =>
                 throw EntityException(command, s"Unexpected failure: $error", Some(error))
@@ -207,7 +212,7 @@ final class ValueEntitiesImpl(
       .recover { case error =>
         ErrorHandling.withCorrelationId { correlationId =>
           LoggerFactory.getLogger(router.entityClass).error(failureMessageForLog(error), error)
-          ValueEntityStreamOut(OutFailure(failureResponse(correlationId, error)))
+          ValueEntityStreamOut(OutFailure(Failure(description = s"Unexpected error [$correlationId]")))
         }
       }
   }

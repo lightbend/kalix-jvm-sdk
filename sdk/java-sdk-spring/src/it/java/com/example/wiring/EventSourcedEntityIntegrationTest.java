@@ -150,8 +150,8 @@ public class EventSourcedEntityIntegrationTest {
       .onErrorResume(WebClientResponseException.class, error -> Mono.just(ResponseEntity.status(error.getStatusCode()).body(error.getResponseBodyAsString())))
       .block(timeout);
 
-    assertThat(result.getStatusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR); //TODO change it to BAD_REQUEST after proxy update
-    assertThat(result.getBody()).contains("Bad request");
+    assertThat(result.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+    assertThat(result.getBody()).contains("xyz");
   }
 
   private Integer increaseCounter(String name, int value) {

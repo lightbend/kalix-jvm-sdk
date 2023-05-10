@@ -62,6 +62,11 @@ public class UserEntity extends ValueEntity<User> {
     return effects().updateState(new User(email, currentState().name)).thenReply("Ok from patch");
   }
 
+  @PatchMapping("/email")
+  public Effect<String> updateEmailFromReqParam(@RequestParam String email) {
+    return effects().updateState(new User(email, currentState().name)).thenReply("Ok from patch");
+  }
+
   @DeleteMapping
   public Effect<String> deleteUser() {
     return effects().deleteEntity().thenReply("Ok from delete");

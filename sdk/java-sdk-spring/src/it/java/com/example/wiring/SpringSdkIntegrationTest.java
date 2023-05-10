@@ -66,22 +66,17 @@ public class SpringSdkIntegrationTest {
   @Test
   public void failRequestWithRequiredQueryParam() {
 
-    ResponseEntity<Message> response =
+    ResponseEntity<String> response =
       webClient
         .get()
         .uri("/optional-params-action")
         .retrieve()
-        .toEntity(Message.class)
-        .onErrorResume(WebClientResponseException.class, error -> {
-          if (error.getStatusCode().is4xxClientError()) {
-            return Mono.just(ResponseEntity.status(error.getStatusCode()).body(null));
-          } else {
-            return Mono.error(error);
-          }
-        })
+        .toEntity(String.class)
+        .onErrorResume(WebClientResponseException.class, error -> Mono.just(ResponseEntity.status(error.getStatusCode()).body(error.getResponseBodyAsString())))
         .block(timeout);
 
     assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+    assertThat(response.getBody()).isEqualTo("Message is missing required field: longValue");
   }
 
   @Test
@@ -181,7 +176,7 @@ public class SpringSdkIntegrationTest {
           })
             .block(timeout);
     assertThat(failedReq.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-    assertThat(failedReq.getBody()).contains("Bad request");
+    assertThat(failedReq.getBody()).contains("Message is missing required field: msg");
   }
 
   @Test

@@ -26,7 +26,8 @@ import akka.stream.scaladsl.Source
 import com.google.protobuf.duration
 import com.google.protobuf.duration.Duration
 import io.grpc.Status
-import kalix.javasdk.impl.EntityExceptions.{ failureMessageForLog, failureResponse, EntityException, ProtocolException }
+import kalix.javasdk.impl.EntityExceptions.{ failureMessageForLog, EntityException, ProtocolException }
+import kalix.javasdk.impl.ErrorHandling.BadRequestException
 import kalix.javasdk.impl.timer.TimerSchedulerImpl
 import kalix.javasdk.impl.workflowentity.WorkflowEntityEffectImpl.DeleteState
 import kalix.javasdk.impl.workflowentity.WorkflowEntityEffectImpl.End
@@ -130,7 +131,7 @@ final class WorkflowEntityImpl(system: ActorSystem, val services: Map[String, Wo
       .recover { case error =>
         ErrorHandling.withCorrelationId { correlationId =>
           log.error(failureMessageForLog(error), error)
-          WorkflowStreamOut(OutFailure(failureResponse(correlationId, error)))
+          WorkflowStreamOut(OutFailure(component.Failure(description = s"Unexpected error [$correlationId]")))
         }
       }
       .async
@@ -292,6 +293,8 @@ final class WorkflowEntityImpl(system: ActorSystem, val services: Map[String, Wo
             try {
               router._internalHandleCommand(command.name, cmd, context, timerScheduler)
             } catch {
+              case BadRequestException(msg) =>
+                CommandResult(WorkflowEntityEffectImpl[Any]().error(msg, Status.Code.INVALID_ARGUMENT))
               case e: EntityException => throw e
               case NonFatal(error) =>
                 throw EntityException(command, s"Unexpected failure: $error", Some(error))

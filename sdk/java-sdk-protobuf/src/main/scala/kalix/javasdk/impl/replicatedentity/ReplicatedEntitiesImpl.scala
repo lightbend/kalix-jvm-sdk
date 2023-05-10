@@ -33,6 +33,7 @@ import com.google.protobuf.Descriptors
 
 import scala.util.control.NonFatal
 import kalix.javasdk.impl.ReplicatedEntityFactory
+import kalix.protocol.component.Failure
 import org.slf4j.LoggerFactory
 
 final class ReplicatedEntityService(
@@ -95,7 +96,7 @@ final class ReplicatedEntitiesImpl(system: ActorSystem, services: Map[String, Re
       .recover { case error =>
         ErrorHandling.withCorrelationId { correlationId =>
           log.error(failureMessageForLog(error), error)
-          ReplicatedEntityStreamOut(Out.Failure(failureResponse(correlationId, error)))
+          ReplicatedEntityStreamOut(Out.Failure(Failure(description = s"Unexpected error [$correlationId]")))
         }
       }
       .async
@@ -131,7 +132,7 @@ final class ReplicatedEntitiesImpl(system: ActorSystem, services: Map[String, Re
       .recover { case error =>
         ErrorHandling.withCorrelationId { correlationId =>
           LoggerFactory.getLogger(runner.router.entityClass).error(failureMessageForLog(error), error)
-          ReplicatedEntityStreamOut(Out.Failure(failureResponse(correlationId, error)))
+          ReplicatedEntityStreamOut(Out.Failure(Failure(description = s"Unexpected error [$correlationId]")))
         }
       }
   }

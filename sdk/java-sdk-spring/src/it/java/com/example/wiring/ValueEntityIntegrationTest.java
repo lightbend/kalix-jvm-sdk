@@ -24,12 +24,17 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
+import reactor.core.publisher.Mono;
 
 import java.time.Duration;
 
 import static java.time.temporal.ChronoUnit.SECONDS;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @SpringBootTest(classes = Main.class)
@@ -53,6 +58,25 @@ public class ValueEntityIntegrationTest {
     changeEmail(joe1.withEmail(newEmail));
 
     Assertions.assertEquals(newEmail, getUser(joe1).email);
+  }
+
+  @Test
+  public void failRequestWhenReqParamsIsNotPresent() {
+
+    var joe1 = new TestUser("veUser1", "john@doe.com", "veJane");
+    createUser(joe1);
+
+    ResponseEntity<String> response =
+      webClient
+        .patch()
+        .uri("/user/" + joe1.id + "/email")
+        .retrieve()
+        .toEntity(String.class)
+        .onErrorResume(WebClientResponseException.class, error -> Mono.just(ResponseEntity.status(error.getStatusCode()).body(error.getResponseBodyAsString())))
+        .block(timeout);
+
+    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+    assertThat(response.getBody()).isEqualTo("Message is missing required field: email");
   }
 
   @Test

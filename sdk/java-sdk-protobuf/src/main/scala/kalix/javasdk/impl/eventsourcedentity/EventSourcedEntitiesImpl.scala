@@ -18,34 +18,34 @@ package kalix.javasdk.impl.eventsourcedentity
 
 import akka.NotUsed
 import akka.actor.ActorSystem
-import akka.stream.scaladsl.Flow
-import akka.stream.scaladsl.Source
-import kalix.javasdk.KalixRunner.Configuration
-import kalix.javasdk.eventsourcedentity._
-import kalix.javasdk.impl._
-import kalix.javasdk.impl.effect.EffectSupport
-import kalix.javasdk.impl.effect.ErrorReplyImpl
-import kalix.javasdk.impl.effect.MessageReplyImpl
-import kalix.javasdk.impl.effect.SecondaryEffectImpl
-import kalix.javasdk.impl.eventsourcedentity.EventSourcedEntityRouter.CommandResult
-import kalix.javasdk.Context
-import kalix.javasdk.Metadata
-import kalix.protocol.event_sourced_entity.EventSourcedStreamIn.Message.{ Init => InInit }
-import kalix.protocol.event_sourced_entity.EventSourcedStreamIn.Message.{ Empty => InEmpty }
-import kalix.protocol.event_sourced_entity.EventSourcedStreamIn.Message.{ Command => InCommand }
-import kalix.protocol.event_sourced_entity.EventSourcedStreamIn.Message.{ Event => InEvent }
-import kalix.protocol.event_sourced_entity.EventSourcedStreamIn.Message.{ SnapshotRequest => InSnapshotRequest }
-import kalix.protocol.event_sourced_entity.EventSourcedStreamOut.Message.{ Reply => OutReply }
-import kalix.protocol.event_sourced_entity.EventSourcedStreamOut.Message.{ Failure => OutFailure }
-import kalix.protocol.event_sourced_entity.EventSourcedStreamOut.Message.{ SnapshotReply => OutSnapshotReply }
-import kalix.protocol.event_sourced_entity._
-import com.google.protobuf.any.{ Any => ScalaPbAny }
+import akka.stream.scaladsl.{ Flow, Source }
 import com.google.protobuf.Descriptors
+import com.google.protobuf.any.{ Any => ScalaPbAny }
+import io.grpc.Status
+import kalix.javasdk.KalixRunner.Configuration
+import kalix.javasdk.Metadata
+import kalix.javasdk.eventsourcedentity._
+import kalix.javasdk.impl.ErrorHandling.BadRequestException
+import kalix.javasdk.impl._
+import kalix.javasdk.impl.effect.{ EffectSupport, ErrorReplyImpl, MessageReplyImpl, SecondaryEffectImpl }
+import kalix.javasdk.impl.eventsourcedentity.EventSourcedEntityRouter.CommandResult
+import kalix.protocol.component.Failure
+import kalix.protocol.event_sourced_entity.EventSourcedStreamIn.Message.{
+  Command => InCommand,
+  Empty => InEmpty,
+  Event => InEvent,
+  Init => InInit,
+  SnapshotRequest => InSnapshotRequest
+}
+import kalix.protocol.event_sourced_entity.EventSourcedStreamOut.Message.{
+  Failure => OutFailure,
+  Reply => OutReply,
+  SnapshotReply => OutSnapshotReply
+}
+import kalix.protocol.event_sourced_entity._
+import org.slf4j.LoggerFactory
 
 import scala.util.control.NonFatal
-import kalix.javasdk.impl.EventSourcedEntityFactory
-import kalix.protocol.component.Failure
-import org.slf4j.LoggerFactory
 
 final class EventSourcedEntityService(
     val factory: EventSourcedEntityFactory,
@@ -137,7 +137,7 @@ final class EventSourcedEntitiesImpl(
         // only "unexpected" exceptions should end up here
         ErrorHandling.withCorrelationId { correlationId =>
           log.error(failureMessageForLog(error), error)
-          EventSourcedStreamOut(OutFailure(failureResponse(correlationId, error)))
+          EventSourcedStreamOut(OutFailure(Failure(description = s"Unexpected failure [$correlationId]")))
         }
       }
 
@@ -195,6 +195,9 @@ final class EventSourcedEntitiesImpl(
                 service.snapshotEvery,
                 seqNr => new EventContextImpl(thisEntityId, seqNr))
             } catch {
+              case BadRequestException(msg) =>
+                val errorReply = ErrorReplyImpl(msg, Some(Status.Code.INVALID_ARGUMENT), Vector.empty)
+                CommandResult(Vector.empty, errorReply, None, context.sequenceNumber, false)
               case e: EntityException => throw e
               case NonFatal(error) =>
                 throw EntityException(command, s"Unexpected failure: $error", Some(error))
@@ -251,7 +254,7 @@ final class EventSourcedEntitiesImpl(
         // only "unexpected" exceptions should end up here
         ErrorHandling.withCorrelationId { correlationId =>
           LoggerFactory.getLogger(router.entityClass).error(failureMessageForLog(error), error)
-          EventSourcedStreamOut(OutFailure(failureResponse(correlationId, error)))
+          EventSourcedStreamOut(OutFailure(Failure(description = s"Unexpected failure [$correlationId]")))
         }
       }
       .async

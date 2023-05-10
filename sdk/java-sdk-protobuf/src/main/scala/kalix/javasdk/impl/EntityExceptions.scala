@@ -89,17 +89,10 @@ object EntityExceptions {
   }
 
   def failureMessageForLog(cause: Throwable): String = cause match {
-    case EntityException(_, _, _, _, Some(BadRequestException(msg))) => msg
     case EntityException(entityId, commandId, commandName, _, _) =>
       val commandDescription = if (commandId != 0) s" for command [$commandName]" else ""
       val entityDescription = if (entityId.nonEmpty) s" [$entityId]" else ""
       s"Terminating entity$entityDescription due to unexpected failure$commandDescription"
     case _ => "Terminating entity due to unexpected failure"
-  }
-
-  def failureResponse(correlationId: String, cause: Throwable): Failure = cause match {
-    case EntityException(_, _, _, _, Some(BadRequestException(_))) =>
-      Failure(0, s"Bad request [$correlationId]", Status.Code.INVALID_ARGUMENT.value())
-    case _ => Failure(description = s"Unexpected failure [$correlationId]")
   }
 }

@@ -16,14 +16,12 @@
 
 package kalix.javasdk.impl.eventsourcedentity
 
-import java.util.Optional
-import kalix.javasdk.eventsourcedentity.CommandContext
-import kalix.javasdk.eventsourcedentity.EventContext
-import kalix.javasdk.eventsourcedentity.EventSourcedEntity
+import kalix.javasdk.eventsourcedentity.{CommandContext, EventContext, EventSourcedEntity}
 import kalix.javasdk.impl.EntityExceptions
 import kalix.javasdk.impl.effect.SecondaryEffectImpl
-import kalix.javasdk.impl.eventsourcedentity.EventSourcedEntityEffectImpl.EmitEvents
-import kalix.javasdk.impl.eventsourcedentity.EventSourcedEntityEffectImpl.NoPrimaryEffect
+import kalix.javasdk.impl.eventsourcedentity.EventSourcedEntityEffectImpl.{EmitEvents, NoPrimaryEffect}
+
+import java.util.Optional
 
 object EventSourcedEntityRouter {
   final case class CommandResult(

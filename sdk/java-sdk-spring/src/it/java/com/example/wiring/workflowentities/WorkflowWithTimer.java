@@ -28,6 +28,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.time.Duration;
 
@@ -70,6 +71,14 @@ public class WorkflowWithTimer extends WorkflowEntity<FailingCounterState> {
         .updateState(new FailingCounterState(counterId, 0, false))
         .transitionTo(counterStepName)
         .thenReply(new Message("workflow started"));
+  }
+
+  @PutMapping
+  public Effect<Message> startFailingCounterWithReqParam(@RequestParam String counterId) {
+    return effects()
+      .updateState(new FailingCounterState(counterId, 0, false))
+      .transitionTo(counterStepName)
+      .thenReply(new Message("workflow started"));
   }
 
   @PutMapping("/ping")

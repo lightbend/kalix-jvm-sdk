@@ -90,7 +90,7 @@ private[javasdk] object ActionsImpl {
       command: ActionCommand,
       ex: Throwable): ActionResponse = {
     ex match {
-      case badReqEx: BadRequestException => handleBadRequest(service, command, badReqEx)
+      case badReqEx: BadRequestException => handleBadRequest(badReqEx.getMessage)
       case _ =>
         ErrorHandling.withCorrelationId { correlationId =>
           service.log.error(s"Failure during handling of command ${command.serviceName}.${command.name}", ex)
@@ -99,13 +99,8 @@ private[javasdk] object ActionsImpl {
     }
   }
 
-  private def handleBadRequest(service: ActionService, command: ActionCommand, ex: Throwable): ActionResponse =
-    ErrorHandling.withCorrelationId { correlationId =>
-      service.log.error(s"Bad request when handling of command ${command.serviceName}.${command.name}", ex)
-      ActionResponse(
-        ActionResponse.Response.Failure(
-          Failure(0, s"Bad request [$correlationId]", Status.Code.INVALID_ARGUMENT.value())))
-    }
+  private def handleBadRequest(description: String): ActionResponse =
+    ActionResponse(ActionResponse.Response.Failure(Failure(0, description, Status.Code.INVALID_ARGUMENT.value())))
 
   private def protocolFailure(correlationId: String): ActionResponse = {
     ActionResponse(ActionResponse.Response.Failure(Failure(0, s"Unexpected error [$correlationId]")))

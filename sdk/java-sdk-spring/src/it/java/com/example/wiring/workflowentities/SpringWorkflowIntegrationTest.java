@@ -28,6 +28,7 @@ import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Mono;
 
 import java.time.Duration;
@@ -424,6 +425,23 @@ public class SpringWorkflowIntegrationTest {
           assertThat(state.finished()).isTrue();
           assertThat(state.value()).isEqualTo(12);
         });
+  }
+
+  @Test
+  public void failRequestWhenReqParamsIsNotPresent() {
+    //given
+    var workflowId = randomId();
+    String path = "/workflow-with-timer/" + workflowId;
+
+    //when
+    ResponseEntity<String> response = webClient.put().uri(path)
+      .retrieve()
+      .toEntity(String.class)
+      .onErrorResume(WebClientResponseException.class, error -> Mono.just(ResponseEntity.status(error.getStatusCode()).body(error.getResponseBodyAsString())))
+      .block(timeout);
+
+    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+    assertThat(response.getBody()).isEqualTo("Message is missing required field: counterId");
   }
 
   private String randomTransferId() {
