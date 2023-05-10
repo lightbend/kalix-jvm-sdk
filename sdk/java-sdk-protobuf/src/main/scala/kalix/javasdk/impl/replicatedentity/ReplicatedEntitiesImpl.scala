@@ -24,9 +24,9 @@ import kalix.javasdk.impl.effect.{ EffectSupport, ErrorReplyImpl, MessageReplyIm
 import kalix.javasdk.impl.replicatedentity.ReplicatedEntityEffectImpl.DeleteEntity
 import kalix.javasdk.impl.replicatedentity.ReplicatedEntityRouter.CommandResult
 import kalix.javasdk.replicatedentity._
-import kalix.javasdk.{ Context, Metadata }
+import kalix.javasdk.{ Metadata }
 import kalix.protocol.entity.Command
-import kalix.protocol.replicated_entity.ReplicatedEntityStreamIn.{ enumCompanionForFieldNumber, Message => In }
+import kalix.protocol.replicated_entity.ReplicatedEntityStreamIn.{ Message => In }
 import kalix.protocol.replicated_entity.ReplicatedEntityStreamOut.{ Message => Out }
 import kalix.protocol.replicated_entity._
 import com.google.protobuf.Descriptors
