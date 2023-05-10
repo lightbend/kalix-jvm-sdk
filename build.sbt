@@ -357,16 +357,17 @@ lazy val devTools = devToolsCommon(
 /*
   This variant devTools compiles with Scala 2.12, but uses the same source files as the 2.13 version (above).
   This is needed because the devTools artifact is also used by the sbt and mvn plugins and therefore needs a 2.12 version.
+  Note that crossbuilding is not an option, because when the built selects 2.13, it will try to build sbt-kalix with 2.13
  */
 lazy val devToolsInternal =
   devToolsCommon(
     project
-      .in(file("devtools-internal"))
+      .in(file("devtools"))
       .settings(
         name := "kalix-devtools-internal",
         scalaVersion := Dependencies.ScalaVersionForTooling,
-        Compile / sourceDirectory := baseDirectory.value / ".." / "devTools" / "src" / "main",
-        Test / sourceDirectory := baseDirectory.value / ".." / "devTools" / "src" / "test"))
+        // to avoid overwriting the 2.13 version
+        target := baseDirectory.value / "target-2.12"))
 
 /*
  Common configuration to be applied to devTools modules (both 2.12 and 2.13)

@@ -46,3 +46,4 @@ dependency-reduced-pom.xml
 *.versionsBackup
 regenerate
 .vscode/settings.json
+target-2.12
