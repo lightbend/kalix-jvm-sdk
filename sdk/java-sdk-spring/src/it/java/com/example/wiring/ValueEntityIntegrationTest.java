@@ -76,7 +76,7 @@ public class ValueEntityIntegrationTest {
         .block(timeout);
 
     assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-    assertThat(response.getBody()).isEqualTo("Message is missing required field: email");
+    assertThat(response.getBody()).isEqualTo("Required request parameter is missing: email");
   }
 
   @Test

@@ -76,7 +76,7 @@ public class SpringSdkIntegrationTest {
         .block(timeout);
 
     assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-    assertThat(response.getBody()).isEqualTo("Message is missing required field: longValue");
+    assertThat(response.getBody()).isEqualTo("Required request parameter is missing: longValue");
   }
 
   @Test
@@ -176,7 +176,7 @@ public class SpringSdkIntegrationTest {
           })
             .block(timeout);
     assertThat(failedReq.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-    assertThat(failedReq.getBody()).contains("Message is missing required field: msg");
+    assertThat(failedReq.getBody()).contains("Required request parameter is missing: msg");
   }
 
   @Test

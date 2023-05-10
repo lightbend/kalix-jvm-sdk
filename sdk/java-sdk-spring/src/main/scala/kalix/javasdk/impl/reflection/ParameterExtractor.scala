@@ -78,7 +78,8 @@ object ParameterExtractors {
     override def extract(context: DynamicMessageContext): T = {
       (required, field.isRepeated || context.message.hasField(field)) match {
         case (_, true)      => deserialize(context.message.getField(field))
-        case (true, false)  => throw BadRequestException(s"Message is missing required field: ${field.getName}")
+        //we know that currently this applies only to request parameters
+        case (true, false)  => throw BadRequestException(s"Required request parameter is missing: ${field.getName}")
         case (false, false) => null.asInstanceOf[T] //could be mapped to optional later on
       }
     }

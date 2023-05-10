@@ -441,7 +441,7 @@ public class SpringWorkflowIntegrationTest {
       .block(timeout);
 
     assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-    assertThat(response.getBody()).isEqualTo("Message is missing required field: counterId");
+    assertThat(response.getBody()).isEqualTo("Required request parameter is missing: counterId");
   }
 
   private String randomTransferId() {
