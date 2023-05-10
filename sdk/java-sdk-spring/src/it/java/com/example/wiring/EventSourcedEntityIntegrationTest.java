@@ -151,7 +151,7 @@ public class EventSourcedEntityIntegrationTest {
       .block(timeout);
 
     assertThat(result.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-    assertThat(result.getBody()).contains("xyz");
+    assertThat(result.getBody()).isEqualTo("Message is missing required field: value");
   }
 
   private Integer increaseCounter(String name, int value) {
