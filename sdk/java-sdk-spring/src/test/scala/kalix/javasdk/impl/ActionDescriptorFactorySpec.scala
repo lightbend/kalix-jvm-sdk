@@ -21,28 +21,26 @@ import com.google.protobuf.empty.Empty
 import com.google.protobuf.{ Any => JavaPbAny }
 import kalix.JwtMethodOptions.JwtMethodMode
 import kalix.javasdk.impl.reflection.ServiceIntrospectionException
-import kalix.spring.testmodels.action.ActionsTestModels.{
-  DeleteWithOneParam,
-  GetClassLevel,
-  GetWithOneOptionalPathParam,
-  GetWithOneOptionalQueryParam,
-  GetWithOneParam,
-  GetWithOnePathVariableAndQueryParam,
-  GetWithOneQueryParam,
-  GetWithoutParam,
-  PatchWithOneParam,
-  PatchWithoutParam,
-  PostWithOneParam,
-  PostWithTwoMethods,
-  PostWithTwoParam,
-  PostWithoutParam,
-  PostWithoutParamWithJWT,
-  PutWithOneParam,
-  PutWithoutParam,
-  StreamInAction,
-  StreamInOutAction,
-  StreamOutAction
-}
+import kalix.spring.testmodels.action.ActionsTestModels.DeleteWithOneParam
+import kalix.spring.testmodels.action.ActionsTestModels.GetClassLevel
+import kalix.spring.testmodels.action.ActionsTestModels.GetWithOneOptionalPathParam
+import kalix.spring.testmodels.action.ActionsTestModels.GetWithOneOptionalQueryParam
+import kalix.spring.testmodels.action.ActionsTestModels.GetWithOneParam
+import kalix.spring.testmodels.action.ActionsTestModels.GetWithOnePathVariableAndQueryParam
+import kalix.spring.testmodels.action.ActionsTestModels.GetWithOneQueryParam
+import kalix.spring.testmodels.action.ActionsTestModels.GetWithoutParam
+import kalix.spring.testmodels.action.ActionsTestModels.PatchWithOneParam
+import kalix.spring.testmodels.action.ActionsTestModels.PatchWithoutParam
+import kalix.spring.testmodels.action.ActionsTestModels.PostWithOneParam
+import kalix.spring.testmodels.action.ActionsTestModels.PostWithTwoMethods
+import kalix.spring.testmodels.action.ActionsTestModels.PostWithTwoParam
+import kalix.spring.testmodels.action.ActionsTestModels.PostWithoutParam
+import kalix.spring.testmodels.action.ActionsTestModels.PostWithoutParamWithJWT
+import kalix.spring.testmodels.action.ActionsTestModels.PutWithOneParam
+import kalix.spring.testmodels.action.ActionsTestModels.PutWithoutParam
+import kalix.spring.testmodels.action.ActionsTestModels.StreamInAction
+import kalix.spring.testmodels.action.ActionsTestModels.StreamInOutAction
+import kalix.spring.testmodels.action.ActionsTestModels.StreamOutAction
 import kalix.spring.testmodels.subscriptions.PubSubTestModels.ActionWithMethodLevelAcl
 import kalix.spring.testmodels.subscriptions.PubSubTestModels.ActionWithMethodLevelAclAndSubscription
 import kalix.spring.testmodels.subscriptions.PubSubTestModels.ActionWithServiceLevelAcl
@@ -62,7 +60,6 @@ import kalix.spring.testmodels.subscriptions.PubSubTestModels.SubscribeToTopicAc
 import kalix.spring.testmodels.subscriptions.PubSubTestModels.SubscribeToTwoTopicsAction
 import kalix.spring.testmodels.subscriptions.PubSubTestModels.SubscribeToValueEntityAction
 import kalix.spring.testmodels.subscriptions.PubSubTestModels.SubscribeToValueEntityWithDeletesAction
-import org.scalatest.Ignore
 import org.scalatest.wordspec.AnyWordSpec
 
 class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSuite {

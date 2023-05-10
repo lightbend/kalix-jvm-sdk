@@ -18,7 +18,8 @@ package kalix.javasdk.impl.eventsourcedentity
 
 import akka.NotUsed
 import akka.actor.ActorSystem
-import akka.stream.scaladsl.{ Flow, Source }
+import akka.stream.scaladsl.Flow
+import akka.stream.scaladsl.Source
 import com.google.protobuf.Descriptors
 import com.google.protobuf.any.{ Any => ScalaPbAny }
 import io.grpc.Status
@@ -27,21 +28,20 @@ import kalix.javasdk.Metadata
 import kalix.javasdk.eventsourcedentity._
 import kalix.javasdk.impl.ErrorHandling.BadRequestException
 import kalix.javasdk.impl._
-import kalix.javasdk.impl.effect.{ EffectSupport, ErrorReplyImpl, MessageReplyImpl, SecondaryEffectImpl }
+import kalix.javasdk.impl.effect.EffectSupport
+import kalix.javasdk.impl.effect.ErrorReplyImpl
+import kalix.javasdk.impl.effect.MessageReplyImpl
+import kalix.javasdk.impl.effect.SecondaryEffectImpl
 import kalix.javasdk.impl.eventsourcedentity.EventSourcedEntityRouter.CommandResult
 import kalix.protocol.component.Failure
-import kalix.protocol.event_sourced_entity.EventSourcedStreamIn.Message.{
-  Command => InCommand,
-  Empty => InEmpty,
-  Event => InEvent,
-  Init => InInit,
-  SnapshotRequest => InSnapshotRequest
-}
-import kalix.protocol.event_sourced_entity.EventSourcedStreamOut.Message.{
-  Failure => OutFailure,
-  Reply => OutReply,
-  SnapshotReply => OutSnapshotReply
-}
+import kalix.protocol.event_sourced_entity.EventSourcedStreamIn.Message.{ Command => InCommand }
+import kalix.protocol.event_sourced_entity.EventSourcedStreamIn.Message.{ Empty => InEmpty }
+import kalix.protocol.event_sourced_entity.EventSourcedStreamIn.Message.{ Event => InEvent }
+import kalix.protocol.event_sourced_entity.EventSourcedStreamIn.Message.{ Init => InInit }
+import kalix.protocol.event_sourced_entity.EventSourcedStreamIn.Message.{ SnapshotRequest => InSnapshotRequest }
+import kalix.protocol.event_sourced_entity.EventSourcedStreamOut.Message.{ Failure => OutFailure }
+import kalix.protocol.event_sourced_entity.EventSourcedStreamOut.Message.{ Reply => OutReply }
+import kalix.protocol.event_sourced_entity.EventSourcedStreamOut.Message.{ SnapshotReply => OutSnapshotReply }
 import kalix.protocol.event_sourced_entity._
 import org.slf4j.LoggerFactory
 
@@ -96,7 +96,7 @@ final class EventSourcedEntitiesImpl(
     _services: Map[String, EventSourcedEntityService],
     configuration: Configuration)
     extends EventSourcedEntities {
-  import EntityExceptions._
+  import kalix.javasdk.impl.EntityExceptions._
 
   private val log = LoggerFactory.getLogger(this.getClass)
   private final val services = _services.iterator.map { case (name, service) =>
