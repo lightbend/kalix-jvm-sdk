@@ -106,7 +106,7 @@ public class CustomerIntegrationTest {
   @Test
   public void create() throws InterruptedException {
 
-    WebClient customerRegistryService = createClient("http://localhost:9000");
+    WebClient customerRegistryService = createClient("http://host.docker.internal:9000");
 
     // wait until customer service is up
     await()
@@ -118,7 +118,7 @@ public class CustomerIntegrationTest {
       );
 
 
-    WebClient localWebClient = createClient("http://localhost:9001");
+    WebClient localWebClient = createClient("http://host.docker.internal:9001");
 
     String id = UUID.randomUUID().toString();
     Customer customer = new Customer("Johanna", "foo@example.com", "Johanna");
