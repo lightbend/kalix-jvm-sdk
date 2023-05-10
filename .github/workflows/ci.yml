@@ -564,7 +564,7 @@ jobs:
           - { sample: java-protobuf-eventsourced-shopping-cart, it: true }
 
           - { sample: java-spring-eventsourced-customer-registry, it: true }
-          - { sample: java-spring-eventsourced-customer-registry-subscriber, it: true, pre_cmd: 'cd ../java-spring-eventsourced-customer-registry && mvn package docker:build' }
+          - { sample: java-spring-eventsourced-customer-registry-subscriber, it: true, pre_cmd: 'mvn -f ../java-spring-eventsourced-customer-registry/pom.xml package docker:build' }
           - { sample: java-spring-eventsourced-shopping-cart, it: true }
 
           - { sample: java-protobuf-valueentity-counter, it: true }
@@ -652,7 +652,7 @@ jobs:
             mvn -Dkalix-sdk.version=${SDK_VERSION} verify
           fi
           if [ true == '${{matrix.it}}' ]; then
-            ( ${PRE_CMD} )
+            ${PRE_CMD}
             mvn -Dkalix-sdk.version=${SDK_VERSION} verify -Pit
           fi
 
