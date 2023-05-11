@@ -16,18 +16,22 @@
 
 package kalix.javasdk.testkit;
 
+import akka.NotUsed;
 import akka.actor.ActorSystem;
 import akka.annotation.ApiMayChange;
 import akka.annotation.InternalApi;
+import akka.stream.javadsl.Source;
+import akka.testkit.TestProbe;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.GeneratedMessageV3;
 import kalix.javasdk.Metadata;
 import kalix.javasdk.impl.MessageCodec;
 import kalix.javasdk.testkit.impl.EventingTestKitImpl;
+import kalix.javasdk.testkit.impl.TestKitMessageImpl;
+import kalix.testkit.protocol.eventing_test_backend.SourceElem;
 import kalix.javasdk.testkit.impl.TopicImpl$;
 
 import java.time.Duration;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 
@@ -40,7 +44,6 @@ public interface EventingTestKit {
   static EventingTestKit start(ActorSystem system, String host, int port, MessageCodec codec) {
     return EventingTestKitImpl.start(system, host, port, codec);
   }
-
 
   Topic getTopic(String topic);
 
@@ -154,6 +157,18 @@ public interface EventingTestKit {
      * @return the list of the unread messages when the topic was cleared.
      */
     List<Message<?>> clear();
+
+    /**
+     * Simulates the publishing of a message to this topic for the purposes
+     * of testing eventing.in flows into a specific service.
+     *
+     * <p><b>Note: </b> messages written with this are not readable with the expect* methods,
+     * unless they have been properly forward through an eventing.out flow to the same topic.
+     *
+     * @param message to be published in the topic
+     * @param metadata associated with the message
+     */
+    void publish(ByteString message, Metadata metadata);
   }
 
   @ApiMayChange
@@ -173,4 +188,3 @@ public interface EventingTestKit {
     <T extends GeneratedMessageV3> T expectType(Class<T> clazz);
   }
 }
-

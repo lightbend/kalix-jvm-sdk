@@ -4,10 +4,15 @@
  */
 package com.example;
 
-import kalix.javasdk.testkit.junit.KalixTestKitResource;
 import com.example.CounterApi;
 import com.example.CounterService;
 import com.example.Main;
+import com.example.actions.CounterTopicApi;
+import com.google.protobuf.ByteString;
+import kalix.javasdk.Metadata;
+import kalix.javasdk.testkit.EventingTestKit;
+import kalix.javasdk.testkit.junit.KalixTestKitResource;
+import kalix.testkit.protocol.eventing_test_backend.Message;
 import org.junit.ClassRule;
 import org.junit.Test;
 
@@ -18,7 +23,7 @@ import static org.junit.Assert.assertEquals;
 
 // Example of an integration test calling our service via the Kalix proxy
 // Run all test classes ending with "IntegrationTest" using `mvn verify -Pit`
-public class CounterIntegrationTest {
+public class CounterTopicSubscriptionIntegrationTest {
 
   /**
    * The test kit starts both the service container and the Kalix proxy.
@@ -32,7 +37,7 @@ public class CounterIntegrationTest {
    */
   private final CounterService client;
 
-  public CounterIntegrationTest() {
+  public CounterTopicSubscriptionIntegrationTest() {
     client = testKit.getGrpcClient(CounterService.class);
   }
 
@@ -52,41 +57,24 @@ public class CounterIntegrationTest {
     return stage.toCompletableFuture().get(5, SECONDS);
   }
 
-  /*@Test
-  public void increaseOnNonExistingEntity() throws Exception {
-    String counterId = "test-1";
-    awaitResult(client.increase(newIncreaseMessage(counterId, 1)));
-    assertEquals(1, getCounterValue(counterId));
+  @Test
+  public void increaseOnReadingFromTopic() throws Exception {
 
-    assertEquals(1, testKit.getTopic("counter-events").expectAll().size());
-  }*/
+    var msg = EventingTestKit.Message.of(
+        CounterTopicApi.Increased.newBuilder().setValue(15).build().toByteString(),
+        Metadata.EMPTY
+            .add("Content-Type", "application/protobuf;proto="+ CounterTopicApi.Increased.getDescriptor().getFullName())
+            .add("ce-specversion", "1.0")
+            .add("ce-id", "msg1")
+            .add("ce-type", "Increase")
+            .add("ce-source", CounterTopicApi.Increased.getDescriptor().getFullName())
+            .add("ce-subject", "test-2")
+            .add("random", "hello"));
 
+    testKit.getTopic("counter-events").publish(msg);
 
-  /*@Test
-  public void decreaseOnNonExistingEntity() throws Exception {
-    String counterId = "test-2";
-
-    awaitResult(client.increase(newIncreaseMessage(counterId, 5)));
-    assertEquals(5, getCounterValue(counterId));
-
-    awaitResult(
-        client.decrease(
-            CounterApi.DecreaseValue.newBuilder()
-                .setCounterId(counterId)
-                .setValue(-1).build()));
-    assertEquals(4, getCounterValue(counterId));
+    assertEquals(15, getCounterValue("test-2"));
   }
 
-
-  @Test
-  public void resetOnNonExistingEntity() throws Exception {
-    String counterId = "test-3";
-    awaitResult(client.increase(newIncreaseMessage(counterId, 5)));
-    assertEquals(5, getCounterValue(counterId));
-
-    awaitResult(
-        client.reset(CounterApi.ResetValue.newBuilder().setCounterId(counterId).build()));
-    assertEquals(0, getCounterValue(counterId));
-  }*/
 
 }
