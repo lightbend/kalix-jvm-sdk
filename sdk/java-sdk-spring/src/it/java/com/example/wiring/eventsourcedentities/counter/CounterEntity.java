@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @EntityKey("id")
 @EntityType("counter-entity")
@@ -49,6 +50,16 @@ public class CounterEntity extends EventSourcedEntity<Counter, CounterEvent> {
   @PostMapping("/increase/{value}")
   public Effect<Integer> increase(@PathVariable Integer value) {
     return effects().emitEvent(new CounterEvent.ValueIncreased(value)).thenReply(c -> c.value);
+  }
+
+  @PostMapping("/set/{value}")
+  public Effect<Integer> set(@PathVariable Integer value) {
+    return effects().emitEvent(new CounterEvent.ValueSet(value)).thenReply(c -> c.value);
+  }
+
+  @PostMapping("/set")
+  public Effect<Integer> setFromReqParam(@RequestParam Integer value) {
+    return effects().emitEvent(new CounterEvent.ValueSet(value)).thenReply(c -> c.value);
   }
 
   @GetMapping
@@ -85,6 +96,11 @@ public class CounterEntity extends EventSourcedEntity<Counter, CounterEvent> {
   @EventHandler
   public Counter handleIncrease(CounterEvent.ValueIncreased increased) {
     return currentState().onValueIncreased(increased);
+  }
+
+  @EventHandler
+  public Counter handleSet(CounterEvent.ValueSet set) {
+    return currentState().onValueSet(set);
   }
 
   @EventHandler

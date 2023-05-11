@@ -49,4 +49,10 @@ public class CountersByValue extends View<Counter> {
     Counter counter = viewState();
     return effects().updateState(counter.onValueMultiplied(event));
   }
+
+  @Subscribe.EventSourcedEntity(CounterEntity.class)
+  public UpdateEffect<Counter> onEvent(CounterEvent.ValueSet event) {
+    Counter counter = viewState();
+    return effects().updateState(counter.onValueSet(event));
+  }
 }

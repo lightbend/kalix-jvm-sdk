@@ -14,29 +14,7 @@
  * limitations under the License.
  */
 
-package kalix.javasdk.impl
+package com.example.wiring.actions.echo;
 
-import org.slf4j.MDC
-
-import java.util.UUID
-
-/**
- * INTERNAL API
- */
-private[javasdk] object ErrorHandling {
-
-  case class BadRequestException(msg: String) extends RuntimeException(msg)
-
-  val CorrelationIdMdcKey = "correlationID"
-
-  def withCorrelationId[T](block: String => T): T = {
-    val correlationId = UUID.randomUUID().toString
-    MDC.put(CorrelationIdMdcKey, correlationId)
-    try {
-      block(correlationId)
-    } finally {
-      MDC.remove(CorrelationIdMdcKey)
-    }
-  }
-
+public record BodyWithPrimitives(int intValue) {
 }

@@ -39,6 +39,9 @@ public class ActionsTestModels {
   }
 
   public static class GetWithOneOptionalPathParam extends Action {
+    //this kind of mapping would not work, since missing path variables result in 404 error from the proxy
+    //in Spring it is possible to mark path variables as optional for a mapping like:  @GetMapping({"/message/{one}", "/message"})
+    //which is currently not supported
     @GetMapping("/message/{one}")
     public Action.Effect<Message> message(@PathVariable(required = false) String one) {
       return effects().reply(new Message(one));
@@ -48,6 +51,13 @@ public class ActionsTestModels {
   public static class GetWithOneQueryParam extends Action {
     @GetMapping("/message")
     public Action.Effect<Message> message(@RequestParam String one) {
+      return effects().reply(new Message(one));
+    }
+  }
+
+  public static class GetWithOnePathVariableAndQueryParam extends Action {
+    @GetMapping("/message/{one}")
+    public Action.Effect<Message> message(@PathVariable String one, @RequestParam String two) {
       return effects().reply(new Message(one));
     }
   }

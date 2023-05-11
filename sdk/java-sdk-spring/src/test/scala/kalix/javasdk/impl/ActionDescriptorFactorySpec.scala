@@ -20,11 +20,13 @@ import com.google.protobuf.Descriptors.FieldDescriptor.JavaType
 import com.google.protobuf.empty.Empty
 import com.google.protobuf.{ Any => JavaPbAny }
 import kalix.JwtMethodOptions.JwtMethodMode
+import kalix.javasdk.impl.reflection.ServiceIntrospectionException
 import kalix.spring.testmodels.action.ActionsTestModels.DeleteWithOneParam
 import kalix.spring.testmodels.action.ActionsTestModels.GetClassLevel
 import kalix.spring.testmodels.action.ActionsTestModels.GetWithOneOptionalPathParam
 import kalix.spring.testmodels.action.ActionsTestModels.GetWithOneOptionalQueryParam
 import kalix.spring.testmodels.action.ActionsTestModels.GetWithOneParam
+import kalix.spring.testmodels.action.ActionsTestModels.GetWithOnePathVariableAndQueryParam
 import kalix.spring.testmodels.action.ActionsTestModels.GetWithOneQueryParam
 import kalix.spring.testmodels.action.ActionsTestModels.GetWithoutParam
 import kalix.spring.testmodels.action.ActionsTestModels.PatchWithOneParam
@@ -58,7 +60,6 @@ import kalix.spring.testmodels.subscriptions.PubSubTestModels.SubscribeToTopicAc
 import kalix.spring.testmodels.subscriptions.PubSubTestModels.SubscribeToTwoTopicsAction
 import kalix.spring.testmodels.subscriptions.PubSubTestModels.SubscribeToValueEntityAction
 import kalix.spring.testmodels.subscriptions.PubSubTestModels.SubscribeToValueEntityWithDeletesAction
-import org.scalatest.Ignore
 import org.scalatest.wordspec.AnyWordSpec
 
 class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSuite {
@@ -86,15 +87,14 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
 
         val method = desc.commandHandlers("Message")
         assertRequestFieldJavaType(method, "one", JavaType.STRING)
-        assertRequestFieldRequested(method, "one", isRequired = true)
+        assertFieldIsProto3Optional(method, "one");
       }
     }
 
-    "generate mappings for an Action with GET and one optional path param" in {
-      assertDescriptor[GetWithOneOptionalPathParam] { desc =>
-        val method = desc.commandHandlers("Message")
-        assertRequestFieldRequested(method, "one", isRequired = false)
-      }
+    "fail to generate mappings for an Action with GET and one optional path param" in {
+      intercept[ServiceIntrospectionException] {
+        descriptorFor[GetWithOneOptionalPathParam]
+      }.getMessage should include("Currently all @PathVariables must be defined as required.")
     }
 
     "generate mappings for an Action with GET and one query param" in {
@@ -106,7 +106,23 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
 
         val method = desc.commandHandlers("Message")
         assertRequestFieldJavaType(method, "one", JavaType.STRING)
-        assertRequestFieldRequested(method, "one", isRequired = true)
+        assertFieldIsProto3Optional(method, "one")
+      }
+    }
+
+    "generate mappings for an Action with GET and one path variable and query param" in {
+      assertDescriptor[GetWithOnePathVariableAndQueryParam] { desc =>
+
+        val methodDescriptor = desc.serviceDescriptor.findMethodByName("Message")
+        methodDescriptor.isServerStreaming shouldBe false
+        methodDescriptor.isClientStreaming shouldBe false
+
+        val method = desc.commandHandlers("Message")
+        assertRequestFieldJavaType(method, "one", JavaType.STRING)
+        assertFieldIsProto3Optional(method, "one")
+
+        assertRequestFieldJavaType(method, "two", JavaType.STRING)
+        assertFieldIsProto3Optional(method, "two")
       }
     }
 

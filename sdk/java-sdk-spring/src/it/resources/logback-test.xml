@@ -31,9 +31,9 @@
     <logger name="akka.http" level="INFO"/>
     <logger name="io.grpc" level="INFO"/>
     <logger name="kalix.springsdk.impl" level="INFO" />
+    <logger name="kalix.javasdk.impl.ProtoDescriptorGenerator$" level="INFO" />
 
     <root level="INFO">
-        <!--        <appender-ref ref="STDOUT"/>-->
         <appender-ref ref="STDOUT"/>
     </root>
 </configuration>

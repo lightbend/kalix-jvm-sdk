@@ -287,9 +287,15 @@ private[kalix] object ComponentDescriptor {
     val pathParamOffset = 2 //1 is reserved for json_body
     val pathParamFieldDescs = pathParamFieldDescriptors(serviceMethod, indexedParams, entityKeys, pathParamOffset)
     val queryFieldsOffset = pathParamFieldDescs.size + pathParamOffset
-    val queryFieldDescs = queryParamFieldDescriptors(indexedParams, queryFieldsOffset, entityKeys)
+    val queryFieldDescs = queryParamFieldDescriptors(indexedParams, queryFieldsOffset, entityKeys, pathParamOffset)
 
     inputMessageDescriptor.addAllField((bodyFieldDescs ++ pathParamFieldDescs ++ queryFieldDescs).asJava)
+
+    val oneofDescriptorProtos = (pathParamFieldDescs ++ queryFieldDescs).filter(_.getProto3Optional).map { field =>
+      val oneofFieldName = "_" + field.getName //convention from proto messages with proto3 optional label
+      DescriptorProtos.OneofDescriptorProto.newBuilder().setName(oneofFieldName).build()
+    }
+    inputMessageDescriptor.addAllOneofDecl(oneofDescriptorProtos.asJava)
 
     val bodyField: Option[(Int, ExtractorCreator)] = bodyFieldExtractors(indexedParams)
     val pathParamFieldsExtractors = pathParamExtractors(indexedParams, pathParamFieldDescs)
@@ -308,17 +314,21 @@ private[kalix] object ComponentDescriptor {
         idx -> qp
       }
       .map { case (paramIdx, param) =>
-        paramIdx -> toExtractor(param.param, queryFieldDescs)
+        paramIdx -> toExtractor(param.param, queryFieldDescs, param.annotation.required())
       }
   }
 
-  private def toExtractor(methodParameter: MethodParameter, queryFieldDescs: Seq[FieldDescriptorProto]) = {
+  private def toExtractor(
+      methodParameter: MethodParameter,
+      queryFieldDescs: Seq[FieldDescriptorProto],
+      required: Boolean): ExtractorCreator = {
     val typeName = methodParameter.getGenericParameterType.getTypeName
     if (typeName == "short") {
       new ExtractorCreator {
         override def apply(descriptor: Descriptors.Descriptor): ParameterExtractor[DynamicMessageContext, AnyRef] = {
           new ParameterExtractors.FieldExtractor[java.lang.Short](
             descriptor.findFieldByNumber(fieldNumber(methodParameter.getParameterName, queryFieldDescs)),
+            required,
             _.asInstanceOf[java.lang.Integer].toShort)
         }
       }
@@ -327,6 +337,7 @@ private[kalix] object ComponentDescriptor {
         override def apply(descriptor: Descriptors.Descriptor): ParameterExtractor[DynamicMessageContext, AnyRef] = {
           new ParameterExtractors.FieldExtractor[java.lang.Byte](
             descriptor.findFieldByNumber(fieldNumber(methodParameter.getParameterName, queryFieldDescs)),
+            required,
             _.asInstanceOf[java.lang.Integer].byteValue())
         }
       }
@@ -335,6 +346,7 @@ private[kalix] object ComponentDescriptor {
         override def apply(descriptor: Descriptors.Descriptor): ParameterExtractor[DynamicMessageContext, AnyRef] = {
           new ParameterExtractors.FieldExtractor[java.lang.Character](
             descriptor.findFieldByNumber(fieldNumber(methodParameter.getParameterName, queryFieldDescs)),
+            required,
             Int.unbox(_).toChar)
         }
       }
@@ -343,6 +355,7 @@ private[kalix] object ComponentDescriptor {
         override def apply(descriptor: Descriptors.Descriptor): ParameterExtractor[DynamicMessageContext, AnyRef] = {
           new ParameterExtractors.FieldExtractor[AnyRef](
             descriptor.findFieldByNumber(fieldNumber(methodParameter.getParameterName, queryFieldDescs)),
+            required,
             identity)
         }
       }
@@ -352,7 +365,8 @@ private[kalix] object ComponentDescriptor {
   private def queryParamFieldDescriptors(
       indexedParams: Seq[(RestServiceIntrospector.RestMethodParameter, Int)],
       queryFieldsOffset: Int,
-      entityKeys: Seq[String]): Seq[FieldDescriptorProto] = {
+      entityKeys: Seq[String],
+      fieldNumberOffset: Int): Seq[FieldDescriptorProto] = {
     indexedParams
       .collect { case (qp: QueryParamParameter, idx) =>
         idx -> qp
@@ -361,15 +375,7 @@ private[kalix] object ComponentDescriptor {
       .zipWithIndex
       .map { case ((_, param), fieldIdx) =>
         val fieldNumber = fieldIdx + queryFieldsOffset
-        FieldDescriptorProto
-          .newBuilder()
-          .setName(param.name)
-          .setNumber(fieldNumber)
-          .setType(mapJavaTypeToProtobuf(param.param.getGenericParameterType))
-          .setLabel(
-            mapJavaWrapperToLabel(param.param.getGenericParameterType, isRequired = param.annotation.required()))
-          .setOptions(addEntityKeyIfNeeded(entityKeys, param.name))
-          .build()
+        buildField(entityKeys, param.name, fieldNumber, param.param.getGenericParameterType, fieldNumberOffset)
       }
   }
 
@@ -381,7 +387,7 @@ private[kalix] object ComponentDescriptor {
         idx -> p
       }
       .map { case (idx, p) =>
-        idx -> toExtractor(p.param, pathParamFieldDescs)
+        idx -> toExtractor(p.param, pathParamFieldDescs, p.annotation.required())
       }
   }
 
@@ -392,16 +398,30 @@ private[kalix] object ComponentDescriptor {
       pathParamOffset: Int): Seq[FieldDescriptorProto] = {
     serviceMethod.parsedPath.fields.zipWithIndex.map { case (paramName, fieldIdx) =>
       val fieldNumber = fieldIdx + pathParamOffset
-      val (paramType, isRequired) = paramDetails(indexedParams, paramName)
-      FieldDescriptorProto
-        .newBuilder()
-        .setName(paramName)
-        .setNumber(fieldNumber)
-        .setType(mapJavaTypeToProtobuf(paramType))
-        .setLabel(mapJavaWrapperToLabel(paramType, isRequired))
-        .setOptions(addEntityKeyIfNeeded(entityKeys, paramName))
-        .build()
+      val paramType = paramDetails(indexedParams, paramName)
+      buildField(entityKeys, paramName, fieldNumber, paramType, pathParamOffset)
     }
+  }
+
+  private def buildField(
+      entityKeys: Seq[String],
+      name: String,
+      fieldNumber: Int,
+      paramType: Type,
+      fieldNumberOffset: Int): FieldDescriptorProto = {
+    FieldDescriptorProto
+      .newBuilder()
+      .setName(name)
+      .setNumber(fieldNumber)
+      .setType(mapJavaTypeToProtobuf(paramType))
+      .setLabel(mapJavaWrapperToLabel(paramType))
+      .setProto3Optional(true)
+      //setting optional flag is not enough to have the knowledge if the field was set or
+      //indexing starts from 0, so we must subtract the offset
+      //there won't be any gaps, since we are marking all path and query params as optional
+      .setOneofIndex(fieldNumber - fieldNumberOffset)
+      .setOptions(addEntityKeyIfNeeded(entityKeys, name))
+      .build()
   }
 
   private def addEntityKeyIfNeeded(entityKeys: Seq[String], paramName: String): DescriptorProtos.FieldOptions =
@@ -417,13 +437,12 @@ private[kalix] object ComponentDescriptor {
 
   private def paramDetails(
       indexedParams: Seq[(RestServiceIntrospector.RestMethodParameter, Int)],
-      paramName: String): (Type, Boolean) = {
+      paramName: String): Type = {
     indexedParams
       .collectFirst {
-        case (p: PathParameter, _) if p.name == paramName =>
-          (p.param.getGenericParameterType, p.annotation.required())
+        case (p: PathParameter, _) if p.name == paramName => p.param.getGenericParameterType
       }
-      .getOrElse((classOf[String], true))
+      .getOrElse(classOf[String])
   }
 
   private def fieldNumber(fieldName: String, pathParamFieldsDesc: Seq[FieldDescriptorProto]): Int = {
@@ -487,11 +506,9 @@ private[kalix] object ComponentDescriptor {
     }
   }
 
-  private def mapJavaWrapperToLabel(javaType: Type, isRequired: Boolean): FieldDescriptorProto.Label =
+  private def mapJavaWrapperToLabel(javaType: Type): FieldDescriptorProto.Label =
     if (isCollection(javaType))
       FieldDescriptorProto.Label.LABEL_REPEATED
-    else if (isRequired)
-      FieldDescriptorProto.Label.LABEL_REQUIRED
     else
       FieldDescriptorProto.Label.LABEL_OPTIONAL
 

@@ -17,9 +17,7 @@
 package kalix.javasdk.impl.reflection
 
 import java.lang.reflect.Method
-
 import scala.annotation.tailrec
-
 import com.google.protobuf.Descriptors
 import com.google.protobuf.any.{ Any => ScalaPbAny }
 import kalix.javasdk.impl.AclDescriptorFactory
@@ -29,6 +27,7 @@ import kalix.javasdk.impl.reflection.RestServiceIntrospector.PathParameter
 import kalix.javasdk.impl.reflection.RestServiceIntrospector.RestMethodParameter
 import kalix.javasdk.impl.reflection.RestServiceIntrospector.isEmpty
 import kalix.javasdk.impl.reflection.RestServiceIntrospector.validateRequestMapping
+import org.springframework.web.bind.annotation.PathVariable
 // TODO: abstract away spring dependency
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
@@ -179,6 +178,13 @@ case class SyntheticRequestServiceMethod(
     throw ServiceIntrospectionException(
       javaMethod,
       "Missing request method mapping. Kalix Java SDK methods must have a request method defined.")
+  }
+
+  if (javaMethod.getParameterAnnotations.toSet.flatten
+      .collect { case (p: PathVariable) => p }
+      .exists(_.required() == false)) {
+
+    throw ServiceIntrospectionException(javaMethod, "Currently all @PathVariables must be defined as required.")
   }
 
   private val pathFromAnnotation: String = {

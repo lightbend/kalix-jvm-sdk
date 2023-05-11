@@ -24,13 +24,18 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
+import reactor.core.publisher.Mono;
 
 import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
 import static java.time.temporal.ChronoUnit.SECONDS;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -100,6 +105,53 @@ public class EventSourcedEntityIntegrationTest {
       .until(
         () -> getCounter(counterId),
         new IsEqual(10));
+  }
+
+  @Test
+  public void verifyRequestWithDefaultProtoValuesWithEntity() {
+    var counterId = "some-counter";
+
+    increaseCounter(counterId, 2);
+    Integer result = webClient
+      .post()
+      .uri("/counter/" + counterId + "/set/" + 0)
+      .retrieve()
+      .bodyToMono(Integer.class)
+      .block(timeout);
+
+    assertThat(result).isEqualTo(0);
+  }
+
+  @Test
+  public void verifyRequestWithDefaultProtoValuesWithEntityByReqParams() {
+    var counterId = "some-counter";
+
+    increaseCounter(counterId, 2);
+    Integer result = webClient
+      .post()
+      .uri("/counter/" + counterId + "/set?value=" + 0)
+      .retrieve()
+      .bodyToMono(Integer.class)
+      .block(timeout);
+
+    assertThat(result).isEqualTo(0);
+  }
+
+  @Test
+  public void failRequestWhenReqParamsIsNotPresent() {
+    var counterId = "some-counter";
+
+    increaseCounter(counterId, 2);
+    ResponseEntity<String> result = webClient
+      .post()
+      .uri("/counter/" + counterId + "/set")
+      .retrieve()
+      .toEntity(String.class)
+      .onErrorResume(WebClientResponseException.class, error -> Mono.just(ResponseEntity.status(error.getStatusCode()).body(error.getResponseBodyAsString())))
+      .block(timeout);
+
+    assertThat(result.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+    assertThat(result.getBody()).isEqualTo("Required request parameter is missing: value");
   }
 
   private Integer increaseCounter(String name, int value) {

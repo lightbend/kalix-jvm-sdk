@@ -46,17 +46,22 @@ public class IncreaseAction extends Action {
   }
 
   @Subscribe.EventSourcedEntity(value = CounterEntity.class)
+  public Effect<CounterEvent.ValueSet> printSet(CounterEvent.ValueSet event) {
+    return effects().reply(event);
+  }
+
+  @Subscribe.EventSourcedEntity(value = CounterEntity.class)
   public Effect<Integer> printIncrease(CounterEvent.ValueIncreased event) {
     String entityId = this.actionContext().metadata().asCloudEvent().subject().get();
-    if (event.value == 42) {
+    if (event.value() == 42) {
       CompletionStage<Integer> res =
           kalixClient.post("/counter/" + entityId + "/increase/1", Integer.class).execute();
       return effects().asyncReply(res);
-    } else if (event.value == 4422) {
+    } else if (event.value() == 4422) {
       DeferredCall<Any, Integer> inc = kalixClient.post("/counter/" + entityId + "/increase/1", Integer.class);
-      return effects().reply(event.value)
+      return effects().reply(event.value())
           .addSideEffect(SideEffect.of(inc));
     }
-    return effects().reply(event.value);
+    return effects().reply(event.value());
   }
 }

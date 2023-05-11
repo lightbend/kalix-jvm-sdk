@@ -16,34 +16,19 @@
 
 package com.example.wiring.eventsourcedentities.counter;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import kalix.javasdk.annotations.TypeName;
 
 public interface CounterEvent {
 
   @TypeName("increased")
-  class ValueIncreased implements CounterEvent {
+  record ValueIncreased(int value) implements CounterEvent {
+  }
 
-    public final int value;
-
-    @JsonCreator
-    public ValueIncreased(@JsonProperty("value") int value) {
-      this.value = value;
-    }
+  @TypeName("set")
+  record ValueSet(int value) implements CounterEvent {
   }
 
   @TypeName("multiplied")
-  class ValueMultiplied implements CounterEvent {
-
-    public final int value;
-
-    @JsonCreator
-    public ValueMultiplied(@JsonProperty("value") int value) {
-      this.value = value;
-    }
+  record ValueMultiplied(int value) implements CounterEvent {
   }
-
-
-
 }

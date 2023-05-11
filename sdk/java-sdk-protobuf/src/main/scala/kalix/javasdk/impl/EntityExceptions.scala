@@ -16,7 +16,10 @@
 
 package kalix.javasdk.impl
 
+import io.grpc.Status
+import kalix.javasdk.impl.ErrorHandling.BadRequestException
 import kalix.javasdk.{ eventsourcedentity, valueentity }
+import kalix.protocol.component.Failure
 import kalix.protocol.entity.Command
 import kalix.protocol.event_sourced_entity.EventSourcedInit
 import kalix.protocol.replicated_entity.ReplicatedEntityInit

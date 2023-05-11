@@ -18,12 +18,13 @@ package kalix.javasdk.impl.valueentity
 
 import scala.concurrent.ExecutionContext
 import scala.util.control.NonFatal
-
 import akka.NotUsed
 import akka.actor.ActorSystem
 import akka.stream.scaladsl.Flow
 import akka.stream.scaladsl.Source
+import io.grpc.Status
 import kalix.javasdk.KalixRunner.Configuration
+import kalix.javasdk.impl.ErrorHandling.BadRequestException
 import kalix.protocol.component.Failure
 import org.slf4j.LoggerFactory
 
@@ -160,6 +161,8 @@ final class ValueEntitiesImpl(
             try {
               router._internalHandleCommand(command.name, cmd, context)
             } catch {
+              case BadRequestException(msg) =>
+                CommandResult(new ValueEntityEffectImpl[Any].error(msg, Status.Code.INVALID_ARGUMENT))
               case e: EntityException => throw e
               case NonFatal(error) =>
                 throw EntityException(command, s"Unexpected failure: $error", Some(error))
