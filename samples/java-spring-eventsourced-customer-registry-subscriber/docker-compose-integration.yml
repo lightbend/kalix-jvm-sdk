@@ -1,5 +1,5 @@
 # this docker-compose is used by the integration tests. To run it, we must first publish
-# java-spring-customer-registry image locally. To do so, run the following command from the root of the project:
+# java-spring-eventsourced-customer-registry image locally. To do so, run the following command from the root of the project:
 # mvn clean install docker:build
 
 version: "3"
