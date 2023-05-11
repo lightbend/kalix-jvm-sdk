@@ -60,20 +60,19 @@ public class CounterTopicSubscriptionIntegrationTest {
   @Test
   public void increaseOnReadingFromTopic() throws Exception {
 
-    var msg = EventingTestKit.Message.of(
-        CounterTopicApi.Increased.newBuilder().setValue(15).build().toByteString(),
-        Metadata.EMPTY
-            .add("Content-Type", "application/protobuf;proto="+ CounterTopicApi.Increased.getDescriptor().getFullName())
-            .add("ce-specversion", "1.0")
-            .add("ce-id", "msg1")
-            .add("ce-type", "Increase")
-            .add("ce-source", CounterTopicApi.Increased.getDescriptor().getFullName())
-            .add("ce-subject", "test-2")
-            .add("random", "hello"));
+    var topic = testKit.getTopic("counter-events");
+    var msg = CounterTopicApi.Increased.newBuilder().setValue(15).build();
+    var md = Metadata.EMPTY
+        .add("Content-Type", "application/protobuf;proto="+ CounterTopicApi.Increased.getDescriptor().getFullName())
+        .add("ce-specversion", "1.0")
+        .add("ce-id", "msg1")
+        .add("ce-type", "Increase")
+        .add("ce-source", CounterTopicApi.Increased.getDescriptor().getFullName())
+        .add("ce-subject", "counter-2");
 
-    testKit.getTopic("counter-events").publish(msg);
+    topic.publish(msg.toByteString(), md);
 
-    assertEquals(15, getCounterValue("test-2"));
+    assertEquals(15, getCounterValue("counter-2"));
   }
 
 
