@@ -30,6 +30,7 @@ import sbt.Keys._
 import sbtprotoc.ProtocPlugin
 import sbtprotoc.ProtocPlugin.autoImport.PB
 import kalix.devtools.impl.DockerComposeUtils
+
 object KalixPlugin extends AutoPlugin {
   override def trigger = noTrigger
   override def requires = ProtocPlugin && AkkaGrpcPlugin
@@ -73,11 +74,11 @@ object KalixPlugin extends AutoPlugin {
         "io.kalix" %% "kalix-scala-sdk-protobuf-testkit" % KalixSdkVersion % Test),
       logConfig := "logback-dev-mode.xml",
       run / javaOptions ++=
-        dockerComposeUtils.value.readServicePortMappings
-        ++ Seq(
+        dockerComposeUtils.value.localServicePortMappings ++
+        Seq(
           "-Dkalix.user-function-interface=0.0.0.0",
           s"-Dlogback.configurationFile=${logConfig.value}",
-          s"-Dkalix.user-function-port=${dockerComposeUtils.value.readUserFunctionPort}"),
+          s"-Dkalix.user-function-port=${dockerComposeUtils.value.userFunctionPort}"),
       Compile / PB.targets +=
         gen(
           (akkaGrpcCodeGeneratorSettings.value :+ KalixGenerator.enableDebug)

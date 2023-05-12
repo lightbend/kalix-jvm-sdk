@@ -26,10 +26,10 @@ object ServicePortMappingsExtractor {
       line
         .split("(?=-D)") // split on -D but keep the -D in the result
         .collect {
-          case s if s.startsWith("-Dkalix.dev-mode.service-port-mappings") => s.trim
+          case s if s.startsWith("-D" + DevModeSettings.portMappingsKeyPrefix) => s.trim
         }
 
-    if (portMappings.nonEmpty) Some(portMappings) else None
+    if (portMappings.nonEmpty) Some(portMappings.toIndexedSeq) else None
   }
 
 }

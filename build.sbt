@@ -4,6 +4,7 @@ lazy val `kalix-jvm-sdk` = project
   .in(file("."))
   .aggregate(
     devTools,
+    devToolsInternal,
     coreSdk,
     javaSdkProtobuf,
     javaSdkProtobufTestKit,
@@ -348,41 +349,63 @@ def githubUrl(v: String): String = {
   "https://github.com/lightbend/kalix-jvm-sdk/tree/" + branch
 }
 
-lazy val devTools = project
-  .in(file("devtools"))
-  .enablePlugins(BuildInfoPlugin, PublishSonatype)
-  .dependsOn(coreSdk)
-  .settings(common)
-  .settings(
-    name := "kalix-devtools",
-    Compile / javacOptions ++= Seq("--release", "11"),
-    Compile / scalacOptions ++= Seq("-release", "11"),
-    scalaVersion := Dependencies.ScalaVersionForDevTools,
-    buildInfoKeys := Seq[BuildInfoKey](
-      name,
-      version,
-      "proxyImage" -> "gcr.io/kalix-public/kalix-proxy",
-      "proxyVersion" -> Kalix.ProxyVersion,
-      "scalaVersion" -> scalaVersion.value),
-    buildInfoPackage := "kalix.devtools",
-    // Generate javadocs by just including non generated Java sources
-    Compile / doc / sources := {
-      val javaSourceDir = (Compile / javaSource).value.getAbsolutePath
-      (Compile / doc / sources).value.filter(_.getAbsolutePath.startsWith(javaSourceDir))
-    },
-    // javadoc (I think java 9 onwards) refuses to compile javadocs if it can't compile the entire source path.
-    // but since we have java files depending on Scala files, we need to include ourselves on the classpath.
-    Compile / doc / dependencyClasspath := (Compile / fullClasspath).value,
-    Compile / doc / javacOptions ++= Seq(
-      "-Xdoclint:none",
-      "-overview",
-      ((Compile / javaSource).value / "overview.html").getAbsolutePath,
-      "-notimestamp",
-      "-doctitle",
-      "Kalix Dev Tools",
-      "-noqualifier",
-      "java.lang"))
-  .settings(Dependencies.devTools)
+lazy val devTools = devToolsCommon(
+  project
+    .in(file("devtools"))
+    .settings(name := "kalix-devtools", scalaVersion := Dependencies.ScalaVersion))
+
+/*
+  This variant devTools compiles with Scala 2.12, but uses the same source files as the 2.13 version (above).
+  This is needed because the devTools artifact is also used by the sbt and mvn plugins and therefore needs a 2.12 version.
+  Note that crossbuilding is not an option, because when the built selects 2.13, it will try to build sbt-kalix with 2.13
+ */
+lazy val devToolsInternal =
+  devToolsCommon(
+    project
+      .in(file("devtools"))
+      .settings(
+        name := "kalix-devtools-internal",
+        scalaVersion := Dependencies.ScalaVersionForTooling,
+        // to avoid overwriting the 2.13 version
+        target := baseDirectory.value / "target-2.12"))
+
+/*
+ Common configuration to be applied to devTools modules (both 2.12 and 2.13)
+ We need to have this 'split' module because compilation of sbt plugins don't play nice with cross-compiled modules.
+ Instead, it's easier to have a separate module for each Scala version, but share the same source files.
+ */
+def devToolsCommon(project: Project): Project =
+  project
+    .enablePlugins(BuildInfoPlugin, PublishSonatype)
+    .dependsOn(coreSdk)
+    .settings(common)
+    .settings(
+      Compile / javacOptions ++= Seq("--release", "11"),
+      Compile / scalacOptions ++= Seq("-release", "11"),
+      buildInfoKeys := Seq[BuildInfoKey](
+        name,
+        version,
+        "proxyImage" -> "gcr.io/kalix-public/kalix-proxy",
+        "proxyVersion" -> Kalix.ProxyVersion),
+      buildInfoPackage := "kalix.devtools",
+      // Generate javadocs by just including non generated Java sources
+      Compile / doc / sources := {
+        val javaSourceDir = (Compile / javaSource).value.getAbsolutePath
+        (Compile / doc / sources).value.filter(_.getAbsolutePath.startsWith(javaSourceDir))
+      },
+      // javadoc (I think java 9 onwards) refuses to compile javadocs if it can't compile the entire source path.
+      // but since we have java files depending on Scala files, we need to include ourselves on the classpath.
+      Compile / doc / dependencyClasspath := (Compile / fullClasspath).value,
+      Compile / doc / javacOptions ++= Seq(
+        "-Xdoclint:none",
+        "-overview",
+        ((Compile / javaSource).value / "overview.html").getAbsolutePath,
+        "-notimestamp",
+        "-doctitle",
+        "Kalix Dev Tools",
+        "-noqualifier",
+        "java.lang"))
+    .settings(Dependencies.devTools)
 
 lazy val javaTck = project
   .in(file("tck/java-tck"))
@@ -431,7 +454,7 @@ lazy val codegenCore =
     .settings(
       Compile / javacOptions ++= Seq("--release", "11"),
       Compile / scalacOptions ++= Seq("-release", "11"),
-      scalaVersion := Dependencies.ScalaVersionForDevTools)
+      scalaVersion := Dependencies.ScalaVersionForTooling)
 
 lazy val codegenJava =
   project
@@ -457,7 +480,7 @@ lazy val codegenJava =
     .settings(
       Compile / javacOptions ++= Seq("--release", "11"),
       Compile / scalacOptions ++= Seq("-release", "11"),
-      scalaVersion := Dependencies.ScalaVersionForDevTools)
+      scalaVersion := Dependencies.ScalaVersionForTooling)
 
 lazy val codegenJavaCompilationTest = project
   .in(file("codegen/java-gen-compilation-tests"))
@@ -487,7 +510,7 @@ lazy val codegenScala =
       name := "kalix-codegen-scala",
       Compile / javacOptions ++= Seq("--release", "11"),
       Compile / scalacOptions ++= Seq("-release", "11"),
-      scalaVersion := Dependencies.ScalaVersionForDevTools,
+      scalaVersion := Dependencies.ScalaVersionForTooling,
       Test / fork := false, // needed to pass -D properties to ExampleSuite
       buildInfoKeys := Seq[BuildInfoKey](
         name,
@@ -545,12 +568,12 @@ lazy val sbtPlugin = Project(id = "sbt-kalix", base = file("sbt-plugin"))
   .settings(
     Compile / javacOptions ++= Seq("--release", "11"),
     Compile / scalacOptions ++= Seq("-release", "11"),
-    scalaVersion := Dependencies.ScalaVersionForDevTools,
+    scalaVersion := Dependencies.ScalaVersionForTooling,
     scriptedLaunchOpts := {
       scriptedLaunchOpts.value ++
       Seq("-Xmx1024M", "-Dplugin.version=" + version.value)
     },
     scriptedBufferLog := false)
-  .dependsOn(codegenScala, devTools)
+  .dependsOn(codegenScala, devToolsInternal)
 
 addCommandAlias("formatAll", "scalafmtAll; javafmtAll")

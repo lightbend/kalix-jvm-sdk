@@ -14,16 +14,7 @@ import reactor.core.publisher.Flux;
 // tag::view[]
 @Table("customers_by_name")
 @Subscribe.Stream( // <1>
-    // end::view[]
-    // Normally the Kalix service deployment name
-    // (but localhost + hardcoded port here to be able to run both locally)
-    service = "host.docker.internal:9000",
-    /*
-    // tag::view[]
     service = "customer-registry", // <2>
-    // end::view[]
-     */
-    // tag::view[]
     id = "customer_events" // <3>
 )
 public class CustomersByNameView extends View<Customer> {

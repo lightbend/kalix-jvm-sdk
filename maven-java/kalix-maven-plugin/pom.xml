@@ -62,7 +62,7 @@
     <!-- Plugin-specific dependencies -->
     <dependency>
       <groupId>io.kalix</groupId>
-      <artifactId>kalix-devtools_${scala.compat.version}</artifactId>
+      <artifactId>kalix-devtools-internal_${scala.compat.version}</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
