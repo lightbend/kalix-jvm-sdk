@@ -47,13 +47,12 @@ public class CustomerActionIntegrationTest {
 
     var outTopic = testKit.getTopic("customer_changes");
     // wait for action to publish the change of state
-    var createdMsgOut = outTopic.expectNext();
+    var createdMsgOut = outTopic.expectOneClassOf(CustomerApi.Customer.getDefaultInstance());
     var metadata = createdMsgOut.getMetadata();
 
     assertEquals(Optional.of("customer.api.Customer"), metadata.get("ce-type"));
     assertEquals(Optional.of("application/protobuf"), metadata.get("Content-Type"));
-    var publishedCustomer = CustomerApi.Customer.parseFrom(createdMsgOut.getPayload().toByteArray());
-    assertEquals(noAddress(toCreate), publishedCustomer);
+    assertEquals(noAddress(toCreate), createdMsgOut.getPayload());
 
     //change customer name
     var completeName = "Johanna Doe";
@@ -65,9 +64,8 @@ public class CustomerActionIntegrationTest {
         .get(5, SECONDS);
 
     // wait for action to publish the change of state
-    var nameChangeMsgOut = outTopic.expectNext();
-    var renamedCustomer = CustomerApi.Customer.parseFrom(nameChangeMsgOut.getPayload().toByteArray());
-    assertEquals(completeName, renamedCustomer.getName());
+    var nameChangeMsgOut = outTopic.expectOneClassOf(CustomerApi.Customer.getDefaultInstance());
+    assertEquals(completeName, nameChangeMsgOut.getPayload().getName());
   }
 
   private CustomerApi.Customer customer(String id, String name, String email, String city, String street) {

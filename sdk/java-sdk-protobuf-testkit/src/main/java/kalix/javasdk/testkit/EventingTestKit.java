@@ -20,9 +20,11 @@ import akka.actor.ActorSystem;
 import akka.annotation.ApiMayChange;
 import akka.annotation.InternalApi;
 import com.google.protobuf.ByteString;
+import com.google.protobuf.GeneratedMessageV3;
 import kalix.javasdk.Metadata;
 import kalix.javasdk.testkit.impl.EventingTestKitImpl;
 
+import java.time.Duration;
 import java.util.Collection;
 
 
@@ -51,7 +53,27 @@ public interface EventingTestKit {
      *
      * @return message including ByteString payload and metadata
      */
-    Message<ByteString> expectNext();
+    Message<ByteString> expectOne();
+
+    /**
+     * Waits for a specific amount and returns the next unread message on this topic.
+     * Note the message might have been received before this method was called.
+     * If no message is received, a timeout exception is thrown.
+     *
+     * @param timeout amount of time to wait for a message if it was not received already
+     * @return message including ByteString payload and metadata
+     */
+    Message<ByteString> expectOne(Duration timeout);
+
+    /**
+     * Waits and returns the next unread message on this topic and automatically parses
+     * and casts it to the specified given type.
+     *
+     * @param instance object to be used to parse the received message bytes
+     * @return a Message of type T
+     * @param <T> a given domain type
+     */
+    <T extends GeneratedMessageV3> Message<T> expectOneClassOf(T instance);
 
     /**
      * Waits for a default amount of time before returning all unread messages in the topic.
@@ -59,7 +81,26 @@ public interface EventingTestKit {
      *
      * @return collection of messages, each message including ByteString payload and metadata
      */
-    Collection<Message<ByteString>> expectAll();
+    Collection<Message<ByteString>> expectN();
+
+    /**
+     * Waits for a given amount of unread messages to be received before returning.
+     * If no message is received, a timeout exception is thrown.
+     *
+     * @param total number of messages to wait for before returning
+     * @return collection of messages, each message including ByteString payload and metadata
+     */
+    Collection<Message<ByteString>> expectN(int total);
+
+    /**
+     * Waits for a given amount of unread messages to be received before returning up to a given timeout.
+     * If no message is received, a timeout exception is thrown.
+     *
+     * @param total number of messages to wait for before returning
+     * @param timeout maximum amount of time to wait for the messages
+     * @return collection of messages, each message including ByteString payload and metadata
+     */
+    Collection<Message<ByteString>> expectN(int total, Duration timeout);
   }
 
   @ApiMayChange

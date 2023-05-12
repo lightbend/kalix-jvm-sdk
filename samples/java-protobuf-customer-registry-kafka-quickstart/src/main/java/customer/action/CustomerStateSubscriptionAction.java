@@ -16,22 +16,22 @@ public class CustomerStateSubscriptionAction extends AbstractCustomerStateSubscr
   private static final Logger logger = LoggerFactory.getLogger(CustomerStateSubscriptionAction.class);
 
   public CustomerStateSubscriptionAction(ActionCreationContext creationContext) {}
-// tag::upsert[]
+  // tag::upsert[]
 
   @Override
   public Effect<CustomerApi.Customer> onStateChange(CustomerDomain.CustomerState customerState) {
 
     // not populating address for public consumption
-   CustomerApi.Customer customer = CustomerApi.Customer.newBuilder()
-            .setCustomerId(customerState.getCustomerId())
-            .setEmail(customerState.getEmail())
-            .setName(customerState.getName())
-            .build();
+    CustomerApi.Customer customer = CustomerApi.Customer.newBuilder()
+        .setCustomerId(customerState.getCustomerId())
+        .setEmail(customerState.getEmail())
+        .setName(customerState.getName())
+        .build();
 
 
-   logger.info("Publishing public customer state out: {}", customer);
+    logger.info("Publishing public customer state out: {}", customer);
     return effects().reply(customer);
   }
-// end::upsert[]
+  // end::upsert[]
 
 }

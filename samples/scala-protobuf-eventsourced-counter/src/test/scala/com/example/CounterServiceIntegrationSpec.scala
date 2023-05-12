@@ -39,8 +39,7 @@ class CounterServiceIntegrationSpec extends AnyWordSpec with Matchers with Befor
       counter.value shouldBe (10 + 10 * 2)
 
       // verify messages published to topic
-      val allMsgs = testKit.getTopic("counter-events").expectAll()
-      allMsgs.size shouldBe 2
+      val allMsgs = testKit.getTopic("counter-events").expectN(2)
 
       val Seq(Message(payload1, md1), Message(payload2, md2)) = allMsgs
       Increased.parseFrom(payload1.toByteArray) shouldBe Increased(10)
@@ -58,8 +57,8 @@ class CounterServiceIntegrationSpec extends AnyWordSpec with Matchers with Befor
       counter.value shouldBe 15
 
       // verify message published to topic
-      val Message(payload, md) = testKit.getTopic("counter-events").expectNext()
-      Decreased.parseFrom(payload.toByteArray) shouldBe Decreased(15)
+      val Message(payload, md) = testKit.getTopic("counter-events").expectOneClassOf(Decreased.messageCompanion)
+      payload shouldBe Decreased(15)
       md.get("ce-type") should contain(classOf[Decreased].getName)
       md.get("Content-Type") should contain("application/protobuf")
     }

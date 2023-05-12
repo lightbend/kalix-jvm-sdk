@@ -17,19 +17,45 @@
 package kalix.scalasdk.testkit.impl
 
 import com.google.protobuf.ByteString
-import kalix.scalasdk.impl.MetadataConverters
 import kalix.javasdk.testkit.{ EventingTestKit => JEventingTestKit }
-import kalix.scalasdk.testkit.{ Message, Topic }
+import kalix.scalasdk.impl.MetadataConverters
+import kalix.scalasdk.testkit.Message
+import kalix.scalasdk.testkit.Topic
+import scalapb.GeneratedMessage
+import scalapb.GeneratedMessageCompanion
 
+import scala.concurrent.duration.FiniteDuration
 import scala.jdk.CollectionConverters.CollectionHasAsScala
+import scala.jdk.DurationConverters.ScalaDurationOps
+import scala.language.postfixOps
+
 case class TopicImpl private (delegate: JEventingTestKit.Topic) extends Topic {
-  def expectNext(): Message[ByteString] = {
-    val msg = delegate.expectNext()
+  override def expectOne(): Message[ByteString] = {
+    val msg = delegate.expectOne()
     Message(msg.getPayload, MetadataConverters.toScala(msg.getMetadata))
   }
 
-  def expectAll(): Seq[Message[ByteString]] = {
-    val allMsg = delegate.expectAll()
+  override def expectOne(timeout: FiniteDuration): Message[ByteString] = {
+    val msg = delegate.expectOne(timeout.toJava)
+    Message(msg.getPayload, MetadataConverters.toScala(msg.getMetadata))
+  }
+
+  override def expectOneClassOf[T <: GeneratedMessage](companion: GeneratedMessageCompanion[T]): Message[T] = {
+    val msg = expectOne()
+    Message(companion.parseFrom(msg.payload.toByteArray), msg.metadata)
+  }
+
+  override def expectN(): Seq[Message[ByteString]] = expectN(Int.MaxValue)
+
+  override def expectN(total: Int): Seq[Message[ByteString]] = {
+    val allMsg = delegate.expectN(total)
+    allMsg.asScala
+      .map(msg => Message(msg.getPayload, MetadataConverters.toScala(msg.getMetadata)))
+      .toSeq
+  }
+
+  override def expectN(total: Int, timeout: FiniteDuration): Seq[Message[ByteString]] = {
+    val allMsg = delegate.expectN(total, timeout.toJava)
     allMsg.asScala
       .map(msg => Message(msg.getPayload, MetadataConverters.toScala(msg.getMetadata)))
       .toSeq
