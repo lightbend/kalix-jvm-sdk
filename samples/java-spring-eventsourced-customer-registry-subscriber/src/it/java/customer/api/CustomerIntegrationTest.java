@@ -37,7 +37,7 @@ import static org.awaitility.Awaitility.await;
  * The subscriber service will first create a customer on customer-registry service. The customer will be streamed back to the subscriber service and update its view.
  * 
  * This test will exercise the following:
- * - servcice under test can read settings from docker-compose file and correctly configured itself. 
+ * - service under test can read settings from docker-compose file and correctly configure itself. 
  * - resolution of service port mappings from docker-compose file allows for cross service calls (eg: create customer from subscriber service)
  * - resolution of service port mappings passed to kalix-proxy allows for service to service streaming (eg: customer view is updated in subscriber service)
  */
@@ -96,7 +96,7 @@ public class CustomerIntegrationTest {
         .getStatusCode();
 
     } catch (WebClientRequestException ex) {
-      throw new RuntimeException("This test requires an external kalix service to be running on localhost:9001 but was not able to reach it.");
+      throw new RuntimeException("This test requires an external kalix service to be running on localhost:9000 but was not able to reach it.");
     }
   }
 
