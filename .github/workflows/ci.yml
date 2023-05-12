@@ -559,7 +559,7 @@ jobs:
           - { sample: java-spring-view-store, it: true }
 
           - { sample: java-protobuf-eventsourced-customer-registry, it: true }
-          - { sample: java-protobuf-eventsourced-customer-registry-subscriber, it: false }
+          - { sample: java-protobuf-eventsourced-customer-registry-subscriber, it: true, pre_cmd: 'mvn -f ../java-protobuf-eventsourced-customer-registry/pom.xml package docker:build' }
           - { sample: java-protobuf-eventsourced-counter, pre_cmd: 'docker-compose -f ../../.circleci/google-pubsub-emulator-docker-compose.yml up -d', it: true }
           - { sample: java-protobuf-eventsourced-shopping-cart, it: true }
 
