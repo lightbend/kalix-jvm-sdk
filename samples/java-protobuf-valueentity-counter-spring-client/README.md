@@ -3,9 +3,7 @@
 This project/module is a spring client to java-protobuf-valueentity-counter module exposed endpoints via REST and GRPC.
 This application exposes REST API endpoints and underneath calls relevant API's in java entity counter application.
 
-
 It's dependent on java-protobuf-valueentity-counter module.
-
 
 ## Building and running unit tests
 
@@ -21,7 +19,7 @@ In order to run your application locally, please ensure that module is running i
 By default, this application connects to java-protobuf-valueentity-counter running on localhost and port 9000. This is configurable in
 ``application.properties`` file with properties ``as.host`` and ``as.host``
 
-To start the application locally, the `exec-maven-plugin` is used. Use the following command:
+To start the application locally, the `spring-maven-plugin` is used. Use the following command:
 
 ```shell
 mvn spring-boot:run

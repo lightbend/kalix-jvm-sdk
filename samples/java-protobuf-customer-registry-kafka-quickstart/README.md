@@ -22,16 +22,17 @@ mvn compile
 ```
 
 
-## Running Locally 
+## Running Locally
 
-To run the example locally, you must run the Kalix proxy. The included `docker-compose` file contains the configuration required to run the proxy for a locally running application.
+When running this Kalix sample locally, a few applications are required. The current Kalix application, its companion Kalix Proxy, a Kafka broker and a Zookeeper.
 
-It also contains the configuration to start a local Kafka broker and a Zookeeper that the Kalix proxy will connect to.
-To start the proxy, the Kafka broker, and the Zookeeper, run the following command from the root directory:
+To start the applications locally, call the following command:
 
 ```shell
-docker compose -f docker-compose.yml rm -f && docker compose -f docker-compose.yml up
+mvn kalix:runAll
 ```
+
+This command will start the Kalix application, the Kalix Proxy, a local Kafka broker and a Zookeeper using the included [docker-compose.yml](./docker-compose.yml) file.
 
 It can make sense to delete the existing containers (if any exist) and start from scratch when starting up the Kafka container.
 
@@ -41,13 +42,6 @@ Every time a customer receives a change, the application also persists that chan
 
     docker-compose exec kafka kafka-topics --create --bootstrap-server \
     localhost:9092 --replication-factor 1 --partitions 1 --topic customer_changes
-
-### Starting the application
-To start the application locally, the `exec-maven-plugin` is used. Use the following command:
-
-```shell
-mvn compile exec:exec
-```
 
 With both the proxy and your application running, any defined endpoints should be available at `http://localhost:9000`. In addition to the defined gRPC interface, each method has a corresponding HTTP endpoint. Unless configured otherwise (see [Transcoding HTTP](https://docs.kalix.io/java-protobuf/writing-grpc-descriptors-protobuf.html#_transcoding_http)), this endpoint accepts POST requests at the path `/[package].[entity name]/[method]`. For example, using `curl`:
 

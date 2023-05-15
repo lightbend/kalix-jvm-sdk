@@ -1,6 +1,7 @@
 # Shopping Cart example (using a Value Entity)
 
 This example project implements an API for a shopping cart using a Kalix Value Entity.
+
 ## Designing
 
 While designing your service it is useful to read [designing services](https://docs.kalix.io/developing/development-process-proto.html)
@@ -16,28 +17,25 @@ and in particular the [JVM section](https://docs.kalix.io/java/)
 You can use [sbt](https://www.scala-sbt.org/) to build your project,
 which will also take care of generating code based on the `.proto` definitions:
 
-```
+```shell
 sbt compile
 ```
 
 ## Running Locally
 
-In order to run your application locally, you must run the Kalix proxy. The included `docker-compose` file contains the configuration required to run the proxy for a locally running application.
-It also contains the configuration to start a local Google Pub/Sub emulator that the Kalix proxy will connect to.
-To start the proxy, run the following command from this directory:
+When running a Kalix application locally, at least two applications are required. The current Kalix application and its companion Kalix Proxy.
+
+To start the applications locally, call the following command:
 
 ```shell
-docker-compose up
+sbt runAll
 ```
 
-> On Linux this requires Docker 20.10 or later (https://github.com/moby/moby/pull/40007),
-> or for a `USER_FUNCTION_HOST` environment variable to be set manually.
+This command will start your Kalix application and a Kalix Proxy using the included [docker-compose.yml](./docker-compose.yml) file.
 
-To start the application locally, start it from your IDE or use:
+For further details see [Running a service locally](https://docs.kalix.io/developing/running-service-locally.html) in the documentation.
 
-```
-sbt run
-```
+## Exercise the service
 
 With both the proxy and your application running, any defined endpoints should be available at `http://localhost:9000`. In addition to the defined gRPC interface, each method has a corresponding HTTP endpoint. Unless configured otherwise (see [Transcoding HTTP](https://docs.kalix.io/java-protobuf/writing-grpc-descriptors-protobuf.html#_transcoding_http)), this endpoint accepts POST requests at the path `/[package].[entity name]/[method]`. For example, using `curl`:
 
@@ -67,7 +65,6 @@ grpcurl --plaintext -d '{"cart_id": "cart1"}' localhost:9000 com.example.shoppin
 grpcurl --plaintext -d '{"cart_id": "cart1", "product_id": "kalix-tshirt", "name": "Kalix t-shirt" }' localhost:9000 com.example.shoppingcart.ShoppingCartService/RemoveItem
 ```
 
-
 ## Deploying
 
 To deploy your service, install the `kalix` CLI as documented in
@@ -76,7 +73,7 @@ and configure a Docker Registry to upload your docker image to.
 
 You will need to set your `docker.username` as a system property:
 
-```
+```shell
 sbt -Ddocker.username=mary Docker/publish
 ```
 

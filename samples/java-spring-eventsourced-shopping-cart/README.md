@@ -1,8 +1,16 @@
-# java-spring-eventsourced-shoppingcart
+# Event Sourced Shopping Cart
+
+## Designing
 
 To understand the Kalix concepts that are the basis for this example, see [Designing services](https://docs.kalix.io/java/development-process.html) in the documentation.
 
-This project contains the framework to create a Kalix application by adding Kalix components. To understand more about these components, see [Developing services](https://docs.kalix.io/services/). Spring-SDK is an experimental feature and so far there is no [official](https://docs.kalix.io/) documentation. Examples can be found [here](https://github.com/lightbend/kalix-jvm-sdk/tree/main/samples) in the folders with "spring" in their name.
+## Developing
+
+This project demonstrates the use of Value Entity and View components.
+To understand more about these components, see [Developing services](https://docs.kalix.io/services/)
+and in particular the [Java section](https://docs.kalix.io/java/)
+
+## Building
 
 Use Maven to build your project:
 
@@ -10,38 +18,39 @@ Use Maven to build your project:
 mvn compile
 ```
 
-To run the example locally, you must run the Kalix proxy. The included `docker-compose` file contains the configuration required to run the proxy for a locally running application.
-It also contains the configuration to start a local Google Pub/Sub emulator that the Kalix proxy will connect to.
-To start the proxy, run the following command from this directory:
+## Running Locally
+
+When running a Kalix application locally, at least two applications are required. The current Kalix application and its companion Kalix Proxy.
+
+To start the applications locally, call the following command:
 
 ```shell
-docker-compose up
+mvn kalix:runAll
 ```
 
-To start the application locally, the `spring-boot-maven-plugin` is used. Use the following command:
+This command will start your Kalix application and a Kalix Proxy using the included [docker-compose.yml](./docker-compose.yml) file.
 
-```shell
-mvn spring-boot:run
-```
-
-With both the proxy and your application running, once you have defined endpoints they should be available at `http://localhost:9000`. 
+With both the proxy and your application running, once you have defined endpoints they should be available at `http://localhost:9000`.
 
 ## Exercise the service
 
 With both the proxy and your application running, any defined endpoints should be available at `http://localhost:9000`. For example, using `curl`:
 
 - Add items to shopping cart
+
 ```shell
 curl -i -XPOST -H "Content-Type: application/json" localhost:9000/cart/123/add -d '{"productId":"kalix-tshirt", "name":"Akka Tshirt", "quantity": 10}'
 curl -i -XPOST -H "Content-Type: application/json" localhost:9000/cart/123/add -d '{"productId":"scala-tshirt", "name":"Scala Tshirt", "quantity": 20}'
 ```
 
-- See current status of the shopping cart 
+- See current status of the shopping cart
+
 ```shell
 curl -i -XGET -H "Content-Type: application/json" localhost:9000/cart/123
 ```
 
 - Remove an item from the cart
+
 ```shell
 curl -XPOST -H "Content-Type: application/json" localhost:9000/cart/123/items/kalix-tshirt/remove
 ```

@@ -1,39 +1,36 @@
 # Fibonacci Action Service
 
-This project is based on the Kalix Maven archetype.
+## Designing
+
+To understand the Kalix concepts that are the basis for this example, see [Designing services](https://docs.kalix.io/java/development-process.html) in the documentation.
+
+## Developing
+
+This project demonstrates the use of Value Entity and View components.
+To understand more about these components, see [Developing services](https://docs.kalix.io/services/)
+and in particular the [Java section](https://docs.kalix.io/java/)
+
+## Building
+
+Use Maven to build your project:
 
 ```shell
-mvn archetype:generate \
-  -DarchetypeGroupId=io.kalix \
-  -DarchetypeArtifactId=kalix-maven-archetype \
-  -DarchetypeVersion=LATEST
-```
-
-See the [Kickstart a Maven project](https://docs.kalix.io/java/kickstart.html) in the documentation for details.
-
-## Building and running unit tests
-
-To compile and test the code from the command line, use
-
-```shell
-mvn verify
+mvn compile
 ```
 
 ## Running Locally
 
-In order to run your application locally, you must run the Kalix proxy. The included `docker compose` file contains the configuration required to run the proxy for a locally running application.
-It also contains the configuration to start a local Google Pub/Sub emulator that the Kalix proxy will connect to.
-To start the proxy, run the following command from this directory:
+When running a Kalix application locally, at least two applications are required. The current Kalix application and its companion Kalix Proxy.
+
+To start the applications locally, call the following command:
 
 ```shell
-docker-compose up
+mvn kalix:runAll
 ```
 
-To start the application locally, the `spring-boot-maven-plugin` is used. Use the following command:
+This command will start your Kalix application and a Kalix Proxy using the included [docker-compose.yml](./docker-compose.yml) file.
 
-```shell
-mvn spring-boot:run
-```
+With both the proxy and your application running, once you have defined endpoints they should be available at `http://localhost:9000`.
 
 For further details see [Running a service locally](https://docs.kalix.io/developing/running-service-locally.html) in the documentation.
 
@@ -41,8 +38,7 @@ For further details see [Running a service locally](https://docs.kalix.io/develo
 
 With both the proxy and your application running, any defined endpoints should be available at `http://localhost:9000`. In addition to the defined gRPC interface, each method has a corresponding HTTP endpoint. Unless configured otherwise (see [Transcoding HTTP](https://docs.kalix.io/java-protobuf/writing-grpc-descriptors-protobuf.html#_transcoding_http)), this endpoint accepts POST requests at the path `/[package].[entity name]/[method]`. For example, using `curl`:
 
-
-```shell 
+```shell
 curl -XGET localhost:9000/fibonacci/5/next
 ```
 

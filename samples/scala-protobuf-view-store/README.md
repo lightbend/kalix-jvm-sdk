@@ -4,43 +4,37 @@ A simple store example with products, customers, and orders.
 
 Used for code snippets in the Views documentation.
 
-
 ## Building
 
 You can use [sbt](https://www.scala-sbt.org/) to build this project,
 which will also take care of generating code based on the `.proto` definitions:
 
-```
+```shell
 sbt compile
 ```
 
-
 ## Running Locally
 
-In order to run your application locally, you must run the Kalix proxy. The included `docker-compose.yml` file contains the configuration required to run the proxy for a locally running application.
-It also contains the configuration to start a local Google Pub/Sub emulator that the Kalix proxy will connect to.
-To start the proxy, run the following command from this directory:
+When running a Kalix application locally, at least two applications are required. The current Kalix application and its companion Kalix Proxy.
 
-```
-docker-compose up
-```
+To start the applications locally, call the following command:
 
-> On Linux this requires Docker 20.10 or later (https://github.com/moby/moby/pull/40007),
-> or for a `USER_FUNCTION_HOST` environment variable to be set manually.
-
-To start the application locally, start it from your IDE or use:
-
-```
-sbt run
+```shell
+sbt runAll
 ```
 
-With both the proxy and your application running, any defined endpoints should be available at `http://localhost:9000`. In addition to the defined gRPC interface, each method has a corresponding HTTP endpoint. Unless configured otherwise (see [Transcoding HTTP](https://docs.kalix.io/java/proto.html#_transcoding_http)), this endpoint accepts POST requests at the path `/[package].[entity name]/[method]`.
+This command will start your Kalix application and a Kalix Proxy using the included [docker-compose.yml](./docker-compose.yml) file.
 
-### Exercising the services
+For further details see [Running a service locally](https://docs.kalix.io/developing/running-service-locally.html) in the documentation.
+
+## Exercise the service
+
+With both the proxy and your application running, any defined endpoints should be available at `http://localhost:9000`. In addition to the defined gRPC interface, each method has a corresponding HTTP endpoint. Unless configured otherwise (see [Transcoding HTTP](https://docs.kalix.io/java-protobuf/writing-grpc-descriptors-protobuf.html#_transcoding_http)), this endpoint accepts POST requests at the path `/[package].[entity name]/[method]`.
+
 
 Create some products:
 
-```
+```shell
 grpcurl -d '{
     "productId": "P123",
     "productName": "Super Duper Thingamajig",
@@ -50,7 +44,7 @@ grpcurl -d '{
   store.product.api.Products/Create
 ```
 
-```
+```shell
 grpcurl -d '{
     "productId": "P987",
     "productName": "Awesome Whatchamacallit",
@@ -62,7 +56,7 @@ grpcurl -d '{
 
 Retrieve a product by id:
 
-```
+```shell
 grpcurl -d '{"productId": "P123"}' \
   --plaintext localhost:9000 \
   store.product.api.Products/Get
@@ -70,7 +64,7 @@ grpcurl -d '{"productId": "P123"}' \
 
 Create a customer:
 
-```
+```shell
 grpcurl -d '{
     "customerId": "C001",
     "email": "someone@example.com",
@@ -83,7 +77,7 @@ grpcurl -d '{
 
 Retrieve a customer by id:
 
-```
+```shell
 grpcurl -d '{"customerId": "C001"}' \
   --plaintext localhost:9000 \
   store.customer.api.Customers/Get
@@ -91,7 +85,7 @@ grpcurl -d '{"customerId": "C001"}' \
 
 Create customer orders for the products:
 
-```
+```shell
 grpcurl -d '{
     "orderId": "O1234",
     "productId": "P123",
@@ -102,7 +96,7 @@ grpcurl -d '{
   store.order.api.Orders/Create
 ```
 
-```
+```shell
 grpcurl -d '{
     "orderId": "O5678",
     "productId": "P987",
@@ -115,7 +109,7 @@ grpcurl -d '{
 
 Retrieve an order by id:
 
-```
+```shell
 grpcurl -d '{"orderId": "O5678"}' \
   --plaintext localhost:9000 \
   store.order.api.Orders/Get
@@ -123,7 +117,7 @@ grpcurl -d '{"orderId": "O5678"}' \
 
 Retrieve all product orders for a customer id using a view (with joins):
 
-```
+```shell
 grpcurl -d '{"customerId": "C001"}' \
   --plaintext localhost:9000 \
   store.view.joined.JoinedCustomerOrders/Get
@@ -131,7 +125,7 @@ grpcurl -d '{"customerId": "C001"}' \
 
 Retrieve all product orders for a customer id using a view (with joins and nested projection):
 
-```
+```shell
 grpcurl -d '{"customerId": "C001"}' \
   --plaintext localhost:9000 \
   store.view.nested.NestedCustomerOrders/Get
@@ -139,12 +133,11 @@ grpcurl -d '{"customerId": "C001"}' \
 
 Retrieve all product orders for a customer id using a view (with joins and structured projection):
 
-```
+```shell
 grpcurl -d '{"customerId": "C001"}' \
   --plaintext localhost:9000 \
   store.view.structured.StructuredCustomerOrders/Get
 ```
-
 
 ## Deploying
 
@@ -154,7 +147,7 @@ and configure a Docker Registry to upload your Docker image to.
 
 You will need to set your `docker.username` as a system property:
 
-```
+```shell
 sbt -Ddocker.username=mary docker:publish
 ```
 
@@ -163,7 +156,7 @@ for more information on how to make your Docker image available to Kalix.
 
 You can now deploy your service through the [kalix](https://docs.kalix.io/kalix/using-cli.html) CLI:
 
-```
+```shell
 $ kalix auth login
 ```
 
@@ -172,7 +165,7 @@ register an account, create your first project and set it as the default.
 
 Now:
 
-```
+```shell
 $ kalix services deploy \
     my-service \
     my-container-uri/container-name:tag-name
@@ -181,13 +174,13 @@ $ kalix services deploy \
 Once the service has been successfully started (this may take a while),
 you can create an ad-hoc proxy to call it from your local machine:
 
-```
+```shell
 $ kalix services proxy my-service
 Listening on 127.0.0.1:8080
 ```
 
 Or expose it to the Internet:
 
-```
+```shell
 kalix service expose my-service
 ```

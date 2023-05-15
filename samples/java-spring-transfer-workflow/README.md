@@ -4,38 +4,37 @@ A simple workflow example of funds transfer between two wallets.
 
 Used for code snippets in the Workflow documentation.
 
+## Designing
+
+To understand the Kalix concepts that are the basis for this example, see [Designing services](https://docs.kalix.io/java/development-process.html) in the documentation.
 
 ## Developing
 
-This project demonstrates the use of Workflow Entity with Value Entities.
-
-To understand more about these components, see [developing services](https://docs.kalix.io/services/)
-and in particular the [developing with Spring section](https://docs.kalix.io/spring/).
-
+This project demonstrates the use of Value Entity and View components.
+To understand more about these components, see [Developing services](https://docs.kalix.io/services/)
+and in particular the [Java section](https://docs.kalix.io/java/)
 
 ## Building
 
 Use Maven to build your project:
 
-```
+```shell
 mvn compile
 ```
 
-
 ## Running Locally
 
-To run the example locally, you must run the Kalix proxy. The included `docker-compose` file contains the configuration required to run the proxy for a locally running application.
-It also contains the configuration to start a local Google Pub/Sub emulator that the Kalix proxy will connect to.
-To start the proxy, run the following command from this directory:
+When running a Kalix application locally, at least two applications are required. The current Kalix application and its companion Kalix Proxy.
 
-```
-docker-compose up
+To start the applications locally, call the following command:
+
+```shell
+mvn kalix:runAll
 ```
 
-To start the application locally, use the following command:
+This command will start your Kalix application and a Kalix Proxy using the included [docker-compose.yml](./docker-compose.yml) file.
 
-```
-mvn spring-boot:run
+With both the proxy and your application running, once you have defined endpoints they should be available at `http://localhost:9000`.
 ```
 
 With both the proxy and your application running, any defined endpoints should be available at `http://localhost:9000`. 
@@ -82,7 +81,6 @@ Get transfer state
 curl http://localhost:9000/transfer/1
 ```
 
-
 ## Running integration tests
 
 The integration tests in `src/it` are added by setting `it` as test source directory.
@@ -91,7 +89,6 @@ To run the Integration Tests in `src/it/java` use
 ```shell
 mvn verify -Pit
 ```
-
 
 ## Deploying
 

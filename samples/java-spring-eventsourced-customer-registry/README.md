@@ -34,7 +34,7 @@ docker-compose up
 To start the application locally, the `spring-boot-maven-plugin` is used. Use the following command:
 
 ```shell
-mvn spring-boot:run
+mvn kalix:runAll
 ```
 
 With both the proxy and your application running, any defined endpoints should be available at `http://localhost:9000`. 

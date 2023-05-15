@@ -4,48 +4,23 @@ A simple store example with products, customers, and orders.
 
 Used for code snippets in the Views documentation.
 
+When running a Kalix application locally, at least two applications are required. The current Kalix application and its companion Kalix Proxy.
 
-## Developing
+To start the applications locally, call the following command:
 
-This project demonstrates the use of advanced View components, with Event Sourced Entities and Value Entities.
-
-To understand more about these components, see [developing services](https://docs.kalix.io/services/)
-and in particular the [developing with Spring section](https://docs.kalix.io/spring/).
-
-
-## Building
-
-Use Maven to build your project:
-
-```
-mvn compile
+```shell
+mvn kalix:runAll
 ```
 
+This command will start your Kalix application and a Kalix Proxy using the included [docker-compose.yml](./docker-compose.yml) file.
 
-## Running Locally
+With both the proxy and your application running, once you have defined endpoints they should be available at `http://localhost:9000`.
 
-To run the example locally, you must run the Kalix proxy. The included `docker-compose` file contains the configuration required to run the proxy for a locally running application.
-It also contains the configuration to start a local Google Pub/Sub emulator that the Kalix proxy will connect to.
-To start the proxy, run the following command from this directory:
-
-```
-docker-compose up
-```
-
-To start the application locally, use the following command:
-
-```
-mvn spring-boot:run
-```
-
-With both the proxy and your application running, any defined endpoints should be available at `http://localhost:9000`. 
-
-
-### Exercising the services
+## Exercising the services
 
 Create some products:
 
-```
+```shell
 curl localhost:9000/product/P123/create \
   -XPOST \
   --header "Content-Type: application/json" \
@@ -55,7 +30,7 @@ curl localhost:9000/product/P123/create \
   }'
 ```
 
-```
+```shell
 curl localhost:9000/product/P987/create \
   -XPOST \
   --header "Content-Type: application/json" \
@@ -67,13 +42,13 @@ curl localhost:9000/product/P987/create \
 
 Retrieve a product by id:
 
-```
+```shell
 curl localhost:9000/product/P123
 ```
 
 Create a customer:
 
-```
+```shell
 curl localhost:9000/customer/C001/create \
   -XPOST \
   --header "Content-Type: application/json" \
@@ -86,13 +61,13 @@ curl localhost:9000/customer/C001/create \
 
 Retrieve a customer by id:
 
-```
+```shell
 curl localhost:9000/customer/C001
 ```
 
 Create customer orders for the products:
 
-```
+```shell
 curl localhost:9000/order/O1234/create \
   -XPOST \
   --header "Content-Type: application/json" \
@@ -103,7 +78,7 @@ curl localhost:9000/order/O1234/create \
   }'
 ```
 
-```
+```shell
 curl localhost:9000/order/O5678/create \
   -XPOST \
   --header "Content-Type: application/json" \
@@ -116,28 +91,27 @@ curl localhost:9000/order/O5678/create \
 
 Retrieve an order by id:
 
-```
+```shell
 curl localhost:9000/order/O5678
 ```
 
 Retrieve all product orders for a customer id using a view (with joins):
 
-```
+```shell
 curl localhost:9000/joined-customer-orders/C001
 ```
 
 Retrieve all product orders for a customer id using a view (with joins and nested projection):
 
-```
+```shell
 curl localhost:9000/nested-customer-orders/C001
 ```
 
 Retrieve all product orders for a customer id using a view (with joins and structured projection):
 
-```
+```shell
 curl localhost:9000/structured-customer-orders/C001
 ```
-
 
 ## Deploying
 

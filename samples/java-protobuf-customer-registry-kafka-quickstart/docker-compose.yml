@@ -16,6 +16,7 @@ services:
       BROKER_CONFIG_FILE: /conf/my-local.kafka.properties
     volumes:
       - .:/conf
+
   kafka:
     image: confluentinc/cp-kafka:7.1.0
     # image not available for arm64 so this is needed to run it on Apple m1
@@ -33,6 +34,7 @@ services:
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+      
   zookeeper:
     image: wurstmeister/zookeeper
     ports:

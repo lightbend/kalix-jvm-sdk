@@ -25,21 +25,19 @@ mvn compile
 #[[
 ## Running Locally
 ]]#
-In order to run your application locally, you must run the Kalix proxy. The included `docker-compose` file contains the configuration required to run the proxy for a locally running application.
-To start the proxy, run the following command from this directory:
+
+When running a Kalix application locally, at least two applications are required. The current Kalix application and its companion Kalix Proxy.
+
+To start the applications locally, call the following command:
 
 ```shell
-docker-compose up
+mvn kalix:runAll
 ```
 
-> Note: if you're looking to use Google Pub/Sub, see comments inside [docker-compose.yml](./docker-compose.yml) 
+This command will start your Kalix application and a Kalix Proxy using the included [docker-compose.yml](./docker-compose.yml) file.
+
+> Note: if you're looking to use Google Pub/Sub, see comments inside [docker-compose.yml](./docker-compose.yml)
 > on how to enable a Google Pub/Sub emulator that Kalix proxy will connect to.
-
-To start the application locally, the `exec-maven-plugin` is used. Use the following command:
-
-```shell
-mvn compile exec:exec
-```
 
 With both the proxy and your application running, any defined endpoints should be available at `http://localhost:9000`. In addition to the defined gRPC interface, each method has a corresponding HTTP endpoint. Unless configured otherwise (see [Transcoding HTTP](https://docs.kalix.io/java-protobuf/writing-grpc-descriptors-protobuf.html#_transcoding_http)), this endpoint accepts POST requests at the path `/[package].[entity name]/[method]`. For example, using `curl`:
 
