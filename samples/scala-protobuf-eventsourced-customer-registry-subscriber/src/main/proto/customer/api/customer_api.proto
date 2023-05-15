@@ -13,7 +13,7 @@
 // limitations under the License.
 syntax = "proto3";
 
-// this is a partial copy of Customer Registry API from java-protobuf-eventsourced-customer-registry
+// this is a partial copy of Customer Registry API from scala-protobuf-eventsourced-customer-registry
 // we will use this to create a client to Customer Registry service
 package customer.api;
 

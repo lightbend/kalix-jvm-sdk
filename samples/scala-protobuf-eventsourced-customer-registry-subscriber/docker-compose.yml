@@ -1,7 +1,7 @@
 version: "3"
 services:
   # note the ports being different from other sample docker-compose files to allow this service to run
-  # on the same local machine as the java-protobuf-eventsourced-customer-registry
+  # on the same local machine as the scala-protobuf-eventsourced-customer-registry
   kalix-proxy:
     image: gcr.io/kalix-public/kalix-proxy:1.1.9-M2
     ports:
