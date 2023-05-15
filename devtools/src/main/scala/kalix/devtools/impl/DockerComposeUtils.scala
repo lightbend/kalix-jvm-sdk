@@ -78,6 +78,11 @@ case class DockerComposeUtils(file: String, envVar: Map[String, String]) {
       Process(s"docker-compose -f $file stop", None).run()
     }
 
+  def stopAndWait(): Int =
+    if (started) {
+      Process(s"docker-compose -f $file stop", None).!
+    } else 0
+
   def userFunctionPort: Int =
     envVar
       .get("USER_FUNCTION_PORT")

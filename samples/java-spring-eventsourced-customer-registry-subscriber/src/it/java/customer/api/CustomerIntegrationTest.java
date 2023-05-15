@@ -18,11 +18,15 @@ import org.springframework.http.codec.json.Jackson2JsonEncoder;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientRequestException;
 import reactor.core.publisher.Mono;
+import scala.jdk.FutureConverters;
 
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 import static java.time.temporal.ChronoUnit.SECONDS;
@@ -81,9 +85,14 @@ public class CustomerIntegrationTest {
   }
 
   @AfterAll
-  public void afterAll() {
-    kalixSpringApplication.stop();
-    dockerComposeUtils.stop();
+  public void afterAll() throws ExecutionException, InterruptedException {
+    var kalixAppDown =
+      new FutureConverters.FutureOps<>(kalixSpringApplication.stop())
+        .asJava()
+        .toCompletableFuture();
+
+    var dockerDown = CompletableFuture.runAsync(() -> dockerComposeUtils.stopAndWait());
+    CompletableFuture.allOf(kalixAppDown, dockerDown).get();
   }
 
   private HttpStatusCode assertSourceServiceIsUp(WebClient webClient) {

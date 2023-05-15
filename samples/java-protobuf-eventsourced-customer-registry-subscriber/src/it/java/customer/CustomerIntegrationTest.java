@@ -91,9 +91,9 @@ public class CustomerIntegrationTest {
   public void afterAll() throws ExecutionException, InterruptedException {
     testSystem.terminate();
     var actorSysDown = testSystem.getWhenTerminated();
-    var kalixDown = kalixRunner.terminate();
-    var dockerDown = CompletableFuture.runAsync(() -> dockerComposeUtils.stop());
-    CompletableFuture.allOf(actorSysDown.toCompletableFuture(), kalixDown.toCompletableFuture(), dockerDown).get();
+    var kalixAppDown = kalixRunner.terminate();
+    var dockerDown = CompletableFuture.runAsync(() -> dockerComposeUtils.stopAndWait());
+    CompletableFuture.allOf(actorSysDown.toCompletableFuture(), kalixAppDown.toCompletableFuture(), dockerDown).get();
   }
 
   public CustomerAction customerActionClient() {
