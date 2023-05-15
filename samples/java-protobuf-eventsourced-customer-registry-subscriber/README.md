@@ -31,8 +31,7 @@ grpcurl --plaintext -d '{"customer_id": "wip", "email": "wip@example.com", "name
 {"street": "Road 1", "city": "The Capital"}}' localhost:9001  customer.action.CustomerAction/Create
 ```
 
-This call is made on the subscriber service and will be forwarded to the 
-`java-protobuf-eventsourced-customer-registry` service.
+This call is made on the subscriber service and will be forwarded to the `java-protobuf-eventsourced-customer-registry` service.
 
 ### Run a view query from this project
 
@@ -48,7 +47,7 @@ The subscriber service will receive updates from customer-registry via service-t
 grpcurl --plaintext -d '{"customer_id": "wip", "new_name": "Most Important"}' localhost:9000 customer.api.CustomerService/ChangeName
 ```
 
-This call is performed on the customer-registry directly. 
+This call is performed on the customer-registry directly.
   
 ### Check the view again
 

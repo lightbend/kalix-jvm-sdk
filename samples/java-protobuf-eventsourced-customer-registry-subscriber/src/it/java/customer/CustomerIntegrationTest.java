@@ -61,7 +61,7 @@ public class CustomerIntegrationTest {
 
   public CustomerIntegrationTest() {
     Map<String, Object> confMap = new HashMap<>();
-    confMap.put("kalix.user-function-port", dockerComposeUtils.userFunctionPort());
+    confMap.put("kalix.user-function-port",  dockerComposeUtils.userFunctionPort());
     // don't kill the test JVM when terminating the KalixRunner
     confMap.put("kalix.system.akka.coordinated-shutdown.exit-jvm", "off");
     // dev-mode should be false when running integration tests
@@ -77,7 +77,7 @@ public class CustomerIntegrationTest {
 
     Config config = ConfigFactory.parseMap(confMap).withFallback(ConfigFactory.load());
     this.kalixRunner = Main.createKalix().createRunner(config);
-    this.testSystem = ActorSystem.create("test-system", config);
+    this.testSystem = ActorSystem.create("test-system");
   }
 
 
@@ -132,7 +132,6 @@ public class CustomerIntegrationTest {
       .pollInterval(2, TimeUnit.SECONDS)
       .atMost(20, TimeUnit.SECONDS)
       .until(() ->
-
           customersViewClient()
             .getCustomers(Empty.getDefaultInstance())
             .runWith(Sink.last(), testSystem).toCompletableFuture().get(),

@@ -20,8 +20,9 @@ option java_outer_classname = "CustomerViewModel";
 
 import "customer/api/publisher_api.proto";
 import "kalix/annotations.proto";
-import "google/protobuf/empty.proto";
+
 import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
 import "google/protobuf/timestamp.proto";
 
 message Customer {
@@ -30,7 +31,6 @@ message Customer {
   string name = 3;
   uint32 updates = 4;
   google.protobuf.Timestamp created = 5;
-
   google.protobuf.Timestamp lastUpdate = 6;
 }
 // tag::view[]
