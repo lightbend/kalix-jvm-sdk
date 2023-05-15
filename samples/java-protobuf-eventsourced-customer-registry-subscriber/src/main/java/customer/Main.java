@@ -1,5 +1,6 @@
 package customer;
 
+import customer.action.CustomerActionImpl;
 import customer.view.AllCustomersViewImpl;
 import kalix.javasdk.Kalix;
 import org.slf4j.Logger;
@@ -20,7 +21,8 @@ public final class Main {
     // If you prefer, you may remove this and manually register these components in a
     // `new Kalix()` instance.
     return KalixFactory.withComponents(
-      AllCustomersViewImpl::new);
+      AllCustomersViewImpl::new,
+      CustomerActionImpl::new);
   }
 
   public static void main(String[] args) throws Exception {

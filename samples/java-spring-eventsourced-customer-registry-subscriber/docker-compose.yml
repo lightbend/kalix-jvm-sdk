@@ -1,3 +1,5 @@
+# note the ports being different from other sample docker-compose files to allow this service to run
+# on the same local machine as the java-spring-eventsourced-customer-registry
 version: "3"
 services:
   kalix-proxy:

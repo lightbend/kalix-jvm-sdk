@@ -11,18 +11,29 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
 syntax = "proto3";
 
-import "google/protobuf/timestamp.proto";
-
+// this is a partial copy of Customer Registry API from java-protobuf-eventsourced-customer-registry
+// we will use this to create a client to Customer Registry service
 package customer.api;
 
+option java_outer_classname = "CustomerApi";
+
+import "google/protobuf/empty.proto";
+
 message Customer {
-    string customer_id = 1;
-    string email = 2;
-    string name = 3;
-    uint32 updates = 4;
-    google.protobuf.Timestamp created = 5;
-    google.protobuf.Timestamp lastUpdate = 6;
+  string customer_id = 1;
+  string email = 2;
+  string name = 3;
+  Address address = 4;
+}
+
+message Address {
+  string street = 1;
+  string city = 2;
+}
+
+
+service CustomerService {
+  rpc Create(Customer) returns (google.protobuf.Empty) {}
 }

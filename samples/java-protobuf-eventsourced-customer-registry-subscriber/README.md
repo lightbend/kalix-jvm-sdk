@@ -2,7 +2,7 @@
 
 ## Designing
 
-To understand the Kalix concepts that are the basis for this example, see [Designing services](https://docs.kalix.io/developing/development-process-proto.html) in the documentation.
+To understand the Kalix concepts that are the basis for this example, see [Designing services](https://docs.kalix.io/java/development-process.html) in the documentation.
 
 The project `java-protobuf-eventsourced-customer-registry-subscriber` is a downstream consumer of the Service to Service event stream provided by `java-protobuf-eventsourced-customer-registry` project.
 
@@ -13,35 +13,44 @@ Use Maven to build your project:
 ```shell
 mvn compile
 ```
+
 ## Running Locally
 
 First start the `java-protobuf-eventsourced-customer-registry` service and proxy. It will run with the default service and proxy ports (`8080` and `9000`).
 
-To start the proxy, run the following command from this directory:
+To start the application locally, the `kalix-maven-plugin` is used. Use the following command:
 
 ```shell
-docker-compose up
+mvn kalix:runAll
 ```
 
-To start the application locally, the `exec-maven-plugin` is used. Use the following command:
+### Create a customer
 
 ```shell
-mvn compile exec:exec
+grpcurl --plaintext -d '{"customer_id": "wip", "email": "wip@example.com", "name": "Very Important", "address": 
+{"street": "Road 1", "city": "The Capital"}}' localhost:9001  customer.action.CustomerAction/Create
 ```
-Run commands against `java-protobuf-eventsourced-customer-registry` project.
 
-* Create a customer with:
-  ```shell
-  grpcurl --plaintext -d '{"customer_id": "wip", "email": "wip@example.com", "name": "Very Important", "address": {"street": "Road 1", "city": "The Capital"}}' localhost:9000  customer.api.CustomerService/Create
-  ```
-* Change name:
-  ```shell
-  grpcurl --plaintext -d '{"customer_id": "wip", "new_name": "Most Important"}' localhost:9000 customer.api.CustomerService/ChangeName
-  ```
+This call is made on the subscriber service and will be forwarded to the `java-protobuf-eventsourced-customer-registry` service.
+
+### Run a view query from this project
+
+```shell
+grpcurl --plaintext localhost:9001 customer.view.AllCustomersView/GetCustomers
+```
+
+The subscriber service will receive updates from customer-registry via service-to-service stream and update the view.
+
+### Change name
+
+```shell
+grpcurl --plaintext -d '{"customer_id": "wip", "new_name": "Most Important"}' localhost:9000 customer.api.CustomerService/ChangeName
+```
+
+This call is performed on the customer-registry directly.
   
-Run a view query from this project.
+### Check the view again
 
-* Query all customers:
-  ```shell
-  grpcurl --plaintext localhost:9001 customer.view.AllCustomersView/GetCustomers
-  ```
+```shell
+grpcurl --plaintext localhost:9001 customer.view.AllCustomersView/GetCustomers
+```

@@ -18,26 +18,32 @@ import org.springframework.http.codec.json.Jackson2JsonEncoder;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientRequestException;
 import reactor.core.publisher.Mono;
+import scala.jdk.FutureConverters;
 
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 import static java.time.temporal.ChronoUnit.SECONDS;
 import static org.awaitility.Awaitility.await;
 
 /**
- * This test exercises the integtration between the current service (customer-registry-subscriber) and the customer-registry service.
- * 
- * The customer registry service is started as a docker container as well as it own kalix proxy. The current service is as a local JVM process (not dockerized),
- * but its own kalix proxy starts as a docker container. The `docker-compose-integration.yml` file is used to start all these services.
- * 
- * The subscriber service will first create a customer on customer-registry service. The customer will be streamed back to the subscriber service and update its view.
- * 
+ * This test exercises the integration between the current service (customer-registry-subscriber) and the customer-registry service.
+ * <p>
+ * The customer registry service is started as a docker container as well as it own kalix proxy. The current service is
+ * started as a local JVM process (not dockerized), but its own kalix proxy starts as a docker container.
+ * The `docker-compose-integration.yml` file is used to start all these services.
+ * <p>
+ * The subscriber service will first create a customer on customer-registry service. The customer will be streamed back
+ * to the subscriber service and update its view.
+ * <p>
  * This test will exercise the following:
- * - service under test can read settings from docker-compose file and correctly configure itself. 
+ * - service under test can read settings from docker-compose file and correctly configure itself.
  * - resolution of service port mappings from docker-compose file allows for cross service calls (eg: create customer from subscriber service)
  * - resolution of service port mappings passed to kalix-proxy allows for service to service streaming (eg: customer view is updated in subscriber service)
  */
@@ -79,9 +85,14 @@ public class CustomerIntegrationTest {
   }
 
   @AfterAll
-  public void afterAll() {
-    kalixSpringApplication.stop();
-    dockerComposeUtils.stop();
+  public void afterAll() throws ExecutionException, InterruptedException {
+    var kalixAppDown =
+      new FutureConverters.FutureOps<>(kalixSpringApplication.stop())
+        .asJava()
+        .toCompletableFuture();
+
+    var dockerDown = CompletableFuture.runAsync(() -> dockerComposeUtils.stopAndWait());
+    CompletableFuture.allOf(kalixAppDown, dockerDown).get();
   }
 
   private HttpStatusCode assertSourceServiceIsUp(WebClient webClient) {
@@ -134,7 +145,7 @@ public class CustomerIntegrationTest {
   @Test
   public void create() throws InterruptedException {
 
-    WebClient customerRegistryService = createClient("http://localhost:9000");
+    createClient("http://localhost:9000");
     WebClient localWebClient = createClient("http://localhost:9001");
 
     // start the real test now  

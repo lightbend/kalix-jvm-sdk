@@ -96,6 +96,7 @@ object KalixRunner {
 
     portMappings.asScala
       .foldLeft(mainConfig) { case (main, (key, value)) =>
+        logger.debug("adding dev-mode port mapping for service [{}] to [{}]", key, value)
         val (host, port) = HostAndPort.extract(value)
         val mapping = ConfigFactory.parseString(s"""
            |akka.grpc.client.$key {

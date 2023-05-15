@@ -1,0 +1,18 @@
+
+syntax = "proto3";
+
+package customer.action;
+
+import "google/protobuf/empty.proto";
+import "kalix/annotations.proto";
+import "customer/api/customer_api.proto";
+
+option java_outer_classname = "CustomerActionProto"; 
+
+service CustomerAction {
+  option (kalix.codegen) = {
+    action: {} 
+  };
+
+  rpc Create(customer.api.Customer) returns (google.protobuf.Empty) {}
+}
