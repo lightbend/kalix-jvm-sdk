@@ -33,11 +33,9 @@ curl localhost:9001/customer/one/create \
   --data '{"email":"test@example.com","name":"Testsson","address":{"street":"Teststreet 25","city":"Testcity"}}'
 ```
 
-<<<<<<< Updated upstream
-This call is made on the subscriber service and will be forwarded to the `java-spring-eventsourced-customer-registry` service.
-=======
-This call is made on the subscriber service and will be forwarded to the `java-spring-eventsourced-customer-registry`
-service.
+This call is made on the subscriber service and will be forwarded to the 
+`java-spring-eventsourced-customer-registry` service.
+
 >>>>>>> Stashed changes
 
 ### Run a view query from this project
