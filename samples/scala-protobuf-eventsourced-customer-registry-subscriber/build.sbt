@@ -45,4 +45,6 @@ run / javaOptions ++= Seq(
 run / fork := true
 Global / cancelable := false // ctrl-c
 
-libraryDependencies ++= Seq("org.scalatest" %% "scalatest" % "3.2.12" % Test)
+libraryDependencies ++= Seq(
+  "io.kalix" %% "kalix-devtools" % KalixPlugin.KalixSdkVersion % Test,
+  "org.scalatest" %% "scalatest" % "3.2.12" % Test)

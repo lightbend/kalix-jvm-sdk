@@ -684,7 +684,7 @@ jobs:
           - { sample: scala-protobuf-view-store, test: true }
 
           - { sample: scala-protobuf-eventsourced-customer-registry, test: true }
-          - { sample: scala-protobuf-eventsourced-customer-registry-subscriber, test: true }
+          - { sample: scala-protobuf-eventsourced-customer-registry-subscriber, pre_cmd: 'cd scala-protobuf-eventsourced-customer-registry; sbt -Dkalix-sdk.version=${SDK_VERSION} docker:publishLocal; cd -', test: true }
           - { sample: scala-protobuf-eventsourced-counter, pre_test: 'docker-compose -f ../../.circleci/google-pubsub-emulator-docker-compose.yml up -d', test: true }
           - { sample: scala-protobuf-eventsourced-shopping-cart, test: true }
 
