@@ -16,13 +16,21 @@ syntax = "proto3";
 
 package customer.view;
 
-import "customer/api/customer_api.proto";
 import "customer/api/publisher_api.proto";
 import "kalix/annotations.proto";
-import "google/protobuf/empty.proto";
 
 import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
 
+message Customer {
+  string customer_id = 1;
+  string email = 2;
+  string name = 3;
+  uint32 updates = 4;
+  google.protobuf.Timestamp created = 5;
+  google.protobuf.Timestamp lastUpdate = 6;
+}
 // tag::view[]
 service AllCustomersView {
   option (kalix.codegen) = {
@@ -31,32 +39,23 @@ service AllCustomersView {
 
   // consume events published by scala-protobuf-eventsourced-customer-registry/CustomerEventsServiceAction
   option (kalix.service).eventing.in.direct = { // <1>
-    // end::view[]
-    // Normally the Kalix service deployment name
-    // (but host.docker.internal + hardcoded port here to be able to run both locally with docker)
-    service: "host.docker.internal:9000"
-    /*
-    // tag::view[]
     service: "customer-registry" // <2>
-    // end::view[]
-    */
-    // tag::view[]
     event_stream_id: "customer_events" // <3>
   };
 
-  rpc ProcessCustomerCreated(api.Created) returns (api.Customer) { // <4>
+  rpc ProcessCustomerCreated(api.Created) returns (Customer) { // <4>
     option (kalix.method).view.update = {
       table: "all_customers"
     };
   }
 
-  rpc ProcessCustomerNameChanged(api.NameChanged) returns (api.Customer) {
+  rpc ProcessCustomerNameChanged(api.NameChanged) returns (Customer) {
     option (kalix.method).view.update = {
       table: "all_customers"
     };
   }
 
-  rpc GetCustomers(google.protobuf.Empty) returns (stream api.Customer) {
+  rpc GetCustomers(google.protobuf.Empty) returns (stream Customer) {
     option (kalix.method).view.query = {
       query: "SELECT * FROM all_customers"
     };

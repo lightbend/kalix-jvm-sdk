@@ -684,8 +684,8 @@ jobs:
           - { sample: scala-protobuf-view-store, test: true }
 
           - { sample: scala-protobuf-eventsourced-customer-registry, test: true }
-          - { sample: scala-protobuf-eventsourced-customer-registry-subscriber, test: true }
-          - { sample: scala-protobuf-eventsourced-counter, pre_test: 'docker-compose -f ../../.circleci/google-pubsub-emulator-docker-compose.yml up -d', test: true }
+          - { sample: scala-protobuf-eventsourced-customer-registry-subscriber, pre_cmd: './build-customer-service-image.sh', test: true }
+          - { sample: scala-protobuf-eventsourced-counter, pre_cmd: 'docker-compose -f ../../.circleci/google-pubsub-emulator-docker-compose.yml up -d', test: true }
           - { sample: scala-protobuf-eventsourced-shopping-cart, test: true }
 
           - { sample: scala-protobuf-valueentity-counter, test: true }
@@ -757,11 +757,11 @@ jobs:
         if: matrix.test
         env:
           DIR: ${{ matrix.sample }}
-          PRE_TEST_CMD: ${{ matrix.pre_test }}
+          PRE_CMD: ${{ matrix.pre_cmd }}
         run: |-
           export SDK_VERSION=$(cat ~/kalix-sdk-version.txt)
           cd samples/${DIR}
-          ${PRE_TEST_CMD}
+          ${PRE_CMD}
           sbt  --client -Dkalix-sdk.version=$SDK_VERSION test
 
       - name: rm & sbt Test/compile
