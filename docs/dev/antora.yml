@@ -17,8 +17,6 @@ runtime:
 
 asciidoc:
   attributes:
-    review: ''
-    todo: ''
     page-pagination: ''
     page-toctitle: 'On This Page'
 
