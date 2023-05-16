@@ -4,7 +4,6 @@
 
 To understand the Kalix concepts that are the basis for this example, see [Designing services](https://docs.kalix.io/java/development-process.html) in the documentation.
 
-
 ## Developing
 
 This project demonstrates the use of an Event Sourced Entity.
@@ -19,26 +18,23 @@ Use Maven to build your project:
 mvn compile
 ```
 
-
 ## Running Locally
 
-To run the example locally, you must run the Kalix proxy. The included `docker-compose` file contains the configuration required to run the proxy for a locally running application.
-It also contains the configuration to start a local Google Pub/Sub emulator that the Kalix proxy will connect to.
-To start the proxy, run the following command from this directory:
+When running a Kalix application locally, at least two applications are required. The current Kalix application and its companion Kalix Proxy.
 
-
-```shell
-docker-compose up
-```
-
-To start the application locally, the `spring-boot-maven-plugin` is used. Use the following command:
+To start the applications locally, call the following command:
 
 ```shell
-mvn compile spring-boot:run
+mvn kalix:runAll
 ```
 
-With both the proxy and your application running, any defined endpoints should be available at `http://localhost:9000`.
+This command will start your Kalix application and a Kalix Proxy using the included [docker-compose.yml](./docker-compose.yml) file.
 
+With both the proxy and your application running, once you have defined endpoints they should be available at `http://localhost:9000`.
+
+## Exercising the service
+
+With both the proxy and your application running, any defined endpoints should be available at `http://localhost:9000`. For example, using `curl`:
 
 * Add an item
 
@@ -63,7 +59,6 @@ curl -XPOST localhost:9000/cart/123/items/kalix-tshirt/remove
 ```shell
 curl -XPOST localhost:9000/cart/123/checkout
 ```
-
 
 ## Deploying
 
