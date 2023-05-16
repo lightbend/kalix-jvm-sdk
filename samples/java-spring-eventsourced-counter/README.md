@@ -30,6 +30,8 @@ mvn kalix:runAll
 
 This command will start your Kalix application and a Kalix Proxy using the included [docker-compose.yml](./docker-compose.yml) file.
 
+## Exercising the services
+
 With both the proxy and your application running, once you have defined endpoints they should be available at `http://localhost:9000`.
 
 ### Examples

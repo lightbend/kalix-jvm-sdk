@@ -4,13 +4,11 @@
 
 To understand the Kalix concepts that are the basis for this example, see [Designing services](https://docs.kalix.io/java/development-process.html) in the documentation.
 
-
 ## Developing
 
 This project demonstrates the use of Value Entity and View components.
 To understand more about these components, see [Developing services](https://docs.kalix.io/services/)
 and in particular the [Java section](https://docs.kalix.io/java/)
-
 
 ## Building
 
@@ -19,7 +17,6 @@ Use Maven to build your project:
 ```shell
 mvn compile
 ```
-
 
 ## Running Locally
 
@@ -33,39 +30,51 @@ mvn kalix:runAll
 
 This command will start your Kalix application and a Kalix Proxy using the included [docker-compose.yml](./docker-compose.yml) file.
 
-With both the proxy and your application running, any defined endpoints should be available at `http://localhost:9000`. 
+## Exercising the services
 
+With both the proxy and your application running, any defined endpoints should be available at `http://localhost:9000`.
 
 * Create a customer with:
-  ```shell
-  curl localhost:9000/customer/one/create \
-    --header "Content-Type: application/json" \
-    -XPOST \
-    --data '{"customerId":"one","email":"test@example.com","name":"Test Testsson","address":{"street":"Teststreet 25","city":"Testcity"}}'
-  ```
+
+```shell
+curl localhost:9000/customer/one/create \
+  --header "Content-Type: application/json" \
+  -XPOST \
+  --data '{"customerId":"one","email":"test@example.com","name":"Test Testsson","address":{"street":"Teststreet 25","city":"Testcity"}}'
+```
+
 * Retrieve the customer:
-  ```shell
-  curl localhost:9000/customer/one
-  ```
+
+```shell
+curl localhost:9000/customer/one
+```
+
 * Query by email:
-  ```shell
-  curl localhost:9000/customer/by_email/test%40example.com
-  ```
+
+```shell
+curl localhost:9000/customer/by_email/test%40example.com
+```
+
 * Query by name:
-  ```shell
-  curl localhost:9000/customer/by_name/Test%20Testsson
-  ```
+
+```shell
+curl localhost:9000/customer/by_name/Test%20Testsson
+```
+
 * Change name:
-  ```shell
-  curl localhost:9000/customer/one/changeName/Jan%20Banan -XPOST
-  ```
+
+```shell
+curl localhost:9000/customer/one/changeName/Jan%20Banan -XPOST
+```
+
 * Change address:
-  ```shell
-  curl localhost:9000/customer/one/changeAddress \
-    --header "Content-Type: application/json" \
-    -XPOST \
-    --data '{"street":"Newstreet 25","city":"Newcity"}'
-  ```
+
+```shell
+curl localhost:9000/customer/one/changeAddress \
+  --header "Content-Type: application/json" \
+  -XPOST \
+  --data '{"street":"Newstreet 25","city":"Newcity"}'
+```
 
 ## Deploying
 

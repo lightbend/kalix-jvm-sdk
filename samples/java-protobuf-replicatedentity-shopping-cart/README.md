@@ -32,7 +32,7 @@ This command will start your Kalix application and a Kalix Proxy using the inclu
 With both the proxy and your application running, any defined endpoints should be available at `http://localhost:9000`.
 In addition to the defined gRPC interface, each method has a corresponding HTTP endpoint. Unless configured otherwise (
 see [Transcoding HTTP](https://docs.kalix.io/java/writing-grpc-descriptors-protobuf.html#_transcoding_http)), this
-endpoint accepts POST requests at the path `/[package].[entity name]/[method]`. For example, using `curl`:
+endpoint accepts POST requests at the path `/[package].[entity name]/[method]`. For example, using `curl`.
 
 * Send an AddItem command:
 

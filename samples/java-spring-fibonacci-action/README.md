@@ -30,13 +30,11 @@ mvn kalix:runAll
 
 This command will start your Kalix application and a Kalix Proxy using the included [docker-compose.yml](./docker-compose.yml) file.
 
-With both the proxy and your application running, once you have defined endpoints they should be available at `http://localhost:9000`.
-
 For further details see [Running a service locally](https://docs.kalix.io/developing/running-service-locally.html) in the documentation.
 
 ## Exercise the service
 
-With both the proxy and your application running, any defined endpoints should be available at `http://localhost:9000`. In addition to the defined gRPC interface, each method has a corresponding HTTP endpoint. Unless configured otherwise (see [Transcoding HTTP](https://docs.kalix.io/java-protobuf/writing-grpc-descriptors-protobuf.html#_transcoding_http)), this endpoint accepts POST requests at the path `/[package].[entity name]/[method]`. For example, using `curl`:
+With both the proxy and your application running, once you have defined endpoints they should be available at `http://localhost:9000`.
 
 ```shell
 curl -XGET localhost:9000/fibonacci/5/next
