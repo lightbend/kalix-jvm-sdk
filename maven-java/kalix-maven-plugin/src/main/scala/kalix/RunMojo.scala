@@ -12,6 +12,7 @@ import org.twdata.maven.mojoexecutor.MojoExecutor._
 
 object RunMojo {
   def apply(
+      jvmArgs: Array[String],
       mainClass: String,
       logConfig: String,
       userFunctionPort: Int,
@@ -35,6 +36,10 @@ object RunMojo {
 
     log.info("Starting Kalix Application on port: " + userFunctionPort)
 
+    if (jvmArgs.nonEmpty){
+      log.info("Additional JVM arguments detected: " + jvmArgs)
+    }
+
     /*
      * Collect any sys property starting with `kalix` and rebuild a -D property for each of them
      * so we can pass it further to the forked process.
@@ -44,6 +49,8 @@ object RunMojo {
         case (key, value) if key.startsWith("kalix") => s"-D$key=$value"
       }.toSeq
     }
+
+    val additionalJvmArgs = jvmArgs.filter(_.trim.nonEmpty).map(element(name("argument"), _)).toSeq
 
     val mainArgs =
       Seq(
@@ -72,7 +79,7 @@ object RunMojo {
       }
 
     val allArgs =
-      mainArgs ++ loggingArgs ++ kalixSysProps :+
+      additionalJvmArgs ++ mainArgs ++ loggingArgs ++ kalixSysProps :+
       element(name("argument"), mainClass) // mainClass must be last arg
 
     executeMojo(
@@ -106,6 +113,7 @@ class RunMojo extends RunParameters with DockerParameters {
   override def execute(): Unit = {
     val dockerComposeUtils = DockerComposeUtils(dockerComposeFile, sys.env)
     RunMojo(
+      jvmArgs,
       mainClass,
       logConfig,
       dockerComposeUtils.userFunctionPort,
