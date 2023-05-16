@@ -207,17 +207,6 @@
       </plugin>
 
       <plugin>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-maven-plugin</artifactId>
-        <configuration>
-          <systemPropertyVariables>
-              <logging.config>src/main/resources/logback-dev-mode.xml</logging.config>
-              <kalix.user-function-interface>0.0.0.0</kalix.user-function-interface>
-          </systemPropertyVariables>
-        </configuration>
-      </plugin>
-
-      <plugin>
         <groupId>io.kalix</groupId>
         <artifactId>kalix-maven-plugin</artifactId>
         <version>${kalix-sdk.version}</version>
