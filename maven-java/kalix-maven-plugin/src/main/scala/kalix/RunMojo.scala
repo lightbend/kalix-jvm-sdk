@@ -37,7 +37,7 @@ object RunMojo {
     log.info("Starting Kalix Application on port: " + userFunctionPort)
 
     if (jvmArgs.nonEmpty){
-      log.info("Additional JVM arguments detected: " + jvmArgs.toSeq)
+      log.info("Additional JVM arguments detected: " + jvmArgs.toSeq.mkString(", "))
     }
 
     /*
