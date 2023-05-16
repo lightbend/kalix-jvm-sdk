@@ -19,6 +19,7 @@ class RunAllMojo extends RunParameters with DockerParameters {
     dockerComposeUtils.start()
 
     RunMojo(
+      jvmArgs,
       mainClass,
       logConfig,
       dockerComposeUtils.userFunctionPort,

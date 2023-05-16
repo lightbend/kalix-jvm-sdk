@@ -24,4 +24,6 @@ trait RunParameters extends AbstractMojo {
   @Parameter(property = "kalix.dev-mode.log-config", defaultValue = "src/main/resources/logback-dev-mode.xml")
   protected var logConfig: String = ""
 
+  @Parameter(property = "jvmArgs")
+  protected var jvmArgs: Array[String] = Array.empty
 }
