@@ -4,13 +4,11 @@
 
 To understand the Kalix concepts that are the basis for this example, see [Designing services](https://docs.kalix.io/developing/development-process-proto.html) in the documentation.
 
-
 ## Developing
 
 This project demonstrates the use of Value Entity and View components.
 To understand more about these components, see [Developing services](https://docs.kalix.io/services/)
 and in particular the [Java Protobuf SDK section](https://docs.kalix.io/java-protobuf/)
-
 
 ## Building
 
@@ -20,7 +18,6 @@ generating code based on the `.proto` definitions:
 ```shell
 mvn compile
 ```
-
 
 ## Running Locally
 
@@ -40,28 +37,45 @@ It can make sense to delete the existing containers (if any exist) and start fro
 
 Every time a customer receives a change, the application also persists that change to a topic in Kafka called `customer_changes`. You can see that this is set in customer_action.proto. In order for the changes to be written to this topic, you need to manually create the topic in Kafka. To do this, run the following command after the Docker container `java-protobuf-customer-registry-kafka-quickstart-kafka-1` is running.
 
-    docker-compose exec kafka kafka-topics --create --bootstrap-server \
-    localhost:9092 --replication-factor 1 --partitions 1 --topic customer_changes
+```shell
+docker-compose exec kafka kafka-topics --create --bootstrap-server localhost:9092 --replication-factor 1 --partitions 1 --topic customer_changes
+```
 
-With both the proxy and your application running, any defined endpoints should be available at `http://localhost:9000`. In addition to the defined gRPC interface, each method has a corresponding HTTP endpoint. Unless configured otherwise (see [Transcoding HTTP](https://docs.kalix.io/java-protobuf/writing-grpc-descriptors-protobuf.html#_transcoding_http)), this endpoint accepts POST requests at the path `/[package].[entity name]/[method]`. For example, using `curl`:
+### Exercising the service
 
+With both the proxy and your application running, any defined endpoints should be available at `http://localhost:9000`. In addition to the defined gRPC interface, each method has a corresponding HTTP endpoint. Unless configured otherwise (see [Transcoding HTTP](https://docs.kalix.io/java-protobuf/writing-grpc-descriptors-protobuf.html#_transcoding_http)), this endpoint accepts POST requests at the path `/[package].[entity name]/[method]`.
+
+You can connect to the Kafka topic using:
+
+```shell
+ docker-compose exec kafka kafka-console-consumer --topic customer_changes --from-beginning --bootstrap-server localhost:9092
+```
+
+Each interaction below will trigger a state change that will then be propagated to the Kafka topic.
 
 * Create a customer with:
-  ```shell
-  grpcurl --plaintext -d '{"customer_id": "wip", "email": "wip@example.com", "name": "Very Important", "address": {"street": "Road 1", "city": "The Capital"}}' localhost:9000  customer.api.CustomerService/Create
-  ```
+
+```shell
+grpcurl --plaintext -d '{"customer_id": "wip", "email": "wip@example.com", "name": "Very Important", "address": {"street": "Road 1", "city": "The Capital"}}' localhost:9000  customer.api.CustomerService/Create
+```
+
 * Retrieve the customer:
-  ```shell
-  grpcurl --plaintext -d '{"customer_id": "wip"}' localhost:9000  customer.api.CustomerService/GetCustomer
-  ```
+
+```shell
+grpcurl --plaintext -d '{"customer_id": "wip"}' localhost:9000  customer.api.CustomerService/GetCustomer
+```
+
 * Change name:
-  ```shell
-  grpcurl --plaintext -d '{"customer_id": "wip", "new_name": "Most Important"}' localhost:9000 customer.api.CustomerService/ChangeName
-  ```
+
+```shell
+grpcurl --plaintext -d '{"customer_id": "wip", "new_name": "Most Important"}' localhost:9000 customer.api.CustomerService/ChangeName
+```
+
 * Change address:
-  ```shell
-  grpcurl --plaintext -d '{"customer_id": "wip", "new_address": {"street": "Street 1", "city": "The City"}}' localhost:9000 customer.api.CustomerService/ChangeAddress
-  ```
+
+```shell
+grpcurl --plaintext -d '{"customer_id": "wip", "new_address": {"street": "Street 1", "city": "The City"}}' localhost:9000 customer.api.CustomerService/ChangeAddress
+```
 
 ## Deploying
 
