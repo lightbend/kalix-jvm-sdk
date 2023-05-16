@@ -32,7 +32,7 @@ This command will start your Kalix application and a Kalix Proxy using the inclu
 
 With both the proxy and your application running, once you have defined endpoints they should be available at `http://localhost:9000`.
 
-## Exercise the service
+## Exercising the service
 
 With both the proxy and your application running, any defined endpoints should be available at `http://localhost:9000`. For example, using `curl`:
 
