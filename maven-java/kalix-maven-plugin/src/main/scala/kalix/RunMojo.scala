@@ -37,7 +37,7 @@ object RunMojo {
     log.info("Starting Kalix Application on port: " + userFunctionPort)
 
     if (jvmArgs.nonEmpty){
-      log.info("Additional JVM arguments detected: " + jvmArgs)
+      log.info("Additional JVM arguments detected: " + jvmArgs.toSeq)
     }
 
     /*
@@ -49,8 +49,6 @@ object RunMojo {
         case (key, value) if key.startsWith("kalix") => s"-D$key=$value"
       }.toSeq
     }
-
-    val additionalJvmArgs = jvmArgs.filter(_.trim.nonEmpty).map(element(name("argument"), _)).toSeq
 
     val mainArgs =
       Seq(
@@ -78,8 +76,10 @@ object RunMojo {
         element(name("argument"), arg)
       }
 
+    val additionalJvmArgs = jvmArgs.filter(_.trim.nonEmpty).map(element(name("argument"), _)).toSeq
+
     val allArgs =
-      additionalJvmArgs ++ mainArgs ++ loggingArgs ++ kalixSysProps :+
+      mainArgs ++ loggingArgs ++ kalixSysProps ++ additionalJvmArgs :+
       element(name("argument"), mainClass) // mainClass must be last arg
 
     executeMojo(
