@@ -137,32 +137,6 @@
       </plugin>
 
       <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>exec-maven-plugin</artifactId>
-        <version>3.0.0</version>
-        <executions>
-          <execution>
-            <goals>
-              <goal>exec</goal>
-            </goals>
-          </execution>
-        </executions>
-        <configuration>
-          <executable>java</executable>
-          <arguments>
-            <argument>-classpath</argument>
-            <classpath/>
-            <argument>-Dlogging.config=src/main/resources/logback-dev-mode.xml</argument>
-            <argument>${mainClass}</argument>
-          </arguments>
-          <environmentVariables>
-            <!-- needed for the proxy to access the user function on all platforms -->
-            <HOST>0.0.0.0</HOST>
-          </environmentVariables>
-        </configuration>
-      </plugin>
-
-      <plugin>
         <!-- configure src/it/java and src/it/resources -->
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>build-helper-maven-plugin</artifactId>
