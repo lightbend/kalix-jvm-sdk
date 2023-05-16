@@ -218,7 +218,6 @@
         <configuration>
           <dockerImage>${dockerImage}:${dockerTag}</dockerImage>
           <mainClass>${mainClass}</mainClass>
-          <integrationTestSourceDirectory>src/it/java</integrationTestSourceDirectory>
         </configuration>
       </plugin>
 
