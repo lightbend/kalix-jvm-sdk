@@ -21,7 +21,7 @@ spring_managed_attachments := ${src_managed}/modules/spring/attachments
 java_spring_managed_attachments := ${src_managed}/modules/java-spring/attachments
 
 antora_docker_image := gcr.io/kalix-public/kalix-docbuilder
-antora_docker_image_tag := 0.0.6
+antora_docker_image_tag := 0.0.7
 root_dir := $(shell git rev-parse --show-toplevel)
 base_path := $(shell git rev-parse --show-prefix)
 
