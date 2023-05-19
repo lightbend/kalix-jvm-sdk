@@ -190,8 +190,7 @@ object Validations {
     genericTypeArguments(1).asInstanceOf[Class[_]]
   }
 
-  private def ambiguousHandlerValidations(component: Class[_],
-                                           updateMethodPredicate: Method => Boolean): Validation = {
+  private def ambiguousHandlerValidations(component: Class[_], updateMethodPredicate: Method => Boolean): Validation = {
 
     val methods = component.getMethods.toIndexedSeq
 
