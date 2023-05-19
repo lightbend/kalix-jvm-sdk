@@ -20,6 +20,7 @@ import kalix.EventSource
 import kalix.Eventing
 import kalix.MethodOptions
 import kalix.javasdk.impl
+import kalix.javasdk.impl.ComponentDescriptorFactory.buildEventingOutOptions
 import kalix.javasdk.impl.ComponentDescriptorFactory.combineByES
 import kalix.javasdk.impl.ComponentDescriptorFactory.escapeMethodName
 import kalix.javasdk.impl.ComponentDescriptorFactory.eventSourceEntityEventSource
@@ -55,19 +56,19 @@ private[impl] object ActionDescriptorFactory extends ComponentDescriptorFactory 
       nameGenerator: NameGenerator): ComponentDescriptor = {
 
     def withOptionalDestination(method: Method, source: EventSource): MethodOptions = {
-      val destination = topicEventDestination(method)
-      val eventing = Eventing.newBuilder().setIn(source).setOut(destination).build()
-      kalix.MethodOptions.newBuilder().setEventing(eventing).build()
+      val eventingBuilder = Eventing.newBuilder().setIn(source)
+      topicEventDestination(method).foreach(eventingBuilder.setOut)
+      kalix.MethodOptions.newBuilder().setEventing(eventingBuilder.build()).build()
     }
 
     // we should merge from here
     // methods with REST annotations
     val syntheticMethods: Seq[KalixMethod] =
       RestServiceIntrospector.inspectService(component).methods.map { serviceMethod =>
-        val eventingOut = eventingOutForTopic(serviceMethod.javaMethod)
-        val jwtOptions = ComponentDescriptorFactory.jwtOptions(serviceMethod.javaMethod)
-        val kalixOptions = kalix.MethodOptions.newBuilder().setEventing(eventingOut).setJwt(jwtOptions).build()
-        KalixMethod(serviceMethod).withKalixOptions(kalixOptions)
+        val optionsBuilder = kalix.MethodOptions.newBuilder()
+        eventingOutForTopic(serviceMethod.javaMethod).foreach(optionsBuilder.setEventing)
+        ComponentDescriptorFactory.jwtOptions(serviceMethod.javaMethod).foreach(optionsBuilder.setJwt)
+        KalixMethod(serviceMethod).withKalixOptions(optionsBuilder.build())
       }
 
     //TODO make sure no subscription should be exposed via REST.
@@ -115,10 +116,8 @@ private[impl] object ActionDescriptorFactory extends ComponentDescriptorFactory 
             .filter(hasActionOutput)
             .sorted // make sure we get the methods in deterministic order
             .map { method =>
-              val eventingOut = eventingOutForTopic(method)
-              val kalixOptions = kalix.MethodOptions.newBuilder().setEventing(eventingOut).build()
               KalixMethod(SubscriptionServiceMethod(method))
-                .withKalixOptions(kalixOptions)
+                .withKalixOptions(buildEventingOutOptions(method))
             }
             .toSeq
 
@@ -135,10 +134,8 @@ private[impl] object ActionDescriptorFactory extends ComponentDescriptorFactory 
               .filter(hasActionOutput)
               .sorted // make sure we get the methods in deterministic order
               .map { method =>
-                val eventingOut = eventingOutForTopic(method)
-                val kalixOptions = kalix.MethodOptions.newBuilder().setEventing(eventingOut).build()
                 KalixMethod(SubscriptionServiceMethod(method))
-                  .withKalixOptions(kalixOptions)
+                  .withKalixOptions(buildEventingOutOptions(method))
               }
               .toSeq
 

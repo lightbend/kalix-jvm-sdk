@@ -275,12 +275,12 @@ private[impl] object ComponentDescriptorFactory {
       .build()
   }
 
-  def topicEventDestination(javaMethod: Method): EventDestination = {
+  def topicEventDestination(javaMethod: Method): Option[EventDestination] = {
     if (hasTopicPublication(javaMethod)) {
       val topicName = findPublicationTopicName(javaMethod)
-      EventDestination.newBuilder().setTopic(topicName).build()
+      Some(EventDestination.newBuilder().setTopic(topicName).build())
     } else {
-      EventDestination.getDefaultInstance
+      None
     }
   }
 
@@ -334,9 +334,8 @@ private[impl] object ComponentDescriptorFactory {
     EventSource.newBuilder().setTopic(topicName).setConsumerGroup(consumerGroup).build()
   }
 
-  def eventingOutForTopic(javaMethod: Method): Eventing = {
-    val eventSource: EventDestination = topicEventDestination(javaMethod)
-    Eventing.newBuilder().setOut(eventSource).build()
+  def eventingOutForTopic(javaMethod: Method): Option[Eventing] = {
+    topicEventDestination(javaMethod).map(eventSource => Eventing.newBuilder().setOut(eventSource).build())
   }
 
   def eventingInForValueEntity(entityType: String, handleDeletes: Boolean): Eventing = {
@@ -459,11 +458,15 @@ private[impl] object ComponentDescriptorFactory {
     }
   }
 
-  private[impl] def jwtOptions(method: Method): JwtMethodOptions = {
+  private[impl] def buildEventingOutOptions(method: Method): Option[MethodOptions] = {
+    eventingOutForTopic(method).map(eventingOut => kalix.MethodOptions.newBuilder().setEventing(eventingOut).build())
+  }
+
+  private[impl] def jwtOptions(method: Method): Option[JwtMethodOptions] = {
     if (hasJwtMethodOptions(method)) {
-      jwtMethodOptions(method)
+      Some(jwtMethodOptions(method))
     } else {
-      JwtMethodOptions.getDefaultInstance
+      None
     }
   }
 }
