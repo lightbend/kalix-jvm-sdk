@@ -44,22 +44,41 @@ import kalix.spring.testmodels.action.ActionsTestModels.StreamOutAction
 import kalix.spring.testmodels.subscriptions.PubSubTestModels.ActionWithMethodLevelAcl
 import kalix.spring.testmodels.subscriptions.PubSubTestModels.ActionWithMethodLevelAclAndSubscription
 import kalix.spring.testmodels.subscriptions.PubSubTestModels.ActionWithServiceLevelAcl
+import kalix.spring.testmodels.subscriptions.PubSubTestModels.AmbiguousEventHandlersInAction
+import kalix.spring.testmodels.subscriptions.PubSubTestModels.AmbiguousEventHandlersTypeLevelAnnotationInAction
+import kalix.spring.testmodels.subscriptions.PubSubTestModels.DifferentTopicForESSubscription
+import kalix.spring.testmodels.subscriptions.PubSubTestModels.DifferentTopicForESTypeLevelSubscription
+import kalix.spring.testmodels.subscriptions.PubSubTestModels.DifferentTopicForStreamSubscription
+import kalix.spring.testmodels.subscriptions.PubSubTestModels.DifferentTopicForTopicSubscription
+import kalix.spring.testmodels.subscriptions.PubSubTestModels.DifferentTopicForTopicTypeLevelSubscription
+import kalix.spring.testmodels.subscriptions.PubSubTestModels.DifferentTopicForVESubscription
+import kalix.spring.testmodels.subscriptions.PubSubTestModels.ESWithPublishToTopicAction
 import kalix.spring.testmodels.subscriptions.PubSubTestModels.EventStreamPublishingAction
 import kalix.spring.testmodels.subscriptions.PubSubTestModels.EventStreamSubscriptionAction
 import kalix.spring.testmodels.subscriptions.PubSubTestModels.InvalidSubscribeToEventSourcedEntityAction
 import kalix.spring.testmodels.subscriptions.PubSubTestModels.InvalidSubscribeToTopicAction
 import kalix.spring.testmodels.subscriptions.PubSubTestModels.MissingHandlersWhenSubscribeToEventSourcedEntityAction
 import kalix.spring.testmodels.subscriptions.PubSubTestModels.MissingHandlersWhenSubscribeToEventSourcedOnMethodLevelEntityAction
-import kalix.spring.testmodels.subscriptions.PubSubTestModels.PublishToTopicAction
+import kalix.spring.testmodels.subscriptions.PubSubTestModels.MissingSourceForTopicPublishing
+import kalix.spring.testmodels.subscriptions.PubSubTestModels.MissingTopicForESSubscription
+import kalix.spring.testmodels.subscriptions.PubSubTestModels.MissingTopicForStreamSubscription
+import kalix.spring.testmodels.subscriptions.PubSubTestModels.MissingTopicForTopicSubscription
+import kalix.spring.testmodels.subscriptions.PubSubTestModels.MissingTopicForTopicTypeLevelSubscription
+import kalix.spring.testmodels.subscriptions.PubSubTestModels.MissingTopicForTypeLevelESSubscription
+import kalix.spring.testmodels.subscriptions.PubSubTestModels.MissingTopicForVESubscription
 import kalix.spring.testmodels.subscriptions.PubSubTestModels.RestAnnotatedSubscribeToEventSourcedEntityAction
 import kalix.spring.testmodels.subscriptions.PubSubTestModels.RestAnnotatedSubscribeToValueEntityAction
 import kalix.spring.testmodels.subscriptions.PubSubTestModels.RestWithPublishToTopicAction
+import kalix.spring.testmodels.subscriptions.PubSubTestModels.StreamSubscriptionWithPublishToTopicAction
 import kalix.spring.testmodels.subscriptions.PubSubTestModels.SubscribeOnlyOneToEventSourcedEntityActionTypeLevel
 import kalix.spring.testmodels.subscriptions.PubSubTestModels.SubscribeToEventSourcedEntityAction
 import kalix.spring.testmodels.subscriptions.PubSubTestModels.SubscribeToTopicAction
 import kalix.spring.testmodels.subscriptions.PubSubTestModels.SubscribeToTwoTopicsAction
 import kalix.spring.testmodels.subscriptions.PubSubTestModels.SubscribeToValueEntityAction
 import kalix.spring.testmodels.subscriptions.PubSubTestModels.SubscribeToValueEntityWithDeletesAction
+import kalix.spring.testmodels.subscriptions.PubSubTestModels.TypeLevelESWithPublishToTopicAction
+import kalix.spring.testmodels.subscriptions.PubSubTestModels.TypeLevelTopicSubscriptionWithPublishToTopicAction
+import kalix.spring.testmodels.subscriptions.PubSubTestModels.VEWithPublishToTopicAction
 import org.scalatest.wordspec.AnyWordSpec
 
 class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSuite {
@@ -436,6 +455,111 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
       }.getMessage should include("You cannot use @Subscribe.EventSourcedEntity annotation in both methods and class.")
     }
 
+    "validates that ambiguous event handler" in {
+      intercept[InvalidComponentException] {
+        Validations.validate(classOf[AmbiguousEventHandlersInAction]).failIfInvalid
+      }.getMessage should include(
+        "Ambiguous handlers for java.lang.Integer, methods: [methodOne, methodTwo] consume the same type.")
+    }
+
+    "validates that ambiguous event handler (type level)" in {
+      intercept[InvalidComponentException] {
+        Validations.validate(classOf[AmbiguousEventHandlersTypeLevelAnnotationInAction]).failIfInvalid
+      }.getMessage should include(
+        "Ambiguous handlers for java.lang.Integer, methods: [methodOne, methodTwo] consume the same type.")
+    }
+
+    "validates that source is missing for topic publication" in {
+      intercept[InvalidComponentException] {
+        Validations.validate(classOf[MissingSourceForTopicPublishing]).failIfInvalid
+      }.getMessage should include(
+        "You must select a source for @Publish.Topic. Annotate this methods with one of @Subscribe or REST annotations.")
+    }
+
+    "validates that topic is missing for VE subscription" in {
+      intercept[InvalidComponentException] {
+        Validations.validate(classOf[MissingTopicForVESubscription]).failIfInvalid
+      }.getMessage should include(
+        "Add @Publish.Topic annotation to all subscription methods from ValueEntity \"ve-counter\". Or remove it from all methods.")
+    }
+
+    "validates that topic is missing for ES subscription" in {
+      intercept[InvalidComponentException] {
+        Validations.validate(classOf[MissingTopicForESSubscription]).failIfInvalid
+      }.getMessage should include(
+        "On 'kalix.spring.testmodels.subscriptions.PubSubTestModels$MissingTopicForESSubscription': Add @Publish.Topic annotation to all subscription methods from EventSourcedEntity \"employee\". Or remove it from all methods.")
+    }
+
+    "validates that topic is missing for ES subscription (type level)" in {
+      intercept[InvalidComponentException] {
+        Validations.validate(classOf[MissingTopicForTypeLevelESSubscription]).failIfInvalid
+      }.getMessage should include(
+        "On 'kalix.spring.testmodels.subscriptions.PubSubTestModels$MissingTopicForTypeLevelESSubscription': Add @Publish.Topic annotation to all subscription methods from EventSourcedEntity \"employee\". Or remove it from all methods.")
+    }
+
+    "validates that topic is missing for Topic subscription" in {
+      intercept[InvalidComponentException] {
+        Validations.validate(classOf[MissingTopicForTopicSubscription]).failIfInvalid
+      }.getMessage should include(
+        "On 'kalix.spring.testmodels.subscriptions.PubSubTestModels$MissingTopicForTopicSubscription': Add @Publish.Topic annotation to all subscription methods from Topic \"source\". Or remove it from all methods.")
+    }
+
+    "validates that topic is missing for Topic subscription (type level)" in {
+      intercept[InvalidComponentException] {
+        Validations.validate(classOf[MissingTopicForTopicTypeLevelSubscription]).failIfInvalid
+      }.getMessage should include(
+        "On 'kalix.spring.testmodels.subscriptions.PubSubTestModels$MissingTopicForTopicTypeLevelSubscription': Add @Publish.Topic annotation to all subscription methods from Topic \"source\". Or remove it from all methods.")
+    }
+
+    "validates that topic is missing for Stream subscription" in {
+      intercept[InvalidComponentException] {
+        Validations.validate(classOf[MissingTopicForStreamSubscription]).failIfInvalid
+      }.getMessage should include(
+        "On 'kalix.spring.testmodels.subscriptions.PubSubTestModels$MissingTopicForStreamSubscription': Add @Publish.Topic annotation to all subscription methods from Stream \"source\". Or remove it from all methods.")
+    }
+
+    "validates that topic names are the same for VE subscription" in {
+      intercept[InvalidComponentException] {
+        Validations.validate(classOf[DifferentTopicForVESubscription]).failIfInvalid
+      }.getMessage should include(
+        "On 'kalix.spring.testmodels.subscriptions.PubSubTestModels$DifferentTopicForVESubscription': All @Publish.Topic annotation for the same subscription source ValueEntity \"ve-counter\" should point to the same topic name. Create a separate Action if you want to split messages to different topics from the same source.")
+    }
+
+    "validates that topic names are the same for ES subscription" in {
+      intercept[InvalidComponentException] {
+        Validations.validate(classOf[DifferentTopicForESSubscription]).failIfInvalid
+      }.getMessage should include(
+        "On 'kalix.spring.testmodels.subscriptions.PubSubTestModels$DifferentTopicForESSubscription': All @Publish.Topic annotation for the same subscription source EventSourcedEntity \"employee\" should point to the same topic name. Create a separate Action if you want to split messages to different topics from the same source.")
+    }
+
+    "validates that topic names are the same for ES subscription (type level)" in {
+      intercept[InvalidComponentException] {
+        Validations.validate(classOf[DifferentTopicForESTypeLevelSubscription]).failIfInvalid
+      }.getMessage should include(
+        "On 'kalix.spring.testmodels.subscriptions.PubSubTestModels$DifferentTopicForESTypeLevelSubscription': All @Publish.Topic annotation for the same subscription source EventSourcedEntity \"employee\" should point to the same topic name. Create a separate Action if you want to split messages to different topics from the same source.")
+    }
+
+    "validates that topic names are the same for Topic subscription" in {
+      intercept[InvalidComponentException] {
+        Validations.validate(classOf[DifferentTopicForTopicSubscription]).failIfInvalid
+      }.getMessage should include(
+        "On 'kalix.spring.testmodels.subscriptions.PubSubTestModels$DifferentTopicForTopicSubscription': All @Publish.Topic annotation for the same subscription source Topic \"source\" should point to the same topic name. Create a separate Action if you want to split messages to different topics from the same source.")
+    }
+
+    "validates that topic names are the same for Topic subscription (type level)" in {
+      intercept[InvalidComponentException] {
+        Validations.validate(classOf[DifferentTopicForTopicTypeLevelSubscription]).failIfInvalid
+      }.getMessage should include(
+        "On 'kalix.spring.testmodels.subscriptions.PubSubTestModels$DifferentTopicForTopicTypeLevelSubscription': All @Publish.Topic annotation for the same subscription source Topic \"source\" should point to the same topic name. Create a separate Action if you want to split messages to different topics from the same source.")
+    }
+
+    "validates that topic names are the same for Stream subscription" in {
+      intercept[InvalidComponentException] {
+        Validations.validate(classOf[DifferentTopicForStreamSubscription]).failIfInvalid
+      }.getMessage should include(
+        "On 'kalix.spring.testmodels.subscriptions.PubSubTestModels$DifferentTopicForStreamSubscription': All @Publish.Topic annotation for the same subscription source Stream \"source\" should point to the same topic name. Create a separate Action if you want to split messages to different topics from the same source.")
+    }
+
     //TODO remove ignore after updating to Scala 2.13.11 (https://github.com/scala/scala/pull/10105)
     "validates if there are missing event handlers for event sourced Entity Subscription at type level" ignore {
       intercept[InvalidComponentException] {
@@ -458,21 +582,6 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
       }.getMessage should include("You cannot use @Subscribe.Topic annotation in both methods and class.")
     }
 
-    "generate mapping for an Action with a publication to a topic" in {
-      assertDescriptor[PublishToTopicAction] { desc =>
-        val methodOne = desc.commandHandlers("MessageOne")
-        methodOne.requestMessageDescriptor.getFullName shouldBe JavaPbAny.getDescriptor.getFullName
-
-        val eventDestinationOne = findKalixMethodOptions(desc, "MessageOne").getEventing.getOut
-        eventDestinationOne.getTopic shouldBe "topicAlpha"
-
-        // should have a default extractor for any payload
-        val javaMethod = methodOne.methodInvokers.values.head
-        javaMethod.parameterExtractors.length shouldBe 1
-      }
-
-    }
-
     "generate mapping for an Action with a Rest endpoint and publication to a topic" in {
       assertDescriptor[RestWithPublishToTopicAction] { desc =>
         val methodOne = desc.commandHandlers("MessageOne")
@@ -490,6 +599,90 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
         javaMethod.parameterExtractors.length shouldBe 1
       }
 
+    }
+
+    "generate mapping for an Action with a VE subscription and publication to a topic" in {
+      assertDescriptor[VEWithPublishToTopicAction] { desc =>
+        val methodOne = desc.commandHandlers("MessageOne")
+        methodOne.requestMessageDescriptor.getFullName shouldBe JavaPbAny.getDescriptor.getFullName
+
+        val eventDestinationOne = findKalixMethodOptions(desc, "MessageOne").getEventing.getOut
+        eventDestinationOne.getTopic shouldBe "foobar"
+
+        // should have a default extractor for any payload
+        val javaMethodOne = methodOne.methodInvokers.values.head
+        javaMethodOne.parameterExtractors.length shouldBe 1
+
+        val methodTwo = desc.commandHandlers("MessageTwo")
+        methodTwo.requestMessageDescriptor.getFullName shouldBe Empty.javaDescriptor.getFullName
+
+        val eventDestinationTwo = findKalixMethodOptions(desc, "MessageTwo").getEventing.getOut
+        eventDestinationTwo.getTopic shouldBe "foobar"
+
+        // delete handler with 0 params
+        val javaMethodTwo = methodTwo.methodInvokers.values.head
+        javaMethodTwo.parameterExtractors.length shouldBe 0
+      }
+    }
+
+    "generate mapping for an Action with a ES subscription and publication to a topic" in {
+      assertDescriptor[ESWithPublishToTopicAction] { desc =>
+        desc.commandHandlers should have size 1
+
+        val methodOne = desc.commandHandlers("KalixSyntheticMethodOnESEmployee")
+        methodOne.requestMessageDescriptor.getFullName shouldBe JavaPbAny.getDescriptor.getFullName
+
+        val eventDestinationOne = findKalixMethodOptions(desc, "KalixSyntheticMethodOnESEmployee").getEventing.getOut
+        eventDestinationOne.getTopic shouldBe "foobar"
+      }
+    }
+
+    "generate mapping for an Action with a ES type level subscription and publication to a topic" in {
+      assertDescriptor[TypeLevelESWithPublishToTopicAction] { desc =>
+        desc.commandHandlers should have size 1
+
+        val methodOne = desc.commandHandlers("KalixSyntheticMethodOnESEmployee")
+        methodOne.requestMessageDescriptor.getFullName shouldBe JavaPbAny.getDescriptor.getFullName
+
+        val eventDestinationOne = findKalixMethodOptions(desc, "KalixSyntheticMethodOnESEmployee").getEventing.getOut
+        eventDestinationOne.getTopic shouldBe "foobar"
+      }
+    }
+
+    "generate mapping for an Action with a Topic subscription and publication to a topic" in {
+      assertDescriptor[TypeLevelTopicSubscriptionWithPublishToTopicAction] { desc =>
+        desc.commandHandlers should have size 1
+
+        val methodOne = desc.commandHandlers("KalixSyntheticMethodOnTopicSource")
+        methodOne.requestMessageDescriptor.getFullName shouldBe JavaPbAny.getDescriptor.getFullName
+
+        val eventDestinationOne = findKalixMethodOptions(desc, "KalixSyntheticMethodOnTopicSource").getEventing.getOut
+        eventDestinationOne.getTopic shouldBe "foobar"
+      }
+    }
+
+    "generate mapping for an Action with a Topic type level subscription and publication to a topic" in {
+      assertDescriptor[TypeLevelTopicSubscriptionWithPublishToTopicAction] { desc =>
+        desc.commandHandlers should have size 1
+
+        val methodOne = desc.commandHandlers("KalixSyntheticMethodOnTopicSource")
+        methodOne.requestMessageDescriptor.getFullName shouldBe JavaPbAny.getDescriptor.getFullName
+
+        val eventDestinationOne = findKalixMethodOptions(desc, "KalixSyntheticMethodOnTopicSource").getEventing.getOut
+        eventDestinationOne.getTopic shouldBe "foobar"
+      }
+    }
+
+    "generate mapping for an Action with a Stream subscription and publication to a topic" in {
+      assertDescriptor[StreamSubscriptionWithPublishToTopicAction] { desc =>
+        desc.commandHandlers should have size 1
+
+        val methodOne = desc.commandHandlers("KalixSyntheticMethodOnESSource")
+        methodOne.requestMessageDescriptor.getFullName shouldBe JavaPbAny.getDescriptor.getFullName
+
+        val eventDestinationOne = findKalixMethodOptions(desc, "KalixSyntheticMethodOnESSource").getEventing.getOut
+        eventDestinationOne.getTopic shouldBe "foobar"
+      }
     }
 
     "generate ACL annotations at service level" in {

@@ -122,6 +122,207 @@ public class PubSubTestModels {//TODO shall we remove this class and move things
     }
   }
 
+  public static class AmbiguousEventHandlersInAction extends Action {
+
+    @Subscribe.EventSourcedEntity(EmployeeEntity.class)
+    public Action.Effect<Integer> methodOne(Integer message) {
+      return effects().reply(message);
+    }
+
+    @Subscribe.EventSourcedEntity(EmployeeEntity.class)
+    public Action.Effect<Integer> methodTwo(Integer message) {
+      return effects().reply(message);
+    }
+  }
+
+  @Subscribe.EventSourcedEntity(EmployeeEntity.class)
+  public static class AmbiguousEventHandlersTypeLevelAnnotationInAction extends Action {
+
+    public Action.Effect<Integer> methodOne(Integer message) {
+      return effects().reply(message);
+    }
+
+    public Action.Effect<Integer> methodTwo(Integer message) {
+      return effects().reply(message);
+    }
+  }
+
+  public static class MissingSourceForTopicPublishing extends Action {
+
+    @Publish.Topic("test")
+    public Action.Effect<String> methodOne(String message) {
+      return effects().reply(message);
+    }
+  }
+
+  public static class MissingTopicForVESubscription extends Action {
+
+    @Subscribe.ValueEntity(Counter.class)
+    @Publish.Topic("test")
+    public Action.Effect<String> methodOne(String message) {
+      return effects().reply(message);
+    }
+
+    @Subscribe.ValueEntity(value = Counter.class, handleDeletes = true)
+    public Action.Effect<String> methodTwo() {
+      return effects().ignore();
+    }
+  }
+
+  public static class MissingTopicForESSubscription extends Action {
+
+    @Subscribe.EventSourcedEntity(EmployeeEntity.class)
+    @Publish.Topic("test")
+    public Action.Effect<String> methodOne(String message) {
+      return effects().reply(message);
+    }
+
+    @Subscribe.EventSourcedEntity(EmployeeEntity.class)
+    public Action.Effect<String> methodTwo(Integer message) {
+      return effects().ignore();
+    }
+  }
+
+  @Subscribe.EventSourcedEntity(EmployeeEntity.class)
+  public static class MissingTopicForTypeLevelESSubscription extends Action {
+
+    @Publish.Topic("test")
+    public Action.Effect<String> methodOne(String message) {
+      return effects().reply(message);
+    }
+
+    public Action.Effect<String> methodTwo(Integer message) {
+      return effects().ignore();
+    }
+  }
+
+  public static class MissingTopicForTopicSubscription extends Action {
+
+    @Subscribe.Topic("source")
+    @Publish.Topic("test")
+    public Action.Effect<String> methodOne(String message) {
+      return effects().reply(message);
+    }
+
+    @Subscribe.Topic("source")
+    public Action.Effect<String> methodTwo(Integer message) {
+      return effects().ignore();
+    }
+  }
+
+  @Subscribe.Topic("source")
+  public static class MissingTopicForTopicTypeLevelSubscription extends Action {
+
+    @Publish.Topic("test")
+    public Action.Effect<String> methodOne(String message) {
+      return effects().reply(message);
+    }
+
+    public Action.Effect<String> methodTwo(Integer message) {
+      return effects().ignore();
+    }
+  }
+
+  @Subscribe.Stream(id = "source", service = "abc")
+  public static class MissingTopicForStreamSubscription extends Action {
+
+    @Publish.Topic("test")
+    public Action.Effect<String> methodOne(String message) {
+      return effects().reply(message);
+    }
+
+    public Action.Effect<String> methodTwo(Integer message) {
+      return effects().ignore();
+    }
+  }
+
+  public static class DifferentTopicForVESubscription extends Action {
+
+    @Subscribe.ValueEntity(Counter.class)
+    @Publish.Topic("test")
+    public Action.Effect<String> methodOne(String message) {
+      return effects().reply(message);
+    }
+
+    @Subscribe.ValueEntity(value = Counter.class, handleDeletes = true)
+    @Publish.Topic("another-topic")
+    public Action.Effect<String> methodTwo() {
+      return effects().ignore();
+    }
+  }
+
+  public static class DifferentTopicForESSubscription extends Action {
+
+    @Subscribe.EventSourcedEntity(EmployeeEntity.class)
+    @Publish.Topic("test")
+    public Action.Effect<String> methodOne(String message) {
+      return effects().reply(message);
+    }
+
+    @Subscribe.EventSourcedEntity(EmployeeEntity.class)
+    @Publish.Topic("another-topic")
+    public Action.Effect<String> methodTwo(Integer message) {
+      return effects().ignore();
+    }
+  }
+
+  @Subscribe.EventSourcedEntity(EmployeeEntity.class)
+  public static class DifferentTopicForESTypeLevelSubscription extends Action {
+
+    @Publish.Topic("test")
+    public Action.Effect<String> methodOne(String message) {
+      return effects().reply(message);
+    }
+
+    @Publish.Topic("another-topic")
+    public Action.Effect<String> methodTwo(Integer message) {
+      return effects().ignore();
+    }
+  }
+
+  public static class DifferentTopicForTopicSubscription extends Action {
+
+    @Subscribe.Topic("source")
+    @Publish.Topic("test")
+    public Action.Effect<String> methodOne(String message) {
+      return effects().reply(message);
+    }
+
+    @Subscribe.Topic("source")
+    @Publish.Topic("another-topic")
+    public Action.Effect<String> methodTwo(Integer message) {
+      return effects().ignore();
+    }
+  }
+
+  @Subscribe.Topic("source")
+  public static class DifferentTopicForTopicTypeLevelSubscription extends Action {
+
+    @Publish.Topic("test")
+    public Action.Effect<String> methodOne(String message) {
+      return effects().reply(message);
+    }
+
+    @Publish.Topic("another-topic")
+    public Action.Effect<String> methodTwo(Integer message) {
+      return effects().ignore();
+    }
+  }
+
+  @Subscribe.Stream(id="source", service = "abc")
+  public static class DifferentTopicForStreamSubscription extends Action {
+
+    @Publish.Topic("test")
+    public Action.Effect<String> methodOne(String message) {
+      return effects().reply(message);
+    }
+
+    @Publish.Topic("another-topic")
+    public Action.Effect<String> methodTwo(Integer message) {
+      return effects().ignore();
+    }
+  }
+
   @Subscribe.EventSourcedEntity(value = EmployeeEntity.class)
   public static class MissingHandlersWhenSubscribeToEventSourcedEntityAction extends Action {
 
@@ -181,20 +382,84 @@ public class PubSubTestModels {//TODO shall we remove this class and move things
     }
   }
 
-  public static class PublishToTopicAction extends Action {
-
-    @Publish.Topic("topicAlpha")
-    public Action.Effect<Message> messageOne(Message message) {
-      return effects().reply(message);
-    }
-  }
-
   public static class RestWithPublishToTopicAction extends Action {
 
     @PostMapping("/message/{msg}")
     @Publish.Topic("foobar")
     public Effect<Message> messageOne(@PathVariable String msg) {
       return effects().reply(new Message(msg));
+    }
+  }
+
+  public static class VEWithPublishToTopicAction extends Action {
+
+    @Subscribe.ValueEntity(Counter.class)
+    @Publish.Topic("foobar")
+    public Effect<Message> messageOne(String msg) {
+      return effects().reply(new Message(msg));
+    }
+
+    @Subscribe.ValueEntity(value = Counter.class, handleDeletes = true)
+    @Publish.Topic("foobar")
+    public Effect<Message> messageTwo() {
+      return effects().ignore();
+    }
+  }
+
+  public static class ESWithPublishToTopicAction extends Action {
+
+    @Subscribe.EventSourcedEntity(EmployeeEntity.class)
+    @Publish.Topic("foobar")
+    public Effect<Message> messageOne(String msg) {
+      return effects().reply(new Message(msg));
+    }
+
+    @Subscribe.EventSourcedEntity(EmployeeEntity.class)
+    @Publish.Topic("foobar")
+    public Effect<Message> messageTwo(Integer msg) {
+      return effects().ignore();
+    }
+  }
+
+  @Subscribe.EventSourcedEntity(EmployeeEntity.class)
+  public static class TypeLevelESWithPublishToTopicAction extends Action {
+
+    @Publish.Topic("foobar")
+    public Effect<Message> messageOne(String msg) {
+      return effects().reply(new Message(msg));
+    }
+
+    @Publish.Topic("foobar")
+    public Effect<Message> messageTwo(Integer msg) {
+      return effects().ignore();
+    }
+  }
+
+  @Subscribe.Topic("source")
+  public static class TypeLevelTopicSubscriptionWithPublishToTopicAction extends Action {
+
+    @Publish.Topic("foobar")
+    public Effect<Message> messageOne(String msg) {
+      return effects().reply(new Message(msg));
+    }
+
+    @Publish.Topic("foobar")
+    public Effect<Message> messageTwo(Integer msg) {
+      return effects().ignore();
+    }
+  }
+
+  @Subscribe.Stream(id = "source", service = "abc")
+  public static class StreamSubscriptionWithPublishToTopicAction extends Action {
+
+    @Publish.Topic("foobar")
+    public Effect<Message> messageOne(String msg) {
+      return effects().reply(new Message(msg));
+    }
+
+    @Publish.Topic("foobar")
+    public Effect<Message> messageTwo(Integer msg) {
+      return effects().ignore();
     }
   }
 

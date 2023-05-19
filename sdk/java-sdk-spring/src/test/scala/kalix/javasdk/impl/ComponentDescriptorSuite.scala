@@ -17,13 +17,14 @@
 package kalix.javasdk.impl
 
 import scala.reflect.ClassTag
-
 import com.google.api.AnnotationsProto
 import com.google.api.HttpRule
 import com.google.protobuf.Descriptors
 import com.google.protobuf.Descriptors.FieldDescriptor.JavaType
 import kalix.MethodOptions
 import kalix.ServiceOptions
+import kalix.javasdk.impl.Validations.Invalid
+import kalix.javasdk.impl.Validations.Valid
 import org.scalatest.Assertion
 import org.scalatest.matchers.should.Matchers
 
@@ -33,9 +34,14 @@ trait ComponentDescriptorSuite extends Matchers {
     ComponentDescriptor.descriptorFor(ev.runtimeClass, new JsonMessageCodec)
 
   def assertDescriptor[E](assertFunc: ComponentDescriptor => Unit)(implicit ev: ClassTag[E]): Unit = {
-    val descriptor = descriptorFor[E]
-    withClue(ProtoDescriptorRenderer.toString(descriptor.fileDescriptor)) {
-      assertFunc(descriptor)
+    val validation = Validations.validate(ev.runtimeClass)
+    validation match { // if any invalid component, log and throw
+      case Valid =>
+        val descriptor = descriptorFor[E]
+        withClue(ProtoDescriptorRenderer.toString(descriptor.fileDescriptor)) {
+          assertFunc(descriptor)
+        }
+      case Invalid(_) => validation.failIfInvalid
     }
   }
 

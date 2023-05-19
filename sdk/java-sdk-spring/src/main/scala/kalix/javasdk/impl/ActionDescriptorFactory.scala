@@ -16,25 +16,27 @@
 
 package kalix.javasdk.impl
 
+import kalix.EventSource
+import kalix.Eventing
+import kalix.MethodOptions
 import kalix.javasdk.impl
-import kalix.javasdk.impl.ComponentDescriptorFactory.buildJWTOptions
 import kalix.javasdk.impl.ComponentDescriptorFactory.combineByES
 import kalix.javasdk.impl.ComponentDescriptorFactory.escapeMethodName
-import kalix.javasdk.impl.ComponentDescriptorFactory.eventingInForEventSourcedEntity
+import kalix.javasdk.impl.ComponentDescriptorFactory.eventSourceEntityEventSource
 import kalix.javasdk.impl.ComponentDescriptorFactory.eventingInForEventSourcedEntityServiceLevel
-import kalix.javasdk.impl.ComponentDescriptorFactory.eventingInForTopic
-import kalix.javasdk.impl.ComponentDescriptorFactory.eventingInForValueEntity
 import kalix.javasdk.impl.ComponentDescriptorFactory.eventingOutForTopic
 import kalix.javasdk.impl.ComponentDescriptorFactory.findEventSourcedEntityType
 import kalix.javasdk.impl.ComponentDescriptorFactory.hasActionOutput
 import kalix.javasdk.impl.ComponentDescriptorFactory.hasEventSourcedEntitySubscription
 import kalix.javasdk.impl.ComponentDescriptorFactory.hasHandleDeletes
-import kalix.javasdk.impl.ComponentDescriptorFactory.hasTopicPublication
 import kalix.javasdk.impl.ComponentDescriptorFactory.hasTopicSubscription
 import kalix.javasdk.impl.ComponentDescriptorFactory.hasValueEntitySubscription
 import kalix.javasdk.impl.ComponentDescriptorFactory.publishToEventStream
 import kalix.javasdk.impl.ComponentDescriptorFactory.streamSubscription
 import kalix.javasdk.impl.ComponentDescriptorFactory.subscribeToEventStream
+import kalix.javasdk.impl.ComponentDescriptorFactory.topicEventDestination
+import kalix.javasdk.impl.ComponentDescriptorFactory.topicEventSource
+import kalix.javasdk.impl.ComponentDescriptorFactory.valueEntityEventSource
 import kalix.javasdk.impl.reflection.CombinedSubscriptionServiceMethod
 import kalix.javasdk.impl.reflection.HandleDeletesServiceMethod
 import kalix.javasdk.impl.reflection.KalixMethod
@@ -43,6 +45,8 @@ import kalix.javasdk.impl.reflection.ReflectionUtils
 import kalix.javasdk.impl.reflection.RestServiceIntrospector
 import kalix.javasdk.impl.reflection.SubscriptionServiceMethod
 
+import java.lang.reflect.Method
+
 private[impl] object ActionDescriptorFactory extends ComponentDescriptorFactory {
 
   override def buildDescriptorFor(
@@ -50,24 +54,34 @@ private[impl] object ActionDescriptorFactory extends ComponentDescriptorFactory 
       messageCodec: JsonMessageCodec,
       nameGenerator: NameGenerator): ComponentDescriptor = {
 
+    def withOptionalDestination(method: Method, source: EventSource): MethodOptions = {
+      val destination = topicEventDestination(method)
+      val eventing = Eventing.newBuilder().setIn(source).setOut(destination).build()
+      kalix.MethodOptions.newBuilder().setEventing(eventing).build()
+    }
+
     // we should merge from here
     // methods with REST annotations
     val syntheticMethods: Seq[KalixMethod] =
       RestServiceIntrospector.inspectService(component).methods.map { serviceMethod =>
-        KalixMethod(serviceMethod).withKalixOptions(buildJWTOptions(serviceMethod.javaMethod))
+        val eventingOut = eventingOutForTopic(serviceMethod.javaMethod)
+        val jwtOptions = ComponentDescriptorFactory.jwtOptions(serviceMethod.javaMethod)
+        val kalixOptions = kalix.MethodOptions.newBuilder().setEventing(eventingOut).setJwt(jwtOptions).build()
+        KalixMethod(serviceMethod).withKalixOptions(kalixOptions)
       }
 
     //TODO make sure no subscription should be exposed via REST.
     // methods annotated with @Subscribe.ValueEntity
     import ReflectionUtils.methodOrdering
+
     val handleDeletesMethods = component.getMethods
       .filter(hasHandleDeletes)
       .sorted
       .map { method =>
-        val methodOptionsBuilder = kalix.MethodOptions.newBuilder()
-        methodOptionsBuilder.setEventing(eventingInForValueEntity(method))
+        val source = valueEntityEventSource(method)
+        val kalixOptions = withOptionalDestination(method, source)
         KalixMethod(HandleDeletesServiceMethod(method))
-          .withKalixOptions(methodOptionsBuilder.build())
+          .withKalixOptions(kalixOptions)
       }
 
     val subscriptionValueEntityMethods: IndexedSeq[KalixMethod] = component.getMethods
@@ -75,10 +89,8 @@ private[impl] object ActionDescriptorFactory extends ComponentDescriptorFactory 
       .filter(hasValueEntitySubscription)
       .sorted // make sure we get the methods in deterministic order
       .map { method =>
-        val subscriptionOptions = eventingInForValueEntity(method)
-        val kalixOptions =
-          kalix.MethodOptions.newBuilder().setEventing(subscriptionOptions).build()
-
+        val source = valueEntityEventSource(method)
+        val kalixOptions = withOptionalDestination(method, source)
         KalixMethod(SubscriptionServiceMethod(method))
           .withKalixOptions(kalixOptions)
       }
@@ -89,9 +101,8 @@ private[impl] object ActionDescriptorFactory extends ComponentDescriptorFactory 
       .filter(hasEventSourcedEntitySubscription)
       .sorted // make sure we get the methods in deterministic order
       .map { method =>
-        val subscriptionOptions = eventingInForEventSourcedEntity(method)
-        val kalixOptions =
-          kalix.MethodOptions.newBuilder().setEventing(subscriptionOptions).build()
+        val source = eventSourceEntityEventSource(method)
+        val kalixOptions = withOptionalDestination(method, source)
         KalixMethod(SubscriptionServiceMethod(method))
           .withKalixOptions(kalixOptions)
       }
@@ -103,7 +114,12 @@ private[impl] object ActionDescriptorFactory extends ComponentDescriptorFactory 
           component.getMethods
             .filter(hasActionOutput)
             .sorted // make sure we get the methods in deterministic order
-            .map { method => KalixMethod(SubscriptionServiceMethod(method)) }
+            .map { method =>
+              val eventingOut = eventingOutForTopic(method)
+              val kalixOptions = kalix.MethodOptions.newBuilder().setEventing(eventingOut).build()
+              KalixMethod(SubscriptionServiceMethod(method))
+                .withKalixOptions(kalixOptions)
+            }
             .toSeq
 
         val entityType = findEventSourcedEntityType(component)
@@ -118,7 +134,12 @@ private[impl] object ActionDescriptorFactory extends ComponentDescriptorFactory 
             component.getMethods
               .filter(hasActionOutput)
               .sorted // make sure we get the methods in deterministic order
-              .map { method => KalixMethod(SubscriptionServiceMethod(method)) }
+              .map { method =>
+                val eventingOut = eventingOutForTopic(method)
+                val kalixOptions = kalix.MethodOptions.newBuilder().setEventing(eventingOut).build()
+                KalixMethod(SubscriptionServiceMethod(method))
+                  .withKalixOptions(kalixOptions)
+              }
               .toSeq
 
           val streamId = ann.id()
@@ -132,10 +153,8 @@ private[impl] object ActionDescriptorFactory extends ComponentDescriptorFactory 
       .filter(hasTopicSubscription)
       .sorted // make sure we get the methods in deterministic order
       .map { method =>
-        val subscriptionOptions = eventingInForTopic(method)
-        val kalixOptions =
-          kalix.MethodOptions.newBuilder().setEventing(subscriptionOptions).build()
-
+        val source = topicEventSource(method)
+        val kalixOptions = withOptionalDestination(method, source)
         KalixMethod(SubscriptionServiceMethod(method))
           .withKalixOptions(kalixOptions)
       }
@@ -148,10 +167,8 @@ private[impl] object ActionDescriptorFactory extends ComponentDescriptorFactory 
           .filter(hasActionOutput)
           .sorted // make sure we get the methods in deterministic order
           .map { method =>
-            val subscriptionOptions = eventingInForTopic(component)
-            val kalixOptions =
-              kalix.MethodOptions.newBuilder().setEventing(subscriptionOptions).build()
-
+            val source = topicEventSource(component)
+            val kalixOptions = withOptionalDestination(method, source)
             KalixMethod(SubscriptionServiceMethod(method))
               .withKalixOptions(kalixOptions)
           }
@@ -186,42 +203,7 @@ private[impl] object ActionDescriptorFactory extends ComponentDescriptorFactory 
       }.toSeq
     }
 
-    // methods annotated with @Publish.Topic
-    val publicationTopicMethods: IndexedSeq[KalixMethod] = component.getMethods
-      .filter(hasTopicPublication)
-      .sorted // make sure we get the methods in deterministic order
-      .map { method =>
-        val publicationOptions = eventingOutForTopic(method)
-        val kalixOptions =
-          kalix.MethodOptions.newBuilder().setEventing(publicationOptions).build()
-
-        KalixMethod(SubscriptionServiceMethod(method))
-          .withKalixOptions(kalixOptions)
-      }
-      .toIndexedSeq
-
     val serviceName = nameGenerator.getName(component.getSimpleName)
-
-    def addKalixOptions(to: Seq[KalixMethod], from: Seq[KalixMethod]): Seq[KalixMethod] = {
-      val added = to.flatMap(toAdd =>
-        from
-          .filter { addingFrom =>
-            addingFrom.serviceMethod.methodName.equals(toAdd.serviceMethod.methodName)
-          }
-          .map(addingFrom => toAdd.withKalixOptions(addingFrom.methodOptions)))
-      val unmatchedInTo = to
-        .filter { toAdd =>
-          !from.exists { addingFrom =>
-            addingFrom.serviceMethod.methodName.equals(toAdd.serviceMethod.methodName)
-          }
-        }
-      added ++ unmatchedInTo
-    }
-
-    def removeDuplicates(springMethods: Seq[KalixMethod], pubSubMethods: Seq[KalixMethod]): Seq[KalixMethod] = {
-      pubSubMethods.filterNot(p =>
-        springMethods.exists(s => p.serviceMethod.methodName.equals(s.serviceMethod.methodName)))
-    }
 
     val serviceLevelOptions = {
 
@@ -249,14 +231,13 @@ private[impl] object ActionDescriptorFactory extends ComponentDescriptorFactory 
       serviceName,
       serviceOptions = serviceLevelOptions,
       component.getPackageName,
-      addKalixOptions(syntheticMethods, publicationTopicMethods)
+      syntheticMethods
       ++ handleDeletesMethods
       ++ subscriptionValueEntityMethods
       ++ combineByES(subscriptionEventSourcedEntityMethods, messageCodec, component)
       ++ combineByES(subscriptionEventSourcedEntityClass, messageCodec, component)
       ++ combineByES(subscriptionStreamClass, messageCodec, component)
       ++ combineByTopic(subscriptionTopicClass)
-      ++ combineByTopic(subscriptionTopicMethods)
-      ++ removeDuplicates(syntheticMethods, publicationTopicMethods))
+      ++ combineByTopic(subscriptionTopicMethods))
   }
 }
