@@ -23,6 +23,7 @@ import kalix.javasdk.annotations.Subscribe;
 import kalix.spring.testmodels.Message;
 import kalix.spring.testmodels.Message2;
 import kalix.spring.testmodels.eventsourcedentity.EmployeeEvent.EmployeeCreated;
+import kalix.spring.testmodels.valueentity.AssignedCounter;
 import kalix.spring.testmodels.valueentity.Counter;
 import kalix.spring.testmodels.valueentity.CounterState;
 import kalix.javasdk.view.View;
@@ -122,7 +123,37 @@ public class PubSubTestModels {//TODO shall we remove this class and move things
     }
   }
 
-  public static class AmbiguousEventHandlersInAction extends Action {
+  public static class AmbiguousHandlersVESubscriptionInAction extends Action {
+
+    @Subscribe.ValueEntity(Counter.class)
+    public Action.Effect<Integer> methodOne(Integer message) {
+      return effects().reply(message);
+    }
+
+    @Subscribe.ValueEntity(Counter.class)
+    public Action.Effect<Integer> methodTwo(Integer message) {
+      return effects().reply(message);
+    }
+
+    @Subscribe.ValueEntity(AssignedCounter.class)
+    public Action.Effect<Integer> methodThree(Integer message) {
+      return effects().reply(message);
+    }
+  }
+
+  @Subscribe.ValueEntity(Counter.class)
+  public static class AmbiguousHandlersVETypeLevelSubscriptionInAction extends Action {
+
+    public Action.Effect<Integer> methodOne(Integer message) {
+      return effects().reply(message);
+    }
+
+    public Action.Effect<Integer> methodTwo(Integer message) {
+      return effects().reply(message);
+    }
+  }
+
+  public static class AmbiguousHandlersESSubscriptionInAction extends Action {
 
     @Subscribe.EventSourcedEntity(EmployeeEntity.class)
     public Action.Effect<Integer> methodOne(Integer message) {
@@ -133,10 +164,57 @@ public class PubSubTestModels {//TODO shall we remove this class and move things
     public Action.Effect<Integer> methodTwo(Integer message) {
       return effects().reply(message);
     }
+
+    @Subscribe.EventSourcedEntity(CounterEventSourcedEntity.class)
+    public Action.Effect<Integer> methodThree(Integer message) {
+      return effects().reply(message);
+    }
   }
 
   @Subscribe.EventSourcedEntity(EmployeeEntity.class)
-  public static class AmbiguousEventHandlersTypeLevelAnnotationInAction extends Action {
+  public static class AmbiguousHandlersESTypeLevelSubscriptionInAction extends Action {
+
+    public Action.Effect<Integer> methodOne(Integer message) {
+      return effects().reply(message);
+    }
+
+    public Action.Effect<Integer> methodTwo(Integer message) {
+      return effects().reply(message);
+    }
+  }
+
+  @Subscribe.Stream(id = "source", service = "a")
+  public static class AmbiguousHandlersStreamTypeLevelSubscriptionInAction extends Action {
+
+    public Action.Effect<Integer> methodOne(Integer message) {
+      return effects().reply(message);
+    }
+
+    public Action.Effect<Integer> methodTwo(Integer message) {
+      return effects().reply(message);
+    }
+  }
+
+  public static class AmbiguousHandlersTopiSubscriptionInAction extends Action {
+
+    @Subscribe.Topic("source")
+    public Action.Effect<Integer> methodOne(Integer message) {
+      return effects().reply(message);
+    }
+
+    @Subscribe.Topic("source")
+    public Action.Effect<Integer> methodTwo(Integer message) {
+      return effects().reply(message);
+    }
+
+    @Subscribe.Topic("source-2")
+    public Action.Effect<Integer> methodThree(Integer message) {
+      return effects().reply(message);
+    }
+  }
+
+  @Subscribe.Topic("source")
+  public static class AmbiguousHandlersTopicTypeLevelSubscriptionInAction extends Action {
 
     public Action.Effect<Integer> methodOne(Integer message) {
       return effects().reply(message);

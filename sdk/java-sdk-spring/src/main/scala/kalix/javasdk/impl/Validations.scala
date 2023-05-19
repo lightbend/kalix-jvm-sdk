@@ -31,6 +31,7 @@ import kalix.javasdk.impl.ComponentDescriptorFactory.eventSourcedEntitySubscript
 import kalix.javasdk.impl.ComponentDescriptorFactory.findEventSourcedEntityClass
 import kalix.javasdk.impl.ComponentDescriptorFactory.findEventSourcedEntityType
 import kalix.javasdk.impl.ComponentDescriptorFactory.findPublicationTopicName
+import kalix.javasdk.impl.ComponentDescriptorFactory.findSubscriptionSourceName
 import kalix.javasdk.impl.ComponentDescriptorFactory.findSubscriptionTopicName
 import kalix.javasdk.impl.ComponentDescriptorFactory.findValueEntityType
 import kalix.javasdk.impl.ComponentDescriptorFactory.hasAcl
@@ -38,6 +39,7 @@ import kalix.javasdk.impl.ComponentDescriptorFactory.hasActionOutput
 import kalix.javasdk.impl.ComponentDescriptorFactory.hasEventSourcedEntitySubscription
 import kalix.javasdk.impl.ComponentDescriptorFactory.hasHandleDeletes
 import kalix.javasdk.impl.ComponentDescriptorFactory.hasRestAnnotation
+import kalix.javasdk.impl.ComponentDescriptorFactory.hasStreamSubscription
 import kalix.javasdk.impl.ComponentDescriptorFactory.hasSubscription
 import kalix.javasdk.impl.ComponentDescriptorFactory.hasTopicPublication
 import kalix.javasdk.impl.ComponentDescriptorFactory.hasTopicSubscription
@@ -45,6 +47,7 @@ import kalix.javasdk.impl.ComponentDescriptorFactory.hasUpdateEffectOutput
 import kalix.javasdk.impl.ComponentDescriptorFactory.hasValueEntitySubscription
 import kalix.javasdk.impl.ComponentDescriptorFactory.streamSubscription
 import kalix.javasdk.impl.ComponentDescriptorFactory.topicSubscription
+import kalix.javasdk.impl.reflection.ReflectionUtils
 import kalix.javasdk.impl.reflection.ServiceMethod
 import kalix.javasdk.view.View
 import kalix.spring.impl.KalixSpringApplication
@@ -118,7 +121,7 @@ object Validations {
       updateMethodPredicate: Method => Boolean): Validation = {
     eventSourcedEntitySubscriptionValidations(component) ++
     missingEventHandlerValidations(component, updateMethodPredicate) ++
-    ambiguousEventHandlerValidations(component, updateMethodPredicate) ++
+    ambiguousHandlerValidations(component, updateMethodPredicate) ++
     valueEntitySubscriptionValidations(component) ++
     topicSubscriptionValidations(component) ++
     topicPublicationValidations(component, updateMethodPredicate) ++
@@ -187,33 +190,31 @@ object Validations {
     genericTypeArguments(1).asInstanceOf[Class[_]]
   }
 
-  //TODO add check for other subscriptions
-  private def ambiguousEventHandlerValidations(
-      component: Class[_],
-      updateMethodPredicate: Method => Boolean): Validation = {
+  private def ambiguousHandlerValidations(component: Class[_],
+                                           updateMethodPredicate: Method => Boolean): Validation = {
 
     val methods = component.getMethods.toIndexedSeq
 
-    eventSourcedEntitySubscription(component) match {
-      case Some(_) =>
-        val effectMethodsByInputParams: Map[Class[_], IndexedSeq[Method]] = methods
-          .filter(updateMethodPredicate)
-          .groupBy(_.getParameterTypes.last)
+    if (hasSubscription(component)) {
+      val effectMethodsByInputParams: Map[Class[_], IndexedSeq[Method]] = methods
+        .filter(updateMethodPredicate)
+        .groupBy(_.getParameterTypes.lastOption.orNull) //orNull for VE delete handler, without parameters
 
-        Validation(ambiguousHandlersErrors(effectMethodsByInputParams, component))
-      case None =>
-        val effectOutputMethodsGrouped = methods
-          .filter(hasEventSourcedEntitySubscription)
-          .filter(updateMethodPredicate)
-          .groupBy(findEventSourcedEntityClass)
+      Validation(ambiguousHandlersErrors(effectMethodsByInputParams, component))
 
-        effectOutputMethodsGrouped
-          .map { case (_, methods) =>
-            val effectMethodsByInputParams: Map[Class[_], IndexedSeq[Method]] =
-              methods.groupBy(_.getParameterTypes.last)
-            Validation(ambiguousHandlersErrors(effectMethodsByInputParams, component))
-          }
-          .fold(Valid)(_ ++ _)
+    } else {
+      val effectOutputMethodsGrouped = methods
+        .filter(hasSubscription)
+        .filter(updateMethodPredicate)
+        .groupBy(findSubscriptionSourceName)
+
+      effectOutputMethodsGrouped
+        .map { case (_, methods) =>
+          val effectMethodsByInputParams: Map[Class[_], IndexedSeq[Method]] =
+            methods.groupBy(_.getParameterTypes.lastOption.orNull) //orNull for VE delete handler, without parameters
+          Validation(ambiguousHandlersErrors(effectMethodsByInputParams, component))
+        }
+        .fold(Valid)(_ ++ _)
     }
 
   }
@@ -221,12 +222,13 @@ object Validations {
   private def ambiguousHandlersErrors(
       effectMethodsInputParams: Map[Class[_], IndexedSeq[Method]],
       component: Class[_]) = {
+    import ReflectionUtils.methodOrdering
     val errors = effectMethodsInputParams
       .filter(_._2.size > 1)
       .map { case (inputType, methods) =>
         errorMessage(
           component,
-          s"Ambiguous handlers for ${inputType.getCanonicalName}, methods: [${methods.map(_.getName).mkString(", ")}] consume the same type.")
+          s"Ambiguous handlers for ${inputType.getCanonicalName}, methods: [${methods.sorted.map(_.getName).mkString(", ")}] consume the same type.")
       }
       .toSeq
     errors

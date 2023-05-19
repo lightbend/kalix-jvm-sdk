@@ -34,7 +34,6 @@ import kalix.javasdk.action.Action
 import kalix.javasdk.annotations.Publish
 import kalix.javasdk.annotations.Subscribe
 import kalix.javasdk.view.View
-import Subscribe.ValueEntity
 import kalix.javasdk.annotations.Acl
 import kalix.javasdk.annotations.EntityType
 import kalix.javasdk.annotations.JWT
@@ -44,6 +43,7 @@ import kalix.javasdk.eventsourcedentity.EventSourcedEntity
 import kalix.javasdk.impl.reflection.CombinedSubscriptionServiceMethod
 import kalix.javasdk.impl.reflection.KalixMethod
 import kalix.javasdk.impl.reflection.NameGenerator
+import kalix.javasdk.valueentity.ValueEntity
 // TODO: abstract away spring dependency
 import org.springframework.core.annotation.AnnotatedElementUtils
 import org.springframework.web.bind.annotation.RequestMapping
@@ -136,7 +136,7 @@ private[impl] object ComponentDescriptorFactory {
     javaMethod.isPublic && javaMethod.hasAnnotation[Subscribe.Topic]
 
   def hasHandleDeletes(javaMethod: Method): Boolean = {
-    val ann = javaMethod.getAnnotation(classOf[ValueEntity])
+    val ann = javaMethod.getAnnotation(classOf[Subscribe.ValueEntity])
     Modifier.isPublic(javaMethod.getModifiers) && ann != null && ann.handleDeletes()
   }
 
@@ -163,6 +163,23 @@ private[impl] object ComponentDescriptorFactory {
   def findEventSourcedEntityClass(javaMethod: Method): Class[_ <: EventSourcedEntity[_, _]] = {
     val ann = javaMethod.getAnnotation(classOf[Subscribe.EventSourcedEntity])
     ann.value()
+  }
+
+  private def findValueEntityClass(javaMethod: Method): Class[_ <: ValueEntity[_]] = {
+    val ann = javaMethod.getAnnotation(classOf[Subscribe.ValueEntity])
+    ann.value()
+  }
+
+  def findSubscriptionSourceName(javaMethod: Method): String = {
+    if (hasValueEntitySubscription(javaMethod)) {
+      findValueEntityClass(javaMethod).getName
+    } else if (hasEventSourcedEntitySubscription(javaMethod)) {
+      findEventSourcedEntityClass(javaMethod).getName
+    } else if (hasTopicSubscription(javaMethod)) {
+      "Topic-" + findSubscriptionTopicName(javaMethod)
+    } else {
+      throw new IllegalStateException("Unsupported source for " + javaMethod.getName)
+    }
   }
 
   def findEventSourcedEntityType(clazz: Class[_]): String = {

@@ -44,8 +44,13 @@ import kalix.spring.testmodels.action.ActionsTestModels.StreamOutAction
 import kalix.spring.testmodels.subscriptions.PubSubTestModels.ActionWithMethodLevelAcl
 import kalix.spring.testmodels.subscriptions.PubSubTestModels.ActionWithMethodLevelAclAndSubscription
 import kalix.spring.testmodels.subscriptions.PubSubTestModels.ActionWithServiceLevelAcl
-import kalix.spring.testmodels.subscriptions.PubSubTestModels.AmbiguousEventHandlersInAction
-import kalix.spring.testmodels.subscriptions.PubSubTestModels.AmbiguousEventHandlersTypeLevelAnnotationInAction
+import kalix.spring.testmodels.subscriptions.PubSubTestModels.AmbiguousHandlersESSubscriptionInAction
+import kalix.spring.testmodels.subscriptions.PubSubTestModels.AmbiguousHandlersESTypeLevelSubscriptionInAction
+import kalix.spring.testmodels.subscriptions.PubSubTestModels.AmbiguousHandlersStreamTypeLevelSubscriptionInAction
+import kalix.spring.testmodels.subscriptions.PubSubTestModels.AmbiguousHandlersTopiSubscriptionInAction
+import kalix.spring.testmodels.subscriptions.PubSubTestModels.AmbiguousHandlersTopicTypeLevelSubscriptionInAction
+import kalix.spring.testmodels.subscriptions.PubSubTestModels.AmbiguousHandlersVESubscriptionInAction
+import kalix.spring.testmodels.subscriptions.PubSubTestModels.AmbiguousHandlersVETypeLevelSubscriptionInAction
 import kalix.spring.testmodels.subscriptions.PubSubTestModels.DifferentTopicForESSubscription
 import kalix.spring.testmodels.subscriptions.PubSubTestModels.DifferentTopicForESTypeLevelSubscription
 import kalix.spring.testmodels.subscriptions.PubSubTestModels.DifferentTopicForStreamSubscription
@@ -455,16 +460,51 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
       }.getMessage should include("You cannot use @Subscribe.EventSourcedEntity annotation in both methods and class.")
     }
 
-    "validates that ambiguous event handler" in {
+    "validates that ambiguous handler VE" in {
       intercept[InvalidComponentException] {
-        Validations.validate(classOf[AmbiguousEventHandlersInAction]).failIfInvalid
+        Validations.validate(classOf[AmbiguousHandlersVESubscriptionInAction]).failIfInvalid
       }.getMessage should include(
         "Ambiguous handlers for java.lang.Integer, methods: [methodOne, methodTwo] consume the same type.")
     }
 
-    "validates that ambiguous event handler (type level)" in {
+    "validates that ambiguous handler VE (type level)" in {
       intercept[InvalidComponentException] {
-        Validations.validate(classOf[AmbiguousEventHandlersTypeLevelAnnotationInAction]).failIfInvalid
+        Validations.validate(classOf[AmbiguousHandlersVETypeLevelSubscriptionInAction]).failIfInvalid
+      }.getMessage should include(
+        "Ambiguous handlers for java.lang.Integer, methods: [methodOne, methodTwo] consume the same type.")
+    }
+
+    "validates that ambiguous handler ES" in {
+      intercept[InvalidComponentException] {
+        Validations.validate(classOf[AmbiguousHandlersESSubscriptionInAction]).failIfInvalid
+      }.getMessage should include(
+        "Ambiguous handlers for java.lang.Integer, methods: [methodOne, methodTwo] consume the same type.")
+    }
+
+    "validates that ambiguous handler ES (type level)" in {
+      intercept[InvalidComponentException] {
+        Validations.validate(classOf[AmbiguousHandlersESTypeLevelSubscriptionInAction]).failIfInvalid
+      }.getMessage should include(
+        "Ambiguous handlers for java.lang.Integer, methods: [methodOne, methodTwo] consume the same type.")
+    }
+
+    "validates that ambiguous handler Stream (type level)" in {
+      intercept[InvalidComponentException] {
+        Validations.validate(classOf[AmbiguousHandlersStreamTypeLevelSubscriptionInAction]).failIfInvalid
+      }.getMessage should include(
+        "Ambiguous handlers for java.lang.Integer, methods: [methodOne, methodTwo] consume the same type.")
+    }
+
+    "validates that ambiguous handler Topic" in {
+      intercept[InvalidComponentException] {
+        Validations.validate(classOf[AmbiguousHandlersTopiSubscriptionInAction]).failIfInvalid
+      }.getMessage should include(
+        "Ambiguous handlers for java.lang.Integer, methods: [methodOne, methodTwo] consume the same type.")
+    }
+
+    "validates that ambiguous handler Topic (type level)" in {
+      intercept[InvalidComponentException] {
+        Validations.validate(classOf[AmbiguousHandlersTopicTypeLevelSubscriptionInAction]).failIfInvalid
       }.getMessage should include(
         "Ambiguous handlers for java.lang.Integer, methods: [methodOne, methodTwo] consume the same type.")
     }
