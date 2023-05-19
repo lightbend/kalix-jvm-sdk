@@ -195,9 +195,9 @@ object Validations {
     val methods = component.getMethods.toIndexedSeq
 
     if (hasSubscription(component)) {
-      val effectMethodsByInputParams: Map[Class[_], IndexedSeq[Method]] = methods
+      val effectMethodsByInputParams: Map[Option[Class[_]], IndexedSeq[Method]] = methods
         .filter(updateMethodPredicate)
-        .groupBy(_.getParameterTypes.lastOption.orNull) //orNull for VE delete handler, without parameters
+        .groupBy(_.getParameterTypes.lastOption)
 
       Validation(ambiguousHandlersErrors(effectMethodsByInputParams, component))
 
@@ -209,8 +209,8 @@ object Validations {
 
       effectOutputMethodsGrouped
         .map { case (_, methods) =>
-          val effectMethodsByInputParams: Map[Class[_], IndexedSeq[Method]] =
-            methods.groupBy(_.getParameterTypes.lastOption.orNull) //orNull for VE delete handler, without parameters
+          val effectMethodsByInputParams: Map[Option[Class[_]], IndexedSeq[Method]] =
+            methods.groupBy(_.getParameterTypes.lastOption)
           Validation(ambiguousHandlersErrors(effectMethodsByInputParams, component))
         }
         .fold(Valid)(_ ++ _)
@@ -219,15 +219,18 @@ object Validations {
   }
 
   private def ambiguousHandlersErrors(
-      effectMethodsInputParams: Map[Class[_], IndexedSeq[Method]],
-      component: Class[_]) = {
+                                       effectMethodsInputParams: Map[Option[Class[_]], IndexedSeq[Method]],
+                                       component: Class[_]) = {
     import ReflectionUtils.methodOrdering
     val errors = effectMethodsInputParams
       .filter(_._2.size > 1)
-      .map { case (inputType, methods) =>
-        errorMessage(
-          component,
-          s"Ambiguous handlers for ${inputType.getCanonicalName}, methods: [${methods.sorted.map(_.getName).mkString(", ")}] consume the same type.")
+      .map {
+        case (Some(inputType), methods) =>
+          errorMessage(
+            component,
+            s"Ambiguous handlers for ${inputType.getCanonicalName}, methods: [${methods.sorted.map(_.getName).mkString(", ")}] consume the same type.")
+        case (None, methods) => //only delete handlers
+          errorMessage(component, s"Ambiguous delete handlers: [${methods.sorted.map(_.getName).mkString(", ")}].")
       }
       .toSeq
     errors

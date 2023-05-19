@@ -44,6 +44,7 @@ import kalix.spring.testmodels.action.ActionsTestModels.StreamOutAction
 import kalix.spring.testmodels.subscriptions.PubSubTestModels.ActionWithMethodLevelAcl
 import kalix.spring.testmodels.subscriptions.PubSubTestModels.ActionWithMethodLevelAclAndSubscription
 import kalix.spring.testmodels.subscriptions.PubSubTestModels.ActionWithServiceLevelAcl
+import kalix.spring.testmodels.subscriptions.PubSubTestModels.AmbiguousDeleteHandlersVESubscriptionInAction
 import kalix.spring.testmodels.subscriptions.PubSubTestModels.AmbiguousHandlersESSubscriptionInAction
 import kalix.spring.testmodels.subscriptions.PubSubTestModels.AmbiguousHandlersESTypeLevelSubscriptionInAction
 import kalix.spring.testmodels.subscriptions.PubSubTestModels.AmbiguousHandlersStreamTypeLevelSubscriptionInAction
@@ -465,6 +466,13 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
         Validations.validate(classOf[AmbiguousHandlersVESubscriptionInAction]).failIfInvalid
       }.getMessage should include(
         "Ambiguous handlers for java.lang.Integer, methods: [methodOne, methodTwo] consume the same type.")
+    }
+
+    "validates that ambiguous delete handler VE" in {
+      intercept[InvalidComponentException] {
+        Validations.validate(classOf[AmbiguousDeleteHandlersVESubscriptionInAction]).failIfInvalid
+      }.getMessage should include(
+        "Ambiguous delete handlers: [methodOne, methodTwo].")
     }
 
     "validates that ambiguous handler VE (type level)" in {

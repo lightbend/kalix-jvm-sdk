@@ -141,6 +141,24 @@ public class PubSubTestModels {//TODO shall we remove this class and move things
     }
   }
 
+  public static class AmbiguousDeleteHandlersVESubscriptionInAction extends Action {
+
+    @Subscribe.ValueEntity(value = Counter.class, handleDeletes = true)
+    public Action.Effect<Integer> methodOne() {
+      return effects().ignore();
+    }
+
+    @Subscribe.ValueEntity(value = Counter.class, handleDeletes = true)
+    public Action.Effect<Integer> methodTwo() {
+      return effects().ignore();
+    }
+
+    @Subscribe.ValueEntity(value = AssignedCounter.class, handleDeletes = true)
+    public Action.Effect<Integer> methodThree() {
+      return effects().ignore();
+    }
+  }
+
   @Subscribe.ValueEntity(Counter.class)
   public static class AmbiguousHandlersVETypeLevelSubscriptionInAction extends Action {
 
