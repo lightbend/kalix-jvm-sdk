@@ -219,8 +219,8 @@ object Validations {
   }
 
   private def ambiguousHandlersErrors(
-                                       effectMethodsInputParams: Map[Option[Class[_]], IndexedSeq[Method]],
-                                       component: Class[_]) = {
+      effectMethodsInputParams: Map[Option[Class[_]], IndexedSeq[Method]],
+      component: Class[_]) = {
     import ReflectionUtils.methodOrdering
     val errors = effectMethodsInputParams
       .filter(_._2.size > 1)

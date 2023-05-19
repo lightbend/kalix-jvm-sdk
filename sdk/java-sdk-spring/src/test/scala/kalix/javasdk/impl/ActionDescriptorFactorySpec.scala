@@ -471,8 +471,7 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
     "validates that ambiguous delete handler VE" in {
       intercept[InvalidComponentException] {
         Validations.validate(classOf[AmbiguousDeleteHandlersVESubscriptionInAction]).failIfInvalid
-      }.getMessage should include(
-        "Ambiguous delete handlers: [methodOne, methodTwo].")
+      }.getMessage should include("Ambiguous delete handlers: [methodOne, methodTwo].")
     }
 
     "validates that ambiguous handler VE (type level)" in {
