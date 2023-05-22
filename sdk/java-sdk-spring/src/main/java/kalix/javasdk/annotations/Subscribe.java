@@ -26,9 +26,8 @@ public @interface Subscribe {
 
   /**
    * Annotation for subscribing to updates from a Value Entity. It can be used both at type and
-   * method levels. When used at type level, it means the `View` will not be transforming state.
-   * When used at method level, it gives the ability to transform the updates into a different state
-   * for the view or delete the view state (handleDeletes flag).
+   * method levels. When used at type level, it means the `View` or `Action` will not be transforming state.
+   * When used at method level, it gives the ability to transform the updates into a different state.
    */
   @Target({ElementType.TYPE, ElementType.METHOD})
   @Retention(RetentionPolicy.RUNTIME)
@@ -41,7 +40,7 @@ public @interface Subscribe {
     Class<? extends kalix.javasdk.valueentity.ValueEntity<?>> value();
 
     /**
-     * When true at type level the subscription will automatically delete the view state based on ValueEntity deletion fact.
+     * When true at type level of the `View` the subscription will automatically delete the view state based on ValueEntity deletion fact.
      * When true at method level it allows to create a special handler for deletes (must be declared to receive zero parameters):
      * <pre>{@code
      * @Subscribe.ValueEntity(MyValueEntity.class)
@@ -54,13 +53,18 @@ public @interface Subscribe {
      *   return effects().deleteState();
      * }
      * </pre>
+     *
+     * The flag has no effect when used at type level of the `Action`. On the `Action` method level it allows to create a delete handler,
+     * similar to the example above.
+     *
      */
     boolean handleDeletes() default false;
   }
 
   /**
-   * Annotation for subscribing to updates from an Event-sourced Entity. It can be used only at type
-   * level. The underlying method must be declared to receive one or two parameters:
+   * Annotation for subscribing to updates from an Event-sourced Entity.
+   *
+   * The underlying method must be declared to receive one or two parameters:
    *
    * <ul>
    *   <li>when one parameter is passed, the single parameter will be considered the event type such

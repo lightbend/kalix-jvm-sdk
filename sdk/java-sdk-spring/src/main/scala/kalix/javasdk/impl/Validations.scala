@@ -21,6 +21,7 @@ import java.lang.reflect.Method
 import java.lang.reflect.ParameterizedType
 import scala.reflect.ClassTag
 import kalix.javasdk.action.Action
+import kalix.javasdk.annotations.EntityType
 import kalix.javasdk.annotations.Publish
 import kalix.javasdk.annotations.Query
 import kalix.javasdk.annotations.Subscribe
@@ -28,18 +29,29 @@ import kalix.javasdk.annotations.Table
 import kalix.javasdk.impl.ComponentDescriptorFactory.MethodOps
 import kalix.javasdk.impl.ComponentDescriptorFactory.eventSourcedEntitySubscription
 import kalix.javasdk.impl.ComponentDescriptorFactory.findEventSourcedEntityClass
+import kalix.javasdk.impl.ComponentDescriptorFactory.findEventSourcedEntityType
+import kalix.javasdk.impl.ComponentDescriptorFactory.findPublicationTopicName
+import kalix.javasdk.impl.ComponentDescriptorFactory.findSubscriptionSourceName
+import kalix.javasdk.impl.ComponentDescriptorFactory.findSubscriptionTopicName
+import kalix.javasdk.impl.ComponentDescriptorFactory.findValueEntityType
 import kalix.javasdk.impl.ComponentDescriptorFactory.hasAcl
 import kalix.javasdk.impl.ComponentDescriptorFactory.hasActionOutput
 import kalix.javasdk.impl.ComponentDescriptorFactory.hasEventSourcedEntitySubscription
 import kalix.javasdk.impl.ComponentDescriptorFactory.hasHandleDeletes
 import kalix.javasdk.impl.ComponentDescriptorFactory.hasRestAnnotation
+import kalix.javasdk.impl.ComponentDescriptorFactory.hasStreamSubscription
 import kalix.javasdk.impl.ComponentDescriptorFactory.hasSubscription
+import kalix.javasdk.impl.ComponentDescriptorFactory.hasTopicPublication
 import kalix.javasdk.impl.ComponentDescriptorFactory.hasTopicSubscription
 import kalix.javasdk.impl.ComponentDescriptorFactory.hasUpdateEffectOutput
 import kalix.javasdk.impl.ComponentDescriptorFactory.hasValueEntitySubscription
+import kalix.javasdk.impl.ComponentDescriptorFactory.streamSubscription
+import kalix.javasdk.impl.ComponentDescriptorFactory.topicSubscription
+import kalix.javasdk.impl.reflection.ReflectionUtils
 import kalix.javasdk.impl.reflection.ServiceMethod
 import kalix.javasdk.view.View
 import kalix.spring.impl.KalixSpringApplication
+
 // TODO: abstract away spring and reactor dependencies
 import org.springframework.web.bind.annotation.RequestBody
 import reactor.core.publisher.Flux
@@ -53,6 +65,8 @@ object Validations {
     def apply(messages: Seq[String]): Validation =
       if (messages.isEmpty) Valid
       else Invalid(messages)
+
+    def apply(message: String): Validation = Invalid(Seq(message))
   }
 
   sealed trait Validation {
@@ -107,8 +121,10 @@ object Validations {
       updateMethodPredicate: Method => Boolean): Validation = {
     eventSourcedEntitySubscriptionValidations(component) ++
     missingEventHandlerValidations(component, updateMethodPredicate) ++
+    ambiguousHandlerValidations(component, updateMethodPredicate) ++
     valueEntitySubscriptionValidations(component) ++
     topicSubscriptionValidations(component) ++
+    topicPublicationValidations(component, updateMethodPredicate) ++
     publishStreamIdMustBeFilled(component) ++
     noSubscriptionMethodWithAcl(component) ++
     noSubscriptionWithRestAnnotations(component) ++
@@ -174,41 +190,84 @@ object Validations {
     genericTypeArguments(1).asInstanceOf[Class[_]]
   }
 
+  private def ambiguousHandlerValidations(component: Class[_], updateMethodPredicate: Method => Boolean): Validation = {
+
+    val methods = component.getMethods.toIndexedSeq
+
+    if (hasSubscription(component)) {
+      val effectMethodsByInputParams: Map[Option[Class[_]], IndexedSeq[Method]] = methods
+        .filter(updateMethodPredicate)
+        .groupBy(_.getParameterTypes.lastOption)
+
+      Validation(ambiguousHandlersErrors(effectMethodsByInputParams, component))
+
+    } else {
+      val effectOutputMethodsGrouped = methods
+        .filter(hasSubscription)
+        .filter(updateMethodPredicate)
+        .groupBy(findSubscriptionSourceName)
+
+      effectOutputMethodsGrouped
+        .map { case (_, methods) =>
+          val effectMethodsByInputParams: Map[Option[Class[_]], IndexedSeq[Method]] =
+            methods.groupBy(_.getParameterTypes.lastOption)
+          Validation(ambiguousHandlersErrors(effectMethodsByInputParams, component))
+        }
+        .fold(Valid)(_ ++ _)
+    }
+
+  }
+
+  private def ambiguousHandlersErrors(
+      effectMethodsInputParams: Map[Option[Class[_]], IndexedSeq[Method]],
+      component: Class[_]) = {
+    import ReflectionUtils.methodOrdering
+    val errors = effectMethodsInputParams
+      .filter(_._2.size > 1)
+      .map {
+        case (Some(inputType), methods) =>
+          errorMessage(
+            component,
+            s"Ambiguous handlers for ${inputType.getCanonicalName}, methods: [${methods.sorted.map(_.getName).mkString(", ")}] consume the same type.")
+        case (None, methods) => //only delete handlers
+          errorMessage(component, s"Ambiguous delete handlers: [${methods.sorted.map(_.getName).mkString(", ")}].")
+      }
+      .toSeq
+    errors
+  }
+
   private def missingEventHandlerValidations(
       component: Class[_],
       updateMethodPredicate: Method => Boolean): Validation = {
     val methods = component.getMethods.toIndexedSeq
 
-    if (hasEventSourcedEntitySubscription(component)) {
-      eventSourcedEntitySubscription(component)
-        .map { classLevel =>
-          val eventType = getEventType(classLevel.value())
-          if (!classLevel.ignoreUnknown() && eventType.isSealed) {
-            val effectMethodsInputParams: Seq[Class[_]] = methods
-              .filter(updateMethodPredicate)
-              .map(_.getParameterTypes.last) //last because it could be a view update methods with 2 params
-            Validation(missingErrors(effectMethodsInputParams, eventType, component))
+    eventSourcedEntitySubscription(component) match {
+      case Some(classLevel) =>
+        val eventType = getEventType(classLevel.value())
+        if (!classLevel.ignoreUnknown() && eventType.isSealed) {
+          val effectMethodsInputParams: Seq[Class[_]] = methods
+            .filter(updateMethodPredicate)
+            .map(_.getParameterTypes.last) //last because it could be a view update methods with 2 params
+          Validation(missingErrors(effectMethodsInputParams, eventType, component))
+        } else {
+          Valid
+        }
+      case None =>
+        //method level
+        val effectOutputMethodsGrouped = methods
+          .filter(hasEventSourcedEntitySubscription)
+          .filter(updateMethodPredicate)
+          .groupBy(findEventSourcedEntityClass)
+
+        val errors = effectOutputMethodsGrouped.flatMap { case (entityClass, methods) =>
+          val eventType = getEventType(entityClass)
+          if (eventType.isSealed) {
+            missingErrors(methods.map(_.getParameterTypes.last), eventType, component)
           } else {
-            Valid
+            List.empty
           }
         }
-        .getOrElse(Valid)
-    } else {
-      //method level
-      val effectOutputMethodsGrouped = methods
-        .filter(hasEventSourcedEntitySubscription)
-        .filter(updateMethodPredicate)
-        .groupBy(findEventSourcedEntityClass)
-
-      val errors = effectOutputMethodsGrouped.flatMap { case (entityClass, methods) =>
-        val eventType = getEventType(entityClass)
-        if (eventType.isSealed) {
-          missingErrors(methods.map(_.getParameterTypes.last), eventType, component)
-        } else {
-          List.empty
-        }
-      }
-      Validation(errors.toSeq)
+        Validation(errors.toSeq)
     }
   }
 
@@ -230,6 +289,87 @@ object Validations {
       }
       Validation(messages)
     }
+  }
+
+  private def missingSourceForTopicPublication(component: Class[_]): Validation = {
+    val methods = component.getMethods.toSeq
+    if (hasSubscription(component)) {
+      Valid
+    } else {
+      val messages = methods
+        .filter(hasTopicPublication)
+        .filterNot(method => hasSubscription(method) || hasRestAnnotation(method))
+        .map { method =>
+          errorMessage(
+            method,
+            "You must select a source for @Publish.Topic. Annotate this methods with one of @Subscribe or REST annotations.")
+        }
+      Validation(messages)
+    }
+  }
+
+  private def topicPublicationForSourceValidation(
+      sourceName: String,
+      component: Class[_],
+      methodsGroupedBySource: Map[String, Seq[Method]]): Validation = {
+    methodsGroupedBySource
+      .map { case (entityType, methods) =>
+        val topicNames = methods
+          .filter(hasTopicPublication)
+          .map(findPublicationTopicName)
+
+        if (topicNames.nonEmpty && topicNames.length != methods.size) {
+          Validation(errorMessage(
+            component,
+            s"Add @Publish.Topic annotation to all subscription methods from $sourceName \"$entityType\". Or remove it from all methods."))
+        } else if (topicNames.toSet.size > 1) {
+          Validation(
+            errorMessage(
+              component,
+              s"All @Publish.Topic annotation for the same subscription source $sourceName \"$entityType\" should point to the same topic name. " +
+              s"Create a separate Action if you want to split messages to different topics from the same source."))
+        } else {
+          Valid
+        }
+      }
+      .fold(Valid)(_ ++ _)
+  }
+
+  private def topicPublicationValidations(component: Class[_], updateMethodPredicate: Method => Boolean): Validation = {
+    val methods = component.getMethods.toSeq
+
+    //VE type level subscription is not checked since we expecting only a single method in this case
+    val veSubscriptions: Map[String, Seq[Method]] = methods
+      .filter(hasValueEntitySubscription)
+      .groupBy(findValueEntityType)
+
+    val esSubscriptions: Map[String, Seq[Method]] = eventSourcedEntitySubscription(component) match {
+      case Some(esEntity) =>
+        Map(esEntity.value().getAnnotation(classOf[EntityType]).value() -> methods.filter(updateMethodPredicate))
+      case None =>
+        methods
+          .filter(hasEventSourcedEntitySubscription)
+          .groupBy(findEventSourcedEntityType)
+    }
+
+    val topicSubscriptions: Map[String, Seq[Method]] = topicSubscription(component) match {
+      case Some(topic) => Map(topic.value() -> methods.filter(updateMethodPredicate))
+      case None =>
+        methods
+          .filter(hasTopicSubscription)
+          .groupBy(findSubscriptionTopicName)
+    }
+
+    val streamSubscriptions: Map[String, Seq[Method]] = streamSubscription(component) match {
+      case Some(stream) => Map(stream.id() -> methods.filter(updateMethodPredicate))
+      case None         => Map.empty //only type level
+    }
+
+    missingSourceForTopicPublication(component) ++
+    topicPublicationForSourceValidation("ValueEntity", component, veSubscriptions) ++
+    topicPublicationForSourceValidation("EventSourcedEntity", component, esSubscriptions) ++
+    topicPublicationForSourceValidation("Topic", component, topicSubscriptions) ++
+    topicPublicationForSourceValidation("Stream", component, streamSubscriptions)
   }
 
   private def publishStreamIdMustBeFilled(component: Class[_]): Validation = {
