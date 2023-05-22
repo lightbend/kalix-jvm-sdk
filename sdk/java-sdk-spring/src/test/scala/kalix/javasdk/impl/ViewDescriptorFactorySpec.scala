@@ -174,7 +174,7 @@ class ViewDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSuit
       // it should be annotated either on type or on method level
       intercept[InvalidComponentException] {
         Validations.validate(classOf[ViewDuplicatedSubscriptions]).failIfInvalid
-      }.getMessage should include("Duplicated update methods for ValueEntity subscription.")
+      }.getMessage should include("Ambiguous handlers for kalix.spring.testmodels.valueentity.User, methods: [onChange, onChange2] consume the same type.")
     }
 
     "generate proto for a View using POST request with explicit update method" in {
