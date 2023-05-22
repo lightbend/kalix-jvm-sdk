@@ -523,7 +523,7 @@ class ViewDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSuit
         eventingInDirect.getService shouldBe "employee_service"
         eventingInDirect.getEventStreamId shouldBe "employee_events"
 
-        val methodOptions = this.findKalixMethodOptions(desc, "KalixSyntheticMethodOnESEmployeeevents")
+        val methodOptions = this.findKalixMethodOptions(desc, "KalixSyntheticMethodOnStreamEmployeeevents")
 
         methodOptions.hasEventing shouldBe false
         methodOptions.getView.getUpdate.getTable shouldBe "employee_table"
