@@ -18,13 +18,13 @@ package kalix.javasdk.impl
 
 import java.lang.reflect.Method
 import java.lang.reflect.ParameterizedType
-
 import kalix.Eventing
 import kalix.MethodOptions
 import kalix.javasdk.annotations.Query
 import kalix.javasdk.annotations.Subscribe
 import kalix.javasdk.annotations.Table
 import kalix.javasdk.impl.ComponentDescriptorFactory.buildJWTOptions
+import kalix.javasdk.impl.ComponentDescriptorFactory.combineBy
 import kalix.javasdk.impl.ComponentDescriptorFactory.combineByES
 import kalix.javasdk.impl.ComponentDescriptorFactory.eventingInForEventSourcedEntity
 import kalix.javasdk.impl.ComponentDescriptorFactory.eventingInForEventSourcedEntityServiceLevel
@@ -96,7 +96,7 @@ private[impl] object ViewDescriptorFactory extends ComponentDescriptorFactory {
               if (hasTypeLevelEventSourcedEntitySubs) {
                 val kalixSubscriptionMethods =
                   methodsForTypeLevelESSubscriptions(component, tableName, tableProtoMessageName, isMultiTable)
-                combineByES(kalixSubscriptionMethods, messageCodec, component)
+                combineBy("ES", kalixSubscriptionMethods, messageCodec, component)
 
               } else {
                 val methodsForMethodLevelESSubscriptions =
@@ -107,7 +107,7 @@ private[impl] object ViewDescriptorFactory extends ComponentDescriptorFactory {
             } else if (hasStreamSubscription) {
               val kalixSubscriptionMethods =
                 methodsForTypeLevelStreamSubscriptions(component, tableName, tableProtoMessageName)
-              combineByES(kalixSubscriptionMethods, messageCodec, component)
+              combineBy("Stream", kalixSubscriptionMethods, messageCodec, component)
             } else
               Seq.empty
           }

@@ -119,10 +119,11 @@ object Validations {
   private def commonSubscriptionValidation(
       component: Class[_],
       updateMethodPredicate: Method => Boolean): Validation = {
+    typeLevelSubscriptionValidation(component) ++
     eventSourcedEntitySubscriptionValidations(component) ++
     missingEventHandlerValidations(component, updateMethodPredicate) ++
     ambiguousHandlerValidations(component, updateMethodPredicate) ++
-    valueEntitySubscriptionValidations(component) ++
+    valueEntitySubscriptionValidations(component, updateMethodPredicate) ++
     topicSubscriptionValidations(component) ++
     topicPublicationValidations(component, updateMethodPredicate) ++
     publishStreamIdMustBeFilled(component) ++
@@ -166,6 +167,18 @@ object Validations {
         case any           => any.toString
       }
     s"On '$elementStr': $message"
+  }
+
+  def typeLevelSubscriptionValidation(component: Class[_]): Validation = {
+    val typeLevelSubs = List(
+      hasValueEntitySubscription(component),
+      hasEventSourcedEntitySubscription(component),
+      hasStreamSubscription(component),
+      hasTopicSubscription(component))
+
+    when(typeLevelSubs.filter(identity).size > 1) {
+      Validation(errorMessage(component, "Only one subscription type is allowed on a type level."))
+    }
   }
 
   private def eventSourcedEntitySubscriptionValidations(component: Class[_]): Validation = {
@@ -521,10 +534,17 @@ object Validations {
     Validation(messages)
   }
 
-  private def valueEntitySubscriptionValidations(component: Class[_]): Validation = {
+  private def valueEntitySubscriptionValidations(
+      component: Class[_],
+      updateMethodPredicate: Method => Boolean): Validation = {
+    import ReflectionUtils.methodOrdering
 
-    val subscriptionMethods = component.getMethods.toIndexedSeq.filter(hasValueEntitySubscription)
-    val updatedMethods = subscriptionMethods.filterNot(hasHandleDeletes).filter(_.getParameterTypes.nonEmpty)
+    val subscriptionMethods = component.getMethods.toIndexedSeq.filter(hasValueEntitySubscription).sorted
+    val updatedMethods = if (hasValueEntitySubscription(component)) {
+      component.getMethods.toIndexedSeq.filter(updateMethodPredicate).sorted
+    } else {
+      subscriptionMethods.filterNot(hasHandleDeletes).filter(updateMethodPredicate)
+    }
 
     val (handleDeleteMethods, handleDeleteMethodsWithParam) =
       subscriptionMethods.filter(hasHandleDeletes).partition(_.getParameterTypes.isEmpty)
@@ -554,10 +574,9 @@ object Validations {
 
     val onlyOneValueEntityUpdateIsAllowed = {
       if (updatedMethods.size >= 2) {
-        val messages =
-          updatedMethods.map { method =>
-            errorMessage(method, "Duplicated update methods for ValueEntity subscription.")
-          }
+        val messages = errorMessage(
+          component,
+          s"Duplicated update methods [${updatedMethods.map(_.getName).mkString(", ")}]for ValueEntity subscription.")
         Validation(messages)
       } else Valid
     }

@@ -98,6 +98,12 @@ private[impl] object ComponentDescriptorFactory {
     hasStreamSubscription(clazz)
   }
 
+  def valueEntitySubscription(clazz: Class[_]): Option[Subscribe.ValueEntity] =
+    if (Modifier.isPublic(clazz.getModifiers))
+      Option(clazz.getAnnotation(classOf[Subscribe.ValueEntity]))
+    else
+      None
+
   def eventSourcedEntitySubscription(clazz: Class[_]): Option[Subscribe.EventSourcedEntity] =
     if (Modifier.isPublic(clazz.getModifiers))
       Option(clazz.getAnnotation(classOf[Subscribe.EventSourcedEntity]))
@@ -194,15 +200,15 @@ private[impl] object ComponentDescriptorFactory {
     entityClass.getAnnotation(classOf[EntityType]).value()
   }
 
-  def findHandleDeletes(javaMethod: Method): Boolean = {
-    val ann = javaMethod.getAnnotation(classOf[Subscribe.ValueEntity])
-    ann.handleDeletes()
-  }
-
   def findValueEntityType(component: Class[_]): String = {
     val ann = component.getAnnotation(classOf[Subscribe.ValueEntity])
     val entityClass = ann.value()
     entityClass.getAnnotation(classOf[EntityType]).value()
+  }
+
+  def findHandleDeletes(javaMethod: Method): Boolean = {
+    val ann = javaMethod.getAnnotation(classOf[Subscribe.ValueEntity])
+    ann.handleDeletes()
   }
 
   def findHandleDeletes(component: Class[_]): Boolean = {
@@ -301,24 +307,29 @@ private[impl] object ComponentDescriptorFactory {
     Eventing.newBuilder().setIn(eventSource).build()
   }
 
+  def eventingInForValueEntityServiceLevel(clazz: Class[_]): Option[kalix.ServiceOptions] = {
+    valueEntitySubscription(clazz).map { ann =>
+
+      val entityType = findValueEntityType(clazz)
+
+      val in = EventSource.newBuilder().setValueEntity(entityType)
+
+      val eventing = ServiceEventing.newBuilder().setIn(in)
+
+      kalix.ServiceOptions.newBuilder().setEventing(eventing).build()
+    }
+  }
+
   def eventingInForEventSourcedEntityServiceLevel(clazz: Class[_]): Option[kalix.ServiceOptions] = {
     eventSourcedEntitySubscription(clazz).map { ann =>
 
       val entityType = findEventSourcedEntityType(clazz)
 
-      val in = EventSource
-        .newBuilder()
-        .setEventSourcedEntity(entityType)
+      val in = EventSource.newBuilder().setEventSourcedEntity(entityType)
 
-      val eventing =
-        ServiceEventing
-          .newBuilder()
-          .setIn(in)
+      val eventing = ServiceEventing.newBuilder().setIn(in)
 
-      kalix.ServiceOptions
-        .newBuilder()
-        .setEventing(eventing)
-        .build()
+      kalix.ServiceOptions.newBuilder().setEventing(eventing).build()
     }
   }
 
@@ -417,15 +428,18 @@ private[impl] object ComponentDescriptorFactory {
       //Assuming there is only one eventing.in annotation per method, therefore head is as good as any other
       withEventSourcedIn.groupBy(m => m.methodOptions.head.getEventing.getIn.getEventSourcedEntity)
     }
-    combineByES(groupByES(subscriptions), messageCodec, component)
+
+    combineBy("ES", groupByES(subscriptions), messageCodec, component)
   }
 
-  def combineByES(
+  def combineBy(
+      sourceName: String,
       groupedSubscriptions: Map[String, Seq[KalixMethod]],
       messageCodec: JsonMessageCodec,
       component: Class[_]): Seq[KalixMethod] = {
+
     groupedSubscriptions.collect {
-      case (eventSourcedEntity, kMethods) if kMethods.size > 1 =>
+      case (source, kMethods) if kMethods.size > 1 =>
         val methodsMap =
           kMethods.map { k =>
             val methodParameterTypes = k.serviceMethod.javaMethodOpt.get.getParameterTypes
@@ -439,8 +453,7 @@ private[impl] object ComponentDescriptorFactory {
         KalixMethod(
           CombinedSubscriptionServiceMethod(
             component.getName,
-            //TODO "ES" for Stream subscription looks strange
-            "KalixSyntheticMethodOnES" + escapeMethodName(eventSourcedEntity.capitalize),
+            "KalixSyntheticMethodOn" + sourceName + escapeMethodName(source.capitalize),
             methodsMap))
           .withKalixOptions(kMethods.head.methodOptions)
 
