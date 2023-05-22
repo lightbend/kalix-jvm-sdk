@@ -17,6 +17,7 @@
 package kalix.javasdk.testkit;
 
 import akka.actor.ActorSystem;
+import akka.annotation.InternalApi;
 import akka.grpc.GrpcClientSettings;
 import akka.http.javadsl.Http;
 import akka.http.javadsl.model.HttpRequest;
@@ -29,6 +30,7 @@ import kalix.javasdk.Kalix;
 import kalix.javasdk.KalixRunner;
 import kalix.javasdk.Principal;
 import kalix.javasdk.impl.GrpcClients;
+import kalix.javasdk.impl.MessageCodec;
 import kalix.javasdk.impl.ProxyInfoHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -265,7 +267,7 @@ public class KalixTestKit {
     started = true;
 
     log.info("Eventing TestKit booting up on port: " + eventingBackendPort);
-    eventingTestKit = EventingTestKit.start(getActorSystem(), "0.0.0.0", eventingBackendPort);
+    eventingTestKit = EventingTestKit.start(getActorSystem(), "0.0.0.0", eventingBackendPort, kalix.getMessageCodec());
 
     if (log.isDebugEnabled())
       log.debug("TestKit using [{}:{}] for calls to proxy from service", proxyHost, proxyPort);
@@ -482,5 +484,13 @@ public class KalixTestKit {
     } catch (IOException e) {
       throw new RuntimeException("Couldn't get available local port", e);
     }
+  }
+
+  /**
+   * INTERNAL API
+   */
+  @InternalApi
+  public MessageCodec getMessageCodec() {
+    return kalix.getMessageCodec();
   }
 }

@@ -36,6 +36,7 @@ import kalix.scalasdk.valueentity.ValueEntityProvider
 import kalix.scalasdk.view.View
 import kalix.scalasdk.view.ViewProvider
 import com.typesafe.config.Config
+import kalix.javasdk.impl.MessageCodec
 
 object Kalix {
   def apply() = new Kalix(new javasdk.Kalix().preferScalaProtobufs().withSdkName(ScalaSdkBuildInfo.name))

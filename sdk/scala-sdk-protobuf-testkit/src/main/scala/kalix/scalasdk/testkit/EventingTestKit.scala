@@ -18,13 +18,14 @@ package kalix.scalasdk.testkit
 
 import akka.annotation.{ ApiMayChange, InternalApi }
 import com.google.protobuf.ByteString
+import kalix.javasdk.impl.MessageCodec
 import kalix.javasdk.testkit.{ EventingTestKit => JEventingTestKit }
 import kalix.scalasdk.Metadata
 import kalix.scalasdk.testkit.impl.TopicImpl
 import scalapb.GeneratedMessage
-import scalapb.GeneratedMessageCompanion
 
 import scala.concurrent.duration.FiniteDuration
+import scala.reflect.ClassTag
 
 /**
  * Testkit utility to mock broker's topic. Useful when doing integration tests for services that do eventing (in or out)
@@ -34,13 +35,48 @@ import scala.concurrent.duration.FiniteDuration
 trait Topic {
 
   /**
+   * Waits for predefined amount of time. If a message arrives in the meantime or has arrived before but was not
+   * consumed, the test fails.
+   */
+  def expectNone(): Unit
+
+  /**
+   * Waits for given amount of time. If a message arrives in the meantime or has arrived before but was not consumed,
+   * the test fails.
+   *
+   * @param timeout
+   *   amount of time to wait for a message
+   */
+  def expectNone(timeout: FiniteDuration): Unit
+
+  /**
+   * Waits and returns the next unread message on this topic. Note the message might have been received before this
+   * method was called. If no message is received, a timeout exception is thrown.
+   *
+   * @return
+   *   a Message with a ByteString payload
+   */
+  def expectOneRaw(): Message[ByteString]
+
+  /**
+   * Waits and returns the next unread message on this topic. Note the message might have been received before this
+   * method was called. If no message is received, a timeout exception is thrown.
+   *
+   * @param timeout
+   *   amount of time to wait for a message
+   * @return
+   *   a Message with a ByteString payload
+   */
+  def expectOneRaw(timeout: FiniteDuration): Message[ByteString]
+
+  /**
    * Waits and returns the next unread message on this topic. Note the message might have been received before this
    * method was called. If no message is received, a timeout exception is thrown.
    *
    * @return
    *   message including ByteString payload and metadata
    */
-  def expectOne(): Message[ByteString]
+  def expectOne(): Message[AnyRef]
 
   /**
    * Waits for a specific amount and returns the next unread message on this topic. Note the message might have been
@@ -51,29 +87,43 @@ trait Topic {
    * @return
    *   message including ByteString payload and metadata
    */
-  def expectOne(timeout: FiniteDuration): Message[ByteString]
+  def expectOne(timeout: FiniteDuration): Message[AnyRef]
 
   /**
    * Waits and returns the next unread message on this topic and automatically parses and casts it to the specified
    * given type.
    *
-   * @param companion
-   *   object to be used to parse the received message bytes
+   * @param t
+   *   class tag used to cast the deserialized object
    * @tparam T
    *   a given domain type
    * @return
    *   a Message of type T
    */
-  def expectOneClassOf[T <: GeneratedMessage](companion: GeneratedMessageCompanion[T]): Message[T]
+  def expectMessageType[T <: GeneratedMessage](implicit t: ClassTag[T]): Message[T]
+
+  /**
+   * Waits and returns the next unread message on this topic and automatically parses and casts it to the specified
+   * given type. Note the message might have been received before this method was called. If no message is received, a
+   * timeout exception is thrown.
+   *
+   * @param timeout
+   *   amount of time to wait for a message if it was not received already
+   * @tparam T
+   *   a given domain type
+   * @return
+   *   a Message of type T
+   */
+  def expectMessageType[T <: GeneratedMessage](timeout: FiniteDuration)(implicit t: ClassTag[T]): Message[T]
 
   /**
    * Waits for a default amount of time before returning all unread messages in the topic. If no message is received, a
    * timeout exception is thrown.
    *
    * @return
-   *   collection of messages, each message including ByteString payload and metadata
+   *   collection of messages, each message including the deserialized payload object and metadata
    */
-  def expectN(): Seq[Message[ByteString]]
+  def expectN(): Seq[Message[AnyRef]]
 
   /**
    * Waits for a given amount of unread messages to be received before returning. If no message is received, a timeout
@@ -82,9 +132,9 @@ trait Topic {
    * @param total
    *   number of messages to wait for before returning
    * @return
-   *   collection of messages, each message including ByteString payload and metadata
+   *   collection of messages, each message including the deserialized payload object and metadata
    */
-  def expectN(total: Int): Seq[Message[ByteString]]
+  def expectN(total: Int): Seq[Message[AnyRef]]
 
   /**
    * Waits for a given amount of unread messages to be received before returning up to a given timeout. If no message is
@@ -95,14 +145,15 @@ trait Topic {
    * @param timeout
    *   maximum amount of time to wait for the messages
    * @return
-   *   collection of messages, each message including ByteString payload and metadata
+   *   collection of messages, each message including the deserialized payload object and metadata
    */
-  def expectN(total: Int, timeout: FiniteDuration): Seq[Message[ByteString]]
+  def expectN(total: Int, timeout: FiniteDuration): Seq[Message[AnyRef]]
+
 }
 
 @InternalApi
 private[testkit] object Topic {
-  def apply(delegate: JEventingTestKit.Topic): Topic = TopicImpl(delegate)
+  def apply(delegate: JEventingTestKit.Topic, codec: MessageCodec): Topic = TopicImpl(delegate, codec)
 }
 
 @ApiMayChange

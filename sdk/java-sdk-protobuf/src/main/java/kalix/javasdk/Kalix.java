@@ -18,6 +18,7 @@ package kalix.javasdk;
 
 import akka.Done;
 import akka.actor.ActorSystem;
+import akka.annotation.InternalApi;
 import com.google.protobuf.DescriptorProtos;
 import com.google.protobuf.Descriptors;
 import com.typesafe.config.Config;
@@ -55,9 +56,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import scala.jdk.javaapi.OptionConverters;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
 
@@ -74,6 +73,8 @@ public final class Kalix {
   private AnySupport.Prefer prefer = AnySupport.PREFER_JAVA();
   private final LowLevelRegistration lowLevel = new LowLevelRegistration();
   private String sdkName = BuildInfo$.MODULE$.name();
+
+  private Set<Descriptors.FileDescriptor> allDescriptors = new HashSet<>();
 
   private Optional<DescriptorProtos.FileDescriptorProto> aclDescriptor = Optional.empty();
 
@@ -635,6 +636,16 @@ public final class Kalix {
   }
 
   private AnySupport newAnySupport(Descriptors.FileDescriptor[] descriptors) {
+    allDescriptors.addAll(Arrays.asList(descriptors));
     return new AnySupport(descriptors, classLoader, typeUrlPrefix, prefer);
   }
+
+  /**
+   * INTERNAL API
+   */
+  @InternalApi
+  public MessageCodec getMessageCodec() {
+    return new AnySupport(allDescriptors.toArray(new Descriptors.FileDescriptor[0]), classLoader, typeUrlPrefix, prefer);
+  }
+
 }

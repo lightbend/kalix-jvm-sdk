@@ -97,7 +97,7 @@ class KalixTestKit private (delegate: JTestKit) {
    * @return
    *   mocked topic to read/publish messages from/to
    */
-  def getTopic(topic: String): Topic = Topic(delegate.getTopic(topic))
+  def getTopic(topic: String): Topic = Topic(delegate.getTopic(topic), delegate.getMessageCodec)
 
   /**
    * An Akka Stream materializer to use for running streams. Needed for example in a command handler which accepts

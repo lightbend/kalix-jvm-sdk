@@ -11,9 +11,11 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.time.Millis
 import org.scalatest.time.Seconds
 import org.scalatest.time.Span
+import org.scalatest.time.SpanSugar.convertIntToGrainOfTime
 import org.scalatest.wordspec.AnyWordSpec
 
 import scala.jdk.CollectionConverters.CollectionHasAsScala
+import scala.language.postfixOps
 
 // This class was initially generated based on the .proto definition by Kalix tooling.
 //
@@ -39,14 +41,14 @@ class CounterServiceIntegrationSpec extends AnyWordSpec with Matchers with Befor
       counter.value shouldBe (10 + 10 * 2)
 
       // verify messages published to topic
-      val allMsgs = testKit.getTopic("counter-events").expectN(2)
+      val allMsgs = testKit.getTopic("counter-events").expectN(2, 3 seconds)
 
       val Seq(Message(payload1, md1), Message(payload2, md2)) = allMsgs
-      Increased.parseFrom(payload1.toByteArray) shouldBe Increased(10)
+      payload1 shouldBe Increased(10)
       md1.get("ce-type") should contain(classOf[Increased].getName)
       md1.get("Content-Type") should contain("application/protobuf")
 
-      Increased.parseFrom(payload2.toByteArray) shouldBe Increased(20)
+      payload2 shouldBe Increased(20)
       md2.get("ce-type") should contain(classOf[Increased].getName)
       md2.get("Content-Type") should contain("application/protobuf")
     }
@@ -57,7 +59,8 @@ class CounterServiceIntegrationSpec extends AnyWordSpec with Matchers with Befor
       counter.value shouldBe 15
 
       // verify message published to topic
-      val Message(payload, md) = testKit.getTopic("counter-events").expectOneClassOf(Decreased.messageCompanion)
+      val msg: Message[Decreased] = testKit.getTopic("counter-events").expectMessageType
+      val Message(payload, md) = msg
       payload shouldBe Decreased(15)
       md.get("ce-type") should contain(classOf[Decreased].getName)
       md.get("Content-Type") should contain("application/protobuf")

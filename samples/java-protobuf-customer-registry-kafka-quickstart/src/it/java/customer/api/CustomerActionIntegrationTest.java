@@ -47,7 +47,7 @@ public class CustomerActionIntegrationTest {
 
     var outTopic = testKit.getTopic("customer_changes");
     // wait for action to publish the change of state
-    var createdMsgOut = outTopic.expectOneClassOf(CustomerApi.Customer.getDefaultInstance());
+    var createdMsgOut = outTopic.expectMessageType(CustomerApi.Customer.class);
     var metadata = createdMsgOut.getMetadata();
 
     assertEquals(Optional.of("customer.api.Customer"), metadata.get("ce-type"));
@@ -64,8 +64,10 @@ public class CustomerActionIntegrationTest {
         .get(5, SECONDS);
 
     // wait for action to publish the change of state
-    var nameChangeMsgOut = outTopic.expectOneClassOf(CustomerApi.Customer.getDefaultInstance());
+    var nameChangeMsgOut = outTopic.expectMessageType(CustomerApi.Customer.class);
     assertEquals(completeName, nameChangeMsgOut.getPayload().getName());
+
+    outTopic.expectNone(); // no more messages are sent
   }
 
   private CustomerApi.Customer customer(String id, String name, String email, String city, String street) {
