@@ -27,9 +27,11 @@ import java.nio.file.Files
 import kalix.codegen.scalasdk.{ gen, genTests, genUnmanaged, genUnmanagedTest, BuildInfo, KalixGenerator }
 import sbt.{ Compile, _ }
 import sbt.Keys._
+import sbt.Def.Initialize
 import sbtprotoc.ProtocPlugin
 import sbtprotoc.ProtocPlugin.autoImport.PB
 import kalix.devtools.impl.DockerComposeUtils
+import sbt.complete.Parsers.spaceDelimited
 
 object KalixPlugin extends AutoPlugin {
   override def trigger = noTrigger
@@ -46,13 +48,8 @@ object KalixPlugin extends AutoPlugin {
     val rootPackage = settingKey[Option[String]](
       "A root scala package to use for generated common classes such as Main, by default auto detected from protobuf files")
 
-    val logConfig = settingKey[String]("The log config to use. Default to logback-dev-mode.xml")
-    lazy val runDockerCompose = taskKey[Unit]("Run docker compose")
-
+    val runAll = inputKey[Unit]("Run all")
   }
-
-  // defined as key so we can init it sooner and detected errors earlier
-  private val dockerComposeUtils = settingKey[DockerComposeUtils]("Docker compose utils")
 
   object autoImport extends Keys
   import autoImport._
@@ -60,30 +57,99 @@ object KalixPlugin extends AutoPlugin {
   val KalixSdkVersion = BuildInfo.version
   val KalixProtocolVersion = BuildInfo.protocolVersion
 
-  private def additionalJvmArgs: Seq[String] = {
-    sys.props.collect { case (key, value) if key.startsWith("kalix") => s"-D$key=$value" }.toSeq
-  }
+  private val dockerComposeKey = "-Dkalix.dev-mode.docker-compose-file="
+  private val disableDockerCompose = dockerComposeKey + "none"
 
-  override def projectSettings = {
-    addCommandAlias("runAll", "runDockerCompose;run") ++
-    Seq(
-      dockerComposeUtils := {
-        val dockerComposeFile =
-          sys.props.get("kalix.dev-mode.docker-compose-file").getOrElse("docker-compose.yml")
-        DockerComposeUtils(dockerComposeFile, sys.env)
-      },
-      runDockerCompose := dockerComposeUtils.value.start(),
+  // kalix properties eventually passed by user
+  private val passedKalixArgs =
+    sys.props.collect {
+      case (key, value) if key.startsWith("kalix") => s"-D$key=$value"
+    }.toSeq
+
+  private val defaultJvmArgs: Seq[String] =
+    Seq("-Dkalix.user-function-interface=0.0.0.0", "-Dlogback.configurationFile=logback-dev-mode.xml")
+
+  override def projectSettings =
+    Def.settings(
       libraryDependencies ++= Seq(
         "io.kalix" % "kalix-sdk-protocol" % KalixProtocolVersion % "protobuf-src",
         "com.google.protobuf" % "protobuf-java" % "3.17.3" % "protobuf",
         "io.kalix" %% "kalix-scala-sdk-protobuf-testkit" % KalixSdkVersion % Test),
-      logConfig := "logback-dev-mode.xml",
-      run / javaOptions ++=
-        dockerComposeUtils.value.localServicePortMappings ++
-        Seq(
-          "-Dkalix.user-function-interface=0.0.0.0",
-          s"-Dlogback.configurationFile=${logConfig.value}",
-          s"-Dkalix.user-function-port=${dockerComposeUtils.value.userFunctionPort}") ++ additionalJvmArgs,
+
+      // -------------------------------------------------------------------------------------------
+      // run task
+      Compile / run / fork := true,
+      // pass Jvm Args to forked process and disable docker-compose
+      Compile / run / javaOptions ++= disableDockerCompose +: (defaultJvmArgs ++ passedKalixArgs),
+      // redefine run task in other to be able to print the warning below
+      Compile / run := Def.inputTaskDyn {
+        val logger = streams.value.log
+        logger.warn("Kalix Proxy won't start.")
+        logger.warn("--------------------------------------------------------------------------------------")
+        logger.warn("To test this application locally you should either run it using 'sbt runAll'")
+        logger.warn("or start the Kalix Proxy by hand using the provided docker-compose file.")
+        logger.warn("--------------------------------------------------------------------------------------")
+
+        val userArgs = {
+          val args = spaceDelimited("<args>").parsed
+          " " + args.mkString(" ")
+        }
+
+        Def.taskDyn {
+          Defaults
+            .runTask(Runtime / fullClasspath, Compile / run / mainClass, Compile / run / runner)
+            .toTask(userArgs)
+        }
+      }.evaluated,
+
+      // -------------------------------------------------------------------------------------------
+      // runAll task
+      Compile / runAll / fork := true,
+      // pass Jvm Args to forked process with default docker-compose settings
+      Compile / runAll / javaOptions ++= defaultJvmArgs ++ passedKalixArgs,
+
+      // workaround for https://github.com/sbt/sbt/issues/4038
+      Compile / runAll / forkOptions := {
+        val forkOpts = (Compile / run / forkOptions).value
+        forkOpts.withRunJVMOptions((Compile / runAll / javaOptions).value.toVector)
+      },
+      // redefine the runner for runAll
+      // this is needed in order to have the forkOptions applied
+      // this is a simplified clone of Defaults.runnerInit
+      Compile / runAll / runner := {
+        val forked = (Compile / runAll / fork).value
+        val opts = (Compile / runAll / forkOptions).value
+        val logger = streams.value.log
+        if (forked) {
+          logger.debug(s"javaOptions: ${opts.runJVMOptions}")
+          new ForkRun(opts)
+        } else {
+          val tmp = taskTemporaryDirectory.value
+          val si = scalaInstance.value
+          val trap = trapExit.value
+          logger.warn(s"${opts.runJVMOptions.mkString(",")} will be ignored, (Compile / runAll / fork) is set to false")
+          new Run(si, trap, tmp)
+        }
+      },
+      Compile / runAll := Def.inputTaskDyn {
+        val logger = streams.value.log
+        logger.info("Kalix Proxy container will start in the background")
+        logger.info("--------------------------------------------------------------------------------------")
+
+        val userArgs = {
+          val args = spaceDelimited("<args>").parsed
+          " " + args.mkString(" ")
+        }
+
+        Def.taskDyn {
+          Defaults
+            .runTask(Runtime / fullClasspath, Compile / run / mainClass, Compile / runAll / runner)
+            .toTask(userArgs)
+        }
+      }.evaluated,
+
+      // -------------------------------------------------------------------------------------------
+      // below are the settings configuring gRPC compilation
       Compile / PB.targets +=
         gen(
           (akkaGrpcCodeGeneratorSettings.value :+ KalixGenerator.enableDebug)
@@ -161,7 +227,6 @@ object KalixPlugin extends AutoPlugin {
           Seq(Tests.Filter(name => !name.endsWith("IntegrationSpec")))
         else Nil
       })
-  }
 
   def isIn(file: File, dir: File): Boolean =
     Paths.get(file.toURI).startsWith(Paths.get(dir.toURI))

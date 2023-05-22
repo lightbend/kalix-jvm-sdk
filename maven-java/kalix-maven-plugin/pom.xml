@@ -62,11 +62,6 @@
     <!-- Plugin-specific dependencies -->
     <dependency>
       <groupId>io.kalix</groupId>
-      <artifactId>kalix-devtools-internal_${scala.compat.version}</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>io.kalix</groupId>
       <artifactId>kalix-codegen-java_${scala.compat.version}</artifactId>
       <version>${project.version}</version>
     </dependency>

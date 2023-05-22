@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package kalix.javasdk.impl
+package kalix.devtools.impl
 
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec

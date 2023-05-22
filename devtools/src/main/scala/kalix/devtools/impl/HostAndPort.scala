@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package kalix.javasdk.impl
+package kalix.devtools.impl
 
 object HostAndPort {
 

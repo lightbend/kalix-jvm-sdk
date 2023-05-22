@@ -14,7 +14,6 @@ import com.typesafe.config.ConfigFactory
 import customer.action.CustomerAction
 import customer.api.Customer
 import customer.view.AllCustomersView
-import kalix.devtools.impl.DockerComposeUtils
 import kalix.javasdk.impl.GrpcClients
 import kalix.scalasdk.KalixRunner
 import org.scalatest.BeforeAndAfterAll
@@ -40,37 +39,28 @@ class CustomerServiceIntegrationSpec
     PatienceConfig(Span(5, Minutes), Span(5, Seconds))
 
   private val testSystem = ActorSystem("test-system")
-  private val dockerComposeUtils = DockerComposeUtils("docker-compose-integration.yml")
+  
 
   private val kalixRunner: KalixRunner = {
     val confMap = Map(
-      "kalix.user-function-port" -> dockerComposeUtils.userFunctionPort.toString,
-      // don't kill the test JVM when terminating the KalixRunner// don't kill the test JVM when terminating the KalixRunner
+      // don't kill the test JVM when terminating the KalixRunner
       "kalix.system.akka.coordinated-shutdown.exit-jvm" -> "off",
-      // dev-mode should be false when running integration tests// dev-mode should be false when running integration tests
-      "kalix.dev-mode.enabled" -> "false",
+      "kalix.dev-mode.docker-compose-file" -> "docker-compose-integration.yml",
       "kalix.user-function-interface" -> "0.0.0.0")
 
-    val finalMap =
-      dockerComposeUtils.localServicePortMappings.foldLeft(confMap) { case (map, item) =>
-        val split = item.replace("-D", "").split("=")
-        map + (split(0) -> split(1))
-      }
-
-    val config = ConfigFactory.parseMap(finalMap.asJava).withFallback(ConfigFactory.load())
+    val config = ConfigFactory.parseMap(confMap.asJava).withFallback(ConfigFactory.load())
     Main.createKalix().createRunner(config)
 
   }
 
-  override def beforeAll(): Unit = {
-    dockerComposeUtils.start()
+  override def beforeAll(): Unit = 
     kalixRunner.run()
-  }
+  
 
   override def afterAll(): Unit = {
     import scala.concurrent.ExecutionContext.Implicits.global
     val allStopped =
-      Future.sequence(Seq(testSystem.terminate(), kalixRunner.terminate(), Future(dockerComposeUtils.stopAndWait())))
+      Future.sequence(Seq(testSystem.terminate(), kalixRunner.terminate()))
     Await.result(allStopped, 5.seconds)
   }
 

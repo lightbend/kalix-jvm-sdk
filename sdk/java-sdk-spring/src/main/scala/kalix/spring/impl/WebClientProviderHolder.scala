@@ -30,8 +30,8 @@ import akka.actor.ExtensionId
 import akka.actor.ExtensionIdProvider
 import akka.annotation.InternalApi
 import kalix.devtools.impl.DevModeSettings
+import kalix.devtools.impl.HostAndPort
 import kalix.javasdk.JsonSupport
-import kalix.javasdk.impl.HostAndPort
 import kalix.javasdk.impl.ProxyInfoHolder
 import kalix.spring.WebClientProvider
 import org.springframework.http.HttpHeaders
@@ -67,7 +67,7 @@ private[kalix] class WebClientProviderImpl(system: ExtendedActorSystem) extends 
   private val proxyInfoHolder = ProxyInfoHolder(system)
   private val clients: ConcurrentMap[String, WebClient] = new ConcurrentHashMap()
 
-  private val devModeSettings = DevModeSettings.fromConfig(system.settings.config).portMappings.asScala
+  private val devModeSettings = DevModeSettings.fromConfig(system.settings.config).portMappings
 
   private val MaxCrossServiceResponseContentLength =
     system.settings.config.getBytes("kalix.cross-service.max-content-length").toInt

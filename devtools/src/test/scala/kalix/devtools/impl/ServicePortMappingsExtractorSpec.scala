@@ -30,12 +30,14 @@ class ServicePortMappingsExtractorSpec extends AnyWordSpec with Matchers with Op
         "-Dkalix.dev-mode.service-port-mappings.foo=9001 " +
         "-Dsomething.in.the.middle=20 " +
         "-Dkalix.dev-mode.service-port-mappings.bar=9002 " +
-        "-Dkalix.dev-mode.service-port-mappings.baz=9003"
+        "-Dkalix.dev-mode.service-port-mappings.baz=9003" +
+        "-Dkalix.dev-mode.service-port-mappings.qux=somehost:9004"
 
       ServicePortMappingsExtractor.unapply(line).value shouldBe Seq(
-        "-Dkalix.dev-mode.service-port-mappings.foo=9001",
-        "-Dkalix.dev-mode.service-port-mappings.bar=9002",
-        "-Dkalix.dev-mode.service-port-mappings.baz=9003")
+        "foo=9001",
+        "bar=9002",
+        "baz=9003",
+        "qux=somehost:9004")
     }
 
     "collect nothing if there are no occurrences of kalix.dev-mode.service-port-mappings" in {
