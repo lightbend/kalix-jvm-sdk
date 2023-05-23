@@ -34,14 +34,10 @@ import kalix.javasdk.testkit.impl.TopicImpl.DefaultTimeout
 import kalix.testkit.protocol.eventing_test_backend.EmitSingleResult
 
 import java.time
-import java.util
-import java.util.concurrent.ConcurrentHashMap
-import scala.compat.java8.DurationConverters.DurationOps
-import scala.jdk.CollectionConverters.SeqHasAsJava
-import scala.language.postfixOps
+import java.util.{ List => JList }
 import kalix.eventing.EventDestination
-import kalix.javasdk.testkit.EventingTestKit.{ Message => TestKitMessage }
 import kalix.javasdk.{ Metadata => SdkMetadata }
+import kalix.javasdk.testkit.EventingTestKit.{ Message => TestKitMessage }
 import kalix.protocol.component.Metadata
 import com.google.protobuf.ByteString
 import kalix.testkit.protocol.eventing_test_backend.EmitSingleCommand
@@ -51,13 +47,14 @@ import kalix.testkit.protocol.eventing_test_backend.EventingTestKitService
 import kalix.testkit.protocol.eventing_test_backend.EventingTestKitServiceHandler
 import kalix.testkit.protocol.eventing_test_backend.RunSourceCommand
 import kalix.testkit.protocol.eventing_test_backend.SourceElem
-import org.checkerframework.checker.units.qual.m
-import org.junit.Assert
 import org.slf4j.LoggerFactory
 
+import java.util.concurrent.ConcurrentHashMap
+import scala.compat.java8.DurationConverters.DurationOps
 import scala.concurrent.Await
 import scala.concurrent.Future
 import scala.concurrent.duration._
+import scala.jdk.CollectionConverters.SeqHasAsJava
 
 object EventingTestKitImpl {
 
@@ -92,11 +89,7 @@ object EventingTestKitImpl {
 /**
  * Implements the EventingTestKit protocol defined in protocols/testkit/src/main/protobuf/eventing_test_backend.proto
  */
-private[testkit] final class EventingTestServiceImpl(
-    system: ActorSystem,
-    val host: String,
-    var port: Int,
-    codec: MessageCodec)
+final class EventingTestServiceImpl(system: ActorSystem, val host: String, var port: Int, codec: MessageCodec)
     extends EventingTestKit {
 
   private val log = LoggerFactory.getLogger(classOf[EventingTestKit])
@@ -145,9 +138,9 @@ class TopicImpl(private val probe: TestProbe, codec: MessageCodec) extends Topic
     TestKitMessageImpl.ofMessage(msg.getMessage)
   }
 
-  override def expectOne(): TestKitMessage[Any] = expectOne(DefaultTimeout)
+  override def expectOne(): TestKitMessage[_] = expectOne(DefaultTimeout)
 
-  override def expectOne(timeout: time.Duration): TestKitMessage[Any] = {
+  override def expectOne(timeout: time.Duration): TestKitMessage[_] = {
     val msg = probe.expectMsgType[EmitSingleCommand](timeout.toScala)
     anyFromMessage(msg.getMessage)
   }
@@ -162,26 +155,23 @@ class TopicImpl(private val probe: TestProbe, codec: MessageCodec) extends Topic
     val metadata = new MetadataImpl(msg.getMessage.getMetadata.entries)
     val decodedMsg = codec.decodeMessage(ScalaPbAny(metadata.get("ce-type").orElse(""), msg.getMessage.payload))
 
-    val bt = BoxedType(clazz)
-    decodedMsg match {
-      case m if bt.isInstance(m) => TestKitMessageImpl(m.asInstanceOf[T], metadata)
-      case m                     => throw new AssertionError(s"Expected $clazz, found ${m.getClass} ($m)")
-    }
+    val concreteType = TestKitMessageImpl.expectType(decodedMsg, clazz)
+    TestKitMessageImpl(concreteType, metadata)
   }
 
-  private def anyFromMessage(m: kalix.testkit.protocol.eventing_test_backend.Message): TestKitMessage[Any] = {
+  private def anyFromMessage(m: kalix.testkit.protocol.eventing_test_backend.Message): TestKitMessage[_] = {
     val metadata = new MetadataImpl(m.metadata.getOrElse(Metadata.defaultInstance).entries)
     val anyMsg = codec.decodeMessage(ScalaPbAny(metadata.get("ce-type").orElse(""), m.payload))
-    TestKitMessageImpl(anyMsg, metadata).asInstanceOf[TestKitMessage[Any]]
+    TestKitMessageImpl(anyMsg, metadata).asInstanceOf[TestKitMessage[_]]
   }
 
-  override def expectN(): util.Collection[TestKitMessage[Any]] =
+  override def expectN(): JList[TestKitMessage[_]] =
     expectN(Int.MaxValue, DefaultTimeout)
 
-  override def expectN(total: Int): util.Collection[TestKitMessage[Any]] =
+  override def expectN(total: Int): JList[TestKitMessage[_]] =
     expectN(total, DefaultTimeout)
 
-  override def expectN(total: Int, timeout: time.Duration): util.Collection[TestKitMessage[Any]] = {
+  override def expectN(total: Int, timeout: time.Duration): JList[TestKitMessage[_]] = {
     probe
       .receiveWhile(max = timeout.toScala, messages = total) { case cmd: EmitSingleCommand =>
         anyFromMessage(cmd.getMessage)
@@ -196,13 +186,23 @@ object TopicImpl {
 }
 
 case class TestKitMessageImpl[P](payload: P, metadata: SdkMetadata) extends TestKitMessage[P] {
-  def getPayload(): P = payload
-  def getMetadata(): SdkMetadata = metadata
+  override def getPayload: P = payload
+  override def getMetadata: SdkMetadata = metadata
+
+  override def expectType[T <: GeneratedMessageV3](clazz: Class[T]): T = TestKitMessageImpl.expectType(payload, clazz)
 }
 
 object TestKitMessageImpl {
   def ofMessage(m: kalix.testkit.protocol.eventing_test_backend.Message): TestKitMessage[ByteString] = {
     val metadata = new MetadataImpl(m.metadata.getOrElse(Metadata.defaultInstance).entries)
     TestKitMessageImpl[ByteString](m.payload, metadata).asInstanceOf[TestKitMessage[ByteString]]
+  }
+
+  def expectType[T <: GeneratedMessageV3](payload: Any, clazz: Class[T]): T = {
+    val bt = BoxedType(clazz)
+    payload match {
+      case m if bt.isInstance(m) => m.asInstanceOf[T]
+      case m                     => throw new AssertionError(s"Expected $clazz, found ${m.getClass} ($m)")
+    }
   }
 }

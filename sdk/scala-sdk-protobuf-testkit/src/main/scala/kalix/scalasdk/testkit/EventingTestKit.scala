@@ -21,6 +21,7 @@ import com.google.protobuf.ByteString
 import kalix.javasdk.impl.MessageCodec
 import kalix.javasdk.testkit.{ EventingTestKit => JEventingTestKit }
 import kalix.scalasdk.Metadata
+import kalix.scalasdk.testkit.impl.MessageImpl
 import kalix.scalasdk.testkit.impl.TopicImpl
 import scalapb.GeneratedMessage
 
@@ -76,7 +77,7 @@ trait Topic {
    * @return
    *   message including ByteString payload and metadata
    */
-  def expectOne(): Message[AnyRef]
+  def expectOne(): Message[_]
 
   /**
    * Waits for a specific amount and returns the next unread message on this topic. Note the message might have been
@@ -87,7 +88,7 @@ trait Topic {
    * @return
    *   message including ByteString payload and metadata
    */
-  def expectOne(timeout: FiniteDuration): Message[AnyRef]
+  def expectOne(timeout: FiniteDuration): Message[_]
 
   /**
    * Waits and returns the next unread message on this topic and automatically parses and casts it to the specified
@@ -123,7 +124,7 @@ trait Topic {
    * @return
    *   collection of messages, each message including the deserialized payload object and metadata
    */
-  def expectN(): Seq[Message[AnyRef]]
+  def expectN(): Seq[Message[_]]
 
   /**
    * Waits for a given amount of unread messages to be received before returning. If no message is received, a timeout
@@ -134,7 +135,7 @@ trait Topic {
    * @return
    *   collection of messages, each message including the deserialized payload object and metadata
    */
-  def expectN(total: Int): Seq[Message[AnyRef]]
+  def expectN(total: Int): Seq[Message[_]]
 
   /**
    * Waits for a given amount of unread messages to be received before returning up to a given timeout. If no message is
@@ -147,14 +148,27 @@ trait Topic {
    * @return
    *   collection of messages, each message including the deserialized payload object and metadata
    */
-  def expectN(total: Int, timeout: FiniteDuration): Seq[Message[AnyRef]]
-
+  def expectN(total: Int, timeout: FiniteDuration): Seq[Message[_]]
 }
 
 @InternalApi
-private[testkit] object Topic {
+object Topic {
   def apply(delegate: JEventingTestKit.Topic, codec: MessageCodec): Topic = TopicImpl(delegate, codec)
 }
 
 @ApiMayChange
-case class Message[P](payload: P, metadata: Metadata)
+case class Message[P](payload: P, metadata: Metadata) {
+
+  /**
+   * Expects message payload to conform to type passed in and returns the typed object if so. Otherwise, throws an
+   * exception.
+   *
+   * @param t
+   *   the type of the payload
+   * @tparam T
+   *   expected class type for the payload of the message
+   * @return
+   *   a typed object from the payload
+   */
+  def expectType[T <: GeneratedMessage](implicit t: ClassTag[T]): T = MessageImpl.expectType(payload)
+}

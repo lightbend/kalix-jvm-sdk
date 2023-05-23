@@ -18,7 +18,7 @@ package kalix.scalasdk.testkit.impl
 
 import akka.util.BoxedType
 import com.google.protobuf.ByteString
-import com.google.protobuf.any.Any
+import com.google.protobuf.any.{ Any => ScalaPbAny }
 import kalix.javasdk.impl.MessageCodec
 import kalix.javasdk.testkit.{ EventingTestKit => JEventingTestKit }
 import kalix.scalasdk.impl.MetadataConverters
@@ -48,12 +48,12 @@ case class TopicImpl private (delegate: JEventingTestKit.Topic, codec: MessageCo
     Message(msg.getPayload, MetadataConverters.toScala(msg.getMetadata))
   }
 
-  override def expectOne(): Message[AnyRef] = {
+  override def expectOne(): Message[_] = {
     val msg = delegate.expectOne()
     Message(msg.getPayload, MetadataConverters.toScala(msg.getMetadata))
   }
 
-  override def expectOne(timeout: FiniteDuration): Message[AnyRef] = {
+  override def expectOne(timeout: FiniteDuration): Message[_] = {
     val msg = delegate.expectOne(timeout.toJava)
     Message(msg.getPayload, MetadataConverters.toScala(msg.getMetadata))
   }
@@ -72,27 +72,34 @@ case class TopicImpl private (delegate: JEventingTestKit.Topic, codec: MessageCo
   private def expectMessageType_internal[T <: GeneratedMessage](msg: JEventingTestKit.Message[ByteString])(implicit
       t: ClassTag[T]): Message[T] = {
     val payloadType = msg.getMetadata.get("ce-type").orElse("")
-    val decodedMsg = codec.decodeMessage(Any(payloadType, msg.getPayload))
+    val decodedMsg = codec.decodeMessage(ScalaPbAny(payloadType, msg.getPayload))
 
-    val bt = BoxedType(t.runtimeClass)
-    decodedMsg match {
-      case m if bt.isInstance(m) => Message(m.asInstanceOf[T], MetadataConverters.toScala(msg.getMetadata))
-      case m                     => throw new AssertionError(s"Expected $t, found ${m.getClass} ($m)")
-    }
+    val concreteType = MessageImpl.expectType(decodedMsg)
+    Message(concreteType, MetadataConverters.toScala(msg.getMetadata))
   }
-  override def expectN(): Seq[Message[AnyRef]] = expectN(Int.MaxValue)
+  override def expectN(): Seq[Message[_]] = expectN(Int.MaxValue)
 
-  override def expectN(total: Int): Seq[Message[AnyRef]] = {
+  override def expectN(total: Int): Seq[Message[_]] = {
     val allMsg = delegate.expectN(total)
     allMsg.asScala
       .map(msg => Message(msg.getPayload, MetadataConverters.toScala(msg.getMetadata)))
       .toSeq
   }
 
-  override def expectN(total: Int, timeout: FiniteDuration): Seq[Message[AnyRef]] = {
+  override def expectN(total: Int, timeout: FiniteDuration): Seq[Message[_]] = {
     val allMsg = delegate.expectN(total, timeout.toJava)
     allMsg.asScala
       .map(msg => Message(msg.getPayload, MetadataConverters.toScala(msg.getMetadata)))
       .toSeq
+  }
+}
+
+object MessageImpl {
+  def expectType[T <: GeneratedMessage](payload: Any)(implicit t: ClassTag[T]): T = {
+    val bt = BoxedType(t.runtimeClass)
+    payload match {
+      case m if bt.isInstance(m) => m.asInstanceOf[T]
+      case m                     => throw new AssertionError(s"Expected $t, found ${m.getClass} ($m)")
+    }
   }
 }

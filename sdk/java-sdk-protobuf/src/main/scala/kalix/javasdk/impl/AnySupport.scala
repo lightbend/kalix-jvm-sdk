@@ -455,7 +455,7 @@ class AnySupport(
           typeName
         case _ =>
           log.warn(
-            "Message type [{}] does not have a url prefix, it should have one that matchers the configured type url prefix [{}]",
+            "Message type [{}] does not have a url prefix, it should have one that matches the configured type url prefix [{}]",
             typeUrl: Any,
             typeUrlPrefix: Any)
           typeUrl

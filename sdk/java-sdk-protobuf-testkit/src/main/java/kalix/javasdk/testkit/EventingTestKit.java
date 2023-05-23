@@ -26,7 +26,7 @@ import kalix.javasdk.impl.MessageCodec;
 import kalix.javasdk.testkit.impl.EventingTestKitImpl;
 
 import java.time.Duration;
-import java.util.Collection;
+import java.util.List;
 
 
 public interface EventingTestKit {
@@ -86,7 +86,7 @@ public interface EventingTestKit {
      *
      * @return message including ByteString payload and metadata
      */
-    Message<Object> expectOne();
+    Message<?> expectOne();
 
     /**
      * Waits for a specific amount and returns the next unread message on this topic.
@@ -96,7 +96,7 @@ public interface EventingTestKit {
      * @param timeout amount of time to wait for a message if it was not received already
      * @return message including ByteString payload and metadata
      */
-    Message<Object> expectOne(Duration timeout);
+    Message<?> expectOne(Duration timeout);
 
     /**
      * Waits and returns the next unread message on this topic and automatically parses
@@ -123,18 +123,18 @@ public interface EventingTestKit {
      * Waits for a default amount of time before returning all unread messages in the topic.
      * If no message is received, a timeout exception is thrown.
      *
-     * @return collection of messages, each message including the deserialized payload object and metadata
+     * @return list of messages, each message including the deserialized payload object and metadata
      */
-    Collection<Message<Object>> expectN();
+    List<Message<?>> expectN();
 
     /**
      * Waits for a given amount of unread messages to be received before returning.
      * If no message is received, a timeout exception is thrown.
      *
      * @param total number of messages to wait for before returning
-     * @return collection of messages, each message including the deserialized payload object and metadata
+     * @return list of messages, each message including the deserialized payload object and metadata
      */
-    Collection<Message<Object>> expectN(int total);
+    List<Message<?>> expectN(int total);
 
     /**
      * Waits for a given amount of unread messages to be received before returning up to a given timeout.
@@ -142,9 +142,9 @@ public interface EventingTestKit {
      *
      * @param total number of messages to wait for before returning
      * @param timeout maximum amount of time to wait for the messages
-     * @return collection of messages, each message including the deserialized payload object and metadata
+     * @return list of messages, each message including the deserialized payload object and metadata
      */
-    Collection<Message<Object>> expectN(int total, Duration timeout);
+    List<Message<?>> expectN(int total, Duration timeout);
 
   }
 
@@ -153,6 +153,16 @@ public interface EventingTestKit {
     P getPayload();
 
     Metadata getMetadata();
+
+    /**
+     * Expects message payload to conform to type passed in and returns the typed object if so.
+     * Otherwise, throws an exception.
+     *
+     * @param clazz expected class type for the payload of the message
+     * @return a typed object from the payload
+     * @param <T> the type of the payload
+     */
+    <T extends GeneratedMessageV3> T expectType(Class<T> clazz);
   }
 }
 

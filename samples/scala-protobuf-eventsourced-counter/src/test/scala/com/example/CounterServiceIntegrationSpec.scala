@@ -1,20 +1,15 @@
 package com.example
 
-import akka.actor.ActorSystem
 import com.example.actions.{Decreased, Increased}
-import com.example.domain.ValueIncreased
 import kalix.scalasdk.testkit.{KalixTestKit, Message}
-import com.google.protobuf.empty.Empty
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.time.Millis
 import org.scalatest.time.Seconds
 import org.scalatest.time.Span
-import org.scalatest.time.SpanSugar.convertIntToGrainOfTime
 import org.scalatest.wordspec.AnyWordSpec
 
-import scala.jdk.CollectionConverters.CollectionHasAsScala
 import scala.language.postfixOps
 
 // This class was initially generated based on the .proto definition by Kalix tooling.
@@ -41,7 +36,7 @@ class CounterServiceIntegrationSpec extends AnyWordSpec with Matchers with Befor
       counter.value shouldBe (10 + 10 * 2)
 
       // verify messages published to topic
-      val allMsgs = testKit.getTopic("counter-events").expectN(2, 3 seconds)
+      val allMsgs = testKit.getTopic("counter-events").expectN(2)
 
       val Seq(Message(payload1, md1), Message(payload2, md2)) = allMsgs
       payload1 shouldBe Increased(10)
