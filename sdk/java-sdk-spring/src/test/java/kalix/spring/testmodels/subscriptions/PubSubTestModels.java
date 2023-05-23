@@ -47,6 +47,14 @@ public class PubSubTestModels {//TODO shall we remove this class and move things
     }
   }
 
+  @Subscribe.ValueEntity(Counter.class)
+  public static class SubscribeToValueEntityTypeLevelAction extends Action {
+
+    public Action.Effect<CounterState> onUpdate(CounterState message) {
+      return effects().reply(message);
+    }
+  }
+
   public static class SubscribeToValueEntityWithDeletesAction extends Action {
 
     @Subscribe.ValueEntity(Counter.class)
@@ -118,6 +126,30 @@ public class PubSubTestModels {//TODO shall we remove this class and move things
     }
 
     @Subscribe.EventSourcedEntity(EmployeeEntity.class)
+    public Action.Effect<String> methodTwo(String message) {
+      return effects().reply(message);
+    }
+  }
+
+  @Subscribe.ValueEntity(Counter.class)
+  @Subscribe.EventSourcedEntity(EmployeeEntity.class)
+  @Subscribe.Topic("topic")
+  @Subscribe.Stream(id = "source", service = "abc")
+  public static class MultipleTypeLevelSubscriptionsInAction extends Action {
+
+    public Action.Effect<Integer> methodOne(Integer message) {
+      return effects().reply(message);
+    }
+
+  }
+
+  @Subscribe.ValueEntity(Counter.class)
+  public static class MultipleUpdateMethodsForVETypeLevelSubscriptionInAction extends Action {
+
+    public Action.Effect<Integer> methodOne(Integer message) {
+      return effects().reply(message);
+    }
+
     public Action.Effect<String> methodTwo(String message) {
       return effects().reply(message);
     }
@@ -447,6 +479,26 @@ public class PubSubTestModels {//TODO shall we remove this class and move things
 
     @Subscribe.Topic(value = "topicXYZ", consumerGroup = "cg")
     public Action.Effect<Message> messageOne(Message message) {
+      return effects().reply(message);
+    }
+  }
+
+  @Subscribe.Topic(value = "topicXYZ", consumerGroup = "cg")
+  public static class SubscribeToTopicTypeLevelAction extends Action {
+
+    public Action.Effect<Message> messageOne(Message message) {
+      return effects().reply(message);
+    }
+  }
+
+  @Subscribe.Topic(value = "topicXYZ", consumerGroup = "cg")
+  public static class SubscribeToTopicTypeLevelCombinedAction extends Action {
+
+    public Action.Effect<Message> messageOne(Message message) {
+      return effects().reply(message);
+    }
+
+    public Action.Effect<String> messageTwo(String message) {
       return effects().reply(message);
     }
   }
