@@ -437,7 +437,7 @@ public class PubSubTestModels {//TODO shall we remove this class and move things
     }
   }
 
-  @Subscribe.Stream(id="source", service = "abc")
+  @Subscribe.Stream(id = "source", service = "abc")
   public static class DifferentTopicForStreamSubscription extends Action {
 
     @Publish.Topic("test")
@@ -491,13 +491,39 @@ public class PubSubTestModels {//TODO shall we remove this class and move things
     }
   }
 
-  @Subscribe.Topic(value = "topicXYZ", consumerGroup = "cg")
+  @Subscribe.Topic(value = "topicXYZ", consumerGroup = "cg", ignoreUnknown = true)
   public static class SubscribeToTopicTypeLevelCombinedAction extends Action {
 
     public Action.Effect<Message> messageOne(Message message) {
       return effects().reply(message);
     }
 
+    public Action.Effect<String> messageTwo(String message) {
+      return effects().reply(message);
+    }
+  }
+
+  public static class SubscribeToTopicCombinedAction extends Action {
+
+    @Subscribe.Topic(value = "topicXYZ", consumerGroup = "cg")
+    public Action.Effect<Message> messageOne(Message message) {
+      return effects().reply(message);
+    }
+
+    @Subscribe.Topic(value = "topicXYZ", consumerGroup = "cg")
+    public Action.Effect<String> messageTwo(String message) {
+      return effects().reply(message);
+    }
+  }
+
+  public static class InvalidConsumerGroupsWhenSubscribingToTopicAction extends Action {
+
+    @Subscribe.Topic(value = "topicXYZ", consumerGroup = "cg")
+    public Action.Effect<Message> messageOne(Message message) {
+      return effects().reply(message);
+    }
+
+    @Subscribe.Topic(value = "topicXYZ", consumerGroup = "cg2")
     public Action.Effect<String> messageTwo(String message) {
       return effects().reply(message);
     }
@@ -646,68 +672,68 @@ public class PubSubTestModels {//TODO shall we remove this class and move things
   @Subscribe.EventSourcedEntity(value = EmployeeEntity.class, ignoreUnknown = true)
   public static class SubscribeOnTypeToEventSourcedEvents extends View<Employee> {
 
-      public UpdateEffect<Employee> onCreate(EmployeeCreated evt) {
-        return effects()
-            .updateState(new Employee(evt.firstName, evt.lastName, evt.email));
-      }
-
-      public UpdateEffect<Employee> onEmailUpdate(EmployeeEvent.EmployeeEmailUpdated eeu) {
-        var employee = viewState();
-        return effects().updateState(new Employee(employee.firstName, employee.lastName, eeu.email));
-      }
-
-      @Query("SELECT * FROM employees_view WHERE email = :email")
-      @PostMapping("/employees/by-email/{email}")
-      public Employee getEmployeeByEmail(@PathVariable String email) {
-        return null;
-      }
+    public UpdateEffect<Employee> onCreate(EmployeeCreated evt) {
+      return effects()
+        .updateState(new Employee(evt.firstName, evt.lastName, evt.email));
     }
 
-
-    @Subscribe.EventSourcedEntity(value = EmployeeEntity.class)
-    @Publish.Stream(id = "employee_events")
-    public static class EventStreamPublishingAction extends Action {
-
-      public Effect<String> transform(EmployeeCreated created) {
-        return effects().reply(created.toString());
-      }
-
-      public Effect<String> transform(EmployeeEvent.EmployeeEmailUpdated emailUpdated) {
-        return effects().reply(emailUpdated.toString());
-      }
-
+    public UpdateEffect<Employee> onEmailUpdate(EmployeeEvent.EmployeeEmailUpdated eeu) {
+      var employee = viewState();
+      return effects().updateState(new Employee(employee.firstName, employee.lastName, eeu.email));
     }
 
-    @Subscribe.Stream(service = "employee_service", id = "employee_events", ignoreUnknown = true)
-    public static class EventStreamSubscriptionAction extends Action {
-
-      public Effect<String> transform(EmployeeCreated created) {
-        return effects().reply(created.toString());
-      }
-
-      public Effect<String> transform(EmployeeEvent.EmployeeEmailUpdated emailUpdated) {
-        return effects().reply(emailUpdated.toString());
-      }
-    }
-
-    @Table(value = "employee_table")
-    @Subscribe.Stream(service = "employee_service", id = "employee_events")
-    public static class EventStreamSubscriptionView extends View<Employee> {
-
-      public UpdateEffect<Employee> onCreate(EmployeeCreated evt) {
-        return effects()
-            .updateState(new Employee(evt.firstName, evt.lastName, evt.email));
-      }
-
-      public UpdateEffect<Employee> onEmailUpdate(EmployeeEvent.EmployeeEmailUpdated eeu) {
-        var employee = viewState();
-        return effects().updateState(new Employee(employee.firstName, employee.lastName, eeu.email));
-      }
-
-      @Query("SELECT * FROM employees_view WHERE email = :email")
-      @PostMapping("/employees/by-email/{email}")
-      public Employee getEmployeeByEmail(@PathVariable String email) {
-        return null;
-      }
+    @Query("SELECT * FROM employees_view WHERE email = :email")
+    @PostMapping("/employees/by-email/{email}")
+    public Employee getEmployeeByEmail(@PathVariable String email) {
+      return null;
     }
   }
+
+
+  @Subscribe.EventSourcedEntity(value = EmployeeEntity.class)
+  @Publish.Stream(id = "employee_events")
+  public static class EventStreamPublishingAction extends Action {
+
+    public Effect<String> transform(EmployeeCreated created) {
+      return effects().reply(created.toString());
+    }
+
+    public Effect<String> transform(EmployeeEvent.EmployeeEmailUpdated emailUpdated) {
+      return effects().reply(emailUpdated.toString());
+    }
+
+  }
+
+  @Subscribe.Stream(service = "employee_service", id = "employee_events", ignoreUnknown = true)
+  public static class EventStreamSubscriptionAction extends Action {
+
+    public Effect<String> transform(EmployeeCreated created) {
+      return effects().reply(created.toString());
+    }
+
+    public Effect<String> transform(EmployeeEvent.EmployeeEmailUpdated emailUpdated) {
+      return effects().reply(emailUpdated.toString());
+    }
+  }
+
+  @Table(value = "employee_table")
+  @Subscribe.Stream(service = "employee_service", id = "employee_events")
+  public static class EventStreamSubscriptionView extends View<Employee> {
+
+    public UpdateEffect<Employee> onCreate(EmployeeCreated evt) {
+      return effects()
+        .updateState(new Employee(evt.firstName, evt.lastName, evt.email));
+    }
+
+    public UpdateEffect<Employee> onEmailUpdate(EmployeeEvent.EmployeeEmailUpdated eeu) {
+      var employee = viewState();
+      return effects().updateState(new Employee(employee.firstName, employee.lastName, eeu.email));
+    }
+
+    @Query("SELECT * FROM employees_view WHERE email = :email")
+    @PostMapping("/employees/by-email/{email}")
+    public Employee getEmployeeByEmail(@PathVariable String email) {
+      return null;
+    }
+  }
+}

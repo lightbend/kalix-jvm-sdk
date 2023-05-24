@@ -31,6 +31,7 @@ import kalix.javasdk.impl.ComponentDescriptorFactory.eventSourcedEntitySubscript
 import kalix.javasdk.impl.ComponentDescriptorFactory.findEventSourcedEntityClass
 import kalix.javasdk.impl.ComponentDescriptorFactory.findEventSourcedEntityType
 import kalix.javasdk.impl.ComponentDescriptorFactory.findPublicationTopicName
+import kalix.javasdk.impl.ComponentDescriptorFactory.findSubscriptionConsumerGroup
 import kalix.javasdk.impl.ComponentDescriptorFactory.findSubscriptionSourceName
 import kalix.javasdk.impl.ComponentDescriptorFactory.findSubscriptionTopicName
 import kalix.javasdk.impl.ComponentDescriptorFactory.findValueEntityType
@@ -57,6 +58,8 @@ import org.springframework.web.bind.annotation.RequestBody
 import reactor.core.publisher.Flux
 
 object Validations {
+
+  import ReflectionUtils.methodOrdering
 
   object Validation {
 
@@ -145,18 +148,24 @@ object Validations {
 
   private def validateView(component: Class[_]): Validation = {
     when[View[_]](component) {
-      when(!KalixSpringApplication.isNestedViewTable(component)) {
-        viewMustHaveOneQueryMethod(component)
-      } ++
-      commonValidation(component) ++
-      commonSubscriptionValidation(component, hasUpdateEffectOutput) ++
-      viewMustHaveTableName(component) ++
-      viewMustHaveMethodLevelSubscriptionWhenTransformingUpdates(component) ++
-      streamUpdatesQueryMustReturnFlux(component)
+      validateSingleView(component)
     } ++
     when(KalixSpringApplication.isMultiTableView(component)) {
       viewMustHaveOneQueryMethod(component)
+      val viewClasses = component.getDeclaredClasses.toSeq.filter(KalixSpringApplication.isNestedViewTable)
+      viewClasses.map(validateSingleView).reduce(_ ++ _)
     }
+  }
+
+  private def validateSingleView(component: Class[_]): Validation = {
+    when(!KalixSpringApplication.isNestedViewTable(component)) {
+      viewMustHaveOneQueryMethod(component)
+    } ++
+    commonValidation(component) ++
+    commonSubscriptionValidation(component, hasUpdateEffectOutput) ++
+    viewMustHaveTableName(component) ++
+    viewMustHaveMethodLevelSubscriptionWhenTransformingUpdates(component) ++
+    streamUpdatesQueryMustReturnFlux(component)
   }
 
   private def errorMessage(element: AnnotatedElement, message: String): String = {
@@ -234,7 +243,6 @@ object Validations {
   private def ambiguousHandlersErrors(
       effectMethodsInputParams: Map[Option[Class[_]], IndexedSeq[Method]],
       component: Class[_]) = {
-    import ReflectionUtils.methodOrdering
     val errors = effectMethodsInputParams
       .filter(_._2.size > 1)
       .map {
@@ -293,7 +301,7 @@ object Validations {
 
   private def topicSubscriptionValidations(component: Class[_]): Validation = {
     val methods = component.getMethods.toIndexedSeq
-    when(hasTopicSubscription(component) && methods.exists(hasTopicSubscription)) {
+    val noMixedLevelSubs = when(hasTopicSubscription(component) && methods.exists(hasTopicSubscription)) {
       // collect offending methods
       val messages = methods.filter(hasTopicSubscription).map { method =>
         errorMessage(
@@ -302,6 +310,25 @@ object Validations {
       }
       Validation(messages)
     }
+
+    val theSameConsumerGroupPerTopic = when(methods.exists(hasTopicSubscription)) {
+      methods
+        .filter(hasTopicSubscription)
+        .sorted
+        .groupBy(findSubscriptionTopicName)
+        .map { case (topicName, methods) =>
+          val consumerGroups = methods.map(findSubscriptionConsumerGroup).distinct.sorted
+          when(consumerGroups.size > 1) {
+            Validation(errorMessage(
+              component,
+              s"All subscription methods to topic [$topicName] must have the same consumer group, but found different consumer groups [${consumerGroups
+                .mkString(", ")}]."))
+          }
+        }
+        .fold(Valid)(_ ++ _)
+    }
+
+    noMixedLevelSubs ++ theSameConsumerGroupPerTopic
   }
 
   private def missingSourceForTopicPublication(component: Class[_]): Validation = {
@@ -537,7 +564,6 @@ object Validations {
   private def valueEntitySubscriptionValidations(
       component: Class[_],
       updateMethodPredicate: Method => Boolean): Validation = {
-    import ReflectionUtils.methodOrdering
 
     val subscriptionMethods = component.getMethods.toIndexedSeq.filter(hasValueEntitySubscription).sorted
     val updatedMethods = if (hasValueEntitySubscription(component)) {

@@ -307,28 +307,36 @@ private[impl] object ComponentDescriptorFactory {
     Eventing.newBuilder().setIn(eventSource).build()
   }
 
+  def eventingInForTopic(clazz: Class[_]): Eventing = {
+    Eventing.newBuilder().setIn(topicEventSource(clazz)).build()
+  }
+
+  def eventingInForTopic(javaMethod: Method): Eventing = {
+    Eventing.newBuilder().setIn(topicEventSource(javaMethod)).build()
+  }
+
   def eventingInForValueEntityServiceLevel(clazz: Class[_]): Option[kalix.ServiceOptions] = {
-    valueEntitySubscription(clazz).map { ann =>
-
+    valueEntitySubscription(clazz).map { _ =>
       val entityType = findValueEntityType(clazz)
-
       val in = EventSource.newBuilder().setValueEntity(entityType)
-
       val eventing = ServiceEventing.newBuilder().setIn(in)
-
       kalix.ServiceOptions.newBuilder().setEventing(eventing).build()
     }
   }
 
   def eventingInForEventSourcedEntityServiceLevel(clazz: Class[_]): Option[kalix.ServiceOptions] = {
-    eventSourcedEntitySubscription(clazz).map { ann =>
-
+    eventSourcedEntitySubscription(clazz).map { _ =>
       val entityType = findEventSourcedEntityType(clazz)
-
       val in = EventSource.newBuilder().setEventSourcedEntity(entityType)
-
       val eventing = ServiceEventing.newBuilder().setIn(in)
+      kalix.ServiceOptions.newBuilder().setEventing(eventing).build()
+    }
+  }
 
+  def eventingInForTopicServiceLevel(clazz: Class[_]): Option[kalix.ServiceOptions] = {
+    topicSubscription(clazz).map { ann =>
+      val in = EventSource.newBuilder().setTopic(ann.value()).setConsumerGroup(ann.consumerGroup())
+      val eventing = ServiceEventing.newBuilder().setIn(in)
       kalix.ServiceOptions.newBuilder().setEventing(eventing).build()
     }
   }
@@ -342,7 +350,8 @@ private[impl] object ComponentDescriptorFactory {
   def topicEventSource(clazz: Class[_]): EventSource = {
     val topicName = findSubscriptionTopicName(clazz)
     val consumerGroup = findSubscriptionConsumerGroup(clazz)
-    EventSource.newBuilder().setTopic(topicName).setConsumerGroup(consumerGroup).build()
+    val ignoreUnknown = hasIgnoreForTopic(clazz)
+    EventSource.newBuilder().setTopic(topicName).setConsumerGroup(consumerGroup).setIgnoreUnknown(ignoreUnknown).build()
   }
 
   def eventingOutForTopic(javaMethod: Method): Option[Eventing] = {
@@ -430,6 +439,21 @@ private[impl] object ComponentDescriptorFactory {
     }
 
     combineBy("ES", groupByES(subscriptions), messageCodec, component)
+  }
+
+  def combineByTopic(
+      kalixMethods: Seq[KalixMethod],
+      messageCodec: JsonMessageCodec,
+      component: Class[_]): Seq[KalixMethod] = {
+    def groupByTopic(methods: Seq[KalixMethod]): Map[String, Seq[KalixMethod]] = {
+      val withTopicIn = methods.filter(kalixMethod =>
+        kalixMethod.methodOptions.exists(option =>
+          option.hasEventing && option.getEventing.hasIn && option.getEventing.getIn.hasTopic))
+      //Assuming there is only one topic annotation per method, therefore head is as good as any other
+      withTopicIn.groupBy(m => m.methodOptions.head.getEventing.getIn.getTopic)
+    }
+
+    combineBy("Topic", groupByTopic(kalixMethods), messageCodec, component)
   }
 
   def combineBy(
