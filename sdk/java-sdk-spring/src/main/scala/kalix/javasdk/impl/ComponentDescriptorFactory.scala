@@ -350,8 +350,7 @@ private[impl] object ComponentDescriptorFactory {
   def topicEventSource(clazz: Class[_]): EventSource = {
     val topicName = findSubscriptionTopicName(clazz)
     val consumerGroup = findSubscriptionConsumerGroup(clazz)
-    val ignoreUnknown = hasIgnoreForTopic(clazz)
-    EventSource.newBuilder().setTopic(topicName).setConsumerGroup(consumerGroup).setIgnoreUnknown(ignoreUnknown).build()
+    EventSource.newBuilder().setTopic(topicName).setConsumerGroup(consumerGroup).build()
   }
 
   def eventingOutForTopic(javaMethod: Method): Option[Eventing] = {
