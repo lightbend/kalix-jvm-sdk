@@ -2,6 +2,7 @@ package customer.api;
 
 import com.google.protobuf.Empty;
 import customer.Main;
+import kalix.javasdk.testkit.KalixTestKit;
 import kalix.javasdk.testkit.junit.KalixTestKitResource;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -12,6 +13,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
+import static kalix.javasdk.testkit.KalixTestKit.Settings.EventingSupport.GOOGLE_PUBSUB_EMULATOR;
 import static org.junit.Assert.assertEquals;
 
 // This class was initially generated based on the .proto definition by Kalix tooling.

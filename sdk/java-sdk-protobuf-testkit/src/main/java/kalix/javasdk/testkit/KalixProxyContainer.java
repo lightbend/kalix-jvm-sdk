@@ -35,8 +35,8 @@ public class KalixProxyContainer extends GenericContainer<KalixProxyContainer> {
   /** Default user function port (8080). */
   public static final int DEFAULT_USER_FUNCTION_PORT = 8080;
 
-  /** Default local port to use for eventing. */
-  public static final int DEFAULT_EVENTING_PORT = 8999;
+  /** Default local port where the Google Pub/Sub emulator is available (8085). */
+  public static final int DEFAULT_GOOGLE_PUBSUB_PORT = 8085;
 
   static {
     String customImage = System.getenv("KALIX_TESTKIT_PROXY_IMAGE");
@@ -49,7 +49,6 @@ public class KalixProxyContainer extends GenericContainer<KalixProxyContainer> {
     }
   }
 
-
   private final int userFunctionPort;
   private final int eventingPort;
 
@@ -58,7 +57,7 @@ public class KalixProxyContainer extends GenericContainer<KalixProxyContainer> {
   }
 
   public KalixProxyContainer(final int userFunctionPort) {
-    this(DEFAULT_PROXY_IMAGE_NAME, userFunctionPort, DEFAULT_EVENTING_PORT);
+    this(DEFAULT_PROXY_IMAGE_NAME, userFunctionPort, DEFAULT_GOOGLE_PUBSUB_PORT);
   }
 
   public KalixProxyContainer(final int userFunctionPort, int eventingPort) {
@@ -76,10 +75,10 @@ public class KalixProxyContainer extends GenericContainer<KalixProxyContainer> {
     withEnv("USER_FUNCTION_HOST", "host.testcontainers.internal");
     withEnv("USER_FUNCTION_PORT", String.valueOf(userFunctionPort));
     withEnv("HTTP_PORT", String.valueOf(DEFAULT_PROXY_PORT));
-    // connect to local gRPC backend
-    withEnv("EVENTING_SUPPORT", "grpc-backend");
-    withEnv("GRPC_BACKEND_HOST", "host.testcontainers.internal");
-    withEnv("GRPC_BACKEND_PORT", String.valueOf(eventingPort));
+    // connect to local Google Pub/Sub emulator
+    withEnv("EVENTING_SUPPORT", "google-pubsub-emulator");
+    withEnv("PUBSUB_EMULATOR_HOST", "host.testcontainers.internal");
+    withEnv("PUBSUB_EMULATOR_PORT", String.valueOf(eventingPort));
     if ("false".equals(System.getenv("VERSION_CHECK_ON_STARTUP"))) {
       withEnv("VERSION_CHECK_ON_STARTUP", "false");
     }

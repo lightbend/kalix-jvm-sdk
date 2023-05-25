@@ -77,6 +77,7 @@ case class TopicImpl private (delegate: JEventingTestKit.Topic, codec: MessageCo
     val concreteType = MessageImpl.expectType(decodedMsg)
     Message(concreteType, MetadataConverters.toScala(msg.getMetadata))
   }
+
   override def expectN(): Seq[Message[_]] = expectN(Int.MaxValue)
 
   override def expectN(total: Int): Seq[Message[_]] = {

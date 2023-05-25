@@ -22,6 +22,10 @@ import akka.grpc.GrpcClientSettings
 import akka.stream.Materializer
 import kalix.scalasdk.{ Kalix, Principal }
 import kalix.javasdk.testkit.{ KalixTestKit => JTestKit }
+import kalix.javasdk.testkit.KalixTestKit.Settings.{ EventingSupport => JEventingSupport }
+import kalix.scalasdk.testkit.KalixTestKit.Settings.EventingSupport
+import kalix.scalasdk.testkit.KalixTestKit.Settings.GooglePubSubEmulator
+import kalix.scalasdk.testkit.KalixTestKit.Settings.GrpcBackend
 
 import scala.concurrent.duration.FiniteDuration
 import scala.jdk.DurationConverters._
@@ -52,9 +56,38 @@ object KalixTestKit {
     def withAdvancedViews(): Settings = new Settings(jSettings.withAdvancedViews())
     def withServicePortMapping(serviceName: String, host: String, port: Int): Settings =
       new Settings(jSettings.withServicePortMapping(serviceName, host, port))
+    def withEventingSupport(eventingSupport: EventingSupport): Settings = {
+      val jEventingSupport = eventingSupport match {
+        case GrpcBackend          => JEventingSupport.GRPC_BACKEND
+        case GooglePubSubEmulator => JEventingSupport.GOOGLE_PUBSUB_EMULATOR
+      }
+      new Settings(jSettings.withEventingSupport(jEventingSupport))
+    }
+  }
+
+  object Settings {
+
+    /**
+     * Defined which type of eventing support is being used.
+     */
+    sealed trait EventingSupport
+
+    /**
+     * This is the default type used and allows the testing eventing integrations without an external broker dependency
+     * running.
+     */
+    object GrpcBackend extends EventingSupport
+
+    /**
+     * Used if you want to use an external Google PubSub Emulator on your tests.
+     *
+     * Note: the Google PubSub Emulator need to be started independently.
+     */
+    object GooglePubSubEmulator extends EventingSupport
   }
 
   val DefaultSettings: Settings = new Settings(JTestKit.Settings.DEFAULT)
+
 }
 class KalixTestKit private (delegate: JTestKit) {
   def start(): KalixTestKit = {

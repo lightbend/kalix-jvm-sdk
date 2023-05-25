@@ -45,6 +45,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import static kalix.javasdk.testkit.KalixProxyContainer.DEFAULT_GOOGLE_PUBSUB_PORT;
+
 /**
  * Testkit for running Kalix services locally.
  *
@@ -81,6 +83,8 @@ public class KalixTestKit {
     /** Service port mappings from serviceName to host:port */
     public final Map<String, String> servicePortMappings;
 
+    public final EventingSupport eventingSupport;
+
     /**
      * Create new settings for KalixTestkit.
      *
@@ -89,7 +93,22 @@ public class KalixTestKit {
      */
     @Deprecated
     public Settings(final Duration stopTimeout) {
-      this(stopTimeout, "self", false, false, Optional.empty(), Collections.emptyMap());
+      this(stopTimeout, "self", false, false, Optional.empty(), Collections.emptyMap(), EventingSupport.GRPC_BACKEND);
+    }
+
+    public enum EventingSupport {
+      /**
+       * This is the default type used and allows the testing eventing integrations without an external broker dependency
+       * running.
+       */
+      GRPC_BACKEND,
+
+      /**
+       * Used if you want to use an external Google PubSub Emulator on your tests.
+       *
+       * Note: the Google PubSub Emulator need to be started independently.
+       */
+      GOOGLE_PUBSUB_EMULATOR
     }
 
     private Settings(
@@ -98,13 +117,15 @@ public class KalixTestKit {
       final boolean aclEnabled,
       final boolean advancedViews,
       final Optional<Duration> workflowTickInterval,
-      final Map<String, String> servicePortMappings) {
+      final Map<String, String> servicePortMappings,
+      final EventingSupport eventingSupport) {
       this.stopTimeout = stopTimeout;
       this.serviceName = serviceName;
       this.aclEnabled = aclEnabled;
       this.advancedViews = advancedViews;
       this.workflowTickInterval = workflowTickInterval;
       this.servicePortMappings = servicePortMappings;
+      this.eventingSupport = eventingSupport;
     }
 
     /**
@@ -114,7 +135,7 @@ public class KalixTestKit {
      * @return updated Settings
      */
     public Settings withStopTimeout(final Duration stopTimeout) {
-      return new Settings(stopTimeout, serviceName, aclEnabled, advancedViews, workflowTickInterval, servicePortMappings);
+      return new Settings(stopTimeout, serviceName, aclEnabled, advancedViews, workflowTickInterval, servicePortMappings, eventingSupport);
     }
 
     /**
@@ -126,7 +147,7 @@ public class KalixTestKit {
      * @return The updated settings.
      */
     public Settings withServiceName(final String serviceName) {
-      return new Settings(stopTimeout, serviceName, aclEnabled, advancedViews, workflowTickInterval, servicePortMappings);
+      return new Settings(stopTimeout, serviceName, aclEnabled, advancedViews, workflowTickInterval, servicePortMappings, eventingSupport);
     }
 
     /**
@@ -135,7 +156,7 @@ public class KalixTestKit {
      * @return The updated settings.
      */
     public Settings withAclDisabled() {
-      return new Settings(stopTimeout, serviceName, false, advancedViews, workflowTickInterval, servicePortMappings);
+      return new Settings(stopTimeout, serviceName, false, advancedViews, workflowTickInterval, servicePortMappings, eventingSupport);
     }
 
     /**
@@ -144,7 +165,7 @@ public class KalixTestKit {
      * @return The updated settings.
      */
     public Settings withAclEnabled() {
-      return new Settings(stopTimeout, serviceName, true, advancedViews, workflowTickInterval, servicePortMappings);
+      return new Settings(stopTimeout, serviceName, true, advancedViews, workflowTickInterval, servicePortMappings, eventingSupport);
     }
 
     /**
@@ -153,7 +174,7 @@ public class KalixTestKit {
      * @return The updated settings.
      */
     public Settings withAdvancedViews() {
-      return new Settings(stopTimeout, serviceName, aclEnabled, true, workflowTickInterval, servicePortMappings);
+      return new Settings(stopTimeout, serviceName, aclEnabled, true, workflowTickInterval, servicePortMappings, eventingSupport);
     }
 
     /**
@@ -162,7 +183,7 @@ public class KalixTestKit {
      * @return The updated settings.
      */
     public Settings withWorkflowTickInterval(Duration tickInterval) {
-      return new Settings(stopTimeout, serviceName, aclEnabled, true, Optional.of(tickInterval), servicePortMappings);
+      return new Settings(stopTimeout, serviceName, aclEnabled, true, Optional.of(tickInterval), servicePortMappings, eventingSupport);
     }
 
     /**
@@ -172,7 +193,11 @@ public class KalixTestKit {
     public Settings withServicePortMapping(String serviceName, String host, int port) {
       var updatedMappings = new HashMap<>(servicePortMappings);
       updatedMappings.put(serviceName, host + ":" + port);
-      return new Settings(stopTimeout, serviceName, aclEnabled, advancedViews, workflowTickInterval, Map.copyOf(updatedMappings));
+      return new Settings(stopTimeout, serviceName, aclEnabled, advancedViews, workflowTickInterval, Map.copyOf(updatedMappings), eventingSupport);
+    }
+
+    public Settings withEventingSupport(EventingSupport eventingSupport) {
+      return new Settings(stopTimeout, serviceName, aclEnabled, advancedViews, workflowTickInterval, servicePortMappings, eventingSupport);
     }
 
     @Override
@@ -188,6 +213,7 @@ public class KalixTestKit {
         ", advancedViews=" + advancedViews +
         ", workflowTickInterval=" + workflowTickInterval +
         ", servicePortMappings=[" + String.join(", ", portMappingsRendered) + "]" +
+        ", eventingSupport=" + eventingSupport +
         ')';
     }
   }
@@ -203,9 +229,7 @@ public class KalixTestKit {
   private Optional<KalixProxyContainer> proxyContainer;
   private KalixRunner runner;
   private ActorSystem testSystem;
-
   private EventingTestKit eventingTestKit;
-
 
   /**
    * Create a new testkit for a Kalix service descriptor.
@@ -261,18 +285,22 @@ public class KalixTestKit {
 
     testSystem = ActorSystem.create("KalixTestkit", ConfigFactory.parseString("akka.http.server.preview.enable-http2 = true"));
 
-    int eventingBackendPort = availableLocalPort();
+    int eventingBackendPort = settings.eventingSupport.equals(Settings.EventingSupport.GOOGLE_PUBSUB_EMULATOR) ? DEFAULT_GOOGLE_PUBSUB_PORT : startEventingTestkit();
     runProxy(useTestContainers, port, eventingBackendPort);
 
     started = true;
-
-    log.info("Eventing TestKit booting up on port: " + eventingBackendPort);
-    eventingTestKit = EventingTestKit.start(getActorSystem(), "0.0.0.0", eventingBackendPort, kalix.getMessageCodec());
 
     if (log.isDebugEnabled())
       log.debug("TestKit using [{}:{}] for calls to proxy from service", proxyHost, proxyPort);
 
     return this;
+  }
+
+  private int startEventingTestkit() {
+    var port = availableLocalPort();
+    log.info("Eventing TestKit booting up on port: " + port);
+    eventingTestKit = EventingTestKit.start(testSystem, "0.0.0.0", port, kalix.getMessageCodec());
+    return port;
   }
 
   private void runProxy(Boolean useTestContainers, int port, int eventingBackendPort) {
@@ -286,9 +314,12 @@ public class KalixTestKit {
 
       List<String> javaOptions = new ArrayList<>();
       javaOptions.add("-Dlogback.configurationFile=logback-dev-mode.xml");
-      javaOptions.add("-Dkalix.proxy.eventing.support=grpc-backend");
-      javaOptions.add("-Dkalix.proxy.eventing.grpc-backend.host=host.testcontainers.internal");
 
+      if (settings.eventingSupport.equals(Settings.EventingSupport.GRPC_BACKEND)) {
+        javaOptions.add("-Dkalix.proxy.eventing.support=grpc-backend");
+        javaOptions.add("-Dkalix.proxy.eventing.grpc-backend.host=host.testcontainers.internal");
+        javaOptions.add("-Dkalix.proxy.eventing.grpc-backend.port=" + eventingBackendPort);
+      }
       settings.servicePortMappings.forEach((serviceName, hostPort) -> {
         javaOptions.add("-Dkalix.dev-mode.service-port-mappings." + serviceName + "=" + hostPort);
       });
@@ -443,6 +474,11 @@ public class KalixTestKit {
    * @return mocked topic to read/publish messages from/to
    */
   public EventingTestKit.Topic getTopic(String topic) {
+    if (!settings.eventingSupport.equals(Settings.EventingSupport.GRPC_BACKEND)) {
+      throw new IllegalStateException("Currently configured eventing support is (" + settings.eventingSupport +
+          "). To use this API, configure it to be (" + Settings.EventingSupport.GRPC_BACKEND + ")");
+    }
+
     return eventingTestKit.getTopic(topic);
   }
 
