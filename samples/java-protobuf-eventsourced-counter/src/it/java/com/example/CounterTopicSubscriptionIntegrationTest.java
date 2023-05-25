@@ -12,7 +12,6 @@ import com.google.protobuf.ByteString;
 import kalix.javasdk.Metadata;
 import kalix.javasdk.testkit.EventingTestKit;
 import kalix.javasdk.testkit.junit.KalixTestKitResource;
-import kalix.testkit.protocol.eventing_test_backend.Message;
 import org.junit.ClassRule;
 import org.junit.Test;
 
@@ -62,15 +61,8 @@ public class CounterTopicSubscriptionIntegrationTest {
 
     var topic = testKit.getTopic("counter-events");
     var msg = CounterTopicApi.Increased.newBuilder().setValue(15).build();
-    var md = Metadata.EMPTY
-        .add("Content-Type", "application/protobuf;proto="+ CounterTopicApi.Increased.getDescriptor().getFullName())
-        .add("ce-specversion", "1.0")
-        .add("ce-id", "msg1")
-        .add("ce-type", "Increase")
-        .add("ce-source", CounterTopicApi.Increased.getDescriptor().getFullName())
-        .add("ce-subject", "counter-2");
 
-    topic.publish(msg.toByteString(), md);
+    topic.publish(msg, "counter-2");
 
     assertEquals(15, getCounterValue("counter-2"));
   }

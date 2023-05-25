@@ -16,6 +16,7 @@
 
 package kalix.scalasdk.testkit.impl
 
+import akka.annotation.InternalApi
 import akka.util.BoxedType
 import com.google.protobuf.ByteString
 import com.google.protobuf.any.{ Any => ScalaPbAny }
@@ -35,6 +36,10 @@ import scala.jdk.DurationConverters.ScalaDurationOps
 import scala.language.postfixOps
 import scala.reflect.ClassTag
 
+/**
+ * INTERNAL API
+ */
+@InternalApi
 case class TopicImpl private (delegate: JEventingTestKit.Topic, codec: MessageCodec) extends Topic {
 
   private val log = LoggerFactory.getLogger(classOf[TopicImpl])
@@ -121,7 +126,11 @@ case class TopicImpl private (delegate: JEventingTestKit.Topic, codec: MessageCo
   }
 }
 
-object MessageImpl {
+/**
+ * INTERNAL API
+ */
+@InternalApi
+private[testkit] object MessageImpl {
   def expectType[T <: GeneratedMessage](payload: Any)(implicit t: ClassTag[T]): T = {
     val bt = BoxedType(t.runtimeClass)
     payload match {

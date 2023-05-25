@@ -49,6 +49,9 @@ public interface EventingTestKit {
 
   /**
    * Testkit utility to mock broker's topic. Useful when doing integration tests for services that do eventing (in or out) to a broker's topic.
+   *
+   * <p><b>Note: </b> messages written to the topic with this utility are not readable with the expect* methods,
+   * unless they have been properly forwarded through an eventing.out flow to the same topic.
    */
   @ApiMayChange
   interface Topic {
@@ -159,16 +162,50 @@ public interface EventingTestKit {
     List<Message<?>> clear();
 
     /**
-     * Simulates the publishing of a message to this topic for the purposes
+     * Simulate the publishing of a raw message to this topic for the purposes
      * of testing eventing.in flows into a specific service.
      *
-     * <p><b>Note: </b> messages written with this are not readable with the expect* methods,
-     * unless they have been properly forward through an eventing.out flow to the same topic.
+     * @param message raw bytestring to be published in the topic
+     */
+    void publish(ByteString message);
+
+
+    /**
+     * Simulate the publishing of a raw message to this topic for the purposes
+     * of testing eventing.in flows into a specific service.
      *
-     * @param message to be published in the topic
+     * @param message raw bytestring to be published in the topic
      * @param metadata associated with the message
      */
     void publish(ByteString message, Metadata metadata);
+
+    /**
+     * Simulate the publishing of a message to this topic for the purposes
+     * of testing eventing.in flows into a specific service.
+     *
+     * @param message to be published in the topic
+     */
+    <T extends GeneratedMessageV3> void publish(Message<T> message);
+
+    /**
+     * Simulate the publishing of a message to this topic for the purposes
+     * of testing eventing.in flows into a specific service.
+     *
+     * @param message to be published in the topic
+     * @param subject to identify the entity
+     * @param <T>
+     */
+    <T extends GeneratedMessageV3> void publish(T message, String subject);
+
+    /**
+     * Publish multiple messages to this topic for the purposes
+     * of testing eventing.in flows into a specific service.
+     *
+     * @param messages to be published in the topic
+     * @param <T>
+     */
+    <T extends GeneratedMessageV3> void publish(List<Message<T>> messages);
+
   }
 
   @ApiMayChange

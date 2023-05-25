@@ -47,7 +47,6 @@ public class CustomerActionIntegrationTest {
 
   @Test
   public void createAndPublish() throws Exception {
-
     var id = UUID.randomUUID().toString();
     var customer = buildCustomer(id, "Johanna", "foo@example.com", "Porto", "Long Road");
     createCustomer(customer);
