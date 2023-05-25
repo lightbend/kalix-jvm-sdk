@@ -24,6 +24,7 @@ import kalix.javasdk.annotations.Publish;
 import kalix.javasdk.annotations.Subscribe;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Profile;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
@@ -34,6 +35,7 @@ import java.util.stream.Stream;
 import static com.example.wiring.pubsub.PublishToTopic.COUNTER_EVENTS_TOPIC;
 
 @Subscribe.Topic(COUNTER_EVENTS_TOPIC)
+@Profile("docker-it-test")
 public class SubscribeToTopic extends Action {
 
   private Logger logger = LoggerFactory.getLogger(getClass());

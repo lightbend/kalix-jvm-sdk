@@ -157,7 +157,7 @@ public class EventSourcedEntityIntegrationTest {
   private Integer increaseCounter(String name, int value) {
     return webClient
       .post()
-      .uri("/counter/" + name + "/increaseaaaa/" + value)
+      .uri("/counter/" + name + "/increase/" + value)
         .retrieve()
         .bodyToMono(Integer.class)
         .block(timeout);

@@ -26,6 +26,7 @@ import kalix.javasdk.annotations.ViewId;
 import kalix.javasdk.view.View;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Profile;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import reactor.core.publisher.Flux;
@@ -37,6 +38,7 @@ import static kalix.javasdk.impl.MetadataImpl.CeSubject;
 @ViewId("counter_view_topic_sub")
 @Table("counter_view_topic_sub")
 @Subscribe.Topic(COUNTER_EVENTS_TOPIC)
+@Profile("docker-it-test")
 public class ViewFromTopic extends View<CounterView> {
 
   private Logger logger = LoggerFactory.getLogger(getClass());
