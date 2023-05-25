@@ -24,12 +24,16 @@ import kalix.spring.testmodels.subscriptions.PubSubTestModels.EventStreamSubscri
 import kalix.spring.testmodels.subscriptions.PubSubTestModels.SubscribeOnTypeToEventSourcedEvents
 import kalix.spring.testmodels.view.ViewTestModels.IllDefineUserByEmailWithStreamUpdates
 import kalix.spring.testmodels.view.ViewTestModels.MultiTableViewValidation
+import kalix.spring.testmodels.view.ViewTestModels.MultiTableViewWithDuplicatedESSubscriptions
+import kalix.spring.testmodels.view.ViewTestModels.MultiTableViewWithDuplicatedVESubscriptions
 import kalix.spring.testmodels.view.ViewTestModels.MultiTableViewWithJoinQuery
 import kalix.spring.testmodels.view.ViewTestModels.MultiTableViewWithMultipleQueries
 import kalix.spring.testmodels.view.ViewTestModels.MultiTableViewWithoutQuery
 import kalix.spring.testmodels.view.ViewTestModels.SubscribeToEventSourcedEvents
 import kalix.spring.testmodels.view.ViewTestModels.SubscribeToEventSourcedEventsWithMethodWithState
 import kalix.spring.testmodels.view.ViewTestModels.TimeTrackerView
+import kalix.spring.testmodels.view.ViewTestModels.TopicSubscriptionView
+import kalix.spring.testmodels.view.ViewTestModels.TopicTypeLevelSubscriptionView
 import kalix.spring.testmodels.view.ViewTestModels.TransformedUserView
 import kalix.spring.testmodels.view.ViewTestModels.TransformedUserViewUsingState
 import kalix.spring.testmodels.view.ViewTestModels.TransformedUserViewWithDeletes
@@ -43,8 +47,9 @@ import kalix.spring.testmodels.view.ViewTestModels.UserByEmailWithPostRequestBod
 import kalix.spring.testmodels.view.ViewTestModels.UserByEmailWithStreamUpdates
 import kalix.spring.testmodels.view.ViewTestModels.UserByNameEmailWithPost
 import kalix.spring.testmodels.view.ViewTestModels.UserByNameStreamed
+import kalix.spring.testmodels.view.ViewTestModels.ViewDuplicatedESSubscriptions
 import kalix.spring.testmodels.view.ViewTestModels.ViewDuplicatedHandleDeletesAnnotations
-import kalix.spring.testmodels.view.ViewTestModels.ViewDuplicatedSubscriptions
+import kalix.spring.testmodels.view.ViewTestModels.ViewDuplicatedVESubscriptions
 import kalix.spring.testmodels.view.ViewTestModels.ViewHandleDeletesWithParam
 import kalix.spring.testmodels.view.ViewTestModels.ViewWithHandleDeletesFalseOnMethodLevel
 import kalix.spring.testmodels.view.ViewTestModels.ViewWithMethodLevelAcl
@@ -173,7 +178,7 @@ class ViewDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSuit
     "not allow duplicated subscriptions methods" in {
       // it should be annotated either on type or on method level
       intercept[InvalidComponentException] {
-        Validations.validate(classOf[ViewDuplicatedSubscriptions]).failIfInvalid
+        Validations.validate(classOf[ViewDuplicatedVESubscriptions]).failIfInvalid
       }.getMessage should include(
         "Ambiguous handlers for kalix.spring.testmodels.valueentity.User, methods: [onChange, onChange2] consume the same type.")
     }
@@ -515,24 +520,6 @@ class ViewDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSuit
       }
     }
 
-    "generate mappings for service to service subscription " in {
-      assertDescriptor[EventStreamSubscriptionView] { desc =>
-
-        val serviceOptions = findKalixServiceOptions(desc)
-        val eventingInDirect = serviceOptions.getEventing.getIn.getDirect
-        eventingInDirect.getService shouldBe "employee_service"
-        eventingInDirect.getEventStreamId shouldBe "employee_events"
-
-        val methodOptions = this.findKalixMethodOptions(desc, "KalixSyntheticMethodOnStreamEmployeeevents")
-
-        methodOptions.hasEventing shouldBe false
-        methodOptions.getView.getUpdate.getTable shouldBe "employee_table"
-        methodOptions.getView.getUpdate.getTransformUpdates shouldBe true
-        methodOptions.getView.getJsonSchema.getOutput shouldBe "Employee"
-
-      }
-    }
-
     //TODO remove ignore after updating to Scala 2.13.11 (https://github.com/scala/scala/pull/10105)
     "validate missing handlers for method level subscription" ignore {
       intercept[InvalidComponentException] {
@@ -547,6 +534,14 @@ class ViewDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSuit
         Validations.validate(classOf[TypeLevelSubscribeToEventSourcedEventsWithState]).failIfInvalid
       }.getMessage should include(
         "Component 'TypeLevelSubscribeToEventSourcedEventsWithState' is missing an event handler for 'kalix.spring.testmodels.eventsourcedentity.EmployeeEvent$EmployeeEmailUpdated'")
+    }
+
+    "not allow duplicated ES subscriptions methods" in {
+      // it should be annotated either on type or on method level
+      intercept[InvalidComponentException] {
+        Validations.validate(classOf[ViewDuplicatedESSubscriptions]).failIfInvalid
+      }.getMessage should include(
+        "Ambiguous handlers for kalix.spring.testmodels.valueentity.User, methods: [onChange, onChange2] consume the same type.")
     }
   }
 
@@ -580,6 +575,20 @@ class ViewDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSuit
       intercept[InvalidComponentException] {
         Validations.validate(classOf[MultiTableViewWithMultipleQueries]).failIfInvalid
       }
+    }
+
+    "not allow duplicated VE subscriptions methods in multi table view" in {
+      intercept[InvalidComponentException] {
+        Validations.validate(classOf[MultiTableViewWithDuplicatedVESubscriptions]).failIfInvalid
+      }.getMessage should include(
+        "Ambiguous handlers for kalix.spring.testmodels.valueentity.CounterState, methods: [onEvent, onEvent2] consume the same type.")
+    }
+
+    "not allow duplicated ES subscriptions methods in multi table view" in {
+      intercept[InvalidComponentException] {
+        Validations.validate(classOf[MultiTableViewWithDuplicatedESSubscriptions]).failIfInvalid
+      }.getMessage should include(
+        "Ambiguous handlers for kalix.spring.testmodels.valueentity.CounterState, methods: [onEvent, onEvent2] consume the same type.")
     }
 
     "generate proto for multi-table view with join query" in {
@@ -666,4 +675,57 @@ class ViewDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSuit
     }
   }
 
+  "View descriptor factory (for Stream)" should {
+    "generate mappings for service to service subscription " in {
+      assertDescriptor[EventStreamSubscriptionView] { desc =>
+
+        val serviceOptions = findKalixServiceOptions(desc)
+        val eventingInDirect = serviceOptions.getEventing.getIn.getDirect
+        eventingInDirect.getService shouldBe "employee_service"
+        eventingInDirect.getEventStreamId shouldBe "employee_events"
+
+        val methodOptions = this.findKalixMethodOptions(desc, "KalixSyntheticMethodOnStreamEmployeeevents")
+
+        methodOptions.hasEventing shouldBe false
+        methodOptions.getView.getUpdate.getTable shouldBe "employee_table"
+        methodOptions.getView.getUpdate.getTransformUpdates shouldBe true
+        methodOptions.getView.getJsonSchema.getOutput shouldBe "Employee"
+
+      }
+    }
+  }
+
+  "View descriptor factory (for Topic)" should {
+    "generate mappings for topic type level subscription " in {
+      assertDescriptor[TopicTypeLevelSubscriptionView] { desc =>
+
+        val serviceOptions = findKalixServiceOptions(desc)
+
+        val eventingInTopic = serviceOptions.getEventing.getIn
+        eventingInTopic.getTopic shouldBe "source"
+        eventingInTopic.getConsumerGroup shouldBe "cg"
+
+        val methodOptions = this.findKalixMethodOptions(desc, "KalixSyntheticMethodOnTopicSource")
+
+        methodOptions.getView.getUpdate.getTable shouldBe "employee_table"
+        methodOptions.getView.getUpdate.getTransformUpdates shouldBe true
+        methodOptions.getView.getJsonSchema.getOutput shouldBe "Employee"
+      }
+    }
+
+    "generate mappings for topic subscription " in {
+      assertDescriptor[TopicSubscriptionView] { desc =>
+
+        val methodOptions = this.findKalixMethodOptions(desc, "KalixSyntheticMethodOnTopicSource")
+
+        val eventingInTopic = methodOptions.getEventing.getIn
+        eventingInTopic.getTopic shouldBe "source"
+        eventingInTopic.getConsumerGroup shouldBe "cg"
+
+        methodOptions.getView.getUpdate.getTable shouldBe "employee_table"
+        methodOptions.getView.getUpdate.getTransformUpdates shouldBe true
+        methodOptions.getView.getJsonSchema.getOutput shouldBe "Employee"
+      }
+    }
+  }
 }

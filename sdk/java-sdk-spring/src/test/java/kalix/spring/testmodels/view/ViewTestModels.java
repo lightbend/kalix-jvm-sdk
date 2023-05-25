@@ -20,7 +20,7 @@ import kalix.javasdk.annotations.*;
 import kalix.javasdk.view.View;
 import kalix.spring.testmodels.eventsourcedentity.Employee;
 import kalix.spring.testmodels.eventsourcedentity.EmployeeEvent;
-import kalix.spring.testmodels.eventsourcedentity.EventSourcedEntitiesTestModels;
+import kalix.spring.testmodels.eventsourcedentity.EventSourcedEntitiesTestModels.EmployeeEntity;
 import kalix.spring.testmodels.valueentity.*;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -299,18 +299,45 @@ public class ViewTestModels {
   }
 
   @Table("users_view")
-  public static class ViewDuplicatedSubscriptions extends View<TransformedUser> {
+  public static class ViewDuplicatedVESubscriptions extends View<TransformedUser> {
 
     @Subscribe.ValueEntity(UserEntity.class)
     public UpdateEffect<TransformedUser> onChange(User user) {
       return effects()
-          .updateState(new TransformedUser(user.lastName + ", " + user.firstName, user.email));
+        .updateState(new TransformedUser(user.lastName + ", " + user.firstName, user.email));
     }
 
     @Subscribe.ValueEntity(UserEntity.class)
     public UpdateEffect<TransformedUser> onChange2(User user) {
       return effects()
           .updateState(new TransformedUser(user.lastName + ", " + user.firstName, user.email));
+    }
+
+    @Subscribe.ValueEntity(value = UserEntity.class, handleDeletes = true)
+    public UpdateEffect<TransformedUser> onDelete() {
+      return effects().deleteState();
+    }
+
+    @Query("SELECT * FROM users_view WHERE email = :email")
+    @PostMapping("/users/by-email")
+    public TransformedUser getUser(@RequestBody ByEmail byEmail) {
+      return null;
+    }
+  }
+
+  @Table("users_view")
+  public static class ViewDuplicatedESSubscriptions extends View<TransformedUser> {
+
+    @Subscribe.EventSourcedEntity(EmployeeEntity.class)
+    public UpdateEffect<TransformedUser> onChange(User user) {
+      return effects()
+        .updateState(new TransformedUser(user.lastName + ", " + user.firstName, user.email));
+    }
+
+    @Subscribe.EventSourcedEntity(EmployeeEntity.class)
+    public UpdateEffect<TransformedUser> onChange2(User user) {
+      return effects()
+        .updateState(new TransformedUser(user.lastName + ", " + user.firstName, user.email));
     }
 
     @Subscribe.ValueEntity(value = UserEntity.class, handleDeletes = true)
@@ -373,7 +400,7 @@ public class ViewTestModels {
   @Table(value = "employees_view")
   public static class SubscribeToEventSourcedEvents extends View<Employee> {
 
-    @Subscribe.EventSourcedEntity(EventSourcedEntitiesTestModels.EmployeeEntity.class)
+    @Subscribe.EventSourcedEntity(EmployeeEntity.class)
     public UpdateEffect<Employee> onEvent(EmployeeEvent evt) {
       EmployeeEvent.EmployeeCreated created = (EmployeeEvent.EmployeeCreated) evt;
       return effects()
@@ -390,7 +417,7 @@ public class ViewTestModels {
   @Table(value = "employees_view")
   public static class SubscribeToEventSourcedEventsWithMethodWithState extends View<Employee> {
 
-    @Subscribe.EventSourcedEntity(EventSourcedEntitiesTestModels.EmployeeEntity.class)
+    @Subscribe.EventSourcedEntity(EmployeeEntity.class)
     public UpdateEffect<Employee> onEvent(Employee employee, EmployeeEvent.EmployeeCreated created) {
       return effects()
           .updateState(new Employee(created.firstName, created.lastName, created.email));
@@ -404,7 +431,7 @@ public class ViewTestModels {
   }
 
   @Table(value = "employees_view")
-  @Subscribe.EventSourcedEntity(value = EventSourcedEntitiesTestModels.EmployeeEntity.class, ignoreUnknown = false)
+  @Subscribe.EventSourcedEntity(value = EmployeeEntity.class, ignoreUnknown = false)
   public static class TypeLevelSubscribeToEventSourcedEventsWithState extends View<Employee> {
 
     public UpdateEffect<Employee> onEvent(Employee employee, EmployeeEvent.EmployeeCreated created) {
@@ -527,7 +554,7 @@ public class ViewTestModels {
     }
 
     @Table("employees")
-    @Subscribe.EventSourcedEntity(EventSourcedEntitiesTestModels.EmployeeEntity.class)
+    @Subscribe.EventSourcedEntity(EmployeeEntity.class)
     public static class Employees extends View<Employee> {
       public UpdateEffect<Employee> onEvent(EmployeeEvent.EmployeeCreated created) {
         return effects()
@@ -544,6 +571,76 @@ public class ViewTestModels {
     public static class Assigned extends View<AssignedCounterState> {}
   }
 
+  @ViewId("multi-table-view-with-join-query")
+  public static class MultiTableViewWithDuplicatedVESubscriptions {
+    @Query("SELECT * FROM users_view")
+    @PostMapping("/users/query1")
+    public EmployeeCounters get(String email) {
+      return null;
+    }
+
+    @Table("employees")
+    @Subscribe.EventSourcedEntity(EmployeeEntity.class)
+    public static class Employees extends View<Employee> {
+      public UpdateEffect<Employee> onEvent(EmployeeEvent.EmployeeCreated created) {
+        return effects()
+          .updateState(new Employee(created.firstName, created.lastName, created.email));
+      }
+    }
+
+    @Table("counters")
+    @Subscribe.ValueEntity(Counter.class)
+    public static class Counters extends View<CounterState> {}
+
+    @Table("assigned")
+    public static class Assigned extends View<CounterState> {
+      @Subscribe.ValueEntity(Counter.class)
+      public UpdateEffect<CounterState> onEvent(CounterState counterState) {
+        return effects().ignore();
+      }
+
+      @Subscribe.ValueEntity(Counter.class)
+      public UpdateEffect<CounterState> onEvent2(CounterState counterState) {
+        return effects().ignore();
+      }
+    }
+  }
+
+  @ViewId("multi-table-view-with-join-query")
+  public static class MultiTableViewWithDuplicatedESSubscriptions {
+    @Query("SELECT * FROM users_view")
+    @PostMapping("/users/query1")
+    public EmployeeCounters get(String email) {
+      return null;
+    }
+
+    @Table("employees")
+    @Subscribe.EventSourcedEntity(EmployeeEntity.class)
+    public static class Employees extends View<Employee> {
+      public UpdateEffect<Employee> onEvent(EmployeeEvent.EmployeeCreated created) {
+        return effects()
+          .updateState(new Employee(created.firstName, created.lastName, created.email));
+      }
+    }
+
+    @Table("counters")
+    @Subscribe.ValueEntity(Counter.class)
+    public static class Counters extends View<CounterState> {}
+
+    @Table("assigned")
+    public static class Assigned extends View<Employee> {
+      @Subscribe.EventSourcedEntity(EmployeeEntity.class)
+      public UpdateEffect<Employee> onEvent(CounterState counterState) {
+        return effects().ignore();
+      }
+
+      @Subscribe.EventSourcedEntity(EmployeeEntity.class)
+      public UpdateEffect<Employee> onEvent2(CounterState counterState) {
+        return effects().ignore();
+      }
+    }
+  }
+
   @ViewId("time-tracker-view")
   @Table("time-tracker-view")
   @Subscribe.ValueEntity(TimeTrackerEntity.class)
@@ -552,6 +649,50 @@ public class ViewTestModels {
     @Query(value = "SELECT * FROM time-tracker-view WHERE name = :name")
     @PostMapping("/timer/query2")
     public TimeTrackerEntity.TimerState query2() {
+      return null;
+    }
+  }
+
+
+  @Table(value = "employee_table")
+  @Subscribe.Topic(value = "source", consumerGroup = "cg")
+  public static class TopicTypeLevelSubscriptionView extends View<Employee> {
+
+    public UpdateEffect<Employee> onCreate(EmployeeEvent.EmployeeCreated evt) {
+      return effects()
+        .updateState(new Employee(evt.firstName, evt.lastName, evt.email));
+    }
+
+    public UpdateEffect<Employee> onEmailUpdate(EmployeeEvent.EmployeeEmailUpdated eeu) {
+      var employee = viewState();
+      return effects().updateState(new Employee(employee.firstName, employee.lastName, eeu.email));
+    }
+
+    @Query("SELECT * FROM employees_view WHERE email = :email")
+    @PostMapping("/employees/by-email/{email}")
+    public Employee getEmployeeByEmail(@PathVariable String email) {
+      return null;
+    }
+  }
+
+  @Table(value = "employee_table")
+  public static class TopicSubscriptionView extends View<Employee> {
+
+    @Subscribe.Topic(value = "source", consumerGroup = "cg")
+    public UpdateEffect<Employee> onCreate(EmployeeEvent.EmployeeCreated evt) {
+      return effects()
+        .updateState(new Employee(evt.firstName, evt.lastName, evt.email));
+    }
+
+    @Subscribe.Topic(value = "source", consumerGroup = "cg")
+    public UpdateEffect<Employee> onEmailUpdate(EmployeeEvent.EmployeeEmailUpdated eeu) {
+      var employee = viewState();
+      return effects().updateState(new Employee(employee.firstName, employee.lastName, eeu.email));
+    }
+
+    @Query("SELECT * FROM employees_view WHERE email = :email")
+    @PostMapping("/employees/by-email/{email}")
+    public Employee getEmployeeByEmail(@PathVariable String email) {
       return null;
     }
   }
