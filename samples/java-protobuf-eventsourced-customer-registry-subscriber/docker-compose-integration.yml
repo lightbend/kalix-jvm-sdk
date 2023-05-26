@@ -1,11 +1,11 @@
 # this docker-compose is used by the integration tests. To run it, we must first publish
-# java-spring-eventsourced-customer-registry image locally. To do so, run the following command from the root of the project:
+# java-protobuf-eventsourced-customer-registry image locally. To do so, run the following command from the root of the project:
 # mvn clean install docker:build
 
 version: "3"
 services:
   kalix-proxy:
-    image: gcr.io/kalix-public/kalix-proxy:1.1.9-M2
+    image: gcr.io/kalix-public/kalix-proxy:1.1.11
     depends_on:
       - kalix-proxy-customer-registry
     ports:
@@ -21,7 +21,7 @@ services:
       USER_FUNCTION_PORT: "8081"
 
   kalix-proxy-customer-registry:
-    image: gcr.io/kalix-public/kalix-proxy:1.1.9-M2
+    image: gcr.io/kalix-public/kalix-proxy:1.1.11
     ports:
       - "9000:9000"
     extra_hosts:
