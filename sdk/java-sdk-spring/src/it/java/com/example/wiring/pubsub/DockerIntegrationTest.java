@@ -78,7 +78,6 @@ public abstract class DockerIntegrationTest {
   public void beforeAll() {
     dockerComposeUtils.start();
     kalixSpringApplication.start();
-    //http://localhost:59644/counter/helloRestart/increaseaaaa/15 [DefaultWebClient]
     webClient = createClient("http://localhost:9000");
   }
 
