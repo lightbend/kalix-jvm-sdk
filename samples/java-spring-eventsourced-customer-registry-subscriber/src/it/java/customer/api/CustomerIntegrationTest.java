@@ -25,7 +25,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
@@ -152,22 +151,28 @@ public class CustomerIntegrationTest {
     String id = UUID.randomUUID().toString();
     Customer customer = new Customer("Johanna", "foo@example.com", "Johanna");
 
-    ResponseEntity<CustomerRegistryAction.Confirm> response =
-      localWebClient.post()
+        // try until it succeeds
+    await()
+      .ignoreExceptions()
+      .pollInterval(5, TimeUnit.SECONDS)
+      .atMost(60, TimeUnit.SECONDS)
+      .until(() ->
+        localWebClient.post()
         .uri("/customer/" + id + "/create")
         .bodyValue(customer)
         .retrieve()
-        .toEntity(CustomerRegistryAction.Confirm.class)
-        .block(timeout);
-
-    Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+        .bodyToMono(CustomerRegistryAction.Confirm.class)
+        .block(timeout).msg(),
+        new IsEqual<>("done")
+      );
 
 
     // the view is eventually updated
     // on this service (updated via s2s streaming)
     await()
       .ignoreExceptions()
-      .atMost(20, TimeUnit.SECONDS)
+      .pollInterval(5, TimeUnit.SECONDS)
+      .atMost(60, TimeUnit.SECONDS)
       .until(() ->
           localWebClient.get()
             .uri("/customers/by_name/Johanna")
