@@ -28,7 +28,7 @@ services:
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      # advertised listner running on port 9092 must be accessible to kalix-proxy container run by kalix:runAll
+      # advertised listener running on port 9092 must be accessible to kalix-proxy container run by kalix:runAll
       # therefore we need to use host.docker.internal (docker's bridge address) to access it through the host machine
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://host.docker.internal:9092
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
