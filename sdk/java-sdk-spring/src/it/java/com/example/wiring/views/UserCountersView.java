@@ -60,7 +60,7 @@ public class UserCountersView {
   public static class Counters extends View<UserCounter> {
     private UserCounter counterState() {
       return Optional.ofNullable(viewState())
-          .orElseGet(() -> new UserCounter(updateContext().eventSubject().orElse(""), 0));
+        .orElseGet(() -> new UserCounter(updateContext().eventSubject().orElse(""), 0));
     }
 
     public UpdateEffect<UserCounter> onEvent(CounterEvent.ValueIncreased event) {
@@ -69,6 +69,10 @@ public class UserCountersView {
 
     public UpdateEffect<UserCounter> onEvent(CounterEvent.ValueMultiplied event) {
       return effects().updateState(counterState().onValueMultiplied(event));
+    }
+
+    public UpdateEffect<UserCounter> onEvent(CounterEvent.ValueSet event) {
+      return effects().updateState(counterState().onValueSet(event));
     }
   }
 

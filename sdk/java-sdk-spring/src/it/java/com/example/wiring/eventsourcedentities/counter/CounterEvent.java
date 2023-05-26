@@ -18,7 +18,7 @@ package com.example.wiring.eventsourcedentities.counter;
 
 import kalix.javasdk.annotations.TypeName;
 
-public interface CounterEvent {
+public sealed interface CounterEvent {
 
   @TypeName("increased")
   record ValueIncreased(int value) implements CounterEvent {
