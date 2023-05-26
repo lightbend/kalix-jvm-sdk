@@ -20,19 +20,19 @@ mvn compile
 
 ## Running Locally
 
-When running a Kalix application locally, at least two applications are required. The current Kalix application and its companion Kalix Proxy.
+When running a Kalix service locally, we need to have its companion Kalix Proxy running alongside it.
 
-To start the applications locally, call the following command:
+To start your service locally, run:
 
 ```shell
 mvn kalix:runAll
 ```
 
-This command will start your Kalix application and a Kalix Proxy using the included [docker-compose.yml](./docker-compose.yml) file.
+This command will start your Kalix service and a companion Kalix Proxy as configured in [docker-compose.yml](./docker-compose.yml) file.
 
 ## Exercise the service
 
-With both the proxy and your application running, any defined endpoints should be available at `http://localhost:9000`, the proxy local address.
+With both the proxy and your service running, any defined endpoints should be available at `http://localhost:9000`, the proxy local address.
 
 ```shell
 curl -XPOST -H "Content-Type: application/json" localhost:9000/counter/foo/increase -d '{ "value": 10 }'

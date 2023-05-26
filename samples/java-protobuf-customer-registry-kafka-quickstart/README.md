@@ -21,21 +21,21 @@ mvn compile
 
 ## Running Locally
 
-When running this Kalix sample locally, a few applications are required. The current Kalix application, its companion Kalix Proxy, a Kafka broker and a Zookeeper.
+When running this Kalix service locally, we need to have its companion Kalix Proxy, a Kafka broker and a Zookeeper running alongside it.
 
-To start the applications locally, call the following command:
+To start your service locally, run:
 
 ```shell
 mvn kalix:runAll
 ```
 
-This command will start the Kalix application, the Kalix Proxy, a local Kafka broker and a Zookeeper using the included [docker-compose.yml](./docker-compose.yml) file.
+This command will start the Kalix service, the Kalix Proxy, a local Kafka broker and a Zookeeper using the included [docker-compose.yml](./docker-compose.yml) file.
 
 It can make sense to delete the existing containers (if any exist) and start from scratch when starting up the Kafka container.
 
 ### Create topic for eventing out
 
-Every time a customer receives a change, the application also persists that change to a topic in Kafka called `customer_changes`. You can see that this is set in customer_action.proto. In order for the changes to be written to this topic, you need to manually create the topic in Kafka. To do this, run the following command after the Docker container `java-protobuf-customer-registry-kafka-quickstart-kafka-1` is running.
+Every time a customer receives a change, the service also persists that change to a topic in Kafka called `customer_changes`. You can see that this is set in customer_action.proto. In order for the changes to be written to this topic, you need to manually create the topic in Kafka. To do this, run the following command after the Docker container `java-protobuf-customer-registry-kafka-quickstart-kafka-1` is running.
 
 ```shell
 docker-compose exec kafka kafka-topics --create --bootstrap-server localhost:9092 --replication-factor 1 --partitions 1 --topic customer_changes
@@ -43,7 +43,7 @@ docker-compose exec kafka kafka-topics --create --bootstrap-server localhost:909
 
 ### Exercising the service
 
-With both the proxy and your application running, any defined endpoints should be available at `http://localhost:9000`. In addition to the defined gRPC interface, each method has a corresponding HTTP endpoint. Unless configured otherwise (see [Transcoding HTTP](https://docs.kalix.io/java-protobuf/writing-grpc-descriptors-protobuf.html#_transcoding_http)), this endpoint accepts POST requests at the path `/[package].[entity name]/[method]`.
+With both the proxy and your service running, any defined endpoints should be available at `http://localhost:9000`. In addition to the defined gRPC interface, each method has a corresponding HTTP endpoint. Unless configured otherwise (see [Transcoding HTTP](https://docs.kalix.io/java-protobuf/writing-grpc-descriptors-protobuf.html#_transcoding_http)), this endpoint accepts POST requests at the path `/[package].[entity name]/[method]`.
 
 You can connect to the Kafka topic using:
 

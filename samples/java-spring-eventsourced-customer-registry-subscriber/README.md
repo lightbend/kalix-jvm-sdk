@@ -18,7 +18,7 @@ mvn compile
 
 First start the `java-spring-eventsourced-customer-registry` service and proxy. It will run with the default service and proxy ports (`8080` and `9000`).
 
-To start the application locally, the `kalix-maven-plugin` is used. Use the following command:
+To start your service locally, run:
 
 ```shell
 mvn kalix:runAll
