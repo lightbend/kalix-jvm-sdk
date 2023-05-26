@@ -18,6 +18,8 @@ package com.example.wiring.pubsub;
 
 import com.example.Main;
 import com.example.wiring.eventsourcedentities.counter.CounterEvent;
+import com.example.wiring.valueentities.customer.CustomerEntity;
+import com.example.wiring.valueentities.customer.CustomerEntity.Customer;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import kalix.devtools.impl.DockerComposeUtils;
@@ -47,13 +49,13 @@ import reactor.core.publisher.Mono;
 import scala.jdk.FutureConverters;
 
 import java.time.Duration;
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 import static java.time.temporal.ChronoUnit.SECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -95,7 +97,7 @@ public class PubSubIntegrationTest {
   }
 
   @Test
-  public void shouldVerifyActionSubscribingToTopic() throws InterruptedException {
+  public void shouldVerifyActionSubscribingToCounterEventsTopic() {
     //given
     String counterId = "some-counter";
 
@@ -122,7 +124,7 @@ public class PubSubIntegrationTest {
   }
 
   @Test
-  public void shouldVerifyViewSubscribingToTopic() throws InterruptedException {
+  public void shouldVerifyViewSubscribingToCounterEventsTopic() {
     //given
     String counterId1 = "some-counter-1";
     String counterId2 = "some-counter-2";
@@ -148,6 +150,62 @@ public class PubSubIntegrationTest {
           .toList();
 
         assertThat(response).containsOnly(new CounterView(counterId2, 20));
+      });
+  }
+
+  @Test
+  public void shouldVerifyActionSubscribingToCustomersTopic() {
+    //given
+    Customer customer1 = new Customer("name1", Instant.now());
+    Customer updatedCustomer1 = new Customer("name1", Instant.now());
+    Customer customer2 = new Customer("name2", Instant.now());
+
+    //when
+    createCustomer(customer1);
+    createCustomer(updatedCustomer1);
+    createCustomer(customer2);
+
+    //then
+    await()
+      .ignoreExceptions()
+      .atMost(20, TimeUnit.of(SECONDS))
+      .untilAsserted(() -> {
+        var response = webClient
+          .get()
+          .uri("/subscribe-to-customer-topic/" + customer1.name())
+          .retrieve()
+          .bodyToMono(Customer.class)
+          .block(timeout);
+
+        assertThat(response).isEqualTo(updatedCustomer1);
+      });
+  }
+
+  @Test
+  public void shouldVerifyActionSubscribingToCustomers2Topic() {
+    //given
+    Customer customer1 = new Customer("name3", Instant.now());
+    Customer updatedCustomer1 = new Customer("name3", Instant.now());
+    Customer customer2 = new Customer("name4", Instant.now());
+
+    //when
+    createCustomer(customer1);
+    createCustomer(updatedCustomer1);
+    createCustomer(customer2);
+
+    //then
+    await()
+      .ignoreExceptions()
+      .atMost(20, TimeUnit.of(SECONDS))
+      .untilAsserted(() -> {
+        var response = webClient
+          .get()
+          .uri("/subscribe-to-customer-2-topic/" + customer1.name())
+          .retrieve()
+          .bodyToMono(Customer.class)
+          .block(timeout);
+
+        assertThat(response).isEqualTo(updatedCustomer1);
       });
   }
 
@@ -211,6 +269,18 @@ public class PubSubIntegrationTest {
       );
 
     return webClient;
+  }
+
+  private void createCustomer(Customer customer) {
+    String created =
+      webClient
+        .put()
+        .uri("/customers/" + customer.name())
+        .bodyValue(customer)
+        .retrieve()
+        .bodyToMono(String.class)
+        .block(timeout);
+    assertThat(created).isEqualTo("\"Ok\"");
   }
 
   private Integer increaseCounter(String name, int value) {

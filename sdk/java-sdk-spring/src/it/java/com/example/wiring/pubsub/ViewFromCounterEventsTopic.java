@@ -18,7 +18,6 @@ package com.example.wiring.pubsub;
 
 
 import com.example.wiring.eventsourcedentities.counter.CounterEvent;
-import kalix.javasdk.action.Action;
 import kalix.javasdk.annotations.Query;
 import kalix.javasdk.annotations.Subscribe;
 import kalix.javasdk.annotations.Table;
@@ -31,15 +30,15 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import reactor.core.publisher.Flux;
 
-import static com.example.wiring.pubsub.PublishToTopic.COUNTER_EVENTS_TOPIC;
+import static com.example.wiring.pubsub.PublishESToTopic.COUNTER_EVENTS_TOPIC;
 import static kalix.javasdk.impl.MetadataImpl.CeSubject;
 
 
+@Profile("docker-it-test")
 @ViewId("counter_view_topic_sub")
 @Table("counter_view_topic_sub")
 @Subscribe.Topic(COUNTER_EVENTS_TOPIC)
-@Profile("docker-it-test")
-public class ViewFromTopic extends View<CounterView> {
+public class ViewFromCounterEventsTopic extends View<CounterView> {
 
   private Logger logger = LoggerFactory.getLogger(getClass());
 

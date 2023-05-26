@@ -16,10 +16,7 @@
 
 package com.example.wiring.pubsub;
 
-import com.example.wiring.eventsourcedentities.counter.CounterEntity;
-import com.example.wiring.eventsourcedentities.counter.CounterEvent;
-import com.example.wiring.eventsourcedentities.counter.CounterEvent.ValueIncreased;
-import com.example.wiring.eventsourcedentities.counter.CounterEvent.ValueMultiplied;
+import com.example.wiring.valueentities.customer.CustomerEntity;
 import kalix.javasdk.Metadata;
 import kalix.javasdk.action.Action;
 import kalix.javasdk.annotations.Publish;
@@ -28,28 +25,20 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Profile;
 
+import static com.example.wiring.pubsub.PublishVEToTopic.CUSTOMERS_TOPIC;
 import static kalix.javasdk.impl.MetadataImpl.CeSubject;
 
-@Subscribe.EventSourcedEntity(value = CounterEntity.class, ignoreUnknown = true)
 @Profile("docker-it-test")
-public class PublishToTopic extends Action {
+@Subscribe.Topic(CUSTOMERS_TOPIC)
+public class PublishTopicToTopic extends Action {
 
-  public static final String COUNTER_EVENTS_TOPIC = "counter-events";
+  public static final String CUSTOMERS_2_TOPIC = "customers_2";
   private Logger logger = LoggerFactory.getLogger(getClass());
 
-  @Publish.Topic(COUNTER_EVENTS_TOPIC)
-  public Effect<CounterEvent> handleIncrease(ValueIncreased increased) {
-    return publish(increased);
-  }
-
-  @Publish.Topic(COUNTER_EVENTS_TOPIC)
-  public Effect<CounterEvent> handleMultiply(ValueMultiplied multiplied) {
-    return publish(multiplied);
-  }
-
-  private Effect<CounterEvent> publish(CounterEvent counterEvent) {
+  @Publish.Topic(CUSTOMERS_2_TOPIC)
+  public Effect<CustomerEntity.Customer> handleChange(CustomerEntity.Customer customer) {
     String entityId = actionContext().metadata().get(CeSubject()).orElseThrow();
-    logger.info("Publishing to " + COUNTER_EVENTS_TOPIC + " event: " + counterEvent + " from " + entityId);
-    return effects().reply(counterEvent, Metadata.EMPTY.add(CeSubject(), entityId));
+    logger.info("Publishing to " + CUSTOMERS_2_TOPIC + " message: " + customer + " from " + entityId);
+    return effects().reply(customer, Metadata.EMPTY.add(CeSubject(), entityId));
   }
 }

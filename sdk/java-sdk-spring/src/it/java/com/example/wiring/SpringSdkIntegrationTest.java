@@ -672,7 +672,7 @@ public class SpringSdkIntegrationTest {
     String created =
       webClient
         .put()
-        .uri("/customers/" + customer.name)
+        .uri("/customers/" + customer.name())
         .bodyValue(customer)
         .retrieve()
         .bodyToMono(String.class)
