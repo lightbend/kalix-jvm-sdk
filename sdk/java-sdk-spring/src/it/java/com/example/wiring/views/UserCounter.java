@@ -41,6 +41,11 @@ public class UserCounter {
     return new UserCounter(id, value * event.value());
   }
 
+
+  public UserCounter onValueSet(CounterEvent.ValueSet event) {
+    return new UserCounter(id, event.value());
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {return true;}

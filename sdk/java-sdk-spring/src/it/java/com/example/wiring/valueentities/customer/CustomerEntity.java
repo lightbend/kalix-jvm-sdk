@@ -33,15 +33,7 @@ import java.time.Instant;
 @RequestMapping("/customers/{id}")
 public class CustomerEntity extends ValueEntity<CustomerEntity.Customer> {
 
-  public static class Customer{
-    final public String name;
-    final public Instant createdOn;
-
-    @JsonCreator
-    public Customer(@JsonProperty("name") String name, @JsonProperty("createdOn") Instant createdOn) {
-      this.name = name;
-      this.createdOn = createdOn;
-    }
+  public record Customer(String name, Instant createdOn) {
   }
 
   @PutMapping
