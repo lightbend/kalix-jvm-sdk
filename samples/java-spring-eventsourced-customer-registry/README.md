@@ -4,13 +4,11 @@
 
 To understand the Kalix concepts that are the basis for this example, see [Designing services](https://docs.kalix.io/java/development-process.html) in the documentation.
 
-
 ## Developing
 
 This project demonstrates the use of Event Sourced Entity and View components.
 To understand more about these components, see [Developing services](https://docs.kalix.io/services/)
 and in particular the [Java section](https://docs.kalix.io/java/)
-
 
 ## Building
 
@@ -20,56 +18,63 @@ Use Maven to build your project:
 mvn compile
 ```
 
-
 ## Running Locally
 
-To run the example locally, you must run the Kalix proxy. The included `docker-compose` file contains the configuration required to run the proxy for a locally running application.
-It also contains the configuration to start a local Google Pub/Sub emulator that the Kalix proxy will connect to.
-To start the proxy, run the following command from this directory:
+When running a Kalix service locally, we need to have its companion Kalix Proxy running alongside it.
+
+To start your service locally, run:
 
 ```shell
-docker-compose up
+mvn kalix:runAll
 ```
 
-To start the application locally, the `spring-boot-maven-plugin` is used. Use the following command:
+This command will start your Kalix service and a companion Kalix Proxy as configured in [docker-compose.yml](./docker-compose.yml) file.
 
-```shell
-mvn spring-boot:run
-```
+## Exercising the service
 
-With both the proxy and your application running, any defined endpoints should be available at `http://localhost:9000`. 
-
+With both the proxy and your service running, any defined endpoints should be available at `http://localhost:9000`.
 
 * Create a customer with:
-  ```shell
-  curl localhost:9000/customer/one/create \
-    --header "Content-Type: application/json" \
-    -XPOST \
-    --data '{"email":"test@example.com","name":"Test Testsson","address":{"street":"Teststreet 25","city":"Testcity"}}'
-  ```
+
+```shell
+curl localhost:9000/customer/one/create \
+  --header "Content-Type: application/json" \
+  -XPOST \
+  --data '{"email":"test@example.com","name":"Test Testsson","address":{"street":"Teststreet 25","city":"Testcity"}}'
+```
+
 * Retrieve the customer:
-  ```shell
-  curl localhost:9000/customer/one
-  ```
+
+```shell
+curl localhost:9000/customer/one
+```
+
 * Query by email:
-  ```shell
-  curl localhost:9000/customer/by_email/test%40example.com
-  ```
+
+```shell
+curl localhost:9000/customer/by_email/test%40example.com
+```
+
 * Query by name:
-  ```shell
-  curl localhost:9000/customer/by_name/Test%20Testsson
-  ```
+
+```shell
+curl localhost:9000/customer/by_name/Test%20Testsson
+```
+
 * Change name:
-  ```shell
-  curl localhost:9000/customer/one/changeName/Jan%20Banan -XPOST
-  ```
+
+```shell
+curl localhost:9000/customer/one/changeName/Jan%20Banan -XPOST
+```
+
 * Change address:
-  ```shell
-  curl localhost:9000/customer/one/changeAddress \
-    --header "Content-Type: application/json" \
-    -XPOST \
-    --data '{"street":"Newstreet 25","city":"Newcity"}'
-  ```
+
+```shell
+curl localhost:9000/customer/one/changeAddress \
+  --header "Content-Type: application/json" \
+  -XPOST \
+  --data '{"street":"Newstreet 25","city":"Newcity"}'
+```
 
 ## Deploying
 

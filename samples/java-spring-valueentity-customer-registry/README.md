@@ -1,14 +1,16 @@
-# java-spring-valueentity-customer-registry
+# Value Entity Customer Registry
 
-
+## Designing
 
 To understand the Kalix concepts that are the basis for this example, see [Designing services](https://docs.kalix.io/java/development-process.html) in the documentation.
 
+## Developing
 
+This project demonstrates the use of Value Entity and View components.
+To understand more about these components, see [Developing services](https://docs.kalix.io/services/)
+and in particular the [Java section](https://docs.kalix.io/java/)
 
-This project contains the framework to create a Kalix application by adding Kalix components. To understand more about these components, see [Developing services](https://docs.kalix.io/services/). Spring-SDK is an experimental feature and so far there is no [official](https://docs.kalix.io/) documentation. Examples can be found [here](https://github.com/lightbend/kalix-jvm-sdk/tree/main/samples) in the folders with "spring" in their name.
-
-
+## Building
 
 Use Maven to build your project:
 
@@ -16,44 +18,48 @@ Use Maven to build your project:
 mvn compile
 ```
 
+## Running Locally
 
+When running a Kalix service locally, we need to have its companion Kalix Proxy running alongside it.
 
-To run the example locally, you must run the Kalix proxy. The included `docker-compose` file contains the configuration required to run the proxy for a locally running application.
-It also contains the configuration to start a local Google Pub/Sub emulator that the Kalix proxy will connect to.
-To start the proxy, run the following command from this directory:
-
-```shell
-docker-compose up
-```
-
-To start the application locally, the `spring-boot-maven-plugin` is used. Use the following command:
+To start your service locally, run:
 
 ```shell
-mvn spring-boot:run
+mvn kalix:runAll
 ```
 
-With both the proxy and your application running, once you have defined endpoints they should be available at `http://localhost:9000`. 
+This command will start your Kalix service and a companion Kalix Proxy as configured in [docker-compose.yml](./docker-compose.yml) file.
 
+## Exercise the service
+
+With both the proxy and your service running, once you have defined endpoints they should be available at `http://localhost:9000`.
 
 * Create a customer with:
-  ```shell
-  curl localhost:9000/customer/one/create \
-    --header "Content-Type: application/json" \
-    -XPOST \
-    --data '{"customerId":"one","email":"test@example.com","name":"Test Testsson","address":{"street":"Teststreet 25","city":"Testcity"}}'
-  ```
+
+```shell
+curl localhost:9000/customer/one/create \
+  --header "Content-Type: application/json" \
+  -XPOST \
+  --data '{"customerId":"one","email":"test@example.com","name":"Test Testsson","address":{"street":"Teststreet 25","city":"Testcity"}}'
+```
+
 * Retrieve the customer:
-  ```shell
-  curl localhost:9000/customer/one
-  ```
+
+```shell
+curl localhost:9000/customer/one
+```
+
 * Query by name with a wrapped result:
-  ```shell
-  curl localhost:9000/wrapped/by_name/Test%20Testsson
-  ```
+
+```shell
+curl localhost:9000/wrapped/by_name/Test%20Testsson
+```
+
 * Query by name with a response using a summary:
-  ```shell
-  curl localhost:9000/summary/by_name/Test%20Testsson
-  ```
+
+```shell
+curl localhost:9000/summary/by_name/Test%20Testsson
+```
 
 ## Deploying
 

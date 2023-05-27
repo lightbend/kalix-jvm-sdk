@@ -4,13 +4,11 @@
 
 To understand the Kalix concepts that are the basis for this example, see [Designing services](https://docs.kalix.io/developing/development-process-proto.html) in the documentation.
 
-
 ## Developing
 
 This project demonstrates the use of an Event Sourced Entity.
 To understand more about these components, see [Developing services](https://docs.kalix.io/services/)
 and in particular the [Java Protobuf SDK section](https://docs.kalix.io/java-protobuf/)
-
 
 ## Building
 
@@ -21,25 +19,19 @@ generating code based on the `.proto` definitions:
 mvn compile
 ```
 
-
 ## Running Locally
 
-To run the example locally, you must run the Kalix proxy. The included `docker-compose` file contains the configuration required to run the proxy for a locally running application.
-It also contains the configuration to start a local Google Pub/Sub emulator that the Kalix proxy will connect to.
-To start the proxy, run the following command from this directory:
+When running a Kalix service locally, we need to have its companion Kalix Proxy running alongside it.
 
-
-```shell
-docker-compose up
-```
-
-To start the application locally, the `exec-maven-plugin` is used. Use the following command:
+To start your service locally, run:
 
 ```shell
-mvn compile exec:exec
+mvn kalix:runAll
 ```
 
-With both the proxy and your application running, any defined endpoints should be available at `http://localhost:9000`.
+This command will start your Kalix service and a companion Kalix Proxy as configured in [docker-compose.yml](./docker-compose.yml) file.
+
+With both the proxy and your service running, any defined endpoints should be available at `http://localhost:9000`.
 
 For example, given [`grpcurl`](https://github.com/fullstorydev/grpcurl):
 

@@ -4,7 +4,6 @@
 
 To understand the Kalix concepts that are the basis for this example, see [Designing services](https://docs.kalix.io/developing/development-process-proto.html) in the documentation.
 
-
 ## Developing
 
 This project demonstrates consumption of a Service to Service eventing publisher. It consumes events produced and published
@@ -14,11 +13,17 @@ by a separate service, implemented in the `scala-protobuf-eventsourced-customer-
 
 First start the `scala-protobuf-eventsourced-customer-registry` service and proxy. It will run with the default service and proxy ports (`8080` and `9000`).
 
-To start the application locally, use the following command:
+To start your service locally, run:
 
-```
+```shell
 sbt runAll
 ```
+
+For further details see [Running a service locally](https://docs.kalix.io/developing/running-service-locally.html) in the documentation.
+
+## Exercise the service
+
+With both the proxy and your service running, any defined endpoints should be available at `http://localhost:9000`. In addition to the defined gRPC interface, each method has a corresponding HTTP endpoint. Unless configured otherwise (see [Transcoding HTTP](https://docs.kalix.io/java-protobuf/writing-grpc-descriptors-protobuf.html#_transcoding_http)), this endpoint accepts POST requests at the path `/[package].[entity name]/[method]`.
 
 ### Create a customer
 
