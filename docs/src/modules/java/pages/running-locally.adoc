@@ -42,14 +42,42 @@ mvn kalix:run
 
 After you start the service it will accept invocations on `localhost:9000`. You can use cURL to invoke your service.
 
-In this example, we assume a customer entity exposing its current state at URL `/customer/\{customerId}` where `customerId` is its unique identifier.
+As an example, we will use the https://github.com/lightbend/kalix-jvm-sdk/tree/main/samples/java-spring-eventsourced-customer-registry[`customer-registry`] sample. 
 
 === Using cURL
+
+Create a customer:
+
+[.tabset]
+Linux or macOS::
++
+--
+[source,command line]
+----
+curl localhost:9000/customer/one/create \
+  --header "Content-Type: application/json" \
+  -XPOST \
+  --data '{"email":"test@example.com","name":"Test","address":{"street":"Test street 25","city":"Test City"}}'
+----
+--
+Windows 10+::
++
+--
+[source,command line]
+----
+curl localhost:9000/customer/one/create ^
+  --header "Content-Type: application/json" ^
+  -XPOST ^
+  --data '{"email":"test@example.com","name":"Test","address":{"street":"Test street 25","city":"Test City"}}'
+----
+--
+
+Retrieve an existing customer:
 
 --
 [source,command line]
 ----
-curl -XGET localhost:9000/customer/001
+curl -XGET localhost:9000/customer/one
 ----
 --
 
@@ -96,46 +124,76 @@ With both services configured, we can start them independently by running `mvn k
 
 From a third terminal, we can create a customer on *customer-registry* service.
 
-```shell
+[.tabset]
+Linux or macOS::
++
+--
+[source,command line]
+----
 curl localhost:9000/customer/one/create \
   --header "Content-Type: application/json" \
   -XPOST \
   --data '{"email":"test@example.com","name":"Test","address":{"street":"Test street 25","city":"Test City"}}'
-```
+----
+--
+Windows 10+::
++
+--
+[source,command line]
+----
+curl localhost:9000/customer/one/create ^
+  --header "Content-Type: application/json" ^
+  -XPOST ^
+  --data '{"email":"test@example.com","name":"Test","address":{"street":"Test street 25","city":"Test City"}}'
+----
+--
 
 While watching the logs in *customer-registry-subscriber* service, we will see it receiving the customer created event. After that we can query its View.
 
-```shell
+--
+[source,command line]
+----
 curl localhost:9001/customers/by_name/Test
-```
+----
+--
 
-== Running multiple services with Docker
+== Running other services with Docker
 
-Another alternative is to build a larger `docker-compose` file containing dependent services. 
+In the previous example, we run two services independently with `mvn kalix:runAll`. Each time, the service is started together with a Kalix Proxy running in a Docker container.
 
-In the case of *customer-registry-subscriber*, we can have a second `docker-compose` file containing a Kalix Proxy for *customer-registry-subscriber*, a Kalix Proxy for *customer-registry* and the *customer-registry* itself. 
+Another alternative is to build a larger `docker-compose` file containing dependent services. In the case of *customer-registry-subscriber*, we can have a second `docker-compose` file containing a Kalix Proxy for *customer-registry-subscriber*, a Kalix Proxy for *customer-registry* and the *customer-registry* itself. 
+
+At the root of the *customer-registry-subscriber* service, we can find an alternative `docker-compose` file called `docker-compose-integration.yml`. 
 
 [source,yml,indent=0]
 ----
 include::java:example$java-spring-eventsourced-customer-registry-subscriber/docker-compose-integration.yml[tag=customer-registry-docker]
 ----
 
-First we need to build a image for *customer-registry*. For this exercise, we don't need to publish it to a remote container registry. It suffice to build it locally. 
+But first we need to build a image for *customer-registry*. For local development, we don't need to publish it to a remote container registry. It suffice to build it locally. 
 
 We can build the image by calling the following command at the root of  *customer-registry*:
 
-```shell
+--
+[source,command line]
+----
 mvn package docker:build
-```
+----
+--
 
 Next we can run *customer-registry-subscriber* and instead pass `docker-compose-integration.yml` to it. 
 
 Run the following command at the root of *customer-registry-subscriber*:
 
-```shell
+--
+[source,command line]
+----
 mvn -Dkalix.dev-mode.docker-compose-file=docker-compose-integration.yml kalix:runAll
-```
+----
+--
 
-This time, `kalix:runAll` will start `docker-compose-integration.yml` instead. The *customer-registry* service and its companion Kalix Proxy will run alongside *customer-registry-subscriber*. 
+This time, `kalix:runAll` will start `docker-compose-integration.yml` instead. The *customer-registry* service and its companion Kalix Proxy will run alongside *customer-registry-subscriber* and its own Kalix Proxy. 
 
-Note that the configuraiton is exactly the same except that now we are running one single `kalix:runAll` command and the docker-compose file we are using contain all the dependencies required by *customer-registry-subscriber*.
+Note that the configuraiton is exactly the same except that now we are running one single `mvn kalix:runAll` command and the `docker-compose` file we are using contains all the dependencies required by *customer-registry-subscriber*.
+
+This approach can be extended to any service you might want to integrate with. It can be any other Kalix service that you plan to deploy to the same Kalix project or even external services. The only requirement is to be able to have it started in a Docker container.

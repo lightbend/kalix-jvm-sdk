@@ -1,3 +1,4 @@
+#tag::customer-registry-subscriber[]
 version: "3"
 services:
   # note the ports being different from other sample docker-compose files to allow this service to run
@@ -15,3 +16,4 @@ services:
         -Dkalix.dev-mode.service-port-mappings.customer-registry=host.docker.internal:9000
       USER_FUNCTION_HOST: ${USER_FUNCTION_HOST:-host.docker.internal}
       USER_FUNCTION_PORT: "8081"
+#end::customer-registry-subscriber[]

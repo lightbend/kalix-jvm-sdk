@@ -1,3 +1,4 @@
+#tag::customer-registry[]
 version: "3"
 services:
   kalix-proxy:
@@ -20,3 +21,4 @@ services:
     command: gcloud beta emulators pubsub start --project=test --host-port=0.0.0.0:8085
     ports:
       - 8085:8085
+#end::customer-registry[]

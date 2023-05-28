@@ -1,4 +1,4 @@
-name := "customer-registry-subscriber"
+name := "eventsourced-customer-registry-subscriber"
 
 organization := "io.kalix.samples"
 organizationHomepage := Some(url("https://kalix.io"))
@@ -8,7 +8,7 @@ scalaVersion := "2.13.10"
 
 enablePlugins(KalixPlugin, JavaAppPackaging, DockerPlugin)
 dockerBaseImage := "docker.io/library/adoptopenjdk:11-jre-hotspot"
-dockerUsername := sys.props.get("docker.username")
+dockerUsername := sys.props.get("docker.username").orElse(Some("my-docker-repo"))
 dockerRepository := sys.props.get("docker.registry")
 dockerUpdateLatest := true
 dockerBuildCommand := {

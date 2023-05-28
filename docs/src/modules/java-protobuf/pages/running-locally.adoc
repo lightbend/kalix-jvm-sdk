@@ -1,5 +1,5 @@
 = Run a service locally
-
+:page-supergroup-java-scala: Language
 include::ROOT:partial$include.adoc[]
 
 Running a service locally is helpful to test and debug. The following sections provide commands for starting and stopping a single service locally.
@@ -18,39 +18,42 @@ The samples provided with the Kalix SDKs all have `docker-compose` files preconf
 
 == Starting your service
 
-To start the proxy, run the following command from the directory with the `docker-compose.yml` file:
+To start your service locally, run the following command from the root of your project:
 
-. Start the proxy
-+
---
-[source, command line]
-----
-docker compose up
-----
---
-+
-. Start the service
-+
 [.tabset]
 Java::
 +
 --
 [source, command line]
 ----
-mvn spring-boot:run
+mvn kalix:runAll
 ----
 --
 
-Java/Protobuf::
+Scala::
 +
 --
 [source, command line]
 ----
-mvn compile exec:exec
+sbt runAll
 ----
 --
 
-Scala/Protobuf::
+This command will start your Kalix service and a Kalix Proxy using the included `docker-compose.yml` file.
+
+If you prefer, you can also start `docker-compose` directly by running `docker-compose up` in one terminal and in another terminal start your Kalix service with:
+
+[.tabset]
+Java::
++
+--
+[source, command line]
+----
+mvn kalix:run
+----
+--
+
+Scala::
 +
 --
 [source, command line]
@@ -59,67 +62,23 @@ sbt run
 ----
 --
 
-JavaScript/Protobuf::
-+
---
-[source, command line]
-----
-npm start
-----
---
-
-
-[NOTE]
-====
-By default this command will start your containers in foreground mode. This means the terminal window will show all output from all containers. To start in "detached" mode, add the `-d` or `--detach` flag to the docker compose commands.
-====
-
 == Invoking your service
 
-After you start the service it will accept invocations on `localhost:9000`. You can use cURL to invoke your service. For services developed using a protocol-first SDK, you can also use gRPCurl.
+After you start the service it will accept invocations on `localhost:9000`. You can use gRPCurl to invoke your service.
 
-=== Using cURL
+[.group-java]
+As an example, we will use the https://github.com/lightbend/kalix-jvm-sdk/tree/main/samples/java-protobuf-eventsourced-customer-registry[`customer-registry`] sample. 
 
-[.tabset]
-Linux or macOS::
-+
---
-[source,command line]
-----
-curl \
-  -XPOST \ <1>
-  -H "Content-Type: application/json" \ <2>
-  -d '{"counterId": "foo"}' \ <3>
-  localhost:9000/com.example.CounterService/GetCurrentCounter <4>
-----
---
-Windows 10+::
-+
---
-[source,command line]
-----
-curl ^
-  -XPOST ^ <1>
-  -H "Content-Type: application/json" ^ <2>
-  -d '{"counterId": "foo"}' ^ <3>
-  localhost:9000/com.example.CounterService/GetCurrentCounter <4>
-----
---
+[.group-scala]
+As an example, we will use the https://github.com/lightbend/kalix-jvm-sdk/tree/main/samples/scala-protobuf-eventsourced-customer-registry[`customer-registry`] sample. 
 
-<1> The XPOST flag indicates cURL will send a POST request
-<2> The content type for this request is set to `application/json`
-<3> The message payload in JSON format
-<4> The URL with the RPC procedure name which is deduced from the protobuf definition of the component you're calling.
-
-=== Using gRPCurl
-
-For protocol-first SDKs, inspect your services with the gRPC `list` and `describe` commands:
+You can inspect your services with the gRPC `list` and `describe` commands:
 
 [source,command line]
 ----
 grpcurl -plaintext localhost:9000 list
 
-grpcurl -plaintext localhost:9000 describe com.example.CounterService
+grpcurl -plaintext localhost:9000 describe customer.api.CustomerService
 ----
 
 [TIP]
@@ -127,7 +86,8 @@ grpcurl -plaintext localhost:9000 describe com.example.CounterService
 Be sure to use gRPCurl `1.8.7` (or above) since previous versions have been found to have some issues while describing an endpoint.
 ====
 
-Get a current value from the `CounterService`:
+Get a customer value from the `CustomerService`:
+
 [.tabset]
 Linux or macOS::
 +
@@ -135,9 +95,90 @@ Linux or macOS::
 [source,command line]
 ----
 grpcurl \
-  -d '{"counterId": "foo"}' \ <1>
-  -plaintext localhost:9000 \ <2>
-  com.example.CounterService/GetCurrentCounter <3>
+ -d '{"customer_id": "vip", "email": "vip@example.com", "name": "Very Important", "address": {"street": "Road 1", "city": "The Capital"}}' \ 
+ --plaintext -d localhost:9000 \ 
+  customer.api.CustomerService/Create
+----
+--
+
+- The message payload in JSON format with `-d`
+- The address of the proxy (using `plaintext` instead of TLS)
+- The RPC procedure name which is deduced from the protobuf definition of the component you're calling.
+
+Windows 10+::
++
+--
+[source,command line]
+----
+grpcurl ^ 
+ -d '{"customer_id": "vip", "email": "vip@example.com", "name": "Very Important", "address": {"street": "Road 1", "city": "The Capital"}}' ^ 
+ --plaintext -d localhost:9000 ^  
+  customer.api.CustomerService/Create 
+----
+--
+
+- The message payload in JSON format with `-d`
+- The address of the proxy (using `plaintext` instead of TLS)
+- The RPC procedure name which is deduced from the protobuf definition of the component you're calling.
+
+== Shut down the service
+
+Use `Ctrl+C` to shutdown the service. When stopping your service, it will also shutdown the Kalix Proxy container and any other container you have defined in `docker-compose.yml`. Unless you have chosen to start `docker-compose` manually in a separate terminal, in which case you will need to stop it manually as well. 
+
+== Running multiple services locally
+
+A typical Kalix application is composed of one or more services deployed to the same Kalix project. When deployed under the same Kalix project, two different services can make xref:call-another-service.adoc[calls to each other] or xref:service-to-service.adoc[subscribe to each other event streams] by simply using their logical names.
+
+The same can be done on your local machine by configuring the services to run on different ports and by configuring them to "_discover_" each other using some extra configurations. 
+
+In this section we will show you how to configure your local development environment to run two services and having then calling each other.
+
+[.group-java]
+For that we will use two of our existing samples: https://github.com/lightbend/kalix-jvm-sdk/tree/main/samples/java-protobuf-eventsourced-customer-registry[`customer-registry`] and https://github.com/lightbend/kalix-jvm-sdk/tree/main/samples/java-protobuf-eventsourced-customer-registry-subscriber[`customer-registry-subscriber`].
+
+[.group-scala]
+For that we will use two of our existing samples: https://github.com/lightbend/kalix-jvm-sdk/tree/main/samples/scala-protobuf-eventsourced-customer-registry[`customer-registry`] and https://github.com/lightbend/kalix-jvm-sdk/tree/main/samples/scala-protobuf-eventsourced-customer-registry-subscriber[`customer-registry-subscriber`].
+
+The *customer-registry* sample provides a service to register customers and the *customer-registry-subscriber* subscribes to an event stream produced by the *customer-registry* service and build a xref:views.adoc[View] from it.
+
+=== Customer Registry Sample
+
+The `docker-compose.yml` file from *customer-registry* is left untouched and use the usual default ports. The user function will run on port 8080 and the Kalix Proxy on port 9000.
+
+[source,yml,indent=0]
+----
+include::java-protobuf:example$java-protobuf-eventsourced-customer-registry/docker-compose.yml[tag=customer-registry]
+----
+
+=== Customer Registry Subscriber Sample
+
+On the other hand, in the *customer-registry-subscriber* we will use port 8081 and 9001 respectively to avoid port conflicts with the *customer-registry* service.
+
+Moreover, since *customer-registry-subscriber* needs to subscribe to *customer-registry* and since we will be running it on our local machine, we need to _teach_ it where to find the *customer-registry* service.
+
+This is done by passing an extra property (`kalix.dev-mode.service-port-mappings.customer-registry`) to its Kalix Proxy to let it create a mapping between the logical name *customer-registry* and the host and port where the *customer-registry* service is running.
+
+Note that you need to add service port mappings to the Kalix Proxy configuration for the service that depends on the other service. Here, *customer-registry-subscriber* depends on *customer-registry*, therefore we add the service port mapping to the Kalix Proxy associated to *customer-registry-subscriber*.
+
+[source,yml,indent=0]
+----
+include::java-protobuf:example$java-protobuf-eventsourced-customer-registry-subscriber/docker-compose.yml[tag=customer-registry-subscriber]
+----
+
+With both services configured, we can start them independently by running  [.group-java]#`mvn kalix:runAll`# [.group-scala]#`sbt runAll`# in two disinct terminals. 
+
+From a third terminal, we can create a customer on *customer-registry* service.
+
+[.tabset]
+Linux or macOS::
++
+--
+[source,command line]
+----
+grpcurl \
+ -d '{"customer_id": "vip", "email": "vip@example.com", "name": "Very Important", "address": {"street": "Road 1", "city": "The Capital"}}' \ 
+ --plaintext -d localhost:9000 \ 
+  customer.api.CustomerService/Create
 ----
 --
 Windows 10+::
@@ -145,153 +186,81 @@ Windows 10+::
 --
 [source,command line]
 ----
-grpcurl ^
-  -d '{"counterId": "foo"}' ^ <1>
-  -plaintext localhost:9000 ^ <2>
-  com.example.CounterService/GetCurrentCounter <3>
+grpcurl ^ 
+ -d '{"customer_id": "vip", "email": "vip@example.com", "name": "Very Important", "address": {"street": "Road 1", "city": "The Capital"}}' ^ 
+ --plaintext -d localhost:9000 ^  
+  customer.api.CustomerService/Create 
 ----
 --
 
-<1> The message payload in JSON format with `-d`
-<2> The address of the proxy (using `plaintext` instead of TLS)
-<3> The RPC procedure name which is deduced from the protobuf definition of the component you're calling.
+While watching the logs in *customer-registry-subscriber* service, we will see it receiving the customer created event. After that we can query its View.
 
-
-== Shut down the proxy
-
-To shut down the proxy, which removes all data kept in memory, run the command below:
-
-[source, command line]
+[source,shell]
 ----
-docker stop kalix-proxy
+grpcurl --plaintext localhost:9001 customer.view.AllCustomersView/GetCustomers
 ----
 
-To delete the proxy container, run
+== Running other services with Docker
 
-[source, command line]
+In the previous example, we run two services independently with [.group-java]#`mvn kalix:runAll`# [.group-scala]#`sbt runAll`#. Each time, the service is started together with a Kalix Proxy running in a Docker container.
+
+Another alternative is to build a larger `docker-compose` file containing dependent services. In the case of *customer-registry-subscriber*, we can have a second `docker-compose` file containing a Kalix Proxy for *customer-registry-subscriber*, a Kalix Proxy for *customer-registry* and the *customer-registry* itself. 
+
+At the root of the *customer-registry-subscriber* service, we can find an alternative `docker-compose` file called `docker-compose-integration.yml`. 
+
+[source,yml,indent=0]
 ----
-docker rm kalix-proxy
+include::java:example$java-spring-eventsourced-customer-registry-subscriber/docker-compose-integration.yml[tag=customer-registry-docker]
 ----
 
-== Running multiple services
+But first we need to build a image for *customer-registry*. For local development, we don't need to publish it to a remote container registry. It suffice to build it locally. 
 
-You can run multiple services locally at the same time. To do that:
+We can build the image by calling the following command at the root of  *customer-registry*:
 
-. Each service will need the user function to run on its own port.
-. Each service will need its own proxy container and each proxy container will need its own port.
-
-See below how to do such configuration.
-
-=== Run user function on a custom port
-
-When using the defaults, the Kalix proxy connects to the user function on 8080. However, if you're looking to have 2 services running at the same time, the second service will need to be run at a different port (e.g. 8081).
-
-Depending on the SDK you're using, you can customize that port as such:
 [.tabset]
 Java::
 +
 --
-Set system property `kalix.user-function-port` to the desired port. One way to accomplish that is to pass it in the existing `spring-boot-maven-plugin` configuration on your `pom.xml`:
-[source,xml]
+[source, command line]
 ----
-<!-- ... -->
-      <plugin>
-       <groupId>org.springframework.boot</groupId>
-       <artifactId>spring-boot-maven-plugin</artifactId>
-        <configuration>
-            <systemPropertyVariables>
-                <logging.config>src/main/resources/logback-dev-mode.xml</logging.config>
-                <kalix.user-function-interface>0.0.0.0</kalix.user-function-interface>
-                <kalix.user-function-port>8081</kalix.user-function-port> <1>
-            </systemPropertyVariables>
-          </configuration>
-      </plugin>
-<!-- ... -->
+mvn package docker:build
 ----
-<1> Setting this user function as to be run on `8081`.
 --
 
-Java/Protobuf::
+Scala::
 +
 --
-If you are using a protocol-first SDK, on your `pom.xml` you can set the property on `exec-maven-plugin` by adding it on the list of arguments for `java` executable, as above:
-
-[source,xml]
+[source, command line]
 ----
-<!-- ... -->
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>exec-maven-plugin</artifactId>
-        <version>3.0.0</version>
-        <executions>
-          <execution>
-            <goals>
-              <goal>exec</goal>
-            </goals>
-          </execution>
-        </executions>
-        <configuration>
-          <executable>java</executable>
-          <arguments>
-            <argument>-Dkalix.user-function-port=8081</argument> <1>
-            <argument>-classpath</argument>
-            <classpath/>
-            <argument>-Dlogging.config=src/main/resources/logback-dev-mode.xml</argument>
-            <argument>${mainClass}</argument>
-          </arguments>
-<!-- ... -->
+sbt docker:publishLocal
 ----
-<1> Setting this user function as to be run on `8081`.
 --
 
-Scala/Protobuf::
+Next we can run *customer-registry-subscriber* and instead pass `docker-compose-integration.yml` to it. 
+
+Run the following command at the root of *customer-registry-subscriber*:
+
+[.tabset]
+Java::
 +
 --
-[source,scala]
+[source, command line]
 ----
-run / javaOptions ++= Seq(
-  // needed for the proxy to access the user function on all platforms
-  "-Dkalix.user-function-interface=0.0.0.0",
-  "-Dkalix.user-function-port=8081", <1>
-  "-Dlogback.configurationFile=logback-dev-mode.xml"
-)
+mvn -Dkalix.dev-mode.docker-compose-file=docker-compose-integration.yml kalix:runAll
 ----
-<1> Setting this user function as to be run on `8081`.
 --
 
-
-JavaScript/Protobuf::
+Scala::
 +
 --
-[source,command line]
+[source, command line]
 ----
-export PORT=8081 <1>
-npm start
+sbt -Dkalix.dev-mode.docker-compose-file=docker-compose-integration.yml runAll
 ----
-<1> Setting this user function as to be run on `8081`.
 --
 
+This time,  [.group-java]#`mvn kalix:runAll`# [.group-scala]#`sbt runAll`# will start `docker-compose-integration.yml` instead. The *customer-registry* service and its companion Kalix Proxy will run alongside *customer-registry-subscriber* and its own Kalix Proxy. 
 
+Note that the configuraiton is exactly the same except that now we are running one single [.group-java]#`mvn kalix:runAll`# [.group-scala]#`sbt runAll`# command and the `docker-compose` file we are using contains all the dependencies required by *customer-registry-subscriber*.
 
-=== Run Kalix Proxy on a custom port
-
-To update the docker compose file to run multiple proxy instances, add the snippet below:
-
-[source, yaml]
-----
-kalix-proxy: <1>
-  image: gcr.io/kalix-public/kalix-proxy:latest
-  ports:
-    - "900x:900x" <2>
-  JAVA_TOOL_OPTIONS: >
-    -Dkalix.proxy.http-port=900x <2>
-    -Dconfig.resource=dev-mode.conf
-    -Dlogback.configurationFile=logback-dev-mode.xml
-  environment:
-    USER_FUNCTION_HOST: ${USER_FUNCTION_HOST:-host.docker.internal}
-    USER_FUNCTION_PORT: <3>
-----
-
-<1> This name has to be unique in your docker compose file (docker compose uses this name to uniquely identify the running container).
-<2> The host port ("900x") in the port mapping must be unique for each proxy instance. Note that the internal proxy port should also be changed hence the extra `-Dkalix.proxy.http-port=900x` option.
-<3> The user function port must be unique for each service you start. See previous section for how to define one.
+This approach can be extended to any service you might want to integrate with. It can be any other Kalix service that you plan to deploy to the same Kalix project or even external services. The only requirement is to be able to have it started in a Docker container.
