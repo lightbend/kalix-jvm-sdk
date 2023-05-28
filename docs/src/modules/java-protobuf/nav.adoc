@@ -19,3 +19,4 @@
 *** xref:access-control.adoc[Access Control Lists (ACLs)]
 *** xref:api.adoc[Java API docs]
 *** xref:spring-client.adoc[Implementing Spring Client]
+*** xref:running-locally.adoc[Run a service locally]

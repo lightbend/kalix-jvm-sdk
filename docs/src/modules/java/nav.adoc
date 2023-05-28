@@ -17,3 +17,4 @@
 *** xref:java:failures-and-errors.adoc[Failures and Errors]
 *** xref:java:access-control.adoc[Access Control Lists (ACLs)]
 *** xref:java:using-jwts.adoc[Using JWTs]
+*** xref:java:running-locally.adoc[Run a service locally]

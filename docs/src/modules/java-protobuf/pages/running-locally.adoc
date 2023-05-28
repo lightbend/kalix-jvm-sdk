@@ -1,0 +1,297 @@
+= Run a service locally
+
+include::ROOT:partial$include.adoc[]
+
+Running a service locally is helpful to test and debug. The following sections provide commands for starting and stopping a single service locally.
+
+== Prerequisites
+
+In order to run your service locally, you'll need to have the following prerequisites:
+
+* Docker {minimum_docker_version} or higher
+* Access to the `gcr.io/kalix-public` container registry
+
+[TIP]
+====
+The samples provided with the Kalix SDKs all have `docker-compose` files preconfigured to run your service locally. They also contain the configuration to start a local Google Pub/Sub emulator that the Kalix proxy will connect to when you make use of topic-based Eventing in your service.
+====
+
+== Starting your service
+
+To start the proxy, run the following command from the directory with the `docker-compose.yml` file:
+
+. Start the proxy
++
+--
+[source, command line]
+----
+docker compose up
+----
+--
++
+. Start the service
++
+[.tabset]
+Java::
++
+--
+[source, command line]
+----
+mvn spring-boot:run
+----
+--
+
+Java/Protobuf::
++
+--
+[source, command line]
+----
+mvn compile exec:exec
+----
+--
+
+Scala/Protobuf::
++
+--
+[source, command line]
+----
+sbt run
+----
+--
+
+JavaScript/Protobuf::
++
+--
+[source, command line]
+----
+npm start
+----
+--
+
+
+[NOTE]
+====
+By default this command will start your containers in foreground mode. This means the terminal window will show all output from all containers. To start in "detached" mode, add the `-d` or `--detach` flag to the docker compose commands.
+====
+
+== Invoking your service
+
+After you start the service it will accept invocations on `localhost:9000`. You can use cURL to invoke your service. For services developed using a protocol-first SDK, you can also use gRPCurl.
+
+=== Using cURL
+
+[.tabset]
+Linux or macOS::
++
+--
+[source,command line]
+----
+curl \
+  -XPOST \ <1>
+  -H "Content-Type: application/json" \ <2>
+  -d '{"counterId": "foo"}' \ <3>
+  localhost:9000/com.example.CounterService/GetCurrentCounter <4>
+----
+--
+Windows 10+::
++
+--
+[source,command line]
+----
+curl ^
+  -XPOST ^ <1>
+  -H "Content-Type: application/json" ^ <2>
+  -d '{"counterId": "foo"}' ^ <3>
+  localhost:9000/com.example.CounterService/GetCurrentCounter <4>
+----
+--
+
+<1> The XPOST flag indicates cURL will send a POST request
+<2> The content type for this request is set to `application/json`
+<3> The message payload in JSON format
+<4> The URL with the RPC procedure name which is deduced from the protobuf definition of the component you're calling.
+
+=== Using gRPCurl
+
+For protocol-first SDKs, inspect your services with the gRPC `list` and `describe` commands:
+
+[source,command line]
+----
+grpcurl -plaintext localhost:9000 list
+
+grpcurl -plaintext localhost:9000 describe com.example.CounterService
+----
+
+[TIP]
+====
+Be sure to use gRPCurl `1.8.7` (or above) since previous versions have been found to have some issues while describing an endpoint.
+====
+
+Get a current value from the `CounterService`:
+[.tabset]
+Linux or macOS::
++
+--
+[source,command line]
+----
+grpcurl \
+  -d '{"counterId": "foo"}' \ <1>
+  -plaintext localhost:9000 \ <2>
+  com.example.CounterService/GetCurrentCounter <3>
+----
+--
+Windows 10+::
++
+--
+[source,command line]
+----
+grpcurl ^
+  -d '{"counterId": "foo"}' ^ <1>
+  -plaintext localhost:9000 ^ <2>
+  com.example.CounterService/GetCurrentCounter <3>
+----
+--
+
+<1> The message payload in JSON format with `-d`
+<2> The address of the proxy (using `plaintext` instead of TLS)
+<3> The RPC procedure name which is deduced from the protobuf definition of the component you're calling.
+
+
+== Shut down the proxy
+
+To shut down the proxy, which removes all data kept in memory, run the command below:
+
+[source, command line]
+----
+docker stop kalix-proxy
+----
+
+To delete the proxy container, run
+
+[source, command line]
+----
+docker rm kalix-proxy
+----
+
+== Running multiple services
+
+You can run multiple services locally at the same time. To do that:
+
+. Each service will need the user function to run on its own port.
+. Each service will need its own proxy container and each proxy container will need its own port.
+
+See below how to do such configuration.
+
+=== Run user function on a custom port
+
+When using the defaults, the Kalix proxy connects to the user function on 8080. However, if you're looking to have 2 services running at the same time, the second service will need to be run at a different port (e.g. 8081).
+
+Depending on the SDK you're using, you can customize that port as such:
+[.tabset]
+Java::
++
+--
+Set system property `kalix.user-function-port` to the desired port. One way to accomplish that is to pass it in the existing `spring-boot-maven-plugin` configuration on your `pom.xml`:
+[source,xml]
+----
+<!-- ... -->
+      <plugin>
+       <groupId>org.springframework.boot</groupId>
+       <artifactId>spring-boot-maven-plugin</artifactId>
+        <configuration>
+            <systemPropertyVariables>
+                <logging.config>src/main/resources/logback-dev-mode.xml</logging.config>
+                <kalix.user-function-interface>0.0.0.0</kalix.user-function-interface>
+                <kalix.user-function-port>8081</kalix.user-function-port> <1>
+            </systemPropertyVariables>
+          </configuration>
+      </plugin>
+<!-- ... -->
+----
+<1> Setting this user function as to be run on `8081`.
+--
+
+Java/Protobuf::
++
+--
+If you are using a protocol-first SDK, on your `pom.xml` you can set the property on `exec-maven-plugin` by adding it on the list of arguments for `java` executable, as above:
+
+[source,xml]
+----
+<!-- ... -->
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+        <version>3.0.0</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>exec</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <executable>java</executable>
+          <arguments>
+            <argument>-Dkalix.user-function-port=8081</argument> <1>
+            <argument>-classpath</argument>
+            <classpath/>
+            <argument>-Dlogging.config=src/main/resources/logback-dev-mode.xml</argument>
+            <argument>${mainClass}</argument>
+          </arguments>
+<!-- ... -->
+----
+<1> Setting this user function as to be run on `8081`.
+--
+
+Scala/Protobuf::
++
+--
+[source,scala]
+----
+run / javaOptions ++= Seq(
+  // needed for the proxy to access the user function on all platforms
+  "-Dkalix.user-function-interface=0.0.0.0",
+  "-Dkalix.user-function-port=8081", <1>
+  "-Dlogback.configurationFile=logback-dev-mode.xml"
+)
+----
+<1> Setting this user function as to be run on `8081`.
+--
+
+
+JavaScript/Protobuf::
++
+--
+[source,command line]
+----
+export PORT=8081 <1>
+npm start
+----
+<1> Setting this user function as to be run on `8081`.
+--
+
+
+
+=== Run Kalix Proxy on a custom port
+
+To update the docker compose file to run multiple proxy instances, add the snippet below:
+
+[source, yaml]
+----
+kalix-proxy: <1>
+  image: gcr.io/kalix-public/kalix-proxy:latest
+  ports:
+    - "900x:900x" <2>
+  JAVA_TOOL_OPTIONS: >
+    -Dkalix.proxy.http-port=900x <2>
+    -Dconfig.resource=dev-mode.conf
+    -Dlogback.configurationFile=logback-dev-mode.xml
+  environment:
+    USER_FUNCTION_HOST: ${USER_FUNCTION_HOST:-host.docker.internal}
+    USER_FUNCTION_PORT: <3>
+----
+
+<1> This name has to be unique in your docker compose file (docker compose uses this name to uniquely identify the running container).
+<2> The host port ("900x") in the port mapping must be unique for each proxy instance. Note that the internal proxy port should also be changed hence the extra `-Dkalix.proxy.http-port=900x` option.
+<3> The user function port must be unique for each service you start. See previous section for how to define one.
