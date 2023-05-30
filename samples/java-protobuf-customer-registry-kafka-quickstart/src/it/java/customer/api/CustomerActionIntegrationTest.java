@@ -2,6 +2,7 @@ package customer.api;
 
 import com.google.protobuf.Empty;
 import customer.Main;
+import kalix.javasdk.testkit.EventingTestKit;
 import kalix.javasdk.testkit.KalixTestKit;
 import kalix.javasdk.testkit.junit.KalixTestKitResource;
 import org.junit.ClassRule;
@@ -37,24 +38,26 @@ public class CustomerActionIntegrationTest {
    */
   private final CustomerService client;
 
+  private final EventingTestKit.Topic outTopic;
+
   public CustomerActionIntegrationTest() {
     client = testKit.getGrpcClient(CustomerService.class);
+    outTopic = testKit.getTopic("customer_changes");
   }
 
   @Test
   public void createAndPublish() throws Exception {
     var id = UUID.randomUUID().toString();
-    var toCreate = customer(id, "Johanna", "foo@example.com", "Porto", "Long Road");
-    createCustomer(toCreate);
+    var customer = buildCustomer(id, "Johanna", "foo@example.com", "Porto", "Long Road");
+    createCustomer(customer);
 
-    var outTopic = testKit.getTopic("customer_changes");
     // wait for action to publish the change of state
-    var createdMsgOut = outTopic.expectMessageType(CustomerApi.Customer.class);
+    var createdMsgOut = outTopic.expectOneTyped(CustomerApi.Customer.class);
     var metadata = createdMsgOut.getMetadata();
 
     assertEquals(Optional.of("customer.api.Customer"), metadata.get("ce-type"));
     assertEquals(Optional.of("application/protobuf"), metadata.get("Content-Type"));
-    assertEquals(noAddress(toCreate), createdMsgOut.getPayload());
+    assertEquals(noAddress(customer), createdMsgOut.getPayload());
 
     //change customer name
     var completeName = "Johanna Doe";
@@ -66,13 +69,13 @@ public class CustomerActionIntegrationTest {
         .get(5, SECONDS);
 
     // wait for action to publish the change of state
-    var nameChangeMsgOut = outTopic.expectMessageType(CustomerApi.Customer.class);
+    var nameChangeMsgOut = outTopic.expectOneTyped(CustomerApi.Customer.class);
     assertEquals(completeName, nameChangeMsgOut.getPayload().getName());
 
     outTopic.expectNone(); // no more messages are sent
   }
 
-  private CustomerApi.Customer customer(String id, String name, String email, String city, String street) {
+  private CustomerApi.Customer buildCustomer(String id, String name, String email, String city, String street) {
     return CustomerApi.Customer.newBuilder()
         .setCustomerId(id)
         .setName(name)

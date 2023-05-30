@@ -51,10 +51,13 @@ import org.slf4j.LoggerFactory
 
 import java.util.concurrent.ConcurrentHashMap
 import scala.compat.java8.DurationConverters.DurationOps
+import scala.compat.java8.OptionConverters.RichOptionalGeneric
 import scala.concurrent.Await
 import scala.concurrent.Future
 import scala.concurrent.duration._
 import scala.jdk.CollectionConverters.SeqHasAsJava
+import scala.language.postfixOps
+import scala.reflect.ClassTag.Nothing
 
 object EventingTestKitImpl {
 
@@ -92,7 +95,7 @@ object EventingTestKitImpl {
 final class EventingTestServiceImpl(system: ActorSystem, val host: String, var port: Int, codec: MessageCodec)
     extends EventingTestKit {
 
-  private val log = LoggerFactory.getLogger(classOf[EventingTestKit])
+  private val log = LoggerFactory.getLogger(classOf[EventingTestServiceImpl])
   private implicit val sys = system
 
   private val eventDestinationProbe = new ConcurrentHashMap[EventDestination, TestProbe]()
@@ -127,6 +130,8 @@ final class EventingTestServiceImpl(system: ActorSystem, val host: String, var p
 
 class TopicImpl(private val probe: TestProbe, codec: MessageCodec) extends Topic {
 
+  private val log = LoggerFactory.getLogger(classOf[TopicImpl])
+
   override def expectNone(): Unit = expectNone(DefaultTimeout)
 
   override def expectNone(timeout: time.Duration): Unit = probe.expectNoMessage(timeout.toScala)
@@ -145,15 +150,13 @@ class TopicImpl(private val probe: TestProbe, codec: MessageCodec) extends Topic
     anyFromMessage(msg.getMessage)
   }
 
-  override def expectMessageType[T <: GeneratedMessageV3](clazz: Class[T]): TestKitMessage[T] =
-    expectMessageType(clazz, DefaultTimeout)
+  override def expectOneTyped[T <: GeneratedMessageV3](clazz: Class[T]): TestKitMessage[T] =
+    expectOneTyped(clazz, DefaultTimeout)
 
-  override def expectMessageType[T <: GeneratedMessageV3](
-      clazz: Class[T],
-      timeout: time.Duration): TestKitMessage[T] = {
+  override def expectOneTyped[T <: GeneratedMessageV3](clazz: Class[T], timeout: time.Duration): TestKitMessage[T] = {
     val msg = probe.expectMsgType[EmitSingleCommand]
     val metadata = new MetadataImpl(msg.getMessage.getMetadata.entries)
-    val decodedMsg = codec.decodeMessage(ScalaPbAny(metadata.get("ce-type").orElse(""), msg.getMessage.payload))
+    val decodedMsg = codec.decodeMessage(ScalaPbAny(typeUrlFor(metadata), msg.getMessage.payload))
 
     val concreteType = TestKitMessageImpl.expectType(decodedMsg, clazz)
     TestKitMessageImpl(concreteType, metadata)
@@ -161,8 +164,23 @@ class TopicImpl(private val probe: TestProbe, codec: MessageCodec) extends Topic
 
   private def anyFromMessage(m: kalix.testkit.protocol.eventing_test_backend.Message): TestKitMessage[_] = {
     val metadata = new MetadataImpl(m.metadata.getOrElse(Metadata.defaultInstance).entries)
-    val anyMsg = codec.decodeMessage(ScalaPbAny(metadata.get("ce-type").orElse(""), m.payload))
+    val anyMsg = codec.decodeMessage(ScalaPbAny(typeUrlFor(metadata), m.payload))
     TestKitMessageImpl(anyMsg, metadata).asInstanceOf[TestKitMessage[_]]
+  }
+
+  private def typeUrlFor(metadata: MetadataImpl): String = {
+    metadata
+      .get("ce-type")
+      .orElseGet { () =>
+        val contentType = metadata.get("Content-Type").asScala
+        contentType match {
+          case Some("text/plain; charset=utf-8") => "type.kalix.io/string"
+          case Some("application/octet-stream")  => "type.kalix.io/bytes"
+          case unknown =>
+            log.warn(s"Could not extract typeUrl from $unknown")
+            ""
+        }
+      }
   }
 
   override def expectN(): JList[TestKitMessage[_]] =
@@ -174,6 +192,14 @@ class TopicImpl(private val probe: TestProbe, codec: MessageCodec) extends Topic
   override def expectN(total: Int, timeout: time.Duration): JList[TestKitMessage[_]] = {
     probe
       .receiveWhile(max = timeout.toScala, messages = total) { case cmd: EmitSingleCommand =>
+        anyFromMessage(cmd.getMessage)
+      }
+      .asJava
+  }
+
+  override def clear(): JList[TestKitMessage[_]] = {
+    probe
+      .receiveWhile(idle = 1.millisecond) { case cmd: EmitSingleCommand =>
         anyFromMessage(cmd.getMessage)
       }
       .asJava

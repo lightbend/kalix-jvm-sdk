@@ -36,8 +36,8 @@ import scala.reflect.ClassTag
 trait Topic {
 
   /**
-   * Waits for predefined amount of time. If a message arrives in the meantime or has arrived before but was not
-   * consumed, the test fails.
+   * Waits for predefined amount of time (see [[kalix.javasdk.testkit.impl.TopicImpl.DefaultTimeout]]). If a message
+   * arrives in the meantime or has arrived before but was not consumed, the test fails.
    */
   def expectNone(): Unit
 
@@ -101,7 +101,7 @@ trait Topic {
    * @return
    *   a Message of type T
    */
-  def expectMessageType[T <: GeneratedMessage](implicit t: ClassTag[T]): Message[T]
+  def expectOneTyped[T <: GeneratedMessage](implicit t: ClassTag[T]): Message[T]
 
   /**
    * Waits and returns the next unread message on this topic and automatically parses and casts it to the specified
@@ -115,7 +115,7 @@ trait Topic {
    * @return
    *   a Message of type T
    */
-  def expectMessageType[T <: GeneratedMessage](timeout: FiniteDuration)(implicit t: ClassTag[T]): Message[T]
+  def expectOneTyped[T <: GeneratedMessage](timeout: FiniteDuration)(implicit t: ClassTag[T]): Message[T]
 
   /**
    * Waits for a default amount of time before returning all unread messages in the topic. If no message is received, a
@@ -149,6 +149,14 @@ trait Topic {
    *   collection of messages, each message including the deserialized payload object and metadata
    */
   def expectN(total: Int, timeout: FiniteDuration): Seq[Message[_]]
+
+  /**
+   * Clear the topic so any existing messages are not considered on subsequent expect call.
+   *
+   * @return
+   *   the list of the unread messages when the topic was cleared.
+   */
+  def clear(): Seq[Message[_]]
 }
 
 @InternalApi

@@ -24,8 +24,10 @@ import com.google.protobuf.GeneratedMessageV3;
 import kalix.javasdk.Metadata;
 import kalix.javasdk.impl.MessageCodec;
 import kalix.javasdk.testkit.impl.EventingTestKitImpl;
+import kalix.javasdk.testkit.impl.TopicImpl$;
 
 import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 
@@ -49,7 +51,7 @@ public interface EventingTestKit {
   interface Topic {
 
     /**
-     * Waits for predefined amount of time. If a message arrives in the meantime or
+     * Waits for predefined amount of time (see {@link TopicImpl$#DefaultTimeout()} for default value). If a message arrives in the meantime or
      * has arrived before but was not consumed, the test fails.
      */
     void expectNone();
@@ -80,7 +82,7 @@ public interface EventingTestKit {
     Message<ByteString> expectOneRaw(Duration timeout);
 
     /**
-     * Waits and returns the next unread message on this topic.
+     * Waits for predefined amount of time (see {@link TopicImpl$#DefaultTimeout()} for default value) and returns the next unread message on this topic.
      * Note the message might have been received before this method was called.
      * If no message is received, a timeout exception is thrown.
      *
@@ -106,7 +108,7 @@ public interface EventingTestKit {
      * @return a Message of type T
      * @param <T> a given domain type
      */
-    <T extends GeneratedMessageV3> Message<T> expectMessageType(Class<T> instance);
+    <T extends GeneratedMessageV3> Message<T> expectOneTyped(Class<T> instance);
 
     /**
      * Waits and returns the next unread message on this topic and automatically parses
@@ -117,7 +119,7 @@ public interface EventingTestKit {
      * @param timeout amount of time to wait for a message if it was not received already
      * @return message including ByteString payload and metadata
      */
-    <T extends GeneratedMessageV3> Message<T> expectMessageType(Class<T> instance, Duration timeout);
+    <T extends GeneratedMessageV3> Message<T> expectOneTyped(Class<T> instance, Duration timeout);
 
     /**
      * Waits for a default amount of time before returning all unread messages in the topic.
@@ -146,6 +148,12 @@ public interface EventingTestKit {
      */
     List<Message<?>> expectN(int total, Duration timeout);
 
+    /**
+     * Clear the topic so any existing messages are not considered on subsequent expect call.
+     *
+     * @return the list of the unread messages when the topic was cleared.
+     */
+    List<Message<?>> clear();
   }
 
   @ApiMayChange

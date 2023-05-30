@@ -26,6 +26,8 @@ class CounterServiceIntegrationSpec extends AnyWordSpec with Matchers with Befor
 
   private val client = testKit.getGrpcClient(classOf[CounterService])
 
+  private val outTopic = testKit.getTopic("counter-events")
+
   "CounterService" must {
     val counterId = "xyz"
 
@@ -54,7 +56,7 @@ class CounterServiceIntegrationSpec extends AnyWordSpec with Matchers with Befor
       counter.value shouldBe 15
 
       // verify message published to topic
-      val msg: Message[Decreased] = testKit.getTopic("counter-events").expectMessageType
+      val msg: Message[Decreased] = outTopic.expectOneTyped
       val Message(payload, md) = msg
       payload shouldBe Decreased(15)
       md.get("ce-type") should contain(classOf[Decreased].getName)

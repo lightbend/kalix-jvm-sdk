@@ -121,7 +121,8 @@ object Dependencies {
     scalaTest % Test,
     kalixTestkitProtocol % "protobuf-src",
     scalapbCompilerPlugin,
-    akkaDependency("akka-testkit"))
+    akkaDependency("akka-testkit"),
+    akkaDependency("akka-actor-testkit-typed") % Test)
 
   val springDeps = Seq(
     jacksonDataFormatProto,
