@@ -41,7 +41,7 @@ sbt runAll
 
 This command will start your Kalix service and a Kalix Proxy using the included `docker-compose.yml` file.
 
-If you prefer, you can also start `docker-compose` directly by running `docker-compose up` in one terminal and in another terminal start your Kalix service with:
+If you prefer, you can instead start `docker-compose` manually by running `docker-compose up` in one terminal and in another terminal start your Kalix service with:
 
 [.tabset]
 Java::
@@ -64,7 +64,7 @@ sbt run
 
 == Invoking your service
 
-After you start the service it will accept invocations on `localhost:9000`. You can use gRPCurl to invoke your service.
+After you start the service it will accept invocations on `localhost:9000`. You can use https://github.com/fullstorydev/grpcurl[gRPCurl] to invoke your service.
 
 [.group-java]
 As an example, we will use the https://github.com/lightbend/kalix-jvm-sdk/tree/main/samples/java-protobuf-eventsourced-customer-registry[`customer-registry`] sample. 
@@ -123,15 +123,15 @@ grpcurl ^
 
 == Shut down the service
 
-Use `Ctrl+C` to shutdown the service. When stopping your service, it will also shutdown the Kalix Proxy container and any other container you have defined in `docker-compose.yml`. Unless you have chosen to start `docker-compose` manually in a separate terminal, in which case you will need to stop it manually as well. 
+Use `Ctrl+C` to shut down the service. When stopping your service, it will also shutdown the Kalix Proxy container and any other container you have defined in `docker-compose.yml`. Unless you have chosen to start `docker-compose` manually in a separate terminal, in which case you will need to stop it manually as well. 
 
 == Running multiple services locally
 
-A typical Kalix application is composed of one or more services deployed to the same Kalix project. When deployed under the same Kalix project, two different services can make xref:call-another-service.adoc[calls to each other] or xref:service-to-service.adoc[subscribe to each other event streams] by simply using their logical names.
+A typical Kalix application is composed of one or more services deployed to the same Kalix project. When deployed under the same Kalix project, two different services can make xref:call-another-service.adoc[calls to each other] or xref:service-to-service.adoc[subscribe to each other's event streams] by simply using their logical names.
 
 The same can be done on your local machine by configuring the services to run on different ports and by configuring them to "_discover_" each other using some extra configurations. 
 
-In this section we will show you how to configure your local development environment to run two services and having then calling each other.
+In this section, we will show you how to configure your local development environment to run two services and have them call each other.
 
 [.group-java]
 For that we will use two of our existing samples: https://github.com/lightbend/kalix-jvm-sdk/tree/main/samples/java-protobuf-eventsourced-customer-registry[`customer-registry`] and https://github.com/lightbend/kalix-jvm-sdk/tree/main/samples/java-protobuf-eventsourced-customer-registry-subscriber[`customer-registry-subscriber`].
@@ -139,7 +139,7 @@ For that we will use two of our existing samples: https://github.com/lightbend/k
 [.group-scala]
 For that we will use two of our existing samples: https://github.com/lightbend/kalix-jvm-sdk/tree/main/samples/scala-protobuf-eventsourced-customer-registry[`customer-registry`] and https://github.com/lightbend/kalix-jvm-sdk/tree/main/samples/scala-protobuf-eventsourced-customer-registry-subscriber[`customer-registry-subscriber`].
 
-The *customer-registry* sample provides a service to register customers and the *customer-registry-subscriber* subscribes to an event stream produced by the *customer-registry* service and build a xref:views.adoc[View] from it.
+The *customer-registry* sample provides a service to register customers and the *customer-registry-subscriber* subscribes to an event stream produced by the *customer-registry* service, building a xref:views.adoc[View] from it.
 
 === Customer Registry Sample
 
@@ -158,14 +158,14 @@ Moreover, since *customer-registry-subscriber* needs to subscribe to *customer-r
 
 This is done by passing an extra property (`kalix.dev-mode.service-port-mappings.customer-registry`) to its Kalix Proxy to let it create a mapping between the logical name *customer-registry* and the host and port where the *customer-registry* service is running.
 
-Note that you need to add service port mappings to the Kalix Proxy configuration for the service that depends on the other service. Here, *customer-registry-subscriber* depends on *customer-registry*, therefore we add the service port mapping to the Kalix Proxy associated to *customer-registry-subscriber*.
+Note that you need to add service port mappings to the Kalix Proxy configuration for the service that depends on the other service. Here, *customer-registry-subscriber* depends on *customer-registry*, therefore we add the service port mapping to the Kalix Proxy associated with the *customer-registry-subscriber*.
 
 [source,yml,indent=0]
 ----
 include::java-protobuf:example$java-protobuf-eventsourced-customer-registry-subscriber/docker-compose.yml[tag=customer-registry-subscriber]
 ----
 
-With both services configured, we can start them independently by running  [.group-java]#`mvn kalix:runAll`# [.group-scala]#`sbt runAll`# in two disinct terminals. 
+With both services configured, we can start them independently by running  [.group-java]#`mvn kalix:runAll`# [.group-scala]#`sbt runAll`# in two separate terminals. 
 
 From a third terminal, we can create a customer on *customer-registry* service.
 
@@ -204,7 +204,7 @@ grpcurl --plaintext localhost:9001 customer.view.AllCustomersView/GetCustomers
 
 In the previous example, we run two services independently with [.group-java]#`mvn kalix:runAll`# [.group-scala]#`sbt runAll`#. Each time, the service is started together with a Kalix Proxy running in a Docker container.
 
-Another alternative is to build a larger `docker-compose` file containing dependent services. In the case of *customer-registry-subscriber*, we can have a second `docker-compose` file containing a Kalix Proxy for *customer-registry-subscriber*, a Kalix Proxy for *customer-registry* and the *customer-registry* itself. 
+An alternative is to build a larger `docker-compose` file containing dependent services. In the case of *customer-registry-subscriber*, we can have a second `docker-compose` file containing a Kalix Proxy for *customer-registry-subscriber*, a Kalix Proxy for *customer-registry* and the *customer-registry* itself. 
 
 At the root of the *customer-registry-subscriber* service, we can find an alternative `docker-compose` file called `docker-compose-integration.yml`. 
 
@@ -213,7 +213,7 @@ At the root of the *customer-registry-subscriber* service, we can find an altern
 include::java:example$java-spring-eventsourced-customer-registry-subscriber/docker-compose-integration.yml[tag=customer-registry-docker]
 ----
 
-But first we need to build a image for *customer-registry*. For local development, we don't need to publish it to a remote container registry. It suffice to build it locally. 
+But first, we need to build an image for *customer-registry*. For local development, we don't need to publish it to a remote container registry. It suffices to build it locally. 
 
 We can build the image by calling the following command at the root of  *customer-registry*:
 
@@ -261,6 +261,6 @@ sbt -Dkalix.dev-mode.docker-compose-file=docker-compose-integration.yml runAll
 
 This time,  [.group-java]#`mvn kalix:runAll`# [.group-scala]#`sbt runAll`# will start `docker-compose-integration.yml` instead. The *customer-registry* service and its companion Kalix Proxy will run alongside *customer-registry-subscriber* and its own Kalix Proxy. 
 
-Note that the configuraiton is exactly the same except that now we are running one single [.group-java]#`mvn kalix:runAll`# [.group-scala]#`sbt runAll`# command and the `docker-compose` file we are using contains all the dependencies required by *customer-registry-subscriber*.
+Note that the configuration is exactly the same except that now we are running one single [.group-java]#`mvn kalix:runAll`# [.group-scala]#`sbt runAll`# command and the `docker-compose` file we are using contains all the dependencies required by *customer-registry-subscriber*.
 
 This approach can be extended to any service you might want to integrate with. It can be any other Kalix service that you plan to deploy to the same Kalix project or even external services. The only requirement is to be able to have it started in a Docker container.
