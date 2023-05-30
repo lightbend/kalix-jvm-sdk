@@ -263,4 +263,4 @@ This time,  [.group-java]#`mvn kalix:runAll`# [.group-scala]#`sbt runAll`# will 
 
 Note that the configuration is exactly the same except that now we are running one single [.group-java]#`mvn kalix:runAll`# [.group-scala]#`sbt runAll`# command and the `docker-compose` file we are using contains all the dependencies required by *customer-registry-subscriber*.
 
-This approach can be extended to any service you might want to integrate with. It can be any other Kalix service that you plan to deploy to the same Kalix project or even external services. The only requirement is to have a Dokcer image for it.
+This approach can be extended to any service you might want to integrate with. It can be any other Kalix service that you plan to deploy to the same Kalix project or even external services. The only requirement is to have a Docker image for it.
