@@ -323,24 +323,6 @@ include::example$scala-protobuf-eventsourced-customer-registry/src/main/scala/cu
 
 The source of a View can be an eventing topic. You define it in the same way as shown in <<event-sourced-entity>> or <<value-entity>>, but leave out the `eventing.in` annotation in the Protobuf file.
 
-[.tabset]
-Java::
-+
-[source,proto,indent=0]
-.src/main/proto/customer/view/customer_view.proto
-----
-include::example$java-protobuf-eventsourced-customer-registry/src/main/proto/customer/view/customer_view.proto[tags=declarations;service-topic]
-----
-<1> This is the only difference from <<event-sourced-entity>>.
-
-Scala::
-+
-[source,proto,indent=0]
-.src/main/proto/customer/view/customer_view.proto
-----
-include::example$scala-protobuf-eventsourced-customer-registry/src/main/proto/customer/view/customer_view.proto[tags=declarations;service-topic]
-----
-<1> This is the only difference from <<event-sourced-entity>>.
 
 [#transform-results]
 == How to transform results

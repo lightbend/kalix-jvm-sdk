@@ -13,7 +13,7 @@ In order to run your service locally, you'll need to have the following prerequi
 
 [TIP]
 ====
-The samples provided with the Kalix SDKs all have `docker-compose` files preconfigured to run your service locally. They also contain the configuration to start a local Google Pub/Sub emulator that the Kalix proxy will connect to when you make use of topic-based Eventing in your service.
+The samples provided with the Kalix SDKs all have `docker-compose` files preconfigured to run your service locally.
 ====
 
 == Starting your service
