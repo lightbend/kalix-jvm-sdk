@@ -165,7 +165,7 @@ object Topic {
 }
 
 @ApiMayChange
-case class Message[P](payload: P, metadata: Metadata) {
+final case class Message[P](payload: P, metadata: Metadata) {
 
   /**
    * Expects message payload to conform to type passed in and returns the typed object if so. Otherwise, throws an
