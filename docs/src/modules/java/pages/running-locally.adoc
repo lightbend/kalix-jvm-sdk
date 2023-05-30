@@ -9,7 +9,7 @@ Running a service locally is helpful to test and debug. The following sections p
 In order to run your service locally, you'll need to have the following prerequisites:
 
 * Docker {minimum_docker_version} or higher
-* Access to the `gcr.io/kalix-public` container registry
+* Access to the `gcr.io/kalix-public` container registry. This is a public container registry that provides a Kalix Proxy container suited for local development. Make sure this registry is not blocked by your firewall.
 
 [TIP]
 ====
