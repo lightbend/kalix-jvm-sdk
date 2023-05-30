@@ -17,6 +17,7 @@
 package customer;
 
 import customer.api.CustomerEventsServiceAction;
+import customer.api.CustomerEventsToTopicServiceAction;
 import kalix.javasdk.Kalix;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,10 +37,11 @@ public final class Main {
       CustomerByCityStreamingView::new,
       // tag::register[]
       CustomerByNameView::new
-        // end::register[]
-        ,
-      CustomerEventsServiceAction::new
-        // tag::register[]
+      // end::register[]
+      ,
+      CustomerEventsServiceAction::new,
+      CustomerEventsToTopicServiceAction::new
+      // tag::register[]
     );
   }
   // end::register[]

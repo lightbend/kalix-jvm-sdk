@@ -20,7 +20,7 @@ Java::
 [source,protobuf,indent=0]
 .src/main/proto/customer/api/direct_customer_events.proto
 ----
-include::example$java-protobuf-eventsourced-customer-registry/src/main/proto/customer/api/direct_customer_events.proto[tag=publisher]
+include::example$java-protobuf-eventsourced-customer-registry/src/main/proto/customer/api/customer_events.proto[tag=publisher]
 ----
 <1> `eventing.in` identifying which event sourced entity to publish events for.
 <2> Ignore any event types not handled by a method and move on with the event stream, rather than fail which is the default.
@@ -31,9 +31,9 @@ include::example$java-protobuf-eventsourced-customer-registry/src/main/proto/cus
 Scala::
 +
 [source,protobuf,indent=0]
-.src/main/proto/customer/api/direct_customer_events.proto
+.src/main/proto/customer/api/customer_events.proto
 ----
-include::example$scala-protobuf-eventsourced-customer-registry/src/main/proto/customer/api/direct_customer_events.proto[tag=publisher]
+include::example$scala-protobuf-eventsourced-customer-registry/src/main/proto/customer/api/customer_events.proto[tag=publisher]
 ----
 <1> `eventing.in` identifying which event sourced entity to publish events for.
 <2> Ignore any event types not handled by a method and move on with the event stream, rather than fail which is the default.

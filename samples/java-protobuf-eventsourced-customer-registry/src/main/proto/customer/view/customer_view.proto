@@ -81,50 +81,6 @@ service CustomerByName {
 }
 // end::service-event-sourced[]
 
-// tag::service-topic[]
-service CustomerByNameFromTopic {
-  rpc ProcessCustomerCreated(domain.CustomerCreated) returns (api.Customer) {
-    option (kalix.method).eventing.in = {
-      topic: "customers" // <1>
-    };
-    option (kalix.method).view.update = {
-      table: "customers"
-    };
-  }
-
-  rpc ProcessCustomerNameChanged(domain.CustomerNameChanged) returns (api.Customer) {
-    option (kalix.method).eventing.in = {
-      topic: "customers"
-    };
-    option (kalix.method).view.update = {
-      table: "customers"
-    };
-  }
-
-  rpc ProcessCustomerAddressChanged(domain.CustomerAddressChanged) returns (api.Customer) {
-    option (kalix.method).eventing.in = {
-      topic: "customers"
-    };
-    option (kalix.method).view.update = {
-      table: "customers"
-    };
-  }
-
-  rpc IgnoreOtherEvents(google.protobuf.Any) returns (api.Customer) {
-    option (kalix.method).eventing.in = {
-      topic: "customers"
-      ignore: true
-     };
-  };
-
-  rpc GetCustomers(ByNameRequest) returns (stream api.Customer) {
-    option (kalix.method).view.query = {
-      query: "SELECT * FROM customers WHERE name = :customer_name"
-    };
-  }
-}
-// end::service-topic[]
-
 
 // tag::stream-updates[]
 message ByCityRequest {

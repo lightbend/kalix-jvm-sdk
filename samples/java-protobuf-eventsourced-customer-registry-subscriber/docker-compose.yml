@@ -12,6 +12,8 @@ services:
       JAVA_TOOL_OPTIONS: >
         -Dconfig.resource=dev-mode.conf
         -Dlogback.configurationFile=logback-dev-mode.xml
+        -Dkalix.proxy.eventing.support=google-pubsub-emulator
         -Dkalix.dev-mode.service-port-mappings.customer-registry=host.docker.internal:9000
       USER_FUNCTION_HOST: ${USER_FUNCTION_HOST:-host.docker.internal}
       USER_FUNCTION_PORT: "8081"
+      PUBSUB_EMULATOR_HOST: host.docker.internal

@@ -321,7 +321,34 @@ include::example$scala-protobuf-eventsourced-customer-registry/src/main/scala/cu
 [#topic-view]
 == Creating a View from a topic
 
-The source of a View can be an eventing topic. You define it in the same way as shown in <<event-sourced-entity>> or <<value-entity>>, but leave out the `eventing.in` annotation in the Protobuf file.
+The source of a View can be a broker topic.
+You define it in the same way as shown in <<event-sourced-entity>> or <<value-entity>>.
+Note that, on your producer side you must manually pass the `ce-subject` metadata, required by the View component.
+
+[.tabset]
+Java::
++
+[source,proto,indent=0]
+.src/main/java/customer/api/CustomerEventsToTopicServiceAction.java
+----
+include::example$java-protobuf-eventsourced-customer-registry/src/main/java/customer/api/CustomerEventsToTopicServiceAction.java[tags=topic-publisher]
+----
+
+<1> The `ce-subject` attribute is the entity id.
+<2> The effect replies updated metadata together with the message payload.
+
+Scala::
++
+[source,proto,indent=0]
+.src/main/scala/customer/api/CustomerEventsToTopicServiceAction.java
+----
+include::example$scala-protobuf-eventsourced-customer-registry/src/main/java/customer/api/CustomerEventsToTopicServiceAction.java[tags=topic-publisher]
+----
+
+<1> The `ce-subject` attribute is the entity id.
+<2> The effect replies updated metadata together with the message payload.
+
+The View definition must set `eventing.in` to a given topic name.
 
 [.tabset]
 Java::
@@ -329,8 +356,9 @@ Java::
 [source,proto,indent=0]
 .src/main/proto/customer/view/customer_view.proto
 ----
-include::example$java-protobuf-eventsourced-customer-registry/src/main/proto/customer/view/customer_view.proto[tags=declarations;service-topic]
+include::example$java-protobuf-eventsourced-customer-registry-subscriber/src/main/proto/customer/view/customer_view.proto[tags=view-from-topic]
 ----
+
 <1> This is the only difference from <<event-sourced-entity>>.
 
 Scala::
@@ -338,8 +366,9 @@ Scala::
 [source,proto,indent=0]
 .src/main/proto/customer/view/customer_view.proto
 ----
-include::example$scala-protobuf-eventsourced-customer-registry/src/main/proto/customer/view/customer_view.proto[tags=declarations;service-topic]
+include::example$scala-protobuf-eventsourced-customer-registry-subscriber/src/main/proto/customer/view/customer_view.proto[tags=declarations;service-topic]
 ----
+
 <1> This is the only difference from <<event-sourced-entity>>.
 
 [#transform-results]

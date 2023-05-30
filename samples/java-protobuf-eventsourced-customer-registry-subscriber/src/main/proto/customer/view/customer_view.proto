@@ -33,6 +33,11 @@ message Customer {
   google.protobuf.Timestamp created = 5;
   google.protobuf.Timestamp lastUpdate = 6;
 }
+
+message ByNameRequest {
+  string customer_name = 1;
+}
+
 // tag::view[]
 service AllCustomersView {
   option (kalix.codegen) = {
@@ -40,7 +45,7 @@ service AllCustomersView {
   };
 
   // consume events published by java-protobuf-eventsourced-customer-registry/CustomerEventsServiceAction
-  option (kalix.service).eventing.in.direct = { // <1>
+  option (kalix.service).eventing.in.direct = {// <1>
     service: "customer-registry" // <2>
     event_stream_id: "customer_events" // <3>
   };
@@ -64,3 +69,35 @@ service AllCustomersView {
   }
 }
 // end::view[]
+
+// tag::view-from-topic[]
+service CustomerByNameFromTopic {
+  option (kalix.codegen) = {
+    view: {}
+  };
+
+  rpc ProcessCustomerCreated(api.Created) returns (Customer) {
+    option (kalix.method).eventing.in = {
+      topic: "customer_events" // <1>
+    };
+    option (kalix.method).view.update = {
+      table: "customers"
+    };
+  }
+
+  rpc ProcessCustomerNameChanged(api.NameChanged) returns (Customer) {
+    option (kalix.method).eventing.in = {
+      topic: "customer_events"
+    };
+    option (kalix.method).view.update = {
+      table: "customers"
+    };
+  }
+
+  rpc GetCustomers(ByNameRequest) returns (stream Customer) {
+    option (kalix.method).view.query = {
+      query: "SELECT * FROM customers WHERE name = :customer_name"
+    };
+  }
+}
+// end::view-from-topic[]

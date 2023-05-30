@@ -2,6 +2,7 @@ package customer;
 
 import customer.action.CustomerActionImpl;
 import customer.view.AllCustomersViewImpl;
+import customer.view.CustomerByNameFromTopicView;
 import kalix.javasdk.Kalix;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,7 +23,8 @@ public final class Main {
     // `new Kalix()` instance.
     return KalixFactory.withComponents(
       AllCustomersViewImpl::new,
-      CustomerActionImpl::new);
+      CustomerActionImpl::new,
+      CustomerByNameFromTopicView::new);
   }
 
   public static void main(String[] args) throws Exception {

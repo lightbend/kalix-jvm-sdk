@@ -37,18 +37,35 @@ service CustomerEventsService {
     option (kalix.codegen) = {
         action: {}
     };
-    option (kalix.service).eventing.in = { // <1>
+    option (kalix.service).eventing.in = {// <1>
         event_sourced_entity: "customers"
         // skip/filter events that there is no transform method for (AddressChanged)
         ignore_unknown: true // <2>
     };
     option (kalix.service).eventing.out.direct.event_stream_id = "customer_events"; // <3>
     // limit access to only other services in same project
-    option (kalix.service).acl.allow = { service: "*" }; // <4>
+    option (kalix.service).acl.allow = {service: "*"}; // <4>
 
     // transform methods for turning internal event types to public API
-    rpc TransformCustomerCreated(domain.CustomerCreated) returns (Created) { } // <5>
+    rpc TransformCustomerCreated(domain.CustomerCreated) returns (Created) {} // <5>
     rpc TransformCustomerNameChanged(domain.CustomerNameChanged) returns (NameChanged) {}
-
 }
 // end::publisher[]
+
+service CustomerEventsToTopicService {
+    option (kalix.codegen) = {
+        action: {}
+    };
+    option (kalix.service).eventing.in = {
+        event_sourced_entity: "customers"
+        ignore_unknown: true
+    };
+    option (kalix.service).acl.allow = {service: "*"};
+
+    rpc TransformCustomerCreated(domain.CustomerCreated) returns (Created) {
+        option (kalix.method).eventing.out.topic = "customer_events";
+    }
+    rpc TransformCustomerNameChanged(domain.CustomerNameChanged) returns (NameChanged) {
+        option (kalix.method).eventing.out.topic = "customer_events";
+    }
+}
