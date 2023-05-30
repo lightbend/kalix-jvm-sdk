@@ -1,6 +1,7 @@
 ** xref:index.adoc[]
 *** xref:developer-tools.adoc[]
 *** xref:developing:development-process-proto.adoc[]
+*** xref:running-locally.adoc[Running a service locally]
 *** xref:quickstart-template.adoc[]
 *** xref:writing-grpc-descriptors-protobuf.adoc[]
 *** xref:value-entity.adoc[Implementing Value Entities]
@@ -19,4 +20,3 @@
 *** xref:access-control.adoc[Access Control Lists (ACLs)]
 *** xref:api.adoc[Java API docs]
 *** xref:spring-client.adoc[Implementing Spring Client]
-*** xref:running-locally.adoc[Run a service locally]
