@@ -109,7 +109,7 @@ include::java:example$java-spring-eventsourced-customer-registry/docker-compose.
 
 On the other hand, in the *customer-registry-subscriber* we will use port 8081 and 9001 respectively to avoid port conflicts with the *customer-registry* service.
 
-Moreover, since *customer-registry-subscriber* needs to subscribe to *customer-registry* and since we will be running it on our local machine, we need to _teach_ it where to find the *customer-registry* service.
+Moreover, since *customer-registry-subscriber* needs to subscribe to *customer-registry* and since we will be running it on our local machine, we need to _show_ it where to find the *customer-registry* service.
 
 This is done by passing an extra property (`kalix.dev-mode.service-port-mappings.customer-registry`) to its Kalix Proxy to let it create a mapping between the logical name *customer-registry* and the host and port where the *customer-registry* service is running.
 
@@ -196,4 +196,4 @@ This time, `kalix:runAll` will start `docker-compose-integration.yml` instead. T
 
 Note that the configuration is exactly the same except that now we are running one single `mvn kalix:runAll` command and the `docker-compose` file we are using contains all the dependencies required by *customer-registry-subscriber*.
 
-This approach can be extended to any service you might want to integrate with. It can be any other Kalix service that you plan to deploy to the same Kalix project or even external services. The only requirement is to be able to have it started in a Docker container.
+This approach can be extended to any service you might want to integrate with. It can be any other Kalix service that you plan to deploy to the same Kalix project or even external services. The only requirement is to have a Dokcer image for it.
