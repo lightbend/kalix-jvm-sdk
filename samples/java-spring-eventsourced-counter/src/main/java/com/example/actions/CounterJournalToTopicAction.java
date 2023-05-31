@@ -1,7 +1,5 @@
 package com.example.actions;
 
-
-
 import com.example.CounterEvent;
 import com.example.CounterEvent.ValueIncreased;
 import com.example.CounterEvent.ValueMultiplied;

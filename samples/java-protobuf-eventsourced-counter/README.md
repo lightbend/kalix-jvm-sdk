@@ -34,21 +34,16 @@ This command will start your Kalix service and a companion Kalix Proxy as config
 With both the proxy and your service running, any defined endpoints should be available at `http://localhost:9000`. In addition to the defined gRPC interface, each method has a corresponding HTTP endpoint. Unless configured otherwise (see [Transcoding HTTP](https://docs.kalix.io/java-protobuf/writing-grpc-descriptors-protobuf.html#_transcoding_http)), this endpoint accepts POST requests at the path `/[package].[entity name]/[method]`. For example, using `curl`.
 
 ```shell
-> curl -XPOST -H "Content-Type: application/json" localhost:9000/com.example.CounterService/GetCurrentCounter -d '{"counterId": "foo"}'        
-{"value":0}
+curl -XPOST -H "Content-Type: application/json" localhost:9000/com.example.CounterService/GetCurrentCounter -d '{"counterId": "foo"}'
 ```
 
 For example, using [`grpcurl`](https://github.com/fullstorydev/grpcurl):
 
 ```shell
-> grpcurl -plaintext -d '{"counterId": "foo"}' localhost:9000 com.example.CounterService/GetCurrentCounter
-{
-  
-}
+grpcurl -plaintext -d '{"counterId": "foo"}' localhost:9000 com.example.CounterService/GetCurrentCounter
 ```
 
-> Note: The failure is to be expected if you have not yet provided an implementation of `GetValue` in
-> your entity.
+> Note: The failure is to be expected if you have not yet provided an implementation of `GetValue` in your entity.
 
 ## Deploying
 
