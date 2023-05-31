@@ -9,14 +9,14 @@ public record TransferState(Transfer transfer, TransferStatus status) {
   }
 
   public enum TransferStatus { // <2>
-    STARTED, SUCCESSFUL_WITHDRAWAL, COMPLETED
+    STARTED, WITHDRAW_SUCCEED, COMPLETED
   }
 
   public TransferState(Transfer transfer) {
     this(transfer, STARTED);
   }
 
-  public TransferState withStatus(TransferStatus newStatus){
+  public TransferState withStatus(TransferStatus newStatus) {
     return new TransferState(transfer, newStatus);
   }
 }

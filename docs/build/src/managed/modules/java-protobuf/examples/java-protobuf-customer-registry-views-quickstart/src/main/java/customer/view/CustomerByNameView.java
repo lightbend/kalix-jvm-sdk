@@ -7,7 +7,7 @@ package customer.view;
 import kalix.javasdk.view.ViewContext;
 import customer.domain.CustomerDomain;
 
-// #tag::view[]
+// tag::view[]
 public class CustomerByNameView extends AbstractCustomerByNameView {
 
   public CustomerByNameView(ViewContext context) {
@@ -32,4 +32,4 @@ public class CustomerByNameView extends AbstractCustomerByNameView {
     return effects().updateState(newViewState); // <3>
   }
 }
-// #end::view[]
+// end::view[]

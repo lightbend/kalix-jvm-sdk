@@ -43,17 +43,15 @@ service CustomerByName {
     };
     option (kalix.method).view.update = {
       table: "customers"
-      transform_updates: true // <4>
     };
   }
 
   rpc ProcessCustomerNameChanged(domain.CustomerNameChanged) returns (api.Customer) { // <2>
     option (kalix.method).eventing.in = {
-      event_sourced_entity: "customers" // <5>
+      event_sourced_entity: "customers" // <4>
     };
     option (kalix.method).view.update = {
       table: "customers"
-      transform_updates: true // <6>
     };
   }
 
@@ -63,7 +61,6 @@ service CustomerByName {
     };
     option (kalix.method).view.update = {
       table: "customers"
-      transform_updates: true
     };
   }
 
@@ -84,54 +81,6 @@ service CustomerByName {
 }
 // end::service-event-sourced[]
 
-// tag::service-topic[]
-service CustomerByNameFromTopic {
-  rpc ProcessCustomerCreated(domain.CustomerCreated) returns (api.Customer) {
-    option (kalix.method).eventing.in = {
-      topic: "customers" // <1>
-    };
-    option (kalix.method).view.update = {
-      table: "customers"
-      transform_updates: true
-    };
-  }
-
-  rpc ProcessCustomerNameChanged(domain.CustomerNameChanged) returns (api.Customer) {
-    option (kalix.method).eventing.in = {
-      topic: "customers"
-    };
-    option (kalix.method).view.update = {
-      table: "customers"
-      transform_updates: true
-    };
-  }
-
-  rpc ProcessCustomerAddressChanged(domain.CustomerAddressChanged) returns (api.Customer) {
-    option (kalix.method).eventing.in = {
-      topic: "customers"
-    };
-    option (kalix.method).view.update = {
-      table: "customers"
-      transform_updates: true
-    };
-  }
-
-  rpc IgnoreOtherEvents(google.protobuf.Any) returns (api.Customer) {
-    option (kalix.method).eventing.in = {
-      topic: "customers"
-      ignore: true
-     };
-  };
-
-  rpc GetCustomers(ByNameRequest) returns (stream api.Customer) {
-    option (kalix.method).view.query = {
-      query: "SELECT * FROM customers WHERE name = :customer_name"
-    };
-  }
-}
-// end::service-topic[]
-
-
 // tag::stream-updates[]
 message ByCityRequest {
   string city = 1;
@@ -150,7 +99,6 @@ service CustomerByCityStreaming {
     };
     option (kalix.method).view.update = {
       table: "customers"
-      transform_updates: true
     };
   }
 
@@ -160,7 +108,6 @@ service CustomerByCityStreaming {
     };
     option (kalix.method).view.update = {
       table: "customers"
-      transform_updates: true
     };
   }
 
@@ -170,7 +117,6 @@ service CustomerByCityStreaming {
     };
     option (kalix.method).view.update = {
       table: "customers"
-      transform_updates: true
     };
   }
 

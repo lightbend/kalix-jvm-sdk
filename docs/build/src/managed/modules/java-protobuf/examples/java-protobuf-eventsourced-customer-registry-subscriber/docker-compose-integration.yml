@@ -1,0 +1,42 @@
+# this docker-compose is used by the integration tests. To run it, we must first publish
+# java-protobuf-eventsourced-customer-registry image locally. To do so, run the following command from the root of the project:
+# mvn clean install docker:build
+#tag::customer-registry-docker[]
+version: "3"
+services:
+  kalix-proxy:
+    image: gcr.io/kalix-public/kalix-proxy:1.1.12
+    depends_on:
+      - kalix-proxy-customer-registry
+    ports:
+      - "9001:9000"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    environment:
+      JAVA_TOOL_OPTIONS: >
+        -Dconfig.resource=dev-mode.conf
+        -Dlogback.configurationFile=logback-dev-mode.xml
+        -Dkalix.dev-mode.service-port-mappings.customer-registry=host.docker.internal:9000
+      USER_FUNCTION_HOST: ${USER_FUNCTION_HOST:-host.docker.internal}
+      USER_FUNCTION_PORT: "8081"
+
+  kalix-proxy-customer-registry:
+    image: gcr.io/kalix-public/kalix-proxy:1.1.12
+    ports:
+      - "9000:9000"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    environment:
+      JAVA_TOOL_OPTIONS: >
+        -Dconfig.resource=dev-mode.conf
+        -Dlogback.configurationFile=logback-dev-mode.xml
+      USER_FUNCTION_HOST: ${USER_FUNCTION_HOST:-host.docker.internal}
+      USER_FUNCTION_PORT: "8080"
+
+  customer-registry:
+    image: my-docker-repo/eventsourced-customer-registry:latest
+    ports:
+      - "8080:8080"
+    environment:
+      HOST: customer-registry
+#end::customer-registry-docker[]

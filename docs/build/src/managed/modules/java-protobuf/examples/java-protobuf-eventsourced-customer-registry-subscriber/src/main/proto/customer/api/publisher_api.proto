@@ -17,7 +17,7 @@ syntax = "proto3";
 package customer.api;
 
 // Not really our own API but the public event types
-// published by scala-protobuf-eventsourced-customer-registry/CustomerEventsServiceAction
+// published by java-protobuf-eventsourced-customer-registry/CustomerEventsServiceAction
 // tag::messages[]
 message Created {
     string customer_id = 1;

@@ -1,0 +1,93 @@
+= Serving Web Resources
+:page-supergroup-java-scala: Language
+
+This guide provides a simple example of how to serve arbitrary web resources like `.html` files.
+
+[.group-java]#To use proto files from artifacts in your schema, you need to adjust your maven build definition:#
+[.tabset]
+Java::
++
+--
+[source,pom.xml]
+----
+<includeDependenciesInDescriptorSet>true</includeDependenciesInDescriptorSet>
+----
+--
+Scala::
++
+For sbt builds, this works out-of-the-box with loading proto files from artifacts.
+
+Next, import `HttpBody` and build your Kalix service to return that:
+
+[.tabset]
+Java::
++
+[source,proto]
+----
+include::example$java-protobuf-web-resources/src/main/proto/com/example/web_resources.proto[tag=file-service-api]
+----
+<1> Use `import` to use proto files from dependencies.
+<2> Serve the `index.html` under `/`.
+<3> Choose `google.api.HttpBody` as the return type.
+<4> Enable HTTP endpoints using `google.api.http`.
+<5> Serve files in like `web/index.js` under `/site/index.js`.
+<6> Optional: serve files in directories, e.g. `web/img/favicon.png` under `/site/img/favicon.png`.
+Scala::
++
+[source,proto]
+----
+include::example$scala-protobuf-web-resources/src/main/proto/com/example/web_resources.proto[tag=file-service-api]
+----
+<1> Use `import` to use proto files from dependencies.
+<2> Serve the `index.html` under `/`.
+<3> Choose `google.api.HttpBody` as the return type.
+<4> Enable HTTP endpoints using `google.api.http`.
+<5> Serve files in like `web/index.js` under `/site/index.js`.
+<6> Optional: serve files in directories, e.g. `web/img/favicon.png` under `/site/img/favicon.png`.
+
+Use [.group-java]#`effects().reply`# [.group-scala]#`effects.reply`# to serve content (e.g. by loading a file from disk with) a `200` HTTP response:
+[.tabset]
+Java::
++
+[source,java]
+----
+include::example$java-protobuf-web-resources/src/main/java/com/example/FileServiceAction.java[tag=200-ok]
+----
+Scala::
++
+[source,scala]
+----
+include::example$scala-protobuf-web-resources/src/main/scala/com/example/FileServiceAction.scala[tag=200-ok]
+----
+The example also shows how to return additional HTTP headers.
+
+Use [.group-java]#`effects().ignore`# [.group-scala]#`effects.ignore`# to serve a `404` HTTP response:
+[.tabset]
+Java::
++
+[source,java]
+----
+include::example$java-protobuf-web-resources/src/main/java/com/example/FileServiceAction.java[tag=404-not-found]
+----
+Scala::
++
+[source,scala]
+----
+include::example$scala-protobuf-web-resources/src/main/scala/com/example/FileServiceAction.scala[tag=404-not-found]
+----
+
+Use [.group-java]#`effects().error`# [.group-scala]#`effects.error`# to serve a `500` HTTP response:
+[.tabset]
+Java::
++
+----
+include::example$java-protobuf-web-resources/src/main/java/com/example/FileServiceAction.java[tag=500-error]
+----
+Scala::
++
+[source,scala]
+----
+include::example$scala-protobuf-web-resources/src/main/scala/com/example/FileServiceAction.scala[tag=500-error]
+----
+
+

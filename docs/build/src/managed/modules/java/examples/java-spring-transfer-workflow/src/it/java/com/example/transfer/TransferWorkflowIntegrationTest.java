@@ -5,12 +5,10 @@ import com.example.transfer.TransferState.Transfer;
 import com.example.wallet.WalletEntity.Balance;
 import kalix.spring.testkit.KalixIntegrationTestKitSupport;
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.time.Duration;
@@ -22,7 +20,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 
 
-@RunWith(SpringRunner.class)
 @SpringBootTest(classes = Main.class)
 public class TransferWorkflowIntegrationTest extends KalixIntegrationTestKitSupport {
 
@@ -42,52 +39,52 @@ public class TransferWorkflowIntegrationTest extends KalixIntegrationTestKitSupp
     var transfer = new Transfer(walletId1, walletId2, 10);
 
     String response = webClient.put().uri(transferUrl)
-        .bodyValue(transfer)
-        .retrieve()
-        .bodyToMono(Message.class)
-        .map(Message::value)
-        .block(timeout);
+      .bodyValue(transfer)
+      .retrieve()
+      .bodyToMono(Message.class)
+      .map(Message::value)
+      .block(timeout);
 
     assertThat(response).isEqualTo("transfer started");
 
     await()
-        .atMost(10, TimeUnit.of(SECONDS))
-        .untilAsserted(() -> {
-          var balance1 = getWalletBalance(walletId1);
-          var balance2 = getWalletBalance(walletId2);
+      .atMost(10, TimeUnit.of(SECONDS))
+      .untilAsserted(() -> {
+        var balance1 = getWalletBalance(walletId1);
+        var balance2 = getWalletBalance(walletId2);
 
-          assertThat(balance1).isEqualTo(90);
-          assertThat(balance2).isEqualTo(110);
-        });
+        assertThat(balance1).isEqualTo(90);
+        assertThat(balance2).isEqualTo(110);
+      });
   }
 
 
-  private String randomTransferId(){
+  private String randomTransferId() {
     return UUID.randomUUID().toString().substring(0, 8);
   }
 
   private void createWallet(String walletId, int amount) {
     ResponseEntity<Void> response = webClient.post().uri("/wallet/" + walletId + "/create/" + amount)
-        .retrieve()
-        .toBodilessEntity()
-        .block(timeout);
+      .retrieve()
+      .toBodilessEntity()
+      .block(timeout);
 
     assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
   }
 
   private int getWalletBalance(String walletId) {
     Balance response = webClient.get().uri("/wallet/" + walletId)
-        .retrieve()
-        .bodyToMono(Balance.class)
-        .block(timeout);
+      .retrieve()
+      .bodyToMono(Balance.class)
+      .block(timeout);
 
     return response.value();
   }
 
   private TransferState getTransferState(String url) {
     return webClient.get().uri(url)
-        .retrieve()
-        .bodyToMono(TransferState.class)
-        .block(timeout);
+      .retrieve()
+      .bodyToMono(TransferState.class)
+      .block(timeout);
   }
 }

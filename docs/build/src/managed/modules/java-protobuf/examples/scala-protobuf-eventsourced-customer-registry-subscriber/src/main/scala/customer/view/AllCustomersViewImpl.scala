@@ -2,7 +2,6 @@ package customer.view
 
 import com.google.protobuf.timestamp.Timestamp
 import customer.api.Created
-import customer.api.Customer
 import customer.api.NameChanged
 import kalix.scalasdk.view.View.UpdateEffect
 import kalix.scalasdk.view.ViewContext

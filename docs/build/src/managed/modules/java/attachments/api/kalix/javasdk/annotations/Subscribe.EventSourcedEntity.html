@@ -74,8 +74,9 @@ loadScripts(document, 'script');</script>
 <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/annotation/Retention.html" title="class or interface in java.lang.annotation" class="external-link">@Retention</a>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/annotation/RetentionPolicy.html#RUNTIME" title="class or interface in java.lang.annotation" class="external-link">RUNTIME</a>)
 <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/annotation/Documented.html" title="class or interface in java.lang.annotation" class="external-link">@Documented</a>
 </span><span class="modifiers">public static @interface </span><span class="element-name type-name-label">Subscribe.EventSourcedEntity</span></div>
-<div class="block">Annotation for subscribing to updates from an Event-sourced Entity. It can be used only at type
- level. The underlying method must be declared to receive one or two parameters:
+<div class="block">Annotation for subscribing to updates from an Event-sourced Entity.
+
+ The underlying method must be declared to receive one or two parameters:
 
  <ul>
    <li>when one parameter is passed, the single parameter will be considered the event type such

@@ -129,7 +129,8 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>&lt;Input,<wbr>
 Output&gt;<br><a href="WorkflowEntity.StepBuilder.AsyncCallStepBuilder.html" title="class in kalix.javasdk.workflowentity">WorkflowEntity.StepBuilder.AsyncCallStepBuilder</a>&lt;Input,<wbr>Output&gt;</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#asyncCall(java.util.function.Function)" class="member-name-link">asyncCall</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/function/Function.html" title="class or interface in java.util.function" class="external-link">Function</a>&lt;Input,<wbr><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/concurrent/CompletionStage.html" title="class or interface in java.util.concurrent" class="external-link">CompletionStage</a>&lt;Output&gt;&gt;&nbsp;callFactory)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#asyncCall(java.lang.Class,java.util.function.Function)" class="member-name-link">asyncCall</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;Input&gt;&nbsp;callInputClass,
+ <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/function/Function.html" title="class or interface in java.util.function" class="external-link">Function</a>&lt;Input,<wbr><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/concurrent/CompletionStage.html" title="class or interface in java.util.concurrent" class="external-link">CompletionStage</a>&lt;Output&gt;&gt;&nbsp;callFactory)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Build a step action with an async call.</div>
 </div>
@@ -141,7 +142,8 @@ Output&gt;<br><a href="WorkflowEntity.StepBuilder.AsyncCallStepBuilder.html" tit
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>&lt;Input,<wbr>
 DefCallInput,<wbr>
 DefCallOutput&gt;<br><a href="WorkflowEntity.StepBuilder.CallStepBuilder.html" title="class in kalix.javasdk.workflowentity">WorkflowEntity.StepBuilder.CallStepBuilder</a>&lt;Input,<wbr>DefCallInput,<wbr>DefCallOutput&gt;</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#call(java.util.function.Function)" class="member-name-link">call</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/function/Function.html" title="class or interface in java.util.function" class="external-link">Function</a>&lt;Input,<wbr><a href="../DeferredCall.html" title="interface in kalix.javasdk">DeferredCall</a>&lt;DefCallInput,<wbr>DefCallOutput&gt;&gt;&nbsp;callFactory)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#call(java.lang.Class,java.util.function.Function)" class="member-name-link">call</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;Input&gt;&nbsp;callInputClass,
+ <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/function/Function.html" title="class or interface in java.util.function" class="external-link">Function</a>&lt;Input,<wbr><a href="../DeferredCall.html" title="interface in kalix.javasdk">DeferredCall</a>&lt;DefCallInput,<wbr>DefCallOutput&gt;&gt;&nbsp;callFactory)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Build a step action with a call to an existing Kalix component via <a href="../DeferredCall.html" title="interface in kalix.javasdk"><code>DeferredCall</code></a>.</div>
 </div>
@@ -183,13 +185,14 @@ DefCallOutput&gt;<br><a href="WorkflowEntity.StepBuilder.CallStepBuilder.html" t
 <h2>Method Details</h2>
 <ul class="member-list">
 <li>
-<section class="detail" id="call(java.util.function.Function)">
+<section class="detail" id="call(java.lang.Class,java.util.function.Function)">
 <h3>call</h3>
 <div class="member-signature"><span class="annotations">@ApiMayChange
 </span><span class="modifiers">public</span>&nbsp;<span class="type-parameters">&lt;Input,<wbr>
 DefCallInput,<wbr>
 DefCallOutput&gt;</span>
-<span class="return-type"><a href="WorkflowEntity.StepBuilder.CallStepBuilder.html" title="class in kalix.javasdk.workflowentity">WorkflowEntity.StepBuilder.CallStepBuilder</a>&lt;Input,<wbr>DefCallInput,<wbr>DefCallOutput&gt;</span>&nbsp;<span class="element-name">call</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/function/Function.html" title="class or interface in java.util.function" class="external-link">Function</a>&lt;Input,<wbr><a href="../DeferredCall.html" title="interface in kalix.javasdk">DeferredCall</a>&lt;DefCallInput,<wbr>DefCallOutput&gt;&gt;&nbsp;callFactory)</span></div>
+<span class="return-type"><a href="WorkflowEntity.StepBuilder.CallStepBuilder.html" title="class in kalix.javasdk.workflowentity">WorkflowEntity.StepBuilder.CallStepBuilder</a>&lt;Input,<wbr>DefCallInput,<wbr>DefCallOutput&gt;</span>&nbsp;<span class="element-name">call</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;Input&gt;&nbsp;callInputClass,
+ <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/function/Function.html" title="class or interface in java.util.function" class="external-link">Function</a>&lt;Input,<wbr><a href="../DeferredCall.html" title="interface in kalix.javasdk">DeferredCall</a>&lt;DefCallInput,<wbr>DefCallOutput&gt;&gt;&nbsp;callFactory)</span></div>
 <div class="block">Build a step action with a call to an existing Kalix component via <a href="../DeferredCall.html" title="interface in kalix.javasdk"><code>DeferredCall</code></a>.</div>
 <dl class="notes">
 <dt>Type Parameters:</dt>
@@ -197,6 +200,7 @@ DefCallOutput&gt;</span>
 <dd><code>DefCallInput</code> - Input for deferred call.</dd>
 <dd><code>DefCallOutput</code> - Output of deferred call.</dd>
 <dt>Parameters:</dt>
+<dd><code>callInputClass</code> - Input class for call factory.</dd>
 <dd><code>callFactory</code> - Factory method for creating deferred call.</dd>
 <dt>Returns:</dt>
 <dd>Step builder.</dd>
@@ -223,18 +227,20 @@ DefCallOutput&gt;</span>
 </section>
 </li>
 <li>
-<section class="detail" id="asyncCall(java.util.function.Function)">
+<section class="detail" id="asyncCall(java.lang.Class,java.util.function.Function)">
 <h3>asyncCall</h3>
 <div class="member-signature"><span class="annotations">@ApiMayChange
 </span><span class="modifiers">public</span>&nbsp;<span class="type-parameters">&lt;Input,<wbr>
 Output&gt;</span>
-<span class="return-type"><a href="WorkflowEntity.StepBuilder.AsyncCallStepBuilder.html" title="class in kalix.javasdk.workflowentity">WorkflowEntity.StepBuilder.AsyncCallStepBuilder</a>&lt;Input,<wbr>Output&gt;</span>&nbsp;<span class="element-name">asyncCall</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/function/Function.html" title="class or interface in java.util.function" class="external-link">Function</a>&lt;Input,<wbr><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/concurrent/CompletionStage.html" title="class or interface in java.util.concurrent" class="external-link">CompletionStage</a>&lt;Output&gt;&gt;&nbsp;callFactory)</span></div>
+<span class="return-type"><a href="WorkflowEntity.StepBuilder.AsyncCallStepBuilder.html" title="class in kalix.javasdk.workflowentity">WorkflowEntity.StepBuilder.AsyncCallStepBuilder</a>&lt;Input,<wbr>Output&gt;</span>&nbsp;<span class="element-name">asyncCall</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;Input&gt;&nbsp;callInputClass,
+ <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/function/Function.html" title="class or interface in java.util.function" class="external-link">Function</a>&lt;Input,<wbr><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/concurrent/CompletionStage.html" title="class or interface in java.util.concurrent" class="external-link">CompletionStage</a>&lt;Output&gt;&gt;&nbsp;callFactory)</span></div>
 <div class="block">Build a step action with an async call.</div>
 <dl class="notes">
 <dt>Type Parameters:</dt>
 <dd><code>Input</code> - Input for async call factory, provided by transition method.</dd>
 <dd><code>Output</code> - Output of async call.</dd>
 <dt>Parameters:</dt>
+<dd><code>callInputClass</code> - Input class for call factory.</dd>
 <dd><code>callFactory</code> - Factory method for creating async call.</dd>
 <dt>Returns:</dt>
 <dd>Step builder.</dd>

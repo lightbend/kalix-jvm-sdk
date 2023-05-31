@@ -18,13 +18,13 @@ public class CounterTopicSubscriptionAction extends AbstractCounterTopicSubscrip
   public CounterTopicSubscriptionAction(ActionCreationContext creationContext) {}
 
   @Override
-  public Effect<Empty> increase(CounterTopicApi.Increased increased) { //<1>
+  public Effect<Empty> onIncreased(CounterTopicApi.Increased increased) { //<1>
     logger.info("Received increase event: " + increased.toString());
     return effects().reply(Empty.getDefaultInstance());
   }
 
   @Override
-  public Effect<Empty> decrease(CounterTopicApi.Decreased decreased) {
+  public Effect<Empty> onDecreased(CounterTopicApi.Decreased decreased) {
     logger.info("Received increase event: " + decreased.toString());
     return effects().reply(Empty.getDefaultInstance());
   }

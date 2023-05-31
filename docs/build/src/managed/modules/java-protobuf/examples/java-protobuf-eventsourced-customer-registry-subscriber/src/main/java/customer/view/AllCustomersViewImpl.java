@@ -24,35 +24,36 @@ public class AllCustomersViewImpl extends AbstractAllCustomersView {
   public AllCustomersViewImpl(ViewContext context) {}
 
   @Override
-  public CustomerApi.Customer emptyState() {
-    return CustomerApi.Customer.getDefaultInstance();
+  public CustomerViewModel.Customer emptyState() {
+    return CustomerViewModel.Customer.getDefaultInstance();
+  }
+
+
+  @Override
+  public UpdateEffect<CustomerViewModel.Customer> processCustomerCreated(CustomerViewModel.Customer state, PublisherApi.Created created) {
+    log.info("Customer {} created: {}", updateContext().eventSubject(), created);
+    Timestamp now = Timestamps.fromMillis(Instant.now().toEpochMilli());
+    return effects().updateState(CustomerViewModel.Customer.newBuilder()
+      .setCustomerId(created.getCustomerId())
+      .setName(created.getCustomerName())
+      .setEmail(created.getEmail())
+      .setUpdates(1)
+      .setCreated(now)
+      .setLastUpdate(now)
+      .build());
   }
 
   @Override
-  public View.UpdateEffect<CustomerApi.Customer> processCustomerCreated(
-    CustomerApi.Customer state, PublisherApi.Created created) {
-    log.info("Customer {} created: {}", updateContext().eventSubject(), created);
-    Timestamp now = Timestamps.fromMillis(Instant.now().toEpochMilli());
-    return effects().updateState(CustomerApi.Customer.newBuilder()
-        .setCustomerId(created.getCustomerId())
-        .setName(created.getCustomerName())
-        .setEmail(created.getEmail())
-        .setUpdates(1)
-        .setCreated(now)
-        .setLastUpdate(now)
-        .build());
-  }
-  @Override
-  public View.UpdateEffect<CustomerApi.Customer> processCustomerNameChanged(
-    CustomerApi.Customer state, PublisherApi.NameChanged nameChanged) {
+  public UpdateEffect<CustomerViewModel.Customer> processCustomerNameChanged(CustomerViewModel.Customer state, PublisherApi.NameChanged nameChanged) {
+
     log.info("Customer {} name changed: {}", updateContext().eventSubject(), nameChanged);
 
     Timestamp now = Timestamps.fromMillis(Instant.now().toEpochMilli());
     return effects().updateState(state.toBuilder()
-        .setName(nameChanged.getCustomerName())
-        .setUpdates(1)
-        .setLastUpdate(now)
-        .build());
+      .setName(nameChanged.getCustomerName())
+      .setUpdates(1)
+      .setLastUpdate(now)
+      .build());
   }
 }
 

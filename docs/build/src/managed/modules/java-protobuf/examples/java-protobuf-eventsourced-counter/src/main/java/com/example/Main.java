@@ -5,6 +5,7 @@
 
 package com.example;
 
+import com.example.actions.CounterJournalToTopicWithMetaAction;
 import kalix.javasdk.Kalix;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,6 +25,7 @@ public final class Main {
     return KalixFactory.withComponents(
       Counter::new,
       CounterJournalToTopicAction::new,
+      CounterJournalToTopicWithMetaAction::new,
       CounterTopicSubscriptionAction::new);
   }
 

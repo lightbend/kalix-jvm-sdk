@@ -40,7 +40,7 @@ include::example$java-spring-eventsourced-shopping-cart/src/main/java/com/exampl
 <1> The 3 types of event all derive from the same type `ShoppingCartEvent`.
 <2> Includes the logical type name using `@TypeName` annotation.
 
-IMPORTANT: The use of logical names for subtypes is essential for maintainability purposes. Since that information is persisted, failing to do so might lead to the use of a FQCN preventing the application from correctly deserialize the events in case of a package change.
+IMPORTANT: The use of logical names for subtypes is essential for maintainability purposes. Since that information is persisted, failing to do so might lead to the use of a FQCN preventing the application from correctly deserialize the events in case of a package change. Our recommendation is to use logical names (i.e. `@TypeName`) that are unique per Kalix service.
 
 include::partial$entity-keys.adoc[]
 

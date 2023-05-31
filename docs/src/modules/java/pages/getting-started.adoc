@@ -105,23 +105,23 @@ TIP: For more details see xref:java:development-process.adoc#_package_service[De
 
 == Run locally
 
-You can run your service locally for manual testing via HTTP requests. To run your application locally, you need to initiate the Kalix proxy. The included `docker-compose` file contains the configuration required to run the proxy for a locally running application.
-
-To start the proxy, run the following command from the project directory:
+To start your service locally, run:
 
 [source,bash]
 ----
-docker compose up
+mvn kalix:runAll
 ----
 
-Start the application locally with the following command:
+This command will start your Kalix service and a companion Kalix Proxy as configured in `docker-compose.yml` file.
+
+If you prefer, you can also start docker-compose directly by running `docker-compose up` in one terminal and in another terminal start your Kalix service with:
 
 [source,bash]
 ----
-mvn compile spring-boot:run
+mvn kalix:run
 ----
 
-With both the proxy and your application running, any defined endpoints should be available at `localhost:9000`,
+With both the proxy and your service running, any defined endpoints should be available at `localhost:9000`,
 the proxy local address.
 
 [source, command window]

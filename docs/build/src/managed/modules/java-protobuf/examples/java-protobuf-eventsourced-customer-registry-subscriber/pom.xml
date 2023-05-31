@@ -19,7 +19,7 @@
     <jdk.target>11</jdk.target>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-    <kalix-sdk.version>1.1.7</kalix-sdk.version>
+    <kalix-sdk.version>1.2.0</kalix-sdk.version>
     <akka-grpc.version>2.1.4</akka-grpc.version>
   </properties>
 
@@ -164,35 +164,7 @@
           </execution>
         </executions>
       </plugin>
-
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>exec-maven-plugin</artifactId>
-        <version>3.0.0</version>
-        <executions>
-          <execution>
-            <goals>
-              <goal>exec</goal>
-            </goals>
-          </execution>
-        </executions>
-        <configuration>
-          <executable>java</executable>
-          <arguments>
-            <!--  the shopping cart service is running at 8080, this service at 8081 -->
-            <argument>-Dkalix.user-function-port=8081</argument>
-            <argument>-classpath</argument>
-            <classpath/>
-            <argument>-Dlogback.configurationFile=logback-dev-mode.xml</argument>
-            <argument>${mainClass}</argument>
-          </arguments>
-          <environmentVariables>
-            <!-- needed for the proxy to access the user function on all platforms -->
-            <HOST>0.0.0.0</HOST>
-          </environmentVariables>
-        </configuration>
-      </plugin>
-
+      
       <plugin>
         <!-- configure src/it/java and src/it/resources -->
         <groupId>org.codehaus.mojo</groupId>
@@ -314,10 +286,22 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>4.13.2</version>
-      <scope>test</scope>
-    </dependency>
+       <groupId>io.kalix</groupId>
+       <artifactId>kalix-devtools_2.13</artifactId>
+       <version>${kalix-sdk.version}</version>
+       <scope>test</scope>
+     </dependency>
+     <dependency>
+       <groupId>org.junit.jupiter</groupId>
+       <artifactId>junit-jupiter-api</artifactId>
+       <version>5.9.2</version>
+       <scope>test</scope>
+     </dependency>
+     <dependency>
+       <groupId>org.junit.jupiter</groupId>
+       <artifactId>junit-jupiter</artifactId>
+       <version>5.9.2</version>
+       <scope>test</scope>
+     </dependency>
   </dependencies>
 </project>

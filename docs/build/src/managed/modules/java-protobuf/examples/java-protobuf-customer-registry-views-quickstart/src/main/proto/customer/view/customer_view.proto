@@ -68,11 +68,10 @@ service CustomerByName {
     };
     option (kalix.method).view.update = {
       table: "customers_by_name"
-      transform_updates: true // <2>
     };
   }
 
-  rpc GetCustomers(ByNameRequest) returns (stream CustomerViewState) { // <3>
+  rpc GetCustomers(ByNameRequest) returns (stream CustomerViewState) { // <2>
     option (kalix.method).view.query = {
       query: "SELECT * FROM customers_by_name WHERE name = :customer_name"
     };

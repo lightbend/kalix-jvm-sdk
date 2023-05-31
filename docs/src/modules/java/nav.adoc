@@ -1,9 +1,11 @@
 ** xref:java:index.adoc[]
 *** xref:java:getting-started.adoc[Getting Started]
-*** xref:java:spring-boot-integration.adoc[Spring Boot Integration]
 *** xref:java:development-process.adoc[Development Process]
+*** xref:java:running-locally.adoc[Running a service locally]
+*** xref:java:spring-boot-integration.adoc[Spring Boot Integration]
 *** xref:java:value-entity.adoc[Implementing Value Entities]
 *** xref:java:event-sourced-entities.adoc[Implementing Event Sourced Entities]
+*** xref:java:workflow-entities.adoc[Implementing Workflow Entities]
 // *** xref:java:replicated-entity.adoc[Implementing Replicated Entities] to be implemented
 *** xref:java:views.adoc[Implementing Views]
 *** xref:java:actions.adoc[Implementing Actions]

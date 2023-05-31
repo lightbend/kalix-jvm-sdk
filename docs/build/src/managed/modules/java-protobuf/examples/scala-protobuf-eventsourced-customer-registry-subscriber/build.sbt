@@ -1,4 +1,4 @@
-name := "customer-registry-subscriber"
+name := "eventsourced-customer-registry-subscriber"
 
 organization := "io.kalix.samples"
 organizationHomepage := Some(url("https://kalix.io"))
@@ -8,7 +8,7 @@ scalaVersion := "2.13.10"
 
 enablePlugins(KalixPlugin, JavaAppPackaging, DockerPlugin)
 dockerBaseImage := "docker.io/library/adoptopenjdk:11-jre-hotspot"
-dockerUsername := sys.props.get("docker.username")
+dockerUsername := sys.props.get("docker.username").orElse(Some("my-docker-repo"))
 dockerRepository := sys.props.get("docker.registry")
 dockerUpdateLatest := true
 dockerBuildCommand := {
@@ -38,11 +38,13 @@ Test / logBuffered := false
 run / javaOptions ++= Seq(
   // needed for the proxy to access the user function on all platforms
   "-Dkalix.user-function-interface=0.0.0.0",
-  // the shopping cart service is running at 8080, this service at 8081
+  // the customer registry service is running at 8080, this service at 8081
   "-Dkalix.user-function-port=8081",
   "-Dlogback.configurationFile=logback-dev-mode.xml"
 )
 run / fork := true
 Global / cancelable := false // ctrl-c
 
-libraryDependencies ++= Seq("org.scalatest" %% "scalatest" % "3.2.12" % Test)
+libraryDependencies ++= Seq(
+  "io.kalix" %% "kalix-devtools" % KalixPlugin.KalixSdkVersion % Test,
+  "org.scalatest" %% "scalatest" % "3.2.12" % Test)
