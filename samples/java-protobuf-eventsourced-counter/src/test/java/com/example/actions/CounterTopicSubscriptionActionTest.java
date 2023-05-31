@@ -1,0 +1,46 @@
+package com.example.actions;
+
+import akka.stream.javadsl.Source;
+import com.example.actions.CounterTopicApi;
+import com.example.actions.CounterTopicSubscriptionAction;
+import com.example.actions.CounterTopicSubscriptionActionTestKit;
+import com.google.protobuf.Empty;
+import kalix.javasdk.testkit.ActionResult;
+import org.junit.Ignore;
+import org.junit.Test;
+import static org.junit.Assert.*;
+
+// This class was initially generated based on the .proto definition by Kalix tooling.
+//
+// As long as this file exists it will not be overwritten: you can maintain it yourself,
+// or delete it so it is regenerated as needed.
+
+public class CounterTopicSubscriptionActionTest {
+
+  @Test
+  @Ignore("to be implemented")
+  public void exampleTest() {
+    CounterTopicSubscriptionActionTestKit service = CounterTopicSubscriptionActionTestKit.of(CounterTopicSubscriptionAction::new);
+    // // use the testkit to execute a command
+    // SomeCommand command = SomeCommand.newBuilder()...build();
+    // ActionResult<SomeResponse> result = service.someOperation(command);
+    // // verify the reply
+    // SomeReply reply = result.getReply();
+    // assertEquals(expectedReply, reply);
+  }
+
+  @Test
+  @Ignore("to be implemented")
+  public void onIncreasedTest() {
+    CounterTopicSubscriptionActionTestKit testKit = CounterTopicSubscriptionActionTestKit.of(CounterTopicSubscriptionAction::new);
+    // ActionResult<Empty> result = testKit.onIncreased(CounterTopicApi.Increased.newBuilder()...build());
+  }
+
+  @Test
+  @Ignore("to be implemented")
+  public void onDecreasedTest() {
+    CounterTopicSubscriptionActionTestKit testKit = CounterTopicSubscriptionActionTestKit.of(CounterTopicSubscriptionAction::new);
+    // ActionResult<Empty> result = testKit.onDecreased(CounterTopicApi.Decreased.newBuilder()...build());
+  }
+
+}
