@@ -1,7 +1,7 @@
 # this docker-compose is used by the integration tests. To run it, we must first publish
 # java-spring-eventsourced-customer-registry image locally. To do so, run the following command from the root of the project:
 # mvn clean install docker:build
-
+#tag::customer-registry-docker[]
 version: "3"
 services:
   kalix-proxy:
@@ -34,9 +34,9 @@ services:
       USER_FUNCTION_PORT: "8080"
 
   customer-registry:
-    image: my-docker-repo/java-spring-eventsourced-customer-registry:latest
+    image: my-docker-repo/eventsourced-customer-registry:latest
     ports:
       - "8080:8080"
     environment:
       HOST: customer-registry
-
+#end::customer-registry-docker[]
