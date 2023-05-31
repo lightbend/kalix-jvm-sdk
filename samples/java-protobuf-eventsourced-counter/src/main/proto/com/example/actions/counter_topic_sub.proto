@@ -29,13 +29,13 @@ service CounterTopicSubscription {
 
   rpc OnIncreased (com.example.actions.Increased) returns (google.protobuf.Empty) {
     option (kalix.method).eventing.in = { // <3>
-      topic:  "counter-events-with-meta"
+      topic:  "counter-events"
     };
   }
 
   rpc OnDecreased (com.example.actions.Decreased) returns (google.protobuf.Empty) {
     option (kalix.method).eventing.in = {
-      topic:  "counter-events-with-meta"
+      topic:  "counter-events"
     };
   }
 }
