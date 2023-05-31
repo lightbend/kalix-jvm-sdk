@@ -79,7 +79,7 @@ service CounterJournalToTopicWithMeta {
       event_sourced_entity: "counter"
     };
     option (kalix.method).eventing.out = { // <5>
-      topic:  "counter-events"
+      topic:  "counter-events-with-meta"
     };
   }
 
@@ -88,7 +88,7 @@ service CounterJournalToTopicWithMeta {
       event_sourced_entity: "counter"
     };
     option (kalix.method).eventing.out = {
-      topic:  "counter-events"
+      topic:  "counter-events-with-meta"
     };
   }
 
