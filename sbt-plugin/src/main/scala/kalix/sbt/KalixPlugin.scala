@@ -46,8 +46,6 @@ object KalixPlugin extends AutoPlugin {
     val rootPackage = settingKey[Option[String]](
       "A root scala package to use for generated common classes such as Main, by default auto detected from protobuf files")
 
-    val dockerComposeFile = settingKey[String]("Path to docker compose file. Default to docker-compose.yml")
-
     val logConfig = settingKey[String]("The log config to use. Default to logback-dev-mode.xml")
     lazy val runDockerCompose = taskKey[Unit]("Run docker compose")
 
@@ -62,11 +60,18 @@ object KalixPlugin extends AutoPlugin {
   val KalixSdkVersion = BuildInfo.version
   val KalixProtocolVersion = BuildInfo.protocolVersion
 
+  private def additionalJvmArgs: Seq[String] = {
+    sys.props.collect { case (key, value) if key.startsWith("kalix") => s"-D$key=$value" }.toSeq
+  }
+
   override def projectSettings = {
     addCommandAlias("runAll", "runDockerCompose;run") ++
     Seq(
-      dockerComposeFile := "docker-compose.yml",
-      dockerComposeUtils := DockerComposeUtils(dockerComposeFile.value, sys.env),
+      dockerComposeUtils := {
+        val dockerComposeFile =
+          sys.props.get("kalix.dev-mode.docker-compose-file").getOrElse("docker-compose.yml")
+        DockerComposeUtils(dockerComposeFile, sys.env)
+      },
       runDockerCompose := dockerComposeUtils.value.start(),
       libraryDependencies ++= Seq(
         "io.kalix" % "kalix-sdk-protocol" % KalixProtocolVersion % "protobuf-src",
@@ -78,7 +83,7 @@ object KalixPlugin extends AutoPlugin {
         Seq(
           "-Dkalix.user-function-interface=0.0.0.0",
           s"-Dlogback.configurationFile=${logConfig.value}",
-          s"-Dkalix.user-function-port=${dockerComposeUtils.value.userFunctionPort}"),
+          s"-Dkalix.user-function-port=${dockerComposeUtils.value.userFunctionPort}") ++ additionalJvmArgs,
       Compile / PB.targets +=
         gen(
           (akkaGrpcCodeGeneratorSettings.value :+ KalixGenerator.enableDebug)
