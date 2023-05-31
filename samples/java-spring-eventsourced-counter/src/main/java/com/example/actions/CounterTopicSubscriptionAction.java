@@ -2,10 +2,12 @@ package com.example.actions;
 
 import com.example.CounterEvent.ValueIncreased;
 import com.example.CounterEvent.ValueMultiplied;
-import kalix.javasdk.action.Action;
-import kalix.javasdk.annotations.Subscribe;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+// tag::class[]
+import kalix.javasdk.action.Action;
+import kalix.javasdk.annotations.Subscribe;
 
 public class CounterTopicSubscriptionAction extends Action {
 
