@@ -1,14 +1,11 @@
 package com.example.actions;
 
-import com.example.CounterEvent;
-import com.example.CounterEvent.ValueIncreased;
-import com.example.CounterEvent.ValueMultiplied;
 import com.example.Counter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-// tag::class[]
+import com.example.CounterEvent.ValueIncreased;
 import kalix.javasdk.action.Action;
 import kalix.javasdk.annotations.Subscribe;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Subscribe.EventSourcedEntity(value = Counter.class, ignoreUnknown = true) // <1>
 public class SubscribeTypeLevelAction extends Action {

@@ -36,22 +36,16 @@ service CounterJournalToTopic {
     action: {}  // <2>
   };
 
-  rpc Increase (com.example.domain.ValueIncreased) returns (Increased) { // <3>
+  rpc OnIncreased (com.example.domain.ValueIncreased) returns (Increased) { // <3>
     option (kalix.method).eventing.in = { // <4>
       event_sourced_entity: "counter"
     };
     option (kalix.method).eventing.out = { // <5>
       topic:  "counter-events"
     };
-  } 
-
-  rpc IncreaseConditional (com.example.domain.ValueIncreased) returns (Increased) { 
-    option (kalix.method).eventing.out = {
-      topic:  "counter-events"
-    };
-  } 
+  }
   
-  rpc Decrease (com.example.domain.ValueDecreased) returns (Decreased) {
+  rpc OnDecreased (com.example.domain.ValueDecreased) returns (Decreased) {
     option (kalix.method).eventing.in = {
       event_sourced_entity: "counter"
     };
@@ -72,3 +66,34 @@ service CounterJournalToTopic {
   // tag::counter-topic[]
 }
 // end::counter-topic[]
+
+service CounterJournalToTopicWithMeta {
+  option (kalix.codegen) = {
+    action: {}
+  };
+
+  rpc OnIncreased (com.example.domain.ValueIncreased) returns (Increased) {
+    option (kalix.method).eventing.in = {
+      event_sourced_entity: "counter"
+    };
+    option (kalix.method).eventing.out = {
+      topic:  "counter-events"
+    };
+  }
+
+  rpc OnDecreased (com.example.domain.ValueDecreased) returns (Decreased) {
+    option (kalix.method).eventing.in = {
+      event_sourced_entity: "counter"
+    };
+    option (kalix.method).eventing.out = {
+      topic:  "counter-events"
+    };
+  }
+
+  rpc Ignore(google.protobuf.Any) returns (google.protobuf.Empty) {
+    option (kalix.method).eventing.in = {
+      event_sourced_entity: "counter"
+      ignore: true
+    };
+  }
+}

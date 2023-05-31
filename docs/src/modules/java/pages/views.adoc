@@ -159,7 +159,15 @@ To delete from the View you can use the `deleteState()` effect from an event tra
 [#topic-view]
 == Creating a View from a topic
 
-The source of a View can be a topic. It works the same way as shown in <<event-sourced-entity>> or <<value-entity>>, but you define it with `@Subscribe.Topic` instead.
+The source of a View can be a topic. It works the same way as shown in <<event-sourced-entity>> or <<value-entity>>, but you define it with `@Subscribe.Topic` instead. Note that, on your producer side you must manually pass the `ce-subject` metadata, required by the View component.
+
+[source,java]
+.com/example/actions/CounterJournalToTopicWithMetaAction.java
+----
+include::example$java-spring-eventsourced-counter/src/main/java/com/example/actions/CounterJournalToTopicWithMetaAction.java[tag=class]
+----
+<1> The `ce-subject` attribute is the entity id.
+<2> The effect replies updated metadata together with the message payload.
 
 [#relational-projection]
 == How to transform results
