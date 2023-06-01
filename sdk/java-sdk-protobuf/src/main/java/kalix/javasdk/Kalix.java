@@ -636,12 +636,14 @@ public final class Kalix {
   }
 
   private AnySupport newAnySupport(Descriptors.FileDescriptor[] descriptors) {
+    // we are interested in accumulating all descriptors from all registered components for later use in eventing testkit
     allDescriptors.addAll(Arrays.asList(descriptors));
     return new AnySupport(descriptors, classLoader, typeUrlPrefix, prefer);
   }
 
   /**
    * INTERNAL API
+   * The returned codec includes all registered descriptors and is meant to be used internally for eventing testkit.
    */
   @InternalApi
   public MessageCodec getMessageCodec() {
