@@ -20,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testcontainers.Testcontainers;
 import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.containers.output.Slf4jLogConsumer;
 import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.utility.DockerImageName;
 
@@ -91,8 +92,10 @@ public class KalixProxyContainer extends GenericContainer<KalixProxyContainer> {
     Testcontainers.exposeHostPorts(eventingPort);
     super.start();
     // Debug tooling: pass the Proxy logs into the client SLF4J
-    // Slf4jLogConsumer logConsumer = new Slf4jLogConsumer(LoggerFactory.getLogger("proxy-logs"));
-    // followOutput(logConsumer);
+    if ("true".equals(System.getenv("KALIX_TESTKIT_DEBUG"))) {
+      Slf4jLogConsumer logConsumer = new Slf4jLogConsumer(LoggerFactory.getLogger("proxy-logs"));
+      followOutput(logConsumer);
+    }
   }
 
   /**
