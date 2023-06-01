@@ -45,6 +45,8 @@ import kalix.javasdk.testkit.impl.TopicImpl.DefaultTimeout
 import kalix.javasdk.{ Metadata => SdkMetadata }
 import kalix.protocol.component.Metadata
 import kalix.protocol.component.MetadataEntry
+import com.google.protobuf.ByteString
+import kalix.javasdk.JsonSupport
 import kalix.testkit.protocol.eventing_test_backend.EmitSingleCommand
 import kalix.testkit.protocol.eventing_test_backend.EmitSingleResult
 import kalix.testkit.protocol.eventing_test_backend.EventStreamOutCommand
@@ -261,13 +263,20 @@ private[testkit] class TopicImpl(
     anyFromMessage(msg.getMessage)
   }
 
-  override def expectOneTyped[T <: GeneratedMessageV3](clazz: Class[T]): TestKitMessage[T] =
+  override def expectOneTyped[T](clazz: Class[T]): TestKitMessage[T] =
     expectOneTyped(clazz, DefaultTimeout)
 
-  override def expectOneTyped[T <: GeneratedMessageV3](clazz: Class[T], timeout: time.Duration): TestKitMessage[T] = {
+  override def expectOneTyped[T](clazz: Class[T], timeout: time.Duration): TestKitMessage[T] = {
     val msg = destinationProbe.expectMsgType[EmitSingleCommand]
     val metadata = new MetadataImpl(msg.getMessage.getMetadata.entries)
-    val decodedMsg = codec.decodeMessage(ScalaPbAny(typeUrlFor(metadata), msg.getMessage.payload))
+    val scalaPb = ScalaPbAny(typeUrlFor(metadata), msg.getMessage.payload)
+
+    val decodedMsg = if (typeUrlFor(metadata).startsWith(JsonSupport.KALIX_JSON)) {
+      val objectMapper = JsonSupport.getObjectMapper
+      objectMapper.readerFor(clazz).readValue(msg.getMessage.payload.toByteArray)
+    } else {
+      codec.decodeMessage(scalaPb)
+    }
 
     val concreteType = TestKitMessageImpl.expectType(decodedMsg, clazz)
     TestKitMessageImpl(concreteType, metadata)
@@ -275,23 +284,27 @@ private[testkit] class TopicImpl(
 
   private def anyFromMessage(m: kalix.testkit.protocol.eventing_test_backend.Message): TestKitMessage[_] = {
     val metadata = new MetadataImpl(m.metadata.getOrElse(Metadata.defaultInstance).entries)
-    val anyMsg = codec.decodeMessage(ScalaPbAny(typeUrlFor(metadata), m.payload))
-    TestKitMessageImpl(anyMsg, metadata).asInstanceOf[TestKitMessage[_]]
+    val anyMsg = if (typeUrlFor(metadata).startsWith(JsonSupport.KALIX_JSON)) {
+      m.payload.toStringUtf8
+    } else {
+      codec.decodeMessage(ScalaPbAny(typeUrlFor(metadata), m.payload))
+    }
+    TestKitMessageImpl(anyMsg, metadata)
   }
 
   private def typeUrlFor(metadata: MetadataImpl): String = {
-    metadata
-      .get("ce-type")
-      .orElseGet { () =>
-        val contentType = metadata.get("Content-Type").asScala
-        contentType match {
-          case Some("text/plain; charset=utf-8") => "type.kalix.io/string"
-          case Some("application/octet-stream")  => "type.kalix.io/bytes"
-          case unknown =>
-            log.warn(s"Could not extract typeUrl from $unknown")
-            ""
-        }
-      }
+    val ceType = metadata.get("ce-type").asScala
+    val contentType = metadata.get("Content-Type").asScala
+
+    (ceType, contentType) match {
+      case (_, Some("text/plain; charset=utf-8")) => "type.kalix.io/string"
+      case (_, Some("application/octet-stream"))  => "type.kalix.io/bytes"
+      case (Some(t), Some("application/json"))    => s"json.kalix.io/$t"
+      case (Some(t), _)                           => s"type.googleapis.com/$t"
+      case (t, ct) =>
+        log.warn(s"Could not extract typeUrl from ce-type=$t content-type=$ct")
+        ""
+    }
   }
 
   override def expectN(): JList[TestKitMessage[_]] =
@@ -302,7 +315,8 @@ private[testkit] class TopicImpl(
 
   override def expectN(total: Int, timeout: time.Duration): JList[TestKitMessage[_]] = {
     destinationProbe
-      .receiveWhile(max = timeout.toScala, messages = total) { case cmd: EmitSingleCommand =>
+      .receiveN(total, timeout.toScala)
+      .map { case cmd: EmitSingleCommand =>
         anyFromMessage(cmd.getMessage)
       }
       .asJava
@@ -342,8 +356,7 @@ private[testkit] object TopicImpl {
 private[testkit] case class TestKitMessageImpl[P](payload: P, metadata: SdkMetadata) extends TestKitMessage[P] {
   override def getPayload: P = payload
   override def getMetadata: SdkMetadata = metadata
-
-  override def expectType[T <: GeneratedMessageV3](clazz: Class[T]): T = TestKitMessageImpl.expectType(payload, clazz)
+  override def expectType[T](clazz: Class[T]): T = TestKitMessageImpl.expectType(payload, clazz)
 }
 
 private[testkit] object TestKitMessageImpl {
@@ -352,7 +365,7 @@ private[testkit] object TestKitMessageImpl {
     TestKitMessageImpl[ByteString](m.payload, metadata).asInstanceOf[TestKitMessage[ByteString]]
   }
 
-  def of[T <: GeneratedMessageV3](payload: T): TestKitMessage[T] =
+  def of[T](payload: T): TestKitMessage[T] =
     TestKitMessageImpl(payload, defaultMetadata(payload, ""))
 
   def defaultMetadata(message: GeneratedMessageV3, subject: String): SdkMetadata =

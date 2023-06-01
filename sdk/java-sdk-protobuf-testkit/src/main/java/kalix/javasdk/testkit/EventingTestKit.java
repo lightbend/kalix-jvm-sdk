@@ -114,7 +114,7 @@ public interface EventingTestKit {
      * @return a Message of type T
      * @param <T> a given domain type
      */
-    <T extends GeneratedMessageV3> Message<T> expectOneTyped(Class<T> instance);
+    <T> Message<T> expectOneTyped(Class<T> instance);
 
     /**
      * Waits and returns the next unread message on this topic and automatically parses
@@ -125,7 +125,7 @@ public interface EventingTestKit {
      * @param timeout amount of time to wait for a message if it was not received already
      * @return message including ByteString payload and metadata
      */
-    <T extends GeneratedMessageV3> Message<T> expectOneTyped(Class<T> instance, Duration timeout);
+    <T> Message<T> expectOneTyped(Class<T> instance, Duration timeout);
 
     /**
      * Waits for a default amount of time before returning all unread messages in the topic.
