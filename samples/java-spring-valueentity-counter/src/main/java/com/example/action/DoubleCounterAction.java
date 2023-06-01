@@ -18,10 +18,10 @@ public class DoubleCounterAction extends Action {
     }
 
    // tag::controller-side-effect[]
-    public Action.Effect<Confirmed> increaseWithSideEffect(Number increase){
+    public Action.Effect<Confirmed> increaseWithSideEffect(Integer increase){
         var counterId = actionContext().eventSubject().get(); // <1>
-        var doubleIncrease = increase.value() * 2; // <2>
-        var deferredCall = kalixClient.post("/counter/" + counterId + "/increase/" + doubleIncrease, Number.class);
+        var doubleIncrease = increase * 2; // <2>
+        var deferredCall = kalixClient.post("/counter/" + counterId + "/increase", new Number(doubleIncrease), Number.class);
         return effects().reply(Confirmed.instance).addSideEffect(SideEffect.of(deferredCall));  // <3>
     }
     // end::controller-side-effect[]
