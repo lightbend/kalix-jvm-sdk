@@ -93,7 +93,7 @@ public class KalixTestKit {
      */
     @Deprecated
     public Settings(final Duration stopTimeout) {
-      this(stopTimeout, "self", false, false, Optional.empty(), Collections.emptyMap(), EventingSupport.GRPC_BACKEND);
+      this(stopTimeout, "self", false, false, Optional.empty(), Collections.emptyMap(), EventingSupport.TEST_BROKER);
     }
 
     public enum EventingSupport {
@@ -101,7 +101,7 @@ public class KalixTestKit {
        * This is the default type used and allows the testing eventing integrations without an external broker dependency
        * running.
        */
-      GRPC_BACKEND,
+      TEST_BROKER,
 
       /**
        * Used if you want to use an external Google PubSub Emulator on your tests.
@@ -315,7 +315,7 @@ public class KalixTestKit {
       List<String> javaOptions = new ArrayList<>();
       javaOptions.add("-Dlogback.configurationFile=logback-dev-mode.xml");
 
-      if (settings.eventingSupport.equals(Settings.EventingSupport.GRPC_BACKEND)) {
+      if (settings.eventingSupport.equals(Settings.EventingSupport.TEST_BROKER)) {
         javaOptions.add("-Dkalix.proxy.eventing.support=grpc-backend");
         javaOptions.add("-Dkalix.proxy.eventing.grpc-backend.host=host.testcontainers.internal");
         javaOptions.add("-Dkalix.proxy.eventing.grpc-backend.port=" + eventingBackendPort);
@@ -474,9 +474,9 @@ public class KalixTestKit {
    * @return mocked topic to read/publish messages from/to
    */
   public EventingTestKit.Topic getTopic(String topic) {
-    if (!settings.eventingSupport.equals(Settings.EventingSupport.GRPC_BACKEND)) {
+    if (!settings.eventingSupport.equals(Settings.EventingSupport.TEST_BROKER)) {
       throw new IllegalStateException("Currently configured eventing support is (" + settings.eventingSupport +
-          "). To use this API, configure it to be (" + Settings.EventingSupport.GRPC_BACKEND + ")");
+          "). To use this API, configure it to be (" + Settings.EventingSupport.TEST_BROKER + ")");
     }
 
     return eventingTestKit.getTopic(topic);

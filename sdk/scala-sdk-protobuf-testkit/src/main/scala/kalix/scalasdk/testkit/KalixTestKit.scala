@@ -25,7 +25,7 @@ import kalix.javasdk.testkit.{ KalixTestKit => JTestKit }
 import kalix.javasdk.testkit.KalixTestKit.Settings.{ EventingSupport => JEventingSupport }
 import kalix.scalasdk.testkit.KalixTestKit.Settings.EventingSupport
 import kalix.scalasdk.testkit.KalixTestKit.Settings.GooglePubSubEmulator
-import kalix.scalasdk.testkit.KalixTestKit.Settings.GrpcBackend
+import kalix.scalasdk.testkit.KalixTestKit.Settings.TestBroker
 
 import scala.concurrent.duration.FiniteDuration
 import scala.jdk.DurationConverters._
@@ -58,7 +58,7 @@ object KalixTestKit {
       new Settings(jSettings.withServicePortMapping(serviceName, host, port))
     def withEventingSupport(eventingSupport: EventingSupport): Settings = {
       val jEventingSupport = eventingSupport match {
-        case GrpcBackend          => JEventingSupport.GRPC_BACKEND
+        case TestBroker           => JEventingSupport.TEST_BROKER
         case GooglePubSubEmulator => JEventingSupport.GOOGLE_PUBSUB_EMULATOR
       }
       new Settings(jSettings.withEventingSupport(jEventingSupport))
@@ -76,7 +76,7 @@ object KalixTestKit {
      * This is the default type used and allows the testing eventing integrations without an external broker dependency
      * running.
      */
-    object GrpcBackend extends EventingSupport
+    object TestBroker extends EventingSupport
 
     /**
      * Used if you want to use an external Google PubSub Emulator on your tests.
