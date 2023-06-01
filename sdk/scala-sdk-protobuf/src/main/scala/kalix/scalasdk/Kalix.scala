@@ -33,7 +33,6 @@ import kalix.scalasdk.replicatedentity.ReplicatedEntity
 import kalix.scalasdk.replicatedentity.ReplicatedEntityProvider
 import kalix.scalasdk.valueentity.ValueEntity
 import kalix.scalasdk.valueentity.ValueEntityProvider
-import kalix.scalasdk.view.View
 import kalix.scalasdk.view.ViewProvider
 import com.typesafe.config.Config
 
