@@ -4,7 +4,7 @@
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>3.0.4</version>
+    <version>3.1.0</version>
     <relativePath/> 
   </parent>
   <groupId>${groupId}</groupId>
@@ -135,32 +135,6 @@
       </plugin>
 
       <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>exec-maven-plugin</artifactId>
-        <version>3.0.0</version>
-        <executions>
-          <execution>
-            <goals>
-              <goal>exec</goal>
-            </goals>
-          </execution>
-        </executions>
-        <configuration>
-          <executable>java</executable>
-          <arguments>
-            <argument>-classpath</argument>
-            <classpath/>
-            <argument>-Dlogging.config=src/main/resources/logback-dev-mode.xml</argument>
-            <argument>${mainClass}</argument>
-          </arguments>
-          <environmentVariables>
-            <!-- needed for the proxy to access the user function on all platforms -->
-            <HOST>0.0.0.0</HOST>
-          </environmentVariables>
-        </configuration>
-      </plugin>
-
-      <plugin>
         <!-- configure src/it/java and src/it/resources -->
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>build-helper-maven-plugin</artifactId>
@@ -206,6 +180,11 @@
       </plugin>
 
       <plugin>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-maven-plugin</artifactId>
+      </plugin>
+
+      <plugin>
         <groupId>io.kalix</groupId>
         <artifactId>kalix-maven-plugin</artifactId>
         <version>${kalix-sdk.version}</version>
@@ -219,18 +198,7 @@
         <configuration>
           <dockerImage>${dockerImage}:${dockerTag}</dockerImage>
           <mainClass>${mainClass}</mainClass>
-          <integrationTestSourceDirectory>src/it/java</integrationTestSourceDirectory>
         </configuration>
-      </plugin>
-      <plugin>
-       <groupId>org.springframework.boot</groupId>
-       <artifactId>spring-boot-maven-plugin</artifactId>
-        <configuration>
-            <systemPropertyVariables>
-                <logging.config>src/main/resources/logback-dev-mode.xml</logging.config>
-                <kalix.user-function-interface>0.0.0.0</kalix.user-function-interface>
-            </systemPropertyVariables>
-          </configuration>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>

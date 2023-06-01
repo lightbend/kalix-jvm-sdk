@@ -71,4 +71,9 @@ public class FailingCounterEntity extends EventSourcedEntity<Counter, CounterEve
   public Counter handleMultiply(CounterEvent.ValueMultiplied multiplied) {
     return currentState().onValueMultiplied(multiplied);
   }
+
+  @EventHandler
+  public Counter handleSet(CounterEvent.ValueSet valueSet) {
+    return currentState().onValueSet(valueSet);
+  }
 }

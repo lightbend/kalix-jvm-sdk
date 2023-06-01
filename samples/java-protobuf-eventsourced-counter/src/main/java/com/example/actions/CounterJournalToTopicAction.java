@@ -18,7 +18,7 @@ public class CounterJournalToTopicAction extends AbstractCounterJournalToTopicAc
 
   // tag::counter-topic-event-subject[]
   @Override
-  public Effect<CounterTopicApi.Increased> increase(CounterDomain.ValueIncreased valueIncreased) {
+  public Effect<CounterTopicApi.Increased> onIncreased(CounterDomain.ValueIncreased valueIncreased) {
     // end::counter-topic[]
     Optional<String> counterId = actionContext().eventSubject(); //<1>
     // end::counter-topic-event-subject[]
@@ -40,31 +40,11 @@ public class CounterJournalToTopicAction extends AbstractCounterJournalToTopicAc
   // end::counter-topic[]
 
   @Override
-  public Effect<CounterTopicApi.Increased> increaseConditional(CounterDomain.ValueIncreased valueIncreased) {
-    Optional<String> counterId = actionContext().eventSubject();
-
-    CounterTopicApi.Increased increased;
-    if(actionContext().metadata().get("myKey").equals(Optional.of("myValue")) 
-      && actionContext().eventSubject().equals(Optional.of("mySubject"))){
-      increased = 
-      CounterTopicApi.Increased.newBuilder() 
-        .setValue(valueIncreased.getValue() * 2)
-        .build();
-    } else {
-      increased = 
-      CounterTopicApi.Increased.newBuilder() 
-        .setValue(valueIncreased.getValue())
-        .build();
-    }
-    return effects().reply(increased); 
-  } 
-
-  @Override
-  public Effect<CounterTopicApi.Decreased> decrease(CounterDomain.ValueDecreased valueDecreased) {
+  public Effect<CounterTopicApi.Decreased> onDecreased(CounterDomain.ValueDecreased valueDecreased) {
     CounterTopicApi.Decreased decreased =
-        CounterTopicApi.Decreased.newBuilder()
-            .setValue(valueDecreased.getValue())
-            .build();
+      CounterTopicApi.Decreased.newBuilder()
+        .setValue(valueDecreased.getValue())
+        .build();
 
     return effects().reply(decreased);
   }

@@ -1,10 +1,12 @@
 package com.example.actions;
 
-import kalix.javasdk.testkit.ActionResult;
+import akka.stream.javadsl.Source;
 import com.example.actions.CounterTopicApi;
 import com.example.actions.CounterTopicSubscriptionAction;
 import com.example.actions.CounterTopicSubscriptionActionTestKit;
 import com.google.protobuf.Empty;
+import kalix.javasdk.testkit.ActionResult;
+import org.junit.Ignore;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -16,25 +18,29 @@ import static org.junit.Assert.*;
 public class CounterTopicSubscriptionActionTest {
 
   @Test
+  @Ignore("to be implemented")
   public void exampleTest() {
-    CounterTopicSubscriptionActionTestKit testKit = CounterTopicSubscriptionActionTestKit.of(CounterTopicSubscriptionAction::new);
-    // use the testkit to execute a command
-    // ActionResult<SomeResponse> result = testKit.someOperation(SomeRequest);
-    // verify the response
-    // SomeResponse actualResponse = result.getReply();
-    // assertEquals(expectedResponse, actualResponse);
+    CounterTopicSubscriptionActionTestKit service = CounterTopicSubscriptionActionTestKit.of(CounterTopicSubscriptionAction::new);
+    // // use the testkit to execute a command
+    // SomeCommand command = SomeCommand.newBuilder()...build();
+    // ActionResult<SomeResponse> result = service.someOperation(command);
+    // // verify the reply
+    // SomeReply reply = result.getReply();
+    // assertEquals(expectedReply, reply);
   }
 
   @Test
-  public void increaseTest() {
+  @Ignore("to be implemented")
+  public void onIncreasedTest() {
     CounterTopicSubscriptionActionTestKit testKit = CounterTopicSubscriptionActionTestKit.of(CounterTopicSubscriptionAction::new);
-    // ActionResult<Empty> result = testKit.increase(CounterTopicApi.Increased.newBuilder()...build());
+    // ActionResult<Empty> result = testKit.onIncreased(CounterTopicApi.Increased.newBuilder()...build());
   }
 
   @Test
-  public void decreaseTest() {
+  @Ignore("to be implemented")
+  public void onDecreasedTest() {
     CounterTopicSubscriptionActionTestKit testKit = CounterTopicSubscriptionActionTestKit.of(CounterTopicSubscriptionAction::new);
-    // ActionResult<Empty> result = testKit.decrease(CounterTopicApi.Decreased.newBuilder()...build());
+    // ActionResult<Empty> result = testKit.onDecreased(CounterTopicApi.Decreased.newBuilder()...build());
   }
 
 }

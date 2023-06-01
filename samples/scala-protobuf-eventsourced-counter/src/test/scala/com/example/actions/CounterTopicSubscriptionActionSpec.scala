@@ -27,16 +27,16 @@ class CounterTopicSubscriptionActionSpec
       // result.reply shouldBe expectedReply
     }
 
-    "handle command Increase" in {
+    "handle command OnIncreased" in {
       val service = CounterTopicSubscriptionActionTestKit(new CounterTopicSubscriptionAction(_))
           pending
-      // val result = service.increase(Increased(...))
+      // val result = service.onIncreased(Increased(...))
     }
 
-    "handle command Decrease" in {
+    "handle command OnDecreased" in {
       val service = CounterTopicSubscriptionActionTestKit(new CounterTopicSubscriptionAction(_))
           pending
-      // val result = service.decrease(Decreased(...))
+      // val result = service.onDecreased(Decreased(...))
     }
 
   }

@@ -321,26 +321,28 @@ include::example$scala-protobuf-eventsourced-customer-registry/src/main/scala/cu
 [#topic-view]
 == Creating a View from a topic
 
-The source of a View can be an eventing topic. You define it in the same way as shown in <<event-sourced-entity>> or <<value-entity>>, but leave out the `eventing.in` annotation in the Protobuf file.
+The source of a View can be an eventing topic. You define it in the same way as shown in <<event-sourced-entity>> or <<value-entity>> but the View definition must set `eventing.in.topic` to a given topic name. Note that, on your producer side you must manually pass the `ce-subject` metadata, required by the View component. See the example below for how to pass such metadata.
 
 [.tabset]
 Java::
 +
 [source,proto,indent=0]
-.src/main/proto/customer/view/customer_view.proto
+.com/example/actions/CounterJournalToTopicWithMetaAction.java
 ----
-include::example$java-protobuf-eventsourced-customer-registry/src/main/proto/customer/view/customer_view.proto[tags=declarations;service-topic]
+include::example$java-protobuf-eventsourced-counter/src/main/java/com/example/actions/CounterJournalToTopicWithMetaAction.java[tags=class]
 ----
-<1> This is the only difference from <<event-sourced-entity>>.
+<1> The `ce-subject` attribute is the entity id.
+<2> The effect replies updated metadata together with the message payload.
 
 Scala::
 +
 [source,proto,indent=0]
-.src/main/proto/customer/view/customer_view.proto
+.com/example/actions/CounterJournalToTopicWithMetaAction.scala
 ----
-include::example$scala-protobuf-eventsourced-customer-registry/src/main/proto/customer/view/customer_view.proto[tags=declarations;service-topic]
+include::example$scala-protobuf-eventsourced-counter/src/main/scala/com/example/actions/CounterJournalToTopicWithMetaAction.scala[tags=class]
 ----
-<1> This is the only difference from <<event-sourced-entity>>.
+<1> The `ce-subject` attribute is the entity id.
+<2> The effect replies updated metadata together with the message payload.
 
 [#transform-results]
 == How to transform results

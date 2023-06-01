@@ -5,7 +5,7 @@
 version: "3"
 services:
   kalix-proxy:
-    image: gcr.io/kalix-public/kalix-proxy:1.1.9-M2
+    image: gcr.io/kalix-public/kalix-proxy:1.1.12
     depends_on:
       - kalix-proxy-customer-registry
     ports:
@@ -21,7 +21,7 @@ services:
       USER_FUNCTION_PORT: "8081"
 
   kalix-proxy-customer-registry:
-    image: gcr.io/kalix-public/kalix-proxy:1.1.9-M2
+    image: gcr.io/kalix-public/kalix-proxy:1.1.12
     ports:
       - "9000:9000"
     extra_hosts:
@@ -34,7 +34,7 @@ services:
       USER_FUNCTION_PORT: "8080"
 
   customer-registry:
-    image: customer-registry:latest
+    image: my-docker-repo/eventsourced-customer-registry:latest
     ports:
       - "8080:8080"
     environment:

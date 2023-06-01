@@ -1,9 +1,10 @@
 # note the ports being different from other sample docker-compose files to allow this service to run
 # on the same local machine as the java-spring-eventsourced-customer-registry
+#tag::customer-registry-subscriber[]
 version: "3"
 services:
   kalix-proxy:
-    image: gcr.io/kalix-public/kalix-proxy:1.1.11
+    image: gcr.io/kalix-public/kalix-proxy:1.1.12
     ports:
       - "9001:9000"
     extra_hosts:
@@ -15,3 +16,4 @@ services:
         -Dkalix.dev-mode.service-port-mappings.customer-registry=host.docker.internal:9000
       USER_FUNCTION_HOST: ${USER_FUNCTION_HOST:-host.docker.internal}
       USER_FUNCTION_PORT: "8081"
+#end::customer-registry-subscriber[]

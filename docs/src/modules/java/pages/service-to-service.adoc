@@ -46,7 +46,7 @@ include::example$java-spring-eventsourced-customer-registry-subscriber/src/main/
 <3> The public identifier of the specific stream from the publisher.
 <4> One update method per message type that the stream may contain.
 
-TIP: If you're looking to test this locally, you will likely need to run the 2 services in different ports. For more details, consult https://docs.kalix.io/developing-services/running-locally.html#_running_multiple_services[Running multiple services].
+TIP: If you're looking to test this locally, you will likely need to run the 2 services in different ports. For more details, consult xref:running-locally.adoc#_running_multiple_services_locally[Running multiple services].
 
 === Deployment dependent source of events
 

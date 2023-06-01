@@ -23,6 +23,7 @@ import kalix.javasdk.impl
 import kalix.javasdk.impl.ComponentDescriptorFactory.buildEventingOutOptions
 import kalix.javasdk.impl.ComponentDescriptorFactory.combineBy
 import kalix.javasdk.impl.ComponentDescriptorFactory.combineByES
+import kalix.javasdk.impl.ComponentDescriptorFactory.combineByTopic
 import kalix.javasdk.impl.ComponentDescriptorFactory.eventSourceEntityEventSource
 import kalix.javasdk.impl.ComponentDescriptorFactory.eventingInForEventSourcedEntityServiceLevel
 import kalix.javasdk.impl.ComponentDescriptorFactory.eventingInForValueEntityServiceLevel
@@ -223,20 +224,5 @@ private[impl] object ActionDescriptorFactory extends ComponentDescriptorFactory 
       ++ combineBy("ES", subscriptionEventSourcedEntityClass, messageCodec, component)
       ++ combineBy("Stream", subscriptionStreamClass, messageCodec, component)
       ++ combineBy("Topic", subscriptionTopicClass, messageCodec, component))
-  }
-
-  def combineByTopic(
-      kalixMethods: Seq[KalixMethod],
-      messageCodec: JsonMessageCodec,
-      component: Class[_]): Seq[KalixMethod] = {
-    def groupByTopic(methods: Seq[KalixMethod]): Map[String, Seq[KalixMethod]] = {
-      val withTopicIn = methods.filter(kalixMethod =>
-        kalixMethod.methodOptions.exists(option =>
-          option.hasEventing && option.getEventing.hasIn && option.getEventing.getIn.hasTopic))
-      //Assuming there is only one topic annotation per method, therefore head is as good as any other
-      withTopicIn.groupBy(m => m.methodOptions.head.getEventing.getIn.getTopic)
-    }
-
-    combineBy("Topic", groupByTopic(kalixMethods), messageCodec, component)
   }
 }

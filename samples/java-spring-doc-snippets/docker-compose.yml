@@ -2,7 +2,7 @@
 version: "3"
 services:
   kalix-proxy:
-    image: gcr.io/kalix-public/kalix-proxy:1.1.11
+    image: gcr.io/kalix-public/kalix-proxy:1.1.12
     ports:
       - "9000:9000"
     extra_hosts:
@@ -22,7 +22,7 @@ services:
       # Uncomment to set the JWT dev secret issuer
       # JWT_DEV_SECRET_ISSUER: "my-issuer"
   gcloud-pubsub-emulator:
-    image: gcr.io/google.com/cloudsdktool/cloud-sdk:341.0.0
+    image: gcr.io/google.com/cloudsdktool/cloud-sdk:432.0.0-emulators
     command: gcloud beta emulators pubsub start --project=test --host-port=0.0.0.0:8085
     ports:
       - 8085:8085

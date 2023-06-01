@@ -6,7 +6,7 @@ object Dependencies {
   object Kalix {
     val ProtocolVersionMajor = 1
     val ProtocolVersionMinor = 1
-    val ProxyVersion = System.getProperty("kalix-proxy.version", "1.1.11")
+    val ProxyVersion = System.getProperty("kalix-proxy.version", "1.1.12")
   }
 
   // changing the Scala version of the Java SDK affects end users
@@ -19,8 +19,8 @@ object Dependencies {
   val AkkaVersion = "2.6.20"
   val AkkaHttpVersion = "10.2.10" // Note: should at least the Akka HTTP version required by Akka gRPC
   val ScalaTestVersion = "3.2.14"
-  val JacksonVersion = "2.14.1"
-  val JacksonDatabindVersion = "2.14.1"
+  val JacksonVersion = "2.14.3"
+  val JacksonDatabindVersion = "2.14.3"
   val DockerBaseImageVersion = "adoptopenjdk/openjdk11:debianslim-jre"
   val LogbackVersion = "1.4.5"
   val LogbackContribVersion = "0.1.5"
@@ -28,9 +28,9 @@ object Dependencies {
   val JUnitVersion = "4.13.2"
   val JUnitInterfaceVersion = "0.11"
   val JUnitJupiterVersion = "5.7.1"
-  val SpringFrameworkVersion = "6.0.4"
+  val SpringFrameworkVersion = "6.0.9"
   // make sure to sync spring-boot-starter-parent version in samples and archetype to this version
-  val SpringBootVersion = "3.0.4"
+  val SpringBootVersion = "3.1.0"
 
   val CommonsIoVersion = "2.11.0"
   val MunitVersion = "0.7.29"

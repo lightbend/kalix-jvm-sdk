@@ -61,6 +61,7 @@ import kalix.spring.testmodels.subscriptions.PubSubTestModels.DifferentTopicForV
 import kalix.spring.testmodels.subscriptions.PubSubTestModels.ESWithPublishToTopicAction
 import kalix.spring.testmodels.subscriptions.PubSubTestModels.EventStreamPublishingAction
 import kalix.spring.testmodels.subscriptions.PubSubTestModels.EventStreamSubscriptionAction
+import kalix.spring.testmodels.subscriptions.PubSubTestModels.InvalidConsumerGroupsWhenSubscribingToTopicAction
 import kalix.spring.testmodels.subscriptions.PubSubTestModels.InvalidSubscribeToEventSourcedEntityAction
 import kalix.spring.testmodels.subscriptions.PubSubTestModels.InvalidSubscribeToTopicAction
 import kalix.spring.testmodels.subscriptions.PubSubTestModels.MissingHandlersWhenSubscribeToEventSourcedEntityAction
@@ -81,6 +82,7 @@ import kalix.spring.testmodels.subscriptions.PubSubTestModels.StreamSubscription
 import kalix.spring.testmodels.subscriptions.PubSubTestModels.SubscribeOnlyOneToEventSourcedEntityActionTypeLevel
 import kalix.spring.testmodels.subscriptions.PubSubTestModels.SubscribeToEventSourcedEntityAction
 import kalix.spring.testmodels.subscriptions.PubSubTestModels.SubscribeToTopicAction
+import kalix.spring.testmodels.subscriptions.PubSubTestModels.SubscribeToTopicCombinedAction
 import kalix.spring.testmodels.subscriptions.PubSubTestModels.SubscribeToTopicTypeLevelAction
 import kalix.spring.testmodels.subscriptions.PubSubTestModels.SubscribeToTopicTypeLevelCombinedAction
 import kalix.spring.testmodels.subscriptions.PubSubTestModels.SubscribeToTwoTopicsAction
@@ -464,6 +466,24 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
         val methodOne = desc.commandHandlers("KalixSyntheticMethodOnTopicTopicXYZ")
         methodOne.requestMessageDescriptor.getFullName shouldBe JavaPbAny.getDescriptor.getFullName
 
+        val topicSource = findKalixMethodOptions(desc, "KalixSyntheticMethodOnTopicTopicXYZ").getEventing.getIn
+        topicSource.getTopic shouldBe "topicXYZ"
+        topicSource.getConsumerGroup shouldBe "cg"
+        // we don't set the property so the proxy won't ignore. Ignore is only internal to the SDK
+        topicSource.getIgnore shouldBe false
+        topicSource.getIgnoreUnknown shouldBe false
+
+        // should have a default extractor for any payload
+        val javaMethod = methodOne.methodInvokers.values.head
+        javaMethod.parameterExtractors.length shouldBe 1
+      }
+    }
+
+    "generate mapping for an Action with a subscription to a topic with combined handler" in {
+      assertDescriptor[SubscribeToTopicCombinedAction] { desc =>
+        val methodOne = desc.commandHandlers("KalixSyntheticMethodOnTopicTopicXYZ")
+        methodOne.requestMessageDescriptor.getFullName shouldBe JavaPbAny.getDescriptor.getFullName
+
         val eventSourceOne = findKalixMethodOptions(desc, "KalixSyntheticMethodOnTopicTopicXYZ").getEventing.getIn
         eventSourceOne.getTopic shouldBe "topicXYZ"
         eventSourceOne.getConsumerGroup shouldBe "cg"
@@ -692,6 +712,13 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
       intercept[InvalidComponentException] {
         Validations.validate(classOf[InvalidSubscribeToTopicAction]).failIfInvalid
       }.getMessage should include("You cannot use @Subscribe.Topic annotation in both methods and class.")
+    }
+
+    "validates consumer group must be the same per topic" in {
+      intercept[InvalidComponentException] {
+        Validations.validate(classOf[InvalidConsumerGroupsWhenSubscribingToTopicAction]).failIfInvalid
+      }.getMessage should include(
+        "All subscription methods to topic [topicXYZ] must have the same consumer group, but found different consumer groups [cg, cg2].")
     }
 
     "generate mapping for an Action with a Rest endpoint and publication to a topic" in {
