@@ -52,17 +52,14 @@ public class CounterIntegrationTest {
     return stage.toCompletableFuture().get(5, SECONDS);
   }
 
-  /*@Test
+  @Test
   public void increaseOnNonExistingEntity() throws Exception {
     String counterId = "test-1";
     awaitResult(client.increase(newIncreaseMessage(counterId, 1)));
     assertEquals(1, getCounterValue(counterId));
+  }
 
-    assertEquals(1, testKit.getTopic("counter-events").expectAll().size());
-  }*/
-
-
-  /*@Test
+  @Test
   public void decreaseOnNonExistingEntity() throws Exception {
     String counterId = "test-2";
 
@@ -87,6 +84,6 @@ public class CounterIntegrationTest {
     awaitResult(
         client.reset(CounterApi.ResetValue.newBuilder().setCounterId(counterId).build()));
     assertEquals(0, getCounterValue(counterId));
-  }*/
+  }
 
 }

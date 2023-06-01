@@ -19,6 +19,7 @@ import java.util.concurrent.CompletionStage;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.Assert.assertEquals;
+import static org.testcontainers.shaded.org.awaitility.Awaitility.await;
 
 // Example of an integration test calling our service via the Kalix proxy
 // Run all test classes ending with "IntegrationTest" using `mvn verify -Pit`
@@ -40,13 +41,6 @@ public class CounterTopicSubscriptionIntegrationTest {
     client = testKit.getGrpcClient(CounterService.class);
   }
 
-  private CounterApi.IncreaseValue newIncreaseMessage(String id, int value) {
-    return CounterApi.IncreaseValue.newBuilder()
-        .setCounterId(id)
-        .setValue(value)
-        .build();
-  }
-
   private int getCounterValue(String counterId) throws Exception {
     CounterApi.GetCounter getCounter = CounterApi.GetCounter.newBuilder().setCounterId(counterId).build();
     return awaitResult(client.getCurrentCounter(getCounter)).getValue();
@@ -57,15 +51,16 @@ public class CounterTopicSubscriptionIntegrationTest {
   }
 
   @Test
-  public void increaseOnReadingFromTopic() throws Exception {
-
+  public void increaseOnReadingFromTopic() {
     var topic = testKit.getTopic("counter-events");
     var msg = CounterTopicApi.Increased.newBuilder().setValue(15).build();
 
     topic.publish(msg, "counter-2");
 
-    assertEquals(15, getCounterValue("counter-2"));
+    await()
+        .ignoreExceptions()
+        .atMost(10, SECONDS)
+        .until(() -> getCounterValue("counter-2") == 15);
   }
-
 
 }
