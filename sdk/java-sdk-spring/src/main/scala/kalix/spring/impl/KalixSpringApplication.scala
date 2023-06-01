@@ -16,18 +16,8 @@
 
 package kalix.spring.impl
 
-import java.lang.reflect.Modifier
-import java.lang.reflect.ParameterizedType
-
-import scala.concurrent.Future
-import scala.jdk.CollectionConverters.CollectionHasAsScala
-import scala.jdk.FutureConverters.CompletionStageOps
-import scala.jdk.OptionConverters.RichOption
-import scala.reflect.ClassTag
-
 import akka.Done
 import com.typesafe.config.Config
-import com.typesafe.config.ConfigFactory
 import kalix.javasdk.Kalix
 import kalix.javasdk.action.Action
 import kalix.javasdk.action.ActionCreationContext
@@ -58,6 +48,7 @@ import kalix.javasdk.workflowentity.ReflectiveWorkflowEntityProvider
 import kalix.javasdk.workflowentity.WorkflowEntity
 import kalix.javasdk.workflowentity.WorkflowEntityContext
 import kalix.javasdk.workflowentity.WorkflowEntityProvider
+import kalix.spring.BuildInfo
 import kalix.spring.KalixClient
 import kalix.spring.WebClientProvider
 import kalix.spring.impl.KalixSpringApplication.ActionCreationContextFactoryBean
@@ -69,7 +60,6 @@ import kalix.spring.impl.KalixSpringApplication.ValueEntityContextFactoryBean
 import kalix.spring.impl.KalixSpringApplication.ViewCreationContextFactoryBean
 import kalix.spring.impl.KalixSpringApplication.WebClientProviderFactoryBean
 import kalix.spring.impl.KalixSpringApplication.WorkflowContextFactoryBean
-import kalix.spring.BuildInfo
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.BeanCreationException
@@ -81,9 +71,18 @@ import org.springframework.beans.factory.support.DefaultListableBeanFactory
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider
+import org.springframework.context.annotation.ContextAnnotationAutowireCandidateResolver
 import org.springframework.core.`type`.classreading.MetadataReader
 import org.springframework.core.`type`.classreading.MetadataReaderFactory
 import org.springframework.core.`type`.filter.TypeFilter
+
+import java.lang.reflect.Modifier
+import java.lang.reflect.ParameterizedType
+import scala.concurrent.Future
+import scala.jdk.CollectionConverters.CollectionHasAsScala
+import scala.jdk.FutureConverters.CompletionStageOps
+import scala.jdk.OptionConverters.RichOption
+import scala.reflect.ClassTag
 
 object KalixSpringApplication {
 
@@ -259,6 +258,10 @@ case class KalixSpringApplication(applicationContext: ApplicationContext, config
   kalixBeanFactory.registerSingleton("viewCreationContext", ViewCreationContextFactoryBean)
   kalixBeanFactory.registerSingleton("kalixClient", KalixClientFactoryBean)
   kalixBeanFactory.registerSingleton("webClientProvider", WebClientProviderFactoryBean)
+
+  kalixBeanFactory.setAutowireCandidateResolver(new ContextAnnotationAutowireCandidateResolver)
+  kalixBeanFactory.addEmbeddedValueResolver((strVal: String) =>
+    applicationContext.getEnvironment.resolvePlaceholders(strVal))
 
   // there should be only one class annotated with SpringBootApplication in the applicationContext
   private val cglibEnhanceMainClass =

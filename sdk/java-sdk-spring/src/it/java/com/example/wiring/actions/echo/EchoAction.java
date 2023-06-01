@@ -18,6 +18,7 @@ package com.example.wiring.actions.echo;
 
 import kalix.javasdk.action.Action;
 import kalix.javasdk.action.ActionCreationContext;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -31,7 +32,8 @@ public class EchoAction extends Action {
   private Parrot parrot;
   private ActionCreationContext ctx;
 
-  public EchoAction(Parrot parrot, ActionCreationContext ctx) {
+  public EchoAction(Parrot parrot, ActionCreationContext ctx, @Value("${test.config.int}") int value) {
+    System.out.println(value);
     this.parrot = parrot;
     this.ctx = ctx;
   }

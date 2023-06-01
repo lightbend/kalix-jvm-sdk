@@ -16,10 +16,16 @@
 
 package com.example.wiring.actions.echo;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
 public class Parrot {
+
+  public Parrot(@Value("${test.config.int}") int value) {
+    System.out.println(value);
+//    throw new IllegalStateException("asdf");
+  }
 
   public String repeat(String word) {
     return "Parrot says: '" + word + "'";
