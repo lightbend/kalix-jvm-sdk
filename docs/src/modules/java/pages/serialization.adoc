@@ -27,6 +27,19 @@ include::example$java-spring-eventsourced-counter/src/main/java/com/example/acti
 
 As we mentioned it works out of the box.
 
+== Bytes
+
+If the content type is `application/octet-stream`, no content type is present, or the type is unknown to Kalix the message is treated as a binary message. The topic subscriber method must accept the `byte[]` message.
+
+[source,java]
+.src/main/java/com/example/actions/SubscribeRawBytesAction.java
+----
+include::example$java-spring-eventsourced-counter/src/main/java/com/example/actions/SubscribeToRawBytesAction.java[tag=class]
+----
+<1> When consuming raw bytes messages from a topic the input type must be `byte[]`.
+
+If an action has a return type of `byte[]` and publishes to a topic, the events published to the topic will have content-type `application/octet-stream`.
+
 == Receiving CloudEvents
 Kalix uses the https://cloudevents.io/[CloudEvents] standard when receiving from and publishing to topics. The CloudEvents specification standardizes message metadata so that systems can integrate more easily.
 
