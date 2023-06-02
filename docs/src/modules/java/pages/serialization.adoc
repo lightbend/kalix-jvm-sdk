@@ -29,7 +29,7 @@ As we mentioned it works out of the box.
 
 == Bytes
 
-If the content type is `application/octet-stream`, no content type is present, or the type is unknown to Kalix the message is treated as a binary message. The topic subscriber method must accept the `byte[]` message.
+If the content type is `application/octet-stream`, no content type is present, or the type is unknown to Kalix, the message is treated as a binary message. The topic subscriber method must accept the `byte[]` message.
 
 [source,java]
 .src/main/java/com/example/actions/SubscribeRawBytesAction.java
