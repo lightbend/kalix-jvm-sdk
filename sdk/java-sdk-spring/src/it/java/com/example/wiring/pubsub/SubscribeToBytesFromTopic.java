@@ -40,23 +40,13 @@ public class SubscribeToBytesFromTopic extends Action {
   private Logger logger = LoggerFactory.getLogger(getClass());
 
   public Effect<Done> handleChange(byte[] payload) {
-    logger.info("Consuming raw bytes: " + new String(payload));
     try {
-      Object o = JsonSupport.getObjectMapper().readerFor(CustomerEntity.Customer.class).readValue(payload);
-      System.out.println(o);
+      logger.info("Consuming raw bytes: " + new String(payload));
+      CustomerEntity.Customer customer = JsonSupport.getObjectMapper().readerFor(CustomerEntity.Customer.class).readValue(payload);
+      DummyCustomerStore.store(CUSTOMERS_BYTES_TOPIC, customer.name(), customer);
+      return effects().reply(Done.done());
     } catch (IOException e) {
       throw new RuntimeException(e);
-    }
-    return effects().reply(Done.done());
-  }
-
-  @GetMapping("/subscribe-to-customer-bytes-topic/{entityId}")
-  public Effect<CustomerEntity.Customer> get(@PathVariable String entityId) {
-    CustomerEntity.Customer customer = DummyCustomerStore.get(entityId);
-    if (customer != null) {
-      return effects().reply(customer);
-    } else {
-      return effects().error("not found " + entityId, NOT_FOUND);
     }
   }
 }

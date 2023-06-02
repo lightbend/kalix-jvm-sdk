@@ -40,17 +40,7 @@ public class SubscribeToCustomersTopic extends Action {
   public Effect<CounterEvent> handle(CustomerEntity.Customer customer) {
     var entityId = actionContext().metadata().get("ce-subject").orElseThrow();
     logger.info("Consuming " + customer + " from " + entityId);
-    DummyCustomerStore.store(entityId, customer);
+    DummyCustomerStore.store(CUSTOMERS_TOPIC, entityId, customer);
     return effects().ignore();
-  }
-
-  @GetMapping("/subscribe-to-customer-topic/{entityId}")
-  public Effect<CustomerEntity.Customer> get(@PathVariable String entityId) {
-    CustomerEntity.Customer customer = DummyCustomerStore.get(entityId);
-    if (customer != null) {
-      return effects().reply(customer);
-    } else {
-      return effects().error("not found " + entityId, NOT_FOUND);
-    }
   }
 }
