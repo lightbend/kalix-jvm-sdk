@@ -43,7 +43,7 @@ service CounterJournalToTopic {
       event_sourced_entity: "counter"
     };
     option (kalix.method).eventing.out = { // <5>
-      topic:  "counter-events"
+      topic: "counter-events"
     };
   }
   
@@ -52,7 +52,7 @@ service CounterJournalToTopic {
       event_sourced_entity: "counter"
     };
     option (kalix.method).eventing.out = {
-      topic:  "counter-events"
+      topic: "counter-events"
     };
   }
 
@@ -74,12 +74,12 @@ service CounterJournalToTopicWithMeta {
     action: {}
   };
 
-  rpc OnIncreased (com.example.domain.ValueIncreased) returns (Increased) { // <3>
-    option (kalix.method).eventing.in = { // <4>
+  rpc OnIncreased (com.example.domain.ValueIncreased) returns (Increased) {
+    option (kalix.method).eventing.in = {
       event_sourced_entity: "counter"
     };
-    option (kalix.method).eventing.out = { // <5>
-      topic:  "counter-events-with-meta"
+    option (kalix.method).eventing.out = {
+      topic: "counter-events-with-meta"
     };
   }
 
@@ -88,7 +88,7 @@ service CounterJournalToTopicWithMeta {
       event_sourced_entity: "counter"
     };
     option (kalix.method).eventing.out = {
-      topic:  "counter-events-with-meta"
+      topic: "counter-events-with-meta"
     };
   }
 

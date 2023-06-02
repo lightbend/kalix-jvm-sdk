@@ -26,7 +26,8 @@ class CounterServiceIntegrationSpec extends AnyWordSpec with Matchers with Befor
 
   private val client = testKit.getGrpcClient(classOf[CounterService])
 
-  private val outTopic = testKit.getTopic("counter-events")
+  private val commandsTopic = testKit.getTopic("counter-commands")
+  private val eventsTopic = testKit.getTopic("counter-events")
 
   "CounterService" must {
     val counterId = "xyz"
@@ -38,7 +39,7 @@ class CounterServiceIntegrationSpec extends AnyWordSpec with Matchers with Befor
       counter.value shouldBe (10 + 10 * 2)
 
       // verify messages published to topic
-      val allMsgs = testKit.getTopic("counter-events").expectN(2)
+      val allMsgs = eventsTopic.expectN(2)
 
       val Seq(Message(payload1, md1), Message(payload2, md2)) = allMsgs
       payload1 shouldBe Increased(10)
@@ -56,11 +57,21 @@ class CounterServiceIntegrationSpec extends AnyWordSpec with Matchers with Befor
       counter.value shouldBe 15
 
       // verify message published to topic
-      val msg: Message[Decreased] = outTopic.expectOneTyped
+      val msg: Message[Decreased] = eventsTopic.expectOneTyped
       val Message(payload, md) = msg
       payload shouldBe Decreased(15)
       md.get("ce-type") should contain(classOf[Decreased].getName)
       md.get("Content-Type") should contain("application/protobuf")
+    }
+
+    "handle commands from topic and verify publishing" in {
+      commandsTopic.publish(IncreaseValue("abc", 4), "abc")
+      commandsTopic.publish(DecreaseValue("abc", 1), "abc")
+
+      val increaseEvent: Message[Increased] = eventsTopic.expectOneTyped
+      val decreaseEvent: Message[Decreased] = eventsTopic.expectOneTyped
+      increaseEvent.payload.value shouldBe 4
+      decreaseEvent.payload.value shouldBe 1
     }
 
   }

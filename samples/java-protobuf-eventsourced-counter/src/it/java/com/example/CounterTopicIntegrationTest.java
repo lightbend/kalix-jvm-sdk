@@ -4,12 +4,7 @@
  */
 package com.example;
 
-import com.example.CounterApi;
-import com.example.CounterService;
-import com.example.Main;
 import com.example.actions.CounterTopicApi;
-import com.google.protobuf.ByteString;
-import kalix.javasdk.Metadata;
 import kalix.javasdk.testkit.EventingTestKit;
 import kalix.javasdk.testkit.junit.KalixTestKitResource;
 import org.junit.ClassRule;
@@ -19,11 +14,10 @@ import java.util.concurrent.CompletionStage;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.Assert.assertEquals;
-import static org.testcontainers.shaded.org.awaitility.Awaitility.await;
 
 // Example of an integration test calling our service via the Kalix proxy
 // Run all test classes ending with "IntegrationTest" using `mvn verify -Pit`
-public class CounterTopicSubscriptionIntegrationTest {
+public class CounterTopicIntegrationTest {
 
   /**
    * The test kit starts both the service container and the Kalix proxy.
@@ -37,8 +31,14 @@ public class CounterTopicSubscriptionIntegrationTest {
    */
   private final CounterService client;
 
-  public CounterTopicSubscriptionIntegrationTest() {
+  private final EventingTestKit.Topic commandsTopic;
+  private final EventingTestKit.Topic eventsTopic;
+
+
+  public CounterTopicIntegrationTest() {
     client = testKit.getGrpcClient(CounterService.class);
+    commandsTopic = testKit.getTopic("counter-commands");
+    eventsTopic = testKit.getTopic("counter-events");
   }
 
   private int getCounterValue(String counterId) throws Exception {
@@ -49,18 +49,20 @@ public class CounterTopicSubscriptionIntegrationTest {
   private <T> T awaitResult(CompletionStage<T> stage) throws Exception {
     return stage.toCompletableFuture().get(5, SECONDS);
   }
-
   @Test
-  public void increaseOnReadingFromTopic() {
-    var topic = testKit.getTopic("counter-events");
-    var msg = CounterTopicApi.Increased.newBuilder().setValue(15).build();
+  public void verifyCounterCommandsAndPublish() throws Exception {
+    var counterId = "test-topic";
 
-    topic.publish(msg, "counter-2");
+    var increaseCmd = CounterApi.IncreaseValue.newBuilder().setCounterId(counterId).setValue(4).build();
+    var decreaseCmd = CounterApi.DecreaseValue.newBuilder().setCounterId(counterId).setValue(1).build();
+    commandsTopic.publish(increaseCmd, counterId);
+    commandsTopic.publish(decreaseCmd, counterId);
 
-    await()
-        .ignoreExceptions()
-        .atMost(10, SECONDS)
-        .until(() -> getCounterValue("counter-2") == 15);
+    var increasedEvent = eventsTopic.expectOneTyped(CounterTopicApi.Increased.class);
+    var decreasedEvent = eventsTopic.expectOneTyped(CounterTopicApi.Decreased.class);
+    assertEquals(increaseCmd.getValue(), increasedEvent.getPayload().getValue());
+    assertEquals(decreaseCmd.getValue(), decreasedEvent.getPayload().getValue());
+
+    assertEquals(3, getCounterValue(counterId));
   }
-
 }

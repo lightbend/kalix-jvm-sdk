@@ -62,7 +62,7 @@ public class Counter extends AbstractCounter {
 
     if (increaseValue.getValue() < 0)
       return effects().error("Value must be a zero or a positive number");
-    else if(commandContext().metadata().get("myKey").equals(Optional.of("myValue"))){ 
+    else if (commandContext().metadata().get("myKey").equals(Optional.of("myValue"))) {
       return effects()
               .emitEvent(CounterDomain.ValueIncreased.newBuilder().setValue(doubled).build())
               .thenReply(__ -> Empty.getDefaultInstance());
@@ -75,9 +75,9 @@ public class Counter extends AbstractCounter {
 
   @Override
   public Effect<Empty> decrease(CounterDomain.CounterState currentState, CounterApi.DecreaseValue decreaseValue) {
-    if (decreaseValue.getValue() > 0){
-      return effects().error("Value must be a zero or a negative number");
-    } else if(updateState(currentState, decreaseValue.getValue()).getValue() < 0){
+    if (decreaseValue.getValue() < 0) {
+      return effects().error("Value must be a zero or a positive number");
+    } else if (updateState(currentState, -decreaseValue.getValue()).getValue() < 0) {
       return effects().error("Decrease value is too high. Counter cannot become negative");
     } else
       return effects()
@@ -108,7 +108,7 @@ public class Counter extends AbstractCounter {
   }
   @Override
   public CounterDomain.CounterState valueDecreased(CounterDomain.CounterState currentState, CounterDomain.ValueDecreased valueDecreased) {
-    return updateState(currentState, valueDecreased.getValue());
+    return updateState(currentState, -valueDecreased.getValue());
   }
   @Override
   public CounterDomain.CounterState valueReset(CounterDomain.CounterState currentState, CounterDomain.ValueReset valueReset) {

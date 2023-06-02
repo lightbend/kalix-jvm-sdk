@@ -26,9 +26,11 @@ import kalix.scalasdk.Metadata
 import kalix.scalasdk.impl.MetadataConverters
 import kalix.scalasdk.testkit.Message
 import kalix.scalasdk.testkit.Topic
+import kalix.scalasdk.testkit.impl.MessageImpl.defaultMetadata
 import org.slf4j.LoggerFactory
 import scalapb.GeneratedMessage
 
+import java.util.UUID
 import java.util.{ List => JList }
 import scala.concurrent.duration.FiniteDuration
 import scala.jdk.CollectionConverters.CollectionHasAsScala
@@ -40,7 +42,7 @@ import scala.reflect.ClassTag
  * INTERNAL API
  */
 @InternalApi
-case class TopicImpl private (delegate: JEventingTestKit.Topic, codec: MessageCodec) extends Topic {
+private[testkit] case class TopicImpl private (delegate: JEventingTestKit.Topic, codec: MessageCodec) extends Topic {
 
   private val log = LoggerFactory.getLogger(classOf[TopicImpl])
 
@@ -124,6 +126,20 @@ case class TopicImpl private (delegate: JEventingTestKit.Topic, codec: MessageCo
       .map(msg => Message(msg.getPayload, MetadataConverters.toScala(msg.getMetadata)))
       .toSeq
   }
+
+  override def publish(message: ByteString): Unit = delegate.publish(message)
+
+  override def publish(message: ByteString, metadata: Metadata): Unit =
+    delegate.publish(message, MetadataConverters.toJava(metadata))
+
+  override def publish[T <: GeneratedMessage](message: Message[T]): Unit =
+    publish(message.payload.toByteString, message.metadata)
+
+  override def publish[T <: GeneratedMessage](message: T, subject: String): Unit =
+    publish(message.toByteString, defaultMetadata(message, subject))
+
+  override def publish[T <: GeneratedMessage](messages: List[Message[T]]): Unit =
+    messages.foreach(m => publish(m))
 }
 
 /**
@@ -138,4 +154,13 @@ private[testkit] object MessageImpl {
       case m                     => throw new AssertionError(s"Expected $t, found ${m.getClass} ($m)")
     }
   }
+
+  def defaultMetadata(message: GeneratedMessage, subject: String): Metadata =
+    Metadata.empty
+      .add("ce-specversion", "1.0")
+      .add("ce-id", UUID.randomUUID().toString)
+      .add("ce-subject", subject)
+      .add("Content-Type", "application/protobuf;proto=" + message.companion.javaDescriptor.getFullName)
+      .add("ce-type", message.companion.javaDescriptor.getName)
+      .add("ce-source", message.companion.javaDescriptor.getFullName)
 }

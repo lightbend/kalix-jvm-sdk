@@ -5,8 +5,6 @@
 
 package com.example.actions;
 
-import com.example.CounterApi;
-import kalix.javasdk.action.Action;
 import kalix.javasdk.action.ActionCreationContext;
 import com.google.protobuf.Empty;
 import org.slf4j.Logger;
@@ -17,32 +15,17 @@ public class CounterTopicSubscriptionAction extends AbstractCounterTopicSubscrip
 
   private Logger logger = LoggerFactory.getLogger(getClass());
 
-  private ActionCreationContext creationContext;
-
-  public CounterTopicSubscriptionAction(ActionCreationContext creationContext) {
-    this.creationContext = creationContext;
-  }
+  public CounterTopicSubscriptionAction(ActionCreationContext creationContext) {}
 
   @Override
   public Effect<Empty> onIncreased(CounterTopicApi.Increased increased) { //<1>
-    var entityId = actionContext().eventSubject();
-
-    if (entityId.isEmpty()) {
-      logger.warn("Could not find ce-subject metadata, skipping message.");
-      return effects().ignore();
-    }
-
-    logger.info("Received increase event: " + increased.getValue() + " with ce-subject " + entityId.get());
-    return effects().forward(components().counter().increase(
-        CounterApi.IncreaseValue.newBuilder()
-            .setCounterId(entityId.get())
-            .setValue(increased.getValue())
-            .build()));
+    logger.info("Received increase event: " + increased.toString());
+    return effects().reply(Empty.getDefaultInstance());
   }
 
   @Override
   public Effect<Empty> onDecreased(CounterTopicApi.Decreased decreased) {
-    logger.info("Received increase event: " + decreased.toString());
+    logger.info("Received decrease event: " + decreased.toString());
     return effects().reply(Empty.getDefaultInstance());
   }
 }
