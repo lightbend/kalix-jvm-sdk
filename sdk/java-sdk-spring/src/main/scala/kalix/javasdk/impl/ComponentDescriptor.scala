@@ -19,14 +19,13 @@ package kalix.javasdk.impl
 import java.lang.reflect.ParameterizedType
 import java.lang.reflect.Type
 import java.util
-
 import scala.annotation.tailrec
 import scala.jdk.CollectionConverters._
-
 import com.google.api.AnnotationsProto
 import com.google.api.CustomHttpPattern
 import com.google.api.HttpRule
 import com.google.protobuf.ByteString
+import com.google.protobuf.BytesValue
 import com.google.protobuf.DescriptorProtos
 import com.google.protobuf.DescriptorProtos.DescriptorProto
 import com.google.protobuf.DescriptorProtos.FieldDescriptorProto
@@ -106,8 +105,12 @@ private[kalix] object ComponentDescriptor {
               buildSyntheticMessageAndExtractors(nameGenerator, serviceMethod, kalixMethod.entityKeys)
             (inputProto.getName, extractors, Some(inputProto))
 
-          case _: AnyJsonRequestServiceMethod =>
-            (JavaPbAny.getDescriptor.getFullName, Map.empty[Int, ExtractorCreator], None)
+          case anyJson: AnyJsonRequestServiceMethod =>
+            if (anyJson.inputType == classOf[Array[Byte]]) {
+              (BytesValue.getDescriptor.getFullName, Map.empty[Int, ExtractorCreator], None)
+            } else {
+              (JavaPbAny.getDescriptor.getFullName, Map.empty[Int, ExtractorCreator], None)
+            }
 
           case _: DeleteServiceMethod =>
             (Empty.getDescriptor.getFullName, Map.empty[Int, ExtractorCreator], None)
@@ -118,6 +121,7 @@ private[kalix] object ComponentDescriptor {
         buildGrpcMethod(
           grpcMethodName,
           inputMessageName,
+          outputTypeName(kalixMethod),
           kalixMethod.serviceMethod.streamIn,
           kalixMethod.serviceMethod.streamOut)
 
@@ -152,6 +156,22 @@ private[kalix] object ComponentDescriptor {
       fileDescriptor.findServiceByName(grpcService.getName)
 
     new ComponentDescriptor(serviceName, packageName, methods, serviceDescriptor, fileDescriptor)
+  }
+
+  private def outputTypeName(kalixMethod: KalixMethod): String = {
+    kalixMethod.serviceMethod.javaMethodOpt match {
+      case Some(javaMethod) =>
+        javaMethod.getGenericReturnType match {
+          case parameterizedType: ParameterizedType =>
+            if (parameterizedType.getActualTypeArguments.head == classOf[Array[Byte]]) {
+              BytesValue.getDescriptor.getFullName
+            } else {
+              JavaPbAny.getDescriptor.getFullName
+            }
+          case _ => JavaPbAny.getDescriptor.getFullName
+        }
+      case None => JavaPbAny.getDescriptor.getFullName
+    }
   }
 
   private def createMethodOptions(kalixMethod: KalixMethod): MethodOptions = {
@@ -541,17 +561,18 @@ private[kalix] object ComponentDescriptor {
   }
 
   private def buildGrpcMethod(
-      grpcMethodName: String,
-      inputTypeName: String,
-      streamIn: Boolean,
-      streamOut: Boolean): MethodDescriptorProto.Builder =
+    grpcMethodName: String,
+    inputTypeName: String,
+    outputTypeName: String,
+    streamIn: Boolean,
+    streamOut: Boolean): MethodDescriptorProto.Builder =
     MethodDescriptorProto
       .newBuilder()
       .setName(grpcMethodName)
       .setInputType(inputTypeName)
       .setClientStreaming(streamIn)
       .setServerStreaming(streamOut)
-      .setOutputType("google.protobuf.Any")
+      .setOutputType(outputTypeName)
 
 }
 

@@ -130,6 +130,30 @@ public class PubSubIntegrationTest extends DockerIntegrationTest {
   }
 
   @Test
+  public void shouldVerifyActionSubscribingAndPublishingRawBaytes() {
+    //given
+    Customer customer1 = new Customer("name3", Instant.now());
+
+    //when
+    createCustomer(customer1);
+
+    //then
+    await()
+      .ignoreExceptions()
+      .atMost(20, TimeUnit.of(SECONDS))
+      .untilAsserted(() -> {
+        var response = webClient
+          .get()
+          .uri("/subscribe-to-customer-bytes-topic/" + customer1.name())
+          .retrieve()
+          .bodyToMono(Customer.class)
+          .block(timeout);
+
+        assertThat(response).isEqualTo(customer1);
+      });
+  }
+
+  @Test
   public void shouldVerifyActionSubscribingToCustomers2Topic() {
     //given
     Customer customer1 = new Customer("name3", Instant.now());

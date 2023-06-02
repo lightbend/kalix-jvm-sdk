@@ -16,6 +16,7 @@
 
 package kalix.javasdk.impl
 
+import com.google.protobuf.BytesValue
 import com.google.protobuf.Descriptors.FieldDescriptor.JavaType
 import com.google.protobuf.empty.Empty
 import com.google.protobuf.{ Any => JavaPbAny }
@@ -75,11 +76,13 @@ import kalix.spring.testmodels.subscriptions.PubSubTestModels.MissingTopicForTyp
 import kalix.spring.testmodels.subscriptions.PubSubTestModels.MissingTopicForVESubscription
 import kalix.spring.testmodels.subscriptions.PubSubTestModels.MultipleTypeLevelSubscriptionsInAction
 import kalix.spring.testmodels.subscriptions.PubSubTestModels.MultipleUpdateMethodsForVETypeLevelSubscriptionInAction
+import kalix.spring.testmodels.subscriptions.PubSubTestModels.PublishBytesToTopicAction
 import kalix.spring.testmodels.subscriptions.PubSubTestModels.RestAnnotatedSubscribeToEventSourcedEntityAction
 import kalix.spring.testmodels.subscriptions.PubSubTestModels.RestAnnotatedSubscribeToValueEntityAction
 import kalix.spring.testmodels.subscriptions.PubSubTestModels.RestWithPublishToTopicAction
 import kalix.spring.testmodels.subscriptions.PubSubTestModels.StreamSubscriptionWithPublishToTopicAction
 import kalix.spring.testmodels.subscriptions.PubSubTestModels.SubscribeOnlyOneToEventSourcedEntityActionTypeLevel
+import kalix.spring.testmodels.subscriptions.PubSubTestModels.SubscribeToBytesFromTopicAction
 import kalix.spring.testmodels.subscriptions.PubSubTestModels.SubscribeToEventSourcedEntityAction
 import kalix.spring.testmodels.subscriptions.PubSubTestModels.SubscribeToTopicAction
 import kalix.spring.testmodels.subscriptions.PubSubTestModels.SubscribeToTopicCombinedAction
@@ -761,6 +764,30 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
         // delete handler with 0 params
         val javaMethodTwo = methodTwo.methodInvokers.values.head
         javaMethodTwo.parameterExtractors.length shouldBe 0
+      }
+    }
+
+    "generate mapping for an Action with raw bytes publication to a topic" in {
+      assertDescriptor[PublishBytesToTopicAction] { desc =>
+        val methodOne = desc.commandHandlers("Produce")
+        methodOne.requestMessageDescriptor.getFullName shouldBe JavaPbAny.getDescriptor.getFullName
+
+        val methodDescriptor = findMethodByName(desc, "Produce")
+        methodDescriptor.getInputType.getFullName shouldBe JavaPbAny.getDescriptor.getFullName
+        methodDescriptor.getOutputType.getFullName shouldBe BytesValue.getDescriptor.getFullName
+      }
+    }
+
+    "generate mapping for an Action subscribing to raw bytes from a topic" in {
+      assertDescriptor[SubscribeToBytesFromTopicAction] { desc =>
+        val methodOne = desc.commandHandlers("Consume")
+        methodOne.requestMessageDescriptor.getFullName shouldBe JavaPbAny.getDescriptor.getFullName
+
+        methodOne.methodInvokers.get("type.kalix.io/bytes").isDefined shouldBe true
+
+        val methodDescriptor = findMethodByName(desc, "Consume")
+        methodDescriptor.getInputType.getFullName shouldBe BytesValue.getDescriptor.getFullName
+        methodDescriptor.getOutputType.getFullName shouldBe JavaPbAny.getDescriptor.getFullName
       }
     }
 

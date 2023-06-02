@@ -51,7 +51,7 @@ object AnySupport {
 
   private val log = LoggerFactory.getLogger(classOf[AnySupport])
 
-  private sealed abstract class Primitive[T: ClassTag] {
+  sealed abstract class Primitive[T: ClassTag] {
     val name = fieldType.name().toLowerCase(Locale.ROOT)
     val fullName = KalixPrimitive + name
     final val clazz = implicitly[ClassTag[T]].runtimeClass
@@ -68,7 +68,8 @@ object AnySupport {
     override def write(stream: CodedOutputStream, t: String) = stream.writeString(KalixPrimitiveFieldNumber, t)
     override def read(stream: CodedInputStream) = stream.readString()
   }
-  private final object BytesPrimitive extends Primitive[ByteString] {
+
+  final object BytesPrimitive extends Primitive[ByteString] {
     override def fieldType = WireFormat.FieldType.BYTES
     override def defaultValue = ByteString.EMPTY
     override def write(stream: CodedOutputStream, t: ByteString) =
