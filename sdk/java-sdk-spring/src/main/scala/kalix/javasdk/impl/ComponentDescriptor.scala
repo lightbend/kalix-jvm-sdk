@@ -561,11 +561,11 @@ private[kalix] object ComponentDescriptor {
   }
 
   private def buildGrpcMethod(
-    grpcMethodName: String,
-    inputTypeName: String,
-    outputTypeName: String,
-    streamIn: Boolean,
-    streamOut: Boolean): MethodDescriptorProto.Builder =
+      grpcMethodName: String,
+      inputTypeName: String,
+      outputTypeName: String,
+      streamIn: Boolean,
+      streamOut: Boolean): MethodDescriptorProto.Builder =
     MethodDescriptorProto
       .newBuilder()
       .setName(grpcMethodName)

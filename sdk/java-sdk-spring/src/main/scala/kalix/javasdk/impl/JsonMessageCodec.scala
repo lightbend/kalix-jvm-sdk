@@ -41,10 +41,10 @@ private[kalix] class JsonMessageCodec extends MessageCodec {
   override def encodeScala(value: Any): ScalaPbAny = {
     if (value == null) throw NullSerializationException
     value match {
-      case javaPbAny: JavaPbAny => ScalaPbAny.fromJavaProto(javaPbAny)
+      case javaPbAny: JavaPbAny   => ScalaPbAny.fromJavaProto(javaPbAny)
       case scalaPbAny: ScalaPbAny => scalaPbAny
-      case bytes: Array[Byte] => ScalaPbAny.fromJavaProto(JavaPbAny.pack(BytesValue.of(ByteString.copyFrom(bytes))))
-      case other => ScalaPbAny.fromJavaProto(JsonSupport.encodeJson(other, lookupTypeHint(other)))
+      case bytes: Array[Byte]     => ScalaPbAny.fromJavaProto(JavaPbAny.pack(BytesValue.of(ByteString.copyFrom(bytes))))
+      case other                  => ScalaPbAny.fromJavaProto(JsonSupport.encodeJson(other, lookupTypeHint(other)))
     }
   }
 

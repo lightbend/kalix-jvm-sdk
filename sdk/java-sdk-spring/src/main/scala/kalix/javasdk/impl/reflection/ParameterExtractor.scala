@@ -54,11 +54,11 @@ object ParameterExtractors {
       // we want to reuse the typeUrl validation and reading logic (skip tag + jackson reader) from JsonSupport
       // we need a new internal version that also handle DynamicMessages
       val any =
-      JavaPbAny
-        .newBuilder()
-        .setTypeUrl(typeUrl)
-        .setValue(bytes)
-        .build()
+        JavaPbAny
+          .newBuilder()
+          .setTypeUrl(typeUrl)
+          .setValue(bytes)
+          .build()
       JsonSupport.decodeJson(cls, any)
     }
   }
