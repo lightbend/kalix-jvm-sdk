@@ -35,7 +35,7 @@ You can see the proxy version on prod [on grafana](https://lightbendcloud.grafan
 ### Check docs update
 
 - [ ] Check for [updated docs](https://docs.kalix.io/index.html) (see the timestamp on the bottom of the page)
-- [ ] Check for the latest version on the [dependency configuration example](https://docs.kalix.io/java/index.html#_reference_the_kalix_sdk) 
+- [ ] Check for the latest version on the [dependency configuration example](https://docs.kalix.io/java-protobuf/index.html#_reference_the_kalix_protobuf_sdks) 
 
 ### Announcements
 
