@@ -108,7 +108,7 @@ object EventingTestKitImpl {
       val outSource: Source[SourceElem, NotUsed]) {
     private val log = LoggerFactory.getLogger(classOf[RunningSourceProbe])
 
-    def emitElement(element: SourceElem): Unit = {
+    private def emitElement(element: SourceElem): Unit = {
       log.debug("Emitting element {}", element)
       outQueue.offer(element) match {
         case QueueOfferResult.Enqueued    => // goodie
@@ -118,12 +118,6 @@ object EventingTestKitImpl {
       }
     }
 
-    /**
-     * Simulate receiving an event.
-     *
-     * Ideally tests should not use this method directly, but use a helper method that simulates the behavior of a
-     * particular type of event source (such as an external broker, an internal event log, etc)
-     */
     def emit(data: ByteString, metadata: SdkMetadata): Unit = {
 
       // FIXME maybe we could improve validation for metadata?
@@ -149,7 +143,8 @@ object EventingTestKitImpl {
 }
 
 /**
- * Implements the EventingTestKit protocol defined in protocols/testkit/src/main/protobuf/eventing_test_backend.proto
+ * Implements the EventingTestKit protocol originally defined in proxy
+ * protocols/testkit/src/main/protobuf/eventing_test_backend.proto
  */
 final class EventingTestServiceImpl(system: ActorSystem, val host: String, var port: Int, codec: MessageCodec)
     extends EventingTestKit {
