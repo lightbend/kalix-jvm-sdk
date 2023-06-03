@@ -197,3 +197,19 @@ This time, `kalix:runAll` will start `docker-compose-integration.yml` instead. T
 Note that the configuration is exactly the same except that now we are running one single `mvn kalix:runAll` command and the `docker-compose` file we are using contains all the dependencies required by *customer-registry-subscriber*.
 
 This approach can be extended to any service you might want to integrate with. It can be any other Kalix service that you plan to deploy to the same Kalix project or even external services. The only requirement is to have a Docker image for it.
+
+== Logging Settings when Running Locally
+The default logback.xml in Kalix sets a JSON formatter for your log messages.
+The formatter setting and other settings may not be appropriate when running locally.
+For this reason, you may want to keep a separate logback-dev-mode.xml with settings that fit your local development.
+In order to enable it, you can use the JVM option:
+
+====
+
+====
+--
+[source,command line]
+----
+-Dlogging.config=src/main/resources/logback-dev-mode.xml
+----
+--
