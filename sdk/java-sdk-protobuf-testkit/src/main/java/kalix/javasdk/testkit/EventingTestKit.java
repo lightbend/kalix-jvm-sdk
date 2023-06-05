@@ -223,5 +223,30 @@ public interface EventingTestKit {
      * @param <T> the type of the payload
      */
     <T extends GeneratedMessageV3> T expectType(Class<T> clazz);
+
+    /**
+     * Create a message from a payload plus a subject (that is, the entity key).
+     * Automatically adds required default metadata for a CloudEvent.
+     *
+     * @param payload the message payload
+     * @param subject the entity key of which the message is concerned about
+     * @return a Message object to be used in the context of the Testkit
+     * @param <T>
+     */
+    static <T extends GeneratedMessageV3> Message<T> of(T payload, String subject) {
+      return new TestKitMessageImpl<>(payload, TestKitMessageImpl.defaultMetadata(payload, subject));
+    }
+
+    /**
+     * Create a message object from a payload plus metadata.
+     *
+     * @param payload the message payload
+     * @param metadata the metadata associated with the message
+     * @return a Message object to be used in the context of the Testkit
+     * @param <T>
+     */
+    static <T extends GeneratedMessageV3> Message<T> of(T payload, Metadata metadata) {
+      return new TestKitMessageImpl<>(payload, metadata);
+    }
   }
 }

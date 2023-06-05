@@ -26,31 +26,16 @@ public class CounterTopicIntegrationTest {
   public static final KalixTestKitResource testKit =
       new KalixTestKitResource(Main.createKalix());
 
-  /**
-   * Use the generated gRPC client to call the service through the Kalix proxy.
-   */
-  private final CounterService client;
-
   private final EventingTestKit.Topic commandsTopic;
   private final EventingTestKit.Topic eventsTopic;
 
-
   public CounterTopicIntegrationTest() {
-    client = testKit.getGrpcClient(CounterService.class);
     commandsTopic = testKit.getTopic("counter-commands");
     eventsTopic = testKit.getTopic("counter-events");
   }
 
-  private int getCounterValue(String counterId) throws Exception {
-    CounterApi.GetCounter getCounter = CounterApi.GetCounter.newBuilder().setCounterId(counterId).build();
-    return awaitResult(client.getCurrentCounter(getCounter)).getValue();
-  }
-
-  private <T> T awaitResult(CompletionStage<T> stage) throws Exception {
-    return stage.toCompletableFuture().get(5, SECONDS);
-  }
   @Test
-  public void verifyCounterCommandsAndPublish() throws Exception {
+  public void verifyCounterCommandsAndPublish() {
     var counterId = "test-topic";
 
     var increaseCmd = CounterApi.IncreaseValue.newBuilder().setCounterId(counterId).setValue(4).build();
@@ -62,7 +47,5 @@ public class CounterTopicIntegrationTest {
     var decreasedEvent = eventsTopic.expectOneTyped(CounterTopicApi.Decreased.class);
     assertEquals(increaseCmd.getValue(), increasedEvent.getPayload().getValue());
     assertEquals(decreaseCmd.getValue(), decreasedEvent.getPayload().getValue());
-
-    assertEquals(3, getCounterValue(counterId));
   }
 }

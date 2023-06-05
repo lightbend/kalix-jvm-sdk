@@ -40,8 +40,8 @@ import kalix.javasdk.testkit.EventingTestKit
 import kalix.javasdk.testkit.EventingTestKit.Topic
 import kalix.javasdk.testkit.EventingTestKit.{ Message => TestKitMessage }
 import kalix.javasdk.testkit.impl.EventingTestKitImpl.RunningSourceProbe
+import kalix.javasdk.testkit.impl.TestKitMessageImpl.defaultMetadata
 import kalix.javasdk.testkit.impl.TopicImpl.DefaultTimeout
-import kalix.javasdk.testkit.impl.TopicImpl.defaultMetadata
 import kalix.javasdk.{ Metadata => SdkMetadata }
 import kalix.protocol.component.Metadata
 import kalix.protocol.component.MetadataEntry
@@ -109,7 +109,7 @@ object EventingTestKitImpl {
     private val log = LoggerFactory.getLogger(classOf[RunningSourceProbe])
 
     private def emitElement(element: SourceElem): Unit = {
-      log.debug("Emitting element {}", element)
+      log.debug("Emitting message {}", element)
       outQueue.offer(element) match {
         case QueueOfferResult.Enqueued    => // goodie
         case QueueOfferResult.Failure(ex) => throw ex
@@ -134,7 +134,10 @@ object EventingTestKitImpl {
         Metadata(metadata.iterator().asScala.map(convertMetadataEntry).toList)
 
       val subject = metadata.get("ce-subject").orElse("")
-      log.debug("Emitting msg with metadata={} with subject={}", testKitMetadata, subject)
+      log.debug(
+        "Emitting from testkit to test broker, message with metadata={} with subject={}",
+        testKitMetadata,
+        subject)
 
       emitElement(SourceElem(Some(Message(data, Some(testKitMetadata))), subject))
     }
@@ -168,7 +171,7 @@ final class EventingTestServiceImpl(system: ActorSystem, val host: String, var p
 
   final class ServiceImpl extends EventingTestKitService {
     override def emitSingle(in: EmitSingleCommand): Future[EmitSingleResult] = {
-      log.debug("emitSingle request: [{}]", in)
+      log.debug("Receiving message from test broker: [{}]", in)
 
       in.destination.foreach(dest => {
         val probe = eventDestinationProbe.computeIfAbsent(dest, _ => TestProbe())
@@ -182,7 +185,7 @@ final class EventingTestServiceImpl(system: ActorSystem, val host: String, var p
     }
 
     override def runSource(in: Source[RunSourceCommand, NotUsed]): Source[SourceElem, NotUsed] = {
-      log.debug("runSource request started: {}", in)
+      log.debug("Reading topic from test broker - runSource request started: {}", in)
       val runningSourcePromise = Promise[RunningSourceProbe]()
 
       in.watchTermination() { (_, fDone) =>
@@ -248,7 +251,7 @@ private[testkit] class TopicImpl(
 
   override def expectOneRaw(timeout: time.Duration): TestKitMessage[ByteString] = {
     val msg = destinationProbe.expectMsgType[EmitSingleCommand](timeout.toScala)
-    TestKitMessageImpl.ofMessage(msg.getMessage)
+    TestKitMessageImpl.ofProtocolMessage(msg.getMessage)
   }
 
   override def expectOne(): TestKitMessage[_] = expectOne(DefaultTimeout)
@@ -334,15 +337,6 @@ private[testkit] class TopicImpl(
 
 private[testkit] object TopicImpl {
   val DefaultTimeout = time.Duration.ofSeconds(3)
-
-  def defaultMetadata(message: GeneratedMessageV3, subject: String): SdkMetadata =
-    SdkMetadata.EMPTY
-      .add("ce-specversion", "1.0")
-      .add("ce-id", UUID.randomUUID().toString)
-      .add("ce-subject", subject)
-      .add("Content-Type", "application/protobuf;proto=" + message.getDescriptorForType.getFullName)
-      .add("ce-type", message.getDescriptorForType.getName)
-      .add("ce-source", message.getDescriptorForType.getFullName)
 }
 
 private[testkit] case class TestKitMessageImpl[P](payload: P, metadata: SdkMetadata) extends TestKitMessage[P] {
@@ -353,10 +347,22 @@ private[testkit] case class TestKitMessageImpl[P](payload: P, metadata: SdkMetad
 }
 
 private[testkit] object TestKitMessageImpl {
-  def ofMessage(m: kalix.testkit.protocol.eventing_test_backend.Message): TestKitMessage[ByteString] = {
+  def ofProtocolMessage(m: kalix.testkit.protocol.eventing_test_backend.Message): TestKitMessage[ByteString] = {
     val metadata = new MetadataImpl(m.metadata.getOrElse(Metadata()).entries)
     TestKitMessageImpl[ByteString](m.payload, metadata).asInstanceOf[TestKitMessage[ByteString]]
   }
+
+  def of[T <: GeneratedMessageV3](payload: T): TestKitMessage[T] =
+    TestKitMessageImpl(payload, defaultMetadata(payload, ""))
+
+  def defaultMetadata(message: GeneratedMessageV3, subject: String): SdkMetadata =
+    SdkMetadata.EMPTY
+      .add("ce-specversion", "1.0")
+      .add("ce-id", UUID.randomUUID().toString)
+      .add("ce-subject", subject)
+      .add("Content-Type", "application/protobuf;proto=" + message.getDescriptorForType.getFullName)
+      .add("ce-type", message.getDescriptorForType.getName)
+      .add("ce-source", message.getDescriptorForType.getFullName)
 
   def expectType[T <: GeneratedMessageV3](payload: Any, clazz: Class[T]): T = {
     val bt = BoxedType(clazz)
