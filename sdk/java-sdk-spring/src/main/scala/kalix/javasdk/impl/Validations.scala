@@ -132,18 +132,18 @@ object Validations {
     publishStreamIdMustBeFilled(component) ++
     noSubscriptionMethodWithAcl(component) ++
     noSubscriptionWithRestAnnotations(component) ++
-      subscriptionMethodMustHaveOneParameter(component)
+    subscriptionMethodMustHaveOneParameter(component)
   }
 
   def validate(component: Class[_]): Validation =
     validateAction(component) ++
-      validateView(component)
+    validateView(component)
 
   private def validateAction(component: Class[_]): Validation = {
     when[Action](component) {
       commonValidation(component) ++
-        commonSubscriptionValidation(component, hasActionOutput) ++
-        actionValidation(component)
+      commonSubscriptionValidation(component, hasActionOutput) ++
+      actionValidation(component)
     }
   }
 
@@ -162,9 +162,9 @@ object Validations {
     when[View[_]](component) {
       validateSingleView(component)
     } ++
-      when(KalixSpringApplication.isMultiTableView(component)) {
-        viewMustHaveOneQueryMethod(component)
-        val viewClasses = component.getDeclaredClasses.toSeq.filter(KalixSpringApplication.isNestedViewTable)
+    when(KalixSpringApplication.isMultiTableView(component)) {
+      viewMustHaveOneQueryMethod(component)
+      val viewClasses = component.getDeclaredClasses.toSeq.filter(KalixSpringApplication.isNestedViewTable)
       viewClasses.map(validateSingleView).reduce(_ ++ _)
     }
   }
