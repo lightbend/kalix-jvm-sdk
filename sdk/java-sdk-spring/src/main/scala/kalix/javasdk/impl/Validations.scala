@@ -132,17 +132,29 @@ object Validations {
     publishStreamIdMustBeFilled(component) ++
     noSubscriptionMethodWithAcl(component) ++
     noSubscriptionWithRestAnnotations(component) ++
-    subscriptionMethodMustHaveOneParameter(component)
+      subscriptionMethodMustHaveOneParameter(component)
   }
 
   def validate(component: Class[_]): Validation =
     validateAction(component) ++
-    validateView(component)
+      validateView(component)
 
   private def validateAction(component: Class[_]): Validation = {
     when[Action](component) {
       commonValidation(component) ++
-      commonSubscriptionValidation(component, hasActionOutput)
+        commonSubscriptionValidation(component, hasActionOutput) ++
+        actionValidation(component)
+    }
+  }
+
+  private def actionValidation(component: Class[_]): Validation = {
+    val anySubscription = hasSubscription(component) || component.getMethods.toIndexedSeq.exists(hasSubscription)
+    val restMethods = component.getMethods.toIndexedSeq.filter(hasRestAnnotation)
+    when(anySubscription && restMethods.nonEmpty) {
+      Invalid(
+        errorMessage(
+          component,
+          s"An Action that subscribes should not be mixed with REST annotation, please move methods [${restMethods.map(_.getName).mkString(", ")}] to a separate Action component."))
     }
   }
 
@@ -150,9 +162,9 @@ object Validations {
     when[View[_]](component) {
       validateSingleView(component)
     } ++
-    when(KalixSpringApplication.isMultiTableView(component)) {
-      viewMustHaveOneQueryMethod(component)
-      val viewClasses = component.getDeclaredClasses.toSeq.filter(KalixSpringApplication.isNestedViewTable)
+      when(KalixSpringApplication.isMultiTableView(component)) {
+        viewMustHaveOneQueryMethod(component)
+        val viewClasses = component.getDeclaredClasses.toSeq.filter(KalixSpringApplication.isNestedViewTable)
       viewClasses.map(validateSingleView).reduce(_ ++ _)
     }
   }

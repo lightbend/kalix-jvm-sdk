@@ -31,6 +31,7 @@ import kalix.javasdk.annotations.Query;
 import kalix.javasdk.annotations.Table;
 import kalix.spring.testmodels.eventsourcedentity.Employee;
 import kalix.spring.testmodels.eventsourcedentity.EmployeeEvent;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -52,6 +53,32 @@ public class PubSubTestModels {//TODO shall we remove this class and move things
 
     public Action.Effect<CounterState> onUpdate(CounterState message) {
       return effects().reply(message);
+    }
+  }
+
+  public static class SubscribeToValueEntityWithRestAction extends Action {
+
+    @Subscribe.ValueEntity(Counter.class)
+    public Action.Effect<CounterState> onUpdate(CounterState message) {
+      return effects().reply(message);
+    }
+
+    @GetMapping("/test")
+    public Effect<String> get() {
+      return effects().reply("test");
+    }
+  }
+
+  @Subscribe.ValueEntity(Counter.class)
+  public static class TypeLevelSubscribeToValueEntityWithRestAction extends Action {
+
+    public Action.Effect<CounterState> onUpdate(CounterState message) {
+      return effects().reply(message);
+    }
+
+    @GetMapping("/test")
+    public Effect<String> get() {
+      return effects().reply("test");
     }
   }
 

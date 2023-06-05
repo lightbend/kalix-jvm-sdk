@@ -89,7 +89,9 @@ import kalix.spring.testmodels.subscriptions.PubSubTestModels.SubscribeToTwoTopi
 import kalix.spring.testmodels.subscriptions.PubSubTestModels.SubscribeToValueEntityAction
 import kalix.spring.testmodels.subscriptions.PubSubTestModels.SubscribeToValueEntityTypeLevelAction
 import kalix.spring.testmodels.subscriptions.PubSubTestModels.SubscribeToValueEntityWithDeletesAction
+import kalix.spring.testmodels.subscriptions.PubSubTestModels.SubscribeToValueEntityWithRestAction
 import kalix.spring.testmodels.subscriptions.PubSubTestModels.TypeLevelESWithPublishToTopicAction
+import kalix.spring.testmodels.subscriptions.PubSubTestModels.TypeLevelSubscribeToValueEntityWithRestAction
 import kalix.spring.testmodels.subscriptions.PubSubTestModels.TypeLevelTopicSubscriptionWithPublishToTopicAction
 import kalix.spring.testmodels.subscriptions.PubSubTestModels.VEWithPublishToTopicAction
 import org.scalatest.wordspec.AnyWordSpec
@@ -719,6 +721,20 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
         Validations.validate(classOf[InvalidConsumerGroupsWhenSubscribingToTopicAction]).failIfInvalid
       }.getMessage should include(
         "All subscription methods to topic [topicXYZ] must have the same consumer group, but found different consumer groups [cg, cg2].")
+    }
+
+    "validates action should not mix subscription and rest methods" in {
+      intercept[InvalidComponentException] {
+        Validations.validate(classOf[SubscribeToValueEntityWithRestAction]).failIfInvalid
+      }.getMessage should include(
+        "An Action that subscribes should not be mixed with REST annotation, please move methods [get] to a separate Action component.")
+    }
+
+    "validates action should not mix subscription and rest methods (type level)" in {
+      intercept[InvalidComponentException] {
+        Validations.validate(classOf[TypeLevelSubscribeToValueEntityWithRestAction]).failIfInvalid
+      }.getMessage should include(
+        "An Action that subscribes should not be mixed with REST annotation, please move methods [get] to a separate Action component.")
     }
 
     "generate mapping for an Action with a Rest endpoint and publication to a topic" in {
