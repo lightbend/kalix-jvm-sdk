@@ -16,22 +16,19 @@
 
 package com.example.wiring.pubsub;
 
-import com.example.wiring.eventsourcedentities.counter.CounterEvent;
 import com.example.wiring.valueentities.customer.CustomerEntity;
 
-import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Stream;
 
 public class DummyCustomerStore {
 
   private static ConcurrentHashMap<String, CustomerEntity.Customer> customers = new ConcurrentHashMap<>();
 
-  public static void store(String entityId, CustomerEntity.Customer customer) {
-    customers.put(entityId, customer);
+  public static void store(String storeName, String entityId, CustomerEntity.Customer customer) {
+    customers.put(storeName + "-" + entityId, customer);
   }
 
-  public static CustomerEntity.Customer get(String entityId) {
-    return customers.get(entityId);
+  public static CustomerEntity.Customer get(String storeName, String entityId) {
+    return customers.get(storeName + "-" + entityId);
   }
 }

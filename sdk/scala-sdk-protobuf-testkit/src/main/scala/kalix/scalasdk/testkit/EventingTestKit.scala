@@ -31,6 +31,9 @@ import scala.reflect.ClassTag
 /**
  * Testkit utility to mock broker's topic. Useful when doing integration tests for services that do eventing (in or out)
  * to a broker's topic.
+ *
+ * <p><b>Note: </b> messages written to the topic with this utility are not readable with the expect* methods, unless
+ * they have been properly forwarded through an eventing.out flow to the same topic.
  */
 @ApiMayChange
 trait Topic {
@@ -157,6 +160,54 @@ trait Topic {
    *   the list of the unread messages when the topic was cleared.
    */
   def clear(): Seq[Message[_]]
+
+  /**
+   * Simulate the publishing of a raw message to this topic for the purposes of testing eventing.in flows into a
+   * specific service.
+   *
+   * @param message
+   *   raw bytestring to be published in the topic
+   */
+  def publish(message: ByteString): Unit
+
+  /**
+   * Simulate the publishing of a raw message to this topic for the purposes of testing eventing.in flows into a
+   * specific service.
+   *
+   * @param message
+   *   raw bytestring to be published in the topic
+   * @param metadata
+   *   associated with the message
+   */
+  def publish(message: ByteString, metadata: Metadata): Unit
+
+  /**
+   * Simulate the publishing of a message to this topic for the purposes of testing eventing.in flows into a specific
+   * service.
+   *
+   * @param message
+   *   to be published in the topic
+   */
+  def publish[T <: GeneratedMessage](message: Message[T]): Unit
+
+  /**
+   * Simulate the publishing of a message to this topic for the purposes of testing eventing.in flows into a specific
+   * service.
+   *
+   * @param message
+   *   to be published in the topic
+   * @param subject
+   *   to identify the entity
+   */
+  def publish[T <: GeneratedMessage](message: T, subject: String): Unit
+
+  /**
+   * Publish multiple messages to this topic for the purposes of testing eventing.in flows into a specific service.
+   *
+   * @param messages
+   *   to be published in the topic
+   */
+  def publish[T <: GeneratedMessage](messages: List[Message[T]]): Unit
 }
 
 @InternalApi

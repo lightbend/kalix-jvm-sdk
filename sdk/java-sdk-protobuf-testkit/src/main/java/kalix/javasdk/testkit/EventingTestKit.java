@@ -16,18 +16,22 @@
 
 package kalix.javasdk.testkit;
 
+import akka.NotUsed;
 import akka.actor.ActorSystem;
 import akka.annotation.ApiMayChange;
 import akka.annotation.InternalApi;
+import akka.stream.javadsl.Source;
+import akka.testkit.TestProbe;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.GeneratedMessageV3;
 import kalix.javasdk.Metadata;
 import kalix.javasdk.impl.MessageCodec;
 import kalix.javasdk.testkit.impl.EventingTestKitImpl;
+import kalix.javasdk.testkit.impl.TestKitMessageImpl;
+import kalix.testkit.protocol.eventing_test_backend.SourceElem;
 import kalix.javasdk.testkit.impl.TopicImpl$;
 
 import java.time.Duration;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 
@@ -41,11 +45,13 @@ public interface EventingTestKit {
     return EventingTestKitImpl.start(system, host, port, codec);
   }
 
-
   Topic getTopic(String topic);
 
   /**
    * Testkit utility to mock broker's topic. Useful when doing integration tests for services that do eventing (in or out) to a broker's topic.
+   *
+   * <p><b>Note: </b> messages written to the topic with this utility are not readable with the expect* methods,
+   * unless they have been properly forwarded through an eventing.out flow to the same topic.
    */
   @ApiMayChange
   interface Topic {
@@ -154,6 +160,52 @@ public interface EventingTestKit {
      * @return the list of the unread messages when the topic was cleared.
      */
     List<Message<?>> clear();
+
+    /**
+     * Simulate the publishing of a raw message to this topic for the purposes
+     * of testing eventing.in flows into a specific service.
+     *
+     * @param message raw bytestring to be published in the topic
+     */
+    void publish(ByteString message);
+
+
+    /**
+     * Simulate the publishing of a raw message to this topic for the purposes
+     * of testing eventing.in flows into a specific service.
+     *
+     * @param message raw bytestring to be published in the topic
+     * @param metadata associated with the message
+     */
+    void publish(ByteString message, Metadata metadata);
+
+    /**
+     * Simulate the publishing of a message to this topic for the purposes
+     * of testing eventing.in flows into a specific service.
+     *
+     * @param message to be published in the topic
+     */
+    <T extends GeneratedMessageV3> void publish(Message<T> message);
+
+    /**
+     * Simulate the publishing of a message to this topic for the purposes
+     * of testing eventing.in flows into a specific service.
+     *
+     * @param message to be published in the topic
+     * @param subject to identify the entity
+     * @param <T>
+     */
+    <T extends GeneratedMessageV3> void publish(T message, String subject);
+
+    /**
+     * Publish multiple messages to this topic for the purposes
+     * of testing eventing.in flows into a specific service.
+     *
+     * @param messages to be published in the topic
+     * @param <T>
+     */
+    <T extends GeneratedMessageV3> void publish(List<Message<T>> messages);
+
   }
 
   @ApiMayChange
@@ -171,6 +223,30 @@ public interface EventingTestKit {
      * @param <T> the type of the payload
      */
     <T extends GeneratedMessageV3> T expectType(Class<T> clazz);
+
+    /**
+     * Create a message from a payload plus a subject (that is, the entity key).
+     * Automatically adds required default metadata for a CloudEvent.
+     *
+     * @param payload the message payload
+     * @param subject the entity key of which the message is concerned about
+     * @return a Message object to be used in the context of the Testkit
+     * @param <T>
+     */
+    static <T extends GeneratedMessageV3> Message<T> of(T payload, String subject) {
+      return new TestKitMessageImpl<>(payload, TestKitMessageImpl.defaultMetadata(payload, subject));
+    }
+
+    /**
+     * Create a message object from a payload plus metadata.
+     *
+     * @param payload the message payload
+     * @param metadata the metadata associated with the message
+     * @return a Message object to be used in the context of the Testkit
+     * @param <T>
+     */
+    static <T extends GeneratedMessageV3> Message<T> of(T payload, Metadata metadata) {
+      return new TestKitMessageImpl<>(payload, metadata);
+    }
   }
 }
-

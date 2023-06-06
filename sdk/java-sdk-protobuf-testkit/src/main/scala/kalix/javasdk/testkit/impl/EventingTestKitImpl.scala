@@ -21,41 +21,57 @@ import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.model.HttpRequest
 import akka.http.scaladsl.model.HttpResponse
+import akka.stream.BoundedSourceQueue
+import akka.stream.QueueOfferResult
+import akka.stream.scaladsl.Sink
 import akka.stream.scaladsl.Source
 import akka.testkit.TestProbe
 import akka.util.BoxedType
+import com.google.protobuf.ByteString
 import com.google.protobuf.GeneratedMessageV3
 import com.google.protobuf.any.{ Any => ScalaPbAny }
+import kalix.eventing.EventDestination
+import kalix.eventing.EventDestination.Destination
+import kalix.eventing.EventSource
+import kalix.javasdk.Metadata.{ MetadataEntry => SdkMetadataEntry }
 import kalix.javasdk.impl.MessageCodec
 import kalix.javasdk.impl.MetadataImpl
 import kalix.javasdk.testkit.EventingTestKit
 import kalix.javasdk.testkit.EventingTestKit.Topic
-import kalix.javasdk.testkit.impl.TopicImpl.DefaultTimeout
-import kalix.testkit.protocol.eventing_test_backend.EmitSingleResult
-
-import java.time
-import java.util.{ List => JList }
-import kalix.eventing.EventDestination
-import kalix.javasdk.{ Metadata => SdkMetadata }
 import kalix.javasdk.testkit.EventingTestKit.{ Message => TestKitMessage }
+import kalix.javasdk.testkit.impl.EventingTestKitImpl.RunningSourceProbe
+import kalix.javasdk.testkit.impl.TestKitMessageImpl.defaultMetadata
+import kalix.javasdk.testkit.impl.TopicImpl.DefaultTimeout
+import kalix.javasdk.{ Metadata => SdkMetadata }
 import kalix.protocol.component.Metadata
-import com.google.protobuf.ByteString
+import kalix.protocol.component.MetadataEntry
 import kalix.testkit.protocol.eventing_test_backend.EmitSingleCommand
+import kalix.testkit.protocol.eventing_test_backend.EmitSingleResult
 import kalix.testkit.protocol.eventing_test_backend.EventStreamOutCommand
 import kalix.testkit.protocol.eventing_test_backend.EventStreamOutResult
 import kalix.testkit.protocol.eventing_test_backend.EventingTestKitService
 import kalix.testkit.protocol.eventing_test_backend.EventingTestKitServiceHandler
+import kalix.testkit.protocol.eventing_test_backend.Message
 import kalix.testkit.protocol.eventing_test_backend.RunSourceCommand
+import kalix.testkit.protocol.eventing_test_backend.RunSourceCreate
 import kalix.testkit.protocol.eventing_test_backend.SourceElem
 import org.slf4j.LoggerFactory
 
+import java.time
+import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
+import java.util.{ List => JList }
 import scala.compat.java8.DurationConverters.DurationOps
 import scala.compat.java8.OptionConverters.RichOptionalGeneric
 import scala.concurrent.Await
 import scala.concurrent.Future
+import scala.concurrent.Promise
 import scala.concurrent.duration._
+import scala.jdk.CollectionConverters.CollectionHasAsScala
+import scala.jdk.CollectionConverters.IteratorHasAsScala
 import scala.jdk.CollectionConverters.SeqHasAsJava
+import scala.util.Failure
+import scala.util.Success
 import scala.language.postfixOps
 import scala.reflect.ClassTag.Nothing
 
@@ -87,28 +103,75 @@ object EventingTestKitImpl {
     service
   }
 
+  final case class RunningSourceProbe(serviceName: String, source: EventSource)(
+      outQueue: BoundedSourceQueue[SourceElem],
+      val outSource: Source[SourceElem, NotUsed]) {
+    private val log = LoggerFactory.getLogger(classOf[RunningSourceProbe])
+
+    private def emitElement(element: SourceElem): Unit = {
+      log.debug("Emitting message {}", element)
+      outQueue.offer(element) match {
+        case QueueOfferResult.Enqueued    => // goodie
+        case QueueOfferResult.Failure(ex) => throw ex
+        case QueueOfferResult.Dropped     => throw new AssertionError("Element was dropped")
+        case QueueOfferResult.QueueClosed => throw new AssertionError("Queue was closed")
+      }
+    }
+
+    def emit(data: ByteString, metadata: SdkMetadata): Unit = {
+
+      // FIXME maybe we could improve validation for metadata?
+      def convertMetadataEntry(sdkMetadataEntry: SdkMetadataEntry): MetadataEntry = {
+        val mde = MetadataEntry(sdkMetadataEntry.getKey)
+        if (sdkMetadataEntry.isText) {
+          mde.withStringValue(sdkMetadataEntry.getValue)
+        } else {
+          mde.withBytesValue(ByteString.copyFrom(sdkMetadataEntry.getBinaryValue))
+        }
+      }
+
+      val testKitMetadata =
+        Metadata(metadata.iterator().asScala.map(convertMetadataEntry).toList)
+
+      val subject = metadata.get("ce-subject").orElse("")
+      log.debug(
+        "Emitting from testkit to test broker, message with metadata={} with subject={}",
+        testKitMetadata,
+        subject)
+
+      emitElement(SourceElem(Some(Message(data, Some(testKitMetadata))), subject))
+    }
+
+  }
 }
 
 /**
- * Implements the EventingTestKit protocol defined in protocols/testkit/src/main/protobuf/eventing_test_backend.proto
+ * Implements the EventingTestKit protocol originally defined in proxy
+ * protocols/testkit/src/main/protobuf/eventing_test_backend.proto
  */
 final class EventingTestServiceImpl(system: ActorSystem, val host: String, var port: Int, codec: MessageCodec)
     extends EventingTestKit {
 
   private val log = LoggerFactory.getLogger(classOf[EventingTestServiceImpl])
   private implicit val sys = system
+  private implicit val ec = sys.dispatcher
 
+  // used to read messages from a topic
   private val eventDestinationProbe = new ConcurrentHashMap[EventDestination, TestProbe]()
 
+  // used to publish messages into a topic
+  private val eventSourceProbe = new ConcurrentHashMap[EventSource, TestProbe]()
+
   override def getTopic(topic: String): Topic = {
-    val dest = EventDestination.defaultInstance.withTopic(topic)
-    val probe = eventDestinationProbe.computeIfAbsent(dest, _ => TestProbe())
-    new TopicImpl(probe, codec)
+    val destinationProbe =
+      eventDestinationProbe.computeIfAbsent(EventDestination(Destination.Topic(topic)), _ => TestProbe())
+    val sourceProbe = eventSourceProbe.computeIfAbsent(EventSource.defaultInstance.withTopic(topic), _ => TestProbe())
+    new TopicImpl(destinationProbe, sourceProbe, codec)
   }
 
   final class ServiceImpl extends EventingTestKitService {
     override def emitSingle(in: EmitSingleCommand): Future[EmitSingleResult] = {
-      log.info("emitSingle request: [{}]", in)
+      log.debug("Receiving message from test broker: [{}]", in)
 
       in.destination.foreach(dest => {
         val probe = eventDestinationProbe.computeIfAbsent(dest, _ => TestProbe())
@@ -121,32 +184,80 @@ final class EventingTestServiceImpl(system: ActorSystem, val host: String, var p
       Future.successful(EmitSingleResult())
     }
 
-    override def runSource(in: Source[RunSourceCommand, NotUsed]): Source[SourceElem, NotUsed] = ???
+    override def runSource(in: Source[RunSourceCommand, NotUsed]): Source[SourceElem, NotUsed] = {
+      log.debug("Reading topic from test broker - runSource request started: {}", in)
+      val runningSourcePromise = Promise[RunningSourceProbe]()
+
+      in.watchTermination() { (_, fDone) =>
+        fDone.onComplete {
+          case Success(_)  => log.debug("runSource in completed")
+          case Failure(ex) => log.error("runSource in failed", ex)
+        }
+      }.runWith(Sink.fold(None: Option[RunningSourceProbe]) {
+        case (
+              None,
+              RunSourceCommand(
+                RunSourceCommand.Command.Create(RunSourceCreate(serviceName, Some(eventSource), _)),
+                _)) =>
+          // proxy triggers probe creation through the create command
+          log.debug(
+            "runSource request got initial create command for service name [{}], source: [{}]",
+            serviceName,
+            eventSource)
+          val (queue, source) = Source.queue[SourceElem](10).preMaterialize()
+          val runningSourceProbe = RunningSourceProbe(serviceName, eventSource)(queue, source)
+          eventSourceProbe.computeIfAbsent(eventSource, _ => TestProbe()).ref ! runningSourceProbe
+          runningSourcePromise.success(runningSourceProbe)
+          Some(runningSourceProbe)
+        case (s @ Some(runningSourceProbe), RunSourceCommand(RunSourceCommand.Command.Ack(sourceAck), _)) =>
+          log.debug("runSource request got ack [{}]", sourceAck)
+          s
+        case wat => throw new MatchError(s"Unexpected fold input: $wat")
+      })
+
+      Source
+        .futureSource(runningSourcePromise.future.map { runningSourceProbe =>
+          runningSourceProbe.outSource
+        })
+        .watchTermination() { (_, fDone) =>
+          fDone.onComplete {
+            case Success(_)  => log.debug("runSource out completed")
+            case Failure(ex) => log.error("runSource out failed", ex)
+          }
+        }
+        .mapMaterializedValue(_ => NotUsed)
+    }
 
     override def eventStreamOut(in: Source[EventStreamOutCommand, NotUsed]): Source[EventStreamOutResult, NotUsed] =
       throw new UnsupportedOperationException("Feature not supported in the testkit yet")
   }
 }
 
-class TopicImpl(private val probe: TestProbe, codec: MessageCodec) extends Topic {
+private[testkit] class TopicImpl(
+    private val destinationProbe: TestProbe,
+    private val sourceProbe: TestProbe,
+    codec: MessageCodec)
+    extends Topic {
+
+  private lazy val brokerProbe = sourceProbe.expectMsgType[RunningSourceProbe]
 
   private val log = LoggerFactory.getLogger(classOf[TopicImpl])
 
   override def expectNone(): Unit = expectNone(DefaultTimeout)
 
-  override def expectNone(timeout: time.Duration): Unit = probe.expectNoMessage(timeout.toScala)
+  override def expectNone(timeout: time.Duration): Unit = destinationProbe.expectNoMessage(timeout.toScala)
 
   override def expectOneRaw(): TestKitMessage[ByteString] = expectOneRaw(DefaultTimeout)
 
   override def expectOneRaw(timeout: time.Duration): TestKitMessage[ByteString] = {
-    val msg = probe.expectMsgType[EmitSingleCommand](timeout.toScala)
-    TestKitMessageImpl.ofMessage(msg.getMessage)
+    val msg = destinationProbe.expectMsgType[EmitSingleCommand](timeout.toScala)
+    TestKitMessageImpl.ofProtocolMessage(msg.getMessage)
   }
 
   override def expectOne(): TestKitMessage[_] = expectOne(DefaultTimeout)
 
   override def expectOne(timeout: time.Duration): TestKitMessage[_] = {
-    val msg = probe.expectMsgType[EmitSingleCommand](timeout.toScala)
+    val msg = destinationProbe.expectMsgType[EmitSingleCommand](timeout.toScala)
     anyFromMessage(msg.getMessage)
   }
 
@@ -154,7 +265,7 @@ class TopicImpl(private val probe: TestProbe, codec: MessageCodec) extends Topic
     expectOneTyped(clazz, DefaultTimeout)
 
   override def expectOneTyped[T <: GeneratedMessageV3](clazz: Class[T], timeout: time.Duration): TestKitMessage[T] = {
-    val msg = probe.expectMsgType[EmitSingleCommand]
+    val msg = destinationProbe.expectMsgType[EmitSingleCommand]
     val metadata = new MetadataImpl(msg.getMessage.getMetadata.entries)
     val decodedMsg = codec.decodeMessage(ScalaPbAny(typeUrlFor(metadata), msg.getMessage.payload))
 
@@ -190,7 +301,7 @@ class TopicImpl(private val probe: TestProbe, codec: MessageCodec) extends Topic
     expectN(total, DefaultTimeout)
 
   override def expectN(total: Int, timeout: time.Duration): JList[TestKitMessage[_]] = {
-    probe
+    destinationProbe
       .receiveWhile(max = timeout.toScala, messages = total) { case cmd: EmitSingleCommand =>
         anyFromMessage(cmd.getMessage)
       }
@@ -198,31 +309,60 @@ class TopicImpl(private val probe: TestProbe, codec: MessageCodec) extends Topic
   }
 
   override def clear(): JList[TestKitMessage[_]] = {
-    probe
+    destinationProbe
       .receiveWhile(idle = 1.millisecond) { case cmd: EmitSingleCommand =>
         anyFromMessage(cmd.getMessage)
       }
       .asJava
   }
 
+  override def publish(message: ByteString): Unit =
+    publish(message, SdkMetadata.EMPTY)
+
+  override def publish(message: ByteString, metadata: SdkMetadata): Unit =
+    brokerProbe.emit(message, metadata)
+
+  override def publish[T <: GeneratedMessageV3](message: TestKitMessage[T]): Unit =
+    publish(message.getPayload.toByteString, message.getMetadata)
+
+  override def publish[T <: GeneratedMessageV3](message: T, subject: String): Unit = {
+    val md = defaultMetadata(message, subject)
+    publish(message.toByteString, md)
+  }
+
+  override def publish[T <: GeneratedMessageV3](message: JList[TestKitMessage[T]]): Unit =
+    message.asScala.foreach(m => publish(m))
+
 }
 
-object TopicImpl {
+private[testkit] object TopicImpl {
   val DefaultTimeout = time.Duration.ofSeconds(3)
 }
 
-case class TestKitMessageImpl[P](payload: P, metadata: SdkMetadata) extends TestKitMessage[P] {
+private[testkit] case class TestKitMessageImpl[P](payload: P, metadata: SdkMetadata) extends TestKitMessage[P] {
   override def getPayload: P = payload
   override def getMetadata: SdkMetadata = metadata
 
   override def expectType[T <: GeneratedMessageV3](clazz: Class[T]): T = TestKitMessageImpl.expectType(payload, clazz)
 }
 
-object TestKitMessageImpl {
-  def ofMessage(m: kalix.testkit.protocol.eventing_test_backend.Message): TestKitMessage[ByteString] = {
-    val metadata = new MetadataImpl(m.metadata.getOrElse(Metadata.defaultInstance).entries)
+private[testkit] object TestKitMessageImpl {
+  def ofProtocolMessage(m: kalix.testkit.protocol.eventing_test_backend.Message): TestKitMessage[ByteString] = {
+    val metadata = new MetadataImpl(m.metadata.getOrElse(Metadata()).entries)
     TestKitMessageImpl[ByteString](m.payload, metadata).asInstanceOf[TestKitMessage[ByteString]]
   }
+
+  def of[T <: GeneratedMessageV3](payload: T): TestKitMessage[T] =
+    TestKitMessageImpl(payload, defaultMetadata(payload, ""))
+
+  def defaultMetadata(message: GeneratedMessageV3, subject: String): SdkMetadata =
+    SdkMetadata.EMPTY
+      .add("ce-specversion", "1.0")
+      .add("ce-id", UUID.randomUUID().toString)
+      .add("ce-subject", subject)
+      .add("Content-Type", "application/protobuf;proto=" + message.getDescriptorForType.getFullName)
+      .add("ce-type", message.getDescriptorForType.getName)
+      .add("ce-source", message.getDescriptorForType.getFullName)
 
   def expectType[T <: GeneratedMessageV3](payload: Any, clazz: Class[T]): T = {
     val bt = BoxedType(clazz)
