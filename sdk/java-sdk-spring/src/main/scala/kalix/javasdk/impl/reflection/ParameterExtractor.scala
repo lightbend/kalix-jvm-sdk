@@ -23,6 +23,7 @@ import com.google.protobuf.DynamicMessage
 import com.google.protobuf.{ Any => JavaPbAny }
 import kalix.javasdk.JsonSupport
 import kalix.javasdk.Metadata
+import kalix.javasdk.impl.AnySupport
 import kalix.javasdk.impl.ErrorHandling.BadRequestException
 
 /**
@@ -42,25 +43,29 @@ trait DynamicMessageContext {
 
 object ParameterExtractors {
 
-  private def decodeJson[T](dm: DynamicMessage, cls: Class[T]): T = {
+  private def decodeParam[T](dm: DynamicMessage, cls: Class[T]): T = {
     val typeUrl = dm.getField(JavaPbAny.getDescriptor.findFieldByName("type_url")).asInstanceOf[String]
     val bytes = dm.getField(JavaPbAny.getDescriptor.findFieldByName("value")).asInstanceOf[ByteString]
 
-    // TODO: avoid creating a new JavaPbAny instance
-    // we want to reuse the typeUrl validation and reading logic (skip tag + jackson reader) from JsonSupport
-    // we need a new internal version that also handle DynamicMessages
-    val any =
-      JavaPbAny
-        .newBuilder()
-        .setTypeUrl(typeUrl)
-        .setValue(bytes)
-        .build()
-    JsonSupport.decodeJson(cls, any)
+    if (cls == classOf[Array[Byte]]) {
+      AnySupport.decodePrimitiveBytes(bytes).toByteArray.asInstanceOf[T]
+    } else {
+      // TODO: avoid creating a new JavaPbAny instance
+      // we want to reuse the typeUrl validation and reading logic (skip tag + jackson reader) from JsonSupport
+      // we need a new internal version that also handle DynamicMessages
+      val any =
+        JavaPbAny
+          .newBuilder()
+          .setTypeUrl(typeUrl)
+          .setValue(bytes)
+          .build()
+      JsonSupport.decodeJson(cls, any)
+    }
   }
 
   case class AnyBodyExtractor[T](cls: Class[_]) extends ParameterExtractor[DynamicMessageContext, T] {
     override def extract(context: DynamicMessageContext): T =
-      decodeJson(context.message, cls.asInstanceOf[Class[T]])
+      decodeParam(context.message, cls.asInstanceOf[Class[T]])
   }
 
   class BodyExtractor[T](field: Descriptors.FieldDescriptor, cls: Class[_])
@@ -68,7 +73,7 @@ object ParameterExtractors {
 
     override def extract(context: DynamicMessageContext): T = {
       context.message.getField(field) match {
-        case dm: DynamicMessage => decodeJson(dm, cls.asInstanceOf[Class[T]])
+        case dm: DynamicMessage => decodeParam(dm, cls.asInstanceOf[Class[T]])
       }
     }
   }

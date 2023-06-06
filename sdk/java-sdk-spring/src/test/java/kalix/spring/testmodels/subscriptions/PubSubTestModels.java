@@ -20,6 +20,7 @@ import kalix.javasdk.action.Action;
 import kalix.javasdk.annotations.Acl;
 import kalix.javasdk.annotations.Publish;
 import kalix.javasdk.annotations.Subscribe;
+import kalix.spring.testmodels.Done;
 import kalix.spring.testmodels.Message;
 import kalix.spring.testmodels.Message2;
 import kalix.spring.testmodels.eventsourcedentity.EmployeeEvent.EmployeeCreated;
@@ -562,6 +563,23 @@ public class PubSubTestModels {//TODO shall we remove this class and move things
     @Publish.Topic("foobar")
     public Effect<Message> messageOne(@PathVariable String msg) {
       return effects().reply(new Message(msg));
+    }
+  }
+
+  @Subscribe.ValueEntity(Counter.class)
+  public static class PublishBytesToTopicAction extends Action {
+
+    @Publish.Topic("foobar")
+    public Effect<byte[]> produce(Message msg) {
+      return effects().reply(msg.value.getBytes());
+    }
+  }
+
+  public static class SubscribeToBytesFromTopicAction extends Action {
+
+    @Subscribe.Topic("foobar")
+    public Effect<Done> consume(byte[] bytes) {
+      return effects().reply(Done.instance);
     }
   }
 

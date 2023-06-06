@@ -16,12 +16,16 @@
 
 package kalix.javasdk.impl
 
+import com.google.protobuf.ByteString
+import com.google.protobuf.BytesValue
+
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentMap
 import com.google.protobuf.any.{ Any => ScalaPbAny }
 import com.google.protobuf.{ Any => JavaPbAny }
 import kalix.javasdk.JsonSupport
 import kalix.javasdk.annotations.TypeName
+import kalix.javasdk.impl.AnySupport.BytesPrimitive
 import org.slf4j.LoggerFactory
 
 private[kalix] class JsonMessageCodec extends MessageCodec {
@@ -39,6 +43,7 @@ private[kalix] class JsonMessageCodec extends MessageCodec {
     value match {
       case javaPbAny: JavaPbAny   => ScalaPbAny.fromJavaProto(javaPbAny)
       case scalaPbAny: ScalaPbAny => scalaPbAny
+      case bytes: Array[Byte]     => ScalaPbAny.fromJavaProto(JavaPbAny.pack(BytesValue.of(ByteString.copyFrom(bytes))))
       case other                  => ScalaPbAny.fromJavaProto(JsonSupport.encodeJson(other, lookupTypeHint(other)))
     }
   }
@@ -77,8 +82,13 @@ private[kalix] class JsonMessageCodec extends MessageCodec {
     typeName
   }
 
-  def typeUrlFor(clz: Class[_]) =
-    JsonSupport.KALIX_JSON + lookupTypeHint(clz)
+  def typeUrlFor(clz: Class[_]) = {
+    if (clz == classOf[Array[Byte]]) {
+      BytesPrimitive.fullName
+    } else {
+      JsonSupport.KALIX_JSON + lookupTypeHint(clz)
+    }
+  }
 
   override def decodeMessage(value: ScalaPbAny): Any = {
     value

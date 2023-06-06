@@ -29,6 +29,9 @@ import java.time.Instant;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import static com.example.wiring.pubsub.PublishBytesToTopic.CUSTOMERS_BYTES_TOPIC;
+import static com.example.wiring.pubsub.PublishTopicToTopic.CUSTOMERS_2_TOPIC;
+import static com.example.wiring.pubsub.PublishVEToTopic.CUSTOMERS_TOPIC;
 import static java.time.temporal.ChronoUnit.SECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
@@ -118,14 +121,26 @@ public class PubSubIntegrationTest extends DockerIntegrationTest {
       .ignoreExceptions()
       .atMost(20, TimeUnit.of(SECONDS))
       .untilAsserted(() -> {
-        var response = webClient
-          .get()
-          .uri("/subscribe-to-customer-topic/" + customer1.name())
-          .retrieve()
-          .bodyToMono(Customer.class)
-          .block(timeout);
-
+        var response = DummyCustomerStore.get(CUSTOMERS_TOPIC, customer1.name());
         assertThat(response).isEqualTo(updatedCustomer1);
+      });
+  }
+
+  @Test
+  public void shouldVerifyActionSubscribingAndPublishingRawBytes() {
+    //given
+    Customer customer1 = new Customer("name3", Instant.now());
+
+    //when
+    createCustomer(customer1);
+
+    //then
+    await()
+      .ignoreExceptions()
+      .atMost(20, TimeUnit.of(SECONDS))
+      .untilAsserted(() -> {
+        var response = DummyCustomerStore.get(CUSTOMERS_BYTES_TOPIC, customer1.name());
+        assertThat(response).isEqualTo(customer1);
       });
   }
 
@@ -146,13 +161,7 @@ public class PubSubIntegrationTest extends DockerIntegrationTest {
       .ignoreExceptions()
       .atMost(20, TimeUnit.of(SECONDS))
       .untilAsserted(() -> {
-        var response = webClient
-          .get()
-          .uri("/subscribe-to-customer-2-topic/" + customer1.name())
-          .retrieve()
-          .bodyToMono(Customer.class)
-          .block(timeout);
-
+        var response = DummyCustomerStore.get(CUSTOMERS_2_TOPIC, customer1.name());
         assertThat(response).isEqualTo(updatedCustomer1);
       });
   }
