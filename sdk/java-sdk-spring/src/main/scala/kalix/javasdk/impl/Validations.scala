@@ -154,7 +154,7 @@ object Validations {
       Invalid(
         errorMessage(
           component,
-          s"An Action that subscribes should not be mixed with REST annotation, please move methods [${restMethods.map(_.getName).mkString(", ")}] to a separate Action component."))
+          s"An Action that subscribes should not be mixed with REST annotations, please move methods [${restMethods.map(_.getName).mkString(", ")}] to a separate Action component."))
     }
   }
 
