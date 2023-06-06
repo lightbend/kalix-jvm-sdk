@@ -27,14 +27,36 @@ service CounterTopicSubscription {
 
   rpc OnIncreased (com.example.actions.Increased) returns (google.protobuf.Empty) {
     option (kalix.method).eventing.in = { // <3>
-      topic:  "counter-events"
+      topic: "counter-events"
     };
   }
 
   rpc OnDecreased (com.example.actions.Decreased) returns (google.protobuf.Empty) {
     option (kalix.method).eventing.in = {
-      topic:  "counter-events"
+      topic: "counter-events"
     };
   }
 }
 // end::counter-topic-sub[]
+
+
+import "com/example/counter_api.proto";
+
+
+service CounterCommandFromTopic {
+  option (kalix.codegen) = {
+    action: {}
+  };
+
+  rpc Increase (IncreaseValue) returns (google.protobuf.Empty) {
+    option (kalix.method).eventing.in = {
+      topic: "counter-commands"
+    };
+  }
+
+  rpc Decrease (DecreaseValue) returns (google.protobuf.Empty) {
+    option (kalix.method).eventing.in = {
+      topic: "counter-commands"
+    };
+  }
+}

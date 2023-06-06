@@ -25,7 +25,7 @@ public class CounterTopicSubscriptionAction extends AbstractCounterTopicSubscrip
 
   @Override
   public Effect<Empty> onDecreased(CounterTopicApi.Decreased decreased) {
-    logger.info("Received increase event: " + decreased.toString());
+    logger.info("Received decrease event: " + decreased.toString());
     return effects().reply(Empty.getDefaultInstance());
   }
 }

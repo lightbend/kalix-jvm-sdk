@@ -4,6 +4,8 @@
  */
 package com.example;
 
+import com.example.actions.CounterTopicApi;
+import kalix.javasdk.testkit.EventingTestKit;
 import kalix.javasdk.testkit.junit.KalixTestKitResource;
 import com.example.CounterApi;
 import com.example.CounterService;
@@ -59,7 +61,6 @@ public class CounterIntegrationTest {
     assertEquals(1, getCounterValue(counterId));
   }
 
-
   @Test
   public void decreaseOnNonExistingEntity() throws Exception {
     String counterId = "test-2";
@@ -71,7 +72,7 @@ public class CounterIntegrationTest {
         client.decrease(
             CounterApi.DecreaseValue.newBuilder()
                 .setCounterId(counterId)
-                .setValue(-1).build()));
+                .setValue(1).build()));
     assertEquals(4, getCounterValue(counterId));
   }
 
@@ -86,5 +87,4 @@ public class CounterIntegrationTest {
         client.reset(CounterApi.ResetValue.newBuilder().setCounterId(counterId).build()));
     assertEquals(0, getCounterValue(counterId));
   }
-
 }

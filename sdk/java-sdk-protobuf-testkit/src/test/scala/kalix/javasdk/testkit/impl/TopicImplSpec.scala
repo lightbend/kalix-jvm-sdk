@@ -36,8 +36,9 @@ import scala.jdk.CollectionConverters.CollectionHasAsScala
 class TopicImplSpec extends ScalaTestWithActorTestKit with AnyWordSpecLike with Matchers with BeforeAndAfterEach {
 
   private val anySupport = new AnySupport(Array(), getClass.getClassLoader)
-  private val probe = TestProbe()(system.classicSystem)
-  private val topic = new TopicImpl(probe, anySupport)
+  private val outProbe = TestProbe()(system.classicSystem)
+  private val inProbe = TestProbe()(system.classicSystem)
+  private val topic = new TopicImpl(outProbe, inProbe, anySupport)
 
   private val textPlainMd = MetadataEntry("Content-Type", StringValue("text/plain; charset=utf-8"))
   private val bytesMd = MetadataEntry("Content-Type", StringValue("application/octet-stream"))
@@ -48,7 +49,7 @@ class TopicImplSpec extends ScalaTestWithActorTestKit with AnyWordSpecLike with 
   "TopicImpl" must {
     "provide utility to read typed messages - string" in {
       val msg = "this is a message"
-      probe.ref ! msgWithMetadata(msg, textPlainMd)
+      outProbe.ref ! msgWithMetadata(msg, textPlainMd)
 
       val receivedMsg = topic.expectN(1).get(0).expectType(classOf[com.google.protobuf.StringValue])
       receivedMsg.getValue shouldBe msg
@@ -56,7 +57,7 @@ class TopicImplSpec extends ScalaTestWithActorTestKit with AnyWordSpecLike with 
 
     "provide utility to read typed messages - bytes" in {
       val bytes = ByteString.copyFromUtf8("this is a message")
-      probe.ref ! msgWithMetadata(bytes, bytesMd)
+      outProbe.ref ! msgWithMetadata(bytes, bytesMd)
 
       val receivedMsg = topic.expectOneTyped(classOf[com.google.protobuf.BytesValue])
       receivedMsg.getPayload.getValue shouldBe bytes
@@ -66,8 +67,8 @@ class TopicImplSpec extends ScalaTestWithActorTestKit with AnyWordSpecLike with 
       val msg = "this is a message"
       val bytes = ByteString.copyFromUtf8("this is a message")
 
-      probe.ref ! msgWithMetadata(msg, textPlainMd)
-      probe.ref ! msgWithMetadata(bytes, bytesMd)
+      outProbe.ref ! msgWithMetadata(msg, textPlainMd)
+      outProbe.ref ! msgWithMetadata(bytes, bytesMd)
 
       assertThrows[AssertionError] {
         // we are expecting the second msg type so this fails when it receives the first one
@@ -79,9 +80,9 @@ class TopicImplSpec extends ScalaTestWithActorTestKit with AnyWordSpecLike with 
       val msg = "this is a message"
       val msg2 = "this is a second message"
       val msg3 = "this is a third message, to read later"
-      probe.ref ! msgWithMetadata(msg, textPlainMd)
-      probe.ref ! msgWithMetadata(msg2, textPlainMd)
-      probe.ref ! msgWithMetadata(msg3, textPlainMd)
+      outProbe.ref ! msgWithMetadata(msg, textPlainMd)
+      outProbe.ref ! msgWithMetadata(msg2, textPlainMd)
+      outProbe.ref ! msgWithMetadata(msg3, textPlainMd)
 
       val Seq(received1, received2) = topic.expectN(2).asScala.toSeq
       received1.expectType(classOf[com.google.protobuf.StringValue]).getValue shouldBe msg

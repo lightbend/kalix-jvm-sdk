@@ -65,7 +65,7 @@ public class CounterTest {
   public void decreaseTest() {
     CounterTestKit testKit = CounterTestKit.of(Counter::new);
     testKit.increase(CounterApi.IncreaseValue.newBuilder().setValue(10).build());
-    EventSourcedResult<Empty> result = testKit.decrease(CounterApi.DecreaseValue.newBuilder().setValue(-1).build());
+    EventSourcedResult<Empty> result = testKit.decrease(CounterApi.DecreaseValue.newBuilder().setValue(1).build());
     assertTrue(result.didEmitEvents());
     assertEquals(9, testKit.getState().getValue());
   }
@@ -74,19 +74,19 @@ public class CounterTest {
   public void decreaseToMuchTest() {
     CounterTestKit testKit = CounterTestKit.of(Counter::new);
     testKit.increase(CounterApi.IncreaseValue.newBuilder().setValue(2).build());
-    EventSourcedResult<Empty> result = testKit.decrease(CounterApi.DecreaseValue.newBuilder().setValue(-3).build());
+    EventSourcedResult<Empty> result = testKit.decrease(CounterApi.DecreaseValue.newBuilder().setValue(3).build());
     assertTrue(result.isError());
     assertEquals("Decrease value is too high. Counter cannot become negative", result.getError());
   }
 
 
   @Test
-  public void decreaseTestWithPositiveValue() {
+  public void decreaseTestWithNegativeValue() {
     CounterTestKit testKit = CounterTestKit.of(Counter::new);
     testKit.increase(CounterApi.IncreaseValue.newBuilder().setValue(1).build());
-    EventSourcedResult<Empty> result = testKit.decrease(CounterApi.DecreaseValue.newBuilder().setValue(1).build());
+    EventSourcedResult<Empty> result = testKit.decrease(CounterApi.DecreaseValue.newBuilder().setValue(-1).build());
     assertTrue(result.isError());
-    assertEquals("Value must be a zero or a negative number", result.getError());
+    assertEquals("Value must be a zero or a positive number", result.getError());
   }
 
   @Test

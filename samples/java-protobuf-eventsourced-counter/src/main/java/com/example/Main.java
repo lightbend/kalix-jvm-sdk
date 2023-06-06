@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.example.actions.CounterJournalToTopicAction;
 import com.example.actions.CounterTopicSubscriptionAction;
+import com.example.actions.CounterCommandFromTopicAction;
 import com.example.domain.Counter;
 
 public final class Main {
@@ -24,6 +25,7 @@ public final class Main {
     // `new Kalix()` instance.
     return KalixFactory.withComponents(
       Counter::new,
+      CounterCommandFromTopicAction::new,
       CounterJournalToTopicAction::new,
       CounterJournalToTopicWithMetaAction::new,
       CounterTopicSubscriptionAction::new);
