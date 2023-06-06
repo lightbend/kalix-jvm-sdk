@@ -727,14 +727,14 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
       intercept[InvalidComponentException] {
         Validations.validate(classOf[SubscribeToValueEntityWithRestAction]).failIfInvalid
       }.getMessage should include(
-        "An Action that subscribes should not be mixed with REST annotation, please move methods [get] to a separate Action component.")
+        "An Action that subscribes should not be mixed with REST annotations, please move methods [get] to a separate Action component.")
     }
 
     "validates action should not mix subscription and rest methods (type level)" in {
       intercept[InvalidComponentException] {
         Validations.validate(classOf[TypeLevelSubscribeToValueEntityWithRestAction]).failIfInvalid
       }.getMessage should include(
-        "An Action that subscribes should not be mixed with REST annotation, please move methods [get] to a separate Action component.")
+        "An Action that subscribes should not be mixed with REST annotations, please move methods [get] to a separate Action component.")
     }
 
     "generate mapping for an Action with a Rest endpoint and publication to a topic" in {
