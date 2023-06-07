@@ -169,7 +169,6 @@ public interface EventingTestKit {
      */
     void publish(ByteString message);
 
-
     /**
      * Simulate the publishing of a raw message to this topic for the purposes
      * of testing eventing.in flows into a specific service.
@@ -185,7 +184,7 @@ public interface EventingTestKit {
      *
      * @param message to be published in the topic
      */
-    <T extends GeneratedMessageV3> void publish(Message<T> message);
+    void publish(Message<?> message);
 
     /**
      * Simulate the publishing of a message to this topic for the purposes
@@ -195,7 +194,7 @@ public interface EventingTestKit {
      * @param subject to identify the entity
      * @param <T>
      */
-    <T extends GeneratedMessageV3> void publish(T message, String subject);
+    <T> void publish(T message, String subject);
 
     /**
      * Publish multiple messages to this topic for the purposes
@@ -204,7 +203,7 @@ public interface EventingTestKit {
      * @param messages to be published in the topic
      * @param <T>
      */
-    <T extends GeneratedMessageV3> void publish(List<Message<T>> messages);
+    void publish(List<Message<?>> messages);
 
   }
 

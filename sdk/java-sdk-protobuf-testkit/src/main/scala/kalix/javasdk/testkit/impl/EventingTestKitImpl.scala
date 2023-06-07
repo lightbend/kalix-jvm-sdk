@@ -45,7 +45,6 @@ import kalix.javasdk.testkit.impl.TopicImpl.DefaultTimeout
 import kalix.javasdk.{ Metadata => SdkMetadata }
 import kalix.protocol.component.Metadata
 import kalix.protocol.component.MetadataEntry
-import com.google.protobuf.ByteString
 import kalix.javasdk.JsonSupport
 import kalix.testkit.protocol.eventing_test_backend.EmitSingleCommand
 import kalix.testkit.protocol.eventing_test_backend.EmitSingleResult
@@ -58,6 +57,7 @@ import kalix.testkit.protocol.eventing_test_backend.RunSourceCommand
 import kalix.testkit.protocol.eventing_test_backend.RunSourceCreate
 import kalix.testkit.protocol.eventing_test_backend.SourceElem
 import org.slf4j.LoggerFactory
+import scalapb.GeneratedMessage
 
 import java.time
 import java.util.UUID
@@ -75,7 +75,6 @@ import scala.jdk.CollectionConverters.SeqHasAsJava
 import scala.util.Failure
 import scala.util.Success
 import scala.language.postfixOps
-import scala.reflect.ClassTag.Nothing
 
 object EventingTestKitImpl {
 
@@ -336,15 +335,23 @@ private[testkit] class TopicImpl(
   override def publish(message: ByteString, metadata: SdkMetadata): Unit =
     brokerProbe.emit(message, metadata)
 
-  override def publish[T <: GeneratedMessageV3](message: TestKitMessage[T]): Unit =
-    publish(message.getPayload.toByteString, message.getMetadata)
-
-  override def publish[T <: GeneratedMessageV3](message: T, subject: String): Unit = {
-    val md = defaultMetadata(message, subject)
-    publish(message.toByteString, md)
+  override def publish(message: TestKitMessage[?]): Unit = message.getPayload match {
+    case javaPb: GeneratedMessageV3 => publish(javaPb.toByteString, message.getMetadata)
+    case scalaPb: GeneratedMessage  => publish(scalaPb.toByteString, message.getMetadata)
+    case str: String                => publish(ByteString.copyFromUtf8(str), message.getMetadata)
+    case _ =>
+      val encodedMsg = JsonSupport.getObjectMapper
+        .writerFor(message.getPayload.getClass)
+        .writeValueAsBytes(message.getPayload)
+      publish(ByteString.copyFrom(encodedMsg), message.getMetadata)
   }
 
-  override def publish[T <: GeneratedMessageV3](message: JList[TestKitMessage[T]]): Unit =
+  override def publish[T](message: T, subject: String): Unit = {
+    val md = defaultMetadata(message, subject)
+    publish(TestKitMessageImpl(message, md))
+  }
+
+  override def publish(message: JList[TestKitMessage[?]]): Unit =
     message.asScala.foreach(m => publish(m))
 
 }
@@ -368,16 +375,30 @@ private[testkit] object TestKitMessageImpl {
   def of[T](payload: T): TestKitMessage[T] =
     TestKitMessageImpl(payload, defaultMetadata(payload, ""))
 
-  def defaultMetadata(message: GeneratedMessageV3, subject: String): SdkMetadata =
+  def defaultMetadata(message: Any, subject: String): SdkMetadata = {
+    val (contentType, ceType) = message match {
+      case pbMsg: GeneratedMessageV3 =>
+        val desc = pbMsg.getDescriptorForType
+        (s"application/protobuf;proto=${desc.getFullName}", desc.getName)
+      case pbMsg: GeneratedMessage =>
+        val desc = pbMsg.companion.javaDescriptor
+        (s"application/protobuf;proto=${desc.getFullName}", desc.getName)
+      case _: String =>
+        ("text/plain; charset=utf-8", "")
+      case _ =>
+        ("application/json", message.getClass.getName)
+    }
+
     SdkMetadata.EMPTY
+      .add("Content-Type", contentType)
       .add("ce-specversion", "1.0")
       .add("ce-id", UUID.randomUUID().toString)
       .add("ce-subject", subject)
-      .add("Content-Type", "application/protobuf;proto=" + message.getDescriptorForType.getFullName)
-      .add("ce-type", message.getDescriptorForType.getName)
-      .add("ce-source", message.getDescriptorForType.getFullName)
+      .add("ce-type", ceType)
+      .add("ce-source", classOf[EventingTestKit].getName)
+  }
 
-  def expectType[T <: GeneratedMessageV3](payload: Any, clazz: Class[T]): T = {
+  def expectType[T](payload: Any, clazz: Class[T]): T = {
     val bt = BoxedType(clazz)
     payload match {
       case m if bt.isInstance(m) => m.asInstanceOf[T]

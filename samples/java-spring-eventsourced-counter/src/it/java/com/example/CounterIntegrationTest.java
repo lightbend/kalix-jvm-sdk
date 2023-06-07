@@ -1,5 +1,6 @@
 package com.example;
 
+import com.example.actions.CounterCommandFromTopicAction;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import kalix.javasdk.testkit.EventingTestKit;
 import kalix.javasdk.testkit.KalixTestKit;
@@ -11,7 +12,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Import;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.time.Duration;
@@ -34,11 +34,13 @@ public class CounterIntegrationTest extends KalixIntegrationTestKitSupport {
 
     private Duration timeout = Duration.of(10, SECONDS);
 
-    private EventingTestKit.Topic outTopic;
+    private EventingTestKit.Topic commandsTopic;
+    private EventingTestKit.Topic eventsTopic;
 
     @BeforeAll
     public void beforeAll() {
-        outTopic = kalixTestKit.getTopic("counter-events");
+        commandsTopic = kalixTestKit.getTopic("counter-commands");
+        eventsTopic = kalixTestKit.getTopic("counter-events");
     }
 
 
@@ -74,29 +76,18 @@ public class CounterIntegrationTest extends KalixIntegrationTestKitSupport {
     @Test
     public void verifyCounterEventSourcedPublishToTopic() throws JsonProcessingException {
 
-        String counterIncrease =
-            webClient
-                .post()
-                .uri("/counter/to-topic/increase/10")
-                .retrieve()
-                .bodyToMono(String.class)
-                .block(timeout);
-        assertEquals("\"10\"", counterIncrease);
+        var counterId = "pubsub-test";
+        var increaseCmd1 = new CounterCommandFromTopicAction.IncreaseCounter(counterId, 3);
+        var increaseCmd2 = new CounterCommandFromTopicAction.IncreaseCounter(counterId, 4);
 
-        String counterMultiply =
-            webClient
-                .post()
-                .uri("/counter/to-topic/multiply/20")
-                .retrieve()
-                .bodyToMono(String.class)
-                .block(timeout);
-        assertEquals("\"200\"", counterMultiply);
+        commandsTopic.publish(increaseCmd1, counterId);
+        commandsTopic.publish(increaseCmd2, counterId);
 
-        var eventIncreased = outTopic.expectOneTyped(CounterEvent.ValueIncreased.class);
-        assertEquals(new CounterEvent.ValueIncreased(10), eventIncreased.getPayload());
+        var eventIncreased1 = eventsTopic.expectOneTyped(CounterEvent.ValueIncreased.class);
+        assertEquals(new CounterEvent.ValueIncreased(increaseCmd1.value()), eventIncreased1.getPayload());
 
-        var eventMultiply = outTopic.expectOneTyped(CounterEvent.ValueMultiplied.class);
-        assertEquals(new CounterEvent.ValueMultiplied(20), eventMultiply.getPayload());
+        var eventIncreased2 = eventsTopic.expectOneTyped(CounterEvent.ValueIncreased.class);
+        assertEquals(new CounterEvent.ValueIncreased(increaseCmd2.value()), eventIncreased2.getPayload());
     }
 // tag::class[]
 }
