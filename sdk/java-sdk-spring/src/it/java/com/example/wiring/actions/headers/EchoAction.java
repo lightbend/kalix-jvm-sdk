@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
 /**
- * Action with the same in a different package.
+ * Action with the same name in a different package.
  */
 public class EchoAction extends Action {
 
