@@ -50,10 +50,4 @@ public class SubscribeToCounterEventsTopic extends Action {
     logger.info("Consuming " + counterEvent + " from " + entityId);
     DummyCounterEventStore.store(entityId, counterEvent);
   }
-
-  @GetMapping("/subscribe-to-topic/{entityId}")
-  public Effect<List<CounterEvent>> get(@PathVariable String entityId) {
-    List<CounterEvent> message = DummyCounterEventStore.get(entityId);
-    return effects().reply(message);
-  }
 }
