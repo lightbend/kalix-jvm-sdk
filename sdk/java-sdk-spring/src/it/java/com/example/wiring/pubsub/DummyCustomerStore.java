@@ -16,19 +16,19 @@
 
 package com.example.wiring.pubsub;
 
-import com.example.wiring.valueentities.customer.CustomerEntity;
+import com.example.wiring.valueentities.customer.CustomerEntity.Customer;
 
 import java.util.concurrent.ConcurrentHashMap;
 
 public class DummyCustomerStore {
 
-  private static ConcurrentHashMap<String, CustomerEntity.Customer> customers = new ConcurrentHashMap<>();
+  private static ConcurrentHashMap<String, Customer> customers = new ConcurrentHashMap<>();
 
-  public static void store(String storeName, String entityId, CustomerEntity.Customer customer) {
+  public static void store(String storeName, String entityId, Customer customer) {
     customers.put(storeName + "-" + entityId, customer);
   }
 
-  public static CustomerEntity.Customer get(String storeName, String entityId) {
+  public static Customer get(String storeName, String entityId) {
     return customers.get(storeName + "-" + entityId);
   }
 }

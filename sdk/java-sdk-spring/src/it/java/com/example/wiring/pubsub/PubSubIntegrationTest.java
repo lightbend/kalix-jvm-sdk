@@ -62,14 +62,7 @@ public class PubSubIntegrationTest extends DockerIntegrationTest {
       .ignoreExceptions()
       .atMost(20, TimeUnit.of(SECONDS))
       .untilAsserted(() -> {
-        var response = webClient
-          .get()
-          .uri("/subscribe-to-topic/" + counterId)
-          .retrieve()
-          .bodyToMono(List.class)
-          .block(timeout);
-
-
+        var response = DummyCounterEventStore.get(counterId);
         assertThat(response).hasSize(3);
       });
   }

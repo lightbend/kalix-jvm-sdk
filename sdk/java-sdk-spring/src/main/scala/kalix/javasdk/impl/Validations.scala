@@ -142,7 +142,19 @@ object Validations {
   private def validateAction(component: Class[_]): Validation = {
     when[Action](component) {
       commonValidation(component) ++
-      commonSubscriptionValidation(component, hasActionOutput)
+      commonSubscriptionValidation(component, hasActionOutput) ++
+      actionValidation(component)
+    }
+  }
+
+  private def actionValidation(component: Class[_]): Validation = {
+    val anySubscription = hasSubscription(component) || component.getMethods.toIndexedSeq.exists(hasSubscription)
+    val restMethods = component.getMethods.toIndexedSeq.filter(hasRestAnnotation)
+    when(anySubscription && restMethods.nonEmpty) {
+      Invalid(
+        errorMessage(
+          component,
+          s"An Action that subscribes should not be mixed with REST annotations, please move methods [${restMethods.map(_.getName).mkString(", ")}] to a separate Action component."))
     }
   }
 
