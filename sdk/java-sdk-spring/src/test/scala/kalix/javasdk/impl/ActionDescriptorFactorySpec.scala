@@ -21,6 +21,7 @@ import com.google.protobuf.Descriptors.FieldDescriptor.JavaType
 import com.google.protobuf.empty.Empty
 import com.google.protobuf.{ Any => JavaPbAny }
 import kalix.JwtMethodOptions.JwtMethodMode
+import kalix.javasdk.impl.ProtoDescriptorGenerator.fileDescriptorName
 import kalix.javasdk.impl.reflection.ServiceIntrospectionException
 import kalix.spring.testmodels.action.ActionsTestModels.DeleteWithOneParam
 import kalix.spring.testmodels.action.ActionsTestModels.GetClassLevel
@@ -105,9 +106,7 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
       assertDescriptor[GetWithoutParam] { desc =>
 
         val clazz = classOf[GetWithoutParam]
-        desc.fileDescriptor.getName shouldBe ProtoDescriptorGenerator.fileDescriptorName(
-          clazz.getPackageName,
-          clazz.getSimpleName)
+        desc.fileDescriptor.getName shouldBe fileDescriptorName(clazz.getPackageName, clazz.getSimpleName)
 
         val methodDescriptor = desc.serviceDescriptor.findMethodByName("Message")
         methodDescriptor.isServerStreaming shouldBe false

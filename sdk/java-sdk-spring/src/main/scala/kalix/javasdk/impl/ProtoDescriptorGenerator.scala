@@ -48,7 +48,7 @@ private[impl] object ProtoDescriptorGenerator {
 
     val protoBuilder = DescriptorProtos.FileDescriptorProto.newBuilder
     protoBuilder
-      .setName(fileDescriptorName(name, packageName))
+      .setName(fileDescriptorName(packageName, name))
       .setSyntax("proto3")
       .setPackage(packageName)
       .setOptions(DescriptorProtos.FileOptions.newBuilder.setJavaMultipleFiles(true).build)
@@ -68,7 +68,7 @@ private[impl] object ProtoDescriptorGenerator {
     fd
   }
 
-  def fileDescriptorName(name: String, packageName: String) = {
+  def fileDescriptorName(packageName: String, name: String) = {
     packageName.replace(".", "/") + "/" + name + ".proto"
   }
 }
