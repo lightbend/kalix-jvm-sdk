@@ -104,6 +104,9 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
     "generate mappings for an Action with GET without path param" in {
       assertDescriptor[GetWithoutParam] { desc =>
 
+        val clazz = classOf[GetWithoutParam]
+        desc.fileDescriptor.getName shouldBe clazz.getPackageName.replace(".", "/") + "/" + clazz.getSimpleName + ".proto"
+
         val methodDescriptor = desc.serviceDescriptor.findMethodByName("Message")
         methodDescriptor.isServerStreaming shouldBe false
         methodDescriptor.isClientStreaming shouldBe false
