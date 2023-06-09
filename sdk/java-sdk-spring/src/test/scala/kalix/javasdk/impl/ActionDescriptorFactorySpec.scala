@@ -105,7 +105,9 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
       assertDescriptor[GetWithoutParam] { desc =>
 
         val clazz = classOf[GetWithoutParam]
-        desc.fileDescriptor.getName shouldBe clazz.getPackageName.replace(".", "/") + "/" + clazz.getSimpleName + ".proto"
+        desc.fileDescriptor.getName shouldBe ProtoDescriptorGenerator.fileDescriptorName(
+          clazz.getPackageName,
+          clazz.getSimpleName)
 
         val methodDescriptor = desc.serviceDescriptor.findMethodByName("Message")
         methodDescriptor.isServerStreaming shouldBe false
