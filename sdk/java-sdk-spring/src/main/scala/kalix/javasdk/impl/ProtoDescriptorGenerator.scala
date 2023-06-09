@@ -48,7 +48,7 @@ private[impl] object ProtoDescriptorGenerator {
 
     val protoBuilder = DescriptorProtos.FileDescriptorProto.newBuilder
     protoBuilder
-      .setName(name + ".proto") // FIXME: snake_case this ?!
+      .setName(fileDescriptorName(packageName, name))
       .setSyntax("proto3")
       .setPackage(packageName)
       .setOptions(DescriptorProtos.FileOptions.newBuilder.setJavaMultipleFiles(true).build)
@@ -66,5 +66,9 @@ private[impl] object ProtoDescriptorGenerator {
       logger.debug("Generated file descriptor for service [{}]: \n{}", name, ProtoDescriptorRenderer.toString(fd))
     }
     fd
+  }
+
+  def fileDescriptorName(packageName: String, name: String) = {
+    packageName.replace(".", "/") + "/" + name + ".proto"
   }
 }
