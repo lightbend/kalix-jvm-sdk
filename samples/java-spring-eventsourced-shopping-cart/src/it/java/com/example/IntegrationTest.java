@@ -3,7 +3,12 @@ package com.example;
 import com.example.shoppingcart.Main;
 import com.example.shoppingcart.domain.ShoppingCart;
 import com.example.shoppingcart.domain.ShoppingCart.LineItem;
+// tag::sample-it[]
 import kalix.spring.testkit.KalixIntegrationTestKitSupport;
+// ...
+
+// end::sample-it[]
+
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

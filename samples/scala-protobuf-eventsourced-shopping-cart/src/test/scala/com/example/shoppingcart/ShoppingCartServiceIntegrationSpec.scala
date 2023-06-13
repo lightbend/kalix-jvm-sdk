@@ -1,10 +1,10 @@
 package com.example.shoppingcart
 
-import akka.actor.ActorSystem
-import kalix.scalasdk.eventsourcedentity.EventSourcedEntity
+// tag::sample-it-test[]
 import kalix.scalasdk.testkit.KalixTestKit
-import kalix.scalasdk.testkit.EventSourcedResult
-import com.google.protobuf.empty.Empty
+// ...
+
+// end::sample-it-test[]
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.matchers.should.Matchers
@@ -18,6 +18,7 @@ import org.scalatest.wordspec.AnyWordSpec
 // As long as this file exists it will not be overwritten: you can maintain it yourself,
 // or delete it so it is regenerated as needed.
 
+// tag::sample-it-test[]
 class ShoppingCartServiceIntegrationSpec
     extends AnyWordSpec
     with Matchers
@@ -27,23 +28,31 @@ class ShoppingCartServiceIntegrationSpec
   implicit val patience: PatienceConfig =
     PatienceConfig(Span(5, Seconds), Span(500, Millis))
 
-  val testKit = KalixTestKit(Main.createKalix())
-  testKit.start()
-  implicit val system: ActorSystem = testKit.system
+  private val testKit = KalixTestKit(Main.createKalix()).start() // <1>
+  import testKit.executionContext
 
   "ShoppingCartService" must {
-    val client: ShoppingCartServiceClient =
-      ShoppingCartServiceClient(testKit.grpcClientSettings)
+    val client = testKit.getGrpcClient(classOf[ShoppingCartService]) // <2>
 
-    "have example test that can be removed" in {
-      // use the gRPC client to send requests to the
-      // proxy and verify the results
+    "add items to shopping cart" in {
+      val cartId = "cart1"
+
+      val updatedCart = for {
+        _ <- client.addItem(AddLineItem(cartId, "shirt", "Shirt", 1))
+        done <- client.addItem(AddLineItem(cartId, "sweat", "Sweat Shirt", 2))
+      } yield done
+
+      updatedCart.futureValue
+
+      client.getCart(GetShoppingCart(cartId)).futureValue.items shouldBe // <3>
+        Seq(LineItem("shirt", "Shirt", 1), LineItem("sweat", "Sweat Shirt", 2))
     }
 
   }
 
-  override def afterAll() = {
+  override def afterAll() = { // <4>
     testKit.stop()
     super.afterAll()
   }
 }
+// end::sample-it-test[]
