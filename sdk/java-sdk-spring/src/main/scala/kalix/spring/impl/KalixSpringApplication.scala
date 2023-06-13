@@ -205,8 +205,8 @@ object KalixSpringApplication {
   object ActionCreationContextFactoryBean extends ThreadLocalFactoryBean[ActionCreationContext] {
     // ActionCreationContext is a singleton, so strictly speaking this could return 'true'
     // However, we still need the ThreadLocal hack to let Spring have access to it.
-    // and we don't want to give it direct access to it, because the impl is private (and better keep it so).
-    // because the testkit uses another ActionCreationContext impl. Therefore we want it to be defined at runtime.
+    // Also, we don't want to give direct access to it because we want to provide different ActionCreationContext impl
+    // depending if it's used in prod code or during tests.
     override def isSingleton: Boolean = false
   }
 
