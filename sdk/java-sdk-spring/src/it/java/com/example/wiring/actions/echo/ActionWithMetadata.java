@@ -16,9 +16,13 @@
 
 package com.example.wiring.actions.echo;
 
+import com.example.wiring.valueentities.user.UserEntity;
 import kalix.javasdk.Metadata;
 import kalix.javasdk.action.Action;
+import kalix.javasdk.action.JavaTypedKalixClient;
+import kalix.javasdk.impl.client.ServiceCall2;
 import kalix.spring.KalixClient;
+import kalix.spring.TypedKalixClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
@@ -32,8 +36,13 @@ public class ActionWithMetadata extends Action {
 
   @GetMapping("/action-with-meta/{key}/{value}")
   public Effect<Message> actionWithMeta(@PathVariable String key, @PathVariable String value) {
-    var def = kalixClient.get("/return-meta/" + key, Message.class);
-    return effects().forward(def.withMetadata(Metadata.EMPTY.add(key, value)));
+    var def = kalixClient.get("/return-meta/" + key, Message.class).withMetadata(Metadata.EMPTY.add(key, value)).execute();
+
+    var typedClient = new TypedKalixClient(null);
+    var javaTypedClient = new JavaTypedKalixClient(kalixClient);
+    ServiceCall2<String, String, Object> stringStringObjectServiceCall2 = typedClient.ref2(UserEntity::createOrUpdateUser);
+    ServiceCall2<String, String, String> stringStringStringServiceCall2 = javaTypedClient.ref2(UserEntity::createOrUpdateUser);
+    return effects().asyncReply(def);
   }
 
 

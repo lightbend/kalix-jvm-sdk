@@ -17,13 +17,11 @@
 package kalix.spring.impl
 
 import java.util.concurrent.CompletionStage
-
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.concurrent.Promise
 import scala.jdk.CollectionConverters.CollectionHasAsScala
 import scala.jdk.FutureConverters._
-
 import akka.http.scaladsl.model.HttpMethod
 import akka.http.scaladsl.model.HttpMethods
 import akka.http.scaladsl.model.Uri
@@ -42,8 +40,13 @@ import kalix.javasdk.impl.http.HttpEndpointMethodDefinition.ANY_METHOD
 import kalix.spring.KalixClient
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.springframework.util.MultiValueMap
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.WebClientResponseException
+import org.springframework.web.util.UriComponentsBuilder
+
+import scala.jdk.CollectionConverters._
+import java.net.URI
 
 /**
  * INTERNAL API
@@ -112,6 +115,41 @@ final class RestKalixClientImpl(messageCodec: JsonMessageCodec) extends KalixCli
           webClient.flatMap {
             _.post()
               .uri(uriStr)
+              .bodyValue(body)
+              .retrieve()
+              .bodyToMono(returnType)
+              .toFuture
+              .asScala
+          }.asJava)
+    }
+  }
+
+  def buildUri(path: String, queryParams: MultiValueMap[String, String], pathVariables: Map[String, String]): URI = {
+    UriComponentsBuilder
+      .newInstance() //TODO not sure if this a correct builder, Spring uses DefaultUriBuilder, but this one is private
+      .path(path)
+      .queryParams(queryParams)
+      .build(pathVariables.asJava)
+  }
+
+  def post[P, R](
+    pathTemplate: String,
+    queryParams: MultiValueMap[String, String],
+    pathVariables: Map[String, String],
+    body: Option[P],
+    returnType: Class[R]): DeferredCall[Any, R] = {
+
+    val uri = buildUri(pathTemplate, queryParams, pathVariables)
+
+    matchMethodOrThrow(HttpMethods.POST, uri.getPath) { httpDef =>
+      requestToRestDefCall(
+        uri.getPath,
+        body,
+        httpDef,
+        () =>
+          webClient.flatMap {
+            _.post()
+              .uri(uri)
               .bodyValue(body)
               .retrieve()
               .bodyToMono(returnType)
