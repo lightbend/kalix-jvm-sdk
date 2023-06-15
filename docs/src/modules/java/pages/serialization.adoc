@@ -49,7 +49,7 @@ An example of that is the capability to send serialized JSON messages and have K
 
 IMPORTANT: To allow proper reading of JSON messages from external topics, the messages need to specify the message attributes:
 
-- `Content-Type` = `application/application-json`
+- `Content-Type` = `application/json`
 - `ce-specversion` = `1.0`
 - `ce-type` = fully qualified name (e.g.  `com.example.ValueIncreased`)
 
