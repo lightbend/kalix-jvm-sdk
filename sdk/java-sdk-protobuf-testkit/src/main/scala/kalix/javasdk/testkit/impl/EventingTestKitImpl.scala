@@ -335,7 +335,7 @@ private[testkit] class TopicImpl(
   override def publish(message: ByteString, metadata: SdkMetadata): Unit =
     brokerProbe.emit(message, metadata)
 
-  override def publish(message: TestKitMessage[?]): Unit = message.getPayload match {
+  override def publish(message: TestKitMessage[_]): Unit = message.getPayload match {
     case javaPb: GeneratedMessageV3 => publish(javaPb.toByteString, message.getMetadata)
     case scalaPb: GeneratedMessage  => publish(scalaPb.toByteString, message.getMetadata)
     case str: String                => publish(ByteString.copyFromUtf8(str), message.getMetadata)
@@ -351,7 +351,7 @@ private[testkit] class TopicImpl(
     publish(TestKitMessageImpl(message, md))
   }
 
-  override def publish(message: JList[TestKitMessage[?]]): Unit =
+  override def publish(message: JList[TestKitMessage[_]]): Unit =
     message.asScala.foreach(m => publish(m))
 
 }

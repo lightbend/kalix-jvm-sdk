@@ -74,7 +74,7 @@ public class CounterIntegrationTest extends KalixIntegrationTestKitSupport {
     }
 
     @Test
-    public void verifyCounterEventSourcedPublishToTopic() throws JsonProcessingException {
+    public void verifyCounterEventSourcedPublishToTopic() {
 
         var counterId = "pubsub-test";
         var increaseCmd1 = new CounterCommandFromTopicAction.IncreaseCounter(counterId, 3);

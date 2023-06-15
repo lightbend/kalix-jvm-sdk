@@ -221,7 +221,7 @@ public interface EventingTestKit {
      * @return a typed object from the payload
      * @param <T> the type of the payload
      */
-    <T extends GeneratedMessageV3> T expectType(Class<T> clazz);
+    <T> T expectType(Class<T> clazz);
 
     /**
      * Create a message from a payload plus a subject (that is, the entity key).
@@ -232,7 +232,7 @@ public interface EventingTestKit {
      * @return a Message object to be used in the context of the Testkit
      * @param <T>
      */
-    static <T extends GeneratedMessageV3> Message<T> of(T payload, String subject) {
+    static <T> Message<T> of(T payload, String subject) {
       return new TestKitMessageImpl<>(payload, TestKitMessageImpl.defaultMetadata(payload, subject));
     }
 
@@ -244,7 +244,7 @@ public interface EventingTestKit {
      * @return a Message object to be used in the context of the Testkit
      * @param <T>
      */
-    static <T extends GeneratedMessageV3> Message<T> of(T payload, Metadata metadata) {
+    static <T> Message<T> of(T payload, Metadata metadata) {
       return new TestKitMessageImpl<>(payload, metadata);
     }
   }

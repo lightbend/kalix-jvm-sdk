@@ -6,6 +6,7 @@ import kalix.spring.KalixClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Subscribe.Topic(value = "counter-commands", ignoreUnknown = true)
 public class CounterCommandFromTopicAction extends Action {
 
   public record IncreaseCounter(String counterId, int value) { }
@@ -18,7 +19,6 @@ public class CounterCommandFromTopicAction extends Action {
 
   private Logger logger = LoggerFactory.getLogger(CounterCommandFromTopicAction.class);
 
-  @Subscribe.Topic(value = "counter-commands")
   public Effect<String> onValueIncreased(IncreaseCounter increase) {
     logger.info("Received increase command: " + increase.toString());
     var deferredCall = kalixClient.post("/counter/"+ increase.counterId + "/increase/" + increase.value, String.class);
@@ -26,4 +26,3 @@ public class CounterCommandFromTopicAction extends Action {
   }
 
 }
-// end::class[]
