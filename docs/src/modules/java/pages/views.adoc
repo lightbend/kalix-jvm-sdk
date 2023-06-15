@@ -22,9 +22,8 @@ IMPORTANT: Be aware that Views are not updated immediately when Entity state cha
 [#value-entity]
 == Creating a View from a Value Entity
 
-Consider an example of a Customer Registry service with a `customer` Value Entity. When `customer` state changes, the entire state is emitted as a value change. Value changes update any associated Views. To create a View that lists customers by their name.
-
-<<_define_the_view>> for a service that selects customers by name and associates a table name with the View. The table is created and used by Kalix to store the View.
+Consider an example of a Customer Registry service with a `customer` Value Entity. When `customer` state changes, the entire state is emitted as a value change. Value changes update any associated Views.
+To create a View that lists customers by their name, <<_define_the_view, define the view>> for a service that selects customers by name and associates a table name with the View. The table is created and used by Kalix to store the View.
 
 
 This example assumes the following `Customer` exists:
@@ -107,9 +106,12 @@ NOTE: When using @Subscribe on a class level, `handleDeletes=true` will also wor
 [#event-sourced-entity]
 == Creating a View from an Event Sourced Entity
 
-You can create a View from an Event Sourced Entity by using events that the Entity emits to build a state representation. Using a Customer Registry service example, to create a View for querying customers by name:
+You can create a View from an Event Sourced Entity by using events that the Entity emits to build a state representation.
 
-This example assumes a Customer equal to the previous example and an Event Sourced Entity that uses this Customer, and it is in charge of producing the events that update the View. These events are defined as subtypes of the class `CustomerEvent` following standard https://github.com/FasterXML/jackson-annotations#handling-polymorphic-types[Jackson notation] like this:
+Using our Customer Registry service example, to create a View for querying customers by name,
+you have to <<_define_the_view_to_consume_events, define the view to consume events>>.
+
+This example assumes a Customer equal to the previous example and an Event Sourced Entity that uses this Customer. The Event Sourced Entity is in charge of producing the events that update the View. These events are defined as subtypes of the class `CustomerEvent` following standard https://github.com/FasterXML/jackson-annotations#handling-polymorphic-types[Jackson notation] like this:
 
 .src/main/java/customer/domain/CustomerEvent.java
 [source,java]

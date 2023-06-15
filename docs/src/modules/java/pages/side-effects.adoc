@@ -25,7 +25,7 @@ This time, instead of using a `forward`, you will call the entity using a side e
 
 == Implementing the Action
 
-The class `DoubleCounterAction` listens to the counter state changes. When the counter value changes this action doubles doubles it. 
+The class `DoubleCounterAction` listens to the counter state changes. When the counter value changes this action doubles it.
 
 [source,java,indent=0]
 .src/main/java/com/example/actions/DoubleCounterAction.java
