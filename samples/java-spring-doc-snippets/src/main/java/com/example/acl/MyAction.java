@@ -15,7 +15,7 @@ public class MyAction extends Action {
     // tag::allow-deny[]
     @PostMapping
     @Acl(allow = @Acl.Matcher(service = "*"),
-            deny = @Acl.Matcher(service = "my-service"))
+            deny = @Acl.Matcher(service = "service-b"))
     public Effect<String> createUser(@RequestBody CreateUser create) {
         //...
         // end::allow-deny[]
@@ -39,7 +39,7 @@ public class MyAction extends Action {
     // tag::multiple-services[]
     @Acl(allow = {
             @Acl.Matcher(service = "service-a"),
-            @Acl.Matcher(service = "my-service")})
+            @Acl.Matcher(service = "service-b")})
     // end::multiple-services[]
     public void example4() {}
 
