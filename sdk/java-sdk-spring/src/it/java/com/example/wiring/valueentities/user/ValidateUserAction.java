@@ -19,7 +19,7 @@ package com.example.wiring.valueentities.user;
 import kalix.javasdk.StatusCode;
 import kalix.javasdk.action.Action;
 import kalix.javasdk.action.ActionCreationContext;
-import kalix.spring.KalixClient;
+import kalix.spring.ComponentClient;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -30,11 +30,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 public class ValidateUserAction extends Action {
 
   private ActionCreationContext ctx;
-  private KalixClient kalixClient;
+  private ComponentClient componentClient;
 
-  public ValidateUserAction(ActionCreationContext ctx, KalixClient kalixClient) {
+  public ValidateUserAction(ActionCreationContext ctx, ComponentClient componentClient) {
     this.ctx = ctx;
-    this.kalixClient = kalixClient;
+    this.componentClient = componentClient;
   }
 
   @PutMapping("/{email}/{name}")
@@ -42,7 +42,7 @@ public class ValidateUserAction extends Action {
     if (email.isEmpty() || name.isEmpty())
       return effects().error("No field can be empty", StatusCode.ErrorCode.BAD_REQUEST);
 
-    var defCall = kalixClient.put("/user/" + user + "/" + email + "/" + name, String.class);
+    var defCall = componentClient.forValueEntity(user).call(UserEntity::createUser).invoke(email, name);
     return effects().forward(defCall);
   }
 
@@ -51,13 +51,13 @@ public class ValidateUserAction extends Action {
     if (email.isEmpty())
       return effects().error("No field can be empty", StatusCode.ErrorCode.BAD_REQUEST);
 
-    var defCall = kalixClient.patch("/user/" + user + "/email/" + email, String.class);
+    var defCall = componentClient.forValueEntity(user).call(UserEntity::updateEmail).params(email);
     return effects().forward(defCall);
   }
 
   @DeleteMapping
   public Action.Effect<String> delete(@PathVariable String user) {
-    var defCall = kalixClient.delete("/user/" + user, String.class);
+    var defCall = componentClient.forValueEntity(user).call(UserEntity::deleteUser);
     return effects().forward(defCall);
   }
 }

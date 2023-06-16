@@ -16,17 +16,7 @@
 
 package com.example.wiring.eventsourcedentities.counter;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
-
-public class Counter {
-
-  public final Integer value;
-
-  @JsonCreator
-  public Counter(@JsonProperty("value") Integer value) {
-    this.value = value;
-  }
+public record Counter(Integer value) {
 
   public Counter onValueIncreased(CounterEvent.ValueIncreased evt) {
     return new Counter(this.value + evt.value());

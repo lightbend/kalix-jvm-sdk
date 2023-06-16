@@ -18,7 +18,7 @@ package com.example.wiring.actions.echo;
 
 import kalix.javasdk.action.Action;
 import kalix.javasdk.action.ActionCreationContext;
-import kalix.spring.KalixClient;
+import kalix.spring.ComponentClient;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URLEncoder;
@@ -27,24 +27,24 @@ import java.nio.charset.StandardCharsets;
 public class ShortenedEchoAction extends Action {
 
   private ActionCreationContext ctx;
-  private KalixClient kalixClient;
+  private ComponentClient componentClient;
 
-  public ShortenedEchoAction(ActionCreationContext ctx, KalixClient kalixClient) {
+  public ShortenedEchoAction(ActionCreationContext ctx, ComponentClient componentClient) {
     this.ctx = ctx;
-    this.kalixClient = kalixClient;
+    this.componentClient = componentClient;
   }
 
   @GetMapping("/echo/message/{msg}/short")
   public Effect<Message> stringMessage(@PathVariable String msg) {
     var shortenedMsg = URLEncoder.encode(msg.replaceAll("[AEIOUaeiou]", ""), StandardCharsets.UTF_8);
-    var result = kalixClient.get("/echo/message/" + shortenedMsg, Message.class).execute();
+    var result = componentClient.forAction().call(EchoAction::stringMessage).params(shortenedMsg).execute();
     return effects().asyncReply(result);
   }
 
   @GetMapping("/echo/message-short")
   public Effect<Message> leetShortUsingFwd(@RequestParam String msg) {
     var shortenedMsg = URLEncoder.encode(leetShort(msg), StandardCharsets.UTF_8);
-    var result = kalixClient.get("/echo/message?msg=" + shortenedMsg, Message.class);
+    var result = componentClient.forAction().call(EchoAction::stringMessageFromParam).params(shortenedMsg);
     return effects().forward(result);
   }
 
@@ -56,7 +56,7 @@ public class ShortenedEchoAction extends Action {
   @PostMapping("/echo/message/leetshort")
   public Effect<Message> leetMessageWithFwdPost(@RequestBody Message msg) {
     var shortenedMsg = URLEncoder.encode(leetShort(msg.text), StandardCharsets.UTF_8);
-    var result = kalixClient.get("/echo/message/" + shortenedMsg, Message.class);
+    var result = componentClient.forAction().call(EchoAction::stringMessage).params(shortenedMsg);
     return effects().forward(result);
   }
 

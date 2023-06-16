@@ -45,13 +45,6 @@ public class WorkflowWithStepTimeout extends WorkflowEntity<FailingCounterState>
   private final String counterStepName = "counter";
   private final String counterFailoverStepName = "counter-failover";
 
-  private KalixClient kalixClient;
-
-  public WorkflowWithStepTimeout(KalixClient kalixClient) {
-    this.kalixClient = kalixClient;
-  }
-
-
   public Executor delayedExecutor = CompletableFuture.delayedExecutor(1, TimeUnit.SECONDS);
 
   @Override

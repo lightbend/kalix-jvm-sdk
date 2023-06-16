@@ -48,7 +48,7 @@ public class EchoAction extends Action {
   }
 
   @GetMapping("/echo/repeat/{msg}/times/{times}")
-  public Flux<Effect<Message>> stringMessage(
+  public Flux<Effect<Message>> stringMessageRepeat(
       @PathVariable String msg, @PathVariable Integer times) {
     return Flux.range(1, times)
         // add an async boundary just to have some thread switching

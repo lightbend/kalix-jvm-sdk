@@ -53,13 +53,13 @@ public class FailingCounterEntity extends EventSourcedEntity<Counter, CounterEve
     if (value % 3 != 0) {
       return effects().error("wrong value: " + value);
     } else {
-      return effects().emitEvent(new CounterEvent.ValueIncreased(value)).thenReply(c -> c.value);
+      return effects().emitEvent(new CounterEvent.ValueIncreased(value)).thenReply(c -> c.value());
     }
   }
 
   @GetMapping
   public Effect<String> get() {
-    return effects().reply(currentState().value.toString());
+    return effects().reply(currentState().value().toString());
   }
 
   @EventHandler

@@ -20,7 +20,7 @@ import com.example.wiring.actions.echo.Message;
 import kalix.javasdk.annotations.EntityKey;
 import kalix.javasdk.annotations.EntityType;
 import kalix.javasdk.workflowentity.WorkflowEntity;
-import kalix.spring.KalixClient;
+import kalix.spring.ComponentClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -39,10 +39,10 @@ public class WorkflowWithRecoverStrategy extends WorkflowEntity<FailingCounterSt
   private final String counterStepName = "counter";
   private final String counterFailoverStepName = "counter-failover";
 
-  private KalixClient kalixClient;
+  private ComponentClient componentClient;
 
-  public WorkflowWithRecoverStrategy(KalixClient kalixClient) {
-    this.kalixClient = kalixClient;
+  public WorkflowWithRecoverStrategy(ComponentClient componentClient) {
+    this.componentClient = componentClient;
   }
 
 
@@ -52,7 +52,7 @@ public class WorkflowWithRecoverStrategy extends WorkflowEntity<FailingCounterSt
         step(counterStepName)
             .call(() -> {
               var nextValue = currentState().value() + 1;
-              return kalixClient.post("/failing-counter/" + currentState().counterId() + "/increase/" + nextValue, Integer.class);
+              return componentClient.forEventSourcedEntity(currentState().counterId()).call(FailingCounterEntity::increase).params(nextValue);
             })
             .andThen(Integer.class, __ -> effects()
                 .updateState(currentState().asFinished())

@@ -351,7 +351,7 @@ public class SpringSdkIntegrationTest {
                     .uri("/counters/by-value/10")
                     .retrieve()
                     .bodyToMono(Counter.class)
-                    .map(counter -> counter.value)
+                    .map(counter -> counter.value())
                     .block(timeout),
             new IsEqual<Integer>(10));
   }

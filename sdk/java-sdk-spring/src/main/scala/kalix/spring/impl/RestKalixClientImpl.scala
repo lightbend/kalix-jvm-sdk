@@ -21,7 +21,7 @@ import java.util.concurrent.CompletionStage
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.concurrent.Promise
-import scala.jdk.CollectionConverters.CollectionHasAsScala
+import scala.jdk.CollectionConverters._
 import scala.jdk.FutureConverters._
 
 import akka.http.scaladsl.model.HttpMethod
@@ -58,7 +58,9 @@ final class RestKalixClientImpl(messageCodec: JsonMessageCodec) extends KalixCli
   // and we need the ProxyInfo to build the WebClient, so we need a Promise[WebClient]
   private val promisedWebClient: Promise[WebClient] = Promise[WebClient]()
 
-  def setWebClient(localWebClient: WebClient) = promisedWebClient.trySuccess(localWebClient)
+  def setWebClient(localWebClient: WebClient) = {
+    if (!promisedWebClient.isCompleted) promisedWebClient.trySuccess(localWebClient)
+  }
 
   private val webClient: Future[WebClient] = promisedWebClient.future
 
@@ -103,114 +105,102 @@ final class RestKalixClientImpl(messageCodec: JsonMessageCodec) extends KalixCli
   }
 
   override def post[P, R](uriStr: String, body: P, returnType: Class[R]): DeferredCall[Any, R] = {
+    runPost(uriStr, Some(body), returnType)
+  }
+
+  def runPost[R, P](uriStr: String, body: Option[P], returnType: Class[R]) = {
     matchMethodOrThrow(HttpMethods.POST, uriStr) { httpDef =>
       requestToRestDefCall(
         uriStr,
-        Some(body),
+        body,
         httpDef,
         () =>
-          webClient.flatMap {
-            _.post()
-              .uri(uriStr)
-              .bodyValue(body)
-              .retrieve()
-              .bodyToMono(returnType)
-              .toFuture
-              .asScala
+          webClient.flatMap { client =>
+            (body match {
+              case Some(value) =>
+                client
+                  .post()
+                  .uri(uriStr)
+                  .bodyValue(value)
+                  .retrieve()
+              case None =>
+                client
+                  .post()
+                  .uri(uriStr)
+                  .retrieve()
+            }).bodyToMono(returnType).toFuture.asScala
           }.asJava)
     }
   }
 
   override def post[R](uriStr: String, returnType: Class[R]): DeferredCall[Any, R] = {
-    matchMethodOrThrow(HttpMethods.POST, uriStr) { httpDef =>
-      requestToRestDefCall(
-        uriStr,
-        None,
-        httpDef,
-        () =>
-          webClient.flatMap {
-            _.post()
-              .uri(uriStr)
-              .retrieve()
-              .bodyToMono(returnType)
-              .toFuture
-              .asScala
-          }.asJava)
-    }
+    runPost(uriStr, None, returnType)
   }
 
   override def put[P, R](uriStr: String, body: P, returnType: Class[R]): DeferredCall[Any, R] = {
+    runPut(uriStr, Some(body), returnType)
+  }
+
+  def runPut[P, R](uriStr: String, body: Option[P], returnType: Class[R]): DeferredCall[Any, R] = {
     matchMethodOrThrow(HttpMethods.PUT, uriStr) { httpDef =>
       requestToRestDefCall(
         uriStr,
-        Some(body),
+        body,
         httpDef,
         () =>
-          webClient.flatMap {
-            _.put()
-              .uri(uriStr)
-              .bodyValue(body)
-              .retrieve()
-              .bodyToMono(returnType)
-              .toFuture
-              .asScala
+          webClient.flatMap { client =>
+            (body match {
+              case Some(value) =>
+                client
+                  .put()
+                  .uri(uriStr)
+                  .bodyValue(value)
+                  .retrieve()
+              case None =>
+                client
+                  .put()
+                  .uri(uriStr)
+                  .retrieve()
+            }).bodyToMono(returnType).toFuture.asScala
           }.asJava)
     }
   }
 
   override def put[R](uriStr: String, returnType: Class[R]): DeferredCall[Any, R] = {
-    matchMethodOrThrow(HttpMethods.PUT, uriStr) { httpDef =>
-      requestToRestDefCall(
-        uriStr,
-        None,
-        httpDef,
-        () =>
-          webClient.flatMap {
-            _.put()
-              .uri(uriStr)
-              .retrieve()
-              .bodyToMono(returnType)
-              .toFuture
-              .asScala
-          }.asJava)
-    }
+    runPut(uriStr, None, returnType)
   }
 
   override def patch[P, R](uriStr: String, body: P, returnType: Class[R]): DeferredCall[Any, R] = {
+    runPatch(uriStr, Some(body), returnType)
+  }
+
+  def runPatch[R, P](uriStr: String, body: P, returnType: Class[R]) = {
     matchMethodOrThrow(HttpMethods.PATCH, uriStr) { httpDef =>
       requestToRestDefCall(
         uriStr,
         Some(body),
         httpDef,
         () =>
-          webClient.flatMap {
-            _.patch()
-              .uri(uriStr)
-              .bodyValue(body)
-              .retrieve()
-              .bodyToMono(returnType)
-              .toFuture
-              .asScala
+          webClient.flatMap { client =>
+            (body match {
+              case Some(value) =>
+                client
+                  .patch()
+                  .uri(uriStr)
+                  .bodyValue(value)
+                  .retrieve()
+              case None =>
+                client
+                  .patch()
+                  .uri(uriStr)
+                  .retrieve()
+            }).bodyToMono(returnType).toFuture.asScala
           }.asJava)
     }
   }
 
   override def patch[R](uriStr: String, returnType: Class[R]): DeferredCall[Any, R] = {
-    matchMethodOrThrow(HttpMethods.PATCH, uriStr) { httpDef =>
-      requestToRestDefCall(
-        uriStr,
-        None,
-        httpDef,
-        () =>
-          webClient.flatMap {
-            _.patch()
-              .uri(uriStr)
-              .retrieve()
-              .bodyToMono(returnType)
-              .toFuture
-              .asScala
-          }.asJava)
-    }
+    runPatch(uriStr, None, returnType)
   }
 
   override def delete[R](uriStr: String, returnType: Class[R]): DeferredCall[Any, R] = {

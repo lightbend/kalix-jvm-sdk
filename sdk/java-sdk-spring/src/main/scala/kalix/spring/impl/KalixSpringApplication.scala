@@ -70,6 +70,8 @@ import kalix.spring.impl.KalixSpringApplication.ViewCreationContextFactoryBean
 import kalix.spring.impl.KalixSpringApplication.WebClientProviderFactoryBean
 import kalix.spring.impl.KalixSpringApplication.WorkflowContextFactoryBean
 import kalix.spring.BuildInfo
+import kalix.spring.ComponentClient
+import kalix.spring.impl.KalixSpringApplication.ComponentClientFactoryBean
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.BeanCreationException
@@ -228,14 +230,25 @@ object KalixSpringApplication {
 
   object KalixClientFactoryBean extends ThreadLocalFactoryBean[KalixClient] {
     override def isSingleton: Boolean = true // yes, we only need one
+
     override def getObject: KalixClient =
       if (threadLocal.get() != null) threadLocal.get()
       else
         throw new BeanCreationException("KalixClient can only be injected in Kalix Actions and Workflows.")
   }
 
+  object ComponentClientFactoryBean extends ThreadLocalFactoryBean[ComponentClient] {
+    override def isSingleton: Boolean = true // yes, we only need one
+
+    override def getObject: ComponentClient =
+      if (threadLocal.get() != null) threadLocal.get()
+      else
+        throw new BeanCreationException("ComponentClient can only be injected in Kalix Actions and Workflows.")
+  }
+
   object WebClientProviderFactoryBean extends ThreadLocalFactoryBean[WebClientProvider] {
     override def isSingleton: Boolean = true // yes, we only need one
+
     override def getObject: WebClientProvider =
       if (threadLocal.get() != null) threadLocal.get()
       else
@@ -249,6 +262,7 @@ case class KalixSpringApplication(applicationContext: ApplicationContext, config
 
   private val messageCodec = new JsonMessageCodec
   private val kalixClient = new RestKalixClientImpl(messageCodec)
+  private val componentClient = new ComponentClient(kalixClient)
 
   private val kalixBeanFactory = new DefaultListableBeanFactory(applicationContext)
 
@@ -258,6 +272,7 @@ case class KalixSpringApplication(applicationContext: ApplicationContext, config
   kalixBeanFactory.registerSingleton("valueEntityContext", ValueEntityContextFactoryBean)
   kalixBeanFactory.registerSingleton("viewCreationContext", ViewCreationContextFactoryBean)
   kalixBeanFactory.registerSingleton("kalixClient", KalixClientFactoryBean)
+  kalixBeanFactory.registerSingleton("componentClient", ComponentClientFactoryBean)
   kalixBeanFactory.registerSingleton("webClientProvider", WebClientProviderFactoryBean)
 
   // there should be only one class annotated with SpringBootApplication in the applicationContext
@@ -378,6 +393,7 @@ case class KalixSpringApplication(applicationContext: ApplicationContext, config
         val webClientProviderHolder = WebClientProviderHolder(context.materializer().system)
 
         setKalixClient(clz, webClientProviderHolder)
+        setComponentClient(clz, webClientProviderHolder)
 
         if (hasContextConstructor(clz, classOf[WebClientProvider])) {
           val webClientProvider = webClientProviderHolder.webClientProvider
@@ -393,6 +409,13 @@ case class KalixSpringApplication(applicationContext: ApplicationContext, config
       // we only have one KalixClient, but we only set it to the ThreadLocalFactoryBean
       // when building actions, because it's only allowed to inject it in Actions and Workflow Entities
       KalixClientFactoryBean.set(kalixClient)
+    }
+  }
+
+  private def setComponentClient[T](clz: Class[T], webClientProviderHolder: WebClientProviderHolder): Unit = {
+    if (hasContextConstructor(clz, classOf[ComponentClient])) {
+      kalixClient.setWebClient(webClientProviderHolder.webClientProvider.localWebClient)
+      ComponentClientFactoryBean.set(componentClient)
     }
   }
 
@@ -419,6 +442,7 @@ case class KalixSpringApplication(applicationContext: ApplicationContext, config
         val webClientProviderHolder = WebClientProviderHolder(context.materializer().system)
 
         setKalixClient(clz, webClientProviderHolder)
+        setComponentClient(clz, webClientProviderHolder)
 
         val workflowEntity = kalixBeanFactory.getBean(clz)
 

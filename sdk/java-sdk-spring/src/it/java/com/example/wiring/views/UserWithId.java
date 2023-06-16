@@ -16,17 +16,5 @@
 
 package com.example.wiring.views;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-
-public class UserWithId {
-  public String id;
-  public String email;
-  public String name;
-
-  @JsonCreator
-  public UserWithId(String id, String email, String name) {
-    this.id = id;
-    this.email = email;
-    this.name = name;
-  }
+public record UserWithId(String id, String email, String name) {
 }

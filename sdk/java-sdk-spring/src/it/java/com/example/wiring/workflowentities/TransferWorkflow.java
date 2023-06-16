@@ -18,6 +18,7 @@ package com.example.wiring.workflowentities;
 
 import com.example.wiring.actions.echo.Message;
 import io.grpc.Status;
+import kalix.spring.ComponentClient;
 import kalix.javasdk.annotations.EntityKey;
 import kalix.javasdk.annotations.EntityType;
 import kalix.javasdk.workflowentity.WorkflowEntity;
@@ -36,17 +37,17 @@ public class TransferWorkflow extends WorkflowEntity<TransferState> {
   private final String withdrawStepName = "withdraw";
   private final String depositStepName = "deposit";
 
-  private KalixClient kalixClient;
+  private ComponentClient componentClient;
 
-  public TransferWorkflow(KalixClient kalixClient) {
-    this.kalixClient = kalixClient;
+  public TransferWorkflow(ComponentClient componentClient) {
+    this.componentClient = componentClient;
   }
 
   @Override
   public Workflow<TransferState> definition() {
     var withdraw =
         step(withdrawStepName)
-            .call(Withdraw.class, cmd -> kalixClient.patch("/wallet/" + cmd.from + "/withdraw/" + cmd.amount, String.class))
+            .call(Withdraw.class, cmd -> componentClient.forValueEntity(cmd.from).call(WalletEntity::withdraw).params(cmd.amount))
             .andThen(String.class, __ -> {
               var state = currentState().withLastStep("withdrawn").accepted();
 
@@ -59,8 +60,8 @@ public class TransferWorkflow extends WorkflowEntity<TransferState> {
 
     var deposit =
         step(depositStepName)
-            .call(Deposit.class, cmd -> kalixClient.patch("/wallet/" + cmd.to + "/deposit/" + cmd.amount, String.class))
-            .andThen(String.class, __ -> {
+            .call(Deposit.class, cmd -> componentClient.forValueEntity(cmd.to).call(WalletEntity::deposit).params(cmd.amount)
+            ).andThen(String.class, __ -> {
               var state = currentState().withLastStep("deposited").finished();
               return effects().updateState(state).end();
             });
