@@ -254,10 +254,10 @@ image::java:eventing-testkit-sample.svg[]
 
 In this example:
 
-* commands are consumed from an external topic `event-commands` and forwarded to a Counter entity;
-* the Counter entity is an Event Sourced Entity and has its events published to another topic `counter-events`.
+* commands are consumed from an external topic `event-commands` and forwarded to a Counter entity
+* the Counter entity is an Event Sourced Entity and has its events published to another topic `counter-events`
 
-To test this flow, we will take advantage of the TestKit to be able to push commands into the `event-commands` topic and check what messages are produced to topic `counter-events`.
+To test this flow, we will take advantage of the TestKit to be able to push commands into the `event-commands` topic and check on what messages are produced to topic `counter-events`.
 
 [.tabset]
 Java::

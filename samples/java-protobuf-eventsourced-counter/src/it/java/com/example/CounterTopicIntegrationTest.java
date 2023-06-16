@@ -6,6 +6,7 @@ package com.example;
 
 import com.example.actions.CounterTopicApi;
 import kalix.javasdk.CloudEvent;
+import kalix.javasdk.Metadata;
 // tag::test-topic[]
 import kalix.javasdk.testkit.EventingTestKit;
 import kalix.javasdk.testkit.junit.KalixTestKitResource;
@@ -33,6 +34,7 @@ public class CounterTopicIntegrationTest {
   public static final KalixTestKitResource testKit =
       new KalixTestKitResource(Main.createKalix()); // <1>
 
+  // tag::test-topic[]
   private static EventingTestKit.Topic commandsTopic;
   private static EventingTestKit.Topic eventsTopic;
   // end::test-topic[]
