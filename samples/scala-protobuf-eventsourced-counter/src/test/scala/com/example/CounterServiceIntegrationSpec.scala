@@ -1,7 +1,10 @@
 package com.example
 
 import com.example.actions.{Decreased, Increased}
+// tag::test-topic[]
 import kalix.scalasdk.testkit.{KalixTestKit, Message}
+// ...
+// end::test-topic[]
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.matchers.should.Matchers
@@ -17,20 +20,27 @@ import scala.language.postfixOps
 // As long as this file exists it will not be overwritten: you can maintain it yourself,
 // or delete it so it is regenerated as needed.
 
+// tag::test-topic[]
+
 class CounterServiceIntegrationSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll with ScalaFutures {
 
+  // end::test-topic[]
   implicit private val patience: PatienceConfig =
     PatienceConfig(Span(5, Seconds), Span(500, Millis))
 
-  private val testKit = KalixTestKit(Main.createKalix()).start()
+  // tag::test-topic[]
+  private val testKit = KalixTestKit(Main.createKalix()).start() // <1>
+  // end::test-topic[]
 
   private val client = testKit.getGrpcClient(classOf[CounterService])
 
-  private val commandsTopic = testKit.getTopic("counter-commands")
-  private val eventsTopic = testKit.getTopic("counter-events")
+  // tag::test-topic[]
+  private val commandsTopic = testKit.getTopic("counter-commands") // <2>
+  private val eventsTopic = testKit.getTopic("counter-events") // <3>
 
   "CounterService" must {
     val counterId = "xyz"
+    // end::test-topic[]
 
     "handle side effect that adds the initial input multiplied by two and verify publishing" in {
 
@@ -64,16 +74,16 @@ class CounterServiceIntegrationSpec extends AnyWordSpec with Matchers with Befor
       md.get("Content-Type") should contain("application/protobuf")
     }
 
-    "handle commands from topic and verify publishing" in {
-      commandsTopic.publish(IncreaseValue("abc", 4), "abc")
-      commandsTopic.publish(DecreaseValue("abc", 1), "abc")
+    // tag::test-topic[]
+    "handle commands from topic and publishing related events out" in {
+      commandsTopic.publish(IncreaseValue(counterId, 4), counterId) // <4>
+      commandsTopic.publish(DecreaseValue(counterId, 1), counterId)
 
-      val increaseEvent: Message[Increased] = eventsTopic.expectOneTyped
+      val increaseEvent: Message[Increased] = eventsTopic.expectOneTyped // <5>
       val decreaseEvent: Message[Decreased] = eventsTopic.expectOneTyped
-      increaseEvent.payload.value shouldBe 4
+      increaseEvent.payload.value shouldBe 4 // <6>
       decreaseEvent.payload.value shouldBe 1
     }
-
   }
 
   override def afterAll(): Unit = {
@@ -81,3 +91,4 @@ class CounterServiceIntegrationSpec extends AnyWordSpec with Matchers with Befor
     super.afterAll()
   }
 }
+// end::test-topic[]

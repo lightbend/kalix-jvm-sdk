@@ -5,18 +5,24 @@
 package com.example;
 
 import com.example.actions.CounterTopicApi;
+// tag::test-topic[]
+import kalix.javasdk.Metadata;
 import kalix.javasdk.testkit.EventingTestKit;
 import kalix.javasdk.testkit.junit.KalixTestKitResource;
+// ...
+// end::test-topic[]
+import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 
-import java.util.concurrent.CompletionStage;
+import java.net.URI;
 
-import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.Assert.assertEquals;
 
 // Example of an integration test calling our service via the Kalix proxy
 // Run all test classes ending with "IntegrationTest" using `mvn verify -Pit`
+// tag::test-topic[]
+
 public class CounterTopicIntegrationTest {
 
   /**
@@ -24,14 +30,32 @@ public class CounterTopicIntegrationTest {
    */
   @ClassRule
   public static final KalixTestKitResource testKit =
-      new KalixTestKitResource(Main.createKalix());
+      new KalixTestKitResource(Main.createKalix()); // <1>
 
-  private final EventingTestKit.Topic commandsTopic;
-  private final EventingTestKit.Topic eventsTopic;
+  // tag::test-topic[]
+  private static EventingTestKit.Topic commandsTopic;
+  private static EventingTestKit.Topic eventsTopic;
+  // end::test-topic[]
+
+  private static EventingTestKit.Topic eventsTopicWithMeta;
+
+ // tag::test-topic[]
 
   public CounterTopicIntegrationTest() {
-    commandsTopic = testKit.getTopic("counter-commands");
-    eventsTopic = testKit.getTopic("counter-events");
+    commandsTopic = testKit.getTopic("counter-commands"); // <2>
+    eventsTopic = testKit.getTopic("counter-events"); // <3>
+    // end::test-topic[]
+    eventsTopicWithMeta = testKit.getTopic("counter-events-with-meta");
+  // tag::test-topic[]
+  }
+  // end::test-topic[]
+
+
+  @Before
+  public void clearTopics() {
+    commandsTopic.clear();
+    eventsTopic.clear();
+    eventsTopicWithMeta.clear();
   }
 
   @Test
@@ -40,12 +64,33 @@ public class CounterTopicIntegrationTest {
 
     var increaseCmd = CounterApi.IncreaseValue.newBuilder().setCounterId(counterId).setValue(4).build();
     var decreaseCmd = CounterApi.DecreaseValue.newBuilder().setCounterId(counterId).setValue(1).build();
-    commandsTopic.publish(increaseCmd, counterId);
+    commandsTopic.publish(increaseCmd, counterId); // <4>
     commandsTopic.publish(decreaseCmd, counterId);
 
-    var increasedEvent = eventsTopic.expectOneTyped(CounterTopicApi.Increased.class);
+    var increasedEvent = eventsTopic.expectOneTyped(CounterTopicApi.Increased.class); // <5>
     var decreasedEvent = eventsTopic.expectOneTyped(CounterTopicApi.Decreased.class);
-    assertEquals(increaseCmd.getValue(), increasedEvent.getPayload().getValue());
+    assertEquals(increaseCmd.getValue(), increasedEvent.getPayload().getValue()); // <6>
     assertEquals(decreaseCmd.getValue(), decreasedEvent.getPayload().getValue());
   }
+
+  // tag::test-topic-metadata[]
+  @Test
+  public void verifyCounterCommandsAndPublishWithMetadata() {
+    var counterId = "test-topic-metadata";
+    var increaseCmd = CounterApi.IncreaseValue.newBuilder().setCounterId(counterId).setValue(4).build();
+    var md = Metadata.EMPTY
+        .add("Content-Type", "application/protobuf")
+        .asCloudEvent("cmd1", URI.create("CounterTopicIntegrationTest"), increaseCmd.getDescriptorForType().getFullName())
+        .withSubject(counterId)
+        .asMetadata();
+
+    commandsTopic.publish(EventingTestKit.Message.of(increaseCmd, md)); // <4>
+
+    var increasedEvent = eventsTopicWithMeta.expectOneTyped(CounterTopicApi.Increased.class); // <5>
+    var expectedMd = increasedEvent.getMetadata();
+    assertEquals("application/protobuf", expectedMd.get("Content-Type").get());
+    assertEquals(counterId, expectedMd.asCloudEvent().subject().get());
+  }
+  // end::test-topic-metadata[]
 }
+// end::test-topic[]
