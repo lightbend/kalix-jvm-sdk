@@ -5,8 +5,8 @@
 package com.example;
 
 import com.example.actions.CounterTopicApi;
+import kalix.javasdk.CloudEvent;
 // tag::test-topic[]
-import kalix.javasdk.Metadata;
 import kalix.javasdk.testkit.EventingTestKit;
 import kalix.javasdk.testkit.junit.KalixTestKitResource;
 // ...
@@ -51,6 +51,8 @@ public class CounterTopicIntegrationTest {
   // end::test-topic[]
 
 
+  // since multiple tests are using the same topics, make sure to reset them before each new test
+  // so unread messages from previous tests do not mess with the current one
   @Before
   public void clearTopics() {
     commandsTopic.clear();
@@ -78,18 +80,21 @@ public class CounterTopicIntegrationTest {
   public void verifyCounterCommandsAndPublishWithMetadata() {
     var counterId = "test-topic-metadata";
     var increaseCmd = CounterApi.IncreaseValue.newBuilder().setCounterId(counterId).setValue(4).build();
-    var md = Metadata.EMPTY
-        .add("Content-Type", "application/protobuf")
-        .asCloudEvent("cmd1", URI.create("CounterTopicIntegrationTest"), increaseCmd.getDescriptorForType().getFullName())
-        .withSubject(counterId)
-        .asMetadata();
+
+    var md = CloudEvent.of( // <1>
+            "cmd1",
+            URI.create("CounterTopicIntegrationTest"),
+            increaseCmd.getDescriptorForType().getFullName())
+        .withSubject(counterId) // <2>
+        .asMetadata()
+        .add("Content-Type", "application/protobuf"); // <3>
 
     commandsTopic.publish(EventingTestKit.Message.of(increaseCmd, md)); // <4>
 
-    var increasedEvent = eventsTopicWithMeta.expectOneTyped(CounterTopicApi.Increased.class); // <5>
-    var expectedMd = increasedEvent.getMetadata();
+    var increasedEvent = eventsTopicWithMeta.expectOneTyped(CounterTopicApi.Increased.class);
+    var expectedMd = increasedEvent.getMetadata(); // <5>
+    assertEquals(counterId, expectedMd.asCloudEvent().subject().get()); // <6>
     assertEquals("application/protobuf", expectedMd.get("Content-Type").get());
-    assertEquals(counterId, expectedMd.asCloudEvent().subject().get());
   }
   // end::test-topic-metadata[]
 }

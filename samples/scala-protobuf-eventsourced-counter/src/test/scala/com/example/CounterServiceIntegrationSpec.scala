@@ -1,8 +1,12 @@
 package com.example
 
 import com.example.actions.{Decreased, Increased}
+import kalix.scalasdk.CloudEvent
+
+import java.net.URI
 // tag::test-topic[]
 import kalix.scalasdk.testkit.{KalixTestKit, Message}
+import org.scalatest.BeforeAndAfterEach
 // ...
 // end::test-topic[]
 import org.scalatest.BeforeAndAfterAll
@@ -22,7 +26,7 @@ import scala.language.postfixOps
 
 // tag::test-topic[]
 
-class CounterServiceIntegrationSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll with ScalaFutures {
+class CounterServiceIntegrationSpec extends AnyWordSpec with Matchers with BeforeAndAfterEach with BeforeAndAfterAll with ScalaFutures {
 
   // end::test-topic[]
   implicit private val patience: PatienceConfig =
@@ -37,6 +41,17 @@ class CounterServiceIntegrationSpec extends AnyWordSpec with Matchers with Befor
   // tag::test-topic[]
   private val commandsTopic = testKit.getTopic("counter-commands") // <2>
   private val eventsTopic = testKit.getTopic("counter-events") // <3>
+  // end::test-topic[]
+
+  private val eventsTopicWithMeta = testKit.getTopic("counter-events-with-meta")
+
+  override def beforeEach(): Unit = {
+    commandsTopic.clear()
+    eventsTopic.clear()
+    eventsTopicWithMeta.clear()
+  }
+
+  // tag::test-topic[]
 
   "CounterService" must {
     val counterId = "xyz"
@@ -67,9 +82,8 @@ class CounterServiceIntegrationSpec extends AnyWordSpec with Matchers with Befor
       counter.value shouldBe 15
 
       // verify message published to topic
-      val msg: Message[Decreased] = eventsTopic.expectOneTyped
-      val Message(payload, md) = msg
-      payload shouldBe Decreased(15)
+      val Message(decEvent, md): Message[Decreased] = eventsTopic.expectOneTyped
+      decEvent shouldBe Decreased(15)
       md.get("ce-type") should contain(classOf[Decreased].getName)
       md.get("Content-Type") should contain("application/protobuf")
     }
@@ -79,11 +93,33 @@ class CounterServiceIntegrationSpec extends AnyWordSpec with Matchers with Befor
       commandsTopic.publish(IncreaseValue(counterId, 4), counterId) // <4>
       commandsTopic.publish(DecreaseValue(counterId, 1), counterId)
 
-      val increaseEvent: Message[Increased] = eventsTopic.expectOneTyped // <5>
-      val decreaseEvent: Message[Decreased] = eventsTopic.expectOneTyped
-      increaseEvent.payload.value shouldBe 4 // <6>
-      decreaseEvent.payload.value shouldBe 1
+      val Message(incEvent, _): Message[Increased] = eventsTopic.expectOneTyped // <5>
+      val Message(decEvent, _): Message[Decreased] = eventsTopic.expectOneTyped
+      incEvent shouldBe Increased(4) // <6>
+      decEvent shouldBe Decreased(1)
     }
+    // end::test-topic[]
+
+    // tag::test-topic-metadata[]
+    "allow passing and reading metadata for messages" in {
+      val increaseCmd = IncreaseValue(counterId, 4)
+      val md = CloudEvent( // <1>
+          id = "cmd1",
+          source = URI.create("CounterServiceIntegrationSpec"),
+          `type` = increaseCmd.companion.javaDescriptor.getFullName)
+        .withSubject(counterId) // <2>
+        .asMetadata
+        .add("Content-Type", "application/protobuf"); // <3>
+
+      commandsTopic.publish(Message(increaseCmd, md)) // <4>
+
+      val Message(incEvent, expectedMd): Message[Increased] = eventsTopicWithMeta.expectOneTyped // <5>
+      incEvent shouldBe Increased(4)
+      expectedMd.get("Content-Type") should contain("application/protobuf") // <6>
+      expectedMd.asCloudEvent.subject should contain(counterId)
+    }
+    // end::test-topic-metadata[]
+    // tag::test-topic[]
   }
 
   override def afterAll(): Unit = {

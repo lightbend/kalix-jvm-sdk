@@ -73,7 +73,6 @@ import scala.jdk.CollectionConverters.SeqHasAsJava
 import scala.util.Failure
 import scala.util.Success
 import scala.language.postfixOps
-import scala.reflect.ClassTag.Nothing
 
 object EventingTestKitImpl {
 
