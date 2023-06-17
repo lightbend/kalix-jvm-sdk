@@ -45,11 +45,14 @@ class CounterServiceIntegrationSpec extends AnyWordSpec with Matchers with Befor
 
   private val eventsTopicWithMeta = testKit.getTopic("counter-events-with-meta")
 
-  override def beforeEach(): Unit = {
-    commandsTopic.clear()
+  // tag::clear-topics[]
+  override def beforeEach(): Unit = { // <1>
+    commandsTopic.clear() // <2>
     eventsTopic.clear()
     eventsTopicWithMeta.clear()
   }
+  // end::clear-topics[]
+
 
   // tag::test-topic[]
 

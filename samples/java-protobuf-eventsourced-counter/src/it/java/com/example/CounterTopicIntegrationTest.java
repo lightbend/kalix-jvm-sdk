@@ -32,7 +32,6 @@ public class CounterTopicIntegrationTest {
   public static final KalixTestKitResource testKit =
       new KalixTestKitResource(Main.createKalix()); // <1>
 
-  // tag::test-topic[]
   private static EventingTestKit.Topic commandsTopic;
   private static EventingTestKit.Topic eventsTopic;
   // end::test-topic[]
@@ -53,12 +52,15 @@ public class CounterTopicIntegrationTest {
 
   // since multiple tests are using the same topics, make sure to reset them before each new test
   // so unread messages from previous tests do not mess with the current one
-  @Before
+  // tag::clear-topics[]
+  @Before // <1>
   public void clearTopics() {
-    commandsTopic.clear();
+    commandsTopic.clear(); // <2>
     eventsTopic.clear();
     eventsTopicWithMeta.clear();
   }
+  // end::clear-topics[]
+  // tag::test-topic[]
 
   @Test
   public void verifyCounterCommandsAndPublish() {
@@ -74,6 +76,7 @@ public class CounterTopicIntegrationTest {
     assertEquals(increaseCmd.getValue(), increasedEvent.getPayload().getValue()); // <6>
     assertEquals(decreaseCmd.getValue(), decreasedEvent.getPayload().getValue());
   }
+  // end::test-topic[]
 
   // tag::test-topic-metadata[]
   @Test
@@ -97,5 +100,6 @@ public class CounterTopicIntegrationTest {
     assertEquals("application/protobuf", expectedMd.get("Content-Type").get());
   }
   // end::test-topic-metadata[]
+  // tag::test-topic[]
 }
 // end::test-topic[]

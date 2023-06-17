@@ -282,7 +282,7 @@ include::example$scala-protobuf-eventsourced-counter/src/test/scala/com/example/
 <4> Build 2 commands and publish both to the topic. Note the `counterId` is passed as the subject id of the message.
 <5> Read 2 messages, one at a time and assert the received messages values. Note we pass in the expected class type for the next message.
 
-NOTE: In the example above we take advantage of the TestKit to serialize / deserialize the messages and pass all the required metadata automatically for us. However, the API also offers the possibility to read and write raw bytes or construct your metadata if that better suits your use case.
+TIP: In the example above we take advantage of the TestKit to serialize / deserialize the messages and pass all the required metadata automatically for us. However, the API also offers the possibility to read and write raw bytes, construct your metadata or read multiple messages at once.
 
 ==== Metadata
 
@@ -317,3 +317,30 @@ include::example$scala-protobuf-eventsourced-counter/src/test/scala/com/example/
 <5> Receive the message of correct type and extract `Metadata`.
 <6> Assert the headers `Content-Type` and `ce-subject` (every CloudEvent header is prefixed with "ce-") have the expected values.
 
+
+==== One Suite, Multiple Tests
+
+When running multiple test cases under the same test suite and thus using a common TestKit instance, be careful to clear the contents of the topics in use so unconsumed messages from previous tests do not mess up with the current one:
+
+[.tabset]
+Java::
++
+[source,java,indent=0]
+.src/it/java/com/example/CounterTopicIntegrationTest.java
+----
+include::example$java-protobuf-eventsourced-counter/src/it/java/com/example/CounterTopicIntegrationTest.java[tag=clear-topics]
+----
+<1> Run this before each test.
+<2> Clear the topic ignoring any unread messages.
+
+Scala::
++
+[source,scala,indent=0]
+.src/test/scala/com/example/CounterServiceIntegrationSpec.scala
+----
+include::example$scala-protobuf-eventsourced-counter/src/test/scala/com/example/CounterServiceIntegrationSpec.scala[tag=clear-topics]
+----
+<1> Override method from trait `BeforeAndAfterEach`.
+<2> Clear the topic ignoring any unread messages.
+
+NOTE: Despite the example, you are neither forced to clear all topics nor to do it before each test. You can do it selectively, or you might not even need it depending on your tests and the flows they test.
