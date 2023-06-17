@@ -33,7 +33,6 @@ public class CounterTopicIntegrationTest {
   public static final KalixTestKitResource testKit =
       new KalixTestKitResource(Main.createKalix()); // <1>
 
-  // tag::test-topic[]
   private static EventingTestKit.Topic commandsTopic;
   private static EventingTestKit.Topic eventsTopic;
   // end::test-topic[]
