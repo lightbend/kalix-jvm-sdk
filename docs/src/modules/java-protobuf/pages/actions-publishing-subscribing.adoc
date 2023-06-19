@@ -247,12 +247,17 @@ When a Kalix service relies on a broker, it might be useful to use integration t
 
 === TestKit Mocked Topic
 
-Following up on the counter entity example used above, let's consider an example (composed by 2 Actions and 1 Event Sourced entity) in which:
+Following up on the counter entity example used above, let's consider an example (composed by 2 Actions and 1 Event Sourced entity) as pictured below:
 
-* commands are consumed from an external topic `event-commands` and forwarded to a Counter entity
-* the Counter entity is an Event Sourced Entity and has its events published to another topic `counter-events`
+ifdef::todo[TODO: convert this diagram once we have a standard language for this]
+image::java:eventing-testkit-sample.svg[]
 
-To test this flow, we will take advantage of the TestKit to be able to push commands into the `event-commands` topic and check on what messages are produced to topic `counter-events`.
+In this example:
+
+* commands are consumed from an external topic `event-commands` and forwarded to a Counter entity;
+* the Counter entity is an Event Sourced Entity and has its events published to another topic `counter-events`.
+
+To test this flow, we will take advantage of the TestKit to be able to push commands into the `event-commands` topic and check what messages are produced to topic `counter-events`.
 
 [.tabset]
 Java::
@@ -286,7 +291,7 @@ TIP: In the example above we take advantage of the TestKit to serialize / deseri
 
 ==== Metadata
 
-Typically, messages are published with associated metadata. If you want to construct your own `Metadata` or make sure the messages published out of your service have a specific header, you can also do so using the TestKit, as shown below.
+Typically, messages are published with associated metadata. If you want to construct your own `Metadata` to be consumed by a service or make sure the messages published out of your service have specific metadata attached, you can do so using the TestKit, as shown below.
 
 [.tabset]
 Java::

@@ -84,7 +84,7 @@ public class CounterTopicIntegrationTest {
     var counterId = "test-topic-metadata";
     var increaseCmd = CounterApi.IncreaseValue.newBuilder().setCounterId(counterId).setValue(4).build();
 
-    var md = CloudEvent.of( // <1>
+    var metadata = CloudEvent.of( // <1>
             "cmd1",
             URI.create("CounterTopicIntegrationTest"),
             increaseCmd.getDescriptorForType().getFullName())
@@ -92,12 +92,12 @@ public class CounterTopicIntegrationTest {
         .asMetadata()
         .add("Content-Type", "application/protobuf"); // <3>
 
-    commandsTopic.publish(EventingTestKit.Message.of(increaseCmd, md)); // <4>
+    commandsTopic.publish(EventingTestKit.Message.of(increaseCmd, metadata)); // <4>
 
     var increasedEvent = eventsTopicWithMeta.expectOneTyped(CounterTopicApi.Increased.class);
-    var expectedMd = increasedEvent.getMetadata(); // <5>
-    assertEquals(counterId, expectedMd.asCloudEvent().subject().get()); // <6>
-    assertEquals("application/protobuf", expectedMd.get("Content-Type").get());
+    var actualMd = increasedEvent.getMetadata(); // <5>
+    assertEquals(counterId, actualMd.asCloudEvent().subject().get()); // <6>
+    assertEquals("application/protobuf", actualMd.get("Content-Type").get());
   }
   // end::test-topic-metadata[]
   // tag::test-topic[]

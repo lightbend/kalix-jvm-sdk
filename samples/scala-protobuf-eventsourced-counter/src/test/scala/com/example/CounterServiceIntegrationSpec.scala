@@ -116,10 +116,10 @@ class CounterServiceIntegrationSpec extends AnyWordSpec with Matchers with Befor
 
       commandsTopic.publish(Message(increaseCmd, md)) // <4>
 
-      val Message(incEvent, expectedMd): Message[Increased] = eventsTopicWithMeta.expectOneTyped // <5>
+      val Message(incEvent, actualMd): Message[Increased] = eventsTopicWithMeta.expectOneTyped // <5>
       incEvent shouldBe Increased(4)
-      expectedMd.get("Content-Type") should contain("application/protobuf") // <6>
-      expectedMd.asCloudEvent.subject should contain(counterId)
+      actualMd.get("Content-Type") should contain("application/protobuf") // <6>
+      actualMd.asCloudEvent.subject should contain(counterId)
     }
     // end::test-topic-metadata[]
     // tag::test-topic[]
