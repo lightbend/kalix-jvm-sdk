@@ -84,7 +84,7 @@ public class CounterTopicIntegrationTest {
   @Test
   public void verifyCounterCommandsAndPublishWithMetadata() {
     var counterId = "test-topic-metadata";
-    var increaseCmd = CounterApi.IncreaseValue.newBuilder().setCounterId(counterId).setValue(4).build();
+    var increaseCmd = CounterApi.IncreaseValue.newBuilder().setCounterId(counterId).setValue(10).build();
 
     var metadata = CloudEvent.of( // <1>
             "cmd1",

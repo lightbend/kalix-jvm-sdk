@@ -304,7 +304,7 @@ private[testkit] class TopicImpl(
 
   override def clear(): JList[TestKitMessage[_]] = {
     destinationProbe
-      .receiveWhile(idle = 1.millisecond) { case cmd: EmitSingleCommand =>
+      .receiveWhile(idle = 50.millisecond) { case cmd: EmitSingleCommand =>
         anyFromMessage(cmd.getMessage)
       }
       .asJava
