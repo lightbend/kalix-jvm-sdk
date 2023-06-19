@@ -7,7 +7,10 @@ package com.example;
 
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
+// tag::sample-it-test[]
 import kalix.javasdk.testkit.junit.KalixTestKitResource;
+// ...
+// end::sample-it-test[]
 import org.junit.Assert;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -20,6 +23,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 // Run all test classes ending with "IntegrationTest" using `mvn verify -Pit`
 // tag::sample-it-test[]
+
 public class CounterIntegrationTest {
 
   /**
@@ -27,7 +31,7 @@ public class CounterIntegrationTest {
    */
   @ClassRule
   public static final KalixTestKitResource testKit =
-          new KalixTestKitResource(Main.createKalix());
+      new KalixTestKitResource(Main.createKalix()); // <1>
 
   /**
    * Use the generated gRPC client to call the service through the Kalix proxy.
@@ -35,42 +39,43 @@ public class CounterIntegrationTest {
   private final CounterService client;
 
   public CounterIntegrationTest() {
-      client = testKit.getGrpcClient(CounterService.class);
+    client = testKit.getGrpcClient(CounterService.class); // <2>
   }
 
   @Test
   public void increaseOnNonExistingEntity() throws Exception {
-      String entityId = "new-id";
-      client.increase(CounterApi.IncreaseValue.newBuilder().setCounterId(entityId).setValue(42).build())
-               .toCompletableFuture().get(5, SECONDS);
-      CounterApi.CurrentCounter reply = client.getCurrentCounter(CounterApi.GetCounter.newBuilder().setCounterId(entityId).build())
-              .toCompletableFuture().get(5, SECONDS);
-      assertThat(reply.getValue(), is(42));
+    String entityId = "new-id";
+    client.increase(CounterApi.IncreaseValue.newBuilder().setCounterId(entityId).setValue(42).build()) // <3>
+        .toCompletableFuture().get(5, SECONDS);
+    CounterApi.CurrentCounter reply = client.getCurrentCounter(CounterApi.GetCounter.newBuilder().setCounterId(entityId).build())
+        .toCompletableFuture().get(5, SECONDS);
+    assertThat(reply.getValue(), is(42));
   }
   // end::sample-it-test[]
 
   @Test
   public void increase() throws Exception {
-      String entityId = "another-id";
-      client.increase(CounterApi.IncreaseValue.newBuilder().setCounterId(entityId).setValue(42).build())
-               .toCompletableFuture().get(5, SECONDS);
-      client.increase(CounterApi.IncreaseValue.newBuilder().setCounterId(entityId).setValue(27).build())
-               .toCompletableFuture().get(5, SECONDS);
-      CounterApi.CurrentCounter reply = client.getCurrentCounter(CounterApi.GetCounter.newBuilder().setCounterId(entityId).build())
-              .toCompletableFuture().get(5, SECONDS);
-      assertThat(reply.getValue(), is(69));
+    String entityId = "another-id";
+    client.increase(CounterApi.IncreaseValue.newBuilder().setCounterId(entityId).setValue(42).build())
+        .toCompletableFuture().get(5, SECONDS);
+    client.increase(CounterApi.IncreaseValue.newBuilder().setCounterId(entityId).setValue(27).build())
+        .toCompletableFuture().get(5, SECONDS);
+    CounterApi.CurrentCounter reply = client.getCurrentCounter(CounterApi.GetCounter.newBuilder().setCounterId(entityId).build())
+        .toCompletableFuture().get(5, SECONDS);
+    assertThat(reply.getValue(), is(69));
   }
 
-    @Test
-    public void validateGrpcStatusCode() throws Exception {
-        try {
-            client.increaseWithConditional(CounterApi.IncreaseValue.newBuilder().setCounterId("new-id").setValue(-10).build())
-                    .toCompletableFuture().get(5, SECONDS);
-            Assert.fail("Previous method should be invalid and throw exception");
-        } catch (ExecutionException e) {
-            var suppressed = (StatusRuntimeException) e.getCause();
-            assertThat(suppressed.getStatus().getCode(), is(Status.Code.INVALID_ARGUMENT));
-        }
+  @Test
+  public void validateGrpcStatusCode() throws Exception {
+    try {
+      client.increaseWithConditional(CounterApi.IncreaseValue.newBuilder().setCounterId("new-id").setValue(-10).build())
+          .toCompletableFuture().get(5, SECONDS);
+      Assert.fail("Previous method should be invalid and throw exception");
+    } catch (ExecutionException e) {
+      var suppressed = (StatusRuntimeException) e.getCause();
+      assertThat(suppressed.getStatus().getCode(), is(Status.Code.INVALID_ARGUMENT));
     }
-
+  }
+  // tag::sample-it-test[]
 }
+// end::sample-it-test[]

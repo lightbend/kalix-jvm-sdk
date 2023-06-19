@@ -2,7 +2,10 @@ package com.example
 
 import io.grpc.Status.Code
 import io.grpc.StatusRuntimeException
+// tag::sample-it-test[]
 import kalix.scalasdk.testkit.KalixTestKit
+// ...
+// end::sample-it-test[]
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.matchers.should.Matchers
@@ -18,6 +21,8 @@ import scala.language.postfixOps
 // As long as this file exists it will not be overwritten: you can maintain it yourself,
 // or delete it so it is regenerated as needed.
 
+// tag::sample-it-test[]
+
 class CounterServiceIntegrationSpec
     extends AnyWordSpec
     with Matchers
@@ -27,10 +32,10 @@ class CounterServiceIntegrationSpec
   implicit private val patience: PatienceConfig =
     PatienceConfig(Span(5, Seconds), Span(500, Millis))
 
-  private val testKit = KalixTestKit(Main.createKalix()).start()
+  private val testKit = KalixTestKit(Main.createKalix()).start() // <1>
   import testKit.executionContext
 
-  private val client = testKit.getGrpcClient(classOf[CounterService])
+  private val client = testKit.getGrpcClient(classOf[CounterService]) // <2>
 
   "CounterService" must {
 
@@ -45,10 +50,11 @@ class CounterServiceIntegrationSpec
 
       updateResult.futureValue
 
-      val getResult = client.getCurrentCounter(GetCounter(counterId))
+      val getResult = client.getCurrentCounter(GetCounter(counterId)) // <3>
       getResult.futureValue.value shouldBe(42-32)
     }
 
+    // end::sample-it-test[]
     "Return correct status code if command fails" in {
       val counterId = "42"
       val updateResult = client.increaseWithConditional(IncreaseValue(counterId, -5)).failed.futureValue
@@ -56,11 +62,12 @@ class CounterServiceIntegrationSpec
       updateResult shouldBe a[StatusRuntimeException]
       updateResult.asInstanceOf[StatusRuntimeException].getStatus.getCode shouldBe Code.INVALID_ARGUMENT
     }
-
+    // tag::sample-it-test[]
   }
 
-  override def afterAll(): Unit = {
+  override def afterAll(): Unit = { // <4>
     testKit.stop()
     super.afterAll()
   }
 }
+// end::sample-it-test[]

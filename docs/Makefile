@@ -127,6 +127,5 @@ validate-links:
 		-t ${antora_docker_image}:${antora_docker_image_tag} \
 		-c "cd /antora/${base_path} && find src -name '*.adoc' -print0 | xargs -0 -n1 asciidoc-link-check --progress --config config/validate-links.json"
 
-# TODO: we will need to include publication for spring module once we want it out
 deploy: clean managed
 	bin/deploy.sh --module java --upstream ${upstream} --branch ${branch} ${sources}
