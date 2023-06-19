@@ -325,7 +325,13 @@ include::example$scala-protobuf-eventsourced-counter/src/test/scala/com/example/
 
 ==== One Suite, Multiple Tests
 
-When running multiple test cases under the same test suite and thus using a common TestKit instance, be careful to clear the contents of the topics in use so unconsumed messages from previous tests do not mess up with the current one:
+When running multiple test cases under the same test suite and thus using a common TestKit instance, you might face some if unconsumed messages from previous tests mess up with the current one. To avoid this, be sure to:
+
+- have the tests run in sequence, not in parallel;
+- clear the contents of the topics in use before the test.
+
+As an alternative, you can consider using different test suites which will use independent TestKit instances.
+
 
 [.tabset]
 Java::
