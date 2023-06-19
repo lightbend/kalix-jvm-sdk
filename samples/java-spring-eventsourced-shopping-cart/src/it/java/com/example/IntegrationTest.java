@@ -3,9 +3,13 @@ package com.example;
 import com.example.shoppingcart.Main;
 import com.example.shoppingcart.domain.ShoppingCart;
 import com.example.shoppingcart.domain.ShoppingCart.LineItem;
+// tag::sample-it[]
 import kalix.spring.testkit.KalixIntegrationTestKitSupport;
+// ...
 
-import org.junit.jupiter.api.Assertions;
+// end::sample-it[]
+
+
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -16,6 +20,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import java.time.Duration;
 
 import static java.time.temporal.ChronoUnit.SECONDS;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
 /**
@@ -27,11 +32,12 @@ import static java.time.temporal.ChronoUnit.SECONDS;
  * Since this is an integration tests, it interacts with the application using a WebClient
  * (already configured and provided automatically through injection).
  */
+// tag::sample-it[]
 @SpringBootTest(classes = Main.class)
-public class IntegrationTest extends KalixIntegrationTestKitSupport {
+public class IntegrationTest extends KalixIntegrationTestKitSupport { // <1>
 
   @Autowired
-  private WebClient webClient;
+  private WebClient webClient; // <2>
 
   private Duration timeout = Duration.of(5, SECONDS);
 
@@ -39,27 +45,25 @@ public class IntegrationTest extends KalixIntegrationTestKitSupport {
   public void createAndManageCart() {
 
     String cartId = "card-abc";
-
     ResponseEntity<String> created =
-      webClient.post()
+      webClient.post() // <3>
         .uri("/cart/" + cartId + "/create")
         .retrieve()
         .toEntity(String.class)
         .block(timeout);
-
-    Assertions.assertEquals(HttpStatus.OK, created.getStatusCode());
+    assertEquals(HttpStatus.OK, created.getStatusCode());
 
     var item1 = new LineItem("tv", "Super TV 55'", 1);
-
     ResponseEntity<String> itemOne =
-      webClient.post()
+      webClient.post() // <4>
         .uri("/cart/" + cartId + "/add")
         .bodyValue(item1)
         .retrieve()
         .toEntity(String.class)
         .block(timeout);
+    assertEquals(HttpStatus.OK, itemOne.getStatusCode());
 
-    Assertions.assertEquals(HttpStatus.OK, itemOne.getStatusCode());
+    // end::sample-it[]
 
     var item2 = new LineItem("tv-table", "Table for TV", 1);
     ResponseEntity<String> itemTwo =
@@ -69,8 +73,7 @@ public class IntegrationTest extends KalixIntegrationTestKitSupport {
         .retrieve()
         .toEntity(String.class)
         .block(timeout);
-
-    Assertions.assertEquals(HttpStatus.OK, itemTwo.getStatusCode());
+    assertEquals(HttpStatus.OK, itemTwo.getStatusCode());
 
     ShoppingCart cartInfo =
       webClient.get()
@@ -78,7 +81,7 @@ public class IntegrationTest extends KalixIntegrationTestKitSupport {
         .retrieve()
         .bodyToMono(ShoppingCart.class)
         .block(timeout);
-    Assertions.assertEquals(2, cartInfo.items().size());
+    assertEquals(2, cartInfo.items().size());
 
 
     // removing one of the items
@@ -90,13 +93,15 @@ public class IntegrationTest extends KalixIntegrationTestKitSupport {
         .block(timeout);
 
     // confirming only one product remains
+    // tag::sample-it[]
     ShoppingCart cartUpdated =
-      webClient.get()
+      webClient.get() // <5>
         .uri("/cart/" + cartId)
         .retrieve()
         .bodyToMono(ShoppingCart.class)
         .block(timeout);
-    Assertions.assertEquals(1, cartUpdated.items().size());
-    Assertions.assertEquals(item2, cartUpdated.items().get(0));
+    assertEquals(1, cartUpdated.items().size());
+    assertEquals(item2, cartUpdated.items().get(0));
   }
 }
+// end::sample-it[]
