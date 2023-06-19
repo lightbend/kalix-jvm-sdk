@@ -25,7 +25,6 @@ import static org.junit.Assert.assertEquals;
 // Run all test classes ending with "IntegrationTest" using `mvn verify -Pit`
 // tag::test-topic[]
 
-@FixMethodOrder
 public class CounterTopicIntegrationTest {
 
   /**
