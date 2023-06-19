@@ -45,7 +45,7 @@ public class CounterTopicIntegrationTest {
     eventsTopic = testKit.getTopic("counter-events"); // <3>
     // end::test-topic[]
     eventsTopicWithMeta = testKit.getTopic("counter-events-with-meta");
-  // tag::test-topic[]
+    // tag::test-topic[]
   }
   // end::test-topic[]
 
