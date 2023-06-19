@@ -13,6 +13,7 @@ import kalix.javasdk.testkit.junit.KalixTestKitResource;
 // end::test-topic[]
 import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.FixMethodOrder;
 import org.junit.Test;
 
 import java.net.URI;
@@ -23,6 +24,7 @@ import static org.junit.Assert.assertEquals;
 // Run all test classes ending with "IntegrationTest" using `mvn verify -Pit`
 // tag::test-topic[]
 
+@FixMethodOrder
 public class CounterTopicIntegrationTest {
 
   /**
