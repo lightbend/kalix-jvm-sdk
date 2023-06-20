@@ -16,6 +16,9 @@
 
 package kalix.javasdk.impl
 
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
+
 import scala.jdk.CollectionConverters.CollectionHasAsScala
 
 import com.google.protobuf.ByteString
@@ -151,13 +154,15 @@ class RestKalixClientImplSpec extends AnyWordSpec with Matchers with BeforeAndAf
       restKalixClient.registerComponent(actionPost.serviceDescriptor)
 
       val msgSent = new Message("hello world")
-      val defCall = restKalixClient.post("/message?dest=john", msgSent, classOf[Message])
+      val reqParam = "a b&c@d"
+      val encodedParam = URLEncoder.encode(reqParam, StandardCharsets.UTF_8)
+      val defCall = restKalixClient.post(s"/message?dest=$encodedParam", msgSent, classOf[Message])
       assertRestDeferredCall(defCall) { restDefCall =>
         val targetMethod = actionPost.serviceDescriptor.findMethodByName("Message")
         restDefCall.fullServiceName shouldBe targetMethod.getService.getFullName
         restDefCall.methodName shouldBe targetMethod.getName
 
-        assertMethodParamsMatch(targetMethod, restDefCall.message, "john")
+        assertMethodParamsMatch(targetMethod, restDefCall.message, reqParam)
         assertMethodBodyMatch(targetMethod, restDefCall.message) { body =>
           decodeJson(body, classOf[Message]).value shouldBe msgSent.value
         }

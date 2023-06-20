@@ -17,6 +17,8 @@
 package kalix.spring.impl
 
 import java.net.URI
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
 import java.util.concurrent.CompletionStage
 import java.util.function.Function
 
@@ -28,9 +30,6 @@ import scala.jdk.FutureConverters._
 
 import akka.http.scaladsl.model.HttpMethod
 import akka.http.scaladsl.model.HttpMethods
-import akka.http.scaladsl.model.Uri
-import akka.http.scaladsl.model.Uri
-import akka.http.scaladsl.model.Uri
 import akka.http.scaladsl.model.Uri
 import com.google.protobuf.Descriptors
 import com.google.protobuf.DynamicMessage
@@ -104,7 +103,8 @@ final class RestKalixClientImpl(messageCodec: JsonMessageCodec) extends KalixCli
       queryParams: MultiValueMap[String, String],
       returnType: Class[R]): DeferredCall[Any, R] = {
 
-    val uri = buildUri(pathTemplate, queryParams, pathVariables)(UriComponentsBuilder.newInstance())
+    val encodedPathVariables = pathVariables.view.mapValues(URLEncoder.encode(_, StandardCharsets.UTF_8)).toMap
+    val uri = buildUri(pathTemplate, queryParams, encodedPathVariables)(UriComponentsBuilder.newInstance())
     val akkaUri = toUri(uri) //TODO this should be replaced with queryParams and pathVariables
 
     logger.trace(s"Composing HTTP [GET] request [$uri]")
@@ -148,7 +148,8 @@ final class RestKalixClientImpl(messageCodec: JsonMessageCodec) extends KalixCli
       body: Option[P],
       returnType: Class[R]) = {
 
-    val uri = buildUri(pathTemplate, queryParams, pathVariables)(UriComponentsBuilder.newInstance())
+    val encodedPathVariables = pathVariables.view.mapValues(URLEncoder.encode(_, StandardCharsets.UTF_8)).toMap
+    val uri = buildUri(pathTemplate, queryParams, encodedPathVariables)(UriComponentsBuilder.newInstance())
     val akkaUri = toUri(uri) //TODO this should be replaced with queryParams and pathVariables
 
     logger.trace(s"Composing HTTP [POST] request [$uri]")
@@ -177,9 +178,9 @@ final class RestKalixClientImpl(messageCodec: JsonMessageCodec) extends KalixCli
 
   private def toUri[P, R](uri: URI): Uri = {
     if (uri.getRawQuery != null) {
-      Uri(uri.getRawPath + "?" + uri.getRawQuery)
+      Uri(uri.getPath + "?" + uri.getRawQuery)
     } else {
-      Uri(uri.getRawPath)
+      Uri(uri.getPath)
     }
   }
 
@@ -198,7 +199,8 @@ final class RestKalixClientImpl(messageCodec: JsonMessageCodec) extends KalixCli
       body: Option[P],
       returnType: Class[R]): DeferredCall[Any, R] = {
 
-    val uri = buildUri(pathTemplate, queryParams, pathVariables)(UriComponentsBuilder.newInstance())
+    val encodedPathVariables = pathVariables.view.mapValues(URLEncoder.encode(_, StandardCharsets.UTF_8)).toMap
+    val uri = buildUri(pathTemplate, queryParams, encodedPathVariables)(UriComponentsBuilder.newInstance())
     val akkaUri = toUri(uri) //TODO this should be replaced with queryParams and pathVariables
 
     logger.trace(s"Composing HTTP [PUT] request [$uri]")
@@ -240,7 +242,8 @@ final class RestKalixClientImpl(messageCodec: JsonMessageCodec) extends KalixCli
       body: Option[P],
       returnType: Class[R]) = {
 
-    val uri = buildUri(pathTemplate, queryParams, pathVariables)(UriComponentsBuilder.newInstance())
+    val encodedPathVariables = pathVariables.view.mapValues(URLEncoder.encode(_, StandardCharsets.UTF_8)).toMap
+    val uri = buildUri(pathTemplate, queryParams, encodedPathVariables)(UriComponentsBuilder.newInstance())
     val akkaUri = toUri(uri) //TODO this should be replaced with queryParams and pathVariables
 
     logger.trace(s"Composing HTTP [PATCH] request [$uri]")
@@ -281,7 +284,8 @@ final class RestKalixClientImpl(messageCodec: JsonMessageCodec) extends KalixCli
       queryParams: MultiValueMap[String, String],
       returnType: Class[R]): DeferredCall[Any, R] = {
 
-    val uri = buildUri(pathTemplate, queryParams, pathVariables)(UriComponentsBuilder.newInstance())
+    val encodedPathVariables = pathVariables.view.mapValues(URLEncoder.encode(_, StandardCharsets.UTF_8)).toMap
+    val uri = buildUri(pathTemplate, queryParams, encodedPathVariables)(UriComponentsBuilder.newInstance())
     val akkaUri = toUri(uri) //TODO this should be replaced with queryParams and pathVariables
 
     logger.trace(s"Composing HTTP [DELETE] request [$uri]")
