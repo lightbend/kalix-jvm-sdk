@@ -7,8 +7,8 @@ import com.example.wallet.WalletEntity.DepositResult.DepositSucceed;
 import com.example.wallet.WalletEntity.WithdrawResult;
 import com.example.wallet.WalletEntity.WithdrawResult.WithdrawFailed;
 import com.example.wallet.WalletEntity.WithdrawResult.WithdrawSucceed;
-import kalix.javasdk.annotations.EntityKey;
-import kalix.javasdk.annotations.EntityType;
+import kalix.javasdk.annotations.Id;
+import kalix.javasdk.annotations.TypeId;
 import kalix.javasdk.workflow.Workflow;
 import kalix.spring.KalixClient;
 import org.slf4j.Logger;
@@ -29,8 +29,8 @@ import static com.example.transfer.TransferState.TransferStatus.WITHDRAW_SUCCEED
 import static java.time.Duration.ofSeconds;
 import static kalix.javasdk.workflow.Workflow.RecoverStrategy.maxRetries;
 
-@EntityType("transfer")
-@EntityKey("transferId")
+@TypeId("transfer")
+@Id("transferId")
 @RequestMapping("/transfer/{transferId}")
 public class TransferWorkflow extends Workflow<TransferState> {
 

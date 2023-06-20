@@ -68,13 +68,13 @@ class WorkflowEntityDescriptorFactorySpec extends AnyWordSpec with ComponentDesc
     "fail if mix EntityKey and GenerateEntityKey on method" in {
       intercept[ServiceIntrospectionException] {
         descriptorFor[WorkflowWithIllDefinedIdGenerator]
-      }.getMessage should include("Invalid annotation usage. Found both @Key and @GenerateKey annotations.")
+      }.getMessage should include("Invalid annotation usage. Found both @Id and @GenerateId annotations.")
     }
 
     "fail if no EntityKey nor GenerateEntityKey is defined" in {
       intercept[ServiceIntrospectionException] {
         descriptorFor[WorkflowWithoutIdGeneratorAndEntityKey]
-      }.getMessage should include("Invalid command method. No @Key nor @GenerateKey annotations found.")
+      }.getMessage should include("Invalid command method. No @Id nor @GenerateId annotations found.")
     }
 
     "generate mappings for a Workflow with GenerateEntityKey" in {

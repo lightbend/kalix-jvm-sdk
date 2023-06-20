@@ -17,13 +17,13 @@
 package kalix.javasdk.valueentity;
 
 import com.google.protobuf.Descriptors;
-import kalix.javasdk.impl.MessageCodec;
-import kalix.javasdk.impl.valueentity.ValueEntityRouter;
-import kalix.javasdk.annotations.EntityType;
 import kalix.javasdk.common.ForwardHeadersExtractor;
 import kalix.javasdk.impl.ComponentDescriptor;
+import kalix.javasdk.impl.ComponentDescriptorFactory$;
 import kalix.javasdk.impl.JsonMessageCodec;
+import kalix.javasdk.impl.MessageCodec;
 import kalix.javasdk.impl.valueentity.ReflectiveValueEntityRouter;
+import kalix.javasdk.impl.valueentity.ValueEntityRouter;
 
 import java.util.Optional;
 import java.util.function.Function;
@@ -51,12 +51,12 @@ public class ReflectiveValueEntityProvider<S, E extends ValueEntity<S>>
       Function<ValueEntityContext, E> factory,
       ValueEntityOptions options) {
 
-    EntityType annotation = entityClass.getAnnotation(EntityType.class);
+    String annotation = ComponentDescriptorFactory$.MODULE$.readTypeIdValue(entityClass);
     if (annotation == null)
       throw new IllegalArgumentException(
-          "Value Entity [" + entityClass.getName() + "] is missing '@EntityType' annotation");
+          "Value Entity [" + entityClass.getName() + "] is missing '@TypeId' annotation");
 
-    this.entityType = annotation.value();
+    this.entityType = annotation;
 
     this.factory = factory;
     this.options = options.withForwardHeaders(ForwardHeadersExtractor.extractFrom(entityClass));

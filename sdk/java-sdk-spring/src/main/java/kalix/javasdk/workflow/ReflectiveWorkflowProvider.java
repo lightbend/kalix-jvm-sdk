@@ -17,9 +17,9 @@
 package kalix.javasdk.workflow;
 
 import com.google.protobuf.Descriptors;
+import kalix.javasdk.annotations.TypeId;
 import kalix.javasdk.impl.MessageCodec;
 import kalix.javasdk.impl.workflow.WorkflowRouter;
-import kalix.javasdk.annotations.EntityType;
 import kalix.javasdk.impl.ComponentDescriptor;
 import kalix.javasdk.impl.JsonMessageCodec;
 import kalix.javasdk.impl.StrictJsonMessageCodec;
@@ -40,10 +40,10 @@ public class ReflectiveWorkflowProvider<S, W extends Workflow<S>> implements Wor
   private final ComponentDescriptor componentDescriptor;
 
   public ReflectiveWorkflowProvider(Class<W> workflowClass, JsonMessageCodec messageCodec, Function<WorkflowContext, W> factory, WorkflowOptions options) {
-    EntityType annotation = workflowClass.getAnnotation(EntityType.class);
+    TypeId annotation = workflowClass.getAnnotation(TypeId.class);
     if (annotation == null) {
       throw new IllegalArgumentException(
-          "Workflow [" + workflowClass.getName() + "] is missing '@EntityType' annotation");
+          "Workflow [" + workflowClass.getName() + "] is missing '@Type' annotation");
     }
 
     this.workflowClass = workflowClass;

@@ -19,16 +19,13 @@ package kalix.javasdk.annotations;
 import java.lang.annotation.*;
 
 /**
- * Assign a type name to an entity or workflow.
- * This name should be unique among the different existing workflows and entities within a Kalix application.
- *
- * Additionally, the name should be stable as a different name means a different workflow/entity in storage.
- * Changing this name will create a new class of component and all previous instances using
- * the old name won't be accessible anymore.
+ * Assign an identifier to an entity or workflow instance.
+ * This should be unique per entity/workflow instance and map to some field being received on the route path.
  */
-@Target(ElementType.TYPE)
+@Target({ElementType.TYPE, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-public @interface Type {
-  String value();
+public @interface Id {
+
+  String[] value();
 }

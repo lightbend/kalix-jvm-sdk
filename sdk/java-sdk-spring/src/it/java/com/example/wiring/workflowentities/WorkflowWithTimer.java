@@ -18,8 +18,8 @@ package com.example.wiring.workflowentities;
 
 import akka.Done;
 import com.example.wiring.actions.echo.Message;
-import kalix.javasdk.annotations.Key;
-import kalix.javasdk.annotations.Type;
+import kalix.javasdk.annotations.Id;
+import kalix.javasdk.annotations.TypeId;
 import kalix.javasdk.workflow.Workflow;
 import kalix.javasdk.workflow.WorkflowContext;
 import kalix.spring.KalixClient;
@@ -27,8 +27,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.Duration;
 
-@Type("workflow-with-timer")
-@Key("workflowId")
+@TypeId("workflow-with-timer")
+@Id("workflowId")
 @RequestMapping("/workflow-with-timer/{workflowId}")
 public class WorkflowWithTimer extends Workflow<FailingCounterState> {
 

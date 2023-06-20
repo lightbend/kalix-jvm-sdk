@@ -19,18 +19,16 @@ package kalix.javasdk.annotations;
 import java.lang.annotation.*;
 
 /**
- * Assign a key to the entity.
- * This should be unique per entity and map to some field being received on the route path.
+ * Assign a type identifier to an entity or workflow.
+ * The type identifier should be unique among the different workflows and entities within a Kalix application.
  *
- * @deprecated Deprecated since v1.3.0. Use @Id instead.
+ * Additionally, the TypeId should be stable as a different identifier means a different workflow/entity in storage.
+ * Changing this identifier will create a new class of component and all previous instances using
+ * the old identifier won't be accessible anymore.
  */
-@Target({ElementType.TYPE, ElementType.METHOD})
+@Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-@Deprecated(since = "1.3.0")
-public @interface EntityKey {
-
-  /**
-   */
-  String[] value();
+public @interface TypeId {
+  String value();
 }

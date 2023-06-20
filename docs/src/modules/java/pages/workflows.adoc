@@ -47,12 +47,12 @@ Let's have a look at what our transfer workflow will look like for the first 2 p
 include::example$java-spring-transfer-workflow/src/main/java/com/example/transfer/TransferWorkflow.java[tag=class]
 ----
 <1> Create a class that extends `Workflow<S>`, where `S` is the state type this workflow will store (i.e. `TransferState`).
-<2> Make sure to annotate such class with `@Type` and pass a unique name for this workflow type.
-<3> Annotate such class with `@Key`  and pass the name of the key that will be used as the workflow unique identifier.
+<2> Make sure to annotate such class with `@TypeId` and pass a unique identifier for this workflow type.
+<3> Annotate such class with `@Id`  and pass the name of the key that will be used as the workflow instance unique identifier.
 <4> Use Spring's RequestMapping annotation to define the route to your workflow.
 
 
-NOTE: The Key `transferId` must match a path parameter (i.e. `transferId`) and such value needs to be unique per workflow. On the other hand, the Type `transfer` is common for all instances of this workflow but must be stable - cannot be changed after a production deploy - and unique across the different workflow types.
+NOTE: The `@Id` value `transferId` must match a path parameter (i.e. `transferId`) and such value needs to be unique per workflow. On the other hand, the `@TypeId` value `transfer` is common for all instances of this workflow but must be stable - cannot be changed after a production deploy - and unique across the different workflow types.
 
 == Starting workflow
 

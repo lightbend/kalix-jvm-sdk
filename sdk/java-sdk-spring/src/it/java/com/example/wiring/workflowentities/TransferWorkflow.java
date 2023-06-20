@@ -18,8 +18,8 @@ package com.example.wiring.workflowentities;
 
 import com.example.wiring.actions.echo.Message;
 import io.grpc.Status;
-import kalix.javasdk.annotations.Key;
-import kalix.javasdk.annotations.Type;
+import kalix.javasdk.annotations.Id;
+import kalix.javasdk.annotations.TypeId;
 import kalix.javasdk.workflow.Workflow;
 import kalix.spring.KalixClient;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -28,8 +28,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.time.Duration;
 
-@Type("transfer-workflow")
-@Key("transferId")
+@TypeId("transfer-workflow")
+@Id("transferId")
 @RequestMapping("/transfer/{transferId}")
 public class TransferWorkflow extends Workflow<TransferState> {
 

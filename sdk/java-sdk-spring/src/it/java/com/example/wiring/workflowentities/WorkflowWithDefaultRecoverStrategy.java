@@ -17,10 +17,8 @@
 package com.example.wiring.workflowentities;
 
 import com.example.wiring.actions.echo.Message;
-import kalix.javasdk.annotations.EntityKey;
-import kalix.javasdk.annotations.EntityType;
-import kalix.javasdk.annotations.Key;
-import kalix.javasdk.annotations.Type;
+import kalix.javasdk.annotations.Id;
+import kalix.javasdk.annotations.TypeId;
 import kalix.javasdk.workflow.Workflow;
 import kalix.spring.KalixClient;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -33,8 +31,8 @@ import java.util.concurrent.CompletableFuture;
 import static java.time.Duration.ofSeconds;
 import static kalix.javasdk.workflow.Workflow.RecoverStrategy.maxRetries;
 
-@Type("workflow-with-default-recover-strategy")
-@Key("workflowId")
+@TypeId("workflow-with-default-recover-strategy")
+@Id("workflowId")
 @RequestMapping("/workflow-with-default-recover-strategy/{workflowId}")
 public class WorkflowWithDefaultRecoverStrategy extends Workflow<FailingCounterState> {
 

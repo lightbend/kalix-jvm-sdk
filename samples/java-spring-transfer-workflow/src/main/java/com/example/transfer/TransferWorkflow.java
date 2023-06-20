@@ -3,8 +3,8 @@ package com.example.transfer;
 import com.example.transfer.TransferState.Transfer;
 import kalix.javasdk.workflow.Workflow;
 import kalix.spring.KalixClient;
-import kalix.javasdk.annotations.EntityKey;
-import kalix.javasdk.annotations.EntityType;
+import kalix.javasdk.annotations.Id;
+import kalix.javasdk.annotations.TypeId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,8 +16,8 @@ import static com.example.transfer.TransferState.TransferStatus.COMPLETED;
 import static com.example.transfer.TransferState.TransferStatus.WITHDRAW_SUCCEED;
 
 // tag::class[]
-@EntityType("transfer") // <2>
-@EntityKey("transferId") // <3>
+@TypeId("transfer") // <2>
+@Id("transferId") // <3>
 @RequestMapping("/transfer/{transferId}") // <4>
 public class TransferWorkflow extends Workflow<TransferState> { // <1>
   // end::class[]

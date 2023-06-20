@@ -24,8 +24,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 public class WorkflowTestModels {
 
-  @Type("transfer-workflow")
-  @Key("transferId")
+  @TypeId("transfer-workflow")
+  @Id("transferId")
   @RequestMapping("/transfer/{transferId}")
   public static class WorkflowWithTypeLevelKey extends Workflow<WorkflowState> {
     @Override
@@ -39,7 +39,7 @@ public class WorkflowTestModels {
     }
   }
 
-  @Type("transfer-workflow")
+  @TypeId("transfer-workflow")
   @RequestMapping("/transfer/{transferId}")
   public static class WorkflowWithMethodLevelKey extends Workflow<WorkflowState> {
     @Override
@@ -48,14 +48,14 @@ public class WorkflowTestModels {
     }
 
     @PutMapping
-    @Key("transferId")
+    @Id("transferId")
     public Effect<String> startTransfer(@RequestBody StartWorkflow startWorkflow) {
       return null;
     }
   }
 
-  @Type("transfer-workflow")
-  @Key("id")
+  @TypeId("transfer-workflow")
+  @Id("id")
   @RequestMapping("/transfer/{transferId}")
   public static class WorkflowWithKeyOverridden extends Workflow<WorkflowState> {
     @Override
@@ -64,14 +64,14 @@ public class WorkflowTestModels {
     }
 
     @PutMapping
-    @Key("transferId")
+    @Id("transferId")
     public Effect<String> startTransfer(@RequestBody StartWorkflow startWorkflow) {
       return null;
     }
   }
 
-  @Type("transfer-workflow")
-  @Key("id")
+  @TypeId("transfer-workflow")
+  @Id("id")
   @RequestMapping("/transfer/{transferId}")
   public static class WorkflowWithIllDefinedIdGenerator extends Workflow<WorkflowState> {
     @Override
@@ -81,13 +81,13 @@ public class WorkflowTestModels {
 
     @PutMapping
     @GenerateEntityKey
-    @Key("id")
+    @Id("id")
     public Effect<String> startTransfer(@RequestBody StartWorkflow startWorkflow) {
       return null;
     }
   }
 
-  @Type("transfer-workflow")
+  @TypeId("transfer-workflow")
   @RequestMapping("/transfer/{transferId}")
   public static class WorkflowWithoutIdGeneratorAndEntityKey extends Workflow<WorkflowState> {
     @Override
@@ -101,7 +101,7 @@ public class WorkflowTestModels {
     }
   }
 
-  @Type("transfer-workflow")
+  @TypeId("transfer-workflow")
   @RequestMapping("/transfer/{transferId}")
   public static class WorkflowWithIdGenerator extends Workflow<WorkflowState> {
     @Override
@@ -134,8 +134,8 @@ public class WorkflowTestModels {
     }
   }
 
-  @Type("transfer-workflow")
-  @Key("transferId")
+  @TypeId("transfer-workflow")
+  @Id("transferId")
   @Acl(allow = @Acl.Matcher(service = "test"))
   public static class WorkflowWithAcl extends Workflow<WorkflowState> {
 
@@ -145,8 +145,8 @@ public class WorkflowTestModels {
     }
   }
 
-  @Type("transfer-workflow")
-  @Key("transferId")
+  @TypeId("transfer-workflow")
+  @Id("transferId")
   @RequestMapping("/transfer/{transferId}")
   public static class WorkflowWithMethodLevelAcl extends Workflow<WorkflowState> {
 

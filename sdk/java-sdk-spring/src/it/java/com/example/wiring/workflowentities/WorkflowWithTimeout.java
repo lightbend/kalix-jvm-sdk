@@ -17,8 +17,8 @@
 package com.example.wiring.workflowentities;
 
 import com.example.wiring.actions.echo.Message;
-import kalix.javasdk.annotations.Key;
-import kalix.javasdk.annotations.Type;
+import kalix.javasdk.annotations.Id;
+import kalix.javasdk.annotations.TypeId;
 import kalix.javasdk.workflow.Workflow;
 import kalix.spring.KalixClient;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -35,8 +35,8 @@ import static java.time.Duration.ofMillis;
 import static java.time.Duration.ofSeconds;
 import static kalix.javasdk.workflow.Workflow.RecoverStrategy.maxRetries;
 
-@Type("workflow-with-timeout")
-@Key("workflowId")
+@TypeId("workflow-with-timeout")
+@Id("workflowId")
 @RequestMapping("/workflow-with-timeout/{workflowId}")
 public class WorkflowWithTimeout extends Workflow<FailingCounterState> {
 

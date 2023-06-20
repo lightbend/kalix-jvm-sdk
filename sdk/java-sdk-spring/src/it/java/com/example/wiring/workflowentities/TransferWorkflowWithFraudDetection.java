@@ -20,8 +20,8 @@ import com.example.wiring.actions.echo.Message;
 import com.example.wiring.workflowentities.FraudDetectionResult.TransferRejected;
 import com.example.wiring.workflowentities.FraudDetectionResult.TransferRequiresManualAcceptation;
 import com.example.wiring.workflowentities.FraudDetectionResult.TransferVerified;
-import kalix.javasdk.annotations.Key;
-import kalix.javasdk.annotations.Type;
+import kalix.javasdk.annotations.Id;
+import kalix.javasdk.annotations.TypeId;
 import kalix.javasdk.workflow.Workflow;
 import kalix.spring.KalixClient;
 import org.springframework.web.bind.annotation.*;
@@ -30,8 +30,8 @@ import java.util.concurrent.CompletionStage;
 
 import static java.util.concurrent.CompletableFuture.completedFuture;
 
-@Type("transfer-workflow-with-fraud-detection")
-@Key("transferId")
+@TypeId("transfer-workflow-with-fraud-detection")
+@Id("transferId")
 @RequestMapping("/transfer-with-fraud-detection/{transferId}")
 public class TransferWorkflowWithFraudDetection extends Workflow<TransferState> {
 

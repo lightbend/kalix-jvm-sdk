@@ -18,18 +18,16 @@ package com.example.wiring.workflowentities;
 
 import com.example.wiring.actions.echo.Message;
 import io.grpc.Status;
-import kalix.javasdk.annotations.EntityKey;
-import kalix.javasdk.annotations.EntityType;
-import kalix.javasdk.annotations.Key;
-import kalix.javasdk.annotations.Type;
+import kalix.javasdk.annotations.Id;
+import kalix.javasdk.annotations.TypeId;
 import kalix.javasdk.workflow.Workflow;
 import kalix.spring.KalixClient;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-@Type("transfer-workflow-without-inputs")
-@Key("transferId")
+@TypeId("transfer-workflow-without-inputs")
+@Id("transferId")
 @RequestMapping("/transfer-without-inputs/{transferId}")
 public class TransferWorkflowWithoutInputs extends Workflow<TransferState> {
 
