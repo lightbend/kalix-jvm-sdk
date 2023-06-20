@@ -17,20 +17,27 @@
 package kalix.javasdk.testkit.impl
 
 import akka.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
+import akka.stream.BoundedSourceQueue
+import akka.stream.QueueOfferResult
+import akka.stream.scaladsl.Source
 import akka.testkit.TestProbe
 import com.google.protobuf.ByteString
 import kalix.eventing.EventDestination
 import kalix.eventing.EventDestination.Destination.Topic
+import kalix.eventing.EventSource
 import kalix.javasdk.impl.AnySupport
+import kalix.javasdk.testkit.impl.EventingTestKitImpl.RunningSourceProbe
 import kalix.protocol.component.Metadata
 import kalix.protocol.component.MetadataEntry
 import kalix.protocol.component.MetadataEntry.Value.StringValue
 import kalix.testkit.protocol.eventing_test_backend.EmitSingleCommand
 import kalix.testkit.protocol.eventing_test_backend.Message
+import kalix.testkit.protocol.eventing_test_backend.SourceElem
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
 
+import scala.collection.mutable
 import scala.jdk.CollectionConverters.CollectionHasAsScala
 
 class TopicImplSpec extends ScalaTestWithActorTestKit with AnyWordSpecLike with Matchers with BeforeAndAfterEach {
@@ -39,9 +46,13 @@ class TopicImplSpec extends ScalaTestWithActorTestKit with AnyWordSpecLike with 
   private val outProbe = TestProbe()(system.classicSystem)
   private val inProbe = TestProbe()(system.classicSystem)
   private val topic = new TopicImpl(outProbe, inProbe, anySupport)
+  val queue = new DummyQueue(mutable.Queue.empty)
+  // establishing the dummy connection for the test broker
+  inProbe.ref ! RunningSourceProbe("dummy-service", EventSource.defaultInstance)(queue, Source.empty[SourceElem])
 
-  private val textPlainMd = MetadataEntry("Content-Type", StringValue("text/plain; charset=utf-8"))
-  private val bytesMd = MetadataEntry("Content-Type", StringValue("application/octet-stream"))
+  private val textPlainHeader = MetadataEntry("Content-Type", StringValue("text/plain; charset=utf-8"))
+  private val bytesHeader = MetadataEntry("Content-Type", StringValue("application/octet-stream"))
+  private val jsonHeader = MetadataEntry("Content-Type", StringValue("application/json"))
   private def msgWithMetadata(any: Any, mdEntry: MetadataEntry*) = EmitSingleCommand(
     Some(EventDestination(Topic("test-topic"))),
     Some(Message(anySupport.encodeScala(any).value, Some(Metadata(mdEntry)))))
@@ -49,7 +60,7 @@ class TopicImplSpec extends ScalaTestWithActorTestKit with AnyWordSpecLike with 
   "TopicImpl" must {
     "provide utility to read typed messages - string" in {
       val msg = "this is a message"
-      outProbe.ref ! msgWithMetadata(msg, textPlainMd)
+      outProbe.ref ! msgWithMetadata(msg, textPlainHeader)
 
       val receivedMsg = topic.expectN(1).get(0).expectType(classOf[com.google.protobuf.StringValue])
       receivedMsg.getValue shouldBe msg
@@ -57,7 +68,7 @@ class TopicImplSpec extends ScalaTestWithActorTestKit with AnyWordSpecLike with 
 
     "provide utility to read typed messages - bytes" in {
       val bytes = ByteString.copyFromUtf8("this is a message")
-      outProbe.ref ! msgWithMetadata(bytes, bytesMd)
+      outProbe.ref ! msgWithMetadata(bytes, bytesHeader)
 
       val receivedMsg = topic.expectOneTyped(classOf[com.google.protobuf.BytesValue])
       receivedMsg.getPayload.getValue shouldBe bytes
@@ -67,8 +78,8 @@ class TopicImplSpec extends ScalaTestWithActorTestKit with AnyWordSpecLike with 
       val msg = "this is a message"
       val bytes = ByteString.copyFromUtf8("this is a message")
 
-      outProbe.ref ! msgWithMetadata(msg, textPlainMd)
-      outProbe.ref ! msgWithMetadata(bytes, bytesMd)
+      outProbe.ref ! msgWithMetadata(msg, textPlainHeader)
+      outProbe.ref ! msgWithMetadata(bytes, bytesHeader)
 
       assertThrows[AssertionError] {
         // we are expecting the second msg type so this fails when it receives the first one
@@ -80,9 +91,9 @@ class TopicImplSpec extends ScalaTestWithActorTestKit with AnyWordSpecLike with 
       val msg = "this is a message"
       val msg2 = "this is a second message"
       val msg3 = "this is a third message, to read later"
-      outProbe.ref ! msgWithMetadata(msg, textPlainMd)
-      outProbe.ref ! msgWithMetadata(msg2, textPlainMd)
-      outProbe.ref ! msgWithMetadata(msg3, textPlainMd)
+      outProbe.ref ! msgWithMetadata(msg, textPlainHeader)
+      outProbe.ref ! msgWithMetadata(msg2, textPlainHeader)
+      outProbe.ref ! msgWithMetadata(msg3, textPlainHeader)
 
       val Seq(received1, received2) = topic.expectN(2).asScala.toSeq
       received1.expectType(classOf[com.google.protobuf.StringValue]).getValue shouldBe msg
@@ -91,11 +102,48 @@ class TopicImplSpec extends ScalaTestWithActorTestKit with AnyWordSpecLike with 
       // third message was there already but was not read yet
       topic.expectOne().expectType(classOf[com.google.protobuf.StringValue]).getValue shouldBe msg3
     }
+
+    "publish messages from String" in {
+      val msg = "hello from test"
+      topic.publish(msg, "test")
+
+      queue.elems.size shouldBe 1
+      val SourceElem(Some(Message(payload, md, _)), _, _) = queue.elems.dequeue()
+      payload.toStringUtf8 shouldBe msg
+      md.get.entries.contains(textPlainHeader) shouldBe true
+    }
+
+    "publish messages from jsonable type" in {
+      case class DummyMsg(id: Int, test: String)
+      val msg = DummyMsg(1, "cool message")
+      topic.publish(msg, msg.id.toString)
+
+      queue.elems.size shouldBe 1
+      val SourceElem(Some(Message(payload, md, _)), _, _) = queue.elems.dequeue()
+      payload.toStringUtf8 shouldBe """{"id":1,"test":"cool message"}"""
+      md.get.entries.contains(jsonHeader) shouldBe true
+      assertMetadata(md.get.entries, "ce-subject", msg.id.toString)
+    }
+  }
+
+  private def assertMetadata(entries: Seq[MetadataEntry], key: String, value: String): Unit = {
+    entries.find(_.key == key).get.value.stringValue.get shouldBe value
   }
 
   override def beforeEach(): Unit = {
     super.beforeEach()
     // for tests when we are expecting a failure, some messages might remain unread and mess up with following tests, thus clearing
     topic.clear()
+  }
+
+  class DummyQueue(val elems: mutable.Queue[SourceElem]) extends BoundedSourceQueue[SourceElem] {
+    override def offer(elem: SourceElem): QueueOfferResult = {
+      elems.append(elem)
+      QueueOfferResult.Enqueued
+    }
+
+    override def complete(): Unit = ???
+    override def fail(ex: Throwable): Unit = ???
+    override def size(): Int = elems.size
   }
 }
