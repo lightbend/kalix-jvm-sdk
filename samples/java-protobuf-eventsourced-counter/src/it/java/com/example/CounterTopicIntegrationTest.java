@@ -34,11 +34,11 @@ public class CounterTopicIntegrationTest {
   public static final KalixTestKitResource testKit =
       new KalixTestKitResource(Main.createKalix()); // <1>
 
-  private static EventingTestKit.Topic commandsTopic;
-  private static EventingTestKit.Topic eventsTopic;
+  private EventingTestKit.Topic commandsTopic;
+  private EventingTestKit.Topic eventsTopic;
   // end::test-topic[]
 
-  private static EventingTestKit.Topic eventsTopicWithMeta;
+  private EventingTestKit.Topic eventsTopicWithMeta;
 
  // tag::test-topic[]
 
