@@ -17,16 +17,25 @@
 package com.example.wiring;
 
 import com.example.Main;
+import com.example.wiring.actions.echo.ActionWithMetadata;
+import com.example.wiring.actions.echo.EchoAction;
 import com.example.wiring.actions.echo.Message;
 import com.example.wiring.actions.headers.ForwardHeadersAction;
 import com.example.wiring.eventsourcedentities.counter.Counter;
+import com.example.wiring.eventsourcedentities.counter.CounterEntity;
 import com.example.wiring.valueentities.customer.CustomerEntity;
+import com.example.wiring.valueentities.user.AssignedCounterEntity;
 import com.example.wiring.valueentities.user.User;
+import com.example.wiring.valueentities.user.UserEntity;
 import com.example.wiring.valueentities.user.UserSideEffect;
 import com.example.wiring.views.CustomerByCreationTime;
 import com.example.wiring.views.UserCounter;
 import com.example.wiring.views.UserCounters;
 import com.example.wiring.views.UserWithVersion;
+import com.google.protobuf.any.Any;
+import kalix.javasdk.DeferredCall;
+import kalix.spring.ComponentClient;
+import kalix.spring.EventSourcedEntityCallBuilder;
 import kalix.spring.KalixConfigurationTest;
 import org.hamcrest.core.IsEqual;
 import org.hamcrest.core.IsNull;
@@ -46,7 +55,9 @@ import reactor.core.publisher.Mono;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
 import static java.time.temporal.ChronoUnit.SECONDS;
@@ -60,6 +71,8 @@ public class SpringSdkIntegrationTest {
 
   @Autowired
   private WebClient webClient;
+  @Autowired
+  private ComponentClient componentClient;
 
   private Duration timeout = Duration.of(10, SECONDS);
 
@@ -134,30 +147,20 @@ public class SpringSdkIntegrationTest {
   @Test
   public void verifyEchoActionWiring() {
 
-    Message response =
-        webClient
-            .get()
-            .uri("/echo/message/abc")
-            .retrieve()
-            .bodyToMono(Message.class)
-            .block(timeout);
+    Message response = execute(componentClient.forAction()
+        .call(EchoAction::stringMessage)
+        .params("abc"));
 
     assertThat(response.text).isEqualTo("Parrot says: 'abc'");
   }
 
+
   @Test
   public void verifyEchoActionRequestParam() {
 
-    Message response =
-        webClient
-            .get()
-            .uri(uriBuilder -> uriBuilder
-                .path("/echo/message")
-                .queryParam("msg", "queryParam")
-                .build())
-            .retrieve()
-            .bodyToMono(Message.class)
-            .block(timeout);
+    Message response = execute(componentClient.forAction()
+        .call(EchoAction::stringMessageFromParam)
+        .params("queryParam"));
 
     assertThat(response.text).isEqualTo("Parrot says: 'queryParam'");
 
@@ -165,18 +168,40 @@ public class SpringSdkIntegrationTest {
         webClient
             .get()
             .uri("/echo/message")
-          .retrieve()
-          .toEntity(String.class)
-          .onErrorResume(WebClientResponseException.class, error -> {
-            if (error.getStatusCode().is4xxClientError()) {
-              return Mono.just(ResponseEntity.status(error.getStatusCode()).body(error.getResponseBodyAsString()));
-            } else {
-              return Mono.error(error);
-            }
-          })
+            .retrieve()
+            .toEntity(String.class)
+            .onErrorResume(WebClientResponseException.class, error -> {
+              if (error.getStatusCode().is4xxClientError()) {
+                return Mono.just(ResponseEntity.status(error.getStatusCode()).body(error.getResponseBodyAsString()));
+              } else {
+                return Mono.error(error);
+              }
+            })
             .block(timeout);
     assertThat(failedReq.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
     assertThat(failedReq.getBody()).contains("Required request parameter is missing: msg");
+  }
+
+  @Test
+  public void verifyEchoActionRequestParamWithForward() {
+
+    String reqParam = "a b&c@d";
+    Message response = execute(componentClient.forAction()
+        .call(EchoAction::stringMessageFromParamFw)
+        .params(reqParam));
+
+    assertThat(response.text).isEqualTo("Parrot says: '" + reqParam + "'");
+  }
+
+  @Test
+  public void verifyEchoActionRequestParamWithTypedForward() {
+
+    String reqParam = "a b&c@d";
+    Message response = execute(componentClient.forAction()
+        .call(EchoAction::stringMessageFromParamFwTyped)
+        .params(reqParam));
+
+    assertThat(response.text).isEqualTo("Parrot says: '" + reqParam + "'");
   }
 
   @Test
@@ -197,148 +222,98 @@ public class SpringSdkIntegrationTest {
   @Test
   public void verifyCounterEventSourceSubscription() {
     // GIVEN IncreaseAction is subscribed to CounterEntity events
-    // WHEN the CounterEntity is requested to increase 42
-    webClient
-        .post()
-        .uri("/counter/hello1/increase/42")
-        .retrieve()
-        .bodyToMono(Integer.class)
-        .block(timeout);
+    // WHEN the CounterEntity is requested to increase 42\
+    String entityId = "hello1";
+    execute(componentClient.forEventSourcedEntity(entityId)
+        .call(CounterEntity::increase)
+        .params(42));
 
     // THEN IncreaseAction receives the event 42 and increases the counter 1 more
     await()
         .ignoreExceptions()
         .atMost(10, TimeUnit.of(SECONDS))
-        .until(
-            () ->
-                webClient
-                    .get()
-                    .uri("/counter/hello1")
-                    .retrieve()
-                    .bodyToMono(Integer.class)
-                    .block(timeout),
-            new IsEqual(42 + 1));
+        .untilAsserted(() -> {
+          Integer result = execute(componentClient.forEventSourcedEntity(entityId)
+              .call(CounterEntity::get));
+
+          assertThat(result).isEqualTo(43); //42 +1
+        });
   }
 
   @Test
   public void verifySideEffects() {
     // GIVEN IncreaseAction is subscribed to CounterEntity events
     // WHEN the CounterEntity is requested to increase 4422
-    webClient
-        .post()
-        .uri("/counter/hello4422/increase/4422")
-        .retrieve()
-        .bodyToMono(Integer.class)
-        .block(timeout);
+    String entityId = "hello4422";
+    execute(componentClient.forEventSourcedEntity(entityId)
+        .call(CounterEntity::increase)
+        .params(4422));
 
     // THEN IncreaseAction receives the event 4422 and increases the counter 1 more
     await()
         .ignoreExceptions()
         .atMost(10, TimeUnit.of(SECONDS))
-        .until(
-            () ->
-                webClient
-                    .get()
-                    .uri("/counter/hello4422")
-                    .retrieve()
-                    .bodyToMono(Integer.class)
-                    .block(timeout),
-            new IsEqual(4422 + 1));
+        .untilAsserted(() -> {
+          Integer result = execute(componentClient.forEventSourcedEntity(entityId)
+              .call(CounterEntity::get));
+
+          assertThat(result).isEqualTo(4423);
+        });
   }
 
   @Test
   public void verifyActionIsNotSubscribedToMultiplyAndRouterIgnores() {
-
-    webClient
-            .post()
-            .uri("counter/counterId2/increase/1")
-            .retrieve()
-            .bodyToMono(Integer.class)
-            .block(timeout);
-
-    webClient
-            .post()
-            .uri("counter/counterId2/multiply/2")
-            .retrieve()
-            .bodyToMono(Integer.class)
-            .block(timeout);
-
-
-    Integer lastKnownValue =
-        webClient
-            .post()
-            .uri("counter/counterId2/increase/1234")
-            .retrieve()
-            .bodyToMono(Integer.class)
-            .block(timeout);
+    var entityId = "counterId2";
+    EventSourcedEntityCallBuilder callBuilder = componentClient.forEventSourcedEntity(entityId);
+    execute(callBuilder.call(CounterEntity::increase).params(1));
+    execute(callBuilder.call(CounterEntity::times).params(2));
+    Integer lastKnownValue = execute(callBuilder.call(CounterEntity::increase).params(1234));
 
     assertThat(lastKnownValue).isEqualTo(1 * 2 + 1234);
 
     //Once the action IncreaseActionWithIgnore processes event 1234 it adds 1 more to the counter
     await()
-            .atMost(10, TimeUnit.SECONDS)
-            .until(
-                    () ->
-                            webClient
-                                    .get()
-                                    .uri("/counter/counterId2")
-                                    .retrieve()
-                                    .bodyToMono(Integer.class)
-                                    .block(timeout),
-                    new IsEqual<Integer>(1 * 2 + 1234 + 1 ));
+        .atMost(10, TimeUnit.SECONDS)
+        .untilAsserted(() -> {
+          Integer result = execute(componentClient.forEventSourcedEntity(entityId)
+              .call(CounterEntity::get));
+
+          assertThat(result).isEqualTo(1 * 2 + 1234 + 1);
+        });
   }
 
   @Test
   public void verifyViewIsNotSubscribedToMultiplyAndRouterIgnores() {
 
-    webClient
-            .post()
-            .uri("counter/counterId4/increase/1")
-            .retrieve()
-            .bodyToMono(Integer.class)
-            .block(timeout);
-    webClient
-            .post()
-            .uri("counter/counterId4/multiply/2")
-            .retrieve()
-            .bodyToMono(Integer.class)
-            .block(timeout);
-
-    Integer counterGet = webClient
-            .post()
-            .uri("counter/counterId4/increase/1")
-            .retrieve()
-            .bodyToMono(Integer.class)
-            .block(timeout);
+    var entityId = "counterId4";
+    EventSourcedEntityCallBuilder callBuilder = componentClient.forEventSourcedEntity(entityId);
+    execute(callBuilder.call(CounterEntity::increase).params(1));
+    execute(callBuilder.call(CounterEntity::times).params(2));
+    Integer counterGet = execute(callBuilder.call(CounterEntity::increase).params(1));
 
     assertThat(counterGet).isEqualTo(1 * 2 + 1);
 
     await()
-            .ignoreExceptions()
-            .atMost(10, TimeUnit.SECONDS)
-            .until(
-                    () -> webClient
-                            .get()
-                            .uri("/counters-ignore/by-value-with-ignore/2")
-                            .retrieve()
-                            .bodyToMono(Counter.class)
-                            .map(counter -> counter.value)
-                            .block(timeout),
-                    new IsEqual(1 + 1));
+        .ignoreExceptions()
+        .atMost(10, TimeUnit.SECONDS)
+        .until(
+            () -> webClient
+                .get()
+                .uri("/counters-ignore/by-value-with-ignore/2")
+                .retrieve()
+                .bodyToMono(Counter.class)
+                .map(counter -> counter.value())
+                .block(timeout),
+            new IsEqual(1 + 1));
   }
 
   @Test
   public void verifyFindCounterByValue() {
 
-    ResponseEntity<String> response =
-        webClient
-            .post()
-            .uri("/counter/abc/increase/10")
-            .retrieve()
-            .toEntity(String.class)
-            .block(timeout);
+    execute(componentClient.forEventSourcedEntity("abc")
+        .call(CounterEntity::increase)
+        .params(10));
 
-    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 
     // the view is eventually updated
     await()
@@ -358,24 +333,14 @@ public class SpringSdkIntegrationTest {
 
   @Test
   public void verifyCounterViewMultipleSubscriptions() throws InterruptedException {
-    ResponseEntity<Integer> response1 =
-        webClient
-            .post()
-            .uri("/counter/hello2/increase/1")
-            .retrieve()
-            .toEntity(Integer.class)
-            .block(timeout);
 
-    assertThat(response1.getStatusCode()).isEqualTo(HttpStatus.OK);
-    ResponseEntity<Integer> response2 =
-        webClient
-            .post()
-            .uri("/counter/hello3/increase/1")
-            .retrieve()
-            .toEntity(Integer.class)
-            .block(timeout);
+    execute(componentClient.forEventSourcedEntity("hello2")
+        .call(CounterEntity::increase)
+        .params(1));
 
-    assertThat(response2.getStatusCode()).isEqualTo(HttpStatus.OK);
+    execute(componentClient.forEventSourcedEntity("hello3")
+        .call(CounterEntity::increase)
+        .params(1));
 
     await()
         .ignoreExceptions()
@@ -595,13 +560,10 @@ public class SpringSdkIntegrationTest {
   public void shouldPropagateMetadataWithHttpDeferredCall() {
     String value = "someValue";
 
-    String actionResponse = webClient.get().uri("/action-with-meta/myKey/" + value)
-        .retrieve()
-        .bodyToMono(Message.class)
-        .map(m -> m.text)
-        .block(timeout);
+    Message actionResponse = execute(componentClient.forAction().call(ActionWithMetadata::actionWithMeta)
+        .invoke("myKey", value));
 
-    assertThat(actionResponse).isEqualTo(value);
+    assertThat(actionResponse.text).isEqualTo(value);
   }
 
   @Test
@@ -612,15 +574,15 @@ public class SpringSdkIntegrationTest {
 
     // the view is eventually updated
     await()
-      .ignoreExceptions()
-      .atMost(20, TimeUnit.SECONDS)
-      .until(() -> getCustomersByCreationDate(now).size(), new IsEqual(1));
+        .ignoreExceptions()
+        .atMost(20, TimeUnit.SECONDS)
+        .until(() -> getCustomersByCreationDate(now).size(), new IsEqual(1));
 
     var later = now.plusSeconds(60 * 5);
     await()
-      .ignoreExceptions()
-      .atMost(20, TimeUnit.SECONDS)
-      .until(() -> getCustomersByCreationDate(later).size(), new IsEqual(0));
+        .ignoreExceptions()
+        .atMost(20, TimeUnit.SECONDS)
+        .until(() -> getCustomersByCreationDate(later).size(), new IsEqual(0));
   }
 
 
@@ -628,7 +590,7 @@ public class SpringSdkIntegrationTest {
   private List<User> getUsersByName(String name) {
     return webClient
         .get()
-        .uri("/users/by-name/"+name)
+        .uri("/users/by-name/" + name)
         .retrieve()
         .bodyToFlux(User.class)
         .toStream()
@@ -646,37 +608,26 @@ public class SpringSdkIntegrationTest {
   }
 
   private void updateUser(TestUser user) {
-    String userUpdate =
-        webClient
-            .post()
-            .uri("/user/" + user.id + "/" + user.email + "/" + user.name)
-            .retrieve()
-            .bodyToMono(String.class)
-            .block(timeout);
+    String userUpdate = execute(componentClient.forValueEntity(user.id)
+        .call(UserEntity::createOrUpdateUser)
+        .invoke(user.email, user.name));
     assertThat(userUpdate).isEqualTo("\"Ok\"");
   }
 
   private void createUser(TestUser user) {
-    String userCreation =
-        webClient
-            .post()
-            .uri("/user/" + user.id + "/" + user.email + "/" + user.name)
-            .retrieve()
-            .bodyToMono(String.class)
-            .block(timeout);
+    String userCreation = execute(componentClient.forValueEntity(user.id)
+        .call(UserEntity::createOrUpdateUser)
+        .invoke(user.email, user.name));
     assertThat(userCreation).isEqualTo("\"Ok\"");
   }
 
 
   private void createCustomer(CustomerEntity.Customer customer) {
-    String created =
-      webClient
-        .put()
-        .uri("/customers/" + customer.name())
-        .bodyValue(customer)
-        .retrieve()
-        .bodyToMono(String.class)
-        .block(timeout);
+
+    String created = execute(componentClient.forValueEntity(customer.name())
+        .call(CustomerEntity::create)
+        .params(customer));
+
     assertThat(created).isEqualTo("\"Ok\"");
   }
 
@@ -684,52 +635,38 @@ public class SpringSdkIntegrationTest {
   @NotNull
   private List<CustomerEntity.Customer> getCustomersByCreationDate(Instant createdOn) {
     return webClient
-      .post()
-      .uri("/customers/by_creation_time")
-      .bodyValue(new CustomerByCreationTime.ByTimeRequest(createdOn))
-      .retrieve()
-      .bodyToMono(CustomerByCreationTime.CustomerList.class)
-      .block(timeout)
-      .customers();
+        .post()
+        .uri("/customers/by_creation_time")
+        .bodyValue(new CustomerByCreationTime.ByTimeRequest(createdOn))
+        .retrieve()
+        .bodyToMono(CustomerByCreationTime.CustomerList.class)
+        .block(timeout)
+        .customers();
   }
 
 
   private void deleteUser(TestUser user) {
-    String deleteUser =
-        webClient
-            .delete()
-            .uri("/user/" + user.id)
-            .retrieve()
-            .bodyToMono(String.class)
-            .block(timeout);
+    String deleteUser = execute(componentClient.forValueEntity(user.id)
+        .call(UserEntity::deleteUser));
     assertThat(deleteUser).isEqualTo("\"Ok from delete\"");
   }
 
   private void increaseCounter(String id, int value) {
-    webClient
-        .post()
-        .uri("counter/" + id + "/increase/" + value)
-        .retrieve()
-        .bodyToMono(Integer.class)
-        .block(timeout);
+    execute(componentClient.forEventSourcedEntity(id)
+        .call(CounterEntity::increase)
+        .params(value));
   }
 
   private void multiplyCounter(String id, int value) {
-    webClient
-        .post()
-        .uri("counter/" + id + "/multiply/" + value)
-        .retrieve()
-        .bodyToMono(Integer.class)
-        .block(timeout);
+    execute(componentClient.forEventSourcedEntity(id)
+        .call(CounterEntity::times)
+        .params(value));
   }
 
   private void assignCounter(String id, String assignee) {
-    webClient
-        .post()
-        .uri("assigned-counter/" + id + "/assign/" + assignee)
-        .retrieve()
-        .bodyToMono(String.class)
-        .block(timeout);
+    execute(componentClient.forValueEntity(id)
+        .call(AssignedCounterEntity::assign)
+        .params(assignee));
   }
 
   private UserCounters getUserCounters(String userId) {
@@ -739,6 +676,14 @@ public class SpringSdkIntegrationTest {
         .retrieve()
         .bodyToMono(UserCounters.class)
         .block();
+  }
+
+  private <T> T execute(DeferredCall<Any, T> deferredCall) {
+    try {
+      return deferredCall.execute().toCompletableFuture().get(timeout.toMillis(), TimeUnit.MILLISECONDS);
+    } catch (InterruptedException | ExecutionException | TimeoutException e) {
+      throw new RuntimeException(e);
+    }
   }
 }
 
@@ -756,6 +701,7 @@ class TestUser {
   public TestUser withName(String newName) {
     return new TestUser(id, email, newName);
   }
+
   public TestUser withEmail(String newEmail) {
     return new TestUser(id, newEmail, name);
   }

@@ -16,7 +16,9 @@
 
 package kalix.spring.impl
 
+import java.net.URI
 import java.util.concurrent.CompletionStage
+import java.util.function.Function
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -26,6 +28,9 @@ import scala.jdk.FutureConverters._
 
 import akka.http.scaladsl.model.HttpMethod
 import akka.http.scaladsl.model.HttpMethods
+import akka.http.scaladsl.model.Uri
+import akka.http.scaladsl.model.Uri
+import akka.http.scaladsl.model.Uri
 import akka.http.scaladsl.model.Uri
 import com.google.protobuf.Descriptors
 import com.google.protobuf.DynamicMessage
@@ -42,8 +47,12 @@ import kalix.javasdk.impl.http.HttpEndpointMethodDefinition.ANY_METHOD
 import kalix.spring.KalixClient
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.springframework.util.LinkedMultiValueMap
+import org.springframework.util.MultiValueMap
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.WebClientResponseException
+import org.springframework.web.util.UriBuilder
+import org.springframework.web.util.UriComponentsBuilder
 
 /**
  * INTERNAL API
@@ -86,16 +95,30 @@ final class RestKalixClientImpl(messageCodec: JsonMessageCodec) extends KalixCli
   }
 
   override def get[R](uriStr: String, returnType: Class[R]): DeferredCall[Any, R] = {
-    matchMethodOrThrow(HttpMethods.GET, uriStr) { httpDef =>
+    runGet(uriStr, Map.empty, new LinkedMultiValueMap(), returnType)
+  }
+
+  def runGet[R](
+                 pathTemplate: String,
+                 pathVariables: Map[String, String],
+                 queryParams: MultiValueMap[String, String],
+                 returnType: Class[R]): DeferredCall[Any, R] = {
+
+    val uri = buildUri(pathTemplate, queryParams, pathVariables)(UriComponentsBuilder.newInstance())
+    val akkaUri = toUri(uri) //TODO this should be replaced with queryParams and pathVariables
+
+    logger.trace(s"Composing HTTP [GET] request [$uri]")
+
+    matchMethodOrThrow(HttpMethods.GET, akkaUri.path) { httpDef =>
       requestToRestDefCall(
-        uriStr,
+        akkaUri,
         body = None,
         httpDef,
         () =>
           webClient
             .flatMap(
               _.get()
-                .uri(uriStr)
+                .uri(buildUri(pathTemplate, queryParams, pathVariables))
                 .retrieve()
                 .bodyToMono(returnType)
                 .toFuture
@@ -105,114 +128,45 @@ final class RestKalixClientImpl(messageCodec: JsonMessageCodec) extends KalixCli
   }
 
   override def post[P, R](uriStr: String, body: P, returnType: Class[R]): DeferredCall[Any, R] = {
-    runPost(uriStr, Some(body), returnType)
+    runPost(uriStr, Map.empty, new LinkedMultiValueMap(), Some(body), returnType)
   }
 
-  def runPost[R, P](uriStr: String, body: Option[P], returnType: Class[R]) = {
-    matchMethodOrThrow(HttpMethods.POST, uriStr) { httpDef =>
+  private def buildUri(
+                        path: String,
+                        queryParams: MultiValueMap[String, String],
+                        pathVariables: Map[String, String]): Function[UriBuilder, URI] = uriBuilder => {
+    uriBuilder
+      .path(path)
+      .queryParams(queryParams)
+      .build(pathVariables.asJava)
+  }
+
+  def runPost[R, P](
+                     pathTemplate: String,
+                     pathVariables: Map[String, String],
+                     queryParams: MultiValueMap[String, String],
+                     body: Option[P],
+                     returnType: Class[R]) = {
+
+    val uri = buildUri(pathTemplate, queryParams, pathVariables)(UriComponentsBuilder.newInstance())
+    val akkaUri = toUri(uri) //TODO this should be replaced with queryParams and pathVariables
+
+    logger.trace(s"Composing HTTP [POST] request [$uri]")
+
+    matchMethodOrThrow(HttpMethods.POST, akkaUri.path) { httpDef =>
       requestToRestDefCall(
-        uriStr,
+        akkaUri,
         body,
         httpDef,
         () =>
           webClient.flatMap { client =>
-            (body match {
-              case Some(value) =>
-                client
-                  .post()
-                  .uri(uriStr)
-                  .bodyValue(value)
-                  .retrieve()
-              case None =>
-                client
-                  .post()
-                  .uri(uriStr)
-                  .retrieve()
-            }).bodyToMono(returnType).toFuture.asScala
-          }.asJava)
-    }
-  }
+            val requestBodySpec = client
+              .post()
+              .uri(buildUri(pathTemplate, queryParams, pathVariables))
 
-  override def post[R](uriStr: String, returnType: Class[R]): DeferredCall[Any, R] = {
-    runPost(uriStr, None, returnType)
-  }
+            body.foreach(requestBodySpec.bodyValue)
 
-  override def put[P, R](uriStr: String, body: P, returnType: Class[R]): DeferredCall[Any, R] = {
-    runPut(uriStr, Some(body), returnType)
-  }
-
-  def runPut[P, R](uriStr: String, body: Option[P], returnType: Class[R]): DeferredCall[Any, R] = {
-    matchMethodOrThrow(HttpMethods.PUT, uriStr) { httpDef =>
-      requestToRestDefCall(
-        uriStr,
-        body,
-        httpDef,
-        () =>
-          webClient.flatMap { client =>
-            (body match {
-              case Some(value) =>
-                client
-                  .put()
-                  .uri(uriStr)
-                  .bodyValue(value)
-                  .retrieve()
-              case None =>
-                client
-                  .put()
-                  .uri(uriStr)
-                  .retrieve()
-            }).bodyToMono(returnType).toFuture.asScala
-          }.asJava)
-    }
-  }
-
-  override def put[R](uriStr: String, returnType: Class[R]): DeferredCall[Any, R] = {
-    runPut(uriStr, None, returnType)
-  }
-
-  override def patch[P, R](uriStr: String, body: P, returnType: Class[R]): DeferredCall[Any, R] = {
-    runPatch(uriStr, Some(body), returnType)
-  }
-
-  def runPatch[R, P](uriStr: String, body: P, returnType: Class[R]) = {
-    matchMethodOrThrow(HttpMethods.PATCH, uriStr) { httpDef =>
-      requestToRestDefCall(
-        uriStr,
-        Some(body),
-        httpDef,
-        () =>
-          webClient.flatMap { client =>
-            (body match {
-              case Some(value) =>
-                client
-                  .patch()
-                  .uri(uriStr)
-                  .bodyValue(value)
-                  .retrieve()
-              case None =>
-                client
-                  .patch()
-                  .uri(uriStr)
-                  .retrieve()
-            }).bodyToMono(returnType).toFuture.asScala
-          }.asJava)
-    }
-  }
-
-  override def patch[R](uriStr: String, returnType: Class[R]): DeferredCall[Any, R] = {
-    runPatch(uriStr, None, returnType)
-  }
-
-  override def delete[R](uriStr: String, returnType: Class[R]): DeferredCall[Any, R] = {
-    matchMethodOrThrow(HttpMethods.DELETE, uriStr) { httpDef =>
-      requestToRestDefCall(
-        uriStr,
-        None,
-        httpDef,
-        () =>
-          webClient.flatMap {
-            _.delete()
-              .uri(uriStr)
+            requestBodySpec
               .retrieve()
               .bodyToMono(returnType)
               .toFuture
@@ -221,22 +175,150 @@ final class RestKalixClientImpl(messageCodec: JsonMessageCodec) extends KalixCli
     }
   }
 
-  private def matchMethodOrThrow[R](httpMethod: HttpMethod, uriStr: String)(
-      createDefCall: => HttpEndpointMethodDefinition => RestDeferredCall[Any, R]) = {
-    val uri = Uri(uriStr)
+  private def toUri[P, R](uri: URI): Uri = {
+    if (uri.getRawQuery != null) {
+      Uri(uri.getRawPath + "?" + uri.getRawQuery)
+    } else {
+      Uri(uri.getRawPath)
+    }
+  }
+
+  override def post[R](uriStr: String, returnType: Class[R]): DeferredCall[Any, R] = {
+    runPost(uriStr, Map.empty, new LinkedMultiValueMap(), None, returnType)
+  }
+
+  override def put[P, R](uriStr: String, body: P, returnType: Class[R]): DeferredCall[Any, R] = {
+    runPut(uriStr, Map.empty, new LinkedMultiValueMap(), Some(body), returnType)
+  }
+
+  def runPut[P, R](
+                    pathTemplate: String,
+                    pathVariables: Map[String, String],
+                    queryParams: MultiValueMap[String, String],
+                    body: Option[P],
+                    returnType: Class[R]): DeferredCall[Any, R] = {
+
+    val uri = buildUri(pathTemplate, queryParams, pathVariables)(UriComponentsBuilder.newInstance())
+    val akkaUri = toUri(uri) //TODO this should be replaced with queryParams and pathVariables
+
+    logger.trace(s"Composing HTTP [PUT] request [$uri]")
+
+    matchMethodOrThrow(HttpMethods.PUT, akkaUri.path) { httpDef =>
+      requestToRestDefCall(
+        akkaUri,
+        body,
+        httpDef,
+        () =>
+          webClient.flatMap { client =>
+            val requestBodySpec = client
+              .put()
+              .uri(buildUri(pathTemplate, queryParams, pathVariables))
+
+            body.foreach(requestBodySpec.bodyValue)
+
+            requestBodySpec
+              .retrieve()
+              .bodyToMono(returnType)
+              .toFuture
+              .asScala
+          }.asJava)
+    }
+  }
+
+  override def put[R](uriStr: String, returnType: Class[R]): DeferredCall[Any, R] = {
+    runPut(uriStr, Map.empty, new LinkedMultiValueMap(), None, returnType)
+  }
+
+  override def patch[P, R](uriStr: String, body: P, returnType: Class[R]): DeferredCall[Any, R] = {
+    runPatch(uriStr, Map.empty, new LinkedMultiValueMap(), Some(body), returnType)
+  }
+
+  def runPatch[R, P](
+                      pathTemplate: String,
+                      pathVariables: Map[String, String],
+                      queryParams: MultiValueMap[String, String],
+                      body: Option[P],
+                      returnType: Class[R]) = {
+
+    val uri = buildUri(pathTemplate, queryParams, pathVariables)(UriComponentsBuilder.newInstance())
+    val akkaUri = toUri(uri) //TODO this should be replaced with queryParams and pathVariables
+
+    logger.trace(s"Composing HTTP [PATCH] request [$uri]")
+
+    matchMethodOrThrow(HttpMethods.PATCH, akkaUri.path) { httpDef =>
+      requestToRestDefCall(
+        akkaUri,
+        Some(body),
+        httpDef,
+        () =>
+          webClient.flatMap { client =>
+            val requestBodySpec = client
+              .patch()
+              .uri(buildUri(pathTemplate, queryParams, pathVariables))
+
+            body.foreach(requestBodySpec.bodyValue)
+
+            requestBodySpec
+              .retrieve()
+              .bodyToMono(returnType)
+              .toFuture
+              .asScala
+          }.asJava)
+    }
+  }
+
+  override def patch[R](uriStr: String, returnType: Class[R]): DeferredCall[Any, R] = {
+    runPatch(uriStr, Map.empty, new LinkedMultiValueMap(), None, returnType)
+  }
+
+  override def delete[R](uriStr: String, returnType: Class[R]): DeferredCall[Any, R] = {
+    runDelete(uriStr, Map.empty, new LinkedMultiValueMap(), returnType)
+  }
+
+  def runDelete[R](
+                    pathTemplate: String,
+                    pathVariables: Map[String, String],
+                    queryParams: MultiValueMap[String, String],
+                    returnType: Class[R]): DeferredCall[Any, R] = {
+
+    val uri = buildUri(pathTemplate, queryParams, pathVariables)(UriComponentsBuilder.newInstance())
+    val akkaUri = toUri(uri) //TODO this should be replaced with queryParams and pathVariables
+
+    logger.trace(s"Composing HTTP [DELETE] request [$uri]")
+
+    matchMethodOrThrow(HttpMethods.DELETE, akkaUri.path) { httpDef =>
+      requestToRestDefCall(
+        akkaUri,
+        None,
+        httpDef,
+        () =>
+          webClient.flatMap {
+            _.delete()
+              .uri(buildUri(pathTemplate, queryParams, pathVariables))
+              .retrieve()
+              .bodyToMono(returnType)
+              .toFuture
+              .asScala
+          }.asJava)
+    }
+  }
+
+  private def matchMethodOrThrow[R](httpMethod: HttpMethod, path: Uri.Path)(
+    createDefCall: => HttpEndpointMethodDefinition => RestDeferredCall[Any, R]) = {
     services
-      .find(d => (d.methodPattern == ANY_METHOD || httpMethod == d.methodPattern) && d.matches(uri.path))
-      .map { createDefCall(_) }
-      .getOrElse(throw HttpMethodNotFoundException(httpMethod, uri.path.toString()))
+      .find(d => (d.methodPattern == ANY_METHOD || httpMethod == d.methodPattern) && d.matches(path))
+      .map {
+        createDefCall(_)
+      }
+      .getOrElse(throw HttpMethodNotFoundException(httpMethod, path.toString()))
   }
 
   private def requestToRestDefCall[P, R](
-      uriStr: String,
-      body: Option[P],
-      httpDef: HttpEndpointMethodDefinition,
-      asyncCall: () => CompletionStage[R]): RestDeferredCall[Any, R] = {
+                                          uri: Uri,
+                                          body: Option[P],
+                                          httpDef: HttpEndpointMethodDefinition,
+                                          asyncCall: () => CompletionStage[R]): RestDeferredCall[Any, R] = {
 
-    val uri = Uri(uriStr)
     val inputBuilder = DynamicMessage.newBuilder(httpDef.methodDescriptor.getInputType)
 
     httpDef.parsePathParametersInto(uri.path, inputBuilder)

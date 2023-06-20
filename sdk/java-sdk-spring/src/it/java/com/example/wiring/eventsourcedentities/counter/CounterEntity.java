@@ -63,9 +63,9 @@ public class CounterEntity extends EventSourcedEntity<Counter, CounterEvent> {
   }
 
   @GetMapping
-  public Effect<String> get() {
+  public Effect<Integer> get() {
     // don't modify, we want to make sure we call currentState().value here
-    return effects().reply(currentState().value().toString());
+    return effects().reply(currentState().value());
   }
 
   @PostMapping("/multiply/{value}")

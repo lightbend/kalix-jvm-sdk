@@ -16,6 +16,12 @@
 
 package kalix.javasdk.impl.client
 
+import java.lang.reflect.Method
+import java.lang.reflect.ParameterizedType
+import java.util.Optional
+
+import scala.jdk.OptionConverters._
+
 import com.google.protobuf.any.Any
 import kalix.javasdk.DeferredCall
 import kalix.javasdk.annotations.EntityType
@@ -30,19 +36,7 @@ import kalix.javasdk.impl.reflection.SyntheticRequestServiceMethod
 import kalix.spring.KalixClient
 import kalix.spring.impl.RestKalixClientImpl
 import org.springframework.util.LinkedMultiValueMap
-import org.springframework.util.MultiValueMap
 import org.springframework.web.bind.annotation.RequestMethod
-import org.springframework.web.util.UriComponentsBuilder
-import java.lang.reflect.Method
-
-import scala.jdk.CollectionConverters._
-import java.lang.reflect.ParameterizedType
-import java.util.Optional
-
-import scala.jdk.OptionConverters._
-
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 
 class ComponentCall[A1, R](kalixClient: KalixClient, lambda: scala.Any, entityId: Optional[String]) { //TODO rename for workflows
   def params(a1: A1): DeferredCall[Any, R] = {
@@ -51,8 +45,6 @@ class ComponentCall[A1, R](kalixClient: KalixClient, lambda: scala.Any, entityId
 }
 
 object ComponentCall {
-
-  private val logger = LoggerFactory.getLogger(classOf[ComponentCall.type])
 
   def noParams[R](kalixClient: KalixClient, lambda: scala.Any, entityId: Optional[String]): DeferredCall[Any, R] = {
     invoke(Seq.empty, kalixClient, lambda, entityId.toScala);
@@ -91,21 +83,24 @@ object ComponentCall {
     val bodyIndex = restMethod.params.collect { case p: BodyParameter => p }.map(_.param.getParameterIndex).headOption
     val body = bodyIndex.map(params(_))
 
-    val uriStr = buildUriString(restMethod.parsedPath.path, queryParams, pathVariables)
     val kalixClientImpl = kalixClient.asInstanceOf[RestKalixClientImpl]
 
-    logger.info(s"Running $requestMethod $uriStr")
+    val pathTemplate = restMethod.parsedPath.path
 
     requestMethod match {
-      case RequestMethod.GET     => kalixClientImpl.get(uriStr, returnType)
-      case RequestMethod.HEAD    => ???
-      case RequestMethod.POST    => kalixClientImpl.runPost(uriStr, body, returnType)
-      case RequestMethod.PUT     => ???
-      case RequestMethod.PATCH   => kalixClientImpl.runPatch(uriStr, body, returnType)
-      case RequestMethod.DELETE  => kalixClient.delete(uriStr, returnType)
-      case RequestMethod.OPTIONS => ???
-      case RequestMethod.TRACE   => ???
+      case RequestMethod.GET     => kalixClientImpl.runGet(pathTemplate, pathVariables, queryParams, returnType)
+      case RequestMethod.HEAD    => notSupported(requestMethod, pathTemplate)
+      case RequestMethod.POST    => kalixClientImpl.runPost(pathTemplate, pathVariables, queryParams, body, returnType)
+      case RequestMethod.PUT     => kalixClientImpl.runPut(pathTemplate, pathVariables, queryParams, body, returnType)
+      case RequestMethod.PATCH   => kalixClientImpl.runPatch(pathTemplate, pathVariables, queryParams, body, returnType)
+      case RequestMethod.DELETE  => kalixClientImpl.runDelete(pathTemplate, pathVariables, queryParams, returnType)
+      case RequestMethod.OPTIONS => notSupported(requestMethod, pathTemplate)
+      case RequestMethod.TRACE   => notSupported(requestMethod, pathTemplate)
     }
+  }
+
+  private def notSupported[R](requestMethod: RequestMethod, pathTemplate: String) = {
+    throw new IllegalStateException(s"HTTP $requestMethod not supported when calling $pathTemplate")
   }
 
   private def entityIdVariables[R](entityId: Option[String], method: Method): Map[String, String] = {
@@ -126,22 +121,6 @@ object ComponentCall {
           case None        => throw new IllegalStateException(s"Entity id is missing while calling ${method.getName}")
         }
       }
-    }
-  }
-  private def buildUriString(
-      path: String,
-      queryParams: MultiValueMap[String, String],
-      pathVariables: Map[String, String]): String = {
-    val uri = UriComponentsBuilder
-      .newInstance() //TODO not sure if this a correct builder, Spring uses DefaultUriBuilder, but this one is private
-      .path(path)
-      .queryParams(queryParams)
-      .build(pathVariables.asJava)
-
-    if (uri.getQuery != null) {
-      uri.getPath + "?" + uri.getQuery //TODO we should we should use URI or Uri everywhere translation to/from makes no sense
-    } else {
-      uri.getPath
     }
   }
 }

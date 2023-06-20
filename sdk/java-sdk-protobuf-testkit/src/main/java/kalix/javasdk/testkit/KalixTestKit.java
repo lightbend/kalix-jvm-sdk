@@ -529,4 +529,12 @@ public class KalixTestKit {
   public MessageCodec getMessageCodec() {
     return kalix.getMessageCodec();
   }
+
+  /**
+   * INTERNAL API
+   */
+  @InternalApi
+  public KalixRunner getRunner() {
+    return runner;
+  }
 }

@@ -19,10 +19,12 @@ package kalix.spring;
 import akka.japi.function.Function;
 import akka.japi.function.Function2;
 import akka.japi.function.Function3;
+import akka.japi.function.Function4;
 import com.google.protobuf.any.Any;
 import kalix.javasdk.DeferredCall;
 import kalix.javasdk.impl.client.ComponentCall;
 import kalix.javasdk.impl.client.ComponentCall2;
+import kalix.javasdk.impl.client.ComponentCall3;
 import kalix.javasdk.valueentity.ValueEntity;
 
 import java.util.Optional;
@@ -52,5 +54,9 @@ public class ValueEntityCallBuilder {
 
   public <T, A1, A2, R> ComponentCall2<A1, A2, R> call(Function3<T, A1, A2, ValueEntity.Effect<R>> methodRef) {
     return new ComponentCall2(kalixClient, methodRef, entityId);
+  }
+
+  public <T, A1, A2, A3, R> ComponentCall3<A1, A2, A3, R> call(Function4<T, A1, A2, A3, ValueEntity.Effect<R>> methodRef) {
+    return new ComponentCall3(kalixClient, methodRef, entityId);
   }
 }

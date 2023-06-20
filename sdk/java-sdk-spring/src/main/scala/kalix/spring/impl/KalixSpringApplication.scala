@@ -403,6 +403,10 @@ case class KalixSpringApplication(applicationContext: ApplicationContext, config
         kalixBeanFactory.getBean(clz)
       })
 
+  def getComponentClient(): ComponentClient = componentClient
+
+  def getKalixClient(): RestKalixClientImpl = kalixClient
+
   private def setKalixClient[T](clz: Class[T], webClientProviderHolder: WebClientProviderHolder): Unit = {
     if (hasContextConstructor(clz, classOf[KalixClient])) {
       kalixClient.setWebClient(webClientProviderHolder.webClientProvider.localWebClient)
