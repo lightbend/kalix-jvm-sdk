@@ -18,41 +18,36 @@ package com.example.wiring.workflowentities;
 
 import akka.Done;
 import com.example.wiring.actions.echo.Message;
-import kalix.javasdk.annotations.EntityKey;
-import kalix.javasdk.annotations.EntityType;
-import kalix.javasdk.workflowentity.WorkflowEntity;
-import kalix.javasdk.workflowentity.WorkflowEntityContext;
+import kalix.javasdk.annotations.Key;
+import kalix.javasdk.annotations.Type;
+import kalix.javasdk.workflow.Workflow;
+import kalix.javasdk.workflow.WorkflowContext;
 import kalix.spring.KalixClient;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.Duration;
 
-@EntityType("workflow-with-timer")
-@EntityKey("workflowId")
+@Type("workflow-with-timer")
+@Key("workflowId")
 @RequestMapping("/workflow-with-timer/{workflowId}")
-public class WorkflowWithTimer extends WorkflowEntity<FailingCounterState> {
+public class WorkflowWithTimer extends Workflow<FailingCounterState> {
 
   private final String counterStepName = "counter";
 
   private final KalixClient kalixClient;
-  private final WorkflowEntityContext workflowEntityContext;
+  private final WorkflowContext workflowContext;
 
-  public WorkflowWithTimer(KalixClient kalixClient, WorkflowEntityContext workflowEntityContext) {
+  public WorkflowWithTimer(KalixClient kalixClient, WorkflowContext workflowContext) {
     this.kalixClient = kalixClient;
-    this.workflowEntityContext = workflowEntityContext;
+    this.workflowContext = workflowContext;
   }
 
   @Override
-  public Workflow<FailingCounterState> definition() {
+  public WorkflowDef<FailingCounterState> definition() {
     var counterInc =
         step(counterStepName)
             .asyncCall(() -> {
-              var pingWorkflow = kalixClient.put("/workflow-with-timer/" + workflowEntityContext.entityId() + "/ping",
+              var pingWorkflow = kalixClient.put("/workflow-with-timer/" + workflowContext.workflowId() + "/ping",
                   new CounterScheduledValue(12),
                   String.class);
               return timers().startSingleTimer("ping", Duration.ofSeconds(2), pingWorkflow);

@@ -1,7 +1,7 @@
 package com.example.transfer;
 
 import com.example.transfer.TransferState.Transfer;
-import kalix.javasdk.workflowentity.WorkflowEntity;
+import kalix.javasdk.workflow.Workflow;
 import kalix.spring.KalixClient;
 import kalix.javasdk.annotations.EntityKey;
 import kalix.javasdk.annotations.EntityType;
@@ -19,7 +19,7 @@ import static com.example.transfer.TransferState.TransferStatus.WITHDRAW_SUCCEED
 @EntityType("transfer") // <2>
 @EntityKey("transferId") // <3>
 @RequestMapping("/transfer/{transferId}") // <4>
-public class TransferWorkflow extends WorkflowEntity<TransferState> { // <1>
+public class TransferWorkflow extends Workflow<TransferState> { // <1>
   // end::class[]
 
   // tag::start[]
@@ -44,7 +44,7 @@ public class TransferWorkflow extends WorkflowEntity<TransferState> { // <1>
 
   // tag::definition[]
   @Override
-  public Workflow<TransferState> definition() {
+  public WorkflowDef<TransferState> definition() {
     Step withdraw =
       step("withdraw") // <1>
         .call(Withdraw.class, cmd -> {

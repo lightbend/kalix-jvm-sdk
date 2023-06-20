@@ -69,13 +69,13 @@ class EventSourcedEntityDescriptorFactorySpec extends AnyWordSpec with Component
     "fail if mix EntityKey and GenerateEntityKey on method" in {
       intercept[ServiceIntrospectionException] {
         descriptorFor[IllDefinedEntityWithEntityKeyGeneratorAndEntityKey]
-      }.getMessage should include("Invalid annotation usage. Found both @EntityKey and @GenerateEntityKey annotations.")
+      }.getMessage should include("Invalid annotation usage. Found both @Key and @GenerateKey annotations.")
     }
 
     "fail if no EntityKey nor GenerateEntityKey is defined" in {
       intercept[ServiceIntrospectionException] {
         descriptorFor[IllDefinedEntityWithoutEntityKeyGeneratorNorEntityKey]
-      }.getMessage should include("Invalid command method. No @EntityKey nor @GenerateEntityKey annotations found.")
+      }.getMessage should include("Invalid command method. No @Key nor @GenerateKey annotations found.")
     }
 
     "generate mappings for a Event Sourced with GenerateEntityKey" in {

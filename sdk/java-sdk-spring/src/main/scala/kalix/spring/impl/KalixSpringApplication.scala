@@ -54,10 +54,10 @@ import kalix.javasdk.view.ReflectiveViewProvider
 import kalix.javasdk.view.View
 import kalix.javasdk.view.ViewCreationContext
 import kalix.javasdk.view.ViewProvider
-import kalix.javasdk.workflowentity.ReflectiveWorkflowEntityProvider
-import kalix.javasdk.workflowentity.WorkflowEntity
-import kalix.javasdk.workflowentity.WorkflowEntityContext
-import kalix.javasdk.workflowentity.WorkflowEntityProvider
+import kalix.javasdk.workflow.ReflectiveWorkflowProvider
+import kalix.javasdk.workflow.Workflow
+import kalix.javasdk.workflow.WorkflowContext
+import kalix.javasdk.workflow.WorkflowProvider
 import kalix.spring.KalixClient
 import kalix.spring.WebClientProvider
 import kalix.spring.impl.KalixSpringApplication.ActionCreationContextFactoryBean
@@ -90,7 +90,7 @@ object KalixSpringApplication {
   val kalixComponents: Seq[Class[_]] =
     classOf[Action] ::
     classOf[EventSourcedEntity[_, _]] ::
-    classOf[WorkflowEntity[_]] ::
+    classOf[Workflow[_]] ::
     classOf[ValueEntity[_]] ::
     classOf[ReplicatedEntity[_]] ::
     classOf[View[_]] ::
@@ -214,7 +214,7 @@ object KalixSpringApplication {
     override def isSingleton: Boolean = false // never!!
   }
 
-  object WorkflowContextFactoryBean extends ThreadLocalFactoryBean[WorkflowEntityContext] {
+  object WorkflowContextFactoryBean extends ThreadLocalFactoryBean[WorkflowContext] {
     override def isSingleton: Boolean = false // never!!
   }
 
@@ -316,9 +316,9 @@ case class KalixSpringApplication(applicationContext: ApplicationContext, config
         kalixClient.registerComponent(esEntity.serviceDescriptor())
       }
 
-      if (classOf[WorkflowEntity[_]].isAssignableFrom(clz)) {
+      if (classOf[Workflow[_]].isAssignableFrom(clz)) {
         logger.info(s"Registering Workflow provider for [${clz.getName}]")
-        val workflow = workflowProvider(clz.asInstanceOf[Class[WorkflowEntity[Nothing]]])
+        val workflow = workflowProvider(clz.asInstanceOf[Class[Workflow[Nothing]]])
         kalix.register(workflow)
         kalixClient.registerComponent(workflow.serviceDescriptor())
       }
@@ -407,12 +407,12 @@ case class KalixSpringApplication(applicationContext: ApplicationContext, config
         kalixBeanFactory.getBean(clz)
       })
 
-  private def workflowProvider[S, E <: WorkflowEntity[S]](clz: Class[E]): WorkflowEntityProvider[S, E] = {
-    ReflectiveWorkflowEntityProvider.of(
+  private def workflowProvider[S, E <: Workflow[S]](clz: Class[E]): WorkflowProvider[S, E] = {
+    ReflectiveWorkflowProvider.of(
       clz,
       messageCodec,
       context => {
-        if (hasContextConstructor(clz, classOf[WorkflowEntityContext])) {
+        if (hasContextConstructor(clz, classOf[WorkflowContext])) {
           WorkflowContextFactoryBean.set(context)
         }
 
@@ -434,10 +434,10 @@ case class KalixSpringApplication(applicationContext: ApplicationContext, config
         workflowEntity
           .definition()
           .forEachStep {
-            case asyncCallStep: WorkflowEntity.AsyncCallStep[_, _, _] =>
+            case asyncCallStep: Workflow.AsyncCallStep[_, _, _] =>
               messageCodec.lookupTypeHint(asyncCallStep.callInputClass)
               messageCodec.lookupTypeHint(asyncCallStep.transitionInputClass)
-            case callStep: WorkflowEntity.CallStep[_, _, _, _] =>
+            case callStep: Workflow.CallStep[_, _, _, _] =>
               messageCodec.lookupTypeHint(callStep.callInputClass)
               messageCodec.lookupTypeHint(callStep.transitionInputClass)
           }

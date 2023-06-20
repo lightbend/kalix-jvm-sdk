@@ -20,7 +20,9 @@ import java.lang.annotation.Annotation
 import java.lang.reflect.Method
 import java.lang.reflect.Modifier
 import java.lang.reflect.ParameterizedType
+
 import scala.reflect.ClassTag
+
 import kalix.DirectDestination
 import kalix.DirectSource
 import kalix.EventDestination
@@ -38,6 +40,7 @@ import kalix.javasdk.annotations.Acl
 import kalix.javasdk.annotations.EntityType
 import kalix.javasdk.annotations.JWT
 import kalix.javasdk.annotations.Table
+import kalix.javasdk.annotations.Type
 import kalix.javasdk.annotations.ViewId
 import kalix.javasdk.eventsourcedentity.EventSourcedEntity
 import kalix.javasdk.impl.reflection.CombinedSubscriptionServiceMethod
@@ -416,7 +419,7 @@ private[impl] object ComponentDescriptorFactory {
   // we should let users know if components are missing required annotations,
   // eg: entities require @EntityType, view require @Table and @Subscription
   def getFactoryFor(component: Class[_]): ComponentDescriptorFactory = {
-    if (component.getAnnotation(classOf[EntityType]) != null)
+    if (component.getAnnotation(classOf[Type]) != null || component.getAnnotation(classOf[EntityType]) != null)
       EntityDescriptorFactory
     else if (component.getAnnotation(classOf[Table]) != null || component.getAnnotation(classOf[ViewId]) != null)
       ViewDescriptorFactory

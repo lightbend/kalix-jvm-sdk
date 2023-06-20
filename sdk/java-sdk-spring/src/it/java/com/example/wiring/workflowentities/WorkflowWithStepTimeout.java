@@ -17,9 +17,9 @@
 package com.example.wiring.workflowentities;
 
 import com.example.wiring.actions.echo.Message;
-import kalix.javasdk.annotations.EntityKey;
-import kalix.javasdk.annotations.EntityType;
-import kalix.javasdk.workflowentity.WorkflowEntity;
+import kalix.javasdk.annotations.Key;
+import kalix.javasdk.annotations.Type;
+import kalix.javasdk.workflow.Workflow;
 import kalix.spring.KalixClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,12 +34,12 @@ import java.util.concurrent.TimeUnit;
 
 import static java.time.Duration.ofMillis;
 import static java.time.Duration.ofSeconds;
-import static kalix.javasdk.workflowentity.WorkflowEntity.RecoverStrategy.maxRetries;
+import static kalix.javasdk.workflow.Workflow.RecoverStrategy.maxRetries;
 
-@EntityType("workflow-with-step-timeout")
-@EntityKey("workflowId")
+@Type("workflow-with-step-timeout")
+@Key("workflowId")
 @RequestMapping("/workflow-with-step-timeout/{workflowId}")
-public class WorkflowWithStepTimeout extends WorkflowEntity<FailingCounterState> {
+public class WorkflowWithStepTimeout extends Workflow<FailingCounterState> {
 
   private Logger logger = LoggerFactory.getLogger(getClass());
   private final String counterStepName = "counter";
@@ -55,7 +55,7 @@ public class WorkflowWithStepTimeout extends WorkflowEntity<FailingCounterState>
   public Executor delayedExecutor = CompletableFuture.delayedExecutor(1, TimeUnit.SECONDS);
 
   @Override
-  public Workflow<FailingCounterState> definition() {
+  public WorkflowDef<FailingCounterState> definition() {
     var counterInc =
         step(counterStepName)
             .asyncCall(() -> {
