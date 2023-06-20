@@ -34,15 +34,15 @@ private[impl] object EntityDescriptorFactory extends ComponentDescriptorFactory 
     val kalixMethods =
       RestServiceIntrospector.inspectService(component).methods.map { restMethod =>
 
-        val generateEntityKey = restMethod.javaMethod.getAnnotation(classOf[GenerateEntityKey])
+        val entityKeys = extractEntityKeys(component, restMethod.javaMethod)
 
         val kalixMethod =
-          if (generateEntityKey != null) {
+          if (entityKeys.isEmpty) {
             val keyGenOptions = kalix.KeyGeneratorMethodOptions.newBuilder().setKeyGenerator(Generator.VERSION_4_UUID)
             val methodOpts = kalix.MethodOptions.newBuilder().setEntity(keyGenOptions)
             KalixMethod(restMethod).withKalixOptions(methodOpts.build())
           } else {
-            KalixMethod(restMethod, entityKeys = extractEntityKeys(component, restMethod.javaMethod))
+            KalixMethod(restMethod, entityKeys = entityKeys)
           }
 
         kalixMethod.withKalixOptions(buildJWTOptions(restMethod.javaMethod))
