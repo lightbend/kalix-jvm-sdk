@@ -120,7 +120,7 @@ include::java:partial$eventing-testkit-intro.adoc[leveloffset=1]
 [source,java]
 .src/it/java/com/example/CounterIntegrationTest.java
 ----
-include::example$java-spring-eventsourced-counter/src/it/java/com/example/CounterIntegrationTest.java[tag=test-topic]
+include::example$java-spring-eventsourced-counter/src/it/java/com/example/CounterIntegrationTest.java[tags=class;test-topic]
 ----
 <1> Start the TestKit, booting up both the service and its proxy.
 <2> Wire the Kalix TestKit automatically.
