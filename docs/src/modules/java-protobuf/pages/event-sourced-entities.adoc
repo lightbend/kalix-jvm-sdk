@@ -105,7 +105,6 @@ include::example$java-protobuf-eventsourced-shopping-cart/src/main/java/com/exam
 <1> Extends the generated `AbstractShoppingCart`, which extends link:{attachmentsdir}/api/kalix/javasdk/eventsourcedentity/EventSourcedEntity.html[`EventSourcedEntity` {tab-icon}, window="new"].
 <2> Defines the initial, empty, state that is used before any updates.
 
-[.tabset]
 Scala::
 +
 [source,scala]
