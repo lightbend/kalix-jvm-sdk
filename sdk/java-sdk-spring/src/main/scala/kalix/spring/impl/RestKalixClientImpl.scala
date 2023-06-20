@@ -99,10 +99,10 @@ final class RestKalixClientImpl(messageCodec: JsonMessageCodec) extends KalixCli
   }
 
   def runGet[R](
-                 pathTemplate: String,
-                 pathVariables: Map[String, String],
-                 queryParams: MultiValueMap[String, String],
-                 returnType: Class[R]): DeferredCall[Any, R] = {
+      pathTemplate: String,
+      pathVariables: Map[String, String],
+      queryParams: MultiValueMap[String, String],
+      returnType: Class[R]): DeferredCall[Any, R] = {
 
     val uri = buildUri(pathTemplate, queryParams, pathVariables)(UriComponentsBuilder.newInstance())
     val akkaUri = toUri(uri) //TODO this should be replaced with queryParams and pathVariables
@@ -132,9 +132,9 @@ final class RestKalixClientImpl(messageCodec: JsonMessageCodec) extends KalixCli
   }
 
   private def buildUri(
-                        path: String,
-                        queryParams: MultiValueMap[String, String],
-                        pathVariables: Map[String, String]): Function[UriBuilder, URI] = uriBuilder => {
+      path: String,
+      queryParams: MultiValueMap[String, String],
+      pathVariables: Map[String, String]): Function[UriBuilder, URI] = uriBuilder => {
     uriBuilder
       .path(path)
       .queryParams(queryParams)
@@ -142,11 +142,11 @@ final class RestKalixClientImpl(messageCodec: JsonMessageCodec) extends KalixCli
   }
 
   def runPost[R, P](
-                     pathTemplate: String,
-                     pathVariables: Map[String, String],
-                     queryParams: MultiValueMap[String, String],
-                     body: Option[P],
-                     returnType: Class[R]) = {
+      pathTemplate: String,
+      pathVariables: Map[String, String],
+      queryParams: MultiValueMap[String, String],
+      body: Option[P],
+      returnType: Class[R]) = {
 
     val uri = buildUri(pathTemplate, queryParams, pathVariables)(UriComponentsBuilder.newInstance())
     val akkaUri = toUri(uri) //TODO this should be replaced with queryParams and pathVariables
@@ -192,11 +192,11 @@ final class RestKalixClientImpl(messageCodec: JsonMessageCodec) extends KalixCli
   }
 
   def runPut[P, R](
-                    pathTemplate: String,
-                    pathVariables: Map[String, String],
-                    queryParams: MultiValueMap[String, String],
-                    body: Option[P],
-                    returnType: Class[R]): DeferredCall[Any, R] = {
+      pathTemplate: String,
+      pathVariables: Map[String, String],
+      queryParams: MultiValueMap[String, String],
+      body: Option[P],
+      returnType: Class[R]): DeferredCall[Any, R] = {
 
     val uri = buildUri(pathTemplate, queryParams, pathVariables)(UriComponentsBuilder.newInstance())
     val akkaUri = toUri(uri) //TODO this should be replaced with queryParams and pathVariables
@@ -234,11 +234,11 @@ final class RestKalixClientImpl(messageCodec: JsonMessageCodec) extends KalixCli
   }
 
   def runPatch[R, P](
-                      pathTemplate: String,
-                      pathVariables: Map[String, String],
-                      queryParams: MultiValueMap[String, String],
-                      body: Option[P],
-                      returnType: Class[R]) = {
+      pathTemplate: String,
+      pathVariables: Map[String, String],
+      queryParams: MultiValueMap[String, String],
+      body: Option[P],
+      returnType: Class[R]) = {
 
     val uri = buildUri(pathTemplate, queryParams, pathVariables)(UriComponentsBuilder.newInstance())
     val akkaUri = toUri(uri) //TODO this should be replaced with queryParams and pathVariables
@@ -276,10 +276,10 @@ final class RestKalixClientImpl(messageCodec: JsonMessageCodec) extends KalixCli
   }
 
   def runDelete[R](
-                    pathTemplate: String,
-                    pathVariables: Map[String, String],
-                    queryParams: MultiValueMap[String, String],
-                    returnType: Class[R]): DeferredCall[Any, R] = {
+      pathTemplate: String,
+      pathVariables: Map[String, String],
+      queryParams: MultiValueMap[String, String],
+      returnType: Class[R]): DeferredCall[Any, R] = {
 
     val uri = buildUri(pathTemplate, queryParams, pathVariables)(UriComponentsBuilder.newInstance())
     val akkaUri = toUri(uri) //TODO this should be replaced with queryParams and pathVariables
@@ -304,7 +304,7 @@ final class RestKalixClientImpl(messageCodec: JsonMessageCodec) extends KalixCli
   }
 
   private def matchMethodOrThrow[R](httpMethod: HttpMethod, path: Uri.Path)(
-    createDefCall: => HttpEndpointMethodDefinition => RestDeferredCall[Any, R]) = {
+      createDefCall: => HttpEndpointMethodDefinition => RestDeferredCall[Any, R]) = {
     services
       .find(d => (d.methodPattern == ANY_METHOD || httpMethod == d.methodPattern) && d.matches(path))
       .map {
@@ -314,10 +314,10 @@ final class RestKalixClientImpl(messageCodec: JsonMessageCodec) extends KalixCli
   }
 
   private def requestToRestDefCall[P, R](
-                                          uri: Uri,
-                                          body: Option[P],
-                                          httpDef: HttpEndpointMethodDefinition,
-                                          asyncCall: () => CompletionStage[R]): RestDeferredCall[Any, R] = {
+      uri: Uri,
+      body: Option[P],
+      httpDef: HttpEndpointMethodDefinition,
+      asyncCall: () => CompletionStage[R]): RestDeferredCall[Any, R] = {
 
     val inputBuilder = DynamicMessage.newBuilder(httpDef.methodDescriptor.getInputType)
 
