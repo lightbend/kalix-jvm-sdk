@@ -16,8 +16,6 @@
 
 package com.example.wiring.valueentities.customer;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import kalix.javasdk.valueentity.ValueEntity;
 import kalix.javasdk.annotations.EntityKey;
 import kalix.javasdk.annotations.EntityType;
