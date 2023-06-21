@@ -139,7 +139,9 @@ object Dependencies {
     "net.aichler" % "jupiter-interface" % JupiterKeys.jupiterVersion.value % IntegrationTest,
     "org.springframework.boot" % "spring-boot-starter-test" % SpringBootVersion % IntegrationTest,
     junit5 % IntegrationTest,
-    "org.assertj" % "assertj-core" % "3.24.0" % IntegrationTest,
+    junit5 % Test,
+    "org.assertj" % "assertj-core" % "3.24.2" % IntegrationTest,
+    "org.assertj" % "assertj-core" % "3.24.2" % Test,
     "org.awaitility" % "awaitility" % "4.2.0" % IntegrationTest)
 
   val javaSdkSpringTestKit =
