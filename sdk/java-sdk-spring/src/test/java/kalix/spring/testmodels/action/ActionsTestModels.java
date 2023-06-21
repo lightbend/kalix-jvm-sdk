@@ -97,14 +97,14 @@ public class ActionsTestModels {
   public static class PostWithOneParam extends Action {
     @PostMapping("/message/{one}")
     public Action.Effect<Message> message(@PathVariable String one, @RequestBody Message msg) {
-      return effects().reply(new Message(msg.value));
+      return effects().reply(new Message(msg.value()));
     }
   }
 
   public static class PostWithOneQueryParam extends Action {
     @PostMapping("/message")
     public Action.Effect<Message> message(@RequestParam String dest, @RequestBody Message msg) {
-      return effects().reply(new Message(msg.value));
+      return effects().reply(new Message(msg.value()));
     }
   }
 
@@ -112,14 +112,14 @@ public class ActionsTestModels {
     @PostMapping("/message/{one}/{two}")
     public Action.Effect<Message> message(
         @PathVariable String one, @PathVariable Long two, @RequestBody Message msg) {
-      return effects().reply(new Message(msg.value));
+      return effects().reply(new Message(msg.value()));
     }
   }
 
   public static class PostWithTwoMethods extends Action {
     @PostMapping("/message/{text}")
     public Action.Effect<Message> message(@PathVariable String text, @RequestBody Message msg) {
-      return effects().reply(new Message(msg.value));
+      return effects().reply(new Message(msg.value()));
     }
 
     @PostMapping("/message/{num}")
@@ -131,28 +131,28 @@ public class ActionsTestModels {
   public static class PutWithoutParam extends Action {
     @PutMapping("/message")
     public Action.Effect<Message> message(@RequestBody Message msg) {
-      return effects().reply(new Message(msg.value));
+      return effects().reply(new Message(msg.value()));
     }
   }
 
   public static class PutWithOneParam extends Action {
     @PutMapping("/message/{one}")
     public Action.Effect<Message> message(@PathVariable String one, @RequestBody Message msg) {
-      return effects().reply(new Message(msg.value));
+      return effects().reply(new Message(msg.value()));
     }
   }
 
   public static class PatchWithoutParam extends Action {
     @PatchMapping("/message")
     public Action.Effect<Message> message(@RequestBody Message msg) {
-      return effects().reply(new Message(msg.value));
+      return effects().reply(new Message(msg.value()));
     }
   }
 
   public static class PatchWithOneParam extends Action {
     @PatchMapping("/message/{one}")
     public Action.Effect<Message> message(@PathVariable String one, @RequestBody Message msg) {
-      return effects().reply(new Message(msg.value));
+      return effects().reply(new Message(msg.value()));
     }
   }
 
