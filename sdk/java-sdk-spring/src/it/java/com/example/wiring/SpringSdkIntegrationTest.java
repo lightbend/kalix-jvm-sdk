@@ -561,7 +561,7 @@ public class SpringSdkIntegrationTest {
     String value = "someValue";
 
     Message actionResponse = execute(componentClient.forAction().call(ActionWithMetadata::actionWithMeta)
-        .invoke("myKey", value));
+        .params("myKey", value));
 
     assertThat(actionResponse.text).isEqualTo(value);
   }
@@ -610,14 +610,14 @@ public class SpringSdkIntegrationTest {
   private void updateUser(TestUser user) {
     String userUpdate = execute(componentClient.forValueEntity(user.id)
         .call(UserEntity::createOrUpdateUser)
-        .invoke(user.email, user.name));
+        .params(user.email, user.name));
     assertThat(userUpdate).isEqualTo("\"Ok\"");
   }
 
   private void createUser(TestUser user) {
     String userCreation = execute(componentClient.forValueEntity(user.id)
         .call(UserEntity::createOrUpdateUser)
-        .invoke(user.email, user.name));
+        .params(user.email, user.name));
     assertThat(userCreation).isEqualTo("\"Ok\"");
   }
 

@@ -38,6 +38,8 @@ import akka.japi.function.Function6;
 import akka.japi.function.Function7;
 import akka.japi.function.Function8;
 import akka.japi.function.Function9;
+import com.google.protobuf.any.Any;
+import kalix.javasdk.DeferredCall;
 import kalix.javasdk.action.Action;
 import kalix.javasdk.impl.client.ComponentCall;
 import kalix.javasdk.impl.client.ComponentCall10;
@@ -71,8 +73,8 @@ public class ActionCallBuilder {
     this.kalixClient = kalixClient;
   }
 
-  public <T, R> ComponentCall<T, R> call(Function<T, Action.Effect<R>> methodRef) {
-    return new ComponentCall<>(kalixClient, methodRef, Optional.empty());
+  public <T, R> DeferredCall<Any, R> call(Function<T, Action.Effect<R>> methodRef) {
+    return ComponentCall.noParams(kalixClient, methodRef, Optional.empty());
   }
 
   public <T, A1, R> ComponentCall<A1, R> call(Function2<T, A1, Action.Effect<R>> methodRef) {

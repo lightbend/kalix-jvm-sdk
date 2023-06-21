@@ -42,7 +42,7 @@ public class ValidateUserAction extends Action {
     if (email.isEmpty() || name.isEmpty())
       return effects().error("No field can be empty", StatusCode.ErrorCode.BAD_REQUEST);
 
-    var defCall = componentClient.forValueEntity(user).call(UserEntity::createUser).invoke(email, name);
+    var defCall = componentClient.forValueEntity(user).call(UserEntity::createUser).params(email, name);
     return effects().forward(defCall);
   }
 

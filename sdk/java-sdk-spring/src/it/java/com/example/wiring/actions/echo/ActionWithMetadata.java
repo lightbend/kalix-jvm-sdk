@@ -32,7 +32,7 @@ public class ActionWithMetadata extends Action {
 
   @GetMapping("/action-with-meta/{key}/{value}")
   public Effect<Message> actionWithMeta(@PathVariable String key, @PathVariable String value) {
-    var def = componentClient.forAction().call(this::returnMeta).params(key);
+    var def = componentClient.forAction().call(ActionWithMetadata::returnMeta).params(key);
     return effects().forward(def.withMetadata(Metadata.EMPTY.add(key, value)));
   }
 
