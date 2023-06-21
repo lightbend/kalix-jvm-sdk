@@ -112,7 +112,7 @@ case class DockerComposeUtils(file: String, envVar: Map[String, String]) {
    * Extract all lines starting with [[DevModeSettings.portMappingsKeyPrefix]] The returned Seq only contains the
    * service name and the mapped host and port, eg: some-service=somehost:9001
    */
-  def servicePortMappings: Seq[String] =
+  private def servicePortMappings: Seq[String] =
     lines.flatten {
       case ServicePortMappingsExtractor(mappings) => mappings
       case _                                      => Seq.empty
@@ -136,7 +136,7 @@ case class DockerComposeUtils(file: String, envVar: Map[String, String]) {
    * This is used to configure a local service. Local services are expected to run as a JVM process (not dockerized) and
    * therefore they reach the proxy through localhost, not through host.docker.internal.
    */
-  def localServicePortMappings: Seq[String] =
+  private def localServicePortMappings: Seq[String] =
     servicePortMappings.map { mapping =>
       mapping.split("=") match {
         case Array(service, hostAndPort) =>

@@ -29,6 +29,7 @@ import akka.actor.Extension
 import akka.actor.ExtensionId
 import akka.actor.ExtensionIdProvider
 import akka.annotation.InternalApi
+import com.typesafe.config.Config
 import kalix.devtools.impl.DevModeSettings
 import kalix.devtools.impl.HostAndPort
 import kalix.javasdk.JsonSupport
@@ -52,6 +53,7 @@ private[kalix] object WebClientProviderHolder extends ExtensionId[WebClientProvi
   override def createExtension(system: ExtendedActorSystem): WebClientProviderHolder =
     new WebClientProviderHolder(system)
   override def lookup: ExtensionId[_ <: Extension] = this
+
 }
 
 class WebClientProviderHolder(system: ExtendedActorSystem) extends Extension {

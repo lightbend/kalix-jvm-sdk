@@ -77,7 +77,7 @@ class KalixRunnerSpec extends AnyWordSpec with Matchers {
 
       val prepared = KalixRunner.prepareConfig(config)
       val clientConfig = prepared.getConfig("akka.grpc.client.foo")
-      clientConfig.getString("host") shouldBe "somehost"
+      clientConfig.getString("host") shouldBe "0.0.0.0"
       clientConfig.getInt("port") shouldBe 9001
     }
 
@@ -95,7 +95,7 @@ class KalixRunnerSpec extends AnyWordSpec with Matchers {
 
       val prepared = KalixRunner.prepareConfig(config)
       val clientConfig = prepared.getConfig("akka.grpc.client.foo")
-      clientConfig.getString("host") shouldBe "some.host"
+      clientConfig.getString("host") shouldBe "0.0.0.0"
       clientConfig.getInt("port") shouldBe 9001
     }
 

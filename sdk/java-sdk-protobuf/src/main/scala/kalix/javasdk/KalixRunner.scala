@@ -36,6 +36,7 @@ import com.google.protobuf.DescriptorProtos.FileDescriptorProto
 import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
 import kalix.devtools.impl.DevModeSettings
+import kalix.devtools.impl.DevModeSettings.portMappingsKeyPrefix
 import kalix.devtools.impl.DockerComposeUtils
 import kalix.devtools.impl.HostAndPort
 import kalix.javasdk.impl.AbstractContext
@@ -91,37 +92,7 @@ object KalixRunner {
 
   private[kalix] def prepareConfig(config: Config): Config = {
     val mainConfig = config.getConfig("kalix.system").withFallback(config)
-    // enrich config with extra dev-mode service port mappings if applicable
-    DockerComposeUtils
-      .fromConfig(mainConfig)
-      .map { dcu =>
-        // read user-function port from docker-compose and overwrite the main config
-        val adaptedConfig =
-          ConfigFactory
-            .parseString(s"kalix.user-function-port = ${dcu.userFunctionPort}")
-            .withFallback(mainConfig)
-
-        dcu.servicesHostAndPortMap.foldLeft(adaptedConfig) { case (main, (serviceName, hostAndPort)) =>
-          logger.debug("adding dev-mode port mapping for service [{}] to [{}]", serviceName, hostAndPort)
-          val (host, port) = HostAndPort.extract(hostAndPort)
-          val clientConfig = ConfigFactory.parseString(s"""
-             |akka.grpc.client.$serviceName {
-             |  service-discovery {
-             |    service-name = "$serviceName"
-             |  }
-             |  host = "$host"
-             |  port = $port
-             |  use-tls = false
-             |}
-             |
-             |${DevModeSettings.portMappingsKeyPrefix}.$serviceName="0.0.0.0:$port"
-             |""".stripMargin)
-
-          main.withFallback(clientConfig)
-        }
-      }
-      .getOrElse(mainConfig)
-
+    DevModeSettings.addDevModeConfig(mainConfig)
   }
 
   private def loadConfig(): Config = prepareConfig(ConfigFactory.load())

@@ -23,6 +23,7 @@ import java.util
 import java.util.UUID
 
 import com.typesafe.config.ConfigFactory
+import kalix.devtools.impl.DockerComposeTestFile.createTmpFile
 import org.scalatest.OptionValues
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
@@ -34,7 +35,7 @@ class DockerComposeUtilsSpec extends AnyWordSpec with Matchers with OptionValues
       |version: "3"
       |services:
       |  kalix-proxy:
-      |    image: gcr.io/kalix-public/kalix-proxy:1.1.8
+      |    image: gcr.io/kalix-public/kalix-proxy:1.1.13
       |    ports:
       |      - "9000:9000"
       |    extra_hosts:
@@ -48,16 +49,6 @@ class DockerComposeUtilsSpec extends AnyWordSpec with Matchers with OptionValues
       |      USER_FUNCTION_HOST:${USER_FUNCTION_HOST:-host.docker.internal}
       |      USER_FUNCTION_PORT:${USER_FUNCTION_PORT:-8081}
       |""".stripMargin
-
-  private def createTmpFile(fileContent: String): String = {
-    // write docker-compose.yml to a temporary file
-    val dockerComposeFile = File.createTempFile("docker-compose", ".yml")
-    dockerComposeFile.deleteOnExit()
-    val bw = new BufferedWriter(new FileWriter(dockerComposeFile))
-    bw.write(fileContent)
-    bw.close()
-    dockerComposeFile.getAbsolutePath
-  }
 
   "DockerComposeUtils" should {
 
@@ -111,42 +102,17 @@ class DockerComposeUtilsSpec extends AnyWordSpec with Matchers with OptionValues
       dockerComposeUtils.userFunctionPort shouldBe 8081
     }
 
-    "read service port mappings from docker-compose file" in {
-      val dockerComposeFile = createTmpFile(defaultFile)
-      val dockerComposeUtils = DockerComposeUtils(dockerComposeFile)
-      dockerComposeUtils.servicePortMappings shouldBe Seq("foo=9001", "bar=9002")
-    }
-
     "read services and ports from docker-compose file" in {
       val dockerComposeFile = createTmpFile(defaultFile)
       val dockerComposeUtils = DockerComposeUtils(dockerComposeFile)
       dockerComposeUtils.servicesHostAndPortMap shouldBe Map("foo" -> "9001", "bar" -> "9002")
     }
 
-    "service mappings is docker-compose file are translated to mappings without host" in {
-      val defaultFile =
-        """
-            |version: "3"
-            |services:
-            |  kalix-proxy:
-            |    environment:
-            |      JAVA_TOOL_OPTIONS: >
-            |        -Dkalix.dev-mode.service-port-mappings.foo=9001
-            |        -Dkalix.dev-mode.service-port-mappings.bar=host.docker.internal:9002
-            |        -Dkalix.dev-mode.service-port-mappings.baz=somehost:9003
-            |        -Dkalix.dev-mode.service-port-mappings.qux=localhost:9004
-            |""".stripMargin
-
-      val dockerComposeFile = createTmpFile(defaultFile)
-      val dockerComposeUtils = DockerComposeUtils(dockerComposeFile)
-      dockerComposeUtils.localServicePortMappings shouldBe Seq("foo=9001", "bar=9002", "baz=9003", "qux=9004")
-    }
-
     "not fail if docker-compose file is absent" in {
       val dockerComposeUtils = DockerComposeUtils(UUID.randomUUID().toString)
       // in which case it should default to 8080
       dockerComposeUtils.userFunctionPort shouldBe 8080
-      dockerComposeUtils.servicePortMappings shouldBe Seq.empty
+      dockerComposeUtils.servicesHostAndPortMap shouldBe Map.empty
     }
 
     "select first UF port when more than one proxy is declared." in {

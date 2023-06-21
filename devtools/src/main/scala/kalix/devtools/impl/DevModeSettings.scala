@@ -17,7 +17,9 @@
 package kalix.devtools.impl
 
 import scala.jdk.CollectionConverters._
+
 import com.typesafe.config.Config
+import com.typesafe.config.ConfigFactory
 
 object DevModeSettings {
 
@@ -42,6 +44,60 @@ object DevModeSettings {
       DevModeSettings.empty
     }
 
+  }
+
+  private def grpcClientConfig(serviceName: String, host: String, port: Int): Config =
+    ConfigFactory.parseString(s"""
+         |akka.grpc.client.$serviceName {
+         |  service-discovery {
+         |    service-name = "$serviceName"
+         |  }
+         |  host = "$host"
+         |  port = $port
+         |  use-tls = false
+         |}
+         |""".stripMargin)
+
+  private def restClientConfig(serviceName: String, host: String, port: Int) =
+    ConfigFactory.parseString(s"""${portMappingsKeyPrefix}.$serviceName="$host:$port"""")
+
+  def addDevModeConfig(mainConfig: Config): Config = {
+    // enrich config with extra dev-mode service port mappings if applicable
+    DockerComposeUtils
+      .fromConfig(mainConfig)
+      .map { dcu =>
+        // read user-function port from docker-compose and overwrite the main config
+        val adaptedConfig =
+          ConfigFactory
+            .parseString(s"kalix.user-function-port = ${dcu.userFunctionPort}")
+            .withFallback(mainConfig)
+
+        dcu.servicesHostAndPortMap.foldLeft(adaptedConfig) { case (main, (serviceName, hostAndPort)) =>
+          // DockerComposeUtils (dcu) is only available when running locally,
+          // therefore should always use localhost (0.0.0.0)
+          val host = "0.0.0.0"
+          val port = HostAndPort.extractPort(hostAndPort)
+          // when configuring through DockerComposeUtils, we need to parts.
+          // a config for a gRPC client and a direct config for REST WebClient
+          main
+            .withFallback(grpcClientConfig(serviceName, host, port)
+              .withFallback(restClientConfig(serviceName, host, port)))
+        }
+      }
+      .getOrElse {
+        // when not relying on DockerComposeUtils, we should still look for dev-mode settings
+        // and translate them to gRPC clients
+        if (mainConfig.hasPath(portMappingsKeyPrefix)) {
+          val portMappings =
+            mainConfig.getConfig(portMappingsKeyPrefix).entrySet().asScala
+          portMappings.foldLeft(mainConfig) { case (main, entry) =>
+            val (host, port) = HostAndPort.extract(entry.getValue.unwrapped().toString)
+            main.withFallback(grpcClientConfig(entry.getKey, host, port))
+          }
+
+        } else
+          mainConfig
+      }
   }
 
   def empty: DevModeSettings = DevModeSettings(Map.empty)
