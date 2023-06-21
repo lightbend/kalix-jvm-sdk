@@ -137,6 +137,7 @@ object Dependencies {
 
   val javaSdkSpring = deps ++= sdkDeps ++ springDeps ++ Seq(
     "net.aichler" % "jupiter-interface" % JupiterKeys.jupiterVersion.value % IntegrationTest,
+    "net.aichler" % "jupiter-interface" % JupiterKeys.jupiterVersion.value % Test,
     "org.springframework.boot" % "spring-boot-starter-test" % SpringBootVersion % IntegrationTest,
     junit5 % IntegrationTest,
     junit5 % Test,
