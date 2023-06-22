@@ -18,10 +18,12 @@ package kalix.javasdk.impl.client
 
 import java.lang.reflect.Method
 import java.lang.reflect.ParameterizedType
+import java.util
 import java.util.Optional
 
 import scala.jdk.OptionConverters._
 
+import akka.http.scaladsl.model.HttpMethods
 import com.google.protobuf.any.Any
 import kalix.javasdk.DeferredCall
 import kalix.javasdk.annotations.EntityType
@@ -35,7 +37,6 @@ import kalix.javasdk.impl.reflection.RestServiceIntrospector.RestService
 import kalix.javasdk.impl.reflection.SyntheticRequestServiceMethod
 import kalix.spring.KalixClient
 import kalix.spring.impl.RestKalixClientImpl
-import org.springframework.util.LinkedMultiValueMap
 import org.springframework.web.bind.annotation.RequestMethod
 
 class ComponentCall[A1, R](kalixClient: KalixClient, lambda: scala.Any, entityId: Optional[String]) { //TODO rename for workflows
@@ -48,6 +49,15 @@ object ComponentCall {
 
   def noParams[R](kalixClient: KalixClient, lambda: scala.Any, entityId: Optional[String]): DeferredCall[Any, R] = {
     invoke(Seq.empty, kalixClient, lambda, entityId.toScala);
+  }
+
+  def getQueryParam(params: Seq[scala.Any], parameterIndex: Int): util.List[scala.Any] = {
+    val value = params(parameterIndex)
+    if (value.isInstanceOf[util.List[_]]) {
+      value.asInstanceOf[util.List[scala.Any]]
+    } else {
+      util.List.of(value)
+    }
   }
 
   private[client] def invoke[R](
@@ -68,16 +78,14 @@ object ComponentCall {
 
     val requestMethod: RequestMethod = restMethod.requestMethod
 
-    val queryParams: LinkedMultiValueMap[String, String] = new LinkedMultiValueMap()
-    restMethod.params
+    val queryParams: Map[String, util.List[scala.Any]] = restMethod.params
       .collect { case p: QueryParamParameter => p }
-      .foreach(param => {
-        queryParams.add(param.name, params(param.param.getParameterIndex).toString) //TODO null?
-      })
+      .map(p => (p.name, getQueryParam(params, p.param.getParameterIndex)))
+      .toMap
 
-    val pathVariables: Map[String, String] = restMethod.params
+    val pathVariables: Map[String, ?] = restMethod.params
       .collect { case p: PathParameter => p }
-      .map(param => (param.name, params(param.param.getParameterIndex).toString))
+      .map(param => (param.name, params(param.param.getParameterIndex)))
       .toMap ++ entityIdVariables(entityId, method)
 
     val bodyIndex = restMethod.params.collect { case p: BodyParameter => p }.map(_.param.getParameterIndex).headOption
@@ -88,12 +96,17 @@ object ComponentCall {
     val pathTemplate = restMethod.parsedPath.path
 
     requestMethod match {
-      case RequestMethod.GET     => kalixClientImpl.runGet(pathTemplate, pathVariables, queryParams, returnType)
-      case RequestMethod.HEAD    => notSupported(requestMethod, pathTemplate)
-      case RequestMethod.POST    => kalixClientImpl.runPost(pathTemplate, pathVariables, queryParams, body, returnType)
-      case RequestMethod.PUT     => kalixClientImpl.runPut(pathTemplate, pathVariables, queryParams, body, returnType)
-      case RequestMethod.PATCH   => kalixClientImpl.runPatch(pathTemplate, pathVariables, queryParams, body, returnType)
-      case RequestMethod.DELETE  => kalixClientImpl.runDelete(pathTemplate, pathVariables, queryParams, returnType)
+      case RequestMethod.GET =>
+        kalixClientImpl.runWithoutBody(HttpMethods.GET, pathTemplate, pathVariables, queryParams, returnType)
+      case RequestMethod.HEAD => notSupported(requestMethod, pathTemplate)
+      case RequestMethod.POST =>
+        kalixClientImpl.runWithBody(HttpMethods.POST, pathTemplate, pathVariables, queryParams, body, returnType)
+      case RequestMethod.PUT =>
+        kalixClientImpl.runWithBody(HttpMethods.PUT, pathTemplate, pathVariables, queryParams, body, returnType)
+      case RequestMethod.PATCH =>
+        kalixClientImpl.runWithBody(HttpMethods.PATCH, pathTemplate, pathVariables, queryParams, body, returnType)
+      case RequestMethod.DELETE =>
+        kalixClientImpl.runWithoutBody(HttpMethods.DELETE, pathTemplate, pathVariables, queryParams, returnType)
       case RequestMethod.OPTIONS => notSupported(requestMethod, pathTemplate)
       case RequestMethod.TRACE   => notSupported(requestMethod, pathTemplate)
     }

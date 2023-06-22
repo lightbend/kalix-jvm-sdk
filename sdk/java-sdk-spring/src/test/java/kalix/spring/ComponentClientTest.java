@@ -26,6 +26,7 @@ import kalix.javasdk.impl.AnySupport;
 import kalix.javasdk.impl.ComponentDescriptor;
 import kalix.javasdk.impl.JsonMessageCodec;
 import kalix.javasdk.impl.RestDeferredCall;
+import kalix.javasdk.impl.Validations;
 import kalix.spring.impl.RestKalixClientImpl;
 import kalix.spring.testmodels.Message;
 import kalix.spring.testmodels.action.ActionsTestModels.GetClassLevel;
@@ -57,7 +58,7 @@ class ComponentClientTest {
   @Test
   public void shouldReturnDeferredCallForSimpleGETRequest() throws InvalidProtocolBufferException {
     //given
-    var action = ComponentDescriptor.descriptorFor(GetWithoutParam.class, messageCodec);
+    var action = descriptorFor(GetWithoutParam.class, messageCodec);
     restKalixClient.registerComponent(action.serviceDescriptor());
     var targetMethod = action.serviceDescriptor().findMethodByName("Message");
 
@@ -73,7 +74,7 @@ class ComponentClientTest {
   @Test
   public void shouldReturnDeferredCallForGETRequestWithParam() throws InvalidProtocolBufferException {
     //given
-    var action = ComponentDescriptor.descriptorFor(GetWithOneParam.class, messageCodec);
+    var action = descriptorFor(GetWithOneParam.class, messageCodec);
     restKalixClient.registerComponent(action.serviceDescriptor());
     var targetMethod = action.serviceDescriptor().findMethodByName("Message");
     String param = "a b&c@d";
@@ -92,7 +93,7 @@ class ComponentClientTest {
   @Test
   public void shouldReturnDeferredCallForGETRequestWithTwoParams() throws InvalidProtocolBufferException {
     //given
-    var action = ComponentDescriptor.descriptorFor(GetClassLevel.class, messageCodec);
+    var action = descriptorFor(GetClassLevel.class, messageCodec);
     restKalixClient.registerComponent(action.serviceDescriptor());
     var targetMethod = action.serviceDescriptor().findMethodByName("Message");
     String param = "a b&c@d";
@@ -110,9 +111,53 @@ class ComponentClientTest {
   }
 
   @Test
+  public void shouldReturnDeferredCallForGETRequestWithTwoPathParamsAnd2ReqParams() throws InvalidProtocolBufferException {
+    //given
+    var action = descriptorFor(GetClassLevel.class, messageCodec);
+    restKalixClient.registerComponent(action.serviceDescriptor());
+    var targetMethod = action.serviceDescriptor().findMethodByName("Message2");
+    String param = "a b&c@d";
+    Long param2 = 2L;
+    String param3 = "!@!#$%^%++___";
+    int param4 = 4;
+
+    //when
+    RestDeferredCall<Any, Message> call = (RestDeferredCall<Any, Message>) componentClient.forAction()
+        .call(GetClassLevel::message2)
+        .params(param, param2, param3, param4);
+
+    //then
+    assertThat(call.fullServiceName()).isEqualTo(targetMethod.getService().getFullName());
+    assertThat(call.methodName()).isEqualTo(targetMethod.getName());
+    assertMethodParamsMatch(targetMethod, call.message(), param, param2, param3, param4);
+  }
+
+  @Test
+  public void shouldReturnDeferredCallForGETRequestWithListAsReqParam() throws InvalidProtocolBufferException {
+    //given
+    var action = descriptorFor(GetClassLevel.class, messageCodec);
+    restKalixClient.registerComponent(action.serviceDescriptor());
+    var targetMethod = action.serviceDescriptor().findMethodByName("Message3");
+    String param = "a b&c@d";
+    Long param2 = 2L;
+    String param3 = "!@!#$%^%++___";
+    List<String> param4 = List.of("1", "2");
+
+    //when
+    RestDeferredCall<Any, Message> call = (RestDeferredCall<Any, Message>) componentClient.forAction()
+        .call(GetClassLevel::message3)
+        .params(param, param2, param3, param4);
+
+    //then
+    assertThat(call.fullServiceName()).isEqualTo(targetMethod.getService().getFullName());
+    assertThat(call.methodName()).isEqualTo(targetMethod.getName());
+    assertMethodParamsMatch(targetMethod, call.message(), param, param2, param3, param4);
+  }
+
+  @Test
   public void shouldReturnDeferredCallForSimplePOSTRequest() throws InvalidProtocolBufferException {
     //given
-    var action = ComponentDescriptor.descriptorFor(PostWithoutParam.class, messageCodec);
+    var action = descriptorFor(PostWithoutParam.class, messageCodec);
     restKalixClient.registerComponent(action.serviceDescriptor());
     var targetMethod = action.serviceDescriptor().findMethodByName("Message");
     Message body = new Message("hello world");
@@ -129,7 +174,7 @@ class ComponentClientTest {
   @Test
   public void shouldReturnDeferredCallForPOSTRequestWithTwoParamsAndBody() throws InvalidProtocolBufferException {
     //given
-    var action = ComponentDescriptor.descriptorFor(PostWithTwoParam.class, messageCodec);
+    var action = descriptorFor(PostWithTwoParam.class, messageCodec);
     restKalixClient.registerComponent(action.serviceDescriptor());
     var targetMethod = action.serviceDescriptor().findMethodByName("Message");
     String param = "a b&c@d";
@@ -151,8 +196,8 @@ class ComponentClientTest {
   @Test
   public void shouldReturnDeferredCallForPOSTRequestWhenMultipleMethodsAreAvailable() throws InvalidProtocolBufferException {
     //given
-    var action = ComponentDescriptor.descriptorFor(PostWithoutParam.class, messageCodec);
-    var action2 = ComponentDescriptor.descriptorFor(PostWithTwoParam.class, messageCodec);
+    var action = descriptorFor(PostWithoutParam.class, messageCodec);
+    var action2 = descriptorFor(PostWithTwoParam.class, messageCodec);
     restKalixClient.registerComponent(action.serviceDescriptor());
     restKalixClient.registerComponent(action2.serviceDescriptor());
     var targetMethod = action.serviceDescriptor().findMethodByName("Message");
@@ -168,9 +213,9 @@ class ComponentClientTest {
   }
 
   @Test
-  public void shouldReturnDeferredCallForWithRequestParams() throws InvalidProtocolBufferException {
+  public void shouldReturnDeferredCallForPOSTWithRequestParams() throws InvalidProtocolBufferException {
     //given
-    var action = ComponentDescriptor.descriptorFor(PostWithOneQueryParam.class, messageCodec);
+    var action = descriptorFor(PostWithOneQueryParam.class, messageCodec);
     restKalixClient.registerComponent(action.serviceDescriptor());
     var targetMethod = action.serviceDescriptor().findMethodByName("Message");
     String param = "a b&c@d";
@@ -186,6 +231,11 @@ class ComponentClientTest {
     assertThat(call.methodName()).isEqualTo(targetMethod.getName());
     assertMethodParamsMatch(targetMethod, call.message(), param);
     assertThat(getBody(targetMethod, call.message(), Message.class)).isEqualTo(body);
+  }
+
+  private ComponentDescriptor descriptorFor(Class<?> clazz, JsonMessageCodec messageCodec) {
+    Validations.validate(clazz).failIfInvalid();
+    return ComponentDescriptor.descriptorFor(clazz, messageCodec);
   }
 
   private <T> T getBody(Descriptors.MethodDescriptor targetMethod, Any message, Class<T> clazz) throws InvalidProtocolBufferException {

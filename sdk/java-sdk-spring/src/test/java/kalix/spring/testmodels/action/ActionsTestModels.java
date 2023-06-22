@@ -22,6 +22,8 @@ import kalix.spring.testmodels.Message;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 
+import java.util.List;
+
 public class ActionsTestModels {
 
   public static class GetWithoutParam extends Action {
@@ -73,6 +75,16 @@ public class ActionsTestModels {
   public static class GetClassLevel extends Action {
     @GetMapping("/message/{two}")
     public Action.Effect<Message> message(@PathVariable String one, @PathVariable Long two) {
+      return effects().reply(new Message("hello"));
+    }
+
+    @GetMapping("/message2/{two}")
+    public Action.Effect<Message> message2(@PathVariable String one, @PathVariable Long two, @RequestParam String three, @RequestParam int four) {
+      return effects().reply(new Message("hello"));
+    }
+
+    @GetMapping("/message3/{two}")
+    public Action.Effect<Message> message3(@PathVariable String one, @PathVariable Long two, @RequestParam String three, @RequestParam List<String> four) {
       return effects().reply(new Message("hello"));
     }
   }
