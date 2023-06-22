@@ -51,15 +51,6 @@ object ComponentCall {
     invoke(Seq.empty, kalixClient, lambda, entityId.toScala);
   }
 
-  def getQueryParam(params: Seq[scala.Any], parameterIndex: Int): util.List[scala.Any] = {
-    val value = params(parameterIndex)
-    if (value.isInstanceOf[util.List[_]]) {
-      value.asInstanceOf[util.List[scala.Any]]
-    } else {
-      util.List.of(value)
-    }
-  }
-
   private[client] def invoke[R](
       params: Seq[scala.Any],
       kalixClient: KalixClient,
@@ -85,7 +76,7 @@ object ComponentCall {
 
     val pathVariables: Map[String, ?] = restMethod.params
       .collect { case p: PathParameter => p }
-      .map(param => (param.name, params(param.param.getParameterIndex)))
+      .map(p => (p.name, getPathParam(params, p.param.getParameterIndex, p.name)))
       .toMap ++ entityIdVariables(entityId, method)
 
     val bodyIndex = restMethod.params.collect { case p: BodyParameter => p }.map(_.param.getParameterIndex).headOption
@@ -110,6 +101,25 @@ object ComponentCall {
       case RequestMethod.OPTIONS => notSupported(requestMethod, pathTemplate)
       case RequestMethod.TRACE   => notSupported(requestMethod, pathTemplate)
     }
+  }
+
+  private def getQueryParam(params: Seq[scala.Any], parameterIndex: Int): util.List[scala.Any] = {
+    val value = params(parameterIndex)
+    if (value == null) {
+      util.List.of()
+    } else if (value.isInstanceOf[util.List[_]]) {
+      value.asInstanceOf[util.List[scala.Any]]
+    } else {
+      util.List.of(value)
+    }
+  }
+
+  private def getPathParam(params: Seq[scala.Any], parameterIndex: Int, paramName: String): scala.Any = {
+    val value = params(parameterIndex)
+    if (value == null) {
+      throw new IllegalStateException(s"Path param [$paramName] cannot be null.")
+    }
+    value
   }
 
   private def notSupported[R](requestMethod: RequestMethod, pathTemplate: String) = {
