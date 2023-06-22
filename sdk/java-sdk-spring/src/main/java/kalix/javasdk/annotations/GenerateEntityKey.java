@@ -27,10 +27,13 @@ import java.lang.annotation.*;
  *
  * The generated key will be a Version 4 (random) UUID. The UUID will be generated using a cryptographically secure
  * random number generator.
+ *
+ * @deprecated Deprecated since v1.3.0. Use @GenerateId instead.
  */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
+@Deprecated(since = "1.3.0")
 public @interface GenerateEntityKey {
 
   Type value() default Type.VERSION_4_UUID;

@@ -17,15 +17,15 @@
 package kalix.spring.testmodels.valueentity;
 
 import kalix.javasdk.valueentity.ValueEntity;
-import kalix.javasdk.annotations.EntityKey;
-import kalix.javasdk.annotations.EntityType;
+import kalix.javasdk.annotations.Id;
+import kalix.javasdk.annotations.TypeId;
 import kalix.spring.testmodels.Done;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-@EntityKey("id")
-@EntityType("user")
+@Id("id")
+@TypeId("user")
 @RequestMapping("/user/{id}")
 public class UserEntity extends ValueEntity<User> {
   @Override

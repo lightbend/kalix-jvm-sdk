@@ -17,8 +17,8 @@
 package kalix.spring.testmodels.valueentity;
 
 import kalix.javasdk.valueentity.ValueEntity;
-import kalix.javasdk.annotations.EntityKey;
-import kalix.javasdk.annotations.EntityType;
+import kalix.javasdk.annotations.Id;
+import kalix.javasdk.annotations.TypeId;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -27,8 +27,8 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
-@EntityKey("timerId")
-@EntityType("timer")
+@Id("timerId")
+@TypeId("timer")
 @RequestMapping("/timer/{timerId}")
 public class TimeTrackerEntity extends ValueEntity<TimeTrackerEntity.TimerState> {
 

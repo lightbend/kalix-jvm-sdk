@@ -16,15 +16,12 @@
 
 package kalix.javasdk.impl
 
-import io.grpc.Status
-import kalix.javasdk.impl.ErrorHandling.BadRequestException
-import kalix.javasdk.{ eventsourcedentity, valueentity }
-import kalix.protocol.component.Failure
+import kalix.javasdk.eventsourcedentity
+import kalix.javasdk.valueentity
 import kalix.protocol.entity.Command
 import kalix.protocol.event_sourced_entity.EventSourcedInit
 import kalix.protocol.replicated_entity.ReplicatedEntityInit
 import kalix.protocol.value_entity.ValueEntityInit
-import kalix.protocol.workflow_entity.WorkflowEntityInit
 
 object EntityExceptions {
 
@@ -84,8 +81,6 @@ object EntityExceptions {
     def apply(init: ReplicatedEntityInit, message: String): EntityException =
       ProtocolException(init.entityId, message)
 
-    def apply(init: WorkflowEntityInit, message: String): EntityException =
-      ProtocolException(init.entityId, message)
   }
 
   def failureMessageForLog(cause: Throwable): String = cause match {

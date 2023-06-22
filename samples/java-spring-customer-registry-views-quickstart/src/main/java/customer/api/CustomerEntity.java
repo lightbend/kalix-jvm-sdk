@@ -19,12 +19,12 @@ package customer.api;
 import customer.domain.Address;
 import customer.domain.Customer;
 import kalix.javasdk.valueentity.ValueEntity;
-import kalix.javasdk.annotations.EntityKey;
-import kalix.javasdk.annotations.EntityType;
+import kalix.javasdk.annotations.Id;
+import kalix.javasdk.annotations.TypeId;
 import org.springframework.web.bind.annotation.*;
 
-@EntityKey("id")
-@EntityType("customer")
+@Id("id")
+@TypeId("customer")
 @RequestMapping("/customer/{id}")
 public class CustomerEntity extends ValueEntity<Customer> {
 

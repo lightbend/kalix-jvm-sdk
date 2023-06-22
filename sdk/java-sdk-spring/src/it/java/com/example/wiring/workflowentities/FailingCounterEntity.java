@@ -18,8 +18,8 @@ package com.example.wiring.workflowentities;
 
 import com.example.wiring.eventsourcedentities.counter.Counter;
 import com.example.wiring.eventsourcedentities.counter.CounterEvent;
-import kalix.javasdk.annotations.EntityKey;
-import kalix.javasdk.annotations.EntityType;
+import kalix.javasdk.annotations.Id;
+import kalix.javasdk.annotations.TypeId;
 import kalix.javasdk.annotations.EventHandler;
 import kalix.javasdk.eventsourcedentity.EventSourcedEntity;
 import kalix.javasdk.eventsourcedentity.EventSourcedEntityContext;
@@ -30,8 +30,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-@EntityKey("id")
-@EntityType("failing-counter")
+@Id("id")
+@TypeId("failing-counter")
 @RequestMapping("/failing-counter/{id}")
 public class FailingCounterEntity extends EventSourcedEntity<Counter, CounterEvent> {
 

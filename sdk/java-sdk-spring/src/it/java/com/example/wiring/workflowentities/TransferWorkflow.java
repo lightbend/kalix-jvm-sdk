@@ -18,9 +18,9 @@ package com.example.wiring.workflowentities;
 
 import com.example.wiring.actions.echo.Message;
 import io.grpc.Status;
-import kalix.javasdk.annotations.EntityKey;
-import kalix.javasdk.annotations.EntityType;
-import kalix.javasdk.workflowentity.WorkflowEntity;
+import kalix.javasdk.annotations.Id;
+import kalix.javasdk.annotations.TypeId;
+import kalix.javasdk.workflow.Workflow;
 import kalix.spring.KalixClient;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -28,10 +28,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.time.Duration;
 
-@EntityType("transfer-workflow")
-@EntityKey("transferId")
+@TypeId("transfer-workflow")
+@Id("transferId")
 @RequestMapping("/transfer/{transferId}")
-public class TransferWorkflow extends WorkflowEntity<TransferState> {
+public class TransferWorkflow extends Workflow<TransferState> {
 
   private final String withdrawStepName = "withdraw";
   private final String depositStepName = "deposit";
@@ -43,7 +43,7 @@ public class TransferWorkflow extends WorkflowEntity<TransferState> {
   }
 
   @Override
-  public Workflow<TransferState> definition() {
+  public WorkflowDef<TransferState> definition() {
     var withdraw =
         step(withdrawStepName)
             .call(Withdraw.class, cmd -> kalixClient.patch("/wallet/" + cmd.from + "/withdraw/" + cmd.amount, String.class))

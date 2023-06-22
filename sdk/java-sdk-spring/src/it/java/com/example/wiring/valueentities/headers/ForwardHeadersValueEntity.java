@@ -18,16 +18,16 @@ package com.example.wiring.valueentities.headers;
 
 import com.example.wiring.actions.echo.Message;
 import kalix.javasdk.valueentity.ValueEntity;
-import kalix.javasdk.annotations.EntityKey;
-import kalix.javasdk.annotations.EntityType;
+import kalix.javasdk.annotations.Id;
+import kalix.javasdk.annotations.TypeId;
 import kalix.javasdk.annotations.ForwardHeaders;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import static com.example.wiring.actions.headers.ForwardHeadersAction.SOME_HEADER;
 
-@EntityKey("id")
-@EntityType("forward-headers-ve")
+@Id("id")
+@TypeId("forward-headers-ve")
 @RequestMapping("/forward-headers-ve/{id}")
 @ForwardHeaders(SOME_HEADER)
 public class ForwardHeadersValueEntity extends ValueEntity<String> {

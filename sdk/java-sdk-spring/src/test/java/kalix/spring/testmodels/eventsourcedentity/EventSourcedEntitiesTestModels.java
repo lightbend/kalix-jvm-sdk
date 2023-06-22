@@ -22,8 +22,8 @@ import org.springframework.web.bind.annotation.*;
 
 public class EventSourcedEntitiesTestModels {
 
-  @EntityKey("id")
-  @EntityType("employee")
+  @Id("id")
+  @TypeId("employee")
   @RequestMapping("/employee/{id}")
   public static class EmployeeEntity extends EventSourcedEntity<Employee, EmployeeEvent> {
 
@@ -41,8 +41,8 @@ public class EventSourcedEntitiesTestModels {
     }
   }
 
-  @EntityKey("id")
-  @EntityType("counter-entity")
+  @Id("id")
+  @TypeId("counter-entity")
   @RequestMapping("/eventsourced/{id}")
   public static class CounterEventSourcedEntity extends EventSourcedEntity<Integer, Object> {
 
@@ -76,46 +76,46 @@ public class EventSourcedEntitiesTestModels {
   }
 
 
-  @EntityType("counter")
+  @TypeId("counter")
   public static class CounterEventSourcedEntityWithEntityKeyOnMethod extends EventSourcedEntity<Integer, Object> {
-    @EntityKey("id")
+    @Id("id")
     @GetMapping("/eventsourced/{id}/int/{number}")
     public Integer getInteger(@PathVariable Integer number) {
       return number;
     }
   }
 
-  @EntityKey("id")
-  @EntityType("counter")
+  @Id("id")
+  @TypeId("counter")
   public static class CounterEventSourcedEntityWithEntityKeyMethodOverride extends EventSourcedEntity<Integer, Object> {
 
-    @EntityKey("counter_id")
+    @Id("counter_id")
     @GetMapping("/eventsourced/{counter_id}/int/{number}")
     public Integer getInteger(@PathVariable Integer number) {
       return number;
     }
   }
 
-  @EntityType("counter")
+  @TypeId("counter")
   public static class CounterEventSourcedEntityWithEntityKeyGenerator extends EventSourcedEntity<Integer, Object> {
-    @GenerateEntityKey
+    @GenerateId
     @PutMapping("/eventsourced/int/{number}")
     public Integer getInteger(@PathVariable Integer number) {
       return number;
     }
   }
 
-  @EntityType("counter")
+  @TypeId("counter")
   public static class IllDefinedEntityWithEntityKeyGeneratorAndEntityKey extends EventSourcedEntity<Integer, Object> {
-    @GenerateEntityKey
-    @EntityKey("id")
+    @GenerateId
+    @Id("id")
     @GetMapping("/eventsourced/{id}/int/{number}")
     public Integer getInteger(@PathVariable Integer number) {
       return number;
     }
   }
 
-  @EntityType("counter")
+  @TypeId("counter")
   public static class IllDefinedEntityWithoutEntityKeyGeneratorNorEntityKey extends EventSourcedEntity<Integer, Object> {
     @GetMapping("/eventsourced/{id}/int/{number}")
     public Integer getInteger(@PathVariable Integer number) {
@@ -123,8 +123,8 @@ public class EventSourcedEntitiesTestModels {
     }
   }
 
-  @EntityKey("id")
-  @EntityType("counter")
+  @Id("id")
+  @TypeId("counter")
   @RequestMapping("/eventsourced/{id}")
   public static class CounterEventSourcedEntityWithJWT extends EventSourcedEntity<Integer, Object> {
 
@@ -145,8 +145,8 @@ public class EventSourcedEntitiesTestModels {
     }
   }
 
-  @EntityKey("id")
-  @EntityType("counter")
+  @Id("id")
+  @TypeId("counter")
   public static class ErrorDuplicatedEventsEntity extends EventSourcedEntity<Integer, Object> {
 
     @EventHandler
@@ -165,8 +165,8 @@ public class EventSourcedEntitiesTestModels {
     }
   }
 
-  @EntityKey("id")
-  @EntityType("counter")
+  @Id("id")
+  @TypeId("counter")
   public static class ErrorWrongSignaturesEntity extends EventSourcedEntity<Integer, Object> {
 
     @EventHandler
@@ -180,8 +180,8 @@ public class EventSourcedEntitiesTestModels {
     }
   }
 
-  @EntityKey("id")
-  @EntityType("employee")
+  @Id("id")
+  @TypeId("employee")
   @RequestMapping("/employee/{id}")
   public static class EmployeeEntityWithMissingHandler extends EventSourcedEntity<Employee, EmployeeEvent> {
 
@@ -198,16 +198,16 @@ public class EventSourcedEntitiesTestModels {
     }
   }
 
-  @EntityKey("id")
-  @EntityType("counter")
+  @Id("id")
+  @TypeId("counter")
   @Acl(allow = @Acl.Matcher(service = "test"))
   public static class EventSourcedEntityWithServiceLevelAcl extends EventSourcedEntity<Integer, Object> {
 
   }
 
 
-  @EntityKey("id")
-  @EntityType("counter")
+  @Id("id")
+  @TypeId("counter")
   @RequestMapping("/employee/{id}")
   public static class EventSourcedEntityWithMethodLevelAcl extends EventSourcedEntity<Integer, Object> {
     @PostMapping

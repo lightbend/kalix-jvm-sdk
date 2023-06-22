@@ -17,14 +17,14 @@
 package com.example.wiring.valueentities.user;
 
 import kalix.javasdk.valueentity.ValueEntity;
-import kalix.javasdk.annotations.EntityKey;
-import kalix.javasdk.annotations.EntityType;
+import kalix.javasdk.annotations.Id;
+import kalix.javasdk.annotations.TypeId;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-@EntityType("assigned-counter")
-@EntityKey("counterId")
+@TypeId("assigned-counter")
+@Id("counterId")
 @RequestMapping("/assigned-counter")
 public class AssignedCounterEntity extends ValueEntity<AssignedCounter> {
 

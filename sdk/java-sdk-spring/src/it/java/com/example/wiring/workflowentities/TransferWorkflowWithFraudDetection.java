@@ -20,24 +20,20 @@ import com.example.wiring.actions.echo.Message;
 import com.example.wiring.workflowentities.FraudDetectionResult.TransferRejected;
 import com.example.wiring.workflowentities.FraudDetectionResult.TransferRequiresManualAcceptation;
 import com.example.wiring.workflowentities.FraudDetectionResult.TransferVerified;
-import kalix.javasdk.workflowentity.WorkflowEntity;
+import kalix.javasdk.annotations.Id;
+import kalix.javasdk.annotations.TypeId;
+import kalix.javasdk.workflow.Workflow;
 import kalix.spring.KalixClient;
-import kalix.javasdk.annotations.EntityKey;
-import kalix.javasdk.annotations.EntityType;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.concurrent.CompletionStage;
 
 import static java.util.concurrent.CompletableFuture.completedFuture;
 
-@EntityType("transfer-workflow-with-fraud-detection")
-@EntityKey("transferId")
+@TypeId("transfer-workflow-with-fraud-detection")
+@Id("transferId")
 @RequestMapping("/transfer-with-fraud-detection/{transferId}")
-public class TransferWorkflowWithFraudDetection extends WorkflowEntity<TransferState> {
+public class TransferWorkflowWithFraudDetection extends Workflow<TransferState> {
 
   private final String fraudDetectionStepName = "fraud-detection";
   private final String withdrawStepName = "withdraw";
@@ -50,7 +46,7 @@ public class TransferWorkflowWithFraudDetection extends WorkflowEntity<TransferS
   }
 
   @Override
-  public Workflow<TransferState> definition() {
+  public WorkflowDef<TransferState> definition() {
     var fraudDetection =
         step(fraudDetectionStepName)
             .asyncCall(Transfer.class, this::checkFrauds)

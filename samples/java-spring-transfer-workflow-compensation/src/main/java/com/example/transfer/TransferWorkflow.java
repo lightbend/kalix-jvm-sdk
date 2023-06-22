@@ -7,9 +7,9 @@ import com.example.wallet.WalletEntity.DepositResult.DepositSucceed;
 import com.example.wallet.WalletEntity.WithdrawResult;
 import com.example.wallet.WalletEntity.WithdrawResult.WithdrawFailed;
 import com.example.wallet.WalletEntity.WithdrawResult.WithdrawSucceed;
-import kalix.javasdk.annotations.EntityKey;
-import kalix.javasdk.annotations.EntityType;
-import kalix.javasdk.workflowentity.WorkflowEntity;
+import kalix.javasdk.annotations.Id;
+import kalix.javasdk.annotations.TypeId;
+import kalix.javasdk.workflow.Workflow;
 import kalix.spring.KalixClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,12 +27,12 @@ import static com.example.transfer.TransferState.TransferStatus.REQUIRES_MANUAL_
 import static com.example.transfer.TransferState.TransferStatus.WITHDRAW_FAILED;
 import static com.example.transfer.TransferState.TransferStatus.WITHDRAW_SUCCEED;
 import static java.time.Duration.ofSeconds;
-import static kalix.javasdk.workflowentity.WorkflowEntity.RecoverStrategy.maxRetries;
+import static kalix.javasdk.workflow.Workflow.RecoverStrategy.maxRetries;
 
-@EntityType("transfer")
-@EntityKey("transferId")
+@TypeId("transfer")
+@Id("transferId")
 @RequestMapping("/transfer/{transferId}")
-public class TransferWorkflow extends WorkflowEntity<TransferState> {
+public class TransferWorkflow extends Workflow<TransferState> {
 
   public record Withdraw(String from, int amount) {
   }
@@ -50,7 +50,7 @@ public class TransferWorkflow extends WorkflowEntity<TransferState> {
   }
 
   @Override
-  public Workflow<TransferState> definition() {
+  public WorkflowDef<TransferState> definition() {
     Step withdraw =
       step("withdraw")
         .call(Withdraw.class, cmd -> {
