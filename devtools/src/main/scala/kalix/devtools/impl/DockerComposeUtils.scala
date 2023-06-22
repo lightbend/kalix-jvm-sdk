@@ -129,26 +129,4 @@ case class DockerComposeUtils(file: String, envVar: Map[String, String]) {
       }
     }.toMap
 
-  /**
-   * This method reads the service port mappings from the docker-compose file and translate them to the same properties,
-   * but without the host part.
-   *
-   * This is used to configure a local service. Local services are expected to run as a JVM process (not dockerized) and
-   * therefore they reach the proxy through localhost, not through host.docker.internal.
-   */
-  private def localServicePortMappings: Seq[String] =
-    servicePortMappings.map { mapping =>
-      mapping.split("=") match {
-        case Array(service, hostAndPort) =>
-          val onlyPort = hostAndPort.split(":").last // we only need the port number
-          s"$service=$onlyPort"
-        case _ => throw new IllegalArgumentException(s"Invalid port mapping: $mapping")
-      }
-    }
-
-  /**
-   * Convenient Java API to localServicePortMappings.
-   */
-  def getLocalServicePortMappings: java.util.List[String] =
-    localServicePortMappings.asJava
 }
