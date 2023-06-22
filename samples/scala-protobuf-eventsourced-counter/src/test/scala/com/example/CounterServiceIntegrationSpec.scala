@@ -9,6 +9,7 @@ import kalix.scalasdk.testkit.{KalixTestKit, Message}
 import org.scalatest.BeforeAndAfterEach
 // ...
 // end::test-topic[]
+import org.scalatest.BeforeAndAfterEach
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.matchers.should.Matchers
@@ -124,6 +125,7 @@ class CounterServiceIntegrationSpec extends AnyWordSpec with Matchers with Befor
     // end::test-topic-metadata[]
     // tag::test-topic[]
   }
+
 
   override def afterAll(): Unit = {
     testKit.stop()
