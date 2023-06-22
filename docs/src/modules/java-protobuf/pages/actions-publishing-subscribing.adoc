@@ -234,3 +234,124 @@ Referencing environment variables is done with the syntax `$\{VAR_NAME}` in the 
 Note that if changing the `topic` name after it has once been deployed for an event consumer means the consumer will start over from the beginning of the topic.
 
 See https://docs.kalix.io/kalix/kalix_services_deploy.html[kalix service deploy] for details on how to set environment variables when deploying a service.
+
+
+== Testing the Integration
+
+When a Kalix service relies on a broker, it might be useful to use integration tests to assert that those boundaries work as intended. For such scenarios, you can either:
+
+* Use TestKit's mocked topic:
+** this offers a general API to inject messages into topics or read the messages written to another topic, regardless of the specific broker integration you have configured.
+* Run an external broker instance:
+** if you're interested in running your integration tests against a real instance, you need to provide the broker instance yourself by running it in a separate process in your local setup and make sure to disable the use of TestKit's test broker. Currently, **the only external broker supported in integration tests is Google PubSub Emulator.**
+
+=== TestKit Mocked Topic
+
+Following up on the counter entity example used above, let's consider an example (composed by 2 Actions and 1 Event Sourced entity) as pictured below:
+
+ifdef::todo[TODO: convert this diagram once we have a standard language for this]
+image::java:eventing-testkit-sample.svg[]
+
+In this example:
+
+* commands are consumed from an external topic `event-commands` and forwarded to a Counter entity;
+* the Counter entity is an Event Sourced Entity and has its events published to another topic `counter-events`.
+
+To test this flow, we will take advantage of the TestKit to be able to push commands into the `event-commands` topic and check what messages are produced to topic `counter-events`.
+
+[.tabset]
+Java::
++
+[source,java]
+.src/it/java/com/example/CounterTopicIntegrationTest.java
+----
+include::example$java-protobuf-eventsourced-counter/src/it/java/com/example/CounterTopicIntegrationTest.java[tag=test-topic]
+----
+<1> Start the TestKit, booting up both the service and its proxy.
+<2> Get a mocked topic named `counter-commands` from the TestKit.
+<3> Get a mocked topic named `counter-events` from the TestKit.
+<4> Build 2 commands and publish both to the topic. Note the `counterId` is passed as the subject id of the message.
+<5> Read 2 messages, one at a time. Note we pass in the expected class type for the next message.
+<6> Assert the received messages have the same value as the commands sent.
+
+Scala::
++
+[source,scala]
+.src/test/scala/com/example/CounterServiceIntegrationSpec.scala
+----
+include::example$scala-protobuf-eventsourced-counter/src/test/scala/com/example/CounterServiceIntegrationSpec.scala[tag=test-topic]
+----
+<1> Start the TestKit, booting up both the service and its proxy.
+<2> Get a mocked topic named `counter-commands` from the TestKit.
+<3> Get a mocked topic named `counter-events` from the TestKit.
+<4> Build 2 commands and publish both to the topic. Note the `counterId` is passed as the subject id of the message.
+<5> Read 2 messages, one at a time and assert the received messages values. Note we pass in the expected class type for the next message.
+
+TIP: In the example above we take advantage of the TestKit to serialize / deserialize the messages and pass all the required metadata automatically for us. However, the API also offers the possibility to read and write raw bytes, construct your metadata or read multiple messages at once.
+
+==== Metadata
+
+Typically, messages are published with associated metadata. If you want to construct your own `Metadata` to be consumed by a service or make sure the messages published out of your service have specific metadata attached, you can do so using the TestKit, as shown below.
+
+[.tabset]
+Java::
++
+[source,java,indent=0]
+.src/it/java/com/example/CounterTopicIntegrationTest.java
+----
+include::example$java-protobuf-eventsourced-counter/src/it/java/com/example/CounterTopicIntegrationTest.java[tag=test-topic-metadata]
+----
+<1> Build a `CloudEvent` object with the 3 required attributes, respectively: `id`, `source` and `type`.
+<2> Add the subject to which the message is related, that is the `counterId`.
+<3> Set the mandatory header "Content-Type" accordingly.
+<4> Publish the message along with its metadata to topic `commandsTopic`.
+<5> Upon receiving the message, access the metadata.
+<6> Assert the headers `Content-Type` and `ce-subject` (every CloudEvent header is prefixed with "ce-") have the expected values.
+
+Scala::
++
+[source,scala,indent=0]
+.src/test/scala/com/example/CounterServiceIntegrationSpec.scala
+----
+include::example$scala-protobuf-eventsourced-counter/src/test/scala/com/example/CounterServiceIntegrationSpec.scala[tag=test-topic-metadata]
+----
+<1> Build a `CloudEvent` object with the 3 required attributes, respectively: `id`, `source` and `type`.
+<2> Add the subject to which the message is related, that is the `counterId`.
+<3> Set the mandatory header "Content-Type" accordingly.
+<4> Publish the message along with its metadata to topic `commandsTopic`.
+<5> Receive the message of correct type and extract `Metadata`.
+<6> Assert the headers `Content-Type` and `ce-subject` (every CloudEvent header is prefixed with "ce-") have the expected values.
+
+
+==== One Suite, Multiple Tests
+
+When running multiple test cases under the same test suite and thus using a common TestKit instance, you might face some issues if unconsumed messages from previous tests mess up with the current one. To avoid this, be sure to:
+
+- have the tests run in sequence, not in parallel;
+- clear the contents of the topics in use before the test.
+
+As an alternative, you can consider using different test suites which will use independent TestKit instances.
+
+
+[.tabset]
+Java::
++
+[source,java,indent=0]
+.src/it/java/com/example/CounterTopicIntegrationTest.java
+----
+include::example$java-protobuf-eventsourced-counter/src/it/java/com/example/CounterTopicIntegrationTest.java[tag=clear-topics]
+----
+<1> Run this before each test.
+<2> Clear the topic ignoring any unread messages.
+
+Scala::
++
+[source,scala,indent=0]
+.src/test/scala/com/example/CounterServiceIntegrationSpec.scala
+----
+include::example$scala-protobuf-eventsourced-counter/src/test/scala/com/example/CounterServiceIntegrationSpec.scala[tag=clear-topics]
+----
+<1> Override method from trait `BeforeAndAfterEach`.
+<2> Clear the topic ignoring any unread messages.
+
+NOTE: Despite the example, you are neither forced to clear all topics nor to do it before each test. You can do it selectively, or you might not even need it depending on your tests and the flows they test.

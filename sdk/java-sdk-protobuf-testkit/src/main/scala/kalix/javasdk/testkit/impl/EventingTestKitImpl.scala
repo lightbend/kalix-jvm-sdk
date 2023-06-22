@@ -157,25 +157,19 @@ final class EventingTestServiceImpl(system: ActorSystem, val host: String, var p
   private implicit val sys = system
   private implicit val ec = sys.dispatcher
 
-  // used to read messages from a topic
-  private val eventDestinationProbe = new ConcurrentHashMap[EventDestination, TestProbe]()
+  private val topics = new ConcurrentHashMap[String, TopicImpl]()
 
-  // used to publish messages into a topic
-  private val eventSourceProbe = new ConcurrentHashMap[EventSource, TestProbe]()
+  override def getTopic(topic: String): Topic = getTopicImpl(topic)
 
-  override def getTopic(topic: String): Topic = {
-    val destinationProbe =
-      eventDestinationProbe.computeIfAbsent(EventDestination(Destination.Topic(topic)), _ => TestProbe())
-    val sourceProbe = eventSourceProbe.computeIfAbsent(EventSource.defaultInstance.withTopic(topic), _ => TestProbe())
-    new TopicImpl(destinationProbe, sourceProbe, codec)
-  }
+  private def getTopicImpl(topic: String): TopicImpl =
+    topics.computeIfAbsent(topic, _ => new TopicImpl(TestProbe(), TestProbe(), codec))
 
   final class ServiceImpl extends EventingTestKitService {
     override def emitSingle(in: EmitSingleCommand): Future[EmitSingleResult] = {
       log.debug("Receiving message from test broker: [{}]", in)
 
       in.destination.foreach(dest => {
-        val probe = eventDestinationProbe.computeIfAbsent(dest, _ => TestProbe())
+        val probe = getTopicImpl(dest.getTopic).destinationProbe
         probe.ref ! in
       })
 
@@ -207,10 +201,11 @@ final class EventingTestServiceImpl(system: ActorSystem, val host: String, var p
             eventSource)
           val (queue, source) = Source.queue[SourceElem](10).preMaterialize()
           val runningSourceProbe = RunningSourceProbe(serviceName, eventSource)(queue, source)
-          eventSourceProbe.computeIfAbsent(eventSource, _ => TestProbe()).ref ! runningSourceProbe
+          getTopicImpl(eventSource.getTopic).sourceProbe.ref ! runningSourceProbe
           runningSourcePromise.success(runningSourceProbe)
           Some(runningSourceProbe)
-        case (s @ Some(runningSourceProbe), RunSourceCommand(RunSourceCommand.Command.Ack(sourceAck), _)) =>
+
+        case (s @ Some(_), RunSourceCommand(RunSourceCommand.Command.Ack(sourceAck), _)) =>
           log.debug("runSource request got ack [{}]", sourceAck)
           s
         case wat => throw new MatchError(s"Unexpected fold input: $wat")
@@ -235,8 +230,8 @@ final class EventingTestServiceImpl(system: ActorSystem, val host: String, var p
 }
 
 private[testkit] class TopicImpl(
-    private val destinationProbe: TestProbe,
-    private val sourceProbe: TestProbe,
+    private[testkit] val destinationProbe: TestProbe,
+    private[testkit] val sourceProbe: TestProbe,
     codec: MessageCodec)
     extends Topic {
 
@@ -323,7 +318,7 @@ private[testkit] class TopicImpl(
 
   override def clear(): JList[TestKitMessage[_]] = {
     destinationProbe
-      .receiveWhile(idle = 1.millisecond) { case cmd: EmitSingleCommand =>
+      .receiveWhile(idle = 50.millisecond) { case cmd: EmitSingleCommand =>
         anyFromMessage(cmd.getMessage)
       }
       .asJava
