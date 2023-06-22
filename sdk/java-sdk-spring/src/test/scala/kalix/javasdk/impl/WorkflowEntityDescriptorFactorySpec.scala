@@ -77,7 +77,7 @@ class WorkflowEntityDescriptorFactorySpec extends AnyWordSpec with ComponentDesc
       }.getMessage should include("Invalid command method. No @Id nor @GenerateId annotations found.")
     }
 
-    "generate mappings for a Workflow with GenerateEntityKey" in {
+    "generate mappings for a Workflow with GenerateId" in {
       assertDescriptor[WorkflowWithIdGenerator] { desc =>
         val method = desc.commandHandlers("StartTransfer")
         assertRequestFieldJavaType(method, "json_body", JavaType.MESSAGE)

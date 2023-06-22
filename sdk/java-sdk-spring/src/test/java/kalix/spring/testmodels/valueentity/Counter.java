@@ -17,8 +17,8 @@
 package kalix.spring.testmodels.valueentity;
 
 import kalix.javasdk.valueentity.ValueEntity;
-import kalix.javasdk.annotations.EntityKey;
-import kalix.javasdk.annotations.EntityType;
+import kalix.javasdk.annotations.Id;
+import kalix.javasdk.annotations.TypeId;
 import kalix.spring.testmodels.Number;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,8 +27,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-@EntityKey("counterId")
-@EntityType("ve-counter")
+@Id("counterId")
+@TypeId("ve-counter")
 @RequestMapping("/counter")
 public class Counter extends ValueEntity<CounterState> {
 

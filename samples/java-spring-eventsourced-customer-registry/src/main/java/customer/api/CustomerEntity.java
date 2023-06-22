@@ -4,8 +4,8 @@ import customer.domain.Address;
 import customer.domain.Customer;
 import customer.domain.CustomerEvent;
 import kalix.javasdk.eventsourcedentity.EventSourcedEntity;
-import kalix.javasdk.annotations.EntityKey;
-import kalix.javasdk.annotations.EntityType;
+import kalix.javasdk.annotations.Id;
+import kalix.javasdk.annotations.TypeId;
 import kalix.javasdk.annotations.EventHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,8 +13,8 @@ import org.springframework.web.bind.annotation.*;
 
 import static customer.domain.CustomerEvent.*;
 
-@EntityKey("id")
-@EntityType("customer")
+@Id("id")
+@TypeId("customer")
 @RequestMapping("/customer/{id}")
 public class CustomerEntity extends EventSourcedEntity<Customer, CustomerEvent> {
   private static final Logger logger = LoggerFactory.getLogger(CustomerEntity.class);

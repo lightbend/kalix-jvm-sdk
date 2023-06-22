@@ -80,7 +80,7 @@ public class WorkflowTestModels {
     }
 
     @PutMapping
-    @GenerateEntityKey
+    @GenerateId
     @Id("id")
     public Effect<String> startTransfer(@RequestBody StartWorkflow startWorkflow) {
       return null;
@@ -110,14 +110,14 @@ public class WorkflowTestModels {
     }
 
     @PutMapping
-    @GenerateEntityKey
+    @GenerateId
     public Effect<String> startTransfer(@RequestBody StartWorkflow startWorkflow) {
       return null;
     }
   }
 
-  @EntityType("transfer-workflow")
-  @EntityKey("transferId")
+  @TypeId("transfer-workflow")
+  @Id("transferId")
   @RequestMapping("/transfer/{transferId}")
   public static class WorkflowWithJWT extends Workflow<WorkflowState> {
     @Override
