@@ -38,15 +38,15 @@ import com.google.api.annotations.AnnotationsProto
 import com.google.api.http.CustomHttpPattern
 import com.google.api.http.HttpRule
 import com.google.api.http.HttpRule.Pattern._
-import com.google.api.{AnnotationsProto => JavaAnnotationsProto}
-import com.google.api.{HttpRule => JavaHttpRule}
+import com.google.api.{ AnnotationsProto => JavaAnnotationsProto }
+import com.google.api.{ HttpRule => JavaHttpRule }
 import com.google.protobuf.Descriptors
 import com.google.protobuf.Descriptors.Descriptor
 import com.google.protobuf.Descriptors.FieldDescriptor
 import com.google.protobuf.Descriptors.MethodDescriptor
 import com.google.protobuf.Descriptors.ServiceDescriptor
 import com.google.protobuf.DynamicMessage
-import com.google.protobuf.descriptor.{MethodOptions => spbMethodOptions}
+import com.google.protobuf.descriptor.{ MethodOptions => spbMethodOptions }
 import com.google.protobuf.util.Durations
 import com.google.protobuf.util.Timestamps
 import kalix.javasdk.impl.http.HttpEndpointMethodDefinition.lookupFieldByName
