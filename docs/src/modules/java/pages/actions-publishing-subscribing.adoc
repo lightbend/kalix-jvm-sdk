@@ -150,7 +150,7 @@ include::example$java-spring-eventsourced-counter/src/it/java/com/example/Counte
 
 ==== One Suite, Multiple Tests
 
-When running multiple test cases under the same test suite and thus using a common TestKit instance, you might face some if unconsumed messages from previous tests mess up with the current one. To avoid this, be sure to:
+When running multiple test cases under the same test suite and thus using a common TestKit instance, you might face some issues if unconsumed messages from previous tests mess up with the current one. To avoid this, be sure to:
 
 - have the tests run in sequence, not in parallel;
 - clear the contents of the topics in use before the test.
