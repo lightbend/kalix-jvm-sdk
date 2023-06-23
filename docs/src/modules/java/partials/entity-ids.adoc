@@ -15,7 +15,7 @@ For instance, `@Id("id")` will instruct Kalix to look up a matching path variabl
 
 === Composite identifiers
 
-It's also possible to have a composite identifier. For example, `@Id({"groupId", "id"})` defines a composite identitier made of `groupId` and `id`. In such a case, the endpoints for this entity will need to have both path variables, e.g.:  `@RequestMapping("/users/\{groupId}/\{id}")`.
+It's also possible to have a composite identifier. For example, `@Id({"groupId", "id"})` defines a composite identifier made of `groupId` and `id`. In such a case, the endpoints for this entity will need to have both path variables, e.g.:  `@RequestMapping("/users/\{groupId}/\{id}")`.
 
 === Generated identifier
 
