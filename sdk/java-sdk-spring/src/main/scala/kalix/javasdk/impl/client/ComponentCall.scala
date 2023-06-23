@@ -56,7 +56,7 @@ object ComponentCall {
       params: Seq[scala.Any],
       kalixClient: KalixClient,
       lambda: scala.Any,
-      entityId: Option[String]): DeferredCall[Any, R] = {
+      id: Option[String]): DeferredCall[Any, R] = {
 
     val method = MethodRefResolver.resolveMethodRef(lambda)
     val declaringClass = method.getDeclaringClass
@@ -78,7 +78,7 @@ object ComponentCall {
     val pathVariables: Map[String, ?] = restMethod.params
       .collect { case p: PathParameter => p }
       .map(p => (p.name, getPathParam(params, p.param.getParameterIndex, p.name)))
-      .toMap ++ entityIdVariables(entityId, method)
+      .toMap ++ idVariables(id, method)
 
     val bodyIndex = restMethod.params.collect { case p: BodyParameter => p }.map(_.param.getParameterIndex).headOption
     val body = bodyIndex.map(params(_))
@@ -127,7 +127,7 @@ object ComponentCall {
     throw new IllegalStateException(s"HTTP $requestMethod not supported when calling $pathTemplate")
   }
 
-  private def entityIdVariables[R](entityId: Option[String], method: Method): Map[String, String] = {
+  private def idVariables[R](entityId: Option[String], method: Method): Map[String, String] = {
 
     val declaringClass = method.getDeclaringClass
     if (declaringClass.getAnnotation(classOf[EntityType]) == null &&
@@ -140,7 +140,7 @@ object ComponentCall {
       val entityKeys = EntityKeyExtractor.extractEntityKeys(declaringClass, method)
       entityId match {
         case Some(value) => Map(entityKeys.head -> value) //TODO handle compound keys
-        case None        => throw new IllegalStateException(s"Entity id is missing while calling ${method.getName}")
+        case None        => throw new IllegalStateException(s"Id is missing while calling ${method.getName}")
       }
     }
   }

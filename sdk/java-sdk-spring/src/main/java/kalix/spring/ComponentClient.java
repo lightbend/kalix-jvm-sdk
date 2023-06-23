@@ -43,4 +43,12 @@ public class ComponentClient {
   public EventSourcedEntityCallBuilder forEventSourcedEntity(String entityId) {
     return new EventSourcedEntityCallBuilder(kalixClient, entityId);
   }
+
+  public WorkflowCallBuilder forWorkflow() {
+    return new WorkflowCallBuilder(kalixClient);
+  }
+
+  public WorkflowCallBuilder forWorkflow(String workflowId) {
+    return new WorkflowCallBuilder(kalixClient, workflowId);
+  }
 }

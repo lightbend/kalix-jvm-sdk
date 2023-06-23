@@ -58,8 +58,8 @@ public class FailingCounterEntity extends EventSourcedEntity<Counter, CounterEve
   }
 
   @GetMapping
-  public Effect<String> get() {
-    return effects().reply(currentState().value().toString());
+  public Effect<Integer> get() {
+    return effects().reply(currentState().value());
   }
 
   @EventHandler
