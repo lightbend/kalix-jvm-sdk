@@ -27,6 +27,12 @@ import kalix.javasdk.annotations.Id
 
 object EntityKeyExtractor {
 
+  def shouldGenerateId(annotatedElement: AnnotatedElement) =
+    if (annotatedElement.getAnnotation(classOf[GenerateId]) != null)
+      true
+    else
+      annotatedElement.getAnnotation(classOf[GenerateEntityKey]) != null
+
   def extractEntityKeys(component: Class[_], method: Method): Seq[String] = {
 
     def idValue(annotatedElement: AnnotatedElement) =
@@ -36,12 +42,6 @@ object EntityKeyExtractor {
         annotatedElement.getAnnotation(classOf[EntityKey]).value()
       else
         Array.empty[String]
-
-    def shouldGenerateId(annotatedElement: AnnotatedElement) =
-      if (annotatedElement.getAnnotation(classOf[GenerateId]) != null)
-        true
-      else
-        annotatedElement.getAnnotation(classOf[GenerateEntityKey]) != null
 
     val entityKeysOnType = idValue(component)
     val entityKeyOnMethod = idValue(method)

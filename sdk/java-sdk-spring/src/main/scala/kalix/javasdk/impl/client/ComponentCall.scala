@@ -28,6 +28,7 @@ import com.google.protobuf.any.Any
 import kalix.javasdk.DeferredCall
 import kalix.javasdk.annotations.EntityType
 import kalix.javasdk.annotations.GenerateEntityKey
+import kalix.javasdk.annotations.TypeId
 import kalix.javasdk.impl.reflection.EntityKeyExtractor
 import kalix.javasdk.impl.reflection.RestServiceIntrospector
 import kalix.javasdk.impl.reflection.RestServiceIntrospector.BodyParameter
@@ -129,20 +130,17 @@ object ComponentCall {
   private def entityIdVariables[R](entityId: Option[String], method: Method): Map[String, String] = {
 
     val declaringClass = method.getDeclaringClass
-    if (declaringClass.getAnnotation(classOf[EntityType]) == null) {
-      //not an entity
+    if (declaringClass.getAnnotation(classOf[EntityType]) == null &&
+      declaringClass.getAnnotation(classOf[TypeId]) == null) {
+      //not an entity or workflows
+      Map.empty
+    } else if (EntityKeyExtractor.shouldGenerateId(method)) {
       Map.empty
     } else {
       val entityKeys = EntityKeyExtractor.extractEntityKeys(declaringClass, method)
-      val generateEntityKey = method.getAnnotation(classOf[GenerateEntityKey])
-
-      if (generateEntityKey != null) {
-        Map.empty
-      } else {
-        entityId match {
-          case Some(value) => Map(entityKeys.head -> value) //TODO handle compound keys
-          case None        => throw new IllegalStateException(s"Entity id is missing while calling ${method.getName}")
-        }
+      entityId match {
+        case Some(value) => Map(entityKeys.head -> value) //TODO handle compound keys
+        case None        => throw new IllegalStateException(s"Entity id is missing while calling ${method.getName}")
       }
     }
   }
