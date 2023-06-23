@@ -13,7 +13,7 @@ if [[ -z "$PROXY_VERSION" ]]; then
 fi
 
 echo ">>> Updating docker image versions to $PROXY_VERSION"
-PROJS=$(find . -type f -name "docker-compose.yml")
+PROJS=$(find . -type f -name "docker-compose*.yml")
 for i in ${PROJS[@]}
 do
   echo "Updating Dockerfile for: $i"
