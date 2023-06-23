@@ -31,11 +31,10 @@ def common: Seq[Setting[_]] =
 lazy val coreSdk = project
   .in(file("sdk/core"))
   .enablePlugins(PublishSonatype)
+  .dependsOn(devTools)
   .settings(common)
   .settings(
     name := "kalix-jvm-core-sdk",
-    // this module should only contain Java classes as it is used by the SDKs
-    // and the dev-tools (which in turn should only use scala 2.12).
     crossPaths := false,
     Compile / javacOptions ++= Seq("--release", "11"),
     Compile / scalacOptions ++= Seq("-release", "11"),
@@ -44,7 +43,6 @@ lazy val coreSdk = project
       val javaSourceDir = (Compile / javaSource).value.getAbsolutePath
       (Compile / doc / sources).value.filter(_.getAbsolutePath.startsWith(javaSourceDir))
     })
-  .settings(Dependencies.coreSdk)
 
 lazy val javaSdkProtobuf = project
   .in(file("sdk/java-sdk-protobuf"))
@@ -378,7 +376,6 @@ lazy val devToolsInternal =
 def devToolsCommon(project: Project): Project =
   project
     .enablePlugins(BuildInfoPlugin, PublishSonatype)
-    .dependsOn(coreSdk)
     .settings(common)
     .settings(
       Compile / javacOptions ++= Seq("--release", "11"),

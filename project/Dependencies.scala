@@ -104,10 +104,10 @@ object Dependencies {
     jacksonJsr310,
     jacksonParameterNames)
 
-  val coreSdk =
-    deps ++= Seq("com.typesafe" % "config" % "1.4.2")
-
-  val devTools = deps ++= Seq("org.scala-lang.modules" %% "scala-collection-compat" % "2.10.0", scalaTest % Test)
+  val devTools = deps ++= Seq(
+    "org.scala-lang.modules" %% "scala-collection-compat" % "2.10.0",
+    "com.typesafe" % "config" % "1.4.2",
+    scalaTest % Test)
 
   val javaSdk = deps ++= sdkDeps
 

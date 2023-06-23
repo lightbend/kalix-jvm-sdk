@@ -276,8 +276,9 @@ public class KalixTestKit {
     conf.put("kalix.user-function-port", port);
     // don't kill the test JVM when terminating the KalixRunner
     conf.put("kalix.system.akka.coordinated-shutdown.exit-jvm", "off");
-    // dev-mode should be false when running integration tests
-    conf.put("kalix.dev-mode.enabled", false);
+    // integration tests runs the proxy with Testcontainers and therefore
+    // we shouldn't load DockerComposeUtils
+    conf.put("kalix.dev-mode.docker-compose-file", "none");
     Config testConfig = ConfigFactory.parseMap(conf);
 
     runner = kalix.createRunner(testConfig.withFallback(config));

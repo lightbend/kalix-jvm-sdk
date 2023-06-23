@@ -2,7 +2,6 @@ package kalix
 
 import java.io.File
 
-import kalix.devtools.impl.DockerComposeUtils
 import org.apache.maven.execution.MavenSession
 import org.apache.maven.plugin.BuildPluginManager
 import org.apache.maven.plugin.logging.Log
@@ -15,8 +14,6 @@ object RunMojo {
       jvmArgs: Array[String],
       mainClass: String,
       logConfig: String,
-      userFunctionPort: Int,
-      servicePortMappings: Seq[String],
       log: Log,
       mavenProject: MavenProject,
       mavenSession: MavenSession,
@@ -26,15 +23,12 @@ object RunMojo {
     assert(mainClass.trim.nonEmpty, "Main class not set. Kalix maven plugin must have `mainClass` set.")
 
     if (runningSolo) {
-      log.info("Kalix Proxy won't start.")
-      log.info("--------------------------------------------------------------------------------------")
-      log.info("To test this application locally you should either run it using 'mvn kalix:runAll'")
-      log.info("or start the Kalix Proxy by hand using the provided docker-compose file.")
-      log.info("--------------------------------------------------------------------------------------")
-
+      log.warn("Kalix Proxy won't start.")
+      log.warn("--------------------------------------------------------------------------------------")
+      log.warn("To test this application locally you should either run it using 'mvn kalix:runAll'")
+      log.warn("or start the Kalix Proxy by hand using the provided docker-compose file.")
+      log.warn("--------------------------------------------------------------------------------------")
     }
-
-    log.info("Starting Kalix Application on port: " + userFunctionPort)
 
     if (jvmArgs.nonEmpty){
       log.info("Additional JVM arguments detected: " + jvmArgs.toSeq.mkString(", "))
@@ -53,8 +47,7 @@ object RunMojo {
     val mainArgs =
       Seq(
         element(name("argument"), "-classpath"),
-        element(name("classpath")),
-        element(name("argument"), "-Dkalix.user-function-port=" + userFunctionPort))
+        element(name("classpath")))
 
     val loggingArgs: Seq[Element] = {
       val logConfigFile = new File(logConfig.trim)
@@ -69,17 +62,20 @@ object RunMojo {
       }
     }
 
-    // first servicePortMappings, then kalixSysProps
-    // as it should be possible to override the servicePortMappings with -D args
     val kalixSysProps =
-      (servicePortMappings ++ collectKalixSysProperties).map { arg =>
+      collectKalixSysProperties.map { arg =>
         element(name("argument"), arg)
       }
+
+    // when running solo, we force docker-compose file to be none
+    val dockerConfig =
+      if (runningSolo) Seq(element(name("argument"), "-Dkalix.dev-mode.docker-compose-file=none"))
+      else Seq.empty
 
     val additionalJvmArgs = jvmArgs.filter(_.trim.nonEmpty).map(element(name("argument"), _)).toSeq
 
     val allArgs =
-      mainArgs ++ loggingArgs ++ kalixSysProps ++ additionalJvmArgs :+
+      mainArgs ++ loggingArgs ++ kalixSysProps ++ additionalJvmArgs ++ dockerConfig :+
       element(name("argument"), mainClass) // mainClass must be last arg
 
     executeMojo(
@@ -108,16 +104,13 @@ object RunMojo {
  */
 @Mojo(name = "run", defaultPhase = LifecyclePhase.VALIDATE, requiresDependencyResolution = ResolutionScope.RUNTIME)
 @Execute(phase = LifecyclePhase.COMPILE)
-class RunMojo extends RunParameters with DockerParameters {
+class RunMojo extends RunParameters {
 
   override def execute(): Unit = {
-    val dockerComposeUtils = DockerComposeUtils(dockerComposeFile, sys.env)
     RunMojo(
       jvmArgs,
       mainClass,
       logConfig,
-      dockerComposeUtils.userFunctionPort,
-      dockerComposeUtils.localServicePortMappings,
       getLog,
       mavenProject,
       mavenSession,

@@ -1,0 +1,3 @@
+# this is a dummy yml file we need in order to test that DockerComposeUtils loads a docker-compose.yml
+# this file will NOT be packaged or used in any context other than DockerComposeUtilsSpec
+# DockerComposeUtils will look up for such a file at the root of the current jvm process

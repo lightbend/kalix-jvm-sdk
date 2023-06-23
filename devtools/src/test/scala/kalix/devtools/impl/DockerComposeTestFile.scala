@@ -16,22 +16,20 @@
 
 package kalix.devtools.impl
 
-object ServicePortMappingsExtractor {
+import java.io.BufferedWriter
+import java.io.File
+import java.io.FileWriter
 
-  /**
-   * Extracts all occurrences of [[DevModeSettings.portMappingsKeyPrefix]] from a line and returns them as a Seq without
-   * the settings prefix.
-   */
-  def unapply(line: String): Option[Seq[String]] = {
-    val portMappings =
-      line
-        .split("-D")
-        .collect {
-          case s if s.startsWith(DevModeSettings.portMappingsKeyPrefix) =>
-            s.trim.replace(DevModeSettings.portMappingsKeyPrefix + ".", "")
-        }
+object DockerComposeTestFile {
 
-    if (portMappings.nonEmpty) Some(portMappings.toIndexedSeq) else None
+  def createTmpFile(fileContent: String): String = {
+    // write docker-compose.yml to a temporary file
+    val userDir = sys.props("user.dir")
+    val dockerComposeFile = File.createTempFile("docker-compose-", ".yml", new File(userDir, "target"))
+    dockerComposeFile.deleteOnExit()
+    val bw = new BufferedWriter(new FileWriter(dockerComposeFile))
+    bw.write(fileContent)
+    bw.close()
+    dockerComposeFile.getAbsolutePath.replace(userDir + "/", "")
   }
-
 }

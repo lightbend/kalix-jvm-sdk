@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package kalix.javasdk.impl
+package kalix.devtools.impl
 
 object HostAndPort {
 
@@ -39,4 +39,7 @@ object HostAndPort {
         throw new IllegalArgumentException(s"Invalid service port mapping: $hostPort")
     }
   }
+
+  def extractPort(hostAndPort: String): Int = extract(hostAndPort)._2
+
 }

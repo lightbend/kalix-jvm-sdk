@@ -10,29 +10,24 @@ import com.typesafe.config.ConfigFactory;
 import customer.action.CustomerAction;
 import customer.api.CustomerApi;
 import customer.view.AllCustomersView;
-import kalix.devtools.impl.DockerComposeUtils;
 import kalix.javasdk.KalixRunner;
 import kalix.javasdk.impl.GrpcClients;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.testcontainers.shaded.org.hamcrest.core.IsEqual;
 
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 import static java.time.temporal.ChronoUnit.SECONDS;
-import static org.junit.jupiter.api.Assertions.fail;
-import static org.testcontainers.shaded.org.awaitility.Awaitility.await;
+import org.hamcrest.core.IsEqual;
+import static org.awaitility.Awaitility.await;
 
 /**
  * This test exercises the integration between the current service (customer-registry-subscriber) and the customer-registry service.
@@ -55,25 +50,15 @@ public class CustomerIntegrationTest {
   final private Duration timeout = Duration.of(5, SECONDS);
   private final KalixRunner kalixRunner;
 
-  private DockerComposeUtils dockerComposeUtils = new DockerComposeUtils("docker-compose-integration.yml");
-
   private final ActorSystem testSystem;
 
   public CustomerIntegrationTest() {
     Map<String, Object> confMap = new HashMap<>();
-    confMap.put("kalix.user-function-port",  dockerComposeUtils.userFunctionPort());
     // don't kill the test JVM when terminating the KalixRunner
     confMap.put("kalix.system.akka.coordinated-shutdown.exit-jvm", "off");
-    // dev-mode should be false when running integration tests
-    confMap.put("kalix.dev-mode.enabled", false);
+    confMap.put("kalix.dev-mode.docker-compose-file", "docker-compose-integration.yml");
     confMap.put("kalix.user-function-interface", "0.0.0.0");
 
-    // read service-port-mappings and pass to UF
-    dockerComposeUtils.getLocalServicePortMappings().forEach(entry -> {
-        var split = entry.replace("-D", "").split("=");
-        confMap.put(split[0], split[1]);
-      }
-    );
 
     Config config = ConfigFactory.parseMap(confMap).withFallback(ConfigFactory.load());
     this.kalixRunner = Main.createKalix().createRunner(config);
@@ -83,7 +68,6 @@ public class CustomerIntegrationTest {
 
   @BeforeAll
   public void beforeAll() {
-    dockerComposeUtils.start();
     kalixRunner.run();
   }
 
@@ -92,8 +76,7 @@ public class CustomerIntegrationTest {
     testSystem.terminate();
     var actorSysDown = testSystem.getWhenTerminated();
     var kalixAppDown = kalixRunner.terminate();
-    var dockerDown = CompletableFuture.runAsync(() -> dockerComposeUtils.stopAndWait());
-    CompletableFuture.allOf(actorSysDown.toCompletableFuture(), kalixAppDown.toCompletableFuture(), dockerDown).get();
+    CompletableFuture.allOf(actorSysDown.toCompletableFuture(), kalixAppDown.toCompletableFuture()).get();
   }
 
   public CustomerAction customerActionClient() {

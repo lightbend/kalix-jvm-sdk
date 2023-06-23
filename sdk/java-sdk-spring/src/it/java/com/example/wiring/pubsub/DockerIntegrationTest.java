@@ -49,25 +49,15 @@ public abstract class DockerIntegrationTest {
   protected WebClient webClient;
   protected Duration timeout = Duration.of(5, SECONDS);
 
-  private DockerComposeUtils dockerComposeUtils = new DockerComposeUtils("docker-compose-integration.yml");
 
   private KalixSpringApplication kalixSpringApplication;
 
   public DockerIntegrationTest(ApplicationContext applicationContext) {
     Map<String, Object> confMap = new HashMap<>();
-    confMap.put("kalix.user-function-port", dockerComposeUtils.userFunctionPort());
     // don't kill the test JVM when terminating the KalixRunner
     confMap.put("kalix.system.akka.coordinated-shutdown.exit-jvm", "off");
-    // dev-mode should be false when running integration tests
-    confMap.put("kalix.dev-mode.enabled", false);
     confMap.put("kalix.user-function-interface", "0.0.0.0");
-
-    // read service-port-mappings and pass to UF
-    dockerComposeUtils.getLocalServicePortMappings().forEach(entry -> {
-        var split = entry.replace("-D", "").split("=");
-        confMap.put(split[0], split[1]);
-      }
-    );
+    confMap.put("kalix.dev-mode.docker-compose-file", "docker-compose-integration.yml");
 
     Config config = ConfigFactory.parseMap(confMap).withFallback(ConfigFactory.load());
 
@@ -76,20 +66,15 @@ public abstract class DockerIntegrationTest {
 
   @BeforeAll
   public void beforeAll() {
-    dockerComposeUtils.start();
     kalixSpringApplication.start();
     webClient = createClient("http://localhost:9000");
   }
 
   @AfterAll
   public void afterAll() throws ExecutionException, InterruptedException {
-    var kalixAppDown =
       new FutureConverters.FutureOps<>(kalixSpringApplication.stop())
         .asJava()
-        .toCompletableFuture();
-
-    var dockerDown = CompletableFuture.runAsync(() -> dockerComposeUtils.stopAndWait());
-    CompletableFuture.allOf(kalixAppDown, dockerDown).get();
+        .toCompletableFuture().get();
   }
 
   private HttpStatusCode assertSourceServiceIsUp(WebClient webClient) {

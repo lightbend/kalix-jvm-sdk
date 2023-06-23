@@ -16,6 +16,7 @@
 
 package kalix.devtools.impl
 
+import java.io.File
 import java.nio.file.Files
 import java.nio.file.Paths
 
@@ -23,8 +24,17 @@ import scala.io.Source
 import scala.jdk.CollectionConverters._
 import scala.sys.process._
 
+import com.typesafe.config.Config
+
 object DockerComposeUtils {
+
   def apply(file: String): DockerComposeUtils = DockerComposeUtils(file, Map.empty)
+
+  def fromConfig(config: Config): Option[DockerComposeUtils] =
+    Option(config.getString("kalix.dev-mode.docker-compose-file"))
+      .filter(_.trim.toLowerCase != "none")
+      .filter { file => new File(sys.props("user.dir"), file).exists() }
+      .map { file => DockerComposeUtils(file, sys.env) }
 }
 
 case class DockerComposeUtils(file: String, envVar: Map[String, String]) {
@@ -61,6 +71,8 @@ case class DockerComposeUtils(file: String, envVar: Map[String, String]) {
       Seq.empty
     }
 
+  // FIXME: process output is being printed in sbt console as error
+  // note to self: this is seems to be similar to sbt native packager printing errors when build docker images
   def start(): Unit =
     execIfFileExists {
       val proc = Process(s"docker-compose -f $file up", None).run()
@@ -74,14 +86,17 @@ case class DockerComposeUtils(file: String, envVar: Map[String, String]) {
     }
 
   def stop(): Unit =
-    if (started) {
-      Process(s"docker-compose -f $file stop", None).run()
-    }
+    if (started)
+      execIfFileExists {
+        Process(s"docker-compose -f $file stop", None).run()
+      }
 
   def stopAndWait(): Int =
-    if (started) {
-      Process(s"docker-compose -f $file stop", None).!
-    } else 0
+    if (started)
+      execIfFileExists {
+        Process(s"docker-compose -f $file stop", None).!
+      }
+    else 0
 
   def userFunctionPort: Int =
     envVar
@@ -93,38 +108,25 @@ case class DockerComposeUtils(file: String, envVar: Map[String, String]) {
   private def userFunctionPortFromFile: Option[Int] =
     lines.collectFirst { case UserFunctionPortExtractor(port) => port }
 
-  def servicePortMappings: Seq[String] =
+  /**
+   * Extract all lines starting with [[DevModeSettings.portMappingsKeyPrefix]] The returned Seq only contains the
+   * service name and the mapped host and port, eg: some-service=somehost:9001
+   */
+  private def servicePortMappings: Seq[String] =
     lines.flatten {
       case ServicePortMappingsExtractor(mappings) => mappings
       case _                                      => Seq.empty
     }
 
   /**
-   * Convenient Java API to servicePortMappings.
+   * Returns a Map from service name to host:port.
    */
-  def getServicePortMappings: java.util.List[String] =
-    servicePortMappings.asJava
-
-  /**
-   * This method reads the service port mappings from the docker-compose file and translate them to the same properties,
-   * but without the host part.
-   *
-   * This is used to configure a local service. Local services are expected to run as a JVM process (not dockerized) and
-   * therefore they reach the proxy through localhost, not through host.docker.internal.
-   */
-  def localServicePortMappings: Seq[String] =
+  def servicesHostAndPortMap: Map[String, String] =
     servicePortMappings.map { mapping =>
       mapping.split("=") match {
-        case Array(service, hostAndPort) =>
-          val onlyPort = hostAndPort.split(":").last // we only need the port number
-          s"$service=$onlyPort"
-        case _ => throw new IllegalArgumentException(s"Invalid port mapping: $mapping")
+        case Array(serviceName, hostAndPort) => serviceName -> hostAndPort
+        case _                               => throw new IllegalArgumentException(s"Invalid port mapping: $mapping")
       }
-    }
+    }.toMap
 
-  /**
-   * Convenient Java API to localServicePortMappings.
-   */
-  def getLocalServicePortMappings: java.util.List[String] =
-    localServicePortMappings.asJava
 }

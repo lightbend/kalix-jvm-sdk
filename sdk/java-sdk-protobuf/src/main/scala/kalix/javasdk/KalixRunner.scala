@@ -36,9 +36,11 @@ import com.google.protobuf.DescriptorProtos.FileDescriptorProto
 import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
 import kalix.devtools.impl.DevModeSettings
+import kalix.devtools.impl.DevModeSettings.portMappingsKeyPrefix
+import kalix.devtools.impl.DockerComposeUtils
+import kalix.devtools.impl.HostAndPort
 import kalix.javasdk.impl.AbstractContext
 import kalix.javasdk.impl.DiscoveryImpl
-import kalix.javasdk.impl.HostAndPort
 import kalix.javasdk.impl.Service
 import kalix.javasdk.impl.action.ActionService
 import kalix.javasdk.impl.action.ActionsImpl
@@ -90,27 +92,7 @@ object KalixRunner {
 
   private[kalix] def prepareConfig(config: Config): Config = {
     val mainConfig = config.getConfig("kalix.system").withFallback(config)
-    // enrich config with extra dev-mode service port mappings if applicable
-
-    val portMappings = DevModeSettings.fromConfig(mainConfig).portMappings
-
-    portMappings.asScala
-      .foldLeft(mainConfig) { case (main, (key, value)) =>
-        logger.debug("adding dev-mode port mapping for service [{}] to [{}]", key, value)
-        val (host, port) = HostAndPort.extract(value)
-        val mapping = ConfigFactory.parseString(s"""
-           |akka.grpc.client.$key {
-           |  service-discovery {
-           |    service-name = "$key"
-           |  }
-           |  host = "$host"
-           |  port = $port
-           |  use-tls = false
-           |}
-           |""".stripMargin)
-
-        main.withFallback(mapping)
-      }
+    DevModeSettings.addDevModeConfig(mainConfig)
   }
 
   private def loadConfig(): Config = prepareConfig(ConfigFactory.load())
@@ -131,6 +113,8 @@ final class KalixRunner private[javasdk] (
 
   private[kalix] implicit val system: ActorSystem = _system
   private val log = LoggerFactory.getLogger(getClass)
+
+  private val dockerComposeUtils = DockerComposeUtils.fromConfig(_system.settings.config)
 
   private[kalix] final val configuration =
     new KalixRunner.Configuration(system.settings.config.getConfig("kalix"))
@@ -233,6 +217,19 @@ final class KalixRunner private[javasdk] (
 
     logJvmInfo()
 
+    // start containers if application (only possible when running locally)
+    dockerComposeUtils.foreach { dcu =>
+      dcu.start()
+
+      // shutdown the containers when stopping service
+      CoordinatedShutdown(system)
+        .addTask(CoordinatedShutdown.PhaseBeforeServiceUnbind, "stop-docker-compose") { () =>
+          // note, we don't want/need to wait for the containers to stop. We just move on.
+          dcu.stop()
+          Future.successful(Done)
+        }
+    }
+
     val bound = Http
       .get(system)
       .newServerAt(configuration.userFunctionInterface, configuration.userFunctionPort)
@@ -251,7 +248,7 @@ final class KalixRunner private[javasdk] (
           configuration.userFunctionInterface,
           configuration.userFunctionPort,
           ex)
-        CoordinatedShutdown.get(system).run(KalixRunner.BindFailure)
+        CoordinatedShutdown(system).run(KalixRunner.BindFailure)
     }
 
     // Complete the returned CompletionStage with bind failure or Done when system is terminated

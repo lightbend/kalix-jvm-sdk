@@ -1,6 +1,5 @@
 package kalix
 
-import kalix.devtools.impl.DockerComposeUtils
 import org.apache.maven.plugins.annotations.Execute
 import org.apache.maven.plugins.annotations.LifecyclePhase
 import org.apache.maven.plugins.annotations.Mojo
@@ -11,19 +10,13 @@ import org.apache.maven.plugins.annotations.ResolutionScope
  */
 @Mojo(name = "runAll", defaultPhase = LifecyclePhase.VALIDATE, requiresDependencyResolution = ResolutionScope.RUNTIME)
 @Execute(phase = LifecyclePhase.COMPILE)
-class RunAllMojo extends RunParameters with DockerParameters {
+class RunAllMojo extends RunParameters {
 
   override def execute(): Unit = {
-
-    val dockerComposeUtils = DockerComposeUtils(dockerComposeFile, sys.env)
-    dockerComposeUtils.start()
-
     RunMojo(
       jvmArgs,
       mainClass,
       logConfig,
-      dockerComposeUtils.userFunctionPort,
-      dockerComposeUtils.localServicePortMappings,
       getLog,
       mavenProject,
       mavenSession,
