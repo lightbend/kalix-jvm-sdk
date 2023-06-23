@@ -89,7 +89,7 @@ public class WorkflowTestModels {
 
   @TypeId("transfer-workflow")
   @RequestMapping("/transfer/{transferId}")
-  public static class WorkflowWithoutIdGeneratorAndEntityKey extends Workflow<WorkflowState> {
+  public static class WorkflowWithoutIdGeneratorAndId extends Workflow<WorkflowState> {
     @Override
     public WorkflowDef<WorkflowState> definition() {
       return null;

@@ -8,7 +8,6 @@ import kalix.javasdk.eventsourcedentity.EventSourcedEntityContext;
 import kalix.javasdk.annotations.Id;
 import kalix.javasdk.annotations.TypeId;
 import kalix.javasdk.annotations.EventHandler;
-import kalix.javasdk.annotations.GenerateEntityKey;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collections;

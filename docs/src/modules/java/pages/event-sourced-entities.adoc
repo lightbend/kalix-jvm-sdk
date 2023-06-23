@@ -42,13 +42,13 @@ include::example$java-spring-eventsourced-shopping-cart/src/main/java/com/exampl
 
 IMPORTANT: The use of logical names for subtypes is essential for maintainability purposes. Since that information is persisted, failing to do so might lead to the use of a FQCN preventing the application from correctly deserialize the events in case of a package change. Our recommendation is to use logical names (i.e. `@TypeName`) that are unique per Kalix service.
 
-include::partial$entity-keys.adoc[]
+include::partial$entity-ids.adoc[]
 
 == Implementing behavior
 
 Now that we have our Entity state defined along with its events, the remaining steps can be summarized as follows:
 
-- declare your entity and pick an entity key (it needs to be unique as it will be used for sharding purposes);
+- declare your entity and pick an entity id (it needs to be unique as it will be used for sharding purposes);
 - define an access point (i.e. a route path) to your entity;
 - implement how each command is handled and which event(s) it generates;
 - provide a handler for each event and how it affects the entity's state.
@@ -139,7 +139,7 @@ When you give the instruction to delete the entity it will still exist from some
 
 It is not allowed to emit more events after the entity has been "marked" as deleted. You can still handle read requests of the entity until it has been completely removed.
 
-It is best to not reuse the same entity key after deletion, but if that happens after the entity has been completely removed it will be instantiated as a completely new entity without any knowledge of previous state.
+It is best to not reuse the same entity id after deletion, but if that happens after the entity has been completely removed it will be instantiated as a completely new entity without any knowledge of previous state.
 
 Note that xref:views.adoc#ve_delete[deleting View state] must be handled explicitly.
 

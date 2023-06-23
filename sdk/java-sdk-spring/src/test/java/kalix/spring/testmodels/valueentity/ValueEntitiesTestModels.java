@@ -33,7 +33,7 @@ public class ValueEntitiesTestModels {
   @Id( {"userId", "cartId"})
   @TypeId("user")
   @RequestMapping("/user/{userId}/{cartId}")
-  public static class PostWithEntityKeys extends ValueEntity<User> {
+  public static class PostWithIds extends ValueEntity<User> {
     @Override
     public User emptyState() {
       return null;

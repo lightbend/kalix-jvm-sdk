@@ -21,20 +21,20 @@ import kalix.JwtMethodOptions.JwtMethodMode
 import kalix.KeyGeneratorMethodOptions.Generator
 import kalix.javasdk.impl.reflection.ServiceIntrospectionException
 import kalix.spring.testmodels.eventsourcedentity.EventSourcedEntitiesTestModels.CounterEventSourcedEntity
-import kalix.spring.testmodels.eventsourcedentity.EventSourcedEntitiesTestModels.CounterEventSourcedEntityWithEntityKeyGenerator
-import kalix.spring.testmodels.eventsourcedentity.EventSourcedEntitiesTestModels.CounterEventSourcedEntityWithEntityKeyMethodOverride
-import kalix.spring.testmodels.eventsourcedentity.EventSourcedEntitiesTestModels.CounterEventSourcedEntityWithEntityKeyOnMethod
+import kalix.spring.testmodels.eventsourcedentity.EventSourcedEntitiesTestModels.CounterEventSourcedEntityWithIdGenerator
+import kalix.spring.testmodels.eventsourcedentity.EventSourcedEntitiesTestModels.CounterEventSourcedEntityWithIdMethodOverride
+import kalix.spring.testmodels.eventsourcedentity.EventSourcedEntitiesTestModels.CounterEventSourcedEntityWithIdOnMethod
 import kalix.spring.testmodels.eventsourcedentity.EventSourcedEntitiesTestModels.CounterEventSourcedEntityWithJWT
 import kalix.spring.testmodels.eventsourcedentity.EventSourcedEntitiesTestModels.EventSourcedEntityWithMethodLevelAcl
 import kalix.spring.testmodels.eventsourcedentity.EventSourcedEntitiesTestModels.EventSourcedEntityWithServiceLevelAcl
-import kalix.spring.testmodels.eventsourcedentity.EventSourcedEntitiesTestModels.IllDefinedEntityWithEntityKeyGeneratorAndEntityKey
-import kalix.spring.testmodels.eventsourcedentity.EventSourcedEntitiesTestModels.IllDefinedEntityWithoutEntityKeyGeneratorNorEntityKey
+import kalix.spring.testmodels.eventsourcedentity.EventSourcedEntitiesTestModels.IllDefinedEntityWithIdGeneratorAndId
+import kalix.spring.testmodels.eventsourcedentity.EventSourcedEntitiesTestModels.IllDefinedEntityWithoutIdGeneratorNorId
 import org.scalatest.wordspec.AnyWordSpec
 
 class EventSourcedEntityDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSuite {
 
   "EventSourced descriptor factory" should {
-    "generate mappings for a Event Sourced with entity keys in path" in {
+    "generate mappings for a Event Sourced with entity ids in path" in {
       assertDescriptor[CounterEventSourcedEntity] { desc =>
         val method = desc.commandHandlers("GetInteger")
         assertRequestFieldJavaType(method, "id", JavaType.STRING)
@@ -48,8 +48,8 @@ class EventSourcedEntityDescriptorFactorySpec extends AnyWordSpec with Component
       }
     }
 
-    "generate mappings for a Event Sourced with entity keys in path and EntityKey on method" in {
-      assertDescriptor[CounterEventSourcedEntityWithEntityKeyOnMethod] { desc =>
+    "generate mappings for a Event Sourced with entity ids in path and EntityKey on method" in {
+      assertDescriptor[CounterEventSourcedEntityWithIdOnMethod] { desc =>
         val method = desc.commandHandlers("GetInteger")
         assertRequestFieldJavaType(method, "id", JavaType.STRING)
         assertEntityKeyField(method, "id")
@@ -57,8 +57,8 @@ class EventSourcedEntityDescriptorFactorySpec extends AnyWordSpec with Component
       }
     }
 
-    "generate mappings for a Event Sourced with EntityKey on method overrides EntityKey on type" in {
-      assertDescriptor[CounterEventSourcedEntityWithEntityKeyMethodOverride] { desc =>
+    "generate mappings for a Event Sourced with Id on method overrides EntityKey on type" in {
+      assertDescriptor[CounterEventSourcedEntityWithIdMethodOverride] { desc =>
         val method = desc.commandHandlers("GetInteger")
         assertRequestFieldJavaType(method, "counter_id", JavaType.STRING)
         assertEntityKeyField(method, "counter_id")
@@ -66,20 +66,20 @@ class EventSourcedEntityDescriptorFactorySpec extends AnyWordSpec with Component
       }
     }
 
-    "fail if mix EntityKey and GenerateEntityKey on method" in {
+    "fail if mix EntityKey and GenerateId on method" in {
       intercept[ServiceIntrospectionException] {
-        descriptorFor[IllDefinedEntityWithEntityKeyGeneratorAndEntityKey]
+        descriptorFor[IllDefinedEntityWithIdGeneratorAndId]
       }.getMessage should include("Invalid annotation usage. Found both @Id and @GenerateId annotations.")
     }
 
-    "fail if no EntityKey nor GenerateEntityKey is defined" in {
+    "fail if no EntityKey nor GenerateId is defined" in {
       intercept[ServiceIntrospectionException] {
-        descriptorFor[IllDefinedEntityWithoutEntityKeyGeneratorNorEntityKey]
+        descriptorFor[IllDefinedEntityWithoutIdGeneratorNorId]
       }.getMessage should include("Invalid command method. No @Id nor @GenerateId annotations found.")
     }
 
-    "generate mappings for a Event Sourced with GenerateEntityKey" in {
-      assertDescriptor[CounterEventSourcedEntityWithEntityKeyGenerator] { desc =>
+    "generate mappings for a Event Sourced with GenerateId" in {
+      assertDescriptor[CounterEventSourcedEntityWithIdGenerator] { desc =>
         val method = desc.commandHandlers("GetInteger")
         assertRequestFieldJavaType(method, "number", JavaType.INT)
 
@@ -88,7 +88,7 @@ class EventSourcedEntityDescriptorFactorySpec extends AnyWordSpec with Component
       }
     }
 
-    "generate mappings for a Event Sourced with entity keys in path and JWT annotations" in {
+    "generate mappings for a Event Sourced with entity ids in path and JWT annotations" in {
       assertDescriptor[CounterEventSourcedEntityWithJWT] { desc =>
         val method = desc.commandHandlers("GetInteger")
         assertRequestFieldJavaType(method, "id", JavaType.STRING)
