@@ -77,7 +77,7 @@ object DevModeSettings {
           // therefore should always use localhost (0.0.0.0)
           val host = "0.0.0.0"
           val port = HostAndPort.extractPort(hostAndPort)
-          // when configuring through DockerComposeUtils, we need to parts.
+          // when configuring through DockerComposeUtils, we need two parts:
           // a config for a gRPC client and a direct config for REST WebClient
           main
             .withFallback(grpcClientConfig(serviceName, host, port)

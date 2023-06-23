@@ -102,7 +102,7 @@ class DevModeSettingsSpec extends AnyWordSpec with Matchers with OptionValues {
 
       val enrichedConfig = DevModeSettings.addDevModeConfig(config)
 
-      // when relying on docker-compose file, hosts are replaced by 0.0.0.0
+      // when not relying on docker-compose file, hosts are kept as as originally
       enrichedConfig.getString("akka.grpc.client.foo.host") shouldBe "foo.docker.internal"
       enrichedConfig.getString("akka.grpc.client.foo.port") shouldBe "9001"
       enrichedConfig.getString("akka.grpc.client.bar.host") shouldBe "barhost"
