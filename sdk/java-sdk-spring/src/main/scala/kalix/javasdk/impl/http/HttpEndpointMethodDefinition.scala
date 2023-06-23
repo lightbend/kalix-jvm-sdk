@@ -256,7 +256,7 @@ object HttpEndpointMethodDefinition {
                   s"HTTP API path template for [${methDesc.getFullName}] references [$fieldName] but that is a map field")
               else if (field.isRepeated)
                 parsingError(
-                  s"HTTP API path template for [${methDesc.getFullName}] references [$fieldName] but that is a repeated fieldfield")
+                  s"HTTP API path template for [${methDesc.getFullName}] references [$fieldName] but that is a repeated field")
               else {
                 val notSupported =
                   (message: String) => parsingError(s"HTTP API path for [${methDesc.getFullName}]: $message")

@@ -27,7 +27,7 @@ import kalix.javasdk.annotations.Id
 
 object EntityKeyExtractor {
 
-  def shouldGenerateId(annotatedElement: AnnotatedElement) =
+  private[kalix] def shouldGenerateId(annotatedElement: AnnotatedElement) =
     if (annotatedElement.getAnnotation(classOf[GenerateId]) != null)
       true
     else
@@ -43,27 +43,27 @@ object EntityKeyExtractor {
       else
         Array.empty[String]
 
-    val entityKeysOnType = idValue(component)
-    val entityKeyOnMethod = idValue(method)
+    val entityIdsOnType = idValue(component)
+    val entityIdsOnMethod = idValue(method)
 
-    if (entityKeyOnMethod.nonEmpty && shouldGenerateId(method))
+    if (entityIdsOnMethod.nonEmpty && shouldGenerateId(method))
       throw ServiceIntrospectionException(
         method,
         "Invalid annotation usage. Found both @Id and @GenerateId annotations. " +
         "A method can only be annotated with one of them, but not both.")
 
     // keys defined on Method level get precedence
-    val entityKeysToUse =
-      if (entityKeyOnMethod.nonEmpty) entityKeyOnMethod
-      else entityKeysOnType
+    val entityIdsToUse =
+      if (entityIdsOnMethod.nonEmpty) entityIdsOnMethod
+      else entityIdsOnType
 
-    if (entityKeysToUse.isEmpty && !shouldGenerateId(method))
+    if (entityIdsToUse.isEmpty && !shouldGenerateId(method))
       throw ServiceIntrospectionException(
         method,
         "Invalid command method. No @Id nor @GenerateId annotations found. " +
         "A command method should be annotated with either @Id or @GenerateId, or " +
         "an @Id annotation should be present at class level.")
 
-    entityKeysToUse.toIndexedSeq
+    entityIdsToUse.toIndexedSeq
   }
 }

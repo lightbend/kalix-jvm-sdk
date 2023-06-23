@@ -261,8 +261,8 @@ case class KalixSpringApplication(applicationContext: ApplicationContext, config
   private val logger: Logger = LoggerFactory.getLogger(getClass)
 
   private val messageCodec = new JsonMessageCodec
-  private val kalixClient = new RestKalixClientImpl(messageCodec)
-  private val componentClient = new ComponentClient(kalixClient)
+  private[kalix] val kalixClient = new RestKalixClientImpl(messageCodec)
+  private[kalix] val componentClient = new ComponentClient(kalixClient)
 
   private val kalixBeanFactory = new DefaultListableBeanFactory(applicationContext)
 
@@ -402,10 +402,6 @@ case class KalixSpringApplication(applicationContext: ApplicationContext, config
 
         kalixBeanFactory.getBean(clz)
       })
-
-  def getComponentClient(): ComponentClient = componentClient
-
-  def getKalixClient(): RestKalixClientImpl = kalixClient
 
   private def setKalixClient[T](clz: Class[T], webClientProviderHolder: WebClientProviderHolder): Unit = {
     if (hasContextConstructor(clz, classOf[KalixClient])) {

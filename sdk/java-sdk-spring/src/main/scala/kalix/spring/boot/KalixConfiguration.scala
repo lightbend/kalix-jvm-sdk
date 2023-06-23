@@ -54,7 +54,7 @@ class KalixConfiguration(applicationContext: ApplicationContext) {
 
   @Bean
   def componentClient(kalixSpringApplication: KalixSpringApplication): ComponentClient =
-    kalixSpringApplication.getComponentClient
+    kalixSpringApplication.componentClient
 
   @Bean
   def kalixReactiveWebServerFactory(kalixSpringApplication: KalixSpringApplication) =
