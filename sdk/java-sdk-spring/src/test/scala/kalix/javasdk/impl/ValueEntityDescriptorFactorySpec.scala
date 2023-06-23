@@ -18,6 +18,8 @@ package kalix.javasdk.impl
 
 import com.google.protobuf.Any
 import com.google.protobuf.Descriptors.FieldDescriptor.JavaType
+import kalix.KeyGeneratorMethodOptions
+import kalix.spring.testmodels.valueentity.Counter
 import kalix.spring.testmodels.valueentity.ValueEntitiesTestModels.GetWithQueryParams
 import kalix.spring.testmodels.valueentity.ValueEntitiesTestModels.PostWithEntityKeys
 import kalix.spring.testmodels.valueentity.ValueEntitiesTestModels.ValueEntityWithMethodLevelAcl
@@ -38,6 +40,16 @@ class ValueEntityDescriptorFactorySpec extends AnyWordSpec with ComponentDescrip
 
         assertRequestFieldJavaType(method, "cartId", JavaType.STRING)
         assertEntityKeyField(method, "cartId")
+      }
+    }
+
+    "generate mappings for a Value Entity with generated id" in {
+      assertDescriptor[Counter] { desc =>
+        val method = desc.commandHandlers("RandomIncrease")
+        assertRequestFieldNumberAndJavaType(method, "value", 2, JavaType.INT)
+
+        val extension = findKalixMethodOptions(desc, "RandomIncrease")
+        extension.getEntity.getKeyGenerator shouldBe KeyGeneratorMethodOptions.Generator.VERSION_4_UUID
       }
     }
 

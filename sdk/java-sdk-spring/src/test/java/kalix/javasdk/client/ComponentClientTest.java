@@ -14,15 +14,14 @@
  * limitations under the License.
  */
 
-package kalix.spring;
+package kalix.javasdk.client;
 
-import com.google.protobuf.any.Any;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.DynamicMessage;
 import com.google.protobuf.InvalidProtocolBufferException;
+import com.google.protobuf.any.Any;
 import kalix.javasdk.JsonSupport;
-import kalix.javasdk.client.ComponentClient;
 import kalix.javasdk.impl.AnySupport;
 import kalix.javasdk.impl.ComponentDescriptor;
 import kalix.javasdk.impl.JsonMessageCodec;
@@ -30,12 +29,14 @@ import kalix.javasdk.impl.RestDeferredCall;
 import kalix.javasdk.impl.Validations;
 import kalix.spring.impl.RestKalixClientImpl;
 import kalix.spring.testmodels.Message;
+import kalix.spring.testmodels.Number;
 import kalix.spring.testmodels.action.ActionsTestModels.GetClassLevel;
 import kalix.spring.testmodels.action.ActionsTestModels.GetWithOneParam;
 import kalix.spring.testmodels.action.ActionsTestModels.GetWithoutParam;
 import kalix.spring.testmodels.action.ActionsTestModels.PostWithOneQueryParam;
 import kalix.spring.testmodels.action.ActionsTestModels.PostWithTwoParam;
 import kalix.spring.testmodels.action.ActionsTestModels.PostWithoutParam;
+import kalix.spring.testmodels.valueentity.Counter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -232,6 +233,25 @@ class ComponentClientTest {
     assertThat(call.methodName()).isEqualTo(targetMethod.getName());
     assertMethodParamsMatch(targetMethod, call.message(), param);
     assertThat(getBody(targetMethod, call.message(), Message.class)).isEqualTo(body);
+  }
+
+  @Test
+  public void shouldReturnDeferredCallForVEWithRandomId() throws InvalidProtocolBufferException {
+    //given
+    var counterVE = descriptorFor(Counter.class, messageCodec);
+    restKalixClient.registerComponent(counterVE.serviceDescriptor());
+    var targetMethod = counterVE.serviceDescriptor().findMethodByName("RandomIncrease");
+    Integer param = 10;
+
+    //when
+    RestDeferredCall<Any, Number> call = (RestDeferredCall<Any, Number>) componentClient.forValueEntity()
+        .call(Counter::randomIncrease)
+        .params(param);
+
+    //then
+    assertThat(call.fullServiceName()).isEqualTo(targetMethod.getService().getFullName());
+    assertThat(call.methodName()).isEqualTo(targetMethod.getName());
+    assertMethodParamsMatch(targetMethod, call.message(), param);
   }
 
   private ComponentDescriptor descriptorFor(Class<?> clazz, JsonMessageCodec messageCodec) {

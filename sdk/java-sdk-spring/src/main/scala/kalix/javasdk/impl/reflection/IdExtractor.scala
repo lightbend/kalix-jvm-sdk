@@ -46,24 +46,29 @@ object IdExtractor {
     val idsOnType = idValue(component)
     val idsOnMethod = idValue(method)
 
-    if (idsOnMethod.nonEmpty && shouldGenerateId(method))
-      throw ServiceIntrospectionException(
-        method,
-        "Invalid annotation usage. Found both @Id and @GenerateId annotations. " +
-        "A method can only be annotated with one of them, but not both.")
+    if (shouldGenerateId(method)) {
+      if (idsOnMethod.nonEmpty)
+        throw ServiceIntrospectionException(
+          method,
+          "Invalid annotation usage. Found both @Id and @GenerateId annotations. " +
+          "A method can only be annotated with one of them, but not both.")
+      else {
+        Seq.empty
+      }
+    } else {
+      // ids defined on Method level get precedence
+      val idsToUse =
+        if (idsOnMethod.nonEmpty) idsOnMethod
+        else idsOnType
 
-    // keys defined on Method level get precedence
-    val idsToUse =
-      if (idsOnMethod.nonEmpty) idsOnMethod
-      else idsOnType
+      if (idsToUse.isEmpty)
+        throw ServiceIntrospectionException(
+          method,
+          "Invalid command method. No @Id nor @GenerateId annotations found. " +
+          "A command method should be annotated with either @Id or @GenerateId, or " +
+          "an @Id annotation should be present at class level.")
 
-    if (idsToUse.isEmpty && !shouldGenerateId(method))
-      throw ServiceIntrospectionException(
-        method,
-        "Invalid command method. No @Id nor @GenerateId annotations found. " +
-        "A command method should be annotated with either @Id or @GenerateId, or " +
-        "an @Id annotation should be present at class level.")
-
-    idsToUse.toIndexedSeq
+      idsToUse.toIndexedSeq
+    }
   }
 }
