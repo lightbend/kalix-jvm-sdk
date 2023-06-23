@@ -16,6 +16,22 @@
 
 package kalix.spring;
 
+/**
+ * Utility to send requests to other Kalix components by composing a DeferredCall. To compose a call:
+ * 1. select component type (and pass id if necessary)
+ * 2. select component method, by Java method reference operator (::)
+ * 3. provide parameters (if required)
+ *
+ * <p>
+ * Example of use on a cross-component call:
+ * <pre>{@code
+ * public Effect<String> createUser(String userId, String email, String name) {
+ *   //validation here
+ *   var defCall = componentClient.forValueEntity(userId).call(UserEntity::createUser).params(email, name);
+ *   return effects().forward(defCall);
+ * }
+ * }</pre>
+ */
 public class ComponentClient {
 
   private final KalixClient kalixClient;
@@ -24,30 +40,63 @@ public class ComponentClient {
     this.kalixClient = kalixClient;
   }
 
+  /**
+   * Select Action as a call target component.
+   */
   public ActionCallBuilder forAction() {
     return new ActionCallBuilder(kalixClient);
   }
 
+  /**
+   * Select ValueEntity as a call target component.
+   * <p>
+   * For calling methods annotated with @{@link kalix.javasdk.annotations.GenerateEntityKey} or @{@link kalix.javasdk.annotations.GenerateId}
+   */
   public ValueEntityCallBuilder forValueEntity() {
     return new ValueEntityCallBuilder(kalixClient);
   }
 
-  public ValueEntityCallBuilder forValueEntity(String entityId) {
-    return new ValueEntityCallBuilder(kalixClient, entityId);
+  /**
+   * Select ValueEntity as a call target component.
+   *
+   * @param valueEntityId - value entity id used to create a call.
+   */
+  public ValueEntityCallBuilder forValueEntity(String valueEntityId) {
+    return new ValueEntityCallBuilder(kalixClient, valueEntityId);
   }
 
+  /**
+   * Select EventSourcedEntity as a call target component.
+   * <p>
+   * For calling methods annotated with @{@link kalix.javasdk.annotations.GenerateEntityKey} or @{@link kalix.javasdk.annotations.GenerateId}
+   */
   public EventSourcedEntityCallBuilder forEventSourcedEntity() {
     return new EventSourcedEntityCallBuilder(kalixClient);
   }
 
-  public EventSourcedEntityCallBuilder forEventSourcedEntity(String entityId) {
-    return new EventSourcedEntityCallBuilder(kalixClient, entityId);
+  /**
+   * Select EventSourcedEntity as a call target component.
+   *
+   * @param eventSourcedEntityId - event sourced entity id used to create a call.
+   */
+  public EventSourcedEntityCallBuilder forEventSourcedEntity(String eventSourcedEntityId) {
+    return new EventSourcedEntityCallBuilder(kalixClient, eventSourcedEntityId);
   }
 
+  /**
+   * Select Workflow as a call target component.
+   * <p>
+   * For calling methods annotated with @{@link kalix.javasdk.annotations.GenerateEntityKey} or @{@link kalix.javasdk.annotations.GenerateId}
+   */
   public WorkflowCallBuilder forWorkflow() {
     return new WorkflowCallBuilder(kalixClient);
   }
 
+  /**
+   * Select Workflow as a call target component.
+   *
+   * @param workflowId - workflow id used to create a call.
+   */
   public WorkflowCallBuilder forWorkflow(String workflowId) {
     return new WorkflowCallBuilder(kalixClient, workflowId);
   }
