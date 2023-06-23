@@ -19,9 +19,10 @@ package kalix.javasdk.impl
 import java.lang.reflect.AnnotatedElement
 import java.lang.reflect.Method
 import java.lang.reflect.ParameterizedType
+
 import scala.reflect.ClassTag
+
 import kalix.javasdk.action.Action
-import kalix.javasdk.annotations.EntityType
 import kalix.javasdk.annotations.Publish
 import kalix.javasdk.annotations.Query
 import kalix.javasdk.annotations.Subscribe
@@ -397,7 +398,7 @@ object Validations {
 
     val esSubscriptions: Map[String, Seq[Method]] = eventSourcedEntitySubscription(component) match {
       case Some(esEntity) =>
-        Map(esEntity.value().getAnnotation(classOf[EntityType]).value() -> methods.filter(updateMethodPredicate))
+        Map(ComponentDescriptorFactory.readTypeIdValue(esEntity.value()) -> methods.filter(updateMethodPredicate))
       case None =>
         methods
           .filter(hasEventSourcedEntitySubscription)

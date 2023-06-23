@@ -5,8 +5,8 @@ import com.example.shoppingcart.domain.ShoppingCart.LineItem;
 import com.example.shoppingcart.domain.ShoppingCartEvent;
 import kalix.javasdk.eventsourcedentity.EventSourcedEntity;
 import kalix.javasdk.eventsourcedentity.EventSourcedEntityContext;
-import kalix.javasdk.annotations.EntityKey;
-import kalix.javasdk.annotations.EntityType;
+import kalix.javasdk.annotations.Id;
+import kalix.javasdk.annotations.TypeId;
 import kalix.javasdk.annotations.EventHandler;
 import kalix.javasdk.annotations.GenerateEntityKey;
 import org.springframework.web.bind.annotation.*;
@@ -14,8 +14,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Collections;
 
 // tag::class[]
-@EntityKey("cartId") // <2>
-@EntityType("shopping-cart") // <3>
+@Id("cartId") // <2>
+@TypeId("shopping-cart") // <3>
 @RequestMapping("/cart/{cartId}") // <4>
 public class ShoppingCartEntity extends EventSourcedEntity<ShoppingCart, ShoppingCartEvent> { // <1>
   // end::class[]

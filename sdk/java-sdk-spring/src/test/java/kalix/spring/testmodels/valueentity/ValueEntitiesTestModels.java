@@ -18,8 +18,8 @@ package kalix.spring.testmodels.valueentity;
 
 import kalix.javasdk.valueentity.ValueEntity;
 import kalix.javasdk.annotations.Acl;
-import kalix.javasdk.annotations.EntityKey;
-import kalix.javasdk.annotations.EntityType;
+import kalix.javasdk.annotations.Id;
+import kalix.javasdk.annotations.TypeId;
 import kalix.spring.testmodels.Done;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -30,8 +30,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 public class ValueEntitiesTestModels {
 
-  @EntityKey( {"userId", "cartId"})
-  @EntityType("user")
+  @Id( {"userId", "cartId"})
+  @TypeId("user")
   @RequestMapping("/user/{userId}/{cartId}")
   public static class PostWithEntityKeys extends ValueEntity<User> {
     @Override
@@ -45,8 +45,8 @@ public class ValueEntitiesTestModels {
     }
   }
 
-  @EntityKey({"userId", "cartId"})
-  @EntityType("user")
+  @Id({"userId", "cartId"})
+  @TypeId("user")
   @RequestMapping()
   public static class GetWithQueryParams extends ValueEntity<User> {
     @Override
@@ -71,14 +71,14 @@ public class ValueEntitiesTestModels {
     }
   }
 
-  @EntityKey( {"userId", "cartId"})
-  @EntityType("user")
+  @Id( {"userId", "cartId"})
+  @TypeId("user")
   @Acl(allow = @Acl.Matcher(service = "test"))
   public static class ValueEntityWithServiceLevelAcl extends ValueEntity<User> {
   }
 
-  @EntityKey( {"userId", "cartId"})
-  @EntityType("user")
+  @Id( {"userId", "cartId"})
+  @TypeId("user")
   public static class ValueEntityWithMethodLevelAcl extends ValueEntity<User> {
     @PostMapping("/create")
     @Acl(allow = @Acl.Matcher(service = "test"))

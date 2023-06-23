@@ -17,15 +17,15 @@
 package kalix.spring.testmodels.valueentity;
 
 import kalix.javasdk.valueentity.ValueEntity;
-import kalix.javasdk.annotations.EntityKey;
-import kalix.javasdk.annotations.EntityType;
+import kalix.javasdk.annotations.Id;
+import kalix.javasdk.annotations.TypeId;
 import kalix.spring.testmodels.Done;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-@EntityType("assigned-counter")
-@EntityKey("counterId")
+@TypeId("assigned-counter")
+@Id("counterId")
 @RequestMapping("/assigned-counter")
 public class AssignedCounter extends ValueEntity<AssignedCounterState> {
 

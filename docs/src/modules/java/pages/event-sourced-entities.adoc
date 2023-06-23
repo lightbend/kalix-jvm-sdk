@@ -61,12 +61,12 @@ Let's have a look at what our shopping cart entity will look like for the first 
 include::example$java-spring-eventsourced-shopping-cart/src/main/java/com/example/shoppingcart/ShoppingCartEntity.java[tag=class]
 ----
 <1> Create a class that extends `EventSourcedEntity<S, E>`, where `S` is the state type this entity will store (i.e. `ShoppingCart`) and `E` is the top type for the events it emits (i.e. `ShoppingCartEvent`).
-<2> Annotate such class with `@EntityKey`  and pass the name of the key that will be used as the entity unique identifier.
-<3> Make sure to annotate such class with `@EntityType` and pass a unique name for this entity type.
+<2> Annotate such class with `@Id` and pass the name of the id that will be used as the entity instance unique identifier.
+<3> Make sure to annotate such class with `@TypeId` and pass a unique identifier for this entity type.
 <4> Use Spring's RequestMapping annotation to define the route to your entity.
 
 
-NOTE: The EntityKey `cartId` must match a path parameter (i.e. `cartId`) and such value needs to be unique per entity. On the other hand, the EntityType `shopping-cart` is common for all instances of this entity but must be stable - cannot be changed after a production deploy - and unique across the different entity types.
+NOTE: The `@Id` value `cartId` must match a path parameter (i.e. `cartId`) and such value needs to be unique per entity. On the other hand, the `@TypeId` value `shopping-cart` is common for all instances of this entity but must be stable - cannot be changed after a production deploy - and unique across the different entity types.
 
 === Updating state
 
@@ -145,6 +145,11 @@ Note that xref:views.adoc#ve_delete[deleting View state] must be handled explici
 
 == Testing the Entity
 
+include::partial$testing-entity.adoc[]
+
+
+=== Unit tests
+
 The following snippet shows how the `EventSourcedTestKit` is used to test the `ShoppingCartEntity` implementation. Kalix provides two main APIs for unit tests, the `EventSourcedTestKit` and the `EventSourcedResult`. The former gives us the overall state of the entity and all the events produced by all the calls to the Entity. While the latter only holds the effects produced for each individual call to the Entity.
 
 .src/test/java/com/example/shoppingcart/domain/ShoppingCartTest.java
@@ -177,3 +182,21 @@ For the above example, this class provides access to all the command handlers of
 
 * `getState()` - the current state of the entity, it is updated on each method call emitting events.
 * `getAllEvents()` - all events emitted since the creation of the testkit instance.
+
+
+=== Integration tests
+
+The skeleton of an Integration Test is generated for you if you use the archetype to start your Kalix app. Let's see what it could look like to test our Counter Entity:
+
+./src/it/java/com/example/IntegrationTest.java
+[source,java,indent=0]
+----
+include::example$java-spring-eventsourced-shopping-cart/src/it/java/com/example/IntegrationTest.java[tag=sample-it]
+----
+<1> Note the test class must extend `KalixIntegrationTestKitSupport`.
+<2> A built-in web-client is provided to interact with the components.
+<3> Request to create a new shopping cart with id `cart-abc`.
+<4> Request to add an item to the cart.
+<5> `GET` request to retrieve current status of the shopping cart and assert there should only be one item.
+
+NOTE: The integration tests are under in a specific project profile `it` and can be run using `mvn verify -Pit`.

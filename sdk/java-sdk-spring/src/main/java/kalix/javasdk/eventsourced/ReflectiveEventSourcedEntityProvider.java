@@ -17,18 +17,18 @@
 package kalix.javasdk.eventsourced;
 
 import com.google.protobuf.Descriptors;
+import kalix.javasdk.common.ForwardHeadersExtractor;
 import kalix.javasdk.eventsourcedentity.EventSourcedEntity;
 import kalix.javasdk.eventsourcedentity.EventSourcedEntityContext;
 import kalix.javasdk.eventsourcedentity.EventSourcedEntityOptions;
 import kalix.javasdk.eventsourcedentity.EventSourcedEntityProvider;
-import kalix.javasdk.impl.MessageCodec;
-import kalix.javasdk.impl.eventsourcedentity.EventSourcedEntityRouter;
-import kalix.javasdk.annotations.EntityType;
-import kalix.javasdk.common.ForwardHeadersExtractor;
 import kalix.javasdk.impl.ComponentDescriptor;
+import kalix.javasdk.impl.ComponentDescriptorFactory$;
 import kalix.javasdk.impl.JsonMessageCodec;
-import kalix.javasdk.impl.eventsourcedentity.EventSourcedHandlersExtractor;
+import kalix.javasdk.impl.MessageCodec;
 import kalix.javasdk.impl.eventsourcedentity.EventSourceEntityHandlers;
+import kalix.javasdk.impl.eventsourcedentity.EventSourcedEntityRouter;
+import kalix.javasdk.impl.eventsourcedentity.EventSourcedHandlersExtractor;
 import kalix.javasdk.impl.eventsourcedentity.ReflectiveEventSourcedEntityRouter;
 
 import java.util.Optional;
@@ -62,10 +62,10 @@ public class ReflectiveEventSourcedEntityProvider<S, E, ES extends EventSourcedE
       Function<EventSourcedEntityContext, ES> factory,
       EventSourcedEntityOptions options) {
 
-    EntityType annotation = entityClass.getAnnotation(EntityType.class);
-    if (annotation == null)
+    String typeId = ComponentDescriptorFactory$.MODULE$.readTypeIdValue(entityClass);
+    if (typeId == null)
       throw new IllegalArgumentException(
-          "Event Sourced Entity [" + entityClass.getName() + "] is missing '@EntityType' annotation");
+          "Event Sourced Entity [" + entityClass.getName() + "] is missing '@TypeId' annotation");
 
     this.eventHandlers = EventSourcedHandlersExtractor.handlersFrom(entityClass, messageCodec);
     if (this.eventHandlers.errors().nonEmpty()) {
@@ -76,7 +76,7 @@ public class ReflectiveEventSourcedEntityProvider<S, E, ES extends EventSourcedE
               + this.eventHandlers.errors());
     }
 
-    this.entityType = annotation.value();
+    this.entityType = typeId;
     this.factory = factory;
     this.options = options.withForwardHeaders(ForwardHeadersExtractor.extractFrom(entityClass));
     this.messageCodec = messageCodec;

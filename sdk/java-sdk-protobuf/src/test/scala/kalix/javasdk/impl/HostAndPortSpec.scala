@@ -45,7 +45,7 @@ class HostAndPortSpec extends AnyWordSpec with Matchers {
       List("", "-1", "-81", "65536", "123456", "1234567890")
         .foreach { port =>
           intercept[IllegalArgumentException] {
-            println(s">=> DEBUG: => ${HostAndPort.extract(port)}")
+            HostAndPort.extract(port)
           }
         }
     }

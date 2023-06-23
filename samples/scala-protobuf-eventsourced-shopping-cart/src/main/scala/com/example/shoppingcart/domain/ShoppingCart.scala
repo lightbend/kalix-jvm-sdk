@@ -60,7 +60,7 @@ class ShoppingCart(context: EventSourcedEntityContext) extends AbstractShoppingC
   }
 
   private def convertToApi(item: LineItem): shoppingcart.LineItem =
-    shoppingcart.LineItem(productId = item.productId, name = item.name)
+    shoppingcart.LineItem(productId = item.productId, name = item.name, quantity = item.quantity)
   // end::getCart[]
 
   // tag::checkout[]

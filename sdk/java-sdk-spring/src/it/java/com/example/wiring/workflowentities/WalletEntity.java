@@ -17,8 +17,8 @@
 package com.example.wiring.workflowentities;
 
 import kalix.javasdk.valueentity.ValueEntity;
-import kalix.javasdk.annotations.EntityKey;
-import kalix.javasdk.annotations.EntityType;
+import kalix.javasdk.annotations.Id;
+import kalix.javasdk.annotations.TypeId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,8 +27,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-@EntityKey("id")
-@EntityType("wallet")
+@Id("id")
+@TypeId("wallet")
 @RequestMapping("/wallet/{id}")
 public class WalletEntity extends ValueEntity<Wallet> {
 

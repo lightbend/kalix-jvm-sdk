@@ -1,7 +1,15 @@
 package com.example
 
 import com.example.actions.{Decreased, Increased}
+import kalix.scalasdk.CloudEvent
+
+import java.net.URI
+// tag::test-topic[]
 import kalix.scalasdk.testkit.{KalixTestKit, Message}
+import org.scalatest.BeforeAndAfterEach
+// ...
+// end::test-topic[]
+import org.scalatest.BeforeAndAfterEach
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.matchers.should.Matchers
@@ -17,20 +25,41 @@ import scala.language.postfixOps
 // As long as this file exists it will not be overwritten: you can maintain it yourself,
 // or delete it so it is regenerated as needed.
 
-class CounterServiceIntegrationSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll with ScalaFutures {
+// tag::test-topic[]
 
+class CounterServiceIntegrationSpec extends AnyWordSpec with Matchers with BeforeAndAfterEach with BeforeAndAfterAll with ScalaFutures {
+
+  // end::test-topic[]
   implicit private val patience: PatienceConfig =
     PatienceConfig(Span(5, Seconds), Span(500, Millis))
 
-  private val testKit = KalixTestKit(Main.createKalix()).start()
+  // tag::test-topic[]
+  private val testKit = KalixTestKit(Main.createKalix()).start() // <1>
+  // end::test-topic[]
 
   private val client = testKit.getGrpcClient(classOf[CounterService])
 
-  private val commandsTopic = testKit.getTopic("counter-commands")
-  private val eventsTopic = testKit.getTopic("counter-events")
+  // tag::test-topic[]
+  private val commandsTopic = testKit.getTopic("counter-commands") // <2>
+  private val eventsTopic = testKit.getTopic("counter-events") // <3>
+  // end::test-topic[]
+
+  private val eventsTopicWithMeta = testKit.getTopic("counter-events-with-meta")
+
+  // tag::clear-topics[]
+  override def beforeEach(): Unit = { // <1>
+    commandsTopic.clear() // <2>
+    eventsTopic.clear()
+    eventsTopicWithMeta.clear()
+  }
+  // end::clear-topics[]
+
+
+  // tag::test-topic[]
 
   "CounterService" must {
     val counterId = "xyz"
+    // end::test-topic[]
 
     "handle side effect that adds the initial input multiplied by two and verify publishing" in {
 
@@ -57,27 +86,50 @@ class CounterServiceIntegrationSpec extends AnyWordSpec with Matchers with Befor
       counter.value shouldBe 15
 
       // verify message published to topic
-      val msg: Message[Decreased] = eventsTopic.expectOneTyped
-      val Message(payload, md) = msg
-      payload shouldBe Decreased(15)
+      val Message(decEvent, md): Message[Decreased] = eventsTopic.expectOneTyped
+      decEvent shouldBe Decreased(15)
       md.get("ce-type") should contain(classOf[Decreased].getName)
       md.get("Content-Type") should contain("application/protobuf")
     }
 
-    "handle commands from topic and verify publishing" in {
-      commandsTopic.publish(IncreaseValue("abc", 4), "abc")
-      commandsTopic.publish(DecreaseValue("abc", 1), "abc")
+    // tag::test-topic[]
+    "handle commands from topic and publishing related events out" in {
+      commandsTopic.publish(IncreaseValue(counterId, 4), counterId) // <4>
+      commandsTopic.publish(DecreaseValue(counterId, 1), counterId)
 
-      val increaseEvent: Message[Increased] = eventsTopic.expectOneTyped
-      val decreaseEvent: Message[Decreased] = eventsTopic.expectOneTyped
-      increaseEvent.payload.value shouldBe 4
-      decreaseEvent.payload.value shouldBe 1
+      val Message(incEvent, _): Message[Increased] = eventsTopic.expectOneTyped // <5>
+      val Message(decEvent, _): Message[Decreased] = eventsTopic.expectOneTyped
+      incEvent shouldBe Increased(4) // <6>
+      decEvent shouldBe Decreased(1)
     }
+    // end::test-topic[]
 
+    // tag::test-topic-metadata[]
+    "allow passing and reading metadata for messages" in {
+      val increaseCmd = IncreaseValue(counterId, 4)
+      val md = CloudEvent( // <1>
+          id = "cmd1",
+          source = URI.create("CounterServiceIntegrationSpec"),
+          `type` = increaseCmd.companion.javaDescriptor.getFullName)
+        .withSubject(counterId) // <2>
+        .asMetadata
+        .add("Content-Type", "application/protobuf"); // <3>
+
+      commandsTopic.publish(Message(increaseCmd, md)) // <4>
+
+      val Message(incEvent, actualMd): Message[Increased] = eventsTopicWithMeta.expectOneTyped // <5>
+      incEvent shouldBe Increased(4)
+      actualMd.get("Content-Type") should contain("application/protobuf") // <6>
+      actualMd.asCloudEvent.subject should contain(counterId)
+    }
+    // end::test-topic-metadata[]
+    // tag::test-topic[]
   }
+
 
   override def afterAll(): Unit = {
     testKit.stop()
     super.afterAll()
   }
 }
+// end::test-topic[]

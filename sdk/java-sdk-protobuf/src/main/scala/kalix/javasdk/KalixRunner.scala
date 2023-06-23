@@ -50,8 +50,8 @@ import kalix.javasdk.impl.valueentity.ValueEntitiesImpl
 import kalix.javasdk.impl.valueentity.ValueEntityService
 import kalix.javasdk.impl.view.ViewService
 import kalix.javasdk.impl.view.ViewsImpl
-import kalix.javasdk.impl.workflowentity.WorkflowEntityImpl
-import kalix.javasdk.impl.workflowentity.WorkflowEntityService
+import kalix.javasdk.impl.workflow.WorkflowImpl
+import kalix.javasdk.impl.workflow.WorkflowService
 import kalix.protocol.action.ActionsHandler
 import kalix.protocol.discovery.DiscoveryHandler
 import kalix.protocol.event_sourced_entity.EventSourcedEntitiesHandler
@@ -196,9 +196,9 @@ final class KalixRunner private[javasdk] (
           val valueEntityImpl = new ValueEntitiesImpl(system, entityServices, configuration)
           route.orElse(ValueEntitiesHandler.partial(valueEntityImpl))
 
-        case (route, (serviceClass, workflowServices: Map[String, WorkflowEntityService] @unchecked))
-            if serviceClass == classOf[WorkflowEntityService] =>
-          val workflowImpl = new WorkflowEntityImpl(system, workflowServices)
+        case (route, (serviceClass, workflowServices: Map[String, WorkflowService] @unchecked))
+            if serviceClass == classOf[WorkflowService] =>
+          val workflowImpl = new WorkflowImpl(system, workflowServices)
           route.orElse(WorkflowEntitiesHandler.partial(workflowImpl))
 
         case (route, (serviceClass, actionServices: Map[String, ActionService] @unchecked))

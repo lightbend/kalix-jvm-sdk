@@ -17,7 +17,6 @@
 package kalix.javasdk.impl
 
 import kalix.KeyGeneratorMethodOptions.Generator
-import kalix.javasdk.annotations.GenerateEntityKey
 import kalix.javasdk.impl.ComponentDescriptorFactory.buildJWTOptions
 import kalix.javasdk.impl.reflection.EntityKeyExtractor.extractEntityKeys
 import kalix.javasdk.impl.reflection.KalixMethod

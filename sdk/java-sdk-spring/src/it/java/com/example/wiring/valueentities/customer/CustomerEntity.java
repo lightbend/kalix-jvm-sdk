@@ -16,11 +16,9 @@
 
 package com.example.wiring.valueentities.customer;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import kalix.javasdk.valueentity.ValueEntity;
-import kalix.javasdk.annotations.EntityKey;
-import kalix.javasdk.annotations.EntityType;
+import kalix.javasdk.annotations.Id;
+import kalix.javasdk.annotations.TypeId;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -28,8 +26,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.time.Instant;
 
-@EntityType("customer")
-@EntityKey("id")
+@TypeId("customer")
+@Id("id")
 @RequestMapping("/customers/{id}")
 public class CustomerEntity extends ValueEntity<CustomerEntity.Customer> {
 

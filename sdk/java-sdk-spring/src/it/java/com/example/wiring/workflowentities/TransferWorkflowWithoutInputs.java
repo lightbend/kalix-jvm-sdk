@@ -18,19 +18,18 @@ package com.example.wiring.workflowentities;
 
 import com.example.wiring.actions.echo.Message;
 import io.grpc.Status;
-import kalix.javasdk.annotations.EntityKey;
-import kalix.javasdk.annotations.EntityType;
-import kalix.javasdk.workflowentity.WorkflowEntity;
 import kalix.spring.ComponentClient;
-import kalix.spring.KalixClient;
+import kalix.javasdk.annotations.Id;
+import kalix.javasdk.annotations.TypeId;
+import kalix.javasdk.workflow.Workflow;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-@EntityType("transfer-workflow-without-inputs")
-@EntityKey("transferId")
+@Id("transferId")
+@TypeId("transfer-workflow-without-inputs")
 @RequestMapping("/transfer-without-inputs/{transferId}")
-public class TransferWorkflowWithoutInputs extends WorkflowEntity<TransferState> {
+public class TransferWorkflowWithoutInputs extends Workflow<TransferState> {
 
   private final String withdrawStepName = "withdraw";
   private final String withdrawAsyncStepName = "withdraw-async";
@@ -44,7 +43,7 @@ public class TransferWorkflowWithoutInputs extends WorkflowEntity<TransferState>
   }
 
   @Override
-  public Workflow<TransferState> definition() {
+  public WorkflowDef<TransferState> definition() {
     var withdraw =
         step(withdrawStepName)
             .call(() -> {

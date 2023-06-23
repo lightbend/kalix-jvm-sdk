@@ -93,7 +93,7 @@ If you don't add `ignoreUnknown=true`, the action would fail when processing a `
 
 Another possible usage for Actions is to consume events and act upon.
 
-For example, you may consume events from one entity or from a topic, transform to commands and send to an another entity or an external system. This is similar to the usage explained in xref:actions-as-controller.adoc[Actions as Controller], except that the Action is driven by the flow of incoming events instead of external user requests.
+For example, you may consume events from one entity or from a topic, transform to commands and send to another entity or an external system. This is similar to the usage explained in xref:actions-as-controller.adoc[Actions as Controller], except that the Action is driven by the flow of incoming events instead of external user requests.
 
 
 
@@ -104,4 +104,66 @@ For many use cases, a subscriber to an event log will trigger other services and
 You can access the link:{attachmentsdir}/api/kalix/javasdk/action/ActionContext.html[`ActionContext`{tab-icon}, window="new"] through method `actionContext()`.
 
 
+== Deployment dependent topic names
 
+It is possible to use environment variables to control the name of the topic that is used for consuming from or producing events to, this is useful for example for using the same image in staging and production deployments but having them interact with separate topics.
+
+Referencing environment variables is done with the syntax `$\{VAR_NAME}` in the `topic` string in `eventing.in.topic` or `eventing.out.topic` blocks. See https://docs.kalix.io/kalix/kalix_services_deploy.html[kalix service deploy] for details on how to set environment variables when deploying a service.
+
+WARNING: Changing the `topic` name after it has once been deployed for an event consumer means the consumer will start over from the beginning of the topic.
+
+
+== Testing the Integration
+
+include::java:partial$eventing-testkit-intro.adoc[leveloffset=1]
+
+[source,java]
+.src/it/java/com/example/CounterIntegrationTest.java
+----
+include::example$java-spring-eventsourced-counter/src/it/java/com/example/CounterIntegrationTest.java[tags=class;test-topic]
+----
+<1> Start the TestKit, booting up both the service and its proxy.
+<2> Wire the Kalix TestKit automatically.
+<3> Get a mocked topic named `counter-commands` and another one named `counter-events` from the TestKit.
+<4> Build 2 commands and publish both to the topic. Note the `counterId` is passed as the subject id of the message.
+<5> Read 2 messages, one at a time. Note we pass in the expected class type for the next message.
+<6> Assert the received messages have the same value as the commands sent.
+
+TIP: In the example above we take advantage of the TestKit to serialize / deserialize the messages and pass all the required metadata automatically for us. However, the API also offers the possibility to read and write raw bytes, construct your metadata or read multiple messages at once.
+
+==== Metadata
+
+Typically, messages are published with associated metadata. If you want to construct your own `Metadata` to be consumed by a service or make sure the messages published out of your service have specific metadata attached, you can do so using the TestKit, as shown below.
+
+[source,java,indent=0]
+.src/it/java/com/example/CounterTopicIntegrationTest.java
+----
+include::example$java-spring-eventsourced-counter/src/it/java/com/example/CounterIntegrationTest.java[tag=test-topic-metadata]
+----
+<1> Build a `CloudEvent` object with the 3 required attributes, respectively: `id`, `source` and `type`.
+<2> Add the subject to which the message is related, that is the `counterId`.
+<3> Set the mandatory header "Content-Type" accordingly.
+<4> Publish the message along with its metadata to topic `commandsTopic`.
+<5> Upon receiving the message, access the metadata.
+<6> Assert the headers `Content-Type` and `ce-subject` (every CloudEvent header is prefixed with "ce-") have the expected values.
+
+
+==== One Suite, Multiple Tests
+
+When running multiple test cases under the same test suite and thus using a common TestKit instance, you might face some issues if unconsumed messages from previous tests mess up with the current one. To avoid this, be sure to:
+
+- have the tests run in sequence, not in parallel;
+- clear the contents of the topics in use before the test.
+
+As an alternative, you can consider using different test suites which will use independent TestKit instances.
+
+
+[source,java,indent=0]
+.src/it/java/com/example/CounterTopicIntegrationTest.java
+----
+include::example$java-spring-eventsourced-counter/src/it/java/com/example/CounterIntegrationTest.java[tag=clear-topics]
+----
+<1> Run this before each test.
+<2> Clear the topic ignoring any unread messages.
+
+NOTE: Despite the example, you are neither forced to clear all topics nor to do it before each test. You can do it selectively, or you might not even need it depending on your tests and the flows they test.

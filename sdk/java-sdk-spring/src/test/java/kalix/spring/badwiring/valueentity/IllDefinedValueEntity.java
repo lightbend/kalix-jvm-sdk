@@ -17,11 +17,11 @@
 package kalix.spring.badwiring.valueentity;
 
 import kalix.javasdk.valueentity.ValueEntity;
-import kalix.javasdk.annotations.EntityKey;
-import kalix.javasdk.annotations.EntityType;
+import kalix.javasdk.annotations.Id;
+import kalix.javasdk.annotations.TypeId;
 import org.springframework.stereotype.Component;
 
-@EntityKey("id")
-@EntityType("test")
+@Id("id")
+@TypeId("test")
 @Component
 public class IllDefinedValueEntity extends ValueEntity<String> {}

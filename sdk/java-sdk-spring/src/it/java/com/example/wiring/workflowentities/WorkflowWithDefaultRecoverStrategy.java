@@ -17,9 +17,9 @@
 package com.example.wiring.workflowentities;
 
 import com.example.wiring.actions.echo.Message;
-import kalix.javasdk.annotations.EntityKey;
-import kalix.javasdk.annotations.EntityType;
-import kalix.javasdk.workflowentity.WorkflowEntity;
+import kalix.javasdk.annotations.Id;
+import kalix.javasdk.annotations.TypeId;
+import kalix.javasdk.workflow.Workflow;
 import kalix.spring.ComponentClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -29,12 +29,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import java.util.concurrent.CompletableFuture;
 
 import static java.time.Duration.ofSeconds;
-import static kalix.javasdk.workflowentity.WorkflowEntity.RecoverStrategy.maxRetries;
+import static kalix.javasdk.workflow.Workflow.RecoverStrategy.maxRetries;
 
-@EntityType("workflow-with-default-recover-strategy")
-@EntityKey("workflowId")
+@Id("workflowId")
+@TypeId("workflow-with-default-recover-strategy")
 @RequestMapping("/workflow-with-default-recover-strategy/{workflowId}")
-public class WorkflowWithDefaultRecoverStrategy extends WorkflowEntity<FailingCounterState> {
+public class WorkflowWithDefaultRecoverStrategy extends Workflow<FailingCounterState> {
 
   private final String counterStepName = "counter";
   private final String counterFailoverStepName = "counter-failover";
@@ -46,7 +46,7 @@ public class WorkflowWithDefaultRecoverStrategy extends WorkflowEntity<FailingCo
   }
 
   @Override
-  public Workflow<FailingCounterState> definition() {
+  public WorkflowDef<FailingCounterState> definition() {
     var counterInc =
         step(counterStepName)
             .call(() -> {

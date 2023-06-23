@@ -3,16 +3,16 @@ package store.product.api;
 import store.product.domain.Money;
 import store.product.domain.Product;
 import kalix.javasdk.eventsourcedentity.EventSourcedEntity;
-import kalix.javasdk.annotations.EntityKey;
-import kalix.javasdk.annotations.EntityType;
+import kalix.javasdk.annotations.Id;
+import kalix.javasdk.annotations.TypeId;
 import kalix.javasdk.annotations.EventHandler;
 import org.springframework.web.bind.annotation.*;
 import store.product.domain.ProductEvent;
 
 import static store.product.domain.ProductEvent.*;
 
-@EntityType("product")
-@EntityKey("id")
+@TypeId("product")
+@Id("id")
 @RequestMapping("/product/{id}")
 public class ProductEntity extends EventSourcedEntity<Product, ProductEvent> {
 

@@ -17,10 +17,13 @@
 package kalix.javasdk.impl
 
 import java.lang.annotation.Annotation
+import java.lang.reflect.AnnotatedElement
 import java.lang.reflect.Method
 import java.lang.reflect.Modifier
 import java.lang.reflect.ParameterizedType
+
 import scala.reflect.ClassTag
+
 import kalix.DirectDestination
 import kalix.DirectSource
 import kalix.EventDestination
@@ -38,6 +41,7 @@ import kalix.javasdk.annotations.Acl
 import kalix.javasdk.annotations.EntityType
 import kalix.javasdk.annotations.JWT
 import kalix.javasdk.annotations.Table
+import kalix.javasdk.annotations.TypeId
 import kalix.javasdk.annotations.ViewId
 import kalix.javasdk.eventsourcedentity.EventSourcedEntity
 import kalix.javasdk.impl.reflection.CombinedSubscriptionServiceMethod
@@ -160,10 +164,17 @@ private[impl] object ComponentDescriptorFactory {
   def hasJwtMethodOptions(javaMethod: Method): Boolean =
     javaMethod.isPublic && javaMethod.hasAnnotation[JWT]
 
+  def readTypeIdValue(annotated: AnnotatedElement) =
+    Option(annotated.getAnnotation(classOf[TypeId]))
+      .map(_.value())
+      .getOrElse {
+        // assuming that if TypeId is not in use, EntityType will
+        annotated.getAnnotation(classOf[EntityType]).value()
+      }
+
   def findEventSourcedEntityType(javaMethod: Method): String = {
     val ann = javaMethod.getAnnotation(classOf[Subscribe.EventSourcedEntity])
-    val entityClass = ann.value()
-    entityClass.getAnnotation(classOf[EntityType]).value()
+    readTypeIdValue(ann.value())
   }
 
   def findEventSourcedEntityClass(javaMethod: Method): Class[_ <: EventSourcedEntity[_, _]] = {
@@ -190,20 +201,17 @@ private[impl] object ComponentDescriptorFactory {
 
   def findEventSourcedEntityType(clazz: Class[_]): String = {
     val ann = clazz.getAnnotation(classOf[Subscribe.EventSourcedEntity])
-    val entityClass = ann.value()
-    entityClass.getAnnotation(classOf[EntityType]).value()
+    readTypeIdValue(ann.value())
   }
 
   def findValueEntityType(javaMethod: Method): String = {
     val ann = javaMethod.getAnnotation(classOf[Subscribe.ValueEntity])
-    val entityClass = ann.value()
-    entityClass.getAnnotation(classOf[EntityType]).value()
+    readTypeIdValue(ann.value())
   }
 
   def findValueEntityType(component: Class[_]): String = {
     val ann = component.getAnnotation(classOf[Subscribe.ValueEntity])
-    val entityClass = ann.value()
-    entityClass.getAnnotation(classOf[EntityType]).value()
+    readTypeIdValue(ann.value())
   }
 
   def findHandleDeletes(javaMethod: Method): Boolean = {
@@ -414,9 +422,9 @@ private[impl] object ComponentDescriptorFactory {
 
   // TODO: add more validations here
   // we should let users know if components are missing required annotations,
-  // eg: entities require @EntityType, view require @Table and @Subscription
+  // eg: Workflow and Entities require @TypeId, View requires @Table and @Subscription
   def getFactoryFor(component: Class[_]): ComponentDescriptorFactory = {
-    if (component.getAnnotation(classOf[EntityType]) != null)
+    if (component.getAnnotation(classOf[TypeId]) != null || component.getAnnotation(classOf[EntityType]) != null)
       EntityDescriptorFactory
     else if (component.getAnnotation(classOf[Table]) != null || component.getAnnotation(classOf[ViewId]) != null)
       ViewDescriptorFactory

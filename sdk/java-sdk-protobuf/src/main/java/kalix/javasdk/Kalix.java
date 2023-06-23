@@ -38,8 +38,8 @@ import kalix.javasdk.impl.replicatedentity.ResolvedReplicatedEntityFactory;
 import kalix.javasdk.impl.valueentity.ResolvedValueEntityFactory;
 import kalix.javasdk.impl.valueentity.ValueEntityService;
 import kalix.javasdk.impl.view.ViewService;
-import kalix.javasdk.impl.workflowentity.ResolvedWorkflowEntityFactory;
-import kalix.javasdk.impl.workflowentity.WorkflowEntityService;
+import kalix.javasdk.impl.workflow.ResolvedWorkflowFactory;
+import kalix.javasdk.impl.workflow.WorkflowService;
 import kalix.javasdk.replicatedentity.ReplicatedEntity;
 import kalix.javasdk.replicatedentity.ReplicatedEntityOptions;
 import kalix.javasdk.replicatedentity.ReplicatedEntityProvider;
@@ -48,9 +48,9 @@ import kalix.javasdk.valueentity.ValueEntityOptions;
 import kalix.javasdk.valueentity.ValueEntityProvider;
 import kalix.javasdk.view.ViewOptions;
 import kalix.javasdk.view.ViewProvider;
-import kalix.javasdk.workflowentity.WorkflowEntity;
-import kalix.javasdk.workflowentity.WorkflowEntityOptions;
-import kalix.javasdk.workflowentity.WorkflowEntityProvider;
+import kalix.javasdk.workflow.Workflow;
+import kalix.javasdk.workflow.WorkflowOptions;
+import kalix.javasdk.workflow.WorkflowProvider;
 import kalix.replicatedentity.ReplicatedData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -137,19 +137,19 @@ public final class Kalix {
 
 
     public Kalix registerWorkflow(
-      WorkflowEntityFactory factory,
+      WorkflowFactory factory,
       Descriptors.ServiceDescriptor descriptor,
       String workflowName,
-      WorkflowEntityOptions workflowEntityOptions,
+      WorkflowOptions workflowOptions,
       Descriptors.FileDescriptor... additionalDescriptors) {
 
       AnySupport anySupport = newAnySupport(additionalDescriptors);
-      WorkflowEntityFactory resolvedFactory =
-        new ResolvedWorkflowEntityFactory(factory, anySupport.resolveServiceDescriptor(descriptor));
+      WorkflowFactory resolvedFactory =
+        new ResolvedWorkflowFactory(factory, anySupport.resolveServiceDescriptor(descriptor));
 
       return registerWorkflow(descriptor,
         workflowName,
-        workflowEntityOptions,
+        workflowOptions,
         anySupport,
         resolvedFactory,
         additionalDescriptors
@@ -160,21 +160,21 @@ public final class Kalix {
     public Kalix registerWorkflow(
       Descriptors.ServiceDescriptor descriptor,
       String workflowName,
-      WorkflowEntityOptions workflowEntityOptions,
+      WorkflowOptions workflowOptions,
       MessageCodec messageCodec,
-      WorkflowEntityFactory resolvedFactory,
+      WorkflowFactory resolvedFactory,
       Descriptors.FileDescriptor[] additionalDescriptors) {
 
       services.put(
         descriptor.getFullName(),
         system ->
-          new WorkflowEntityService(
+          new WorkflowService(
             resolvedFactory,
             descriptor,
             additionalDescriptors,
             messageCodec,
             workflowName,
-            workflowEntityOptions
+            workflowOptions
           )
       );
 
@@ -508,7 +508,7 @@ public final class Kalix {
   }
 
 
-  public <S, W extends WorkflowEntity<S>> Kalix register(WorkflowEntityProvider<S, W> provider) {
+  public <S, W extends Workflow<S>> Kalix register(WorkflowProvider<S, W> provider) {
     return provider
       .alternativeCodec()
       .map(

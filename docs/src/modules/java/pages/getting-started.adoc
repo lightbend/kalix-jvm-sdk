@@ -62,12 +62,12 @@ that receives commands to increase the counter.
 ----
 include::example$java-spring-valueentity-counter/src/main/java/com/example/CounterEntity.java[tags=declarations;increase;close]
 ----
-<1> Every Entity must be annotated with `@EntityType` with a stable name. This name should be unique among the different existing entities within a Kalix application.
-<2> The `@EntityKey` value should be unique per entity and map to some field being received on the route path, in this example it's the `counter_id`.
+<1> Every Entity must be annotated with `@TypeId` with a stable identifier. This identifier should be unique among the different existing entities within a Kalix application.
+<2> The `@Id` value should be unique per entity and map to some field being received on the route path, in this example it's the `counter_id`.
 <3> The `CounterEntity` class should extend `kalix.javasdk.valueentity.ValueEntity`.
 <4> The initial state of each counter is defined as 0.
 <5> The method is accessible as a POST endpoint on `/counter/\{counter_id\}/increase`, where `counter_id` will be its unique identifier.
-Note that it matches the `entityKey` value.
+Note that it matches the `@Id` value.
 <6> Its `increaseBy` method receives a `Number` as input and increases the counter by adding it to the current state.
 <7> Finally, using the Effect API, we instruct Kalix to persist the new state, and we build a reply.
 

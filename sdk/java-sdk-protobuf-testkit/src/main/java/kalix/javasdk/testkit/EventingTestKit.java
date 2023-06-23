@@ -114,7 +114,7 @@ public interface EventingTestKit {
      * @return a Message of type T
      * @param <T> a given domain type
      */
-    <T extends GeneratedMessageV3> Message<T> expectOneTyped(Class<T> instance);
+    <T> Message<T> expectOneTyped(Class<T> instance);
 
     /**
      * Waits and returns the next unread message on this topic and automatically parses
@@ -125,7 +125,7 @@ public interface EventingTestKit {
      * @param timeout amount of time to wait for a message if it was not received already
      * @return message including ByteString payload and metadata
      */
-    <T extends GeneratedMessageV3> Message<T> expectOneTyped(Class<T> instance, Duration timeout);
+    <T> Message<T> expectOneTyped(Class<T> instance, Duration timeout);
 
     /**
      * Waits for a default amount of time before returning all unread messages in the topic.
@@ -169,7 +169,6 @@ public interface EventingTestKit {
      */
     void publish(ByteString message);
 
-
     /**
      * Simulate the publishing of a raw message to this topic for the purposes
      * of testing eventing.in flows into a specific service.
@@ -185,7 +184,7 @@ public interface EventingTestKit {
      *
      * @param message to be published in the topic
      */
-    <T extends GeneratedMessageV3> void publish(Message<T> message);
+    void publish(Message<?> message);
 
     /**
      * Simulate the publishing of a message to this topic for the purposes
@@ -195,7 +194,7 @@ public interface EventingTestKit {
      * @param subject to identify the entity
      * @param <T>
      */
-    <T extends GeneratedMessageV3> void publish(T message, String subject);
+    <T> void publish(T message, String subject);
 
     /**
      * Publish multiple messages to this topic for the purposes
@@ -204,7 +203,7 @@ public interface EventingTestKit {
      * @param messages to be published in the topic
      * @param <T>
      */
-    <T extends GeneratedMessageV3> void publish(List<Message<T>> messages);
+    void publish(List<Message<?>> messages);
 
   }
 
@@ -222,7 +221,7 @@ public interface EventingTestKit {
      * @return a typed object from the payload
      * @param <T> the type of the payload
      */
-    <T extends GeneratedMessageV3> T expectType(Class<T> clazz);
+    <T> T expectType(Class<T> clazz);
 
     /**
      * Create a message from a payload plus a subject (that is, the entity key).
@@ -233,7 +232,7 @@ public interface EventingTestKit {
      * @return a Message object to be used in the context of the Testkit
      * @param <T>
      */
-    static <T extends GeneratedMessageV3> Message<T> of(T payload, String subject) {
+    static <T> Message<T> of(T payload, String subject) {
       return new TestKitMessageImpl<>(payload, TestKitMessageImpl.defaultMetadata(payload, subject));
     }
 
@@ -245,7 +244,7 @@ public interface EventingTestKit {
      * @return a Message object to be used in the context of the Testkit
      * @param <T>
      */
-    static <T extends GeneratedMessageV3> Message<T> of(T payload, Metadata metadata) {
+    static <T> Message<T> of(T payload, Metadata metadata) {
       return new TestKitMessageImpl<>(payload, metadata);
     }
   }

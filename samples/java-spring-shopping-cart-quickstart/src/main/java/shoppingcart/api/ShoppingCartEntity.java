@@ -4,8 +4,8 @@ package shoppingcart.api;
 // tag::class[]
 
 import kalix.javasdk.EntityContext;
-import kalix.javasdk.annotations.EntityKey;
-import kalix.javasdk.annotations.EntityType;
+import kalix.javasdk.annotations.Id;
+import kalix.javasdk.annotations.TypeId;
 import kalix.javasdk.annotations.EventHandler;
 import kalix.javasdk.eventsourcedentity.EventSourcedEntity;
 import kalix.javasdk.eventsourcedentity.EventSourcedEntityContext;
@@ -17,8 +17,8 @@ import shoppingcart.domain.ShoppingCart.Event.ItemRemoved;
 
 import java.util.ArrayList;
 
-@EntityType("shopping-cart") // <1>
-@EntityKey("cartId") // <2>
+@TypeId("shopping-cart") // <1>
+@Id("cartId") // <2>
 @RequestMapping("/cart/{cartId}") // <3>
 public class ShoppingCartEntity
   extends EventSourcedEntity<ShoppingCart, ShoppingCart.Event> { // <4>

@@ -21,8 +21,8 @@ import com.example.domain.ShoppingCart;
 import io.grpc.Status;
 import kalix.javasdk.valueentity.ValueEntity;
 import kalix.javasdk.valueentity.ValueEntityContext;
-import kalix.javasdk.annotations.EntityKey;
-import kalix.javasdk.annotations.EntityType;
+import kalix.javasdk.annotations.Id;
+import kalix.javasdk.annotations.TypeId;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Instant;
@@ -31,8 +31,8 @@ import java.time.Instant;
  * A value entity.
  */
 // tag::summary[]
-@EntityKey("cartId")
-@EntityType("shopping-cart")
+@Id("cartId")
+@TypeId("shopping-cart")
 @RequestMapping("/cart/{cartId}") // <1>
 public class ShoppingCartEntity extends ValueEntity<ShoppingCart> {
   // end::summary[]

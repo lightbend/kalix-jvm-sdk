@@ -1,28 +1,75 @@
 package com.example;
 
+import com.example.actions.CounterCommandFromTopicAction;
+import kalix.javasdk.CloudEvent;
+// tag::test-topic[]
+import kalix.javasdk.testkit.EventingTestKit;
+import kalix.javasdk.testkit.KalixTestKit;
 import kalix.spring.testkit.KalixIntegrationTestKitSupport;
+// ...
 
+// end::test-topic[]
+
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Import;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import java.net.URI;
 import java.time.Duration;
 
 import static java.time.temporal.ChronoUnit.SECONDS;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 // tag::class[]
 @SpringBootTest(classes = Main.class)
-@Import(TestkitConfig.class)  // <1>
-public class CounterIntegrationTest extends KalixIntegrationTestKitSupport {
+@Import(TestkitConfig.class)
+public class CounterIntegrationTest extends KalixIntegrationTestKitSupport { // <1>
+
 // end::class[]
 
+    private Duration timeout = Duration.of(10, SECONDS);
 
     @Autowired
     private WebClient webClient;
 
-    private Duration timeout = Duration.of(10, SECONDS);
+    // tag::test-topic[]
+    @Autowired
+    private KalixTestKit kalixTestKit; // <2>
+    private EventingTestKit.Topic commandsTopic;
+    private EventingTestKit.Topic eventsTopic;
+    // end::test-topic[]
+
+    private EventingTestKit.Topic eventsTopicWithMeta;
+
+    // tag::test-topic[]
+
+    @BeforeAll
+    public void beforeAll() {
+        commandsTopic = kalixTestKit.getTopic("counter-commands"); // <3>
+        eventsTopic = kalixTestKit.getTopic("counter-events");
+        // end::test-topic[]
+
+        eventsTopicWithMeta = kalixTestKit.getTopic("counter-events-with-meta");
+        // tag::test-topic[]
+    }
+    // end::test-topic[]
+
+    // since multiple tests are using the same topics, make sure to reset them before each new test
+    // so unread messages from previous tests do not mess with the current one
+    // tag::clear-topics[]
+    @BeforeEach // <1>
+    public void clearTopics() {
+        commandsTopic.clear(); // <2>
+        eventsTopic.clear();
+        eventsTopicWithMeta.clear();
+    }
+    // end::clear-topics[]
+
 
     @Test
     public void verifyCounterEventSourcedWiring() {
@@ -52,6 +99,48 @@ public class CounterIntegrationTest extends KalixIntegrationTestKitSupport {
 
         Assertions.assertEquals("\"200\"", counterGet);
     }
+
+    // tag::test-topic[]
+
+    @Test
+    public void verifyCounterEventSourcedPublishToTopic() {
+        var counterId = "test-topic";
+        var increaseCmd = new CounterCommandFromTopicAction.IncreaseCounter(counterId, 3);
+        var multipleCmd = new CounterCommandFromTopicAction.MultiplyCounter(counterId, 4);
+
+        commandsTopic.publish(increaseCmd, counterId); // <4>
+        commandsTopic.publish(multipleCmd, counterId);
+
+        var eventIncreased = eventsTopic.expectOneTyped(CounterEvent.ValueIncreased.class); // <5>
+        var eventMultiplied = eventsTopic.expectOneTyped(CounterEvent.ValueMultiplied.class);
+
+        assertEquals(increaseCmd.value(), eventIncreased.getPayload().value()); // <6>
+        assertEquals(multipleCmd.value(), eventMultiplied.getPayload().value());
+    }
+    // end::test-topic[]
+
+    // tag::test-topic-metadata[]
+    @Test
+    public void verifyCounterCommandsAndPublishWithMetadata() {
+        var counterId = "test-topic-metadata";
+        var increaseCmd = new CounterCommandFromTopicAction.IncreaseCounter(counterId, 10);
+
+        var metadata = CloudEvent.of( // <1>
+                "cmd1",
+                URI.create("CounterTopicIntegrationTest"),
+                increaseCmd.getClass().getName())
+            .withSubject(counterId) // <2>
+            .asMetadata()
+            .add("Content-Type", "application/json"); // <3>
+
+        commandsTopic.publish(EventingTestKit.Message.of(increaseCmd, metadata)); // <4>
+
+        var increasedEvent = eventsTopicWithMeta.expectOneTyped(CounterCommandFromTopicAction.IncreaseCounter.class);
+        var actualMd = increasedEvent.getMetadata(); // <5>
+        assertEquals(counterId, actualMd.asCloudEvent().subject().get()); // <6>
+        assertEquals("application/json", actualMd.get("Content-Type").get());
+    }
+    // end::test-topic-metadata[]
 // tag::class[]
 }
 // end::class[]

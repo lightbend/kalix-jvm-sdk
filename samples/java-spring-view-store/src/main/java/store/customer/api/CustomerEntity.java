@@ -3,16 +3,16 @@ package store.customer.api;
 import store.customer.domain.Address;
 import store.customer.domain.Customer;
 import kalix.javasdk.eventsourcedentity.EventSourcedEntity;
-import kalix.javasdk.annotations.EntityKey;
-import kalix.javasdk.annotations.EntityType;
+import kalix.javasdk.annotations.Id;
+import kalix.javasdk.annotations.TypeId;
 import kalix.javasdk.annotations.EventHandler;
 import org.springframework.web.bind.annotation.*;
 import store.customer.domain.CustomerEvent;
 
 import static store.customer.domain.CustomerEvent.*;
 
-@EntityType("customer")
-@EntityKey("id")
+@TypeId("customer")
+@Id("id")
 @RequestMapping("/customer/{id}")
 public class CustomerEntity extends EventSourcedEntity<Customer, CustomerEvent> {
 
