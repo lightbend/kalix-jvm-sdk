@@ -29,13 +29,13 @@ import kalix.spring.testmodels.workflow.WorkflowTestModels.WorkflowWithKeyOverri
 import kalix.spring.testmodels.workflow.WorkflowTestModels.WorkflowWithMethodLevelAcl
 import kalix.spring.testmodels.workflow.WorkflowTestModels.WorkflowWithMethodLevelKey
 import kalix.spring.testmodels.workflow.WorkflowTestModels.WorkflowWithTypeLevelKey
-import kalix.spring.testmodels.workflow.WorkflowTestModels.WorkflowWithoutIdGeneratorAndEntityKey
+import kalix.spring.testmodels.workflow.WorkflowTestModels.WorkflowWithoutIdGeneratorAndId
 import org.scalatest.wordspec.AnyWordSpec
 
 class WorkflowEntityDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSuite {
 
   "Workflow descriptor factory" should {
-    "generate mappings for a Workflow with entity keys in path" in {
+    "generate mappings for a Workflow with entity ids in path" in {
       assertDescriptor[WorkflowWithTypeLevelKey] { desc =>
         val method = desc.commandHandlers("StartTransfer")
         val fieldKey = "transferId"
@@ -55,7 +55,7 @@ class WorkflowEntityDescriptorFactorySpec extends AnyWordSpec with ComponentDesc
       }
     }
 
-    "generate mappings for a Workflow with EntityKey on method overrides EntityKey on type" in {
+    "generate mappings for a Workflow with Id on method overrides EntityKey on type" in {
       assertDescriptor[WorkflowWithKeyOverridden] { desc =>
         val method = desc.commandHandlers("StartTransfer")
         val fieldKey = "transferId"
@@ -65,15 +65,15 @@ class WorkflowEntityDescriptorFactorySpec extends AnyWordSpec with ComponentDesc
       }
     }
 
-    "fail if mix EntityKey and GenerateEntityKey on method" in {
+    "fail if mix Id and GenerateId on method" in {
       intercept[ServiceIntrospectionException] {
         descriptorFor[WorkflowWithIllDefinedIdGenerator]
       }.getMessage should include("Invalid annotation usage. Found both @Id and @GenerateId annotations.")
     }
 
-    "fail if no EntityKey nor GenerateEntityKey is defined" in {
+    "fail if no Id nor GenerateId is defined" in {
       intercept[ServiceIntrospectionException] {
-        descriptorFor[WorkflowWithoutIdGeneratorAndEntityKey]
+        descriptorFor[WorkflowWithoutIdGeneratorAndId]
       }.getMessage should include("Invalid command method. No @Id nor @GenerateId annotations found.")
     }
 

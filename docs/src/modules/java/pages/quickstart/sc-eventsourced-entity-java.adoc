@@ -47,8 +47,8 @@ Create a class named `ShoppingCartEntity` in package `shoppingcart.api`.
 include::example$java-spring-shopping-cart-quickstart/src/main/java/shoppingcart/api/ShoppingCartEntity.java[tag=class]
 ----
 <1> Each Entity needs a unique logical type name. This must be unique per Kalix service.
-<2> The entity needs to be addressed by a unique identifier. The `@EntityKey` declares the name of the path variable that Kalix should use as unique identifier.
-<3> The `@RequestMapping` defines the base path to access the entity. Note that the `\{cartId\}` matches the value of `@EntityKey`.
+<2> The entity needs to be addressed by a unique identifier. The `@Id` declares the name of the path variable that Kalix should use as unique identifier.
+<3> The `@RequestMapping` defines the base path to access the entity. Note that the `\{cartId\}` matches the value of `@Id`.
 <4> `ShoppingCartEntity` must inherit from `kalix.javasdk.eventsourcedentity.EventSourcedEntity`.
 <5> The `emptyState` method returns the initial state of the shopping cart.
 <6> External API methods are be exposed as a REST endpoint using Spring's REST annotations.

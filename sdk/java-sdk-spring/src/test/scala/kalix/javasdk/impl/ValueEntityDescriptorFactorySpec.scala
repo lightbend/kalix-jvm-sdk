@@ -19,7 +19,7 @@ package kalix.javasdk.impl
 import com.google.protobuf.Any
 import com.google.protobuf.Descriptors.FieldDescriptor.JavaType
 import kalix.spring.testmodels.valueentity.ValueEntitiesTestModels.GetWithQueryParams
-import kalix.spring.testmodels.valueentity.ValueEntitiesTestModels.PostWithEntityKeys
+import kalix.spring.testmodels.valueentity.ValueEntitiesTestModels.PostWithIds
 import kalix.spring.testmodels.valueentity.ValueEntitiesTestModels.ValueEntityWithMethodLevelAcl
 import kalix.spring.testmodels.valueentity.ValueEntitiesTestModels.ValueEntityWithServiceLevelAcl
 import org.scalatest.wordspec.AnyWordSpec
@@ -27,8 +27,8 @@ import org.scalatest.wordspec.AnyWordSpec
 class ValueEntityDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSuite {
 
   "ValueEntity descriptor factory" should {
-    "generate mappings for a Value Entity with entity keys in path" in {
-      assertDescriptor[PostWithEntityKeys] { desc =>
+    "generate mappings for a Value Entity with entity ids in path" in {
+      assertDescriptor[PostWithIds] { desc =>
         val method = desc.commandHandlers("CreateEntity")
         assertRequestFieldJavaType(method, "json_body", JavaType.MESSAGE)
         assertRequestFieldMessageType(method, "json_body", Any.getDescriptor.getFullName)

@@ -77,7 +77,7 @@ public class EventSourcedEntitiesTestModels {
 
 
   @TypeId("counter")
-  public static class CounterEventSourcedEntityWithEntityKeyOnMethod extends EventSourcedEntity<Integer, Object> {
+  public static class CounterEventSourcedEntityWithIdOnMethod extends EventSourcedEntity<Integer, Object> {
     @Id("id")
     @GetMapping("/eventsourced/{id}/int/{number}")
     public Integer getInteger(@PathVariable Integer number) {
@@ -87,7 +87,7 @@ public class EventSourcedEntitiesTestModels {
 
   @Id("id")
   @TypeId("counter")
-  public static class CounterEventSourcedEntityWithEntityKeyMethodOverride extends EventSourcedEntity<Integer, Object> {
+  public static class CounterEventSourcedEntityWithIdMethodOverride extends EventSourcedEntity<Integer, Object> {
 
     @Id("counter_id")
     @GetMapping("/eventsourced/{counter_id}/int/{number}")
@@ -97,7 +97,7 @@ public class EventSourcedEntitiesTestModels {
   }
 
   @TypeId("counter")
-  public static class CounterEventSourcedEntityWithEntityKeyGenerator extends EventSourcedEntity<Integer, Object> {
+  public static class CounterEventSourcedEntityWithIdGenerator extends EventSourcedEntity<Integer, Object> {
     @GenerateId
     @PutMapping("/eventsourced/int/{number}")
     public Integer getInteger(@PathVariable Integer number) {
@@ -106,7 +106,7 @@ public class EventSourcedEntitiesTestModels {
   }
 
   @TypeId("counter")
-  public static class IllDefinedEntityWithEntityKeyGeneratorAndEntityKey extends EventSourcedEntity<Integer, Object> {
+  public static class IllDefinedEntityWithIdGeneratorAndId extends EventSourcedEntity<Integer, Object> {
     @GenerateId
     @Id("id")
     @GetMapping("/eventsourced/{id}/int/{number}")
@@ -116,7 +116,7 @@ public class EventSourcedEntitiesTestModels {
   }
 
   @TypeId("counter")
-  public static class IllDefinedEntityWithoutEntityKeyGeneratorNorEntityKey extends EventSourcedEntity<Integer, Object> {
+  public static class IllDefinedEntityWithoutIdGeneratorNorId extends EventSourcedEntity<Integer, Object> {
     @GetMapping("/eventsourced/{id}/int/{number}")
     public Integer getInteger(@PathVariable Integer number) {
       return number;

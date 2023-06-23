@@ -35,6 +35,6 @@ In Kalix, data storage and retrieval follows the https://developer.lightbend.com
 
 The persistent Kalix entities (xref:java:event-sourced-entities.adoc[Event Sourced Entity] and xref:java:value-entity.adoc[Value Entity]) represent the command-model in the CQRS pattern. They receive `Commands` and mutate data in their own transaction.
 
-Data produced by entities can be propagated to xref:java:views.adoc[Views] in order to generate query-models, also known as view-models. Views are indexed representations of your model. You can query your data using different fields, while Entities are only accessible by their entity key.
+Data produced by entities can be propagated to xref:java:views.adoc[Views] in order to generate query-models, also known as view-models. Views are indexed representations of your model. You can query your data using different fields, while Entities are only accessible by their entity id.
 
 In both cases, Kalix manages all persistence aspects and your code only need to specify the business logic.
