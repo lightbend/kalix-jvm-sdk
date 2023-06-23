@@ -64,6 +64,7 @@ abstract class ValueEntityRouter[S, E <: ValueEntity[S]](protected val entity: E
     val commandEffect =
       try {
         entity._internalSetCommandContext(Optional.of(context))
+        entity._internalSetCurrentState(stateOrEmpty())
         handleCommand(commandName, stateOrEmpty(), command, context)
           .asInstanceOf[ValueEntityEffectImpl[Any]]
       } catch {

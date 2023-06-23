@@ -91,6 +91,7 @@ abstract class EventSourcedEntityRouter[S, E, ES <: EventSourcedEntity[S, E]](pr
     val commandEffect =
       try {
         entity._internalSetCommandContext(Optional.of(context))
+        entity._internalSetCurrentState(_stateOrEmpty())
         handleCommand(commandName, _stateOrEmpty(), command, context).asInstanceOf[EventSourcedEntityEffectImpl[Any, E]]
       } catch {
         case CommandHandlerNotFound(name) =>
