@@ -83,11 +83,11 @@ curl -XGET localhost:9000/customer/one
 
 == Shut down the service
 
-Use `Ctrl+C` to shut down the service.When stopping your service, it will also shutdown the Kalix Proxy container and any other container you have defined in `docker-compose.yml`.Unless you have chosen to start `docker-compose` manually in a separate terminal, in which case you will need to stop it manually as well.
+Use `Ctrl+C` to shut down the service. When stopping your service, it will also shutdown the Kalix Proxy container and any other container you have defined in `docker-compose.yml`. Unless you have chosen to start `docker-compose` manually in a separate terminal, in which case you will need to stop it manually as well.
 
 == Running multiple services locally
 
-A typical Kalix application is composed of one or more services deployed to the same Kalix project.When deployed under the same Kalix project, two different services can make xref:call-another-service.adoc[calls to each other] or xref:service-to-service.adoc[subscribe to each other's event streams] by simply using their logical names.
+A typical Kalix application is composed of one or more services deployed to the same Kalix project. When deployed under the same Kalix project, two different services can make xref:call-another-service.adoc[calls to each other] or xref:service-to-service.adoc[subscribe to each other's event streams] by simply using their logical names.
 
 The same can be done on your local machine by configuring the services to run on different ports and by configuring them to "_discover_" each other using some extra configurations.
 

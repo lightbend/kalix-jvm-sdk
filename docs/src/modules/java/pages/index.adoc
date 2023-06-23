@@ -50,11 +50,11 @@ For all matters, it's a Spring Boot application that runs and connects with the 
 
 *Actions*, *Entities* and *Views* are all Kalix components, and they get special treatment.
 
-When your application starts, it will scan the classpath for any class extending one of the Kalix components.Each time such a component is found, it's analysed in order to generate the necessary metadata that Kalix requires to be able to interact with them.The component is then registered to Kalix and made available to the Proxy through Kalix internal protocol.
+When your application starts, it will scan the classpath for any class extending one of the Kalix components. Each time such a component is found, it's analysed in order to generate the necessary metadata that Kalix requires to be able to interact with them. The component is then registered to Kalix and made available to the Proxy through Kalix internal protocol.
 
-It's important to understand that interacting directly with a Kalix component is NOT possible.All interactions must happen through the Proxy since that's how Kalix manages state and distribution.Therefore, it's not possible to use dependency injection to inject Kalix components inside other components and doing so will raise a runtime error.
+It's important to understand that interacting directly with a Kalix component is NOT possible. All interactions must happen through the Proxy since that's how Kalix manages state and distribution. Therefore, it's not possible to use dependency injection to inject Kalix components inside other components and doing so will raise a runtime error.
 
-On the other hand, it is possible to inject non-Kalix classes into Kalix components.Any Spring bean defined in your application can be injected into a Kalix component.However, you must keep in mind that Kalix components can only receive other dependencies through constructor injection.
+On the other hand, it is possible to inject non-Kalix classes into Kalix components. Any Spring bean defined in your application can be injected into a Kalix component. However, you must keep in mind that Kalix components can only receive other dependencies through constructor injection.
 
 For more details on how Kalix manage state and distribution, consult the https://docs.kalix.io/services/programming-model.html[Programming model] page.
 
