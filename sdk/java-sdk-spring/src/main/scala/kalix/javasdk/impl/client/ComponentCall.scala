@@ -39,7 +39,7 @@ import kalix.spring.KalixClient
 import kalix.spring.impl.RestKalixClientImpl
 import org.springframework.web.bind.annotation.RequestMethod
 
-final class ComponentCall[A1, R](kalixClient: KalixClient, lambda: scala.Any, id: Optional[String]) { //TODO rename for workflows
+final class ComponentCall[A1, R](kalixClient: KalixClient, lambda: scala.Any, id: Optional[String]) {
   def params(a1: A1): DeferredCall[Any, R] = {
     ComponentCall.invoke(Seq(a1), kalixClient, lambda, id.toScala)
   }
