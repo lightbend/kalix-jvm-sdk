@@ -71,11 +71,18 @@ case class DockerComposeUtils(file: String, envVar: Map[String, String]) {
       Seq.empty
     }
 
+  // docker-compose sends some of its output to stderr even when it's not an error
+  // to avoid sending the wrong message to users, we redirect to stdout
+  // unfortunately, real errors won't be logged as errors anymore
+  // this is an issue with some versions of docker-compose, latest version seems to have it fixed
+  // (see https://github.com/docker/compose/issues/7346)
+  private val processLogger = ProcessLogger(out => println(out))
+
   // FIXME: process output is being printed in sbt console as error
   // note to self: this is seems to be similar to sbt native packager printing errors when build docker images
   def start(): Unit =
     execIfFileExists {
-      val proc = Process(s"docker-compose -f $file up", None).run()
+      val proc = Process(s"docker-compose -f $file up", None).run(processLogger)
       started = proc.isAlive()
       // shutdown hook to down containers when jvm exits
       sys.addShutdownHook {
@@ -88,13 +95,13 @@ case class DockerComposeUtils(file: String, envVar: Map[String, String]) {
   def stop(): Unit =
     if (started)
       execIfFileExists {
-        Process(s"docker-compose -f $file stop", None).run()
+        Process(s"docker-compose -f $file stop", None).run(processLogger)
       }
 
   def stopAndWait(): Int =
     if (started)
       execIfFileExists {
-        Process(s"docker-compose -f $file stop", None).!
+        Process(s"docker-compose -f $file stop", None).!(processLogger)
       }
     else 0
 
