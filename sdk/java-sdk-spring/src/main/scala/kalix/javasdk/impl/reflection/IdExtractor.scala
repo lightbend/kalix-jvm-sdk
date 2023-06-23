@@ -25,7 +25,7 @@ import java.lang.reflect.Method
 import kalix.javasdk.annotations.GenerateId
 import kalix.javasdk.annotations.Id
 
-object EntityKeyExtractor {
+object IdExtractor {
 
   private[kalix] def shouldGenerateId(annotatedElement: AnnotatedElement) =
     if (annotatedElement.getAnnotation(classOf[GenerateId]) != null)
@@ -33,7 +33,7 @@ object EntityKeyExtractor {
     else
       annotatedElement.getAnnotation(classOf[GenerateEntityKey]) != null
 
-  def extractEntityKeys(component: Class[_], method: Method): Seq[String] = {
+  def extractIds(component: Class[_], method: Method): Seq[String] = {
 
     def idValue(annotatedElement: AnnotatedElement) =
       if (annotatedElement.getAnnotation(classOf[Id]) != null)
@@ -43,27 +43,27 @@ object EntityKeyExtractor {
       else
         Array.empty[String]
 
-    val entityIdsOnType = idValue(component)
-    val entityIdsOnMethod = idValue(method)
+    val idsOnType = idValue(component)
+    val idsOnMethod = idValue(method)
 
-    if (entityIdsOnMethod.nonEmpty && shouldGenerateId(method))
+    if (idsOnMethod.nonEmpty && shouldGenerateId(method))
       throw ServiceIntrospectionException(
         method,
         "Invalid annotation usage. Found both @Id and @GenerateId annotations. " +
         "A method can only be annotated with one of them, but not both.")
 
     // keys defined on Method level get precedence
-    val entityIdsToUse =
-      if (entityIdsOnMethod.nonEmpty) entityIdsOnMethod
-      else entityIdsOnType
+    val idsToUse =
+      if (idsOnMethod.nonEmpty) idsOnMethod
+      else idsOnType
 
-    if (entityIdsToUse.isEmpty && !shouldGenerateId(method))
+    if (idsToUse.isEmpty && !shouldGenerateId(method))
       throw ServiceIntrospectionException(
         method,
         "Invalid command method. No @Id nor @GenerateId annotations found. " +
         "A command method should be annotated with either @Id or @GenerateId, or " +
         "an @Id annotation should be present at class level.")
 
-    entityIdsToUse.toIndexedSeq
+    idsToUse.toIndexedSeq
   }
 }

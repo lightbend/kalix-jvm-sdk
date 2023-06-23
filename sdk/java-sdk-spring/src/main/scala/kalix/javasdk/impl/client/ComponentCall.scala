@@ -28,7 +28,7 @@ import com.google.protobuf.any.Any
 import kalix.javasdk.DeferredCall
 import kalix.javasdk.annotations.EntityType
 import kalix.javasdk.annotations.TypeId
-import kalix.javasdk.impl.reflection.EntityKeyExtractor
+import kalix.javasdk.impl.reflection.IdExtractor
 import kalix.javasdk.impl.reflection.RestServiceIntrospector
 import kalix.javasdk.impl.reflection.RestServiceIntrospector.BodyParameter
 import kalix.javasdk.impl.reflection.RestServiceIntrospector.PathParameter
@@ -126,19 +126,19 @@ object ComponentCall {
     throw new IllegalStateException(s"HTTP $requestMethod not supported when calling $pathTemplate")
   }
 
-  private def idVariables(entityId: Option[String], method: Method): Map[String, String] = {
+  private def idVariables(id: Option[String], method: Method): Map[String, String] = {
 
     val declaringClass = method.getDeclaringClass
     if (declaringClass.getAnnotation(classOf[EntityType]) == null &&
       declaringClass.getAnnotation(classOf[TypeId]) == null) {
       //not an entity or workflows
       Map.empty
-    } else if (EntityKeyExtractor.shouldGenerateId(method)) {
+    } else if (IdExtractor.shouldGenerateId(method)) {
       Map.empty
     } else {
-      val entityKeys = EntityKeyExtractor.extractEntityKeys(declaringClass, method)
-      entityId match {
-        case Some(value) => Map(entityKeys.head -> value) //TODO handle compound keys
+      val idNames = IdExtractor.extractIds(declaringClass, method)
+      id match {
+        case Some(value) => Map(idNames.head -> value) //TODO handle compound keys
         case None        => throw new IllegalStateException(s"Id is missing while calling ${method.getName}")
       }
     }

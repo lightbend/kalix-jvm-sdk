@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
-package kalix.spring;
+package kalix.javasdk.client;
+
+import kalix.spring.KalixClient;
 
 /**
  * Utility to send requests to other Kalix components by composing a DeferredCall. To compose a call:

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package kalix.spring;
+package kalix.javasdk.client;
 
 import akka.japi.function.Function;
 import akka.japi.function.Function10;
@@ -62,6 +62,7 @@ import kalix.javasdk.impl.client.ComponentCall7;
 import kalix.javasdk.impl.client.ComponentCall8;
 import kalix.javasdk.impl.client.ComponentCall9;
 import kalix.javasdk.workflow.Workflow;
+import kalix.spring.KalixClient;
 
 import java.util.Optional;
 

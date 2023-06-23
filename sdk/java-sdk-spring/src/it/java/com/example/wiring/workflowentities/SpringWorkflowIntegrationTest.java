@@ -20,7 +20,7 @@ import com.example.wiring.TestkitConfig;
 import com.example.wiring.actions.echo.Message;
 import com.google.protobuf.any.Any;
 import kalix.javasdk.DeferredCall;
-import kalix.spring.ComponentClient;
+import kalix.javasdk.client.ComponentClient;
 import kalix.spring.KalixConfigurationTest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

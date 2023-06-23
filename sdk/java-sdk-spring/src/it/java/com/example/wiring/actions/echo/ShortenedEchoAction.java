@@ -18,11 +18,8 @@ package com.example.wiring.actions.echo;
 
 import kalix.javasdk.action.Action;
 import kalix.javasdk.action.ActionCreationContext;
-import kalix.spring.ComponentClient;
+import kalix.javasdk.client.ComponentClient;
 import org.springframework.web.bind.annotation.*;
-
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 
 public class ShortenedEchoAction extends Action {
 

@@ -93,7 +93,7 @@ final class RestKalixClientImpl(messageCodec: JsonMessageCodec) extends KalixCli
     runGet(uriStr, returnType)
   }
 
-  def runGet[R](uriStr: String, returnType: Class[R]): DeferredCall[Any, R] = {
+  private def runGet[R](uriStr: String, returnType: Class[R]): DeferredCall[Any, R] = {
     val uri = Uri(uriStr)
     matchMethodOrThrow(HttpMethods.GET, uri.path.toString()) { httpDef =>
       requestToRestDefCall(
@@ -129,7 +129,7 @@ final class RestKalixClientImpl(messageCodec: JsonMessageCodec) extends KalixCli
     builder.build(pathVariables.asJava)
   }
 
-  def runPost[R, P](uriStr: String, body: Option[P], returnType: Class[R]) = {
+  private def runPost[R, P](uriStr: String, body: Option[P], returnType: Class[R]) = {
     val akkaUri = Uri(uriStr)
     matchMethodOrThrow(HttpMethods.POST, akkaUri.path.toString()) { httpDef =>
       requestToRestDefCall(
@@ -161,7 +161,7 @@ final class RestKalixClientImpl(messageCodec: JsonMessageCodec) extends KalixCli
     runPut(uriStr, Some(body), returnType)
   }
 
-  def runPut[P, R](uriStr: String, body: Option[P], returnType: Class[R]): DeferredCall[Any, R] = {
+  private def runPut[P, R](uriStr: String, body: Option[P], returnType: Class[R]): DeferredCall[Any, R] = {
     val akkaUri = Uri(uriStr)
     matchMethodOrThrow(HttpMethods.PUT, akkaUri.path.toString()) { httpDef =>
       requestToRestDefCall(
@@ -193,7 +193,7 @@ final class RestKalixClientImpl(messageCodec: JsonMessageCodec) extends KalixCli
     runPatch(uriStr, Some(body), returnType)
   }
 
-  def runPatch[R, P](uriStr: String, body: Option[P], returnType: Class[R]) = {
+  private def runPatch[R, P](uriStr: String, body: Option[P], returnType: Class[R]) = {
 
     val akkaUri = Uri(uriStr)
 
@@ -227,7 +227,7 @@ final class RestKalixClientImpl(messageCodec: JsonMessageCodec) extends KalixCli
     runDelete(uriStr, returnType)
   }
 
-  def runDelete[R](uriStr: String, returnType: Class[R]): DeferredCall[Any, R] = {
+  private def runDelete[R](uriStr: String, returnType: Class[R]): DeferredCall[Any, R] = {
     val akkaUri = Uri(uriStr)
     matchMethodOrThrow(HttpMethods.DELETE, akkaUri.path.toString()) { httpDef =>
       requestToRestDefCall(
@@ -246,7 +246,7 @@ final class RestKalixClientImpl(messageCodec: JsonMessageCodec) extends KalixCli
     }
   }
 
-  def runWithoutBody[R, P](
+  private[kalix] def runWithoutBody[R, P](
       httpMethod: HttpMethod,
       pathTemplate: String,
       pathVariables: Map[String, ?],
@@ -274,7 +274,7 @@ final class RestKalixClientImpl(messageCodec: JsonMessageCodec) extends KalixCli
     }
   }
 
-  def runWithBody[R, P](
+  private[kalix] def runWithBody[R, P](
       httpMethod: HttpMethod,
       pathTemplate: String,
       pathVariables: Map[String, scala.Any],

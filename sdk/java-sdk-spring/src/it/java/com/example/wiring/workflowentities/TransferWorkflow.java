@@ -18,7 +18,7 @@ package com.example.wiring.workflowentities;
 
 import com.example.wiring.actions.echo.Message;
 import io.grpc.Status;
-import kalix.spring.ComponentClient;
+import kalix.javasdk.client.ComponentClient;
 import kalix.javasdk.annotations.Id;
 import kalix.javasdk.annotations.TypeId;
 import kalix.javasdk.workflow.Workflow;

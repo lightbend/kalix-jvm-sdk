@@ -18,7 +18,7 @@ package kalix.javasdk.impl
 
 import kalix.KeyGeneratorMethodOptions.Generator
 import kalix.javasdk.impl.ComponentDescriptorFactory.buildJWTOptions
-import kalix.javasdk.impl.reflection.EntityKeyExtractor.extractEntityKeys
+import kalix.javasdk.impl.reflection.IdExtractor.extractIds
 import kalix.javasdk.impl.reflection.KalixMethod
 import kalix.javasdk.impl.reflection.NameGenerator
 import kalix.javasdk.impl.reflection.RestServiceIntrospector
@@ -33,15 +33,15 @@ private[impl] object EntityDescriptorFactory extends ComponentDescriptorFactory 
     val kalixMethods =
       RestServiceIntrospector.inspectService(component).methods.map { restMethod =>
 
-        val entityKeys = extractEntityKeys(component, restMethod.javaMethod)
+        val ids = extractIds(component, restMethod.javaMethod)
 
         val kalixMethod =
-          if (entityKeys.isEmpty) {
+          if (ids.isEmpty) {
             val keyGenOptions = kalix.KeyGeneratorMethodOptions.newBuilder().setKeyGenerator(Generator.VERSION_4_UUID)
             val methodOpts = kalix.MethodOptions.newBuilder().setEntity(keyGenOptions)
             KalixMethod(restMethod).withKalixOptions(methodOpts.build())
           } else {
-            KalixMethod(restMethod, entityKeys = entityKeys)
+            KalixMethod(restMethod, entityKeys = ids)
           }
 
         kalixMethod.withKalixOptions(buildJWTOptions(restMethod.javaMethod))

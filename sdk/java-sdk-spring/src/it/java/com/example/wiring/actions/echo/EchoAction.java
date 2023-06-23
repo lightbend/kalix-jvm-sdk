@@ -18,7 +18,7 @@ package com.example.wiring.actions.echo;
 
 import kalix.javasdk.action.Action;
 import kalix.javasdk.action.ActionCreationContext;
-import kalix.spring.ComponentClient;
+import kalix.javasdk.client.ComponentClient;
 import kalix.spring.KalixClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;

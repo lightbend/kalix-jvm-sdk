@@ -34,6 +34,7 @@ import kalix.javasdk.action.ActionCreationContext
 import kalix.javasdk.action.ActionProvider
 import kalix.javasdk.action.ReflectiveActionProvider
 import kalix.javasdk.annotations.ViewId
+import kalix.javasdk.client.ComponentClient
 import kalix.javasdk.eventsourced.ReflectiveEventSourcedEntityProvider
 import kalix.javasdk.eventsourcedentity.EventSourcedEntity
 import kalix.javasdk.eventsourcedentity.EventSourcedEntityContext
@@ -70,7 +71,6 @@ import kalix.spring.impl.KalixSpringApplication.ViewCreationContextFactoryBean
 import kalix.spring.impl.KalixSpringApplication.WebClientProviderFactoryBean
 import kalix.spring.impl.KalixSpringApplication.WorkflowContextFactoryBean
 import kalix.spring.BuildInfo
-import kalix.spring.ComponentClient
 import kalix.spring.impl.KalixSpringApplication.ComponentClientFactoryBean
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory

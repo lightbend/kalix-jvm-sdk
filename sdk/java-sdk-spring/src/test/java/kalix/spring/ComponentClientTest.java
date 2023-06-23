@@ -22,6 +22,7 @@ import com.google.protobuf.Descriptors;
 import com.google.protobuf.DynamicMessage;
 import com.google.protobuf.InvalidProtocolBufferException;
 import kalix.javasdk.JsonSupport;
+import kalix.javasdk.client.ComponentClient;
 import kalix.javasdk.impl.AnySupport;
 import kalix.javasdk.impl.ComponentDescriptor;
 import kalix.javasdk.impl.JsonMessageCodec;

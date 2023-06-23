@@ -22,7 +22,7 @@ import kalix.javasdk.SideEffect;
 import kalix.javasdk.action.Action;
 import kalix.javasdk.action.ActionCreationContext;
 import kalix.javasdk.annotations.Subscribe;
-import kalix.spring.ComponentClient;
+import kalix.javasdk.client.ComponentClient;
 import kalix.spring.KalixConfigurationTest;
 import org.springframework.context.annotation.Import;
 

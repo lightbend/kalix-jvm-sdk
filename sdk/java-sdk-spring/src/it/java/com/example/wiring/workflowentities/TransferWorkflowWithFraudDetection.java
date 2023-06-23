@@ -20,7 +20,7 @@ import com.example.wiring.actions.echo.Message;
 import com.example.wiring.workflowentities.FraudDetectionResult.TransferRejected;
 import com.example.wiring.workflowentities.FraudDetectionResult.TransferRequiresManualAcceptation;
 import com.example.wiring.workflowentities.FraudDetectionResult.TransferVerified;
-import kalix.spring.ComponentClient;
+import kalix.javasdk.client.ComponentClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PutMapping;
