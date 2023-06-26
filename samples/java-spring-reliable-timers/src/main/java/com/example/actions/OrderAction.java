@@ -1,13 +1,14 @@
 package com.example.actions;
 
 import akka.Done;
+import com.example.domain.OrderEntity;
 import com.example.domain.OrderRequest;
 import com.example.domain.Order;
 import kalix.javasdk.DeferredCallResponseException;
 import kalix.javasdk.StatusCode.ErrorCode;
 import kalix.javasdk.action.Action;
 import kalix.javasdk.action.ActionCreationContext;
-import kalix.spring.KalixClient;
+import kalix.javasdk.client.ComponentClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
@@ -24,14 +25,14 @@ public class OrderAction extends Action {
 
   private Logger logger = LoggerFactory.getLogger(getClass());
 
-  private KalixClient kalixClient;
+  private ComponentClient componentClient;
 
   private ActionCreationContext ctx;
 
 
-  public OrderAction(ActionCreationContext creationContext, KalixClient kalixClient) {
+  public OrderAction(ActionCreationContext creationContext, ComponentClient componentClient) {
     this.ctx = creationContext;
-    this.kalixClient = kalixClient;
+    this.componentClient = componentClient;
   }
 
   // tag::place-order[]
@@ -46,9 +47,9 @@ public class OrderAction extends Action {
 
     CompletionStage<Done> timerRegistration = // <2>
         timers().startSingleTimer(
-            timerName(orderId), // <3>
-            Duration.ofSeconds(10), // <4>
-            kalixClient.post("/orders/expire/"+orderId, "", String.class) // <5>
+          timerName(orderId), // <3>
+          Duration.ofSeconds(10), // <4>
+          componentClient.forAction().call(OrderAction::expire).params(orderId) // <5>
         );
 
     // end::place-order[]
@@ -59,7 +60,7 @@ public class OrderAction extends Action {
         orderId);
     // tag::place-order[]
 
-    var request = kalixClient.put("/order/"+orderId+"/place", orderRequest, Order.class); // <6>
+    var request = componentClient.forValueEntity(orderId).call(OrderEntity::placeOrder).params(orderRequest); // <6>
     return effects().asyncReply( // <7>
         timerRegistration
             .thenCompose(done -> request.execute())
@@ -74,7 +75,7 @@ public class OrderAction extends Action {
   @PostMapping("/expire/{orderId}")
   public Effect<String> expire(@PathVariable String orderId) {
     logger.info("Expiring order '{}'", orderId);
-    var cancelRequest = kalixClient.post("/order/"+orderId+"/cancel", "", String.class);
+    var cancelRequest = componentClient.forValueEntity(orderId).call(OrderEntity::cancel);
 
     CompletionStage<String> reply =
         cancelRequest
@@ -103,8 +104,8 @@ public class OrderAction extends Action {
     logger.info("Confirming order '{}'", orderId);
 
     CompletionStage<String> reply =
-          kalixClient.post("/order/"+orderId+"/confirm", "", String.class) // <1>
-            .execute()
+      componentClient.forValueEntity(orderId).call(OrderEntity::confirm) // <1>
+        .execute()
             .thenCompose(req -> timers().cancel(timerName(orderId))) // <2>
             .thenApply(done -> "Ok");
 
@@ -116,7 +117,7 @@ public class OrderAction extends Action {
     logger.info("Cancelling order '{}'", orderId);
 
     CompletionStage<String> reply =
-          kalixClient.post("/order/"+orderId+"/cancel", "", String.class)
+      componentClient.forValueEntity(orderId).call(OrderEntity::cancel)
             .execute()
             .thenCompose(req -> timers().cancel(timerName(orderId)))
             .thenApply(done -> "Ok");

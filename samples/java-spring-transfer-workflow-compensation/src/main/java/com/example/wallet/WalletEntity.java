@@ -71,9 +71,9 @@ public class WalletEntity extends ValueEntity<WalletEntity.Wallet> {
   }
 
   @PatchMapping("/deposit/{amount}") // <3>
-  public Effect<DepositResult> deposit(@PathVariable String id, @PathVariable int amount) {
+  public Effect<DepositResult> deposit(@PathVariable int amount) {
     if (currentState() == null) {
-      return effects().reply(new DepositFailed("Wallet [" + id + "] not exists"));
+      return effects().reply(new DepositFailed("Wallet [" + commandContext().entityId() + "] not exists"));
     } else {
       Wallet updatedWallet = currentState().deposit(amount);
       // end::wallet[]

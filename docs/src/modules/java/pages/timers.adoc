@@ -41,7 +41,7 @@ include::example$java-spring-reliable-timers/src/main/java/com/example/actions/O
 <3> Order id is used to generate a unique name for the timer.
 <4> Set the delay you want for the timer to trigger.
 <5> Scheduled call to `OrderAction.expire` method. We will cover it in a while.
-<6> Pass on the request for the Order entity specifying the `orderId` using the `KalixClient`.
+<6> Pass on the request for the Order entity using the `ComponentClient`.
 <7> Finally, you build an `asyncReply` by composing the `timerRegistration` CompletionStage with a call to execute the request and place the order.
 
 In a nutshell, you first requested Kalix to register a timer. When it completes, you know that the timer is persisted and will run at the specified time. You then proceed by placing the order.
