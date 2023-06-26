@@ -1,4 +1,4 @@
-= Implementing Replicated Entities in Java
+= Implementing Replicated Entities
 :page-supergroup-java-scala: Language
 :page-aliases: replicated-entity.adoc
 
