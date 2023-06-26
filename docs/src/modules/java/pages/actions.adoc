@@ -167,7 +167,7 @@ Such validation depending on state can only safely be done handling the command 
 
 == Running Side Effects
 
-== Emitting effects on another component
+=== Emitting effects on another component
 
 An Entity or an Action may also emit one or more side effects. A side effect is something whose result has no impact on the result of the current command--if it fails, the current command still succeeds. The result of the side effect is therefore ignored. When used from inside an Entity, side effects are only performed after the successful completion of any state actions requested by the command handler.
 
@@ -175,19 +175,19 @@ There is no guarantee that a side effect will be executed successfully. If a fai
 
 Side effects may be declared as synchronous or asynchronous. Asynchronous commands run in a "fire and forget" fashion. The code flow of the caller (the command handler of the entity which emitted the asynchronous command) continues while the command is being asynchronously processed. Meanwhile, synchronous commands run sequentially, that is, the commands are processed in order, one at a time. The final result of the command handler, either a reply or a forward, is not sent until all synchronous commands are completed.
 
-=== Use case: mobile notification
+==== Use case: mobile notification
 
 You might want to run side effects to notify interested parties of a change in state. For example, after a withdrawal is made from a bank account, an account entity could send a notification to the account owner's mobile phone.
 
 
-== Emitting a side effect
+=== Emitting a side effect
 
 To illustrate how you can emit a side effect, you can build on top of the xref:java:actions-as-controller.adoc[Action as a Controller] example. In that previous example, you  build a controller around the xref:value-entity.adoc[Value Entity Counter] and forwarded the incoming request
 after modifying it.
 
 This time, instead of using a `forward`, you will call the entity using a side effect.
 
-== Implementing the Action
+=== Implementing the Action
 
 The class `DoubleCounterAction` listens to the counter state changes. When the counter value changes this action doubles it.
 

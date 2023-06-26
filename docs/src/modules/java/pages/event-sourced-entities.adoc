@@ -143,6 +143,12 @@ It is best to not reuse the same entity id after deletion, but if that happens a
 
 Note that xref:views.adoc#ve_delete[deleting View state] must be handled explicitly.
 
+== Running Side Effects
+
+An Entity may also emit one or more side effects. A side effect is something whose result has no impact on the result of the current command--if it fails, the current command still succeeds. The result of the side effect is therefore ignored. When used from inside an Entity, side effects are only performed after the successful completion of any state actions requested by the command handler.
+
+See dedicated section on xref:actions.adoc#_running_side_effects[].
+
 == Testing the Entity
 
 include::partial$testing-entity.adoc[]
