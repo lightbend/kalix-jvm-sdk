@@ -98,6 +98,12 @@ include::example$java-spring-valueentity-counter/src/main/java/com/example/Count
 <1> Expose the `get` query handler on path `/counter/\{counter_id\}` as a GET endpoint where `counter_id` will be its unique identifier.
 <2> Reply with the current state wrapped within a `Number`.
 
+== Running Side Effects
+
+An Entity may also emit one or more side effects. A side effect is something whose result has no impact on the result of the current command--if it fails, the current command still succeeds. The result of the side effect is therefore ignored. When used from inside an Entity, side effects are only performed after the successful completion of any state actions requested by the command handler.
+
+See dedicated section on xref:actions.adoc#_running_side_effects[].
+
 == Testing the Entity
 
 include::partial$testing-entity.adoc[]
