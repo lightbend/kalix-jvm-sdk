@@ -1,4 +1,4 @@
-= Implementing Value Entities in Java or Scala
+= Implementing Value Entities
 :page-supergroup-java-scala: Language
 include::ROOT:partial$include.adoc[]
 
@@ -241,6 +241,12 @@ NOTE: If you want to make changes after deleting the state you should use the `u
 It is best to not reuse the same entity key after deletion, but if that happens after the entity has been completely removed it will be instantiated as a completely new entity without any knowledge of previous state.
 
 Note that xref:views.adoc#ve_delete[deleting View state] must be handled explicitly.
+
+== Running Side Effects
+
+An Entity may also emit one or more side effects. A side effect is something whose result has no impact on the result of the current command--if it fails, the current command still succeeds. The result of the side effect is therefore ignored. When used from inside an Entity, side effects are only performed after the successful completion of any state actions requested by the command handler.
+
+See dedicated section on xref:actions.adoc#_running_side_effects[].
 
 == Testing the Entity
 
