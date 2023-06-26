@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package kalix.javasdk.impl.client
+package kalix.javasdk.client
 
 import java.lang.reflect.Method
 import java.lang.reflect.ParameterizedType
@@ -28,6 +28,7 @@ import com.google.protobuf.any.Any
 import kalix.javasdk.DeferredCall
 import kalix.javasdk.annotations.EntityType
 import kalix.javasdk.annotations.TypeId
+import kalix.javasdk.impl.client.MethodRefResolver
 import kalix.javasdk.impl.reflection.IdExtractor
 import kalix.javasdk.impl.reflection.RestServiceIntrospector
 import kalix.javasdk.impl.reflection.RestServiceIntrospector.BodyParameter

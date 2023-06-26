@@ -19,7 +19,7 @@ package kalix.javasdk.impl.client
 import java.lang.invoke.SerializedLambda
 import java.lang.reflect.Method
 
-private object MethodRefResolver {
+private[kalix] object MethodRefResolver {
 
   /**
    * Resolve the method ref for a lambda.
