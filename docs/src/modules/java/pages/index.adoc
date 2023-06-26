@@ -26,7 +26,7 @@ Docker:: Kalix requires https://docs.docker.com/get-docker/[Docker {tab-icon}, w
 You can start a new Kalix service using our xref:java:getting-started.adoc[Getting started] guide. If you prefer to
 first explore a fully implemented Kalix service, you can try our xref:java:quickstart/cr-value-entity-java.adoc[Quickstart application].
 
-On the other hand, if you would rather spend some time exploring our documentation, here are some main features you will find on this section:
+On the other hand, if you would rather spend some time exploring our documentation, here are some main features you will find in this section:
 
 * xref:java:actions.adoc[Actions]
 * xref:java:value-entity.adoc[Value Entities]
