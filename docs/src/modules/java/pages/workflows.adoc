@@ -4,7 +4,7 @@
 
 include::ROOT:partial$include.adoc[]
 
-Implementing a business transaction that spans multiple services is one of the major challenges in distributed systems implementation. Fortunately, with Kalix ecosystem and concepts like https://docs.kalix.io/spring/actions-publishing-subscribing.html[Subscription], it's very easy to build an event driven choreography that covers a complex business process. A https://microservices.io/patterns/data/saga.html[Saga pattern] that generalizes this solution was never so easy to implement. However, for some use cases a different flavor of the Saga pattern, an orchestration, might be more suitable. That was the main driver behind a Kalix component type called a Workflow. From a high-level perspective it joins the power of https://docs.kalix.io/concepts/state-model.html[Kalix Entities state model] (durability, consistency guaranties) and https://docs.kalix.io/spring/actions.html[Kalix Actions] ability to call other components and services. You can model your business process in a single place and the Workflow will keep it running or rollback in case of a failure.
+Workflows make it possible to implement long-running, multi-step business processes while focusing exclusively on domain and business logic. Workflows combine the power of https://docs.kalix.io/reference/glossary.html#entity[Entities] and https://docs.kalix.io/reference/glossary.html#action[Actions], providing durability, consistency and the ability to call other components and services. Business transactions can be modeled in one central place, and the Workflow will keep them running smoothly, or roll back if something goes wrong.
 
 == Modeling state
 
