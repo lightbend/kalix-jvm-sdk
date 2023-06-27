@@ -52,7 +52,7 @@ public class ShoppingCartEntity extends ValueEntity<ShoppingCart> {
   // tag::summary[]
 
   @PostMapping("/create") // <2>
-  public ValueEntity.Effect<ShoppingCartDTO> create(@PathVariable String cartId) {
+  public ValueEntity.Effect<ShoppingCartDTO> create() {
     //...
     // end::summary[]
     if (currentState().creationTimestamp() > 0L) {
@@ -60,8 +60,8 @@ public class ShoppingCartEntity extends ValueEntity<ShoppingCart> {
     } else {
       var newState = currentState().withCreationTimestamp(Instant.now().toEpochMilli());
       return effects()
-          .updateState(newState)
-          .thenReply(ShoppingCartDTO.of(newState));
+        .updateState(newState)
+        .thenReply(ShoppingCartDTO.of(newState));
     }
   }
   // end::create[]

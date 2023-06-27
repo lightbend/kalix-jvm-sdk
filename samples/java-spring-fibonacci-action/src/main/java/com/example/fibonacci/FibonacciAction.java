@@ -31,7 +31,7 @@ public class FibonacciAction extends Action {
   }
 
   @GetMapping("/{number}/next")
-  public Effect<Number> nextNumber(@PathVariable Long number) { // <3>
+  public Effect<Number> getNumber(@PathVariable Long number) { // <3>
     return nextNumber(new Number(number));
   }
 

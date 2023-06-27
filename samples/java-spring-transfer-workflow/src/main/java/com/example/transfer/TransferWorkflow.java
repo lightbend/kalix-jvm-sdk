@@ -1,8 +1,9 @@
 package com.example.transfer;
 
 import com.example.transfer.TransferState.Transfer;
+import com.example.wallet.WalletEntity;
+import kalix.javasdk.client.ComponentClient;
 import kalix.javasdk.workflow.Workflow;
-import kalix.spring.KalixClient;
 import kalix.javasdk.annotations.Id;
 import kalix.javasdk.annotations.TypeId;
 import org.slf4j.Logger;
@@ -36,10 +37,10 @@ public class TransferWorkflow extends Workflow<TransferState> { // <1>
 
   private static final Logger logger = LoggerFactory.getLogger(TransferWorkflow.class);
 
-  final private KalixClient kalixClient;
+  final private ComponentClient componentClient;
 
-  public TransferWorkflow(KalixClient kalixClient) {
-    this.kalixClient = kalixClient;
+  public TransferWorkflow(ComponentClient componentClient) {
+    this.componentClient = componentClient;
   }
 
   // tag::definition[]
@@ -48,8 +49,9 @@ public class TransferWorkflow extends Workflow<TransferState> { // <1>
     Step withdraw =
       step("withdraw") // <1>
         .call(Withdraw.class, cmd -> {
-          String withdrawUri = "/wallet/" + cmd.from() + "/withdraw/" + cmd.amount();
-          return kalixClient.patch(withdrawUri, String.class);
+          return componentClient.forValueEntity(cmd.from)
+            .call(WalletEntity::withdraw)
+            .params(cmd.amount);
         }) // <2>
         .andThen(String.class, __ -> {
           Deposit depositInput = new Deposit(currentState().transfer().to(), currentState().transfer().amount());
@@ -61,8 +63,9 @@ public class TransferWorkflow extends Workflow<TransferState> { // <1>
     Step deposit =
       step("deposit") // <1>
         .call(Deposit.class, cmd -> {
-          String depositUri = "/wallet/" + cmd.to() + "/deposit/" + cmd.amount();
-          return kalixClient.patch(depositUri, String.class);
+          return componentClient.forValueEntity(cmd.to)
+            .call(WalletEntity::deposit)
+            .params(cmd.amount);
         }) // <4>
         .andThen(String.class, __ -> {
           return effects()

@@ -75,14 +75,14 @@ request and only conditionally forward the request to the entity if the verifica
 ----
 include::example$java-spring-valueentity-shopping-cart/src/main/java/com/example/api/ShoppingCartController.java[tag=forward]
 ----
-<1> `KalixClient` is injected on the constructor. It will be used to build calls to the underlining Entity.
+<1> `ComponentClient` is injected on the constructor. It will be used to build calls to the underlining Entity.
 <2> Expose the command handler as a `POST` endpoint at specified path.
 <3> Check if the added item is carrots.
 <4> If it is "carrots" immediately return an error, disallowing adding the item.
-<5> For allowed requests, use `kalixClient` to get a deferred call to the entity.
+<5> For allowed requests, use `componentClient` to get a deferred call to the entity.
 <6> The `deferredCall` is then used with `effects().forward()` to forward the request to the entity.
 
-NOTE: You might be wondering what the `kalixClient` is about. For now, think of it as a lightweight HTTP client allowing you to reach out to other Kalix services. All details can be found at xref:call-another-service.adoc[] chapter.
+NOTE: NOTE: You might be wondering what the `componentClient` is about. For now, think of it as a lightweight, type safe, HTTP client allowing you to reach out to other Kalix services. All details can be found at xref:call-another-service.adoc[] chapter.
 
 === Transform Request and Response to Another Component
 
@@ -98,7 +98,7 @@ This example implements an `initializeCart` command for the controller Action wh
 include::example$java-spring-valueentity-shopping-cart/src/main/java/com/example/api/ShoppingCartController.java[tag=initialize]
 ----
 <1> Generate a new UUID.
-<2> Use the `kalixClient` to create a call to endpoint `create` on the shopping cart - note the use of the full path, empty body and the expected reply type `ShoppingCartDTO`.
+<2> Use the `componentClient` to create a call to endpoint `create` on the shopping cart.
 <3> `execute()` on the deferred call immediately triggers a call and returns a `CompletionStage` for the response.
 <4> Once the call succeeds or fails the `CompletionStage` is completed or failed, we can transform the result from `CompletionStage<Empty>`.
 to `CompletionStage<Effect<String>>` using `handle`.

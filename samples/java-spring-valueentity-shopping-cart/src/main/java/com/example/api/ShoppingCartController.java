@@ -3,7 +3,7 @@ package com.example.api;
 import com.example.api.ShoppingCartDTO.LineItemDTO;
 // tag::forward[]
 import kalix.javasdk.action.Action;
-import kalix.spring.KalixClient;
+import kalix.javasdk.client.ComponentClient;
 // end::forward[]
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,10 +18,10 @@ import java.util.concurrent.CompletionStage;
 @RequestMapping("/carts")
 public class ShoppingCartController extends Action {
 
-  private final KalixClient kalixClient;
+  private final ComponentClient componentClient;
 
-  public ShoppingCartController(KalixClient kalixClient) {
-    this.kalixClient = kalixClient; // <1>
+  public ShoppingCartController(ComponentClient componentClient) {
+    this.componentClient = componentClient; // <1>
   }
 
   // end::forward[]
@@ -31,19 +31,20 @@ public class ShoppingCartController extends Action {
   public Action.Effect<String> initializeCart() {
     final String cartId = UUID.randomUUID().toString(); // <1>
     CompletionStage<ShoppingCartDTO> shoppingCartCreated =
-        kalixClient
-            .post("/cart/" + cartId + "/create", "", ShoppingCartDTO.class) // <2>
-            .execute(); // <3>
+      componentClient.forValueEntity(cartId)
+        .call(ShoppingCartEntity::create) // <2>
+        .execute(); // <3>
+
 
     // transform response
     CompletionStage<Action.Effect<String>> effect =
-        shoppingCartCreated.handle((empty, error) -> { // <4>
-          if (error == null) {
-            return effects().reply(cartId); // <5>
-          } else {
-            return effects().error("Failed to create cart, please retry"); // <6>
-          }
-        });
+      shoppingCartCreated.handle((empty, error) -> { // <4>
+        if (error == null) {
+          return effects().reply(cartId); // <5>
+        } else {
+          return effects().error("Failed to create cart, please retry"); // <6>
+        }
+      });
 
     return effects().asyncEffect(effect); // <7>
   }
@@ -56,8 +57,9 @@ public class ShoppingCartController extends Action {
     if (addLineItem.name().equalsIgnoreCase("carrot")) { // <3>
       return effects().error("Carrots no longer for sale"); // <4>
     } else {
-      var deferredCall =
-          kalixClient.post("/cart/" + cartId + "/items/add", addLineItem, ShoppingCartDTO.class); // <5>
+      var deferredCall = componentClient.forValueEntity(cartId)
+        .call(ShoppingCartEntity::addItem)
+        .params(addLineItem); // <5>
       return effects().forward(deferredCall); // <6>
     }
   }
@@ -69,16 +71,17 @@ public class ShoppingCartController extends Action {
   public Action.Effect<String> createPrePopulated() {
     final String cartId = UUID.randomUUID().toString();
     CompletionStage<ShoppingCartDTO> shoppingCartCreated =
-        kalixClient.post("/cart/" + cartId + "/create", "", ShoppingCartDTO.class).execute();
+      componentClient.forValueEntity(cartId).call(ShoppingCartEntity::create).execute();
 
     CompletionStage<ShoppingCartDTO> cartPopulated =
-        shoppingCartCreated.thenCompose(empty -> { // <1>
-          var initialItem = new LineItemDTO("e", "eggplant", 1);
+      shoppingCartCreated.thenCompose(empty -> { // <1>
+        var initialItem = new LineItemDTO("e", "eggplant", 1);
 
-          return kalixClient
-              .post("/cart/" + cartId + "/items/add", initialItem, ShoppingCartDTO.class) // <2>
-              .execute(); // <3>
-        });
+        return componentClient.forValueEntity(cartId)
+          .call(ShoppingCartEntity::addItem)
+          .params(initialItem) // <2>
+          .execute(); // <3>
+      });
 
     CompletionStage<String> reply = cartPopulated.thenApply(ShoppingCartDTO::cartId); // <4>
 
@@ -93,7 +96,7 @@ public class ShoppingCartController extends Action {
                                                 @RequestBody LineItemDTO addLineItem) {
     // NOTE: This is an example of an anti-pattern, do not copy this
     CompletionStage<ShoppingCartDTO> cartReply =
-        kalixClient.get("/cart/" + cartId, ShoppingCartDTO.class).execute(); // <1>
+      componentClient.forValueEntity(cartId).call(ShoppingCartEntity::getCart).execute(); // <1>
 
     CompletionStage<Action.Effect<String>> effect = cartReply.thenApply(cart -> {
       int totalCount = cart.items().stream()
@@ -103,9 +106,10 @@ public class ShoppingCartController extends Action {
       if (totalCount < 10) {
         return effects().error("Max 10 items in a cart");
       } else {
-        var addCall = kalixClient.post("/cart/" + cartId + "/items/add", addLineItem, String.class);
+        CompletionStage<String> addItemReply = componentClient.forValueEntity(cartId).call(ShoppingCartEntity::addItem).params(addLineItem)
+          .execute().thenApply(ShoppingCartDTO::cartId);
         return effects()
-            .forward(addCall); // <2>
+          .asyncReply(addItemReply); // <2>
       }
     });
 

@@ -1,6 +1,7 @@
 package com.example.transfer;
 
 import com.example.transfer.TransferState.Transfer;
+import com.example.wallet.WalletEntity;
 import com.example.wallet.WalletEntity.DepositResult;
 import com.example.wallet.WalletEntity.DepositResult.DepositFailed;
 import com.example.wallet.WalletEntity.DepositResult.DepositSucceed;
@@ -9,8 +10,8 @@ import com.example.wallet.WalletEntity.WithdrawResult.WithdrawFailed;
 import com.example.wallet.WalletEntity.WithdrawResult.WithdrawSucceed;
 import kalix.javasdk.annotations.Id;
 import kalix.javasdk.annotations.TypeId;
+import kalix.javasdk.client.ComponentClient;
 import kalix.javasdk.workflow.Workflow;
-import kalix.spring.KalixClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -43,10 +44,10 @@ public class TransferWorkflow extends Workflow<TransferState> {
 
   private static final Logger logger = LoggerFactory.getLogger(TransferWorkflow.class);
 
-  final private KalixClient kalixClient;
+  final private ComponentClient componentClient;
 
-  public TransferWorkflow(KalixClient kalixClient) {
-    this.kalixClient = kalixClient;
+  public TransferWorkflow(ComponentClient componentClient) {
+    this.componentClient = componentClient;
   }
 
   @Override
@@ -55,8 +56,9 @@ public class TransferWorkflow extends Workflow<TransferState> {
       step("withdraw")
         .call(Withdraw.class, cmd -> {
           logger.info("Running: " + cmd);
-          String withdrawUri = "/wallet/" + cmd.from() + "/withdraw/" + cmd.amount();
-          return kalixClient.patch(withdrawUri, WithdrawResult.class);
+          return componentClient.forValueEntity(cmd.from)
+            .call(WalletEntity::withdraw)
+            .params(cmd.amount);
         })
         .andThen(WithdrawResult.class, withdrawResult -> {
           if (withdrawResult instanceof WithdrawSucceed) {
@@ -81,8 +83,9 @@ public class TransferWorkflow extends Workflow<TransferState> {
           // end::compensation[]
           logger.info("Running: " + cmd);
           // tag::compensation[]
-          String depositUri = "/wallet/" + cmd.to() + "/deposit/" + cmd.amount();
-          return kalixClient.patch(depositUri, DepositResult.class); // <1>
+          return componentClient.forValueEntity(cmd.to)
+            .call(WalletEntity::deposit)
+            .params(cmd.amount); // <1>
         })
         .andThen(DepositResult.class, depositResult -> {
           if (depositResult instanceof DepositSucceed) {
@@ -108,8 +111,9 @@ public class TransferWorkflow extends Workflow<TransferState> {
           logger.info("Running withdraw compensation");
           // tag::compensation[]
           var transfer = currentState().transfer();
-          String refundUri = "/wallet/" + transfer.from() + "/deposit/" + transfer.amount();
-          return kalixClient.patch(refundUri, DepositResult.class);
+          return componentClient.forValueEntity(transfer.from())
+            .call(WalletEntity::deposit)
+            .params(transfer.amount());
         })
         .andThen(DepositResult.class, depositResult -> {
           if (depositResult instanceof DepositSucceed) {
