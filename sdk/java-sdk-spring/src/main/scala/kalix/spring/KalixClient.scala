@@ -23,6 +23,7 @@ import kalix.javasdk.DeferredCall
  * Utility to send requests to other Kalix components by composing a DeferredCall. The target component endpoint should
  * belong to a service on the same project.
  */
+@deprecated(message = "Use ComponentClient instead.", since = "1.3.0")
 trait KalixClient {
 
   /**

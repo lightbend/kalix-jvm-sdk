@@ -254,7 +254,7 @@ final class RestKalixClientImpl(messageCodec: JsonMessageCodec) extends KalixCli
       returnType: Class[R]): RestDeferredCall[Any, R] = {
 
     matchMethodOrThrow(httpMethod, pathTemplate) { httpDef =>
-      requestToRestDefCall2(
+      typedRequestToRestDefCall(
         pathVariables,
         queryParams,
         None,
@@ -283,7 +283,7 @@ final class RestKalixClientImpl(messageCodec: JsonMessageCodec) extends KalixCli
       returnType: Class[R]): RestDeferredCall[Any, R] = {
 
     matchMethodOrThrow(httpMethod, pathTemplate) { httpDef =>
-      requestToRestDefCall2(
+      typedRequestToRestDefCall(
         pathVariables,
         queryParams,
         body,
@@ -323,7 +323,7 @@ final class RestKalixClientImpl(messageCodec: JsonMessageCodec) extends KalixCli
     }
   }
 
-  private def requestToRestDefCall2[P, R](
+  private def typedRequestToRestDefCall[P, R](
       pathVariables: Map[String, scala.Any],
       queryParams: Map[String, util.List[scala.Any]],
       body: Option[P],
