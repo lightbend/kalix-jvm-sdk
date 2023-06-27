@@ -6,6 +6,33 @@ include::ROOT:partial$include.adoc[]
 
 Workflows make it possible to implement long-running, multi-step business processes while focusing exclusively on domain and business logic. Workflows combine the power of https://docs.kalix.io/reference/glossary.html#entity[Entities] and https://docs.kalix.io/reference/glossary.html#action[Actions], providing durability, consistency and the ability to call other components and services. Business transactions can be modeled in one central place, and the Workflow will keep them running smoothly, or roll back if something goes wrong.
 
+
+== Identifying the Workflow
+
+In order to interact with a Workflow in Kalix, we need to assign an *type id* and one or more instance *ids*:
+
+* *type id* is a unique identifier to the workflow. To define the workflow type id, the workflow class must be annotated with `@TypeId` and have a unique and stable identifier assigned.
+* *id*, on the other hand, is unique per instance. In most cases, the workflow id is passed as a path parameter of a REST request. The exception to the rule is when we request Kalix to auto-generate a id for us. In such a case, Kalix won't try to extract the id from the endpoint path.
+
+The workflow id can be defined in different ways, as detailed below.
+
+=== Single identifier
+
+The most common use is to annotate the class with `@Id` and assign one path variable name to it.
+For instance, `@Id("id")` will instruct Kalix to look up a matching path variable. For an endpoint defined with `@RequestMapping("/transfer/\{id}")`, Kalix will extract whatever path segment is used to replace `\{id}` and treat it as the Workflow unique identifier.
+
+=== Composite identifier
+
+It's also possible to have a composite identifier. For example, `@Id({"groupId", "id"})` defines a composite identifier made of `groupId` and `id`. In such a case, the endpoints for this workflow will need to have both path variables, e.g.:  `@RequestMapping("/transfer/\{groupId}/\{id}")`.
+
+=== Generated identifier
+
+Finally, you can ask Kalix to generate an unique identifier, this is typically useful when creating a Workflow, and the id is a surrogate id. To indicate to Kalix that an Workflow id should be generated rather than extracted from the path, be sure to annotate the corresponding command method with `@GenerateId`. Typically, a Workflow has only one method annotated with `@GenerateId`. The one that creates the Workflow. All other methods will have `@Id` annotation in order to extract the surrogate id from the endpoint path.
+
+It will often be necessary to access the generated id from inside the workflow code. This can be done using the link:{attachmentsdir}/api/kalix/javasdk/WorkflowContext.html#workflowId()[`WorkflowContext.workflowId`{tab-icon},window="new"] method.
+
+NOTE: Kalix generates a UUID version 4 (random) keys. Only version 4 UUIDs are currently supported for generated Workflow identifiers.
+
 == Modeling state
 
 We want to build a simple workflow that transfers funds between two wallets. Before that, we will create a wallet subdomain with some basic functionalities that we could use later. For simplicity a `WalletEntity` is implemented as a `ValueEntity`, but for a production-ready solution an `EventSourcedEntity` would be a better choice.
@@ -93,7 +120,7 @@ include::example$java-spring-transfer-workflow/src/main/java/com/example/transfe
 
 == Retrieving state
 
-To have access to the current state of the workflow we can use `currentState()` (similar to other entities). However, if this is the first command we are receiving for this workflow, the state will be `null`. We can change it by overriding the `emptyState` method. The following example shows the implementation of the read-only command handler (accessed through `GET /transfer/transferId`):
+To have access to the current state of the workflow we can use `currentState()`. However, if this is the first command we are receiving for this workflow, the state will be `null`. We can change it by overriding the `emptyState` method. The following example shows the implementation of the read-only command handler (accessed through `GET /transfer/transferId`):
 
 [source,java,indent=0]
 .src/main/java/com/example/transfer/TransferWorkflow.java
