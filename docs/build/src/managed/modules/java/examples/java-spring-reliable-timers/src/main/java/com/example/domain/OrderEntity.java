@@ -3,15 +3,15 @@ package com.example.domain;
 import kalix.javasdk.StatusCode.ErrorCode;
 import kalix.javasdk.valueentity.ValueEntity;
 import kalix.javasdk.valueentity.ValueEntityContext;
-import kalix.javasdk.annotations.EntityKey;
-import kalix.javasdk.annotations.EntityType;
+import kalix.javasdk.annotations.Id;
+import kalix.javasdk.annotations.TypeId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
 
 // tag::order[]
-@EntityKey("id")
-@EntityType("order")
+@Id("id")
+@TypeId("order")
 @RequestMapping("/order/{id}")
 public class OrderEntity extends ValueEntity<Order> {
 
@@ -29,40 +29,42 @@ public class OrderEntity extends ValueEntity<Order> {
   }
 
   @PutMapping("/place")
-  public Effect<Order> placeOrder(@PathVariable String id,
-                                  @RequestBody OrderRequest orderRequest) { // <1>
-    logger.info("Placing orderId={} request={}", id, orderRequest);
+  public Effect<Order> placeOrder(@RequestBody OrderRequest orderRequest) { // <1>
+    var orderId = commandContext().entityId();
+    logger.info("Placing orderId={} request={}", orderId, orderRequest);
     var newOrder = new Order(
-        id,
+        orderId,
         false,
         true, // <2>
         orderRequest.item(),
         orderRequest.quantity());
     return effects()
-            .updateState(newOrder)
-            .thenReply(newOrder);
+        .updateState(newOrder)
+        .thenReply(newOrder);
   }
 
   @PostMapping("/confirm")
-  public Effect<String> confirm(@PathVariable String id) {
-    logger.info("Confirming orderId={}", id);
+  public Effect<String> confirm() {
+    var orderId = commandContext().entityId();
+    logger.info("Confirming orderId={}", orderId);
     if (currentState().placed()) { // <3>
       return effects()
           .updateState(currentState().confirm())
           .thenReply("Ok");
     } else {
       return effects().error(
-        "No order found for '" + id + "'",
+          "No order found for '" + orderId + "'",
           ErrorCode.NOT_FOUND); // <4>
     }
   }
 
   @PostMapping("/cancel")
-  public Effect<String> cancel(@PathVariable String id) {
-    logger.info("Cancelling orderId={} currentState={}", id, currentState());
+  public Effect<String> cancel() {
+    var orderId = commandContext().entityId();
+    logger.info("Cancelling orderId={} currentState={}", orderId, currentState());
     if (!currentState().placed()) {
       return effects().error(
-          "No order found for " + id,
+          "No order found for " + orderId,
           ErrorCode.NOT_FOUND); // <5>
     } else if (currentState().confirmed()) {
       return effects().error(

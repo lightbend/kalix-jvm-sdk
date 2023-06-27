@@ -62,8 +62,8 @@ Create a class named `CustomerEntity` in package `customer.api`.
 include::example$java-spring-customer-registry-quickstart/src/main/java/customer/api/CustomerEntity.java[tag=customer]
 ----
 <1> Each Entity needs a unique logical type name. This must be unique per Kalix service.
-<2> The entity needs to be address by a unique identifier. The `@EntityKey` declares the name of the path variable that Kalix should use as unique identifier.
-<3> The `@RequestMapping` defines the base path to access the entity. Note that the `\{customer_id\}` matches the value of `@EntityKey`.
+<2> The entity needs to be address by a unique identifier. The `@Id` declares the name of the path variable that Kalix should use as unique identifier.
+<3> The `@RequestMapping` defines the base path to access the entity. Note that the `\{customer_id\}` matches the value of `@Id`.
 <4> `CustomerEntity` must inherit from `kalix.javasdk.valueentity.ValueEntity`.
 <5> Each API method must be exposed as a REST endpoint using Spring's REST annotations.
 <6> The implementation instructs Kalix to persist the state `customer`.

@@ -5,15 +5,15 @@ import com.example.wallet.WalletEntity.DepositResult.DepositSucceed;
 import com.example.wallet.WalletEntity.WithdrawResult.WithdrawFailed;
 import com.example.wallet.WalletEntity.WithdrawResult.WithdrawSucceed;
 import kalix.javasdk.valueentity.ValueEntity;
-import kalix.javasdk.annotations.EntityKey;
-import kalix.javasdk.annotations.EntityType;
+import kalix.javasdk.annotations.Id;
+import kalix.javasdk.annotations.TypeId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
 
 // tag::wallet[]
-@EntityKey("id")
-@EntityType("wallet")
+@Id("id")
+@TypeId("wallet")
 @RequestMapping("/wallet/{id}")
 public class WalletEntity extends ValueEntity<WalletEntity.Wallet> {
 
@@ -71,9 +71,9 @@ public class WalletEntity extends ValueEntity<WalletEntity.Wallet> {
   }
 
   @PatchMapping("/deposit/{amount}") // <3>
-  public Effect<DepositResult> deposit(@PathVariable String id, @PathVariable int amount) {
+  public Effect<DepositResult> deposit(@PathVariable int amount) {
     if (currentState() == null) {
-      return effects().reply(new DepositFailed("Wallet [" + id + "] not exists"));
+      return effects().reply(new DepositFailed("Wallet [" + commandContext().entityId() + "] not exists"));
     } else {
       Wallet updatedWallet = currentState().deposit(amount);
       // end::wallet[]

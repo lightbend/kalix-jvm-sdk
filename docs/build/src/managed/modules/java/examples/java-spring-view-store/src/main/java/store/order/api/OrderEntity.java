@@ -1,15 +1,15 @@
 package store.order.api;
 
 import kalix.javasdk.valueentity.ValueEntity;
-import kalix.javasdk.annotations.EntityKey;
-import kalix.javasdk.annotations.EntityType;
+import kalix.javasdk.annotations.Id;
+import kalix.javasdk.annotations.TypeId;
 import org.springframework.web.bind.annotation.*;
 import store.order.domain.Order;
 
 import java.time.Instant;
 
-@EntityType("order")
-@EntityKey("id")
+@TypeId("order")
+@Id("id")
 @RequestMapping("/order/{id}")
 public class OrderEntity extends ValueEntity<Order> {
 

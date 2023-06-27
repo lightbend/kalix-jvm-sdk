@@ -44,7 +44,7 @@ loadScripts(document, 'script');</script>
 <div>
 <ul class="sub-nav-list">
 <li>Summary:&nbsp;</li>
-<li>Nested&nbsp;|&nbsp;</li>
+<li><a href="#nested-class-summary">Nested</a>&nbsp;|&nbsp;</li>
 <li><a href="#field-summary">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor-summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method-summary">Method</a></li>
@@ -86,6 +86,21 @@ loadScripts(document, 'script');</script>
 </section>
 <section class="summary">
 <ul class="summary-list">
+<!-- ======== NESTED CLASS SUMMARY ======== -->
+<li>
+<section class="nested-class-summary" id="nested-class-summary">
+<h2>Nested Class Summary</h2>
+<div class="caption"><span>Nested Classes</span></div>
+<div class="summary-table three-column-summary">
+<div class="table-header col-first">Modifier and Type</div>
+<div class="table-header col-second">Class</div>
+<div class="table-header col-last">Description</div>
+<div class="col-first even-row-color"><code>static enum&nbsp;</code></div>
+<div class="col-second even-row-color"><code><a href="KalixTestKit.Settings.EventingSupport.html" class="type-name-link" title="enum in kalix.javasdk.testkit">KalixTestKit.Settings.EventingSupport</a></code></div>
+<div class="col-last even-row-color">&nbsp;</div>
+</div>
+</section>
+</li>
 <!-- =========== FIELD SUMMARY =========== -->
 <li>
 <section class="field-summary" id="field-summary">
@@ -115,24 +130,27 @@ loadScripts(document, 'script');</script>
 <div class="col-last odd-row-color">
 <div class="block">Default stop timeout (10 seconds).</div>
 </div>
-<div class="col-first even-row-color"><code>final <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
-<div class="col-second even-row-color"><code><a href="#serviceName" class="member-name-link">serviceName</a></code></div>
-<div class="col-last even-row-color">
+<div class="col-first even-row-color"><code>final <a href="KalixTestKit.Settings.EventingSupport.html" title="enum in kalix.javasdk.testkit">KalixTestKit.Settings.EventingSupport</a></code></div>
+<div class="col-second even-row-color"><code><a href="#eventingSupport" class="member-name-link">eventingSupport</a></code></div>
+<div class="col-last even-row-color">&nbsp;</div>
+<div class="col-first odd-row-color"><code>final <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
+<div class="col-second odd-row-color"><code><a href="#serviceName" class="member-name-link">serviceName</a></code></div>
+<div class="col-last odd-row-color">
 <div class="block">The name of this service when deployed.</div>
 </div>
-<div class="col-first odd-row-color"><code>final <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/Map.html" title="class or interface in java.util" class="external-link">Map</a>&lt;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>,<wbr><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;</code></div>
-<div class="col-second odd-row-color"><code><a href="#servicePortMappings" class="member-name-link">servicePortMappings</a></code></div>
-<div class="col-last odd-row-color">
+<div class="col-first even-row-color"><code>final <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/Map.html" title="class or interface in java.util" class="external-link">Map</a>&lt;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>,<wbr><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;</code></div>
+<div class="col-second even-row-color"><code><a href="#servicePortMappings" class="member-name-link">servicePortMappings</a></code></div>
+<div class="col-last even-row-color">
 <div class="block">Service port mappings from serviceName to host:port</div>
 </div>
-<div class="col-first even-row-color"><code>final <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/time/Duration.html" title="class or interface in java.time" class="external-link">Duration</a></code></div>
-<div class="col-second even-row-color"><code><a href="#stopTimeout" class="member-name-link">stopTimeout</a></code></div>
-<div class="col-last even-row-color">
+<div class="col-first odd-row-color"><code>final <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/time/Duration.html" title="class or interface in java.time" class="external-link">Duration</a></code></div>
+<div class="col-second odd-row-color"><code><a href="#stopTimeout" class="member-name-link">stopTimeout</a></code></div>
+<div class="col-last odd-row-color">
 <div class="block">Timeout setting for stopping the local Kalix test instance.</div>
 </div>
-<div class="col-first odd-row-color"><code>final <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/Optional.html" title="class or interface in java.util" class="external-link">Optional</a>&lt;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/time/Duration.html" title="class or interface in java.time" class="external-link">Duration</a>&gt;</code></div>
-<div class="col-second odd-row-color"><code><a href="#workflowTickInterval" class="member-name-link">workflowTickInterval</a></code></div>
-<div class="col-last odd-row-color">
+<div class="col-first even-row-color"><code>final <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/Optional.html" title="class or interface in java.util" class="external-link">Optional</a>&lt;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/time/Duration.html" title="class or interface in java.time" class="external-link">Duration</a>&gt;</code></div>
+<div class="col-second even-row-color"><code><a href="#workflowTickInterval" class="member-name-link">workflowTickInterval</a></code></div>
+<div class="col-last even-row-color">
 <div class="block">To override workflow tick interval for integration tests</div>
 </div>
 </div>
@@ -185,25 +203,28 @@ loadScripts(document, 'script');</script>
 <div class="block">Enable advanced View features for this service.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="KalixTestKit.Settings.html" title="class in kalix.javasdk.testkit">KalixTestKit.Settings</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#withServiceName(java.lang.String)" class="member-name-link">withServiceName</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;serviceName)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#withEventingSupport(kalix.javasdk.testkit.KalixTestKit.Settings.EventingSupport)" class="member-name-link">withEventingSupport</a><wbr>(<a href="KalixTestKit.Settings.EventingSupport.html" title="enum in kalix.javasdk.testkit">KalixTestKit.Settings.EventingSupport</a>&nbsp;eventingSupport)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="KalixTestKit.Settings.html" title="class in kalix.javasdk.testkit">KalixTestKit.Settings</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#withServiceName(java.lang.String)" class="member-name-link">withServiceName</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;serviceName)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Set the name of this service.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="KalixTestKit.Settings.html" title="class in kalix.javasdk.testkit">KalixTestKit.Settings</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#withServicePortMapping(java.lang.String,java.lang.String,int)" class="member-name-link">withServicePortMapping</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;serviceName,
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="KalixTestKit.Settings.html" title="class in kalix.javasdk.testkit">KalixTestKit.Settings</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#withServicePortMapping(java.lang.String,java.lang.String,int)" class="member-name-link">withServicePortMapping</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;serviceName,
  <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;host,
  int&nbsp;port)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Add a service port mapping from serviceName to host:port.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="KalixTestKit.Settings.html" title="class in kalix.javasdk.testkit">KalixTestKit.Settings</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#withStopTimeout(java.time.Duration)" class="member-name-link">withStopTimeout</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/time/Duration.html" title="class or interface in java.time" class="external-link">Duration</a>&nbsp;stopTimeout)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="KalixTestKit.Settings.html" title="class in kalix.javasdk.testkit">KalixTestKit.Settings</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#withStopTimeout(java.time.Duration)" class="member-name-link">withStopTimeout</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/time/Duration.html" title="class or interface in java.time" class="external-link">Duration</a>&nbsp;stopTimeout)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Set a custom stop timeout, for stopping the local Kalix test instance.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="KalixTestKit.Settings.html" title="class in kalix.javasdk.testkit">KalixTestKit.Settings</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#withWorkflowTickInterval(java.time.Duration)" class="member-name-link">withWorkflowTickInterval</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/time/Duration.html" title="class or interface in java.time" class="external-link">Duration</a>&nbsp;tickInterval)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="KalixTestKit.Settings.html" title="class in kalix.javasdk.testkit">KalixTestKit.Settings</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#withWorkflowTickInterval(java.time.Duration)" class="member-name-link">withWorkflowTickInterval</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/time/Duration.html" title="class or interface in java.time" class="external-link">Duration</a>&nbsp;tickInterval)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Overrides workflow tick interval</div>
 </div>
 </div>
@@ -277,6 +298,12 @@ loadScripts(document, 'script');</script>
 <h3>servicePortMappings</h3>
 <div class="member-signature"><span class="modifiers">public final</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/Map.html" title="class or interface in java.util" class="external-link">Map</a>&lt;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>,<wbr><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;</span>&nbsp;<span class="element-name">servicePortMappings</span></div>
 <div class="block">Service port mappings from serviceName to host:port</div>
+</section>
+</li>
+<li>
+<section class="detail" id="eventingSupport">
+<h3>eventingSupport</h3>
+<div class="member-signature"><span class="modifiers">public final</span>&nbsp;<span class="return-type"><a href="KalixTestKit.Settings.EventingSupport.html" title="enum in kalix.javasdk.testkit">KalixTestKit.Settings.EventingSupport</a></span>&nbsp;<span class="element-name">eventingSupport</span></div>
 </section>
 </li>
 </ul>
@@ -393,6 +420,12 @@ loadScripts(document, 'script');</script>
 <dt>Returns:</dt>
 <dd>The updated settings.</dd>
 </dl>
+</section>
+</li>
+<li>
+<section class="detail" id="withEventingSupport(kalix.javasdk.testkit.KalixTestKit.Settings.EventingSupport)">
+<h3>withEventingSupport</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="KalixTestKit.Settings.html" title="class in kalix.javasdk.testkit">KalixTestKit.Settings</a></span>&nbsp;<span class="element-name">withEventingSupport</span><wbr><span class="parameters">(<a href="KalixTestKit.Settings.EventingSupport.html" title="enum in kalix.javasdk.testkit">KalixTestKit.Settings.EventingSupport</a>&nbsp;eventingSupport)</span></div>
 </section>
 </li>
 <li>

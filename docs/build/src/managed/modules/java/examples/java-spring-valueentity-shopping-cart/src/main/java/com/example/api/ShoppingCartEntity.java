@@ -21,8 +21,8 @@ import com.example.domain.ShoppingCart;
 import io.grpc.Status;
 import kalix.javasdk.valueentity.ValueEntity;
 import kalix.javasdk.valueentity.ValueEntityContext;
-import kalix.javasdk.annotations.EntityKey;
-import kalix.javasdk.annotations.EntityType;
+import kalix.javasdk.annotations.Id;
+import kalix.javasdk.annotations.TypeId;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Instant;
@@ -31,8 +31,8 @@ import java.time.Instant;
  * A value entity.
  */
 // tag::summary[]
-@EntityKey("cartId")
-@EntityType("shopping-cart")
+@Id("cartId")
+@TypeId("shopping-cart")
 @RequestMapping("/cart/{cartId}") // <1>
 public class ShoppingCartEntity extends ValueEntity<ShoppingCart> {
   // end::summary[]
@@ -52,7 +52,7 @@ public class ShoppingCartEntity extends ValueEntity<ShoppingCart> {
   // tag::summary[]
 
   @PostMapping("/create") // <2>
-  public ValueEntity.Effect<ShoppingCartDTO> create(@PathVariable String cartId) {
+  public ValueEntity.Effect<ShoppingCartDTO> create() {
     //...
     // end::summary[]
     if (currentState().creationTimestamp() > 0L) {
@@ -60,8 +60,8 @@ public class ShoppingCartEntity extends ValueEntity<ShoppingCart> {
     } else {
       var newState = currentState().withCreationTimestamp(Instant.now().toEpochMilli());
       return effects()
-          .updateState(newState)
-          .thenReply(ShoppingCartDTO.of(newState));
+        .updateState(newState)
+        .thenReply(ShoppingCartDTO.of(newState));
     }
   }
   // end::create[]

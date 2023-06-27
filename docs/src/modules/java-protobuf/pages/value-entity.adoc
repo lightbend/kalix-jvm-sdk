@@ -1,4 +1,4 @@
-= Implementing Value Entities in Java or Scala
+= Implementing Value Entities
 :page-supergroup-java-scala: Language
 include::ROOT:partial$include.adoc[]
 
@@ -242,14 +242,15 @@ It is best to not reuse the same entity key after deletion, but if that happens 
 
 Note that xref:views.adoc#ve_delete[deleting View state] must be handled explicitly.
 
+== Running Side Effects
+
+An Entity may also emit one or more side effects. A side effect is something whose result has no impact on the result of the current command--if it fails, the current command still succeeds. The result of the side effect is therefore ignored. When used from inside an Entity, side effects are only performed after the successful completion of any state actions requested by the command handler.
+
+See dedicated section on xref:actions.adoc#_running_side_effects[].
+
 == Testing the Entity
 
-There are two ways to test a Value Entity:
-
-* unit tests, which run the Entity class in the same JVM as the test code itself with the help of a test kit
-* integration tests, with the service deployed in a docker container running the entire service and the test interacting over gRPC with it.
-
-Each way has its benefits, unit tests are faster and provide more immediate feedback about success or failure but can only test a single entity at a time and in isolation. Integration tests, on the other hand, are more realistic and allow many entities to interact with other components inside and outside the service. For example, actually publishing to a pub/sub topic.
+include::java-protobuf:partial$testing-entity.adoc[]
 
 === Unit tests
 
@@ -287,10 +288,13 @@ An example integration test class to start from is also generated for you. It us
 Java::
 +
 [source,java]
-./src/it/java/com/example/domain/CounterTest.java
+./src/it/java/com/example/CounterIntegrationTest.java
 ----
 include::example$java-protobuf-valueentity-counter/src/it/java/com/example/CounterIntegrationTest.java[tag=sample-it-test]
 ----
+<1> Using the TestKit to create the service container and Kalix Proxy.
+<2> Creating a client for interacting with the gRPC endpoints for `CounterService`.
+<3> Increasing counter and asserting on its current status.
 +
 The integration tests are in a special profile `it` of the project and can be run using `mvn verify -Pit`.
 
@@ -299,9 +303,11 @@ Scala::
 [source,scala]
 ./src/test/scala/com/example/CounterServiceIntegrationSpec.scala
 ----
-include::example$scala-protobuf-valueentity-counter/src/test/scala/com/example/CounterServiceIntegrationSpec.scala[]
+include::example$scala-protobuf-valueentity-counter/src/test/scala/com/example/CounterServiceIntegrationSpec.scala[tag=sample-it-test]
 ----
+<1> Using the TestKit to create the service container and Kalix Proxy.
+<2> Creating a client for interacting with the gRPC endpoints for `CounterService`.
+<3> Asserting on current value of counter after being increased.
+<4> Shutting down TestKit resources after test concludes.
++
 By default, the integration and unit test are both invoked by `sbt test`.
-
-
-Note that since these tests require building and deploying a docker image as well as actual (local) networking, they depend on docker on the development machine. This also means they take a bit more time to execute compared to the unit tests which are completely local and do not involve networking.

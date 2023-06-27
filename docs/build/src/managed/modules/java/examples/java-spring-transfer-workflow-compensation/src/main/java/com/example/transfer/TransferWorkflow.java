@@ -1,16 +1,17 @@
 package com.example.transfer;
 
 import com.example.transfer.TransferState.Transfer;
+import com.example.wallet.WalletEntity;
 import com.example.wallet.WalletEntity.DepositResult;
 import com.example.wallet.WalletEntity.DepositResult.DepositFailed;
 import com.example.wallet.WalletEntity.DepositResult.DepositSucceed;
 import com.example.wallet.WalletEntity.WithdrawResult;
 import com.example.wallet.WalletEntity.WithdrawResult.WithdrawFailed;
 import com.example.wallet.WalletEntity.WithdrawResult.WithdrawSucceed;
-import kalix.javasdk.annotations.EntityKey;
-import kalix.javasdk.annotations.EntityType;
-import kalix.javasdk.workflowentity.WorkflowEntity;
-import kalix.spring.KalixClient;
+import kalix.javasdk.annotations.Id;
+import kalix.javasdk.annotations.TypeId;
+import kalix.javasdk.client.ComponentClient;
+import kalix.javasdk.workflow.Workflow;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,12 +28,12 @@ import static com.example.transfer.TransferState.TransferStatus.REQUIRES_MANUAL_
 import static com.example.transfer.TransferState.TransferStatus.WITHDRAW_FAILED;
 import static com.example.transfer.TransferState.TransferStatus.WITHDRAW_SUCCEED;
 import static java.time.Duration.ofSeconds;
-import static kalix.javasdk.workflowentity.WorkflowEntity.RecoverStrategy.maxRetries;
+import static kalix.javasdk.workflow.Workflow.RecoverStrategy.maxRetries;
 
-@EntityType("transfer")
-@EntityKey("transferId")
+@TypeId("transfer")
+@Id("transferId")
 @RequestMapping("/transfer/{transferId}")
-public class TransferWorkflow extends WorkflowEntity<TransferState> {
+public class TransferWorkflow extends Workflow<TransferState> {
 
   public record Withdraw(String from, int amount) {
   }
@@ -43,20 +44,21 @@ public class TransferWorkflow extends WorkflowEntity<TransferState> {
 
   private static final Logger logger = LoggerFactory.getLogger(TransferWorkflow.class);
 
-  final private KalixClient kalixClient;
+  final private ComponentClient componentClient;
 
-  public TransferWorkflow(KalixClient kalixClient) {
-    this.kalixClient = kalixClient;
+  public TransferWorkflow(ComponentClient componentClient) {
+    this.componentClient = componentClient;
   }
 
   @Override
-  public Workflow<TransferState> definition() {
+  public WorkflowDef<TransferState> definition() {
     Step withdraw =
       step("withdraw")
         .call(Withdraw.class, cmd -> {
           logger.info("Running: " + cmd);
-          String withdrawUri = "/wallet/" + cmd.from() + "/withdraw/" + cmd.amount();
-          return kalixClient.patch(withdrawUri, WithdrawResult.class);
+          return componentClient.forValueEntity(cmd.from)
+            .call(WalletEntity::withdraw)
+            .params(cmd.amount);
         })
         .andThen(WithdrawResult.class, withdrawResult -> {
           if (withdrawResult instanceof WithdrawSucceed) {
@@ -81,8 +83,9 @@ public class TransferWorkflow extends WorkflowEntity<TransferState> {
           // end::compensation[]
           logger.info("Running: " + cmd);
           // tag::compensation[]
-          String depositUri = "/wallet/" + cmd.to() + "/deposit/" + cmd.amount();
-          return kalixClient.patch(depositUri, DepositResult.class); // <1>
+          return componentClient.forValueEntity(cmd.to)
+            .call(WalletEntity::deposit)
+            .params(cmd.amount); // <1>
         })
         .andThen(DepositResult.class, depositResult -> {
           if (depositResult instanceof DepositSucceed) {
@@ -108,8 +111,9 @@ public class TransferWorkflow extends WorkflowEntity<TransferState> {
           logger.info("Running withdraw compensation");
           // tag::compensation[]
           var transfer = currentState().transfer();
-          String refundUri = "/wallet/" + transfer.from() + "/deposit/" + transfer.amount();
-          return kalixClient.patch(refundUri, DepositResult.class);
+          return componentClient.forValueEntity(transfer.from())
+            .call(WalletEntity::deposit)
+            .params(transfer.amount());
         })
         .andThen(DepositResult.class, depositResult -> {
           if (depositResult instanceof DepositSucceed) {

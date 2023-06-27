@@ -1,6 +1,7 @@
 package customer.api;
 
 import java.util.UUID;
+
 import kalix.javasdk.testkit.junit.KalixTestKitResource;
 import customer.Main;
 import customer.api.CustomerApi;
@@ -25,7 +26,7 @@ public class CustomerIntegrationTest {
    */
   @ClassRule
   public static final KalixTestKitResource testKit =
-    new KalixTestKitResource(Main.createKalix());
+      new KalixTestKitResource(Main.createKalix());
 
   /**
    * Use the generated gRPC client to call the service through the Kalix proxy.
@@ -38,21 +39,21 @@ public class CustomerIntegrationTest {
 
   CustomerApi.Customer getCustomer(String customerId) throws Exception {
     return client
-            .getCustomer(CustomerApi.GetCustomerRequest.newBuilder().setCustomerId(customerId).build())
-            .toCompletableFuture()
-            .get(5, SECONDS);
+        .getCustomer(CustomerApi.GetCustomerRequest.newBuilder().setCustomerId(customerId).build())
+        .toCompletableFuture()
+        .get(5, SECONDS);
   }
 
   @Test
   public void create() throws Exception {
     String id = UUID.randomUUID().toString();
     client.create(CustomerApi.Customer.newBuilder()
-                    .setCustomerId(id)
-                    .setName("Johanna")
-                    .setEmail("foo@example.com")
-                    .build())
-            .toCompletableFuture()
-            .get(5, SECONDS);
+            .setCustomerId(id)
+            .setName("Johanna")
+            .setEmail("foo@example.com")
+            .build())
+        .toCompletableFuture()
+        .get(5, SECONDS);
     assertEquals("Johanna", getCustomer(id).getName());
   }
 
@@ -60,18 +61,18 @@ public class CustomerIntegrationTest {
   public void changeName() throws Exception {
     String id = UUID.randomUUID().toString();
     client.create(CustomerApi.Customer.newBuilder()
-                    .setCustomerId(id)
-                    .setName("Johanna")
-                    .setEmail("foo@example.com")
-                    .build())
-            .toCompletableFuture()
-            .get(5, SECONDS);
+            .setCustomerId(id)
+            .setName("Johanna")
+            .setEmail("foo@example.com")
+            .build())
+        .toCompletableFuture()
+        .get(5, SECONDS);
     client.changeName(CustomerApi.ChangeNameRequest.newBuilder()
-                    .setCustomerId(id)
-                    .setNewName("Katarina")
-                    .build())
-            .toCompletableFuture()
-            .get(5, SECONDS);
+            .setCustomerId(id)
+            .setNewName("Katarina")
+            .build())
+        .toCompletableFuture()
+        .get(5, SECONDS);
     assertEquals("Katarina", getCustomer(id).getName());
   }
 
@@ -79,23 +80,23 @@ public class CustomerIntegrationTest {
   public void changeAddress() throws Exception {
     String id = UUID.randomUUID().toString();
     client.create(CustomerApi.Customer.newBuilder()
-                    .setCustomerId(id)
-                    .setName("Johanna")
-                    .setEmail("foo@example.com")
-                    .build())
-            .toCompletableFuture()
-            .get(5, SECONDS);
+            .setCustomerId(id)
+            .setName("Johanna")
+            .setEmail("foo@example.com")
+            .build())
+        .toCompletableFuture()
+        .get(5, SECONDS);
     client.changeAddress(CustomerApi.ChangeAddressRequest.newBuilder()
-                    .setCustomerId(id)
-                    .setNewAddress(
-                            CustomerApi.Address.newBuilder()
-                                    .setStreet("Elm st. 5")
-                                    .setCity("New Orleans")
-                                    .build()
-                    )
-                    .build())
-            .toCompletableFuture()
-            .get(5, SECONDS);
+            .setCustomerId(id)
+            .setNewAddress(
+                CustomerApi.Address.newBuilder()
+                    .setStreet("Elm st. 5")
+                    .setCity("New Orleans")
+                    .build()
+            )
+            .build())
+        .toCompletableFuture()
+        .get(5, SECONDS);
     assertEquals("Elm st. 5", getCustomer(id).getAddress().getStreet());
   }
 }

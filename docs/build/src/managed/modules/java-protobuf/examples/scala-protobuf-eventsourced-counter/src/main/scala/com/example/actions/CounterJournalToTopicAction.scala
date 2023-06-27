@@ -4,8 +4,6 @@ import kalix.scalasdk.action.Action
 import kalix.scalasdk.action.ActionCreationContext
 import com.example.domain.ValueDecreased
 import com.example.domain.ValueIncreased
-import com.google.protobuf.any.{ Any => ScalaPbAny }
-import com.google.protobuf.empty.Empty
 
 // tag::counter-topic[]
 class CounterJournalToTopicAction(creationContext: ActionCreationContext) extends AbstractCounterJournalToTopicAction {

@@ -2,19 +2,16 @@ package com.example.fibonacci;
 
 import com.example.Main;
 import kalix.spring.testkit.KalixIntegrationTestKitSupport;
-
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.ResponseEntity;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Mono;
 
 import java.time.Duration;
-import java.time.temporal.ChronoUnit;
 
 import static java.time.temporal.ChronoUnit.SECONDS;
 
@@ -29,9 +26,9 @@ public class FibonacciActionIntegrationTest extends KalixIntegrationTestKitSuppo
   public void calculateNextNumber() {
 
     Mono<Number> response =
-        webClient.get()
-            .uri("/fibonacci/5/next")
-            .retrieve().bodyToMono(Number.class);
+      webClient.get()
+        .uri("/fibonacci/5/next")
+        .retrieve().bodyToMono(Number.class);
 
     long next = response.block(Duration.of(5, SECONDS)).value();
     Assertions.assertEquals(8, next);

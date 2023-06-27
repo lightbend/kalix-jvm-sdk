@@ -182,6 +182,11 @@ loadScripts(document, 'script');</script>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Get the local port where the Kalix service is available.</div>
 </div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="../EventingTestKit.Topic.html" title="interface in kalix.javasdk.testkit">EventingTestKit.Topic</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getTopic(java.lang.String)" class="member-name-link">getTopic</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;topic)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">If your Kalix service publishes or consumes from/to an eventing services (i.e.</div>
+</div>
 </div>
 </div>
 </div>
@@ -230,6 +235,20 @@ loadScripts(document, 'script');</script>
 <dl class="notes">
 <dt>Overrides:</dt>
 <dd><code>before</code>&nbsp;in class&nbsp;<code>org.junit.rules.ExternalResource</code></dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="getTopic(java.lang.String)">
+<h3>getTopic</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="../EventingTestKit.Topic.html" title="interface in kalix.javasdk.testkit">EventingTestKit.Topic</a></span>&nbsp;<span class="element-name">getTopic</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;topic)</span></div>
+<div class="block">If your Kalix service publishes or consumes from/to an eventing services (i.e. kafka or pub/sub),
+ this will allow assertions on messages consumed / produced to such broker.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>topic</code> - name of the topic to interact with</dd>
+<dt>Returns:</dt>
+<dd>a struture to allow interactions with a topic</dd>
 </dl>
 </section>
 </li>

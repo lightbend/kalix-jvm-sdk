@@ -1,10 +1,11 @@
 package com.example.transfer;
 
 import com.example.transfer.TransferState.Transfer;
-import kalix.javasdk.workflowentity.WorkflowEntity;
-import kalix.spring.KalixClient;
-import kalix.javasdk.annotations.EntityKey;
-import kalix.javasdk.annotations.EntityType;
+import com.example.wallet.WalletEntity;
+import kalix.javasdk.client.ComponentClient;
+import kalix.javasdk.workflow.Workflow;
+import kalix.javasdk.annotations.Id;
+import kalix.javasdk.annotations.TypeId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,10 +17,10 @@ import static com.example.transfer.TransferState.TransferStatus.COMPLETED;
 import static com.example.transfer.TransferState.TransferStatus.WITHDRAW_SUCCEED;
 
 // tag::class[]
-@EntityType("transfer") // <2>
-@EntityKey("transferId") // <3>
+@TypeId("transfer") // <2>
+@Id("transferId") // <3>
 @RequestMapping("/transfer/{transferId}") // <4>
-public class TransferWorkflow extends WorkflowEntity<TransferState> { // <1>
+public class TransferWorkflow extends Workflow<TransferState> { // <1>
   // end::class[]
 
   // tag::start[]
@@ -36,20 +37,21 @@ public class TransferWorkflow extends WorkflowEntity<TransferState> { // <1>
 
   private static final Logger logger = LoggerFactory.getLogger(TransferWorkflow.class);
 
-  final private KalixClient kalixClient;
+  final private ComponentClient componentClient;
 
-  public TransferWorkflow(KalixClient kalixClient) {
-    this.kalixClient = kalixClient;
+  public TransferWorkflow(ComponentClient componentClient) {
+    this.componentClient = componentClient;
   }
 
   // tag::definition[]
   @Override
-  public Workflow<TransferState> definition() {
+  public WorkflowDef<TransferState> definition() {
     Step withdraw =
       step("withdraw") // <1>
         .call(Withdraw.class, cmd -> {
-          String withdrawUri = "/wallet/" + cmd.from() + "/withdraw/" + cmd.amount();
-          return kalixClient.patch(withdrawUri, String.class);
+          return componentClient.forValueEntity(cmd.from)
+            .call(WalletEntity::withdraw)
+            .params(cmd.amount);
         }) // <2>
         .andThen(String.class, __ -> {
           Deposit depositInput = new Deposit(currentState().transfer().to(), currentState().transfer().amount());
@@ -61,8 +63,9 @@ public class TransferWorkflow extends WorkflowEntity<TransferState> { // <1>
     Step deposit =
       step("deposit") // <1>
         .call(Deposit.class, cmd -> {
-          String depositUri = "/wallet/" + cmd.to() + "/deposit/" + cmd.amount();
-          return kalixClient.patch(depositUri, String.class);
+          return componentClient.forValueEntity(cmd.to)
+            .call(WalletEntity::deposit)
+            .params(cmd.amount);
         }) // <4>
         .andThen(String.class, __ -> {
           return effects()

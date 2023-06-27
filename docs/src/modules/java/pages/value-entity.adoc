@@ -23,14 +23,14 @@ As mentioned above, to help us illustrate a Value Entity, you will be implementi
 include::example$java-spring-valueentity-counter/src/main/java/com/example/Number.java[]
 ----
 
-include::partial$entity-keys.adoc[]
+include::partial$entity-ids.adoc[]
 
 [#entity-behavior]
 == Implementing behavior
 
 Now that you have a good idea of what we want to build and what its API looks like, you will need to:
 
-- Declare your entity and pick an entity key (it needs to be a unique identifier).
+- Declare your entity and pick an entity id (it needs to be a unique identifier).
 - Define an access point (i.e. a route path) to your entity.
 - Implement how each command is handled.
 
@@ -41,8 +41,8 @@ Let us start by showing how to create the Value Entity:
 ----
 include::example$java-spring-valueentity-counter/src/main/java/com/example/CounterEntity.java[tags=declarations]
 ----
-<1> Every Entity must be annotated with `@EntityType` with a stable name. This name should be unique among the different existing entities within a Kalix application.
-<2> The `@EntityKey` value should be unique per entity and map to some field being received on the route path, in this example it's the `counter_id`.
+<1> Every Entity must be annotated with `@TypeId` with a stable identifier. This identifier should be unique among the different existing entities within a Kalix application.
+<2> The `@Id` value should be unique per entity and map to some field being received on the route path, in this example it's the `counter_id`.
 <3> The `CounterEntity` class should extend `kalix.javasdk.valueentity.ValueEntity`.
 <4> The initial state of each counter is defined as 0.
 
@@ -62,7 +62,7 @@ include::example$java-spring-valueentity-counter/src/main/java/com/example/Count
 <5> `plusOne` increases the counter by adding 1 to the current state.
 <6> Finally, using the Effect API, you instruct Kalix to persist the new state, and build a reply with the wrapper object.
 
-NOTE: The `counter_id` parameter matches the `entityKey` value. Also, for this example, we have opted to always repeat the common route `/counter/\{counter_id\}` for each command but a simpler option could be to use a `@RequestMethod("/counter/\{counter_id\}")` at class level.
+NOTE: The `counter_id` parameter matches the `@Id` value. Also, for this example, we have opted to always repeat the common route `/counter/\{counter_id\}` for each command but a simpler option could be to use a `@RequestMethod("/counter/\{counter_id\}")` at class level.
 
 [#deleting-state]
 === Deleting state
@@ -82,7 +82,7 @@ It is not allowed to make further changes after the entity has been "marked" as 
 
 NOTE: If you want to make changes after deleting the state you should use the `updateState` effect with an empty state instead of using `deleteEntity`.
 
-It is best to not reuse the same entity key after deletion, but if that happens after the entity has been completely removed it will be instantiated as a completely new entity without any knowledge of previous state.
+It is best to not reuse the same entity id after deletion, but if that happens after the entity has been completely removed it will be instantiated as a completely new entity without any knowledge of previous state.
 
 Note that xref:views.adoc#ve_delete[deleting View state] must be handled explicitly.
 
@@ -97,6 +97,12 @@ include::example$java-spring-valueentity-counter/src/main/java/com/example/Count
 ----
 <1> Expose the `get` query handler on path `/counter/\{counter_id\}` as a GET endpoint where `counter_id` will be its unique identifier.
 <2> Reply with the current state wrapped within a `Number`.
+
+== Running Side Effects
+
+An Entity may also emit one or more side effects. A side effect is something whose result has no impact on the result of the current command--if it fails, the current command still succeeds. The result of the side effect is therefore ignored. When used from inside an Entity, side effects are only performed after the successful completion of any state actions requested by the command handler.
+
+See dedicated section on xref:actions.adoc#_running_side_effects[].
 
 == Testing the Entity
 

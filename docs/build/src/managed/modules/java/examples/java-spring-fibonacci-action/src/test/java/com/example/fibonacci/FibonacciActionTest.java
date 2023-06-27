@@ -16,7 +16,7 @@ public class FibonacciActionTest {
   @Test
   public void testNextFib() {
     ActionTestkit<FibonacciAction> testkit = ActionTestkit.of(FibonacciAction::new); // <1>
-    ActionResult<Number> result = testkit.call(a -> a.nextNumber(3L));  // <2>
+    ActionResult<Number> result = testkit.call(a -> a.getNumber(3L));  // <2>
     assertTrue(result.isReply());
     assertEquals(5L, result.getReply().value());
   }
@@ -24,7 +24,7 @@ public class FibonacciActionTest {
   @Test
   public void testNextFibError() {
     ActionTestkit<FibonacciAction> testkit = ActionTestkit.of(FibonacciAction::new);  // <1>
-    ActionResult<Number> result = testkit.call(a -> a.nextNumber(4L));     // <2>
+    ActionResult<Number> result = testkit.call(a -> a.getNumber(4L));     // <2>
     assertTrue(result.isError());
     assertTrue(result.getError().startsWith("Input number is not a Fibonacci number"));
   }

@@ -18,15 +18,15 @@ package customer.api;
 
 // tag::customer[]
 import kalix.javasdk.valueentity.ValueEntity;
-import kalix.javasdk.annotations.EntityKey;
-import kalix.javasdk.annotations.EntityType;
+import kalix.javasdk.annotations.Id;
+import kalix.javasdk.annotations.TypeId;
 import org.springframework.web.bind.annotation.*;
 import io.grpc.Status;
 import customer.domain.Address;
 import customer.domain.Customer;
 
-@EntityType("customer") // <1>
-@EntityKey("customer_id") // <2>
+@TypeId("customer") // <1>
+@Id("customer_id") // <2>
 @RequestMapping("/customer/{customer_id}") // <3>
 public class CustomerEntity extends ValueEntity<Customer> { // <4>
 

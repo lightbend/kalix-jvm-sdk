@@ -1,16 +1,15 @@
 package com.example;
 
 import kalix.javasdk.valueentity.ValueEntity;
-import kalix.javasdk.annotations.EntityKey;
-import kalix.javasdk.annotations.EntityType;
-import kalix.javasdk.annotations.GenerateEntityKey;
+import kalix.javasdk.annotations.Id;
+import kalix.javasdk.annotations.TypeId;
 
 
 import org.springframework.web.bind.annotation.*;
 
 // tag::declarations[]
-@EntityType("counter") // <1>
-@EntityKey("counter_id") // <2>
+@TypeId("counter") // <1>
+@Id("counter_id") // <2>
 public class CounterEntity extends ValueEntity<Integer> { // <3>
 
   @Override

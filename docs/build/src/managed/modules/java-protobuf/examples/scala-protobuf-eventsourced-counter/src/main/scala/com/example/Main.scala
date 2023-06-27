@@ -1,9 +1,7 @@
 package com.example
 
 import kalix.scalasdk.Kalix
-import com.example.actions.CounterJournalToTopicAction
-import com.example.actions.CounterJournalToTopicWithMetaAction
-import com.example.actions.CounterTopicSubscriptionAction
+import com.example.actions.{CounterJournalToTopicAction, CounterJournalToTopicWithMetaAction, CounterTopicSubscriptionAction, CounterCommandFromTopicAction}
 import com.example.domain.Counter
 import org.slf4j.LoggerFactory
 
@@ -23,6 +21,7 @@ object Main {
     // `Kalix()` instance.
     KalixFactory.withComponents(
       new Counter(_),
+      new CounterCommandFromTopicAction(_),
       new CounterJournalToTopicAction(_),
       new CounterJournalToTopicWithMetaAction(_),
       new CounterTopicSubscriptionAction(_))

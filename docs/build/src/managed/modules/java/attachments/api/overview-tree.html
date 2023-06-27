@@ -31,6 +31,7 @@ loadScripts(document, 'script');</script>
 <li>Package</li>
 <li>Class</li>
 <li class="nav-bar-cell1-rev">Tree</li>
+<li><a href="deprecated-list.html">Deprecated</a></li>
 <li><a href="index-all.html">Index</a></li>
 <li><a href="help-doc.html#tree">Help</a></li>
 </ul>
@@ -52,11 +53,12 @@ loadScripts(document, 'script');</script>
 <ul class="horizontal">
 <li><a href="kalix/javasdk/action/package-tree.html">kalix.javasdk.action</a>, </li>
 <li><a href="kalix/javasdk/annotations/package-tree.html">kalix.javasdk.annotations</a>, </li>
+<li><a href="kalix/javasdk/client/package-tree.html">kalix.javasdk.client</a>, </li>
 <li><a href="kalix/javasdk/common/package-tree.html">kalix.javasdk.common</a>, </li>
 <li><a href="kalix/javasdk/eventsourced/package-tree.html">kalix.javasdk.eventsourced</a>, </li>
 <li><a href="kalix/javasdk/valueentity/package-tree.html">kalix.javasdk.valueentity</a>, </li>
 <li><a href="kalix/javasdk/view/package-tree.html">kalix.javasdk.view</a>, </li>
-<li><a href="kalix/javasdk/workflowentity/package-tree.html">kalix.javasdk.workflowentity</a></li>
+<li><a href="kalix/javasdk/workflow/package-tree.html">kalix.javasdk.workflow</a></li>
 </ul>
 </div>
 <section class="hierarchy">
@@ -64,13 +66,18 @@ loadScripts(document, 'script');</script>
 <ul>
 <li class="circle">java.lang.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" class="type-name-link external-link" title="class or interface in java.lang">Object</a>
 <ul>
+<li class="circle">kalix.javasdk.client.<a href="kalix/javasdk/client/ActionCallBuilder.html" class="type-name-link" title="class in kalix.javasdk.client">ActionCallBuilder</a></li>
+<li class="circle">kalix.javasdk.client.<a href="kalix/javasdk/client/ComponentClient.html" class="type-name-link" title="class in kalix.javasdk.client">ComponentClient</a></li>
+<li class="circle">kalix.javasdk.client.<a href="kalix/javasdk/client/EventSourcedEntityCallBuilder.html" class="type-name-link" title="class in kalix.javasdk.client">EventSourcedEntityCallBuilder</a></li>
 <li class="circle">kalix.javasdk.common.<a href="kalix/javasdk/common/ForwardHeadersExtractor.html" class="type-name-link" title="class in kalix.javasdk.common">ForwardHeadersExtractor</a></li>
 <li class="circle">kalix.javasdk.action.<a href="kalix/javasdk/action/ReflectiveActionProvider.html" class="type-name-link" title="class in kalix.javasdk.action">ReflectiveActionProvider</a>&lt;A&gt; (implements kalix.javasdk.action.ActionProvider&lt;A&gt;)</li>
 <li class="circle">kalix.javasdk.eventsourced.<a href="kalix/javasdk/eventsourced/ReflectiveEventSourcedEntityProvider.html" class="type-name-link" title="class in kalix.javasdk.eventsourced">ReflectiveEventSourcedEntityProvider</a>&lt;S,<wbr>E,<wbr>ES&gt; (implements kalix.javasdk.eventsourcedentity.EventSourcedEntityProvider&lt;S,<wbr>E,<wbr>ES&gt;)</li>
 <li class="circle">kalix.javasdk.view.<a href="kalix/javasdk/view/ReflectiveMultiTableViewProvider.html" class="type-name-link" title="class in kalix.javasdk.view">ReflectiveMultiTableViewProvider</a>&lt;V&gt; (implements kalix.javasdk.view.ViewProvider)</li>
 <li class="circle">kalix.javasdk.valueentity.<a href="kalix/javasdk/valueentity/ReflectiveValueEntityProvider.html" class="type-name-link" title="class in kalix.javasdk.valueentity">ReflectiveValueEntityProvider</a>&lt;S,<wbr>E&gt; (implements kalix.javasdk.valueentity.ValueEntityProvider&lt;S,<wbr>E&gt;)</li>
 <li class="circle">kalix.javasdk.view.<a href="kalix/javasdk/view/ReflectiveViewProvider.html" class="type-name-link" title="class in kalix.javasdk.view">ReflectiveViewProvider</a>&lt;S,<wbr>V&gt; (implements kalix.javasdk.view.ViewProvider)</li>
-<li class="circle">kalix.javasdk.workflowentity.<a href="kalix/javasdk/workflowentity/ReflectiveWorkflowEntityProvider.html" class="type-name-link" title="class in kalix.javasdk.workflowentity">ReflectiveWorkflowEntityProvider</a>&lt;S,<wbr>W&gt; (implements kalix.javasdk.workflowentity.WorkflowEntityProvider&lt;S,<wbr>W&gt;)</li>
+<li class="circle">kalix.javasdk.workflow.<a href="kalix/javasdk/workflow/ReflectiveWorkflowProvider.html" class="type-name-link" title="class in kalix.javasdk.workflow">ReflectiveWorkflowProvider</a>&lt;S,<wbr>W&gt; (implements kalix.javasdk.workflow.WorkflowProvider&lt;S,<wbr>W&gt;)</li>
+<li class="circle">kalix.javasdk.client.<a href="kalix/javasdk/client/ValueEntityCallBuilder.html" class="type-name-link" title="class in kalix.javasdk.client">ValueEntityCallBuilder</a></li>
+<li class="circle">kalix.javasdk.client.<a href="kalix/javasdk/client/WorkflowCallBuilder.html" class="type-name-link" title="class in kalix.javasdk.client">WorkflowCallBuilder</a></li>
 </ul>
 </li>
 </ul>
@@ -85,6 +92,8 @@ loadScripts(document, 'script');</script>
 <li class="circle">kalix.javasdk.annotations.<a href="kalix/javasdk/annotations/EventHandler.html" class="type-name-link" title="annotation interface in kalix.javasdk.annotations">EventHandler</a> (implements java.lang.annotation.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/annotation/Annotation.html" title="class or interface in java.lang.annotation" class="external-link">Annotation</a>)</li>
 <li class="circle">kalix.javasdk.annotations.<a href="kalix/javasdk/annotations/ForwardHeaders.html" class="type-name-link" title="annotation interface in kalix.javasdk.annotations">ForwardHeaders</a> (implements java.lang.annotation.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/annotation/Annotation.html" title="class or interface in java.lang.annotation" class="external-link">Annotation</a>)</li>
 <li class="circle">kalix.javasdk.annotations.<a href="kalix/javasdk/annotations/GenerateEntityKey.html" class="type-name-link" title="annotation interface in kalix.javasdk.annotations">GenerateEntityKey</a> (implements java.lang.annotation.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/annotation/Annotation.html" title="class or interface in java.lang.annotation" class="external-link">Annotation</a>)</li>
+<li class="circle">kalix.javasdk.annotations.<a href="kalix/javasdk/annotations/GenerateId.html" class="type-name-link" title="annotation interface in kalix.javasdk.annotations">GenerateId</a> (implements java.lang.annotation.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/annotation/Annotation.html" title="class or interface in java.lang.annotation" class="external-link">Annotation</a>)</li>
+<li class="circle">kalix.javasdk.annotations.<a href="kalix/javasdk/annotations/Id.html" class="type-name-link" title="annotation interface in kalix.javasdk.annotations">Id</a> (implements java.lang.annotation.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/annotation/Annotation.html" title="class or interface in java.lang.annotation" class="external-link">Annotation</a>)</li>
 <li class="circle">kalix.javasdk.annotations.<a href="kalix/javasdk/annotations/JWT.html" class="type-name-link" title="annotation interface in kalix.javasdk.annotations">JWT</a> (implements java.lang.annotation.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/annotation/Annotation.html" title="class or interface in java.lang.annotation" class="external-link">Annotation</a>)</li>
 <li class="circle">kalix.javasdk.annotations.<a href="kalix/javasdk/annotations/Publish.html" class="type-name-link" title="annotation interface in kalix.javasdk.annotations">Publish</a> (implements java.lang.annotation.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/annotation/Annotation.html" title="class or interface in java.lang.annotation" class="external-link">Annotation</a>)</li>
 <li class="circle">kalix.javasdk.annotations.<a href="kalix/javasdk/annotations/Publish.Stream.html" class="type-name-link" title="annotation interface in kalix.javasdk.annotations">Publish.Stream</a> (implements java.lang.annotation.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/annotation/Annotation.html" title="class or interface in java.lang.annotation" class="external-link">Annotation</a>)</li>
@@ -96,6 +105,7 @@ loadScripts(document, 'script');</script>
 <li class="circle">kalix.javasdk.annotations.<a href="kalix/javasdk/annotations/Subscribe.Topic.html" class="type-name-link" title="annotation interface in kalix.javasdk.annotations">Subscribe.Topic</a> (implements java.lang.annotation.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/annotation/Annotation.html" title="class or interface in java.lang.annotation" class="external-link">Annotation</a>)</li>
 <li class="circle">kalix.javasdk.annotations.<a href="kalix/javasdk/annotations/Subscribe.ValueEntity.html" class="type-name-link" title="annotation interface in kalix.javasdk.annotations">Subscribe.ValueEntity</a> (implements java.lang.annotation.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/annotation/Annotation.html" title="class or interface in java.lang.annotation" class="external-link">Annotation</a>)</li>
 <li class="circle">kalix.javasdk.annotations.<a href="kalix/javasdk/annotations/Table.html" class="type-name-link" title="annotation interface in kalix.javasdk.annotations">Table</a> (implements java.lang.annotation.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/annotation/Annotation.html" title="class or interface in java.lang.annotation" class="external-link">Annotation</a>)</li>
+<li class="circle">kalix.javasdk.annotations.<a href="kalix/javasdk/annotations/TypeId.html" class="type-name-link" title="annotation interface in kalix.javasdk.annotations">TypeId</a> (implements java.lang.annotation.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/annotation/Annotation.html" title="class or interface in java.lang.annotation" class="external-link">Annotation</a>)</li>
 <li class="circle">kalix.javasdk.annotations.<a href="kalix/javasdk/annotations/TypeName.html" class="type-name-link" title="annotation interface in kalix.javasdk.annotations">TypeName</a> (implements java.lang.annotation.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/annotation/Annotation.html" title="class or interface in java.lang.annotation" class="external-link">Annotation</a>)</li>
 <li class="circle">kalix.javasdk.annotations.<a href="kalix/javasdk/annotations/ViewId.html" class="type-name-link" title="annotation interface in kalix.javasdk.annotations">ViewId</a> (implements java.lang.annotation.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/annotation/Annotation.html" title="class or interface in java.lang.annotation" class="external-link">Annotation</a>)</li>
 </ul>
@@ -110,6 +120,7 @@ loadScripts(document, 'script');</script>
 <li class="circle">kalix.javasdk.annotations.<a href="kalix/javasdk/annotations/Acl.DenyStatusCode.html" class="type-name-link" title="enum class in kalix.javasdk.annotations">Acl.DenyStatusCode</a></li>
 <li class="circle">kalix.javasdk.annotations.<a href="kalix/javasdk/annotations/Acl.Principal.html" class="type-name-link" title="enum class in kalix.javasdk.annotations">Acl.Principal</a></li>
 <li class="circle">kalix.javasdk.annotations.<a href="kalix/javasdk/annotations/GenerateEntityKey.Type.html" class="type-name-link" title="enum class in kalix.javasdk.annotations">GenerateEntityKey.Type</a></li>
+<li class="circle">kalix.javasdk.annotations.<a href="kalix/javasdk/annotations/GenerateId.Type.html" class="type-name-link" title="enum class in kalix.javasdk.annotations">GenerateId.Type</a></li>
 <li class="circle">kalix.javasdk.annotations.<a href="kalix/javasdk/annotations/JWT.JwtMethodMode.html" class="type-name-link" title="enum class in kalix.javasdk.annotations">JWT.JwtMethodMode</a></li>
 </ul>
 </li>
