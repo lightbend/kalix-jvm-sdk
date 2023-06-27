@@ -5,7 +5,7 @@
 version: "3"
 services:
   kalix-proxy:
-    image: gcr.io/kalix-public/kalix-proxy:1.1.14
+    image: gcr.io/kalix-public/kalix-proxy:1.1.15
     depends_on:
       - kalix-proxy-customer-registry
     ports:
@@ -21,7 +21,7 @@ services:
       USER_FUNCTION_PORT: "8081"
 
   kalix-proxy-customer-registry:
-    image: gcr.io/kalix-public/kalix-proxy:1.1.14
+    image: gcr.io/kalix-public/kalix-proxy:1.1.15
     ports:
       - "9000:9000"
     extra_hosts:
