@@ -16,9 +16,6 @@ public class CounterCommandFromTopicAction extends Action {
   public record MultiplyCounter(String counterId, int value) {
   }
 
-  public record MultiplyCounter(String counterId, int value) {
-  }
-
   private ComponentClient componentClient;
 
   public CounterCommandFromTopicAction(ComponentClient componentClient) {
@@ -33,9 +30,9 @@ public class CounterCommandFromTopicAction extends Action {
     return effects().forward(deferredCall);
   }
 
-  public Effect<String> onValueDecreased(MultiplyCounter increase) {
+  public Effect<String> onValueMultiplied(MultiplyCounter increase) {
     logger.info("Received increase command: " + increase.toString());
-    var deferredCall = kalixClient.post("/counter/"+ increase.counterId + "/multiply/" + increase.value, String.class);
+    var deferredCall = componentClient.forEventSourcedEntity(increase.counterId).call(Counter::multiply).params(increase.value);
     return effects().forward(deferredCall);
   }
 }
