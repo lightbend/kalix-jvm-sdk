@@ -17,9 +17,11 @@
 package kalix.spring;
 
 import kalix.javasdk.JsonSupport;
+import kalix.javasdk.client.ComponentClient;
 import kalix.javasdk.testkit.KalixTestKit;
 import kalix.spring.boot.KalixConfiguration;
 import kalix.spring.impl.KalixSpringApplication;
+import kalix.spring.impl.WebClientProviderHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,12 +68,19 @@ public class KalixConfigurationTest {
   }
 
   @Bean
-  public KalixTestKit kalixTestKit(KalixTestKit.Settings settings) {
+  public KalixTestKit kalixTestKit(KalixSpringApplication kalixSpringApplication, KalixTestKit.Settings settings) {
     logger.info("Starting Kalix TestKit...");
-    KalixTestKit kalixTestKit = new KalixTestKit(kalixSpringApplication().kalix(), settings);
-
+    KalixTestKit kalixTestKit = new KalixTestKit(kalixSpringApplication.kalix(), settings);
     kalixTestKit.start(kalixConfiguration.config());
     logger.info("Kalix Proxy running on port: " + kalixTestKit.getPort());
+    //when ComponentClient is used in integration test, we must initiate webclient before the first request
+    WebClientProviderHolder holder = WebClientProviderHolder.get(kalixTestKit.getRunner().system());
+    kalixSpringApplication.kalixClient().setWebClient(holder.webClientProvider().localWebClient());
     return kalixTestKit;
+  }
+
+  @Bean
+  public ComponentClient componentClient(KalixSpringApplication kalixSpringApplication) {
+    return kalixSpringApplication.componentClient();
   }
 }

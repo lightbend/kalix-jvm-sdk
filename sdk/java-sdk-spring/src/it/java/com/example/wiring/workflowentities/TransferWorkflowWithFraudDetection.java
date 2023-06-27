@@ -20,18 +20,23 @@ import com.example.wiring.actions.echo.Message;
 import com.example.wiring.workflowentities.FraudDetectionResult.TransferRejected;
 import com.example.wiring.workflowentities.FraudDetectionResult.TransferRequiresManualAcceptation;
 import com.example.wiring.workflowentities.FraudDetectionResult.TransferVerified;
+import kalix.javasdk.client.ComponentClient;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import kalix.javasdk.annotations.Id;
 import kalix.javasdk.annotations.TypeId;
 import kalix.javasdk.workflow.Workflow;
-import kalix.spring.KalixClient;
-import org.springframework.web.bind.annotation.*;
+
 
 import java.util.concurrent.CompletionStage;
 
 import static java.util.concurrent.CompletableFuture.completedFuture;
 
-@TypeId("transfer-workflow-with-fraud-detection")
 @Id("transferId")
+@TypeId("transfer-workflow-with-fraud-detection")
 @RequestMapping("/transfer-with-fraud-detection/{transferId}")
 public class TransferWorkflowWithFraudDetection extends Workflow<TransferState> {
 
@@ -39,10 +44,10 @@ public class TransferWorkflowWithFraudDetection extends Workflow<TransferState> 
   private final String withdrawStepName = "withdraw";
   private final String depositStepName = "deposit";
 
-  private KalixClient kalixClient;
+  private ComponentClient componentClient;
 
-  public TransferWorkflowWithFraudDetection(KalixClient kalixClient) {
-    this.kalixClient = kalixClient;
+  public TransferWorkflowWithFraudDetection(ComponentClient componentClient) {
+    this.componentClient = componentClient;
   }
 
   @Override
@@ -54,12 +59,13 @@ public class TransferWorkflowWithFraudDetection extends Workflow<TransferState> 
 
     var withdraw =
         step(withdrawStepName)
-            .call(Withdraw.class, cmd -> kalixClient.patch("/wallet/" + cmd.from + "/withdraw/" + cmd.amount, String.class))
+            .call(Withdraw.class, cmd ->
+                componentClient.forValueEntity(cmd.from).call(WalletEntity::withdraw).params(cmd.amount))
             .andThen(String.class, this::moveToDeposit);
 
     var deposit =
         step(depositStepName)
-            .call(Deposit.class, cmd -> kalixClient.patch("/wallet/" + cmd.to + "/deposit/" + cmd.amount, String.class))
+            .call(Deposit.class, cmd -> componentClient.forValueEntity(cmd.to).call(WalletEntity::deposit).params(cmd.amount))
             .andThen(String.class, this::finishWithSuccess);
 
     return workflow()

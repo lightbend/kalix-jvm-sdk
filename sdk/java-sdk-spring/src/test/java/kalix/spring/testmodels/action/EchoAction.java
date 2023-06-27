@@ -29,6 +29,6 @@ public class EchoAction extends Action {
 
   @PostMapping("/echo")
   public Effect<Message> messageBody(@RequestParam("add") String add, @RequestBody Message msg) {
-    return effects().reply(new Message(msg.value + add));
+    return effects().reply(new Message(msg.value() + add));
   }
 }

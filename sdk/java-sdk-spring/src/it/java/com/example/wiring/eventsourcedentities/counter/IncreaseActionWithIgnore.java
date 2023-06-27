@@ -19,7 +19,7 @@ package com.example.wiring.eventsourcedentities.counter;
 import kalix.javasdk.action.Action;
 import kalix.javasdk.action.ActionCreationContext;
 import kalix.javasdk.annotations.Subscribe;
-import kalix.spring.KalixClient;
+import kalix.javasdk.client.ComponentClient;
 import kalix.spring.KalixConfigurationTest;
 import org.springframework.context.annotation.Import;
 
@@ -29,12 +29,12 @@ import java.util.concurrent.CompletionStage;
 @Subscribe.EventSourcedEntity(value = CounterEntity.class, ignoreUnknown = true)
 public class IncreaseActionWithIgnore extends Action {
 
-    private KalixClient kalixClient;
+    private ComponentClient componentClient;
 
     private ActionCreationContext context;
 
-    public IncreaseActionWithIgnore(KalixClient kalixClient, ActionCreationContext context) {
-        this.kalixClient = kalixClient;
+    public IncreaseActionWithIgnore(ComponentClient componentClient, ActionCreationContext context) {
+        this.componentClient = componentClient;
         this.context = context;
     }
 
@@ -42,7 +42,7 @@ public class IncreaseActionWithIgnore extends Action {
         String entityId = this.actionContext().metadata().asCloudEvent().subject().get();
         if (event.value() == 1234) {
             CompletionStage<Integer> res =
-                    kalixClient.post("/counter/" + entityId + "/increase/1", Integer.class).execute();
+                componentClient.forEventSourcedEntity(entityId).call(CounterEntity::increase).params(1).execute();
             return effects().asyncReply(res);
         }
         return effects().reply(event.value());

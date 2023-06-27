@@ -18,13 +18,13 @@ package kalix.javasdk.impl.http
 
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets.UTF_8
+import java.util
 import java.util.regex.Matcher
 
 import scala.annotation.tailrec
 import scala.jdk.CollectionConverters._
 import scala.util.control.NonFatal
 
-import akka.http.scaladsl.model.Uri.Path
 import akka.http.scaladsl.model.ErrorInfo
 import akka.http.scaladsl.model.HttpMethod
 import akka.http.scaladsl.model.HttpMethods
@@ -32,7 +32,7 @@ import akka.http.scaladsl.model.IllegalRequestException
 import akka.http.scaladsl.model.ParsingException
 import akka.http.scaladsl.model.RequestEntityAcceptance
 import akka.http.scaladsl.model.StatusCodes
-import akka.http.scaladsl.model.Uri
+import akka.http.scaladsl.model.Uri.Path
 import com.google.api.HttpRule.PatternCase
 import com.google.api.annotations.AnnotationsProto
 import com.google.api.http.CustomHttpPattern
@@ -40,15 +40,17 @@ import com.google.api.http.HttpRule
 import com.google.api.http.HttpRule.Pattern._
 import com.google.api.{ AnnotationsProto => JavaAnnotationsProto }
 import com.google.api.{ HttpRule => JavaHttpRule }
+import com.google.protobuf.Descriptors
 import com.google.protobuf.Descriptors.Descriptor
 import com.google.protobuf.Descriptors.FieldDescriptor
 import com.google.protobuf.Descriptors.MethodDescriptor
 import com.google.protobuf.Descriptors.ServiceDescriptor
+import com.google.protobuf.DynamicMessage
 import com.google.protobuf.descriptor.{ MethodOptions => spbMethodOptions }
 import com.google.protobuf.util.Durations
 import com.google.protobuf.util.Timestamps
-import com.google.protobuf.Descriptors
-import com.google.protobuf.DynamicMessage
+import kalix.javasdk.impl.http.HttpEndpointMethodDefinition.lookupFieldByName
+import kalix.javasdk.impl.http.HttpEndpointMethodDefinition.parsingError
 import kalix.javasdk.impl.path.PathPatternParseException
 import org.slf4j.LoggerFactory
 
@@ -254,7 +256,7 @@ object HttpEndpointMethodDefinition {
                   s"HTTP API path template for [${methDesc.getFullName}] references [$fieldName] but that is a map field")
               else if (field.isRepeated)
                 parsingError(
-                  s"HTTP API path template for [${methDesc.getFullName}] references [$fieldName] but that is a repeated fieldfield")
+                  s"HTTP API path template for [${methDesc.getFullName}] references [$fieldName] but that is a repeated field")
               else {
                 val notSupported =
                   (message: String) => parsingError(s"HTTP API path for [${methDesc.getFullName}]: $message")
@@ -311,7 +313,7 @@ object HttpEndpointMethodDefinition {
   private def lookupFieldByName(desc: Descriptor, selector: String): FieldDescriptor =
     desc.findFieldByName(selector) // TODO potentially start supporting path-like selectors with maximum nesting level?
 
-  private val parsingError: String => Nothing = s => throw ParsingException(new ErrorInfo(s))
+  private def parsingError(msg: String): Nothing = throw ParsingException(new ErrorInfo(msg))
 }
 
 final case class HttpEndpointMethodDefinition private (
@@ -324,19 +326,48 @@ final case class HttpEndpointMethodDefinition private (
     responseBodyDescriptor: Option[FieldDescriptor]) {
 
   // Making this a method so we can ensure it's used the same way
-  private def pathMatcher(path: Uri.Path): Matcher =
+  private def pathMatcher(path: String): Matcher =
     pathTemplate.regex.pattern
       .matcher(
-        path.toString()
+        path
       ) // FIXME path.toString is costly, and using Regexes are too, switch to using a generated parser instead
 
-  def matches(path: Uri.Path): Boolean =
+  def matches(path: String): Boolean =
     pathMatcher(path).matches()
 
   private def lookupRequestFieldByPath(selector: String): Descriptors.FieldDescriptor =
     HttpEndpointMethodDefinition.lookupFieldByPath(methodDescriptor.getInputType, selector)
 
-  def parsePathParametersInto(path: Path, inputBuilder: DynamicMessage.Builder): Unit = {
+  def parseTypedPathParametersInto(pathVariables: Map[String, ?], inputBuilder: DynamicMessage.Builder): Unit = {
+
+    //TODO fix exceptions msgs
+    pathVariables.foreach { case (fieldName, value) =>
+      val field = lookupFieldByName(methodDescriptor.getInputType, fieldName) match {
+        case null =>
+          parsingError(
+            s"HTTP API path template for [${methodDescriptor.getFullName}] references an unknown field named [$fieldName], methDesc)")
+        case field =>
+          if (field.isMapField)
+            parsingError(
+              s"HTTP API path template for [${methodDescriptor.getFullName}] references [$fieldName] but that is a map field")
+          else if (field.isRepeated)
+            parsingError(
+              s"HTTP API path template for [${methodDescriptor.getFullName}] references [$fieldName] but that is a repeated fieldfield")
+          else {
+            val notSupported =
+              (message: String) => parsingError(s"HTTP API path for [${methodDescriptor.getFullName}]: $message")
+
+            //we don't need a parser, just to check if the type is supported
+            HttpEndpointMethod.suitableParserFor(field)(notSupported)
+            field
+          }
+      }
+
+      inputBuilder.setField(field, value)
+    }
+  }
+
+  def parsePathParametersInto(path: String, inputBuilder: DynamicMessage.Builder): Unit = {
     val matcher = pathMatcher(path)
     matcher.find()
     pathExtractor(
@@ -354,8 +385,32 @@ final case class HttpEndpointMethodDefinition private (
     "google.protobuf.Duration" -> Durations.parse)
 
   // We use this to signal to the requester that there's something wrong with the request
-  private val requestError: String => Nothing = s =>
-    throw IllegalRequestException(StatusCodes.BadRequest, new ErrorInfo(s))
+  private def requestError(msg: String): Nothing =
+    throw IllegalRequestException(StatusCodes.BadRequest, new ErrorInfo(msg))
+
+  def parseTypedRequestParametersInto(
+      queryParams: Map[String, util.List[scala.Any]],
+      inputBuilder: DynamicMessage.Builder): Unit = {
+    queryParams.foreach { case (name, values) =>
+      if (!values.isEmpty) {
+        lookupRequestFieldByPath(name) match {
+          case null => requestError(s"Query parameter [$name] refers to a non-existent field.")
+          case field if field.getJavaType == FieldDescriptor.JavaType.MESSAGE =>
+            requestError(s"Query parameter [$name] refers to a message type. Only scalar value types are supported.")
+          case field if !field.isRepeated && values.size() > 1 =>
+            requestError(s"Query parameter [$name] has multiple values for a non-repeated field.")
+          case field =>
+            if (field.isRepeated) {
+              values.forEach(v => {
+                inputBuilder.addRepeatedField(field, v)
+              })
+            } else {
+              inputBuilder.setField(field, values.get(0))
+            }
+        }
+      }
+    }
+  }
 
   def parseRequestParametersInto(query: Map[String, List[String]], inputBuilder: DynamicMessage.Builder): Unit =
     query.foreach { case (selector, values) =>
@@ -363,6 +418,7 @@ final case class HttpEndpointMethodDefinition private (
         lookupRequestFieldByPath(selector) match {
           case null => requestError(s"Query parameter [$selector] refers to a non-existent field.")
           case field if field.getJavaType == FieldDescriptor.JavaType.MESSAGE =>
+            //this is actually not supported at the moment: https://github.com/lightbend/kalix-jvm-sdk/issues/1434
             singleStringMessageParsers.get(field.getMessageType.getFullName) match {
               case Some(parser) =>
                 try {

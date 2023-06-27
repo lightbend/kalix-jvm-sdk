@@ -18,24 +18,23 @@ package com.example.wiring.actions.echo;
 
 import kalix.javasdk.Metadata;
 import kalix.javasdk.action.Action;
-import kalix.spring.KalixClient;
+import kalix.javasdk.client.ComponentClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
 public class ActionWithMetadata extends Action {
 
-  private KalixClient kalixClient;
+  private ComponentClient componentClient;
 
-  public ActionWithMetadata(KalixClient kalixClient) {
-    this.kalixClient = kalixClient;
+  public ActionWithMetadata(ComponentClient componentClient) {
+    this.componentClient = componentClient;
   }
 
   @GetMapping("/action-with-meta/{key}/{value}")
   public Effect<Message> actionWithMeta(@PathVariable String key, @PathVariable String value) {
-    var def = kalixClient.get("/return-meta/" + key, Message.class);
+    var def = componentClient.forAction().call(ActionWithMetadata::returnMeta).params(key);
     return effects().forward(def.withMetadata(Metadata.EMPTY.add(key, value)));
   }
-
 
   @GetMapping("/return-meta/{key}")
   public Effect<Message> returnMeta(@PathVariable String key) {

@@ -16,6 +16,7 @@
 
 package kalix.spring.testmodels.valueentity;
 
+import kalix.javasdk.annotations.GenerateId;
 import kalix.javasdk.valueentity.ValueEntity;
 import kalix.javasdk.annotations.Id;
 import kalix.javasdk.annotations.TypeId;
@@ -23,6 +24,7 @@ import kalix.spring.testmodels.Number;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -49,6 +51,17 @@ public class Counter extends ValueEntity<CounterState> {
         counterState.value);
     CounterState newCounter = counterState.increase(num.value);
     return effects().updateState(newCounter).thenReply(new Number(newCounter.value));
+  }
+
+  @GenerateId
+  @PostMapping("/increase/{value}")
+  public ValueEntity.Effect<Number> randomIncrease(@PathVariable Integer value) {
+    CounterState counterState = new CounterState(commandContext().entityId(), value);
+    logger.info(
+        "Increasing counter '{}' to value '{}'",
+        counterState.id,
+        counterState.value);
+    return effects().updateState(counterState).thenReply(new Number(counterState.value));
   }
 
   @GetMapping("/{counterId}")

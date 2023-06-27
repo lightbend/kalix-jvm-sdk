@@ -18,6 +18,9 @@ package com.example.wiring.workflowentities;
 
 import com.example.wiring.TestkitConfig;
 import com.example.wiring.actions.echo.Message;
+import com.google.protobuf.any.Any;
+import kalix.javasdk.DeferredCall;
+import kalix.javasdk.client.ComponentClient;
 import kalix.spring.KalixConfigurationTest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +36,9 @@ import reactor.core.publisher.Mono;
 
 import java.time.Duration;
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import static java.time.temporal.ChronoUnit.SECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -46,6 +51,9 @@ public class SpringWorkflowIntegrationTest {
 
   @Autowired
   private WebClient webClient;
+
+  @Autowired
+  private ComponentClient componentClient;
 
   private Duration timeout = Duration.of(10, SECONDS);
 
@@ -79,17 +87,13 @@ public class SpringWorkflowIntegrationTest {
     createWallet(walletId1, 100);
     createWallet(walletId2, 100);
     var transferId = randomTransferId();
-    var transferUrl = "/transfer/" + transferId;
     var transfer = new Transfer(walletId1, walletId2, 10);
 
-    String response = webClient.put().uri(transferUrl)
-        .bodyValue(transfer)
-        .retrieve()
-        .bodyToMono(Message.class)
-        .map(m -> m.text)
-        .block(timeout);
+    Message response = execute(componentClient.forWorkflow(transferId)
+        .call(TransferWorkflow::startTransfer)
+        .params(transfer));
 
-    assertThat(response).isEqualTo("transfer started");
+    assertThat(response.text).isEqualTo("transfer started");
 
     await()
         .atMost(10, TimeUnit.of(SECONDS))
@@ -110,17 +114,13 @@ public class SpringWorkflowIntegrationTest {
     createWallet(walletId1, 100);
     createWallet(walletId2, 100);
     var transferId = randomTransferId();
-    var transferUrl = "/transfer-without-inputs/" + transferId;
     var transfer = new Transfer(walletId1, walletId2, 10);
 
-    String response = webClient.put().uri(transferUrl)
-        .bodyValue(transfer)
-        .retrieve()
-        .bodyToMono(Message.class)
-        .map(m -> m.text)
-        .block(timeout);
+    Message response = execute(componentClient.forWorkflow(transferId)
+        .call(TransferWorkflowWithoutInputs::startTransfer)
+        .params(transfer));
 
-    assertThat(response).isEqualTo("transfer started");
+    assertThat(response.text).isEqualTo("transfer started");
 
     await()
         .atMost(10, TimeUnit.of(SECONDS))
@@ -140,17 +140,13 @@ public class SpringWorkflowIntegrationTest {
     createWallet(walletId1, 100);
     createWallet(walletId2, 100);
     var transferId = randomTransferId();
-    var transferUrl = "/transfer-without-inputs/" + transferId + "/async";
     var transfer = new Transfer(walletId1, walletId2, 10);
 
-    String response = webClient.put().uri(transferUrl)
-        .bodyValue(transfer)
-        .retrieve()
-        .bodyToMono(Message.class)
-        .map(m -> m.text)
-        .block(timeout);
+    Message response = execute(componentClient.forWorkflow(transferId)
+        .call(TransferWorkflowWithoutInputs::startTransferAsync)
+        .params(transfer));
 
-    assertThat(response).isEqualTo("transfer started");
+    assertThat(response.text).isEqualTo("transfer started");
 
     await()
         .atMost(10, TimeUnit.of(SECONDS))
@@ -171,17 +167,13 @@ public class SpringWorkflowIntegrationTest {
     createWallet(walletId1, 100);
     createWallet(walletId2, 100);
     var transferId = randomTransferId();
-    var transferUrl = "/transfer-with-fraud-detection/" + transferId;
     var transfer = new Transfer(walletId1, walletId2, 10);
 
-    String response = webClient.put().uri(transferUrl)
-        .bodyValue(transfer)
-        .retrieve()
-        .bodyToMono(Message.class)
-        .map(m -> m.text)
-        .block(timeout);
+    Message response = execute(componentClient.forWorkflow(transferId)
+        .call(TransferWorkflowWithFraudDetection::startTransfer)
+        .params(transfer));
 
-    assertThat(response).isEqualTo("transfer started");
+    assertThat(response.text).isEqualTo("transfer started");
 
     await()
         .atMost(10, TimeUnit.of(SECONDS))
@@ -201,36 +193,29 @@ public class SpringWorkflowIntegrationTest {
     createWallet(walletId1, 100000);
     createWallet(walletId2, 100000);
     var transferId = randomTransferId();
-    var transferUrl = "/transfer-with-fraud-detection/" + transferId;
     var transfer = new Transfer(walletId1, walletId2, 1000);
 
-    String response = webClient.put().uri(transferUrl)
-        .bodyValue(transfer)
-        .retrieve()
-        .bodyToMono(Message.class)
-        .map(m -> m.text)
-        .block(timeout);
+    Message response = execute(componentClient.forWorkflow(transferId)
+        .call(TransferWorkflowWithFraudDetection::startTransfer)
+        .params(transfer));
 
-    assertThat(response).isEqualTo("transfer started");
+    assertThat(response.text).isEqualTo("transfer started");
 
     await()
         .atMost(10, TimeUnit.of(SECONDS))
         .untilAsserted(() -> {
 
-          var transferState = getTransferState(transferUrl);
+          var transferState = execute(componentClient.forWorkflow(transferId).call(TransferWorkflowWithFraudDetection::getTransferState));
           assertThat(transferState.finished).isFalse();
           assertThat(transferState.accepted).isFalse();
           assertThat(transferState.lastStep).isEqualTo("fraud-detection");
         });
 
-    String acceptanceResponse = webClient.patch().uri(transferUrl + "/accept")
-        .bodyValue(transfer)
-        .retrieve()
-        .bodyToMono(Message.class)
-        .map(m -> m.text)
-        .block(timeout);
+    Message acceptedResponse = execute(componentClient.forWorkflow(transferId)
+        .call(TransferWorkflowWithFraudDetection::acceptTransfer));
 
-    assertThat(acceptanceResponse).isEqualTo("transfer accepted");
+    assertThat(acceptedResponse.text).isEqualTo("transfer accepted");
+
 
     await()
         .atMost(10, TimeUnit.of(SECONDS))
@@ -250,17 +235,13 @@ public class SpringWorkflowIntegrationTest {
     createWallet(walletId1, 100);
     createWallet(walletId2, 100);
     var transferId = randomTransferId();
-    var transferUrl = "/transfer-with-fraud-detection/" + transferId;
     var transfer = new Transfer(walletId1, walletId2, 1000000);
 
-    String response = webClient.put().uri(transferUrl)
-        .bodyValue(transfer)
-        .retrieve()
-        .bodyToMono(Message.class)
-        .map(m -> m.text)
-        .block(timeout);
+    Message response = execute(componentClient.forWorkflow(transferId)
+        .call(TransferWorkflowWithFraudDetection::startTransfer)
+        .params(transfer));
 
-    assertThat(response).isEqualTo("transfer started");
+    assertThat(response.text).isEqualTo("transfer started");
 
     await()
         .atMost(10, TimeUnit.of(SECONDS))
@@ -271,7 +252,7 @@ public class SpringWorkflowIntegrationTest {
           assertThat(balance1).isEqualTo(100);
           assertThat(balance2).isEqualTo(100);
 
-          var transferState = getTransferState(transferUrl);
+          var transferState = execute(componentClient.forWorkflow(transferId).call(TransferWorkflowWithFraudDetection::getTransferState));
           assertThat(transferState.finished).isTrue();
           assertThat(transferState.accepted).isFalse();
           assertThat(transferState.lastStep).isEqualTo("fraud-detection");
@@ -283,16 +264,14 @@ public class SpringWorkflowIntegrationTest {
     //given
     var counterId = randomId();
     var workflowId = randomId();
-    String path = "/workflow-with-default-recover-strategy/" + workflowId;
 
     //when
-    String response = webClient.put().uri(path + "/" + counterId)
-        .retrieve()
-        .bodyToMono(Message.class)
-        .map(m -> m.text)
-        .block(timeout);
+    Message response = execute(componentClient.forWorkflow(workflowId)
+        .call(WorkflowWithDefaultRecoverStrategy::startFailingCounter)
+        .params(counterId));
 
-    assertThat(response).isEqualTo("workflow started");
+    assertThat(response.text).isEqualTo("workflow started");
+
 
     //then
     await()
@@ -305,7 +284,7 @@ public class SpringWorkflowIntegrationTest {
     await()
         .atMost(10, TimeUnit.of(SECONDS))
         .untilAsserted(() -> {
-          var state = getWorkflowState(path);
+          var state = execute(componentClient.forWorkflow(workflowId).call(WorkflowWithDefaultRecoverStrategy::get));
           assertThat(state.finished()).isTrue();
         });
   }
@@ -315,16 +294,13 @@ public class SpringWorkflowIntegrationTest {
     //given
     var counterId = randomId();
     var workflowId = randomId();
-    String path = "/workflow-with-recover-strategy/" + workflowId;
 
     //when
-    String response = webClient.put().uri(path + "/" + counterId)
-        .retrieve()
-        .bodyToMono(Message.class)
-        .map(m -> m.text)
-        .block(timeout);
+    Message response = execute(componentClient.forWorkflow(workflowId)
+        .call(WorkflowWithRecoverStrategy::startFailingCounter)
+        .params(counterId));
 
-    assertThat(response).isEqualTo("workflow started");
+    assertThat(response.text).isEqualTo("workflow started");
 
     //then
     await()
@@ -337,7 +313,7 @@ public class SpringWorkflowIntegrationTest {
     await()
         .atMost(10, TimeUnit.of(SECONDS))
         .untilAsserted(() -> {
-          var state = getWorkflowState(path);
+          var state = execute(componentClient.forWorkflow(workflowId).call(WorkflowWithRecoverStrategy::get));
           assertThat(state.finished()).isTrue();
         });
   }
@@ -347,16 +323,13 @@ public class SpringWorkflowIntegrationTest {
     //given
     var counterId = randomId();
     var workflowId = randomId();
-    String path = "/workflow-with-timeout/" + workflowId;
 
     //when
-    String response = webClient.put().uri(path + "/" + counterId)
-        .retrieve()
-        .bodyToMono(Message.class)
-        .map(m -> m.text)
-        .block(timeout);
+    Message response = execute(componentClient.forWorkflow(workflowId)
+        .call(WorkflowWithTimeout::startFailingCounter)
+        .params(counterId));
 
-    assertThat(response).isEqualTo("workflow started");
+    assertThat(response.text).isEqualTo("workflow started");
 
     //then
     await()
@@ -369,33 +342,30 @@ public class SpringWorkflowIntegrationTest {
     await()
         .atMost(10, TimeUnit.of(SECONDS))
         .untilAsserted(() -> {
-          var state = getWorkflowState(path);
+          var state = execute(componentClient.forWorkflow(workflowId).call(WorkflowWithTimeout::get));
           assertThat(state.finished()).isTrue();
         });
   }
 
   @Test
-  public void shouldRecoverWorkflowStepTimeout() throws InterruptedException {
+  public void shouldRecoverWorkflowStepTimeout() {
     //given
     var counterId = randomId();
     var workflowId = randomId();
-    String path = "/workflow-with-step-timeout/" + workflowId;
 
     //when
-    String response = webClient.put().uri(path + "/" + counterId)
-        .retrieve()
-        .bodyToMono(Message.class)
-        .map(m -> m.text)
-        .block(timeout);
+    Message response = execute(componentClient.forWorkflow(workflowId)
+        .call(WorkflowWithStepTimeout::startFailingCounter)
+        .params(counterId));
 
-    assertThat(response).isEqualTo("workflow started");
+    assertThat(response.text).isEqualTo("workflow started");
 
     //then
     await()
         .atMost(10, TimeUnit.of(SECONDS))
         .ignoreExceptions()
         .untilAsserted(() -> {
-          var state = getWorkflowState(path);
+          var state = execute(componentClient.forWorkflow(workflowId).call(WorkflowWithStepTimeout::get));
           assertThat(state.value()).isEqualTo(2);
           assertThat(state.finished()).isTrue();
         });
@@ -406,22 +376,19 @@ public class SpringWorkflowIntegrationTest {
     //given
     var counterId = randomId();
     var workflowId = randomId();
-    String path = "/workflow-with-timer/" + workflowId;
 
     //when
-    String response = webClient.put().uri(path + "/" + counterId)
-        .retrieve()
-        .bodyToMono(Message.class)
-        .map(m -> m.text)
-        .block(timeout);
+    Message response = execute(componentClient.forWorkflow(workflowId)
+        .call(WorkflowWithTimer::startFailingCounter)
+        .params(counterId));
 
-    assertThat(response).isEqualTo("workflow started");
+    assertThat(response.text).isEqualTo("workflow started");
 
     //then
     await()
         .atMost(10, TimeUnit.of(SECONDS))
         .untilAsserted(() -> {
-          var state = getWorkflowState(path);
+          var state = execute(componentClient.forWorkflow(workflowId).call(WorkflowWithTimer::get));
           assertThat(state.finished()).isTrue();
           assertThat(state.value()).isEqualTo(12);
         });
@@ -435,13 +402,25 @@ public class SpringWorkflowIntegrationTest {
 
     //when
     ResponseEntity<String> response = webClient.put().uri(path)
-      .retrieve()
-      .toEntity(String.class)
-      .onErrorResume(WebClientResponseException.class, error -> Mono.just(ResponseEntity.status(error.getStatusCode()).body(error.getResponseBodyAsString())))
-      .block(timeout);
+        .retrieve()
+        .toEntity(String.class)
+        .onErrorResume(WebClientResponseException.class, error -> Mono.just(ResponseEntity.status(error.getStatusCode()).body(error.getResponseBodyAsString())))
+        .block(timeout);
 
     assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
     assertThat(response.getBody()).isEqualTo("Required request parameter is missing: counterId");
+  }
+
+  private <T> T execute(DeferredCall<Any, T> deferredCall) {
+    return execute(deferredCall, timeout);
+  }
+
+  private <T> T execute(DeferredCall<Any, T> deferredCall, Duration timeout) {
+    try {
+      return deferredCall.execute().toCompletableFuture().get(timeout.toMillis(), TimeUnit.MILLISECONDS);
+    } catch (InterruptedException | ExecutionException | TimeoutException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   private String randomTransferId() {
@@ -453,43 +432,18 @@ public class SpringWorkflowIntegrationTest {
   }
 
   private Integer getFailingCounterValue(String counterId) {
-    return webClient.get().uri("/failing-counter/" + counterId)
-        .retrieve()
-        .bodyToMono(String.class)
-        .map(s -> s.replace("\"", ""))
-        .map(Integer::valueOf)
-        .block(Duration.ofSeconds(20));
-  }
-
-  private FailingCounterState getWorkflowState(String url) {
-    return webClient.get().uri(url)
-        .retrieve()
-        .bodyToMono(FailingCounterState.class)
-        .block(Duration.ofSeconds(20));
+    return execute(componentClient.forEventSourcedEntity(counterId)
+        .call(FailingCounterEntity::get), Duration.ofSeconds(20));
   }
 
   private void createWallet(String walletId, int amount) {
-    ResponseEntity<Void> response = webClient.post().uri("/wallet/" + walletId + "/create/" + amount)
-        .retrieve()
-        .toBodilessEntity()
-        .block(timeout);
-
-    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+    execute(componentClient.forValueEntity(walletId)
+        .call(WalletEntity::create)
+        .params(amount));
   }
 
   private int getWalletBalance(String walletId) {
-    Balance response = webClient.get().uri("/wallet/" + walletId)
-        .retrieve()
-        .bodyToMono(Balance.class)
-        .block(timeout);
-
-    return response.value;
-  }
-
-  private TransferState getTransferState(String url) {
-    return webClient.get().uri(url)
-        .retrieve()
-        .bodyToMono(TransferState.class)
-        .block(timeout);
+    return execute(componentClient.forValueEntity(walletId)
+        .call(WalletEntity::get)).value;
   }
 }

@@ -598,7 +598,7 @@ public class PubSubTestModels {//TODO shall we remove this class and move things
 
     @Publish.Topic("foobar")
     public Effect<byte[]> produce(Message msg) {
-      return effects().reply(msg.value.getBytes());
+      return effects().reply(msg.value().getBytes());
     }
   }
 

@@ -18,16 +18,16 @@ package com.example.wiring.workflowentities;
 
 import com.example.wiring.actions.echo.Message;
 import io.grpc.Status;
+import kalix.javasdk.client.ComponentClient;
 import kalix.javasdk.annotations.Id;
 import kalix.javasdk.annotations.TypeId;
 import kalix.javasdk.workflow.Workflow;
-import kalix.spring.KalixClient;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-@TypeId("transfer-workflow-without-inputs")
 @Id("transferId")
+@TypeId("transfer-workflow-without-inputs")
 @RequestMapping("/transfer-without-inputs/{transferId}")
 public class TransferWorkflowWithoutInputs extends Workflow<TransferState> {
 
@@ -36,10 +36,10 @@ public class TransferWorkflowWithoutInputs extends Workflow<TransferState> {
   private final String depositStepName = "deposit";
   private final String depositAsyncStepName = "deposit-async";
 
-  private KalixClient kalixClient;
+  private ComponentClient componentClient;
 
-  public TransferWorkflowWithoutInputs(KalixClient kalixClient) {
-    this.kalixClient = kalixClient;
+  public TransferWorkflowWithoutInputs(ComponentClient componentClient) {
+    this.componentClient = componentClient;
   }
 
   @Override
@@ -48,7 +48,7 @@ public class TransferWorkflowWithoutInputs extends Workflow<TransferState> {
         step(withdrawStepName)
             .call(() -> {
               var transfer = currentState().transfer;
-              return kalixClient.patch("/wallet/" + transfer.from + "/withdraw/" + transfer.amount, String.class);
+              return componentClient.forValueEntity(transfer.from).call(WalletEntity::withdraw).params(transfer.amount);
             })
             .andThen(String.class, response -> {
               var state = currentState().withLastStep("withdrawn").accepted();
@@ -61,7 +61,7 @@ public class TransferWorkflowWithoutInputs extends Workflow<TransferState> {
         step(withdrawAsyncStepName)
             .asyncCall(() -> {
               var transfer = currentState().transfer;
-              return kalixClient.patch("/wallet/" + transfer.from + "/withdraw/" + transfer.amount, String.class).execute();
+              return componentClient.forValueEntity(transfer.from).call(WalletEntity::withdraw).params(transfer.amount).execute();
             })
             .andThen(String.class, response -> {
               var state = currentState().withLastStep("withdrawn").accepted();
@@ -75,7 +75,7 @@ public class TransferWorkflowWithoutInputs extends Workflow<TransferState> {
         step(depositStepName)
             .call(() -> {
               var transfer = currentState().transfer;
-              return kalixClient.patch("/wallet/" + transfer.to + "/deposit/" + transfer.amount, String.class);
+              return componentClient.forValueEntity(transfer.to).call(WalletEntity::deposit).params(transfer.amount);
             })
             .andThen(String.class, __ -> {
               var state = currentState().withLastStep("deposited").finished();
@@ -86,7 +86,7 @@ public class TransferWorkflowWithoutInputs extends Workflow<TransferState> {
         step(depositAsyncStepName)
             .asyncCall(() -> {
               var transfer = currentState().transfer;
-              return kalixClient.patch("/wallet/" + transfer.to + "/deposit/" + transfer.amount, String.class).execute();
+              return componentClient.forValueEntity(transfer.to).call(WalletEntity::deposit).params(transfer.amount).execute();
             })
             .andThen(String.class, __ -> {
               var state = currentState().withLastStep("deposited").finished();

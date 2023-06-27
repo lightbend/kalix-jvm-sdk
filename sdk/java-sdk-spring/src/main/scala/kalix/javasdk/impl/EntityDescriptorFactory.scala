@@ -16,18 +16,12 @@
 
 package kalix.javasdk.impl
 
-import java.lang.reflect.AnnotatedElement
-
 import kalix.KeyGeneratorMethodOptions.Generator
-import kalix.javasdk.annotations.EntityKey
-import kalix.javasdk.annotations.GenerateEntityKey
-import kalix.javasdk.annotations.GenerateId
-import kalix.javasdk.annotations.Id
 import kalix.javasdk.impl.ComponentDescriptorFactory.buildJWTOptions
+import kalix.javasdk.impl.reflection.IdExtractor.extractIds
 import kalix.javasdk.impl.reflection.KalixMethod
 import kalix.javasdk.impl.reflection.NameGenerator
 import kalix.javasdk.impl.reflection.RestServiceIntrospector
-import kalix.javasdk.impl.reflection.ServiceIntrospectionException
 
 private[impl] object EntityDescriptorFactory extends ComponentDescriptorFactory {
 
@@ -36,53 +30,18 @@ private[impl] object EntityDescriptorFactory extends ComponentDescriptorFactory 
       messageCodec: JsonMessageCodec,
       nameGenerator: NameGenerator): ComponentDescriptor = {
 
-    def idValue(annotatedElement: AnnotatedElement) =
-      if (annotatedElement.getAnnotation(classOf[Id]) != null)
-        annotatedElement.getAnnotation(classOf[Id]).value()
-      else if (annotatedElement.getAnnotation(classOf[EntityKey]) != null)
-        annotatedElement.getAnnotation(classOf[EntityKey]).value()
-      else
-        Array.empty[String]
-
-    def shouldGenerateId(annotatedElement: AnnotatedElement) =
-      if (annotatedElement.getAnnotation(classOf[GenerateId]) != null)
-        true
-      else
-        annotatedElement.getAnnotation(classOf[GenerateEntityKey]) != null
-
-    val idOnType = idValue(component)
-
     val kalixMethods =
       RestServiceIntrospector.inspectService(component).methods.map { restMethod =>
 
-        val entityIdOnMethod = idValue(restMethod.javaMethod)
-        val generateEntityId = shouldGenerateId(restMethod.javaMethod)
-        if (entityIdOnMethod.nonEmpty && generateEntityId)
-          throw ServiceIntrospectionException(
-            restMethod.javaMethod,
-            "Invalid annotation usage. Found both @Id and @GenerateId annotations. " +
-            "A method can only be annotated with one of them, but not both.")
+        val ids = extractIds(component, restMethod.javaMethod)
 
         val kalixMethod =
-          if (generateEntityId) {
+          if (ids.isEmpty) {
             val keyGenOptions = kalix.KeyGeneratorMethodOptions.newBuilder().setKeyGenerator(Generator.VERSION_4_UUID)
             val methodOpts = kalix.MethodOptions.newBuilder().setEntity(keyGenOptions)
             KalixMethod(restMethod).withKalixOptions(methodOpts.build())
-
           } else {
-            // keys defined on Method level get precedence
-            val entityKeysToUse =
-              if (entityIdOnMethod.nonEmpty) entityIdOnMethod
-              else idOnType
-
-            if (entityKeysToUse.isEmpty)
-              throw ServiceIntrospectionException(
-                restMethod.javaMethod,
-                "Invalid command method. No @Id nor @GenerateId annotations found. " +
-                "A command method should be annotated with either @Id or @GenerateId, or " +
-                "an @Id annotation should be present at class level.")
-
-            KalixMethod(restMethod, entityKeys = entityKeysToUse.toIndexedSeq)
+            KalixMethod(restMethod, entityKeys = ids)
           }
 
         kalixMethod.withKalixOptions(buildJWTOptions(restMethod.javaMethod))

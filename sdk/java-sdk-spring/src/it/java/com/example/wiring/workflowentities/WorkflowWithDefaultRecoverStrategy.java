@@ -20,7 +20,7 @@ import com.example.wiring.actions.echo.Message;
 import kalix.javasdk.annotations.Id;
 import kalix.javasdk.annotations.TypeId;
 import kalix.javasdk.workflow.Workflow;
-import kalix.spring.KalixClient;
+import kalix.javasdk.client.ComponentClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -31,18 +31,18 @@ import java.util.concurrent.CompletableFuture;
 import static java.time.Duration.ofSeconds;
 import static kalix.javasdk.workflow.Workflow.RecoverStrategy.maxRetries;
 
-@TypeId("workflow-with-default-recover-strategy")
 @Id("workflowId")
+@TypeId("workflow-with-default-recover-strategy")
 @RequestMapping("/workflow-with-default-recover-strategy/{workflowId}")
 public class WorkflowWithDefaultRecoverStrategy extends Workflow<FailingCounterState> {
 
   private final String counterStepName = "counter";
   private final String counterFailoverStepName = "counter-failover";
 
-  private KalixClient kalixClient;
+  private ComponentClient componentClient;
 
-  public WorkflowWithDefaultRecoverStrategy(KalixClient kalixClient) {
-    this.kalixClient = kalixClient;
+  public WorkflowWithDefaultRecoverStrategy(ComponentClient componentClient) {
+    this.componentClient = componentClient;
   }
 
   @Override
@@ -51,7 +51,7 @@ public class WorkflowWithDefaultRecoverStrategy extends Workflow<FailingCounterS
         step(counterStepName)
             .call(() -> {
               var nextValue = currentState().value() + 1;
-              return kalixClient.post("/failing-counter/" + currentState().counterId() + "/increase/" + nextValue, Integer.class);
+              return componentClient.forEventSourcedEntity(currentState().counterId()).call(FailingCounterEntity::increase).params(nextValue);
             })
             .andThen(Integer.class, __ -> effects()
                 .updateState(currentState().asFinished())

@@ -18,22 +18,31 @@ package com.example.wiring.actions.echo;
 
 import kalix.javasdk.action.Action;
 import kalix.javasdk.action.ActionCreationContext;
+import kalix.javasdk.client.ComponentClient;
+import kalix.spring.KalixClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.CompletableFuture;
 
 public class EchoAction extends Action {
 
   private Parrot parrot;
   private ActionCreationContext ctx;
+  private final KalixClient kalixClient;
+  private final ComponentClient componentClient;
 
-  public EchoAction(Parrot parrot, ActionCreationContext ctx) {
+  public EchoAction(Parrot parrot, ActionCreationContext ctx, KalixClient kalixClient, ComponentClient componentClient) {
     this.parrot = parrot;
     this.ctx = ctx;
+    this.kalixClient = kalixClient;
+    this.componentClient = componentClient;
   }
 
   @GetMapping("/echo/message/{msg}")
@@ -47,8 +56,20 @@ public class EchoAction extends Action {
     return stringMessage(msg);
   }
 
+  @PostMapping("/echo/message/forward")
+  public Effect<Message> stringMessageFromParamFw(@RequestParam String msg) {
+    var result = kalixClient.get("/echo/message?msg=" + URLEncoder.encode(msg, StandardCharsets.UTF_8), Message.class);
+    return effects().forward(result);
+  }
+
+  @PostMapping("/echo/message/forward")
+  public Effect<Message> stringMessageFromParamFwTyped(@RequestParam String msg) {
+    var result = componentClient.forAction().call(EchoAction::stringMessageFromParam).params(msg);
+    return effects().forward(result);
+  }
+
   @GetMapping("/echo/repeat/{msg}/times/{times}")
-  public Flux<Effect<Message>> stringMessage(
+  public Flux<Effect<Message>> stringMessageRepeat(
       @PathVariable String msg, @PathVariable Integer times) {
     return Flux.range(1, times)
         // add an async boundary just to have some thread switching

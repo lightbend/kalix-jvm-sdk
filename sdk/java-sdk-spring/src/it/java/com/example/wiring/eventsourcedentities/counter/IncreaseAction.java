@@ -22,7 +22,7 @@ import kalix.javasdk.SideEffect;
 import kalix.javasdk.action.Action;
 import kalix.javasdk.action.ActionCreationContext;
 import kalix.javasdk.annotations.Subscribe;
-import kalix.spring.KalixClient;
+import kalix.javasdk.client.ComponentClient;
 import kalix.spring.KalixConfigurationTest;
 import org.springframework.context.annotation.Import;
 
@@ -31,12 +31,12 @@ import java.util.concurrent.CompletionStage;
 @Import(KalixConfigurationTest.class)
 public class IncreaseAction extends Action {
 
-  private KalixClient kalixClient;
+  private ComponentClient componentClient;
 
   private ActionCreationContext context;
 
-  public IncreaseAction(KalixClient kalixClient, ActionCreationContext context) {
-    this.kalixClient = kalixClient;
+  public IncreaseAction(ComponentClient componentClient, ActionCreationContext context) {
+    this.componentClient = componentClient;
     this.context = context;
   }
 
@@ -54,11 +54,10 @@ public class IncreaseAction extends Action {
   public Effect<Integer> printIncrease(CounterEvent.ValueIncreased event) {
     String entityId = this.actionContext().metadata().asCloudEvent().subject().get();
     if (event.value() == 42) {
-      CompletionStage<Integer> res =
-          kalixClient.post("/counter/" + entityId + "/increase/1", Integer.class).execute();
+      CompletionStage<Integer> res = componentClient.forEventSourcedEntity(entityId).call(CounterEntity::increase).params(1).execute();
       return effects().asyncReply(res);
     } else if (event.value() == 4422) {
-      DeferredCall<Any, Integer> inc = kalixClient.post("/counter/" + entityId + "/increase/1", Integer.class);
+      DeferredCall<Any, Integer> inc = componentClient.forEventSourcedEntity(entityId).call(CounterEntity::increase).params(1);
       return effects().reply(event.value())
           .addSideEffect(SideEffect.of(inc));
     }

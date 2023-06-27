@@ -49,23 +49,23 @@ public class CounterEntity extends EventSourcedEntity<Counter, CounterEvent> {
 
   @PostMapping("/increase/{value}")
   public Effect<Integer> increase(@PathVariable Integer value) {
-    return effects().emitEvent(new CounterEvent.ValueIncreased(value)).thenReply(c -> c.value);
+    return effects().emitEvent(new CounterEvent.ValueIncreased(value)).thenReply(c -> c.value());
   }
 
   @PostMapping("/set/{value}")
   public Effect<Integer> set(@PathVariable Integer value) {
-    return effects().emitEvent(new CounterEvent.ValueSet(value)).thenReply(c -> c.value);
+    return effects().emitEvent(new CounterEvent.ValueSet(value)).thenReply(c -> c.value());
   }
 
   @PostMapping("/set")
   public Effect<Integer> setFromReqParam(@RequestParam Integer value) {
-    return effects().emitEvent(new CounterEvent.ValueSet(value)).thenReply(c -> c.value);
+    return effects().emitEvent(new CounterEvent.ValueSet(value)).thenReply(c -> c.value());
   }
 
   @GetMapping
-  public Effect<String> get() {
+  public Effect<Integer> get() {
     // don't modify, we want to make sure we call currentState().value here
-    return effects().reply(currentState().value.toString());
+    return effects().reply(currentState().value());
   }
 
   @PostMapping("/multiply/{value}")
@@ -78,7 +78,7 @@ public class CounterEntity extends EventSourcedEntity<Counter, CounterEvent> {
         currentState(),
         value);
 
-    return effects().emitEvent(new CounterEvent.ValueMultiplied(value)).thenReply(c -> c.value);
+    return effects().emitEvent(new CounterEvent.ValueMultiplied(value)).thenReply(c -> c.value());
   }
 
   @PostMapping("/restart")
