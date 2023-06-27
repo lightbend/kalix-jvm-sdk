@@ -21,7 +21,7 @@ import kalix.spring.KalixClient;
 /**
  * Utility to send requests to other Kalix components by composing a DeferredCall. To compose a call:
  * 1. select component type (and pass id if necessary)
- * 2. select component method, by Java method reference operator (::)
+ * 2. select component method, by using Java method reference operator (::)
  * 3. provide parameters (if required)
  *
  * <p>
