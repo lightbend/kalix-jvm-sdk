@@ -52,7 +52,7 @@ public class ComponentClient {
   /**
    * Select ValueEntity as a call target component.
    * <p>
-   * For calling methods annotated with @{@link kalix.javasdk.annotations.GenerateEntityKey} or @{@link kalix.javasdk.annotations.GenerateId}
+   * For calling methods annotated with @{@link kalix.javasdk.annotations.GenerateId}
    */
   public ValueEntityCallBuilder forValueEntity() {
     return new ValueEntityCallBuilder(kalixClient);
