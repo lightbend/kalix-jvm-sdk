@@ -70,7 +70,7 @@ public class ComponentClient {
   /**
    * Select EventSourcedEntity as a call target component.
    * <p>
-   * For calling methods annotated with @{@link kalix.javasdk.annotations.GenerateEntityKey} or @{@link kalix.javasdk.annotations.GenerateId}
+   * For calling methods annotated with @{@link kalix.javasdk.annotations.GenerateId}
    */
   public EventSourcedEntityCallBuilder forEventSourcedEntity() {
     return new EventSourcedEntityCallBuilder(kalixClient);
