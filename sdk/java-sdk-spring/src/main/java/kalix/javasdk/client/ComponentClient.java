@@ -88,7 +88,7 @@ public class ComponentClient {
   /**
    * Select Workflow as a call target component.
    * <p>
-   * For calling methods annotated with @{@link kalix.javasdk.annotations.GenerateEntityKey} or @{@link kalix.javasdk.annotations.GenerateId}
+   * For calling methods annotated with @{@link kalix.javasdk.annotations.GenerateId}
    */
   public WorkflowCallBuilder forWorkflow() {
     return new WorkflowCallBuilder(kalixClient);
