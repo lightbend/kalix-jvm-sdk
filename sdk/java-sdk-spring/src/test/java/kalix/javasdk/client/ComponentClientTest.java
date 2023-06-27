@@ -43,6 +43,7 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 
 class ComponentClientTest {
@@ -55,6 +56,12 @@ class ComponentClientTest {
   public void initEach() {
     restKalixClient = new RestKalixClientImpl(messageCodec);
     componentClient = new ComponentClient(restKalixClient);
+  }
+
+  @Test
+  public void shouldNotReturnDeferredCallMethodNotAnnotatedAsRESTEndpoint() {
+    assertThatThrownBy(() -> componentClient.forAction().call(GetWithoutParam::missingRestAnnotation))
+      .hasMessage("Method [missingRestAnnotation] is not annotated as a REST endpoint.");
   }
 
   @Test

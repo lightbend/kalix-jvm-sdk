@@ -31,6 +31,10 @@ public class ActionsTestModels {
     public Action.Effect<Message> message() {
       return effects().reply(new Message("hello"));
     }
+
+    public Action.Effect<Message> missingRestAnnotation() {
+      return effects().reply(new Message("hello"));
+    }
   }
 
   public static class GetWithOneParam extends Action {
