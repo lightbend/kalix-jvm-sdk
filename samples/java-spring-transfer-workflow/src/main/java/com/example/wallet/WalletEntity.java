@@ -55,7 +55,7 @@ public class WalletEntity extends ValueEntity<WalletEntity.Wallet> {
 
   @GetMapping // <4>
   public Effect<Integer> get() {
-    return effects().reply(new Balance(currentState().balance()));
+    return effects().reply(currentState().balance());
   }
 }
 // end::wallet[]
