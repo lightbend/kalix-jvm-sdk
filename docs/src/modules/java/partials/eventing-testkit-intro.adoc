@@ -10,6 +10,7 @@ When a Kalix service relies on a broker, it might be useful to use integration t
 Following up on the counter entity example used above, let's consider an example (composed by 2 Actions and 1 Event Sourced entity) as pictured below:
 
 ifdef::todo[TODO: convert this diagram once we have a standard language for this]
+
 image::java:eventing-testkit-sample.svg[]
 
 In this example:
