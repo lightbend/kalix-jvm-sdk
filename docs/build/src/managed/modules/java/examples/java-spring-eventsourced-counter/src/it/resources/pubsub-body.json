@@ -1,0 +1,12 @@
+{
+  "messages": [
+    {
+      "data": "eyJjb3VudGVySWQiOiJvaSIsInZhbHVlIjoyMH0=",
+      "attributes": {
+        "Content-Type": "application/json",
+        "ce-specversion": "1.0",
+        "ce-type": "com.example.actions.CounterCommandFromTopicAction$IncreaseCounter"
+      }
+    }
+  ]
+}
