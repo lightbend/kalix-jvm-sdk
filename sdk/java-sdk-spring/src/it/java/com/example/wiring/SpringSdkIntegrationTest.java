@@ -23,7 +23,9 @@ import com.example.wiring.actions.echo.Message;
 import com.example.wiring.actions.headers.ForwardHeadersAction;
 import com.example.wiring.eventsourcedentities.counter.Counter;
 import com.example.wiring.eventsourcedentities.counter.CounterEntity;
+import com.example.wiring.eventsourcedentities.headers.ForwardHeadersESEntity;
 import com.example.wiring.valueentities.customer.CustomerEntity;
+import com.example.wiring.valueentities.headers.ForwardHeadersValueEntity;
 import com.example.wiring.valueentities.user.AssignedCounterEntity;
 import com.example.wiring.valueentities.user.User;
 import com.example.wiring.valueentities.user.UserEntity;
@@ -34,6 +36,7 @@ import com.example.wiring.views.UserCounters;
 import com.example.wiring.views.UserWithVersion;
 import com.google.protobuf.any.Any;
 import kalix.javasdk.DeferredCall;
+import kalix.javasdk.Metadata;
 import kalix.javasdk.client.ComponentClient;
 import kalix.javasdk.client.EventSourcedEntityCallBuilder;
 import kalix.spring.KalixConfigurationTest;
@@ -528,32 +531,23 @@ public class SpringSdkIntegrationTest {
     String veHeaderValue = "ve-value";
     String esHeaderValue = "es-value";
 
-    String actionResponse = webClient.get().uri("/forward-headers-action")
-        .header(ForwardHeadersAction.SOME_HEADER, actionHeaderValue)
-        .retrieve()
-        .bodyToMono(Message.class)
-        .map(m -> m.text)
-        .block(timeout);
+    Message actionResponse = execute(componentClient.forAction()
+      .call(ForwardHeadersAction::stringMessage)
+      .withMetadata(Metadata.EMPTY.add(ForwardHeadersAction.SOME_HEADER, actionHeaderValue)));
 
-    assertThat(actionResponse).isEqualTo(actionHeaderValue);
+    assertThat(actionResponse.text).isEqualTo(actionHeaderValue);
 
-    String veResponse = webClient.put().uri("/forward-headers-ve/1")
-        .header(ForwardHeadersAction.SOME_HEADER, veHeaderValue)
-        .retrieve()
-        .bodyToMono(Message.class)
-        .map(m -> m.text)
-        .block(timeout);
+    Message veResponse = execute(componentClient.forValueEntity("1")
+      .call(ForwardHeadersValueEntity::createUser)
+      .withMetadata(Metadata.EMPTY.add(ForwardHeadersAction.SOME_HEADER, veHeaderValue)));
 
-    assertThat(veResponse).isEqualTo(veHeaderValue);
+    assertThat(veResponse.text).isEqualTo(veHeaderValue);
 
-    String esResponse = webClient.put().uri("/forward-headers-es/1")
-        .header(ForwardHeadersAction.SOME_HEADER, esHeaderValue)
-        .retrieve()
-        .bodyToMono(Message.class)
-        .map(m -> m.text)
-        .block(timeout);
+    Message esResponse = execute(componentClient.forEventSourcedEntity("1")
+      .call(ForwardHeadersESEntity::createUser)
+      .withMetadata(Metadata.EMPTY.add(ForwardHeadersAction.SOME_HEADER, esHeaderValue)));
 
-    assertThat(esResponse).isEqualTo(esHeaderValue);
+    assertThat(esResponse.text).isEqualTo(esHeaderValue);
   }
 
   @Test
