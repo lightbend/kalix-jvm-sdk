@@ -22,9 +22,6 @@ public class WalletEntity extends ValueEntity<WalletEntity.Wallet> {
     }
   }
 
-  public record Balance(int value) {
-  }
-
   // end::wallet[]
 
   private static final Logger logger = LoggerFactory.getLogger(WalletEntity.class);
@@ -36,11 +33,10 @@ public class WalletEntity extends ValueEntity<WalletEntity.Wallet> {
 
   @PatchMapping("/withdraw/{amount}") // <2>
   public Effect<String> withdraw(@PathVariable int amount) {
-    var newBalance = currentState().balance() - amount;
-    if (newBalance < 0) {
+    Wallet updatedWallet = currentState().withdraw(amount);
+    if (updatedWallet.balance < 0) {
       return effects().error("Insufficient balance");
     } else {
-      Wallet updatedWallet = currentState().withdraw(amount);
       // end::wallet[]
       logger.info("Withdraw walletId: [{}] amount -{} balance after {}", currentState().id(), amount, updatedWallet.balance());
       // tag::wallet[]
@@ -58,7 +54,7 @@ public class WalletEntity extends ValueEntity<WalletEntity.Wallet> {
   }
 
   @GetMapping // <4>
-  public Effect<Balance> get() {
+  public Effect<Integer> get() {
     return effects().reply(new Balance(currentState().balance()));
   }
 }
