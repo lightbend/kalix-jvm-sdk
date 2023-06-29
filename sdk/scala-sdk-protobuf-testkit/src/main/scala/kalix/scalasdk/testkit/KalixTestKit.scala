@@ -24,7 +24,7 @@ import kalix.scalasdk.{ Kalix, Principal }
 import kalix.javasdk.testkit.{ KalixTestKit => JTestKit }
 import kalix.javasdk.testkit.KalixTestKit.Settings.{ EventingSupport => JEventingSupport }
 import kalix.scalasdk.testkit.KalixTestKit.Settings.EventingSupport
-import kalix.scalasdk.testkit.KalixTestKit.Settings.GooglePubSubEmulator
+import kalix.scalasdk.testkit.KalixTestKit.Settings.GooglePubSub
 import kalix.scalasdk.testkit.KalixTestKit.Settings.TestBroker
 
 import scala.concurrent.duration.FiniteDuration
@@ -58,8 +58,8 @@ object KalixTestKit {
       new Settings(jSettings.withServicePortMapping(serviceName, host, port))
     def withEventingSupport(eventingSupport: EventingSupport): Settings = {
       val jEventingSupport = eventingSupport match {
-        case TestBroker           => JEventingSupport.TEST_BROKER
-        case GooglePubSubEmulator => JEventingSupport.GOOGLE_PUBSUB_EMULATOR
+        case TestBroker   => JEventingSupport.TEST_BROKER
+        case GooglePubSub => JEventingSupport.GOOGLE_PUBSUB
       }
       new Settings(jSettings.withEventingSupport(jEventingSupport))
     }
@@ -83,7 +83,7 @@ object KalixTestKit {
      *
      * Note: the Google PubSub Emulator need to be started independently.
      */
-    object GooglePubSubEmulator extends EventingSupport
+    object GooglePubSub extends EventingSupport
   }
 
   val DefaultSettings: Settings = new Settings(JTestKit.Settings.DEFAULT)
