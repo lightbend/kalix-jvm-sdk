@@ -72,18 +72,21 @@ public class CounterIntegrationWithRealPubSubTest extends KalixIntegrationTestKi
     // builds a message in PubSub format, ready to be injected
     private String buildMessageBody(String jsonMsg, String ceType) {
         var data = Base64.getEncoder().encodeToString(jsonMsg.getBytes());
-        return "{\n" +
-            "    \"messages\": [\n" +
-            "        {\n" +
-            "            \"data\": \"" + data + "\",\n" +
-            "            \"attributes\": {\n" +
-            "                \"Content-Type\": \"application/json\",\n" +
-            "                \"ce-specversion\": \"1.0\",\n" +
-            "                \"ce-type\": \"" + ceType + "\"\n" +
-            "            }\n" +
-            "        }\n" +
-            "    ]\n" +
-            "}";
+
+        return """
+            {
+                "messages": [
+                    {
+                        "data": "%s",
+                        "attributes": {
+                            "Content-Type": "application/json",
+                            "ce-specversion": "1.0",
+                            "ce-type": "%s"
+                        }
+                    }
+                ]
+            }
+            """.formatted(data, ceType);
     }
 
 // tag::class[]
