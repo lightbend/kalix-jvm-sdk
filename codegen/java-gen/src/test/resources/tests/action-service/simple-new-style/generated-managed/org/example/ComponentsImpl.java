@@ -28,7 +28,7 @@ public final class ComponentsImpl implements Components {
   }
 
   private <Req, Res> SingleResponseRequestBuilder<Req, Res> addHeaders(SingleResponseRequestBuilder<Req, Res> requestBuilder, Metadata metadata){
-    var updatedBuilder = requestBuilder;
+    SingleResponseRequestBuilder<Req, Res> updatedBuilder = requestBuilder;
     for (Metadata.MetadataEntry entry: metadata){
       if (entry.isText()) {
         updatedBuilder = updatedBuilder.addHeader(entry.getKey(), entry.getValue());
