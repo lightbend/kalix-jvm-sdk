@@ -29,7 +29,7 @@ import static org.mockito.Mockito.when;
 public class ShoppingCartActionImplTest {
 
   @Mock
-  private ShoppingCartService shoppingCartService; // <1>
+  private ShoppingCartServiceClient shoppingCartService; // <1>
 
   // end::createPrePopulated[]
   private AutoCloseable closeable;
