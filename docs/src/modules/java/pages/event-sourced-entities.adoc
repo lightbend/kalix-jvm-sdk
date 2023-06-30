@@ -55,8 +55,7 @@ Now that we have our Entity state defined along with its events, the remaining s
 
 Let's have a look at what our shopping cart entity will look like for the first 2 steps from the above list:
 
-[source,java]
-.src/main/java/com/example/shoppingcart/ShoppingCartEntity.java
+https://github.com/lightbend/kalix-jvm-sdk/blob/main/samples/java-spring-eventsourced-shopping-cart/src/main/java/com/example/shoppingcart/ShoppingCartEntity.java[src/main/java/com/example/shoppingcart/ShoppingCartEntity.java]
 ----
 include::example$java-spring-eventsourced-shopping-cart/src/main/java/com/example/shoppingcart/ShoppingCartEntity.java[tag=class]
 ----
