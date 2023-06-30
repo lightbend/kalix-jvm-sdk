@@ -1,1 +1,1 @@
-kalix.javasdk.impl.logging.KalixLogbackConfigurator
+kalix.javasdk.impl.logging.KalixJoranConfigurator
