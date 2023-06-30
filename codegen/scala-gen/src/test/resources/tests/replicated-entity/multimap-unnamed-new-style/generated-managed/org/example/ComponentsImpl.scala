@@ -1,5 +1,6 @@
 package org.example
 
+import akka.grpc.scaladsl.SingleResponseRequestBuilder
 import kalix.scalasdk.Context
 import kalix.scalasdk.DeferredCall
 import kalix.scalasdk.Metadata
@@ -22,6 +23,14 @@ final class ComponentsImpl(context: InternalContext) extends Components {
   private def getGrpcClient[T](serviceClass: Class[T]): T =
     context.getComponentGrpcClient(serviceClass)
 
+  private def addHeaders[Req, Res](
+      requestBuilder: SingleResponseRequestBuilder[Req, Res],
+      metadata: Metadata): SingleResponseRequestBuilder[Req, Res] = {
+    metadata.filter(_.isText).foldLeft(requestBuilder) { (builder, entry) =>
+      builder.addHeader(entry.key, entry.value)
+    }
+  }
+
  @Override
  override def multiMapServiceEntity: Components.MultiMapServiceEntityCalls =
    new MultiMapServiceEntityCallsImpl();
@@ -34,7 +43,8 @@ final class ComponentsImpl(context: InternalContext) extends Components {
        Metadata.empty,
        "com.example.replicated.multimap.MultiMapService",
        "Put",
-       () => getGrpcClient(classOf[_root_.com.example.replicated.multimap.MultiMapService]).put(command)
+       (metadata: Metadata) => addHeaders(getGrpcClient(classOf[_root_.com.example.replicated.multimap.MultiMapService])
+         .asInstanceOf[_root_.com.example.replicated.multimap.MultiMapServiceClient].put(), metadata).invoke(command)
      )
  }
 

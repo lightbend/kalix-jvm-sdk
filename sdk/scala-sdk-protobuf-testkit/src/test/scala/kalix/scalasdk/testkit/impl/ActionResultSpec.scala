@@ -33,7 +33,7 @@ class ActionResultSpec extends AnyWordSpec with Matchers {
         ActionEffectImpl.Builder
           .reply("reply")
           .addSideEffect(ScalaSideEffectAdapter(JavaSideEffectImpl(
-            GrpcDeferredCall[String, Any]("request", MetadataImpl.Empty, "full.service.Name", "MethodName", () => ???),
+            GrpcDeferredCall[String, Any]("request", MetadataImpl.Empty, "full.service.Name", "MethodName", _ => ???),
             synchronous = false))))
 
       replyWithSideEffectResult.isReply should ===(true)
@@ -42,7 +42,7 @@ class ActionResultSpec extends AnyWordSpec with Matchers {
 
     "extract forward details" in {
       val forwardResult = new ActionResultImpl[String](ActionEffectImpl.Builder.forward(ScalaDeferredCallAdapter(
-        GrpcDeferredCall[String, String]("request", MetadataImpl.Empty, "full.service.Name", "MethodName", () => ???))))
+        GrpcDeferredCall[String, String]("request", MetadataImpl.Empty, "full.service.Name", "MethodName", _ => ???))))
 
       forwardResult.isForward should ===(true)
       forwardResult.forwardedTo.message should ===("request")

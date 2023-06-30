@@ -346,9 +346,7 @@ final class RestKalixClientImpl(messageCodec: JsonMessageCodec) extends KalixCli
     }
   }
 
-  private def requestHeadersUriSpec(
-      client: WebClient,
-      httpMethod: HttpMethod): WebClient.RequestHeadersUriSpec[_] = {
+  private def requestHeadersUriSpec(client: WebClient, httpMethod: HttpMethod): WebClient.RequestHeadersUriSpec[_] = {
     httpMethod match {
       case HttpMethods.GET    => client.get()
       case HttpMethods.DELETE => client.delete()

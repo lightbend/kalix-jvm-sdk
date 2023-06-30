@@ -26,12 +26,15 @@ object ActionOptions {
 
   private[kalix] final case class ActionOptionsImpl(forwardHeaders: Set[String]) extends ActionOptions {
 
-    /**
-     * Ask Kalix to forward these headers from the incoming request as metadata headers for the incoming commands. By
-     * default no headers except "X-Server-Timing" are forwarded.
-     */
     override def withForwardHeaders(headers: Set[String]): ActionOptions =
       copy(forwardHeaders = headers)
   }
 }
-trait ActionOptions extends ComponentOptions
+trait ActionOptions extends ComponentOptions {
+
+  /**
+   * Ask Kalix to forward these headers from the incoming request as metadata headers for the incoming commands. By
+   * default no headers except "X-Server-Timing" are forwarded.
+   */
+  override def withForwardHeaders(headers: Set[String]): ActionOptions
+}

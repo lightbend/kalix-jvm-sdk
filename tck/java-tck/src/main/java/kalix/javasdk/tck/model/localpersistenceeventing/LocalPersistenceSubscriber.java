@@ -20,6 +20,7 @@ import akka.NotUsed;
 import akka.stream.javadsl.Source;
 import kalix.javasdk.DeferredCall;
 import kalix.javasdk.JsonSupport;
+import kalix.javasdk.Metadata;
 import kalix.javasdk.action.Action;
 import kalix.javasdk.action.ActionContext;
 import kalix.javasdk.action.ActionCreationContext;
@@ -128,7 +129,7 @@ public class LocalPersistenceSubscriber extends Action {
         MetadataImpl.Empty(),
         "kalix.tck.model.eventing.LocalPersistenceSubscriberModel",
         "Effect",
-        () ->
+        (Metadata metadata) ->
             ((InternalContext) actionContext())
                 .getComponentGrpcClient(
                     kalix.tck.model.eventing.LocalPersistenceSubscriberModel.class)

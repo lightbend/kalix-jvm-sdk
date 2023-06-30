@@ -36,9 +36,10 @@ class EventSourcedResultSpec extends AnyWordSpec with Matchers {
         MessageReplyImpl(
           "reply", // pretend it was evaluated, in practice done by the generated testkit
           MetadataImpl.Empty,
-          Vector(SideEffectImpl(
-            GrpcDeferredCall[String, Any]("request", MetadataImpl.Empty, "full.service.Name", "MethodName", () => ???),
-            synchronous = false))))
+          Vector(
+            SideEffectImpl(
+              GrpcDeferredCall[String, Any]("request", MetadataImpl.Empty, "full.service.Name", "MethodName", _ => ???),
+              synchronous = false))))
 
       replyWithSideEffectResult.isReply should ===(true)
       replyWithSideEffectResult.sideEffects should have size 1
@@ -50,7 +51,7 @@ class EventSourcedResultSpec extends AnyWordSpec with Matchers {
         "state",
         ForwardReplyImpl(
           deferredCall =
-            GrpcDeferredCall[String, Any]("request", MetadataImpl.Empty, "full.service.Name", "MethodName", () => ???),
+            GrpcDeferredCall[String, Any]("request", MetadataImpl.Empty, "full.service.Name", "MethodName", _ => ???),
           sideEffects = Vector.empty))
 
       forwardResult.isForward should ===(true)

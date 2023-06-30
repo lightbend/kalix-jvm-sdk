@@ -1,7 +1,9 @@
 package org.example;
 
+import akka.grpc.javadsl.SingleResponseRequestBuilder;
 import kalix.javasdk.Context;
 import kalix.javasdk.DeferredCall;
+import kalix.javasdk.Metadata;
 import kalix.javasdk.impl.GrpcDeferredCall;
 import kalix.javasdk.impl.InternalContext;
 import kalix.javasdk.impl.MetadataImpl;
@@ -25,6 +27,16 @@ public final class ComponentsImpl implements Components {
     return context.getComponentGrpcClient(serviceClass);
   }
 
+  private <Req, Res> SingleResponseRequestBuilder<Req, Res> addHeaders(SingleResponseRequestBuilder<Req, Res> requestBuilder, Metadata metadata){
+    var updatedBuilder = requestBuilder;
+    for (Metadata.MetadataEntry entry: metadata){
+      if (entry.isText()) {
+        updatedBuilder = updatedBuilder.addHeader(entry.getKey(), entry.getValue());
+      }
+    }
+    return updatedBuilder;
+  }
+
   @Override
   public Components.SomeMultiMapCalls someMultiMap() {
     return new SomeMultiMapCallsImpl();
@@ -38,7 +50,7 @@ public final class ComponentsImpl implements Components {
         MetadataImpl.Empty(),
         "com.example.replicated.multimap.MultiMapService",
         "Put",
-        () -> getGrpcClient(com.example.replicated.multimap.MultiMapService.class).put(putValue)
+        (Metadata metadata) -> addHeaders(((com.example.replicated.multimap.MultiMapServiceClient) getGrpcClient(com.example.replicated.multimap.MultiMapService.class)).put(), metadata).invoke(putValue)
       );
     }
   }

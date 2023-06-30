@@ -28,3 +28,4 @@ class UserByNameViewRouter(view: UserByNameViewImpl)
   }
 
 }
+

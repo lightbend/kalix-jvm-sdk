@@ -60,6 +60,7 @@ object Types {
   val InternalContext = ClassMessageType("kalix.scalasdk.impl.InternalContext")
   val Context = ClassMessageType("kalix.scalasdk.Context")
   val Metadata = ClassMessageType("kalix.scalasdk.Metadata")
+  val SingleResponseRequestBuilder = ClassMessageType("akka.grpc.scaladsl.SingleResponseRequestBuilder")
 
   val Source = ClassMessageType("akka.stream.scaladsl.Source")
   val NotUsed = ClassMessageType("akka.NotUsed")

@@ -1,5 +1,6 @@
 package org.example
 
+import akka.grpc.scaladsl.SingleResponseRequestBuilder
 import kalix.scalasdk.Context
 import kalix.scalasdk.DeferredCall
 import kalix.scalasdk.Metadata
@@ -22,6 +23,14 @@ final class ComponentsImpl(context: InternalContext) extends Components {
   private def getGrpcClient[T](serviceClass: Class[T]): T =
     context.getComponentGrpcClient(serviceClass)
 
+  private def addHeaders[Req, Res](
+      requestBuilder: SingleResponseRequestBuilder[Req, Res],
+      metadata: Metadata): SingleResponseRequestBuilder[Req, Res] = {
+    metadata.filter(_.isText).foldLeft(requestBuilder) { (builder, entry) =>
+      builder.addHeader(entry.key, entry.value)
+    }
+  }
+
  @Override
  override def counter: Components.CounterCalls =
    new CounterCallsImpl();
@@ -34,7 +43,8 @@ final class ComponentsImpl(context: InternalContext) extends Components {
        Metadata.empty,
        "org.example.eventsourcedentity.CounterService",
        "Increase",
-       () => getGrpcClient(classOf[_root_.org.example.eventsourcedentity.CounterService]).increase(command)
+       (metadata: Metadata) => addHeaders(getGrpcClient(classOf[_root_.org.example.eventsourcedentity.CounterService])
+         .asInstanceOf[_root_.org.example.eventsourcedentity.CounterServiceClient].increase(), metadata).invoke(command)
      )
    override def decrease(command: _root_.org.example.eventsourcedentity.DecreaseValue): DeferredCall[_root_.org.example.eventsourcedentity.DecreaseValue, _root_.com.google.protobuf.empty.Empty] =
      ScalaDeferredCallAdapter(
@@ -42,7 +52,8 @@ final class ComponentsImpl(context: InternalContext) extends Components {
        Metadata.empty,
        "org.example.eventsourcedentity.CounterService",
        "Decrease",
-       () => getGrpcClient(classOf[_root_.org.example.eventsourcedentity.CounterService]).decrease(command)
+       (metadata: Metadata) => addHeaders(getGrpcClient(classOf[_root_.org.example.eventsourcedentity.CounterService])
+         .asInstanceOf[_root_.org.example.eventsourcedentity.CounterServiceClient].decrease(), metadata).invoke(command)
      )
  }
 

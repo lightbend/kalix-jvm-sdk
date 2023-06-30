@@ -26,3 +26,4 @@ public class UserByNameViewImpl extends AbstractUserByNameView {
   }
 
 }
+

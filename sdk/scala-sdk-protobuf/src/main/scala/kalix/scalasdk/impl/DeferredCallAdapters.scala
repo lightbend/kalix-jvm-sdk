@@ -20,7 +20,6 @@ import kalix.javasdk
 import kalix.scalasdk.DeferredCall
 import kalix.scalasdk.Metadata
 import kalix.scalasdk.SideEffect
-
 import scala.concurrent.Future
 import scala.jdk.FutureConverters._
 
@@ -35,8 +34,14 @@ object ScalaDeferredCallAdapter {
       metadata: Metadata,
       fullServiceName: String,
       methodName: String,
-      asyncCall: () => Future[O]): ScalaDeferredCallAdapter[I, O] = ScalaDeferredCallAdapter(
-    javasdk.impl.GrpcDeferredCall(message, metadata.impl, fullServiceName, methodName, () => asyncCall().asJava))
+      asyncCall: Metadata => Future[O]): ScalaDeferredCallAdapter[I, O] = ScalaDeferredCallAdapter(
+    javasdk.impl.GrpcDeferredCall(
+      message,
+      metadata.impl,
+      fullServiceName,
+      methodName,
+      (javaMetadata: javasdk.Metadata) =>
+        asyncCall(MetadataImpl(javaMetadata.asInstanceOf[kalix.javasdk.impl.MetadataImpl])).asJava))
 
 }
 

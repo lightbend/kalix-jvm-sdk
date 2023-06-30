@@ -1,7 +1,9 @@
 package org.example;
 
+import akka.grpc.javadsl.SingleResponseRequestBuilder;
 import kalix.javasdk.Context;
 import kalix.javasdk.DeferredCall;
+import kalix.javasdk.Metadata;
 import kalix.javasdk.impl.GrpcDeferredCall;
 import kalix.javasdk.impl.InternalContext;
 import kalix.javasdk.impl.MetadataImpl;
@@ -23,6 +25,16 @@ public final class ComponentsImpl implements Components {
 
   private <T> T getGrpcClient(Class<T> serviceClass) {
     return context.getComponentGrpcClient(serviceClass);
+  }
+
+  private <Req, Res> SingleResponseRequestBuilder<Req, Res> addHeaders(SingleResponseRequestBuilder<Req, Res> requestBuilder, Metadata metadata){
+    var updatedBuilder = requestBuilder;
+    for (Metadata.MetadataEntry entry: metadata){
+      if (entry.isText()) {
+        updatedBuilder = updatedBuilder.addHeader(entry.getKey(), entry.getValue());
+      }
+    }
+    return updatedBuilder;
   }
 
   

@@ -1,7 +1,9 @@
 package org.example;
 
+import akka.grpc.javadsl.SingleResponseRequestBuilder;
 import kalix.javasdk.Context;
 import kalix.javasdk.DeferredCall;
+import kalix.javasdk.Metadata;
 import kalix.javasdk.impl.GrpcDeferredCall;
 import kalix.javasdk.impl.InternalContext;
 import kalix.javasdk.impl.MetadataImpl;
@@ -25,6 +27,16 @@ public final class ComponentsImpl implements Components {
     return context.getComponentGrpcClient(serviceClass);
   }
 
+  private <Req, Res> SingleResponseRequestBuilder<Req, Res> addHeaders(SingleResponseRequestBuilder<Req, Res> requestBuilder, Metadata metadata){
+    var updatedBuilder = requestBuilder;
+    for (Metadata.MetadataEntry entry: metadata){
+      if (entry.isText()) {
+        updatedBuilder = updatedBuilder.addHeader(entry.getKey(), entry.getValue());
+      }
+    }
+    return updatedBuilder;
+  }
+
   @Override
   public Components.MyUserByNameViewCalls myUserByNameView() {
     return new MyUserByNameViewCallsImpl();
@@ -38,7 +50,7 @@ public final class ComponentsImpl implements Components {
         MetadataImpl.Empty(),
         "org.example.named.view.UserByName",
         "GetUserByName",
-        () -> getGrpcClient(org.example.named.view.UserByName.class).getUserByName(byNameRequest)
+        (Metadata metadata) -> addHeaders(((org.example.named.view.UserByNameClient) getGrpcClient(org.example.named.view.UserByName.class)).getUserByName(), metadata).invoke(byNameRequest)
       );
     }
   }

@@ -31,9 +31,9 @@ final case class GrpcDeferredCall[I, O](
     metadata: MetadataImpl,
     fullServiceName: String,
     methodName: String,
-    asyncCall: () => CompletionStage[O])
+    asyncCall: Metadata => CompletionStage[O])
     extends DeferredCall[I, O] {
-  override def execute(): CompletionStage[O] = asyncCall().exceptionally {
+  override def execute(): CompletionStage[O] = asyncCall(metadata).exceptionally {
     case sre: StatusRuntimeException =>
       throw new StatusRuntimeException(
         sre.getStatus
