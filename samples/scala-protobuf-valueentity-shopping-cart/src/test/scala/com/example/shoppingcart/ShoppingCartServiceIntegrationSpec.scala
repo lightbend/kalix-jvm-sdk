@@ -48,15 +48,6 @@ class ShoppingCartServiceIntegrationSpec extends AnyWordSpec with Matchers with 
       cart2.items.head shouldBe LineItem("b", "Banana", 2)
     }
 
-    "remove cart" in {
-      client.addItem(AddLineItem("cart4", "a", "Apple", 1)).futureValue
-      val cart1 = client.getCart(GetShoppingCart("cart4")).futureValue
-      cart1.items should have size 1
-      client.removeCart(RemoveShoppingCart("cart4")).futureValue
-      val cart2 = client.getCart(GetShoppingCart("cart4")).futureValue
-      cart2.items shouldBe empty
-    }
-
     "only create new cart once" in {
       val created = actionClient.initializeCart(NewCart.defaultInstance).futureValue
       val cartId = created.cartId
@@ -80,7 +71,7 @@ class ShoppingCartServiceIntegrationSpec extends AnyWordSpec with Matchers with 
       cart.items should have size 1
     }
 
-    "delete cart with proper user role" in {
+    "remove cart with proper user role" in {
       val cartId = "cart-5"
       actionClient.verifiedAddItem(AddLineItem(cartId, "b", "Banana", 1)).futureValue
       val cart = client.getCart(GetShoppingCart(cartId)).futureValue
