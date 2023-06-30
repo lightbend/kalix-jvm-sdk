@@ -19,6 +19,7 @@ import com.example.api.ShoppingCartDTO;
 import com.example.api.ShoppingCartDTO.LineItemDTO;
 import com.example.domain.ShoppingCart;
 import io.grpc.Status;
+import kalix.javasdk.annotations.ForwardHeaders;
 import kalix.javasdk.valueentity.ValueEntity;
 import kalix.javasdk.valueentity.ValueEntityContext;
 import kalix.javasdk.annotations.Id;
@@ -34,6 +35,9 @@ import java.time.Instant;
 @Id("cartId")
 @TypeId("shopping-cart")
 @RequestMapping("/cart/{cartId}") // <1>
+// end::summary[]
+@ForwardHeaders("Role")
+// tag::summary[]
 public class ShoppingCartEntity extends ValueEntity<ShoppingCart> {
   // end::summary[]
   @SuppressWarnings("unused")
@@ -113,7 +117,11 @@ public class ShoppingCartEntity extends ValueEntity<ShoppingCart> {
 
   @PostMapping("/remove")
   public ValueEntity.Effect<String> removeCart() {
-    return effects().deleteEntity().thenReply("OK");
+    if ("role".equals("Admin")) {
+      return effects().deleteEntity().thenReply("OK");
+    } else {
+      return effects().error("Only admin can remove the cart");
+    }
   }
 // tag::summary[]
 }

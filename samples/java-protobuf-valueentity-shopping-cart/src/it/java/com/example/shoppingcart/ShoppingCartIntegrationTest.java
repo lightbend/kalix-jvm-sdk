@@ -16,6 +16,7 @@
 package com.example.shoppingcart;
 
 import com.example.shoppingcart.*;
+import io.grpc.StatusRuntimeException;
 import kalix.javasdk.testkit.junit.KalixTestKitResource;
 import com.google.protobuf.Empty;
 import org.junit.ClassRule;
@@ -23,6 +24,7 @@ import org.junit.Test;
 
 import java.util.List;
 import java.util.concurrent.CompletionStage;
+import java.util.concurrent.ExecutionException;
 
 import static java.util.concurrent.TimeUnit.*;
 import static org.junit.Assert.*;
@@ -80,9 +82,10 @@ public class ShoppingCartIntegrationTest {
         .get();
   }
 
-  void removeCart(String cartId) throws Exception {
-    client
-        .removeCart(ShoppingCartApi.RemoveShoppingCart.newBuilder().setCartId(cartId).build())
+  void removeCart(String cartId, String userRole) throws Exception {
+    ((ShoppingCartActionClient) actionClient)
+        .removeCart().addHeader("UserRole", userRole)
+        .invoke(ShoppingCartApi.RemoveShoppingCart.newBuilder().setCartId(cartId).build())
         .toCompletableFuture()
         .get();
   }
@@ -152,15 +155,30 @@ public class ShoppingCartIntegrationTest {
 
   @Test
   public void removeCart() throws Exception {
-    addItem("cart4", "a", "Apple", 42);
-    ShoppingCartApi.Cart cart1 = getCart("cart4");
+    String cartId = "cart4";
+    addItem(cartId, "a", "Apple", 42);
+    ShoppingCartApi.Cart cart1 = getCart(cartId);
     assertEquals("shopping cart should have 1 item", 1, cart1.getItemsCount());
     assertEquals(
         "shopping cart should have expected items",
         cart1.getItemsList(),
         List.of(item("a", "Apple", 42)));
-    removeCart("cart4");
-    assertEquals("shopping cart should be empty", 0, getCart("cart4").getItemsCount());
+    removeCart(cartId, "Admin");
+    assertEquals("shopping cart should be empty", 0, getCart(cartId).getItemsCount());
+  }
+
+  @Test(expected = ExecutionException.class)
+  public void notRemoveCartWithoutAdminRole() throws Exception {
+    String cartId = "cart5";
+    addItem(cartId, "a", "Apple", 42);
+    ShoppingCartApi.Cart cart1 = getCart(cartId);
+    assertEquals("shopping cart should have 1 item", 1, cart1.getItemsCount());
+    assertEquals(
+        "shopping cart should have expected items",
+        cart1.getItemsList(),
+        List.of(item("a", "Apple", 42)));
+    removeCart(cartId, "StandardUser");
+    assertEquals("shopping cart should have 1 item", 1, cart1.getItemsCount());
   }
 
   @Test

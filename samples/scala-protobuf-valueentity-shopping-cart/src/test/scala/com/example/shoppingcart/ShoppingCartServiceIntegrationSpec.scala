@@ -4,7 +4,7 @@ import kalix.scalasdk.testkit.KalixTestKit
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.matchers.should.Matchers
-import org.scalatest.time.{Millis, Seconds, Span}
+import org.scalatest.time.{ Millis, Seconds, Span }
 import org.scalatest.wordspec.AnyWordSpec
 
 // This class was initially generated based on the .proto definition by Kalix tooling.
@@ -12,11 +12,7 @@ import org.scalatest.wordspec.AnyWordSpec
 // As long as this file exists it will not be overwritten: you can maintain it yourself,
 // or delete it so it is regenerated as needed.
 
-class ShoppingCartServiceIntegrationSpec
-    extends AnyWordSpec
-    with Matchers
-    with BeforeAndAfterAll
-    with ScalaFutures {
+class ShoppingCartServiceIntegrationSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll with ScalaFutures {
 
   implicit private val patience: PatienceConfig =
     PatienceConfig(Span(5, Seconds), Span(500, Millis))
@@ -37,7 +33,7 @@ class ShoppingCartServiceIntegrationSpec
       client.addItem(AddLineItem("cart2", "b", "Banana", 2)).futureValue
       client.addItem(AddLineItem("cart2", "c", "Cantaloupe", 3)).futureValue
       val cart = client.getCart(GetShoppingCart("cart2")).futureValue
-      cart.items should have size(3)
+      cart.items should have size 3
       cart.items shouldBe Seq(LineItem("a", "Apple", 1), LineItem("b", "Banana", 2), LineItem("c", "Cantaloupe", 3))
     }
 
@@ -66,13 +62,13 @@ class ShoppingCartServiceIntegrationSpec
       val cartId = created.cartId
 
       val cart = client.getCart(GetShoppingCart(cartId)).futureValue
-      cart.creationTimestamp shouldBe > (0L)
+      cart.creationTimestamp shouldBe >(0L)
     }
 
     "create new populated cart" in {
       val created = actionClient.createPrePopulated(NewCart.defaultInstance).futureValue
       val cart = client.getCart(GetShoppingCart(created.cartId)).futureValue
-      cart.creationTimestamp shouldBe > (0L)
+      cart.creationTimestamp shouldBe >(0L)
       cart.items should have size 1
     }
 
@@ -82,6 +78,32 @@ class ShoppingCartServiceIntegrationSpec
       actionClient.verifiedAddItem(AddLineItem(cartId, "b", "Banana", 1)).futureValue
       val cart = client.getCart(GetShoppingCart(cartId)).futureValue
       cart.items should have size 1
+    }
+
+    "delete cart with proper user role" in {
+      val cartId = "cart-5"
+      actionClient.verifiedAddItem(AddLineItem(cartId, "b", "Banana", 1)).futureValue
+      val cart = client.getCart(GetShoppingCart(cartId)).futureValue
+      cart.items should have size 1
+      actionClient
+        .asInstanceOf[ShoppingCartActionClient]
+        .removeCart()
+        .addHeader("UserRole", "Admin")
+        .invoke(RemoveShoppingCart(cartId))
+        .futureValue
+
+      val cart2 = client.getCart(GetShoppingCart(cartId)).futureValue
+      cart2.items should have size 0
+    }
+
+    "not delete cart when user role is missing" in {
+      val cartId = "cart-6"
+      actionClient.verifiedAddItem(AddLineItem(cartId, "b", "Banana", 1)).futureValue
+      val cart = client.getCart(GetShoppingCart(cartId)).futureValue
+      cart.items should have size 1
+      actionClient.removeCart(RemoveShoppingCart(cartId)).failed.futureValue
+      val cart2 = client.getCart(GetShoppingCart(cartId)).futureValue
+      cart2.items should have size 1
     }
 
   }

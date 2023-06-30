@@ -61,6 +61,12 @@ grpcurl --plaintext -d '{"cart_id": "cart1"}' localhost:9000 com.example.shoppin
 grpcurl --plaintext -d '{"cart_id": "cart1", "product_id": "kalix-tshirt" }' localhost:9000 com.example.shoppingcart.ShoppingCartService/RemoveItem
 ```
 
+* Send a RemoveShoppingCart command:
+
+```shell
+grpcurl --plaintext -d '{"cart_id": "cart1"}' -H 'UserRole: Admin' localhost:9000 com.example.shoppingcart.ShoppingCartAction/RemoveCart
+```
+
 ## Running integration tests
 
 The integration tests in `src/it` are added by setting `it` as test source directory.
