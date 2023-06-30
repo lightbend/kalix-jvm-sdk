@@ -69,3 +69,17 @@ to create a project and then deploy your service into the project either by usin
 will conveniently package, publish your docker image, and deploy your service to Kalix, or by first packaging and
 publishing the docker image through `mvn deploy` and then deploying the image
 through the `kalix` CLI.
+
+## Integration Tests
+
+This sample showcases how to have integration tests with and without a real broker. Thus, to run the integration tests locally, you need to have Google PubSub Emulator running.
+
+First run:
+```shell
+docker-compose up -d gcloud-pubsub-emulator
+```
+
+Then run:
+```shell
+mvn verify -Pit
+```

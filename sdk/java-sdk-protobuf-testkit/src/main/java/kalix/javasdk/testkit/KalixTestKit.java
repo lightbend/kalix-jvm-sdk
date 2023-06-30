@@ -108,7 +108,7 @@ public class KalixTestKit {
        *
        * Note: the Google PubSub Emulator need to be started independently.
        */
-      GOOGLE_PUBSUB_EMULATOR
+      GOOGLE_PUBSUB
     }
 
     private Settings(
@@ -286,7 +286,7 @@ public class KalixTestKit {
 
     testSystem = ActorSystem.create("KalixTestkit", ConfigFactory.parseString("akka.http.server.preview.enable-http2 = true"));
 
-    int eventingBackendPort = settings.eventingSupport.equals(Settings.EventingSupport.GOOGLE_PUBSUB_EMULATOR) ? DEFAULT_GOOGLE_PUBSUB_PORT : startEventingTestkit();
+    int eventingBackendPort = settings.eventingSupport.equals(Settings.EventingSupport.GOOGLE_PUBSUB) ? DEFAULT_GOOGLE_PUBSUB_PORT : startEventingTestkit();
     runProxy(useTestContainers, port, eventingBackendPort);
 
     started = true;

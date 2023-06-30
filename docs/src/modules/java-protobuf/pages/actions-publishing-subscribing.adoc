@@ -636,3 +636,23 @@ include::example$scala-protobuf-eventsourced-counter/src/test/scala/com/example/
 <2> Clear the topic ignoring any unread messages.
 
 NOTE: Despite the example, you are neither forced to clear all topics nor to do it before each test. You can do it selectively, or you might not even need it depending on your tests and the flows they test.
+
+=== External Broker
+
+To run an integration test against a real instance of Google PubSub (or its Emulator), use the TestKit settings to override the default eventing support, as shown below:
+
+[.tabset]
+Java::
++
+[source,java]
+private static final KalixTestKitResource testKit = new KalixTestKitResource(
+        Main.createKalix(),
+        Settings.DEFAULT.withEventingSupport(EventingSupport.GOOGLE_PUBSUB)
+    );
+Scala::
++
+[source,scala,indent=0]
+private val testKit = KalixTestKit(
+    Main.createKalix(),
+    DefaultSettings.withEventingSupport(GooglePubSub)
+  ).start()
