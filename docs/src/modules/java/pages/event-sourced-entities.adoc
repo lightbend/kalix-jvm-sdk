@@ -5,7 +5,7 @@
 include::ROOT:partial$include.adoc[]
 include::java-protobuf:partial$eventsourced.adoc[]
 
-https://docs.kalix.io/reference/glossary.html#event_sourced_entity[Event Sourced Entities] persist changes as events and snapshots. Kalix needs to serialize that data to send it to the underlying data store. However, we recommend that you do not persist your service's public API messages. This may introduce some overhead to convert from one type to an internal one but allows the service public interface logic to evolve independently of the data storage format, which should be private.
+https://docs.kalix.io/reference/glossary.html#event_sourced_entity[Event Sourced Entities] persist changes as events and snapshots. Kalix needs to serialize that data to send it to the underlying data store. However, we recommend that you do not persist your service's public API messages. Persisting private API messages may introduce some overhead when converting from a public to an internal one but it allows the logic of the service public interface to evolve independently of the data storage format, which should be private.
 
 The steps necessary to implement an Event Sourced Entity include:
 
