@@ -27,6 +27,10 @@ object CommonSettings extends AutoPlugin {
           url = url("https://lightbend.com"))),
       scmInfo := Some(
         ScmInfo(url("https://github.com/lightbend/kalix-jvm-sdk"), "scm:git@github.com:lightbend/kalix-jvm-sdk.git")),
+      releaseNotesURL := (
+        if ((ThisBuild / isSnapshot).value) None
+        else Some(url(s"https://github.com/lightbend/kalix-jvm-sdk/releases/tag/v${version.value}"))
+      ),
       startYear := Some(2021),
       licenses := List("Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")),
       scalafmtOnCompile := !insideCI.value,
