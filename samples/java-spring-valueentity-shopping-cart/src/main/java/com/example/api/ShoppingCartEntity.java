@@ -117,7 +117,8 @@ public class ShoppingCartEntity extends ValueEntity<ShoppingCart> {
 
   @PostMapping("/remove")
   public ValueEntity.Effect<String> removeCart() {
-    if ("role".equals("Admin")) {
+    var userRole = commandContext().metadata().get("Role").get();
+    if (userRole.equals("Admin")) {
       return effects().deleteEntity().thenReply("OK");
     } else {
       return effects().error("Only admin can remove the cart");
