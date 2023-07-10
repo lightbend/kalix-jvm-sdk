@@ -66,8 +66,7 @@ object KalixPlugin extends AutoPlugin {
       case (key, value) if key.startsWith("kalix") => s"-D$key=$value"
     }.toSeq
 
-  private val defaultJvmArgs: Seq[String] =
-    Seq("-Dkalix.user-function-interface=0.0.0.0", "-Dlogback.configurationFile=logback-dev-mode.xml")
+  private val defaultJvmArgs: Seq[String] = Seq("-Dkalix.user-function-interface=0.0.0.0")
 
   override def projectSettings =
     Def.settings(

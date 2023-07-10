@@ -13,7 +13,6 @@ object RunMojo {
   def apply(
       jvmArgs: Array[String],
       mainClass: String,
-      logConfig: String,
       log: Log,
       mavenProject: MavenProject,
       mavenSession: MavenSession,
@@ -49,18 +48,7 @@ object RunMojo {
         element(name("argument"), "-classpath"),
         element(name("classpath")))
 
-    val loggingArgs: Seq[Element] = {
-      val logConfigFile = new File(logConfig.trim)
-      if (logConfigFile.exists) {
-        log.info(s"Using logging configuration file: '$logConfigFile' ")
-        // when using SpringBoot, logback config is passed using logging.config
-        element(name("argument"), "-Dlogging.config=" + logConfig) ::
-        element(name("argument"), "-Dlogback.configurationFile=" + logConfig) :: Nil
-      } else {
-        log.warn(s"Dev mode logging configuration file '$logConfig' not found")
-        List.empty
-      }
-    }
+
 
     val kalixSysProps =
       collectKalixSysProperties.map { arg =>
@@ -75,7 +63,7 @@ object RunMojo {
     val additionalJvmArgs = jvmArgs.filter(_.trim.nonEmpty).map(element(name("argument"), _)).toSeq
 
     val allArgs =
-      mainArgs ++ loggingArgs ++ kalixSysProps ++ additionalJvmArgs ++ dockerConfig :+
+      mainArgs ++ kalixSysProps ++ additionalJvmArgs ++ dockerConfig :+
       element(name("argument"), mainClass) // mainClass must be last arg
 
     executeMojo(
@@ -110,7 +98,6 @@ class RunMojo extends RunParameters {
     RunMojo(
       jvmArgs,
       mainClass,
-      logConfig,
       getLog,
       mavenProject,
       mavenSession,

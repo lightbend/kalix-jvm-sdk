@@ -16,7 +16,6 @@ class RunAllMojo extends RunParameters {
     RunMojo(
       jvmArgs,
       mainClass,
-      logConfig,
       getLog,
       mavenProject,
       mavenSession,
