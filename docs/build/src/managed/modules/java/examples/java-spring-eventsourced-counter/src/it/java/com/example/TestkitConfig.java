@@ -12,19 +12,22 @@ public class TestkitConfig {
     // end::class[]
 
     @Profile("with-acls")
-    // tag::class[]
+    // tag::acls[]
     @Bean
     public KalixTestKit.Settings settings() {
         return KalixTestKit.Settings.DEFAULT.withAclEnabled(); // <1>
     }
-    // end::class[]
+    // end::acls[]
 
     @Profile("with-pubsub")
+    // tag::pubsub[]
     @Bean
     public KalixTestKit.Settings settingsWithPubSub() {
         return KalixTestKit.Settings.DEFAULT.withAclEnabled()
-            .withEventingSupport(EventingSupport.GOOGLE_PUBSUB_EMULATOR);
+            .withEventingSupport(EventingSupport.GOOGLE_PUBSUB);
     }
+    // end::pubsub[]
+
 // tag::class[]
 }
 // end::class[]

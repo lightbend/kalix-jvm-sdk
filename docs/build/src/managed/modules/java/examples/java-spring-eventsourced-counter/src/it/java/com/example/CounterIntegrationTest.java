@@ -141,24 +141,6 @@ public class CounterIntegrationTest extends KalixIntegrationTestKitSupport { // 
         assertEquals("application/json", actualMd.get("Content-Type").get());
     }
     // end::test-topic-metadata[]
-
-    @Test
-    public void verifyUnknownMsg() {
-        var counterId = "test-topic-metadata";
-        var unknownCmd = new CounterEvent.ValueIncreased(10);
-
-        commandsTopic.publish(unknownCmd, counterId);
-        commandsTopic.publish(unknownCmd, "counterId2");
-        commandsTopic.publish(unknownCmd, "counterId3");
-        commandsTopic.publish(unknownCmd, "counterId4");
-        commandsTopic.publish(unknownCmd, "counterId7");
-
-        var increaseCmd = new CounterCommandFromTopicAction.IncreaseCounter(counterId, 3);
-        commandsTopic.publish(increaseCmd, counterId);
-
-        var increasedEvent = eventsTopicWithMeta.expectOneTyped(CounterCommandFromTopicAction.IncreaseCounter.class);
-        assertEquals(increaseCmd.value(), increasedEvent.getPayload().value()); // <6>
-    }
 // tag::class[]
 }
 // end::class[]

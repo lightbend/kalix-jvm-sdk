@@ -2,7 +2,6 @@ package com.example.transfer;
 
 import com.example.Main;
 import com.example.transfer.TransferState.Transfer;
-import com.example.wallet.WalletEntity.Balance;
 import kalix.spring.testkit.KalixIntegrationTestKitSupport;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -132,12 +131,12 @@ public class TransferWorkflowIntegrationTest extends KalixIntegrationTestKitSupp
   }
 
   private int getWalletBalance(String walletId) {
-    Balance response = webClient.get().uri("/wallet/" + walletId)
+    Integer response = webClient.get().uri("/wallet/" + walletId)
       .retrieve()
-      .bodyToMono(Balance.class)
+      .bodyToMono(Integer.class)
       .block(timeout);
 
-    return response.value();
+    return response;
   }
 
   private TransferState getTransferState(String url) {

@@ -27,9 +27,6 @@ public class WalletEntity extends ValueEntity<WalletEntity.Wallet> {
     }
   }
 
-  public record Balance(int value) {
-  }
-
   public sealed interface WithdrawResult {
     record WithdrawFailed(String errorMsg) implements WithdrawResult {
     }
@@ -58,11 +55,10 @@ public class WalletEntity extends ValueEntity<WalletEntity.Wallet> {
 
   @PatchMapping("/withdraw/{amount}")
   public Effect<WithdrawResult> withdraw(@PathVariable int amount) {
-    var newBalance = currentState().balance() - amount;
-    if (newBalance < 0) {
+    Wallet updatedWallet = currentState().withdraw(amount);
+    if (updatedWallet.balance < 0) {
       return effects().reply(new WithdrawFailed("Insufficient balance"));
     } else {
-      Wallet updatedWallet = currentState().withdraw(amount);
       // end::wallet[]
       logger.info("Withdraw walletId: [{}] amount -{} balance after {}", currentState().id(), amount, updatedWallet.balance());
       // tag::wallet[]
@@ -84,8 +80,8 @@ public class WalletEntity extends ValueEntity<WalletEntity.Wallet> {
   }
 
   @GetMapping // <4>
-  public Effect<Balance> get() {
-    return effects().reply(new Balance(currentState().balance()));
+  public Effect<Integer> get() {
+    return effects().reply(currentState().balance());
   }
 }
 // end::wallet[]

@@ -11,7 +11,7 @@
 <link rel="stylesheet" type="text/css" href="script-dir/jquery-ui.min.css" title="Style">
 <link rel="stylesheet" type="text/css" href="jquery-ui.overrides.css" title="Style">
 <script type="text/javascript" src="script.js"></script>
-<script type="text/javascript" src="script-dir/jquery-3.6.0.min.js"></script>
+<script type="text/javascript" src="script-dir/jquery-3.5.1.min.js"></script>
 <script type="text/javascript" src="script-dir/jquery-ui.min.js"></script>
 </head>
 <body class="index-page">
@@ -31,6 +31,7 @@ loadScripts(document, 'script');</script>
 <li>Package</li>
 <li>Class</li>
 <li><a href="overview-tree.html">Tree</a></li>
+<li><a href="deprecated-list.html">Deprecated</a></li>
 <li class="nav-bar-cell1-rev">Index</li>
 <li><a href="help-doc.html#index">Help</a></li>
 </ul>
@@ -67,6 +68,10 @@ loadScripts(document, 'script');</script>
 <div class="block">This enum contains principal matchers that don't have any configuration, such as a name, associated with them,
  for ease of reference in annotations.</div>
 </dd>
+<dt><a href="kalix/javasdk/client/ActionCallBuilder.html" class="type-name-link" title="class in kalix.javasdk.client">ActionCallBuilder</a> - Class in <a href="kalix/javasdk/client/package-summary.html">kalix.javasdk.client</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="kalix/javasdk/client/ActionCallBuilder.html#%3Cinit%3E(kalix.spring.KalixClient)" class="member-name-link">ActionCallBuilder(KalixClient)</a> - Constructor for class kalix.javasdk.client.<a href="kalix/javasdk/client/ActionCallBuilder.html" title="class in kalix.javasdk.client">ActionCallBuilder</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="kalix/javasdk/action/ReflectiveActionProvider.html#additionalDescriptors()" class="member-name-link">additionalDescriptors()</a> - Method in class kalix.javasdk.action.<a href="kalix/javasdk/action/ReflectiveActionProvider.html" title="class in kalix.javasdk.action">ReflectiveActionProvider</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="kalix/javasdk/eventsourced/ReflectiveEventSourcedEntityProvider.html#additionalDescriptors()" class="member-name-link">additionalDescriptors()</a> - Method in class kalix.javasdk.eventsourced.<a href="kalix/javasdk/eventsourced/ReflectiveEventSourcedEntityProvider.html" title="class in kalix.javasdk.eventsourced">ReflectiveEventSourcedEntityProvider</a></dt>
@@ -77,7 +82,7 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="kalix/javasdk/view/ReflectiveViewProvider.html#additionalDescriptors()" class="member-name-link">additionalDescriptors()</a> - Method in class kalix.javasdk.view.<a href="kalix/javasdk/view/ReflectiveViewProvider.html" title="class in kalix.javasdk.view">ReflectiveViewProvider</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="kalix/javasdk/workflowentity/ReflectiveWorkflowEntityProvider.html#additionalDescriptors()" class="member-name-link">additionalDescriptors()</a> - Method in class kalix.javasdk.workflowentity.<a href="kalix/javasdk/workflowentity/ReflectiveWorkflowEntityProvider.html" title="class in kalix.javasdk.workflowentity">ReflectiveWorkflowEntityProvider</a></dt>
+<dt><a href="kalix/javasdk/workflow/ReflectiveWorkflowProvider.html#additionalDescriptors()" class="member-name-link">additionalDescriptors()</a> - Method in class kalix.javasdk.workflow.<a href="kalix/javasdk/workflow/ReflectiveWorkflowProvider.html" title="class in kalix.javasdk.workflow">ReflectiveWorkflowProvider</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="kalix/javasdk/annotations/Acl.Principal.html#ALL" class="member-name-link">ALL</a> - Enum constant in enum class kalix.javasdk.annotations.<a href="kalix/javasdk/annotations/Acl.Principal.html" title="enum class in kalix.javasdk.annotations">Acl.Principal</a></dt>
 <dd>
@@ -97,7 +102,7 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="kalix/javasdk/view/ReflectiveViewProvider.html#alternativeCodec()" class="member-name-link">alternativeCodec()</a> - Method in class kalix.javasdk.view.<a href="kalix/javasdk/view/ReflectiveViewProvider.html" title="class in kalix.javasdk.view">ReflectiveViewProvider</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="kalix/javasdk/workflowentity/ReflectiveWorkflowEntityProvider.html#alternativeCodec()" class="member-name-link">alternativeCodec()</a> - Method in class kalix.javasdk.workflowentity.<a href="kalix/javasdk/workflowentity/ReflectiveWorkflowEntityProvider.html" title="class in kalix.javasdk.workflowentity">ReflectiveWorkflowEntityProvider</a></dt>
+<dt><a href="kalix/javasdk/workflow/ReflectiveWorkflowProvider.html#alternativeCodec()" class="member-name-link">alternativeCodec()</a> - Method in class kalix.javasdk.workflow.<a href="kalix/javasdk/workflow/ReflectiveWorkflowProvider.html" title="class in kalix.javasdk.workflow">ReflectiveWorkflowProvider</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="kalix/javasdk/annotations/Acl.DenyStatusCode.html#AUTHENTICATION_REQUIRED" class="member-name-link">AUTHENTICATION_REQUIRED</a> - Enum constant in enum class kalix.javasdk.annotations.<a href="kalix/javasdk/annotations/Acl.DenyStatusCode.html" title="enum class in kalix.javasdk.annotations">Acl.DenyStatusCode</a></dt>
 <dd>&nbsp;</dd>
@@ -117,6 +122,364 @@ loadScripts(document, 'script');</script>
 </dl>
 <h2 class="title" id="I:C">C</h2>
 <dl class="index">
+<dt><a href="kalix/javasdk/client/ActionCallBuilder.html#call(akka.japi.function.Function)" class="member-name-link">call(Function&lt;T, Action.Effect&lt;R&gt;&gt;)</a> - Method in class kalix.javasdk.client.<a href="kalix/javasdk/client/ActionCallBuilder.html" title="class in kalix.javasdk.client">ActionCallBuilder</a></dt>
+<dd>
+<div class="block">Pass in Action method reference annotated as a REST endpoint, e.g.</div>
+</dd>
+<dt><a href="kalix/javasdk/client/EventSourcedEntityCallBuilder.html#call(akka.japi.function.Function)" class="member-name-link">call(Function&lt;T, EventSourcedEntity.Effect&lt;R&gt;&gt;)</a> - Method in class kalix.javasdk.client.<a href="kalix/javasdk/client/EventSourcedEntityCallBuilder.html" title="class in kalix.javasdk.client">EventSourcedEntityCallBuilder</a></dt>
+<dd>
+<div class="block">Pass in Event Sourced Entity method reference annotated as a REST endpoint, e.g.</div>
+</dd>
+<dt><a href="kalix/javasdk/client/ValueEntityCallBuilder.html#call(akka.japi.function.Function)" class="member-name-link">call(Function&lt;T, ValueEntity.Effect&lt;R&gt;&gt;)</a> - Method in class kalix.javasdk.client.<a href="kalix/javasdk/client/ValueEntityCallBuilder.html" title="class in kalix.javasdk.client">ValueEntityCallBuilder</a></dt>
+<dd>
+<div class="block">Pass in Value Entity method reference annotated as a REST endpoint, e.g.</div>
+</dd>
+<dt><a href="kalix/javasdk/client/WorkflowCallBuilder.html#call(akka.japi.function.Function)" class="member-name-link">call(Function&lt;T, Workflow.Effect&lt;R&gt;&gt;)</a> - Method in class kalix.javasdk.client.<a href="kalix/javasdk/client/WorkflowCallBuilder.html" title="class in kalix.javasdk.client">WorkflowCallBuilder</a></dt>
+<dd>
+<div class="block">Pass in Workflow method reference annotated as a REST endpoint, e.g.</div>
+</dd>
+<dt><a href="kalix/javasdk/client/ActionCallBuilder.html#call(akka.japi.function.Function10)" class="member-name-link">call(Function10&lt;T, A1, A2, A3, A4, A5, A6, A7, A8, A9, Action.Effect&lt;R&gt;&gt;)</a> - Method in class kalix.javasdk.client.<a href="kalix/javasdk/client/ActionCallBuilder.html" title="class in kalix.javasdk.client">ActionCallBuilder</a></dt>
+<dd>
+<div class="block">Pass in Action method reference annotated as a REST endpoint, e.g.</div>
+</dd>
+<dt><a href="kalix/javasdk/client/EventSourcedEntityCallBuilder.html#call(akka.japi.function.Function10)" class="member-name-link">call(Function10&lt;T, A1, A2, A3, A4, A5, A6, A7, A8, A9, EventSourcedEntity.Effect&lt;R&gt;&gt;)</a> - Method in class kalix.javasdk.client.<a href="kalix/javasdk/client/EventSourcedEntityCallBuilder.html" title="class in kalix.javasdk.client">EventSourcedEntityCallBuilder</a></dt>
+<dd>
+<div class="block">Pass in Event Sourced Entity method reference annotated as a REST endpoint, e.g.</div>
+</dd>
+<dt><a href="kalix/javasdk/client/ValueEntityCallBuilder.html#call(akka.japi.function.Function10)" class="member-name-link">call(Function10&lt;T, A1, A2, A3, A4, A5, A6, A7, A8, A9, ValueEntity.Effect&lt;R&gt;&gt;)</a> - Method in class kalix.javasdk.client.<a href="kalix/javasdk/client/ValueEntityCallBuilder.html" title="class in kalix.javasdk.client">ValueEntityCallBuilder</a></dt>
+<dd>
+<div class="block">Pass in Value Entity method reference annotated as a REST endpoint, e.g.</div>
+</dd>
+<dt><a href="kalix/javasdk/client/WorkflowCallBuilder.html#call(akka.japi.function.Function10)" class="member-name-link">call(Function10&lt;T, A1, A2, A3, A4, A5, A6, A7, A8, A9, Workflow.Effect&lt;R&gt;&gt;)</a> - Method in class kalix.javasdk.client.<a href="kalix/javasdk/client/WorkflowCallBuilder.html" title="class in kalix.javasdk.client">WorkflowCallBuilder</a></dt>
+<dd>
+<div class="block">Pass in Workflow method reference annotated as a REST endpoint, e.g.</div>
+</dd>
+<dt><a href="kalix/javasdk/client/ActionCallBuilder.html#call(akka.japi.function.Function11)" class="member-name-link">call(Function11&lt;T, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, Action.Effect&lt;R&gt;&gt;)</a> - Method in class kalix.javasdk.client.<a href="kalix/javasdk/client/ActionCallBuilder.html" title="class in kalix.javasdk.client">ActionCallBuilder</a></dt>
+<dd>
+<div class="block">Pass in Action method reference annotated as a REST endpoint, e.g.</div>
+</dd>
+<dt><a href="kalix/javasdk/client/EventSourcedEntityCallBuilder.html#call(akka.japi.function.Function11)" class="member-name-link">call(Function11&lt;T, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, EventSourcedEntity.Effect&lt;R&gt;&gt;)</a> - Method in class kalix.javasdk.client.<a href="kalix/javasdk/client/EventSourcedEntityCallBuilder.html" title="class in kalix.javasdk.client">EventSourcedEntityCallBuilder</a></dt>
+<dd>
+<div class="block">Pass in Event Sourced Entity method reference annotated as a REST endpoint, e.g.</div>
+</dd>
+<dt><a href="kalix/javasdk/client/ValueEntityCallBuilder.html#call(akka.japi.function.Function11)" class="member-name-link">call(Function11&lt;T, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, ValueEntity.Effect&lt;R&gt;&gt;)</a> - Method in class kalix.javasdk.client.<a href="kalix/javasdk/client/ValueEntityCallBuilder.html" title="class in kalix.javasdk.client">ValueEntityCallBuilder</a></dt>
+<dd>
+<div class="block">Pass in Value Entity method reference annotated as a REST endpoint, e.g.</div>
+</dd>
+<dt><a href="kalix/javasdk/client/WorkflowCallBuilder.html#call(akka.japi.function.Function11)" class="member-name-link">call(Function11&lt;T, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, Workflow.Effect&lt;R&gt;&gt;)</a> - Method in class kalix.javasdk.client.<a href="kalix/javasdk/client/WorkflowCallBuilder.html" title="class in kalix.javasdk.client">WorkflowCallBuilder</a></dt>
+<dd>
+<div class="block">Pass in Workflow method reference annotated as a REST endpoint, e.g.</div>
+</dd>
+<dt><a href="kalix/javasdk/client/ActionCallBuilder.html#call(akka.japi.function.Function12)" class="member-name-link">call(Function12&lt;T, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, Action.Effect&lt;R&gt;&gt;)</a> - Method in class kalix.javasdk.client.<a href="kalix/javasdk/client/ActionCallBuilder.html" title="class in kalix.javasdk.client">ActionCallBuilder</a></dt>
+<dd>
+<div class="block">Pass in Action method reference annotated as a REST endpoint, e.g.</div>
+</dd>
+<dt><a href="kalix/javasdk/client/EventSourcedEntityCallBuilder.html#call(akka.japi.function.Function12)" class="member-name-link">call(Function12&lt;T, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, EventSourcedEntity.Effect&lt;R&gt;&gt;)</a> - Method in class kalix.javasdk.client.<a href="kalix/javasdk/client/EventSourcedEntityCallBuilder.html" title="class in kalix.javasdk.client">EventSourcedEntityCallBuilder</a></dt>
+<dd>
+<div class="block">Pass in Event Sourced Entity method reference annotated as a REST endpoint, e.g.</div>
+</dd>
+<dt><a href="kalix/javasdk/client/ValueEntityCallBuilder.html#call(akka.japi.function.Function12)" class="member-name-link">call(Function12&lt;T, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, ValueEntity.Effect&lt;R&gt;&gt;)</a> - Method in class kalix.javasdk.client.<a href="kalix/javasdk/client/ValueEntityCallBuilder.html" title="class in kalix.javasdk.client">ValueEntityCallBuilder</a></dt>
+<dd>
+<div class="block">Pass in Value Entity method reference annotated as a REST endpoint, e.g.</div>
+</dd>
+<dt><a href="kalix/javasdk/client/WorkflowCallBuilder.html#call(akka.japi.function.Function12)" class="member-name-link">call(Function12&lt;T, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, Workflow.Effect&lt;R&gt;&gt;)</a> - Method in class kalix.javasdk.client.<a href="kalix/javasdk/client/WorkflowCallBuilder.html" title="class in kalix.javasdk.client">WorkflowCallBuilder</a></dt>
+<dd>
+<div class="block">Pass in Workflow method reference annotated as a REST endpoint, e.g.</div>
+</dd>
+<dt><a href="kalix/javasdk/client/ActionCallBuilder.html#call(akka.japi.function.Function13)" class="member-name-link">call(Function13&lt;T, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, Action.Effect&lt;R&gt;&gt;)</a> - Method in class kalix.javasdk.client.<a href="kalix/javasdk/client/ActionCallBuilder.html" title="class in kalix.javasdk.client">ActionCallBuilder</a></dt>
+<dd>
+<div class="block">Pass in Action method reference annotated as a REST endpoint, e.g.</div>
+</dd>
+<dt><a href="kalix/javasdk/client/EventSourcedEntityCallBuilder.html#call(akka.japi.function.Function13)" class="member-name-link">call(Function13&lt;T, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, EventSourcedEntity.Effect&lt;R&gt;&gt;)</a> - Method in class kalix.javasdk.client.<a href="kalix/javasdk/client/EventSourcedEntityCallBuilder.html" title="class in kalix.javasdk.client">EventSourcedEntityCallBuilder</a></dt>
+<dd>
+<div class="block">Pass in Event Sourced Entity method reference annotated as a REST endpoint, e.g.</div>
+</dd>
+<dt><a href="kalix/javasdk/client/ValueEntityCallBuilder.html#call(akka.japi.function.Function13)" class="member-name-link">call(Function13&lt;T, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, ValueEntity.Effect&lt;R&gt;&gt;)</a> - Method in class kalix.javasdk.client.<a href="kalix/javasdk/client/ValueEntityCallBuilder.html" title="class in kalix.javasdk.client">ValueEntityCallBuilder</a></dt>
+<dd>
+<div class="block">Pass in Value Entity method reference annotated as a REST endpoint, e.g.</div>
+</dd>
+<dt><a href="kalix/javasdk/client/WorkflowCallBuilder.html#call(akka.japi.function.Function13)" class="member-name-link">call(Function13&lt;T, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, Workflow.Effect&lt;R&gt;&gt;)</a> - Method in class kalix.javasdk.client.<a href="kalix/javasdk/client/WorkflowCallBuilder.html" title="class in kalix.javasdk.client">WorkflowCallBuilder</a></dt>
+<dd>
+<div class="block">Pass in Workflow method reference annotated as a REST endpoint, e.g.</div>
+</dd>
+<dt><a href="kalix/javasdk/client/ActionCallBuilder.html#call(akka.japi.function.Function14)" class="member-name-link">call(Function14&lt;T, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, Action.Effect&lt;R&gt;&gt;)</a> - Method in class kalix.javasdk.client.<a href="kalix/javasdk/client/ActionCallBuilder.html" title="class in kalix.javasdk.client">ActionCallBuilder</a></dt>
+<dd>
+<div class="block">Pass in Action method reference annotated as a REST endpoint, e.g.</div>
+</dd>
+<dt><a href="kalix/javasdk/client/EventSourcedEntityCallBuilder.html#call(akka.japi.function.Function14)" class="member-name-link">call(Function14&lt;T, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, EventSourcedEntity.Effect&lt;R&gt;&gt;)</a> - Method in class kalix.javasdk.client.<a href="kalix/javasdk/client/EventSourcedEntityCallBuilder.html" title="class in kalix.javasdk.client">EventSourcedEntityCallBuilder</a></dt>
+<dd>
+<div class="block">Pass in Event Sourced Entity method reference annotated as a REST endpoint, e.g.</div>
+</dd>
+<dt><a href="kalix/javasdk/client/ValueEntityCallBuilder.html#call(akka.japi.function.Function14)" class="member-name-link">call(Function14&lt;T, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, ValueEntity.Effect&lt;R&gt;&gt;)</a> - Method in class kalix.javasdk.client.<a href="kalix/javasdk/client/ValueEntityCallBuilder.html" title="class in kalix.javasdk.client">ValueEntityCallBuilder</a></dt>
+<dd>
+<div class="block">Pass in Value Entity method reference annotated as a REST endpoint, e.g.</div>
+</dd>
+<dt><a href="kalix/javasdk/client/WorkflowCallBuilder.html#call(akka.japi.function.Function14)" class="member-name-link">call(Function14&lt;T, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, Workflow.Effect&lt;R&gt;&gt;)</a> - Method in class kalix.javasdk.client.<a href="kalix/javasdk/client/WorkflowCallBuilder.html" title="class in kalix.javasdk.client">WorkflowCallBuilder</a></dt>
+<dd>
+<div class="block">Pass in Workflow method reference annotated as a REST endpoint, e.g.</div>
+</dd>
+<dt><a href="kalix/javasdk/client/ActionCallBuilder.html#call(akka.japi.function.Function15)" class="member-name-link">call(Function15&lt;T, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, Action.Effect&lt;R&gt;&gt;)</a> - Method in class kalix.javasdk.client.<a href="kalix/javasdk/client/ActionCallBuilder.html" title="class in kalix.javasdk.client">ActionCallBuilder</a></dt>
+<dd>
+<div class="block">Pass in Action method reference annotated as a REST endpoint, e.g.</div>
+</dd>
+<dt><a href="kalix/javasdk/client/EventSourcedEntityCallBuilder.html#call(akka.japi.function.Function15)" class="member-name-link">call(Function15&lt;T, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, EventSourcedEntity.Effect&lt;R&gt;&gt;)</a> - Method in class kalix.javasdk.client.<a href="kalix/javasdk/client/EventSourcedEntityCallBuilder.html" title="class in kalix.javasdk.client">EventSourcedEntityCallBuilder</a></dt>
+<dd>
+<div class="block">Pass in Event Sourced Entity method reference annotated as a REST endpoint, e.g.</div>
+</dd>
+<dt><a href="kalix/javasdk/client/ValueEntityCallBuilder.html#call(akka.japi.function.Function15)" class="member-name-link">call(Function15&lt;T, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, ValueEntity.Effect&lt;R&gt;&gt;)</a> - Method in class kalix.javasdk.client.<a href="kalix/javasdk/client/ValueEntityCallBuilder.html" title="class in kalix.javasdk.client">ValueEntityCallBuilder</a></dt>
+<dd>
+<div class="block">Pass in Value Entity method reference annotated as a REST endpoint, e.g.</div>
+</dd>
+<dt><a href="kalix/javasdk/client/WorkflowCallBuilder.html#call(akka.japi.function.Function15)" class="member-name-link">call(Function15&lt;T, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, Workflow.Effect&lt;R&gt;&gt;)</a> - Method in class kalix.javasdk.client.<a href="kalix/javasdk/client/WorkflowCallBuilder.html" title="class in kalix.javasdk.client">WorkflowCallBuilder</a></dt>
+<dd>
+<div class="block">Pass in Workflow method reference annotated as a REST endpoint, e.g.</div>
+</dd>
+<dt><a href="kalix/javasdk/client/ActionCallBuilder.html#call(akka.japi.function.Function16)" class="member-name-link">call(Function16&lt;T, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, Action.Effect&lt;R&gt;&gt;)</a> - Method in class kalix.javasdk.client.<a href="kalix/javasdk/client/ActionCallBuilder.html" title="class in kalix.javasdk.client">ActionCallBuilder</a></dt>
+<dd>
+<div class="block">Pass in Action method reference annotated as a REST endpoint, e.g.</div>
+</dd>
+<dt><a href="kalix/javasdk/client/EventSourcedEntityCallBuilder.html#call(akka.japi.function.Function16)" class="member-name-link">call(Function16&lt;T, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, EventSourcedEntity.Effect&lt;R&gt;&gt;)</a> - Method in class kalix.javasdk.client.<a href="kalix/javasdk/client/EventSourcedEntityCallBuilder.html" title="class in kalix.javasdk.client">EventSourcedEntityCallBuilder</a></dt>
+<dd>
+<div class="block">Pass in Event Sourced Entity method reference annotated as a REST endpoint, e.g.</div>
+</dd>
+<dt><a href="kalix/javasdk/client/ValueEntityCallBuilder.html#call(akka.japi.function.Function16)" class="member-name-link">call(Function16&lt;T, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, ValueEntity.Effect&lt;R&gt;&gt;)</a> - Method in class kalix.javasdk.client.<a href="kalix/javasdk/client/ValueEntityCallBuilder.html" title="class in kalix.javasdk.client">ValueEntityCallBuilder</a></dt>
+<dd>
+<div class="block">Pass in Value Entity method reference annotated as a REST endpoint, e.g.</div>
+</dd>
+<dt><a href="kalix/javasdk/client/WorkflowCallBuilder.html#call(akka.japi.function.Function16)" class="member-name-link">call(Function16&lt;T, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, Workflow.Effect&lt;R&gt;&gt;)</a> - Method in class kalix.javasdk.client.<a href="kalix/javasdk/client/WorkflowCallBuilder.html" title="class in kalix.javasdk.client">WorkflowCallBuilder</a></dt>
+<dd>
+<div class="block">Pass in Workflow method reference annotated as a REST endpoint, e.g.</div>
+</dd>
+<dt><a href="kalix/javasdk/client/ActionCallBuilder.html#call(akka.japi.function.Function17)" class="member-name-link">call(Function17&lt;T, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, Action.Effect&lt;R&gt;&gt;)</a> - Method in class kalix.javasdk.client.<a href="kalix/javasdk/client/ActionCallBuilder.html" title="class in kalix.javasdk.client">ActionCallBuilder</a></dt>
+<dd>
+<div class="block">Pass in Action method reference annotated as a REST endpoint, e.g.</div>
+</dd>
+<dt><a href="kalix/javasdk/client/EventSourcedEntityCallBuilder.html#call(akka.japi.function.Function17)" class="member-name-link">call(Function17&lt;T, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, EventSourcedEntity.Effect&lt;R&gt;&gt;)</a> - Method in class kalix.javasdk.client.<a href="kalix/javasdk/client/EventSourcedEntityCallBuilder.html" title="class in kalix.javasdk.client">EventSourcedEntityCallBuilder</a></dt>
+<dd>
+<div class="block">Pass in Event Sourced Entity method reference annotated as a REST endpoint, e.g.</div>
+</dd>
+<dt><a href="kalix/javasdk/client/ValueEntityCallBuilder.html#call(akka.japi.function.Function17)" class="member-name-link">call(Function17&lt;T, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, ValueEntity.Effect&lt;R&gt;&gt;)</a> - Method in class kalix.javasdk.client.<a href="kalix/javasdk/client/ValueEntityCallBuilder.html" title="class in kalix.javasdk.client">ValueEntityCallBuilder</a></dt>
+<dd>
+<div class="block">Pass in Value Entity method reference annotated as a REST endpoint, e.g.</div>
+</dd>
+<dt><a href="kalix/javasdk/client/WorkflowCallBuilder.html#call(akka.japi.function.Function17)" class="member-name-link">call(Function17&lt;T, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, Workflow.Effect&lt;R&gt;&gt;)</a> - Method in class kalix.javasdk.client.<a href="kalix/javasdk/client/WorkflowCallBuilder.html" title="class in kalix.javasdk.client">WorkflowCallBuilder</a></dt>
+<dd>
+<div class="block">Pass in Workflow method reference annotated as a REST endpoint, e.g.</div>
+</dd>
+<dt><a href="kalix/javasdk/client/ActionCallBuilder.html#call(akka.japi.function.Function18)" class="member-name-link">call(Function18&lt;T, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, Action.Effect&lt;R&gt;&gt;)</a> - Method in class kalix.javasdk.client.<a href="kalix/javasdk/client/ActionCallBuilder.html" title="class in kalix.javasdk.client">ActionCallBuilder</a></dt>
+<dd>
+<div class="block">Pass in Action method reference annotated as a REST endpoint, e.g.</div>
+</dd>
+<dt><a href="kalix/javasdk/client/EventSourcedEntityCallBuilder.html#call(akka.japi.function.Function18)" class="member-name-link">call(Function18&lt;T, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, EventSourcedEntity.Effect&lt;R&gt;&gt;)</a> - Method in class kalix.javasdk.client.<a href="kalix/javasdk/client/EventSourcedEntityCallBuilder.html" title="class in kalix.javasdk.client">EventSourcedEntityCallBuilder</a></dt>
+<dd>
+<div class="block">Pass in Event Sourced Entity method reference annotated as a REST endpoint, e.g.</div>
+</dd>
+<dt><a href="kalix/javasdk/client/ValueEntityCallBuilder.html#call(akka.japi.function.Function18)" class="member-name-link">call(Function18&lt;T, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, ValueEntity.Effect&lt;R&gt;&gt;)</a> - Method in class kalix.javasdk.client.<a href="kalix/javasdk/client/ValueEntityCallBuilder.html" title="class in kalix.javasdk.client">ValueEntityCallBuilder</a></dt>
+<dd>
+<div class="block">Pass in Value Entity method reference annotated as a REST endpoint, e.g.</div>
+</dd>
+<dt><a href="kalix/javasdk/client/WorkflowCallBuilder.html#call(akka.japi.function.Function18)" class="member-name-link">call(Function18&lt;T, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, Workflow.Effect&lt;R&gt;&gt;)</a> - Method in class kalix.javasdk.client.<a href="kalix/javasdk/client/WorkflowCallBuilder.html" title="class in kalix.javasdk.client">WorkflowCallBuilder</a></dt>
+<dd>
+<div class="block">Pass in Workflow method reference annotated as a REST endpoint, e.g.</div>
+</dd>
+<dt><a href="kalix/javasdk/client/ActionCallBuilder.html#call(akka.japi.function.Function19)" class="member-name-link">call(Function19&lt;T, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, Action.Effect&lt;R&gt;&gt;)</a> - Method in class kalix.javasdk.client.<a href="kalix/javasdk/client/ActionCallBuilder.html" title="class in kalix.javasdk.client">ActionCallBuilder</a></dt>
+<dd>
+<div class="block">Pass in Action method reference annotated as a REST endpoint, e.g.</div>
+</dd>
+<dt><a href="kalix/javasdk/client/EventSourcedEntityCallBuilder.html#call(akka.japi.function.Function19)" class="member-name-link">call(Function19&lt;T, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, EventSourcedEntity.Effect&lt;R&gt;&gt;)</a> - Method in class kalix.javasdk.client.<a href="kalix/javasdk/client/EventSourcedEntityCallBuilder.html" title="class in kalix.javasdk.client">EventSourcedEntityCallBuilder</a></dt>
+<dd>
+<div class="block">Pass in Event Sourced Entity method reference annotated as a REST endpoint, e.g.</div>
+</dd>
+<dt><a href="kalix/javasdk/client/ValueEntityCallBuilder.html#call(akka.japi.function.Function19)" class="member-name-link">call(Function19&lt;T, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, ValueEntity.Effect&lt;R&gt;&gt;)</a> - Method in class kalix.javasdk.client.<a href="kalix/javasdk/client/ValueEntityCallBuilder.html" title="class in kalix.javasdk.client">ValueEntityCallBuilder</a></dt>
+<dd>
+<div class="block">Pass in Value Entity method reference annotated as a REST endpoint, e.g.</div>
+</dd>
+<dt><a href="kalix/javasdk/client/WorkflowCallBuilder.html#call(akka.japi.function.Function19)" class="member-name-link">call(Function19&lt;T, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, Workflow.Effect&lt;R&gt;&gt;)</a> - Method in class kalix.javasdk.client.<a href="kalix/javasdk/client/WorkflowCallBuilder.html" title="class in kalix.javasdk.client">WorkflowCallBuilder</a></dt>
+<dd>
+<div class="block">Pass in Workflow method reference annotated as a REST endpoint, e.g.</div>
+</dd>
+<dt><a href="kalix/javasdk/client/ActionCallBuilder.html#call(akka.japi.function.Function2)" class="member-name-link">call(Function2&lt;T, A1, Action.Effect&lt;R&gt;&gt;)</a> - Method in class kalix.javasdk.client.<a href="kalix/javasdk/client/ActionCallBuilder.html" title="class in kalix.javasdk.client">ActionCallBuilder</a></dt>
+<dd>
+<div class="block">Pass in Action method reference annotated as a REST endpoint, e.g.</div>
+</dd>
+<dt><a href="kalix/javasdk/client/EventSourcedEntityCallBuilder.html#call(akka.japi.function.Function2)" class="member-name-link">call(Function2&lt;T, A1, EventSourcedEntity.Effect&lt;R&gt;&gt;)</a> - Method in class kalix.javasdk.client.<a href="kalix/javasdk/client/EventSourcedEntityCallBuilder.html" title="class in kalix.javasdk.client">EventSourcedEntityCallBuilder</a></dt>
+<dd>
+<div class="block">Pass in Event Sourced Entity method reference annotated as a REST endpoint, e.g.</div>
+</dd>
+<dt><a href="kalix/javasdk/client/ValueEntityCallBuilder.html#call(akka.japi.function.Function2)" class="member-name-link">call(Function2&lt;T, A1, ValueEntity.Effect&lt;R&gt;&gt;)</a> - Method in class kalix.javasdk.client.<a href="kalix/javasdk/client/ValueEntityCallBuilder.html" title="class in kalix.javasdk.client">ValueEntityCallBuilder</a></dt>
+<dd>
+<div class="block">Pass in Value Entity method reference annotated as a REST endpoint, e.g.</div>
+</dd>
+<dt><a href="kalix/javasdk/client/WorkflowCallBuilder.html#call(akka.japi.function.Function2)" class="member-name-link">call(Function2&lt;T, A1, Workflow.Effect&lt;R&gt;&gt;)</a> - Method in class kalix.javasdk.client.<a href="kalix/javasdk/client/WorkflowCallBuilder.html" title="class in kalix.javasdk.client">WorkflowCallBuilder</a></dt>
+<dd>
+<div class="block">Pass in Workflow method reference annotated as a REST endpoint, e.g.</div>
+</dd>
+<dt><a href="kalix/javasdk/client/ActionCallBuilder.html#call(akka.japi.function.Function20)" class="member-name-link">call(Function20&lt;T, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19, Action.Effect&lt;R&gt;&gt;)</a> - Method in class kalix.javasdk.client.<a href="kalix/javasdk/client/ActionCallBuilder.html" title="class in kalix.javasdk.client">ActionCallBuilder</a></dt>
+<dd>
+<div class="block">Pass in Action method reference annotated as a REST endpoint, e.g.</div>
+</dd>
+<dt><a href="kalix/javasdk/client/EventSourcedEntityCallBuilder.html#call(akka.japi.function.Function20)" class="member-name-link">call(Function20&lt;T, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19, EventSourcedEntity.Effect&lt;R&gt;&gt;)</a> - Method in class kalix.javasdk.client.<a href="kalix/javasdk/client/EventSourcedEntityCallBuilder.html" title="class in kalix.javasdk.client">EventSourcedEntityCallBuilder</a></dt>
+<dd>
+<div class="block">Pass in Event Sourced Entity method reference annotated as a REST endpoint, e.g.</div>
+</dd>
+<dt><a href="kalix/javasdk/client/ValueEntityCallBuilder.html#call(akka.japi.function.Function20)" class="member-name-link">call(Function20&lt;T, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19, ValueEntity.Effect&lt;R&gt;&gt;)</a> - Method in class kalix.javasdk.client.<a href="kalix/javasdk/client/ValueEntityCallBuilder.html" title="class in kalix.javasdk.client">ValueEntityCallBuilder</a></dt>
+<dd>
+<div class="block">Pass in Value Entity method reference annotated as a REST endpoint, e.g.</div>
+</dd>
+<dt><a href="kalix/javasdk/client/WorkflowCallBuilder.html#call(akka.japi.function.Function20)" class="member-name-link">call(Function20&lt;T, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19, Workflow.Effect&lt;R&gt;&gt;)</a> - Method in class kalix.javasdk.client.<a href="kalix/javasdk/client/WorkflowCallBuilder.html" title="class in kalix.javasdk.client">WorkflowCallBuilder</a></dt>
+<dd>
+<div class="block">Pass in Workflow method reference annotated as a REST endpoint, e.g.</div>
+</dd>
+<dt><a href="kalix/javasdk/client/ActionCallBuilder.html#call(akka.japi.function.Function21)" class="member-name-link">call(Function21&lt;T, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19, A20, Action.Effect&lt;R&gt;&gt;)</a> - Method in class kalix.javasdk.client.<a href="kalix/javasdk/client/ActionCallBuilder.html" title="class in kalix.javasdk.client">ActionCallBuilder</a></dt>
+<dd>
+<div class="block">Pass in Action method reference annotated as a REST endpoint, e.g.</div>
+</dd>
+<dt><a href="kalix/javasdk/client/EventSourcedEntityCallBuilder.html#call(akka.japi.function.Function21)" class="member-name-link">call(Function21&lt;T, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19, A20, EventSourcedEntity.Effect&lt;R&gt;&gt;)</a> - Method in class kalix.javasdk.client.<a href="kalix/javasdk/client/EventSourcedEntityCallBuilder.html" title="class in kalix.javasdk.client">EventSourcedEntityCallBuilder</a></dt>
+<dd>
+<div class="block">Pass in Event Sourced Entity method reference annotated as a REST endpoint, e.g.</div>
+</dd>
+<dt><a href="kalix/javasdk/client/ValueEntityCallBuilder.html#call(akka.japi.function.Function21)" class="member-name-link">call(Function21&lt;T, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19, A20, ValueEntity.Effect&lt;R&gt;&gt;)</a> - Method in class kalix.javasdk.client.<a href="kalix/javasdk/client/ValueEntityCallBuilder.html" title="class in kalix.javasdk.client">ValueEntityCallBuilder</a></dt>
+<dd>
+<div class="block">Pass in Value Entity method reference annotated as a REST endpoint, e.g.</div>
+</dd>
+<dt><a href="kalix/javasdk/client/WorkflowCallBuilder.html#call(akka.japi.function.Function21)" class="member-name-link">call(Function21&lt;T, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19, A20, Workflow.Effect&lt;R&gt;&gt;)</a> - Method in class kalix.javasdk.client.<a href="kalix/javasdk/client/WorkflowCallBuilder.html" title="class in kalix.javasdk.client">WorkflowCallBuilder</a></dt>
+<dd>
+<div class="block">Pass in Workflow method reference annotated as a REST endpoint, e.g.</div>
+</dd>
+<dt><a href="kalix/javasdk/client/ActionCallBuilder.html#call(akka.japi.function.Function22)" class="member-name-link">call(Function22&lt;T, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19, A20, A21, Action.Effect&lt;R&gt;&gt;)</a> - Method in class kalix.javasdk.client.<a href="kalix/javasdk/client/ActionCallBuilder.html" title="class in kalix.javasdk.client">ActionCallBuilder</a></dt>
+<dd>
+<div class="block">Pass in Action method reference annotated as a REST endpoint, e.g.</div>
+</dd>
+<dt><a href="kalix/javasdk/client/EventSourcedEntityCallBuilder.html#call(akka.japi.function.Function22)" class="member-name-link">call(Function22&lt;T, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19, A20, A21, EventSourcedEntity.Effect&lt;R&gt;&gt;)</a> - Method in class kalix.javasdk.client.<a href="kalix/javasdk/client/EventSourcedEntityCallBuilder.html" title="class in kalix.javasdk.client">EventSourcedEntityCallBuilder</a></dt>
+<dd>
+<div class="block">Pass in Event Sourced Entity method reference annotated as a REST endpoint, e.g.</div>
+</dd>
+<dt><a href="kalix/javasdk/client/ValueEntityCallBuilder.html#call(akka.japi.function.Function22)" class="member-name-link">call(Function22&lt;T, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19, A20, A21, ValueEntity.Effect&lt;R&gt;&gt;)</a> - Method in class kalix.javasdk.client.<a href="kalix/javasdk/client/ValueEntityCallBuilder.html" title="class in kalix.javasdk.client">ValueEntityCallBuilder</a></dt>
+<dd>
+<div class="block">Pass in Value Entity method reference annotated as a REST endpoint, e.g.</div>
+</dd>
+<dt><a href="kalix/javasdk/client/WorkflowCallBuilder.html#call(akka.japi.function.Function22)" class="member-name-link">call(Function22&lt;T, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19, A20, A21, Workflow.Effect&lt;R&gt;&gt;)</a> - Method in class kalix.javasdk.client.<a href="kalix/javasdk/client/WorkflowCallBuilder.html" title="class in kalix.javasdk.client">WorkflowCallBuilder</a></dt>
+<dd>
+<div class="block">Pass in Workflow method reference annotated as a REST endpoint, e.g.</div>
+</dd>
+<dt><a href="kalix/javasdk/client/ActionCallBuilder.html#call(akka.japi.function.Function3)" class="member-name-link">call(Function3&lt;T, A1, A2, Action.Effect&lt;R&gt;&gt;)</a> - Method in class kalix.javasdk.client.<a href="kalix/javasdk/client/ActionCallBuilder.html" title="class in kalix.javasdk.client">ActionCallBuilder</a></dt>
+<dd>
+<div class="block">Pass in Action method reference annotated as a REST endpoint, e.g.</div>
+</dd>
+<dt><a href="kalix/javasdk/client/EventSourcedEntityCallBuilder.html#call(akka.japi.function.Function3)" class="member-name-link">call(Function3&lt;T, A1, A2, EventSourcedEntity.Effect&lt;R&gt;&gt;)</a> - Method in class kalix.javasdk.client.<a href="kalix/javasdk/client/EventSourcedEntityCallBuilder.html" title="class in kalix.javasdk.client">EventSourcedEntityCallBuilder</a></dt>
+<dd>
+<div class="block">Pass in Event Sourced Entity method reference annotated as a REST endpoint, e.g.</div>
+</dd>
+<dt><a href="kalix/javasdk/client/ValueEntityCallBuilder.html#call(akka.japi.function.Function3)" class="member-name-link">call(Function3&lt;T, A1, A2, ValueEntity.Effect&lt;R&gt;&gt;)</a> - Method in class kalix.javasdk.client.<a href="kalix/javasdk/client/ValueEntityCallBuilder.html" title="class in kalix.javasdk.client">ValueEntityCallBuilder</a></dt>
+<dd>
+<div class="block">Pass in Value Entity method reference annotated as a REST endpoint, e.g.</div>
+</dd>
+<dt><a href="kalix/javasdk/client/WorkflowCallBuilder.html#call(akka.japi.function.Function3)" class="member-name-link">call(Function3&lt;T, A1, A2, Workflow.Effect&lt;R&gt;&gt;)</a> - Method in class kalix.javasdk.client.<a href="kalix/javasdk/client/WorkflowCallBuilder.html" title="class in kalix.javasdk.client">WorkflowCallBuilder</a></dt>
+<dd>
+<div class="block">Pass in Workflow method reference annotated as a REST endpoint, e.g.</div>
+</dd>
+<dt><a href="kalix/javasdk/client/ActionCallBuilder.html#call(akka.japi.function.Function4)" class="member-name-link">call(Function4&lt;T, A1, A2, A3, Action.Effect&lt;R&gt;&gt;)</a> - Method in class kalix.javasdk.client.<a href="kalix/javasdk/client/ActionCallBuilder.html" title="class in kalix.javasdk.client">ActionCallBuilder</a></dt>
+<dd>
+<div class="block">Pass in Action method reference annotated as a REST endpoint, e.g.</div>
+</dd>
+<dt><a href="kalix/javasdk/client/EventSourcedEntityCallBuilder.html#call(akka.japi.function.Function4)" class="member-name-link">call(Function4&lt;T, A1, A2, A3, EventSourcedEntity.Effect&lt;R&gt;&gt;)</a> - Method in class kalix.javasdk.client.<a href="kalix/javasdk/client/EventSourcedEntityCallBuilder.html" title="class in kalix.javasdk.client">EventSourcedEntityCallBuilder</a></dt>
+<dd>
+<div class="block">Pass in Event Sourced Entity method reference annotated as a REST endpoint, e.g.</div>
+</dd>
+<dt><a href="kalix/javasdk/client/ValueEntityCallBuilder.html#call(akka.japi.function.Function4)" class="member-name-link">call(Function4&lt;T, A1, A2, A3, ValueEntity.Effect&lt;R&gt;&gt;)</a> - Method in class kalix.javasdk.client.<a href="kalix/javasdk/client/ValueEntityCallBuilder.html" title="class in kalix.javasdk.client">ValueEntityCallBuilder</a></dt>
+<dd>
+<div class="block">Pass in Value Entity method reference annotated as a REST endpoint, e.g.</div>
+</dd>
+<dt><a href="kalix/javasdk/client/WorkflowCallBuilder.html#call(akka.japi.function.Function4)" class="member-name-link">call(Function4&lt;T, A1, A2, A3, Workflow.Effect&lt;R&gt;&gt;)</a> - Method in class kalix.javasdk.client.<a href="kalix/javasdk/client/WorkflowCallBuilder.html" title="class in kalix.javasdk.client">WorkflowCallBuilder</a></dt>
+<dd>
+<div class="block">Pass in Workflow method reference annotated as a REST endpoint, e.g.</div>
+</dd>
+<dt><a href="kalix/javasdk/client/ActionCallBuilder.html#call(akka.japi.function.Function5)" class="member-name-link">call(Function5&lt;T, A1, A2, A3, A4, Action.Effect&lt;R&gt;&gt;)</a> - Method in class kalix.javasdk.client.<a href="kalix/javasdk/client/ActionCallBuilder.html" title="class in kalix.javasdk.client">ActionCallBuilder</a></dt>
+<dd>
+<div class="block">Pass in Action method reference annotated as a REST endpoint, e.g.</div>
+</dd>
+<dt><a href="kalix/javasdk/client/EventSourcedEntityCallBuilder.html#call(akka.japi.function.Function5)" class="member-name-link">call(Function5&lt;T, A1, A2, A3, A4, EventSourcedEntity.Effect&lt;R&gt;&gt;)</a> - Method in class kalix.javasdk.client.<a href="kalix/javasdk/client/EventSourcedEntityCallBuilder.html" title="class in kalix.javasdk.client">EventSourcedEntityCallBuilder</a></dt>
+<dd>
+<div class="block">Pass in Event Sourced Entity method reference annotated as a REST endpoint, e.g.</div>
+</dd>
+<dt><a href="kalix/javasdk/client/ValueEntityCallBuilder.html#call(akka.japi.function.Function5)" class="member-name-link">call(Function5&lt;T, A1, A2, A3, A4, ValueEntity.Effect&lt;R&gt;&gt;)</a> - Method in class kalix.javasdk.client.<a href="kalix/javasdk/client/ValueEntityCallBuilder.html" title="class in kalix.javasdk.client">ValueEntityCallBuilder</a></dt>
+<dd>
+<div class="block">Pass in Value Entity method reference annotated as a REST endpoint, e.g.</div>
+</dd>
+<dt><a href="kalix/javasdk/client/WorkflowCallBuilder.html#call(akka.japi.function.Function5)" class="member-name-link">call(Function5&lt;T, A1, A2, A3, A4, Workflow.Effect&lt;R&gt;&gt;)</a> - Method in class kalix.javasdk.client.<a href="kalix/javasdk/client/WorkflowCallBuilder.html" title="class in kalix.javasdk.client">WorkflowCallBuilder</a></dt>
+<dd>
+<div class="block">Pass in Workflow method reference annotated as a REST endpoint, e.g.</div>
+</dd>
+<dt><a href="kalix/javasdk/client/ActionCallBuilder.html#call(akka.japi.function.Function6)" class="member-name-link">call(Function6&lt;T, A1, A2, A3, A4, A5, Action.Effect&lt;R&gt;&gt;)</a> - Method in class kalix.javasdk.client.<a href="kalix/javasdk/client/ActionCallBuilder.html" title="class in kalix.javasdk.client">ActionCallBuilder</a></dt>
+<dd>
+<div class="block">Pass in Action method reference annotated as a REST endpoint, e.g.</div>
+</dd>
+<dt><a href="kalix/javasdk/client/EventSourcedEntityCallBuilder.html#call(akka.japi.function.Function6)" class="member-name-link">call(Function6&lt;T, A1, A2, A3, A4, A5, EventSourcedEntity.Effect&lt;R&gt;&gt;)</a> - Method in class kalix.javasdk.client.<a href="kalix/javasdk/client/EventSourcedEntityCallBuilder.html" title="class in kalix.javasdk.client">EventSourcedEntityCallBuilder</a></dt>
+<dd>
+<div class="block">Pass in Event Sourced Entity method reference annotated as a REST endpoint, e.g.</div>
+</dd>
+<dt><a href="kalix/javasdk/client/ValueEntityCallBuilder.html#call(akka.japi.function.Function6)" class="member-name-link">call(Function6&lt;T, A1, A2, A3, A4, A5, ValueEntity.Effect&lt;R&gt;&gt;)</a> - Method in class kalix.javasdk.client.<a href="kalix/javasdk/client/ValueEntityCallBuilder.html" title="class in kalix.javasdk.client">ValueEntityCallBuilder</a></dt>
+<dd>
+<div class="block">Pass in Value Entity method reference annotated as a REST endpoint, e.g.</div>
+</dd>
+<dt><a href="kalix/javasdk/client/WorkflowCallBuilder.html#call(akka.japi.function.Function6)" class="member-name-link">call(Function6&lt;T, A1, A2, A3, A4, A5, Workflow.Effect&lt;R&gt;&gt;)</a> - Method in class kalix.javasdk.client.<a href="kalix/javasdk/client/WorkflowCallBuilder.html" title="class in kalix.javasdk.client">WorkflowCallBuilder</a></dt>
+<dd>
+<div class="block">Pass in Workflow method reference annotated as a REST endpoint, e.g.</div>
+</dd>
+<dt><a href="kalix/javasdk/client/ActionCallBuilder.html#call(akka.japi.function.Function7)" class="member-name-link">call(Function7&lt;T, A1, A2, A3, A4, A5, A6, Action.Effect&lt;R&gt;&gt;)</a> - Method in class kalix.javasdk.client.<a href="kalix/javasdk/client/ActionCallBuilder.html" title="class in kalix.javasdk.client">ActionCallBuilder</a></dt>
+<dd>
+<div class="block">Pass in Action method reference annotated as a REST endpoint, e.g.</div>
+</dd>
+<dt><a href="kalix/javasdk/client/EventSourcedEntityCallBuilder.html#call(akka.japi.function.Function7)" class="member-name-link">call(Function7&lt;T, A1, A2, A3, A4, A5, A6, EventSourcedEntity.Effect&lt;R&gt;&gt;)</a> - Method in class kalix.javasdk.client.<a href="kalix/javasdk/client/EventSourcedEntityCallBuilder.html" title="class in kalix.javasdk.client">EventSourcedEntityCallBuilder</a></dt>
+<dd>
+<div class="block">Pass in Event Sourced Entity method reference annotated as a REST endpoint, e.g.</div>
+</dd>
+<dt><a href="kalix/javasdk/client/ValueEntityCallBuilder.html#call(akka.japi.function.Function7)" class="member-name-link">call(Function7&lt;T, A1, A2, A3, A4, A5, A6, ValueEntity.Effect&lt;R&gt;&gt;)</a> - Method in class kalix.javasdk.client.<a href="kalix/javasdk/client/ValueEntityCallBuilder.html" title="class in kalix.javasdk.client">ValueEntityCallBuilder</a></dt>
+<dd>
+<div class="block">Pass in Value Entity method reference annotated as a REST endpoint, e.g.</div>
+</dd>
+<dt><a href="kalix/javasdk/client/WorkflowCallBuilder.html#call(akka.japi.function.Function7)" class="member-name-link">call(Function7&lt;T, A1, A2, A3, A4, A5, A6, Workflow.Effect&lt;R&gt;&gt;)</a> - Method in class kalix.javasdk.client.<a href="kalix/javasdk/client/WorkflowCallBuilder.html" title="class in kalix.javasdk.client">WorkflowCallBuilder</a></dt>
+<dd>
+<div class="block">Pass in Workflow method reference annotated as a REST endpoint, e.g.</div>
+</dd>
+<dt><a href="kalix/javasdk/client/ActionCallBuilder.html#call(akka.japi.function.Function8)" class="member-name-link">call(Function8&lt;T, A1, A2, A3, A4, A5, A6, A7, Action.Effect&lt;R&gt;&gt;)</a> - Method in class kalix.javasdk.client.<a href="kalix/javasdk/client/ActionCallBuilder.html" title="class in kalix.javasdk.client">ActionCallBuilder</a></dt>
+<dd>
+<div class="block">Pass in Action method reference annotated as a REST endpoint, e.g.</div>
+</dd>
+<dt><a href="kalix/javasdk/client/EventSourcedEntityCallBuilder.html#call(akka.japi.function.Function8)" class="member-name-link">call(Function8&lt;T, A1, A2, A3, A4, A5, A6, A7, EventSourcedEntity.Effect&lt;R&gt;&gt;)</a> - Method in class kalix.javasdk.client.<a href="kalix/javasdk/client/EventSourcedEntityCallBuilder.html" title="class in kalix.javasdk.client">EventSourcedEntityCallBuilder</a></dt>
+<dd>
+<div class="block">Pass in Event Sourced Entity method reference annotated as a REST endpoint, e.g.</div>
+</dd>
+<dt><a href="kalix/javasdk/client/ValueEntityCallBuilder.html#call(akka.japi.function.Function8)" class="member-name-link">call(Function8&lt;T, A1, A2, A3, A4, A5, A6, A7, ValueEntity.Effect&lt;R&gt;&gt;)</a> - Method in class kalix.javasdk.client.<a href="kalix/javasdk/client/ValueEntityCallBuilder.html" title="class in kalix.javasdk.client">ValueEntityCallBuilder</a></dt>
+<dd>
+<div class="block">Pass in Value Entity method reference annotated as a REST endpoint, e.g.</div>
+</dd>
+<dt><a href="kalix/javasdk/client/WorkflowCallBuilder.html#call(akka.japi.function.Function8)" class="member-name-link">call(Function8&lt;T, A1, A2, A3, A4, A5, A6, A7, Workflow.Effect&lt;R&gt;&gt;)</a> - Method in class kalix.javasdk.client.<a href="kalix/javasdk/client/WorkflowCallBuilder.html" title="class in kalix.javasdk.client">WorkflowCallBuilder</a></dt>
+<dd>
+<div class="block">Pass in Workflow method reference annotated as a REST endpoint, e.g.</div>
+</dd>
+<dt><a href="kalix/javasdk/client/ActionCallBuilder.html#call(akka.japi.function.Function9)" class="member-name-link">call(Function9&lt;T, A1, A2, A3, A4, A5, A6, A7, A8, Action.Effect&lt;R&gt;&gt;)</a> - Method in class kalix.javasdk.client.<a href="kalix/javasdk/client/ActionCallBuilder.html" title="class in kalix.javasdk.client">ActionCallBuilder</a></dt>
+<dd>
+<div class="block">Pass in Action method reference annotated as a REST endpoint, e.g.</div>
+</dd>
+<dt><a href="kalix/javasdk/client/EventSourcedEntityCallBuilder.html#call(akka.japi.function.Function9)" class="member-name-link">call(Function9&lt;T, A1, A2, A3, A4, A5, A6, A7, A8, EventSourcedEntity.Effect&lt;R&gt;&gt;)</a> - Method in class kalix.javasdk.client.<a href="kalix/javasdk/client/EventSourcedEntityCallBuilder.html" title="class in kalix.javasdk.client">EventSourcedEntityCallBuilder</a></dt>
+<dd>
+<div class="block">Pass in Event Sourced Entity method reference annotated as a REST endpoint, e.g.</div>
+</dd>
+<dt><a href="kalix/javasdk/client/ValueEntityCallBuilder.html#call(akka.japi.function.Function9)" class="member-name-link">call(Function9&lt;T, A1, A2, A3, A4, A5, A6, A7, A8, ValueEntity.Effect&lt;R&gt;&gt;)</a> - Method in class kalix.javasdk.client.<a href="kalix/javasdk/client/ValueEntityCallBuilder.html" title="class in kalix.javasdk.client">ValueEntityCallBuilder</a></dt>
+<dd>
+<div class="block">Pass in Value Entity method reference annotated as a REST endpoint, e.g.</div>
+</dd>
+<dt><a href="kalix/javasdk/client/WorkflowCallBuilder.html#call(akka.japi.function.Function9)" class="member-name-link">call(Function9&lt;T, A1, A2, A3, A4, A5, A6, A7, A8, Workflow.Effect&lt;R&gt;&gt;)</a> - Method in class kalix.javasdk.client.<a href="kalix/javasdk/client/WorkflowCallBuilder.html" title="class in kalix.javasdk.client">WorkflowCallBuilder</a></dt>
+<dd>
+<div class="block">Pass in Workflow method reference annotated as a REST endpoint, e.g.</div>
+</dd>
+<dt><a href="kalix/javasdk/client/ComponentClient.html" class="type-name-link" title="class in kalix.javasdk.client">ComponentClient</a> - Class in <a href="kalix/javasdk/client/package-summary.html">kalix.javasdk.client</a></dt>
+<dd>
+<div class="block">Utility to send requests to other Kalix components by composing a DeferredCall.</div>
+</dd>
+<dt><a href="kalix/javasdk/client/ComponentClient.html#%3Cinit%3E(kalix.spring.KalixClient)" class="member-name-link">ComponentClient(KalixClient)</a> - Constructor for class kalix.javasdk.client.<a href="kalix/javasdk/client/ComponentClient.html" title="class in kalix.javasdk.client">ComponentClient</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="kalix/javasdk/annotations/Acl.DenyStatusCode.html#CONFLICT" class="member-name-link">CONFLICT</a> - Enum constant in enum class kalix.javasdk.annotations.<a href="kalix/javasdk/annotations/Acl.DenyStatusCode.html" title="enum class in kalix.javasdk.annotations">Acl.DenyStatusCode</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="kalix/javasdk/annotations/Subscribe.Topic.html#consumerGroup()" class="member-name-link">consumerGroup()</a> - Element in annotation interface kalix.javasdk.annotations.<a href="kalix/javasdk/annotations/Subscribe.Topic.html" title="annotation interface in kalix.javasdk.annotations">Subscribe.Topic</a></dt>
@@ -140,7 +503,9 @@ loadScripts(document, 'script');</script>
 <dl class="index">
 <dt><a href="kalix/javasdk/annotations/EntityKey.html" class="type-name-link" title="annotation interface in kalix.javasdk.annotations">EntityKey</a> - Annotation Interface in <a href="kalix/javasdk/annotations/package-summary.html">kalix.javasdk.annotations</a></dt>
 <dd>
-<div class="block">Assign a key to the entity.</div>
+<div class="deprecation-block"><span class="deprecated-label">Deprecated.</span>
+<div class="deprecation-comment">Deprecated since v1.3.0. Use @Id instead.</div>
+</div>
 </dd>
 <dt><a href="kalix/javasdk/eventsourced/ReflectiveEventSourcedEntityProvider.html#entityType()" class="member-name-link">entityType()</a> - Method in class kalix.javasdk.eventsourced.<a href="kalix/javasdk/eventsourced/ReflectiveEventSourcedEntityProvider.html" title="class in kalix.javasdk.eventsourced">ReflectiveEventSourcedEntityProvider</a></dt>
 <dd>&nbsp;</dd>
@@ -148,20 +513,48 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="kalix/javasdk/annotations/EntityType.html" class="type-name-link" title="annotation interface in kalix.javasdk.annotations">EntityType</a> - Annotation Interface in <a href="kalix/javasdk/annotations/package-summary.html">kalix.javasdk.annotations</a></dt>
 <dd>
-<div class="block">Assign a type to the entity.</div>
+<div class="deprecation-block"><span class="deprecated-label">Deprecated.</span>
+<div class="deprecation-comment">Deprecated since v1.3.0. Use @TypeId instead.</div>
+</div>
 </dd>
 <dt><a href="kalix/javasdk/annotations/EventHandler.html" class="type-name-link" title="annotation interface in kalix.javasdk.annotations">EventHandler</a> - Annotation Interface in <a href="kalix/javasdk/annotations/package-summary.html">kalix.javasdk.annotations</a></dt>
 <dd>
 <div class="block">Annotation for marking a method under EventSourced entities as handlers for events of such
  entity.</div>
 </dd>
+<dt><a href="kalix/javasdk/client/EventSourcedEntityCallBuilder.html" class="type-name-link" title="class in kalix.javasdk.client">EventSourcedEntityCallBuilder</a> - Class in <a href="kalix/javasdk/client/package-summary.html">kalix.javasdk.client</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="kalix/javasdk/client/EventSourcedEntityCallBuilder.html#%3Cinit%3E(kalix.spring.KalixClient)" class="member-name-link">EventSourcedEntityCallBuilder(KalixClient)</a> - Constructor for class kalix.javasdk.client.<a href="kalix/javasdk/client/EventSourcedEntityCallBuilder.html" title="class in kalix.javasdk.client">EventSourcedEntityCallBuilder</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="kalix/javasdk/client/EventSourcedEntityCallBuilder.html#%3Cinit%3E(kalix.spring.KalixClient,java.lang.String)" class="member-name-link">EventSourcedEntityCallBuilder(KalixClient, String)</a> - Constructor for class kalix.javasdk.client.<a href="kalix/javasdk/client/EventSourcedEntityCallBuilder.html" title="class in kalix.javasdk.client">EventSourcedEntityCallBuilder</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="kalix/javasdk/common/ForwardHeadersExtractor.html#extractFrom(java.lang.Class)" class="member-name-link">extractFrom(Class&lt;?&gt;)</a> - Static method in class kalix.javasdk.common.<a href="kalix/javasdk/common/ForwardHeadersExtractor.html" title="class in kalix.javasdk.common">ForwardHeadersExtractor</a></dt>
 <dd>&nbsp;</dd>
 </dl>
 <h2 class="title" id="I:F">F</h2>
 <dl class="index">
+<dt><a href="kalix/javasdk/client/ComponentClient.html#forAction()" class="member-name-link">forAction()</a> - Method in class kalix.javasdk.client.<a href="kalix/javasdk/client/ComponentClient.html" title="class in kalix.javasdk.client">ComponentClient</a></dt>
+<dd>
+<div class="block">Select Action as a call target component.</div>
+</dd>
 <dt><a href="kalix/javasdk/annotations/Acl.DenyStatusCode.html#FORBIDDEN" class="member-name-link">FORBIDDEN</a> - Enum constant in enum class kalix.javasdk.annotations.<a href="kalix/javasdk/annotations/Acl.DenyStatusCode.html" title="enum class in kalix.javasdk.annotations">Acl.DenyStatusCode</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="kalix/javasdk/client/ComponentClient.html#forEventSourcedEntity()" class="member-name-link">forEventSourcedEntity()</a> - Method in class kalix.javasdk.client.<a href="kalix/javasdk/client/ComponentClient.html" title="class in kalix.javasdk.client">ComponentClient</a></dt>
+<dd>
+<div class="block">Select EventSourcedEntity as a call target component.</div>
+</dd>
+<dt><a href="kalix/javasdk/client/ComponentClient.html#forEventSourcedEntity(java.lang.String)" class="member-name-link">forEventSourcedEntity(String)</a> - Method in class kalix.javasdk.client.<a href="kalix/javasdk/client/ComponentClient.html" title="class in kalix.javasdk.client">ComponentClient</a></dt>
+<dd>
+<div class="block">Select EventSourcedEntity as a call target component.</div>
+</dd>
+<dt><a href="kalix/javasdk/client/ComponentClient.html#forValueEntity()" class="member-name-link">forValueEntity()</a> - Method in class kalix.javasdk.client.<a href="kalix/javasdk/client/ComponentClient.html" title="class in kalix.javasdk.client">ComponentClient</a></dt>
+<dd>
+<div class="block">Select ValueEntity as a call target component.</div>
+</dd>
+<dt><a href="kalix/javasdk/client/ComponentClient.html#forValueEntity(java.lang.String)" class="member-name-link">forValueEntity(String)</a> - Method in class kalix.javasdk.client.<a href="kalix/javasdk/client/ComponentClient.html" title="class in kalix.javasdk.client">ComponentClient</a></dt>
+<dd>
+<div class="block">Select ValueEntity as a call target component.</div>
+</dd>
 <dt><a href="kalix/javasdk/annotations/ForwardHeaders.html" class="type-name-link" title="annotation interface in kalix.javasdk.annotations">ForwardHeaders</a> - Annotation Interface in <a href="kalix/javasdk/annotations/package-summary.html">kalix.javasdk.annotations</a></dt>
 <dd>
 <div class="block">Header names to ask the proxy to forward from the request as metadata to the component calls</div>
@@ -170,6 +563,14 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="kalix/javasdk/common/ForwardHeadersExtractor.html#%3Cinit%3E()" class="member-name-link">ForwardHeadersExtractor()</a> - Constructor for class kalix.javasdk.common.<a href="kalix/javasdk/common/ForwardHeadersExtractor.html" title="class in kalix.javasdk.common">ForwardHeadersExtractor</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="kalix/javasdk/client/ComponentClient.html#forWorkflow()" class="member-name-link">forWorkflow()</a> - Method in class kalix.javasdk.client.<a href="kalix/javasdk/client/ComponentClient.html" title="class in kalix.javasdk.client">ComponentClient</a></dt>
+<dd>
+<div class="block">Select Workflow as a call target component.</div>
+</dd>
+<dt><a href="kalix/javasdk/client/ComponentClient.html#forWorkflow(java.lang.String)" class="member-name-link">forWorkflow(String)</a> - Method in class kalix.javasdk.client.<a href="kalix/javasdk/client/ComponentClient.html" title="class in kalix.javasdk.client">ComponentClient</a></dt>
+<dd>
+<div class="block">Select Workflow as a call target component.</div>
+</dd>
 </dl>
 <h2 class="title" id="I:G">G</h2>
 <dl class="index">
@@ -177,9 +578,19 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="kalix/javasdk/annotations/GenerateEntityKey.html" class="type-name-link" title="annotation interface in kalix.javasdk.annotations">GenerateEntityKey</a> - Annotation Interface in <a href="kalix/javasdk/annotations/package-summary.html">kalix.javasdk.annotations</a></dt>
 <dd>
-<div class="block">Indicates that Kalix should generate an entity key when this method is invoked.</div>
+<div class="deprecation-block"><span class="deprecated-label">Deprecated.</span>
+<div class="deprecation-comment">Deprecated since v1.3.0. Use @GenerateId instead.</div>
+</div>
 </dd>
 <dt><a href="kalix/javasdk/annotations/GenerateEntityKey.Type.html" class="type-name-link" title="enum class in kalix.javasdk.annotations">GenerateEntityKey.Type</a> - Enum Class in <a href="kalix/javasdk/annotations/package-summary.html">kalix.javasdk.annotations</a></dt>
+<dd>
+<div class="deprecation-block"><span class="deprecated-label">Deprecated.</span></div>
+&nbsp;</dd>
+<dt><a href="kalix/javasdk/annotations/GenerateId.html" class="type-name-link" title="annotation interface in kalix.javasdk.annotations">GenerateId</a> - Annotation Interface in <a href="kalix/javasdk/annotations/package-summary.html">kalix.javasdk.annotations</a></dt>
+<dd>
+<div class="block">Indicates that Kalix should generate an id when this method is invoked.</div>
+</dd>
+<dt><a href="kalix/javasdk/annotations/GenerateId.Type.html" class="type-name-link" title="enum class in kalix.javasdk.annotations">GenerateId.Type</a> - Enum Class in <a href="kalix/javasdk/annotations/package-summary.html">kalix.javasdk.annotations</a></dt>
 <dd>&nbsp;</dd>
 </dl>
 <h2 class="title" id="I:H">H</h2>
@@ -198,6 +609,10 @@ loadScripts(document, 'script');</script>
 <dt><a href="kalix/javasdk/annotations/Subscribe.Stream.html#id()" class="member-name-link">id()</a> - Element in annotation interface kalix.javasdk.annotations.<a href="kalix/javasdk/annotations/Subscribe.Stream.html" title="annotation interface in kalix.javasdk.annotations">Subscribe.Stream</a></dt>
 <dd>
 <div class="block">The unique identifier of the stream in the producing service</div>
+</dd>
+<dt><a href="kalix/javasdk/annotations/Id.html" class="type-name-link" title="annotation interface in kalix.javasdk.annotations">Id</a> - Annotation Interface in <a href="kalix/javasdk/annotations/package-summary.html">kalix.javasdk.annotations</a></dt>
+<dd>
+<div class="block">Assign an identifier to an entity or workflow instance.</div>
 </dd>
 <dt><a href="kalix/javasdk/annotations/Subscribe.EventSourcedEntity.html#ignoreUnknown()" class="member-name-link">ignoreUnknown()</a> - Element in annotation interface kalix.javasdk.annotations.<a href="kalix/javasdk/annotations/Subscribe.EventSourcedEntity.html" title="annotation interface in kalix.javasdk.annotations">Subscribe.EventSourcedEntity</a></dt>
 <dd>
@@ -239,6 +654,8 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="kalix/javasdk/annotations/package-summary.html">kalix.javasdk.annotations</a> - package kalix.javasdk.annotations</dt>
 <dd>&nbsp;</dd>
+<dt><a href="kalix/javasdk/client/package-summary.html">kalix.javasdk.client</a> - package kalix.javasdk.client</dt>
+<dd>&nbsp;</dd>
 <dt><a href="kalix/javasdk/common/package-summary.html">kalix.javasdk.common</a> - package kalix.javasdk.common</dt>
 <dd>&nbsp;</dd>
 <dt><a href="kalix/javasdk/eventsourced/package-summary.html">kalix.javasdk.eventsourced</a> - package kalix.javasdk.eventsourced</dt>
@@ -247,7 +664,7 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="kalix/javasdk/view/package-summary.html">kalix.javasdk.view</a> - package kalix.javasdk.view</dt>
 <dd>&nbsp;</dd>
-<dt><a href="kalix/javasdk/workflowentity/package-summary.html">kalix.javasdk.workflowentity</a> - package kalix.javasdk.workflowentity</dt>
+<dt><a href="kalix/javasdk/workflow/package-summary.html">kalix.javasdk.workflow</a> - package kalix.javasdk.workflow</dt>
 <dd>&nbsp;</dd>
 </dl>
 <h2 class="title" id="I:N">N</h2>
@@ -262,7 +679,7 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="kalix/javasdk/view/ReflectiveViewProvider.html#newRouter(kalix.javasdk.view.ViewCreationContext)" class="member-name-link">newRouter(ViewCreationContext)</a> - Method in class kalix.javasdk.view.<a href="kalix/javasdk/view/ReflectiveViewProvider.html" title="class in kalix.javasdk.view">ReflectiveViewProvider</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="kalix/javasdk/workflowentity/ReflectiveWorkflowEntityProvider.html#newRouter(kalix.javasdk.workflowentity.WorkflowEntityContext)" class="member-name-link">newRouter(WorkflowEntityContext)</a> - Method in class kalix.javasdk.workflowentity.<a href="kalix/javasdk/workflowentity/ReflectiveWorkflowEntityProvider.html" title="class in kalix.javasdk.workflowentity">ReflectiveWorkflowEntityProvider</a></dt>
+<dt><a href="kalix/javasdk/workflow/ReflectiveWorkflowProvider.html#newRouter(kalix.javasdk.workflow.WorkflowContext)" class="member-name-link">newRouter(WorkflowContext)</a> - Method in class kalix.javasdk.workflow.<a href="kalix/javasdk/workflow/ReflectiveWorkflowProvider.html" title="class in kalix.javasdk.workflow">ReflectiveWorkflowProvider</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="kalix/javasdk/annotations/Acl.DenyStatusCode.html#NOT_FOUND" class="member-name-link">NOT_FOUND</a> - Enum constant in enum class kalix.javasdk.annotations.<a href="kalix/javasdk/annotations/Acl.DenyStatusCode.html" title="enum class in kalix.javasdk.annotations">Acl.DenyStatusCode</a></dt>
 <dd>&nbsp;</dd>
@@ -279,7 +696,7 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="kalix/javasdk/view/ReflectiveViewProvider.html#of(java.lang.Class,kalix.javasdk.impl.JsonMessageCodec,java.util.function.Function)" class="member-name-link">of(Class&lt;V&gt;, JsonMessageCodec, Function&lt;ViewCreationContext, V&gt;)</a> - Static method in class kalix.javasdk.view.<a href="kalix/javasdk/view/ReflectiveViewProvider.html" title="class in kalix.javasdk.view">ReflectiveViewProvider</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="kalix/javasdk/workflowentity/ReflectiveWorkflowEntityProvider.html#of(java.lang.Class,kalix.javasdk.impl.JsonMessageCodec,java.util.function.Function)" class="member-name-link">of(Class&lt;W&gt;, JsonMessageCodec, Function&lt;WorkflowEntityContext, W&gt;)</a> - Static method in class kalix.javasdk.workflowentity.<a href="kalix/javasdk/workflowentity/ReflectiveWorkflowEntityProvider.html" title="class in kalix.javasdk.workflowentity">ReflectiveWorkflowEntityProvider</a></dt>
+<dt><a href="kalix/javasdk/workflow/ReflectiveWorkflowProvider.html#of(java.lang.Class,kalix.javasdk.impl.JsonMessageCodec,java.util.function.Function)" class="member-name-link">of(Class&lt;W&gt;, JsonMessageCodec, Function&lt;WorkflowContext, W&gt;)</a> - Static method in class kalix.javasdk.workflow.<a href="kalix/javasdk/workflow/ReflectiveWorkflowProvider.html" title="class in kalix.javasdk.workflow">ReflectiveWorkflowProvider</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="kalix/javasdk/action/ReflectiveActionProvider.html#options()" class="member-name-link">options()</a> - Method in class kalix.javasdk.action.<a href="kalix/javasdk/action/ReflectiveActionProvider.html" title="class in kalix.javasdk.action">ReflectiveActionProvider</a></dt>
 <dd>&nbsp;</dd>
@@ -291,7 +708,7 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="kalix/javasdk/view/ReflectiveViewProvider.html#options()" class="member-name-link">options()</a> - Method in class kalix.javasdk.view.<a href="kalix/javasdk/view/ReflectiveViewProvider.html" title="class in kalix.javasdk.view">ReflectiveViewProvider</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="kalix/javasdk/workflowentity/ReflectiveWorkflowEntityProvider.html#options()" class="member-name-link">options()</a> - Method in class kalix.javasdk.workflowentity.<a href="kalix/javasdk/workflowentity/ReflectiveWorkflowEntityProvider.html" title="class in kalix.javasdk.workflowentity">ReflectiveWorkflowEntityProvider</a></dt>
+<dt><a href="kalix/javasdk/workflow/ReflectiveWorkflowProvider.html#options()" class="member-name-link">options()</a> - Method in class kalix.javasdk.workflow.<a href="kalix/javasdk/workflow/ReflectiveWorkflowProvider.html" title="class in kalix.javasdk.workflow">ReflectiveWorkflowProvider</a></dt>
 <dd>&nbsp;</dd>
 </dl>
 <h2 class="title" id="I:P">P</h2>
@@ -338,9 +755,9 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="kalix/javasdk/view/ReflectiveViewProvider.html" class="type-name-link" title="class in kalix.javasdk.view">ReflectiveViewProvider</a>&lt;<a href="kalix/javasdk/view/ReflectiveViewProvider.html" title="type parameter in ReflectiveViewProvider">S</a>,<wbr><a href="kalix/javasdk/view/ReflectiveViewProvider.html" title="type parameter in ReflectiveViewProvider">V</a> extends kalix.javasdk.view.View&lt;<a href="kalix/javasdk/view/ReflectiveViewProvider.html" title="type parameter in ReflectiveViewProvider">S</a>&gt;&gt; - Class in <a href="kalix/javasdk/view/package-summary.html">kalix.javasdk.view</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="kalix/javasdk/workflowentity/ReflectiveWorkflowEntityProvider.html" class="type-name-link" title="class in kalix.javasdk.workflowentity">ReflectiveWorkflowEntityProvider</a>&lt;<a href="kalix/javasdk/workflowentity/ReflectiveWorkflowEntityProvider.html" title="type parameter in ReflectiveWorkflowEntityProvider">S</a>,<wbr><a href="kalix/javasdk/workflowentity/ReflectiveWorkflowEntityProvider.html" title="type parameter in ReflectiveWorkflowEntityProvider">W</a> extends kalix.javasdk.workflowentity.WorkflowEntity&lt;<a href="kalix/javasdk/workflowentity/ReflectiveWorkflowEntityProvider.html" title="type parameter in ReflectiveWorkflowEntityProvider">S</a>&gt;&gt; - Class in <a href="kalix/javasdk/workflowentity/package-summary.html">kalix.javasdk.workflowentity</a></dt>
+<dt><a href="kalix/javasdk/workflow/ReflectiveWorkflowProvider.html" class="type-name-link" title="class in kalix.javasdk.workflow">ReflectiveWorkflowProvider</a>&lt;<a href="kalix/javasdk/workflow/ReflectiveWorkflowProvider.html" title="type parameter in ReflectiveWorkflowProvider">S</a>,<wbr><a href="kalix/javasdk/workflow/ReflectiveWorkflowProvider.html" title="type parameter in ReflectiveWorkflowProvider">W</a> extends kalix.javasdk.workflow.Workflow&lt;<a href="kalix/javasdk/workflow/ReflectiveWorkflowProvider.html" title="type parameter in ReflectiveWorkflowProvider">S</a>&gt;&gt; - Class in <a href="kalix/javasdk/workflow/package-summary.html">kalix.javasdk.workflow</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="kalix/javasdk/workflowentity/ReflectiveWorkflowEntityProvider.html#%3Cinit%3E(java.lang.Class,kalix.javasdk.impl.JsonMessageCodec,java.util.function.Function,kalix.javasdk.workflowentity.WorkflowEntityOptions)" class="member-name-link">ReflectiveWorkflowEntityProvider(Class&lt;W&gt;, JsonMessageCodec, Function&lt;WorkflowEntityContext, W&gt;, WorkflowEntityOptions)</a> - Constructor for class kalix.javasdk.workflowentity.<a href="kalix/javasdk/workflowentity/ReflectiveWorkflowEntityProvider.html" title="class in kalix.javasdk.workflowentity">ReflectiveWorkflowEntityProvider</a></dt>
+<dt><a href="kalix/javasdk/workflow/ReflectiveWorkflowProvider.html#%3Cinit%3E(java.lang.Class,kalix.javasdk.impl.JsonMessageCodec,java.util.function.Function,kalix.javasdk.workflow.WorkflowOptions)" class="member-name-link">ReflectiveWorkflowProvider(Class&lt;W&gt;, JsonMessageCodec, Function&lt;WorkflowContext, W&gt;, WorkflowOptions)</a> - Constructor for class kalix.javasdk.workflow.<a href="kalix/javasdk/workflow/ReflectiveWorkflowProvider.html" title="class in kalix.javasdk.workflow">ReflectiveWorkflowProvider</a></dt>
 <dd>&nbsp;</dd>
 </dl>
 <h2 class="title" id="I:S">S</h2>
@@ -367,7 +784,7 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="kalix/javasdk/view/ReflectiveViewProvider.html#serviceDescriptor()" class="member-name-link">serviceDescriptor()</a> - Method in class kalix.javasdk.view.<a href="kalix/javasdk/view/ReflectiveViewProvider.html" title="class in kalix.javasdk.view">ReflectiveViewProvider</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="kalix/javasdk/workflowentity/ReflectiveWorkflowEntityProvider.html#serviceDescriptor()" class="member-name-link">serviceDescriptor()</a> - Method in class kalix.javasdk.workflowentity.<a href="kalix/javasdk/workflowentity/ReflectiveWorkflowEntityProvider.html" title="class in kalix.javasdk.workflowentity">ReflectiveWorkflowEntityProvider</a></dt>
+<dt><a href="kalix/javasdk/workflow/ReflectiveWorkflowProvider.html#serviceDescriptor()" class="member-name-link">serviceDescriptor()</a> - Method in class kalix.javasdk.workflow.<a href="kalix/javasdk/workflow/ReflectiveWorkflowProvider.html" title="class in kalix.javasdk.workflow">ReflectiveWorkflowProvider</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="kalix/javasdk/annotations/Query.html#streamUpdates()" class="member-name-link">streamUpdates()</a> - Element in annotation interface kalix.javasdk.annotations.<a href="kalix/javasdk/annotations/Query.html" title="annotation interface in kalix.javasdk.annotations">Query</a></dt>
 <dd>
@@ -403,6 +820,10 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Annotation for providing a table name for View-type Kalix components.</div>
 </dd>
+<dt><a href="kalix/javasdk/annotations/TypeId.html" class="type-name-link" title="annotation interface in kalix.javasdk.annotations">TypeId</a> - Annotation Interface in <a href="kalix/javasdk/annotations/package-summary.html">kalix.javasdk.annotations</a></dt>
+<dd>
+<div class="block">Assign a type identifier to an entity or workflow.</div>
+</dd>
 <dt><a href="kalix/javasdk/annotations/TypeName.html" class="type-name-link" title="annotation interface in kalix.javasdk.annotations">TypeName</a> - Annotation Interface in <a href="kalix/javasdk/annotations/package-summary.html">kalix.javasdk.annotations</a></dt>
 <dd>
 <div class="block">Annotation to assign a logical type name to persisted events.</div>
@@ -424,12 +845,22 @@ loadScripts(document, 'script');</script>
 <dt><a href="kalix/javasdk/annotations/Acl.DenyStatusCode.html#value" class="member-name-link">value</a> - Variable in enum class kalix.javasdk.annotations.<a href="kalix/javasdk/annotations/Acl.DenyStatusCode.html" title="enum class in kalix.javasdk.annotations">Acl.DenyStatusCode</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="kalix/javasdk/annotations/EntityKey.html#value()" class="member-name-link">value()</a> - Element in annotation interface kalix.javasdk.annotations.<a href="kalix/javasdk/annotations/EntityKey.html" title="annotation interface in kalix.javasdk.annotations">EntityKey</a></dt>
-<dd>&nbsp;</dd>
+<dd>
+<div class="deprecation-block"><span class="deprecated-label">Deprecated.</span></div>
+&nbsp;</dd>
 <dt><a href="kalix/javasdk/annotations/EntityType.html#value()" class="member-name-link">value()</a> - Element in annotation interface kalix.javasdk.annotations.<a href="kalix/javasdk/annotations/EntityType.html" title="annotation interface in kalix.javasdk.annotations">EntityType</a></dt>
-<dd>&nbsp;</dd>
+<dd>
+<div class="deprecation-block"><span class="deprecated-label">Deprecated.</span></div>
+&nbsp;</dd>
 <dt><a href="kalix/javasdk/annotations/ForwardHeaders.html#value()" class="member-name-link">value()</a> - Element in annotation interface kalix.javasdk.annotations.<a href="kalix/javasdk/annotations/ForwardHeaders.html" title="annotation interface in kalix.javasdk.annotations">ForwardHeaders</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="kalix/javasdk/annotations/GenerateEntityKey.html#value()" class="member-name-link">value()</a> - Element in annotation interface kalix.javasdk.annotations.<a href="kalix/javasdk/annotations/GenerateEntityKey.html" title="annotation interface in kalix.javasdk.annotations">GenerateEntityKey</a></dt>
+<dd>
+<div class="deprecation-block"><span class="deprecated-label">Deprecated.</span></div>
+&nbsp;</dd>
+<dt><a href="kalix/javasdk/annotations/GenerateId.html#value()" class="member-name-link">value()</a> - Element in annotation interface kalix.javasdk.annotations.<a href="kalix/javasdk/annotations/GenerateId.html" title="annotation interface in kalix.javasdk.annotations">GenerateId</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="kalix/javasdk/annotations/Id.html#value()" class="member-name-link">value()</a> - Element in annotation interface kalix.javasdk.annotations.<a href="kalix/javasdk/annotations/Id.html" title="annotation interface in kalix.javasdk.annotations">Id</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="kalix/javasdk/annotations/Publish.Topic.html#value()" class="member-name-link">value()</a> - Element in annotation interface kalix.javasdk.annotations.<a href="kalix/javasdk/annotations/Publish.Topic.html" title="annotation interface in kalix.javasdk.annotations">Publish.Topic</a></dt>
 <dd>
@@ -456,11 +887,19 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Assign a table name.</div>
 </dd>
+<dt><a href="kalix/javasdk/annotations/TypeId.html#value()" class="member-name-link">value()</a> - Element in annotation interface kalix.javasdk.annotations.<a href="kalix/javasdk/annotations/TypeId.html" title="annotation interface in kalix.javasdk.annotations">TypeId</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="kalix/javasdk/annotations/TypeName.html#value()" class="member-name-link">value()</a> - Element in annotation interface kalix.javasdk.annotations.<a href="kalix/javasdk/annotations/TypeName.html" title="annotation interface in kalix.javasdk.annotations">TypeName</a></dt>
 <dd>
 <div class="block">Logical type name for the annotated type.</div>
 </dd>
 <dt><a href="kalix/javasdk/annotations/ViewId.html#value()" class="member-name-link">value()</a> - Element in annotation interface kalix.javasdk.annotations.<a href="kalix/javasdk/annotations/ViewId.html" title="annotation interface in kalix.javasdk.annotations">ViewId</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="kalix/javasdk/client/ValueEntityCallBuilder.html" class="type-name-link" title="class in kalix.javasdk.client">ValueEntityCallBuilder</a> - Class in <a href="kalix/javasdk/client/package-summary.html">kalix.javasdk.client</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="kalix/javasdk/client/ValueEntityCallBuilder.html#%3Cinit%3E(kalix.spring.KalixClient)" class="member-name-link">ValueEntityCallBuilder(KalixClient)</a> - Constructor for class kalix.javasdk.client.<a href="kalix/javasdk/client/ValueEntityCallBuilder.html" title="class in kalix.javasdk.client">ValueEntityCallBuilder</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="kalix/javasdk/client/ValueEntityCallBuilder.html#%3Cinit%3E(kalix.spring.KalixClient,java.lang.String)" class="member-name-link">ValueEntityCallBuilder(KalixClient, String)</a> - Constructor for class kalix.javasdk.client.<a href="kalix/javasdk/client/ValueEntityCallBuilder.html" title="class in kalix.javasdk.client">ValueEntityCallBuilder</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="kalix/javasdk/annotations/Acl.DenyStatusCode.html#valueOf(java.lang.String)" class="member-name-link">valueOf(String)</a> - Static method in enum class kalix.javasdk.annotations.<a href="kalix/javasdk/annotations/Acl.DenyStatusCode.html" title="enum class in kalix.javasdk.annotations">Acl.DenyStatusCode</a></dt>
 <dd>
@@ -471,6 +910,11 @@ loadScripts(document, 'script');</script>
 <div class="block">Returns the enum constant of this class with the specified name.</div>
 </dd>
 <dt><a href="kalix/javasdk/annotations/GenerateEntityKey.Type.html#valueOf(java.lang.String)" class="member-name-link">valueOf(String)</a> - Static method in enum class kalix.javasdk.annotations.<a href="kalix/javasdk/annotations/GenerateEntityKey.Type.html" title="enum class in kalix.javasdk.annotations">GenerateEntityKey.Type</a></dt>
+<dd>
+<div class="deprecation-block"><span class="deprecated-label">Deprecated.</span></div>
+<div class="block">Returns the enum constant of this class with the specified name.</div>
+</dd>
+<dt><a href="kalix/javasdk/annotations/GenerateId.Type.html#valueOf(java.lang.String)" class="member-name-link">valueOf(String)</a> - Static method in enum class kalix.javasdk.annotations.<a href="kalix/javasdk/annotations/GenerateId.Type.html" title="enum class in kalix.javasdk.annotations">GenerateId.Type</a></dt>
 <dd>
 <div class="block">Returns the enum constant of this class with the specified name.</div>
 </dd>
@@ -490,6 +934,12 @@ the order they are declared.</div>
 </dd>
 <dt><a href="kalix/javasdk/annotations/GenerateEntityKey.Type.html#values()" class="member-name-link">values()</a> - Static method in enum class kalix.javasdk.annotations.<a href="kalix/javasdk/annotations/GenerateEntityKey.Type.html" title="enum class in kalix.javasdk.annotations">GenerateEntityKey.Type</a></dt>
 <dd>
+<div class="deprecation-block"><span class="deprecated-label">Deprecated.</span></div>
+<div class="block">Returns an array containing the constants of this enum class, in
+the order they are declared.</div>
+</dd>
+<dt><a href="kalix/javasdk/annotations/GenerateId.Type.html#values()" class="member-name-link">values()</a> - Static method in enum class kalix.javasdk.annotations.<a href="kalix/javasdk/annotations/GenerateId.Type.html" title="enum class in kalix.javasdk.annotations">GenerateId.Type</a></dt>
+<dd>
 <div class="block">Returns an array containing the constants of this enum class, in
 the order they are declared.</div>
 </dd>
@@ -499,6 +949,11 @@ the order they are declared.</div>
 the order they are declared.</div>
 </dd>
 <dt><a href="kalix/javasdk/annotations/GenerateEntityKey.Type.html#VERSION_4_UUID" class="member-name-link">VERSION_4_UUID</a> - Enum constant in enum class kalix.javasdk.annotations.<a href="kalix/javasdk/annotations/GenerateEntityKey.Type.html" title="enum class in kalix.javasdk.annotations">GenerateEntityKey.Type</a></dt>
+<dd>
+<div class="deprecation-block"><span class="deprecated-label">Deprecated.</span></div>
+<div class="block">Generate a Version 4 (random) UUID.</div>
+</dd>
+<dt><a href="kalix/javasdk/annotations/GenerateId.Type.html#VERSION_4_UUID" class="member-name-link">VERSION_4_UUID</a> - Enum constant in enum class kalix.javasdk.annotations.<a href="kalix/javasdk/annotations/GenerateId.Type.html" title="enum class in kalix.javasdk.annotations">GenerateId.Type</a></dt>
 <dd>
 <div class="block">Generate a Version 4 (random) UUID.</div>
 </dd>
@@ -511,7 +966,13 @@ the order they are declared.</div>
 </dl>
 <h2 class="title" id="I:W">W</h2>
 <dl class="index">
-<dt><a href="kalix/javasdk/workflowentity/ReflectiveWorkflowEntityProvider.html#workflowName()" class="member-name-link">workflowName()</a> - Method in class kalix.javasdk.workflowentity.<a href="kalix/javasdk/workflowentity/ReflectiveWorkflowEntityProvider.html" title="class in kalix.javasdk.workflowentity">ReflectiveWorkflowEntityProvider</a></dt>
+<dt><a href="kalix/javasdk/client/WorkflowCallBuilder.html" class="type-name-link" title="class in kalix.javasdk.client">WorkflowCallBuilder</a> - Class in <a href="kalix/javasdk/client/package-summary.html">kalix.javasdk.client</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="kalix/javasdk/client/WorkflowCallBuilder.html#%3Cinit%3E(kalix.spring.KalixClient)" class="member-name-link">WorkflowCallBuilder(KalixClient)</a> - Constructor for class kalix.javasdk.client.<a href="kalix/javasdk/client/WorkflowCallBuilder.html" title="class in kalix.javasdk.client">WorkflowCallBuilder</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="kalix/javasdk/client/WorkflowCallBuilder.html#%3Cinit%3E(kalix.spring.KalixClient,java.lang.String)" class="member-name-link">WorkflowCallBuilder(KalixClient, String)</a> - Constructor for class kalix.javasdk.client.<a href="kalix/javasdk/client/WorkflowCallBuilder.html" title="class in kalix.javasdk.client">WorkflowCallBuilder</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="kalix/javasdk/workflow/ReflectiveWorkflowProvider.html#workflowName()" class="member-name-link">workflowName()</a> - Method in class kalix.javasdk.workflow.<a href="kalix/javasdk/workflow/ReflectiveWorkflowProvider.html" title="class in kalix.javasdk.workflow">ReflectiveWorkflowProvider</a></dt>
 <dd>&nbsp;</dd>
 </dl>
 <a href="#I:A">A</a>&nbsp;<a href="#I:B">B</a>&nbsp;<a href="#I:C">C</a>&nbsp;<a href="#I:D">D</a>&nbsp;<a href="#I:E">E</a>&nbsp;<a href="#I:F">F</a>&nbsp;<a href="#I:G">G</a>&nbsp;<a href="#I:H">H</a>&nbsp;<a href="#I:I">I</a>&nbsp;<a href="#I:J">J</a>&nbsp;<a href="#I:K">K</a>&nbsp;<a href="#I:N">N</a>&nbsp;<a href="#I:O">O</a>&nbsp;<a href="#I:P">P</a>&nbsp;<a href="#I:Q">Q</a>&nbsp;<a href="#I:R">R</a>&nbsp;<a href="#I:S">S</a>&nbsp;<a href="#I:T">T</a>&nbsp;<a href="#I:U">U</a>&nbsp;<a href="#I:V">V</a>&nbsp;<a href="#I:W">W</a>&nbsp;<br><a href="allclasses-index.html">All&nbsp;Classes&nbsp;and&nbsp;Interfaces</a><span class="vertical-separator">|</span><a href="allpackages-index.html">All&nbsp;Packages</a></main>

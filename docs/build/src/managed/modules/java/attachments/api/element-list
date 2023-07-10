@@ -1,7 +1,8 @@
 kalix.javasdk.action
 kalix.javasdk.annotations
+kalix.javasdk.client
 kalix.javasdk.common
 kalix.javasdk.eventsourced
 kalix.javasdk.valueentity
 kalix.javasdk.view
-kalix.javasdk.workflowentity
+kalix.javasdk.workflow

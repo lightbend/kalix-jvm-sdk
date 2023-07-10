@@ -1,5 +1,6 @@
 package com.example;
 
+import com.example.actions.CounterCommandFromTopicAction;
 import kalix.javasdk.testkit.KalixTestKit;
 import kalix.spring.testkit.KalixIntegrationTestKitSupport;
 import org.hamcrest.core.IsEqual;
@@ -34,52 +35,32 @@ public class CounterIntegrationWithRealPubSubTest extends KalixIntegrationTestKi
     @Autowired
     private WebClient webClient;
 
-    // tag::test-topic[]
-    @Autowired
-    private KalixTestKit kalixTestKit; // <2>
-
-    // tag::test-topic[]
-
     @Test
     public void verifyCounterEventSourcedConsumesFromPubSub() {
-
-        var projectId = "test";
-
         WebClient pubsubClient = WebClient.builder()
-            .baseUrl("http://localhost:8085") // Replace with your Pub/Sub emulator URL
+            .baseUrl("http://localhost:8085")
             .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
             .build();
 
-        var jsonMsg = "{\"counterId\":\"oi\",\"value\":20}";
-        var data = Base64.getEncoder().encodeToString(jsonMsg.getBytes());
+        var counterId = "testRealPubSub";
+        var messageBody = buildMessageBody(
+            "{\"counterId\":\"" + counterId + "\",\"value\":20}",
+            CounterCommandFromTopicAction.IncreaseCounter.class.getName());
 
-        var messageBody =
-            "{\n" +
-            "    \"messages\": [\n" +
-            "        {\n" +
-            "            \"data\": \"" + data + "\",\n" +
-            "            \"attributes\": {\n" +
-            "                \"Content-Type\": \"application/json\",\n" +
-            "                \"ce-specversion\": \"1.0\",\n" +
-            "                \"ce-type\": \"com.example.actions.CounterCommandFromTopicAction$IncreaseCounter\"\n" +
-            "            }\n" +
-            "        }\n" +
-            "    ]\n" +
-            "}";
-
-        var injectResult = pubsubClient.post()
+        var projectId = "test";
+        var injectMsgResult = pubsubClient.post()
             .uri("/v1/projects/{projectId}/topics/counter-commands:publish", projectId)
             .bodyValue(messageBody)
             .retrieve()
             .toBodilessEntity().block();
-        assertTrue(injectResult.getStatusCode().is2xxSuccessful());
+        assertTrue(injectMsgResult.getStatusCode().is2xxSuccessful());
 
         await()
             .ignoreExceptions()
             .atMost(20, TimeUnit.SECONDS)
             .until(() ->
                     webClient.get()
-                        .uri("/counter/oi")
+                        .uri("/counter/" + counterId)
                         .retrieve()
                         .bodyToMono(String.class)
                         .block(timeout),
@@ -87,6 +68,26 @@ public class CounterIntegrationWithRealPubSubTest extends KalixIntegrationTestKi
             );
     }
     // end::test-topic[]
+
+    // builds a message in PubSub format, ready to be injected
+    private String buildMessageBody(String jsonMsg, String ceType) {
+        var data = Base64.getEncoder().encodeToString(jsonMsg.getBytes());
+
+        return """
+            {
+                "messages": [
+                    {
+                        "data": "%s",
+                        "attributes": {
+                            "Content-Type": "application/json",
+                            "ce-specversion": "1.0",
+                            "ce-type": "%s"
+                        }
+                    }
+                ]
+            }
+            """.formatted(data, ceType);
+    }
 
 // tag::class[]
 }
