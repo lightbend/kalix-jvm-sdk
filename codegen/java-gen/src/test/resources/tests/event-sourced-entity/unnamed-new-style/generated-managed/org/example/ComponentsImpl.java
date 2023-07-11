@@ -55,7 +55,7 @@ public final class ComponentsImpl implements Components {
           if (client instanceof org.example.eventsourcedentity.CounterServiceClient) {
             return addHeaders(((org.example.eventsourcedentity.CounterServiceClient) client).increase(), metadata).invoke(increaseValue);
           } else {
-            //only for tests with mocked client implementation
+            // only for tests with mocked client implementation
             return client.increase(increaseValue);
           }
         }
@@ -73,7 +73,7 @@ public final class ComponentsImpl implements Components {
           if (client instanceof org.example.eventsourcedentity.CounterServiceClient) {
             return addHeaders(((org.example.eventsourcedentity.CounterServiceClient) client).decrease(), metadata).invoke(decreaseValue);
           } else {
-            //only for tests with mocked client implementation
+            // only for tests with mocked client implementation
             return client.decrease(decreaseValue);
           }
         }

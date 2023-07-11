@@ -50,7 +50,7 @@ final class ComponentsImpl(context: InternalContext) extends Components {
              client.asInstanceOf[_root_.org.example.eventsourcedentity.CounterServiceClient].increase(),
              metadata).invoke(command)
          } else {
-           //only for tests with mocked client implementation
+           // only for tests with mocked client implementation
            client.increase(command)
          }
        })
@@ -67,7 +67,7 @@ final class ComponentsImpl(context: InternalContext) extends Components {
              client.asInstanceOf[_root_.org.example.eventsourcedentity.CounterServiceClient].decrease(),
              metadata).invoke(command)
          } else {
-           //only for tests with mocked client implementation
+           // only for tests with mocked client implementation
            client.decrease(command)
          }
        })

@@ -50,7 +50,7 @@ final class ComponentsImpl(context: InternalContext) extends Components {
              client.asInstanceOf[_root_.org.example.named.view.UserByNameClient].getUserByName(),
              metadata).invoke(command)
          } else {
-           //only for tests with mocked client implementation
+           // only for tests with mocked client implementation
            client.getUserByName(command)
          }
        })

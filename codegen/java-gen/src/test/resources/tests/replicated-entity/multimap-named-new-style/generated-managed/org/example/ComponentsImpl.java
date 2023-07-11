@@ -55,7 +55,7 @@ public final class ComponentsImpl implements Components {
           if (client instanceof com.example.replicated.multimap.MultiMapServiceClient) {
             return addHeaders(((com.example.replicated.multimap.MultiMapServiceClient) client).put(), metadata).invoke(putValue);
           } else {
-            //only for tests with mocked client implementation
+            // only for tests with mocked client implementation
             return client.put(putValue);
           }
         }

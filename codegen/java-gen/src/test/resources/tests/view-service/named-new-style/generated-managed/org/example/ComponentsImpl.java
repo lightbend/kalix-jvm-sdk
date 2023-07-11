@@ -55,7 +55,7 @@ public final class ComponentsImpl implements Components {
           if (client instanceof org.example.named.view.UserByNameClient) {
             return addHeaders(((org.example.named.view.UserByNameClient) client).getUserByName(), metadata).invoke(byNameRequest);
           } else {
-            //only for tests with mocked client implementation
+            // only for tests with mocked client implementation
             return client.getUserByName(byNameRequest);
           }
         }

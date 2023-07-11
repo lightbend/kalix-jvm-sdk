@@ -55,7 +55,7 @@ public final class ComponentsImpl implements Components {
           if (client instanceof org.example.service.MyServiceActionClient) {
             return addHeaders(((org.example.service.MyServiceActionClient) client).simpleMethod(), metadata).invoke(myRequest);
           } else {
-            //only for tests with mocked client implementation
+            // only for tests with mocked client implementation
             return client.simpleMethod(myRequest);
           }
         }

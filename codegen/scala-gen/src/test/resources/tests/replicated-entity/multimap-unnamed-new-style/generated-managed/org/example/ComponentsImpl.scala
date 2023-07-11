@@ -50,7 +50,7 @@ final class ComponentsImpl(context: InternalContext) extends Components {
              client.asInstanceOf[_root_.com.example.replicated.multimap.MultiMapServiceClient].put(),
              metadata).invoke(command)
          } else {
-           //only for tests with mocked client implementation
+           // only for tests with mocked client implementation
            client.put(command)
          }
        })

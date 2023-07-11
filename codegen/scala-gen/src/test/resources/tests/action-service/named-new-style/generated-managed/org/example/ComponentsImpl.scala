@@ -50,7 +50,7 @@ final class ComponentsImpl(context: InternalContext) extends Components {
              client.asInstanceOf[_root_.org.example.service.MyServiceClient].simpleMethod(),
              metadata).invoke(command)
          } else {
-           //only for tests with mocked client implementation
+           // only for tests with mocked client implementation
            client.simpleMethod(command)
          }
        })
