@@ -43,18 +43,34 @@ final class ComponentsImpl(context: InternalContext) extends Components {
        Metadata.empty,
        "org.example.eventsourcedentity.CounterService",
        "Increase",
-       (metadata: Metadata) => addHeaders(getGrpcClient(classOf[_root_.org.example.eventsourcedentity.CounterService])
-         .asInstanceOf[_root_.org.example.eventsourcedentity.CounterServiceClient].increase(), metadata).invoke(command)
-     )
+       (metadata: Metadata) => {
+         val client = getGrpcClient(classOf[_root_.org.example.eventsourcedentity.CounterService])
+         if (client.isInstanceOf[_root_.org.example.eventsourcedentity.CounterServiceClient]) {
+           addHeaders(
+             client.asInstanceOf[_root_.org.example.eventsourcedentity.CounterServiceClient].increase(),
+             metadata).invoke(command)
+         } else {
+           //only for tests with mocked client implementation
+           client.increase(command)
+         }
+       })
    override def decrease(command: _root_.org.example.eventsourcedentity.DecreaseValue): DeferredCall[_root_.org.example.eventsourcedentity.DecreaseValue, _root_.com.google.protobuf.empty.Empty] =
      ScalaDeferredCallAdapter(
        command,
        Metadata.empty,
        "org.example.eventsourcedentity.CounterService",
        "Decrease",
-       (metadata: Metadata) => addHeaders(getGrpcClient(classOf[_root_.org.example.eventsourcedentity.CounterService])
-         .asInstanceOf[_root_.org.example.eventsourcedentity.CounterServiceClient].decrease(), metadata).invoke(command)
-     )
+       (metadata: Metadata) => {
+         val client = getGrpcClient(classOf[_root_.org.example.eventsourcedentity.CounterService])
+         if (client.isInstanceOf[_root_.org.example.eventsourcedentity.CounterServiceClient]) {
+           addHeaders(
+             client.asInstanceOf[_root_.org.example.eventsourcedentity.CounterServiceClient].decrease(),
+             metadata).invoke(command)
+         } else {
+           //only for tests with mocked client implementation
+           client.decrease(command)
+         }
+       })
  }
 
 }

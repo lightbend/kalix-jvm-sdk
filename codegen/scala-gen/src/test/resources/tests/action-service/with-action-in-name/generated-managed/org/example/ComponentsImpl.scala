@@ -43,9 +43,17 @@ final class ComponentsImpl(context: InternalContext) extends Components {
        Metadata.empty,
        "org.example.service.MyServiceAction",
        "simpleMethod",
-       (metadata: Metadata) => addHeaders(getGrpcClient(classOf[_root_.org.example.service.MyServiceAction])
-         .asInstanceOf[_root_.org.example.service.MyServiceActionClient].simpleMethod(), metadata).invoke(command)
-     )
+       (metadata: Metadata) => {
+         val client = getGrpcClient(classOf[_root_.org.example.service.MyServiceAction])
+         if (client.isInstanceOf[_root_.org.example.service.MyServiceActionClient]) {
+           addHeaders(
+             client.asInstanceOf[_root_.org.example.service.MyServiceActionClient].simpleMethod(),
+             metadata).invoke(command)
+         } else {
+           //only for tests with mocked client implementation
+           client.simpleMethod(command)
+         }
+       })
  }
 
 }

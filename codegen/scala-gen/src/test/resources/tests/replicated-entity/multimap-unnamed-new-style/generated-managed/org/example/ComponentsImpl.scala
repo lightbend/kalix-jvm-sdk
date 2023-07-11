@@ -43,9 +43,17 @@ final class ComponentsImpl(context: InternalContext) extends Components {
        Metadata.empty,
        "com.example.replicated.multimap.MultiMapService",
        "Put",
-       (metadata: Metadata) => addHeaders(getGrpcClient(classOf[_root_.com.example.replicated.multimap.MultiMapService])
-         .asInstanceOf[_root_.com.example.replicated.multimap.MultiMapServiceClient].put(), metadata).invoke(command)
-     )
+       (metadata: Metadata) => {
+         val client = getGrpcClient(classOf[_root_.com.example.replicated.multimap.MultiMapService])
+         if (client.isInstanceOf[_root_.com.example.replicated.multimap.MultiMapServiceClient]) {
+           addHeaders(
+             client.asInstanceOf[_root_.com.example.replicated.multimap.MultiMapServiceClient].put(),
+             metadata).invoke(command)
+         } else {
+           //only for tests with mocked client implementation
+           client.put(command)
+         }
+       })
  }
 
 }

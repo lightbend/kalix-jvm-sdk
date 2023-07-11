@@ -129,9 +129,17 @@ object ComponentSourceGenerator {
              |    $Metadata.empty,
              |    "${component.service.messageType.fullyQualifiedProtoName}",
              |    "${command.name}",
-             |    (metadata: Metadata) => addHeaders(getGrpcClient(classOf[_root_.${messageType.fullyQualifiedGrpcServiceInterfaceName}])
-             |      .asInstanceOf[_root_.${messageType.fullyQualifiedGrpcServiceInterfaceName}Client].$commandMethod(), metadata).invoke(command)
-             |  )"""
+             |    (metadata: Metadata) => {
+             |      val client = getGrpcClient(classOf[_root_.${messageType.fullyQualifiedGrpcServiceInterfaceName}])
+             |      if (client.isInstanceOf[_root_.${messageType.fullyQualifiedGrpcServiceInterfaceName}Client]) {
+             |        addHeaders(
+             |          client.asInstanceOf[_root_.${messageType.fullyQualifiedGrpcServiceInterfaceName}Client].$commandMethod(),
+             |          metadata).invoke(command)
+             |      } else {
+             |        //only for tests with mocked client implementation
+             |        client.$commandMethod(command)
+             |      }
+             |    })"""
         }
 
       c"""private final class ${component.uniqueName}CallsImpl extends Components.${component.uniqueName}Calls {

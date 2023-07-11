@@ -43,18 +43,34 @@ final class ComponentsImpl(context: InternalContext) extends Components {
        Metadata.empty,
        "org.example.valueentity.CounterService",
        "Increase",
-       (metadata: Metadata) => addHeaders(getGrpcClient(classOf[_root_.org.example.valueentity.CounterService])
-         .asInstanceOf[_root_.org.example.valueentity.CounterServiceClient].increase(), metadata).invoke(command)
-     )
+       (metadata: Metadata) => {
+         val client = getGrpcClient(classOf[_root_.org.example.valueentity.CounterService])
+         if (client.isInstanceOf[_root_.org.example.valueentity.CounterServiceClient]) {
+           addHeaders(
+             client.asInstanceOf[_root_.org.example.valueentity.CounterServiceClient].increase(),
+             metadata).invoke(command)
+         } else {
+           //only for tests with mocked client implementation
+           client.increase(command)
+         }
+       })
    override def decrease(command: _root_.org.example.valueentity.DecreaseValue): DeferredCall[_root_.org.example.valueentity.DecreaseValue, _root_.com.google.protobuf.empty.Empty] =
      ScalaDeferredCallAdapter(
        command,
        Metadata.empty,
        "org.example.valueentity.CounterService",
        "Decrease",
-       (metadata: Metadata) => addHeaders(getGrpcClient(classOf[_root_.org.example.valueentity.CounterService])
-         .asInstanceOf[_root_.org.example.valueentity.CounterServiceClient].decrease(), metadata).invoke(command)
-     )
+       (metadata: Metadata) => {
+         val client = getGrpcClient(classOf[_root_.org.example.valueentity.CounterService])
+         if (client.isInstanceOf[_root_.org.example.valueentity.CounterServiceClient]) {
+           addHeaders(
+             client.asInstanceOf[_root_.org.example.valueentity.CounterServiceClient].decrease(),
+             metadata).invoke(command)
+         } else {
+           //only for tests with mocked client implementation
+           client.decrease(command)
+         }
+       })
  }
 
 }

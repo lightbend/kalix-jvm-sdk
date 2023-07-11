@@ -43,9 +43,17 @@ final class ComponentsImpl(context: InternalContext) extends Components {
        Metadata.empty,
        "org.example.named.view.UserByName",
        "GetUserByName",
-       (metadata: Metadata) => addHeaders(getGrpcClient(classOf[_root_.org.example.named.view.UserByName])
-         .asInstanceOf[_root_.org.example.named.view.UserByNameClient].getUserByName(), metadata).invoke(command)
-     )
+       (metadata: Metadata) => {
+         val client = getGrpcClient(classOf[_root_.org.example.named.view.UserByName])
+         if (client.isInstanceOf[_root_.org.example.named.view.UserByNameClient]) {
+           addHeaders(
+             client.asInstanceOf[_root_.org.example.named.view.UserByNameClient].getUserByName(),
+             metadata).invoke(command)
+         } else {
+           //only for tests with mocked client implementation
+           client.getUserByName(command)
+         }
+       })
  }
 
 }
