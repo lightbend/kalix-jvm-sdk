@@ -50,7 +50,15 @@ public final class ComponentsImpl implements Components {
         MetadataImpl.Empty(),
         "org.example.eventsourcedentity.CounterService",
         "Increase",
-        (Metadata metadata) -> addHeaders(((org.example.eventsourcedentity.CounterServiceClient) getGrpcClient(org.example.eventsourcedentity.CounterService.class)).increase(), metadata).invoke(increaseValue)
+        (Metadata metadata) -> {
+          org.example.eventsourcedentity.CounterService client = getGrpcClient(org.example.eventsourcedentity.CounterService.class);
+          if (client instanceof org.example.eventsourcedentity.CounterServiceClient) {
+            return addHeaders(((org.example.eventsourcedentity.CounterServiceClient) client).increase(), metadata).invoke(increaseValue);
+          } else {
+            //only for tests with mocked client implementation
+            return client.increase(increaseValue);
+          }
+        }
       );
     }
     @Override
@@ -60,7 +68,15 @@ public final class ComponentsImpl implements Components {
         MetadataImpl.Empty(),
         "org.example.eventsourcedentity.CounterService",
         "Decrease",
-        (Metadata metadata) -> addHeaders(((org.example.eventsourcedentity.CounterServiceClient) getGrpcClient(org.example.eventsourcedentity.CounterService.class)).decrease(), metadata).invoke(decreaseValue)
+        (Metadata metadata) -> {
+          org.example.eventsourcedentity.CounterService client = getGrpcClient(org.example.eventsourcedentity.CounterService.class);
+          if (client instanceof org.example.eventsourcedentity.CounterServiceClient) {
+            return addHeaders(((org.example.eventsourcedentity.CounterServiceClient) client).decrease(), metadata).invoke(decreaseValue);
+          } else {
+            //only for tests with mocked client implementation
+            return client.decrease(decreaseValue);
+          }
+        }
       );
     }
   }

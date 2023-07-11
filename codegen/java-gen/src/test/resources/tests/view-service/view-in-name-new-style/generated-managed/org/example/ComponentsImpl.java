@@ -50,7 +50,15 @@ public final class ComponentsImpl implements Components {
         MetadataImpl.Empty(),
         "org.example.view.UserByNameView",
         "GetUserByName",
-        (Metadata metadata) -> addHeaders(((org.example.view.UserByNameViewClient) getGrpcClient(org.example.view.UserByNameView.class)).getUserByName(), metadata).invoke(byNameRequest)
+        (Metadata metadata) -> {
+          org.example.view.UserByNameView client = getGrpcClient(org.example.view.UserByNameView.class);
+          if (client instanceof org.example.view.UserByNameViewClient) {
+            return addHeaders(((org.example.view.UserByNameViewClient) client).getUserByName(), metadata).invoke(byNameRequest);
+          } else {
+            //only for tests with mocked client implementation
+            return client.getUserByName(byNameRequest);
+          }
+        }
       );
     }
   }

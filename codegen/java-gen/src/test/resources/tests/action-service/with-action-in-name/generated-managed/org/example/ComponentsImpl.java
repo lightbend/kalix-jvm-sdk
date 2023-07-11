@@ -50,7 +50,15 @@ public final class ComponentsImpl implements Components {
         MetadataImpl.Empty(),
         "org.example.service.MyServiceAction",
         "simpleMethod",
-        (Metadata metadata) -> addHeaders(((org.example.service.MyServiceActionClient) getGrpcClient(org.example.service.MyServiceAction.class)).simpleMethod(), metadata).invoke(myRequest)
+        (Metadata metadata) -> {
+          org.example.service.MyServiceAction client = getGrpcClient(org.example.service.MyServiceAction.class);
+          if (client instanceof org.example.service.MyServiceActionClient) {
+            return addHeaders(((org.example.service.MyServiceActionClient) client).simpleMethod(), metadata).invoke(myRequest);
+          } else {
+            //only for tests with mocked client implementation
+            return client.simpleMethod(myRequest);
+          }
+        }
       );
     }
   }

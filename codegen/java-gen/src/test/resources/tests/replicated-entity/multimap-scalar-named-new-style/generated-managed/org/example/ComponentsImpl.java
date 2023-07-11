@@ -50,7 +50,15 @@ public final class ComponentsImpl implements Components {
         MetadataImpl.Empty(),
         "com.example.replicated.multimap.MultiMapService",
         "Put",
-        (Metadata metadata) -> addHeaders(((com.example.replicated.multimap.MultiMapServiceClient) getGrpcClient(com.example.replicated.multimap.MultiMapService.class)).put(), metadata).invoke(putValue)
+        (Metadata metadata) -> {
+          com.example.replicated.multimap.MultiMapService client = getGrpcClient(com.example.replicated.multimap.MultiMapService.class);
+          if (client instanceof com.example.replicated.multimap.MultiMapServiceClient) {
+            return addHeaders(((com.example.replicated.multimap.MultiMapServiceClient) client).put(), metadata).invoke(putValue);
+          } else {
+            //only for tests with mocked client implementation
+            return client.put(putValue);
+          }
+        }
       );
     }
   }

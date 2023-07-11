@@ -144,7 +144,15 @@ object ComponentsSourceGenerator {
              |    MetadataImpl.Empty(),
              |    "${component.service.messageType.fullyQualifiedProtoName}",
              |    "${command.name}",
-             |    (Metadata metadata) -> addHeaders(((${messageType.fullyQualifiedGrpcServiceInterfaceName}Client) getGrpcClient(${messageType.fullyQualifiedGrpcServiceInterfaceName}.class)).$commandMethod(), metadata).invoke($paramName)
+             |    (Metadata metadata) -> {
+             |      ${messageType.fullyQualifiedGrpcServiceInterfaceName} client = getGrpcClient(${messageType.fullyQualifiedGrpcServiceInterfaceName}.class);
+             |      if (client instanceof ${messageType.fullyQualifiedGrpcServiceInterfaceName}Client) {
+             |        return addHeaders(((${messageType.fullyQualifiedGrpcServiceInterfaceName}Client) client).$commandMethod(), metadata).invoke($paramName);
+             |      } else {
+             |        //only for tests with mocked client implementation
+             |        return client.$commandMethod($paramName);
+             |      }
+             |    }
              |  );
              |}""".stripMargin
         }

@@ -29,8 +29,8 @@ import static org.mockito.Mockito.when;
 // tag::createPrePopulated[]
 public class ShoppingCartActionImplTest {
 
-  @Mock(answer = Answers.RETURNS_DEEP_STUBS)
-  private ShoppingCartServiceClient shoppingCartService; // <1>
+  @Mock
+  private ShoppingCartService shoppingCartService; // <1>
 
   // end::createPrePopulated[]
   private AutoCloseable closeable;
@@ -48,7 +48,7 @@ public class ShoppingCartActionImplTest {
   // tag::initialize[]
   @Test
   public void initializeCartTest() throws ExecutionException, InterruptedException, TimeoutException {
-    when(shoppingCartService.create().invoke(notNull()))
+    when(shoppingCartService.create(notNull()))
             .thenReturn(CompletableFuture.completedFuture(Empty.getDefaultInstance()));
     var mockRegistry = MockRegistry.create().withMock(ShoppingCartService.class, shoppingCartService);
 
@@ -63,9 +63,9 @@ public class ShoppingCartActionImplTest {
   // tag::createPrePopulated[]
   @Test
   public void prePopulatedCartTest() throws ExecutionException, InterruptedException, TimeoutException {
-    when(shoppingCartService.create().invoke(notNull())) // <2>
+    when(shoppingCartService.create(notNull())) // <2>
         .thenReturn(CompletableFuture.completedFuture(Empty.getDefaultInstance()));
-    when(shoppingCartService.addItem().invoke(any()))
+    when(shoppingCartService.addItem(any()))
         .thenReturn(CompletableFuture.completedFuture(Empty.getDefaultInstance()));
     var mockRegistry = MockRegistry.create().withMock(ShoppingCartService.class, shoppingCartService); // <3>
 
@@ -79,7 +79,7 @@ public class ShoppingCartActionImplTest {
     // end::createPrePopulated[]
 
     ArgumentCaptor<AddLineItem> lineItem = ArgumentCaptor.forClass(AddLineItem.class);
-    verify(shoppingCartService.addItem()).invoke(lineItem.capture());
+    verify(shoppingCartService).addItem(lineItem.capture());
     assertEquals("eggplant", lineItem.getValue().getName());
     assertEquals(reply.getCartId(), lineItem.getValue().getCartId());
   // tag::createPrePopulated[]
