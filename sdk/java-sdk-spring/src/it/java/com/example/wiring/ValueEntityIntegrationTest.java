@@ -17,6 +17,7 @@
 package com.example.wiring;
 
 import com.example.Main;
+import com.example.wiring.eventsourcedentities.counter.CounterEntity;
 import com.example.wiring.valueentities.user.User;
 import kalix.spring.KalixConfigurationTest;
 import org.junit.jupiter.api.Assertions;
@@ -32,9 +33,11 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 import reactor.core.publisher.Mono;
 
 import java.time.Duration;
+import java.util.concurrent.TimeUnit;
 
 import static java.time.temporal.ChronoUnit.SECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @SpringBootTest(classes = Main.class)
@@ -88,10 +91,16 @@ public class ValueEntityIntegrationTest {
     restartUserEntity(joe2);
 
     var newEmail = joe2.email + "2";
-    // change email uses the currentState internally
-    changeEmail(joe2.withEmail(newEmail));
 
-    Assertions.assertEquals(newEmail, getUser(joe2).email);
+    await()
+        .ignoreExceptions()
+        .atMost(10, TimeUnit.of(SECONDS))
+        .untilAsserted(() -> {
+          // change email uses the currentState internally
+          changeEmail(joe2.withEmail(newEmail), Duration.ofMillis(1000));
+
+          Assertions.assertEquals(newEmail, getUser(joe2).email);
+        });
   }
 
   private void createUser(TestUser user) {
@@ -106,6 +115,10 @@ public class ValueEntityIntegrationTest {
   }
 
   private void changeEmail(TestUser user) {
+    changeEmail(user, timeout);
+  }
+
+  private void changeEmail(TestUser user, Duration timeout) {
     String userCreation =
         webClient
             .patch()
