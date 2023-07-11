@@ -2,21 +2,31 @@ package com.example.api;
 
 import com.example.api.ShoppingCartDTO.LineItemDTO;
 // tag::forward[]
+import kalix.javasdk.Metadata;
 import kalix.javasdk.action.Action;
+import kalix.javasdk.action.Action.Effect;
+import kalix.javasdk.annotations.ForwardHeaders;
 import kalix.javasdk.client.ComponentClient;
 // end::forward[]
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.util.UUID;
 import java.util.concurrent.CompletionStage;
 
 // tag::forward[]
+// tag::forward-headers[]
 
 @RequestMapping("/carts")
+// end::forward[]
+@ForwardHeaders("UserRole") // <1>
+// tag::forward[]
 public class ShoppingCartController extends Action {
+  // end::forward-headers[]
 
   private final ComponentClient componentClient;
 
@@ -28,23 +38,23 @@ public class ShoppingCartController extends Action {
 
   // tag::initialize[]
   @PostMapping("/create")
-  public Action.Effect<String> initializeCart() {
+  public Effect<String> initializeCart() {
     final String cartId = UUID.randomUUID().toString(); // <1>
     CompletionStage<ShoppingCartDTO> shoppingCartCreated =
-      componentClient.forValueEntity(cartId)
-        .call(ShoppingCartEntity::create) // <2>
-        .execute(); // <3>
+        componentClient.forValueEntity(cartId)
+            .call(ShoppingCartEntity::create) // <2>
+            .execute(); // <3>
 
 
     // transform response
-    CompletionStage<Action.Effect<String>> effect =
-      shoppingCartCreated.handle((empty, error) -> { // <4>
-        if (error == null) {
-          return effects().reply(cartId); // <5>
-        } else {
-          return effects().error("Failed to create cart, please retry"); // <6>
-        }
-      });
+    CompletionStage<Effect<String>> effect =
+        shoppingCartCreated.handle((empty, error) -> { // <4>
+          if (error == null) {
+            return effects().reply(cartId); // <5>
+          } else {
+            return effects().error("Failed to create cart, please retry"); // <6>
+          }
+        });
 
     return effects().asyncEffect(effect); // <7>
   }
@@ -116,4 +126,20 @@ public class ShoppingCartController extends Action {
     return effects().asyncEffect(effect);
   }
   // end::unsafeValidation[]
+
+  // tag::forward-headers[]
+
+  @DeleteMapping("/{cartId}")
+  public Effect<String> removeCart(@PathVariable String cartId,
+                                   @RequestHeader("UserRole") String userRole) { // <2>
+
+    var userRoleFromMeta = actionContext().metadata().get("UserRole").get(); // <3>
+
+    Metadata metadata = Metadata.EMPTY.add("Role", userRole);
+    return effects().forward(
+        componentClient.forValueEntity(cartId)
+            .call(ShoppingCartEntity::removeCart)
+            .withMetadata(metadata)); // <4>
+  }
 }
+// end::forward-headers[]

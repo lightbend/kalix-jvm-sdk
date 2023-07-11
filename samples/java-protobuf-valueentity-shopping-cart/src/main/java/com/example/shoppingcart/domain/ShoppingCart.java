@@ -117,7 +117,12 @@ public class ShoppingCart extends AbstractShoppingCart {
   @Override
   public Effect<Empty> removeCart(
           ShoppingCartDomain.Cart currentState, ShoppingCartApi.RemoveShoppingCart removeShoppingCart) {
-    return effects().deleteEntity().thenReply(Empty.getDefaultInstance());
+    var userRole = commandContext().metadata().get("Role").get();
+    if (userRole.equals("Admin")) {
+      return effects().deleteEntity().thenReply(Empty.getDefaultInstance());
+    } else {
+      return effects().error("Only admin can remove the cart");
+    }
   }
 
 

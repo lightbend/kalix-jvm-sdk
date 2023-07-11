@@ -17,6 +17,7 @@
 package kalix.javasdk.tck.model.replicatedentity;
 
 import kalix.javasdk.DeferredCall;
+import kalix.javasdk.Metadata;
 import kalix.javasdk.SideEffect;
 import kalix.javasdk.impl.GrpcDeferredCall;
 import kalix.javasdk.impl.InternalContext;
@@ -366,7 +367,7 @@ public class ReplicatedEntityTckModelEntity extends ReplicatedEntity<ReplicatedD
         MetadataImpl.Empty(),
         "kalix.tck.model.replicatedentity.ReplicatedEntityTwo",
         "Call",
-        () ->
+        (Metadata metadata) ->
             ((InternalContext) commandContext())
                 .getComponentGrpcClient(kalix.tck.model.ReplicatedEntityTwo.class)
                 .call(request));

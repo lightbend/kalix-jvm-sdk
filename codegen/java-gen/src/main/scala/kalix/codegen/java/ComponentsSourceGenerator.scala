@@ -114,8 +114,10 @@ object ComponentsSourceGenerator {
       Nil,
       packageName,
       otherImports = Seq(
+        "akka.grpc.javadsl.SingleResponseRequestBuilder",
         "kalix.javasdk.DeferredCall",
         "kalix.javasdk.Context",
+        "kalix.javasdk.Metadata",
         "kalix.javasdk.impl.GrpcDeferredCall",
         "kalix.javasdk.impl.MetadataImpl",
         "kalix.javasdk.impl.InternalContext"))
@@ -134,6 +136,7 @@ object ComponentsSourceGenerator {
           val paramName = lowerFirst(command.inputType.name)
           val inputType = fullyQualifiedMessage(command.inputType)
           val outputType = fullyQualifiedMessage(command.outputType)
+          val messageType = component.service.messageType
           s"""@Override
              |public DeferredCall<$inputType, $outputType> $commandMethod($inputType $paramName) {
              |  return new GrpcDeferredCall<>(
@@ -141,7 +144,15 @@ object ComponentsSourceGenerator {
              |    MetadataImpl.Empty(),
              |    "${component.service.messageType.fullyQualifiedProtoName}",
              |    "${command.name}",
-             |    () -> getGrpcClient(${component.service.messageType.fullyQualifiedGrpcServiceInterfaceName}.class).$commandMethod($paramName)
+             |    (Metadata metadata) -> {
+             |      ${messageType.fullyQualifiedGrpcServiceInterfaceName} client = getGrpcClient(${messageType.fullyQualifiedGrpcServiceInterfaceName}.class);
+             |      if (client instanceof ${messageType.fullyQualifiedGrpcServiceInterfaceName}Client) {
+             |        return addHeaders(((${messageType.fullyQualifiedGrpcServiceInterfaceName}Client) client).$commandMethod(), metadata).invoke($paramName);
+             |      } else {
+             |        // only for tests with mocked client implementation
+             |        return client.$commandMethod($paramName);
+             |      }
+             |    }
              |  );
              |}""".stripMargin
         }
@@ -171,6 +182,16 @@ object ComponentsSourceGenerator {
        |
        |  private <T> T getGrpcClient(Class<T> serviceClass) {
        |    return context.getComponentGrpcClient(serviceClass);
+       |  }
+       |
+       |  private <Req, Res> SingleResponseRequestBuilder<Req, Res> addHeaders(SingleResponseRequestBuilder<Req, Res> requestBuilder, Metadata metadata){
+       |    SingleResponseRequestBuilder<Req, Res> updatedBuilder = requestBuilder;
+       |    for (Metadata.MetadataEntry entry: metadata){
+       |      if (entry.isText()) {
+       |        updatedBuilder = updatedBuilder.addHeader(entry.getKey(), entry.getValue());
+       |      }
+       |    }
+       |    return updatedBuilder;
        |  }
        |
        |  ${Format.indent(componentGetters, 2)}

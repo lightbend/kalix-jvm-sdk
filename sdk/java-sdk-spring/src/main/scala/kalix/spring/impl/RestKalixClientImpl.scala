@@ -35,6 +35,7 @@ import com.google.protobuf.DynamicMessage
 import com.google.protobuf.any.Any
 import kalix.javasdk.DeferredCall
 import kalix.javasdk.DeferredCallResponseException
+import kalix.javasdk.Metadata
 import kalix.javasdk.StatusCode.ErrorCode
 import kalix.javasdk.impl.AnySupport
 import kalix.javasdk.impl.JsonMessageCodec
@@ -46,6 +47,8 @@ import kalix.spring.KalixClient
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.web.reactive.function.client.WebClient
+import org.springframework.web.reactive.function.client.WebClient.RequestHeadersSpec
+import org.springframework.web.reactive.function.client.WebClient.RequestHeadersUriSpec
 import org.springframework.web.reactive.function.client.WebClientResponseException
 import org.springframework.web.util.UriBuilder
 
@@ -100,16 +103,21 @@ final class RestKalixClientImpl(messageCodec: JsonMessageCodec) extends KalixCli
         uri,
         body = None,
         httpDef,
-        () =>
-          webClient
-            .flatMap(
-              _.get()
-                .uri(uriStr)
-                .retrieve()
-                .bodyToMono(returnType)
-                .toFuture
-                .asScala)
-            .asJava)
+        (metadata: Metadata) =>
+          webClient.flatMap { client =>
+            val spec = client
+              .get()
+              .uri(uriStr)
+              .asInstanceOf[RequestHeadersUriSpec[_]]
+
+            addHeaders(metadata, spec)
+
+            spec
+              .retrieve()
+              .bodyToMono(returnType)
+              .toFuture
+              .asScala
+          }.asJava)
     }
   }
 
@@ -136,13 +144,15 @@ final class RestKalixClientImpl(messageCodec: JsonMessageCodec) extends KalixCli
         akkaUri,
         body,
         httpDef,
-        () =>
+        (metadata: Metadata) =>
           webClient.flatMap { client =>
             val requestBodySpec = client
               .post()
               .uri(uriStr)
 
             body.foreach(requestBodySpec.bodyValue)
+
+            addHeaders(metadata, requestBodySpec)
 
             requestBodySpec
               .retrieve()
@@ -151,6 +161,14 @@ final class RestKalixClientImpl(messageCodec: JsonMessageCodec) extends KalixCli
               .asScala
           }.asJava)
     }
+  }
+
+  private def addHeaders[P, R](metadata: Metadata, spec: RequestHeadersSpec[_]): Unit = {
+    metadata.forEach(entry => {
+      if (entry.isText) {
+        spec.header(entry.getKey, entry.getValue)
+      }
+    })
   }
 
   override def post[R](uriStr: String, returnType: Class[R]): DeferredCall[Any, R] = {
@@ -168,13 +186,15 @@ final class RestKalixClientImpl(messageCodec: JsonMessageCodec) extends KalixCli
         akkaUri,
         body,
         httpDef,
-        () =>
+        (metadata: Metadata) =>
           webClient.flatMap { client =>
             val requestBodySpec = client
               .put()
               .uri(uriStr)
 
             body.foreach(requestBodySpec.bodyValue)
+
+            addHeaders(metadata, requestBodySpec)
 
             requestBodySpec
               .retrieve()
@@ -202,13 +222,15 @@ final class RestKalixClientImpl(messageCodec: JsonMessageCodec) extends KalixCli
         akkaUri,
         Some(body),
         httpDef,
-        () =>
+        (metadata: Metadata) =>
           webClient.flatMap { client =>
             val requestBodySpec = client
               .patch()
               .uri(uriStr)
 
             body.foreach(requestBodySpec.bodyValue)
+
+            addHeaders(metadata, requestBodySpec)
 
             requestBodySpec
               .retrieve()
@@ -234,10 +256,16 @@ final class RestKalixClientImpl(messageCodec: JsonMessageCodec) extends KalixCli
         akkaUri,
         None,
         httpDef,
-        () =>
-          webClient.flatMap {
-            _.delete()
+        (metadata: Metadata) =>
+          webClient.flatMap { client =>
+            val spec = client
+              .delete()
               .uri(uriStr)
+              .asInstanceOf[RequestHeadersUriSpec[_]]
+
+            addHeaders(metadata, spec)
+
+            spec
               .retrieve()
               .bodyToMono(returnType)
               .toFuture
@@ -259,11 +287,14 @@ final class RestKalixClientImpl(messageCodec: JsonMessageCodec) extends KalixCli
         queryParams,
         None,
         httpDef,
-        () =>
+        (metadata: Metadata) =>
           webClient.flatMap { client =>
 
             val requestBodySpec = requestHeadersUriSpec(client, httpMethod)
               .uri(buildUri(pathTemplate, pathVariables, queryParams))
+              .asInstanceOf[RequestHeadersUriSpec[_]]
+
+            addHeaders(metadata, requestBodySpec)
 
             requestBodySpec
               .retrieve()
@@ -288,12 +319,14 @@ final class RestKalixClientImpl(messageCodec: JsonMessageCodec) extends KalixCli
         queryParams,
         body,
         httpDef,
-        () =>
+        (metadata: Metadata) =>
           webClient.flatMap { client =>
             val requestBodySpec = requestBodyUriSpec(client, httpMethod)
               .uri(buildUri(pathTemplate, pathVariables, queryParams))
 
             body.foreach(requestBodySpec.bodyValue)
+
+            addHeaders(metadata, requestBodySpec)
 
             requestBodySpec
               .retrieve()
@@ -304,7 +337,7 @@ final class RestKalixClientImpl(messageCodec: JsonMessageCodec) extends KalixCli
     }
   }
 
-  private def requestBodyUriSpec[P, R](client: WebClient, httpMethod: HttpMethod): WebClient.RequestBodyUriSpec = {
+  private def requestBodyUriSpec(client: WebClient, httpMethod: HttpMethod): WebClient.RequestBodyUriSpec = {
     httpMethod match {
       case HttpMethods.PUT   => client.put()
       case HttpMethods.POST  => client.post()
@@ -313,9 +346,7 @@ final class RestKalixClientImpl(messageCodec: JsonMessageCodec) extends KalixCli
     }
   }
 
-  private def requestHeadersUriSpec[P, R](
-      client: WebClient,
-      httpMethod: HttpMethod): WebClient.RequestHeadersUriSpec[_] = {
+  private def requestHeadersUriSpec(client: WebClient, httpMethod: HttpMethod): WebClient.RequestHeadersUriSpec[_] = {
     httpMethod match {
       case HttpMethods.GET    => client.get()
       case HttpMethods.DELETE => client.delete()
@@ -328,7 +359,7 @@ final class RestKalixClientImpl(messageCodec: JsonMessageCodec) extends KalixCli
       queryParams: Map[String, util.List[scala.Any]],
       body: Option[P],
       httpDef: HttpEndpointMethodDefinition,
-      asyncCall: () => CompletionStage[R]): RestDeferredCall[Any, R] = {
+      asyncCall: Metadata => CompletionStage[R]): RestDeferredCall[Any, R] = {
 
     val inputBuilder = DynamicMessage.newBuilder(httpDef.methodDescriptor.getInputType)
 
@@ -342,8 +373,8 @@ final class RestKalixClientImpl(messageCodec: JsonMessageCodec) extends KalixCli
       metadata = MetadataImpl.Empty,
       fullServiceName = httpDef.methodDescriptor.getService.getFullName,
       methodName = httpDef.methodDescriptor.getName,
-      asyncCall = () =>
-        asyncCall().exceptionally {
+      asyncCall = (metadata: Metadata) =>
+        asyncCall(metadata).exceptionally {
           case responseException: WebClientResponseException =>
             throw DeferredCallResponseException(
               responseException.getMessage,
@@ -367,7 +398,7 @@ final class RestKalixClientImpl(messageCodec: JsonMessageCodec) extends KalixCli
       uri: Uri,
       body: Option[P],
       httpDef: HttpEndpointMethodDefinition,
-      asyncCall: () => CompletionStage[R]): RestDeferredCall[Any, R] = {
+      asyncCall: Metadata => CompletionStage[R]): RestDeferredCall[Any, R] = {
 
     val inputBuilder = DynamicMessage.newBuilder(httpDef.methodDescriptor.getInputType)
 
@@ -381,8 +412,8 @@ final class RestKalixClientImpl(messageCodec: JsonMessageCodec) extends KalixCli
       metadata = MetadataImpl.Empty,
       fullServiceName = httpDef.methodDescriptor.getService.getFullName,
       methodName = httpDef.methodDescriptor.getName,
-      asyncCall = () =>
-        asyncCall().exceptionally {
+      asyncCall = (metadata: Metadata) =>
+        asyncCall(metadata).exceptionally {
           case responseException: WebClientResponseException =>
             throw DeferredCallResponseException(
               responseException.getMessage,

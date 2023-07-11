@@ -40,10 +40,23 @@ With both the proxy and your service running, once you have defined endpoints th
 curl -XPOST -H "Content-Type: application/json" localhost:9000/cart/cart1/items/add -d '{"productId": "kalix-tshirt", "name": "Kalix t-shirt", "quantity": 3}' 
 ```
 
+* Remove a shopping cart:
+
+```shell
+curl localhost:9000/cart/cart1
+```
+
+
 * Removing a new item:
 
 ```shell
 curl -XPOST -H "Content-Type: application/json" localhost:9000/cart/cart1/items/add -d '{"productId": "kalix-tshirt", "name": "Kalix t-shirt", "quantity": 3}' 
+```
+
+* Remove a shopping cart:
+
+```shell
+curl -XDELETE -H "UserRole: Admin" localhost:9000/carts/cart1
 ```
 
 ## Deploying

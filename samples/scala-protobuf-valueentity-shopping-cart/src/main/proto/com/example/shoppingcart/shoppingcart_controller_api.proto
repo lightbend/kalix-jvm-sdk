@@ -37,4 +37,5 @@ service ShoppingCartAction {
   rpc VerifiedAddItem(com.example.shoppingcart.AddLineItem) returns (google.protobuf.Empty);
   rpc CreatePrePopulated(NewCart) returns (NewCartCreated);
   rpc UnsafeValidation(com.example.shoppingcart.AddLineItem) returns (google.protobuf.Empty);
+  rpc RemoveCart(com.example.shoppingcart.RemoveShoppingCart) returns (google.protobuf.Empty);
 }

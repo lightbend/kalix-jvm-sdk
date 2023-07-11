@@ -75,8 +75,12 @@ class ShoppingCart(context: ValueEntityContext) extends AbstractShoppingCart {
     )
   // end::get-cart[]
 
-  override def removeCart(currentState: Cart, removeShoppingCart: shoppingcart.RemoveShoppingCart): ValueEntity.Effect[Empty] =
-    effects.deleteEntity.thenReply(Empty.defaultInstance)
+  override def removeCart(currentState: Cart, removeShoppingCart: shoppingcart.RemoveShoppingCart): ValueEntity.Effect[Empty] = {
+    commandContext().metadata.get("Role") match {
+      case Some("Admin") => effects.deleteEntity.thenReply(Empty.defaultInstance)
+      case any => effects.error("Only admin can remove the cart")
+    }
+  }
 
 }
 

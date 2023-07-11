@@ -1,6 +1,7 @@
 package com.example.shoppingcart;
 
 import kalix.javasdk.DeferredCall;
+import kalix.javasdk.Metadata;
 import kalix.javasdk.action.ActionCreationContext;
 import com.google.protobuf.Empty;
 
@@ -101,4 +102,16 @@ public class ShoppingCartActionImpl extends AbstractShoppingCartAction {
     return effects().asyncEffect(effect);
   }
   // end::unsafeValidation[]
+
+  // tag::forward-headers[]
+  @Override
+  public Effect<Empty> removeCart(ShoppingCartApi.RemoveShoppingCart removeShoppingCart) {
+    var userRole = actionContext().metadata().get("UserRole").get(); // <1>
+    Metadata metadata = Metadata.EMPTY.add("Role", userRole);
+    return effects().forward(
+        components().shoppingCart().removeCart(removeShoppingCart)
+            .withMetadata(metadata) // <2>
+    );
+  }
+  // end::forward-headers[]
 }

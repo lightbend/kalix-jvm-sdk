@@ -1,7 +1,9 @@
 package org.example;
 
+import akka.grpc.javadsl.SingleResponseRequestBuilder;
 import kalix.javasdk.Context;
 import kalix.javasdk.DeferredCall;
+import kalix.javasdk.Metadata;
 import kalix.javasdk.impl.GrpcDeferredCall;
 import kalix.javasdk.impl.InternalContext;
 import kalix.javasdk.impl.MetadataImpl;
@@ -25,6 +27,16 @@ public final class ComponentsImpl implements Components {
     return context.getComponentGrpcClient(serviceClass);
   }
 
+  private <Req, Res> SingleResponseRequestBuilder<Req, Res> addHeaders(SingleResponseRequestBuilder<Req, Res> requestBuilder, Metadata metadata){
+    SingleResponseRequestBuilder<Req, Res> updatedBuilder = requestBuilder;
+    for (Metadata.MetadataEntry entry: metadata){
+      if (entry.isText()) {
+        updatedBuilder = updatedBuilder.addHeader(entry.getKey(), entry.getValue());
+      }
+    }
+    return updatedBuilder;
+  }
+
   @Override
   public Components.MyServiceActionImplCalls myServiceActionImpl() {
     return new MyServiceActionImplCallsImpl();
@@ -38,7 +50,15 @@ public final class ComponentsImpl implements Components {
         MetadataImpl.Empty(),
         "org.example.service.MyServiceAction",
         "simpleMethod",
-        () -> getGrpcClient(org.example.service.MyServiceAction.class).simpleMethod(myRequest)
+        (Metadata metadata) -> {
+          org.example.service.MyServiceAction client = getGrpcClient(org.example.service.MyServiceAction.class);
+          if (client instanceof org.example.service.MyServiceActionClient) {
+            return addHeaders(((org.example.service.MyServiceActionClient) client).simpleMethod(), metadata).invoke(myRequest);
+          } else {
+            // only for tests with mocked client implementation
+            return client.simpleMethod(myRequest);
+          }
+        }
       );
     }
   }

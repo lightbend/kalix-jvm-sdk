@@ -261,7 +261,7 @@ class ActionHandlerSpec
                   MetadataImpl.Empty,
                   serviceName,
                   dummyResolvedMethod.method().getName,
-                  () => ???),
+                  _ => ???),
                 false))
           }).addSideEffect(
             SideEffectImpl(
@@ -270,7 +270,7 @@ class ActionHandlerSpec
                 MetadataImpl.Empty,
                 serviceName,
                 dummyResolvedMethod.descriptor.getName,
-                () => ???),
+                _ => ???),
               true))
         }
       })
@@ -302,7 +302,7 @@ class ActionHandlerSpec
                 MetadataImpl.Empty,
                 serviceName,
                 dummyResolvedMethod.descriptor.getName,
-                () => ???),
+                _ => ???),
               true))
         }
       })

@@ -1,5 +1,6 @@
 package org.example
 
+import akka.grpc.scaladsl.SingleResponseRequestBuilder
 import kalix.scalasdk.Context
 import kalix.scalasdk.DeferredCall
 import kalix.scalasdk.Metadata
@@ -22,6 +23,14 @@ final class ComponentsImpl(context: InternalContext) extends Components {
   private def getGrpcClient[T](serviceClass: Class[T]): T =
     context.getComponentGrpcClient(serviceClass)
 
+  private def addHeaders[Req, Res](
+      requestBuilder: SingleResponseRequestBuilder[Req, Res],
+      metadata: Metadata): SingleResponseRequestBuilder[Req, Res] = {
+    metadata.filter(_.isText).foldLeft(requestBuilder) { (builder, entry) =>
+      builder.addHeader(entry.key, entry.value)
+    }
+  }
+
  @Override
  override def myServiceActionImpl: Components.MyServiceActionImplCalls =
    new MyServiceActionImplCallsImpl();
@@ -34,8 +43,17 @@ final class ComponentsImpl(context: InternalContext) extends Components {
        Metadata.empty,
        "org.example.service.MyServiceAction",
        "simpleMethod",
-       () => getGrpcClient(classOf[_root_.org.example.service.MyServiceAction]).simpleMethod(command)
-     )
+       (metadata: Metadata) => {
+         val client = getGrpcClient(classOf[_root_.org.example.service.MyServiceAction])
+         if (client.isInstanceOf[_root_.org.example.service.MyServiceActionClient]) {
+           addHeaders(
+             client.asInstanceOf[_root_.org.example.service.MyServiceActionClient].simpleMethod(),
+             metadata).invoke(command)
+         } else {
+           // only for tests with mocked client implementation
+           client.simpleMethod(command)
+         }
+       })
  }
 
 }

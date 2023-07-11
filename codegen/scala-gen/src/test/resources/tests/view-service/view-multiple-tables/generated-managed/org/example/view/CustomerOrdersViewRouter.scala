@@ -83,3 +83,4 @@ class CustomerOrdersViewRouter(view: CustomerOrdersView) extends ViewMultiTableR
   }
 
 }
+

@@ -32,7 +32,7 @@ class ValueEntityResultSpec extends AnyWordSpec with Matchers {
         new ValueEntityEffectImpl()
           .reply("reply")
           .addSideEffects(SideEffectImpl(
-            GrpcDeferredCall[String, Any]("request", MetadataImpl.Empty, "full.service.Name", "MethodName", () => ???),
+            GrpcDeferredCall[String, Any]("request", MetadataImpl.Empty, "full.service.Name", "MethodName", _ => ???),
             synchronous = false)))
 
       replyWithSideEffectResult.isReply() should ===(true)
@@ -40,8 +40,9 @@ class ValueEntityResultSpec extends AnyWordSpec with Matchers {
     }
 
     "extract forward details" in {
-      val forwardResult = new ValueEntityResultImpl[String](new ValueEntityEffectImpl().forward(
-        GrpcDeferredCall[String, String]("request", MetadataImpl.Empty, "full.service.Name", "MethodName", () => ???)))
+      val forwardResult = new ValueEntityResultImpl[String](
+        new ValueEntityEffectImpl().forward(
+          GrpcDeferredCall[String, String]("request", MetadataImpl.Empty, "full.service.Name", "MethodName", _ => ???)))
 
       forwardResult.isForward() should ===(true)
       forwardResult.getForward().getMessage should ===("request")

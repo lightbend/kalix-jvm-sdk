@@ -175,6 +175,55 @@ include::example$scala-protobuf-valueentity-shopping-cart/src/main/scala/com/exa
 <3> For allowed requests, use `components.shoppingCart.addItem()` to get a `DeferredCall`.
 <4> The `DeferredCall` is used with `effects.forward()` to forward the request to the entity.
 
+=== Forwarding Headers
+
+By default, Kalix does not forward gRPC/HTTP headers to Kalix components. This can be overridden with component options.
+
+[.tabset]
+Java::
++
+.src/main/java/com/example/shoppingcart/Main.java
+[source,java]
+----
+include::example$java-protobuf-valueentity-shopping-cart/src/main/java/com/example/shoppingcart/Main.java[tag=forward-headers]
+----
+<1> Specify headers names that should be forwarded to this component, with `withForwardHeaders` options builder method.
+<2> Register component with custom options.
+
+Scala::
++
+.src/main/java/com/example/shoppingcart/Main.scala
+[source,scala]
+----
+include::example$scala-protobuf-valueentity-shopping-cart/src/main/scala/com/example/shoppingcart/Main.scala[tag=forward-headers]
+----
+<1> Specify headers names that should be forwarded to this component, with `withForwardHeaders` options builder method.
+<2> Register component with custom options.
+
+Accessing and forwarding headers to other component is done via context `Metadata`.
+
+[.tabset]
+Java::
++
+.src/main/java/com/example/shoppingcart/ShoppingCartActionImpl.java
+[source,java]
+----
+include::example$java-protobuf-valueentity-shopping-cart/src/main/java/com/example/shoppingcart/ShoppingCartActionImpl.java[tag=forward-headers]
+----
+<1> Get the header value from context `Metadata`.
+<2> Forward different header to next call, by using `withMetadata` method of from `DeferredCall` class.
+
+Scala::
++
+.src/main/java/com/example/shoppingcart/ShoppingCartActionImpl.scala
+[source,scala]
+----
+include::example$scala-protobuf-valueentity-shopping-cart/src/main/scala/com/example/shoppingcart/ShoppingCartActionImpl.scala[tag=forward-headers]
+----
+<1> Get the header value from context `Metadata`.
+<2> Forward different header to next call, by using `withMetadata` method of from `DeferredCall` class.
+
+
 
 === Transform Request and Response to Another Component
 

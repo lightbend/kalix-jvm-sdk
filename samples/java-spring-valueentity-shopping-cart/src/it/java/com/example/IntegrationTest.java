@@ -61,9 +61,10 @@ public class IntegrationTest extends KalixIntegrationTestKitSupport {
         .block(timeout);
   }
 
-  void removeCart(String cartId) throws Exception {
-    webClient.post()
-        .uri("/cart/" + cartId + "/remove")
+  void removeCart(String cartId, String userRole) throws Exception {
+    webClient.delete()
+        .uri("/carts/" + cartId)
+        .header("UserRole", userRole)
         .retrieve()
         .bodyToMono(String.class)
         .block(timeout);
@@ -147,7 +148,7 @@ public class IntegrationTest extends KalixIntegrationTestKitSupport {
         "shopping cart should have expected items",
         cart1.items(),
         List.of(item("a", "Apple", 42)));
-    removeCart("cart4");
+    removeCart("cart4", "Admin");
     assertEquals("shopping cart should be empty", 0, getCart("cart4").items().size());
   }
 

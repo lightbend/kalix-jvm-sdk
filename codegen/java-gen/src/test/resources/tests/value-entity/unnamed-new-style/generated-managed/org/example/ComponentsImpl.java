@@ -1,7 +1,9 @@
 package org.example;
 
+import akka.grpc.javadsl.SingleResponseRequestBuilder;
 import kalix.javasdk.Context;
 import kalix.javasdk.DeferredCall;
+import kalix.javasdk.Metadata;
 import kalix.javasdk.impl.GrpcDeferredCall;
 import kalix.javasdk.impl.InternalContext;
 import kalix.javasdk.impl.MetadataImpl;
@@ -25,6 +27,16 @@ public final class ComponentsImpl implements Components {
     return context.getComponentGrpcClient(serviceClass);
   }
 
+  private <Req, Res> SingleResponseRequestBuilder<Req, Res> addHeaders(SingleResponseRequestBuilder<Req, Res> requestBuilder, Metadata metadata){
+    SingleResponseRequestBuilder<Req, Res> updatedBuilder = requestBuilder;
+    for (Metadata.MetadataEntry entry: metadata){
+      if (entry.isText()) {
+        updatedBuilder = updatedBuilder.addHeader(entry.getKey(), entry.getValue());
+      }
+    }
+    return updatedBuilder;
+  }
+
   @Override
   public Components.CounterServiceEntityCalls counterServiceEntity() {
     return new CounterServiceEntityCallsImpl();
@@ -38,7 +50,15 @@ public final class ComponentsImpl implements Components {
         MetadataImpl.Empty(),
         "org.example.valueentity.CounterService",
         "Increase",
-        () -> getGrpcClient(org.example.valueentity.CounterService.class).increase(increaseValue)
+        (Metadata metadata) -> {
+          org.example.valueentity.CounterService client = getGrpcClient(org.example.valueentity.CounterService.class);
+          if (client instanceof org.example.valueentity.CounterServiceClient) {
+            return addHeaders(((org.example.valueentity.CounterServiceClient) client).increase(), metadata).invoke(increaseValue);
+          } else {
+            // only for tests with mocked client implementation
+            return client.increase(increaseValue);
+          }
+        }
       );
     }
     @Override
@@ -48,7 +68,15 @@ public final class ComponentsImpl implements Components {
         MetadataImpl.Empty(),
         "org.example.valueentity.CounterService",
         "Decrease",
-        () -> getGrpcClient(org.example.valueentity.CounterService.class).decrease(decreaseValue)
+        (Metadata metadata) -> {
+          org.example.valueentity.CounterService client = getGrpcClient(org.example.valueentity.CounterService.class);
+          if (client instanceof org.example.valueentity.CounterServiceClient) {
+            return addHeaders(((org.example.valueentity.CounterServiceClient) client).decrease(), metadata).invoke(decreaseValue);
+          } else {
+            // only for tests with mocked client implementation
+            return client.decrease(decreaseValue);
+          }
+        }
       );
     }
   }

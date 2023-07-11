@@ -122,14 +122,24 @@ object ComponentSourceGenerator {
           val commandMethod = lowerFirst(command.name)
           val inputType = fullyQualifiedClassWithRoot(command.inputType)
           val outputType = fullyQualifiedClassWithRoot(command.outputType)
+          val messageType = component.service.messageType
           c"""override def $commandMethod(command: $inputType): $DeferredCall[$inputType, $outputType] =
              |  $ScalaDeferredCallAdapter(
              |    command,
              |    $Metadata.empty,
              |    "${component.service.messageType.fullyQualifiedProtoName}",
              |    "${command.name}",
-             |    () => getGrpcClient(classOf[_root_.${component.service.messageType.fullyQualifiedGrpcServiceInterfaceName}]).$commandMethod(command)
-             |  )"""
+             |    (metadata: Metadata) => {
+             |      val client = getGrpcClient(classOf[_root_.${messageType.fullyQualifiedGrpcServiceInterfaceName}])
+             |      if (client.isInstanceOf[_root_.${messageType.fullyQualifiedGrpcServiceInterfaceName}Client]) {
+             |        addHeaders(
+             |          client.asInstanceOf[_root_.${messageType.fullyQualifiedGrpcServiceInterfaceName}Client].$commandMethod(),
+             |          metadata).invoke(command)
+             |      } else {
+             |        // only for tests with mocked client implementation
+             |        client.$commandMethod(command)
+             |      }
+             |    })"""
         }
 
       c"""private final class ${component.uniqueName}CallsImpl extends Components.${component.uniqueName}Calls {
@@ -153,6 +163,14 @@ object ComponentSourceGenerator {
          |
          |  private def getGrpcClient[T](serviceClass: Class[T]): T =
          |    context.getComponentGrpcClient(serviceClass)
+         |
+         |  private def addHeaders[Req, Res](
+         |      requestBuilder: $SingleResponseRequestBuilder[Req, Res],
+         |      metadata: $Metadata): $SingleResponseRequestBuilder[Req, Res] = {
+         |    metadata.filter(_.isText).foldLeft(requestBuilder) { (builder, entry) =>
+         |      builder.addHeader(entry.key, entry.value)
+         |    }
+         |  }
          |
          | $componentGetters
          |

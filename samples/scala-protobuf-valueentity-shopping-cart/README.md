@@ -65,6 +65,12 @@ grpcurl --plaintext -d '{"cart_id": "cart1"}' localhost:9000 com.example.shoppin
 grpcurl --plaintext -d '{"cart_id": "cart1", "product_id": "kalix-tshirt", "name": "Kalix t-shirt" }' localhost:9000 com.example.shoppingcart.ShoppingCartService/RemoveItem
 ```
 
+* Send a RemoveShoppingCart command:
+
+```shell
+grpcurl --plaintext -d '{"cart_id": "cart1"}' -H 'UserRole: Admin' localhost:9000 com.example.shoppingcart.ShoppingCartAction/RemoveCart
+```
+
 ## Deploying
 
 To deploy your service, install the `kalix` CLI as documented in

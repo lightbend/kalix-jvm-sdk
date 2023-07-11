@@ -1,6 +1,8 @@
 package org.example
 
+import akka.grpc.scaladsl.SingleResponseRequestBuilder
 import kalix.scalasdk.Context
+import kalix.scalasdk.Metadata
 import kalix.scalasdk.impl.InternalContext
 
 
@@ -18,6 +20,14 @@ final class ComponentsImpl(context: InternalContext) extends Components {
 
   private def getGrpcClient[T](serviceClass: Class[T]): T =
     context.getComponentGrpcClient(serviceClass)
+
+  private def addHeaders[Req, Res](
+      requestBuilder: SingleResponseRequestBuilder[Req, Res],
+      metadata: Metadata): SingleResponseRequestBuilder[Req, Res] = {
+    metadata.filter(_.isText).foldLeft(requestBuilder) { (builder, entry) =>
+      builder.addHeader(entry.key, entry.value)
+    }
+  }
 
 
 

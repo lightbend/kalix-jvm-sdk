@@ -19,6 +19,7 @@ package kalix.javasdk.workflow;
 import com.example.workflow.transfer.MoneyTransferApi;
 import com.google.protobuf.Empty;
 import kalix.javasdk.DeferredCall;
+import kalix.javasdk.Metadata;
 import kalix.javasdk.impl.GrpcDeferredCall;
 import kalix.javasdk.impl.MetadataImpl;
 
@@ -149,9 +150,9 @@ public class TransferWorkflow extends Workflow<MoneyTransferApi.State> {
       MetadataImpl.Empty(),
       "fake.Service",
       "FakeMethod",
-      () -> {
-        throw new RuntimeException("Fake DeferredCall can't be executed");
-      }
+        (Metadata metadata) -> {
+          throw new RuntimeException("Fake DeferredCall can't be executed");
+        }
     );
   }
 }
