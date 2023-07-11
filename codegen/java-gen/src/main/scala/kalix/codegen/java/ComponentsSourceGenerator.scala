@@ -149,7 +149,7 @@ object ComponentsSourceGenerator {
              |      if (client instanceof ${messageType.fullyQualifiedGrpcServiceInterfaceName}Client) {
              |        return addHeaders(((${messageType.fullyQualifiedGrpcServiceInterfaceName}Client) client).$commandMethod(), metadata).invoke($paramName);
              |      } else {
-             |        //only for tests with mocked client implementation
+             |        // only for tests with mocked client implementation
              |        return client.$commandMethod($paramName);
              |      }
              |    }

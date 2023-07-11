@@ -136,7 +136,7 @@ object ComponentSourceGenerator {
              |          client.asInstanceOf[_root_.${messageType.fullyQualifiedGrpcServiceInterfaceName}Client].$commandMethod(),
              |          metadata).invoke(command)
              |      } else {
-             |        //only for tests with mocked client implementation
+             |        // only for tests with mocked client implementation
              |        client.$commandMethod(command)
              |      }
              |    })"""
