@@ -37,7 +37,7 @@ public class ViewTestModels {
 
     @Query("SELECT * FROM users_view WHERE email = :email")
     @GetMapping("/users/{email}")
-    public User getUser(String email) {
+    public User getUser(@PathVariable String email) {
       return null; // TODO: user should not implement this. we need to find a nice API for this
     }
   }

@@ -102,4 +102,12 @@ public class ComponentClient {
   public WorkflowCallBuilder forWorkflow(String workflowId) {
     return new WorkflowCallBuilder(kalixClient, workflowId);
   }
+
+  /**
+   * Select View as a call target component.
+   */
+  public ViewCallBuilder forView() {
+    return new ViewCallBuilder(kalixClient);
+  }
+
 }

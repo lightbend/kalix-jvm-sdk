@@ -365,6 +365,9 @@ class ViewDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSuit
         methodOptions.getView.getUpdate.getTransformUpdates shouldBe false
         methodOptions.getView.getJsonSchema.getOutput shouldBe "User"
 
+        val getUserMethod = desc.commandHandlers("GetUser")
+        assertRequestFieldNumberAndJavaType(getUserMethod, "email", 2, JavaType.STRING)
+
         val queryMethodOptions = this.findKalixMethodOptions(desc, "GetUser")
         queryMethodOptions.getView.getQuery.getQuery shouldBe "SELECT * FROM users_view WHERE email = :email"
         queryMethodOptions.getView.getJsonSchema.getOutput shouldBe "User"

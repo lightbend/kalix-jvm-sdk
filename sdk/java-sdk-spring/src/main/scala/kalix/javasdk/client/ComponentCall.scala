@@ -26,8 +26,10 @@ import scala.jdk.OptionConverters._
 import akka.http.scaladsl.model.HttpMethods
 import com.google.protobuf.any.Any
 import kalix.javasdk.DeferredCall
+import kalix.javasdk.action.Action
 import kalix.javasdk.annotations.EntityType
 import kalix.javasdk.annotations.TypeId
+import kalix.javasdk.eventsourcedentity.EventSourcedEntity
 import kalix.javasdk.impl.client.MethodRefResolver
 import kalix.javasdk.impl.reflection.IdExtractor
 import kalix.javasdk.impl.reflection.RestServiceIntrospector
@@ -36,9 +38,12 @@ import kalix.javasdk.impl.reflection.RestServiceIntrospector.PathParameter
 import kalix.javasdk.impl.reflection.RestServiceIntrospector.QueryParamParameter
 import kalix.javasdk.impl.reflection.RestServiceIntrospector.RestService
 import kalix.javasdk.impl.reflection.SyntheticRequestServiceMethod
+import kalix.javasdk.valueentity.ValueEntity
+import kalix.javasdk.workflow.Workflow
 import kalix.spring.KalixClient
 import kalix.spring.impl.RestKalixClientImpl
 import org.springframework.web.bind.annotation.RequestMethod
+import reactor.core.publisher.Flux
 
 final class ComponentCall[A1, R](kalixClient: KalixClient, lambda: scala.Any, id: Optional[String]) {
   def params(a1: A1): DeferredCall[Any, R] = {
@@ -61,8 +66,7 @@ object ComponentCall {
     val method = MethodRefResolver.resolveMethodRef(lambda)
     val declaringClass = method.getDeclaringClass
 
-    val returnType =
-      method.getGenericReturnType.asInstanceOf[ParameterizedType].getActualTypeArguments.head.asInstanceOf[Class[R]]
+    val returnType: Class[R] = getReturnType(declaringClass, method)
 
     val restService: RestService = RestServiceIntrospector.inspectService(declaringClass)
     val restMethod: SyntheticRequestServiceMethod =
@@ -104,6 +108,24 @@ object ComponentCall {
         kalixClientImpl.runWithoutBody(HttpMethods.DELETE, pathTemplate, pathVariables, queryParams, returnType)
       case RequestMethod.OPTIONS => notSupported(requestMethod, pathTemplate)
       case RequestMethod.TRACE   => notSupported(requestMethod, pathTemplate)
+    }
+  }
+
+  private def getReturnType[R](declaringClass: Class[_], method: Method): Class[R] = {
+    if (classOf[Action].isAssignableFrom(declaringClass)
+      || classOf[ValueEntity[_]].isAssignableFrom(declaringClass)
+      || classOf[EventSourcedEntity[_, _]].isAssignableFrom(declaringClass)
+      || classOf[Workflow[_]].isAssignableFrom(declaringClass)) {
+      //here we are expecting a wrapper in the form of an Effect
+      method.getGenericReturnType.asInstanceOf[ParameterizedType].getActualTypeArguments.head.asInstanceOf[Class[R]]
+    } else {
+      //in other cases we expect a View query method, but declaring class could not extend View[_] class for join views
+      val viewReturnType = method.getReturnType
+      if (classOf[Flux[_]].isAssignableFrom(viewReturnType)) {
+        throw new IllegalStateException("Deferred call with a Flux<?> response type are currently not supported.")
+      } else {
+        viewReturnType.asInstanceOf[Class[R]]
+      }
     }
   }
 
