@@ -597,8 +597,7 @@ class ViewDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSuit
     "generate proto for multi-table view with join query" in {
       assertDescriptor[MultiTableViewWithJoinQuery] { desc =>
         val queryMethodOptions = findKalixMethodOptions(desc, "Get")
-        queryMethodOptions.getView.getQuery.getQuery should be(
-          """|SELECT employees.*, counters.* as counters
+        queryMethodOptions.getView.getQuery.getQuery should be("""|SELECT employees.*, counters.* as counters
             |FROM employees
             |JOIN assigned ON assigned.assigneeId = employees.email
             |JOIN counters ON assigned.counterId = counters.id

@@ -52,7 +52,7 @@ object ViewCallValidator {
       throw new IllegalStateException(
         s"When using ComponentClient each [${method.getName}] View query method parameter should be annotated with @PathVariable or @RequestParam annotations. "
         + s"Missing annotations for params with types: [${paramsWithMissingAnnotations.map(_.getType.getSimpleName).mkString(", ")}]")
-         // it would be nicer to have param names, but when using `resolveMethodRef` all param names are gone, we have only "arg0", "arg1", etc.
+      // it would be nicer to have param names, but when using `resolveMethodRef` all param names are gone, we have only "arg0", "arg1", etc.
     }
 
   }
