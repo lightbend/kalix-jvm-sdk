@@ -45,16 +45,25 @@ import kalix.spring.impl.RestKalixClientImpl
 import org.springframework.web.bind.annotation.RequestMethod
 import reactor.core.publisher.Flux
 
-final class ComponentCall[A1, R](kalixClient: KalixClient, lambda: scala.Any, id: Optional[String]) {
+final class ComponentCall[A1, R](kalixClient: KalixClient, method: Method, id: Optional[String]) {
+
+  def this(kalixClient: KalixClient, lambda: scala.Any, id: Optional[String]) {
+    this(kalixClient, MethodRefResolver.resolveMethodRef(lambda), id)
+  }
+
   def params(a1: A1): DeferredCall[Any, R] = {
-    ComponentCall.invoke(Seq(a1), kalixClient, lambda, id.toScala)
+    ComponentCall.invoke(Seq(a1), kalixClient, method, id.toScala)
   }
 }
 
 object ComponentCall {
 
   def noParams[R](kalixClient: KalixClient, lambda: scala.Any, id: Optional[String]): DeferredCall[Any, R] = {
-    invoke(Seq.empty, kalixClient, lambda, id.toScala)
+    invoke(Seq.empty, kalixClient, MethodRefResolver.resolveMethodRef(lambda), id.toScala)
+  }
+
+  def noParams[R](kalixClient: KalixClient, method: Method, id: Optional[String]): DeferredCall[Any, R] = {
+    invoke(Seq.empty, kalixClient, method, id.toScala)
   }
 
   private[client] def invoke[R](
@@ -62,8 +71,15 @@ object ComponentCall {
       kalixClient: KalixClient,
       lambda: scala.Any,
       id: Option[String]): DeferredCall[Any, R] = {
+    invoke(params, kalixClient, MethodRefResolver.resolveMethodRef(lambda), id)
+  }
 
-    val method = MethodRefResolver.resolveMethodRef(lambda)
+  private[client] def invoke[R](
+      params: Seq[scala.Any],
+      kalixClient: KalixClient,
+      method: Method,
+      id: Option[String]): DeferredCall[Any, R] = {
+
     val declaringClass = method.getDeclaringClass
 
     val returnType: Class[R] = getReturnType(declaringClass, method)
@@ -116,10 +132,10 @@ object ComponentCall {
       || classOf[ValueEntity[_]].isAssignableFrom(declaringClass)
       || classOf[EventSourcedEntity[_, _]].isAssignableFrom(declaringClass)
       || classOf[Workflow[_]].isAssignableFrom(declaringClass)) {
-      //here we are expecting a wrapper in the form of an Effect
+      // here we are expecting a wrapper in the form of an Effect
       method.getGenericReturnType.asInstanceOf[ParameterizedType].getActualTypeArguments.head.asInstanceOf[Class[R]]
     } else {
-      //in other cases we expect a View query method, but declaring class could not extend View[_] class for join views
+      // in other cases we expect a View query method, but declaring class may not extend View[_] class for join views
       val viewReturnType = method.getReturnType
       if (classOf[Flux[_]].isAssignableFrom(viewReturnType)) {
         throw new IllegalStateException("Deferred call with a Flux<?> response type are currently not supported.")

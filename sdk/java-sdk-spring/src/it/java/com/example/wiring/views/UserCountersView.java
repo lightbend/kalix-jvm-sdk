@@ -35,13 +35,14 @@ import java.util.Optional;
 @ViewId("user-counters")
 public class UserCountersView {
   @GetMapping("/user-counters/{user_id}")
-  @Query(
-    "SELECT users.*, counters.* as counters"
-      + " FROM users"
-      + " JOIN assigned ON assigned.assigneeId = users.id"
-      + " JOIN counters ON assigned.counterId = counters.id"
-      + " WHERE users.id = :user_id"
-      + " ORDER BY counters.id")
+  @Query("""
+    SELECT users.*, counters.* as counters
+    FROM users
+    JOIN assigned ON assigned.assigneeId = users.id
+    JOIN counters ON assigned.counterId = counters.id
+    WHERE users.id = :user_id
+    ORDER BY counters.id
+    """)
   public UserCounters get(@PathVariable("user_id") String userId) {
     return null;
   }

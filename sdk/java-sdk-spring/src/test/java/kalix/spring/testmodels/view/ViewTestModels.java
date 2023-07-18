@@ -543,12 +543,13 @@ public class ViewTestModels {
   @ViewId("multi-table-view-with-join-query")
   public static class MultiTableViewWithJoinQuery {
     @GetMapping("/employee-counters-by-email/{email}")
-    @Query(
-        "SELECT employees.*, counters.* as counters"
-            + " FROM employees"
-            + " JOIN assigned ON assigned.assigneeId = employees.email"
-            + " JOIN counters ON assigned.counterId = counters.id"
-            + " WHERE employees.email = :email")
+    @Query("""           
+      SELECT employees.*, counters.* as counters
+          FROM employees
+          JOIN assigned ON assigned.assigneeId = employees.email
+          JOIN counters ON assigned.counterId = counters.id
+          WHERE employees.email = :email
+          """)
     public EmployeeCounters get(String email) {
       return null;
     }

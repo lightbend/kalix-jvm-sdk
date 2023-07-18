@@ -67,6 +67,12 @@ class ComponentClientTest {
   }
 
   @Test
+  public void shouldFailWhenCallingOtherComponentFromViewCallBuilder() {
+    assertThatThrownBy(() -> componentClient.forView().call(GetWithoutParam::missingRestAnnotation))
+      .hasMessage("Use dedicated builder for calling Action component method GetWithoutParam::missingRestAnnotation. This builder is meant for View component calls.");
+  }
+
+  @Test
   public void shouldReturnDeferredCallForSimpleGETRequest() throws InvalidProtocolBufferException {
     //given
     var action = descriptorFor(GetWithoutParam.class, messageCodec);
