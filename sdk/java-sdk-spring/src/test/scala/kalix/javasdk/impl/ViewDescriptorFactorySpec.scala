@@ -598,11 +598,12 @@ class ViewDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSuit
       assertDescriptor[MultiTableViewWithJoinQuery] { desc =>
         val queryMethodOptions = findKalixMethodOptions(desc, "Get")
         queryMethodOptions.getView.getQuery.getQuery should be(
-          "SELECT employees.*, counters.* as counters"
-          + " FROM employees"
-          + " JOIN assigned ON assigned.assigneeId = employees.email"
-          + " JOIN counters ON assigned.counterId = counters.id"
-          + " WHERE employees.email = :email")
+          """|SELECT employees.*, counters.* as counters
+            |FROM employees
+            |JOIN assigned ON assigned.assigneeId = employees.email
+            |JOIN counters ON assigned.counterId = counters.id
+            |WHERE employees.email = :email
+            |""".stripMargin)
         queryMethodOptions.getView.getJsonSchema.getOutput shouldBe "EmployeeCounters"
         // not defined when query body not used
         queryMethodOptions.getView.getJsonSchema.getJsonBodyInputField shouldBe ""

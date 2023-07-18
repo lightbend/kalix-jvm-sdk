@@ -270,6 +270,12 @@ class ComponentClientTest {
   }
 
   @Test
+  public void shouldFailWhenCallingViewWithNotAnnotatedParams() {
+    assertThatThrownBy(() -> componentClient.forView().call(UserByEmailWithGet::getUserWithoutAnnotation))
+      .hasMessage("When using ComponentClient each [getUserWithoutAnnotation] View query method parameter should be annotated with @PathVariable or @RequestParam annotations. Missing annotations for params with types: [String]");
+  }
+
+  @Test
   public void shouldReturnDeferredCallForViewRequest() throws InvalidProtocolBufferException {
     //given
     var view = descriptorFor(UserByEmailWithGet.class, messageCodec);
