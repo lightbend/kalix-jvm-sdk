@@ -277,6 +277,12 @@ class ComponentClientTest {
   }
 
   @Test
+  public void shouldFailWhenCallingViewMethodWithoutQueryAnnotation() {
+    assertThatThrownBy(() -> componentClient.forView().call(UserByEmailWithGetWithoutAnnotation::getUserWithoutQuery))
+      .hasMessage("A View query method [getUserWithoutQuery] should be annotated with @Query annotation.");
+  }
+
+  @Test
   public void shouldReturnDeferredCallForViewRequest() throws InvalidProtocolBufferException {
     //given
     var view = descriptorFor(UserByEmailWithGet.class, messageCodec);

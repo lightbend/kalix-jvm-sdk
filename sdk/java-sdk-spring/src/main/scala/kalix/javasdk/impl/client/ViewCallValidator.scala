@@ -19,6 +19,7 @@ package kalix.javasdk.impl.client
 import java.lang.reflect.Method
 
 import kalix.javasdk.action.Action
+import kalix.javasdk.annotations.Query
 import kalix.javasdk.eventsourcedentity.EventSourcedEntity
 import kalix.javasdk.valueentity.ValueEntity
 import kalix.javasdk.workflow.Workflow
@@ -37,6 +38,12 @@ object ViewCallValidator {
       throw new IllegalStateException(
         "Use dedicated builder for calling " + declaringClass.getSuperclass.getSimpleName
         + " component method " + declaringClass.getSimpleName + "::" + method.getName + ". This builder is meant for View component calls.")
+    }
+
+    if (!method.getAnnotations.toSeq.exists(annotation =>
+        classOf[Query].isAssignableFrom(annotation.annotationType()))) {
+      throw new IllegalStateException(
+        s"A View query method [${method.getName}] should be annotated with @Query annotation.")
     }
 
     val paramsWithMissingAnnotations = method.getParameterAnnotations.toSeq

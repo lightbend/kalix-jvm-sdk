@@ -50,6 +50,11 @@ public class ViewTestModels {
     public User getUser(String email) {
       return null;
     }
+
+    @GetMapping("/users/{email}")
+    public User getUserWithoutQuery(String email) {
+      return null;
+    }
   }
 
 
