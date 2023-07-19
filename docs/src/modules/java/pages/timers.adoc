@@ -63,7 +63,7 @@ include::example$java-spring-reliable-timers/src/main/java/com/example/actions/O
 <2> If the `CompletionStage` completes successfully, it's all good and can simply return `Ok`. Since this method is returning normally, the timer will be considered as executed and will be removed from Kalix.
 <3> On the other hand, if the `CompletionStage` completes with a failure, you must decide if you will recover the call or not. If you recover it, the timer will be considered as completed. If you let the call fail, the timer will be re-scheduled.
 
-You have seen the `OrderEntity.cancel` implementation, so you know that if you get a `NOT_FOUND`, it means that either the Order never existed or it was already cancelled (deleted). Or, you may get an `BAD_REQUEST` error, meaning that the order has been confirmed in the meantime. In both cases, you can consider that the timer has become obsolete and don't need to be rescheduled, therefore we recover the call.
+You have seen the `OrderEntity.cancel` implementation, so you know that if you get a `NOT_FOUND`, it means that either the Order never existed or it was already cancelled (deleted). Or, you may get a `BAD_REQUEST` error, meaning that the order has been confirmed in the meantime. In both cases, you can consider that the timer has become obsolete and don't need to be rescheduled, therefore we recover the call.
 
 For all other possible errors, the call to `OrderAction.expire` will fail and the timer will be re-scheduled.
 
