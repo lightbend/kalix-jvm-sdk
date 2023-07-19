@@ -402,13 +402,31 @@ public class SpringWorkflowIntegrationTest {
 
     //when
     ResponseEntity<String> response = webClient.put().uri(path)
-        .retrieve()
-        .toEntity(String.class)
-        .onErrorResume(WebClientResponseException.class, error -> Mono.just(ResponseEntity.status(error.getStatusCode()).body(error.getResponseBodyAsString())))
-        .block(timeout);
+      .retrieve()
+      .toEntity(String.class)
+      .onErrorResume(WebClientResponseException.class, error -> Mono.just(ResponseEntity.status(error.getStatusCode()).body(error.getResponseBodyAsString())))
+      .block(timeout);
 
     assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
     assertThat(response.getBody()).isEqualTo("Required request parameter is missing: counterId");
+  }
+
+  @Test
+  public void shouldNotUpdateWorkflowStateAfterEndTransition() {
+    //given
+    var workflowId = randomId();
+    execute(componentClient.forWorkflow(workflowId).call(DummyWorkflow::startAndFinish));
+    assertThat(execute(componentClient.forWorkflow(workflowId).call(DummyWorkflow::get))).isEqualTo(10);
+
+    //when
+    try {
+      execute(componentClient.forWorkflow(workflowId).call(DummyWorkflow::update));
+    } catch (RuntimeException exception) {
+      // ignore "500 Internal Server Error" exception from the proxy
+    }
+
+    //then
+    assertThat(execute(componentClient.forWorkflow(workflowId).call(DummyWorkflow::get))).isEqualTo(10);
   }
 
   private <T> T execute(DeferredCall<Any, T> deferredCall) {

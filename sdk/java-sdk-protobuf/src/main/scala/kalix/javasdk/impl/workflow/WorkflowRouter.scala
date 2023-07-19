@@ -64,6 +64,7 @@ object WorkflowRouter {
 abstract class WorkflowRouter[S, W <: Workflow[S]](protected val workflow: W) {
 
   private var state: Option[S] = None
+  private var workflowFinished: Boolean = false;
 
   private def stateOrEmpty(): S = state match {
     case None =>
@@ -81,8 +82,11 @@ abstract class WorkflowRouter[S, W <: Workflow[S]](protected val workflow: W) {
 
   /** INTERNAL API */
   // "public" api against the impl/testkit
-  def _internalSetInitState(s: Any): Unit = {
-    state = Some(s.asInstanceOf[S])
+  def _internalSetInitState(s: Any, finished: Boolean): Unit = {
+    if (!workflowFinished) {
+      state = Some(s.asInstanceOf[S])
+      workflowFinished = finished
+    }
   }
 
   /** INTERNAL API */
