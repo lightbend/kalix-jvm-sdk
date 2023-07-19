@@ -49,7 +49,7 @@ public class CustomerByCreationTime extends View<CustomerEntity.Customer> {
 
   @PostMapping("/customers/by_creation_time")
   @Query("SELECT * as customers FROM customers_by_creation_time WHERE createdOn >= :createdOn")
-  public Flux<CustomerList> getCustomerByTime(@RequestBody ByTimeRequest request) {
+  public CustomerList getCustomerByTime(@RequestBody ByTimeRequest request) {
     return null;
   }
 

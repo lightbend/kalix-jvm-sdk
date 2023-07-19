@@ -31,16 +31,32 @@ import reactor.core.publisher.Flux;
 public class ViewTestModels {
 
   @Table(value = "users_view")
-  @Subscribe.ValueEntity(
-      UserEntity.class) // when types are annotated, it's implicitly a transform = false
+  @Subscribe.ValueEntity(UserEntity.class) // when types are annotated, it's implicitly a transform = false
   public static class UserByEmailWithGet extends View<User> {
 
     @Query("SELECT * FROM users_view WHERE email = :email")
     @GetMapping("/users/{email}")
-    public User getUser(String email) {
+    public User getUser(@PathVariable String email) {
       return null; // TODO: user should not implement this. we need to find a nice API for this
     }
   }
+
+  @Table(value = "users_view")
+  @Subscribe.ValueEntity(UserEntity.class) // when types are annotated, it's implicitly a transform = false
+  public static class UserByEmailWithGetWithoutAnnotation extends View<User> {
+
+    @Query("SELECT * FROM users_view WHERE email = :email")
+    @GetMapping("/users/{email}")
+    public User getUser(String email) {
+      return null;
+    }
+
+    @GetMapping("/users/{email}")
+    public User getUserWithoutQuery(String email) {
+      return null;
+    }
+  }
+
 
   @Subscribe.ValueEntity(UserEntity.class)
   public static class ViewWithoutTableAnnotation extends View<User> {
@@ -543,12 +559,13 @@ public class ViewTestModels {
   @ViewId("multi-table-view-with-join-query")
   public static class MultiTableViewWithJoinQuery {
     @GetMapping("/employee-counters-by-email/{email}")
-    @Query(
-        "SELECT employees.*, counters.* as counters"
-            + " FROM employees"
-            + " JOIN assigned ON assigned.assigneeId = employees.email"
-            + " JOIN counters ON assigned.counterId = counters.id"
-            + " WHERE employees.email = :email")
+    @Query("""
+      SELECT employees.*, counters.* as counters
+      FROM employees
+      JOIN assigned ON assigned.assigneeId = employees.email
+      JOIN counters ON assigned.counterId = counters.id
+      WHERE employees.email = :email
+      """)
     public EmployeeCounters get(String email) {
       return null;
     }

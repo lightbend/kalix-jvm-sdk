@@ -30,10 +30,15 @@ import com.example.wiring.valueentities.user.AssignedCounterEntity;
 import com.example.wiring.valueentities.user.User;
 import com.example.wiring.valueentities.user.UserEntity;
 import com.example.wiring.valueentities.user.UserSideEffect;
+import com.example.wiring.views.CountersByValue;
+import com.example.wiring.views.CountersByValueWithIgnore;
 import com.example.wiring.views.CustomerByCreationTime;
 import com.example.wiring.views.UserCounter;
 import com.example.wiring.views.UserCounters;
+import com.example.wiring.views.UserCountersView;
 import com.example.wiring.views.UserWithVersion;
+import com.example.wiring.views.UserWithVersionView;
+import com.example.wiring.views.UsersByEmail;
 import com.google.protobuf.any.Any;
 import kalix.javasdk.DeferredCall;
 import kalix.javasdk.Metadata;
@@ -297,17 +302,13 @@ public class SpringSdkIntegrationTest {
     assertThat(counterGet).isEqualTo(1 * 2 + 1);
 
     await()
-        .ignoreExceptions()
-        .atMost(10, TimeUnit.SECONDS)
-        .until(
-            () -> webClient
-                .get()
-                .uri("/counters-ignore/by-value-with-ignore/2")
-                .retrieve()
-                .bodyToMono(Counter.class)
-                .map(counter -> counter.value())
-                .block(timeout),
-            new IsEqual(1 + 1));
+      .ignoreExceptions()
+      .atMost(10, TimeUnit.SECONDS)
+      .untilAsserted(
+        () -> {
+          var byValue = execute(componentClient.forView().call(CountersByValueWithIgnore::getCounterByValue).params(2));
+          assertThat(byValue.value()).isEqualTo(1 + 1);
+        });
   }
 
   @Test
@@ -320,18 +321,13 @@ public class SpringSdkIntegrationTest {
 
     // the view is eventually updated
     await()
-        .ignoreExceptions()
-        .atMost(15, TimeUnit.of(SECONDS))
-        .until(
-            () ->
-                webClient
-                    .get()
-                    .uri("/counters/by-value/10")
-                    .retrieve()
-                    .bodyToMono(Counter.class)
-                    .map(counter -> counter.value())
-                    .block(timeout),
-            new IsEqual<Integer>(10));
+      .ignoreExceptions()
+      .atMost(15, TimeUnit.of(SECONDS))
+      .untilAsserted(
+        () -> {
+          var byValue = execute(componentClient.forView().call(CountersByValue::getCounterByValue).params(10));
+          assertThat(byValue.value()).isEqualTo(10);
+        });
   }
 
   @Test
@@ -449,18 +445,13 @@ public class SpringSdkIntegrationTest {
 
     // the view is eventually updated
     await()
-        .ignoreExceptions()
-        .atMost(20, TimeUnit.SECONDS)
-        .until(
-            () ->
-                webClient
-                    .get()
-                    .uri("/users/by_email/" + user.email)
-                    .retrieve()
-                    .bodyToMono(User.class)
-                    .block()
-                    .email,
-            new IsEqual(user.email));
+      .ignoreExceptions()
+      .atMost(10, TimeUnit.SECONDS)
+      .untilAsserted(
+        () -> {
+          var byEmail = execute(componentClient.forView().call(UsersByEmail::getUsers).params(user.email));
+          assertThat(byEmail.email).isEqualTo(user.email);
+        });
   }
 
   @Test
@@ -593,12 +584,7 @@ public class SpringSdkIntegrationTest {
 
   @Nullable
   private UserWithVersion getUserByEmail(String email) {
-    return webClient
-        .get()
-        .uri("/users/by-email/" + email)
-        .retrieve()
-        .bodyToMono(UserWithVersion.class)
-        .block(timeout);
+    return execute(componentClient.forView().call(UserWithVersionView::getUser).params(email));
   }
 
   private void updateUser(TestUser user) {
@@ -628,14 +614,9 @@ public class SpringSdkIntegrationTest {
 
   @NotNull
   private List<CustomerEntity.Customer> getCustomersByCreationDate(Instant createdOn) {
-    return webClient
-        .post()
-        .uri("/customers/by_creation_time")
-        .bodyValue(new CustomerByCreationTime.ByTimeRequest(createdOn))
-        .retrieve()
-        .bodyToMono(CustomerByCreationTime.CustomerList.class)
-        .block(timeout)
-        .customers();
+    return execute(componentClient.forView().call(CustomerByCreationTime::getCustomerByTime)
+      .params(new CustomerByCreationTime.ByTimeRequest(createdOn)))
+      .customers();
   }
 
 
@@ -664,12 +645,7 @@ public class SpringSdkIntegrationTest {
   }
 
   private UserCounters getUserCounters(String userId) {
-    return webClient
-        .get()
-        .uri("user-counters/" + userId)
-        .retrieve()
-        .bodyToMono(UserCounters.class)
-        .block();
+    return execute(componentClient.forView().call(UserCountersView::get).params(userId));
   }
 
   private <T> T execute(DeferredCall<Any, T> deferredCall) {

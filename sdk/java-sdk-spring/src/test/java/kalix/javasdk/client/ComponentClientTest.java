@@ -37,6 +37,9 @@ import kalix.spring.testmodels.action.ActionsTestModels.PostWithOneQueryParam;
 import kalix.spring.testmodels.action.ActionsTestModels.PostWithTwoParam;
 import kalix.spring.testmodels.action.ActionsTestModels.PostWithoutParam;
 import kalix.spring.testmodels.valueentity.Counter;
+import kalix.spring.testmodels.valueentity.User;
+import kalix.spring.testmodels.view.ViewTestModels.UserByEmailWithGet;
+import kalix.spring.testmodels.view.ViewTestModels.UserByEmailWithGetWithoutAnnotation;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -62,6 +65,12 @@ class ComponentClientTest {
   public void shouldNotReturnDeferredCallMethodNotAnnotatedAsRESTEndpoint() {
     assertThatThrownBy(() -> componentClient.forAction().call(GetWithoutParam::missingRestAnnotation))
       .hasMessage("Method [missingRestAnnotation] is not annotated as a REST endpoint.");
+  }
+
+  @Test
+  public void shouldFailWhenCallingOtherComponentFromViewCallBuilder() {
+    assertThatThrownBy(() -> componentClient.forView().call(GetWithoutParam::missingRestAnnotation))
+      .hasMessage("Use dedicated builder for calling Action component method GetWithoutParam::missingRestAnnotation. This builder is meant for View component calls.");
   }
 
   @Test
@@ -252,13 +261,44 @@ class ComponentClientTest {
 
     //when
     RestDeferredCall<Any, Number> call = (RestDeferredCall<Any, Number>) componentClient.forValueEntity()
-        .call(Counter::randomIncrease)
-        .params(param);
+      .call(Counter::randomIncrease)
+      .params(param);
 
     //then
     assertThat(call.fullServiceName()).isEqualTo(targetMethod.getService().getFullName());
     assertThat(call.methodName()).isEqualTo(targetMethod.getName());
     assertMethodParamsMatch(targetMethod, call.message(), param);
+  }
+
+  @Test
+  public void shouldFailWhenCallingViewWithNotAnnotatedParams() {
+    assertThatThrownBy(() -> componentClient.forView().call(UserByEmailWithGetWithoutAnnotation::getUser))
+      .hasMessage("When using ComponentClient each [getUser] View query method parameter should be annotated with @PathVariable, @RequestParam or @RequestBody annotations. Missing annotations for params with types: [String]");
+  }
+
+  @Test
+  public void shouldFailWhenCallingViewMethodWithoutQueryAnnotation() {
+    assertThatThrownBy(() -> componentClient.forView().call(UserByEmailWithGetWithoutAnnotation::getUserWithoutQuery))
+      .hasMessage("A View query method [getUserWithoutQuery] should be annotated with @Query annotation.");
+  }
+
+  @Test
+  public void shouldReturnDeferredCallForViewRequest() throws InvalidProtocolBufferException {
+    //given
+    var view = descriptorFor(UserByEmailWithGet.class, messageCodec);
+    restKalixClient.registerComponent(view.serviceDescriptor());
+    var targetMethod = view.serviceDescriptor().findMethodByName("GetUser");
+    String email = "email@example.com";
+
+    //when
+    RestDeferredCall<Any, User> call = (RestDeferredCall<Any, User>) componentClient.forView()
+      .call(UserByEmailWithGet::getUser)
+      .params(email);
+
+    //then
+    assertThat(call.fullServiceName()).isEqualTo(targetMethod.getService().getFullName());
+    assertThat(call.methodName()).isEqualTo(targetMethod.getName());
+    assertMethodParamsMatch(targetMethod, call.message(), email);
   }
 
   private ComponentDescriptor descriptorFor(Class<?> clazz, JsonMessageCodec messageCodec) {
@@ -269,7 +309,7 @@ class ComponentClientTest {
   private <T> T getBody(Descriptors.MethodDescriptor targetMethod, Any message, Class<T> clazz) throws InvalidProtocolBufferException {
     var dynamicMessage = DynamicMessage.parseFrom(targetMethod.getInputType(), message.value());
     var body = (DynamicMessage) targetMethod.getInputType()
-        .getFields().stream()
+      .getFields().stream()
         .filter(f -> f.getName().equals("json_body"))
         .map(dynamicMessage::getField)
         .findFirst().orElseThrow();

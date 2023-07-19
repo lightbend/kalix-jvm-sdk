@@ -365,6 +365,9 @@ class ViewDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSuit
         methodOptions.getView.getUpdate.getTransformUpdates shouldBe false
         methodOptions.getView.getJsonSchema.getOutput shouldBe "User"
 
+        val getUserMethod = desc.commandHandlers("GetUser")
+        assertRequestFieldNumberAndJavaType(getUserMethod, "email", 2, JavaType.STRING)
+
         val queryMethodOptions = this.findKalixMethodOptions(desc, "GetUser")
         queryMethodOptions.getView.getQuery.getQuery shouldBe "SELECT * FROM users_view WHERE email = :email"
         queryMethodOptions.getView.getJsonSchema.getOutput shouldBe "User"
@@ -594,12 +597,12 @@ class ViewDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSuit
     "generate proto for multi-table view with join query" in {
       assertDescriptor[MultiTableViewWithJoinQuery] { desc =>
         val queryMethodOptions = findKalixMethodOptions(desc, "Get")
-        queryMethodOptions.getView.getQuery.getQuery should be(
-          "SELECT employees.*, counters.* as counters"
-          + " FROM employees"
-          + " JOIN assigned ON assigned.assigneeId = employees.email"
-          + " JOIN counters ON assigned.counterId = counters.id"
-          + " WHERE employees.email = :email")
+        queryMethodOptions.getView.getQuery.getQuery should be("""|SELECT employees.*, counters.* as counters
+            |FROM employees
+            |JOIN assigned ON assigned.assigneeId = employees.email
+            |JOIN counters ON assigned.counterId = counters.id
+            |WHERE employees.email = :email
+            |""".stripMargin)
         queryMethodOptions.getView.getJsonSchema.getOutput shouldBe "EmployeeCounters"
         // not defined when query body not used
         queryMethodOptions.getView.getJsonSchema.getJsonBodyInputField shouldBe ""
