@@ -23,6 +23,7 @@ import kalix.javasdk.eventsourcedentity.EventSourcedEntity
 import kalix.javasdk.valueentity.ValueEntity
 import kalix.javasdk.workflow.Workflow
 import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestParam
 
 object ViewCallValidator {
@@ -43,14 +44,16 @@ object ViewCallValidator {
       .filter { case (annotations, _) =>
         annotations.isEmpty || !annotations.toSeq.exists(annotation => {
           val annType = annotation.annotationType()
-          classOf[PathVariable].isAssignableFrom(annType) || classOf[RequestParam].isAssignableFrom(annType)
+          classOf[PathVariable].isAssignableFrom(annType) ||
+          classOf[RequestParam].isAssignableFrom(annType) ||
+          classOf[RequestBody].isAssignableFrom(annType)
         })
       }
       .map(_._2)
 
     if (paramsWithMissingAnnotations.nonEmpty) {
       throw new IllegalStateException(
-        s"When using ComponentClient each [${method.getName}] View query method parameter should be annotated with @PathVariable or @RequestParam annotations. "
+        s"When using ComponentClient each [${method.getName}] View query method parameter should be annotated with @PathVariable, @RequestParam or @RequestBody annotations. "
         + s"Missing annotations for params with types: [${paramsWithMissingAnnotations.map(_.getType.getSimpleName).mkString(", ")}]")
       // it would be nicer to have param names, but when using `resolveMethodRef` all param names are gone, we have only "arg0", "arg1", etc.
     }

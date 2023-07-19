@@ -39,6 +39,7 @@ import kalix.spring.testmodels.action.ActionsTestModels.PostWithoutParam;
 import kalix.spring.testmodels.valueentity.Counter;
 import kalix.spring.testmodels.valueentity.User;
 import kalix.spring.testmodels.view.ViewTestModels.UserByEmailWithGet;
+import kalix.spring.testmodels.view.ViewTestModels.UserByEmailWithGetWithoutAnnotation;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -271,8 +272,8 @@ class ComponentClientTest {
 
   @Test
   public void shouldFailWhenCallingViewWithNotAnnotatedParams() {
-    assertThatThrownBy(() -> componentClient.forView().call(UserByEmailWithGet::getUserWithoutAnnotation))
-      .hasMessage("When using ComponentClient each [getUserWithoutAnnotation] View query method parameter should be annotated with @PathVariable or @RequestParam annotations. Missing annotations for params with types: [String]");
+    assertThatThrownBy(() -> componentClient.forView().call(UserByEmailWithGetWithoutAnnotation::getUser))
+      .hasMessage("When using ComponentClient each [getUser] View query method parameter should be annotated with @PathVariable, @RequestParam or @RequestBody annotations. Missing annotations for params with types: [String]");
   }
 
   @Test

@@ -39,13 +39,19 @@ public class ViewTestModels {
     public User getUser(@PathVariable String email) {
       return null; // TODO: user should not implement this. we need to find a nice API for this
     }
+  }
+
+  @Table(value = "users_view")
+  @Subscribe.ValueEntity(UserEntity.class) // when types are annotated, it's implicitly a transform = false
+  public static class UserByEmailWithGetWithoutAnnotation extends View<User> {
 
     @Query("SELECT * FROM users_view WHERE email = :email")
     @GetMapping("/users/{email}")
-    public User getUserWithoutAnnotation(String email) {
+    public User getUser(String email) {
       return null;
     }
   }
+
 
   @Subscribe.ValueEntity(UserEntity.class)
   public static class ViewWithoutTableAnnotation extends View<User> {
