@@ -37,7 +37,7 @@ import com.google.protobuf.DescriptorProtos.ServiceDescriptorProto
 import com.google.protobuf.Descriptors
 import com.google.protobuf.Descriptors.FileDescriptor
 import com.google.protobuf.Empty
-import com.google.protobuf.{Any => JavaPbAny}
+import com.google.protobuf.{ Any => JavaPbAny }
 import kalix.javasdk.impl.AnySupport.ProtobufEmptyTypeUrl
 import kalix.javasdk.impl.reflection.AnyJsonRequestServiceMethod
 import kalix.javasdk.impl.reflection.CombinedSubscriptionServiceMethod
