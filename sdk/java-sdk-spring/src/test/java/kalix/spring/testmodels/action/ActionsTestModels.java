@@ -38,8 +38,8 @@ public class ActionsTestModels {
   }
 
   public static class GetWithOneParam extends Action {
-    @GetMapping("/message/{one}")
-    public Action.Effect<Message> message(@PathVariable String one) {
+    @GetMapping("/message/{one_param}")
+    public Action.Effect<Message> message(@PathVariable("one_param") String one) {
       return effects().reply(new Message(one));
     }
   }

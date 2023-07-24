@@ -91,22 +91,26 @@ object RestServiceIntrospector {
     def param: MethodParameter
   }
 
+  sealed trait RestNamedMethodParameter extends RestMethodParameter {
+    def name: String
+  }
+
   case class UnhandledParameter(param: MethodParameter) extends RestMethodParameter
-  case class PathParameter(param: MethodParameter, annotation: PathVariable) extends RestMethodParameter {
+  case class PathParameter(param: MethodParameter, annotation: PathVariable) extends RestNamedMethodParameter {
     val name: String = if (annotation.name().nonEmpty) {
       annotation.name()
     } else {
       param.getParameterName
     }
   }
-  case class QueryParamParameter(param: MethodParameter, annotation: RequestParam) extends RestMethodParameter {
+  case class QueryParamParameter(param: MethodParameter, annotation: RequestParam) extends RestNamedMethodParameter {
     val name: String = if (annotation.name().nonEmpty) {
       annotation.name()
     } else {
       param.getParameterName
     }
   }
-  case class HeaderParameter(param: MethodParameter, annotation: RequestHeader) extends RestMethodParameter {
+  case class HeaderParameter(param: MethodParameter, annotation: RequestHeader) extends RestNamedMethodParameter {
     val name: String = if (annotation.name().nonEmpty) {
       annotation.name()
     } else {

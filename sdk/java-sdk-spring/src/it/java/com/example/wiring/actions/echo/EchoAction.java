@@ -45,8 +45,8 @@ public class EchoAction extends Action {
     this.componentClient = componentClient;
   }
 
-  @GetMapping("/echo/message/{msg}")
-  public Effect<Message> stringMessage(@PathVariable String msg) {
+  @GetMapping("/echo/message/{msg_value}")
+  public Effect<Message> stringMessage(@PathVariable("msg_value") String msg) {
     String response = this.parrot.repeat(msg);
     return effects().reply(new Message(response));
   }
