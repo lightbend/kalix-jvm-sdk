@@ -319,7 +319,23 @@ private[kalix] object ComponentDescriptor {
     }
     inputMessageDescriptor.addAllOneofDecl(oneofDescriptorProtos.asJava)
 
-    val bodyField: Option[(Int, ExtractorCreator)] = bodyFieldExtractors(indexedParams)
+    val bodyField: Option[(Int, ExtractorCreator)] = {
+
+      // first we need to find the index of the parameter receiving the BodyRequest
+      val paramIndex = indexedParams.collectFirst { case (_: BodyParameter, idx) => idx }
+      paramIndex.flatMap { idx =>
+        val bodyParam = serviceMethod.javaMethod.getGenericParameterTypes()(idx)
+        bodyParam match {
+          case paramType: ParameterizedType
+              // note: we only take RequestBody that are Collections
+              if classOf[util.Collection[_]].isAssignableFrom(paramType.getRawType.asInstanceOf[Class[_]]) =>
+            Some(idx -> collectionBodyFieldExtractors(paramType.getActualTypeArguments()(0), paramType.getRawType))
+          case _ =>
+            bodyFieldExtractors(indexedParams)
+        }
+      }
+    }
+
     val pathParamFieldsExtractors = pathParamExtractors(indexedParams, pathParamFieldDescs)
     val queryFieldExtractors = queryParamExtractors(indexedParams, queryFieldDescs)
 
@@ -500,6 +516,15 @@ private[kalix] object ComponentDescriptor {
       }
     }
   }
+
+  private def collectionBodyFieldExtractors[T](actualType: Type, collectionType: Type): ExtractorCreator =
+    new ExtractorCreator {
+      override def apply(descriptor: Descriptors.Descriptor): ParameterExtractor[DynamicMessageContext, AnyRef] = {
+        val cls = actualType.asInstanceOf[Class[T]]
+        val collectionClass = collectionType.asInstanceOf[Class[java.util.Collection[T]]]
+        new ParameterExtractors.CollectionBodyExtractor(descriptor.findFieldByNumber(1), cls, collectionClass)
+      }
+    }
 
   @tailrec
   private def mapJavaTypeToProtobuf(javaType: Type): FieldDescriptorProto.Type = {

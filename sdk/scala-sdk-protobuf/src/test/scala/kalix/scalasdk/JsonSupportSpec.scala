@@ -30,24 +30,28 @@ case class MyJsonable(field: String)
 
 class JsonSupportSpec extends AnyWordSpec with Matchers {
 
-  val myJsonable = new MyJsonable("foo")
+  val myJsonable = MyJsonable("foo")
 
   "JsonSupport" must {
+
     "serialize and deserialize JSON" in {
       val any = JsonSupport.encodeJson(myJsonable)
       any.typeUrl should ===(JavaJsonSupport.KALIX_JSON + classOf[MyJsonable].getName)
       JsonSupport.decodeJson[MyJsonable](any).field should ===("foo")
     }
+
     "serialize and deserialize Akka Done class" in {
       val done = Done
       val any = JsonSupport.encodeJson(done)
       any.typeUrl should ===(JavaJsonSupport.KALIX_JSON + Done.getClass.getName)
       JsonSupport.decodeJson[Done](any) shouldBe Done
     }
+
     "serialize JSON with an explicit type url suffix" in {
       val any = JsonSupport.encodeJson(myJsonable, "bar")
       any.typeUrl should ===(JavaJsonSupport.KALIX_JSON + "bar")
     }
+
     "conditionally decode JSON depending on suffix" in {
       val any = JsonSupport.encodeJson(myJsonable, "bar")
       any.typeUrl should ===(JavaJsonSupport.KALIX_JSON + "bar")

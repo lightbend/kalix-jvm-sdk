@@ -38,6 +38,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.google.protobuf.*;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Optional;
 
 public final class JsonSupport {
@@ -144,7 +145,7 @@ public final class JsonSupport {
     } else {
       try {
         ByteString decodedBytes = ByteStringEncoding.decodePrimitiveBytes(any.getValue());
-        return objectMapper.readerFor(valueClass).readValue(decodedBytes.toByteArray());
+        return objectMapper.readValue(decodedBytes.toByteArray(), valueClass);
       } catch (IOException e) {
         throw new IllegalArgumentException(
             "JSON with type url ["
@@ -153,6 +154,31 @@ public final class JsonSupport {
                 + valueClass.getName()
                 + "]",
             e);
+      }
+    }
+  }
+
+  public static <T, C extends Collection<T>> C decodeJsonCollection(Class<T> valueClass, Class<C> collectionType, Any any) {
+    if (!any.getTypeUrl().startsWith(KALIX_JSON)) {
+      throw new IllegalArgumentException(
+        "Protobuf bytes with type url ["
+          + any.getTypeUrl()
+          + "] cannot be decoded as JSON, must start with ["
+          + KALIX_JSON
+          + "]");
+    } else {
+      try {
+        ByteString decodedBytes = ByteStringEncoding.decodePrimitiveBytes(any.getValue());
+        var typeRef = objectMapper.getTypeFactory().constructCollectionType(collectionType, valueClass);
+        return objectMapper.readValue(decodedBytes.toByteArray(), typeRef);
+      } catch (IOException e) {
+        throw new IllegalArgumentException(
+          "JSON with type url ["
+            + any.getTypeUrl()
+            + "] could not be decoded into a ["
+            + valueClass.getName()
+            + "]",
+          e);
       }
     }
   }

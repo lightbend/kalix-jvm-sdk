@@ -24,12 +24,15 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestBody;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 public class EchoAction extends Action {
 
@@ -66,6 +69,18 @@ public class EchoAction extends Action {
   public Effect<Message> stringMessageFromParamFwTyped(@RequestParam String msg) {
     var result = componentClient.forAction().call(EchoAction::stringMessageFromParam).params(msg);
     return effects().forward(result);
+  }
+
+  @PostMapping("/echo/message/concat")
+  public Effect<Message> stringMessageConcatRequestBody(@RequestBody List<Message> messages) {
+    var allMessages = messages.stream().map(m -> m.text).collect(Collectors.joining("|"));
+    return effects().reply(new Message(allMessages));
+  }
+
+  @PostMapping("/echo/message/concat/{separator}")
+  public Effect<Message> stringMessageConcatRequestBodyWithSeparator(@PathVariable String separator, @RequestBody List<Message> messages ) {
+    var allMessages = messages.stream().map(m -> m.text).collect(Collectors.joining(separator));
+    return effects().reply(new Message(allMessages));
   }
 
   @GetMapping("/echo/repeat/{msg}/times/{times}")

@@ -132,22 +132,22 @@ public class SpringSdkIntegrationTest {
   public void verifyJavaPrimitivesAsParams() {
 
     Message response =
-        webClient
-            .get()
-            .uri("/action/1.0/2.0/3/4?shortValue=5&byteValue=6&charValue=97&booleanValue=true")
-            .retrieve()
-            .bodyToMono(Message.class)
-            .block(timeout);
+      webClient
+        .get()
+        .uri("/action/1.0/2.0/3/4?shortValue=5&byteValue=6&charValue=97&booleanValue=true")
+        .retrieve()
+        .bodyToMono(Message.class)
+        .block(timeout);
 
     assertThat(response.text).isEqualTo("1.02.03456atrue");
 
     Message responseCollections =
-        webClient
-            .get()
-            .uri("/action_collections?ints=1&ints=0&ints=2")
-            .retrieve()
-            .bodyToMono(Message.class)
-            .block(timeout);
+      webClient
+        .get()
+        .uri("/action_collections?ints=1&ints=0&ints=2")
+        .retrieve()
+        .bodyToMono(Message.class)
+        .block(timeout);
 
     assertThat(responseCollections.text).isEqualTo("1,0,2");
   }
@@ -156,8 +156,8 @@ public class SpringSdkIntegrationTest {
   public void verifyEchoActionWiring() {
 
     Message response = execute(componentClient.forAction()
-        .call(EchoAction::stringMessage)
-        .params("abc"));
+      .call(EchoAction::stringMessage)
+      .params("abc"));
 
     assertThat(response.text).isEqualTo("Parrot says: 'abc'");
   }
@@ -167,27 +167,53 @@ public class SpringSdkIntegrationTest {
   public void verifyEchoActionRequestParam() {
 
     Message response = execute(componentClient.forAction()
-        .call(EchoAction::stringMessageFromParam)
-        .params("queryParam"));
+      .call(EchoAction::stringMessageFromParam)
+      .params("queryParam"));
 
     assertThat(response.text).isEqualTo("Parrot says: 'queryParam'");
 
     var failedReq =
-        webClient
-            .get()
-            .uri("/echo/message")
-            .retrieve()
-            .toEntity(String.class)
-            .onErrorResume(WebClientResponseException.class, error -> {
-              if (error.getStatusCode().is4xxClientError()) {
-                return Mono.just(ResponseEntity.status(error.getStatusCode()).body(error.getResponseBodyAsString()));
-              } else {
-                return Mono.error(error);
-              }
-            })
-            .block(timeout);
+      webClient
+        .get()
+        .uri("/echo/message")
+        .retrieve()
+        .toEntity(String.class)
+        .onErrorResume(WebClientResponseException.class, error -> {
+          if (error.getStatusCode().is4xxClientError()) {
+            return Mono.just(ResponseEntity.status(error.getStatusCode()).body(error.getResponseBodyAsString()));
+          } else {
+            return Mono.error(error);
+          }
+        })
+        .block(timeout);
     assertThat(failedReq.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
     assertThat(failedReq.getBody()).contains("Required request parameter is missing: msg");
+  }
+
+  @Test
+  public void verifyEchoActionConcatBody() {
+
+    var message = List.of(new Message("foo"), new Message("bar"));
+    Message response = execute(
+      componentClient.forAction()
+        .call(EchoAction::stringMessageConcatRequestBody)
+        .params(message)
+    );
+
+    assertThat(response.text).isEqualTo("foo|bar");
+  }
+
+  @Test
+  public void verifyEchoActionConcatBodyWithSeparator() {
+
+    var message = List.of(new Message("foo"), new Message("bar"));
+    Message response = execute(
+      componentClient.forAction()
+        .call(EchoAction::stringMessageConcatRequestBodyWithSeparator)
+        .params("/", message)
+    );
+
+    assertThat(response.text).isEqualTo("foo/bar");
   }
 
   @Test
@@ -195,8 +221,8 @@ public class SpringSdkIntegrationTest {
 
     String reqParam = "a b&c@d";
     Message response = execute(componentClient.forAction()
-        .call(EchoAction::stringMessageFromParamFw)
-        .params(reqParam));
+      .call(EchoAction::stringMessageFromParamFw)
+      .params(reqParam));
 
     assertThat(response.text).isEqualTo("Parrot says: '" + reqParam + "'");
   }
@@ -206,8 +232,8 @@ public class SpringSdkIntegrationTest {
 
     String reqParam = "a b&c@d";
     Message response = execute(componentClient.forAction()
-        .call(EchoAction::stringMessageFromParamFwTyped)
-        .params(reqParam));
+      .call(EchoAction::stringMessageFromParamFwTyped)
+      .params(reqParam));
 
     assertThat(response.text).isEqualTo("Parrot says: '" + reqParam + "'");
   }
@@ -216,13 +242,13 @@ public class SpringSdkIntegrationTest {
   public void verifyStreamActions() {
 
     List<Message> messageList =
-        webClient
-            .get()
-            .uri("/echo/repeat/abc/times/3")
-            .retrieve()
-            .bodyToFlux(Message.class)
-            .toStream()
-            .collect(Collectors.toList());
+      webClient
+        .get()
+        .uri("/echo/repeat/abc/times/3")
+        .retrieve()
+        .bodyToFlux(Message.class)
+        .toStream()
+        .collect(Collectors.toList());
 
     assertThat(messageList).hasSize(3);
   }
@@ -233,19 +259,19 @@ public class SpringSdkIntegrationTest {
     // WHEN the CounterEntity is requested to increase 42\
     String entityId = "hello1";
     execute(componentClient.forEventSourcedEntity(entityId)
-        .call(CounterEntity::increase)
-        .params(42));
+      .call(CounterEntity::increase)
+      .params(42));
 
     // THEN IncreaseAction receives the event 42 and increases the counter 1 more
     await()
-        .ignoreExceptions()
-        .atMost(10, TimeUnit.of(SECONDS))
-        .untilAsserted(() -> {
-          Integer result = execute(componentClient.forEventSourcedEntity(entityId)
-              .call(CounterEntity::get));
+      .ignoreExceptions()
+      .atMost(10, TimeUnit.of(SECONDS))
+      .untilAsserted(() -> {
+        Integer result = execute(componentClient.forEventSourcedEntity(entityId)
+          .call(CounterEntity::get));
 
-          assertThat(result).isEqualTo(43); //42 +1
-        });
+        assertThat(result).isEqualTo(43); //42 +1
+      });
   }
 
   @Test
@@ -254,19 +280,19 @@ public class SpringSdkIntegrationTest {
     // WHEN the CounterEntity is requested to increase 4422
     String entityId = "hello4422";
     execute(componentClient.forEventSourcedEntity(entityId)
-        .call(CounterEntity::increase)
-        .params(4422));
+      .call(CounterEntity::increase)
+      .params(4422));
 
     // THEN IncreaseAction receives the event 4422 and increases the counter 1 more
     await()
-        .ignoreExceptions()
-        .atMost(10, TimeUnit.of(SECONDS))
-        .untilAsserted(() -> {
-          Integer result = execute(componentClient.forEventSourcedEntity(entityId)
-              .call(CounterEntity::get));
+      .ignoreExceptions()
+      .atMost(10, TimeUnit.of(SECONDS))
+      .untilAsserted(() -> {
+        Integer result = execute(componentClient.forEventSourcedEntity(entityId)
+          .call(CounterEntity::get));
 
-          assertThat(result).isEqualTo(4423);
-        });
+        assertThat(result).isEqualTo(4423);
+      });
   }
 
   @Test
@@ -281,13 +307,13 @@ public class SpringSdkIntegrationTest {
 
     //Once the action IncreaseActionWithIgnore processes event 1234 it adds 1 more to the counter
     await()
-        .atMost(10, TimeUnit.SECONDS)
-        .untilAsserted(() -> {
-          Integer result = execute(componentClient.forEventSourcedEntity(entityId)
-              .call(CounterEntity::get));
+      .atMost(10, TimeUnit.SECONDS)
+      .untilAsserted(() -> {
+        Integer result = execute(componentClient.forEventSourcedEntity(entityId)
+          .call(CounterEntity::get));
 
-          assertThat(result).isEqualTo(1 * 2 + 1234 + 1);
-        });
+        assertThat(result).isEqualTo(1 * 2 + 1234 + 1);
+      });
   }
 
   @Test
@@ -315,8 +341,8 @@ public class SpringSdkIntegrationTest {
   public void verifyFindCounterByValue() {
 
     execute(componentClient.forEventSourcedEntity("abc")
-        .call(CounterEntity::increase)
-        .params(10));
+      .call(CounterEntity::increase)
+      .params(10));
 
 
     // the view is eventually updated
@@ -334,27 +360,27 @@ public class SpringSdkIntegrationTest {
   public void verifyCounterViewMultipleSubscriptions() throws InterruptedException {
 
     execute(componentClient.forEventSourcedEntity("hello2")
-        .call(CounterEntity::increase)
-        .params(1));
+      .call(CounterEntity::increase)
+      .params(1));
 
     execute(componentClient.forEventSourcedEntity("hello3")
-        .call(CounterEntity::increase)
-        .params(1));
+      .call(CounterEntity::increase)
+      .params(1));
 
     await()
-        .ignoreExceptions()
-        .atMost(20, TimeUnit.SECONDS)
-        .until(
-            () ->
-                webClient
-                    .get()
-                    .uri("/counters-ms/by-value/1")
-                    .retrieve()
-                    .bodyToFlux(Counter.class)
-                    .toStream()
-                    .collect(Collectors.toList())
-                    .size(),
-            new IsEqual<>(2));
+      .ignoreExceptions()
+      .atMost(20, TimeUnit.SECONDS)
+      .until(
+        () ->
+          webClient
+            .get()
+            .uri("/counters-ms/by-value/1")
+            .retrieve()
+            .bodyToFlux(Counter.class)
+            .toStream()
+            .collect(Collectors.toList())
+            .size(),
+        new IsEqual<>(2));
   }
 
   @Test
@@ -368,10 +394,10 @@ public class SpringSdkIntegrationTest {
 
     // the view is eventually updated
     await()
-        .ignoreExceptions()
-        .atMost(15, TimeUnit.of(SECONDS))
-        .until(() -> getUserByEmail(user.email).version,
-            new IsEqual(2));
+      .ignoreExceptions()
+      .atMost(15, TimeUnit.of(SECONDS))
+      .until(() -> getUserByEmail(user.email).version,
+        new IsEqual(2));
   }
 
   @Test
@@ -382,18 +408,18 @@ public class SpringSdkIntegrationTest {
     createUser(user);
 
     await()
-        .ignoreExceptions()
-        .atMost(15, TimeUnit.of(SECONDS))
-        .until(() -> UserSideEffect.getUsers().get(user.id),
-            new IsEqual(new User(user.email, user.name)));
+      .ignoreExceptions()
+      .atMost(15, TimeUnit.of(SECONDS))
+      .until(() -> UserSideEffect.getUsers().get(user.id),
+        new IsEqual(new User(user.email, user.name)));
 
     deleteUser(user);
 
     await()
-        .ignoreExceptions()
-        .atMost(15, TimeUnit.of(SECONDS))
-        .until(() -> UserSideEffect.getUsers().get(user.id),
-            new IsNull<>());
+      .ignoreExceptions()
+      .atMost(15, TimeUnit.of(SECONDS))
+      .until(() -> UserSideEffect.getUsers().get(user.id),
+        new IsNull<>());
   }
 
 
@@ -404,37 +430,37 @@ public class SpringSdkIntegrationTest {
     createUser(user);
 
     await()
-        .ignoreExceptions()
-        .atMost(15, TimeUnit.of(SECONDS))
-        .until(() -> getUserByEmail(user.email).version,
-            new IsEqual(1));
+      .ignoreExceptions()
+      .atMost(15, TimeUnit.of(SECONDS))
+      .until(() -> getUserByEmail(user.email).version,
+        new IsEqual(1));
 
     await()
-        .ignoreExceptions()
-        .atMost(15, TimeUnit.of(SECONDS))
-        .until(() -> getUsersByName(user.name).size(),
-            new IsEqual(1));
+      .ignoreExceptions()
+      .atMost(15, TimeUnit.of(SECONDS))
+      .until(() -> getUsersByName(user.name).size(),
+        new IsEqual(1));
 
     deleteUser(user);
 
     await()
-        .ignoreExceptions()
-        .atMost(15, TimeUnit.of(SECONDS))
-        .until(
-            () ->
-                webClient
-                    .get()
-                    .uri("/users/by-email/" + user.email)
-                    .exchangeToMono(clientResponse -> Mono.just(clientResponse.statusCode()))
-                    .block(timeout)
-                    .value(),
-            new IsEqual(404));
+      .ignoreExceptions()
+      .atMost(15, TimeUnit.of(SECONDS))
+      .until(
+        () ->
+          webClient
+            .get()
+            .uri("/users/by-email/" + user.email)
+            .exchangeToMono(clientResponse -> Mono.just(clientResponse.statusCode()))
+            .block(timeout)
+            .value(),
+        new IsEqual(404));
 
     await()
-        .ignoreExceptions()
-        .atMost(15, TimeUnit.of(SECONDS))
-        .until(() -> getUsersByName(user.name).size(),
-            new IsEqual(0));
+      .ignoreExceptions()
+      .atMost(15, TimeUnit.of(SECONDS))
+      .until(() -> getUsersByName(user.name).size(),
+        new IsEqual(0));
   }
 
   @Test
@@ -464,10 +490,10 @@ public class SpringSdkIntegrationTest {
 
     // the view is eventually updated
     await()
-        .ignoreExceptions()
-        .atMost(20, TimeUnit.SECONDS)
-        .until(() -> getUsersByName("joe").size(),
-            new IsEqual(2));
+      .ignoreExceptions()
+      .atMost(20, TimeUnit.SECONDS)
+      .until(() -> getUsersByName("joe").size(),
+        new IsEqual(2));
   }
 
   @Test
@@ -492,14 +518,14 @@ public class SpringSdkIntegrationTest {
     // the view is eventually updated
 
     await()
-        .ignoreExceptions()
-        .atMost(20, TimeUnit.SECONDS)
-        .until(() -> getUserCounters(alice.id).counters.size(), new IsEqual<>(2));
+      .ignoreExceptions()
+      .atMost(20, TimeUnit.SECONDS)
+      .until(() -> getUserCounters(alice.id).counters.size(), new IsEqual<>(2));
 
     await()
-        .ignoreExceptions()
-        .atMost(20, TimeUnit.SECONDS)
-        .until(() -> getUserCounters(bob.id).counters.size(), new IsEqual<>(2));
+      .ignoreExceptions()
+      .atMost(20, TimeUnit.SECONDS)
+      .until(() -> getUserCounters(bob.id).counters.size(), new IsEqual<>(2));
 
     UserCounters aliceCounters = getUserCounters(alice.id);
     assertThat(aliceCounters.id).isEqualTo(alice.id);
@@ -546,7 +572,7 @@ public class SpringSdkIntegrationTest {
     String value = "someValue";
 
     Message actionResponse = execute(componentClient.forAction().call(ActionWithMetadata::actionWithMeta)
-        .params("myKey", value));
+      .params("myKey", value));
 
     assertThat(actionResponse.text).isEqualTo(value);
   }
@@ -559,27 +585,27 @@ public class SpringSdkIntegrationTest {
 
     // the view is eventually updated
     await()
-        .ignoreExceptions()
-        .atMost(20, TimeUnit.SECONDS)
-        .until(() -> getCustomersByCreationDate(now).size(), new IsEqual(1));
+      .ignoreExceptions()
+      .atMost(20, TimeUnit.SECONDS)
+      .until(() -> getCustomersByCreationDate(now).size(), new IsEqual(1));
 
     var later = now.plusSeconds(60 * 5);
     await()
-        .ignoreExceptions()
-        .atMost(20, TimeUnit.SECONDS)
-        .until(() -> getCustomersByCreationDate(later).size(), new IsEqual(0));
+      .ignoreExceptions()
+      .atMost(20, TimeUnit.SECONDS)
+      .until(() -> getCustomersByCreationDate(later).size(), new IsEqual(0));
   }
 
 
   @NotNull
   private List<User> getUsersByName(String name) {
     return webClient
-        .get()
-        .uri("/users/by-name/" + name)
-        .retrieve()
-        .bodyToFlux(User.class)
-        .toStream()
-        .collect(Collectors.toList());
+      .get()
+      .uri("/users/by-name/" + name)
+      .retrieve()
+      .bodyToFlux(User.class)
+      .toStream()
+      .collect(Collectors.toList());
   }
 
   @Nullable
@@ -589,15 +615,15 @@ public class SpringSdkIntegrationTest {
 
   private void updateUser(TestUser user) {
     String userUpdate = execute(componentClient.forValueEntity(user.id)
-        .call(UserEntity::createOrUpdateUser)
-        .params(user.email, user.name));
+      .call(UserEntity::createOrUpdateUser)
+      .params(user.email, user.name));
     assertThat(userUpdate).isEqualTo("\"Ok\"");
   }
 
   private void createUser(TestUser user) {
     String userCreation = execute(componentClient.forValueEntity(user.id)
-        .call(UserEntity::createOrUpdateUser)
-        .params(user.email, user.name));
+      .call(UserEntity::createOrUpdateUser)
+      .params(user.email, user.name));
     assertThat(userCreation).isEqualTo("\"Ok\"");
   }
 
@@ -605,8 +631,8 @@ public class SpringSdkIntegrationTest {
   private void createCustomer(CustomerEntity.Customer customer) {
 
     String created = execute(componentClient.forValueEntity(customer.name())
-        .call(CustomerEntity::create)
-        .params(customer));
+      .call(CustomerEntity::create)
+      .params(customer));
 
     assertThat(created).isEqualTo("\"Ok\"");
   }
@@ -622,26 +648,26 @@ public class SpringSdkIntegrationTest {
 
   private void deleteUser(TestUser user) {
     String deleteUser = execute(componentClient.forValueEntity(user.id)
-        .call(UserEntity::deleteUser));
+      .call(UserEntity::deleteUser));
     assertThat(deleteUser).isEqualTo("\"Ok from delete\"");
   }
 
   private void increaseCounter(String id, int value) {
     execute(componentClient.forEventSourcedEntity(id)
-        .call(CounterEntity::increase)
-        .params(value));
+      .call(CounterEntity::increase)
+      .params(value));
   }
 
   private void multiplyCounter(String id, int value) {
     execute(componentClient.forEventSourcedEntity(id)
-        .call(CounterEntity::times)
-        .params(value));
+      .call(CounterEntity::times)
+      .params(value));
   }
 
   private void assignCounter(String id, String assignee) {
     execute(componentClient.forValueEntity(id)
-        .call(AssignedCounterEntity::assign)
-        .params(assignee));
+      .call(AssignedCounterEntity::assign)
+      .params(assignee));
   }
 
   private UserCounters getUserCounters(String userId) {
