@@ -266,8 +266,9 @@ private[testkit] class TopicImpl(
     val scalaPb = ScalaPbAny(typeUrlFor(metadata), msg.getMessage.payload)
 
     val decodedMsg = if (typeUrlFor(metadata).startsWith(JsonSupport.KALIX_JSON)) {
-      val objectMapper = JsonSupport.getObjectMapper
-      objectMapper.readerFor(clazz).readValue(msg.getMessage.payload.toByteArray)
+      JsonSupport.getObjectMapper
+        .readerFor(clazz)
+        .readValue(msg.getMessage.payload.toByteArray)
     } else {
       codec.decodeMessage(scalaPb)
     }
@@ -397,6 +398,7 @@ private[testkit] object TestKitMessageImpl {
     val bt = BoxedType(clazz)
     payload match {
       case m if bt.isInstance(m) => m.asInstanceOf[T]
+      case m: String             => JsonSupport.getObjectMapper.readerFor(clazz).readValue(m)
       case m                     => throw new AssertionError(s"Expected $clazz, found ${m.getClass} ($m)")
     }
   }
