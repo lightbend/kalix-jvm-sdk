@@ -127,8 +127,8 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
         methodDescriptor.isClientStreaming shouldBe false
 
         val method = desc.commandHandlers("Message")
-        assertRequestFieldJavaType(method, "one", JavaType.STRING)
-        assertFieldIsProto3Optional(method, "one");
+        assertRequestFieldJavaType(method, "one_param", JavaType.STRING)
+        assertFieldIsProto3Optional(method, "one_param");
       }
     }
 

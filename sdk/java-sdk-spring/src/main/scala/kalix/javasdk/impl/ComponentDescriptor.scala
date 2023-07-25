@@ -19,8 +19,10 @@ package kalix.javasdk.impl
 import java.lang.reflect.ParameterizedType
 import java.lang.reflect.Type
 import java.util
+
 import scala.annotation.tailrec
 import scala.jdk.CollectionConverters._
+
 import com.google.api.AnnotationsProto
 import com.google.api.CustomHttpPattern
 import com.google.api.HttpRule
@@ -52,12 +54,12 @@ import kalix.javasdk.impl.reflection.RestServiceIntrospector.BodyParameter
 import kalix.javasdk.impl.reflection.RestServiceIntrospector.HeaderParameter
 import kalix.javasdk.impl.reflection.RestServiceIntrospector.PathParameter
 import kalix.javasdk.impl.reflection.RestServiceIntrospector.QueryParamParameter
+import kalix.javasdk.impl.reflection.RestServiceIntrospector.RestNamedMethodParameter
 import kalix.javasdk.impl.reflection.RestServiceIntrospector.UnhandledParameter
 import kalix.javasdk.impl.reflection.ServiceMethod
 import kalix.javasdk.impl.reflection.SubscriptionServiceMethod
 import kalix.javasdk.impl.reflection.SyntheticRequestServiceMethod
 // TODO: abstract away spring dependency
-import org.springframework.core.MethodParameter
 import org.springframework.web.bind.annotation.RequestMethod
 
 /**
@@ -334,20 +336,20 @@ private[kalix] object ComponentDescriptor {
         idx -> qp
       }
       .map { case (paramIdx, param) =>
-        paramIdx -> toExtractor(param.param, queryFieldDescs, param.annotation.required())
+        paramIdx -> toExtractor(param, queryFieldDescs, param.annotation.required())
       }
   }
 
   private def toExtractor(
-      methodParameter: MethodParameter,
+      methodParameter: RestNamedMethodParameter,
       queryFieldDescs: Seq[FieldDescriptorProto],
       required: Boolean): ExtractorCreator = {
-    val typeName = methodParameter.getGenericParameterType.getTypeName
+    val typeName = methodParameter.param.getGenericParameterType.getTypeName
     if (typeName == "short") {
       new ExtractorCreator {
         override def apply(descriptor: Descriptors.Descriptor): ParameterExtractor[DynamicMessageContext, AnyRef] = {
           new ParameterExtractors.FieldExtractor[java.lang.Short](
-            descriptor.findFieldByNumber(fieldNumber(methodParameter.getParameterName, queryFieldDescs)),
+            descriptor.findFieldByNumber(fieldNumber(methodParameter.name, queryFieldDescs)),
             required,
             _.asInstanceOf[java.lang.Integer].toShort)
         }
@@ -356,7 +358,7 @@ private[kalix] object ComponentDescriptor {
       new ExtractorCreator {
         override def apply(descriptor: Descriptors.Descriptor): ParameterExtractor[DynamicMessageContext, AnyRef] = {
           new ParameterExtractors.FieldExtractor[java.lang.Byte](
-            descriptor.findFieldByNumber(fieldNumber(methodParameter.getParameterName, queryFieldDescs)),
+            descriptor.findFieldByNumber(fieldNumber(methodParameter.name, queryFieldDescs)),
             required,
             _.asInstanceOf[java.lang.Integer].byteValue())
         }
@@ -365,7 +367,7 @@ private[kalix] object ComponentDescriptor {
       new ExtractorCreator {
         override def apply(descriptor: Descriptors.Descriptor): ParameterExtractor[DynamicMessageContext, AnyRef] = {
           new ParameterExtractors.FieldExtractor[java.lang.Character](
-            descriptor.findFieldByNumber(fieldNumber(methodParameter.getParameterName, queryFieldDescs)),
+            descriptor.findFieldByNumber(fieldNumber(methodParameter.name, queryFieldDescs)),
             required,
             Int.unbox(_).toChar)
         }
@@ -374,7 +376,7 @@ private[kalix] object ComponentDescriptor {
       new ExtractorCreator {
         override def apply(descriptor: Descriptors.Descriptor): ParameterExtractor[DynamicMessageContext, AnyRef] = {
           new ParameterExtractors.FieldExtractor[AnyRef](
-            descriptor.findFieldByNumber(fieldNumber(methodParameter.getParameterName, queryFieldDescs)),
+            descriptor.findFieldByNumber(fieldNumber(methodParameter.name, queryFieldDescs)),
             required,
             identity)
         }
@@ -407,7 +409,7 @@ private[kalix] object ComponentDescriptor {
         idx -> p
       }
       .map { case (idx, p) =>
-        idx -> toExtractor(p.param, pathParamFieldDescs, p.annotation.required())
+        idx -> toExtractor(p, pathParamFieldDescs, p.annotation.required())
       }
   }
 
