@@ -16,14 +16,21 @@
 
 package kalix.spring.testkit;
 
-import com.typesafe.config.Config;
+import com.google.protobuf.any.Any;
+import kalix.javasdk.DeferredCall;
 import kalix.javasdk.testkit.KalixTestKit;
 import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.TestInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.time.Duration;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+
+import static java.time.temporal.ChronoUnit.SECONDS;
 
 /**
  * This class provided the necessary infrastructure to run Kalix integration test for projects built
@@ -44,11 +51,32 @@ public abstract class KalixIntegrationTestKitSupport {
 
   private Logger logger = LoggerFactory.getLogger(getClass());
 
-  @Autowired private KalixTestKit kalixTestKit;
+  @Autowired
+  private KalixTestKit kalixTestKit;
+
+  protected Duration timeout = Duration.of(10, SECONDS);
 
   @AfterAll
   public void afterAll() {
     logger.info("Stopping Kalix TestKit...");
     kalixTestKit.stop();
+  }
+
+  /**
+   * Utility method to execute a deferred call and wait for the response for a specified time.
+   */
+  protected <T> T execute(DeferredCall<Any, T> deferredCall, Duration timeout) {
+    try {
+      return deferredCall.execute().toCompletableFuture().get(timeout.toMillis(), TimeUnit.MILLISECONDS);
+    } catch (InterruptedException | ExecutionException | TimeoutException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  /**
+   * Utility method to execute a deferred call and wait for the response.
+   */
+  protected <T> T execute(DeferredCall<Any, T> deferredCall) {
+    return execute(deferredCall, timeout);
   }
 }

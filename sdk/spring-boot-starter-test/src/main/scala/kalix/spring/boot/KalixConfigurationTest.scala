@@ -20,6 +20,7 @@ import com.typesafe.config.Config
 import kalix.javasdk.JsonSupport
 import kalix.javasdk.testkit.KalixTestKit
 import kalix.spring.impl.KalixSpringApplication
+import kalix.spring.impl.WebClientProviderHolder
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.autoconfigure.AutoConfiguration
@@ -75,6 +76,10 @@ class KalixConfigurationTest(applicationContext: ApplicationContext) extends Kal
 
     logger.info(s"Starting Kalix TestKit with: $settings")
     kalixTestKit.start(config)
+
+    val holder = WebClientProviderHolder.get(kalixTestKit.getRunner.system);
+    //when ComponentClient is used in integration test, we must initiate webclient before the first request
+    kalixSpringApplication.kalixClient.setWebClient(holder.webClientProvider.localWebClient)
 
     logger.info(s"Kalix Proxy running on port: ${kalixTestKit.getPort}")
     kalixTestKit
