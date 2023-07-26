@@ -329,7 +329,7 @@ private[kalix] object ComponentDescriptor {
           case paramType: ParameterizedType
               // note: we only take RequestBody that are Collections
               if classOf[util.Collection[_]].isAssignableFrom(paramType.getRawType.asInstanceOf[Class[_]]) =>
-            Some(idx -> collectionBodyFieldExtractors(paramType.getActualTypeArguments()(0), paramType.getRawType))
+            Some(idx -> collectionBodyFieldExtractors(paramType))
           case _ =>
             bodyFieldExtractors(indexedParams)
         }
@@ -517,11 +517,12 @@ private[kalix] object ComponentDescriptor {
     }
   }
 
-  private def collectionBodyFieldExtractors[T](actualType: Type, collectionType: Type): ExtractorCreator =
+  private def collectionBodyFieldExtractors[T](paramType: ParameterizedType): ExtractorCreator =
     new ExtractorCreator {
       override def apply(descriptor: Descriptors.Descriptor): ParameterExtractor[DynamicMessageContext, AnyRef] = {
-        val cls = actualType.asInstanceOf[Class[T]]
-        val collectionClass = collectionType.asInstanceOf[Class[java.util.Collection[T]]]
+        // since we only support collections, the is only one type param at idx 0
+        val cls = paramType.getActualTypeArguments()(0).asInstanceOf[Class[T]]
+        val collectionClass = paramType.getRawType.asInstanceOf[Class[java.util.Collection[T]]]
         new ParameterExtractors.CollectionBodyExtractor(descriptor.findFieldByNumber(1), cls, collectionClass)
       }
     }
