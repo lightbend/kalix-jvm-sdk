@@ -16,14 +16,17 @@
 
 package kalix.spring.testkit;
 
-import com.typesafe.config.Config;
+import kalix.javasdk.client.ComponentClient;
 import kalix.javasdk.testkit.KalixTestKit;
 import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.TestInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.time.Duration;
+
+import static java.time.temporal.ChronoUnit.SECONDS;
 
 /**
  * This class provided the necessary infrastructure to run Kalix integration test for projects built
@@ -44,7 +47,13 @@ public abstract class KalixIntegrationTestKitSupport {
 
   private Logger logger = LoggerFactory.getLogger(getClass());
 
-  @Autowired private KalixTestKit kalixTestKit;
+  @Autowired
+  private KalixTestKit kalixTestKit;
+
+  @Autowired
+  protected ComponentClient componentClient;
+
+  protected Duration timeout = Duration.of(10, SECONDS);
 
   @AfterAll
   public void afterAll() {
