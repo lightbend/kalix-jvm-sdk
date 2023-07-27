@@ -520,9 +520,10 @@ private[kalix] object ComponentDescriptor {
   private def collectionBodyFieldExtractors[T](paramType: ParameterizedType): ExtractorCreator =
     new ExtractorCreator {
       override def apply(descriptor: Descriptors.Descriptor): ParameterExtractor[DynamicMessageContext, AnyRef] = {
-        // since we only support collections, the is only one type param at idx 0
+        // since we only support collections, there is only one type param at idx 0
         val cls = paramType.getActualTypeArguments()(0).asInstanceOf[Class[T]]
         val collectionClass = paramType.getRawType.asInstanceOf[Class[java.util.Collection[T]]]
+        // json_body field is always on position 1 in the synthetic request
         new ParameterExtractors.CollectionBodyExtractor(descriptor.findFieldByNumber(1), cls, collectionClass)
       }
     }
