@@ -511,6 +511,7 @@ private[kalix] object ComponentDescriptor {
     indexedParams.collectFirst { case (BodyParameter(param, _), idx) =>
       idx -> new ExtractorCreator {
         override def apply(descriptor: Descriptors.Descriptor): ParameterExtractor[DynamicMessageContext, AnyRef] = {
+          // json_body field is always on position 1 in the synthetic request
           new ParameterExtractors.BodyExtractor(descriptor.findFieldByNumber(1), param.getParameterType)
         }
       }
