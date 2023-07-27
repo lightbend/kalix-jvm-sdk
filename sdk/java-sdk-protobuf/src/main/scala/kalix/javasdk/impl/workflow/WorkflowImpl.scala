@@ -196,7 +196,7 @@ final class WorkflowImpl(system: ActorSystem, val services: Map[String, Workflow
     init.userState match {
       case Some(state) =>
         val decoded = service.messageCodec.decodeMessage(state)
-        router._internalSetInitState(decoded)
+        router._internalSetInitState(decoded, finished = false) //TODO get this from the init message
       case None => // no initial state
     }
 
@@ -207,7 +207,7 @@ final class WorkflowImpl(system: ActorSystem, val services: Map[String, Workflow
         val protoEffect =
           persistence match {
             case UpdateState(newState) =>
-              router._internalSetInitState(newState)
+              router._internalSetInitState(newState, transition.isInstanceOf[End.type])
               WorkflowEffect.defaultInstance.withUserState(service.messageCodec.encodeScala(newState))
             // TODO: persistence should be optional, but we must ensure that we don't save it back to null
             // and preferably we should not even send it over the wire.
@@ -307,7 +307,7 @@ final class WorkflowImpl(system: ActorSystem, val services: Map[String, Workflow
           val stepResponse =
             try {
               val decoded = service.messageCodec.decodeMessage(executeStep.userState.get)
-              router._internalSetInitState(decoded)
+              router._internalSetInitState(decoded, false) // here we know that workflow is still running
               router._internalHandleStep(
                 executeStep.commandId,
                 executeStep.input,
