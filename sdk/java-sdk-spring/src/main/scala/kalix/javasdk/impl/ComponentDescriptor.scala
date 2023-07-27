@@ -319,7 +319,23 @@ private[kalix] object ComponentDescriptor {
     }
     inputMessageDescriptor.addAllOneofDecl(oneofDescriptorProtos.asJava)
 
-    val bodyField: Option[(Int, ExtractorCreator)] = bodyFieldExtractors(indexedParams)
+    val bodyField: Option[(Int, ExtractorCreator)] = {
+
+      // first we need to find the index of the parameter receiving the BodyRequest
+      val paramIndex = indexedParams.collectFirst { case (_: BodyParameter, idx) => idx }
+      paramIndex.flatMap { idx =>
+        val bodyParam = serviceMethod.javaMethod.getGenericParameterTypes()(idx)
+        bodyParam match {
+          case paramType: ParameterizedType
+              // note: we only take RequestBody that are Collections
+              if classOf[util.Collection[_]].isAssignableFrom(paramType.getRawType.asInstanceOf[Class[_]]) =>
+            Some(idx -> collectionBodyFieldExtractors(paramType))
+          case _ =>
+            bodyFieldExtractors(indexedParams)
+        }
+      }
+    }
+
     val pathParamFieldsExtractors = pathParamExtractors(indexedParams, pathParamFieldDescs)
     val queryFieldExtractors = queryParamExtractors(indexedParams, queryFieldDescs)
 
@@ -495,11 +511,23 @@ private[kalix] object ComponentDescriptor {
     indexedParams.collectFirst { case (BodyParameter(param, _), idx) =>
       idx -> new ExtractorCreator {
         override def apply(descriptor: Descriptors.Descriptor): ParameterExtractor[DynamicMessageContext, AnyRef] = {
+          // json_body field is always on position 1 in the synthetic request
           new ParameterExtractors.BodyExtractor(descriptor.findFieldByNumber(1), param.getParameterType)
         }
       }
     }
   }
+
+  private def collectionBodyFieldExtractors[T](paramType: ParameterizedType): ExtractorCreator =
+    new ExtractorCreator {
+      override def apply(descriptor: Descriptors.Descriptor): ParameterExtractor[DynamicMessageContext, AnyRef] = {
+        // since we only support collections, there is only one type param at idx 0
+        val cls = paramType.getActualTypeArguments()(0).asInstanceOf[Class[T]]
+        val collectionClass = paramType.getRawType.asInstanceOf[Class[java.util.Collection[T]]]
+        // json_body field is always on position 1 in the synthetic request
+        new ParameterExtractors.CollectionBodyExtractor(descriptor.findFieldByNumber(1), cls, collectionClass)
+      }
+    }
 
   @tailrec
   private def mapJavaTypeToProtobuf(javaType: Type): FieldDescriptorProto.Type = {

@@ -16,11 +16,13 @@
 
 package kalix.javasdk
 
+import java.util
+
+import scala.beans.BeanProperty
+
 import akka.Done
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
-
-import scala.beans.BeanProperty
 
 class MyJsonable {
   @BeanProperty var field: String = _
@@ -32,21 +34,43 @@ class JsonSupportSpec extends AnyWordSpec with Matchers {
   myJsonable.field = "foo"
 
   "JsonSupport" must {
+
     "serialize and deserialize JSON" in {
       val any = JsonSupport.encodeJson(myJsonable)
       any.getTypeUrl should ===(JsonSupport.KALIX_JSON + classOf[MyJsonable].getName)
       JsonSupport.decodeJson(classOf[MyJsonable], any).field should ===("foo")
     }
+
     "serialize and deserialize Akka Done class" in {
       val done = Done.getInstance()
       val any = JsonSupport.encodeJson(done)
       any.getTypeUrl should ===(JsonSupport.KALIX_JSON + Done.getClass.getName)
       JsonSupport.decodeJson(classOf[Done], any) shouldBe Done.getInstance()
     }
+
+    "serialize and deserialize a List of objects" in {
+
+      val customers: java.util.List[MyJsonable] = new util.ArrayList[MyJsonable]()
+      val foo = new MyJsonable
+      foo.field = "foo"
+      customers.add(foo)
+
+      val bar = new MyJsonable
+      bar.field = "bar"
+      customers.add(bar)
+      val any = JsonSupport.encodeJson(customers)
+
+      val decodedCustomers =
+        JsonSupport.decodeJsonCollection(classOf[MyJsonable], classOf[java.util.List[MyJsonable]], any)
+      decodedCustomers.get(0).field shouldBe "foo"
+      decodedCustomers.get(1).field shouldBe "bar"
+    }
+
     "serialize JSON with an explicit type url suffix" in {
       val any = JsonSupport.encodeJson(myJsonable, "bar")
       any.getTypeUrl should ===(JsonSupport.KALIX_JSON + "bar")
     }
+
     "conditionally decode JSON depending on suffix" in {
       val any = JsonSupport.encodeJson(myJsonable, "bar")
       any.getTypeUrl should ===(JsonSupport.KALIX_JSON + "bar")
