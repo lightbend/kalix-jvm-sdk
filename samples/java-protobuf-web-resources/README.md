@@ -2,6 +2,8 @@
 
 Example of how to serve web resources like html files, js, css and images through Kalix via http.
 
+Please look a the [documentation](https://docs.kalix.io/java-protobuf/serving-web-resources.html) for more details.
+
 This project is based on the Kalix Maven archetype.
 
 See the [Kickstart a Maven project](https://docs.kalix.io/java/kickstart.html) in the documentation for details.
