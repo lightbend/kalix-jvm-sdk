@@ -2,7 +2,7 @@
 
 Example of how to serve web resources like html files, js, css and images through Kalix via http.
 
-Please look a the [documentation](https://docs.kalix.io/java-protobuf/serving-web-resources.html) for more details.
+Please look at the [documentation](https://docs.kalix.io/java-protobuf/serving-web-resources.html) for more details.
 
 ## Building and running unit tests
 
