@@ -84,6 +84,20 @@ include::example$java-spring-valueentity-shopping-cart/src/main/java/com/example
 
 NOTE: NOTE: You might be wondering what the `componentClient` is about. For now, think of it as a lightweight, type safe, HTTP client allowing you to reach out to other Kalix services. All details can be found at xref:call-another-service.adoc[] chapter.
 
+=== Forwarding Headers
+
+By default, Kalix does not forward gRPC/HTTP headers to Kalix components. This can be overridden with the `@ForwardHeaders` annotation.
+
+.src/main/java/com/example/api/ShoppingCartController.java
+[source,java]
+----
+include::example$java-spring-valueentity-shopping-cart/src/main/java/com/example/api/ShoppingCartController.java[tag=forward-headers]
+----
+<1> Specify headers names that should be forwarded to this component.
+<2> Access the header value with the `@RequestHeader` annotation.
+<3> Alternatively, the header value can be retrieved from the `Metadata` associated with this call.
+<4> Forward different headers to the next call, by using `withMetadata` method of from `DeferredCall` class.
+
 === Transform Request and Response to Another Component
 
 The `asyncReply` and `asyncEffect` effects allow you to process and transform a request before calling another component and then also transform the response.

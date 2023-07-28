@@ -2,6 +2,9 @@ package com.example.shoppingcart
 
 import kalix.scalasdk.Kalix
 import com.example.shoppingcart.domain.ShoppingCart
+import com.example.shoppingcart.domain.ShoppingCartProvider
+import kalix.scalasdk.action.ActionOptions
+import kalix.scalasdk.valueentity.ValueEntityOptions
 import org.slf4j.LoggerFactory
 
 // This class was initially generated based on the .proto definition by Kalix tooling.
@@ -9,18 +12,23 @@ import org.slf4j.LoggerFactory
 // As long as this file exists it will not be overwritten: you can maintain it yourself,
 // or delete it so it is regenerated as needed.
 
+// tag::forward-headers[]
 object Main {
-
+  // end::forward-headers[]
   private val log = LoggerFactory.getLogger("com.example.shoppingcart.Main")
+  // tag::forward-headers[]
 
   def createKalix(): Kalix = {
-    // The KalixFactory automatically registers any generated Actions, Views or Entities,
-    // and is kept up-to-date with any changes in your protobuf definitions.
-    // If you prefer, you may remove this and manually register these components in a
-    // `Kalix()` instance.
-    KalixFactory.withComponents(
-      new ShoppingCart(_),
-      new ShoppingCartActionImpl(_))
+    val kalix = Kalix()
+    val forwardHeaders = ActionOptions.defaults
+      .withForwardHeaders(Set("UserRole")) // <1>
+    kalix
+      .register(ShoppingCartActionProvider(new ShoppingCartActionImpl(_))
+        .withOptions(forwardHeaders)) // <2>
+      // end::forward-headers[]
+      .register(ShoppingCartProvider(new ShoppingCart(_))
+        .withOptions(ValueEntityOptions.defaults.withForwardHeaders(Set("Role"))))
+    // tag::forward-headers[]
   }
 
   def main(args: Array[String]): Unit = {
@@ -28,3 +36,4 @@ object Main {
     createKalix().start()
   }
 }
+// end::forward-headers[]

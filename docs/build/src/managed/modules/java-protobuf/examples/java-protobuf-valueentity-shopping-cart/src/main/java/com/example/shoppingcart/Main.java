@@ -15,23 +15,32 @@
  */
 package com.example.shoppingcart;
 
+import com.example.shoppingcart.domain.ShoppingCartProvider;
 import kalix.javasdk.Kalix;
 import com.example.shoppingcart.domain.ShoppingCart;
+import kalix.javasdk.action.ActionOptions;
+import kalix.javasdk.valueentity.ValueEntityOptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public final class Main {
+import java.util.Set;
 
+// tag::forward-headers[]
+public final class Main {
+  // end::forward-headers[]
   private static final Logger LOG = LoggerFactory.getLogger(Main.class);
 
+  // tag::forward-headers[]
   public static Kalix createKalix() {
-    // The KalixFactory automatically registers any generated Actions, Views or Entities,
-    // and is kept up-to-date with any changes in your protobuf definitions.
-    // If you prefer, you may remove this and manually register these components in a
-    // `new Kalix()` instance.
-    return KalixFactory.withComponents(
-        ShoppingCart::new,
-        ShoppingCartActionImpl::new);
+    Kalix kalix = new Kalix();
+    ActionOptions forwardHeaders = ActionOptions.defaults()
+        .withForwardHeaders(Set.of("UserRole")); // <1>
+    return kalix
+        .register(ShoppingCartActionProvider.of(ShoppingCartActionImpl::new).
+            withOptions(forwardHeaders)) // <2>
+        // end::forward-headers[]
+        .register(ShoppingCartProvider.of(ShoppingCart::new).withOptions(ValueEntityOptions.defaults().withForwardHeaders(Set.of("Role"))));
+    // tag::forward-headers[]
   }
 
   public static void main(String[] args) throws Exception {
@@ -39,3 +48,4 @@ public final class Main {
     createKalix().start();
   }
 }
+// end::forward-headers[]

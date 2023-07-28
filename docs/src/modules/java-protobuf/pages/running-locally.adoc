@@ -96,7 +96,7 @@ Linux or macOS::
 ----
 grpcurl \
  -d '{"customer_id": "vip", "email": "vip@example.com", "name": "Very Important", "address": {"street": "Road 1", "city": "The Capital"}}' \ 
- --plaintext -d localhost:9000 \ 
+ --plaintext localhost:9000 \
   customer.api.CustomerService/Create
 ----
 --
@@ -112,7 +112,7 @@ Windows 10+::
 ----
 grpcurl ^ 
  -d '{"customer_id": "vip", "email": "vip@example.com", "name": "Very Important", "address": {"street": "Road 1", "city": "The Capital"}}' ^ 
- --plaintext -d localhost:9000 ^  
+ --plaintext localhost:9000 ^
   customer.api.CustomerService/Create 
 ----
 --
@@ -177,7 +177,7 @@ Linux or macOS::
 ----
 grpcurl \
  -d '{"customer_id": "vip", "email": "vip@example.com", "name": "Very Important", "address": {"street": "Road 1", "city": "The Capital"}}' \ 
- --plaintext -d localhost:9000 \ 
+ --plaintext localhost:9000 \
   customer.api.CustomerService/Create
 ----
 --
@@ -188,7 +188,7 @@ Windows 10+::
 ----
 grpcurl ^ 
  -d '{"customer_id": "vip", "email": "vip@example.com", "name": "Very Important", "address": {"street": "Road 1", "city": "The Capital"}}' ^ 
- --plaintext -d localhost:9000 ^  
+ --plaintext localhost:9000 ^
   customer.api.CustomerService/Create 
 ----
 --
