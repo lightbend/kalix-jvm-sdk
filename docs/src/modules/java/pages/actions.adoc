@@ -82,7 +82,7 @@ include::example$java-spring-valueentity-shopping-cart/src/main/java/com/example
 <5> For allowed requests, use `componentClient` to get a deferred call to the entity.
 <6> The `deferredCall` is then used with `effects().forward()` to forward the request to the entity.
 
-NOTE: NOTE: You might be wondering what the `componentClient` is about. For now, think of it as a lightweight, type safe, HTTP client allowing you to reach out to other Kalix services. All details can be found at xref:call-another-service.adoc[] chapter.
+NOTE: NOTE: You might be wondering what the `componentClient` is about. For now, think of it as a lightweight, type safe, HTTP client allowing you to reach out to other Kalix services. All details can be found at xref:component-and-service-calls.adoc[] chapter.
 
 === Forwarding Headers
 
@@ -247,9 +247,39 @@ Calling an action method through the test kit gives us back an link:{attachments
 * `getError()` returns the error description when `effects().error()` was returned to signal an error.
 * `getForward()` returns details about what message was forwarded and where the call was forwarded (since it is a unit test the forward is not actually executed).
 
-
-
 ifdef::todo[TODO: add links to before and after]
 
 NOTE: The side effects of an Action can NOT be tested in isolation at the moment.
 
+=== Integration tests
+
+Actions (like any other Kalix component) can be verified with integration tests. The https://docs.spring.io/spring-framework/reference/web/webflux-webclient.html[Spring WebClient] utility can be used to run any HTTP call to test Kalix components.
+
+[.tabset]
+Java::
++
+.src/it/java/com/example/fibonacci/FibonacciActionIntegrationTest.java
+[source,java]
+----
+include::example$java-spring-fibonacci-action/src/it/java/com/example/fibonacci/FibonacciActionIntegrationTest.java[tag=testing-action]
+----
+<1> Mark the test as a Spring integration tests.
+<2> Set up the Kalix infrastructure by extending `KalixIntegrationTestKitSupport`.
+<3> Use `WebClient` to call the Action component endpoint.
+
+In cases where detailed assertions on the HTTP response are not required, the Kalix xref:component-and-service-calls.adoc#_component_client[ComponentClient] can be used in integration tests.
+
+
+[.tabset]
+Java::
++
+.src/it/java/com/example/fibonacci/FibonacciActionComponentClientIntegrationTest.java
+[source,java]
+----
+include::example$java-spring-fibonacci-action/src/it/java/com/example/fibonacci/FibonacciActionComponentClientIntegrationTest.java[tag=testing-action]
+----
+<1> Use the `ComponentClient` to call the Action component endpoint.
+<2> Transform the `DeferredCall` to a `CompletionStage` and wait for the response.
+
+
+NOTE: The integration tests in samples are under in a specific project profile `it` and can be run using `mvn verify -Pit`.
