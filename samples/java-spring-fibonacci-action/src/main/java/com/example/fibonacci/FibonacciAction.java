@@ -11,17 +11,19 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.PathVariable;
-
 // end::implementing-action[]
+
+import static io.grpc.Status.Code.INVALID_ARGUMENT;
+
 
 // tag::implementing-action[]
 @RequestMapping("/fibonacci")
-public class FibonacciAction extends Action { 
+public class FibonacciAction extends Action {
 
   private boolean isFibonacci(long num) {  // <1>
     Predicate<Long> isPerfectSquare = (n) -> {
       long square = (long) Math.sqrt(n);
-      return square*square == n;
+      return square * square == n;
     };
     return isPerfectSquare.test(5*num*num + 4) || isPerfectSquare.test(5*num*num - 4);
   }
@@ -42,7 +44,7 @@ public class FibonacciAction extends Action {
       return effects().reply(new Number(nextFib(num)));
     } else {
       return effects()                                          // <5>
-          .error("Input number is not a Fibonacci number, received '" + num + "'");
+        .error("Input number is not a Fibonacci number, received '" + num + "'", INVALID_ARGUMENT);
     }
   }
 }

@@ -1,6 +1,28 @@
-= Calling other services
-:page-aliases: spring:call-another-service.adoc
+= Component and Service Calls
+:page-aliases: spring:component-and-service-calls.adoc
 
+== Kalix components
+
+Since Kalix is an auto-scaling solution, components can be distributed across many nodes within the same service. Kalix doesn’t hide this fact and makes it explicit. That's why calling Kalix components is done via HTTP/gRPC `DeferredCall` calls. A `DeferredCall` is just an instruction on how to call a given component, which can be optimized by the Kalix engine (see xref:java:actions.adoc#_forwarding_commands[forwarding]). Sometimes it's necessary to transform the `DeferredCall` into the `CompletionStage` to combine many different component calls and build a single xref:java:actions.adoc#_composing_calls[asynchronous reply].
+
+=== Component Client
+
+The Kalix `ComponentClient` is a utility for creating deferred calls in a type-safe way. You don't have to remember what the endpoint path is or which HTTP method should be selected for the call. Constructing the call is a matter of:
+
+* selecting the component type,
+* choosing the endpoint, with a Java method reference,
+* passing in parameters, if expected.
+
+[source,java,indent=0]
+.src/main/java/com/example/fibonacci/LimitedFibonacciAction.java
+----
+include::java:example$java-spring-fibonacci-action/src/main/java/com/example/fibonacci/LimitedFibonacciAction.java[tag=component-client]
+----
+<1> Select Action component.
+<2> Select endpoint method reference.
+<3> Pass in endpoint method arguments.
+
+NOTE: Calling endpoints that return a stream response like `Flux` is not supported currently by the `ComponentClient`.
 
 == Kalix services
 
@@ -17,8 +39,6 @@ In our delegating service implementation:
 ----
 include::java:example$java-spring-doc-snippets/src/main/java/com/example/callanotherservice/DelegatingServiceAction.java[tag=delegating-action]
 ----
-
-
 <1> Let the `WebClientProvider` be injected into the Action with constructor injection.
 <2> Use the `WebClientProvider` to build a `WebClient` for the *counter* service.
 <3> Use the `WebClient` to make a REST call to the *counter* service.

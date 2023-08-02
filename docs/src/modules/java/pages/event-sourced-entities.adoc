@@ -192,7 +192,7 @@ For the above example, this class provides access to all the command handlers of
 
 === Integration tests
 
-The skeleton of an Integration Test is generated for you if you use the archetype to start your Kalix app. Let's see what it could look like to test our Counter Entity:
+The skeleton of an Integration Test is generated for you if you use the archetype to start your Kalix app. Let's see what it could look like to test our `ShoppingCartEntity`:
 
 ./src/it/java/com/example/IntegrationTest.java
 [source,java,indent=0]
@@ -205,4 +205,4 @@ include::example$java-spring-eventsourced-shopping-cart/src/it/java/com/example/
 <4> Request to add an item to the cart.
 <5> `GET` request to retrieve current status of the shopping cart and assert there should only be one item.
 
-NOTE: The integration tests are under in a specific project profile `it` and can be run using `mvn verify -Pit`.
+NOTE: The integration tests in samples are under in a specific project profile `it` and can be run using `mvn verify -Pit`.

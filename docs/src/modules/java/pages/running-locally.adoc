@@ -87,7 +87,7 @@ Use `Ctrl+C` to shut down the service. When stopping your service, it will also 
 
 == Running multiple services locally
 
-A typical Kalix application is composed of one or more services deployed to the same Kalix project. When deployed under the same Kalix project, two different services can make xref:call-another-service.adoc[calls to each other] or xref:service-to-service.adoc[subscribe to each other's event streams] by simply using their logical names.
+A typical Kalix application is composed of one or more services deployed to the same Kalix project. When deployed under the same Kalix project, two different services can make xref:component-and-service-calls.adoc[calls to each other] or xref:service-to-service.adoc[subscribe to each other's event streams] by simply using their logical names.
 
 The same can be done on your local machine by configuring the services to run on different ports and by configuring them to "_discover_" each other using some extra configurations.
 
