@@ -272,7 +272,6 @@ public class SpringWorkflowIntegrationTest {
 
     assertThat(response.text).isEqualTo("workflow started");
 
-
     //then
     await()
         .atMost(10, TimeUnit.of(SECONDS))
@@ -314,6 +313,37 @@ public class SpringWorkflowIntegrationTest {
         .atMost(10, TimeUnit.of(SECONDS))
         .untilAsserted(() -> {
           var state = execute(componentClient.forWorkflow(workflowId).call(WorkflowWithRecoverStrategy::get));
+          assertThat(state.finished()).isTrue();
+        });
+  }
+
+  @Test
+  public void shouldRecoverFailingCounterWorkflowWithRecoverStrategyAndAsyncCall() {
+    //given
+    var counterId = randomId();
+    var workflowId = randomId();
+
+    //when
+    Message response = execute(componentClient.forWorkflow(workflowId)
+        .call(WorkflowWithRecoverStrategyAndAsyncCall::startFailingCounter)
+        .params(counterId));
+
+    assertThat(response.text).isEqualTo("workflow started");
+
+    //then
+    await()
+        .atMost(10, TimeUnit.of(SECONDS))
+        .ignoreExceptions()
+        .untilAsserted(() -> {
+          Integer counterValue = getFailingCounterValue(counterId);
+          assertThat(counterValue).isEqualTo(3);
+        });
+
+    await()
+        .atMost(10, TimeUnit.of(SECONDS))
+        .ignoreExceptions()
+        .untilAsserted(() -> {
+          var state = execute(componentClient.forWorkflow(workflowId).call(WorkflowWithRecoverStrategyAndAsyncCall::get));
           assertThat(state.finished()).isTrue();
         });
   }

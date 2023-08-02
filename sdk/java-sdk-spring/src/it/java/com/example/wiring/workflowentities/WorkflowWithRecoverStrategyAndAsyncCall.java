@@ -17,9 +17,9 @@
 package com.example.wiring.workflowentities;
 
 import com.example.wiring.actions.echo.Message;
-import kalix.javasdk.client.ComponentClient;
 import kalix.javasdk.annotations.Id;
 import kalix.javasdk.annotations.TypeId;
+import kalix.javasdk.client.ComponentClient;
 import kalix.javasdk.workflow.Workflow;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -32,16 +32,16 @@ import static java.time.Duration.ofSeconds;
 import static kalix.javasdk.workflow.Workflow.RecoverStrategy.maxRetries;
 
 @Id("workflowId")
-@TypeId("workflow-with-recover-strategy")
-@RequestMapping("/workflow-with-recover-strategy/{workflowId}")
-public class WorkflowWithRecoverStrategy extends Workflow<FailingCounterState> {
+@TypeId("workflow-with-recover-strategy-async")
+@RequestMapping("/workflow-with-recover-strategy-async/{workflowId}")
+public class WorkflowWithRecoverStrategyAndAsyncCall extends Workflow<FailingCounterState> {
 
   private final String counterStepName = "counter";
   private final String counterFailoverStepName = "counter-failover";
 
   private ComponentClient componentClient;
 
-  public WorkflowWithRecoverStrategy(ComponentClient componentClient) {
+  public WorkflowWithRecoverStrategyAndAsyncCall(ComponentClient componentClient) {
     this.componentClient = componentClient;
   }
 
@@ -50,9 +50,10 @@ public class WorkflowWithRecoverStrategy extends Workflow<FailingCounterState> {
   public WorkflowDef<FailingCounterState> definition() {
     var counterInc =
         step(counterStepName)
-            .call(() -> {
+            .asyncCall(() -> {
               var nextValue = currentState().value() + 1;
-              return componentClient.forEventSourcedEntity(currentState().counterId()).call(FailingCounterEntity::increase).params(nextValue);
+              return componentClient.forEventSourcedEntity(currentState().counterId()).call(FailingCounterEntity::increase).params(nextValue)
+                  .execute();
             })
             .andThen(Integer.class, __ -> effects()
                 .updateState(currentState().asFinished())
@@ -84,7 +85,7 @@ public class WorkflowWithRecoverStrategy extends Workflow<FailingCounterState> {
   }
 
   @GetMapping
-  public Effect<FailingCounterState> get(){
+  public Effect<FailingCounterState> get() {
     if (currentState() != null) {
       return effects().reply(currentState());
     } else {
