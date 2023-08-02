@@ -44,7 +44,9 @@ import Workflow.WorkflowDef
 import kalix.javasdk.impl.WorkflowExceptions.WorkflowException
 import kalix.protocol.workflow_entity.StepDeferredCall
 import kalix.protocol.workflow_entity.StepExecuted
+import kalix.protocol.workflow_entity.StepExecutionFailed
 import kalix.protocol.workflow_entity.StepResponse
+import org.slf4j.LoggerFactory
 
 object WorkflowRouter {
   final case class CommandResult(effect: Workflow.Effect[_])
@@ -64,7 +66,8 @@ object WorkflowRouter {
 abstract class WorkflowRouter[S, W <: Workflow[S]](protected val workflow: W) {
 
   private var state: Option[S] = None
-  private var workflowFinished: Boolean = false;
+  private var workflowFinished: Boolean = false
+  private final val log = LoggerFactory.getLogger(this.getClass)
 
   private def stateOrEmpty(): S = state match {
     case None =>
@@ -175,12 +178,17 @@ abstract class WorkflowRouter[S, W <: Workflow[S]](protected val workflow: W) {
           .apply(decodedInput)
           .toScala
 
-        future.map { res =>
-          val encoded = messageCodec.encodeScala(res)
-          val executedRes = StepExecuted(Some(encoded))
+        future
+          .map { res =>
+            val encoded = messageCodec.encodeScala(res)
+            val executedRes = StepExecuted(Some(encoded))
 
-          StepResponse(commandId, stepName, StepResponse.Response.Executed(executedRes))
-        }
+            StepResponse(commandId, stepName, StepResponse.Response.Executed(executedRes))
+          }
+          .recover { case t: Throwable =>
+            log.error("Workflow async call failed.", t)
+            StepResponse(commandId, stepName, StepResponse.Response.ExecutionFailed(StepExecutionFailed(t.getMessage)))
+          }
       case Some(any) => Future.failed(WorkflowStepNotSupported(any.getClass.getSimpleName))
       case None      => Future.failed(WorkflowStepNotFound(stepName))
     }
