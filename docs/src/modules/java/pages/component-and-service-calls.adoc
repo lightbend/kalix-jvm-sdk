@@ -22,7 +22,7 @@ include::java:example$java-spring-fibonacci-action/src/main/java/com/example/fib
 <2> Select endpoint method reference.
 <3> Pass in endpoint method arguments.
 
-NOTE: NOTE: Calling endpoints that return a stream response like `Flux` is not supported currently by the `ComponentClient`.
+NOTE: Calling endpoints that return a stream response like `Flux` is not supported currently by the `ComponentClient`.
 
 == Kalix services
 

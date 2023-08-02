@@ -82,7 +82,7 @@ include::example$java-spring-valueentity-shopping-cart/src/main/java/com/example
 <5> For allowed requests, use `componentClient` to get a deferred call to the entity.
 <6> The `deferredCall` is then used with `effects().forward()` to forward the request to the entity.
 
-NOTE: NOTE: You might be wondering what the `componentClient` is about. For now, think of it as a lightweight, type safe, HTTP client allowing you to reach out to other Kalix services. All details can be found at xref:component-and-service-calls.adoc[] chapter.
+NOTE: You might be wondering what the `componentClient` is about. For now, think of it as a lightweight, type safe, HTTP client allowing you to reach out to other Kalix services. All details can be found at xref:component-and-service-calls.adoc[] chapter.
 
 === Forwarding Headers
 
