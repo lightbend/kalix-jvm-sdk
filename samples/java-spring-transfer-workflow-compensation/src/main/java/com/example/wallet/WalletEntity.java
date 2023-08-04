@@ -4,6 +4,8 @@ import com.example.wallet.WalletEntity.DepositResult.DepositFailed;
 import com.example.wallet.WalletEntity.DepositResult.DepositSucceed;
 import com.example.wallet.WalletEntity.WithdrawResult.WithdrawFailed;
 import com.example.wallet.WalletEntity.WithdrawResult.WithdrawSucceed;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import kalix.javasdk.valueentity.ValueEntity;
 import kalix.javasdk.annotations.Id;
 import kalix.javasdk.annotations.TypeId;
@@ -27,6 +29,10 @@ public class WalletEntity extends ValueEntity<WalletEntity.Wallet> {
     }
   }
 
+  @JsonTypeInfo(use = JsonTypeInfo.Id.NAME)
+  @JsonSubTypes({
+      @JsonSubTypes.Type(value = WithdrawResult.WithdrawSucceed.class),
+      @JsonSubTypes.Type(value = WithdrawResult.WithdrawSucceed.class)})
   public sealed interface WithdrawResult {
     record WithdrawFailed(String errorMsg) implements WithdrawResult {
     }
@@ -35,6 +41,10 @@ public class WalletEntity extends ValueEntity<WalletEntity.Wallet> {
     }
   }
 
+  @JsonTypeInfo(use = JsonTypeInfo.Id.NAME)
+  @JsonSubTypes({
+      @JsonSubTypes.Type(value = DepositResult.DepositSucceed.class),
+      @JsonSubTypes.Type(value = DepositResult.DepositFailed.class)})
   public sealed interface DepositResult {
     record DepositFailed(String errorMsg) implements DepositResult {
     }

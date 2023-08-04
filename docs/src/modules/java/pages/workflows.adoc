@@ -135,6 +135,31 @@ IMPORTANT: For simplicity purposes, we are returning the internal state directly
 
 A full transfer workflow source code is available {sample-url}[here, {tab-icon}, window="new"]. Follow the `README` file to run and test it.
 
+== Pausing workflow
+
+A long-running workflow can be paused while waiting for some additional information to continue processing. A special `pause` transition can be used to inform Kalix that the execution of the Workflow should be postponed. By launching a request to a Workflow endpoint, the user can then resume the processing. Additionally, a Kalix Timer can be scheduled to automatically inform the Workflow that the expected time for the additional data has passed.
+
+
+[source,java,indent=0]
+.src/main/java/com/example/transfer/TransferWorkflow.java
+----
+include::example$java-spring-transfer-workflow-compensation/src/main/java/com/example/transfer/TransferWorkflow.java[tag=pausing]
+----
+<1> Schedules a timer as a Workflow step action. Make sure that the timer name is unique for every Workflow instance.
+<2> Pauses the Workflow execution.
+
+NOTE: Remember to cancel the timer once the Workflow is resumed. Also, adjust the Workflow timeout to match the timer schedule.
+
+Exposing additional mutational endpoints from the Workflow implementation should be done with special caution. Accepting a request from such endpoints should only be possible when the Workflow is in the expected state.
+
+[source,java,indent=0]
+.src/main/java/com/example/transfer/TransferWorkflow.java
+----
+include::example$java-spring-transfer-workflow-compensation/src/main/java/com/example/transfer/TransferWorkflow.java[tag=resuming]
+----
+<1> Accepts the request only when status is `WAITING_FOR_ACCEPTATION`.
+<2> Otherwise, rejects the requests.
+
 == Error handling
 
 Design for failure is one of the key attributes of all Kalix components. Workflow has the richest set of configurations from all of them. It's essential to build robust and reliable solutions.
