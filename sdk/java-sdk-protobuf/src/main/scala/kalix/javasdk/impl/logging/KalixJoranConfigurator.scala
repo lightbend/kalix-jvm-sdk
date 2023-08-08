@@ -73,7 +73,9 @@ class KalixJoranConfigurator extends DefaultJoranConfigurator {
       status
 
     } else {
-      ExecutionStatus.INVOKE_NEXT_IF_ANY
+      val status = super.configure(loggerContext)
+      addInfo("Kalix application running in packaged mode")
+      status
     }
   }
 }
