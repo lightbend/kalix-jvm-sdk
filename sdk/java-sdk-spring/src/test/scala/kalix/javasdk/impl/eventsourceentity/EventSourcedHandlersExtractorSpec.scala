@@ -16,6 +16,7 @@
 
 package kalix.javasdk.impl.eventsourceentity
 
+import kalix.javasdk.JsonSupport
 import kalix.javasdk.impl.JsonMessageCodec
 import kalix.javasdk.impl.eventsourcedentity.EventSourcedHandlersExtractor
 import kalix.spring.testmodels.eventsourcedentity.EmployeeEvent.EmployeeEmailUpdated
@@ -30,18 +31,24 @@ class EventSourcedHandlersExtractorSpec extends AnyWordSpec with Matchers {
 
   private final val messageCodec = new JsonMessageCodec
   private final val intTypeUrl = messageCodec.typeUrlFor(classOf[Integer])
-  private final val stringTypeUrl = messageCodec.typeUrlFor(classOf[String])
+  private final val eventTypeUrl = messageCodec.typeUrlFor(classOf[CounterEventSourcedEntity.Event])
+  private final val additionalMappingTypeUrl = JsonSupport.KALIX_JSON + "additional-mapping"
 
   "EventSourcedHandlersExtractor" should {
 
     "extract public well-annotated handlers keyed by event type received as unique parameter" in {
       val result = EventSourcedHandlersExtractor.handlersFrom(classOf[CounterEventSourcedEntity], messageCodec)
-      result.handlers.size shouldBe 2
+      result.handlers.size shouldBe 3
       result.handlers.get(intTypeUrl).map { m =>
         m.method.getName shouldBe "receivedIntegerEvent"
         m.method.getParameterCount shouldBe 1
       }
-      result.handlers.get(stringTypeUrl).map { m =>
+      result.handlers.get(eventTypeUrl).map { m =>
+        m.method.getName shouldBe "receiveStringEvent"
+        m.method.getParameterCount shouldBe 1
+      }
+      //additional type pointing to the same handler to support events schema evolution
+      result.handlers.get(additionalMappingTypeUrl).map { m =>
         m.method.getName shouldBe "receiveStringEvent"
         m.method.getParameterCount shouldBe 1
       }

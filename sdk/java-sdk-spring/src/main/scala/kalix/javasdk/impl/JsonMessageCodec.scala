@@ -16,14 +16,17 @@
 
 package kalix.javasdk.impl
 
-import com.google.protobuf.ByteString
-import com.google.protobuf.BytesValue
-
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentMap
+
+import scala.jdk.CollectionConverters._
+
+import com.google.protobuf.ByteString
+import com.google.protobuf.BytesValue
 import com.google.protobuf.any.{ Any => ScalaPbAny }
 import com.google.protobuf.{ Any => JavaPbAny }
 import kalix.javasdk.JsonSupport
+import kalix.javasdk.Migration
 import kalix.javasdk.annotations.TypeName
 import kalix.javasdk.impl.AnySupport.BytesPrimitive
 import org.slf4j.LoggerFactory
@@ -31,9 +34,10 @@ import org.slf4j.LoggerFactory
 private[kalix] class JsonMessageCodec extends MessageCodec {
 
   private val log = LoggerFactory.getLogger(getClass)
+  private[kalix] case class TypeHint(currenTypeHintWithVersion: String, allTypeHints: List[String])
 
-  private val cache: ConcurrentMap[Class[_], String] = new ConcurrentHashMap()
-  private[kalix] val reversedCache: ConcurrentMap[String, Class[_]] = new ConcurrentHashMap()
+  private val typeHints: ConcurrentMap[Class[_], TypeHint] = new ConcurrentHashMap()
+  private[kalix] val reversedTypeHints: ConcurrentMap[String, Class[_]] = new ConcurrentHashMap()
 
   /**
    * In the Java SDK, output data are encoded to Json.
@@ -44,7 +48,7 @@ private[kalix] class JsonMessageCodec extends MessageCodec {
       case javaPbAny: JavaPbAny   => ScalaPbAny.fromJavaProto(javaPbAny)
       case scalaPbAny: ScalaPbAny => scalaPbAny
       case bytes: Array[Byte]     => ScalaPbAny.fromJavaProto(JavaPbAny.pack(BytesValue.of(ByteString.copyFrom(bytes))))
-      case other                  => ScalaPbAny.fromJavaProto(JsonSupport.encodeJson(other, lookupTypeHint(other)))
+      case other => ScalaPbAny.fromJavaProto(JsonSupport.encodeJson(other, lookupTypeHintWithVersion(other)))
     }
   }
 
@@ -53,20 +57,34 @@ private[kalix] class JsonMessageCodec extends MessageCodec {
     value match {
       case javaPbAny: JavaPbAny   => javaPbAny
       case scalaPbAny: ScalaPbAny => ScalaPbAny.toJavaProto(scalaPbAny)
-      case other                  => JsonSupport.encodeJson(other, lookupTypeHint(other))
+      case other                  => JsonSupport.encodeJson(other, lookupTypeHintWithVersion(other))
     }
   }
 
-  private def lookupTypeHint(value: Any): String =
-    lookupTypeHint(value.getClass)
+  private def lookupTypeHintWithVersion(value: Any): String =
+    lookupTypeHint(value.getClass).currenTypeHintWithVersion
 
-  private[kalix] def lookupTypeHint(clz: Class[_]): String = {
+  private[kalix] def lookupTypeHint(clz: Class[_]): TypeHint = {
+    typeHints.computeIfAbsent(clz, computeTypeHint)
+  }
+
+  private def computeTypeHint(clz: Class[_]): TypeHint = {
     val typeName = Option(clz.getAnnotation(classOf[TypeName]))
       .collect { case ann if ann.value().trim.nonEmpty => ann.value() }
       .getOrElse(clz.getName)
-    cache.computeIfAbsent(clz, _ => typeName)
+
+    val (version, supportedClassNames) = getVersionAndSupportedClassNames(clz)
+    val typeNameWithVersion = typeName + (if (version == 0) "" else "#" + version)
+
     //TODO verify if this could be replaced by sth smarter/safer
-    reversedCache.compute(
+    addToReversedCache(clz, typeName)
+    supportedClassNames.foreach(className => addToReversedCache(clz, className))
+
+    TypeHint(typeNameWithVersion, typeName :: supportedClassNames)
+  }
+
+  private def addToReversedCache(clz: Class[_], typeName: String) = {
+    reversedTypeHints.compute(
       typeName,
       (_, currentValue) => {
         if (currentValue == null) {
@@ -78,15 +96,30 @@ private[kalix] class JsonMessageCodec extends MessageCodec {
             "Collision with existing existing mapping " + currentValue + " -> " + typeName + ". The same type name can't be used for other class " + clz)
         }
       })
+  }
 
-    typeName
+  private def getVersionAndSupportedClassNames(clz: Class[_]): (Int, List[String]) = {
+    Option(clz.getAnnotation(classOf[Migration]))
+      .map(_.value())
+      .map(migrationClass => migrationClass.getConstructor().newInstance())
+      .map(migration =>
+        (migration.currentVersion(), migration.supportedClassNames().asScala.toList)) //TODO what about TypeName
+      .getOrElse((0, List.empty))
   }
 
   def typeUrlFor(clz: Class[_]) = {
     if (clz == classOf[Array[Byte]]) {
       BytesPrimitive.fullName
     } else {
-      JsonSupport.KALIX_JSON + lookupTypeHint(clz)
+      JsonSupport.KALIX_JSON + lookupTypeHint(clz).currenTypeHintWithVersion
+    }
+  }
+
+  def typeUrlsFor(clz: Class[_]): List[String] = {
+    if (clz == classOf[Array[Byte]]) {
+      List(BytesPrimitive.fullName)
+    } else {
+      lookupTypeHint(clz).allTypeHints.map(JsonSupport.KALIX_JSON + _)
     }
   }
 
@@ -102,11 +135,15 @@ private[kalix] class JsonMessageCodec extends MessageCodec {
  */
 private[kalix] class StrictJsonMessageCodec(delegate: JsonMessageCodec) extends MessageCodec {
 
+  private def removeVersion(typeName: String) = {
+    typeName.split("#").head
+  }
+
   override def decodeMessage(value: ScalaPbAny): Any =
     if (value.typeUrl.startsWith(JsonSupport.KALIX_JSON)) {
       val any = ScalaPbAny.toJavaProto(value)
-      val typeName = value.typeUrl.replace(JsonSupport.KALIX_JSON, "")
-      val typeClass = delegate.reversedCache.get(typeName)
+      val typeName = removeVersion(value.typeUrl.replace(JsonSupport.KALIX_JSON, ""))
+      val typeClass = delegate.reversedTypeHints.get(typeName)
       if (typeClass == null) {
         throw new IllegalStateException(s"Cannot decode ${value.typeUrl} message type. Class mapping not found.")
       } else {

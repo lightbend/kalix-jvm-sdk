@@ -44,7 +44,7 @@ class ReflectiveEventSourcedEntityRouter[S, E, ES <: EventSourcedEntity[S, E]](
   private def eventHandlerLookup(eventName: String) =
     eventHandlerMethods.getOrElse(
       eventName,
-      throw new HandlerNotFoundException("event", eventName, commandHandlers.keySet))
+      throw new HandlerNotFoundException("event", eventName, eventHandlerMethods.keySet))
 
   override def handleEvent(state: S, event: E): S = {
 

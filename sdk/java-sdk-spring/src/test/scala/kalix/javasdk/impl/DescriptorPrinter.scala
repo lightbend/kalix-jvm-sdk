@@ -17,8 +17,10 @@
 package kalix.javasdk.impl
 
 import kalix.spring.testmodels.subscriptions.PubSubTestModels.MissingTopicForTopicSubscription
-
 import scala.reflect.ClassTag
+
+import kalix.javasdk.eventsourcedentity.TestEventSourcedEntity
+import kalix.javasdk.valueentity.TestValueEntity
 
 /**
  * Utility class to quickly print descriptors
@@ -29,7 +31,7 @@ object DescriptorPrinter {
     ComponentDescriptor.descriptorFor(ev.runtimeClass, new JsonMessageCodec)
 
   def main(args: Array[String]) = {
-    val descriptor = descriptorFor[MissingTopicForTopicSubscription]
+    val descriptor = descriptorFor[TestEventSourcedEntity]
     println(ProtoDescriptorRenderer.toString(descriptor.fileDescriptor))
   }
 }

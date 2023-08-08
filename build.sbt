@@ -126,7 +126,7 @@ lazy val javaSdkProtobufTestKit = project
 
 lazy val javaSdkSpring = project
   .in(file("sdk/java-sdk-spring"))
-  .dependsOn(javaSdkProtobuf)
+  .dependsOn(javaSdkProtobuf % "compile->compile;test->test")
   .dependsOn(devTools % IntegrationTest)
   .dependsOn(javaSdkProtobufTestKit % IntegrationTest)
   .enablePlugins(AkkaGrpcPlugin, BuildInfoPlugin, PublishSonatype, IntegrationTests)

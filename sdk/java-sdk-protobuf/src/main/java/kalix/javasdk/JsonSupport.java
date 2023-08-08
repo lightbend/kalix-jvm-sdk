@@ -24,6 +24,7 @@ import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.module.SimpleModule;
@@ -38,6 +39,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.google.protobuf.*;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
 import java.util.Optional;
 
@@ -145,8 +147,29 @@ public final class JsonSupport {
     } else {
       try {
         ByteString decodedBytes = ByteStringEncoding.decodePrimitiveBytes(any.getValue());
-        return objectMapper.readValue(decodedBytes.toByteArray(), valueClass);
-      } catch (IOException e) {
+        if (valueClass.getAnnotation(Migration.class) != null) {
+          int fromVersion = parseVersion(any.getTypeUrl());
+          JacksonMigration jacksonMigration = valueClass.getAnnotation(Migration.class)
+              .value()
+              .getConstructor()
+              .newInstance();
+          int currentVersion = jacksonMigration.currentVersion();
+          int supportedForwardVersion = jacksonMigration.supportedForwardVersion();
+          if (fromVersion < currentVersion) {
+            return migrate(valueClass, decodedBytes, fromVersion, jacksonMigration);
+          } else if (fromVersion == currentVersion) {
+            return objectMapper.readValue(decodedBytes.toByteArray(), valueClass);
+          } else if (fromVersion <= supportedForwardVersion) {
+            return migrate(valueClass, decodedBytes, fromVersion, jacksonMigration);
+          } else {
+            throw new IllegalStateException("Migration version " + supportedForwardVersion + " is " +
+                "behind version " + fromVersion + " of deserialized type [" + valueClass.getName() + "]");
+          }
+        } else {
+          return objectMapper.readValue(decodedBytes.toByteArray(), valueClass);
+        }
+      } catch (IOException | NoSuchMethodException | InstantiationException | IllegalAccessException |
+               InvocationTargetException e) {
         throw new IllegalArgumentException(
             "JSON with type url ["
                 + any.getTypeUrl()
@@ -158,14 +181,29 @@ public final class JsonSupport {
     }
   }
 
+  private static <T> T migrate(Class<T> valueClass, ByteString decodedBytes, int fromVersion, JacksonMigration jacksonMigration) throws IOException {
+    JsonNode jsonNode = objectMapper.readTree(decodedBytes.toByteArray());
+    JsonNode newJsonNode = jacksonMigration.transform(fromVersion, jsonNode);
+    return objectMapper.treeToValue(newJsonNode, valueClass);
+  }
+
+  private static int parseVersion(String typeUrl) {
+    if (typeUrl.contains("#")) { //TODO can we assume that there will be ony one "#" ??
+      String maybeVersion = typeUrl.split("#")[1];
+      return Integer.parseInt(maybeVersion);
+    } else {
+      return 0;
+    }
+  }
+
   public static <T, C extends Collection<T>> C decodeJsonCollection(Class<T> valueClass, Class<C> collectionType, Any any) {
     if (!any.getTypeUrl().startsWith(KALIX_JSON)) {
       throw new IllegalArgumentException(
-        "Protobuf bytes with type url ["
-          + any.getTypeUrl()
-          + "] cannot be decoded as JSON, must start with ["
-          + KALIX_JSON
-          + "]");
+          "Protobuf bytes with type url ["
+              + any.getTypeUrl()
+              + "] cannot be decoded as JSON, must start with ["
+              + KALIX_JSON
+              + "]");
     } else {
       try {
         ByteString decodedBytes = ByteStringEncoding.decodePrimitiveBytes(any.getValue());
