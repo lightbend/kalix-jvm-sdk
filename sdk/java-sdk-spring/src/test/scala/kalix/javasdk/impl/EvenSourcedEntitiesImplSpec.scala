@@ -17,7 +17,7 @@
 package kalix.javasdk.impl
 
 import com.google.protobuf.ByteString._
-import com.google.protobuf.any.{Any => ScalaPbAny}
+import com.google.protobuf.any.{ Any => ScalaPbAny }
 import kalix.javasdk.eventsourced.ReflectiveEventSourcedEntityProvider
 import kalix.javasdk.eventsourcedentity.OldTestESEvent.OldEvent1
 import kalix.javasdk.eventsourcedentity.OldTestESEvent.OldEvent2
@@ -26,13 +26,6 @@ import kalix.javasdk.eventsourcedentity.TestESEvent
 import kalix.javasdk.eventsourcedentity.TestESState
 import kalix.javasdk.eventsourcedentity.TestEventSourcedEntity
 import kalix.javasdk.impl.eventsourcedentity.TestEventSourcedService
-//import kalix.javasdk.impl.valueentity.TestValueService
-//import kalix.javasdk.valueentity.ReflectiveValueEntityProvider
-//import kalix.javasdk.valueentity.TestVEState0
-//import kalix.javasdk.valueentity.TestVEState1
-//import kalix.javasdk.valueentity.TestVEState2
-//import kalix.javasdk.valueentity.TestValueEntity
-//import kalix.javasdk.valueentity.TestValueEntityMigration
 import kalix.testkit.TestProtocol
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.matchers.should.Matchers
