@@ -31,9 +31,9 @@ public class TestVEState2Migration extends JacksonMigration {
   }
 
   @Override
-  public JsonNode transform(int fromVersion, JsonNode jsonNode) {
+  public JsonNode transform(int fromVersion, JsonNode json) {
     if (fromVersion < 1) {
-      return ((ObjectNode) jsonNode).set("newValue", TextNode.valueOf("newValue"));
+      return ((ObjectNode) json).set("newValue", TextNode.valueOf("newValue"));
     } else {
       return null;
 

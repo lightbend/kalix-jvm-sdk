@@ -29,7 +29,7 @@ public class TestEventSourcedEntity extends EventSourcedEntity<TestESState, Test
 
   @Override
   public TestESState emptyState() {
-    return new TestESState("", 0, false);
+    return new TestESState("", 0, false, "");
   }
 
   @GetMapping
@@ -39,16 +39,21 @@ public class TestEventSourcedEntity extends EventSourcedEntity<TestESState, Test
 
   @EventHandler
   public TestESState apply(TestESEvent.Event1 event1) {
-    return new TestESState(event1.s(), currentState().i(), currentState().b());
+    return new TestESState(event1.s(), currentState().i(), currentState().b(), currentState().anotherString());
   }
 
   @EventHandler
   public TestESState apply(TestESEvent.Event2 event2) {
-    return new TestESState(currentState().s(), event2.newName(), currentState().b());
+    return new TestESState(currentState().s(), event2.newName(), currentState().b(), currentState().anotherString());
   }
 
   @EventHandler
   public TestESState apply(TestESEvent.Event3 event3) {
-    return new TestESState(currentState().s(), currentState().i(), event3.b());
+    return new TestESState(currentState().s(), currentState().i(), event3.b(), currentState().anotherString());
+  }
+
+  @EventHandler
+  public TestESState apply(TestESEvent.Event4 event4) {
+    return new TestESState(currentState().s(), currentState().i(), currentState().b(), event4.anotherString());
   }
 }

@@ -14,29 +14,26 @@
  * limitations under the License.
  */
 
-package kalix.javasdk;
+package kalix.javasdk.eventsourcedentity;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.TextNode;
+import kalix.javasdk.JacksonMigration;
 
-public class DummyClassMigration extends JacksonMigration {
+import java.util.List;
+
+public class Event4Migration extends JacksonMigration {
   @Override
   public int currentVersion() {
-    return 0;
-  }
-
-  @Override
-  public int supportedForwardVersion() {
-    return 1;
+    return 2;
   }
 
   @Override
   public JsonNode transform(int fromVersion, JsonNode json) {
-    if (fromVersion == 1) {
-      ObjectNode objectNode = ((ObjectNode) json);
-      objectNode.set("optionalStringValue", objectNode.get("mandatoryStringValue"));
-      objectNode.remove("mandatoryStringValue");
-      return objectNode;
+    if (fromVersion < 2) {
+      TextNode s = (TextNode) json.get("anotherString");
+      return ((ObjectNode) json).set("anotherString", TextNode.valueOf(s.textValue() + "-v2"));
     } else {
       return json;
     }

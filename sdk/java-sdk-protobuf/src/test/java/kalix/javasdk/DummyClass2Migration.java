@@ -27,11 +27,11 @@ public class DummyClass2Migration extends JacksonMigration {
   }
 
   @Override
-  public JsonNode transform(int fromVersion, JsonNode jsonNode) {
+  public JsonNode transform(int fromVersion, JsonNode json) {
     if (fromVersion < 1) {
-      return ((ObjectNode) jsonNode).set("mandatoryStringValue", TextNode.valueOf("mandatory-value"));
+      return ((ObjectNode) json).set("mandatoryStringValue", TextNode.valueOf("mandatory-value"));
     } else {
-      return jsonNode;
+      return json;
     }
   }
 }

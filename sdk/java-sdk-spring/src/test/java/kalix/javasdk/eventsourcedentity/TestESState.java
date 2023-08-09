@@ -16,5 +16,5 @@
 
 package kalix.javasdk.eventsourcedentity;
 
-public record TestESState(String s, int i, boolean b) {
+public record TestESState(String s, int i, boolean b, String anotherString) {
 }

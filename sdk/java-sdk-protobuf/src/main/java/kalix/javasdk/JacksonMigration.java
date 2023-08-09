@@ -52,10 +52,10 @@ public abstract class JacksonMigration {
    * as `ObjectNode` and `ArrayNode` to get access to mutators.
    *
    * @param fromVersion the version of the old data
-   * @param jsonNode    the incoming JSON data
+   * @param json        the incoming JSON data
    */
-  public JsonNode transform(int fromVersion, JsonNode jsonNode) {
-    return jsonNode;
+  public JsonNode transform(int fromVersion, JsonNode json) {
+    return json;
   }
 
   /**

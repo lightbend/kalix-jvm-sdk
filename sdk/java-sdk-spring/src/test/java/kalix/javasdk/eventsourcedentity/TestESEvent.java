@@ -32,4 +32,8 @@ public interface TestESEvent {
   @TypeName("old-event-3")
   record Event3(boolean b) implements OldTestESEvent {
   }
+
+  @Migration(Event4Migration.class)
+  record Event4(String anotherString) implements OldTestESEvent {
+  }
 }

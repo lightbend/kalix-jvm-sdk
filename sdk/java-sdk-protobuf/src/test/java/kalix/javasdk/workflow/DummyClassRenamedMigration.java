@@ -29,8 +29,8 @@ public class DummyClassRenamedMigration extends JacksonMigration {
   }
 
   @Override
-  public JsonNode transform(int fromVersion, JsonNode jsonNode) {
-    return jsonNode;
+  public JsonNode transform(int fromVersion, JsonNode json) {
+    return json;
   }
 
   @Override
