@@ -98,7 +98,7 @@ include::example$java-protobuf-valueentity-shopping-cart/src/main/proto/com/exam
 
 == The domain proto file
 
-The `shoppingcart_domain.proto` file specifies the state and messages for an Event Sourced Entity.
+The `shoppingcart_domain.proto` file specifies the state and messages for a Value Entity.
 
 .src/main/proto/com/example/shoppingcart/domain/shoppingcart_domain.proto
 [source,proto]
