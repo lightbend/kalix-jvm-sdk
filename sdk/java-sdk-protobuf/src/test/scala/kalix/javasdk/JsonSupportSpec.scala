@@ -49,7 +49,7 @@ class JsonSupportSpec extends AnyWordSpec with Matchers {
       val dummyClass = new DummyClass("123", 321, Optional.of("test"))
       val any = JsonSupport.encodeJson(dummyClass)
       any.getTypeUrl should ===(JsonSupport.KALIX_JSON + classOf[DummyClass].getName)
-      val decoded = JsonSupport.decodeJson(classOf[DummyClass], any)
+      val decoded = JsonSupport.decodeJson(classOf[DummyClass], any, Optional.of(new DummyClassMigration))
       decoded shouldBe dummyClass
     }
 
@@ -59,7 +59,7 @@ class JsonSupportSpec extends AnyWordSpec with Matchers {
       val any =
         Any.newBuilder.setTypeUrl(JsonSupport.KALIX_JSON + classOf[DummyClass].getName).setValue(encodedBytes).build
 
-      val decoded = JsonSupport.decodeJson(classOf[DummyClass], any)
+      val decoded = JsonSupport.decodeJson(classOf[DummyClass], any, Optional.of(new DummyClassMigration))
       decoded shouldBe new DummyClass("123", 321, Optional.empty())
     }
 
@@ -70,7 +70,7 @@ class JsonSupportSpec extends AnyWordSpec with Matchers {
       val any =
         Any.newBuilder.setTypeUrl(JsonSupport.KALIX_JSON + classOf[DummyClass].getName).setValue(encodedBytes).build
 
-      val decoded = JsonSupport.decodeJson(classOf[DummyClass], any)
+      val decoded = JsonSupport.decodeJson(classOf[DummyClass], any, Optional.of(new DummyClassMigration))
       decoded shouldBe new DummyClass("123", 321, Optional.empty())
     }
 
@@ -80,7 +80,7 @@ class JsonSupportSpec extends AnyWordSpec with Matchers {
       val any =
         Any.newBuilder.setTypeUrl(JsonSupport.KALIX_JSON + classOf[DummyClass2].getName).setValue(encodedBytes).build
 
-      val decoded = JsonSupport.decodeJson(classOf[DummyClass2], any)
+      val decoded = JsonSupport.decodeJson(classOf[DummyClass2], any, Optional.of(new DummyClass2Migration))
       decoded shouldBe new DummyClass2("123", 321, "mandatory-value")
     }
 

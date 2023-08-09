@@ -28,6 +28,7 @@ import kalix.javasdk.JsonSupport
 import kalix.javasdk.Metadata
 import kalix.javasdk.impl.AnySupport
 import kalix.javasdk.impl.ErrorHandling.BadRequestException
+import kalix.javasdk.impl.reflection.MigrationExtractor.extractMigration
 
 /**
  * Extracts method parameters from an invocation context for the purpose of passing them to a reflective invocation call
@@ -63,7 +64,7 @@ object ParameterExtractors {
       val bytes = dm.getField(JavaPbAny.getDescriptor.findFieldByName("value")).asInstanceOf[ByteString]
       AnySupport.decodePrimitiveBytes(bytes).toByteArray.asInstanceOf[T]
     } else {
-      JsonSupport.decodeJson(cls, toAny(dm))
+      JsonSupport.decodeJson(cls, toAny(dm), extractMigration(cls))
     }
   }
 

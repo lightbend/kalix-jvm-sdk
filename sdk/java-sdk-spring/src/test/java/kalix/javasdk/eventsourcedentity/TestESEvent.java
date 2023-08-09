@@ -16,7 +16,7 @@
 
 package kalix.javasdk.eventsourcedentity;
 
-import kalix.javasdk.Migration;
+import kalix.javasdk.annotations.Migration;
 import kalix.javasdk.annotations.TypeName;
 
 public interface TestESEvent {

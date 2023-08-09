@@ -17,7 +17,7 @@
 package kalix.spring.testmodels.eventsourcedentity;
 
 import kalix.javasdk.JacksonMigration;
-import kalix.javasdk.Migration;
+import kalix.javasdk.annotations.Migration;
 import kalix.javasdk.annotations.Acl;
 import kalix.javasdk.annotations.EventHandler;
 import kalix.javasdk.annotations.GenerateId;

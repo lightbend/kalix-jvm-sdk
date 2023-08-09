@@ -26,7 +26,7 @@ import com.google.protobuf.any.{ Any => ScalaPbAny }
 import com.google.protobuf.{ Any => JavaPbAny }
 import kalix.javasdk.JacksonMigration
 import kalix.javasdk.JsonSupport
-import kalix.javasdk.Migration
+import kalix.javasdk.annotations.Migration
 import kalix.javasdk.annotations.TypeName
 import kalix.javasdk.impl.JsonMessageCodecSpec.Cat
 import kalix.javasdk.impl.JsonMessageCodecSpec.Dog

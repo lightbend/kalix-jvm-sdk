@@ -21,7 +21,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.Objects;
 
-@Migration(DummyClass2Migration.class)
 public class DummyClass2 {
   public String stringValue;
   public int intValue;

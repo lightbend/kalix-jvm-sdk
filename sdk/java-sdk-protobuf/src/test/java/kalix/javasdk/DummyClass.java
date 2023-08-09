@@ -22,7 +22,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Objects;
 import java.util.Optional;
 
-@Migration(DummyClassMigration.class)
+
 public class DummyClass {
   public String stringValue;
   public int intValue;

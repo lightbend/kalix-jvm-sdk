@@ -16,7 +16,7 @@
 
 package kalix.javasdk.valueentity;
 
-import kalix.javasdk.Migration;
+import kalix.javasdk.annotations.Migration;
 
 @Migration(TestVEState2Migration.class)
 public record TestVEState2(String s, int i, String newValue) {
