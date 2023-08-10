@@ -31,6 +31,7 @@ object Dependencies {
   val SpringFrameworkVersion = "6.0.13"
   // make sure to sync spring-boot-starter-parent version in samples and archetype to this version
   val SpringBootVersion = "3.1.4"
+  val OpenTelemetryVersion = "1.28.0"
 
   val CommonsIoVersion = "2.11.0"
   val MunitVersion = "0.7.29"
@@ -139,6 +140,12 @@ object Dependencies {
     "net.aichler" % "jupiter-interface" % JupiterKeys.jupiterVersion.value % IntegrationTest,
     "net.aichler" % "jupiter-interface" % JupiterKeys.jupiterVersion.value % Test,
     "org.springframework.boot" % "spring-boot-starter-test" % SpringBootVersion % IntegrationTest,
+    "io.opentelemetry" % "opentelemetry-api" % OpenTelemetryVersion,
+    "io.opentelemetry" % "opentelemetry-sdk" % OpenTelemetryVersion,
+    "io.opentelemetry" % "opentelemetry-exporter-logging" % OpenTelemetryVersion, // TODO change to otlp when see tracing is working from here and back from the
+    "io.opentelemetry" % "opentelemetry-exporter-otlp" % OpenTelemetryVersion, // TODO delete, only to test in local.
+    "io.opentelemetry" % "opentelemetry-context" % OpenTelemetryVersion,
+    "io.opentelemetry" % "opentelemetry-semconv" % (OpenTelemetryVersion + "-alpha"),
     junit5 % IntegrationTest,
     junit5 % Test,
     "org.assertj" % "assertj-core" % "3.24.2" % IntegrationTest,

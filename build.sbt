@@ -25,7 +25,7 @@ lazy val `kalix-jvm-sdk` = project
 
 def common: Seq[Setting[_]] =
   Seq(
-    Compile / javacOptions ++= Seq("-encoding", "UTF-8"),
+    Compile / javacOptions ++= Seq("-encoding", "UTF-8","--add-opens=app/kalix.protocol.component=ALL-UNNAMED"),
     Compile / scalacOptions ++= Seq("-encoding", "UTF-8", "-deprecation"))
 
 lazy val coreSdk = project

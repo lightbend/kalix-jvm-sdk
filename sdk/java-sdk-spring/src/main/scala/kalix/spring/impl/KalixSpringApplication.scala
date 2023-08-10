@@ -16,18 +16,16 @@
 
 package kalix.spring.impl
 
-import java.lang.reflect.Modifier
-import java.lang.reflect.ParameterizedType
-
-import scala.concurrent.Future
-import scala.jdk.CollectionConverters.CollectionHasAsScala
-import scala.jdk.FutureConverters.CompletionStageOps
-import scala.jdk.OptionConverters.RichOption
-import scala.reflect.ClassTag
-
 import akka.Done
 import com.typesafe.config.Config
-import com.typesafe.config.ConfigFactory
+import io.opentelemetry.api.OpenTelemetry
+import io.opentelemetry.api.trace.propagation.W3CTraceContextPropagator
+import io.opentelemetry.context.propagation.ContextPropagators
+import io.opentelemetry.exporter.logging.LoggingSpanExporter
+import io.opentelemetry.exporter.otlp.trace.OtlpGrpcSpanExporter
+import io.opentelemetry.sdk.OpenTelemetrySdk
+import io.opentelemetry.sdk.trace.SdkTracerProvider
+import io.opentelemetry.sdk.trace.`export`.SimpleSpanProcessor
 import kalix.javasdk.Kalix
 import kalix.javasdk.action.Action
 import kalix.javasdk.action.ActionCreationContext
@@ -59,9 +57,11 @@ import kalix.javasdk.workflow.ReflectiveWorkflowProvider
 import kalix.javasdk.workflow.Workflow
 import kalix.javasdk.workflow.WorkflowContext
 import kalix.javasdk.workflow.WorkflowProvider
+import kalix.spring.BuildInfo
 import kalix.spring.KalixClient
 import kalix.spring.WebClientProvider
 import kalix.spring.impl.KalixSpringApplication.ActionCreationContextFactoryBean
+import kalix.spring.impl.KalixSpringApplication.ComponentClientFactoryBean
 import kalix.spring.impl.KalixSpringApplication.EventSourcedEntityContextFactoryBean
 import kalix.spring.impl.KalixSpringApplication.KalixClientFactoryBean
 import kalix.spring.impl.KalixSpringApplication.KalixComponentProvider
@@ -70,8 +70,6 @@ import kalix.spring.impl.KalixSpringApplication.ValueEntityContextFactoryBean
 import kalix.spring.impl.KalixSpringApplication.ViewCreationContextFactoryBean
 import kalix.spring.impl.KalixSpringApplication.WebClientProviderFactoryBean
 import kalix.spring.impl.KalixSpringApplication.WorkflowContextFactoryBean
-import kalix.spring.BuildInfo
-import kalix.spring.impl.KalixSpringApplication.ComponentClientFactoryBean
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.BeanCreationException
@@ -86,6 +84,14 @@ import org.springframework.context.annotation.ClassPathScanningCandidateComponen
 import org.springframework.core.`type`.classreading.MetadataReader
 import org.springframework.core.`type`.classreading.MetadataReaderFactory
 import org.springframework.core.`type`.filter.TypeFilter
+
+import java.lang.reflect.Modifier
+import java.lang.reflect.ParameterizedType
+import scala.concurrent.Future
+import scala.jdk.CollectionConverters.CollectionHasAsScala
+import scala.jdk.FutureConverters.CompletionStageOps
+import scala.jdk.OptionConverters.RichOption
+import scala.reflect.ClassTag
 
 object KalixSpringApplication {
 
@@ -199,8 +205,11 @@ object KalixSpringApplication {
 
   abstract class ThreadLocalFactoryBean[T: ClassTag] extends FactoryBean[T] {
     val threadLocal = new ThreadLocal[T]
+
     def set(value: T) = threadLocal.set(value)
+
     override def getObject: T = threadLocal.get()
+
     override def getObjectType: Class[_] = implicitly[ClassTag[T]].runtimeClass
   }
 
@@ -253,6 +262,23 @@ object KalixSpringApplication {
       if (threadLocal.get() != null) threadLocal.get()
       else
         throw new BeanCreationException("WebClientProvider can only be injected in Kalix Actions and Workflows.")
+  }
+
+  val openTelemetry: OpenTelemetry = {
+    val sdkTracerProvider =
+      SdkTracerProvider
+        .builder()
+        .addSpanProcessor(SimpleSpanProcessor.create(LoggingSpanExporter.create())) // TODO probably not needed
+        .addSpanProcessor(
+          SimpleSpanProcessor.create(OtlpGrpcSpanExporter.builder().setEndpoint("http://jaeger:4317").build()))
+        .build()
+    val sdk = OpenTelemetrySdk
+      .builder()
+      .setTracerProvider(sdkTracerProvider)
+      .setPropagators(ContextPropagators.create(W3CTraceContextPropagator.getInstance()))
+      .build()
+    //Runtime.getRuntime().addShutdownHook(new Thread(sdkTracerProvider.close)) TODO add shutdown
+    sdk
   }
 }
 
