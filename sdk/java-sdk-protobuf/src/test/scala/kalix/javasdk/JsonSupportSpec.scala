@@ -104,7 +104,7 @@ class JsonSupportSpec extends AnyWordSpec with Matchers {
           .setValue(encodedBytes)
           .build
 
-      val decoded = JsonSupport.decodeJson(classOf[DummyClass], any)
+      val decoded = JsonSupport.decodeJson(classOf[DummyClass], any, Optional.of(new DummyClassMigration))
       decoded shouldBe new DummyClass("123", 321, Optional.of("value"))
     }
 
