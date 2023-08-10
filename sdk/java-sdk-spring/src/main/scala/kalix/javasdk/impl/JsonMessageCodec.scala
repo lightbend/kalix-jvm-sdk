@@ -29,6 +29,7 @@ import kalix.javasdk.JsonSupport
 import kalix.javasdk.annotations.Migration
 import kalix.javasdk.annotations.TypeName
 import kalix.javasdk.impl.AnySupport.BytesPrimitive
+import kalix.javasdk.impl.reflection.MigrationExtractor.extractMigration
 import org.slf4j.LoggerFactory
 
 private[kalix] class JsonMessageCodec extends MessageCodec {
@@ -147,7 +148,7 @@ private[kalix] class StrictJsonMessageCodec(delegate: JsonMessageCodec) extends 
       if (typeClass == null) {
         throw new IllegalStateException(s"Cannot decode ${value.typeUrl} message type. Class mapping not found.")
       } else {
-        JsonSupport.decodeJson(typeClass, any)
+        JsonSupport.decodeJson(typeClass, any, extractMigration(typeClass))
       }
     } else {
       value

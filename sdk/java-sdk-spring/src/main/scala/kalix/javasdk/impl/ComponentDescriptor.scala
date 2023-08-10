@@ -259,14 +259,16 @@ private[kalix] object ComponentDescriptor {
 
         case method: SubscriptionServiceMethod =>
           val methodInvokers =
-            serviceMethod.javaMethodOpt.map { meth =>
+            serviceMethod.javaMethodOpt
+              .map { meth =>
 
-              val parameterExtractors: ParameterExtractorsArray =
-                Array(ParameterExtractors.AnyBodyExtractor(method.inputType))
+                val parameterExtractors: ParameterExtractorsArray =
+                  Array(ParameterExtractors.AnyBodyExtractor(method.inputType))
 
-              val typeUrl = messageCodec.typeUrlFor(method.inputType)
-              (typeUrl, MethodInvoker(meth, parameterExtractors))
-            }.toMap
+                val typeUrls = messageCodec.typeUrlsFor(method.inputType)
+                typeUrls.map(_ -> MethodInvoker(meth, parameterExtractors)).toMap
+              }
+              .getOrElse(Map.empty)
 
           CommandHandler(grpcMethodName, messageCodec, JavaPbAny.getDescriptor, methodInvokers)
 
@@ -276,7 +278,8 @@ private[kalix] object ComponentDescriptor {
             val parameterExtractors: ParameterExtractorsArray =
               Array(ParameterExtractors.AnyBodyExtractor(method.inputType))
 
-            val typeUrl = messageCodec.typeUrlFor(method.inputType)
+            val typeUrl =
+              messageCodec.typeUrlFor(method.inputType) //TODO do we want to support migration for this case?
             (typeUrl, MethodInvoker(meth, parameterExtractors))
           }.toMap
 

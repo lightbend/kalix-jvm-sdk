@@ -17,6 +17,7 @@
 package kalix.javasdk.impl
 
 import java.util
+import java.util.Optional
 
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.databind.JsonNode
@@ -32,6 +33,7 @@ import kalix.javasdk.impl.JsonMessageCodecSpec.Cat
 import kalix.javasdk.impl.JsonMessageCodecSpec.Dog
 import kalix.javasdk.impl.JsonMessageCodecSpec.SimpleClass
 import kalix.javasdk.impl.JsonMessageCodecSpec.SimpleClassUpdated
+import kalix.javasdk.impl.JsonMessageCodecSpec.SimpleClassUpdatedMigration
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 
@@ -114,7 +116,8 @@ class JsonMessageCodecSpec extends AnyWordSpec with Matchers {
 
     "decode with new schema version" in {
       val encoded = messageCodec.encodeJava(SimpleClass("abc", 10))
-      val decoded = JsonSupport.decodeJson(classOf[SimpleClassUpdated], encoded)
+      val decoded =
+        JsonSupport.decodeJson(classOf[SimpleClassUpdated], encoded, Optional.of(new SimpleClassUpdatedMigration))
       decoded shouldBe SimpleClassUpdated("abc", 10, 1)
     }
 

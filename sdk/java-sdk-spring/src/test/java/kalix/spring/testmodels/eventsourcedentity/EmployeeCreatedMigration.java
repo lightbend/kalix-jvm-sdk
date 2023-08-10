@@ -14,22 +14,20 @@
  * limitations under the License.
  */
 
-package kalix.spring.testmodels.valueentity;
+package kalix.spring.testmodels.eventsourcedentity;
 
-import kalix.javasdk.annotations.Migration;
+import kalix.javasdk.JacksonMigration;
 
-@Migration(CounterStateMigration.class)
-public class CounterState {
+import java.util.List;
 
-  public final String id;
-  public final int value;
-
-  public CounterState(String id, int value) {
-    this.id = id;
-    this.value = value;
+public class EmployeeCreatedMigration extends JacksonMigration {
+  @Override
+  public int currentVersion() {
+    return 1;
   }
 
-  public CounterState increase(int increaseBy) {
-    return new CounterState(id, value + increaseBy);
+  @Override
+  public List<String> supportedClassNames() {
+    return List.of("old-created");
   }
 }
