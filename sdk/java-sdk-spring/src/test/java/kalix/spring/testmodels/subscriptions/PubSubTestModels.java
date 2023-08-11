@@ -529,6 +529,10 @@ public class PubSubTestModels {//TODO shall we remove this class and move things
     public Action.Effect<Message> messageOne(Message message) {
       return effects().reply(message);
     }
+
+    public Action.Effect<Message2> messageTwo(Message2 message) {
+      return effects().reply(message);
+    }
   }
 
   @Subscribe.Topic(value = "topicXYZ", consumerGroup = "cg", ignoreUnknown = true)

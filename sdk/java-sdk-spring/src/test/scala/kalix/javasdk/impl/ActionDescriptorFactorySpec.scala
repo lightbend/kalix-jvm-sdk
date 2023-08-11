@@ -99,6 +99,7 @@ import kalix.spring.testmodels.subscriptions.PubSubTestModels.TypeLevelESWithPub
 import kalix.spring.testmodels.subscriptions.PubSubTestModels.TypeLevelSubscribeToValueEntityWithRestAction
 import kalix.spring.testmodels.subscriptions.PubSubTestModels.TypeLevelTopicSubscriptionWithPublishToTopicAction
 import kalix.spring.testmodels.subscriptions.PubSubTestModels.VEWithPublishToTopicAction
+import kalix.spring.testmodels.valueentity.CounterState
 import org.scalatest.wordspec.AnyWordSpec
 
 class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSuite {
@@ -336,11 +337,6 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
         // in case of @Migration, it should map 2 type urls to the same method
         onUpdateMethod.methodInvokers.view.mapValues(_.method.getName).toMap should
         contain only ("json.kalix.io/created" -> "methodOne", "json.kalix.io/old-created" -> "methodOne", "json.kalix.io/emailUpdated" -> "methodTwo")
-//        onUpdateMethod.methodInvokers should have size 3
-//        onUpdateMethod.methodInvokers.values.map { javaMethod =>
-//          javaMethod.method.getName shouldBe "onUpdate"
-//          javaMethod.parameterExtractors.length shouldBe 1
-//        }
       }
     }
 
@@ -383,9 +379,11 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
         // in case of @Migration, it should map 2 type urls to the same method
         onUpdateMethod.methodInvokers should have size 2
         onUpdateMethod.methodInvokers.values.map { javaMethod =>
-          javaMethod.method.getName shouldBe "onUpdate"
           javaMethod.parameterExtractors.length shouldBe 1
         }
+        onUpdateMethod.methodInvokers.view.mapValues(_.method.getName).toMap should
+        contain only ("json.kalix.io/counter-state" -> "onUpdate", "json.kalix.io/" + classOf[
+          CounterState].getName -> "onUpdate")
       }
     }
 
@@ -402,9 +400,14 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
         val eventing = findKalixServiceOptions(desc).getEventing.getIn
         eventing.getValueEntity shouldBe "ve-counter"
 
-        // should have a default extractor for any payload
-        val javaMethod = onUpdateMethod.methodInvokers.values.head
-        javaMethod.parameterExtractors.length shouldBe 1
+        // in case of @Migration, it should map 2 type urls to the same method
+        onUpdateMethod.methodInvokers should have size 2
+        onUpdateMethod.methodInvokers.values.map { javaMethod =>
+          javaMethod.parameterExtractors.length shouldBe 1
+        }
+        onUpdateMethod.methodInvokers.view.mapValues(_.method.getName).toMap should
+        contain only ("json.kalix.io/counter-state" -> "onUpdate", "json.kalix.io/" + classOf[
+          CounterState].getName -> "onUpdate")
       }
     }
 
