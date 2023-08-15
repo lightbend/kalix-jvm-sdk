@@ -242,15 +242,27 @@ public class SpringSdkIntegrationTest {
   public void verifyStreamActions() {
 
     List<Message> messageList =
-      webClient
-        .get()
-        .uri("/echo/repeat/abc/times/3")
-        .retrieve()
-        .bodyToFlux(Message.class)
-        .toStream()
-        .collect(Collectors.toList());
+        webClient
+            .get()
+            .uri("/echo/repeat/abc/times/3")
+            .retrieve()
+            .bodyToFlux(Message.class)
+            .toStream()
+            .collect(Collectors.toList());
 
     assertThat(messageList).hasSize(3);
+  }
+
+  @Test
+  public void verifyCounterEventSourceSubscription2() throws InterruptedException {
+
+    String entityId = "hello1";
+    execute(componentClient.forEventSourcedEntity(entityId)
+        .call(CounterEntity::increase)
+        .params(777));
+
+    Thread.sleep(60000);
+
   }
 
   @Test
@@ -259,8 +271,8 @@ public class SpringSdkIntegrationTest {
     // WHEN the CounterEntity is requested to increase 42\
     String entityId = "hello1";
     execute(componentClient.forEventSourcedEntity(entityId)
-      .call(CounterEntity::increase)
-      .params(42));
+        .call(CounterEntity::increase)
+        .params(42));
 
     // THEN IncreaseAction receives the event 42 and increases the counter 1 more
     await()

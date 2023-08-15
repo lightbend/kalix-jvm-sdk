@@ -16,11 +16,11 @@
 
 package kalix.spring.testmodels.eventsourcedentity;
 
-import kalix.javasdk.JacksonMigration;
+import kalix.javasdk.JsonMigration;
 
 import java.util.List;
 
-public class EmployeeCreatedMigration extends JacksonMigration {
+public class EmployeeCreatedMigration extends JsonMigration {
   @Override
   public int currentVersion() {
     return 1;

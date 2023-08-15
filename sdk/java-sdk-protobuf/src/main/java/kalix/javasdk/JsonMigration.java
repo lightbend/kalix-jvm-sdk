@@ -24,11 +24,11 @@ import java.util.List;
  * Allows to specify dedicated strategy for JSON schema evolution.
  * <p>
  * It is used when deserializing data of older version than the
- * {@link JacksonMigration#currentVersion}. You implement the transformation of the
- * JSON structure in the {@link JacksonMigration#transform} method. If you have changed the
- * class name you should add it to {@link JacksonMigration#supportedClassNames}.
+ * {@link JsonMigration#currentVersion}. You implement the transformation of the
+ * JSON structure in the {@link JsonMigration#transform} method. If you have changed the
+ * class name you should add it to {@link JsonMigration#supportedClassNames}.
  */
-public abstract class JacksonMigration {
+public abstract class JsonMigration {
 
   /**
    * Define current version, that is, the value used when serializing new data. The first version, when no
@@ -38,7 +38,7 @@ public abstract class JacksonMigration {
 
   /**
    * Define the supported forward version this migration can read (must be greater or equal than `currentVersion`).
-   * If this value is different from {@link JacksonMigration#currentVersion} a {@link JacksonMigration#transform} will be used to downcast
+   * If this value is different from {@link JsonMigration#currentVersion} a {@link JsonMigration#transform} will be used to downcast
    * the received payload to the current schema.
    */
   public int supportedForwardVersion() {

@@ -25,7 +25,7 @@ import com.fasterxml.jackson.databind.node.IntNode
 import com.fasterxml.jackson.databind.node.ObjectNode
 import com.google.protobuf.any.{ Any => ScalaPbAny }
 import com.google.protobuf.{ Any => JavaPbAny }
-import kalix.javasdk.JacksonMigration
+import kalix.javasdk.JsonMigration
 import kalix.javasdk.JsonSupport
 import kalix.javasdk.annotations.Migration
 import kalix.javasdk.annotations.TypeName
@@ -50,7 +50,7 @@ object JsonMessageCodecSpec {
   @JsonCreator
   case class SimpleClass(str: String, in: Int)
 
-  class SimpleClassUpdatedMigration extends JacksonMigration {
+  class SimpleClassUpdatedMigration extends JsonMigration {
     override def currentVersion(): Int = 1
     override def transform(fromVersion: Int, jsonNode: JsonNode): JsonNode = {
       if (fromVersion == 0) {

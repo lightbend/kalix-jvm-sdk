@@ -19,11 +19,11 @@ package kalix.javasdk.eventsourcedentity;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.IntNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import kalix.javasdk.JacksonMigration;
+import kalix.javasdk.JsonMigration;
 
 import java.util.List;
 
-public class Event2Migration extends JacksonMigration {
+public class Event2Migration extends JsonMigration {
   @Override
   public int currentVersion() {
     return 1;

@@ -20,7 +20,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 
-public class DummyClass2Migration extends JacksonMigration {
+public class DummyClass2Migration extends JsonMigration {
   @Override
   public int currentVersion() {
     return 1;

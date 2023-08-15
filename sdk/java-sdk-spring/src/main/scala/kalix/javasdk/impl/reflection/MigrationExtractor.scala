@@ -17,13 +17,12 @@
 package kalix.javasdk.impl.reflection
 
 import java.util.Optional
-
-import kalix.javasdk.JacksonMigration
+import kalix.javasdk.JsonMigration
 import kalix.javasdk.annotations.Migration
 
 object MigrationExtractor {
 
-  def extractMigration(clazz: Class[_]): Optional[JacksonMigration] = {
+  def extractMigration(clazz: Class[_]): Optional[JsonMigration] = {
     if (clazz.getAnnotation(classOf[Migration]) != null) {
       val migration = clazz
         .getAnnotation(classOf[Migration])

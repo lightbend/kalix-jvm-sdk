@@ -20,10 +20,10 @@ package kalix.javasdk.valueentity;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
-import kalix.javasdk.JacksonMigration;
+import kalix.javasdk.JsonMigration;
 
 
-public class TestVEState2Migration extends JacksonMigration {
+public class TestVEState2Migration extends JsonMigration {
 
   @Override
   public int currentVersion() {

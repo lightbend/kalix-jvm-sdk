@@ -19,7 +19,7 @@ package kalix.javasdk;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-public class DummyClassMigration extends JacksonMigration {
+public class DummyClassMigration extends JsonMigration {
   @Override
   public int currentVersion() {
     return 0;

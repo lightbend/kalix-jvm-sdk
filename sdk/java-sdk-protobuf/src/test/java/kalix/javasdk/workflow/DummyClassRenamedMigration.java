@@ -18,11 +18,11 @@ package kalix.javasdk.workflow;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import kalix.javasdk.DummyClass2;
-import kalix.javasdk.JacksonMigration;
+import kalix.javasdk.JsonMigration;
 
 import java.util.List;
 
-public class DummyClassRenamedMigration extends JacksonMigration {
+public class DummyClassRenamedMigration extends JsonMigration {
   @Override
   public int currentVersion() {
     return 1;

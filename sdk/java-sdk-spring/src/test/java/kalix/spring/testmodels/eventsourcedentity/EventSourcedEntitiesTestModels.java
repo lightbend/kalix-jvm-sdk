@@ -16,7 +16,7 @@
 
 package kalix.spring.testmodels.eventsourcedentity;
 
-import kalix.javasdk.JacksonMigration;
+import kalix.javasdk.JsonMigration;
 import kalix.javasdk.annotations.Migration;
 import kalix.javasdk.annotations.Acl;
 import kalix.javasdk.annotations.EventHandler;
@@ -64,7 +64,7 @@ public class EventSourcedEntitiesTestModels {
     public record Event(String s) {
     }
 
-    public static class EventMigration extends JacksonMigration {
+    public static class EventMigration extends JsonMigration {
 
       public EventMigration() {
       }

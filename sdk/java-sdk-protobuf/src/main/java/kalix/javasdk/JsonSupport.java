@@ -148,11 +148,11 @@ public final class JsonSupport {
    * @param valueClass       The type of class to deserialize the object to, the class must have the
    *                         proper Jackson annotations for deserialization.
    * @param any              The protobuf Any object to deserialize.
-   * @param jacksonMigration The optional @{@link JacksonMigration} implementation used for deserialization.
+   * @param jacksonMigration The optional @{@link JsonMigration} implementation used for deserialization.
    * @return The decoded object
    * @throws IllegalArgumentException if the given value cannot be decoded to a T
    */
-  public static <T> T decodeJson(Class<T> valueClass, Any any, Optional<? extends JacksonMigration> jacksonMigration) {
+  public static <T> T decodeJson(Class<T> valueClass, Any any, Optional<? extends JsonMigration> jacksonMigration) {
     if (!any.getTypeUrl().startsWith(KALIX_JSON)) {
       throw new IllegalArgumentException(
           "Protobuf bytes with type url ["
@@ -165,7 +165,7 @@ public final class JsonSupport {
         ByteString decodedBytes = ByteStringEncoding.decodePrimitiveBytes(any.getValue());
         if (jacksonMigration.isPresent()) {
           int fromVersion = parseVersion(any.getTypeUrl());
-          JacksonMigration migration = jacksonMigration.get();
+          JsonMigration migration = jacksonMigration.get();
           int currentVersion = migration.currentVersion();
           int supportedForwardVersion = migration.supportedForwardVersion();
           if (fromVersion < currentVersion) {
@@ -193,9 +193,9 @@ public final class JsonSupport {
     }
   }
 
-  private static <T> T migrate(Class<T> valueClass, ByteString decodedBytes, int fromVersion, JacksonMigration jacksonMigration) throws IOException {
+  private static <T> T migrate(Class<T> valueClass, ByteString decodedBytes, int fromVersion, JsonMigration jsonMigration) throws IOException {
     JsonNode jsonNode = objectMapper.readTree(decodedBytes.toByteArray());
-    JsonNode newJsonNode = jacksonMigration.transform(fromVersion, jsonNode);
+    JsonNode newJsonNode = jsonMigration.transform(fromVersion, jsonNode);
     return objectMapper.treeToValue(newJsonNode, valueClass);
   }
 

@@ -16,7 +16,7 @@
 
 package kalix.javasdk.annotations;
 
-import kalix.javasdk.JacksonMigration;
+import kalix.javasdk.JsonMigration;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -24,12 +24,12 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Annotation to assign a @{@link JacksonMigration} implementation for a given class.
+ * Annotation to assign a @{@link JsonMigration} implementation for a given class.
  * Can be combined with @{@link TypeName} annotation.
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Migration {
 
-  Class<? extends JacksonMigration> value();
+  Class<? extends JsonMigration> value();
 }
