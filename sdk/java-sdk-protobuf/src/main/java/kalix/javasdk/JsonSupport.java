@@ -200,8 +200,9 @@ public final class JsonSupport {
   }
 
   private static int parseVersion(String typeUrl) {
-    if (typeUrl.contains("#")) { //TODO can we assume that there will be ony one "#" ??
-      String maybeVersion = typeUrl.split("#")[1];
+    int versionSeparatorIndex = typeUrl.lastIndexOf("#");
+    if (versionSeparatorIndex > 0) {
+      String maybeVersion = typeUrl.substring(versionSeparatorIndex + 1, typeUrl.length());
       return Integer.parseInt(maybeVersion);
     } else {
       return 0;
