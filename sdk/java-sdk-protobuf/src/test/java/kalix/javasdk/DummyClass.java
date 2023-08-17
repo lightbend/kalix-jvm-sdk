@@ -29,7 +29,7 @@ public class DummyClass {
   public Optional<String> optionalStringValue;
 
   @JsonCreator
-  public DummyClass(@JsonProperty("stringValue") String stringValue, @JsonProperty("intValue") int intValue, @JsonProperty("optionalStringValue") Optional<String> optionalStringValue) {
+  public DummyClass(String stringValue, int intValue, Optional<String> optionalStringValue) {
     this.stringValue = stringValue;
     this.intValue = intValue;
     this.optionalStringValue = optionalStringValue;

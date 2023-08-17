@@ -27,7 +27,7 @@ public class DummyClass2 {
   public String mandatoryStringValue;
 
   @JsonCreator
-  public DummyClass2(@JsonProperty("stringValue") String stringValue, @JsonProperty("intValue") int intValue, @JsonProperty("mandatoryStringValue") String mandatoryStringValue) {
+  public DummyClass2(String stringValue, int intValue, String mandatoryStringValue) {
     this.stringValue = stringValue;
     this.intValue = intValue;
     this.mandatoryStringValue = mandatoryStringValue;

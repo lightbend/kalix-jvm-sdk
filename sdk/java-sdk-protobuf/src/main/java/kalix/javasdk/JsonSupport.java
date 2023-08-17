@@ -202,7 +202,7 @@ public final class JsonSupport {
   private static int parseVersion(String typeUrl) {
     int versionSeparatorIndex = typeUrl.lastIndexOf("#");
     if (versionSeparatorIndex > 0) {
-      String maybeVersion = typeUrl.substring(versionSeparatorIndex + 1, typeUrl.length());
+      String maybeVersion = typeUrl.substring(versionSeparatorIndex + 1);
       return Integer.parseInt(maybeVersion);
     } else {
       return 0;
