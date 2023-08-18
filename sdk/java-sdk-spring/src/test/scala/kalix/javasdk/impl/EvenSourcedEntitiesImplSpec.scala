@@ -37,7 +37,7 @@ class EvenSourcedEntitiesImplSpec extends AnyWordSpec with Matchers with BeforeA
 
   import kalix.testkit.eventsourcedentity.EventSourcedMessages._
 
-  "EntityImpl" should {
+  "EventSourcedEntityImpl" should {
 
     "recover es state based on old events version" in {
       val entityId = "1"

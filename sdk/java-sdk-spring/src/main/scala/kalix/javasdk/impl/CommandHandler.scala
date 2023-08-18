@@ -43,7 +43,8 @@ case class CommandHandler(
       val lastParam = javaMethod.method.getParameterTypes.last
       if (lastParam.getAnnotation(classOf[JsonSubTypes]) != null) {
         lastParam.getAnnotation(classOf[JsonSubTypes]).value().exists { subType =>
-          inputTypeUrl == messageCodec.typeUrlFor(subType.value()) //TODO verify is this works with migration
+          inputTypeUrl == messageCodec
+            .typeUrlFor(subType.value()) //TODO requires more changes to be used with JsonMigration
         }
       } else false
     }

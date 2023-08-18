@@ -31,8 +31,8 @@ public class WalletEntity extends ValueEntity<WalletEntity.Wallet> {
 
   @JsonTypeInfo(use = JsonTypeInfo.Id.NAME)
   @JsonSubTypes({
-      @JsonSubTypes.Type(value = WithdrawResult.WithdrawSucceed.class),
-      @JsonSubTypes.Type(value = WithdrawResult.WithdrawSucceed.class)})
+    @JsonSubTypes.Type(value = WithdrawResult.WithdrawSucceed.class, name = "withdraw-succeed"),
+    @JsonSubTypes.Type(value = WithdrawResult.WithdrawFailed.class, name = "withdraw-failed")})
   public sealed interface WithdrawResult {
     record WithdrawFailed(String errorMsg) implements WithdrawResult {
     }
@@ -43,8 +43,8 @@ public class WalletEntity extends ValueEntity<WalletEntity.Wallet> {
 
   @JsonTypeInfo(use = JsonTypeInfo.Id.NAME)
   @JsonSubTypes({
-      @JsonSubTypes.Type(value = DepositResult.DepositSucceed.class),
-      @JsonSubTypes.Type(value = DepositResult.DepositFailed.class)})
+    @JsonSubTypes.Type(value = DepositResult.DepositSucceed.class, name = "deposit-succeed"),
+    @JsonSubTypes.Type(value = DepositResult.DepositFailed.class, name = "deposit-failed")})
   public sealed interface DepositResult {
     record DepositFailed(String errorMsg) implements DepositResult {
     }

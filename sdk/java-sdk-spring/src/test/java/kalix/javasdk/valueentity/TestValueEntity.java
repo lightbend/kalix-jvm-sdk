@@ -31,11 +31,6 @@ public class TestValueEntity extends ValueEntity<TestVEState1> {
     return new TestVEState1("empty", 1);
   }
 
-//  @PostMapping("/create")
-//  public Effect<String> create() {
-//    return effects().updateState(new TestVEState1("test", 123)).thenReply("ok");
-//  }
-
   @GetMapping
   public Effect<TestVEState1> get() {
     return effects().reply(currentState());

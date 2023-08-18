@@ -26,11 +26,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping("/ve")
 public class TestValueEntityMigration extends ValueEntity<TestVEState2> {
 
-//  @PostMapping("/create")
-//  public Effect<String> create() {
-//    return effects().updateState(new TestVEState1("test", 123)).thenReply("ok");
-//  }
-
   @GetMapping
   public Effect<TestVEState2> get() {
     return effects().reply(currentState());
