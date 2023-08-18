@@ -17,7 +17,7 @@
 package kalix.javasdk.impl
 
 import com.google.protobuf.ByteString._
-import com.google.protobuf.any.{Any => ScalaPbAny}
+import com.google.protobuf.any.{ Any => ScalaPbAny }
 import kalix.javasdk.impl.workflow.TestWorkflow
 import kalix.javasdk.workflow.ReflectiveWorkflowProvider
 import kalix.javasdk.workflow.TestWorkflowSerialization
