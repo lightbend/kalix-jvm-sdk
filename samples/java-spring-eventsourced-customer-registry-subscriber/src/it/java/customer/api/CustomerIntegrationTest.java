@@ -132,7 +132,7 @@ public class CustomerIntegrationTest {
 
     // start the real test now  
     String id = UUID.randomUUID().toString();
-    CustomerRegistryAction.Customer customer = new CustomerRegistryAction.Customer("foo@example.com", "Johanna"Ż, new CustomerRegistryAction.Address("street", "city"));
+    CustomerRegistryAction.Customer customer = new CustomerRegistryAction.Customer("foo@example.com", "Johanna", new CustomerRegistryAction.Address("street", "city"));
 
         // try until it succeeds
     await()
