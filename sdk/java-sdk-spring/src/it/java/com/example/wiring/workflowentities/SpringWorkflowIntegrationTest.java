@@ -459,6 +459,26 @@ public class SpringWorkflowIntegrationTest {
     assertThat(execute(componentClient.forWorkflow(workflowId).call(DummyWorkflow::get))).isEqualTo(10);
   }
 
+  @Test
+  public void shouldRunWorkflowStepWithoutInitialState() {
+    //given
+    var workflowId = randomId();
+
+    //when
+    String response = execute(componentClient.forWorkflow(workflowId)
+        .call(WorkflowWithoutInitialState::start));
+
+    assertThat(response).contains("ok");
+
+    //then
+    await()
+        .atMost(10, TimeUnit.of(SECONDS))
+        .untilAsserted(() -> {
+          var state = execute(componentClient.forWorkflow(workflowId).call(WorkflowWithoutInitialState::get));
+          assertThat(state).contains("success");
+        });
+  }
+
   private <T> T execute(DeferredCall<Any, T> deferredCall) {
     return execute(deferredCall, timeout);
   }

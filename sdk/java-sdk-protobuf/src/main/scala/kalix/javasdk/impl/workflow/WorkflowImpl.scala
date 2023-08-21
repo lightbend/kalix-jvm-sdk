@@ -306,8 +306,10 @@ final class WorkflowImpl(system: ActorSystem, val services: Map[String, Workflow
           val timerScheduler = new TimerSchedulerImpl(service.messageCodec, system)
           val stepResponse =
             try {
-              val decoded = service.messageCodec.decodeMessage(executeStep.userState.get)
-              router._internalSetInitState(decoded, false) // here we know that workflow is still running
+              executeStep.userState.foreach { state =>
+                val decoded = service.messageCodec.decodeMessage(state)
+                router._internalSetInitState(decoded, finished = false) // here we know that workflow is still running
+              }
               router._internalHandleStep(
                 executeStep.commandId,
                 executeStep.input,
