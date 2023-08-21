@@ -196,7 +196,7 @@ final class WorkflowImpl(system: ActorSystem, val services: Map[String, Workflow
     init.userState match {
       case Some(state) =>
         val decoded = service.messageCodec.decodeMessage(state)
-        router._internalSetInitState(decoded, finished = false) //TODO get this from the init message
+        router._internalSetInitState(decoded, init.finished)
       case None => // no initial state
     }
 
