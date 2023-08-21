@@ -14,22 +14,24 @@
  * limitations under the License.
  */
 
-package kalix.spring.testmodels.valueentity;
+package kalix.javasdk.impl.reflection
 
-import kalix.javasdk.annotations.Migration;
+import java.util.Optional
+import kalix.javasdk.JsonMigration
+import kalix.javasdk.annotations.Migration
 
-@Migration(CounterStateMigration.class)
-public class CounterState {
+object MigrationExtractor {
 
-  public final String id;
-  public final int value;
-
-  public CounterState(String id, int value) {
-    this.id = id;
-    this.value = value;
-  }
-
-  public CounterState increase(int increaseBy) {
-    return new CounterState(id, value + increaseBy);
+  def extractMigration(clazz: Class[_]): Optional[JsonMigration] = {
+    if (clazz.getAnnotation(classOf[Migration]) != null) {
+      val migration = clazz
+        .getAnnotation(classOf[Migration])
+        .value()
+        .getConstructor()
+        .newInstance()
+      Optional.of(migration)
+    } else {
+      Optional.empty()
+    }
   }
 }

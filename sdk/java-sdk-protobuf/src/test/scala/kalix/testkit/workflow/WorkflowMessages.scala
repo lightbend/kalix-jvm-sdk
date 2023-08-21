@@ -24,9 +24,9 @@ import kalix.protocol.entity.Command
 import kalix.protocol.workflow_entity.WorkflowStreamIn.{ Message => InMessage }
 import kalix.protocol.workflow_entity.WorkflowStreamOut.{ Message => OutMessage }
 import kalix.protocol.workflow_entity._
+import kalix.protocol.workflow_entity.{ NoTransition => ProtoNoTransition }
 import kalix.testkit.entity.EntityMessages
 import scalapb.{ GeneratedMessage => ScalaPbMessage }
-import kalix.protocol.workflow_entity.{ NoTransition => ProtoNoTransition }
 
 object WorkflowMessages extends EntityMessages {
 
@@ -68,12 +68,29 @@ object WorkflowMessages extends EntityMessages {
     InMessage.Step(executeStep)
   }
 
+  def executeStep(id: Long, stepName: String): InMessage = {
+    InMessage.Step(ExecuteStep(id, stepName, None, None))
+  }
+
+  def executeStep(id: Long, stepName: String, state: ScalaPbAny): InMessage = {
+    InMessage.Step(ExecuteStep(id, stepName, None, Some(state)))
+  }
+
   def getNextStep(id: Long, stepName: String, input: JavaPbMessage): InMessage = {
     val nextStep =
       GetNextStep.defaultInstance
         .withCommandId(id)
         .withStepName(stepName)
         .withResult(protobufAny(input))
+    InMessage.Transition(nextStep)
+  }
+
+  def getNextStep(id: Long, stepName: String, input: ScalaPbAny): InMessage = {
+    val nextStep =
+      GetNextStep.defaultInstance
+        .withCommandId(id)
+        .withStepName(stepName)
+        .withResult(input)
     InMessage.Transition(nextStep)
   }
 
@@ -86,6 +103,43 @@ object WorkflowMessages extends EntityMessages {
       .withTransition(noTransition)
       .withCommandId(id)
     WorkflowStreamOut.Message.Effect(failureEffect)
+  }
+
+  def workflowActionReply(payload: Option[ScalaPbAny]): Option[WorkflowClientAction] = {
+    Some(WorkflowClientAction(WorkflowClientAction.Action.Reply(component.Reply(payload, None))))
+  }
+
+  def stepTransition(stepName: String) =
+    WorkflowEffect.Transition.StepTransition(StepTransition(stepName))
+
+  def reply(id: Long, payload: ScalaPbAny): OutMessage =
+    replyAction(id, workflowActionReply(Some(payload)), None, WorkflowEffect.Transition.NoTransition(NoTransition()))
+
+  def reply(id: Long, payload: ScalaPbAny, transition: WorkflowEffect.Transition): OutMessage =
+    replyAction(id, workflowActionReply(Some(payload)), None, transition)
+
+  def reply(id: Long, payload: ScalaPbAny, state: ScalaPbAny, transition: WorkflowEffect.Transition): OutMessage =
+    replyAction(id, workflowActionReply(Some(payload)), Some(state), transition)
+
+  def replyAction(
+      id: Long,
+      action: Option[WorkflowClientAction],
+      state: Option[ScalaPbAny],
+      transition: WorkflowEffect.Transition): OutMessage = {
+    OutMessage.Effect(WorkflowEffect(id, action, state, transition))
+  }
+
+  def stepExecuted(id: Long, stepName: String, result: ScalaPbAny): OutMessage = {
+    OutMessage.Response(StepResponse(id, stepName, StepResponse.Response.Executed(StepExecuted(Some(result)))))
+  }
+
+  def end(id: Long, state: ScalaPbAny): OutMessage = {
+    OutMessage.Effect(
+      WorkflowEffect(
+        id,
+        workflowActionReply(None),
+        Some(state),
+        WorkflowEffect.Transition.EndTransition(EndTransition())))
   }
 
   def config(): OutMessage =

@@ -26,8 +26,9 @@ import kalix.javasdk.eventsourcedentity.CommandContext
 import kalix.javasdk.eventsourcedentity.EventSourcedEntity
 import kalix.javasdk.impl.CommandHandler
 import kalix.javasdk.impl.InvocationContext
-import kalix.javasdk.impl.MethodInvoker
 import kalix.javasdk.impl.JsonMessageCodec
+import kalix.javasdk.impl.MethodInvoker
+import kalix.javasdk.impl.reflection.MigrationExtractor.extractMigration
 
 class ReflectiveEventSourcedEntityRouter[S, E, ES <: EventSourcedEntity[S, E]](
     override protected val entity: ES,
@@ -41,10 +42,11 @@ class ReflectiveEventSourcedEntityRouter[S, E, ES <: EventSourcedEntity[S, E]](
       commandName,
       throw new HandlerNotFoundException("command", commandName, commandHandlers.keySet))
 
-  private def eventHandlerLookup(eventName: String) =
+  private def eventHandlerLookup(eventName: String) = {
     eventHandlerMethods.getOrElse(
-      eventName,
-      throw new HandlerNotFoundException("event", eventName, commandHandlers.keySet))
+      messageCodec.removeVersion(eventName),
+      throw new HandlerNotFoundException("event", eventName, eventHandlerMethods.keySet))
+  }
 
   override def handleEvent(state: S, event: E): S = {
 
@@ -107,7 +109,10 @@ class ReflectiveEventSourcedEntityRouter[S, E, ES <: EventSourcedEntity[S, E]](
         entity._internalSetCurrentState(s)
       case s =>
         val deserializedState =
-          JsonSupport.decodeJson(entityStateType, ScalaPbAny.toJavaProto(s.asInstanceOf[ScalaPbAny]))
+          JsonSupport.decodeJson(
+            entityStateType,
+            ScalaPbAny.toJavaProto(s.asInstanceOf[ScalaPbAny]),
+            extractMigration(entityStateType))
         entity._internalSetCurrentState(deserializedState)
     }
   }

@@ -78,10 +78,10 @@ object EventSourcedHandlersExtractor {
       }
 
     EventSourceEntityHandlers(
-      handlers = validHandlers.map { case (classType, methods) =>
-        messageCodec.typeUrlFor(classType) -> MethodInvoker(
-          methods.head,
-          ParameterExtractors.AnyBodyExtractor[AnyRef](classType))
+      handlers = validHandlers.flatMap { case (classType, methods) =>
+        val invoker = MethodInvoker(methods.head, ParameterExtractors.AnyBodyExtractor[AnyRef](classType))
+        //in case of schema evolution more types can point to the same invoker
+        messageCodec.typeUrlsFor(classType).map(typeUrl => typeUrl -> invoker)
       },
       errors = errorsForSignatures ++ errorsForDuplicates.toList ++ missingEventHandler)
   }

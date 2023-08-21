@@ -14,22 +14,19 @@
  * limitations under the License.
  */
 
-package kalix.spring.testmodels.valueentity;
+package kalix.javasdk.eventsourcedentity;
 
-import kalix.javasdk.annotations.Migration;
+import kalix.javasdk.annotations.TypeName;
 
-@Migration(CounterStateMigration.class)
-public class CounterState {
+public interface OldTestESEvent {
 
-  public final String id;
-  public final int value;
-
-  public CounterState(String id, int value) {
-    this.id = id;
-    this.value = value;
+  record OldEvent1(String s) implements OldTestESEvent {
   }
 
-  public CounterState increase(int increaseBy) {
-    return new CounterState(id, value + increaseBy);
+  record OldEvent2(int i) implements OldTestESEvent {
+  }
+
+  @TypeName("old-event-3")
+  record OldEvent3(boolean b) implements OldTestESEvent {
   }
 }

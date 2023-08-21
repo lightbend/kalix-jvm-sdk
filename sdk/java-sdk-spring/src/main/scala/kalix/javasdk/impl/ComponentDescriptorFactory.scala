@@ -472,13 +472,12 @@ private[impl] object ComponentDescriptorFactory {
     groupedSubscriptions.collect {
       case (source, kMethods) if kMethods.size > 1 =>
         val methodsMap =
-          kMethods.map { k =>
+          kMethods.flatMap { k =>
             val methodParameterTypes = k.serviceMethod.javaMethodOpt.get.getParameterTypes
             // it is safe to pick the last parameter. An action has one and View has two. In the View always the last is the event
             val eventParameter = methodParameterTypes.last
 
-            val typeUrl = messageCodec.typeUrlFor(eventParameter)
-            (typeUrl, k.serviceMethod.javaMethodOpt.get)
+            messageCodec.typeUrlsFor(eventParameter).map(typeUrl => (typeUrl, k.serviceMethod.javaMethodOpt.get))
           }.toMap
 
         KalixMethod(

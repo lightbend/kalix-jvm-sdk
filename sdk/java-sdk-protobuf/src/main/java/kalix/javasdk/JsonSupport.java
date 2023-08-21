@@ -17,25 +17,27 @@
 package kalix.javasdk;
 
 import akka.Done;
-import com.fasterxml.jackson.core.JacksonException;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.module.SimpleModule;
-import kalix.javasdk.impl.ByteStringEncoding;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import com.google.protobuf.*;
+import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.google.protobuf.Any;
+import com.google.protobuf.ByteString;
+import com.google.protobuf.UnsafeByteOperations;
+import kalix.javasdk.impl.ByteStringEncoding;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -130,11 +132,27 @@ public final class JsonSupport {
    * the JSON string as bytes as value and a type URL starting with "json.kalix.io/".
    *
    * @param valueClass The type of class to deserialize the object to, the class must have the
-   *     proper Jackson annotations for deserialization.
+   *                   proper Jackson annotations for deserialization.
+   * @param any        The protobuf Any object to deserialize.
    * @return The decoded object
    * @throws IllegalArgumentException if the given value cannot be decoded to a T
    */
   public static <T> T decodeJson(Class<T> valueClass, Any any) {
+    return decodeJson(valueClass, any, Optional.empty());
+  }
+
+  /**
+   * Decode the given protobuf Any object to an instance of T using Jackson. The object must have
+   * the JSON string as bytes as value and a type URL starting with "json.kalix.io/".
+   *
+   * @param valueClass       The type of class to deserialize the object to, the class must have the
+   *                         proper Jackson annotations for deserialization.
+   * @param any              The protobuf Any object to deserialize.
+   * @param jacksonMigration The optional @{@link JsonMigration} implementation used for deserialization.
+   * @return The decoded object
+   * @throws IllegalArgumentException if the given value cannot be decoded to a T
+   */
+  public static <T> T decodeJson(Class<T> valueClass, Any any, Optional<? extends JsonMigration> jacksonMigration) {
     if (!any.getTypeUrl().startsWith(KALIX_JSON)) {
       throw new IllegalArgumentException(
           "Protobuf bytes with type url ["
@@ -145,7 +163,24 @@ public final class JsonSupport {
     } else {
       try {
         ByteString decodedBytes = ByteStringEncoding.decodePrimitiveBytes(any.getValue());
-        return objectMapper.readValue(decodedBytes.toByteArray(), valueClass);
+        if (jacksonMigration.isPresent()) {
+          int fromVersion = parseVersion(any.getTypeUrl());
+          JsonMigration migration = jacksonMigration.get();
+          int currentVersion = migration.currentVersion();
+          int supportedForwardVersion = migration.supportedForwardVersion();
+          if (fromVersion < currentVersion) {
+            return migrate(valueClass, decodedBytes, fromVersion, migration);
+          } else if (fromVersion == currentVersion) {
+            return objectMapper.readValue(decodedBytes.toByteArray(), valueClass);
+          } else if (fromVersion <= supportedForwardVersion) {
+            return migrate(valueClass, decodedBytes, fromVersion, migration);
+          } else {
+            throw new IllegalStateException("Migration version " + supportedForwardVersion + " is " +
+                "behind version " + fromVersion + " of deserialized type [" + valueClass.getName() + "]");
+          }
+        } else {
+          return objectMapper.readValue(decodedBytes.toByteArray(), valueClass);
+        }
       } catch (IOException e) {
         throw new IllegalArgumentException(
             "JSON with type url ["
@@ -158,14 +193,30 @@ public final class JsonSupport {
     }
   }
 
+  private static <T> T migrate(Class<T> valueClass, ByteString decodedBytes, int fromVersion, JsonMigration jsonMigration) throws IOException {
+    JsonNode jsonNode = objectMapper.readTree(decodedBytes.toByteArray());
+    JsonNode newJsonNode = jsonMigration.transform(fromVersion, jsonNode);
+    return objectMapper.treeToValue(newJsonNode, valueClass);
+  }
+
+  private static int parseVersion(String typeUrl) {
+    int versionSeparatorIndex = typeUrl.lastIndexOf("#");
+    if (versionSeparatorIndex > 0) {
+      String maybeVersion = typeUrl.substring(versionSeparatorIndex + 1);
+      return Integer.parseInt(maybeVersion);
+    } else {
+      return 0;
+    }
+  }
+
   public static <T, C extends Collection<T>> C decodeJsonCollection(Class<T> valueClass, Class<C> collectionType, Any any) {
     if (!any.getTypeUrl().startsWith(KALIX_JSON)) {
       throw new IllegalArgumentException(
-        "Protobuf bytes with type url ["
-          + any.getTypeUrl()
-          + "] cannot be decoded as JSON, must start with ["
-          + KALIX_JSON
-          + "]");
+          "Protobuf bytes with type url ["
+              + any.getTypeUrl()
+              + "] cannot be decoded as JSON, must start with ["
+              + KALIX_JSON
+              + "]");
     } else {
       try {
         ByteString decodedBytes = ByteStringEncoding.decodePrimitiveBytes(any.getValue());
@@ -212,9 +263,9 @@ class DoneSerializer extends JsonSerializer<Done> {
 class DoneDeserializer extends JsonDeserializer<Done> {
 
   @Override
-  public Done deserialize(JsonParser p, DeserializationContext ctxt) throws IOException, JacksonException {
-    if (p.currentToken() == JsonToken.START_OBJECT && p.nextToken() == JsonToken.END_OBJECT){
-    return Done.getInstance();
+  public Done deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
+    if (p.currentToken() == JsonToken.START_OBJECT && p.nextToken() == JsonToken.END_OBJECT) {
+      return Done.getInstance();
     } else {
       throw JsonMappingException.from(ctxt, "Cannot deserialize Done class, expecting empty object '{}'");
     }

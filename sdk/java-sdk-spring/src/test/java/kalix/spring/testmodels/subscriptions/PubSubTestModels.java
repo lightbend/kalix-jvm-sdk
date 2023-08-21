@@ -19,25 +19,25 @@ package kalix.spring.testmodels.subscriptions;
 import kalix.javasdk.action.Action;
 import kalix.javasdk.annotations.Acl;
 import kalix.javasdk.annotations.Publish;
+import kalix.javasdk.annotations.Query;
 import kalix.javasdk.annotations.Subscribe;
+import kalix.javasdk.annotations.Table;
+import kalix.javasdk.view.View;
 import kalix.spring.testmodels.Done;
 import kalix.spring.testmodels.Message;
 import kalix.spring.testmodels.Message2;
+import kalix.spring.testmodels.eventsourcedentity.Employee;
 import kalix.spring.testmodels.eventsourcedentity.EmployeeEvent.EmployeeCreated;
+import kalix.spring.testmodels.eventsourcedentity.EmployeeEvent.EmployeeEmailUpdated;
+import kalix.spring.testmodels.eventsourcedentity.EventSourcedEntitiesTestModels.CounterEventSourcedEntity;
+import kalix.spring.testmodels.eventsourcedentity.EventSourcedEntitiesTestModels.EmployeeEntity;
 import kalix.spring.testmodels.valueentity.AssignedCounter;
 import kalix.spring.testmodels.valueentity.Counter;
 import kalix.spring.testmodels.valueentity.CounterState;
-import kalix.javasdk.view.View;
-import kalix.javasdk.annotations.Query;
-import kalix.javasdk.annotations.Table;
-import kalix.spring.testmodels.eventsourcedentity.Employee;
-import kalix.spring.testmodels.eventsourcedentity.EmployeeEvent;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import kalix.spring.testmodels.eventsourcedentity.EventSourcedEntitiesTestModels.CounterEventSourcedEntity;
-import kalix.spring.testmodels.eventsourcedentity.EventSourcedEntitiesTestModels.EmployeeEntity;
 
 public class PubSubTestModels {//TODO shall we remove this class and move things to ActionTestModels and ViewTestModels
 
@@ -93,6 +93,18 @@ public class PubSubTestModels {//TODO shall we remove this class and move things
     @Subscribe.ValueEntity(value = Counter.class, handleDeletes = true)
     public Action.Effect<CounterState> onDelete() {
       return effects().ignore();
+    }
+  }
+
+  @Subscribe.EventSourcedEntity(EmployeeEntity.class)
+  public static class SubscribeToEventSourcedEmployee extends Action {
+
+    public Effect<EmployeeCreated> methodOne(EmployeeCreated message) {
+      return effects().reply(message);
+    }
+
+    public Effect<EmployeeEmailUpdated> methodTwo(EmployeeEmailUpdated message) {
+      return effects().reply(message);
     }
   }
 
@@ -722,7 +734,7 @@ public class PubSubTestModels {//TODO shall we remove this class and move things
         .updateState(new Employee(evt.firstName, evt.lastName, evt.email));
     }
 
-    public UpdateEffect<Employee> onEmailUpdate(EmployeeEvent.EmployeeEmailUpdated eeu) {
+    public UpdateEffect<Employee> onEmailUpdate(EmployeeEmailUpdated eeu) {
       var employee = viewState();
       return effects().updateState(new Employee(employee.firstName, employee.lastName, eeu.email));
     }
@@ -743,7 +755,7 @@ public class PubSubTestModels {//TODO shall we remove this class and move things
       return effects().reply(created.toString());
     }
 
-    public Effect<String> transform(EmployeeEvent.EmployeeEmailUpdated emailUpdated) {
+    public Effect<String> transform(EmployeeEmailUpdated emailUpdated) {
       return effects().reply(emailUpdated.toString());
     }
 
@@ -756,7 +768,7 @@ public class PubSubTestModels {//TODO shall we remove this class and move things
       return effects().reply(created.toString());
     }
 
-    public Effect<String> transform(EmployeeEvent.EmployeeEmailUpdated emailUpdated) {
+    public Effect<String> transform(EmployeeEmailUpdated emailUpdated) {
       return effects().reply(emailUpdated.toString());
     }
   }
@@ -770,7 +782,7 @@ public class PubSubTestModels {//TODO shall we remove this class and move things
         .updateState(new Employee(evt.firstName, evt.lastName, evt.email));
     }
 
-    public UpdateEffect<Employee> onEmailUpdate(EmployeeEvent.EmployeeEmailUpdated eeu) {
+    public UpdateEffect<Employee> onEmailUpdate(EmployeeEmailUpdated eeu) {
       var employee = viewState();
       return effects().updateState(new Employee(employee.firstName, employee.lastName, eeu.email));
     }

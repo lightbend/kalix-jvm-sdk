@@ -43,7 +43,8 @@ case class CommandHandler(
       val lastParam = javaMethod.method.getParameterTypes.last
       if (lastParam.getAnnotation(classOf[JsonSubTypes]) != null) {
         lastParam.getAnnotation(classOf[JsonSubTypes]).value().exists { subType =>
-          inputTypeUrl == messageCodec.typeUrlFor(subType.value())
+          inputTypeUrl == messageCodec
+            .typeUrlFor(subType.value()) //TODO requires more changes to be used with JsonMigration
         }
       } else false
     }
@@ -51,12 +52,13 @@ case class CommandHandler(
 
   def lookupInvoker(inputTypeUrl: String): Option[MethodInvoker] =
     methodInvokers
-      .get(inputTypeUrl)
+      .get(messageCodec.removeVersion(inputTypeUrl))
       .orElse(lookupMethodAcceptingSubType(inputTypeUrl))
 
   def getInvoker(inputTypeUrl: String): MethodInvoker =
     lookupInvoker(inputTypeUrl).getOrElse {
-      throw new NoSuchElementException(s"Couldn't find any entry for typeUrl [${inputTypeUrl}] in [${methodInvokers}].")
+      throw new NoSuchElementException(
+        s"Couldn't find any entry for typeUrl [$inputTypeUrl] in [${methodInvokers.view.mapValues(_.method.getName)}].")
     }
 }
 

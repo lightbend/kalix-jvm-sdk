@@ -14,22 +14,27 @@
  * limitations under the License.
  */
 
-package kalix.spring.testmodels.valueentity;
+package kalix.javasdk.workflow;
 
-import kalix.javasdk.annotations.Migration;
+import com.fasterxml.jackson.databind.JsonNode;
+import kalix.javasdk.DummyClass2;
+import kalix.javasdk.JsonMigration;
 
-@Migration(CounterStateMigration.class)
-public class CounterState {
+import java.util.List;
 
-  public final String id;
-  public final int value;
-
-  public CounterState(String id, int value) {
-    this.id = id;
-    this.value = value;
+public class DummyClassRenamedMigration extends JsonMigration {
+  @Override
+  public int currentVersion() {
+    return 1;
   }
 
-  public CounterState increase(int increaseBy) {
-    return new CounterState(id, value + increaseBy);
+  @Override
+  public JsonNode transform(int fromVersion, JsonNode json) {
+    return json;
+  }
+
+  @Override
+  public List<String> supportedClassNames() {
+    return List.of(DummyClass2.class.getName());
   }
 }

@@ -16,14 +16,24 @@
 
 package kalix.javasdk.impl
 
+import java.util
+import java.util.Optional
+
 import com.fasterxml.jackson.annotation.JsonCreator
+import com.fasterxml.jackson.databind.JsonNode
+import com.fasterxml.jackson.databind.node.IntNode
+import com.fasterxml.jackson.databind.node.ObjectNode
 import com.google.protobuf.any.{ Any => ScalaPbAny }
 import com.google.protobuf.{ Any => JavaPbAny }
+import kalix.javasdk.JsonMigration
 import kalix.javasdk.JsonSupport
+import kalix.javasdk.annotations.Migration
 import kalix.javasdk.annotations.TypeName
 import kalix.javasdk.impl.JsonMessageCodecSpec.Cat
 import kalix.javasdk.impl.JsonMessageCodecSpec.Dog
 import kalix.javasdk.impl.JsonMessageCodecSpec.SimpleClass
+import kalix.javasdk.impl.JsonMessageCodecSpec.SimpleClassUpdated
+import kalix.javasdk.impl.JsonMessageCodecSpec.SimpleClassUpdatedMigration
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 
@@ -40,6 +50,25 @@ object JsonMessageCodecSpec {
   @JsonCreator
   case class SimpleClass(str: String, in: Int)
 
+  class SimpleClassUpdatedMigration extends JsonMigration {
+    override def currentVersion(): Int = 1
+    override def transform(fromVersion: Int, jsonNode: JsonNode): JsonNode = {
+      if (fromVersion == 0) {
+        jsonNode.asInstanceOf[ObjectNode].set("newField", IntNode.valueOf(1))
+      } else {
+        jsonNode
+      }
+    }
+
+    override def supportedClassNames(): util.List[String] = {
+      util.List.of(classOf[SimpleClass].getName)
+    }
+  }
+
+  @JsonCreator
+  @Migration(classOf[SimpleClassUpdatedMigration])
+  case class SimpleClassUpdated(str: String, in: Int, newField: Int)
+
   object AnnotatedWithTypeName {
 
     sealed trait Animal
@@ -49,6 +78,9 @@ object JsonMessageCodecSpec {
 
     @TypeName("elephant")
     final case class Elephant(name: String, age: Int) extends Animal
+
+    @TypeName("elephant")
+    final case class IndianElephant(name: String, age: Int) extends Animal
   }
 
   object AnnotatedWithEmptyTypeName {
@@ -74,6 +106,19 @@ class JsonMessageCodecSpec extends AnyWordSpec with Matchers {
     "default to FQCN for typeUrl (java)" in {
       val encoded = messageCodec.encodeJava(SimpleClass("abc", 10))
       encoded.getTypeUrl shouldBe jsonTypeUrlWith("kalix.javasdk.impl.JsonMessageCodecSpec$SimpleClass")
+    }
+
+    "add version number to typeUrl" in {
+      //new codec to avoid collision with SimpleClass
+      val encoded = new JsonMessageCodec().encodeJava(SimpleClassUpdated("abc", 10, 123))
+      encoded.getTypeUrl shouldBe jsonTypeUrlWith("kalix.javasdk.impl.JsonMessageCodecSpec$SimpleClassUpdated#1")
+    }
+
+    "decode with new schema version" in {
+      val encoded = messageCodec.encodeJava(SimpleClass("abc", 10))
+      val decoded =
+        JsonSupport.decodeJson(classOf[SimpleClassUpdated], encoded, Optional.of(new SimpleClassUpdatedMigration))
+      decoded shouldBe SimpleClassUpdated("abc", 10, 1)
     }
 
     "not re-encode (wrap) to JavaPbAny" in {
@@ -126,9 +171,34 @@ class JsonMessageCodecSpec extends AnyWordSpec with Matchers {
       decoded shouldBe value
     }
 
+    "decode message with new version" in {
+      //old schema
+      val value = SimpleClass("abc", 10)
+      val encoded = new JsonMessageCodec().encodeScala(value)
+
+      //new schema, simulating restart
+      val messageCodecAfterRestart = new JsonMessageCodec()
+      messageCodecAfterRestart.typeUrlFor(classOf[SimpleClassUpdated])
+      val decoded = new StrictJsonMessageCodec(messageCodecAfterRestart).decodeMessage(encoded)
+
+      decoded shouldBe SimpleClassUpdated(value.str, value.in, 1)
+    }
+
     {
       import JsonMessageCodecSpec.AnnotatedWithTypeName.Elephant
+      import JsonMessageCodecSpec.AnnotatedWithTypeName.IndianElephant
       import JsonMessageCodecSpec.AnnotatedWithTypeName.Lion
+
+      "fail when using the same TypeName" in {
+        val encodedElephant = messageCodec.encodeJava(Elephant("Dumbo", 1))
+        encodedElephant.getTypeUrl shouldBe jsonTypeUrlWith("elephant")
+
+        val exception = intercept[IllegalStateException] {
+          messageCodec.encodeJava(IndianElephant("Dumbo", 1))
+        }
+
+        exception.getMessage shouldBe "Collision with existing existing mapping class kalix.javasdk.impl.JsonMessageCodecSpec$AnnotatedWithTypeName$Elephant -> elephant. The same type name can't be used for other class class kalix.javasdk.impl.JsonMessageCodecSpec$AnnotatedWithTypeName$IndianElephant"
+      }
 
       "use TypeName if available (java)" in {
 

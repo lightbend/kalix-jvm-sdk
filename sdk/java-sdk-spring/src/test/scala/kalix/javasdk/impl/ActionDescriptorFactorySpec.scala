@@ -84,6 +84,7 @@ import kalix.spring.testmodels.subscriptions.PubSubTestModels.RestWithPublishToT
 import kalix.spring.testmodels.subscriptions.PubSubTestModels.StreamSubscriptionWithPublishToTopicAction
 import kalix.spring.testmodels.subscriptions.PubSubTestModels.SubscribeOnlyOneToEventSourcedEntityActionTypeLevel
 import kalix.spring.testmodels.subscriptions.PubSubTestModels.SubscribeToBytesFromTopicAction
+import kalix.spring.testmodels.subscriptions.PubSubTestModels.SubscribeToEventSourcedEmployee
 import kalix.spring.testmodels.subscriptions.PubSubTestModels.SubscribeToEventSourcedEntityAction
 import kalix.spring.testmodels.subscriptions.PubSubTestModels.SubscribeToTopicAction
 import kalix.spring.testmodels.subscriptions.PubSubTestModels.SubscribeToTopicCombinedAction
@@ -98,6 +99,7 @@ import kalix.spring.testmodels.subscriptions.PubSubTestModels.TypeLevelESWithPub
 import kalix.spring.testmodels.subscriptions.PubSubTestModels.TypeLevelSubscribeToValueEntityWithRestAction
 import kalix.spring.testmodels.subscriptions.PubSubTestModels.TypeLevelTopicSubscriptionWithPublishToTopicAction
 import kalix.spring.testmodels.subscriptions.PubSubTestModels.VEWithPublishToTopicAction
+import kalix.spring.testmodels.valueentity.CounterState
 import org.scalatest.wordspec.AnyWordSpec
 
 class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSuite {
@@ -319,6 +321,25 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
       }
     }
 
+    "generate mapping with Event Sourced Subscription annotations" in {
+      assertDescriptor[SubscribeToEventSourcedEmployee] { desc =>
+
+        val onUpdateMethodDescriptor = findMethodByName(desc, "KalixSyntheticMethodOnESEmployee")
+        onUpdateMethodDescriptor.isServerStreaming shouldBe false
+        onUpdateMethodDescriptor.isClientStreaming shouldBe false
+
+        val onUpdateMethod = desc.commandHandlers("KalixSyntheticMethodOnESEmployee")
+        onUpdateMethod.requestMessageDescriptor.getFullName shouldBe JavaPbAny.getDescriptor.getFullName
+
+        val eventing = findKalixServiceOptions(desc).getEventing.getIn
+        eventing.getEventSourcedEntity shouldBe "employee"
+
+        // in case of @Migration, it should map 2 type urls to the same method
+        onUpdateMethod.methodInvokers.view.mapValues(_.method.getName).toMap should
+        contain only ("json.kalix.io/created" -> "methodOne", "json.kalix.io/old-created" -> "methodOne", "json.kalix.io/emailUpdated" -> "methodTwo")
+      }
+    }
+
     "generate combined mapping with Event Sourced Entity Subscription annotation" in {
       assertDescriptor[SubscribeToEventSourcedEntityAction] { desc =>
         val methodDescriptor = findMethodByName(desc, "KalixSyntheticMethodOnESCounterentity")
@@ -355,9 +376,14 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
         val eventing = findKalixMethodOptions(onUpdateMethodDescriptor).getEventing.getIn
         eventing.getValueEntity shouldBe "ve-counter"
 
-        // should have a default extractor for any payload
-        val javaMethod = onUpdateMethod.methodInvokers.values.head
-        javaMethod.parameterExtractors.length shouldBe 1
+        // in case of @Migration, it should map 2 type urls to the same method
+        onUpdateMethod.methodInvokers should have size 2
+        onUpdateMethod.methodInvokers.values.map { javaMethod =>
+          javaMethod.parameterExtractors.length shouldBe 1
+        }
+        onUpdateMethod.methodInvokers.view.mapValues(_.method.getName).toMap should
+        contain only ("json.kalix.io/counter-state" -> "onUpdate", "json.kalix.io/" + classOf[
+          CounterState].getName -> "onUpdate")
       }
     }
 
@@ -374,9 +400,14 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
         val eventing = findKalixServiceOptions(desc).getEventing.getIn
         eventing.getValueEntity shouldBe "ve-counter"
 
-        // should have a default extractor for any payload
-        val javaMethod = onUpdateMethod.methodInvokers.values.head
-        javaMethod.parameterExtractors.length shouldBe 1
+        // in case of @Migration, it should map 2 type urls to the same method
+        onUpdateMethod.methodInvokers should have size 2
+        onUpdateMethod.methodInvokers.values.map { javaMethod =>
+          javaMethod.parameterExtractors.length shouldBe 1
+        }
+        onUpdateMethod.methodInvokers.view.mapValues(_.method.getName).toMap should
+        contain only ("json.kalix.io/counter-state" -> "onUpdate", "json.kalix.io/" + classOf[
+          CounterState].getName -> "onUpdate")
       }
     }
 

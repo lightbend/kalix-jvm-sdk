@@ -14,22 +14,21 @@
  * limitations under the License.
  */
 
-package kalix.spring.testmodels.valueentity;
+package kalix.javasdk.valueentity;
 
-import kalix.javasdk.annotations.Migration;
+import kalix.javasdk.annotations.Id;
+import kalix.javasdk.annotations.TypeId;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 
-@Migration(CounterStateMigration.class)
-public class CounterState {
+@Id("id")
+@TypeId("ve")
+@RequestMapping("/ve")
+public class TestValueEntityMigration extends ValueEntity<TestVEState2> {
 
-  public final String id;
-  public final int value;
-
-  public CounterState(String id, int value) {
-    this.id = id;
-    this.value = value;
+  @GetMapping
+  public Effect<TestVEState2> get() {
+    return effects().reply(currentState());
   }
 
-  public CounterState increase(int increaseBy) {
-    return new CounterState(id, value + increaseBy);
-  }
 }

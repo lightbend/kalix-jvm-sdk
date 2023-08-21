@@ -19,7 +19,6 @@ package kalix.javasdk.impl.workflow
 import com.google.protobuf.any.{ Any => ScalaPbAny }
 import kalix.javasdk.impl.CommandHandler
 import kalix.javasdk.impl.InvocationContext
-import kalix.javasdk.impl.workflow.WorkflowRouter
 import kalix.javasdk.workflow.CommandContext
 import kalix.javasdk.workflow.Workflow
 

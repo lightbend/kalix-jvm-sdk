@@ -14,22 +14,7 @@
  * limitations under the License.
  */
 
-package kalix.spring.testmodels.valueentity;
+package kalix.javasdk.valueentity;
 
-import kalix.javasdk.annotations.Migration;
-
-@Migration(CounterStateMigration.class)
-public class CounterState {
-
-  public final String id;
-  public final int value;
-
-  public CounterState(String id, int value) {
-    this.id = id;
-    this.value = value;
-  }
-
-  public CounterState increase(int increaseBy) {
-    return new CounterState(id, value + increaseBy);
-  }
+public record TestVEState0(String s, int i) {
 }

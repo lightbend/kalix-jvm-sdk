@@ -16,9 +16,23 @@
 
 package kalix.spring.testmodels.eventsourcedentity;
 
-import kalix.javasdk.annotations.*;
+import kalix.javasdk.JsonMigration;
+import kalix.javasdk.annotations.Migration;
+import kalix.javasdk.annotations.Acl;
+import kalix.javasdk.annotations.EventHandler;
+import kalix.javasdk.annotations.GenerateId;
+import kalix.javasdk.annotations.Id;
+import kalix.javasdk.annotations.JWT;
+import kalix.javasdk.annotations.TypeId;
 import kalix.javasdk.eventsourcedentity.EventSourcedEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+import java.util.List;
 
 public class EventSourcedEntitiesTestModels {
 
@@ -46,6 +60,26 @@ public class EventSourcedEntitiesTestModels {
   @RequestMapping("/eventsourced/{id}")
   public static class CounterEventSourcedEntity extends EventSourcedEntity<Integer, Object> {
 
+    @Migration(EventMigration.class)
+    public record Event(String s) {
+    }
+
+    public static class EventMigration extends JsonMigration {
+
+      public EventMigration() {
+      }
+
+      @Override
+      public int currentVersion() {
+        return 1;
+      }
+
+      @Override
+      public List<String> supportedClassNames() {
+        return List.of("additional-mapping");
+      }
+    }
+
     @GetMapping("/int/{number}")
     public Integer getInteger(@PathVariable Integer number) {
       return number;
@@ -57,7 +91,7 @@ public class EventSourcedEntitiesTestModels {
     }
 
     @EventHandler
-    public Integer receiveStringEvent(String event) {
+    public Integer receiveStringEvent(Event event) {
       return 0;
     }
 

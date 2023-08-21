@@ -59,6 +59,7 @@ import kalix.javasdk.impl.reflection.RestServiceIntrospector.UnhandledParameter
 import kalix.javasdk.impl.reflection.ServiceMethod
 import kalix.javasdk.impl.reflection.SubscriptionServiceMethod
 import kalix.javasdk.impl.reflection.SyntheticRequestServiceMethod
+import kalix.javasdk.impl.reflection.VirtualServiceMethod
 // TODO: abstract away spring dependency
 import org.springframework.web.bind.annotation.RequestMethod
 
@@ -259,28 +260,22 @@ private[kalix] object ComponentDescriptor {
 
         case method: SubscriptionServiceMethod =>
           val methodInvokers =
-            serviceMethod.javaMethodOpt.map { meth =>
+            serviceMethod.javaMethodOpt
+              .map { meth =>
 
-              val parameterExtractors: ParameterExtractorsArray =
-                Array(ParameterExtractors.AnyBodyExtractor(method.inputType))
+                val parameterExtractors: ParameterExtractorsArray =
+                  Array(ParameterExtractors.AnyBodyExtractor(method.inputType))
 
-              val typeUrl = messageCodec.typeUrlFor(method.inputType)
-              (typeUrl, MethodInvoker(meth, parameterExtractors))
-            }.toMap
-
-          CommandHandler(grpcMethodName, messageCodec, JavaPbAny.getDescriptor, methodInvokers)
-
-        case method: AnyJsonRequestServiceMethod =>
-          val methodInvokers = serviceMethod.javaMethodOpt.map { meth =>
-
-            val parameterExtractors: ParameterExtractorsArray =
-              Array(ParameterExtractors.AnyBodyExtractor(method.inputType))
-
-            val typeUrl = messageCodec.typeUrlFor(method.inputType)
-            (typeUrl, MethodInvoker(meth, parameterExtractors))
-          }.toMap
+                val typeUrls = messageCodec.typeUrlsFor(method.inputType)
+                typeUrls.map(_ -> MethodInvoker(meth, parameterExtractors)).toMap
+              }
+              .getOrElse(Map.empty)
 
           CommandHandler(grpcMethodName, messageCodec, JavaPbAny.getDescriptor, methodInvokers)
+
+        case _: VirtualServiceMethod =>
+          //java method is empty
+          CommandHandler(grpcMethodName, messageCodec, JavaPbAny.getDescriptor, Map.empty)
 
         case _: DeleteServiceMethod =>
           val methodInvokers = serviceMethod.javaMethodOpt.map { meth =>

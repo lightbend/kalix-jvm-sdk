@@ -14,22 +14,29 @@
  * limitations under the License.
  */
 
-package kalix.spring.testmodels.valueentity;
+package kalix.javasdk.valueentity;
 
-import kalix.javasdk.annotations.Migration;
 
-@Migration(CounterStateMigration.class)
-public class CounterState {
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.TextNode;
+import kalix.javasdk.JsonMigration;
 
-  public final String id;
-  public final int value;
 
-  public CounterState(String id, int value) {
-    this.id = id;
-    this.value = value;
+public class TestVEState2Migration extends JsonMigration {
+
+  @Override
+  public int currentVersion() {
+    return 1;
   }
 
-  public CounterState increase(int increaseBy) {
-    return new CounterState(id, value + increaseBy);
+  @Override
+  public JsonNode transform(int fromVersion, JsonNode json) {
+    if (fromVersion < 1) {
+      return ((ObjectNode) json).set("newValue", TextNode.valueOf("newValue"));
+    } else {
+      return null;
+
+    }
   }
 }

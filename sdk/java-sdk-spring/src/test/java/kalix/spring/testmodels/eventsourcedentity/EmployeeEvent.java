@@ -16,11 +16,13 @@
 
 package kalix.spring.testmodels.eventsourcedentity;
 
+import kalix.javasdk.annotations.Migration;
 import kalix.javasdk.annotations.TypeName;
 
 public interface EmployeeEvent {
 
   @TypeName("created")
+  @Migration(EmployeeCreatedMigration.class)
   final class EmployeeCreated implements EmployeeEvent {
 
     public final String firstName;

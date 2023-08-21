@@ -83,6 +83,7 @@ lazy val javaSdkProtobuf = project
     // We need to generate the java files for things like entity_key.proto so that downstream libraries can use them
     // without needing to generate them themselves
     Compile / PB.targets += PB.gens.java -> crossTarget.value / "akka-grpc" / "main",
+    Test / javacOptions ++= Seq("-parameters"), // for Jackson
     Test / akkaGrpcGeneratedSources := Seq(AkkaGrpc.Client),
     Test / PB.protoSources ++= (Compile / PB.protoSources).value,
     Test / PB.targets += PB.gens.java -> crossTarget.value / "akka-grpc" / "test")
@@ -126,7 +127,7 @@ lazy val javaSdkProtobufTestKit = project
 
 lazy val javaSdkSpring = project
   .in(file("sdk/java-sdk-spring"))
-  .dependsOn(javaSdkProtobuf)
+  .dependsOn(javaSdkProtobuf % "compile->compile;test->test")
   .dependsOn(devTools % IntegrationTest)
   .dependsOn(javaSdkProtobufTestKit % IntegrationTest)
   .enablePlugins(AkkaGrpcPlugin, BuildInfoPlugin, PublishSonatype, IntegrationTests)

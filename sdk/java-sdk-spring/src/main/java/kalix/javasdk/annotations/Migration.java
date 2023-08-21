@@ -14,22 +14,22 @@
  * limitations under the License.
  */
 
-package kalix.spring.testmodels.valueentity;
+package kalix.javasdk.annotations;
 
-import kalix.javasdk.annotations.Migration;
+import kalix.javasdk.JsonMigration;
 
-@Migration(CounterStateMigration.class)
-public class CounterState {
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-  public final String id;
-  public final int value;
+/**
+ * Annotation to assign a @{@link JsonMigration} implementation for a given class.
+ * Can be combined with @{@link TypeName} annotation.
+ */
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.RUNTIME)
+public @interface Migration {
 
-  public CounterState(String id, int value) {
-    this.id = id;
-    this.value = value;
-  }
-
-  public CounterState increase(int increaseBy) {
-    return new CounterState(id, value + increaseBy);
-  }
+  Class<? extends JsonMigration> value();
 }
