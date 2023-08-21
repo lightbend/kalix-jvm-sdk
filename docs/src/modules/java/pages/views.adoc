@@ -120,7 +120,7 @@ include::example$java-spring-eventsourced-customer-registry/src/main/java/custom
 ----
 <1> Includes the logical type name using `@TypeName` annotation.
 
-IMPORTANT: It's highly recommended to add a `@TypeName` to your persisted events. Kalix needs to identify each event in order to deliver them to the right event handlers. If no logical type name is specified, Kalix uses the non-qualified class name. Once an event is persisted in Kalix, you won't be able to rename your class if no logical type name has been specified, as Kalix won't be able to recognize previously persisted events. Therefore, we recommend all event classes use a logical type name.
+IMPORTANT: It's highly recommended to add a `@TypeName` to your persisted events. Kalix needs to identify each event in order to deliver them to the right event handlers. If no logical type name is specified, Kalix uses the FQCN, check xref:serialization.adoc#_type_name[type name] documentation for more details.
 
 
 === Define the View to consume events

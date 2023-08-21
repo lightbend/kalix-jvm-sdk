@@ -110,7 +110,7 @@ public class EventSourcedTestKit<S, E, ES extends EventSourcedEntity<S, E>>
   @Override
   protected final S handleEvent(S state, E event) {
     try {
-      Method method = eventHandlers.handlers().apply(messageCodec.typeUrlFor(event.getClass())).method();
+      Method method = eventHandlers.handlers().apply(messageCodec.removeVersion(messageCodec.typeUrlFor(event.getClass()))).method();
       return (S) method.invoke(entity, event);
     } catch (NoSuchElementException e) {
       throw new RuntimeException(
