@@ -254,18 +254,6 @@ public class SpringSdkIntegrationTest {
   }
 
   @Test
-  public void verifyCounterEventSourceSubscription2() throws InterruptedException {
-
-    String entityId = "hello1";
-    execute(componentClient.forEventSourcedEntity(entityId)
-        .call(CounterEntity::increase)
-        .params(777));
-
-    Thread.sleep(60000);
-
-  }
-
-  @Test
   public void verifyCounterEventSourceSubscription() {
     // GIVEN IncreaseAction is subscribed to CounterEntity events
     // WHEN the CounterEntity is requested to increase 42\
