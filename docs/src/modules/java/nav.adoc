@@ -11,5 +11,6 @@
 *** xref:java:timers.adoc[Timers]
 *** xref:java:component-and-service-calls.adoc[Component and Service Calls]
 *** xref:java:failures-and-errors.adoc[Failures and Errors]
+*** xref:java:serialization.adoc[Serialization]
 *** xref:java:access-control.adoc[Using ACLs]
 *** xref:java:using-jwts.adoc[Using JWTs]

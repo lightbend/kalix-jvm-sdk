@@ -1,18 +1,31 @@
 package customer.domain;
 
 // tag::class[]
+
+import kalix.javasdk.annotations.Migration;
 import kalix.javasdk.annotations.TypeName;
-import static customer.domain.CustomerEvent.*;
 
 public sealed interface CustomerEvent {
 
   @TypeName("internal-customer-created") // <1>
-  record CustomerCreated(String email, String name, Address address) implements CustomerEvent {}
+  // end::class[]
+  @Migration(CustomerCreatedMigration.class)
+    // tag::customer-created-new[]
+    // tag::class[]
+  record CustomerCreated(String email, String name, Address address) implements CustomerEvent {
+  }
+  // end::customer-created-new[]
 
   @TypeName("internal-name-changed")
-  record NameChanged(String newName) implements CustomerEvent {}
+    // tag::name-changed-old[]
+  record NameChanged(String newName) implements CustomerEvent {
+  }
+  // end::name-changed-old[]
 
   @TypeName("internal-address-changed")
-  record AddressChanged(Address address) implements CustomerEvent {}
+    // tag::address-changed-old[]
+  record AddressChanged(Address address) implements CustomerEvent {
+  }
+  // end::address-changed-old[]
 }
 // end::class[]

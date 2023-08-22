@@ -65,9 +65,11 @@ lightbend
 Lightbend
 matchers
 Mockito
+mutators
 namespace
 newname
 npx
+nullable
 onboarding
 onwards
 parseable
@@ -91,6 +93,7 @@ sdk
 SDK
 serializable
 Serializable
+serializer
 serializers
 serverless
 Serverless

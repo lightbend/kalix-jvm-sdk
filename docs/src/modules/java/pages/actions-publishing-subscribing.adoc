@@ -1,5 +1,5 @@
 = Publishing and Subscribing
-:page-aliases: spring:actions-publishing-subscribing.adoc, spring:serialization.adoc, spring:service-to-service.adoc, java:serialization.adoc, java:service-to-service.adoc
+:page-aliases: spring:actions-publishing-subscribing.adoc, spring:service-to-service.adoc, java:service-to-service.adoc
 
 include::ROOT:partial$include.adoc[]
 
@@ -125,10 +125,7 @@ See https://docs.kalix.io/kalix/kalix_services_deploy.html[kalix service deploy]
 
 == Handling Serialization
 
-You do not need to create serializers for the messages, events, or the state of Kalix components, but you need to make them serializable. The same is true with Kalix endpoints. Kalix exposes the inputs and outputs of endpoints as JSON and you need to make them serializable. You have two ways to do this.
-
-1. If you are using Java https://openjdk.org/jeps/395[record] then no annotation is needed. It just works. It's as simple as using `record` instead of `class`. Kalix leverages https://github.com/FasterXML/[Jackson] under the hood and makes these records serializable for you.
-2. If you are using Java `class` then you need to annotate them with the https://github.com/FasterXML/jackson-annotations#usage-general[proper Jackson annotation].
+Check xref:serialization.adoc[serialization] documentation for more details.
 
 == Subscribing to a Topic
 

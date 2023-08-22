@@ -1,5 +1,5 @@
 = Implementing Workflows
-:page-aliases: spring:workflow.adoc, spring:workflow-entities.adoc, java:workflow-entities.adoc
+:page-aliases: spring:workflow.adoc
 :sample-url: https://github.com/lightbend/kalix-jvm-sdk/tree/main/samples/java-spring-transfer-workflow
 
 include::ROOT:partial$include.adoc[]
