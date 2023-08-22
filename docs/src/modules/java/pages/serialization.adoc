@@ -135,7 +135,7 @@ include::example$java-spring-eventsourced-customer-registry/src/test/java/custom
 
 === Testing
 
-It's highly recommended to cover all schema changes with unit tests. In most cases it won't be possible to reuse the same class for serialization and deserialization, since the model is different from version 0 to version X. One solution could be to create a byte array snapshot of each version and save it as a Base64 test variable.
+It's highly recommended to cover all schema changes with unit tests. In most cases it won't be possible to reuse the same class for serialization and deserialization, since the model is different from version 0 to version N. One solution could be to create a byte array snapshot of each version and save it as a Base64 test variable.
 
 [source,java,indent=0]
 ----
