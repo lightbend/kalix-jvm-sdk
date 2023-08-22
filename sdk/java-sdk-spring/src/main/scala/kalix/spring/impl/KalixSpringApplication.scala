@@ -453,18 +453,19 @@ case class KalixSpringApplication(applicationContext: ApplicationContext, config
             .head
             .asInstanceOf[Class[S]]
 
-        messageCodec.lookupTypeHint(workflowStateType)
+        messageCodec.registerTypeHints(workflowStateType)
 
         workflowEntity
           .definition()
-          .forEachStep {
+          .getSteps
+          .asScala
+          .flatMap {
             case asyncCallStep: Workflow.AsyncCallStep[_, _, _] =>
-              messageCodec.lookupTypeHint(asyncCallStep.callInputClass)
-              messageCodec.lookupTypeHint(asyncCallStep.transitionInputClass)
+              List(asyncCallStep.callInputClass, asyncCallStep.transitionInputClass)
             case callStep: Workflow.CallStep[_, _, _, _] =>
-              messageCodec.lookupTypeHint(callStep.callInputClass)
-              messageCodec.lookupTypeHint(callStep.transitionInputClass)
+              List(callStep.callInputClass, callStep.transitionInputClass)
           }
+          .foreach(messageCodec.registerTypeHints)
 
         workflowEntity
       })

@@ -21,6 +21,7 @@ import java.util.concurrent.ConcurrentMap
 
 import scala.jdk.CollectionConverters._
 
+import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.google.protobuf.ByteString
 import com.google.protobuf.BytesValue
 import com.google.protobuf.any.{ Any => ScalaPbAny }
@@ -67,6 +68,18 @@ private[kalix] class JsonMessageCodec extends MessageCodec {
 
   private[kalix] def lookupTypeHint(clz: Class[_]): TypeHint = {
     typeHints.computeIfAbsent(clz, computeTypeHint)
+  }
+
+  private[kalix] def registerTypeHints(clz: Class[_]) = {
+    lookupTypeHint(clz)
+    if (clz.getAnnotation(classOf[JsonSubTypes]) != null) {
+      //registering all subtypes
+      clz
+        .getAnnotation(classOf[JsonSubTypes])
+        .value()
+        .map(_.value())
+        .foreach(lookupTypeHint)
+    }
   }
 
   private def computeTypeHint(clz: Class[_]): TypeHint = {
