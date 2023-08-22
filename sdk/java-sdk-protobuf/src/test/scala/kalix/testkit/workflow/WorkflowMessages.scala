@@ -133,6 +133,19 @@ object WorkflowMessages extends EntityMessages {
     OutMessage.Response(StepResponse(id, stepName, StepResponse.Response.Executed(StepExecuted(Some(result)))))
   }
 
+  def stepDeferredCall(
+      id: Long,
+      stepName: String,
+      serviceName: String,
+      commandName: String,
+      payload: ScalaPbAny): OutMessage = {
+    OutMessage.Response(
+      StepResponse(
+        id,
+        stepName,
+        StepResponse.Response.DeferredCall(StepDeferredCall(serviceName, commandName, Some(payload), None))))
+  }
+
   def end(id: Long, state: ScalaPbAny): OutMessage = {
     OutMessage.Effect(
       WorkflowEffect(
