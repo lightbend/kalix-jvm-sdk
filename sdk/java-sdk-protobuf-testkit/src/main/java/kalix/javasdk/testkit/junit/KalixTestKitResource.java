@@ -66,6 +66,10 @@ public final class KalixTestKitResource extends ExternalResource {
     this(kalix, kalix.getMessageCodec(), KalixTestKit.Settings.DEFAULT);
   }
 
+  public KalixTestKitResource(Kalix kalix, KalixTestKit.Settings settings) {
+    this(kalix, kalix.getMessageCodec(), settings);
+  }
+
   public KalixTestKitResource(Kalix kalix, MessageCodec messageCodec, KalixTestKit.Settings settings) {
     this.testKit = new KalixTestKit(kalix, messageCodec, settings);
   }

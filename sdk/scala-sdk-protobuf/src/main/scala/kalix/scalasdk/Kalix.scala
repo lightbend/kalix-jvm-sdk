@@ -17,6 +17,7 @@
 package kalix.scalasdk
 
 import scala.concurrent.Future
+
 import akka.Done
 import kalix.javasdk
 import kalix.replicatedentity.ReplicatedData
@@ -35,6 +36,7 @@ import kalix.scalasdk.valueentity.ValueEntity
 import kalix.scalasdk.valueentity.ValueEntityProvider
 import kalix.scalasdk.view.ViewProvider
 import com.typesafe.config.Config
+import kalix.javasdk.impl.MessageCodec
 
 object Kalix {
   def apply() = new Kalix(new javasdk.Kalix().preferScalaProtobufs().withSdkName(ScalaSdkBuildInfo.name))
@@ -188,4 +190,7 @@ class Kalix private (private[kalix] val delegate: javasdk.Kalix) {
    */
   def createRunner(config: Config): KalixRunner =
     KalixRunner(delegate.createRunner(config))
+
+  def getMessageCodec(): MessageCodec =
+    delegate.getMessageCodec
 }

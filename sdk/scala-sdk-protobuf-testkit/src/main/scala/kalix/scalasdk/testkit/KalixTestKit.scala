@@ -44,6 +44,9 @@ object KalixTestKit {
   def apply(main: Kalix): KalixTestKit =
     new KalixTestKit(new JTestKit(main.delegate))
 
+  def apply(main: Kalix, settings: Settings): KalixTestKit =
+    new KalixTestKit(new JTestKit(main.delegate, main.getMessageCodec(), settings.jSettings))
+
   def apply(main: Kalix, messageCodec: MessageCodec, settings: Settings): KalixTestKit =
     new KalixTestKit(new JTestKit(main.delegate, messageCodec, settings.jSettings))
 
