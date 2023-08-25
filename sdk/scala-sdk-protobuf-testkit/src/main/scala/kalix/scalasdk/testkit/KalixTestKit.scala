@@ -21,9 +21,9 @@ import scala.concurrent.ExecutionContext
 import akka.actor.ActorSystem
 import akka.grpc.GrpcClientSettings
 import akka.stream.Materializer
-import kalix.scalasdk.{Kalix, Principal}
-import kalix.javasdk.testkit.{KalixTestKit => JTestKit}
-import kalix.javasdk.testkit.KalixTestKit.Settings.{EventingSupport => JEventingSupport}
+import kalix.scalasdk.{ Kalix, Principal }
+import kalix.javasdk.testkit.{ KalixTestKit => JTestKit }
+import kalix.javasdk.testkit.KalixTestKit.Settings.{ EventingSupport => JEventingSupport }
 import kalix.scalasdk.testkit.KalixTestKit.Settings.EventingSupport
 import kalix.scalasdk.testkit.KalixTestKit.Settings.GooglePubSub
 import kalix.scalasdk.testkit.KalixTestKit.Settings.TestBroker
