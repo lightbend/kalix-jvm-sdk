@@ -246,6 +246,16 @@ public class KalixTestKit {
    * Create a new testkit for a Kalix service descriptor with custom settings.
    *
    * @param kalix        Kalix service descriptor
+   * @param settings     custom testkit settings
+   */
+  public KalixTestKit(final Kalix kalix, final Settings settings) {
+    this(kalix, kalix.getMessageCodec(), settings);
+  }
+
+  /**
+   * Create a new testkit for a Kalix service descriptor with custom settings.
+   *
+   * @param kalix        Kalix service descriptor
    * @param messageCodec message codec
    * @param settings     custom testkit settings
    */
