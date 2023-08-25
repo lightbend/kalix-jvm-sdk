@@ -23,12 +23,9 @@ import kalix.javasdk.action.Action;
 import kalix.javasdk.action.ActionCreationContext;
 import kalix.javasdk.annotations.Subscribe;
 import kalix.javasdk.client.ComponentClient;
-import kalix.spring.KalixConfigurationTest;
-import org.springframework.context.annotation.Import;
 
 import java.util.concurrent.CompletionStage;
 
-@Import(KalixConfigurationTest.class)
 public class IncreaseAction extends Action {
 
   private ComponentClient componentClient;

@@ -17,18 +17,20 @@
 package kalix.scalasdk.testkit
 
 import scala.concurrent.ExecutionContext
+
 import akka.actor.ActorSystem
 import akka.grpc.GrpcClientSettings
 import akka.stream.Materializer
-import kalix.scalasdk.{ Kalix, Principal }
-import kalix.javasdk.testkit.{ KalixTestKit => JTestKit }
-import kalix.javasdk.testkit.KalixTestKit.Settings.{ EventingSupport => JEventingSupport }
+import kalix.scalasdk.{Kalix, Principal}
+import kalix.javasdk.testkit.{KalixTestKit => JTestKit}
+import kalix.javasdk.testkit.KalixTestKit.Settings.{EventingSupport => JEventingSupport}
 import kalix.scalasdk.testkit.KalixTestKit.Settings.EventingSupport
 import kalix.scalasdk.testkit.KalixTestKit.Settings.GooglePubSub
 import kalix.scalasdk.testkit.KalixTestKit.Settings.TestBroker
-
 import scala.concurrent.duration.FiniteDuration
 import scala.jdk.DurationConverters._
+
+import kalix.javasdk.impl.MessageCodec
 
 /**
  * TestKit for running Kalix services locally.
@@ -42,8 +44,8 @@ object KalixTestKit {
   def apply(main: Kalix): KalixTestKit =
     new KalixTestKit(new JTestKit(main.delegate))
 
-  def apply(main: Kalix, settings: Settings): KalixTestKit =
-    new KalixTestKit(new JTestKit(main.delegate, settings.jSettings))
+  def apply(main: Kalix, messageCodec: MessageCodec, settings: Settings): KalixTestKit =
+    new KalixTestKit(new JTestKit(main.delegate, messageCodec, settings.jSettings))
 
   final class Settings private[KalixTestKit] (private[KalixTestKit] val jSettings: JTestKit.Settings) {
     def stopTimeout: FiniteDuration = jSettings.stopTimeout.toScala

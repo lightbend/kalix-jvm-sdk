@@ -20,6 +20,7 @@ import akka.actor.ActorSystem;
 import akka.grpc.GrpcClientSettings;
 import akka.stream.Materializer;
 import kalix.javasdk.Kalix;
+import kalix.javasdk.impl.MessageCodec;
 import kalix.javasdk.testkit.KalixTestKit;
 import kalix.javasdk.testkit.EventingTestKit.Topic;
 import org.junit.rules.ExternalResource;
@@ -61,11 +62,11 @@ public final class KalixTestKitResource extends ExternalResource {
   private final KalixTestKit testKit;
 
   public KalixTestKitResource(Kalix kalix) {
-    this(kalix, KalixTestKit.Settings.DEFAULT);
+    this(kalix, kalix.getMessageCodec(), KalixTestKit.Settings.DEFAULT);
   }
 
-  public KalixTestKitResource(Kalix kalix, KalixTestKit.Settings settings) {
-    this.testKit = new KalixTestKit(kalix, settings);
+  public KalixTestKitResource(Kalix kalix, MessageCodec messageCodec, KalixTestKit.Settings settings) {
+    this.testKit = new KalixTestKit(kalix, messageCodec, settings);
   }
 
   @Override

@@ -22,14 +22,10 @@ import kalix.javasdk.annotations.Subscribe;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Profile;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-
-import java.util.List;
 
 import static com.example.wiring.pubsub.PublishESToTopic.COUNTER_EVENTS_TOPIC;
 
-@Profile("docker-it-test")
+@Profile({"docker-it-test", "eventing-testkit"})
 @Subscribe.Topic(COUNTER_EVENTS_TOPIC)
 public class SubscribeToCounterEventsTopic extends Action {
 

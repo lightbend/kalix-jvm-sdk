@@ -121,7 +121,7 @@ private[kalix] class JsonMessageCodec extends MessageCodec {
       .getOrElse((0, List.empty))
   }
 
-  def typeUrlFor(clz: Class[_]) = {
+  def typeUrlFor(clz: Class[_]): String = {
     if (clz == classOf[Array[Byte]]) {
       BytesPrimitive.fullName
     } else {
@@ -172,4 +172,6 @@ private[kalix] class StrictJsonMessageCodec(delegate: JsonMessageCodec) extends 
 
   override def encodeJava(value: Any): JavaPbAny =
     delegate.encodeJava(value)
+
+  override def typeUrlFor(clz: Class[_]): String = delegate.typeUrlFor(clz)
 }

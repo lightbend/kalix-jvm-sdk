@@ -221,6 +221,8 @@ public class KalixTestKit {
   private static final Logger log = LoggerFactory.getLogger(KalixTestKit.class);
 
   private final Kalix kalix;
+  private final MessageCodec messageCodec;
+  private final EventingTestKit.MessageBuilder messageBuilder;
   private final Settings settings;
 
   private boolean started = false;
@@ -237,17 +239,20 @@ public class KalixTestKit {
    * @param kalix Kalix service descriptor
    */
   public KalixTestKit(final Kalix kalix) {
-    this(kalix, Settings.DEFAULT);
+    this(kalix, kalix.getMessageCodec(), Settings.DEFAULT);
   }
 
   /**
    * Create a new testkit for a Kalix service descriptor with custom settings.
    *
-   * @param kalix    Kalix service descriptor
-   * @param settings custom testkit settings
+   * @param kalix        Kalix service descriptor
+   * @param messageCodec message codec
+   * @param settings     custom testkit settings
    */
-  public KalixTestKit(final Kalix kalix, final Settings settings) {
+  public KalixTestKit(final Kalix kalix, final MessageCodec messageCodec, final Settings settings) {
     this.kalix = kalix;
+    this.messageCodec = messageCodec;
+    this.messageBuilder = new EventingTestKit.MessageBuilder(messageCodec);
     this.settings = settings;
   }
 
@@ -300,7 +305,7 @@ public class KalixTestKit {
   private int startEventingTestkit() {
     var port = availableLocalPort();
     log.info("Eventing TestKit booting up on port: " + port);
-    eventingTestKit = EventingTestKit.start(testSystem, "0.0.0.0", port, kalix.getMessageCodec());
+    eventingTestKit = EventingTestKit.start(testSystem, "0.0.0.0", port, messageCodec);
     return port;
   }
 
@@ -528,7 +533,7 @@ public class KalixTestKit {
    */
   @InternalApi
   public MessageCodec getMessageCodec() {
-    return kalix.getMessageCodec();
+    return messageCodec;
   }
 
   /**
@@ -537,5 +542,13 @@ public class KalixTestKit {
   @InternalApi
   public KalixRunner getRunner() {
     return runner;
+  }
+
+  /**
+   * Returns {@link kalix.javasdk.testkit.EventingTestKit.MessageBuilder} utility
+   * to create {@link kalix.javasdk.testkit.EventingTestKit.Message}s for the eventing testkit.
+   */
+  public EventingTestKit.MessageBuilder getMessageBuilder() {
+    return messageBuilder;
   }
 }

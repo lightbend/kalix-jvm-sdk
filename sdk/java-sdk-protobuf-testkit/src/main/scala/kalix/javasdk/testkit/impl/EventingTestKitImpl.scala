@@ -343,7 +343,7 @@ private[testkit] class TopicImpl(
   }
 
   override def publish[T](message: T, subject: String): Unit = {
-    val md = defaultMetadata(message, subject)
+    val md = defaultMetadata(message, subject, codec)
     publish(TestKitMessageImpl(message, md))
   }
 
@@ -368,10 +368,7 @@ private[testkit] object TestKitMessageImpl {
     TestKitMessageImpl[ByteString](m.payload, metadata).asInstanceOf[TestKitMessage[ByteString]]
   }
 
-  def of[T](payload: T): TestKitMessage[T] =
-    TestKitMessageImpl(payload, defaultMetadata(payload, ""))
-
-  def defaultMetadata(message: Any, subject: String): SdkMetadata = {
+  def defaultMetadata(message: Any, subject: String, messageCodec: MessageCodec): SdkMetadata = {
     val (contentType, ceType) = message match {
       case pbMsg: GeneratedMessageV3 =>
         val desc = pbMsg.getDescriptorForType
@@ -382,7 +379,7 @@ private[testkit] object TestKitMessageImpl {
       case _: String =>
         ("text/plain; charset=utf-8", "")
       case _ =>
-        ("application/json", message.getClass.getName)
+        ("application/json", messageCodec.typeUrlFor(message.getClass).stripPrefix(JsonSupport.KALIX_JSON))
     }
 
     SdkMetadata.EMPTY

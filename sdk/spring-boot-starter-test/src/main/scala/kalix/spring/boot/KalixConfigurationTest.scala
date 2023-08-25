@@ -18,6 +18,7 @@ package kalix.spring.boot
 
 import com.typesafe.config.Config
 import kalix.javasdk.JsonSupport
+import kalix.javasdk.impl.JsonMessageCodec
 import kalix.javasdk.testkit.KalixTestKit
 import kalix.spring.impl.KalixSpringApplication
 import kalix.spring.impl.WebClientProviderHolder
@@ -72,7 +73,7 @@ class KalixConfigurationTest(applicationContext: ApplicationContext) extends Kal
       settingsOpt: Option[KalixTestKit.Settings]): KalixTestKit = {
 
     val settings = settingsOpt.getOrElse(KalixTestKit.Settings.DEFAULT)
-    val kalixTestKit = new KalixTestKit(kalixSpringApplication.kalix, settings)
+    val kalixTestKit = new KalixTestKit(kalixSpringApplication.kalix, new JsonMessageCodec, settings)
 
     logger.info(s"Starting Kalix TestKit with: $settings")
     kalixTestKit.start(config)
