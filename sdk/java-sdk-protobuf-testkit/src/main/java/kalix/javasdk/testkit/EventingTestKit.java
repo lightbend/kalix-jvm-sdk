@@ -16,19 +16,14 @@
 
 package kalix.javasdk.testkit;
 
-import akka.NotUsed;
 import akka.actor.ActorSystem;
 import akka.annotation.ApiMayChange;
 import akka.annotation.InternalApi;
-import akka.stream.javadsl.Source;
-import akka.testkit.TestProbe;
 import com.google.protobuf.ByteString;
-import com.google.protobuf.GeneratedMessageV3;
 import kalix.javasdk.Metadata;
 import kalix.javasdk.impl.MessageCodec;
 import kalix.javasdk.testkit.impl.EventingTestKitImpl;
 import kalix.javasdk.testkit.impl.TestKitMessageImpl;
-import kalix.testkit.protocol.eventing_test_backend.SourceElem;
 import kalix.javasdk.testkit.impl.TopicImpl$;
 
 import java.time.Duration;
