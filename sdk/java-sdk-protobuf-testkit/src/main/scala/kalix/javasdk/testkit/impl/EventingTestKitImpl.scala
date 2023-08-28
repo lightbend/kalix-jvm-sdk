@@ -16,11 +16,33 @@
 
 package kalix.javasdk.testkit.impl
 
+import java.time
+import java.util.UUID
+import java.util.concurrent.ConcurrentHashMap
+import java.util.{ List => JList }
+
+import scala.compat.java8.DurationConverters.DurationOps
+import scala.compat.java8.OptionConverters.RichOptionalGeneric
+import scala.concurrent.Await
+import scala.concurrent.ExecutionContextExecutor
+import scala.concurrent.Future
+import scala.concurrent.Promise
+import scala.concurrent.duration._
+import scala.jdk.CollectionConverters.IteratorHasAsScala
+import scala.jdk.CollectionConverters.SeqHasAsJava
+import scala.jdk.CollectionConverters._
+import scala.language.postfixOps
+import scala.util.Failure
+import scala.util.Success
+
 import akka.NotUsed
+import akka.actor.ActorRef
 import akka.actor.ActorSystem
+import akka.actor.Props
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.model.HttpRequest
 import akka.http.scaladsl.model.HttpResponse
+import akka.pattern._
 import akka.stream.BoundedSourceQueue
 import akka.stream.QueueOfferResult
 import akka.stream.scaladsl.Sink
@@ -30,9 +52,8 @@ import akka.util.BoxedType
 import com.google.protobuf.ByteString
 import com.google.protobuf.GeneratedMessageV3
 import com.google.protobuf.any.{ Any => ScalaPbAny }
-import kalix.eventing.EventDestination
-import kalix.eventing.EventDestination.Destination
 import kalix.eventing.EventSource
+import kalix.javasdk.JsonSupport
 import kalix.javasdk.Metadata.{ MetadataEntry => SdkMetadataEntry }
 import kalix.javasdk.impl.MessageCodec
 import kalix.javasdk.impl.MetadataImpl
@@ -45,7 +66,6 @@ import kalix.javasdk.testkit.impl.TopicImpl.DefaultTimeout
 import kalix.javasdk.{ Metadata => SdkMetadata }
 import kalix.protocol.component.Metadata
 import kalix.protocol.component.MetadataEntry
-import kalix.javasdk.JsonSupport
 import kalix.testkit.protocol.eventing_test_backend.EmitSingleCommand
 import kalix.testkit.protocol.eventing_test_backend.EmitSingleResult
 import kalix.testkit.protocol.eventing_test_backend.EventStreamOutCommand
@@ -58,23 +78,6 @@ import kalix.testkit.protocol.eventing_test_backend.RunSourceCreate
 import kalix.testkit.protocol.eventing_test_backend.SourceElem
 import org.slf4j.LoggerFactory
 import scalapb.GeneratedMessage
-
-import java.time
-import java.util.UUID
-import java.util.concurrent.ConcurrentHashMap
-import java.util.{ List => JList }
-import scala.compat.java8.DurationConverters.DurationOps
-import scala.compat.java8.OptionConverters.RichOptionalGeneric
-import scala.concurrent.Await
-import scala.concurrent.Future
-import scala.concurrent.Promise
-import scala.concurrent.duration._
-import scala.jdk.CollectionConverters.CollectionHasAsScala
-import scala.jdk.CollectionConverters.IteratorHasAsScala
-import scala.jdk.CollectionConverters.SeqHasAsJava
-import scala.util.Failure
-import scala.util.Success
-import scala.language.postfixOps
 
 object EventingTestKitImpl {
 
@@ -154,15 +157,17 @@ final class EventingTestServiceImpl(system: ActorSystem, val host: String, var p
     extends EventingTestKit {
 
   private val log = LoggerFactory.getLogger(classOf[EventingTestServiceImpl])
-  private implicit val sys = system
-  private implicit val ec = sys.dispatcher
+  private implicit val sys: ActorSystem = system
+  private implicit val ec: ExecutionContextExecutor = sys.dispatcher
 
   private val topics = new ConcurrentHashMap[String, TopicImpl]()
 
   override def getTopic(topic: String): Topic = getTopicImpl(topic)
 
   private def getTopicImpl(topic: String): TopicImpl =
-    topics.computeIfAbsent(topic, _ => new TopicImpl(TestProbe(), TestProbe(), codec))
+    topics.computeIfAbsent(
+      topic,
+      _ => new TopicImpl(TestProbe(), system.actorOf(Props[SourcesHolder](), "topic-source-holder-" + topic), codec))
 
   final class ServiceImpl extends EventingTestKitService {
     override def emitSingle(in: EmitSingleCommand): Future[EmitSingleResult] = {
@@ -201,7 +206,7 @@ final class EventingTestServiceImpl(system: ActorSystem, val host: String, var p
             eventSource)
           val (queue, source) = Source.queue[SourceElem](10).preMaterialize()
           val runningSourceProbe = RunningSourceProbe(serviceName, eventSource)(queue, source)
-          getTopicImpl(eventSource.getTopic).sourceProbe.ref ! runningSourceProbe
+          getTopicImpl(eventSource.getTopic).addSourceProbe(runningSourceProbe)
           runningSourcePromise.success(runningSourceProbe)
           Some(runningSourceProbe)
 
@@ -229,15 +234,20 @@ final class EventingTestServiceImpl(system: ActorSystem, val host: String, var p
   }
 }
 
+private case class PublishedMessage(message: ByteString, metadata: SdkMetadata)
+
 private[testkit] class TopicImpl(
     private[testkit] val destinationProbe: TestProbe,
-    private[testkit] val sourceProbe: TestProbe,
+    private[testkit] val sourcesHolder: ActorRef,
     codec: MessageCodec)
     extends Topic {
 
-  private lazy val brokerProbe = sourceProbe.expectMsgType[RunningSourceProbe]
-
   private val log = LoggerFactory.getLogger(classOf[TopicImpl])
+
+  def addSourceProbe(runningSourceProbe: RunningSourceProbe): Unit = {
+    val addSource = sourcesHolder.ask(SourcesHolder.AddSource(runningSourceProbe))(5.seconds)
+    Await.result(addSource, 10.seconds)
+  }
 
   override def expectNone(): Unit = expectNone(DefaultTimeout)
 
@@ -328,8 +338,10 @@ private[testkit] class TopicImpl(
   override def publish(message: ByteString): Unit =
     publish(message, SdkMetadata.EMPTY)
 
-  override def publish(message: ByteString, metadata: SdkMetadata): Unit =
-    brokerProbe.emit(message, metadata)
+  override def publish(message: ByteString, metadata: SdkMetadata): Unit = {
+    val addSource = sourcesHolder.ask(SourcesHolder.Publish(message, metadata))(5.seconds)
+    Await.result(addSource, 5.seconds)
+  }
 
   override def publish(message: TestKitMessage[_]): Unit = message.getPayload match {
     case javaPb: GeneratedMessageV3 => publish(javaPb.toByteString, message.getMetadata)
@@ -353,7 +365,7 @@ private[testkit] class TopicImpl(
 }
 
 private[testkit] object TopicImpl {
-  val DefaultTimeout = time.Duration.ofSeconds(3)
+  val DefaultTimeout: time.Duration = time.Duration.ofSeconds(3)
 }
 
 private[testkit] case class TestKitMessageImpl[P](payload: P, metadata: SdkMetadata) extends TestKitMessage[P] {
