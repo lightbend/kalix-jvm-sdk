@@ -541,7 +541,7 @@ jobs:
         include:
           - { sample: java-protobuf-shopping-cart-quickstart, it: true }
           - { sample: java-protobuf-customer-registry-quickstart, it: true }
-          - { sample: java-protobuf-customer-registry-kafka-quickstart, it: true }
+          - { sample: java-protobuf-customer-registry-kafka-quickstart, pre_cmd: './setup-kafka.sh', it: true }
           - { sample: java-protobuf-customer-registry-views-quickstart, it: true }
 
           - { sample: java-spring-shopping-cart-quickstart, it: true }
@@ -652,7 +652,7 @@ jobs:
           fi
           if [ true == '${{matrix.it}}' ]; then
             ${PRE_CMD}
-            mvn -Dkalix-sdk.version=${SDK_VERSION} verify -Pit
+            KALIX_TESTKIT_DEBUG=true mvn -Dkalix-sdk.version=${SDK_VERSION} verify -Pit
           fi
 
       - name: ${{ matrix.sample }} rm & test-compile

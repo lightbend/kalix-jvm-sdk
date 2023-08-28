@@ -61,7 +61,7 @@ object KalixTestKit {
       val jEventingSupport = eventingSupport match {
         case TestBroker   => JEventingSupport.TEST_BROKER
         case GooglePubSub => JEventingSupport.GOOGLE_PUBSUB
-        case Kafka => JEventingSupport.KAFKA
+        case Kafka        => JEventingSupport.KAFKA
       }
       new Settings(jSettings.withEventingSupport(jEventingSupport))
     }
