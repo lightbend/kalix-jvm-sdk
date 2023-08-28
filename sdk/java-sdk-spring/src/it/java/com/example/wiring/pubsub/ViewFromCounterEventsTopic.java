@@ -34,7 +34,7 @@ import static com.example.wiring.pubsub.PublishESToTopic.COUNTER_EVENTS_TOPIC;
 import static kalix.javasdk.impl.MetadataImpl.CeSubject;
 
 
-@Profile("docker-it-test")
+@Profile({"docker-it-test", "eventing-testkit"})
 @ViewId("counter_view_topic_sub")
 @Table("counter_view_topic_sub")
 @Subscribe.Topic(COUNTER_EVENTS_TOPIC)

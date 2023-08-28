@@ -16,10 +16,15 @@
 
 package kalix.javasdk.testkit.impl
 
-import akka.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
+import scala.collection.mutable
+import scala.jdk.CollectionConverters.CollectionHasAsScala
+
+import akka.actor.ActorSystem
+import akka.actor.Props
 import akka.stream.BoundedSourceQueue
 import akka.stream.QueueOfferResult
 import akka.stream.scaladsl.Source
+import akka.testkit.TestKit
 import akka.testkit.TestProbe
 import com.google.protobuf.ByteString
 import kalix.eventing.EventDestination
@@ -33,22 +38,27 @@ import kalix.protocol.component.MetadataEntry.Value.StringValue
 import kalix.testkit.protocol.eventing_test_backend.EmitSingleCommand
 import kalix.testkit.protocol.eventing_test_backend.Message
 import kalix.testkit.protocol.eventing_test_backend.SourceElem
+import org.scalatest.BeforeAndAfterAll
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
 
-import scala.collection.mutable
-import scala.jdk.CollectionConverters.CollectionHasAsScala
-
-class TopicImplSpec extends ScalaTestWithActorTestKit with AnyWordSpecLike with Matchers with BeforeAndAfterEach {
+class TopicImplSpec
+    extends TestKit(ActorSystem("MySpec"))
+    with AnyWordSpecLike
+    with Matchers
+    with BeforeAndAfterEach
+    with BeforeAndAfterAll {
 
   private val anySupport = new AnySupport(Array(), getClass.getClassLoader)
-  private val outProbe = TestProbe()(system.classicSystem)
-  private val inProbe = TestProbe()(system.classicSystem)
-  private val topic = new TopicImpl(outProbe, inProbe, anySupport)
+  private val outProbe = TestProbe()(system)
+  private val topic =
+    new TopicImpl(outProbe, system.actorOf(Props[SourcesHolder](), "holder"), anySupport)
   val queue = new DummyQueue(mutable.Queue.empty)
-  // establishing the dummy connection for the test broker
-  inProbe.ref ! RunningSourceProbe("dummy-service", EventSource.defaultInstance)(queue, Source.empty[SourceElem])
+
+  private val runningSourceProbe: RunningSourceProbe =
+    RunningSourceProbe("dummy-service", EventSource.defaultInstance)(queue, Source.empty[SourceElem])
+  topic.addSourceProbe(runningSourceProbe)
 
   private val textPlainHeader = MetadataEntry("Content-Type", StringValue("text/plain; charset=utf-8"))
   private val bytesHeader = MetadataEntry("Content-Type", StringValue("application/octet-stream"))
@@ -134,6 +144,10 @@ class TopicImplSpec extends ScalaTestWithActorTestKit with AnyWordSpecLike with 
     super.beforeEach()
     // for tests when we are expecting a failure, some messages might remain unread and mess up with following tests, thus clearing
     topic.clear()
+  }
+
+  override def afterAll(): Unit = {
+    TestKit.shutdownActorSystem(system)
   }
 
   class DummyQueue(val elems: mutable.Queue[SourceElem]) extends BoundedSourceQueue[SourceElem] {

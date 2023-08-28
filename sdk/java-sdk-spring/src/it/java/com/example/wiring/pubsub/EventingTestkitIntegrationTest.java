@@ -19,7 +19,6 @@ package com.example.wiring.pubsub;
 import com.example.Main;
 import com.example.wiring.TestkitConfig;
 import com.example.wiring.eventsourcedentities.counter.CounterEvent.ValueIncreased;
-import kalix.javasdk.client.ComponentClient;
 import kalix.javasdk.testkit.EventingTestKit;
 import kalix.javasdk.testkit.EventingTestKit.Message;
 import kalix.javasdk.testkit.KalixTestKit;
@@ -32,6 +31,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
+import org.springframework.web.reactive.function.client.WebClient;
 
 import java.util.concurrent.TimeUnit;
 
@@ -51,7 +51,7 @@ public class EventingTestkitIntegrationTest {
   private KalixTestKit kalixTestKit;
   private EventingTestKit.Topic eventsTopic;
   @Autowired
-  private ComponentClient componentClient;
+  private WebClient webClient;
 
   @BeforeAll
   public void beforeAll() {
@@ -62,8 +62,8 @@ public class EventingTestkitIntegrationTest {
   public void shouldPublishEventWithTypeNameViaEventingTestkit() {
     //given
     String subject = "test";
-    ValueIncreased event1 = new ValueIncreased(123);
-    ValueIncreased event2 = new ValueIncreased(123);
+    ValueIncreased event1 = new ValueIncreased(1);
+    ValueIncreased event2 = new ValueIncreased(2);
 
     //when
     Message<ValueIncreased> test = kalixTestKit.getMessageBuilder().of(event1, subject);
@@ -77,7 +77,16 @@ public class EventingTestkitIntegrationTest {
         .untilAsserted(() -> {
           var response = DummyCounterEventStore.get(subject);
           assertThat(response).containsOnly(event1, event2);
-        });
 
+          var viewResponse = webClient
+              .get()
+              .uri("/counter-view-topic-sub/less-then/" + 4)
+              .retrieve()
+              .bodyToFlux(CounterView.class)
+              .toStream()
+              .toList();
+
+          assertThat(viewResponse).containsOnly(new CounterView("test", 3));
+        });
   }
 }
