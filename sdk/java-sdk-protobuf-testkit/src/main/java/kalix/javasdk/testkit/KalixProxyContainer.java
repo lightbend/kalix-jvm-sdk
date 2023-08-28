@@ -39,6 +39,8 @@ public class KalixProxyContainer extends GenericContainer<KalixProxyContainer> {
   /** Default local port where the Google Pub/Sub emulator is available (8085). */
   public static final int DEFAULT_GOOGLE_PUBSUB_PORT = 8085;
 
+  public static final int DEFAULT_KAFKA_PORT = 9092;
+
   static {
     String customImage = System.getenv("KALIX_TESTKIT_PROXY_IMAGE");
     if (customImage == null) {

@@ -46,6 +46,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static kalix.javasdk.testkit.KalixProxyContainer.DEFAULT_GOOGLE_PUBSUB_PORT;
+import static kalix.javasdk.testkit.KalixProxyContainer.DEFAULT_KAFKA_PORT;
 
 /**
  * Testkit for running Kalix services locally.
@@ -104,11 +105,18 @@ public class KalixTestKit {
       TEST_BROKER,
 
       /**
-       * Used if you want to use an external Google PubSub Emulator on your tests.
+       * Used if you want to use an external Google PubSub (or its Emulator) on your tests.
        *
-       * Note: the Google PubSub Emulator need to be started independently.
+       * Note: the Google PubSub broker instance needs to be started independently.
        */
-      GOOGLE_PUBSUB
+      GOOGLE_PUBSUB,
+
+      /**
+       * Used if you want to use an external Kafka broker on your tests.
+       *
+       * Note: the Kafka broker instance needs to be started independently.
+       */
+      KAFKA
     }
 
     private Settings(
@@ -286,7 +294,7 @@ public class KalixTestKit {
 
     testSystem = ActorSystem.create("KalixTestkit", ConfigFactory.parseString("akka.http.server.preview.enable-http2 = true"));
 
-    int eventingBackendPort = settings.eventingSupport.equals(Settings.EventingSupport.GOOGLE_PUBSUB) ? DEFAULT_GOOGLE_PUBSUB_PORT : startEventingTestkit();
+    int eventingBackendPort = getEventingBackendPort(settings.eventingSupport);
     runProxy(useTestContainers, port, eventingBackendPort);
 
     started = true;
@@ -295,6 +303,17 @@ public class KalixTestKit {
       log.debug("TestKit using [{}:{}] for calls to proxy from service", proxyHost, proxyPort);
 
     return this;
+  }
+
+  private int getEventingBackendPort(Settings.EventingSupport eventingSupport) {
+    switch(eventingSupport) {
+      case KAFKA:
+        return DEFAULT_KAFKA_PORT;
+      case GOOGLE_PUBSUB:
+        return DEFAULT_GOOGLE_PUBSUB_PORT;
+      default:
+        return startEventingTestkit();
+    }
   }
 
   private int startEventingTestkit() {
@@ -320,6 +339,9 @@ public class KalixTestKit {
         javaOptions.add("-Dkalix.proxy.eventing.support=grpc-backend");
         javaOptions.add("-Dkalix.proxy.eventing.grpc-backend.host=host.testcontainers.internal");
         javaOptions.add("-Dkalix.proxy.eventing.grpc-backend.port=" + eventingBackendPort);
+      } else if (settings.eventingSupport.equals(Settings.EventingSupport.KAFKA)) {
+        javaOptions.add("-Dkalix.proxy.eventing.support=kafka");
+        javaOptions.add("-Dkalix.proxy.eventing.kafka.bootstrap-servers=host.testcontainers.internal:"+eventingBackendPort);
       }
       settings.servicePortMappings.forEach((serviceName, hostPort) -> {
         javaOptions.add("-Dkalix.dev-mode.service-port-mappings." + serviceName + "=" + hostPort);
