@@ -133,7 +133,7 @@ public class CounterIntegrationTest extends KalixIntegrationTestKitSupport { // 
             .asMetadata()
             .add("Content-Type", "application/json"); // <3>
 
-        commandsTopic.publish(EventingTestKit.Message.of(increaseCmd, metadata)); // <4>
+        commandsTopic.publish(kalixTestKit.getMessageBuilder().of(increaseCmd, metadata)); // <4>
 
         var increasedEvent = eventsTopicWithMeta.expectOneTyped(CounterCommandFromTopicAction.IncreaseCounter.class);
         var actualMd = increasedEvent.getMetadata(); // <5>

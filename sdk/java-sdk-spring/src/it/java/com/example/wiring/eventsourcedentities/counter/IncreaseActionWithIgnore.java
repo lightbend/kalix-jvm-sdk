@@ -20,12 +20,9 @@ import kalix.javasdk.action.Action;
 import kalix.javasdk.action.ActionCreationContext;
 import kalix.javasdk.annotations.Subscribe;
 import kalix.javasdk.client.ComponentClient;
-import kalix.spring.KalixConfigurationTest;
-import org.springframework.context.annotation.Import;
 
 import java.util.concurrent.CompletionStage;
 
-@Import(KalixConfigurationTest.class)
 @Subscribe.EventSourcedEntity(value = CounterEntity.class, ignoreUnknown = true)
 public class IncreaseActionWithIgnore extends Action {
 

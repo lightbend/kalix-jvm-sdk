@@ -20,6 +20,8 @@ import akka.actor.ActorSystem;
 import akka.grpc.GrpcClientSettings;
 import akka.stream.Materializer;
 import kalix.javasdk.Kalix;
+import kalix.javasdk.impl.MessageCodec;
+import kalix.javasdk.testkit.EventingTestKit;
 import kalix.javasdk.testkit.KalixTestKit;
 import kalix.javasdk.testkit.EventingTestKit.Topic;
 import org.junit.rules.ExternalResource;
@@ -61,11 +63,15 @@ public final class KalixTestKitResource extends ExternalResource {
   private final KalixTestKit testKit;
 
   public KalixTestKitResource(Kalix kalix) {
-    this(kalix, KalixTestKit.Settings.DEFAULT);
+    this(kalix, kalix.getMessageCodec(), KalixTestKit.Settings.DEFAULT);
   }
 
   public KalixTestKitResource(Kalix kalix, KalixTestKit.Settings settings) {
-    this.testKit = new KalixTestKit(kalix, settings);
+    this(kalix, kalix.getMessageCodec(), settings);
+  }
+
+  public KalixTestKitResource(Kalix kalix, MessageCodec messageCodec, KalixTestKit.Settings settings) {
+    this.testKit = new KalixTestKit(kalix, messageCodec, settings);
   }
 
   @Override
@@ -76,11 +82,20 @@ public final class KalixTestKitResource extends ExternalResource {
   /**
    * If your Kalix service publishes or consumes from/to an eventing services (i.e. kafka or pub/sub),
    * this will allow assertions on messages consumed / produced to such broker.
+   *
    * @param topic name of the topic to interact with
    * @return a struture to allow interactions with a topic
    */
   public Topic getTopic(String topic) {
     return testKit.getTopic(topic);
+  }
+
+  /**
+   * Returns {@link kalix.javasdk.testkit.EventingTestKit.MessageBuilder} utility
+   * to create {@link kalix.javasdk.testkit.EventingTestKit.Message}s for the eventing testkit.
+   */
+  public EventingTestKit.MessageBuilder getMessageBuilder() {
+    return testKit.getMessageBuilder();
   }
 
   /**

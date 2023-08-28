@@ -16,19 +16,14 @@
 
 package kalix.javasdk.testkit;
 
-import akka.NotUsed;
 import akka.actor.ActorSystem;
 import akka.annotation.ApiMayChange;
 import akka.annotation.InternalApi;
-import akka.stream.javadsl.Source;
-import akka.testkit.TestProbe;
 import com.google.protobuf.ByteString;
-import com.google.protobuf.GeneratedMessageV3;
 import kalix.javasdk.Metadata;
 import kalix.javasdk.impl.MessageCodec;
 import kalix.javasdk.testkit.impl.EventingTestKitImpl;
 import kalix.javasdk.testkit.impl.TestKitMessageImpl;
-import kalix.testkit.protocol.eventing_test_backend.SourceElem;
 import kalix.javasdk.testkit.impl.TopicImpl$;
 
 import java.time.Duration;
@@ -208,6 +203,40 @@ public interface EventingTestKit {
   }
 
   @ApiMayChange
+  class MessageBuilder {
+    private final MessageCodec messageCodec;
+
+    public MessageBuilder(MessageCodec messageCodec) {
+      this.messageCodec = messageCodec;
+    }
+
+    /**
+     * Create a message from a payload plus a subject (that is, the entity key).
+     * Automatically adds required default metadata for a CloudEvent.
+     *
+     * @param payload the message payload
+     * @param subject the entity key of which the message is concerned about
+     * @param <T>
+     * @return a Message object to be used in the context of the Testkit
+     */
+    public <T> Message<T> of(T payload, String subject) {
+      return new TestKitMessageImpl<>(payload, TestKitMessageImpl.defaultMetadata(payload, subject, messageCodec));
+    }
+
+    /**
+     * Create a message object from a payload plus metadata.
+     *
+     * @param payload  the message payload
+     * @param metadata the metadata associated with the message
+     * @param <T>
+     * @return a Message object to be used in the context of the Testkit
+     */
+    public <T> Message<T> of(T payload, Metadata metadata) {
+      return new TestKitMessageImpl<>(payload, metadata);
+    }
+  }
+
+  @ApiMayChange
   interface Message<P> {
     P getPayload();
 
@@ -218,34 +247,9 @@ public interface EventingTestKit {
      * Otherwise, throws an exception.
      *
      * @param clazz expected class type for the payload of the message
+     * @param <T>   the type of the payload
      * @return a typed object from the payload
-     * @param <T> the type of the payload
      */
     <T> T expectType(Class<T> clazz);
-
-    /**
-     * Create a message from a payload plus a subject (that is, the entity key).
-     * Automatically adds required default metadata for a CloudEvent.
-     *
-     * @param payload the message payload
-     * @param subject the entity key of which the message is concerned about
-     * @return a Message object to be used in the context of the Testkit
-     * @param <T>
-     */
-    static <T> Message<T> of(T payload, String subject) {
-      return new TestKitMessageImpl<>(payload, TestKitMessageImpl.defaultMetadata(payload, subject));
-    }
-
-    /**
-     * Create a message object from a payload plus metadata.
-     *
-     * @param payload the message payload
-     * @param metadata the metadata associated with the message
-     * @return a Message object to be used in the context of the Testkit
-     * @param <T>
-     */
-    static <T> Message<T> of(T payload, Metadata metadata) {
-      return new TestKitMessageImpl<>(payload, metadata);
-    }
   }
 }

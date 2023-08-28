@@ -470,6 +470,8 @@ class AnySupport(
       }
     }
   }
+
+  override def typeUrlFor(clz: Class[_]): String = clz.getName
 }
 
 final case class SerializationException(msg: String, cause: Throwable = null) extends RuntimeException(msg, cause)
@@ -493,4 +495,5 @@ trait MessageCodec {
   def decodeMessage(any: ScalaPbAny): Any
   def encodeScala(value: Any): ScalaPbAny
   def encodeJava(value: Any): JavaPbAny
+  def typeUrlFor(clz: Class[_]): String
 }

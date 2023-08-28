@@ -94,7 +94,7 @@ public class CounterTopicIntegrationTest {
         .asMetadata()
         .add("Content-Type", "application/protobuf"); // <3>
 
-    commandsTopic.publish(EventingTestKit.Message.of(increaseCmd, metadata)); // <4>
+    commandsTopic.publish(testKit.getMessageBuilder().of(increaseCmd, metadata)); // <4>
 
     var increasedEvent = eventsTopicWithMeta.expectOneTyped(CounterTopicApi.Increased.class);
     var actualMd = increasedEvent.getMetadata(); // <5>

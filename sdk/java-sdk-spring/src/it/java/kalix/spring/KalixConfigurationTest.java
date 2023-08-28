@@ -18,6 +18,7 @@ package kalix.spring;
 
 import kalix.javasdk.JsonSupport;
 import kalix.javasdk.client.ComponentClient;
+import kalix.javasdk.impl.JsonMessageCodec;
 import kalix.javasdk.testkit.KalixTestKit;
 import kalix.spring.boot.KalixConfiguration;
 import kalix.spring.impl.KalixSpringApplication;
@@ -70,7 +71,7 @@ public class KalixConfigurationTest {
   @Bean
   public KalixTestKit kalixTestKit(KalixSpringApplication kalixSpringApplication, KalixTestKit.Settings settings) {
     logger.info("Starting Kalix TestKit...");
-    KalixTestKit kalixTestKit = new KalixTestKit(kalixSpringApplication.kalix(), settings);
+    KalixTestKit kalixTestKit = new KalixTestKit(kalixSpringApplication.kalix(), new JsonMessageCodec(), settings);
     kalixTestKit.start(kalixConfiguration.config());
     logger.info("Kalix Proxy running on port: " + kalixTestKit.getPort());
     //when ComponentClient is used in integration test, we must initiate webclient before the first request
