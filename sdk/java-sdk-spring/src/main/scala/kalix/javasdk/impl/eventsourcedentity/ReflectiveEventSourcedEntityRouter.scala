@@ -28,7 +28,6 @@ import kalix.javasdk.impl.CommandHandler
 import kalix.javasdk.impl.InvocationContext
 import kalix.javasdk.impl.JsonMessageCodec
 import kalix.javasdk.impl.MethodInvoker
-import kalix.javasdk.impl.reflection.MigrationExtractor.extractMigration
 
 class ReflectiveEventSourcedEntityRouter[S, E, ES <: EventSourcedEntity[S, E]](
     override protected val entity: ES,
@@ -109,10 +108,7 @@ class ReflectiveEventSourcedEntityRouter[S, E, ES <: EventSourcedEntity[S, E]](
         entity._internalSetCurrentState(s)
       case s =>
         val deserializedState =
-          JsonSupport.decodeJson(
-            entityStateType,
-            ScalaPbAny.toJavaProto(s.asInstanceOf[ScalaPbAny]),
-            extractMigration(entityStateType))
+          JsonSupport.decodeJson(entityStateType, ScalaPbAny.toJavaProto(s.asInstanceOf[ScalaPbAny]))
         entity._internalSetCurrentState(deserializedState)
     }
   }

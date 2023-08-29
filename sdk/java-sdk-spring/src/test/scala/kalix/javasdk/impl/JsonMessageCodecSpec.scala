@@ -117,7 +117,7 @@ class JsonMessageCodecSpec extends AnyWordSpec with Matchers {
     "decode with new schema version" in {
       val encoded = messageCodec.encodeJava(SimpleClass("abc", 10))
       val decoded =
-        JsonSupport.decodeJson(classOf[SimpleClassUpdated], encoded, Optional.of(new SimpleClassUpdatedMigration))
+        JsonSupport.decodeJson(classOf[SimpleClassUpdated], encoded)
       decoded shouldBe SimpleClassUpdated("abc", 10, 1)
     }
 

@@ -22,7 +22,6 @@ import com.google.protobuf.any.{ Any => ScalaPbAny }
 import kalix.javasdk.JsonSupport
 import kalix.javasdk.impl.CommandHandler
 import kalix.javasdk.impl.InvocationContext
-import kalix.javasdk.impl.reflection.MigrationExtractor.extractMigration
 import kalix.javasdk.valueentity.CommandContext
 import kalix.javasdk.valueentity.ValueEntity
 
@@ -74,10 +73,7 @@ class ReflectiveValueEntityRouter[S, E <: ValueEntity[S]](
         entity._internalSetCurrentState(s)
       case s =>
         val deserializedState =
-          JsonSupport.decodeJson(
-            entityStateType,
-            ScalaPbAny.toJavaProto(s.asInstanceOf[ScalaPbAny]),
-            extractMigration(entityStateType))
+          JsonSupport.decodeJson(entityStateType, ScalaPbAny.toJavaProto(s.asInstanceOf[ScalaPbAny]))
         entity._internalSetCurrentState(deserializedState)
     }
   }
