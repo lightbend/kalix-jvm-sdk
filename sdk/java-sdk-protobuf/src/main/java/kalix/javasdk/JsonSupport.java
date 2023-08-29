@@ -37,9 +37,11 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.google.protobuf.Any;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.UnsafeByteOperations;
+import kalix.javasdk.annotations.Migration;
 import kalix.javasdk.impl.ByteStringEncoding;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
 import java.util.Optional;
 
@@ -85,7 +87,8 @@ public final class JsonSupport {
     return objectMapper;
   }
 
-  private JsonSupport() {};
+  private JsonSupport() {
+  }
 
   /**
    * Encode the given value as JSON using Jackson and put the encoded string as bytes in a protobuf
@@ -138,21 +141,6 @@ public final class JsonSupport {
    * @throws IllegalArgumentException if the given value cannot be decoded to a T
    */
   public static <T> T decodeJson(Class<T> valueClass, Any any) {
-    return decodeJson(valueClass, any, Optional.empty());
-  }
-
-  /**
-   * Decode the given protobuf Any object to an instance of T using Jackson. The object must have
-   * the JSON string as bytes as value and a type URL starting with "json.kalix.io/".
-   *
-   * @param valueClass       The type of class to deserialize the object to, the class must have the
-   *                         proper Jackson annotations for deserialization.
-   * @param any              The protobuf Any object to deserialize.
-   * @param jacksonMigration The optional @{@link JsonMigration} implementation used for deserialization.
-   * @return The decoded object
-   * @throws IllegalArgumentException if the given value cannot be decoded to a T
-   */
-  public static <T> T decodeJson(Class<T> valueClass, Any any, Optional<? extends JsonMigration> jacksonMigration) {
     if (!any.getTypeUrl().startsWith(KALIX_JSON)) {
       throw new IllegalArgumentException(
           "Protobuf bytes with type url ["
@@ -163,9 +151,12 @@ public final class JsonSupport {
     } else {
       try {
         ByteString decodedBytes = ByteStringEncoding.decodePrimitiveBytes(any.getValue());
-        if (jacksonMigration.isPresent()) {
+        if (valueClass.getAnnotation(Migration.class) != null) {
+          JsonMigration migration = valueClass.getAnnotation(Migration.class)
+              .value()
+              .getConstructor()
+              .newInstance();
           int fromVersion = parseVersion(any.getTypeUrl());
-          JsonMigration migration = jacksonMigration.get();
           int currentVersion = migration.currentVersion();
           int supportedForwardVersion = migration.supportedForwardVersion();
           if (fromVersion < currentVersion) {
@@ -181,7 +172,8 @@ public final class JsonSupport {
         } else {
           return objectMapper.readValue(decodedBytes.toByteArray(), valueClass);
         }
-      } catch (IOException e) {
+      } catch (IOException | NoSuchMethodException | InstantiationException | IllegalAccessException |
+               InvocationTargetException e) {
         throw new IllegalArgumentException(
             "JSON with type url ["
                 + any.getTypeUrl()

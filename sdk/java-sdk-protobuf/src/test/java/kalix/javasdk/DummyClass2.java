@@ -18,9 +18,11 @@ package kalix.javasdk;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import kalix.javasdk.annotations.Migration;
 
 import java.util.Objects;
 
+@Migration(DummyClass2Migration.class)
 public class DummyClass2 {
   public String stringValue;
   public int intValue;
