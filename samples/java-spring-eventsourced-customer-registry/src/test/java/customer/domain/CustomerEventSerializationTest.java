@@ -3,32 +3,18 @@ package customer.domain;
 import com.google.protobuf.Any;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
-import customer.domain.schemaevolution.AddressChangedMigration;
-import customer.domain.schemaevolution.NameChangedMigration;
 import kalix.javasdk.JsonSupport;
 import org.junit.jupiter.api.Test;
 
 import java.util.Base64;
 import java.util.Optional;
 
-import static customer.domain.schemaevolution.CustomerEvent.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static customer.domain.schemaevolution.CustomerEvent.AddressChanged;
+import static customer.domain.schemaevolution.CustomerEvent.CustomerCreated;
+import static customer.domain.schemaevolution.CustomerEvent.NameChanged;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class CustomerEventSerializationTest {
-
-  @Test
-  public void shouldDeserializeWithOptionalField() {
-    //given
-    Any serialized = JsonSupport.encodeJson(new CustomerEvent.NameChanged("andre"));
-
-    //when
-    NameChanged deserialized = JsonSupport.decodeJson(NameChanged.class, serialized);
-
-    //then
-    assertEquals("andre", deserialized.newName());
-    assertEquals(Optional.empty(), deserialized.oldName());
-    assertEquals(null, deserialized.reason());
-  }
 
   @Test
   public void shouldDeserializeWithMandatoryField() {
@@ -36,7 +22,7 @@ class CustomerEventSerializationTest {
     Any serialized = JsonSupport.encodeJson(new CustomerEvent.NameChanged("andre"));
 
     //when
-    NameChanged deserialized = JsonSupport.decodeJson(NameChanged.class, serialized, Optional.of(new NameChangedMigration()));
+    NameChanged deserialized = JsonSupport.decodeJson(NameChanged.class, serialized);
 
     //then
     assertEquals("andre", deserialized.newName());
@@ -51,7 +37,7 @@ class CustomerEventSerializationTest {
     Any serialized = JsonSupport.encodeJson(new CustomerEvent.AddressChanged(address));
 
     //when
-    AddressChanged deserialized = JsonSupport.decodeJson(AddressChanged.class, serialized, Optional.of(new AddressChangedMigration()));
+    AddressChanged deserialized = JsonSupport.decodeJson(AddressChanged.class, serialized);
 
     //then
     assertEquals(address, deserialized.newAddress());
@@ -63,7 +49,7 @@ class CustomerEventSerializationTest {
     Any serialized = JsonSupport.encodeJson(new CustomerCreated("bob@lightbend.com", "bob", "Wall Street", "New York"));
 
     //when
-    CustomerEvent.CustomerCreated deserialized = JsonSupport.decodeJson(CustomerEvent.CustomerCreated.class, serialized, Optional.of(new CustomerCreatedMigration()));
+    CustomerEvent.CustomerCreated deserialized = JsonSupport.decodeJson(CustomerEvent.CustomerCreated.class, serialized);
 
     //then
     assertEquals("Wall Street", deserialized.address().street());
@@ -84,8 +70,7 @@ class CustomerEventSerializationTest {
     Any serializedAny = Any.parseFrom(ByteString.copyFrom(bytes)); // <2>
 
     CustomerEvent.CustomerCreated deserialized = JsonSupport.decodeJson(CustomerEvent.CustomerCreated.class,
-        serializedAny,
-        Optional.of(new CustomerCreatedMigration())); // <3>
+        serializedAny); // <3>
 
     assertEquals("Wall Street", deserialized.address().street());
     assertEquals("New York", deserialized.address().city());
