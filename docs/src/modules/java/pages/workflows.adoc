@@ -29,7 +29,7 @@ It's also possible to have a composite identifier. For example, `@Id({"groupId",
 
 Finally, you can ask Kalix to generate an unique identifier, this is typically useful when creating a Workflow, and the id is a surrogate id. To indicate to Kalix that an Workflow id should be generated rather than extracted from the path, be sure to annotate the corresponding command method with `@GenerateId`. Typically, a Workflow has only one method annotated with `@GenerateId`. The one that creates the Workflow. All other methods will have `@Id` annotation in order to extract the surrogate id from the endpoint path.
 
-It will often be necessary to access the generated id from inside the workflow code. This can be done using the link:{attachmentsdir}/api/kalix/javasdk/WorkflowContext.html#workflowId()[`WorkflowContext.workflowId`{tab-icon},window="new"] method.
+It will often be necessary to access the generated id from inside the workflow code. This can be done using the link:{attachmentsdir}/api/kalix/javasdk/workflow/WorkflowContext.html#workflowId()[`WorkflowContext.workflowId`{tab-icon},window="new"] method.
 
 NOTE: Kalix generates a UUID version 4 (random) keys. Only version 4 UUIDs are currently supported for generated Workflow identifiers.
 
