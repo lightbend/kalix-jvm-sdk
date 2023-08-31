@@ -77,7 +77,7 @@ Try to call the exposed service with `curl`:
 
 [source,command line]
 ----
-curl <generated hostname>:443/customer/abc123
+curl https://<generated hostname>/customer/abc123
 ----
 
 == Next steps
