@@ -14,8 +14,8 @@ services:
       # advertised listener running on port 9092 must be accessible to kalix-proxy container running for integration tests
       # therefore we need to use host.testcontainers.internal (testcontainers's bridge address) to access it through the host machine
       # advertised listener running on port 9093 is to be used by non-docker clients running on host machine
-      KAFKA_ADVERTISED_LISTENERS: EXTERNAL_DOCKER://host.testcontainers.internal:9092,HOST://localhost:9093
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: EXTERNAL_DOCKER:PLAINTEXT,HOST:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka:29092,EXTERNAL_DOCKER://host.testcontainers.internal:9092,HOST://localhost:9093
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,EXTERNAL_DOCKER:PLAINTEXT,HOST:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
   zookeeper:
