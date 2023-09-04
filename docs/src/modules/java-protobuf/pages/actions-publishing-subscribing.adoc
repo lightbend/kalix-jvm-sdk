@@ -639,7 +639,7 @@ NOTE: Despite the example, you are neither forced to clear all topics nor to do 
 
 === External Broker
 
-To run an integration test against a real instance of Google PubSub (or its Emulator), use the TestKit settings to override the default eventing support, as shown below:
+To run an integration test against a real instance of Google PubSub (or its Emulator) or Kafka, use the TestKit settings to override the default eventing support, as shown below:
 
 [.tabset]
 Java::

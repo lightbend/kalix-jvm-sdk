@@ -26,6 +26,7 @@ import kalix.javasdk.testkit.{ KalixTestKit => JTestKit }
 import kalix.javasdk.testkit.KalixTestKit.Settings.{ EventingSupport => JEventingSupport }
 import kalix.scalasdk.testkit.KalixTestKit.Settings.EventingSupport
 import kalix.scalasdk.testkit.KalixTestKit.Settings.GooglePubSub
+import kalix.scalasdk.testkit.KalixTestKit.Settings.Kafka
 import kalix.scalasdk.testkit.KalixTestKit.Settings.TestBroker
 import scala.concurrent.duration.FiniteDuration
 import scala.jdk.DurationConverters._
@@ -65,6 +66,7 @@ object KalixTestKit {
       val jEventingSupport = eventingSupport match {
         case TestBroker   => JEventingSupport.TEST_BROKER
         case GooglePubSub => JEventingSupport.GOOGLE_PUBSUB
+        case Kafka        => JEventingSupport.KAFKA
       }
       new Settings(jSettings.withEventingSupport(jEventingSupport))
     }
@@ -84,11 +86,18 @@ object KalixTestKit {
     object TestBroker extends EventingSupport
 
     /**
-     * Used if you want to use an external Google PubSub Emulator on your tests.
+     * Used if you want to use an external Google PubSub (or its Emulator) on your tests.
      *
-     * Note: the Google PubSub Emulator need to be started independently.
+     * Note: the Google PubSub broker instance needs to be started independently.
      */
     object GooglePubSub extends EventingSupport
+
+    /**
+     * Used if you want to use an external Kafka broker on your tests.
+     *
+     * Note: the Kafka broker instance needs to be started independently.
+     */
+    object Kafka extends EventingSupport
   }
 
   val DefaultSettings: Settings = new Settings(JTestKit.Settings.DEFAULT)
