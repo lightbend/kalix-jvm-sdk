@@ -75,4 +75,4 @@ include::example$java-spring-doc-snippets/src/it/java/com/example/jwt/JwtIntegra
 <1> Use a helper method to create a token with 2 claims: issuer and subject.
 <2> Inject the bearer token as metadata with key `Authorization`.
 <3> Use static `Base64` encoding of `{ "alg": "none" }`.
-<4> Note that we do not need to provide a signature, thus the token ends with a `.`.
+<4> Note that we do not need to provide a signature, thus the token has only 2 parts.

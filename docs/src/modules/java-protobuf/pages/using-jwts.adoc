@@ -11,15 +11,16 @@ When running integration tests, JWTs will still be enforced but its signature wi
 [.tabset]
 Java::
 +
-.src/main/java/com/example/domain/Order.java
+.src/it/java/com/example/JwtIntegrationTest.java
 [source, java, indent=0]
 ----
-include::example$java-spring-doc-snippets/src/it/java/com/example/jwt/JwtIntegrationTest.java[tag=bearer-token-claims-test]
+include::example$java-protobuf-doc-snippets/src/it/java/com/example/JwtIntegrationTest.java[tag=bearer-token-claims-test]
 ----
-<1> Use a helper method to create a token with 2 claims: issuer and subject.
-<2> Inject the bearer token as metadata with key `Authorization`.
-<3> Use static `Base64` encoding of `{ "alg": "none" }`.
-<4> Note that we do not need to provide a signature, thus the token ends with a `.`.
+<1> Cast from `JwtServiceAction` to `JwtServiceActionClient`. This is required to be able to inject headers in the request, but it's a safe cast.
+<2> Use a helper method to create a token with 2 claims: issuer and subject.
+<3> Inject the bearer token as metadata with key `Authorization`.
+<4> Use static `Base64` encoding of `{ "alg": "none" }`.
+<5> Note that we do not need to provide a signature, thus the token has only 2 parts.
 
 Scala::
 +
@@ -32,4 +33,4 @@ include::example$scala-protobuf-doc-snippets/src/test/scala/com/example/JwtInteg
 <2> Use a helper method to create a token with 2 claims: issuer and subject.
 <3> Inject the bearer token as metadata with key `Authorization`.
 <4> Use static `Base64` encoding of `{ "alg": "none" }`.
-<4> Note that we do not need to provide a signature, thus the token ends with a `.`.
+<5> Note that we do not need to provide a signature, thus the token has only 2 parts.
