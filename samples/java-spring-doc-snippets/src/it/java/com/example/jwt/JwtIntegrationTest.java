@@ -44,7 +44,7 @@ public class JwtIntegrationTest extends KalixIntegrationTestKitSupport {
     byte[] jsonClaims = new ObjectMapper().writeValueAsBytes(claims);
 
     // no validation is done for integration tests, thus no valid signature required
-    return alg + "." +  Base64.getEncoder().encodeToString(jsonClaims) + "."; // <4>
+    return alg + "." +  Base64.getEncoder().encodeToString(jsonClaims); // <4>
   }
   // end::bearer-token-claims-test[]
 }

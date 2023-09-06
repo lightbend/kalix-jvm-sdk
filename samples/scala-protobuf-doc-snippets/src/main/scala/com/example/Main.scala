@@ -20,6 +20,7 @@ object Main {
     // `Kalix()` instance.
     KalixFactory.withComponents(
       new DelegatingServiceAction(_),
+      new JwtServiceActionImpl(_),
       new MyServiceAction(_),
       new MyTopicsActionImpl(_))
   }

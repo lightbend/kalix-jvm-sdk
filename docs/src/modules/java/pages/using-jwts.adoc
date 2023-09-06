@@ -39,7 +39,7 @@ include::example$java-spring-doc-snippets/src/main/java/com/example/jwt/JWTActio
 
 It is recommended that this be used in combination with specifying an issuer in your JWT key configuration, otherwise any of the services whose keys you trust may spoof the issuer.
 
-Kalix will place the claims from the validated token into the request metadata, so you can access it from your service. All claims are prefixed with `_kalix-jwt-claim-`, so for example, if you want to read the subject claim, you can read the metadata entry `_kalix-jwt-claim-sub`. String claims are passed unquoted. All other claim types, including arrays and objects, are passed using their JSON encoding. Below you can check an example on how to extract a "subject" claim:
+Kalix will place the claims from the validated token into the request metadata, so you can access it from your service. All claims are prefixed with `_kalix-jwt-claim-`, so for example, if you want to read the subject claim, you can read the metadata entry `_kalix-jwt-claim-sub`. String claims are passed unquoted. All other claim types, including arrays and objects, are passed using their JSON encoding. Below you can see an example on how to extract a "subject" claim:
 
 [source, java, indent=0]
 ----
