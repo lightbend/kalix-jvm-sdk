@@ -1,5 +1,5 @@
 = Component and Service Calls
-:page-aliases: spring:component-and-service-calls.adoc
+:page-aliases: spring:call-another-service.adoc, java:call-another-service.adoc
 
 == Kalix components
 
