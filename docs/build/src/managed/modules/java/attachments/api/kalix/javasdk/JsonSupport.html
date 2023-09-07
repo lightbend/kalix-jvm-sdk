@@ -11,7 +11,7 @@
 <link rel="stylesheet" type="text/css" href="../../script-dir/jquery-ui.min.css" title="Style">
 <link rel="stylesheet" type="text/css" href="../../jquery-ui.overrides.css" title="Style">
 <script type="text/javascript" src="../../script.js"></script>
-<script type="text/javascript" src="../../script-dir/jquery-3.5.1.min.js"></script>
+<script type="text/javascript" src="../../script-dir/jquery-3.6.0.min.js"></script>
 <script type="text/javascript" src="../../script-dir/jquery-ui.min.js"></script>
 </head>
 <body class="class-declaration-page">
@@ -113,36 +113,43 @@ loadScripts(document, 'script');</script>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Decode the given protobuf Any object to an instance of T using Jackson.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static &lt;T&gt;&nbsp;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/Optional.html" title="class or interface in java.util" class="external-link">Optional</a>&lt;T&gt;</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#decodeJson(java.lang.Class,java.lang.String,com.google.protobuf.Any)" class="member-name-link">decodeJson</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;T&gt;&nbsp;valueClass,
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static &lt;T&gt;&nbsp;T</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#decodeJson(java.lang.Class,com.google.protobuf.Any,java.util.Optional)" class="member-name-link">decodeJson</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;T&gt;&nbsp;valueClass,
+ com.google.protobuf.Any&nbsp;any,
+ <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/Optional.html" title="class or interface in java.util" class="external-link">Optional</a>&lt;? extends <a href="JsonMigration.html" title="class in kalix.javasdk">JsonMigration</a>&gt;&nbsp;jacksonMigration)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Decode the given protobuf Any object to an instance of T using Jackson.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static &lt;T&gt;&nbsp;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/Optional.html" title="class or interface in java.util" class="external-link">Optional</a>&lt;T&gt;</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#decodeJson(java.lang.Class,java.lang.String,com.google.protobuf.Any)" class="member-name-link">decodeJson</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;T&gt;&nbsp;valueClass,
  <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;jsonType,
  com.google.protobuf.Any&nbsp;any)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Decode the given protobuf Any to an instance of T using Jackson but only if the suffix of the
  type URL matches the given jsonType.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static &lt;T,<wbr>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static &lt;T,<wbr>
 C extends <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/Collection.html" title="class or interface in java.util" class="external-link">Collection</a>&lt;T&gt;&gt;<br>C</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#decodeJsonCollection(java.lang.Class,java.lang.Class,com.google.protobuf.Any)" class="member-name-link">decodeJsonCollection</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;T&gt;&nbsp;valueClass,
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#decodeJsonCollection(java.lang.Class,java.lang.Class,com.google.protobuf.Any)" class="member-name-link">decodeJsonCollection</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;T&gt;&nbsp;valueClass,
  <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;C&gt;&nbsp;collectionType,
  com.google.protobuf.Any&nbsp;any)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static &lt;T&gt;&nbsp;com.google.protobuf.Any</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#encodeJson(T)" class="member-name-link">encodeJson</a><wbr>(T&nbsp;value)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static &lt;T&gt;&nbsp;com.google.protobuf.Any</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#encodeJson(T)" class="member-name-link">encodeJson</a><wbr>(T&nbsp;value)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Encode the given value as JSON using Jackson and put the encoded string as bytes in a protobuf
  Any with the type URL <code>"json.kalix.io/[valueClassName]"</code>.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static &lt;T&gt;&nbsp;com.google.protobuf.Any</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#encodeJson(T,java.lang.String)" class="member-name-link">encodeJson</a><wbr>(T&nbsp;value,
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static &lt;T&gt;&nbsp;com.google.protobuf.Any</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#encodeJson(T,java.lang.String)" class="member-name-link">encodeJson</a><wbr>(T&nbsp;value,
  <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;jsonType)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Encode the given value as JSON using Jackson and put the encoded string as bytes in a protobuf
  Any with the type URL <code>"json.kalix.io/[jsonType]"</code>.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static com.fasterxml.jackson.databind.ObjectMapper</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#getObjectMapper()" class="member-name-link">getObjectMapper</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static com.fasterxml.jackson.databind.ObjectMapper</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#getObjectMapper()" class="member-name-link">getObjectMapper</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">The Jackson ObjectMapper that is used for encoding and decoding JSON.</div>
 </div>
 </div>
@@ -237,6 +244,27 @@ C extends <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/
 <dd><code>valueClass</code> - The type of class to deserialize the object to, the class must have the
                    proper Jackson annotations for deserialization.</dd>
 <dd><code>any</code> - The protobuf Any object to deserialize.</dd>
+<dt>Returns:</dt>
+<dd>The decoded object</dd>
+<dt>Throws:</dt>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if the given value cannot be decoded to a T</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="decodeJson(java.lang.Class,com.google.protobuf.Any,java.util.Optional)">
+<h3>decodeJson</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="type-parameters">&lt;T&gt;</span>&nbsp;<span class="return-type">T</span>&nbsp;<span class="element-name">decodeJson</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;T&gt;&nbsp;valueClass,
+ com.google.protobuf.Any&nbsp;any,
+ <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/Optional.html" title="class or interface in java.util" class="external-link">Optional</a>&lt;? extends <a href="JsonMigration.html" title="class in kalix.javasdk">JsonMigration</a>&gt;&nbsp;jacksonMigration)</span></div>
+<div class="block">Decode the given protobuf Any object to an instance of T using Jackson. The object must have
+ the JSON string as bytes as value and a type URL starting with "json.kalix.io/".</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>valueClass</code> - The type of class to deserialize the object to, the class must have the
+                         proper Jackson annotations for deserialization.</dd>
+<dd><code>any</code> - The protobuf Any object to deserialize.</dd>
+<dd><code>jacksonMigration</code> - The optional @<a href="JsonMigration.html" title="class in kalix.javasdk"><code>JsonMigration</code></a> implementation used for deserialization.</dd>
 <dt>Returns:</dt>
 <dd>The decoded object</dd>
 <dt>Throws:</dt>

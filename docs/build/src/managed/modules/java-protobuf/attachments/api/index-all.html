@@ -11,7 +11,7 @@
 <link rel="stylesheet" type="text/css" href="script-dir/jquery-ui.min.css" title="Style">
 <link rel="stylesheet" type="text/css" href="jquery-ui.overrides.css" title="Style">
 <script type="text/javascript" src="script.js"></script>
-<script type="text/javascript" src="script-dir/jquery-3.5.1.min.js"></script>
+<script type="text/javascript" src="script-dir/jquery-3.6.0.min.js"></script>
 <script type="text/javascript" src="script-dir/jquery-ui.min.js"></script>
 </head>
 <body class="index-page">
@@ -482,6 +482,10 @@ loadScripts(document, 'script');</script>
 <div class="block">The data schema of this CloudEvent.</div>
 </dd>
 <dt><a href="kalix/javasdk/JsonSupport.html#decodeJson(java.lang.Class,com.google.protobuf.Any)" class="member-name-link">decodeJson(Class&lt;T&gt;, Any)</a> - Static method in class kalix.javasdk.<a href="kalix/javasdk/JsonSupport.html" title="class in kalix.javasdk">JsonSupport</a></dt>
+<dd>
+<div class="block">Decode the given protobuf Any object to an instance of T using Jackson.</div>
+</dd>
+<dt><a href="kalix/javasdk/JsonSupport.html#decodeJson(java.lang.Class,com.google.protobuf.Any,java.util.Optional)" class="member-name-link">decodeJson(Class&lt;T&gt;, Any, Optional&lt;? extends JsonMigration&gt;)</a> - Static method in class kalix.javasdk.<a href="kalix/javasdk/JsonSupport.html" title="class in kalix.javasdk">JsonSupport</a></dt>
 <dd>
 <div class="block">Decode the given protobuf Any object to an instance of T using Jackson.</div>
 </dd>
@@ -1228,8 +1232,6 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="kalix/javasdk/action/package-summary.html">kalix.javasdk.action</a> - package kalix.javasdk.action</dt>
 <dd>&nbsp;</dd>
-<dt><a href="kalix/javasdk/annotations/package-summary.html">kalix.javasdk.annotations</a> - package kalix.javasdk.annotations</dt>
-<dd>&nbsp;</dd>
 <dt><a href="kalix/javasdk/eventsourcedentity/package-summary.html">kalix.javasdk.eventsourcedentity</a> - package kalix.javasdk.eventsourcedentity</dt>
 <dd>
 <div class="block">Event Sourced Entity support.</div>
@@ -1343,10 +1345,6 @@ loadScripts(document, 'script');</script>
 <dt><a href="kalix/javasdk/MetadataContext.html" class="type-name-link" title="interface in kalix.javasdk">MetadataContext</a> - Interface in <a href="kalix/javasdk/package-summary.html">kalix.javasdk</a></dt>
 <dd>
 <div class="block">Context that provides access to metadata.</div>
-</dd>
-<dt><a href="kalix/javasdk/annotations/Migration.html" class="type-name-link" title="annotation in kalix.javasdk.annotations">Migration</a> - Annotation Type in <a href="kalix/javasdk/annotations/package-summary.html">kalix.javasdk.annotations</a></dt>
-<dd>
-<div class="block">Annotation to assign a @<a href="kalix/javasdk/JsonMigration.html" title="class in kalix.javasdk"><code>JsonMigration</code></a> implementation for a given class.</div>
 </dd>
 </dl>
 <h2 class="title" id="I:N">N</h2>
@@ -2014,8 +2012,6 @@ loadScripts(document, 'script');</script>
 </dl>
 <h2 class="title" id="I:V">V</h2>
 <dl class="index">
-<dt><a href="kalix/javasdk/annotations/Migration.html#value()" class="member-name-link">value()</a> - Element in annotation type kalix.javasdk.annotations.<a href="kalix/javasdk/annotations/Migration.html" title="annotation in kalix.javasdk.annotations">Migration</a></dt>
-<dd>&nbsp;</dd>
 <dt><a href="kalix/javasdk/valueentity/ValueEntity.html" class="type-name-link" title="class in kalix.javasdk.valueentity">ValueEntity</a>&lt;<a href="kalix/javasdk/valueentity/ValueEntity.html" title="type parameter in ValueEntity">S</a>&gt; - Class in <a href="kalix/javasdk/valueentity/package-summary.html">kalix.javasdk.valueentity</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="kalix/javasdk/valueentity/ValueEntity.html#%3Cinit%3E()" class="member-name-link">ValueEntity()</a> - Constructor for class kalix.javasdk.valueentity.<a href="kalix/javasdk/valueentity/ValueEntity.html" title="class in kalix.javasdk.valueentity">ValueEntity</a></dt>

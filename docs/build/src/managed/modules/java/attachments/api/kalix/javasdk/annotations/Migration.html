@@ -11,7 +11,7 @@
 <link rel="stylesheet" type="text/css" href="../../../script-dir/jquery-ui.min.css" title="Style">
 <link rel="stylesheet" type="text/css" href="../../../jquery-ui.overrides.css" title="Style">
 <script type="text/javascript" src="../../../script.js"></script>
-<script type="text/javascript" src="../../../script-dir/jquery-3.5.1.min.js"></script>
+<script type="text/javascript" src="../../../script-dir/jquery-3.6.0.min.js"></script>
 <script type="text/javascript" src="../../../script-dir/jquery-ui.min.js"></script>
 </head>
 <body class="class-declaration-page">
@@ -63,18 +63,19 @@ loadScripts(document, 'script');</script>
 <!-- ======== START OF CLASS DATA ======== -->
 <div class="header">
 <div class="sub-title"><span class="package-label-in-type">Package</span>&nbsp;<a href="package-summary.html">kalix.javasdk.annotations</a></div>
-<h1 title="Annotation Type Migration" class="title">Annotation Type Migration</h1>
+<h1 title="Annotation Interface Migration" class="title">Annotation Interface Migration</h1>
 </div>
 <section class="class-description" id="class-description">
 <hr>
-<div class="type-signature"><span class="annotations"><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/annotation/Target.html" title="class or interface in java.lang.annotation" class="external-link">@Target</a>(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/annotation/ElementType.html#TYPE" title="class or interface in java.lang.annotation" class="external-link">TYPE</a>)
-<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/annotation/Retention.html" title="class or interface in java.lang.annotation" class="external-link">@Retention</a>(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/annotation/RetentionPolicy.html#RUNTIME" title="class or interface in java.lang.annotation" class="external-link">RUNTIME</a>)
+<div class="type-signature"><span class="annotations"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/annotation/Target.html" title="class or interface in java.lang.annotation" class="external-link">@Target</a>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/annotation/ElementType.html#TYPE" title="class or interface in java.lang.annotation" class="external-link">TYPE</a>)
+<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/annotation/Retention.html" title="class or interface in java.lang.annotation" class="external-link">@Retention</a>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/annotation/RetentionPolicy.html#RUNTIME" title="class or interface in java.lang.annotation" class="external-link">RUNTIME</a>)
 </span><span class="modifiers">public @interface </span><span class="element-name type-name-label">Migration</span></div>
-<div class="block">Annotation to assign a @<a href="../JsonMigration.html" title="class in kalix.javasdk"><code>JsonMigration</code></a> implementation for a given class.</div>
+<div class="block">Annotation to assign a @<code>JsonMigration</code> implementation for a given class.
+ Can be combined with @<a href="TypeName.html" title="annotation interface in kalix.javasdk.annotations"><code>TypeName</code></a> annotation.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
-<!-- =========== ANNOTATION TYPE REQUIRED MEMBER SUMMARY =========== -->
+<!-- =========== ANNOTATION INTERFACE REQUIRED MEMBER SUMMARY =========== -->
 <li>
 <section class="member-summary" id="annotation-interface-required-element-summary">
 <h2>Required Element Summary</h2>
@@ -83,7 +84,7 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-first">Modifier and Type</div>
 <div class="table-header col-second">Required Element</div>
 <div class="table-header col-last">Description</div>
-<div class="col-first even-row-color"><code><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;? extends <a href="../JsonMigration.html" title="class in kalix.javasdk">JsonMigration</a>&gt;</code></div>
+<div class="col-first even-row-color"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;? extends kalix.javasdk.JsonMigration&gt;</code></div>
 <div class="col-second even-row-color"><code><a href="#value()" class="member-name-link">value</a></code></div>
 <div class="col-last even-row-color">&nbsp;</div>
 </div>
@@ -93,7 +94,7 @@ loadScripts(document, 'script');</script>
 </section>
 <section class="details" id="annotation-interface-element-detail">
 <ul class="details-list">
-<!-- ============ ANNOTATION TYPE MEMBER DETAIL =========== -->
+<!-- ============ ANNOTATION INTERFACE MEMBER DETAIL =========== -->
 <li>
 <section class="member-details">
 <h2>Element Details</h2>
@@ -101,7 +102,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="value()">
 <h3>value</h3>
-<div class="member-signature"><span class="return-type"><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;? extends <a href="../JsonMigration.html" title="class in kalix.javasdk">JsonMigration</a>&gt;</span>&nbsp;<span class="element-name">value</span></div>
+<div class="member-signature"><span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;? extends kalix.javasdk.JsonMigration&gt;</span>&nbsp;<span class="element-name">value</span></div>
 </section>
 </li>
 </ul>
