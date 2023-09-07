@@ -457,6 +457,10 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Returns the state as currently stored by Kalix.</div>
 </dd>
+<dt><a href="kalix/javasdk/JsonMigration.html#currentVersion()" class="member-name-link">currentVersion()</a> - Method in class kalix.javasdk.<a href="kalix/javasdk/JsonMigration.html" title="class in kalix.javasdk">JsonMigration</a></dt>
+<dd>
+<div class="block">Define current version, that is, the value used when serializing new data.</div>
+</dd>
 <dt><a href="kalix/javasdk/replicatedentity/ReplicatedRegister.Clock.html#CUSTOM" class="member-name-link">CUSTOM</a> - Enum constant in enum kalix.javasdk.replicatedentity.<a href="kalix/javasdk/replicatedentity/ReplicatedRegister.Clock.html" title="enum in kalix.javasdk.replicatedentity">ReplicatedRegister.Clock</a></dt>
 <dd>
 <div class="block">A custom clock.</div>
@@ -1185,6 +1189,12 @@ loadScripts(document, 'script');</script>
 </dl>
 <h2 class="title" id="I:J">J</h2>
 <dl class="index">
+<dt><a href="kalix/javasdk/JsonMigration.html" class="type-name-link" title="class in kalix.javasdk">JsonMigration</a> - Class in <a href="kalix/javasdk/package-summary.html">kalix.javasdk</a></dt>
+<dd>
+<div class="block">Allows to specify dedicated strategy for JSON schema evolution.</div>
+</dd>
+<dt><a href="kalix/javasdk/JsonMigration.html#%3Cinit%3E()" class="member-name-link">JsonMigration()</a> - Constructor for class kalix.javasdk.<a href="kalix/javasdk/JsonMigration.html" title="class in kalix.javasdk">JsonMigration</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="kalix/javasdk/JsonSupport.html" class="type-name-link" title="class in kalix.javasdk">JsonSupport</a> - Class in <a href="kalix/javasdk/package-summary.html">kalix.javasdk</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="kalix/javasdk/Metadata.html#jwtClaims()" class="member-name-link">jwtClaims()</a> - Method in interface kalix.javasdk.<a href="kalix/javasdk/Metadata.html" title="interface in kalix.javasdk">Metadata</a></dt>
@@ -1217,6 +1227,8 @@ loadScripts(document, 'script');</script>
 <div class="block">Root package for the Kalix Java SDK library.</div>
 </dd>
 <dt><a href="kalix/javasdk/action/package-summary.html">kalix.javasdk.action</a> - package kalix.javasdk.action</dt>
+<dd>&nbsp;</dd>
+<dt><a href="kalix/javasdk/annotations/package-summary.html">kalix.javasdk.annotations</a> - package kalix.javasdk.annotations</dt>
 <dd>&nbsp;</dd>
 <dt><a href="kalix/javasdk/eventsourcedentity/package-summary.html">kalix.javasdk.eventsourcedentity</a> - package kalix.javasdk.eventsourcedentity</dt>
 <dd>
@@ -1331,6 +1343,10 @@ loadScripts(document, 'script');</script>
 <dt><a href="kalix/javasdk/MetadataContext.html" class="type-name-link" title="interface in kalix.javasdk">MetadataContext</a> - Interface in <a href="kalix/javasdk/package-summary.html">kalix.javasdk</a></dt>
 <dd>
 <div class="block">Context that provides access to metadata.</div>
+</dd>
+<dt><a href="kalix/javasdk/annotations/Migration.html" class="type-name-link" title="annotation in kalix.javasdk.annotations">Migration</a> - Annotation Type in <a href="kalix/javasdk/annotations/package-summary.html">kalix.javasdk.annotations</a></dt>
+<dd>
+<div class="block">Annotation to assign a @<a href="kalix/javasdk/JsonMigration.html" title="class in kalix.javasdk"><code>JsonMigration</code></a> implementation for a given class.</div>
 </dd>
 </dl>
 <h2 class="title" id="I:N">N</h2>
@@ -1830,6 +1846,14 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Get the subject, that is, the <tt>sub</tt> claim, as described in RFC 7519 section 4.1.2.</div>
 </dd>
+<dt><a href="kalix/javasdk/JsonMigration.html#supportedClassNames()" class="member-name-link">supportedClassNames()</a> - Method in class kalix.javasdk.<a href="kalix/javasdk/JsonMigration.html" title="class in kalix.javasdk">JsonMigration</a></dt>
+<dd>
+<div class="block">Override this method if you have changed the class name.</div>
+</dd>
+<dt><a href="kalix/javasdk/JsonMigration.html#supportedForwardVersion()" class="member-name-link">supportedForwardVersion()</a> - Method in class kalix.javasdk.<a href="kalix/javasdk/JsonMigration.html" title="class in kalix.javasdk">JsonMigration</a></dt>
+<dd>
+<div class="block">Define the supported forward version this migration can read (must be greater or equal than `currentVersion`).</div>
+</dd>
 <dt><a href="kalix/javasdk/SideEffect.html#synchronous()" class="member-name-link">synchronous()</a> - Method in interface kalix.javasdk.<a href="kalix/javasdk/SideEffect.html" title="interface in kalix.javasdk">SideEffect</a></dt>
 <dd>
 <div class="block">Whether this effect should be executed synchronously or not.</div>
@@ -1927,6 +1951,11 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="kalix/javasdk/Principal.LocalService.html#toString()" class="member-name-link">toString()</a> - Method in class kalix.javasdk.<a href="kalix/javasdk/Principal.LocalService.html" title="class in kalix.javasdk">Principal.LocalService</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="kalix/javasdk/JsonMigration.html#transform(int,com.fasterxml.jackson.databind.JsonNode)" class="member-name-link">transform(int, JsonNode)</a> - Method in class kalix.javasdk.<a href="kalix/javasdk/JsonMigration.html" title="class in kalix.javasdk">JsonMigration</a></dt>
+<dd>
+<div class="block">Implement the transformation of the incoming JSON structure to the current
+ JSON structure.</div>
+</dd>
 <dt><a href="kalix/javasdk/workflow/Workflow.AsyncCallStep.html#transitionFunc" class="member-name-link">transitionFunc</a> - Variable in class kalix.javasdk.workflow.<a href="kalix/javasdk/workflow/Workflow.AsyncCallStep.html" title="class in kalix.javasdk.workflow">Workflow.AsyncCallStep</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="kalix/javasdk/workflow/Workflow.CallStep.html#transitionFunc" class="member-name-link">transitionFunc</a> - Variable in class kalix.javasdk.workflow.<a href="kalix/javasdk/workflow/Workflow.CallStep.html" title="class in kalix.javasdk.workflow">Workflow.CallStep</a></dt>
@@ -1985,6 +2014,8 @@ loadScripts(document, 'script');</script>
 </dl>
 <h2 class="title" id="I:V">V</h2>
 <dl class="index">
+<dt><a href="kalix/javasdk/annotations/Migration.html#value()" class="member-name-link">value()</a> - Element in annotation type kalix.javasdk.annotations.<a href="kalix/javasdk/annotations/Migration.html" title="annotation in kalix.javasdk.annotations">Migration</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="kalix/javasdk/valueentity/ValueEntity.html" class="type-name-link" title="class in kalix.javasdk.valueentity">ValueEntity</a>&lt;<a href="kalix/javasdk/valueentity/ValueEntity.html" title="type parameter in ValueEntity">S</a>&gt; - Class in <a href="kalix/javasdk/valueentity/package-summary.html">kalix.javasdk.valueentity</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="kalix/javasdk/valueentity/ValueEntity.html#%3Cinit%3E()" class="member-name-link">ValueEntity()</a> - Constructor for class kalix.javasdk.valueentity.<a href="kalix/javasdk/valueentity/ValueEntity.html" title="class in kalix.javasdk.valueentity">ValueEntity</a></dt>

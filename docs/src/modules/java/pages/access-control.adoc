@@ -15,7 +15,7 @@ Here is an example ACL on a method:
 include::example$java-spring-doc-snippets/src/main/java/com/example/acl/MyAction.java[tag=allow-deny]
 ----
 
-The above ACL allows traffic to all services except the service called `my-service`. 
+The above ACL allows traffic to all services except the service called `service-b`.
 
 To allow all traffic:
 

@@ -1,5 +1,6 @@
 package com.example.transfer;
 
+import akka.Done;
 import com.example.transfer.TransferState.Transfer;
 import com.example.wallet.WalletEntity;
 import com.example.wallet.WalletEntity.DepositResult;
@@ -15,6 +16,7 @@ import kalix.javasdk.workflow.Workflow;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,8 +27,11 @@ import static com.example.transfer.TransferState.TransferStatus.COMPENSATION_COM
 import static com.example.transfer.TransferState.TransferStatus.COMPLETED;
 import static com.example.transfer.TransferState.TransferStatus.DEPOSIT_FAILED;
 import static com.example.transfer.TransferState.TransferStatus.REQUIRES_MANUAL_INTERVENTION;
+import static com.example.transfer.TransferState.TransferStatus.TRANSFER_ACCEPTATION_TIMED_OUT;
+import static com.example.transfer.TransferState.TransferStatus.WAITING_FOR_ACCEPTATION;
 import static com.example.transfer.TransferState.TransferStatus.WITHDRAW_FAILED;
 import static com.example.transfer.TransferState.TransferStatus.WITHDRAW_SUCCEED;
+import static java.time.Duration.ofHours;
 import static java.time.Duration.ofSeconds;
 import static kalix.javasdk.workflow.Workflow.RecoverStrategy.maxRetries;
 
@@ -54,11 +59,13 @@ public class TransferWorkflow extends Workflow<TransferState> {
   public WorkflowDef<TransferState> definition() {
     Step withdraw =
       step("withdraw")
-        .call(Withdraw.class, cmd -> {
+        .asyncCall(Withdraw.class, cmd -> {
           logger.info("Running: " + cmd);
-          return componentClient.forValueEntity(cmd.from)
-            .call(WalletEntity::withdraw)
-            .params(cmd.amount);
+          // cancelling the timer in case it was scheduled
+          return timers().cancel("acceptationTimout-" + currentState().transferId()).thenCompose(__ ->
+            componentClient.forValueEntity(cmd.from)
+              .call(WalletEntity::withdraw)
+              .params(cmd.amount).execute());
         })
         .andThen(WithdrawResult.class, withdrawResult -> {
           if (withdrawResult instanceof WithdrawSucceed) {
@@ -141,6 +148,21 @@ public class TransferWorkflow extends Workflow<TransferState> {
         .timeout(ofSeconds(1)); // <1>
     // end::step-timeout[]
 
+    // tag::pausing[]
+    Step waitForAcceptation =
+      step("wait-for-acceptation")
+        .asyncCall(() -> {
+          String transferId = currentState().transferId();
+          return timers().startSingleTimer(
+            "acceptationTimout-" + transferId,
+            ofHours(8),
+            componentClient.forWorkflow(transferId)
+              .call(TransferWorkflow::acceptationTimeout)); // <1>
+        })
+        .andThen(Done.class, __ ->
+          effects().pause()); // <2>
+    // end::pausing[]
+
     // tag::timeouts[]
     // tag::recover-strategy[]
     return workflow()
@@ -157,18 +179,27 @@ public class TransferWorkflow extends Workflow<TransferState> {
       .addStep(deposit, maxRetries(2).failoverTo("compensate-withdraw")) // <3>
       // end::recover-strategy[]
       .addStep(compensateWithdraw)
+      .addStep(waitForAcceptation)
       .addStep(failoverHandler);
   }
 
   @PutMapping
   public Effect<Message> startTransfer(@RequestBody Transfer transfer) {
-    if (transfer.amount() <= 0) {
-      return effects().error("transfer amount should be greater than zero");
-    } else if (currentState() != null) {
+    if (currentState() != null) {
       return effects().error("transfer already started");
+    } else if (transfer.amount() <= 0) {
+      return effects().error("transfer amount should be greater than zero");
+    } else if (transfer.amount() > 1000) {
+      logger.info("Waiting for acceptation: " + transfer);
+      TransferState waitingForAcceptationState = new TransferState(commandContext().workflowId(), transfer)
+        .withStatus(WAITING_FOR_ACCEPTATION);
+      return effects()
+        .updateState(waitingForAcceptationState)
+        .transitionTo("wait-for-acceptation")
+        .thenReply(new Message("transfer started, waiting for acceptation"));
     } else {
       logger.info("Running: " + transfer);
-      TransferState initialState = new TransferState(transfer);
+      TransferState initialState = new TransferState(commandContext().workflowId(), transfer);
       Withdraw withdrawInput = new Withdraw(transfer.from(), transfer.amount());
       return effects()
         .updateState(initialState)
@@ -176,6 +207,41 @@ public class TransferWorkflow extends Workflow<TransferState> {
         .thenReply(new Message("transfer started"));
     }
   }
+
+  @PatchMapping("/acceptation-timeout")
+  public Effect<String> acceptationTimeout() {
+    if (currentState() == null) {
+      return effects().error("transfer not started");
+    } else if (currentState().status() == WAITING_FOR_ACCEPTATION) {
+      return effects()
+        .updateState(currentState().withStatus(TRANSFER_ACCEPTATION_TIMED_OUT))
+        .end()
+        .thenReply("timed out");
+    } else {
+      logger.info("Ignoring acceptation timeout for status: " + currentState().status());
+      return effects().reply("Ok");
+    }
+  }
+
+  // tag::resuming[]
+  @PatchMapping("/accept")
+  public Effect<Message> accept() {
+    if (currentState() == null) {
+      return effects().error("transfer not started");
+    } else if (currentState().status() == WAITING_FOR_ACCEPTATION) { // <1>
+      Transfer transfer = currentState().transfer();
+      // end::resuming[]
+      logger.info("Accepting transfer: " + transfer);
+      // tag::resuming[]
+      Withdraw withdrawInput = new Withdraw(transfer.from(), transfer.amount());
+      return effects()
+        .transitionTo("withdraw", withdrawInput)
+        .thenReply(new Message("transfer accepted"));
+    } else { // <2>
+      return effects().error("Cannot accept transfer with status: " + currentState().status());
+    }
+  }
+  // end::resuming[]
 
   @GetMapping
   public Effect<TransferState> getTransferState() {

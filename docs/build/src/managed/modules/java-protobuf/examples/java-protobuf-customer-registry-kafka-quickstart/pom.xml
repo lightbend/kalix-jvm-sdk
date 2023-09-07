@@ -18,7 +18,7 @@
 
     <jdk.target>11</jdk.target>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <kalix-sdk.version>1.3.1</kalix-sdk.version>
+    <kalix-sdk.version>1.3.2</kalix-sdk.version>
     <akka-grpc.version>2.1.4</akka-grpc.version>
   </properties>
 
@@ -287,6 +287,12 @@
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <version>4.13.2</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.kafka</groupId>
+      <artifactId>kafka-clients</artifactId>
+      <version>3.5.1</version>
       <scope>test</scope>
     </dependency>
   </dependencies>

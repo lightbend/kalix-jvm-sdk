@@ -1,5 +1,5 @@
 = Implementing Workflows
-:page-aliases: spring:workflow.adoc, spring:workflow-entities.adoc, java:workflow-entities.adoc
+:page-aliases: spring:workflow.adoc
 :sample-url: https://github.com/lightbend/kalix-jvm-sdk/tree/main/samples/java-spring-transfer-workflow
 
 include::ROOT:partial$include.adoc[]
@@ -29,7 +29,7 @@ It's also possible to have a composite identifier. For example, `@Id({"groupId",
 
 Finally, you can ask Kalix to generate an unique identifier, this is typically useful when creating a Workflow, and the id is a surrogate id. To indicate to Kalix that an Workflow id should be generated rather than extracted from the path, be sure to annotate the corresponding command method with `@GenerateId`. Typically, a Workflow has only one method annotated with `@GenerateId`. The one that creates the Workflow. All other methods will have `@Id` annotation in order to extract the surrogate id from the endpoint path.
 
-It will often be necessary to access the generated id from inside the workflow code. This can be done using the link:{attachmentsdir}/api/kalix/javasdk/WorkflowContext.html#workflowId()[`WorkflowContext.workflowId`{tab-icon},window="new"] method.
+It will often be necessary to access the generated id from inside the workflow code. This can be done using the link:{attachmentsdir}/api/kalix/javasdk/workflow/WorkflowContext.html#workflowId()[`WorkflowContext.workflowId`{tab-icon},window="new"] method.
 
 NOTE: Kalix generates a UUID version 4 (random) keys. Only version 4 UUIDs are currently supported for generated Workflow identifiers.
 
@@ -134,6 +134,31 @@ include::example$java-spring-transfer-workflow/src/main/java/com/example/transfe
 IMPORTANT: For simplicity purposes, we are returning the internal state directly back to the requester. In a real-world scenario, it's usually better to instead convert this internal domain model into a public model so the internal representation is free to evolve without breaking clients code.
 
 A full transfer workflow source code is available {sample-url}[here, {tab-icon}, window="new"]. Follow the `README` file to run and test it.
+
+== Pausing workflow
+
+A long-running workflow can be paused while waiting for some additional information to continue processing. A special `pause` transition can be used to inform Kalix that the execution of the Workflow should be postponed. By launching a request to a Workflow endpoint, the user can then resume the processing. Additionally, a Kalix Timer can be scheduled to automatically inform the Workflow that the expected time for the additional data has passed.
+
+
+[source,java,indent=0]
+.src/main/java/com/example/transfer/TransferWorkflow.java
+----
+include::example$java-spring-transfer-workflow-compensation/src/main/java/com/example/transfer/TransferWorkflow.java[tag=pausing]
+----
+<1> Schedules a timer as a Workflow step action. Make sure that the timer name is unique for every Workflow instance.
+<2> Pauses the Workflow execution.
+
+NOTE: Remember to cancel the timer once the Workflow is resumed. Also, adjust the Workflow timeout to match the timer schedule.
+
+Exposing additional mutational endpoints from the Workflow implementation should be done with special caution. Accepting a request from such endpoints should only be possible when the Workflow is in the expected state.
+
+[source,java,indent=0]
+.src/main/java/com/example/transfer/TransferWorkflow.java
+----
+include::example$java-spring-transfer-workflow-compensation/src/main/java/com/example/transfer/TransferWorkflow.java[tag=resuming]
+----
+<1> Accepts the request only when status is `WAITING_FOR_ACCEPTATION`.
+<2> Otherwise, rejects the requests.
 
 == Error handling
 

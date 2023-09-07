@@ -87,7 +87,7 @@ loadScripts(document, 'script');</script>
 <section class="method-summary" id="method-summary">
 <h2>Method Summary</h2>
 <div id="method-summary-table">
-<div class="table-tabs" role="tablist" aria-orientation="horizontal"><button id="method-summary-table-tab0" role="tab" aria-selected="true" aria-controls="method-summary-table.tabpanel" tabindex="0" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table', 3)" class="active-table-tab">All Methods</button><button id="method-summary-table-tab1" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab1', 3)" class="table-tab">Static Methods</button><button id="method-summary-table-tab2" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab2', 3)" class="table-tab">Instance Methods</button><button id="method-summary-table-tab3" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab3', 3)" class="table-tab">Abstract Methods</button></div>
+<div class="table-tabs" role="tablist" aria-orientation="horizontal"><button id="method-summary-table-tab0" role="tab" aria-selected="true" aria-controls="method-summary-table.tabpanel" tabindex="0" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table', 3)" class="active-table-tab">All Methods</button><button id="method-summary-table-tab2" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab2', 3)" class="table-tab">Instance Methods</button><button id="method-summary-table-tab3" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab3', 3)" class="table-tab">Abstract Methods</button></div>
 <div id="method-summary-table.tabpanel" role="tabpanel">
 <div class="summary-table three-column-summary" aria-labelledby="method-summary-table-tab0">
 <div class="table-header col-first">Modifier and Type</div>
@@ -104,18 +104,6 @@ loadScripts(document, 'script');</script>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="EventingTestKit.Message.html" title="type parameter in EventingTestKit.Message">P</a></code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#getPayload()" class="member-name-link">getPayload</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1"><code>static &lt;T&gt;&nbsp;<a href="EventingTestKit.Message.html" title="interface in kalix.javasdk.testkit">EventingTestKit.Message</a>&lt;T&gt;</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1"><code><a href="#of(T,java.lang.String)" class="member-name-link">of</a><wbr>(T&nbsp;payload,
- <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;subject)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1">
-<div class="block">Create a message from a payload plus a subject (that is, the entity key).</div>
-</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1"><code>static &lt;T&gt;&nbsp;<a href="EventingTestKit.Message.html" title="interface in kalix.javasdk.testkit">EventingTestKit.Message</a>&lt;T&gt;</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1"><code><a href="#of(T,kalix.javasdk.Metadata)" class="member-name-link">of</a><wbr>(T&nbsp;payload,
- kalix.javasdk.Metadata&nbsp;metadata)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1">
-<div class="block">Create a message object from a payload plus metadata.</div>
-</div>
 </div>
 </div>
 </div>
@@ -155,41 +143,6 @@ loadScripts(document, 'script');</script>
 <dd><code>clazz</code> - expected class type for the payload of the message</dd>
 <dt>Returns:</dt>
 <dd>a typed object from the payload</dd>
-</dl>
-</section>
-</li>
-<li>
-<section class="detail" id="of(T,java.lang.String)">
-<h3 id="of(java.lang.Object,java.lang.String)">of</h3>
-<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="type-parameters">&lt;T&gt;</span>&nbsp;<span class="return-type"><a href="EventingTestKit.Message.html" title="interface in kalix.javasdk.testkit">EventingTestKit.Message</a>&lt;T&gt;</span>&nbsp;<span class="element-name">of</span><wbr><span class="parameters">(T&nbsp;payload,
- <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;subject)</span></div>
-<div class="block">Create a message from a payload plus a subject (that is, the entity key).
- Automatically adds required default metadata for a CloudEvent.</div>
-<dl class="notes">
-<dt>Type Parameters:</dt>
-<dd><code>T</code> - </dd>
-<dt>Parameters:</dt>
-<dd><code>payload</code> - the message payload</dd>
-<dd><code>subject</code> - the entity key of which the message is concerned about</dd>
-<dt>Returns:</dt>
-<dd>a Message object to be used in the context of the Testkit</dd>
-</dl>
-</section>
-</li>
-<li>
-<section class="detail" id="of(T,kalix.javasdk.Metadata)">
-<h3 id="of(java.lang.Object,kalix.javasdk.Metadata)">of</h3>
-<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="type-parameters">&lt;T&gt;</span>&nbsp;<span class="return-type"><a href="EventingTestKit.Message.html" title="interface in kalix.javasdk.testkit">EventingTestKit.Message</a>&lt;T&gt;</span>&nbsp;<span class="element-name">of</span><wbr><span class="parameters">(T&nbsp;payload,
- kalix.javasdk.Metadata&nbsp;metadata)</span></div>
-<div class="block">Create a message object from a payload plus metadata.</div>
-<dl class="notes">
-<dt>Type Parameters:</dt>
-<dd><code>T</code> - </dd>
-<dt>Parameters:</dt>
-<dd><code>payload</code> - the message payload</dd>
-<dd><code>metadata</code> - the metadata associated with the message</dd>
-<dt>Returns:</dt>
-<dd>a Message object to be used in the context of the Testkit</dd>
 </dl>
 </section>
 </li>

@@ -117,9 +117,15 @@ loadScripts(document, 'script');</script>
 <div class="col-last even-row-color">
 <div class="block">Create a new testkit for a Kalix service descriptor.</div>
 </div>
-<div class="col-constructor-name odd-row-color"><code><a href="#%3Cinit%3E(kalix.javasdk.Kalix,kalix.javasdk.testkit.KalixTestKit.Settings)" class="member-name-link">KalixTestKit</a><wbr>(kalix.javasdk.Kalix&nbsp;kalix,
+<div class="col-constructor-name odd-row-color"><code><a href="#%3Cinit%3E(kalix.javasdk.Kalix,kalix.javasdk.impl.MessageCodec,kalix.javasdk.testkit.KalixTestKit.Settings)" class="member-name-link">KalixTestKit</a><wbr>(kalix.javasdk.Kalix&nbsp;kalix,
+ kalix.javasdk.impl.MessageCodec&nbsp;messageCodec,
  <a href="KalixTestKit.Settings.html" title="class in kalix.javasdk.testkit">KalixTestKit.Settings</a>&nbsp;settings)</code></div>
 <div class="col-last odd-row-color">
+<div class="block">Create a new testkit for a Kalix service descriptor with custom settings.</div>
+</div>
+<div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(kalix.javasdk.Kalix,kalix.javasdk.testkit.KalixTestKit.Settings)" class="member-name-link">KalixTestKit</a><wbr>(kalix.javasdk.Kalix&nbsp;kalix,
+ <a href="KalixTestKit.Settings.html" title="class in kalix.javasdk.testkit">KalixTestKit.Settings</a>&nbsp;settings)</code></div>
+<div class="col-last even-row-color">
 <div class="block">Create a new testkit for a Kalix service descriptor with custom settings.</div>
 </div>
 </div>
@@ -174,39 +180,45 @@ loadScripts(document, 'script');</script>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">An Akka Stream materializer to use for running streams.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>kalix.javasdk.impl.MessageCodec</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getMessageCodec()" class="member-name-link">getMessageCodec</a>()</code></div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="EventingTestKit.MessageBuilder.html" title="class in kalix.javasdk.testkit">EventingTestKit.MessageBuilder</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getMessageBuilder()" class="member-name-link">getMessageBuilder</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Returns <a href="EventingTestKit.MessageBuilder.html" title="class in kalix.javasdk.testkit"><code>EventingTestKit.MessageBuilder</code></a> utility
+ to create <a href="EventingTestKit.Message.html" title="interface in kalix.javasdk.testkit"><code>EventingTestKit.Message</code></a>s for the eventing testkit.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>kalix.javasdk.impl.MessageCodec</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getMessageCodec()" class="member-name-link">getMessageCodec</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">INTERNAL API</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getPort()" class="member-name-link">getPort</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getPort()" class="member-name-link">getPort</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Get the local port where the Kalix service is available.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>kalix.javasdk.KalixRunner</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getRunner()" class="member-name-link">getRunner</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>kalix.javasdk.KalixRunner</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getRunner()" class="member-name-link">getRunner</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">INTERNAL API</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="EventingTestKit.Topic.html" title="interface in kalix.javasdk.testkit">EventingTestKit.Topic</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getTopic(java.lang.String)" class="member-name-link">getTopic</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;topic)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="EventingTestKit.Topic.html" title="interface in kalix.javasdk.testkit">EventingTestKit.Topic</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getTopic(java.lang.String)" class="member-name-link">getTopic</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;topic)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Get <a href="EventingTestKit.Topic.html" title="interface in kalix.javasdk.testkit"><code>EventingTestKit.Topic</code></a> for mocking interactions, avoiding the need for a real broker instance.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="KalixTestKit.html" title="class in kalix.javasdk.testkit">KalixTestKit</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#start()" class="member-name-link">start</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="KalixTestKit.html" title="class in kalix.javasdk.testkit">KalixTestKit</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#start()" class="member-name-link">start</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Start this testkit with default configuration (loaded from <code>application.conf</code>).</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="KalixTestKit.html" title="class in kalix.javasdk.testkit">KalixTestKit</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#start(com.typesafe.config.Config)" class="member-name-link">start</a><wbr>(com.typesafe.config.Config&nbsp;config)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="KalixTestKit.html" title="class in kalix.javasdk.testkit">KalixTestKit</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#start(com.typesafe.config.Config)" class="member-name-link">start</a><wbr>(com.typesafe.config.Config&nbsp;config)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Start this testkit with custom configuration (overrides <code>application.conf</code>).</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#stop()" class="member-name-link">stop</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#stop()" class="member-name-link">stop</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Stop the testkit and local Kalix.</div>
 </div>
 </div>
@@ -246,6 +258,21 @@ loadScripts(document, 'script');</script>
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>kalix</code> - Kalix service descriptor</dd>
+<dd><code>settings</code> - custom testkit settings</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="&lt;init&gt;(kalix.javasdk.Kalix,kalix.javasdk.impl.MessageCodec,kalix.javasdk.testkit.KalixTestKit.Settings)">
+<h3>KalixTestKit</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name">KalixTestKit</span><wbr><span class="parameters">(kalix.javasdk.Kalix&nbsp;kalix,
+ kalix.javasdk.impl.MessageCodec&nbsp;messageCodec,
+ <a href="KalixTestKit.Settings.html" title="class in kalix.javasdk.testkit">KalixTestKit.Settings</a>&nbsp;settings)</span></div>
+<div class="block">Create a new testkit for a Kalix service descriptor with custom settings.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>kalix</code> - Kalix service descriptor</dd>
+<dd><code>messageCodec</code> - message codec</dd>
 <dd><code>settings</code> - custom testkit settings</dd>
 </dl>
 </section>
@@ -418,6 +445,14 @@ loadScripts(document, 'script');</script>
 <div class="member-signature"><span class="annotations">@InternalApi
 </span><span class="modifiers">public</span>&nbsp;<span class="return-type">kalix.javasdk.KalixRunner</span>&nbsp;<span class="element-name">getRunner</span>()</div>
 <div class="block">INTERNAL API</div>
+</section>
+</li>
+<li>
+<section class="detail" id="getMessageBuilder()">
+<h3>getMessageBuilder</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="EventingTestKit.MessageBuilder.html" title="class in kalix.javasdk.testkit">EventingTestKit.MessageBuilder</a></span>&nbsp;<span class="element-name">getMessageBuilder</span>()</div>
+<div class="block">Returns <a href="EventingTestKit.MessageBuilder.html" title="class in kalix.javasdk.testkit"><code>EventingTestKit.MessageBuilder</code></a> utility
+ to create <a href="EventingTestKit.Message.html" title="interface in kalix.javasdk.testkit"><code>EventingTestKit.Message</code></a>s for the eventing testkit.</div>
 </section>
 </li>
 </ul>

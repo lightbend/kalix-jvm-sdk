@@ -11,7 +11,10 @@ import org.springframework.web.reactive.function.client.WebClient;
 @RequestMapping("/customer/{customerId}")
 public class CustomerRegistryAction extends Action {
 
-  record Customer(String id, String email, String name) {
+  public record Address(String street, String city) {
+  }
+
+  public record Customer(String email, String name, Address address) {
   }
 
   public record Confirm(String msg) {

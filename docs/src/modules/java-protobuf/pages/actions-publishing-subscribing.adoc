@@ -585,7 +585,7 @@ include::example$java-protobuf-eventsourced-counter/src/it/java/com/example/Coun
 <1> Build a `CloudEvent` object with the 3 required attributes, respectively: `id`, `source` and `type`.
 <2> Add the subject to which the message is related, that is the `counterId`.
 <3> Set the mandatory header "Content-Type" accordingly.
-<4> Publish the message along with its metadata to topic `commandsTopic`.
+<4> Build and publish the message along with its metadata to topic `commandsTopic`.
 <5> Upon receiving the message, access the metadata.
 <6> Assert the headers `Content-Type` and `ce-subject` (every CloudEvent header is prefixed with "ce-") have the expected values.
 
@@ -599,7 +599,7 @@ include::example$scala-protobuf-eventsourced-counter/src/test/scala/com/example/
 <1> Build a `CloudEvent` object with the 3 required attributes, respectively: `id`, `source` and `type`.
 <2> Add the subject to which the message is related, that is the `counterId`.
 <3> Set the mandatory header "Content-Type" accordingly.
-<4> Publish the message along with its metadata to topic `commandsTopic`.
+<4> Build and publish the message along with its metadata to topic `commandsTopic`.
 <5> Receive the message of correct type and extract `Metadata`.
 <6> Assert the headers `Content-Type` and `ce-subject` (every CloudEvent header is prefixed with "ce-") have the expected values.
 
@@ -639,7 +639,7 @@ NOTE: Despite the example, you are neither forced to clear all topics nor to do 
 
 === External Broker
 
-To run an integration test against a real instance of Google PubSub (or its Emulator), use the TestKit settings to override the default eventing support, as shown below:
+To run an integration test against a real instance of Google PubSub (or its Emulator) or Kafka, use the TestKit settings to override the default eventing support, as shown below:
 
 [.tabset]
 Java::

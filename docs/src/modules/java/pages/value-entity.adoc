@@ -141,4 +141,4 @@ include::example$java-spring-valueentity-counter/src/it/java/com/example/Counter
 <4> Request to increase the value of counter `bar`. Response should have value `1`.
 <5> Explicit `GET` request to retrieve value of `bar` that should be `1`.
 
-NOTE: The integration tests are under in a specific project profile `it` and can be run using `mvn verify -Pit`.
+NOTE: The integration tests in samples are under in a specific project profile `it` and can be run using `mvn verify -Pit`.

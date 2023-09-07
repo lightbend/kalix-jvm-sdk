@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Paths;
@@ -47,7 +48,11 @@ public class FileServiceAction extends AbstractFileServiceAction {
     String fullPath = baseDir+dir+"/"+file;
     try {
       // tag::200-ok[]
-      byte[] byteArray = getClass().getResourceAsStream(fullPath).readAllBytes();
+      InputStream inputStream = getClass().getResourceAsStream(fullPath);
+      if(null == inputStream) {
+        throw new NoSuchFileException("File " + fullPath + " not found");
+      }
+      byte[] byteArray = inputStream.readAllBytes();
       String contentType = getContentTypeByFile(file);
       HttpBody response = HttpBody.newBuilder()
               .setContentType(contentType)

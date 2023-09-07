@@ -101,10 +101,14 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color"><code><a href="#GOOGLE_PUBSUB" class="member-name-link">GOOGLE_PUBSUB</a></code></div>
 <div class="col-last even-row-color">
-<div class="block">Used if you want to use an external Google PubSub Emulator on your tests.</div>
+<div class="block">Used if you want to use an external Google PubSub (or its Emulator) on your tests.</div>
 </div>
-<div class="col-first odd-row-color"><code><a href="#TEST_BROKER" class="member-name-link">TEST_BROKER</a></code></div>
+<div class="col-first odd-row-color"><code><a href="#KAFKA" class="member-name-link">KAFKA</a></code></div>
 <div class="col-last odd-row-color">
+<div class="block">Used if you want to use an external Kafka broker on your tests.</div>
+</div>
+<div class="col-first even-row-color"><code><a href="#TEST_BROKER" class="member-name-link">TEST_BROKER</a></code></div>
+<div class="col-last even-row-color">
 <div class="block">This is the default type used and allows the testing eventing integrations without an external broker dependency
  running.</div>
 </div>
@@ -165,9 +169,18 @@ the order they are declared.</div>
 <section class="detail" id="GOOGLE_PUBSUB">
 <h3>GOOGLE_PUBSUB</h3>
 <div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type"><a href="KalixTestKit.Settings.EventingSupport.html" title="enum in kalix.javasdk.testkit">KalixTestKit.Settings.EventingSupport</a></span>&nbsp;<span class="element-name">GOOGLE_PUBSUB</span></div>
-<div class="block">Used if you want to use an external Google PubSub Emulator on your tests.
+<div class="block">Used if you want to use an external Google PubSub (or its Emulator) on your tests.
 
- Note: the Google PubSub Emulator need to be started independently.</div>
+ Note: the Google PubSub broker instance needs to be started independently.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="KAFKA">
+<h3>KAFKA</h3>
+<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type"><a href="KalixTestKit.Settings.EventingSupport.html" title="enum in kalix.javasdk.testkit">KalixTestKit.Settings.EventingSupport</a></span>&nbsp;<span class="element-name">KAFKA</span></div>
+<div class="block">Used if you want to use an external Kafka broker on your tests.
+
+ Note: the Kafka broker instance needs to be started independently.</div>
 </section>
 </li>
 </ul>
