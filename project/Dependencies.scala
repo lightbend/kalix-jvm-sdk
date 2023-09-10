@@ -70,6 +70,12 @@ object Dependencies {
   val junit4 = "junit" % "junit" % JUnitVersion
   val junit5 = "org.junit.jupiter" % "junit-jupiter" % JUnitJupiterVersion
 
+  val opentelemetryApi = "io.opentelemetry" % "opentelemetry-api" % OpenTelemetryVersion
+  val opentelemetrySdk = "io.opentelemetry" % "opentelemetry-sdk" % OpenTelemetryVersion
+  val opentelemetryExporterOtlp = "io.opentelemetry" % "opentelemetry-exporter-otlp" % OpenTelemetryVersion
+  val opentelemetryContext = "io.opentelemetry" % "opentelemetry-context" % OpenTelemetryVersion
+  val opentelemetrySemConv = "io.opentelemetry" % "opentelemetry-semconv" % (OpenTelemetryVersion + "-alpha")
+
   val scalapbCompilerPlugin = "com.thesamet.scalapb" %% "compilerplugin" % scalapb.compiler.Version.scalapbVersion
   val sbtProtoc = "com.thesamet" % "sbt-protoc" % "1.0.0"
 
@@ -89,6 +95,11 @@ object Dependencies {
     protobufJavaUtil,
     kalixProxyProtocol % "protobuf-src",
     kalixSdkProtocol % "compile;protobuf-src",
+    opentelemetryApi,
+    opentelemetrySdk,
+    opentelemetryExporterOtlp,
+    opentelemetryContext,
+    opentelemetrySemConv,
     akkaDependency("akka-testkit") % Test,
     akkaDependency("akka-actor-testkit-typed") % Test,
     akkaDependency("akka-stream-testkit") % Test,
@@ -140,12 +151,7 @@ object Dependencies {
     "net.aichler" % "jupiter-interface" % JupiterKeys.jupiterVersion.value % IntegrationTest,
     "net.aichler" % "jupiter-interface" % JupiterKeys.jupiterVersion.value % Test,
     "org.springframework.boot" % "spring-boot-starter-test" % SpringBootVersion % IntegrationTest,
-    "io.opentelemetry" % "opentelemetry-api" % OpenTelemetryVersion,
-    "io.opentelemetry" % "opentelemetry-sdk" % OpenTelemetryVersion,
-    "io.opentelemetry" % "opentelemetry-exporter-logging" % OpenTelemetryVersion, // TODO change to otlp when see tracing is working from here and back from the
-    "io.opentelemetry" % "opentelemetry-exporter-otlp" % OpenTelemetryVersion, // TODO delete, only to test in local.
-    "io.opentelemetry" % "opentelemetry-context" % OpenTelemetryVersion,
-    "io.opentelemetry" % "opentelemetry-semconv" % (OpenTelemetryVersion + "-alpha"),
+
     junit5 % IntegrationTest,
     junit5 % Test,
     "org.assertj" % "assertj-core" % "3.24.2" % IntegrationTest,

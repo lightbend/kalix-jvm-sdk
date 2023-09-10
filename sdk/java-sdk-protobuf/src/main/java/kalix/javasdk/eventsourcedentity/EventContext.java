@@ -16,6 +16,8 @@
 
 package kalix.javasdk.eventsourcedentity;
 
+import kalix.javasdk.Metadata;
+
 /** Context for an event. */
 public interface EventContext extends EventSourcedEntityContext {
   /**
@@ -24,4 +26,6 @@ public interface EventContext extends EventSourcedEntityContext {
    * @return The sequence number.
    */
   long sequenceNumber();
+
+  Metadata metadata();
 }

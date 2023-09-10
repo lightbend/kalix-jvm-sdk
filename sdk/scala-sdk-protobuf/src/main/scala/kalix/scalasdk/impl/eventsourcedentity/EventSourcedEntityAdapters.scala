@@ -17,13 +17,15 @@
 package kalix.scalasdk.impl.eventsourcedentity
 
 import akka.stream.Materializer
+import com.google.protobuf.Descriptors
 import kalix.javasdk
-import kalix.javasdk.eventsourcedentity.{ EventSourcedEntityProvider => JavaSdkEventSourcedEntityProvider }
-import kalix.javasdk.eventsourcedentity.{ EventSourcedEntityContext => JavaSdkEventSourcedEntityContext }
-import kalix.javasdk.eventsourcedentity.{ EventSourcedEntity => JavaSdkEventSourcedEntity }
-import kalix.javasdk.eventsourcedentity.{ EventContext => JavaSdkEventContext }
-import kalix.javasdk.eventsourcedentity.{ EventSourcedEntityOptions => JavaSdkEventSourcedEntityOptions }
+import kalix.javasdk.Metadata
 import kalix.javasdk.eventsourcedentity.{ CommandContext => JavaSdkCommandContext }
+import kalix.javasdk.eventsourcedentity.{ EventContext => JavaSdkEventContext }
+import kalix.javasdk.eventsourcedentity.{ EventSourcedEntity => JavaSdkEventSourcedEntity }
+import kalix.javasdk.eventsourcedentity.{ EventSourcedEntityContext => JavaSdkEventSourcedEntityContext }
+import kalix.javasdk.eventsourcedentity.{ EventSourcedEntityOptions => JavaSdkEventSourcedEntityOptions }
+import kalix.javasdk.eventsourcedentity.{ EventSourcedEntityProvider => JavaSdkEventSourcedEntityProvider }
 import kalix.javasdk.impl.eventsourcedentity.{ EventSourcedEntityRouter => JavaSdkEventSourcedEntityRouter }
 import kalix.scalasdk.eventsourcedentity.CommandContext
 import kalix.scalasdk.eventsourcedentity.EventContext
@@ -34,10 +36,8 @@ import kalix.scalasdk.eventsourcedentity.EventSourcedEntityProvider
 import kalix.scalasdk.impl.InternalContext
 import kalix.scalasdk.impl.MetadataConverters
 import kalix.scalasdk.impl.PassivationStrategyConverters
-import com.google.protobuf.Descriptors
 
 import java.util.Optional
-import scala.collection.immutable.Set
 import scala.jdk.CollectionConverters.SetHasAsJava
 import scala.jdk.CollectionConverters.SetHasAsScala
 import scala.jdk.OptionConverters._
@@ -106,7 +106,7 @@ private[scalasdk] final class JavaEventSourcedEntityRouterAdapter[S](
     scalaSdkRouter: EventSourcedEntityRouter[S, EventSourcedEntity[S]])
     extends JavaSdkEventSourcedEntityRouter[S, Any, JavaSdkEventSourcedEntity[S, Any]](javaSdkEventSourcedEntity) {
 
-  override def handleEvent(state: S, event: Any): S = {
+  override def handleEvent(state: S, event: Any, metadata: Metadata): S = {
     scalaSdkRouter.handleEvent(state, event)
   }
 

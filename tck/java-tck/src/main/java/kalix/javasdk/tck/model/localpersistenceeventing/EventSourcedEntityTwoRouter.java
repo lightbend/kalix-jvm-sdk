@@ -17,6 +17,7 @@
 package kalix.javasdk.tck.model.localpersistenceeventing;
 
 import kalix.javasdk.JsonSupport;
+import kalix.javasdk.Metadata;
 import kalix.javasdk.eventsourcedentity.CommandContext;
 import kalix.javasdk.eventsourcedentity.EventSourcedEntity;
 import kalix.javasdk.impl.eventsourcedentity.EventSourcedEntityRouter;
@@ -32,7 +33,7 @@ public class EventSourcedEntityTwoRouter
   }
 
   @Override
-  public String handleEvent(String state, Object event) {
+  public String handleEvent(String state, Object event, Metadata metadata) {
     // FIXME requirement to use JSON events should be removed from TCK
     if (event instanceof Any) {
       return entity().handle(state, JsonSupport.decodeJson(JsonMessage.class, (Any) event));

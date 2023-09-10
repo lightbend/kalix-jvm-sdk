@@ -11,13 +11,16 @@ services:
         -Dconfig.resource=dev-mode.conf
         -Dlogback.configurationFile=logback-dev-mode.xml
         -Dkalix.proxy.eventing.support=google-pubsub-emulator
+        -Dkalix.proxy.telemetry.metrics.prometheus.use-default-registry=false
       USER_FUNCTION_HOST: ${USER_FUNCTION_HOST:-host.docker.internal}
       USER_FUNCTION_PORT: ${USER_FUNCTION_PORT:-8080}
       PUBSUB_EMULATOR_HOST: gcloud-pubsub-emulator
       VIEW_FEATURE_JOINS: "true"
+      COLLECTOR_ENDPOINT: "http://tempo:4317"
+      OTEL_SERVICE_NAME: "kalix-proxy"
     depends_on:
-      gcloud-pubsub-emulator:
-        condition: service_healthy
+      - gcloud-pubsub-emulator
+      - tempo
 
   gcloud-pubsub-emulator:
     image: gcr.io/google.com/cloudsdktool/cloud-sdk:432.0.0-emulators
@@ -29,3 +32,27 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
+
+  tempo:
+    image: grafana/tempo:latest
+    command: [ "-config.file=/etc/tempo.yaml" ]
+    volumes:
+      - ./tempo.yaml:/etc/tempo.yaml
+      - ./tempo-data:/tmp/tempo
+    ports:
+      - "14268:14268"  # jaeger ingest
+      - "3200:3200"   # tempo
+      - "9095:9095" # tempo grpc
+      - "4317:4317"  # otlp grpc
+      - "4318:4318"  # otlp http
+      - "9411:9411"   # zipkin
+
+  tempo-query:
+    image: grafana/tempo-query:latest
+    command: [ "--grpc-storage-plugin.configuration-file=/etc/tempo-query.yaml" ]
+    volumes:
+      - ./tempo-query.yaml:/etc/tempo-query.yaml
+    ports:
+      - "16686:16686"  # jaeger-ui
+    depends_on:
+      - tempo

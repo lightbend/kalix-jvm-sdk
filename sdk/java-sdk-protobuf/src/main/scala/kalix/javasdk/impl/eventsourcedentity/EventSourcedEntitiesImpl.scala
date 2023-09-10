@@ -120,7 +120,7 @@ final class EventSourcedEntitiesImpl(
    * events when the event stream was being replayed on load.
    */
   override def handle(in: akka.stream.scaladsl.Source[EventSourcedStreamIn, akka.NotUsed])
-      : akka.stream.scaladsl.Source[EventSourcedStreamOut, akka.NotUsed] =
+      : akka.stream.scaladsl.Source[EventSourcedStreamOut, akka.NotUsed] = {
     in.prefixAndTail(1)
       .flatMapConcat {
         case (Seq(EventSourcedStreamIn(InInit(init), _)), source) =>
@@ -140,6 +140,7 @@ final class EventSourcedEntitiesImpl(
           EventSourcedStreamOut(OutFailure(Failure(description = s"Unexpected failure [$correlationId]")))
         }
       }
+  }
 
   private def runEntity(init: EventSourcedInit): Flow[EventSourcedStreamIn, EventSourcedStreamOut, NotUsed] = {
     val service =
@@ -157,13 +158,12 @@ final class EventSourcedEntitiesImpl(
       router._internalHandleSnapshot(service.messageCodec.decodeMessage(any))
       snapshotSequence
     }).getOrElse(0L)
-
     Flow[EventSourcedStreamIn]
       .map(_.message)
       .scan[(Long, Option[EventSourcedStreamOut.Message])]((startingSequenceNumber, None)) {
         case (_, InEvent(event)) =>
           // Note that these only come on replay
-          val context = new EventContextImpl(thisEntityId, event.sequence)
+          val context = new EventContextImpl(thisEntityId, event.sequence, Metadata.EMPTY)
           val ev =
             service.messageCodec
               .decodeMessage(event.payload.get)
@@ -180,7 +180,6 @@ final class EventSourcedEntitiesImpl(
           val metadata = new MetadataImpl(command.metadata.map(_.entries.toVector).getOrElse(Nil))
           val context =
             new CommandContextImpl(thisEntityId, sequence, command.name, command.id, metadata)
-
           val CommandResult(
             events: Vector[Any],
             secondaryEffect: SecondaryEffectImpl,
@@ -193,7 +192,7 @@ final class EventSourcedEntitiesImpl(
                 cmd,
                 context,
                 service.snapshotEvery,
-                seqNr => new EventContextImpl(thisEntityId, seqNr))
+                seqNr => new EventContextImpl(thisEntityId, seqNr, metadata))
             } catch {
               case BadRequestException(msg) =>
                 val errorReply = ErrorReplyImpl(msg, Some(Status.Code.INVALID_ARGUMENT), Vector.empty)
@@ -273,7 +272,10 @@ final class EventSourcedEntitiesImpl(
   private class EventSourcedEntityContextImpl(override final val entityId: String)
       extends AbstractContext(system)
       with EventSourcedEntityContext
-  private final class EventContextImpl(entityId: String, override val sequenceNumber: Long)
+  private final class EventContextImpl(
+      entityId: String,
+      override val sequenceNumber: Long,
+      override val metadata: Metadata)
       extends EventSourcedEntityContextImpl(entityId)
       with EventContext
 }

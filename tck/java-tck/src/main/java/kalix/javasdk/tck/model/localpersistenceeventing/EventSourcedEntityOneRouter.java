@@ -30,7 +30,7 @@ public class EventSourcedEntityOneRouter
   }
 
   @Override
-  public String handleEvent(String state, Object event) {
+  public String handleEvent(String state, Object event, kalix.javasdk.Metadata metadata) {
     if (event instanceof LocalPersistenceEventing.EventOne) {
       return entity().handle(state, (LocalPersistenceEventing.EventOne) event);
     } else if (event instanceof LocalPersistenceEventing.EventTwo) {

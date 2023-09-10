@@ -18,8 +18,6 @@ package kalix.javasdk.impl.eventsourcedentity
 
 import com.google.protobuf.any.{ Any => ScalaPbAny }
 import com.google.protobuf.{ Any => JavaPbAny }
-import io.opentelemetry.api.trace.SpanKind
-import io.opentelemetry.context.propagation.TextMapGetter
 import kalix.javasdk.JsonSupport
 import kalix.javasdk.Metadata
 import kalix.javasdk.eventsourcedentity.CommandContext
@@ -28,7 +26,7 @@ import kalix.javasdk.impl.CommandHandler
 import kalix.javasdk.impl.InvocationContext
 import kalix.javasdk.impl.JsonMessageCodec
 import kalix.javasdk.impl.MethodInvoker
-import kalix.spring.impl.KalixSpringApplication
+import kalix.javasdk.impl.Telemetry
 import org.slf4j.LoggerFactory
 
 import java.lang.reflect.ParameterizedType
@@ -40,7 +38,9 @@ class ReflectiveEventSourcedEntityRouter[S, E, ES <: EventSourcedEntity[S, E]](
     messageCodec: JsonMessageCodec)
     extends EventSourcedEntityRouter[S, E, ES](entity) {
 
-  val logger = LoggerFactory.getLogger(this.getClass)
+  private val logger = LoggerFactory.getLogger(this.getClass)
+
+  private val telemetry = new Telemetry(entity.getClass.getName)
 
   private def commandHandlerLookup(commandName: String) =
     commandHandlers.getOrElse(
@@ -53,13 +53,14 @@ class ReflectiveEventSourcedEntityRouter[S, E, ES <: EventSourcedEntity[S, E]](
       throw new HandlerNotFoundException("event", eventName, eventHandlerMethods.keySet))
   }
 
-  override def handleEvent(state: S, event: E): S = {
+  override def handleEvent(state: S, event: E, metadata: Metadata): S = {
 
     _extractAndSetCurrentState(state)
+    logger.debug("handling event [{}]", event)
 
     event match {
       case s: ScalaPbAny => // replaying event coming from proxy
-        val invocationContext = InvocationContext(s, JavaPbAny.getDescriptor, Metadata.EMPTY)
+        val invocationContext = InvocationContext(s, JavaPbAny.getDescriptor, metadata)
 
         eventHandlerLookup(s.typeUrl)
           .invoke(entity, invocationContext)
@@ -89,42 +90,17 @@ class ReflectiveEventSourcedEntityRouter[S, E, ES <: EventSourcedEntity[S, E]](
         commandHandler.requestMessageDescriptor,
         commandContext.metadata())
 
-    import io.opentelemetry.context.{ Context => OtelContext }
-
-    import scala.jdk.OptionConverters._
-
-    val getter = new TextMapGetter[Metadata]() {
-      override def get(carrier: Metadata, key: String): String = {
-        logger.debug("For the key [{}] the value is [{}]", key, carrier.get(key))
-        carrier.get(key).toScala.getOrElse("")
-      }
-
-      override def keys(carrier: Metadata): java.lang.Iterable[String] =
-        carrier.getAllKeys
-
-    }
-
-    val context = KalixSpringApplication.openTelemetry.getPropagators.getTextMapPropagator
-      .extract(OtelContext.current(), commandContext.metadata(), getter.asInstanceOf[TextMapGetter[Object]])
-    val tracer =
-      KalixSpringApplication.openTelemetry.getTracer("kalix.javasdk.impl.action.ReflectiveEventSourcedEntityRouter")
-
-    val span = tracer.spanBuilder(commandName).setSpanKind(SpanKind.SERVER).setParent(context).startSpan()
-    val scope = span.makeCurrent() //TODO use Using for closeable?
-
     val inputTypeUrl = command.asInstanceOf[ScalaPbAny].typeUrl
+    val methodInvoker = commandHandler
+      .getInvoker(inputTypeUrl)
 
+    val span = telemetry.buildSpan(entity, inputTypeUrl, Some(methodInvoker), commandContext.metadata)
     try {
-      span.makeCurrent()
-      span.setAttribute("action", "testName" + commandName)
-      commandHandler
-        .getInvoker(inputTypeUrl)
+      methodInvoker
         .invoke(entity, invocationContext)
         .asInstanceOf[EventSourcedEntity.Effect[_]]
-
     } finally {
-      span.end()
-      scope.close()
+      span.map(s => s.end())
     }
 
   }

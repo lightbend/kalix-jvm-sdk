@@ -19,7 +19,6 @@ package kalix.codegen.java
 import kalix.codegen.Format
 import kalix.codegen.Imports
 import kalix.codegen.ModelBuilder
-import kalix.codegen.ClassMessageType
 import kalix.codegen.ProtoMessageType
 import kalix.codegen.SourceGeneratorUtils.allRelevantMessageTypes
 import kalix.codegen.SourceGeneratorUtils.collectRelevantTypes
@@ -42,6 +41,7 @@ object EventSourcedEntitySourceGenerator {
       allRelevantMessageTypes(service, entity),
       packageName,
       otherImports = Seq(
+        "kalix.javasdk.Metadata",
         "kalix.javasdk.eventsourcedentity.CommandContext",
         "kalix.javasdk.eventsourcedentity.EventSourcedEntity",
         "kalix.javasdk.impl.eventsourcedentity.EventSourcedEntityRouter"))
@@ -88,7 +88,7 @@ object EventSourcedEntitySourceGenerator {
        |  }
        |
        |  @Override
-       |  public $stateType handleEvent($stateType state, Object event) {
+       |  public $stateType handleEvent($stateType state, Object event, Metadata metadata) {
        |    ${Format.indent(eventCases, 4)}
        |  }
        |

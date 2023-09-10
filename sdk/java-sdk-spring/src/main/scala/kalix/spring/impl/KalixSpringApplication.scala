@@ -18,14 +18,6 @@ package kalix.spring.impl
 
 import akka.Done
 import com.typesafe.config.Config
-import io.opentelemetry.api.OpenTelemetry
-import io.opentelemetry.api.trace.propagation.W3CTraceContextPropagator
-import io.opentelemetry.context.propagation.ContextPropagators
-import io.opentelemetry.exporter.logging.LoggingSpanExporter
-import io.opentelemetry.exporter.otlp.trace.OtlpGrpcSpanExporter
-import io.opentelemetry.sdk.OpenTelemetrySdk
-import io.opentelemetry.sdk.trace.SdkTracerProvider
-import io.opentelemetry.sdk.trace.`export`.SimpleSpanProcessor
 import kalix.javasdk.Kalix
 import kalix.javasdk.action.Action
 import kalix.javasdk.action.ActionCreationContext
@@ -60,16 +52,6 @@ import kalix.javasdk.workflow.WorkflowProvider
 import kalix.spring.BuildInfo
 import kalix.spring.KalixClient
 import kalix.spring.WebClientProvider
-import kalix.spring.impl.KalixSpringApplication.ActionCreationContextFactoryBean
-import kalix.spring.impl.KalixSpringApplication.ComponentClientFactoryBean
-import kalix.spring.impl.KalixSpringApplication.EventSourcedEntityContextFactoryBean
-import kalix.spring.impl.KalixSpringApplication.KalixClientFactoryBean
-import kalix.spring.impl.KalixSpringApplication.KalixComponentProvider
-import kalix.spring.impl.KalixSpringApplication.MainClassProvider
-import kalix.spring.impl.KalixSpringApplication.ValueEntityContextFactoryBean
-import kalix.spring.impl.KalixSpringApplication.ViewCreationContextFactoryBean
-import kalix.spring.impl.KalixSpringApplication.WebClientProviderFactoryBean
-import kalix.spring.impl.KalixSpringApplication.WorkflowContextFactoryBean
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.BeanCreationException
@@ -91,6 +73,7 @@ import scala.concurrent.Future
 import scala.jdk.CollectionConverters.CollectionHasAsScala
 import scala.jdk.FutureConverters.CompletionStageOps
 import scala.jdk.OptionConverters.RichOption
+import scala.jdk.OptionConverters._
 import scala.reflect.ClassTag
 
 object KalixSpringApplication {
@@ -263,26 +246,11 @@ object KalixSpringApplication {
       else
         throw new BeanCreationException("WebClientProvider can only be injected in Kalix Actions and Workflows.")
   }
-
-  val openTelemetry: OpenTelemetry = {
-    val sdkTracerProvider =
-      SdkTracerProvider
-        .builder()
-        .addSpanProcessor(SimpleSpanProcessor.create(LoggingSpanExporter.create())) // TODO probably not needed
-        .addSpanProcessor(
-          SimpleSpanProcessor.create(OtlpGrpcSpanExporter.builder().setEndpoint("http://jaeger:4317").build()))
-        .build()
-    val sdk = OpenTelemetrySdk
-      .builder()
-      .setTracerProvider(sdkTracerProvider)
-      .setPropagators(ContextPropagators.create(W3CTraceContextPropagator.getInstance()))
-      .build()
-    //Runtime.getRuntime().addShutdownHook(new Thread(sdkTracerProvider.close)) TODO add shutdown
-    sdk
-  }
 }
 
 case class KalixSpringApplication(applicationContext: ApplicationContext, config: Config) {
+
+  import KalixSpringApplication._
 
   private val logger: Logger = LoggerFactory.getLogger(getClass)
 
