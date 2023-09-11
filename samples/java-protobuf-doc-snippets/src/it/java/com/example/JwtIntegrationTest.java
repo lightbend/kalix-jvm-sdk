@@ -58,7 +58,7 @@ public class JwtIntegrationTest {
 
   private String bearerTokenWith(Map<String, String> claims) throws JsonProcessingException {
     // setting algorithm to none
-    String alg = "ewogICJhbGciOiAibm9uZSIKfQo"; // <4>
+    String alg = Base64.getEncoder().encodeToString("{\"alg\":\"none\"}".getBytes()); // <4>
     byte[] jsonClaims = new ObjectMapper().writeValueAsBytes(claims);
 
     // no validation is done for integration tests, thus no valid signature required

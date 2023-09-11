@@ -40,7 +40,7 @@ public class JwtIntegrationTest extends KalixIntegrationTestKitSupport {
 
   private String bearerTokenWith(Map<String, String> claims) throws JsonProcessingException {
     // setting algorithm to none
-    String alg = "ewogICJhbGciOiAibm9uZSIKfQo"; // <3>
+    String alg = Base64.getEncoder().encodeToString("{\"alg\":\"none\"}".getBytes()); // <3>
     byte[] jsonClaims = new ObjectMapper().writeValueAsBytes(claims);
 
     // no validation is done for integration tests, thus no valid signature required
