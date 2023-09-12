@@ -18,8 +18,8 @@ package kalix.javasdk.impl.action
 
 import akka.NotUsed
 import akka.stream.javadsl.Source
-import com.google.protobuf.any.{Any => ScalaPbAny}
-import io.opentelemetry.context.{Context => OtelContext}
+import com.google.protobuf.any.{ Any => ScalaPbAny }
+import io.opentelemetry.context.{ Context => OtelContext }
 import kalix.javasdk.action.Action
 import kalix.javasdk.action.MessageEnvelope
 import kalix.javasdk.impl.AnySupport.ProtobufEmptyTypeUrl
@@ -28,7 +28,7 @@ import kalix.javasdk.impl.InvocationContext
 import kalix.javasdk.impl.Telemetry
 
 // TODO: abstract away reactor dependency
-import com.google.protobuf.{ByteString => ProtobufByteString}
+import com.google.protobuf.{ ByteString => ProtobufByteString }
 import reactor.core.publisher.Flux
 
 class ReflectiveActionRouter[A <: Action](

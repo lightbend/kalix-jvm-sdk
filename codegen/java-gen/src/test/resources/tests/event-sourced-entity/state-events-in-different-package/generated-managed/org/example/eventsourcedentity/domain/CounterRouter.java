@@ -1,6 +1,7 @@
 package org.example.eventsourcedentity.domain;
 
 import com.google.protobuf.Empty;
+import kalix.javasdk.Metadata;
 import kalix.javasdk.eventsourcedentity.CommandContext;
 import kalix.javasdk.eventsourcedentity.EventSourcedEntity;
 import kalix.javasdk.impl.eventsourcedentity.EventSourcedEntityRouter;
@@ -23,7 +24,7 @@ public class CounterRouter extends EventSourcedEntityRouter<OuterCounterState.Co
   }
 
   @Override
-  public OuterCounterState.CounterState handleEvent(OuterCounterState.CounterState state, Object event) {
+  public OuterCounterState.CounterState handleEvent(OuterCounterState.CounterState state, Object event, Metadata metadata) {
     if (event instanceof OuterCounterEvents.Increased) {
       return entity().increased(state, (OuterCounterEvents.Increased) event);
     } else if (event instanceof OuterCounterEvents.Decreased) {
