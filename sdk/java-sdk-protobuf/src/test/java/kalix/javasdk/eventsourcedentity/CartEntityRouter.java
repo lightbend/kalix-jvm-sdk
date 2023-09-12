@@ -16,6 +16,7 @@
 
 package kalix.javasdk.eventsourcedentity;
 
+import kalix.javasdk.Metadata;
 import kalix.javasdk.impl.eventsourcedentity.EventSourcedEntityRouter;
 import com.example.shoppingcart.ShoppingCartApi;
 import com.example.shoppingcart.domain.ShoppingCartDomain;
@@ -28,7 +29,7 @@ final class CartEntityRouter extends EventSourcedEntityRouter<ShoppingCartDomain
   }
 
   @Override
-  public ShoppingCartDomain.Cart handleEvent(ShoppingCartDomain.Cart state, Object event) {
+  public ShoppingCartDomain.Cart handleEvent(ShoppingCartDomain.Cart state, Object event, Metadata metadata) {
     if (event instanceof ShoppingCartDomain.ItemAdded) {
       return entity().itemAdded(state, (ShoppingCartDomain.ItemAdded) event);
     } else if (event instanceof ShoppingCartDomain.ItemRemoved) {

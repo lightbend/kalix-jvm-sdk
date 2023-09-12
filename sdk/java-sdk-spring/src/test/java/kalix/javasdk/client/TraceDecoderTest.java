@@ -20,7 +20,6 @@ import com.example.wiring.tracing.Batches;
 import com.example.wiring.tracing.Traces;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
 
