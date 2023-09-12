@@ -151,7 +151,6 @@ object Dependencies {
     "net.aichler" % "jupiter-interface" % JupiterKeys.jupiterVersion.value % IntegrationTest,
     "net.aichler" % "jupiter-interface" % JupiterKeys.jupiterVersion.value % Test,
     "org.springframework.boot" % "spring-boot-starter-test" % SpringBootVersion % IntegrationTest,
-
     junit5 % IntegrationTest,
     junit5 % Test,
     "org.assertj" % "assertj-core" % "3.24.2" % IntegrationTest,
