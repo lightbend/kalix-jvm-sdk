@@ -40,21 +40,21 @@ public class CounterIntegrationTest extends KalixIntegrationTestKitSupport { // 
     // tag::test-topic[]
     @Autowired
     private KalixTestKit kalixTestKit; // <2>
-    private EventingTestKit.Topic commandsTopic;
-    private EventingTestKit.Topic eventsTopic;
+  private EventingTestKit.Subscription commandsTopic;
+  private EventingTestKit.MockedDestination eventsTopic;
     // end::test-topic[]
 
-    private EventingTestKit.Topic eventsTopicWithMeta;
+  private EventingTestKit.MockedDestination eventsTopicWithMeta;
 
     // tag::test-topic[]
 
     @BeforeAll
     public void beforeAll() {
-        commandsTopic = kalixTestKit.getTopic("counter-commands"); // <3>
-        eventsTopic = kalixTestKit.getTopic("counter-events");
+      commandsTopic = kalixTestKit.getTopicSubscription("counter-commands"); // <3>
+      eventsTopic = kalixTestKit.getTopicDestination("counter-events");
         // end::test-topic[]
 
-        eventsTopicWithMeta = kalixTestKit.getTopic("counter-events-with-meta");
+      eventsTopicWithMeta = kalixTestKit.getTopicDestination("counter-events-with-meta");
         // tag::test-topic[]
     }
     // end::test-topic[]
@@ -64,9 +64,8 @@ public class CounterIntegrationTest extends KalixIntegrationTestKitSupport { // 
     // tag::clear-topics[]
     @BeforeEach // <1>
     public void clearTopics() {
-        commandsTopic.clear(); // <2>
-        eventsTopic.clear();
-        eventsTopicWithMeta.clear();
+      eventsTopic.clear(); // <2>
+      eventsTopicWithMeta.clear();
     }
     // end::clear-topics[]
 
@@ -103,13 +102,15 @@ public class CounterIntegrationTest extends KalixIntegrationTestKitSupport { // 
     // tag::test-topic[]
 
     @Test
-    public void verifyCounterEventSourcedPublishToTopic() {
+    public void verifyCounterEventSourcedPublishToTopic() throws InterruptedException {
         var counterId = "test-topic";
         var increaseCmd = new CounterCommandFromTopicAction.IncreaseCounter(counterId, 3);
         var multipleCmd = new CounterCommandFromTopicAction.MultiplyCounter(counterId, 4);
 
         commandsTopic.publish(increaseCmd, counterId); // <4>
         commandsTopic.publish(multipleCmd, counterId);
+
+      Thread.sleep(10000);
 
         var eventIncreased = eventsTopic.expectOneTyped(CounterEvent.ValueIncreased.class); // <5>
         var eventMultiplied = eventsTopic.expectOneTyped(CounterEvent.ValueMultiplied.class);

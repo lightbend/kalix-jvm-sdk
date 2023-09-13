@@ -17,10 +17,10 @@
 package com.example.wiring.pubsub;
 
 import com.example.Main;
-import com.example.wiring.TestkitConfig;
-import com.example.wiring.eventsourcedentities.counter.CounterEvent.ValueIncreased;
+import com.example.wiring.valueentities.customer.CustomerEntity;
+import com.example.wiring.valueentities.customer.CustomerEntity.Customer;
+import kalix.javasdk.client.ComponentClient;
 import kalix.javasdk.testkit.EventingTestKit;
-import kalix.javasdk.testkit.EventingTestKit.Message;
 import kalix.javasdk.testkit.KalixTestKit;
 import kalix.spring.KalixConfigurationTest;
 import org.junit.jupiter.api.BeforeAll;
@@ -31,62 +31,52 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
-import org.springframework.web.reactive.function.client.WebClient;
 
+import java.time.Instant;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
-import static com.example.wiring.pubsub.PublishESToTopic.COUNTER_EVENTS_TOPIC;
+import static com.example.wiring.pubsub.PublishVEToTopic.CUSTOMERS_TOPIC;
 import static java.time.temporal.ChronoUnit.SECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 
-@ActiveProfiles("eventing-testkit")
+@ActiveProfiles("eventing-testkit-destination")
 @SpringBootTest(classes = Main.class)
-@Import({KalixConfigurationTest.class, TestkitConfig.class})
+@Import({KalixConfigurationTest.class, TestkitConfigEventing.class})
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @TestPropertySource(properties = "spring.main.allow-bean-definition-overriding=true")
-public class EventingTestkitIntegrationTest {
+public class EventingTestkitDestinationIntegrationTest {
 
   @Autowired
   private KalixTestKit kalixTestKit;
-  private EventingTestKit.Topic eventsTopic;
+  private EventingTestKit.MockedDestination destination;
   @Autowired
-  private WebClient webClient;
+  private ComponentClient componentClient;
 
   @BeforeAll
   public void beforeAll() {
-    eventsTopic = kalixTestKit.getTopic(COUNTER_EVENTS_TOPIC);
+    destination = kalixTestKit.getTopicDestination(CUSTOMERS_TOPIC);
   }
 
   @Test
-  public void shouldPublishEventWithTypeNameViaEventingTestkit() {
+  public void shouldPublishEventWithTypeNameViaEventingTestkit() throws ExecutionException, InterruptedException, TimeoutException {
     //given
     String subject = "test";
-    ValueIncreased event1 = new ValueIncreased(1);
-    ValueIncreased event2 = new ValueIncreased(2);
+    Customer customer = new Customer("andre", Instant.now());
 
     //when
-    Message<ValueIncreased> test = kalixTestKit.getMessageBuilder().of(event1, subject);
-    eventsTopic.publish(test);
-    eventsTopic.publish(event2, subject);
+    componentClient.forValueEntity(subject).call(CustomerEntity::create).params(customer)
+        .execute().toCompletableFuture().get(5, TimeUnit.SECONDS);
 
     //then
     await()
         .ignoreExceptions()
         .atMost(20, TimeUnit.of(SECONDS))
         .untilAsserted(() -> {
-          var response = DummyCounterEventStore.get(subject);
-          assertThat(response).containsOnly(event1, event2);
-
-          var viewResponse = webClient
-              .get()
-              .uri("/counter-view-topic-sub/less-then/" + 4)
-              .retrieve()
-              .bodyToFlux(CounterView.class)
-              .toStream()
-              .toList();
-
-          assertThat(viewResponse).containsOnly(new CounterView("test", 3));
+          Customer publishedCustomer = destination.expectOneTyped(Customer.class).getPayload();
+          assertThat(publishedCustomer).isEqualTo(customer);
         });
   }
 }

@@ -25,7 +25,7 @@ import org.springframework.context.annotation.Profile;
 
 import static com.example.wiring.pubsub.PublishESToTopic.COUNTER_EVENTS_TOPIC;
 
-@Profile({"docker-it-test", "eventing-testkit"})
+@Profile({"docker-it-test", "eventing-testkit-subscription"})
 @Subscribe.Topic(COUNTER_EVENTS_TOPIC)
 public class SubscribeToCounterEventsTopic extends Action {
 

@@ -1,4 +1,5 @@
 package com.example;
+
 import kalix.javasdk.testkit.KalixTestKit.Settings.EventingSupport;
 
 // tag::class[]
@@ -11,11 +12,13 @@ import org.springframework.context.annotation.Profile;
 public class TestkitConfig {
     // end::class[]
 
-    @Profile("with-acls")
     // tag::acls[]
     @Bean
     public KalixTestKit.Settings settings() {
-        return KalixTestKit.Settings.DEFAULT.withAclEnabled(); // <1>
+        return KalixTestKit.Settings.DEFAULT.withAclEnabled()
+          .withMockedTopicSubscription("counter-commands")
+          .withMockedTopicDestination("counter-events")
+          .withMockedTopicDestination("counter-events-with-meta"); // <1>
     }
     // end::acls[]
 

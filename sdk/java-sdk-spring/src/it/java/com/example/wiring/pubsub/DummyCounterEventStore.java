@@ -38,4 +38,8 @@ public class DummyCounterEventStore {
       return List.of();
     }
   }
+
+  public static void clear() {
+    events.clear();
+  }
 }
