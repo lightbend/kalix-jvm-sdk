@@ -40,7 +40,7 @@ public class CounterIntegrationTest extends KalixIntegrationTestKitSupport { // 
     // tag::test-topic[]
     @Autowired
     private KalixTestKit kalixTestKit; // <2>
-  private EventingTestKit.Subscription commandsTopic;
+  private EventingTestKit.MockedSubscription commandsTopic;
   private EventingTestKit.MockedDestination eventsTopic;
     // end::test-topic[]
 
@@ -109,8 +109,6 @@ public class CounterIntegrationTest extends KalixIntegrationTestKitSupport { // 
 
         commandsTopic.publish(increaseCmd, counterId); // <4>
         commandsTopic.publish(multipleCmd, counterId);
-
-      Thread.sleep(10000);
 
         var eventIncreased = eventsTopic.expectOneTyped(CounterEvent.ValueIncreased.class); // <5>
         var eventMultiplied = eventsTopic.expectOneTyped(CounterEvent.ValueMultiplied.class);
