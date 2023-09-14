@@ -198,7 +198,7 @@ final class EventingTestServiceImpl(system: ActorSystem, val host: String, var p
       typeId,
       _ => new VeMockedSubscriptionImpl(system.actorOf(Props[SourcesHolder](), "ve-holder-" + typeId), codec))
 
-  override def getEventSourcedSubscription(typeId: String): MockedSubscription = getEventSourcedSubscriptionImpl(typeId)
+  override def getEventSourcedEntitySubscription(typeId: String): MockedSubscription = getEventSourcedSubscriptionImpl(typeId)
 
   private def getEventSourcedSubscriptionImpl(typeId: String): MockedSubscriptionImpl =
     esSubscriptions.computeIfAbsent(
@@ -341,6 +341,8 @@ private[testkit] class MockedDestinationImpl(
     private[testkit] val destinationProbe: TestProbe,
     protected val codec: MessageCodec)
     extends MockedDestination {
+
+  val DefaultTimeout: time.Duration = time.Duration.ofSeconds(3)
 
   private val log = LoggerFactory.getLogger(classOf[MockedDestinationImpl])
 

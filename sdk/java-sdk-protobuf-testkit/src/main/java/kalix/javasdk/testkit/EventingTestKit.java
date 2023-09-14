@@ -52,60 +52,61 @@ public interface EventingTestKit {
 
   MockedSubscription getValueEntitySubscription(String typeId);
 
-  MockedSubscription getEventSourcedSubscription(String typeId);
+  MockedSubscription getEventSourcedEntitySubscription(String typeId);
 
   MockedSubscription getStreamSubscription(String service, String streamId);
 
+  /**
+   * Allows to simulate publishing messages for the purposes of testing incoming event flow.
+   */
   interface MockedSubscription {
     /**
-     * Simulate the publishing of a raw message to this topic for the purposes
-     * of testing eventing.in flows into a specific service.
+     * Simulate the publishing of a raw message.
      *
-     * @param message raw bytestring to be published in the topic
+     * @param message raw bytestring to be published
      */
     void publish(ByteString message);
 
     /**
-     * Simulate the publishing of a raw message to this topic for the purposes
-     * of testing eventing.in flows into a specific service.
+     * Simulate the publishing of a raw message.
      *
-     * @param message  raw bytestring to be published in the topic
+     * @param message  raw bytestring to be published
      * @param metadata associated with the message
      */
     void publish(ByteString message, Metadata metadata);
 
     /**
-     * Simulate the publishing of a message to this topic for the purposes
-     * of testing eventing.in flows into a specific service.
+     * Simulate the publishing of a message.
      *
-     * @param message to be published in the topic
+     * @param message to be published
      */
     void publish(Message<?> message);
 
     /**
-     * Simulate the publishing of a message to this topic for the purposes
-     * of testing eventing.in flows into a specific service.
+     * Simulate the publishing of a message.
      *
-     * @param message to be published in the topic
+     * @param message to be published
      * @param subject to identify the entity
      * @param <T>
      */
     <T> void publish(T message, String subject);
 
     /**
-     * Publish multiple messages to this topic for the purposes
-     * of testing eventing.in flows into a specific service.
+     * Publish multiple messages.
      *
-     * @param messages to be published in the topic
+     * @param messages to be published
      */
     void publish(List<Message<?>> messages);
 
     /**
-     * Publish a predefined delete message. Supported only in case of ValueEntity subscription.
+     * Publish a predefined delete message. Supported only in case of ValueEntity incoming event flow.
      */
     void publishDelete();
   }
 
+  /**
+   * Allows to assert published messages for the purposes of testing outgoing event flow.
+   */
   interface MockedDestination {
     /**
      * Waits for predefined amount of time (see {@link TopicImpl$#DefaultTimeout()} for default value). If a message arrives in the meantime or
@@ -122,7 +123,7 @@ public interface EventingTestKit {
     void expectNone(Duration timeout);
 
     /**
-     * Waits and returns the next unread message on this topic. Note the message might have been received before this
+     * Waits and returns the next unread message. Note the message might have been received before this
      * method was called. If no message is received, a timeout exception is thrown.
      *
      * @return a Message with a ByteString payload
@@ -130,7 +131,7 @@ public interface EventingTestKit {
     Message<ByteString> expectOneRaw();
 
     /**
-     * Waits and returns the next unread message on this topic. Note the message might have been received before this
+     * Waits and returns the next unread message. Note the message might have been received before this
      * method was called. If no message is received, a timeout exception is thrown.
      *
      * @param timeout amount of time to wait for a message
@@ -139,7 +140,7 @@ public interface EventingTestKit {
     Message<ByteString> expectOneRaw(Duration timeout);
 
     /**
-     * Waits for predefined amount of time (see {@link TopicImpl$#DefaultTimeout()} for default value) and returns the next unread message on this topic.
+     * Waits for predefined amount of time (see {@link kalix.javasdk.testkit.impl.MockedDestinationImpl#DefaultTimeout()} for default value) and returns the next unread message.
      * Note the message might have been received before this method was called.
      * If no message is received, a timeout exception is thrown.
      *
@@ -148,7 +149,7 @@ public interface EventingTestKit {
     Message<?> expectOne();
 
     /**
-     * Waits for a specific amount and returns the next unread message on this topic.
+     * Waits for a specific amount and returns the next unread message.
      * Note the message might have been received before this method was called.
      * If no message is received, a timeout exception is thrown.
      *
@@ -158,7 +159,7 @@ public interface EventingTestKit {
     Message<?> expectOne(Duration timeout);
 
     /**
-     * Waits and returns the next unread message on this topic and automatically parses
+     * Waits and returns the next unread message and automatically parses
      * and casts it to the specified given type.
      *
      * @param instance class type to cast the received message bytes to
@@ -168,7 +169,7 @@ public interface EventingTestKit {
     <T> Message<T> expectOneTyped(Class<T> instance);
 
     /**
-     * Waits and returns the next unread message on this topic and automatically parses
+     * Waits and returns the next unread message and automatically parses
      * and casts it to the specified given type.
      * Note the message might have been received before this method was called.
      * If no message is received, a timeout exception is thrown.
@@ -179,7 +180,7 @@ public interface EventingTestKit {
     <T> Message<T> expectOneTyped(Class<T> instance, Duration timeout);
 
     /**
-     * Waits for a default amount of time before returning all unread messages in the topic.
+     * Waits for a default amount of time before returning all unread messages.
      * If no message is received, a timeout exception is thrown.
      *
      * @return list of messages, each message including the deserialized payload object and metadata
@@ -206,33 +207,31 @@ public interface EventingTestKit {
     List<Message<?>> expectN(int total, Duration timeout);
 
     /**
-     * Clear the topic so any existing messages are not considered on subsequent expect call.
+     * Clear the destination so any existing messages are not considered on subsequent expect call.
      *
-     * @return the list of the unread messages when the topic was cleared.
+     * @return the list of the unread messages when the destination was cleared.
      */
     List<Message<?>> clear();
   }
 
   /**
-   * Testkit utility to mock broker's topic. Useful when doing integration tests for services that do eventing (in or out) to a broker's topic.
+   * Testkit utility to mock broker's topic. Useful when doing integration tests for services that do incoming/outgoing flow of events.
    *
    * <p><b>Note: </b> messages written to the topic with this utility are not readable with the expect* methods,
-   * unless they have been properly forwarded through an eventing.out flow to the same topic.
+   * unless they have been properly forwarded through a outgoing event to the same topic.
    */
   @ApiMayChange
   interface Topic {
 
     /**
-     * Simulate the publishing of a raw message to this topic for the purposes
-     * of testing eventing.in flows into a specific service.
+     * Simulate the publishing of a raw message to this topic for the purposes of testing incoming event flow.
      *
      * @param message raw bytestring to be published in the topic
      */
     void publish(ByteString message);
 
     /**
-     * Simulate the publishing of a raw message to this topic for the purposes
-     * of testing eventing.in flows into a specific service.
+     * Simulate the publishing of a raw message to this topic for the purposes of testing incoming event flow.
      *
      * @param message  raw bytestring to be published in the topic
      * @param metadata associated with the message
@@ -240,16 +239,14 @@ public interface EventingTestKit {
     void publish(ByteString message, Metadata metadata);
 
     /**
-     * Simulate the publishing of a message to this topic for the purposes
-     * of testing eventing.in flows into a specific service.
+     * Simulate the publishing of a message to this topic for the purposes of testing incoming event flow.
      *
      * @param message to be published in the topic
      */
     void publish(Message<?> message);
 
     /**
-     * Simulate the publishing of a message to this topic for the purposes
-     * of testing eventing.in flows into a specific service.
+     * Simulate the publishing of a message to this topic for the purposes of testing incoming event flow.
      *
      * @param message to be published in the topic
      * @param subject to identify the entity
@@ -258,8 +255,7 @@ public interface EventingTestKit {
     <T> void publish(T message, String subject);
 
     /**
-     * Publish multiple messages to this topic for the purposes
-     * of testing eventing.in flows into a specific service.
+     * Publish multiple messages to this topic for the purposes of testing incoming event flow.
      *
      * @param messages to be published in the topic
      */

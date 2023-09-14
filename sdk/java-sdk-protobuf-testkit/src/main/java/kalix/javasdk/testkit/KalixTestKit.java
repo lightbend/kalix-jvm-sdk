@@ -32,6 +32,7 @@ import kalix.javasdk.Principal;
 import kalix.javasdk.impl.GrpcClients;
 import kalix.javasdk.impl.MessageCodec;
 import kalix.javasdk.impl.ProxyInfoHolder;
+import kalix.javasdk.testkit.EventingTestKit.MockedSubscription;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,6 +50,7 @@ import java.util.stream.Collectors;
 
 import static kalix.javasdk.testkit.KalixProxyContainer.DEFAULT_GOOGLE_PUBSUB_PORT;
 import static kalix.javasdk.testkit.KalixProxyContainer.DEFAULT_KAFKA_PORT;
+import static kalix.javasdk.testkit.KalixTestKit.Settings.EventingSupport.TEST_BROKER;
 
 /**
  * Testkit for running Kalix services locally.
@@ -123,6 +125,10 @@ public class KalixTestKit {
 
     public boolean hasSubscriptionConfig() {
       return !mockedSubscriptions.isEmpty();
+    }
+
+    public boolean hasConfig() {
+      return hasSubscriptionConfig() || hasDestinationConfig();
     }
 
     public boolean hasDestinationConfig() {
@@ -226,7 +232,7 @@ public class KalixTestKit {
      */
     @Deprecated
     public Settings(final Duration stopTimeout) {
-      this(stopTimeout, "self", false, false, Optional.empty(), Collections.emptyMap(), EventingSupport.TEST_BROKER, MockedEventing.EMPTY);
+      this(stopTimeout, "self", false, false, Optional.empty(), Collections.emptyMap(), TEST_BROKER, MockedEventing.EMPTY);
     }
 
     public enum EventingSupport {
@@ -328,27 +334,41 @@ public class KalixTestKit {
       return new Settings(stopTimeout, serviceName, aclEnabled, true, Optional.of(tickInterval), servicePortMappings, eventingSupport, mockedEventing);
     }
 
-
+    /**
+     * Mock incoming events flow for ValueEntity.
+     */
     public Settings withMockedValueEntitySubscription(String typeId) {
       return new Settings(stopTimeout, serviceName, aclEnabled, true, workflowTickInterval, servicePortMappings, eventingSupport,
           mockedEventing.withMockedValueEntitySubscription(typeId));
     }
 
-    public Settings withMockedEventSourcedSubscription(String typeId) {
+    /**
+     * Mock incoming events flow for EventSourcedEntity.
+     */
+    public Settings withMockedEventSourcedEntitySubscription(String typeId) {
       return new Settings(stopTimeout, serviceName, aclEnabled, true, workflowTickInterval, servicePortMappings, eventingSupport,
           mockedEventing.withMockedEventSourcedSubscription(typeId));
     }
 
+    /**
+     * Mock incoming events flow for Stream (eventing.in.direct in case of protobuf SDKs).
+     */
     public Settings withMockedStreamSubscription(String service, String streamId) {
       return new Settings(stopTimeout, serviceName, aclEnabled, true, workflowTickInterval, servicePortMappings, eventingSupport,
           mockedEventing.withMockedStreamSubscription(service, streamId));
     }
 
+    /**
+     * Mock incoming events flow for Topic.
+     */
     public Settings withMockedTopicSubscription(String topic) {
       return new Settings(stopTimeout, serviceName, aclEnabled, true, workflowTickInterval, servicePortMappings, eventingSupport,
           mockedEventing.withMockedTopicSubscription(topic));
     }
 
+    /**
+     * Mock outgoing events flow for Topic.
+     */
     public Settings withMockedTopicDestination(String topic) {
       return new Settings(stopTimeout, serviceName, aclEnabled, true, workflowTickInterval, servicePortMappings, eventingSupport,
           mockedEventing.withMockedTopicDestination(topic));
@@ -398,7 +418,7 @@ public class KalixTestKit {
   private boolean started = false;
   private String proxyHost;
   private int proxyPort;
-  private Optional<KalixProxyContainer> proxyContainer;
+  private Optional<KalixProxyContainer> proxyContainer = Optional.empty();
   private KalixRunner runner;
   private ActorSystem testSystem;
   private EventingTestKit eventingTestKit;
@@ -471,7 +491,7 @@ public class KalixTestKit {
 
     testSystem = ActorSystem.create("KalixTestkit", ConfigFactory.parseString("akka.http.server.preview.enable-http2 = true"));
 
-    int eventingBackendPort = getEventingBackendPort(settings.eventingSupport, useTestContainers);
+    int eventingBackendPort = startEventingTestkit(useTestContainers);
     runProxy(useTestContainers, port, eventingBackendPort);
 
     started = true;
@@ -482,21 +502,12 @@ public class KalixTestKit {
     return this;
   }
 
-  private int getEventingBackendPort(Settings.EventingSupport eventingSupport, Boolean useTestContainers) {
-    switch(eventingSupport) {
-      case KAFKA:
-        return DEFAULT_KAFKA_PORT;
-      case GOOGLE_PUBSUB:
-        return DEFAULT_GOOGLE_PUBSUB_PORT;
-      default:
-        return startEventingTestkit(useTestContainers);
-    }
-  }
-
   private int startEventingTestkit(Boolean useTestContainers) {
     var port = eventingTestKitPort(useTestContainers);
-    log.info("Eventing TestKit booting up on port: " + port);
-    eventingTestKit = EventingTestKit.start(testSystem, "0.0.0.0", port, messageCodec);
+    if (settings.eventingSupport == TEST_BROKER || settings.mockedEventing.hasConfig()) {
+      log.info("Eventing TestKit booting up on port: " + port);
+      eventingTestKit = EventingTestKit.start(testSystem, "0.0.0.0", port, messageCodec);
+    }
     return port;
   }
 
@@ -508,10 +519,10 @@ public class KalixTestKit {
     }
   }
 
-  private void runProxy(Boolean useTestContainers, int port, int eventingBackendPort) {
+  private void runProxy(Boolean useTestContainers, int port, int grpcEventingBackendPort) {
 
     if (useTestContainers) {
-      var proxyContainer = new KalixProxyContainer(port, eventingBackendPort);
+      var proxyContainer = new KalixProxyContainer(settings.eventingSupport, port, grpcEventingBackendPort);
       this.proxyContainer = Optional.of(proxyContainer);
       proxyContainer.addEnv("SERVICE_NAME", settings.serviceName);
       proxyContainer.addEnv("ACL_ENABLED", Boolean.toString(settings.aclEnabled));
@@ -520,13 +531,22 @@ public class KalixTestKit {
       List<String> javaOptions = new ArrayList<>();
       javaOptions.add("-Dlogback.configurationFile=logback-dev-mode.xml");
 
-      if (settings.eventingSupport.equals(Settings.EventingSupport.TEST_BROKER)) {
-        javaOptions.add("-Dkalix.proxy.eventing.support=grpc-backend");
+      //always passing grpc params, in the case of e.g. testing pubsub with mocked subscription
+      if (settings.mockedEventing.hasConfig()) {
         javaOptions.add("-Dkalix.proxy.eventing.grpc-backend.host=host.testcontainers.internal");
-        javaOptions.add("-Dkalix.proxy.eventing.grpc-backend.port=" + eventingBackendPort);
-      } else if (settings.eventingSupport.equals(Settings.EventingSupport.KAFKA)) {
-        javaOptions.add("-Dkalix.proxy.eventing.support=kafka");
-        javaOptions.add("-Dkalix.proxy.eventing.kafka.bootstrap-servers=host.testcontainers.internal:"+eventingBackendPort);
+        javaOptions.add("-Dkalix.proxy.eventing.grpc-backend.port=" + grpcEventingBackendPort);
+      }
+
+      switch (settings.eventingSupport) {
+        case TEST_BROKER:
+          javaOptions.add("-Dkalix.proxy.eventing.support=grpc-backend");
+        case KAFKA:
+          javaOptions.add("-Dkalix.proxy.eventing.support=kafka");
+          javaOptions.add("-Dkalix.proxy.eventing.kafka.bootstrap-servers=host.testcontainers.internal:" + DEFAULT_KAFKA_PORT);
+        case GOOGLE_PUBSUB:
+          javaOptions.add("-Dkalix.proxy.eventing.support=google-pubsub-emulator");
+          javaOptions.add("-Dkalix.proxy.eventing.google-pubsub-emulator-defaults.host=host.testcontainers.internal");
+          javaOptions.add("-Dkalix.proxy.eventing.google-pubsub-emulator-defaults.port=" + DEFAULT_GOOGLE_PUBSUB_PORT);
       }
       if (settings.mockedEventing.hasSubscriptionConfig()) {
         javaOptions.add("-Dkalix.proxy.eventing.override.sources=" + settings.mockedEventing.toSubscriptionsConfig());
@@ -683,48 +703,77 @@ public class KalixTestKit {
   }
 
   /**
+   * Use <code>getTopicSubscription</code> or <code>getTopicDestination</code> instead.
+   *
    * Get {@link EventingTestKit.Topic} for mocking interactions, avoiding the need for a real broker instance.
    *
    * @param topic the name of the topic configured in your service which you want to mock
    * @return mocked topic to read/publish messages from/to
    */
+  @Deprecated
   public EventingTestKit.Topic getTopic(String topic) {
-    if (!settings.eventingSupport.equals(Settings.EventingSupport.TEST_BROKER)) {
+    if (!settings.eventingSupport.equals(TEST_BROKER)) {
       throw new IllegalStateException("Currently configured eventing support is (" + settings.eventingSupport +
-          "). To use this API, configure it to be (" + Settings.EventingSupport.TEST_BROKER + ")");
+          "). To use this API, configure it to be (" + TEST_BROKER + ")");
     }
 
     return eventingTestKit.getTopic(topic);
   }
 
-  public EventingTestKit.MockedSubscription getValueEntitySubscription(String typeId) {
+  /**
+   * Get mocked subscription for ValueEntity.
+   *
+   * @param typeId @TypeId or entity_type of the ValueEntity (depending on the used SDK)
+   */
+  public MockedSubscription getValueEntitySubscription(String typeId) {
     if (!settings.mockedEventing.hasValueEntitySubscription(typeId)) {
       throwMissingConfigurationException("ValueEntity " + typeId);
     }
     return eventingTestKit.getValueEntitySubscription(typeId);
   }
 
-  public EventingTestKit.MockedSubscription getEventSourcedSubscription(String typeId) {
+  /**
+   * Get mocked subscription for EventSourcedEntity.
+   *
+   * @param typeId @TypeId or entity_type of the EventSourcedEntity (depending on the used SDK)
+   */
+  public MockedSubscription getEventSourcedEntitySubscription(String typeId) {
     if (!settings.mockedEventing.hasEventSourcedEntitySubscription(typeId)) {
       throwMissingConfigurationException("EventSourcedEntity " + typeId);
     }
-    return eventingTestKit.getEventSourcedSubscription(typeId);
+    return eventingTestKit.getEventSourcedEntitySubscription(typeId);
   }
 
-  public EventingTestKit.MockedSubscription getStreamSubscription(String service, String streamId) {
+  /**
+   * Get mocked subscription for Stream (eventing.in.direct in case of protobuf SDKs).
+   *
+   * @param service  service name
+   * @param streamId service stream id
+   */
+  public MockedSubscription getStreamSubscription(String service, String streamId) {
     if (!settings.mockedEventing.hasStreamSubscription(service, streamId)) {
       throwMissingConfigurationException("Stream " + service + "/" + streamId);
     }
     return eventingTestKit.getStreamSubscription(service, streamId);
   }
 
-  public EventingTestKit.MockedSubscription getTopicSubscription(String topic) {
+  /**
+   * Get mocked subscription for Topic.
+   *
+   * @param topic topic name
+   */
+  public MockedSubscription getTopicSubscription(String topic) {
     if (!settings.mockedEventing.hasTopicSubscription(topic)) {
       throwMissingConfigurationException("Topic " + topic);
     }
     return eventingTestKit.getTopicSubscription(topic);
   }
 
+  /**
+   * Get mocked topic destination.
+   *
+   * @param topic topic name
+   */
   public EventingTestKit.MockedDestination getTopicDestination(String topic) {
     if (!settings.mockedEventing.hasTopicDestination(topic)) {
       throwMissingConfigurationException("Topic " + topic);

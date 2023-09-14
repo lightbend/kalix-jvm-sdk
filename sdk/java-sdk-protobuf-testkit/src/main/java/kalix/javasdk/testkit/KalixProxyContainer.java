@@ -16,6 +16,7 @@
 
 package kalix.javasdk.testkit;
 
+import kalix.javasdk.testkit.KalixTestKit.Settings.EventingSupport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testcontainers.Testcontainers;
@@ -23,6 +24,9 @@ import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
 import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.utility.DockerImageName;
+
+import static kalix.javasdk.testkit.KalixTestKit.Settings.EventingSupport.GOOGLE_PUBSUB;
+import static kalix.javasdk.testkit.KalixTestKit.Settings.EventingSupport.KAFKA;
 
 /** Docker test container of Kalix proxy for local development and testing. */
 public class KalixProxyContainer extends GenericContainer<KalixProxyContainer> {
@@ -54,34 +58,33 @@ public class KalixProxyContainer extends GenericContainer<KalixProxyContainer> {
 
   private final int userFunctionPort;
   private final int eventingPort;
+  private final EventingSupport eventingSupport;
 
   public KalixProxyContainer() {
     this(DEFAULT_USER_FUNCTION_PORT);
   }
 
   public KalixProxyContainer(final int userFunctionPort) {
-    this(DEFAULT_PROXY_IMAGE_NAME, userFunctionPort, DEFAULT_GOOGLE_PUBSUB_PORT);
+    this(DEFAULT_PROXY_IMAGE_NAME, EventingSupport.TEST_BROKER, userFunctionPort, DEFAULT_GOOGLE_PUBSUB_PORT);
   }
 
-  public KalixProxyContainer(final int userFunctionPort, int eventingPort) {
-    this(DEFAULT_PROXY_IMAGE_NAME, userFunctionPort, eventingPort);
+  public KalixProxyContainer(EventingSupport eventingSupport, final int userFunctionPort, int eventingPort) {
+    this(DEFAULT_PROXY_IMAGE_NAME, eventingSupport, userFunctionPort, eventingPort);
   }
 
   public KalixProxyContainer(
       final DockerImageName dockerImageName,
+      EventingSupport eventingSupport,
       final int userFunctionPort,
       final int eventingPort) {
     super(dockerImageName);
     this.userFunctionPort = userFunctionPort;
     this.eventingPort = eventingPort;
+    this.eventingSupport = eventingSupport;
     withExposedPorts(DEFAULT_PROXY_PORT);
     withEnv("USER_FUNCTION_HOST", "host.testcontainers.internal");
     withEnv("USER_FUNCTION_PORT", String.valueOf(userFunctionPort));
     withEnv("HTTP_PORT", String.valueOf(DEFAULT_PROXY_PORT));
-    // connect to local Google Pub/Sub emulator
-    withEnv("EVENTING_SUPPORT", "google-pubsub-emulator");
-    withEnv("PUBSUB_EMULATOR_HOST", "host.testcontainers.internal");
-    withEnv("PUBSUB_EMULATOR_PORT", String.valueOf(eventingPort));
     if ("false".equals(System.getenv("VERSION_CHECK_ON_STARTUP"))) {
       withEnv("VERSION_CHECK_ON_STARTUP", "false");
     }
@@ -92,6 +95,11 @@ public class KalixProxyContainer extends GenericContainer<KalixProxyContainer> {
   public void start() {
     Testcontainers.exposeHostPorts(userFunctionPort);
     Testcontainers.exposeHostPorts(eventingPort);
+    if (eventingSupport.equals(KAFKA)) {
+      Testcontainers.exposeHostPorts(DEFAULT_KAFKA_PORT);
+    } else if (eventingSupport.equals(GOOGLE_PUBSUB)) {
+      Testcontainers.exposeHostPorts(DEFAULT_GOOGLE_PUBSUB_PORT);
+    }
     super.start();
     // Debug tooling: pass the Proxy logs into the client SLF4J
     if ("true".equals(System.getenv("KALIX_TESTKIT_DEBUG"))) {
