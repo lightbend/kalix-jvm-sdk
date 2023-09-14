@@ -327,7 +327,7 @@ private[testkit] class MockedSubscriptionImpl(val sourcesHolder: ActorRef, val c
     message.asScala.foreach(m => publish(m))
 
   override def publishDelete(): Unit = throw new IllegalStateException(
-    "Publishing delete message is supported on for ValueEntity subscriptions.")
+    "Publishing delete message is supported only for ValueEntity subscriptions.")
 }
 
 private[testkit] class VeMockedSubscriptionImpl(override val sourcesHolder: ActorRef, override val codec: MessageCodec)
