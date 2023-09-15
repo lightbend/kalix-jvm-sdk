@@ -207,9 +207,9 @@ include::example$java-spring-eventsourced-counter/src/it/java/com/example/Counte
 ----
 <1> Start the TestKit, booting up both the service and its proxy.
 <2> Wire the Kalix TestKit automatically.
-<3> Get a mocked topic named `counter-commands` and another one named `counter-events` from the TestKit.
+<3> Get a `IncomingMessages` for topic named `counter-commands` and `OutgoingMessages` for `counter-events` from the TestKit.
 <4> Build 2 commands and publish both to the topic. Note the `counterId` is passed as the subject id of the message.
-<5> Read 2 messages, one at a time. Note we pass in the expected class type for the next message.
+<5> Read 2 messages, one at a time. We pass in the expected class type for the next message.
 <6> Assert the received messages have the same value as the commands sent.
 
 TIP: In the example above we take advantage of the TestKit to serialize / deserialize the messages and pass all the required metadata automatically for us. However, the API also offers the possibility to read and write raw bytes, construct your metadata or read multiple messages at once.
