@@ -82,8 +82,11 @@ trait IncomingMessages {
 
   /**
    * Publish a predefined delete message. Supported only in case of ValueEntity incoming message flow.
+   *
+   * @param subject
+   *   to identify the entity
    */
-  def publishDelete()
+  def publishDelete(subject: String)
 }
 
 @InternalApi

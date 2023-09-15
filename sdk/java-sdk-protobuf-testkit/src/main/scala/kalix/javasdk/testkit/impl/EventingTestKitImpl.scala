@@ -327,14 +327,21 @@ private[testkit] class IncomingMessagesImpl(val sourcesHolder: ActorRef, val cod
   override def publish(message: JList[TestKitMessage[_]]): Unit =
     message.asScala.foreach(m => publish(m))
 
-  override def publishDelete(): Unit = throw new IllegalStateException(
-    "Publishing delete message is supported only for ValueEntity subscriptions.")
+  override def publishDelete(subject: String): Unit = throw new IllegalStateException(
+    "Publishing a delete message is supported only for ValueEntity messages.")
 }
 
 private[testkit] class VeIncomingMessagesImpl(override val sourcesHolder: ActorRef, override val codec: MessageCodec)
     extends IncomingMessagesImpl(sourcesHolder, codec) {
 
-  override def publishDelete(): Unit = ??? //TODO implement me
+  override def publishDelete(subject: String): Unit = {
+    publish(
+      ByteString.EMPTY,
+      TestKitMessageImpl.defaultMetadata(
+        subject,
+        "application/vnd.kalix.delete",
+        "type.googleapis.com/google.protobuf.Empty"))
+  }
 
 }
 
@@ -591,6 +598,10 @@ private[testkit] object TestKitMessageImpl {
         ("application/json", messageCodec.typeUrlFor(message.getClass).stripPrefix(JsonSupport.KALIX_JSON))
     }
 
+    defaultMetadata(subject, contentType, ceType)
+  }
+
+  def defaultMetadata(subject: String, contentType: String, ceType: String) = {
     SdkMetadata.EMPTY
       .add("Content-Type", contentType)
       .add("ce-specversion", "1.0")

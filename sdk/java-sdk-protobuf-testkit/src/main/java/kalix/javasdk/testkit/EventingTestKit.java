@@ -101,8 +101,10 @@ public interface EventingTestKit {
 
     /**
      * Publish a predefined delete message. Supported only in case of ValueEntity incoming message flow.
+     *
+     * @param subject to identify the entity
      */
-    void publishDelete();
+    void publishDelete(String subject);
   }
 
   /**

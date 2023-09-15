@@ -57,7 +57,7 @@ private[testkit] case class IncomingMessagesImpl private (delegate: JEventingTes
   override def publish[T <: GeneratedMessage](messages: List[Message[T]]): Unit =
     messages.foreach(m => publish(m))
 
-  override def publishDelete(): Unit = delegate.publishDelete()
+  override def publishDelete(subject: String): Unit = delegate.publishDelete(subject)
 }
 
 private[testkit] case class OutgoingMessagesImpl private (

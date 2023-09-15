@@ -47,6 +47,7 @@ public class TestkitConfigEventing {
         .withAclEnabled()
         .withAdvancedViews()
         .withWorkflowTickInterval(ofMillis(500))
-        .withTopicIncomingMessages(COUNTER_EVENTS_TOPIC);
+        .withTopicIncomingMessages(COUNTER_EVENTS_TOPIC)
+        .withValueEntityIncomingMessages("user");
   }
 }
