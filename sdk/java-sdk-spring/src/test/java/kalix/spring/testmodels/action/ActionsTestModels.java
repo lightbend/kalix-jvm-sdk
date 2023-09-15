@@ -100,11 +100,22 @@ public class ActionsTestModels {
     }
   }
 
-  public static class PostWithoutParamWithJWT extends Action {
+  public static class ActionWithMethodLevelJWT extends Action {
     @PostMapping("/message")
     @JWT(
-        validate = JWT.JwtMethodMode.BEARER_TOKEN,
-        bearerTokenIssuer = {"a", "b"})
+      validate = JWT.JwtMethodMode.BEARER_TOKEN,
+      bearerTokenIssuer = {"a", "b"})
+    public Action.Effect<Message> message(@RequestBody Message msg) {
+      return effects().reply(msg);
+    }
+  }
+
+
+  @JWT(
+    validate = JWT.JwtMethodMode.BEARER_TOKEN,
+    bearerTokenIssuer = {"a", "b"})
+  public static class ActionWithServiceLevelJWT extends Action {
+    @PostMapping("/message")
     public Action.Effect<Message> message(@RequestBody Message msg) {
       return effects().reply(msg);
     }
@@ -127,7 +138,7 @@ public class ActionsTestModels {
   public static class PostWithTwoParam extends Action {
     @PostMapping("/message/{one}/{two}")
     public Action.Effect<Message> message(
-        @PathVariable String one, @PathVariable Long two, @RequestBody Message msg) {
+      @PathVariable String one, @PathVariable Long two, @RequestBody Message msg) {
       return effects().reply(new Message(msg.value()));
     }
   }

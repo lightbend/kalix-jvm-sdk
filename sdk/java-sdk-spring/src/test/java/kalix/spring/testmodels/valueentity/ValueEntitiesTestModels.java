@@ -16,17 +16,13 @@
 
 package kalix.spring.testmodels.valueentity;
 
-import kalix.javasdk.valueentity.ValueEntity;
 import kalix.javasdk.annotations.Acl;
 import kalix.javasdk.annotations.Id;
+import kalix.javasdk.annotations.JWT;
 import kalix.javasdk.annotations.TypeId;
+import kalix.javasdk.valueentity.ValueEntity;
 import kalix.spring.testmodels.Done;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 public class ValueEntitiesTestModels {
 
@@ -82,6 +78,30 @@ public class ValueEntitiesTestModels {
   public static class ValueEntityWithMethodLevelAcl extends ValueEntity<User> {
     @PostMapping("/create")
     @Acl(allow = @Acl.Matcher(service = "test"))
+    public ValueEntity.Effect<Done> createEntity(@RequestBody CreateUser createUser) {
+      return effects().reply(Done.instance);
+    }
+  }
+
+  @Id( {"userId", "cartId"})
+  @TypeId("user")
+  @JWT(
+    validate = JWT.JwtMethodMode.BEARER_TOKEN,
+    bearerTokenIssuer = {"a", "b"})
+  public static class ValueEntityWithServiceLevelJwt extends ValueEntity<User> {
+    @PostMapping("/create")
+    public ValueEntity.Effect<Done> createEntity(@RequestBody CreateUser createUser) {
+      return effects().reply(Done.instance);
+    }
+  }
+
+  @Id( {"userId", "cartId"})
+  @TypeId("user")
+  public static class ValueEntityWithMethodLevelJwt extends ValueEntity<User> {
+    @PostMapping("/create")
+    @JWT(
+      validate = JWT.JwtMethodMode.BEARER_TOKEN,
+      bearerTokenIssuer = {"a", "b"})
     public ValueEntity.Effect<Done> createEntity(@RequestBody CreateUser createUser) {
       return effects().reply(Done.instance);
     }

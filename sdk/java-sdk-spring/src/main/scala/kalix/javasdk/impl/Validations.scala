@@ -27,7 +27,6 @@ import kalix.javasdk.annotations.Publish
 import kalix.javasdk.annotations.Query
 import kalix.javasdk.annotations.Subscribe
 import kalix.javasdk.annotations.Table
-import kalix.javasdk.impl.ComponentDescriptorFactory.MethodOps
 import kalix.javasdk.impl.ComponentDescriptorFactory.eventSourcedEntitySubscription
 import kalix.javasdk.impl.ComponentDescriptorFactory.findEventSourcedEntityClass
 import kalix.javasdk.impl.ComponentDescriptorFactory.findEventSourcedEntityType
@@ -49,6 +48,7 @@ import kalix.javasdk.impl.ComponentDescriptorFactory.hasUpdateEffectOutput
 import kalix.javasdk.impl.ComponentDescriptorFactory.hasValueEntitySubscription
 import kalix.javasdk.impl.ComponentDescriptorFactory.streamSubscription
 import kalix.javasdk.impl.ComponentDescriptorFactory.topicSubscription
+import kalix.javasdk.impl.Reflect.Syntax._
 import kalix.javasdk.impl.reflection.ReflectionUtils
 import kalix.javasdk.impl.reflection.ServiceMethod
 import kalix.javasdk.view.View

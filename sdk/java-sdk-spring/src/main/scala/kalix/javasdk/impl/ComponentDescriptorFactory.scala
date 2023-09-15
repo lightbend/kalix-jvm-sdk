@@ -16,30 +16,23 @@
 
 package kalix.javasdk.impl
 
-import java.lang.annotation.Annotation
 import java.lang.reflect.AnnotatedElement
 import java.lang.reflect.Method
-import java.lang.reflect.Modifier
 import java.lang.reflect.ParameterizedType
-
-import scala.reflect.ClassTag
-
 import kalix.DirectDestination
 import kalix.DirectSource
 import kalix.EventDestination
 import kalix.EventSource
 import kalix.Eventing
-import kalix.JwtMethodOptions
 import kalix.MethodOptions
 import kalix.ServiceEventing
 import kalix.ServiceEventingOut
+import kalix.ServiceOptions
 import kalix.javasdk.action.Action
-import kalix.javasdk.annotations.Publish
-import kalix.javasdk.annotations.Subscribe
-import kalix.javasdk.view.View
 import kalix.javasdk.annotations.Acl
 import kalix.javasdk.annotations.EntityType
-import kalix.javasdk.annotations.JWT
+import kalix.javasdk.annotations.Publish
+import kalix.javasdk.annotations.Subscribe
 import kalix.javasdk.annotations.Table
 import kalix.javasdk.annotations.TypeId
 import kalix.javasdk.annotations.ViewId
@@ -48,18 +41,12 @@ import kalix.javasdk.impl.reflection.CombinedSubscriptionServiceMethod
 import kalix.javasdk.impl.reflection.KalixMethod
 import kalix.javasdk.impl.reflection.NameGenerator
 import kalix.javasdk.valueentity.ValueEntity
+import kalix.javasdk.view.View
 // TODO: abstract away spring dependency
+import kalix.javasdk.impl.Reflect.Syntax._
 import org.springframework.core.annotation.AnnotatedElementUtils
 import org.springframework.web.bind.annotation.RequestMapping
-
 private[impl] object ComponentDescriptorFactory {
-
-  implicit class MethodOps(javaMethod: Method) {
-    def isPublic = Modifier.isPublic(javaMethod.getModifiers)
-
-    def hasAnnotation[A <: Annotation](implicit ev: ClassTag[A]) =
-      javaMethod.getAnnotation(ev.runtimeClass.asInstanceOf[Class[Annotation]]) != null
-  }
 
   def hasRestAnnotation(javaMethod: Method): Boolean = {
     val restAnnotation = AnnotatedElementUtils.findMergedAnnotation(javaMethod, classOf[RequestMapping])
@@ -70,8 +57,7 @@ private[impl] object ComponentDescriptorFactory {
     javaMethod.isPublic && javaMethod.hasAnnotation[Acl]
 
   def hasValueEntitySubscription(clazz: Class[_]): Boolean =
-    Modifier.isPublic(clazz.getModifiers) &&
-    clazz.getAnnotation(classOf[Subscribe.ValueEntity]) != null
+    clazz.isPublic && clazz.hasAnnotation[Subscribe.ValueEntity]
 
   def hasValueEntitySubscription(javaMethod: Method): Boolean =
     javaMethod.isPublic && javaMethod.hasAnnotation[Subscribe.ValueEntity]
@@ -80,14 +66,10 @@ private[impl] object ComponentDescriptorFactory {
     javaMethod.isPublic && javaMethod.hasAnnotation[Subscribe.EventSourcedEntity]
 
   def hasEventSourcedEntitySubscription(clazz: Class[_]): Boolean =
-    Modifier.isPublic(clazz.getModifiers) &&
-    clazz.getAnnotation(classOf[Subscribe.EventSourcedEntity]) != null
+    clazz.isPublic && clazz.hasAnnotation[Subscribe.EventSourcedEntity]
 
   def streamSubscription(clazz: Class[_]): Option[Subscribe.Stream] =
-    if (Modifier.isPublic(clazz.getModifiers))
-      Option(clazz.getAnnotation(classOf[Subscribe.Stream]))
-    else
-      None
+    clazz.getAnnotationOption[Subscribe.Stream]
 
   def hasSubscription(javaMethod: Method): Boolean = {
     hasValueEntitySubscription(javaMethod) ||
@@ -102,26 +84,17 @@ private[impl] object ComponentDescriptorFactory {
     hasStreamSubscription(clazz)
   }
 
-  def valueEntitySubscription(clazz: Class[_]): Option[Subscribe.ValueEntity] =
-    if (Modifier.isPublic(clazz.getModifiers))
-      Option(clazz.getAnnotation(classOf[Subscribe.ValueEntity]))
-    else
-      None
+  private def valueEntitySubscription(clazz: Class[_]): Option[Subscribe.ValueEntity] =
+    clazz.getAnnotationOption[Subscribe.ValueEntity]
 
   def eventSourcedEntitySubscription(clazz: Class[_]): Option[Subscribe.EventSourcedEntity] =
-    if (Modifier.isPublic(clazz.getModifiers))
-      Option(clazz.getAnnotation(classOf[Subscribe.EventSourcedEntity]))
-    else
-      None
+    clazz.getAnnotationOption[Subscribe.EventSourcedEntity]
 
   def topicSubscription(clazz: Class[_]): Option[Subscribe.Topic] =
-    if (Modifier.isPublic(clazz.getModifiers))
-      Option(clazz.getAnnotation(classOf[Subscribe.Topic]))
-    else
-      None
+    clazz.getAnnotationOption[Subscribe.Topic]
 
   def hasActionOutput(javaMethod: Method): Boolean = {
-    if (Modifier.isPublic(javaMethod.getModifiers)) {
+    if (javaMethod.isPublic) {
       javaMethod.getGenericReturnType match {
         case p: ParameterizedType => p.getRawType.equals(classOf[Action.Effect[_]])
         case _                    => false
@@ -132,7 +105,7 @@ private[impl] object ComponentDescriptorFactory {
   }
 
   def hasUpdateEffectOutput(javaMethod: Method): Boolean = {
-    if (Modifier.isPublic(javaMethod.getModifiers)) {
+    if (javaMethod.isPublic) {
       javaMethod.getGenericReturnType match {
         case p: ParameterizedType => p.getRawType.equals(classOf[View.UpdateEffect[_]])
         case _                    => false
@@ -147,22 +120,17 @@ private[impl] object ComponentDescriptorFactory {
 
   def hasHandleDeletes(javaMethod: Method): Boolean = {
     val ann = javaMethod.getAnnotation(classOf[Subscribe.ValueEntity])
-    Modifier.isPublic(javaMethod.getModifiers) && ann != null && ann.handleDeletes()
+    javaMethod.isPublic && ann != null && ann.handleDeletes()
   }
 
   def hasTopicSubscription(clazz: Class[_]): Boolean =
-    Modifier.isPublic(clazz.getModifiers) &&
-    clazz.getAnnotation(classOf[Subscribe.Topic]) != null
+    clazz.isPublic && clazz.hasAnnotation[Subscribe.Topic]
 
   def hasStreamSubscription(clazz: Class[_]): Boolean =
-    Modifier.isPublic(clazz.getModifiers) &&
-    clazz.getAnnotation(classOf[Subscribe.Stream]) != null
+    clazz.isPublic && clazz.hasAnnotation[Subscribe.Stream]
 
   def hasTopicPublication(javaMethod: Method): Boolean =
     javaMethod.isPublic && javaMethod.hasAnnotation[Publish.Topic]
-
-  def hasJwtMethodOptions(javaMethod: Method): Boolean =
-    javaMethod.isPublic && javaMethod.hasAnnotation[JWT]
 
   def readTypeIdValue(annotated: AnnotatedElement) =
     Option(annotated.getAnnotation(classOf[TypeId]))
@@ -263,16 +231,6 @@ private[impl] object ComponentDescriptorFactory {
     if (hasTopicSubscription(clazz)) hasIgnoreForTopic(clazz)
     else if (hasEventSourcedEntitySubscription(clazz)) hasIgnoreForEventSourcedEntity(clazz)
     else false
-  }
-
-  def jwtMethodOptions(javaMethod: Method): JwtMethodOptions = {
-    val ann = javaMethod.getAnnotation(classOf[JWT])
-    val jwt = JwtMethodOptions.newBuilder()
-    ann
-      .validate()
-      .map(springValidate => jwt.addValidate(JwtMethodOptions.JwtMethodMode.forNumber(springValidate.ordinal())))
-    ann.bearerTokenIssuer().map(jwt.addBearerTokenIssuer)
-    jwt.build()
   }
 
   def eventingInForValueEntity(javaMethod: Method): Eventing = {
@@ -495,22 +453,21 @@ private[impl] object ComponentDescriptorFactory {
     value.replaceAll("[\\._\\-]", "")
   }
 
-  private[impl] def buildJWTOptions(method: Method): Option[MethodOptions] = {
-    Option.when(hasJwtMethodOptions(method)) {
-      kalix.MethodOptions.newBuilder().setJwt(jwtMethodOptions(method)).build()
-    }
-  }
+  private[impl] def buildEventingOutOptions(method: Method): Option[MethodOptions] =
+    eventingOutForTopic(method)
+      .map(eventingOut => kalix.MethodOptions.newBuilder().setEventing(eventingOut).build())
 
-  private[impl] def buildEventingOutOptions(method: Method): Option[MethodOptions] = {
-    eventingOutForTopic(method).map(eventingOut => kalix.MethodOptions.newBuilder().setEventing(eventingOut).build())
-  }
+  def mergeServiceOptions(allOptions: Option[kalix.ServiceOptions]*): Option[ServiceOptions] = {
+    val mergedOptions =
+      allOptions.flatten
+        .foldLeft(kalix.ServiceOptions.newBuilder()) { case (builder, serviceOptions) =>
+          builder.mergeFrom(serviceOptions)
+        }
+        .build()
 
-  private[impl] def jwtOptions(method: Method): Option[JwtMethodOptions] = {
-    if (hasJwtMethodOptions(method)) {
-      Some(jwtMethodOptions(method))
-    } else {
-      None
-    }
+    // if builder produces the default one, we can returns a None
+    if (mergedOptions == kalix.ServiceOptions.getDefaultInstance) None
+    else Some(mergedOptions)
   }
 }
 

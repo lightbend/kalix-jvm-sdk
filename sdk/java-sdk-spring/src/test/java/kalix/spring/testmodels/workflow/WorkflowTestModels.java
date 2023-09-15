@@ -119,7 +119,7 @@ public class WorkflowTestModels {
   @TypeId("transfer-workflow")
   @Id("transferId")
   @RequestMapping("/transfer/{transferId}")
-  public static class WorkflowWithJWT extends Workflow<WorkflowState> {
+  public static class WorkflowWithMethodLevelJWT extends Workflow<WorkflowState> {
     @Override
     public WorkflowDef<WorkflowState> definition() {
       return null;
@@ -129,6 +129,24 @@ public class WorkflowTestModels {
     @JWT(
         validate = JWT.JwtMethodMode.BEARER_TOKEN,
         bearerTokenIssuer = {"a", "b"})
+    public Effect<String> startTransfer(@RequestBody StartWorkflow startWorkflow) {
+      return null;
+    }
+  }
+
+  @TypeId("transfer-workflow")
+  @Id("transferId")
+  @RequestMapping("/transfer/{transferId}")
+  @JWT(
+    validate = JWT.JwtMethodMode.BEARER_TOKEN,
+    bearerTokenIssuer = {"a", "b"})
+  public static class WorkflowWithServiceLevelJWT extends Workflow<WorkflowState> {
+    @Override
+    public WorkflowDef<WorkflowState> definition() {
+      return null;
+    }
+
+    @PutMapping
     public Effect<String> startTransfer(@RequestBody StartWorkflow startWorkflow) {
       return null;
     }

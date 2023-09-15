@@ -18,12 +18,16 @@ package kalix.javasdk.impl
 
 import com.google.protobuf.Any
 import com.google.protobuf.Descriptors.FieldDescriptor.JavaType
+import kalix.JwtMethodOptions.JwtMethodMode
+import kalix.JwtServiceOptions.JwtServiceMode
 import kalix.KeyGeneratorMethodOptions
 import kalix.spring.testmodels.valueentity.Counter
 import kalix.spring.testmodels.valueentity.ValueEntitiesTestModels.GetWithQueryParams
 import kalix.spring.testmodels.valueentity.ValueEntitiesTestModels.PostWithIds
 import kalix.spring.testmodels.valueentity.ValueEntitiesTestModels.ValueEntityWithMethodLevelAcl
+import kalix.spring.testmodels.valueentity.ValueEntitiesTestModels.ValueEntityWithMethodLevelJwt
 import kalix.spring.testmodels.valueentity.ValueEntitiesTestModels.ValueEntityWithServiceLevelAcl
+import kalix.spring.testmodels.valueentity.ValueEntitiesTestModels.ValueEntityWithServiceLevelJwt
 import org.scalatest.wordspec.AnyWordSpec
 
 class ValueEntityDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSuite {
@@ -85,6 +89,25 @@ class ValueEntityDescriptorFactorySpec extends AnyWordSpec with ComponentDescrip
         val extension = findKalixMethodOptions(desc, "CreateEntity")
         val service = extension.getAcl.getAllow(0).getService
         service shouldBe "test"
+      }
+    }
+
+    "generate descriptor for ValueEntity with service level JWT annotation" in {
+      assertDescriptor[ValueEntityWithServiceLevelJwt] { desc =>
+        val extension = desc.serviceDescriptor.getOptions.getExtension(kalix.Annotations.service)
+        val jwtOption = extension.getJwt
+        jwtOption.getBearerTokenIssuer(0) shouldBe "a"
+        jwtOption.getBearerTokenIssuer(1) shouldBe "b"
+        jwtOption.getValidate shouldBe JwtServiceMode.BEARER_TOKEN
+      }
+    }
+
+    "generate descriptor for ValueEntity with method level JWT annotation" in {
+      assertDescriptor[ValueEntityWithMethodLevelJwt] { desc =>
+        val jwtOption = findKalixMethodOptions(desc, "CreateEntity").getJwt
+        jwtOption.getBearerTokenIssuer(0) shouldBe "a"
+        jwtOption.getBearerTokenIssuer(1) shouldBe "b"
+        jwtOption.getValidate(0) shouldBe JwtMethodMode.BEARER_TOKEN
       }
     }
   }
