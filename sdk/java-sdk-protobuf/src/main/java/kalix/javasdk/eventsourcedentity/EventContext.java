@@ -16,8 +16,6 @@
 
 package kalix.javasdk.eventsourcedentity;
 
-import kalix.javasdk.Metadata;
-
 /** Context for an event. */
 public interface EventContext extends EventSourcedEntityContext {
   /**

@@ -17,7 +17,6 @@
 package kalix.javasdk.tck.model.localpersistenceeventing;
 
 import kalix.javasdk.JsonSupport;
-import kalix.javasdk.Metadata;
 import kalix.javasdk.eventsourcedentity.CommandContext;
 import kalix.javasdk.eventsourcedentity.EventSourcedEntity;
 import kalix.javasdk.impl.eventsourcedentity.EventSourcedEntityRouter;

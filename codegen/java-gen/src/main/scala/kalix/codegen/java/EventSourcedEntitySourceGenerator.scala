@@ -41,7 +41,6 @@ object EventSourcedEntitySourceGenerator {
       allRelevantMessageTypes(service, entity),
       packageName,
       otherImports = Seq(
-        "kalix.javasdk.Metadata",
         "kalix.javasdk.eventsourcedentity.CommandContext",
         "kalix.javasdk.eventsourcedentity.EventSourcedEntity",
         "kalix.javasdk.impl.eventsourcedentity.EventSourcedEntityRouter"))

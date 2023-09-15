@@ -16,7 +16,6 @@
 
 package kalix.javasdk.eventsourcedentity;
 
-import kalix.javasdk.Metadata;
 import kalix.javasdk.impl.eventsourcedentity.EventSourcedEntityRouter;
 import com.example.shoppingcart.ShoppingCartApi;
 import com.example.shoppingcart.domain.ShoppingCartDomain;
