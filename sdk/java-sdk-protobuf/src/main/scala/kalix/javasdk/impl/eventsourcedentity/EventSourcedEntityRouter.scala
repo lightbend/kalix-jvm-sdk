@@ -16,7 +16,6 @@
 
 package kalix.javasdk.impl.eventsourcedentity
 
-import kalix.javasdk.Metadata
 import kalix.javasdk.eventsourcedentity.CommandContext
 import kalix.javasdk.eventsourcedentity.EventContext
 import kalix.javasdk.eventsourcedentity.EventSourcedEntity
@@ -75,7 +74,7 @@ abstract class EventSourcedEntityRouter[S, E, ES <: EventSourcedEntity[S, E]](pr
   final def _internalHandleEvent(event: E, context: EventContext): Unit = {
     entity._internalSetEventContext(Optional.of(context))
     try {
-      val newState = handleEvent(_stateOrEmpty(), event, context.metadata())
+      val newState = handleEvent(_stateOrEmpty(), event)
       setState(newState)
     } catch {
       case EventHandlerNotFound(eventClass) =>
@@ -93,7 +92,6 @@ abstract class EventSourcedEntityRouter[S, E, ES <: EventSourcedEntity[S, E]](pr
       context: CommandContext,
       snapshotEvery: Int,
       eventContextFactory: Long => EventContext): CommandResult = {
-    //do I have the metadata here?
 
     val commandEffect =
       try {
@@ -117,7 +115,7 @@ abstract class EventSourcedEntityRouter[S, E, ES <: EventSourcedEntity[S, E]](pr
         events.foreach { event =>
           try {
             entity._internalSetEventContext(Optional.of(eventContextFactory(currentSequence)))
-            val newState = handleEvent(_stateOrEmpty(), event.asInstanceOf[E], context.metadata())
+            val newState = handleEvent(_stateOrEmpty(), event.asInstanceOf[E])
             if (newState == null)
               throw new IllegalArgumentException("Event handler must not return null as the updated state.")
             setState(newState)
@@ -166,7 +164,7 @@ abstract class EventSourcedEntityRouter[S, E, ES <: EventSourcedEntity[S, E]](pr
     }
   }
 
-  def handleEvent(state: S, event: E, metadata: Metadata): S
+  def handleEvent(state: S, event: E): S
 
   def handleCommand(commandName: String, state: S, command: Any, context: CommandContext): EventSourcedEntity.Effect[_]
 

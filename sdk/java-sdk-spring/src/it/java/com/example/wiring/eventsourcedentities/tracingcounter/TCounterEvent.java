@@ -18,7 +18,7 @@ package com.example.wiring.eventsourcedentities.tracingcounter;
 
 import kalix.javasdk.annotations.TypeName;
 
-sealed public interface TCounterEvent {
+public interface TCounterEvent {
 
 
     @TypeName("tincreased")

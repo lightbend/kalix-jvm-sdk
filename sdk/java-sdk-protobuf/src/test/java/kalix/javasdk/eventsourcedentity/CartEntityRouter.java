@@ -29,7 +29,7 @@ final class CartEntityRouter extends EventSourcedEntityRouter<ShoppingCartDomain
   }
 
   @Override
-  public ShoppingCartDomain.Cart handleEvent(ShoppingCartDomain.Cart state, Object event, Metadata metadata) {
+  public ShoppingCartDomain.Cart handleEvent(ShoppingCartDomain.Cart state, Object event) {
     if (event instanceof ShoppingCartDomain.ItemAdded) {
       return entity().itemAdded(state, (ShoppingCartDomain.ItemAdded) event);
     } else if (event instanceof ShoppingCartDomain.ItemRemoved) {

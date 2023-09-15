@@ -33,7 +33,7 @@ public class EventSourcedEntityTwoRouter
   }
 
   @Override
-  public String handleEvent(String state, Object event, Metadata metadata) {
+  public String handleEvent(String state, Object event) {
     // FIXME requirement to use JSON events should be removed from TCK
     if (event instanceof Any) {
       return entity().handle(state, JsonSupport.decodeJson(JsonMessage.class, (Any) event));

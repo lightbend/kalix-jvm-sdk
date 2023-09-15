@@ -19,7 +19,6 @@ package kalix.javasdk.impl.eventsourcedentity
 import com.google.protobuf.any.{ Any => ScalaPbAny }
 import com.google.protobuf.{ Any => JavaPbAny }
 import kalix.javasdk.JsonSupport
-import kalix.javasdk.Metadata
 import kalix.javasdk.eventsourcedentity.CommandContext
 import kalix.javasdk.eventsourcedentity.EventSourcedEntity
 import kalix.javasdk.impl.CommandHandler
@@ -53,14 +52,14 @@ class ReflectiveEventSourcedEntityRouter[S, E, ES <: EventSourcedEntity[S, E]](
       throw new HandlerNotFoundException("event", eventName, eventHandlerMethods.keySet))
   }
 
-  override def handleEvent(state: S, event: E, metadata: Metadata): S = {
+  override def handleEvent(state: S, event: E): S = {
 
     _extractAndSetCurrentState(state)
     logger.debug("handling event [{}]", event)
 
     event match {
       case s: ScalaPbAny => // replaying event coming from proxy
-        val invocationContext = InvocationContext(s, JavaPbAny.getDescriptor, metadata)
+        val invocationContext = InvocationContext(s, JavaPbAny.getDescriptor)
 
         eventHandlerLookup(s.typeUrl)
           .invoke(entity, invocationContext)

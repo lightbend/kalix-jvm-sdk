@@ -21,7 +21,7 @@ public class CounterRouter extends EventSourcedEntityRouter<CounterDomain.Counte
   }
 
   @Override
-  public CounterDomain.CounterState handleEvent(CounterDomain.CounterState state, Object event, Metadata metadata) {
+  public CounterDomain.CounterState handleEvent(CounterDomain.CounterState state, Object event) {
     if (event instanceof CounterDomain.Increased) {
       return entity().increased(state, (CounterDomain.Increased) event);
     } else if (event instanceof CounterDomain.Decreased) {

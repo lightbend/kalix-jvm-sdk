@@ -88,7 +88,7 @@ object EventSourcedEntitySourceGenerator {
        |  }
        |
        |  @Override
-       |  public $stateType handleEvent($stateType state, Object event, Metadata metadata) {
+       |  public $stateType handleEvent($stateType state, Object event) {
        |    ${Format.indent(eventCases, 4)}
        |  }
        |

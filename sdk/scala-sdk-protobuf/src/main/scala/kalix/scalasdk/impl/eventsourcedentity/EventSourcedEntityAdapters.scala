@@ -106,7 +106,7 @@ private[scalasdk] final class JavaEventSourcedEntityRouterAdapter[S](
     scalaSdkRouter: EventSourcedEntityRouter[S, EventSourcedEntity[S]])
     extends JavaSdkEventSourcedEntityRouter[S, Any, JavaSdkEventSourcedEntity[S, Any]](javaSdkEventSourcedEntity) {
 
-  override def handleEvent(state: S, event: Any, metadata: Metadata): S = {
+  override def handleEvent(state: S, event: Any): S = {
     scalaSdkRouter.handleEvent(state, event)
   }
 

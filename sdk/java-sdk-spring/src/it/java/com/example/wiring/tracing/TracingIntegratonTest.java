@@ -48,10 +48,12 @@ public class TracingIntegratonTest extends DockerIntegrationTest {
     public void shouldSendTraces() {
         String counterId = "some-counter";
         callTCounter(counterId, 10);
-        Traces traces = selectTraces();
-        Batches batches = selectBatches(traces.traces().get(0).traceID());
 
         await().ignoreExceptions().atMost(20, TimeUnit.of(SECONDS)).untilAsserted(() -> {
+           Traces traces = selectTraces();
+           assertThat(traces.traces().isEmpty()).isFalse();
+           Batches batches = selectBatches(traces.traces().get(0).traceID());
+           assertThat(batches.batches().isEmpty()).isFalse();
            assertThat(batches.batches().get(0).scopeSpans().get(0).scope().name()).isEqualTo("kalix.proxy.telemetry.TraceInstrumentationImpl");
            assertThat(batches.batches().get(1).scopeSpans().get(0).spans().get(0).name()).isEqualTo("com.example.wiring.eventsourcedentities.tracingcounter.TCounterEntity.increase");
            assertThat(batches.batches().get(2).scopeSpans().get(0).spans().get(0).name()).isEqualTo("com.example.wiring.eventsourcedentities.tracingcounter.TIncreaseAction.printIncrease");
@@ -61,13 +63,12 @@ public class TracingIntegratonTest extends DockerIntegrationTest {
     }
 
     private Integer callTCounter(String counterId, Integer increase) {
-        return webClient.post().uri("/tcounter/" + counterId + "/increase/" + increase).retrieve().bodyToMono(Integer.class).block();
+        return webClient.post().uri("/tcounter/" + counterId + "/increase/" + increase).retrieve().bodyToMono(Integer.class).block(timeout);
     }
  // TODO investigate this path   String response = WebClient.create("http://0.0.0.0:3200").get().uri(
  //                uriBuilder -> uriBuilder.path("/api/search")
  //                        .queryParam("q","{ }").build()).retrieve().bodyToMono(String.class).block(timeout)
     public Traces selectTraces(){
-      ;
         Traces traces = WebClient.create("http://0.0.0.0:3200/api/search").get().retrieve().bodyToMono(Traces.class).block(timeout);
         logger.debug("traces [{}].",traces.toString());
         return traces;
