@@ -1,11 +1,11 @@
 package com.example
 
-import com.example.actions.{Decreased, Increased}
+import com.example.actions.{ Decreased, Increased }
 import kalix.scalasdk.CloudEvent
 
 import java.net.URI
 // tag::test-topic[]
-import kalix.scalasdk.testkit.{KalixTestKit, Message}
+import kalix.scalasdk.testkit.{ KalixTestKit, Message }
 import org.scalatest.BeforeAndAfterEach
 // ...
 // end::test-topic[]
@@ -27,33 +27,41 @@ import scala.language.postfixOps
 
 // tag::test-topic[]
 
-class CounterServiceIntegrationSpec extends AnyWordSpec with Matchers with BeforeAndAfterEach with BeforeAndAfterAll with ScalaFutures {
+class CounterServiceIntegrationSpec
+    extends AnyWordSpec
+    with Matchers
+    with BeforeAndAfterEach
+    with BeforeAndAfterAll
+    with ScalaFutures {
 
   // end::test-topic[]
   implicit private val patience: PatienceConfig =
     PatienceConfig(Span(5, Seconds), Span(500, Millis))
 
   // tag::test-topic[]
-  private val testKit = KalixTestKit(Main.createKalix()).start() // <1>
+  private val testKit = KalixTestKit(
+    Main.createKalix(),
+    KalixTestKit.DefaultSettings
+      .withTopicIncomingMessages("counter-commands")
+      .withTopicOutgoingMessages("counter-events")
+      .withTopicOutgoingMessages("counter-events-with-meta")).start() // <1>
   // end::test-topic[]
 
   private val client = testKit.getGrpcClient(classOf[CounterService])
 
   // tag::test-topic[]
-  private val commandsTopic = testKit.getTopic("counter-commands") // <2>
-  private val eventsTopic = testKit.getTopic("counter-events") // <3>
+  private val commandsTopic = testKit.getTopicIncomingMessages("counter-commands") // <2>
+  private val eventsTopic = testKit.getTopicOutgoingMessages("counter-events") // <3>
   // end::test-topic[]
 
-  private val eventsTopicWithMeta = testKit.getTopic("counter-events-with-meta")
+  private val eventsTopicWithMeta = testKit.getTopicOutgoingMessages("counter-events-with-meta")
 
   // tag::clear-topics[]
   override def beforeEach(): Unit = { // <1>
-    commandsTopic.clear() // <2>
-    eventsTopic.clear()
+    eventsTopic.clear() // <2>
     eventsTopicWithMeta.clear()
   }
   // end::clear-topics[]
-
 
   // tag::test-topic[]
 
@@ -108,9 +116,9 @@ class CounterServiceIntegrationSpec extends AnyWordSpec with Matchers with Befor
     "allow passing and reading metadata for messages" in {
       val increaseCmd = IncreaseValue(counterId, 4)
       val md = CloudEvent( // <1>
-          id = "cmd1",
-          source = URI.create("CounterServiceIntegrationSpec"),
-          `type` = increaseCmd.companion.javaDescriptor.getFullName)
+        id = "cmd1",
+        source = URI.create("CounterServiceIntegrationSpec"),
+        `type` = increaseCmd.companion.javaDescriptor.getFullName)
         .withSubject(counterId) // <2>
         .asMetadata
         .add("Content-Type", "application/protobuf"); // <3>
@@ -125,7 +133,6 @@ class CounterServiceIntegrationSpec extends AnyWordSpec with Matchers with Befor
     // end::test-topic-metadata[]
     // tag::test-topic[]
   }
-
 
   override def afterAll(): Unit = {
     testKit.stop()

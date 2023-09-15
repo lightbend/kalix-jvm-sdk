@@ -25,14 +25,14 @@ class KalixTestKitSpec extends AnyWordSpec with Matchers {
   "MockedSubscriptions" should {
     "create config" in {
       val config = MockedEventing.EMPTY
-        .withMockedValueEntitySubscription("a")
-        .withMockedValueEntitySubscription("b")
-        .withMockedEventSourcedSubscription("c")
-        .withMockedEventSourcedSubscription("d")
-        .withMockedStreamSubscription("s1", "e")
-        .withMockedStreamSubscription("s2", "f")
-        .withMockedTopicSubscription("g")
-        .withMockedTopicSubscription("h")
+        .withValueEntityIncomingMessages("a")
+        .withValueEntityIncomingMessages("b")
+        .withEventSourcedIncomingMessages("c")
+        .withEventSourcedIncomingMessages("d")
+        .withStreamIncomingMessages("s1", "e")
+        .withStreamIncomingMessages("s2", "f")
+        .withTopicIncomingMessages("g")
+        .withTopicIncomingMessages("h")
         .toSubscriptionsConfig
 
       config shouldBe "value-entity,a;value-entity,b;event-sourced-entity,c;event-sourced-entity,d;stream,s1/e;stream,s2/f;topic,g;topic,h"

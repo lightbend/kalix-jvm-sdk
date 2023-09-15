@@ -42,21 +42,21 @@ public class CounterIntegrationTest extends KalixIntegrationTestKitSupport { // 
   // tag::test-topic[]
   @Autowired
   private KalixTestKit kalixTestKit; // <2>
-  private EventingTestKit.MockedSubscription commandsTopic;
-  private EventingTestKit.MockedDestination eventsTopic;
+  private EventingTestKit.IncomingMessages commandsTopic;
+  private EventingTestKit.OutgoingMessages eventsTopic;
   // end::test-topic[]
 
-  private EventingTestKit.MockedDestination eventsTopicWithMeta;
+  private EventingTestKit.OutgoingMessages eventsTopicWithMeta;
 
   // tag::test-topic[]
 
   @BeforeAll
   public void beforeAll() {
-    commandsTopic = kalixTestKit.getTopicSubscription("counter-commands"); // <3>
-    eventsTopic = kalixTestKit.getTopicDestination("counter-events");
+    commandsTopic = kalixTestKit.getTopicIncomingMessages("counter-commands"); // <3>
+    eventsTopic = kalixTestKit.getTopicOutgoingMessages("counter-events");
     // end::test-topic[]
 
-    eventsTopicWithMeta = kalixTestKit.getTopicDestination("counter-events-with-meta");
+    eventsTopicWithMeta = kalixTestKit.getTopicOutgoingMessages("counter-events-with-meta");
     // tag::test-topic[]
   }
   // end::test-topic[]

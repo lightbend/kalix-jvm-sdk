@@ -3,7 +3,7 @@ package customer.api;
 import customer.Main;
 import customer.views.Customer;
 import customer.views.CustomerPublicEvent.Created;
-import kalix.javasdk.testkit.EventingTestKit.MockedSubscription;
+import kalix.javasdk.testkit.EventingTestKit.IncomingMessages;
 import kalix.javasdk.testkit.KalixTestKit;
 import kalix.spring.testkit.KalixIntegrationTestKitSupport;
 import org.junit.jupiter.api.Test;
@@ -28,7 +28,7 @@ public class CustomersByNameViewIntegrationTest extends KalixIntegrationTestKitS
 
   @Test
   public void shouldCustomerByName() {
-    MockedSubscription customerEvents = kalixTestKit.getStreamSubscription("customer-registry", "customer_events");
+    MockedSubscription customerEvents = kalixTestKit.getStreamIncomingMessages("customer-registry", "customer_events");
 
     String bob = "bob";
     Created created1 = new Created("bob@gmail.com", bob);

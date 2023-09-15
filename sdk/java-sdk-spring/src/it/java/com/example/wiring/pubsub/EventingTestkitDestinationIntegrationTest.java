@@ -51,13 +51,13 @@ public class EventingTestkitDestinationIntegrationTest {
 
   @Autowired
   private KalixTestKit kalixTestKit;
-  private EventingTestKit.MockedDestination destination;
+  private EventingTestKit.OutgoingMessages destination;
   @Autowired
   private ComponentClient componentClient;
 
   @BeforeAll
   public void beforeAll() {
-    destination = kalixTestKit.getTopicDestination(CUSTOMERS_TOPIC);
+    destination = kalixTestKit.getTopicOutgoingMessages(CUSTOMERS_TOPIC);
   }
 
   @Test

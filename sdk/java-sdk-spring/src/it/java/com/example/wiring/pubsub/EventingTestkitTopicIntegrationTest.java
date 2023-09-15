@@ -51,14 +51,14 @@ public class EventingTestkitTopicIntegrationTest {
   @Autowired
   private KalixTestKit kalixTestKit;
   private EventingTestKit.Topic eventsTopic;
-  private EventingTestKit.MockedSubscription topicSubscription;
+  private EventingTestKit.IncomingMessages topicSubscription;
   @Autowired
   private WebClient webClient;
 
   @BeforeAll
   public void beforeAll() {
     eventsTopic = kalixTestKit.getTopic(COUNTER_EVENTS_TOPIC);
-    topicSubscription = kalixTestKit.getTopicSubscription(COUNTER_EVENTS_TOPIC);
+    topicSubscription = kalixTestKit.getTopicIncomingMessages(COUNTER_EVENTS_TOPIC);
   }
 
   @BeforeEach

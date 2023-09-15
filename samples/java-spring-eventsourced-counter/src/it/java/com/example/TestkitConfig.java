@@ -15,9 +15,9 @@ public class TestkitConfig {
   @Bean
   public KalixTestKit.Settings settings() {
     return KalixTestKit.Settings.DEFAULT.withAclEnabled()
-        .withMockedTopicSubscription("counter-commands")
-        .withMockedTopicDestination("counter-events")
-        .withMockedTopicDestination("counter-events-with-meta"); // <1>
+        .withTopicIncomingMessages("counter-commands")
+        .withTopicOutgoingMessages("counter-events")
+        .withTopicOutgoingMessages("counter-events-with-meta"); // <1>
   }
   // end::acls[]
 
@@ -27,7 +27,7 @@ public class TestkitConfig {
   public KalixTestKit.Settings settingsWithPubSub() {
     return KalixTestKit.Settings.DEFAULT.withAclEnabled()
         .withEventingSupport(EventingSupport.GOOGLE_PUBSUB)
-        .withMockedTopicDestination("counter-events");
+        .withTopicOutgoingMessages("counter-events");
   }
   // end::pubsub[]
 

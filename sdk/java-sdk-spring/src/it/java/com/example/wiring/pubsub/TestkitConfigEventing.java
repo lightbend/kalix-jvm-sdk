@@ -36,7 +36,7 @@ public class TestkitConfigEventing {
         .withAclEnabled()
         .withAdvancedViews()
         .withWorkflowTickInterval(ofMillis(500))
-        .withMockedTopicDestination(CUSTOMERS_TOPIC);
+        .withTopicOutgoingMessages(CUSTOMERS_TOPIC);
   }
 
   @Bean("settings")
@@ -47,6 +47,6 @@ public class TestkitConfigEventing {
         .withAclEnabled()
         .withAdvancedViews()
         .withWorkflowTickInterval(ofMillis(500))
-        .withMockedTopicSubscription(COUNTER_EVENTS_TOPIC);
+        .withTopicIncomingMessages(COUNTER_EVENTS_TOPIC);
   }
 }

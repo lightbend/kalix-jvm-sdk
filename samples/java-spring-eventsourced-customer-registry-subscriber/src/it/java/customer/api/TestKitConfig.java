@@ -11,6 +11,6 @@ public class TestKitConfig {
   @Bean
   public KalixTestKit.Settings settings() {
     return KalixTestKit.Settings.DEFAULT.withAclEnabled()
-        .withMockedStreamSubscription("customer-registry", "customer_events");
+        .withStreamIncomingMessages("customer-registry", "customer_events");
   }
 }

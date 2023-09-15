@@ -36,7 +36,7 @@ import org.scalatest.BeforeAndAfterEach
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
 
-class PublishingImplSpec
+class IncomingMessagesImplSpec
     extends TestKit(ActorSystem("MySpec"))
     with AnyWordSpecLike
     with Matchers
@@ -45,7 +45,7 @@ class PublishingImplSpec
 
   private val anySupport = new AnySupport(Array(), getClass.getClassLoader)
   private val subscription =
-    new MockedSubscriptionImpl(system.actorOf(Props[SourcesHolder](), "holder"), anySupport)
+    new IncomingMessagesImpl(system.actorOf(Props[SourcesHolder](), "holder"), anySupport)
   val queue = new DummyQueue(mutable.Queue.empty)
 
   private val runningSourceProbe: RunningSourceProbe =
@@ -88,15 +88,17 @@ class PublishingImplSpec
   override def afterAll(): Unit = {
     TestKit.shutdownActorSystem(system)
   }
+}
 
-  class DummyQueue(val elems: mutable.Queue[SourceElem]) extends BoundedSourceQueue[SourceElem] {
-    override def offer(elem: SourceElem): QueueOfferResult = {
-      elems.append(elem)
-      QueueOfferResult.Enqueued
-    }
-
-    override def complete(): Unit = ???
-    override def fail(ex: Throwable): Unit = ???
-    override def size(): Int = elems.size
+class DummyQueue(val elems: mutable.Queue[SourceElem]) extends BoundedSourceQueue[SourceElem] {
+  override def offer(elem: SourceElem): QueueOfferResult = {
+    elems.append(elem)
+    QueueOfferResult.Enqueued
   }
+
+  override def complete(): Unit = ???
+
+  override def fail(ex: Throwable): Unit = ???
+
+  override def size(): Int = elems.size
 }

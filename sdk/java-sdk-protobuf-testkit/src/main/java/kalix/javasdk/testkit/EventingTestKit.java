@@ -23,6 +23,7 @@ import com.google.protobuf.ByteString;
 import kalix.javasdk.Metadata;
 import kalix.javasdk.impl.MessageCodec;
 import kalix.javasdk.testkit.impl.EventingTestKitImpl;
+import kalix.javasdk.testkit.impl.OutgoingMessagesImpl;
 import kalix.javasdk.testkit.impl.TestKitMessageImpl;
 import kalix.javasdk.testkit.impl.TopicImpl$;
 
@@ -41,25 +42,25 @@ public interface EventingTestKit {
   }
 
   /**
-   * Use <code>getTopicDestination</code> or <code>getTopicSubscription</code> instead.
+   * Use <code>getTopicOutgoingMessages</code> or <code>getTopicIncomingMessages</code> instead.
    */
   @Deprecated
   Topic getTopic(String topic);
 
-  MockedDestination getTopicDestination(String topic);
+  OutgoingMessages getTopicOutgoingMessages(String topic);
 
-  MockedSubscription getTopicSubscription(String topic);
+  IncomingMessages getTopicIncomingMessages(String topic);
 
-  MockedSubscription getValueEntitySubscription(String typeId);
+  IncomingMessages getValueEntityIncomingMessages(String typeId);
 
-  MockedSubscription getEventSourcedEntitySubscription(String typeId);
+  IncomingMessages getEventSourcedEntityIncomingMessages(String typeId);
 
-  MockedSubscription getStreamSubscription(String service, String streamId);
+  IncomingMessages getStreamIncomingMessages(String service, String streamId);
 
   /**
-   * Allows to simulate publishing messages for the purposes of testing incoming event flow.
+   * Allows to simulate publishing messages for the purposes of testing incoming message flow.
    */
-  interface MockedSubscription {
+  interface IncomingMessages {
     /**
      * Simulate the publishing of a raw message.
      *
@@ -99,17 +100,17 @@ public interface EventingTestKit {
     void publish(List<Message<?>> messages);
 
     /**
-     * Publish a predefined delete message. Supported only in case of ValueEntity incoming event flow.
+     * Publish a predefined delete message. Supported only in case of ValueEntity incoming message flow.
      */
     void publishDelete();
   }
 
   /**
-   * Allows to assert published messages for the purposes of testing outgoing event flow.
+   * Allows to assert published messages for the purposes of testing outgoing message flow.
    */
-  interface MockedDestination {
+  interface OutgoingMessages {
     /**
-     * Waits for predefined amount of time (see {@link TopicImpl$#DefaultTimeout()} for default value). If a message arrives in the meantime or
+     * Waits for predefined amount of time (see {@link OutgoingMessagesImpl#DefaultTimeout()} for default value). If a message arrives in the meantime or
      * has arrived before but was not consumed, the test fails.
      */
     void expectNone();
@@ -140,7 +141,7 @@ public interface EventingTestKit {
     Message<ByteString> expectOneRaw(Duration timeout);
 
     /**
-     * Waits for predefined amount of time (see {@link kalix.javasdk.testkit.impl.MockedDestinationImpl#DefaultTimeout()} for default value) and returns the next unread message.
+     * Waits for predefined amount of time (see {@link OutgoingMessagesImpl#DefaultTimeout()} for default value) and returns the next unread message.
      * Note the message might have been received before this method was called.
      * If no message is received, a timeout exception is thrown.
      *
@@ -224,14 +225,14 @@ public interface EventingTestKit {
   interface Topic {
 
     /**
-     * Simulate the publishing of a raw message to this topic for the purposes of testing incoming event flow.
+     * Simulate the publishing of a raw message to this topic for the purposes of testing incoming message flow.
      *
      * @param message raw bytestring to be published in the topic
      */
     void publish(ByteString message);
 
     /**
-     * Simulate the publishing of a raw message to this topic for the purposes of testing incoming event flow.
+     * Simulate the publishing of a raw message to this topic for the purposes of testing incoming message flow.
      *
      * @param message  raw bytestring to be published in the topic
      * @param metadata associated with the message
@@ -239,14 +240,14 @@ public interface EventingTestKit {
     void publish(ByteString message, Metadata metadata);
 
     /**
-     * Simulate the publishing of a message to this topic for the purposes of testing incoming event flow.
+     * Simulate the publishing of a message to this topic for the purposes of testing incoming message flow.
      *
      * @param message to be published in the topic
      */
     void publish(Message<?> message);
 
     /**
-     * Simulate the publishing of a message to this topic for the purposes of testing incoming event flow.
+     * Simulate the publishing of a message to this topic for the purposes of testing incoming message flow.
      *
      * @param message to be published in the topic
      * @param subject to identify the entity
@@ -255,7 +256,7 @@ public interface EventingTestKit {
     <T> void publish(T message, String subject);
 
     /**
-     * Publish multiple messages to this topic for the purposes of testing incoming event flow.
+     * Publish multiple messages to this topic for the purposes of testing incoming message flow.
      *
      * @param messages to be published in the topic
      */
