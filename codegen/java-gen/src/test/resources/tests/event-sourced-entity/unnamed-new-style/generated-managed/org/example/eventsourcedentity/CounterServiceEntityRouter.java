@@ -1,7 +1,6 @@
 package org.example.eventsourcedentity;
 
 import com.google.protobuf.Empty;
-import kalix.javasdk.Metadata;
 import kalix.javasdk.eventsourcedentity.CommandContext;
 import kalix.javasdk.eventsourcedentity.EventSourcedEntity;
 import kalix.javasdk.impl.eventsourcedentity.EventSourcedEntityRouter;

@@ -47,3 +47,4 @@ dependency-reduced-pom.xml
 regenerate
 .vscode/settings.json
 target-2.12
+sdk/java-sdk-spring/tempo-data

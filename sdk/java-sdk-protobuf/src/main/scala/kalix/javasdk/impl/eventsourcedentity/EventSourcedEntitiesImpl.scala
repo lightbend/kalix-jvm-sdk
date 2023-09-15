@@ -163,7 +163,7 @@ final class EventSourcedEntitiesImpl(
       .scan[(Long, Option[EventSourcedStreamOut.Message])]((startingSequenceNumber, None)) {
         case (_, InEvent(event)) =>
           // Note that these only come on replay
-          val context = new EventContextImpl(thisEntityId, event.sequence, Metadata.EMPTY)
+          val context = new EventContextImpl(thisEntityId, event.sequence)
           val ev =
             service.messageCodec
               .decodeMessage(event.payload.get)
@@ -192,7 +192,7 @@ final class EventSourcedEntitiesImpl(
                 cmd,
                 context,
                 service.snapshotEvery,
-                seqNr => new EventContextImpl(thisEntityId, seqNr, metadata))
+                seqNr => new EventContextImpl(thisEntityId, seqNr))
             } catch {
               case BadRequestException(msg) =>
                 val errorReply = ErrorReplyImpl(msg, Some(Status.Code.INVALID_ARGUMENT), Vector.empty)
@@ -272,10 +272,7 @@ final class EventSourcedEntitiesImpl(
   private class EventSourcedEntityContextImpl(override final val entityId: String)
       extends AbstractContext(system)
       with EventSourcedEntityContext
-  private final class EventContextImpl(
-      entityId: String,
-      override val sequenceNumber: Long,
-      override val metadata: Metadata)
+  private final class EventContextImpl(entityId: String, override val sequenceNumber: Long)
       extends EventSourcedEntityContextImpl(entityId)
       with EventContext
 }

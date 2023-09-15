@@ -27,5 +27,4 @@ public interface EventContext extends EventSourcedEntityContext {
    */
   long sequenceNumber();
 
-  Metadata metadata();
 }
