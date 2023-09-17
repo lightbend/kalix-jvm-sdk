@@ -25,7 +25,6 @@ import kalix.javasdk.impl.CommandHandler
 import kalix.javasdk.impl.InvocationContext
 import kalix.javasdk.impl.JsonMessageCodec
 import kalix.javasdk.impl.MethodInvoker
-import kalix.javasdk.impl.Telemetry
 import org.slf4j.LoggerFactory
 
 import java.lang.reflect.ParameterizedType
@@ -39,7 +38,7 @@ class ReflectiveEventSourcedEntityRouter[S, E, ES <: EventSourcedEntity[S, E]](
 
   private val logger = LoggerFactory.getLogger(this.getClass)
 
-  private val telemetry = new Telemetry(entity.getClass.getName)
+//  private val telemetry = new Telemetry(entity.getClass.getName)
 
   private def commandHandlerLookup(commandName: String) =
     commandHandlers.getOrElse(
@@ -93,15 +92,9 @@ class ReflectiveEventSourcedEntityRouter[S, E, ES <: EventSourcedEntity[S, E]](
     val methodInvoker = commandHandler
       .getInvoker(inputTypeUrl)
 
-    val span = telemetry.buildSpan(entity, inputTypeUrl, Some(methodInvoker), commandContext.metadata)
-    try {
-      methodInvoker
-        .invoke(entity, invocationContext)
-        .asInstanceOf[EventSourcedEntity.Effect[_]]
-    } finally {
-      span.map(s => s.end())
-    }
-
+    methodInvoker
+      .invoke(entity, invocationContext)
+      .asInstanceOf[EventSourcedEntity.Effect[_]]
   }
 
   private def _extractAndSetCurrentState(state: S): Unit = {

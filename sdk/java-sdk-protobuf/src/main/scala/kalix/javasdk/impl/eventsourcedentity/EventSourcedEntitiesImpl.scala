@@ -33,6 +33,7 @@ import kalix.javasdk.impl.effect.ErrorReplyImpl
 import kalix.javasdk.impl.effect.MessageReplyImpl
 import kalix.javasdk.impl.effect.SecondaryEffectImpl
 import kalix.javasdk.impl.eventsourcedentity.EventSourcedEntityRouter.CommandResult
+import kalix.javasdk.impl.telemetry.Telemetry
 import kalix.protocol.component.Failure
 import kalix.protocol.event_sourced_entity.EventSourcedStreamIn.Message.{ Command => InCommand }
 import kalix.protocol.event_sourced_entity.EventSourcedStreamIn.Message.{ Empty => InEmpty }
@@ -145,6 +146,8 @@ final class EventSourcedEntitiesImpl(
   private def runEntity(init: EventSourcedInit): Flow[EventSourcedStreamIn, EventSourcedStreamOut, NotUsed] = {
     val service =
       services.getOrElse(init.serviceName, throw ProtocolException(init, s"Service not found: ${init.serviceName}"))
+    val telemetry = new Telemetry(service.serviceName)
+
     val router = service.factory
       .create(new EventSourcedEntityContextImpl(init.entityId))
       .asInstanceOf[EventSourcedEntityRouter[Any, Any, EventSourcedEntity[Any, Any]]]
@@ -180,6 +183,7 @@ final class EventSourcedEntitiesImpl(
           val metadata = new MetadataImpl(command.metadata.map(_.entries.toVector).getOrElse(Nil))
           val context =
             new CommandContextImpl(thisEntityId, sequence, command.name, command.id, metadata)
+          val span = telemetry.buildSpan(service, command)
           val CommandResult(
             events: Vector[Any],
             secondaryEffect: SecondaryEffectImpl,
@@ -194,6 +198,7 @@ final class EventSourcedEntitiesImpl(
                 service.snapshotEvery,
                 seqNr => new EventContextImpl(thisEntityId, seqNr))
             } catch {
+              //TODO close span in case of failure
               case BadRequestException(msg) =>
                 val errorReply = ErrorReplyImpl(msg, Some(Status.Code.INVALID_ARGUMENT), Vector.empty)
                 CommandResult(Vector.empty, errorReply, None, context.sequenceNumber, false)
@@ -201,6 +206,7 @@ final class EventSourcedEntitiesImpl(
               case NonFatal(error) =>
                 throw EntityException(command, s"Unexpected failure: $error", Some(error))
             } finally {
+              span.map(_.end())
               context.deactivate() // Very important!
             }
 

@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-package kalix.javasdk.impl
+package kalix.javasdk.impl.telemetry
 
-import akka.http.scaladsl.model.HttpMethods
 import io.opentelemetry.api.OpenTelemetry
 import io.opentelemetry.api.common.Attributes
 import io.opentelemetry.api.trace.Span
@@ -31,22 +30,21 @@ import io.opentelemetry.sdk.resources.Resource
 import io.opentelemetry.sdk.trace.SdkTracerProvider
 import io.opentelemetry.sdk.trace.`export`.SimpleSpanProcessor
 import io.opentelemetry.semconv.resource.attributes.ResourceAttributes
-import io.opentelemetry.semconv.trace.attributes.SemanticAttributes
 import kalix.javasdk.Metadata
-import kalix.javasdk.action.Action
-import kalix.javasdk.eventsourcedentity.EventSourcedEntity
-import kalix.javasdk.valueentity.ValueEntity
+import kalix.javasdk.impl.MetadataImpl
+import kalix.javasdk.impl.Service
+import kalix.protocol.action.ActionCommand
+import kalix.protocol.entity.Command
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
-import java.lang.reflect.Method
 import scala.jdk.OptionConverters._
 
 object Telemetry {
 
   val TRACE_PARENT_KEY = "traceparent"
 
-  private val logger: Logger = LoggerFactory.getLogger(getClass)
+  val logger: Logger = LoggerFactory.getLogger(getClass)
 
   val otelGetter = new TextMapGetter[Metadata]() {
     override def get(carrier: Metadata, key: String): String = {
@@ -60,6 +58,8 @@ object Telemetry {
 }
 
 class Telemetry(serviceName: String) {
+
+  import kalix.javasdk.impl.telemetry.Telemetry.logger
 
   val openTelemetry: OpenTelemetry = {
 
@@ -82,65 +82,71 @@ class Telemetry(serviceName: String) {
   }
 
   /**
-   * Builds the span by extracting the traceparent from the `metadata` and starts the span
-   *
-   * @param tracerName
-   * @param spanName
-   * @param metadata
-   * @return
+   * TODO
    */
-  def buildSpan[T](
-      component: T,
-      inputTypeUrl: String,
-      methodInvoker: Option[MethodInvoker],
-      metadata: Metadata): Option[Span] = {
-    //TODO find if we have this mapping already
-    def getComponentName[T](componentType: T): String =
-      componentType match {
-        case _: Action                   => "action"
-        case _: EventSourcedEntity[_, _] => "event-sourced-entity"
-        case _: ValueEntity[_]           => "value-entity"
-      }
-
-    def getHttpMethod(method: Method): String = {
-      val httpMethods = method.getDeclaredAnnotations.map { ann =>
-        ann match {
-          case _: org.springframework.web.bind.annotation.PostMapping   => Some(HttpMethods.POST)
-          case _: org.springframework.web.bind.annotation.GetMapping    => Some(HttpMethods.GET)
-          case _: org.springframework.web.bind.annotation.PatchMapping  => Some(HttpMethods.PATCH)
-          case _: org.springframework.web.bind.annotation.PutMapping    => Some(HttpMethods.PUT)
-          case _: org.springframework.web.bind.annotation.DeleteMapping => Some(HttpMethods.DELETE)
-          case _                                                        => None
-        }
-      }
-      httpMethods.flatten.headOption match {
-        case Some(httpMethod) => httpMethod.value
-        case None             => "No @RequestMapping annotation"
-      }
-    }
-
-    if (metadata.get(Telemetry.TRACE_PARENT_KEY).isPresent && methodInvoker.isDefined) {
-      val method = methodInvoker.get.method
+  def buildSpan(service: Service, command: Command): Option[Span] = {
+    val metadata = new MetadataImpl(command.metadata.map(_.entries).getOrElse(Nil))
+    if (metadata.get(Telemetry.TRACE_PARENT_KEY).isPresent) {
+      logger.debug(" Service content [{}].", service)
+      logger.debug(" commandName content [{}].", command)
 
       val context = openTelemetry.getPropagators.getTextMapPropagator
         .extract(OtelContext.current(), metadata, Telemetry.otelGetter.asInstanceOf[TextMapGetter[Object]])
-      val tracer = openTelemetry.getTracer("java-sdk-spring")
+      logger.debug("context from traceparent [{}].", context)
+      val tracer = openTelemetry.getTracer("java-sdk")
       val span = tracer
-        .spanBuilder(s"""${component.getClass.getName}.${method.getName}""")
+        .spanBuilder(s"""${service.serviceName}.${command.entityId}""")
         .setParent(context)
         .setSpanKind(SpanKind.SERVER)
         .startSpan()
       Some(
         span
-          .setAttribute(SemanticAttributes.HTTP_METHOD, getHttpMethod(method))
-          .setAttribute("server.address", "localhost") // TODO use Kubernetes .svc name?
+          //          .setAttribute(SemanticAttributes.HTTP_METHOD, httpMethod.name)
+          .setAttribute("server.address", "localhost")
+          // TODO use Kubernetes .svc name?
           .setAttribute("server.port", 8080) // TODO read the port from properties
           .setAttribute("server.scheme", "http")
-          .setAttribute("service.name", method.getName)
-          .setAttribute("kalix.inputType", inputTypeUrl)
+          .setAttribute("service.name", s"""${service.serviceName}.${command.entityId}""")
+          //          .setAttribute("kalix.inputType", inputTypeUrl)
           //          .setAttribute("kalix.input", methodInvoker.get.method.input.toString)
-          .setAttribute("kalix." + getComponentName(component), component.getClass.getName))
-    } else None
+          .setAttribute(s"kalix.${service.componentType}", command.entityId))
+    } else {
+      logger.debug("No trace parent found.")
+      None
+    }
+  }
+
+  def buildSpan(service: Service, command: ActionCommand): Option[Span] = {
+    val metadata = new MetadataImpl(command.metadata.map(_.entries).getOrElse(Nil))
+    if (metadata.get(Telemetry.TRACE_PARENT_KEY).isPresent) {
+      logger.debug(" Service content [{}].", service)
+      logger.debug(" actionCommand content [{}].", command)
+
+      val context = openTelemetry.getPropagators.getTextMapPropagator
+        .extract(OtelContext.current(), metadata, Telemetry.otelGetter.asInstanceOf[TextMapGetter[Object]])
+      logger.debug("context from traceparent [{}].", context)
+      val tracer = openTelemetry.getTracer("java-sdk")
+      val span = tracer
+        .spanBuilder(s"""${command.serviceName}.${command.name}""")
+        .setParent(context)
+        .setSpanKind(SpanKind.SERVER)
+        .startSpan()
+      logger.debug("hopefully created span [{}].", span)
+      Some(
+        span
+          //          .setAttribute(SemanticAttributes.HTTP_METHOD, httpMethod.name)
+          .setAttribute("server.address", "localhost")
+          // TODO use Kubernetes .svc name?
+          .setAttribute("server.port", 8080) // TODO read the port from properties
+          .setAttribute("server.scheme", "http")
+          .setAttribute("service.name", s"""${service.serviceName}""")
+          //          .setAttribute("kalix.inputType", inputTypeUrl)
+          //          .setAttribute("kalix.input", methodInvoker.get.method.input.toString)
+          .setAttribute(s"kalix.${service.componentType}", command.name))
+    } else {
+      logger.debug("No trace parent found.")
+      None
+    }
 
   }
 

@@ -16,22 +16,24 @@
 
 package kalix.javasdk.impl.eventsourcedentity
 
-import kalix.javasdk.{ DeferredCall, Metadata, SideEffect }
-
-import java.util
-import java.util.function.{ Function => JFunction }
-import scala.jdk.CollectionConverters._
+import io.grpc.Status
+import kalix.javasdk.StatusCode.ErrorCode
+import kalix.javasdk.eventsourcedentity.EventSourcedEntity.Effect
+import kalix.javasdk.eventsourcedentity.EventSourcedEntity.Effect.Builder
+import kalix.javasdk.eventsourcedentity.EventSourcedEntity.Effect.OnSuccessBuilder
+import kalix.javasdk.impl.StatusCodeConverter
 import kalix.javasdk.impl.effect.ErrorReplyImpl
 import kalix.javasdk.impl.effect.ForwardReplyImpl
 import kalix.javasdk.impl.effect.MessageReplyImpl
 import kalix.javasdk.impl.effect.NoSecondaryEffectImpl
 import kalix.javasdk.impl.effect.SecondaryEffectImpl
-import kalix.javasdk.eventsourcedentity.EventSourcedEntity.Effect
-import kalix.javasdk.eventsourcedentity.EventSourcedEntity.Effect.Builder
-import kalix.javasdk.eventsourcedentity.EventSourcedEntity.Effect.OnSuccessBuilder
-import io.grpc.Status
-import kalix.javasdk.StatusCode.ErrorCode
-import kalix.javasdk.impl.StatusCodeConverter
+import kalix.javasdk.DeferredCall
+import kalix.javasdk.Metadata
+import kalix.javasdk.SideEffect
+
+import java.util
+import java.util.function.{ Function => JFunction }
+import scala.jdk.CollectionConverters._
 
 object EventSourcedEntityEffectImpl {
   sealed trait PrimaryEffectImpl

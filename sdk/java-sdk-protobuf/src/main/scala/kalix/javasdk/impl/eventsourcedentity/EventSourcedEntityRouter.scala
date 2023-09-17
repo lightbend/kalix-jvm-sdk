@@ -23,6 +23,7 @@ import kalix.javasdk.impl.EntityExceptions
 import kalix.javasdk.impl.effect.SecondaryEffectImpl
 import kalix.javasdk.impl.eventsourcedentity.EventSourcedEntityEffectImpl.EmitEvents
 import kalix.javasdk.impl.eventsourcedentity.EventSourcedEntityEffectImpl.NoPrimaryEffect
+import org.slf4j.LoggerFactory
 
 import java.util.Optional
 
@@ -100,6 +101,7 @@ abstract class EventSourcedEntityRouter[S, E, ES <: EventSourcedEntity[S, E]](pr
         handleCommand(commandName, _stateOrEmpty(), command, context).asInstanceOf[EventSourcedEntityEffectImpl[Any, E]]
       } catch {
         case CommandHandlerNotFound(name) =>
+          //TODO add status failed
           throw new EntityExceptions.EntityException(
             context.entityId(),
             context.commandId(),

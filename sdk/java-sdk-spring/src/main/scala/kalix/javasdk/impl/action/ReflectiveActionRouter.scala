@@ -18,17 +18,17 @@ package kalix.javasdk.impl.action
 
 import akka.NotUsed
 import akka.stream.javadsl.Source
-import com.google.protobuf.any.{ Any => ScalaPbAny }
-import io.opentelemetry.context.{ Context => OtelContext }
+import com.google.protobuf.any.{Any => ScalaPbAny}
+import io.opentelemetry.context.{Context => OtelContext}
 import kalix.javasdk.action.Action
 import kalix.javasdk.action.MessageEnvelope
 import kalix.javasdk.impl.AnySupport.ProtobufEmptyTypeUrl
 import kalix.javasdk.impl.CommandHandler
 import kalix.javasdk.impl.InvocationContext
-import kalix.javasdk.impl.Telemetry
+import kalix.javasdk.impl.telemetry.Telemetry
 
 // TODO: abstract away reactor dependency
-import com.google.protobuf.{ ByteString => ProtobufByteString }
+import com.google.protobuf.{ByteString => ProtobufByteString}
 import reactor.core.publisher.Flux
 
 class ReflectiveActionRouter[A <: Action](
@@ -54,29 +54,23 @@ class ReflectiveActionRouter[A <: Action](
     val inputTypeUrl = message.payload().asInstanceOf[ScalaPbAny].typeUrl
     val methodInvoker = commandHandler.lookupInvoker(inputTypeUrl)
 
-    val span = telemetry.buildSpan(action, inputTypeUrl, methodInvoker, message.metadata())
+    methodInvoker match {
+      case Some(invoker) =>
+        inputTypeUrl match {
+          case ProtobufEmptyTypeUrl =>
+            invoker
+              .invoke(action)
+              .asInstanceOf[Action.Effect[_]]
+          case _ =>
+            invoker
+              .invoke(action, invocationContext)
+              .asInstanceOf[Action.Effect[_]]
+        }
+      case None if ignoreUnknown => ActionEffectImpl.Builder.ignore()
+      case None =>
+        throw new NoSuchElementException(
+          s"Couldn't find any method with input type [$inputTypeUrl] in Action [$action].")
 
-    try {
-      methodInvoker match {
-        case Some(invoker) =>
-          inputTypeUrl match {
-            case ProtobufEmptyTypeUrl =>
-              invoker
-                .invoke(action)
-                .asInstanceOf[Action.Effect[_]]
-            case _ =>
-              invoker
-                .invoke(action, invocationContext)
-                .asInstanceOf[Action.Effect[_]]
-          }
-        case None if ignoreUnknown => ActionEffectImpl.Builder.ignore()
-        case None =>
-          throw new NoSuchElementException(
-            s"Couldn't find any method with input type [$inputTypeUrl] in Action [$action].")
-
-      }
-    } finally {
-      span.map(_.end())
     }
   }
 

@@ -52,11 +52,15 @@ public class TracingIntegratonTest extends DockerIntegrationTest {
         await().ignoreExceptions().atMost(20, TimeUnit.of(SECONDS)).untilAsserted(() -> {
            Traces traces = selectTraces();
            assertThat(traces.traces().isEmpty()).isFalse();
+                    logger.info("## traces [{}].", traces.traces().get(0).traceID());
            Batches batches = selectBatches(traces.traces().get(0).traceID());
            assertThat(batches.batches().isEmpty()).isFalse();
            assertThat(batches.batches().get(0).scopeSpans().get(0).scope().name()).isEqualTo("kalix.proxy.telemetry.TraceInstrumentationImpl");
-           assertThat(batches.batches().get(1).scopeSpans().get(0).spans().get(0).name()).isEqualTo("com.example.wiring.eventsourcedentities.tracingcounter.TCounterEntity.increase");
-           assertThat(batches.batches().get(2).scopeSpans().get(0).spans().get(0).name()).isEqualTo("com.example.wiring.eventsourcedentities.tracingcounter.TIncreaseAction.printIncrease");
+                    logger.info("## batch 1 [{}].",batches.batches().get(0).scopeSpans().get(0).scope().name());
+           assertThat(batches.batches().get(1).scopeSpans().get(0).spans().get(0).name()).isEqualTo("tcounter-entity.some-counter");
+                    logger.info("## batch 2 [{}].",batches.batches().get(1).scopeSpans().get(0).spans().get(0).name());
+           assertThat(batches.batches().get(2).scopeSpans().get(0).spans().get(0).name()).isEqualTo("com.example.wiring.eventsourcedentities.tracingcounter.TIncreaseAction.PrintIncrease");
+                    logger.info("## batch 3 [{}].",batches.batches().get(2).scopeSpans().get(0).spans().get(0).name());
         }
         );
 

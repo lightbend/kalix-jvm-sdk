@@ -24,5 +24,4 @@ public interface EventContext extends EventSourcedEntityContext {
    * @return The sequence number.
    */
   long sequenceNumber();
-
 }
