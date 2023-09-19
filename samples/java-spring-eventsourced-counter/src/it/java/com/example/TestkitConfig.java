@@ -29,7 +29,7 @@ public class TestkitConfig {
   @Bean
   public KalixTestKit.Settings settingsWithPubSub() {
     return KalixTestKit.Settings.DEFAULT.withAclEnabled()
-        .withEventingSupport(EventingSupport.GOOGLE_PUBSUB)
+        .withEventingSupport(EventingSupport.GOOGLE_PUBSUB);
   }
   // end::pubsub[]
 
