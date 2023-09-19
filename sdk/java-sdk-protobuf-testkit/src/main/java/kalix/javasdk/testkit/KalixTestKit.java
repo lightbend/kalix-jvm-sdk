@@ -50,6 +50,7 @@ import java.util.stream.Collectors;
 
 import static kalix.javasdk.testkit.KalixProxyContainer.DEFAULT_GOOGLE_PUBSUB_PORT;
 import static kalix.javasdk.testkit.KalixProxyContainer.DEFAULT_KAFKA_PORT;
+import static kalix.javasdk.testkit.KalixTestKit.Settings.EventingSupport.GOOGLE_PUBSUB;
 import static kalix.javasdk.testkit.KalixTestKit.Settings.EventingSupport.KAFKA;
 import static kalix.javasdk.testkit.KalixTestKit.Settings.EventingSupport.TEST_BROKER;
 
@@ -551,7 +552,7 @@ public class KalixTestKit {
       } else if (settings.eventingSupport == KAFKA) {
         javaOptions.add("-Dkalix.proxy.eventing.support=kafka");
         javaOptions.add("-Dkalix.proxy.eventing.kafka.bootstrap-servers=host.testcontainers.internal:" + DEFAULT_KAFKA_PORT);
-      } else if (settings.eventingSupport == TEST_BROKER) {
+      } else if (settings.eventingSupport == GOOGLE_PUBSUB) {
         javaOptions.add("-Dkalix.proxy.eventing.support=google-pubsub-emulator");
         javaOptions.add("-Dkalix.proxy.eventing.google-pubsub-emulator-defaults.host=host.testcontainers.internal");
         javaOptions.add("-Dkalix.proxy.eventing.google-pubsub-emulator-defaults.port=" + DEFAULT_GOOGLE_PUBSUB_PORT);
