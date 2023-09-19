@@ -27,8 +27,8 @@ public class CustomersByNameViewIntegrationTest extends KalixIntegrationTestKitS
   private WebClient webClient;
 
   @Test
-  public void shouldCustomerByName() {
-    MockedSubscription customerEvents = kalixTestKit.getStreamIncomingMessages("customer-registry", "customer_events");
+  public void shouldReturnCustomerByName() {
+    IncomingMessages customerEvents = kalixTestKit.getStreamIncomingMessages("customer-registry", "customer_events");
 
     String bob = "bob";
     Created created1 = new Created("bob@gmail.com", bob);
