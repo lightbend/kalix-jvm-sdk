@@ -119,9 +119,8 @@ private[javasdk] final class ActionsImpl(
   import ActionsImpl._
   import _system.dispatcher
   implicit val system: ActorSystem = _system
-  //TODO
-  val telemetries: Map[String, Telemetry] = services.values.map { s =>
-    (s.serviceName, new Telemetry(s.serviceName))
+  lazy val telemetries: Map[String, Telemetry] = services.values.map { s =>
+    (s.serviceName, new Telemetry(s.serviceName, system.settings))
   }.toMap
 
   private object creationContext extends AbstractContext(system) with ActionCreationContext {
@@ -199,19 +198,21 @@ private[javasdk] final class ActionsImpl(
       case Some(service) =>
         val context = createContext(in, service.messageCodec)
         val span = telemetries(service.serviceName).buildSpan(service, in)
-        try {
-          val decodedPayload = service.messageCodec.decodeMessage(
-            in.payload.getOrElse(throw new IllegalArgumentException("No command payload")))
-          val effect = service.factory
-            .create(creationContext)
-            .handleUnary(in.name, MessageEnvelope.of(decodedPayload, context.metadata()), context)
-          effectToResponse(service, in, effect, service.messageCodec)
-        } catch {
-          case NonFatal(ex) =>
-            // command handler threw an "unexpected" error
-            Future.successful(handleUnexpectedException(service, in, ex))
-        } finally {
-          span.map(_.end())
+        val fut =
+          try {
+            val decodedPayload = service.messageCodec.decodeMessage(
+              in.payload.getOrElse(throw new IllegalArgumentException("No command payload")))
+            val effect = service.factory
+              .create(creationContext)
+              .handleUnary(in.name, MessageEnvelope.of(decodedPayload, context.metadata()), context)
+            effectToResponse(service, in, effect, service.messageCodec)
+          } catch {
+            case NonFatal(ex) =>
+              // command handler threw an "unexpected" error
+              Future.successful(handleUnexpectedException(service, in, ex))
+          }
+        fut.andThen { case _ =>
+          span.foreach(_.end())
         }
       case None =>
         Future.successful(

@@ -106,6 +106,9 @@ final class EventSourcedEntitiesImpl(
     // FIXME overlay configuration provided by _system
     (name, if (service.snapshotEvery == 0) service.withSnapshotEvery(configuration.snapshotEvery) else service)
   }.toMap
+  val telemetries: Map[String, Telemetry] = services.values.map { s =>
+    (s.serviceName, new Telemetry(s.serviceName, system.settings))
+  }.toMap
 
   private val pbCleanupDeletedEventSourcedEntityAfter =
     Some(com.google.protobuf.duration.Duration(configuration.cleanupDeletedEventSourcedEntityAfter))
@@ -146,7 +149,6 @@ final class EventSourcedEntitiesImpl(
   private def runEntity(init: EventSourcedInit): Flow[EventSourcedStreamIn, EventSourcedStreamOut, NotUsed] = {
     val service =
       services.getOrElse(init.serviceName, throw ProtocolException(init, s"Service not found: ${init.serviceName}"))
-    val telemetry = new Telemetry(service.serviceName)
 
     val router = service.factory
       .create(new EventSourcedEntityContextImpl(init.entityId))
@@ -183,7 +185,7 @@ final class EventSourcedEntitiesImpl(
           val metadata = new MetadataImpl(command.metadata.map(_.entries.toVector).getOrElse(Nil))
           val context =
             new CommandContextImpl(thisEntityId, sequence, command.name, command.id, metadata)
-          val span = telemetry.buildSpan(service, command)
+          val span = telemetries(service.serviceName).buildSpan(service, command)
           val CommandResult(
             events: Vector[Any],
             secondaryEffect: SecondaryEffectImpl,

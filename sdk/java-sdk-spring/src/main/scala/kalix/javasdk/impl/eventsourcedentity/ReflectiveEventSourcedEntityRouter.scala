@@ -25,7 +25,6 @@ import kalix.javasdk.impl.CommandHandler
 import kalix.javasdk.impl.InvocationContext
 import kalix.javasdk.impl.JsonMessageCodec
 import kalix.javasdk.impl.MethodInvoker
-import org.slf4j.LoggerFactory
 
 import java.lang.reflect.ParameterizedType
 
@@ -35,10 +34,6 @@ class ReflectiveEventSourcedEntityRouter[S, E, ES <: EventSourcedEntity[S, E]](
     eventHandlerMethods: Map[String, MethodInvoker],
     messageCodec: JsonMessageCodec)
     extends EventSourcedEntityRouter[S, E, ES](entity) {
-
-  private val logger = LoggerFactory.getLogger(this.getClass)
-
-//  private val telemetry = new Telemetry(entity.getClass.getName)
 
   private def commandHandlerLookup(commandName: String) =
     commandHandlers.getOrElse(
@@ -54,7 +49,6 @@ class ReflectiveEventSourcedEntityRouter[S, E, ES <: EventSourcedEntity[S, E]](
   override def handleEvent(state: S, event: E): S = {
 
     _extractAndSetCurrentState(state)
-    logger.debug("handling event [{}]", event)
 
     event match {
       case s: ScalaPbAny => // replaying event coming from proxy

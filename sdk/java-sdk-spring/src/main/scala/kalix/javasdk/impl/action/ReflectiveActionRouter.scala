@@ -24,7 +24,6 @@ import kalix.javasdk.action.MessageEnvelope
 import kalix.javasdk.impl.AnySupport.ProtobufEmptyTypeUrl
 import kalix.javasdk.impl.CommandHandler
 import kalix.javasdk.impl.InvocationContext
-import kalix.javasdk.impl.telemetry.Telemetry
 
 // TODO: abstract away reactor dependency
 import reactor.core.publisher.Flux
@@ -35,7 +34,6 @@ class ReflectiveActionRouter[A <: Action](
     ignoreUnknown: Boolean)
     extends ActionRouter[A](action) {
 
-  private val telemetry = new Telemetry(action.getClass.getName)
   private def commandHandlerLookup(commandName: String) =
     commandHandlers.getOrElse(commandName, throw new RuntimeException(s"no matching method for '$commandName'"))
 

@@ -23,7 +23,6 @@ import kalix.javasdk.impl.EntityExceptions
 import kalix.javasdk.impl.effect.SecondaryEffectImpl
 import kalix.javasdk.impl.eventsourcedentity.EventSourcedEntityEffectImpl.EmitEvents
 import kalix.javasdk.impl.eventsourcedentity.EventSourcedEntityEffectImpl.NoPrimaryEffect
-import org.slf4j.LoggerFactory
 
 import java.util.Optional
 

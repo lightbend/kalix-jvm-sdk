@@ -20,8 +20,6 @@ import com.example.Main;
 import com.example.wiring.pubsub.DockerIntegrationTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.ActiveProfiles;
@@ -38,8 +36,6 @@ import static org.awaitility.Awaitility.await;
 @ActiveProfiles("docker-it-test")
 public class TracingIntegratonTest extends DockerIntegrationTest {
 
-    Logger logger = LoggerFactory.getLogger(TracingIntegratonTest.class);
-
     public TracingIntegratonTest(ApplicationContext applicationContext) {
         super(applicationContext);
     }
@@ -52,15 +48,11 @@ public class TracingIntegratonTest extends DockerIntegrationTest {
         await().ignoreExceptions().atMost(20, TimeUnit.of(SECONDS)).untilAsserted(() -> {
            Traces traces = selectTraces();
            assertThat(traces.traces().isEmpty()).isFalse();
-                    logger.info("## traces [{}].", traces.traces().get(0).traceID());
            Batches batches = selectBatches(traces.traces().get(0).traceID());
            assertThat(batches.batches().isEmpty()).isFalse();
            assertThat(batches.batches().get(0).scopeSpans().get(0).scope().name()).isEqualTo("kalix.proxy.telemetry.TraceInstrumentationImpl");
-                    logger.info("## batch 1 [{}].",batches.batches().get(0).scopeSpans().get(0).scope().name());
            assertThat(batches.batches().get(1).scopeSpans().get(0).spans().get(0).name()).isEqualTo("tcounter-entity.some-counter");
-                    logger.info("## batch 2 [{}].",batches.batches().get(1).scopeSpans().get(0).spans().get(0).name());
            assertThat(batches.batches().get(2).scopeSpans().get(0).spans().get(0).name()).isEqualTo("com.example.wiring.eventsourcedentities.tracingcounter.TIncreaseAction.PrintIncrease");
-                    logger.info("## batch 3 [{}].",batches.batches().get(2).scopeSpans().get(0).spans().get(0).name());
         }
         );
 
@@ -69,18 +61,13 @@ public class TracingIntegratonTest extends DockerIntegrationTest {
     private Integer callTCounter(String counterId, Integer increase) {
         return webClient.post().uri("/tcounter/" + counterId + "/increase/" + increase).retrieve().bodyToMono(Integer.class).block(timeout);
     }
- // TODO investigate this path   String response = WebClient.create("http://0.0.0.0:3200").get().uri(
- //                uriBuilder -> uriBuilder.path("/api/search")
- //                        .queryParam("q","{ }").build()).retrieve().bodyToMono(String.class).block(timeout)
     public Traces selectTraces(){
         Traces traces = WebClient.create("http://0.0.0.0:3200/api/search").get().retrieve().bodyToMono(Traces.class).block(timeout);
-        logger.debug("traces [{}].",traces.toString());
         return traces;
     }
 
     public Batches selectBatches(String traceId){
         Batches batches =  WebClient.create("http://0.0.0.0:3200/api/traces/" + traceId).get().retrieve().bodyToMono(Batches.class).block(timeout);
-        logger.debug("batches [{}].", batches.toString());
         return batches;
     }
 
