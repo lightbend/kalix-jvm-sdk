@@ -25,6 +25,7 @@ import kalix.javasdk.testkit.EventingTestKit.IncomingMessages;
 import kalix.javasdk.testkit.EventingTestKit.Message;
 import kalix.javasdk.testkit.KalixTestKit;
 import kalix.spring.KalixConfigurationTest;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -32,6 +33,7 @@ import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -48,6 +50,7 @@ import static org.awaitility.Awaitility.await;
 @Import({KalixConfigurationTest.class, TestkitConfigEventing.class})
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @TestPropertySource(properties = "spring.main.allow-bean-definition-overriding=true")
+@DirtiesContext
 public class EventingTestkitIntegrationTest {
 
   @Autowired
@@ -66,6 +69,12 @@ public class EventingTestkitIntegrationTest {
   @BeforeEach
   public void beforeEach() {
     DummyCounterEventStore.clear();
+  }
+
+
+  @AfterAll
+  public void afterAll() {
+    kalixTestKit.stop();
   }
 
   @Test

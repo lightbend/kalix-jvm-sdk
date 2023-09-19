@@ -23,12 +23,14 @@ import kalix.javasdk.client.ComponentClient;
 import kalix.javasdk.testkit.EventingTestKit;
 import kalix.javasdk.testkit.KalixTestKit;
 import kalix.spring.KalixConfigurationTest;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 
@@ -47,6 +49,7 @@ import static org.awaitility.Awaitility.await;
 @Import({KalixConfigurationTest.class, TestkitConfigEventing.class})
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @TestPropertySource(properties = "spring.main.allow-bean-definition-overriding=true")
+@DirtiesContext
 public class EventingTestkitDestinationIntegrationTest {
 
   @Autowired
@@ -58,6 +61,11 @@ public class EventingTestkitDestinationIntegrationTest {
   @BeforeAll
   public void beforeAll() {
     destination = kalixTestKit.getTopicOutgoingMessages(CUSTOMERS_TOPIC);
+  }
+
+  @AfterAll
+  public void afterAll() {
+    kalixTestKit.stop();
   }
 
   @Test

@@ -424,7 +424,7 @@ public class SpringSdkIntegrationTest {
 
 
   @Test
-  public void shouldDeleteValueEntityAndDeleteViewsState() throws InterruptedException {
+  public void shouldDeleteValueEntityAndDeleteViewsState() {
 
     TestUser user = new TestUser("userId", "john2@doe.com", "Bob");
     createUser(user);

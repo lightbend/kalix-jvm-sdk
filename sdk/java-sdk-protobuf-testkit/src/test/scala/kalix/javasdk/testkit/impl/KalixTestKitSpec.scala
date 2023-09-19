@@ -33,9 +33,11 @@ class KalixTestKitSpec extends AnyWordSpec with Matchers {
         .withStreamIncomingMessages("s2", "f")
         .withTopicIncomingMessages("g")
         .withTopicIncomingMessages("h")
-        .toSubscriptionsConfig
+        .withTopicOutgoingMessages("aa")
+        .withTopicOutgoingMessages("bb")
 
-      config shouldBe "value-entity,a;value-entity,b;event-sourced-entity,c;event-sourced-entity,d;stream,s1/e;stream,s2/f;topic,g;topic,h"
+      config.toIncomingFlowConfig shouldBe "event-sourced-entity,c;event-sourced-entity,d;stream,s1/e;stream,s2/f;topic,g;topic,h;value-entity,a;value-entity,b"
+      config.toOutgoingFlowConfig shouldBe "topic,aa;topic,bb"
     }
   }
 

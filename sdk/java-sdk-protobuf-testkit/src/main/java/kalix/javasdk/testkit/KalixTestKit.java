@@ -69,37 +69,43 @@ public class KalixTestKit {
     public static final String EVENT_SOURCED_ENTITY = "event-sourced-entity";
     public static final String STREAM = "stream";
     public static final String TOPIC = "topic";
-    private final Map<String, Set<String>> mockedIncomingEvents = new LinkedHashMap<>(); //Subscriptions
-    private final Map<String, Set<String>> mockedOutgoingEvents = new LinkedHashMap<>(); //Destination
+    private final Map<String, Set<String>> mockedIncomingEvents; //Subscriptions
+    private final Map<String, Set<String>> mockedOutgoingEvents; //Destination
 
     private MockedEventing() {
+      this(new HashMap<>(), new HashMap<>());
+    }
+
+    private MockedEventing(Map<String, Set<String>> mockedIncomingEvents, Map<String, Set<String>> mockedOutgoingEvents) {
+      this.mockedIncomingEvents = mockedIncomingEvents;
+      this.mockedOutgoingEvents = mockedOutgoingEvents;
     }
 
     public static MockedEventing EMPTY = new MockedEventing();
 
     public MockedEventing withValueEntityIncomingMessages(String typeId) {
       mockedIncomingEvents.compute(VALUE_ENTITY, updateValues(typeId));
-      return this;
+      return new MockedEventing(new HashMap<>(mockedIncomingEvents), mockedOutgoingEvents);
     }
 
     public MockedEventing withEventSourcedIncomingMessages(String typeId) {
       mockedIncomingEvents.compute(EVENT_SOURCED_ENTITY, updateValues(typeId));
-      return this;
+      return new MockedEventing(new HashMap<>(mockedIncomingEvents), mockedOutgoingEvents);
     }
 
     public MockedEventing withStreamIncomingMessages(String service, String streamId) {
       mockedIncomingEvents.compute(STREAM, updateValues(service + "/" + streamId));
-      return this;
+      return new MockedEventing(new HashMap<>(mockedIncomingEvents), mockedOutgoingEvents);
     }
 
     public MockedEventing withTopicIncomingMessages(String topic) {
       mockedIncomingEvents.compute(TOPIC, updateValues(topic));
-      return this;
+      return new MockedEventing(new HashMap<>(mockedIncomingEvents), mockedOutgoingEvents);
     }
 
     public MockedEventing withTopicOutgoingMessages(String topic) {
       mockedOutgoingEvents.compute(TOPIC, updateValues(topic));
-      return this;
+      return new MockedEventing(mockedIncomingEvents, new HashMap<>(mockedOutgoingEvents));
     }
 
     @NotNull
@@ -136,19 +142,21 @@ public class KalixTestKit {
       return !mockedOutgoingEvents.isEmpty();
     }
 
-    public String toSubscriptionsConfig() {
+    public String toIncomingFlowConfig() {
       return toConfig(mockedIncomingEvents);
     }
 
-    public String toDestinationsConfig() {
+    public String toOutgoingFlowConfig() {
       return toConfig(mockedOutgoingEvents);
     }
 
     private String toConfig(Map<String, Set<String>> configs) {
-      return configs.entrySet().stream().flatMap(entry -> {
-        String subscriptionType = entry.getKey();
-        return entry.getValue().stream().map(name -> subscriptionType + "," + name);
-      }).collect(Collectors.joining(";"));
+      return configs.entrySet().stream()
+          .sorted(Map.Entry.comparingByKey())
+          .flatMap(entry -> {
+            String subscriptionType = entry.getKey();
+            return entry.getValue().stream().map(name -> subscriptionType + "," + name);
+          }).collect(Collectors.joining(";"));
     }
 
     boolean hasValueEntitySubscription(String typeId) {
@@ -549,10 +557,10 @@ public class KalixTestKit {
         javaOptions.add("-Dkalix.proxy.eventing.google-pubsub-emulator-defaults.port=" + DEFAULT_GOOGLE_PUBSUB_PORT);
       }
       if (settings.mockedEventing.hasSubscriptionConfig()) {
-        javaOptions.add("-Dkalix.proxy.eventing.override.sources=" + settings.mockedEventing.toSubscriptionsConfig());
+        javaOptions.add("-Dkalix.proxy.eventing.override.sources=" + settings.mockedEventing.toIncomingFlowConfig());
       }
       if (settings.mockedEventing.hasDestinationConfig()) {
-        javaOptions.add("-Dkalix.proxy.eventing.override.destinations=" + settings.mockedEventing.toDestinationsConfig());
+        javaOptions.add("-Dkalix.proxy.eventing.override.destinations=" + settings.mockedEventing.toOutgoingFlowConfig());
       }
       settings.servicePortMappings.forEach((serviceName, hostPort) -> {
         javaOptions.add("-Dkalix.dev-mode.service-port-mappings." + serviceName + "=" + hostPort);

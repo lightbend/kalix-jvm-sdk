@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
+// tag::class[]
 @Configuration
 public class TestkitConfig {
   // end::class[]
@@ -16,8 +17,10 @@ public class TestkitConfig {
   public KalixTestKit.Settings settings() {
     return KalixTestKit.Settings.DEFAULT.withAclEnabled()
         .withTopicIncomingMessages("counter-commands")
-        .withTopicOutgoingMessages("counter-events")
-        .withTopicOutgoingMessages("counter-events-with-meta"); // <1>
+        .withTopicOutgoingMessages("counter-events")  // <1>
+        // end::acls[]
+        .withTopicOutgoingMessages("counter-events-with-meta");
+        // tag::acls[]
   }
   // end::acls[]
 
@@ -27,7 +30,6 @@ public class TestkitConfig {
   public KalixTestKit.Settings settingsWithPubSub() {
     return KalixTestKit.Settings.DEFAULT.withAclEnabled()
         .withEventingSupport(EventingSupport.GOOGLE_PUBSUB)
-        .withTopicOutgoingMessages("counter-events");
   }
   // end::pubsub[]
 
