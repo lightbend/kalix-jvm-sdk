@@ -593,9 +593,6 @@ jobs:
         # v3.1.0
         uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8
 
-      - name: Setup upterm session
-        uses: lhotari/action-upterm@v1
-
       - name: Checkout GitHub merge
         if: github.event.pull_request
         run: |-
@@ -657,6 +654,10 @@ jobs:
             ${PRE_CMD}
             KALIX_TESTKIT_DEBUG=true mvn -Dkalix-sdk.version=${SDK_VERSION} verify -Pit
           fi
+
+      - name: Wait for healthchecks
+        run: timeout 60s sh -c 'until docker ps | grep "circleci-kafka-1" | grep -q healthy; do echo "Waiting for container to be healthy..."; sleep 2; done'
+
 
       - name: ${{ matrix.sample }} rm & test-compile
         env:
