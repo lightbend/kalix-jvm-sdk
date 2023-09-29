@@ -47,17 +47,17 @@ class SourcesHolder extends Actor {
     case AddSource(runningSourceProbe) =>
       if (publishedMessages.nonEmpty) {
         log.debug(
-          s"Emitting ${publishedMessages.size} messages to the new source from [${runningSourceProbe.serviceName}]")
+          s"Emitting ${publishedMessages.size} messages to new source ${runningSourceProbe.serviceName}/${runningSourceProbe.source.source}")
         publishedMessages.foreach { msg =>
           runningSourceProbe.emit(msg.message, msg.metadata)
         }
       }
       sources.addOne(runningSourceProbe)
-      log.debug(s"Source from [${runningSourceProbe.serviceName}] added")
+      log.debug(s"Source added ${runningSourceProbe.serviceName}/${runningSourceProbe.source.source}")
       sender() ! "ok"
     case Publish(message, metadata) =>
       sources.foreach { source =>
-        log.debug(s"Emitting message to the source from [${source.serviceName}]")
+        log.debug(s"Emitting message to source ${source.serviceName}/${source.source.source}")
         source.emit(message, metadata)
       }
       publishedMessages.addOne(PublishedMessage(message, metadata))

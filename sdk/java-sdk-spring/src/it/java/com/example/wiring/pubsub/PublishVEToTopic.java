@@ -27,7 +27,7 @@ import org.springframework.context.annotation.Profile;
 
 import static kalix.javasdk.impl.MetadataImpl.CeSubject;
 
-@Profile("docker-it-test")
+@Profile({"docker-it-test", "eventing-testkit-destination"})
 @Subscribe.ValueEntity(CustomerEntity.class)
 public class PublishVEToTopic extends Action {
 

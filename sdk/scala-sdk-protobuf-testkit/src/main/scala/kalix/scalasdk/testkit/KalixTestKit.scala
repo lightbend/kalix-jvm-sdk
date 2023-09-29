@@ -70,6 +70,14 @@ object KalixTestKit {
       }
       new Settings(jSettings.withEventingSupport(jEventingSupport))
     }
+    def withValueEntityIncomingMessages(typeId: String) = new Settings(
+      jSettings.withValueEntityIncomingMessages(typeId))
+    def withEventSourcedEntityIncomingMessages(typeId: String) = new Settings(
+      jSettings.withEventSourcedEntityIncomingMessages(typeId))
+    def withStreamIncomingMessages(service: String, streamId: String) = new Settings(
+      jSettings.withStreamIncomingMessages(service, streamId))
+    def withTopicIncomingMessages(topic: String) = new Settings(jSettings.withTopicIncomingMessages(topic))
+    def withTopicOutgoingMessages(topic: String) = new Settings(jSettings.withTopicOutgoingMessages(topic))
   }
 
   object Settings {
@@ -144,7 +152,57 @@ class KalixTestKit private (delegate: JTestKit) {
    * @return
    *   mocked topic to read/publish messages from/to
    */
+  @Deprecated
   def getTopic(topic: String): Topic = Topic(delegate.getTopic(topic), delegate.getMessageCodec)
+
+  /**
+   * Get incoming messages for ValueEntity.
+   *
+   * @param typeId
+   * @TypeId
+   *   or entity_type of the ValueEntity (depending on the used SDK)
+   */
+  def getValueEntityIncomingMessages(typeId: String): IncomingMessages = IncomingMessages(
+    delegate.getValueEntityIncomingMessages(typeId))
+
+  /**
+   * Get incoming messages for EventSourcedEntity.
+   *
+   * @param typeId
+   * @TypeId
+   *   or entity_type of the EventSourcedEntity (depending on the used SDK)
+   */
+  def getEventSourcedEntityIncomingMessages(typeId: String): IncomingMessages = IncomingMessages(
+    delegate.getEventSourcedEntityIncomingMessages(typeId))
+
+  /**
+   * Get incoming messages for Stream (eventing.in.direct in case of protobuf SDKs).
+   *
+   * @param service
+   *   service name
+   * @param streamId
+   *   service stream id
+   */
+  def getStreamIncomingMessages(service: String, streamId: String): IncomingMessages = IncomingMessages(
+    delegate.getStreamIncomingMessages(service, streamId))
+
+  /**
+   * Get incoming messages for Topic.
+   *
+   * @param topic
+   *   topic name
+   */
+  def getTopicIncomingMessages(topic: String): IncomingMessages = IncomingMessages(
+    delegate.getTopicIncomingMessages(topic))
+
+  /**
+   * Get mocked topic destination.
+   *
+   * @param topic
+   *   topic name
+   */
+  def getTopicOutgoingMessages(topic: String): OutgoingMessages =
+    OutgoingMessages(delegate.getTopicOutgoingMessages(topic), delegate.getMessageCodec)
 
   /**
    * An Akka Stream materializer to use for running streams. Needed for example in a command handler which accepts

@@ -549,10 +549,10 @@ Java::
 include::example$java-protobuf-eventsourced-counter/src/it/java/com/example/CounterTopicIntegrationTest.java[tag=test-topic]
 ----
 <1> Start the TestKit, booting up both the service and its proxy.
-<2> Get a mocked topic named `counter-commands` from the TestKit.
-<3> Get a mocked topic named `counter-events` from the TestKit.
-<4> Build 2 commands and publish both to the topic. Note the `counterId` is passed as the subject id of the message.
-<5> Read 2 messages, one at a time. Note we pass in the expected class type for the next message.
+<2> Get a `IncomingMessages` for the topic named `counter-commands` from the TestKit.
+<3> Get a `OutgoingMessages` for the topic named `counter-events` from the TestKit.
+<4> Build 2 commands and publish both to the topic. The `counterId` is passed as the subject id of the message.
+<5> Read 2 messages, one at a time. We pass in the expected class type for the next message.
 <6> Assert the received messages have the same value as the commands sent.
 
 Scala::

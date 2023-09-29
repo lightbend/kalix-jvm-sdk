@@ -1,4 +1,4 @@
-name := "eventsourcedentity-counter"
+name := "scala-protobuf-eventsourced-counter"
 
 organization := "io.kalix.samples"
 organizationHomepage := Some(url("https://kalix.io"))

@@ -1,4 +1,4 @@
-version: '2.0'
+version: '3'
 
 services:
   kafka:
@@ -18,6 +18,13 @@ services:
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,EXTERNAL_DOCKER:PLAINTEXT,HOST:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    healthcheck:
+      test: nc -z localhost 9092 || exit -1
+      start_period: 10s
+      interval: 5s
+      timeout: 10s
+      retries: 10
+
   zookeeper:
     image: zookeeper:3.9
     ports:

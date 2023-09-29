@@ -22,6 +22,8 @@ import akka.stream.Materializer;
 import kalix.javasdk.Kalix;
 import kalix.javasdk.impl.MessageCodec;
 import kalix.javasdk.testkit.EventingTestKit;
+import kalix.javasdk.testkit.EventingTestKit.OutgoingMessages;
+import kalix.javasdk.testkit.EventingTestKit.IncomingMessages;
 import kalix.javasdk.testkit.KalixTestKit;
 import kalix.javasdk.testkit.EventingTestKit.Topic;
 import org.junit.rules.ExternalResource;
@@ -80,14 +82,63 @@ public final class KalixTestKitResource extends ExternalResource {
   }
 
   /**
+   * Use <code>getTopicIncomingMessages</code> or <code>getTopicOutgoingMessages</code> instead.
+   *
    * If your Kalix service publishes or consumes from/to an eventing services (i.e. kafka or pub/sub),
    * this will allow assertions on messages consumed / produced to such broker.
    *
    * @param topic name of the topic to interact with
-   * @return a struture to allow interactions with a topic
+   * @return a structure to allow interactions with a topic
    */
+  @Deprecated
   public Topic getTopic(String topic) {
     return testKit.getTopic(topic);
+  }
+
+  /**
+   * Get incoming messages for ValueEntity.
+   *
+   * @param typeId @TypeId or entity_type of the ValueEntity (depending on the used SDK)
+   */
+  public IncomingMessages getValueEntityIncomingMessages(String typeId) {
+    return testKit.getValueEntityIncomingMessages(typeId);
+  }
+
+  /**
+   * Get incoming messages for EventSourcedEntity.
+   *
+   * @param typeId @TypeId or entity_type of the EventSourcedEntity (depending on the used SDK)
+   */
+  public IncomingMessages getEventSourcedEntityIncomingMessages(String typeId) {
+    return testKit.getEventSourcedEntityIncomingMessages(typeId);
+  }
+
+  /**
+   * Get incoming messages for Stream (eventing.in.direct in case of protobuf SDKs).
+   *
+   * @param service  service name
+   * @param streamId service stream id
+   */
+  public IncomingMessages getStreamIncomingMessages(String service, String streamId) {
+    return testKit.getStreamIncomingMessages(service, streamId);
+  }
+
+  /**
+   * Get incoming messages for Topic.
+   *
+   * @param topic topic name
+   */
+  public IncomingMessages getTopicIncomingMessages(String topic) {
+    return testKit.getTopicIncomingMessages(topic);
+  }
+
+  /**
+   * Get mocked topic destination.
+   *
+   * @param topic topic name
+   */
+  public OutgoingMessages getTopicOutgoingMessages(String topic) {
+    return testKit.getTopicOutgoingMessages(topic);
   }
 
   /**

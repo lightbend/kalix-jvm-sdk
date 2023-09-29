@@ -32,6 +32,8 @@ import kalix.javasdk.Principal;
 import kalix.javasdk.impl.GrpcClients;
 import kalix.javasdk.impl.MessageCodec;
 import kalix.javasdk.impl.ProxyInfoHolder;
+import kalix.javasdk.testkit.EventingTestKit.IncomingMessages;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,10 +45,14 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
 import static kalix.javasdk.testkit.KalixProxyContainer.DEFAULT_GOOGLE_PUBSUB_PORT;
 import static kalix.javasdk.testkit.KalixProxyContainer.DEFAULT_KAFKA_PORT;
+import static kalix.javasdk.testkit.KalixTestKit.Settings.EventingSupport.GOOGLE_PUBSUB;
+import static kalix.javasdk.testkit.KalixTestKit.Settings.EventingSupport.KAFKA;
+import static kalix.javasdk.testkit.KalixTestKit.Settings.EventingSupport.TEST_BROKER;
 
 /**
  * Testkit for running Kalix services locally.
@@ -59,32 +65,179 @@ import static kalix.javasdk.testkit.KalixProxyContainer.DEFAULT_KAFKA_PORT;
  */
 public class KalixTestKit {
 
-  /** Settings for KalixTestkit. */
+  public static class MockedEventing {
+    public static final String VALUE_ENTITY = "value-entity";
+    public static final String EVENT_SOURCED_ENTITY = "event-sourced-entity";
+    public static final String STREAM = "stream";
+    public static final String TOPIC = "topic";
+    private final Map<String, Set<String>> mockedIncomingEvents; //Subscriptions
+    private final Map<String, Set<String>> mockedOutgoingEvents; //Destination
+
+    private MockedEventing() {
+      this(new HashMap<>(), new HashMap<>());
+    }
+
+    private MockedEventing(Map<String, Set<String>> mockedIncomingEvents, Map<String, Set<String>> mockedOutgoingEvents) {
+      this.mockedIncomingEvents = mockedIncomingEvents;
+      this.mockedOutgoingEvents = mockedOutgoingEvents;
+    }
+
+    public static MockedEventing EMPTY = new MockedEventing();
+
+    public MockedEventing withValueEntityIncomingMessages(String typeId) {
+      Map<String, Set<String>> copy = new HashMap<>(mockedIncomingEvents);
+      copy.compute(VALUE_ENTITY, updateValues(typeId));
+      return new MockedEventing(copy, new HashMap<>(mockedOutgoingEvents));
+    }
+
+    public MockedEventing withEventSourcedIncomingMessages(String typeId) {
+      Map<String, Set<String>> copy = new HashMap<>(mockedIncomingEvents);
+      copy.compute(EVENT_SOURCED_ENTITY, updateValues(typeId));
+      return new MockedEventing(copy, new HashMap<>(mockedOutgoingEvents));
+    }
+
+    public MockedEventing withStreamIncomingMessages(String service, String streamId) {
+      Map<String, Set<String>> copy = new HashMap<>(mockedIncomingEvents);
+      copy.compute(STREAM, updateValues(service + "/" + streamId));
+      return new MockedEventing(copy, new HashMap<>(mockedOutgoingEvents));
+    }
+
+    public MockedEventing withTopicIncomingMessages(String topic) {
+      Map<String, Set<String>> copy = new HashMap<>(mockedIncomingEvents);
+      copy.compute(TOPIC, updateValues(topic));
+      return new MockedEventing(copy, new HashMap<>(mockedOutgoingEvents));
+    }
+
+    public MockedEventing withTopicOutgoingMessages(String topic) {
+      Map<String, Set<String>> copy = new HashMap<>(mockedOutgoingEvents);
+      copy.compute(TOPIC, updateValues(topic));
+      return new MockedEventing(new HashMap<>(mockedIncomingEvents), copy);
+    }
+
+    @NotNull
+    private BiFunction<String, Set<String>, Set<String>> updateValues(String typeId) {
+      return (key, currentValues) -> {
+        if (currentValues == null) {
+          LinkedHashSet<String> values = new LinkedHashSet<>(); //order is relevant only for tests
+          values.add(typeId);
+          return values;
+        } else {
+          currentValues.add(typeId);
+          return currentValues;
+        }
+      };
+    }
+
+    @Override
+    public String toString() {
+      return "MockedEventing{" +
+          "mockedIncomingEvents=" + mockedIncomingEvents +
+          ", mockedOutgoingEvents=" + mockedOutgoingEvents +
+          '}';
+    }
+
+    public boolean hasIncomingConfig() {
+      return !mockedIncomingEvents.isEmpty();
+    }
+
+    public boolean hasConfig() {
+      return hasIncomingConfig() || hasOutgoingConfig();
+    }
+
+    public boolean hasOutgoingConfig() {
+      return !mockedOutgoingEvents.isEmpty();
+    }
+
+    public String toIncomingFlowConfig() {
+      return toConfig(mockedIncomingEvents);
+    }
+
+    public String toOutgoingFlowConfig() {
+      return toConfig(mockedOutgoingEvents);
+    }
+
+    private String toConfig(Map<String, Set<String>> configs) {
+      return configs.entrySet().stream()
+          .sorted(Map.Entry.comparingByKey())
+          .flatMap(entry -> {
+            String subscriptionType = entry.getKey();
+            return entry.getValue().stream().map(name -> subscriptionType + "," + name);
+          }).collect(Collectors.joining(";"));
+    }
+
+    boolean hasValueEntitySubscription(String typeId) {
+      return checkExistence(VALUE_ENTITY, typeId);
+    }
+
+    boolean hasEventSourcedEntitySubscription(String typeId) {
+      return checkExistence(EVENT_SOURCED_ENTITY, typeId);
+    }
+
+    boolean hasStreamSubscription(String service, String streamId) {
+      return checkExistence(STREAM, service + "/" + streamId);
+    }
+
+    boolean hasTopicSubscription(String topic) {
+      return checkExistence(TOPIC, topic);
+    }
+
+    boolean hasTopicDestination(String topic) {
+      Set<String> values = mockedOutgoingEvents.get(TOPIC);
+      return values != null && values.contains(topic);
+    }
+
+    private boolean checkExistence(String type, String name) {
+      Set<String> values = mockedIncomingEvents.get(type);
+      return values != null && values.contains(name);
+    }
+  }
+
+  /**
+   * Settings for KalixTestkit.
+   */
   public static class Settings {
-    /** Default stop timeout (10 seconds). */
+    /**
+     * Default stop timeout (10 seconds).
+     */
     public static Duration DEFAULT_STOP_TIMEOUT = Duration.ofSeconds(10);
-    /** Default settings for KalixTestkit. */
+    /**
+     * Default settings for KalixTestkit.
+     */
     public static Settings DEFAULT = new Settings(DEFAULT_STOP_TIMEOUT);
 
-    /** Timeout setting for stopping the local Kalix test instance. */
+    /**
+     * Timeout setting for stopping the local Kalix test instance.
+     */
     public final Duration stopTimeout;
 
-    /** The name of this service when deployed. */
+    /**
+     * The name of this service when deployed.
+     */
     public final String serviceName;
 
-    /** Whether ACL checking is enabled. */
+    /**
+     * Whether ACL checking is enabled.
+     */
     public final boolean aclEnabled;
 
-    /** Whether advanced View features are enabled. */
+    /**
+     * Whether advanced View features are enabled.
+     */
     public final boolean advancedViews;
 
-    /** To override workflow tick interval for integration tests */
+    /**
+     * To override workflow tick interval for integration tests
+     */
     public final Optional<Duration> workflowTickInterval;
 
-    /** Service port mappings from serviceName to host:port */
+    /**
+     * Service port mappings from serviceName to host:port
+     */
     public final Map<String, String> servicePortMappings;
 
     public final EventingSupport eventingSupport;
+
+    public final MockedEventing mockedEventing;
 
     /**
      * Create new settings for KalixTestkit.
@@ -94,7 +247,7 @@ public class KalixTestKit {
      */
     @Deprecated
     public Settings(final Duration stopTimeout) {
-      this(stopTimeout, "self", false, false, Optional.empty(), Collections.emptyMap(), EventingSupport.TEST_BROKER);
+      this(stopTimeout, "self", false, false, Optional.empty(), Collections.emptyMap(), TEST_BROKER, MockedEventing.EMPTY);
     }
 
     public enum EventingSupport {
@@ -106,27 +259,28 @@ public class KalixTestKit {
 
       /**
        * Used if you want to use an external Google PubSub (or its Emulator) on your tests.
-       *
+       * <p>
        * Note: the Google PubSub broker instance needs to be started independently.
        */
       GOOGLE_PUBSUB,
 
       /**
        * Used if you want to use an external Kafka broker on your tests.
-       *
+       * <p>
        * Note: the Kafka broker instance needs to be started independently.
        */
       KAFKA
     }
 
     private Settings(
-      final Duration stopTimeout,
-      final String serviceName,
-      final boolean aclEnabled,
-      final boolean advancedViews,
-      final Optional<Duration> workflowTickInterval,
-      final Map<String, String> servicePortMappings,
-      final EventingSupport eventingSupport) {
+        final Duration stopTimeout,
+        final String serviceName,
+        final boolean aclEnabled,
+        final boolean advancedViews,
+        final Optional<Duration> workflowTickInterval,
+        final Map<String, String> servicePortMappings,
+        final EventingSupport eventingSupport,
+        final MockedEventing mockedEventing) {
       this.stopTimeout = stopTimeout;
       this.serviceName = serviceName;
       this.aclEnabled = aclEnabled;
@@ -134,6 +288,7 @@ public class KalixTestKit {
       this.workflowTickInterval = workflowTickInterval;
       this.servicePortMappings = servicePortMappings;
       this.eventingSupport = eventingSupport;
+      this.mockedEventing = mockedEventing;
     }
 
     /**
@@ -143,7 +298,7 @@ public class KalixTestKit {
      * @return updated Settings
      */
     public Settings withStopTimeout(final Duration stopTimeout) {
-      return new Settings(stopTimeout, serviceName, aclEnabled, advancedViews, workflowTickInterval, servicePortMappings, eventingSupport);
+      return new Settings(stopTimeout, serviceName, aclEnabled, advancedViews, workflowTickInterval, servicePortMappings, eventingSupport, mockedEventing);
     }
 
     /**
@@ -155,7 +310,7 @@ public class KalixTestKit {
      * @return The updated settings.
      */
     public Settings withServiceName(final String serviceName) {
-      return new Settings(stopTimeout, serviceName, aclEnabled, advancedViews, workflowTickInterval, servicePortMappings, eventingSupport);
+      return new Settings(stopTimeout, serviceName, aclEnabled, advancedViews, workflowTickInterval, servicePortMappings, eventingSupport, mockedEventing);
     }
 
     /**
@@ -164,7 +319,7 @@ public class KalixTestKit {
      * @return The updated settings.
      */
     public Settings withAclDisabled() {
-      return new Settings(stopTimeout, serviceName, false, advancedViews, workflowTickInterval, servicePortMappings, eventingSupport);
+      return new Settings(stopTimeout, serviceName, false, advancedViews, workflowTickInterval, servicePortMappings, eventingSupport, mockedEventing);
     }
 
     /**
@@ -173,7 +328,7 @@ public class KalixTestKit {
      * @return The updated settings.
      */
     public Settings withAclEnabled() {
-      return new Settings(stopTimeout, serviceName, true, advancedViews, workflowTickInterval, servicePortMappings, eventingSupport);
+      return new Settings(stopTimeout, serviceName, true, advancedViews, workflowTickInterval, servicePortMappings, eventingSupport, mockedEventing);
     }
 
     /**
@@ -182,7 +337,7 @@ public class KalixTestKit {
      * @return The updated settings.
      */
     public Settings withAdvancedViews() {
-      return new Settings(stopTimeout, serviceName, aclEnabled, true, workflowTickInterval, servicePortMappings, eventingSupport);
+      return new Settings(stopTimeout, serviceName, aclEnabled, true, workflowTickInterval, servicePortMappings, eventingSupport, mockedEventing);
     }
 
     /**
@@ -191,38 +346,80 @@ public class KalixTestKit {
      * @return The updated settings.
      */
     public Settings withWorkflowTickInterval(Duration tickInterval) {
-      return new Settings(stopTimeout, serviceName, aclEnabled, true, Optional.of(tickInterval), servicePortMappings, eventingSupport);
+      return new Settings(stopTimeout, serviceName, aclEnabled, true, Optional.of(tickInterval), servicePortMappings, eventingSupport, mockedEventing);
+    }
+
+    /**
+     * Mock the incoming messages flow from a ValueEntity.
+     */
+    public Settings withValueEntityIncomingMessages(String typeId) {
+      return new Settings(stopTimeout, serviceName, aclEnabled, true, workflowTickInterval, servicePortMappings, eventingSupport,
+          mockedEventing.withValueEntityIncomingMessages(typeId));
+    }
+
+    /**
+     * Mock the incoming events flow from an EventSourcedEntity.
+     */
+    public Settings withEventSourcedEntityIncomingMessages(String typeId) {
+      return new Settings(stopTimeout, serviceName, aclEnabled, true, workflowTickInterval, servicePortMappings, eventingSupport,
+          mockedEventing.withEventSourcedIncomingMessages(typeId));
+    }
+
+    /**
+     * Mock the incoming messages flow from a Stream (eventing.in.direct in case of protobuf SDKs).
+     */
+    public Settings withStreamIncomingMessages(String service, String streamId) {
+      return new Settings(stopTimeout, serviceName, aclEnabled, true, workflowTickInterval, servicePortMappings, eventingSupport,
+          mockedEventing.withStreamIncomingMessages(service, streamId));
+    }
+
+    /**
+     * Mock the incoming events flow from a Topic.
+     */
+    public Settings withTopicIncomingMessages(String topic) {
+      return new Settings(stopTimeout, serviceName, aclEnabled, true, workflowTickInterval, servicePortMappings, eventingSupport,
+          mockedEventing.withTopicIncomingMessages(topic));
+    }
+
+    /**
+     * Mock the outgoing events flow for a Topic.
+     */
+    public Settings withTopicOutgoingMessages(String topic) {
+      return new Settings(stopTimeout, serviceName, aclEnabled, true, workflowTickInterval, servicePortMappings, eventingSupport,
+          mockedEventing.withTopicOutgoingMessages(topic));
     }
 
     /**
      * Add a service port mapping from serviceName to host:port.
+     *
      * @return The updated settings.
      */
     public Settings withServicePortMapping(String serviceName, String host, int port) {
       var updatedMappings = new HashMap<>(servicePortMappings);
       updatedMappings.put(serviceName, host + ":" + port);
-      return new Settings(stopTimeout, serviceName, aclEnabled, advancedViews, workflowTickInterval, Map.copyOf(updatedMappings), eventingSupport);
+      return new Settings(stopTimeout, serviceName, aclEnabled, advancedViews, workflowTickInterval, Map.copyOf(updatedMappings), eventingSupport, mockedEventing);
     }
 
     public Settings withEventingSupport(EventingSupport eventingSupport) {
-      return new Settings(stopTimeout, serviceName, aclEnabled, advancedViews, workflowTickInterval, servicePortMappings, eventingSupport);
+      return new Settings(stopTimeout, serviceName, aclEnabled, advancedViews, workflowTickInterval, servicePortMappings, eventingSupport, mockedEventing);
     }
 
     @Override
     public String toString() {
       var portMappingsRendered =
-        servicePortMappings.entrySet().stream()
-          .map(e -> e.getKey() + "=" + e.getValue()).collect(Collectors.toList());
+          servicePortMappings.entrySet().stream()
+              .map(e -> e.getKey() + "=" + e.getValue()).collect(Collectors.toList());
 
       return "Settings(" +
-        "stopTimeout=" + stopTimeout +
-        ", serviceName='" + serviceName + '\'' +
-        ", aclEnabled=" + aclEnabled +
-        ", advancedViews=" + advancedViews +
-        ", workflowTickInterval=" + workflowTickInterval +
-        ", servicePortMappings=[" + String.join(", ", portMappingsRendered) + "]" +
-        ", eventingSupport=" + eventingSupport +
-        ')';
+          "stopTimeout=" + stopTimeout +
+          ", serviceName='" + serviceName + '\'' +
+          ", aclEnabled=" + aclEnabled +
+          ", advancedViews=" + advancedViews +
+          ", workflowTickInterval=" + workflowTickInterval +
+          ", servicePortMappings=[" + String.join(", ", portMappingsRendered) + "]" +
+          ", eventingSupport=" + eventingSupport +
+          ", mockedEventing=" + mockedEventing +
+          ')';
     }
   }
 
@@ -236,7 +433,7 @@ public class KalixTestKit {
   private boolean started = false;
   private String proxyHost;
   private int proxyPort;
-  private Optional<KalixProxyContainer> proxyContainer;
+  private Optional<KalixProxyContainer> proxyContainer = Optional.empty();
   private KalixRunner runner;
   private ActorSystem testSystem;
   private EventingTestKit eventingTestKit;
@@ -253,8 +450,8 @@ public class KalixTestKit {
   /**
    * Create a new testkit for a Kalix service descriptor with custom settings.
    *
-   * @param kalix        Kalix service descriptor
-   * @param settings     custom testkit settings
+   * @param kalix    Kalix service descriptor
+   * @param settings custom testkit settings
    */
   public KalixTestKit(final Kalix kalix, final Settings settings) {
     this(kalix, kalix.getMessageCodec(), settings);
@@ -309,7 +506,7 @@ public class KalixTestKit {
 
     testSystem = ActorSystem.create("KalixTestkit", ConfigFactory.parseString("akka.http.server.preview.enable-http2 = true"));
 
-    int eventingBackendPort = getEventingBackendPort(settings.eventingSupport);
+    int eventingBackendPort = startEventingTestkit(useTestContainers);
     runProxy(useTestContainers, port, eventingBackendPort);
 
     started = true;
@@ -320,28 +517,27 @@ public class KalixTestKit {
     return this;
   }
 
-  private int getEventingBackendPort(Settings.EventingSupport eventingSupport) {
-    switch(eventingSupport) {
-      case KAFKA:
-        return DEFAULT_KAFKA_PORT;
-      case GOOGLE_PUBSUB:
-        return DEFAULT_GOOGLE_PUBSUB_PORT;
-      default:
-        return startEventingTestkit();
+  private int startEventingTestkit(Boolean useTestContainers) {
+    var port = eventingTestKitPort(useTestContainers);
+    if (settings.eventingSupport == TEST_BROKER || settings.mockedEventing.hasConfig()) {
+      log.info("Eventing TestKit booting up on port: " + port);
+      eventingTestKit = EventingTestKit.start(testSystem, "0.0.0.0", port, messageCodec);
     }
-  }
-
-  private int startEventingTestkit() {
-    var port = availableLocalPort();
-    log.info("Eventing TestKit booting up on port: " + port);
-    eventingTestKit = EventingTestKit.start(testSystem, "0.0.0.0", port, messageCodec);
     return port;
   }
 
-  private void runProxy(Boolean useTestContainers, int port, int eventingBackendPort) {
+  private int eventingTestKitPort(Boolean useTestContainers) {
+    if (useTestContainers) {
+      return availableLocalPort();
+    } else {
+      return 8999;
+    }
+  }
+
+  private void runProxy(Boolean useTestContainers, int port, int grpcEventingBackendPort) {
 
     if (useTestContainers) {
-      var proxyContainer = new KalixProxyContainer(port, eventingBackendPort);
+      var proxyContainer = new KalixProxyContainer(settings.eventingSupport, port, grpcEventingBackendPort);
       this.proxyContainer = Optional.of(proxyContainer);
       proxyContainer.addEnv("SERVICE_NAME", settings.serviceName);
       proxyContainer.addEnv("ACL_ENABLED", Boolean.toString(settings.aclEnabled));
@@ -350,18 +546,33 @@ public class KalixTestKit {
       List<String> javaOptions = new ArrayList<>();
       javaOptions.add("-Dlogback.configurationFile=logback-dev-mode.xml");
 
-      if (settings.eventingSupport.equals(Settings.EventingSupport.TEST_BROKER)) {
-        javaOptions.add("-Dkalix.proxy.eventing.support=grpc-backend");
+      //always passing grpc params, in the case of e.g. testing pubsub with mocked incoming messages
+      if (settings.mockedEventing.hasConfig()) {
         javaOptions.add("-Dkalix.proxy.eventing.grpc-backend.host=host.testcontainers.internal");
-        javaOptions.add("-Dkalix.proxy.eventing.grpc-backend.port=" + eventingBackendPort);
-      } else if (settings.eventingSupport.equals(Settings.EventingSupport.KAFKA)) {
+        javaOptions.add("-Dkalix.proxy.eventing.grpc-backend.port=" + grpcEventingBackendPort);
+      }
+
+      if (settings.eventingSupport == TEST_BROKER) {
+        javaOptions.add("-Dkalix.proxy.eventing.support=grpc-backend");
+      } else if (settings.eventingSupport == KAFKA) {
         javaOptions.add("-Dkalix.proxy.eventing.support=kafka");
-        javaOptions.add("-Dkalix.proxy.eventing.kafka.bootstrap-servers=host.testcontainers.internal:"+eventingBackendPort);
+        javaOptions.add("-Dkalix.proxy.eventing.kafka.bootstrap-servers=host.testcontainers.internal:" + DEFAULT_KAFKA_PORT);
+      } else if (settings.eventingSupport == GOOGLE_PUBSUB) {
+        javaOptions.add("-Dkalix.proxy.eventing.support=google-pubsub-emulator");
+        javaOptions.add("-Dkalix.proxy.eventing.google-pubsub-emulator-defaults.host=host.testcontainers.internal");
+        javaOptions.add("-Dkalix.proxy.eventing.google-pubsub-emulator-defaults.port=" + DEFAULT_GOOGLE_PUBSUB_PORT);
+      }
+      if (settings.mockedEventing.hasIncomingConfig()) {
+        javaOptions.add("-Dkalix.proxy.eventing.override.sources=" + settings.mockedEventing.toIncomingFlowConfig());
+      }
+      if (settings.mockedEventing.hasOutgoingConfig()) {
+        javaOptions.add("-Dkalix.proxy.eventing.override.destinations=" + settings.mockedEventing.toOutgoingFlowConfig());
       }
       settings.servicePortMappings.forEach((serviceName, hostPort) -> {
         javaOptions.add("-Dkalix.dev-mode.service-port-mappings." + serviceName + "=" + hostPort);
       });
 
+      log.debug("Running container with javaOptions=" + javaOptions);
       proxyContainer.addEnv("JAVA_TOOL_OPTIONS", String.join(" ", javaOptions));
       settings.workflowTickInterval.ifPresent(tickInterval -> proxyContainer.addEnv("WORKFLOW_TICK_INTERVAL", tickInterval.toMillis() + ".millis"));
 
@@ -465,7 +676,7 @@ public class KalixTestKit {
     }
     if (serviceName != null) {
       return GrpcClients.get(getActorSystem())
-        .getGrpcClient(clientClass, getHost(), getPort(), serviceName);
+          .getGrpcClient(clientClass, getHost(), getPort(), serviceName);
     } else {
       return GrpcClients.get(getActorSystem()).getGrpcClient(clientClass, getHost(), getPort());
     }
@@ -501,26 +712,97 @@ public class KalixTestKit {
   public GrpcClientSettings getGrpcClientSettings() {
     if (!started)
       throw new IllegalStateException(
-        "Need to start KalixTestkit before accessing gRPC client settings");
+          "Need to start KalixTestkit before accessing gRPC client settings");
     return GrpcClientSettings.connectToServiceAt(getHost(), getPort(), testSystem).withTls(false);
   }
 
   /**
+   * Use <code>getTopicIncomingMessages</code> or <code>getTopicOutgoingMessages</code> instead.
+   * <p>
    * Get {@link EventingTestKit.Topic} for mocking interactions, avoiding the need for a real broker instance.
    *
    * @param topic the name of the topic configured in your service which you want to mock
    * @return mocked topic to read/publish messages from/to
    */
+  @Deprecated
   public EventingTestKit.Topic getTopic(String topic) {
-    if (!settings.eventingSupport.equals(Settings.EventingSupport.TEST_BROKER)) {
+    if (!settings.eventingSupport.equals(TEST_BROKER)) {
       throw new IllegalStateException("Currently configured eventing support is (" + settings.eventingSupport +
-          "). To use this API, configure it to be (" + Settings.EventingSupport.TEST_BROKER + ")");
+          "). To use this API, configure it to be (" + TEST_BROKER + ")");
     }
 
     return eventingTestKit.getTopic(topic);
   }
 
-  /** Stop the testkit and local Kalix. */
+  /**
+   * Get incoming messages for ValueEntity.
+   *
+   * @param typeId @TypeId or entity_type of the ValueEntity (depending on the used SDK)
+   */
+  public IncomingMessages getValueEntityIncomingMessages(String typeId) {
+    if (!settings.mockedEventing.hasValueEntitySubscription(typeId)) {
+      throwMissingConfigurationException("ValueEntity " + typeId);
+    }
+    return eventingTestKit.getValueEntityIncomingMessages(typeId);
+  }
+
+  /**
+   * Get incoming messages for EventSourcedEntity.
+   *
+   * @param typeId @TypeId or entity_type of the EventSourcedEntity (depending on the used SDK)
+   */
+  public IncomingMessages getEventSourcedEntityIncomingMessages(String typeId) {
+    if (!settings.mockedEventing.hasEventSourcedEntitySubscription(typeId)) {
+      throwMissingConfigurationException("EventSourcedEntity " + typeId);
+    }
+    return eventingTestKit.getEventSourcedEntityIncomingMessages(typeId);
+  }
+
+  /**
+   * Get incoming messages for Stream (eventing.in.direct in case of protobuf SDKs).
+   *
+   * @param service  service name
+   * @param streamId service stream id
+   */
+  public IncomingMessages getStreamIncomingMessages(String service, String streamId) {
+    if (!settings.mockedEventing.hasStreamSubscription(service, streamId)) {
+      throwMissingConfigurationException("Stream " + service + "/" + streamId);
+    }
+    return eventingTestKit.getStreamIncomingMessages(service, streamId);
+  }
+
+  /**
+   * Get incoming messages for Topic.
+   *
+   * @param topic topic name
+   */
+  public IncomingMessages getTopicIncomingMessages(String topic) {
+    if (!settings.mockedEventing.hasTopicSubscription(topic)) {
+      throwMissingConfigurationException("Topic " + topic);
+    }
+    return eventingTestKit.getTopicIncomingMessages(topic);
+  }
+
+  /**
+   * Get mocked topic destination.
+   *
+   * @param topic topic name
+   */
+  public EventingTestKit.OutgoingMessages getTopicOutgoingMessages(String topic) {
+    if (!settings.mockedEventing.hasTopicDestination(topic)) {
+      throwMissingConfigurationException("Topic " + topic);
+    }
+    return eventingTestKit.getTopicOutgoingMessages(topic);
+  }
+
+  private void throwMissingConfigurationException(String hint) {
+    throw new IllegalStateException("Currently configured mocked eventing is [" + settings.mockedEventing +
+        "]. To use the MockedEventing API, to configure mocking of " + hint);
+  }
+
+  /**
+   * Stop the testkit and local Kalix.
+   */
   public void stop() {
     try {
       proxyContainer.ifPresent(container -> container.stop());
@@ -530,17 +812,17 @@ public class KalixTestKit {
     try {
       testSystem.terminate();
       testSystem
-        .getWhenTerminated()
-        .toCompletableFuture()
-        .get(settings.stopTimeout.toMillis(), TimeUnit.MILLISECONDS);
+          .getWhenTerminated()
+          .toCompletableFuture()
+          .get(settings.stopTimeout.toMillis(), TimeUnit.MILLISECONDS);
     } catch (Exception e) {
       log.error("KalixTestkit ActorSystem failed to terminate", e);
     }
     try {
       runner
-        .terminate()
-        .toCompletableFuture()
-        .get(settings.stopTimeout.toMillis(), TimeUnit.MILLISECONDS);
+          .terminate()
+          .toCompletableFuture()
+          .get(settings.stopTimeout.toMillis(), TimeUnit.MILLISECONDS);
     } catch (Exception e) {
       log.error("KalixTestkit KalixRunner failed to terminate", e);
     }

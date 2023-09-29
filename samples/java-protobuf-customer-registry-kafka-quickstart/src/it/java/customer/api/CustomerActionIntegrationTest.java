@@ -14,7 +14,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
-import static kalix.javasdk.testkit.KalixTestKit.Settings.EventingSupport.GOOGLE_PUBSUB;
 import static org.junit.Assert.assertEquals;
 
 // This class was initially generated based on the .proto definition by Kalix tooling.
@@ -31,18 +30,18 @@ public class CustomerActionIntegrationTest {
    */
   @ClassRule
   public static final KalixTestKitResource testKit =
-    new KalixTestKitResource(Main.createKalix());
+      new KalixTestKitResource(Main.createKalix(), KalixTestKit.Settings.DEFAULT.withTopicOutgoingMessages("customer_changes"));
 
   /**
    * Use the generated gRPC client to call the service through the Kalix proxy.
    */
   private final CustomerService client;
 
-  private final EventingTestKit.Topic outTopic;
+  private final EventingTestKit.OutgoingMessages outTopic;
 
   public CustomerActionIntegrationTest() {
     client = testKit.getGrpcClient(CustomerService.class);
-    outTopic = testKit.getTopic("customer_changes");
+    outTopic = testKit.getTopicOutgoingMessages("customer_changes");
   }
 
   @Test
