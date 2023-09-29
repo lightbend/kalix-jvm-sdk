@@ -85,28 +85,33 @@ public class KalixTestKit {
     public static MockedEventing EMPTY = new MockedEventing();
 
     public MockedEventing withValueEntityIncomingMessages(String typeId) {
-      mockedIncomingEvents.compute(VALUE_ENTITY, updateValues(typeId));
-      return new MockedEventing(new HashMap<>(mockedIncomingEvents), mockedOutgoingEvents);
+      Map<String, Set<String>> copy = new HashMap<>(mockedIncomingEvents);
+      copy.compute(VALUE_ENTITY, updateValues(typeId));
+      return new MockedEventing(copy, new HashMap<>(mockedOutgoingEvents));
     }
 
     public MockedEventing withEventSourcedIncomingMessages(String typeId) {
-      mockedIncomingEvents.compute(EVENT_SOURCED_ENTITY, updateValues(typeId));
-      return new MockedEventing(new HashMap<>(mockedIncomingEvents), mockedOutgoingEvents);
+      Map<String, Set<String>> copy = new HashMap<>(mockedIncomingEvents);
+      copy.compute(EVENT_SOURCED_ENTITY, updateValues(typeId));
+      return new MockedEventing(copy, new HashMap<>(mockedOutgoingEvents));
     }
 
     public MockedEventing withStreamIncomingMessages(String service, String streamId) {
-      mockedIncomingEvents.compute(STREAM, updateValues(service + "/" + streamId));
-      return new MockedEventing(new HashMap<>(mockedIncomingEvents), mockedOutgoingEvents);
+      Map<String, Set<String>> copy = new HashMap<>(mockedIncomingEvents);
+      copy.compute(STREAM, updateValues(service + "/" + streamId));
+      return new MockedEventing(copy, new HashMap<>(mockedOutgoingEvents));
     }
 
     public MockedEventing withTopicIncomingMessages(String topic) {
-      mockedIncomingEvents.compute(TOPIC, updateValues(topic));
-      return new MockedEventing(new HashMap<>(mockedIncomingEvents), mockedOutgoingEvents);
+      Map<String, Set<String>> copy = new HashMap<>(mockedIncomingEvents);
+      copy.compute(TOPIC, updateValues(topic));
+      return new MockedEventing(copy, new HashMap<>(mockedOutgoingEvents));
     }
 
     public MockedEventing withTopicOutgoingMessages(String topic) {
-      mockedOutgoingEvents.compute(TOPIC, updateValues(topic));
-      return new MockedEventing(mockedIncomingEvents, new HashMap<>(mockedOutgoingEvents));
+      Map<String, Set<String>> copy = new HashMap<>(mockedOutgoingEvents);
+      copy.compute(TOPIC, updateValues(topic));
+      return new MockedEventing(new HashMap<>(mockedIncomingEvents), copy);
     }
 
     @NotNull
@@ -131,15 +136,15 @@ public class KalixTestKit {
           '}';
     }
 
-    public boolean hasSubscriptionConfig() {
+    public boolean hasIncomingConfig() {
       return !mockedIncomingEvents.isEmpty();
     }
 
     public boolean hasConfig() {
-      return hasSubscriptionConfig() || hasDestinationConfig();
+      return hasIncomingConfig() || hasOutgoingConfig();
     }
 
-    public boolean hasDestinationConfig() {
+    public boolean hasOutgoingConfig() {
       return !mockedOutgoingEvents.isEmpty();
     }
 
@@ -557,10 +562,10 @@ public class KalixTestKit {
         javaOptions.add("-Dkalix.proxy.eventing.google-pubsub-emulator-defaults.host=host.testcontainers.internal");
         javaOptions.add("-Dkalix.proxy.eventing.google-pubsub-emulator-defaults.port=" + DEFAULT_GOOGLE_PUBSUB_PORT);
       }
-      if (settings.mockedEventing.hasSubscriptionConfig()) {
+      if (settings.mockedEventing.hasIncomingConfig()) {
         javaOptions.add("-Dkalix.proxy.eventing.override.sources=" + settings.mockedEventing.toIncomingFlowConfig());
       }
-      if (settings.mockedEventing.hasDestinationConfig()) {
+      if (settings.mockedEventing.hasOutgoingConfig()) {
         javaOptions.add("-Dkalix.proxy.eventing.override.destinations=" + settings.mockedEventing.toOutgoingFlowConfig());
       }
       settings.servicePortMappings.forEach((serviceName, hostPort) -> {

@@ -655,10 +655,6 @@ jobs:
             KALIX_TESTKIT_DEBUG=true mvn -Dkalix-sdk.version=${SDK_VERSION} verify -Pit
           fi
 
-      - name: Wait for healthchecks
-        run: timeout 60s sh -c 'until docker ps | grep "circleci-kafka-1" | grep -q healthy; do echo "Waiting for container to be healthy..."; sleep 2; done'
-
-
       - name: ${{ matrix.sample }} rm & test-compile
         env:
           DIR: ${{ matrix.sample }}
