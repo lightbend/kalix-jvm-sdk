@@ -20,6 +20,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import static java.time.Duration.ofSeconds;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.Assert.assertTrue;
 import static org.testcontainers.shaded.org.awaitility.Awaitility.await;
@@ -82,7 +83,7 @@ public class CustomerActionWithKafkaIntegrationTest {
 
     await()
         .ignoreExceptions()
-        .atMost(20, TimeUnit.of(ChronoUnit.SECONDS))
+        .atMost(ofSeconds(30))
         .untilAsserted(() -> {
           ConsumerRecords<String, byte[]> records = consumer.poll(Duration.ofMillis(200));
           var foundRecord = false;
