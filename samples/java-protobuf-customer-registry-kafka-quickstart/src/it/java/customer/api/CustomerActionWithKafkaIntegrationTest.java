@@ -39,9 +39,14 @@ public class CustomerActionWithKafkaIntegrationTest {
    * The test kit starts both the service container and the Kalix proxy.
    */
   @ClassRule
-  public static final KalixTestKitResource testKit =
-    new KalixTestKitResource(Main.createKalix(),
-        KalixTestKit.Settings.DEFAULT.withEventingSupport(KalixTestKit.Settings.EventingSupport.KAFKA));
+  public static final KalixTestKitResource testKit;
+  static KalixTestKit.Settings settings;
+
+  static {
+    settings = KalixTestKit.Settings.DEFAULT.withEventingSupport(KalixTestKit.Settings.EventingSupport.KAFKA);
+    testKit = new KalixTestKitResource(Main.createKalix(),
+        settings);
+  }
 
   /**
    * Use the generated gRPC client to call the service through the Kalix proxy.
@@ -55,6 +60,7 @@ public class CustomerActionWithKafkaIntegrationTest {
 
   @Test
   public void createAndPublish() throws Exception {
+    System.out.println("Settings - >>>>>>> " + settings.mockedEventing.toString());
     var id = UUID.randomUUID().toString();
     var customer = buildCustomer(id, "Johanna", "foo@example.com", "Porto", "Long Road");
     createCustomer(customer);
