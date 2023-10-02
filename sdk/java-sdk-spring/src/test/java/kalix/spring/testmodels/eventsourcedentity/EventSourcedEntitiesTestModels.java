@@ -17,20 +17,9 @@
 package kalix.spring.testmodels.eventsourcedentity;
 
 import kalix.javasdk.JsonMigration;
-import kalix.javasdk.annotations.Migration;
-import kalix.javasdk.annotations.Acl;
-import kalix.javasdk.annotations.EventHandler;
-import kalix.javasdk.annotations.GenerateId;
-import kalix.javasdk.annotations.Id;
-import kalix.javasdk.annotations.JWT;
-import kalix.javasdk.annotations.TypeId;
+import kalix.javasdk.annotations.*;
 import kalix.javasdk.eventsourcedentity.EventSourcedEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -160,7 +149,7 @@ public class EventSourcedEntitiesTestModels {
   @Id("id")
   @TypeId("counter")
   @RequestMapping("/eventsourced/{id}")
-  public static class CounterEventSourcedEntityWithJWT extends EventSourcedEntity<Integer, Object> {
+  public static class CounterEventSourcedEntityWithMethodLevelJWT extends EventSourcedEntity<Integer, Object> {
 
     @GetMapping("/int/{number}")
     @JWT(
@@ -174,6 +163,25 @@ public class EventSourcedEntitiesTestModels {
     @JWT(
         validate = JWT.JwtMethodMode.BEARER_TOKEN,
         bearerTokenIssuer = {"a", "b"})
+    public Integer changeInteger(@PathVariable Integer number) {
+      return number;
+    }
+  }
+
+  @Id("id")
+  @TypeId("counter")
+  @RequestMapping("/eventsourced/{id}")
+  @JWT(
+    validate = JWT.JwtMethodMode.BEARER_TOKEN,
+    bearerTokenIssuer = {"a", "b"})
+  public static class CounterEventSourcedEntityWithServiceLevelJWT extends EventSourcedEntity<Integer, Object> {
+
+    @GetMapping("/int/{number}")
+    public Integer getInteger(@PathVariable Integer number) {
+      return number;
+    }
+
+    @PostMapping("/changeInt/{number}")
     public Integer changeInteger(@PathVariable Integer number) {
       return number;
     }

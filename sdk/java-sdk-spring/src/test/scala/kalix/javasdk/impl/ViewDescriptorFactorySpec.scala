@@ -20,6 +20,7 @@ import com.google.protobuf.Descriptors.FieldDescriptor
 import com.google.protobuf.Descriptors.FieldDescriptor.JavaType
 import com.google.protobuf.timestamp.Timestamp
 import kalix.JwtMethodOptions.JwtMethodMode
+import kalix.JwtServiceOptions.JwtServiceMode
 import kalix.spring.testmodels.subscriptions.PubSubTestModels.EventStreamSubscriptionView
 import kalix.spring.testmodels.subscriptions.PubSubTestModels.SubscribeOnTypeToEventSourcedEvents
 import kalix.spring.testmodels.view.ViewTestModels.IllDefineUserByEmailWithStreamUpdates
@@ -37,7 +38,7 @@ import kalix.spring.testmodels.view.ViewTestModels.TopicTypeLevelSubscriptionVie
 import kalix.spring.testmodels.view.ViewTestModels.TransformedUserView
 import kalix.spring.testmodels.view.ViewTestModels.TransformedUserViewUsingState
 import kalix.spring.testmodels.view.ViewTestModels.TransformedUserViewWithDeletes
-import kalix.spring.testmodels.view.ViewTestModels.TransformedUserViewWithJWT
+import kalix.spring.testmodels.view.ViewTestModels.TransformedUserViewWithMethodLevelJWT
 import kalix.spring.testmodels.view.ViewTestModels.TransformedViewWithoutSubscriptionOnMethodLevel
 import kalix.spring.testmodels.view.ViewTestModels.TypeLevelSubscribeToEventSourcedEventsWithState
 import kalix.spring.testmodels.view.ViewTestModels.UserByEmailWithCollectionReturn
@@ -55,6 +56,7 @@ import kalix.spring.testmodels.view.ViewTestModels.ViewWithHandleDeletesFalseOnM
 import kalix.spring.testmodels.view.ViewTestModels.ViewWithMethodLevelAcl
 import kalix.spring.testmodels.view.ViewTestModels.ViewWithNoQuery
 import kalix.spring.testmodels.view.ViewTestModels.ViewWithServiceLevelAcl
+import kalix.spring.testmodels.view.ViewTestModels.ViewWithServiceLevelJWT
 import kalix.spring.testmodels.view.ViewTestModels.ViewWithSubscriptionsInMixedLevels
 import kalix.spring.testmodels.view.ViewTestModels.ViewWithSubscriptionsInMixedLevelsHandleDelete
 import kalix.spring.testmodels.view.ViewTestModels.ViewWithTwoQueries
@@ -242,8 +244,8 @@ class ViewDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSuit
       }
     }
 
-    "generate proto for a View using POST request with explicit update method and JWT Kalix annotations" in {
-      assertDescriptor[TransformedUserViewWithJWT] { desc =>
+    "generate proto for a View using POST request with explicit update method and method level JWT annotation" in {
+      assertDescriptor[TransformedUserViewWithMethodLevelJWT] { desc =>
 
         val methodOptions = this.findKalixMethodOptions(desc, "OnChange")
         val entityType = methodOptions.getEventing.getIn.getValueEntity
@@ -271,6 +273,16 @@ class ViewDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSuit
         jwtOption.getBearerTokenIssuer(1) shouldBe "b"
         jwtOption.getValidate(0) shouldBe JwtMethodMode.BEARER_TOKEN
         assertRequestFieldJavaType(method, "json_body", JavaType.MESSAGE)
+      }
+    }
+
+    "generate proto for a View with service level JWT annotation" in {
+      assertDescriptor[ViewWithServiceLevelJWT] { desc =>
+        val extension = desc.serviceDescriptor.getOptions.getExtension(kalix.Annotations.service)
+        val jwtOption = extension.getJwt
+        jwtOption.getBearerTokenIssuer(0) shouldBe "a"
+        jwtOption.getBearerTokenIssuer(1) shouldBe "b"
+        jwtOption.getValidate shouldBe JwtServiceMode.BEARER_TOKEN
       }
     }
 

@@ -17,7 +17,8 @@
 package kalix.javasdk.impl
 
 import kalix.KeyGeneratorMethodOptions.Generator
-import kalix.javasdk.impl.ComponentDescriptorFactory.buildJWTOptions
+import kalix.javasdk.impl.JwtDescriptorFactory.buildJWTOptions
+import kalix.javasdk.impl.ComponentDescriptorFactory.mergeServiceOptions
 import kalix.javasdk.impl.reflection.IdExtractor.extractIds
 import kalix.javasdk.impl.reflection.KalixMethod
 import kalix.javasdk.impl.reflection.NameGenerator
@@ -52,7 +53,9 @@ private[impl] object EntityDescriptorFactory extends ComponentDescriptorFactory 
       nameGenerator,
       messageCodec,
       serviceName,
-      serviceOptions = AclDescriptorFactory.serviceLevelAclAnnotation(component),
+      serviceOptions = mergeServiceOptions(
+        AclDescriptorFactory.serviceLevelAclAnnotation(component),
+        JwtDescriptorFactory.serviceLevelJwtAnnotation(component)),
       component.getPackageName,
       kalixMethods)
   }

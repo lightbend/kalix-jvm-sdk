@@ -18,12 +18,13 @@ package kalix.javasdk.impl
 
 import java.lang.reflect.Method
 import java.lang.reflect.ParameterizedType
+
 import kalix.Eventing
 import kalix.MethodOptions
 import kalix.javasdk.annotations.Query
 import kalix.javasdk.annotations.Subscribe
 import kalix.javasdk.annotations.Table
-import kalix.javasdk.impl.ComponentDescriptorFactory.buildJWTOptions
+import kalix.javasdk.impl.JwtDescriptorFactory.buildJWTOptions
 import kalix.javasdk.impl.ComponentDescriptorFactory.combineBy
 import kalix.javasdk.impl.ComponentDescriptorFactory.combineByES
 import kalix.javasdk.impl.ComponentDescriptorFactory.combineByTopic
@@ -42,6 +43,7 @@ import kalix.javasdk.impl.ComponentDescriptorFactory.hasStreamSubscription
 import kalix.javasdk.impl.ComponentDescriptorFactory.hasTopicSubscription
 import kalix.javasdk.impl.ComponentDescriptorFactory.hasUpdateEffectOutput
 import kalix.javasdk.impl.ComponentDescriptorFactory.hasValueEntitySubscription
+import kalix.javasdk.impl.ComponentDescriptorFactory.mergeServiceOptions
 import kalix.javasdk.impl.ComponentDescriptorFactory.subscribeToEventStream
 import kalix.javasdk.impl.reflection.HandleDeletesServiceMethod
 import kalix.javasdk.impl.reflection.KalixMethod
@@ -210,26 +212,13 @@ private[impl] object ViewDescriptorFactory extends ComponentDescriptorFactory {
     val additionalMessages =
       tableTypeDescriptors.toSet ++ Set(queryOutputSchemaDescriptor) ++ queryInputSchemaDescriptor.toSet
 
-    val serviceLevelOptions = {
-
-      val allOptions =
-        AclDescriptorFactory.serviceLevelAclAnnotation(component) ::
-        eventingInForEventSourcedEntityServiceLevel(component) ::
-        eventingInForTopicServiceLevel(component) ::
-        subscribeToEventStream(component) ::
-        Nil
-
-      val mergedOptions =
-        allOptions.flatten
-          .foldLeft(kalix.ServiceOptions.newBuilder()) { case (builder, serviceOptions) =>
-            builder.mergeFrom(serviceOptions)
-          }
-          .build()
-
-      // if builder produces the default one, we can returns a None
-      if (mergedOptions == kalix.ServiceOptions.getDefaultInstance) None
-      else Some(mergedOptions)
-    }
+    val serviceLevelOptions =
+      mergeServiceOptions(
+        AclDescriptorFactory.serviceLevelAclAnnotation(component),
+        JwtDescriptorFactory.serviceLevelJwtAnnotation(component),
+        eventingInForEventSourcedEntityServiceLevel(component),
+        eventingInForTopicServiceLevel(component),
+        subscribeToEventStream(component))
 
     ComponentDescriptor(
       nameGenerator,

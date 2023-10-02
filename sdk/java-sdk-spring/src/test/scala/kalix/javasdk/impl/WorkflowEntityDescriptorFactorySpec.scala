@@ -18,16 +18,17 @@ package kalix.javasdk.impl
 
 import com.google.protobuf.Descriptors.FieldDescriptor.JavaType
 import kalix.JwtMethodOptions.JwtMethodMode
+import kalix.JwtServiceOptions.JwtServiceMode
 import kalix.KeyGeneratorMethodOptions.Generator
 import kalix.javasdk.impl.reflection.ServiceIntrospectionException
-import kalix.spring.testmodels.workflow.WorkflowTestModels
 import kalix.spring.testmodels.workflow.WorkflowTestModels.WorkflowWithAcl
 import kalix.spring.testmodels.workflow.WorkflowTestModels.WorkflowWithIdGenerator
 import kalix.spring.testmodels.workflow.WorkflowTestModels.WorkflowWithIllDefinedIdGenerator
-import kalix.spring.testmodels.workflow.WorkflowTestModels.WorkflowWithJWT
 import kalix.spring.testmodels.workflow.WorkflowTestModels.WorkflowWithKeyOverridden
 import kalix.spring.testmodels.workflow.WorkflowTestModels.WorkflowWithMethodLevelAcl
+import kalix.spring.testmodels.workflow.WorkflowTestModels.WorkflowWithMethodLevelJWT
 import kalix.spring.testmodels.workflow.WorkflowTestModels.WorkflowWithMethodLevelKey
+import kalix.spring.testmodels.workflow.WorkflowTestModels.WorkflowWithServiceLevelJWT
 import kalix.spring.testmodels.workflow.WorkflowTestModels.WorkflowWithTypeLevelKey
 import kalix.spring.testmodels.workflow.WorkflowTestModels.WorkflowWithoutIdGeneratorAndId
 import org.scalatest.wordspec.AnyWordSpec
@@ -87,8 +88,8 @@ class WorkflowEntityDescriptorFactorySpec extends AnyWordSpec with ComponentDesc
       }
     }
 
-    "generate mappings for a Workflow with workflow keys in path and JWT annotations" in {
-      assertDescriptor[WorkflowWithJWT] { desc =>
+    "generate mappings for a Workflow with workflow keys in path and method level JWT annotation" in {
+      assertDescriptor[WorkflowWithMethodLevelJWT] { desc =>
         val method = desc.commandHandlers("StartTransfer")
         val fieldKey = "transferId"
         assertRequestFieldJavaType(method, fieldKey, JavaType.STRING)
@@ -99,6 +100,16 @@ class WorkflowEntityDescriptorFactorySpec extends AnyWordSpec with ComponentDesc
         jwtOption.getBearerTokenIssuer(0) shouldBe "a"
         jwtOption.getBearerTokenIssuer(1) shouldBe "b"
         jwtOption.getValidate(0) shouldBe JwtMethodMode.BEARER_TOKEN
+      }
+    }
+
+    "generate mappings for a Workflow with workflow keys in path and service level JWT annotation" in {
+      assertDescriptor[WorkflowWithServiceLevelJWT] { desc =>
+        val extension = desc.serviceDescriptor.getOptions.getExtension(kalix.Annotations.service)
+        val jwtOption = extension.getJwt
+        jwtOption.getBearerTokenIssuer(0) shouldBe "a"
+        jwtOption.getBearerTokenIssuer(1) shouldBe "b"
+        jwtOption.getValidate shouldBe JwtServiceMode.BEARER_TOKEN
       }
     }
 

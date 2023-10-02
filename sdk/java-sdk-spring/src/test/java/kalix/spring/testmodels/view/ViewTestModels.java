@@ -141,7 +141,7 @@ public class ViewTestModels {
   }
 
   @Table("users_view")
-  public static class TransformedUserViewWithJWT extends View<TransformedUser> {
+  public static class TransformedUserViewWithMethodLevelJWT extends View<TransformedUser> {
 
     // when methods are annotated, it's implicitly a transform = true
     @Subscribe.ValueEntity(UserEntity.class)
@@ -159,6 +159,19 @@ public class ViewTestModels {
       return null;
     }
   }
+
+  @Table("users_view")
+  @JWT(
+    validate = JWT.JwtMethodMode.BEARER_TOKEN,
+    bearerTokenIssuer = {"a", "b"})
+  public static class ViewWithServiceLevelJWT extends View<User> {
+    @Query("SELECT * FROM users_view WHERE email = :email")
+    @PostMapping("/users/by-email")
+    public User getUser(@RequestBody ByEmail byEmail) {
+      return null;
+    }
+  }
+
 
   @Table("users_view")
   public static class TransformedUserViewUsingState extends View<TransformedUser> {

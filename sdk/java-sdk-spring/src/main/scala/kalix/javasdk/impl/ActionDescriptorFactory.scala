@@ -47,8 +47,9 @@ import kalix.javasdk.impl.reflection.NameGenerator
 import kalix.javasdk.impl.reflection.ReflectionUtils
 import kalix.javasdk.impl.reflection.RestServiceIntrospector
 import kalix.javasdk.impl.reflection.SubscriptionServiceMethod
-
 import java.lang.reflect.Method
+
+import kalix.javasdk.impl.ComponentDescriptorFactory.mergeServiceOptions
 
 private[impl] object ActionDescriptorFactory extends ComponentDescriptorFactory {
 
@@ -69,7 +70,7 @@ private[impl] object ActionDescriptorFactory extends ComponentDescriptorFactory 
       RestServiceIntrospector.inspectService(component).methods.map { serviceMethod =>
         val optionsBuilder = kalix.MethodOptions.newBuilder()
         eventingOutForTopic(serviceMethod.javaMethod).foreach(optionsBuilder.setEventing)
-        ComponentDescriptorFactory.jwtOptions(serviceMethod.javaMethod).foreach(optionsBuilder.setJwt)
+        JwtDescriptorFactory.jwtOptions(serviceMethod.javaMethod).foreach(optionsBuilder.setJwt)
         KalixMethod(serviceMethod).withKalixOptions(optionsBuilder.build())
       }
 
@@ -189,26 +190,14 @@ private[impl] object ActionDescriptorFactory extends ComponentDescriptorFactory 
 
     val serviceName = nameGenerator.getName(component.getSimpleName)
 
-    val serviceLevelOptions = {
-
-      val allOptions =
-        AclDescriptorFactory.serviceLevelAclAnnotation(component) ::
-        eventingInForEventSourcedEntityServiceLevel(component) ::
-        eventingInForValueEntityServiceLevel(component) ::
-        subscribeToEventStream(component) ::
-        publishToEventStream(component) :: Nil
-
-      val mergedOptions =
-        allOptions.flatten
-          .foldLeft(kalix.ServiceOptions.newBuilder()) { case (builder, serviceOptions) =>
-            builder.mergeFrom(serviceOptions)
-          }
-          .build()
-
-      // if builder produces the default one, we can returns a None
-      if (mergedOptions == kalix.ServiceOptions.getDefaultInstance) None
-      else Some(mergedOptions)
-    }
+    val serviceLevelOptions =
+      mergeServiceOptions(
+        AclDescriptorFactory.serviceLevelAclAnnotation(component),
+        JwtDescriptorFactory.serviceLevelJwtAnnotation(component),
+        eventingInForEventSourcedEntityServiceLevel(component),
+        eventingInForValueEntityServiceLevel(component),
+        subscribeToEventStream(component),
+        publishToEventStream(component))
 
     impl.ComponentDescriptor(
       nameGenerator,

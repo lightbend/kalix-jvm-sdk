@@ -23,6 +23,9 @@ import com.google.protobuf.{ Any => JavaPbAny }
 import kalix.JwtMethodOptions.JwtMethodMode
 import kalix.javasdk.impl.ProtoDescriptorGenerator.fileDescriptorName
 import kalix.javasdk.impl.reflection.ServiceIntrospectionException
+import kalix.JwtServiceOptions.JwtServiceMode
+import kalix.spring.testmodels.action.ActionsTestModels.ActionWithMethodLevelJWT
+import kalix.spring.testmodels.action.ActionsTestModels.ActionWithServiceLevelJWT
 import kalix.spring.testmodels.action.ActionsTestModels.DeleteWithOneParam
 import kalix.spring.testmodels.action.ActionsTestModels.GetClassLevel
 import kalix.spring.testmodels.action.ActionsTestModels.GetWithOneOptionalPathParam
@@ -37,7 +40,6 @@ import kalix.spring.testmodels.action.ActionsTestModels.PostWithOneParam
 import kalix.spring.testmodels.action.ActionsTestModels.PostWithTwoMethods
 import kalix.spring.testmodels.action.ActionsTestModels.PostWithTwoParam
 import kalix.spring.testmodels.action.ActionsTestModels.PostWithoutParam
-import kalix.spring.testmodels.action.ActionsTestModels.PostWithoutParamWithJWT
 import kalix.spring.testmodels.action.ActionsTestModels.PutWithOneParam
 import kalix.spring.testmodels.action.ActionsTestModels.PutWithoutParam
 import kalix.spring.testmodels.action.ActionsTestModels.StreamInAction
@@ -201,8 +203,8 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
       }
     }
 
-    "generate JWT mappings for an Action with POST" in {
-      assertDescriptor[PostWithoutParamWithJWT] { desc =>
+    "generate mappings for an Action with method level JWT" in {
+      assertDescriptor[ActionWithMethodLevelJWT] { desc =>
         val methodDescriptor = findMethodByName(desc, "Message")
         methodDescriptor.isServerStreaming shouldBe false
         methodDescriptor.isClientStreaming shouldBe false
@@ -214,6 +216,16 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
         jwtOption.getValidate(0) shouldBe JwtMethodMode.BEARER_TOKEN
         assertRequestFieldJavaType(method, "json_body", JavaType.MESSAGE)
 
+      }
+    }
+
+    "generate mappings for an Action with service level JWT" in {
+      assertDescriptor[ActionWithServiceLevelJWT] { desc =>
+        val extension = desc.serviceDescriptor.getOptions.getExtension(kalix.Annotations.service)
+        val jwtOption = extension.getJwt
+        jwtOption.getBearerTokenIssuer(0) shouldBe "a"
+        jwtOption.getBearerTokenIssuer(1) shouldBe "b"
+        jwtOption.getValidate shouldBe JwtServiceMode.BEARER_TOKEN
       }
     }
 

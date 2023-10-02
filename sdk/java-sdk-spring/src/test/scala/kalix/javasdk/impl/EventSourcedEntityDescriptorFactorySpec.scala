@@ -18,13 +18,15 @@ package kalix.javasdk.impl
 
 import com.google.protobuf.Descriptors.FieldDescriptor.JavaType
 import kalix.JwtMethodOptions.JwtMethodMode
+import kalix.JwtServiceOptions.JwtServiceMode
 import kalix.KeyGeneratorMethodOptions.Generator
 import kalix.javasdk.impl.reflection.ServiceIntrospectionException
 import kalix.spring.testmodels.eventsourcedentity.EventSourcedEntitiesTestModels.CounterEventSourcedEntity
 import kalix.spring.testmodels.eventsourcedentity.EventSourcedEntitiesTestModels.CounterEventSourcedEntityWithIdGenerator
 import kalix.spring.testmodels.eventsourcedentity.EventSourcedEntitiesTestModels.CounterEventSourcedEntityWithIdMethodOverride
 import kalix.spring.testmodels.eventsourcedentity.EventSourcedEntitiesTestModels.CounterEventSourcedEntityWithIdOnMethod
-import kalix.spring.testmodels.eventsourcedentity.EventSourcedEntitiesTestModels.CounterEventSourcedEntityWithJWT
+import kalix.spring.testmodels.eventsourcedentity.EventSourcedEntitiesTestModels.CounterEventSourcedEntityWithMethodLevelJWT
+import kalix.spring.testmodels.eventsourcedentity.EventSourcedEntitiesTestModels.CounterEventSourcedEntityWithServiceLevelJWT
 import kalix.spring.testmodels.eventsourcedentity.EventSourcedEntitiesTestModels.EventSourcedEntityWithMethodLevelAcl
 import kalix.spring.testmodels.eventsourcedentity.EventSourcedEntitiesTestModels.EventSourcedEntityWithServiceLevelAcl
 import kalix.spring.testmodels.eventsourcedentity.EventSourcedEntitiesTestModels.IllDefinedEntityWithIdGeneratorAndId
@@ -88,8 +90,8 @@ class EventSourcedEntityDescriptorFactorySpec extends AnyWordSpec with Component
       }
     }
 
-    "generate mappings for a Event Sourced with entity ids in path and JWT annotations" in {
-      assertDescriptor[CounterEventSourcedEntityWithJWT] { desc =>
+    "generate mappings for a Event Sourced with entity ids in path and method level JWT annotation" in {
+      assertDescriptor[CounterEventSourcedEntityWithMethodLevelJWT] { desc =>
         val method = desc.commandHandlers("GetInteger")
         assertRequestFieldJavaType(method, "id", JavaType.STRING)
         assertEntityKeyField(method, "id")
@@ -109,6 +111,16 @@ class EventSourcedEntityDescriptorFactorySpec extends AnyWordSpec with Component
         jwtOption2.getBearerTokenIssuer(0) shouldBe "a"
         jwtOption2.getBearerTokenIssuer(1) shouldBe "b"
         jwtOption2.getValidate(0) shouldBe JwtMethodMode.BEARER_TOKEN
+      }
+    }
+
+    "generate mappings for a Event Sourced with service level JWT annotation" in {
+      assertDescriptor[CounterEventSourcedEntityWithServiceLevelJWT] { desc =>
+        val extension = desc.serviceDescriptor.getOptions.getExtension(kalix.Annotations.service)
+        val jwtOption = extension.getJwt
+        jwtOption.getBearerTokenIssuer(0) shouldBe "a"
+        jwtOption.getBearerTokenIssuer(1) shouldBe "b"
+        jwtOption.getValidate shouldBe JwtServiceMode.BEARER_TOKEN
       }
     }
 
