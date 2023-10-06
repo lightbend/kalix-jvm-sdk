@@ -76,7 +76,7 @@ class DiscoveryImpl(
    */
   override def discover(in: ProxyInfo): scala.concurrent.Future[Spec] = {
     log.info(
-      "Received discovery call from [{} {}] at [{}]:[{}] supporting Kalix protocol {}.{}",
+      "ServiceInfo [{} {}] at [{}]:[{}] supporting Kalix protocol {}.{}",
       in.proxyName,
       in.proxyVersion,
       in.internalProxyHostname,

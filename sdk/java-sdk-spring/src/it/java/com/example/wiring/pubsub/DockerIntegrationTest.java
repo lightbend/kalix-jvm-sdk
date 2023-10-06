@@ -51,16 +51,25 @@ public abstract class DockerIntegrationTest {
 
   private KalixSpringApplication kalixSpringApplication;
 
-  public DockerIntegrationTest(ApplicationContext applicationContext) {
+
+  public Config defaultConfig() {
     Map<String, Object> confMap = new HashMap<>();
     // don't kill the test JVM when terminating the KalixRunner
     confMap.put("kalix.system.akka.coordinated-shutdown.exit-jvm", "off");
     confMap.put("kalix.user-function-interface", "0.0.0.0");
     confMap.put("kalix.dev-mode.docker-compose-file", "docker-compose-integration.yml");
+    return ConfigFactory.parseMap(confMap);
+  }
 
-    Config config = ConfigFactory.parseMap(confMap).withFallback(ConfigFactory.load());
 
+  public DockerIntegrationTest(ApplicationContext applicationContext) {
+    Config config = defaultConfig().withFallback(ConfigFactory.load());
     kalixSpringApplication = new KalixSpringApplication(applicationContext, config);
+  }
+
+  public DockerIntegrationTest(ApplicationContext applicationContext, Config config){
+    Config finalConfig = defaultConfig().withFallback(config).withFallback(ConfigFactory.load());
+    kalixSpringApplication = new KalixSpringApplication(applicationContext, finalConfig);
   }
 
   @BeforeAll

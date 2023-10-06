@@ -18,8 +18,12 @@ package com.example.wiring.tracing;
 
 import com.example.Main;
 import com.example.wiring.pubsub.DockerIntegrationTest;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.ActiveProfiles;
@@ -36,8 +40,13 @@ import static org.awaitility.Awaitility.await;
 @ActiveProfiles("docker-it-test")
 public class TracingIntegratonTest extends DockerIntegrationTest {
 
+    Logger logger = LoggerFactory.getLogger(TracingIntegratonTest.class);
+    static Config config = ConfigFactory.parseString("""
+                kalix.proxy.telemetry.tracing.enabled = true
+                """);
+
     public TracingIntegratonTest(ApplicationContext applicationContext) {
-        super(applicationContext);
+        super(applicationContext, config);
     }
 
     @Test
@@ -50,6 +59,7 @@ public class TracingIntegratonTest extends DockerIntegrationTest {
            assertThat(traces.traces().isEmpty()).isFalse();
            Batches batches = selectBatches(traces.traces().get(0).traceID());
            assertThat(batches.batches().isEmpty()).isFalse();
+           logger.debug("Batches found: [{}]", batches.batches());
            assertThat(batches.batches().get(0).scopeSpans().get(0).scope().name()).isEqualTo("kalix.proxy.telemetry.TraceInstrumentationImpl");
            assertThat(batches.batches().get(1).scopeSpans().get(0).spans().get(0).name()).isEqualTo("tcounter-entity.some-counter");
            assertThat(batches.batches().get(2).scopeSpans().get(0).spans().get(0).name()).isEqualTo("com.example.wiring.eventsourcedentities.tracingcounter.TIncreaseAction.PrintIncrease");

@@ -107,7 +107,7 @@ final class EventSourcedEntitiesImpl(
     (name, if (service.snapshotEvery == 0) service.withSnapshotEvery(configuration.snapshotEvery) else service)
   }.toMap
   val telemetries: Map[String, Telemetry] = services.values.map { s =>
-    (s.serviceName, new Telemetry(s.serviceName, system.settings))
+    (s.serviceName, new Telemetry(s.serviceName, system))
   }.toMap
 
   private val pbCleanupDeletedEventSourcedEntityAfter =

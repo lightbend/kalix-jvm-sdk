@@ -119,8 +119,8 @@ private[javasdk] final class ActionsImpl(
   import ActionsImpl._
   import _system.dispatcher
   implicit val system: ActorSystem = _system
-  lazy val telemetries: Map[String, Telemetry] = services.values.map { s =>
-    (s.serviceName, new Telemetry(s.serviceName, system.settings))
+  val telemetries: Map[String, Telemetry] = services.values.map { s =>
+    (s.serviceName, new Telemetry(s.serviceName, system))
   }.toMap
 
   private object creationContext extends AbstractContext(system) with ActionCreationContext {

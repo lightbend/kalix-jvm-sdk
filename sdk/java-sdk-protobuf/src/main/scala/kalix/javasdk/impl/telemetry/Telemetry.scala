@@ -16,7 +16,7 @@
 
 package kalix.javasdk.impl.telemetry
 
-import akka.actor.ActorSystem.Settings
+import akka.actor.ActorSystem
 import io.opentelemetry.api.OpenTelemetry
 import io.opentelemetry.api.common.Attributes
 import io.opentelemetry.api.trace.Span
@@ -39,7 +39,6 @@ import kalix.protocol.entity.Command
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
-import java.util.concurrent.ConcurrentHashMap
 import scala.jdk.OptionConverters._
 
 object Telemetry {
@@ -57,24 +56,17 @@ object Telemetry {
     override def keys(carrier: Metadata): java.lang.Iterable[String] =
       carrier.getAllKeys
   }
-
-  val sdkTracesSet = new ConcurrentHashMap[OpenTelemetrySdk, Boolean]().keySet(true)
-
-  Runtime
-    .getRuntime()
-    .addShutdownHook(new Thread(new Runnable {
-      def run(): Unit = {
-        sdkTracesSet.forEach(_.close())
-      }
-    }))
 }
 
-class Telemetry(serviceName: String, settings: Settings) {
+class Telemetry(serviceName: String, system: ActorSystem) {
 
   import Telemetry._
 
-  private val openTelemetry: OpenTelemetry = {
+  val collectorEndpoint = system.settings.config.getString("kalix.telemetry.tracing.collector-endpoint")
 
+  logger.info("Setting Open Telemetry collector endpoint to [{}] for service [{}].", collectorEndpoint, serviceName)
+
+  private val openTelemetry: OpenTelemetry = {
     val resource =
       Resource.getDefault.merge(Resource.create(Attributes.of(ResourceAttributes.SERVICE_NAME, serviceName)))
     val sdkTracerProvider =
@@ -84,7 +76,7 @@ class Telemetry(serviceName: String, settings: Settings) {
           SimpleSpanProcessor.create(
             OtlpGrpcSpanExporter
               .builder()
-              .setEndpoint(settings.config.getString("kalix.telemetry.tracing.collector-endpoint"))
+              .setEndpoint(collectorEndpoint)
               .build()))
         .setResource(resource)
         .build()
@@ -94,7 +86,8 @@ class Telemetry(serviceName: String, settings: Settings) {
       .setPropagators(ContextPropagators.create(W3CTraceContextPropagator.getInstance()))
       .build()
 
-    sdkTracesSet.add(sdk)
+    system.registerOnTermination(sdk.close())
+
     sdk
   }
 
@@ -105,9 +98,10 @@ class Telemetry(serviceName: String, settings: Settings) {
    * @return
    */
   def buildSpan(service: Service, command: Command): Option[Span] = {
+    logger.trace("Building span for ESE command [{}].", command)
     val metadata = new MetadataImpl(command.metadata.map(_.entries).getOrElse(Nil))
     if (metadata.get(TRACE_PARENT_KEY).isPresent) {
-      logger.debug(" commandName content [{}].", command)
+      logger.trace("`traceparent` found")
 
       val context = openTelemetry.getPropagators.getTextMapPropagator
         .extract(OtelContext.current(), metadata, otelGetter.asInstanceOf[TextMapGetter[Object]])
@@ -122,15 +116,17 @@ class Telemetry(serviceName: String, settings: Settings) {
           .setAttribute("service.name", s"""${service.serviceName}.${command.entityId}""")
           .setAttribute(s"kalix.${service.componentType}", command.entityId))
     } else {
-      logger.debug("No trace parent found.")
+      logger.trace("No `traceparent` found.")
       None
     }
   }
 
   def buildSpan(service: Service, command: ActionCommand): Option[Span] = {
+    logger.trace("Building span for action command [{}].", command)
+
     val metadata = new MetadataImpl(command.metadata.map(_.entries).getOrElse(Nil))
     if (metadata.get(TRACE_PARENT_KEY).isPresent) {
-      logger.debug(" actionCommand content [{}].", command)
+      logger.trace("`traceparent` found")
 
       val context = openTelemetry.getPropagators.getTextMapPropagator
         .extract(OtelContext.current(), metadata, otelGetter.asInstanceOf[TextMapGetter[Object]])
@@ -145,7 +141,7 @@ class Telemetry(serviceName: String, settings: Settings) {
           .setAttribute("service.name", s"""${service.serviceName}""")
           .setAttribute(s"kalix.${service.componentType}", command.name))
     } else {
-      logger.debug("No trace parent found.")
+      logger.trace("No `traceparent` found.")
       None
     }
 
