@@ -58,14 +58,18 @@ object Telemetry {
   }
 }
 
-class Telemetry[T](serviceName: String, system: ActorSystem, commandType: T) {
+sealed trait ComponentCategory
+case object ActionCategory extends ComponentCategory
+case object EventSourcedEntityCategory extends ComponentCategory
+
+class Telemetry(serviceName: String, system: ActorSystem, componentCategory: ComponentCategory) {
 
   import Telemetry._
 
-  val tracePrefix = commandType match {
-    case _: Command.type       => "Event Sourced Entity"
-    case _: ActionCommand.type => "Action"
-    case other                 => logger.warn("Command type not implemented [{}].", other.getClass)
+  val tracePrefix = componentCategory match {
+    case _: EventSourcedEntityCategory.type => "Event Sourced Entity"
+    case _: ActionCategory.type             => "Action"
+    case other                              => logger.warn("Command type not implemented [{}].", other.getClass)
   }
 
   val collectorEndpoint = system.settings.config.getString("kalix.telemetry.tracing.collector-endpoint")
@@ -121,7 +125,8 @@ class Telemetry[T](serviceName: String, system: ActorSystem, commandType: T) {
       Some(
         span
           .setAttribute("service.name", s"""${service.serviceName}.${command.entityId}""")
-          .setAttribute(s"${service.componentType}", command.entityId))
+          .setAttribute("component.type", $ { service.componentType })
+          .setAttribute("entity.id", command.entityId))
     } else {
       logger.trace("No `traceparent` found.")
       None

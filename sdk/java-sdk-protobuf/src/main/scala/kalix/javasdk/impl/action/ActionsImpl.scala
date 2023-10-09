@@ -29,6 +29,7 @@ import kalix.javasdk.impl.ActionFactory
 import kalix.javasdk.impl.ErrorHandling.BadRequestException
 import kalix.javasdk.impl._
 import kalix.javasdk.impl.effect.EffectSupport.asProtocol
+import kalix.javasdk.impl.telemetry.ActionCategory
 import kalix.javasdk.impl.telemetry.Telemetry
 import kalix.protocol.action.ActionCommand
 import kalix.protocol.action.ActionResponse
@@ -119,8 +120,8 @@ private[javasdk] final class ActionsImpl(
   import ActionsImpl._
   import _system.dispatcher
   implicit val system: ActorSystem = _system
-  val telemetries: Map[String, Telemetry[ActionCommand.type]] = services.values.map { s =>
-    (s.serviceName, new Telemetry(s.serviceName, system, ActionCommand))
+  val telemetries: Map[String, Telemetry] = services.values.map { s =>
+    (s.serviceName, new Telemetry(s.serviceName, system, ActionCategory))
   }.toMap
 
   private object creationContext extends AbstractContext(system) with ActionCreationContext {

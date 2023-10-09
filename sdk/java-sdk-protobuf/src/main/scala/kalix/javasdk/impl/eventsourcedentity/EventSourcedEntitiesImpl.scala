@@ -33,9 +33,9 @@ import kalix.javasdk.impl.effect.ErrorReplyImpl
 import kalix.javasdk.impl.effect.MessageReplyImpl
 import kalix.javasdk.impl.effect.SecondaryEffectImpl
 import kalix.javasdk.impl.eventsourcedentity.EventSourcedEntityRouter.CommandResult
+import kalix.javasdk.impl.telemetry.EventSourcedEntityCategory
 import kalix.javasdk.impl.telemetry.Telemetry
 import kalix.protocol.component.Failure
-import kalix.protocol.entity.Command
 import kalix.protocol.event_sourced_entity.EventSourcedStreamIn.Message.{ Command => InCommand }
 import kalix.protocol.event_sourced_entity.EventSourcedStreamIn.Message.{ Empty => InEmpty }
 import kalix.protocol.event_sourced_entity.EventSourcedStreamIn.Message.{ Event => InEvent }
@@ -107,8 +107,8 @@ final class EventSourcedEntitiesImpl(
     // FIXME overlay configuration provided by _system
     (name, if (service.snapshotEvery == 0) service.withSnapshotEvery(configuration.snapshotEvery) else service)
   }.toMap
-  val telemetries: Map[String, Telemetry[Command.type]] = services.values.map { s =>
-    (s.serviceName, new Telemetry(s.serviceName, system, Command))
+  val telemetries: Map[String, Telemetry] = services.values.map { s =>
+    (s.serviceName, new Telemetry(s.serviceName, system, EventSourcedEntityCategory))
   }.toMap
 
   private val pbCleanupDeletedEventSourcedEntityAfter =
