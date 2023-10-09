@@ -18,7 +18,6 @@ package com.example.wiring.pubsub;
 
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
-import kalix.devtools.impl.DockerComposeUtils;
 import kalix.javasdk.JsonSupport;
 import kalix.spring.impl.KalixSpringApplication;
 import org.hamcrest.core.IsEqual;

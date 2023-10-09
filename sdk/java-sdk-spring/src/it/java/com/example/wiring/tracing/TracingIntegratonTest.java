@@ -61,8 +61,8 @@ public class TracingIntegratonTest extends DockerIntegrationTest {
            assertThat(batches.batches().isEmpty()).isFalse();
            logger.debug("Batches found: [{}]", batches.batches());
            assertThat(batches.batches().get(0).scopeSpans().get(0).scope().name()).isEqualTo("kalix.proxy.telemetry.TraceInstrumentationImpl");
-           assertThat(batches.batches().get(1).scopeSpans().get(0).spans().get(0).name()).isEqualTo("tcounter-entity.some-counter");
-           assertThat(batches.batches().get(2).scopeSpans().get(0).spans().get(0).name()).isEqualTo("com.example.wiring.eventsourcedentities.tracingcounter.TIncreaseAction.PrintIncrease");
+           assertThat(batches.batches().get(1).scopeSpans().get(0).spans().get(0).name()).isEqualTo("some-counter");
+           assertThat(batches.batches().get(2).scopeSpans().get(0).spans().get(0).name()).isEqualTo("PrintIncrease");
         }
         );
 
