@@ -19,7 +19,7 @@ public class JWTAction extends Action {
     // tag::bearer-token-issuer[]
     @PostMapping("/message")
     @JWT(validate = JWT.JwtMethodMode.BEARER_TOKEN,
-      bearerTokenIssuer = "my-issuer")       // <1>
+         bearerTokenIssuer = "my-issuer")       // <1>
     public Action.Effect<String> messageWithIssuer(@RequestBody String msg) {
         return effects().reply(msg);
     }
@@ -29,7 +29,7 @@ public class JWTAction extends Action {
     // tag::bearer-token-multi-issuer[]
     @PostMapping("/message")
     @JWT(validate = JWT.JwtMethodMode.BEARER_TOKEN,
-      bearerTokenIssuer = {"my-issuer", "my-other-issuer"}) // <1> 
+         bearerTokenIssuer = {"my-issuer", "my-other-issuer"}) // <1>
     public Action.Effect<String> messageWithMultiIssuer(@RequestBody String msg) {
         return effects().reply(msg);
     }
