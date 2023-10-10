@@ -58,13 +58,13 @@ include::example$java-spring-doc-snippets/src/main/java/com/example/jwt/JWTActio
 
 The above examples show how to configure a JWT token on a method.
 
-JWT configurations can also be shared between all methods on a component by specifying them on the class, at type level. The annotation is then applied on all public methods in the current component. Method level annotations have precedence over type level annotations.
+JWT configurations can also be shared between all methods of a component by specifying them at type level. The annotation will then be applied to all methods in that component. Method-level annotations take precedence over type-level annotations.
 
 [source, java, indent=0]
 ----
 include::example$java-spring-doc-snippets/src/main/java/com/example/jwt/HelloJwtAction.java[tag=bearer-token]
 ----
-<1> A type level JWT annotation is added to the class requiring a bearer token issuer.
+<1> A type level JWT annotation is added to the class requiring a bearer token issuer named `my-issuer`.
 <2> The method `message` inherits the JWT configuration from the type level annotation and therefore will require a token issued by `my-issuer`.
 <3> The method `messageWithIssuer` overwrites the type level annotation and requires a different token issuer, i.e.: `my-other-issuer`.
 
