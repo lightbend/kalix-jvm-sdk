@@ -125,7 +125,7 @@ class Telemetry(serviceName: String, system: ActorSystem, componentCategory: Com
       Some(
         span
           .setAttribute("service.name", s"""${service.serviceName}.${command.entityId}""")
-          .setAttribute("component.type", $ { service.componentType })
+          .setAttribute("component.type", service.componentType)
           .setAttribute("entity.id", command.entityId))
     } else {
       logger.trace("No `traceparent` found.")

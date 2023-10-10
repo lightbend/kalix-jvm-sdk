@@ -100,7 +100,6 @@ abstract class EventSourcedEntityRouter[S, E, ES <: EventSourcedEntity[S, E]](pr
         handleCommand(commandName, _stateOrEmpty(), command, context).asInstanceOf[EventSourcedEntityEffectImpl[Any, E]]
       } catch {
         case CommandHandlerNotFound(name) =>
-          //TODO add status failed
           throw new EntityExceptions.EntityException(
             context.entityId(),
             context.commandId(),
