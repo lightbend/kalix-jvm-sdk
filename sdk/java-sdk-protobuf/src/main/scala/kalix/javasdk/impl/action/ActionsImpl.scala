@@ -30,6 +30,7 @@ import kalix.javasdk.impl.ErrorHandling.BadRequestException
 import kalix.javasdk.impl._
 import kalix.javasdk.impl.effect.EffectSupport.asProtocol
 import kalix.javasdk.impl.telemetry.ActionCategory
+import kalix.javasdk.impl.telemetry.Instrumentation
 import kalix.javasdk.impl.telemetry.Telemetry
 import kalix.protocol.action.ActionCommand
 import kalix.protocol.action.ActionResponse
@@ -120,8 +121,9 @@ private[javasdk] final class ActionsImpl(
   import ActionsImpl._
   import _system.dispatcher
   implicit val system: ActorSystem = _system
-  val telemetries: Map[String, Telemetry] = services.values.map { s =>
-    (s.serviceName, new Telemetry(s.serviceName, system, ActionCategory))
+  val telemetry = Telemetry(system)
+  val telemetries: Map[String, Instrumentation] = services.values.map { s =>
+    (s.serviceName, telemetry.traceInstrumentation(s.serviceName, ActionCategory))
   }.toMap
 
   private object creationContext extends AbstractContext(system) with ActionCreationContext {
@@ -197,10 +199,10 @@ private[javasdk] final class ActionsImpl(
   override def handleUnary(in: ActionCommand): Future[ActionResponse] =
     services.get(in.serviceName) match {
       case Some(service) =>
-        val context = createContext(in, service.messageCodec)
         val span = telemetries(service.serviceName).buildSpan(service, in)
         val fut =
           try {
+            val context = createContext(in, service.messageCodec)
             val decodedPayload = service.messageCodec.decodeMessage(
               in.payload.getOrElse(throw new IllegalArgumentException("No command payload")))
             val effect = service.factory

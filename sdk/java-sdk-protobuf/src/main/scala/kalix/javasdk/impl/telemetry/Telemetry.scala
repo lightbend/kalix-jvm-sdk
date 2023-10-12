@@ -17,6 +17,9 @@
 package kalix.javasdk.impl.telemetry
 
 import akka.actor.ActorSystem
+import akka.actor.ExtendedActorSystem
+import akka.actor.Extension
+import akka.actor.ExtensionId
 import io.opentelemetry.api.OpenTelemetry
 import io.opentelemetry.api.common.Attributes
 import io.opentelemetry.api.trace.Span
@@ -41,13 +44,46 @@ import org.slf4j.LoggerFactory
 
 import scala.jdk.OptionConverters._
 
-object Telemetry {
+object Telemetry extends ExtensionId[Telemetry] {
+
+  override def createExtension(system: ExtendedActorSystem): Telemetry =
+    new Telemetry(system)
+}
+
+sealed trait ComponentCategory {
+  def name: String
+}
+final case object ActionCategory extends ComponentCategory {
+  def name = "Action"
+}
+final case object EventSourcedEntityCategory extends ComponentCategory {
+  def name = "Event Sourced Entity"
+}
+
+final class Telemetry(system: ActorSystem) extends Extension {
+
+  def traceInstrumentation(componentName: String, componentCategory: ComponentCategory) =
+    if (system.settings.config.getString(TraceInstrumentation.TRACING_ENDPOINT).isEmpty)
+      NoOpInstrumentation
+    else
+      new TraceInstrumentation(componentName, system, componentCategory)
+}
+
+trait Instrumentation {
+
+  def buildSpan(service: Service, command: Command): Option[Span]
+
+  def buildSpan(service: Service, command: ActionCommand): Option[Span]
+}
+
+private final object TraceInstrumentation {
 
   val TRACE_PARENT_KEY = "traceparent"
+  val TRACING_ENDPOINT = "kalix.telemetry.tracing.collector-endpoint"
 
   val logger: Logger = LoggerFactory.getLogger(getClass)
 
-  val otelGetter = new TextMapGetter[Metadata]() {
+  lazy val otelGetter = new TextMapGetter[Metadata]() {
     override def get(carrier: Metadata, key: String): String = {
       logger.debug("For the key [{}] the value is [{}]", key, carrier.get(key))
       carrier.get(key).toScala.getOrElse("")
@@ -58,28 +94,24 @@ object Telemetry {
   }
 }
 
-sealed trait ComponentCategory
-case object ActionCategory extends ComponentCategory
-case object EventSourcedEntityCategory extends ComponentCategory
+private final class TraceInstrumentation(
+    componentName: String,
+    system: ActorSystem,
+    componentCategory: ComponentCategory)
+    extends Instrumentation {
 
-class Telemetry(serviceName: String, system: ActorSystem, componentCategory: ComponentCategory) {
+  import TraceInstrumentation._
 
-  import Telemetry._
-
-  val tracePrefix = componentCategory match {
-    case _: EventSourcedEntityCategory.type => "Event Sourced Entity"
-    case _: ActionCategory.type             => "Action"
-    case other                              => logger.warn("Command type not implemented [{}].", other.getClass)
-  }
+  val tracePrefix = componentCategory.name
 
   val collectorEndpoint = system.settings.config.getString("kalix.telemetry.tracing.collector-endpoint")
 
-  logger.info("Setting Open Telemetry collector endpoint to [{}] for service [{}].", collectorEndpoint, serviceName)
+  logger.info("Setting Open Telemetry collector endpoint to [{}] for service [{}].", collectorEndpoint, componentName)
 
   private val openTelemetry: OpenTelemetry = {
     val resource =
       Resource.getDefault.merge(
-        Resource.create(Attributes.of(ResourceAttributes.SERVICE_NAME, tracePrefix + " : " + serviceName)))
+        Resource.create(Attributes.of(ResourceAttributes.SERVICE_NAME, tracePrefix + " : " + componentName)))
     val sdkTracerProvider =
       SdkTracerProvider
         .builder()
@@ -108,7 +140,7 @@ class Telemetry(serviceName: String, system: ActorSystem, componentCategory: Com
    * @param command
    * @return
    */
-  def buildSpan(service: Service, command: Command): Option[Span] = {
+  override def buildSpan(service: Service, command: Command): Option[Span] = {
     logger.trace("Building span for ESE command [{}].", command)
     val metadata = new MetadataImpl(command.metadata.map(_.entries).getOrElse(Nil))
     if (metadata.get(TRACE_PARENT_KEY).isPresent) {
@@ -133,7 +165,7 @@ class Telemetry(serviceName: String, system: ActorSystem, componentCategory: Com
     }
   }
 
-  def buildSpan(service: Service, command: ActionCommand): Option[Span] = {
+  override def buildSpan(service: Service, command: ActionCommand): Option[Span] = {
     logger.trace("Building span for action command [{}].", command)
 
     val metadata = new MetadataImpl(command.metadata.map(_.entries).getOrElse(Nil))
@@ -158,5 +190,11 @@ class Telemetry(serviceName: String, system: ActorSystem, componentCategory: Com
     }
 
   }
+}
 
+private final object NoOpInstrumentation extends Instrumentation {
+
+  override def buildSpan(service: Service, command: Command): Option[Span] = None
+
+  override def buildSpan(service: Service, command: ActionCommand): Option[Span] = None
 }

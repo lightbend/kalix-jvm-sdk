@@ -34,6 +34,7 @@ import kalix.javasdk.impl.effect.MessageReplyImpl
 import kalix.javasdk.impl.effect.SecondaryEffectImpl
 import kalix.javasdk.impl.eventsourcedentity.EventSourcedEntityRouter.CommandResult
 import kalix.javasdk.impl.telemetry.EventSourcedEntityCategory
+import kalix.javasdk.impl.telemetry.Instrumentation
 import kalix.javasdk.impl.telemetry.Telemetry
 import kalix.protocol.component.Failure
 import kalix.protocol.event_sourced_entity.EventSourcedStreamIn.Message.{ Command => InCommand }
@@ -107,8 +108,9 @@ final class EventSourcedEntitiesImpl(
     // FIXME overlay configuration provided by _system
     (name, if (service.snapshotEvery == 0) service.withSnapshotEvery(configuration.snapshotEvery) else service)
   }.toMap
-  val telemetries: Map[String, Telemetry] = services.values.map { s =>
-    (s.serviceName, new Telemetry(s.serviceName, system, EventSourcedEntityCategory))
+  val telemetry = Telemetry(system)
+  val instrumentations: Map[String, Instrumentation] = services.values.map { s =>
+    (s.serviceName, telemetry.traceInstrumentation(s.serviceName, EventSourcedEntityCategory))
   }.toMap
 
   private val pbCleanupDeletedEventSourcedEntityAfter =
@@ -186,66 +188,69 @@ final class EventSourcedEntitiesImpl(
           val metadata = new MetadataImpl(command.metadata.map(_.entries.toVector).getOrElse(Nil))
           val context =
             new CommandContextImpl(thisEntityId, sequence, command.name, command.id, metadata)
-          val span = telemetries(service.serviceName).buildSpan(service, command)
-          val CommandResult(
-            events: Vector[Any],
-            secondaryEffect: SecondaryEffectImpl,
-            snapshot: Option[Any],
-            endSequenceNumber,
-            deleteEntity) =
-            try {
-              router._internalHandleCommand(
-                command.name,
-                cmd,
-                context,
-                service.snapshotEvery,
-                seqNr => new EventContextImpl(thisEntityId, seqNr))
-            } catch {
-              //TODO close span in case of failure
-              case BadRequestException(msg) =>
-                val errorReply = ErrorReplyImpl(msg, Some(Status.Code.INVALID_ARGUMENT), Vector.empty)
-                CommandResult(Vector.empty, errorReply, None, context.sequenceNumber, false)
-              case e: EntityException => throw e
-              case NonFatal(error) =>
-                throw EntityException(command, s"Unexpected failure: $error", Some(error))
-            } finally {
-              span.map(_.end())
-              context.deactivate() // Very important!
+
+          val span = instrumentations(service.serviceName).buildSpan(service, command)
+          try {
+            val CommandResult(
+              events: Vector[Any],
+              secondaryEffect: SecondaryEffectImpl,
+              snapshot: Option[Any],
+              endSequenceNumber,
+              deleteEntity) =
+              try {
+                router._internalHandleCommand(
+                  command.name,
+                  cmd,
+                  context,
+                  service.snapshotEvery,
+                  seqNr => new EventContextImpl(thisEntityId, seqNr))
+              } catch {
+                case BadRequestException(msg) =>
+                  val errorReply = ErrorReplyImpl(msg, Some(Status.Code.INVALID_ARGUMENT), Vector.empty)
+                  CommandResult(Vector.empty, errorReply, None, context.sequenceNumber, false)
+                case e: EntityException =>
+                  span.foreach(_.end())
+                  throw e
+                case NonFatal(error) =>
+                  span.foreach(_.end())
+                  throw EntityException(command, s"Unexpected failure: $error", Some(error))
+              } finally {
+                context.deactivate() // Very important!
+              }
+
+            val serializedSecondaryEffect = secondaryEffect match {
+              case MessageReplyImpl(message, metadata, sideEffects) =>
+                MessageReplyImpl(service.messageCodec.encodeJava(message), metadata, sideEffects)
+              case other => other
             }
 
-          val serializedSecondaryEffect = secondaryEffect match {
-            case MessageReplyImpl(message, metadata, sideEffects) =>
-              MessageReplyImpl(service.messageCodec.encodeJava(message), metadata, sideEffects)
-            case other => other
-          }
+            val clientAction = serializedSecondaryEffect.replyToClientAction(service.messageCodec, command.id)
 
-          val clientAction =
-            serializedSecondaryEffect.replyToClientAction(service.messageCodec, command.id)
+            serializedSecondaryEffect match {
+              case _: ErrorReplyImpl[_] => // error
+                (
+                  endSequenceNumber,
+                  Some(OutReply(EventSourcedReply(commandId = command.id, clientAction = clientAction))))
 
-          serializedSecondaryEffect match {
-            case error: ErrorReplyImpl[_] =>
-              (
-                endSequenceNumber,
-                Some(OutReply(EventSourcedReply(commandId = command.id, clientAction = clientAction))))
-
-            case _ => // non-error
-              val serializedEvents =
-                events.map(event => ScalaPbAny.fromJavaProto(service.messageCodec.encodeJava(event)))
-              val serializedSnapshot =
-                snapshot.map(state => ScalaPbAny.fromJavaProto(service.messageCodec.encodeJava(state)))
-              val delete = if (deleteEntity) pbCleanupDeletedEventSourcedEntityAfter else None
-              (
-                endSequenceNumber,
-                Some(
-                  OutReply(
-                    EventSourcedReply(
-                      command.id,
-                      clientAction,
-                      EffectSupport.sideEffectsFrom(service.messageCodec, serializedSecondaryEffect),
-                      serializedEvents,
-                      serializedSnapshot,
-                      delete))))
-          }
+              case _ => // non-error
+                val serializedEvents =
+                  events.map(event => ScalaPbAny.fromJavaProto(service.messageCodec.encodeJava(event)))
+                val serializedSnapshot =
+                  snapshot.map(state => ScalaPbAny.fromJavaProto(service.messageCodec.encodeJava(state)))
+                val delete = if (deleteEntity) pbCleanupDeletedEventSourcedEntityAfter else None
+                (
+                  endSequenceNumber,
+                  Some(
+                    OutReply(
+                      EventSourcedReply(
+                        command.id,
+                        clientAction,
+                        EffectSupport.sideEffectsFrom(service.messageCodec, serializedSecondaryEffect),
+                        serializedEvents,
+                        serializedSnapshot,
+                        delete))))
+            }
+          } finally { span.foreach(_.end()) }
         case ((sequence, _), InSnapshotRequest(request)) =>
           val reply =
             EventSourcedSnapshotReply(request.requestId, Some(service.messageCodec.encodeScala(router._stateOrEmpty())))

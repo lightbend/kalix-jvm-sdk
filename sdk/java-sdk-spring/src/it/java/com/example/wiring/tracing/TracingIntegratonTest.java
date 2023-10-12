@@ -43,6 +43,7 @@ public class TracingIntegratonTest extends DockerIntegrationTest {
     Logger logger = LoggerFactory.getLogger(TracingIntegratonTest.class);
     static Config config = ConfigFactory.parseString("""
                 kalix.proxy.telemetry.tracing.enabled = true
+                kalix.telemetry.tracing.collector-endpoint = "http://localhost:4317"
                 """);
 
     public TracingIntegratonTest(ApplicationContext applicationContext) {
