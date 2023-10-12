@@ -20,9 +20,6 @@ import kalix.javasdk.annotations.TypeName;
 
 public interface TCounterEvent {
 
-
     @TypeName("tincreased")
     record ValueIncreased(Integer value) implements TCounterEvent{}
-
-    ;
 }
