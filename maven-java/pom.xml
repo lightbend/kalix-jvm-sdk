@@ -42,7 +42,11 @@
     <maven.compiler.source>11</maven.compiler.source>
     <maven.compiler.target>11</maven.compiler.target>
     <maven.compiler.release>11</maven.compiler.release>
-    <maven.version>3.5.0</maven.version>
+    <!-- keep in sync with
+     maven-java/kalix-maven-plugin/pom.xml#L176 and
+     docs/build/src/managed/modules/java/partials/attributes.adoc#L4
+    -->
+    <maven.version>3.6.0</maven.version>
   </properties>
 
   <distributionManagement>
