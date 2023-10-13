@@ -209,10 +209,8 @@ final class EventSourcedEntitiesImpl(
                   val errorReply = ErrorReplyImpl(msg, Some(Status.Code.INVALID_ARGUMENT), Vector.empty)
                   CommandResult(Vector.empty, errorReply, None, context.sequenceNumber, false)
                 case e: EntityException =>
-                  span.foreach(_.end())
                   throw e
                 case NonFatal(error) =>
-                  span.foreach(_.end())
                   throw EntityException(command, s"Unexpected failure: $error", Some(error))
               } finally {
                 context.deactivate() // Very important!
@@ -231,7 +229,6 @@ final class EventSourcedEntitiesImpl(
                 (
                   endSequenceNumber,
                   Some(OutReply(EventSourcedReply(commandId = command.id, clientAction = clientAction))))
-
               case _ => // non-error
                 val serializedEvents =
                   events.map(event => ScalaPbAny.fromJavaProto(service.messageCodec.encodeJava(event)))
