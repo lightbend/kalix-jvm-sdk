@@ -22,7 +22,7 @@ object Dependencies {
   val JacksonVersion = "2.14.3"
   val JacksonDatabindVersion = "2.14.3"
   val DockerBaseImageVersion = "adoptopenjdk/openjdk11:debianslim-jre"
-  val LogbackVersion = "1.4.5"
+  val LogbackVersion = "1.4.11"
   val LogbackContribVersion = "0.1.5"
   val TestContainersVersion = "1.17.6"
   val JUnitVersion = "4.13.2"
@@ -45,10 +45,10 @@ object Dependencies {
   val logbackJson = "ch.qos.logback.contrib" % "logback-json-classic" % LogbackContribVersion
   val logbackJackson = "ch.qos.logback.contrib" % "logback-jackson" % LogbackContribVersion
 
-  // akka-slf4j pulls in slf4j-api v1.7.36 and but we want v2.0.6
-  // because of Logback v1.4.5 and because of Spring 3. Therefore we have to explicitly bump slf4j-api to v2.0.6.
-  // Version 2.0.6 is also problematic for Akka, but only when using the BehaviorTestKit which is not used in the SDK
-  val slf4jApi = "org.slf4j" % "slf4j-api" % "2.0.6"
+  // akka-slf4j pulls in slf4j-api v1.7.36 and but we want v2.0.9
+  // because of Logback v1.4.5+ and because of Spring 3. Therefore we have to explicitly bump slf4j-api.
+  // Version 2.0.9 is also problematic for Akka, but only when using the BehaviorTestKit which is not used in the SDK
+  val slf4jApi = "org.slf4j" % "slf4j-api" % "2.0.9"
 
   val protobufJava = "com.google.protobuf" % "protobuf-java" % ProtobufVersion
   val protobufJavaUtil = "com.google.protobuf" % "protobuf-java-util" % ProtobufVersion
