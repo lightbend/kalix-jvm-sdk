@@ -5,7 +5,7 @@ include::ROOT:partial$include.adoc[]
 
 This section describes the practical aspects of using JSON Web Tokens (JWTs) with the Java SDK, if you are not sure what JWTs are, how they work or how to generate them, see https://docs.kalix.io/security/jwts.html[JSON Web Tokens] first.
 
-Kalix’s JWT support is configured by placing annotations on methods in your endpoints.
+Kalix's JWT support is configured by placing annotations on methods in your endpoints or at the component class level.
 
 == Authentication
 
@@ -37,7 +37,15 @@ include::example$java-spring-doc-snippets/src/main/java/com/example/jwt/JWTActio
 ----
 <1> The token extracted from the bearer token must have this issuer.
 
-It is recommended that this be used in combination with specifying an issuer in your JWT key configuration, otherwise any of the services whose keys you trust may spoof the issuer.
+It is recommended that you use this in conjunction with specifying an issuer in your JWT key configuration. Otherwise, any of the services whose keys you trust may spoof the issuer.
+
+Multiple issuers may be allowed, by setting multiple `bearer_token_issuer` values:
+
+[source, java, indent=0]
+----
+include::example$java-spring-doc-snippets/src/main/java/com/example/jwt/JWTAction.java[tag=bearer-token-multi-issuer]
+----
+<1> The token extracted from the bearer token must have one of the two issuers defined in the annotation.
 
 Kalix will place the claims from the validated token into the request metadata, so you can access it from your service. All claims are prefixed with `_kalix-jwt-claim-`, so for example, if you want to read the subject claim, you can read the metadata entry `_kalix-jwt-claim-sub`. String claims are passed unquoted. All other claim types, including arrays and objects, are passed using their JSON encoding. Below you can see an example on how to extract a "subject" claim:
 
@@ -45,6 +53,20 @@ Kalix will place the claims from the validated token into the request metadata, 
 ----
 include::example$java-spring-doc-snippets/src/main/java/com/example/jwt/JWTAction.java[tag=bearer-token-claims]
 ----
+
+=== Configuring JWT at component level
+
+The above examples show how to configure a JWT token on a method.
+
+JWT configurations can also be shared between all methods of a component by specifying them on the class. The annotation will then be applied to all methods in that component. Method-level annotations take precedence over class-level annotations.
+
+[source, java, indent=0]
+----
+include::example$java-spring-doc-snippets/src/main/java/com/example/jwt/HelloJwtAction.java[tag=bearer-token]
+----
+<1> A type level JWT annotation is added to the class requiring a bearer token issuer named `my-issuer`.
+<2> The method `message` inherits the JWT configuration from the class-level annotation and therefore will require a token issued by `my-issuer`.
+<3> The method `messageWithIssuer` overwrites the class-level annotation and requires a different token issuer, i.e.: `my-other-issuer`.
 
 
 == Running locally with JWT support
