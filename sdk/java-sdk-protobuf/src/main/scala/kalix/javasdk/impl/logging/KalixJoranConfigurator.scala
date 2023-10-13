@@ -18,6 +18,7 @@ package kalix.javasdk.impl.logging
 
 import java.io.File
 
+import ch.qos.logback.classic.ClassicConstants
 import ch.qos.logback.classic.LoggerContext
 import ch.qos.logback.classic.spi.Configurator.ExecutionStatus
 import ch.qos.logback.classic.util.DefaultJoranConfigurator
@@ -36,7 +37,7 @@ class KalixJoranConfigurator extends DefaultJoranConfigurator {
     val noLogbackTest = {
       // using as much as possible Logback classes to find the resource in the classpath
       val myClassLoader = Loader.getClassLoaderOfObject(this)
-      val url = Loader.getResource(DefaultJoranConfigurator.TEST_AUTOCONFIG_FILE, myClassLoader)
+      val url = Loader.getResource(ClassicConstants.TEST_AUTOCONFIG_FILE, myClassLoader)
       url == null
     }
 
