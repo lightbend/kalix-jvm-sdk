@@ -172,8 +172,9 @@
             </goals>
             <configuration>
               <rules>
+                <!-- keep in sync with maven-java/pom.xml#L49 -->
                 <requireMavenVersion>
-                  <version>3.5.0</version>
+                  <version>3.6.0</version>
                 </requireMavenVersion>
               </rules>
               <rules>
