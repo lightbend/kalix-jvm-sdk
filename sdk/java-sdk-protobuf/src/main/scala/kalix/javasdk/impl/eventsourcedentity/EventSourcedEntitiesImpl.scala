@@ -181,6 +181,8 @@ final class EventSourcedEntitiesImpl(
         case ((sequence, _), InCommand(command)) =>
           if (thisEntityId != command.entityId)
             throw ProtocolException(command, "Receiving entity is not the intended recipient of command")
+            
+          val span = instrumentations(service.serviceName).buildSpan(service, command)
 
           val cmd =
             service.messageCodec.decodeMessage(
@@ -189,7 +191,6 @@ final class EventSourcedEntitiesImpl(
           val context =
             new CommandContextImpl(thisEntityId, sequence, command.name, command.id, metadata)
 
-          val span = instrumentations(service.serviceName).buildSpan(service, command)
           try {
             val CommandResult(
               events: Vector[Any],
