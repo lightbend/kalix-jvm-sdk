@@ -57,7 +57,7 @@ When the example suites are enabled at sbt level, you will get a few more sbt pr
 [info]     test-scala-event-sourced-entity-absolute-packages
 [info]     test-scala-event-sourced-entity-domain-in-service-package
 [info]     test-scala-event-sourced-entity-named-new-style
-[info]     test-scala-event-sourced-entity-state-events-in-different-pacakge
+[info]     test-scala-event-sourced-entity-state-events-in-different-package
 [info]     test-scala-event-sourced-entity-unnamed-new-style
 [info]     test-scala-replicated-entity-multimap-absolute-packages
 [info]     test-scala-replicated-entity-multimap-domain-in-service-package
@@ -68,7 +68,7 @@ When the example suites are enabled at sbt level, you will get a few more sbt pr
 [info]     test-scala-value-entity-absolute-packages
 [info]     test-scala-value-entity-domain-in-service-package
 [info]     test-scala-value-entity-named-new-style
-[info]     test-scala-value-entity-state-events-in-different-pacakge
+[info]     test-scala-value-entity-state-events-in-different-package
 [info]     test-scala-value-entity-unnamed-new-style
 [info]     test-scala-view-service-named-new-style
 [info]     test-scala-view-service-unnamed-new-style

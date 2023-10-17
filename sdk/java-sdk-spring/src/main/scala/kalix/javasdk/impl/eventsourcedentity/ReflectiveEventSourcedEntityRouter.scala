@@ -16,18 +16,17 @@
 
 package kalix.javasdk.impl.eventsourcedentity
 
-import java.lang.reflect.ParameterizedType
-
 import com.google.protobuf.any.{ Any => ScalaPbAny }
 import com.google.protobuf.{ Any => JavaPbAny }
 import kalix.javasdk.JsonSupport
-import kalix.javasdk.Metadata
 import kalix.javasdk.eventsourcedentity.CommandContext
 import kalix.javasdk.eventsourcedentity.EventSourcedEntity
 import kalix.javasdk.impl.CommandHandler
 import kalix.javasdk.impl.InvocationContext
 import kalix.javasdk.impl.JsonMessageCodec
 import kalix.javasdk.impl.MethodInvoker
+
+import java.lang.reflect.ParameterizedType
 
 class ReflectiveEventSourcedEntityRouter[S, E, ES <: EventSourcedEntity[S, E]](
     override protected val entity: ES,
@@ -53,7 +52,7 @@ class ReflectiveEventSourcedEntityRouter[S, E, ES <: EventSourcedEntity[S, E]](
 
     event match {
       case s: ScalaPbAny => // replaying event coming from proxy
-        val invocationContext = InvocationContext(s, JavaPbAny.getDescriptor, Metadata.EMPTY)
+        val invocationContext = InvocationContext(s, JavaPbAny.getDescriptor)
 
         eventHandlerLookup(s.typeUrl)
           .invoke(entity, invocationContext)
@@ -84,9 +83,10 @@ class ReflectiveEventSourcedEntityRouter[S, E, ES <: EventSourcedEntity[S, E]](
         commandContext.metadata())
 
     val inputTypeUrl = command.asInstanceOf[ScalaPbAny].typeUrl
-
-    commandHandler
+    val methodInvoker = commandHandler
       .getInvoker(inputTypeUrl)
+
+    methodInvoker
       .invoke(entity, invocationContext)
       .asInstanceOf[EventSourcedEntity.Effect[_]]
   }

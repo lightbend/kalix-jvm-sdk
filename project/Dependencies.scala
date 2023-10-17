@@ -31,6 +31,7 @@ object Dependencies {
   val SpringFrameworkVersion = "6.0.13"
   // make sure to sync spring-boot-starter-parent version in samples and archetype to this version
   val SpringBootVersion = "3.1.4"
+  val OpenTelemetryVersion = "1.28.0"
 
   val CommonsIoVersion = "2.11.0"
   val MunitVersion = "0.7.29"
@@ -69,6 +70,12 @@ object Dependencies {
   val junit4 = "junit" % "junit" % JUnitVersion
   val junit5 = "org.junit.jupiter" % "junit-jupiter" % JUnitJupiterVersion
 
+  val opentelemetryApi = "io.opentelemetry" % "opentelemetry-api" % OpenTelemetryVersion
+  val opentelemetrySdk = "io.opentelemetry" % "opentelemetry-sdk" % OpenTelemetryVersion
+  val opentelemetryExporterOtlp = "io.opentelemetry" % "opentelemetry-exporter-otlp" % OpenTelemetryVersion
+  val opentelemetryContext = "io.opentelemetry" % "opentelemetry-context" % OpenTelemetryVersion
+  val opentelemetrySemConv = "io.opentelemetry" % "opentelemetry-semconv" % (OpenTelemetryVersion + "-alpha")
+
   val scalapbCompilerPlugin = "com.thesamet.scalapb" %% "compilerplugin" % scalapb.compiler.Version.scalapbVersion
   val sbtProtoc = "com.thesamet" % "sbt-protoc" % "1.0.0"
 
@@ -88,6 +95,11 @@ object Dependencies {
     protobufJavaUtil,
     kalixProxyProtocol % "protobuf-src",
     kalixSdkProtocol % "compile;protobuf-src",
+    opentelemetryApi,
+    opentelemetrySdk,
+    opentelemetryExporterOtlp,
+    opentelemetryContext,
+    opentelemetrySemConv,
     akkaDependency("akka-testkit") % Test,
     akkaDependency("akka-actor-testkit-typed") % Test,
     akkaDependency("akka-stream-testkit") % Test,

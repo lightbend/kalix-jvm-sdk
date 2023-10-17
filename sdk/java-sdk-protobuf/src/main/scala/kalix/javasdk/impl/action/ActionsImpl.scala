@@ -16,10 +16,6 @@
 
 package kalix.javasdk.impl.action
 
-import java.util.Optional
-import scala.concurrent.Future
-import scala.jdk.CollectionConverters.SeqHasAsJava
-import scala.util.control.NonFatal
 import akka.NotUsed
 import akka.actor.ActorSystem
 import akka.stream.scaladsl.Sink
@@ -33,6 +29,9 @@ import kalix.javasdk.impl.ActionFactory
 import kalix.javasdk.impl.ErrorHandling.BadRequestException
 import kalix.javasdk.impl._
 import kalix.javasdk.impl.effect.EffectSupport.asProtocol
+import kalix.javasdk.impl.telemetry.ActionCategory
+import kalix.javasdk.impl.telemetry.Instrumentation
+import kalix.javasdk.impl.telemetry.Telemetry
 import kalix.protocol.action.ActionCommand
 import kalix.protocol.action.ActionResponse
 import kalix.protocol.action.Actions
@@ -40,6 +39,11 @@ import kalix.protocol.component
 import kalix.protocol.component.Failure
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+
+import java.util.Optional
+import scala.concurrent.Future
+import scala.jdk.CollectionConverters.SeqHasAsJava
+import scala.util.control.NonFatal
 
 final class ActionService(
     val factory: ActionFactory,
@@ -117,6 +121,10 @@ private[javasdk] final class ActionsImpl(
   import ActionsImpl._
   import _system.dispatcher
   implicit val system: ActorSystem = _system
+  val telemetry = Telemetry(system)
+  val telemetries: Map[String, Instrumentation] = services.values.map { s =>
+    (s.serviceName, telemetry.traceInstrumentation(s.serviceName, ActionCategory))
+  }.toMap
 
   private object creationContext extends AbstractContext(system) with ActionCreationContext {
     override def getGrpcClient[T](clientClass: Class[T], service: String): T =
@@ -191,18 +199,23 @@ private[javasdk] final class ActionsImpl(
   override def handleUnary(in: ActionCommand): Future[ActionResponse] =
     services.get(in.serviceName) match {
       case Some(service) =>
-        try {
-          val context = createContext(in, service.messageCodec)
-          val decodedPayload = service.messageCodec.decodeMessage(
-            in.payload.getOrElse(throw new IllegalArgumentException("No command payload")))
-          val effect = service.factory
-            .create(creationContext)
-            .handleUnary(in.name, MessageEnvelope.of(decodedPayload, context.metadata()), context)
-          effectToResponse(service, in, effect, service.messageCodec)
-        } catch {
-          case NonFatal(ex) =>
-            // command handler threw an "unexpected" error
-            Future.successful(handleUnexpectedException(service, in, ex))
+        val span = telemetries(service.serviceName).buildSpan(service, in)
+        val fut =
+          try {
+            val context = createContext(in, service.messageCodec)
+            val decodedPayload = service.messageCodec.decodeMessage(
+              in.payload.getOrElse(throw new IllegalArgumentException("No command payload")))
+            val effect = service.factory
+              .create(creationContext)
+              .handleUnary(in.name, MessageEnvelope.of(decodedPayload, context.metadata()), context)
+            effectToResponse(service, in, effect, service.messageCodec)
+          } catch {
+            case NonFatal(ex) =>
+              // command handler threw an "unexpected" error
+              Future.successful(handleUnexpectedException(service, in, ex))
+          }
+        fut.andThen { case _ =>
+          span.foreach(_.end())
         }
       case None =>
         Future.successful(

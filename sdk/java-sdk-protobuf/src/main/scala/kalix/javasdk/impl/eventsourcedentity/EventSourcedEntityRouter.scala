@@ -16,14 +16,18 @@
 
 package kalix.javasdk.impl.eventsourcedentity
 
-import kalix.javasdk.eventsourcedentity.{ CommandContext, EventContext, EventSourcedEntity }
+import kalix.javasdk.eventsourcedentity.CommandContext
+import kalix.javasdk.eventsourcedentity.EventContext
+import kalix.javasdk.eventsourcedentity.EventSourcedEntity
 import kalix.javasdk.impl.EntityExceptions
 import kalix.javasdk.impl.effect.SecondaryEffectImpl
-import kalix.javasdk.impl.eventsourcedentity.EventSourcedEntityEffectImpl.{ EmitEvents, NoPrimaryEffect }
+import kalix.javasdk.impl.eventsourcedentity.EventSourcedEntityEffectImpl.EmitEvents
+import kalix.javasdk.impl.eventsourcedentity.EventSourcedEntityEffectImpl.NoPrimaryEffect
 
 import java.util.Optional
 
 object EventSourcedEntityRouter {
+
   final case class CommandResult(
       events: Vector[Any],
       secondaryEffect: SecondaryEffectImpl,
@@ -88,6 +92,7 @@ abstract class EventSourcedEntityRouter[S, E, ES <: EventSourcedEntity[S, E]](pr
       context: CommandContext,
       snapshotEvery: Int,
       eventContextFactory: Long => EventContext): CommandResult = {
+
     val commandEffect =
       try {
         entity._internalSetCommandContext(Optional.of(context))

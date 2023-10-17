@@ -24,6 +24,7 @@ import kalix.javasdk.action.MessageEnvelope
 import kalix.javasdk.impl.AnySupport.ProtobufEmptyTypeUrl
 import kalix.javasdk.impl.CommandHandler
 import kalix.javasdk.impl.InvocationContext
+
 // TODO: abstract away reactor dependency
 import reactor.core.publisher.Flux
 
@@ -65,6 +66,7 @@ class ReflectiveActionRouter[A <: Action](
       case None =>
         throw new NoSuchElementException(
           s"Couldn't find any method with input type [$inputTypeUrl] in Action [$action].")
+
     }
   }
 
@@ -81,7 +83,6 @@ class ReflectiveActionRouter[A <: Action](
         message.metadata())
 
     val inputTypeUrl = message.payload().asInstanceOf[ScalaPbAny].typeUrl
-
     componentMethod.lookupInvoker(inputTypeUrl) match {
       case Some(methodInvoker) =>
         val response = methodInvoker.invoke(action, context).asInstanceOf[Flux[Action.Effect[_]]]

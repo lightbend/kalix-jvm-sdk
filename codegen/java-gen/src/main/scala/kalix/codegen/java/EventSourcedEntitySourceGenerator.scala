@@ -19,7 +19,6 @@ package kalix.codegen.java
 import kalix.codegen.Format
 import kalix.codegen.Imports
 import kalix.codegen.ModelBuilder
-import kalix.codegen.ClassMessageType
 import kalix.codegen.ProtoMessageType
 import kalix.codegen.SourceGeneratorUtils.allRelevantMessageTypes
 import kalix.codegen.SourceGeneratorUtils.collectRelevantTypes

@@ -57,7 +57,7 @@ When the example suites are enabled at sbt level, you will get a few more sbt pr
 [info]     test-java-event-sourced-entity-domain-in-service-package
 [info]     test-java-event-sourced-entity-named-new-style
 [info]     test-java-event-sourced-entity-named-new-style-with-java-package
-[info]     test-java-event-sourced-entity-state-events-in-different-pacakge
+[info]     test-java-event-sourced-entity-state-events-in-different-package
 [info]     test-java-event-sourced-entity-unnamed-new-style
 [info]     test-java-replicated-entity-multimap-absolute-packages
 [info]     test-java-replicated-entity-multimap-domain-in-service-package
@@ -68,7 +68,7 @@ When the example suites are enabled at sbt level, you will get a few more sbt pr
 [info]     test-java-value-entity-absolute-packages
 [info]     test-java-value-entity-domain-in-service-package
 [info]     test-java-value-entity-named-new-style
-[info]     test-java-value-entity-state-events-in-different-pacakge
+[info]     test-java-value-entity-state-events-in-different-package
 [info]     test-java-value-entity-unnamed-new-style
 [info]     test-java-view-service-named-new-style
 [info]     test-java-view-service-unnamed-new-style

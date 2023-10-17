@@ -16,18 +16,8 @@
 
 package kalix.spring.impl
 
-import java.lang.reflect.Modifier
-import java.lang.reflect.ParameterizedType
-
-import scala.concurrent.Future
-import scala.jdk.CollectionConverters.CollectionHasAsScala
-import scala.jdk.FutureConverters.CompletionStageOps
-import scala.jdk.OptionConverters.RichOption
-import scala.reflect.ClassTag
-
 import akka.Done
 import com.typesafe.config.Config
-import com.typesafe.config.ConfigFactory
 import kalix.javasdk.Kalix
 import kalix.javasdk.action.Action
 import kalix.javasdk.action.ActionCreationContext
@@ -59,19 +49,9 @@ import kalix.javasdk.workflow.ReflectiveWorkflowProvider
 import kalix.javasdk.workflow.Workflow
 import kalix.javasdk.workflow.WorkflowContext
 import kalix.javasdk.workflow.WorkflowProvider
+import kalix.spring.BuildInfo
 import kalix.spring.KalixClient
 import kalix.spring.WebClientProvider
-import kalix.spring.impl.KalixSpringApplication.ActionCreationContextFactoryBean
-import kalix.spring.impl.KalixSpringApplication.EventSourcedEntityContextFactoryBean
-import kalix.spring.impl.KalixSpringApplication.KalixClientFactoryBean
-import kalix.spring.impl.KalixSpringApplication.KalixComponentProvider
-import kalix.spring.impl.KalixSpringApplication.MainClassProvider
-import kalix.spring.impl.KalixSpringApplication.ValueEntityContextFactoryBean
-import kalix.spring.impl.KalixSpringApplication.ViewCreationContextFactoryBean
-import kalix.spring.impl.KalixSpringApplication.WebClientProviderFactoryBean
-import kalix.spring.impl.KalixSpringApplication.WorkflowContextFactoryBean
-import kalix.spring.BuildInfo
-import kalix.spring.impl.KalixSpringApplication.ComponentClientFactoryBean
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.BeanCreationException
@@ -86,6 +66,15 @@ import org.springframework.context.annotation.ClassPathScanningCandidateComponen
 import org.springframework.core.`type`.classreading.MetadataReader
 import org.springframework.core.`type`.classreading.MetadataReaderFactory
 import org.springframework.core.`type`.filter.TypeFilter
+
+import java.lang.reflect.Modifier
+import java.lang.reflect.ParameterizedType
+import scala.concurrent.Future
+import scala.jdk.CollectionConverters.CollectionHasAsScala
+import scala.jdk.FutureConverters.CompletionStageOps
+import scala.jdk.OptionConverters.RichOption
+import scala.jdk.OptionConverters._
+import scala.reflect.ClassTag
 
 object KalixSpringApplication {
 
@@ -199,8 +188,11 @@ object KalixSpringApplication {
 
   abstract class ThreadLocalFactoryBean[T: ClassTag] extends FactoryBean[T] {
     val threadLocal = new ThreadLocal[T]
+
     def set(value: T) = threadLocal.set(value)
+
     override def getObject: T = threadLocal.get()
+
     override def getObjectType: Class[_] = implicitly[ClassTag[T]].runtimeClass
   }
 
@@ -257,6 +249,8 @@ object KalixSpringApplication {
 }
 
 case class KalixSpringApplication(applicationContext: ApplicationContext, config: Config) {
+
+  import KalixSpringApplication._
 
   private val logger: Logger = LoggerFactory.getLogger(getClass)
 
