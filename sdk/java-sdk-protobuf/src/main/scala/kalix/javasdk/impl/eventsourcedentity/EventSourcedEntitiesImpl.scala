@@ -181,7 +181,7 @@ final class EventSourcedEntitiesImpl(
         case ((sequence, _), InCommand(command)) =>
           if (thisEntityId != command.entityId)
             throw ProtocolException(command, "Receiving entity is not the intended recipient of command")
-            
+
           val span = instrumentations(service.serviceName).buildSpan(service, command)
 
           val cmd =
