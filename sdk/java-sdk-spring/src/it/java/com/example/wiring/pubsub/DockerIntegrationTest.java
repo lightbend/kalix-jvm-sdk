@@ -119,7 +119,7 @@ public abstract class DockerIntegrationTest {
     await()
       .ignoreExceptions()
       .pollInterval(5, TimeUnit.SECONDS)
-      .atMost(60, TimeUnit.SECONDS)
+      .atMost(120, TimeUnit.SECONDS)
       .until(() -> assertSourceServiceIsUp(webClient),
         new IsEqual(HttpStatus.NOT_FOUND)  // NOT_FOUND is a sign that the customer registry service is there
       );
