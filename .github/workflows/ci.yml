@@ -156,7 +156,6 @@ jobs:
   sbt-test:
     name: Run sbt test
     needs: [checks, publish-local]
-    uses: runforesight/workflow-telemetry-action@v1.8.0
     runs-on: ubuntu-22.04
 
     steps:
@@ -206,6 +205,7 @@ jobs:
           tar -xf dependencies.tar.gz
 
       - name: sbt test
+        uses: runforesight/workflow-telemetry-action@v1.8.0
         run: sbt test
 
   sbt-scripted:
