@@ -17,6 +17,7 @@ import org.junit.ClassRule;
 import org.junit.Test;
 
 import java.net.URI;
+import java.time.Duration;
 
 import static org.junit.Assert.assertEquals;
 
@@ -97,7 +98,7 @@ public class CounterTopicIntegrationTest {
 
     commandsTopic.publish(testKit.getMessageBuilder().of(increaseCmd, metadata)); // <4>
 
-    var increasedEvent = eventsTopicWithMeta.expectOneTyped(CounterTopicApi.Increased.class);
+    var increasedEvent = eventsTopicWithMeta.expectOneTyped(CounterTopicApi.Increased.class, Duration.ofSeconds(10));
     var actualMd = increasedEvent.getMetadata(); // <5>
     assertEquals(counterId, actualMd.asCloudEvent().subject().get()); // <6>
     assertEquals("application/protobuf", actualMd.get("Content-Type").get());

@@ -389,8 +389,15 @@ public class SpringSdkIntegrationTest {
     TestUser user = new TestUser("123", "john@doe.com", "JohnDoe");
 
     createUser(user);
-    updateUser(user.withName("JohnDoeJr"));
 
+    // the view is eventually updated
+    await()
+      .ignoreExceptions()
+      .atMost(15, TimeUnit.of(SECONDS))
+      .until(() -> getUserByEmail(user.email).version,
+        new IsEqual(1));
+
+    updateUser(user.withName("JohnDoeJr"));
 
     // the view is eventually updated
     await()

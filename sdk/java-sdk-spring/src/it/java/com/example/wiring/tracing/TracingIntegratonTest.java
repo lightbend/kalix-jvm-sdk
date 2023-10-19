@@ -55,7 +55,7 @@ public class TracingIntegratonTest extends DockerIntegrationTest {
         String counterId = "some-counter";
         callTCounter(counterId, 10);
 
-        await().ignoreExceptions().atMost(20, TimeUnit.of(SECONDS)).untilAsserted(() -> {
+        await().ignoreExceptions().atMost(60, TimeUnit.of(SECONDS)).untilAsserted(() -> {
            Traces traces = selectTraces();
            assertThat(traces.traces().isEmpty()).isFalse();
            Batches batches = selectBatches(traces.traces().get(0).traceID());
