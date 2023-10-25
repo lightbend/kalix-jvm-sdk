@@ -41,6 +41,7 @@ import kalix.javasdk.workflow.Workflow.Effect
 import Workflow.AsyncCallStep
 import Workflow.CallStep
 import Workflow.WorkflowDef
+import kalix.javasdk.JsonSupport
 import kalix.javasdk.impl.WorkflowExceptions.WorkflowException
 import kalix.protocol.workflow_entity.StepDeferredCall
 import kalix.protocol.workflow_entity.StepExecuted
@@ -121,6 +122,16 @@ abstract class WorkflowRouter[S, W <: Workflow[S]](protected val workflow: W) {
 
   protected def handleCommand(commandName: String, state: S, command: Any, context: CommandContext): Workflow.Effect[_]
 
+  // in same cases, the Proxy may send a message with typeUrl set to object.
+  // if that's the case, we need to patch the message using the typeUrl from the expected input class
+  private def decodeInput(messageCodec: MessageCodec, result: ScalaPbAny, expectedInputClass: Class[_]) =
+    if (result.typeUrl == JsonSupport.KALIX_JSON + "object") {
+      val typeUrl = messageCodec.typeUrlFor(expectedInputClass)
+      messageCodec.decodeMessage(result.copy(typeUrl = typeUrl))
+    } else {
+      messageCodec.decodeMessage(result)
+    }
+
   /** INTERNAL API */
   // "public" api against the impl/testkit
   final def _internalHandleStep(
@@ -140,7 +151,7 @@ abstract class WorkflowRouter[S, W <: Workflow[S]](protected val workflow: W) {
     workflowDef.findByName(stepName).toScala match {
       case Some(call: CallStep[_, _, _, _]) =>
         val decodedInput = input match {
-          case Some(inputValue) => messageCodec.decodeMessage(inputValue)
+          case Some(inputValue) => decodeInput(messageCodec, inputValue, call.callInputClass)
           case None             => null // to meet a signature of supplier expressed as a function
         }
 
@@ -169,7 +180,7 @@ abstract class WorkflowRouter[S, W <: Workflow[S]](protected val workflow: W) {
 
       case Some(call: AsyncCallStep[_, _, _]) =>
         val decodedInput = input match {
-          case Some(inputValue) => messageCodec.decodeMessage(inputValue)
+          case Some(inputValue) => decodeInput(messageCodec, inputValue, call.callInputClass)
           case None             => null // to meet a signature of supplier expressed as a function
         }
 
@@ -205,7 +216,7 @@ abstract class WorkflowRouter[S, W <: Workflow[S]](protected val workflow: W) {
         val effect =
           call.transitionFunc
             .asInstanceOf[JFunc[Any, Effect[Any]]]
-            .apply(messageCodec.decodeMessage(result))
+            .apply(decodeInput(messageCodec, result, call.transitionInputClass))
 
         CommandResult(effect)
 
@@ -213,7 +224,7 @@ abstract class WorkflowRouter[S, W <: Workflow[S]](protected val workflow: W) {
         val effect =
           call.transitionFunc
             .asInstanceOf[JFunc[Any, Effect[Any]]]
-            .apply(messageCodec.decodeMessage(result))
+            .apply(decodeInput(messageCodec, result, call.transitionInputClass))
 
         CommandResult(effect)
 
