@@ -312,7 +312,7 @@ case class KalixSpringApplication(applicationContext: ApplicationContext, config
    */
   private def wiredInstance[T](clz: Class[T])(partial: PartialFunction[Class[_], Any]): T = {
     // only one constructor allowed
-    require(clz.getDeclaredConstructors.length > 1, s"Class [${clz.getSimpleName}] must have only one constructor")
+    require(clz.getDeclaredConstructors.length == 1, s"Class [${clz.getSimpleName}] must have only one constructor.")
     wiredInstance(clz.getDeclaredConstructors.head.asInstanceOf[Constructor[T]])(partial)
   }
 
