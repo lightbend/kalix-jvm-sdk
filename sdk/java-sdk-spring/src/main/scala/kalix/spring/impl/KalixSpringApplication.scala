@@ -304,12 +304,25 @@ case class KalixSpringApplication(applicationContext: ApplicationContext, config
     webClientProviderHolder.webClientProvider
   }
 
+  /**
+   * Create an instance of `clz` using the mappings defined in `partial`. Each component provider should define what are
+   * the acceptable dependencies in the partial function.
+   *
+   * If the partial function doesn't match, it will try to lookup in the Spring applicationContext.
+   */
   private def wiredInstance[T](clz: Class[T])(partial: PartialFunction[Class[_], Any]): T = {
     // only one constructor allowed
-    // TODO: validate this
+    require(clz.getDeclaredConstructors.length > 1, s"Class [${clz.getSimpleName}] must have only one constructor")
     wiredInstance(clz.getDeclaredConstructors.head.asInstanceOf[Constructor[T]])(partial)
   }
 
+  /**
+   * Create an instance using the passed `constructor` and the mappings defined in `partial`.
+   *
+   * Each component provider should define what are the acceptable dependencies in the partial function.
+   *
+   * If the partial function doesn't match, it will try to lookup in the Spring applicationContext.
+   */
   private def wiredInstance[T](constructor: Constructor[T])(partial: PartialFunction[Class[_], Any]): T = {
 
     // Note that this function is total because it will always return a value (even if null)
@@ -319,42 +332,24 @@ case class KalixSpringApplication(applicationContext: ApplicationContext, config
         // block wiring of clients into anything that is not an Action or Workflow
         // NOTE: if they are allowed, 'partial' should already have a matching case for them
         case p if p == classOf[KalixClient] =>
-          new BeanCreationException(
-            s"KalixClient cannot be inject into a [${constructor.getDeclaringClass.getSimpleName}]")
+          throw new BeanCreationException(
+            s"[${constructor.getDeclaringClass.getSimpleName}] are not allowed to have a dependency on KalixClient")
 
         case p if p == classOf[ComponentClient] =>
-          new BeanCreationException(
-            s"ComponentClient cannot be inject into a [${constructor.getDeclaringClass.getSimpleName}]")
+          throw new BeanCreationException(
+            s"[${constructor.getDeclaringClass.getSimpleName}] are not allowed to have a dependency on ComponentClient")
 
         case p if p == classOf[WebClientProvider] =>
-          new BeanCreationException(
-            s"WebClientProvider cannot be inject into a [${constructor.getDeclaringClass.getSimpleName}]")
-
-        // block wiring of context into inappropriate components
-        // NOTE: here we match all existing context types
-        // 'partial' should already have a case for the right one and therefore will have precedence over these ones
-        case p if p == classOf[ActionCreationContext] =>
-          new BeanCreationException(
-            s"ActionCreationContext cannot be inject into a [${constructor.getDeclaringClass.getSimpleName}]")
-
-        case p if p == classOf[WorkflowContext] =>
-          new BeanCreationException(
-            s"WorkflowContext cannot be inject into a [${constructor.getDeclaringClass.getSimpleName}]")
-
-        case p if p == classOf[EventSourcedEntityContext] =>
-          new BeanCreationException(
-            s"EventSourcedEntityContext cannot be inject into a [${constructor.getDeclaringClass.getSimpleName}]")
-
-        case p if p == classOf[ValueEntityContext] =>
-          new BeanCreationException(
-            s"ValueEntityContext cannot be inject into a [${constructor.getDeclaringClass.getSimpleName}]")
-
-        case p if p == classOf[ViewCreationContext] =>
-          new BeanCreationException(
-            s"ViewCreationContext cannot be inject into a [${constructor.getDeclaringClass.getSimpleName}]")
+          throw new BeanCreationException(
+            s"[${constructor.getDeclaringClass.getSimpleName}] are not allowed to have a dependency on WebClientProvider")
 
         // if partial func doesn't match, try to lookup in the applicationContext
-        case anyOther => applicationContext.getBean(anyOther)
+        case anyOther =>
+          val bean = applicationContext.getBean(anyOther)
+          if (bean == null)
+            throw new BeanCreationException(
+              s"Cannot wire [${anyOther.getSimpleName}]. Bean not found in the Application Context");
+          else bean
       }
 
     // all params must be wired so we use 'map' not 'collect'
