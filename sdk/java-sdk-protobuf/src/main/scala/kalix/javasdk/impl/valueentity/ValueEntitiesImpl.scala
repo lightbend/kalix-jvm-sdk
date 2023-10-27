@@ -161,7 +161,7 @@ final class ValueEntitiesImpl(
         case InCommand(command) =>
           val metadata = new MetadataImpl(command.metadata.map(_.entries.toVector).getOrElse(Nil))
 
-          if(log.isTraceEnabled) log.trace("Metadata entries [{}].", metadata.entries)
+          if (log.isTraceEnabled) log.trace("Metadata entries [{}].", metadata.entries)
 
           val span = instrumentations(service.serviceName).buildSpan(service, command)
           try {

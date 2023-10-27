@@ -153,10 +153,10 @@ private final class TraceInstrumentation(
    * @return
    */
   override def buildSpan(service: Service, command: Command): Option[Span] = {
-    if(logger.isTraceEnabled) logger.trace("Building span for command [{}].", command)
+    if (logger.isTraceEnabled) logger.trace("Building span for command [{}].", command)
     val metadata = new MetadataImpl(command.metadata.map(_.entries).getOrElse(Nil))
     if (metadata.get(TRACE_PARENT_KEY).isPresent) {
-      if(logger.isTraceEnabled) logger.trace("`traceparent` found")
+      if (logger.isTraceEnabled) logger.trace("`traceparent` found")
 
       val context = openTelemetry.getPropagators.getTextMapPropagator
         .extract(OtelContext.current(), metadata, otelGetter.asInstanceOf[TextMapGetter[Object]])
@@ -172,17 +172,17 @@ private final class TraceInstrumentation(
           .setAttribute("component.type", service.componentType)
           .setAttribute("entity.id", command.entityId))
     } else {
-      if(logger.isTraceEnabled) logger.trace("No `traceparent` found for command [{}].", command)
+      if (logger.isTraceEnabled) logger.trace("No `traceparent` found for command [{}].", command)
       None
     }
   }
 
   override def buildSpan(service: Service, command: ActionCommand): Option[Span] = {
-    if(logger.isTraceEnabled)logger.trace("Building span for action command [{}].", command)
+    if (logger.isTraceEnabled) logger.trace("Building span for action command [{}].", command)
 
     val metadata = new MetadataImpl(command.metadata.map(_.entries).getOrElse(Nil))
     if (metadata.get(TRACE_PARENT_KEY).isPresent) {
-      if(logger.isTraceEnabled)logger.trace("`traceparent` found")
+      if (logger.isTraceEnabled) logger.trace("`traceparent` found")
 
       val context = openTelemetry.getPropagators.getTextMapPropagator
         .extract(OtelContext.current(), metadata, otelGetter.asInstanceOf[TextMapGetter[Object]])
@@ -197,7 +197,7 @@ private final class TraceInstrumentation(
           .setAttribute("service.name", s"""${service.serviceName}""")
           .setAttribute(s"${service.componentType}", command.name))
     } else {
-      if(logger.isTraceEnabled)logger.trace("No `traceparent` found for command [{}].", command)
+      if (logger.isTraceEnabled) logger.trace("No `traceparent` found for command [{}].", command)
       None
     }
 
