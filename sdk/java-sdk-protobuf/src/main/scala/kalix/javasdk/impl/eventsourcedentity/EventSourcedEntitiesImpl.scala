@@ -183,15 +183,14 @@ final class EventSourcedEntitiesImpl(
             throw ProtocolException(command, "Receiving entity is not the intended recipient of command")
 
           val span = instrumentations(service.serviceName).buildSpan(service, command)
-
-          val cmd =
-            service.messageCodec.decodeMessage(
-              command.payload.getOrElse(throw ProtocolException(command, "No command payload")))
-          val metadata = new MetadataImpl(command.metadata.map(_.entries.toVector).getOrElse(Nil))
-          val context =
-            new CommandContextImpl(thisEntityId, sequence, command.name, command.id, metadata)
-
           try {
+            val cmd =
+              service.messageCodec.decodeMessage(
+                command.payload.getOrElse(throw ProtocolException(command, "No command payload")))
+            val metadata = new MetadataImpl(command.metadata.map(_.entries.toVector).getOrElse(Nil))
+            val context =
+              new CommandContextImpl(thisEntityId, sequence, command.name, command.id, metadata)
+
             val CommandResult(
               events: Vector[Any],
               secondaryEffect: SecondaryEffectImpl,

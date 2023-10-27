@@ -16,8 +16,6 @@
 
 package kalix.javasdk.impl.valueentity
 
-import scala.concurrent.ExecutionContext
-import scala.util.control.NonFatal
 import akka.NotUsed
 import akka.actor.ActorSystem
 import akka.stream.scaladsl.Flow
@@ -25,8 +23,14 @@ import akka.stream.scaladsl.Source
 import io.grpc.Status
 import kalix.javasdk.KalixRunner.Configuration
 import kalix.javasdk.impl.ErrorHandling.BadRequestException
+import kalix.javasdk.impl.telemetry.Instrumentation
+import kalix.javasdk.impl.telemetry.Telemetry
+import kalix.javasdk.impl.telemetry.ValueEntityCategory
 import kalix.protocol.component.Failure
 import org.slf4j.LoggerFactory
+
+import scala.concurrent.ExecutionContext
+import scala.util.control.NonFatal
 
 // FIXME these don't seem to be 'public API', more internals?
 import com.google.protobuf.Descriptors
@@ -88,6 +92,11 @@ final class ValueEntitiesImpl(
 
   private implicit val ec: ExecutionContext = system.dispatcher
   private final val log = LoggerFactory.getLogger(this.getClass)
+
+  val telemetry = Telemetry(system)
+  val instrumentations: Map[String, Instrumentation] = services.values.map { s =>
+    (s.serviceName, telemetry.traceInstrumentation(s.serviceName, ValueEntityCategory))
+  }.toMap
 
   private val pbCleanupDeletedValueEntityAfter =
     Some(com.google.protobuf.duration.Duration(configuration.cleanupDeletedValueEntityAfter))
@@ -151,56 +160,64 @@ final class ValueEntitiesImpl(
 
         case InCommand(command) =>
           val metadata = new MetadataImpl(command.metadata.map(_.entries.toVector).getOrElse(Nil))
-          val cmd =
-            service.messageCodec.decodeMessage(
-              command.payload.getOrElse(throw ProtocolException(command, "No command payload")))
-          val context =
-            new CommandContextImpl(thisEntityId, command.name, command.id, metadata, system)
 
-          val CommandResult(effect: ValueEntityEffectImpl[_]) =
-            try {
-              router._internalHandleCommand(command.name, cmd, context)
-            } catch {
-              case BadRequestException(msg) =>
-                CommandResult(new ValueEntityEffectImpl[Any].error(msg, Status.Code.INVALID_ARGUMENT))
-              case e: EntityException => throw e
-              case NonFatal(error) =>
-                throw EntityException(command, s"Unexpected failure: $error", Some(error))
-            } finally {
-              context.deactivate() // Very important!
-            }
+          if (log.isTraceEnabled) log.trace("Metadata entries [{}].", metadata.entries)
 
-          val serializedSecondaryEffect = effect.secondaryEffect match {
-            case MessageReplyImpl(message, metadata, sideEffects) =>
-              MessageReplyImpl(service.messageCodec.encodeJava(message), metadata, sideEffects)
-            case other => other
-          }
+          val span = instrumentations(service.serviceName).buildSpan(service, command)
+          try {
+            val cmd =
+              service.messageCodec.decodeMessage(
+                command.payload.getOrElse(throw ProtocolException(command, "No command payload")))
+            val context =
+              new CommandContextImpl(thisEntityId, command.name, command.id, metadata, system)
 
-          val clientAction =
-            serializedSecondaryEffect.replyToClientAction(service.messageCodec, command.id)
-
-          serializedSecondaryEffect match {
-            case error: ErrorReplyImpl[_] =>
-              ValueEntityStreamOut(OutReply(ValueEntityReply(commandId = command.id, clientAction = clientAction)))
-
-            case _ => // non-error
-              val action: Option[ValueEntityAction] = effect.primaryEffect match {
-                case DeleteEntity =>
-                  Some(ValueEntityAction(Delete(ValueEntityDelete(pbCleanupDeletedValueEntityAfter))))
-                case UpdateState(newState) =>
-                  val newStateScalaPbAny = service.messageCodec.encodeScala(newState)
-                  Some(ValueEntityAction(Update(ValueEntityUpdate(Some(newStateScalaPbAny)))))
-                case _ =>
-                  None
+            val CommandResult(effect: ValueEntityEffectImpl[_]) =
+              try {
+                router._internalHandleCommand(command.name, cmd, context)
+              } catch {
+                case BadRequestException(msg) =>
+                  CommandResult(new ValueEntityEffectImpl[Any].error(msg, Status.Code.INVALID_ARGUMENT))
+                case e: EntityException => throw e
+                case NonFatal(error) =>
+                  throw EntityException(command, s"Unexpected failure: $error", Some(error))
+              } finally {
+                context.deactivate() // Very important!
               }
 
-              ValueEntityStreamOut(
-                OutReply(
-                  ValueEntityReply(
-                    command.id,
-                    clientAction,
-                    EffectSupport.sideEffectsFrom(service.messageCodec, serializedSecondaryEffect),
-                    action)))
+            val serializedSecondaryEffect = effect.secondaryEffect match {
+              case MessageReplyImpl(message, metadata, sideEffects) =>
+                MessageReplyImpl(service.messageCodec.encodeJava(message), metadata, sideEffects)
+              case other => other
+            }
+
+            val clientAction =
+              serializedSecondaryEffect.replyToClientAction(service.messageCodec, command.id)
+
+            serializedSecondaryEffect match {
+              case error: ErrorReplyImpl[_] =>
+                ValueEntityStreamOut(OutReply(ValueEntityReply(commandId = command.id, clientAction = clientAction)))
+
+              case _ => // non-error
+                val action: Option[ValueEntityAction] = effect.primaryEffect match {
+                  case DeleteEntity =>
+                    Some(ValueEntityAction(Delete(ValueEntityDelete(pbCleanupDeletedValueEntityAfter))))
+                  case UpdateState(newState) =>
+                    val newStateScalaPbAny = service.messageCodec.encodeScala(newState)
+                    Some(ValueEntityAction(Update(ValueEntityUpdate(Some(newStateScalaPbAny)))))
+                  case _ =>
+                    None
+                }
+
+                ValueEntityStreamOut(
+                  OutReply(
+                    ValueEntityReply(
+                      command.id,
+                      clientAction,
+                      EffectSupport.sideEffectsFrom(service.messageCodec, serializedSecondaryEffect),
+                      action)))
+            }
+          } finally {
+            span.foreach(_.end())
           }
 
         case InInit(_) =>
