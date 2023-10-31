@@ -17,7 +17,7 @@
 package com.example.wiring.workflowentities;
 
 import com.example.wiring.actions.echo.Message;
-import io.grpc.Status;
+import kalix.javasdk.StatusCode;
 import kalix.javasdk.client.ComponentClient;
 import kalix.javasdk.annotations.Id;
 import kalix.javasdk.annotations.TypeId;
@@ -74,7 +74,7 @@ public class TransferWorkflow extends Workflow<TransferState> {
   @PutMapping()
   public Effect<Message> startTransfer(@RequestBody Transfer transfer) {
     if (transfer.amount <= 0.0) {
-      return effects().error("Transfer amount should be greater than zero", Status.Code.INVALID_ARGUMENT);
+      return effects().error("Transfer amount should be greater than zero", StatusCode.ErrorCode.BAD_REQUEST);
     } else {
       if (currentState() == null) {
         return effects()
