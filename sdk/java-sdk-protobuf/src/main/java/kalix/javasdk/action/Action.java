@@ -138,7 +138,7 @@ public abstract class Action {
        * depending on the type of service being exposed.
        *
        * @param description The description of the error.
-       * @param errorCode A custom Kalix status code to represent the error.
+       * @param httpErrorCode A custom Kalix status code to represent the error.
        * @return An error reply.
        * @param <T> The type of the message that must be returned by this call.
        */

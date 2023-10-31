@@ -18,6 +18,8 @@ package kalix.javasdk.impl.workflow
 
 import io.grpc.Status
 import kalix.javasdk.Metadata
+import kalix.javasdk.StatusCode
+import kalix.javasdk.impl.StatusCodeConverter
 import kalix.javasdk.impl.workflow.WorkflowEffectImpl.End
 import kalix.javasdk.impl.workflow.WorkflowEffectImpl.ErrorEffectImpl
 import kalix.javasdk.impl.workflow.WorkflowEffectImpl.NoPersistence
@@ -109,6 +111,11 @@ case class WorkflowEffectImpl[S, T](persistence: Persistence[S], transition: Tra
   override def error[R](description: String): Effect.ErrorEffect[R] =
     ErrorEffectImpl(description, None)
 
-  override def error[R](description: String, statusCode: Status.Code): Effect.ErrorEffect[R] =
-    ErrorEffectImpl(description, Option(statusCode))
+  override def error[R](description: String, grpcErrorCode: Status.Code): Effect.ErrorEffect[R] = {
+    if (grpcErrorCode.toStatus.isOk) throw new IllegalArgumentException("Cannot fail with a success status")
+    ErrorEffectImpl(description, Option(grpcErrorCode))
+  }
+
+  override def error[R](description: String, httpErrorCode: StatusCode.ErrorCode): Effect.ErrorEffect[R] =
+    error(description, StatusCodeConverter.toGrpcCode(httpErrorCode))
 }
