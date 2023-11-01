@@ -104,7 +104,21 @@ public class EventSourcedTestKit<S, E, ES extends EventSourcedEntity<S, E>>
    * @param <R> The type of reply that is expected from invoking a command handler
    */
   public <R> EventSourcedResult<R> call(Function<ES, EventSourcedEntity.Effect<R>> func) {
-    return interpretEffects(() -> func.apply(entity), Metadata.EMPTY);
+    return call(func, Metadata.EMPTY);
+  }
+
+  /**
+   * The call method can be used to simulate a call to the EventSourcedEntity. The passed java
+   * lambda should return an EventSourcedEntity.Effect. The Effect is interpreted into an
+   * EventSourcedResult that can be used in test assertions.
+   *
+   * @param func     A function from EventSourcedEntity to EventSourcedEntity.Effect.
+   * @param metadata A metadata passed as a call context.
+   * @param <R>      The type of reply that is expected from invoking a command handler
+   * @return a EventSourcedResult
+   */
+  public <R> EventSourcedResult<R> call(Function<ES, EventSourcedEntity.Effect<R>> func, Metadata metadata) {
+    return interpretEffects(() -> func.apply(entity), metadata);
   }
 
   @Override

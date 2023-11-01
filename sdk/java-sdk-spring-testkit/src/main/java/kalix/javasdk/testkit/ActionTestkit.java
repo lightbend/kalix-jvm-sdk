@@ -70,7 +70,21 @@ public class ActionTestkit<A extends Action> {
    * @param <R> The type of reply that is expected from invoking a command handler
    */
   public <R> ActionResult<R> call(Function<A, Action.Effect<R>> func) {
-    TestKitActionContext context = new TestKitActionContext(Metadata.EMPTY, MockRegistry.EMPTY);
+    return call(func, Metadata.EMPTY);
+  }
+
+  /**
+   * The {@code call} method can be used to simulate a unary call to the Action. The passed java lambda should
+   * return an Action.Effect. The Effect is interpreted into an ActionResult that can be used in
+   * test assertions.
+   *
+   * @param func     A function from Action to Action.Effect
+   * @param metadata A metadata passed as a call context
+   * @param <R>      The type of reply that is expected from invoking a command handler
+   * @return an ActionResult
+   */
+  public <R> ActionResult<R> call(Function<A, Action.Effect<R>> func, Metadata metadata) {
+    TestKitActionContext context = new TestKitActionContext(metadata, MockRegistry.EMPTY);
     return new ActionResultImpl<>(func.apply(createAction(context)));
   }
 

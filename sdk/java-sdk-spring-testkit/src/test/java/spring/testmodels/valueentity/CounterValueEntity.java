@@ -31,6 +31,11 @@ public class CounterValueEntity extends ValueEntity<Integer> {
     else return effects().updateState(state + value).thenReply("Ok");
   }
 
+  public Effect<String> increaseFromMeta() {
+    Integer state = currentState();
+    return effects().updateState(state + Integer.parseInt(commandContext().metadata().get("value").get())).thenReply("Ok");
+  }
+
   public Effect<String> delete() {
     return effects().deleteEntity().thenReply("Deleted");
   }

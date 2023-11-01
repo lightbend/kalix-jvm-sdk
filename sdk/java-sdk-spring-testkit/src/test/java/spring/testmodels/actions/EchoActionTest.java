@@ -16,6 +16,7 @@
 
 package kalix.javasdk.testmodels.actions;
 
+import kalix.javasdk.Metadata;
 import kalix.javasdk.testkit.ActionResult;
 import kalix.javasdk.testkit.ActionTestkit;
 import org.junit.jupiter.api.Assertions;
@@ -28,5 +29,12 @@ public class EchoActionTest {
     ActionTestkit<EchoAction> actionUnitTestkit = ActionTestkit.of(EchoAction::new);
     ActionResult<String> result = actionUnitTestkit.call(echoAction -> echoAction.echo("Hey"));
     Assertions.assertEquals(result.getReply(), "Hey");
+  }
+
+  @Test
+  public void testEchoCallWithMetadata() {
+    ActionTestkit<EchoAction> actionUnitTestkit = ActionTestkit.of(EchoAction::new);
+    ActionResult<String> result = actionUnitTestkit.call(echoAction -> echoAction.echoWithMetadata("Hey"), Metadata.EMPTY.add("key", "abc"));
+    Assertions.assertEquals(result.getReply(), "abc");
   }
 }

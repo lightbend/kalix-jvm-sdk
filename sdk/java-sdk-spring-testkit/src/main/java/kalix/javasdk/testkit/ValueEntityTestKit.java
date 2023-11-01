@@ -112,8 +112,22 @@ public class ValueEntityTestKit<S, E extends ValueEntity<S>> {
    * @param <R> The type of reply that is expected from invoking a command handler
    */
   public <R> ValueEntityResult<R> call(Function<E, ValueEntity.Effect<R>> func) {
+    return call(func, Metadata.EMPTY);
+  }
+
+  /**
+   * The call method can be used to simulate a call to the ValueEntity. The passed java lambda
+   * should return a ValueEntity.Effect. The Effect is interpreted into a ValueEntityResult that can
+   * be used in test assertions.
+   *
+   * @param func     A function from ValueEntity to ValueEntity.Effect.
+   * @param metadata A metadata passed as a call context.
+   * @param <R>      The type of reply that is expected from invoking a command handler
+   * @return a ValueEntityResult
+   */
+  public <R> ValueEntityResult<R> call(Function<E, ValueEntity.Effect<R>> func, Metadata metadata) {
     TestKitValueEntityCommandContext commandContext =
-        new TestKitValueEntityCommandContext(entityId, Metadata.EMPTY);
+        new TestKitValueEntityCommandContext(entityId, metadata);
     entity._internalSetCommandContext(Optional.of(commandContext));
     entity._internalSetCurrentState(this.state);
     return interpretEffects(func.apply(entity));

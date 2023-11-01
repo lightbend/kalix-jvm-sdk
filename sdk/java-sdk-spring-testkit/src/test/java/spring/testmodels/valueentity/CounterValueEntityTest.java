@@ -16,6 +16,7 @@
 
 package kalix.javasdk.testmodels.valueentity;
 
+import kalix.javasdk.Metadata;
 import kalix.javasdk.testkit.ValueEntityResult;
 import kalix.javasdk.testkit.ValueEntityTestKit;
 import org.junit.jupiter.api.Test;
@@ -30,6 +31,16 @@ public class CounterValueEntityTest {
     ValueEntityTestKit<Integer, CounterValueEntity> testKit =
         ValueEntityTestKit.of(ctx -> new CounterValueEntity());
     ValueEntityResult<String> result = testKit.call(entity -> entity.increaseBy(10));
+    assertTrue(result.isReply());
+    assertEquals(result.getReply(), "Ok");
+    assertEquals(testKit.getState(), 10);
+  }
+
+  @Test
+  public void testIncreaseWithMetadata() {
+    ValueEntityTestKit<Integer, CounterValueEntity> testKit =
+        ValueEntityTestKit.of(ctx -> new CounterValueEntity());
+    ValueEntityResult<String> result = testKit.call(entity -> entity.increaseFromMeta(), Metadata.EMPTY.add("value", "10"));
     assertTrue(result.isReply());
     assertEquals(result.getReply(), "Ok");
     assertEquals(testKit.getState(), 10);
