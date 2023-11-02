@@ -1,6 +1,6 @@
 # https://github.com/marketplace/actions/labeler
 
-kalix-proxy:
+kalix-runtime:
   - '**/*'
 
 java-sdk-protobuf:
