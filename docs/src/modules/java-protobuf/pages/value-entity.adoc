@@ -4,7 +4,7 @@ include::ROOT:partial$include.adoc[]
 
 https://docs.kalix.io/reference/glossary.html#value_entity[Value Entities] persist state on every change and Kalix needs to serialize that data to send it to the underlying data store, this is done with Protocol Buffers using `protobuf` types.
 
-NOTE: Kalix _Value Entities_ have nothing in common with the domain-driven design concept of _Value Objects_. The _Value_ in the name refers to directly modifying a value for the entity's state -- in contrast to https://docs.kalix.io/reference/glossary.html#event_sourced_entity[Event-sourced Entities] that persist events and the entity state is derived from them.
+NOTE: Kalix _Value Entities_ have nothing in common with the domain-driven design concept of _Value Objects_. The _Value_ in the name refers to directly modifying a value for the entity's state - in contrast to https://docs.kalix.io/reference/glossary.html#event_sourced_entity[Event-sourced Entities] that persist events and the entity state is derived from them.
 
 While Protocol Buffers are the recommended format for persisting state, we recommend that you do not persist your service's public `protobuf` messages. This may introduce some overhead to convert from one type to the other but allows the service public interface logic to evolve independently of the data storage format, which should be private.
 
