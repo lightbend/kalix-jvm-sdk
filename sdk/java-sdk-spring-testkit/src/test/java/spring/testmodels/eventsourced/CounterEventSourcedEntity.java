@@ -28,6 +28,10 @@ public class CounterEventSourcedEntity extends EventSourcedEntity<Integer, Incre
     else return effects().emitEvent(new Increased(value)).thenReply(__ -> "Ok");
   }
 
+  public Effect<String> increaseFromMeta() {
+    return effects().emitEvent(new Increased(Integer.parseInt(commandContext().metadata().get("value").get()))).thenReply(__ -> "Ok");
+  }
+
   public Effect<String> doubleIncreaseBy(Integer value) {
     if (value < 0) return effects().error("Can't increase with a negative value");
     else {

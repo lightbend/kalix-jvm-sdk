@@ -16,6 +16,7 @@
 
 package kalix.javasdk.testmodels.eventsourced;
 
+import kalix.javasdk.Metadata;
 import kalix.javasdk.testkit.EventSourcedResult;
 import kalix.javasdk.testkit.EventSourcedTestKit;
 import org.junit.jupiter.api.Test;
@@ -30,6 +31,17 @@ public class CounterEventSourcedEntityTest {
     EventSourcedTestKit<Integer, Increased, CounterEventSourcedEntity> testKit =
         EventSourcedTestKit.of(ctx -> new CounterEventSourcedEntity());
     EventSourcedResult<String> result = testKit.call(entity -> entity.increaseBy(10));
+    assertTrue(result.isReply());
+    assertEquals(result.getReply(), "Ok");
+    assertEquals(testKit.getState(), 10);
+    assertEquals(testKit.getAllEvents().size(), 1);
+  }
+
+  @Test
+  public void testIncreaseWithMetadata() {
+    EventSourcedTestKit<Integer, Increased, CounterEventSourcedEntity> testKit =
+        EventSourcedTestKit.of(ctx -> new CounterEventSourcedEntity());
+    EventSourcedResult<String> result = testKit.call(entity -> entity.increaseFromMeta(), Metadata.EMPTY.add("value", "10"));
     assertTrue(result.isReply());
     assertEquals(result.getReply(), "Ok");
     assertEquals(testKit.getState(), 10);
