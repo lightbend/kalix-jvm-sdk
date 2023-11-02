@@ -6,18 +6,18 @@ package com.example;
 
 import com.example.actions.CounterTopicApi;
 import kalix.javasdk.CloudEvent;
-import kalix.javasdk.Metadata;
 // tag::test-topic[]
 import kalix.javasdk.testkit.EventingTestKit;
+import kalix.javasdk.testkit.KalixTestKit;
 import kalix.javasdk.testkit.junit.KalixTestKitResource;
 // ...
 // end::test-topic[]
 import org.junit.Before;
 import org.junit.ClassRule;
-import org.junit.FixMethodOrder;
 import org.junit.Test;
 
 import java.net.URI;
+import java.time.Duration;
 
 import static org.junit.Assert.assertEquals;
 
@@ -32,21 +32,24 @@ public class CounterTopicIntegrationTest {
    */
   @ClassRule
   public static final KalixTestKitResource testKit =
-      new KalixTestKitResource(Main.createKalix()); // <1>
+      new KalixTestKitResource(Main.createKalix(), KalixTestKit.Settings.DEFAULT
+          .withTopicIncomingMessages("counter-commands")
+          .withTopicOutgoingMessages("counter-events")
+          .withTopicOutgoingMessages("counter-events-with-meta")); // <1>
 
-  private EventingTestKit.Topic commandsTopic;
-  private EventingTestKit.Topic eventsTopic;
+  private EventingTestKit.IncomingMessages commandsTopic;
+  private EventingTestKit.OutgoingMessages eventsTopic;
   // end::test-topic[]
 
-  private EventingTestKit.Topic eventsTopicWithMeta;
+  private EventingTestKit.OutgoingMessages eventsTopicWithMeta;
 
  // tag::test-topic[]
 
   public CounterTopicIntegrationTest() {
-    commandsTopic = testKit.getTopic("counter-commands"); // <2>
-    eventsTopic = testKit.getTopic("counter-events"); // <3>
+    commandsTopic = testKit.getTopicIncomingMessages("counter-commands"); // <2>
+    eventsTopic = testKit.getTopicOutgoingMessages("counter-events"); // <3>
     // end::test-topic[]
-    eventsTopicWithMeta = testKit.getTopic("counter-events-with-meta");
+    eventsTopicWithMeta = testKit.getTopicOutgoingMessages("counter-events-with-meta");
     // tag::test-topic[]
   }
   // end::test-topic[]
@@ -57,8 +60,7 @@ public class CounterTopicIntegrationTest {
   // tag::clear-topics[]
   @Before // <1>
   public void clearTopics() {
-    commandsTopic.clear(); // <2>
-    eventsTopic.clear();
+    eventsTopic.clear(); // <2>
     eventsTopicWithMeta.clear();
   }
   // end::clear-topics[]
@@ -96,7 +98,7 @@ public class CounterTopicIntegrationTest {
 
     commandsTopic.publish(testKit.getMessageBuilder().of(increaseCmd, metadata)); // <4>
 
-    var increasedEvent = eventsTopicWithMeta.expectOneTyped(CounterTopicApi.Increased.class);
+    var increasedEvent = eventsTopicWithMeta.expectOneTyped(CounterTopicApi.Increased.class, Duration.ofSeconds(10));
     var actualMd = increasedEvent.getMetadata(); // <5>
     assertEquals(counterId, actualMd.asCloudEvent().subject().get()); // <6>
     assertEquals("application/protobuf", actualMd.get("Content-Type").get());

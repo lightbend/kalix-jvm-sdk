@@ -4,7 +4,7 @@
 
 include::ROOT:partial$include.adoc[]
 
-Workflows make it possible to implement long-running, multi-step business processes while focusing exclusively on domain and business logic. Workflows combine the power of https://docs.kalix.io/reference/glossary.html#entity[Entities] and https://docs.kalix.io/reference/glossary.html#action[Actions], providing durability, consistency and the ability to call other components and services. Business transactions can be modeled in one central place, and the Workflow will keep them running smoothly, or roll back if something goes wrong.
+Workflows make it possible to implement long-running, multi-step business processes while focusing exclusively on domain and business logic. Workflows provide durability, consistency and the ability to call other components and services. Business transactions can be modeled in one central place, and the Workflow will keep them running smoothly, or roll back if something goes wrong.
 
 
 == Identifying the Workflow

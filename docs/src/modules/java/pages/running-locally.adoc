@@ -38,6 +38,8 @@ mvn kalix:run
 ----
 --
 
+Note:: You can extend `docker-compose.yml` with any external services required to run your Kalix service.
+
 == Invoking your service
 
 After you start the service it will accept invocations on `localhost:9000`. You can use cURL to invoke your service.

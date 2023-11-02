@@ -1,0 +1,45 @@
+syntax = "proto3";
+package com.example;
+
+// tag::service[]
+import "kalix/annotations.proto";
+
+message MyRequest {
+  string msg = 1;
+}
+
+message MyRequestWithToken {
+  string msg = 1;
+  string my_token = 2 [(kalix.field).jwt = {
+    token: true,
+    issuer: "my-issuer"
+  }];
+  string subject = 3 [(kalix.field).jwt = {
+    claim: EXTRACT
+    name: "sub"
+  }];
+}
+
+message MyResponse {
+  string msg = 1;
+}
+
+service JwtServiceAction {
+  option (kalix.codegen) = {
+    action: {}
+  };
+
+  rpc JwtInToken(MyRequest) returns (MyResponse) {
+    option (kalix.method).jwt = {
+      validate: BEARER_TOKEN
+      bearer_token_issuer: "my-issuer"
+    };
+  };
+
+  rpc JwtInMessage(MyRequestWithToken) returns (MyResponse) {
+    option (kalix.method).jwt = {
+      validate: MESSAGE
+    };
+  };
+}
+// end::service[]

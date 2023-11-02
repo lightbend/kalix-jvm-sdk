@@ -11,7 +11,7 @@
 <link rel="stylesheet" type="text/css" href="../../../script-dir/jquery-ui.min.css" title="Style">
 <link rel="stylesheet" type="text/css" href="../../../jquery-ui.overrides.css" title="Style">
 <script type="text/javascript" src="../../../script.js"></script>
-<script type="text/javascript" src="../../../script-dir/jquery-3.6.0.min.js"></script>
+<script type="text/javascript" src="../../../script-dir/jquery-3.5.1.min.js"></script>
 <script type="text/javascript" src="../../../script-dir/jquery-ui.min.js"></script>
 </head>
 <body class="class-declaration-page">
@@ -103,15 +103,21 @@ loadScripts(document, 'script');</script>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">The <code>call</code> method can be used to simulate a unary call to the Action.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static &lt;A extends kalix.javasdk.action.Action&gt;<br><a href="ActionTestkit.html" title="class in kalix.javasdk.testkit">ActionTestkit</a>&lt;A&gt;</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#of(java.util.function.Function)" class="member-name-link">of</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/function/Function.html" title="class or interface in java.util.function" class="external-link">Function</a>&lt;kalix.javasdk.action.ActionCreationContext,<wbr>A&gt;&nbsp;actionFactory)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static &lt;A extends kalix.javasdk.action.Action&gt;<br><a href="ActionTestkit.html" title="class in kalix.javasdk.testkit">ActionTestkit</a>&lt;A&gt;</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#of(java.util.function.Supplier)" class="member-name-link">of</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/function/Supplier.html" title="class or interface in java.util.function" class="external-link">Supplier</a>&lt;A&gt;&nbsp;actionFactory)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>&lt;R&gt;&nbsp;reactor.core.publisher.Flux&lt;kalix.javasdk.testkit.ActionResult&lt;R&gt;&gt;</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#streamedCall(java.util.function.Function)" class="member-name-link">streamedCall</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/function/Function.html" title="class or interface in java.util.function" class="external-link">Function</a>&lt;<a href="ActionTestkit.html" title="type parameter in ActionTestkit">A</a>,<wbr>reactor.core.publisher.Flux&lt;kalix.javasdk.action.Action.Effect&lt;R&gt;&gt;&gt;&nbsp;func)</code></div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>&lt;R&gt;&nbsp;kalix.javasdk.testkit.ActionResult&lt;R&gt;</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#call(java.util.function.Function,kalix.javasdk.Metadata)" class="member-name-link">call</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/function/Function.html" title="class or interface in java.util.function" class="external-link">Function</a>&lt;<a href="ActionTestkit.html" title="type parameter in ActionTestkit">A</a>,<wbr>kalix.javasdk.action.Action.Effect&lt;R&gt;&gt;&nbsp;func,
+ kalix.javasdk.Metadata&nbsp;metadata)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">The <code>call</code> method can be used to simulate a unary call to the Action.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static &lt;A extends kalix.javasdk.action.Action&gt;<br><a href="ActionTestkit.html" title="class in kalix.javasdk.testkit">ActionTestkit</a>&lt;A&gt;</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#of(java.util.function.Function)" class="member-name-link">of</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/function/Function.html" title="class or interface in java.util.function" class="external-link">Function</a>&lt;kalix.javasdk.action.ActionCreationContext,<wbr>A&gt;&nbsp;actionFactory)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static &lt;A extends kalix.javasdk.action.Action&gt;<br><a href="ActionTestkit.html" title="class in kalix.javasdk.testkit">ActionTestkit</a>&lt;A&gt;</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#of(java.util.function.Supplier)" class="member-name-link">of</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/function/Supplier.html" title="class or interface in java.util.function" class="external-link">Supplier</a>&lt;A&gt;&nbsp;actionFactory)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>&lt;R&gt;&nbsp;reactor.core.publisher.Flux&lt;kalix.javasdk.testkit.ActionResult&lt;R&gt;&gt;</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#streamedCall(java.util.function.Function)" class="member-name-link">streamedCall</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/function/Function.html" title="class or interface in java.util.function" class="external-link">Function</a>&lt;<a href="ActionTestkit.html" title="type parameter in ActionTestkit">A</a>,<wbr>reactor.core.publisher.Flux&lt;kalix.javasdk.action.Action.Effect&lt;R&gt;&gt;&gt;&nbsp;func)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">The <code>streamedCall</code> method can be used to simulate a streamed call to the Action.</div>
 </div>
 </div>
@@ -157,6 +163,25 @@ loadScripts(document, 'script');</script>
 <dd><code>R</code> - The type of reply that is expected from invoking a command handler</dd>
 <dt>Parameters:</dt>
 <dd><code>func</code> - A function from Action to Action.Effect</dd>
+<dt>Returns:</dt>
+<dd>an ActionResult</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="call(java.util.function.Function,kalix.javasdk.Metadata)">
+<h3>call</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="type-parameters">&lt;R&gt;</span>&nbsp;<span class="return-type">kalix.javasdk.testkit.ActionResult&lt;R&gt;</span>&nbsp;<span class="element-name">call</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/function/Function.html" title="class or interface in java.util.function" class="external-link">Function</a>&lt;<a href="ActionTestkit.html" title="type parameter in ActionTestkit">A</a>,<wbr>kalix.javasdk.action.Action.Effect&lt;R&gt;&gt;&nbsp;func,
+ kalix.javasdk.Metadata&nbsp;metadata)</span></div>
+<div class="block">The <code>call</code> method can be used to simulate a unary call to the Action. The passed java lambda should
+ return an Action.Effect. The Effect is interpreted into an ActionResult that can be used in
+ test assertions.</div>
+<dl class="notes">
+<dt>Type Parameters:</dt>
+<dd><code>R</code> - The type of reply that is expected from invoking a command handler</dd>
+<dt>Parameters:</dt>
+<dd><code>func</code> - A function from Action to Action.Effect</dd>
+<dd><code>metadata</code> - A metadata passed as a call context</dd>
 <dt>Returns:</dt>
 <dd>an ActionResult</dd>
 </dl>
