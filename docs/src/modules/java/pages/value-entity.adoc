@@ -5,6 +5,8 @@ include::ROOT:partial$include.adoc[]
 
 https://docs.kalix.io/reference/glossary.html#value_entity[Value Entities] persist state on every change and thus Kalix needs to serialize that data to send it to the underlying data store. However, we recommend that you do not persist your service's public API messages. Persisting private API messages may introduce some overhead when converting from a public message to an internal one but it allows the logic of the service public interface to evolve independently of the data storage format, which should be private.
 
+NOTE: Kalix _Value Entities_ have nothing in common with the domain-driven design concept of _Value Objects_. The _Value_ in the name refers to directly modifying a value for the entity's state -- in contrast to https://docs.kalix.io/reference/glossary.html#event_sourced_entity[Event-sourced Entities] that persist events and the entity state is derived from them.
+
 The steps necessary to implement a Value Entity include:
 
 . Defining the API and model the entity's state.
