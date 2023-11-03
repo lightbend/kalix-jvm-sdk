@@ -27,6 +27,7 @@ import com.example.wiring.eventsourcedentities.headers.ForwardHeadersESEntity;
 import com.example.wiring.valueentities.customer.CustomerEntity;
 import com.example.wiring.valueentities.headers.ForwardHeadersValueEntity;
 import com.example.wiring.valueentities.user.AssignedCounterEntity;
+import com.example.wiring.valueentities.user.CompoundIdCounterEntity;
 import com.example.wiring.valueentities.user.User;
 import com.example.wiring.valueentities.user.UserEntity;
 import com.example.wiring.valueentities.user.UserSideEffect;
@@ -70,6 +71,7 @@ import java.util.stream.Collectors;
 
 import static java.time.temporal.ChronoUnit.SECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.awaitility.Awaitility.await;
 
 @SpringBootTest(classes = Main.class)
@@ -501,6 +503,35 @@ public class SpringSdkIntegrationTest {
       .atMost(20, TimeUnit.SECONDS)
       .until(() -> getUsersByName("joe").size(),
         new IsEqual(2));
+  }
+
+  @Test
+  public void shouldInvokeValueEntityWithCompoundKey() {
+    //given
+    execute(componentClient.forValueEntity("1", "2")
+        .call(CompoundIdCounterEntity::set).params(10));
+
+    //when
+    Integer result = execute(componentClient.forValueEntity("1", "2")
+        .call(CompoundIdCounterEntity::get));
+
+    //then
+    assertThat(result).isEqualTo(10);
+  }
+
+  @Test
+  public void shouldFailInvokeValueEntityWithWrongCompoundKey() {
+    assertThatThrownBy(() -> {
+      execute(componentClient.forValueEntity("1")
+          .call(CompoundIdCounterEntity::set).params(10));
+    }).isInstanceOf(IllegalStateException.class)
+        .hasMessageContaining("Expecting 2 instead of 1 when calling [set] method. Provide values for [id_part_1, id_part_2] ids.");
+
+    assertThatThrownBy(() -> {
+      execute(componentClient.forValueEntity("1", "1", "3")
+          .call(CompoundIdCounterEntity::set).params(10));
+    }).isInstanceOf(IllegalStateException.class)
+        .hasMessageContaining("Expecting 2 instead of 3 when calling [set] method. Provide values for [id_part_1, id_part_2] ids.");
   }
 
   @Test

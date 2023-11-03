@@ -18,6 +18,8 @@ package kalix.javasdk.client;
 
 import kalix.spring.KalixClient;
 
+import java.util.List;
+
 /**
  * Utility to send requests to other Kalix components by composing a DeferredCall. To compose a call:
  * 1. select component type (and pass id if necessary)
@@ -68,6 +70,15 @@ public class ComponentClient {
   }
 
   /**
+   * Select ValueEntity as a call target component.
+   *
+   * @param valueEntityIds - compound entity ids used to create a call.
+   */
+  public ValueEntityCallBuilder forValueEntity(String... valueEntityIds) {
+    return new ValueEntityCallBuilder(kalixClient, List.of(valueEntityIds));
+  }
+
+  /**
    * Select EventSourcedEntity as a call target component.
    * <p>
    * For calling methods annotated with @{@link kalix.javasdk.annotations.GenerateId}
@@ -86,6 +97,15 @@ public class ComponentClient {
   }
 
   /**
+   * Select EventSourcedEntity as a call target component.
+   *
+   * @param eventSourcedEntityIds - compound entity ids used to create a call.
+   */
+  public EventSourcedEntityCallBuilder forEventSourcedEntity(String... eventSourcedEntityIds) {
+    return new EventSourcedEntityCallBuilder(kalixClient, List.of(eventSourcedEntityIds));
+  }
+
+  /**
    * Select Workflow as a call target component.
    * <p>
    * For calling methods annotated with @{@link kalix.javasdk.annotations.GenerateId}
@@ -101,6 +121,15 @@ public class ComponentClient {
    */
   public WorkflowCallBuilder forWorkflow(String workflowId) {
     return new WorkflowCallBuilder(kalixClient, workflowId);
+  }
+
+  /**
+   * Select Workflow as a call target component.
+   *
+   * @param workflowIds - compound workflow ids used to create a call.
+   */
+  public WorkflowCallBuilder forWorkflow(String... workflowIds) {
+    return new WorkflowCallBuilder(kalixClient, List.of(workflowIds));
   }
 
   /**
