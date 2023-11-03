@@ -43,6 +43,36 @@ public class ValueEntitiesTestModels {
 
   @Id({"userId", "cartId"})
   @TypeId("user")
+  @RequestMapping("/user/{cartId}/{userId}")
+  public static class PostWithIdsIncorrectOrder extends ValueEntity<User> {
+    @Override
+    public User emptyState() {
+      return null;
+    }
+
+    @PostMapping("/create")
+    public ValueEntity.Effect<Done> createEntity(@RequestBody CreateUser createUser) {
+      return effects().reply(Done.instance);
+    }
+  }
+
+  @Id({"userId", "cartId"})
+  @TypeId("user")
+  @RequestMapping("/user/{cartId}")
+  public static class PostWithIdsMissingParams extends ValueEntity<User> {
+    @Override
+    public User emptyState() {
+      return null;
+    }
+
+    @PostMapping("/create")
+    public ValueEntity.Effect<Done> createEntity(@RequestBody CreateUser createUser) {
+      return effects().reply(Done.instance);
+    }
+  }
+
+  @Id({"userId", "cartId"})
+  @TypeId("user")
   @RequestMapping()
   public static class GetWithQueryParams extends ValueEntity<User> {
     @Override
@@ -55,8 +85,8 @@ public class ValueEntitiesTestModels {
       return effects().reply(Done.instance);
     }
 
-    @PostMapping("/user/{cartId}/create/{otherParam}")
-    public ValueEntity.Effect<Done> createEntity2(@RequestParam String someParam, @RequestParam String userId,
+    @PostMapping("/user/{userId}/{cartId}/create/{otherParam}")
+    public ValueEntity.Effect<Done> createEntity2(@RequestParam String someParam,
                                                   @PathVariable Integer otherParam, @PathVariable String cartId, @RequestBody CreateUser createUser) {
       return effects().reply(Done.instance);
     }
@@ -76,7 +106,7 @@ public class ValueEntitiesTestModels {
   @Id( {"userId", "cartId"})
   @TypeId("user")
   public static class ValueEntityWithMethodLevelAcl extends ValueEntity<User> {
-    @PostMapping("/create")
+    @PostMapping("/{userId}/{cartId}/create")
     @Acl(allow = @Acl.Matcher(service = "test"))
     public ValueEntity.Effect<Done> createEntity(@RequestBody CreateUser createUser) {
       return effects().reply(Done.instance);
@@ -89,7 +119,7 @@ public class ValueEntitiesTestModels {
     validate = JWT.JwtMethodMode.BEARER_TOKEN,
     bearerTokenIssuer = {"a", "b"})
   public static class ValueEntityWithServiceLevelJwt extends ValueEntity<User> {
-    @PostMapping("/create")
+    @PostMapping("/{userId}/{cartId}/create")
     public ValueEntity.Effect<Done> createEntity(@RequestBody CreateUser createUser) {
       return effects().reply(Done.instance);
     }
@@ -98,7 +128,7 @@ public class ValueEntitiesTestModels {
   @Id( {"userId", "cartId"})
   @TypeId("user")
   public static class ValueEntityWithMethodLevelJwt extends ValueEntity<User> {
-    @PostMapping("/create")
+    @PostMapping("/{userId}/{cartId}/create")
     @JWT(
       validate = JWT.JwtMethodMode.BEARER_TOKEN,
       bearerTokenIssuer = {"a", "b"})

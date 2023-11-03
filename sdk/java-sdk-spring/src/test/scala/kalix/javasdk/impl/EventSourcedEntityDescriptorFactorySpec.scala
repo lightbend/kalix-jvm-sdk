@@ -27,6 +27,7 @@ import kalix.spring.testmodels.eventsourcedentity.EventSourcedEntitiesTestModels
 import kalix.spring.testmodels.eventsourcedentity.EventSourcedEntitiesTestModels.CounterEventSourcedEntityWithIdOnMethod
 import kalix.spring.testmodels.eventsourcedentity.EventSourcedEntitiesTestModels.CounterEventSourcedEntityWithMethodLevelJWT
 import kalix.spring.testmodels.eventsourcedentity.EventSourcedEntitiesTestModels.CounterEventSourcedEntityWithServiceLevelJWT
+import kalix.spring.testmodels.eventsourcedentity.EventSourcedEntitiesTestModels.ESEntityCompoundIdIncorrectOrder
 import kalix.spring.testmodels.eventsourcedentity.EventSourcedEntitiesTestModels.EventSourcedEntityWithMethodLevelAcl
 import kalix.spring.testmodels.eventsourcedentity.EventSourcedEntitiesTestModels.EventSourcedEntityWithServiceLevelAcl
 import kalix.spring.testmodels.eventsourcedentity.EventSourcedEntitiesTestModels.IllDefinedEntityWithIdGeneratorAndId
@@ -138,6 +139,14 @@ class EventSourcedEntityDescriptorFactorySpec extends AnyWordSpec with Component
         val service = extension.getAcl.getAllow(0).getService
         service shouldBe "test"
       }
+    }
+
+    "not allow different order of entity ids in the path" in {
+      // it should be annotated either on type or on method level
+      intercept[InvalidComponentException] {
+        Validations.validate(classOf[ESEntityCompoundIdIncorrectOrder]).failIfInvalid
+      }.getMessage should include(
+        "Ids in the path '/{id2}/eventsourced/{id}/int/{number}' are in a different order than specified in the @Id annotation [id, id2]. This could lead to unexpected bugs when calling the component.")
     }
   }
 
