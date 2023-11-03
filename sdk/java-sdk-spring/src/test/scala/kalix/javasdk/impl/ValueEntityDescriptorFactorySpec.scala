@@ -24,6 +24,8 @@ import kalix.KeyGeneratorMethodOptions
 import kalix.spring.testmodels.valueentity.Counter
 import kalix.spring.testmodels.valueentity.ValueEntitiesTestModels.GetWithQueryParams
 import kalix.spring.testmodels.valueentity.ValueEntitiesTestModels.PostWithIds
+import kalix.spring.testmodels.valueentity.ValueEntitiesTestModels.PostWithIdsIncorrectOrder
+import kalix.spring.testmodels.valueentity.ValueEntitiesTestModels.PostWithIdsMissingParams
 import kalix.spring.testmodels.valueentity.ValueEntitiesTestModels.ValueEntityWithMethodLevelAcl
 import kalix.spring.testmodels.valueentity.ValueEntitiesTestModels.ValueEntityWithMethodLevelJwt
 import kalix.spring.testmodels.valueentity.ValueEntitiesTestModels.ValueEntityWithServiceLevelAcl
@@ -69,10 +71,10 @@ class ValueEntityDescriptorFactorySpec extends AnyWordSpec with ComponentDescrip
         val createMethod = desc.commandHandlers("CreateEntity2")
 
         assertRequestFieldNumberAndJavaType(createMethod, "json_body", 1, JavaType.MESSAGE)
-        assertRequestFieldNumberAndJavaType(createMethod, "cartId", 2, JavaType.STRING)
-        assertRequestFieldNumberAndJavaType(createMethod, "otherParam", 3, JavaType.INT)
-        assertRequestFieldNumberAndJavaType(createMethod, "someParam", 4, JavaType.STRING)
-        assertRequestFieldNumberAndJavaType(createMethod, "userId", 5, JavaType.STRING)
+        assertRequestFieldNumberAndJavaType(createMethod, "userId", 2, JavaType.STRING)
+        assertRequestFieldNumberAndJavaType(createMethod, "cartId", 3, JavaType.STRING)
+        assertRequestFieldNumberAndJavaType(createMethod, "otherParam", 4, JavaType.INT)
+        assertRequestFieldNumberAndJavaType(createMethod, "someParam", 5, JavaType.STRING)
       }
     }
 
@@ -109,6 +111,22 @@ class ValueEntityDescriptorFactorySpec extends AnyWordSpec with ComponentDescrip
         jwtOption.getBearerTokenIssuer(1) shouldBe "b"
         jwtOption.getValidate(0) shouldBe JwtMethodMode.BEARER_TOKEN
       }
+    }
+
+    "not allow different order of entity ids in the path" in {
+      // it should be annotated either on type or on method level
+      intercept[InvalidComponentException] {
+        Validations.validate(classOf[PostWithIdsIncorrectOrder]).failIfInvalid
+      }.getMessage should include(
+        "Ids in the path '/user/{cartId}/{userId}/create' are in a different order than specified in the @Id annotation [userId, cartId]. This could lead to unexpected bugs when calling the component.")
+    }
+
+    "not allow missing ids in the path" in {
+      // it should be annotated either on type or on method level
+      intercept[InvalidComponentException] {
+        Validations.validate(classOf[PostWithIdsMissingParams]).failIfInvalid
+      }.getMessage should include(
+        "All ids [userId, cartId] should be used in the path '/user/{cartId}/create'. Missing ids [userId].")
     }
   }
 

@@ -27,6 +27,7 @@ import kalix.javasdk.annotations.Publish
 import kalix.javasdk.annotations.Query
 import kalix.javasdk.annotations.Subscribe
 import kalix.javasdk.annotations.Table
+import kalix.javasdk.eventsourcedentity.EventSourcedEntity
 import kalix.javasdk.impl.ComponentDescriptorFactory.eventSourcedEntitySubscription
 import kalix.javasdk.impl.ComponentDescriptorFactory.findEventSourcedEntityClass
 import kalix.javasdk.impl.ComponentDescriptorFactory.findEventSourcedEntityType
@@ -49,9 +50,13 @@ import kalix.javasdk.impl.ComponentDescriptorFactory.hasValueEntitySubscription
 import kalix.javasdk.impl.ComponentDescriptorFactory.streamSubscription
 import kalix.javasdk.impl.ComponentDescriptorFactory.topicSubscription
 import kalix.javasdk.impl.Reflect.Syntax._
+import kalix.javasdk.impl.reflection.IdExtractor
 import kalix.javasdk.impl.reflection.ReflectionUtils
+import kalix.javasdk.impl.reflection.RestServiceIntrospector
 import kalix.javasdk.impl.reflection.ServiceMethod
+import kalix.javasdk.valueentity.ValueEntity
 import kalix.javasdk.view.View
+import kalix.javasdk.workflow.Workflow
 import kalix.spring.impl.KalixSpringApplication
 
 // TODO: abstract away spring and reactor dependencies
@@ -138,7 +143,59 @@ object Validations {
 
   def validate(component: Class[_]): Validation =
     validateAction(component) ++
-    validateView(component)
+    validateView(component) ++
+    validateValueEntity(component) ++
+    validateEventSourcedEntity(component) ++
+    validateWorkflow(component)
+
+  private def validateCompoundIdsOrder(component: Class[_]): Validation = {
+    val restService = RestServiceIntrospector.inspectService(component)
+    component.getMethods.toIndexedSeq
+      .filter(hasRestAnnotation)
+      .map { method =>
+        val ids = IdExtractor.extractIds(component, method)
+        if (ids.size == 1) {
+          Valid
+        } else {
+          restService.methods.find(_.javaMethod.getName == method.getName) match {
+            case Some(requestServiceMethod) =>
+              val idsFromPath = requestServiceMethod.parsedPath.fields.filter(ids.contains)
+              val diff = ids.diff(idsFromPath)
+              if (diff.nonEmpty) {
+                Validation(
+                  s"All ids [${ids.mkString(", ")}] should be used in the path '${requestServiceMethod.parsedPath.path}'. Missing ids [${diff
+                    .mkString(", ")}].")
+              } else if (ids != idsFromPath) { //check if the order is the same
+                Validation(
+                  s"Ids in the path '${requestServiceMethod.parsedPath.path}' are in a different order than specified in the @Id annotation [${ids
+                    .mkString(", ")}]. This could lead to unexpected bugs when calling the component.")
+              } else {
+                Valid
+              }
+            case None => throw new IllegalStateException(s"Method [${method.getName}] not found in the RestService")
+          }
+        }
+      }
+      .foldLeft(Valid: Validation)(_ ++ _)
+  }
+
+  private def validateValueEntity(component: Class[_]): Validation = {
+    when[ValueEntity[_]](component) {
+      validateCompoundIdsOrder(component)
+    }
+  }
+
+  private def validateEventSourcedEntity(component: Class[_]): Validation = {
+    when[EventSourcedEntity[_, _]](component) {
+      validateCompoundIdsOrder(component)
+    }
+  }
+
+  private def validateWorkflow(component: Class[_]): Validation = {
+    when[Workflow[_]](component) {
+      validateCompoundIdsOrder(component)
+    }
+  }
 
   private def validateAction(component: Class[_]): Validation = {
     when[Action](component) {

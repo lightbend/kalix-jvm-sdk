@@ -108,6 +108,15 @@ public class EventSourcedEntitiesTestModels {
     }
   }
 
+  @TypeId("counter")
+  public static class ESEntityCompoundIdIncorrectOrder extends EventSourcedEntity<Integer, Object> {
+    @Id({"id", "id2"})
+    @GetMapping("/{id2}/eventsourced/{id}/int/{number}")
+    public Integer getInteger(@PathVariable Integer number) {
+      return number;
+    }
+  }
+
   @Id("id")
   @TypeId("counter")
   public static class CounterEventSourcedEntityWithIdMethodOverride extends EventSourcedEntity<Integer, Object> {
