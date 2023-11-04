@@ -7,7 +7,7 @@ You can access a single https://docs.kalix.io/reference/glossary.html#entity[Ent
 
 Views can be defined from any of the following:
 
-* xref:value-entity[Value Entities state changes]
+* xref:value-entity[Value Entity state changes]
 * xref:event-sourced-entity[Event Sourced Entity events]
 * xref:topic-view[Messages received from subscribing to topics on a broker]
 
@@ -56,9 +56,9 @@ include::example$java-spring-valueentity-customer-registry/src/main/java/custome
 <8> Note that no return is needed.
 
 
-NOTE: Note that the return value of the method is `null`. You may ask yourself, how is it that the endpoint respond with any `Customer` at all?. When you call this endpoint, it first hits the proxy, which calls directly to the database. When the proxy receives the response, it sends it directly to you without any further intervention from the View. Therefore, `null` is valid as a return value in the endpoint of a View. The choice of `null` is our way to make clear that the response doesn't come from the return of this method. But you can choose any response you like as long is compatible with the return type.
+NOTE: Note that the return value of the method is `null`. You may ask yourself, how is it that the endpoint responds with any `Customer` at all?. When you call this endpoint, it first hits the proxy, which calls directly to the database. When the proxy receives the response, it sends it directly to you without any further intervention from the View. Therefore, `null` is valid as a return value in the endpoint of a View. The choice of `null` is our way to make clear that the response doesn't come from the return of this method. But you can choose any response you like as long as it is compatible with the return type.
 
-IMPORTANT: Adding a view ID to your View allows you to refactor the name of the class later on without the risk of losing the view. If you don't define a view ID the class name becomes its ID. Therefore, if you change the name of your class afterwards Kalix will not recognize this new name as the same view and will create a brand-new view. This is resource consuming for a view from an Event Sourced Entity because it will reprocess all the events of that entity to rebuild it. While for a view built from a topic you can lose all the previous events because depending on the topic configuration you may only process events from current time forwards. Last but not least, it's also a problem for Value Entities because it will need to index again them when grouping them by some value.
+IMPORTANT: Adding a view ID to your View allows you to refactor the name of the class later on without the risk of losing the view. If you don't define a view ID the class name becomes its ID. Therefore, if you change the name of your class, afterwards Kalix will not recognize this new name as the same view and will create a brand-new view. This is resource consuming for a view from an Event Sourced Entity because it will reprocess all the events of that entity to rebuild it. While for a view built from a topic, you can lose all the previous events because, depending on the topic configuration, you may only process events from the current time forwards. Last but not least, it's also a problem for Value Entities because it will need to index them again when grouping them by some value.
 
 === Using a transformed model
 
