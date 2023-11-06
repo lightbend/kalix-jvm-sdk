@@ -182,7 +182,8 @@ object ComponentCall {
         throw new IllegalStateException(s"Id is missing when calling [${method.getName}] method")
       } else if (ids.size != idNames.size) {
         throw new IllegalStateException(
-          s"Expecting ${idNames.size} instead of ${ids.size} when calling [${method.getName}] method. Provide values for [${idNames.mkString(", ")}] ids.")
+          s"Expecting ${idNames.size} instead of ${ids.size} when calling [${method.getName}] method. Provide values for [${idNames
+            .mkString(", ")}] ids.")
       } else if (idNames.size == 1) { //single key
         Map(idNames.head -> ids.head)
       } else { //compound key
