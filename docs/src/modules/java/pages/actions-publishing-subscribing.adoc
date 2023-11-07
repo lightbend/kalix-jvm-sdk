@@ -214,6 +214,17 @@ include::example$java-spring-eventsourced-counter/src/it/java/com/example/Counte
 
 TIP: In the example above we take advantage of the TestKit to serialize / deserialize the messages and pass all the required metadata automatically for us. However, the API also offers the possibility to read and write raw bytes, construct your metadata or read multiple messages at once.
 
+==== Configuration
+
+Before running your test, make sure to configure the TestKit correctly.
+
+[source, java]
+----
+include::example$java-spring-eventsourced-counter/src/it/java/com/example/TestkitConfig.java[tags=class;eventing-config]
+----
+<1> Mock incoming messages from the `counter-commands` topic.
+<2> Mock outgoing messages from the `counter-events` topic.
+
 ==== Metadata
 
 Typically, messages are published with associated metadata. If you want to construct your own `Metadata` to be consumed by a service or make sure the messages published out of your service have specific metadata attached, you can do so using the TestKit, as shown below.

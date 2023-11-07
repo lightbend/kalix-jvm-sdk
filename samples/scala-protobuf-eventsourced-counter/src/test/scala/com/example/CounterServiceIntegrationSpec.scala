@@ -42,9 +42,11 @@ class CounterServiceIntegrationSpec
   private val testKit = KalixTestKit(
     Main.createKalix(),
     KalixTestKit.DefaultSettings
+      // end::test-topic[]
+      .withTopicOutgoingMessages("counter-events-with-meta")
+      // tag::test-topic[]
       .withTopicIncomingMessages("counter-commands")
-      .withTopicOutgoingMessages("counter-events")
-      .withTopicOutgoingMessages("counter-events-with-meta")).start() // <1>
+      .withTopicOutgoingMessages("counter-events")).start() // <1>
   // end::test-topic[]
 
   private val client = testKit.getGrpcClient(classOf[CounterService])
