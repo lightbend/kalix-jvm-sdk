@@ -2,6 +2,7 @@ version: "3"
 services:
   kalix-proxy:
     image: gcr.io/kalix-public/kalix-proxy:1.1.22
+    container_name: scala-protobuf-doc-snippets
     depends_on:
       - gcloud-pubsub-emulator
     ports:

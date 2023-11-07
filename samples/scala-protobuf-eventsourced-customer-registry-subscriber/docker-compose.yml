@@ -4,6 +4,7 @@ services:
   # on the same local machine as the scala-protobuf-eventsourced-customer-registry
   kalix-proxy:
     image: gcr.io/kalix-public/kalix-proxy:1.1.22
+    container_name: scala-protobuf-eventsourced-customer-registry-subscriber
     ports:
       - "9001:9000"
     extra_hosts:
