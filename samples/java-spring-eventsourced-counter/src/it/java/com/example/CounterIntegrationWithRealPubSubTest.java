@@ -24,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 // tag::class[]
 @SpringBootTest(classes = Main.class)
-@Import(TestkitConfig.class)
+@Import(TestKitConfig.class)
 @ActiveProfiles("with-pubsub")
 public class CounterIntegrationWithRealPubSubTest extends KalixIntegrationTestKitSupport { // <1>
 
