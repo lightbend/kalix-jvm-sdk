@@ -5,8 +5,9 @@
 version: "3"
 services:
   kalix-proxy:
-    image: gcr.io/kalix-public/kalix-proxy:1.1.22
-    ports:
+    image: gcr.io/kalix-public/kalix-proxy:1.1.22]]#
+    container_name: ${artifactId}
+    #[[ports:
       - "9000:9000"
     extra_hosts:
       - "host.docker.internal:host-gateway"
