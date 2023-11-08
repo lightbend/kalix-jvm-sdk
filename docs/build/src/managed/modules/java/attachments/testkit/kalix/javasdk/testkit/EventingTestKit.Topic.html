@@ -11,7 +11,7 @@
 <link rel="stylesheet" type="text/css" href="../../../script-dir/jquery-ui.min.css" title="Style">
 <link rel="stylesheet" type="text/css" href="../../../jquery-ui.overrides.css" title="Style">
 <script type="text/javascript" src="../../../script.js"></script>
-<script type="text/javascript" src="../../../script-dir/jquery-3.6.1.min.js"></script>
+<script type="text/javascript" src="../../../script-dir/jquery-3.5.1.min.js"></script>
 <script type="text/javascript" src="../../../script-dir/jquery-ui.min.js"></script>
 </head>
 <body class="class-declaration-page">
@@ -79,10 +79,10 @@ loadScripts(document, 'script');</script>
 <hr>
 <div class="type-signature"><span class="annotations">@ApiMayChange
 </span><span class="modifiers">public static interface </span><span class="element-name type-name-label">EventingTestKit.Topic</span></div>
-<div class="block">Testkit utility to mock broker's topic. Useful when doing integration tests for services that do eventing (in or out) to a broker's topic.
+<div class="block">Testkit utility to mock broker's topic. Useful when doing integration tests for services that do incoming/outgoing flow of events.
 
  <p><b>Note: </b> messages written to the topic with this utility are not readable with the expect* methods,
- unless they have been properly forwarded through an eventing.out flow to the same topic.</div>
+ unless they have been properly forwarded through a outgoing event to the same topic.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -164,34 +164,29 @@ loadScripts(document, 'script');</script>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#publish(com.google.protobuf.ByteString)" class="member-name-link">publish</a><wbr>(com.google.protobuf.ByteString&nbsp;message)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
-<div class="block">Simulate the publishing of a raw message to this topic for the purposes
- of testing eventing.in flows into a specific service.</div>
+<div class="block">Simulate the publishing of a raw message to this topic for the purposes of testing incoming message flow.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#publish(com.google.protobuf.ByteString,kalix.javasdk.Metadata)" class="member-name-link">publish</a><wbr>(com.google.protobuf.ByteString&nbsp;message,
  kalix.javasdk.Metadata&nbsp;metadata)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
-<div class="block">Simulate the publishing of a raw message to this topic for the purposes
- of testing eventing.in flows into a specific service.</div>
+<div class="block">Simulate the publishing of a raw message to this topic for the purposes of testing incoming message flow.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#publish(java.util.List)" class="member-name-link">publish</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="EventingTestKit.Message.html" title="interface in kalix.javasdk.testkit">EventingTestKit.Message</a>&lt;?&gt;&gt;&nbsp;messages)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
-<div class="block">Publish multiple messages to this topic for the purposes
- of testing eventing.in flows into a specific service.</div>
+<div class="block">Publish multiple messages to this topic for the purposes of testing incoming message flow.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#publish(kalix.javasdk.testkit.EventingTestKit.Message)" class="member-name-link">publish</a><wbr>(<a href="EventingTestKit.Message.html" title="interface in kalix.javasdk.testkit">EventingTestKit.Message</a>&lt;?&gt;&nbsp;message)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
-<div class="block">Simulate the publishing of a message to this topic for the purposes
- of testing eventing.in flows into a specific service.</div>
+<div class="block">Simulate the publishing of a message to this topic for the purposes of testing incoming message flow.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>&lt;T&gt;&nbsp;void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#publish(T,java.lang.String)" class="member-name-link">publish</a><wbr>(T&nbsp;message,
  <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;subject)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
-<div class="block">Simulate the publishing of a message to this topic for the purposes
- of testing eventing.in flows into a specific service.</div>
+<div class="block">Simulate the publishing of a message to this topic for the purposes of testing incoming message flow.</div>
 </div>
 </div>
 </div>
@@ -207,6 +202,67 @@ loadScripts(document, 'script');</script>
 <section class="method-details" id="method-detail">
 <h2>Method Details</h2>
 <ul class="member-list">
+<li>
+<section class="detail" id="publish(com.google.protobuf.ByteString)">
+<h3>publish</h3>
+<div class="member-signature"><span class="return-type">void</span>&nbsp;<span class="element-name">publish</span><wbr><span class="parameters">(com.google.protobuf.ByteString&nbsp;message)</span></div>
+<div class="block">Simulate the publishing of a raw message to this topic for the purposes of testing incoming message flow.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>message</code> - raw bytestring to be published in the topic</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="publish(com.google.protobuf.ByteString,kalix.javasdk.Metadata)">
+<h3>publish</h3>
+<div class="member-signature"><span class="return-type">void</span>&nbsp;<span class="element-name">publish</span><wbr><span class="parameters">(com.google.protobuf.ByteString&nbsp;message,
+ kalix.javasdk.Metadata&nbsp;metadata)</span></div>
+<div class="block">Simulate the publishing of a raw message to this topic for the purposes of testing incoming message flow.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>message</code> - raw bytestring to be published in the topic</dd>
+<dd><code>metadata</code> - associated with the message</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="publish(kalix.javasdk.testkit.EventingTestKit.Message)">
+<h3>publish</h3>
+<div class="member-signature"><span class="return-type">void</span>&nbsp;<span class="element-name">publish</span><wbr><span class="parameters">(<a href="EventingTestKit.Message.html" title="interface in kalix.javasdk.testkit">EventingTestKit.Message</a>&lt;?&gt;&nbsp;message)</span></div>
+<div class="block">Simulate the publishing of a message to this topic for the purposes of testing incoming message flow.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>message</code> - to be published in the topic</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="publish(T,java.lang.String)">
+<h3 id="publish(java.lang.Object,java.lang.String)">publish</h3>
+<div class="member-signature"><span class="type-parameters">&lt;T&gt;</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">publish</span><wbr><span class="parameters">(T&nbsp;message,
+ <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;subject)</span></div>
+<div class="block">Simulate the publishing of a message to this topic for the purposes of testing incoming message flow.</div>
+<dl class="notes">
+<dt>Type Parameters:</dt>
+<dd><code>T</code> - </dd>
+<dt>Parameters:</dt>
+<dd><code>message</code> - to be published in the topic</dd>
+<dd><code>subject</code> - to identify the entity</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="publish(java.util.List)">
+<h3>publish</h3>
+<div class="member-signature"><span class="return-type">void</span>&nbsp;<span class="element-name">publish</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="EventingTestKit.Message.html" title="interface in kalix.javasdk.testkit">EventingTestKit.Message</a>&lt;?&gt;&gt;&nbsp;messages)</span></div>
+<div class="block">Publish multiple messages to this topic for the purposes of testing incoming message flow.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>messages</code> - to be published in the topic</dd>
+</dl>
+</section>
+</li>
 <li>
 <section class="detail" id="expectNone()">
 <h3>expectNone</h3>
@@ -364,74 +420,6 @@ loadScripts(document, 'script');</script>
 <dl class="notes">
 <dt>Returns:</dt>
 <dd>the list of the unread messages when the topic was cleared.</dd>
-</dl>
-</section>
-</li>
-<li>
-<section class="detail" id="publish(com.google.protobuf.ByteString)">
-<h3>publish</h3>
-<div class="member-signature"><span class="return-type">void</span>&nbsp;<span class="element-name">publish</span><wbr><span class="parameters">(com.google.protobuf.ByteString&nbsp;message)</span></div>
-<div class="block">Simulate the publishing of a raw message to this topic for the purposes
- of testing eventing.in flows into a specific service.</div>
-<dl class="notes">
-<dt>Parameters:</dt>
-<dd><code>message</code> - raw bytestring to be published in the topic</dd>
-</dl>
-</section>
-</li>
-<li>
-<section class="detail" id="publish(com.google.protobuf.ByteString,kalix.javasdk.Metadata)">
-<h3>publish</h3>
-<div class="member-signature"><span class="return-type">void</span>&nbsp;<span class="element-name">publish</span><wbr><span class="parameters">(com.google.protobuf.ByteString&nbsp;message,
- kalix.javasdk.Metadata&nbsp;metadata)</span></div>
-<div class="block">Simulate the publishing of a raw message to this topic for the purposes
- of testing eventing.in flows into a specific service.</div>
-<dl class="notes">
-<dt>Parameters:</dt>
-<dd><code>message</code> - raw bytestring to be published in the topic</dd>
-<dd><code>metadata</code> - associated with the message</dd>
-</dl>
-</section>
-</li>
-<li>
-<section class="detail" id="publish(kalix.javasdk.testkit.EventingTestKit.Message)">
-<h3>publish</h3>
-<div class="member-signature"><span class="return-type">void</span>&nbsp;<span class="element-name">publish</span><wbr><span class="parameters">(<a href="EventingTestKit.Message.html" title="interface in kalix.javasdk.testkit">EventingTestKit.Message</a>&lt;?&gt;&nbsp;message)</span></div>
-<div class="block">Simulate the publishing of a message to this topic for the purposes
- of testing eventing.in flows into a specific service.</div>
-<dl class="notes">
-<dt>Parameters:</dt>
-<dd><code>message</code> - to be published in the topic</dd>
-</dl>
-</section>
-</li>
-<li>
-<section class="detail" id="publish(T,java.lang.String)">
-<h3 id="publish(java.lang.Object,java.lang.String)">publish</h3>
-<div class="member-signature"><span class="type-parameters">&lt;T&gt;</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">publish</span><wbr><span class="parameters">(T&nbsp;message,
- <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;subject)</span></div>
-<div class="block">Simulate the publishing of a message to this topic for the purposes
- of testing eventing.in flows into a specific service.</div>
-<dl class="notes">
-<dt>Type Parameters:</dt>
-<dd><code>T</code> - </dd>
-<dt>Parameters:</dt>
-<dd><code>message</code> - to be published in the topic</dd>
-<dd><code>subject</code> - to identify the entity</dd>
-</dl>
-</section>
-</li>
-<li>
-<section class="detail" id="publish(java.util.List)">
-<h3>publish</h3>
-<div class="member-signature"><span class="return-type">void</span>&nbsp;<span class="element-name">publish</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="EventingTestKit.Message.html" title="interface in kalix.javasdk.testkit">EventingTestKit.Message</a>&lt;?&gt;&gt;&nbsp;messages)</span></div>
-<div class="block">Publish multiple messages to this topic for the purposes
- of testing eventing.in flows into a specific service.</div>
-<dl class="notes">
-<dt>Type Parameters:</dt>
-<dd><code>T</code> - </dd>
-<dt>Parameters:</dt>
-<dd><code>messages</code> - to be published in the topic</dd>
 </dl>
 </section>
 </li>

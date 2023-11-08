@@ -237,7 +237,7 @@
     <dependency>
       <groupId>io.kalix</groupId>
       <artifactId>kalix-java-sdk-protobuf-testkit</artifactId>
-      <version>1.3.2-17-bd393110-dev-SNAPSHOT</version>
+      <version>1.3.3-18-dfc1e39a-dev-SNAPSHOT</version>
       <scope>test</scope>
       <exclusions>
         <exclusion>
@@ -298,7 +298,7 @@
     <akka-grpc.version>2.1.4</akka-grpc.version>
     <maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <kalix-sdk.version>1.3.2-17-bd393110-dev-SNAPSHOT</kalix-sdk.version>
+    <kalix-sdk.version>1.3.3-18-dfc1e39a-dev-SNAPSHOT</kalix-sdk.version>
     <dockerTag>${project.version}-${build.timestamp}</dockerTag>
   </properties>
 </project>

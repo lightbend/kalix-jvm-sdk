@@ -134,30 +134,6 @@
       </plugin>
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
-        <artifactId>exec-maven-plugin</artifactId>
-        <version>3.0.0</version>
-        <executions>
-          <execution>
-            <goals>
-              <goal>exec</goal>
-            </goals>
-          </execution>
-        </executions>
-        <configuration>
-          <executable>java</executable>
-          <arguments>
-            <argument>-classpath</argument>
-            <classpath />
-            <argument>-Dlogback.configurationFile=logback-dev-mode.xml</argument>
-            <argument>${mainClass}</argument>
-          </arguments>
-          <environmentVariables>
-            <HOST>0.0.0.0</HOST>
-          </environmentVariables>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
         <artifactId>build-helper-maven-plugin</artifactId>
         <version>3.2.0</version>
         <executions>
@@ -249,13 +225,19 @@
           </plugin>
         </plugins>
       </build>
+      <properties>
+        <os.detected.arch>aarch_64</os.detected.arch>
+        <os.detected.bitness>64</os.detected.bitness>
+        <os.detected.name>osx</os.detected.name>
+        <os.detected.classifier>osx-aarch_64</os.detected.classifier>
+      </properties>
     </profile>
   </profiles>
   <dependencies>
     <dependency>
       <groupId>io.kalix</groupId>
       <artifactId>kalix-java-sdk-protobuf-testkit</artifactId>
-      <version>1.2.0</version>
+      <version>1.2.1</version>
       <scope>test</scope>
       <exclusions>
         <exclusion>
@@ -308,7 +290,7 @@
     <akka-grpc.version>2.1.4</akka-grpc.version>
     <maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <kalix-sdk.version>1.2.0</kalix-sdk.version>
+    <kalix-sdk.version>1.2.1</kalix-sdk.version>
     <dockerTag>${project.version}-${build.timestamp}</dockerTag>
   </properties>
 </project>

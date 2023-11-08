@@ -219,8 +219,9 @@ TIP: In the example above we take advantage of the TestKit to serialize / deseri
 Before running your test, make sure to configure the TestKit correctly.
 
 [source, java]
+.src/it/java/com/example/TestKitConfiguration.java
 ----
-include::example$java-spring-eventsourced-counter/src/it/java/com/example/TestKitConfig.java[tags=class;eventing-config]
+include::example$java-spring-eventsourced-counter/src/it/java/com/example/TestKitConfiguration.java[tags=class;eventing-config]
 ----
 <1> Mock incoming messages from the `counter-commands` topic.
 <2> Mock outgoing messages from the `counter-events` topic.
@@ -267,7 +268,7 @@ NOTE: Despite the example, you are neither forced to clear all topics nor to do 
 To run an integration test against a real instance of Google PubSub (or its Emulator) or Kafka, use the TestKit settings to override the default eventing support, as shown below:
 
 [source,java]
-.src/it/java/com/example/TestkitConfig.java
+.src/it/java/com/example/TestKitConfiguration.java
 ----
-include::example$java-spring-eventsourced-counter/src/it/java/com/example/TestKitConfig.java[tags=class;pubsub]
+include::example$java-spring-eventsourced-counter/src/it/java/com/example/TestKitConfiguration.java[tags=class;pubsub]
 ----
