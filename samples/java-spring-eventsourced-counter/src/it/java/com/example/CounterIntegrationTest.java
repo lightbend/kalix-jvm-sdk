@@ -29,7 +29,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @ActiveProfiles("with-mocked-eventing")
 // tag::class[]
 @SpringBootTest(classes = Main.class)
-@Import(TestkitConfig.class)
+@Import(TestKitConfig.class)
 public class CounterIntegrationTest extends KalixIntegrationTestKitSupport { // <1>
 
 // end::class[]

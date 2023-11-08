@@ -8,20 +8,27 @@ import org.springframework.context.annotation.Profile;
 
 // tag::class[]
 @Configuration
-public class TestkitConfig {
+public class TestKitConfig {
   // end::class[]
 
   @Profile("with-mocked-eventing")
   // tag::acls[]
+  // tag::eventing-config[]
   @Bean
   public KalixTestKit.Settings settings() {
-    return KalixTestKit.Settings.DEFAULT.withAclEnabled()
-        .withTopicIncomingMessages("counter-commands")
-        .withTopicOutgoingMessages("counter-events")  // <1>
+    return KalixTestKit.Settings.DEFAULT
+        // end::eventing-config[]
+        .withAclEnabled() // <1>
         // end::acls[]
+        // tag::eventing-config[]
+        .withTopicIncomingMessages("counter-commands") // <1>
+        .withTopicOutgoingMessages("counter-events") // <2>
+        // end::eventing-config[]
         .withTopicOutgoingMessages("counter-events-with-meta");
+    // tag::eventing-config[]
         // tag::acls[]
   }
+  // end::eventing-config[]
   // end::acls[]
 
   @Profile("with-pubsub")

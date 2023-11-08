@@ -60,7 +60,6 @@ public class CustomerActionWithKafkaIntegrationTest {
 
   @Test
   public void createAndPublish() throws Exception {
-    System.out.println("Settings - >>>>>>> " + settings.mockedEventing.toString());
     var id = UUID.randomUUID().toString();
     var customer = buildCustomer(id, "Johanna", "foo@example.com", "Porto", "Long Road");
     createCustomer(customer);

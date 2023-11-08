@@ -37,13 +37,11 @@ public class CompoundIdCounterEntity extends ValueEntity<Integer> {
 
   @PostMapping("/{id_part_1}/{id_part_2}/set/{value}")
   public Effect<String> set(@PathVariable Integer value) {
-    System.out.println(commandContext().entityId());
     return effects().updateState(value).thenReply("OK");
   }
 
   @GetMapping("/{id_part_1}/{id_part_2}")
   public Effect<Integer> get() {
-    System.out.println(commandContext().entityId());
     return effects().reply(currentState());
   }
 }
