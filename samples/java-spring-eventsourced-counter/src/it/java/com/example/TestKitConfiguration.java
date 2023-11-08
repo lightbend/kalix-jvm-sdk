@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Profile;
 
 // tag::class[]
 @Configuration
-public class TestKitConfig {
+public class TestKitConfiguration {
   // end::class[]
 
   @Profile("with-mocked-eventing")

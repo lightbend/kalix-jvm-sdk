@@ -1,7 +1,6 @@
 package com.example;
 
 import com.example.actions.CounterCommandFromTopicAction;
-import kalix.javasdk.testkit.KalixTestKit;
 import kalix.spring.testkit.KalixIntegrationTestKitSupport;
 import org.hamcrest.core.IsEqual;
 import org.junit.jupiter.api.Test;
@@ -24,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 // tag::class[]
 @SpringBootTest(classes = Main.class)
-@Import(TestKitConfig.class)
+@Import(TestKitConfiguration.class)
 @ActiveProfiles("with-pubsub")
 public class CounterIntegrationWithRealPubSubTest extends KalixIntegrationTestKitSupport { // <1>
 
