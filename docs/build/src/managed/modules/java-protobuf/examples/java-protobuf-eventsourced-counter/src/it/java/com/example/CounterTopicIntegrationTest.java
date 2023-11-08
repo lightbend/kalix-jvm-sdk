@@ -33,9 +33,11 @@ public class CounterTopicIntegrationTest {
   @ClassRule
   public static final KalixTestKitResource testKit =
       new KalixTestKitResource(Main.createKalix(), KalixTestKit.Settings.DEFAULT
+          // end::test-topic[]
+          .withTopicOutgoingMessages("counter-events-with-meta")
+          // tag::test-topic[]
           .withTopicIncomingMessages("counter-commands")
-          .withTopicOutgoingMessages("counter-events")
-          .withTopicOutgoingMessages("counter-events-with-meta")); // <1>
+          .withTopicOutgoingMessages("counter-events")); // <1>
 
   private EventingTestKit.IncomingMessages commandsTopic;
   private EventingTestKit.OutgoingMessages eventsTopic;
