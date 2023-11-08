@@ -269,5 +269,5 @@ To run an integration test against a real instance of Google PubSub (or its Emul
 [source,java]
 .src/it/java/com/example/TestkitConfig.java
 ----
-include::example$java-spring-eventsourced-counter/src/it/java/com/example/TestkitConfig.java[tags=class;pubsub]
+include::example$java-spring-eventsourced-counter/src/it/java/com/example/TestKitConfig.java[tags=class;pubsub]
 ----
