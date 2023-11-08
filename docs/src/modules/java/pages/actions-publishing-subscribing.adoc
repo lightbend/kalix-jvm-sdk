@@ -219,7 +219,6 @@ TIP: In the example above we take advantage of the TestKit to serialize / deseri
 Before running your test, make sure to configure the TestKit correctly.
 
 [source, java]
-.src/it/java/com/example/TestKitConfig.java
 ----
 include::example$java-spring-eventsourced-counter/src/it/java/com/example/TestKitConfig.java[tags=class;eventing-config]
 ----
