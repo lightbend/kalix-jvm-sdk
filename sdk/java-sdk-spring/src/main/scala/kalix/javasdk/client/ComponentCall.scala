@@ -194,7 +194,11 @@ object ComponentCall {
 }
 
 // format: off
-final class ComponentCall2[A1, A2, R](kalixClient: KalixClient, lambda: scala.Any, entityIds: util.List[String]) {
+final class ComponentCall2[A1, A2, R](kalixClient: KalixClient, lambda: Method, ids: util.List[String]) {
+
+  def this(kalixClient: KalixClient, lambda: scala.Any, ids: util.List[String]) {
+    this(kalixClient, MethodRefResolver.resolveMethodRef(lambda), ids)
+  }
 
   /**
    * Pass in the parameters that are required to execute this call.
@@ -203,10 +207,14 @@ final class ComponentCall2[A1, A2, R](kalixClient: KalixClient, lambda: scala.An
    * used to build this DeferredCall.
    */
   def params(a1: A1, a2: A2): DeferredCall[Any, R] = {
-    ComponentCall.invoke(Seq(a1, a2), kalixClient, lambda, entityIds.asScala.toList)
+    ComponentCall.invoke(Seq(a1, a2), kalixClient, lambda, ids.asScala.toList)
   }
 }
-final class ComponentCall3[A1, A2, A3, R](kalixClient: KalixClient, lambda: scala.Any, entityIds: util.List[String]) {
+final class ComponentCall3[A1, A2, A3, R](kalixClient: KalixClient, lambda: Method, ids: util.List[String]) {
+
+  def this(kalixClient: KalixClient, lambda: scala.Any, ids: util.List[String]) {
+    this(kalixClient, MethodRefResolver.resolveMethodRef(lambda), ids)
+  }
 
   /**
    * Pass in the parameters that are required to execute this call.
@@ -215,10 +223,14 @@ final class ComponentCall3[A1, A2, A3, R](kalixClient: KalixClient, lambda: scal
    * used to build this DeferredCall.
    */
   def params(a1: A1, a2: A2, a3: A3): DeferredCall[Any, R] = {
-    ComponentCall.invoke(Seq(a1, a2, a3), kalixClient, lambda, entityIds.asScala.toList)
+    ComponentCall.invoke(Seq(a1, a2, a3), kalixClient, lambda, ids.asScala.toList)
   }
 }
-final class ComponentCall4[A1, A2, A3, A4, R](kalixClient: KalixClient, lambda: scala.Any, entityIds: util.List[String]) {
+final class ComponentCall4[A1, A2, A3, A4, R](kalixClient: KalixClient, lambda: Method, ids: util.List[String]) {
+
+  def this(kalixClient: KalixClient, lambda: scala.Any, ids: util.List[String]) {
+    this(kalixClient, MethodRefResolver.resolveMethodRef(lambda), ids)
+  }
 
   /**
    * Pass in the parameters that are required to execute this call.
@@ -227,10 +239,14 @@ final class ComponentCall4[A1, A2, A3, A4, R](kalixClient: KalixClient, lambda: 
    * used to build this DeferredCall.
    */
   def params(a1: A1, a2: A2, a3: A3, a4: A4): DeferredCall[Any, R] = {
-    ComponentCall.invoke(Seq(a1, a2, a3, a4), kalixClient, lambda, entityIds.asScala.toList)
+    ComponentCall.invoke(Seq(a1, a2, a3, a4), kalixClient, lambda, ids.asScala.toList)
   }
 }
-final class ComponentCall5[A1, A2, A3, A4, A5, R](kalixClient: KalixClient, lambda: scala.Any, entityIds: util.List[String]) {
+final class ComponentCall5[A1, A2, A3, A4, A5, R](kalixClient: KalixClient, lambda: Method, ids: util.List[String]) {
+
+  def this(kalixClient: KalixClient, lambda: scala.Any, ids: util.List[String]) {
+    this(kalixClient, MethodRefResolver.resolveMethodRef(lambda), ids)
+  }
 
   /**
    * Pass in the parameters that are required to execute this call.
@@ -239,10 +255,14 @@ final class ComponentCall5[A1, A2, A3, A4, A5, R](kalixClient: KalixClient, lamb
    * used to build this DeferredCall.
    */
   def params(a1: A1, a2: A2, a3: A3, a4: A4, a5: A5): DeferredCall[Any, R] = {
-    ComponentCall.invoke(Seq(a1, a2, a3, a4, a5), kalixClient, lambda, entityIds.asScala.toList)
+    ComponentCall.invoke(Seq(a1, a2, a3, a4, a5), kalixClient, lambda, ids.asScala.toList)
   }
 }
-final class ComponentCall6[A1, A2, A3, A4, A5, A6, R](kalixClient: KalixClient, lambda: scala.Any, entityIds: util.List[String]) {
+final class ComponentCall6[A1, A2, A3, A4, A5, A6, R](kalixClient: KalixClient, lambda: Method, ids: util.List[String]) {
+
+  def this(kalixClient: KalixClient, lambda: scala.Any, ids: util.List[String]) {
+    this(kalixClient, MethodRefResolver.resolveMethodRef(lambda), ids)
+  }
 
   /**
    * Pass in the parameters that are required to execute this call.
@@ -251,10 +271,14 @@ final class ComponentCall6[A1, A2, A3, A4, A5, A6, R](kalixClient: KalixClient, 
    * used to build this DeferredCall.
    */
   def params(a1: A1, a2: A2, a3: A3, a4: A4, a5: A5, a6: A6): DeferredCall[Any, R] = {
-    ComponentCall.invoke(Seq(a1, a2, a3, a4, a5, a6), kalixClient, lambda, entityIds.asScala.toList)
+    ComponentCall.invoke(Seq(a1, a2, a3, a4, a5, a6), kalixClient, lambda, ids.asScala.toList)
   }
 }
-final class ComponentCall7[A1, A2, A3, A4, A5, A6, A7, R](kalixClient: KalixClient, lambda: scala.Any, entityIds: util.List[String]) {
+final class ComponentCall7[A1, A2, A3, A4, A5, A6, A7, R](kalixClient: KalixClient, lambda: Method, ids: util.List[String]) {
+
+  def this(kalixClient: KalixClient, lambda: scala.Any, ids: util.List[String]) {
+    this(kalixClient, MethodRefResolver.resolveMethodRef(lambda), ids)
+  }
 
   /**
    * Pass in the parameters that are required to execute this call.
@@ -263,10 +287,14 @@ final class ComponentCall7[A1, A2, A3, A4, A5, A6, A7, R](kalixClient: KalixClie
    * used to build this DeferredCall.
    */
   def params(a1: A1, a2: A2, a3: A3, a4: A4, a5: A5, a6: A6, a7: A7): DeferredCall[Any, R] = {
-    ComponentCall.invoke(Seq(a1, a2, a3, a4, a5, a6, a7), kalixClient, lambda, entityIds.asScala.toList)
+    ComponentCall.invoke(Seq(a1, a2, a3, a4, a5, a6, a7), kalixClient, lambda, ids.asScala.toList)
   }
 }
-final class ComponentCall8[A1, A2, A3, A4, A5, A6, A7, A8, R](kalixClient: KalixClient, lambda: scala.Any, entityIds: util.List[String]) {
+final class ComponentCall8[A1, A2, A3, A4, A5, A6, A7, A8, R](kalixClient: KalixClient, lambda: Method, ids: util.List[String]) {
+
+  def this(kalixClient: KalixClient, lambda: scala.Any, ids: util.List[String]) {
+    this(kalixClient, MethodRefResolver.resolveMethodRef(lambda), ids)
+  }
 
   /**
    * Pass in the parameters that are required to execute this call.
@@ -275,10 +303,14 @@ final class ComponentCall8[A1, A2, A3, A4, A5, A6, A7, A8, R](kalixClient: Kalix
    * used to build this DeferredCall.
    */
   def params(a1: A1, a2: A2, a3: A3, a4: A4, a5: A5, a6: A6, a7: A7, a8: A8): DeferredCall[Any, R] = {
-    ComponentCall.invoke(Seq(a1, a2, a3, a4, a5, a6, a7, a8), kalixClient, lambda, entityIds.asScala.toList)
+    ComponentCall.invoke(Seq(a1, a2, a3, a4, a5, a6, a7, a8), kalixClient, lambda, ids.asScala.toList)
   }
 }
-final class ComponentCall9[A1, A2, A3, A4, A5, A6, A7, A8, A9, R](kalixClient: KalixClient, lambda: scala.Any, entityIds: util.List[String]) {
+final class ComponentCall9[A1, A2, A3, A4, A5, A6, A7, A8, A9, R](kalixClient: KalixClient, lambda: Method, ids: util.List[String]) {
+
+  def this(kalixClient: KalixClient, lambda: scala.Any, ids: util.List[String]) {
+    this(kalixClient, MethodRefResolver.resolveMethodRef(lambda), ids)
+  }
 
   /**
    * Pass in the parameters that are required to execute this call.
@@ -287,10 +319,14 @@ final class ComponentCall9[A1, A2, A3, A4, A5, A6, A7, A8, A9, R](kalixClient: K
    * used to build this DeferredCall.
    */
   def params(a1: A1, a2: A2, a3: A3, a4: A4, a5: A5, a6: A6, a7: A7, a8: A8, a9: A9): DeferredCall[Any, R] = {
-    ComponentCall.invoke(Seq(a1, a2, a3, a4, a5, a6, a7, a8, a9), kalixClient, lambda, entityIds.asScala.toList)
+    ComponentCall.invoke(Seq(a1, a2, a3, a4, a5, a6, a7, a8, a9), kalixClient, lambda, ids.asScala.toList)
   }
 }
-final class ComponentCall10[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, R](kalixClient: KalixClient, lambda: scala.Any, entityIds: util.List[String]) {
+final class ComponentCall10[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, R](kalixClient: KalixClient, lambda: Method, ids: util.List[String]) {
+
+  def this(kalixClient: KalixClient, lambda: scala.Any, ids: util.List[String]) {
+    this(kalixClient, MethodRefResolver.resolveMethodRef(lambda), ids)
+  }
 
   /**
    * Pass in the parameters that are required to execute this call.
@@ -299,10 +335,14 @@ final class ComponentCall10[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, R](kalixCli
    * used to build this DeferredCall.
    */
   def params(a1: A1, a2: A2, a3: A3, a4: A4, a5: A5, a6: A6, a7: A7, a8: A8, a9: A9, a10: A10): DeferredCall[Any, R] = {
-    ComponentCall.invoke(Seq(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10), kalixClient, lambda, entityIds.asScala.toList)
+    ComponentCall.invoke(Seq(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10), kalixClient, lambda, ids.asScala.toList)
   }
 }
-final class ComponentCall11[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, R](kalixClient: KalixClient, lambda: scala.Any, entityIds: util.List[String]) {
+final class ComponentCall11[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, R](kalixClient: KalixClient, lambda: Method, ids: util.List[String]) {
+
+  def this(kalixClient: KalixClient, lambda: scala.Any, ids: util.List[String]) {
+    this(kalixClient, MethodRefResolver.resolveMethodRef(lambda), ids)
+  }
 
   /**
    * Pass in the parameters that are required to execute this call.
@@ -311,10 +351,14 @@ final class ComponentCall11[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, R](kal
    * used to build this DeferredCall.
    */
   def params(a1: A1, a2: A2, a3: A3, a4: A4, a5: A5, a6: A6, a7: A7, a8: A8, a9: A9, a10: A10, a11: A11): DeferredCall[Any, R] = {
-    ComponentCall.invoke(Seq(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11), kalixClient, lambda, entityIds.asScala.toList)
+    ComponentCall.invoke(Seq(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11), kalixClient, lambda, ids.asScala.toList)
   }
 }
-final class ComponentCall12[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, R](kalixClient: KalixClient, lambda: scala.Any, entityIds: util.List[String]) {
+final class ComponentCall12[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, R](kalixClient: KalixClient, lambda: Method, ids: util.List[String]) {
+
+  def this(kalixClient: KalixClient, lambda: scala.Any, ids: util.List[String]) {
+    this(kalixClient, MethodRefResolver.resolveMethodRef(lambda), ids)
+  }
 
   /**
    * Pass in the parameters that are required to execute this call.
@@ -323,10 +367,14 @@ final class ComponentCall12[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, R
    * used to build this DeferredCall.
    */
   def params(a1: A1, a2: A2, a3: A3, a4: A4, a5: A5, a6: A6, a7: A7, a8: A8, a9: A9, a10: A10, a11: A11, a12: A12): DeferredCall[Any, R] = {
-    ComponentCall.invoke(Seq(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12), kalixClient, lambda, entityIds.asScala.toList)
+    ComponentCall.invoke(Seq(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12), kalixClient, lambda, ids.asScala.toList)
   }
 }
-final class ComponentCall13[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, R](kalixClient: KalixClient, lambda: scala.Any, entityIds: util.List[String]) {
+final class ComponentCall13[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, R](kalixClient: KalixClient, lambda: Method, ids: util.List[String]) {
+
+  def this(kalixClient: KalixClient, lambda: scala.Any, ids: util.List[String]) {
+    this(kalixClient, MethodRefResolver.resolveMethodRef(lambda), ids)
+  }
 
   /**
    * Pass in the parameters that are required to execute this call.
@@ -335,10 +383,14 @@ final class ComponentCall13[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A
    * used to build this DeferredCall.
    */
   def params(a1: A1, a2: A2, a3: A3, a4: A4, a5: A5, a6: A6, a7: A7, a8: A8, a9: A9, a10: A10, a11: A11, a12: A12, a13: A13): DeferredCall[Any, R] = {
-    ComponentCall.invoke(Seq(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13), kalixClient, lambda, entityIds.asScala.toList)
+    ComponentCall.invoke(Seq(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13), kalixClient, lambda, ids.asScala.toList)
   }
 }
-final class ComponentCall14[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, R](kalixClient: KalixClient, lambda: scala.Any, entityIds: util.List[String]) {
+final class ComponentCall14[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, R](kalixClient: KalixClient, lambda: Method, ids: util.List[String]) {
+
+  def this(kalixClient: KalixClient, lambda: scala.Any, ids: util.List[String]) {
+    this(kalixClient, MethodRefResolver.resolveMethodRef(lambda), ids)
+  }
 
   /**
    * Pass in the parameters that are required to execute this call.
@@ -347,10 +399,14 @@ final class ComponentCall14[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A
    * used to build this DeferredCall.
    */
   def params(a1: A1, a2: A2, a3: A3, a4: A4, a5: A5, a6: A6, a7: A7, a8: A8, a9: A9, a10: A10, a11: A11, a12: A12, a13: A13, a14: A14): DeferredCall[Any, R] = {
-    ComponentCall.invoke(Seq(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14), kalixClient, lambda, entityIds.asScala.toList)
+    ComponentCall.invoke(Seq(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14), kalixClient, lambda, ids.asScala.toList)
   }
 }
-final class ComponentCall15[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, R](kalixClient: KalixClient, lambda: scala.Any, entityIds: util.List[String]) {
+final class ComponentCall15[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, R](kalixClient: KalixClient, lambda: Method, ids: util.List[String]) {
+
+  def this(kalixClient: KalixClient, lambda: scala.Any, ids: util.List[String]) {
+    this(kalixClient, MethodRefResolver.resolveMethodRef(lambda), ids)
+  }
 
   /**
    * Pass in the parameters that are required to execute this call.
@@ -359,10 +415,14 @@ final class ComponentCall15[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A
    * used to build this DeferredCall.
    */
   def params(a1: A1, a2: A2, a3: A3, a4: A4, a5: A5, a6: A6, a7: A7, a8: A8, a9: A9, a10: A10, a11: A11, a12: A12, a13: A13, a14: A14, a15: A15): DeferredCall[Any, R] = {
-    ComponentCall.invoke(Seq(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15), kalixClient, lambda, entityIds.asScala.toList)
+    ComponentCall.invoke(Seq(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15), kalixClient, lambda, ids.asScala.toList)
   }
 }
-final class ComponentCall16[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, R](kalixClient: KalixClient, lambda: scala.Any, entityIds: util.List[String]) {
+final class ComponentCall16[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, R](kalixClient: KalixClient, lambda: Method, ids: util.List[String]) {
+
+  def this(kalixClient: KalixClient, lambda: scala.Any, ids: util.List[String]) {
+    this(kalixClient, MethodRefResolver.resolveMethodRef(lambda), ids)
+  }
 
   /**
    * Pass in the parameters that are required to execute this call.
@@ -371,10 +431,14 @@ final class ComponentCall16[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A
    * used to build this DeferredCall.
    */
   def params(a1: A1, a2: A2, a3: A3, a4: A4, a5: A5, a6: A6, a7: A7, a8: A8, a9: A9, a10: A10, a11: A11, a12: A12, a13: A13, a14: A14, a15: A15, a16: A16): DeferredCall[Any, R] = {
-    ComponentCall.invoke(Seq(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15, a16), kalixClient, lambda, entityIds.asScala.toList)
+    ComponentCall.invoke(Seq(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15, a16), kalixClient, lambda, ids.asScala.toList)
   }
 }
-final class ComponentCall17[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, R](kalixClient: KalixClient, lambda: scala.Any, entityIds: util.List[String]) {
+final class ComponentCall17[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, R](kalixClient: KalixClient, lambda: Method, ids: util.List[String]) {
+
+  def this(kalixClient: KalixClient, lambda: scala.Any, ids: util.List[String]) {
+    this(kalixClient, MethodRefResolver.resolveMethodRef(lambda), ids)
+  }
 
   /**
    * Pass in the parameters that are required to execute this call.
@@ -383,10 +447,14 @@ final class ComponentCall17[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A
    * used to build this DeferredCall.
    */
   def params(a1: A1, a2: A2, a3: A3, a4: A4, a5: A5, a6: A6, a7: A7, a8: A8, a9: A9, a10: A10, a11: A11, a12: A12, a13: A13, a14: A14, a15: A15, a16: A16, a17: A17): DeferredCall[Any, R] = {
-    ComponentCall.invoke(Seq(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15, a16, a17), kalixClient, lambda, entityIds.asScala.toList)
+    ComponentCall.invoke(Seq(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15, a16, a17), kalixClient, lambda, ids.asScala.toList)
   }
 }
-final class ComponentCall18[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, R](kalixClient: KalixClient, lambda: scala.Any, entityIds: util.List[String]) {
+final class ComponentCall18[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, R](kalixClient: KalixClient, lambda: Method, ids: util.List[String]) {
+
+  def this(kalixClient: KalixClient, lambda: scala.Any, ids: util.List[String]) {
+    this(kalixClient, MethodRefResolver.resolveMethodRef(lambda), ids)
+  }
 
   /**
    * Pass in the parameters that are required to execute this call.
@@ -395,10 +463,14 @@ final class ComponentCall18[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A
    * used to build this DeferredCall.
    */
   def params(a1: A1, a2: A2, a3: A3, a4: A4, a5: A5, a6: A6, a7: A7, a8: A8, a9: A9, a10: A10, a11: A11, a12: A12, a13: A13, a14: A14, a15: A15, a16: A16, a17: A17, a18: A18): DeferredCall[Any, R] = {
-    ComponentCall.invoke(Seq(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15, a16, a17, a18), kalixClient, lambda, entityIds.asScala.toList)
+    ComponentCall.invoke(Seq(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15, a16, a17, a18), kalixClient, lambda, ids.asScala.toList)
   }
 }
-final class ComponentCall19[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19, R](kalixClient: KalixClient, lambda: scala.Any, entityIds: util.List[String]) {
+final class ComponentCall19[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19, R](kalixClient: KalixClient, lambda: Method, ids: util.List[String]) {
+
+  def this(kalixClient: KalixClient, lambda: scala.Any, ids: util.List[String]) {
+    this(kalixClient, MethodRefResolver.resolveMethodRef(lambda), ids)
+  }
 
   /**
    * Pass in the parameters that are required to execute this call.
@@ -407,10 +479,14 @@ final class ComponentCall19[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A
    * used to build this DeferredCall.
    */
   def params(a1: A1, a2: A2, a3: A3, a4: A4, a5: A5, a6: A6, a7: A7, a8: A8, a9: A9, a10: A10, a11: A11, a12: A12, a13: A13, a14: A14, a15: A15, a16: A16, a17: A17, a18: A18, a19: A19): DeferredCall[Any, R] = {
-    ComponentCall.invoke(Seq(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15, a16, a17, a18, a19), kalixClient, lambda, entityIds.asScala.toList)
+    ComponentCall.invoke(Seq(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15, a16, a17, a18, a19), kalixClient, lambda, ids.asScala.toList)
   }
 }
-final class ComponentCall20[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19, A20, R](kalixClient: KalixClient, lambda: scala.Any, entityIds: util.List[String]) {
+final class ComponentCall20[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19, A20, R](kalixClient: KalixClient, lambda: Method, ids: util.List[String]) {
+
+  def this(kalixClient: KalixClient, lambda: scala.Any, ids: util.List[String]) {
+    this(kalixClient, MethodRefResolver.resolveMethodRef(lambda), ids)
+  }
 
   /**
    * Pass in the parameters that are required to execute this call.
@@ -419,10 +495,14 @@ final class ComponentCall20[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A
    * used to build this DeferredCall.
    */
   def params(a1: A1, a2: A2, a3: A3, a4: A4, a5: A5, a6: A6, a7: A7, a8: A8, a9: A9, a10: A10, a11: A11, a12: A12, a13: A13, a14: A14, a15: A15, a16: A16, a17: A17, a18: A18, a19: A19, a20: A20): DeferredCall[Any, R] = {
-    ComponentCall.invoke(Seq(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15, a16, a17, a18, a19, a20), kalixClient, lambda, entityIds.asScala.toList)
+    ComponentCall.invoke(Seq(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15, a16, a17, a18, a19, a20), kalixClient, lambda, ids.asScala.toList)
   }
 }
-final class ComponentCall21[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19, A20, A21, R](kalixClient: KalixClient, lambda: scala.Any, entityIds: util.List[String]) {
+final class ComponentCall21[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19, A20, A21, R](kalixClient: KalixClient, lambda: Method, ids: util.List[String]) {
+
+  def this(kalixClient: KalixClient, lambda: scala.Any, ids: util.List[String]) {
+    this(kalixClient, MethodRefResolver.resolveMethodRef(lambda), ids)
+  }
 
   /**
    * Pass in the parameters that are required to execute this call.
@@ -431,7 +511,7 @@ final class ComponentCall21[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A
    * used to build this DeferredCall.
    */
   def params(a1: A1, a2: A2, a3: A3, a4: A4, a5: A5, a6: A6, a7: A7, a8: A8, a9: A9, a10: A10, a11: A11, a12: A12, a13: A13, a14: A14, a15: A15, a16: A16, a17: A17, a18: A18, a19: A19, a20: A20, a21: A21): DeferredCall[Any, R] = {
-    ComponentCall.invoke(Seq(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15, a16, a17, a18, a19, a20, a21), kalixClient, lambda, entityIds.asScala.toList)
+    ComponentCall.invoke(Seq(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15, a16, a17, a18, a19, a20, a21), kalixClient, lambda, ids.asScala.toList)
   }
 }
 // format: on
