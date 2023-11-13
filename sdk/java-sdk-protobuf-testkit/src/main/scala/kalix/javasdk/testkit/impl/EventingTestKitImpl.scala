@@ -503,7 +503,7 @@ private[testkit] class TopicImpl(
     expectOneTyped(clazz, DefaultTimeout)
 
   override def expectOneTyped[T](clazz: Class[T], timeout: time.Duration): TestKitMessage[T] = {
-    val msg = destinationProbe.expectMsgType[EmitSingleCommand]
+    val msg = destinationProbe.expectMsgType[EmitSingleCommand](timeout.toScala)
     val metadata = new MetadataImpl(msg.getMessage.getMetadata.entries)
     val scalaPb = ScalaPbAny(typeUrlFor(metadata), msg.getMessage.payload)
 
