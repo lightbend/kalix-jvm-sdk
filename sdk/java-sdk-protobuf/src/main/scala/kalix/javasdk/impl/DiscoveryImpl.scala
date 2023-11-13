@@ -18,6 +18,7 @@ package kalix.javasdk.impl
 
 import java.time.Duration
 import java.util
+import java.util.UUID
 import java.util.concurrent.atomic.AtomicReference
 
 import scala.concurrent.Future
@@ -51,6 +52,8 @@ class DiscoveryImpl(
   import DiscoveryImpl._
 
   private val log = LoggerFactory.getLogger(getClass)
+
+  private val serviceIncarnationUuid = UUID.randomUUID().toString
 
   // Delay CoordinatedShutdown until the proxy has been terminated.
   // This is updated from the `discover` call with a new Promise. Completed in the `proxyTerminated` call.
@@ -107,7 +110,8 @@ class DiscoveryImpl(
       protocolMinorVersion =
         configuredIntOrElse("kalix.library.protocol-minor-version", BuildInfo.protocolMinorVersion),
       // passed along for substitution in options
-      env = env)
+      env = env,
+      serviceIncarnationUuid = serviceIncarnationUuid)
 
     if (isVersionProbe(in)) {
       // only (silently) send service info for hybrid proxy version probe
@@ -207,8 +211,8 @@ class DiscoveryImpl(
     Future.successful(com.google.protobuf.empty.Empty.defaultInstance)
   }
 
-  override def healthCheck(in: Empty): Future[Empty] =
-    Future.successful(Empty.defaultInstance)
+  override def healthCheck(in: Empty): Future[HealthCheckResponse] =
+    Future.successful(HealthCheckResponse(serviceIncarnationUuid))
 
   private def loadSource(location: UserFunctionError.SourceLocation): Option[String] =
     if (location.endLine == 0 && location.endCol == 0) {
