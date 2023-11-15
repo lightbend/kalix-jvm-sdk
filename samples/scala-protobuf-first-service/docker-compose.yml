@@ -4,7 +4,7 @@
 version: "3"
 services:
   kalix-proxy:
-    image: gcr.io/kalix-public/kalix-proxy:1.1.22
+    image: gcr.io/kalix-public/kalix-proxy:1.1.23
     container_name: scala-protobuf-first-service
     ports:
       - "9000:9000"
