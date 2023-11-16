@@ -69,6 +69,21 @@ include::example$java-spring-doc-snippets/src/main/java/com/example/jwt/HelloJwt
 <3> The method `messageWithIssuer` overwrites the class-level annotation and requires a different token issuer, i.e.: `my-other-issuer`.
 
 
+=== Using static claims
+
+When the values of specific claims are known in advance, Kalix can be configured to automatically require and validate them. Multiple static claims can be declared and environment variables are supported on the `value` field. Static claims can be defined both at service and method level. The provided claims will be used when validating against the bearer token.
+
+[source, java]
+----
+    @JWT(validate = JWT.JwtMethodMode.BEARER_TOKEN,
+        bearerTokenIssuer = "my-issuer",
+        staticClaims = {
+            @JWT.StaticClaim(claim = "role", value = "admin"),
+            @JWT.StaticClaim(claim = "aud", value = "${ENV}.kalix.io")})
+----
+
+NOTE: For specifying an issuer claim (i.e. "iss"), you should still use the provided issuer-specific fields and not static claims.
+
 == Running locally with JWT support
 
 When running locally using docker compose, by default, a dev key with id `dev` is configured for use. This key uses the JWT `none` signing algorithm, which means the JWT tokens produced do not contain a cryptographic signature, nor are they validated against a signature when validating. Therefore, when calling an endpoint with a bearer token, only its presence is validated
