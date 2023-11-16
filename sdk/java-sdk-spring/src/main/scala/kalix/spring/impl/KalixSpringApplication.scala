@@ -304,12 +304,12 @@ case class KalixSpringApplication(applicationContext: ApplicationContext, config
     webClientProviderHolder.webClientProvider
   }
 
-  private def kalixClient(context: Context) = {
+  private def kalixClient(context: Context): KalixClient = {
     kalixClient.setWebClient(webClientProvider(context).localWebClient)
     kalixClient
   }
 
-  private def componentClient(context: Context) = {
+  private def componentClient(context: Context): ComponentClient = {
     kalixClient.setWebClient(webClientProvider(context).localWebClient)
     componentClient
   }
