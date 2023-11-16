@@ -104,6 +104,8 @@ import kalix.spring.testmodels.subscriptions.PubSubTestModels.VEWithPublishToTop
 import kalix.spring.testmodels.valueentity.CounterState
 import org.scalatest.wordspec.AnyWordSpec
 
+import scala.jdk.CollectionConverters.CollectionHasAsScala
+
 class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSuite {
 
   "Action descriptor factory" should {
@@ -216,6 +218,11 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
         jwtOption.getValidate(0) shouldBe JwtMethodMode.BEARER_TOKEN
         assertRequestFieldJavaType(method, "json_body", JavaType.MESSAGE)
 
+        val Seq(claim1, claim2) = jwtOption.getStaticClaimList.asScala.toSeq
+        claim1.getClaim shouldBe "role"
+        claim1.getValue shouldBe "admin"
+        claim2.getClaim shouldBe "aud"
+        claim2.getValue shouldBe "${ENV}.kalix.io"
       }
     }
 
@@ -226,6 +233,12 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
         jwtOption.getBearerTokenIssuer(0) shouldBe "a"
         jwtOption.getBearerTokenIssuer(1) shouldBe "b"
         jwtOption.getValidate shouldBe JwtServiceMode.BEARER_TOKEN
+
+        val Seq(claim1, claim2) = jwtOption.getStaticClaimList.asScala.toSeq
+        claim1.getClaim shouldBe "role"
+        claim1.getValue shouldBe "admin"
+        claim2.getClaim shouldBe "aud"
+        claim2.getValue shouldBe "${ENV}.kalix.io"
       }
     }
 

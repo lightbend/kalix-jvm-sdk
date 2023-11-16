@@ -154,7 +154,11 @@ public class ViewTestModels {
     @PostMapping("/users/by-email")
     @JWT(
         validate = JWT.JwtMethodMode.BEARER_TOKEN,
-        bearerTokenIssuer = {"a", "b"})
+        bearerTokenIssuer = {"a", "b"},
+        staticClaims = {
+            @JWT.StaticClaim(claim = "role", value = "admin"),
+            @JWT.StaticClaim(claim = "aud", value = "${ENV}.kalix.io")
+        })
     public TransformedUser getUser(@RequestBody ByEmail byEmail) {
       return null;
     }
@@ -163,7 +167,11 @@ public class ViewTestModels {
   @Table("users_view")
   @JWT(
     validate = JWT.JwtMethodMode.BEARER_TOKEN,
-    bearerTokenIssuer = {"a", "b"})
+    bearerTokenIssuer = {"a", "b"},
+    staticClaims = {
+        @JWT.StaticClaim(claim = "role", value = "admin"),
+        @JWT.StaticClaim(claim = "aud", value = "${ENV}.kalix.io")
+    })
   public static class ViewWithServiceLevelJWT extends View<User> {
     @Query("SELECT * FROM users_view WHERE email = :email")
     @PostMapping("/users/by-email")

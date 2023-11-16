@@ -34,6 +34,8 @@ import kalix.spring.testmodels.eventsourcedentity.EventSourcedEntitiesTestModels
 import kalix.spring.testmodels.eventsourcedentity.EventSourcedEntitiesTestModels.IllDefinedEntityWithoutIdGeneratorNorId
 import org.scalatest.wordspec.AnyWordSpec
 
+import scala.jdk.CollectionConverters.CollectionHasAsScala
+
 class EventSourcedEntityDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSuite {
 
   "EventSourced descriptor factory" should {
@@ -112,6 +114,12 @@ class EventSourcedEntityDescriptorFactorySpec extends AnyWordSpec with Component
         jwtOption2.getBearerTokenIssuer(0) shouldBe "a"
         jwtOption2.getBearerTokenIssuer(1) shouldBe "b"
         jwtOption2.getValidate(0) shouldBe JwtMethodMode.BEARER_TOKEN
+
+        val Seq(claim1, claim2) = jwtOption2.getStaticClaimList.asScala.toSeq
+        claim1.getClaim shouldBe "role"
+        claim1.getValue shouldBe "admin"
+        claim2.getClaim shouldBe "aud"
+        claim2.getValue shouldBe "${ENV}.kalix.io"
       }
     }
 
@@ -122,6 +130,12 @@ class EventSourcedEntityDescriptorFactorySpec extends AnyWordSpec with Component
         jwtOption.getBearerTokenIssuer(0) shouldBe "a"
         jwtOption.getBearerTokenIssuer(1) shouldBe "b"
         jwtOption.getValidate shouldBe JwtServiceMode.BEARER_TOKEN
+
+        val Seq(claim1, claim2) = jwtOption.getStaticClaimList.asScala.toSeq
+        claim1.getClaim shouldBe "role"
+        claim1.getValue shouldBe "admin"
+        claim2.getClaim shouldBe "aud"
+        claim2.getValue shouldBe "${ENV}.kalix.io"
       }
     }
 

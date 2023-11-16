@@ -33,6 +33,8 @@ import kalix.spring.testmodels.workflow.WorkflowTestModels.WorkflowWithTypeLevel
 import kalix.spring.testmodels.workflow.WorkflowTestModels.WorkflowWithoutIdGeneratorAndId
 import org.scalatest.wordspec.AnyWordSpec
 
+import scala.jdk.CollectionConverters.CollectionHasAsScala
+
 class WorkflowEntityDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSuite {
 
   "Workflow descriptor factory" should {
@@ -100,6 +102,12 @@ class WorkflowEntityDescriptorFactorySpec extends AnyWordSpec with ComponentDesc
         jwtOption.getBearerTokenIssuer(0) shouldBe "a"
         jwtOption.getBearerTokenIssuer(1) shouldBe "b"
         jwtOption.getValidate(0) shouldBe JwtMethodMode.BEARER_TOKEN
+
+        val Seq(claim1, claim2) = jwtOption.getStaticClaimList.asScala.toSeq
+        claim1.getClaim shouldBe "role"
+        claim1.getValue shouldBe "admin"
+        claim2.getClaim shouldBe "aud"
+        claim2.getValue shouldBe "${ENV}.kalix.io"
       }
     }
 
@@ -110,6 +118,12 @@ class WorkflowEntityDescriptorFactorySpec extends AnyWordSpec with ComponentDesc
         jwtOption.getBearerTokenIssuer(0) shouldBe "a"
         jwtOption.getBearerTokenIssuer(1) shouldBe "b"
         jwtOption.getValidate shouldBe JwtServiceMode.BEARER_TOKEN
+
+        val Seq(claim1, claim2) = jwtOption.getStaticClaimList.asScala.toSeq
+        claim1.getClaim shouldBe "role"
+        claim1.getValue shouldBe "admin"
+        claim2.getClaim shouldBe "aud"
+        claim2.getValue shouldBe "${ENV}.kalix.io"
       }
     }
 
