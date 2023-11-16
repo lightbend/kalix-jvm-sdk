@@ -304,6 +304,16 @@ case class KalixSpringApplication(applicationContext: ApplicationContext, config
     webClientProviderHolder.webClientProvider
   }
 
+  private def kalixClient(context: Context) = {
+    kalixClient.setWebClient(webClientProvider(context).localWebClient)
+    kalixClient
+  }
+
+  private def componentClient(context: Context) = {
+    kalixClient.setWebClient(webClientProvider(context).localWebClient)
+    componentClient
+  }
+
   /**
    * Create an instance of `clz` using the mappings defined in `partial`. Each component provider should define what are
    * the acceptable dependencies in the partial function.
@@ -365,8 +375,8 @@ case class KalixSpringApplication(applicationContext: ApplicationContext, config
       context =>
         wiredInstance(clz) {
           case p if p == classOf[ActionCreationContext] => context
-          case p if p == classOf[KalixClient]           => kalixClient
-          case p if p == classOf[ComponentClient]       => componentClient
+          case p if p == classOf[KalixClient]           => kalixClient(context)
+          case p if p == classOf[ComponentClient]       => componentClient(context)
           case p if p == classOf[WebClientProvider]     => webClientProvider(context)
         })
 
@@ -379,8 +389,8 @@ case class KalixSpringApplication(applicationContext: ApplicationContext, config
         val workflow =
           wiredInstance(clz) {
             case p if p == classOf[WorkflowContext]   => context
-            case p if p == classOf[KalixClient]       => kalixClient
-            case p if p == classOf[ComponentClient]   => componentClient
+            case p if p == classOf[KalixClient]       => kalixClient(context)
+            case p if p == classOf[ComponentClient]   => componentClient(context)
             case p if p == classOf[WebClientProvider] => webClientProvider(context)
           }
 
