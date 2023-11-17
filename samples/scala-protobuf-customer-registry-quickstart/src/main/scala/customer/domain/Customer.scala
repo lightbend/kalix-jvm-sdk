@@ -49,7 +49,8 @@ class Customer(context: ValueEntityContext) extends AbstractCustomer {
     api.Customer(
       customerId = customer.customerId,
       email = customer.email,
-      name = customer.name
+      name = customer.name,
+      address = customer.address.map(address => api.Address(address.street, address.city))
     )
   // end::getCustomer[]
 
