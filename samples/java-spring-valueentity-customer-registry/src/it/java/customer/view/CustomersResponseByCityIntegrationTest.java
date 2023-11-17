@@ -72,4 +72,4 @@ class CustomersResponseByCityIntegrationTest extends KalixIntegrationTestKitSupp
         );
   }
 }
-// tag::view-test[]
+// end::view-test[]
