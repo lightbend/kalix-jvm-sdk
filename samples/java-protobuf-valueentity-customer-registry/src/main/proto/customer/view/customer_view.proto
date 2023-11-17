@@ -34,7 +34,7 @@ service CustomerByName {
 
   rpc UpdateCustomer(domain.CustomerState) returns (domain.CustomerState) {// <2>
     option (kalix.method).eventing.in = {// <3>
-      value_entity: "customers"
+      value_entity: "customer"
     };
     option (kalix.method).view.update = {// <4>
       table: "customers"
@@ -43,7 +43,7 @@ service CustomerByName {
 
   rpc DeleteCustomer(google.protobuf.Empty) returns (domain.CustomerState) {
     option (kalix.method).eventing.in = {
-      value_entity: "customers"
+      value_entity: "customer"
       handle_deletes: true // <5>
     };
     option (kalix.method).view.update = {
@@ -70,7 +70,7 @@ service CustomerByEmail {
 
   rpc UpdateCustomer(domain.CustomerState) returns (domain.CustomerState) {
     option (kalix.method).eventing.in = {
-      value_entity: "customers"
+      value_entity: "customer"
     };
     option (kalix.method).view.update = {
       table: "customers"
@@ -109,7 +109,7 @@ service CustomerSummaryByName {
 
   rpc UpdateCustomer(domain.CustomerState) returns (domain.CustomerState) {
     option (kalix.method).eventing.in = {
-      value_entity: "customers"
+      value_entity: "customer"
     };
     option (kalix.method).view.update = {
       table: "customers"
@@ -151,7 +151,7 @@ service CustomerDetailsByName {
 
   rpc UpdateCustomer(domain.CustomerState) returns (domain.CustomerState) {
     option (kalix.method).eventing.in = {
-      value_entity: "customers"
+      value_entity: "customer"
     };
     option (kalix.method).view.update = {
       table: "customers"
@@ -179,7 +179,7 @@ service CustomersResponseByName {
 
   rpc UpdateCustomer(domain.CustomerState) returns (domain.CustomerState) {
     option (kalix.method).eventing.in = {
-      value_entity: "customers"
+      value_entity: "customer"
     };
     option (kalix.method).view.update = {
       table: "customers"
@@ -187,3 +187,31 @@ service CustomersResponseByName {
   }
 }
 // end::wrap-repeated[]
+
+
+// tag::view-test[]
+message ByCityRequest {
+  repeated string cities = 1;
+}
+
+service CustomersResponseByCity {
+  option (kalix.codegen) = {
+    view: {}
+  };
+
+  rpc GetCustomers(ByCityRequest) returns (CustomersResponse) {
+    option (kalix.method).view.query = {
+      query: "SELECT * AS customers FROM customers WHERE address.city = ANY(:cities)"
+    };
+  }
+
+  rpc UpdateCustomer(domain.CustomerState) returns (domain.CustomerState) {
+    option (kalix.method).eventing.in = {
+      value_entity: "customer"
+    };
+    option (kalix.method).view.update = {
+      table: "customers"
+    };
+  }
+}
+// end::view-test[]
