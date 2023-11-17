@@ -14,6 +14,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.Profile;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -26,6 +28,7 @@ import static org.awaitility.Awaitility.await;
 class TestKitConfig {
 
   @Bean
+  @Profile("view-it-test")
   public KalixTestKit.Settings settings() {
     return KalixTestKit.Settings.DEFAULT
         .withValueEntityIncomingMessages("customer"); // <1>
@@ -34,6 +37,7 @@ class TestKitConfig {
 
 @SpringBootTest(classes = Main.class)
 @Import(TestKitConfig.class)
+@ActiveProfiles("view-it-test")
 class CustomersResponseByCityIntegrationTest extends KalixIntegrationTestKitSupport {
 
   @Autowired

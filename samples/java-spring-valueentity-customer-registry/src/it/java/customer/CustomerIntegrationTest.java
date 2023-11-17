@@ -13,12 +13,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.time.Duration;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import static java.time.temporal.ChronoUnit.SECONDS;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 
 @SpringBootTest(classes = Main.class)
@@ -51,7 +51,7 @@ public class CustomerIntegrationTest extends KalixIntegrationTestKitSupport {
 
   @Test
   public void searchByCity() {
-    Customer johanna = new Customer(UUID.randomUUID().toString(), "johanna@example.com", "Johanna", new Address("Cool Street", "Porto"));
+    Customer johanna = new Customer(UUID.randomUUID().toString(), "johanna@example.com", "Johanna", new Address("Cool Street", "Nazare"));
     Customer joe = new Customer(UUID.randomUUID().toString(), "joe@example.com", "Joe", new Address("Cool Street", "Lisbon"));
     Customer jane = new Customer(UUID.randomUUID().toString(), "jane@example.com", "Jane", new Address("Cool Street", "Faro"));
 
@@ -62,18 +62,16 @@ public class CustomerIntegrationTest extends KalixIntegrationTestKitSupport {
     await()
         .ignoreExceptions()
         .atMost(10, TimeUnit.of(SECONDS))
-        .until(
-            () ->
-                webClient
-                    .get()
-                    .uri("/wrapped/by_city?cities=Porto&cities=Lisbon")
-                    .retrieve()
-                    .bodyToMono(CustomersResponse.class)
-                    .block(timeout),
-            (res) -> res.customers.size() == 2 && // jane is from Faro
-                res.customers.stream().allMatch(
-                    c -> Arrays.asList(johanna.customerId(), joe.customerId()).contains(c.customerId()))
-            );
+        .untilAsserted(() -> {
+          CustomersResponse response = webClient
+              .get()
+              .uri("/wrapped/by_city?cities=Nazare&cities=Lisbon")
+              .retrieve()
+              .bodyToMono(CustomersResponse.class)
+              .block(timeout);
+
+          assertThat(response.customers).containsOnly(johanna, joe);
+        });
   }
 
   private void addCustomer(Customer customer) {

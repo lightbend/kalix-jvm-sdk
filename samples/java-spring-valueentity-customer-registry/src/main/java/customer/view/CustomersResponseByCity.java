@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import java.util.List;
 
 @ViewId("view_response_customers_by_city")
-@Table("customers_by_name")
+@Table("customers_by_city")
 // tag::view-test[]
 @Subscribe.ValueEntity(CustomerEntity.class)
 public class CustomersResponseByCity extends View<Customer> {
@@ -22,7 +22,7 @@ public class CustomersResponseByCity extends View<Customer> {
   @GetMapping("/wrapped/by_city")
   @Query("""
     SELECT * AS customers
-        FROM customers_by_name
+        FROM customers_by_city
       WHERE address.city = ANY(:cities)
     """)
   public CustomersResponse getCustomers(@RequestParam List<String> cities) {
