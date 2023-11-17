@@ -36,8 +36,7 @@ public class CustomersByNameViewIntegrationTest extends KalixIntegrationTestKitS
 
     customerEvents.publish(created1, "b");
     customerEvents.publish(created2, "a");
-
-    //then
+    
     await()
         .ignoreExceptions()
         .atMost(20, TimeUnit.SECONDS)

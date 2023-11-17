@@ -7,6 +7,7 @@ import customer.view.CustomerByEmailView
 import customer.view.CustomerByNameView
 import customer.view.CustomerDetailsByNameView
 import customer.view.CustomerSummaryByNameView
+import customer.view.CustomersResponseByCityView
 import customer.view.CustomersResponseByNameView
 import kalix.scalasdk.Kalix
 import org.slf4j.LoggerFactory
@@ -35,6 +36,7 @@ object Main {
       new CustomerByNameView(_),
       new CustomerDetailsByNameView(_),
       new CustomerSummaryByNameView(_),
+      new CustomersResponseByCityView(_),
       new CustomersResponseByNameView(_))
   }
   // end::register[]

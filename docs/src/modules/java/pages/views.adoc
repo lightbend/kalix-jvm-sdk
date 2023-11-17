@@ -272,3 +272,27 @@ include::java-protobuf:partial$query-syntax-reference.adoc[tag=spring]
 include::java-protobuf:partial$query-syntax-paging.adoc[tag=spring]
 
 include::java-protobuf:partial$query-syntax-advanced.adoc[tag=spring]
+
+== Testing the View
+
+Testing Views is very similar to testing other xref:actions-publishing-subscribing.adoc#_testkit_mocked_incoming_messages[subscription integrations].
+
+For a View definition that subscribes to changes from the `customer` Value Entity.
+
+[source,java,indent=0]
+.src/main/java/customer/view/CustomersResponseByCity.java
+----
+include::example$java-spring-valueentity-customer-registry/src/main/java/customer/view/CustomersResponseByCity.java[tag=view-test]
+----
+
+An integration test can be implemented as below.
+
+[source,java,indent=0]
+.src/main/java/customer/view/CustomersResponseByCity.java
+----
+include::example$java-spring-valueentity-customer-registry/src/it/java/customer/view/CustomersResponseByCityIntegrationTest.java[tag=view-test]
+----
+<1> Mocks incoming messages from the `customer` Value Entity.
+<2> Gets an `IncomingMessages` from the `customer` Value Entity.
+<3> Publishes test data.
+<4> Queries the view and asserts the results.
