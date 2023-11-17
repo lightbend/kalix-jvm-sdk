@@ -27,6 +27,19 @@ object View {
   trait UpdateEffect[+S]
 
   /**
+   * An UpdateEffect is a description of what Kalix needs to do after the command is handled. You can think of it as a
+   * set of instructions you are passing to Kalix. Kalix will process the instructions on your behalf and ensure that
+   * any data that needs to be persisted will be persisted.
+   *
+   * Each Kalix component defines its own effects, which are a set of predefined operations that match the capabilities
+   * of that component.
+   *
+   * A View UpdateEffect can either:
+   *
+   *   - update the view state
+   *   - delete the view state
+   *   - ignore the event or state change notification (and not update the view state)
+   *
    * Construct the effect that is returned by the command handler. The effect describes next processing actions, such as
    * emitting events and sending a reply.
    */
@@ -71,6 +84,19 @@ object View {
 }
 
 /**
+ * Views allows you to build new representations for the state of your entities that are indexed by fields different
+ * from the entity id.
+ *
+ * When implementing a View, you define what will be its internal state (your view model) and how you want to query it.
+ * The Query string defines which fields will be indexed and how the query will be executed.
+ *
+ * The query is executed by the Kalix when a request is made to the View.
+ *
+ * Views are updated in response to Event Sourced Entity events, Value Entity state changes or messages from a Topic.
+ *
+ * Each incoming change is handled by a command handler. Command handlers are methods returning an
+ * [[kalix.scalasdk.view.View.UpdateEffect]]. The command handler is responsible for updating the view state.
+ *
  * @tparam S
  *   The type of the state for this view.
  */

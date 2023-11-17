@@ -1,6 +1,6 @@
 include::ROOT:partial$include.adoc[]
 
-Event Sourced Entities persist their state with https://en.wikipedia.org/wiki/ACID[ACID semantics {tab-icon}, window="new"], scale horizontally, and isolate failures. They use the Event Sourcing Model--rather than persisting the current state, they persist all of the events that led to the current state. Kalix stores these events in a https://docs.kalix.io/reference/glossary.html#journal[journal].
+Event Sourced Entities persist their state with https://en.wikipedia.org/wiki/ACID[ACID semantics{tab-icon}, window="new"], scale horizontally, and isolate failures. They use the Event Sourcing Model--instead of persisting the current state, they persist all the events that led to the current state. Kalix stores these events in a https://docs.kalix.io/reference/glossary.html#journal[journal].
 
 An Event Sourced Entity must not update its in-memory state directly as a result of a https://docs.kalix.io/reference/glossary.html#command[_command_]. The handling of a command, if it results in changes being required to state, should emit https://docs.kalix.io/reference/glossary.html#event[_events_]. These events will then be received, at which point the in-memory state can and should be changed in response.
 

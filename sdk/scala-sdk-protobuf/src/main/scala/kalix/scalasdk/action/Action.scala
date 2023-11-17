@@ -30,7 +30,22 @@ import kalix.scalasdk.impl.timer.TimerSchedulerImpl
 object Action {
 
   /**
-   * A return type to allow returning forwards or failures, and attaching effects to messages.
+   * An Effect is a description of what Kalix needs to do after the command is handled. You can think of it as a set of
+   * instructions you are passing to Kalix. Kalix will process the instructions on your behalf.
+   *
+   * Each Kalix component defines its own effects, which are a set of predefined operations that match the capabilities
+   * of that component.
+   *
+   * An Action Effect can either:
+   *
+   *   - reply with a message to the caller
+   *   - reply with a message to be published to a topic (in case the method is a publisher)
+   *   - forward the message to another component
+   *   - return an error
+   *   - ignore the call
+   *
+   * A return type to allow returning forwards or failures, and attaching effects to messages. A return type to allow
+   * returning forwards or failures, and attaching effects to messages.
    *
    * @tparam T
    *   The type of the message that must be returned by this call.
@@ -162,6 +177,29 @@ object Action {
   }
 }
 
+/**
+ * Actions are stateless components that can be used to implement different uses cases, such as:
+ *
+ *   - a pure function
+ *   - request conversion - you can use Actions to convert incoming data into a different format before forwarding a
+ *     call to a different component.
+ *   - publish messages to a topic
+ *   - subscribe to events from an event-sourced entity
+ *   - subscribe to state changes from a value entity
+ *   - schedule and cancel timers
+ *
+ * Actions can be triggered in multiple ways. For example, by:
+ *
+ *   - a gRPC service call
+ *   - an HTTP service call
+ *   - a forwarded call from another component
+ *   - a scheduled call from a timer
+ *   - an incoming message from a topic
+ *   - an incoming event from within the same service or a from different service
+ *   - state changes notification from a value entity on the same service
+ *
+ * An Action method should return an [[kalix.scalasdk.action.Action.Effect]] that describes what to do next.
+ */
 abstract class Action {
   @volatile
   private var _actionContext: Option[ActionContext] = None

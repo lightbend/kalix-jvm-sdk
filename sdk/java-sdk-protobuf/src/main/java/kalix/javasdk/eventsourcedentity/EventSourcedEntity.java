@@ -31,6 +31,25 @@ import java.util.Optional;
 import java.util.function.Function;
 
 /**
+ * The Event Sourced state model captures changes to data by storing events in a journal.
+ * The current entity state is derived from the emitted events.
+ * <p>
+ * When implementing an Event Sourced Entity, you first define what will be its internal state (your domain model),
+ * the commands it will handle (mutation requests) and the events it will emit (state changes).
+ * <p>
+ * Each command is handled by a command handler. Command handlers are methods returning an {@link Effect}.
+ * When handling a command, you use the Effect API to:
+ * <p>
+ * <ul>
+ *   <li>emit events and build a reply
+ *   <li>ignore the command by simply returning to the caller without emitting any events
+ *   <li>directly returning to the caller if the command is not requesting any state change
+ *   <li>rejected the command by returning an error
+ *   <li>instruct Kalix to delete the entity
+ * </ul>
+ *
+ * <p>Each event is handled by an event handler method and should return an updated state for the entity.
+ *
  * @param <S> The type of the state for this entity.
  * @param <E> The parent type of the event hierarchy for this entity.
  */
@@ -116,6 +135,23 @@ public abstract class EventSourcedEntity<S, E> {
   }
 
   /**
+   * An Effect is a description of what Kalix needs to do after the command is handled.
+   * You can think of it as a set of instructions you are passing to Kalix. Kalix will process the instructions on your
+   * behalf and ensure that any data that needs to be persisted will be persisted.
+   * <p>
+   * Each Kalix component defines its own effects, which are a set of predefined
+   * operations that match the capabilities of that component.
+   * <p>
+   * An EventSourcedEntity Effect can either:
+   * <p>
+   * <ul>
+   *   <li>emit events and send a reply to the caller
+   *   <li>ignore the command by simply returning to the caller without emitting any events
+   *   <li>directly reply to the caller if the command is not requesting any state change
+   *   <li>rejected the command by returning an error
+   *   <li>instruct Kalix to delete the entity
+   * </ul>
+   * <p>
    * A return type to allow returning forwards or failures, and attaching effects to messages.
    *
    * @param <T> The type of the message that must be returned by this call.
