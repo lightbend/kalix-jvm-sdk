@@ -8,6 +8,8 @@ import kalix.javasdk.testkit.junit.KalixTestKitResource;
 import org.junit.ClassRule;
 import org.junit.Test;
 
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
@@ -51,7 +53,7 @@ public class CustomerActionIntegrationTest {
     createCustomer(customer);
 
     // wait for action to publish the change of state
-    var createdMsgOut = outTopic.expectOneTyped(CustomerApi.Customer.class);
+    var createdMsgOut = outTopic.expectOneTyped(CustomerApi.Customer.class, Duration.of(10, ChronoUnit.SECONDS));
     var metadata = createdMsgOut.getMetadata();
 
     assertEquals(Optional.of("customer.api.Customer"), metadata.get("ce-type"));
