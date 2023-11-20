@@ -114,14 +114,14 @@ class ValueEntityDescriptorFactorySpec extends AnyWordSpec with ComponentDescrip
     "generate descriptor for ValueEntity with method level JWT annotation" in {
       assertDescriptor[ValueEntityWithMethodLevelJwt] { desc =>
         val jwtOption = findKalixMethodOptions(desc, "CreateEntity").getJwt
-        jwtOption.getBearerTokenIssuer(0) shouldBe "a"
-        jwtOption.getBearerTokenIssuer(1) shouldBe "b"
+        jwtOption.getBearerTokenIssuer(0) shouldBe "c"
+        jwtOption.getBearerTokenIssuer(1) shouldBe "d"
         jwtOption.getValidate(0) shouldBe JwtMethodMode.BEARER_TOKEN
         val Seq(claim1, claim2) = jwtOption.getStaticClaimList.asScala.toSeq
         claim1.getClaim shouldBe "role"
-        claim1.getValue shouldBe "admin"
+        claim1.getValue shouldBe "method-admin"
         claim2.getClaim shouldBe "aud"
-        claim2.getValue shouldBe "${ENV}.kalix.io"
+        claim2.getValue shouldBe "${ENV}"
       }
     }
 

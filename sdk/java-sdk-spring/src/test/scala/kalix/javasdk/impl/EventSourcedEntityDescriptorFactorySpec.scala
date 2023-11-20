@@ -111,15 +111,15 @@ class EventSourcedEntityDescriptorFactorySpec extends AnyWordSpec with Component
         assertRequestFieldJavaType(postMethod, "number", JavaType.INT)
 
         val jwtOption2 = findKalixMethodOptions(desc, postMethod.grpcMethodName).getJwt
-        jwtOption2.getBearerTokenIssuer(0) shouldBe "a"
-        jwtOption2.getBearerTokenIssuer(1) shouldBe "b"
+        jwtOption2.getBearerTokenIssuer(0) shouldBe "c"
+        jwtOption2.getBearerTokenIssuer(1) shouldBe "d"
         jwtOption2.getValidate(0) shouldBe JwtMethodMode.BEARER_TOKEN
 
         val Seq(claim1, claim2) = jwtOption2.getStaticClaimList.asScala.toSeq
         claim1.getClaim shouldBe "role"
-        claim1.getValue shouldBe "admin"
+        claim1.getValue shouldBe "method-admin"
         claim2.getClaim shouldBe "aud"
-        claim2.getValue shouldBe "${ENV}.kalix.io"
+        claim2.getValue shouldBe "${ENV}"
       }
     }
 

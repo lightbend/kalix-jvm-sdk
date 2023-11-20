@@ -135,10 +135,10 @@ public class ValueEntitiesTestModels {
     @PostMapping("/{userId}/{cartId}/create")
     @JWT(
       validate = JWT.JwtMethodMode.BEARER_TOKEN,
-      bearerTokenIssuer = {"a", "b"},
+      bearerTokenIssuer = {"c", "d"},
       staticClaims = {
-          @JWT.StaticClaim(claim = "role", value = "admin"),
-          @JWT.StaticClaim(claim = "aud", value = "${ENV}.kalix.io")
+          @JWT.StaticClaim(claim = "role", value = "method-admin"),
+          @JWT.StaticClaim(claim = "aud", value = "${ENV}")
       })
     public ValueEntity.Effect<Done> createEntity(@RequestBody CreateUser createUser) {
       return effects().reply(Done.instance);

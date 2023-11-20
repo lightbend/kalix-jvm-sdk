@@ -130,7 +130,7 @@ public class WorkflowTestModels {
         validate = JWT.JwtMethodMode.BEARER_TOKEN,
         bearerTokenIssuer = {"a", "b"},
         staticClaims = {
-            @JWT.StaticClaim(claim = "role", value = "admin"),
+            @JWT.StaticClaim(claim = "role", value = "method-admin"),
             @JWT.StaticClaim(claim = "aud", value = "${ENV}.kalix.io")
         })
     public Effect<String> startTransfer(@RequestBody StartWorkflow startWorkflow) {
@@ -143,10 +143,10 @@ public class WorkflowTestModels {
   @RequestMapping("/transfer/{transferId}")
   @JWT(
     validate = JWT.JwtMethodMode.BEARER_TOKEN,
-    bearerTokenIssuer = {"a", "b"},
+    bearerTokenIssuer = {"c", "d"},
     staticClaims = {
         @JWT.StaticClaim(claim = "role", value = "admin"),
-        @JWT.StaticClaim(claim = "aud", value = "${ENV}.kalix.io")
+        @JWT.StaticClaim(claim = "aud", value = "${ENV}")
     })
   public static class WorkflowWithServiceLevelJWT extends Workflow<WorkflowState> {
     @Override
