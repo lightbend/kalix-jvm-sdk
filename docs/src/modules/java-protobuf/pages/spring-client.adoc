@@ -26,7 +26,10 @@ To get started, do the following:
 
 - https://github.com/lightbend/kalix-jvm-sdk/archive/refs/heads/main.zip[Download] and unzip the source repository for this guide, or clone it using Git:
 
-`git clone https://github.com/lightbend/kalix-jvm-sdk.git`
+[source,command line]
+----
+git clone https://github.com/lightbend/kalix-jvm-sdk.git
+----
 
 - cd into `kalix-jvm-sdk/samples/java-protobuf-valueentity-counter`
 
@@ -36,15 +39,19 @@ With the source repository downloaded, you can build and run the Kalix Service l
 
 Run the Kalix Service using Maven:
 
-`mvn kalix:runAll`
+[source,command line]
+----
+mvn kalix:runAll
+----
 
 You should see output similar to the following:
 
-```
+[source,log]
+----
 [INFO] --- exec-maven-plugin:3.0.0:exec (default-cli) @ valueentity-counter ---
 {"timestamp":"2022-03-02T23:38:12.174Z","thread":"main","logger":"com.example.Main","message":"starting the Kalix service","context":"default","severity":"INFO"}
 {"timestamp":"2022-03-02T23:38:12.829Z","thread":"kalix-akka.actor.default-dispatcher-2","logger":"akka.event.slf4j.Slf4jLogger","message":"Slf4jLogger started","context":"default","severity":"INFO"}
-```
+----
 
 == Building Spring REST Client
 
@@ -139,10 +146,11 @@ Click Generate.
 Download the resulting ZIP file, which is an archive of a web application that is configured with your choices.
 
 
-* Add following Maven Dependencies to pom.xml
+Add following Maven Dependencies to `pom.xml`
 
+[source,xml,indent=4]
 ----
-  <properties>
+    <properties>
         <akka-grpc.version>2.1.6</akka-grpc.version>
         <protobuf.version>3.19.2</protobuf.version>
         <protobuf-plugin.version>0.6.1</protobuf-plugin.version>
@@ -182,7 +190,7 @@ Download the resulting ZIP file, which is an archive of a web application that i
             <extension>
                 <groupId>kr.motd.maven</groupId>
                 <artifactId>os-maven-plugin</artifactId>
-                <version>1.7.0</version>
+                <version>1.7.1</version>
             </extension>
         </extensions>
         <plugins>
