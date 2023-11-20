@@ -195,7 +195,7 @@ object Action {
  *   - a forwarded call from another component.
  *   - a scheduled call from a Timer.
  *   - an incoming message from a Topic.
- *   - an incoming event from an Event Sourced Entity, from within the same service or from a different service. 
+ *   - an incoming event from an Event Sourced Entity, from within the same service or from a different service.
  *   - state changes notification from a Value Entity on the same service.
  *
  * An Action method should return an [[kalix.scalasdk.action.Action.Effect]] that describes what to do next.
