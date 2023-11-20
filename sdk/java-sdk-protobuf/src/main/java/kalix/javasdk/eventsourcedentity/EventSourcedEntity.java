@@ -35,14 +35,13 @@ import java.util.function.Function;
  * The current entity state is derived from the emitted events.
  * <p>
  * When implementing an Event Sourced Entity, you first define what will be its internal state (your domain model),
- * the commands it will handle (mutation requests) and the events it will emit (state changes).
+ * the commands it will handle and the events it will emit to modify its state.
  * <p>
  * Each command is handled by a command handler. Command handlers are methods returning an {@link Effect}.
  * When handling a command, you use the Effect API to:
  * <p>
  * <ul>
  *   <li>emit events and build a reply
- *   <li>ignore the command by simply returning to the caller without emitting any events
  *   <li>directly returning to the caller if the command is not requesting any state change
  *   <li>rejected the command by returning an error
  *   <li>instruct Kalix to delete the entity
@@ -146,7 +145,6 @@ public abstract class EventSourcedEntity<S, E> {
    * <p>
    * <ul>
    *   <li>emit events and send a reply to the caller
-   *   <li>ignore the command by simply returning to the caller without emitting any events
    *   <li>directly reply to the caller if the command is not requesting any state change
    *   <li>rejected the command by returning an error
    *   <li>instruct Kalix to delete the entity

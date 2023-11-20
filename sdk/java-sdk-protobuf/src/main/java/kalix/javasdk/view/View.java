@@ -23,7 +23,10 @@ import kalix.javasdk.impl.view.ViewUpdateEffectImpl;
 import java.util.Optional;
 
 /**
- * Views allows you to build new representations for the state of your entities that are indexed by fields different from the entity id.
+ * Kalix applications follow the Command Query Responsibility Segregation (CQRS) pattern (see https://developer.lightbend.com/docs/akka-guide/concepts/cqrs.html). 
+ * <p>
+ * Kalix' Entities represent the command side where you change the state of your model in a strictly consistent and isolated manner.
+ * Kalix' Views represent the query side of your application. Views are optimized for reads and allow you to query your model by fields other than the entity identifier.
  * <p>
  * When implementing a View, you define what will be its internal state (your view model) and how you want to query it.
  * The Query string defines which fields will be indexed and how the query will be executed.
@@ -33,7 +36,7 @@ import java.util.Optional;
  * Views are updated in response to Event Sourced Entity events, Value Entity state changes or messages from a Topic.
  * <p>
  * Each incoming change is handled by a command handler. Command handlers are methods returning an
- * {@link UpdateEffect}. The command handler is responsible for updating the view state.
+ * {@link UpdateEffect}. The command handler is responsible for updating the View state.
  *
  *  @param <S> The type of the state for this view.
  */

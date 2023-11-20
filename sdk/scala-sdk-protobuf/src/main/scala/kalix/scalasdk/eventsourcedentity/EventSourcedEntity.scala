@@ -33,7 +33,6 @@ object EventSourcedEntity {
    * An EventSourcedEntity Effect can either:
    *
    *   - emit events and send a reply to the caller
-   *   - ignore the command by simply returning to the caller without emitting any events
    *   - directly reply to the caller if the command is not requesting any state change
    *   - rejected the command by returning an error
    *   - instruct Kalix to delete the entity
@@ -205,7 +204,6 @@ object EventSourcedEntity {
  * [[kalix.scalasdk.eventsourcedentity.EventSourcedEntity.Effect]]. When handling a command, you use the Effect API to:
  *
  *   - emit events and build a reply
- *   - ignore the command by simply returning to the caller without emitting any events
  *   - directly returning to the caller if the command is not requesting any state change
  *   - rejected the command by returning an error
  *   - instruct Kalix to delete the entity

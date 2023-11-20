@@ -180,23 +180,23 @@ object Action {
 /**
  * Actions are stateless components that can be used to implement different uses cases, such as:
  *
- *   - a pure function
+ *   - a pure function.
  *   - request conversion - you can use Actions to convert incoming data into a different format before forwarding a
  *     call to a different component.
- *   - publish messages to a topic
- *   - subscribe to events from an event-sourced entity
- *   - subscribe to state changes from a value entity
- *   - schedule and cancel timers
+ *   - publish messages to a Topic.
+ *   - subscribe to events from an Event Sourced Entity.
+ *   - subscribe to state changes from a Value Entity.
+ *   - schedule and cancel Timers.
  *
  * Actions can be triggered in multiple ways. For example, by:
  *
- *   - a gRPC service call
- *   - an HTTP service call
- *   - a forwarded call from another component
- *   - a scheduled call from a timer
- *   - an incoming message from a topic
- *   - an incoming event from within the same service or a from different service
- *   - state changes notification from a value entity on the same service
+ *   - a gRPC service call.
+ *   - an HTTP service call.
+ *   - a forwarded call from another component.
+ *   - a scheduled call from a Timer.
+ *   - an incoming message from a Topic.
+ *   - an incoming event from an Event Sourced Entity, from within the same service or from a different service. 
+ *   - state changes notification from a Value Entity on the same service.
  *
  * An Action method should return an [[kalix.scalasdk.action.Action.Effect]] that describes what to do next.
  */

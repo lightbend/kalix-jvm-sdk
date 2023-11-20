@@ -35,25 +35,26 @@ import java.util.concurrent.CompletionStage;
  *
  * <p>
  * <ul>
- *   <li>a pure function
- *   <li>request conversion - you can use Actions to convert incoming data into a different
+ *   <li>a pure function.
+ *   <li>request conversion - you can use Actions to convert incoming data into a different.
  *   format before forwarding a call to a different component.
- *   <li>publish messages to a topic
- *   <li>subscribe to events from an event-sourced entity
- *   <li>subscribe to state changes from a value entity
- *   <li>schedule and cancel timers
+ *   <li>as a face or controller to fan out to multiple calls to different components.
+ *   <li>publish messages to a Topic.
+ *   <li>subscribe to events from an Event Sourced Entity.
+ *   <li>subscribe to state changes from a Value Entity.
+ *   <li>schedule and cancel Timers.
  * </ul>
  *
  * <p>
  * Actions can be triggered in multiple ways. For example, by:
  *<ul>
- * <li>a gRPC service call
- * <li>an HTTP service call
- * <li>a forwarded call from another component
- * <li>a scheduled call from a timer
- * <li>an incoming message from a topic
- * <li>an incoming event from within the same service or a from different service
- * <li>state changes notification from a value entity on the same service
+ * <li>a gRPC service call.
+ * <li>an HTTP service call.
+ * <li>a forwarded call from another component.
+ * <li>a scheduled call from a Timer.
+ * <li>an incoming message from a Topic.
+ * <li>an incoming event from an Event Sourced Entity, from within the same service or from a different service. 
+ * <li>state changes notification from a Value Entity on the same service.
  *</ul>
  *
  * An Action method should return an {@link Effect} that describes what to do next.
@@ -117,7 +118,7 @@ public abstract class Action {
    * <p>
    * <ul>
    *   <li>reply with a message to the caller
-   *   <li>reply with a message to be published to a topic (in case the method is a publisher)
+   *   <li>reply with a message to be published to a Topic (in case the method is a publisher)
    *   <li>forward the message to another component
    *   <li>return an error
    *   <li>ignore the call
