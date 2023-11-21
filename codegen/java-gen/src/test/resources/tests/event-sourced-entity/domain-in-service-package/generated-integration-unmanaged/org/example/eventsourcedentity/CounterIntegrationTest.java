@@ -3,9 +3,9 @@ package org.example.eventsourcedentity;
 import com.google.protobuf.Empty;
 import kalix.javasdk.testkit.junit.KalixTestKitResource;
 import org.example.Main;
-import org.junit.ClassRule;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import static java.util.concurrent.TimeUnit.*;
 
@@ -21,7 +21,7 @@ public class CounterIntegrationTest {
   /**
    * The test kit starts both the service container and the Kalix proxy.
    */
-  @ClassRule
+  @RegisterExtension
   public static final KalixTestKitResource testKit =
     new KalixTestKitResource(Main.createKalix());
 
@@ -35,7 +35,7 @@ public class CounterIntegrationTest {
   }
 
   @Test
-  @Ignore("to be implemented")
+  @Disabled("to be implemented")
   public void increaseOnNonExistingEntity() throws Exception {
     // TODO: set fields in command, and provide assertions to match replies
     // client.increase(CounterApi.IncreaseValue.newBuilder().build())
@@ -43,7 +43,7 @@ public class CounterIntegrationTest {
   }
 
   @Test
-  @Ignore("to be implemented")
+  @Disabled("to be implemented")
   public void decreaseOnNonExistingEntity() throws Exception {
     // TODO: set fields in command, and provide assertions to match replies
     // client.decrease(CounterApi.DecreaseValue.newBuilder().build())

@@ -190,14 +190,14 @@ object EntityServiceSourceGenerator {
       List(service.messageType.parent.javaPackage + "." + serviceName) ++
       Seq(
         "kalix.javasdk.testkit.junit.KalixTestKitResource",
-        "org.junit.ClassRule",
-        "org.junit.Ignore",
-        "org.junit.Test",
+        "org.junit.jupiter.api.extension.RegisterExtension",
+        "org.junit.jupiter.api.Disabled",
+        "org.junit.jupiter.api.Test",
         mainClassPackageName + "." + mainClassName) ++ extraImports)
 
     val testCases = service.commands.map { command =>
       s"""|@Test
-          |@Ignore("to be implemented")
+          |@Disabled("to be implemented")
           |public void ${lowerFirst(command.name)}OnNonExistingEntity() throws Exception {
           |  // TODO: set fields in command, and provide assertions to match replies
           |  // client.${lowerFirst(command.name)}(${qualifiedType(command.inputType)}.newBuilder().build())
@@ -222,7 +222,7 @@ object EntityServiceSourceGenerator {
       |  /**
       |   * The test kit starts both the service container and the Kalix proxy.
       |   */
-      |  @ClassRule
+      |  @RegisterExtension
       |  public static final KalixTestKitResource testKit =
       |    new KalixTestKitResource(${mainClassName}.createKalix());
       |

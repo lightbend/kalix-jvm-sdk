@@ -193,15 +193,15 @@ object ValueEntityTestKitGenerator {
         "com.google.protobuf.Empty",
         "kalix.javasdk.valueentity.ValueEntity",
         "kalix.javasdk.testkit.ValueEntityResult",
-        "org.junit.Ignore",
-        "org.junit.Test"))
+        "org.junit.jupiter.api.Disabled",
+        "org.junit.jupiter.api.Test"))
 
     val entityClassName = entity.messageType.name
     val testkitClassName = s"${entityClassName}TestKit"
 
     val dummyTestCases = service.commands.map { command =>
       s"""|@Test
-          |@Ignore("to be implemented")
+          |@Disabled("to be implemented")
           |public void ${lowerFirst(command.name)}Test() {
           |  $testkitClassName service = $testkitClassName.of(${entityClassName}::new);
           |  // ${command.inputType.name} command = ${command.inputType.name}.newBuilder()...build();
@@ -215,14 +215,14 @@ object ValueEntityTestKitGenerator {
        |
        |${writeImports(imports)}
        |
-       |import static org.junit.Assert.*;
+       |import static org.junit.jupiter.api.Assertions.*;
        |
        |$unmanagedComment
        |
        |public class ${entityClassName}Test {
        |
        |  @Test
-       |  @Ignore("to be implemented")
+       |  @Disabled("to be implemented")
        |  public void exampleTest() {
        |    $testkitClassName service = $testkitClassName.of(${entityClassName}::new);
        |    // // use the testkit to execute a command
