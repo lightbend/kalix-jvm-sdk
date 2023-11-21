@@ -125,9 +125,6 @@ object Dependencies {
 
   val javaSdkTestKit = deps ++= Seq(
     testContainers,
-    // Override for security vulnerabilities. Can be removed once testcontainers is updated:
-    // https://github.com/testcontainers/testcontainers-java/issues/4308
-    "org.apache.commons" % "commons-compress" % "1.21",
     junit4 % Provided,
     junit5 % Provided,
     scalaTest % Test,
