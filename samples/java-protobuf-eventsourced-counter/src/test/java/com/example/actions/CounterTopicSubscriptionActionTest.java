@@ -6,7 +6,7 @@ import com.example.actions.CounterTopicSubscriptionAction;
 import com.example.actions.CounterTopicSubscriptionActionTestKit;
 import com.google.protobuf.Empty;
 import kalix.javasdk.testkit.ActionResult;
-import org.junit.Ignore;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -18,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class CounterTopicSubscriptionActionTest {
 
   @Test
-  @Ignore("to be implemented")
+  @Disabled("to be implemented")
   public void exampleTest() {
     CounterTopicSubscriptionActionTestKit service = CounterTopicSubscriptionActionTestKit.of(CounterTopicSubscriptionAction::new);
     // // use the testkit to execute a command
@@ -30,14 +30,14 @@ public class CounterTopicSubscriptionActionTest {
   }
 
   @Test
-  @Ignore("to be implemented")
+  @Disabled("to be implemented")
   public void onIncreasedTest() {
     CounterTopicSubscriptionActionTestKit testKit = CounterTopicSubscriptionActionTestKit.of(CounterTopicSubscriptionAction::new);
     // ActionResult<Empty> result = testKit.onIncreased(CounterTopicApi.Increased.newBuilder()...build());
   }
 
   @Test
-  @Ignore("to be implemented")
+  @Disabled("to be implemented")
   public void onDecreasedTest() {
     CounterTopicSubscriptionActionTestKit testKit = CounterTopicSubscriptionActionTestKit.of(CounterTopicSubscriptionAction::new);
     // ActionResult<Empty> result = testKit.onDecreased(CounterTopicApi.Decreased.newBuilder()...build());

@@ -6,7 +6,7 @@ import com.example.actions.CounterStateSubscriptionActionTestKit;
 import com.example.domain.CounterDomain;
 import com.google.protobuf.Empty;
 import kalix.javasdk.testkit.ActionResult;
-import org.junit.Ignore;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -18,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class CounterStateSubscriptionActionTest {
 
   @Test
-  @Ignore("to be implemented")
+  @Disabled("to be implemented")
   public void exampleTest() {
     CounterStateSubscriptionActionTestKit service = CounterStateSubscriptionActionTestKit.of(CounterStateSubscriptionAction::new);
     // // use the testkit to execute a command
@@ -30,14 +30,14 @@ public class CounterStateSubscriptionActionTest {
   }
 
   @Test
-  @Ignore("to be implemented")
+  @Disabled("to be implemented")
   public void onUpdateStateTest() {
     CounterStateSubscriptionActionTestKit testKit = CounterStateSubscriptionActionTestKit.of(CounterStateSubscriptionAction::new);
     // ActionResult<Empty> result = testKit.onUpdateState(CounterDomain.CounterState.newBuilder()...build());
   }
 
   @Test
-  @Ignore("to be implemented")
+  @Disabled("to be implemented")
   public void onDeleteEntityTest() {
     CounterStateSubscriptionActionTestKit testKit = CounterStateSubscriptionActionTestKit.of(CounterStateSubscriptionAction::new);
     // ActionResult<Empty> result = testKit.onDeleteEntity();

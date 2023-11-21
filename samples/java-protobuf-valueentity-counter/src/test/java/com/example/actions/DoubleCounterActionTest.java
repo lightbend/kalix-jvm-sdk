@@ -7,7 +7,7 @@ import com.example.actions.DoubleCounterAction;
 import com.example.actions.DoubleCounterActionTestKit;
 import com.google.protobuf.Empty;
 import org.junit.jupiter.api.Test;
-import org.junit.Ignore;
+import org.junit.jupiter.api.Disabled;
 
 import static org.junit.jupiter.api.Assertions.*;
 

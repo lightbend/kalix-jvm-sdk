@@ -70,7 +70,7 @@ public class CounterIntegrationTest {
     try {
       client.increaseWithConditional(CounterApi.IncreaseValue.newBuilder().setCounterId("new-id").setValue(-10).build())
           .toCompletableFuture().get(5, SECONDS);
-      Assert.fail("Previous method should be invalid and throw exception");
+      Assertions.fail("Previous method should be invalid and throw exception");
     } catch (ExecutionException e) {
       var suppressed = (StatusRuntimeException) e.getCause();
       assertThat(suppressed.getStatus().getCode(), is(Status.Code.INVALID_ARGUMENT));

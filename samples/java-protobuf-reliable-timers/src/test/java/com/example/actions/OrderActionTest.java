@@ -7,7 +7,7 @@ import com.example.actions.OrderActionTestKit;
 import com.example.actions.OrderApi;
 import com.google.protobuf.Empty;
 import kalix.javasdk.testkit.ActionResult;
-import org.junit.Ignore;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -19,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class OrderActionTest {
 
   @Test
-  @Ignore("to be implemented")
+  @Disabled("to be implemented")
   public void exampleTest() {
     OrderActionTestKit service = OrderActionTestKit.of(OrderAction::new);
     // // use the testkit to execute a command
@@ -31,35 +31,35 @@ public class OrderActionTest {
   }
 
   @Test
-  @Ignore("to be implemented")
+  @Disabled("to be implemented")
   public void placeOrderTest() {
     OrderActionTestKit testKit = OrderActionTestKit.of(OrderAction::new);
     // ActionResult<OrderApi.OrderNumber> result = testKit.placeOrder(OrderApi.OrderRequest.newBuilder()...build());
   }
 
   @Test
-  @Ignore("to be implemented")
+  @Disabled("to be implemented")
   public void confirmTest() {
     OrderActionTestKit testKit = OrderActionTestKit.of(OrderAction::new);
     // ActionResult<Empty> result = testKit.confirm(OrderApi.OrderNumber.newBuilder()...build());
   }
 
   @Test
-  @Ignore("to be implemented")
+  @Disabled("to be implemented")
   public void cancelTest() {
     OrderActionTestKit testKit = OrderActionTestKit.of(OrderAction::new);
     // ActionResult<Empty> result = testKit.cancel(OrderApi.OrderNumber.newBuilder()...build());
   }
 
   @Test
-  @Ignore("to be implemented")
+  @Disabled("to be implemented")
   public void expireTest() {
     OrderActionTestKit testKit = OrderActionTestKit.of(OrderAction::new);
     // ActionResult<Empty> result = testKit.expire(OrderApi.OrderNumber.newBuilder()...build());
   }
 
   @Test
-  @Ignore("to be implemented")
+  @Disabled("to be implemented")
   public void getOrderStatusTest() {
     OrderActionTestKit testKit = OrderActionTestKit.of(OrderAction::new);
     // ActionResult<OrderServiceApi.OrderStatus> result = testKit.getOrderStatus(OrderApi.OrderNumber.newBuilder()...build());
