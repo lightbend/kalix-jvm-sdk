@@ -19,6 +19,7 @@ import com.example.shoppingcart.*;
 import io.grpc.StatusRuntimeException;
 import kalix.javasdk.testkit.junit.KalixTestKitResource;
 import com.google.protobuf.Empty;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.Test;
 
@@ -38,7 +39,7 @@ public class ShoppingCartIntegrationTest {
    */
   @RegisterExtension
   public static final KalixTestKitResource testKit =
-          new KalixTestKitResource(Main.createKalix());
+    new KalixTestKitResource(Main.createKalix());
 
   /**
    * Use the generated gRPC client to call the service through the Kalix proxy.
@@ -53,72 +54,72 @@ public class ShoppingCartIntegrationTest {
 
   ShoppingCartApi.Cart getCart(String cartId) throws Exception {
     return client
-        .getCart(ShoppingCartApi.GetShoppingCart.newBuilder().setCartId(cartId).build())
-        .toCompletableFuture()
-        .get();
+      .getCart(ShoppingCartApi.GetShoppingCart.newBuilder().setCartId(cartId).build())
+      .toCompletableFuture()
+      .get();
   }
 
   void addItem(String cartId, String productId, String name, int quantity) throws Exception {
     client
-        .addItem(
-            ShoppingCartApi.AddLineItem.newBuilder()
-                .setCartId(cartId)
-                .setProductId(productId)
-                .setName(name)
-                .setQuantity(quantity)
-                .build())
-        .toCompletableFuture()
-        .get();
+      .addItem(
+        ShoppingCartApi.AddLineItem.newBuilder()
+          .setCartId(cartId)
+          .setProductId(productId)
+          .setName(name)
+          .setQuantity(quantity)
+          .build())
+      .toCompletableFuture()
+      .get();
   }
 
   void removeItem(String cartId, String productId) throws Exception {
     client
-        .removeItem(
-            ShoppingCartApi.RemoveLineItem.newBuilder()
-                .setCartId(cartId)
-                .setProductId(productId)
-                .build())
-        .toCompletableFuture()
-        .get();
+      .removeItem(
+        ShoppingCartApi.RemoveLineItem.newBuilder()
+          .setCartId(cartId)
+          .setProductId(productId)
+          .build())
+      .toCompletableFuture()
+      .get();
   }
 
   void removeCart(String cartId, String userRole) throws Exception {
     ((ShoppingCartActionClient) actionClient)
-        .removeCart().addHeader("UserRole", userRole)
-        .invoke(ShoppingCartApi.RemoveShoppingCart.newBuilder().setCartId(cartId).build())
-        .toCompletableFuture()
-        .get();
+      .removeCart().addHeader("UserRole", userRole)
+      .invoke(ShoppingCartApi.RemoveShoppingCart.newBuilder().setCartId(cartId).build())
+      .toCompletableFuture()
+      .get();
   }
 
   ShoppingCartApi.LineItem item(String productId, String name, int quantity) {
     return ShoppingCartApi.LineItem.newBuilder()
-        .setProductId(productId)
-        .setName(name)
-        .setQuantity(quantity)
-        .build();
+      .setProductId(productId)
+      .setName(name)
+      .setQuantity(quantity)
+      .build();
   }
 
   ShoppingCartController.NewCartCreated initializeCart() throws Exception {
     return actionClient.initializeCart(ShoppingCartController.NewCart.getDefaultInstance())
-        .toCompletableFuture()
-        .get();
+      .toCompletableFuture()
+      .get();
   }
 
   ShoppingCartController.NewCartCreated createPrePopulated() throws Exception {
     return actionClient.createPrePopulated(ShoppingCartController.NewCart.getDefaultInstance())
-        .toCompletableFuture()
-        .get();
+      .toCompletableFuture()
+      .get();
   }
 
   Empty verifiedAddItem(ShoppingCartApi.AddLineItem in) throws Exception {
     return actionClient.verifiedAddItem(in)
-        .toCompletableFuture()
-        .get();
+      .toCompletableFuture()
+      .get();
   }
 
   @Test
   public void emptyCartByDefault() throws Exception {
-    assertEquals("shopping cart should be empty", 0, getCart("user1").getItemsCount());
+    assertEquals(0, getCart("user1").getItemsCount(), "shopping cart should be empty");
   }
 
   @Test
@@ -127,11 +128,11 @@ public class ShoppingCartIntegrationTest {
     addItem("cart2", "b", "Banana", 2);
     addItem("cart2", "c", "Cantaloupe", 3);
     ShoppingCartApi.Cart cart = getCart("cart2");
-    assertEquals("shopping cart should have 3 items", 3, cart.getItemsCount());
+    assertEquals(3, cart.getItemsCount(), "shopping cart should have 3 items");
     assertEquals(
-        "shopping cart should have expected items",
-        cart.getItemsList(),
-        List.of(item("a", "Apple", 1), item("b", "Banana", 2), item("c", "Cantaloupe", 3)));
+      cart.getItemsList(),
+      List.of(item("a", "Apple", 1), item("b", "Banana", 2), item("c", "Cantaloupe", 3)),
+      "shopping cart should have expected items");
   }
 
   @Test
@@ -139,18 +140,18 @@ public class ShoppingCartIntegrationTest {
     addItem("cart3", "a", "Apple", 1);
     addItem("cart3", "b", "Banana", 2);
     ShoppingCartApi.Cart cart1 = getCart("cart3");
-    assertEquals("shopping cart should have 2 items", 2, cart1.getItemsCount());
+    assertEquals(2, cart1.getItemsCount(), "shopping cart should have 2 items");
     assertEquals(
-        "shopping cart should have expected items",
-        cart1.getItemsList(),
-        List.of(item("a", "Apple", 1), item("b", "Banana", 2)));
+      cart1.getItemsList(),
+      List.of(item("a", "Apple", 1), item("b", "Banana", 2)),
+      "shopping cart should have expected items");
     removeItem("cart3", "a");
     ShoppingCartApi.Cart cart2 = getCart("cart3");
-    assertEquals("shopping cart should have 1 item", 1, cart2.getItemsCount());
+    assertEquals(1, cart2.getItemsCount(), "shopping cart should have 1 item");
     assertEquals(
-        "shopping cart should have expected items",
-        cart2.getItemsList(),
-        List.of(item("b", "Banana", 2)));
+      cart2.getItemsList(),
+      List.of(item("b", "Banana", 2)),
+      "shopping cart should have expected items");
   }
 
   @Test
@@ -158,27 +159,29 @@ public class ShoppingCartIntegrationTest {
     String cartId = "cart4";
     addItem(cartId, "a", "Apple", 42);
     ShoppingCartApi.Cart cart1 = getCart(cartId);
-    assertEquals("shopping cart should have 1 item", 1, cart1.getItemsCount());
+    assertEquals(1, cart1.getItemsCount(), "shopping cart should have 1 item");
     assertEquals(
-        "shopping cart should have expected items",
-        cart1.getItemsList(),
-        List.of(item("a", "Apple", 42)));
+      cart1.getItemsList(),
+      List.of(item("a", "Apple", 42)),
+      "shopping cart should have expected items");
     removeCart(cartId, "Admin");
-    assertEquals("shopping cart should be empty", 0, getCart(cartId).getItemsCount());
+    assertEquals(0, getCart(cartId).getItemsCount(), "shopping cart should be empty");
   }
 
-  @Test(expected = ExecutionException.class)
+  @Test
   public void notRemoveCartWithoutAdminRole() throws Exception {
-    String cartId = "cart5";
-    addItem(cartId, "a", "Apple", 42);
-    ShoppingCartApi.Cart cart1 = getCart(cartId);
-    assertEquals("shopping cart should have 1 item", 1, cart1.getItemsCount());
-    assertEquals(
-        "shopping cart should have expected items",
+    Assertions.assertThrows(ExecutionException.class, () -> {
+      String cartId = "cart5";
+      addItem(cartId, "a", "Apple", 42);
+      ShoppingCartApi.Cart cart1 = getCart(cartId);
+      assertEquals(1, cart1.getItemsCount(), "shopping cart should have 1 item");
+      assertEquals(
         cart1.getItemsList(),
-        List.of(item("a", "Apple", 42)));
-    removeCart(cartId, "StandardUser");
-    assertEquals("shopping cart should have 1 item", 1, cart1.getItemsCount());
+        List.of(item("a", "Apple", 42)),
+        "shopping cart should have expected items");
+      removeCart(cartId, "StandardUser");
+      assertEquals(1, cart1.getItemsCount(), "shopping cart should have 1 item");
+    });
   }
 
   @Test
@@ -205,18 +208,18 @@ public class ShoppingCartIntegrationTest {
     final String cartId = "carrot-cart";
     assertThrows(Exception.class, () ->
       verifiedAddItem(ShoppingCartApi.AddLineItem.newBuilder()
-          .setCartId(cartId)
-          .setProductId("c")
-          .setName("Carrot")
-          .setQuantity(4)
-          .build())
+        .setCartId(cartId)
+        .setProductId("c")
+        .setName("Carrot")
+        .setQuantity(4)
+        .build())
     );
     verifiedAddItem(ShoppingCartApi.AddLineItem.newBuilder()
-        .setCartId(cartId)
-        .setProductId("b")
-        .setName("Banana")
-        .setQuantity(1)
-        .build());
+      .setCartId(cartId)
+      .setProductId("b")
+      .setName("Banana")
+      .setQuantity(1)
+      .build());
     ShoppingCartApi.Cart cart = getCart(cartId);
     assertEquals(1, cart.getItemsCount());
   }

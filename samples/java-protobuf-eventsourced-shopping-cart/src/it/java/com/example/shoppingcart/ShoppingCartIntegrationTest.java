@@ -16,6 +16,7 @@
 package com.example.shoppingcart;
 
 // tag::sample-it-test[]
+
 import kalix.javasdk.testkit.junit.KalixTestKitResource;
 // ...
 // end::sample-it-test[]
@@ -37,7 +38,7 @@ public class ShoppingCartIntegrationTest {
    */
   @RegisterExtension
   public static final KalixTestKitResource testKit =
-      new KalixTestKitResource(Main.createKalix()); // <1>
+    new KalixTestKitResource(Main.createKalix()); // <1>
 
   private final ShoppingCartService client;
 
@@ -49,7 +50,7 @@ public class ShoppingCartIntegrationTest {
 
   @Test
   public void emptyCartByDefault() throws Exception {
-    assertEquals("shopping cart should be empty", 0, getCart("user1").getItemsCount());
+    assertEquals(0, getCart("user1").getItemsCount(), "shopping cart should be empty");
   }
 
   // tag::sample-it-test[]
@@ -59,11 +60,11 @@ public class ShoppingCartIntegrationTest {
     addItem("cart2", "b", "Banana", 2);
     addItem("cart2", "c", "Cantaloupe", 3);
     ShoppingCartApi.Cart cart = getCart("cart2");
-    assertEquals("shopping cart should have 3 items", 3, cart.getItemsCount());
+    assertEquals(3, cart.getItemsCount(), "shopping cart should have 3 items");
     assertEquals(
-        "shopping cart should have expected items",
-        cart.getItemsList(),
-        List.of(item("a", "Apple", 1), item("b", "Banana", 2), item("c", "Cantaloupe", 3))
+      cart.getItemsList(),
+      List.of(item("a", "Apple", 1), item("b", "Banana", 2), item("c", "Cantaloupe", 3)),
+      "shopping cart should have expected items"
     );
   }
 
@@ -74,62 +75,63 @@ public class ShoppingCartIntegrationTest {
     addItem("cart3", "a", "Apple", 1);
     addItem("cart3", "b", "Banana", 2);
     ShoppingCartApi.Cart cart1 = getCart("cart3");
-    assertEquals("shopping cart should have 2 items", 2, cart1.getItemsCount());
+    assertEquals(2, cart1.getItemsCount(), "shopping cart should have 2 items");
     assertEquals(
-        "shopping cart should have expected items",
-        cart1.getItemsList(),
-        List.of(item("a", "Apple", 1), item("b", "Banana", 2))
+      cart1.getItemsList(),
+      List.of(item("a", "Apple", 1), item("b", "Banana", 2)),
+      "shopping cart should have expected items"
+
     );
     removeItem("cart3", "a");
     ShoppingCartApi.Cart cart2 = getCart("cart3");
-    assertEquals("shopping cart should have 1 item", 1, cart2.getItemsCount());
+    assertEquals(1, cart2.getItemsCount(), "shopping cart should have 1 item");
     assertEquals(
-        "shopping cart should have expected items",
-        cart2.getItemsList(),
-        List.of(item("b", "Banana", 2))
+      cart2.getItemsList(),
+      List.of(item("b", "Banana", 2)),
+      "shopping cart should have expected items"
     );
   }
 
   // tag::sample-it-test[]
   ShoppingCartApi.Cart getCart(String cartId) throws Exception {
     return client
-        .getCart(ShoppingCartApi.GetShoppingCart.newBuilder().setCartId(cartId).build())
-        .toCompletableFuture()
-        .get();
+      .getCart(ShoppingCartApi.GetShoppingCart.newBuilder().setCartId(cartId).build())
+      .toCompletableFuture()
+      .get();
   }
 
   void addItem(String cartId, String productId, String name, int quantity) throws Exception {
     client
-        .addItem(
-            ShoppingCartApi.AddLineItem.newBuilder()
-                .setCartId(cartId)
-                .setProductId(productId)
-                .setName(name)
-                .setQuantity(quantity)
-                .build())
-        .toCompletableFuture()
-        .get();
+      .addItem(
+        ShoppingCartApi.AddLineItem.newBuilder()
+          .setCartId(cartId)
+          .setProductId(productId)
+          .setName(name)
+          .setQuantity(quantity)
+          .build())
+      .toCompletableFuture()
+      .get();
   }
 
   // end::sample-it-test[]
   void removeItem(String cartId, String productId) throws Exception {
     client
-        .removeItem(
-            ShoppingCartApi.RemoveLineItem.newBuilder()
-                .setCartId(cartId)
-                .setProductId(productId)
-                .build())
-        .toCompletableFuture()
-        .get();
+      .removeItem(
+        ShoppingCartApi.RemoveLineItem.newBuilder()
+          .setCartId(cartId)
+          .setProductId(productId)
+          .build())
+      .toCompletableFuture()
+      .get();
   }
 
   // tag::sample-it-test[]
   ShoppingCartApi.LineItem item(String productId, String name, int quantity) {
     return ShoppingCartApi.LineItem.newBuilder()
-        .setProductId(productId)
-        .setName(name)
-        .setQuantity(quantity)
-        .build();
+      .setProductId(productId)
+      .setName(name)
+      .setQuantity(quantity)
+      .build();
   }
 }
 // end::sample-it-test[]

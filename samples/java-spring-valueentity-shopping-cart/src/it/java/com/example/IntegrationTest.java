@@ -20,10 +20,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * This is a skeleton for implmenting integration tests for a Kalix application built with the Java SDK.
- *
+ * <p>
  * This test will initiate a Kalix Proxy using testcontainers and therefore it's required to have Docker installed
  * on your machine. This test will also start your Spring Boot application.
- *
+ * <p>
  * Since this is an integration tests, it interacts with the application using a WebClient
  * (already configured and provided automatically through injection).
  */
@@ -37,37 +37,37 @@ public class IntegrationTest extends KalixIntegrationTestKitSupport {
 
   ShoppingCartDTO getCart(String cartId) {
     return
-        webClient.get()
-            .uri("/cart/" + cartId)
-            .retrieve()
-            .bodyToMono(ShoppingCartDTO.class)
-            .block(timeout);
-  }
-
-  void addItem(String cartId, String productId, String name, int quantity) throws Exception {
-        webClient.post()
-            .uri("/cart/" + cartId + "/items/add")
-            .bodyValue(new LineItemDTO(productId, name, quantity))
-            .retrieve()
-            .bodyToMono(ShoppingCartDTO.class)
-            .block(timeout);
-  }
-
-  void removeItem(String cartId, String productId) throws Exception {
-    webClient.post()
-        .uri("/cart/" + cartId + "/items/" + productId + "/remove")
+      webClient.get()
+        .uri("/cart/" + cartId)
         .retrieve()
         .bodyToMono(ShoppingCartDTO.class)
         .block(timeout);
   }
 
+  void addItem(String cartId, String productId, String name, int quantity) throws Exception {
+    webClient.post()
+      .uri("/cart/" + cartId + "/items/add")
+      .bodyValue(new LineItemDTO(productId, name, quantity))
+      .retrieve()
+      .bodyToMono(ShoppingCartDTO.class)
+      .block(timeout);
+  }
+
+  void removeItem(String cartId, String productId) throws Exception {
+    webClient.post()
+      .uri("/cart/" + cartId + "/items/" + productId + "/remove")
+      .retrieve()
+      .bodyToMono(ShoppingCartDTO.class)
+      .block(timeout);
+  }
+
   void removeCart(String cartId, String userRole) throws Exception {
     webClient.delete()
-        .uri("/carts/" + cartId)
-        .header("UserRole", userRole)
-        .retrieve()
-        .bodyToMono(String.class)
-        .block(timeout);
+      .uri("/carts/" + cartId)
+      .header("UserRole", userRole)
+      .retrieve()
+      .bodyToMono(String.class)
+      .block(timeout);
   }
 
   LineItemDTO item(String productId, String name, int quantity) {
@@ -76,35 +76,35 @@ public class IntegrationTest extends KalixIntegrationTestKitSupport {
 
   ShoppingCartDTO initializeCart() throws Exception {
     return
-        webClient.post()
-          .uri("/carts/create")
-          .retrieve()
-          .bodyToMono(ShoppingCartDTO.class)
-          .block(timeout);
+      webClient.post()
+        .uri("/carts/create")
+        .retrieve()
+        .bodyToMono(ShoppingCartDTO.class)
+        .block(timeout);
   }
 
   String createPrePopulated() throws Exception {
-    return 
-        webClient.post()
-          .uri("/carts/prepopulated")
-          .retrieve()
-          .bodyToMono(String.class)
-          .block(timeout);
+    return
+      webClient.post()
+        .uri("/carts/prepopulated")
+        .retrieve()
+        .bodyToMono(String.class)
+        .block(timeout);
   }
 
   ShoppingCartDTO verifiedAddItem(String cartId, LineItemDTO in) throws Exception {
     return
-        webClient.post()
-            .uri("/carts/" + cartId + "/items/add")
-            .bodyValue(in)
-            .retrieve()
-            .bodyToMono(ShoppingCartDTO.class)
-            .block(timeout);
+      webClient.post()
+        .uri("/carts/" + cartId + "/items/add")
+        .bodyValue(in)
+        .retrieve()
+        .bodyToMono(ShoppingCartDTO.class)
+        .block(timeout);
   }
 
   @Test
   public void emptyCartByDefault() throws Exception {
-    assertEquals("shopping cart should be empty", 0, getCart("user1").items().size());
+    assertEquals(0, getCart("user1").items().size(), "shopping cart should be empty");
   }
 
   @Test
@@ -113,11 +113,11 @@ public class IntegrationTest extends KalixIntegrationTestKitSupport {
     addItem("cart2", "b", "Banana", 2);
     addItem("cart2", "c", "Cantaloupe", 3);
     var cart = getCart("cart2");
-    assertEquals("shopping cart should have 3 items", 3, cart.items().size());
+    assertEquals(3, cart.items().size(), "shopping cart should have 3 items");
     assertEquals(
-        "shopping cart should have expected items",
-        List.of(item("a", "Apple", 1), item("b", "Banana", 2), item("c", "Cantaloupe", 3)),
-        cart.items());
+      List.of(item("a", "Apple", 1), item("b", "Banana", 2), item("c", "Cantaloupe", 3)),
+      cart.items(),
+      "shopping cart should have expected items");
   }
 
   @Test
@@ -125,31 +125,31 @@ public class IntegrationTest extends KalixIntegrationTestKitSupport {
     addItem("cart3", "a", "Apple", 1);
     addItem("cart3", "b", "Banana", 2);
     var cart1 = getCart("cart3");
-    assertEquals("shopping cart should have 2 items", 2, cart1.items().size());
+    assertEquals(2, cart1.items().size(), "shopping cart should have 2 items");
     assertEquals(
-        "shopping cart should have expected items",
-        cart1.items(),
-        List.of(item("a", "Apple", 1), item("b", "Banana", 2)));
+      cart1.items(),
+      List.of(item("a", "Apple", 1), item("b", "Banana", 2)),
+      "shopping cart should have expected items");
     removeItem("cart3", "a");
     var cart2 = getCart("cart3");
-    assertEquals("shopping cart should have 1 item", 1, cart2.items().size());
+    assertEquals(1, cart2.items().size(), "shopping cart should have 1 item");
     assertEquals(
-        "shopping cart should have expected items",
-        cart2.items(),
-        List.of(item("b", "Banana", 2)));
+      cart2.items(),
+      List.of(item("b", "Banana", 2)),
+      "shopping cart should have expected items");
   }
 
   @Test
   public void removeCart() throws Exception {
     addItem("cart4", "a", "Apple", 42);
     var cart1 = getCart("cart4");
-    assertEquals("shopping cart should have 1 item", 1, cart1.items().size());
+    assertEquals(1, cart1.items().size(), "shopping cart should have 1 item");
     assertEquals(
-        "shopping cart should have expected items",
-        cart1.items(),
-        List.of(item("a", "Apple", 42)));
+      cart1.items(),
+      List.of(item("a", "Apple", 42)),
+      "shopping cart should have expected items");
     removeCart("cart4", "Admin");
-    assertEquals("shopping cart should be empty", 0, getCart("cart4").items().size());
+    assertEquals(0, getCart("cart4").items().size(), "shopping cart should be empty");
   }
 
   @Test
@@ -163,14 +163,14 @@ public class IntegrationTest extends KalixIntegrationTestKitSupport {
   public void verifiedAddItem() throws Exception {
     final String cartId = "carrot-cart";
     assertThrows(Exception.class, () ->
-        verifiedAddItem(
-            cartId,
-            new LineItemDTO("c","Carrot", 4)
-        )
+      verifiedAddItem(
+        cartId,
+        new LineItemDTO("c", "Carrot", 4)
+      )
     );
     verifiedAddItem(
-        cartId,
-        new LineItemDTO("b", "Banana", 1));
+      cartId,
+      new LineItemDTO("b", "Banana", 1));
     var cart = getCart(cartId);
     assertEquals(1, cart.items().size());
   }
