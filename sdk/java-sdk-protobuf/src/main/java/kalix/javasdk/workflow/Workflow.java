@@ -37,6 +37,19 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 /**
+ * Workflows are stateful components and are defined by a set of steps and transitions between them.
+ * <p>
+ * You can use workflows to implement business processes that span multiple services.
+ * <p>
+ * When implementing a workflow, you define a state type and a set of steps. Each step defines a call to be executed and
+ * the transition to the next step based on the result of the call.
+ * The workflow state can be updated after each successful step execution.
+ * <p>
+ * Kalix keeps track of the state of the workflow and the current step. If the workflow is stopped for any reason,
+ * it can be resumed from the last known state and step.
+ * <p>
+ * Workflow methods that handle incoming commands should return an {@link Effect} describing the next processing actions.
+ *
  * @param <S> The type of the state for this workflow.
  */
 @ApiMayChange
@@ -132,6 +145,24 @@ public abstract class Workflow<S> {
   }
 
   /**
+   * An Effect is a description of what Kalix needs to do after the command is handled.
+   * You can think of it as a set of instructions you are passing to Kalix. Kalix will process the instructions on your
+   * behalf and ensure that any data that needs to be persisted will be persisted.
+   * <p>
+   * Each Kalix component defines its own effects, which are a set of predefined
+   * operations that match the capabilities of that component.
+   * <p>
+   * A Workflow Effect can:
+   * <p>
+   * <ul>
+   *   <li>update the state of the workflow
+   *   <li>define the next step to be executed (transition)
+   *   <li>pause the workflow
+   *   <li>end the workflow
+   *   <li>fail the step or reject a command by returning an error
+   *   <li>reply to incoming commands
+   * </ul>
+   * <p>
    * A return type to allow returning failures or attaching effects to messages.
    *
    * @param <T> The type of the message that must be returned by this call.

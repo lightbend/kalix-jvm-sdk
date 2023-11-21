@@ -2,7 +2,7 @@
 :page-aliases: spring:actions.adoc, spring:actions-as-controller.adoc, spring:side-effects.adoc, java:actions-as-controller.adoc, java:side-effects.adoc
 
 include::ROOT:partial$include.adoc[]
-include::partial$actions.adoc[]
+include::java-protobuf:partial$actions.adoc[]
 
 == Actions as Pure Functions
 

@@ -153,6 +153,20 @@ object ValueEntity {
   }
 
   /**
+   * An Effect is a description of what Kalix needs to do after the command is handled. You can think of it as a set of
+   * instructions you are passing to Kalix. Kalix will process the instructions on your behalf and ensure that any data
+   * that needs to be persisted will be persisted.
+   *
+   * Each Kalix component defines its own effects, which are a set of predefined operations that match the capabilities
+   * of that component.
+   *
+   * A ValueEntity Effect can either:
+   *
+   *   - update the entity state and send a reply to the caller
+   *   - directly reply to the caller if the command is not requesting any state change
+   *   - rejected the command by returning an error
+   *   - instruct Kalix to delete the entity
+   *
    * A return type to allow returning forwards or failures, and attaching effects to messages.
    *
    * @tparam T
@@ -173,7 +187,27 @@ object ValueEntity {
 
 }
 
-/** @tparam S The type of the state for this entity. */
+/**
+ * Value Entities persist their state on every change. You can think of them as a Key-Value entity where the key is the
+ * entity id and the value is the state of the entity.
+ *
+ * Kalix Value Entities have nothing in common with the domain-driven design concept of Value Objects. The Value in the
+ * name refers to the direct modification of the entity's state.
+ *
+ * When implementing a Value Entity, you first define what will be its internal state (your domain model), and the
+ * commands it will handle (mutation requests).
+ *
+ * Each command is handled by a command handler. Command handlers are methods returning an
+ * [[kalix.scalasdk.valueentity.ValueEntity.Effect]]. When handling a command, you use the Effect API to:
+ *
+ *   - update the entity state and send a reply to the caller
+ *   - directly reply to the caller if the command is not requesting any state change
+ *   - rejected the command by returning an error
+ *   - instruct Kalix to delete the entity
+ *
+ * @tparam S
+ *   The type of the state for this entity.
+ */
 abstract class ValueEntity[S] {
   private var _commandContext: Option[CommandContext] = None
 

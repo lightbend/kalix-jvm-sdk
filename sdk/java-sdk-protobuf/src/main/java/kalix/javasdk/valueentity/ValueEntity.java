@@ -22,13 +22,34 @@ import kalix.javasdk.Metadata;
 import kalix.javasdk.SideEffect;
 import kalix.javasdk.StatusCode;
 import kalix.javasdk.action.Action;
+import kalix.javasdk.eventsourcedentity.EventSourcedEntity;
 import kalix.javasdk.impl.valueentity.ValueEntityEffectImpl;
 import io.grpc.Status;
 
 import java.util.Collection;
 import java.util.Optional;
 
-/** @param <S> The type of the state for this entity. */
+/**
+ * Value Entities persist their state on every change. You can think of them as a Key-Value entity where
+ * the key is the entity id and the value is the state of the entity.
+ * <p>
+ * Kalix Value Entities have nothing in common with the domain-driven design concept of Value Objects.
+ * The Value in the name refers to the direct modification of the entity's state.
+ *
+ * When implementing a Value Entity, you first define what will be its internal state (your domain model),
+ * and the commands it will handle (mutation requests).
+ * <p>
+ * Each command is handled by a command handler. Command handlers are methods returning an {@link Effect}.
+ * When handling a command, you use the Effect API to:
+ * <p>
+ * <ul>
+ *   <li>update the entity state and send a reply to the caller
+ *   <li>directly reply to the caller if the command is not requesting any state change
+ *   <li>rejected the command by returning an error
+ *   <li>instruct Kalix to delete the entity
+ * </ul>
+ *
+ * @param <S> The type of the state for this entity. */
 public abstract class ValueEntity<S> {
 
   private Optional<CommandContext> commandContext = Optional.empty();
@@ -99,6 +120,22 @@ public abstract class ValueEntity<S> {
   }
 
   /**
+   * An Effect is a description of what Kalix needs to do after the command is handled.
+   * You can think of it as a set of instructions you are passing to Kalix. Kalix will process the instructions on your
+   * behalf and ensure that any data that needs to be persisted will be persisted.
+   * <p>
+   * Each Kalix component defines its own effects, which are a set of predefined
+   * operations that match the capabilities of that component.
+   * <p>
+   * A ValueEntity Effect can either:
+   * <p>
+   * <ul>
+   *   <li>update the entity state and send a reply to the caller
+   *   <li>directly reply to the caller if the command is not requesting any state change
+   *   <li>rejected the command by returning an error
+   *   <li>instruct Kalix to delete the entity
+   * </ul>
+   *
    * A return type to allow returning forwards or failures, and attaching effects to messages.
    *
    * @param <T> The type of the message that must be returned by this call.
@@ -169,7 +206,7 @@ public abstract class ValueEntity<S> {
        * Create an error reply.
        *
        * @param description The description of the error.
-       * @param statusCode A custom gRPC status code.
+       * @param grpcErrorCode A custom gRPC status code.
        * @param <T> The type of the message that must be returned by this call.
        * @return An error reply.
        */
