@@ -69,6 +69,7 @@ object Dependencies {
   val testContainers = "org.testcontainers" % "testcontainers" % TestContainersVersion
   val junit4 = "junit" % "junit" % JUnitVersion
   val junit5 = "org.junit.jupiter" % "junit-jupiter" % JUnitJupiterVersion
+  val junit5Vintage = "org.junit.vintage" % "junit-vintage-engine" % JUnitJupiterVersion
 
   val opentelemetryApi = "io.opentelemetry" % "opentelemetry-api" % OpenTelemetryVersion
   val opentelemetrySdk = "io.opentelemetry" % "opentelemetry-sdk" % OpenTelemetryVersion
@@ -125,8 +126,9 @@ object Dependencies {
 
   val javaSdkTestKit = deps ++= Seq(
     testContainers,
-    junit4 % Provided,
-    junit5 % Provided,
+    junit4,
+    junit5,
+    junit5Vintage,
     scalaTest % Test,
     kalixTestkitProtocol % "protobuf-src",
     scalapbCompilerPlugin,
