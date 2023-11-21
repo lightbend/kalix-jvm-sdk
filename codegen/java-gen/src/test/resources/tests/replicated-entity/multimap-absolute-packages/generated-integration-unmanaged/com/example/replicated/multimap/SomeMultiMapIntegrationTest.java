@@ -4,9 +4,9 @@ import com.example.replicated.multimap.domain.SomeMultiMapDomain;
 import com.google.protobuf.Empty;
 import kalix.javasdk.testkit.junit.KalixTestKitResource;
 import org.example.Main;
-import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static java.util.concurrent.TimeUnit.*;
 
