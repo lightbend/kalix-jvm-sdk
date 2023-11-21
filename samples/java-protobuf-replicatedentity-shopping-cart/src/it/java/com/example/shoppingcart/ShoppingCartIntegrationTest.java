@@ -5,15 +5,15 @@ import com.example.shoppingcart.Main;
 import com.example.shoppingcart.ShoppingCartApi;
 import com.example.shoppingcart.ShoppingCartService;
 import io.grpc.StatusRuntimeException;
-import org.junit.ClassRule;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.junit.rules.ExpectedException;
 
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.hamcrest.CoreMatchers.instanceOf;
 
 // This class was initially generated based on the .proto definition by Kalix tooling.
@@ -26,7 +26,7 @@ import static org.hamcrest.CoreMatchers.instanceOf;
 public class ShoppingCartIntegrationTest {
 
   /** The test kit starts both the service container and the Kalix proxy. */
-  @ClassRule
+  @RegisterExtension
   public static final KalixTestKitResource testKit =
       new KalixTestKitResource(Main.createKalix());
 

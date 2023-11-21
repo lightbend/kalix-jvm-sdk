@@ -14,8 +14,8 @@ import java.time.Duration;
 import java.util.List;
 
 import static java.time.temporal.ChronoUnit.SECONDS;
-import static org.junit.Assert.*;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
 /**

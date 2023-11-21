@@ -6,8 +6,8 @@ package shopping.cart.api;
 
 import kalix.javasdk.testkit.junit.KalixTestKitResource;
 import com.google.protobuf.Empty;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.api.Test;
 import shopping.cart.Main;
 import shopping.cart.api.ShoppingCartApi;
 import shopping.cart.api.ShoppingCart;
@@ -21,7 +21,7 @@ public class ShoppingCartEntityIntegrationTest {
   /**
    * The test kit starts both the service container and the Kalix proxy.
    */
-  @ClassRule
+  @RegisterExtension
   public static final KalixTestKitResource testKit =
     new KalixTestKitResource(Main.createKalix());
 

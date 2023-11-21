@@ -4,11 +4,11 @@ import kalix.javasdk.testkit.junit.KalixTestKitResource;
 import com.example.replicated.Main;
 import com.example.replicated.counter.CounterService;
 import com.example.replicated.counter.SomeCounterApi;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.api.Test;
 
 import static java.util.concurrent.TimeUnit.*;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 // This class was initially generated based on the .proto definition by Kalix tooling.
 //
@@ -20,7 +20,7 @@ import static org.junit.Assert.assertEquals;
 public class SomeCounterIntegrationTest {
 
   /** The test kit starts both the service container and the Kalix proxy. */
-  @ClassRule
+  @RegisterExtension
   public static final KalixTestKitResource testKit =
       new KalixTestKitResource(Main.createKalix());
 

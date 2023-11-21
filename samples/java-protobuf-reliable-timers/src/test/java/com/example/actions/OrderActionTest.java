@@ -8,8 +8,8 @@ import com.example.actions.OrderApi;
 import com.google.protobuf.Empty;
 import kalix.javasdk.testkit.ActionResult;
 import org.junit.Ignore;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 // This class was initially generated based on the .proto definition by Kalix tooling.
 //

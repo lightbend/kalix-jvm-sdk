@@ -2,17 +2,17 @@ package store.order.api;
 
 import kalix.javasdk.testkit.KalixTestKit;
 import kalix.javasdk.testkit.junit.KalixTestKitResource;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.api.Test;
 import store.Main;
 
 import static java.util.concurrent.TimeUnit.*;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 // Run all test classes ending with "IntegrationTest" using `mvn verify -Pit`
 public class OrderEntityIntegrationTest {
 
-  @ClassRule
+  @RegisterExtension
   public static final KalixTestKitResource testKit =
       new KalixTestKitResource(
           Main.createKalix(), KalixTestKit.Settings.DEFAULT.withAdvancedViews());

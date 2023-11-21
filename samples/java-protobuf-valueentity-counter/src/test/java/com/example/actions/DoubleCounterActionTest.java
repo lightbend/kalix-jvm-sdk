@@ -6,10 +6,10 @@ import com.example.CounterApi;
 import com.example.actions.DoubleCounterAction;
 import com.example.actions.DoubleCounterActionTestKit;
 import com.google.protobuf.Empty;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.junit.Ignore;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 // This class was initially generated based on the .proto definition by Kalix tooling.
 //

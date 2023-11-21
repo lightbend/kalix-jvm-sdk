@@ -19,15 +19,15 @@ import com.example.shoppingcart.*;
 import io.grpc.StatusRuntimeException;
 import kalix.javasdk.testkit.junit.KalixTestKitResource;
 import com.google.protobuf.Empty;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ExecutionException;
 
 import static java.util.concurrent.TimeUnit.*;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 // Example of an integration test calling our service via the Kalix proxy
 // Run all test classes ending with "IntegrationTest" using `mvn verify -Pit`
@@ -36,7 +36,7 @@ public class ShoppingCartIntegrationTest {
   /**
    * The test kit starts both the service container and the Kalix proxy.
    */
-  @ClassRule
+  @RegisterExtension
   public static final KalixTestKitResource testKit =
           new KalixTestKitResource(Main.createKalix());
 

@@ -12,8 +12,8 @@ import com.example.actions.CounterTopicApi;
 import com.example.domain.CounterDomain;
 import com.google.protobuf.Any;
 import com.google.protobuf.Empty;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 public class CounterJournalToTopicActionTest {

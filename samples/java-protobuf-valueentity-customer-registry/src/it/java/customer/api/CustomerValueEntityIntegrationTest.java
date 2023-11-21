@@ -4,8 +4,8 @@ import kalix.javasdk.testkit.junit.KalixTestKitResource;
 import com.google.protobuf.Empty;
 import customer.Main;
 import customer.domain.CustomerDomain;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.api.Test;
 
 import static java.util.concurrent.TimeUnit.*;
 
@@ -21,7 +21,7 @@ public class CustomerValueEntityIntegrationTest {
   /**
    * The test kit starts both the service container and the Kalix proxy.
    */
-  @ClassRule
+  @RegisterExtension
   public static final KalixTestKitResource testKit =
     new KalixTestKitResource(Main.createKalix());
 

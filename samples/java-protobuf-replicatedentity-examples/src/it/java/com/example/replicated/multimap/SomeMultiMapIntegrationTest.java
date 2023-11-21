@@ -4,8 +4,8 @@ import kalix.javasdk.testkit.junit.KalixTestKitResource;
 import com.example.replicated.Main;
 import com.example.replicated.multimap.MultiMapService;
 import com.example.replicated.multimap.SomeMultiMapApi;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.List;
@@ -29,7 +29,7 @@ import static org.hamcrest.Matchers.is;
 public class SomeMultiMapIntegrationTest {
 
   /** The test kit starts both the service container and the Kalix proxy. */
-  @ClassRule
+  @RegisterExtension
   public static final KalixTestKitResource testKit =
       new KalixTestKitResource(Main.createKalix());
 

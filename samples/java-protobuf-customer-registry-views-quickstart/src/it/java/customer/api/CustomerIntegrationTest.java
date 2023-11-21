@@ -5,11 +5,11 @@ import kalix.javasdk.testkit.junit.KalixTestKitResource;
 import customer.Main;
 import customer.api.CustomerApi;
 import customer.api.CustomerService;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.api.Test;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 // This class was initially generated based on the .proto definition by Kalix tooling.
 //
@@ -23,7 +23,7 @@ public class CustomerIntegrationTest {
   /**
    * The test kit starts both the service container and the Kalix proxy.
    */
-  @ClassRule
+  @RegisterExtension
   public static final KalixTestKitResource testKit =
           new KalixTestKitResource(Main.createKalix());
 

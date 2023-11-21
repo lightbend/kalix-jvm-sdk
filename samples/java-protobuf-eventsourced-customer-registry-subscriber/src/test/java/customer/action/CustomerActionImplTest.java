@@ -1,7 +1,7 @@
 package customer.action;
 
 import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 // This class was initially generated based on the .proto definition by Kalix tooling.
 //
