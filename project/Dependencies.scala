@@ -27,7 +27,7 @@ object Dependencies {
   val TestContainersVersion = "1.17.6"
   val JUnitVersion = "4.13.2"
   val JUnitInterfaceVersion = "0.11"
-  val JUnitJupiterVersion = "5.7.1"
+  val JUnitJupiterVersion = "5.10.1"
   val SpringFrameworkVersion = "6.0.13"
   // make sure to sync spring-boot-starter-parent version in samples and archetype to this version
   val SpringBootVersion = "3.1.5"
