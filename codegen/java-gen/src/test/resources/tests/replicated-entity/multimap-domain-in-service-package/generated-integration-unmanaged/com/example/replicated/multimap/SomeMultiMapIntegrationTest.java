@@ -1,7 +1,7 @@
 package com.example.replicated.multimap;
 
 import com.google.protobuf.Empty;
-import kalix.javasdk.testkit.jupiter.KalixTestKitExtension;
+import kalix.javasdk.testkit.junit.jupiter.KalixTestKitExtension;
 import org.example.Main;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;

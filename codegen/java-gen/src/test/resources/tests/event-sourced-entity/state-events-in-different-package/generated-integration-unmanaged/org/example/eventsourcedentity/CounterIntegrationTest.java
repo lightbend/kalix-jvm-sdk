@@ -1,7 +1,7 @@
 package org.example.eventsourcedentity;
 
 import com.google.protobuf.Empty;
-import kalix.javasdk.testkit.jupiter.KalixTestKitExtension;
+import kalix.javasdk.testkit.junit.jupiter.KalixTestKitExtension;
 import org.example.Main;
 import org.example.eventsourcedentity.state.OuterCounterState;
 import org.junit.jupiter.api.Disabled;

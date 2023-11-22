@@ -5,7 +5,7 @@ import customer.domain.CustomerDomain.Address;
 import customer.domain.CustomerDomain.CustomerState;
 import customer.view.CustomerViewModel.ByCityRequest;
 import kalix.javasdk.testkit.EventingTestKit;
-import kalix.javasdk.testkit.jupiter.KalixTestKitExtension;
+import kalix.javasdk.testkit.junit.jupiter.KalixTestKitExtension;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.Test;
 

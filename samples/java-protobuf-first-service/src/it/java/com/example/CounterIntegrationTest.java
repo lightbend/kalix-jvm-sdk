@@ -1,6 +1,6 @@
 package com.example;
 
-import kalix.javasdk.testkit.jupiter.KalixTestKitExtension;
+import kalix.javasdk.testkit.junit.jupiter.KalixTestKitExtension;
 import com.example.domain.CounterDomain;
 import com.google.protobuf.Empty;
 import org.junit.jupiter.api.extension.RegisterExtension;

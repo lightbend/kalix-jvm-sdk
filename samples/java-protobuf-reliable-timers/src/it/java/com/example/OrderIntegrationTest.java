@@ -4,7 +4,7 @@ import com.example.actions.Order;
 import com.example.actions.OrderApi;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
-import kalix.javasdk.testkit.jupiter.KalixTestKitExtension;
+import kalix.javasdk.testkit.junit.jupiter.KalixTestKitExtension;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.Test;

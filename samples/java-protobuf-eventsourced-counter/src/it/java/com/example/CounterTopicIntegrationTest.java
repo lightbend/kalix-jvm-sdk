@@ -9,7 +9,7 @@ import kalix.javasdk.CloudEvent;
 // tag::test-topic[]
 import kalix.javasdk.testkit.EventingTestKit;
 import kalix.javasdk.testkit.KalixTestKit;
-import kalix.javasdk.testkit.jupiter.KalixTestKitExtension;
+import kalix.javasdk.testkit.junit.jupiter.KalixTestKitExtension;
 // ...
 // end::test-topic[]
 import org.junit.jupiter.api.BeforeEach;

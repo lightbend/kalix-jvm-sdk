@@ -4,7 +4,7 @@ import com.google.protobuf.Empty;
 import customer.Main;
 import kalix.javasdk.testkit.EventingTestKit;
 import kalix.javasdk.testkit.KalixTestKit;
-import kalix.javasdk.testkit.jupiter.KalixTestKitExtension;
+import kalix.javasdk.testkit.junit.jupiter.KalixTestKitExtension;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 

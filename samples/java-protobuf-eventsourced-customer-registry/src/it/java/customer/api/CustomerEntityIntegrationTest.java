@@ -1,6 +1,6 @@
 package customer.api;
 
-import kalix.javasdk.testkit.jupiter.KalixTestKitExtension;
+import kalix.javasdk.testkit.junit.jupiter.KalixTestKitExtension;
 import com.google.protobuf.Empty;
 import customer.Main;
 import customer.domain.CustomerDomain;

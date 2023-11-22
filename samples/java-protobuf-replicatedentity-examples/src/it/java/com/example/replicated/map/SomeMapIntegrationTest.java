@@ -1,6 +1,6 @@
 package com.example.replicated.map;
 
-import kalix.javasdk.testkit.jupiter.KalixTestKitExtension;
+import kalix.javasdk.testkit.junit.jupiter.KalixTestKitExtension;
 import com.example.replicated.Main;
 import com.example.replicated.map.MapService;
 import com.example.replicated.map.SomeMapApi;

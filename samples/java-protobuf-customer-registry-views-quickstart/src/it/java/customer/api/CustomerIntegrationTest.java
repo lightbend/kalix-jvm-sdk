@@ -1,7 +1,7 @@
 package customer.api;
 
 import java.util.UUID;
-import kalix.javasdk.testkit.jupiter.KalixTestKitExtension;
+import kalix.javasdk.testkit.junit.jupiter.KalixTestKitExtension;
 import customer.Main;
 import customer.api.CustomerApi;
 import customer.api.CustomerService;

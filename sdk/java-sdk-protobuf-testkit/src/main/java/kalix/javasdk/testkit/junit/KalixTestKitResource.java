@@ -41,7 +41,7 @@ import org.junit.rules.ExternalResource;
  * <p>Example:
  *
  * <pre>
- * import kalix.javasdk.testkit.jupiter.KalixTestKitExtension;
+ * import kalix.javasdk.testkit.junit.jupiter.KalixTestKitExtension;
  *
  * public class MyKalixIntegrationTest {
  *

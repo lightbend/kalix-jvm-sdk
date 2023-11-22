@@ -3,7 +3,7 @@ package customer.api;
 import com.google.protobuf.Empty;
 import customer.Main;
 import kalix.javasdk.testkit.KalixTestKit;
-import kalix.javasdk.testkit.jupiter.KalixTestKitExtension;
+import kalix.javasdk.testkit.junit.jupiter.KalixTestKitExtension;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;

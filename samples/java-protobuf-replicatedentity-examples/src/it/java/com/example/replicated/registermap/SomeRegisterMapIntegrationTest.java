@@ -1,6 +1,6 @@
 package com.example.replicated.registermap;
 
-import kalix.javasdk.testkit.jupiter.KalixTestKitExtension;
+import kalix.javasdk.testkit.junit.jupiter.KalixTestKitExtension;
 import com.example.replicated.Main;
 import com.example.replicated.registermap.RegisterMapService;
 import com.example.replicated.registermap.SomeRegisterMapApi;

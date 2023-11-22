@@ -1,7 +1,7 @@
 package store.view.structured;
 
 import kalix.javasdk.testkit.KalixTestKit;
-import kalix.javasdk.testkit.jupiter.KalixTestKitExtension;
+import kalix.javasdk.testkit.junit.jupiter.KalixTestKitExtension;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.Test;
 import store.Main;

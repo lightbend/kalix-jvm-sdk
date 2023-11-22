@@ -17,7 +17,7 @@ package com.example.shoppingcart;
 
 // tag::sample-it-test[]
 
-import kalix.javasdk.testkit.jupiter.KalixTestKitExtension;
+import kalix.javasdk.testkit.junit.jupiter.KalixTestKitExtension;
 // ...
 // end::sample-it-test[]
 import org.junit.jupiter.api.extension.RegisterExtension;

@@ -189,7 +189,7 @@ object EntityServiceSourceGenerator {
       packageName,
       List(service.messageType.parent.javaPackage + "." + serviceName) ++
       Seq(
-        "kalix.javasdk.testkit.jupiter.KalixTestKitExtension",
+        "kalix.javasdk.testkit.junit.jupiter.KalixTestKitExtension",
         "org.junit.jupiter.api.extension.RegisterExtension",
         "org.junit.jupiter.api.Disabled",
         "org.junit.jupiter.api.Test",

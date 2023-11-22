@@ -42,13 +42,13 @@ import org.junit.rules.ExternalResource;
  * <p>Example:
  *
  * <pre>
- * import kalix.javasdk.testkit.jupiter.KalixTestKitExtension;
+ * import kalix.javasdk.testkit.junit.jupiter.KalixTestKitExtension;
  *
  * public class MyKalixIntegrationTest {
  *
  *   private static final Kalix MY_KALIX = new Kalix(); // with registered services
  *
- *   &#64;ClassRule
+ *   &#64;RegisterExtension
  *   public static final KalixTestKitExtension testKit = new KalixTestKitExtension(MY_KALIX);
  *
  *   private final MyServiceClient client; // generated Akka gRPC client

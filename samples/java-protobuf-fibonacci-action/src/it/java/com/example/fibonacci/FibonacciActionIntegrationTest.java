@@ -1,6 +1,6 @@
 package com.example.fibonacci;
 
-import kalix.javasdk.testkit.jupiter.KalixTestKitExtension;
+import kalix.javasdk.testkit.junit.jupiter.KalixTestKitExtension;
 import com.example.Main;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.extension.RegisterExtension;

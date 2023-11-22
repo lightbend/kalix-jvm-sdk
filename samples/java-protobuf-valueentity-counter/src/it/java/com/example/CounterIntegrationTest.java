@@ -8,7 +8,7 @@ package com.example;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
 // tag::sample-it-test[]
-import kalix.javasdk.testkit.jupiter.KalixTestKitExtension;
+import kalix.javasdk.testkit.junit.jupiter.KalixTestKitExtension;
 // ...
 // end::sample-it-test[]
 import org.junit.jupiter.api.Assertions;
