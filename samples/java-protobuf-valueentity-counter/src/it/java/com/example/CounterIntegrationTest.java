@@ -27,14 +27,14 @@ import static org.hamcrest.MatcherAssert.assertThat;
 public class CounterIntegrationTest {
 
   /**
-   * The test kit starts both the service container and the Kalix proxy.
+   * The test kit starts both the service container and the Kalix Runtime.
    */
   @RegisterExtension
   public static final KalixTestKitResource testKit =
       new KalixTestKitResource(Main.createKalix()); // <1>
 
   /**
-   * Use the generated gRPC client to call the service through the Kalix proxy.
+   * Use the generated gRPC client to call the service through the Kalix Runtime.
    */
   private final CounterService client;
 

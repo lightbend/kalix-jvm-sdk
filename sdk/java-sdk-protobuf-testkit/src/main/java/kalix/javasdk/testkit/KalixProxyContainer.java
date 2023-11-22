@@ -28,10 +28,10 @@ import org.testcontainers.utility.DockerImageName;
 import static kalix.javasdk.testkit.KalixTestKit.Settings.EventingSupport.GOOGLE_PUBSUB;
 import static kalix.javasdk.testkit.KalixTestKit.Settings.EventingSupport.KAFKA;
 
-/** Docker test container of Kalix proxy for local development and testing. */
+/** Docker test container of Kalix Runtime for local development and testing. */
 public class KalixProxyContainer extends GenericContainer<KalixProxyContainer> {
 
-  /** Default Testcontainers DockerImageName for the Kalix proxy. */
+  /** Default Testcontainers DockerImageName for the Kalix Runtime. */
   public static final DockerImageName DEFAULT_PROXY_IMAGE_NAME;
 
   /** Default proxy port (9000). */
@@ -109,7 +109,7 @@ public class KalixProxyContainer extends GenericContainer<KalixProxyContainer> {
   }
 
   /**
-   * Get the mapped port for the Kalix proxy container.
+   * Get the mapped port for the Kalix Runtime container.
    *
    * @return port for the local Kalix service
    */

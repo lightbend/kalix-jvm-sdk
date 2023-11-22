@@ -73,7 +73,7 @@ public class KalixConfigurationTest {
     logger.info("Starting Kalix TestKit...");
     KalixTestKit kalixTestKit = new KalixTestKit(kalixSpringApplication.kalix(), new JsonMessageCodec(), settings);
     kalixTestKit.start(kalixConfiguration.config());
-    logger.info("Kalix Proxy running on port: " + kalixTestKit.getPort());
+    logger.info("Kalix Runtime running on port: " + kalixTestKit.getPort());
     //when ComponentClient is used in integration test, we must initiate webclient before the first request
     WebClientProviderHolder holder = WebClientProviderHolder.get(kalixTestKit.getRunner().system());
     kalixSpringApplication.kalixClient().setWebClient(holder.webClientProvider().localWebClient());

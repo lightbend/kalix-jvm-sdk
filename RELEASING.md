@@ -3,7 +3,7 @@
 Create a release issue (using the [GitHub CLI](https://cli.github.com/))
 
 ```shell
-gh issue create --title 'Release Kalix Java/Scala SDKs' --label kalix-proxy --body-file docs/release-issue-template.md -w
+gh issue create --title 'Release Kalix Java/Scala SDKs' --label kalix-runtime --body-file docs/release-issue-template.md -w
 ````
 
 and follow the instructions.

@@ -83,10 +83,10 @@ object KalixPlugin extends AutoPlugin {
       // redefine run task in other to be able to print the warning below
       Compile / run := Def.inputTaskDyn {
         val logger = streams.value.log
-        logger.warn("Kalix Proxy won't start.")
+        logger.warn("Kalix Runtime won't start.")
         logger.warn("--------------------------------------------------------------------------------------")
         logger.warn("To test this application locally you should either run it using 'sbt runAll'")
-        logger.warn("or start the Kalix Proxy by hand using the provided docker-compose file.")
+        logger.warn("or start the Kalix Runtime by hand using the provided docker-compose file.")
         logger.warn("--------------------------------------------------------------------------------------")
 
         val userArgs = {
@@ -132,7 +132,7 @@ object KalixPlugin extends AutoPlugin {
       },
       Compile / runAll := Def.inputTaskDyn {
         val logger = streams.value.log
-        logger.info("Kalix Proxy container will start in the background")
+        logger.info("Kalix Runtime container will start in the background")
         logger.info("--------------------------------------------------------------------------------------")
 
         val userArgs = {

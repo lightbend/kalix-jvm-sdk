@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 public class FibonacciActionIntegrationTest {
   /**
-   * The test kit starts both the service container and the Kalix proxy.
+   * The test kit starts both the service container and the Kalix Runtime.
    */
   @RegisterExtension
   public static final KalixTestKitResource testKit =

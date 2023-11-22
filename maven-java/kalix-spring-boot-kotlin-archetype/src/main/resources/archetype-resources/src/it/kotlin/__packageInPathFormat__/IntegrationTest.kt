@@ -15,7 +15,7 @@ import org.springframework.web.reactive.function.client.WebClient
 /**
  * This is a skeleton for implementing integration tests for a Kalix application built with the Java SDK.
  *
- * This test will initiate a Kalix Proxy using testcontainers and therefore it's required to have Docker installed
+ * This test will initiate a Kalix Runtime using testcontainers and therefore it's required to have Docker installed
  * on your machine. This test will also start your Spring Boot application.
  *
  * Since this is an integration tests, it interacts with the application using a WebClient

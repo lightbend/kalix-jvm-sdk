@@ -19,7 +19,7 @@ mvn compile
 
 ## Running Locally
 
-When running a Kalix service locally, we need to have its companion Kalix Proxy running alongside it.
+When running a Kalix service locally, we need to have its companion Kalix Runtime running alongside it.
 
 To start your service locally, run:
 
@@ -27,9 +27,9 @@ To start your service locally, run:
 mvn kalix:runAll
 ```
 
-This command will start your Kalix service and a companion Kalix Proxy as configured in [docker-compose.yml](./docker-compose.yml) file.
+This command will start your Kalix service and a companion Kalix Runtime as configured in [docker-compose.yml](./docker-compose.yml) file.
 
-With both the proxy and your service running, any defined endpoints should be available at `http://localhost:9000`.
+With both the Kalix Runtime and your service running, any defined endpoints should be available at `http://localhost:9000`.
 In addition to the defined gRPC interface, each method has a corresponding HTTP endpoint. Unless configured otherwise (
 see [Transcoding HTTP](https://docs.kalix.io/java/writing-grpc-descriptors-protobuf.html#_transcoding_http)), this
 endpoint accepts POST requests at the path `/[package].[entity name]/[method]`. For example, using `curl`.

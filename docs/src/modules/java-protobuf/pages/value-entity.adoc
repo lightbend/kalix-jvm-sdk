@@ -294,7 +294,7 @@ Java::
 ----
 include::example$java-protobuf-valueentity-counter/src/it/java/com/example/CounterIntegrationTest.java[tag=sample-it-test]
 ----
-<1> Using the TestKit to create the service container and Kalix Proxy.
+<1> Using the TestKit to create the service container and Kalix Runtime.
 <2> Creating a client for interacting with the gRPC endpoints for `CounterService`.
 <3> Increasing counter and asserting on its current status.
 +
@@ -307,7 +307,7 @@ Scala::
 ----
 include::example$scala-protobuf-valueentity-counter/src/test/scala/com/example/CounterServiceIntegrationSpec.scala[tag=sample-it-test]
 ----
-<1> Using the TestKit to create the service container and Kalix Proxy.
+<1> Using the TestKit to create the service container and Kalix Runtime.
 <2> Creating a client for interacting with the gRPC endpoints for `CounterService`.
 <3> Asserting on current value of counter after being increased.
 <4> Shutting down TestKit resources after test concludes.

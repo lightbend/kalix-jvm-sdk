@@ -22,7 +22,7 @@ services:
     depends_on:
       - zookeeper
     ports:
-      - 9092:9092 # used when running clients from containerized Kalix proxy
+      - 9092:9092 # used when running clients from containerized Kalix Runtime
       - 9093:9093 # used when running non-docker clients from host
     environment:
       KAFKA_BROKER_ID: 1

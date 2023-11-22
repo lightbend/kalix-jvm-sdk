@@ -36,10 +36,10 @@ import org.springframework.web.reactive.function.client.WebClient
 /**
  * Auto-configuration for Kalix TestKit.
  *
- * When in the classpath, it disables the default KalixConfiguration that would normally start the Kalix proxy.
+ * When in the classpath, it disables the default KalixConfiguration that would normally start the Kalix Runtime.
  *
- * This configuration is also marked as `@Lazy` to avoid starting the Kalix proxy automatically. The KalixTestKit, and
- * by consequence the Kalix Proxy, will only start if a test requires it.
+ * This configuration is also marked as `@Lazy` to avoid starting the Kalix Runtime automatically. The KalixTestKit, and
+ * by consequence the Kalix Runtime, will only start if a test requires it.
  *
  * For example, a test extending [[kalix.spring.testkit.KalixIntegrationTestKitSupport]] will automatically trigger the
  * initialization of the testkit, but a regular test will not. This allows for a more flexible setup in case we want
@@ -82,7 +82,7 @@ class KalixConfigurationTest(applicationContext: ApplicationContext) extends Kal
     //when ComponentClient is used in integration test, we must initiate webclient before the first request
     kalixSpringApplication.kalixClient.setWebClient(holder.webClientProvider.localWebClient)
 
-    logger.info(s"Kalix Proxy running on port: ${kalixTestKit.getPort}")
+    logger.info(s"Kalix Runtime running on port: ${kalixTestKit.getPort}")
     kalixTestKit
   }
 

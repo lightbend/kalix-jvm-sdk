@@ -205,7 +205,7 @@ include::java:partial$eventing-testkit-intro.adoc[leveloffset=1]
 ----
 include::example$java-spring-eventsourced-counter/src/it/java/com/example/CounterIntegrationTest.java[tags=class;test-topic]
 ----
-<1> Start the TestKit, booting up both the service and its proxy.
+<1> Start the TestKit, booting up both the service and the Kalix Runtime.
 <2> Wire the Kalix TestKit automatically.
 <3> Get a `IncomingMessages` for topic named `counter-commands` and `OutgoingMessages` for `counter-events` from the TestKit.
 <4> Build 2 commands and publish both to the topic. Note the `counterId` is passed as the subject id of the message.

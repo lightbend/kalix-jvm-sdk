@@ -371,7 +371,7 @@ Java::
 ----
 include::example$java-protobuf-eventsourced-shopping-cart/src/it/java/com/example/shoppingcart/ShoppingCartIntegrationTest.java[tag=sample-it-test]
 ----
-<1> Using the TestKit to create the service container and Kalix Proxy.
+<1> Using the TestKit to create the service container and Kalix Runtime.
 <2> Creating a client for interacting with the gRPC endpoints for `ShoppingCartService`.
 <3> Add items to cart using and assert on its current list of items.
 +
@@ -384,7 +384,7 @@ Scala::
 ----
 include::example$scala-protobuf-eventsourced-shopping-cart/src/test/scala/com/example/shoppingcart/ShoppingCartServiceIntegrationSpec.scala[tag=sample-it-test]
 ----
-<1> Using the TestKit to create the service container and Kalix Proxy.
+<1> Using the TestKit to create the service container and Kalix Runtime.
 <2> Creating a client for interacting with the gRPC endpoints for `CounterService`.
 <3> Add items to cart using and assert on its current list of items.
 <4> Shutting down TestKit resources after test concludes.

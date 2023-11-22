@@ -1,6 +1,6 @@
 Timers allow for scheduling calls in the future. For example, to verify that some process have been completed or not.
 
-Timers are persisted in the https://docs.kalix.io/reference/glossary.html#proxy[Kalix proxy] and are guaranteed to run at least once.
+Timers are persisted in the https://docs.kalix.io/reference/glossary.html#proxy[Kalix Runtime] and are guaranteed to run at least once.
 
 When a timer is triggered, the scheduled call is executed. If successfully executed, the timer completes and is automatically removed.
 In case of a failure, the timer is rescheduled with a delay of 3 seconds. This process repeats until the call succeeds.
