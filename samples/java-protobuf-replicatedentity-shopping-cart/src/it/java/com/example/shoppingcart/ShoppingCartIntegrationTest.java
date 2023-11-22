@@ -2,7 +2,7 @@ package com.example.shoppingcart;
 
 import io.grpc.StatusRuntimeException;
 import kalix.javasdk.testkit.junit.KalixTestKitResource;
-import org.junit.Rule;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.rules.ExpectedException;
@@ -122,8 +122,6 @@ public class ShoppingCartIntegrationTest {
       "shopping cart should have expected items");
   }
 
-  @Rule
-  public ExpectedException exceptionRule = ExpectedException.none();
 
   @Test
   public void removeCart() throws Exception {
@@ -135,9 +133,13 @@ public class ShoppingCartIntegrationTest {
       cart1.getItemsList(),
       "shopping cart should have expected items");
     removeCart("cart4");
-    exceptionRule.expect(ExecutionException.class);
-    exceptionRule.expectMessage("INTERNAL: Entity deleted");
-    exceptionRule.expectCause(instanceOf(StatusRuntimeException.class));
-    getCart("cart4");
+
+    var cause =
+      Assertions.assertThrows(
+        ExecutionException.class,
+        () -> getCart("cart4"),
+        "INTERNAL: Entity deleted").getCause();
+    instanceOf(StatusRuntimeException.class).matches(cause);
+
   }
 }
