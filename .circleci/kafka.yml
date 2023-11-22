@@ -6,12 +6,12 @@ services:
     depends_on:
       - zookeeper
     ports:
-      - 9092:9092 # used when running clients from containerized Kalix proxy
+      - 9092:9092 # used when running clients from containerized Kalix runtime
       - 9093:9093 # used when running non-docker clients from host
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      # advertised listener running on port 9092 must be accessible to kalix-proxy container running for integration tests
+      # advertised listener running on port 9092 must be accessible to kalix-runtime container running for integration tests
       # therefore we need to use host.testcontainers.internal (testcontainers's bridge address) to access it through the host machine
       # advertised listener running on port 9093 is to be used by non-docker clients running on host machine
       KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka:29092,EXTERNAL_DOCKER://host.testcontainers.internal:9092,HOST://localhost:9093

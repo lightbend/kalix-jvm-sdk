@@ -18,7 +18,7 @@ mvn verify
 
 ## Running Locally
 
-When running a Kalix service locally, we need to have its companion Kalix Proxy running alongside it.
+When running a Kalix service locally, we need to have its companion Kalix Runtime running alongside it.
 
 To start your service locally, run:
 
@@ -26,13 +26,13 @@ To start your service locally, run:
 mvn kalix:runAll
 ```
 
-This command will start your Kalix service and a companion Kalix Proxy as configured in [docker-compose.yml](./docker-compose.yml) file.
+This command will start your Kalix service and a companion Kalix Runtime as configured in [docker-compose.yml](./docker-compose.yml) file.
 
 For further details see [Running a service locally](https://docs.kalix.io/developing/running-service-locally.html) in the documentation.
 
 ## Exercise the service
 
-With both the proxy and your service running, any defined endpoints should be available at `http://localhost:9000`.
+With both the Kalix Runtime and your service running, any defined endpoints should be available at `http://localhost:9000`.
 
 ## Deploying
 

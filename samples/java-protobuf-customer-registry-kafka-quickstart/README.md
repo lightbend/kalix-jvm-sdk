@@ -21,7 +21,7 @@ mvn compile
 
 ## Running Locally
 
-When running this Kalix service locally, we need to have its companion Kalix Proxy, a Kafka broker and a Zookeeper running alongside it.
+When running this Kalix service locally, we need to have its companion Kalix Runtime, a Kafka broker and a Zookeeper running alongside it.
 
 To start your service locally, run:
 
@@ -29,7 +29,7 @@ To start your service locally, run:
 mvn kalix:runAll
 ```
 
-This command will start the Kalix service, the Kalix Proxy, a local Kafka broker and a Zookeeper using the included [docker-compose.yml](./docker-compose.yml) file.
+This command will start the Kalix service, the Kalix Runtime, a local Kafka broker and a Zookeeper using the included [docker-compose.yml](./docker-compose.yml) file.
 
 It can make sense to delete the existing containers (if any exist) and start from scratch when starting up the Kafka container.
 
@@ -43,7 +43,7 @@ docker-compose exec kafka kafka-topics --create --bootstrap-server localhost:909
 
 ### Exercising the service
 
-With both the proxy and your service running, any defined endpoints should be available at `http://localhost:9000`. In addition to the defined gRPC interface, each method has a corresponding HTTP endpoint. Unless configured otherwise (see [Transcoding HTTP](https://docs.kalix.io/java-protobuf/writing-grpc-descriptors-protobuf.html#_transcoding_http)), this endpoint accepts POST requests at the path `/[package].[entity name]/[method]`.
+With both the Kalix Runtime and your service running, any defined endpoints should be available at `http://localhost:9000`. In addition to the defined gRPC interface, each method has a corresponding HTTP endpoint. Unless configured otherwise (see [Transcoding HTTP](https://docs.kalix.io/java-protobuf/writing-grpc-descriptors-protobuf.html#_transcoding_http)), this endpoint accepts POST requests at the path `/[package].[entity name]/[method]`.
 
 You can connect to the Kafka topic using:
 

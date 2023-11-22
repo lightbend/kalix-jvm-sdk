@@ -17,7 +17,7 @@ java_managed_partials := ${src_managed}/modules/java/partials
 
 #to remove, kept for now so users can still do version checks
 spring_managed_attachments := ${src_managed}/modules/spring/attachments
-#proxy uses sdk-flavor to check latest version although java-spring docs will be at /java/
+#kalix runtime uses sdk-flavor to check latest version although java-spring docs will be at /java/
 java_spring_managed_attachments := ${src_managed}/modules/java-spring/attachments
 
 antora_docker_image := gcr.io/kalix-public/kalix-docbuilder

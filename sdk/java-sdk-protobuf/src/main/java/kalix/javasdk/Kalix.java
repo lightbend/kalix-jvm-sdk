@@ -62,7 +62,7 @@ import java.util.function.Function;
 
 /**
  * The Kalix class is the main interface to configuring entities to deploy, and subsequently
- * starting a local server which will expose these entities to the Kalix proxy Sidecar.
+ * starting a local server which will expose these entities to the Kalix Runtime Sidecar.
  */
 public final class Kalix {
 

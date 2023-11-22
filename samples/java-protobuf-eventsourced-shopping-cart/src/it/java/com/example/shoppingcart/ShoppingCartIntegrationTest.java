@@ -27,14 +27,14 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-// Example of an integration test calling our service via the Kalix proxy
+// Example of an integration test calling our service via the Kalix Runtime
 // Run all test classes ending with "IntegrationTest" using `mvn verify -Pit`
 // tag::sample-it-test[]
 
 public class ShoppingCartIntegrationTest {
 
   /**
-   * The test kit starts both the service container and the Kalix proxy.
+   * The test kit starts both the service container and the Kalix Runtime.
    */
   @RegisterExtension
   public static final KalixTestKitResource testKit =

@@ -101,11 +101,11 @@ final class GrpcClients(system: ExtendedActorSystem) extends Extension {
         getGrpcClient(serviceClass, internalProxyHostname, port, localAddHeader)
       case (Some("localhost"), None) =>
         // for backward compatibility with proxy 1.0.14 or older.
-        log.warn("you are using an old version of the Kalix proxy")
+        log.warn("you are using an old version of the Kalix Runtime")
         getGrpcClient(serviceClass, "localhost", proxyInfoHolder.proxyPort.getOrElse(9000), localAddHeader)
       case (Some(proxyHostname), None) =>
         // for backward compatibility with proxy 1.0.14 or older
-        log.warn("you are using an old version of the Kalix proxy")
+        log.warn("you are using an old version of the Kalix Runtime")
         getGrpcClient(serviceClass, proxyHostname, 80, localAddHeader)
       case _ =>
         throw new IllegalStateException(

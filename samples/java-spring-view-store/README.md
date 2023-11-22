@@ -4,7 +4,7 @@ A simple store example with products, customers, and orders.
 
 Used for code snippets in the Views documentation.
 
-When running a Kalix service locally, we need to have its companion Kalix Proxy running alongside it.
+When running a Kalix service locally, we need to have its companion Kalix Runtime running alongside it.
 
 To start your service locally, run:
 
@@ -12,11 +12,11 @@ To start your service locally, run:
 mvn kalix:runAll
 ```
 
-This command will start your Kalix service and a companion Kalix Proxy as configured in [docker-compose.yml](./docker-compose.yml) file.
+This command will start your Kalix service and a companion Kalix Runtime as configured in [docker-compose.yml](./docker-compose.yml) file.
 
 ## Exercising the services
 
-With both the proxy and your service running, once you have defined endpoints they should be available at `http://localhost:9000`.
+With both the Kalix Runtime and your service running, once you have defined endpoints they should be available at `http://localhost:9000`.
 
 Create some products:
 

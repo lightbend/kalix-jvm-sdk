@@ -47,7 +47,7 @@ object Kalix {
 
 /**
  * The Kalix class is the main interface to configuring entities to deploy, and subsequently starting a local server
- * which will expose these entities to the Kalix Proxy Sidecar.
+ * which will expose these entities to the Kalix Runtime Sidecar.
  */
 class Kalix private (private[kalix] val delegate: javasdk.Kalix) {
 

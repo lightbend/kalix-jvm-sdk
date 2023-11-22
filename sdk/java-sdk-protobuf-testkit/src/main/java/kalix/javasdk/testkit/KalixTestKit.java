@@ -57,7 +57,7 @@ import static kalix.javasdk.testkit.KalixTestKit.Settings.EventingSupport.TEST_B
 /**
  * Testkit for running Kalix services locally.
  *
- * <p>Requires Docker for starting a local instance of the Kalix proxy.
+ * <p>Requires Docker for starting a local instance of the Kalix Runtime.
  *
  * <p>Create a KalixTestkit with an {@link Kalix} service descriptor, and then {@link #start} the
  * testkit before testing the service with gRPC or HTTP clients. Call {@link #stop} after tests are
@@ -586,22 +586,22 @@ public class KalixTestKit {
       proxyHost = "localhost";
 
       Http http = Http.get(testSystem);
-      log.info("Checking kalix-proxy status");
+      log.info("Checking kalix-runtime status");
       CompletionStage<String> checkingProxyStatus = Patterns.retry(() -> http.singleRequest(HttpRequest.GET("http://localhost:8558/ready")).thenCompose(response -> {
         int responseCode = response.status().intValue();
         if (responseCode == 200) {
-          log.info("Kalix-proxy started");
+          log.info("Kalix-runtime started");
           return CompletableFuture.completedStage("Ok");
         } else {
-          log.info("Waiting for kalix-proxy, current response code is {}", responseCode);
-          return CompletableFuture.failedFuture(new IllegalStateException("Proxy not started."));
+          log.info("Waiting for kalix-runtime, current response code is {}", responseCode);
+          return CompletableFuture.failedFuture(new IllegalStateException("Kalix Runtime not started."));
         }
       }), 10, Duration.ofSeconds(1), testSystem);
 
       try {
         checkingProxyStatus.toCompletableFuture().get();
       } catch (InterruptedException | ExecutionException e) {
-        log.error("Failed to connect to proxy with:", e);
+        log.error("Failed to connect to Kalix Runtime with:", e);
         throw new RuntimeException(e);
       }
     }

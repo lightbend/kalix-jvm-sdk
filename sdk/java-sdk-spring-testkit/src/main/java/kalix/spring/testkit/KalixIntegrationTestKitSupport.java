@@ -32,7 +32,7 @@ import static java.time.temporal.ChronoUnit.SECONDS;
  * This class provided the necessary infrastructure to run Kalix integration test for projects built
  * with the Java SDK. Users should let their test classes extends this class.
  *
- * <p>Requires Docker for starting a local instance of the Kalix proxy.
+ * <p>Requires Docker for starting a local instance of the Kalix Runtime.
  *
  * <p>This class wires-up a local Kalix application using the user's defined Kalix components.
  *
@@ -40,7 +40,7 @@ import static java.time.temporal.ChronoUnit.SECONDS;
  * org.springframework.web.reactive.function.client.WebClient} that is made available by the test
  * {@link org.springframework.context.ApplicationContext}.
  *
- * <p>On test teardown, the Kalix application and the Kalix proxy (docker container) will be stopped.
+ * <p>On test teardown, the Kalix application and the Kalix Runtime (docker container) will be stopped.
  */
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public abstract class KalixIntegrationTestKitSupport {

@@ -21,19 +21,19 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-// Example of an integration test calling our service via the Kalix proxy
+// Example of an integration test calling our service via the Kalix Runtime
 // Run all test classes ending with "IntegrationTest" using `mvn verify -Pit`
 public class CustomerByNameIntegrationTest {
 
   /**
-   * The test kit starts both the service container and the Kalix proxy.
+   * The test kit starts both the service container and the Kalix Runtime.
    */
   @RegisterExtension
   public static final KalixTestKitResource testKit =
           new KalixTestKitResource(Main.createKalix());
 
   /**
-   * Use the generated gRPC client to call the service through the Kalix proxy.
+   * Use the generated gRPC client to call the service through the Kalix Runtime.
    */
   private final CustomerService apiClient;
   private final CustomerByName viewClient;

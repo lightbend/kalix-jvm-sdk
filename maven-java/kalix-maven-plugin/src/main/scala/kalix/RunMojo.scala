@@ -22,10 +22,10 @@ object RunMojo {
     assert(mainClass.trim.nonEmpty, "Main class not set. Kalix maven plugin must have `mainClass` set.")
 
     if (runningSolo) {
-      log.warn("Kalix Proxy won't start.")
+      log.warn("Kalix Runtime won't start.")
       log.warn("--------------------------------------------------------------------------------------")
       log.warn("To test this application locally you should either run it using 'mvn kalix:runAll'")
-      log.warn("or start the Kalix Proxy by hand using the provided docker-compose file.")
+      log.warn("or start the Kalix Runtime by hand using the provided docker-compose file.")
       log.warn("--------------------------------------------------------------------------------------")
     }
 
@@ -74,7 +74,7 @@ object RunMojo {
         element(name("arguments"), allArgs: _*),
         element(
           name("environmentVariables"),
-          // needed for the proxy to access the user function on all platforms
+          // needed for the runtime to access the user service on all platforms
           // should we make this configurable?
           element("HOST", "0.0.0.0"),
           // If using Spring, don't print it's banner as this is run by kalix:run, not spring-boot:run
@@ -87,7 +87,7 @@ object RunMojo {
 /**
  * Runs the current project. This goal will only start the current application.
  *
- * To test this application locally you should either run it using 'mvn kalix:runAll' or start the Kalix Proxy by hand
+ * To test this application locally you should either run it using 'mvn kalix:runAll' or start the Kalix Runtime by hand
  * using the provided docker-compose file.
  */
 @Mojo(name = "run", defaultPhase = LifecyclePhase.VALIDATE, requiresDependencyResolution = ResolutionScope.RUNTIME)
