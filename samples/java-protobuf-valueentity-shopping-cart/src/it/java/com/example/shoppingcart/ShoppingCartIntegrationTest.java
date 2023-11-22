@@ -15,19 +15,15 @@
  */
 package com.example.shoppingcart;
 
-import com.example.shoppingcart.*;
-import io.grpc.StatusRuntimeException;
-import kalix.javasdk.testkit.junit.KalixTestKitResource;
 import com.google.protobuf.Empty;
+import kalix.javasdk.testkit.junit.KalixTestKitResource;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import java.util.List;
-import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ExecutionException;
 
-import static java.util.concurrent.TimeUnit.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 // Example of an integration test calling our service via the Kalix proxy

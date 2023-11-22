@@ -1,15 +1,13 @@
 package com.example.actions;
 
+import com.example.CounterApi;
+import com.google.protobuf.Empty;
 import kalix.javasdk.testkit.ActionResult;
 import kalix.javasdk.testkit.DeferredCallDetails;
-import com.example.CounterApi;
-import com.example.actions.DoubleCounterAction;
-import com.example.actions.DoubleCounterActionTestKit;
-import com.google.protobuf.Empty;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.Disabled;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 // This class was initially generated based on the .proto definition by Kalix tooling.
 //

@@ -12,7 +12,7 @@ import kalix.javasdk.testkit.KalixTestKit;
 import kalix.javasdk.testkit.junit.KalixTestKitResource;
 // ...
 // end::test-topic[]
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.Test;
 
@@ -60,7 +60,7 @@ public class CounterTopicIntegrationTest {
   // since multiple tests are using the same topics, make sure to reset them before each new test
   // so unread messages from previous tests do not mess with the current one
   // tag::clear-topics[]
-  @Before // <1>
+  @BeforeEach // <1>
   public void clearTopics() {
     eventsTopic.clear(); // <2>
     eventsTopicWithMeta.clear();

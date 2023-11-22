@@ -4,16 +4,11 @@
  */
 package com.example.actions;
 
-import kalix.javasdk.Metadata;
-import kalix.javasdk.testkit.ActionResult;
-import com.example.actions.CounterJournalToTopicAction;
-import com.example.actions.CounterJournalToTopicActionTestKit;
-import com.example.actions.CounterTopicApi;
 import com.example.domain.CounterDomain;
-import com.google.protobuf.Any;
-import com.google.protobuf.Empty;
+import kalix.javasdk.testkit.ActionResult;
 import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
 public class CounterJournalToTopicActionTest {

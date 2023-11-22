@@ -5,12 +5,13 @@ import com.example.CounterService;
 import com.google.protobuf.Empty;
 import kalix.javasdk.testkit.ActionResult;
 import kalix.javasdk.testkit.MockRegistry;
-import org.junit.Before;
+
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -32,12 +33,12 @@ public class ExternalCounterActionTest {
 
   private AutoCloseable closeable;
 
-  @Before
+  @BeforeEach
   public void setUp() {
     closeable = MockitoAnnotations.openMocks(this);
   }
 
-  @Before
+  @AfterEach
   public void tearDown() throws Exception {
     closeable.close();
   }

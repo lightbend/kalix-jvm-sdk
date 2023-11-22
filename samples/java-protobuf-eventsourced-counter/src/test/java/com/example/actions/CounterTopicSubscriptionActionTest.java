@@ -1,14 +1,7 @@
 package com.example.actions;
 
-import akka.stream.javadsl.Source;
-import com.example.actions.CounterTopicApi;
-import com.example.actions.CounterTopicSubscriptionAction;
-import com.example.actions.CounterTopicSubscriptionActionTestKit;
-import com.google.protobuf.Empty;
-import kalix.javasdk.testkit.ActionResult;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
 
 // This class was initially generated based on the .proto definition by Kalix tooling.
 //

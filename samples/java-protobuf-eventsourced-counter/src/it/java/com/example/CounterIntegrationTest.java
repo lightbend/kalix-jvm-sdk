@@ -4,14 +4,9 @@
  */
 package com.example;
 
-import com.example.actions.CounterTopicApi;
-import kalix.javasdk.testkit.EventingTestKit;
 import kalix.javasdk.testkit.junit.KalixTestKitResource;
-import com.example.CounterApi;
-import com.example.CounterService;
-import com.example.Main;
-import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import java.util.concurrent.CompletionStage;
 
