@@ -51,7 +51,7 @@ public class TracingIntegratonTest extends DockerIntegrationTest {
         super(applicationContext, config);
     }
 
-    @Ignore //disabled ATM for https://github.com/lightbend/kalix-jvm-sdk/pull/1810
+    @Disabled //disabled ATM for https://github.com/lightbend/kalix-jvm-sdk/pull/1810
     public void shouldSendTraces() {
         String counterId = "some-counter";
         callTCounter(counterId, 10);
