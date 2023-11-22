@@ -32,8 +32,8 @@ import static org.awaitility.Awaitility.await;
 /**
  * This test exercises the integration between the current service (customer-registry-subscriber) and the customer-registry service.
  * <p>
- * The customer registry service is started as a docker container as well as it own kalix runtime. The current service is
- * started as a local JVM process (not dockerized), but its own kalix runtime starts as a docker container.
+ * The customer registry service is started as a Docker container as well as it own Kalix Runtime. The current service is
+ * started as a local JVM process (not dockerized), but its own Kalix Runtime starts as a docker container.
  * The `docker-compose-integration.yml` file is used to start all these services.
  * <p>
  * The subscriber service will first create a customer on customer-registry service. The customer will be streamed back

@@ -601,7 +601,7 @@ public class KalixTestKit {
       try {
         checkingProxyStatus.toCompletableFuture().get();
       } catch (InterruptedException | ExecutionException e) {
-        log.error("Failed to connect to kalix runtime with:", e);
+        log.error("Failed to connect to Kalix Runtime with:", e);
         throw new RuntimeException(e);
       }
     }

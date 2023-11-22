@@ -43,7 +43,7 @@ The Kalix Java SDK provides a familiar developer experience for Java developers 
 class is annotated with `@SpringBootApplication` and starts exactly the same way as a common Spring Boot application, namely
 by calling `SpringApplication.run(Main.class, args)`.
 
-For all matters, it's a Spring Boot application that runs and connects with the https://docs.kalix.io/reference/glossary.html#proxy[Kalix Runtime]. As such, your application can benefit of most features available to Spring applications. However, some features are not available or are not recommended when building a Kalix application based on the Java SDK. Those are explained in the sections below.
+For all matters, it's a Spring Boot application that runs and connects with the https://docs.kalix.io/reference/glossary.html#runtime[Kalix Runtime]. As such, your application can benefit of most features available to Spring applications. However, some features are not available or are not recommended when building a Kalix application based on the Java SDK. Those are explained in the sections below.
 
 [#_dependency_injection]
 === Dependency Injection
