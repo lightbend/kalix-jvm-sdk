@@ -2,7 +2,7 @@ package store.view.joined;
 
 import akka.stream.javadsl.Sink;
 import kalix.javasdk.testkit.KalixTestKit;
-import kalix.javasdk.testkit.junit.KalixTestKitResource;
+import kalix.javasdk.testkit.jupiter.KalixTestKitExtension;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.Test;
 import store.Main;
@@ -26,8 +26,8 @@ public class JoinedCustomerOrdersViewIntegrationTest {
 
   @RegisterExtension
   // tag::testkit-advanced-views[]
-  public static final KalixTestKitResource testKit =
-      new KalixTestKitResource(
+  public static final KalixTestKitExtension testKit =
+      new KalixTestKitExtension(
           Main.createKalix(), KalixTestKit.Settings.DEFAULT.withAdvancedViews());
   // end::testkit-advanced-views[]
 

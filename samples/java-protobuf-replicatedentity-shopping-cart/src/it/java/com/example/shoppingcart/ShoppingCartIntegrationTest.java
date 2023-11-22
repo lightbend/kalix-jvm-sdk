@@ -1,7 +1,7 @@
 package com.example.shoppingcart;
 
 import io.grpc.StatusRuntimeException;
-import kalix.javasdk.testkit.junit.KalixTestKitResource;
+import kalix.javasdk.testkit.jupiter.KalixTestKitExtension;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -26,8 +26,8 @@ public class ShoppingCartIntegrationTest {
    * The test kit starts both the service container and the Kalix proxy.
    */
   @RegisterExtension
-  public static final KalixTestKitResource testKit =
-    new KalixTestKitResource(Main.createKalix());
+  public static final KalixTestKitExtension testKit =
+    new KalixTestKitExtension(Main.createKalix());
 
   /**
    * Use the generated gRPC client to call the service through the Kalix proxy.

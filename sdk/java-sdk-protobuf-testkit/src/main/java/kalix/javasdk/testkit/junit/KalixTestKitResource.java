@@ -41,14 +41,14 @@ import org.junit.rules.ExternalResource;
  * <p>Example:
  *
  * <pre>
- * import kalix.javasdk.testkit.junit.KalixTestKitResource;
+ * import kalix.javasdk.testkit.jupiter.KalixTestKitExtension;
  *
  * public class MyKalixIntegrationTest {
  *
  *   private static final Kalix MY_KALIX = new Kalix(); // with registered services
  *
  *   &#64;ClassRule
- *   public static final KalixTestKitResource testKit = new KalixTestKitResource(MY_KALIX);
+ *   public static final KalixTestKitExtension testKit = new KalixTestKitExtension(MY_KALIX);
  *
  *   private final MyServiceClient client; // generated Akka gRPC client
  *
@@ -63,7 +63,7 @@ import org.junit.rules.ExternalResource;
  * }
  * </pre>
  */
-public final class KalixTestKitResource extends ExternalResource implements BeforeAllCallback, AfterAllCallback {
+public final class KalixTestKitResource extends ExternalResource {
 
   private final KalixTestKit testKit;
 
@@ -96,21 +96,6 @@ public final class KalixTestKitResource extends ExternalResource implements Befo
     testKit.stop();
   }
 
-  /**
-   * JUnit5 support - extension based
-   */
-  @Override
-  public void afterAll(ExtensionContext extensionContext) throws Exception {
-    after();
-  }
-
-  /**
-   * JUnit5 support - extension based
-   */
-  @Override
-  public void beforeAll(ExtensionContext extensionContext) throws Exception {
-    before();
-  }
 
   /**
    * Use <code>getTopicIncomingMessages</code> or <code>getTopicOutgoingMessages</code> instead.

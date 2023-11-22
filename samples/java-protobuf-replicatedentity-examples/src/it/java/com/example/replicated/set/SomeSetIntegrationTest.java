@@ -1,6 +1,6 @@
 package com.example.replicated.set;
 
-import kalix.javasdk.testkit.junit.KalixTestKitResource;
+import kalix.javasdk.testkit.jupiter.KalixTestKitExtension;
 import com.example.replicated.Main;
 import com.example.replicated.set.SetService;
 import com.example.replicated.set.SomeSetApi;
@@ -25,8 +25,8 @@ public class SomeSetIntegrationTest {
 
   /** The test kit starts both the service container and the Kalix proxy. */
   @RegisterExtension
-  public static final KalixTestKitResource testKit =
-      new KalixTestKitResource(Main.createKalix());
+  public static final KalixTestKitExtension testKit =
+      new KalixTestKitExtension(Main.createKalix());
 
   /** Use the generated gRPC client to call the service through the Kalix proxy. */
   private final SetService client;

@@ -1,6 +1,6 @@
 package customer.api;
 
-import kalix.javasdk.testkit.junit.KalixTestKitResource;
+import kalix.javasdk.testkit.jupiter.KalixTestKitExtension;
 import com.google.protobuf.Empty;
 import customer.Main;
 import customer.domain.CustomerDomain;
@@ -22,8 +22,8 @@ public class CustomerValueEntityIntegrationTest {
    * The test kit starts both the service container and the Kalix proxy.
    */
   @RegisterExtension
-  public static final KalixTestKitResource testKit =
-    new KalixTestKitResource(Main.createKalix());
+  public static final KalixTestKitExtension testKit =
+    new KalixTestKitExtension(Main.createKalix());
 
   /**
    * Use the generated gRPC client to call the service through the Kalix proxy.

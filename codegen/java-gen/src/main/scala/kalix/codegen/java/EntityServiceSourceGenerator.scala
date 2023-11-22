@@ -189,7 +189,7 @@ object EntityServiceSourceGenerator {
       packageName,
       List(service.messageType.parent.javaPackage + "." + serviceName) ++
       Seq(
-        "kalix.javasdk.testkit.junit.KalixTestKitResource",
+        "kalix.javasdk.testkit.jupiter.KalixTestKitExtension",
         "org.junit.jupiter.api.extension.RegisterExtension",
         "org.junit.jupiter.api.Disabled",
         "org.junit.jupiter.api.Test",
@@ -223,8 +223,8 @@ object EntityServiceSourceGenerator {
       |   * The test kit starts both the service container and the Kalix proxy.
       |   */
       |  @RegisterExtension
-      |  public static final KalixTestKitResource testKit =
-      |    new KalixTestKitResource(${mainClassName}.createKalix());
+      |  public static final KalixTestKitExtension testKit =
+      |    new KalixTestKitExtension(${mainClassName}.createKalix());
       |
       |  /**
       |   * Use the generated gRPC client to call the service through the Kalix proxy.

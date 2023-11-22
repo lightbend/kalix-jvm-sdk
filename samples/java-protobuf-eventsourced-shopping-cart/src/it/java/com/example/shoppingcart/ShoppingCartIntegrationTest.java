@@ -17,7 +17,7 @@ package com.example.shoppingcart;
 
 // tag::sample-it-test[]
 
-import kalix.javasdk.testkit.junit.KalixTestKitResource;
+import kalix.javasdk.testkit.jupiter.KalixTestKitExtension;
 // ...
 // end::sample-it-test[]
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -37,8 +37,8 @@ public class ShoppingCartIntegrationTest {
    * The test kit starts both the service container and the Kalix proxy.
    */
   @RegisterExtension
-  public static final KalixTestKitResource testKit =
-    new KalixTestKitResource(Main.createKalix()); // <1>
+  public static final KalixTestKitExtension testKit =
+    new KalixTestKitExtension(Main.createKalix()); // <1>
 
   private final ShoppingCartService client;
 

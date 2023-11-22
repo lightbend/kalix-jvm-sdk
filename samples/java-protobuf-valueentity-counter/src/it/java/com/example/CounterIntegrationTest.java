@@ -8,7 +8,7 @@ package com.example;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
 // tag::sample-it-test[]
-import kalix.javasdk.testkit.junit.KalixTestKitResource;
+import kalix.javasdk.testkit.jupiter.KalixTestKitExtension;
 // ...
 // end::sample-it-test[]
 import org.junit.jupiter.api.Assertions;
@@ -30,8 +30,8 @@ public class CounterIntegrationTest {
    * The test kit starts both the service container and the Kalix proxy.
    */
   @RegisterExtension
-  public static final KalixTestKitResource testKit =
-      new KalixTestKitResource(Main.createKalix()); // <1>
+  public static final KalixTestKitExtension testKit =
+      new KalixTestKitExtension(Main.createKalix()); // <1>
 
   /**
    * Use the generated gRPC client to call the service through the Kalix proxy.

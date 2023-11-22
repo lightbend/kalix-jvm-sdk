@@ -2,7 +2,7 @@ package com.example.replicated.multimap;
 
 import com.example.replicated.multimap.domain.SomeMultiMapDomain;
 import com.google.protobuf.Empty;
-import kalix.javasdk.testkit.junit.KalixTestKitResource;
+import kalix.javasdk.testkit.jupiter.KalixTestKitExtension;
 import org.example.Main;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -23,8 +23,8 @@ public class SomeMultiMapIntegrationTest {
    * The test kit starts both the service container and the Kalix proxy.
    */
   @RegisterExtension
-  public static final KalixTestKitResource testKit =
-    new KalixTestKitResource(Main.createKalix());
+  public static final KalixTestKitExtension testKit =
+    new KalixTestKitExtension(Main.createKalix());
 
   /**
    * Use the generated gRPC client to call the service through the Kalix proxy.

@@ -1,7 +1,7 @@
 package store.view.nested;
 
 import kalix.javasdk.testkit.KalixTestKit;
-import kalix.javasdk.testkit.junit.KalixTestKitResource;
+import kalix.javasdk.testkit.jupiter.KalixTestKitExtension;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.Test;
 import store.Main;
@@ -22,8 +22,8 @@ import static org.junit.jupiter.api.Assertions.*;
 public class NestedCustomerOrdersViewIntegrationTest {
 
   @RegisterExtension
-  public static final KalixTestKitResource testKit =
-      new KalixTestKitResource(
+  public static final KalixTestKitExtension testKit =
+      new KalixTestKitExtension(
           Main.createKalix(), KalixTestKit.Settings.DEFAULT.withAdvancedViews());
 
   private final Products products;
