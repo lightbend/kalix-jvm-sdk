@@ -1,14 +1,7 @@
 package com.example.actions;
 
-import akka.stream.javadsl.Source;
-import com.example.actions.CounterStateSubscriptionAction;
-import com.example.actions.CounterStateSubscriptionActionTestKit;
-import com.example.domain.CounterDomain;
-import com.google.protobuf.Empty;
-import kalix.javasdk.testkit.ActionResult;
-import org.junit.Ignore;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 // This class was initially generated based on the .proto definition by Kalix tooling.
 //
@@ -18,7 +11,7 @@ import static org.junit.Assert.*;
 public class CounterStateSubscriptionActionTest {
 
   @Test
-  @Ignore("to be implemented")
+  @Disabled("to be implemented")
   public void exampleTest() {
     CounterStateSubscriptionActionTestKit service = CounterStateSubscriptionActionTestKit.of(CounterStateSubscriptionAction::new);
     // // use the testkit to execute a command
@@ -30,14 +23,14 @@ public class CounterStateSubscriptionActionTest {
   }
 
   @Test
-  @Ignore("to be implemented")
+  @Disabled("to be implemented")
   public void onUpdateStateTest() {
     CounterStateSubscriptionActionTestKit testKit = CounterStateSubscriptionActionTestKit.of(CounterStateSubscriptionAction::new);
     // ActionResult<Empty> result = testKit.onUpdateState(CounterDomain.CounterState.newBuilder()...build());
   }
 
   @Test
-  @Ignore("to be implemented")
+  @Disabled("to be implemented")
   public void onDeleteEntityTest() {
     CounterStateSubscriptionActionTestKit testKit = CounterStateSubscriptionActionTestKit.of(CounterStateSubscriptionAction::new);
     // ActionResult<Empty> result = testKit.onDeleteEntity();

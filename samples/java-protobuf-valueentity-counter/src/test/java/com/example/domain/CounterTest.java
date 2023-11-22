@@ -9,9 +9,9 @@ import kalix.javasdk.Metadata;
 import kalix.javasdk.testkit.ValueEntityResult;
 import com.example.CounterApi;
 import com.google.protobuf.Empty;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class CounterTest {
 

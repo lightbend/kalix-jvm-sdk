@@ -6,9 +6,9 @@ import com.example.ShoppingCartServiceActionTestKit;
 import com.example.WebResources;
 import com.google.protobuf.Empty;
 import kalix.javasdk.testkit.ActionResult;
-import org.junit.Ignore;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 // This class was initially generated based on the .proto definition by Kalix tooling.
 //
@@ -18,7 +18,7 @@ import static org.junit.Assert.*;
 public class ShoppingCartServiceActionTest {
 
   @Test
-  @Ignore("to be implemented")
+  @Disabled("to be implemented")
   public void exampleTest() {
     ShoppingCartServiceActionTestKit service = ShoppingCartServiceActionTestKit.of(ShoppingCartServiceAction::new);
     // // use the testkit to execute a command
@@ -30,7 +30,7 @@ public class ShoppingCartServiceActionTest {
   }
 
   @Test
-  @Ignore("to be implemented")
+  @Disabled("to be implemented")
   public void getCartTest() {
     ShoppingCartServiceActionTestKit testKit = ShoppingCartServiceActionTestKit.of(ShoppingCartServiceAction::new);
     // ActionResult<WebResources.ShoppingCart> result = testKit.getCart(Empty.newBuilder()...build());

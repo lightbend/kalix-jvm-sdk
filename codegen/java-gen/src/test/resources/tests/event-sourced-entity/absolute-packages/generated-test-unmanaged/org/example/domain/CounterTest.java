@@ -7,10 +7,10 @@ import kalix.javasdk.testkit.EventSourcedResult;
 import org.example.events.OuterCounterEvents;
 import org.example.eventsourcedentity.CounterApi;
 import org.example.state.OuterCounterState;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 // This class was initially generated based on the .proto definition by Kalix tooling.
 //
@@ -20,7 +20,7 @@ import static org.junit.Assert.*;
 public class CounterTest {
 
   @Test
-  @Ignore("to be implemented")
+  @Disabled("to be implemented")
   public void exampleTest() {
     CounterTestKit service = CounterTestKit.of(Counter::new);
     // // use the testkit to execute a command
@@ -38,7 +38,7 @@ public class CounterTest {
   }
 
   @Test
-  @Ignore("to be implemented")
+  @Disabled("to be implemented")
   public void increaseTest() {
     CounterTestKit service = CounterTestKit.of(Counter::new);
     // IncreaseValue command = IncreaseValue.newBuilder()...build();
@@ -47,7 +47,7 @@ public class CounterTest {
 
 
   @Test
-  @Ignore("to be implemented")
+  @Disabled("to be implemented")
   public void decreaseTest() {
     CounterTestKit service = CounterTestKit.of(Counter::new);
     // DecreaseValue command = DecreaseValue.newBuilder()...build();

@@ -6,9 +6,9 @@ import customer.api.CustomerEventsServiceAction;
 import customer.api.CustomerEventsServiceActionTestKit;
 import customer.domain.CustomerDomain;
 import kalix.javasdk.testkit.ActionResult;
-import org.junit.Ignore;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 // This class was initially generated based on the .proto definition by Kalix tooling.
 //
@@ -18,7 +18,7 @@ import static org.junit.Assert.*;
 public class CustomerEventsServiceActionTest {
 
   @Test
-  @Ignore("to be implemented")
+  @Disabled("to be implemented")
   public void exampleTest() {
     CustomerEventsServiceActionTestKit service = CustomerEventsServiceActionTestKit.of(CustomerEventsServiceAction::new);
     // // use the testkit to execute a command
@@ -30,14 +30,14 @@ public class CustomerEventsServiceActionTest {
   }
 
   @Test
-  @Ignore("to be implemented")
+  @Disabled("to be implemented")
   public void transformCustomerCreatedTest() {
     CustomerEventsServiceActionTestKit testKit = CustomerEventsServiceActionTestKit.of(CustomerEventsServiceAction::new);
     // ActionResult<CustomerEventsApi.Created> result = testKit.transformCustomerCreated(CustomerDomain.CustomerCreated.newBuilder()...build());
   }
 
   @Test
-  @Ignore("to be implemented")
+  @Disabled("to be implemented")
   public void transformCustomerNameChangedTest() {
     CustomerEventsServiceActionTestKit testKit = CustomerEventsServiceActionTestKit.of(CustomerEventsServiceAction::new);
     // ActionResult<CustomerEventsApi.NameChanged> result = testKit.transformCustomerNameChanged(CustomerDomain.CustomerNameChanged.newBuilder()...build());

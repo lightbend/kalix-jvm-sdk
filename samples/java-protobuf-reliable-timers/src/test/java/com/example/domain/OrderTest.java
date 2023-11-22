@@ -4,10 +4,10 @@ import com.example.OrderServiceApi;
 import com.google.protobuf.Empty;
 import kalix.javasdk.testkit.ValueEntityResult;
 import kalix.javasdk.valueentity.ValueEntity;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 // This class was initially generated based on the .proto definition by Kalix tooling.
 //
@@ -17,7 +17,7 @@ import static org.junit.Assert.*;
 public class OrderTest {
 
   @Test
-  @Ignore("to be implemented")
+  @Disabled("to be implemented")
   public void exampleTest() {
     OrderTestKit service = OrderTestKit.of(Order::new);
     // // use the testkit to execute a command
@@ -32,7 +32,7 @@ public class OrderTest {
   }
 
   @Test
-  @Ignore("to be implemented")
+  @Disabled("to be implemented")
   public void placeOrderTest() {
     OrderTestKit service = OrderTestKit.of(Order::new);
     // OrderRequest command = OrderRequest.newBuilder()...build();
@@ -41,7 +41,7 @@ public class OrderTest {
 
 
   @Test
-  @Ignore("to be implemented")
+  @Disabled("to be implemented")
   public void confirmTest() {
     OrderTestKit service = OrderTestKit.of(Order::new);
     // ConfirmRequest command = ConfirmRequest.newBuilder()...build();
@@ -50,7 +50,7 @@ public class OrderTest {
 
 
   @Test
-  @Ignore("to be implemented")
+  @Disabled("to be implemented")
   public void cancelTest() {
     OrderTestKit service = OrderTestKit.of(Order::new);
     // CancelRequest command = CancelRequest.newBuilder()...build();
@@ -59,7 +59,7 @@ public class OrderTest {
 
 
   @Test
-  @Ignore("to be implemented")
+  @Disabled("to be implemented")
   public void getOrderStatusTest() {
     OrderTestKit service = OrderTestKit.of(Order::new);
     // OrderStatusRequest command = OrderStatusRequest.newBuilder()...build();

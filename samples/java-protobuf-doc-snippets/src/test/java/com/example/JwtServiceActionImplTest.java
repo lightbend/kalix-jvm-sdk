@@ -1,11 +1,10 @@
-package org.example.service;
+package com.example;
 
 import akka.stream.javadsl.Source;
-import com.google.protobuf.Empty;
+import com.example.JwtService;
+import com.example.JwtServiceActionImpl;
+import com.example.JwtServiceActionImplTestKit;
 import kalix.javasdk.testkit.ActionResult;
-import org.example.service.MyServiceActionImpl;
-import org.example.service.MyServiceActionImplTestKit;
-import org.example.service.ServiceOuterClass;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
@@ -15,12 +14,12 @@ import static org.junit.jupiter.api.Assertions.*;
 // As long as this file exists it will not be overwritten: you can maintain it yourself,
 // or delete it so it is regenerated as needed.
 
-public class MyServiceActionImplTest {
+public class JwtServiceActionImplTest {
 
   @Test
   @Disabled("to be implemented")
   public void exampleTest() {
-    MyServiceActionImplTestKit service = MyServiceActionImplTestKit.of(MyServiceActionImpl::new);
+    JwtServiceActionImplTestKit service = JwtServiceActionImplTestKit.of(JwtServiceActionImpl::new);
     // // use the testkit to execute a command
     // SomeCommand command = SomeCommand.newBuilder()...build();
     // ActionResult<SomeResponse> result = service.someOperation(command);
@@ -31,9 +30,16 @@ public class MyServiceActionImplTest {
 
   @Test
   @Disabled("to be implemented")
-  public void simpleMethodTest() {
-    MyServiceActionImplTestKit testKit = MyServiceActionImplTestKit.of(MyServiceActionImpl::new);
-    // ActionResult<Empty> result = testKit.simpleMethod(ServiceOuterClass.MyRequest.newBuilder()...build());
+  public void jwtInTokenTest() {
+    JwtServiceActionImplTestKit testKit = JwtServiceActionImplTestKit.of(JwtServiceActionImpl::new);
+    // ActionResult<JwtService.MyResponse> result = testKit.jwtInToken(JwtService.MyRequest.newBuilder()...build());
+  }
+
+  @Test
+  @Disabled("to be implemented")
+  public void jwtInMessageTest() {
+    JwtServiceActionImplTestKit testKit = JwtServiceActionImplTestKit.of(JwtServiceActionImpl::new);
+    // ActionResult<JwtService.MyResponse> result = testKit.jwtInMessage(JwtService.MyRequestWithToken.newBuilder()...build());
   }
 
 }

@@ -4,10 +4,10 @@ import com.google.protobuf.Empty;
 import kalix.javasdk.testkit.ValueEntityResult;
 import kalix.javasdk.valueentity.ValueEntity;
 import org.example.valueentity.domain.CounterDomain;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 // This class was initially generated based on the .proto definition by Kalix tooling.
 //
@@ -17,7 +17,7 @@ import static org.junit.Assert.*;
 public class CounterServiceEntityTest {
 
   @Test
-  @Ignore("to be implemented")
+  @Disabled("to be implemented")
   public void exampleTest() {
     CounterServiceEntityTestKit service = CounterServiceEntityTestKit.of(CounterServiceEntity::new);
     // // use the testkit to execute a command
@@ -32,7 +32,7 @@ public class CounterServiceEntityTest {
   }
 
   @Test
-  @Ignore("to be implemented")
+  @Disabled("to be implemented")
   public void increaseTest() {
     CounterServiceEntityTestKit service = CounterServiceEntityTestKit.of(CounterServiceEntity::new);
     // IncreaseValue command = IncreaseValue.newBuilder()...build();
@@ -41,7 +41,7 @@ public class CounterServiceEntityTest {
 
 
   @Test
-  @Ignore("to be implemented")
+  @Disabled("to be implemented")
   public void decreaseTest() {
     CounterServiceEntityTestKit service = CounterServiceEntityTestKit.of(CounterServiceEntity::new);
     // DecreaseValue command = DecreaseValue.newBuilder()...build();

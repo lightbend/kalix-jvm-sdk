@@ -20,7 +20,7 @@ import com.example.Main;
 import com.example.wiring.pubsub.DockerIntegrationTest;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
-import org.junit.Ignore;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.slf4j.Logger;
@@ -51,7 +51,7 @@ public class TracingIntegratonTest extends DockerIntegrationTest {
         super(applicationContext, config);
     }
 
-    @Ignore //disabled ATM for https://github.com/lightbend/kalix-jvm-sdk/pull/1810
+    @Disabled //disabled ATM for https://github.com/lightbend/kalix-jvm-sdk/pull/1810
     public void shouldSendTraces() {
         String counterId = "some-counter";
         callTCounter(counterId, 10);

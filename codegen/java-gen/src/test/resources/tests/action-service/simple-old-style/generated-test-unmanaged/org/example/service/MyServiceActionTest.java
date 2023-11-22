@@ -7,9 +7,9 @@ import org.example.service.MyServiceAction;
 import org.example.service.MyServiceActionTestKit;
 import org.example.service.ServiceOuterClass;
 import org.external.ExternalDomain;
-import org.junit.Ignore;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 // This class was initially generated based on the .proto definition by Kalix tooling.
 //
@@ -19,7 +19,7 @@ import static org.junit.Assert.*;
 public class MyServiceActionTest {
 
   @Test
-  @Ignore("to be implemented")
+  @Disabled("to be implemented")
   public void exampleTest() {
     MyServiceActionTestKit service = MyServiceActionTestKit.of(MyServiceAction::new);
     // // use the testkit to execute a command
@@ -31,28 +31,28 @@ public class MyServiceActionTest {
   }
 
   @Test
-  @Ignore("to be implemented")
+  @Disabled("to be implemented")
   public void simpleMethodTest() {
     MyServiceActionTestKit testKit = MyServiceActionTestKit.of(MyServiceAction::new);
     // ActionResult<ExternalDomain.Empty> result = testKit.simpleMethod(ServiceOuterClass.MyRequest.newBuilder()...build());
   }
 
   @Test
-  @Ignore("to be implemented")
+  @Disabled("to be implemented")
   public void streamedOutputMethodTest() {
     MyServiceActionTestKit testKit = MyServiceActionTestKit.of(MyServiceAction::new);
     // Source<ActionResult<ExternalDomain.Empty>, akka.NotUsed> result = testKit.streamedOutputMethod(ServiceOuterClass.MyRequest.newBuilder()...build());
   }
 
   @Test
-  @Ignore("to be implemented")
+  @Disabled("to be implemented")
   public void streamedInputMethodTest() {
     MyServiceActionTestKit testKit = MyServiceActionTestKit.of(MyServiceAction::new);
     // ActionResult<ExternalDomain.Empty> result = testKit.streamedInputMethod(Source.single(ServiceOuterClass.MyRequest.newBuilder()...build()));
   }
 
   @Test
-  @Ignore("to be implemented")
+  @Disabled("to be implemented")
   public void fullStreamedMethodTest() {
     MyServiceActionTestKit testKit = MyServiceActionTestKit.of(MyServiceAction::new);
     // Source<ActionResult<ExternalDomain.Empty>, akka.NotUsed> result = testKit.fullStreamedMethod(Source.single(ServiceOuterClass.MyRequest.newBuilder()...build()));

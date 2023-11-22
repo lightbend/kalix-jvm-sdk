@@ -11,9 +11,9 @@ import io.grpc.StatusRuntimeException;
 import kalix.javasdk.testkit.junit.KalixTestKitResource;
 // ...
 // end::sample-it-test[]
-import org.junit.Assert;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.ExecutionException;
 
@@ -29,7 +29,7 @@ public class CounterIntegrationTest {
   /**
    * The test kit starts both the service container and the Kalix proxy.
    */
-  @ClassRule
+  @RegisterExtension
   public static final KalixTestKitResource testKit =
       new KalixTestKitResource(Main.createKalix()); // <1>
 
@@ -70,7 +70,7 @@ public class CounterIntegrationTest {
     try {
       client.increaseWithConditional(CounterApi.IncreaseValue.newBuilder().setCounterId("new-id").setValue(-10).build())
           .toCompletableFuture().get(5, SECONDS);
-      Assert.fail("Previous method should be invalid and throw exception");
+      Assertions.fail("Previous method should be invalid and throw exception");
     } catch (ExecutionException e) {
       var suppressed = (StatusRuntimeException) e.getCause();
       assertThat(suppressed.getStatus().getCode(), is(Status.Code.INVALID_ARGUMENT));

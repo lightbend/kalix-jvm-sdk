@@ -2,10 +2,10 @@ package store.order.domain;
 
 import com.google.protobuf.Empty;
 import kalix.javasdk.testkit.ValueEntityResult;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import store.order.api.OrderApi;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class OrderEntityTest {
 

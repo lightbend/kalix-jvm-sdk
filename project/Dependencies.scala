@@ -27,7 +27,7 @@ object Dependencies {
   val TestContainersVersion = "1.17.6"
   val JUnitVersion = "4.13.2"
   val JUnitInterfaceVersion = "0.11"
-  val JUnitJupiterVersion = "5.7.1"
+  val JUnitJupiterVersion = "5.10.1"
   val SpringFrameworkVersion = "6.0.13"
   // make sure to sync spring-boot-starter-parent version in samples and archetype to this version
   val SpringBootVersion = "3.1.5"
@@ -69,6 +69,7 @@ object Dependencies {
   val testContainers = "org.testcontainers" % "testcontainers" % TestContainersVersion
   val junit4 = "junit" % "junit" % JUnitVersion
   val junit5 = "org.junit.jupiter" % "junit-jupiter" % JUnitJupiterVersion
+  val junit5Vintage = "org.junit.vintage" % "junit-vintage-engine" % JUnitJupiterVersion
 
   val opentelemetryApi = "io.opentelemetry" % "opentelemetry-api" % OpenTelemetryVersion
   val opentelemetrySdk = "io.opentelemetry" % "opentelemetry-sdk" % OpenTelemetryVersion
@@ -125,8 +126,9 @@ object Dependencies {
 
   val javaSdkTestKit = deps ++= Seq(
     testContainers,
-    junit4 % Provided,
-    junit5 % Provided,
+    junit4,
+    junit5,
+    junit5Vintage,
     scalaTest % Test,
     kalixTestkitProtocol % "protobuf-src",
     scalapbCompilerPlugin,

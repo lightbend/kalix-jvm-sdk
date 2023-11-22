@@ -5,10 +5,10 @@ import com.example.actions.OrderApi;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
 import kalix.javasdk.testkit.junit.KalixTestKitResource;
-import org.junit.Assert;
-import org.junit.ClassRule;
-import org.junit.Test;
-import org.junit.Ignore;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Disabled;
 
 import java.util.concurrent.ExecutionException;
 
@@ -26,7 +26,7 @@ public class OrderIntegrationTest {
   /**
    * The test kit starts both the service container and the Kalix proxy.
    */
-  @ClassRule
+  @RegisterExtension
   public static final KalixTestKitResource testKit =
     new KalixTestKitResource(Main.createKalix());
 
@@ -42,7 +42,7 @@ public class OrderIntegrationTest {
   }
 
   @Test
-  @Ignore("to be implemented")
+  @Disabled("to be implemented")
   public void placeOrderOnNonExistingEntity() throws Exception {
     // TODO: set fields in command, and provide assertions to match replies
     // client.placeOrder(OrderServiceApi.OrderRequest.newBuilder().build())
@@ -50,7 +50,7 @@ public class OrderIntegrationTest {
   }
 
   @Test
-  @Ignore("to be implemented")
+  @Disabled("to be implemented")
   public void confirmOnNonExistingEntity() throws Exception {
     // TODO: set fields in command, and provide assertions to match replies
     // client.confirm(OrderServiceApi.ConfirmRequest.newBuilder().build())
@@ -65,12 +65,12 @@ public class OrderIntegrationTest {
       actionClient.expire(OrderApi.OrderNumber.newBuilder().setNumber("unknown-number").build())
           .toCompletableFuture().get(5, SECONDS);
     } catch (Exception e) {
-      Assert.fail("Should not reach this");
+      Assertions.fail("Should not reach this");
     }
   }
 
   @Test
-  @Ignore("to be implemented")
+  @Disabled("to be implemented")
   public void getOrderStatusOnNonExistingEntity() throws Exception {
     // TODO: set fields in command, and provide assertions to match replies
     // client.getOrderStatus(OrderServiceApi.OrderStatusRequest.newBuilder().build())

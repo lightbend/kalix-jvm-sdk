@@ -6,20 +6,20 @@ import customer.domain.CustomerDomain.CustomerState;
 import customer.view.CustomerViewModel.ByCityRequest;
 import kalix.javasdk.testkit.EventingTestKit;
 import kalix.javasdk.testkit.junit.KalixTestKitResource;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import static kalix.javasdk.testkit.KalixTestKit.Settings.DEFAULT;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.testcontainers.shaded.org.awaitility.Awaitility.await;
 
 // tag::view-test[]
 public class CustomersResponseByCityViewIntegrationTest {
 
-  @ClassRule
+  @RegisterExtension
   public static final KalixTestKitResource testKit =
       new KalixTestKitResource(
           Main.createKalix(),

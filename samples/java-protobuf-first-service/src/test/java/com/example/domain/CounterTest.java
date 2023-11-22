@@ -11,10 +11,10 @@ import com.google.protobuf.Empty;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import scala.jdk.javaapi.CollectionConverters;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class CounterTest {
 

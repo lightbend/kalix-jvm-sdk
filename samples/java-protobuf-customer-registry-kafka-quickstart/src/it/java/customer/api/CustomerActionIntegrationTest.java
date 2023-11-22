@@ -5,8 +5,8 @@ import customer.Main;
 import kalix.javasdk.testkit.EventingTestKit;
 import kalix.javasdk.testkit.KalixTestKit;
 import kalix.javasdk.testkit.junit.KalixTestKitResource;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
@@ -16,7 +16,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 // This class was initially generated based on the .proto definition by Kalix tooling.
 //
@@ -30,9 +30,10 @@ public class CustomerActionIntegrationTest {
   /**
    * The test kit starts both the service container and the Kalix proxy.
    */
-  @ClassRule
+  @RegisterExtension
   public static final KalixTestKitResource testKit =
       new KalixTestKitResource(Main.createKalix(), KalixTestKit.Settings.DEFAULT.withTopicOutgoingMessages("customer_changes"));
+
 
   /**
    * Use the generated gRPC client to call the service through the Kalix proxy.
@@ -70,7 +71,7 @@ public class CustomerActionIntegrationTest {
         .get(5, SECONDS);
 
     // wait for action to publish the change of state
-    var nameChangeMsgOut = outTopic.expectOneTyped(CustomerApi.Customer.class);
+    var nameChangeMsgOut = outTopic.expectOneTyped(CustomerApi.Customer.class, Duration.of(10, ChronoUnit.SECONDS));
     assertEquals(completeName, nameChangeMsgOut.getPayload().getName());
 
     outTopic.expectNone(); // no more messages are sent
