@@ -118,7 +118,7 @@ grpcurl ^
 --
 
 - The message payload in JSON format with `-d`
-- The address of the proxy (using `plaintext` instead of TLS)
+- The address of the Kalix Runtime (using `plaintext` instead of TLS)
 - The RPC procedure name which is deduced from the protobuf definition of the component you're calling.
 
 == Shut down the service
