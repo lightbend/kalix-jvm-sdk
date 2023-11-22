@@ -33,11 +33,8 @@ import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.rules.ExternalResource;
 
 /**
- * A JUnit external resource for {@link KalixTestKit}, which automatically manages the lifecycle of
+ * A JUnit Extension for {@link KalixTestKit}, which automatically manages the lifecycle of
  * the testkit. The testkit will be automatically stopped when the test completes or fails.
- *
- * <p><b>Note</b>: JUnit is not provided as a transitive dependency of the Java SDK testkit module
- * but must be added explicitly to your project.
  *
  * <p>Example:
  *

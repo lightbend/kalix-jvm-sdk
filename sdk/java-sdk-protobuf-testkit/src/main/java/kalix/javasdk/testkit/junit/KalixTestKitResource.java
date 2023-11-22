@@ -26,29 +26,23 @@ import kalix.javasdk.testkit.EventingTestKit.IncomingMessages;
 import kalix.javasdk.testkit.EventingTestKit.OutgoingMessages;
 import kalix.javasdk.testkit.EventingTestKit.Topic;
 import kalix.javasdk.testkit.KalixTestKit;
-import org.junit.jupiter.api.extension.AfterAllCallback;
-import org.junit.jupiter.api.extension.BeforeAllCallback;
-import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.rules.ExternalResource;
 
 /**
  * A JUnit external resource for {@link KalixTestKit}, which automatically manages the lifecycle of
  * the testkit. The testkit will be automatically stopped when the test completes or fails.
  *
- * <p><b>Note</b>: JUnit is not provided as a transitive dependency of the Java SDK testkit module
- * but must be added explicitly to your project.
- *
  * <p>Example:
  *
  * <pre>
- * import kalix.javasdk.testkit.junit.jupiter.KalixTestKitExtension;
+ * import kalix.javasdk.testkit.junit.KalixTestKitResource;
  *
  * public class MyKalixIntegrationTest {
  *
  *   private static final Kalix MY_KALIX = new Kalix(); // with registered services
  *
  *   &#64;ClassRule
- *   public static final KalixTestKitExtension testKit = new KalixTestKitExtension(MY_KALIX);
+ *   public static final KalixTestKitResource testKit = new KalixTestKitResource(MY_KALIX);
  *
  *   private final MyServiceClient client; // generated Akka gRPC client
  *
