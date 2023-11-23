@@ -8,8 +8,9 @@ scalaVersion := "2.13.10"
 
 enablePlugins(KalixPlugin, JavaAppPackaging, DockerPlugin)
 dockerBaseImage := "docker.io/library/adoptopenjdk:11-jre-hotspot"
-dockerUsername := sys.props.get("docker.username")
-dockerRepository := sys.props.get("docker.registry")
+// For Docker setup see https://docs.kalix.io/projects/container-registries.html
+dockerRepository := sys.props.get("docker.registry").orElse(Some("kcr.us-east-1.kalix.io"))
+dockerUsername := sys.props.get("docker.username") // use your Kalix organization name
 dockerUpdateLatest := true
 dockerBuildCommand := {
   val arch = sys.props("os.arch")

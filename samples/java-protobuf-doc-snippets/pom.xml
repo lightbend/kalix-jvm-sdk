@@ -10,8 +10,10 @@
   <name>doc-snippets</name>
   <properties>
 
-    <!-- TODO Update to your own Docker repository or Docker Hub scope -->
-    <dockerImage>my-docker-repo/${project.artifactId}</dockerImage>
+    <!-- For Docker setup see https://docs.kalix.io/projects/container-registries.html -->
+    <kalixContainerRegistry>kcr.us-east-1.kalix.io</kalixContainerRegistry>
+    <kalixOrganization>acme</kalixOrganization>
+    <dockerImage>${kalixContainerRegistry}/${kalixOrganization}/${project.artifactId}</dockerImage>
     <dockerTag>${project.version}-${build.timestamp}</dockerTag>
     <maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
     <mainClass>com.example.Main</mainClass>

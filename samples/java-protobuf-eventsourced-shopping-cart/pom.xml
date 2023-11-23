@@ -11,8 +11,10 @@
     <name>Shopping Cart as Event Sourced Entity</name>
 
     <properties>
-        <!-- TODO Update to your own Docker repository or Docker Hub scope -->
-        <dockerImage>gcr.io/kalix-public/samples-java-protobuf-eventsourced-shopping-cart</dockerImage>
+        <!-- For Docker setup see https://docs.kalix.io/projects/container-registries.html -->
+        <kalixContainerRegistry>kcr.us-east-1.kalix.io</kalixContainerRegistry>
+        <kalixOrganization>acme</kalixOrganization>
+        <dockerImage>${kalixContainerRegistry}/${kalixOrganization}/${project.artifactId}</dockerImage>
         <dockerTag>${project.version}-${build.timestamp}</dockerTag>
         <maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
         <mainClass>com.example.shoppingcart.Main</mainClass>
