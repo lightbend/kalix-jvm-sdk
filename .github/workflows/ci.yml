@@ -547,6 +547,7 @@ jobs:
           - { sample: java-spring-shopping-cart-quickstart, it: true }
           - { sample: java-spring-customer-registry-quickstart, it: true }
           - { sample: java-spring-customer-registry-views-quickstart, it: true }
+          - { sample: java-spring-choreography-saga-quickstart, it: true }
 
           - { sample: java-protobuf-fibonacci-action, it: false }
           - { sample: java-protobuf-doc-snippets, it: false }
