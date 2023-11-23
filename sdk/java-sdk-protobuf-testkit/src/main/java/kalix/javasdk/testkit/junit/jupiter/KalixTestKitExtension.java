@@ -33,7 +33,7 @@ import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.rules.ExternalResource;
 
 /**
- * A JUnit Extension for {@link KalixTestKit}, which automatically manages the lifecycle of
+ * A JUnit 5 "Jupiter" Extension for {@link KalixTestKit}, which automatically manages the lifecycle of
  * the testkit. The testkit will be automatically stopped when the test completes or fails.
  *
  * <p>Example:

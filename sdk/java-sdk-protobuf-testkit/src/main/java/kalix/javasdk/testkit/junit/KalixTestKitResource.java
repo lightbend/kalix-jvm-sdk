@@ -29,8 +29,10 @@ import kalix.javasdk.testkit.KalixTestKit;
 import org.junit.rules.ExternalResource;
 
 /**
- * A JUnit external resource for {@link KalixTestKit}, which automatically manages the lifecycle of
+ * A JUnit 4 external resource for {@link KalixTestKit}, which automatically manages the lifecycle of
  * the testkit. The testkit will be automatically stopped when the test completes or fails.
+ *
+ * If you prefer JUnit 5 "Jupiter" use {@link KalixTestKitExtension}.
  *
  * <p>Example:
  *
