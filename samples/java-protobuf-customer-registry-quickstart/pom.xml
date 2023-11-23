@@ -10,15 +10,17 @@
   <name>Customer Registry (Quickstart)</name>
 
   <properties>
-    <!-- TODO Update to your own Docker repository or Docker Hub scope -->
-    <dockerImage>my-docker-repo/${project.artifactId}</dockerImage>
+    <!-- For Docker setup see https://docs.kalix.io/projects/container-registries.html -->
+    <kalixContainerRegistry>kcr.us-east-1.kalix.io</kalixContainerRegistry>
+    <kalixOrganization>acme</kalixOrganization>
+    <dockerImage>${kalixContainerRegistry}/${kalixOrganization}/${project.artifactId}</dockerImage>
     <dockerTag>${project.version}-${build.timestamp}</dockerTag>
     <maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
     <mainClass>customer.Main</mainClass>
 
     <jdk.target>11</jdk.target>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <kalix-sdk.version>1.3.4</kalix-sdk.version>
+    <kalix-sdk.version>1.3.4-26-0cbdac09-dev-SNAPSHOT</kalix-sdk.version>
     <akka-grpc.version>2.1.6</akka-grpc.version>
   </properties>
 
