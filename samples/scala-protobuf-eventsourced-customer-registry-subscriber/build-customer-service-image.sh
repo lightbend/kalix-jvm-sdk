@@ -9,5 +9,7 @@
 # in CI we'll have a file kalix-sdk-version.txt at the home dir
 export SDK_VERSION=$(cat ~/kalix-sdk-version.txt)
 cd ../scala-protobuf-eventsourced-customer-registry 
-sbt -Dkalix-sdk.version=${SDK_VERSION} docker:publishLocal
+sbt -Dkalix-sdk.version=${SDK_VERSION} \
+  -Ddocker.registry='kcr.us-east-1.kalix.io' -Ddocker.username=acme \
+  docker:publishLocal
 cd -
