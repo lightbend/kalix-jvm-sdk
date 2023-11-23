@@ -16,99 +16,187 @@
 
 package kalix.javasdk.testkit.junit.jupiter;
 
+import akka.actor.ActorSystem;
+import akka.grpc.GrpcClientSettings;
+import akka.stream.Materializer;
 import kalix.javasdk.Kalix;
+import kalix.javasdk.impl.MessageCodec;
+import kalix.javasdk.testkit.EventingTestKit;
+import kalix.javasdk.testkit.EventingTestKit.IncomingMessages;
+import kalix.javasdk.testkit.EventingTestKit.OutgoingMessages;
+import kalix.javasdk.testkit.EventingTestKit.Topic;
 import kalix.javasdk.testkit.KalixTestKit;
-import org.junit.jupiter.api.extension.*;
-import org.junit.jupiter.api.extension.ExtensionContext.Namespace;
-import org.junit.jupiter.api.extension.ExtensionContext.Store;
-import org.junit.platform.commons.support.AnnotationSupport;
-import org.junit.platform.commons.util.ReflectionUtils;
+import org.junit.jupiter.api.extension.AfterAllCallback;
+import org.junit.jupiter.api.extension.BeforeAllCallback;
+import org.junit.jupiter.api.extension.Extension;
+import org.junit.jupiter.api.extension.ExtensionContext;
+import org.junit.rules.ExternalResource;
 
-import java.lang.reflect.Field;
+/**
+ * A JUnit 5 "Jupiter" Extension for {@link KalixTestKit}, which automatically manages the lifecycle of
+ * the testkit. The testkit will be automatically stopped when the test completes or fails.
+ *
+ * <p>Example:
+ *
+ * <pre>
+ * import kalix.javasdk.testkit.junit.jupiter.KalixTestKitExtension;
+ *
+ * public class MyKalixIntegrationTest {
+ *
+ *   private static final Kalix MY_KALIX = new Kalix(); // with registered services
+ *
+ *   &#64;RegisterExtension
+ *   public static final KalixTestKitExtension testKit = new KalixTestKitExtension(MY_KALIX);
+ *
+ *   private final MyServiceClient client; // generated Akka gRPC client
+ *
+ *   public MyKalixIntegrationTest() {
+ *     this.client = MyServiceClient.create(testKit.getGrpcClientSettings(), testKit.getActorSystem());
+ *   }
+ *
+ *   &#64;Test
+ *   public void test() {
+ *     // use client to test service
+ *   }
+ * }
+ * </pre>
+ */
+public final class KalixTestKitExtension implements BeforeAllCallback, AfterAllCallback {
 
-class KalixTestKitExtension implements BeforeAllCallback, ParameterResolver {
+  private final KalixTestKit testKit;
 
-  private static final Namespace NAMESPACE = Namespace.create(KalixTestKitExtension.class);
-  private static final String TESTKIT = "testkit";
+  public KalixTestKitExtension(Kalix kalix) {
+    this(kalix, kalix.getMessageCodec(), KalixTestKit.Settings.DEFAULT);
+  }
 
+  public KalixTestKitExtension(Kalix kalix, KalixTestKit.Settings settings) {
+    this(kalix, kalix.getMessageCodec(), settings);
+  }
+
+  public KalixTestKitExtension(Kalix kalix, MessageCodec messageCodec, KalixTestKit.Settings settings) {
+    this.testKit = new KalixTestKit(kalix, messageCodec, settings);
+  }
+
+
+  /**
+   * JUnit5 support - extension based
+   */
   @Override
-  public void beforeAll(ExtensionContext context) {
-    Class<?> testClass = context.getRequiredTestClass();
-    Kalix kalix = findKalixDescriptor(testClass);
-    KalixTestKit testkit = new KalixTestKit(kalix).start();
-    context.getStore(NAMESPACE).put(TESTKIT, new StoredTestkit(testkit));
+  public void afterAll(ExtensionContext extensionContext) throws Exception {
+    testKit.stop();
   }
 
-  private static Kalix findKalixDescriptor(final Class<?> testClass) {
-    return ReflectionUtils.findFields(
-            testClass,
-            KalixTestKitExtension::isKalixDescriptor,
-            ReflectionUtils.HierarchyTraversalMode.TOP_DOWN)
-        .stream()
-        .findFirst()
-        .map(KalixTestKitExtension::getKalixDescriptor)
-        .orElseThrow(
-            () ->
-                new ExtensionConfigurationException(
-                    "No field annotated with @KalixDescriptor found for @KalixTest"));
-  }
-
-  private static boolean isKalixDescriptor(final Field field) {
-    if (AnnotationSupport.isAnnotated(field, KalixDescriptor.class)) {
-      if (Kalix.class.isAssignableFrom(field.getType())) {
-        return true;
-      } else {
-        throw new ExtensionConfigurationException(
-            String.format(
-                "Field [%s] annotated with @KalixDescriptor is not a Kalix", field.getName()));
-      }
-    } else {
-      return false;
-    }
-  }
-
-  private static Kalix getKalixDescriptor(final Field field) {
-    return (Kalix)
-        ReflectionUtils.tryToReadFieldValue(field)
-            .getOrThrow(
-                e ->
-                    new ExtensionConfigurationException(
-                        "Cannot access Kalix defined in field " + field.getName(), e));
-  }
-
+  /**
+   * JUnit5 support - extension based
+   */
   @Override
-  public boolean supportsParameter(ParameterContext parameterContext, ExtensionContext context) {
-    Class<?> type = parameterContext.getParameter().getType();
-    return type == KalixTestKit.class;
+  public void beforeAll(ExtensionContext extensionContext) throws Exception {
+    testKit.start();
   }
 
-  @Override
-  public Object resolveParameter(ParameterContext parameterContext, ExtensionContext context) {
-    Class<?> type = parameterContext.getParameter().getType();
-    Store store = context.getStore(NAMESPACE);
-    KalixTestKit testkit = store.get(TESTKIT, StoredTestkit.class).getTestkit();
-    if (type == KalixTestKit.class) {
-      return testkit;
-    } else {
-      throw new ParameterResolutionException("Unexpected parameter type " + type);
-    }
+
+  /**
+   * Get incoming messages for ValueEntity.
+   *
+   * @param typeId @TypeId or entity_type of the ValueEntity (depending on the used SDK)
+   */
+  public IncomingMessages getValueEntityIncomingMessages(String typeId) {
+    return testKit.getValueEntityIncomingMessages(typeId);
   }
 
-  // Wrap testkit in CloseableResource, auto-closed when test finishes (extension store is closed)
-  private static class StoredTestkit implements Store.CloseableResource {
-    private final KalixTestKit testkit;
-
-    private StoredTestkit(KalixTestKit testkit) {
-      this.testkit = testkit;
-    }
-
-    public KalixTestKit getTestkit() {
-      return testkit;
-    }
-
-    @Override
-    public void close() {
-      testkit.stop();
-    }
+  /**
+   * Get incoming messages for EventSourcedEntity.
+   *
+   * @param typeId @TypeId or entity_type of the EventSourcedEntity (depending on the used SDK)
+   */
+  public IncomingMessages getEventSourcedEntityIncomingMessages(String typeId) {
+    return testKit.getEventSourcedEntityIncomingMessages(typeId);
   }
+
+  /**
+   * Get incoming messages for Stream (eventing.in.direct in case of protobuf SDKs).
+   *
+   * @param service  service name
+   * @param streamId service stream id
+   */
+  public IncomingMessages getStreamIncomingMessages(String service, String streamId) {
+    return testKit.getStreamIncomingMessages(service, streamId);
+  }
+
+  /**
+   * Get incoming messages for Topic.
+   *
+   * @param topic topic name
+   */
+  public IncomingMessages getTopicIncomingMessages(String topic) {
+    return testKit.getTopicIncomingMessages(topic);
+  }
+
+  /**
+   * Get mocked topic destination.
+   *
+   * @param topic topic name
+   */
+  public OutgoingMessages getTopicOutgoingMessages(String topic) {
+    return testKit.getTopicOutgoingMessages(topic);
+  }
+
+  /**
+   * Returns {@link EventingTestKit.MessageBuilder} utility
+   * to create {@link EventingTestKit.Message}s for the eventing testkit.
+   */
+  public EventingTestKit.MessageBuilder getMessageBuilder() {
+    return testKit.getMessageBuilder();
+  }
+
+  /**
+   * Get the host name/IP address where the Kalix service is available. This is relevant in certain
+   * Continuous Integration environments.
+   *
+   * @return Kalix host
+   */
+  public String getHost() {
+    return testKit.getHost();
+  }
+
+  /**
+   * Get the local port where the Kalix service is available.
+   *
+   * @return local Kalix port
+   */
+  public int getPort() {
+    return testKit.getPort();
+  }
+
+  /**
+   * Get an Akka gRPC client for the given service name. The same client instance is shared for the
+   * test. The lifecycle of the client is managed by the SDK and it should not be stopped by user
+   * code.
+   *
+   * @param <T>         The "service" interface generated for the service by Akka gRPC
+   * @param clientClass The class of a gRPC service generated by Akka gRPC
+   */
+  public <T> T getGrpcClient(Class<T> clientClass) {
+    return testKit.getGrpcClient(clientClass);
+  }
+
+  /**
+   * An Akka Stream materializer to use for running streams. Needed for example in a command handler
+   * which accepts streaming elements but returns a single async reply once all streamed elements
+   * has been consumed.
+   */
+  public Materializer getMaterializer() {
+    return testKit.getMaterializer();
+  }
+
+  /**
+   * Get an {@link ActorSystem} for creating Akka HTTP clients.
+   *
+   * @return test actor system
+   */
+  public ActorSystem getActorSystem() {
+    return testKit.getActorSystem();
+  }
+
+
 }

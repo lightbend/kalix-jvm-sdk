@@ -9,7 +9,7 @@ import kalix.javasdk.CloudEvent;
 // tag::test-topic[]
 import kalix.javasdk.testkit.EventingTestKit;
 import kalix.javasdk.testkit.KalixTestKit;
-import kalix.javasdk.testkit.junit.KalixTestKitResource;
+import kalix.javasdk.testkit.junit.jupiter.KalixTestKitExtension;
 // ...
 // end::test-topic[]
 import org.junit.jupiter.api.BeforeEach;
@@ -31,8 +31,8 @@ public class CounterTopicIntegrationTest {
    * The test kit starts both the service container and the Kalix Runtime.
    */
   @RegisterExtension
-  public static final KalixTestKitResource testKit =
-      new KalixTestKitResource(Main.createKalix(), KalixTestKit.Settings.DEFAULT
+  public static final KalixTestKitExtension testKit =
+      new KalixTestKitExtension(Main.createKalix(), KalixTestKit.Settings.DEFAULT
           // end::test-topic[]
           .withTopicOutgoingMessages("counter-events-with-meta")
           // tag::test-topic[]

@@ -284,7 +284,7 @@ By default, the integration and unit tests are both invoked by `sbt test`. To on
 
 === Integration tests
 
-An example integration test class to start from is also generated for you. It uses [.group-java]#an `KalixTestKitResource`# [.group-scala]#`KalixTestKit`# to start docker containers and interacts with the entity with an actual gRPC client.
+An example integration test class to start from is also generated for you. It uses [.group-java]#an `KalixTestKitExtension`# [.group-scala]#`KalixTestKit`# to start docker containers and interacts with the entity with an actual gRPC client.
 
 [.tabset]
 Java::

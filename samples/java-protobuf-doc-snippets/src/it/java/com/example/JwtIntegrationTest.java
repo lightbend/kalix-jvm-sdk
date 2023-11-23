@@ -7,7 +7,7 @@ package com.example;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import kalix.javasdk.Metadata;
-import kalix.javasdk.testkit.junit.KalixTestKitResource;
+import kalix.javasdk.testkit.junit.jupiter.KalixTestKitExtension;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.Test;
 
@@ -27,8 +27,8 @@ public class JwtIntegrationTest {
    * The test kit starts both the service container and the Kalix Runtime.
    */
   @RegisterExtension
-  public static final KalixTestKitResource testKit =
-      new KalixTestKitResource(Main.createKalix());
+  public static final KalixTestKitExtension testKit =
+      new KalixTestKitExtension(Main.createKalix());
 
   /**
    * Use the generated gRPC client to call the service through the Kalix Runtime.

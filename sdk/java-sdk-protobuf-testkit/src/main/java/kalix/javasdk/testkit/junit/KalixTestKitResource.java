@@ -26,17 +26,13 @@ import kalix.javasdk.testkit.EventingTestKit.IncomingMessages;
 import kalix.javasdk.testkit.EventingTestKit.OutgoingMessages;
 import kalix.javasdk.testkit.EventingTestKit.Topic;
 import kalix.javasdk.testkit.KalixTestKit;
-import org.junit.jupiter.api.extension.AfterAllCallback;
-import org.junit.jupiter.api.extension.BeforeAllCallback;
-import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.rules.ExternalResource;
 
 /**
- * A JUnit external resource for {@link KalixTestKit}, which automatically manages the lifecycle of
+ * A JUnit 4 external resource for {@link KalixTestKit}, which automatically manages the lifecycle of
  * the testkit. The testkit will be automatically stopped when the test completes or fails.
  *
- * <p><b>Note</b>: JUnit is not provided as a transitive dependency of the Java SDK testkit module
- * but must be added explicitly to your project.
+ * If you prefer JUnit 5 "Jupiter" use {@link KalixTestKitExtension}.
  *
  * <p>Example:
  *
@@ -63,7 +59,7 @@ import org.junit.rules.ExternalResource;
  * }
  * </pre>
  */
-public final class KalixTestKitResource extends ExternalResource implements BeforeAllCallback, AfterAllCallback {
+public final class KalixTestKitResource extends ExternalResource {
 
   private final KalixTestKit testKit;
 
@@ -96,21 +92,6 @@ public final class KalixTestKitResource extends ExternalResource implements Befo
     testKit.stop();
   }
 
-  /**
-   * JUnit5 support - extension based
-   */
-  @Override
-  public void afterAll(ExtensionContext extensionContext) throws Exception {
-    after();
-  }
-
-  /**
-   * JUnit5 support - extension based
-   */
-  @Override
-  public void beforeAll(ExtensionContext extensionContext) throws Exception {
-    before();
-  }
 
   /**
    * Use <code>getTopicIncomingMessages</code> or <code>getTopicOutgoingMessages</code> instead.

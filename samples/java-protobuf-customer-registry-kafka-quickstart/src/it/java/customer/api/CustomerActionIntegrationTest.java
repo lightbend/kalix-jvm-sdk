@@ -4,7 +4,7 @@ import com.google.protobuf.Empty;
 import customer.Main;
 import kalix.javasdk.testkit.EventingTestKit;
 import kalix.javasdk.testkit.KalixTestKit;
-import kalix.javasdk.testkit.junit.KalixTestKitResource;
+import kalix.javasdk.testkit.junit.jupiter.KalixTestKitExtension;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
@@ -31,8 +31,8 @@ public class CustomerActionIntegrationTest {
    * The test kit starts both the service container and the Kalix Runtime.
    */
   @RegisterExtension
-  public static final KalixTestKitResource testKit =
-      new KalixTestKitResource(Main.createKalix(), KalixTestKit.Settings.DEFAULT.withTopicOutgoingMessages("customer_changes"));
+  public static final KalixTestKitExtension testKit =
+      new KalixTestKitExtension(Main.createKalix(), KalixTestKit.Settings.DEFAULT.withTopicOutgoingMessages("customer_changes"));
 
 
   /**

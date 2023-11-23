@@ -1,7 +1,7 @@
 package store.view.structured;
 
 import kalix.javasdk.testkit.KalixTestKit;
-import kalix.javasdk.testkit.junit.KalixTestKitResource;
+import kalix.javasdk.testkit.junit.jupiter.KalixTestKitExtension;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.Test;
 import store.Main;
@@ -20,8 +20,8 @@ import static org.junit.jupiter.api.Assertions.*;
 public class StructuredCustomerOrdersViewIntegrationTest {
 
   @RegisterExtension
-  public static final KalixTestKitResource testKit =
-      new KalixTestKitResource(
+  public static final KalixTestKitExtension testKit =
+      new KalixTestKitExtension(
           Main.createKalix(), KalixTestKit.Settings.DEFAULT.withAdvancedViews());
 
   private final Products products;

@@ -1,6 +1,6 @@
 package com.example;
 
-import kalix.javasdk.testkit.junit.KalixTestKitResource;
+import kalix.javasdk.testkit.junit.jupiter.KalixTestKitExtension;
 import com.example.domain.CounterDomain;
 import com.google.protobuf.Empty;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -21,8 +21,8 @@ public class CounterIntegrationTest {
    * The test kit starts both the service container and the Kalix Runtime.
    */
   @RegisterExtension
-  public static final KalixTestKitResource testKit =
-    new KalixTestKitResource(Main.createKalix());
+  public static final KalixTestKitExtension testKit =
+    new KalixTestKitExtension(Main.createKalix());
 
   /**
    * Use the generated gRPC client to call the service through the Kalix Runtime.

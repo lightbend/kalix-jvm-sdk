@@ -5,7 +5,7 @@ import customer.domain.CustomerDomain.Address;
 import customer.domain.CustomerDomain.CustomerState;
 import customer.view.CustomerViewModel.ByCityRequest;
 import kalix.javasdk.testkit.EventingTestKit;
-import kalix.javasdk.testkit.junit.KalixTestKitResource;
+import kalix.javasdk.testkit.junit.jupiter.KalixTestKitExtension;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.Test;
 
@@ -20,8 +20,8 @@ import static org.testcontainers.shaded.org.awaitility.Awaitility.await;
 public class CustomersResponseByCityViewIntegrationTest {
 
   @RegisterExtension
-  public static final KalixTestKitResource testKit =
-      new KalixTestKitResource(
+  public static final KalixTestKitExtension testKit =
+      new KalixTestKitExtension(
           Main.createKalix(),
           DEFAULT.withValueEntityIncomingMessages("customer")); // <1>
 

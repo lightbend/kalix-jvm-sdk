@@ -4,7 +4,7 @@ import com.example.actions.Order;
 import com.example.actions.OrderApi;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
-import kalix.javasdk.testkit.junit.KalixTestKitResource;
+import kalix.javasdk.testkit.junit.jupiter.KalixTestKitExtension;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.Test;
@@ -27,8 +27,8 @@ public class OrderIntegrationTest {
    * The test kit starts both the service container and the Kalix Runtime.
    */
   @RegisterExtension
-  public static final KalixTestKitResource testKit =
-    new KalixTestKitResource(Main.createKalix());
+  public static final KalixTestKitExtension testKit =
+    new KalixTestKitExtension(Main.createKalix());
 
   /**
    * Use the generated gRPC client to call the service through the Kalix Runtime.

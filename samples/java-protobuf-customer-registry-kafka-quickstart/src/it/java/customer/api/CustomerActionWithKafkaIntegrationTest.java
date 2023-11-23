@@ -3,7 +3,7 @@ package customer.api;
 import com.google.protobuf.Empty;
 import customer.Main;
 import kalix.javasdk.testkit.KalixTestKit;
-import kalix.javasdk.testkit.junit.KalixTestKitResource;
+import kalix.javasdk.testkit.junit.jupiter.KalixTestKitExtension;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
@@ -39,12 +39,12 @@ public class CustomerActionWithKafkaIntegrationTest {
    * The test kit starts both the service container and the Kalix Runtime.
    */
   @RegisterExtension
-  public static final KalixTestKitResource testKit;
+  public static final KalixTestKitExtension testKit;
   static KalixTestKit.Settings settings;
 
   static {
     settings = KalixTestKit.Settings.DEFAULT.withEventingSupport(KalixTestKit.Settings.EventingSupport.KAFKA);
-    testKit = new KalixTestKitResource(Main.createKalix(),
+    testKit = new KalixTestKitExtension(Main.createKalix(),
         settings);
   }
 

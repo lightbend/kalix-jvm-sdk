@@ -1,6 +1,6 @@
 package com.example.fibonacci;
 
-import kalix.javasdk.testkit.junit.KalixTestKitResource;
+import kalix.javasdk.testkit.junit.jupiter.KalixTestKitExtension;
 import com.example.Main;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -15,8 +15,8 @@ public class FibonacciActionIntegrationTest {
    * The test kit starts both the service container and the Kalix Runtime.
    */
   @RegisterExtension
-  public static final KalixTestKitResource testKit =
-      new KalixTestKitResource(Main.createKalix());
+  public static final KalixTestKitExtension testKit =
+      new KalixTestKitExtension(Main.createKalix());
 
   private final Fibonacci client;
 

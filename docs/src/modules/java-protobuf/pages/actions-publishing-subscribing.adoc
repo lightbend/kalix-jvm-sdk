@@ -645,7 +645,7 @@ To run an integration test against a real instance of Google PubSub (or its Emul
 Java::
 +
 [source,java]
-private static final KalixTestKitResource testKit = new KalixTestKitResource(
+private static final KalixTestKitExtension testKit = new KalixTestKitExtension(
         Main.createKalix(),
         Settings.DEFAULT.withEventingSupport(EventingSupport.GOOGLE_PUBSUB)
     );
