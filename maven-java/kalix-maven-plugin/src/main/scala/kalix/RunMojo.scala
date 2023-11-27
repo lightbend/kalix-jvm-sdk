@@ -29,29 +29,30 @@ object RunMojo {
       log.warn("--------------------------------------------------------------------------------------")
     }
 
-    if (jvmArgs.nonEmpty){
+    if (jvmArgs.nonEmpty) {
       log.info("Additional JVM arguments detected: " + jvmArgs.toSeq.mkString(", "))
     }
 
     /*
-     * Collect any sys property starting with `kalix` and rebuild a -D property for each of them
-     * so we can pass it further to the forked process.
+     * Lookup for arguments passed to maven using -Dkey=value and rebuild a -D property for each of them.
      */
-    def collectKalixSysProperties: Seq[String] = {
-      sys.props.collect {
-        case (key, value) if key.startsWith("kalix") => s"-D$key=$value"
-      }.toSeq
-    }
+    def collectSysProperties: Seq[String] =
+      sys.env
+        .get("MAVEN_CMD_LINE_ARGS")
+        .map { args =>
+          args.split("\\s+").toSeq.collect {
+            case arg if arg.startsWith("-D") => arg
+          }
+        }
+        .getOrElse(Seq.empty)
 
     val mainArgs =
       Seq(
         element(name("argument"), "-classpath"),
         element(name("classpath")))
 
-
-
-    val kalixSysProps =
-      collectKalixSysProperties.map { arg =>
+    val sysProps =
+      collectSysProperties.map { arg =>
         element(name("argument"), arg)
       }
 
@@ -63,7 +64,7 @@ object RunMojo {
     val additionalJvmArgs = jvmArgs.filter(_.trim.nonEmpty).map(element(name("argument"), _)).toSeq
 
     val allArgs =
-      mainArgs ++ kalixSysProps ++ additionalJvmArgs ++ dockerConfig :+
+      mainArgs ++ sysProps ++ additionalJvmArgs ++ dockerConfig :+
       element(name("argument"), mainClass) // mainClass must be last arg
 
     executeMojo(
@@ -95,14 +96,7 @@ object RunMojo {
 class RunMojo extends RunParameters {
 
   override def execute(): Unit = {
-    RunMojo(
-      jvmArgs,
-      mainClass,
-      getLog,
-      mavenProject,
-      mavenSession,
-      pluginManager,
-      runningSolo = true)
+    RunMojo(jvmArgs, mainClass, getLog, mavenProject, mavenSession, pluginManager, runningSolo = true)
   }
 
 }
