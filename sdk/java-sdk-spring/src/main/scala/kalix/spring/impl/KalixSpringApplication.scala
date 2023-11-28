@@ -339,6 +339,7 @@ case class KalixSpringApplication(applicationContext: ApplicationContext, config
     // last case is a catch all that lookups in the applicationContext
     val totalWireFunction: PartialFunction[Class[_], Any] =
       partial.orElse {
+        case p if p == classOf[Config] => kalixRunner.finalConfig
         // block wiring of clients into anything that is not an Action or Workflow
         // NOTE: if they are allowed, 'partial' should already have a matching case for them
         case p if p == classOf[KalixClient] =>
@@ -378,8 +379,6 @@ case class KalixSpringApplication(applicationContext: ApplicationContext, config
           case p if p == classOf[KalixClient]           => kalixClient(context)
           case p if p == classOf[ComponentClient]       => componentClient(context)
           case p if p == classOf[WebClientProvider]     => webClientProvider(context)
-          // we wire the Akka Config instance as it's the final one (see KalixRunner.prepareConfig)
-          case p if p == classOf[Config] => context.materializer().system.settings.config
         })
 
   private def workflowProvider[S, W <: Workflow[S]](clz: Class[W]): WorkflowProvider[S, W] = {
@@ -394,8 +393,6 @@ case class KalixSpringApplication(applicationContext: ApplicationContext, config
             case p if p == classOf[KalixClient]       => kalixClient(context)
             case p if p == classOf[ComponentClient]   => componentClient(context)
             case p if p == classOf[WebClientProvider] => webClientProvider(context)
-            // we wire the Akka Config instance as it's the final one (see KalixRunner.prepareConfig)
-            case p if p == classOf[Config] => context.materializer().system.settings.config
           }
 
         val workflowStateType: Class[S] =
@@ -431,8 +428,6 @@ case class KalixSpringApplication(applicationContext: ApplicationContext, config
       context =>
         wiredInstance(clz) {
           case p if p == classOf[EventSourcedEntityContext] => context
-          // we wire the Akka Config instance as it's the final one (see KalixRunner.prepareConfig)
-          case p if p == classOf[Config] => context.materializer().system.settings.config
         })
 
   private def valueEntityProvider[S, VE <: ValueEntity[S]](clz: Class[VE]): ValueEntityProvider[S, VE] =
@@ -442,8 +437,6 @@ case class KalixSpringApplication(applicationContext: ApplicationContext, config
       context =>
         wiredInstance(clz) {
           case p if p == classOf[ValueEntityContext] => context
-          // we wire the Akka Config instance as it's the final one (see KalixRunner.prepareConfig)
-          case p if p == classOf[Config] => context.materializer().system.settings.config
         })
 
   private def viewProvider[S, V <: View[S]](clz: Class[V]): ViewProvider =
@@ -453,8 +446,6 @@ case class KalixSpringApplication(applicationContext: ApplicationContext, config
       context =>
         wiredInstance(clz) {
           case p if p == classOf[ViewCreationContext] => context
-          // we wire the Akka Config instance as it's the final one (see KalixRunner.prepareConfig)
-          case p if p == classOf[Config] => context.materializer().system.settings.config
         })
 
   private def multiTableViewProvider[V](clz: Class[V]): ViewProvider =
@@ -465,8 +456,6 @@ case class KalixSpringApplication(applicationContext: ApplicationContext, config
         val constructor = viewTableClass.getConstructors.head.asInstanceOf[Constructor[View[_]]]
         wiredInstance(constructor) {
           case p if p == classOf[ViewCreationContext] => context
-          // we wire the Akka Config instance as it's the final one (see KalixRunner.prepareConfig)
-          case p if p == classOf[Config] => context.materializer().system.settings.config
         }
       })
 }
