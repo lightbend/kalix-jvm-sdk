@@ -31,6 +31,6 @@ public class Main {
 
   public static void main(String[] args) {
     logger.info("Starting Kalix Application");
-    SpringApplication.run(kalix.spring.badwiring.view.Main.class, args);
+    SpringApplication.run(Main.class, args);
   }
 }

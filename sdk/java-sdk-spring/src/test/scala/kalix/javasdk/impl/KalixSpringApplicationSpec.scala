@@ -26,6 +26,8 @@ import kalix.spring.badwiring.valueentity
 import kalix.spring.badwiring.valueentity.IllDefinedValueEntity
 import kalix.spring.badwiring.view
 import kalix.spring.badwiring.view.IllDefinedView
+import kalix.spring.badwiring.workflow
+import kalix.spring.badwiring.workflow.IllDefinedWorkflow
 import kalix.spring.boot.KalixConfiguration
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
@@ -81,6 +83,15 @@ class KalixSpringApplicationSpec extends AnyWordSpec with Matchers {
         }.getCause.getMessage
 
       errorMessage shouldBe KalixConfiguration.beanPostProcessorErrorMessage(classOf[IllDefinedView])
+    }
+
+    "block direct wiring of Kalix Workflows" in {
+      val errorMessage =
+        intercept[BeanCreationException] {
+          tryCatch(() => workflow.Main.main(Array.empty))
+        }.getCause.getMessage
+
+      errorMessage shouldBe KalixConfiguration.beanPostProcessorErrorMessage(classOf[IllDefinedWorkflow])
     }
   }
 
