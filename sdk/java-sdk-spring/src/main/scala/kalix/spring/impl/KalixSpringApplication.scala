@@ -339,6 +339,7 @@ case class KalixSpringApplication(applicationContext: ApplicationContext, config
     // last case is a catch all that lookups in the applicationContext
     val totalWireFunction: PartialFunction[Class[_], Any] =
       partial.orElse {
+        case p if p == classOf[Config] => kalixRunner.finalConfig
         // block wiring of clients into anything that is not an Action or Workflow
         // NOTE: if they are allowed, 'partial' should already have a matching case for them
         case p if p == classOf[KalixClient] =>
@@ -424,19 +425,28 @@ case class KalixSpringApplication(applicationContext: ApplicationContext, config
     ReflectiveEventSourcedEntityProvider.of(
       clz,
       messageCodec,
-      context => wiredInstance(clz) { case p if p == classOf[EventSourcedEntityContext] => context })
+      context =>
+        wiredInstance(clz) {
+          case p if p == classOf[EventSourcedEntityContext] => context
+        })
 
   private def valueEntityProvider[S, VE <: ValueEntity[S]](clz: Class[VE]): ValueEntityProvider[S, VE] =
     ReflectiveValueEntityProvider.of(
       clz,
       messageCodec,
-      context => wiredInstance(clz) { case p if p == classOf[ValueEntityContext] => context })
+      context =>
+        wiredInstance(clz) {
+          case p if p == classOf[ValueEntityContext] => context
+        })
 
   private def viewProvider[S, V <: View[S]](clz: Class[V]): ViewProvider =
     ReflectiveViewProvider.of[S, V](
       clz,
       messageCodec,
-      context => wiredInstance(clz) { case p if p == classOf[ViewCreationContext] => context })
+      context =>
+        wiredInstance(clz) {
+          case p if p == classOf[ViewCreationContext] => context
+        })
 
   private def multiTableViewProvider[V](clz: Class[V]): ViewProvider =
     ReflectiveMultiTableViewProvider.of[V](
@@ -444,6 +454,8 @@ case class KalixSpringApplication(applicationContext: ApplicationContext, config
       messageCodec,
       (viewTableClass, context) => {
         val constructor = viewTableClass.getConstructors.head.asInstanceOf[Constructor[View[_]]]
-        wiredInstance(constructor) { case p if p == classOf[ViewCreationContext] => context }
+        wiredInstance(constructor) {
+          case p if p == classOf[ViewCreationContext] => context
+        }
       })
 }

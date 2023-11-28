@@ -95,7 +95,7 @@ object KalixRunner {
     DevModeSettings.addDevModeConfig(mainConfig)
   }
 
-  private def loadConfig(): Config = prepareConfig(ConfigFactory.load())
+  private def loadPreparedConfig(): Config = prepareConfig(ConfigFactory.load())
 
 }
 
@@ -116,8 +116,10 @@ final class KalixRunner private[javasdk] (
 
   private val dockerComposeUtils = DockerComposeUtils.fromConfig(_system.settings.config)
 
+  // The effective Akka Config instance as it maybe be tweaked for dev-mode (see KalixRunner.prepareConfig)
+  private[kalix] val finalConfig: Config = system.settings.config
   private[kalix] final val configuration =
-    new KalixRunner.Configuration(system.settings.config.getConfig("kalix"))
+    new KalixRunner.Configuration(finalConfig.getConfig("kalix"))
 
   private val services = serviceFactories.toSeq.map { case (serviceName, factory) =>
     serviceName -> factory(system)
@@ -127,14 +129,18 @@ final class KalixRunner private[javasdk] (
    * Creates a KalixRunner from the given services. Use the default config to create the internal ActorSystem.
    */
   def this(services: java.util.Map[String, java.util.function.Function[ActorSystem, Service]], sdkName: String) = {
-    this(ActorSystem("kalix", KalixRunner.loadConfig()), services.asScala.toMap, aclDescriptor = None, sdkName)
+    this(ActorSystem("kalix", KalixRunner.loadPreparedConfig()), services.asScala.toMap, aclDescriptor = None, sdkName)
   }
 
   def this(
       services: java.util.Map[String, java.util.function.Function[ActorSystem, Service]],
       aclDescriptor: Option[FileDescriptorProto],
       sdkName: String) =
-    this(ActorSystem("kalix", KalixRunner.loadConfig()), services.asScala.toMap, aclDescriptor = aclDescriptor, sdkName)
+    this(
+      ActorSystem("kalix", KalixRunner.loadPreparedConfig()),
+      services.asScala.toMap,
+      aclDescriptor = aclDescriptor,
+      sdkName)
 
   /**
    * Creates a KalixRunner from the given services and config. The config should have the same structure as the
