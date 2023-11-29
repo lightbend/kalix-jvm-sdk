@@ -18,11 +18,15 @@ import reactor.core.publisher.Flux;
     id = "customer_events" // <3>
 )
 public class CustomersByNameView extends View<Customer> {
+  // end::view[]
   private static final Logger logger = LoggerFactory.getLogger(CustomersByNameView.class);
+  // tag::view[]
 
   public UpdateEffect<Customer> onEvent( // <4>
       CustomerPublicEvent.Created created) {
+    // end::view[]
     logger.info("Received: {}", created);
+    // tag::view[]
     var id = updateContext().eventSubject().get();
     return effects().updateState(
         new Customer(id, created.email(), created.name()));
@@ -30,7 +34,9 @@ public class CustomersByNameView extends View<Customer> {
 
   public UpdateEffect<Customer> onEvent(
       CustomerPublicEvent.NameChanged nameChanged) {
+    // end::view[]
     logger.info("Received: {}", nameChanged);
+    // tag::view[]
     var updated = viewState().withName(nameChanged.newName());
     return effects().updateState(updated);
   }

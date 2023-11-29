@@ -8,12 +8,12 @@ package com.example;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
 // tag::sample-it-test[]
-import kalix.javasdk.testkit.junit.KalixTestKitResource;
+import kalix.javasdk.testkit.junit.jupiter.KalixTestKitExtension;
 // ...
 // end::sample-it-test[]
-import org.junit.Assert;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.ExecutionException;
 
@@ -27,14 +27,14 @@ import static org.hamcrest.MatcherAssert.assertThat;
 public class CounterIntegrationTest {
 
   /**
-   * The test kit starts both the service container and the Kalix proxy.
+   * The test kit starts both the service container and the Kalix Runtime.
    */
-  @ClassRule
-  public static final KalixTestKitResource testKit =
-      new KalixTestKitResource(Main.createKalix()); // <1>
+  @RegisterExtension
+  public static final KalixTestKitExtension testKit =
+      new KalixTestKitExtension(Main.createKalix()); // <1>
 
   /**
-   * Use the generated gRPC client to call the service through the Kalix proxy.
+   * Use the generated gRPC client to call the service through the Kalix Runtime.
    */
   private final CounterService client;
 
@@ -70,7 +70,7 @@ public class CounterIntegrationTest {
     try {
       client.increaseWithConditional(CounterApi.IncreaseValue.newBuilder().setCounterId("new-id").setValue(-10).build())
           .toCompletableFuture().get(5, SECONDS);
-      Assert.fail("Previous method should be invalid and throw exception");
+      Assertions.fail("Previous method should be invalid and throw exception");
     } catch (ExecutionException e) {
       var suppressed = (StatusRuntimeException) e.getCause();
       assertThat(suppressed.getStatus().getCode(), is(Status.Code.INVALID_ARGUMENT));

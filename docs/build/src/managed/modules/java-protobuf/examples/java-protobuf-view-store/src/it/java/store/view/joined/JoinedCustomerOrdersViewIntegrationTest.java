@@ -2,9 +2,9 @@ package store.view.joined;
 
 import akka.stream.javadsl.Sink;
 import kalix.javasdk.testkit.KalixTestKit;
-import kalix.javasdk.testkit.junit.KalixTestKitResource;
-import org.junit.ClassRule;
-import org.junit.Test;
+import kalix.javasdk.testkit.junit.jupiter.KalixTestKitExtension;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.api.Test;
 import store.Main;
 import store.customer.api.CustomerApi;
 import store.customer.api.Customers;
@@ -19,15 +19,15 @@ import java.util.List;
 
 import static java.util.concurrent.TimeUnit.*;
 import static org.awaitility.Awaitility.await;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 // Run all test classes ending with "IntegrationTest" using `mvn verify -Pit`
 public class JoinedCustomerOrdersViewIntegrationTest {
 
-  @ClassRule
+  @RegisterExtension
   // tag::testkit-advanced-views[]
-  public static final KalixTestKitResource testKit =
-      new KalixTestKitResource(
+  public static final KalixTestKitExtension testKit =
+      new KalixTestKitExtension(
           Main.createKalix(), KalixTestKit.Settings.DEFAULT.withAdvancedViews());
   // end::testkit-advanced-views[]
 

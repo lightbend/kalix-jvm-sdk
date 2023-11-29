@@ -4,15 +4,20 @@ scalaVersion := "2.13.10"
 
 enablePlugins(KalixPlugin, JavaAppPackaging, DockerPlugin)
 dockerBaseImage := "docker.io/library/adoptopenjdk:11-jre-hotspot"
-dockerUsername := sys.props.get("docker.username")
-dockerRepository := sys.props.get("docker.registry")
+// For Docker setup see https://docs.kalix.io/projects/container-registries.html
+dockerRepository := sys.props.get("docker.registry").orElse(Some("kcr.us-east-1.kalix.io"))
+dockerUsername := sys.props.get("docker.username") // use your Kalix organization name
 dockerUpdateLatest := true
 dockerBuildCommand := {
   val arch = sys.props("os.arch")
   if (arch != "amd64" && !arch.contains("x86")) {
     // use buildx with platform to build supported amd64 images on other CPU architectures
     // this may require that you have first run 'docker buildx create' to set docker buildx up
-    dockerExecCommand.value ++ Seq("buildx", "build", "--platform=linux/amd64", "--load") ++ dockerBuildOptions.value :+ "."
+    dockerExecCommand.value ++ Seq(
+      "buildx",
+      "build",
+      "--platform=linux/amd64",
+      "--load") ++ dockerBuildOptions.value :+ "."
   } else dockerBuildCommand.value
 }
 ThisBuild / dynverSeparator := "-"
@@ -26,11 +31,12 @@ Compile / scalacOptions ++= Seq(
   "-unchecked",
   "-Xlog-reflective-calls",
   "-Xlint")
-Compile / javacOptions ++= Seq("-Xlint:unchecked", "-Xlint:deprecation", "-parameters" // for Jackson
+Compile / javacOptions ++= Seq(
+  "-Xlint:unchecked",
+  "-Xlint:deprecation",
+  "-parameters" // for Jackson
 )
 
 libraryDependencies ++= Seq(
   "org.scalatest" %% "scalatest" % "3.2.7" % Test,
-  "com.google.api.grpc" % "proto-google-common-protos" % "2.15.0" % Test
-
-)
+  "com.google.api.grpc" % "proto-google-common-protos" % "2.15.0" % Test)

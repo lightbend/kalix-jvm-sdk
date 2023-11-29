@@ -208,7 +208,7 @@ When modeling your queries, the following data types are supported:
 | `java.time.Instant`
 |===
 
-NOTE: `Instant` are only supported for queries with a `@RequestBody`. It's currently not possible to pass an `Instant` as a `@PathVariable` or `@RequestParam`.
+NOTE: `Instant` is only supported for queries with a `@RequestBody`. It's currently not possible to pass an `Instant` as a `@PathVariable` or `@RequestParam`.
 
 ==== Optional fields
 

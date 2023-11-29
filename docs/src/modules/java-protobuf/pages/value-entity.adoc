@@ -284,7 +284,7 @@ By default, the integration and unit tests are both invoked by `sbt test`. To on
 
 === Integration tests
 
-An example integration test class to start from is also generated for you. It uses [.group-java]#an `KalixTestKitResource`# [.group-scala]#`KalixTestKit`# to start docker containers and interacts with the entity with an actual gRPC client.
+An example integration test class to start from is also generated for you. It uses [.group-java]#an `KalixTestKitExtension`# [.group-scala]#`KalixTestKit`# to start docker containers and interacts with the entity with an actual gRPC client.
 
 [.tabset]
 Java::
@@ -294,7 +294,7 @@ Java::
 ----
 include::example$java-protobuf-valueentity-counter/src/it/java/com/example/CounterIntegrationTest.java[tag=sample-it-test]
 ----
-<1> Using the TestKit to create the service container and Kalix Proxy.
+<1> Using the TestKit to create the service container and Kalix Runtime.
 <2> Creating a client for interacting with the gRPC endpoints for `CounterService`.
 <3> Increasing counter and asserting on its current status.
 +
@@ -307,7 +307,7 @@ Scala::
 ----
 include::example$scala-protobuf-valueentity-counter/src/test/scala/com/example/CounterServiceIntegrationSpec.scala[tag=sample-it-test]
 ----
-<1> Using the TestKit to create the service container and Kalix Proxy.
+<1> Using the TestKit to create the service container and Kalix Runtime.
 <2> Creating a client for interacting with the gRPC endpoints for `CounterService`.
 <3> Asserting on current value of counter after being increased.
 <4> Shutting down TestKit resources after test concludes.

@@ -59,7 +59,7 @@ service CustomerService {
   option (kalix.codegen) = {
     value_entity: {
       name: "customer.domain.CustomerValueEntity"
-      entity_type: "customers"
+      entity_type: "customer"
       state: "customer.domain.CustomerState"
     }
   };

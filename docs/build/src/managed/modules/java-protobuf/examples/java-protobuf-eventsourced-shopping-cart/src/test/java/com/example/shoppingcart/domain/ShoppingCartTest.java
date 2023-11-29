@@ -3,12 +3,12 @@ package com.example.shoppingcart.domain;
 import kalix.javasdk.testkit.EventSourcedResult;
 import com.example.shoppingcart.ShoppingCartApi;
 import com.google.protobuf.Empty;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.NoSuchElementException;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class ShoppingCartTest {
 

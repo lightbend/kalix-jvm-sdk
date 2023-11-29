@@ -1,22 +1,22 @@
 package com.example.fibonacci;
 
-import kalix.javasdk.testkit.junit.KalixTestKitResource;
+import kalix.javasdk.testkit.junit.jupiter.KalixTestKitExtension;
 import com.example.Main;
-import org.junit.Assert;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.api.Test;
 import java.util.concurrent.TimeUnit;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class FibonacciActionIntegrationTest {
   /**
-   * The test kit starts both the service container and the Kalix proxy.
+   * The test kit starts both the service container and the Kalix Runtime.
    */
-  @ClassRule
-  public static final KalixTestKitResource testKit =
-      new KalixTestKitResource(Main.createKalix());
+  @RegisterExtension
+  public static final KalixTestKitExtension testKit =
+      new KalixTestKitExtension(Main.createKalix());
 
   private final Fibonacci client;
 
@@ -29,7 +29,7 @@ public class FibonacciActionIntegrationTest {
     FibonacciApi.Number in = FibonacciApi.Number.newBuilder().setValue(5).build();
     FibonacciApi.Number response =
         client.nextNumber(in).toCompletableFuture().get(5, SECONDS);
-    Assert.assertEquals(8, response.getValue());
+    Assertions.assertEquals(8, response.getValue());
   }
 
   @Test
@@ -39,7 +39,7 @@ public class FibonacciActionIntegrationTest {
       client.nextNumber(in).toCompletableFuture().get(5, SECONDS);
       fail("Should have failed");
     } catch (Exception ex) {
-      Assert.assertTrue(ex.getMessage().contains("Input number is not a Fibonacci number"));
+      Assertions.assertTrue(ex.getMessage().contains("Input number is not a Fibonacci number"));
     }
 
   }

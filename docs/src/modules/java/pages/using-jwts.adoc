@@ -73,13 +73,13 @@ include::example$java-spring-doc-snippets/src/main/java/com/example/jwt/HelloJwt
 
 When running locally using docker compose, by default, a dev key with id `dev` is configured for use. This key uses the JWT `none` signing algorithm, which means the JWT tokens produced do not contain a cryptographic signature, nor are they validated against a signature when validating. Therefore, when calling an endpoint with a bearer token, only its presence is validated
 
-If you wish to set the issuer for this dev key, you can do that modifying the `docker-compose.yml` file in your project, setting the `JWT_DEV_SECRET_ISSUER` environment variable in the `kalix-proxy` service:
+If you wish to set the issuer for this dev key, you can do that modifying the `docker-compose.yml` file in your project, setting the `JWT_DEV_SECRET_ISSUER` environment variable in the `kalix-runtime` service:
 
 [source,yaml]
 ----
 version: "3"
 services:
-  kalix-proxy:
+  kalix-runtime:
     ...
     environment:
       JWT_DEV_SECRET_ISSUER: "my-issuer"

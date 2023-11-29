@@ -1,7 +1,7 @@
 version: "3"
 services:
   kalix-proxy:
-    image: gcr.io/kalix-public/kalix-proxy:1.1.22
+    image: gcr.io/kalix-public/kalix-proxy:1.1.23
     container_name: java-protobuf-eventsourced-counter
     ports:
       - "9000:9000"
@@ -9,8 +9,6 @@ services:
       - "host.docker.internal:host-gateway"
     environment:
       JAVA_TOOL_OPTIONS: >
-        -Dconfig.resource=dev-mode.conf
-        -Dlogback.configurationFile=logback-dev-mode.xml
         -Dkalix.proxy.eventing.support=google-pubsub-emulator
       USER_FUNCTION_HOST: ${USER_FUNCTION_HOST:-host.docker.internal}
       USER_FUNCTION_PORT: ${USER_FUNCTION_PORT:-8080}

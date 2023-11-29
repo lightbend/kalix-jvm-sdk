@@ -3,26 +3,26 @@ package customer.api;
 import com.google.protobuf.Empty;
 import customer.Main;
 import kalix.javasdk.testkit.KalixTestKit;
-import kalix.javasdk.testkit.junit.KalixTestKitResource;
+import kalix.javasdk.testkit.junit.jupiter.KalixTestKitExtension;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.serialization.ByteArrayDeserializer;
 import org.apache.kafka.common.serialization.StringDeserializer;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import java.time.Duration;
-import java.time.temporal.ChronoUnit;
-import java.util.*;
+import java.util.Collections;
+import java.util.Properties;
+import java.util.UUID;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import static java.time.Duration.ofSeconds;
 import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.testcontainers.shaded.org.awaitility.Awaitility.await;
 
 // This class was initially generated based on the .proto definition by Kalix tooling.
@@ -30,26 +30,27 @@ import static org.testcontainers.shaded.org.awaitility.Awaitility.await;
 // As long as this file exists it will not be overwritten: you can maintain it yourself,
 // or delete it so it is regenerated as needed.
 
-// Example of an integration test calling our service via the Kalix proxy
+// Example of an integration test calling our service via the Kalix Runtime
 // IMPORTANT: this tests depends on an external kafka instance. Make sure to have it running
 // Run all test classes ending with "IntegrationTest" using `mvn verify -Pit`
 public class CustomerActionWithKafkaIntegrationTest {
 
   /**
-   * The test kit starts both the service container and the Kalix proxy.
+   * The test kit starts both the service container and the Kalix Runtime.
    */
-  @ClassRule
-  public static final KalixTestKitResource testKit;
+  @RegisterExtension
+  public static final KalixTestKitExtension testKit;
   static KalixTestKit.Settings settings;
 
   static {
     settings = KalixTestKit.Settings.DEFAULT.withEventingSupport(KalixTestKit.Settings.EventingSupport.KAFKA);
-    testKit = new KalixTestKitResource(Main.createKalix(),
+    testKit = new KalixTestKitExtension(Main.createKalix(),
         settings);
   }
 
+
   /**
-   * Use the generated gRPC client to call the service through the Kalix proxy.
+   * Use the generated gRPC client to call the service through the Kalix Runtime.
    */
   private final CustomerService client;
 

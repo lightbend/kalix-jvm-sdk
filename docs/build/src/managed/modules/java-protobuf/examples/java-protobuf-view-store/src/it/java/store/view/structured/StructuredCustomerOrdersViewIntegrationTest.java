@@ -1,9 +1,9 @@
 package store.view.structured;
 
 import kalix.javasdk.testkit.KalixTestKit;
-import kalix.javasdk.testkit.junit.KalixTestKitResource;
-import org.junit.ClassRule;
-import org.junit.Test;
+import kalix.javasdk.testkit.junit.jupiter.KalixTestKitExtension;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.api.Test;
 import store.Main;
 import store.customer.api.CustomerApi;
 import store.customer.api.Customers;
@@ -14,14 +14,14 @@ import store.product.api.Products;
 
 import static java.util.concurrent.TimeUnit.*;
 import static org.awaitility.Awaitility.await;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 // Run all test classes ending with "IntegrationTest" using `mvn verify -Pit`
 public class StructuredCustomerOrdersViewIntegrationTest {
 
-  @ClassRule
-  public static final KalixTestKitResource testKit =
-      new KalixTestKitResource(
+  @RegisterExtension
+  public static final KalixTestKitExtension testKit =
+      new KalixTestKitExtension(
           Main.createKalix(), KalixTestKit.Settings.DEFAULT.withAdvancedViews());
 
   private final Products products;

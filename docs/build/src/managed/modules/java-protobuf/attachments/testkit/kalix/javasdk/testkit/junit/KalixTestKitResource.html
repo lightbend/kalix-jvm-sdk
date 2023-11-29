@@ -84,11 +84,10 @@ loadScripts(document, 'script');</script>
 <hr>
 <div class="type-signature"><span class="modifiers">public final class </span><span class="element-name type-name-label">KalixTestKitResource</span>
 <span class="extends-implements">extends org.junit.rules.ExternalResource</span></div>
-<div class="block">A JUnit external resource for <a href="../KalixTestKit.html" title="class in kalix.javasdk.testkit"><code>KalixTestKit</code></a>, which automatically manages the lifecycle of
+<div class="block">A JUnit 4 external resource for <a href="../KalixTestKit.html" title="class in kalix.javasdk.testkit"><code>KalixTestKit</code></a>, which automatically manages the lifecycle of
  the testkit. The testkit will be automatically stopped when the test completes or fails.
 
- <p><b>Note</b>: JUnit is not provided as a transitive dependency of the Java SDK testkit module
- but must be added explicitly to your project.
+ If you prefer JUnit 5 "Jupiter" use <code>KalixTestKitExtension</code>.
 
  <p>Example:
 
@@ -150,10 +149,14 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#after()" class="member-name-link">after</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">JUnit4 support - rule based</div>
+</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#before()" class="member-name-link">before</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">JUnit4 support - rule based</div>
+</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>akka.actor.ActorSystem</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getActorSystem()" class="member-name-link">getActorSystem</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
@@ -276,9 +279,21 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="before()">
 <h3>before</h3>
 <div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">before</span>()</div>
+<div class="block">JUnit4 support - rule based</div>
 <dl class="notes">
 <dt>Overrides:</dt>
 <dd><code>before</code>&nbsp;in class&nbsp;<code>org.junit.rules.ExternalResource</code></dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="after()">
+<h3>after</h3>
+<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">after</span>()</div>
+<div class="block">JUnit4 support - rule based</div>
+<dl class="notes">
+<dt>Overrides:</dt>
+<dd><code>after</code>&nbsp;in class&nbsp;<code>org.junit.rules.ExternalResource</code></dd>
 </dl>
 </section>
 </li>
@@ -289,7 +304,7 @@ loadScripts(document, 'script');</script>
 </span><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="../EventingTestKit.Topic.html" title="interface in kalix.javasdk.testkit">EventingTestKit.Topic</a></span>&nbsp;<span class="element-name">getTopic</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;topic)</span></div>
 <div class="deprecation-block"><span class="deprecated-label">Deprecated.</span></div>
 <div class="block">Use <code>getTopicIncomingMessages</code> or <code>getTopicOutgoingMessages</code> instead.
-
+ <p>
  If your Kalix service publishes or consumes from/to an eventing services (i.e. kafka or pub/sub),
  this will allow assertions on messages consumed / produced to such broker.</div>
 <dl class="notes">
@@ -436,16 +451,6 @@ loadScripts(document, 'script');</script>
 <dl class="notes">
 <dt>Returns:</dt>
 <dd>test gRPC client settings</dd>
-</dl>
-</section>
-</li>
-<li>
-<section class="detail" id="after()">
-<h3>after</h3>
-<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">after</span>()</div>
-<dl class="notes">
-<dt>Overrides:</dt>
-<dd><code>after</code>&nbsp;in class&nbsp;<code>org.junit.rules.ExternalResource</code></dd>
 </dl>
 </section>
 </li>

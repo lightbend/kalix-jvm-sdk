@@ -82,6 +82,20 @@ loadScripts(document, 'script');</script>
 <hr>
 <div class="type-signature"><span class="modifiers">public abstract class </span><span class="element-name type-name-label">View&lt;S&gt;</span>
 <span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></span></div>
+<div class="block">Kalix applications follow the Command Query Responsibility Segregation (CQRS) pattern (see https://developer.lightbend.com/docs/akka-guide/concepts/cqrs.html). 
+ <p>
+ Kalix' Entities represent the command side where you change the state of your model in a strictly consistent and isolated manner.
+ Kalix' Views represent the query side of your application. Views are optimized for reads and allow you to query your model by fields other than the entity identifier.
+ <p>
+ When implementing a View, you define what will be its internal state (your view model) and how you want to query it.
+ The Query string defines which fields will be indexed and how the query will be executed.
+ <p>
+ The query is executed by the Kalix when a request is made to the View.
+ <p>
+ Views are updated in response to Event Sourced Entity events, Value Entity state changes or messages from a Topic.
+ <p>
+ Each incoming change is handled by a command handler. Command handlers are methods returning an
+ <a href="View.UpdateEffect.html" title="interface in kalix.javasdk.view"><code>View.UpdateEffect</code></a>. The command handler is responsible for updating the View state.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -97,7 +111,7 @@ loadScripts(document, 'script');</script>
 <div class="col-first even-row-color"><code>static interface&nbsp;</code></div>
 <div class="col-second even-row-color"><code><a href="View.UpdateEffect.html" class="type-name-link" title="interface in kalix.javasdk.view">View.UpdateEffect</a>&lt;<a href="View.UpdateEffect.html" title="type parameter in View.UpdateEffect">S</a>&gt;</code></div>
 <div class="col-last even-row-color">
-<div class="block">Construct the effect that is returned by the command handler.</div>
+<div class="block">An UpdateEffect is a description of what Kalix needs to do after the command is handled.</div>
 </div>
 </div>
 </section>

@@ -4,7 +4,7 @@
   <parent> 
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>3.1.4</version>
+    <version>3.1.5</version>
     <relativePath/> 
   </parent>
 
@@ -16,8 +16,10 @@
   <name>java-spring-eventsourced-customer-registry-subscriber</name>
   <properties>
 
-    <!-- TODO Update to your own Docker repository or Docker Hub scope -->
-    <dockerImage>my-docker-repo/${project.artifactId}</dockerImage>
+    <!-- For Docker setup see https://docs.kalix.io/projects/container-registries.html -->
+    <kalixContainerRegistry>kcr.us-east-1.kalix.io</kalixContainerRegistry>
+    <kalixOrganization>acme</kalixOrganization>
+    <dockerImage>${kalixContainerRegistry}/${kalixOrganization}/${project.artifactId}</dockerImage>
     <dockerTag>${project.version}-${build.timestamp}</dockerTag>
     <maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
     <mainClass>customer.Main</mainClass>
@@ -43,7 +45,7 @@
       <extension>
         <groupId>kr.motd.maven</groupId>
         <artifactId>os-maven-plugin</artifactId>
-        <version>1.7.0</version>
+        <version>1.7.1</version>
       </extension>
     </extensions>
 
@@ -75,7 +77,6 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.8.1</version>
         <configuration>
           <source>${jdk.target}</source>
           <target>${jdk.target}</target>
@@ -89,7 +90,7 @@
       <plugin>
         <groupId>io.fabric8</groupId>
         <artifactId>docker-maven-plugin</artifactId>
-        <version>0.39.1</version>
+        <version>0.43.4</version>
         <configuration>
           <images>
             <image>
@@ -209,7 +210,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-deploy-plugin</artifactId>
-        <version>3.0.0-M1</version>
+        <version>3.1.1</version>
         <configuration>
           <skip>true</skip>
         </configuration>
@@ -228,7 +229,6 @@
             <!-- run *IntegrationTest with failsafe -->
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-failsafe-plugin</artifactId>
-            <version>2.22.2</version>
             <executions>
               <execution>
                 <goals>

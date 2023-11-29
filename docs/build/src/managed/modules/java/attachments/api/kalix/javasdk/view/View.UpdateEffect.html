@@ -78,7 +78,22 @@ loadScripts(document, 'script');</script>
 </dl>
 <hr>
 <div class="type-signature"><span class="modifiers">public static interface </span><span class="element-name type-name-label">View.UpdateEffect&lt;S&gt;</span></div>
-<div class="block">Construct the effect that is returned by the command handler. The effect describes next
+<div class="block">An UpdateEffect is a description of what Kalix needs to do after the command is handled.
+ You can think of it as a set of instructions you are passing to Kalix. Kalix will process the instructions on your
+ behalf and ensure that any data that needs to be persisted will be persisted.
+ <p>
+ Each Kalix component defines its own effects, which are a set of predefined
+ operations that match the capabilities of that component.
+ <p>
+ A View UpdateEffect can either:
+ <p>
+ <ul>
+   <li>update the view state
+   <li>delete the view state
+   <li>ignore the event or state change notification (and not update the view state)
+ </ul>
+ <p>
+ Construct the effect that is returned by the command handler. The effect describes next
  processing actions, such as emitting events and sending a reply.</div>
 </section>
 <section class="summary">

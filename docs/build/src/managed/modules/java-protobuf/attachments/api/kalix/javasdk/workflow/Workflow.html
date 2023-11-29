@@ -83,6 +83,18 @@ loadScripts(document, 'script');</script>
 <div class="type-signature"><span class="annotations">@ApiMayChange
 </span><span class="modifiers">public abstract class </span><span class="element-name type-name-label">Workflow&lt;S&gt;</span>
 <span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></span></div>
+<div class="block">Workflows are stateful components and are defined by a set of steps and transitions between them.
+ <p>
+ You can use workflows to implement business processes that span multiple services.
+ <p>
+ When implementing a workflow, you define a state type and a set of steps. Each step defines a call to be executed and
+ the transition to the next step based on the result of the call.
+ The workflow state can be updated after each successful step execution.
+ <p>
+ Kalix keeps track of the state of the workflow and the current step. If the workflow is stopped for any reason,
+ it can be resumed from the last known state and step.
+ <p>
+ Workflow methods that handle incoming commands should return an <a href="Workflow.Effect.html" title="interface in kalix.javasdk.workflow"><code>Workflow.Effect</code></a> describing the next processing actions.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -104,7 +116,7 @@ loadScripts(document, 'script');</script>
 <div class="col-first even-row-color"><code>static interface&nbsp;</code></div>
 <div class="col-second even-row-color"><code><a href="Workflow.Effect.html" class="type-name-link" title="interface in kalix.javasdk.workflow">Workflow.Effect</a>&lt;<a href="Workflow.Effect.html" title="type parameter in Workflow.Effect">T</a>&gt;</code></div>
 <div class="col-last even-row-color">
-<div class="block">A return type to allow returning failures or attaching effects to messages.</div>
+<div class="block">An Effect is a description of what Kalix needs to do after the command is handled.</div>
 </div>
 <div class="col-first odd-row-color"><code>static class&nbsp;</code></div>
 <div class="col-second odd-row-color"><code><a href="Workflow.RecoverStrategy.html" class="type-name-link" title="class in kalix.javasdk.workflow">Workflow.RecoverStrategy</a>&lt;<a href="Workflow.RecoverStrategy.html" title="type parameter in Workflow.RecoverStrategy">T</a>&gt;</code></div>

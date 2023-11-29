@@ -281,7 +281,7 @@ Scala::
 sbt runAll
 ----
 
-This command will start your Kalix service and a companion Kalix Proxy as configured in `docker-compose.yml` file.
+This command will start your Kalix service and a companion Kalix Runtime as configured in `docker-compose.yml` file.
 
 If you prefer, you can also start docker-compose directly by running `docker-compose up` in one terminal and in another terminal start your Kalix service with:
 

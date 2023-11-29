@@ -61,10 +61,12 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-first">Class</div>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="kalix/javasdk/action/Action.html" title="class in kalix.javasdk.action">Action</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab2">&nbsp;</div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
+<div class="block">Actions are stateless components that can be used to implement different uses cases, such as:</div>
+</div>
 <div class="col-first odd-row-color all-classes-table all-classes-table-tab1"><a href="kalix/javasdk/action/Action.Effect.html" title="interface in kalix.javasdk.action">Action.Effect</a>&lt;<a href="kalix/javasdk/action/Action.Effect.html" title="type parameter in Action.Effect">T</a>&gt;</div>
 <div class="col-last odd-row-color all-classes-table all-classes-table-tab1">
-<div class="block">A return type to allow returning forwards or failures, and attaching effects to messages.</div>
+<div class="block">An Effect is a description of what Kalix needs to do after the command is handled.</div>
 </div>
 <div class="col-first even-row-color all-classes-table all-classes-table-tab1"><a href="kalix/javasdk/action/Action.Effect.Builder.html" title="interface in kalix.javasdk.action">Action.Effect.Builder</a></div>
 <div class="col-last even-row-color all-classes-table all-classes-table-tab1">
@@ -134,10 +136,12 @@ loadScripts(document, 'script');</script>
 <div class="block">Context for an event.</div>
 </div>
 <div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="kalix/javasdk/eventsourcedentity/EventSourcedEntity.html" title="class in kalix.javasdk.eventsourcedentity">EventSourcedEntity</a>&lt;<a href="kalix/javasdk/eventsourcedentity/EventSourcedEntity.html" title="type parameter in EventSourcedEntity">S</a>,<wbr><a href="kalix/javasdk/eventsourcedentity/EventSourcedEntity.html" title="type parameter in EventSourcedEntity">E</a>&gt;</div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab2">&nbsp;</div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
+<div class="block">The Event Sourced state model captures changes to data by storing events in a journal.</div>
+</div>
 <div class="col-first odd-row-color all-classes-table all-classes-table-tab1"><a href="kalix/javasdk/eventsourcedentity/EventSourcedEntity.Effect.html" title="interface in kalix.javasdk.eventsourcedentity">EventSourcedEntity.Effect</a>&lt;<a href="kalix/javasdk/eventsourcedentity/EventSourcedEntity.Effect.html" title="type parameter in EventSourcedEntity.Effect">T</a>&gt;</div>
 <div class="col-last odd-row-color all-classes-table all-classes-table-tab1">
-<div class="block">A return type to allow returning forwards or failures, and attaching effects to messages.</div>
+<div class="block">An Effect is a description of what Kalix needs to do after the command is handled.</div>
 </div>
 <div class="col-first even-row-color all-classes-table all-classes-table-tab1"><a href="kalix/javasdk/eventsourcedentity/EventSourcedEntity.Effect.Builder.html" title="interface in kalix.javasdk.eventsourcedentity">EventSourcedEntity.Effect.Builder</a>&lt;<a href="kalix/javasdk/eventsourcedentity/EventSourcedEntity.Effect.Builder.html" title="type parameter in EventSourcedEntity.Effect.Builder">S</a>,<wbr><a href="kalix/javasdk/eventsourcedentity/EventSourcedEntity.Effect.Builder.html" title="type parameter in EventSourcedEntity.Effect.Builder">E</a>&gt;</div>
 <div class="col-last even-row-color all-classes-table all-classes-table-tab1">
@@ -176,7 +180,7 @@ loadScripts(document, 'script');</script>
 <div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="kalix/javasdk/Kalix.html" title="class in kalix.javasdk">Kalix</a></div>
 <div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
 <div class="block">The Kalix class is the main interface to configuring entities to deploy, and subsequently
- starting a local server which will expose these entities to the Kalix proxy Sidecar.</div>
+ starting a local server which will expose these entities to the Kalix Runtime Sidecar.</div>
 </div>
 <div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="kalix/javasdk/logging/LogbackJsonLayout.html" title="class in kalix.javasdk.logging">LogbackJsonLayout</a></div>
 <div class="col-last even-row-color all-classes-table all-classes-table-tab2">
@@ -326,10 +330,12 @@ loadScripts(document, 'script');</script>
 <div class="block">Context for view update calls.</div>
 </div>
 <div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="kalix/javasdk/valueentity/ValueEntity.html" title="class in kalix.javasdk.valueentity">ValueEntity</a>&lt;<a href="kalix/javasdk/valueentity/ValueEntity.html" title="type parameter in ValueEntity">S</a>&gt;</div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab2">&nbsp;</div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
+<div class="block">Value Entities persist their state on every change.</div>
+</div>
 <div class="col-first odd-row-color all-classes-table all-classes-table-tab1"><a href="kalix/javasdk/valueentity/ValueEntity.Effect.html" title="interface in kalix.javasdk.valueentity">ValueEntity.Effect</a>&lt;<a href="kalix/javasdk/valueentity/ValueEntity.Effect.html" title="type parameter in ValueEntity.Effect">T</a>&gt;</div>
 <div class="col-last odd-row-color all-classes-table all-classes-table-tab1">
-<div class="block">A return type to allow returning forwards or failures, and attaching effects to messages.</div>
+<div class="block">An Effect is a description of what Kalix needs to do after the command is handled.</div>
 </div>
 <div class="col-first even-row-color all-classes-table all-classes-table-tab1"><a href="kalix/javasdk/valueentity/ValueEntity.Effect.Builder.html" title="interface in kalix.javasdk.valueentity">ValueEntity.Effect.Builder</a>&lt;<a href="kalix/javasdk/valueentity/ValueEntity.Effect.Builder.html" title="type parameter in ValueEntity.Effect.Builder">S</a>&gt;</div>
 <div class="col-last even-row-color all-classes-table all-classes-table-tab1">
@@ -355,10 +361,12 @@ loadScripts(document, 'script');</script>
  ValueEntityProvider</code>.</div>
 </div>
 <div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="kalix/javasdk/view/View.html" title="class in kalix.javasdk.view">View</a>&lt;<a href="kalix/javasdk/view/View.html" title="type parameter in View">S</a>&gt;</div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab2">&nbsp;</div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
+<div class="block">Kalix applications follow the Command Query Responsibility Segregation (CQRS) pattern (see https://developer.lightbend.com/docs/akka-guide/concepts/cqrs.html).</div>
+</div>
 <div class="col-first odd-row-color all-classes-table all-classes-table-tab1"><a href="kalix/javasdk/view/View.UpdateEffect.html" title="interface in kalix.javasdk.view">View.UpdateEffect</a>&lt;<a href="kalix/javasdk/view/View.UpdateEffect.html" title="type parameter in View.UpdateEffect">S</a>&gt;</div>
 <div class="col-last odd-row-color all-classes-table all-classes-table-tab1">
-<div class="block">Construct the effect that is returned by the command handler.</div>
+<div class="block">An UpdateEffect is a description of what Kalix needs to do after the command is handled.</div>
 </div>
 <div class="col-first even-row-color all-classes-table all-classes-table-tab1"><a href="kalix/javasdk/view/View.UpdateEffect.Builder.html" title="interface in kalix.javasdk.view">View.UpdateEffect.Builder</a>&lt;<a href="kalix/javasdk/view/View.UpdateEffect.Builder.html" title="type parameter in View.UpdateEffect.Builder">S</a>&gt;</div>
 <div class="col-last even-row-color all-classes-table all-classes-table-tab1">&nbsp;</div>
@@ -379,14 +387,16 @@ loadScripts(document, 'script');</script>
 <div class="col-first odd-row-color all-classes-table all-classes-table-tab1"><a href="kalix/javasdk/view/ViewProvider.html" title="interface in kalix.javasdk.view">ViewProvider</a></div>
 <div class="col-last odd-row-color all-classes-table all-classes-table-tab1">&nbsp;</div>
 <div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="kalix/javasdk/workflow/Workflow.html" title="class in kalix.javasdk.workflow">Workflow</a>&lt;<a href="kalix/javasdk/workflow/Workflow.html" title="type parameter in Workflow">S</a>&gt;</div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab2">&nbsp;</div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
+<div class="block">Workflows are stateful components and are defined by a set of steps and transitions between them.</div>
+</div>
 <div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="kalix/javasdk/workflow/Workflow.AsyncCallStep.html" title="class in kalix.javasdk.workflow">Workflow.AsyncCallStep</a>&lt;<a href="kalix/javasdk/workflow/Workflow.AsyncCallStep.html" title="type parameter in Workflow.AsyncCallStep">CallInput</a>,<wbr><a href="kalix/javasdk/workflow/Workflow.AsyncCallStep.html" title="type parameter in Workflow.AsyncCallStep">CallOutput</a>,<wbr><a href="kalix/javasdk/workflow/Workflow.AsyncCallStep.html" title="type parameter in Workflow.AsyncCallStep">FailoverInput</a>&gt;</div>
 <div class="col-last odd-row-color all-classes-table all-classes-table-tab2">&nbsp;</div>
 <div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="kalix/javasdk/workflow/Workflow.CallStep.html" title="class in kalix.javasdk.workflow">Workflow.CallStep</a>&lt;<a href="kalix/javasdk/workflow/Workflow.CallStep.html" title="type parameter in Workflow.CallStep">CallInput</a>,<wbr><a href="kalix/javasdk/workflow/Workflow.CallStep.html" title="type parameter in Workflow.CallStep">DefCallInput</a>,<wbr><a href="kalix/javasdk/workflow/Workflow.CallStep.html" title="type parameter in Workflow.CallStep">DefCallOutput</a>,<wbr><a href="kalix/javasdk/workflow/Workflow.CallStep.html" title="type parameter in Workflow.CallStep">FailoverInput</a>&gt;</div>
 <div class="col-last even-row-color all-classes-table all-classes-table-tab2">&nbsp;</div>
 <div class="col-first odd-row-color all-classes-table all-classes-table-tab1"><a href="kalix/javasdk/workflow/Workflow.Effect.html" title="interface in kalix.javasdk.workflow">Workflow.Effect</a>&lt;<a href="kalix/javasdk/workflow/Workflow.Effect.html" title="type parameter in Workflow.Effect">T</a>&gt;</div>
 <div class="col-last odd-row-color all-classes-table all-classes-table-tab1">
-<div class="block">A return type to allow returning failures or attaching effects to messages.</div>
+<div class="block">An Effect is a description of what Kalix needs to do after the command is handled.</div>
 </div>
 <div class="col-first even-row-color all-classes-table all-classes-table-tab1"><a href="kalix/javasdk/workflow/Workflow.Effect.Builder.html" title="interface in kalix.javasdk.workflow">Workflow.Effect.Builder</a>&lt;<a href="kalix/javasdk/workflow/Workflow.Effect.Builder.html" title="type parameter in Workflow.Effect.Builder">S</a>&gt;</div>
 <div class="col-last even-row-color all-classes-table all-classes-table-tab1">

@@ -9,7 +9,7 @@ Running a service locally is helpful to test and debug. The following sections p
 In order to run your service locally, you'll need to have the following prerequisites:
 
 * Docker {minimum_docker_version} or higher
-* Access to the `gcr.io/kalix-public` container registry. This is a public container registry that provides a Kalix Proxy container suited for local development. Make sure this registry is not blocked by your firewall.
+* Access to the `gcr.io/kalix-public` container registry. This is a public container registry that provides a Kalix Runtime container suited for local development. Make sure this registry is not blocked by your firewall.
 
 [TIP]
 ====
@@ -27,7 +27,7 @@ mvn kalix:runAll
 ----
 --
 
-This command will start your Kalix service and a Kalix Proxy using the included `docker-compose.yml` file.
+This command will start your Kalix service and a Kalix Runtime using the included `docker-compose.yml` file.
 
 If you prefer, you can instead start `docker-compose` manually by running `docker-compose up` in one terminal and in another terminal start your Kalix service with:
 
@@ -85,7 +85,7 @@ curl -XGET localhost:9000/customer/one
 
 == Shut down the service
 
-Use `Ctrl+C` to shut down the service. When stopping your service, it will also shutdown the Kalix Proxy container and any other container you have defined in `docker-compose.yml`. Unless you have chosen to start `docker-compose` manually in a separate terminal, in which case you will need to stop it manually as well.
+Use `Ctrl+C` to shut down the service. When stopping your service, it will also shutdown the Kalix Runtime container and any other container you have defined in `docker-compose.yml`. Unless you have chosen to start `docker-compose` manually in a separate terminal, in which case you will need to stop it manually as well.
 
 == Running multiple services locally
 
@@ -100,7 +100,7 @@ The *customer-registry* sample provides a service to register customers and the 
 
 === Customer Registry Sample
 
-The `docker-compose.yml` file from *customer-registry* is left untouched and use the usual default ports. The user function will run on port 8080 and the Kalix Proxy on port 9000.
+The `docker-compose.yml` file from *customer-registry* is left untouched and use the usual default ports. The user function will run on port 8080 and the Kalix Runtime on port 9000.
 
 [source,yml,indent=0]
 ----
@@ -113,9 +113,9 @@ On the other hand, in the *customer-registry-subscriber* we will use port 8081 a
 
 Moreover, since *customer-registry-subscriber* needs to subscribe to *customer-registry* and since we will be running it on our local machine, we need to _show_ it where to find the *customer-registry* service.
 
-This is done by passing an extra property (`kalix.dev-mode.service-port-mappings.customer-registry`) to its Kalix Proxy to let it create a mapping between the logical name *customer-registry* and the host and port where the *customer-registry* service is running.
+This is done by passing an extra property (`kalix.dev-mode.service-port-mappings.customer-registry`) to its Kalix Runtime to let it create a mapping between the logical name *customer-registry* and the host and port where the *customer-registry* service is running.
 
-Note that you need to add service port mappings to the Kalix Proxy configuration for the service that depends on the other service. Here, *customer-registry-subscriber* depends on *customer-registry*, therefore we add the service port mapping to the Kalix Proxy associated with the *customer-registry-subscriber*.
+Note that you need to add service port mappings to the Kalix Runtime configuration for the service that depends on the other service. Here, *customer-registry-subscriber* depends on *customer-registry*, therefore we add the service port mapping to the Kalix Runtime associated with the *customer-registry-subscriber*.
 
 [source,yml,indent=0]
 ----
@@ -161,9 +161,9 @@ curl localhost:9001/customers/by_name/Test
 
 == Running other services with Docker
 
-In the previous example, we run two services independently with `mvn kalix:runAll`. Each time, the service is started together with a Kalix Proxy running in a Docker container.
+In the previous example, we run two services independently with `mvn kalix:runAll`. Each time, the service is started together with a Kalix Runtime running in a Docker container.
 
-An alternative is to build a larger `docker-compose` file containing dependent services. In the case of *customer-registry-subscriber*, we can have a second `docker-compose` file containing a Kalix Proxy for *customer-registry-subscriber*, a Kalix Proxy for *customer-registry* and the *customer-registry* itself. 
+An alternative is to build a larger `docker-compose` file containing dependent services. In the case of *customer-registry-subscriber*, we can have a second `docker-compose` file containing a Kalix Runtime for *customer-registry-subscriber*, a Kalix Runtime for *customer-registry* and the *customer-registry* itself. 
 
 At the root of the *customer-registry-subscriber* service, we can find an alternative `docker-compose` file called `docker-compose-integration.yml`. 
 
@@ -194,7 +194,7 @@ mvn -Dkalix.dev-mode.docker-compose-file=docker-compose-integration.yml kalix:ru
 ----
 --
 
-This time, `kalix:runAll` will start `docker-compose-integration.yml` instead. The *customer-registry* service and its companion Kalix Proxy will run alongside *customer-registry-subscriber* and its own Kalix Proxy. 
+This time, `kalix:runAll` will start `docker-compose-integration.yml` instead. The *customer-registry* service and its companion Kalix Runtime will run alongside *customer-registry-subscriber* and its own Kalix Runtime. 
 
 Note that the configuration is exactly the same except that now we are running one single `mvn kalix:runAll` command and the `docker-compose` file we are using contains all the dependencies required by *customer-registry-subscriber*.
 

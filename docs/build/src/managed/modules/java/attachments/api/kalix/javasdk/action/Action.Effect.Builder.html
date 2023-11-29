@@ -130,7 +130,7 @@ loadScripts(document, 'script');</script>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#ignore()" class="member-name-link">ignore</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
 <div class="block">Ignore the current element and proceed with processing the next element if returned for an
- element from eventing in.</div>
+ element from a subscription.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>&lt;S&gt;&nbsp;<a href="Action.Effect.html" title="interface in kalix.javasdk.action">Action.Effect</a>&lt;S&gt;</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#reply(S)" class="member-name-link">reply</a><wbr>(S&nbsp;message)</code></div>
@@ -290,9 +290,10 @@ loadScripts(document, 'script');</script>
 <h3>ignore</h3>
 <div class="member-signature"><span class="type-parameters">&lt;S&gt;</span>&nbsp;<span class="return-type"><a href="Action.Effect.html" title="interface in kalix.javasdk.action">Action.Effect</a>&lt;S&gt;</span>&nbsp;<span class="element-name">ignore</span>()</div>
 <div class="block">Ignore the current element and proceed with processing the next element if returned for an
- element from eventing in. If used as a response to a regular gRPC or HTTP request it is turned
+ element from a subscription.
+ If used as a response to a regular gRPC or HTTP request it is turned
  into a NotFound response.
- 
+ <p>
  Ignore is not allowed to have side effects added with `addSideEffects`</div>
 </section>
 </li>

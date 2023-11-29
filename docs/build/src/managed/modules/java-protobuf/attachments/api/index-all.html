@@ -54,12 +54,14 @@ loadScripts(document, 'script');</script>
 <h2 class="title" id="I:A">A</h2>
 <dl class="index">
 <dt><a href="kalix/javasdk/action/Action.html" class="type-name-link" title="class in kalix.javasdk.action">Action</a> - Class in <a href="kalix/javasdk/action/package-summary.html">kalix.javasdk.action</a></dt>
-<dd>&nbsp;</dd>
+<dd>
+<div class="block">Actions are stateless components that can be used to implement different uses cases, such as:</div>
+</dd>
 <dt><a href="kalix/javasdk/action/Action.html#%3Cinit%3E()" class="member-name-link">Action()</a> - Constructor for class kalix.javasdk.action.<a href="kalix/javasdk/action/Action.html" title="class in kalix.javasdk.action">Action</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="kalix/javasdk/action/Action.Effect.html" class="type-name-link" title="interface in kalix.javasdk.action">Action.Effect</a>&lt;<a href="kalix/javasdk/action/Action.Effect.html" title="type parameter in Action.Effect">T</a>&gt; - Interface in <a href="kalix/javasdk/action/package-summary.html">kalix.javasdk.action</a></dt>
 <dd>
-<div class="block">A return type to allow returning forwards or failures, and attaching effects to messages.</div>
+<div class="block">An Effect is a description of what Kalix needs to do after the command is handled.</div>
 </dd>
 <dt><a href="kalix/javasdk/action/Action.Effect.Builder.html" class="type-name-link" title="interface in kalix.javasdk.action">Action.Effect.Builder</a> - Interface in <a href="kalix/javasdk/action/package-summary.html">kalix.javasdk.action</a></dt>
 <dd>
@@ -749,12 +751,14 @@ loadScripts(document, 'script');</script>
 <div class="block">The name of the event being handled.</div>
 </dd>
 <dt><a href="kalix/javasdk/eventsourcedentity/EventSourcedEntity.html" class="type-name-link" title="class in kalix.javasdk.eventsourcedentity">EventSourcedEntity</a>&lt;<a href="kalix/javasdk/eventsourcedentity/EventSourcedEntity.html" title="type parameter in EventSourcedEntity">S</a>,<wbr><a href="kalix/javasdk/eventsourcedentity/EventSourcedEntity.html" title="type parameter in EventSourcedEntity">E</a>&gt; - Class in <a href="kalix/javasdk/eventsourcedentity/package-summary.html">kalix.javasdk.eventsourcedentity</a></dt>
-<dd>&nbsp;</dd>
+<dd>
+<div class="block">The Event Sourced state model captures changes to data by storing events in a journal.</div>
+</dd>
 <dt><a href="kalix/javasdk/eventsourcedentity/EventSourcedEntity.html#%3Cinit%3E()" class="member-name-link">EventSourcedEntity()</a> - Constructor for class kalix.javasdk.eventsourcedentity.<a href="kalix/javasdk/eventsourcedentity/EventSourcedEntity.html" title="class in kalix.javasdk.eventsourcedentity">EventSourcedEntity</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="kalix/javasdk/eventsourcedentity/EventSourcedEntity.Effect.html" class="type-name-link" title="interface in kalix.javasdk.eventsourcedentity">EventSourcedEntity.Effect</a>&lt;<a href="kalix/javasdk/eventsourcedentity/EventSourcedEntity.Effect.html" title="type parameter in EventSourcedEntity.Effect">T</a>&gt; - Interface in <a href="kalix/javasdk/eventsourcedentity/package-summary.html">kalix.javasdk.eventsourcedentity</a></dt>
 <dd>
-<div class="block">A return type to allow returning forwards or failures, and attaching effects to messages.</div>
+<div class="block">An Effect is a description of what Kalix needs to do after the command is handled.</div>
 </dd>
 <dt><a href="kalix/javasdk/eventsourcedentity/EventSourcedEntity.Effect.Builder.html" class="type-name-link" title="interface in kalix.javasdk.eventsourcedentity">EventSourcedEntity.Effect.Builder</a>&lt;<a href="kalix/javasdk/eventsourcedentity/EventSourcedEntity.Effect.Builder.html" title="type parameter in EventSourcedEntity.Effect.Builder">S</a>,<wbr><a href="kalix/javasdk/eventsourcedentity/EventSourcedEntity.Effect.Builder.html" title="type parameter in EventSourcedEntity.Effect.Builder">E</a>&gt; - Interface in <a href="kalix/javasdk/eventsourcedentity/package-summary.html">kalix.javasdk.eventsourcedentity</a></dt>
 <dd>
@@ -1096,7 +1100,7 @@ loadScripts(document, 'script');</script>
 <dt><a href="kalix/javasdk/action/Action.Effect.Builder.html#ignore()" class="member-name-link">ignore()</a> - Method in interface kalix.javasdk.action.<a href="kalix/javasdk/action/Action.Effect.Builder.html" title="interface in kalix.javasdk.action">Action.Effect.Builder</a></dt>
 <dd>
 <div class="block">Ignore the current element and proceed with processing the next element if returned for an
- element from eventing in.</div>
+ element from a subscription.</div>
 </dd>
 <dt><a href="kalix/javasdk/view/View.UpdateEffect.Builder.html#ignore()" class="member-name-link">ignore()</a> - Method in interface kalix.javasdk.view.<a href="kalix/javasdk/view/View.UpdateEffect.Builder.html" title="interface in kalix.javasdk.view">View.UpdateEffect.Builder</a></dt>
 <dd>
@@ -1220,7 +1224,7 @@ loadScripts(document, 'script');</script>
 <dt><a href="kalix/javasdk/Kalix.html" class="type-name-link" title="class in kalix.javasdk">Kalix</a> - Class in <a href="kalix/javasdk/package-summary.html">kalix.javasdk</a></dt>
 <dd>
 <div class="block">The Kalix class is the main interface to configuring entities to deploy, and subsequently
- starting a local server which will expose these entities to the Kalix proxy Sidecar.</div>
+ starting a local server which will expose these entities to the Kalix Runtime Sidecar.</div>
 </dd>
 <dt><a href="kalix/javasdk/Kalix.html#%3Cinit%3E()" class="member-name-link">Kalix()</a> - Constructor for class kalix.javasdk.<a href="kalix/javasdk/Kalix.html" title="class in kalix.javasdk">Kalix</a></dt>
 <dd>&nbsp;</dd>
@@ -2021,12 +2025,14 @@ loadScripts(document, 'script');</script>
 <dt><a href="kalix/javasdk/annotations/Migration.html#value()" class="member-name-link">value()</a> - Element in annotation type kalix.javasdk.annotations.<a href="kalix/javasdk/annotations/Migration.html" title="annotation in kalix.javasdk.annotations">Migration</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="kalix/javasdk/valueentity/ValueEntity.html" class="type-name-link" title="class in kalix.javasdk.valueentity">ValueEntity</a>&lt;<a href="kalix/javasdk/valueentity/ValueEntity.html" title="type parameter in ValueEntity">S</a>&gt; - Class in <a href="kalix/javasdk/valueentity/package-summary.html">kalix.javasdk.valueentity</a></dt>
-<dd>&nbsp;</dd>
+<dd>
+<div class="block">Value Entities persist their state on every change.</div>
+</dd>
 <dt><a href="kalix/javasdk/valueentity/ValueEntity.html#%3Cinit%3E()" class="member-name-link">ValueEntity()</a> - Constructor for class kalix.javasdk.valueentity.<a href="kalix/javasdk/valueentity/ValueEntity.html" title="class in kalix.javasdk.valueentity">ValueEntity</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="kalix/javasdk/valueentity/ValueEntity.Effect.html" class="type-name-link" title="interface in kalix.javasdk.valueentity">ValueEntity.Effect</a>&lt;<a href="kalix/javasdk/valueentity/ValueEntity.Effect.html" title="type parameter in ValueEntity.Effect">T</a>&gt; - Interface in <a href="kalix/javasdk/valueentity/package-summary.html">kalix.javasdk.valueentity</a></dt>
 <dd>
-<div class="block">A return type to allow returning forwards or failures, and attaching effects to messages.</div>
+<div class="block">An Effect is a description of what Kalix needs to do after the command is handled.</div>
 </dd>
 <dt><a href="kalix/javasdk/valueentity/ValueEntity.Effect.Builder.html" class="type-name-link" title="interface in kalix.javasdk.valueentity">ValueEntity.Effect.Builder</a>&lt;<a href="kalix/javasdk/valueentity/ValueEntity.Effect.Builder.html" title="type parameter in ValueEntity.Effect.Builder">S</a>&gt; - Interface in <a href="kalix/javasdk/valueentity/package-summary.html">kalix.javasdk.valueentity</a></dt>
 <dd>
@@ -2088,12 +2094,14 @@ the order they are declared.</div>
 the order they are declared.</div>
 </dd>
 <dt><a href="kalix/javasdk/view/View.html" class="type-name-link" title="class in kalix.javasdk.view">View</a>&lt;<a href="kalix/javasdk/view/View.html" title="type parameter in View">S</a>&gt; - Class in <a href="kalix/javasdk/view/package-summary.html">kalix.javasdk.view</a></dt>
-<dd>&nbsp;</dd>
+<dd>
+<div class="block">Kalix applications follow the Command Query Responsibility Segregation (CQRS) pattern (see https://developer.lightbend.com/docs/akka-guide/concepts/cqrs.html).</div>
+</dd>
 <dt><a href="kalix/javasdk/view/View.html#%3Cinit%3E()" class="member-name-link">View()</a> - Constructor for class kalix.javasdk.view.<a href="kalix/javasdk/view/View.html" title="class in kalix.javasdk.view">View</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="kalix/javasdk/view/View.UpdateEffect.html" class="type-name-link" title="interface in kalix.javasdk.view">View.UpdateEffect</a>&lt;<a href="kalix/javasdk/view/View.UpdateEffect.html" title="type parameter in View.UpdateEffect">S</a>&gt; - Interface in <a href="kalix/javasdk/view/package-summary.html">kalix.javasdk.view</a></dt>
 <dd>
-<div class="block">Construct the effect that is returned by the command handler.</div>
+<div class="block">An UpdateEffect is a description of what Kalix needs to do after the command is handled.</div>
 </dd>
 <dt><a href="kalix/javasdk/view/View.UpdateEffect.Builder.html" class="type-name-link" title="interface in kalix.javasdk.view">View.UpdateEffect.Builder</a>&lt;<a href="kalix/javasdk/view/View.UpdateEffect.Builder.html" title="type parameter in View.UpdateEffect.Builder">S</a>&gt; - Interface in <a href="kalix/javasdk/view/package-summary.html">kalix.javasdk.view</a></dt>
 <dd>&nbsp;</dd>
@@ -2227,7 +2235,9 @@ the order they are declared.</div>
 <dt><a href="kalix/javasdk/workflow/Workflow.html#workflow()" class="member-name-link">workflow()</a> - Method in class kalix.javasdk.workflow.<a href="kalix/javasdk/workflow/Workflow.html" title="class in kalix.javasdk.workflow">Workflow</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="kalix/javasdk/workflow/Workflow.html" class="type-name-link" title="class in kalix.javasdk.workflow">Workflow</a>&lt;<a href="kalix/javasdk/workflow/Workflow.html" title="type parameter in Workflow">S</a>&gt; - Class in <a href="kalix/javasdk/workflow/package-summary.html">kalix.javasdk.workflow</a></dt>
-<dd>&nbsp;</dd>
+<dd>
+<div class="block">Workflows are stateful components and are defined by a set of steps and transitions between them.</div>
+</dd>
 <dt><a href="kalix/javasdk/workflow/Workflow.html#%3Cinit%3E()" class="member-name-link">Workflow()</a> - Constructor for class kalix.javasdk.workflow.<a href="kalix/javasdk/workflow/Workflow.html" title="class in kalix.javasdk.workflow">Workflow</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="kalix/javasdk/workflow/Workflow.AsyncCallStep.html" class="type-name-link" title="class in kalix.javasdk.workflow">Workflow.AsyncCallStep</a>&lt;<a href="kalix/javasdk/workflow/Workflow.AsyncCallStep.html" title="type parameter in Workflow.AsyncCallStep">CallInput</a>,<wbr><a href="kalix/javasdk/workflow/Workflow.AsyncCallStep.html" title="type parameter in Workflow.AsyncCallStep">CallOutput</a>,<wbr><a href="kalix/javasdk/workflow/Workflow.AsyncCallStep.html" title="type parameter in Workflow.AsyncCallStep">FailoverInput</a>&gt; - Class in <a href="kalix/javasdk/workflow/package-summary.html">kalix.javasdk.workflow</a></dt>
@@ -2236,7 +2246,7 @@ the order they are declared.</div>
 <dd>&nbsp;</dd>
 <dt><a href="kalix/javasdk/workflow/Workflow.Effect.html" class="type-name-link" title="interface in kalix.javasdk.workflow">Workflow.Effect</a>&lt;<a href="kalix/javasdk/workflow/Workflow.Effect.html" title="type parameter in Workflow.Effect">T</a>&gt; - Interface in <a href="kalix/javasdk/workflow/package-summary.html">kalix.javasdk.workflow</a></dt>
 <dd>
-<div class="block">A return type to allow returning failures or attaching effects to messages.</div>
+<div class="block">An Effect is a description of what Kalix needs to do after the command is handled.</div>
 </dd>
 <dt><a href="kalix/javasdk/workflow/Workflow.Effect.Builder.html" class="type-name-link" title="interface in kalix.javasdk.workflow">Workflow.Effect.Builder</a>&lt;<a href="kalix/javasdk/workflow/Workflow.Effect.Builder.html" title="type parameter in Workflow.Effect.Builder">S</a>&gt; - Interface in <a href="kalix/javasdk/workflow/package-summary.html">kalix.javasdk.workflow</a></dt>
 <dd>

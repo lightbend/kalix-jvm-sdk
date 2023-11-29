@@ -1,7 +1,7 @@
 package customer.action;
 
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 // This class was initially generated based on the .proto definition by Kalix tooling.
 //
@@ -11,7 +11,7 @@ import org.junit.Test;
 public class CustomerActionImplTest {
 
   @Test
-  @Ignore("to be implemented")
+  @Disabled("to be implemented")
   public void exampleTest() {
     CustomerActionImplTestKit service = CustomerActionImplTestKit.of(CustomerActionImpl::new);
     // // use the testkit to execute a command
@@ -23,7 +23,7 @@ public class CustomerActionImplTest {
   }
 
   @Test
-  @Ignore("to be implemented")
+  @Disabled("to be implemented")
   public void createTest() {
     CustomerActionImplTestKit testKit = CustomerActionImplTestKit.of(CustomerActionImpl::new);
     // ActionResult<Empty> result = testKit.create(CustomerActionProto.Customer.newBuilder()...build());

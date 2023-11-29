@@ -11,7 +11,7 @@
     <logger name="io.grpc.netty" level="INFO"/>
     <logger name="org.testcontainers" level="INFO"/>
 
-    <root level="DEBUG">
+    <root level="INFO">
         <appender-ref ref="STDOUT"/>
     </root>
 </configuration>

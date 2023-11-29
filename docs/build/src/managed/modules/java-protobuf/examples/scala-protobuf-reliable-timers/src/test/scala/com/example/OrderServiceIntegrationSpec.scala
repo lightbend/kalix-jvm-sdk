@@ -34,7 +34,7 @@ class OrderServiceIntegrationSpec
     "have example test that can be removed" in {
       pending
       // use the gRPC client to send requests to the
-      // proxy and verify the results
+      // Kalix Runtime and verify the results
     }
 
   }

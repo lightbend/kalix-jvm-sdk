@@ -8,10 +8,10 @@ package com.example.shoppingcart.domain;
 import kalix.javasdk.testkit.ValueEntityResult;
 import com.example.shoppingcart.ShoppingCartApi;
 import com.google.protobuf.Empty;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ShoppingCartTest {
 

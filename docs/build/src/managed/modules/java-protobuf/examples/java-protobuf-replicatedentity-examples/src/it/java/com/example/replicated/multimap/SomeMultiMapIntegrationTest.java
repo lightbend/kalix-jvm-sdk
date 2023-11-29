@@ -1,11 +1,11 @@
 package com.example.replicated.multimap;
 
-import kalix.javasdk.testkit.junit.KalixTestKitResource;
+import kalix.javasdk.testkit.junit.jupiter.KalixTestKitExtension;
 import com.example.replicated.Main;
 import com.example.replicated.multimap.MultiMapService;
 import com.example.replicated.multimap.SomeMultiMapApi;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.List;
@@ -24,16 +24,16 @@ import static org.hamcrest.Matchers.is;
 // As long as this file exists it will not be overwritten: you can maintain it yourself,
 // or delete it so it is regenerated as needed.
 
-// Example of an integration test calling our service via the Kalix proxy
+// Example of an integration test calling our service via the Kalix Runtime
 // Run all test classes ending with "IntegrationTest" using `mvn verify -Pit`
 public class SomeMultiMapIntegrationTest {
 
-  /** The test kit starts both the service container and the Kalix proxy. */
-  @ClassRule
-  public static final KalixTestKitResource testKit =
-      new KalixTestKitResource(Main.createKalix());
+  /** The test kit starts both the service container and the Kalix Runtime. */
+  @RegisterExtension
+  public static final KalixTestKitExtension testKit =
+      new KalixTestKitExtension(Main.createKalix());
 
-  /** Use the generated gRPC client to call the service through the Kalix proxy. */
+  /** Use the generated gRPC client to call the service through the Kalix Runtime. */
   private final MultiMapService client;
 
   public SomeMultiMapIntegrationTest() {

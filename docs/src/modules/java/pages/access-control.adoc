@@ -122,17 +122,15 @@ When testing or running in development, by default, all calls to your service wi
 When running a service during local development, it may be useful to enable ACL check. This can be done by setting the `ACL_ENABLED` environment variable to `true` in your `docker-compose.yml` file:
 
 ```yaml
-kalix-proxy:
+kalix-runtime:
   image: gcr.io/kalix-public/kalix-proxy:latest
   ports:
     - "9000:9000"
   environment:
-    USER_FUNCTION_HOST: ${USER_FUNCTION_HOST:-host.docker.internal}
-    USER_FUNCTION_PORT: 8080
     ACL_ENABLED: 'true'
 ```
 
-Once you enable ACL, calls to the proxy are treated as if they are coming from the Internet. 
+Once you enable ACL, calls to the Runtime are treated as if they are coming from the Internet.
 
 If the ACL is configured to only allow calls from other Kalix services, you will have to impersonate a local service. This can be done by setting the `Impersonate-Kalix-Service` header on the requests you make.
 
@@ -141,14 +139,13 @@ If the ACL is configured to only allow calls from other Kalix services, you will
 If running multiple services in local development, you may want to run with ACLs enabled to verify that they work for cross-service communication. In order to do this, you need to ensure that when services communicate with each other, they are able to identify themselves to one another. This can be done by setting the `SERVICE_NAME` environment variable in your `docker-compose.yml` file:
 
 ```yaml
-kalix-proxy:
+kalix-runtime:
   image: gcr.io/kalix-public/kalix-proxy:latest
   ports:
     - "9000:9000"
   environment:
-    USER_FUNCTION_HOST: ${USER_FUNCTION_HOST:-host.docker.internal}
-    USER_FUNCTION_PORT: 8080
     SERVICE_NAME: my-service-name
+    ACL_ENABLED: 'true'
 ```
 
 Note that in local development, the services don't actually authenticate with each other, they only pass their identity in a header. It is assumed in local development that a client can be trusted to set that header correctly.

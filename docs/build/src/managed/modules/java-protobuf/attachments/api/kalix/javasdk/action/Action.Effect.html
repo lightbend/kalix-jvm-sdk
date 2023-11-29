@@ -82,7 +82,24 @@ loadScripts(document, 'script');</script>
 </dl>
 <hr>
 <div class="type-signature"><span class="modifiers">public static interface </span><span class="element-name type-name-label">Action.Effect&lt;T&gt;</span></div>
-<div class="block">A return type to allow returning forwards or failures, and attaching effects to messages.</div>
+<div class="block">An Effect is a description of what Kalix needs to do after the command is handled.
+ You can think of it as a set of instructions you are passing to Kalix. Kalix will process the instructions on your
+ behalf.
+ <p>
+ Each Kalix component defines its own effects, which are a set of predefined
+ operations that match the capabilities of that component.
+ <p>
+ An Action Effect can either:
+ <p>
+ <ul>
+   <li>reply with a message to the caller
+   <li>reply with a message to be published to a Topic (in case the method is a publisher)
+   <li>forward the message to another component
+   <li>return an error
+   <li>ignore the call
+ </ul>
+
+ A return type to allow returning forwards or failures, and attaching effects to messages.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">

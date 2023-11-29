@@ -78,6 +78,33 @@ loadScripts(document, 'script');</script>
 <hr>
 <div class="type-signature"><span class="modifiers">public abstract class </span><span class="element-name type-name-label">Action</span>
 <span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></span></div>
+<div class="block">Actions are stateless components that can be used to implement different uses cases, such as:
+
+ <p>
+ <ul>
+   <li>a pure function.
+   <li>request conversion - you can use Actions to convert incoming data into a different.
+   format before forwarding a call to a different component.
+   <li>as a face or controller to fan out to multiple calls to different components.
+   <li>publish messages to a Topic.
+   <li>subscribe to events from an Event Sourced Entity.
+   <li>subscribe to state changes from a Value Entity.
+   <li>schedule and cancel Timers.
+ </ul>
+
+ <p>
+ Actions can be triggered in multiple ways. For example, by:
+<ul>
+ <li>a gRPC service call.
+ <li>an HTTP service call.
+ <li>a forwarded call from another component.
+ <li>a scheduled call from a Timer.
+ <li>an incoming message from a Topic.
+ <li>an incoming event from an Event Sourced Entity, from within the same service or from a different service. 
+ <li>state changes notification from a Value Entity on the same service.
+</ul>
+
+ An Action method should return an <a href="Action.Effect.html" title="interface in kalix.javasdk.action"><code>Action.Effect</code></a> that describes what to do next.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -93,7 +120,7 @@ loadScripts(document, 'script');</script>
 <div class="col-first even-row-color"><code>static interface&nbsp;</code></div>
 <div class="col-second even-row-color"><code><a href="Action.Effect.html" class="type-name-link" title="interface in kalix.javasdk.action">Action.Effect</a>&lt;<a href="Action.Effect.html" title="type parameter in Action.Effect">T</a>&gt;</code></div>
 <div class="col-last even-row-color">
-<div class="block">A return type to allow returning forwards or failures, and attaching effects to messages.</div>
+<div class="block">An Effect is a description of what Kalix needs to do after the command is handled.</div>
 </div>
 </div>
 </section>

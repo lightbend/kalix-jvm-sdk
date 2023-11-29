@@ -7,31 +7,31 @@ package com.example;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import kalix.javasdk.Metadata;
-import kalix.javasdk.testkit.junit.KalixTestKitResource;
-import org.junit.ClassRule;
-import org.junit.Test;
+import kalix.javasdk.testkit.junit.jupiter.KalixTestKitExtension;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.api.Test;
 
 import java.util.Base64;
 import java.util.Map;
 import java.util.concurrent.CompletionStage;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-// Example of an integration test calling our service via the Kalix proxy
+// Example of an integration test calling our service via the Kalix Runtime
 // Run all test classes ending with "IntegrationTest" using `mvn verify -Pit`
 public class JwtIntegrationTest {
 
   /**
-   * The test kit starts both the service container and the Kalix proxy.
+   * The test kit starts both the service container and the Kalix Runtime.
    */
-  @ClassRule
-  public static final KalixTestKitResource testKit =
-      new KalixTestKitResource(Main.createKalix());
+  @RegisterExtension
+  public static final KalixTestKitExtension testKit =
+      new KalixTestKitExtension(Main.createKalix());
 
   /**
-   * Use the generated gRPC client to call the service through the Kalix proxy.
+   * Use the generated gRPC client to call the service through the Kalix Runtime.
    */
   // tag::bearer-token-claims-test[]
   private final JwtServiceActionClient client;

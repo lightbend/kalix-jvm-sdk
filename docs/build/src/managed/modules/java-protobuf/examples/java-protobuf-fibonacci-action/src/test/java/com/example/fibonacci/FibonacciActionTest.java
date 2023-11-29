@@ -8,14 +8,14 @@ import kalix.javasdk.testkit.ActionResult;
 import com.example.fibonacci.FibonacciAction;
 import com.example.fibonacci.FibonacciActionTestKit;
 import com.example.fibonacci.FibonacciApi;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.TimeUnit;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 // tag::class[]
 public class FibonacciActionTest {

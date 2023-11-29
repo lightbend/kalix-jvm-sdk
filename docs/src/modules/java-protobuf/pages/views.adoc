@@ -539,3 +539,41 @@ include::partial$query-syntax-reference.adoc[tags=grpc]
 include::partial$query-syntax-paging.adoc[tags=grpc]
 
 include::partial$query-syntax-advanced.adoc[tags=grpc]
+
+== Testing the View
+
+Testing Views is very similar to testing other xref:actions-publishing-subscribing.adoc#_testkit_mocked_incoming_messages[subscription integrations].
+
+
+For a View definition that subscribes to changes from the `customer` Value Entity.
+
+[source,java,indent=0]
+.src/main/proto/customer/view/customer_view.proto
+----
+include::example$java-protobuf-valueentity-customer-registry/src/main/proto/customer/view/customer_view.proto[tag=view-test]
+----
+
+An integration test can be implemented as below.
+
+[.tabset]
+Java::
++
+[source,proto,indent=0]
+----
+include::example$java-protobuf-valueentity-customer-registry/src/it/java/customer/view/CustomersResponseByCityViewIntegrationTest.java[tag=view-test]
+----
+<1> Mocks incoming messages from the `customer` Value Entity.
+<2> Gets an `IncomingMessages` from the `customer` Value Entity.
+<3> Publishes test data.
+<4> Queries the view and asserts the results.
+
+Scala::
++
+[source,proto,indent=0]
+----
+include::example$scala-protobuf-valueentity-customer-registry/src/test/scala/customer/view/CustomersResponseByCityViewIntegrationSpec.scala[tag=view-test]
+----
+<1> Mocks incoming messages from the `customer` Value Entity.
+<2> Gets an `IncomingMessages` from the `customer` Value Entity.
+<3> Publishes test data.
+<4> Queries the view and asserts the results.

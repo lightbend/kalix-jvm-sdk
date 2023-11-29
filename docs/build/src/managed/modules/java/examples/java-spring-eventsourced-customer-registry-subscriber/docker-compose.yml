@@ -4,7 +4,7 @@
 version: "3"
 services:
   kalix-proxy:
-    image: gcr.io/kalix-public/kalix-proxy:1.1.22
+    image: gcr.io/kalix-public/kalix-proxy:1.1.23
     container_name: java-spring-eventsourced-customer-registry-subscriber
     ports:
       - "9001:9000"
@@ -12,8 +12,6 @@ services:
       - "host.docker.internal:host-gateway"
     environment:
       JAVA_TOOL_OPTIONS: >
-        -Dconfig.resource=dev-mode.conf
-        -Dlogback.configurationFile=logback-dev-mode.xml
         -Dkalix.dev-mode.service-port-mappings.customer-registry=host.docker.internal:9000
       USER_FUNCTION_HOST: ${USER_FUNCTION_HOST:-host.docker.internal}
       USER_FUNCTION_PORT: "8081"

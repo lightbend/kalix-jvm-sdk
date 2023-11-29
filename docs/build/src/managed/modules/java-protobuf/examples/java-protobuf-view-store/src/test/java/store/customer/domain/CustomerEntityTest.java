@@ -2,10 +2,10 @@ package store.customer.domain;
 
 import com.google.protobuf.Empty;
 import kalix.javasdk.testkit.EventSourcedResult;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import store.customer.api.CustomerApi;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class CustomerEntityTest {
 

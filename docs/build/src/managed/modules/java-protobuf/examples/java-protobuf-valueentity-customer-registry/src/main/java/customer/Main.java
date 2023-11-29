@@ -6,6 +6,7 @@ import customer.view.CustomerByEmailView;
 import customer.view.CustomerByNameView;
 import customer.view.CustomerDetailsByNameView;
 import customer.view.CustomerSummaryByNameView;
+import customer.view.CustomersResponseByCityView;
 import customer.view.CustomersResponseByNameView;
 import kalix.javasdk.Kalix;
 import org.slf4j.Logger;
@@ -35,6 +36,7 @@ public final class Main {
       CustomerByNameView::new,
       CustomerDetailsByNameView::new,
       CustomerSummaryByNameView::new,
+        CustomersResponseByCityView::new,
       CustomersResponseByNameView::new);
   }
   // end::register[]
