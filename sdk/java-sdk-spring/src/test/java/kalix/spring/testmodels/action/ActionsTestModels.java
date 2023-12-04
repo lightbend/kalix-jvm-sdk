@@ -104,7 +104,11 @@ public class ActionsTestModels {
     @PostMapping("/message")
     @JWT(
       validate = JWT.JwtMethodMode.BEARER_TOKEN,
-      bearerTokenIssuer = {"a", "b"})
+      bearerTokenIssuer = {"a", "b"},
+      staticClaims = {
+          @JWT.StaticClaim(claim = "role", value = "admin"),
+          @JWT.StaticClaim(claim = "aud", value = "${ENV}.kalix.io")
+      })
     public Action.Effect<Message> message(@RequestBody Message msg) {
       return effects().reply(msg);
     }
@@ -113,7 +117,11 @@ public class ActionsTestModels {
 
   @JWT(
     validate = JWT.JwtMethodMode.BEARER_TOKEN,
-    bearerTokenIssuer = {"a", "b"})
+    bearerTokenIssuer = {"a", "b"},
+    staticClaims = {
+        @JWT.StaticClaim(claim = "role", value = "admin"),
+        @JWT.StaticClaim(claim = "aud", value = "${ENV}.kalix.io")
+    })
   public static class ActionWithServiceLevelJWT extends Action {
     @PostMapping("/message")
     public Action.Effect<Message> message(@RequestBody Message msg) {

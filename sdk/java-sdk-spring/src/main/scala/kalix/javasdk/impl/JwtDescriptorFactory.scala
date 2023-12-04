@@ -17,13 +17,13 @@
 package kalix.javasdk.impl
 
 import java.lang.reflect.Method
-import java.lang.reflect.Modifier
 
 import kalix.JwtMethodOptions
 import kalix.JwtServiceOptions
 import kalix.MethodOptions
 import kalix.javasdk.annotations.JWT
 import Reflect.Syntax._
+import kalix.JwtStaticClaim
 
 object JwtDescriptorFactory {
 
@@ -34,6 +34,9 @@ object JwtDescriptorFactory {
       .validate()
       .map(springValidate => jwt.addValidate(JwtMethodOptions.JwtMethodMode.forNumber(springValidate.ordinal())))
     ann.bearerTokenIssuer().map(jwt.addBearerTokenIssuer)
+    ann
+      .staticClaims()
+      .foreach(sc => jwt.addStaticClaim(JwtStaticClaim.newBuilder().setClaim(sc.claim()).setValue(sc.value())))
     jwt.build()
   }
 
@@ -61,6 +64,9 @@ object JwtDescriptorFactory {
         .validate()
         .map(methodMode => jwt.setValidate(JwtServiceOptions.JwtServiceMode.forNumber(methodMode.ordinal())))
       ann.bearerTokenIssuer().map(jwt.addBearerTokenIssuer)
+      ann
+        .staticClaims()
+        .foreach(sc => jwt.addStaticClaim(JwtStaticClaim.newBuilder().setClaim(sc.claim()).setValue(sc.value())))
 
       val kalixServiceOptions = kalix.ServiceOptions.newBuilder()
       kalixServiceOptions.setJwt(jwt.build())

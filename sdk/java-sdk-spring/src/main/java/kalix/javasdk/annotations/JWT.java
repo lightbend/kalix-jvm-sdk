@@ -48,4 +48,24 @@ public @interface JWT {
    *
    */
   String[] bearerTokenIssuer() default {};
+
+
+  @interface StaticClaim {
+    /**
+     * The claim name needs to be a hardcoded literal (e.g. "role")
+     */
+    String claim();
+
+    /**
+     * The value can be set as: a hardcoded literal (e.g. "admin"), an ENV variable (e.g "${ENV_VAR}")
+     * or a combination of both (e.g. "${ENV_VAR}-admin")
+     */
+    String value();
+  }
+
+  /**
+   * If set, the static claims provided and their values will be required when calling the service.
+   * When multiple claims are provided, all of them will be required to successfully call the service.
+   */
+  StaticClaim[] staticClaims() default {};
 }

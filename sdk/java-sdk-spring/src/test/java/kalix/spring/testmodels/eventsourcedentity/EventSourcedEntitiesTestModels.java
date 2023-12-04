@@ -171,7 +171,11 @@ public class EventSourcedEntitiesTestModels {
     @PostMapping("/changeInt/{number}")
     @JWT(
         validate = JWT.JwtMethodMode.BEARER_TOKEN,
-        bearerTokenIssuer = {"a", "b"})
+        bearerTokenIssuer = {"c", "d"},
+        staticClaims = {
+            @JWT.StaticClaim(claim = "role", value = "method-admin"),
+            @JWT.StaticClaim(claim = "aud", value = "${ENV}")
+        })
     public Integer changeInteger(@PathVariable Integer number) {
       return number;
     }
@@ -182,7 +186,11 @@ public class EventSourcedEntitiesTestModels {
   @RequestMapping("/eventsourced/{id}")
   @JWT(
     validate = JWT.JwtMethodMode.BEARER_TOKEN,
-    bearerTokenIssuer = {"a", "b"})
+    bearerTokenIssuer = {"a", "b"},
+    staticClaims = {
+        @JWT.StaticClaim(claim = "role", value = "admin"),
+        @JWT.StaticClaim(claim = "aud", value = "${ENV}.kalix.io")
+    })
   public static class CounterEventSourcedEntityWithServiceLevelJWT extends EventSourcedEntity<Integer, Object> {
 
     @GetMapping("/int/{number}")
