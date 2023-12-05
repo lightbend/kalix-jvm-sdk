@@ -36,6 +36,7 @@ import io.opentelemetry.sdk.trace.`export`.SimpleSpanProcessor
 import io.opentelemetry.semconv.resource.attributes.ResourceAttributes
 import kalix.javasdk.Metadata
 import kalix.javasdk.impl.MetadataImpl
+import kalix.javasdk.impl.ProxyInfoHolder
 import kalix.javasdk.impl.Service
 import kalix.protocol.action.ActionCommand
 import kalix.protocol.entity.Command
@@ -66,10 +67,16 @@ final case object ValueEntityCategory extends ComponentCategory {
 
 final class Telemetry(system: ActorSystem) extends Extension {
 
+  private val proxyInfoHolder = ProxyInfoHolder(system)
+
   val logger = LoggerFactory.getLogger(classOf[Telemetry])
 
+  val collectorEndpointSDK = system.settings.config.getString(TraceInstrumentation.TRACING_ENDPOINT)
+
   def traceInstrumentation(componentName: String, componentCategory: ComponentCategory) = {
-    val collectorEndpoint = system.settings.config.getString(TraceInstrumentation.TRACING_ENDPOINT)
+    val collectorEndpoint =
+      if (!collectorEndpointSDK.isEmpty) collectorEndpointSDK
+      else proxyInfoHolder.proxyTracingCollectorEndpoint.getOrElse("")
     if (collectorEndpoint.isEmpty) {
       logger.debug("Instrumentation disabled. Set to NoOp.")
       NoOpInstrumentation
@@ -78,7 +85,6 @@ final class Telemetry(system: ActorSystem) extends Extension {
       new TraceInstrumentation(componentName, system, componentCategory)
     }
   }
-
 }
 
 trait Instrumentation {
