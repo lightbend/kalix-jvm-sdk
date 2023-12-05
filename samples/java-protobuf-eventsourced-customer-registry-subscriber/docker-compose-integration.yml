@@ -4,11 +4,11 @@
 #tag::customer-registry-docker[]
 version: "3"
 services:
-  kalix-proxy:
+  kalix-runtime:
     image: gcr.io/kalix-public/kalix-runtime:1.1.24
     container_name: java-protobuf-eventsourced-customer-registry-subscriber
     depends_on:
-      - kalix-proxy-customer-registry
+      - kalix-runtime-customer-registry
     ports:
       - "9001:9000"
     extra_hosts:
@@ -19,7 +19,7 @@ services:
       USER_FUNCTION_HOST: ${USER_FUNCTION_HOST:-host.docker.internal}
       USER_FUNCTION_PORT: "8081"
 
-  kalix-proxy-customer-registry:
+  kalix-runtime-customer-registry:
     image: gcr.io/kalix-public/kalix-runtime:1.1.24
     container_name: java-protobuf-eventsourced-customer-registry
     ports:

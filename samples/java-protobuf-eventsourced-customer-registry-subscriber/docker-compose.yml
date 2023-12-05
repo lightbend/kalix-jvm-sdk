@@ -5,7 +5,7 @@ services:
   # note the ports being different from other sample docker-compose files to allow this service to run
   # on the same local machine as the java-protobuf-eventsourced-customer-registry
 #tag::customer-registry-subscriber[]  
-  kalix-proxy:
+  kalix-runtime:
     image: gcr.io/kalix-public/kalix-runtime:1.1.24
     container_name: java-protobuf-eventsourced-customer-registry-subscriber
     ports:
