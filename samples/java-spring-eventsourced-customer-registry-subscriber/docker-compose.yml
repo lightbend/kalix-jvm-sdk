@@ -4,7 +4,7 @@
 version: "3"
 services:
   kalix-proxy:
-    image: gcr.io/kalix-public/kalix-proxy:1.1.24
+    image: gcr.io/kalix-public/kalix-runtime:1.1.24
     container_name: java-spring-eventsourced-customer-registry-subscriber
     ports:
       - "9001:9000"

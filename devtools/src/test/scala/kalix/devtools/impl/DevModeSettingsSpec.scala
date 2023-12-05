@@ -28,7 +28,7 @@ object DevModeSettingsSpec {
       |version: "3"
       |services:
       |  kalix-proxy:
-      |    image: gcr.io/kalix-public/kalix-proxy:1.1.13
+      |    image: gcr.io/kalix-public/kalix-runtime:1.1.24
       |    ports:
       |      - "9000:9000"
       |    extra_hosts:

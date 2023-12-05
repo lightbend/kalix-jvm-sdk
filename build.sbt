@@ -102,7 +102,7 @@ lazy val javaSdkProtobufTestKit = project
     buildInfoKeys := Seq[BuildInfoKey](
       name,
       version,
-      "proxyImage" -> "gcr.io/kalix-public/kalix-proxy",
+      "proxyImage" -> "gcr.io/kalix-public/kalix-runtime",
       "proxyVersion" -> Kalix.ProxyVersion,
       "scalaVersion" -> scalaVersion.value),
     buildInfoPackage := "kalix.javasdk.testkit",
@@ -182,7 +182,7 @@ lazy val javaSdkSpringTestKit = project
     buildInfoKeys := Seq[BuildInfoKey](
       name,
       version,
-      "proxyImage" -> "gcr.io/kalix-public/kalix-proxy",
+      "proxyImage" -> "gcr.io/kalix-public/kalix-runtime",
       "proxyVersion" -> Kalix.ProxyVersion,
       "scalaVersion" -> scalaVersion.value),
     buildInfoPackage := "kalix.spring.testkit",
@@ -254,7 +254,7 @@ lazy val springBootStarterTest = project
     buildInfoKeys := Seq[BuildInfoKey](
       name,
       version,
-      "proxyImage" -> "gcr.io/kalix-public/kalix-proxy",
+      "proxyImage" -> "gcr.io/kalix-public/kalix-runtime",
       "proxyVersion" -> Kalix.ProxyVersion,
       "scalaVersion" -> scalaVersion.value),
     buildInfoPackage := "kalix.spring.boot.test",
@@ -384,7 +384,7 @@ def devToolsCommon(project: Project): Project =
       buildInfoKeys := Seq[BuildInfoKey](
         name,
         version,
-        "proxyImage" -> "gcr.io/kalix-public/kalix-proxy",
+        "proxyImage" -> "gcr.io/kalix-public/kalix-runtime",
         "proxyVersion" -> Kalix.ProxyVersion),
       buildInfoPackage := "kalix.devtools",
       // Generate javadocs by just including non generated Java sources
