@@ -1,7 +1,7 @@
 version: "3"
 services:
   kalix-proxy:
-    image: gcr.io/kalix-public/kalix-proxy:1.1.24
+    image: gcr.io/kalix-public/kalix-proxy:1.1.25
     container_name: java-protobuf-eventsourced-counter
     ports:
       - "9000:9000"
