@@ -21,6 +21,7 @@ import akka.actor.ActorSystem
 import akka.stream.scaladsl.Flow
 import akka.stream.scaladsl.Source
 import io.grpc.Status
+import io.opentelemetry.api.trace.Span
 import kalix.javasdk.KalixRunner.Configuration
 import kalix.javasdk.impl.ErrorHandling.BadRequestException
 import kalix.javasdk.impl.telemetry.Instrumentation
@@ -30,6 +31,7 @@ import kalix.protocol.component.Failure
 import org.slf4j.LoggerFactory
 
 import scala.concurrent.ExecutionContext
+import scala.concurrent.Future
 import scala.util.control.NonFatal
 
 // FIXME these don't seem to be 'public API', more internals?
@@ -94,7 +96,7 @@ final class ValueEntitiesImpl(
   private final val log = LoggerFactory.getLogger(this.getClass)
 
   val telemetry = Telemetry(system)
-  val instrumentations: Map[String, Instrumentation] = services.values.map { s =>
+  val instrumentations: Map[String, Future[Instrumentation]] = services.values.map { s =>
     (s.serviceName, telemetry.traceInstrumentation(s.serviceName, ValueEntityCategory))
   }.toMap
 
@@ -162,8 +164,10 @@ final class ValueEntitiesImpl(
           val metadata = new MetadataImpl(command.metadata.map(_.entries.toVector).getOrElse(Nil))
 
           if (log.isTraceEnabled) log.trace("Metadata entries [{}].", metadata.entries)
-
-          val span = instrumentations(service.serviceName).buildSpan(service, command)
+          // This future is always completed before this method is called because that future completes right after the proxy discovery
+          // which always happens before any message can be processed by any component
+          val span: Future[Option[Span]] =
+            instrumentations(service.serviceName).map(inst => inst.buildSpan(service, command))
           try {
             val cmd =
               service.messageCodec.decodeMessage(
@@ -217,7 +221,7 @@ final class ValueEntitiesImpl(
                       action)))
             }
           } finally {
-            span.foreach(_.end())
+            span.map(_.foreach(_.end()))
           }
 
         case InInit(_) =>

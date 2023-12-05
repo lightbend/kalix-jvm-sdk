@@ -43,6 +43,8 @@ import kalix.protocol.entity.Command
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
+import scala.concurrent.ExecutionContext
+import scala.concurrent.Future
 import scala.jdk.OptionConverters._
 
 object Telemetry extends ExtensionId[Telemetry] {
@@ -69,21 +71,27 @@ final class Telemetry(system: ActorSystem) extends Extension {
 
   private val proxyInfoHolder = ProxyInfoHolder(system)
 
-  val logger = LoggerFactory.getLogger(classOf[Telemetry])
+  private val logger = LoggerFactory.getLogger(classOf[Telemetry])
 
-  val collectorEndpointSDK = system.settings.config.getString(TraceInstrumentation.TRACING_ENDPOINT)
+  private val collectorEndpointSDK = system.settings.config.getString(TraceInstrumentation.TRACING_ENDPOINT)
 
-  def traceInstrumentation(componentName: String, componentCategory: ComponentCategory) = {
-    val collectorEndpoint =
-      if (!collectorEndpointSDK.isEmpty) collectorEndpointSDK
-      else proxyInfoHolder.proxyTracingCollectorEndpoint.getOrElse("")
-    if (collectorEndpoint.isEmpty) {
-      logger.debug("Instrumentation disabled. Set to NoOp.")
-      NoOpInstrumentation
-    } else {
-      logger.debug("Instrumentation enabled. Set collector endpoint to [{}].", collectorEndpoint)
-      new TraceInstrumentation(componentName, system, componentCategory)
+  implicit val ec = ExecutionContext.Implicits.global
+
+  def traceInstrumentation(componentName: String, componentCategory: ComponentCategory): Future[Instrumentation] = {
+    proxyInfoHolder.proxyTracingCollectorEndpoint.future.map { endpoint =>
+      val collectorEndpoint =
+        if (!collectorEndpointSDK.isEmpty) collectorEndpointSDK
+        else endpoint
+      logger.debug("collectorEndpointSDK [{}].", collectorEndpointSDK)
+      if (collectorEndpoint.isEmpty) {
+        logger.debug("Instrumentation disabled. Set to NoOp.")
+        NoOpInstrumentation
+      } else {
+        logger.debug("Instrumentation enabled. Set collector endpoint to [{}].", collectorEndpoint)
+        new TraceInstrumentation(componentName, system, componentCategory)
+      }
     }
+
   }
 }
 

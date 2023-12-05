@@ -23,6 +23,7 @@ import akka.stream.scaladsl.Source
 import com.google.protobuf.Descriptors
 import com.google.protobuf.any.Any
 import io.grpc.Status
+import io.opentelemetry.api.trace.Span
 import kalix.javasdk._
 import kalix.javasdk.action._
 import kalix.javasdk.impl.ActionFactory
@@ -122,7 +123,7 @@ private[javasdk] final class ActionsImpl(
   import _system.dispatcher
   implicit val system: ActorSystem = _system
   val telemetry = Telemetry(system)
-  val telemetries: Map[String, Instrumentation] = services.values.map { s =>
+  val telemetries: Map[String, Future[Instrumentation]] = services.values.map { s =>
     (s.serviceName, telemetry.traceInstrumentation(s.serviceName, ActionCategory))
   }.toMap
 
@@ -199,7 +200,10 @@ private[javasdk] final class ActionsImpl(
   override def handleUnary(in: ActionCommand): Future[ActionResponse] =
     services.get(in.serviceName) match {
       case Some(service) =>
-        val span = telemetries(service.serviceName).buildSpan(service, in)
+        // This future is always completed before this method is called because that future completes right after the proxy discovery
+        // which always happens before any message can be processed by any component
+        val span: Future[Option[Span]] =
+          telemetries(service.serviceName).map { inst => inst.buildSpan(service, in) }
         val fut =
           try {
             val context = createContext(in, service.messageCodec)
@@ -215,7 +219,7 @@ private[javasdk] final class ActionsImpl(
               Future.successful(handleUnexpectedException(service, in, ex))
           }
         fut.andThen { case _ =>
-          span.foreach(_.end())
+          span.map(_.foreach(_.end()))
         }
       case None =>
         Future.successful(

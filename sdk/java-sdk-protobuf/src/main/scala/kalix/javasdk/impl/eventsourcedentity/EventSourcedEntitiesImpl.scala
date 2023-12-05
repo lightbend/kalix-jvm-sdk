@@ -23,6 +23,7 @@ import akka.stream.scaladsl.Source
 import com.google.protobuf.Descriptors
 import com.google.protobuf.any.{ Any => ScalaPbAny }
 import io.grpc.Status
+import io.opentelemetry.api.trace.Span
 import kalix.javasdk.KalixRunner.Configuration
 import kalix.javasdk.Metadata
 import kalix.javasdk.eventsourcedentity._
@@ -48,6 +49,8 @@ import kalix.protocol.event_sourced_entity.EventSourcedStreamOut.Message.{ Snaps
 import kalix.protocol.event_sourced_entity._
 import org.slf4j.LoggerFactory
 
+import scala.concurrent.ExecutionContext
+import scala.concurrent.Future
 import scala.util.control.NonFatal
 
 final class EventSourcedEntityService(
@@ -109,9 +112,10 @@ final class EventSourcedEntitiesImpl(
     (name, if (service.snapshotEvery == 0) service.withSnapshotEvery(configuration.snapshotEvery) else service)
   }.toMap
   val telemetry = Telemetry(system)
-  val instrumentations: Map[String, Instrumentation] = services.values.map { s =>
+  val instrumentations: Map[String, Future[Instrumentation]] = services.values.map { s =>
     (s.serviceName, telemetry.traceInstrumentation(s.serviceName, EventSourcedEntityCategory))
   }.toMap
+  implicit val ec = ExecutionContext.Implicits.global //or system.dispatcher?
 
   private val pbCleanupDeletedEventSourcedEntityAfter =
     Some(com.google.protobuf.duration.Duration(configuration.cleanupDeletedEventSourcedEntityAfter))
@@ -181,8 +185,10 @@ final class EventSourcedEntitiesImpl(
         case ((sequence, _), InCommand(command)) =>
           if (thisEntityId != command.entityId)
             throw ProtocolException(command, "Receiving entity is not the intended recipient of command")
-
-          val span = instrumentations(service.serviceName).buildSpan(service, command)
+          // This future is always completed before this method is called because that future completes right after the proxy discovery
+          // which always happens before any message can be processed by any component
+          val span: Future[Option[Span]] =
+            instrumentations(service.serviceName).map(inst => inst.buildSpan(service, command))
           try {
             val cmd =
               service.messageCodec.decodeMessage(
@@ -247,7 +253,7 @@ final class EventSourcedEntitiesImpl(
                         serializedSnapshot,
                         delete))))
             }
-          } finally { span.foreach(_.end()) }
+          } finally { span.map(_.foreach(_.end())) }
         case ((sequence, _), InSnapshotRequest(request)) =>
           val reply =
             EventSourcedSnapshotReply(request.requestId, Some(service.messageCodec.encodeScala(router._stateOrEmpty())))

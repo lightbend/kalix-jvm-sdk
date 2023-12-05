@@ -27,6 +27,9 @@ import kalix.protocol.discovery.ProxyInfo
 import org.slf4j.LoggerFactory
 
 import java.util.concurrent.atomic.AtomicReference
+import scala.concurrent.ExecutionContext
+import scala.concurrent.Future
+import scala.concurrent.Promise
 
 object ProxyInfoHolder extends ExtensionId[ProxyInfoHolder] with ExtensionIdProvider {
   override def get(system: ActorSystem): ProxyInfoHolder = super.get(system)
@@ -45,7 +48,7 @@ class ProxyInfoHolder(system: ExtendedActorSystem) extends Extension {
   private val _proxyHostname = new AtomicReference[String]()
   private val _proxyPort = new AtomicReference[Int](-1)
   @volatile private var _identificationInfo: Option[IdentificationInfo] = None
-  private val _proxyTracingCollectorEndpoint: Option[String] = None
+  var _proxyTracingCollectorEndpoint: Promise[String] = Promise()
 
   def setProxyInfo(proxyInfo: ProxyInfo): Unit = {
 
@@ -61,16 +64,17 @@ class ProxyInfoHolder(system: ExtendedActorSystem) extends Extension {
     _proxyHostname.compareAndSet(null, chosenProxyName)
     _proxyPort.compareAndSet(-1, proxyInfo.proxyPort)
     _identificationInfo = proxyInfo.identificationInfo
-    _proxyTracingCollectorEndpoint = proxyInfo.tracingCollectorEndpoint
+    _proxyTracingCollectorEndpoint.success(proxyInfo.tracingCollectorEndpoint)
 
     log.debug("Proxy hostname: [{}]", chosenProxyName)
     log.debug("Proxy port to: [{}]", proxyInfo.proxyPort)
     log.debug("Identification name: [{}]", proxyInfo.identificationInfo)
+    log.debug("Proxy Tracing collector endpoint: [{}]", proxyInfo.tracingCollectorEndpoint)
   }
 
   def proxyHostname: Option[String] = Option(_proxyHostname.get())
 
-  def proxyTracingCollectorEndpoint: Option[String] = Option(_)
+  def proxyTracingCollectorEndpoint: Promise[String] = _proxyTracingCollectorEndpoint
 
   def identificationInfo: Option[IdentificationInfo] = _identificationInfo
 
