@@ -34,8 +34,8 @@ class DockerComposeUtilsSpec extends AnyWordSpec with Matchers with OptionValues
     """
       |version: "3"
       |services:
-      |  kalix-proxy:
-      |    image: gcr.io/kalix-public/kalix-runtime:1.1.24
+      |  kalix-runtime:
+      |    image: gcr.io/kalix-public/kalix-runtime:1.1.25
       |    ports:
       |      - "9000:9000"
       |    extra_hosts:

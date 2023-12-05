@@ -103,7 +103,7 @@ lazy val javaSdkProtobufTestKit = project
       name,
       version,
       "proxyImage" -> "gcr.io/kalix-public/kalix-runtime",
-      "proxyVersion" -> Kalix.ProxyVersion,
+      "proxyVersion" -> Kalix.RuntimeVersion,
       "scalaVersion" -> scalaVersion.value),
     buildInfoPackage := "kalix.javasdk.testkit",
     // Generate javadocs by just including non generated Java sources
@@ -183,7 +183,7 @@ lazy val javaSdkSpringTestKit = project
       name,
       version,
       "proxyImage" -> "gcr.io/kalix-public/kalix-runtime",
-      "proxyVersion" -> Kalix.ProxyVersion,
+      "proxyVersion" -> Kalix.RuntimeVersion,
       "scalaVersion" -> scalaVersion.value),
     buildInfoPackage := "kalix.spring.testkit",
     // Generate javadocs by just including non generated Java sources
@@ -255,7 +255,7 @@ lazy val springBootStarterTest = project
       name,
       version,
       "proxyImage" -> "gcr.io/kalix-public/kalix-runtime",
-      "proxyVersion" -> Kalix.ProxyVersion,
+      "proxyVersion" -> Kalix.RuntimeVersion,
       "scalaVersion" -> scalaVersion.value),
     buildInfoPackage := "kalix.spring.boot.test",
     // Generate javadocs by just including non generated Java sources
@@ -385,7 +385,7 @@ def devToolsCommon(project: Project): Project =
         name,
         version,
         "proxyImage" -> "gcr.io/kalix-public/kalix-runtime",
-        "proxyVersion" -> Kalix.ProxyVersion),
+        "proxyVersion" -> Kalix.RuntimeVersion),
       buildInfoPackage := "kalix.devtools",
       // Generate javadocs by just including non generated Java sources
       Compile / doc / sources := {
@@ -517,7 +517,7 @@ lazy val codegenScala =
         version,
         scalaVersion,
         sbtVersion,
-        "protocolVersion" -> Kalix.ProxyVersion,
+        "protocolVersion" -> Kalix.RuntimeVersion,
         BuildInfoKey(PB.protocExecutable),
         BuildInfoKey(codegenCore / PB.externalIncludePath),
         BuildInfoKey(codegenCore / PB.externalSourcePath),

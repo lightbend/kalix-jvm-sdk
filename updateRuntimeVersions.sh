@@ -3,7 +3,7 @@
 # USAGE:
 # > RUNTIME_VERSION=1.0.31 ./updateRuntimeVersions.sh
 
-# this script is meant to be used after a new Proxy version is out
+# this script is meant to be used after a new Kalix Runtime version is out
 # to facilitate the update of all the places where we usually depend on the latest version
 
 # provide the new Kalix Runtime version you want the project to be updated to
