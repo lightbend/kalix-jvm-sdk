@@ -471,12 +471,12 @@ public abstract class Workflow<S> {
   }
 
 
-  public interface Step<FailoverInput> {
+  public interface Step {
     String name();
     Optional<Duration> timeout();
   }
 
-  public static class CallStep<CallInput, DefCallInput, DefCallOutput, FailoverInput> implements Step<FailoverInput> {
+  public static class CallStep<CallInput, DefCallInput, DefCallOutput, FailoverInput> implements Step {
 
     final private String _name;
     final public Function<CallInput, DeferredCall<DefCallInput, DefCallOutput>> callFunc;
@@ -516,7 +516,7 @@ public abstract class Workflow<S> {
     }
   }
 
-  public static class AsyncCallStep<CallInput, CallOutput, FailoverInput> implements Step<FailoverInput> {
+  public static class AsyncCallStep<CallInput, CallOutput, FailoverInput> implements Step {
 
     final private String _name;
     final public Function<CallInput, CompletionStage<CallOutput>> callFunc;
@@ -604,15 +604,15 @@ public abstract class Workflow<S> {
       /**
        * Once max retries is exceeded, transition to a given step name.
        */
-      public RecoverStrategy failoverTo(String stepName) {
-        return new RecoverStrategy(maxRetries, stepName, Optional.<Void>empty());
+      public RecoverStrategy<?> failoverTo(String stepName) {
+        return new RecoverStrategy<>(maxRetries, stepName, Optional.<Void>empty());
       }
 
       /**
        * Once max retries is exceeded, transition to a given step name with the input parameter.
        */
       public <T> RecoverStrategy<T> failoverTo(String stepName, T input) {
-        return new RecoverStrategy(maxRetries, stepName, Optional.of(input));
+        return new RecoverStrategy<>(maxRetries, stepName, Optional.of(input));
       }
 
       public int getMaxRetries() {
@@ -630,15 +630,15 @@ public abstract class Workflow<S> {
     /**
      * In case of a step failure don't retry but transition to a given step name.
      */
-    public static RecoverStrategy failoverTo(String stepName) {
-      return new RecoverStrategy(0, stepName, Optional.<Void>empty());
+    public static RecoverStrategy<?> failoverTo(String stepName) {
+      return new RecoverStrategy<>(0, stepName, Optional.<Void>empty());
     }
 
     /**
      * In case of a step failure don't retry but transition to a given step name with the input parameter.
      */
     public static <T> RecoverStrategy<T> failoverTo(String stepName, T input) {
-      return new RecoverStrategy(0, stepName, Optional.of(input));
+      return new RecoverStrategy<>(0, stepName, Optional.of(input));
     }
   }
 
