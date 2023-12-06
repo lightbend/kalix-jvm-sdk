@@ -102,7 +102,9 @@ public abstract class Workflow<S> {
     this.timerScheduler = timerScheduler;
   }
 
-  /** Returns a {@link TimerScheduler} that can be used to schedule further in time. */
+  /**
+   * Returns a {@link TimerScheduler} that can be used to schedule further in time.
+   */
   public final TimerScheduler timers() {
     return timerScheduler.orElseThrow(() -> new IllegalStateException("Timers can only be scheduled or cancelled when handling a command or running a step action."));
   }
@@ -189,18 +191,25 @@ public abstract class Workflow<S> {
       TransitionalEffect<Void> pause();
 
       /**
-       * Set the step that should be executed.
+       * Defines the next step to which the workflow should transition to.
+       * <p>
+       * The step definition identified by {@code stepName} must have an input parameter of type I.
+       * In other words, the next step call (or asyncCall) must have been defined with a {@link Function} that
+       * accepts an input parameter of type I.
        *
-       * @param stepName The step name that should be executed.
-       * @param input    The input param for the step.
+       * @param stepName The step name that should be executed next.
+       * @param input    The input param for the next step.
        */
       @ApiMayChange
       <I> TransitionalEffect<Void> transitionTo(String stepName, I input);
 
       /**
-       * Set the step that should be executed.
+       * Defines the next step to which the workflow should transition to.
+       * <p>
+       * The step definition identified by {@code stepName} must not have an input parameter.
+       * In other words, the next step call (or asyncCall) must have been defined with a {@link Supplier} function.
        *
-       * @param stepName The step name that should be executed.
+       * @param stepName The step name that should be executed next.
        */
       @ApiMayChange
       TransitionalEffect<Void> transitionTo(String stepName);
@@ -208,6 +217,7 @@ public abstract class Workflow<S> {
 
       /**
        * Finish the workflow execution.
+       * After transition to {@code end}, no more transitions are allowed.
        */
       @ApiMayChange
       TransitionalEffect<Void> end();
@@ -266,7 +276,8 @@ public abstract class Workflow<S> {
     }
 
     /**
-     * A workflow effect type that contains information about the transition to the next step. This could be also a special transition to pause or end the workflow.
+     * A workflow effect type that contains information about the transition to the next step.
+     * This could be also a special transition to pause or end the workflow.
      */
     interface TransitionalEffect<T> extends Effect<T> {
 
@@ -299,24 +310,32 @@ public abstract class Workflow<S> {
       TransitionalEffect<Void> pause();
 
       /**
-       * Set the step that should be executed.
+       * Defines the next step to which the workflow should transition to.
+       * <p>
+       * The step definition identified by {@code stepName} must have an input parameter of type I.
+       * In other words, the next step call (or asyncCall) must have been defined with a {@link Function} that
+       * accepts an input parameter of type I.
        *
-       * @param stepName The step name that should be executed.
-       * @param input    The input param for the step.
+       * @param stepName The step name that should be executed next.
+       * @param input    The input param for the next step.
        */
       @ApiMayChange
       <I> TransitionalEffect<Void> transitionTo(String stepName, I input);
 
       /**
-       * Set the step that should be executed.
+       * Defines the next step to which the workflow should transition to.
+       * <p>
+       * The step definition identified by {@code stepName} must not have an input parameter.
+       * In other words, the next step call (or asyncCall) must have been defined with a {@link Supplier}.
        *
-       * @param stepName The step name that should be executed.
+       * @param stepName The step name that should be executed next.
        */
       @ApiMayChange
       TransitionalEffect<Void> transitionTo(String stepName);
 
       /**
        * Finish the workflow execution.
+       * After transition to {@code end}, no more transitions are allowed.
        */
       @ApiMayChange
       TransitionalEffect<Void> end();
@@ -470,6 +489,7 @@ public abstract class Workflow<S> {
 
   public interface Step {
     String name();
+
     Optional<Duration> timeout();
   }
 
@@ -649,6 +669,12 @@ public abstract class Workflow<S> {
 
     /**
      * Build a step action with a call to an existing Kalix component via {@link DeferredCall}.
+     * <p>
+     * The {@link Function} passed to this method should return a {@link DeferredCall}.
+     * The {@link DeferredCall} is then executed by Kalix and its result, if successful, is made available to this workflow via the {@code andThen} method.
+     * In the {@code andThen} method, we can use the result to update the workflow state and transition to the next step.
+     * <p>
+     * On failure, the step will be retried according to the default retry strategy or the one defined in the step configuration.
      *
      * @param callInputClass  Input class for call factory.
      * @param callFactory     Factory method for creating deferred call.
@@ -664,6 +690,12 @@ public abstract class Workflow<S> {
 
     /**
      * Build a step action with a call to an existing Kalix component via {@link DeferredCall}.
+     * <p>
+     * The {@link Supplier} function passed to this method should return a {@link DeferredCall}.
+     * The {@link DeferredCall} is then executed by Kalix and its result, if successful, is made available to this workflow via the {@code andThen} method.
+     * In the {@code andThen} method, we can use the result to update the workflow state and transition to the next step.
+     * <p>
+     * On failure, the step will be retried according to the default retry strategy or the one defined in the step configuration.
      *
      * @param callSupplier    Factory method for creating deferred call.
      * @param <DefCallInput>  Input for deferred call.
@@ -677,6 +709,12 @@ public abstract class Workflow<S> {
 
     /**
      * Build a step action with an async call.
+     * <p>
+     * The {@link Function} passed to this method should return a {@link CompletionStage}.
+     * On successful completion, its result is made available to this workflow via the {@code andThen} method.
+     * In the {@code andThen} method, we can use the result to update the workflow state and transition to the next step.
+     * <p>
+     * On failure, the step will be retried according to the default retry strategy or the one defined in the step configuration.
      *
      * @param callInputClass Input class for call factory.
      * @param callFactory    Factory method for creating async call.
@@ -692,6 +730,12 @@ public abstract class Workflow<S> {
 
     /**
      * Build a step action with an async call.
+     * <p>
+     * The {@link Supplier} function passed to this method should return a {@link CompletionStage}.
+     * On successful completion, its result is made available to this workflow via the {@code andThen} method.
+     * In the {@code andThen} method, we can use the result to update the workflow state and transition to the next step.
+     * <p>
+     * On failure, the step will be retried according to the default retry strategy or the one defined in the step configuration.
      *
      * @param callSupplier Factory method for creating async call.
      * @param <Output>     Output of async call.
@@ -718,7 +762,15 @@ public abstract class Workflow<S> {
       }
 
       /**
-       * Transition to the next step based on the result of the step action.
+       * Transition to the next step based on the result of the step call.
+       * <p>
+       * The {@link Function} passed to this method should receive the return type of the step call and return
+       * an {@link Effect.TransitionalEffect} describing the next step to transition to.
+       * <p>
+       * When defining the Effect, you can update the workflow state and indicate the next step to transition to.
+       * This can be another step, or a pause or end of the workflow.
+       * <p>
+       * When transition to another step, you can also pass an input parameter to the next step.
        *
        * @param transitionInputClass Input class for transition.
        * @param transitionFunc       Function that transform the action result to a {@link Effect.TransitionalEffect}
@@ -744,10 +796,18 @@ public abstract class Workflow<S> {
       }
 
       /**
-       * Transition to the next step based on the result of the step action.
+       * Transition to the next step based on the result of the step call.
+       * <p>
+       * The {@link Function} passed to this method should receive the return type of the step call and return
+       * an {@link Effect.TransitionalEffect} describing the next step to transition to.
+       * <p>
+       * When defining the Effect, you can update the workflow state and indicate the next step to transition to.
+       * This can be another step, or a pause or end of the workflow.
+       * <p>
+       * When transition to another step, you can also pass an input parameter to the next step.
        *
        * @param transitionInputClass Input class for transition.
-       * @param transitionFunc Function that transform the action result to a {@link Effect.TransitionalEffect}
+       * @param transitionFunc       Function that transform the action result to a {@link Effect.TransitionalEffect}
        * @return AsyncCallStep
        */
       @ApiMayChange
