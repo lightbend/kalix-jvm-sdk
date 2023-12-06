@@ -188,7 +188,7 @@ final class EventSourcedEntitiesImpl(
           // This future is always completed before this method is called because that future completes right after the proxy discovery
           // which always happens before any message can be processed by any component
           val span: Future[Option[Span]] =
-            instrumentations(service.serviceName).map(inst => inst.buildSpan(service, command))
+            instrumentations(service.serviceName).map(inst => inst.buildSpan(service, command)).flatten
           try {
             val cmd =
               service.messageCodec.decodeMessage(

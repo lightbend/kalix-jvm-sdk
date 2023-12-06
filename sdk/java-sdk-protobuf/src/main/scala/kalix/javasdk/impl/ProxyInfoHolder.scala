@@ -74,7 +74,7 @@ class ProxyInfoHolder(system: ExtendedActorSystem) extends Extension {
 
   def proxyHostname: Option[String] = Option(_proxyHostname.get())
 
-  def proxyTracingCollectorEndpoint: Promise[String] = _proxyTracingCollectorEndpoint
+  def proxyTracingCollectorEndpoint: Future[String] = _proxyTracingCollectorEndpoint.future
 
   def identificationInfo: Option[IdentificationInfo] = _identificationInfo
 
