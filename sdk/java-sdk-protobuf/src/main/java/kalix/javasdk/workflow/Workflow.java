@@ -375,9 +375,6 @@ public abstract class Workflow<S> {
       this.uniqueNames.add(step.name());
     }
 
-    public void forEachStep(Consumer<Step> stepConsumer) {
-      steps.forEach(stepConsumer);
-    }
 
     /**
      * Define a timeout for the duration of the entire workflow. When the timeout expires, the workflow is finished and no transitions are allowed.
