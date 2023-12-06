@@ -88,7 +88,7 @@ public class KalixProxyContainer extends GenericContainer<KalixProxyContainer> {
     if ("false".equals(System.getenv("VERSION_CHECK_ON_STARTUP"))) {
       withEnv("VERSION_CHECK_ON_STARTUP", "false");
     }
-    waitingFor(Wait.forLogMessage(".*gRPC proxy started.*", 1));
+    waitingFor(Wait.forLogMessage(".*(gRPC proxy|Kalix Runtime) started.*", 1));
   }
 
   @Override
