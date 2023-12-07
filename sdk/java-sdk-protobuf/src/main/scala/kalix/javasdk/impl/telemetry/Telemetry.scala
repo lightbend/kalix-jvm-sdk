@@ -38,19 +38,13 @@ import kalix.javasdk.Metadata
 import kalix.javasdk.impl.MetadataImpl
 import kalix.javasdk.impl.ProxyInfoHolder
 import kalix.javasdk.impl.Service
-import kalix.javasdk.impl.action.ActionService
-import kalix.javasdk.impl.eventsourcedentity.EventSourcedEntityService
 import kalix.protocol.action.ActionCommand
 import kalix.protocol.entity.Command
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
-import scala.collection.immutable.Map
 import scala.concurrent.ExecutionContext
-import scala.concurrent.Future
 import scala.jdk.OptionConverters._
-import scala.util.Failure
-import scala.util.Success
 
 object Telemetry extends ExtensionId[Telemetry] {
 
@@ -82,21 +76,26 @@ final class Telemetry(system: ActorSystem) extends Extension {
 
   implicit val ec = ExecutionContext.Implicits.global
 
-  def traceInstrumentation(componentName: String, componentCategory: ComponentCategory): Future[Instrumentation] = {
-    proxyInfoHolder.proxyTracingCollectorEndpoint.map { endpoint =>
-      val collectorEndpoint =
-        if (!collectorEndpointSDK.isEmpty) collectorEndpointSDK
-        else endpoint
-      logger.debug("collectorEndpointSDK [{}].", collectorEndpointSDK)
-      if (collectorEndpoint.isEmpty) {
-        logger.debug("Instrumentation disabled. Set to NoOp.")
-        NoOpInstrumentation
-      } else {
-        logger.debug("Instrumentation enabled. Set collector endpoint to [{}].", collectorEndpoint)
-        new TraceInstrumentation(collectorEndpoint, componentName, system, componentCategory)
-      }
+  /**
+   * This method assumes the instrumentation won't be consumed until discovery from the proxy is requested. Therefore
+   * this should be stored in a `lazy` value and only used after we are sure the ProxyInfo has been process. For
+   * example, in an Action inside the methods `handleyUnary` and alike.
+   * @param componentName
+   * @param componentCategory
+   * @return
+   */
+  def traceInstrumentation(componentName: String, componentCategory: ComponentCategory): Instrumentation = {
+    val collectorEndpoint =
+      if (!collectorEndpointSDK.isEmpty) collectorEndpointSDK
+      else proxyInfoHolder.proxyTracingCollectorEndpoint
+    logger.debug("collectorEndpointSDK [{}].", collectorEndpointSDK)
+    if (collectorEndpoint.isEmpty) {
+      logger.debug("Instrumentation disabled. Set to NoOp.")
+      NoOpInstrumentation
+    } else {
+      logger.debug("Instrumentation enabled. Set collector endpoint to [{}].", collectorEndpoint)
+      new TraceInstrumentation(collectorEndpoint, componentName, system, componentCategory)
     }
-
   }
 }
 
@@ -138,7 +137,6 @@ private final class TraceInstrumentation(
     extends Instrumentation {
 
   import TraceInstrumentation._
-  import system.dispatcher
 
   val tracePrefix = componentCategory.name
 
@@ -222,9 +220,7 @@ private final class TraceInstrumentation(
       if (logger.isTraceEnabled) logger.trace("No `traceparent` found for command [{}].", command)
       None
     }
-
   }
-
 }
 
 private object NoOpInstrumentation extends Instrumentation {
@@ -232,28 +228,4 @@ private object NoOpInstrumentation extends Instrumentation {
   override def buildSpan(service: Service, command: Command): Option[Span] = None
 
   override def buildSpan(service: Service, command: ActionCommand): Option[Span] = None
-}
-
-/**
- * This class solves the problem of always allocating a Runnable in the ExecutionContext queue, and back. Most of the
- * time we expect that the
- */
-object FastFuture {
-  def buildSpan(futInstrumentation: Future[Instrumentation], in: ActionCommand, service: ActionService)(implicit
-      ec: ExecutionContext): Future[Option[Span]] = {
-    futInstrumentation.value match {
-      case None                => futInstrumentation.map { inst => inst.buildSpan(service, in) }
-      case Some(Success(inst)) => Future.successful(inst.buildSpan(service, in))
-      case Some(Failure(ex))   => throw new IllegalStateException(ex)
-    }
-  }
-
-  def buildSpan(futInstrumentation: Future[Instrumentation], in: Command, service: Service)(implicit
-      ec: ExecutionContext): Future[Option[Span]] = {
-    futInstrumentation.value match {
-      case None                => futInstrumentation.map { inst => inst.buildSpan(service, in) }
-      case Some(Success(inst)) => Future.successful(inst.buildSpan(service, in))
-      case Some(Failure(ex))   => throw new IllegalStateException(ex)
-    }
-  }
 }

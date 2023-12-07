@@ -96,7 +96,7 @@ final class ValueEntitiesImpl(
   private final val log = LoggerFactory.getLogger(this.getClass)
 
   val telemetry = Telemetry(system)
-  val instrumentations: Map[String, Future[Instrumentation]] = services.values.map { s =>
+  lazy val instrumentations: Map[String, Instrumentation] = services.values.map { s =>
     (s.serviceName, telemetry.traceInstrumentation(s.serviceName, ValueEntityCategory))
   }.toMap
 
@@ -166,8 +166,7 @@ final class ValueEntitiesImpl(
           if (log.isTraceEnabled) log.trace("Metadata entries [{}].", metadata.entries)
           // This future is always completed before this method is called because that future completes right after the proxy discovery
           // which always happens before any message can be processed by any component
-          val span: Future[Option[Span]] =
-            instrumentations(service.serviceName).map(inst => inst.buildSpan(service, command)).flatten
+          val span: Option[Span] = instrumentations(service.serviceName).buildSpan(service, command)
 
           try {
             val cmd =
@@ -222,7 +221,7 @@ final class ValueEntitiesImpl(
                       action)))
             }
           } finally {
-            span.map(_.foreach(_.end()))
+            span.foreach(_.end())
           }
 
         case InInit(_) =>

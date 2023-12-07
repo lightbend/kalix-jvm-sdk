@@ -23,7 +23,6 @@ import akka.stream.scaladsl.Source
 import com.google.protobuf.Descriptors
 import com.google.protobuf.any.{ Any => ScalaPbAny }
 import io.grpc.Status
-import io.opentelemetry.api.trace.Span
 import kalix.javasdk.KalixRunner.Configuration
 import kalix.javasdk.Metadata
 import kalix.javasdk.eventsourcedentity._
@@ -35,7 +34,6 @@ import kalix.javasdk.impl.effect.MessageReplyImpl
 import kalix.javasdk.impl.effect.SecondaryEffectImpl
 import kalix.javasdk.impl.eventsourcedentity.EventSourcedEntityRouter.CommandResult
 import kalix.javasdk.impl.telemetry.EventSourcedEntityCategory
-import kalix.javasdk.impl.telemetry.FastFuture
 import kalix.javasdk.impl.telemetry.Instrumentation
 import kalix.javasdk.impl.telemetry.Telemetry
 import kalix.protocol.component.Failure
@@ -51,7 +49,6 @@ import kalix.protocol.event_sourced_entity._
 import org.slf4j.LoggerFactory
 
 import scala.concurrent.ExecutionContext
-import scala.concurrent.Future
 import scala.util.control.NonFatal
 
 final class EventSourcedEntityService(
@@ -188,8 +185,7 @@ final class EventSourcedEntitiesImpl(
             throw ProtocolException(command, "Receiving entity is not the intended recipient of command")
           // This future is always completed before this method is called because that future completes right after the proxy discovery
           // which always happens before any message can be processed by any component
-          val span: Future[Option[Span]] =
-            instrumentations(service.serviceName).map(inst => inst.buildSpan(service, command)).flatten
+          val span = instrumentations(service.serviceName).buildSpan(service, command)
           try {
             val cmd =
               service.messageCodec.decodeMessage(
@@ -254,7 +250,7 @@ final class EventSourcedEntitiesImpl(
                         serializedSnapshot,
                         delete))))
             }
-          } finally { span.map(_.foreach(_.end())) }
+          } finally { span.foreach(_.end()) }
         case ((sequence, _), InSnapshotRequest(request)) =>
           val reply =
             EventSourcedSnapshotReply(request.requestId, Some(service.messageCodec.encodeScala(router._stateOrEmpty())))
