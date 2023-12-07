@@ -16,6 +16,7 @@
 
 package kalix.javasdk.impl
 
+import java.lang
 import java.util
 
 import com.fasterxml.jackson.annotation.JsonCreator
@@ -132,10 +133,10 @@ class JsonMessageCodecSpec extends AnyWordSpec with Matchers {
       new StrictJsonMessageCodec(messageCodec).decodeMessage(
         float.copy(typeUrl = jsonTypeUrlWith("java.lang.Float"))) shouldBe 123.321f
 
-      val short = messageCodec.encodeScala(Short.valueOf("1"))
+      val short = messageCodec.encodeScala(lang.Short.valueOf("1"))
       short.typeUrl shouldBe jsonTypeUrlWith("short")
       new StrictJsonMessageCodec(messageCodec).decodeMessage(
-        short.copy(typeUrl = jsonTypeUrlWith("java.lang.Short"))) shouldBe Short.valueOf("1")
+        short.copy(typeUrl = jsonTypeUrlWith("java.lang.Short"))) shouldBe lang.Short.valueOf("1")
 
       val char = messageCodec.encodeScala('a')
       char.typeUrl shouldBe jsonTypeUrlWith("char")
