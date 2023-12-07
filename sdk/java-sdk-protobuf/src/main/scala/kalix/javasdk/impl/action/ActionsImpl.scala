@@ -31,6 +31,7 @@ import kalix.javasdk.impl.ErrorHandling.BadRequestException
 import kalix.javasdk.impl._
 import kalix.javasdk.impl.effect.EffectSupport.asProtocol
 import kalix.javasdk.impl.telemetry.ActionCategory
+import kalix.javasdk.impl.telemetry.FastFuture
 import kalix.javasdk.impl.telemetry.Instrumentation
 import kalix.javasdk.impl.telemetry.Telemetry
 import kalix.protocol.action.ActionCommand
@@ -44,6 +45,8 @@ import org.slf4j.LoggerFactory
 import java.util.Optional
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters.SeqHasAsJava
+import scala.util.Success
+import scala.util.{ Failure => ScalaFailure }
 import scala.util.control.NonFatal
 
 final class ActionService(
@@ -123,7 +126,7 @@ private[javasdk] final class ActionsImpl(
   import _system.dispatcher
   implicit val system: ActorSystem = _system
   val telemetry = Telemetry(system)
-  val telemetries: Map[String, Future[Instrumentation]] = services.values.map { s =>
+  lazy val telemetries: Map[String, Future[Instrumentation]] = services.values.map { s =>
     (s.serviceName, telemetry.traceInstrumentation(s.serviceName, ActionCategory))
   }.toMap
 
@@ -203,7 +206,8 @@ private[javasdk] final class ActionsImpl(
         // This future is always completed before this method is called because that future completes right after the proxy discovery
         // which always happens before any message can be processed by any component
         val span: Future[Option[Span]] =
-          telemetries(service.serviceName).map { inst => inst.buildSpan(service, in) }.flatten
+          FastFuture.buildSpan(telemetries(service.serviceName), in, service)
+
         val fut =
           try {
             val context = createContext(in, service.messageCodec)

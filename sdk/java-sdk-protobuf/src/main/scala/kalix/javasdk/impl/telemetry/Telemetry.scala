@@ -38,14 +38,19 @@ import kalix.javasdk.Metadata
 import kalix.javasdk.impl.MetadataImpl
 import kalix.javasdk.impl.ProxyInfoHolder
 import kalix.javasdk.impl.Service
+import kalix.javasdk.impl.action.ActionService
+import kalix.javasdk.impl.eventsourcedentity.EventSourcedEntityService
 import kalix.protocol.action.ActionCommand
 import kalix.protocol.entity.Command
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
+import scala.collection.immutable.Map
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 import scala.jdk.OptionConverters._
+import scala.util.Failure
+import scala.util.Success
 
 object Telemetry extends ExtensionId[Telemetry] {
 
@@ -56,14 +61,14 @@ object Telemetry extends ExtensionId[Telemetry] {
 sealed trait ComponentCategory {
   def name: String
 }
-final case object ActionCategory extends ComponentCategory {
+case object ActionCategory extends ComponentCategory {
   def name = "Action"
 }
-final case object EventSourcedEntityCategory extends ComponentCategory {
+case object EventSourcedEntityCategory extends ComponentCategory {
   def name = "Event Sourced Entity"
 }
 
-final case object ValueEntityCategory extends ComponentCategory {
+case object ValueEntityCategory extends ComponentCategory {
   def name = "Value Entity"
 }
 
@@ -88,7 +93,7 @@ final class Telemetry(system: ActorSystem) extends Extension {
         NoOpInstrumentation
       } else {
         logger.debug("Instrumentation enabled. Set collector endpoint to [{}].", collectorEndpoint)
-        new TraceInstrumentation(componentName, system, componentCategory)
+        new TraceInstrumentation(collectorEndpoint, componentName, system, componentCategory)
       }
     }
 
@@ -97,12 +102,16 @@ final class Telemetry(system: ActorSystem) extends Extension {
 
 trait Instrumentation {
 
-  def buildSpan(service: Service, command: Command): Future[Option[Span]]
+  //private now?
 
-  def buildSpan(service: Service, command: ActionCommand): Future[Option[Span]]
+  def buildSpan(service: Service, command: Command): Option[Span]
+  //private now?
+
+  def buildSpan(service: Service, command: ActionCommand): Option[Span]
+
 }
 
-private final object TraceInstrumentation {
+private object TraceInstrumentation {
 
   val TRACE_PARENT_KEY = "traceparent"
   val TRACING_ENDPOINT = "kalix.telemetry.tracing.collector-endpoint"
@@ -118,9 +127,11 @@ private final object TraceInstrumentation {
     override def keys(carrier: Metadata): java.lang.Iterable[String] =
       carrier.getAllKeys
   }
+
 }
 
 private final class TraceInstrumentation(
+    collectorEndpoint: String,
     componentName: String,
     system: ActorSystem,
     componentCategory: ComponentCategory)
@@ -131,42 +142,28 @@ private final class TraceInstrumentation(
 
   val tracePrefix = componentCategory.name
 
-  val collectorEndpointSDK = system.settings.config.getString("kalix.telemetry.tracing.collector-endpoint")
-
-  private val proxyInfoHolder = ProxyInfoHolder(system)
-
-  val collectorEndpoint: Future[String] = {
-    proxyInfoHolder.proxyTracingCollectorEndpoint.map { endpoint =>
-      if (!collectorEndpointSDK.isEmpty) collectorEndpointSDK
-      else endpoint
-    }
-  }
-  private val openTelemetry: Future[OpenTelemetry] = {
+  private val openTelemetry: OpenTelemetry = {
     val resource =
       Resource.getDefault.merge(
         Resource.create(Attributes.of(ResourceAttributes.SERVICE_NAME, tracePrefix + " : " + componentName)))
-    val sdkFut = collectorEndpoint.map { cE =>
-      logger.info("Open Telemetry collector endpoint set to [{}] for service [{}].", cE, componentName)
-      val sdkTracerProvider = SdkTracerProvider
-        .builder()
-        .addSpanProcessor(
-          SimpleSpanProcessor.create(
-            OtlpGrpcSpanExporter
-              .builder()
-              .setEndpoint(cE)
-              .build()))
-        .setResource(resource)
-        .build()
+    val sdkTracerProvider = SdkTracerProvider
+      .builder()
+      .addSpanProcessor(
+        SimpleSpanProcessor.create(
+          OtlpGrpcSpanExporter
+            .builder()
+            .setEndpoint(collectorEndpoint)
+            .build()))
+      .setResource(resource)
+      .build()
 
-      val sdk = OpenTelemetrySdk
-        .builder()
-        .setTracerProvider(sdkTracerProvider)
-        .setPropagators(ContextPropagators.create(W3CTraceContextPropagator.getInstance()))
-        .build()
-      system.registerOnTermination(sdk.close())
-      sdk
-    }
-    sdkFut
+    val sdk = OpenTelemetrySdk
+      .builder()
+      .setTracerProvider(sdkTracerProvider)
+      .setPropagators(ContextPropagators.create(W3CTraceContextPropagator.getInstance()))
+      .build()
+    system.registerOnTermination(sdk.close())
+    sdk
   }
 
   /**
@@ -175,67 +172,88 @@ private final class TraceInstrumentation(
    * @param command
    * @return
    */
-  override def buildSpan(service: Service, command: Command): Future[Option[Span]] = {
+  override def buildSpan(service: Service, command: Command): Option[Span] = {
     if (logger.isTraceEnabled) logger.trace("Building span for command [{}].", command)
     val metadata = new MetadataImpl(command.metadata.map(_.entries).getOrElse(Nil))
     if (metadata.get(TRACE_PARENT_KEY).isPresent) {
       if (logger.isTraceEnabled) logger.trace("`traceparent` found")
 
-      val span = openTelemetry.map { ot =>
-        val context = ot.getPropagators.getTextMapPropagator
-          .extract(OtelContext.current(), metadata, otelGetter.asInstanceOf[TextMapGetter[Object]])
+      val context = openTelemetry.getPropagators.getTextMapPropagator
+        .extract(OtelContext.current(), metadata, otelGetter.asInstanceOf[TextMapGetter[Object]])
 
-        ot.getTracer("java-sdk")
-          .spanBuilder(s"""${command.entityId}""")
-          .setParent(context)
-          .setSpanKind(SpanKind.SERVER)
-          .startSpan()
-      }
-      span.map { s =>
-        Some(
-          s.setAttribute("service.name", s"""${service.serviceName}.${command.entityId}""")
-            .setAttribute("component.type", service.componentType)
-            .setAttribute("entity.id", command.entityId))
-      }
+      val span = openTelemetry
+        .getTracer("java-sdk")
+        .spanBuilder(s"""${command.entityId}""")
+        .setParent(context)
+        .setSpanKind(SpanKind.SERVER)
+        .startSpan()
+      Some(
+        span
+          .setAttribute("service.name", s"""${service.serviceName}.${command.entityId}""")
+          .setAttribute("component.type", service.componentType)
+          .setAttribute("entity.id", command.entityId))
     } else {
       if (logger.isTraceEnabled) logger.trace("No `traceparent` found for command [{}].", command)
-      Future.successful(None)
+      None
     }
   }
 
-  override def buildSpan(service: Service, command: ActionCommand): Future[Option[Span]] = {
+  override def buildSpan(service: Service, command: ActionCommand): Option[Span] = {
     if (logger.isTraceEnabled) logger.trace("Building span for action command [{}].", command)
 
     val metadata = new MetadataImpl(command.metadata.map(_.entries).getOrElse(Nil))
     if (metadata.get(TRACE_PARENT_KEY).isPresent) {
       if (logger.isTraceEnabled) logger.trace("`traceparent` found")
 
-      val span: Future[Span] = openTelemetry.map { ot =>
-        val context = ot.getPropagators.getTextMapPropagator
-          .extract(OtelContext.current(), metadata, otelGetter.asInstanceOf[TextMapGetter[Object]])
+      val context = openTelemetry.getPropagators.getTextMapPropagator
+        .extract(OtelContext.current(), metadata, otelGetter.asInstanceOf[TextMapGetter[Object]])
 
-        ot.getTracer("java-sdk")
-          .spanBuilder(s"""${command.name}""")
-          .setParent(context)
-          .setSpanKind(SpanKind.SERVER)
-          .startSpan()
-      }
-      span.map { s =>
-        Some(
-          s.setAttribute("service.name", s"""${service.serviceName}""")
-            .setAttribute(s"${service.componentType}", command.name))
-      }
+      val span = openTelemetry
+        .getTracer("java-sdk")
+        .spanBuilder(s"""${command.name}""")
+        .setParent(context)
+        .setSpanKind(SpanKind.SERVER)
+        .startSpan()
+      Some(
+        span
+          .setAttribute("service.name", s"""${service.serviceName}""")
+          .setAttribute(s"${service.componentType}", command.name))
     } else {
       if (logger.isTraceEnabled) logger.trace("No `traceparent` found for command [{}].", command)
-      Future.successful(None)
+      None
     }
 
   }
+
 }
 
-private final object NoOpInstrumentation extends Instrumentation {
+private object NoOpInstrumentation extends Instrumentation {
 
-  override def buildSpan(service: Service, command: Command): Future[Option[Span]] = Future.successful(None)
+  override def buildSpan(service: Service, command: Command): Option[Span] = None
 
-  override def buildSpan(service: Service, command: ActionCommand): Future[Option[Span]] = Future.successful(None)
+  override def buildSpan(service: Service, command: ActionCommand): Option[Span] = None
+}
+
+/**
+ * This class solves the problem of always allocating a Runnable in the ExecutionContext queue, and back. Most of the
+ * time we expect that the
+ */
+object FastFuture {
+  def buildSpan(futInstrumentation: Future[Instrumentation], in: ActionCommand, service: ActionService)(implicit
+      ec: ExecutionContext): Future[Option[Span]] = {
+    futInstrumentation.value match {
+      case None                => futInstrumentation.map { inst => inst.buildSpan(service, in) }
+      case Some(Success(inst)) => Future.successful(inst.buildSpan(service, in))
+      case Some(Failure(ex))   => throw new IllegalStateException(ex)
+    }
+  }
+
+  def buildSpan(futInstrumentation: Future[Instrumentation], in: Command, service: Service)(implicit
+      ec: ExecutionContext): Future[Option[Span]] = {
+    futInstrumentation.value match {
+      case None                => futInstrumentation.map { inst => inst.buildSpan(service, in) }
+      case Some(Success(inst)) => Future.successful(inst.buildSpan(service, in))
+      case Some(Failure(ex))   => throw new IllegalStateException(ex)
+    }
+  }
 }

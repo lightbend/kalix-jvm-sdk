@@ -35,6 +35,7 @@ import kalix.javasdk.impl.effect.MessageReplyImpl
 import kalix.javasdk.impl.effect.SecondaryEffectImpl
 import kalix.javasdk.impl.eventsourcedentity.EventSourcedEntityRouter.CommandResult
 import kalix.javasdk.impl.telemetry.EventSourcedEntityCategory
+import kalix.javasdk.impl.telemetry.FastFuture
 import kalix.javasdk.impl.telemetry.Instrumentation
 import kalix.javasdk.impl.telemetry.Telemetry
 import kalix.protocol.component.Failure
@@ -112,7 +113,7 @@ final class EventSourcedEntitiesImpl(
     (name, if (service.snapshotEvery == 0) service.withSnapshotEvery(configuration.snapshotEvery) else service)
   }.toMap
   val telemetry = Telemetry(system)
-  val instrumentations: Map[String, Future[Instrumentation]] = services.values.map { s =>
+  lazy val instrumentations: Map[String, Instrumentation] = services.values.map { s =>
     (s.serviceName, telemetry.traceInstrumentation(s.serviceName, EventSourcedEntityCategory))
   }.toMap
   implicit val ec = ExecutionContext.Implicits.global //or system.dispatcher?
