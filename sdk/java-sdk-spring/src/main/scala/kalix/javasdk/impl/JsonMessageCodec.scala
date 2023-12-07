@@ -16,6 +16,7 @@
 
 package kalix.javasdk.impl
 
+import java.lang
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentMap
 
@@ -30,11 +31,9 @@ import kalix.javasdk.JsonSupport
 import kalix.javasdk.annotations.Migration
 import kalix.javasdk.annotations.TypeName
 import kalix.javasdk.impl.AnySupport.BytesPrimitive
-import org.slf4j.LoggerFactory
 
 private[kalix] class JsonMessageCodec extends MessageCodec {
 
-  private val log = LoggerFactory.getLogger(getClass)
   private[kalix] case class TypeHint(currenTypeHintWithVersion: String, allTypeHints: List[String])
 
   private val typeHints: ConcurrentMap[Class[_], TypeHint] = new ConcurrentHashMap()
@@ -82,18 +81,43 @@ private[kalix] class JsonMessageCodec extends MessageCodec {
   }
 
   private def computeTypeHint(clz: Class[_]): TypeHint = {
-    val typeName = Option(clz.getAnnotation(classOf[TypeName]))
-      .collect { case ann if ann.value().trim.nonEmpty => ann.value() }
-      .getOrElse(clz.getName)
+    if (clz.getName.contains("java.lang")) {
+      val typeHint = if (clz.isAssignableFrom(classOf[String])) {
+        TypeHint("string", List("string", "java.lang.String"))
+      } else if (clz.isAssignableFrom(classOf[Integer])) {
+        TypeHint("int", List("int", "java.lang.Integer"))
+      } else if (clz.isAssignableFrom(classOf[Long])) {
+        TypeHint("long", List("long", "java.lang.Long"))
+      } else if (clz.isAssignableFrom(classOf[Boolean])) {
+        TypeHint("boolean", List("boolean", "java.lang.Boolean"))
+      } else if (clz.isAssignableFrom(classOf[Double])) {
+        TypeHint("double", List("double", "java.lang.Double"))
+      } else if (clz.isAssignableFrom(classOf[Float])) {
+        TypeHint("float", List("float", "java.lang.Float"))
+      } else if (clz.isAssignableFrom(classOf[Character])) {
+        TypeHint("char", List("char", "java.lang.Character"))
+      } else if (clz.isAssignableFrom(classOf[lang.Byte])) {
+        TypeHint("byte", List("byte", "java.lang.Byte"))
+      } else if (clz.isAssignableFrom(classOf[Short])) {
+        TypeHint("short", List("short", "java.lang.Short"))
+      } else {
+        TypeHint(clz.getName, List(clz.getName))
+      }
+      typeHint.allTypeHints.foreach(className => addToReversedCache(clz, className))
+      typeHint
+    } else {
+      val typeName = Option(clz.getAnnotation(classOf[TypeName]))
+        .collect { case ann if ann.value().trim.nonEmpty => ann.value() }
+        .getOrElse(clz.getName)
 
-    val (version, supportedClassNames) = getVersionAndSupportedClassNames(clz)
-    val typeNameWithVersion = typeName + (if (version == 0) "" else "#" + version)
+      val (version, supportedClassNames) = getVersionAndSupportedClassNames(clz)
+      val typeNameWithVersion = typeName + (if (version == 0) "" else "#" + version)
 
-    //TODO verify if this could be replaced by sth smarter/safer
-    addToReversedCache(clz, typeName)
-    supportedClassNames.foreach(className => addToReversedCache(clz, className))
+      addToReversedCache(clz, typeName)
+      supportedClassNames.foreach(className => addToReversedCache(clz, className))
 
-    TypeHint(typeNameWithVersion, typeName :: supportedClassNames)
+      TypeHint(typeNameWithVersion, typeName :: supportedClassNames)
+    }
   }
 
   private def addToReversedCache(clz: Class[_], typeName: String) = {
