@@ -38,7 +38,11 @@ class EventSourcedHandlersExtractorSpec extends AnyWordSpec with Matchers {
 
     "extract public well-annotated handlers keyed by event type received as unique parameter" in {
       val result = EventSourcedHandlersExtractor.handlersFrom(classOf[CounterEventSourcedEntity], messageCodec)
-      result.handlers.size shouldBe 3
+      result.handlers.size shouldBe 4
+      result.handlers.get(JsonSupport.KALIX_JSON + "int").map { m =>
+        m.method.getName shouldBe "receivedIntegerEvent"
+        m.method.getParameterCount shouldBe 1
+      }
       result.handlers.get(intTypeUrl).map { m =>
         m.method.getName shouldBe "receivedIntegerEvent"
         m.method.getParameterCount shouldBe 1
@@ -76,7 +80,11 @@ class EventSourcedHandlersExtractorSpec extends AnyWordSpec with Matchers {
 
     "report error on annotated handlers with duplicates signatures (receiving the same event type)" in {
       val result = EventSourcedHandlersExtractor.handlersFrom(classOf[ErrorDuplicatedEventsEntity], messageCodec)
-      result.handlers.size shouldBe 1
+      result.handlers.size shouldBe 2
+      result.handlers.get(JsonSupport.KALIX_JSON + "int").map { m =>
+        m.method.getName shouldBe "receivedIntegerEvent"
+        m.method.getParameterCount shouldBe 1
+      }
       result.handlers.get(intTypeUrl).map { m =>
         m.method.getName shouldBe "receivedIntegerEvent"
         m.method.getParameterCount shouldBe 1

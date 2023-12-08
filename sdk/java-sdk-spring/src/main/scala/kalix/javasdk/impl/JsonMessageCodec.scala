@@ -84,21 +84,21 @@ private[kalix] class JsonMessageCodec extends MessageCodec {
     if (clz.getName.contains("java.lang")) {
       val typeHint = if (clz.isAssignableFrom(classOf[String])) {
         TypeHint("string", List("string", "java.lang.String"))
-      } else if (clz.isAssignableFrom(classOf[Integer])) {
+      } else if (clz.isAssignableFrom(classOf[lang.Integer])) {
         TypeHint("int", List("int", "java.lang.Integer"))
-      } else if (clz.isAssignableFrom(classOf[Long])) {
+      } else if (clz.isAssignableFrom(classOf[lang.Long])) {
         TypeHint("long", List("long", "java.lang.Long"))
-      } else if (clz.isAssignableFrom(classOf[Boolean])) {
+      } else if (clz.isAssignableFrom(classOf[lang.Boolean])) {
         TypeHint("boolean", List("boolean", "java.lang.Boolean"))
-      } else if (clz.isAssignableFrom(classOf[Double])) {
+      } else if (clz.isAssignableFrom(classOf[lang.Double])) {
         TypeHint("double", List("double", "java.lang.Double"))
-      } else if (clz.isAssignableFrom(classOf[Float])) {
+      } else if (clz.isAssignableFrom(classOf[lang.Float])) {
         TypeHint("float", List("float", "java.lang.Float"))
-      } else if (clz.isAssignableFrom(classOf[Character])) {
+      } else if (clz.isAssignableFrom(classOf[lang.Character])) {
         TypeHint("char", List("char", "java.lang.Character"))
       } else if (clz.isAssignableFrom(classOf[lang.Byte])) {
         TypeHint("byte", List("byte", "java.lang.Byte"))
-      } else if (clz.isAssignableFrom(classOf[Short])) {
+      } else if (clz.isAssignableFrom(classOf[lang.Short])) {
         TypeHint("short", List("short", "java.lang.Short"))
       } else {
         TypeHint(clz.getName, List(clz.getName))

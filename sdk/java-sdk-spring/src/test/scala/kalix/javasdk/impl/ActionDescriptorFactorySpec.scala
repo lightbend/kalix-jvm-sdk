@@ -567,7 +567,7 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
         val eventSourceOne = findKalixMethodOptions(desc, "KalixSyntheticMethodOnTopicTopicXYZ").getEventing.getIn
         eventSourceOne.getTopic shouldBe "topicXYZ"
 
-        methodOne.methodInvokers.size shouldBe 3
+        methodOne.methodInvokers.size shouldBe 4
 
         val javaMethodNames = methodOne.methodInvokers.values.map(_.method.getName)
         javaMethodNames should contain("methodOne")
