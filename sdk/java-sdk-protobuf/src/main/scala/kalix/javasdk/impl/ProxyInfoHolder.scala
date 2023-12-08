@@ -48,7 +48,7 @@ class ProxyInfoHolder(system: ExtendedActorSystem) extends Extension {
   private val _proxyHostname = new AtomicReference[String]()
   private val _proxyPort = new AtomicReference[Int](-1)
   @volatile private var _identificationInfo: Option[IdentificationInfo] = None
-  @volatile private var _proxyTracingCollectorEndpoint: String = ""
+  @volatile private var _proxyTracingCollectorEndpoint: Option[String] = None
 
   def setProxyInfo(proxyInfo: ProxyInfo): Unit = {
 
@@ -64,7 +64,8 @@ class ProxyInfoHolder(system: ExtendedActorSystem) extends Extension {
     _proxyHostname.compareAndSet(null, chosenProxyName)
     _proxyPort.compareAndSet(-1, proxyInfo.proxyPort)
     _identificationInfo = proxyInfo.identificationInfo
-    _proxyTracingCollectorEndpoint = proxyInfo.tracingCollectorEndpoint
+    if (proxyInfo.tracingCollectorEndpoint.nonEmpty)
+      _proxyTracingCollectorEndpoint = Some(proxyInfo.tracingCollectorEndpoint)
 
     log.debug("Proxy hostname: [{}]", chosenProxyName)
     log.debug("Proxy port to: [{}]", proxyInfo.proxyPort)
@@ -74,7 +75,7 @@ class ProxyInfoHolder(system: ExtendedActorSystem) extends Extension {
 
   def proxyHostname: Option[String] = Option(_proxyHostname.get())
 
-  def proxyTracingCollectorEndpoint: String = _proxyTracingCollectorEndpoint
+  def proxyTracingCollectorEndpoint: Option[String] = _proxyTracingCollectorEndpoint
 
   def identificationInfo: Option[IdentificationInfo] = _identificationInfo
 

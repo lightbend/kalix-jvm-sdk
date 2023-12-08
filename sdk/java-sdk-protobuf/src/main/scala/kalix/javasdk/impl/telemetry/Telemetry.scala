@@ -87,8 +87,11 @@ final class Telemetry(system: ActorSystem) extends Extension {
   def traceInstrumentation(componentName: String, componentCategory: ComponentCategory): Instrumentation = {
     val collectorEndpoint = {
       if (collectorEndpointSDK.nonEmpty) collectorEndpointSDK
-      else if (proxyInfoHolder.proxyTracingCollectorEndpoint.nonEmpty) proxyInfoHolder.proxyTracingCollectorEndpoint
-      else throw new IllegalArgumentException("Tracing endpoint from the Proxy not yet received. Retry.")
+      else
+        proxyInfoHolder.proxyTracingCollectorEndpoint match {
+          case Some(endpoint) => endpoint
+          case None => throw new IllegalArgumentException("Tracing endpoint from the Proxy not yet received. Retry.")
+        }
     }
     logger.debug("collectorEndpointSDK [{}].", collectorEndpointSDK)
     if (collectorEndpoint.isEmpty) {
