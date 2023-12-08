@@ -200,8 +200,6 @@ private[javasdk] final class ActionsImpl(
   override def handleUnary(in: ActionCommand): Future[ActionResponse] =
     services.get(in.serviceName) match {
       case Some(service) =>
-        // This future is always completed before this method is called because that future completes right after the proxy discovery
-        // which always happens before any message can be processed by any component
         val span: Option[Span] = telemetries(service.serviceName).buildSpan(service, in)
 
         val fut =

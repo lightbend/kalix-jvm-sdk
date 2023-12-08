@@ -164,8 +164,6 @@ final class ValueEntitiesImpl(
           val metadata = new MetadataImpl(command.metadata.map(_.entries.toVector).getOrElse(Nil))
 
           if (log.isTraceEnabled) log.trace("Metadata entries [{}].", metadata.entries)
-          // This future is always completed before this method is called because that future completes right after the proxy discovery
-          // which always happens before any message can be processed by any component
           val span: Option[Span] = instrumentations(service.serviceName).buildSpan(service, command)
 
           try {

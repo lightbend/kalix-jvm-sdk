@@ -183,8 +183,6 @@ final class EventSourcedEntitiesImpl(
         case ((sequence, _), InCommand(command)) =>
           if (thisEntityId != command.entityId)
             throw ProtocolException(command, "Receiving entity is not the intended recipient of command")
-          // This future is always completed before this method is called because that future completes right after the proxy discovery
-          // which always happens before any message can be processed by any component
           val span = instrumentations(service.serviceName).buildSpan(service, command)
           try {
             val cmd =
