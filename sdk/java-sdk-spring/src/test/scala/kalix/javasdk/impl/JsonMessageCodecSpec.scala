@@ -16,8 +16,8 @@
 
 package kalix.javasdk.impl
 
+import java.lang
 import java.util
-import java.util.Optional
 
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.databind.JsonNode
@@ -33,7 +33,6 @@ import kalix.javasdk.impl.JsonMessageCodecSpec.Cat
 import kalix.javasdk.impl.JsonMessageCodecSpec.Dog
 import kalix.javasdk.impl.JsonMessageCodecSpec.SimpleClass
 import kalix.javasdk.impl.JsonMessageCodecSpec.SimpleClassUpdated
-import kalix.javasdk.impl.JsonMessageCodecSpec.SimpleClassUpdatedMigration
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 
@@ -102,6 +101,53 @@ class JsonMessageCodecSpec extends AnyWordSpec with Matchers {
   val messageCodec = new JsonMessageCodec
 
   "The JsonMessageCodec" should {
+
+    "check java primitives backward compatibility" in {
+      val integer = messageCodec.encodeScala(123)
+      integer.typeUrl shouldBe jsonTypeUrlWith("int")
+      new StrictJsonMessageCodec(messageCodec).decodeMessage(
+        integer.copy(typeUrl = jsonTypeUrlWith("java.lang.Integer"))) shouldBe 123
+
+      val long = messageCodec.encodeScala(123L)
+      long.typeUrl shouldBe jsonTypeUrlWith("long")
+      new StrictJsonMessageCodec(messageCodec).decodeMessage(
+        long.copy(typeUrl = jsonTypeUrlWith("java.lang.Long"))) shouldBe 123
+
+      val string = messageCodec.encodeScala("123")
+      string.typeUrl shouldBe jsonTypeUrlWith("string")
+      new StrictJsonMessageCodec(messageCodec).decodeMessage(
+        string.copy(typeUrl = jsonTypeUrlWith("java.lang.String"))) shouldBe "123"
+
+      val boolean = messageCodec.encodeScala(true)
+      boolean.typeUrl shouldBe jsonTypeUrlWith("boolean")
+      new StrictJsonMessageCodec(messageCodec).decodeMessage(
+        boolean.copy(typeUrl = jsonTypeUrlWith("java.lang.Boolean"))) shouldBe true
+
+      val double = messageCodec.encodeScala(123.321d)
+      double.typeUrl shouldBe jsonTypeUrlWith("double")
+      new StrictJsonMessageCodec(messageCodec).decodeMessage(
+        double.copy(typeUrl = jsonTypeUrlWith("java.lang.Double"))) shouldBe 123.321d
+
+      val float = messageCodec.encodeScala(123.321f)
+      float.typeUrl shouldBe jsonTypeUrlWith("float")
+      new StrictJsonMessageCodec(messageCodec).decodeMessage(
+        float.copy(typeUrl = jsonTypeUrlWith("java.lang.Float"))) shouldBe 123.321f
+
+      val short = messageCodec.encodeScala(lang.Short.valueOf("1"))
+      short.typeUrl shouldBe jsonTypeUrlWith("short")
+      new StrictJsonMessageCodec(messageCodec).decodeMessage(
+        short.copy(typeUrl = jsonTypeUrlWith("java.lang.Short"))) shouldBe lang.Short.valueOf("1")
+
+      val char = messageCodec.encodeScala('a')
+      char.typeUrl shouldBe jsonTypeUrlWith("char")
+      new StrictJsonMessageCodec(messageCodec).decodeMessage(
+        char.copy(typeUrl = jsonTypeUrlWith("java.lang.Character"))) shouldBe 'a'
+
+      val byte = messageCodec.encodeScala(1.toByte)
+      byte.typeUrl shouldBe jsonTypeUrlWith("byte")
+      new StrictJsonMessageCodec(messageCodec).decodeMessage(
+        byte.copy(typeUrl = jsonTypeUrlWith("java.lang.Byte"))) shouldBe 1.toByte
+    }
 
     "default to FQCN for typeUrl (java)" in {
       val encoded = messageCodec.encodeJava(SimpleClass("abc", 10))
