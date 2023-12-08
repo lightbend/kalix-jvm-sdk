@@ -115,4 +115,8 @@ class ProxyInfoHolder(system: ExtendedActorSystem) extends Extension {
    */
   private[kalix] def overrideProxyHost(host: String): Unit =
     _proxyHostname.set(host)
+
+  private[kalix] def overrideTracingCollectorEndpoint(endpoint: String): Unit = {
+    _proxyTracingCollectorEndpoint = Some(endpoint)
+  }
 }

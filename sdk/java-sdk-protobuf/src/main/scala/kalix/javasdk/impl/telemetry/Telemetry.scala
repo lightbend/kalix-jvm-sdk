@@ -93,7 +93,7 @@ final class Telemetry(system: ActorSystem) extends Extension {
           case None => throw new IllegalArgumentException("Tracing endpoint from the Proxy not yet received. Retry.")
         }
     }
-    logger.debug("collectorEndpointSDK [{}].", collectorEndpointSDK)
+    logger.debug("collectorEndpoint [{}].", collectorEndpoint)
     if (collectorEndpoint.isEmpty) {
       logger.debug("Instrumentation disabled. Set to NoOp.")
       NoOpInstrumentation
