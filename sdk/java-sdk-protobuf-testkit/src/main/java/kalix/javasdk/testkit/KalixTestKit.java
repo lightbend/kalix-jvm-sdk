@@ -611,7 +611,7 @@ public class KalixTestKit {
     ProxyInfoHolder holder = ProxyInfoHolder.get(runner.system());
     holder.overridePort(proxyPort);
     holder.overrideProxyHost(proxyHost);
-    holder.overrideTracingCollectorEndpoint("");
+    holder.overrideTracingCollectorEndpoint(""); //emulating ProxyInfo with disabled tracing.
   }
 
   private int userFunctionPort(Boolean useTestContainers) {

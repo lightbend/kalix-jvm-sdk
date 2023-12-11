@@ -21,7 +21,6 @@ import com.example.wiring.pubsub.DockerIntegrationTest;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,15 +38,14 @@ import static org.awaitility.Awaitility.await;
 @SpringBootTest(classes = Main.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @ActiveProfiles("docker-it-test")
-public class TracingIntegratonTest extends DockerIntegrationTest {
+public class TracingIntegrationTest extends DockerIntegrationTest {
 
-    Logger logger = LoggerFactory.getLogger(TracingIntegratonTest.class);
+    Logger logger = LoggerFactory.getLogger(TracingIntegrationTest.class);
     static Config config = ConfigFactory.parseString("""
-                kalix.proxy.telemetry.tracing.enabled = true
                 kalix.telemetry.tracing.collector-endpoint = "http://localhost:4317"
                 """);
 
-    public TracingIntegratonTest(ApplicationContext applicationContext) {
+    public TracingIntegrationTest(ApplicationContext applicationContext) {
         super(applicationContext, config);
     }
 
