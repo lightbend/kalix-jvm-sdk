@@ -46,8 +46,7 @@ public class PubSubIntegrationTest extends DockerIntegrationTest {
   static Config config = ConfigFactory.parseString("""
                 kalix.telemetry.tracing.collector-endpoint = "http://fake:1234"
                 """);
-  //FIXME there is not mechanism ATM in the integration tests to emulate the discovery call, that disables tracing.
-  // This is only to avoid an exception when ProxyInfo is not set. More info in Telemetry.traceInstrumentation.
+  //FIXME there is not mechanism ATM in the integration tests to emulate the discovery call, that disables tracing. More info in Telemetry.traceInstrumentation.
 
   public PubSubIntegrationTest(ApplicationContext applicationContext) {
     super(applicationContext, config);

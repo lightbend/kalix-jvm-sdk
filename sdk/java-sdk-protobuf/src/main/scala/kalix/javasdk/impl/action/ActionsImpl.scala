@@ -23,7 +23,6 @@ import akka.stream.scaladsl.Source
 import com.google.protobuf.Descriptors
 import com.google.protobuf.any.Any
 import io.grpc.Status
-import io.opentelemetry.api.trace.Span
 import kalix.javasdk._
 import kalix.javasdk.action._
 import kalix.javasdk.impl.ActionFactory
@@ -200,7 +199,7 @@ private[javasdk] final class ActionsImpl(
   override def handleUnary(in: ActionCommand): Future[ActionResponse] =
     services.get(in.serviceName) match {
       case Some(service) =>
-        val span: Option[Span] = telemetries(service.serviceName).buildSpan(service, in)
+        val span = telemetries(service.serviceName).buildSpan(service, in)
 
         val fut =
           try {
@@ -217,7 +216,7 @@ private[javasdk] final class ActionsImpl(
               Future.successful(handleUnexpectedException(service, in, ex))
           }
         fut.andThen { case _ =>
-          span.map(_.end())
+          span.foreach(_.end())
         }
       case None =>
         Future.successful(

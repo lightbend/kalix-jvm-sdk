@@ -21,7 +21,6 @@ import akka.actor.ActorSystem
 import akka.stream.scaladsl.Flow
 import akka.stream.scaladsl.Source
 import io.grpc.Status
-import io.opentelemetry.api.trace.Span
 import kalix.javasdk.KalixRunner.Configuration
 import kalix.javasdk.impl.ErrorHandling.BadRequestException
 import kalix.javasdk.impl.telemetry.Instrumentation
@@ -30,8 +29,6 @@ import kalix.javasdk.impl.telemetry.ValueEntityCategory
 import kalix.protocol.component.Failure
 import org.slf4j.LoggerFactory
 
-import scala.concurrent.ExecutionContext
-import scala.concurrent.Future
 import scala.util.control.NonFatal
 
 // FIXME these don't seem to be 'public API', more internals?
@@ -92,7 +89,6 @@ final class ValueEntitiesImpl(
 
   import EntityExceptions._
 
-  private implicit val ec: ExecutionContext = system.dispatcher
   private final val log = LoggerFactory.getLogger(this.getClass)
 
   val telemetry = Telemetry(system)
@@ -164,7 +160,7 @@ final class ValueEntitiesImpl(
           val metadata = new MetadataImpl(command.metadata.map(_.entries.toVector).getOrElse(Nil))
 
           if (log.isTraceEnabled) log.trace("Metadata entries [{}].", metadata.entries)
-          val span: Option[Span] = instrumentations(service.serviceName).buildSpan(service, command)
+          val span = instrumentations(service.serviceName).buildSpan(service, command)
 
           try {
             val cmd =

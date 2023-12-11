@@ -48,7 +48,6 @@ import kalix.protocol.event_sourced_entity.EventSourcedStreamOut.Message.{ Snaps
 import kalix.protocol.event_sourced_entity._
 import org.slf4j.LoggerFactory
 
-import scala.concurrent.ExecutionContext
 import scala.util.control.NonFatal
 
 final class EventSourcedEntityService(
@@ -113,7 +112,6 @@ final class EventSourcedEntitiesImpl(
   lazy val instrumentations: Map[String, Instrumentation] = services.values.map { s =>
     (s.serviceName, telemetry.traceInstrumentation(s.serviceName, EventSourcedEntityCategory))
   }.toMap
-  implicit val ec = ExecutionContext.Implicits.global //or system.dispatcher?
 
   private val pbCleanupDeletedEventSourcedEntityAfter =
     Some(com.google.protobuf.duration.Duration(configuration.cleanupDeletedEventSourcedEntityAfter))
