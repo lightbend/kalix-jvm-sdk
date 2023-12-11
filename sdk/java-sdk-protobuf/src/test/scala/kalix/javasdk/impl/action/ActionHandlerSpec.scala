@@ -23,14 +23,15 @@ import akka.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
 import akka.actor.typed.scaladsl.adapter._
 import akka.stream.javadsl.Source
 import akka.stream.scaladsl.Sink
-import akka.testkit.EventFilter
 import kalix.javasdk.action.Action
 import kalix.javasdk.action.MessageEnvelope
 import kalix.javasdk.actionspec.ActionspecApi
+import kalix.javasdk.impl.ActionFactory
 import kalix.javasdk.impl.AbstractContext
 import kalix.javasdk.impl.AnySupport
 import kalix.javasdk.impl.GrpcDeferredCall
 import kalix.javasdk.impl.MetadataImpl
+import kalix.javasdk.impl.ProxyInfoHolder
 import kalix.javasdk.impl.ResolvedServiceMethod
 import kalix.javasdk.impl.effect.SideEffectImpl
 import kalix.protocol.action.ActionCommand
@@ -39,18 +40,15 @@ import kalix.protocol.action.Actions
 import kalix.protocol.component.Reply
 import com.google.protobuf
 import com.google.protobuf.any.{ Any => ScalaPbAny }
-import com.typesafe.config.ConfigFactory
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.Inside
 import org.scalatest.OptionValues
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
+
 import scala.concurrent.Await
 import scala.concurrent.Future
 import scala.concurrent.duration._
-
-import kalix.javasdk.action.ActionOptions
-import kalix.javasdk.impl.ActionFactory
 
 class ActionHandlerSpec
     extends ScalaTestWithActorTestKit
@@ -74,6 +72,9 @@ class ActionHandlerSpec
     val service = new ActionService(actionFactory, serviceDescriptor, Array(), anySupport, None)
 
     val services = Map(serviceName -> service)
+
+    //setting tracing as disabled, emulating that is discovered from the proxy.
+    ProxyInfoHolder(system).overrideTracingCollectorEndpoint("")
 
     new ActionsImpl(classicSystem, services, new AbstractContext(classicSystem) {})
   }
