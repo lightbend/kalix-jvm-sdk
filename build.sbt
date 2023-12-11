@@ -102,8 +102,8 @@ lazy val javaSdkProtobufTestKit = project
     buildInfoKeys := Seq[BuildInfoKey](
       name,
       version,
-      "proxyImage" -> "gcr.io/kalix-public/kalix-runtime",
-      "proxyVersion" -> Kalix.RuntimeVersion,
+      "runtimeImage" -> "gcr.io/kalix-public/kalix-runtime",
+      "runtimeVersion" -> Kalix.RuntimeVersion,
       "scalaVersion" -> scalaVersion.value),
     buildInfoPackage := "kalix.javasdk.testkit",
     // Generate javadocs by just including non generated Java sources
@@ -182,8 +182,8 @@ lazy val javaSdkSpringTestKit = project
     buildInfoKeys := Seq[BuildInfoKey](
       name,
       version,
-      "proxyImage" -> "gcr.io/kalix-public/kalix-runtime",
-      "proxyVersion" -> Kalix.RuntimeVersion,
+      "runtimeImage" -> "gcr.io/kalix-public/kalix-runtime",
+      "runtimeVersion" -> Kalix.RuntimeVersion,
       "scalaVersion" -> scalaVersion.value),
     buildInfoPackage := "kalix.spring.testkit",
     // Generate javadocs by just including non generated Java sources
@@ -254,8 +254,8 @@ lazy val springBootStarterTest = project
     buildInfoKeys := Seq[BuildInfoKey](
       name,
       version,
-      "proxyImage" -> "gcr.io/kalix-public/kalix-runtime",
-      "proxyVersion" -> Kalix.RuntimeVersion,
+      "runtimeImage" -> "gcr.io/kalix-public/kalix-runtime",
+      "runtimeVersion" -> Kalix.RuntimeVersion,
       "scalaVersion" -> scalaVersion.value),
     buildInfoPackage := "kalix.spring.boot.test",
     // Generate javadocs by just including non generated Java sources
@@ -384,8 +384,8 @@ def devToolsCommon(project: Project): Project =
       buildInfoKeys := Seq[BuildInfoKey](
         name,
         version,
-        "proxyImage" -> "gcr.io/kalix-public/kalix-runtime",
-        "proxyVersion" -> Kalix.RuntimeVersion),
+        "runtimeImage" -> "gcr.io/kalix-public/kalix-runtime",
+        "runtimeVersion" -> Kalix.RuntimeVersion),
       buildInfoPackage := "kalix.devtools",
       // Generate javadocs by just including non generated Java sources
       Compile / doc / sources := {

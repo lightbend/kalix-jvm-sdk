@@ -177,7 +177,7 @@ object Dependencies {
     //        Eventually, the final form of protos from should be backported to the framework.
     //        See https://github.com/lightbend/kalix-jvm-sdk/issues/605
     //  kalixTckProtocol % "protobuf-src",
-    //  "io.kalix" % "kalix-tck-protocol" % Kalix.ProxyVersion % "protobuf-src",
+    //  "io.kalix" % "kalix-tck-protocol" % Kalix.RuntimeVersion % "protobuf-src",
     logback)
 
   val codegenCore = deps ++= Seq(
