@@ -588,6 +588,8 @@ jobs:
           - { sample: java-spring-transfer-workflow, it: true }
           - { sample: java-spring-transfer-workflow-compensation, it: true }
 
+          - { sample: java-spring-cinema-booking-choreography, it: true }
+
     steps:
       - name: Checkout
         # v3.1.0
