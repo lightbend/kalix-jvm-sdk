@@ -64,8 +64,7 @@ class ProxyInfoHolder(system: ExtendedActorSystem) extends Extension {
     _proxyHostname.compareAndSet(null, chosenProxyName)
     _proxyPort.compareAndSet(-1, proxyInfo.proxyPort)
     _identificationInfo = proxyInfo.identificationInfo
-    if (proxyInfo.tracingCollectorEndpoint.nonEmpty)
-      _proxyTracingCollectorEndpoint = Some(proxyInfo.tracingCollectorEndpoint)
+    _proxyTracingCollectorEndpoint = Some(proxyInfo.tracingCollectorEndpoint)
 
     log.debug("Proxy hostname: [{}]", chosenProxyName)
     log.debug("Proxy port to: [{}]", proxyInfo.proxyPort)
@@ -116,7 +115,6 @@ class ProxyInfoHolder(system: ExtendedActorSystem) extends Extension {
   private[kalix] def overrideProxyHost(host: String): Unit =
     _proxyHostname.set(host)
 
-  private[kalix] def overrideTracingCollectorEndpoint(endpoint: String): Unit = {
+  private[kalix] def overrideTracingCollectorEndpoint(endpoint: String): Unit =
     _proxyTracingCollectorEndpoint = Some(endpoint)
-  }
 }
