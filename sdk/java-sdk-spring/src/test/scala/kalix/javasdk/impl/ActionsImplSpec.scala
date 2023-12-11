@@ -59,6 +59,9 @@ class ActionsImplSpec
 
     val services = Map(provider.serviceDescriptor().getFullName -> service)
 
+    //setting tracing as disabled, emulating that is discovered from the proxy.
+    ProxyInfoHolder(system).overrideTracingCollectorEndpoint("")
+
     new ActionsImpl(classicSystem, services, new AbstractContext(classicSystem) {})
   }
 

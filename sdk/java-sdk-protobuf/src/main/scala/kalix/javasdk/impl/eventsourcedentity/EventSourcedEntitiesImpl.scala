@@ -109,7 +109,7 @@ final class EventSourcedEntitiesImpl(
     (name, if (service.snapshotEvery == 0) service.withSnapshotEvery(configuration.snapshotEvery) else service)
   }.toMap
   val telemetry = Telemetry(system)
-  val instrumentations: Map[String, Instrumentation] = services.values.map { s =>
+  lazy val instrumentations: Map[String, Instrumentation] = services.values.map { s =>
     (s.serviceName, telemetry.traceInstrumentation(s.serviceName, EventSourcedEntityCategory))
   }.toMap
 
@@ -181,7 +181,6 @@ final class EventSourcedEntitiesImpl(
         case ((sequence, _), InCommand(command)) =>
           if (thisEntityId != command.entityId)
             throw ProtocolException(command, "Receiving entity is not the intended recipient of command")
-
           val span = instrumentations(service.serviceName).buildSpan(service, command)
           try {
             val cmd =

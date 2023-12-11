@@ -10,12 +10,10 @@ services:
       JAVA_TOOL_OPTIONS: >
         -Dkalix.proxy.eventing.support=google-pubsub-emulator
         -Dkalix.proxy.telemetry.metrics.prometheus.use-default-registry=false
-        -Dkalix.proxy.telemetry.tracing.enabled=true
       USER_FUNCTION_HOST: ${USER_FUNCTION_HOST:-host.docker.internal}
       USER_FUNCTION_PORT: ${USER_FUNCTION_PORT:-8080}
       PUBSUB_EMULATOR_HOST: gcloud-pubsub-emulator
       VIEW_FEATURE_JOINS: "true"
-      COLLECTOR_ENDPOINT: "http://tempo:4317"
     depends_on:
       - gcloud-pubsub-emulator
       - tempo

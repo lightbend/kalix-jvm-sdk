@@ -18,6 +18,8 @@ package com.example.wiring.pubsub;
 
 import com.example.Main;
 import com.example.wiring.valueentities.customer.CustomerEntity.Customer;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -41,9 +43,13 @@ import static org.awaitility.Awaitility.await;
 @ActiveProfiles("docker-it-test")
 public class PubSubIntegrationTest extends DockerIntegrationTest {
 
+  static Config config = ConfigFactory.parseString("""
+                kalix.telemetry.tracing.collector-endpoint = "http://fake:1234"
+                """);
+  //FIXME there is not mechanism ATM in the integration tests to emulate the discovery call that disables tracing. More info in Telemetry.traceInstrumentation implementation.
 
   public PubSubIntegrationTest(ApplicationContext applicationContext) {
-    super(applicationContext);
+    super(applicationContext, config);
   }
 
   @Test
