@@ -64,8 +64,9 @@ import kalix.spring.testmodels.view.ViewTestModels.ViewWithoutEmptyTableAnnotati
 import kalix.spring.testmodels.view.ViewTestModels.ViewWithoutSubscriptionButWithHandleDelete
 import kalix.spring.testmodels.view.ViewTestModels.ViewWithoutTableAnnotation
 import org.scalatest.wordspec.AnyWordSpec
-
 import scala.jdk.CollectionConverters.CollectionHasAsScala
+
+import kalix.spring.testmodels.view.ViewTestModels.SubscribeToEventSourcedWithMissingHandlerState
 
 class ViewDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSuite {
 
@@ -485,9 +486,8 @@ class ViewDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSuit
     "generate proto for a View using POST request" in {
       assertDescriptor[SubscribeToEventSourcedEvents] { desc =>
 
-        val methodOptions = this.findKalixMethodOptions(desc, "OnEvent")
-        val entityType = methodOptions.getEventing.getIn.getEventSourcedEntity
-        entityType shouldBe "employee"
+        val methodOptions = this.findKalixMethodOptions(desc, "KalixSyntheticMethodOnESEmployee")
+        methodOptions.getEventing.getIn.getEventSourcedEntity shouldBe "employee"
 
         methodOptions.getView.getUpdate.getTable shouldBe "employees_view"
         methodOptions.getView.getUpdate.getTransformUpdates shouldBe true
@@ -511,7 +511,7 @@ class ViewDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSuit
     "generate proto for a View using POST request with subscription method accepting state" in {
       assertDescriptor[SubscribeToEventSourcedEventsWithMethodWithState] { desc =>
 
-        val methodOptions = this.findKalixMethodOptions(desc, "OnEvent")
+        val methodOptions = this.findKalixMethodOptions(desc, "KalixSyntheticMethodOnESEmployee")
         val entityType = methodOptions.getEventing.getIn.getEventSourcedEntity
         entityType shouldBe "employee"
 
@@ -549,16 +549,14 @@ class ViewDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSuit
       }
     }
 
-    //TODO remove ignore after updating to Scala 2.13.11 (https://github.com/scala/scala/pull/10105)
-    "validate missing handlers for method level subscription" ignore {
+    "validate missing handlers for method level subscription" in {
       intercept[InvalidComponentException] {
-        Validations.validate(classOf[SubscribeToEventSourcedEventsWithMethodWithState]).failIfInvalid
+        Validations.validate(classOf[SubscribeToEventSourcedWithMissingHandlerState]).failIfInvalid
       }.getMessage should include(
-        "Component 'SubscribeToEventSourcedEventsWithMethodWithState' is missing an event handler for 'kalix.spring.testmodels.eventsourcedentity.EmployeeEvent$EmployeeEmailUpdated'")
+        "Component 'SubscribeToEventSourcedWithMissingHandlerState' is missing an event handler for 'kalix.spring.testmodels.eventsourcedentity.EmployeeEvent$EmployeeEmailUpdated'")
     }
 
-    //TODO remove ignore after updating to Scala 2.13.11 (https://github.com/scala/scala/pull/10105)
-    "validate missing handlers for type level subscription" ignore {
+    "validate missing handlers for type level subscription" in {
       intercept[InvalidComponentException] {
         Validations.validate(classOf[TypeLevelSubscribeToEventSourcedEventsWithState]).failIfInvalid
       }.getMessage should include(
@@ -653,7 +651,7 @@ class ViewDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSuit
         countersField.getMessageType.getName shouldBe "CounterState"
         countersField.isRepeated shouldBe true
 
-        val employeeOnEventOptions = findKalixMethodOptions(desc, "OnEvent")
+        val employeeOnEventOptions = findKalixMethodOptions(desc, "KalixSyntheticMethodOnESEmployee")
         employeeOnEventOptions.getEventing.getIn.getEventSourcedEntity shouldBe "employee"
         employeeOnEventOptions.getView.getUpdate.getTable shouldBe "employees"
         employeeOnEventOptions.getView.getUpdate.getTransformUpdates shouldBe true
