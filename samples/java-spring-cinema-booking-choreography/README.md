@@ -1,4 +1,4 @@
-# java-spring-cinema-booking
+# java-spring-cinema-booking-choreography
 
 
 To understand the Kalix concepts that are the basis for this example, see [Designing services](https://docs.kalix.io/java/development-process.html) in the documentation.

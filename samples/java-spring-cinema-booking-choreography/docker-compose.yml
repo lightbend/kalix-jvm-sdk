@@ -6,7 +6,7 @@ version: "3"
 services:
   kalix-proxy:
     image: gcr.io/kalix-public/kalix-proxy:1.1.23
-    container_name: java-spring-cinema-booking
+    container_name: java-spring-cinema-booking-choreography
     ports:
       - "9000:9000"
     extra_hosts:
