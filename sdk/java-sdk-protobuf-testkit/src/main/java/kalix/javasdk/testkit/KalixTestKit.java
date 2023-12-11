@@ -611,6 +611,7 @@ public class KalixTestKit {
     ProxyInfoHolder holder = ProxyInfoHolder.get(runner.system());
     holder.overridePort(proxyPort);
     holder.overrideProxyHost(proxyHost);
+    holder.overrideTracingCollectorEndpoint("");
   }
 
   private int userFunctionPort(Boolean useTestContainers) {
