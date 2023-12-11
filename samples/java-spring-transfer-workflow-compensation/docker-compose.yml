@@ -4,7 +4,7 @@
 version: "3"
 services:
   kalix-proxy:
-    image: gcr.io/kalix-public/kalix-proxy:1.1.24
+    image: gcr.io/kalix-public/kalix-proxy:1.1.27
     container_name: java-spring-transfer-workflow-compensation
     ports:
       - "9000:9000"
