@@ -93,7 +93,6 @@ final class Telemetry(system: ActorSystem) extends Extension {
           case None => throw new IllegalArgumentException("Tracing endpoint from the Proxy not yet received. Retry.")
         }
     }
-    logger.debug("collectorEndpoint [{}].", collectorEndpoint)
     if (collectorEndpoint.isEmpty) {
       logger.debug("Instrumentation disabled. Set to NoOp.")
       NoOpInstrumentation
@@ -106,10 +105,7 @@ final class Telemetry(system: ActorSystem) extends Extension {
 
 trait Instrumentation {
 
-  //private now?
-
   def buildSpan(service: Service, command: Command): Option[Span]
-  //private now?
 
   def buildSpan(service: Service, command: ActionCommand): Option[Span]
 
@@ -120,9 +116,9 @@ private object TraceInstrumentation {
   val TRACE_PARENT_KEY = "traceparent"
   val TRACING_ENDPOINT = "kalix.telemetry.tracing.collector-endpoint"
 
-  val logger: Logger = LoggerFactory.getLogger(getClass)
+  private val logger: Logger = LoggerFactory.getLogger(getClass)
 
-  lazy val otelGetter = new TextMapGetter[Metadata]() {
+  private lazy val otelGetter = new TextMapGetter[Metadata]() {
     override def get(carrier: Metadata, key: String): String = {
       logger.debug("For the key [{}] the value is [{}]", key, carrier.get(key))
       carrier.get(key).toScala.getOrElse("")
@@ -131,7 +127,6 @@ private object TraceInstrumentation {
     override def keys(carrier: Metadata): java.lang.Iterable[String] =
       carrier.getAllKeys
   }
-
 }
 
 private final class TraceInstrumentation(
@@ -143,7 +138,7 @@ private final class TraceInstrumentation(
 
   import TraceInstrumentation._
 
-  val tracePrefix = componentCategory.name
+  private val tracePrefix = componentCategory.name
 
   private val openTelemetry: OpenTelemetry = {
     val resource =
