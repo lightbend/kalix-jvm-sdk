@@ -757,16 +757,14 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
         "All @Publish.Topic annotation for the same subscription source Stream \"source\" should point to the same topic name. Create a separate Action if you want to split messages to different topics from the same source.")
     }
 
-    //TODO remove ignore after updating to Scala 2.13.11 (https://github.com/scala/scala/pull/10105)
-    "validates if there are missing event handlers for event sourced Entity Subscription at type level" ignore {
+    "validates if there are missing event handlers for event sourced Entity Subscription at type level" in {
       intercept[InvalidComponentException] {
         Validations.validate(classOf[MissingHandlersWhenSubscribeToEventSourcedEntityAction]).failIfInvalid
       }.getMessage should include(
         "Component 'MissingHandlersWhenSubscribeToEventSourcedEntityAction' is missing an event handler for 'kalix.spring.testmodels.eventsourcedentity.EmployeeEvent$EmployeeEmailUpdated'")
     }
 
-    //TODO remove ignore after updating to Scala 2.13.11 (https://github.com/scala/scala/pull/10105)
-    "validates if there are missing event handlers for event sourced Entity Subscription at method level" ignore {
+    "validates if there are missing event handlers for event sourced Entity Subscription at method level" in {
       intercept[InvalidComponentException] {
         Validations.validate(classOf[MissingHandlersWhenSubscribeToEventSourcedOnMethodLevelEntityAction]).failIfInvalid
       }.getMessage should include(
