@@ -4,13 +4,13 @@ This quickstart sample demonstrates how to implement a Choreography Saga in Kali
 
 This project explores the usage of [Event Sourced Entities](https://docs.kalix.io/java/event-sourced-entities.html), [Value Entities](https://docs.kalix.io/java/value-entity.html), [Actions](https://docs.kalix.io/java/actions.html) and [Timers](https://docs.kalix.io/java/timers.html).  
 
-Actions are used in two different context in this sample:
+Actions are used in two different contexts in this sample:
 
 * To implement an [application controller](https://docs.kalix.io/java/actions.html#_actions_as_controllers).
 * To [subscribe and react](https://docs.kalix.io/java/actions-publishing-subscribing.html#_subscribing_and_acting_upon) to events and state changes from the `UserEntity` and `UniqueEmailEntity`, respectively.
 
 
-To understand more about these components, see [Developing services](https://docs.kalix.io/services/) and check Java-SDK [official documentation](https://docs.kalix.io/java/index.html).
+To understand more about these components, see [Developing services](https://docs.kalix.io/services/) and check the Kalix Java SDK [documentation](https://docs.kalix.io/java/index.html).
 
 
 
@@ -43,7 +43,7 @@ A common challenge in event-sourced applications is called the _Set-Based Consis
 
 In an event-sourced application, the events emitted by an entity are stored in a journal optimised to store the payload of the event, without any prior knowledge of the structure of the data. As such, it is not possible to add a unique constraint.
 
-In this quickstart example, a **Choreography Saga** is introduced to handle this challenge. Along with the `UserEntity`, an additional entity is established to serve as a barrier. This entity, named the `UniqueEmailEntity`, is responsible for ensuring that each email address is associated with only one user. The unique ID of the `UniqueEmailEntity` corresponds to the email address itself. Consequently, it is ensured that only one instance of this entity exists for each email.
+In this quickstart example, a **Choreography Saga** is introduced to handle this challenge. Along with the `UserEntity`, an additional entity is established to serve as a barrier. This entity, named the `UniqueEmailEntity`, is responsible for ensuring that each email address is associated with only one user. The unique ID of the `UniqueEmailEntity` corresponds to the email address itself. Consequently, it is ensured that only one instance of this entity exists for each email address.
 
 When a request to create a new `UserEntity` is received, the application initially attempts to reserve the email address using the `UniqueEmailEntity`. If the email address is not already in use, the application proceeds to create the `UserEntity`. After the `UserEntity` is successfully created, the status of the `UniqueEmailEntity` is set to CONFIRMED. However, if the email address is already in use, the attempt to create the `UserEntity` will not succeed.
 
