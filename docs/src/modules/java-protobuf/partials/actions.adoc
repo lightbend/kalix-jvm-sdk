@@ -19,3 +19,4 @@ Actions can be triggered in multiple ways. For example, by:
 - an incoming message from a Topic.
 - an incoming event from an Event Sourced Entity, from within the same service or from a different service. 
 - state changes notification from a Value Entity on the same service.
+- a service life-cycle event (e.g. on startup).
