@@ -48,11 +48,11 @@ public class KalixProxyContainer extends GenericContainer<KalixProxyContainer> {
   static {
     String customImage = System.getenv("KALIX_TESTKIT_PROXY_IMAGE");
     if (customImage == null) {
-      DEFAULT_PROXY_IMAGE_NAME = DockerImageName.parse(BuildInfo.proxyImage()).withTag(BuildInfo.proxyVersion());
+      DEFAULT_PROXY_IMAGE_NAME = DockerImageName.parse(BuildInfo.runtimeImage()).withTag(BuildInfo.runtimeVersion());
     } else {
       Logger logger = LoggerFactory.getLogger(KalixProxyContainer.class);
       DEFAULT_PROXY_IMAGE_NAME = DockerImageName.parse(customImage);
-      logger.info("Using custom proxy image [{}]", customImage);
+      logger.info("Using custom runtime image [{}]", customImage);
     }
   }
 
@@ -88,7 +88,7 @@ public class KalixProxyContainer extends GenericContainer<KalixProxyContainer> {
     if ("false".equals(System.getenv("VERSION_CHECK_ON_STARTUP"))) {
       withEnv("VERSION_CHECK_ON_STARTUP", "false");
     }
-    waitingFor(Wait.forLogMessage(".*gRPC proxy started.*", 1));
+    waitingFor(Wait.forLogMessage(".*(gRPC proxy|Kalix Runtime) started.*", 1));
   }
 
   @Override
@@ -103,7 +103,7 @@ public class KalixProxyContainer extends GenericContainer<KalixProxyContainer> {
     super.start();
     // Debug tooling: pass the Proxy logs into the client SLF4J
     if ("true".equals(System.getenv("KALIX_TESTKIT_DEBUG"))) {
-      Slf4jLogConsumer logConsumer = new Slf4jLogConsumer(LoggerFactory.getLogger("proxy-logs"));
+      Slf4jLogConsumer logConsumer = new Slf4jLogConsumer(LoggerFactory.getLogger("runtime-logs"));
       followOutput(logConsumer);
     }
   }
