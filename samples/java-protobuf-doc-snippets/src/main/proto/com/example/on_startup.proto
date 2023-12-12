@@ -18,6 +18,7 @@ package com.example.actions;
 
 import "kalix/annotations.proto";
 import "google/protobuf/empty.proto";
+
 // tag::hook[]
 service OnStartup {
   option (kalix.codegen) = {
