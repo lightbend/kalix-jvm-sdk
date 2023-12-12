@@ -4,7 +4,7 @@
 version: "3"
 services:
   kalix-runtime:
-    image: gcr.io/kalix-public/kalix-runtime:1.1.26
+    image: gcr.io/kalix-public/kalix-runtime:1.1.27
     container_name: java-protobuf-replicatedentity-examples
     ports:
       - "9000:9000"
