@@ -1,10 +1,10 @@
 # If you're looking to use eventing with Google PubSub, to get an emulator running:
-# - add property "-Dkalix.proxy.eventing.support=google-pubsub-emulator" to the JAVA_TOOL_OPTIONS environment map under the kalix-proxy service
+# - add property "-Dkalix.proxy.eventing.support=google-pubsub-emulator" to the JAVA_TOOL_OPTIONS environment map under the kalix-runtime service
 # - uncomment the env var PUBSUB_EMULATOR_HOST and the section below for gcloud-pubsub-emulator service
 version: "3"
 services:
-  kalix-proxy:
-    image: gcr.io/kalix-public/kalix-proxy:1.1.24
+  kalix-runtime:
+    image: gcr.io/kalix-public/kalix-runtime:1.1.27
     container_name: java-protobuf-valueentity-customer-registry
     ports:
       - "9000:9000"

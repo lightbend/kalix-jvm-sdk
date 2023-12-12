@@ -31,7 +31,7 @@ import scala.concurrent.duration.Duration;
 
 public final class RunTck {
   public static final String TCK_IMAGE = "gcr.io/kalix-public/kalix-tck";
-  public static final String TCK_VERSION = BuildInfo.proxyVersion();
+  public static final String TCK_VERSION = BuildInfo.runtimeVersion();
 
   public static void main(String[] args) throws Exception {
     Kalix service = TckService.createService();

@@ -6,7 +6,10 @@ object Dependencies {
   object Kalix {
     val ProtocolVersionMajor = 1
     val ProtocolVersionMinor = 1
-    val ProxyVersion = System.getProperty("kalix-proxy.version", "1.1.26")
+    val RuntimeVersion = System.getProperty(
+      "kalix-runtime.version",
+      // temporarily accept the old system property name
+      System.getProperty("kalix-proxy.version", "1.1.27"))
   }
 
   // changing the Scala version of the Java SDK affects end users
@@ -36,10 +39,10 @@ object Dependencies {
   val CommonsIoVersion = "2.11.0"
   val MunitVersion = "0.7.29"
 
-  val kalixProxyProtocol = "io.kalix" % "kalix-proxy-protocol" % Kalix.ProxyVersion
-  val kalixSdkProtocol = "io.kalix" % "kalix-sdk-protocol" % Kalix.ProxyVersion
-  val kalixTckProtocol = "io.kalix" % "kalix-tck-protocol" % Kalix.ProxyVersion
-  val kalixTestkitProtocol = "io.kalix" % "kalix-testkit-protocol" % Kalix.ProxyVersion
+  val kalixProxyProtocol = "io.kalix" % "kalix-proxy-protocol" % Kalix.RuntimeVersion
+  val kalixSdkProtocol = "io.kalix" % "kalix-sdk-protocol" % Kalix.RuntimeVersion
+  val kalixTckProtocol = "io.kalix" % "kalix-tck-protocol" % Kalix.RuntimeVersion
+  val kalixTestkitProtocol = "io.kalix" % "kalix-testkit-protocol" % Kalix.RuntimeVersion
 
   val commonsIo = "commons-io" % "commons-io" % CommonsIoVersion
   val logback = "ch.qos.logback" % "logback-classic" % LogbackVersion
@@ -174,7 +177,7 @@ object Dependencies {
     //        Eventually, the final form of protos from should be backported to the framework.
     //        See https://github.com/lightbend/kalix-jvm-sdk/issues/605
     //  kalixTckProtocol % "protobuf-src",
-    //  "io.kalix" % "kalix-tck-protocol" % Kalix.ProxyVersion % "protobuf-src",
+    //  "io.kalix" % "kalix-tck-protocol" % Kalix.RuntimeVersion % "protobuf-src",
     logback)
 
   val codegenCore = deps ++= Seq(

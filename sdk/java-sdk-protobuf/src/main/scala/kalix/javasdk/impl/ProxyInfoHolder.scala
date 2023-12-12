@@ -63,10 +63,10 @@ class ProxyInfoHolder(system: ExtendedActorSystem) extends Extension {
     _identificationInfo = proxyInfo.identificationInfo
     _proxyTracingCollectorEndpoint = Some(proxyInfo.tracingCollectorEndpoint)
 
-    log.debug("Proxy hostname: [{}]", chosenProxyName)
-    log.debug("Proxy port to: [{}]", proxyInfo.proxyPort)
+    log.debug("Runtime hostname: [{}]", chosenProxyName)
+    log.debug("Runtime port to: [{}]", proxyInfo.proxyPort)
     log.debug("Identification name: [{}]", proxyInfo.identificationInfo)
-    log.debug("Proxy Tracing collector endpoint: [{}]", proxyInfo.tracingCollectorEndpoint)
+    log.debug("Runtime Tracing collector endpoint: [{}]", proxyInfo.tracingCollectorEndpoint)
   }
 
   def proxyHostname: Option[String] = Option(_proxyHostname.get())
