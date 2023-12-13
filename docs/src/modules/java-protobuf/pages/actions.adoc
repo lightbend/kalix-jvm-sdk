@@ -373,7 +373,7 @@ include::example$java-protobuf-doc-snippets/src/main/proto/com/example/on_startu
 <1> Only methods belonging to an Action can be configured as a hook.
 <2> The method must receive `google.protobuf.Empty` as input type.
 <3> This hook will be triggered once the instance startup is concluded (i.e. will be called 3 times if 3 instances are running).
-<4> optionally, set the max amount of retries to 3.
+<4> Optionally, set the max amount of retries to 3.
 
 NOTE: If the call to the hook returns a failure and the `max_retries` is set to a value greater than the default value (`0`), a number of retry calls will be executed with a fixed delay up until the configure amount is reached.
 
