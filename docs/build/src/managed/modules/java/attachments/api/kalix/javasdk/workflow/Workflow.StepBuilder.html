@@ -193,7 +193,13 @@ DefCallInput,<wbr>
 DefCallOutput&gt;</span>
 <span class="return-type"><a href="Workflow.StepBuilder.CallStepBuilder.html" title="class in kalix.javasdk.workflow">Workflow.StepBuilder.CallStepBuilder</a>&lt;Input,<wbr>DefCallInput,<wbr>DefCallOutput&gt;</span>&nbsp;<span class="element-name">call</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;Input&gt;&nbsp;callInputClass,
  <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/function/Function.html" title="class or interface in java.util.function" class="external-link">Function</a>&lt;Input,<wbr><a href="../DeferredCall.html" title="interface in kalix.javasdk">DeferredCall</a>&lt;DefCallInput,<wbr>DefCallOutput&gt;&gt;&nbsp;callFactory)</span></div>
-<div class="block">Build a step action with a call to an existing Kalix component via <a href="../DeferredCall.html" title="interface in kalix.javasdk"><code>DeferredCall</code></a>.</div>
+<div class="block">Build a step action with a call to an existing Kalix component via <a href="../DeferredCall.html" title="interface in kalix.javasdk"><code>DeferredCall</code></a>.
+ <p>
+ The <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/function/Function.html" title="class or interface in java.util.function" class="external-link"><code>Function</code></a> passed to this method should return a <a href="../DeferredCall.html" title="interface in kalix.javasdk"><code>DeferredCall</code></a>.
+ The <a href="../DeferredCall.html" title="interface in kalix.javasdk"><code>DeferredCall</code></a> is then executed by Kalix and its result, if successful, is made available to this workflow via the <code>andThen</code> method.
+ In the <code>andThen</code> method, we can use the result to update the workflow state and transition to the next step.
+ <p>
+ On failure, the step will be retried according to the default retry strategy or the one defined in the step configuration.</div>
 <dl class="notes">
 <dt>Type Parameters:</dt>
 <dd><code>Input</code> - Input for deferred call factory, provided by transition method.</dd>
@@ -214,7 +220,13 @@ DefCallOutput&gt;</span>
 </span><span class="modifiers">public</span>&nbsp;<span class="type-parameters">&lt;DefCallInput,<wbr>
 DefCallOutput&gt;</span>
 <span class="return-type"><a href="Workflow.StepBuilder.CallStepBuilder.html" title="class in kalix.javasdk.workflow">Workflow.StepBuilder.CallStepBuilder</a>&lt;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Void.html" title="class or interface in java.lang" class="external-link">Void</a>,<wbr>DefCallInput,<wbr>DefCallOutput&gt;</span>&nbsp;<span class="element-name">call</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/function/Supplier.html" title="class or interface in java.util.function" class="external-link">Supplier</a>&lt;<a href="../DeferredCall.html" title="interface in kalix.javasdk">DeferredCall</a>&lt;DefCallInput,<wbr>DefCallOutput&gt;&gt;&nbsp;callSupplier)</span></div>
-<div class="block">Build a step action with a call to an existing Kalix component via <a href="../DeferredCall.html" title="interface in kalix.javasdk"><code>DeferredCall</code></a>.</div>
+<div class="block">Build a step action with a call to an existing Kalix component via <a href="../DeferredCall.html" title="interface in kalix.javasdk"><code>DeferredCall</code></a>.
+ <p>
+ The <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/function/Supplier.html" title="class or interface in java.util.function" class="external-link"><code>Supplier</code></a> function passed to this method should return a <a href="../DeferredCall.html" title="interface in kalix.javasdk"><code>DeferredCall</code></a>.
+ The <a href="../DeferredCall.html" title="interface in kalix.javasdk"><code>DeferredCall</code></a> is then executed by Kalix and its result, if successful, is made available to this workflow via the <code>andThen</code> method.
+ In the <code>andThen</code> method, we can use the result to update the workflow state and transition to the next step.
+ <p>
+ On failure, the step will be retried according to the default retry strategy or the one defined in the step configuration.</div>
 <dl class="notes">
 <dt>Type Parameters:</dt>
 <dd><code>DefCallInput</code> - Input for deferred call.</dd>
@@ -234,7 +246,13 @@ DefCallOutput&gt;</span>
 Output&gt;</span>
 <span class="return-type"><a href="Workflow.StepBuilder.AsyncCallStepBuilder.html" title="class in kalix.javasdk.workflow">Workflow.StepBuilder.AsyncCallStepBuilder</a>&lt;Input,<wbr>Output&gt;</span>&nbsp;<span class="element-name">asyncCall</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;Input&gt;&nbsp;callInputClass,
  <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/function/Function.html" title="class or interface in java.util.function" class="external-link">Function</a>&lt;Input,<wbr><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/concurrent/CompletionStage.html" title="class or interface in java.util.concurrent" class="external-link">CompletionStage</a>&lt;Output&gt;&gt;&nbsp;callFactory)</span></div>
-<div class="block">Build a step action with an async call.</div>
+<div class="block">Build a step action with an async call.
+ <p>
+ The <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/function/Function.html" title="class or interface in java.util.function" class="external-link"><code>Function</code></a> passed to this method should return a <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/concurrent/CompletionStage.html" title="class or interface in java.util.concurrent" class="external-link"><code>CompletionStage</code></a>.
+ On successful completion, its result is made available to this workflow via the <code>andThen</code> method.
+ In the <code>andThen</code> method, we can use the result to update the workflow state and transition to the next step.
+ <p>
+ On failure, the step will be retried according to the default retry strategy or the one defined in the step configuration.</div>
 <dl class="notes">
 <dt>Type Parameters:</dt>
 <dd><code>Input</code> - Input for async call factory, provided by transition method.</dd>
@@ -253,7 +271,13 @@ Output&gt;</span>
 <div class="member-signature"><span class="annotations">@ApiMayChange
 </span><span class="modifiers">public</span>&nbsp;<span class="type-parameters">&lt;Output&gt;</span>
 <span class="return-type"><a href="Workflow.StepBuilder.AsyncCallStepBuilder.html" title="class in kalix.javasdk.workflow">Workflow.StepBuilder.AsyncCallStepBuilder</a>&lt;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Void.html" title="class or interface in java.lang" class="external-link">Void</a>,<wbr>Output&gt;</span>&nbsp;<span class="element-name">asyncCall</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/function/Supplier.html" title="class or interface in java.util.function" class="external-link">Supplier</a>&lt;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/concurrent/CompletionStage.html" title="class or interface in java.util.concurrent" class="external-link">CompletionStage</a>&lt;Output&gt;&gt;&nbsp;callSupplier)</span></div>
-<div class="block">Build a step action with an async call.</div>
+<div class="block">Build a step action with an async call.
+ <p>
+ The <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/function/Supplier.html" title="class or interface in java.util.function" class="external-link"><code>Supplier</code></a> function passed to this method should return a <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/concurrent/CompletionStage.html" title="class or interface in java.util.concurrent" class="external-link"><code>CompletionStage</code></a>.
+ On successful completion, its result is made available to this workflow via the <code>andThen</code> method.
+ In the <code>andThen</code> method, we can use the result to update the workflow state and transition to the next step.
+ <p>
+ On failure, the step will be retried according to the default retry strategy or the one defined in the step configuration.</div>
 <dl class="notes">
 <dt>Type Parameters:</dt>
 <dd><code>Output</code> - Output of async call.</dd>

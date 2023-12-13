@@ -141,13 +141,13 @@ loadScripts(document, 'script');</script>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="Workflow.Effect.TransitionalEffect.html" title="interface in kalix.javasdk.workflow">Workflow.Effect.TransitionalEffect</a>&lt;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Void.html" title="class or interface in java.lang" class="external-link">Void</a>&gt;</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#transitionTo(java.lang.String)" class="member-name-link">transitionTo</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;stepName)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
-<div class="block">Set the step that should be executed.</div>
+<div class="block">Defines the next step to which the workflow should transition to.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>&lt;I&gt;&nbsp;<a href="Workflow.Effect.TransitionalEffect.html" title="interface in kalix.javasdk.workflow">Workflow.Effect.TransitionalEffect</a>&lt;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Void.html" title="class or interface in java.lang" class="external-link">Void</a>&gt;</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#transitionTo(java.lang.String,I)" class="member-name-link">transitionTo</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;stepName,
  I&nbsp;input)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
-<div class="block">Set the step that should be executed.</div>
+<div class="block">Defines the next step to which the workflow should transition to.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="Workflow.Effect.PersistenceEffectBuilder.html" title="interface in kalix.javasdk.workflow">Workflow.Effect.PersistenceEffectBuilder</a>&lt;<a href="Workflow.Effect.Builder.html" title="type parameter in Workflow.Effect.Builder">S</a>&gt;</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#updateState(S)" class="member-name-link">updateState</a><wbr>(<a href="Workflow.Effect.Builder.html" title="type parameter in Workflow.Effect.Builder">S</a>&nbsp;newState)</code></div>
@@ -187,11 +187,15 @@ loadScripts(document, 'script');</script>
 <div class="member-signature"><span class="annotations">@ApiMayChange
 </span><span class="type-parameters">&lt;I&gt;</span>&nbsp;<span class="return-type"><a href="Workflow.Effect.TransitionalEffect.html" title="interface in kalix.javasdk.workflow">Workflow.Effect.TransitionalEffect</a>&lt;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Void.html" title="class or interface in java.lang" class="external-link">Void</a>&gt;</span>&nbsp;<span class="element-name">transitionTo</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;stepName,
  I&nbsp;input)</span></div>
-<div class="block">Set the step that should be executed.</div>
+<div class="block">Defines the next step to which the workflow should transition to.
+ <p>
+ The step definition identified by <code>stepName</code> must have an input parameter of type I.
+ In other words, the next step call (or asyncCall) must have been defined with a <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/function/Function.html" title="class or interface in java.util.function" class="external-link"><code>Function</code></a> that
+ accepts an input parameter of type I.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
-<dd><code>stepName</code> - The step name that should be executed.</dd>
-<dd><code>input</code> - The input param for the step.</dd>
+<dd><code>stepName</code> - The step name that should be executed next.</dd>
+<dd><code>input</code> - The input param for the next step.</dd>
 </dl>
 </section>
 </li>
@@ -200,10 +204,13 @@ loadScripts(document, 'script');</script>
 <h3>transitionTo</h3>
 <div class="member-signature"><span class="annotations">@ApiMayChange
 </span><span class="return-type"><a href="Workflow.Effect.TransitionalEffect.html" title="interface in kalix.javasdk.workflow">Workflow.Effect.TransitionalEffect</a>&lt;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Void.html" title="class or interface in java.lang" class="external-link">Void</a>&gt;</span>&nbsp;<span class="element-name">transitionTo</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;stepName)</span></div>
-<div class="block">Set the step that should be executed.</div>
+<div class="block">Defines the next step to which the workflow should transition to.
+ <p>
+ The step definition identified by <code>stepName</code> must not have an input parameter.
+ In other words, the next step call (or asyncCall) must have been defined with a <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/function/Supplier.html" title="class or interface in java.util.function" class="external-link"><code>Supplier</code></a> function.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
-<dd><code>stepName</code> - The step name that should be executed.</dd>
+<dd><code>stepName</code> - The step name that should be executed next.</dd>
 </dl>
 </section>
 </li>
@@ -212,7 +219,8 @@ loadScripts(document, 'script');</script>
 <h3>end</h3>
 <div class="member-signature"><span class="annotations">@ApiMayChange
 </span><span class="return-type"><a href="Workflow.Effect.TransitionalEffect.html" title="interface in kalix.javasdk.workflow">Workflow.Effect.TransitionalEffect</a>&lt;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Void.html" title="class or interface in java.lang" class="external-link">Void</a>&gt;</span>&nbsp;<span class="element-name">end</span>()</div>
-<div class="block">Finish the workflow execution.</div>
+<div class="block">Finish the workflow execution.
+ After transition to <code>end</code>, no more transitions are allowed.</div>
 </section>
 </li>
 <li>

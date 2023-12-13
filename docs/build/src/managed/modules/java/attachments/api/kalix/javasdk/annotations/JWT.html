@@ -86,6 +86,9 @@ loadScripts(document, 'script');</script>
 <div class="col-first even-row-color"><code>static enum&nbsp;</code></div>
 <div class="col-second even-row-color"><code><a href="JWT.JwtMethodMode.html" class="type-name-link" title="enum class in kalix.javasdk.annotations">JWT.JwtMethodMode</a></code></div>
 <div class="col-last even-row-color">&nbsp;</div>
+<div class="col-first odd-row-color"><code>static @interface&nbsp;</code></div>
+<div class="col-second odd-row-color"><code><a href="JWT.StaticClaim.html" class="type-name-link" title="annotation interface in kalix.javasdk.annotations">JWT.StaticClaim</a></code></div>
+<div class="col-last odd-row-color">&nbsp;</div>
 </div>
 </section>
 </li>
@@ -103,9 +106,14 @@ loadScripts(document, 'script');</script>
 <div class="col-last even-row-color">
 <div class="block">If set, then the token extracted from the bearer token must have this issuer.</div>
 </div>
-<div class="col-first odd-row-color"><code><a href="JWT.JwtMethodMode.html" title="enum class in kalix.javasdk.annotations">JWT.JwtMethodMode</a>[]</code></div>
-<div class="col-second odd-row-color"><code><a href="#validate()" class="member-name-link">validate</a></code></div>
-<div class="col-last odd-row-color">&nbsp;</div>
+<div class="col-first odd-row-color"><code><a href="JWT.StaticClaim.html" title="annotation interface in kalix.javasdk.annotations">JWT.StaticClaim</a>[]</code></div>
+<div class="col-second odd-row-color"><code><a href="#staticClaims()" class="member-name-link">staticClaims</a></code></div>
+<div class="col-last odd-row-color">
+<div class="block">If set, the static claims provided and their values will be required when calling the service.</div>
+</div>
+<div class="col-first even-row-color"><code><a href="JWT.JwtMethodMode.html" title="enum class in kalix.javasdk.annotations">JWT.JwtMethodMode</a>[]</code></div>
+<div class="col-second even-row-color"><code><a href="#validate()" class="member-name-link">validate</a></code></div>
+<div class="col-last even-row-color">&nbsp;</div>
 </div>
 </section>
 </li>
@@ -138,6 +146,18 @@ loadScripts(document, 'script');</script>
  there is at least one secret that has this issuer set, then only those secrets with that issuer
  set will be used for validating or signing this token, so you can be sure that the token did
  come from a particular issuer.`</div>
+<dl class="notes">
+<dt>Default:</dt>
+<dd>{}</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="staticClaims()">
+<h3>staticClaims</h3>
+<div class="member-signature"><span class="return-type"><a href="JWT.StaticClaim.html" title="annotation interface in kalix.javasdk.annotations">JWT.StaticClaim</a>[]</span>&nbsp;<span class="element-name">staticClaims</span></div>
+<div class="block">If set, the static claims provided and their values will be required when calling the service.
+ When multiple claims are provided, all of them will be required to successfully call the service.</div>
 <dl class="notes">
 <dt>Default:</dt>
 <dd>{}</dd>

@@ -360,6 +360,23 @@ action returning and the `addItem` call from the action would lead to more items
 
 Such validation that depends on state can only be done safely while handling the command inside the entity.
 
+== Actions as Life-cycle Hooks
+
+An Action's gRPC method can be triggered automatically when some predefined service life-cycle event happens (currently, only on startup is available), serving as a custom hook. For such use, the method needs be annotated with a specific flag and its input type must be `google.protobuf.Empty` as shown below.
+
+IMPORTANT: The on startup hook is called every time a service instance boots up. This can happen for very different reasons: restarting / redeploying the service, scaling up to more instances or even without any user-driven action (e.g. Kalix Runtime versions being rolled out, infrastruture-related incidents, etc.). Therefore, you should carefully consider how you use this hook and its implementation.
+
+[source,proto]
+----
+include::example$java-protobuf-doc-snippets/src/main/proto/com/example/on_startup.proto[tag=hook]
+----
+<1> Only methods belonging to an Action can be configured as a hook.
+<2> The method must receive `google.protobuf.Empty` as input type.
+<3> This hook will be triggered once the instance startup is concluded (i.e. will be called 3 times if 3 instances are running).
+<4> Optionally, set the max amount of retries to 3.
+
+NOTE: If the call to the hook returns a failure and the `max_retries` is set to a value greater than the default value (`0`), a number of retry calls will be executed with a fixed delay up until the configure amount is reached.
+
 
 == Running Side Effects
 

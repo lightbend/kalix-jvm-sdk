@@ -115,7 +115,7 @@ loadScripts(document, 'script');</script>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#andThen(java.lang.Class,java.util.function.Function)" class="member-name-link">andThen</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;<a href="Workflow.StepBuilder.CallStepBuilder.html" title="type parameter in Workflow.StepBuilder.CallStepBuilder">DefCallOutput</a>&gt;&nbsp;transitionInputClass,
  <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/function/Function.html" title="class or interface in java.util.function" class="external-link">Function</a>&lt;<a href="Workflow.StepBuilder.CallStepBuilder.html" title="type parameter in Workflow.StepBuilder.CallStepBuilder">DefCallOutput</a>,<wbr><a href="Workflow.Effect.TransitionalEffect.html" title="interface in kalix.javasdk.workflow">Workflow.Effect.TransitionalEffect</a>&lt;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Void.html" title="class or interface in java.lang" class="external-link">Void</a>&gt;&gt;&nbsp;transitionFunc)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Transition to the next step based on the result of the step action.</div>
+<div class="block">Transition to the next step based on the result of the step call.</div>
 </div>
 </div>
 </div>
@@ -156,7 +156,15 @@ loadScripts(document, 'script');</script>
 <div class="member-signature"><span class="annotations">@ApiMayChange
 </span><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="Workflow.CallStep.html" title="class in kalix.javasdk.workflow">Workflow.CallStep</a>&lt;<a href="Workflow.StepBuilder.CallStepBuilder.html" title="type parameter in Workflow.StepBuilder.CallStepBuilder">Input</a>,<wbr><a href="Workflow.StepBuilder.CallStepBuilder.html" title="type parameter in Workflow.StepBuilder.CallStepBuilder">DefCallInput</a>,<wbr><a href="Workflow.StepBuilder.CallStepBuilder.html" title="type parameter in Workflow.StepBuilder.CallStepBuilder">DefCallOutput</a>,<wbr>?&gt;</span>&nbsp;<span class="element-name">andThen</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;<a href="Workflow.StepBuilder.CallStepBuilder.html" title="type parameter in Workflow.StepBuilder.CallStepBuilder">DefCallOutput</a>&gt;&nbsp;transitionInputClass,
  <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/function/Function.html" title="class or interface in java.util.function" class="external-link">Function</a>&lt;<a href="Workflow.StepBuilder.CallStepBuilder.html" title="type parameter in Workflow.StepBuilder.CallStepBuilder">DefCallOutput</a>,<wbr><a href="Workflow.Effect.TransitionalEffect.html" title="interface in kalix.javasdk.workflow">Workflow.Effect.TransitionalEffect</a>&lt;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Void.html" title="class or interface in java.lang" class="external-link">Void</a>&gt;&gt;&nbsp;transitionFunc)</span></div>
-<div class="block">Transition to the next step based on the result of the step action.</div>
+<div class="block">Transition to the next step based on the result of the step call.
+ <p>
+ The <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/function/Function.html" title="class or interface in java.util.function" class="external-link"><code>Function</code></a> passed to this method should receive the return type of the step call and return
+ an <a href="Workflow.Effect.TransitionalEffect.html" title="interface in kalix.javasdk.workflow"><code>Workflow.Effect.TransitionalEffect</code></a> describing the next step to transition to.
+ <p>
+ When defining the Effect, you can update the workflow state and indicate the next step to transition to.
+ This can be another step, or a pause or end of the workflow.
+ <p>
+ When transition to another step, you can also pass an input parameter to the next step.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>transitionInputClass</code> - Input class for transition.</dd>

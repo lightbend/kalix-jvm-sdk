@@ -1,7 +1,7 @@
 version: "3"
 services:
-  kalix-proxy:
-    image: gcr.io/kalix-public/kalix-proxy:1.1.23
+  kalix-runtime:
+    image: gcr.io/kalix-public/kalix-runtime:1.1.27
     container_name: scala-protobuf-eventsourced-customer-registry
     ports:
       - "9000:9000"
@@ -9,6 +9,7 @@ services:
       - "host.docker.internal:host-gateway"
     environment:
       JAVA_TOOL_OPTIONS: >
-      # jvm -D properties can be under this environment map (note: remove this comment when adding properties)
+      # jvm -D properties can be added under this environment map (note: remove this comment when adding properties)
+
       USER_FUNCTION_HOST: ${USER_FUNCTION_HOST:-host.docker.internal}
       USER_FUNCTION_PORT: ${USER_FUNCTION_PORT:-8080}

@@ -1,7 +1,7 @@
 version: "3"
 services:
-  kalix-proxy:
-    image: gcr.io/kalix-public/kalix-proxy:1.1.23
+  kalix-runtime:
+    image: gcr.io/kalix-public/kalix-runtime:1.1.27
     container_name: java-protobuf-customer-registry-kafka-quickstart
     ports:
       - "9000:9000"
@@ -25,7 +25,7 @@ services:
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      # advertised listener running on port 9092 must be accessible to kalix-proxy container running for integration tests
+      # advertised listener running on port 9092 must be accessible to kalix-runtime service running for integration tests
       # therefore we need to use host.docker.internal (docker's bridge address) to access it through the host machine
       # advertised listener running on port 9093 is to be used by non-docker clients running on host machine
       KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka:29092,EXTERNAL_DOCKER://host.docker.internal:9092,HOST://localhost:9093

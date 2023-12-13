@@ -182,11 +182,11 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="kalix/javasdk/workflow/Workflow.StepBuilder.AsyncCallStepBuilder.html#andThen(java.lang.Class,java.util.function.Function)" class="member-name-link">andThen(Class&lt;CallOutput&gt;, Function&lt;CallOutput, Workflow.Effect.TransitionalEffect&lt;Void&gt;&gt;)</a> - Method in class kalix.javasdk.workflow.<a href="kalix/javasdk/workflow/Workflow.StepBuilder.AsyncCallStepBuilder.html" title="class in kalix.javasdk.workflow">Workflow.StepBuilder.AsyncCallStepBuilder</a></dt>
 <dd>
-<div class="block">Transition to the next step based on the result of the step action.</div>
+<div class="block">Transition to the next step based on the result of the step call.</div>
 </dd>
 <dt><a href="kalix/javasdk/workflow/Workflow.StepBuilder.CallStepBuilder.html#andThen(java.lang.Class,java.util.function.Function)" class="member-name-link">andThen(Class&lt;DefCallOutput&gt;, Function&lt;DefCallOutput, Workflow.Effect.TransitionalEffect&lt;Void&gt;&gt;)</a> - Method in class kalix.javasdk.workflow.<a href="kalix/javasdk/workflow/Workflow.StepBuilder.CallStepBuilder.html" title="class in kalix.javasdk.workflow">Workflow.StepBuilder.CallStepBuilder</a></dt>
 <dd>
-<div class="block">Transition to the next step based on the result of the step action.</div>
+<div class="block">Transition to the next step based on the result of the step call.</div>
 </dd>
 <dt><a href="kalix/javasdk/Metadata.html#asCloudEvent()" class="member-name-link">asCloudEvent()</a> - Method in interface kalix.javasdk.<a href="kalix/javasdk/Metadata.html" title="interface in kalix.javasdk">Metadata</a></dt>
 <dd>
@@ -834,8 +834,6 @@ loadScripts(document, 'script');</script>
 <dt><a href="kalix/javasdk/workflow/Workflow.WorkflowDef.html#findByName(java.lang.String)" class="member-name-link">findByName(String)</a> - Method in class kalix.javasdk.workflow.<a href="kalix/javasdk/workflow/Workflow.WorkflowDef.html" title="class in kalix.javasdk.workflow">Workflow.WorkflowDef</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="kalix/javasdk/StatusCode.ErrorCode.html#FORBIDDEN" class="member-name-link">FORBIDDEN</a> - Enum constant in enum kalix.javasdk.<a href="kalix/javasdk/StatusCode.ErrorCode.html" title="enum in kalix.javasdk">StatusCode.ErrorCode</a></dt>
-<dd>&nbsp;</dd>
-<dt><a href="kalix/javasdk/workflow/Workflow.WorkflowDef.html#forEachStep(java.util.function.Consumer)" class="member-name-link">forEachStep(Consumer&lt;Workflow.Step&gt;)</a> - Method in class kalix.javasdk.workflow.<a href="kalix/javasdk/workflow/Workflow.WorkflowDef.html" title="class in kalix.javasdk.workflow">Workflow.WorkflowDef</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="kalix/javasdk/action/Action.Effect.Builder.html#forward(kalix.javasdk.DeferredCall)" class="member-name-link">forward(DeferredCall&lt;? extends Object, S&gt;)</a> - Method in interface kalix.javasdk.action.<a href="kalix/javasdk/action/Action.Effect.Builder.html" title="interface in kalix.javasdk.action">Action.Effect.Builder</a></dt>
 <dd>
@@ -1974,19 +1972,19 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="kalix/javasdk/workflow/Workflow.Effect.Builder.html#transitionTo(java.lang.String)" class="member-name-link">transitionTo(String)</a> - Method in interface kalix.javasdk.workflow.<a href="kalix/javasdk/workflow/Workflow.Effect.Builder.html" title="interface in kalix.javasdk.workflow">Workflow.Effect.Builder</a></dt>
 <dd>
-<div class="block">Set the step that should be executed.</div>
+<div class="block">Defines the next step to which the workflow should transition to.</div>
 </dd>
 <dt><a href="kalix/javasdk/workflow/Workflow.Effect.PersistenceEffectBuilder.html#transitionTo(java.lang.String)" class="member-name-link">transitionTo(String)</a> - Method in interface kalix.javasdk.workflow.<a href="kalix/javasdk/workflow/Workflow.Effect.PersistenceEffectBuilder.html" title="interface in kalix.javasdk.workflow">Workflow.Effect.PersistenceEffectBuilder</a></dt>
 <dd>
-<div class="block">Set the step that should be executed.</div>
+<div class="block">Defines the next step to which the workflow should transition to.</div>
 </dd>
 <dt><a href="kalix/javasdk/workflow/Workflow.Effect.Builder.html#transitionTo(java.lang.String,I)" class="member-name-link">transitionTo(String, I)</a> - Method in interface kalix.javasdk.workflow.<a href="kalix/javasdk/workflow/Workflow.Effect.Builder.html" title="interface in kalix.javasdk.workflow">Workflow.Effect.Builder</a></dt>
 <dd>
-<div class="block">Set the step that should be executed.</div>
+<div class="block">Defines the next step to which the workflow should transition to.</div>
 </dd>
 <dt><a href="kalix/javasdk/workflow/Workflow.Effect.PersistenceEffectBuilder.html#transitionTo(java.lang.String,I)" class="member-name-link">transitionTo(String, I)</a> - Method in interface kalix.javasdk.workflow.<a href="kalix/javasdk/workflow/Workflow.Effect.PersistenceEffectBuilder.html" title="interface in kalix.javasdk.workflow">Workflow.Effect.PersistenceEffectBuilder</a></dt>
 <dd>
-<div class="block">Set the step that should be executed.</div>
+<div class="block">Defines the next step to which the workflow should transition to.</div>
 </dd>
 <dt><a href="kalix/javasdk/CloudEvent.html#type()" class="member-name-link">type()</a> - Method in interface kalix.javasdk.<a href="kalix/javasdk/CloudEvent.html" title="interface in kalix.javasdk">CloudEvent</a></dt>
 <dd>
@@ -2266,7 +2264,7 @@ the order they are declared.</div>
 <dd>
 <div class="block">Retry strategy without failover configuration</div>
 </dd>
-<dt><a href="kalix/javasdk/workflow/Workflow.Step.html" class="type-name-link" title="interface in kalix.javasdk.workflow">Workflow.Step</a>&lt;<a href="kalix/javasdk/workflow/Workflow.Step.html" title="type parameter in Workflow.Step">FailoverInput</a>&gt; - Interface in <a href="kalix/javasdk/workflow/package-summary.html">kalix.javasdk.workflow</a></dt>
+<dt><a href="kalix/javasdk/workflow/Workflow.Step.html" class="type-name-link" title="interface in kalix.javasdk.workflow">Workflow.Step</a> - Interface in <a href="kalix/javasdk/workflow/package-summary.html">kalix.javasdk.workflow</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="kalix/javasdk/workflow/Workflow.StepBuilder.html" class="type-name-link" title="class in kalix.javasdk.workflow">Workflow.StepBuilder</a> - Class in <a href="kalix/javasdk/workflow/package-summary.html">kalix.javasdk.workflow</a></dt>
 <dd>&nbsp;</dd>

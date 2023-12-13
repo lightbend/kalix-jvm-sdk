@@ -326,7 +326,7 @@ The source of a View can be an eventing topic. You define it in the same way as 
 [.tabset]
 Java::
 +
-[source,proto,indent=0]
+[source,java,indent=0]
 .com/example/actions/CounterJournalToTopicWithMetaAction.java
 ----
 include::example$java-protobuf-eventsourced-counter/src/main/java/com/example/actions/CounterJournalToTopicWithMetaAction.java[tags=class]
@@ -336,7 +336,7 @@ include::example$java-protobuf-eventsourced-counter/src/main/java/com/example/ac
 
 Scala::
 +
-[source,proto,indent=0]
+[source,scala,indent=0]
 .com/example/actions/CounterJournalToTopicWithMetaAction.scala
 ----
 include::example$scala-protobuf-eventsourced-counter/src/main/scala/com/example/actions/CounterJournalToTopicWithMetaAction.scala[tags=class]
@@ -547,7 +547,7 @@ Testing Views is very similar to testing other xref:actions-publishing-subscribi
 
 For a View definition that subscribes to changes from the `customer` Value Entity.
 
-[source,java,indent=0]
+[source,proto,indent=0]
 .src/main/proto/customer/view/customer_view.proto
 ----
 include::example$java-protobuf-valueentity-customer-registry/src/main/proto/customer/view/customer_view.proto[tag=view-test]
@@ -558,7 +558,7 @@ An integration test can be implemented as below.
 [.tabset]
 Java::
 +
-[source,proto,indent=0]
+[source,java,indent=0]
 ----
 include::example$java-protobuf-valueentity-customer-registry/src/it/java/customer/view/CustomersResponseByCityViewIntegrationTest.java[tag=view-test]
 ----
@@ -569,7 +569,7 @@ include::example$java-protobuf-valueentity-customer-registry/src/it/java/custome
 
 Scala::
 +
-[source,proto,indent=0]
+[source,scala,indent=0]
 ----
 include::example$scala-protobuf-valueentity-customer-registry/src/test/scala/customer/view/CustomersResponseByCityViewIntegrationSpec.scala[tag=view-test]
 ----
