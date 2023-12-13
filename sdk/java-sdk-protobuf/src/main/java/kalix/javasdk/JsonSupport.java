@@ -172,17 +172,33 @@ public final class JsonSupport {
         } else {
           return objectMapper.readValue(decodedBytes.toByteArray(), valueClass);
         }
+      } catch (JsonProcessingException e) {
+        throw jsonProcessingException(valueClass, any, e);
       } catch (IOException | NoSuchMethodException | InstantiationException | IllegalAccessException |
                InvocationTargetException e) {
-        throw new IllegalArgumentException(
-            "JSON with type url ["
-                + any.getTypeUrl()
-                + "] could not be decoded into a ["
-                + valueClass.getName()
-                + "]",
-            e);
+        throw genericDecodeException(valueClass, any, e);
       }
     }
+  }
+
+  private static <T> IllegalArgumentException jsonProcessingException(Class<T> valueClass, Any any, JsonProcessingException e) {
+    return new IllegalArgumentException(
+        "JSON with type url ["
+            + any.getTypeUrl()
+            + "] could not be decoded into a ["
+            + valueClass.getName()
+            + "]. Make sure that changes are backwards compatible or apply a @Migration mechanism (https://docs.kalix.io/java/serialization.html#_schema_evolution).",
+        e);
+  }
+
+  private static <T> IllegalArgumentException genericDecodeException(Class<T> valueClass, Any any, Exception e) {
+    return new IllegalArgumentException(
+        "JSON with type url ["
+            + any.getTypeUrl()
+            + "] could not be decoded into a ["
+            + valueClass.getName()
+            + "]",
+        e);
   }
 
   private static <T> T migrate(Class<T> valueClass, ByteString decodedBytes, int fromVersion, JsonMigration jsonMigration) throws IOException {
@@ -214,14 +230,10 @@ public final class JsonSupport {
         ByteString decodedBytes = ByteStringEncoding.decodePrimitiveBytes(any.getValue());
         var typeRef = objectMapper.getTypeFactory().constructCollectionType(collectionType, valueClass);
         return objectMapper.readValue(decodedBytes.toByteArray(), typeRef);
+      } catch (JsonProcessingException e) {
+        throw jsonProcessingException(valueClass, any, e);
       } catch (IOException e) {
-        throw new IllegalArgumentException(
-          "JSON with type url ["
-            + any.getTypeUrl()
-            + "] could not be decoded into a ["
-            + valueClass.getName()
-            + "]",
-          e);
+        throw genericDecodeException(valueClass, any, e);
       }
     }
   }
