@@ -1,68 +1,75 @@
-# Prerequisite
-Java 21 or later<br>
-Apache Maven 3.6 or higher<br>
-Docker 20.10.14 or higher (client and daemon)<br>
-cURL<br>
-IDE / editor<br>
+# Cinema Booking sample
+
+## Prerequisites
+- Java 21 or later
+- Apache Maven 3.6 or higher
+- Docker 20.10.14 or higher (client and daemon)
+- cURL
+- IDE / editor
 
 ## Kalix SDK
 Kalix offers different SDKs.
-This use case will be implemented using Kalix Java SDK.
-Kalix is API first and with Kalix Java SDK, code (`Record`, `Class`) will be used to describe domain and api data structures.
+This example is built using the [Kalix Java SDK](https://docs.kalix.io/java/index.html).
+Kalix is API first and with Kalix Java SDK, code (`Record`, `Class`) will be used to describe domain and API data structures.
 
-# Design Kalix Services 
+# Designing Kalix Services
 
 ## Use case definition
 
 ![Cinema Booking Use case](images/cinema-show-usecase.png?raw=true)
 
-Cinema booking system allows customers to book a cinema show seats and pay using the e-wallet.<br>
-1. Cinema show manager creates a show with available number of seats
-2. Customer creates an e-wallet with initial resources 
-3. Customer searches for shows with available seats
-4. Customer reserves the seats for the show
+Our Cinema booking system allows customers to book cinema show seats and pay using their imaginary e-wallet.
+1. The cinema show manager creates a show with a number of seats available
+2. The customer creates an e-wallet with initial resources
+3. The customer searches for shows with available seats
+4. The customer reserves seats for a show
 5. Payment for the reserved seats is done via e-wallet
 
-## Event storming 
+## Event storming
 
-For designing the cinema booking system we are going to use Tactical [EventStorming](https://en.wikipedia.org/wiki/Event_storming) methodology.<br>
-
-Legend:<br>
-![Event Storming agenda](images/EventStorming-legend.png)
+For designing the cinema booking system we are going to use Tactical [EventStorming](https://en.wikipedia.org/wiki/Event_storming).
 
 ### Entities / Aggregate Roots
 ![Entities](images/EventStorming-AggregateRoots.png)
 
+Legend<br>
+![Event Storming agenda](images/EventStorming-legend.png)
+
 #### Show
 
 Show entity business data model:
-```
-public record Show (
-   String id
-   String title
-   Map<Integer, Seat> seats
-   Map<String, Integer> pendingReservations
+```java
+public record Show(
+   String id,
+   String title,
+   Map<Integer, Seat> seats,
+   Map<String, Integer> pendingReservations,
    Map<String, FinishedReservation> finishedReservations
-){}
+) {}
+
 public record Seat(
    int number, 
    SeatStatus status, 
    BigDecimal price
-){}
+) {}
+
 public enum SeatStatus {
-AVAILABLE, RESERVED, PAID
+  AVAILABLE, RESERVED, PAID
 }
 ```
-In addition to show `id` and `title` show has a list of `sets` where each seat has an index `number`, `status` (AVAILABLE, RESERVED, PAID) and `price`.<br>
+
+In addition to the show `id` and `title`, the show has a list of `seats` where each seat has an index `number`, `status` (`AVAILABLE`, `RESERVED`, `PAID`) and `price`.<br>
 `pendingReservations`, bookings that are not paid yet and `finishedReservations` that are paid.
+
 #### Wallet
 
 Wallet entity business data model:
-```
+```java
 public record Wallet(String id, BigDecimal balance, Map<String, Expense> expenses) {}
 public record Expense(String expenseId, BigDecimal amount) {}
 ```
-In addition to wallet `id`,  `balance` represents the available amount, `expenses` represents all expenses done using this instance of the wallet (indexed by unique `expenseId`).
+
+In addition to the wallet `id`, `balance` represents the available amount, `expenses` represents all expenses done using this instance of the wallet (indexed by unique `expenseId`).
 Each `expense` has a unique `expenseId` and amount that was expensed! 
 
 ### Commands & Domain Events
@@ -72,102 +79,106 @@ Each `expense` has a unique `expenseId` and amount that was expensed!
 
 `CreateShow` command initiates creation of the Show by emitting `ShowCreated` domain event.<br>
 
-ShowCommand data model:
+`CreateShow` data model:
+```java
+record CreateShow(String title, int maxSeats) {}
 ```
-record CreateShow(String title, int maxSeats){}
-```
-**Note:** `showId` is not explicitly part of the model but is sent implicitly.
+**Note:** `showId` is not explicitly part of the model but is set implicitly.
 
-ShowCreated data model:
+`ShowCreated` data model:
+```java
+record ShowCreated(String showId, String title, List<Seat> seats) {}
 ```
-record ShowCreated(String showId, String title, List<Seat> seats){}
-```
-Based on `ShowCreated` domain event, `Show by availability` read view is updated. <br>
-`Show by availability` view is used to search for shows based on the availability.
+Based on the `ShowCreated` domain event, a `Show by availability` read view is updated.<br>
+The `Show by availability` view is used to search for shows based on their availability.
 
 View Data model:
-```
-record ShowsByAvailableSeatsViewRecord(String showId, String title, int availableSeats){}
+```java
+record ShowsByAvailableSeatsViewRecord(String showId, String title, int availableSeats) {}
 ```
 
-Initial value of `availableSeats` is total number of seats for the show (`seats.size()`).
+The initial value of `availableSeats` is total number of seats for the show (`seats.size()`).
 
 #### Create Wallet
 
 ![Create Wallet Event](images/EventStorming-CreateWallet.png)
 
-`CreateWallet` command initiates creation of the wallet with initial balance by emitting `WalletCreated` domain event.<br>
+`CreateWallet` command initiates creation of the wallet with an initial balance by emitting `WalletCreated` domain event.<br>
 
-WalletCommand data model:
+`CreateWallet` data model:
+```java
+ record CreateWallet(BigDecimal initialAmount) {}
 ```
- record CreateWallet(BigDecimal initialAmount){}
-```
-**Note:** `walletId` is not explicitly part of the model but is sent implicitly.
+**Note:** `walletId` is not explicitly part of the model but is set implicitly.
 
-ShowCreated domain event data model:
-```
+`WalletCreated` domain event data model:
+```java
 record WalletCreated(String walletId, BigDecimal initialAmount) {}
 ```
 
-Based on the `maxSeats`, the list of `Seats` with sequential index `number` of individual seat and with initial `SeatStatus` = `AVAILABLE`
-
 #### Book & Pay the show flow
-Book and Pay flow is a transactional flow that spans two Entities (Show & Wallet). This requires usage of a distributed transaction or Saga pattern.<br>
-In this use case we are going to use `choreography`-based Saga pattern.
+
+The Book and Pay flow is a transactional flow that spans two Entities (Show and Wallet). This requires a distributed transaction or using the Saga pattern.<br>
+In this use case we are going to use _choreography_-based Saga pattern.
 
 ![Book show](images/EventStorming-BookFlow.png)
 
-##### Show Reserve seat
-After customer has chosen the show he wants to book, `Reserve Seat` Command initiates seat reservation. 
-If requested seat number is available, `SeatReserved` domain event is emitted, reserving the specified seats.
+##### Show Reserve Seat
 
-`ReserveSeat` Command data model:
+After the customer has chosen the show they want to book, the `Reserve Seat` command initiates the seat reservation. 
+If the requested seat number is available, the `SeatReserved` domain event will be emitted, reserving the specified seat.
+
+`ReserveSeat` command data model:
+```java
+record ReserveSeat(String walletId, String reservationId, int seatNumber) {}
 ```
-record ReserveSeat(String walletId, String reservationId, int seatNumber){}
-```
-Reserve seat requires `walletId`, id of the wallet instance that is going to be used to pay the seat reservation, 
+
+Reserve seat requires `walletId`, the id of the wallet instance that is used to pay the seat reservation, 
 `reservationId` that unique reservation id and a `seatNumber`, the seat index.
 
 `SeatReserved` domain event data model:
+```java
+record SeatReserved(String showId, String walletId, String reservationId, int seatNumber, BigDecimal price, int availableSeatsCount) {}
 ```
- record SeatReserved(String showId, String walletId, String reservationId, int seatNumber, BigDecimal price, int availableSeatsCount){}
-```
+
 `price` is a price of a chosen seat that needs to be charged on wallet. <br>
 `availableSeatsCount` represents the count of available seats after this reservation.<br>
-When seat is reserved, seat's `SeatStatus` = `RESERVED`<br>
+When seat is reserved, it changes the seat's `SeatStatus` to `RESERVED`.
 
-Like with `ShowCreated` domain event, `Show by availability` read view is also updated based on `SeatReserved` domain event ( using `availableSeatsCount`).<br>
+As with the `ShowCreated` domain event, the `Show by availability` read view is also updated based on the `SeatReserved` domain event (using `availableSeatsCount`).
 
-Also, based on `SeatReserved` domain event, `Show by reservation` read view is created to be able to map reservation to show (more information why this is needed will be explained in following sections).<br>
+Also, based on the `SeatReserved` domain event, the `Show by reservation` read view is created to be able to map the reservation to the show (more information why this is needed will be explained in following sections).
+
 View Data model:
-```
+```java
 public record Reservation(String reservationId, String showId, String walletId, BigDecimal price) {}
 ```
 
-Initial value of `availableSeats` is total number of seats for the show (`seats.size()`).
-To be able to map `reservationId` to `showId`, `Show by reservation` rwad view is 
+The initial value of `availableSeats` is total number of seats for the show (`seats.size()`).
+To be able to map `reservationId` to `showId`, the `Show by reservation` read view is updated.
 
 #### Charge wallet based on the seat reservation
 
-Based on `SeatReserved` domain event, `ChargeWallet` command initiates wallet charge.<br> 
-`walletId` from `SeatReserved` is used to identify instance of the wallet that needs to be expensed.<br>
-`reservationId` from `SeatReserved` is used as unique wallet charge request identifier (`expenseId`) and connects the reservation the wallet charge for future reference.<br>
+Based on the `SeatReserved` domain event, the `ChargeWallet` command initiates wallet charge.<br> 
+`walletId` from `SeatReserved` is used to identify the instance of the wallet that needs to be expensed.<br>
+`reservationId` from `SeatReserved` is used as unique wallet charge request identifier (`expenseId`) and connects the reservation to the wallet charge for future reference.<br>
 `amount` for charge is the seat price.<br>
 
 `ChargeWallet` command data model:
+```java
+record ChargeWallet(BigDecimal amount, String expenseId) {}
 ```
- record ChargeWallet(BigDecimal amount, String expenseId){}
-```
-In case of successful charge, Wallet emits `WalletCharged` domain event. In case of any error, Wallet emits `WalletChargeRejected` domain event. <br>
-`WalletCharged` domain event triggers a successful Saga "route" and `WalletChargeRejected` a compensation Saga "route".
+In case of successful charge, Wallet emits a `WalletCharged` domain event. In case of any error, Wallet emits a `WalletChargeRejected` domain event. <br>
+The `WalletCharged` domain event triggers a successful Saga "route" and `WalletChargeRejected` a compensation Saga "route".
 
 `WalletCharged` data model:
-```
+```java
 record WalletCharged(String walletId, BigDecimal amount, String expenseId) {}
 ```
+
 `WalletChargeRejected` data model:
-```
-record WalletChargeRejected(String walletId, String expenseId){}
+```java
+record WalletChargeRejected(String walletId, String expenseId) {}
 ```
 
 #### Successful charge route
