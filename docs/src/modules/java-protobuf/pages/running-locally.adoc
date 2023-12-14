@@ -123,7 +123,20 @@ grpcurl ^
 
 == Shut down the service
 
-Use `Ctrl+C` to shut down the service. When stopping your service, it will also shutdown the Kalix Runtime container and any other container you have defined in `docker-compose.yml`. Unless you have chosen to start `docker-compose` manually in a separate terminal, in which case you will need to stop it manually as well. 
+Use `Ctrl+C` to shut down the service. When stopping your service, it will also shutdown the Kalix Runtime container and any other container you have defined in `docker-compose.yml`. Unless you have chosen to start `docker-compose` manually in a separate terminal, in which case you will need to stop it manually as well.
+
+== Running service with persistence enabled
+
+By default, Kalix services are configured to run with disabled persistence. This means that the Kalix Runtime will use an in-memory database to store the state of your service. This is useful for local development since it allows you to quickly start and stop your service without having to worry about cleaning up the database.
+
+However, if you want to run your service with persistence enabled, you can do so by changing the `docker-compose` file as below.
+
+[source, dockerfile, indent=0]
+----
+include::example$scala-protobuf-doc-snippets/docker-compose.yml[tag=persistence-mode]
+----
+<1> Maps local directory to the Kalix Runtime database directory `/var/kalix`.
+<2> Sets `PERSISTENCE_ENABLED` env to `true`.
 
 == Running multiple services locally
 
