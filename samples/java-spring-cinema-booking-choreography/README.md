@@ -188,7 +188,7 @@ Based on `WalletCharged` domain event, `ConfirmReservationPayment` command initi
 **Note:** To be able to send `ConfirmReservationPayment` command to the right instance of show, `Show by reservation` read view is used to get `showId` based on `reservationId`.
 
 `SeatReservationPaid` data model:
-```
+```java
 record SeatReservationPaid(String showId, String reservationId, int seatNumber) {}
 ```
 
@@ -201,11 +201,11 @@ Based on `WalletChargeRejected` domain event, `CancelSeatReservation` command in
 **Note:** To be able to send `CancelSeatReservation` command to the right instance of show, `Show by reservation` read view is used to get `showId` based on `reservationId`.
 
 `CancelSeatReservation` data model:
-```
+```java
 record CancelSeatReservation(String reservationId) implements ShowCommand {}
 ```
 `SeatReservationCancelled` data model:
-```
+```java
 record SeatReservationCancelled(String showId, String reservationId, int seatNumber,int availableSeatsCount){ }
 ```
 
@@ -377,14 +377,14 @@ To be able to express this behaviour we are going to use `io.vavr.control.Either
 For making data immutable we are going to use immutable collection implementation by `vavr.io`.
 
 Show data model:
-```
+```java
 public record Show(String id, String title, Map<Integer, Seat> seats,
                    Map<String, Integer> pendingReservations,
                    Map<String, FinishedReservation> finishedReservations, int availableSeats) {}
 ```
 
 `handleReservation` command handler:
-```
+```java
 public Either<CinemaApiModel.ShowCommandError, ShowEvent> handleReservation(CinemaApiModel.ShowCommand.ReserveSeat reserveSeat) {
     int seatNumber = reserveSeat.seatNumber();
     if (isDuplicate(reserveSeat.reservationId())) {
@@ -410,7 +410,7 @@ private boolean isDuplicate(String reservationId) {
 #### Unit test business domain logic
 It is good practice to unit test business domain logic. This is nothing Kalix specific but ensures that business domain logic is behaving as expected.<br>
 Example of one unit test:
-```
+```java
 @Test
 public void shouldCreateTheShow() {
     //given
@@ -443,7 +443,7 @@ Kalix entity encapsulates the domain business logic and exposes it via endpoints
 
 Entity `Id/Key` is `showId`.
 
-```
+```java
 @Id("id")
 @TypeId("cinema-show")
 @RequestMapping("/cinema-show/{id}")
@@ -494,7 +494,7 @@ Because we are using event sourcing we also need to provide methods for each `Sh
 Reply type is immutable `Show`.<br>
 
 `CreateShow` command handler implementation:
-```
+```java
 @PostMapping
 public Effect<Response> create(@PathVariable String id, @RequestBody CreateShow createShow) {
     if (currentState() != null) {
@@ -510,7 +510,7 @@ public Effect<Response> create(@PathVariable String id, @RequestBody CreateShow 
 Via `currentState()` helper method, Kalix gives us access to the last state. <br>
 Kalix ensures that each command handler endpoint, on a level of one instance if Kalix Entity, is called in sequence, ensuring sequential and constant way of changing state. <br>
 `ShowCreated` event handler implementation:
-```
+```java
 @EventHandler
 public Show onEvent(ShowCreated showCreated) {
     return Show.create(showCreated);
@@ -523,7 +523,7 @@ public Show onEvent(ShowCreated showCreated) {
 ## Show Entity unit test
 More information about Kalix Event source entity testing can be found [here](https://docs.kalix.io/java-protobuf/event-sourced-entities.html#_testing_the_entity).
 For testing Kalix Entity, Kalix unit test testkit is used (`EventSourcedTestKit`).
-```
+```java
 @Test
 public void shouldReserveAndConfirmSeat() {
     //given
@@ -604,7 +604,7 @@ To implement a Kalix View we need to:
 4. define how read data model needs to be queried
 5. expose query method as HTTP/REST endpoint
 
-```
+```java
 @ViewId("show_by_available_seats_view")
 @Table("show_by_available_seats")
 @Subscribe.EventSourcedEntity(value = ShowEntity.class, ignoreUnknown = true)
@@ -662,7 +662,7 @@ Kalix Views depend on `Kalix runtime` to run so Kalix integration test testkit n
 
 Kalix integration test testkit is responsible for running `Kalix runtime` in docker container using `Test containers` and connecting it with the `Service` test that is running.
 
-```
+```java
 @DirtiesContext
 @SpringBootTest(classes = Main.class)
 class ShowsByAvailableSeatsViewIntegrationTest extends KalixIntegrationTestKitSupport {
@@ -718,7 +718,7 @@ mvn -Pit verify
 Kalix Value Entity storage model is similar to `CRUD` model.
 Entity `Id/Key` is `reservationId`.
 
-```
+```java
 @Id("id")
 @TypeId("reservation")
 @RequestMapping("/reservation/{id}")
@@ -750,7 +750,7 @@ Each command will be exposed using corresponding HTTP/REST endpoint. As with Eve
 - reply of type `Effect` with endpoint response model type. `Effect` is a declarative way to instruct Kalix what needs to be performed.
 
 `create` implementation:
-```
+```java
 @PostMapping
 public Effect<String> create(@RequestBody CreateReservation createReservation) {
     String reservationId = commandContext().entityId();
@@ -764,7 +764,7 @@ public Effect<String> create(@RequestBody CreateReservation createReservation) {
 ## Develop FoldShowEventsToReservation Kalix Action
 `FoldShowEventsToReservationAction` will be implemented using [Kalix Action with Subscription](https://docs.kalix.io/java/actions-publishing-subscribing.html#_type_level_annotations_for_subscribing).<br>
 
-```
+```java
 @Subscribe.EventSourcedEntity(value = ShowEntity.class, ignoreUnknown = true)
 public class FoldShowEventsToReservationAction extends Action {
 
@@ -816,7 +816,7 @@ More information about Kalix Action testing can be found [here](https://docs.kal
 
 Kalix integration test testkit is responsible for running `Kalix runtime` in docker container using `Test containers` and connecting it with the `Service` test that is running.
 
-```
+```java
 @DirtiesContext
 @SpringBootTest(classes = Main.class)
 class FoldShowEventsToReservationIntegrationTest extends KalixIntegrationTestKitSupport {
@@ -907,7 +907,7 @@ For making data immutable we are going to use immutable collection implementatio
 #### Unit test business domain logic
 It is good practice to unit test business domain logic. This is nothing Kalix specific but ensures that business domain logic is behaving as expected.<br>
 Example of one unit test:
-```
+```java
 @Test
 public void shouldCreateWallet() {
     //given
@@ -940,7 +940,7 @@ Kalix entity encapsulates the domain business logic and exposes it via endpoints
 
 Entity `Id/Key` is `walletId`.
 
-```
+```java
 @Id("id")
 @TypeId("wallet")
 @RequestMapping("/wallet/{id}")
@@ -990,7 +990,7 @@ Because we are using event sourcing we also need to provide methods for each `Wa
 Reply type is immutable `Wallet`.<br>
 
 `CreateWallet` command handler implementation:
-```
+```java
 @PostMapping("/create/{initialBalance}")
 public Effect<CinemaApiModel.Response> create(@PathVariable String id, @PathVariable int initialBalance) {
     CreateWallet createWallet = new CreateWallet(BigDecimal.valueOf(initialBalance));
@@ -1003,7 +1003,7 @@ public Effect<CinemaApiModel.Response> create(@PathVariable String id, @PathVari
 Via `currentState()` helper method, Kalix gives us access to the last state. <br>
 Kalix ensures that each command handler endpoint, on a level of one instance if Kalix Entity, is called in sequence, ensuring sequential and constant way of changing state. <br>
 `WalletCreated` event handler implementation:
-```
+```java
 @EventHandler
 public Wallet onEvent(WalletCreated walletCreated) {
  return currentState().apply(walletCreated);
@@ -1016,7 +1016,7 @@ public Wallet onEvent(WalletCreated walletCreated) {
 ## Wallet Entity unit test
 More information about Kalix Event source entity testing can be found [here](https://docs.kalix.io/java-protobuf/event-sourced-entities.html#_testing_the_entity).
 For testing Kalix Entity, Kalix unit test testkit is used (`EventSourcedTestKit`).
-```
+```java
 @Test
 public void shouldCreateWallet() {
  //given
@@ -1048,7 +1048,7 @@ mvn test
 
 `ChargeForReservationAction` will be implemented using [Kalix Action with Subscription](https://docs.kalix.io/java/actions-publishing-subscribing.html#_type_level_annotations_for_subscribing).<br>
 
-```
+```java
 @Subscribe.EventSourcedEntity(value = ShowEntity.class, ignoreUnknown = true)
 public class ChargeForReservationAction extends Action {
 
@@ -1103,7 +1103,7 @@ public class ChargeForReservationAction extends Action {
 
 `CompleteReservationAction` will be implemented using [Kalix Action with Subscription](https://docs.kalix.io/java/actions-publishing-subscribing.html#_type_level_annotations_for_subscribing).<br>
 
-```
+```java
 @Subscribe.EventSourcedEntity(value = WalletEntity.class, ignoreUnknown = true)
 public class CompleteReservationAction extends Action {
 
@@ -1163,7 +1163,7 @@ public class CompleteReservationAction extends Action {
 ## End to end integration test
 For end to end test we are going to use Kalix integration test testkit. <br>
 
-```
+```java
 @DirtiesContext
 @SpringBootTest(classes = Main.class)
 public class ShowSeatReservationIntegrationTest extends KalixIntegrationTestKitSupport {
