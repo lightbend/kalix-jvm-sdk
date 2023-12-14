@@ -136,7 +136,7 @@ However, if you want to run your service with persistence enabled, you can do so
 include::example$scala-protobuf-doc-snippets/docker-compose.yml[tag=persistence-mode]
 ----
 <1> Maps local directory to the Kalix Runtime database directory `/var/kalix`.
-<2> Sets `PERSISTENCE_ENABLED` env to `true`.
+<2> Sets `PERSISTENCE_ENABLED` environment variable to `true`.
 
 == Running multiple services locally
 
