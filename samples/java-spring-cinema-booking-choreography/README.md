@@ -1228,11 +1228,12 @@ mvn -Pit verify
     kalix auth container-registry configure
     ```
    **Note**: The command will output `Kalix Container Registry (KCR)` path that needs be used to configure `kalixContainerRegistry` property in `pom.xml`<br>
-    5. Extract Kalix user `username` or `organization`
+    5. Extract Kalix `organization`
    ```
-   kalix auth current-login
+   kalix organizations list
    ```
-   **Note**: The command will output Kalix user details and column `USERNAME` needs to be used to configure `kalixOrganization` property in `pom.xml`<br>
+   **Note**: The command will output Kalix organizations and column `NAME` needs to be used to configure `kalixOrganization` property in `pom.xml`.<br>
+   **Note**: If your user is part of multiple organizations then organization that you configure neeeds to be the same as the one Kalix project is created with.<br>
 
 4. Deploy service in Kalix project:
  ```
