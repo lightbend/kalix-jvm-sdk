@@ -24,7 +24,7 @@
     <dockerImage>${D}{kalixContainerRegistry}/${D}{kalixOrganization}/${D}{project.artifactId}</dockerImage>
     <dockerTag>${project.version}-${build.timestamp}</dockerTag>
     <maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
-    <mainClass>${package}.Main</mainClass>
+    <mainClass>${package}.MainKt</mainClass>
 
     <jdk.target>17</jdk.target>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
