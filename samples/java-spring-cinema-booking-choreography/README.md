@@ -516,13 +516,13 @@ The `ShowEntity` class extends `EventSourcedEntity<Show, ShowEvent>`, with `Show
 - `@Id` and `@TypeId` - Kalix annotations to configure the Kalix Entity
 - `@RequestMapping` - Spring web annotation to define Kalix Entity instance request mapping
 
-Each `Show` command will be exposed by `ShowEntity` using a corresponding HTTP/REST endpoint. Endpoints in Kalix Entity are class methods with:
-- method level spring web annotation 
-- input variable level spring web annotation
-- reply of type `Effect` with endpoint response model type. `Effect` is a declarative way to instruct Kalix what needs to be performed.  
+Each `Show` command will be exposed by `ShowEntity` using a corresponding HTTP/REST endpoint. Endpoints in Kalix Entities are methods with:
+- a method level Spring web annotation,
+- an input variable level Spring web annotation, and
+- a reply of type `Effect` with an endpoint response model type. `Effect` is a declarative way to instruct Kalix what needs to be performed.  
 
-Because we are using event sourcing we also need to provide methods for each `ShowEvent` type that is annotated with `@EventHandler`. Each method will be used to update the `Show` state. 
-Reply type is immutable `Show`.<br>
+Because we are using event sourcing, we also need to provide methods for each `ShowEvent` type that is annotated with `@EventHandler`. Each method will be used to update the `Show` state. 
+The reply type is immutable is a `Show`.<br>
 
 `CreateShow` command handler implementation:
 ```java
@@ -538,8 +538,11 @@ public Effect<Response> create(@PathVariable String id, @RequestBody CreateShow 
     }
 }
 ```
-Via `currentState()` helper method, Kalix gives us access to the last state. <br>
-Kalix ensures that each command handler endpoint, on a level of one instance if Kalix Entity, is called in sequence, ensuring sequential and constant way of changing state. <br>
+
+Via the `currentState()` helper method, Kalix gives us access to the current state.
+
+Kalix ensures that each command handler endpoint, on a level of one instance of a Kalix Entity, is called in sequence, ensuring a sequential and consistent way of changing state.
+
 `ShowCreated` event handler implementation:
 ```java
 @EventHandler
@@ -548,12 +551,13 @@ public Show onEvent(ShowCreated showCreated) {
 }
 ```
 
-**Note:** `ShowEvent` sealed interface will give us compile check if all event handlers are implemented.<br>
-**Tip:** Check `com.example.cinema.ShowEntity` Java class for complete reference implementation.<br>
+**Note:** The `ShowEvent` sealed interface will give us a compile-time check that all event handlers are implemented.<br>
+**Tip:** Check the `com.example.cinema.ShowEntity` class for a complete reference implementation.<br>
 
 ## Show Entity unit test
 More information about Kalix Event source entity testing can be found [here](https://docs.kalix.io/java-protobuf/event-sourced-entities.html#_testing_the_entity).
-For testing Kalix Entity, Kalix unit test testkit is used (`EventSourcedTestKit`).
+For testing the Kalix Entity, the Kalix Testkit is used (`EventSourcedTestKit`).
+
 ```java
 @Test
 public void shouldReserveAndConfirmSeat() {
@@ -581,12 +585,14 @@ public void shouldReserveAndConfirmSeat() {
     assertThat(availableSeats).isEqualTo(maxSeats-1);
 }
 ```
-`EventSourcedTestKit` facilitates unit testing of Kalix Event source entity by providing ways to assert emitted events and updated state. <br>
 
-**Tip:** Check in `test/java` `com.example.cinema.ShowEntityTest`, for complete reference implementation.<br>
+`EventSourcedTestKit` facilitates unit testing of Kalix Event source entities by providing ways to assert emitted events and updated state.
+
+**Tip:** Check in `com.example.cinema.ShowEntityTest` in `test/java`, for a complete test implementation.
 
 ### Run unit test
-```
+
+```shell
 mvn test
 ```
 
@@ -595,45 +601,49 @@ mvn test
 ### Run
 Kalix provides a frictionless and efficient local development experience.
 
-In a single terminal, with a single command mvn kalix:runAll the Kalix service was run locally and exposed at localhost:9000.
+In your terminal, with a single command `mvn kalix:runAll` the Kalix service is run locally and exposed at `http://localhost:9000`.
 
-```
+```shell
 mvn kalix:runAll
 ```
 
 ### Test
 Create show:
-```
+
+```shell
 curl -XPOST -d '{
   "title": "title",
   "maxSeats": 5
 }' http://localhost:9000/cinema-show/1 -H "Content-Type: application/json"
 ```
+
 Reserve a seat:
-```
+```shell
 curl -XPATCH -d '{
   "walletId": "title",
   "reservationId": "res1",
   "seatNumber": 1
 }' http://localhost:9000/cinema-show/1/reserve -H "Content-Type: application/json"
 ```
+
 Confirm seat payment:
-```
+```shell
 curl -XPATCH http://localhost:9000/cinema-show/1/confirm-payment/res1 -H "Content-Type: application/json"
 ```
 Get:
-```
+```shell
 curl -XGET http://localhost:9000/cinema-show/1 -H "Content-Type: application/json"
 ```
 
-## Develop Show By Availability View
-Shows by availability read view will be implemented using [Kalix View](https://docs.kalix.io/java/value-entity.html).
+## Developing the "Shows By Availability" View
+The "Shows by availability" read view will be implemented using a [Kalix View](https://docs.kalix.io/java/value-entity.html).
+
 To implement a Kalix View we need to:
 1. define a read view model - already defined with `CinemaApiModel.ShowsByAvailableSeatsViewRecord`
 2. define a source, in form of a subscription, from which we want to build the read view 
 3. define transformation methods for the source types
-4. define how read data model needs to be queried
-5. expose query method as HTTP/REST endpoint
+4. define how the read data model needs to be queried
+5. expose a query method as HTTP/REST endpoint
 
 ```java
 @ViewId("show_by_available_seats_view")
@@ -659,39 +669,43 @@ public class ShowsByAvailableSeatsView extends View<ShowsByAvailableSeatsViewRec
   }
 }
 ```
-`ShowsByAvailableSeatsView` class extends `View<ShowsByAvailableSeatsViewRecord>`
+
+
+The `ShowsByAvailableSeatsView` class extends `View<ShowsByAvailableSeatsViewRecord>`
 
 1. define a read view model:<br> 
-   View read view model is already defined with `CinemaApiModel.ShowsByAvailableSeatsViewRecord`<br>
-   Kalix uses `ShowsByAvailableSeatsViewRecord`read data model to provision a cosponsoring database table.
+   The read view model is already defined with `CinemaApiModel.ShowsByAvailableSeatsViewRecord`<br>
+   Kalix uses the `ShowsByAvailableSeatsViewRecord` read data model to provision a cosponsoring database table.
 2. define a source:<br>
-   View class level annotation `@Subscribe.EventSourcedEntity` defines a source<br>
-   Configures view subscription to domain event changes from a Kalix Entity (`value = ShowEntity.class` indicates which Entity type).
+   The class level annotation `@Subscribe.EventSourcedEntity` defines a source<br>
+   It configures a view subscription to domain event changes from a Kalix Entity (`value = ShowEntity.class` indicates the Entity type).
 3. define transformation methods:<br> 
-   For each Kalix Entity domain event, that View is subscribed to we need to implement transformation method from domain event data model to read data model (`ShowEvent` -> `ShowsByAvailableSeatsViewRecord`)<br>
-   Similar as with Kalix Entity endpoints, reply type of transformation methods is `UpdateEffect` (declarative way to instruct Kalix what needs to be performed).<br> 
-4. define how read data model needs to be queried:<br> 
-   Kalix `@Query` annotation that configures what kind of query needs to be done to fetch the defined read model. SQL-like language is used to describe the query.<br>
-   Kalix uses this query to index accordingly index the provisioned table from #1
+   For each Kalix Entity domain event, that View is subscribed to, we need to implement a transformation method from the domain event data model to the read data model (`ShowEvent` -> `ShowsByAvailableSeatsViewRecord`)<br>
+   Similar as with Kalix Entity endpoints, the reply type of the transformation methods is `UpdateEffect` (declarative way to instruct Kalix what needs to be performed).<br> 
+4. define how the read data model needs to be queried:<br> 
+   Kalix `@Query` annotation that configures what kind of query read model supports. An SQL-like language is used to describe the query.<br>
+   Kalix uses this query to index the provisioned table from #1 accordingly
 5. expose query method as HTTP/REST endpoint: <br>
    To expose read model via HTTP/REST endpoint class method needs to be added with:
-   - method level spring web annotation
-   - Kalix `@Query` annotation that configures what kind of query needs to be done to fetch the defined read model. SQL-like language is used to describe the query. Kalix uses this query to
-   - input variable (query parameters) level spring web annotation
-   - reply type: it can be a single view record, list or stream (using Spring RactorX Mono type)
+   - a method level Spring web annotation
+   - an input variable (query parameters) level Spring web annotation
+   - reply type: it can be a single view record, list or stream (using the Spring RactorX Mono type)
 
-`ShowsByAvailableSeatsView` class requires additionally class level annotations:
+The `ShowsByAvailableSeatsView` class requires additionally two class level annotations:
 - `@ViewId`- Kalix annotations to configure unique id of the view
 - `@Table`- Kalix annotations to configure view table name
 
-**Tip:** Check `com.example.cinema.ShowsByAvailableSeatsView` Java class for complete reference implementation.<br>
+**Tip:** Check the `com.example.cinema.ShowsByAvailableSeatsView` class for a complete reference implementation.<br>
 
 ## View integration test
-More information about Kalix View testing can be found [here](https://docs.kalix.io/java/views.html#_testing_the_view).<br>
-Kalix Views depend on `Kalix runtime` to run so Kalix integration test testkit needs to be used (test class needs to extend `KalixIntegrationTestKitSupport`).<br>
-**Note:** More info about `Kalix runtime` can be found [here](https://docs.kalix.io/concepts/programming-model.html#_kalix_services)<br>
 
-Kalix integration test testkit is responsible for running `Kalix runtime` in docker container using `Test containers` and connecting it with the `Service` test that is running.
+More information about Kalix View testing can be found [here](https://docs.kalix.io/java/views.html#_testing_the_view).
+
+Kalix Views depend on the _Kalix Runtime_, so the Kalix integration test testkit needs to be used (test class needs to extend `KalixIntegrationTestKitSupport`).
+
+**Note:** More info about the _Kalix Runtime_ can be found [here](https://docs.kalix.io/concepts/programming-model.html#_kalix_services)<br>
+
+The Kalix integration test testkit is responsible for running the _Kalix Runtime_ in a Docker container using _Test Containers_ and connecting it with the _Service test_ that is running.
 
 ```java
 @DirtiesContext
@@ -735,19 +749,21 @@ class ShowsByAvailableSeatsViewIntegrationTest extends KalixIntegrationTestKitSu
 
 }
 ```
-**Tip:** Check in `it/java` `com.example.cinema.ShowsByAvailableSeatsViewIntegrationTest`, for complete reference implementation.<br>
-**Note:** `ShowCalls` is a helper class with that implement all HTT/REST calls using Spring Web client and `TestUtils` are helper Java Classes for test data generation.
-**Note:** `awaitability` is used in these integration tests to facilitate implementation of asynchronous tests
+
+**Tip:** Check `com.example.cinema.ShowsByAvailableSeatsViewIntegrationTest` in `it/java`, for a complete reference implementation.<br>
+**Note:** `ShowCalls` is a helper class that implements all HTT/REST calls using Spring Web client and `TestUtils` are Java helper classes for test data generation.
+**Note:** [awaitility](http://www.awaitility.org/) is used in these integration tests to facilitate implementation of asynchronous tests
 
 ### Run integration test
-```
+```shell
 mvn -Pit verify
 ```
 
-## Develop Reservation Entity
-`ReservationEntity` will be implemented using [Kalix Entity (Value)](https://docs.kalix.io/java/value-entity.html).<br>
-Kalix Value Entity storage model is similar to `CRUD` model.
-Entity `Id/Key` is `reservationId`.
+## Developing the "Reservation" Entity
+
+The `ReservationEntity` will be implemented using a [Kalix Entity (Value)](https://docs.kalix.io/java/value-entity.html).<br>
+Kalix Value Entity storage model is similar to the _CRUD_ model which updates state and stores it.
+The Entity Id or Key is `reservationId`.
 
 ```java
 @Id("id")
@@ -762,23 +778,25 @@ public class ReservationEntity extends ValueEntity<Show.Reservation> {
   public Effect<Show.Reservation> get() {}
 
   @PostMapping
-  public Effect<String> create(@RequestBody CreateReservation createReservation) { }
+  public Effect<String> create(@RequestBody CreateReservation createReservation) {}
 
   @DeleteMapping
   public Effect<String> delete() {}
 }
 ```
-`ReservationEntity` class extends `ValueEntity<Show.Reservation>`, with `Show.Reservation` as a state and in our case a read data model containing `showId`.<br>
-`ReservationEntity` class requires three class level annotations:
-- `@Id` and `@TypeId` - Kalix annotations to configure Kalix Entity
-- `@RequestMapping` - Spring web annotation to define Kalix Entity instance request mapping
 
-We will implement `create`, `delete` and `get` to expose `CRUD` like operation on `Show.Reservation` data model.
+The `ReservationEntity` class extends `ValueEntity<Show.Reservation>`, with `Show.Reservation` as a state. In our case a read data model containing `showId`.
 
-Each command will be exposed using corresponding HTTP/REST endpoint. As with Event Source Entity, endpoints are class methods with:
-- method level spring web annotation
-- input variable level spring web annotation
-- reply of type `Effect` with endpoint response model type. `Effect` is a declarative way to instruct Kalix what needs to be performed.
+The `ReservationEntity` class requires three class level annotations:
+- `@Id` and `@TypeId` - Kalix annotations to configure a Kalix Entity
+- `@RequestMapping` - Spring web annotation to define a Kalix Entity instance request mapping
+
+We will implement `create`, `delete` and `get` to expose _CRUD_-like operations on the `Show.Reservation` data model.
+
+Each command will be exposed using a corresponding HTTP/REST endpoint. As with Event Source Entity, endpoints are class methods with:
+- a method level Spring web annotation
+- an input variable level Spring web annotation
+- a reply of type `Effect` with endpoint response model type. `Effect` is a declarative way to instruct Kalix what needs to be performed.
 
 `create` implementation:
 ```java
@@ -790,10 +808,11 @@ public Effect<String> create(@RequestBody CreateReservation createReservation) {
 }
 ```
 
-**Tip:** Check `com.example.cinema.reservation.ReservationEntity` Java class for complete reference implementation.<br>
+**Tip:** Check the `com.example.cinema.reservation.ReservationEntity` class for a complete reference implementation.
 
-## Develop FoldShowEventsToReservation Kalix Action
-`FoldShowEventsToReservationAction` will be implemented using [Kalix Action with Subscription](https://docs.kalix.io/java/actions-publishing-subscribing.html#_type_level_annotations_for_subscribing).<br>
+## Developing the `FoldShowEventsToReservation` Kalix Action
+
+The `FoldShowEventsToReservationAction` will be implemented using a [Kalix Action with a Subscription](https://docs.kalix.io/java/actions-publishing-subscribing.html#_type_level_annotations_for_subscribing).
 
 ```java
 @Subscribe.EventSourcedEntity(value = ShowEntity.class, ignoreUnknown = true)
@@ -827,25 +846,31 @@ public class FoldShowEventsToReservationAction extends Action {
 }
 ```
 
-Similar as with Kalix View, Action class level annotation `@Subscribe.EventSourcedEntity` defines a source. 
-Configures Action subscription to domain event changes from a Kalix Entity (`value = ShowEntity.class` indicates which Entity type).<br>
+Similar as with Kalix Views, the Action class level annotation `@Subscribe.EventSourcedEntity` defines a source. 
+It configures an Action subscription to domain event changes from a Kalix Entity (`value = ShowEntity.class` indicates which Entity type).
 
-For each Kalix Entity domain event, that Action is subscribed to we need to implement handler method <br>
-Similar as with Kalix Entity endpoints, reply type of handler methods is `Effect` (declarative way to instruct Kalix what needs to be performed).<br>
-Kalix ensures that handler method is executed with `at-least-once` execution semantic. <br>
-To be able to interact with other Kalix components, Kalix provides a [Component client](https://docs.kalix.io/java/component-and-service-calls.html#_component_client).<br>
+For each Kalix Entity domain event, the Action is subscribed to, we need to implement ahandler method.
+Similar as with Kalix Entity endpoints, the reply type of handler methods is `Effect` (declarative way to instruct Kalix what needs to be performed).
 
-On `SeatReservationPaid` and `SeatReserved` we are going to use a Component client to call corresponding `ReservationEntity` endpoint.
+Kalix ensures that the handler method is executed with _at-least-once_ execution semantics.
 
-**Tip:** Check `com.example.cinema.reservation.FoldShowEventsToReservationAction` Java class for complete reference implementation.<br>
+To be able to interact with other Kalix components, Kalix provides a [Component client](https://docs.kalix.io/java/component-and-service-calls.html#_component_client).
+
+On `SeatReservationPaid` and `SeatReserved` we are going to use a Component client to call the corresponding `ReservationEntity` endpoint.
+
+**Tip:** Check the `com.example.cinema.reservation.FoldShowEventsToReservationAction` class for a complete reference implementation.
 
 ## Entity and Action interaction integration test
-To test `ReservationEntity` and `FoldShowEventsToReservationAction` we are going to use Kalix integration test testkit. <br>
-Kalix Action with Subscription depend on `Kalix runtime` to run so Kalix integration test testkit needs to be used (test class needs to extend `KalixIntegrationTestKitSupport`).<br>
-More information about Kalix Action testing can be found [here](https://docs.kalix.io/java/actions-publishing-subscribing.html#_testing_the_integration).<br>
-**Note:** More info about `Kalix runtime` can be found [here](https://docs.kalix.io/concepts/programming-model.html#_kalix_services)<br>
 
-Kalix integration test testkit is responsible for running `Kalix runtime` in docker container using `Test containers` and connecting it with the `Service` test that is running.
+To test the `ReservationEntity` and `FoldShowEventsToReservationAction` we are going to use Kalix integration test testkit.
+
+Kalix Actions with Subscriptions depend on the _Kalix Runtime_ to run, so the Kalix integration test testkit needs to be used (test class needs to extend `KalixIntegrationTestKitSupport`).
+
+More information about Kalix Action testing can be found [here](https://docs.kalix.io/java/actions-publishing-subscribing.html#_testing_the_integration).
+
+**Note:** More info about the _Kalix Runtime_ can be found [here](https://docs.kalix.io/concepts/programming-model.html#_kalix_services).
+
+The Kalix integration test testkit is responsible for running the _Kalix Runtime_ in a Docker container using _Test Containers_ and connecting it to the `Service` test that is running.
 
 ```java
 @DirtiesContext
@@ -900,44 +925,51 @@ class FoldShowEventsToReservationIntegrationTest extends KalixIntegrationTestKit
   }
 }
 ```
-**Tip:** Check in `it/java` `com.example.cinema.FoldShowEventsToReservationIntegrationTest` Java class for complete reference implementation.<br>
+**Tip:** Check the `com.example.cinema.FoldShowEventsToReservationIntegrationTest` class in `it/java` for a complete reference implementation.
+
 ### Run integration test
-```
+```shell
 mvn -Pit verify
 ```
 
-# Develop Kalix components for Wallet bounded context
-## Describe Data structures
+# Developing Kalix components for "Wallet" bounded context
+## Describing Data structures
 
-With Kalix Java SDK we are going to use Java code to describe domain and api data structures.<br>
+With the Kalix Java SDK we are going to use Java code to describe the domain and API data structures.
 
-API data structures include:
+The API data structures include:
 - Commands (requests)
 - Responses
 - Read View data model
 
-Domain data structures include:
+The domain data structures include:
 - Entity state
 - Domain Events
 
 ### API data structures
-**Tip:** Check `com.example.wallet.model.WalletApiModel` Java Class for reference implementation.
+
+**Tip:** Check the `com.example.wallet.model.WalletApiModel` Java Class for a reference implementation.
 
 ### Domain Events data structure
-**Tip:** Check `com.example.wallet.model.WalletEvent` Java Interface for reference implementation.<br>
-**Note:** Java sealed interface is used to allow Kalix to validate in compilation time if all events have been handled from the event handler perspective.
+
+**Tip:** Check the `com.example.wallet.model.WalletEvent` Java Interface for a reference implementation.<br>
+**Note:** A Java _sealed interface_ is used to allow the Java compiler to verify that all events have been handled in the event handler.
 
 ### Wallet entity state data structure and business domain logic encapsulation
-Modeling domain business logic without explicit dependency to Kalix Entity is a good pattern that enables better decoupling and portability.
-Domain business logic includes processing of commands, in command handlers, which result in event (required state change) or error.<br>
-To be able to express this behaviour we are going to use `io.vavr.control.Either` from `vavr.io` dependency.<br>
-For making data immutable we are going to use immutable collection implementation by `vavr.io`.
 
-**Tip:** Check `com.example.cinema.model.Wallet` Java Record for reference implementation.
+Modeling the domain business logic without an explicit dependency to Kalix Entity is a good pattern that enables better decoupling and portability.
+Domain business logic includes processing of commands, in command handlers, which result in events (required state change) or errors.
+
+To be able to express this behaviour we are going to use a `io.vavr.control.Either` from `vavr.io` dependency.<br>
+For making data immutable we are going to use an immutable collection implementation by `vavr.io`.
+
+**Tip:** Check the `com.example.cinema.model.Wallet` Java Record for a reference implementation.
 
 #### Unit test business domain logic
-It is good practice to unit test business domain logic. This is nothing Kalix specific but ensures that business domain logic is behaving as expected.<br>
-Example of one unit test:
+
+It is good practice to unit test business domain logic. This is nothing Kalix specific but ensures that business domain logic is behaving as expected.
+
+Example of a unit test:
 ```java
 @Test
 public void shouldCreateWallet() {
@@ -955,21 +987,22 @@ public void shouldCreateWallet() {
     assertThat(updatedWallet.balance()).isEqualTo(createWallet.initialAmount());
 }
 ```
-**Tip:** Check in `test/java` `com.example.wallet.WalletTest`, unit test class.<br>
-**Note:** `DomainGenerators` is helper Java Classes for test data generation.
+**Tip:** Check the `com.example.wallet.WalletTest` in `test/java` for a complete implementation.<br>
+**Note:** `DomainGenerators` is helper class for test data generation.
 
 
 #### Run unit test
-```
+```shell
 mvn test
 ```
 
-## Develop Wallet Entity
-`WalletEntity` will be implemented using [Kalix Entity (Event sourced)](https://docs.kalix.io/java/event-sourced-entities.html).<br>
+## Developing the "Wallet" Entity
 
-Kalix entity encapsulates the domain business logic and exposes it via endpoints. `WalletEntity` encapsulates and exposes `com.example.wallet.model.Wallet`.<br>
+The `WalletEntity` will be implemented using a [Kalix Entity (Event sourced)](https://docs.kalix.io/java/event-sourced-entities.html).
 
-Entity `Id/Key` is `walletId`.
+Kalix entities encapsulate the domain business logic and expose it via endpoints. The `WalletEntity` encapsulates and exposes `com.example.wallet.model.Wallet`.
+
+The entity Id or Key is `walletId`.
 
 ```java
 @Id("id")
@@ -1007,18 +1040,20 @@ public class WalletEntity extends EventSourcedEntity<Wallet, WalletEvent> {
   public Wallet onEvent(WalletChargeRejected walletCharged) {}
 }
 ```
-`WalletEntity` class extends `EventSourcedEntity<Wallet, WalletEvent>`, with `Wallet` as a state data model and `WalletEvent` as a domain event interface.<br>
-`WalletEntity` class requires three class level annotations:
-- `@Id` and `@TypeId` - Kalix annotations to configure Kalix Entity
+
+The `WalletEntity` class extends `EventSourcedEntity<Wallet, WalletEvent>`, with `Wallet` as a state data model and `WalletEvent` as a domain event interface.
+
+The `WalletEntity` class requires three class level annotations:
+- `@Id` and `@TypeId` - Kalix annotations to configure a Kalix Entity
 - `@RequestMapping` - Spring web annotation to define Kalix Entity instance request mapping
 
-Each `Wallet` command will be exposed in `WalletEntity` using corresponding HTTP/REST endpoint. Endpoints in Kalix Entity are class methods with:
-- method level spring web annotation
-- input variable level spring web annotation
-- reply of type `Effect` with endpoint response model type. `Effect` is a declarative way to instruct Kalix what needs to be performed.
+Each `Wallet` command will be exposed by the `WalletEntity` using a corresponding HTTP/REST endpoint. Endpoints in Kalix Entities are class methods with:
+- a method level Spring web annotation
+- an input variable level Spring web annotation
+- a reply of type `Effect` with the endpoint response model type. `Effect` is a declarative way to instruct Kalix what needs to be performed.
 
-Because we are using event sourcing we also need to provide methods for each `WalletEvent` type that is annotated with `@EventHandler`. Each method will be used to update the `Wallet` state.
-Reply type is immutable `Wallet`.<br>
+Because we are using event sourcing we also need to provide methods for each `WalletEvent` type that are annotated with `@EventHandler`. Each method will be used to update the `Wallet` state.
+The return type is immutable `Wallet`.<br>
 
 `CreateWallet` command handler implementation:
 ```java
@@ -1031,22 +1066,26 @@ public Effect<CinemaApiModel.Response> create(@PathVariable String id, @PathVari
     );
 }
 ```
-Via `currentState()` helper method, Kalix gives us access to the last state. <br>
-Kalix ensures that each command handler endpoint, on a level of one instance if Kalix Entity, is called in sequence, ensuring sequential and constant way of changing state. <br>
+
+Via the `currentState()` helper method, Kalix gives us access to the current state.<br>
+Kalix ensures that each command handler endpoint, on a level of one instance of a Kalix Entity, is called in sequence, ensuring a sequential and consistent way of changing state.
+
 `WalletCreated` event handler implementation:
 ```java
 @EventHandler
 public Wallet onEvent(WalletCreated walletCreated) {
- return currentState().apply(walletCreated);
+  return currentState().apply(walletCreated);
 }
 ```
 
-**Note:** `WalletEvent` sealed interface will give us compile check if all event handlers are implemented.<br>
-**Tip:** Check `com.example.wallet.WalletEntity` Java class for complete reference implementation.<br>
+**Note:** The `WalletEvent` _sealed interface_ is used so that the Java compiler can verify that all events have been handled.<br>
+**Tip:** Check the `com.example.wallet.WalletEntity` Java class for a complete reference implementation.<br>
 
 ## Wallet Entity unit test
+
 More information about Kalix Event source entity testing can be found [here](https://docs.kalix.io/java-protobuf/event-sourced-entities.html#_testing_the_entity).
-For testing Kalix Entity, Kalix unit test testkit is used (`EventSourcedTestKit`).
+
+For testing a Kalix Entity, the Kalix unit test testkit is used (`EventSourcedTestKit`).
 ```java
 @Test
 public void shouldCreateWallet() {
@@ -1065,134 +1104,139 @@ public void shouldCreateWallet() {
  assertThat(testKit.getState().balance()).isEqualTo(BigDecimal.valueOf(initialAmount));
 }
 ```
-`EventSourcedTestKit` facilitates unit testing of Kalix Event source entity by providing ways to assert emitted events and updated state. <br>
 
-**Tip:** Check in `test/java` `com.example.wallet.WalletEntityTest`, for complete reference implementation.<br>
+`EventSourcedTestKit` facilitates unit testing of Kalix Event source entity by providing ways to assert emitted events and the updated state.
+
+**Tip:** Check `com.example.wallet.WalletEntityTest` in `test/java` for complete reference implementation.<br>
 
 ### Run unit test
-```
+```shell
 mvn test
 ```
-## Develop Show - Wallet asynchronous event driven communication (eventing)
 
-### ChargeForReservation Action
+## Developing "Show - Wallet asynchronous event driven communication" (eventing)
 
-`ChargeForReservationAction` will be implemented using [Kalix Action with Subscription](https://docs.kalix.io/java/actions-publishing-subscribing.html#_type_level_annotations_for_subscribing).<br>
+### `ChargeForReservation` Action
+
+The `ChargeForReservationAction` will be implemented using a [Kalix Action with Subscription](https://docs.kalix.io/java/actions-publishing-subscribing.html#_type_level_annotations_for_subscribing).
 
 ```java
 @Subscribe.EventSourcedEntity(value = ShowEntity.class, ignoreUnknown = true)
 public class ChargeForReservationAction extends Action {
 
-  private final ComponentClient componentClient;
-  
-  public ChargeForReservationAction(ComponentClient componentClient) {
-    this.componentClient = componentClient;
-  }
+   private final ComponentClient componentClient;
 
-  public Effect<String> charge(SeatReserved seatReserved) {
-    logger.info("charging for reservation, triggered by " + seatReserved);
-    String expenseId = seatReserved.reservationId();
+   public ChargeForReservationAction(ComponentClient componentClient) {
+      this.componentClient = componentClient;
+   }
 
-    String sequenceNum = contextForComponents().metadata().get("ce-sequence").orElseThrow();
-    String walletId = seatReserved.walletId();
+   public Effect<String> charge(SeatReserved seatReserved) {
+      logger.info("charging for reservation, triggered by " + seatReserved);
+      String expenseId = seatReserved.reservationId();
 
-    var chargeWallet = new ChargeWallet(seatReserved.price(),expenseId);
+      String sequenceNum = contextForComponents().metadata().get("ce-sequence").orElseThrow();
+      String walletId = seatReserved.walletId();
 
-    var attempts = 3;
-    var retryDelay = Duration.ofSeconds(1);
-    ActorSystem actorSystem = actionContext().materializer().system();
+      var chargeWallet = new ChargeWallet(seatReserved.price(), expenseId);
 
-    return effects().asyncReply(
-      Patterns.retry(() -> chargeWallet(walletId, expenseId, chargeWallet),
-          attempts,
-          retryDelay,
-          actorSystem)
-        .exceptionallyComposeAsync(throwable ->
-            registerFailure(seatReserved.showId(), expenseId, throwable)
-        )
-    );
-  }
+      var attempts = 3;
+      var retryDelay = Duration.ofSeconds(1);
+      ActorSystem actorSystem = actionContext().materializer().system();
 
-  private CompletionStage<String> chargeWallet(String walletId, String expenseId, ChargeWallet chargeWallet) {
-    return componentClient.forEventSourcedEntity(walletId)
-      .call(WalletEntity::charge)
-      .params(chargeWallet)
-      .execute()
-      .thenApply(response -> "done");
-  }
-  private CompletionStage<String> registerFailure(String showId, String reservationId, Throwable throwable) {
-    var msg = getMessage(throwable);
-    return componentClient.forEventSourcedEntity(showId).call(ShowEntity::cancelReservation).params(reservationId).execute().thenApply(res -> msg);
-  }
+      return effects().asyncReply(
+              Patterns.retry(() -> chargeWallet(walletId, expenseId, chargeWallet),
+                              attempts,
+                              retryDelay,
+                              actorSystem)
+                      .exceptionallyComposeAsync(throwable ->
+                              registerFailure(seatReserved.showId(), expenseId, throwable)
+                      )
+      );
+   }
+
+   private CompletionStage<String> chargeWallet(String walletId, String expenseId, ChargeWallet chargeWallet) {
+      return componentClient.forEventSourcedEntity(walletId)
+              .call(WalletEntity::charge)
+              .params(chargeWallet)
+              .execute()
+              .thenApply(response -> "done");
+   }
+
+   private CompletionStage<String> registerFailure(String showId, String reservationId, Throwable throwable) {
+      var msg = getMessage(throwable);
+      return componentClient.forEventSourcedEntity(showId).call(ShowEntity::cancelReservation).params(reservationId).execute().thenApply(res -> msg);
+   }
 }
 ```
-`ChargeForReservationAction` subscribes to `ShowEntity`'s `SeatReserved` event and uses `Component client` to call `WalletEntity::charge` endpoint. In case of failure, failure is registered by calling `ShowEntity::cancelReservation` endpoint. 
 
-**Tip:** Check `com.example.wallet.ChargeForReservationAction` Java class for complete reference implementation.<br>
+The `ChargeForReservationAction` subscribes to `ShowEntity`'s `SeatReserved` events and uses the Kalix _Component client_ to call the `WalletEntity::charge` endpoint. In case of failure, failure is registered by calling `ShowEntity::cancelReservation` endpoint. 
+
+**Tip:** Check the `com.example.wallet.ChargeForReservationAction` Java class for a complete reference implementation.
 
 ### Complete Reservation Action
 
-`CompleteReservationAction` will be implemented using [Kalix Action with Subscription](https://docs.kalix.io/java/actions-publishing-subscribing.html#_type_level_annotations_for_subscribing).<br>
+The `CompleteReservationAction` will be implemented using a [Kalix Action with Subscription](https://docs.kalix.io/java/actions-publishing-subscribing.html#_type_level_annotations_for_subscribing).
 
 ```java
 @Subscribe.EventSourcedEntity(value = WalletEntity.class, ignoreUnknown = true)
 public class CompleteReservationAction extends Action {
 
-  private final ComponentClient componentClient;
+   private final ComponentClient componentClient;
 
-  public CompleteReservationAction(ComponentClient componentClient) {
-    this.componentClient = componentClient;
-  }
+   public CompleteReservationAction(ComponentClient componentClient) {
+      this.componentClient = componentClient;
+   }
 
-  public Effect<Response> confirmReservation(WalletCharged walletCharged) {
-    logger.info("confirming reservation, triggered by " + walletCharged);
+   public Effect<Response> confirmReservation(WalletCharged walletCharged) {
+      logger.info("confirming reservation, triggered by " + walletCharged);
 
-    String reservationId = walletCharged.expenseId();
+      String reservationId = walletCharged.expenseId();
 
-    return effects().asyncReply(
-      getShowIdBy(reservationId).thenCompose(showId ->
-        confirmReservation(showId, reservationId)
-      ));
-  }
+      return effects().asyncReply(
+              getShowIdBy(reservationId).thenCompose(showId ->
+                      confirmReservation(showId, reservationId)
+              ));
+   }
 
-  public Effect<Response> cancelReservation(WalletChargeRejected walletChargeRejected) {
-    logger.info("cancelling reservation, triggered by " + walletChargeRejected);
+   public Effect<Response> cancelReservation(WalletChargeRejected walletChargeRejected) {
+      logger.info("cancelling reservation, triggered by " + walletChargeRejected);
 
-    String reservationId = walletChargeRejected.expenseId();
+      String reservationId = walletChargeRejected.expenseId();
 
-    return effects().asyncReply(
-      getShowIdBy(reservationId).thenCompose(showId ->
-        cancelReservation(showId, reservationId)
-      ));
-  }
+      return effects().asyncReply(
+              getShowIdBy(reservationId).thenCompose(showId ->
+                      cancelReservation(showId, reservationId)
+              ));
+   }
 
-  private CompletionStage<Response> confirmReservation(String showId, String reservationId) {
-    return componentClient.forEventSourcedEntity(showId)
-      .call(ShowEntity::confirmPayment)
-      .params(reservationId)
-      .execute();
-  }
+   private CompletionStage<Response> confirmReservation(String showId, String reservationId) {
+      return componentClient.forEventSourcedEntity(showId)
+              .call(ShowEntity::confirmPayment)
+              .params(reservationId)
+              .execute();
+   }
 
-  private CompletionStage<Response> cancelReservation(String showId, String reservationId) {
-    return componentClient.forEventSourcedEntity(showId)
-      .call(ShowEntity::cancelReservation)
-      .params(reservationId)
-      .execute();
-  }
+   private CompletionStage<Response> cancelReservation(String showId, String reservationId) {
+      return componentClient.forEventSourcedEntity(showId)
+              .call(ShowEntity::cancelReservation)
+              .params(reservationId)
+              .execute();
+   }
 
-  //Value Entity as a read model
-  private CompletionStage<String> getShowIdBy(String reservationId) {
-    return componentClient.forValueEntity(reservationId).call(ReservationEntity::get).execute()
-      .thenApply(Show.Reservation::showId);
-  }
-
+   //Value Entity as a read model
+   private CompletionStage<String> getShowIdBy(String reservationId) {
+      return componentClient.forValueEntity(reservationId).call(ReservationEntity::get).execute()
+              .thenApply(Show.Reservation::showId);
+   }
+}
 ```
-`CompleteReservationAction` subscribes to `WalletEntity`'s `WalletCharged` and `WalletChargeRejected` events and uses `Component client` to call `ShowEntity::confirmPayment` and `ShowEntity::cancelReservation` endpoints.
 
-**Tip:** Check `com.example.cinema.CompleteReservationAction` Java class for complete reference implementation.<br>
+The `CompleteReservationAction` subscribes to `WalletEntity`'s `WalletCharged` and `WalletChargeRejected` events and uses a Kalix _Component client_ to call the `ShowEntity::confirmPayment` and `ShowEntity::cancelReservation` endpoints.
+
+**Tip:** Check the `com.example.cinema.CompleteReservationAction` Java class for a complete implementation.
 
 ## End to end integration test
-For end to end test we are going to use Kalix integration test testkit. <br>
+For end-to-end tests we are going to use the Kalix integration test testkit.
 
 ```java
 @DirtiesContext
@@ -1202,93 +1246,94 @@ public class ShowSeatReservationIntegrationTest extends KalixIntegrationTestKitS
    private WebClient webClient;
    @Autowired
    private ShowCalls calls;
-   
+
    @Autowired
    private WalletCalls walletCalls;
-   
+
    private Duration timeout = Duration.ofSeconds(10);
-   
+
    @Test
    public void shouldCompleteSeatReservation() {
-    //given
-    var walletId = TestUtils.randomId();
-    var showId = TestUtils.randomId();
-    var reservationId = TestUtils.randomId();
-    var seatNumber = 10;
-   
-    walletCalls.createWallet(walletId, 200);
-    calls.createShow(showId, "pulp fiction");
-   
-    //when
-    ResponseEntity<Void> reservationResponse = calls.reserveSeat(showId, walletId, reservationId, seatNumber);
-    assertThat(reservationResponse.getStatusCode()).isEqualTo(OK);
-   
-    //then
-    await()
-      .atMost(10, TimeUnit.of(SECONDS))
-      .untilAsserted(() -> {
-        Show.SeatStatus seatStatus = calls.getSeatStatus(showId, seatNumber);
-        assertThat(seatStatus).isEqualTo(Show.SeatStatus.PAID);
-   
-        WalletApiModel.WalletResponse wallet = walletCalls.getWallet(walletId);
-        assertThat(wallet.balance()).isEqualTo(new BigDecimal(100));
-      });
-  }
+      //given
+      var walletId = TestUtils.randomId();
+      var showId = TestUtils.randomId();
+      var reservationId = TestUtils.randomId();
+      var seatNumber = 10;
+
+      walletCalls.createWallet(walletId, 200);
+      calls.createShow(showId, "pulp fiction");
+
+      //when
+      ResponseEntity<Void> reservationResponse = calls.reserveSeat(showId, walletId, reservationId, seatNumber);
+      assertThat(reservationResponse.getStatusCode()).isEqualTo(OK);
+
+      //then
+      await()
+              .atMost(10, TimeUnit.of(SECONDS))
+              .untilAsserted(() -> {
+                 Show.SeatStatus seatStatus = calls.getSeatStatus(showId, seatNumber);
+                 assertThat(seatStatus).isEqualTo(Show.SeatStatus.PAID);
+
+                 WalletApiModel.WalletResponse wallet = walletCalls.getWallet(walletId);
+                 assertThat(wallet.balance()).isEqualTo(new BigDecimal(100));
+              });
+   }
 }
 ```
-**Tip:** Check in `it/java` `com.example.cinema.ShowSeatReservationIntegrationTest`, for complete reference implementation.<br>
-**Note:** `WalletCalls` is a helper class that implement all HTT/REST calls using Spring Web client.
+
+**Tip:** Check `com.example.cinema.ShowSeatReservationIntegrationTest` in `it/java`, for a complete implementation.<br>
+**Note:** `WalletCalls` is a helper class that implements all HTT/REST calls using a Spring Web client.
 
 ### Run integration test
-```
+```shell
 mvn -Pit verify
 ```
 
-# Deploy
-1. Install Kalix CLI
-   https://docs.kalix.io/setting-up/index.html#_1_install_the_kalix_cli
-2. Kalix CLI
+# Deploying
+
+1. Install the Kalix CLI (see https://docs.kalix.io/setting-up/index.html#_1_install_the_kalix_cli)
+2. With the Kalix CLI
     1. Register (FREE)
-    ```
+    ```shell
     kalix auth signup
     ```
-   **Note**: Following command will open a browser where registration information can be filled in<br>
+   **Note**: The command will open a browser window where registration information can be filled in<br>
     2. Login
-    ```
+    ```shell
     kalix auth login
     ```
-   **Note**: Following command will open a browser where authentication approval needs to be provided<br>
+   **Note**: The command will open a browser where authentication approval needs to be provided<br>
 
     3. Create a project
-    ```
+    ```shell
     kalix projects new cinema-booking --region=gcp-us-east1
     ```
-   **Note**: `gcp-is-east1` is currently the only available region for deploying trial projects. For non-trial projects you can select Cloud Provider and regions of your choice<br>
+    **Note**: `gcp-is-east1` is currently the region to deploy trial projects. For non-trial projects you can select other Cloud Providers and regions
 
-    4. Authenticate local docker for pushing docker image to `Kalix Container Registry (KCR)`
-    ```
+    4. Authenticate your local Docker for pushing Docker image to the _Kalix Container Registry_ (KCR)
+    ```shell
     kalix auth container-registry configure
     ```
-   **Note**: The command will output `Kalix Container Registry (KCR)` path that needs be used to configure `kalixContainerRegistry` property in `pom.xml`<br>
+    **Note**: The command will output a _Kalix Container Registry_ (KCR) path that needs be used to configure the `kalixContainerRegistry` property in the Maven `pom.xml`<br>
     5. Extract Kalix `organization`
-   ```
-   kalix organizations list
-   ```
-   **Note**: The command will output Kalix organizations and column `NAME` needs to be used to configure `kalixOrganization` property in `pom.xml`.<br>
-   **Note**: If your user is part of multiple organizations then organization that you configure neeeds to be the same as the one Kalix project is created with.<br>
+    ```shell
+    kalix organizations list
+    ```
+    **Note**: The command will output your Kalix organization and column `NAME` needs to be used to configure `kalixOrganization` property in the Maven `pom.xml`.<br>
+    **Note**: If you have access of multiple Kalix organizations the organization that you configure needs to be the same as the one Kalix project is created with.<br>
 
-4. Deploy service in Kalix project:
- ```
+3. Deploying the service onto Kalix:
+```shell
 mvn deploy kalix:deploy
- ```
+```
 This command will:
 - compile the code
 - execute tests
-- package into a docker image
-- push the docker image to Kalix docker registry
-- trigger service deployment by invoking Kalix CLI
+- package into a Docker image
+- push the Docker image to the Kalix Container Registry
+- trigger service deployment by invoking the Kalix CLI
 5. Check deployment:
-```
+```shell
 kalix service list
 ```
 Result:
@@ -1297,31 +1342,31 @@ kalix service list
 NAME                                         AGE    REPLICAS   STATUS        IMAGE TAG                     
 cinema-booking-java                          50s    0          Ready         1.0-SNAPSHOT                  
 ```
-**Note**: When deploying service for the first time it can take up to 1 minute for internal provisioning
+**Note**: When deploying a service for the first time it can take up to 1 minute for the provisioning
 
 ## Test service in production
-Proxy connection to Kalix service via Kalix CLI
-```
+Start a proxy connection to your Kalix service via the Kalix CLI
+```shell
 kalix service proxy cinema-booking-java --port 9000
 ```
-Proxy Kalix CLI command will expose service proxy connection on `localhost:9000` <br>
-Create wallet:
-```
+The Kalix CLI `service proxy` command will expose the service proxy connection on `localhost:9000` <br>
+Create a "Wallet":
+```shell
 curl -XPOST http://localhost:9000/wallet/wal1/create/100 -H "Content-Type: application/json"
 ```
-Create show:
-```
+Create a "Show":
+```shell
 curl -XPOST -d '{
   "title": "Conan Barbarian (1982) - the one with Arnold",
   "maxSeats": 5
 }' http://localhost:9000/cinema-show/1 -H "Content-Type: application/json"
 ```
 Search seats by availability:
-```
+```shell
 curl -XGET http://localhost:9000/cinema-shows/by-available-seats/1 -H "Content-Type: application/json"
 ```
 Reserve a seat:
-```
+```shell
 curl -XPATCH -d '{
   "walletId": "wal1",
   "reservationId": "res1",
@@ -1329,6 +1374,6 @@ curl -XPATCH -d '{
 }' http://localhost:9000/cinema-show/1/reserve -H "Content-Type: application/json"
 ```
 Check seat status
-```
+```shell
 curl -XGET http://localhost:9000/cinema-show/1/seat-status/1 -H "Content-Type: application/json"
 ```
