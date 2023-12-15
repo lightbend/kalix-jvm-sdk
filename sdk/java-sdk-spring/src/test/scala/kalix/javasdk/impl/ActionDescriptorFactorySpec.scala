@@ -24,6 +24,7 @@ import kalix.JwtMethodOptions.JwtMethodMode
 import kalix.javasdk.impl.ProtoDescriptorGenerator.fileDescriptorName
 import kalix.javasdk.impl.reflection.ServiceIntrospectionException
 import kalix.JwtServiceOptions.JwtServiceMode
+import kalix.TriggerOptions
 import kalix.spring.testmodels.action.ActionsTestModels.ActionWithMethodLevelJWT
 import kalix.spring.testmodels.action.ActionsTestModels.ActionWithServiceLevelJWT
 import kalix.spring.testmodels.action.ActionsTestModels.DeleteWithOneParam
@@ -34,6 +35,7 @@ import kalix.spring.testmodels.action.ActionsTestModels.GetWithOneParam
 import kalix.spring.testmodels.action.ActionsTestModels.GetWithOnePathVariableAndQueryParam
 import kalix.spring.testmodels.action.ActionsTestModels.GetWithOneQueryParam
 import kalix.spring.testmodels.action.ActionsTestModels.GetWithoutParam
+import kalix.spring.testmodels.action.ActionsTestModels.OnStartupHookAction
 import kalix.spring.testmodels.action.ActionsTestModels.PatchWithOneParam
 import kalix.spring.testmodels.action.ActionsTestModels.PatchWithoutParam
 import kalix.spring.testmodels.action.ActionsTestModels.PostWithOneParam
@@ -102,6 +104,7 @@ import kalix.spring.testmodels.subscriptions.PubSubTestModels.TypeLevelSubscribe
 import kalix.spring.testmodels.subscriptions.PubSubTestModels.TypeLevelTopicSubscriptionWithPublishToTopicAction
 import kalix.spring.testmodels.subscriptions.PubSubTestModels.VEWithPublishToTopicAction
 import kalix.spring.testmodels.valueentity.CounterState
+import kalix.triggers.TriggerOptions.TriggerEvent
 import org.scalatest.wordspec.AnyWordSpec
 
 import scala.jdk.CollectionConverters.CollectionHasAsScala
@@ -995,6 +998,14 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
         val methodDescriptor = findMethodByName(desc, "KalixSyntheticMethodOnStreamEmployeeevents")
         methodDescriptor.isServerStreaming shouldBe false
         methodDescriptor.isClientStreaming shouldBe false
+      }
+    }
+
+    "generate trigger options for onstartup hook in Action" in {
+      assertDescriptor[OnStartupHookAction] { desc =>
+        val methodOptions = findKalixMethodOptions(desc, "Init")
+        methodOptions.getTrigger.getOn shouldBe TriggerOptions.TriggerEvent.STARTUP
+        methodOptions.getTrigger.getMaxRetries shouldBe 2
       }
     }
   }

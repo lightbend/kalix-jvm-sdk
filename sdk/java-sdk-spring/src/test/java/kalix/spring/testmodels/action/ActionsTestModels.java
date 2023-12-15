@@ -18,11 +18,14 @@ package kalix.spring.testmodels.action;
 
 import kalix.javasdk.action.Action;
 import kalix.javasdk.annotations.JWT;
+import kalix.javasdk.annotations.Trigger;
 import kalix.spring.testmodels.Message;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 
 import java.util.List;
+
+import static kalix.javasdk.annotations.Trigger.TriggerEvent.STARTUP;
 
 public class ActionsTestModels {
 
@@ -218,6 +221,14 @@ public class ActionsTestModels {
     @PostMapping("/message")
     public Flux<Effect<Message>> message(@RequestBody Flux<Message> messages) {
       return messages.map(msg -> effects().reply(msg));
+    }
+  }
+
+  public static class OnStartupHookAction extends Action {
+    @PostMapping("/message")
+    @Trigger(on = STARTUP, maxRetries = 2)
+    public Action.Effect<Message> init() {
+      return effects().reply(new Message("hello"));
     }
   }
 }

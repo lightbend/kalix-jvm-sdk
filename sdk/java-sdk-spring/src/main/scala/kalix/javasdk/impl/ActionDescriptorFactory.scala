@@ -47,11 +47,37 @@ import kalix.javasdk.impl.reflection.NameGenerator
 import kalix.javasdk.impl.reflection.ReflectionUtils
 import kalix.javasdk.impl.reflection.RestServiceIntrospector
 import kalix.javasdk.impl.reflection.SubscriptionServiceMethod
-import java.lang.reflect.Method
 
+import java.lang.reflect.Method
 import kalix.javasdk.impl.ComponentDescriptorFactory.mergeServiceOptions
+import kalix.javasdk.impl.Reflect.Syntax.AnnotatedElementOps
+import kalix.javasdk.impl.Reflect.Syntax.MethodOps
+import kalix.TriggerOptions
+import kalix.javasdk.annotations.Trigger
+
+import scala.PartialFunction.condOpt
 
 private[impl] object ActionDescriptorFactory extends ComponentDescriptorFactory {
+
+  private def hasTriggerMethodOptions(javaMethod: Method): Boolean = {
+    javaMethod.isPublic && javaMethod.hasAnnotation[Trigger]
+  }
+
+  private def triggerOptions(javaMethod: Method): Option[TriggerOptions] = {
+    condOpt(hasTriggerMethodOptions(javaMethod)) { case true =>
+      val ann = javaMethod.getAnnotation(classOf[Trigger]);
+      val triggerEvent = ann.on() match {
+        case Trigger.TriggerEvent.UNSPECIFIED => TriggerOptions.TriggerEvent.UNSPECIFIED
+        case Trigger.TriggerEvent.STARTUP     => TriggerOptions.TriggerEvent.STARTUP
+      }
+
+      TriggerOptions
+        .newBuilder()
+        .setOn(triggerEvent)
+        .setMaxRetries(ann.maxRetries())
+        .build()
+    }
+  }
 
   override def buildDescriptorFor(
       component: Class[_],
@@ -71,6 +97,7 @@ private[impl] object ActionDescriptorFactory extends ComponentDescriptorFactory 
         val optionsBuilder = kalix.MethodOptions.newBuilder()
         eventingOutForTopic(serviceMethod.javaMethod).foreach(optionsBuilder.setEventing)
         JwtDescriptorFactory.jwtOptions(serviceMethod.javaMethod).foreach(optionsBuilder.setJwt)
+        triggerOptions(serviceMethod.javaMethod).foreach(optionsBuilder.setTrigger)
         KalixMethod(serviceMethod).withKalixOptions(optionsBuilder.build())
       }
 
