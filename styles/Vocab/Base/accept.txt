@@ -35,6 +35,7 @@ config
 configs
 CRDTs
 Ctrl
+datastore
 deserialize
 deserializing
 deserialization
