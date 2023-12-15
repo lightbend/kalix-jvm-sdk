@@ -83,7 +83,7 @@ curl -XGET localhost:9000/customer/one
 ----
 --
 
-== Shut down the service
+== Shutting down the service
 
 Use `Ctrl+C` to shut down the service. When stopping your service, it will also shutdown the Kalix Runtime container and any other container you have defined in `docker-compose.yml`. Unless you have chosen to start `docker-compose` manually in a separate terminal, in which case you will need to stop it manually as well.
 
