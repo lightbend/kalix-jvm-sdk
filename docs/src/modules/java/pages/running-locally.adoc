@@ -89,9 +89,9 @@ Use `Ctrl+C` to shut down the service. When stopping your service, it will also 
 
 == Running service with persistence enabled
 
-By default, Kalix services are configured to run with disabled persistence. This means that the Kalix Runtime will use an in-memory database to store the state of your service. This is useful for local development since it allows you to quickly start and stop your service without having to worry about cleaning up the database.
+By default, Kalix services are configured to run locally with persistence disabled. This means the Kalix Runtime will use an in-memory datastore for the state of your services. This is useful for local development since it allows you to quickly start and stop your service without having to worry about cleaning the database.
 
-However, if you want to run your service with persistence enabled, you can do so by changing the `docker-compose` file as below.
+However, if you want to run your service with persistence enabled to keep the data when restarting, you may update the `docker-compose` file as below.
 
 [source, dockerfile, indent=0]
 ----
