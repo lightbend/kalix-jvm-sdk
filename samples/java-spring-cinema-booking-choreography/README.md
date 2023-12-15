@@ -103,7 +103,7 @@ The initial value of `availableSeats` is total number of seats for the show (`se
 
 ![Create Wallet Event](images/EventStorming-CreateWallet.png)
 
-`CreateWallet` command initiates creation of the wallet with an initial balance by emitting `WalletCreated` domain event.<br>
+The `CreateWallet` command initiates creation of the wallet with an initial balance by emitting `WalletCreated` domain event.
 
 `CreateWallet` data model:
 ```java
@@ -118,14 +118,14 @@ record WalletCreated(String walletId, BigDecimal initialAmount) {}
 
 #### Book & Pay the show flow
 
-The Book and Pay flow is a transactional flow that spans two Entities (Show and Wallet). This requires a distributed transaction or using the Saga pattern.<br>
+The "Book and Pay" flow is a transactional flow that spans over two Entities (Show and Wallet). This requires a distributed transaction or using the Saga pattern.<br>
 In this use case we are going to use _choreography_-based Saga pattern.
 
 ![Book show](images/EventStorming-BookFlow.png)
 
-##### Show Reserve Seat
+##### Reserve Seat for a show
 
-After the customer has chosen the show they want to book, the `Reserve Seat` command initiates the seat reservation. 
+After the customer has chosen the show they want to book, the `ReserveSeat` command initiates the seat reservation. 
 If the requested seat number is available, the `SeatReserved` domain event will be emitted, reserving the specified seat.
 
 `ReserveSeat` command data model:
@@ -134,7 +134,7 @@ record ReserveSeat(String walletId, String reservationId, int seatNumber) {}
 ```
 
 Reserve seat requires `walletId`, the id of the wallet instance that is used to pay the seat reservation, 
-`reservationId` that unique reservation id and a `seatNumber`, the seat index.
+`reservationId` that uniquely identifies the reservation, and a `seatNumber`, the seat index.
 
 `SeatReserved` domain event data model:
 ```java
@@ -143,9 +143,9 @@ record SeatReserved(String showId, String walletId, String reservationId, int se
 
 `price` is a price of a chosen seat that needs to be charged on wallet. <br>
 `availableSeatsCount` represents the count of available seats after this reservation.<br>
-When seat is reserved, it changes the seat's `SeatStatus` to `RESERVED`.
+When the seat is reserved, it changes the seat's `SeatStatus` to `RESERVED`.
 
-As with the `ShowCreated` domain event, the `Show by availability` read view is also updated based on the `SeatReserved` domain event (using `availableSeatsCount`).
+As with the `ShowCreated` domain event, the "Show by availability" read view is also updated based on the `SeatReserved` domain event (using `availableSeatsCount`).
 
 Also, based on the `SeatReserved` domain event, the `Show by reservation` read view is created to be able to map the reservation to the show (more information why this is needed will be explained in following sections).
 
@@ -154,13 +154,13 @@ View Data model:
 public record Reservation(String reservationId, String showId, String walletId, BigDecimal price) {}
 ```
 
-The initial value of `availableSeats` is total number of seats for the show (`seats.size()`).
-To be able to map `reservationId` to `showId`, the `Show by reservation` read view is updated.
+The initial value of `availableSeats` is the total number of seats for the show (`seats.size()`).
+To be able to map `reservationId` to `showId`, the "Show by reservation" read view is updated.
 
 #### Charge wallet based on the seat reservation
 
-Based on the `SeatReserved` domain event, the `ChargeWallet` command initiates wallet charge.<br> 
-`walletId` from `SeatReserved` is used to identify the instance of the wallet that needs to be expensed.<br>
+Based on the `SeatReserved` domain event, the `ChargeWallet` command initiates to charge the wallet.<br> 
+`walletId` from `SeatReserved` is used to identify the instance of the wallet that needs to be charged.<br>
 `reservationId` from `SeatReserved` is used as unique wallet charge request identifier (`expenseId`) and connects the reservation to the wallet charge for future reference.<br>
 `amount` for charge is the seat price.<br>
 
@@ -168,7 +168,8 @@ Based on the `SeatReserved` domain event, the `ChargeWallet` command initiates w
 ```java
 record ChargeWallet(BigDecimal amount, String expenseId) {}
 ```
-In case of successful charge, Wallet emits a `WalletCharged` domain event. In case of any error, Wallet emits a `WalletChargeRejected` domain event. <br>
+
+In case of a successful charge, the wallet emits a `WalletCharged` domain event. In case of any error, the wallet emits a `WalletChargeRejected` domain event. <br>
 The `WalletCharged` domain event triggers a successful Saga "route" and `WalletChargeRejected` a compensation Saga "route".
 
 `WalletCharged` data model:
@@ -181,122 +182,137 @@ record WalletCharged(String walletId, BigDecimal amount, String expenseId) {}
 record WalletChargeRejected(String walletId, String expenseId) {}
 ```
 
-#### Successful charge route
+#### "Wallet successfully charged" route
 
-Based on `WalletCharged` domain event, `ConfirmReservationPayment` command initiates finishing of seat booking flow by emitting domain event `SeatReservationPaid`. <br>
-`expenseId` from `WalletCharged` domain event is used as a `reservationId`.<br> 
-**Note:** To be able to send `ConfirmReservationPayment` command to the right instance of show, `Show by reservation` read view is used to get `showId` based on `reservationId`.
+Based on `WalletCharged` domain event, the `ConfirmReservationPayment` command initiates finishing of seat booking flow by emitting the domain event `SeatReservationPaid`. <br>
+The `expenseId` from `WalletCharged` domain event is used as a `reservationId`.<br> 
+
+**Note:** To be able to send a `ConfirmReservationPayment` command to the correct instance of a show, the "Show by reservation" read view is used to get `showId` based on `reservationId`.
 
 `SeatReservationPaid` data model:
 ```java
 record SeatReservationPaid(String showId, String reservationId, int seatNumber) {}
 ```
 
-When seat is reserved, seat's `SeatStatus` = `PAYED`<br>
+When a seat is reserved, the seat's `SeatStatus` is changed to `PAYED`.
 
 #### Failed charge, compensation route
- In case of failed charge, compensation route needs to cancel the reservation to free reserved seat.<br>
-Based on `WalletChargeRejected` domain event, `CancelSeatReservation` command initiates removal of the seat reservation by emitting domain event `SeatReservationCancelled`.
-`expenseId` from `WalletChargeRejected` domain event is used as a `reservationId`.<br>
-**Note:** To be able to send `CancelSeatReservation` command to the right instance of show, `Show by reservation` read view is used to get `showId` based on `reservationId`.
+
+In case of a failed charge, the compensation route needs to cancel the reservation to free the reserved seat.<br>
+Based on the `WalletChargeRejected` domain event, the `CancelSeatReservation` command initiates removal of the seat reservation by emitting the domain event `SeatReservationCancelled`.
+`expenseId` from the `WalletChargeRejected` domain event is used as a `reservationId`.<br>
+
+**Note:** To be able to send the `CancelSeatReservation` command to the right instance of the show, "Show by reservation" read view is used to get `showId` based on the `reservationId`.
 
 `CancelSeatReservation` data model:
 ```java
 record CancelSeatReservation(String reservationId) implements ShowCommand {}
 ```
+
 `SeatReservationCancelled` data model:
 ```java
-record SeatReservationCancelled(String showId, String reservationId, int seatNumber,int availableSeatsCount){ }
+record SeatReservationCancelled(String showId, String reservationId, int seatNumber,int availableSeatsCount) {}
 ```
 
-Like with `ShowCreated` and `SeatReserved` domain events, `Show by availability` read view is also updated based on `SeatReservationCancelled` domain event ( using `availableSeatsCount`).<br>
+Like with the `ShowCreated` and `SeatReserved` domain events, the "Show by availability" read view is also updated based on the `SeatReservationCancelled` domain event (using `availableSeatsCount`).
 
 
 ## Bounded contexts
-We have two bounded context, Show and Wallet, with corresponding command, domain events and read views.
+
+We have two bounded contexts, _Show_ and _Wallet_, with corresponding commands, domain events and read views.
 ### Show
 ![Show](images/BoundedContext-Show.png)
 ### Wallet
 ![Wallet](images/BoundedContext-Wallet.png)
 
 ## Context map
-Interaction between Show and Wallet bounded context is defined by `Book & Pay the show flow`.
+The interaction between the _Show_ and _Wallet_ bounded contexts is defined by "Book & Pay the show flow".
 ![Context map](images/ContextMap-Choreography.png)
 
-Show and Wallet bounded context interact in 3 interaction points:
-- Show's `SeatReserved` domain event triggers Wallet's `ChargeWallet` command
-- Wallet's `WalletCharged` domain event triggers Show's `ConfirmPaymentConfirmation` command
-- Wallet's `WalletChargeRejected` domain event triggers Show's `CancelSeatReservation` command
+The Show and Wallet bounded contexts interact in 3 interaction points:
+- The Show's `SeatReserved` domain event triggers the Wallet's `ChargeWallet` command
+- The Wallet's `WalletCharged` domain event triggers the Show's `ConfirmPaymentConfirmation` command
+- The Wallet's `WalletChargeRejected` domain event triggers the Show's `CancelSeatReservation` command
 
 ## Non-functional requirements
 - effective asynchronous event driven communication
-    - common pattern to facilitate asynchronous event driven communication is to use a message broker as a data plain between bounded contexts but introduces another moving part
-- strong delivery semantic
+    - a common pattern to facilitate asynchronous, event-driven communication is to use a message broker as a data plane between bounded contexts, but it introduces another moving part
+- strong delivery semantics
     - cannot lose any events
     - at-least-once delivery is required
 - idempotency
     - deduplication with at-least-once delivery
-- events ordering
+- event ordering
     - ensure consistency
 - design for failure
     - business or technical
 - scalability
     - to be able to scale based on the demand
-    - 
+
 ## Kalix components
 [Kalix components](https://docs.kalix.io/concepts/programming-model.html#_kalix_components) abstract Kalix functionalities in high level building blocks.
-Design Kalix services is an exercise of combining and connecting Kalix components using domain driven design patterns.
+Designing Kalix services is an exercise of combining and connecting Kalix components using domain driven design patterns.
 
 ### Show
 ![Show](images/KalixDesign-Show.png)
 
-For designing Show bounded context in Kalix we are goining to use these Kalix components:
+For designing the "Show" bounded context in Kalix we are goning to use these Kalix components:
 1. Show (Entity/Aggregate) - [Kalix Entity (Event sourced)](https://docs.kalix.io/java/event-sourced-entities.html)
-2. Shows by availability read view - [Kalix View](https://docs.kalix.io/java/value-entity.html)
+2. "Shows by availability" read view - [Kalix View](https://docs.kalix.io/java/value-entity.html)
 3. Show by reservation - [Kalix Entity (Value)](https://docs.kalix.io/java/views.html) and [Kalix Action](https://docs.kalix.io/java/actions.html)<br>
-   Kalix Value Entity
 
-**Note:** More information around implementing these Klaix service will be covered in following sections  
+**Note:** More information around implementing these Kalix components will be covered in following sections  
 
-#### ShowEntity
-Show entity will be implemented using [Kalix Entity (Event sourced)](https://docs.kalix.io/java/event-sourced-entities.html). More info about The event sourced state model can be found [here](https://docs.kalix.io/concepts/state-model.html#_the_event_sourced_state_model).<br>
-#### Show by availability View
+#### "Show" Entity
+
+The Show entity is implemented using a [Kalix Entity (Event sourced)](https://docs.kalix.io/java/event-sourced-entities.html). More info about the event sourced state model can be found [here](https://docs.kalix.io/concepts/state-model.html#_the_event_sourced_state_model).<br>
+
+#### "Show by availability" View
+
 Shows by availability read view will be implemented using [Kalix View](https://docs.kalix.io/java/value-entity.html). 
 Kalix View will `subscribe` to `ShowEntity` domain events and facilitate building and exposing read view of shows by availability.
 
-#### ReservationEntity
-The Kalix View component is a default candidate for a read view, but not the only one. A [Kalix Entity (Value)](https://docs.kalix.io/java/views.html) could also be used to facilitate implementation of read view. 
-The main advantages of Kalix Entity over Kalix View is providing an in-memory read view access in opposite to a Kalix View that is only database access. Kalix Entity can be used as a read view only if read is view is queryable via a key/id.
-In case of show by reservation, Kalix Entity is suitable solution where `ReservationEntity` is modeled around reservation and access via `reservationId` and storing reference to `showId`. 
-To be able to create instances of `ReservationEntity`, `Fold show events to reservation` [Kalix Action](https://docs.kalix.io/java/actions.html) component is required to facilitate `subscribe` to `ShowEntity` events and to send `Create` command to `ReservationEntity`.
+#### "Reservation" Entity
+
+The Kalix View component is a default candidate for a read view, but not the only one. A [Kalix Entity (Value)](https://docs.kalix.io/java/views.html) could also be used to facilitate an implementation of a read view. 
+The main advantages of a Kalix Entity over a Kalix View is providing an in-memory read view access in opposite to a Kalix View that is not kept in memory. A Kalix Entity can be used as a read view only if the read is view is queryable via a key/id.
+
+In case of the "Show by reservation" view, a Kalix Entity is a suitable solution where `ReservationEntity` is modeled around a reservation and access via `reservationId` possible, it stores a reference to "Show" as `showId`. 
+To be able to create instances of `ReservationEntity`, a "Fold show events to reservation" [Kalix Action](https://docs.kalix.io/java/actions.html) component is required to facilitate `subscribe` to `ShowEntity` events and to send `Create` command to `ReservationEntity`.
 
 ### Wallet
+
 ![Wallet](images/KalixDesign-Wallet.png)
 
-For designing Wallet bounded context in Kalix we are going to use for implementing Wallet (Entity/Aggregate) - [Kalix Entity (Event sourced)](https://docs.kalix.io/java/event-sourced-entities.html)<br>
+For designing the Wallet bounded context in Kalix we are going to use for implementing Wallet (Entity/Aggregate) - [Kalix Entity (Event sourced)](https://docs.kalix.io/java/event-sourced-entities.html).
+
 **Note:** More information around implementing these Klaix service will be covered in following sections
 
-#### WalletEntity
-As Show entity, Wallet entity will be implemented using [Kalix Entity (Event sourced)](https://docs.kalix.io/java/event-sourced-entities.html). More info about The event sourced state model can be found [here](https://docs.kalix.io/concepts/state-model.html#_the_event_sourced_state_model).<br>
+#### "Wallet" Entity
+
+As the Show entity, the Wallet entity will be implemented using a [Kalix Entity (Event sourced)](https://docs.kalix.io/java/event-sourced-entities.html). More info about the event sourced state model can be found [here](https://docs.kalix.io/concepts/state-model.html#_the_event_sourced_state_model).
 
 ### Context map
 
 ![Context Map](images/KalixDesign-ContextMap.png)
-For Show and Wallet interaction, implementation of `Book & Pay the show` `choreography`-based Saga pattern we are going to use [Kalix Action](https://docs.kalix.io/java/actions.html) to facilitate asynchronous event driven communication.<br>
-**Note:** Kalix does not require use of message broker for asynchronous event driven communication.
 
-# Kickstart Kalix development project
+For the interaction between Show and Wallet, the implementation of our "Book & Pay the show" _choreography_-based Saga pattern uses a [Kalix Action](https://docs.kalix.io/java/actions.html) to facilitate asynchronous event-driven communication.
 
-## Maven archtype
+**Note:** Kalix does not require the use of message broker for asynchronous event-driven communication.
+
+# Kickstart a Kalix development project
+
+## Maven archetype
 
 A Kalix Maven archetype is used to generate a recommended project structure:
 
-```
+```shell
 mvn archetype:generate \
   -DarchetypeGroupId=io.kalix \
   -DarchetypeArtifactId=kalix-spring-boot-archetype \
-  -DarchetypeVersion=1.3.6
+  -DarchetypeVersion=latest
 ```
+
 ```
 Define value for property 'groupId': `com.example`<br>
 Define value for property 'artifactId': `java-spring-cinema-booking-choreography`<br>
@@ -304,11 +320,12 @@ Define value for property 'version' 1.0-SNAPSHOT: :<br>
 Define value for property 'package' com.example: : `com.example`<br>
 ```
 
-## Import generated project in your IDE/editor
+## Import the generated project into your IDE/editor
 
-Generated maven project has all required Maven plugins and dependencies needed to develop, test, run and deploy Kalix services.
+The generated Maven project has all required Maven plugins and dependencies needed to develop, test, run and deploy Kalix services.
 
-## Adding additional, non-mandatory dependecies
+## Adding additional, non-mandatory dependencies
+
 Additional dependencies that are NOT mandatory for developing Kalix service but are convenient to be used in different situations (more explained in following sections).<br>
 Add following dependencies in pom.xml:
 ```
@@ -334,47 +351,53 @@ Add following dependencies in pom.xml:
 - immutable collections
 - Either support 
 
-`assertj` library is used as an alternative to standard `JUnit` assertion.<br>
+`assertj` library is used as an alternative to standard `JUnit` assertions.<br>
 
 `awaitility` library that offers convenient way to implement asynchronous tests.
 
 ## Java 21
 
-Kalix Maven archetype currently generates Kalix maven project with configured Java 17 so version needs to be updated in:
-```
+The Kalix Maven archetype currently generates a Maven project configured for Java 17, update `pom.xml` to enable Java 21:
+```xml
 <jdk.target>21</jdk.target>
 ```
 Add in `properties`:
-```
+```xml
 <java.version>21</java.version>
 ```
 
-# Develop Kalix components for Show bounded context
+# Develop Kalix components for the "Show" bounded context
 ## Describe Data structures
 
-With Kalix Java SDK we are going to use Java code to describe domain and api data structures.<br>
+With the Kalix Java SDK we are going to use Java code to describe the domain and the API.<br>
 
-API data structures include:
+The API includes:
 - Commands (requests)
 - Responses 
 - Read View data model
 
-Domain data structures include:
+The Domain includes:
 - Entity state
 - Domain Events
 
 ### API data structures
-**Tip:** Check `com.example.cinema.model.CinemaApiModel` Java Class for reference implementation.
+
+**Tip:** Check the `com.example.cinema.model.CinemaApiModel` Java Class for a reference implementation.
 
 ### Domain Events data structure
-**Tip:** Check `com.example.cinema.model.ShowEvent` Java Interface for reference implementation.<br>
-**Note:** Java sealed interface is used to allow Kalix to validate in compilation time if all events have been handled from the event handler perspective. 
+
+**Tip:** Check the `com.example.cinema.model.ShowEvent` Java Interface for a reference implementation.<br>
+
+**Note:** A Java _sealed interface_ is used to allow the Java compiler to verify that all events have been handled in the event handler. 
 
 ### Show entity state data structure and business domain logic encapsulation
-Modeling domain business logic without explicit dependency to Kalix Entity is a good pattern that enables better decoupling and portability.
-Domain business logic includes processing of commands, in command handlers, which result in event (required state change) or error.<br> 
-To be able to express this behaviour we are going to use `io.vavr.control.Either` from `vavr.io` dependency.<br>
-For making data immutable we are going to use immutable collection implementation by `vavr.io`.
+
+Modeling the domain business logic without an explicit dependency to the Kalix Entity is a good pattern that enables better decoupling and portability.
+The domain business logic includes processing of commands, in command handlers, which result in events (required state changes) or errors.
+
+To be able to express this behaviour we are going to use `io.vavr.control.Either` from the `vavr.io` dependency.
+
+For making the data immutable we are going to use an immutable collection implementation by `vavr.io`.
 
 Show data model:
 ```java
@@ -404,12 +427,15 @@ private boolean isDuplicate(String reservationId) {
             finishedReservations.get(reservationId).isDefined();
 }
 ```
-**Note**: `isDuplicate` is used to ensure `idempotency`
-**Tip:** Check `com.example.cinema.model.Show` Java Record for reference implementation.
+
+**Note**: `isDuplicate` is used to ensure _idempotency_
+**Tip:** Check the `com.example.cinema.model.Show` Java Record for a reference implementation.
 
 #### Unit test business domain logic
-It is good practice to unit test business domain logic. This is nothing Kalix specific but ensures that business domain logic is behaving as expected.<br>
-Example of one unit test:
+
+It is good practice to unit test business domain logic. This is not Kalix specific but ensures that the business domain logic is behaving as expected.
+
+An example of a unit test:
 ```java
 @Test
 public void shouldCreateTheShow() {
@@ -427,21 +453,24 @@ public void shouldCreateTheShow() {
     assertThat(show.seats()).hasSize(createShow.maxSeats());
 }
 ```
-**Tip:** Check in `test/java` `com.example.cinema.ShowTest`, unit test class.<br>
-**Note:** `DomainGenerators`, `ShowBuilder` and `ShowCommandGenerators` are helper Java Classes for test data generation. 
+
+**Tip:** Check in `com.example.cinema.ShowTest` in directory `test/java`, the unit test class.<br>
+**Note:** `DomainGenerators`, `ShowBuilder` and `ShowCommandGenerators` are helper classes for test data generation. 
 
 
-#### Run unit test
-```
+#### Run unit tests
+
+```shell
 mvn test
 ```
 
-## Develop Show Entity
-`ShowEntity` will be implemented using [Kalix Entity (Event sourced)](https://docs.kalix.io/java/event-sourced-entities.html).<br>
+## Develop the "Show" Entity
 
-Kalix entity encapsulates the domain business logic and exposes it via endpoints. `ShowEntity` encapsulates and exposes `com.example.cinema.model.Show`.<br>
+The `ShowEntity` will be implemented using a [Kalix Entity (Event sourced)](https://docs.kalix.io/java/event-sourced-entities.html).
 
-Entity `Id/Key` is `showId`.
+The Kalix entity encapsulates the domain business logic and exposes it via endpoints. `ShowEntity` encapsulates and exposes `com.example.cinema.model.Show`.<br>
+
+The entity ID or key is `showId`.
 
 ```java
 @Id("id")
@@ -480,12 +509,14 @@ public class ShowEntity extends EventSourcedEntity<Show, ShowEvent> {
   public Show onEvent(SeatReservationPaid seatReservationPaid) {}
 }
 ```
-`ShowEntity` class extends `EventSourcedEntity<Show, ShowEvent>`, with `Show` as a state data model and `ShowEvent` as a domain event interface.<br>
+
+The `ShowEntity` class extends `EventSourcedEntity<Show, ShowEvent>`, with `Show` as its state data model and `ShowEvent` as its domain event interface.
+
 `ShowEntity` class requires three class level annotations:
-- `@Id` and `@TypeId` - Kalix annotations to configure Kalix Entity
+- `@Id` and `@TypeId` - Kalix annotations to configure the Kalix Entity
 - `@RequestMapping` - Spring web annotation to define Kalix Entity instance request mapping
 
-Each `Show` command will be exposed in `ShowEntity` using corresponding HTTP/REST endpoint. Endpoints in Kalix Entity are class methods with:
+Each `Show` command will be exposed by `ShowEntity` using a corresponding HTTP/REST endpoint. Endpoints in Kalix Entity are class methods with:
 - method level spring web annotation 
 - input variable level spring web annotation
 - reply of type `Effect` with endpoint response model type. `Effect` is a declarative way to instruct Kalix what needs to be performed.  
