@@ -107,7 +107,8 @@ public class ActionsTestModels {
       bearerTokenIssuer = {"a", "b"},
       staticClaims = {
           @JWT.StaticClaim(claim = "role", value = "admin"),
-          @JWT.StaticClaim(claim = "aud", value = "${ENV}.kalix.io")
+          @JWT.StaticClaim(claim = "aud", value = "${ENV}.kalix.io"),
+          @JWT.StaticClaim(claim = "more-roles", value = {"viewer", "editor"})
       })
     public Action.Effect<Message> message(@RequestBody Message msg) {
       return effects().reply(msg);
@@ -120,7 +121,8 @@ public class ActionsTestModels {
     bearerTokenIssuer = {"a", "b"},
     staticClaims = {
         @JWT.StaticClaim(claim = "role", value = "admin"),
-        @JWT.StaticClaim(claim = "aud", value = "${ENV}.kalix.io")
+        @JWT.StaticClaim(claim = "aud", value = "${ENV}.kalix.io"),
+        @JWT.StaticClaim(claim = "more-roles", value = {"editor", "viewer"})
     })
   public static class ActionWithServiceLevelJWT extends Action {
     @PostMapping("/message")

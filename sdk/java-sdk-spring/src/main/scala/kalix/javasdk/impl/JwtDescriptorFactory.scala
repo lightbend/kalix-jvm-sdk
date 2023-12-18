@@ -17,13 +17,14 @@
 package kalix.javasdk.impl
 
 import java.lang.reflect.Method
-
 import kalix.JwtMethodOptions
 import kalix.JwtServiceOptions
 import kalix.MethodOptions
 import kalix.javasdk.annotations.JWT
 import Reflect.Syntax._
 import kalix.JwtStaticClaim
+
+import scala.jdk.CollectionConverters.IterableHasAsJava
 
 object JwtDescriptorFactory {
 
@@ -34,9 +35,11 @@ object JwtDescriptorFactory {
       .validate()
       .map(springValidate => jwt.addValidate(JwtMethodOptions.JwtMethodMode.forNumber(springValidate.ordinal())))
     ann.bearerTokenIssuer().map(jwt.addBearerTokenIssuer)
+
     ann
       .staticClaims()
-      .foreach(sc => jwt.addStaticClaim(JwtStaticClaim.newBuilder().setClaim(sc.claim()).setValue(sc.value())))
+      .foreach(sc =>
+        jwt.addStaticClaim(JwtStaticClaim.newBuilder().setClaim(sc.claim()).addAllValue(sc.value().toList.asJava)))
     jwt.build()
   }
 
@@ -66,7 +69,8 @@ object JwtDescriptorFactory {
       ann.bearerTokenIssuer().map(jwt.addBearerTokenIssuer)
       ann
         .staticClaims()
-        .foreach(sc => jwt.addStaticClaim(JwtStaticClaim.newBuilder().setClaim(sc.claim()).setValue(sc.value())))
+        .foreach(sc =>
+          jwt.addStaticClaim(JwtStaticClaim.newBuilder().setClaim(sc.claim()).addAllValue(sc.value().toList.asJava)))
 
       val kalixServiceOptions = kalix.ServiceOptions.newBuilder()
       kalixServiceOptions.setJwt(jwt.build())

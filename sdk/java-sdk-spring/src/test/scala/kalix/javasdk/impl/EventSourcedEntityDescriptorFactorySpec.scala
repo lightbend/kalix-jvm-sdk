@@ -117,9 +117,9 @@ class EventSourcedEntityDescriptorFactorySpec extends AnyWordSpec with Component
 
         val Seq(claim1, claim2) = jwtOption2.getStaticClaimList.asScala.toSeq
         claim1.getClaim shouldBe "role"
-        claim1.getValue shouldBe "method-admin"
+        claim1.getValue(0) shouldBe "method-admin"
         claim2.getClaim shouldBe "aud"
-        claim2.getValue shouldBe "${ENV}"
+        claim2.getValue(0) shouldBe "${ENV}"
       }
     }
 
@@ -133,9 +133,9 @@ class EventSourcedEntityDescriptorFactorySpec extends AnyWordSpec with Component
 
         val Seq(claim1, claim2) = jwtOption.getStaticClaimList.asScala.toSeq
         claim1.getClaim shouldBe "role"
-        claim1.getValue shouldBe "admin"
+        claim1.getValue(0) shouldBe "admin"
         claim2.getClaim shouldBe "aud"
-        claim2.getValue shouldBe "${ENV}.kalix.io"
+        claim2.getValue(0) shouldBe "${ENV}.kalix.io"
       }
     }
 

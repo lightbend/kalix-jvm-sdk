@@ -218,11 +218,13 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
         jwtOption.getValidate(0) shouldBe JwtMethodMode.BEARER_TOKEN
         assertRequestFieldJavaType(method, "json_body", JavaType.MESSAGE)
 
-        val Seq(claim1, claim2) = jwtOption.getStaticClaimList.asScala.toSeq
+        val Seq(claim1, claim2, claim3) = jwtOption.getStaticClaimList.asScala.toSeq
         claim1.getClaim shouldBe "role"
-        claim1.getValue shouldBe "admin"
+        claim1.getValue(0) shouldBe "admin"
         claim2.getClaim shouldBe "aud"
-        claim2.getValue shouldBe "${ENV}.kalix.io"
+        claim2.getValue(0) shouldBe "${ENV}.kalix.io"
+        claim3.getClaim shouldBe "more-roles"
+        claim3.getValueList.asScala.toSeq shouldBe Seq("viewer", "editor")
       }
     }
 
@@ -234,11 +236,13 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
         jwtOption.getBearerTokenIssuer(1) shouldBe "b"
         jwtOption.getValidate shouldBe JwtServiceMode.BEARER_TOKEN
 
-        val Seq(claim1, claim2) = jwtOption.getStaticClaimList.asScala.toSeq
+        val Seq(claim1, claim2, claim3) = jwtOption.getStaticClaimList.asScala.toSeq
         claim1.getClaim shouldBe "role"
-        claim1.getValue shouldBe "admin"
+        claim1.getValue(0) shouldBe "admin"
         claim2.getClaim shouldBe "aud"
-        claim2.getValue shouldBe "${ENV}.kalix.io"
+        claim2.getValue(0) shouldBe "${ENV}.kalix.io"
+        claim3.getClaim shouldBe "more-roles"
+        claim3.getValueList.asScala.toSeq shouldBe Seq("editor", "viewer")
       }
     }
 
