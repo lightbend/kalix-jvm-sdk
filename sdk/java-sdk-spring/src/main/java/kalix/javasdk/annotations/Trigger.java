@@ -28,8 +28,6 @@ import java.lang.annotation.*;
 @Documented
 public @interface Trigger {
   enum TriggerEvent {
-    UNSPECIFIED,
-
     /**
      * The on startup hook is called every time a service instance boots up.
      * This can happen for very different reasons: restarting / redeploying the service,
@@ -44,7 +42,7 @@ public @interface Trigger {
   /**
    * The service life-cycle event for which this hook will be triggered.
    */
-  TriggerEvent on() default TriggerEvent.UNSPECIFIED;
+  TriggerEvent on();
 
   /**
    * The maximum number of retries we will do upon failure of the method hook calls.

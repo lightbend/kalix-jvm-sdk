@@ -66,14 +66,10 @@ private[impl] object ActionDescriptorFactory extends ComponentDescriptorFactory 
   private def triggerOptions(javaMethod: Method): Option[TriggerOptions] = {
     condOpt(hasTriggerMethodOptions(javaMethod)) { case true =>
       val ann = javaMethod.getAnnotation(classOf[Trigger]);
-      val triggerEvent = ann.on() match {
-        case Trigger.TriggerEvent.UNSPECIFIED => TriggerOptions.TriggerEvent.UNSPECIFIED
-        case Trigger.TriggerEvent.STARTUP     => TriggerOptions.TriggerEvent.STARTUP
-      }
 
       TriggerOptions
         .newBuilder()
-        .setOn(triggerEvent)
+        .setOn(TriggerOptions.TriggerEvent.STARTUP) // this is the only event available at the moment
         .setMaxRetries(ann.maxRetries())
         .build()
     }
