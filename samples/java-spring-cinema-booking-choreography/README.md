@@ -346,7 +346,7 @@ To be able to create instances of `ReservationEntity`, a "Fold show events to re
 
 For designing the Wallet bounded context in Kalix we are going to use for implementing Wallet (Entity/Aggregate) - [Kalix Entity (Event sourced)](https://docs.kalix.io/java/event-sourced-entities.html).
 
-**Note:** More information around implementing these Klaix service will be covered in following sections
+**Note:** More information around implementing these Kalix service will be covered in following sections
 
 #### "Wallet" Entity
 
