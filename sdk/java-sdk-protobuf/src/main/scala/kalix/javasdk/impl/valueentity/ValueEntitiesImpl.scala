@@ -29,7 +29,6 @@ import kalix.javasdk.impl.telemetry.ValueEntityCategory
 import kalix.protocol.component.Failure
 import org.slf4j.LoggerFactory
 
-import scala.concurrent.ExecutionContext
 import scala.util.control.NonFatal
 
 // FIXME these don't seem to be 'public API', more internals?
@@ -90,11 +89,10 @@ final class ValueEntitiesImpl(
 
   import EntityExceptions._
 
-  private implicit val ec: ExecutionContext = system.dispatcher
   private final val log = LoggerFactory.getLogger(this.getClass)
 
   val telemetry = Telemetry(system)
-  val instrumentations: Map[String, Instrumentation] = services.values.map { s =>
+  lazy val instrumentations: Map[String, Instrumentation] = services.values.map { s =>
     (s.serviceName, telemetry.traceInstrumentation(s.serviceName, ValueEntityCategory))
   }.toMap
 
@@ -162,8 +160,8 @@ final class ValueEntitiesImpl(
           val metadata = new MetadataImpl(command.metadata.map(_.entries.toVector).getOrElse(Nil))
 
           if (log.isTraceEnabled) log.trace("Metadata entries [{}].", metadata.entries)
-
           val span = instrumentations(service.serviceName).buildSpan(service, command)
+
           try {
             val cmd =
               service.messageCodec.decodeMessage(

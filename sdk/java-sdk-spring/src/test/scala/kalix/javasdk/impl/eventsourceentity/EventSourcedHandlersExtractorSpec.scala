@@ -67,10 +67,9 @@ class EventSourcedHandlersExtractorSpec extends AnyWordSpec with Matchers {
       offendingMethods shouldBe List("receivedIntegerEvent", "receivedIntegerEventAndString")
     }
 
-    //TODO remove ignore after updating to Scala 2.13.11 (https://github.com/scala/scala/pull/10105)
-    "report error on missing event handler for sealed event interface" ignore {
+    "report error on missing event handler for sealed event interface" in {
       val result = EventSourcedHandlersExtractor.handlersFrom(classOf[EmployeeEntityWithMissingHandler], messageCodec)
-      result.handlers.size shouldBe 1
+      result.handlers.size shouldBe 2
       result.errors.size shouldBe 1
       val offendingMethods = result.errors.flatMap(_.methods.map(_.getName).sorted)
       offendingMethods shouldBe empty

@@ -438,8 +438,28 @@ public class ViewTestModels {
   public static class SubscribeToEventSourcedEvents extends View<Employee> {
 
     @Subscribe.EventSourcedEntity(EmployeeEntity.class)
-    public UpdateEffect<Employee> onEvent(EmployeeEvent evt) {
-      EmployeeEvent.EmployeeCreated created = (EmployeeEvent.EmployeeCreated) evt;
+    public UpdateEffect<Employee> onCreated(EmployeeEvent.EmployeeCreated created) {
+      return effects()
+          .updateState(new Employee(created.firstName, created.lastName, created.email));
+    }
+
+    @Subscribe.EventSourcedEntity(EmployeeEntity.class)
+    public UpdateEffect<Employee> onUpdated(EmployeeEvent.EmployeeEmailUpdated updated) {
+      return effects().ignore();
+    }
+
+    @Query("SELECT * FROM employees_view WHERE email = :email")
+    @PostMapping("/employees/by-email/{email}")
+    public Employee getEmployeeByEmail(@PathVariable String email) {
+      return null;
+    }
+  }
+
+  @Table(value = "employees_view")
+  public static class SubscribeToEventSourcedWithMissingHandlerState extends View<Employee> {
+
+    @Subscribe.EventSourcedEntity(EmployeeEntity.class)
+    public UpdateEffect<Employee> onCreated(Employee employee, EmployeeEvent.EmployeeCreated created) {
       return effects()
           .updateState(new Employee(created.firstName, created.lastName, created.email));
     }
@@ -455,9 +475,14 @@ public class ViewTestModels {
   public static class SubscribeToEventSourcedEventsWithMethodWithState extends View<Employee> {
 
     @Subscribe.EventSourcedEntity(EmployeeEntity.class)
-    public UpdateEffect<Employee> onEvent(Employee employee, EmployeeEvent.EmployeeCreated created) {
+    public UpdateEffect<Employee> onCreated(Employee employee, EmployeeEvent.EmployeeCreated created) {
       return effects()
           .updateState(new Employee(created.firstName, created.lastName, created.email));
+    }
+
+    @Subscribe.EventSourcedEntity(EmployeeEntity.class)
+    public UpdateEffect<Employee> onUpdated(EmployeeEvent.EmployeeEmailUpdated updated) {
+      return effects().ignore();
     }
 
     @Query("SELECT * FROM employees_view WHERE email = :email")
@@ -594,9 +619,13 @@ public class ViewTestModels {
     @Table("employees")
     @Subscribe.EventSourcedEntity(EmployeeEntity.class)
     public static class Employees extends View<Employee> {
-      public UpdateEffect<Employee> onEvent(EmployeeEvent.EmployeeCreated created) {
+      public UpdateEffect<Employee> onCreated(EmployeeEvent.EmployeeCreated created) {
         return effects()
             .updateState(new Employee(created.firstName, created.lastName, created.email));
+      }
+
+      public UpdateEffect<Employee> onUpdated(EmployeeEvent.EmployeeEmailUpdated updated) {
+        return effects().ignore();
       }
     }
 

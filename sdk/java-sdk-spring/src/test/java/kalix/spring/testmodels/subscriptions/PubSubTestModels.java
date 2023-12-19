@@ -641,13 +641,13 @@ public class PubSubTestModels {//TODO shall we remove this class and move things
 
     @Subscribe.EventSourcedEntity(EmployeeEntity.class)
     @Publish.Topic("foobar")
-    public Effect<Message> messageOne(String msg) {
-      return effects().reply(new Message(msg));
+    public Effect<Message> messageOne(EmployeeCreated created) {
+      return effects().reply(new Message(created.firstName));
     }
 
     @Subscribe.EventSourcedEntity(EmployeeEntity.class)
     @Publish.Topic("foobar")
-    public Effect<Message> messageTwo(Integer msg) {
+    public Effect<Message> messageTwo(EmployeeEmailUpdated updated) {
       return effects().ignore();
     }
   }
@@ -656,12 +656,12 @@ public class PubSubTestModels {//TODO shall we remove this class and move things
   public static class TypeLevelESWithPublishToTopicAction extends Action {
 
     @Publish.Topic("foobar")
-    public Effect<Message> messageOne(String msg) {
-      return effects().reply(new Message(msg));
+    public Effect<Message> messageOne(EmployeeCreated created) {
+      return effects().reply(new Message(created.firstName));
     }
 
     @Publish.Topic("foobar")
-    public Effect<Message> messageTwo(Integer msg) {
+    public Effect<Message> messageTwo(EmployeeEmailUpdated updated) {
       return effects().ignore();
     }
   }

@@ -123,7 +123,7 @@ When running a service during local development, it may be useful to enable ACL 
 
 ```yaml
 kalix-runtime:
-  image: gcr.io/kalix-public/kalix-proxy:latest
+  image: gcr.io/kalix-public/kalix-runtime:latest
   ports:
     - "9000:9000"
   environment:
@@ -140,7 +140,7 @@ If running multiple services in local development, you may want to run with ACLs
 
 ```yaml
 kalix-runtime:
-  image: gcr.io/kalix-public/kalix-proxy:latest
+  image: gcr.io/kalix-public/kalix-runtime:latest
   ports:
     - "9000:9000"
   environment:

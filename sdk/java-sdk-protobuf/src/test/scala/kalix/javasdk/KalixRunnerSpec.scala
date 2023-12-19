@@ -30,7 +30,7 @@ class KalixRunnerSpec extends AnyWordSpec with Matchers {
     createTmpFile(s"""
         |version: "3"
         |services:
-        |  kalix-proxy:
+        |  kalix-runtime:
         |      JAVA_TOOL_OPTIONS: >
         |        -Dkalix.dev-mode.service-port-mappings.$mapping
         |""".stripMargin)
@@ -121,8 +121,8 @@ class KalixRunnerSpec extends AnyWordSpec with Matchers {
         """
           |version: "3"
           |services:
-          |  kalix-proxy:
-          |    image: gcr.io/kalix-public/kalix-proxy:1.1.8
+          |  kalix-runtime:
+          |    image: gcr.io/kalix-public/kalix-runtime:1.1.24
           |    ports:
           |      - "9000:9000"
           |    extra_hosts:

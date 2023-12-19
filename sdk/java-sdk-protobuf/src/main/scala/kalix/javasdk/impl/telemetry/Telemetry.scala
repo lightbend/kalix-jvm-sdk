@@ -36,12 +36,14 @@ import io.opentelemetry.sdk.trace.`export`.SimpleSpanProcessor
 import io.opentelemetry.semconv.resource.attributes.ResourceAttributes
 import kalix.javasdk.Metadata
 import kalix.javasdk.impl.MetadataImpl
+import kalix.javasdk.impl.ProxyInfoHolder
 import kalix.javasdk.impl.Service
 import kalix.protocol.action.ActionCommand
 import kalix.protocol.entity.Command
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
+import scala.concurrent.ExecutionContext
 import scala.jdk.OptionConverters._
 
 object Telemetry extends ExtensionId[Telemetry] {
@@ -53,32 +55,52 @@ object Telemetry extends ExtensionId[Telemetry] {
 sealed trait ComponentCategory {
   def name: String
 }
-final case object ActionCategory extends ComponentCategory {
+case object ActionCategory extends ComponentCategory {
   def name = "Action"
 }
-final case object EventSourcedEntityCategory extends ComponentCategory {
+case object EventSourcedEntityCategory extends ComponentCategory {
   def name = "Event Sourced Entity"
 }
 
-final case object ValueEntityCategory extends ComponentCategory {
+case object ValueEntityCategory extends ComponentCategory {
   def name = "Value Entity"
 }
 
 final class Telemetry(system: ActorSystem) extends Extension {
 
-  val logger = LoggerFactory.getLogger(classOf[Telemetry])
+  private val proxyInfoHolder = ProxyInfoHolder(system)
 
-  def traceInstrumentation(componentName: String, componentCategory: ComponentCategory) = {
-    val collectorEndpoint = system.settings.config.getString(TraceInstrumentation.TRACING_ENDPOINT)
+  private val logger = LoggerFactory.getLogger(classOf[Telemetry])
+
+  private val collectorEndpointSDK = system.settings.config.getString(TraceInstrumentation.TRACING_ENDPOINT)
+
+  implicit val ec = ExecutionContext.Implicits.global
+
+  /**
+   * This method assumes the instrumentation won't be consumed until discovery from the proxy is requested. Therefore
+   * this should be stored in a `lazy` value and only used after we are sure the ProxyInfo has been process. For
+   * example, in an Action inside the methods `handleyUnary` and alike.
+   * @param componentName
+   * @param componentCategory
+   * @return
+   */
+  def traceInstrumentation(componentName: String, componentCategory: ComponentCategory): Instrumentation = {
+    val collectorEndpoint = {
+      if (collectorEndpointSDK.nonEmpty) collectorEndpointSDK
+      else
+        proxyInfoHolder.proxyTracingCollectorEndpoint match {
+          case Some(endpoint) => endpoint
+          case None => throw new IllegalArgumentException("Tracing endpoint from the Proxy not yet received. Retry.")
+        }
+    }
     if (collectorEndpoint.isEmpty) {
       logger.debug("Instrumentation disabled. Set to NoOp.")
       NoOpInstrumentation
     } else {
       logger.debug("Instrumentation enabled. Set collector endpoint to [{}].", collectorEndpoint)
-      new TraceInstrumentation(componentName, system, componentCategory)
+      new TraceInstrumentation(collectorEndpoint, componentName, system, componentCategory)
     }
   }
-
 }
 
 trait Instrumentation {
@@ -86,16 +108,17 @@ trait Instrumentation {
   def buildSpan(service: Service, command: Command): Option[Span]
 
   def buildSpan(service: Service, command: ActionCommand): Option[Span]
+
 }
 
-private final object TraceInstrumentation {
+private object TraceInstrumentation {
 
   val TRACE_PARENT_KEY = "traceparent"
   val TRACING_ENDPOINT = "kalix.telemetry.tracing.collector-endpoint"
 
-  val logger: Logger = LoggerFactory.getLogger(getClass)
+  private val logger: Logger = LoggerFactory.getLogger(getClass)
 
-  lazy val otelGetter = new TextMapGetter[Metadata]() {
+  private lazy val otelGetter = new TextMapGetter[Metadata]() {
     override def get(carrier: Metadata, key: String): String = {
       logger.debug("For the key [{}] the value is [{}]", key, carrier.get(key))
       carrier.get(key).toScala.getOrElse("")
@@ -107,6 +130,7 @@ private final object TraceInstrumentation {
 }
 
 private final class TraceInstrumentation(
+    collectorEndpoint: String,
     componentName: String,
     system: ActorSystem,
     componentCategory: ComponentCategory)
@@ -114,35 +138,29 @@ private final class TraceInstrumentation(
 
   import TraceInstrumentation._
 
-  val tracePrefix = componentCategory.name
-
-  val collectorEndpoint = system.settings.config.getString("kalix.telemetry.tracing.collector-endpoint")
-
-  logger.info("Setting Open Telemetry collector endpoint to [{}] for service [{}].", collectorEndpoint, componentName)
+  private val tracePrefix = componentCategory.name
 
   private val openTelemetry: OpenTelemetry = {
     val resource =
       Resource.getDefault.merge(
         Resource.create(Attributes.of(ResourceAttributes.SERVICE_NAME, tracePrefix + " : " + componentName)))
-    val sdkTracerProvider =
-      SdkTracerProvider
-        .builder()
-        .addSpanProcessor(
-          SimpleSpanProcessor.create(
-            OtlpGrpcSpanExporter
-              .builder()
-              .setEndpoint(collectorEndpoint)
-              .build()))
-        .setResource(resource)
-        .build()
+    val sdkTracerProvider = SdkTracerProvider
+      .builder()
+      .addSpanProcessor(
+        SimpleSpanProcessor.create(
+          OtlpGrpcSpanExporter
+            .builder()
+            .setEndpoint(collectorEndpoint)
+            .build()))
+      .setResource(resource)
+      .build()
+
     val sdk = OpenTelemetrySdk
       .builder()
       .setTracerProvider(sdkTracerProvider)
       .setPropagators(ContextPropagators.create(W3CTraceContextPropagator.getInstance()))
       .build()
-
     system.registerOnTermination(sdk.close())
-
     sdk
   }
 
@@ -160,8 +178,9 @@ private final class TraceInstrumentation(
 
       val context = openTelemetry.getPropagators.getTextMapPropagator
         .extract(OtelContext.current(), metadata, otelGetter.asInstanceOf[TextMapGetter[Object]])
-      val tracer = openTelemetry.getTracer("java-sdk")
-      val span = tracer
+
+      val span = openTelemetry
+        .getTracer("java-sdk")
         .spanBuilder(s"""${command.entityId}""")
         .setParent(context)
         .setSpanKind(SpanKind.SERVER)
@@ -186,8 +205,9 @@ private final class TraceInstrumentation(
 
       val context = openTelemetry.getPropagators.getTextMapPropagator
         .extract(OtelContext.current(), metadata, otelGetter.asInstanceOf[TextMapGetter[Object]])
-      val tracer = openTelemetry.getTracer("java-sdk")
-      val span = tracer
+
+      val span = openTelemetry
+        .getTracer("java-sdk")
         .spanBuilder(s"""${command.name}""")
         .setParent(context)
         .setSpanKind(SpanKind.SERVER)
@@ -200,11 +220,10 @@ private final class TraceInstrumentation(
       if (logger.isTraceEnabled) logger.trace("No `traceparent` found for command [{}].", command)
       None
     }
-
   }
 }
 
-private final object NoOpInstrumentation extends Instrumentation {
+private object NoOpInstrumentation extends Instrumentation {
 
   override def buildSpan(service: Service, command: Command): Option[Span] = None
 

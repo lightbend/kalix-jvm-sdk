@@ -122,7 +122,7 @@ private[javasdk] final class ActionsImpl(
   import _system.dispatcher
   implicit val system: ActorSystem = _system
   val telemetry = Telemetry(system)
-  val telemetries: Map[String, Instrumentation] = services.values.map { s =>
+  lazy val telemetries: Map[String, Instrumentation] = services.values.map { s =>
     (s.serviceName, telemetry.traceInstrumentation(s.serviceName, ActionCategory))
   }.toMap
 
@@ -200,6 +200,7 @@ private[javasdk] final class ActionsImpl(
     services.get(in.serviceName) match {
       case Some(service) =>
         val span = telemetries(service.serviceName).buildSpan(service, in)
+
         val fut =
           try {
             val context = createContext(in, service.messageCodec)

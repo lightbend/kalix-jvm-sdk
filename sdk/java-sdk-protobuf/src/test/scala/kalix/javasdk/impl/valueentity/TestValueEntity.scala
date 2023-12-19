@@ -23,6 +23,7 @@ import kalix.javasdk.{ Kalix, KalixRunner }
 import kalix.javasdk.valueentity.ValueEntityProvider
 import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
+import kalix.javasdk.impl.ProxyInfoHolder
 
 object TestValueEntity {
   def service(entityProvider: ValueEntityProvider[_, _]): TestValueService =
@@ -47,6 +48,8 @@ class TestValueService(entityProvider: ValueEntityProvider[_, _]) {
     .createRunner(config)
 
   runner.run()
+  //setting tracing as disabled, emulating that is discovered from the proxy.
+  ProxyInfoHolder(runner.system).overrideTracingCollectorEndpoint("")
 
   def expectLogError[T](message: String)(block: => T): T = {
     LoggingTestKit.error(message).expect(block)(runner.system.toTyped)

@@ -22,6 +22,7 @@ import akka.testkit.SocketUtil
 import kalix.javasdk.{ Kalix, KalixRunner }
 import com.typesafe.config.{ Config, ConfigFactory }
 import kalix.javasdk.eventsourcedentity.EventSourcedEntityProvider
+import kalix.javasdk.impl.ProxyInfoHolder
 
 object TestEventSourced {
   def service(entityProvider: EventSourcedEntityProvider[_, _, _]): TestEventSourcedService =
@@ -46,6 +47,8 @@ class TestEventSourcedService(entityProvider: EventSourcedEntityProvider[_, _, _
     .createRunner(config)
 
   runner.run()
+  //setting tracing as disabled, emulating that is discovered from the proxy.
+  ProxyInfoHolder(runner.system).overrideTracingCollectorEndpoint("")
 
   def expectLogError[T](message: String)(block: => T): T =
     LoggingTestKit.error(message).expect(block)(runner.system.toTyped)
