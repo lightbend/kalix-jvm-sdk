@@ -316,7 +316,7 @@ Designing Kalix services is an exercise of combining and connecting Kalix compon
 ### Show
 ![Show](images/KalixDesign-Show.png)
 
-For designing the "Show" bounded context in Kalix we are goning to use these Kalix components:
+For designing the "Show" bounded context in Kalix we are going to use these Kalix components:
 1. Show (Entity/Aggregate) - [Kalix Entity (Event sourced)](https://docs.kalix.io/java/event-sourced-entities.html)
 2. "Shows by availability" read view - [Kalix View](https://docs.kalix.io/java/value-entity.html)
 3. Show by reservation - [Kalix Entity (Value)](https://docs.kalix.io/java/views.html) and [Kalix Action](https://docs.kalix.io/java/actions.html)<br>
