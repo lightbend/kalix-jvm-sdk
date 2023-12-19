@@ -100,7 +100,7 @@ Static claims can also be defined using a pattern. This is useful when the value
         @JWT.StaticClaim(claim = "name", pattern = "^\\S+$") // <3>
     })
 ----
-<1> Claim "role" must have one of 2 values: "admin" or "editor".
+<1> Claim "role" must have one of 2 values: `admin` or `editor`.
 <2> Claim "sub" must be a valid UUID.
 <3> Claim "name" must be not empty.
 
