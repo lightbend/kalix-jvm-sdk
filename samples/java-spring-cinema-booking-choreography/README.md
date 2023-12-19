@@ -616,7 +616,7 @@ public Show onEvent(ShowCreated showCreated) {
 
 ## Show Entity unit test
 More information about Kalix Event source entity testing can be found [here](https://docs.kalix.io/java-protobuf/event-sourced-entities.html#_testing_the_entity).
-For testing the Kalix Entity, the Kalix Testkit is used (`EventSourcedTestKit`).
+For testing the Kalix Entity, the Kalix TestKit is used (`EventSourcedTestKit`).
 
 ```java
 @Test
