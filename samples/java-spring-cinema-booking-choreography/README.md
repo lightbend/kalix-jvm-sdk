@@ -909,7 +909,7 @@ public class FoldShowEventsToReservationAction extends Action {
 Similar as with Kalix Views, the Action class level annotation `@Subscribe.EventSourcedEntity` defines a source. 
 It configures an Action subscription to domain event changes from a Kalix Entity (`value = ShowEntity.class` indicates which Entity type).
 
-For each Kalix Entity domain event, the Action is subscribed to, we need to implement ahandler method.
+For each Kalix Entity domain event, the Action is subscribed to, we need to implement a handler method.
 Similar as with Kalix Entity endpoints, the reply type of handler methods is `Effect` (declarative way to instruct Kalix what needs to be performed).
 
 Kalix ensures that the handler method is executed with _at-least-once_ execution semantics.
