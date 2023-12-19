@@ -211,7 +211,7 @@ Also, based on the `SeatReserved` domain event, the `Show by reservation` read v
 
 View Data model:
 ```java
-public record Reservation(String reservationId, String showId, String walletId, BigDecimal price) {}
+record Reservation(String reservationId, String showId, String walletId, BigDecimal price) {}
 ```
 
 The initial value of `availableSeats` is the total number of seats for the show (`seats.size()`).
@@ -266,7 +266,7 @@ Based on the `WalletChargeRejected` domain event, the `CancelSeatReservation` co
 
 `CancelSeatReservation` data model:
 ```java
-record CancelSeatReservation(String reservationId) implements ShowCommand {}
+record CancelSeatReservation(String reservationId){}
 ```
 
 `SeatReservationCancelled` data model:
@@ -461,7 +461,7 @@ For making the data immutable we are going to use an immutable collection implem
 
 Show data model:
 ```java
-public record Show(String id, String title, Map<Integer, Seat> seats,
+record Show(String id, String title, Map<Integer, Seat> seats,
                    Map<String, Integer> pendingReservations,
                    Map<String, FinishedReservation> finishedReservations, int availableSeats) {}
 ```
