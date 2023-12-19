@@ -19,12 +19,17 @@ package kalix.devtools.impl
 import java.io.File
 import java.nio.file.Files
 import java.nio.file.Paths
-
 import scala.io.Source
 import scala.jdk.CollectionConverters._
 import scala.sys.process._
-
 import com.typesafe.config.Config
+
+import java.net.HttpURLConnection
+import java.net.URL
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter
+import scala.util.Success
+import scala.util.Try
 
 object DockerComposeUtils {
 
@@ -82,7 +87,15 @@ case class DockerComposeUtils(file: String, envVar: Map[String, String]) {
   // note to self: this is seems to be similar to sbt native packager printing errors when build docker images
   def start(): Unit =
     execIfFileExists {
-      val proc = Process(s"docker-compose -f $file up", None).run(processLogger)
+      val pullFlag = dockerImagesAvailable match {
+        case Success(true) => "--pull=always"
+        case _ =>
+          val fmt = DateTimeFormatter.ofPattern("HH:mm:ss:SSS") //In line with logback-dev-mode.xml
+          println(
+            s"${LocalTime.now().format(fmt)} WARN Kalix plugin can NOT `docker pull` the `latest` kalix-runtime. Using your local version. The plugin is trying to download the latest `kalix-runtime` to ensure that you can use the latest `kalix-sdk`. Check your internet connection.")
+          ""
+      }
+      val proc = Process(s"docker-compose -f $file up $pullFlag", None).run(processLogger)
       started = proc.isAlive()
       // shutdown hook to down containers when jvm exits
       sys.addShutdownHook {
@@ -91,6 +104,17 @@ case class DockerComposeUtils(file: String, envVar: Map[String, String]) {
         }
       }
     }
+
+  //At the moment we store kalix-runtime in gcr.io
+  private def dockerImagesAvailable: Try[Boolean] = {
+    val url = new URL("https://gcr.io/v2/")
+    val connection = url.openConnection().asInstanceOf[HttpURLConnection]
+    connection.setRequestMethod("GET")
+    Try {
+      val responseCode = connection.getResponseCode()
+      responseCode == HttpURLConnection.HTTP_OK
+    }
+  }
 
   def stop(): Unit =
     if (started)
