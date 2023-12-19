@@ -11,8 +11,7 @@ import static kalix.javasdk.annotations.Trigger.TriggerEvent.STARTUP;
 public class OnStartupAction extends Action { // <1>
 
   @PostMapping("/init")
-  @Trigger(
-      on = STARTUP, // <2>
+  @Trigger.OnStartup( // <2>
       maxRetries = 3) // <3>
   public Action.Effect<String> init() { // <4>
     // Do some initial operations here

@@ -60,12 +60,12 @@ import scala.PartialFunction.condOpt
 private[impl] object ActionDescriptorFactory extends ComponentDescriptorFactory {
 
   private def hasTriggerMethodOptions(javaMethod: Method): Boolean = {
-    javaMethod.isPublic && javaMethod.hasAnnotation[Trigger]
+    javaMethod.isPublic && javaMethod.hasAnnotation[Trigger.OnStartup] // this is the only event available at the moment
   }
 
   private def triggerOptions(javaMethod: Method): Option[TriggerOptions] = {
     condOpt(hasTriggerMethodOptions(javaMethod)) { case true =>
-      val ann = javaMethod.getAnnotation(classOf[Trigger]);
+      val ann = javaMethod.getAnnotation(classOf[Trigger.OnStartup]);
 
       TriggerOptions
         .newBuilder()

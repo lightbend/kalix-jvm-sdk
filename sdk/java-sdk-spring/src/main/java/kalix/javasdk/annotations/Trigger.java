@@ -23,30 +23,24 @@ import java.lang.annotation.*;
  * The method must be public and have no parameters.
  * If the call fails, it will be retried up to the number of times specified by the maxRetries parameter.
  */
-@Target(ElementType.METHOD)
-@Retention(RetentionPolicy.RUNTIME)
-@Documented
 public @interface Trigger {
-  enum TriggerEvent {
+
+  /**
+   * The on startup hook is called every time a service instance boots up.
+   * This can happen for very different reasons: restarting / redeploying the service,
+   * scaling up to more instances or even without any user-driven action
+   * (e.g. Kalix Runtime versions being rolled out, infrastructure-related incidents, etc.).
+   * Therefore, one should carefully consider how to use this hook and its implementation.
+   */
+  @Target(ElementType.METHOD)
+  @Retention(RetentionPolicy.RUNTIME)
+  @Documented
+  @interface OnStartup {
     /**
-     * The on startup hook is called every time a service instance boots up.
-     * This can happen for very different reasons: restarting / redeploying the service,
-     * scaling up to more instances or even without any user-driven action
-     * (e.g. Kalix Runtime versions being rolled out, infrastructure-related incidents, etc.).
-     * Therefore, one should carefully consider how to use this hook and its implementation.
+     * The maximum number of retries we will do upon failure of the method hook calls.
+     * The default value 0 means no retries are done.
      */
-    STARTUP,
+    int maxRetries() default 0;
   }
 
-
-  /**
-   * The service life-cycle event for which this hook will be triggered.
-   */
-  TriggerEvent on();
-
-  /**
-   * The maximum number of retries we will do upon failure of the method hook calls.
-   * The default value 0 means no retries are done.
-   */
-  int maxRetries() default 0;
 }

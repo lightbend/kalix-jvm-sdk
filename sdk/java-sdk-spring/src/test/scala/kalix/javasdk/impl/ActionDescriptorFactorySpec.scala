@@ -104,7 +104,6 @@ import kalix.spring.testmodels.subscriptions.PubSubTestModels.TypeLevelSubscribe
 import kalix.spring.testmodels.subscriptions.PubSubTestModels.TypeLevelTopicSubscriptionWithPublishToTopicAction
 import kalix.spring.testmodels.subscriptions.PubSubTestModels.VEWithPublishToTopicAction
 import kalix.spring.testmodels.valueentity.CounterState
-import kalix.triggers.TriggerOptions.TriggerEvent
 import org.scalatest.wordspec.AnyWordSpec
 
 import scala.jdk.CollectionConverters.CollectionHasAsScala

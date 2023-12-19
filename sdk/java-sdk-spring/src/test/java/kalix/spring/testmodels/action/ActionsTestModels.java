@@ -25,8 +25,6 @@ import reactor.core.publisher.Flux;
 
 import java.util.List;
 
-import static kalix.javasdk.annotations.Trigger.TriggerEvent.STARTUP;
-
 public class ActionsTestModels {
 
   public static class GetWithoutParam extends Action {
@@ -226,7 +224,7 @@ public class ActionsTestModels {
 
   public static class OnStartupHookAction extends Action {
     @PostMapping("/message")
-    @Trigger(on = STARTUP, maxRetries = 2)
+    @Trigger.OnStartup(maxRetries = 2)
     public Action.Effect<Message> init() {
       return effects().reply(new Message("hello"));
     }
