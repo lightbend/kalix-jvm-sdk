@@ -55,7 +55,6 @@ import kalix.javasdk.impl.Reflect.Syntax.MethodOps
 import kalix.TriggerOptions
 import kalix.javasdk.annotations.Trigger
 
-
 private[impl] object ActionDescriptorFactory extends ComponentDescriptorFactory {
 
   private def hasTriggerMethodOptions(javaMethod: Method): Boolean = {
