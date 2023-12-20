@@ -55,7 +55,6 @@ import kalix.javasdk.impl.Reflect.Syntax.MethodOps
 import kalix.TriggerOptions
 import kalix.javasdk.annotations.Trigger
 
-import scala.PartialFunction.condOpt
 
 private[impl] object ActionDescriptorFactory extends ComponentDescriptorFactory {
 
@@ -64,7 +63,7 @@ private[impl] object ActionDescriptorFactory extends ComponentDescriptorFactory 
   }
 
   private def triggerOptions(javaMethod: Method): Option[TriggerOptions] = {
-    condOpt(hasTriggerMethodOptions(javaMethod)) { case true =>
+    Option.when(hasTriggerMethodOptions(javaMethod)) {
       val ann = javaMethod.getAnnotation(classOf[Trigger.OnStartup]);
 
       TriggerOptions
