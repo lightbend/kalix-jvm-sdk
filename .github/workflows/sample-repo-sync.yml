@@ -42,4 +42,6 @@ jobs:
           body: Please review
           delete-branch: true
           commit-message: "Changes from the Kalix JVM SDK repo"
-          author: "GitHub <noreply@github.com>"
+          author: "Kalix Bot <noreply@github.com>"
+          committer: "Kalix Bot <noreply@github.com>"
+          token: ${{ secrets.KALIX_BOT_ACCESS_TOKEN }}
