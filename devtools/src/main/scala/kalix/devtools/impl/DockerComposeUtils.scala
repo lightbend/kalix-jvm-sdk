@@ -113,7 +113,7 @@ case class DockerComposeUtils(file: String, envVar: Map[String, String]) {
       .getOrElse(8080)
 
   private def userFunctionPortFromFile: Option[Int] =
-    lines.collectFirst { case UserFunctionPortExtractor(port) => port }
+    lines.collectFirst { case UserServicePortExtractor(port) => port }
 
   /**
    * Extract all lines starting with [[DevModeSettings.portMappingsKeyPrefix]] The returned Seq only contains the
