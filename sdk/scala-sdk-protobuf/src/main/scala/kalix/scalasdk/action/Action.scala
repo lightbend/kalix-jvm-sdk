@@ -91,7 +91,7 @@ object Action {
       def reply[S](message: S): Action.Effect[S]
 
       /**
-       * Create a message reply.
+       * Create a message reply with custom Metadata.
        *
        * @param message
        *   The payload of the reply.
@@ -153,6 +153,20 @@ object Action {
        *   The type of the message that must be returned by this call.
        */
       def asyncReply[S](message: Future[S]): Action.Effect[S]
+
+      /**
+       * Create a message reply from an async operation result with custom Metadata.
+       *
+       * @param message
+       *   The future payload of the reply.
+       * @param metadata
+       *   The metadata for the message.
+       * @return
+       *   A message reply.
+       * @tparam S
+       *   The type of the message that must be returned by this call.
+       */
+      def asyncReply[S](message: Future[S], metadata: Metadata): Action.Effect[S]
 
       /**
        * Create a reply from an async operation result returning an effect.

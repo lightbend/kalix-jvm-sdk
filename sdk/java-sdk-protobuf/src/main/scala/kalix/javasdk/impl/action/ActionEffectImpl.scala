@@ -98,7 +98,9 @@ object ActionEffectImpl {
     def error[S](description: String, httpErrorCode: ErrorCode): Action.Effect[S] =
       error(description, StatusCodeConverter.toGrpcCode(httpErrorCode))
     def asyncReply[S](futureMessage: CompletionStage[S]): Action.Effect[S] =
-      AsyncEffect(futureMessage.asScala.map(s => Builder.reply[S](s))(ExecutionContext.parasitic), Nil)
+      asyncReply(futureMessage, Metadata.EMPTY)
+    def asyncReply[S](futureMessage: CompletionStage[S], metadata: Metadata): Action.Effect[S] =
+      AsyncEffect(futureMessage.asScala.map(s => Builder.reply[S](s, metadata))(ExecutionContext.parasitic), Nil)
     def asyncEffect[S](futureEffect: CompletionStage[Action.Effect[S]]): Action.Effect[S] =
       AsyncEffect(futureEffect.asScala, Nil)
     def ignore[S](): Action.Effect[S] =

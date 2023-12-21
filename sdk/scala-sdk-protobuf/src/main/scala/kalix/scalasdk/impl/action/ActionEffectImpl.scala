@@ -141,7 +141,9 @@ private[scalasdk] object ActionEffectImpl {
       else ErrorEffect(description, Some(statusCode), Nil)
 
     override def asyncReply[S](futureMessage: Future[S]): Action.Effect[S] =
-      AsyncEffect(futureMessage.map(s => Builder.reply[S](s))(ExecutionContext.parasitic), Nil)
+      asyncReply(futureMessage, Metadata.empty)
+    override def asyncReply[S](futureMessage: Future[S], metadata: Metadata): Action.Effect[S] =
+      AsyncEffect(futureMessage.map(s => Builder.reply[S](s, metadata))(ExecutionContext.parasitic), Nil)
     override def asyncEffect[S](futureEffect: Future[Action.Effect[S]]): Action.Effect[S] =
       AsyncEffect(futureEffect, Nil)
     override def ignore[S]: Action.Effect[S] =
