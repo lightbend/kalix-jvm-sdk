@@ -58,8 +58,8 @@ class DockerComposeUtilsSpec extends AnyWordSpec with Matchers with OptionValues
       dockerComposeUtils.userFunctionPort shouldBe 8081
     }
 
-    "favor USER_FUNCTION_PORT env var if set " in {
-      val envVar = Map("USER_FUNCTION_PORT" -> "8082")
+    "favor USER_SERVICE_PORT env var if set " in {
+      val envVar = Map("USER_SERVICE_PORT" -> "8082")
       val dockerComposeFile = createTmpFile(defaultFile)
       val dockerComposeUtils = DockerComposeUtils(dockerComposeFile, envVar)
       dockerComposeUtils.userFunctionPort shouldBe 8082
@@ -94,7 +94,7 @@ class DockerComposeUtilsSpec extends AnyWordSpec with Matchers with OptionValues
           |    extra_hosts:
           |      - "host.docker.internal:host-gateway"
           |    environment:
-          |      USER_FUNCTION_PORT:8081
+          |      USER_SERVICE_PORT:8081
           |""".stripMargin
 
       val dockerComposeFile = createTmpFile(fileWithoutEnvVar)
