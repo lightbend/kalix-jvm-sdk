@@ -14,8 +14,8 @@ services:
       PERSISTENCE_ENABLED: "false" #when true uncomment volumes above
       JAVA_TOOL_OPTIONS: >
         -Dkalix.proxy.eventing.support=kafka
-      USER_FUNCTION_HOST: ${USER_FUNCTION_HOST:-host.docker.internal}
-      USER_FUNCTION_PORT: ${USER_FUNCTION_PORT:-8080}
+      USER_SERVICE_HOST: ${USER_SERVICE_HOST:-host.docker.internal}
+      USER_SERVICE_PORT: ${USER_SERVICE_PORT:-8080}
       # configuring kafka broker used for eventing
       BROKER_SERVERS: kafka:29092
 
