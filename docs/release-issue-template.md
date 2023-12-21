@@ -39,8 +39,5 @@ You can see the Kalix Runtime version on prod [on grafana](https://lightbendclou
 
 ### Announcements
 
-- [ ] Announce in [the forum](https://discuss.kalix.io/)
-  - tag with releases and announcement
-- [ ] Announce in [the public Kalix Slack channel](https://kalixworld.slack.com/archives/C05CBK0VCKH)
-- [ ] Inform Lightbend marketing and engineering if it's a noteworthy release
+- [ ] Add a summary of relevant changes and a link to the release notes into [Kalix Release Notes aggregation](https://docs.google.com/document/d/1Q0yWZssJHhF9oOKMW1yHq-QCyXJ-Ej8DeNuim4_QN6w/edit?usp=sharing)
 - [ ] Close this issue
