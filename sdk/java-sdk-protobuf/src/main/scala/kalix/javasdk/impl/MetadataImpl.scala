@@ -22,6 +22,8 @@ import kalix.javasdk.JwtClaims
 import kalix.javasdk.Metadata
 import kalix.javasdk.Principal
 import kalix.javasdk.Principals
+import kalix.javasdk.StatusCode
+import kalix.javasdk.StatusCode.ErrorCode
 import kalix.javasdk.impl.MetadataImpl.JwtClaimPrefix
 import kalix.protocol.component
 import kalix.protocol.component.MetadataEntry
@@ -193,6 +195,13 @@ private[kalix] class MetadataImpl(val entries: Seq[MetadataEntry]) extends Metad
     set(MetadataImpl.CeTime, DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(time))
 
   override def clearTime(): MetadataImpl = remove(MetadataImpl.CeTime)
+
+  override def withHttpResponseCode(code: StatusCode): MetadataImpl = {
+    if (code.isInstanceOf[ErrorCode])
+      throw new RuntimeException("Invalid HTTP status code: " + code + ". Use .error method for replying with errors.")
+
+    set("_kalix-http-code", code.value.toString)
+  }
 
   override def asMetadata(): Metadata = this
 
