@@ -40,8 +40,8 @@ object DevModeSettingsSpec {
       |        -Dkalix.dev-mode.service-port-mappings.foo=9001
       |        -Dkalix.dev-mode.service-port-mappings.bar=9002
       |        -Dkalix.dev-mode.service-port-mappings.baz=host.docker.internal:9003
-      |      USER_FUNCTION_HOST:${USER_FUNCTION_HOST:-host.docker.internal}
-      |      USER_FUNCTION_PORT:${USER_FUNCTION_PORT:-8081}
+      |      USER_SERVICE_HOST:${USER_SERVICE_HOST:-host.docker.internal}
+      |      USER_SERVICE_PORT:${USER_SERVICE_PORT:-8081}
       |""".stripMargin
 }
 

@@ -40,7 +40,7 @@ class UserServicePortExtractorSpec extends AnyWordSpec with Matchers {
       lines.foreach { case UserServicePortExtractor(port) => port shouldBe 8080 }
     }
 
-    "extract port from line with different formatting's but starting with USER_FUNCTION_PORT" in {
+    "extract port from line with different formatting's but starting with USER_FUNCTION_PORT (legacy)" in {
       val lines =
         // UF ports can come together with env vars
         "USER_FUNCTION_PORT:${USER_FUNCTION_PORT:-8080}" ::

@@ -107,7 +107,8 @@ case class DockerComposeUtils(file: String, envVar: Map[String, String]) {
 
   def userFunctionPort: Int =
     envVar
-      .get("USER_FUNCTION_PORT")
+      .get("USER_SERVICE_PORT")
+      .orElse(envVar.get("USER_FUNCTION_PORT")) // legacy name
       .map(_.toInt)
       .orElse(userFunctionPortFromFile)
       .getOrElse(8080)
