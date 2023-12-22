@@ -22,6 +22,8 @@ import kalix.javasdk.client.ComponentClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
+import java.util.concurrent.CompletableFuture;
+
 public class ActionWithMetadata extends Action {
 
   private ComponentClient componentClient;
@@ -40,5 +42,17 @@ public class ActionWithMetadata extends Action {
   public Effect<Message> returnMeta(@PathVariable String key) {
     var metaValue = actionContext().metadata().get(key).get();
     return effects().reply(new Message(metaValue));
+  }
+
+  @GetMapping("/reply-meta/{key}/{value}")
+  public Effect<Message> returnAsMeta(@PathVariable String key, @PathVariable String value) {
+    var md = Metadata.EMPTY.add(key, value);
+    return effects().reply(new Message(value), md);
+  }
+
+  @GetMapping("/reply-async-meta/{key}/{value}")
+  public Effect<Message> returnAsMetaAsync(@PathVariable String key, @PathVariable String value) {
+    var md = Metadata.EMPTY.add(key, value);
+    return effects().asyncReply(CompletableFuture.completedFuture(new Message(value)), md);
   }
 }
