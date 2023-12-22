@@ -82,8 +82,8 @@ public class KalixProxyContainer extends GenericContainer<KalixProxyContainer> {
     this.eventingPort = eventingPort;
     this.eventingSupport = eventingSupport;
     withExposedPorts(DEFAULT_PROXY_PORT);
-    withEnv("USER_FUNCTION_HOST", "host.testcontainers.internal");
-    withEnv("USER_FUNCTION_PORT", String.valueOf(userFunctionPort));
+    withEnv("USER_SERVICE_HOST", "host.testcontainers.internal");
+    withEnv("USER_SERVICE_PORT", String.valueOf(userFunctionPort));
     withEnv("HTTP_PORT", String.valueOf(DEFAULT_PROXY_PORT));
     if ("false".equals(System.getenv("VERSION_CHECK_ON_STARTUP"))) {
       withEnv("VERSION_CHECK_ON_STARTUP", "false");

@@ -128,7 +128,7 @@ class KalixRunnerSpec extends AnyWordSpec with Matchers {
           |    extra_hosts:
           |      - "host.docker.internal:host-gateway"
           |    environment:
-          |      USER_FUNCTION_PORT:8082
+          |      USER_SERVICE_PORT:8082
         |""".stripMargin
 
       val dockerComposeFile = createTmpFile(fileContent)

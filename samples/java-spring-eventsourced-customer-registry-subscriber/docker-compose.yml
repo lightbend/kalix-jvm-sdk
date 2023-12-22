@@ -13,6 +13,6 @@ services:
     environment:
       JAVA_TOOL_OPTIONS: >
         -Dkalix.dev-mode.service-port-mappings.customer-registry=host.docker.internal:9000
-      USER_FUNCTION_HOST: ${USER_FUNCTION_HOST:-host.docker.internal}
-      USER_FUNCTION_PORT: "8081"
+      USER_SERVICE_HOST: ${USER_SERVICE_HOST:-host.docker.internal}
+      USER_SERVICE_PORT: "8081"
 #end::customer-registry-subscriber[]

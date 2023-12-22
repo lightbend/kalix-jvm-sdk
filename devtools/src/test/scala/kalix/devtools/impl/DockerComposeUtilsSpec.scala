@@ -46,8 +46,8 @@ class DockerComposeUtilsSpec extends AnyWordSpec with Matchers with OptionValues
       |        -Dlogback.configurationFile=logback-dev-mode.xml
       |        -Dkalix.dev-mode.service-port-mappings.foo=9001
       |        -Dkalix.dev-mode.service-port-mappings.bar=9002
-      |      USER_FUNCTION_HOST:${USER_FUNCTION_HOST:-host.docker.internal}
-      |      USER_FUNCTION_PORT:${USER_FUNCTION_PORT:-8081}
+      |      USER_SERVICE_HOST:${USER_SERVICE_HOST:-host.docker.internal}
+      |      USER_SERVICE_PORT:${USER_SERVICE_PORT:-8081}
       |""".stripMargin
 
   "DockerComposeUtils" should {
@@ -58,8 +58,8 @@ class DockerComposeUtilsSpec extends AnyWordSpec with Matchers with OptionValues
       dockerComposeUtils.userFunctionPort shouldBe 8081
     }
 
-    "favor USER_FUNCTION_PORT env var if set " in {
-      val envVar = Map("USER_FUNCTION_PORT" -> "8082")
+    "favor USER_SERVICE_PORT env var if set " in {
+      val envVar = Map("USER_SERVICE_PORT" -> "8082")
       val dockerComposeFile = createTmpFile(defaultFile)
       val dockerComposeUtils = DockerComposeUtils(dockerComposeFile, envVar)
       dockerComposeUtils.userFunctionPort shouldBe 8082
@@ -94,7 +94,7 @@ class DockerComposeUtilsSpec extends AnyWordSpec with Matchers with OptionValues
           |    extra_hosts:
           |      - "host.docker.internal:host-gateway"
           |    environment:
-          |      USER_FUNCTION_PORT:8081
+          |      USER_SERVICE_PORT:8081
           |""".stripMargin
 
       val dockerComposeFile = createTmpFile(fileWithoutEnvVar)
@@ -129,8 +129,8 @@ class DockerComposeUtilsSpec extends AnyWordSpec with Matchers with OptionValues
           |      JAVA_TOOL_OPTIONS: >
           |        -Dconfig.resource=dev-mode.conf
           |        -Dlogback.configurationFile=logback-dev-mode.xml
-          |      USER_FUNCTION_HOST:${USER_FUNCTION_HOST:-host.docker.internal}
-          |      USER_FUNCTION_PORT:${USER_FUNCTION_PORT:-8082}
+          |      USER_SERVICE_HOST:${USER_SERVICE_HOST:-host.docker.internal}
+          |      USER_SERVICE_PORT:${USER_SERVICE_PORT:-8082}
           |""".stripMargin
 
       val dockerComposeFile = createTmpFile(defaultFile + extraProxy)
