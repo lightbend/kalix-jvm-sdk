@@ -65,6 +65,7 @@ import reactor.core.publisher.Mono;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -632,6 +633,31 @@ public class SpringSdkIntegrationTest {
       .params("myKey", value));
 
     assertThat(actionResponse.text).isEqualTo(value);
+  }
+
+  @Test
+  public void shouldSupportMetadataInReplies() {
+    String value = "someValue";
+
+    String headerInResponse =
+        webClient
+          .get()
+          .uri("/reply-meta/myKey/" + value)
+          .exchangeToMono(response -> Mono.just(Objects.requireNonNull(
+              response.headers().asHttpHeaders().getFirst("myKey"))))
+          .block();
+
+    assertThat(value).isEqualTo(headerInResponse);
+
+    String headerInAyncResponse =
+        webClient
+            .get()
+            .uri("/reply-async-meta/myKey/" + value)
+            .exchangeToMono(response -> Mono.just(Objects.requireNonNull(
+                response.headers().asHttpHeaders().getFirst("myKey"))))
+            .block();
+
+    assertThat(value).isEqualTo(headerInAyncResponse);
   }
 
   @Test

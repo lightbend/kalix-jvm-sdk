@@ -145,7 +145,7 @@ public abstract class Action {
       <S> Effect<S> reply(S message);
 
       /**
-       * Create a message reply.
+       * Create a message reply with custom Metadata.
        *
        * @param message  The payload of the reply.
        * @param metadata The metadata for the message.
@@ -202,6 +202,16 @@ public abstract class Action {
        * @return A message reply.
        */
       <S> Effect<S> asyncReply(CompletionStage<S> message);
+
+      /**
+       * Create a message reply from an async operation result with custom Metadata.
+       *
+       * @param message The future payload of the reply.
+       * @param <S>     The type of the message that must be returned by this call.
+       * @param metadata The metadata for the message.
+       * @return A message reply.
+       */
+      <S> Effect<S> asyncReply(CompletionStage<S> message, Metadata metadata);
 
       /**
        * Create a reply from an async operation result returning an effect.
