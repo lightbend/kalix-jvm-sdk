@@ -552,15 +552,15 @@ class ViewDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSuit
     "validate missing handlers for method level subscription" in {
       intercept[InvalidComponentException] {
         Validations.validate(classOf[SubscribeToEventSourcedWithMissingHandlerState]).failIfInvalid
-      }.getMessage should include(
-        "Component 'SubscribeToEventSourcedWithMissingHandlerState' is missing an event handler for 'kalix.spring.testmodels.eventsourcedentity.EmployeeEvent$EmployeeEmailUpdated'")
+      }.getMessage shouldBe
+      "On 'kalix.spring.testmodels.view.ViewTestModels$SubscribeToEventSourcedWithMissingHandlerState': missing an event handler for 'kalix.spring.testmodels.eventsourcedentity.EmployeeEvent$EmployeeEmailUpdated'."
     }
 
     "validate missing handlers for type level subscription" in {
       intercept[InvalidComponentException] {
         Validations.validate(classOf[TypeLevelSubscribeToEventSourcedEventsWithState]).failIfInvalid
-      }.getMessage should include(
-        "Component 'TypeLevelSubscribeToEventSourcedEventsWithState' is missing an event handler for 'kalix.spring.testmodels.eventsourcedentity.EmployeeEvent$EmployeeEmailUpdated'")
+      }.getMessage shouldBe
+      "On 'kalix.spring.testmodels.view.ViewTestModels$TypeLevelSubscribeToEventSourcedEventsWithState': missing an event handler for 'kalix.spring.testmodels.eventsourcedentity.EmployeeEvent$EmployeeEmailUpdated'."
     }
 
     "not allow duplicated ES subscriptions methods" in {

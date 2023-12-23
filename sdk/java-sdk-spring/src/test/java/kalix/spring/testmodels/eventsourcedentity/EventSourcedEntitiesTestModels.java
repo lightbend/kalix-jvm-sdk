@@ -258,6 +258,34 @@ public class EventSourcedEntitiesTestModels {
   }
 
   @Id("id")
+  @TypeId("employee")
+  @RequestMapping("/employee/{id}")
+  public static class EmployeeEntityWithMixedHandlers extends EventSourcedEntity<Employee, EmployeeEvent> {
+
+    @PostMapping
+    public Effect<String> createUser(@RequestBody CreateEmployee create) {
+      return effects()
+          .emitEvent(new EmployeeEvent.EmployeeCreated(create.firstName, create.lastName, create.email))
+          .thenReply(__ -> "ok");
+    }
+
+    @EventHandler
+    public Employee onEvent(EmployeeEvent event) {
+      if (event instanceof EmployeeEvent.EmployeeCreated) {
+        EmployeeEvent.EmployeeCreated created = (EmployeeEvent.EmployeeCreated) event;
+        return new Employee(created.firstName, created.lastName, created.email);
+      } else {
+        return currentState();
+      }
+    }
+
+    @EventHandler
+    public Employee onEmployeeCreated(EmployeeEvent.EmployeeCreated created) {
+      return new Employee(created.firstName, created.lastName, created.email);
+    }
+  }
+
+  @Id("id")
   @TypeId("counter")
   @Acl(allow = @Acl.Matcher(service = "test"))
   public static class EventSourcedEntityWithServiceLevelAcl extends EventSourcedEntity<Integer, Object> {

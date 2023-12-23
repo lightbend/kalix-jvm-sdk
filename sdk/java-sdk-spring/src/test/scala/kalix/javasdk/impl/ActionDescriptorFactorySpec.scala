@@ -760,15 +760,15 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
     "validates if there are missing event handlers for event sourced Entity Subscription at type level" in {
       intercept[InvalidComponentException] {
         Validations.validate(classOf[MissingHandlersWhenSubscribeToEventSourcedEntityAction]).failIfInvalid
-      }.getMessage should include(
-        "Component 'MissingHandlersWhenSubscribeToEventSourcedEntityAction' is missing an event handler for 'kalix.spring.testmodels.eventsourcedentity.EmployeeEvent$EmployeeEmailUpdated'")
+      }.getMessage shouldBe
+      "On 'kalix.spring.testmodels.subscriptions.PubSubTestModels$MissingHandlersWhenSubscribeToEventSourcedEntityAction': missing an event handler for 'kalix.spring.testmodels.eventsourcedentity.EmployeeEvent$EmployeeEmailUpdated'."
     }
 
     "validates if there are missing event handlers for event sourced Entity Subscription at method level" in {
       intercept[InvalidComponentException] {
         Validations.validate(classOf[MissingHandlersWhenSubscribeToEventSourcedOnMethodLevelEntityAction]).failIfInvalid
-      }.getMessage should include(
-        "Component 'MissingHandlersWhenSubscribeToEventSourcedOnMethodLevelEntityAction' is missing an event handler for 'kalix.spring.testmodels.eventsourcedentity.EmployeeEvent$EmployeeEmailUpdated'")
+      }.getMessage shouldBe
+      "On 'kalix.spring.testmodels.subscriptions.PubSubTestModels$MissingHandlersWhenSubscribeToEventSourcedOnMethodLevelEntityAction': missing an event handler for 'kalix.spring.testmodels.eventsourcedentity.EmployeeEvent$EmployeeEmailUpdated'."
     }
 
     "validates it is forbidden Topic Subscription at annotation type level and method level at the same time" in {

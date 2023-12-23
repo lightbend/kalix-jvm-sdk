@@ -94,17 +94,7 @@ public class CounterEntity extends EventSourcedEntity<Counter, CounterEvent> {
   }
 
   @EventHandler
-  public Counter handleIncrease(CounterEvent.ValueIncreased increased) {
-    return currentState().onValueIncreased(increased);
-  }
-
-  @EventHandler
-  public Counter handleSet(CounterEvent.ValueSet set) {
-    return currentState().onValueSet(set);
-  }
-
-  @EventHandler
-  public Counter handleMultiply(CounterEvent.ValueMultiplied multiplied) {
-    return currentState().onValueMultiplied(multiplied);
+  public Counter handle(CounterEvent counterEvent) {
+    return currentState().apply(counterEvent);
   }
 }

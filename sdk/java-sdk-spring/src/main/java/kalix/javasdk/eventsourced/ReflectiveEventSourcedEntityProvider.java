@@ -26,10 +26,11 @@ import kalix.javasdk.impl.ComponentDescriptor;
 import kalix.javasdk.impl.ComponentDescriptorFactory$;
 import kalix.javasdk.impl.JsonMessageCodec;
 import kalix.javasdk.impl.MessageCodec;
-import kalix.javasdk.impl.eventsourcedentity.EventSourceEntityHandlers;
+import kalix.javasdk.impl.MethodInvoker;
 import kalix.javasdk.impl.eventsourcedentity.EventSourcedEntityRouter;
 import kalix.javasdk.impl.eventsourcedentity.EventSourcedHandlersExtractor;
 import kalix.javasdk.impl.eventsourcedentity.ReflectiveEventSourcedEntityRouter;
+import scala.collection.immutable.Map;
 
 import java.util.Optional;
 import java.util.function.Function;
@@ -46,7 +47,7 @@ public class ReflectiveEventSourcedEntityProvider<S, E, ES extends EventSourcedE
 
   private final JsonMessageCodec messageCodec;
 
-  private final EventSourceEntityHandlers eventHandlers;
+  private final Map<String, MethodInvoker> eventHandlers;
 
   public static <S, E, ES extends EventSourcedEntity<S, E>> ReflectiveEventSourcedEntityProvider<S, E, ES> of(
       Class<ES> cls,
@@ -68,14 +69,6 @@ public class ReflectiveEventSourcedEntityProvider<S, E, ES extends EventSourcedE
           "Event Sourced Entity [" + entityClass.getName() + "] is missing '@TypeId' annotation");
 
     this.eventHandlers = EventSourcedHandlersExtractor.handlersFrom(entityClass, messageCodec);
-    if (this.eventHandlers.errors().nonEmpty()) {
-      throw new IllegalArgumentException(
-          "Event Sourced Entity ["
-              + entityClass.getName()
-              + "] has event handlers configured incorrectly: "
-              + this.eventHandlers.errors());
-    }
-
     this.entityType = typeId;
     this.factory = factory;
     this.options = options.withForwardHeaders(ForwardHeadersExtractor.extractFrom(entityClass));
@@ -104,7 +97,7 @@ public class ReflectiveEventSourcedEntityProvider<S, E, ES extends EventSourcedE
   public EventSourcedEntityRouter<S, E, ES> newRouter(EventSourcedEntityContext context) {
     ES entity = factory.apply(context);
     return new ReflectiveEventSourcedEntityRouter<>(
-        entity, componentDescriptor.commandHandlers(), eventHandlers.handlers(), messageCodec);
+        entity, componentDescriptor.commandHandlers(), eventHandlers, messageCodec);
   }
 
   @Override

@@ -19,11 +19,8 @@ package kalix.javasdk.impl.eventsourceentity
 import kalix.javasdk.JsonSupport
 import kalix.javasdk.impl.JsonMessageCodec
 import kalix.javasdk.impl.eventsourcedentity.EventSourcedHandlersExtractor
-import kalix.spring.testmodels.eventsourcedentity.EmployeeEvent.EmployeeEmailUpdated
 import kalix.spring.testmodels.eventsourcedentity.EventSourcedEntitiesTestModels.CounterEventSourcedEntity
-import kalix.spring.testmodels.eventsourcedentity.EventSourcedEntitiesTestModels.EmployeeEntityWithMissingHandler
-import kalix.spring.testmodels.eventsourcedentity.EventSourcedEntitiesTestModels.ErrorDuplicatedEventsEntity
-import kalix.spring.testmodels.eventsourcedentity.EventSourcedEntitiesTestModels.ErrorWrongSignaturesEntity
+import kalix.spring.testmodels.eventsourcedentity.EventSourcedEntitiesTestModels.EmployeeEntity
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 
@@ -36,62 +33,43 @@ class EventSourcedHandlersExtractorSpec extends AnyWordSpec with Matchers {
 
   "EventSourcedHandlersExtractor" should {
 
+    "extract handlers for sealed interface handler" in {
+      val result = EventSourcedHandlersExtractor.handlersFrom(classOf[EmployeeEntity], messageCodec)
+      result.size shouldBe 3
+      result.get(JsonSupport.KALIX_JSON + "created").map { m =>
+        m.method.getName shouldBe "onEvent"
+        m.method.getParameterCount shouldBe 1
+      }
+      result.get(JsonSupport.KALIX_JSON + "old-created").map { m =>
+        m.method.getName shouldBe "onEvent"
+        m.method.getParameterCount shouldBe 1
+      }
+      result.get(JsonSupport.KALIX_JSON + "emailUpdated").map { m =>
+        m.method.getName shouldBe "onEvent"
+        m.method.getParameterCount shouldBe 1
+      }
+    }
+
     "extract public well-annotated handlers keyed by event type received as unique parameter" in {
       val result = EventSourcedHandlersExtractor.handlersFrom(classOf[CounterEventSourcedEntity], messageCodec)
-      result.handlers.size shouldBe 4
-      result.handlers.get(JsonSupport.KALIX_JSON + "int").map { m =>
+      result.size shouldBe 4
+      result.get(JsonSupport.KALIX_JSON + "int").map { m =>
         m.method.getName shouldBe "receivedIntegerEvent"
         m.method.getParameterCount shouldBe 1
       }
-      result.handlers.get(intTypeUrl).map { m =>
+      result.get(intTypeUrl).map { m =>
         m.method.getName shouldBe "receivedIntegerEvent"
         m.method.getParameterCount shouldBe 1
       }
-      result.handlers.get(eventTypeUrl).map { m =>
+      result.get(eventTypeUrl).map { m =>
         m.method.getName shouldBe "receiveStringEvent"
         m.method.getParameterCount shouldBe 1
       }
       //additional type pointing to the same handler to support events schema evolution
-      result.handlers.get(additionalMappingTypeUrl).map { m =>
+      result.get(additionalMappingTypeUrl).map { m =>
         m.method.getName shouldBe "receiveStringEvent"
         m.method.getParameterCount shouldBe 1
       }
-      result.errors shouldBe empty
-    }
-
-    "report error on annotated handlers with wrong return type or number of params" in {
-      val result = EventSourcedHandlersExtractor.handlersFrom(classOf[ErrorWrongSignaturesEntity], messageCodec)
-      result.handlers shouldBe empty
-      result.errors.size shouldBe 1
-      val offendingMethods = result.errors.flatMap(_.methods.map(_.getName).sorted)
-      offendingMethods shouldBe List("receivedIntegerEvent", "receivedIntegerEventAndString")
-    }
-
-    "report error on missing event handler for sealed event interface" in {
-      val result = EventSourcedHandlersExtractor.handlersFrom(classOf[EmployeeEntityWithMissingHandler], messageCodec)
-      result.handlers.size shouldBe 2
-      result.errors.size shouldBe 1
-      val offendingMethods = result.errors.flatMap(_.methods.map(_.getName).sorted)
-      offendingMethods shouldBe empty
-      val missingHandlerFor = result.errors.flatMap(_.missingHandlersFor)
-      missingHandlerFor should contain only classOf[EmployeeEmailUpdated]
-    }
-
-    "report error on annotated handlers with duplicates signatures (receiving the same event type)" in {
-      val result = EventSourcedHandlersExtractor.handlersFrom(classOf[ErrorDuplicatedEventsEntity], messageCodec)
-      result.handlers.size shouldBe 2
-      result.handlers.get(JsonSupport.KALIX_JSON + "int").map { m =>
-        m.method.getName shouldBe "receivedIntegerEvent"
-        m.method.getParameterCount shouldBe 1
-      }
-      result.handlers.get(intTypeUrl).map { m =>
-        m.method.getName shouldBe "receivedIntegerEvent"
-        m.method.getParameterCount shouldBe 1
-      }
-
-      result.errors.size shouldBe 1
-      val offendingMethods = result.errors.flatMap(_.methods.map(_.getName).sorted)
-      offendingMethods shouldBe List("receivedIntegerEvent", "receivedIntegerEventDup")
     }
   }
 }
