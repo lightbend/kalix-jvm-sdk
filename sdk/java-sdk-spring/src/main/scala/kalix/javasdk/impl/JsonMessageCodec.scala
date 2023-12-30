@@ -23,6 +23,7 @@ import java.util.concurrent.ConcurrentMap
 import scala.jdk.CollectionConverters._
 
 import com.fasterxml.jackson.annotation.JsonSubTypes
+import com.google.api.HttpBody
 import com.google.protobuf.ByteString
 import com.google.protobuf.BytesValue
 import com.google.protobuf.any.{ Any => ScalaPbAny }
@@ -47,6 +48,7 @@ private[kalix] class JsonMessageCodec extends MessageCodec {
     value match {
       case javaPbAny: JavaPbAny   => ScalaPbAny.fromJavaProto(javaPbAny)
       case scalaPbAny: ScalaPbAny => scalaPbAny
+      case httpBody: HttpBody     => ScalaPbAny.fromJavaProto(JavaPbAny.pack(httpBody))
       case bytes: Array[Byte]     => ScalaPbAny.fromJavaProto(JavaPbAny.pack(BytesValue.of(ByteString.copyFrom(bytes))))
       case other => ScalaPbAny.fromJavaProto(JsonSupport.encodeJson(other, lookupTypeHintWithVersion(other)))
     }
@@ -56,6 +58,7 @@ private[kalix] class JsonMessageCodec extends MessageCodec {
     if (value == null) throw NullSerializationException
     value match {
       case javaPbAny: JavaPbAny   => javaPbAny
+      case httpBody: HttpBody     => JavaPbAny.pack(httpBody)
       case scalaPbAny: ScalaPbAny => ScalaPbAny.toJavaProto(scalaPbAny)
       case other                  => JsonSupport.encodeJson(other, lookupTypeHintWithVersion(other))
     }

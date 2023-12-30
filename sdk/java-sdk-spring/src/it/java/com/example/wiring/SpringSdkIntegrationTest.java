@@ -105,6 +105,22 @@ public class SpringSdkIntegrationTest {
   }
 
   @Test
+  public void shouldReturnEmptyBody() {
+
+    ResponseEntity<String> response =
+        webClient
+            .get()
+            .uri("/http-body")
+            .retrieve()
+            .toEntity(String.class)
+            .block(timeout);
+
+    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+    assertThat(response.getHeaders().get("Content-Type")).contains("text/plain");
+    assertThat(response.getBody()).isNull();
+  }
+
+  @Test
   public void verifyRequestWithOptionalQueryParams() {
 
     Message response =

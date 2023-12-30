@@ -25,6 +25,7 @@ import scala.jdk.CollectionConverters._
 
 import com.google.api.AnnotationsProto
 import com.google.api.CustomHttpPattern
+import com.google.api.HttpBody
 import com.google.api.HttpRule
 import com.google.protobuf.ByteString
 import com.google.protobuf.BytesValue
@@ -166,8 +167,11 @@ private[kalix] object ComponentDescriptor {
       case Some(javaMethod) =>
         javaMethod.getGenericReturnType match {
           case parameterizedType: ParameterizedType =>
-            if (parameterizedType.getActualTypeArguments.head == classOf[Array[Byte]]) {
+            val outputType = parameterizedType.getActualTypeArguments.head
+            if (outputType == classOf[Array[Byte]]) {
               BytesValue.getDescriptor.getFullName
+            } else if (outputType == classOf[HttpBody]) {
+              HttpBody.getDescriptor.getFullName
             } else {
               JavaPbAny.getDescriptor.getFullName
             }

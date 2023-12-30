@@ -103,8 +103,10 @@ import kalix.spring.testmodels.subscriptions.PubSubTestModels.TypeLevelTopicSubs
 import kalix.spring.testmodels.subscriptions.PubSubTestModels.VEWithPublishToTopicAction
 import kalix.spring.testmodels.valueentity.CounterState
 import org.scalatest.wordspec.AnyWordSpec
-
 import scala.jdk.CollectionConverters.CollectionHasAsScala
+
+import com.google.api.HttpBody
+import kalix.spring.testmodels.action.ActionsTestModels.ActionWithHttpBody
 
 class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSuite {
 
@@ -154,6 +156,17 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
         val method = desc.commandHandlers("Message")
         assertRequestFieldJavaType(method, "one", JavaType.STRING)
         assertFieldIsProto3Optional(method, "one")
+      }
+    }
+
+    "generate mappings for an Action with HttpBody output" in {
+      assertDescriptor[ActionWithHttpBody] { desc =>
+
+        val methodDescriptor = desc.serviceDescriptor.findMethodByName("Message")
+        methodDescriptor.isServerStreaming shouldBe false
+        methodDescriptor.isClientStreaming shouldBe false
+
+        methodDescriptor.getOutputType.getFullName shouldBe HttpBody.getDescriptor.getFullName
       }
     }
 

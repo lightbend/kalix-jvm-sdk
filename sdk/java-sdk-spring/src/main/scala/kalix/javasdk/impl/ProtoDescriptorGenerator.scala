@@ -16,6 +16,7 @@
 
 package kalix.javasdk.impl
 
+import com.google.api.HttpBodyProto
 import com.google.api.{ AnnotationsProto => HttpAnnotationsProto }
 import com.google.protobuf.AnyProto
 import com.google.protobuf.DescriptorProtos
@@ -38,7 +39,8 @@ private[impl] object ProtoDescriptorGenerator {
       TimestampProto.getDescriptor,
       WrappersProto.getDescriptor,
       HttpAnnotationsProto.getDescriptor,
-      KalixAnnotations.getDescriptor)
+      KalixAnnotations.getDescriptor,
+      HttpBodyProto.getDescriptor)
 
   def genFileDescriptor(
       name: String,
@@ -57,6 +59,7 @@ private[impl] object ProtoDescriptorGenerator {
     protoBuilder.addDependency("google/protobuf/empty.proto")
     protoBuilder.addDependency("google/protobuf/timestamp.proto")
     protoBuilder.addDependency("google/protobuf/wrappers.proto")
+    protoBuilder.addDependency("google/api/httpbody.proto")
     protoBuilder.addService(service)
     messages.foreach(protoBuilder.addMessageType)
 

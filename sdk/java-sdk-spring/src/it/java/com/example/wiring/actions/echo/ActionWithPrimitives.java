@@ -16,6 +16,8 @@
 
 package com.example.wiring.actions.echo;
 
+import com.google.api.HttpBody;
+import com.google.protobuf.ByteString;
 import kalix.javasdk.action.Action;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -33,6 +35,11 @@ public class ActionWithPrimitives extends Action {
     String response = String.valueOf(longValue) + String.valueOf(intValue) + stringValue;
 
     return effects().reply(new Message(response));
+  }
+
+  @GetMapping("/http-body")
+  public Effect<HttpBody> httpBody() {
+    return effects().reply(HttpBody.newBuilder().setContentType("text/plain").setData(ByteString.copyFromUtf8("test")).build());
   }
 
   @GetMapping("/action/{doubleValue}/{floatValue}/{intValue}/{longValue}")
