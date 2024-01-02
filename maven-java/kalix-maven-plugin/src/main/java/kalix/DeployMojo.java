@@ -8,6 +8,7 @@ import org.apache.maven.plugins.annotations.Parameter;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -54,7 +55,7 @@ public class DeployMojo extends AbstractMojo {
 
     private void deploy(String service, String dockerImage, Optional<String> kalixProject, Optional<String> kalixContext) throws MojoExecutionException {
         try {
-            List<String> commandLine = (Arrays.asList(kalixPath, "service", "deploy", service, dockerImage));
+            List<String> commandLine = new ArrayList<>(List.of(kalixPath, "service", "deploy", service, dockerImage));
             String messageExtraInfo = "";
 
             if (kalixProject.isPresent()){
