@@ -105,12 +105,28 @@ public class SpringSdkIntegrationTest {
   }
 
   @Test
+  public void shouldReturnTextBody() {
+
+    ResponseEntity<String> response =
+        webClient
+            .get()
+            .uri("/text-body")
+            .retrieve()
+            .toEntity(String.class)
+            .block(timeout);
+
+    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+    assertThat(response.getHeaders().get("Content-Type")).contains("text/plain");
+    assertThat(response.getBody()).isEqualTo("test");
+  }
+
+  @Test
   public void shouldReturnEmptyBody() {
 
     ResponseEntity<String> response =
         webClient
             .get()
-            .uri("/http-body")
+            .uri("/empty-text-body")
             .retrieve()
             .toEntity(String.class)
             .block(timeout);

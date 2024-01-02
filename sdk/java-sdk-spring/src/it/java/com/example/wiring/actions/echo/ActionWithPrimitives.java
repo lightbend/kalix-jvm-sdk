@@ -37,9 +37,14 @@ public class ActionWithPrimitives extends Action {
     return effects().reply(new Message(response));
   }
 
-  @GetMapping("/http-body")
-  public Effect<HttpBody> httpBody() {
+  @GetMapping("/text-body")
+  public Effect<HttpBody> textBody() {
     return effects().reply(HttpBody.newBuilder().setContentType("text/plain").setData(ByteString.copyFromUtf8("test")).build());
+  }
+
+  @GetMapping("/empty-text-body")
+  public Effect<HttpBody> emptyTextBody() {
+    return effects().reply(HttpBody.newBuilder().setContentType("text/plain").build());
   }
 
   @GetMapping("/action/{doubleValue}/{floatValue}/{intValue}/{longValue}")
