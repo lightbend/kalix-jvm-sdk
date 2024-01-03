@@ -4,7 +4,7 @@
 version: "3"
 services:
   kalix-runtime:
-    image: gcr.io/kalix-public/kalix-runtime:1.1.27
+    image: gcr.io/kalix-public/kalix-runtime:1.1.29
     container_name: java-spring-view-store
     ports:
       - "9000:9000"
@@ -12,8 +12,8 @@ services:
       - "host.docker.internal:host-gateway"
     environment:
       JAVA_TOOL_OPTIONS: >
-      # jvm -D properties can be added under this environment map (note: remove this comment when adding properties)
-
+        -Dkalix.proxy.telemetry.tracing.enabled=true
+        -Dkalix.proxy.telemetry.tracing.collector-endpoint=http://tempo:4317
       USER_SERVICE_HOST: ${USER_SERVICE_HOST:-host.docker.internal}
       USER_SERVICE_PORT: ${USER_SERVICE_PORT:-8080}
       # Enable advanced view features locally (note: disabled in deployed services by default)
@@ -24,3 +24,22 @@ services:
   #  command: gcloud beta emulators pubsub start --project=test --host-port=0.0.0.0:8085
   #  ports:
   #    - 8085:8085
+  tempo:
+    image: grafana/tempo:latest
+    command: [ "-config.file=/etc/tempo.yaml" ]
+    volumes:
+      - ./tempo-config/tempo.yaml:/etc/tempo.yaml
+      - ./tempo-data/:/tmp/tempo
+    ports:
+      - "14268"  # jaeger ingest
+      - "3200"   # tempo
+
+  tempo-query:
+    image: grafana/tempo-query:latest
+    command: [ "--grpc-storage-plugin.configuration-file=/etc/tempo-query.yaml" ]
+    volumes:
+      - ./tempo-config/tempo-query.yaml:/etc/tempo-query.yaml
+    ports:
+      - "16686:16686"  # jaeger-ui
+    depends_on:
+      - tempo
