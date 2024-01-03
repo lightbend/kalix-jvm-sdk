@@ -31,8 +31,9 @@ services:
       - ./tempo-config/tempo.yaml:/etc/tempo.yaml
       - ./tempo-data/:/tmp/tempo
     ports:
-      - "14268"  # jaeger ingest
-      - "3200"   # tempo
+      - "14268:14268"  # jaeger ingest
+      - "3200:3200"   # tempo
+      - "4317:4317" 
 
   tempo-query:
     image: grafana/tempo-query:latest
