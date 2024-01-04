@@ -223,7 +223,7 @@ At the root of the *customer-registry-subscriber* service, we can find an altern
 
 [source,yml,indent=0]
 ----
-include::java:example$java-spring-eventsourced-customer-registry-subscriber/docker-compose-integration.yml[tag=customer-registry-docker]
+include::java-protobuf:example$java-protobuf-eventsourced-customer-registry-subscriber/docker-compose-integration.yml[tag=customer-registry-docker]
 ----
 
 But first, we need to build an image for *customer-registry*. For local development, we don't need to publish it to a remote container registry. It suffices to build it locally. 
