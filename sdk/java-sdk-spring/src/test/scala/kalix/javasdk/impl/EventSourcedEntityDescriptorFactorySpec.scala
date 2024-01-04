@@ -43,7 +43,8 @@ class EventSourcedEntityDescriptorFactorySpec extends AnyWordSpec with Component
     "validate an ESE must be declared as public" in {
       intercept[InvalidComponentException] {
         Validations.validate(classOf[NotPublicComponents.NotPublicEventSourced]).failIfInvalid
-      }.getMessage should include("NotPublicEventSourced is not marked with `public` modifier. Components must be public.")
+      }.getMessage should include(
+        "NotPublicEventSourced is not marked with `public` modifier. Components must be public.")
     }
 
     "generate mappings for a Event Sourced with entity ids in path" in {

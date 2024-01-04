@@ -40,7 +40,8 @@ class ValueEntityDescriptorFactorySpec extends AnyWordSpec with ComponentDescrip
     "validate a ValueEntity must be declared as public" in {
       intercept[InvalidComponentException] {
         Validations.validate(classOf[NotPublicComponents.NotPublicValueEntity]).failIfInvalid
-      }.getMessage should include("NotPublicValueEntity is not marked with `public` modifier. Components must be public.")
+      }.getMessage should include(
+        "NotPublicValueEntity is not marked with `public` modifier. Components must be public.")
     }
 
     "generate mappings for a Value Entity with entity ids in path" in {
