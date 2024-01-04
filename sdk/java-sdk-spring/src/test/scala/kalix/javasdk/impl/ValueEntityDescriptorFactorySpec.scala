@@ -37,6 +37,13 @@ import scala.jdk.CollectionConverters.CollectionHasAsScala
 class ValueEntityDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSuite {
 
   "ValueEntity descriptor factory" should {
+    "validate a ValueEntity must be declared as public" in {
+      intercept[InvalidComponentException] {
+        Validations.validate(classOf[NotPublicComponents.NotPublicValueEntity]).failIfInvalid
+      }.getMessage should include(
+        "NotPublicValueEntity is not marked with `public` modifier. Components must be public.")
+    }
+
     "generate mappings for a Value Entity with entity ids in path" in {
       assertDescriptor[PostWithIds] { desc =>
         val method = desc.commandHandlers("CreateEntity")

@@ -110,6 +110,12 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
 
   "Action descriptor factory" should {
 
+    "validate an Action must be declared as public" in {
+      intercept[InvalidComponentException] {
+        Validations.validate(classOf[NotPublicComponents.NotPublicAction]).failIfInvalid
+      }.getMessage should include("NotPublicAction is not marked with `public` modifier. Components must be public.")
+    }
+
     "generate mappings for an Action with GET without path param" in {
       assertDescriptor[GetWithoutParam] { desc =>
 
