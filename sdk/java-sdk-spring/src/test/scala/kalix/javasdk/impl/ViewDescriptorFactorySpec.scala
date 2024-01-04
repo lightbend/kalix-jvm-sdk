@@ -72,6 +72,12 @@ class ViewDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSuit
 
   "View descriptor factory" should {
 
+    "validate a View must be declared as public" in {
+      intercept[InvalidComponentException] {
+        Validations.validate(classOf[NotPublicComponents.NotPublicView]).failIfInvalid
+      }.getMessage should include("NotPublicView is not marked with `public` modifier. Components must be public.")
+    }
+
     "generate ACL annotations at service level" in {
       assertDescriptor[ViewWithServiceLevelAcl] { desc =>
         val extension = desc.serviceDescriptor.getOptions.getExtension(kalix.Annotations.service)

@@ -39,6 +39,13 @@ import scala.jdk.CollectionConverters.CollectionHasAsScala
 class EventSourcedEntityDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSuite {
 
   "EventSourced descriptor factory" should {
+
+    "validate an ESE must be declared as public" in {
+      intercept[InvalidComponentException] {
+        Validations.validate(classOf[NotPublicComponents.NotPublicEventSourced]).failIfInvalid
+      }.getMessage should include("NotPublicEventSourced is not marked with `public` modifier. Components must be public.")
+    }
+
     "generate mappings for a Event Sourced with entity ids in path" in {
       assertDescriptor[CounterEventSourcedEntity] { desc =>
         val method = desc.commandHandlers("GetInteger")

@@ -38,6 +38,12 @@ import scala.jdk.CollectionConverters.CollectionHasAsScala
 class WorkflowEntityDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSuite {
 
   "Workflow descriptor factory" should {
+    "validate a Workflow must be declared as public" in {
+      intercept[InvalidComponentException] {
+        Validations.validate(classOf[NotPublicComponents.NotPublicWorkflow]).failIfInvalid
+      }.getMessage should include("NotPublicWorkflow is not marked with `public` modifier. Components must be public.")
+    }
+
     "generate mappings for a Workflow with entity ids in path" in {
       assertDescriptor[WorkflowWithTypeLevelKey] { desc =>
         val method = desc.commandHandlers("StartTransfer")
