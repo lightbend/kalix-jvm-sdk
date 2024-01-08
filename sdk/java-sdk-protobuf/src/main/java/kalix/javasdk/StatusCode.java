@@ -17,8 +17,7 @@
 package kalix.javasdk;
 
 /**
- * Interface used to represent a status code, typically used when replying with an error. **NOT**
- * for user extension.
+ * Interface used to represent HTTP status code. **NOT** for user extension.
  */
 public interface StatusCode {
 
@@ -55,6 +54,8 @@ public interface StatusCode {
     FOUND(302),
     SEE_OTHER(303),
     NOT_MODIFIED(304),
+    USE_PROXY(305),
+
     TEMPORARY_REDIRECT(307),
     PERMANENT_REDIRECT(308);
 

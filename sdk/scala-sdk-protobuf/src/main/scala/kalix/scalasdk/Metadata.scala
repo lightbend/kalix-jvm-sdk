@@ -264,6 +264,28 @@ trait Metadata extends Iterable[MetadataEntry] {
    * Get the Principals associated with this request.
    */
   def principals: Principals
+
+  /**
+   * Add an HTTP response code to this metadata. This will only take effect when HTTP transcoding is in use. It will be
+   * ignored for gRPC requests.
+   *
+   * @param code
+   *   The success status code to add.
+   * @return
+   *   a copy of this metadata with the HTTP response code set.
+   */
+  def withHttpResponseCode(code: StatusCode.Success): Metadata
+
+  /**
+   * Add an HTTP response code to this metadata. This will only take effect when HTTP transcoding is in use. It will be
+   * ignored for gRPC requests.
+   *
+   * @param code
+   *   The redirect status code to add.
+   * @return
+   *   a copy of this metadata with the HTTP response code set.
+   */
+  def withHttpResponseCode(code: StatusCode.Redirect): Metadata
 }
 
 object Metadata {
