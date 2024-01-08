@@ -24,7 +24,7 @@ Before running the code generation tools, make sure you have the following:
 * [.group-java]#Apache Maven {minimum_maven_version} or later# [.group-scala]#sbt {minimum_sbt_version} or later#
 * Docker {minimum_docker_version} or higher (to run locally)
 
-To deploy the generated service, you will need:
+To deploy the Kalix service, you need:
 
 * A https://docs.kalix.io/setting-up/index.html#_kalix_account[Kalix account]
 * A https://docs.kalix.io/projects/create-project.html[Kalix project]
