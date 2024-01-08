@@ -33,6 +33,7 @@ import kalix.javasdk.impl.GrpcClients;
 import kalix.javasdk.impl.MessageCodec;
 import kalix.javasdk.impl.ProxyInfoHolder;
 import kalix.javasdk.testkit.EventingTestKit.IncomingMessages;
+import kalix.javasdk.testkit.impl.KalixRuntimeContainer;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,8 +49,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
-import static kalix.javasdk.testkit.KalixProxyContainer.DEFAULT_GOOGLE_PUBSUB_PORT;
-import static kalix.javasdk.testkit.KalixProxyContainer.DEFAULT_KAFKA_PORT;
+import static kalix.javasdk.testkit.impl.KalixRuntimeContainer.DEFAULT_GOOGLE_PUBSUB_PORT;
+import static kalix.javasdk.testkit.impl.KalixRuntimeContainer.DEFAULT_KAFKA_PORT;
 import static kalix.javasdk.testkit.KalixTestKit.Settings.EventingSupport.GOOGLE_PUBSUB;
 import static kalix.javasdk.testkit.KalixTestKit.Settings.EventingSupport.KAFKA;
 import static kalix.javasdk.testkit.KalixTestKit.Settings.EventingSupport.TEST_BROKER;
@@ -433,7 +434,7 @@ public class KalixTestKit {
   private boolean started = false;
   private String proxyHost;
   private int proxyPort;
-  private Optional<KalixProxyContainer> proxyContainer = Optional.empty();
+  private Optional<KalixRuntimeContainer> runtimeContainer = Optional.empty();
   private KalixRunner runner;
   private ActorSystem testSystem;
   private EventingTestKit eventingTestKit;
@@ -491,7 +492,7 @@ public class KalixTestKit {
       throw new IllegalStateException("KalixTestkit already started");
 
     Boolean useTestContainers = Optional.ofNullable(System.getenv("KALIX_TESTKIT_USE_TEST_CONTAINERS")).map(Boolean::valueOf).orElse(true);
-    int port = userFunctionPort(useTestContainers);
+    int port = userServicePort(useTestContainers);
     Map<String, Object> conf = new HashMap<>();
     conf.put("kalix.user-function-port", port);
     // don't kill the test JVM when terminating the KalixRunner
@@ -537,11 +538,11 @@ public class KalixTestKit {
   private void runProxy(Boolean useTestContainers, int port, int grpcEventingBackendPort) {
 
     if (useTestContainers) {
-      var proxyContainer = new KalixProxyContainer(settings.eventingSupport, port, grpcEventingBackendPort);
-      this.proxyContainer = Optional.of(proxyContainer);
-      proxyContainer.addEnv("SERVICE_NAME", settings.serviceName);
-      proxyContainer.addEnv("ACL_ENABLED", Boolean.toString(settings.aclEnabled));
-      proxyContainer.addEnv("VIEW_FEATURES_ALL", Boolean.toString(settings.advancedViews));
+      var runtimeContainer = new KalixRuntimeContainer(settings.eventingSupport, port, grpcEventingBackendPort);
+      this.runtimeContainer = Optional.of(runtimeContainer);
+      runtimeContainer.addEnv("SERVICE_NAME", settings.serviceName);
+      runtimeContainer.addEnv("ACL_ENABLED", Boolean.toString(settings.aclEnabled));
+      runtimeContainer.addEnv("VIEW_FEATURES_ALL", Boolean.toString(settings.advancedViews));
 
       List<String> javaOptions = new ArrayList<>();
       javaOptions.add("-Dlogback.configurationFile=logback-dev-mode.xml");
@@ -573,13 +574,13 @@ public class KalixTestKit {
       });
 
       log.debug("Running container with javaOptions=" + javaOptions);
-      proxyContainer.addEnv("JAVA_TOOL_OPTIONS", String.join(" ", javaOptions));
-      settings.workflowTickInterval.ifPresent(tickInterval -> proxyContainer.addEnv("WORKFLOW_TICK_INTERVAL", tickInterval.toMillis() + ".millis"));
+      runtimeContainer.addEnv("JAVA_TOOL_OPTIONS", String.join(" ", javaOptions));
+      settings.workflowTickInterval.ifPresent(tickInterval -> runtimeContainer.addEnv("WORKFLOW_TICK_INTERVAL", tickInterval.toMillis() + ".millis"));
 
-      proxyContainer.start();
+      runtimeContainer.start();
 
-      proxyPort = proxyContainer.getProxyPort();
-      proxyHost = proxyContainer.getHost();
+      proxyPort = runtimeContainer.getProxyPort();
+      proxyHost = runtimeContainer.getHost();
 
     } else {
       proxyPort = 9000;
@@ -614,11 +615,11 @@ public class KalixTestKit {
     holder.overrideTracingCollectorEndpoint(""); //emulating ProxyInfo with disabled tracing.
   }
 
-  private int userFunctionPort(Boolean useTestContainers) {
+  private int userServicePort(Boolean useTestContainers) {
     if (useTestContainers) {
       return availableLocalPort();
     } else {
-      return KalixProxyContainer.DEFAULT_USER_FUNCTION_PORT;
+      return KalixRuntimeContainer.DEFAULT_USER_SERVICE_PORT;
     }
   }
 
@@ -806,7 +807,7 @@ public class KalixTestKit {
    */
   public void stop() {
     try {
-      proxyContainer.ifPresent(container -> container.stop());
+      runtimeContainer.ifPresent(container -> container.stop());
     } catch (Exception e) {
       log.error("KalixTestkit proxy container failed to stop", e);
     }
