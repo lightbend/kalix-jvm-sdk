@@ -92,37 +92,15 @@ private[testkit] case class OutgoingMessagesImpl private (
   }
 
   override def expectOneTyped[T <: GeneratedMessage](implicit t: ClassTag[T]): Message[T] = {
-    val msg = delegate.expectOneRaw()
-    expectOneTyped_internal(msg)
+    val msg = delegate.expectOneTyped(t.runtimeClass.asInstanceOf[Class[T]])
+    val md = MetadataConverters.toScala(msg.getMetadata)
+    Message(msg.getPayload, md)
   }
 
   override def expectOneTyped[T <: GeneratedMessage](timeout: FiniteDuration)(implicit t: ClassTag[T]): Message[T] = {
-    val msg = delegate.expectOneRaw(timeout.toJava)
-    expectOneTyped_internal(msg)
-  }
-
-  private def expectOneTyped_internal[T <: GeneratedMessage](msg: JEventingTestKit.Message[ByteString])(implicit
-      t: ClassTag[T]): Message[T] = {
+    val msg = delegate.expectOneTyped(t.runtimeClass.asInstanceOf[Class[T]], timeout.toJava)
     val md = MetadataConverters.toScala(msg.getMetadata)
-    val decodedMsg = codec.decodeMessage(ScalaPbAny(typeUrlFor(md), msg.getPayload))
-
-    val concreteType = MessageImpl.expectType(decodedMsg)
-    Message(concreteType, md)
-  }
-
-  private def typeUrlFor(metadata: Metadata): String = {
-    metadata
-      .get("ce-type")
-      .getOrElse {
-        val contentType = metadata.get("Content-Type")
-        contentType match {
-          case Some("text/plain; charset=utf-8") => "type.kalix.io/string"
-          case Some("application/octet-stream")  => "type.kalix.io/bytes"
-          case unknown =>
-            log.warn(s"Could not extract typeUrl from $unknown")
-            ""
-        }
-      }
+    Message(msg.getPayload, md)
   }
 
   override def expectN(): Seq[Message[_]] = expectN(Int.MaxValue)
@@ -178,37 +156,15 @@ private[testkit] case class TopicImpl private (delegate: JEventingTestKit.Topic,
   }
 
   override def expectOneTyped[T <: GeneratedMessage](implicit t: ClassTag[T]): Message[T] = {
-    val msg = delegate.expectOneRaw()
-    expectOneTyped_internal(msg)
+    val msg = delegate.expectOneTyped(t.runtimeClass.asInstanceOf[Class[T]])
+    val md = MetadataConverters.toScala(msg.getMetadata)
+    Message(msg.getPayload, md)
   }
 
   override def expectOneTyped[T <: GeneratedMessage](timeout: FiniteDuration)(implicit t: ClassTag[T]): Message[T] = {
-    val msg = delegate.expectOneRaw(timeout.toJava)
-    expectOneTyped_internal(msg)
-  }
-
-  private def expectOneTyped_internal[T <: GeneratedMessage](msg: JEventingTestKit.Message[ByteString])(implicit
-      t: ClassTag[T]): Message[T] = {
+    val msg = delegate.expectOneTyped(t.runtimeClass.asInstanceOf[Class[T]], timeout.toJava)
     val md = MetadataConverters.toScala(msg.getMetadata)
-    val decodedMsg = codec.decodeMessage(ScalaPbAny(typeUrlFor(md), msg.getPayload))
-
-    val concreteType = MessageImpl.expectType(decodedMsg)
-    Message(concreteType, md)
-  }
-
-  private def typeUrlFor(metadata: Metadata): String = {
-    metadata
-      .get("ce-type")
-      .getOrElse {
-        val contentType = metadata.get("Content-Type")
-        contentType match {
-          case Some("text/plain; charset=utf-8") => "type.kalix.io/string"
-          case Some("application/octet-stream")  => "type.kalix.io/bytes"
-          case unknown =>
-            log.warn(s"Could not extract typeUrl from $unknown")
-            ""
-        }
-      }
+    Message(msg.getPayload, md)
   }
 
   override def expectN(): Seq[Message[_]] = expectN(Int.MaxValue)

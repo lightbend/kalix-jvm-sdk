@@ -20,7 +20,6 @@ import java.time
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 import java.util.{ List => JList }
-
 import scala.compat.java8.DurationConverters.DurationOps
 import scala.compat.java8.OptionConverters.RichOptionalGeneric
 import scala.concurrent.Await
@@ -35,7 +34,6 @@ import scala.language.postfixOps
 import scala.language.postfixOps
 import scala.util.Failure
 import scala.util.Success
-
 import akka.NotUsed
 import akka.actor.ActorRef
 import akka.actor.ActorSystem
@@ -66,6 +64,7 @@ import kalix.javasdk.testkit.EventingTestKit.Topic
 import kalix.javasdk.testkit.EventingTestKit.{ Message => TestKitMessage }
 import kalix.javasdk.testkit.impl.EventingTestKitImpl.RunningSourceProbe
 import kalix.javasdk.testkit.impl.TestKitMessageImpl.defaultMetadata
+import kalix.javasdk.testkit.impl.TestKitMessageImpl.expectMsgInternal
 import kalix.javasdk.testkit.impl.TopicImpl.DefaultTimeout
 import kalix.javasdk.{ Metadata => SdkMetadata }
 import kalix.protocol.component.Metadata
@@ -361,14 +360,14 @@ private[testkit] class OutgoingMessagesImpl(
   override def expectOneRaw(): TestKitMessage[ByteString] = expectOneRaw(DefaultTimeout)
 
   override def expectOneRaw(timeout: time.Duration): TestKitMessage[ByteString] = {
-    val msg = destinationProbe.expectMsgType[EmitSingleCommand](timeout.toScala)
+    val msg = expectMsgInternal(destinationProbe, timeout)
     TestKitMessageImpl.ofProtocolMessage(msg.getMessage)
   }
 
   override def expectOne(): TestKitMessage[_] = expectOne(DefaultTimeout)
 
   override def expectOne(timeout: time.Duration): TestKitMessage[_] = {
-    val msg = destinationProbe.expectMsgType[EmitSingleCommand](timeout.toScala)
+    val msg = expectMsgInternal(destinationProbe, timeout)
     anyFromMessage(msg.getMessage)
   }
 
@@ -376,7 +375,7 @@ private[testkit] class OutgoingMessagesImpl(
     expectOneTyped(clazz, DefaultTimeout)
 
   override def expectOneTyped[T](clazz: Class[T], timeout: time.Duration): TestKitMessage[T] = {
-    val msg = destinationProbe.expectMsgType[EmitSingleCommand](timeout.toScala)
+    val msg = expectMsgInternal(destinationProbe, timeout, Some(clazz))
     val metadata = new MetadataImpl(msg.getMessage.getMetadata.entries)
     val scalaPb = ScalaPbAny(typeUrlFor(metadata), msg.getMessage.payload)
 
@@ -488,14 +487,14 @@ private[testkit] class TopicImpl(
   override def expectOneRaw(): TestKitMessage[ByteString] = expectOneRaw(DefaultTimeout)
 
   override def expectOneRaw(timeout: time.Duration): TestKitMessage[ByteString] = {
-    val msg = destinationProbe.expectMsgType[EmitSingleCommand](timeout.toScala)
+    val msg = expectMsgInternal(destinationProbe, timeout)
     TestKitMessageImpl.ofProtocolMessage(msg.getMessage)
   }
 
   override def expectOne(): TestKitMessage[_] = expectOne(DefaultTimeout)
 
   override def expectOne(timeout: time.Duration): TestKitMessage[_] = {
-    val msg = destinationProbe.expectMsgType[EmitSingleCommand](timeout.toScala)
+    val msg = expectMsgInternal(destinationProbe, timeout)
     anyFromMessage(msg.getMessage)
   }
 
@@ -503,7 +502,7 @@ private[testkit] class TopicImpl(
     expectOneTyped(clazz, DefaultTimeout)
 
   override def expectOneTyped[T](clazz: Class[T], timeout: time.Duration): TestKitMessage[T] = {
-    val msg = destinationProbe.expectMsgType[EmitSingleCommand](timeout.toScala)
+    val msg = expectMsgInternal(destinationProbe, timeout, Some(clazz))
     val metadata = new MetadataImpl(msg.getMessage.getMetadata.entries)
     val scalaPb = ScalaPbAny(typeUrlFor(metadata), msg.getMessage.payload)
 
@@ -601,7 +600,7 @@ private[testkit] object TestKitMessageImpl {
     defaultMetadata(subject, contentType, ceType)
   }
 
-  def defaultMetadata(subject: String, contentType: String, ceType: String) = {
+  def defaultMetadata(subject: String, contentType: String, ceType: String): SdkMetadata = {
     SdkMetadata.EMPTY
       .add("Content-Type", contentType)
       .add("ce-specversion", "1.0")
@@ -617,6 +616,20 @@ private[testkit] object TestKitMessageImpl {
       case m if bt.isInstance(m) => m.asInstanceOf[T]
       case m: String             => JsonSupport.getObjectMapper.readerFor(clazz).readValue(m)
       case m                     => throw new AssertionError(s"Expected $clazz, found ${m.getClass} ($m)")
+    }
+  }
+
+  // converting the internal assertion error into a user-friendly one
+  def expectMsgInternal(
+      destinationProbe: TestProbe,
+      timeout: time.Duration,
+      clazz: Option[Class[_]] = None): EmitSingleCommand = {
+    try {
+      destinationProbe.expectMsgType[EmitSingleCommand](timeout.toScala)
+    } catch {
+      case _: AssertionError =>
+        val typeMsg = clazz.map(" of type " + _.getName).getOrElse("")
+        throw new AssertionError(s"timeout (${timeout.toScala}) while waiting for message$typeMsg")
     }
   }
 }
