@@ -14,16 +14,13 @@ import org.springframework.web.bind.annotation.*;
 public class LimitedFibonacciAction extends Action {
 
     private static final Logger logger = LoggerFactory.getLogger(LimitedFibonacciAction.class);
+    // tag::injecting-component-client[]
+    private ComponentClient componentClient; // <1>
 
-    private ComponentClient componentClient;
-
-    private ActionCreationContext ctx;
-
-
-    public LimitedFibonacciAction(ActionCreationContext ctx, ComponentClient componentClient) {
-        this.ctx = ctx;
-        this.componentClient = componentClient;
+    public LimitedFibonacciAction(ComponentClient componentClient) { // <2>
+        this.componentClient = componentClient; // <3>
     }
+    // end::injecting-component-client[]
 
     @GetMapping("/{number}/next")
     public Effect<Number> nextNumberPath(@PathVariable Long number) {
@@ -34,7 +31,7 @@ public class LimitedFibonacciAction extends Action {
             // tag::component-client[]
             DeferredCall<Any, Number> deferredCall = componentClient.forAction() // <1>
               .call(FibonacciAction::getNumber) // <2>
-              .params(number);// <3>
+              .params(number); // <3>
 
             return effects().forward(deferredCall);
             // end::component-client[]
