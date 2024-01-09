@@ -93,6 +93,10 @@ include::example$scala-protobuf-replicatedentity-shopping-cart/src/main/proto/co
 <12> `key` points to the protobuf message representing the counter map's key type.
 
 
+include::partial$effects-replicated-entity.adoc[]
+
+See also xref:developing:development-process-proto.adoc#_effects_api[Understanding what an Effect is]
+
 == Implementing behavior
 
 A Replicated Entity implementation is a Java class where you define how each command is handled. The class `ShoppingCart` gets generated for us based on the `shoppingcart_api.proto` and `shoppingcart_domain.proto` definitions. Once the file [.group-java]#`ShoppingCart.java`# [.group-scala]#`ShoppingCart.scala`# exist, it is not overwritten, so you can freely add logic to it. `ShoppingCart` extends the generated class `AbstractShoppingCart` which we're not supposed to change as it gets regenerated in case we update the protobuf descriptors. `AbstractShoppingCart` contains all method signatures corresponding to the API of the service. If you change the API you will see compilation errors in the `ShoppingCart` class and you have to implement the methods required by `AbstractShoppingCart`.

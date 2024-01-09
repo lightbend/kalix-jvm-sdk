@@ -44,6 +44,10 @@ IMPORTANT: The use of logical names for subtypes is essential for maintainabilit
 
 include::partial$entity-ids.adoc[]
 
+include::java-protobuf:partial$effects-event-sourced-entity.adoc[]
+
+See also xref:java:development-process.adoc#_effects_api[Understanding what an Effect is]
+
 == Implementing behavior
 
 Now that we have our Entity state defined along with its events, the remaining steps can be summarized as follows:

@@ -89,6 +89,9 @@ include::example$scala-protobuf-eventsourced-shopping-cart/src/main/proto/com/ex
 <11> `state` points to the protobuf message representing the entity's state which is kept by Kalix. It is stored as snapshots.
 <12> `events` points to the protobuf message representing the entity's events, which are stored by Kalix.
 
+include::java-protobuf:partial$effects-event-sourced-entity.adoc[]
+
+See also xref:developing:development-process-proto.adoc#_effects_api[Understanding what an Effect is]
 
 == Implementing behavior
 

@@ -1,0 +1,10 @@
+== Replicated Entity's Effect API
+
+The Replicated Entity's Effect defines the operations that Kalix should perform when an incoming command is handled by a Replicated Entity.
+
+A Replicated Entity Effect can either:
+
+* update the entity state and send a reply to the caller
+* directly reply to the caller if the command is not requesting any state change
+* rejected the command by returning an error
+* instruct Kalix to delete the entity

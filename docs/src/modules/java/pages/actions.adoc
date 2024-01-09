@@ -4,6 +4,10 @@
 include::ROOT:partial$include.adoc[]
 include::java-protobuf:partial$actions.adoc[]
 
+include::java-protobuf:partial$effects-action.adoc[]
+
+See also xref:java:development-process.adoc#_effects_api[Understanding what an Effect is]
+
 == Actions as Pure Functions
 
 In this first example, you will learn how to implement an Action as a pure stateless function. You will create a `FibonacciAction` that takes a number and returns the

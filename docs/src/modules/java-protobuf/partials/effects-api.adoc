@@ -1,0 +1,11 @@
+
+[#_effects_api]
+== Understanding what an Effect is
+
+Each component defines a set of operations through its application programming interface (API). These operations are specific to the semantics of each component. For the JVM SDKs, these APIs take the shape of an Effect.
+
+An Effect is a description of what Kalix needs to do after an incoming command is handled. You can think of it as a set of instructions you are passing to Kalix. Kalix will process the instructions on your behalf.
+
+The component Effect APIs play a central role when implementing a component as it provides the glue between your application logic and Kalix. For a more high-level overview of Kalix Architecture Style, check out the https://docs.kalix.io/concepts/programming-model.html[Programming model] page.
+
+The details of each component Effect type are explained in the component's specific pages.
