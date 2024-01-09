@@ -2,7 +2,7 @@ include::ROOT:partial$include.adoc[]
 
 = Publishing and Subscribing
 :page-supergroup-java-scala: Language
-:page-aliases: java-protobuf:service-to-service.adoc, java-protobuf:serialization.adoc
+:page-aliases: java-protobuf:service-to-service.adoc, java-protobuf:serialization.adoc, java-protobuf:actions-publishing-subscribing.adoc
 
 
 A very common use case when building Microservices is to publish and subscribe to a stream of events. The source of events can be the journal of an event sourced entity, the value entity state changes, a https://cloud.google.com/pubsub/docs/overview[Google Cloud Pub/Sub] or Apache Kafka topic for asynchronous messaging between services.

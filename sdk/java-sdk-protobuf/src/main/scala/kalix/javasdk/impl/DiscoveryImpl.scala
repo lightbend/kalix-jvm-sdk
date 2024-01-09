@@ -196,7 +196,7 @@ class DiscoveryImpl(
     val severityString = in.severity.name.take(1) + in.severity.name.drop(1).toLowerCase
     val message = s"$severityString reported from Kalix system: ${in.code} ${in.message}"
     val detail = if (in.detail.isEmpty) Nil else List(in.detail)
-    val seeDocs = DocLinks.forErrorCode(in.code).map(link => s"See documentation: $link").toList
+    val seeDocs = DocLinks(sdkName).forErrorCode(in.code).map(link => s"See documentation: $link").toList
     val messages = message :: detail ::: seeDocs ::: sourceMsgs
     val logMessage = messages.mkString("\n\n")
 
