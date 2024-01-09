@@ -37,7 +37,7 @@ include::example$java-spring-eventsourced-counter/src/main/java/com/example/acti
 
 == Subscribing to a Value Entity
 
-You can subscribe an Action to events from a Value Entity. It works the same as an Event Sourced Entity except for the annotation. To receive messages from the entity, annotate a service method `@Subscribe.ValueEntiy` and specify the class of the entity.
+You can subscribe an Action to events from a Value Entity. It works the same as an Event Sourced Entity except for the annotation. To receive messages from the entity, annotate a service method `@Subscribe.ValueEntity` and specify the class of the entity.
 
 == Type level annotations for subscribing
 
