@@ -285,9 +285,9 @@ class ViewDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSuit
 
         val Seq(claim1, claim2) = jwtOption.getStaticClaimList.asScala.toSeq
         claim1.getClaim shouldBe "role"
-        claim1.getValue shouldBe "admin"
+        claim1.getValue(0) shouldBe "admin"
         claim2.getClaim shouldBe "aud"
-        claim2.getValue shouldBe "${ENV}.kalix.io"
+        claim2.getValue(0) shouldBe "${ENV}.kalix.io"
       }
     }
 
@@ -301,9 +301,9 @@ class ViewDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSuit
 
         val Seq(claim1, claim2) = jwtOption.getStaticClaimList.asScala.toSeq
         claim1.getClaim shouldBe "role"
-        claim1.getValue shouldBe "admin"
+        claim1.getValue(0) shouldBe "admin"
         claim2.getClaim shouldBe "aud"
-        claim2.getValue shouldBe "${ENV}.kalix.io"
+        claim2.getValue(0) shouldBe "${ENV}.kalix.io"
       }
     }
 

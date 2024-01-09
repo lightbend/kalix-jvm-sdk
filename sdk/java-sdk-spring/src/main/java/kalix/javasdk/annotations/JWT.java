@@ -58,9 +58,10 @@ public @interface JWT {
 
     /**
      * The value can be set as: a hardcoded literal (e.g. "admin"), an ENV variable (e.g "${ENV_VAR}")
-     * or a combination of both (e.g. "${ENV_VAR}-admin")
+     * or a combination of both (e.g. "${ENV_VAR}-admin").
+     * When declaring multiple values, ALL of those will be required when validating the claim.
      */
-    String value();
+    String[] value();
   }
 
   /**
