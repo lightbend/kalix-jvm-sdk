@@ -95,9 +95,9 @@ private[kalix] class MetadataImpl(val impl: kalix.javasdk.impl.MetadataImpl) ext
     override def localService: Option[String] = impl.principals.getLocalService.toScala
     override def apply: Seq[Principal] = impl.principals.get.asScala.map(Principal.toScala).toSeq
   }
-  override def withHttpResponseCode(code: StatusCode.Success): Metadata =
+  override def withStatusCode(code: StatusCode.Success): Metadata =
     set("_kalix-http-code", code.value.toString)
 
-  override def withHttpResponseCode(code: StatusCode.Redirect): Metadata =
+  override def withStatusCode(code: StatusCode.Redirect): Metadata =
     set("_kalix-http-code", code.value.toString)
 }

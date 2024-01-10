@@ -153,10 +153,10 @@ class MetadataImplSpec extends AnyWordSpec with Matchers with OptionValues {
     }
 
     "support setting a HTTP status code" in {
-      val md = Metadata.EMPTY.withHttpResponseCode(Success.CREATED)
+      val md = Metadata.EMPTY.withStatusCode(Success.CREATED)
       md.get("_kalix-http-code").toScala.value shouldBe "201"
 
-      val mdRedirect = md.withHttpResponseCode(Redirect.MOVED_PERMANENTLY)
+      val mdRedirect = md.withStatusCode(Redirect.MOVED_PERMANENTLY)
       mdRedirect.get("_kalix-http-code").toScala.value shouldBe "301"
     }
   }

@@ -99,6 +99,6 @@ public class EchoAction extends Action {
   public Effect<Message> stringMessageCustomCode(@PathVariable String msg) {
     String response = this.parrot.repeat(msg);
     return effects().reply(new Message(response),
-        Metadata.EMPTY.withHttpResponseCode(StatusCode.Success.ACCEPTED));
+        Metadata.EMPTY.withStatusCode(StatusCode.Success.ACCEPTED));
   }
 }

@@ -51,7 +51,7 @@ public class UserEntity extends ValueEntity<User> {
   @PostMapping("/{email}/{name}")
   public Effect<String> createOrUpdateUser(@PathVariable String email, @PathVariable String name) {
     return effects().updateState(new User(email, name)).thenReply("Ok",
-        Metadata.EMPTY.withHttpResponseCode(StatusCode.Success.CREATED));
+        Metadata.EMPTY.withStatusCode(StatusCode.Success.CREATED));
   }
 
   @PutMapping("/{email}/{name}")

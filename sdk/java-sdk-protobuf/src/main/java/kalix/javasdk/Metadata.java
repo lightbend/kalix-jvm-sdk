@@ -243,19 +243,19 @@ public interface Metadata extends Iterable<Metadata.MetadataEntry> {
    * Add an HTTP response code to this metadata.
    * This will only take effect when HTTP transcoding is in use. It will be ignored for gRPC requests.
    *
-   * @param code The success status code to add.
+   * @param httpStatusCode The success status code to add.
    * @return a copy of this metadata with the HTTP response code set.
    */
-  Metadata withHttpResponseCode(StatusCode.Success code);
+  Metadata withStatusCode(StatusCode.Success httpStatusCode);
 
   /**
    * Add an HTTP response code to this metadata.
    * This will only take effect when HTTP transcoding is in use. It will be ignored for gRPC requests.
    *
-   * @param code The redirect status code to add.
+   * @param httpStatusCode The redirect status code to add.
    * @return a copy of this metadata with the HTTP response code set.
    */
-  Metadata withHttpResponseCode(StatusCode.Redirect code);
+  Metadata withStatusCode(StatusCode.Redirect httpStatusCode);
 
   /** A metadata entry. */
   interface MetadataEntry {
