@@ -31,7 +31,7 @@ object CommonSettings extends AutoPlugin {
         if ((ThisBuild / isSnapshot).value) None
         else Some(url(s"https://github.com/lightbend/kalix-jvm-sdk/releases/tag/v${version.value}"))
       ),
-      startYear := Some(2021),
+      startYear := Some(2024),
       licenses := List("Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")),
       scalafmtOnCompile := !insideCI.value,
       javafmtOnCompile := !insideCI.value,
