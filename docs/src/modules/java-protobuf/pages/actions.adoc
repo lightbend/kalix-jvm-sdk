@@ -362,9 +362,9 @@ Such validation that depends on state can only be done safely while handling the
 
 == Actions as Life-cycle Hooks
 
-An Action's gRPC method can be triggered automatically when some predefined service life-cycle event happens (currently, only on startup is available), serving as a custom hook. For such use, the method needs be annotated with a specific flag and its input type must be `google.protobuf.Empty` as shown below.
+An Action's gRPC method can be triggered automatically when some predefined service life-cycle event happens (currently, only on startup is available), serving as a custom hook. For such use, the method needs to be annotated with a specific flag and its input type must be `google.protobuf.Empty` as shown below.
 
-IMPORTANT: The on startup hook is called every time a service instance boots up. This can happen for very different reasons: restarting / redeploying the service, scaling up to more instances or even without any user-driven action (e.g. Kalix Runtime versions being rolled out, infrastruture-related incidents, etc.). Therefore, you should carefully consider how you use this hook and its implementation.
+IMPORTANT: The on startup hook is called every time a service instance boots up. This can happen for very different reasons: restarting / redeploying the service, scaling up to more instances or even without any user-driven action (e.g. Kalix Runtime versions being rolled out, infrastructure-related incidents, etc.). Therefore, you should carefully consider how you use this hook and its implementation.
 
 [source,proto]
 ----
