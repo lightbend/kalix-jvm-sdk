@@ -22,5 +22,5 @@ do
 done
 
 echo ">>> Updating Dependencies.scala"
-sed -i.bak "s/System.getProperty(\"kalix-runtime.version\", \"\(.*\)\")/System.getProperty(\"kalix-runtime.version\", \"$RUNTIME_VERSION\")/" ./project/Dependencies.scala
+sed -i.bak "s/System.getProperty(\"kalix-proxy.version\", \"\(.*\)\")/System.getProperty(\"kalix-proxy.version\", \"$RUNTIME_VERSION\")/" ./project/Dependencies.scala
 rm ./project/Dependencies.scala.bak

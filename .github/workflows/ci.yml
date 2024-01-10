@@ -135,7 +135,7 @@ jobs:
           cd maven-java
           echo "Running maven-java with SDK version: '${SDK_VERSION}'"
           mvn versions:set -DnewVersion=${SDK_VERSION}
-          mvn verify install
+          mvn verify install --no-transfer-progress
           echo $SDK_VERSION > ~/kalix-sdk-version.txt
 
       - name: Package io.kalix dependencies
@@ -560,12 +560,12 @@ jobs:
           - { sample: java-spring-view-store, it: true }
 
           - { sample: java-protobuf-eventsourced-customer-registry, it: true }
-          - { sample: java-protobuf-eventsourced-customer-registry-subscriber, it: true, pre_cmd: 'mvn -Dkalix-sdk.version=${SDK_VERSION} -f ../java-protobuf-eventsourced-customer-registry/pom.xml package docker:build' }
+          - { sample: java-protobuf-eventsourced-customer-registry-subscriber, it: true, pre_cmd: 'mvn -Dkalix-sdk.version=${SDK_VERSION} -f ../java-protobuf-eventsourced-customer-registry/pom.xml package docker:build --no-transfer-progress' }
           - { sample: java-protobuf-eventsourced-counter, it: true }
           - { sample: java-protobuf-eventsourced-shopping-cart, it: true }
 
           - { sample: java-spring-eventsourced-customer-registry, it: true }
-          - { sample: java-spring-eventsourced-customer-registry-subscriber, it: true, pre_cmd: 'mvn -Dkalix-sdk.version=${SDK_VERSION} -f ../java-spring-eventsourced-customer-registry/pom.xml package docker:build' }
+          - { sample: java-spring-eventsourced-customer-registry-subscriber, it: true, pre_cmd: 'mvn -Dkalix-sdk.version=${SDK_VERSION} -f ../java-spring-eventsourced-customer-registry/pom.xml package docker:build --no-transfer-progress' }
           - { sample: java-spring-eventsourced-shopping-cart, it: true }
 
           - { sample: java-protobuf-valueentity-counter, it: true }
@@ -638,7 +638,7 @@ jobs:
           cd samples/${DIR}
           echo "Running mvn on ${DIR} with SDK version: '${SDK_VERSION}'"
           # must also compile without the profile!
-          mvn -Dkalix-sdk.version=${SDK_VERSION} test-compile
+          mvn -Dkalix-sdk.version=${SDK_VERSION} test-compile --no-transfer-progress
 
       - name: ${{ matrix.sample }} verify
         if: matrix.verify || matrix.it
@@ -649,11 +649,11 @@ jobs:
           export SDK_VERSION=$(cat ~/kalix-sdk-version.txt)
           cd samples/${DIR}
           if [ true == '${{matrix.verify}}' ]; then
-            mvn -Dkalix-sdk.version=${SDK_VERSION} verify
+            mvn -Dkalix-sdk.version=${SDK_VERSION} verify --no-transfer-progress
           fi
           if [ true == '${{matrix.it}}' ]; then
             ${PRE_CMD}
-            KALIX_TESTKIT_DEBUG=true mvn -Dkalix-sdk.version=${SDK_VERSION} verify -Pit
+            KALIX_TESTKIT_DEBUG=true mvn -Dkalix-sdk.version=${SDK_VERSION} verify -Pit --no-transfer-progress
           fi
 
       - name: ${{ matrix.sample }} rm & test-compile
@@ -664,7 +664,7 @@ jobs:
           cd samples/${DIR}
           echo "==== Verifying that generated unmanaged sources compile ===="
           rm -rf src/main/java src/test/java src/it/java
-          mvn -Dkalix-sdk.version=${SDK_VERSION} test-compile
+          mvn -Dkalix-sdk.version=${SDK_VERSION} test-compile --no-transfer-progress
 
   sbt-samples:
     name: sbt

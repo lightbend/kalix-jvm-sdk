@@ -18,6 +18,7 @@ package kalix.spring.testmodels.action;
 
 import kalix.javasdk.action.Action;
 import kalix.javasdk.annotations.JWT;
+import kalix.javasdk.annotations.Trigger;
 import kalix.spring.testmodels.Message;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
@@ -106,8 +107,9 @@ public class ActionsTestModels {
       validate = JWT.JwtMethodMode.BEARER_TOKEN,
       bearerTokenIssuer = {"a", "b"},
       staticClaims = {
-          @JWT.StaticClaim(claim = "role", value = "admin"),
-          @JWT.StaticClaim(claim = "aud", value = "${ENV}.kalix.io")
+          @JWT.StaticClaim(claim = "roles", value = {"viewer", "editor"}),
+          @JWT.StaticClaim(claim = "aud", value = "${ENV}.kalix.io"),
+          @JWT.StaticClaim(claim = "sub", pattern = "^sub-\\S+$")
       })
     public Action.Effect<Message> message(@RequestBody Message msg) {
       return effects().reply(msg);
@@ -119,8 +121,9 @@ public class ActionsTestModels {
     validate = JWT.JwtMethodMode.BEARER_TOKEN,
     bearerTokenIssuer = {"a", "b"},
     staticClaims = {
-        @JWT.StaticClaim(claim = "role", value = "admin"),
-        @JWT.StaticClaim(claim = "aud", value = "${ENV}.kalix.io")
+        @JWT.StaticClaim(claim = "roles", value = {"editor", "viewer"}),
+        @JWT.StaticClaim(claim = "aud", value = "${ENV}.kalix.io"),
+        @JWT.StaticClaim(claim = "sub", pattern = "^\\S+$")
     })
   public static class ActionWithServiceLevelJWT extends Action {
     @PostMapping("/message")
@@ -216,6 +219,14 @@ public class ActionsTestModels {
     @PostMapping("/message")
     public Flux<Effect<Message>> message(@RequestBody Flux<Message> messages) {
       return messages.map(msg -> effects().reply(msg));
+    }
+  }
+
+  public static class OnStartupHookAction extends Action {
+    @PostMapping("/message")
+    @Trigger.OnStartup(maxRetries = 2)
+    public Action.Effect<Message> init() {
+      return effects().reply(new Message("hello"));
     }
   }
 }

@@ -37,6 +37,13 @@ import scala.jdk.CollectionConverters.CollectionHasAsScala
 class ValueEntityDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSuite {
 
   "ValueEntity descriptor factory" should {
+    "validate a ValueEntity must be declared as public" in {
+      intercept[InvalidComponentException] {
+        Validations.validate(classOf[NotPublicComponents.NotPublicValueEntity]).failIfInvalid
+      }.getMessage should include(
+        "NotPublicValueEntity is not marked with `public` modifier. Components must be public.")
+    }
+
     "generate mappings for a Value Entity with entity ids in path" in {
       assertDescriptor[PostWithIds] { desc =>
         val method = desc.commandHandlers("CreateEntity")
@@ -105,9 +112,9 @@ class ValueEntityDescriptorFactorySpec extends AnyWordSpec with ComponentDescrip
         jwtOption.getValidate shouldBe JwtServiceMode.BEARER_TOKEN
         val Seq(claim1, claim2) = jwtOption.getStaticClaimList.asScala.toSeq
         claim1.getClaim shouldBe "role"
-        claim1.getValue shouldBe "admin"
+        claim1.getValue(0) shouldBe "admin"
         claim2.getClaim shouldBe "aud"
-        claim2.getValue shouldBe "${ENV}.kalix.io"
+        claim2.getValue(0) shouldBe "${ENV}.kalix.io"
       }
     }
 
@@ -119,9 +126,9 @@ class ValueEntityDescriptorFactorySpec extends AnyWordSpec with ComponentDescrip
         jwtOption.getValidate(0) shouldBe JwtMethodMode.BEARER_TOKEN
         val Seq(claim1, claim2) = jwtOption.getStaticClaimList.asScala.toSeq
         claim1.getClaim shouldBe "role"
-        claim1.getValue shouldBe "method-admin"
+        claim1.getValue(0) shouldBe "method-admin"
         claim2.getClaim shouldBe "aud"
-        claim2.getValue shouldBe "${ENV}"
+        claim2.getValue(0) shouldBe "${ENV}"
       }
     }
 

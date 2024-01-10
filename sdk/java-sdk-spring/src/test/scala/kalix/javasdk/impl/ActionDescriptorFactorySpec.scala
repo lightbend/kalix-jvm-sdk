@@ -24,6 +24,7 @@ import kalix.JwtMethodOptions.JwtMethodMode
 import kalix.javasdk.impl.ProtoDescriptorGenerator.fileDescriptorName
 import kalix.javasdk.impl.reflection.ServiceIntrospectionException
 import kalix.JwtServiceOptions.JwtServiceMode
+import kalix.TriggerOptions
 import kalix.spring.testmodels.action.ActionsTestModels.ActionWithMethodLevelJWT
 import kalix.spring.testmodels.action.ActionsTestModels.ActionWithServiceLevelJWT
 import kalix.spring.testmodels.action.ActionsTestModels.DeleteWithOneParam
@@ -34,6 +35,7 @@ import kalix.spring.testmodels.action.ActionsTestModels.GetWithOneParam
 import kalix.spring.testmodels.action.ActionsTestModels.GetWithOnePathVariableAndQueryParam
 import kalix.spring.testmodels.action.ActionsTestModels.GetWithOneQueryParam
 import kalix.spring.testmodels.action.ActionsTestModels.GetWithoutParam
+import kalix.spring.testmodels.action.ActionsTestModels.OnStartupHookAction
 import kalix.spring.testmodels.action.ActionsTestModels.PatchWithOneParam
 import kalix.spring.testmodels.action.ActionsTestModels.PatchWithoutParam
 import kalix.spring.testmodels.action.ActionsTestModels.PostWithOneParam
@@ -109,6 +111,12 @@ import scala.jdk.CollectionConverters.CollectionHasAsScala
 class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSuite {
 
   "Action descriptor factory" should {
+
+    "validate an Action must be declared as public" in {
+      intercept[InvalidComponentException] {
+        Validations.validate(classOf[NotPublicComponents.NotPublicAction]).failIfInvalid
+      }.getMessage should include("NotPublicAction is not marked with `public` modifier. Components must be public.")
+    }
 
     "generate mappings for an Action with GET without path param" in {
       assertDescriptor[GetWithoutParam] { desc =>
@@ -218,11 +226,13 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
         jwtOption.getValidate(0) shouldBe JwtMethodMode.BEARER_TOKEN
         assertRequestFieldJavaType(method, "json_body", JavaType.MESSAGE)
 
-        val Seq(claim1, claim2) = jwtOption.getStaticClaimList.asScala.toSeq
-        claim1.getClaim shouldBe "role"
-        claim1.getValue shouldBe "admin"
+        val Seq(claim1, claim2, claim3) = jwtOption.getStaticClaimList.asScala.toSeq
+        claim1.getClaim shouldBe "roles"
+        claim1.getValueList.asScala.toSeq shouldBe Seq("viewer", "editor")
         claim2.getClaim shouldBe "aud"
-        claim2.getValue shouldBe "${ENV}.kalix.io"
+        claim2.getValue(0) shouldBe "${ENV}.kalix.io"
+        claim3.getClaim shouldBe "sub"
+        claim3.getPattern shouldBe "^sub-\\S+$"
       }
     }
 
@@ -234,11 +244,13 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
         jwtOption.getBearerTokenIssuer(1) shouldBe "b"
         jwtOption.getValidate shouldBe JwtServiceMode.BEARER_TOKEN
 
-        val Seq(claim1, claim2) = jwtOption.getStaticClaimList.asScala.toSeq
-        claim1.getClaim shouldBe "role"
-        claim1.getValue shouldBe "admin"
+        val Seq(claim1, claim2, claim3) = jwtOption.getStaticClaimList.asScala.toSeq
+        claim1.getClaim shouldBe "roles"
+        claim1.getValueList.asScala.toSeq shouldBe Seq("editor", "viewer")
         claim2.getClaim shouldBe "aud"
-        claim2.getValue shouldBe "${ENV}.kalix.io"
+        claim2.getValue(0) shouldBe "${ENV}.kalix.io"
+        claim3.getClaim shouldBe "sub"
+        claim3.getPattern shouldBe "^\\S+$"
       }
     }
 
@@ -985,6 +997,14 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
         val methodDescriptor = findMethodByName(desc, "KalixSyntheticMethodOnStreamEmployeeevents")
         methodDescriptor.isServerStreaming shouldBe false
         methodDescriptor.isClientStreaming shouldBe false
+      }
+    }
+
+    "generate trigger options for onstartup hook in Action" in {
+      assertDescriptor[OnStartupHookAction] { desc =>
+        val methodOptions = findKalixMethodOptions(desc, "Init")
+        methodOptions.getTrigger.getOn shouldBe TriggerOptions.TriggerEvent.STARTUP
+        methodOptions.getTrigger.getMaxRetries shouldBe 2
       }
     }
   }

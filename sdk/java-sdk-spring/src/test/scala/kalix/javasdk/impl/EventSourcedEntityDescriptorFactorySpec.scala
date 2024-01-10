@@ -43,6 +43,14 @@ import org.scalatest.wordspec.AnyWordSpec
 class EventSourcedEntityDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSuite {
 
   "EventSourced descriptor factory" should {
+
+    "validate an ESE must be declared as public" in {
+      intercept[InvalidComponentException] {
+        Validations.validate(classOf[NotPublicComponents.NotPublicEventSourced]).failIfInvalid
+      }.getMessage should include(
+        "NotPublicEventSourced is not marked with `public` modifier. Components must be public.")
+    }
+
     "generate mappings for a Event Sourced with entity ids in path" in {
       assertDescriptor[CounterEventSourcedEntity] { desc =>
         val method = desc.commandHandlers("GetInteger")
@@ -121,9 +129,9 @@ class EventSourcedEntityDescriptorFactorySpec extends AnyWordSpec with Component
 
         val Seq(claim1, claim2) = jwtOption2.getStaticClaimList.asScala.toSeq
         claim1.getClaim shouldBe "role"
-        claim1.getValue shouldBe "method-admin"
+        claim1.getValue(0) shouldBe "method-admin"
         claim2.getClaim shouldBe "aud"
-        claim2.getValue shouldBe "${ENV}"
+        claim2.getValue(0) shouldBe "${ENV}"
       }
     }
 
@@ -137,9 +145,9 @@ class EventSourcedEntityDescriptorFactorySpec extends AnyWordSpec with Component
 
         val Seq(claim1, claim2) = jwtOption.getStaticClaimList.asScala.toSeq
         claim1.getClaim shouldBe "role"
-        claim1.getValue shouldBe "admin"
+        claim1.getValue(0) shouldBe "admin"
         claim2.getClaim shouldBe "aud"
-        claim2.getValue shouldBe "${ENV}.kalix.io"
+        claim2.getValue(0) shouldBe "${ENV}.kalix.io"
       }
     }
 

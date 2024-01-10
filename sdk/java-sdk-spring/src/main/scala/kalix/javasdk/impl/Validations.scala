@@ -144,6 +144,7 @@ object Validations {
   }
 
   def validate(component: Class[_]): Validation =
+    componentMustBePublic(component) ++
     validateAction(component) ++
     validateView(component) ++
     validateValueEntity(component) ++
@@ -181,6 +182,17 @@ object Validations {
 
     signatureValidation ++ ambiguousHandlersErrors(validSignatureHandlers, entityClass) ++
     missingEventHandler(missingHandlerInputParams, eventType, entityClass)
+  }
+
+  private def componentMustBePublic(component: Class[_]): Validation = {
+    if (component.isPublic) {
+      Valid
+    } else {
+      Invalid(
+        errorMessage(
+          component,
+          s"${component.getSimpleName} is not marked with `public` modifier. Components must be public."))
+    }
   }
 
   private def validateCompoundIdsOrder(component: Class[_]): Validation = {

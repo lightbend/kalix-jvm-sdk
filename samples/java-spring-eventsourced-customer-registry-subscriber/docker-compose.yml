@@ -4,13 +4,14 @@
 version: "3"
 services:
   kalix-runtime:
-    image: gcr.io/kalix-public/kalix-runtime:1.1.27
+    image: gcr.io/kalix-public/kalix-runtime:1.1.29
     container_name: java-spring-eventsourced-customer-registry-subscriber
     ports:
-      - "9001:9000"
+      - "9001:9001"
     extra_hosts:
       - "host.docker.internal:host-gateway"
     environment:
+      HTTP_PORT: "9001"
       JAVA_TOOL_OPTIONS: >
         -Dkalix.dev-mode.service-port-mappings.customer-registry=host.docker.internal:9000
       USER_SERVICE_HOST: ${USER_SERVICE_HOST:-host.docker.internal}
