@@ -395,17 +395,17 @@ public class ViewTestModels {
 
   @Table("users_view")
   @Subscribe.ValueEntity(UserEntity.class)
-  public static class ViewWithTwoQueries extends View<TransformedUser> {
+  public static class ViewWithTwoQueries extends View<User> {
 
     @Query("SELECT * FROM users_view WHERE email = :email")
     @PostMapping("/users/by-email")
-    public TransformedUser getUserByEmail(@RequestBody ByEmail byEmail) {
+    public User getUserByEmail(@RequestBody ByEmail byEmail) {
       return null;
     }
 
-    @Query("SELECT * FROM users_view WHERE email = :email")
+    @Query("SELECT * FROM users_view WHERE email = :email AND name = :name")
     @PostMapping("/users/{name}/by-name")
-    public TransformedUser getUserByNameAndEmail(
+    public User getUserByNameAndEmail(
         @PathVariable String name, @RequestBody ByEmail byEmail) {
       return null;
     }
@@ -599,6 +599,7 @@ public class ViewTestModels {
       return null;
     }
 
+    @Table("users_view")
     public static class Users extends View<User> {}
   }
 
