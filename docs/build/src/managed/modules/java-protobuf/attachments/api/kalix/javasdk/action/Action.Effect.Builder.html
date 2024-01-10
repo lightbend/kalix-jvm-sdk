@@ -105,43 +105,49 @@ loadScripts(document, 'script');</script>
 <div class="block">Create a message reply from an async operation result.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>&lt;S&gt;&nbsp;<a href="Action.Effect.html" title="interface in kalix.javasdk.action">Action.Effect</a>&lt;S&gt;</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#error(java.lang.String)" class="member-name-link">error</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;description)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#asyncReply(java.util.concurrent.CompletionStage,kalix.javasdk.Metadata)" class="member-name-link">asyncReply</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/concurrent/CompletionStage.html" title="class or interface in java.util.concurrent" class="external-link">CompletionStage</a>&lt;S&gt;&nbsp;message,
+ <a href="../Metadata.html" title="interface in kalix.javasdk">Metadata</a>&nbsp;metadata)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
-<div class="block">Create an error reply.</div>
-</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>&lt;T&gt;&nbsp;<a href="Action.Effect.html" title="interface in kalix.javasdk.action">Action.Effect</a>&lt;T&gt;</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#error(java.lang.String,io.grpc.Status.Code)" class="member-name-link">error</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;description,
- io.grpc.Status.Code&nbsp;grpcErrorCode)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
-<div class="block">Create an error reply with a custom gRPC status code.</div>
-</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>&lt;T&gt;&nbsp;<a href="Action.Effect.html" title="interface in kalix.javasdk.action">Action.Effect</a>&lt;T&gt;</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#error(java.lang.String,kalix.javasdk.StatusCode.ErrorCode)" class="member-name-link">error</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;description,
- <a href="../StatusCode.ErrorCode.html" title="enum in kalix.javasdk">StatusCode.ErrorCode</a>&nbsp;httpErrorCode)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
-<div class="block">Create an error reply with a custom status code.</div>
+<div class="block">Create a message reply from an async operation result with custom Metadata.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>&lt;S&gt;&nbsp;<a href="Action.Effect.html" title="interface in kalix.javasdk.action">Action.Effect</a>&lt;S&gt;</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#forward(kalix.javasdk.DeferredCall)" class="member-name-link">forward</a><wbr>(<a href="../DeferredCall.html" title="interface in kalix.javasdk">DeferredCall</a>&lt;? extends <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>,<wbr>S&gt;&nbsp;serviceCall)</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#error(java.lang.String)" class="member-name-link">error</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;description)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
-<div class="block">Create a forward reply.</div>
+<div class="block">Create an error reply.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>&lt;T&gt;&nbsp;<a href="Action.Effect.html" title="interface in kalix.javasdk.action">Action.Effect</a>&lt;T&gt;</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#error(java.lang.String,io.grpc.Status.Code)" class="member-name-link">error</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;description,
+ io.grpc.Status.Code&nbsp;grpcErrorCode)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
+<div class="block">Create an error reply with a custom gRPC status code.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>&lt;T&gt;&nbsp;<a href="Action.Effect.html" title="interface in kalix.javasdk.action">Action.Effect</a>&lt;T&gt;</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#error(java.lang.String,kalix.javasdk.StatusCode.ErrorCode)" class="member-name-link">error</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;description,
+ <a href="../StatusCode.ErrorCode.html" title="enum in kalix.javasdk">StatusCode.ErrorCode</a>&nbsp;httpErrorCode)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
+<div class="block">Create an error reply with a custom status code.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>&lt;S&gt;&nbsp;<a href="Action.Effect.html" title="interface in kalix.javasdk.action">Action.Effect</a>&lt;S&gt;</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#ignore()" class="member-name-link">ignore</a>()</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#forward(kalix.javasdk.DeferredCall)" class="member-name-link">forward</a><wbr>(<a href="../DeferredCall.html" title="interface in kalix.javasdk">DeferredCall</a>&lt;? extends <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>,<wbr>S&gt;&nbsp;serviceCall)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
+<div class="block">Create a forward reply.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>&lt;S&gt;&nbsp;<a href="Action.Effect.html" title="interface in kalix.javasdk.action">Action.Effect</a>&lt;S&gt;</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#ignore()" class="member-name-link">ignore</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
 <div class="block">Ignore the current element and proceed with processing the next element if returned for an
  element from a subscription.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>&lt;S&gt;&nbsp;<a href="Action.Effect.html" title="interface in kalix.javasdk.action">Action.Effect</a>&lt;S&gt;</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#reply(S)" class="member-name-link">reply</a><wbr>(S&nbsp;message)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
-<div class="block">Create a message reply.</div>
-</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>&lt;S&gt;&nbsp;<a href="Action.Effect.html" title="interface in kalix.javasdk.action">Action.Effect</a>&lt;S&gt;</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#reply(S,kalix.javasdk.Metadata)" class="member-name-link">reply</a><wbr>(S&nbsp;message,
- <a href="../Metadata.html" title="interface in kalix.javasdk">Metadata</a>&nbsp;metadata)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#reply(S)" class="member-name-link">reply</a><wbr>(S&nbsp;message)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
 <div class="block">Create a message reply.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>&lt;S&gt;&nbsp;<a href="Action.Effect.html" title="interface in kalix.javasdk.action">Action.Effect</a>&lt;S&gt;</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#reply(S,kalix.javasdk.Metadata)" class="member-name-link">reply</a><wbr>(S&nbsp;message,
+ <a href="../Metadata.html" title="interface in kalix.javasdk">Metadata</a>&nbsp;metadata)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
+<div class="block">Create a message reply with custom Metadata.</div>
 </div>
 </div>
 </div>
@@ -177,7 +183,7 @@ loadScripts(document, 'script');</script>
 <h3 id="reply(java.lang.Object,kalix.javasdk.Metadata)">reply</h3>
 <div class="member-signature"><span class="type-parameters">&lt;S&gt;</span>&nbsp;<span class="return-type"><a href="Action.Effect.html" title="interface in kalix.javasdk.action">Action.Effect</a>&lt;S&gt;</span>&nbsp;<span class="element-name">reply</span><wbr><span class="parameters">(S&nbsp;message,
  <a href="../Metadata.html" title="interface in kalix.javasdk">Metadata</a>&nbsp;metadata)</span></div>
-<div class="block">Create a message reply.</div>
+<div class="block">Create a message reply with custom Metadata.</div>
 <dl class="notes">
 <dt>Type Parameters:</dt>
 <dd><code>S</code> - The type of the message that must be returned by this call.</dd>
@@ -265,6 +271,23 @@ loadScripts(document, 'script');</script>
 <dd><code>S</code> - The type of the message that must be returned by this call.</dd>
 <dt>Parameters:</dt>
 <dd><code>message</code> - The future payload of the reply.</dd>
+<dt>Returns:</dt>
+<dd>A message reply.</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="asyncReply(java.util.concurrent.CompletionStage,kalix.javasdk.Metadata)">
+<h3>asyncReply</h3>
+<div class="member-signature"><span class="type-parameters">&lt;S&gt;</span>&nbsp;<span class="return-type"><a href="Action.Effect.html" title="interface in kalix.javasdk.action">Action.Effect</a>&lt;S&gt;</span>&nbsp;<span class="element-name">asyncReply</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/concurrent/CompletionStage.html" title="class or interface in java.util.concurrent" class="external-link">CompletionStage</a>&lt;S&gt;&nbsp;message,
+ <a href="../Metadata.html" title="interface in kalix.javasdk">Metadata</a>&nbsp;metadata)</span></div>
+<div class="block">Create a message reply from an async operation result with custom Metadata.</div>
+<dl class="notes">
+<dt>Type Parameters:</dt>
+<dd><code>S</code> - The type of the message that must be returned by this call.</dd>
+<dt>Parameters:</dt>
+<dd><code>message</code> - The future payload of the reply.</dd>
+<dd><code>metadata</code> - The metadata for the message.</dd>
 <dt>Returns:</dt>
 <dd>A message reply.</dd>
 </dl>

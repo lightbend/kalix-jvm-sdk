@@ -1,0 +1,9 @@
+== View's Effect API
+
+The View's Effect defines the operations that Kalix should perform when an event, a message or a state change is handled by a View.
+
+A View Effect can either:
+
+* update the view state
+* delete the view state
+* ignore the event or state change notification (and not update the view state)

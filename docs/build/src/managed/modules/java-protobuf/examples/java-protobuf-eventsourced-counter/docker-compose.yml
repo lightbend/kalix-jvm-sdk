@@ -1,7 +1,7 @@
 version: "3"
 services:
   kalix-runtime:
-    image: gcr.io/kalix-public/kalix-runtime:1.1.27
+    image: gcr.io/kalix-public/kalix-runtime:1.1.29
     container_name: java-protobuf-eventsourced-counter
     ports:
       - "9000:9000"
@@ -10,8 +10,8 @@ services:
     environment:
       JAVA_TOOL_OPTIONS: >
         -Dkalix.proxy.eventing.support=google-pubsub-emulator
-      USER_FUNCTION_HOST: ${USER_FUNCTION_HOST:-host.docker.internal}
-      USER_FUNCTION_PORT: ${USER_FUNCTION_PORT:-8080}
+      USER_SERVICE_HOST: ${USER_SERVICE_HOST:-host.docker.internal}
+      USER_SERVICE_PORT: ${USER_SERVICE_PORT:-8080}
       PUBSUB_EMULATOR_HOST: gcloud-pubsub-emulator
     depends_on:
       gcloud-pubsub-emulator:

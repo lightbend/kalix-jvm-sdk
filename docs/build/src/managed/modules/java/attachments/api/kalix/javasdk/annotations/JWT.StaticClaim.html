@@ -41,7 +41,7 @@ loadScripts(document, 'script');</script>
 <ul class="sub-nav-list">
 <li>Summary:&nbsp;</li>
 <li>Field&nbsp;|&nbsp;</li>
-<li>Optional&nbsp;|&nbsp;</li>
+<li><a href="#annotation-interface-optional-element-summary">Optional</a>&nbsp;|&nbsp;</li>
 <li><a href="#annotation-interface-required-element-summary">Required</a></li>
 </ul>
 <ul class="sub-nav-list">
@@ -72,6 +72,20 @@ loadScripts(document, 'script');</script>
 </dl>
 <hr>
 <div class="type-signature"><span class="modifiers">public static @interface </span><span class="element-name type-name-label">JWT.StaticClaim</span></div>
+<div class="block">A static claim is a claim that is required to be present on the token, and have a particular
+ value. This can be used to ensure that the token has a particular role, for example.
+ <p>
+ If the claim is not present, or does not have the expected value, then the request will be
+ rejected with a 403 Forbidden response.
+ <p>
+ If the claim is present, but does not have the expected value, then the request will be
+ rejected with a 403 Forbidden response.
+ <p>
+ If the claim is present, and has the expected value, then the request will be allowed to
+ proceed.
+
+ Each static claim can be configured either with a 'value' or a 'pattern' that will
+ be matched against the value of the claim, but not both.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -89,7 +103,24 @@ loadScripts(document, 'script');</script>
 <div class="col-last even-row-color">
 <div class="block">The claim name needs to be a hardcoded literal (e.g.</div>
 </div>
-<div class="col-first odd-row-color"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
+</div>
+</section>
+</li>
+<!-- =========== ANNOTATION INTERFACE OPTIONAL MEMBER SUMMARY =========== -->
+<li>
+<section class="member-summary" id="annotation-interface-optional-element-summary">
+<h2>Optional Element Summary</h2>
+<div class="caption"><span>Optional Elements</span></div>
+<div class="summary-table three-column-summary">
+<div class="table-header col-first">Modifier and Type</div>
+<div class="table-header col-second">Optional Element</div>
+<div class="table-header col-last">Description</div>
+<div class="col-first even-row-color"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
+<div class="col-second even-row-color"><code><a href="#pattern()" class="member-name-link">pattern</a></code></div>
+<div class="col-last even-row-color">
+<div class="block">This receives a regex expression (Java flavor) used to match on the incoming claim value.</div>
+</div>
+<div class="col-first odd-row-color"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>[]</code></div>
 <div class="col-second odd-row-color"><code><a href="#value()" class="member-name-link">value</a></code></div>
 <div class="col-last odd-row-color">
 <div class="block">The value can be set as: a hardcoded literal (e.g.</div>
@@ -113,12 +144,43 @@ loadScripts(document, 'script');</script>
 <div class="block">The claim name needs to be a hardcoded literal (e.g. "role")</div>
 </section>
 </li>
+</ul>
+</section>
+</li>
+<!-- ============ ANNOTATION INTERFACE MEMBER DETAIL =========== -->
+<li>
+<section class="member-details">
+<ul class="member-list">
 <li>
 <section class="detail" id="value()">
 <h3>value</h3>
-<div class="member-signature"><span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name">value</span></div>
+<div class="member-signature"><span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>[]</span>&nbsp;<span class="element-name">value</span></div>
 <div class="block">The value can be set as: a hardcoded literal (e.g. "admin"), an ENV variable (e.g "${ENV_VAR}")
- or a combination of both (e.g. "${ENV_VAR}-admin")</div>
+ or a combination of both (e.g. "${ENV_VAR}-admin").
+ When declaring multiple values, ALL of those will be required when validating the claim.</div>
+<dl class="notes">
+<dt>Default:</dt>
+<dd>{}</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="pattern()">
+<h3>pattern</h3>
+<div class="member-signature"><span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name">pattern</span></div>
+<div class="block">This receives a regex expression (Java flavor) used to match on the incoming claim value.
+  Cannot be used in conjunction with `value` field above. It's one or the other.
+  <p>NOTE: when signing, a static claim defined with a pattern will not be included in the token.
+
+  <p>Usage examples:
+  <ul>
+  <li>claim value is not empty: "\\S+"</li>
+  <li>claim value has one of 2 possible values: "^(admin|manager)$"</li>
+  </ul></div>
+<dl class="notes">
+<dt>Default:</dt>
+<dd>""</dd>
+</dl>
 </section>
 </li>
 </ul>

@@ -4,6 +4,10 @@
 include::ROOT:partial$include.adoc[]
 include::java-protobuf:partial$actions.adoc[]
 
+include::java-protobuf:partial$effects-action.adoc[]
+
+See also xref:java:development-process.adoc#_effects_api[Understanding what an Effect is]
+
 == Actions as Pure Functions
 
 In this first example, you will learn how to implement an Action as a pure stateless function. You will create a `FibonacciAction` that takes a number and returns the
@@ -178,6 +182,24 @@ The problem with this is that a `POST /cart/my-cart/items/add` call directly to 
 action returning and the subsequent "addItem" call from the action would lead to more items in the cart than the allowed limit.
 
 Such validation depending on state can only safely be done handling the command inside of the entity.
+
+== Actions as Life-cycle Hooks
+
+An Action method can be triggered automatically when some predefined service life-cycle event happens (currently, only on startup is available), serving as a custom hook. For such use, the method needs to be public, annotated with `@Trigger.OnStartup` and cannot receive any parameters, as shown below.
+
+IMPORTANT: The on startup hook is called every time a service instance boots up. This can happen for very different reasons: restarting / redeploying the service, scaling up to more instances or even without any user-driven action (e.g. Kalix Runtime versions being rolled out, infrastructure-related incidents, etc.). Therefore, you should carefully consider how you use this hook and its implementation.
+
+[source,java]
+----
+include::example$java-spring-doc-snippets/src/main/java/com/example/trigger/OnStartupAction.java[tag=hook]
+----
+<1> Only methods belonging to an Action can be configured as a hook.
+<2> This hook will be triggered once the instance startup is concluded (i.e. will be called 3 times if 3 instances are running).
+<3> Optionally, set the max amount of retries to 3.
+<4> The method must be public and receive no parameters.
+
+NOTE: If the call to the hook returns a failure and the `maxRetries` is set to a value greater than the default value (`0`), a number of retry calls will be executed with a fixed delay up until the configure amount is reached.
+
 
 == Running Side Effects
 

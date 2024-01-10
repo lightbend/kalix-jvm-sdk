@@ -4,6 +4,7 @@ include::ROOT:partial$include.adoc[]
 
 The main steps in developing a service include:
 
+. <<_effects_api>>
 . <<_implement_components>>
 . <<_create_unit_tests>>
 . <<_package_service>>
@@ -17,6 +18,7 @@ The main steps in developing a service include:
 The main components of a Kalix service are:
 
 * Stateful https://docs.kalix.io/reference/glossary.html#entity[Entities]
+* Stateful https://docs.kalix.io/reference/glossary.html#Workflow[Workflows]
 * Stateless https://docs.kalix.io/reference/glossary.html#action[Actions]
 * https://docs.kalix.io/reference/glossary.html#view[Views], which return the state of multiple instances of a stateful entity.
 
@@ -24,11 +26,13 @@ We recommend that you separate the service API and Entity domain data model. Sep
 
 TIP: Kickstart a project using the xref:java:getting-started.adoc[Getting started] guide.
 
+include::java-protobuf:partial$effects-api.adoc[]
 
 [#_implement_components]
 == Implement components
 
 Stateful services can implement https://docs.kalix.io/reference/glossary.html#value_entity[Value Entity] or https://docs.kalix.io/reference/glossary.html#event_sourced_entity[Event Sourced Entity] and https://docs.kalix.io/reference/glossary.html#view[View] components. Stateless services implement https://docs.kalix.io/reference/glossary.html#action[Actions]. Typically, a stateful service should only have one Entity type, but can also include Actions and Views.
+
 
 === Actions
 
@@ -46,10 +50,20 @@ TIP: For more information see xref:java:actions-as-controller.adoc[Actions as Co
 
 Services can interact asynchronously with other services and with external systems. Event Sourced Entities emit events to a journal, to which other services can subscribe. By configuring your own publish/subscribe (pub/sub) mechanism, any service can publish their own events and subscribe to events published by other services or external systems.
 
+=== Workflows
+Kalix Workflows are high-level descriptions to easily align business requirements with their implementation in code. Orchestration across multiple services with support for failure scenarios and compensating actions is simple with Kalix Workflows.
+
 === Views
 
-A View provides a way to retrieve state from multiple Entities based on a query. You can query non-key data items. You can create views from Value Entity state, Event Sourced Entity events, and by subscribing to topics. For more information about writing views see xref:java:views.adoc[Implementing Views].
+A View provides a way to retrieve state from multiple Entities based on a query. You can create views from Value Entity state, Event Sourced Entity events, and by subscribing to topics. For more information about writing views see xref:java:views.adoc[Implementing Views].
 
+For more details and examples take a look at the following topics:
+
+* xref:java:value-entity.adoc[Value Entities]
+* xref:java:event-sourced-entities.adoc[Event Sourced Entities]
+* xref:java:workflows.adoc[Workflows]
+* xref:java:actions.adoc[Actions]
+* xref:java:views.adoc[Views]
 
 [#_create_unit_tests]
 == Testing your application

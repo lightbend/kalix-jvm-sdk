@@ -1,4 +1,4 @@
-= Implementing Actions in Java
+= Implementing Actions
 :page-supergroup-java-scala: Language
 :page-aliases: java-protobuf:actions-as-controller.adoc, java-protobuf:side-effects.adoc
 
@@ -34,6 +34,10 @@ include::example$scala-protobuf-fibonacci-action/src/main/proto/com/example/fibo
 <1> Any classes generated from this protobuf file will be in the `com.example.fibonacci` package.
 <2> Import the Kalix protobuf annotations or options.
 <3> The protobuf option (kalix.codegen) is specific to code-generation as provided by the Kalix sbt plugin. This annotation indicates to the code-generation that an Action must be generated.
+
+include::partial$effects-action.adoc[]
+
+See also xref:developing:development-process-proto.adoc#_effects_api[Understanding what an Effect is]
 
 == Implementing the Action
 
@@ -362,9 +366,9 @@ Such validation that depends on state can only be done safely while handling the
 
 == Actions as Life-cycle Hooks
 
-An Action's gRPC method can be triggered automatically when some predefined service life-cycle event happens (currently, only on startup is available), serving as a custom hook. For such use, the method needs be annotated with a specific flag and its input type must be `google.protobuf.Empty` as shown below.
+An Action's gRPC method can be triggered automatically when some predefined service life-cycle event happens (currently, only on startup is available), serving as a custom hook. For such use, the method needs to be annotated with a specific flag and its input type must be `google.protobuf.Empty` as shown below.
 
-IMPORTANT: The on startup hook is called every time a service instance boots up. This can happen for very different reasons: restarting / redeploying the service, scaling up to more instances or even without any user-driven action (e.g. Kalix Runtime versions being rolled out, infrastruture-related incidents, etc.). Therefore, you should carefully consider how you use this hook and its implementation.
+IMPORTANT: The on startup hook is called every time a service instance boots up. This can happen for very different reasons: restarting / redeploying the service, scaling up to more instances or even without any user-driven action (e.g. Kalix Runtime versions being rolled out, infrastructure-related incidents, etc.). Therefore, you should carefully consider how you use this hook and its implementation.
 
 [source,proto]
 ----

@@ -50,7 +50,7 @@ loadScripts(document, 'script');</script>
 <div class="header">
 <h1>Index</h1>
 </div>
-<a href="#I:A">A</a>&nbsp;<a href="#I:B">B</a>&nbsp;<a href="#I:C">C</a>&nbsp;<a href="#I:D">D</a>&nbsp;<a href="#I:E">E</a>&nbsp;<a href="#I:F">F</a>&nbsp;<a href="#I:G">G</a>&nbsp;<a href="#I:H">H</a>&nbsp;<a href="#I:I">I</a>&nbsp;<a href="#I:J">J</a>&nbsp;<a href="#I:K">K</a>&nbsp;<a href="#I:N">N</a>&nbsp;<a href="#I:O">O</a>&nbsp;<a href="#I:P">P</a>&nbsp;<a href="#I:Q">Q</a>&nbsp;<a href="#I:R">R</a>&nbsp;<a href="#I:S">S</a>&nbsp;<a href="#I:T">T</a>&nbsp;<a href="#I:U">U</a>&nbsp;<a href="#I:V">V</a>&nbsp;<a href="#I:W">W</a>&nbsp;<br><a href="allclasses-index.html">All&nbsp;Classes&nbsp;and&nbsp;Interfaces</a><span class="vertical-separator">|</span><a href="allpackages-index.html">All&nbsp;Packages</a>
+<a href="#I:A">A</a>&nbsp;<a href="#I:B">B</a>&nbsp;<a href="#I:C">C</a>&nbsp;<a href="#I:D">D</a>&nbsp;<a href="#I:E">E</a>&nbsp;<a href="#I:F">F</a>&nbsp;<a href="#I:G">G</a>&nbsp;<a href="#I:H">H</a>&nbsp;<a href="#I:I">I</a>&nbsp;<a href="#I:J">J</a>&nbsp;<a href="#I:K">K</a>&nbsp;<a href="#I:M">M</a>&nbsp;<a href="#I:N">N</a>&nbsp;<a href="#I:O">O</a>&nbsp;<a href="#I:P">P</a>&nbsp;<a href="#I:Q">Q</a>&nbsp;<a href="#I:R">R</a>&nbsp;<a href="#I:S">S</a>&nbsp;<a href="#I:T">T</a>&nbsp;<a href="#I:U">U</a>&nbsp;<a href="#I:V">V</a>&nbsp;<a href="#I:W">W</a>&nbsp;<br><a href="allclasses-index.html">All&nbsp;Classes&nbsp;and&nbsp;Interfaces</a><span class="vertical-separator">|</span><a href="allpackages-index.html">All&nbsp;Packages</a>
 <h2 class="title" id="I:A">A</h2>
 <dl class="index">
 <dt><a href="kalix/javasdk/annotations/Acl.html" class="type-name-link" title="annotation interface in kalix.javasdk.annotations">Acl</a> - Annotation Interface in <a href="kalix/javasdk/annotations/package-summary.html">kalix.javasdk.annotations</a></dt>
@@ -758,7 +758,10 @@ loadScripts(document, 'script');</script>
 <dt><a href="kalix/javasdk/annotations/JWT.JwtMethodMode.html" class="type-name-link" title="enum class in kalix.javasdk.annotations">JWT.JwtMethodMode</a> - Enum Class in <a href="kalix/javasdk/annotations/package-summary.html">kalix.javasdk.annotations</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="kalix/javasdk/annotations/JWT.StaticClaim.html" class="type-name-link" title="annotation interface in kalix.javasdk.annotations">JWT.StaticClaim</a> - Annotation Interface in <a href="kalix/javasdk/annotations/package-summary.html">kalix.javasdk.annotations</a></dt>
-<dd>&nbsp;</dd>
+<dd>
+<div class="block">A static claim is a claim that is required to be present on the token, and have a particular
+ value.</div>
+</dd>
 </dl>
 <h2 class="title" id="I:K">K</h2>
 <dl class="index">
@@ -778,6 +781,13 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="kalix/javasdk/workflow/package-summary.html">kalix.javasdk.workflow</a> - package kalix.javasdk.workflow</dt>
 <dd>&nbsp;</dd>
+</dl>
+<h2 class="title" id="I:M">M</h2>
+<dl class="index">
+<dt><a href="kalix/javasdk/annotations/Trigger.OnStartup.html#maxRetries()" class="member-name-link">maxRetries()</a> - Element in annotation interface kalix.javasdk.annotations.<a href="kalix/javasdk/annotations/Trigger.OnStartup.html" title="annotation interface in kalix.javasdk.annotations">Trigger.OnStartup</a></dt>
+<dd>
+<div class="block">The maximum number of retries we will do upon failure of the method hook calls.</div>
+</dd>
 </dl>
 <h2 class="title" id="I:N">N</h2>
 <dl class="index">
@@ -825,6 +835,10 @@ loadScripts(document, 'script');</script>
 </dl>
 <h2 class="title" id="I:P">P</h2>
 <dl class="index">
+<dt><a href="kalix/javasdk/annotations/JWT.StaticClaim.html#pattern()" class="member-name-link">pattern()</a> - Element in annotation interface kalix.javasdk.annotations.<a href="kalix/javasdk/annotations/JWT.StaticClaim.html" title="annotation interface in kalix.javasdk.annotations">JWT.StaticClaim</a></dt>
+<dd>
+<div class="block">This receives a regex expression (Java flavor) used to match on the incoming claim value.</div>
+</dd>
 <dt><a href="kalix/javasdk/annotations/Acl.Matcher.html#principal()" class="member-name-link">principal()</a> - Element in annotation interface kalix.javasdk.annotations.<a href="kalix/javasdk/annotations/Acl.Matcher.html" title="annotation interface in kalix.javasdk.annotations">Acl.Matcher</a></dt>
 <dd>
 <div class="block">A principal matcher that can be specified with no additional configuration.</div>
@@ -935,6 +949,14 @@ loadScripts(document, 'script');</script>
 <dt><a href="kalix/javasdk/annotations/Table.html" class="type-name-link" title="annotation interface in kalix.javasdk.annotations">Table</a> - Annotation Interface in <a href="kalix/javasdk/annotations/package-summary.html">kalix.javasdk.annotations</a></dt>
 <dd>
 <div class="block">Annotation for providing a table name for View-type Kalix components.</div>
+</dd>
+<dt><a href="kalix/javasdk/annotations/Trigger.html" class="type-name-link" title="annotation interface in kalix.javasdk.annotations">Trigger</a> - Annotation Interface in <a href="kalix/javasdk/annotations/package-summary.html">kalix.javasdk.annotations</a></dt>
+<dd>
+<div class="block">This annotation is used to mark a method as a hook that will be triggered automatically uppon certain events.</div>
+</dd>
+<dt><a href="kalix/javasdk/annotations/Trigger.OnStartup.html" class="type-name-link" title="annotation interface in kalix.javasdk.annotations">Trigger.OnStartup</a> - Annotation Interface in <a href="kalix/javasdk/annotations/package-summary.html">kalix.javasdk.annotations</a></dt>
+<dd>
+<div class="block">The on startup hook is called every time a service instance boots up.</div>
 </dd>
 <dt><a href="kalix/javasdk/annotations/TypeId.html" class="type-name-link" title="annotation interface in kalix.javasdk.annotations">TypeId</a> - Annotation Interface in <a href="kalix/javasdk/annotations/package-summary.html">kalix.javasdk.annotations</a></dt>
 <dd>
@@ -1103,7 +1125,7 @@ the order they are declared.</div>
 <dt><a href="kalix/javasdk/workflow/ReflectiveWorkflowProvider.html#workflowName()" class="member-name-link">workflowName()</a> - Method in class kalix.javasdk.workflow.<a href="kalix/javasdk/workflow/ReflectiveWorkflowProvider.html" title="class in kalix.javasdk.workflow">ReflectiveWorkflowProvider</a></dt>
 <dd>&nbsp;</dd>
 </dl>
-<a href="#I:A">A</a>&nbsp;<a href="#I:B">B</a>&nbsp;<a href="#I:C">C</a>&nbsp;<a href="#I:D">D</a>&nbsp;<a href="#I:E">E</a>&nbsp;<a href="#I:F">F</a>&nbsp;<a href="#I:G">G</a>&nbsp;<a href="#I:H">H</a>&nbsp;<a href="#I:I">I</a>&nbsp;<a href="#I:J">J</a>&nbsp;<a href="#I:K">K</a>&nbsp;<a href="#I:N">N</a>&nbsp;<a href="#I:O">O</a>&nbsp;<a href="#I:P">P</a>&nbsp;<a href="#I:Q">Q</a>&nbsp;<a href="#I:R">R</a>&nbsp;<a href="#I:S">S</a>&nbsp;<a href="#I:T">T</a>&nbsp;<a href="#I:U">U</a>&nbsp;<a href="#I:V">V</a>&nbsp;<a href="#I:W">W</a>&nbsp;<br><a href="allclasses-index.html">All&nbsp;Classes&nbsp;and&nbsp;Interfaces</a><span class="vertical-separator">|</span><a href="allpackages-index.html">All&nbsp;Packages</a></main>
+<a href="#I:A">A</a>&nbsp;<a href="#I:B">B</a>&nbsp;<a href="#I:C">C</a>&nbsp;<a href="#I:D">D</a>&nbsp;<a href="#I:E">E</a>&nbsp;<a href="#I:F">F</a>&nbsp;<a href="#I:G">G</a>&nbsp;<a href="#I:H">H</a>&nbsp;<a href="#I:I">I</a>&nbsp;<a href="#I:J">J</a>&nbsp;<a href="#I:K">K</a>&nbsp;<a href="#I:M">M</a>&nbsp;<a href="#I:N">N</a>&nbsp;<a href="#I:O">O</a>&nbsp;<a href="#I:P">P</a>&nbsp;<a href="#I:Q">Q</a>&nbsp;<a href="#I:R">R</a>&nbsp;<a href="#I:S">S</a>&nbsp;<a href="#I:T">T</a>&nbsp;<a href="#I:U">U</a>&nbsp;<a href="#I:V">V</a>&nbsp;<a href="#I:W">W</a>&nbsp;<br><a href="allclasses-index.html">All&nbsp;Classes&nbsp;and&nbsp;Interfaces</a><span class="vertical-separator">|</span><a href="allpackages-index.html">All&nbsp;Packages</a></main>
 </div>
 </div>
 </body>

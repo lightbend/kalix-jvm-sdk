@@ -91,6 +91,9 @@ include::example$scala-protobuf-valueentity-counter/src/main/proto/com/example/c
 <10> `entity_type` is a unique identifier of the "state storage." The entity name may be changed even after data has been created, the `entity_type` can't.
 <11> `state` points to the protobuf message representing the Value Entity's state which is kept by Kalix. Note, the package and name follow the definition in the domain.proto file.
 
+include::partial$effects-value-entity.adoc[]
+
+See also xref:developing:development-process-proto.adoc#_effects_api[Understanding what an Effect is]
 
 == Implementing behavior
 
@@ -248,7 +251,7 @@ Note that xref:views.adoc#ve_delete[deleting View state] must be handled explici
 
 An Entity may also emit one or more side effects. A side effect is something whose result has no impact on the result of the current command--if it fails, the current command still succeeds. The result of the side effect is therefore ignored. When used from inside an Entity, side effects are only performed after the successful completion of any state actions requested by the command handler.
 
-See dedicated section on xref:actions.adoc#_running_side_effects[].
+See this xref:actions.adoc#_running_side_effects[dedicated section regarding Actions], for more details.
 
 == Testing the Entity
 

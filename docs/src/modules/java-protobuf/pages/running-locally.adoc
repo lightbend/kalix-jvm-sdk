@@ -156,7 +156,7 @@ The *customer-registry* sample provides a service to register customers and the 
 
 === Customer Registry Sample
 
-The `docker-compose.yml` file from *customer-registry* is left untouched and use the usual default ports. The user function will run on port 8080 and the Kalix Runtime on port 9000.
+The `docker-compose.yml` file from *customer-registry* is left untouched and use the usual default ports. The user service will run on port 8080 and the Kalix Runtime on port 9000.
 
 [source,yml,indent=0]
 ----
@@ -223,7 +223,7 @@ At the root of the *customer-registry-subscriber* service, we can find an altern
 
 [source,yml,indent=0]
 ----
-include::java:example$java-spring-eventsourced-customer-registry-subscriber/docker-compose-integration.yml[tag=customer-registry-docker]
+include::java-protobuf:example$java-protobuf-eventsourced-customer-registry-subscriber/docker-compose-integration.yml[tag=customer-registry-docker]
 ----
 
 But first, we need to build an image for *customer-registry*. For local development, we don't need to publish it to a remote container registry. It suffices to build it locally. 

@@ -2,7 +2,7 @@
 version: "3"
 services:
   kalix-runtime:
-    image: gcr.io/kalix-public/kalix-runtime:1.1.27
+    image: gcr.io/kalix-public/kalix-runtime:1.1.29
     container_name: java-protobuf-eventsourced-customer-registry
     ports:
       - "9000:9000"
@@ -12,6 +12,6 @@ services:
       JAVA_TOOL_OPTIONS: >
       # jvm -D properties can be added under this environment map (note: remove this comment when adding properties)
 
-      USER_FUNCTION_HOST: ${USER_FUNCTION_HOST:-host.docker.internal}
-      USER_FUNCTION_PORT: ${USER_FUNCTION_PORT:-8080}
+      USER_SERVICE_HOST: ${USER_SERVICE_HOST:-host.docker.internal}
+      USER_SERVICE_PORT: ${USER_SERVICE_PORT:-8080}
 #end::customer-registry[]

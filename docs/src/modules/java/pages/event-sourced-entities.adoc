@@ -44,6 +44,10 @@ IMPORTANT: The use of logical names for subtypes is essential for maintainabilit
 
 include::partial$entity-ids.adoc[]
 
+include::java-protobuf:partial$effects-event-sourced-entity.adoc[]
+
+See also xref:java:development-process.adoc#_effects_api[Understanding what an Effect is]
+
 == Implementing behavior
 
 Now that we have our Entity state defined along with its events, the remaining steps can be summarized as follows:
@@ -147,7 +151,7 @@ Note that xref:views.adoc#ve_delete[deleting View state] must be handled explici
 
 An Entity may also emit one or more side effects. A side effect is something whose result has no impact on the result of the current command--if it fails, the current command still succeeds. The result of the side effect is therefore ignored. When used from inside an Entity, side effects are only performed after the successful completion of any state actions requested by the command handler.
 
-See dedicated section on xref:actions.adoc#_running_side_effects[].
+See this xref:actions.adoc#_running_side_effects[dedicated section regarding Actions], for more details.
 
 == Testing the Entity
 
