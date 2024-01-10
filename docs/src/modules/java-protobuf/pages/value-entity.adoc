@@ -91,6 +91,9 @@ include::example$scala-protobuf-valueentity-counter/src/main/proto/com/example/c
 <10> `entity_type` is a unique identifier of the "state storage." The entity name may be changed even after data has been created, the `entity_type` can't.
 <11> `state` points to the protobuf message representing the Value Entity's state which is kept by Kalix. Note, the package and name follow the definition in the domain.proto file.
 
+include::partial$effects-value-entity.adoc[]
+
+See also xref:developing:development-process-proto.adoc#_effects_api[Understanding what an Effect is]
 
 == Implementing behavior
 

@@ -1,4 +1,4 @@
-= Implementing Actions in Java
+= Implementing Actions
 :page-supergroup-java-scala: Language
 :page-aliases: java-protobuf:actions-as-controller.adoc, java-protobuf:side-effects.adoc
 
@@ -34,6 +34,10 @@ include::example$scala-protobuf-fibonacci-action/src/main/proto/com/example/fibo
 <1> Any classes generated from this protobuf file will be in the `com.example.fibonacci` package.
 <2> Import the Kalix protobuf annotations or options.
 <3> The protobuf option (kalix.codegen) is specific to code-generation as provided by the Kalix sbt plugin. This annotation indicates to the code-generation that an Action must be generated.
+
+include::partial$effects-action.adoc[]
+
+See also xref:developing:development-process-proto.adoc#_effects_api[Understanding what an Effect is]
 
 == Implementing the Action
 

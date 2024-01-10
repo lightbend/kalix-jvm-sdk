@@ -154,7 +154,7 @@ public abstract class Workflow<S> {
    * Each Kalix component defines its own effects, which are a set of predefined
    * operations that match the capabilities of that component.
    * <p>
-   * A Workflow Effect can:
+   * A Workflow Effect can either:
    * <p>
    * <ul>
    *   <li>update the state of the workflow
@@ -165,9 +165,8 @@ public abstract class Workflow<S> {
    *   <li>reply to incoming commands
    * </ul>
    * <p>
-   * A return type to allow returning failures or attaching effects to messages.
    *
-   * @param <T> The type of the message that must be returned by this call.
+   *  @param <T> The type of the message that must be returned by this call.
    */
   public interface Effect<T> {
 

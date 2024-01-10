@@ -27,6 +27,10 @@ include::example$java-spring-valueentity-counter/src/main/java/com/example/Numbe
 
 include::partial$entity-ids.adoc[]
 
+include::java-protobuf:partial$effects-value-entity.adoc[]
+
+See also xref:java:development-process.adoc#_effects_api[Understanding what an Effect is]
+
 [#entity-behavior]
 == Implementing behavior
 

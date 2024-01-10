@@ -65,7 +65,21 @@ public abstract class ReplicatedEntity<D extends ReplicatedData> {
   }
 
   /**
-   * A return type to allow returning forwards or failures, and attaching effects to messages.
+   * An Effect is a description of what Kalix needs to do after the command is handled.
+   * You can think of it as a set of instructions you are passing to Kalix. Kalix will process the instructions on your
+   * behalf and ensure that any data that needs to be persisted will be persisted.
+   * <p>
+   * Each Kalix component defines its own effects, which are a set of predefined
+   * operations that match the capabilities of that component.
+   * <p>
+   * A Replicated Effect can either:
+   * <p>
+   * <ul>
+   *   <li>update the entity state and send a reply to the caller
+   *   <li>directly reply to the caller if the command is not requesting any state change
+   *   <li>rejected the command by returning an error
+   *   <li>instruct Kalix to delete the entity
+   * </ul>
    *
    * @param <R> The type of the reply message that must be returned by this call.
    */

@@ -4,6 +4,7 @@ include::ROOT:partial$include.adoc[]
 The main steps in developing a service include:
 
 . <<_specify_service_interface_and_domain_model>>
+. <<_effects_api>>
 . <<_implement_components>>
 . <<_create_unit_tests>>
 . <<_package_service>>
@@ -26,11 +27,13 @@ The gRPC definitions in `.proto` files describe the external interface, messages
 
 TIP: Kickstart a project using the xref:java-protobuf:quickstart-template.adoc[project template].
 
+include::java-protobuf:partial$effects-api.adoc[]
 
 [#_implement_components]
 == Implement components
 
 Stateful services can implement https://docs.kalix.io/reference/glossary.html#value_entity[Value Entity] or https://docs.kalix.io/reference/glossary.html#event_sourced_entity[Event Sourced Entity] and https://docs.kalix.io/reference/glossary.html#view[View] components. Stateless services implement https://docs.kalix.io/reference/glossary.html#action[Actions]. Typically, a stateful service should only have one Entity type, but can also include Actions and Views.
+
 
 === Actions
 
@@ -47,6 +50,10 @@ If you would like to update multiple Entities from a single command, you can use
 TIP: For more information see xref:java-protobuf:actions-as-controller.adoc[Actions as Controllers] and xref:java-protobuf:side-effects.adoc[Running Side Effects].
 
 Services can interact asynchronously with other services and with external systems. Event Sourced Entities emit events to a journal, to which other services can subscribe. By configuring your own publish/subscribe (pub/sub) mechanism, any service can publish their own events and subscribe to events published by other services or external systems.
+
+=== Views
+
+A View provides a way to retrieve state from multiple Entities based on a query. You can create views from Value Entity state, Event Sourced Entity events, and by subscribing to topics. For more information about writing views see xref:java-protobuf:views.adoc[Implementing Views].
 
 For more details and examples take a look at the following topics:
 

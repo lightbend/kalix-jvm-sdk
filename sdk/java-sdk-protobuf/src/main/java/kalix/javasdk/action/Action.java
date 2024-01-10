@@ -124,8 +124,6 @@ public abstract class Action {
    *   <li>ignore the call
    * </ul>
    *
-   * A return type to allow returning forwards or failures, and attaching effects to messages.
-   *
    * @param <T> The type of the message that must be returned by this call.
    */
   public interface Effect<T> {

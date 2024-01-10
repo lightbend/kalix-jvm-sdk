@@ -1,0 +1,11 @@
+== Action's Effect API
+
+The Action's Effect defines the operations that Kalix should perform when an incoming message is handled by an Action.
+
+An Action Effect can either:
+
+* reply with a message to the caller
+* reply with a message to be published to a topic (in case the method is a publisher)
+* forward the message to another component
+* return an error
+* ignore the call

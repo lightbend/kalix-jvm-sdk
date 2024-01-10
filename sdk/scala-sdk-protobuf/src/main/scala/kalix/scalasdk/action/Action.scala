@@ -44,9 +44,6 @@ object Action {
    *   - return an error
    *   - ignore the call
    *
-   * A return type to allow returning forwards or failures, and attaching effects to messages. A return type to allow
-   * returning forwards or failures, and attaching effects to messages.
-   *
    * @tparam T
    *   The type of the message that must be returned by this call.
    */

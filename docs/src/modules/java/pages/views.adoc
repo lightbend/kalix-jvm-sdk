@@ -19,6 +19,10 @@ The remainder of this page describes:
 
 IMPORTANT: Be aware that Views are not updated immediately when Entity state changes. Kalix does update Views as quickly as possible. It is not instant but eventually all changes will become visible in the query results. View updates might also take more time during failure scenarios than during normal operation.
 
+include::java-protobuf:partial$effects-view.adoc[]
+
+See also xref:java:development-process.adoc#_effects_api[Understanding what an Effect is]
+
 [#value-entity]
 == Creating a View from a Value Entity
 

@@ -167,8 +167,6 @@ object ValueEntity {
    *   - rejected the command by returning an error
    *   - instruct Kalix to delete the entity
    *
-   * A return type to allow returning forwards or failures, and attaching effects to messages.
-   *
    * @tparam T
    *   The type of the message that must be returned by this call.
    */
