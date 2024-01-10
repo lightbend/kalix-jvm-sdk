@@ -16,6 +16,8 @@
 
 package com.example.wiring.valueentities.customer;
 
+import kalix.javasdk.Metadata;
+import kalix.javasdk.StatusCode;
 import kalix.javasdk.valueentity.ValueEntity;
 import kalix.javasdk.annotations.Id;
 import kalix.javasdk.annotations.TypeId;
@@ -36,7 +38,8 @@ public class CustomerEntity extends ValueEntity<CustomerEntity.Customer> {
 
   @PutMapping
   public Effect<String> create(@RequestBody Customer customer) {
-    return effects().updateState(customer).thenReply("Ok");
+    return effects().updateState(customer).thenReply("Ok",
+        Metadata.EMPTY.withHttpResponseCode(StatusCode.Success.CREATED));
   }
 
   @GetMapping

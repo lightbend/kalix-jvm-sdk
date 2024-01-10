@@ -28,6 +28,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.TestPropertySource;
+import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Mono;
@@ -104,14 +105,14 @@ public class ValueEntityIntegrationTest {
   }
 
   private void createUser(TestUser user) {
-    String userCreation =
+    ClientResponse response =
         webClient
             .post()
             .uri("/user/" + user.id + "/" + user.email + "/" + user.name)
-            .retrieve()
-            .bodyToMono(String.class)
+            .exchangeToMono(Mono::just)
             .block(timeout);
-    Assertions.assertEquals("\"Ok\"", userCreation);
+    Assertions.assertEquals("\"Ok\"", response.bodyToMono(String.class));
+    Assertions.assertEquals(201, response.statusCode().value());
   }
 
   private void changeEmail(TestUser user) {
