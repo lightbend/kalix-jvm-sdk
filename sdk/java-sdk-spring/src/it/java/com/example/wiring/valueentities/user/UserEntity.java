@@ -16,6 +16,7 @@
 
 package com.example.wiring.valueentities.user;
 
+import kalix.javasdk.Metadata;
 import kalix.javasdk.StatusCode;
 import kalix.javasdk.eventsourcedentity.EventSourcedEntity;
 import kalix.javasdk.valueentity.ValueEntity;
@@ -49,7 +50,8 @@ public class UserEntity extends ValueEntity<User> {
 
   @PostMapping("/{email}/{name}")
   public Effect<String> createOrUpdateUser(@PathVariable String email, @PathVariable String name) {
-    return effects().updateState(new User(email, name)).thenReply("Ok");
+    return effects().updateState(new User(email, name)).thenReply("Ok",
+        Metadata.EMPTY.withHttpResponseCode(StatusCode.Success.CREATED));
   }
 
   @PutMapping("/{email}/{name}")

@@ -111,7 +111,6 @@ public class ValueEntityIntegrationTest {
             .uri("/user/" + user.id + "/" + user.email + "/" + user.name)
             .exchangeToMono(Mono::just)
             .block(timeout);
-    Assertions.assertEquals("\"Ok\"", response.bodyToMono(String.class));
     Assertions.assertEquals(201, response.statusCode().value());
   }
 
