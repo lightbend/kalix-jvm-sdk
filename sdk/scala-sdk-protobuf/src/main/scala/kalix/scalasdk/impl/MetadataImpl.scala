@@ -16,10 +16,10 @@
 
 package kalix.scalasdk.impl
 import java.nio.ByteBuffer
-
 import scala.collection.immutable.Seq
 import kalix.scalasdk.{ CloudEvent, JwtClaims, Metadata, MetadataEntry, Principal, Principals }
 import kalix.protocol.component.{ MetadataEntry => ProtocolMetadataEntry }
+import kalix.scalasdk.StatusCode
 
 import scala.jdk.OptionConverters._
 import scala.jdk.CollectionConverters._
@@ -95,4 +95,9 @@ private[kalix] class MetadataImpl(val impl: kalix.javasdk.impl.MetadataImpl) ext
     override def localService: Option[String] = impl.principals.getLocalService.toScala
     override def apply: Seq[Principal] = impl.principals.get.asScala.map(Principal.toScala).toSeq
   }
+  override def withStatusCode(code: StatusCode.Success): Metadata =
+    set("_kalix-http-code", code.value.toString)
+
+  override def withStatusCode(code: StatusCode.Redirect): Metadata =
+    set("_kalix-http-code", code.value.toString)
 }

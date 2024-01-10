@@ -16,6 +16,9 @@
 
 package kalix.javasdk.impl
 
+import kalix.javasdk.StatusCode.Redirect
+import kalix.javasdk.StatusCode.Success
+
 import java.time.Instant
 import java.util.Optional
 import kalix.javasdk.{ Metadata, Principal }
@@ -147,6 +150,14 @@ class MetadataImplSpec extends AnyWordSpec with Matchers with OptionValues {
         meta.principals().isAnyLocalService shouldBe false
         meta.principals().get().asScala should have size 0
       }
+    }
+
+    "support setting a HTTP status code" in {
+      val md = Metadata.EMPTY.withStatusCode(Success.CREATED)
+      md.get("_kalix-http-code").toScala.value shouldBe "201"
+
+      val mdRedirect = md.withStatusCode(Redirect.MOVED_PERMANENTLY)
+      mdRedirect.get("_kalix-http-code").toScala.value shouldBe "301"
     }
   }
 

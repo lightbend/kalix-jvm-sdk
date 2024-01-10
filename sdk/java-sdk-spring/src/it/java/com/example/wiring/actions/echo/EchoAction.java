@@ -16,6 +16,8 @@
 
 package com.example.wiring.actions.echo;
 
+import kalix.javasdk.Metadata;
+import kalix.javasdk.StatusCode;
 import kalix.javasdk.action.Action;
 import kalix.javasdk.action.ActionCreationContext;
 import kalix.javasdk.client.ComponentClient;
@@ -91,5 +93,12 @@ public class EchoAction extends Action {
         .flatMap(
             i -> Mono.fromCompletionStage(CompletableFuture.supplyAsync(() -> parrot.repeat(msg))))
         .map(m -> effects().reply(new Message(m)));
+  }
+
+  @PostMapping("/echo/message/customCode/{msg}")
+  public Effect<Message> stringMessageCustomCode(@PathVariable String msg) {
+    String response = this.parrot.repeat(msg);
+    return effects().reply(new Message(response),
+        Metadata.EMPTY.withStatusCode(StatusCode.Success.ACCEPTED));
   }
 }

@@ -44,6 +44,7 @@ import com.example.wiring.views.UsersByEmailAndName;
 import com.google.protobuf.any.Any;
 import kalix.javasdk.DeferredCall;
 import kalix.javasdk.Metadata;
+import kalix.javasdk.StatusCode;
 import kalix.javasdk.client.ComponentClient;
 import kalix.javasdk.client.EventSourcedEntityCallBuilder;
 import kalix.spring.KalixConfigurationTest;
@@ -51,6 +52,7 @@ import org.hamcrest.core.IsEqual;
 import org.hamcrest.core.IsNull;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -58,6 +60,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.TestPropertySource;
+import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Mono;
@@ -218,6 +221,17 @@ public class SpringSdkIntegrationTest {
     );
 
     assertThat(response.text).isEqualTo("foo/bar");
+  }
+
+  @Test
+  public void verifyEchoActionWithCustomCode() {
+    ClientResponse response =
+        webClient
+            .post()
+            .uri("/echo/message/customCode/hello")
+            .exchangeToMono(Mono::just)
+            .block(timeout);
+    Assertions.assertEquals(StatusCode.Success.ACCEPTED.value(), response.statusCode().value());
   }
 
   @Test
