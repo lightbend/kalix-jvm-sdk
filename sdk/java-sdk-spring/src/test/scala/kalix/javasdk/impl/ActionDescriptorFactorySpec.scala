@@ -227,12 +227,12 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
         assertRequestFieldJavaType(method, "json_body", JavaType.MESSAGE)
 
         val Seq(claim1, claim2, claim3) = jwtOption.getStaticClaimList.asScala.toSeq
-        claim1.getClaim shouldBe "role"
-        claim1.getValue(0) shouldBe "admin"
+        claim1.getClaim shouldBe "roles"
+        claim1.getValueList.asScala.toSeq shouldBe Seq("viewer", "editor")
         claim2.getClaim shouldBe "aud"
         claim2.getValue(0) shouldBe "${ENV}.kalix.io"
-        claim3.getClaim shouldBe "more-roles"
-        claim3.getValueList.asScala.toSeq shouldBe Seq("viewer", "editor")
+        claim3.getClaim shouldBe "sub"
+        claim3.getPattern shouldBe "^sub-\\S+$"
       }
     }
 
@@ -245,12 +245,12 @@ class ActionDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSu
         jwtOption.getValidate shouldBe JwtServiceMode.BEARER_TOKEN
 
         val Seq(claim1, claim2, claim3) = jwtOption.getStaticClaimList.asScala.toSeq
-        claim1.getClaim shouldBe "role"
-        claim1.getValue(0) shouldBe "admin"
+        claim1.getClaim shouldBe "roles"
+        claim1.getValueList.asScala.toSeq shouldBe Seq("editor", "viewer")
         claim2.getClaim shouldBe "aud"
         claim2.getValue(0) shouldBe "${ENV}.kalix.io"
-        claim3.getClaim shouldBe "more-roles"
-        claim3.getValueList.asScala.toSeq shouldBe Seq("editor", "viewer")
+        claim3.getClaim shouldBe "sub"
+        claim3.getPattern shouldBe "^\\S+$"
       }
     }
 
