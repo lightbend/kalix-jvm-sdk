@@ -431,7 +431,7 @@ include::example$scala-protobuf-valueentity-customer-registry/src/main/proto/cus
 [#changing]
 == How to modify a View
 
-Kalix creates indexes for the View based on the query. For example, the following query will result in a View with an index on the `name` column:
+Kalix creates indexes for the View based on the defined queries. For example, the following query will result in a View with an index on the `name` column:
 
 [source,proto,indent=0]
 ----
