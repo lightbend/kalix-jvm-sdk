@@ -47,7 +47,6 @@ object StatusCode {
 
   case object IMUsed extends Success(226)
 
-
   sealed abstract class Redirect(val value: Int) extends StatusCode
 
   case object MultipleChoices extends Redirect(300)
