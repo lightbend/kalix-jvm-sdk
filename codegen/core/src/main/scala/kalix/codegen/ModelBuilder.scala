@@ -250,8 +250,8 @@ object ModelBuilder {
   }
 
   /**
-   * A Service backed by a View, which provides a way to retrieve state from multiple Entities based on a query.
-   * You can create views from Value Entity state, Event Sourced Entity events, and by subscribing to topics.
+   * A Service backed by a View, which provides a way to retrieve state from multiple Entities based on a query. You can
+   * create views from Value Entity state, Event Sourced Entity events, and by subscribing to topics.
    */
   case class ViewService(
       override val messageType: ProtoMessageType,
