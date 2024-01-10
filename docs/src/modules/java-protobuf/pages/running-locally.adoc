@@ -156,7 +156,7 @@ The *customer-registry* sample provides a service to register customers and the 
 
 === Customer Registry Sample
 
-The `docker-compose.yml` file from *customer-registry* is left untouched and use the usual default ports. The user function will run on port 8080 and the Kalix Runtime on port 9000.
+The `docker-compose.yml` file from *customer-registry* is left untouched and use the usual default ports. The user service will run on port 8080 and the Kalix Runtime on port 9000.
 
 [source,yml,indent=0]
 ----

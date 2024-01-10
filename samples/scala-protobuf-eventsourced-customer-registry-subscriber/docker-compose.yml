@@ -6,10 +6,11 @@ services:
     image: gcr.io/kalix-public/kalix-runtime:1.1.29
     container_name: scala-protobuf-eventsourced-customer-registry-subscriber
     ports:
-      - "9001:9000"
+      - "9001:9001"
     extra_hosts:
       - "host.docker.internal:host-gateway"
     environment:
+      HTTP_PORT: "9001"
       JAVA_TOOL_OPTIONS: >
       USER_SERVICE_HOST: ${USER_SERVICE_HOST:-host.docker.internal}
       USER_SERVICE_PORT: "8081"
