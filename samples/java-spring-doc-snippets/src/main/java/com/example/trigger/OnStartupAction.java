@@ -4,8 +4,6 @@ import kalix.javasdk.action.Action;
 import kalix.javasdk.annotations.Trigger;
 import org.springframework.web.bind.annotation.PostMapping;
 
-import static kalix.javasdk.annotations.Trigger.TriggerEvent.STARTUP;
-
 
 // tag::hook[]
 public class OnStartupAction extends Action { // <1>
