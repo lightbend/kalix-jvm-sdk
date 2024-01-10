@@ -18,11 +18,13 @@ package kalix.javasdk.impl
 
 import java.lang.reflect.AnnotatedElement
 import java.lang.reflect.Method
+import java.lang.reflect.Modifier
 import java.lang.reflect.ParameterizedType
 
 import scala.reflect.ClassTag
 
 import kalix.javasdk.action.Action
+import kalix.javasdk.annotations.EventHandler
 import kalix.javasdk.annotations.Publish
 import kalix.javasdk.annotations.Query
 import kalix.javasdk.annotations.Subscribe
@@ -149,6 +151,39 @@ object Validations {
     validateEventSourcedEntity(component) ++
     validateWorkflow(component)
 
+  private def validateEventHandlers(entityClass: Class[_]): Validation = {
+
+    val annotatedHandlers = entityClass.getDeclaredMethods
+      .filter(_.getAnnotation(classOf[EventHandler]) != null)
+      .toList
+
+    val genericTypeArguments = entityClass.getGenericSuperclass
+      .asInstanceOf[ParameterizedType]
+      .getActualTypeArguments
+
+    // the state type parameter from the ES entity defines the return type of each event handler
+    val stateType = genericTypeArguments.head
+      .asInstanceOf[Class[_]]
+
+    val eventType = genericTypeArguments(1).asInstanceOf[Class[_]]
+
+    val (invalidHandlers, validSignatureHandlers) = annotatedHandlers.partition((m: Method) =>
+      m.getParameterCount != 1 || !Modifier.isPublic(m.getModifiers) || (stateType != m.getReturnType))
+
+    val signatureValidation = Validation(
+      invalidHandlers
+        .sortBy(_.getName) //for tests
+        .map(method =>
+          errorMessage(
+            entityClass,
+            s"event handler [${method.getName}] must be public, with exactly one parameter and return type '${stateType.getTypeName}'.")))
+
+    val missingHandlerInputParams = validSignatureHandlers.sortBy(_.getName).map(_.getParameterTypes.head)
+
+    signatureValidation ++ ambiguousHandlersErrors(validSignatureHandlers, entityClass) ++
+    missingEventHandler(missingHandlerInputParams, eventType, entityClass)
+  }
+
   private def componentMustBePublic(component: Class[_]): Validation = {
     if (component.isPublic) {
       Valid
@@ -199,7 +234,8 @@ object Validations {
 
   private def validateEventSourcedEntity(component: Class[_]): Validation = {
     when[EventSourcedEntity[_, _]](component) {
-      validateCompoundIdsOrder(component)
+      validateCompoundIdsOrder(component) ++
+      validateEventHandlers(component)
     }
   }
 
@@ -267,7 +303,7 @@ object Validations {
       hasStreamSubscription(component),
       hasTopicSubscription(component))
 
-    when(typeLevelSubs.filter(identity).size > 1) {
+    when(typeLevelSubs.count(identity) > 1) {
       Validation(errorMessage(component, "Only one subscription type is allowed on a type level."))
     }
   }
@@ -299,12 +335,9 @@ object Validations {
     val methods = component.getMethods.toIndexedSeq
 
     if (hasSubscription(component)) {
-      val effectMethodsByInputParams: Map[Option[Class[_]], IndexedSeq[Method]] = methods
+      val effectMethods = methods
         .filter(updateMethodPredicate)
-        .groupBy(_.getParameterTypes.lastOption)
-
-      Validation(ambiguousHandlersErrors(effectMethodsByInputParams, component))
-
+      ambiguousHandlersErrors(effectMethods, component)
     } else {
       val effectOutputMethodsGrouped = methods
         .filter(hasSubscription)
@@ -313,30 +346,40 @@ object Validations {
 
       effectOutputMethodsGrouped
         .map { case (_, methods) =>
-          val effectMethodsByInputParams: Map[Option[Class[_]], IndexedSeq[Method]] =
-            methods.groupBy(_.getParameterTypes.lastOption)
-          Validation(ambiguousHandlersErrors(effectMethodsByInputParams, component))
+          ambiguousHandlersErrors(methods, component)
         }
         .fold(Valid)(_ ++ _)
     }
 
   }
 
-  private def ambiguousHandlersErrors(
-      effectMethodsInputParams: Map[Option[Class[_]], IndexedSeq[Method]],
-      component: Class[_]) = {
-    val errors = effectMethodsInputParams
+  private def ambiguousHandlersErrors(handlers: Seq[Method], component: Class[_]): Validation = {
+    val ambiguousHandlers = handlers
+      .groupBy(_.getParameterTypes.lastOption)
       .filter(_._2.size > 1)
       .map {
         case (Some(inputType), methods) =>
-          errorMessage(
+          Validation(errorMessage(
             component,
-            s"Ambiguous handlers for ${inputType.getCanonicalName}, methods: [${methods.sorted.map(_.getName).mkString(", ")}] consume the same type.")
+            s"Ambiguous handlers for ${inputType.getCanonicalName}, methods: [${methods.sorted.map(_.getName).mkString(", ")}] consume the same type."))
         case (None, methods) => //only delete handlers
-          errorMessage(component, s"Ambiguous delete handlers: [${methods.sorted.map(_.getName).mkString(", ")}].")
+          Validation(
+            errorMessage(component, s"Ambiguous delete handlers: [${methods.sorted.map(_.getName).mkString(", ")}]."))
       }
-      .toSeq
-    errors
+
+    val sealedHandler = handlers.find(_.getParameterTypes.lastOption.exists(_.isSealed))
+    val sealedHandlerMixedUsage = if (sealedHandler.nonEmpty && handlers.size > 1) {
+      val unexpectedHandlerNames = handlers.filterNot(m => m == sealedHandler.get).map(_.getName)
+      Validation(
+        errorMessage(
+          component,
+          s"Event handler accepting a sealed interface [${sealedHandler.get.getName}] cannot be mixed with handlers for specific events. Please remove following handlers: [${unexpectedHandlerNames
+            .mkString(", ")}]."))
+    } else {
+      Valid
+    }
+
+    ambiguousHandlers.fold(sealedHandlerMixedUsage)(_ ++ _)
   }
 
   private def missingEventHandlerValidations(
@@ -351,7 +394,7 @@ object Validations {
           val effectMethodsInputParams: Seq[Class[_]] = methods
             .filter(updateMethodPredicate)
             .map(_.getParameterTypes.last) //last because it could be a view update methods with 2 params
-          Validation(missingErrors(effectMethodsInputParams, eventType, component))
+          missingEventHandler(effectMethodsInputParams, eventType, component)
         } else {
           Valid
         }
@@ -362,23 +405,38 @@ object Validations {
           .filter(updateMethodPredicate)
           .groupBy(findEventSourcedEntityClass)
 
-        val errors = effectOutputMethodsGrouped.flatMap { case (entityClass, methods) =>
-          val eventType = getEventType(entityClass)
-          if (eventType.isSealed) {
-            missingErrors(methods.map(_.getParameterTypes.last), eventType, component)
-          } else {
-            List.empty
+        effectOutputMethodsGrouped
+          .map { case (entityClass, methods) =>
+            val eventType = getEventType(entityClass)
+            if (eventType.isSealed) {
+              missingEventHandler(methods.map(_.getParameterTypes.last), eventType, component)
+            } else {
+              Valid
+            }
           }
-        }
-        Validation(errors.toSeq)
+          .fold(Valid)(_ ++ _)
     }
   }
 
-  private def missingErrors(effectOutputInputParams: Seq[Class[_]], eventType: Class[_], component: Class[_]) = {
-    eventType.getPermittedSubclasses
-      .filterNot(effectOutputInputParams.contains)
-      .map(clazz => s"Component '${component.getSimpleName}' is missing an event handler for '${clazz.getName}'")
-      .toList
+  private def missingEventHandler(
+      inputEventParams: Seq[Class[_]],
+      eventType: Class[_],
+      component: Class[_]): Validation = {
+    if (inputEventParams.exists(param => param.isSealed && param == eventType)) {
+      //single sealed interface handler
+      Valid
+    } else {
+      if (eventType.isSealed) {
+        //checking possible only for sealed interfaces
+        Validation(
+          eventType.getPermittedSubclasses
+            .filterNot(inputEventParams.contains)
+            .map(clazz => errorMessage(component, s"missing an event handler for '${clazz.getName}'."))
+            .toList)
+      } else {
+        Valid
+      }
+    }
   }
 
   private def topicSubscriptionValidations(component: Class[_]): Validation = {
@@ -674,7 +732,7 @@ object Validations {
           val numParams = method.getParameters.length
           errorMessage(
             method,
-            s"Method annotated with '@Subscribe.ValueEntity' and handleDeletes=true must not have parameters. Found ${numParams} method parameters.")
+            s"Method annotated with '@Subscribe.ValueEntity' and handleDeletes=true must not have parameters. Found $numParams method parameters.")
         }
 
       Validation(messages)

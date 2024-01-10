@@ -16,6 +16,8 @@
 
 package kalix.javasdk.impl
 
+import scala.jdk.CollectionConverters.CollectionHasAsScala
+
 import com.google.protobuf.Descriptors.FieldDescriptor.JavaType
 import kalix.JwtMethodOptions.JwtMethodMode
 import kalix.JwtServiceOptions.JwtServiceMode
@@ -28,13 +30,15 @@ import kalix.spring.testmodels.eventsourcedentity.EventSourcedEntitiesTestModels
 import kalix.spring.testmodels.eventsourcedentity.EventSourcedEntitiesTestModels.CounterEventSourcedEntityWithMethodLevelJWT
 import kalix.spring.testmodels.eventsourcedentity.EventSourcedEntitiesTestModels.CounterEventSourcedEntityWithServiceLevelJWT
 import kalix.spring.testmodels.eventsourcedentity.EventSourcedEntitiesTestModels.ESEntityCompoundIdIncorrectOrder
+import kalix.spring.testmodels.eventsourcedentity.EventSourcedEntitiesTestModels.EmployeeEntityWithMissingHandler
+import kalix.spring.testmodels.eventsourcedentity.EventSourcedEntitiesTestModels.EmployeeEntityWithMixedHandlers
+import kalix.spring.testmodels.eventsourcedentity.EventSourcedEntitiesTestModels.ErrorDuplicatedEventsEntity
+import kalix.spring.testmodels.eventsourcedentity.EventSourcedEntitiesTestModels.ErrorWrongSignaturesEntity
 import kalix.spring.testmodels.eventsourcedentity.EventSourcedEntitiesTestModels.EventSourcedEntityWithMethodLevelAcl
 import kalix.spring.testmodels.eventsourcedentity.EventSourcedEntitiesTestModels.EventSourcedEntityWithServiceLevelAcl
 import kalix.spring.testmodels.eventsourcedentity.EventSourcedEntitiesTestModels.IllDefinedEntityWithIdGeneratorAndId
 import kalix.spring.testmodels.eventsourcedentity.EventSourcedEntitiesTestModels.IllDefinedEntityWithoutIdGeneratorNorId
 import org.scalatest.wordspec.AnyWordSpec
-
-import scala.jdk.CollectionConverters.CollectionHasAsScala
 
 class EventSourcedEntityDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSuite {
 
@@ -169,6 +173,35 @@ class EventSourcedEntityDescriptorFactorySpec extends AnyWordSpec with Component
         Validations.validate(classOf[ESEntityCompoundIdIncorrectOrder]).failIfInvalid
       }.getMessage should include(
         "Ids in the path '/{id2}/eventsourced/{id}/int/{number}' are in a different order than specified in the @Id annotation [id, id2]. This could lead to unexpected bugs when calling the component.")
+    }
+
+    "not allow handlers with duplicates signatures (receiving the same event type)" in {
+      intercept[InvalidComponentException] {
+        Validations.validate(classOf[ErrorDuplicatedEventsEntity]).failIfInvalid
+      }.getMessage shouldBe
+      "On 'kalix.spring.testmodels.eventsourcedentity.EventSourcedEntitiesTestModels$ErrorDuplicatedEventsEntity': Ambiguous handlers for java.lang.Integer, methods: [receivedIntegerEvent, receivedIntegerEventDup] consume the same type."
+
+    }
+
+    "report error on missing event handler for sealed event interface" in {
+      intercept[InvalidComponentException] {
+        Validations.validate(classOf[EmployeeEntityWithMissingHandler]).failIfInvalid
+      }.getMessage shouldBe
+      "On 'kalix.spring.testmodels.eventsourcedentity.EventSourcedEntitiesTestModels$EmployeeEntityWithMissingHandler': missing an event handler for 'kalix.spring.testmodels.eventsourcedentity.EmployeeEvent$EmployeeEmailUpdated'."
+    }
+
+    "report error sealed interface event handler is mixed with specific event handlers" in {
+      intercept[InvalidComponentException] {
+        Validations.validate(classOf[EmployeeEntityWithMixedHandlers]).failIfInvalid
+      }.getMessage shouldBe
+      "On 'kalix.spring.testmodels.eventsourcedentity.EventSourcedEntitiesTestModels$EmployeeEntityWithMixedHandlers': Event handler accepting a sealed interface [onEvent] cannot be mixed with handlers for specific events. Please remove following handlers: [onEmployeeCreated]."
+    }
+
+    "report error on annotated handlers with wrong return type or number of params" in {
+      intercept[InvalidComponentException] {
+        Validations.validate(classOf[ErrorWrongSignaturesEntity]).failIfInvalid
+      }.getMessage shouldBe
+      "On 'kalix.spring.testmodels.eventsourcedentity.EventSourcedEntitiesTestModels$ErrorWrongSignaturesEntity': event handler [receivedIntegerEvent] must be public, with exactly one parameter and return type 'java.lang.Integer'., On 'kalix.spring.testmodels.eventsourcedentity.EventSourcedEntitiesTestModels$ErrorWrongSignaturesEntity': event handler [receivedIntegerEventAndString] must be public, with exactly one parameter and return type 'java.lang.Integer'."
     }
   }
 

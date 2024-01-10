@@ -19,11 +19,12 @@ package kalix.javasdk.testkit;
 import kalix.javasdk.Metadata;
 import kalix.javasdk.eventsourcedentity.EventSourcedEntity;
 import kalix.javasdk.eventsourcedentity.EventSourcedEntityContext;
+import kalix.javasdk.impl.MethodInvoker;
 import kalix.javasdk.testkit.impl.EventSourcedEntityEffectsRunner;
 import kalix.javasdk.testkit.impl.TestKitEventSourcedEntityContext;
 import kalix.javasdk.impl.JsonMessageCodec;
-import kalix.javasdk.impl.eventsourcedentity.EventSourceEntityHandlers;
 import kalix.javasdk.impl.eventsourcedentity.EventSourcedHandlersExtractor;
+import scala.collection.immutable.Map;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -44,7 +45,7 @@ public class EventSourcedTestKit<S, E, ES extends EventSourcedEntity<S, E>>
     extends EventSourcedEntityEffectsRunner<S, E> {
 
   private final ES entity;
-  private final EventSourceEntityHandlers eventHandlers;
+  private final Map<String, MethodInvoker> eventHandlers;
 
   private final JsonMessageCodec messageCodec;
 
@@ -124,7 +125,7 @@ public class EventSourcedTestKit<S, E, ES extends EventSourcedEntity<S, E>>
   @Override
   protected final S handleEvent(S state, E event) {
     try {
-      Method method = eventHandlers.handlers().apply(messageCodec.removeVersion(messageCodec.typeUrlFor(event.getClass()))).method();
+      Method method = eventHandlers.apply(messageCodec.removeVersion(messageCodec.typeUrlFor(event.getClass()))).method();
       return (S) method.invoke(entity, event);
     } catch (NoSuchElementException e) {
       throw new RuntimeException(
