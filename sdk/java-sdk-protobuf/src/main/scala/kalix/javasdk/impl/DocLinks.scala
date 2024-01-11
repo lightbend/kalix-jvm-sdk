@@ -24,8 +24,7 @@ case class DocLinks(sdkName: String) {
 
   val errorCodes = Map(
     "KLX-00112" -> "views.html#changing",
-    "KLX-00415" -> "publishing-subscribing.html#_subscribing_to_state_changes_from_a_value_entity"
-  )
+    "KLX-00415" -> "publishing-subscribing.html#_subscribing_to_state_changes_from_a_value_entity")
 
   // fallback if not defined in errorCodes
   val errorCodeCategories = Map(
@@ -39,8 +38,7 @@ case class DocLinks(sdkName: String) {
     "KLX-008" -> "timers.html",
     "KLX-009" -> "access-control.html",
     "KLX-010" -> "workflows.html", // only java sdk currently
-    "KLX-011" -> "actions.html#_actions_as_life_cycle_hooks",
-  )
+    "KLX-011" -> "actions.html#_actions_as_life_cycle_hooks")
 
   def forErrorCode(code: String): Option[String] = {
     val page = errorCodes.get(code) match {
