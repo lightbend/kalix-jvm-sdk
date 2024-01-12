@@ -21,8 +21,8 @@ class WalletTest {
     var createWallet = new CreateWallet(BigDecimal.TEN);
 
     //when
-    var event = wallet.handleCreate(walletId, createWallet).get();
-    var updatedWallet = wallet.apply(event);
+    var event = wallet.handleCommand(walletId, createWallet).get();
+    var updatedWallet = wallet.onEvent(event);
 
     //then
     assertThat(updatedWallet.id()).isEqualTo(walletId);
@@ -37,7 +37,7 @@ class WalletTest {
     var createWallet = new CreateWallet(BigDecimal.TEN);
 
     //when
-    var error = wallet.handleCreate(walletId, createWallet).getLeft();
+    var error = wallet.handleCommand(walletId, createWallet).getLeft();
 
     //then
     assertThat(error).isEqualTo(WALLET_ALREADY_EXISTS);
@@ -50,8 +50,8 @@ class WalletTest {
     var chargeWallet = new ChargeWallet(BigDecimal.valueOf(3), randomId());
 
     //when
-    var event = wallet.handleCharge(chargeWallet).get();
-    var updatedWallet = wallet.apply(event);
+    var event = wallet.handleCommand(chargeWallet).get();
+    var updatedWallet = wallet.onEvent(event);
 
     //then
     assertThat(updatedWallet.balance()).isEqualTo(BigDecimal.valueOf(7));
@@ -63,11 +63,11 @@ class WalletTest {
     var wallet = new Wallet("1", BigDecimal.TEN);
     var chargeWallet = new ChargeWallet(BigDecimal.valueOf(3), randomId());
 
-    var event = wallet.handleCharge(chargeWallet).get();
-    var updatedWallet = wallet.apply(event);
+    var event = wallet.handleCommand(chargeWallet).get();
+    var updatedWallet = wallet.onEvent(event);
 
     //when
-    var error = updatedWallet.handleCharge(chargeWallet).getLeft();
+    var error = updatedWallet.handleCommand(chargeWallet).getLeft();
 
     //then
     assertThat(error).isEqualTo(DUPLICATED_COMMAND);

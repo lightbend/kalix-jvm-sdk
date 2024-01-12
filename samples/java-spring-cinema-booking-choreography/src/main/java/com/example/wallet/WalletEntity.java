@@ -37,7 +37,7 @@ public class WalletEntity extends EventSourcedEntity<Wallet, Wallet.WalletEvent>
   @PostMapping("/create/{initialBalance}")
   public Effect<Response> create(@PathVariable String id, @PathVariable int initialBalance) {
     CreateWallet createWallet = new CreateWallet(BigDecimal.valueOf(initialBalance));
-    return currentState().handleCreate(id, createWallet).fold(
+    return currentState().handleCommand(id, createWallet).fold(
       error -> errorEffect(error, createWallet),
       event -> persistEffect(event, "wallet created", createWallet)
     );
@@ -49,7 +49,7 @@ public class WalletEntity extends EventSourcedEntity<Wallet, Wallet.WalletEvent>
       logger.info("charging failed");
       return effects().error("Unexpected error for expenseId=42", INVALID_ARGUMENT);
     } else {
-      return currentState().handleCharge(chargeWallet).fold(
+      return currentState().handleCommand(chargeWallet).fold(
         error -> errorEffect(error, chargeWallet),
         event -> persistEffect(event, e -> {
           if (e instanceof WalletChargeRejected) {
@@ -64,7 +64,7 @@ public class WalletEntity extends EventSourcedEntity<Wallet, Wallet.WalletEvent>
 
   @PatchMapping("/refund/{expenseId}")
   public Effect<Response> refund(@RequestBody Refund refund) {
-    return currentState().handleRefund(refund).fold(
+    return currentState().handleCommand(refund).fold(
       error -> {
         if (error == EXPENSE_NOT_FOUND) {
           return effects().reply(Success.of("ignoring"));
@@ -110,21 +110,21 @@ public class WalletEntity extends EventSourcedEntity<Wallet, Wallet.WalletEvent>
 
   @EventHandler
   public Wallet onEvent(WalletCreated walletCreated) {
-    return currentState().apply(walletCreated);
+    return currentState().onEvent(walletCreated);
   }
 
   @EventHandler
   public Wallet onEvent(WalletCharged walletCharged) {
-    return currentState().apply(walletCharged);
+    return currentState().onEvent(walletCharged);
   }
 
   @EventHandler
   public Wallet onEvent(WalletRefunded walletRefunded) {
-    return currentState().apply(walletRefunded);
+    return currentState().onEvent(walletRefunded);
   }
 
   @EventHandler
   public Wallet onEvent(WalletChargeRejected walletCharged) {
-    return currentState().apply(walletCharged);
+    return currentState().onEvent(walletCharged);
   }
 }

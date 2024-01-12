@@ -466,9 +466,9 @@ record Show(String id, String title, Map<Integer, Seat> seats,
                    Map<String, FinishedReservation> finishedReservations, int availableSeats) {}
 ```
 
-`handleReservation` command handler:
+`onCommand` command handler:
 ```java
-public Either<Show.ShowCommandError, ShowEvent> handleReservation(Show.ShowCommand.ReserveSeat reserveSeat) {
+public Either<Show.ShowCommandError, ShowEvent> onCommand(Show.ShowCommand.ReserveSeat reserveSeat) {
     int seatNumber = reserveSeat.seatNumber();
     if (isDuplicate(reserveSeat.reservationId())) {
         return left(DUPLICATED_COMMAND);
@@ -1039,8 +1039,8 @@ public void shouldCreateWallet() {
     var createWallet = new CreateWallet(BigDecimal.TEN);
    
     //when
-    var event = wallet.handleCreate(walletId, createWallet).get();
-    var updatedWallet = wallet.apply(event);
+    var event = wallet.onCommand(walletId, createWallet).get();
+    var updatedWallet = wallet.onEvent(event);
    
     //then
     assertThat(updatedWallet.id()).isEqualTo(walletId);
@@ -1120,7 +1120,7 @@ The return type is immutable `Wallet`.<br>
 @PostMapping("/create/{initialBalance}")
 public Effect<Show.Response> create(@PathVariable String id, @PathVariable int initialBalance) {
     CreateWallet createWallet = new CreateWallet(BigDecimal.valueOf(initialBalance));
-    return currentState().handleCreate(id, createWallet).fold(
+    return currentState().onCommand(id, createWallet).fold(
       error -> errorEffect(error, createWallet),
       event -> persistEffect(event, "wallet created", createWallet)
     );
@@ -1134,7 +1134,7 @@ Kalix ensures that each command handler endpoint, on a level of one instance of 
 ```java
 @EventHandler
 public Wallet onEvent(WalletCreated walletCreated) {
-  return currentState().apply(walletCreated);
+  return currentState().onEvent(walletCreated);
 }
 ```
 

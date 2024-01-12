@@ -40,7 +40,7 @@ public record Wallet(String id, BigDecimal balance, Map<String, Expense> expense
         }
     }
 
-    public Either<WalletCommandError, WalletEvent> handleCreate(String walletId, WalletCommand.CreateWallet createWallet) {
+    public Either<WalletCommandError, WalletEvent> handleCommand(String walletId, WalletCommand.CreateWallet createWallet) {
         if (isDuplicate(createWallet)) {
             return Either.left(DUPLICATED_COMMAND);
         } else {
@@ -52,7 +52,7 @@ public record Wallet(String id, BigDecimal balance, Map<String, Expense> expense
         }
     }
 
-    public Either<WalletCommandError, WalletEvent> handleCharge(WalletCommand.ChargeWallet charge) {
+    public Either<WalletCommandError, WalletEvent> handleCommand(WalletCommand.ChargeWallet charge) {
         if (isDuplicate(charge)) {
             return Either.left(DUPLICATED_COMMAND);
         } else {
@@ -64,14 +64,14 @@ public record Wallet(String id, BigDecimal balance, Map<String, Expense> expense
         }
     }
 
-    public Either<WalletCommandError, WalletEvent> handleRefund(WalletCommand.Refund refund) {
+    public Either<WalletCommandError, WalletEvent> handleCommand(WalletCommand.Refund refund) {
         return expenses.get(refund.chargeExpenseId()).fold(
                 () -> left(EXPENSE_NOT_FOUND),
                 expense -> right(new WalletEvent.WalletRefunded(id, expense.amount(), expense.expenseId(), refund.commandId()))
         );
     }
 
-    public Wallet apply(WalletEvent event) {
+    public Wallet onEvent(WalletEvent event) {
         return switch (event) {
             case WalletEvent.WalletCreated walletCreated ->
                     new Wallet(walletCreated.walletId(), walletCreated.initialAmount(), expenses, commandIds);
