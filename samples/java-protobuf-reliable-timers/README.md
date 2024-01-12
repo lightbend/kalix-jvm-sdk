@@ -72,7 +72,7 @@ grpcurl -plaintext -d '{ "number" : "returned-order-number" }' localhost:9000 co
 ## Deploying
 
 To deploy your service, install the `kalix` CLI as documented in
-[Instal Kalix](https://docs.kalix.io/kalix/install-kalix.html)
+[Install Kalix](https://docs.kalix.io/kalix/install-kalix.html)
 and configure a Docker Registry to upload your docker image to.
 
 You will need to update the `dockerImage` property in the `pom.xml` and refer to
