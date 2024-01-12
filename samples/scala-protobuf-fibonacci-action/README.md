@@ -39,7 +39,7 @@ grpcurl -plaintext -d '{"value": 5 }' localhost:9000 com.example.fibonacci.Fibon
 ## Deploying
 
 To deploy your service, install the `kalix` CLI as documented in
-[Setting up a local development environment](https://docs.kalix.io/setting-up/)
+[Instal Kalix](https://docs.kalix.io/kalix/install-kalix.html)
 and configure a Docker Registry to upload your docker image to.
 
 You will need to set the `docker.username` system property when starting sbt to be able to publish the image, for example `sbt -Ddocker.username=myuser Docker/publish`.

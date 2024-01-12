@@ -71,10 +71,9 @@ It is good practice to write unit tests as you implement your services. The kick
 [#_package_service]
 == Package service
 
-Use Docker to package your service and any of its dependencies. See the following pages for more information:
+Use Docker to package your service and any of its dependencies.
+See https://docs.kalix.io/projects/container-registries.html[Configuring registries] for more information.
 
-* https://docs.kalix.io/setting-up/#_containers[Setting up containers]
-* https://docs.kalix.io/projects/container-registries.html[Configuring registries]
 
 [#_run_locally]
 == Run locally
