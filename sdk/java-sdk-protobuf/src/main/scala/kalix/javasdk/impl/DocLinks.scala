@@ -16,34 +16,35 @@
 
 package kalix.javasdk.impl
 
-object DocLinks {
-
+case class DocLinks(sdkName: String) {
   private val baseUrl = "https://docs.kalix.io"
 
-  private val errorCodes = Map(
-    "KLX-00112" -> s"$baseUrl/java/views.html#changing",
-    "KLX-00402" -> s"$baseUrl/java/topic-eventing.html",
-    "KLX-00406" -> s"$baseUrl/java/topic-eventing.html",
-    "KLX-00414" -> s"$baseUrl/java/entity-eventing.html"
-    // TODO: docs for value entity eventing (https://github.com/lightbend/kalix-jvm-sdk/issues/121)
-    // "KLX-00415" -> s"$baseUrl/java/entity-eventing.html"
-  )
+  // sdkName is of format e.g. kalix-java-sdk-protobuf
+  private val sdkPath = if (sdkName.endsWith("-protobuf")) "java-protobuf" else "java"
+
+  val errorCodes = Map(
+    "KLX-00112" -> "views.html#changing",
+    "KLX-00415" -> "publishing-subscribing.html#_subscribing_to_state_changes_from_a_value_entity")
 
   // fallback if not defined in errorCodes
-  private val errorCodeCategories = Map(
-    "KLX-001" -> s"$baseUrl/java/views.html",
-    "KLX-002" -> s"$baseUrl/java/value-entity.html",
-    "KLX-003" -> s"$baseUrl/java/eventsourced.html",
-    "KLX-004" -> s"$baseUrl/java/", // no single page for eventing
-    "KLX-005" -> s"$baseUrl/java/", // no docs yet for replicated entities
-    "KLX-006" -> s"$baseUrl/java/proto.html#_transcoding_http", // all HTTP API errors
-    "KLX-007" -> s"$baseUrl/services/using-jwts.html",
-    "KLX-008" -> s"$baseUrl/java/timers.html")
+  val errorCodeCategories = Map(
+    "KLX-001" -> "views.html",
+    "KLX-002" -> "value-entity.html",
+    "KLX-003" -> "event-sourced-entities.html",
+    "KLX-004" -> "publishing-subscribing.html",
+    "KLX-005" -> "replicated-entity-crdt.html", // only pb sdks
+    "KLX-006" -> "writing-grpc-descriptors-protobuf.html#_transcoding_http", // only pb sdks
+    "KLX-007" -> "using-jwts.html",
+    "KLX-008" -> "timers.html",
+    "KLX-009" -> "access-control.html",
+    "KLX-010" -> "workflows.html", // only java sdk currently
+    "KLX-011" -> "actions.html#_actions_as_life_cycle_hooks")
 
-  def forErrorCode(code: String): Option[String] =
-    errorCodes.get(code) match {
+  def forErrorCode(code: String): Option[String] = {
+    val page = errorCodes.get(code) match {
       case s @ Some(_) => s
-      case None        => errorCodeCategories.get(code.take(6))
+      case None        => errorCodeCategories.get(code.take(7))
     }
-
+    page.map(p => s"$baseUrl/$sdkPath/$p")
+  }
 }
