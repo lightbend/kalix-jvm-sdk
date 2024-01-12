@@ -1,6 +1,7 @@
 package com.example.cinema;
 
 import com.example.Main;
+import com.example.common.Response;
 import com.example.wallet.Wallet;
 import kalix.spring.testkit.KalixIntegrationTestKitSupport;
 import org.junit.jupiter.api.Test;
@@ -36,7 +37,7 @@ public class ShowSeatReservationIntegrationTest extends KalixIntegrationTestKitS
   private Duration timeout = Duration.ofSeconds(10);
 
   @Test
-  public void shouldCompleteSeatReservation() {
+  public void shouldCompleteSeatReservation() throws Exception{
     //given
     var walletId = TestUtils.randomId();
     var showId = TestUtils.randomId();
@@ -47,8 +48,8 @@ public class ShowSeatReservationIntegrationTest extends KalixIntegrationTestKitS
     calls.createShow(showId, "pulp fiction");
 
     //when
-    ResponseEntity<Void> reservationResponse = calls.reserveSeat(showId, walletId, reservationId, seatNumber);
-    assertThat(reservationResponse.getStatusCode()).isEqualTo(OK);
+    Response reservationResponse = calls.reserveSeat(showId, walletId, reservationId, seatNumber);
+    assertThat(reservationResponse).isInstanceOf(Response.Success.class);
 
     //then
     await()
@@ -63,7 +64,7 @@ public class ShowSeatReservationIntegrationTest extends KalixIntegrationTestKitS
   }
 
   @Test
-  public void shouldRejectReservationIfCaseOfInsufficientWalletBalance() {
+  public void shouldRejectReservationIfCaseOfInsufficientWalletBalance() throws Exception{
     //given
     var walletId = TestUtils.randomId();
     var showId = TestUtils.randomId();
@@ -74,8 +75,8 @@ public class ShowSeatReservationIntegrationTest extends KalixIntegrationTestKitS
     calls.createShow(showId, "pulp fiction");
 
     //when
-    ResponseEntity<Void> reservationResponse = calls.reserveSeat(showId, walletId, reservationId, seatNumber);
-    assertThat(reservationResponse.getStatusCode()).isEqualTo(OK);
+    Response reservationResponse = calls.reserveSeat(showId, walletId, reservationId, seatNumber);
+    assertThat(reservationResponse).isInstanceOf(Response.Success.class);
 
     //then
     await()
@@ -86,42 +87,8 @@ public class ShowSeatReservationIntegrationTest extends KalixIntegrationTestKitS
       });
   }
 
-//  @Test
-//  public void shouldConfirmCancelledReservationAndRefund() {
-//    //given
-//    var walletId = TestUtils.randomId();
-//    var showId = TestUtils.randomId();
-//    var reservationId = "42";
-//    var seatNumber = 11;
-//
-//    calls.createWallet(walletId, 300);
-//    calls.createShow(showId, "pulp fiction");
-//
-//    //when
-//    ResponseEntity<Void> reservationResponse = calls.reserveSeat(showId, walletId, reservationId, seatNumber);
-//    assertThat(reservationResponse.getStatusCode()).isEqualTo(OK);
-//
-//    //then
-//    await()
-//      .atMost(20, TimeUnit.of(SECONDS))
-//      .untilAsserted(() -> {
-//        Show.SeatStatus seatStatus = calls.getSeatStatus(showId, seatNumber);
-//        assertThat(seatStatus).isEqualTo(Show.SeatStatus.AVAILABLE);
-//      });
-//
-//    //simulating that the wallet was actually charged
-//    calls.chargeWallet(walletId, new ChargeWallet(new BigDecimal(100), reservationId, TestUtils.randomId()));
-//
-//    await()
-//      .atMost(20, TimeUnit.of(SECONDS))
-//      .untilAsserted(() -> {
-//        WalletApiModel.WalletResponse wallet = calls.getWallet(walletId);
-//        assertThat(wallet.balance()).isEqualTo(new BigDecimal(300));
-//      });
-//  }
-
   @Test
-  public void shouldAllowToCancelAlreadyCancelledReservation() {
+  public void shouldAllowToCancelAlreadyCancelledReservation() throws Exception{
     //given
     var walletId = TestUtils.randomId();
     var showId = TestUtils.randomId();
@@ -132,8 +99,8 @@ public class ShowSeatReservationIntegrationTest extends KalixIntegrationTestKitS
     calls.createShow(showId, "pulp fiction");
 
     //when
-    ResponseEntity<Void> reservationResponse = calls.reserveSeat(showId, walletId, reservationId, seatNumber);
-    assertThat(reservationResponse.getStatusCode()).isEqualTo(OK);
+    Response reservationResponse = calls.reserveSeat(showId, walletId, reservationId, seatNumber);
+    assertThat(reservationResponse).isInstanceOf(Response.Success.class);
 
     //then
     await()

@@ -1,48 +1,30 @@
 package com.example.cinema;
 
+import com.example.common.Response;
 import com.example.wallet.Wallet;
+import com.example.wallet.WalletEntity;
+import kalix.javasdk.client.ComponentClient;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
-import org.springframework.web.reactive.function.client.WebClient;
 
-import java.time.Duration;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.http.HttpStatus.OK;
+import java.util.concurrent.TimeUnit;
 
 @Component
 public class WalletCalls {
 
     @Autowired
-    private WebClient webClient;
+    private ComponentClient componentClient;
 
-    private Duration timeout = Duration.ofSeconds(10);
-
-    public void createWallet(String walletId, int amount) {
-        ResponseEntity<Void> response = webClient.post().uri("/wallet/" + walletId + "/create/" + amount)
-                .retrieve()
-                .toBodilessEntity()
-                .block(timeout);
-
-        assertThat(response.getStatusCode()).isEqualTo(OK);
+    private int timeout = 10;
+    public void createWallet(String walletId, int amount) throws Exception{
+        componentClient.forEventSourcedEntity(walletId).call(WalletEntity::create).params(walletId,amount).execute().toCompletableFuture().get(timeout, TimeUnit.SECONDS);
     }
 
-    public Wallet.WalletResponse getWallet(String walletId) {
-        return webClient.get().uri("/wallet/" + walletId)
-                .retrieve()
-                .bodyToMono(Wallet.WalletResponse.class)
-                .block(timeout);
+    public Wallet.WalletResponse getWallet(String walletId) throws Exception{
+        return componentClient.forEventSourcedEntity(walletId).call(WalletEntity::get).execute().toCompletableFuture().get(timeout, TimeUnit.SECONDS);
     }
 
-    public void chargeWallet(String walletId, Wallet.WalletCommand.ChargeWallet chargeWallet) {
-        ResponseEntity<Void> response = webClient.patch().uri("/wallet/" + walletId + "/charge")
-                .bodyValue(chargeWallet)
-                .header("skip-failure-simulation", "true")
-                .retrieve()
-                .toBodilessEntity()
-                .block(timeout);
-
-        assertThat(response.getStatusCode()).isEqualTo(OK);
+    public void chargeWallet(String walletId, Wallet.WalletCommand.ChargeWallet chargeWallet) throws Exception{
+        componentClient.forEventSourcedEntity(walletId).call(WalletEntity::charge).params(chargeWallet).execute().exceptionally(e -> Response.Failure.of(e.getMessage())).toCompletableFuture().get(timeout, TimeUnit.SECONDS);
     }
 }

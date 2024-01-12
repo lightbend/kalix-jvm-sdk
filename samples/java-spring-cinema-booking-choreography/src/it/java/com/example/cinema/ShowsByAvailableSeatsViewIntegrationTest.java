@@ -26,7 +26,7 @@ class ShowsByAvailableSeatsViewIntegrationTest extends KalixIntegrationTestKitSu
   private Duration timeout = Duration.ofSeconds(10);
 
   @Test
-  public void shouldUpdateShowByAvailableSeatsEntry() {
+  public void shouldUpdateShowByAvailableSeatsEntry() throws Exception{
     //given
     var showId = TestUtils.randomId();
     var showTitle = "title";
@@ -42,14 +42,12 @@ class ShowsByAvailableSeatsViewIntegrationTest extends KalixIntegrationTestKitSu
     calls.reserveSeat(showId, walletId, reservationId2, 4);
 
     //then
-    List<Show.ShowsByAvailableSeatsViewRecord> list = new ArrayList<>();
-    list.add(new Show.ShowsByAvailableSeatsViewRecord(showId,showTitle,maxSeats-2));
-    Show.ShowsByAvailableSeatsRecordList expected = new Show.ShowsByAvailableSeatsRecordList(list);
+    Show.ShowsByAvailableSeatsRecordList expected = new Show.ShowsByAvailableSeatsRecordList(List.of(new Show.ShowsByAvailableSeatsViewRecord(showId,showTitle,maxSeats-2)));
     await()
       .atMost(10, TimeUnit.of(SECONDS))
       .ignoreExceptions()
       .untilAsserted(() -> {
-        Show.ShowsByAvailableSeatsRecordList result = calls.getShowsByAvailableSeats(1).getBody();
+        Show.ShowsByAvailableSeatsRecordList result = calls.getShowsByAvailableSeats(1);
         assertThat(expected).isEqualTo(result);
 
       });
