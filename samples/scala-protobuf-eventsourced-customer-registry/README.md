@@ -84,7 +84,7 @@ grpcurl --plaintext -d '{"city":"Stockholm"}' localhost:9000 customer.view.Custo
 ## Deploying
 
 To deploy your service, install the `kalix` CLI as documented in
-[Instal Kalix](https://docs.kalix.io/kalix/install-kalix.html)
+[Install Kalix](https://docs.kalix.io/kalix/install-kalix.html)
 and configure a Docker Registry to upload your docker image to.
 
 You will need to set the `docker.username` system property when starting sbt to be able to publish the image, for example `sbt -Ddocker.username=myuser Docker/publish`.
