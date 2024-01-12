@@ -500,7 +500,7 @@ An example of a unit test:
 @Test
 public void shouldCreateTheShow() {
     //given
-    String showId = randomShowId();
+    String showId = UUID.randomUUID().toString();
     var createShow = randomCreateShow();
    
     //when
@@ -622,9 +622,9 @@ For testing the Kalix Entity, the Kalix TestKit is used (`EventSourcedTestKit`).
 @Test
 public void shouldReserveAndConfirmSeat() {
     //given
-    var showId = randomShowId();
-    var walletId = randomWalletId();
-    var reservationId = randomReservationId();
+    var showId = UUID.randomUUID().toString();
+    var walletId = UUID.randomUUID().toString();
+    var reservationId = UUID.randomUUID().toString();
     var maxSeats = 100;
     int seatNumber = 1;
     EventSourcedTestKit<Show, ShowEvent, ShowEntity> testKit = EventSourcedTestKit.of(ShowEntity::new);
@@ -780,13 +780,13 @@ class ShowsByAvailableSeatsViewIntegrationTest extends KalixIntegrationTestKitSu
   @Test
   public void shouldUpdateShowByAvailableSeatsEntry() {
     //given
-    var showId = TestUtils.randomId();
+    var showId = UUID.randomUUID().toString();
     var showTitle = "title";
     var showTitleSearch = showTitle;
     var maxSeats = 100;
-    var reservationId1 = TestUtils.randomId();
-    var reservationId2 = TestUtils.randomId();
-    var walletId = TestUtils.randomId();
+    var reservationId1 = UUID.randomUUID().toString();
+    var reservationId2 = UUID.randomUUID().toString();
+    var walletId = UUID.randomUUID().toString();
     calls.createShow(showId, showTitle, maxSeats);
 
     //when
@@ -947,10 +947,10 @@ class FoldShowEventsToReservationIntegrationTest extends KalixIntegrationTestKit
   @Test
   public void shouldUpdateShowByReservationEntry() {
     //given
-    var showId = randomId();
-    var reservationId1 = randomId();
-    var reservationId2 = randomId();
-    var walletId = randomId();
+    var showId = UUID.randomUUID().toString();
+    var reservationId1 = UUID.randomUUID().toString();
+    var reservationId2 = UUID.randomUUID().toString();
+    var walletId = UUID.randomUUID().toString();
     calls.createShow(showId, "title");
 
     //when
@@ -1048,7 +1048,6 @@ public void shouldCreateWallet() {
 }
 ```
 **Tip:** Check the `com.example.wallet.WalletTest` in `test/java` for a complete implementation.<br>
-**Note:** `DomainGenerators` is helper class for test data generation.
 
 
 #### Run unit test
@@ -1150,7 +1149,7 @@ For testing a Kalix Entity, the Kalix unit test testkit is used (`EventSourcedTe
 @Test
 public void shouldCreateWallet() {
  //given
- var walletId = randomWalletId();
+ var walletId = UUID.randomUUID().toString();
  var initialAmount = 100;
  EventSourcedTestKit<Wallet, WalletEvent, WalletEntity> testKit = EventSourcedTestKit.of(WalletEntity::new);
 
@@ -1315,9 +1314,9 @@ public class ShowSeatReservationIntegrationTest extends KalixIntegrationTestKitS
    @Test
    public void shouldCompleteSeatReservation() {
       //given
-      var walletId = TestUtils.randomId();
-      var showId = TestUtils.randomId();
-      var reservationId = TestUtils.randomId();
+      var walletId = UUID.randomUUID().toString();
+      var showId = UUID.randomUUID().toString();
+      var reservationId = UUID.randomUUID().toString();
       var seatNumber = 10;
 
       walletCalls.createWallet(walletId, 200);

@@ -3,8 +3,8 @@ package com.example.wallet;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
+import java.util.UUID;
 
-import static com.example.wallet.DomainGenerators.randomId;
 import static com.example.wallet.Wallet.WalletCommand.ChargeWallet;
 import static com.example.wallet.Wallet.WalletCommand.CreateWallet;
 import static com.example.wallet.Wallet.WalletCommandError.DUPLICATED_COMMAND;
@@ -47,7 +47,7 @@ class WalletTest {
   public void shouldChargeWallet() {
     //given
     var wallet = new Wallet("1", BigDecimal.TEN);
-    var chargeWallet = new ChargeWallet(BigDecimal.valueOf(3), randomId());
+    var chargeWallet = new ChargeWallet(BigDecimal.valueOf(3), UUID.randomUUID().toString());
 
     //when
     var event = wallet.handleCommand(chargeWallet).get();
@@ -61,7 +61,7 @@ class WalletTest {
   public void shouldRejectDuplicatedCharge() {
     //given
     var wallet = new Wallet("1", BigDecimal.TEN);
-    var chargeWallet = new ChargeWallet(BigDecimal.valueOf(3), randomId());
+    var chargeWallet = new ChargeWallet(BigDecimal.valueOf(3), UUID.randomUUID().toString());
 
     var event = wallet.handleCommand(chargeWallet).get();
     var updatedWallet = wallet.onEvent(event);

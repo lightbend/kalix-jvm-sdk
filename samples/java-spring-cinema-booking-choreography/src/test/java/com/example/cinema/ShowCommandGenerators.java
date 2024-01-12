@@ -1,7 +1,10 @@
 package com.example.cinema;
 
 
-import static com.example.cinema.DomainGenerators.*;
+import java.util.UUID;
+
+import static com.example.cinema.DomainGenerators.randomSeatNumber;
+import static com.example.cinema.DomainGenerators.randomTitle;
 import static com.example.cinema.Show.ShowCommand.*;
 
 public class ShowCommandGenerators {
@@ -11,10 +14,10 @@ public class ShowCommandGenerators {
   }
 
   public static ReserveSeat randomReserveSeat() {
-    return new ReserveSeat(randomWalletId(), randomReservationId(), randomSeatNumber());
+    return new ReserveSeat(UUID.randomUUID().toString(), UUID.randomUUID().toString(), randomSeatNumber());
   }
 
   public static CancelSeatReservation randomCancelSeatReservation() {
-    return new CancelSeatReservation(randomReservationId());
+    return new CancelSeatReservation(UUID.randomUUID().toString());
   }
 }
