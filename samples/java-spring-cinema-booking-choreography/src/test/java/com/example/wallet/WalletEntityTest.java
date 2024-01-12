@@ -6,8 +6,8 @@ import kalix.javasdk.testkit.EventSourcedTestKit;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
+import java.util.UUID;
 
-import static com.example.cinema.DomainGenerators.randomWalletId;
 import static com.example.wallet.Wallet.WalletCommand.ChargeWallet;
 import static com.example.wallet.Wallet.WalletEvent.WalletCharged;
 import static com.example.wallet.Wallet.WalletEvent.WalletCreated;
@@ -19,7 +19,7 @@ class WalletEntityTest {
   @Test
   public void shouldCreateWallet() {
     //given
-    var walletId = randomWalletId();
+    var walletId = UUID.randomUUID().toString();
     var initialAmount = 100;
     EventSourcedTestKit<Wallet, Wallet.WalletEvent, WalletEntity> testKit = EventSourcedTestKit.of(WalletEntity::new);
 
@@ -36,7 +36,7 @@ class WalletEntityTest {
   @Test
   public void shouldChargeWallet() {
     //given
-    var walletId = randomWalletId();
+    var walletId = UUID.randomUUID().toString();
     var expenseId = "r1";
     var initialAmount = 100;
     EventSourcedTestKit<Wallet, Wallet.WalletEvent, WalletEntity> testKit = EventSourcedTestKit.of(WalletEntity::new);
@@ -55,7 +55,7 @@ class WalletEntityTest {
   @Test
   public void shouldIgnoreChargeDuplicate() {
     //given
-    var walletId = randomWalletId();
+    var walletId = UUID.randomUUID().toString();
     var expenseId = "r1";
     var initialAmount = 100;
     EventSourcedTestKit<Wallet, Wallet.WalletEvent, WalletEntity> testKit = EventSourcedTestKit.of(WalletEntity::new);
@@ -75,7 +75,7 @@ class WalletEntityTest {
   @Test
   public void shouldRefundWallet() {
     //given
-    var walletId = randomWalletId();
+    var walletId = UUID.randomUUID().toString();
     var expenseId = "r1";
     var initialAmount = 100;
     EventSourcedTestKit<Wallet, Wallet.WalletEvent, WalletEntity> testKit = EventSourcedTestKit.of(WalletEntity::new);

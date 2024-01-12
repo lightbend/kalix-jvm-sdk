@@ -5,17 +5,17 @@ import io.vavr.control.Either;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
-import java.util.List;
+import java.util.UUID;
 
-import static com.example.cinema.DomainGenerators.*;
-import static com.example.cinema.ShowBuilder.showBuilder;
-import static com.example.cinema.ShowCommandGenerators.randomCreateShow;
-import static com.example.cinema.ShowCommandGenerators.randomReserveSeat;
+import static com.example.cinema.DomainGenerators.randomShow;
+import static com.example.cinema.Show.SeatStatus.*;
 import static com.example.cinema.Show.ShowCommand.CancelSeatReservation;
 import static com.example.cinema.Show.ShowCommand.ConfirmReservationPayment;
 import static com.example.cinema.Show.ShowCommandError.*;
-import static com.example.cinema.Show.SeatStatus.*;
 import static com.example.cinema.Show.ShowEvent.*;
+import static com.example.cinema.ShowBuilder.showBuilder;
+import static com.example.cinema.ShowCommandGenerators.randomCreateShow;
+import static com.example.cinema.ShowCommandGenerators.randomReserveSeat;
 import static io.vavr.control.Either.left;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -24,7 +24,7 @@ class ShowTest {
   @Test
   public void shouldCreateTheShow() {
     //given
-    String showId = randomShowId();
+    String showId = UUID.randomUUID().toString();
     var createShow = randomCreateShow();
 
     //when
@@ -86,7 +86,7 @@ class ShowTest {
     //given
     var show = randomShow();
     var reserveSeat = randomReserveSeat();
-    var reserveTheSameSeat = new Show.ShowCommand.ReserveSeat(randomWalletId(), randomReservationId(), reserveSeat.seatNumber());
+    var reserveTheSameSeat = new Show.ShowCommand.ReserveSeat(UUID.randomUUID().toString(), UUID.randomUUID().toString(), reserveSeat.seatNumber());
 
     //when
     var event = onCommand(show, reserveSeat).get();
@@ -126,7 +126,7 @@ class ShowTest {
   public void shouldNotReserveNotExistingSeat() {
     //given
     var show = randomShow();
-    var reserveSeat = new Show.ShowCommand.ReserveSeat(randomWalletId(), randomReservationId(), ShowBuilder.MAX_SEATS + 1);
+    var reserveSeat = new Show.ShowCommand.ReserveSeat(UUID.randomUUID().toString(), UUID.randomUUID().toString(), ShowBuilder.MAX_SEATS + 1);
 
     //when
     Show.ShowCommandError result = onCommand(show, reserveSeat).getLeft();
@@ -139,7 +139,7 @@ class ShowTest {
   public void shouldCancelSeatReservation() {
     //given
     var reservedSeat = new Show.Seat(2, Show.SeatStatus.RESERVED, new BigDecimal("123"));
-    var reservationId = randomReservationId();
+    var reservationId =UUID.randomUUID().toString();
     var show = showBuilder().withRandomSeats().withSeatReservation(reservedSeat, reservationId).build();
     var cancelSeatReservation = new CancelSeatReservation(reservationId);
 
@@ -157,7 +157,7 @@ class ShowTest {
   public void shouldConfirmSeatReservation() {
     //given
     var reservedSeat = new Show.Seat(2, Show.SeatStatus.RESERVED, new BigDecimal("123"));
-    var reservationId = randomReservationId();
+    var reservationId = UUID.randomUUID().toString();
     var show = showBuilder().withRandomSeats().withSeatReservation(reservedSeat, reservationId).build();
     var confirmReservationPayment = new ConfirmReservationPayment(reservationId);
 
@@ -175,7 +175,7 @@ class ShowTest {
   public void shouldNotCancelReservationOfAvailableSeat() {
     //given
     var show = randomShow();
-    var cancelSeatReservation = new CancelSeatReservation(randomReservationId());
+    var cancelSeatReservation = new CancelSeatReservation(UUID.randomUUID().toString());
 
     //when
     var result = onCommand(show, cancelSeatReservation).getLeft();

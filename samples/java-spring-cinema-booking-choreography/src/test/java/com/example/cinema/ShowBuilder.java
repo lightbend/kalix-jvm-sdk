@@ -5,15 +5,15 @@ import io.vavr.collection.HashMap;
 import io.vavr.collection.Map;
 
 import java.util.List;
+import java.util.UUID;
 
 import static com.example.cinema.DomainGenerators.randomPrice;
-import static com.example.cinema.DomainGenerators.randomShowId;
 import static com.example.cinema.Show.ShowCreator.createSeats;
 
 public class ShowBuilder {
 
   final static int MAX_SEATS = 100;
-  private String id = randomShowId();
+  private String id = UUID.randomUUID().toString();
   private String title = "Random title";
   private Map<Integer, Show.Seat> seats = HashMap.empty();
   private Map<String, Integer> pendingReservations = HashMap.empty();

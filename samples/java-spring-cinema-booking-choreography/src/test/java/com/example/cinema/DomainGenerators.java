@@ -11,18 +11,6 @@ public class DomainGenerators {
 
   private static final Random random = new Random();
 
-  public static String randomShowId() {
-    return UUID.randomUUID().toString();
-  }
-
-  public static String randomWalletId() {
-    return UUID.randomUUID().toString();
-  }
-
-  public static String randomReservationId() {
-    return UUID.randomUUID().toString();
-  }
-
   public static BigDecimal randomPrice() {
     return BigDecimal.valueOf(random.nextInt(200) + 50);
   }

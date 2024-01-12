@@ -5,7 +5,8 @@ import kalix.javasdk.testkit.EventSourcedResult;
 import kalix.javasdk.testkit.EventSourcedTestKit;
 import org.junit.jupiter.api.Test;
 
-import static com.example.cinema.DomainGenerators.*;
+import java.util.UUID;
+
 import static com.example.cinema.Show.SeatStatus.PAID;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -14,9 +15,9 @@ class ShowEntityTest {
   @Test
   public void shouldReserveAndConfirmSeat() {
     //given
-    var showId = randomShowId();
-    var walletId = randomWalletId();
-    var reservationId = randomReservationId();
+    var showId = UUID.randomUUID().toString();
+    var walletId = UUID.randomUUID().toString();
+    var reservationId = UUID.randomUUID().toString();
     var maxSeats = 100;
     int seatNumber = 1;
     EventSourcedTestKit<Show, Show.ShowEvent, ShowEntity> testKit = EventSourcedTestKit.of(ShowEntity::new);
