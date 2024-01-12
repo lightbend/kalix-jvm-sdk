@@ -1,6 +1,6 @@
 package com.example.wallet;
 
-import com.example.cinema.Show;
+import com.example.common.Response;
 import kalix.javasdk.annotations.EventHandler;
 import kalix.javasdk.annotations.ForwardHeaders;
 import kalix.javasdk.annotations.Id;
@@ -13,8 +13,8 @@ import org.springframework.web.bind.annotation.*;
 import java.math.BigDecimal;
 import java.util.function.Function;
 
-import static com.example.cinema.Show.Response.Failure;
-import static com.example.cinema.Show.Response.Success;
+import static com.example.common.Response.Failure;
+import static com.example.common.Response.Success;
 import static com.example.wallet.Wallet.WalletCommand.*;
 import static com.example.wallet.Wallet.WalletCommandError.EXPENSE_NOT_FOUND;
 import static com.example.wallet.Wallet.WalletEvent.*;
@@ -35,7 +35,7 @@ public class WalletEntity extends EventSourcedEntity<Wallet, Wallet.WalletEvent>
   }
 
   @PostMapping("/create/{initialBalance}")
-  public Effect<Show.Response> create(@PathVariable String id, @PathVariable int initialBalance) {
+  public Effect<Response> create(@PathVariable String id, @PathVariable int initialBalance) {
     CreateWallet createWallet = new CreateWallet(BigDecimal.valueOf(initialBalance));
     return currentState().handleCreate(id, createWallet).fold(
       error -> errorEffect(error, createWallet),
@@ -44,7 +44,7 @@ public class WalletEntity extends EventSourcedEntity<Wallet, Wallet.WalletEvent>
   }
 
   @PatchMapping("/charge")
-  public Effect<Show.Response> charge(@RequestBody ChargeWallet chargeWallet) {
+  public Effect<Response> charge(@RequestBody ChargeWallet chargeWallet) {
     if (chargeWallet.expenseId().equals("42") && commandContext().metadata().get("skip-failure-simulation").isEmpty()) {
       logger.info("charging failed");
       return effects().error("Unexpected error for expenseId=42", INVALID_ARGUMENT);
@@ -63,7 +63,7 @@ public class WalletEntity extends EventSourcedEntity<Wallet, Wallet.WalletEvent>
   }
 
   @PatchMapping("/refund/{expenseId}")
-  public Effect<Show.Response> refund(@RequestBody Refund refund) {
+  public Effect<Response> refund(@RequestBody Refund refund) {
     return currentState().handleRefund(refund).fold(
       error -> {
         if (error == EXPENSE_NOT_FOUND) {
@@ -85,7 +85,7 @@ public class WalletEntity extends EventSourcedEntity<Wallet, Wallet.WalletEvent>
     }
   }
 
-  private Effect<Show.Response> persistEffect(Wallet.WalletEvent event, Function<Wallet.WalletEvent, Show.Response> eventToResponse, Wallet.WalletCommand walletCommand) {
+  private Effect<Response> persistEffect(Wallet.WalletEvent event, Function<Wallet.WalletEvent, Response> eventToResponse, Wallet.WalletCommand walletCommand) {
     return effects()
       .emitEvent(event)
       .thenReply(__ -> {
@@ -94,11 +94,11 @@ public class WalletEntity extends EventSourcedEntity<Wallet, Wallet.WalletEvent>
       });
   }
 
-  private Effect<Show.Response> persistEffect(Wallet.WalletEvent event, String replyMessage, Wallet.WalletCommand walletCommand) {
+  private Effect<Response> persistEffect(Wallet.WalletEvent event, String replyMessage, Wallet.WalletCommand walletCommand) {
     return persistEffect(event, e -> Success.of(replyMessage), walletCommand);
   }
 
-  private Effect<Show.Response> errorEffect(Wallet.WalletCommandError error, Wallet.WalletCommand walletCommand) {
+  private Effect<Response> errorEffect(Wallet.WalletCommandError error, Wallet.WalletCommand walletCommand) {
     if (error.equals(Wallet.WalletCommandError.DUPLICATED_COMMAND)) {
       logger.debug("Ignoring duplicated command {}", walletCommand);
       return effects().reply(Success.of("Ignoring duplicated command"));

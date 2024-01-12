@@ -1,5 +1,6 @@
 package com.example.cinema;
 
+import com.example.common.Response;
 import kalix.javasdk.annotations.EventHandler;
 import kalix.javasdk.annotations.Id;
 import kalix.javasdk.annotations.TypeId;
@@ -10,8 +11,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.function.Predicate;
 
-import static com.example.cinema.Show.Response.Failure;
-import static com.example.cinema.Show.Response.Success;
+import static com.example.common.Response.Failure;
+import static com.example.common.Response.Success;
 import static com.example.cinema.Show.ShowCommand.*;
 import static com.example.cinema.Show.ShowCommandError.*;
 import static com.example.cinema.Show.ShowEvent.*;
@@ -26,7 +27,7 @@ public class ShowEntity extends EventSourcedEntity<Show, Show.ShowEvent> {
   private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
   @PostMapping
-  public Effect<Show.Response> create(@PathVariable String id, @RequestBody CreateShow createShow) {
+  public Effect<Response> create(@PathVariable String id, @RequestBody CreateShow createShow) {
     if (currentState() != null) {
       return effects().error("show already exists", BAD_REQUEST);
     } else {
@@ -38,7 +39,7 @@ public class ShowEntity extends EventSourcedEntity<Show, Show.ShowEvent> {
   }
 
   @PatchMapping("/reserve")
-  public Effect<Show.Response> reserve(@RequestBody ReserveSeat reserveSeat) {
+  public Effect<Response> reserve(@RequestBody ReserveSeat reserveSeat) {
     if (currentState() == null) {
       return effects().error("show not found", NOT_FOUND);
     } else {
@@ -50,7 +51,7 @@ public class ShowEntity extends EventSourcedEntity<Show, Show.ShowEvent> {
   }
 
   @PatchMapping("/cancel-reservation/{reservationId}")
-  public Effect<Show.Response> cancelReservation(@PathVariable String reservationId) {
+  public Effect<Response> cancelReservation(@PathVariable String reservationId) {
     if (currentState() == null) {
       return effects().error("show not found", NOT_FOUND);
     } else {
@@ -65,7 +66,7 @@ public class ShowEntity extends EventSourcedEntity<Show, Show.ShowEvent> {
   }
 
   @PatchMapping("/confirm-payment/{reservationId}")
-  public Effect<Show.Response> confirmPayment(@PathVariable String reservationId) {
+  public Effect<Response> confirmPayment(@PathVariable String reservationId) {
     if (currentState() == null) {
       return effects().error("show not found", NOT_FOUND);
     } else {
@@ -77,17 +78,17 @@ public class ShowEntity extends EventSourcedEntity<Show, Show.ShowEvent> {
     }
   }
 
-  private Effect<Show.Response> persistEffect(Show.ShowEvent showEvent, String message) {
+  private Effect<Response> persistEffect(Show.ShowEvent showEvent, String message) {
     return effects()
       .emitEvent(showEvent)
       .thenReply(__ -> Success.of(message));
   }
 
-  private Effect<Show.Response> errorEffect(Show.ShowCommandError error, Show.ShowCommand showCommand) {
+  private Effect<Response> errorEffect(Show.ShowCommandError error, Show.ShowCommand showCommand) {
     return errorEffect(error, showCommand, e -> e == DUPLICATED_COMMAND);
   }
 
-  private Effect<Show.Response> errorEffect(Show.ShowCommandError error, Show.ShowCommand showCommand, Predicate<Show.ShowCommandError> shouldBeSuccessful) {
+  private Effect<Response> errorEffect(Show.ShowCommandError error, Show.ShowCommand showCommand, Predicate<Show.ShowCommandError> shouldBeSuccessful) {
     if (shouldBeSuccessful.test(error)) {
       return effects().reply(Success.of("ok"));
     } else {

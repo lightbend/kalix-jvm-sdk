@@ -1,6 +1,6 @@
 package com.example.wallet;
 
-import com.example.cinema.Show;
+import com.example.common.Response;
 import kalix.javasdk.testkit.EventSourcedResult;
 import kalix.javasdk.testkit.EventSourcedTestKit;
 import org.junit.jupiter.api.Test;
@@ -24,7 +24,7 @@ class WalletEntityTest {
     EventSourcedTestKit<Wallet, Wallet.WalletEvent, WalletEntity> testKit = EventSourcedTestKit.of(WalletEntity::new);
 
     //when
-    EventSourcedResult<Show.Response> result = testKit.call(wallet -> wallet.create(walletId, initialAmount));
+    EventSourcedResult<Response> result = testKit.call(wallet -> wallet.create(walletId, initialAmount));
 
     //then
     assertThat(result.isReply()).isTrue();
@@ -44,7 +44,7 @@ class WalletEntityTest {
     var chargeWallet = new ChargeWallet(new BigDecimal(10), expenseId);
 
     //when
-    EventSourcedResult<Show.Response> result = testKit.call(wallet -> wallet.charge(chargeWallet));
+    EventSourcedResult<Response> result = testKit.call(wallet -> wallet.charge(chargeWallet));
 
     //then
     assertThat(result.isReply()).isTrue();
@@ -64,7 +64,7 @@ class WalletEntityTest {
     testKit.call(wallet -> wallet.charge(chargeWallet));
 
     //when
-    EventSourcedResult<Show.Response> result = testKit.call(wallet -> wallet.charge(chargeWallet));
+    EventSourcedResult<Response> result = testKit.call(wallet -> wallet.charge(chargeWallet));
 
     //then
     assertThat(result.isReply()).isTrue();
@@ -84,7 +84,7 @@ class WalletEntityTest {
     testKit.call(wallet -> wallet.charge(chargeWallet));
 
     //when
-    EventSourcedResult<Show.Response> result = testKit.call(wallet -> wallet.charge(chargeWallet));
+    EventSourcedResult<Response> result = testKit.call(wallet -> wallet.charge(chargeWallet));
 
     //then
     assertThat(result.isReply()).isTrue();
