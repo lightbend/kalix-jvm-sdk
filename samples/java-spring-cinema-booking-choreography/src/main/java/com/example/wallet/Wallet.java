@@ -1,15 +1,16 @@
-package com.example.wallet.model;
+package com.example.wallet;
 
 import io.vavr.collection.HashMap;
 import io.vavr.collection.HashSet;
 import io.vavr.collection.Map;
 import io.vavr.collection.Set;
 import io.vavr.control.Either;
+import kalix.javasdk.annotations.TypeName;
 
 import java.math.BigDecimal;
 import java.util.function.Supplier;
 
-import static com.example.wallet.model.WalletApiModel.WalletCommandError.*;
+import static com.example.wallet.Wallet.WalletCommandError.*;
 import static io.vavr.control.Either.left;
 import static io.vavr.control.Either.right;
 
@@ -23,15 +24,15 @@ public record Wallet(String id, BigDecimal balance, Map<String, Expense> expense
     public static final String EMPTY_WALLET_ID = "";
     public static Wallet EMPTY_WALLET = new Wallet(EMPTY_WALLET_ID, BigDecimal.ZERO, HashMap.empty(), HashSet.empty());
 
-    private boolean isDuplicate(WalletApiModel.WalletCommand command) {
-        if (command instanceof WalletApiModel.WalletCommand.RequiresDeduplicationCommand c) {
+    private boolean isDuplicate(WalletCommand command) {
+        if (command instanceof WalletCommand.RequiresDeduplicationCommand c) {
             return commandIds.contains(c.commandId());
         } else {
             return false;
         }
     }
 
-    private Either<WalletApiModel.WalletCommandError, WalletEvent> ifExists(Supplier<Either<WalletApiModel.WalletCommandError, WalletEvent>> processingResultSupplier) {
+    private Either<WalletCommandError, WalletEvent> ifExists(Supplier<Either<WalletCommandError, WalletEvent>> processingResultSupplier) {
         if (isEmpty()) {
             return left(WALLET_NOT_FOUND);
         } else {
@@ -39,7 +40,7 @@ public record Wallet(String id, BigDecimal balance, Map<String, Expense> expense
         }
     }
 
-    public Either<WalletApiModel.WalletCommandError, WalletEvent> handleCreate(String walletId, WalletApiModel.WalletCommand.CreateWallet createWallet) {
+    public Either<WalletCommandError, WalletEvent> handleCreate(String walletId, WalletCommand.CreateWallet createWallet) {
         if (isDuplicate(createWallet)) {
             return Either.left(DUPLICATED_COMMAND);
         } else {
@@ -51,7 +52,7 @@ public record Wallet(String id, BigDecimal balance, Map<String, Expense> expense
         }
     }
 
-    public Either<WalletApiModel.WalletCommandError, WalletEvent> handleCharge(WalletApiModel.WalletCommand.ChargeWallet charge) {
+    public Either<WalletCommandError, WalletEvent> handleCharge(WalletCommand.ChargeWallet charge) {
         if (isDuplicate(charge)) {
             return Either.left(DUPLICATED_COMMAND);
         } else {
@@ -63,7 +64,7 @@ public record Wallet(String id, BigDecimal balance, Map<String, Expense> expense
         }
     }
 
-    public Either<WalletApiModel.WalletCommandError, WalletEvent> handleRefund(WalletApiModel.WalletCommand.Refund refund) {
+    public Either<WalletCommandError, WalletEvent> handleRefund(WalletCommand.Refund refund) {
         return expenses.get(refund.chargeExpenseId()).fold(
                 () -> left(EXPENSE_NOT_FOUND),
                 expense -> right(new WalletEvent.WalletRefunded(id, expense.amount(), expense.expenseId(), refund.commandId()))
@@ -89,4 +90,63 @@ public record Wallet(String id, BigDecimal balance, Map<String, Expense> expense
     }
 
     public record Expense(String expenseId, BigDecimal amount) {}
+
+    /**
+     * API
+     */
+
+    public enum WalletCommandError {
+        WALLET_ALREADY_EXISTS, WALLET_NOT_FOUND, NOT_SUFFICIENT_FUNDS, DEPOSIT_LE_ZERO, DUPLICATED_COMMAND, EXPENSE_NOT_FOUND
+    }
+
+    sealed public interface WalletCommand {
+
+        sealed interface RequiresDeduplicationCommand extends WalletCommand {
+            String commandId();
+        }
+
+        record CreateWallet(BigDecimal initialAmount) implements WalletCommand {
+        }
+
+        record ChargeWallet(BigDecimal amount, String expenseId) implements RequiresDeduplicationCommand {
+            @Override
+            public String commandId() {
+                return expenseId;
+            }
+        }
+
+        record Refund(String chargeExpenseId, String refundExpenseId) implements RequiresDeduplicationCommand {
+            @Override
+            public String commandId() {
+                return refundExpenseId;
+            }
+        }
+
+    }
+
+    public record WalletResponse(String id, BigDecimal balance) {
+        public static WalletResponse from(Wallet wallet) {
+            return new WalletResponse(wallet.id(), wallet.balance());
+        }
+    }
+
+    /**
+     * Events
+     */
+
+    sealed public interface WalletEvent {
+
+        @TypeName("wallet-created")
+        record WalletCreated(String walletId, BigDecimal initialAmount) implements WalletEvent {}
+
+        @TypeName("wallet-charged")
+        record WalletCharged(String walletId, BigDecimal amount, String expenseId) implements WalletEvent {}
+
+        @TypeName("wallet-refunded")
+        record WalletRefunded(String walletId, BigDecimal amount, String chargeExpenseId, String refundExpenseId) implements WalletEvent {}
+
+        @TypeName("wallet-charge-rejected")
+        record WalletChargeRejected(String walletId, String expenseId) implements WalletEvent {}
+    }
+
 }

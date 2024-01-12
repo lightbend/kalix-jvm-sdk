@@ -1,6 +1,6 @@
 package com.example.cinema;
 
-import com.example.wallet.model.WalletApiModel;
+import com.example.wallet.Wallet;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
@@ -28,14 +28,14 @@ public class WalletCalls {
         assertThat(response.getStatusCode()).isEqualTo(OK);
     }
 
-    public WalletApiModel.WalletResponse getWallet(String walletId) {
+    public Wallet.WalletResponse getWallet(String walletId) {
         return webClient.get().uri("/wallet/" + walletId)
                 .retrieve()
-                .bodyToMono(WalletApiModel.WalletResponse.class)
+                .bodyToMono(Wallet.WalletResponse.class)
                 .block(timeout);
     }
 
-    public void chargeWallet(String walletId, WalletApiModel.WalletCommand.ChargeWallet chargeWallet) {
+    public void chargeWallet(String walletId, Wallet.WalletCommand.ChargeWallet chargeWallet) {
         ResponseEntity<Void> response = webClient.patch().uri("/wallet/" + walletId + "/charge")
                 .bodyValue(chargeWallet)
                 .header("skip-failure-simulation", "true")

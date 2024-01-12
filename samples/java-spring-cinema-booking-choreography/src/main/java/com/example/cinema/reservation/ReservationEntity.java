@@ -1,6 +1,6 @@
 package com.example.cinema.reservation;
 
-import com.example.cinema.model.Show;
+import com.example.cinema.Show;
 import io.grpc.Status;
 import kalix.javasdk.annotations.Id;
 import kalix.javasdk.annotations.TypeId;

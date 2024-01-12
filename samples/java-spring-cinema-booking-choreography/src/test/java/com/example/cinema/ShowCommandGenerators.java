@@ -2,7 +2,7 @@ package com.example.cinema;
 
 
 import static com.example.cinema.DomainGenerators.*;
-import static com.example.cinema.model.CinemaApiModel.ShowCommand.*;
+import static com.example.cinema.Show.ShowCommand.*;
 
 public class ShowCommandGenerators {
 

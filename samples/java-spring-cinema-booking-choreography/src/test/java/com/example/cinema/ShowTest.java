@@ -1,8 +1,5 @@
 package com.example.cinema;
 
-import com.example.cinema.model.CinemaApiModel;
-import com.example.cinema.model.Show;
-import com.example.cinema.model.ShowEvent;
 import io.vavr.Tuple2;
 import org.junit.jupiter.api.Test;
 
@@ -13,11 +10,11 @@ import static com.example.cinema.DomainGenerators.*;
 import static com.example.cinema.ShowBuilder.showBuilder;
 import static com.example.cinema.ShowCommandGenerators.randomCreateShow;
 import static com.example.cinema.ShowCommandGenerators.randomReserveSeat;
-import static com.example.cinema.model.CinemaApiModel.ShowCommand.CancelSeatReservation;
-import static com.example.cinema.model.CinemaApiModel.ShowCommand.ConfirmReservationPayment;
-import static com.example.cinema.model.CinemaApiModel.ShowCommandError.*;
-import static com.example.cinema.model.Show.SeatStatus.*;
-import static com.example.cinema.model.ShowEvent.*;
+import static com.example.cinema.Show.ShowCommand.CancelSeatReservation;
+import static com.example.cinema.Show.ShowCommand.ConfirmReservationPayment;
+import static com.example.cinema.Show.ShowCommandError.*;
+import static com.example.cinema.Show.SeatStatus.*;
+import static com.example.cinema.Show.ShowEvent.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class ShowTest {
@@ -87,7 +84,7 @@ class ShowTest {
     //given
     var show = randomShow();
     var reserveSeat = randomReserveSeat();
-    var reserveTheSameSeat = new CinemaApiModel.ShowCommand.ReserveSeat(randomWalletId(), randomReservationId(), reserveSeat.seatNumber());
+    var reserveTheSameSeat = new Show.ShowCommand.ReserveSeat(randomWalletId(), randomReservationId(), reserveSeat.seatNumber());
 
     //when
     var event = show.process(reserveSeat).get();
@@ -97,7 +94,7 @@ class ShowTest {
     assertThat(event).isInstanceOf(SeatReserved.class);
 
     //when
-    CinemaApiModel.ShowCommandError result = updatedShow.process(reserveTheSameSeat).getLeft();
+    Show.ShowCommandError result = updatedShow.process(reserveTheSameSeat).getLeft();
 
     //then
     assertThat(result).isEqualTo(SEAT_NOT_AVAILABLE);
@@ -117,7 +114,7 @@ class ShowTest {
     assertThat(event).isInstanceOf(SeatReserved.class);
 
     //when
-    CinemaApiModel.ShowCommandError result = updatedShow.process(reserveSeat).getLeft();
+    Show.ShowCommandError result = updatedShow.process(reserveSeat).getLeft();
 
     //then
     assertThat(result).isEqualTo(DUPLICATED_COMMAND);
@@ -127,10 +124,10 @@ class ShowTest {
   public void shouldNotReserveNotExistingSeat() {
     //given
     var show = randomShow();
-    var reserveSeat = new CinemaApiModel.ShowCommand.ReserveSeat(randomWalletId(), randomReservationId(), ShowBuilder.MAX_SEATS + 1);
+    var reserveSeat = new Show.ShowCommand.ReserveSeat(randomWalletId(), randomReservationId(), ShowBuilder.MAX_SEATS + 1);
 
     //when
-    CinemaApiModel.ShowCommandError result = show.process(reserveSeat).getLeft();
+    Show.ShowCommandError result = show.process(reserveSeat).getLeft();
 
     //then
     assertThat(result).isEqualTo(SEAT_NOT_FOUND);
@@ -185,7 +182,7 @@ class ShowTest {
     assertThat(result).isEqualTo(RESERVATION_NOT_FOUND);
   }
 
-  private Show apply(Show show, List<ShowEvent> events) {
+  private Show apply(Show show, List<Show.ShowEvent> events) {
     return io.vavr.collection.List.ofAll(events).foldLeft(show, Show::apply);
   }
 }

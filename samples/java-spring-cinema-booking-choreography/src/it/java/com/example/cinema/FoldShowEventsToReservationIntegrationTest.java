@@ -1,7 +1,6 @@
 package com.example.cinema;
 
 import com.example.Main;
-import com.example.cinema.model.Show;
 import kalix.spring.testkit.KalixIntegrationTestKitSupport;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

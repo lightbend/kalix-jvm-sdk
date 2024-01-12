@@ -1,8 +1,6 @@
 package com.example.wallet;
 
-import com.example.cinema.model.CinemaApiModel;
-import com.example.wallet.model.Wallet;
-import com.example.wallet.model.WalletEvent;
+import com.example.cinema.Show;
 import kalix.javasdk.annotations.EventHandler;
 import kalix.javasdk.annotations.ForwardHeaders;
 import kalix.javasdk.annotations.Id;
@@ -15,12 +13,11 @@ import org.springframework.web.bind.annotation.*;
 import java.math.BigDecimal;
 import java.util.function.Function;
 
-import static com.example.cinema.model.CinemaApiModel.Response.Failure;
-import static com.example.cinema.model.CinemaApiModel.Response.Success;
-import static com.example.wallet.model.WalletApiModel.*;
-import static com.example.wallet.model.WalletApiModel.WalletCommand.*;
-import static com.example.wallet.model.WalletApiModel.WalletCommandError.EXPENSE_NOT_FOUND;
-import static com.example.wallet.model.WalletEvent.*;
+import static com.example.cinema.Show.Response.Failure;
+import static com.example.cinema.Show.Response.Success;
+import static com.example.wallet.Wallet.WalletCommand.*;
+import static com.example.wallet.Wallet.WalletCommandError.EXPENSE_NOT_FOUND;
+import static com.example.wallet.Wallet.WalletEvent.*;
 import static io.grpc.Status.Code.INVALID_ARGUMENT;
 import static kalix.javasdk.StatusCode.ErrorCode.NOT_FOUND;
 
@@ -28,7 +25,7 @@ import static kalix.javasdk.StatusCode.ErrorCode.NOT_FOUND;
 @TypeId("wallet")
 @RequestMapping("/wallet/{id}")
 @ForwardHeaders("skip-failure-simulation")
-public class WalletEntity extends EventSourcedEntity<Wallet, WalletEvent> {
+public class WalletEntity extends EventSourcedEntity<Wallet, Wallet.WalletEvent> {
 
   private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -38,7 +35,7 @@ public class WalletEntity extends EventSourcedEntity<Wallet, WalletEvent> {
   }
 
   @PostMapping("/create/{initialBalance}")
-  public Effect<CinemaApiModel.Response> create(@PathVariable String id, @PathVariable int initialBalance) {
+  public Effect<Show.Response> create(@PathVariable String id, @PathVariable int initialBalance) {
     CreateWallet createWallet = new CreateWallet(BigDecimal.valueOf(initialBalance));
     return currentState().handleCreate(id, createWallet).fold(
       error -> errorEffect(error, createWallet),
@@ -47,7 +44,7 @@ public class WalletEntity extends EventSourcedEntity<Wallet, WalletEvent> {
   }
 
   @PatchMapping("/charge")
-  public Effect<CinemaApiModel.Response> charge(@RequestBody ChargeWallet chargeWallet) {
+  public Effect<Show.Response> charge(@RequestBody ChargeWallet chargeWallet) {
     if (chargeWallet.expenseId().equals("42") && commandContext().metadata().get("skip-failure-simulation").isEmpty()) {
       logger.info("charging failed");
       return effects().error("Unexpected error for expenseId=42", INVALID_ARGUMENT);
@@ -66,7 +63,7 @@ public class WalletEntity extends EventSourcedEntity<Wallet, WalletEvent> {
   }
 
   @PatchMapping("/refund/{expenseId}")
-  public Effect<CinemaApiModel.Response> refund(@RequestBody Refund refund) {
+  public Effect<Show.Response> refund(@RequestBody Refund refund) {
     return currentState().handleRefund(refund).fold(
       error -> {
         if (error == EXPENSE_NOT_FOUND) {
@@ -80,15 +77,15 @@ public class WalletEntity extends EventSourcedEntity<Wallet, WalletEvent> {
   }
 
   @GetMapping
-  public Effect<WalletResponse> get() {
+  public Effect<Wallet.WalletResponse> get() {
     if (currentState().isEmpty()) {
       return effects().error("wallet not created", NOT_FOUND);
     } else {
-      return effects().reply(WalletResponse.from(currentState()));
+      return effects().reply(Wallet.WalletResponse.from(currentState()));
     }
   }
 
-  private Effect<CinemaApiModel.Response> persistEffect(WalletEvent event, Function<WalletEvent, CinemaApiModel.Response> eventToResponse, WalletCommand walletCommand) {
+  private Effect<Show.Response> persistEffect(Wallet.WalletEvent event, Function<Wallet.WalletEvent, Show.Response> eventToResponse, Wallet.WalletCommand walletCommand) {
     return effects()
       .emitEvent(event)
       .thenReply(__ -> {
@@ -97,12 +94,12 @@ public class WalletEntity extends EventSourcedEntity<Wallet, WalletEvent> {
       });
   }
 
-  private Effect<CinemaApiModel.Response> persistEffect(WalletEvent event, String replyMessage, WalletCommand walletCommand) {
+  private Effect<Show.Response> persistEffect(Wallet.WalletEvent event, String replyMessage, Wallet.WalletCommand walletCommand) {
     return persistEffect(event, e -> Success.of(replyMessage), walletCommand);
   }
 
-  private Effect<CinemaApiModel.Response> errorEffect(WalletCommandError error, WalletCommand walletCommand) {
-    if (error.equals(WalletCommandError.DUPLICATED_COMMAND)) {
+  private Effect<Show.Response> errorEffect(Wallet.WalletCommandError error, Wallet.WalletCommand walletCommand) {
+    if (error.equals(Wallet.WalletCommandError.DUPLICATED_COMMAND)) {
       logger.debug("Ignoring duplicated command {}", walletCommand);
       return effects().reply(Success.of("Ignoring duplicated command"));
     } else {

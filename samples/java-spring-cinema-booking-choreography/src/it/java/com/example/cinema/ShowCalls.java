@@ -1,7 +1,5 @@
 package com.example.cinema;
 
-import com.example.cinema.model.CinemaApiModel;
-import com.example.cinema.model.Show;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -30,7 +28,7 @@ public class ShowCalls {
   public void createShow(String showId, String title, int maxSeats) {
 
     var response = webClient.post().uri("/cinema-show/" + showId)
-      .bodyValue(new CinemaApiModel.ShowCommand.CreateShow(title, maxSeats))
+      .bodyValue(new Show.ShowCommand.CreateShow(title, maxSeats))
       .retrieve()
       .toBodilessEntity()
       .block();
@@ -47,7 +45,7 @@ public class ShowCalls {
 
   public ResponseEntity<Void> reserveSeat(String showId, String walletId, String reservationId, int seatNumber) {
     return webClient.patch().uri("/cinema-show/" + showId + "/reserve")
-      .bodyValue(new CinemaApiModel.ShowCommand.ReserveSeat(walletId, reservationId, seatNumber))
+      .bodyValue(new Show.ShowCommand.ReserveSeat(walletId, reservationId, seatNumber))
       .retrieve()
       .toBodilessEntity()
       .block(timeout);
@@ -60,10 +58,10 @@ public class ShowCalls {
       .block(timeout);
   }
 
-  public ResponseEntity<CinemaApiModel.ShowsByAvailableSeatsRecordList> getShowsByAvailableSeats(int requestedSeatCount) {
+  public ResponseEntity<Show.ShowsByAvailableSeatsRecordList> getShowsByAvailableSeats(int requestedSeatCount) {
     return webClient.get().uri("/cinema-shows/by-available-seats/" + requestedSeatCount)
             .retrieve()
-            .toEntity(CinemaApiModel.ShowsByAvailableSeatsRecordList.class)
+            .toEntity(Show.ShowsByAvailableSeatsRecordList.class)
             .onErrorResume(WebClientResponseException.class, error -> {
               if (error.getStatusCode().is4xxClientError()) {
                 return Mono.just(ResponseEntity.status(HttpStatus.NOT_FOUND).body(null));
