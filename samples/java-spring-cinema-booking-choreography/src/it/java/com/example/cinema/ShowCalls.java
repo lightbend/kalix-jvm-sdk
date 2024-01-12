@@ -1,75 +1,40 @@
 package com.example.cinema;
 
+import com.example.common.Response;
+import kalix.javasdk.client.ComponentClient;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
-import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.reactive.function.client.WebClientResponseException;
-import reactor.core.publisher.Mono;
 
-import java.time.Duration;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.http.HttpStatus.OK;
+import java.util.concurrent.TimeUnit;
 
 
 @Component
 public class ShowCalls {
 
   @Autowired
-  private WebClient webClient;
-
-  private Duration timeout = Duration.ofSeconds(10);
-
-  public void createShow(String showId, String title) {
+  private ComponentClient componentClient;
+  private int timeout = 10;
+  public void createShow(String showId, String title) throws Exception {
      createShow(showId,title,100);
   }
-  public void createShow(String showId, String title, int maxSeats) {
-
-    var response = webClient.post().uri("/cinema-show/" + showId)
-      .bodyValue(new Show.ShowCommand.CreateShow(title, maxSeats))
-      .retrieve()
-      .toBodilessEntity()
-      .block();
-
-    assertThat(response.getStatusCode()).isEqualTo(OK);
+  public void createShow(String showId, String title, int maxSeats) throws Exception{
+    componentClient.forEventSourcedEntity(showId).call(ShowEntity::create).params(showId, new Show.ShowCommand.CreateShow(title, maxSeats)).execute().toCompletableFuture().get(timeout, TimeUnit.SECONDS);
   }
 
-  public Show.SeatStatus getSeatStatus(String showId, int seatNumber) {
-    return webClient.get().uri("/cinema-show/" + showId + "/seat-status/" + seatNumber)
-      .retrieve()
-      .bodyToMono(Show.SeatStatus.class)
-      .block(timeout);
+  public Show.SeatStatus getSeatStatus(String showId, int seatNumber) throws Exception{
+    return componentClient.forEventSourcedEntity(showId).call(ShowEntity::getSeatStatus).params(seatNumber).execute().toCompletableFuture().get(timeout,TimeUnit.SECONDS);
   }
 
-  public ResponseEntity<Void> reserveSeat(String showId, String walletId, String reservationId, int seatNumber) {
-    return webClient.patch().uri("/cinema-show/" + showId + "/reserve")
-      .bodyValue(new Show.ShowCommand.ReserveSeat(walletId, reservationId, seatNumber))
-      .retrieve()
-      .toBodilessEntity()
-      .block(timeout);
+  public Response reserveSeat(String showId, String walletId, String reservationId, int seatNumber) throws Exception{
+    return componentClient.forEventSourcedEntity(showId).call(ShowEntity::reserve).params(new Show.ShowCommand.ReserveSeat(walletId, reservationId, seatNumber)).execute().toCompletableFuture().get(timeout,TimeUnit.SECONDS);
   }
 
-  public ResponseEntity<Void> cancelSeatReservation(String showId, String reservationId) {
-    return webClient.patch().uri("/cinema-show/" + showId + "/cancel-reservation/" + reservationId)
-      .retrieve()
-      .toBodilessEntity()
-      .block(timeout);
+  public Response cancelSeatReservation(String showId, String reservationId) throws Exception{
+    return componentClient.forEventSourcedEntity(showId).call(ShowEntity::cancelReservation).params(reservationId).execute().toCompletableFuture().get(timeout,TimeUnit.SECONDS);
   }
 
-  public ResponseEntity<Show.ShowsByAvailableSeatsRecordList> getShowsByAvailableSeats(int requestedSeatCount) {
-    return webClient.get().uri("/cinema-shows/by-available-seats/" + requestedSeatCount)
-            .retrieve()
-            .toEntity(Show.ShowsByAvailableSeatsRecordList.class)
-            .onErrorResume(WebClientResponseException.class, error -> {
-              if (error.getStatusCode().is4xxClientError()) {
-                return Mono.just(ResponseEntity.status(HttpStatus.NOT_FOUND).body(null));
-              } else {
-                return Mono.error(error);
-              }
-            })
-            .block();
+  public Show.ShowsByAvailableSeatsRecordList getShowsByAvailableSeats(int requestedSeatCount) throws Exception{
+    return componentClient.forView().call(ShowsByAvailableSeatsView::getShows).params(requestedSeatCount).execute().toCompletableFuture().get(timeout,TimeUnit.SECONDS);
   }
 
 }
