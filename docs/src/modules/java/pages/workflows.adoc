@@ -116,7 +116,7 @@ One missing piece of our transfer workflow implementation is a workflow `definit
 include::example$java-spring-transfer-workflow/src/main/java/com/example/transfer/TransferWorkflow.java[tag=definition]
 ----
 <1> Each step should have a unique name.
-<2> We instruct Kalix to run a given deferred call to withdraw funds from a wallet.
+<2> We instruct Kalix to run a given deferred call, using the xref:component-and-service-calls.adoc#_component_client[ComponentClient], to withdraw funds from a wallet.
 <3> After successful withdrawal we return an `Effect` that will update the workflow state and move to the next step called `"deposit"`. An input parameter for this step is a `Deposit` record.
 <4> Another workflow step action to deposit funds to a given wallet.
 <5> This time we return an effect that will stop workflow processing, by using special `end` method.
