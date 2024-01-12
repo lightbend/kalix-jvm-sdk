@@ -43,7 +43,7 @@ public class ShowEntity extends EventSourcedEntity<Show, Show.ShowEvent> {
     if (currentState() == null) {
       return effects().error("show not found", NOT_FOUND);
     } else {
-      return currentState().handleReservation(reserveSeat).fold(
+      return currentState().onCommand(reserveSeat).fold(
         error -> errorEffect(error, reserveSeat),
         showEvent -> persistEffect(showEvent, "reserved")
       );
@@ -56,7 +56,7 @@ public class ShowEntity extends EventSourcedEntity<Show, Show.ShowEvent> {
       return effects().error("show not found", NOT_FOUND);
     } else {
       CancelSeatReservation cancelSeatReservation = new CancelSeatReservation(reservationId);
-      return currentState().handleCancellation(cancelSeatReservation).fold(
+      return currentState().onCommand(cancelSeatReservation).fold(
         error -> errorEffect(error, cancelSeatReservation, e -> e == DUPLICATED_COMMAND
           || e == CANCELLING_CONFIRMED_RESERVATION
           || e == RESERVATION_NOT_FOUND),
@@ -71,7 +71,7 @@ public class ShowEntity extends EventSourcedEntity<Show, Show.ShowEvent> {
       return effects().error("show not found", NOT_FOUND);
     } else {
       ConfirmReservationPayment confirmReservationPayment = new ConfirmReservationPayment(reservationId);
-      return currentState().handleConfirmation(confirmReservationPayment).fold(
+      return currentState().onCommand(confirmReservationPayment).fold(
         error -> errorEffect(error, confirmReservationPayment),
         showEvent -> persistEffect(showEvent, "payment confirmed")
       );
@@ -125,16 +125,16 @@ public class ShowEntity extends EventSourcedEntity<Show, Show.ShowEvent> {
 
   @EventHandler
   public Show onEvent(SeatReserved seatReserved) {
-    return currentState().applyReserved(seatReserved);
+    return currentState().onEvent(seatReserved);
   }
 
   @EventHandler
   public Show onEvent(SeatReservationCancelled seatReservationCancelled) {
-    return currentState().applyReservationCancelled(seatReservationCancelled);
+    return currentState().onEvent(seatReservationCancelled);
   }
 
   @EventHandler
   public Show onEvent(SeatReservationPaid seatReservationPaid) {
-    return currentState().applyReservationPaid(seatReservationPaid);
+    return currentState().onEvent(seatReservationPaid);
   }
 }

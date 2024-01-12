@@ -1,8 +1,6 @@
 package com.example.cinema;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import io.vavr.Tuple2;
 import io.vavr.collection.HashMap;
 import io.vavr.collection.Map;
@@ -28,18 +26,7 @@ public record Show(String id, String title, Map<Integer, Seat> seats,
         return new Show(showCreated.showId(), showCreated.title(), HashMap.ofEntries(seats), HashMap.empty(), HashMap.empty(), showCreated.seats().size());
     }
 
-    public Either<ShowCommandError, ShowEvent> process(ShowCommand command) {
-        return switch (command) {
-            case ShowCommand.CreateShow ignored -> left(SHOW_ALREADY_EXISTS);
-            case ShowCommand.ReserveSeat reserveSeat -> handleReservation(reserveSeat);
-            case ShowCommand.ConfirmReservationPayment confirmReservationPayment ->
-                    handleConfirmation(confirmReservationPayment);
-            case ShowCommand.CancelSeatReservation cancelSeatReservation ->
-                    handleCancellation(cancelSeatReservation);
-        };
-    }
-
-    public Either<ShowCommandError, ShowEvent> handleReservation(ShowCommand.ReserveSeat reserveSeat) {
+    public Either<ShowCommandError, ShowEvent> onCommand(ShowCommand.ReserveSeat reserveSeat) {
         int seatNumber = reserveSeat.seatNumber();
         if (isDuplicate(reserveSeat.reservationId())) {
             return left(DUPLICATED_COMMAND);
@@ -54,7 +41,7 @@ public record Show(String id, String title, Map<Integer, Seat> seats,
         }
     }
 
-    public Either<ShowCommandError, ShowEvent> handleCancellation(ShowCommand.CancelSeatReservation cancelSeatReservation) {
+    public Either<ShowCommandError, ShowEvent> onCommand(ShowCommand.CancelSeatReservation cancelSeatReservation) {
         String reservationId = cancelSeatReservation.reservationId();
         return pendingReservations.get(reservationId).fold(
                 () ->left(RESERVATION_NOT_FOUND),
@@ -65,7 +52,7 @@ public record Show(String id, String title, Map<Integer, Seat> seats,
         );
     }
 
-    public Either<ShowCommandError, ShowEvent> handleConfirmation(ShowCommand.ConfirmReservationPayment confirmReservationPayment) {
+    public Either<ShowCommandError, ShowEvent> onCommand(ShowCommand.ConfirmReservationPayment confirmReservationPayment) {
         String reservationId = confirmReservationPayment.reservationId();
         return pendingReservations.get(reservationId).fold(
                 () -> left(RESERVATION_NOT_FOUND),
@@ -81,27 +68,14 @@ public record Show(String id, String title, Map<Integer, Seat> seats,
                 finishedReservations.get(reservationId).isDefined();
     }
 
-    public Show apply(ShowEvent event) {
-        return switch (event) {
-            case ShowEvent.ShowCreated ignored ->
-                    throw new IllegalStateException("Show is already created, use Show.create instead.");
-            case ShowEvent.SeatReserved seatReserved -> applyReserved(seatReserved);
-            case ShowEvent.SeatReservationPaid seatReservationPaid ->
-                    applyReservationPaid(seatReservationPaid);
-            case ShowEvent.SeatReservationCancelled seatReservationCancelled ->
-                    applyReservationCancelled(seatReservationCancelled);
-//            case ShowEvent.CancelledReservationConfirmed __ -> this;
-        };
-    }
-
-    public Show applyReserved(ShowEvent.SeatReserved seatReserved) {
+    public Show onEvent(ShowEvent.SeatReserved seatReserved) {
         Seat seat = getSeatOrThrow(seatReserved.seatNumber());
         return new Show(id, title, seats.put(seat.number(), seat.reserved()),
                 pendingReservations.put(seatReserved.reservationId(), seatReserved.seatNumber()),
                 finishedReservations,seatReserved.availableSeatsCount());
     }
 
-    public Show applyReservationPaid(ShowEvent.SeatReservationPaid seatReservationPaid) {
+    public Show onEvent(ShowEvent.SeatReservationPaid seatReservationPaid) {
         Seat seat = getSeatOrThrow(seatReservationPaid.seatNumber());
         String reservationId = seatReservationPaid.reservationId();
         FinishedReservation finishedReservation = new FinishedReservation(reservationId, seat.number()/*, CONFIRMED*/);
@@ -111,7 +85,7 @@ public record Show(String id, String title, Map<Integer, Seat> seats,
 
     }
 
-    public Show applyReservationCancelled(ShowEvent.SeatReservationCancelled seatReservationCancelled) {
+    public Show onEvent(ShowEvent.SeatReservationCancelled seatReservationCancelled) {
         Seat seat = getSeatOrThrow(seatReservationCancelled.seatNumber());
         String reservationId = seatReservationCancelled.reservationId();
         FinishedReservation finishedReservation = new FinishedReservation(reservationId, seat.number()/*, CANCELLED*/);
