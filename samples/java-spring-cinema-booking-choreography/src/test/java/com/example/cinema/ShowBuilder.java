@@ -1,6 +1,5 @@
 package com.example.cinema;
 
-import com.example.cinema.model.Show;
 import io.vavr.Tuple2;
 import io.vavr.collection.HashMap;
 import io.vavr.collection.Map;
@@ -9,7 +8,7 @@ import java.util.List;
 
 import static com.example.cinema.DomainGenerators.randomPrice;
 import static com.example.cinema.DomainGenerators.randomShowId;
-import static com.example.cinema.model.Show.ShowCreator.createSeats;
+import static com.example.cinema.Show.ShowCreator.createSeats;
 
 public class ShowBuilder {
 

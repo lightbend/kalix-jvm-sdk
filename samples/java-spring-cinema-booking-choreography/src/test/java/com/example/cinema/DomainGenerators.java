@@ -1,7 +1,5 @@
 package com.example.cinema;
 
-import com.example.cinema.model.Show;
-
 import java.math.BigDecimal;
 import java.util.Random;
 import java.util.UUID;

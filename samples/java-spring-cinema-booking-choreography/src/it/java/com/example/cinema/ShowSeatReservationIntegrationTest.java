@@ -1,8 +1,7 @@
 package com.example.cinema;
 
 import com.example.Main;
-import com.example.cinema.model.Show;
-import com.example.wallet.model.WalletApiModel;
+import com.example.wallet.Wallet;
 import kalix.spring.testkit.KalixIntegrationTestKitSupport;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +14,7 @@ import java.math.BigDecimal;
 import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
-import static com.example.wallet.model.WalletApiModel.WalletCommand.ChargeWallet;
+import static com.example.wallet.Wallet.WalletCommand.ChargeWallet;
 import static java.time.temporal.ChronoUnit.SECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.http.HttpStatus.OK;
@@ -58,7 +57,7 @@ public class ShowSeatReservationIntegrationTest extends KalixIntegrationTestKitS
         Show.SeatStatus seatStatus = calls.getSeatStatus(showId, seatNumber);
         assertThat(seatStatus).isEqualTo(Show.SeatStatus.PAID);
 
-        WalletApiModel.WalletResponse wallet = walletCalls.getWallet(walletId);
+        Wallet.WalletResponse wallet = walletCalls.getWallet(walletId);
         assertThat(wallet.balance()).isEqualTo(new BigDecimal(100));
       });
   }
@@ -150,7 +149,7 @@ public class ShowSeatReservationIntegrationTest extends KalixIntegrationTestKitS
     await()
       .atMost(20, TimeUnit.of(SECONDS))
       .untilAsserted(() -> {
-        WalletApiModel.WalletResponse wallet = walletCalls.getWallet(walletId);
+        Wallet.WalletResponse wallet = walletCalls.getWallet(walletId);
         assertThat(wallet.balance()).isEqualTo(new BigDecimal(300));
       });
   }

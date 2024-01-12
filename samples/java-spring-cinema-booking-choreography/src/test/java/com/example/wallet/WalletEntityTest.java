@@ -1,8 +1,6 @@
 package com.example.wallet;
 
-import com.example.cinema.model.CinemaApiModel;
-import com.example.wallet.model.Wallet;
-import com.example.wallet.model.WalletEvent;
+import com.example.cinema.Show;
 import kalix.javasdk.testkit.EventSourcedResult;
 import kalix.javasdk.testkit.EventSourcedTestKit;
 import org.junit.jupiter.api.Test;
@@ -10,9 +8,9 @@ import org.junit.jupiter.api.Test;
 import java.math.BigDecimal;
 
 import static com.example.cinema.DomainGenerators.randomWalletId;
-import static com.example.wallet.model.WalletApiModel.WalletCommand.ChargeWallet;
-import static com.example.wallet.model.WalletEvent.WalletCharged;
-import static com.example.wallet.model.WalletEvent.WalletCreated;
+import static com.example.wallet.Wallet.WalletCommand.ChargeWallet;
+import static com.example.wallet.Wallet.WalletEvent.WalletCharged;
+import static com.example.wallet.Wallet.WalletEvent.WalletCreated;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class WalletEntityTest {
@@ -23,10 +21,10 @@ class WalletEntityTest {
     //given
     var walletId = randomWalletId();
     var initialAmount = 100;
-    EventSourcedTestKit<Wallet, WalletEvent, WalletEntity> testKit = EventSourcedTestKit.of(WalletEntity::new);
+    EventSourcedTestKit<Wallet, Wallet.WalletEvent, WalletEntity> testKit = EventSourcedTestKit.of(WalletEntity::new);
 
     //when
-    EventSourcedResult<CinemaApiModel.Response> result = testKit.call(wallet -> wallet.create(walletId, initialAmount));
+    EventSourcedResult<Show.Response> result = testKit.call(wallet -> wallet.create(walletId, initialAmount));
 
     //then
     assertThat(result.isReply()).isTrue();
@@ -41,12 +39,12 @@ class WalletEntityTest {
     var walletId = randomWalletId();
     var expenseId = "r1";
     var initialAmount = 100;
-    EventSourcedTestKit<Wallet, WalletEvent, WalletEntity> testKit = EventSourcedTestKit.of(WalletEntity::new);
+    EventSourcedTestKit<Wallet, Wallet.WalletEvent, WalletEntity> testKit = EventSourcedTestKit.of(WalletEntity::new);
     testKit.call(wallet -> wallet.create(walletId, initialAmount));
     var chargeWallet = new ChargeWallet(new BigDecimal(10), expenseId);
 
     //when
-    EventSourcedResult<CinemaApiModel.Response> result = testKit.call(wallet -> wallet.charge(chargeWallet));
+    EventSourcedResult<Show.Response> result = testKit.call(wallet -> wallet.charge(chargeWallet));
 
     //then
     assertThat(result.isReply()).isTrue();
@@ -60,13 +58,13 @@ class WalletEntityTest {
     var walletId = randomWalletId();
     var expenseId = "r1";
     var initialAmount = 100;
-    EventSourcedTestKit<Wallet, WalletEvent, WalletEntity> testKit = EventSourcedTestKit.of(WalletEntity::new);
+    EventSourcedTestKit<Wallet, Wallet.WalletEvent, WalletEntity> testKit = EventSourcedTestKit.of(WalletEntity::new);
     testKit.call(wallet -> wallet.create(walletId, initialAmount));
     var chargeWallet = new ChargeWallet(new BigDecimal(10), expenseId);
     testKit.call(wallet -> wallet.charge(chargeWallet));
 
     //when
-    EventSourcedResult<CinemaApiModel.Response> result = testKit.call(wallet -> wallet.charge(chargeWallet));
+    EventSourcedResult<Show.Response> result = testKit.call(wallet -> wallet.charge(chargeWallet));
 
     //then
     assertThat(result.isReply()).isTrue();
@@ -80,13 +78,13 @@ class WalletEntityTest {
     var walletId = randomWalletId();
     var expenseId = "r1";
     var initialAmount = 100;
-    EventSourcedTestKit<Wallet, WalletEvent, WalletEntity> testKit = EventSourcedTestKit.of(WalletEntity::new);
+    EventSourcedTestKit<Wallet, Wallet.WalletEvent, WalletEntity> testKit = EventSourcedTestKit.of(WalletEntity::new);
     testKit.call(wallet -> wallet.create(walletId, initialAmount));
     var chargeWallet = new ChargeWallet(new BigDecimal(10), expenseId);
     testKit.call(wallet -> wallet.charge(chargeWallet));
 
     //when
-    EventSourcedResult<CinemaApiModel.Response> result = testKit.call(wallet -> wallet.charge(chargeWallet));
+    EventSourcedResult<Show.Response> result = testKit.call(wallet -> wallet.charge(chargeWallet));
 
     //then
     assertThat(result.isReply()).isTrue();

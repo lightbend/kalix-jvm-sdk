@@ -9,8 +9,8 @@ import kalix.javasdk.client.ComponentClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static com.example.cinema.model.ShowEvent.SeatReservationPaid;
-import static com.example.cinema.model.ShowEvent.SeatReserved;
+import static com.example.cinema.Show.ShowEvent.SeatReservationPaid;
+import static com.example.cinema.Show.ShowEvent.SeatReserved;
 
 @Subscribe.EventSourcedEntity(value = ShowEntity.class, ignoreUnknown = true)
 public class FoldShowEventsToReservationAction extends Action {

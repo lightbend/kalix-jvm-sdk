@@ -1,11 +1,11 @@
 
 # If you're looking to use eventing with Google PubSub, to get an emulator running:
-# - add property "-Dkalix.proxy.eventing.support=google-pubsub-emulator" to the JAVA_TOOL_OPTIONS environment map under the kalix-proxy service
+# - add property "-Dkalix.runtime.eventing.support=google-pubsub-emulator" to the JAVA_TOOL_OPTIONS environment map under the kalix-runtime service
 # - uncomment the env var PUBSUB_EMULATOR_HOST and the section below for gcloud-pubsub-emulator service
 version: "3"
 services:
-  kalix-proxy:
-    image: gcr.io/kalix-public/kalix-proxy:1.1.23
+  kalix-runtime:
+    image: gcr.io/kalix-public/kalix-runtime:1.1.29
     container_name: java-spring-cinema-booking-choreography
     ports:
       - "9000:9000"
@@ -14,8 +14,8 @@ services:
     environment:
       JAVA_TOOL_OPTIONS: >
       # jvm -D properties can be under this environment map (note: remove this comment when adding properties)
-      USER_FUNCTION_HOST: ${USER_FUNCTION_HOST:-host.docker.internal}
-      USER_FUNCTION_PORT: ${USER_FUNCTION_PORT:-8080}
+      USER_SERVICE_HOST: ${USER_SERVICE_HOST:-host.docker.internal}
+      USER_SERVICE_PORT: ${USER_SERVICE_PORT:-8080}
       # Comment to enable ACL check in dev-mode (see https://docs.kalix.io/services/using-acls.html#_local_development_with_acls)
       ACL_ENABLED: "false"
       # Uncomment to enable advanced view features locally (note: disabled in deployed services by default)

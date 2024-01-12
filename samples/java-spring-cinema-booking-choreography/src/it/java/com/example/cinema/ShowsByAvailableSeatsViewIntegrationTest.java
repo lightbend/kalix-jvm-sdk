@@ -1,7 +1,6 @@
 package com.example.cinema;
 
 import com.example.Main;
-import com.example.cinema.model.CinemaApiModel;
 import kalix.spring.testkit.KalixIntegrationTestKitSupport;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,14 +42,14 @@ class ShowsByAvailableSeatsViewIntegrationTest extends KalixIntegrationTestKitSu
     calls.reserveSeat(showId, walletId, reservationId2, 4);
 
     //then
-    List<CinemaApiModel.ShowsByAvailableSeatsViewRecord> list = new ArrayList<>();
-    list.add(new CinemaApiModel.ShowsByAvailableSeatsViewRecord(showId,showTitle,maxSeats-2));
-    CinemaApiModel.ShowsByAvailableSeatsRecordList expected = new CinemaApiModel.ShowsByAvailableSeatsRecordList(list);
+    List<Show.ShowsByAvailableSeatsViewRecord> list = new ArrayList<>();
+    list.add(new Show.ShowsByAvailableSeatsViewRecord(showId,showTitle,maxSeats-2));
+    Show.ShowsByAvailableSeatsRecordList expected = new Show.ShowsByAvailableSeatsRecordList(list);
     await()
       .atMost(10, TimeUnit.of(SECONDS))
       .ignoreExceptions()
       .untilAsserted(() -> {
-        CinemaApiModel.ShowsByAvailableSeatsRecordList result = calls.getShowsByAvailableSeats(1).getBody();
+        Show.ShowsByAvailableSeatsRecordList result = calls.getShowsByAvailableSeats(1).getBody();
         assertThat(expected).isEqualTo(result);
 
       });

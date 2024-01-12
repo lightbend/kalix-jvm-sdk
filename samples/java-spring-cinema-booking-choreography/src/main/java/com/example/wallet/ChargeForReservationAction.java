@@ -3,7 +3,6 @@ package com.example.wallet;
 import akka.actor.ActorSystem;
 import akka.pattern.Patterns;
 import com.example.cinema.ShowEntity;
-import com.example.wallet.WalletEntity;
 import kalix.javasdk.action.Action;
 import kalix.javasdk.annotations.Subscribe;
 import kalix.javasdk.client.ComponentClient;
@@ -14,8 +13,8 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 import java.time.Duration;
 import java.util.concurrent.CompletionStage;
 
-import static com.example.cinema.model.ShowEvent.SeatReserved;
-import static com.example.wallet.model.WalletApiModel.WalletCommand.ChargeWallet;
+import static com.example.cinema.Show.ShowEvent.SeatReserved;
+import static com.example.wallet.Wallet.WalletCommand.ChargeWallet;
 
 @Subscribe.EventSourcedEntity(value = ShowEntity.class, ignoreUnknown = true)
 public class ChargeForReservationAction extends Action {

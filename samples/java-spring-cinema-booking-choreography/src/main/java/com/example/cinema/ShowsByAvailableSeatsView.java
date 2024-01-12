@@ -8,9 +8,9 @@ import kalix.javasdk.view.View;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
-import static com.example.cinema.model.CinemaApiModel.ShowsByAvailableSeatsRecordList;
-import static com.example.cinema.model.CinemaApiModel.ShowsByAvailableSeatsViewRecord;
-import static com.example.cinema.model.ShowEvent.*;
+import static com.example.cinema.Show.ShowsByAvailableSeatsRecordList;
+import static com.example.cinema.Show.ShowsByAvailableSeatsViewRecord;
+import static com.example.cinema.Show.ShowEvent.*;
 @ViewId("show_by_available_seats_view")
 @Table("show_by_available_seats")
 @Subscribe.EventSourcedEntity(value = ShowEntity.class, ignoreUnknown = true)

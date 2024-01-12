@@ -442,11 +442,11 @@ The Domain includes:
 
 ### API data structures
 
-**Tip:** Check the `com.example.cinema.model.CinemaApiModel` Java Class for a reference implementation.
+**Tip:** Check the `com.example.cinema.Show.ShowCommand`, `com.example.cinema.Show.Response` and `com.example.cinema.Show.ShowResponse` for a reference implementation.
 
 ### Domain Events data structure
 
-**Tip:** Check the `com.example.cinema.model.ShowEvent` Java Interface for a reference implementation.<br>
+**Tip:** Check the `com.example.cinema.Show.ShowEvent` Java Interface for a reference implementation.<br>
 
 **Note:** A Java _sealed interface_ is used to allow the Java compiler to verify that all events have been handled in the event handler. 
 
@@ -468,12 +468,12 @@ record Show(String id, String title, Map<Integer, Seat> seats,
 
 `handleReservation` command handler:
 ```java
-public Either<CinemaApiModel.ShowCommandError, ShowEvent> handleReservation(CinemaApiModel.ShowCommand.ReserveSeat reserveSeat) {
+public Either<Show.ShowCommandError, ShowEvent> handleReservation(Show.ShowCommand.ReserveSeat reserveSeat) {
     int seatNumber = reserveSeat.seatNumber();
     if (isDuplicate(reserveSeat.reservationId())) {
         return left(DUPLICATED_COMMAND);
     } else {
-        return seats.get(seatNumber).<Either<CinemaApiModel.ShowCommandError, ShowEvent>>map(seat -> {
+        return seats.get(seatNumber).<Either<Show.ShowCommandError, ShowEvent>>map(seat -> {
             if (seat.isAvailable()) {
                 return right(new ShowEvent.SeatReserved(id, reserveSeat.walletId(), reserveSeat.reservationId(), seatNumber, seat.price(), availableSeats()-1));
             } else {
@@ -489,7 +489,7 @@ private boolean isDuplicate(String reservationId) {
 ```
 
 **Note**: `isDuplicate` is used to ensure _idempotency_
-**Tip:** Check the `com.example.cinema.model.Show` Java Record for a reference implementation.
+**Tip:** Check the `com.example.cinema.Show` Java Record for a reference implementation.
 
 #### Unit test business domain logic
 
@@ -528,7 +528,7 @@ mvn test
 
 The `ShowEntity` will be implemented using a [Kalix Entity (Event sourced)](https://docs.kalix.io/java/event-sourced-entities.html).
 
-The Kalix entity encapsulates the domain business logic and exposes it via endpoints. `ShowEntity` encapsulates and exposes `com.example.cinema.model.Show`.<br>
+The Kalix entity encapsulates the domain business logic and exposes it via endpoints. `ShowEntity` encapsulates and exposes `com.example.cinema.Show`.<br>
 
 The entity ID or key is `showId`.
 
@@ -628,13 +628,13 @@ public void shouldReserveAndConfirmSeat() {
     var maxSeats = 100;
     int seatNumber = 1;
     EventSourcedTestKit<Show, ShowEvent, ShowEntity> testKit = EventSourcedTestKit.of(ShowEntity::new);
-    var createShow = new CinemaApiModel.ShowCommand.CreateShow("title", maxSeats);
-    var reserveSeat = new CinemaApiModel.ShowCommand.ReserveSeat(walletId, reservationId, seatNumber);
+    var createShow = new Show.ShowCommand.CreateShow("title", maxSeats);
+    var reserveSeat = new Show.ShowCommand.ReserveSeat(walletId, reservationId, seatNumber);
     
     //when
     testKit.call(s -> s.create(showId, createShow));
     testKit.call(s -> s.reserve(reserveSeat));
-    EventSourcedResult<CinemaApiModel.Response> result = testKit.call(s -> s.confirmPayment(reservationId));
+    EventSourcedResult<Show.Response> result = testKit.call(s -> s.confirmPayment(reservationId));
     
     //then
     var confirmedSeat = testKit.getState().seats().get(seatNumber).get();
@@ -699,7 +699,7 @@ curl -XGET http://localhost:9000/cinema-show/1 -H "Content-Type: application/jso
 The "Shows by availability" read view will be implemented using a [Kalix View](https://docs.kalix.io/java/value-entity.html).
 
 To implement a Kalix View we need to:
-1. define a read view model - already defined with `CinemaApiModel.ShowsByAvailableSeatsViewRecord`
+1. define a read view model - already defined in `Show.ShowsByAvailableSeatsViewRecord`
 2. define a source, in form of a subscription, from which we want to build the read view 
 3. define transformation methods for the source types
 4. define how the read data model needs to be queried
@@ -734,7 +734,7 @@ public class ShowsByAvailableSeatsView extends View<ShowsByAvailableSeatsViewRec
 The `ShowsByAvailableSeatsView` class extends `View<ShowsByAvailableSeatsViewRecord>`
 
 1. define a read view model:<br> 
-   The read view model is already defined with `CinemaApiModel.ShowsByAvailableSeatsViewRecord`<br>
+   The read view model is already defined in `Show.ShowsByAvailableSeatsViewRecord`<br>
    Kalix uses the `ShowsByAvailableSeatsViewRecord` read data model to provision a cosponsoring database table.
 2. define a source:<br>
    The class level annotation `@Subscribe.EventSourcedEntity` defines a source<br>
@@ -794,14 +794,14 @@ class ShowsByAvailableSeatsViewIntegrationTest extends KalixIntegrationTestKitSu
     calls.reserveSeat(showId, walletId, reservationId2, 4);
 
     //then
-    List<CinemaApiModel.ShowsByAvailableSeatsViewRecord> list = new ArrayList<>();
-    list.add(new CinemaApiModel.ShowsByAvailableSeatsViewRecord(showId,showTitle,maxSeats-2));
-    CinemaApiModel.ShowsByAvailableSeatsRecordList expected = new CinemaApiModel.ShowsByAvailableSeatsRecordList(list);
+    List<Show.ShowsByAvailableSeatsViewRecord> list = new ArrayList<>();
+    list.add(new Show.ShowsByAvailableSeatsViewRecord(showId,showTitle,maxSeats-2));
+    Show.ShowsByAvailableSeatsRecordList expected = new Show.ShowsByAvailableSeatsRecordList(list);
     await()
       .atMost(10, TimeUnit.of(SECONDS))
       .ignoreExceptions()
       .untilAsserted(() -> {
-        CinemaApiModel.ShowsByAvailableSeatsRecordList result = calls.getShowsByAvailableSeats(1).getBody();
+        Show.ShowsByAvailableSeatsRecordList result = calls.getShowsByAvailableSeats(1).getBody();
         assertThat(expected).isEqualTo(result);
 
       });
@@ -1008,11 +1008,11 @@ The domain data structures include:
 
 ### API data structures
 
-**Tip:** Check the `com.example.wallet.model.WalletApiModel` Java Class for a reference implementation.
+**Tip:** Check the `com.example.wallet.Wallet.WalletCommand` and `com.example.wallet.Wallet.WalletResponse`for a reference implementation.
 
 ### Domain Events data structure
 
-**Tip:** Check the `com.example.wallet.model.WalletEvent` Java Interface for a reference implementation.<br>
+**Tip:** Check the `com.example.wallet.Wallet.WalletEvent` Java Interface for a reference implementation.<br>
 **Note:** A Java _sealed interface_ is used to allow the Java compiler to verify that all events have been handled in the event handler.
 
 ### Wallet entity state data structure and business domain logic encapsulation
@@ -1023,7 +1023,7 @@ Domain business logic includes processing of commands, in command handlers, whic
 To be able to express this behaviour we are going to use a `io.vavr.control.Either` from `vavr.io` dependency.<br>
 For making data immutable we are going to use an immutable collection implementation by `vavr.io`.
 
-**Tip:** Check the `com.example.cinema.model.Wallet` Java Record for a reference implementation.
+**Tip:** Check the `com.example.cinema.Wallet` Java Record for a reference implementation.
 
 #### Unit test business domain logic
 
@@ -1060,7 +1060,7 @@ mvn test
 
 The `WalletEntity` will be implemented using a [Kalix Entity (Event sourced)](https://docs.kalix.io/java/event-sourced-entities.html).
 
-Kalix entities encapsulate the domain business logic and expose it via endpoints. The `WalletEntity` encapsulates and exposes `com.example.wallet.model.Wallet`.
+Kalix entities encapsulate the domain business logic and expose it via endpoints. The `WalletEntity` encapsulates and exposes `com.example.wallet.Wallet`.
 
 The entity Id or Key is `walletId`.
 
@@ -1076,13 +1076,13 @@ public class WalletEntity extends EventSourcedEntity<Wallet, WalletEvent> {
   }
 
   @PostMapping("/create/{initialBalance}")
-  public Effect<CinemaApiModel.Response> create(@PathVariable String id, @PathVariable int initialBalance) { }
+  public Effect<Show.Response> create(@PathVariable String id, @PathVariable int initialBalance) { }
 
   @PatchMapping("/charge")
-  public Effect<CinemaApiModel.Response> charge(@RequestBody ChargeWallet chargeWallet) { }
+  public Effect<Show.Response> charge(@RequestBody ChargeWallet chargeWallet) { }
 
   @PatchMapping("/refund/{expenseId}")
-  public Effect<CinemaApiModel.Response> refund(@RequestBody Refund refund) { }
+  public Effect<Show.Response> refund(@RequestBody Refund refund) { }
 
   @GetMapping
   public Effect<WalletResponse> get() {  }
@@ -1118,7 +1118,7 @@ The return type is immutable `Wallet`.<br>
 `CreateWallet` command handler implementation:
 ```java
 @PostMapping("/create/{initialBalance}")
-public Effect<CinemaApiModel.Response> create(@PathVariable String id, @PathVariable int initialBalance) {
+public Effect<Show.Response> create(@PathVariable String id, @PathVariable int initialBalance) {
     CreateWallet createWallet = new CreateWallet(BigDecimal.valueOf(initialBalance));
     return currentState().handleCreate(id, createWallet).fold(
       error -> errorEffect(error, createWallet),
@@ -1155,7 +1155,7 @@ public void shouldCreateWallet() {
  EventSourcedTestKit<Wallet, WalletEvent, WalletEntity> testKit = EventSourcedTestKit.of(WalletEntity::new);
 
  //when
- EventSourcedResult<CinemaApiModel.Response> result = testKit.call(wallet -> wallet.create(walletId, initialAmount));
+ EventSourcedResult<Show.Response> result = testKit.call(wallet -> wallet.create(walletId, initialAmount));
 
  //then
  assertThat(result.isReply()).isTrue();
@@ -1334,7 +1334,7 @@ public class ShowSeatReservationIntegrationTest extends KalixIntegrationTestKitS
                  Show.SeatStatus seatStatus = calls.getSeatStatus(showId, seatNumber);
                  assertThat(seatStatus).isEqualTo(Show.SeatStatus.PAID);
 
-                 WalletApiModel.WalletResponse wallet = walletCalls.getWallet(walletId);
+                 Wallet.WalletResponse wallet = walletCalls.getWallet(walletId);
                  assertThat(wallet.balance()).isEqualTo(new BigDecimal(100));
               });
    }

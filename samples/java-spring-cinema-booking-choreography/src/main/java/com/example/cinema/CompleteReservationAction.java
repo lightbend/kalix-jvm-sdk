@@ -1,6 +1,5 @@
 package com.example.cinema;
 
-import com.example.cinema.model.Show;
 import com.example.cinema.reservation.ReservationEntity;
 import com.example.wallet.WalletEntity;
 import kalix.javasdk.action.Action;
@@ -11,9 +10,9 @@ import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.CompletionStage;
 
-import static com.example.cinema.model.CinemaApiModel.Response;
-import static com.example.wallet.model.WalletEvent.WalletChargeRejected;
-import static com.example.wallet.model.WalletEvent.WalletCharged;
+import static com.example.cinema.Show.Response;
+import static com.example.wallet.Wallet.WalletEvent.WalletChargeRejected;
+import static com.example.wallet.Wallet.WalletEvent.WalletCharged;
 
 @Subscribe.EventSourcedEntity(value = WalletEntity.class, ignoreUnknown = true)
 public class CompleteReservationAction extends Action {
