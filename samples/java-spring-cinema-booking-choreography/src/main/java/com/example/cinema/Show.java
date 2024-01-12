@@ -250,26 +250,6 @@ public record Show(String id, String title, Map<Integer, Seat> seats,
           record CancelSeatReservation(String reservationId) implements ShowCommand {}
     }
 
-    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME)
-    @JsonSubTypes({
-      @JsonSubTypes.Type(value = Response.Success.class),
-      @JsonSubTypes.Type(value = Response.Failure.class)
-    })
-    sealed public interface Response {
-
-      record Success(String message) implements Response {
-        public static Success of(String message) {
-          return new Success(message);
-        }
-      }
-
-      record Failure(String message) implements Response {
-        public static Failure of(String message) {
-          return new Failure(message);
-        }
-      }
-    }
-
     public record ShowResponse(String id, String title, List<Seat> seats) {
 
         public static ShowResponse from(Show show) {

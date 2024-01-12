@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.CompletionStage;
 
-import static com.example.cinema.Show.Response;
+import com.example.common.Response;
 import static com.example.wallet.Wallet.WalletEvent.WalletChargeRejected;
 import static com.example.wallet.Wallet.WalletEvent.WalletCharged;
 

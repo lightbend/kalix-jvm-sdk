@@ -1,5 +1,6 @@
 package com.example.cinema;
 
+import com.example.common.Response;
 import kalix.javasdk.testkit.EventSourcedResult;
 import kalix.javasdk.testkit.EventSourcedTestKit;
 import org.junit.jupiter.api.Test;
@@ -23,7 +24,7 @@ class ShowEntityTest {
     var reserveSeat = new Show.ShowCommand.ReserveSeat(walletId, reservationId, seatNumber);
 
     //when
-    EventSourcedResult<Show.Response> result = testKit.call(s -> s.create(showId, createShow));
+    EventSourcedResult<Response> result = testKit.call(s -> s.create(showId, createShow));
     var event = result.getNextEventOfType(Show.ShowEvent.ShowCreated.class);
     assertThat(event.seats().size()).isEqualTo(maxSeats);
 
