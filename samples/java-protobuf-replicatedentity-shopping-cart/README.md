@@ -71,9 +71,9 @@ mvn verify -Pit
 
 ## Deploying
 
-To deploy your service, install the `kalix` CLI as documented in [Setting up a local development
-environment](https://docs.kalix.io/setting-up/) and
-configure a Docker Registry to upload your docker image to.
+To deploy your service, install the `kalix` CLI as documented in
+[Instal Kalix](https://docs.kalix.io/kalix/install-kalix.html)
+and configure a Docker Registry to upload your docker image to.
 
 You will need to update the `dockerImage` property in the `pom.xml` and refer to [Configuring
 registries](https://docs.kalix.io/projects/container-registries.html) for more information on how

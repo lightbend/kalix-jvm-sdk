@@ -33,7 +33,7 @@ With both the Kalix Runtime and your service running, once you have defined endp
 ## Deploying
 
 To deploy your service, install the `kalix` CLI as documented in
-[Setting up a local development environment](https://docs.kalix.io/setting-up/)
+[Instal Kalix](https://docs.kalix.io/kalix/install-kalix.html)
 and configure a Docker Registry to upload your docker image to.
 
 You will need to update the `dockerImage` property in the `pom.xml` and refer to
