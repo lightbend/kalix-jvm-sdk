@@ -6,6 +6,7 @@ object Dependencies {
   object Kalix {
     val ProtocolVersionMajor = 1
     val ProtocolVersionMinor = 1
+    val RuntimeImage = "gcr.io/kalix-public/kalix-runtime"
     val RuntimeVersion = System.getProperty(
       "kalix-runtime.version",
       // temporarily accept the old system property name

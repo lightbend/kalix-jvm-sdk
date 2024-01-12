@@ -57,6 +57,8 @@ lazy val javaSdkProtobuf = project
     buildInfoKeys := Seq[BuildInfoKey](
       name,
       version,
+      "runtimeImage" -> Kalix.RuntimeImage,
+      "runtimeVersion" -> Kalix.RuntimeVersion,
       "protocolMajorVersion" -> Kalix.ProtocolVersionMajor,
       "protocolMinorVersion" -> Kalix.ProtocolVersionMinor,
       "scalaVersion" -> scalaVersion.value),
@@ -102,7 +104,7 @@ lazy val javaSdkProtobufTestKit = project
     buildInfoKeys := Seq[BuildInfoKey](
       name,
       version,
-      "runtimeImage" -> "gcr.io/kalix-public/kalix-runtime",
+      "runtimeImage" -> Kalix.RuntimeImage,
       "runtimeVersion" -> Kalix.RuntimeVersion,
       "scalaVersion" -> scalaVersion.value),
     buildInfoPackage := "kalix.javasdk.testkit",
@@ -182,7 +184,7 @@ lazy val javaSdkSpringTestKit = project
     buildInfoKeys := Seq[BuildInfoKey](
       name,
       version,
-      "runtimeImage" -> "gcr.io/kalix-public/kalix-runtime",
+      "runtimeImage" -> Kalix.RuntimeImage,
       "runtimeVersion" -> Kalix.RuntimeVersion,
       "scalaVersion" -> scalaVersion.value),
     buildInfoPackage := "kalix.spring.testkit",
@@ -254,7 +256,7 @@ lazy val springBootStarterTest = project
     buildInfoKeys := Seq[BuildInfoKey](
       name,
       version,
-      "runtimeImage" -> "gcr.io/kalix-public/kalix-runtime",
+      "runtimeImage" -> Kalix.RuntimeImage,
       "runtimeVersion" -> Kalix.RuntimeVersion,
       "scalaVersion" -> scalaVersion.value),
     buildInfoPackage := "kalix.spring.boot.test",
@@ -384,7 +386,7 @@ def devToolsCommon(project: Project): Project =
       buildInfoKeys := Seq[BuildInfoKey](
         name,
         version,
-        "runtimeImage" -> "gcr.io/kalix-public/kalix-runtime",
+        "runtimeImage" -> Kalix.RuntimeImage,
         "runtimeVersion" -> Kalix.RuntimeVersion),
       buildInfoPackage := "kalix.devtools",
       // Generate javadocs by just including non generated Java sources

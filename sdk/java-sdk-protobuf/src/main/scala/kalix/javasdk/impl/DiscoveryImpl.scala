@@ -55,12 +55,12 @@ class DiscoveryImpl(
 
   private val serviceIncarnationUuid = UUID.randomUUID().toString
 
-  // Delay CoordinatedShutdown until the proxy has been terminated.
+  // Delay CoordinatedShutdown until the runtime has been terminated.
   // This is updated from the `discover` call with a new Promise. Completed in the `proxyTerminated` call.
-  private val proxyTerminatedRef = new AtomicReference[Promise[Done]](Promise.successful(Done))
+  private val runtimeTerminatedRef = new AtomicReference[Promise[Done]](Promise.successful(Done))
 
   CoordinatedShutdown(system).addTask(CoordinatedShutdown.PhaseBeforeServiceUnbind, "wait-for-proxy-terminated") { () =>
-    proxyTerminatedRef.get().future
+    runtimeTerminatedRef.get().future
   }
 
   private def configuredOrElse(key: String, default: String): String =
@@ -69,7 +69,7 @@ class DiscoveryImpl(
   private def configuredIntOrElse(key: String, default: Int): Int =
     if (system.settings.config.hasPath(key)) system.settings.config.getInt(key) else default
 
-  // detect hybrid proxy version probes when protocol version 0.0
+  // detect hybrid runtime version probes when protocol version 0.0
   private def isVersionProbe(info: ProxyInfo): Boolean = {
     info.protocolMajorVersion == 0 && info.protocolMinorVersion == 0
   }
@@ -86,6 +86,13 @@ class DiscoveryImpl(
       in.proxyPort,
       in.protocolMajorVersion,
       in.protocolMinorVersion)
+
+    if (in.devMode && BuildInfo.runtimeVersion.compareTo(in.proxyVersion) > 0) {
+      log.warn(
+        "Your service is using an outdated runtime image (version: {}). It's recommended to update your image to '{}' in your docker-compose.yml",
+        in.proxyVersion,
+        s"${BuildInfo.runtimeImage}:${BuildInfo.runtimeVersion}")
+    }
 
     ProxyInfoHolder(system).setProxyInfo(in)
 
@@ -114,12 +121,12 @@ class DiscoveryImpl(
       serviceIncarnationUuid = serviceIncarnationUuid)
 
     if (isVersionProbe(in)) {
-      // only (silently) send service info for hybrid proxy version probe
+      // only (silently) send service info for hybrid runtime version probe
       Future.successful(Spec(serviceInfo = Some(serviceInfo)))
     } else {
-      // don't wait for proxy termination in dev-mode, because the user function may be stopped without stopping the proxy
-      val proxyTerminatedPromise = if (in.devMode) Promise.successful[Done](Done) else Promise[Done]()
-      proxyTerminatedRef.getAndSet(proxyTerminatedPromise).trySuccess(Done)
+      // don't wait for runtime termination in dev-mode, because the user service may be stopped without stopping the runtime
+      val runtimeTerminatedPromise = if (in.devMode) Promise.successful[Done](Done) else Promise[Done]()
+      runtimeTerminatedRef.getAndSet(runtimeTerminatedPromise).trySuccess(Done)
 
       log.debug(s"Supported sidecar entity types: {}", in.supportedEntityTypes.mkString("[", ",", "]"))
 
@@ -129,12 +136,12 @@ class DiscoveryImpl(
 
       if (unsupportedServices.nonEmpty) {
         log.error(
-          "Proxy doesn't support the entity types for the following services: {}",
+          "Runtime doesn't support the entity types for the following services: {}",
           unsupportedServices
             .map(s => s.descriptor.getFullName + ": " + s.componentType)
             .mkString(", "))
-        // Don't fail though. The proxy may give us more information as to why it doesn't support them if we send back unsupported services.
-        // eg, the proxy doesn't have a configured journal, and so can't support event sourcing.
+        // Don't fail though. The runtime may give us more information as to why it doesn't support them if we send back unsupported services.
+        // eg, the runtime doesn't have a configured journal, and so can't support event sourcing.
       }
 
       val components = services.map { case (name, service) =>
@@ -200,12 +207,16 @@ class DiscoveryImpl(
     val messages = message :: detail ::: seeDocs ::: sourceMsgs
     val logMessage = messages.mkString("\n\n")
 
-    in.severity match {
-      case UserFunctionError.Severity.ERROR   => log.error(logMessage)
-      case UserFunctionError.Severity.WARNING => log.warn(logMessage)
-      case UserFunctionError.Severity.INFO    => log.info(logMessage)
-      case UserFunctionError.Severity.UNSPECIFIED | UserFunctionError.Severity.Unrecognized(_) =>
-        log.error(logMessage)
+    // ignoring waring for runtime version
+    // TODO: remove it once we remove this check in the runtime
+    if (in.code != "KLX-00010") {
+      in.severity match {
+        case UserFunctionError.Severity.ERROR   => log.error(logMessage)
+        case UserFunctionError.Severity.WARNING => log.warn(logMessage)
+        case UserFunctionError.Severity.INFO    => log.info(logMessage)
+        case UserFunctionError.Severity.UNSPECIFIED | UserFunctionError.Severity.Unrecognized(_) =>
+          log.error(logMessage)
+      }
     }
 
     Future.successful(com.google.protobuf.empty.Empty.defaultInstance)
@@ -269,8 +280,8 @@ class DiscoveryImpl(
   }
 
   override def proxyTerminated(in: Empty): Future[Empty] = {
-    log.debug("Proxy terminated")
-    proxyTerminatedRef.get().trySuccess(Done)
+    log.debug("Runtime terminated")
+    runtimeTerminatedRef.get().trySuccess(Done)
     Future.successful(Empty.defaultInstance)
   }
 }

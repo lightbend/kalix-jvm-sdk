@@ -36,9 +36,7 @@ import com.google.protobuf.DescriptorProtos.FileDescriptorProto
 import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
 import kalix.devtools.impl.DevModeSettings
-import kalix.devtools.impl.DevModeSettings.portMappingsKeyPrefix
 import kalix.devtools.impl.DockerComposeUtils
-import kalix.devtools.impl.HostAndPort
 import kalix.javasdk.impl.AbstractContext
 import kalix.javasdk.impl.DiscoveryImpl
 import kalix.javasdk.impl.Service
