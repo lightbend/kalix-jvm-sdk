@@ -14,7 +14,7 @@ public class ShowBuilder {
 
   final static int MAX_SEATS = 100;
   private String id = UUID.randomUUID().toString();
-  private String title = "Random title";
+  private String title = "Show title";
   private Map<Integer, Show.Seat> seats = HashMap.empty();
   private Map<String, Integer> pendingReservations = HashMap.empty();
 
