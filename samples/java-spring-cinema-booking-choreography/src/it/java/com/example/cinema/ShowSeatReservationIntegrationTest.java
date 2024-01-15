@@ -7,7 +7,6 @@ import kalix.spring.testkit.KalixIntegrationTestKitSupport;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.web.reactive.function.client.WebClient;
 
@@ -18,7 +17,6 @@ import java.util.concurrent.TimeUnit;
 import static com.example.wallet.Wallet.WalletCommand.ChargeWallet;
 import static java.time.temporal.ChronoUnit.SECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.http.HttpStatus.OK;
 import static org.testcontainers.shaded.org.awaitility.Awaitility.await;
 
 
@@ -37,7 +35,7 @@ public class ShowSeatReservationIntegrationTest extends KalixIntegrationTestKitS
   private Duration timeout = Duration.ofSeconds(10);
 
   @Test
-  public void shouldCompleteSeatReservation() throws Exception{
+  public void shouldCompleteSeatReservation() throws Exception {
     //given
     var walletId = TestUtils.randomId();
     var showId = TestUtils.randomId();
@@ -64,7 +62,7 @@ public class ShowSeatReservationIntegrationTest extends KalixIntegrationTestKitS
   }
 
   @Test
-  public void shouldRejectReservationIfCaseOfInsufficientWalletBalance() throws Exception{
+  public void shouldRejectReservationIfCaseOfInsufficientWalletBalance() throws Exception {
     //given
     var walletId = TestUtils.randomId();
     var showId = TestUtils.randomId();
@@ -88,7 +86,7 @@ public class ShowSeatReservationIntegrationTest extends KalixIntegrationTestKitS
   }
 
   @Test
-  public void shouldAllowToCancelAlreadyCancelledReservation() throws Exception{
+  public void shouldAllowToCancelAlreadyCancelledReservation() throws Exception {
     //given
     var walletId = TestUtils.randomId();
     var showId = TestUtils.randomId();

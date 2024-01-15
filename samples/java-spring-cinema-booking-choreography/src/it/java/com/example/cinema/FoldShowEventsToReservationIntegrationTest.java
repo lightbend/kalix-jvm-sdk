@@ -33,7 +33,7 @@ class FoldShowEventsToReservationIntegrationTest extends KalixIntegrationTestKit
   private Duration timeout = Duration.ofSeconds(10);
 
   @Test
-  public void shouldUpdateShowByReservationEntry() throws Exception{
+  public void shouldUpdateShowByReservationEntry() throws Exception {
     //given
     var showId = randomId();
     var reservationId1 = randomId();

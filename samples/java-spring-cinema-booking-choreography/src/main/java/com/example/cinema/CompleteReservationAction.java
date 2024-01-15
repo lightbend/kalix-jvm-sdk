@@ -1,6 +1,7 @@
 package com.example.cinema;
 
 import com.example.cinema.reservation.ReservationEntity;
+import com.example.common.Response;
 import com.example.wallet.WalletEntity;
 import kalix.javasdk.action.Action;
 import kalix.javasdk.annotations.Subscribe;
@@ -10,7 +11,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.CompletionStage;
 
-import com.example.common.Response;
 import static com.example.wallet.Wallet.WalletEvent.WalletChargeRejected;
 import static com.example.wallet.Wallet.WalletEvent.WalletCharged;
 

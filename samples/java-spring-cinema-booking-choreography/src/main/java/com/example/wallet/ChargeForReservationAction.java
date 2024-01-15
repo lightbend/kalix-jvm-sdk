@@ -22,7 +22,7 @@ public class ChargeForReservationAction extends Action {
   private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
   private final ComponentClient componentClient;
-  
+
   public ChargeForReservationAction(ComponentClient componentClient) {
     this.componentClient = componentClient;
   }
@@ -34,7 +34,7 @@ public class ChargeForReservationAction extends Action {
     String sequenceNum = contextForComponents().metadata().get("ce-sequence").orElseThrow();
     String walletId = seatReserved.walletId();
 
-    var chargeWallet = new ChargeWallet(seatReserved.price(),expenseId);
+    var chargeWallet = new ChargeWallet(seatReserved.price(), expenseId);
 
     var attempts = 3;
     var retryDelay = Duration.ofSeconds(1);
@@ -46,7 +46,7 @@ public class ChargeForReservationAction extends Action {
           retryDelay,
           actorSystem)
         .exceptionallyComposeAsync(throwable ->
-            registerFailure(seatReserved.showId(), expenseId, throwable)
+          registerFailure(seatReserved.showId(), expenseId, throwable)
         )
     );
   }
@@ -58,6 +58,7 @@ public class ChargeForReservationAction extends Action {
       .execute()
       .thenApply(response -> "done");
   }
+
   private CompletionStage<String> registerFailure(String showId, String reservationId, Throwable throwable) {
     var msg = getMessage(throwable);
     return componentClient.forEventSourcedEntity(showId).call(ShowEntity::cancelReservation).params(reservationId).execute().thenApply(res -> msg);

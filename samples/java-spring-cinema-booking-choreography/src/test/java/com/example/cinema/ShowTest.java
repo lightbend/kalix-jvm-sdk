@@ -61,7 +61,7 @@ class ShowTest {
     var event = onCommand(show, reserveSeat).get();
 
     //then
-    assertThat(event).isEqualTo(new SeatReserved(show.id(), reserveSeat.walletId(), reserveSeat.reservationId(), reserveSeat.seatNumber(), seatToReserve.price(),show.seats().size()-1));
+    assertThat(event).isEqualTo(new SeatReserved(show.id(), reserveSeat.walletId(), reserveSeat.reservationId(), reserveSeat.seatNumber(), seatToReserve.price(), show.seats().size() - 1));
   }
 
   @Test
@@ -139,7 +139,7 @@ class ShowTest {
   public void shouldCancelSeatReservation() {
     //given
     var reservedSeat = new Show.Seat(2, Show.SeatStatus.RESERVED, new BigDecimal("123"));
-    var reservationId =UUID.randomUUID().toString();
+    var reservationId = UUID.randomUUID().toString();
     var show = showBuilder().withRandomSeats().withSeatReservation(reservedSeat, reservationId).build();
     var cancelSeatReservation = new CancelSeatReservation(reservationId);
 
@@ -148,7 +148,7 @@ class ShowTest {
     var updatedShow = onEvent(show, event);
 
     //then
-    assertThat(event).isEqualTo(new SeatReservationCancelled(show.id(), reservationId, reservedSeat.number(),show.seats().size()+1));
+    assertThat(event).isEqualTo(new SeatReservationCancelled(show.id(), reservationId, reservedSeat.number(), show.seats().size() + 1));
     assertThat(updatedShow.getSeat(reservedSeat.number()).get().status()).isEqualTo(AVAILABLE);
     assertThat(updatedShow.pendingReservations().get(reservationId).isEmpty()).isTrue();
   }
@@ -187,12 +187,10 @@ class ShowTest {
   public Show onEvent(Show show, Show.ShowEvent event) {
     return switch (event) {
       case Show.ShowEvent.ShowCreated ignored ->
-              throw new IllegalStateException("Show is already created, use Show.create instead.");
+        throw new IllegalStateException("Show is already created, use Show.create instead.");
       case Show.ShowEvent.SeatReserved seatReserved -> show.onEvent(seatReserved);
-      case Show.ShowEvent.SeatReservationPaid seatReservationPaid ->
-              show.onEvent(seatReservationPaid);
-      case Show.ShowEvent.SeatReservationCancelled seatReservationCancelled ->
-              show.onEvent(seatReservationCancelled);
+      case Show.ShowEvent.SeatReservationPaid seatReservationPaid -> show.onEvent(seatReservationPaid);
+      case Show.ShowEvent.SeatReservationCancelled seatReservationCancelled -> show.onEvent(seatReservationCancelled);
     };
   }
 
@@ -202,9 +200,8 @@ class ShowTest {
       case Show.ShowCommand.CreateShow ignored -> left(SHOW_ALREADY_EXISTS);
       case Show.ShowCommand.ReserveSeat reserveSeat -> show.onCommand(reserveSeat);
       case Show.ShowCommand.ConfirmReservationPayment confirmReservationPayment ->
-              show.onCommand(confirmReservationPayment);
-      case Show.ShowCommand.CancelSeatReservation cancelSeatReservation ->
-              show.onCommand(cancelSeatReservation);
+        show.onCommand(confirmReservationPayment);
+      case Show.ShowCommand.CancelSeatReservation cancelSeatReservation -> show.onCommand(cancelSeatReservation);
     };
   }
 }

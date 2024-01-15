@@ -8,9 +8,10 @@ import kalix.javasdk.view.View;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
+import static com.example.cinema.Show.ShowEvent.*;
 import static com.example.cinema.Show.ShowsByAvailableSeatsRecordList;
 import static com.example.cinema.Show.ShowsByAvailableSeatsViewRecord;
-import static com.example.cinema.Show.ShowEvent.*;
+
 @ViewId("show_by_available_seats_view")
 @Table("show_by_available_seats")
 @Subscribe.EventSourcedEntity(value = ShowEntity.class, ignoreUnknown = true)
@@ -29,6 +30,7 @@ public class ShowsByAvailableSeatsView extends View<ShowsByAvailableSeatsViewRec
   public UpdateEffect<ShowsByAvailableSeatsViewRecord> onEvent(SeatReserved reserved) {
     return effects().updateState(viewState().updateAvailableSeats(reserved.availableSeatsCount()));
   }
+
   public UpdateEffect<ShowsByAvailableSeatsViewRecord> onEvent(SeatReservationCancelled cancelled) {
     return effects().updateState(viewState().updateAvailableSeats(cancelled.availableSeatsCount()));
   }

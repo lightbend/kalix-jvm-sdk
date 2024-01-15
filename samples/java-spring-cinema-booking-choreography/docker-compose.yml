@@ -1,4 +1,3 @@
-
 # If you're looking to use eventing with Google PubSub, to get an emulator running:
 # - add property "-Dkalix.runtime.eventing.support=google-pubsub-emulator" to the JAVA_TOOL_OPTIONS environment map under the kalix-runtime service
 # - uncomment the env var PUBSUB_EMULATOR_HOST and the section below for gcloud-pubsub-emulator service
