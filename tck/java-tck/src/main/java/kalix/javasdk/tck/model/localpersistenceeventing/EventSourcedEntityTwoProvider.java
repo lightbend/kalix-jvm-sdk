@@ -61,6 +61,11 @@ public class EventSourcedEntityTwoProvider
 
   @Override
   public final String entityType() {
+    return typeId();
+  }
+
+  @Override
+  public final String typeId() {
     return "eventlogeventing-two";
   }
 

@@ -24,7 +24,7 @@ import java.util.Optional;
 
 public interface WorkflowProvider<S, W extends Workflow<S>> {
 
-  String workflowName();
+  String typeId();
 
   WorkflowOptions options();
 

@@ -65,7 +65,7 @@ public class ReflectiveWorkflowProvider<S, W extends Workflow<S>> implements Wor
   }
 
   @Override
-  public String workflowName() {
+  public String typeId() {
     return workflowType;
   }
 

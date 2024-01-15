@@ -54,6 +54,11 @@ public class MultiMapServiceEntityProvider implements ReplicatedEntityProvider<R
 
   @Override
   public final String entityType() {
+    return typeId();
+  }
+
+  @Override
+  public final String typeId() {
     return "some-multi-map";
   }
 

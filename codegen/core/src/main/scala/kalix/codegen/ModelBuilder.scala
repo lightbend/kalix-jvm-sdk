@@ -17,7 +17,9 @@
 package kalix.codegen
 
 import java.util.Locale
+
 import scala.jdk.CollectionConverters._
+
 import com.google.common.base.CaseFormat
 import com.google.protobuf.Descriptors
 import com.google.protobuf.Descriptors.ServiceDescriptor
@@ -27,6 +29,7 @@ import kalix.ReplicatedEntityDef
 import kalix.ServiceOptions.ServiceType
 import kalix.ValueEntityDef
 import kalix.View
+import kalix.WorkflowDef
 
 /**
  * Builds a model of entities and their properties from a protobuf descriptor
@@ -52,36 +55,37 @@ object ModelBuilder {
     def fromService(service: Service): Model =
       Model.empty.addService(service)
 
-    def fromEntity(entity: Entity): Model =
+    def fromEntity(entity: StatefulComponent): Model =
       Model.empty.addEntity(entity)
   }
 
   /**
    * The Kalix service definitions and entities that could be extracted from a protobuf descriptor
    */
-  case class Model(services: Map[String, Service], entities: Map[String, Entity]) {
-    def lookupEntity(service: EntityService): Entity = {
-      entities.getOrElse(
+  case class Model(services: Map[String, Service], statefulComponents: Map[String, StatefulComponent]) {
+    def lookupEntity(service: EntityService): StatefulComponent = {
+      statefulComponents.getOrElse(
         service.componentFullName,
         throw new IllegalArgumentException(
-          "Service [" + service.messageType.fullyQualifiedProtoName + "] refers to entity [" + service.componentFullName +
-          s"], but no entity configuration is found for that component name. Entities: [${entities.keySet.mkString(", ")}]"))
+          "Service [" + service.messageType.fullyQualifiedProtoName + "] refers to stateful [" + service.componentFullName +
+          s"], but no component configuration is found for that component name. Components: [${statefulComponents.keySet
+            .mkString(", ")}]"))
     }
 
     def addService(service: Service): Model =
-      copy(services + (service.messageType.fullyQualifiedProtoName -> service), entities)
+      copy(services + (service.messageType.fullyQualifiedProtoName -> service), statefulComponents)
 
-    def addEntity(entity: Entity): Model =
-      copy(services, entities + (entity.messageType.fullyQualifiedProtoName -> entity))
+    def addEntity(entity: StatefulComponent): Model =
+      copy(services, statefulComponents + (entity.messageType.fullyQualifiedProtoName -> entity))
 
     def ++(model: Model): Model =
-      Model(services ++ model.services, entities ++ model.entities)
+      Model(services ++ model.services, statefulComponents ++ model.statefulComponents)
   }
 
   /**
    * An entity represents the primary model object and is conceptually equivalent to a class, or a type of state.
    */
-  sealed abstract class Entity(val messageType: ProtoMessageType, val entityType: String) {
+  sealed abstract class StatefulComponent(val messageType: ProtoMessageType, val typeId: String) {
     val abstractEntityName = "Abstract" + messageType.name
     val routerName = messageType.name + "Router"
     val providerName = messageType.name + "Provider"
@@ -94,25 +98,28 @@ object ModelBuilder {
    */
   case class EventSourcedEntity(
       override val messageType: ProtoMessageType,
-      override val entityType: String,
+      override val typeId: String,
       state: State,
       events: Iterable[Event])
-      extends Entity(messageType, entityType)
+      extends StatefulComponent(messageType, typeId)
+
+  case class WorkflowComponent(override val messageType: ProtoMessageType, override val typeId: String, state: State)
+      extends StatefulComponent(messageType, typeId)
 
   /**
    * A type of Entity that stores its current state directly.
    */
-  case class ValueEntity(override val messageType: ProtoMessageType, override val entityType: String, state: State)
-      extends Entity(messageType, entityType)
+  case class ValueEntity(override val messageType: ProtoMessageType, override val typeId: String, state: State)
+      extends StatefulComponent(messageType, typeId)
 
   /**
    * A type of Entity that replicates its current state using CRDTs.
    */
   case class ReplicatedEntity(
       override val messageType: ProtoMessageType,
-      override val entityType: String,
+      override val typeId: String,
       data: ReplicatedData)
-      extends Entity(messageType, entityType)
+      extends StatefulComponent(messageType, typeId)
 
   /**
    * The underlying replicated data type for a Replicated Entity.
@@ -632,6 +639,13 @@ object ModelBuilder {
           .fromService(EntityService(serviceName, commands, componentFullName))
           .addEntity(extractEventSourcedEntity(serviceDescriptor, entityDef, additionalDescriptors))
 
+      case CodegenOptions.CodegenCase.WORKFLOW =>
+        val workflowDef = codegenOptions.getWorkflow
+        val componentFullName = resolveFullComponentName(workflowDef.getName, serviceName)
+        Model
+          .fromService(EntityService(serviceName, commands, componentFullName))
+          .addEntity(extractWorkflowComponent(serviceDescriptor, workflowDef, additionalDescriptors))
+
       case CodegenOptions.CodegenCase.REPLICATED_ENTITY =>
         val entityDef = codegenOptions.getReplicatedEntity
         val componentFullName = resolveFullComponentName(entityDef.getName, serviceName)
@@ -648,7 +662,7 @@ object ModelBuilder {
    * otherwise, we need to resolve the entity name.
    */
   private def resolveFullComponentName(optionalName: String, serviceName: ProtoMessageType) = {
-    val messageType = defineEntityMessageType(optionalName, serviceName)
+    val messageType = defineStatefulComponentMessageType(optionalName, serviceName)
     resolveFullName(messageType.parent.protoPackage, messageType.name)
   }
 
@@ -670,15 +684,18 @@ object ModelBuilder {
         ProtoMessageType(resolvedName, resolvedName, packageNaming, descOpt)
       }
 
-  private def defineEntityMessageType(optionalName: String, serviceName: ProtoMessageType) =
+  private def defineStatefulComponentMessageType(
+      optionalName: String,
+      serviceName: ProtoMessageType,
+      postfix: String = "Entity") =
     buildUserDefinedMessageType(optionalName, serviceName)
       .getOrElse {
         // when an entity name is not explicitly defined, we need to fabricate a unique name
         // that doesn't conflict with the service name (since we do generate a grpc service for it)
         // therefore we append 'Entity' to the name
         serviceName
-          .deriveName(_ + "Entity")
-          .copy(protoName = serviceName.protoName + "Entity")
+          .deriveName(_ + postfix)
+          .copy(protoName = serviceName.protoName + postfix)
       }
 
   private def extractEventSourcedEntity(
@@ -690,14 +707,29 @@ object ModelBuilder {
 
     val protoPackageName = serviceProtoDescriptor.getFile.getPackage
 
+    val typeId = if (entityDef.getEntityType == "") entityDef.getTypeId else ""
     EventSourcedEntity(
-      defineEntityMessageType(entityDef.getName, messageExtractor(serviceProtoDescriptor)),
-      entityDef.getEntityType,
+      defineStatefulComponentMessageType(entityDef.getName, messageExtractor(serviceProtoDescriptor)),
+      typeId,
       State(resolveMessageType(entityDef.getState, protoPackageName, additionalDescriptors)),
       entityDef.getEventsList.asScala.map { event =>
         Event(resolveMessageType(event, protoPackageName, additionalDescriptors))
       })
+  }
 
+  private def extractWorkflowComponent(
+      serviceProtoDescriptor: ServiceDescriptor,
+      workflowDef: WorkflowDef,
+      additionalDescriptors: Seq[Descriptors.FileDescriptor])(implicit
+      log: Log,
+      messageExtractor: ProtoMessageTypeExtractor): WorkflowComponent = {
+
+    val protoPackageName = serviceProtoDescriptor.getFile.getPackage
+
+    WorkflowComponent(
+      defineStatefulComponentMessageType(workflowDef.getName, messageExtractor(serviceProtoDescriptor), "Workflow"),
+      workflowDef.getTypeId,
+      State(resolveMessageType(workflowDef.getState, protoPackageName, additionalDescriptors)))
   }
 
   private def extractValueEntity(
@@ -707,10 +739,11 @@ object ModelBuilder {
       log: Log,
       messageExtractor: ProtoMessageTypeExtractor): ValueEntity = {
 
+    val typeId = if (entityDef.getEntityType == "") entityDef.getTypeId else ""
     val protoPackageName = serviceProtoDescriptor.getFile.getPackage
     ValueEntity(
-      defineEntityMessageType(entityDef.getName, messageExtractor(serviceProtoDescriptor)),
-      entityDef.getEntityType,
+      defineStatefulComponentMessageType(entityDef.getName, messageExtractor(serviceProtoDescriptor)),
+      typeId,
       State(resolveMessageType(entityDef.getState, protoPackageName, additionalDescriptors)))
   }
 
@@ -769,9 +802,10 @@ object ModelBuilder {
           throw new IllegalArgumentException("Replicated data type not set")
       }
 
+    val typeId = if (entityDef.getEntityType == "") entityDef.getTypeId else ""
     ReplicatedEntity(
-      defineEntityMessageType(entityDef.getName, messageExtractor(serviceProtoDescriptor)),
-      entityDef.getEntityType,
+      defineStatefulComponentMessageType(entityDef.getName, messageExtractor(serviceProtoDescriptor)),
+      typeId,
       dataType)
   }
 

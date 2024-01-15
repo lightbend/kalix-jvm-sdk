@@ -60,6 +60,10 @@ public class ReplicatedEntityTwoEntityProvider
 
   @Override
   public final String entityType() {
+    return typeId();
+  }
+
+  public final String typeId() {
     return "replicated-entity-tck-model-two";
   }
 

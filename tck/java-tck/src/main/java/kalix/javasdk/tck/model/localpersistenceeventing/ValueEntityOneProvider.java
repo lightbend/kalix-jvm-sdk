@@ -59,6 +59,11 @@ public class ValueEntityOneProvider implements ValueEntityProvider<Object, Value
 
   @Override
   public final String entityType() {
+    return typeId();
+  }
+
+  @Override
+  public final String typeId() {
     return "valuechangeseventing-one";
   }
 

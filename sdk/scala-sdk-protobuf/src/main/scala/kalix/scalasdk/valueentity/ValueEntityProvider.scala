@@ -30,7 +30,10 @@ trait ValueEntityProvider[S, E <: ValueEntity[S]] {
 
   def serviceDescriptor: Descriptors.ServiceDescriptor
 
-  def entityType: String
+  @deprecated("Use typeId instead", "TODO")
+  def entityType: String = typeId
+
+  def typeId: String
 
   def newRouter(context: ValueEntityContext): ValueEntityRouter[S, E]
 

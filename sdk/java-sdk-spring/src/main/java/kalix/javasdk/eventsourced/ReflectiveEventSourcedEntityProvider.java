@@ -90,6 +90,11 @@ public class ReflectiveEventSourcedEntityProvider<S, E, ES extends EventSourcedE
 
   @Override
   public String entityType() {
+    return typeId();
+  }
+
+  @Override
+  public String typeId() {
     return entityType;
   }
 

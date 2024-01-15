@@ -53,6 +53,11 @@ public class CounterServiceEntityProvider implements EventSourcedEntityProvider<
 
   @Override
   public final String entityType() {
+    return typeId();
+  }
+
+  @Override
+  public final String typeId() {
     return "counter";
   }
 

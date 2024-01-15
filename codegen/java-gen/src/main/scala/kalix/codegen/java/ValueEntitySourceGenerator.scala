@@ -204,7 +204,12 @@ object ValueEntitySourceGenerator {
         |
         |  @Override
         |  public final String entityType() {
-        |    return "${entity.entityType}";
+        |    return typeId();
+        |  }
+        |
+        |  @Override
+        |  public final String typeId() {
+        |    return "${entity.typeId}";
         |  }
         |
         |  @Override

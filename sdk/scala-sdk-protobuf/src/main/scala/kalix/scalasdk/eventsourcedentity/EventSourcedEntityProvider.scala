@@ -30,7 +30,10 @@ trait EventSourcedEntityProvider[S, E <: EventSourcedEntity[S]] {
 
   def serviceDescriptor: Descriptors.ServiceDescriptor
 
-  def entityType: String
+  @deprecated("Use typeId instead", "TODO")
+  def entityType: String = typeId
+
+  def typeId: String
 
   def newRouter(context: EventSourcedEntityContext): EventSourcedEntityRouter[S, E]
 

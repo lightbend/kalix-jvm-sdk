@@ -59,6 +59,11 @@ public class CartEntityProvider
 
   @Override
   public final String entityType() {
+    return typeId();
+  }
+
+  @Override
+  public final String typeId() {
     return "shopping-cart";
   }
 

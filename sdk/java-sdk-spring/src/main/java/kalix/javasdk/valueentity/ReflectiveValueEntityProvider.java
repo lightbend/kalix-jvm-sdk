@@ -80,6 +80,11 @@ public class ReflectiveValueEntityProvider<S, E extends ValueEntity<S>>
 
   @Override
   public String entityType() {
+    return typeId();
+  }
+
+  @Override
+  public String typeId() {
     return entityType;
   }
 

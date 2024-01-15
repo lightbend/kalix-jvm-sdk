@@ -24,7 +24,9 @@ import com.google.protobuf.Descriptors
 
 trait ReplicatedEntityProvider[D <: ReplicatedData, E <: ReplicatedEntity[D]] {
 
-  def entityType: String
+  @deprecated("Use typeId instead", "TODO")
+  def entityType: String = typeId
+  def typeId: String
   def options: ReplicatedEntityOptions
   def newRouter(context: ReplicatedEntityContext): ReplicatedEntityRouter[D, E]
 

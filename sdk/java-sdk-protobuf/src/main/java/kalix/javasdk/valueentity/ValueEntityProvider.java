@@ -34,7 +34,13 @@ public interface ValueEntityProvider<S, E extends ValueEntity<S>> {
 
   Descriptors.ServiceDescriptor serviceDescriptor();
 
+  /**
+   * @deprecated Use {@link #typeId()} instead. Will be removed in future versions.
+   */
+  @Deprecated(since = "TODO", forRemoval = true)
   String entityType();
+
+  String typeId();
 
   ValueEntityRouter<S, E> newRouter(ValueEntityContext context);
 

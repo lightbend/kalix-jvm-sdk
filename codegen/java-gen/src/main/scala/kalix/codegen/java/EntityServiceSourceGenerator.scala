@@ -25,6 +25,7 @@ import kalix.codegen.ModelBuilder.EventSourcedEntity
 import kalix.codegen.ModelBuilder.MessageTypeArgument
 import kalix.codegen.ModelBuilder.ReplicatedEntity
 import kalix.codegen.ModelBuilder.ValueEntity
+import kalix.codegen.ModelBuilder.WorkflowComponent
 
 /**
  * Responsible for generating Java source from an entity model
@@ -43,7 +44,7 @@ object EntityServiceSourceGenerator {
    * Impure.
    */
   def generate(
-      entity: ModelBuilder.Entity,
+      entity: ModelBuilder.StatefulComponent,
       service: ModelBuilder.EntityService,
       mainClassPackageName: String,
       mainClassName: String): GeneratedFiles = {
@@ -83,7 +84,7 @@ object EntityServiceSourceGenerator {
 
   private[codegen] def source(
       service: ModelBuilder.EntityService,
-      entity: ModelBuilder.Entity,
+      entity: ModelBuilder.StatefulComponent,
       packageName: String,
       className: String,
       interfaceClassName: String): String = {
@@ -99,12 +100,14 @@ object EntityServiceSourceGenerator {
         ValueEntitySourceGenerator.valueEntitySource(service, valueEntity, packageName, className)
       case replicatedEntity: ReplicatedEntity =>
         ReplicatedEntitySourceGenerator.replicatedEntitySource(service, replicatedEntity, packageName, className)
+      case valueEntity: WorkflowComponent =>
+        WorkflowSourceGenerator.workflowSource(service, valueEntity, packageName, className)
     }
   }
 
   private[codegen] def interfaceSource(
       service: ModelBuilder.EntityService,
-      entity: ModelBuilder.Entity,
+      entity: ModelBuilder.StatefulComponent,
       packageName: String,
       className: String,
       mainPackageName: String): String =
@@ -125,11 +128,18 @@ object EntityServiceSourceGenerator {
           packageName,
           className,
           mainPackageName)
+      case workflowComponent: WorkflowComponent =>
+        WorkflowSourceGenerator.abstractWorkflowComponent(
+          service,
+          workflowComponent,
+          packageName,
+          className,
+          mainPackageName)
     }
 
   private[codegen] def routerSource(
       service: ModelBuilder.EntityService,
-      entity: ModelBuilder.Entity,
+      entity: ModelBuilder.StatefulComponent,
       packageName: String,
       className: String): String = {
     entity match {
@@ -139,12 +149,14 @@ object EntityServiceSourceGenerator {
         ValueEntitySourceGenerator.valueEntityRouter(service, entity, packageName, className)
       case entity: ReplicatedEntity =>
         ReplicatedEntitySourceGenerator.replicatedEntityRouter(service, entity, packageName, className)
+      case entity: WorkflowComponent =>
+        WorkflowSourceGenerator.workflowRouter(service, entity, packageName, className)
     }
   }
 
   private[codegen] def providerSource(
       service: ModelBuilder.EntityService,
-      entity: ModelBuilder.Entity,
+      entity: ModelBuilder.StatefulComponent,
       packageName: String,
       className: String): String = {
     entity match {
@@ -158,6 +170,8 @@ object EntityServiceSourceGenerator {
         ValueEntitySourceGenerator.valueEntityProvider(service, valueEntity, packageName, className)
       case replicatedEntity: ReplicatedEntity =>
         ReplicatedEntitySourceGenerator.replicatedEntityProvider(service, replicatedEntity, packageName, className)
+      case valueEntity: WorkflowComponent =>
+        WorkflowSourceGenerator.workflowProvider(service, valueEntity, packageName, className)
     }
   }
 
@@ -165,7 +179,7 @@ object EntityServiceSourceGenerator {
       mainClassPackageName: String,
       mainClassName: String,
       service: ModelBuilder.EntityService,
-      entity: ModelBuilder.Entity,
+      entity: ModelBuilder.StatefulComponent,
       packageName: String,
       testClassName: String): String = {
     val serviceName = service.messageType.name
@@ -174,6 +188,7 @@ object EntityServiceSourceGenerator {
       (entity match {
         case ModelBuilder.EventSourcedEntity(_, _, state, _) => Seq(state.messageType)
         case v: ModelBuilder.ValueEntity                     => Seq(v.state.messageType)
+        case w: ModelBuilder.WorkflowComponent               => Seq(w.state.messageType)
         case ModelBuilder.ReplicatedEntity(_, _, data) =>
           data.typeArguments.collect { case MessageTypeArgument(messageType) => messageType }
       })
