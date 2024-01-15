@@ -236,9 +236,6 @@ public record Show(String id, String title, Map<Integer, Seat> seats,
     }
   }
 
-  public record GetShowsByAvailableSeatsCommand(Integer requestedSeatCount) {
-  }
-
   public record ShowsByAvailableSeatsViewRecord(String showId, String title, int availableSeats) {
     public ShowsByAvailableSeatsViewRecord updateAvailableSeats(int availableSeats) {
       return new ShowsByAvailableSeatsViewRecord(showId(), title(), availableSeats);
