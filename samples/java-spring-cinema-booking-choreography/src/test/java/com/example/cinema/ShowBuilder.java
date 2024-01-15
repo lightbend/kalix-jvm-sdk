@@ -21,16 +21,13 @@ public class ShowBuilder {
   public static ShowBuilder
 
 
-
-
-
   showBuilder() {
     return new ShowBuilder();
   }
 
   public ShowBuilder withRandomSeats() {
     List<Tuple2<Integer, Show.Seat>> seatTuples = createSeats(randomPrice(), MAX_SEATS)
-        .stream().map(seat -> new Tuple2<>(seat.number(), seat)).toList();
+      .stream().map(seat -> new Tuple2<>(seat.number(), seat)).toList();
     this.seats = HashMap.ofEntries(seatTuples);
     return this;
   }
@@ -42,6 +39,6 @@ public class ShowBuilder {
   }
 
   public Show build() {
-    return new Show(id, title, seats, pendingReservations, HashMap.empty(),seats.size());
+    return new Show(id, title, seats, pendingReservations, HashMap.empty(), seats.size());
   }
 }

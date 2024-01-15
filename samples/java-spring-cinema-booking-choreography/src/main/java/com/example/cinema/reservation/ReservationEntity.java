@@ -42,20 +42,20 @@ public class ReservationEntity extends ValueEntity<Show.Reservation> {
 
   public static final record ShowByReservation(String showId, Set<String> reservationIds) {
 
-      public ShowByReservation(String showId) {
-        this(showId, new HashSet<>());
-      }
-
-      public ShowByReservation add(String reservationId) {
-        if (!reservationIds.contains(reservationId)) {
-          reservationIds.add(reservationId);
-        }
-        return this;
-      }
-
-      public ShowByReservation remove(String reservationId) {
-        reservationIds.remove(reservationId);
-        return this;
-      }
+    public ShowByReservation(String showId) {
+      this(showId, new HashSet<>());
     }
+
+    public ShowByReservation add(String reservationId) {
+      if (!reservationIds.contains(reservationId)) {
+        reservationIds.add(reservationId);
+      }
+      return this;
+    }
+
+    public ShowByReservation remove(String reservationId) {
+      reservationIds.remove(reservationId);
+      return this;
+    }
+  }
 }

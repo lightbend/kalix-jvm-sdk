@@ -38,6 +38,6 @@ class ShowEntityTest {
     assertThat(confirmedSeat.status()).isEqualTo(PAID);
 
     var availableSeats = testKit.getState().availableSeats();
-    assertThat(availableSeats).isEqualTo(maxSeats-1);
+    assertThat(availableSeats).isEqualTo(maxSeats - 1);
   }
 }

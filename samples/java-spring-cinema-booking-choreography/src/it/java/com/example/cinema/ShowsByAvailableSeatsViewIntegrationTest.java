@@ -8,7 +8,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 
 import java.time.Duration;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -26,7 +25,7 @@ class ShowsByAvailableSeatsViewIntegrationTest extends KalixIntegrationTestKitSu
   private Duration timeout = Duration.ofSeconds(10);
 
   @Test
-  public void shouldUpdateShowByAvailableSeatsEntry() throws Exception{
+  public void shouldUpdateShowByAvailableSeatsEntry() throws Exception {
     //given
     var showId = TestUtils.randomId();
     var showTitle = "title";
@@ -42,7 +41,7 @@ class ShowsByAvailableSeatsViewIntegrationTest extends KalixIntegrationTestKitSu
     calls.reserveSeat(showId, walletId, reservationId2, 4);
 
     //then
-    Show.ShowsByAvailableSeatsRecordList expected = new Show.ShowsByAvailableSeatsRecordList(List.of(new Show.ShowsByAvailableSeatsViewRecord(showId,showTitle,maxSeats-2)));
+    Show.ShowsByAvailableSeatsRecordList expected = new Show.ShowsByAvailableSeatsRecordList(List.of(new Show.ShowsByAvailableSeatsViewRecord(showId, showTitle, maxSeats - 2)));
     await()
       .atMost(10, TimeUnit.of(SECONDS))
       .ignoreExceptions()

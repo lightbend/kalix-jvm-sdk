@@ -11,11 +11,11 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.function.Predicate;
 
-import static com.example.common.Response.Failure;
-import static com.example.common.Response.Success;
 import static com.example.cinema.Show.ShowCommand.*;
 import static com.example.cinema.Show.ShowCommandError.*;
 import static com.example.cinema.Show.ShowEvent.*;
+import static com.example.common.Response.Failure;
+import static com.example.common.Response.Success;
 import static kalix.javasdk.StatusCode.ErrorCode.BAD_REQUEST;
 import static kalix.javasdk.StatusCode.ErrorCode.NOT_FOUND;
 
