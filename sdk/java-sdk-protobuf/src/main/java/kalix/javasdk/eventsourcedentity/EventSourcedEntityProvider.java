@@ -38,7 +38,7 @@ public interface EventSourcedEntityProvider<S, E, ES extends EventSourcedEntity<
   /**
    * @deprecated Use {@link #typeId()} instead. Will be removed in future versions.
    */
-  @Deprecated(since = "TODO", forRemoval = true)
+  @Deprecated(since = "1.3.9", forRemoval = true)
   String entityType();
 
   String typeId();

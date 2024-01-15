@@ -35,7 +35,7 @@ public interface ReplicatedEntityProvider<D extends ReplicatedData, E extends Re
   /**
    * @deprecated Use {@link #typeId()} instead. Will be removed in future versions.
    */
-  @Deprecated(since = "TODO", forRemoval = true)
+  @Deprecated(since = "1.3.9", forRemoval = true)
   String entityType();
 
   String typeId();

@@ -30,7 +30,7 @@ trait ValueEntityProvider[S, E <: ValueEntity[S]] {
 
   def serviceDescriptor: Descriptors.ServiceDescriptor
 
-  @deprecated("Use typeId instead", "TODO")
+  @deprecated("Use typeId instead", "1.3.9")
   def entityType: String = typeId
 
   def typeId: String
