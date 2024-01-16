@@ -42,6 +42,7 @@ abstract class ExampleSuiteBase extends munit.FunSuite {
 
   implicit val codegenLog = new kalix.codegen.Log {
     override def debug(message: String): Unit = println(s"[DEBUG] $message")
+    override def warn(message: String): Unit = println(s"[WARNING] $message")
     override def info(message: String): Unit = println(s"[INFO] $message")
   }
   val testsDir = BuildInfo.test_resourceDirectory / "tests"

@@ -707,7 +707,7 @@ object ModelBuilder {
 
     val protoPackageName = serviceProtoDescriptor.getFile.getPackage
 
-    val typeId = if (entityDef.getEntityType == "") entityDef.getTypeId else ""
+    val typeId = getTypeId(entityDef.getEntityType, entityDef.getTypeId)
     EventSourcedEntity(
       defineStatefulComponentMessageType(entityDef.getName, messageExtractor(serviceProtoDescriptor)),
       typeId,
@@ -739,7 +739,7 @@ object ModelBuilder {
       log: Log,
       messageExtractor: ProtoMessageTypeExtractor): ValueEntity = {
 
-    val typeId = if (entityDef.getEntityType == "") entityDef.getTypeId else ""
+    val typeId = getTypeId(entityDef.getEntityType, entityDef.getTypeId)
     val protoPackageName = serviceProtoDescriptor.getFile.getPackage
     ValueEntity(
       defineStatefulComponentMessageType(entityDef.getName, messageExtractor(serviceProtoDescriptor)),
@@ -802,11 +802,20 @@ object ModelBuilder {
           throw new IllegalArgumentException("Replicated data type not set")
       }
 
-    val typeId = if (entityDef.getEntityType == "") entityDef.getTypeId else ""
+    val typeId = getTypeId(entityDef.getEntityType, entityDef.getTypeId)
     ReplicatedEntity(
       defineStatefulComponentMessageType(entityDef.getName, messageExtractor(serviceProtoDescriptor)),
       typeId,
       dataType)
+  }
+
+  private def getTypeId(entityType: String, typeId: String)(implicit log: Log): String = {
+    if (entityType != "") {
+      log.warn(s"""Using 'entity_type: "$entityType"' is deprecated, replace it with 'type_id: "$entityType"'""")
+      entityType
+    } else {
+      typeId
+    }
   }
 
   private def modelFromServiceOptions(serviceDescriptor: Descriptors.ServiceDescriptor)(implicit

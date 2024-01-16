@@ -21,5 +21,6 @@ trait Log {
   // so there debug/info messages are either silent or println'ed, and
   // all other problems should be fatal.
   def debug(message: String): Unit
+  def warn(message: String): Unit
   def info(message: String): Unit
 }

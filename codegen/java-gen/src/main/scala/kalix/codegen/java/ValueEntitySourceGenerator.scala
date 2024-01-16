@@ -18,7 +18,6 @@ package kalix.codegen.java
 
 import kalix.codegen.Format
 import kalix.codegen.ModelBuilder
-import kalix.codegen.ClassMessageType
 import kalix.codegen.ProtoMessageType
 
 object ValueEntitySourceGenerator {
