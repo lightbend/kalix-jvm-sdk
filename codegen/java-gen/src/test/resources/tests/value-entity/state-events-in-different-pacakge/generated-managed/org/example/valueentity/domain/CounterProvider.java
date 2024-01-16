@@ -53,11 +53,6 @@ public class CounterProvider implements ValueEntityProvider<OuterCounterState.Co
   }
 
   @Override
-  public final String entityType() {
-    return typeId();
-  }
-
-  @Override
   public final String typeId() {
     return "counter";
   }

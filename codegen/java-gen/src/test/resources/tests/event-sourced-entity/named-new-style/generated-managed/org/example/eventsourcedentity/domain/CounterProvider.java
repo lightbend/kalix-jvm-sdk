@@ -52,11 +52,6 @@ public class CounterProvider implements EventSourcedEntityProvider<CounterDomain
   }
 
   @Override
-  public final String entityType() {
-    return typeId();
-  }
-
-  @Override
   public final String typeId() {
     return "counter";
   }

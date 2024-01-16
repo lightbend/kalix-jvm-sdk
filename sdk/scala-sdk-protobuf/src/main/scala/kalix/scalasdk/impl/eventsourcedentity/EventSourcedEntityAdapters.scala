@@ -61,8 +61,6 @@ private[scalasdk] final class JavaEventSourcedEntityProviderAdapter[S, ES <: Eve
 
   def additionalDescriptors(): Array[Descriptors.FileDescriptor] = scalaSdkProvider.additionalDescriptors.toArray
 
-  def entityType(): String = typeId()
-
   def typeId(): String = scalaSdkProvider.typeId
 
   def newRouter(context: JavaSdkEventSourcedEntityContext)

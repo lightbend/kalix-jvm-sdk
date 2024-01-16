@@ -52,11 +52,6 @@ public class CounterServiceEntityProvider implements ValueEntityProvider<Counter
   }
 
   @Override
-  public final String entityType() {
-    return typeId();
-  }
-
-  @Override
   public final String typeId() {
     return "counter";
   }

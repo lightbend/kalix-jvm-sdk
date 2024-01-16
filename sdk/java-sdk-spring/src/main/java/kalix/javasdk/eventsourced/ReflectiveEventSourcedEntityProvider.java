@@ -38,7 +38,7 @@ import java.util.function.Function;
 public class ReflectiveEventSourcedEntityProvider<S, E, ES extends EventSourcedEntity<S, E>>
     implements EventSourcedEntityProvider<S, E, ES> {
 
-  private final String entityType;
+  private final String typeId;
   private final Function<EventSourcedEntityContext, ES> factory;
   private final EventSourcedEntityOptions options;
   private final Descriptors.FileDescriptor fileDescriptor;
@@ -69,7 +69,7 @@ public class ReflectiveEventSourcedEntityProvider<S, E, ES extends EventSourcedE
           "Event Sourced Entity [" + entityClass.getName() + "] is missing '@TypeId' annotation");
 
     this.eventHandlers = EventSourcedHandlersExtractor.handlersFrom(entityClass, messageCodec);
-    this.entityType = typeId;
+    this.typeId = typeId;
     this.factory = factory;
     this.options = options.withForwardHeaders(ForwardHeadersExtractor.extractFrom(entityClass));
     this.messageCodec = messageCodec;
@@ -89,13 +89,8 @@ public class ReflectiveEventSourcedEntityProvider<S, E, ES extends EventSourcedE
   }
 
   @Override
-  public String entityType() {
-    return typeId();
-  }
-
-  @Override
   public String typeId() {
-    return entityType;
+    return typeId;
   }
 
   @Override

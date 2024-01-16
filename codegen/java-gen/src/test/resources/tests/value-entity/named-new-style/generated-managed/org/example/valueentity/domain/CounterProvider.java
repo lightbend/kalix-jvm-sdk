@@ -52,11 +52,6 @@ public class CounterProvider implements ValueEntityProvider<CounterDomain.Counte
   }
 
   @Override
-  public final String entityType() {
-    return typeId();
-  }
-
-  @Override
   public final String typeId() {
     return "counter";
   }

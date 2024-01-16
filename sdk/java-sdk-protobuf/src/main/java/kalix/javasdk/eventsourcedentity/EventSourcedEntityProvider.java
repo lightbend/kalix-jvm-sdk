@@ -35,12 +35,6 @@ public interface EventSourcedEntityProvider<S, E, ES extends EventSourcedEntity<
 
   Descriptors.ServiceDescriptor serviceDescriptor();
 
-  /**
-   * @deprecated Use {@link #typeId()} instead. Will be removed in future versions.
-   */
-  @Deprecated(since = "1.3.9", forRemoval = true)
-  String entityType();
-
   String typeId();
 
   EventSourcedEntityRouter<S, E, ES> newRouter(EventSourcedEntityContext context);

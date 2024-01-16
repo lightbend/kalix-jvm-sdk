@@ -74,8 +74,6 @@ private[scalasdk] final case class JavaReplicatedEntityProviderAdapter[D <: Repl
   override def serviceDescriptor(): Descriptors.ServiceDescriptor =
     scalaSdkProvider.serviceDescriptor
 
-  override def entityType(): String = typeId()
-
   override def typeId(): String = scalaSdkProvider.typeId
 
   override def newRouter(
