@@ -108,6 +108,38 @@ public class SpringSdkIntegrationTest {
   }
 
   @Test
+  public void acceptRequestWithMissingPathParamIfNotEntityId() {
+
+    ResponseEntity<String> response =
+        webClient
+            .get()
+            .uri("/echo/message/") // missing param
+            .retrieve()
+            .toEntity(String.class)
+            .onErrorResume(WebClientResponseException.class, error -> Mono.just(ResponseEntity.status(error.getStatusCode()).body(error.getResponseBodyAsString())))
+            .block(timeout);
+
+    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+  }
+
+  @Test
+  public void failRequestWithMissingRequiredIntPathParam() {
+
+    ResponseEntity<String> response =
+        webClient
+            .get()
+            .uri("/echo/int/") // missing param
+            .retrieve()
+            .toEntity(String.class)
+            .onErrorResume(WebClientResponseException.class, error -> Mono.just(ResponseEntity.status(error.getStatusCode()).body(error.getResponseBodyAsString())))
+            .block(timeout);
+
+    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+    assertThat(response.getBody()).isEqualTo("Path contains value of wrong type! Expected field of type INT32.");
+  }
+
+
+  @Test
   public void verifyRequestWithOptionalQueryParams() {
 
     Message response =
@@ -399,6 +431,22 @@ public class SpringSdkIntegrationTest {
             .collect(Collectors.toList())
             .size(),
         new IsEqual<>(2));
+  }
+
+  @Test
+  public void failRequestWithMissingEntityId() {
+
+    ResponseEntity<String> response =
+        webClient
+            .get()
+            .uri("/user/") // missing id path param
+            .retrieve()
+            .toEntity(String.class)
+            .onErrorResume(WebClientResponseException.class, error -> Mono.just(ResponseEntity.status(error.getStatusCode()).body(error.getResponseBodyAsString())))
+            .block(timeout);
+
+    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+    assertThat(response.getBody()).isEqualTo("INVALID_ARGUMENT: Entity key field(s) List(id) must not be empty.");
   }
 
   @Test
