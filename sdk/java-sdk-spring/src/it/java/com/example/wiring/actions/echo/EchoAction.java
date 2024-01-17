@@ -56,6 +56,13 @@ public class EchoAction extends Action {
     return effects().reply(new Message(response));
   }
 
+  @GetMapping("/echo/int/{int_value}")
+  public Effect<Message> intMessage(@PathVariable("int_value") Integer i) {
+    String response = this.parrot.repeat(i+"");
+    return effects().reply(new Message(response));
+  }
+
+
   @GetMapping("/echo/message")
   public Effect<Message> stringMessageFromParam(@RequestParam String msg) {
     return stringMessage(msg);

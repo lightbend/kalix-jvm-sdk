@@ -442,19 +442,24 @@ private[kalix] object ComponentDescriptor {
       fieldNumber: Int,
       paramType: Type,
       fieldNumberOffset: Int): FieldDescriptorProto = {
-    FieldDescriptorProto
+    val builder = FieldDescriptorProto
       .newBuilder()
       .setName(name)
       .setNumber(fieldNumber)
       .setType(mapJavaTypeToProtobuf(paramType))
       .setLabel(mapJavaWrapperToLabel(paramType))
-      .setProto3Optional(true)
-      //setting optional flag is not enough to have the knowledge if the field was set or
-      //indexing starts from 0, so we must subtract the offset
-      //there won't be any gaps, since we are marking all path and query params as optional
-      .setOneofIndex(fieldNumber - fieldNumberOffset)
       .setOptions(addEntityKeyIfNeeded(entityKeys, name))
-      .build()
+
+    if (!entityKeys.contains(name)) {
+      builder
+        .setProto3Optional(true)
+        //setting optional flag is not enough to have the knowledge if the field was set or
+        //indexing starts from 0, so we must subtract the offset
+        //there won't be any gaps, since we are marking all path and query params as optional
+        .setOneofIndex(fieldNumber - fieldNumberOffset - entityKeys.size)
+    }
+
+    builder.build()
   }
 
   private def addEntityKeyIfNeeded(entityKeys: Seq[String], paramName: String): DescriptorProtos.FieldOptions =
