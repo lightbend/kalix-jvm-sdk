@@ -48,7 +48,7 @@ jobs:
         # v2.0.1
         uses: errata-ai/vale-action@c4213d4de3d5f718b8497bd86161531c78992084
         with:
-          version: 2.30.0
+          version: 3.0.5
           files: docs
           fail_on_error: true
           filter_mode: nofilter
