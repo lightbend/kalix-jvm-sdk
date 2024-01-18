@@ -17,6 +17,7 @@
 package com.example.wiring.workflowentities;
 
 import com.example.wiring.actions.echo.Message;
+import kalix.javasdk.HttpResponse;
 import kalix.javasdk.StatusCode;
 import kalix.javasdk.client.ComponentClient;
 import kalix.javasdk.annotations.Id;
@@ -47,7 +48,7 @@ public class TransferWorkflow extends Workflow<TransferState> {
     var withdraw =
         step(withdrawStepName)
             .call(Withdraw.class, cmd -> componentClient.forValueEntity(cmd.from).call(WalletEntity::withdraw).params(cmd.amount))
-            .andThen(String.class, __ -> {
+            .andThen(HttpResponse.class, __ -> {
               var state = currentState().withLastStep("withdrawn").accepted();
 
               var depositInput = new Deposit(currentState().transfer.to, currentState().transfer.amount);

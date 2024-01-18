@@ -54,7 +54,7 @@ public class XComponentCallsIntegrationTest {
             .block(timeout);
 
     Assertions.assertNotNull(response);
-    Assertions.assertEquals("Parrot says: 'mssg t b shrtnd'", response.text);
+    Assertions.assertEquals("Parrot says: 'mssg t b shrtnd'", response.text());
   }
 
   @Test
@@ -71,7 +71,7 @@ public class XComponentCallsIntegrationTest {
                     .block(timeout);
 
     Assertions.assertNotNull(usingGetResponse);
-    Assertions.assertEquals("Parrot says: 'm3ss4g3 t b3 shrt3n3d'", usingGetResponse.text);
+    Assertions.assertEquals("Parrot says: 'm3ss4g3 t b3 shrt3n3d'", usingGetResponse.text());
 
   }
 
@@ -87,7 +87,7 @@ public class XComponentCallsIntegrationTest {
                     .block(timeout);
 
     Assertions.assertNotNull(usingGetResponse);
-    Assertions.assertEquals("Parrot says: 'm3ss4g3 t b3 shrt3n3d'", usingGetResponse.text);
+    Assertions.assertEquals("Parrot says: 'm3ss4g3 t b3 shrt3n3d'", usingGetResponse.text());
 
     Message usingPostResponse =
             webClient
@@ -99,7 +99,7 @@ public class XComponentCallsIntegrationTest {
                     .block(timeout);
 
     Assertions.assertNotNull(usingPostResponse);
-    Assertions.assertEquals("Parrot says: 'm3ss4g3 t b3 shrt3n3d'", usingPostResponse.text);
+    Assertions.assertEquals("Parrot says: 'm3ss4g3 t b3 shrt3n3d'", usingPostResponse.text());
   }
 
   @Test

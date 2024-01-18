@@ -93,7 +93,7 @@ public class SpringWorkflowIntegrationTest {
         .call(TransferWorkflow::startTransfer)
         .params(transfer));
 
-    assertThat(response.text).isEqualTo("transfer started");
+    assertThat(response.text()).isEqualTo("transfer started");
 
     await()
         .atMost(10, TimeUnit.of(SECONDS))
@@ -120,7 +120,7 @@ public class SpringWorkflowIntegrationTest {
         .call(TransferWorkflowWithoutInputs::startTransfer)
         .params(transfer));
 
-    assertThat(response.text).isEqualTo("transfer started");
+    assertThat(response.text()).isEqualTo("transfer started");
 
     await()
         .atMost(10, TimeUnit.of(SECONDS))
@@ -146,7 +146,7 @@ public class SpringWorkflowIntegrationTest {
         .call(TransferWorkflowWithoutInputs::startTransferAsync)
         .params(transfer));
 
-    assertThat(response.text).isEqualTo("transfer started");
+    assertThat(response.text()).isEqualTo("transfer started");
 
     await()
         .atMost(10, TimeUnit.of(SECONDS))
@@ -173,7 +173,7 @@ public class SpringWorkflowIntegrationTest {
         .call(TransferWorkflowWithFraudDetection::startTransfer)
         .params(transfer));
 
-    assertThat(response.text).isEqualTo("transfer started");
+    assertThat(response.text()).isEqualTo("transfer started");
 
     await()
         .atMost(10, TimeUnit.of(SECONDS))
@@ -199,7 +199,7 @@ public class SpringWorkflowIntegrationTest {
         .call(TransferWorkflowWithFraudDetection::startTransfer)
         .params(transfer));
 
-    assertThat(response.text).isEqualTo("transfer started");
+    assertThat(response.text()).isEqualTo("transfer started");
 
     await()
         .atMost(10, TimeUnit.of(SECONDS))
@@ -214,7 +214,7 @@ public class SpringWorkflowIntegrationTest {
     Message acceptedResponse = execute(componentClient.forWorkflow(transferId)
         .call(TransferWorkflowWithFraudDetection::acceptTransfer));
 
-    assertThat(acceptedResponse.text).isEqualTo("transfer accepted");
+    assertThat(acceptedResponse.text()).isEqualTo("transfer accepted");
 
 
     await()
@@ -241,7 +241,7 @@ public class SpringWorkflowIntegrationTest {
         .call(TransferWorkflowWithFraudDetection::startTransfer)
         .params(transfer));
 
-    assertThat(response.text).isEqualTo("transfer started");
+    assertThat(response.text()).isEqualTo("transfer started");
 
     await()
         .atMost(10, TimeUnit.of(SECONDS))
@@ -270,7 +270,7 @@ public class SpringWorkflowIntegrationTest {
         .call(WorkflowWithDefaultRecoverStrategy::startFailingCounter)
         .params(counterId));
 
-    assertThat(response.text).isEqualTo("workflow started");
+    assertThat(response.text()).isEqualTo("workflow started");
 
     //then
     await()
@@ -299,7 +299,7 @@ public class SpringWorkflowIntegrationTest {
         .call(WorkflowWithRecoverStrategy::startFailingCounter)
         .params(counterId));
 
-    assertThat(response.text).isEqualTo("workflow started");
+    assertThat(response.text()).isEqualTo("workflow started");
 
     //then
     await()
@@ -328,7 +328,7 @@ public class SpringWorkflowIntegrationTest {
         .call(WorkflowWithRecoverStrategyAndAsyncCall::startFailingCounter)
         .params(counterId));
 
-    assertThat(response.text).isEqualTo("workflow started");
+    assertThat(response.text()).isEqualTo("workflow started");
 
     //then
     await()
@@ -359,7 +359,7 @@ public class SpringWorkflowIntegrationTest {
         .call(WorkflowWithTimeout::startFailingCounter)
         .params(counterId));
 
-    assertThat(response.text).isEqualTo("workflow started");
+    assertThat(response.text()).isEqualTo("workflow started");
 
     //then
     await()
@@ -388,7 +388,7 @@ public class SpringWorkflowIntegrationTest {
         .call(WorkflowWithStepTimeout::startFailingCounter)
         .params(counterId));
 
-    assertThat(response.text).isEqualTo("workflow started");
+    assertThat(response.text()).isEqualTo("workflow started");
 
     //then
     await()
@@ -412,7 +412,7 @@ public class SpringWorkflowIntegrationTest {
         .call(WorkflowWithTimer::startFailingCounter)
         .params(counterId));
 
-    assertThat(response.text).isEqualTo("workflow started");
+    assertThat(response.text()).isEqualTo("workflow started");
 
     //then
     await()

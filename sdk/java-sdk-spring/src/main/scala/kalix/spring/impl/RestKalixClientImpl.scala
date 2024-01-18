@@ -18,6 +18,7 @@ package kalix.spring.impl
 
 import java.net.URI
 import java.util
+import java.util.Optional
 import java.util.concurrent.CompletionStage
 import java.util.function.Function
 
@@ -35,7 +36,9 @@ import com.google.protobuf.DynamicMessage
 import com.google.protobuf.any.Any
 import kalix.javasdk.DeferredCall
 import kalix.javasdk.DeferredCallResponseException
+import kalix.javasdk.HttpResponse
 import kalix.javasdk.Metadata
+import kalix.javasdk.StatusCode
 import kalix.javasdk.StatusCode.ErrorCode
 import kalix.javasdk.impl.AnySupport
 import kalix.javasdk.impl.JsonMessageCodec
@@ -46,6 +49,7 @@ import kalix.javasdk.impl.http.HttpEndpointMethodDefinition.ANY_METHOD
 import kalix.spring.KalixClient
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.springframework.http.ResponseEntity
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.WebClient.RequestHeadersSpec
 import org.springframework.web.reactive.function.client.WebClient.RequestHeadersUriSpec
@@ -296,13 +300,34 @@ final class RestKalixClientImpl(messageCodec: JsonMessageCodec) extends KalixCli
 
             addHeaders(metadata, requestBodySpec)
 
-            requestBodySpec
-              .retrieve()
-              .bodyToMono(returnType)
-              .toFuture
-              .asScala
+            if (returnType == classOf[HttpResponse]) {
+              requestBodySpec
+                .retrieve()
+                .toEntity(classOf[Array[Byte]])
+                .toFuture
+                .asScala
+                .map(toHttpResponse)
+                .map(_.asInstanceOf[R])
+            } else {
+              requestBodySpec
+                .retrieve()
+                .bodyToMono(returnType)
+                .toFuture
+                .asScala
+            }
           }.asJava)
     }
+  }
+
+  private def toHttpResponse[R](response: ResponseEntity[Array[Byte]]): HttpResponse = {
+    val body = if (response.hasBody) {
+      response.getBody
+    } else {
+      new Array[Byte](0)
+    }
+    val statusCode = StatusCode.Success.from(response.getStatusCode.value())
+    val contentType = response.getHeaders.getFirst("Content-Type")
+    HttpResponse.of(statusCode, contentType, body)
   }
 
   private[kalix] def runWithBody[R, P](
@@ -328,11 +353,21 @@ final class RestKalixClientImpl(messageCodec: JsonMessageCodec) extends KalixCli
 
             addHeaders(metadata, requestBodySpec)
 
-            requestBodySpec
-              .retrieve()
-              .bodyToMono(returnType)
-              .toFuture
-              .asScala
+            if (returnType == classOf[HttpResponse]) {
+              requestBodySpec
+                .retrieve()
+                .toEntity(classOf[Array[Byte]])
+                .toFuture
+                .asScala
+                .map(toHttpResponse)
+                .map(_.asInstanceOf[R])
+            } else {
+              requestBodySpec
+                .retrieve()
+                .bodyToMono(returnType)
+                .toFuture
+                .asScala
+            }
           }.asJava)
     }
   }

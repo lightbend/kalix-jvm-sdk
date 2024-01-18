@@ -82,13 +82,13 @@ public class EchoAction extends Action {
 
   @PostMapping("/echo/message/concat")
   public Effect<Message> stringMessageConcatRequestBody(@RequestBody List<Message> messages) {
-    var allMessages = messages.stream().map(m -> m.text).collect(Collectors.joining("|"));
+    var allMessages = messages.stream().map(m -> m.text()).collect(Collectors.joining("|"));
     return effects().reply(new Message(allMessages));
   }
 
   @PostMapping("/echo/message/concat/{separator}")
   public Effect<Message> stringMessageConcatRequestBodyWithSeparator(@PathVariable String separator, @RequestBody List<Message> messages ) {
-    var allMessages = messages.stream().map(m -> m.text).collect(Collectors.joining(separator));
+    var allMessages = messages.stream().map(m -> m.text()).collect(Collectors.joining(separator));
     return effects().reply(new Message(allMessages));
   }
 

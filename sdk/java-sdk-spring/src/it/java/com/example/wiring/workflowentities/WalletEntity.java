@@ -16,6 +16,7 @@
 
 package com.example.wiring.workflowentities;
 
+import kalix.javasdk.HttpResponse;
 import kalix.javasdk.valueentity.ValueEntity;
 import kalix.javasdk.annotations.Id;
 import kalix.javasdk.annotations.TypeId;
@@ -40,12 +41,12 @@ public class WalletEntity extends ValueEntity<Wallet> {
   }
 
   @PatchMapping("/withdraw/{amount}")
-  public Effect<String> withdraw(@PathVariable int amount) {
+  public Effect<HttpResponse> withdraw(@PathVariable int amount) {
     logger.info("Withdraw from {} amount -{}", currentState().id, amount);
     if (amount > currentState().balance) {
       return effects().error("not sufficient funds");
     } else {
-      return effects().updateState(currentState().withdraw(amount)).thenReply("Ok");
+      return effects().updateState(currentState().withdraw(amount)).thenReply(HttpResponse.ok("ok"));
     }
   }
 

@@ -16,12 +16,14 @@
 
 package kalix.javasdk.impl.workflow
 
+import java.nio.ByteBuffer
 import java.util.Optional
 import java.util.concurrent.CompletionStage
 import java.util.function.{ Function => JFunc }
 
 import scala.compat.java8.FutureConverters.CompletionStageOps
 import scala.concurrent.{ ExecutionContext, Future }
+import scala.jdk.CollectionConverters._
 import scala.jdk.OptionConverters.RichOptional
 
 import com.google.protobuf.any.{ Any => ScalaPbAny }
@@ -41,7 +43,11 @@ import kalix.javasdk.workflow.Workflow.Effect
 import Workflow.AsyncCallStep
 import Workflow.CallStep
 import Workflow.WorkflowDef
+import com.google.api.HttpBody
+import kalix.javasdk.HttpResponse
+import kalix.javasdk.HttpResponse.STATUS_CODE_EXTENSION_TYPE_URL
 import kalix.javasdk.JsonSupport
+import kalix.javasdk.StatusCode
 import kalix.javasdk.impl.WorkflowExceptions.WorkflowException
 import kalix.protocol.workflow_entity.StepDeferredCall
 import kalix.protocol.workflow_entity.StepExecuted
@@ -124,13 +130,24 @@ abstract class WorkflowRouter[S, W <: Workflow[S]](protected val workflow: W) {
 
   // in same cases, the Proxy may send a message with typeUrl set to object.
   // if that's the case, we need to patch the message using the typeUrl from the expected input class
-  private def decodeInput(messageCodec: MessageCodec, result: ScalaPbAny, expectedInputClass: Class[_]) =
+  private def decodeInput(messageCodec: MessageCodec, result: ScalaPbAny, expectedInputClass: Class[_]) = {
     if (result.typeUrl == JsonSupport.KALIX_JSON + "object") {
       val typeUrl = messageCodec.typeUrlFor(expectedInputClass)
       messageCodec.decodeMessage(result.copy(typeUrl = typeUrl))
+    } else if (result.typeUrl == "type.googleapis.com/google.api.HttpBody") {
+      val httpBody = HttpBody.parseFrom(result.value.newCodedInput())
+      //HttpBodyStatusCodeExtensionTypeUrl constant from java-sdk-spring
+      httpBody.getExtensionsList.asScala.find(_.getTypeUrl == STATUS_CODE_EXTENSION_TYPE_URL) match {
+        case Some(statusCodeAny) =>
+          val statusCode = ByteBuffer.wrap(statusCodeAny.getValue.toByteArray).getInt
+          val contentType = httpBody.getContentType
+          HttpResponse.of(StatusCode.Success.from(statusCode), contentType, httpBody.getData.toByteArray)
+        case None => throw new IllegalStateException("Missing status code extension in HttpBody")
+      }
     } else {
       messageCodec.decodeMessage(result)
     }
+  }
 
   /** INTERNAL API */
   // "public" api against the impl/testkit

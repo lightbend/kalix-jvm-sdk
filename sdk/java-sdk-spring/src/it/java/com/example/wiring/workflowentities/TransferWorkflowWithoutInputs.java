@@ -18,6 +18,7 @@ package com.example.wiring.workflowentities;
 
 import com.example.wiring.actions.echo.Message;
 import io.grpc.Status;
+import kalix.javasdk.HttpResponse;
 import kalix.javasdk.client.ComponentClient;
 import kalix.javasdk.annotations.Id;
 import kalix.javasdk.annotations.TypeId;
@@ -50,7 +51,7 @@ public class TransferWorkflowWithoutInputs extends Workflow<TransferState> {
               var transfer = currentState().transfer;
               return componentClient.forValueEntity(transfer.from).call(WalletEntity::withdraw).params(transfer.amount);
             })
-            .andThen(String.class, response -> {
+            .andThen(HttpResponse.class, response -> {
               var state = currentState().withLastStep("withdrawn").accepted();
               return effects()
                   .updateState(state)
@@ -63,7 +64,7 @@ public class TransferWorkflowWithoutInputs extends Workflow<TransferState> {
               var transfer = currentState().transfer;
               return componentClient.forValueEntity(transfer.from).call(WalletEntity::withdraw).params(transfer.amount).execute();
             })
-            .andThen(String.class, response -> {
+            .andThen(HttpResponse.class, response -> {
               var state = currentState().withLastStep("withdrawn").accepted();
               return effects()
                   .updateState(state)

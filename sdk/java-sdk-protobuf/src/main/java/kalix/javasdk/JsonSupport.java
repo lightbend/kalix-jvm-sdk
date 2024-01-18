@@ -119,15 +119,18 @@ public final class JsonSupport {
    */
   public static <T> Any encodeJson(T value, String jsonType) {
     try {
-      ByteString bytes =
-          UnsafeByteOperations.unsafeWrap(
-              objectMapper.writerFor(value.getClass()).writeValueAsBytes(value));
+      ByteString bytes = encodeToBytes(value);
       ByteString encodedBytes = ByteStringEncoding.encodePrimitiveBytes(bytes);
       return Any.newBuilder().setTypeUrl(KALIX_JSON + jsonType).setValue(encodedBytes).build();
     } catch (JsonProcessingException ex) {
       throw new IllegalArgumentException(
           "Could not encode [" + value.getClass().getName() + "] as JSON", ex);
     }
+  }
+
+  public static <T> ByteString encodeToBytes(T value) throws JsonProcessingException {
+    return UnsafeByteOperations.unsafeWrap(
+        objectMapper.writerFor(value.getClass()).writeValueAsBytes(value));
   }
 
   /**
@@ -162,7 +165,7 @@ public final class JsonSupport {
           if (fromVersion < currentVersion) {
             return migrate(valueClass, decodedBytes, fromVersion, migration);
           } else if (fromVersion == currentVersion) {
-            return objectMapper.readValue(decodedBytes.toByteArray(), valueClass);
+            return parseBytes(decodedBytes.toByteArray(), valueClass);
           } else if (fromVersion <= supportedForwardVersion) {
             return migrate(valueClass, decodedBytes, fromVersion, migration);
           } else {
@@ -170,7 +173,7 @@ public final class JsonSupport {
                 "behind version " + fromVersion + " of deserialized type [" + valueClass.getName() + "]");
           }
         } else {
-          return objectMapper.readValue(decodedBytes.toByteArray(), valueClass);
+          return parseBytes(decodedBytes.toByteArray(), valueClass);
         }
       } catch (JsonProcessingException e) {
         throw jsonProcessingException(valueClass, any, e);
@@ -179,6 +182,10 @@ public final class JsonSupport {
         throw genericDecodeException(valueClass, any, e);
       }
     }
+  }
+
+  public static <T> T parseBytes(byte[] bytes, Class<T> valueClass) throws IOException {
+    return objectMapper.readValue(bytes, valueClass);
   }
 
   private static <T> IllegalArgumentException jsonProcessingException(Class<T> valueClass, Any any, JsonProcessingException e) {
