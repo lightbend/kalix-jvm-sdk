@@ -47,7 +47,8 @@ object EntityServiceSourceGenerator {
       entity: ModelBuilder.StatefulComponent,
       service: ModelBuilder.EntityService,
       mainClassPackageName: String,
-      mainClassName: String): GeneratedFiles = {
+      mainClassName: String,
+      allServices: Seq[ModelBuilder.Service]): GeneratedFiles = {
     val entityPackage = entity.messageType.parent
     val servicePackage = service.messageType.parent
     val className = entity.messageType.name
@@ -64,7 +65,7 @@ object EntityServiceSourceGenerator {
         File.java(
           entityPackage,
           entity.providerName,
-          providerSource(service, entity, entityPackage.javaPackage, className)))
+          providerSource(service, entity, entityPackage.javaPackage, className, allServices)))
       .addUnmanaged(
         File.java(
           entityPackage,
@@ -158,7 +159,8 @@ object EntityServiceSourceGenerator {
       service: ModelBuilder.EntityService,
       entity: ModelBuilder.StatefulComponent,
       packageName: String,
-      className: String): String = {
+      className: String,
+      allServices: Seq[ModelBuilder.Service]): String = {
     entity match {
       case eventSourcedEntity: ModelBuilder.EventSourcedEntity =>
         EventSourcedEntitySourceGenerator.eventSourcedEntityProvider(
@@ -170,8 +172,8 @@ object EntityServiceSourceGenerator {
         ValueEntitySourceGenerator.valueEntityProvider(service, valueEntity, packageName, className)
       case replicatedEntity: ReplicatedEntity =>
         ReplicatedEntitySourceGenerator.replicatedEntityProvider(service, replicatedEntity, packageName, className)
-      case valueEntity: WorkflowComponent =>
-        WorkflowSourceGenerator.workflowProvider(service, valueEntity, packageName, className)
+      case workflowComponent: WorkflowComponent =>
+        WorkflowSourceGenerator.workflowProvider(service, workflowComponent, packageName, className, allServices)
     }
   }
 

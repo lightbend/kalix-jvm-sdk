@@ -190,9 +190,11 @@ object WorkflowSourceGenerator {
       service: ModelBuilder.EntityService,
       workflowComponent: ModelBuilder.WorkflowComponent,
       packageName: String,
-      className: String): String = {
+      className: String,
+      allServices: Seq[ModelBuilder.Service]): String = {
 
-    val relevantTypes = allRelevantMessageTypes(service, workflowComponent)
+    val potentialTypesThatWorkflowCanUse: Seq[ProtoMessageType] = allServices.flatMap(_.commandTypes)
+    val relevantTypes = allRelevantMessageTypes(service, workflowComponent) ++ potentialTypesThatWorkflowCanUse
     val relevantProtoTypes = relevantTypes.collect { case proto: ProtoMessageType => proto }
 
     implicit val imports = generateImports(
@@ -210,8 +212,11 @@ object WorkflowSourceGenerator {
         .flatMap(_.descriptorObject)
         .map { messageType => s"${messageType.name}.getDescriptor()" }
 
+    //in the workflow definition we can potentially call any GRPC service, so we need to collect all service descriptors
+    val allServicesDescriptors = allServices.flatMap(AdditionalDescriptors.collectServiceDescriptors)
+
     val descriptors =
-      (relevantTypeDescriptors :+ s"${service.messageType.parent.javaOuterClassname}.getDescriptor()").distinct.sorted
+      (relevantTypeDescriptors ++ allServicesDescriptors).distinct.sorted
 
     s"""package $packageName;
        |

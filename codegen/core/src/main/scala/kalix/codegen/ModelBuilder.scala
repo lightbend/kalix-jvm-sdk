@@ -221,7 +221,7 @@ object ModelBuilder {
    * A Service backed by Kalix; either an Action, View or Entity
    */
   sealed abstract class Service(val messageType: ProtoMessageType, val commands: Iterable[Command]) {
-    lazy val commandTypes =
+    lazy val commandTypes: Iterable[ProtoMessageType] =
       commands.flatMap { cmd =>
         cmd.inputType :: cmd.outputType :: Nil
       }
