@@ -52,7 +52,7 @@ public class ShortenedEchoAction extends Action {
 
   @PostMapping("/echo/message/leetshort")
   public Effect<Message> leetMessageWithFwdPost(@RequestBody Message msg) {
-    var shortenedMsg = leetShort(msg.text);
+    var shortenedMsg = leetShort(msg.text());
     var result = componentClient.forAction().call(EchoAction::stringMessage).params(shortenedMsg);
     return effects().forward(result);
   }

@@ -46,6 +46,15 @@ public interface StatusCode {
     public int value() {
       return value;
     }
+
+    public static Success from(int statusCode) {
+      for (Success s : Success.values()) {
+        if (s.value() == statusCode) {
+          return s;
+        }
+      }
+      throw new IllegalArgumentException("No matching status for [" + statusCode + "]");
+    }
   }
 
   enum Redirect implements StatusCode {

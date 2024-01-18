@@ -17,6 +17,7 @@
 package com.example.wiring;
 
 import com.example.Main;
+import com.example.wiring.actions.echo.ActionWithHttpResponse;
 import com.example.wiring.actions.echo.ActionWithMetadata;
 import com.example.wiring.actions.echo.EchoAction;
 import com.example.wiring.actions.echo.Message;
@@ -43,6 +44,7 @@ import com.example.wiring.views.UsersByEmail;
 import com.example.wiring.views.UsersByEmailAndName;
 import com.google.protobuf.any.Any;
 import kalix.javasdk.DeferredCall;
+import kalix.javasdk.HttpResponse;
 import kalix.javasdk.Metadata;
 import kalix.javasdk.StatusCode;
 import kalix.javasdk.client.ComponentClient;
@@ -65,6 +67,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Mono;
 
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
@@ -75,6 +78,8 @@ import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
 import static java.time.temporal.ChronoUnit.SECONDS;
+import static kalix.javasdk.StatusCode.Success.CREATED;
+import static kalix.javasdk.StatusCode.Success.OK;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.awaitility.Awaitility.await;
@@ -111,13 +116,13 @@ public class SpringSdkIntegrationTest {
   public void acceptRequestWithMissingPathParamIfNotEntityId() {
 
     ResponseEntity<String> response =
-        webClient
-            .get()
-            .uri("/echo/message/") // missing param
-            .retrieve()
-            .toEntity(String.class)
-            .onErrorResume(WebClientResponseException.class, error -> Mono.just(ResponseEntity.status(error.getStatusCode()).body(error.getResponseBodyAsString())))
-            .block(timeout);
+      webClient
+        .get()
+        .uri("/echo/message/") // missing param
+        .retrieve()
+        .toEntity(String.class)
+        .onErrorResume(WebClientResponseException.class, error -> Mono.just(ResponseEntity.status(error.getStatusCode()).body(error.getResponseBodyAsString())))
+        .block(timeout);
 
     assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
   }
@@ -126,18 +131,112 @@ public class SpringSdkIntegrationTest {
   public void failRequestWithMissingRequiredIntPathParam() {
 
     ResponseEntity<String> response =
-        webClient
-            .get()
-            .uri("/echo/int/") // missing param
-            .retrieve()
-            .toEntity(String.class)
-            .onErrorResume(WebClientResponseException.class, error -> Mono.just(ResponseEntity.status(error.getStatusCode()).body(error.getResponseBodyAsString())))
-            .block(timeout);
+      webClient
+        .get()
+        .uri("/echo/int/") // missing param
+        .retrieve()
+        .toEntity(String.class)
+        .onErrorResume(WebClientResponseException.class, error -> Mono.just(ResponseEntity.status(error.getStatusCode()).body(error.getResponseBodyAsString())))
+        .block(timeout);
 
     assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
     assertThat(response.getBody()).isEqualTo("Path contains value of wrong type! Expected field of type INT32.");
   }
 
+  @Test
+  public void shouldReturnTextBody() {
+
+    ResponseEntity<String> response =
+        webClient
+            .get()
+            .uri("/text-body")
+            .retrieve()
+            .toEntity(String.class)
+            .block(timeout);
+
+    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+    assertThat(response.getHeaders().get("Content-Type")).contains("text/plain");
+    assertThat(response.getBody()).isEqualTo("test");
+  }
+
+  @Test
+  public void shouldReturnTextBodyWithComponentClient() {
+
+    HttpResponse response = execute(componentClient.forAction().call(ActionWithHttpResponse::textBody));
+
+    assertThat(response.getStatusCode()).isEqualTo(OK);
+    assertThat(response.getContentType()).contains("text/plain");
+    assertThat(response.getBody()).contains("test".getBytes(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  public void shouldReturnEmptyCreatedMethod() {
+
+    ResponseEntity<String> response =
+        webClient
+            .get()
+            .uri("/empty-text-body")
+            .retrieve()
+            .toEntity(String.class)
+            .block(timeout);
+
+    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+    assertThat(response.getHeaders().get("Content-Type")).contains("application/octet-stream");
+    assertThat(response.getBody()).isNull();
+  }
+
+  @Test
+  public void shouldReturnEmptyCreatedWithComponentClient() {
+
+    HttpResponse response = execute(componentClient.forAction().call(ActionWithHttpResponse::emptyCreated));
+
+    assertThat(response.getStatusCode()).isEqualTo(CREATED);
+    assertThat(response.getContentType()).isEqualTo("application/octet-stream");
+    assertThat(response.getBody()).isEmpty();
+  }
+
+  @Test
+  public void shouldReturnJsonString() {
+
+    ResponseEntity<Message> response =
+        webClient
+            .get()
+            .uri("/json-string-body")
+            .retrieve()
+            .toEntity(Message.class)
+            .block(timeout);
+
+    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+    assertThat(response.getHeaders().get("Content-Type")).contains("application/json");
+    assertThat(response.getBody()).isEqualTo(new Message("123"));
+  }
+
+  @Test
+  public void shouldReturnJsonStringWithComponentClient() {
+
+    HttpResponse response = execute(componentClient.forAction().call(ActionWithHttpResponse::jsonStringBody));
+
+    assertThat(response.getStatusCode()).isEqualTo(OK);
+    assertThat(response.getContentType()).contains("application/json");
+    assertThat(response.getBody()).contains("{\"text\": \"123\"}".getBytes());
+    assertThat(response.bodyAsJson(Message.class)).isEqualTo(new Message("123"));
+  }
+
+  @Test
+  public void shouldReturnEmptyBody() {
+
+    ResponseEntity<String> response =
+        webClient
+            .get()
+            .uri("/empty-text-body")
+            .retrieve()
+            .toEntity(String.class)
+            .block(timeout);
+
+    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+    assertThat(response.getHeaders().get("Content-Type")).contains("application/octet-stream");
+    assertThat(response.getBody()).isNull();
+  }
 
   @Test
   public void verifyRequestWithOptionalQueryParams() {
@@ -150,7 +249,7 @@ public class SpringSdkIntegrationTest {
         .bodyToMono(Message.class)
         .block(timeout);
 
-    assertThat(response.text).isEqualTo("1nullnull");
+    assertThat(response.text()).isEqualTo("1nullnull");
   }
 
   @Test
@@ -164,7 +263,7 @@ public class SpringSdkIntegrationTest {
         .bodyToMono(Message.class)
         .block(timeout);
 
-    assertThat(response.text).isEqualTo("0.00.00000afalse");
+    assertThat(response.text()).isEqualTo("0.00.00000afalse");
   }
 
   @Test
@@ -178,7 +277,7 @@ public class SpringSdkIntegrationTest {
         .bodyToMono(Message.class)
         .block(timeout);
 
-    assertThat(response.text).isEqualTo("1.02.03456atrue");
+    assertThat(response.text()).isEqualTo("1.02.03456atrue");
 
     Message responseCollections =
       webClient
@@ -188,7 +287,7 @@ public class SpringSdkIntegrationTest {
         .bodyToMono(Message.class)
         .block(timeout);
 
-    assertThat(responseCollections.text).isEqualTo("1,0,2");
+    assertThat(responseCollections.text()).isEqualTo("1,0,2");
   }
 
   @Test
@@ -198,7 +297,7 @@ public class SpringSdkIntegrationTest {
       .call(EchoAction::stringMessage)
       .params("abc"));
 
-    assertThat(response.text).isEqualTo("Parrot says: 'abc'");
+    assertThat(response.text()).isEqualTo("Parrot says: 'abc'");
   }
 
 
@@ -209,7 +308,7 @@ public class SpringSdkIntegrationTest {
       .call(EchoAction::stringMessageFromParam)
       .params("queryParam"));
 
-    assertThat(response.text).isEqualTo("Parrot says: 'queryParam'");
+    assertThat(response.text()).isEqualTo("Parrot says: 'queryParam'");
 
     var failedReq =
       webClient
@@ -239,7 +338,7 @@ public class SpringSdkIntegrationTest {
         .params(message)
     );
 
-    assertThat(response.text).isEqualTo("foo|bar");
+    assertThat(response.text()).isEqualTo("foo|bar");
   }
 
   @Test
@@ -252,7 +351,7 @@ public class SpringSdkIntegrationTest {
         .params("/", message)
     );
 
-    assertThat(response.text).isEqualTo("foo/bar");
+    assertThat(response.text()).isEqualTo("foo/bar");
   }
 
   @Test
@@ -274,7 +373,7 @@ public class SpringSdkIntegrationTest {
       .call(EchoAction::stringMessageFromParamFw)
       .params(reqParam));
 
-    assertThat(response.text).isEqualTo("Parrot says: '" + reqParam + "'");
+    assertThat(response.text()).isEqualTo("Parrot says: '" + reqParam + "'");
   }
 
   @Test
@@ -285,7 +384,7 @@ public class SpringSdkIntegrationTest {
       .call(EchoAction::stringMessageFromParamFwTyped)
       .params(reqParam));
 
-    assertThat(response.text).isEqualTo("Parrot says: '" + reqParam + "'");
+    assertThat(response.text()).isEqualTo("Parrot says: '" + reqParam + "'");
   }
 
   @Test
@@ -672,19 +771,19 @@ public class SpringSdkIntegrationTest {
       .call(ForwardHeadersAction::stringMessage)
       .withMetadata(Metadata.EMPTY.add(ForwardHeadersAction.SOME_HEADER, actionHeaderValue)));
 
-    assertThat(actionResponse.text).isEqualTo(actionHeaderValue);
+    assertThat(actionResponse.text()).isEqualTo(actionHeaderValue);
 
     Message veResponse = execute(componentClient.forValueEntity("1")
       .call(ForwardHeadersValueEntity::createUser)
       .withMetadata(Metadata.EMPTY.add(ForwardHeadersAction.SOME_HEADER, veHeaderValue)));
 
-    assertThat(veResponse.text).isEqualTo(veHeaderValue);
+    assertThat(veResponse.text()).isEqualTo(veHeaderValue);
 
     Message esResponse = execute(componentClient.forEventSourcedEntity("1")
       .call(ForwardHeadersESEntity::createUser)
       .withMetadata(Metadata.EMPTY.add(ForwardHeadersAction.SOME_HEADER, esHeaderValue)));
 
-    assertThat(esResponse.text).isEqualTo(esHeaderValue);
+    assertThat(esResponse.text()).isEqualTo(esHeaderValue);
   }
 
   @Test
@@ -694,7 +793,7 @@ public class SpringSdkIntegrationTest {
     Message actionResponse = execute(componentClient.forAction().call(ActionWithMetadata::actionWithMeta)
       .params("myKey", value));
 
-    assertThat(actionResponse.text).isEqualTo(value);
+    assertThat(actionResponse.text()).isEqualTo(value);
   }
 
   @Test

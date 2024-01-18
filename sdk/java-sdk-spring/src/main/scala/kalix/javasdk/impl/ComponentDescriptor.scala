@@ -25,6 +25,7 @@ import scala.jdk.CollectionConverters._
 
 import com.google.api.AnnotationsProto
 import com.google.api.CustomHttpPattern
+import com.google.api.HttpBody
 import com.google.api.HttpRule
 import com.google.protobuf.ByteString
 import com.google.protobuf.BytesValue
@@ -38,6 +39,7 @@ import com.google.protobuf.Descriptors
 import com.google.protobuf.Descriptors.FileDescriptor
 import com.google.protobuf.Empty
 import com.google.protobuf.{ Any => JavaPbAny }
+import kalix.javasdk.HttpResponse
 import kalix.javasdk.impl.AnySupport.ProtobufEmptyTypeUrl
 import kalix.javasdk.impl.reflection.AnyJsonRequestServiceMethod
 import kalix.javasdk.impl.reflection.CombinedSubscriptionServiceMethod
@@ -166,8 +168,11 @@ private[kalix] object ComponentDescriptor {
       case Some(javaMethod) =>
         javaMethod.getGenericReturnType match {
           case parameterizedType: ParameterizedType =>
-            if (parameterizedType.getActualTypeArguments.head == classOf[Array[Byte]]) {
+            val outputType = parameterizedType.getActualTypeArguments.head
+            if (outputType == classOf[Array[Byte]]) {
               BytesValue.getDescriptor.getFullName
+            } else if (outputType == classOf[HttpResponse]) {
+              HttpBody.getDescriptor.getFullName
             } else {
               JavaPbAny.getDescriptor.getFullName
             }

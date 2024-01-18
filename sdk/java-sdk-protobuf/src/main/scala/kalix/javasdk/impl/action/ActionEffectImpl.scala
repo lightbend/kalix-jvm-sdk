@@ -18,18 +18,18 @@ package kalix.javasdk.impl.action
 
 import kalix.javasdk.{ DeferredCall, Metadata, SideEffect }
 import kalix.javasdk.action.Action
-
 import java.util
 import java.util.concurrent.CompletionStage
+
 import io.grpc.Status
-import kalix.javasdk.StatusCode
 import kalix.javasdk.StatusCode.ErrorCode
 import kalix.javasdk.impl.StatusCodeConverter
-
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters._
 import scala.jdk.FutureConverters.CompletionStageOps
+
+import kalix.javasdk.HttpResponse
 
 /** INTERNAL API */
 object ActionEffectImpl {
@@ -87,8 +87,21 @@ object ActionEffectImpl {
   }
 
   object Builder extends Action.Effect.Builder {
-    def reply[S](message: S): Action.Effect[S] = ReplyEffect(message, None, Nil)
-    def reply[S](message: S, metadata: Metadata): Action.Effect[S] = ReplyEffect(message, Some(metadata), Nil)
+    def reply[S](message: S): Action.Effect[S] = {
+      message match {
+        case httpResponse: HttpResponse =>
+          ReplyEffect(message, Some(Metadata.EMPTY.withStatusCode(httpResponse.getStatusCode)), Nil)
+        case _ => ReplyEffect(message, None, Nil)
+      }
+    }
+    def reply[S](message: S, metadata: Metadata): Action.Effect[S] = {
+      message match {
+        case httpResponse: HttpResponse =>
+          ReplyEffect(message, Some(metadata.withStatusCode(httpResponse.getStatusCode)), Nil)
+        case _ => ReplyEffect(message, Some(metadata), Nil)
+      }
+      ReplyEffect(message, Some(metadata), Nil)
+    }
     def forward[S](serviceCall: DeferredCall[_, S]): Action.Effect[S] = ForwardEffect(serviceCall, Nil)
     def error[S](description: String): Action.Effect[S] = ErrorEffect(description, None, Nil)
     def error[S](description: String, grpcErrorCode: Status.Code): Action.Effect[S] = {

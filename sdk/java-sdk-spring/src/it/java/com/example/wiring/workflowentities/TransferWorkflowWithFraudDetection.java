@@ -20,6 +20,7 @@ import com.example.wiring.actions.echo.Message;
 import com.example.wiring.workflowentities.FraudDetectionResult.TransferRejected;
 import com.example.wiring.workflowentities.FraudDetectionResult.TransferRequiresManualAcceptation;
 import com.example.wiring.workflowentities.FraudDetectionResult.TransferVerified;
+import kalix.javasdk.HttpResponse;
 import kalix.javasdk.client.ComponentClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -61,7 +62,7 @@ public class TransferWorkflowWithFraudDetection extends Workflow<TransferState> 
         step(withdrawStepName)
             .call(Withdraw.class, cmd ->
                 componentClient.forValueEntity(cmd.from).call(WalletEntity::withdraw).params(cmd.amount))
-            .andThen(String.class, this::moveToDeposit);
+            .andThen(HttpResponse.class, this::moveToDeposit);
 
     var deposit =
         step(depositStepName)
@@ -119,7 +120,7 @@ public class TransferWorkflowWithFraudDetection extends Workflow<TransferState> 
     return effects().updateState(state).end();
   }
 
-  private Effect.TransitionalEffect<Void> moveToDeposit(String response) {
+  private Effect.TransitionalEffect<Void> moveToDeposit(HttpResponse response) {
     var state = currentState().withLastStep(withdrawStepName);
 
     var depositInput = new Deposit(currentState().transfer.to, currentState().transfer.amount);
