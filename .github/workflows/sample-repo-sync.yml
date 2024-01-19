@@ -1,0 +1,47 @@
+name: Sample repo sync
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  sample-to-repo:
+    name: Update sample in the kalix.io repo
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout JVM SDK
+        # v3.1.0
+        uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8
+        with:
+          path: kalix-jvm-sdk
+          sparse-checkout: |
+            samples/java-spring-choreography-saga-quickstart
+
+      - name: Checkout sample in kalix.io
+        # v3.1.0
+        uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8
+        with:
+          # https://github.com/kalix-io/user-registry-orchestration-saga-workflow
+          repo: kalix-io/user-registry-choreography-saga
+          path: user-registry-choreography-saga/
+
+      - name: Copy example
+        run: |-
+          rsync -r kalix-jvm-sdk/samples/java-spring-choreography-saga-quickstart/* user-registry-choreography-saga
+
+      - name: Create Pull Request
+        # https://github.com/peter-evans/create-pull-request/releases
+        # v5.0.2
+        uses: peter-evans/create-pull-request@153407881ec5c347639a548ade7d8ad1d6740e38
+        with:
+          path: user-registry-choreography-saga
+          title: Changes from JVM SDK repo
+          branch-suffix: short-commit-hash
+          body: Please review
+          delete-branch: true
+          commit-message: "Changes from the Kalix JVM SDK repo"
+          author: "Kalix Bot <noreply@github.com>"
+          committer: "Kalix Bot <noreply@github.com>"
+          token: ${{ secrets.KALIX_BOT_ACCESS_TOKEN }}
