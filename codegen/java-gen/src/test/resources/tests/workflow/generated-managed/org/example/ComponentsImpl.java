@@ -1,4 +1,4 @@
-`package org.example;
+package org.example;
 
 import akka.grpc.javadsl.SingleResponseRequestBuilder;
 import kalix.javasdk.Context;
