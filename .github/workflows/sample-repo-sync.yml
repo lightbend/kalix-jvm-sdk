@@ -38,6 +38,7 @@ jobs:
           title: Changes from JVM SDK repo
           branch-suffix: short-commit-hash
           body: Please review
+          base: upstream/main
           delete-branch: true
           commit-message: "Changes from the Kalix JVM SDK repo"
           author: "Kalix Bot <noreply@github.com>"
