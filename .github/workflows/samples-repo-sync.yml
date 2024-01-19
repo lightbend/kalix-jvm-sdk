@@ -1,8 +1,7 @@
 name: Update Samples in Kalix.io Repo
 
 on:
-  #workflow_dispatch: # Manually triggered workflow
-  pull_request:
+  workflow_dispatch: # Manually triggered workflow
 
 jobs:
   open-pr-update-sample:
