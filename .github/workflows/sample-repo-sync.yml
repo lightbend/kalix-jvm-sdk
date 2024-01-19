@@ -20,6 +20,7 @@ jobs:
           sparse-checkout: |
             samples/java-spring-choreography-saga-quickstart
 
+      # making sure the repo exists in kalix-bot's account
       - name: Forking the repo
         run: |- # replying "no" to the prompt about cloning the repo
           echo "n" | gh repo fork kalix-io/user-registry-choreography-saga --remote --default-branch-only
@@ -47,6 +48,7 @@ jobs:
           title: Changes from JVM SDK repo
           branch-suffix: short-commit-hash
           body: Please review
+          push-to-fork: kalix-bot/user-registry-choreography-saga
           delete-branch: true
           commit-message: "Changes from the Kalix JVM SDK repo"
           author: "Kalix Bot <noreply@github.com>"
