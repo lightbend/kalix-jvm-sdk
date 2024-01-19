@@ -1,6 +1,7 @@
 name: Sample repo sync
 
 on:
+  pull_request: # to remove
   workflow_dispatch:
 
 permissions:
@@ -19,17 +20,14 @@ jobs:
           sparse-checkout: |
             samples/java-spring-choreography-saga-quickstart
 
-      - name: Checkout sample in kalix.io
-        # v3.1.0
-        uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8
-        with:
-          # https://github.com/kalix-io/user-registry-orchestration-saga-workflow
-          repository: kalix-io/user-registry-choreography-saga
-          path: user-registry-choreography-saga/
+      - name: Forking the repo
+        run: gh repo fork kalix-io/user-registry-choreography-saga --remote --clone --default-branch-only
+        env:
+          GITHUB_TOKEN: ${{ secrets.KALIX_BOT_ACCESS_TOKEN }}
 
       - name: Copy example
         run: |-
-          rsync -r kalix-jvm-sdk/samples/java-spring-choreography-saga-quickstart/* user-registry-choreography-saga
+          rsync -r --delete kalix-jvm-sdk/samples/java-spring-choreography-saga-quickstart/* user-registry-choreography-saga
 
       - name: Create Pull Request
         # https://github.com/peter-evans/create-pull-request/releases
