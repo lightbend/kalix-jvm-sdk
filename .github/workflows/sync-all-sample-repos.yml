@@ -2,8 +2,7 @@
 name: Update all samples in kalix.io repo
 
 on:
-  pull_request:
-  #workflow_dispatch: # Manually triggered workflow
+  workflow_dispatch: # Manually triggered workflow
 
 # all samples that we want to sync should be listed here
 jobs:
