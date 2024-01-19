@@ -1,0 +1,12 @@
+# calling update sample workflow
+name: Update all samples in kalix.io repo
+
+on:
+  pull_request:
+
+jobs:
+  sync-java-spring-choreography-saga-quickstart:
+    uses: ./.github/workflows/sample-repo-sync.yml
+    with:
+      sdk-sample-name: java-spring-choreography-saga-quickstart
+      public-sample-name: user-registry-choreography-saga

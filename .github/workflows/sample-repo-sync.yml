@@ -1,54 +1,53 @@
-name: Sample repo sync
+name: Update Sample in Kalix.io Repo
 
 on:
-  pull_request: # to remove
-  workflow_dispatch:
+  workflow_call:
+    inputs:
+      sdk-sample-name: # Define input for the original sample name
+        description: 'Original name of the sample in sdk'
+        required: true
+        type: string
 
-permissions:
-  contents: read
-
+      public-sample-name: # Define input for the new sample name
+        description: 'New name for the sample'
+        required: true
+        type: string
 jobs:
-  sample-to-repo:
-    name: Update sample in the kalix.io repo
+  update-sample:
     runs-on: ubuntu-22.04
+
     steps:
       - name: Checkout JVM SDK
-        # v3.1.0
         uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8
         with:
           path: kalix-jvm-sdk
           sparse-checkout: |
-            samples/java-spring-choreography-saga-quickstart
+            samples/${{ inputs.sdk-sample-name }}
 
-      # making sure the repo exists in kalix-bot's account
-      - name: Forking the repo
-        run: |- # replying "no" to the prompt about cloning the repo
-          echo "n" | gh repo fork kalix-io/user-registry-choreography-saga --remote --default-branch-only
+      - name: Fork the repo
+        run: |
+          echo "n" | gh repo fork kalix-io/${{ inputs.public-sample-name }} --remote --default-branch-only
         env:
           GITHUB_TOKEN: ${{ secrets.KALIX_BOT_ACCESS_TOKEN }}
 
       - name: Checkout sample in kalix.io
-        # v3.1.0
         uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8
         with:
-          # https://github.com/kalix-io/user-registry-orchestration-saga-workflow
-          repository: kalix-io/user-registry-choreography-saga
-          path: user-registry-choreography-saga/
+          repository: kalix-io/${{ inputs.public-sample-name }}
+          path: ${{ inputs.public-sample-name }}/
 
       - name: Copy example
-        run: |-
-          rsync -r --delete kalix-jvm-sdk/samples/java-spring-choreography-saga-quickstart/* user-registry-choreography-saga
+        run: |
+          rsync -r --delete kalix-jvm-sdk/samples/${{ inputs.sdk-sample-name }}/* ${{ inputs.public-sample-name }}
 
       - name: Create Pull Request
-        # https://github.com/peter-evans/create-pull-request/releases
-        # v5.0.2
         uses: peter-evans/create-pull-request@153407881ec5c347639a548ade7d8ad1d6740e38
         with:
-          path: user-registry-choreography-saga
+          path: ${{ inputs.public-sample-name }}
           title: Changes from JVM SDK repo
           branch-suffix: short-commit-hash
           body: Please review
-          push-to-fork: kalix-bot/user-registry-choreography-saga
+          push-to-fork: kalix-bot/${{ inputs.public-sample-name }}
           delete-branch: true
           commit-message: "Changes from the Kalix JVM SDK repo"
           author: "Kalix Bot <noreply@github.com>"
