@@ -39,6 +39,7 @@ jobs:
           branch-suffix: short-commit-hash
           body: Please review
           base: upstream/main
+          push-to-fork: kalix-bot/user-registry-choreography-saga
           delete-branch: true
           commit-message: "Changes from the Kalix JVM SDK repo"
           author: "Kalix Bot <noreply@github.com>"
