@@ -16,7 +16,6 @@
 
 package kalix.scalasdk.valueentity
 
-import scala.collection.immutable.Seq
 import kalix.scalasdk.impl.valueentity.ValueEntityRouter
 import com.google.protobuf.Descriptors
 
@@ -29,9 +28,6 @@ trait ValueEntityProvider[S, E <: ValueEntity[S]] {
   def options: ValueEntityOptions
 
   def serviceDescriptor: Descriptors.ServiceDescriptor
-
-  @deprecated("Use typeId instead", "1.3.9")
-  def entityType: String = typeId
 
   def typeId: String
 

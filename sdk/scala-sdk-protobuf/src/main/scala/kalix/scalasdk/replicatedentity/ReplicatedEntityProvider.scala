@@ -16,16 +16,12 @@
 
 package kalix.scalasdk.replicatedentity
 
-import scala.collection.immutable.Seq
-
 import kalix.replicatedentity.ReplicatedData
 import kalix.scalasdk.impl.replicatedentity.ReplicatedEntityRouter
 import com.google.protobuf.Descriptors
 
 trait ReplicatedEntityProvider[D <: ReplicatedData, E <: ReplicatedEntity[D]] {
 
-  @deprecated("Use typeId instead", "1.3.9")
-  def entityType: String = typeId
   def typeId: String
   def options: ReplicatedEntityOptions
   def newRouter(context: ReplicatedEntityContext): ReplicatedEntityRouter[D, E]
