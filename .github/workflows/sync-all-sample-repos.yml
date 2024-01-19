@@ -10,3 +10,4 @@ jobs:
     with:
       sdk-sample-name: java-spring-choreography-saga-quickstart
       public-sample-name: user-registry-choreography-saga
+    secrets: inherit
