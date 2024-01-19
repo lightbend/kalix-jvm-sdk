@@ -215,7 +215,7 @@ object EntityServiceSourceGenerator {
     val testCases = service.commands.map { command =>
       s"""|@Test
           |@Disabled("to be implemented")
-          |public void ${lowerFirst(command.name)}OnNonExistingEntity() throws Exception {
+          |public void test${command.name}() throws Exception {
           |  // TODO: set fields in command, and provide assertions to match replies
           |  // client.${lowerFirst(command.name)}(${qualifiedType(command.inputType)}.newBuilder().build())
           |  //         .toCompletableFuture().get(5, SECONDS);

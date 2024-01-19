@@ -37,7 +37,7 @@ public class TransferWorkflowIntegrationTest {
 
   @Test
   @Disabled("to be implemented")
-  public void startOnNonExistingEntity() throws Exception {
+  public void testStart() throws Exception {
     // TODO: set fields in command, and provide assertions to match replies
     // client.start(TransferWorkflowApi.Transfer.newBuilder().build())
     //         .toCompletableFuture().get(5, SECONDS);
@@ -45,7 +45,7 @@ public class TransferWorkflowIntegrationTest {
 
   @Test
   @Disabled("to be implemented")
-  public void getStateOnNonExistingEntity() throws Exception {
+  public void testGetState() throws Exception {
     // TODO: set fields in command, and provide assertions to match replies
     // client.getState(Empty.newBuilder().build())
     //         .toCompletableFuture().get(5, SECONDS);

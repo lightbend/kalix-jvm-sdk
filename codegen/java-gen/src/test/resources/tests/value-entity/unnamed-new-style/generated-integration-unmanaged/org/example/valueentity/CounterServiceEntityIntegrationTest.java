@@ -37,7 +37,7 @@ public class CounterServiceEntityIntegrationTest {
 
   @Test
   @Disabled("to be implemented")
-  public void increaseOnNonExistingEntity() throws Exception {
+  public void testIncrease() throws Exception {
     // TODO: set fields in command, and provide assertions to match replies
     // client.increase(CounterApi.IncreaseValue.newBuilder().build())
     //         .toCompletableFuture().get(5, SECONDS);
@@ -45,7 +45,7 @@ public class CounterServiceEntityIntegrationTest {
 
   @Test
   @Disabled("to be implemented")
-  public void decreaseOnNonExistingEntity() throws Exception {
+  public void testDecrease() throws Exception {
     // TODO: set fields in command, and provide assertions to match replies
     // client.decrease(CounterApi.DecreaseValue.newBuilder().build())
     //         .toCompletableFuture().get(5, SECONDS);
