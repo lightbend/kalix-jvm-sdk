@@ -8,7 +8,7 @@ on:
         required: true
         type: string
 
-      public-sample-name: # Define input for the new sample name
+      public-repo-name: # Define input for the new sample name
         description: 'New name for the sample'
         required: true
         type: string
@@ -26,28 +26,28 @@ jobs:
 
       - name: Fork the repo
         run: |
-          echo "n" | gh repo fork kalix-io/${{ inputs.public-sample-name }} --remote --default-branch-only
+          echo "n" | gh repo fork kalix-io/${{ inputs.public-repo-name }} --remote --default-branch-only
         env:
           GITHUB_TOKEN: ${{ secrets.KALIX_BOT_ACCESS_TOKEN }}
 
       - name: Checkout sample in kalix.io
         uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8
         with:
-          repository: kalix-io/${{ inputs.public-sample-name }}
-          path: ${{ inputs.public-sample-name }}/
+          repository: kalix-io/${{ inputs.public-repo-name }}
+          path: ${{ inputs.public-repo-name }}/
 
       - name: Copy example
         run: |
-          rsync -r --delete kalix-jvm-sdk/samples/${{ inputs.sdk-sample-name }}/* ${{ inputs.public-sample-name }}
+          rsync -r --delete kalix-jvm-sdk/samples/${{ inputs.sdk-sample-name }}/* ${{ inputs.public-repo-name }}
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@153407881ec5c347639a548ade7d8ad1d6740e38
         with:
-          path: ${{ inputs.public-sample-name }}
+          path: ${{ inputs.public-repo-name }}
           title: Changes from JVM SDK repo
           branch-suffix: short-commit-hash
           body: Please review
-          push-to-fork: kalix-bot/${{ inputs.public-sample-name }}
+          push-to-fork: kalix-bot/${{ inputs.public-repo-name }}
           delete-branch: true
           commit-message: "Changes from the Kalix JVM SDK repo"
           author: "Kalix Bot <noreply@github.com>"
