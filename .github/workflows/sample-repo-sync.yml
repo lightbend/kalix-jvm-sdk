@@ -21,9 +21,18 @@ jobs:
             samples/java-spring-choreography-saga-quickstart
 
       - name: Forking the repo
-        run: gh repo fork kalix-io/user-registry-choreography-saga --remote --clone --default-branch-only
+        run: |- # replying "no" to the prompt about cloning the repo
+          echo "n" | gh repo fork kalix-io/user-registry-choreography-saga --remote --default-branch-only
         env:
           GITHUB_TOKEN: ${{ secrets.KALIX_BOT_ACCESS_TOKEN }}
+
+      - name: Checkout sample in kalix.io
+        # v3.1.0
+        uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8
+        with:
+          # https://github.com/kalix-io/user-registry-orchestration-saga-workflow
+          repository: kalix-io/user-registry-choreography-saga
+          path: user-registry-choreography-saga/
 
       - name: Copy example
         run: |-
