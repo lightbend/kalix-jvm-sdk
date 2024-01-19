@@ -1,4 +1,4 @@
-= Quickstart: Customer Registry in Scala/Protobuf
+= Customer Registry in Scala/Protobuf
 
 include::ROOT:partial$include.adoc[]
 include::java-protobuf:partial$attributes.adoc[]
@@ -8,8 +8,8 @@ Learn how to create a customer registry in Scala, package it into a container, a
 == Before you begin
 
 * If you're new to Kalix, {console}[create an account, window="console"] so you can try out Kalix for free.
-* You'll also need to install the https://docs.kalix.io/kalix/install-kalix.html[Kalix CLI, window="new-doc"] to deploy from a terminal window.
-* For this quickstart, you'll also need
+* You'll need to install the https://docs.kalix.io/kalix/install-kalix.html[Kalix CLI, window="new-doc"] to deploy from a terminal window.
+* You'll also need
 ** https://docs.docker.com/engine/install[Docker {minimum_docker_version} or higher, window="new"]
 ** Java {java-pb-version} or higher
 ** https://www.scala-sbt.org/download.html[sbt 1.4 or higher, window="new"]
@@ -128,7 +128,7 @@ include::example$scala-protobuf-customer-registry-quickstart/src/main/proto/cust
 
 == Define the domain model
 
-The `customer_domain.proto` contains all the internal data objects (https://docs.kalix.io/reference/glossary.html#entity[Entities, window="new"]). The https://docs.kalix.io/reference/glossary.html#value_entity[Value Entity, window="new"]  in this quickstart is a Key/Value store that stores only the latest updates.
+The `customer_domain.proto` contains all the internal data objects (https://docs.kalix.io/reference/glossary.html#entity[Entities, window="new"]). The https://docs.kalix.io/reference/glossary.html#value_entity[Value Entity, window="new"]  in this sample is a Key/Value store that stores only the latest updates.
 
 . Create a `customer_domain.proto` file and save it in the `src/main/proto/customer/domain` directory.
 
@@ -207,7 +207,7 @@ include::example$scala-protobuf-customer-registry-quickstart/src/main/scala/cust
 
 To build and publish the container image and then deploy the service, follow these steps:
 
-. Use the `Docker/publish` task to build the container image and publish it to your container registry. At the end of this command sbt will show you the container image URL you'll need in the next part of this quickstart.
+. Use the `Docker/publish` task to build the container image and publish it to your container registry. At the end of this command sbt will show you the container image URL you'll need in the next part of this sample.
 +
 [source,command line]
 ----

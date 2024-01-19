@@ -1,6 +1,6 @@
-# Choreography Saga Quickstart
+# Choreography Saga
 
-This quickstart sample demonstrates how to implement a Choreography Saga in Kalix.
+This sample demonstrates how to implement a Choreography Saga in Kalix.
 
 This project explores the usage of [Event Sourced Entities](https://docs.kalix.io/java/event-sourced-entities.html), [Value Entities](https://docs.kalix.io/java/value-entity.html), [Actions](https://docs.kalix.io/java/actions.html) and [Timers](https://docs.kalix.io/java/timers.html).  
 
@@ -16,7 +16,7 @@ To understand more about these components, see [Developing services](https://doc
 
 ## Prerequisites
 
-To use this quickstart sample, you will need:
+To use this sample, you will need:
 
 * **Java:** Java 17 or higher
 * **Maven:** [Maven 3.6 or higher](https://maven.apache.org/download.cgi)
@@ -43,7 +43,7 @@ A common challenge in event-sourced applications is called the _Set-Based Consis
 
 In an event-sourced application, the events emitted by an entity are stored in a journal optimised to store the payload of the event, without any prior knowledge of the structure of the data. As such, it is not possible to add a unique constraint.
 
-In this quickstart example, a **Choreography Saga** is introduced to handle this challenge. Along with the `UserEntity`, an additional entity is established to serve as a barrier. This entity, named the `UniqueEmailEntity`, is responsible for ensuring that each email address is associated with only one user. The unique ID of the `UniqueEmailEntity` corresponds to the email address itself. Consequently, it is ensured that only one instance of this entity exists for each email address.
+In this example, a **Choreography Saga** is introduced to handle this challenge. Along with the `UserEntity`, an additional entity is established to serve as a barrier. This entity, named the `UniqueEmailEntity`, is responsible for ensuring that each email address is associated with only one user. The unique ID of the `UniqueEmailEntity` corresponds to the email address itself. Consequently, it is ensured that only one instance of this entity exists for each email address.
 
 When a request to create a new `UserEntity` is received, the application initially attempts to reserve the email address using the `UniqueEmailEntity`. If the email address is not already in use, the application proceeds to create the `UserEntity`. After the `UserEntity` is successfully created, the status of the `UniqueEmailEntity` is set to CONFIRMED. However, if the email address is already in use, the attempt to create the `UserEntity` will not succeed.
 
@@ -89,7 +89,7 @@ It's important to note that `UniqueEmailSubscriber` and `UserEventsSubscriber` a
 
 In the scenario where a user is successfully created, `UniqueEmailSubscriber` continues to respond to the `UniqueEmailEntity` reservation, scheduling a timer for un-reservation. However, as the user has been created `UserEventsSubscriber` updates the `UniqueEmailEntity` status to CONFIRMED. This triggers another state change notification to `UniqueEmailSubscriber`, which cancels the timer.
 
-This quickstart example demonstrates how to implement a **Choreography Saga** in Kalix. It involves two entities influencing each other, and two actions listening to events and state changes, ensuring the entire application converges to a consistent state.
+This example demonstrates how to implement a **Choreography Saga** in Kalix. It involves two entities influencing each other, and two actions listening to events and state changes, ensuring the entire application converges to a consistent state.
 
 ## Running and exercising this sample
 

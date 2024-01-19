@@ -19,7 +19,7 @@ The sections on this page walk through these steps using a counter service as an
 
 == Defining the `proto` files
 
-NOTE: Our Value Entity example starts with the "Counter" service as included in the xref:quickstart-template.adoc[project template].
+NOTE: Our Value Entity example starts with the "Counter" service as included in the xref:project-template.adoc[project template].
 
 The following `counter_domain.proto` file defines state the Entity will hold. The entity stores an integer value as represented in the message `CounterState`. Real-world entities store much more data - often structured data - they represent an _Entity_ in the https://en.wikipedia.org/wiki/Domain-driven_design[domain-driven design] sense of the term.
 

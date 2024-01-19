@@ -1,4 +1,4 @@
-# Quickstart project: Customer Registry with Views
+# Customer Registry with Views
 
 ## Designing
 

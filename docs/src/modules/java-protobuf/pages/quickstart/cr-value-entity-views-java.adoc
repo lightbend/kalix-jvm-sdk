@@ -1,11 +1,11 @@
-= Quickstart: Customer Registry with Views in Java/Protobuf
+= Customer Registry with Views in Java/Protobuf
 
 include::ROOT:partial$include.adoc[]
 include::java-protobuf:partial$attributes.adoc[]
 
 Create a customer registry that includes queries in Java, package it into a container, and run it on Kalix.
 
-== In this Quickstart you will learn:
+== In this sample you will learn:
 
 * How to add additional functionality, allowing customers to be queried by name and email.
 * How to package the customer registry into a container.
@@ -14,8 +14,8 @@ Create a customer registry that includes queries in Java, package it into a cont
 == Before you begin
 
 * If you're new to Kalix, {console}[create an account, window="console"] so you can try out Kalix for free.
-* You'll also need to install the https://docs.kalix.io/kalix/install-kalix.html[Kalix CLI, window="new-doc"] to deploy from a terminal window.
-* For this quickstart, you'll also need
+* You'll need to install the https://docs.kalix.io/kalix/install-kalix.html[Kalix CLI, window="new-doc"] to deploy from a terminal window.
+* You'll also need
 ** https://docs.docker.com/engine/install[Docker {minimum_docker_version} or higher, window="new"]
 ** Java {java-pb-version} or higher
 ** https://maven.apache.org/download.cgi[Maven {minimum_maven_version} or higher, window="new"]
@@ -33,7 +33,7 @@ If you want to bypass writing code and jump straight to the deployment:
 
 == Start from the Customer Registry Entity
 
-Start by downloading the  xref:java-protobuf:quickstart/cr-value-entity-java.adoc[Customer Registry Quickstart] source code using the Kalix CLI:
+Start by downloading the  xref:java-protobuf:quickstart/cr-value-entity-java.adoc[Customer Registry sample] source code using the Kalix CLI:
 
 [source,command line]
 ----

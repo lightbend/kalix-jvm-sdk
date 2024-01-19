@@ -1,4 +1,4 @@
-= Quickstart: Customer Registry with Views in Java
+= Customer Registry with Views in Java
 
 include::ROOT:partial$include.adoc[]
 include::java:partial$attributes.adoc[]
@@ -19,7 +19,7 @@ If you want to bypass writing code and jump straight to the deployment:
 
 == Start from the Customer Registry Entity
 
-Start by downloading the  xref:java:quickstart/cr-value-entity-java.adoc[Customer Registry Quickstart] source code using the Kalix CLI:
+Start by downloading the  xref:java:quickstart/cr-value-entity-java.adoc[Customer Registry sample] source code using the Kalix CLI:
 
 [source,command line]
 ----
