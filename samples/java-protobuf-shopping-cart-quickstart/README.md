@@ -1,4 +1,4 @@
-# Quickstart project: Shopping Cart
+# Shopping Cart
 
 ## Designing
 

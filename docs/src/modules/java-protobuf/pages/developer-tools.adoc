@@ -12,7 +12,7 @@ The Java tooling is published to https://mvnrepository.com/artifact/kalix[Maven 
 == Maven archetype
 
 [.group-java]
-A https://maven.apache.org/guides/introduction/introduction-to-archetypes.html[Maven archetype]; _kalix-maven-archetype_ provides the tooling to xref:quickstart-template.adoc[kickstart a Maven project]. You supply details such as the desired artifact and group IDs, and the archetype provides a new Maven project directory with the Kalix SDK and associated development support tooling set up.
+A https://maven.apache.org/guides/introduction/introduction-to-archetypes.html[Maven archetype]; _kalix-maven-archetype_ provides the tooling to xref:project-template.adoc[kickstart a Maven project]. You supply details such as the desired artifact and group IDs, and the archetype provides a new Maven project directory with the Kalix SDK and associated development support tooling set up.
 
 [.group-java]
 The archetype can be used via the `mvn` CLI.
@@ -63,7 +63,7 @@ The behaviour of the plugin can be adjusted by adding a `<configuration>` tag to
 
 [.group-scala]
 == sbt Giter8 template
-A https://github.com/foundweekends/giter8[Giter8 template]; https://github.com/lightbend/kalix-value-entity.g8[lightbend/kalix-value-entity.g8] provides the tooling to xref:quickstart-template.adoc[kickstart an sbt project]. The Giter8 template can be used via the `sbt` CLI.
+A https://github.com/foundweekends/giter8[Giter8 template]; https://github.com/lightbend/kalix-value-entity.g8[lightbend/kalix-value-entity.g8] provides the tooling to xref:project-template.adoc[kickstart an sbt project]. The Giter8 template can be used via the `sbt` CLI.
 
 [source,command line,subs="attributes"]
 ----

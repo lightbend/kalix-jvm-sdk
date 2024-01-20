@@ -1,4 +1,4 @@
-= Quickstart: Shopping Cart in Java/Protobuf
+= Shopping Cart in Java/Protobuf
 
 include::ROOT:partial$include.adoc[]
 include::java-protobuf:partial$attributes.adoc[]
@@ -8,8 +8,8 @@ Learn how to create a shopping cart in Java, package it into a container, and ru
 == Before you begin
 
 * If you're new to Kalix, {console}[create an account, window="console"] so you can try out Kalix for free.
-* You'll also need to install the https://docs.kalix.io/kalix/install-kalix.html[Kalix CLI, window="new-doc"] to deploy from a terminal window.
-* For this quickstart, you'll also need
+* You'll need to install the https://docs.kalix.io/kalix/install-kalix.html[Kalix CLI, window="new-doc"] to deploy from a terminal window.
+* You'll also need
 ** https://docs.docker.com/engine/install[Docker {minimum_docker_version} or higher, window="new"]
 ** Java {java-pb-version} or higher
 ** https://maven.apache.org/download.cgi[Maven {minimum_maven_version} or higher, window="new"]
@@ -117,7 +117,7 @@ include::example$java-protobuf-shopping-cart-quickstart/src/main/proto/shopping/
 
 == Define the domain model
 
-The `shopping_cart_domain.proto` contains all the internal data objects (https://docs.kalix.io/reference/glossary.html#entity[Entities, window="new"]). The https://docs.kalix.io/reference/glossary.html#event_sourced_entity[Event Sourced Entity, window="new"] in this quickstart keeps all events sent for a specific shopping cart in a journal.
+The `shopping_cart_domain.proto` contains all the internal data objects (https://docs.kalix.io/reference/glossary.html#entity[Entities, window="new"]). The https://docs.kalix.io/reference/glossary.html#event_sourced_entity[Event Sourced Entity, window="new"] in this sample keeps all events sent for a specific shopping cart in a journal.
 
 
 . Create a `shopping_cart_domain.proto` file and save it in the `src/main/proto/shopping/cart/domain` directory.
@@ -141,7 +141,7 @@ include::example$java-protobuf-shopping-cart-quickstart/src/main/proto/shopping/
 include::example$java-protobuf-shopping-cart-quickstart/src/main/proto/shopping/cart/domain/shopping_cart_domain.proto[tag=state]
 ----
 
-. Event Sourced entities work based on events. Add the events that can occur in this quickstart:
+. Event Sourced entities work based on events. Add the events that can occur in this sample:
 +
 [source,proto,indent=0]
 .src/main/proto/shopping/cart/domain/shopping_cart_domain.proto

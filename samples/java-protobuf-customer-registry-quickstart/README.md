@@ -1,4 +1,4 @@
-# Quickstart project: Customer Registry
+# Customer Registry
 
 ## Designing
 
