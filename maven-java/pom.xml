@@ -46,7 +46,7 @@
      maven-java/kalix-maven-plugin/pom.xml#L176 and
      docs/build/src/managed/modules/java/partials/attributes.adoc#L4
     -->
-    <maven.version>3.6.0</maven.version>
+    <maven.version>3.9.0</maven.version>
   </properties>
 
   <distributionManagement>
