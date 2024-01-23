@@ -13,7 +13,7 @@ import static com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_NULL
 // NOTE: This default ACL settings is very permissive as it allows any traffic from the internet.
 // Our samples default to this permissive configuration to allow users to easily try it out.
 // However, this configuration is not intended to be reproduced in production environments.
-// Documentation at https://docs.kalix.io/services/using-acls.html
+// Documentation at https://docs.kalix.io/java/access-control.html
 @Acl(allow = @Acl.Matcher(principal = Acl.Principal.INTERNET))
 // tag::object-mapper[]
 public class Main {
