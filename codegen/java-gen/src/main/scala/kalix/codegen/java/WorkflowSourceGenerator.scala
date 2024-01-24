@@ -99,7 +99,7 @@ object WorkflowSourceGenerator {
       allRelevantMessageTypes(service, workflowComponent),
       packageName,
       otherImports =
-        Seq("kalix.javasdk.workflow.Workflow", s"$mainPackageName.Components", s"$mainPackageName.ComponentsImpl"))
+        Seq("kalix.javasdk.workflow.ProtoWorkflow", s"$mainPackageName.Components", s"$mainPackageName.ComponentsImpl"))
 
     val methods = service.commands
       .map { cmd =>
@@ -117,7 +117,7 @@ object WorkflowSourceGenerator {
        |
        |$managedComment
        |
-       |public abstract class Abstract$className extends Workflow<${typeName(stateType)}> {
+       |public abstract class Abstract$className extends ProtoWorkflow<${typeName(stateType)}> {
        |
        |  protected final Components components() {
        |    return new ComponentsImpl(commandContext());

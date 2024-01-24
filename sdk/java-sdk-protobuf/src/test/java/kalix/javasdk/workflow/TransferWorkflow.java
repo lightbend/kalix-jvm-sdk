@@ -27,7 +27,7 @@ import java.util.concurrent.CompletableFuture;
 
 import static io.grpc.Status.Code.INVALID_ARGUMENT;
 
-public class TransferWorkflow extends Workflow<MoneyTransferApi.State> {
+public class TransferWorkflow extends ProtoWorkflow<MoneyTransferApi.State> {
 
 
   @Override
