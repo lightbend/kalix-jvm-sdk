@@ -33,7 +33,7 @@ import static com.example.transfer.TransferState.TransferStatus.WITHDRAW_FAILED;
 import static com.example.transfer.TransferState.TransferStatus.WITHDRAW_SUCCEED;
 import static java.time.Duration.ofHours;
 import static java.time.Duration.ofSeconds;
-import static kalix.javasdk.workflow.Workflow.RecoverStrategy.maxRetries;
+import static kalix.javasdk.workflow.AbstractWorkflow.RecoverStrategy.maxRetries;
 
 @TypeId("transfer")
 @Id("transferId")
