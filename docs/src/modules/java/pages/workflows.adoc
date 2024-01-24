@@ -39,7 +39,7 @@ See also xref:java:development-process.adoc#_effects_api[Understanding what an E
 
 == Modeling state
 
-We want to build a simple workflow that transfers funds between two wallets. Before that, we will create a wallet subdomain with some basic functionalities that we could use later. For simplicity a `WalletEntity` is implemented as a `ValueEntity`, but for a production-ready solution an `EventSourcedEntity` would be a better choice.
+We want to build a simple workflow that transfers funds between two wallets. Before that, we will create a wallet subdomain with some basic functionalities that we could use later. For simplicity a `WalletEntity` is implemented as a xref:value-entity.adoc[ValueEntity], but for a production-ready solution an xref:event-sourced-entities.adoc[EventSourcedEntity] would be a better choice.
 
 [source,java,indent=0]
 .src/main/java/com/example/wallet/WalletEntity.java
@@ -51,7 +51,7 @@ include::example$java-spring-transfer-workflow/src/main/java/com/example/wallet/
 <3> An endpoint to deposit funds to the wallet.
 <4> An endpoint to get current wallet balance.
 
-Now we can focus on the workflow implementation itself. A workflow has state, which can be updated in command handlers and transition methods. During the state modeling we might consider the information is required for validation, running the steps, collecting data from steps or tracking the workflow progress.
+Now we can focus on the workflow implementation itself. A workflow has state, which can be updated in command handlers and transition methods. During the state modeling we might consider the information that is required for validation, running the steps, collecting data from steps or tracking the workflow progress.
 
 [source,java,indent=0]
 .src/main/java/com/example/transfer/TransferState.java
@@ -214,9 +214,9 @@ The idea behind the Workflow error handling is that workflows should only fail d
 ----
 include::example$java-spring-transfer-workflow-compensation/src/main/java/com/example/transfer/TransferWorkflow.java[tag=compensation]
 ----
-<1> Explicit deposit call result type.
+<1> Explicit deposit call result type `DepositResult`.
 <2> Finishes workflow as completed, in the case of a successful deposit.
-<3> Launches compensation step to handle deposit failure. A withdraw step must be reversed.
+<3> Launches compensation step to handle deposit failure. The `"withdraw"` step must be reversed.
 <4> Compensation step is just any other step, with the same set of functionalities.
 <5> Correct compensation can finish the workflow.
 <6> Any other result might be handled by a default recovery strategy.

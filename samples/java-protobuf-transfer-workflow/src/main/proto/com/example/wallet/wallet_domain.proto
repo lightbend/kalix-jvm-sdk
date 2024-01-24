@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package com.example.wallet.domain;
+
+option java_outer_classname = "WalletDomain";
+
+
+message WalletState {
+    string id = 1;
+    int32 balance = 2;
+}
