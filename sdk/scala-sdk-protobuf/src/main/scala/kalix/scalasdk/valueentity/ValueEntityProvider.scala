@@ -16,7 +16,6 @@
 
 package kalix.scalasdk.valueentity
 
-import scala.collection.immutable.Seq
 import kalix.scalasdk.impl.valueentity.ValueEntityRouter
 import com.google.protobuf.Descriptors
 
@@ -30,7 +29,7 @@ trait ValueEntityProvider[S, E <: ValueEntity[S]] {
 
   def serviceDescriptor: Descriptors.ServiceDescriptor
 
-  def entityType: String
+  def typeId: String
 
   def newRouter(context: ValueEntityContext): ValueEntityRouter[S, E]
 

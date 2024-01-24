@@ -17,17 +17,12 @@
 package kalix.codegen
 package java
 
-import _root_.java.nio.file.Files
-import _root_.java.nio.file.Path
-
-import com.google.common.base.Charsets
-
 /**
  * Responsible for generating Java source from an entity model
  */
 object ActionServiceSourceGenerator {
-  import kalix.codegen.SourceGeneratorUtils._
   import JavaGeneratorUtils._
+  import kalix.codegen.SourceGeneratorUtils._
 
   /**
    * Generate Java source from views where the target source and test source directories have no existing source.
@@ -304,14 +299,7 @@ object ActionServiceSourceGenerator {
     val classNameAction = service.className
     val protoName = service.messageType.protoName
 
-    val relevantDescriptors =
-      collectRelevantTypes(service.commandTypes, service.messageType)
-        .collect { case pmt: ProtoMessageType =>
-          s"${pmt.parent.javaOuterClassname}.getDescriptor()"
-        }
-
-    val descriptors =
-      (relevantDescriptors :+ s"${service.messageType.parent.javaOuterClassname}.getDescriptor()").distinct.sorted
+    val descriptors = AdditionalDescriptors.collectServiceDescriptors(service)
 
     implicit val imports: Imports = generateImports(
       service.commandTypes ++ service.commandTypes.map(_.descriptorImport),

@@ -150,7 +150,7 @@ object SourceGenerator {
 
   private def nameForMainPackage(model: ModelBuilder.Model): PackageNaming = {
     val services = model.services.values.map(_.messageType.fullyQualifiedName)
-    val entities = model.entities.values.map(_.messageType.fullyQualifiedName)
+    val entities = model.statefulComponents.values.map(_.messageType.fullyQualifiedName)
     nameForMainPackage(SourceGeneratorUtils.mainPackageName(services ++ entities).mkString("."))
   }
 }

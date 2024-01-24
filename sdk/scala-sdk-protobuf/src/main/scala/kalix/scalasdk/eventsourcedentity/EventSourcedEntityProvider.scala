@@ -16,7 +16,6 @@
 
 package kalix.scalasdk.eventsourcedentity
 
-import scala.collection.immutable.Seq
 import kalix.scalasdk.impl.eventsourcedentity.EventSourcedEntityRouter
 import com.google.protobuf.Descriptors
 
@@ -30,7 +29,7 @@ trait EventSourcedEntityProvider[S, E <: EventSourcedEntity[S]] {
 
   def serviceDescriptor: Descriptors.ServiceDescriptor
 
-  def entityType: String
+  def typeId: String
 
   def newRouter(context: EventSourcedEntityContext): EventSourcedEntityRouter[S, E]
 

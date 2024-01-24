@@ -32,7 +32,7 @@ public interface ReplicatedEntityProvider<D extends ReplicatedData, E extends Re
 
   Descriptors.ServiceDescriptor serviceDescriptor();
 
-  String entityType();
+  String typeId();
 
   ReplicatedEntityRouter<D, E> newRouter(ReplicatedEntityContext context);
 

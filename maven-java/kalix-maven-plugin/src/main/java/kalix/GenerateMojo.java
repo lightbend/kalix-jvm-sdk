@@ -80,6 +80,11 @@ public class GenerateMojo extends AbstractMojo {
     private final Log log = new Log() {
       @Override
       public void debug(String message) { getLog().debug(message); }
+
+      @Override
+      public void warn(String message) {
+        getLog().warn(message);
+      }
       @Override
       public void info(String message) { getLog().info(message); }
     };

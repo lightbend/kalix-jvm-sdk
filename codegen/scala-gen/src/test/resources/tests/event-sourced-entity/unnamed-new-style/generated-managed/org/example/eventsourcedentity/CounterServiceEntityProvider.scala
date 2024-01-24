@@ -28,7 +28,7 @@ class CounterServiceEntityProvider private(entityFactory: EventSourcedEntityCont
   override final val serviceDescriptor: Descriptors.ServiceDescriptor =
     CounterApiProto.javaDescriptor.findServiceByName("CounterService")
 
-  override final val entityType: String = "counter"
+  override final val typeId: String = "counter"
 
   override final def newRouter(context: EventSourcedEntityContext): CounterServiceEntityRouter =
     new CounterServiceEntityRouter(entityFactory(context))

@@ -177,8 +177,8 @@ object EventSourcedEntitySourceGenerator {
        |  }
        |
        |  @Override
-       |  public final String entityType() {
-       |    return "${entity.entityType}";
+       |  public final String typeId() {
+       |    return "${entity.typeId}";
        |  }
        |
        |  @Override

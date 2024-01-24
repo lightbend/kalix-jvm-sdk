@@ -47,7 +47,7 @@ object SourceGeneratorUtils {
        |// As long as this file exists it will not be overwritten: you can maintain it yourself,
        |// or delete it so it is regenerated as needed.""".stripMargin
 
-  def unmanagedComment(service: Either[ModelBuilder.Service, ModelBuilder.Entity]) = {
+  def unmanagedComment(service: Either[ModelBuilder.Service, ModelBuilder.StatefulComponent]) = {
 
     val (kind, messageType) = service match {
       case Left(serv: ModelBuilder.ActionService)      => ("Action Service", serv.messageType)
@@ -56,6 +56,7 @@ object SourceGeneratorUtils {
       case Right(ent: ModelBuilder.EventSourcedEntity) => ("Event Sourced Entity Service", ent.messageType)
       case Right(ent: ModelBuilder.ValueEntity)        => ("Value Entity Service", ent.messageType)
       case Right(ent: ModelBuilder.ReplicatedEntity)   => ("Replicated Entity Service", ent.messageType)
+      case Right(ent: ModelBuilder.WorkflowComponent)  => ("Workflow Service", ent.messageType)
     }
     val fileName = messageType.parent.protoFileName
     s"""// This class was initially generated based on the .proto definition by Kalix tooling.
@@ -150,11 +151,11 @@ object SourceGeneratorUtils {
   /**
    * Given a Service and an Entity, return all MessageType for all possible messages:
    *   - commands for all cases
-   *   - state for Value Entities
+   *   - state for Value Entities and Workflows
    *   - state and events for Event Sourced Entities
    *   - Value and eventually Key types for Replicated Entities (when applicable)
    */
-  def allRelevantMessageTypes(service: ModelBuilder.EntityService, entity: ModelBuilder.Entity) = {
+  def allRelevantMessageTypes(service: ModelBuilder.EntityService, entity: ModelBuilder.StatefulComponent) = {
 
     val allCommands = service.commands.toSeq
       .flatMap(command => Seq(command.inputType, command.outputType))
@@ -181,6 +182,8 @@ object SourceGeneratorUtils {
             case ReplicatedMultiMap(_, MessageTypeArgument(valueFqn))                         => Seq(valueFqn)
             case _                                                                            => Seq.empty
           }
+        case va: ModelBuilder.WorkflowComponent =>
+          Seq(va.state.messageType)
       }
     allCommands ++ entitySpecificMessages
   }

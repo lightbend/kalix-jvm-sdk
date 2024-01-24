@@ -157,12 +157,14 @@ abstract class WorkflowRouter[S, W <: Workflow[S]](protected val workflow: W) {
       stepName: String,
       messageCodec: MessageCodec,
       timerScheduler: TimerScheduler,
+      commandContext: CommandContext,
       executionContext: ExecutionContext): Future[StepResponse] = {
 
     implicit val ec = executionContext
 
     workflow._internalSetCurrentState(stateOrEmpty())
     workflow._internalSetTimerScheduler(Optional.of(timerScheduler))
+    workflow._internalSetCommandContext(Optional.of(commandContext))
     val workflowDef = workflow.definition()
 
     workflowDef.findByName(stepName).toScala match {

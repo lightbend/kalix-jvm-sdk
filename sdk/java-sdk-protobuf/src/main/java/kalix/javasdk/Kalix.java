@@ -437,7 +437,7 @@ public final class Kalix {
     return lowLevel.registerReplicatedEntity(
       provider::newRouter,
       provider.serviceDescriptor(),
-      provider.entityType(),
+      provider.typeId(),
       provider.options(),
       provider.additionalDescriptors());
   }
@@ -460,7 +460,7 @@ public final class Kalix {
             provider::newRouter,
             codec,
             provider.serviceDescriptor(),
-            provider.entityType(),
+            provider.typeId(),
             provider.options(),
             provider.additionalDescriptors()))
       .orElseGet(
@@ -468,7 +468,7 @@ public final class Kalix {
           lowLevel.registerValueEntity(
             provider::newRouter,
             provider.serviceDescriptor(),
-            provider.entityType(),
+            provider.typeId(),
             provider.options(),
             provider.additionalDescriptors()));
   }
@@ -492,7 +492,7 @@ public final class Kalix {
         codec ->
           lowLevel.registerEventSourcedEntity(
             provider.serviceDescriptor(),
-            provider.entityType(),
+            provider.typeId(),
             provider.options(),
             codec,
             provider::newRouter,
@@ -502,7 +502,7 @@ public final class Kalix {
           lowLevel.registerEventSourcedEntity(
             provider::newRouter,
             provider.serviceDescriptor(),
-            provider.entityType(),
+            provider.typeId(),
             provider.options(),
             provider.additionalDescriptors()));
   }
@@ -515,7 +515,7 @@ public final class Kalix {
         codec ->
           lowLevel.registerWorkflow(
             provider.serviceDescriptor(),
-            provider.workflowName(),
+            provider.typeId(),
             provider.options(),
             codec,
             provider::newRouter,
@@ -526,7 +526,7 @@ public final class Kalix {
           lowLevel.registerWorkflow(
             provider::newRouter,
             provider.serviceDescriptor(),
-            provider.workflowName(),
+            provider.typeId(),
             provider.options(),
             provider.additionalDescriptors()
           )
