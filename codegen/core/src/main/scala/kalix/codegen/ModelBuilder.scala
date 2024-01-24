@@ -67,7 +67,7 @@ object ModelBuilder {
       statefulComponents.getOrElse(
         service.componentFullName,
         throw new IllegalArgumentException(
-          "Service [" + service.messageType.fullyQualifiedProtoName + "] refers to stateful [" + service.componentFullName +
+          s"Service [${service.messageType.fullyQualifiedProtoName}] refers to stateful component [${service.componentFullName}" +
           s"], but no component configuration is found for that component name. Components: [${statefulComponents.keySet
             .mkString(", ")}]"))
     }
