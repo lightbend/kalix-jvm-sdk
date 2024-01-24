@@ -112,7 +112,7 @@ include::example$java-protobuf-transfer-workflow/src/main/java/com/example/trans
 
 IMPORTANT: For simplicity purposes, we are returning the internal state directly back to the requester. In a real-world scenario, it's usually better to instead convert this internal domain model into a public model so the internal representation is free to evolve without breaking clients code.
 
-A full transfer workflow source code is available https://github.com/lightbend/kalix-jvm-sdk/tree/main/samples/java-protobuf-transfer-workflow[here, {tab-icon}, window="new"]. Follow the `README` file to run and test it.
+// TODO uncomment in next PR A full transfer workflow source code is available https://github.com/lightbend/kalix-jvm-sdk/tree/main/samples/java-protobuf-transfer-workflow[here, {tab-icon}, window="new"]. Follow the `README` file to run and test it.
 
 == Pausing workflow
 
@@ -197,4 +197,4 @@ include::example$java-protobuf-transfer-workflow-compensation/src/main/java/com/
 
 Compensating a workflow step (steps) might involve multiple logical steps and thus is part of the overall business logic that must be defined within the workflow itself. For simplicity, in the example above, the compensation is applied only to `withdraw` step. Whereas `deposit` step itself might also require a compensation. In case of a step timeout we can't be certain about step successful or error outcome.
 
-A full error handling and compensation sample is available https://github.com/lightbend/kalix-jvm-sdk/tree/main/samples/java-protobuf-transfer-workflow-compensation[here, {tab-icon}, window="new"]. Run `TransferWorkflowIntegrationTest` and examine the logs from the application.
+// TODO uncomment in next PR A full error handling and compensation sample is available https://github.com/lightbend/kalix-jvm-sdk/tree/main/samples/java-protobuf-transfer-workflow-compensation[here, {tab-icon}, window="new"]. Run `TransferWorkflowIntegrationTest` and examine the logs from the application.
