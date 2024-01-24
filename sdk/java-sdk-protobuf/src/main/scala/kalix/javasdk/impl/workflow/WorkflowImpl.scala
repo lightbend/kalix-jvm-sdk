@@ -303,6 +303,8 @@ final class WorkflowImpl(system: ActorSystem, val services: Map[String, Workflow
           Future.successful(toProtoEffect(effect, command.id))
 
         case Step(executeStep) =>
+          val context =
+            new CommandContextImpl(workflowId, executeStep.stepName, executeStep.commandId, Metadata.EMPTY, system)
           val timerScheduler = new TimerSchedulerImpl(service.messageCodec, system)
           val stepResponse =
             try {
@@ -316,6 +318,7 @@ final class WorkflowImpl(system: ActorSystem, val services: Map[String, Workflow
                 executeStep.stepName,
                 service.messageCodec,
                 timerScheduler,
+                context,
                 system.dispatcher)
             } catch {
               case e: WorkflowException => throw e

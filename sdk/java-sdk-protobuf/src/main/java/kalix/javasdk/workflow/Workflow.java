@@ -83,7 +83,7 @@ public abstract class Workflow<S> {
    *
    * @throws IllegalStateException if accessed outside a handler method
    */
-  protected final kalix.javasdk.workflow.CommandContext commandContext() {
+  protected final CommandContext commandContext() {
     return commandContext.orElseThrow(() -> new IllegalStateException("CommandContext is only available when handling a command."));
   }
 

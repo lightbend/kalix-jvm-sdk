@@ -265,7 +265,7 @@ object ReplicatedEntitySourceGenerator {
          |    override val options: ReplicatedEntityOptions)
          |    extends ReplicatedEntityProvider[$parameterizedDataType, ${typeName(entity.messageType)}] {
          |
-         |  override def entityType: String = "${entity.entityType}"
+         |  override final val typeId: String = "${entity.typeId}"
          |
          |  override def newRouter(context: ReplicatedEntityContext): ${entity.routerName} =
          |    new ${entity.routerName}(entityFactory(context))

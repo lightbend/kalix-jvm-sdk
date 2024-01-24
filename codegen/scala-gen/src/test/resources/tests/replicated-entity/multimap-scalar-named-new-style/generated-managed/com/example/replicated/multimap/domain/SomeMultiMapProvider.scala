@@ -35,7 +35,7 @@ class SomeMultiMapProvider private (
     override val options: ReplicatedEntityOptions)
     extends ReplicatedEntityProvider[ReplicatedMultiMap[String, Double], SomeMultiMap] {
 
-  override def entityType: String = "some-multi-map"
+  override final val typeId: String = "some-multi-map"
 
   override def newRouter(context: ReplicatedEntityContext): SomeMultiMapRouter =
     new SomeMultiMapRouter(entityFactory(context))

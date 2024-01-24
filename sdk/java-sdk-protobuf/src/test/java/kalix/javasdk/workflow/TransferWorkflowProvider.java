@@ -39,7 +39,7 @@ public class TransferWorkflowProvider implements WorkflowProvider<MoneyTransferA
 
 
   @Override
-  public String workflowName() {
+  public String typeId() {
     return "transfer";
   }
 

@@ -143,7 +143,7 @@ object ValueEntitySourceGenerator {
           |  override final val serviceDescriptor: $Descriptors.ServiceDescriptor =
           |    ${service.messageType.descriptorImport}.javaDescriptor.findServiceByName("${service.messageType.protoName}")
           |
-          |  override final val entityType = "${entity.entityType}"
+          |  override final val typeId: String = "${entity.typeId}"
           |
           |  override final def newRouter(context: $ValueEntityContext): ${entity.routerName} =
           |    new ${entity.routerName}(entityFactory(context))

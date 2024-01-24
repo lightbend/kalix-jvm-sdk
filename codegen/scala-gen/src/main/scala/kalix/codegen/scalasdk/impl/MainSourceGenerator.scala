@@ -18,7 +18,7 @@ package kalix.codegen.scalasdk.impl
 
 import kalix.codegen.File
 import kalix.codegen.ModelBuilder
-import kalix.codegen.ModelBuilder.Entity
+import kalix.codegen.ModelBuilder.StatefulComponent
 import kalix.codegen.ModelBuilder.Service
 import kalix.codegen._
 
@@ -42,7 +42,7 @@ object MainSourceGenerator {
   private[codegen] def mainSource(model: ModelBuilder.Model, mainPackageName: PackageNaming): File = {
     val mainClass = mainClassName(model, mainPackageName)
 
-    val entityImports = model.entities.values.collect {
+    val entityImports = model.statefulComponents.values.collect {
       case entity: ModelBuilder.EventSourcedEntity => entity.messageType.fullyQualifiedName
       case entity: ModelBuilder.ValueEntity        => entity.messageType.fullyQualifiedName
       case entity: ModelBuilder.ReplicatedEntity   => entity.messageType.fullyQualifiedName
@@ -59,7 +59,7 @@ object MainSourceGenerator {
     implicit val imports: Imports =
       generateImports(Iterable.empty, mainClass.parent.scalaPackage, allImports)
 
-    val entityRegistrationParameters = model.entities.values.toList
+    val entityRegistrationParameters = model.statefulComponents.values.toList
       .sortBy(_.messageType.name)
       .collect {
         case entity: ModelBuilder.EventSourcedEntity => s"new ${typeName(entity.messageType)}(_)"
@@ -108,7 +108,7 @@ object MainSourceGenerator {
 
   private[codegen] def kalixFactorySource(model: ModelBuilder.Model, mainPackageName: PackageNaming): File = {
 
-    val entityImports = model.entities.values.flatMap { ety =>
+    val entityImports = model.statefulComponents.values.flatMap { ety =>
       val imp =
         ety.messageType :: Nil
       ety match {
@@ -132,7 +132,7 @@ object MainSourceGenerator {
       }
     }
 
-    val entityContextImports = model.entities.values.collect {
+    val entityContextImports = model.statefulComponents.values.collect {
       case _: ModelBuilder.EventSourcedEntity =>
         List("kalix.scalasdk.eventsourcedentity.EventSourcedEntityContext")
       case _: ModelBuilder.ValueEntity =>
@@ -162,7 +162,7 @@ object MainSourceGenerator {
     val registrations = model.services.values
       .flatMap {
         case service: ModelBuilder.EntityService =>
-          model.entities.get(service.componentFullName).toSeq.map {
+          model.statefulComponents.get(service.componentFullName).toSeq.map {
             case entity: ModelBuilder.EventSourcedEntity =>
               s".register(${typeName(entity.provider)}(${creator(entity.messageType)}))"
             case entity: ModelBuilder.ValueEntity =>
@@ -182,7 +182,7 @@ object MainSourceGenerator {
       .sorted
 
     val entityCreators =
-      model.entities.values.toList
+      model.statefulComponents.values.toList
         .sortBy(_.messageType.name)
         .collect {
           case entity: ModelBuilder.EventSourcedEntity =>

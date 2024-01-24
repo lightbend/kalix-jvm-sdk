@@ -31,7 +31,7 @@ import java.util.function.Function;
 public class ReflectiveValueEntityProvider<S, E extends ValueEntity<S>>
     implements ValueEntityProvider<S, E> {
 
-  private final String entityType;
+  private final String typeId;
   private final Function<ValueEntityContext, E> factory;
   private final ValueEntityOptions options;
   private final Descriptors.FileDescriptor fileDescriptor;
@@ -56,7 +56,7 @@ public class ReflectiveValueEntityProvider<S, E extends ValueEntity<S>>
       throw new IllegalArgumentException(
           "Value Entity [" + entityClass.getName() + "] is missing '@TypeId' annotation");
 
-    this.entityType = annotation;
+    this.typeId = annotation;
 
     this.factory = factory;
     this.options = options.withForwardHeaders(ForwardHeadersExtractor.extractFrom(entityClass));
@@ -79,8 +79,8 @@ public class ReflectiveValueEntityProvider<S, E extends ValueEntity<S>>
   }
 
   @Override
-  public String entityType() {
-    return entityType;
+  public String typeId() {
+    return typeId;
   }
 
   @Override

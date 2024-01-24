@@ -35,7 +35,7 @@ public interface EventSourcedEntityProvider<S, E, ES extends EventSourcedEntity<
 
   Descriptors.ServiceDescriptor serviceDescriptor();
 
-  String entityType();
+  String typeId();
 
   EventSourcedEntityRouter<S, E, ES> newRouter(EventSourcedEntityContext context);
 

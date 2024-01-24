@@ -61,7 +61,7 @@ public class ReplicatedEntityConfiguredEntityProvider
   }
 
   @Override
-  public final String entityType() {
+  public final String typeId() {
     return "replicated-entity-configured";
   }
 

@@ -21,6 +21,8 @@ import kalix.codegen.Log
 case class DebugPrintlnLog(debugEnabled: Boolean) extends Log {
   override def debug(message: String): Unit =
     if (debugEnabled) println(s"[DEBUG] $message")
+  override def warn(message: String): Unit =
+    if (debugEnabled) println(s"[WARNING] $message")
   override def info(message: String): Unit =
     if (debugEnabled) println(s"[INFO] $message")
 }

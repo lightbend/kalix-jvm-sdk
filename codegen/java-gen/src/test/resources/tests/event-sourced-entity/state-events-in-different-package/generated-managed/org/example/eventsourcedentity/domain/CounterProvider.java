@@ -54,7 +54,7 @@ public class CounterProvider implements EventSourcedEntityProvider<OuterCounterS
   }
 
   @Override
-  public final String entityType() {
+  public final String typeId() {
     return "counter";
   }
 
