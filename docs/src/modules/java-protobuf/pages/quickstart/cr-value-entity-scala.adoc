@@ -12,7 +12,7 @@ Learn how to create a customer registry in Scala, package it into a container, a
 * You'll also need
 ** https://docs.docker.com/engine/install[Docker {minimum_docker_version} or higher, window="new"]
 ** Java {java-pb-version} or higher
-** https://www.scala-sbt.org/download.html[sbt 1.4 or higher, window="new"]
+** https://www.scala-sbt.org/download[sbt 1.4 or higher, window="new"]
 ** https://github.com/fullstorydev/grpcurl#installation[`grpcurl`, window="new"]
 
 [NOTE]
