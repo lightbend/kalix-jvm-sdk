@@ -38,7 +38,14 @@ import com.google.protobuf.GeneratedMessageV3;
  */
 @ApiMayChange
 public abstract class ProtoWorkflow<S extends GeneratedMessageV3> extends AbstractWorkflow<S> {
-  public ProtoStepBuilder step(String stepName) {
-    return new ProtoStepBuilder(stepName);
+
+  /**
+   * Start a step definition with a given step name.
+   *
+   * @param name Step name.
+   * @return Step builder.
+   */
+  public ProtoStepBuilder step(String name) {
+    return new ProtoStepBuilder(name);
   }
 }

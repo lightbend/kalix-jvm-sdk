@@ -555,17 +555,6 @@ public abstract class AbstractWorkflow<S> {
     }
   }
 
-//  /**
-//   * Start a step definition with a given step name.
-//   *
-//   * @param name Step name.
-//   * @return Step builder.
-//   */
-//  @ApiMayChange
-//  public Workflow.StepBuilder step(String name) {
-//    return new Workflow.StepBuilder(name);
-//  }
-
   public static class StepConfig {
     public final String stepName;
     public final Optional<Duration> timeout;

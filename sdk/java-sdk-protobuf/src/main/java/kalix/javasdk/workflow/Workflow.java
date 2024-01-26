@@ -37,7 +37,14 @@ import akka.annotation.ApiMayChange;
  */
 @ApiMayChange
 public abstract class Workflow<S> extends AbstractWorkflow<S> {
-  public StepBuilder step(String stepName) {
-    return new StepBuilder(stepName);
+
+  /**
+   * Start a step definition with a given step name.
+   *
+   * @param name Step name.
+   * @return Step builder.
+   */
+  public StepBuilder step(String name) {
+    return new StepBuilder(name);
   }
 }
