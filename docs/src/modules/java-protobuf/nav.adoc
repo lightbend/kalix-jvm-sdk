@@ -6,7 +6,7 @@
 *** xref:writing-grpc-descriptors-protobuf.adoc[]
 *** xref:value-entity.adoc[Value Entities]
 *** xref:event-sourced-entities.adoc[Event Sourced Entities]
-*** xref:java:workflows.adoc[Workflows]
+*** xref:workflows.adoc[Workflows]
 *** xref:replicated-entity.adoc[Replicated Entities]
 *** xref:views.adoc[Views]
 *** xref:actions.adoc[Actions]

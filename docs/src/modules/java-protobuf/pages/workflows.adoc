@@ -11,7 +11,7 @@ Workflows make it possible to implement long-running, multi-step business proces
 
 include::java-protobuf:partial$effects-workflow.adoc[]
 
-See also xref:java:development-process.adoc#_effects_api[Understanding what an Effect is]
+See also xref:java:development-process.adoc#_effects_api[Understanding what an Effect is].
 
 == Defining the proto files
 
