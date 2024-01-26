@@ -654,7 +654,7 @@ object Validations {
       Invalid(
         errorMessage(
           component,
-          "No valid query method found. Views should have a method annotated with @Query and exposed by a REST annotation."))
+          "No valid query method found. Views should have at least one method annotated with @Query and exposed by a REST annotation."))
     else Valid
   }
 
