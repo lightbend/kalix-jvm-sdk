@@ -48,6 +48,7 @@ import kalix.javasdk.valueentity.ValueEntityOptions;
 import kalix.javasdk.valueentity.ValueEntityProvider;
 import kalix.javasdk.view.ViewOptions;
 import kalix.javasdk.view.ViewProvider;
+import kalix.javasdk.workflow.AbstractWorkflow;
 import kalix.javasdk.workflow.Workflow;
 import kalix.javasdk.workflow.WorkflowOptions;
 import kalix.javasdk.workflow.WorkflowProvider;
@@ -508,7 +509,7 @@ public final class Kalix {
   }
 
 
-  public <S, W extends Workflow<S>> Kalix register(WorkflowProvider<S, W> provider) {
+  public <S, W extends AbstractWorkflow<S>> Kalix register(WorkflowProvider<S, W> provider) {
     return provider
       .alternativeCodec()
       .map(

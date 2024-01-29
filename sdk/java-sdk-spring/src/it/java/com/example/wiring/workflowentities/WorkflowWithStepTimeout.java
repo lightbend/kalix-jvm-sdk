@@ -34,7 +34,7 @@ import java.util.concurrent.TimeUnit;
 
 import static java.time.Duration.ofMillis;
 import static java.time.Duration.ofSeconds;
-import static kalix.javasdk.workflow.Workflow.RecoverStrategy.maxRetries;
+import static kalix.javasdk.workflow.AbstractWorkflow.RecoverStrategy.maxRetries;
 
 @TypeId("workflow-with-step-timeout")
 @Id("workflowId")
