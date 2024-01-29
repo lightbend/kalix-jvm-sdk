@@ -589,6 +589,9 @@ jobs:
           - { sample: java-spring-transfer-workflow, it: true }
           - { sample: java-spring-transfer-workflow-compensation, it: true }
 
+          - { sample: java-protobuf-transfer-workflow, it: true }
+          - { sample: java-protobuf-transfer-workflow-compensation, it: true }
+
     steps:
       - name: Checkout
         # v3.1.0
