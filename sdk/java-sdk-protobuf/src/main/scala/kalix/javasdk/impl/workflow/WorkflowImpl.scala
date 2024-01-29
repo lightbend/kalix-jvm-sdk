@@ -70,9 +70,10 @@ import org.slf4j.LoggerFactory
 import java.util.Optional
 
 import scala.jdk.OptionConverters._
-import kalix.javasdk.workflow.Workflow
 
-import Workflow.WorkflowDef
+import kalix.javasdk.workflow.AbstractWorkflow
+import kalix.javasdk.workflow.Workflow
+import kalix.javasdk.workflow.AbstractWorkflow.WorkflowDef
 import kalix.javasdk.workflow.WorkflowContext
 import kalix.javasdk.workflow.WorkflowOptions
 // FIXME these don't seem to be 'public API', more internals?
@@ -140,7 +141,7 @@ final class WorkflowImpl(system: ActorSystem, val services: Map[String, Workflow
       .async
 
   private def toRecoverStrategy(messageCodec: MessageCodec)(
-      recoverStrategy: Workflow.RecoverStrategy[_]): RecoverStrategy = {
+      recoverStrategy: AbstractWorkflow.RecoverStrategy[_]): RecoverStrategy = {
     RecoverStrategy(
       maxRetries = recoverStrategy.maxRetries,
       failoverTo = Some(
@@ -152,7 +153,7 @@ final class WorkflowImpl(system: ActorSystem, val services: Map[String, Workflow
   private def toStepConfig(
       name: String,
       timeout: Optional[java.time.Duration],
-      recoverStrategy: Option[Workflow.RecoverStrategy[_]],
+      recoverStrategy: Option[AbstractWorkflow.RecoverStrategy[_]],
       messageCodec: MessageCodec) = {
     val stepTimeout = timeout.toScala.map(duration.Duration(_))
     val stepRecoverStrategy = recoverStrategy.map(toRecoverStrategy(messageCodec))
@@ -200,7 +201,7 @@ final class WorkflowImpl(system: ActorSystem, val services: Map[String, Workflow
       case None => // no initial state
     }
 
-    def toProtoEffect(effect: Workflow.Effect[_], commandId: Long) = {
+    def toProtoEffect(effect: AbstractWorkflow.Effect[_], commandId: Long) = {
 
       def effectMessage[R](persistence: Persistence[_], transition: WorkflowEffectImpl.Transition, reply: Reply[R]) = {
 

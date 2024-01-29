@@ -1,7 +1,7 @@
 package org.example.workflow;
 
 import com.google.protobuf.Empty;
-import kalix.javasdk.workflow.Workflow;
+import kalix.javasdk.workflow.ProtoWorkflow;
 import org.example.Components;
 import org.example.ComponentsImpl;
 import org.example.workflow.domain.OuterTransferState;
@@ -10,7 +10,7 @@ import org.example.workflow.domain.OuterTransferState;
 // It will be re-generated to reflect any changes to your protobuf definitions.
 // DO NOT EDIT
 
-public abstract class AbstractTransferWorkflow extends Workflow<OuterTransferState.TransferState> {
+public abstract class AbstractTransferWorkflow extends ProtoWorkflow<OuterTransferState.TransferState> {
 
   protected final Components components() {
     return new ComponentsImpl(commandContext());
