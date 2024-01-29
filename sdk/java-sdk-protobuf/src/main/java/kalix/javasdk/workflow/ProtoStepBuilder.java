@@ -25,7 +25,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 /**
- * Step builder for defining a workflow step for java protobuf SDK
+ * Step builder for defining a workflow step for Java protobuf SDK
  */
 public class ProtoStepBuilder {
 
