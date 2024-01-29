@@ -27,7 +27,7 @@ include::example$java-protobuf-transfer-workflow/src/main/proto/com/example/wall
 <3> An endpoint to deposit funds to the wallet.
 <4> An endpoint to get current wallet balance.
 
-Now we can focus on the workflow implementation itself. A workflow has state, which can be updated in command handlers and transition methods. During the state modeling we might consider the information that is required for validation, running the steps, collecting data from steps or tracking the workflow progress.
+Now we can focus on the workflow implementation itself. A workflow has state, which can be updated in command handlers and steps implementation. During the state modeling we might consider the information that is required for validation, running the steps, collecting data from steps or tracking the workflow progress.
 
 [source,java,indent=0]
 .src/main/proto/com/example/transfer/transfer_domain.proto
@@ -127,7 +127,7 @@ include::example$java-protobuf-transfer-workflow-compensation/src/main/java/com/
 <1> Schedules a timer as a Workflow step action. Make sure that the timer name is unique for every Workflow instance.
 <2> Pauses the Workflow execution.
 
-NOTE: Remember to cancel the timer once the Workflow is resumed. Also, adjust the Workflow timeout to match the timer schedule.
+NOTE: Remember to cancel the timer once the Workflow is resumed. Also, adjust the Workflow xref:#_timeouts[timeout] to match the timer schedule.
 
 Exposing additional mutational endpoints from the Workflow implementation should be done with special caution. Accepting a request from such endpoints should only be possible when the Workflow is in the expected state.
 
