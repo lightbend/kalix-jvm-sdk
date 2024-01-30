@@ -41,7 +41,7 @@ public class TransferWorkflowIntegrationTest {
   }
 
   @Test
-  public void showTransferFunds() throws Exception {
+  public void shouldTransferFunds() throws Exception {
     InitialBalance initWalletA = InitialBalance.newBuilder().setWalletId("a").setBalance(100).build();
     InitialBalance initWalletB = InitialBalance.newBuilder().setWalletId("b").setBalance(100).build();
     walletClient.create(initWalletA).toCompletableFuture().get(5, SECONDS);

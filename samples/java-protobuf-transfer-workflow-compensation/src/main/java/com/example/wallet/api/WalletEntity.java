@@ -46,9 +46,7 @@ public class WalletEntity extends AbstractWalletEntity {
         .build();
       return effects().reply(insufficientBalance);
     } else {
-      // end::wallet[]
       logger.info("Withdraw walletId: [{}] amount -{} balance after {}", currentState().getId(), withdrawRequest.getAmount(), updatedWallet.getBalance());
-      // tag::wallet[]
       WalletApi.WithdrawResult succeed = WalletApi.WithdrawResult.newBuilder()
         .setSucceed(WalletApi.WithdrawSucceed.getDefaultInstance())
         .build();
@@ -67,9 +65,7 @@ public class WalletEntity extends AbstractWalletEntity {
       return effects().reply(walletNotExists);
     } else {
       WalletDomain.WalletState updatedWallet = currentState.toBuilder().setBalance(currentState.getBalance() + depositRequest.getAmount()).build();
-      // end::wallet[]
       logger.info("Deposit walletId: [{}] amount +{} balance after {}", currentState().getId(), depositRequest.getAmount(), updatedWallet.getBalance());
-      // tag::wallet[]
       WalletApi.DepositResult succeed = WalletApi.DepositResult.newBuilder()
         .setSucceed(WalletApi.DepositSucceed.getDefaultInstance())
         .build();
