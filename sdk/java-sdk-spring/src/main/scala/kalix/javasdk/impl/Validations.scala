@@ -269,7 +269,7 @@ object Validations {
       validateSingleView(component)
     } ++
     when(KalixSpringApplication.isMultiTableView(component)) {
-      viewMustHaveOneQueryMethod(component)
+      viewMustHaveAtLeastOneQueryMethod(component)
       val viewClasses = component.getDeclaredClasses.toSeq.filter(KalixSpringApplication.isNestedViewTable)
       viewClasses.map(validateSingleView).reduce(_ ++ _)
     }
@@ -277,7 +277,7 @@ object Validations {
 
   private def validateSingleView(component: Class[_]): Validation = {
     when(!KalixSpringApplication.isNestedViewTable(component)) {
-      viewMustHaveOneQueryMethod(component)
+      viewMustHaveAtLeastOneQueryMethod(component)
     } ++
     commonValidation(component) ++
     commonSubscriptionValidation(component, hasUpdateEffectOutput) ++
@@ -646,28 +646,16 @@ object Validations {
     }
   }
 
-  private def viewMustHaveOneQueryMethod(component: Class[_]): Validation = {
-
-    val annotatedQueryMethods =
+  private def viewMustHaveAtLeastOneQueryMethod(component: Class[_]): Validation = {
+    val hasAtLeastOneQuery =
       component.getMethods
-        .filter(_.hasAnnotation[Query])
-        .filter(hasRestAnnotation)
-        .toList
-
-    annotatedQueryMethods match {
-      case Nil =>
-        Invalid(
-          errorMessage(
-            component,
-            "No valid query method found. Views should have a method annotated with @Query and exposed by a REST annotation."))
-      case head :: Nil => Valid
-      case _ =>
-        val messages =
-          annotatedQueryMethods.map { method =>
-            errorMessage(method, "Views can have only one method annotated with @Query.")
-          }
-        Invalid(messages)
-    }
+        .exists(method => method.hasAnnotation[Query] && hasRestAnnotation(method))
+    if (!hasAtLeastOneQuery)
+      Invalid(
+        errorMessage(
+          component,
+          "No valid query method found. Views should have at least one method annotated with @Query and exposed by a REST annotation."))
+    else Valid
   }
 
   private def streamUpdatesQueryMustReturnFlux(component: Class[_]): Validation = {

@@ -480,10 +480,8 @@ class ViewDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSuit
       }
     }
 
-    "fail if more than one query method is found" in {
-      intercept[InvalidComponentException] {
-        Validations.validate(classOf[ViewWithTwoQueries]).failIfInvalid
-      }
+    "allow more than one query method" in {
+      Validations.validate(classOf[ViewWithTwoQueries]).failIfInvalid
     }
   }
 
@@ -604,10 +602,8 @@ class ViewDescriptorFactorySpec extends AnyWordSpec with ComponentDescriptorSuit
       }
     }
 
-    "fail if more than one query method is found" in {
-      intercept[InvalidComponentException] {
-        Validations.validate(classOf[MultiTableViewWithMultipleQueries]).failIfInvalid
-      }
+    "allow more than one query method in multi table view" in {
+      Validations.validate(classOf[MultiTableViewWithMultipleQueries]).failIfInvalid
     }
 
     "not allow duplicated VE subscriptions methods in multi table view" in {
