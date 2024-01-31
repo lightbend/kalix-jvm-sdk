@@ -6,7 +6,7 @@
 - [ ] Check that the [latest build](https://app.circleci.com/pipelines/github/lightbend/kalix-jvm-sdk?branch=main) successfully finished
 - [ ] Make sure a version of the Kalix Runtime that supports the protocol version the SDK expects has been deployed to production
 
-You can see the Kalix Runtime version on prod [on grafana](https://lightbendcloud.grafana.net/d/2n4jVuw7z/prod-kalix-metrics?orgId=1) or using [various other methods](https://github.com/lightbend/kalix/wiki/Versioning-and-how-to-determine-what-version-is-running).
+You can see the Kalix Runtime version on prod [on grafana](https://grafana.sre.kalix.io/d/b30d0d8e-3894-4fbf-9627-9cb6088949ee/prod-kalix-metrics?orgId=1) or using [various other methods](https://github.com/lightbend/kalix/wiki/Versioning-and-how-to-determine-what-version-is-running).
 
 ### Cutting the release 
 
