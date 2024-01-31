@@ -113,7 +113,7 @@ public class SpringSdkIntegrationTest {
   }
 
   @Test
-  public void acceptRequestWithMissingPathParamIfNotEntityId() {
+  public void notRequestWithMissingPathParamIfNotEntityId() {
 
     ResponseEntity<String> response =
       webClient
@@ -124,7 +124,7 @@ public class SpringSdkIntegrationTest {
         .onErrorResume(WebClientResponseException.class, error -> Mono.just(ResponseEntity.status(error.getStatusCode()).body(error.getResponseBodyAsString())))
         .block(timeout);
 
-    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
   }
 
   @Test
