@@ -4,7 +4,7 @@
 version: "3"
 services:
   kalix-runtime:
-    image: gcr.io/kalix-public/kalix-runtime:1.1.30
+    image: gcr.io/kalix-public/kalix-runtime:1.1.31
     container_name: java-protobuf-shopping-cart-quickstart
     ports:
       - "9000:9000"
