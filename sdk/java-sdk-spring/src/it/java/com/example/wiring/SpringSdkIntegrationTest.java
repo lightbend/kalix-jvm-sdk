@@ -545,7 +545,7 @@ public class SpringSdkIntegrationTest {
             .block(timeout);
 
     assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
-    assertThat(response.getBody()).isEqualTo("INVALID_ARGUMENT: Entity key field(s) List(id) must not be empty.");
+    assertThat(response.getBody()).isEqualTo("Could not find path: /user/");
   }
 
   @Test
