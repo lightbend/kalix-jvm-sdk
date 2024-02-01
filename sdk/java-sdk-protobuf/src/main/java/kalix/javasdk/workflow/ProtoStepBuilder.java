@@ -34,11 +34,7 @@ public class ProtoStepBuilder {
   public ProtoStepBuilder(String name) {
     this.name = name;
   }
-
-  public ProtoStepBuilder step(String stepName) {
-    return new ProtoStepBuilder(stepName);
-  }
-
+  
   /**
    * Build a step action with a call to an existing Kalix component via {@link DeferredCall}.
    * <p>

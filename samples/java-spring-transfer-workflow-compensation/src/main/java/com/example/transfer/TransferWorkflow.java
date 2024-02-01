@@ -92,9 +92,9 @@ public class TransferWorkflow extends Workflow<TransferState> {
           // tag::compensation[]
           return componentClient.forValueEntity(cmd.to)
             .call(WalletEntity::deposit)
-            .params(cmd.amount); // <1>
+            .params(cmd.amount);
         })
-        .andThen(DepositResult.class, depositResult -> {
+        .andThen(DepositResult.class, depositResult -> { // <1>
           if (depositResult instanceof DepositSucceed) {
             return effects()
               .updateState(currentState().withStatus(COMPLETED))
