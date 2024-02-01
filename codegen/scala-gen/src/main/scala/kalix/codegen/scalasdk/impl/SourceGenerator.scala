@@ -45,6 +45,8 @@ object SourceGenerator {
               EventSourcedEntitySourceGenerator.generateManaged(entity, service, mainPackageName)
             case entity: ModelBuilder.ReplicatedEntity =>
               ReplicatedEntitySourceGenerator.generateManaged(entity, service)
+            case workflow: ModelBuilder.WorkflowComponent =>
+              WorkflowSourceGenerator.generateManaged(workflow, service, mainPackageName, model.services.values.toSeq)
           }
         case service: ModelBuilder.ViewService =>
           ViewServiceSourceGenerator.generateManaged(service)
@@ -65,6 +67,8 @@ object SourceGenerator {
           case entity: ModelBuilder.EventSourcedEntity =>
             EventSourcedEntityTestKitGenerator.generateManagedTest(entity, service)
           case _: ModelBuilder.ReplicatedEntity =>
+            Nil
+          case _: ModelBuilder.WorkflowComponent =>
             Nil
         }
       case _: ModelBuilder.ViewService =>
@@ -94,6 +98,8 @@ object SourceGenerator {
               EventSourcedEntitySourceGenerator.generateUnmanaged(entity, service)
             case entity: ModelBuilder.ReplicatedEntity =>
               ReplicatedEntitySourceGenerator.generateUnmanaged(entity, service)
+            case workflow: ModelBuilder.WorkflowComponent =>
+              WorkflowSourceGenerator.generateUnmanaged(workflow, service)
           }
         case service: ModelBuilder.ViewService =>
           ViewServiceSourceGenerator.generateUnmanaged(service)
@@ -119,6 +125,8 @@ object SourceGenerator {
           case entity: ModelBuilder.EventSourcedEntity =>
             EventSourcedEntityTestKitGenerator.generateUnmanagedTest(main, entity, service)
           case _: ModelBuilder.ReplicatedEntity =>
+            Nil
+          case _: ModelBuilder.WorkflowComponent =>
             Nil
         }
       case _: ModelBuilder.ViewService =>

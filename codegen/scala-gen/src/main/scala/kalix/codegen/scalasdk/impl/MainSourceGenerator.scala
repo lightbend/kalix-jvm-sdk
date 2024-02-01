@@ -43,9 +43,10 @@ object MainSourceGenerator {
     val mainClass = mainClassName(model, mainPackageName)
 
     val entityImports = model.statefulComponents.values.collect {
-      case entity: ModelBuilder.EventSourcedEntity => entity.messageType.fullyQualifiedName
-      case entity: ModelBuilder.ValueEntity        => entity.messageType.fullyQualifiedName
-      case entity: ModelBuilder.ReplicatedEntity   => entity.messageType.fullyQualifiedName
+      case entity: ModelBuilder.EventSourcedEntity   => entity.messageType.fullyQualifiedName
+      case entity: ModelBuilder.ValueEntity          => entity.messageType.fullyQualifiedName
+      case component: ModelBuilder.WorkflowComponent => component.messageType.fullyQualifiedName
+      case entity: ModelBuilder.ReplicatedEntity     => entity.messageType.fullyQualifiedName
     }.toSeq
 
     val serviceImports = model.services.values.collect {
@@ -62,9 +63,10 @@ object MainSourceGenerator {
     val entityRegistrationParameters = model.statefulComponents.values.toList
       .sortBy(_.messageType.name)
       .collect {
-        case entity: ModelBuilder.EventSourcedEntity => s"new ${typeName(entity.messageType)}(_)"
-        case entity: ModelBuilder.ValueEntity        => s"new ${typeName(entity.messageType)}(_)"
-        case entity: ModelBuilder.ReplicatedEntity   => s"new ${typeName(entity.messageType)}(_)"
+        case entity: ModelBuilder.EventSourcedEntity   => s"new ${typeName(entity.messageType)}(_)"
+        case entity: ModelBuilder.ValueEntity          => s"new ${typeName(entity.messageType)}(_)"
+        case component: ModelBuilder.WorkflowComponent => s"new ${typeName(component.messageType)}(_)"
+        case entity: ModelBuilder.ReplicatedEntity     => s"new ${typeName(entity.messageType)}(_)"
       }
 
     val serviceRegistrationParameters = model.services.values.toList
@@ -118,6 +120,8 @@ object MainSourceGenerator {
           ety.provider :: imp
         case _: ModelBuilder.ReplicatedEntity =>
           ety.provider :: imp
+        case _: ModelBuilder.WorkflowComponent =>
+          ety.provider :: imp
         case _ => imp
       }
     }
@@ -139,6 +143,8 @@ object MainSourceGenerator {
         List("kalix.scalasdk.valueentity.ValueEntityContext")
       case _: ModelBuilder.ReplicatedEntity =>
         List("kalix.scalasdk.replicatedentity.ReplicatedEntityContext")
+      case _: ModelBuilder.WorkflowComponent =>
+        List("kalix.scalasdk.workflow.WorkflowContext")
     }.flatten
 
     val serviceContextImports = model.services.values.collect {
@@ -169,6 +175,8 @@ object MainSourceGenerator {
               s".register(${typeName(entity.provider)}(${creator(entity.messageType)}))"
             case entity: ModelBuilder.ReplicatedEntity =>
               s".register(${typeName(entity.provider)}(${creator(entity.messageType)}))"
+            case workflow: ModelBuilder.WorkflowComponent =>
+              s".register(${typeName(workflow.provider)}(${creator(workflow.messageType)}))"
           }
 
         case service: ModelBuilder.ViewService =>
@@ -191,6 +199,8 @@ object MainSourceGenerator {
             s"${creator(entity.messageType)}: ValueEntityContext => ${typeName(entity.messageType)}"
           case entity: ModelBuilder.ReplicatedEntity =>
             s"${creator(entity.messageType)}: ReplicatedEntityContext => ${typeName(entity.messageType)}"
+          case component: ModelBuilder.WorkflowComponent =>
+            s"${creator(component.messageType)}: WorkflowContext => ${typeName(component.messageType)}"
         }
 
     val serviceCreators = model.services.values.toList

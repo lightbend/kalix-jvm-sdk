@@ -71,7 +71,7 @@ public class TransferWorkflowIntegrationTest {
   }
 
   @Test
-  public void shouldTransferMoneyWithAcceptation() throws Exception {
+  public void shouldTransferFundsWithAcceptation() throws Exception {
     String walletAId = randomId();
     String walletBId = randomId();
     String transferId = randomId();
@@ -128,7 +128,7 @@ public class TransferWorkflowIntegrationTest {
   }
 
   @Test
-  public void shouldCompensateFailedMoneyTransferToNotExistingWallet() throws ExecutionException, InterruptedException, TimeoutException {
+  public void shouldCompensateFailedTransferToNotExistingWallet() throws ExecutionException, InterruptedException, TimeoutException {
     String walletAId = randomId();
     String walletBId = randomId();
     String transferId = randomId();

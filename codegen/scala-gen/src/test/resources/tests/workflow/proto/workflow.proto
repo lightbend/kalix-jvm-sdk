@@ -1,0 +1,62 @@
+// Copyright 2024 Lightbend Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+syntax = "proto3";
+package org.example.workflow;
+
+option java_outer_classname = "TransferWorkflowApi";
+
+import "kalix/annotations.proto";
+import "google/protobuf/empty.proto";
+
+message Transfer {
+  string workflow_id = 1 [(kalix.field).id = true];
+  string from = 2;
+  string to = 3;
+  double amount = 4;
+}
+
+message State {
+  string from = 1;
+  string to = 2;
+  double amount = 3;
+  string log  = 4;
+  repeated string sign_offs = 5;
+}
+
+message Deposit{
+  string account = 1;
+  double amount = 2;
+}
+
+message Withdraw{
+  string account = 1;
+  double amount = 2;
+}
+
+message Owner {
+  string name = 1;
+}
+
+service TransferWorkflowService {
+  option (kalix.codegen) = {
+    workflow: {
+      name: "TransferWorkflow"
+      type_id: "transfer-workflow"
+      state: "org.example.workflow.domain.TransferState"
+    }
+  };
+  rpc Start(Transfer) returns (google.protobuf.Empty) {}
+  rpc GetState(google.protobuf.Empty) returns (Transfer) {}
+}

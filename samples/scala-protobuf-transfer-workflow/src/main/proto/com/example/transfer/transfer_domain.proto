@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+package com.example.transfer.domain;
+
+// tag::transfer-state[]
+message TransferState { // <1>
+    string from = 1;
+    string to = 2;
+    int32 amount = 3;
+    TransferStatus status = 4;
+}
+
+enum TransferStatus { // <2>
+    STARTED = 0;
+    WITHDRAW_SUCCEED = 1;
+    COMPLETED = 2;
+}
+// end::transfer-state[]
+
+message Withdraw {
+    string from = 1;
+    int32 amount = 2;
+}
+
+message Deposit {
+    string to = 1;
+    int32 amount = 2;
+}

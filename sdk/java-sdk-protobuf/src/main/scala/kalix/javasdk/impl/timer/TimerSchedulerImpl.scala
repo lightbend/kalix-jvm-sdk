@@ -34,7 +34,8 @@ import kalix.timers.timers.SingleTimer
 import kalix.timers.timers.TimerService
 
 /** INTERNAL API */
-private[kalix] final class TimerSchedulerImpl(messageCodec: MessageCodec, system: ActorSystem) extends TimerScheduler {
+private[kalix] final class TimerSchedulerImpl(val messageCodec: MessageCodec, val system: ActorSystem)
+    extends TimerScheduler {
 
   override def startSingleTimer[I, O](
       name: String,

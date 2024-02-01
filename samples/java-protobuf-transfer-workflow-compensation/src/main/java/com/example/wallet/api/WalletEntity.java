@@ -59,7 +59,7 @@ public class WalletEntity extends AbstractWalletEntity {
     if (currentState() == null) {
       WalletApi.DepositResult walletNotExists = WalletApi.DepositResult.newBuilder()
         .setFailed(WalletApi.DepositFailed.newBuilder()
-          .setMessage("Wallet [" + commandContext().entityId() + "] not exists")
+          .setMessage("Wallet [" + commandContext().entityId() + "] not found")
           .build())
         .build();
       return effects().reply(walletNotExists);

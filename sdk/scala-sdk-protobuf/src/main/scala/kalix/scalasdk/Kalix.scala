@@ -37,6 +37,9 @@ import kalix.scalasdk.valueentity.ValueEntityProvider
 import kalix.scalasdk.view.ViewProvider
 import com.typesafe.config.Config
 import kalix.javasdk.impl.MessageCodec
+import kalix.scalasdk.impl.workflow.JavaWorkflowProviderAdapter
+import kalix.scalasdk.workflow.AbstractWorkflow
+import kalix.scalasdk.workflow.WorkflowProvider
 
 object Kalix {
   def apply() = new Kalix(new javasdk.Kalix().preferScalaProtobufs().withSdkName(ScalaSdkBuildInfo.name))
@@ -117,6 +120,18 @@ class Kalix private (private[kalix] val delegate: javasdk.Kalix) {
    */
   def register[S, E <: ValueEntity[S]](provider: ValueEntityProvider[S, E]): Kalix =
     Kalix(delegate.register(new JavaValueEntityProviderAdapter(provider)))
+
+  /**
+   * Register a workflow using a [[WorkflowProvider]]. The concrete `WorkflowProvider` is generated for the specific
+   * workflow defined in Protobuf, for example `TransferWorkflowProvider`.
+   *
+   * [[kalix.scalasdk.workflow.WorkflowOptions]] can be defined by in the `WorkflowProvider`.
+   *
+   * @return
+   *   This stateful service builder.
+   */
+  def register[S >: Null, E <: AbstractWorkflow[S]](provider: WorkflowProvider[S, E]): Kalix =
+    Kalix(delegate.register(new JavaWorkflowProviderAdapter(provider)))
 
   /**
    * Register a event sourced entity using a [[EventSourcedEntityProvider]]. The concrete `EventSourcedEntityProvider`

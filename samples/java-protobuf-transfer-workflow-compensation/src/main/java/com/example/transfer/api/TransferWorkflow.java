@@ -56,14 +56,14 @@ public class TransferWorkflow extends AbstractTransferWorkflow {
   @Override
   public WorkflowDef<TransferState> definition() {
     Workflow.Step withdraw =
-      step("withdraw") // <1>
+      step("withdraw")
         .asyncCall(Withdraw.class, cmd -> {
-          logger.info("Running: " + cmd);
+          logger.info("Running withdraw step: " + cmd);
           return timers().cancel("acceptationTimout-" + currentState().getTransferId()).thenCompose(__ -> {
             WithdrawRequest withdrawRequest = WithdrawRequest.newBuilder().setWalletId(cmd.getFrom()).setAmount(cmd.getAmount()).build();
             return components().walletEntity().withdraw(withdrawRequest).execute();
           });
-        }) // <2>
+        })
         .andThen(WithdrawResult.class, withdrawResult -> {
           if (withdrawResult.hasSucceed()) {
             Deposit depositInput = Deposit.newBuilder().setTo(currentState().getTo()).setAmount(currentState().getAmount()).build();
@@ -84,7 +84,7 @@ public class TransferWorkflow extends AbstractTransferWorkflow {
       step("deposit")
         .call(Deposit.class, cmd -> {
           // end::compensation[]
-          logger.info("Running: " + cmd);
+          logger.info("Running deposit step: " + cmd);
           // tag::compensation[]
           DepositRequest depositRequest = DepositRequest.newBuilder().setWalletId(cmd.getTo()).setAmount(cmd.getAmount()).build();
           return components().walletEntity().deposit(depositRequest);
@@ -233,7 +233,7 @@ public class TransferWorkflow extends AbstractTransferWorkflow {
         .transitionTo("withdraw", withdrawInput)
         .thenReply(Empty.getDefaultInstance());
     } else { // <2>
-      return effects().error("Cannot accept transfer with status: " + currentState().getStatus());
+      return effects().error("Cannot accept transfer with status: " + currentState.getStatus());
     }
   }
   // end::resuming[]
