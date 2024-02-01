@@ -118,6 +118,7 @@ object ComponentsSourceGenerator {
         "kalix.javasdk.DeferredCall",
         "kalix.javasdk.Context",
         "kalix.javasdk.Metadata",
+        "kalix.javasdk.MetadataContext",
         "kalix.javasdk.impl.GrpcDeferredCall",
         "kalix.javasdk.impl.MetadataImpl",
         "kalix.javasdk.impl.InternalContext"))
@@ -139,9 +140,16 @@ object ComponentsSourceGenerator {
           val messageType = component.service.messageType
           s"""@Override
              |public DeferredCall<$inputType, $outputType> $commandMethod($inputType $paramName) {
+             |  MetadataImpl met = MetadataImpl.Empty();
+             |  if (context instanceof MetadataContext) {
+             |    Metadata metadata = ((MetadataContext) context).metadata();
+             |    if (metadata.has("traceparent")) {
+             |      met.add("traceparent", metadata.get("traceparent").get());
+             |    }
+             |  }
              |  return new GrpcDeferredCall<>(
              |    ${lowerFirst(command.inputType.name)},
-             |    MetadataImpl.Empty(),
+             |    met,
              |    "${component.service.messageType.fullyQualifiedProtoName}",
              |    "${command.name}",
              |    (Metadata metadata) -> {
