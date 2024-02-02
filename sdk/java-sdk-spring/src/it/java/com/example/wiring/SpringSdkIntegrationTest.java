@@ -113,7 +113,7 @@ public class SpringSdkIntegrationTest {
   }
 
   @Test
-  public void notRequestWithMissingPathParamIfNotEntityId() {
+  public void notAcceptRequestWithMissingPathParamIfNotEntityId() {
 
     ResponseEntity<String> response =
       webClient
