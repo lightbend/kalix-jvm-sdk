@@ -1,21 +1,16 @@
 package com.example.transfer.api;
 
 import com.example.Main;
-import com.example.transfer.api.TransferWorkflowApi.Transfer;
-import com.example.wallet.api.WalletApi;
+import com.example.transfer.api.TransferApi.Transfer;
 import com.example.wallet.api.WalletApi.GetRequest;
 import com.example.wallet.api.WalletApi.InitialBalance;
 import com.example.wallet.api.WalletService;
-import com.example.wallet.domain.WalletDomain;
 import com.example.wallet.domain.WalletDomain.WalletState;
 import kalix.javasdk.testkit.junit.jupiter.KalixTestKitExtension;
-import org.junit.Assert;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-import static java.util.concurrent.TimeUnit.*;
-import static org.junit.Assert.assertEquals;
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.testcontainers.shaded.org.awaitility.Awaitility.await;
 
