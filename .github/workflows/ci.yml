@@ -700,7 +700,7 @@ jobs:
           - { sample: scala-protobuf-reliable-timers, test: true }
 
           - { sample: scala-protobuf-web-resources, test: true }
-          -
+
           - { sample: scala-protobuf-transfer-workflow, test: true }
           - { sample: scala-protobuf-transfer-workflow-compensation, test: true }
 
