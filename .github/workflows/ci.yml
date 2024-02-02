@@ -592,9 +592,6 @@ jobs:
           - { sample: java-protobuf-transfer-workflow, it: true }
           - { sample: java-protobuf-transfer-workflow-compensation, it: true }
 
-          - { sample: scala-protobuf-transfer-workflow, it: true }
-          - { sample: scala-protobuf-transfer-workflow-compensation, it: true }
-
     steps:
       - name: Checkout
         # v3.1.0
@@ -703,6 +700,9 @@ jobs:
           - { sample: scala-protobuf-reliable-timers, test: true }
 
           - { sample: scala-protobuf-web-resources, test: true }
+          -
+          - { sample: scala-protobuf-transfer-workflow, test: true }
+          - { sample: scala-protobuf-transfer-workflow-compensation, test: true }
 
     steps:
       - name: Checkout
