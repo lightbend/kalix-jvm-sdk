@@ -24,8 +24,8 @@ import scalapb.GeneratedMessage
  *
  * You can use workflows to implement business processes that span multiple services.
  *
- * When implementing a workflow, you define a state type and a set of steps. Each step defines a call to be executed
- * and the transition to the next step based on the result of the call. The workflow state can be updated after each
+ * When implementing a workflow, you define a state type and a set of steps. Each step defines a call to be executed and
+ * the transition to the next step based on the result of the call. The workflow state can be updated after each
  * successful step execution.
  *
  * Kalix keeps track of the state of the workflow and the current step. If the workflow is stopped for any reason, it
