@@ -647,8 +647,25 @@ public class SpringSdkIntegrationTest {
       .atMost(10, TimeUnit.SECONDS)
       .untilAsserted(
         () -> {
-          var byEmail = execute(componentClient.forView().call(UsersByEmail::getUsers).params(user.email));
+          var byEmail = execute(componentClient.forView().call(UsersByEmail::getUsersEmail).params(user.email));
           assertThat(byEmail.email).isEqualTo(user.email);
+        });
+  }
+
+  @Test
+  public void verifyFindUsersByName() {
+
+    TestUser user = new TestUser("JohnDoe2", "john4@doe.com", "JohnDoe2");
+    createUser(user);
+
+    // the view is eventually updated
+    await()
+      .ignoreExceptions()
+      .atMost(10, TimeUnit.SECONDS)
+      .untilAsserted(
+        () -> {
+          var byName = execute(componentClient.forView().call(UsersByEmail::getUsersByName).params(user.name));
+          assertThat(byName.name).isEqualTo(user.name);
         });
   }
 
