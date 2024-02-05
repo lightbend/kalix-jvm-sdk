@@ -25,13 +25,19 @@ import kalix.javasdk.annotations.Table;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
-@Table("users_by_email")
+@Table("users")
 @Subscribe.ValueEntity(UserEntity.class)
-public class UsersByEmail extends View<User> {
+public class UsersView extends View<User> {
 
   @GetMapping("/users/by_email/{email}")
-  @Query("SELECT * FROM users_by_email WHERE email = :email")
-  public User getUsers(@PathVariable String email) {
+  @Query("SELECT * FROM users WHERE email = :email")
+  public User getUsersEmail(@PathVariable String email) {
+    return null;
+  }
+
+  @GetMapping("/users/by_name/{name}")
+  @Query("SELECT * FROM users WHERE name = :name")
+  public User getUsersByName(@PathVariable String name) {
     return null;
   }
 }

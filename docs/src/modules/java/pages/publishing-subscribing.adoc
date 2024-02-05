@@ -119,7 +119,7 @@ Referencing environment variables is done with the syntax `$\{VAR_NAME}` in the 
 
 WARNING: Changing the `service` name after it has once been deployed means the consumer will start over from the beginning of the event stream.
 
-See https://docs.kalix.io/kalix/kalix_services_deploy.html[kalix service deploy] for details on how to set environment variables when deploying a service.
+See https://docs.kalix.io/reference/kalix/kalix_services_deploy.html[kalix service deploy] for details on how to set environment variables when deploying a service.
 
 
 
@@ -185,7 +185,7 @@ If an action has a return type of `byte[]` and publishes to a topic, the events 
 
 It is possible to use environment variables to control the name of the topic that is used for consuming from or producing events to, this is useful for example for using the same image in staging and production deployments but having them interact with separate topics.
 
-Referencing environment variables is done with the syntax `$\{VAR_NAME}` in the `value` parameter of the `@Subscribe.Topic` annotation. See https://docs.kalix.io/kalix/kalix_services_deploy.html[kalix service deploy] for details on how to set environment variables when deploying a service.
+Referencing environment variables is done with the syntax `$\{VAR_NAME}` in the `value` parameter of the `@Subscribe.Topic` annotation. See https://docs.kalix.io/reference/kalix/kalix_services_deploy.html[kalix service deploy] for details on how to set environment variables when deploying a service.
 
 WARNING: Changing the `topic` name after it has once been deployed for an event consumer means the consumer will start over from the beginning of the topic.
 

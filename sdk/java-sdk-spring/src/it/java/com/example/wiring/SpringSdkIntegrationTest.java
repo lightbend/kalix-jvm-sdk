@@ -40,7 +40,7 @@ import com.example.wiring.views.UserCounters;
 import com.example.wiring.views.UserCountersView;
 import com.example.wiring.views.UserWithVersion;
 import com.example.wiring.views.UserWithVersionView;
-import com.example.wiring.views.UsersByEmail;
+import com.example.wiring.views.UsersView;
 import com.example.wiring.views.UsersByEmailAndName;
 import com.google.protobuf.any.Any;
 import kalix.javasdk.DeferredCall;
@@ -647,8 +647,25 @@ public class SpringSdkIntegrationTest {
       .atMost(10, TimeUnit.SECONDS)
       .untilAsserted(
         () -> {
-          var byEmail = execute(componentClient.forView().call(UsersByEmail::getUsers).params(user.email));
+          var byEmail = execute(componentClient.forView().call(UsersView::getUsersEmail).params(user.email));
           assertThat(byEmail.email).isEqualTo(user.email);
+        });
+  }
+
+  @Test
+  public void verifyFindUsersByName() {
+
+    TestUser user = new TestUser("JohnDoe2", "john4@doe.com", "JohnDoe2");
+    createUser(user);
+
+    // the view is eventually updated
+    await()
+      .ignoreExceptions()
+      .atMost(10, TimeUnit.SECONDS)
+      .untilAsserted(
+        () -> {
+          var byName = execute(componentClient.forView().call(UsersView::getUsersByName).params(user.name));
+          assertThat(byName.name).isEqualTo(user.name);
         });
   }
 

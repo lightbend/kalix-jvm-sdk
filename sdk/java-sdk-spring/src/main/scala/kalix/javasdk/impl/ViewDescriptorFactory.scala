@@ -133,19 +133,45 @@ private[impl] object ViewDescriptorFactory extends ComponentDescriptorFactory {
         }
     }
 
-    // we only take methods with Query annotations and Spring REST annotations
-    val (
+    val allQueryMethods = queryMethods(component)
+
+    val kalixMethods: Seq[KalixMethod] = allQueryMethods.map(_.queryMethod) ++ updateMethods
+    val serviceName = nameGenerator.getName(component.getSimpleName)
+    val additionalMessages =
+      tableTypeDescriptors.toSet ++ allQueryMethods.map(_.queryOutputSchemaDescriptor) ++ allQueryMethods.flatMap(
+        _.queryInputSchemaDescriptor.toSet)
+
+    val serviceLevelOptions =
+      mergeServiceOptions(
+        AclDescriptorFactory.serviceLevelAclAnnotation(component),
+        JwtDescriptorFactory.serviceLevelJwtAnnotation(component),
+        eventingInForEventSourcedEntityServiceLevel(component),
+        eventingInForTopicServiceLevel(component),
+        subscribeToEventStream(component))
+
+    ComponentDescriptor(
+      nameGenerator,
+      messageCodec,
+      serviceName,
+      serviceOptions = serviceLevelOptions,
+      component.getPackageName,
+      kalixMethods,
+      additionalMessages.toSeq)
+  }
+
+  private case class QueryMethod(
       queryMethod: KalixMethod,
       queryInputSchemaDescriptor: Option[ProtoMessageDescriptors],
-      queryOutputSchemaDescriptor: ProtoMessageDescriptors) = {
+      queryOutputSchemaDescriptor: ProtoMessageDescriptors)
 
-      val annotatedQueryMethods = RestServiceIntrospector
-        .inspectService(component)
-        .methods
-        .filter(_.javaMethod.getAnnotation(classOf[Query]) != null)
+  private def queryMethods(component: Class[_]): Seq[QueryMethod] = {
+    // we only take methods with Query annotations and Spring REST annotations
+    val annotatedQueryMethods = RestServiceIntrospector
+      .inspectService(component)
+      .methods
+      .filter(_.javaMethod.getAnnotation(classOf[Query]) != null)
 
-      val queryMethod: SyntheticRequestServiceMethod = annotatedQueryMethods.head
-
+    annotatedQueryMethods.map { queryMethod =>
       val queryOutputType = {
         val returnType = queryMethod.javaMethod.getReturnType
         if (returnType == classOf[Flux[_]]) {
@@ -200,34 +226,11 @@ private[impl] object ViewDescriptorFactory extends ComponentDescriptorFactory {
 
       // since it is a query, we don't actually ever want to handle any request in the SDK
       // the proxy does the work for us, mark the method as non-callable
-      (
-        KalixMethod(queryMethod.copy(callable = false), methodOptions = Some(methodOptions))
-          .withKalixOptions(buildJWTOptions(queryMethod.javaMethod)),
-        queryInputSchemaDescriptor,
-        queryOutputSchemaDescriptor)
+      val kalixQueryMethod = KalixMethod(queryMethod.copy(callable = false), methodOptions = Some(methodOptions))
+        .withKalixOptions(buildJWTOptions(queryMethod.javaMethod))
+
+      QueryMethod(kalixQueryMethod, queryInputSchemaDescriptor, queryOutputSchemaDescriptor)
     }
-
-    val kalixMethods: Seq[KalixMethod] = queryMethod +: updateMethods
-    val serviceName = nameGenerator.getName(component.getSimpleName)
-    val additionalMessages =
-      tableTypeDescriptors.toSet ++ Set(queryOutputSchemaDescriptor) ++ queryInputSchemaDescriptor.toSet
-
-    val serviceLevelOptions =
-      mergeServiceOptions(
-        AclDescriptorFactory.serviceLevelAclAnnotation(component),
-        JwtDescriptorFactory.serviceLevelJwtAnnotation(component),
-        eventingInForEventSourcedEntityServiceLevel(component),
-        eventingInForTopicServiceLevel(component),
-        subscribeToEventStream(component))
-
-    ComponentDescriptor(
-      nameGenerator,
-      messageCodec,
-      serviceName,
-      serviceOptions = serviceLevelOptions,
-      component.getPackageName,
-      kalixMethods,
-      additionalMessages.toSeq)
   }
 
   private def methodsForTypeLevelStreamSubscriptions(
