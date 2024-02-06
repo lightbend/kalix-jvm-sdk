@@ -118,7 +118,6 @@ object ComponentsSourceGenerator {
         "kalix.javasdk.DeferredCall",
         "kalix.javasdk.Context",
         "kalix.javasdk.Metadata",
-        "kalix.javasdk.MetadataContext",
         "kalix.javasdk.impl.GrpcDeferredCall",
         "kalix.javasdk.impl.MetadataImpl",
         "kalix.javasdk.impl.InternalContext"))
