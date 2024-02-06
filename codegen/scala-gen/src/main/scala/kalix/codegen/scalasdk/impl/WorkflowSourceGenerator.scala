@@ -26,18 +26,18 @@ object WorkflowSourceGenerator {
   import ScalaGeneratorUtils._
   import kalix.codegen.SourceGeneratorUtils._
 
-  def generateUnmanaged(valueEntity: ModelBuilder.WorkflowComponent, service: ModelBuilder.EntityService): Seq[File] =
-    Seq(generateImplementationSkeleton(valueEntity, service))
+  def generateUnmanaged(workflow: ModelBuilder.WorkflowComponent, service: ModelBuilder.EntityService): Seq[File] =
+    Seq(generateImplementationSkeleton(workflow, service))
 
   def generateManaged(
-      valueEntity: ModelBuilder.WorkflowComponent,
+      workflowComponent: ModelBuilder.WorkflowComponent,
       service: ModelBuilder.EntityService,
       mainPackageName: PackageNaming,
       allServices: Seq[ModelBuilder.Service]): Seq[File] =
     Seq(
-      abstractWorkflow(valueEntity, service, mainPackageName),
-      handler(valueEntity, service),
-      provider(valueEntity, service, allServices))
+      abstractWorkflow(workflowComponent, service, mainPackageName),
+      handler(workflowComponent, service),
+      provider(workflowComponent, service, allServices))
 
   private[codegen] def abstractWorkflow(
       workflowComponent: ModelBuilder.WorkflowComponent,
@@ -91,7 +91,7 @@ object WorkflowSourceGenerator {
         val methodName = cmd.name
         val inputType = cmd.inputType
         c"""|case "$methodName" =>
-            |  entity.${lowerFirst(methodName)}(state, command.asInstanceOf[$inputType])
+            |  workflow.${lowerFirst(methodName)}(state, command.asInstanceOf[$inputType])
             |"""
       }
 
@@ -101,10 +101,9 @@ object WorkflowSourceGenerator {
       c"""|$managedComment
           |
           |/**
-          | * A value entity handler that is the glue between the Protobuf service <code>CounterService</code>
-          | * and the command handler methods in the <code>Counter</code> class.
+          | * A workflow handler that is the glue between the Protobuf service and actual workflow implementation.
           | */
-          |class ${workflowName.name}Router(entity: $workflowName) extends $WorkflowRouter[$stateType, $workflowName](entity) {
+          |class ${workflowName.name}Router(workflow: $workflowName) extends $WorkflowRouter[$stateType, $workflowName](entity) {
           |  def handleCommand(commandName: String, state: $stateType, command: Any, context: $CommandContext): $AbstractWorkflow.Effect[_] = {
           |    commandName match {
           |      $commandCases

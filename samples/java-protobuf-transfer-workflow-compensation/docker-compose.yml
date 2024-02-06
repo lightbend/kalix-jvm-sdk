@@ -1,7 +1,7 @@
 version: "3"
 services:
   kalix-runtime:
-    image: gcr.io/kalix-public/kalix-runtime:1.1.29-20-9ecb0999
+    image: gcr.io/kalix-public/kalix-runtime:1.1.31
     container_name: java-protobuf-transfer-workflow-compensation
     ports:
       - "9000:9000"

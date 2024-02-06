@@ -40,15 +40,15 @@ class TransferWorkflow(context: WorkflowContext) extends AbstractTransferWorkflo
   override def definition: AbstractWorkflow.WorkflowDef[TransferState] = {
 
     val withdraw = step("withdraw")
-      .asyncCall((withdraw: Withdraw) => {
+      .asyncCall { withdraw: Withdraw =>
         logger.info("Running withdraw step: " + withdraw)
         timers
           .cancel("acceptationTimout-" + currentState().transferId)
-          .flatMap(_ => {
+          .flatMap { _ =>
             val withdrawRequest = WithdrawRequest(withdraw.from, withdraw.amount)
             components.walletEntity.withdraw(withdrawRequest).execute()
-          })
-      })
+          }
+      }
       .andThen { withdrawResult =>
         withdrawResult.result match {
           case WithdrawResult.Result.Succeed(_) =>
@@ -68,13 +68,13 @@ class TransferWorkflow(context: WorkflowContext) extends AbstractTransferWorkflo
 
     // tag::compensation[]
     val deposit = step("deposit")
-      .call((deposit: Deposit) => {
+      .call { deposit: Deposit =>
         // end::compensation[]
         logger.info("Running deposit step: " + deposit)
         // tag::compensation[]
         val depositRequest = DepositRequest(deposit.to, deposit.amount)
         components.walletEntity.deposit(depositRequest)
-      })
+      }
       .andThen { depositResult => // <1>
         depositResult.result match {
           case DepositResult.Result.Succeed(_) =>
@@ -94,13 +94,13 @@ class TransferWorkflow(context: WorkflowContext) extends AbstractTransferWorkflo
       }
 
     val compensateWithdraw = step("compensate-withdraw") // <3>
-      .call(() => {
+      .call { () =>
         // end::compensation[]
         logger.info("Running withdraw compensation");
         // tag::compensation[]
         val depositRequest = DepositRequest(currentState().from, currentState().amount)
         components.walletEntity.deposit(depositRequest)
-      })
+      }
       .andThen { depositResult =>
         depositResult.result match {
           case DepositResult.Result.Succeed(_) =>
@@ -115,22 +115,23 @@ class TransferWorkflow(context: WorkflowContext) extends AbstractTransferWorkflo
 
     // tag::step-timeout[]
     val failoverHandler = step("failover-handler")
-      .asyncCall(() => {
+      .asyncCall { () =>
         // end::step-timeout[]
         logger.info("Running workflow failed step")
         // tag::step-timeout[]
         Future.successful("handling failure").map(_ => Empty())
-      })
-      .andThen(_ =>
+      }
+      .andThen { _ =>
         effects
           .updateState(currentState().withStatus(REQUIRES_MANUAL_INTERVENTION))
-          .end)
+          .end
+      }
       .timeout(1.second) // <1>
     // end::step-timeout[]
 
     // tag::pausing[]
     val waitForAcceptation = step("wait-for-acceptation")
-      .asyncCall(() => {
+      .asyncCall { () =>
         val timeoutRequest = AcceptationTimeoutRequest(currentState().transferId)
         timers
           .startSingleTimer( // <1>
@@ -138,8 +139,8 @@ class TransferWorkflow(context: WorkflowContext) extends AbstractTransferWorkflo
             8.hours,
             components.transferWorkflow.acceptationTimeout(timeoutRequest))
           .map(_ => Empty())
-      })
-      .andThen(_ => effects.pause) // <2>
+      }
+      .andThen { _ => effects.pause } // <2>
     // end::pausing[]
 
     // tag::timeouts[]

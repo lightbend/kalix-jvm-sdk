@@ -18,7 +18,7 @@ package kalix.scalasdk.workflow
 
 import kalix.scalasdk.impl.ComponentOptions
 
-/** Root entity options for all value based entities. */
+/** Workflow options. */
 trait WorkflowOptions extends ComponentOptions {
 
   def withForwardHeaders(headers: Set[String]): WorkflowOptions

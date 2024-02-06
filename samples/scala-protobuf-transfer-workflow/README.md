@@ -1,4 +1,4 @@
-# Implementing a Counter as a Value Entity
+# Implementing a Workflow
 
 ## Building and running unit tests
 

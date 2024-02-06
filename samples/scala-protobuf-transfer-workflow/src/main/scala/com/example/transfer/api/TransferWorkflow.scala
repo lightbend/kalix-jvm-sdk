@@ -21,26 +21,27 @@ class TransferWorkflow(context: WorkflowContext) extends AbstractTransferWorkflo
   override def definition: AbstractWorkflow.WorkflowDef[TransferState] = {
 
     val withdraw = step("withdraw") // <1>
-      .call((withdraw: Withdraw) => {
+      .call { withdraw: Withdraw =>
         val withdrawRequest = WithdrawRequest(withdraw.from, withdraw.amount)
         components.walletEntity.withdraw(withdrawRequest)
-      }) // <2>
-      .andThen(_ => {
+      } // <2>
+      .andThen { _ =>
         val deposit = Deposit(currentState().to, currentState().amount)
         effects
           .updateState(currentState().copy(status = WITHDRAW_SUCCEED))
           .transitionTo("deposit", deposit) // <3>
-      })
+      }
 
     val deposit = step("deposit") // <1>
-      .call((deposit: Deposit) => {
+      .call { deposit: Deposit =>
         val depositRequest = DepositRequest(deposit.to, deposit.amount)
         components.walletEntity.deposit(depositRequest)
-      }) // <4>
-      .andThen(_ =>
+      } // <4>
+      .andThen { _ =>
         effects
           .updateState(currentState().copy(status = COMPLETED))
-          .end) // <5>
+          .end // <5>
+      }
 
     workflow // <6>
       .addStep(withdraw)
