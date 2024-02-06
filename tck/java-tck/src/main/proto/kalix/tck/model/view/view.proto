@@ -60,14 +60,14 @@ service ViewTckModel {
 
 
 //
-// The `ViewTckSource` service should be registered as a Value Entity with entity type "view-source".
+// The `ViewTckSource` service should be registered as a Value Entity with entity type id "view-source".
 // This is used as the configured event source for the ViewTckModel, but doesn't do anything itself.
 //
 service ViewTckSource {
   option (kalix.codegen) = {
     value_entity: {
       name: "ViewTckSourceEntity"
-      entity_type: "view-source"
+      type_id: "view-source"
       state: "Ignore"
     }
   };

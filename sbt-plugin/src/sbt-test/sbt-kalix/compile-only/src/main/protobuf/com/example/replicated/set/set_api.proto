@@ -26,17 +26,17 @@ message Element {
 }
 
 message AddElement {
-  string set_id = 1 [(kalix.field).entity_key = true];
+  string set_id = 1 [(kalix.field).id = true];
   Element element = 2;
 }
 
 message RemoveElement {
-  string set_id = 1 [(kalix.field).entity_key = true];
+  string set_id = 1 [(kalix.field).id = true];
   Element element = 2;
 }
 
 message GetElements {
-  string set_id = 1 [(kalix.field).entity_key = true];
+  string set_id = 1 [(kalix.field).id = true];
 }
 
 message CurrentElements {
@@ -47,7 +47,7 @@ service SetService {
   option (kalix.codegen) = {
     replicated_entity: {
       name: ".domain.SomeSet"
-      entity_type: "some-set"
+      type_id: "some-set"
       replicated_set: {
         element: ".domain.SomeElement"
       }
@@ -63,7 +63,7 @@ service ScalarSetService {
   option (kalix.codegen) = {
     replicated_entity: {
       name: ".domain.SomeScalarSet"
-      entity_type: "some-scalar-set"
+      type_id: "some-scalar-set"
       replicated_set: {
         element: "string"
       }

@@ -379,11 +379,11 @@ public interface EventingTestKit {
     }
 
     /**
-     * Create a message from a payload plus a subject (that is, the entity key).
+     * Create a message from a payload plus a subject (that is, the entity id).
      * Automatically adds required default metadata for a CloudEvent.
      *
      * @param payload the message payload
-     * @param subject the entity key of which the message is concerned about
+     * @param subject the entity id of which the message is concerned about
      * @param <T>
      * @return a Message object to be used in the context of the Testkit
      */

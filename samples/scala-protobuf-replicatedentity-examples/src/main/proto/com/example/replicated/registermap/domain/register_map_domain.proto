@@ -21,7 +21,7 @@ import "kalix/annotations.proto";
 // tag::replicated_entity[]
 option (kalix.file).replicated_entity = {
   name: "SomeRegisterMap"
-  entity_type: "some-register-map"
+  type_id: "some-register-map"
   replicated_register_map: { // <1>
     key: "SomeKey" // <2>
     value: "SomeValue" // <3>

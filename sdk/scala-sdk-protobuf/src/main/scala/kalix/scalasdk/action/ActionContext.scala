@@ -34,7 +34,7 @@ trait ActionContext extends MetadataContext {
   def metadata: Metadata
 
   /**
-   * The origin subject of the {{{CloudEvent}}}. For example, the entity key when the event was emitted from an entity.
+   * The origin subject of the {{{CloudEvent}}}. For example, the entity id when the event was emitted from an entity.
    */
   def eventSubject: Option[String]
 

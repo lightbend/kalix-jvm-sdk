@@ -22,7 +22,7 @@ import kalix.scalasdk.MetadataContext
 trait UpdateContext extends ViewContext with MetadataContext {
 
   /**
-   * The origin subject of the [[kalix.scalasdk.CloudEvent]]. For example, the entity key when the event was emitted
+   * The origin subject of the [[kalix.scalasdk.CloudEvent]]. For example, the entity id when the event was emitted
    * from an entity.
    */
   def eventSubject: Option[String]

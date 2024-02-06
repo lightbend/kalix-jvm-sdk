@@ -9,24 +9,24 @@ import "kalix/annotations.proto";
 import "google/api/annotations.proto";
 
 message AddLineItem { // <3>
-  string cart_id = 1 [(kalix.field).entity_key = true];  // <4>
+  string cart_id = 1 [(kalix.field).id = true];  // <4>
   string product_id = 2;
   string name = 3;
   int32 quantity = 4;
 }
 
 message RemoveLineItem {
-  string cart_id = 1 [(kalix.field).entity_key = true];
+  string cart_id = 1 [(kalix.field).id = true];
   string product_id = 2;
   string name = 3;
 }
 
 message GetShoppingCart {
-  string cart_id = 1 [(kalix.field).entity_key = true];
+  string cart_id = 1 [(kalix.field).id = true];
 }
 
 message RemoveShoppingCart {
-  string cart_id = 1 [(kalix.field).entity_key = true];
+  string cart_id = 1 [(kalix.field).id = true];
 }
 
 message LineItem {
@@ -43,7 +43,7 @@ service ShoppingCartService {  // <6>
   option (kalix.codegen) = { // <7>
     replicated_entity: { // <8>
       name: "com.example.shoppingcart.domain.ShoppingCart" // <9>
-      entity_type: "shopping-cart" // <10>
+      type_id: "shopping-cart" // <10>
       replicated_counter_map: { // <11>
         key: "com.example.shoppingcart.domain.Product" // <12>
       }

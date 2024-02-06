@@ -7,7 +7,7 @@ import "kalix/annotations.proto";
 // tag::replicated_entity[]
 option (kalix.file).replicated_entity = {
   name: "SomeCounter"
-  entity_type: "some-counter"
+  type_id: "some-counter"
   replicated_counter: {} // <1>
 };
 // end::replicated_entity[]

@@ -30,13 +30,13 @@ message Value {
 }
 
 message SetValue {
-  string register_map_id = 1 [(kalix.field).entity_key = true];
+  string register_map_id = 1 [(kalix.field).id = true];
   Key key = 2;
   Value value = 3;
 }
 
 message GetValue {
-  string register_map_id = 1 [(kalix.field).entity_key = true];
+  string register_map_id = 1 [(kalix.field).id = true];
   Key key = 2;
 }
 
@@ -46,7 +46,7 @@ message CurrentValue {
 }
 
 message GetAllValues {
-  string register_map_id = 1 [(kalix.field).entity_key = true];
+  string register_map_id = 1 [(kalix.field).id = true];
 }
 
 message CurrentValues {
@@ -57,7 +57,7 @@ service RegisterMapService {
   option (kalix.codegen) = {
     replicated_entity: {
       name: ".domain.SomeRegisterMap"
-      entity_type: "some-register-map"
+      type_id: "some-register-map"
       replicated_register_map: {
         key: ".domain.SomeKey"
         value: ".domain.SomeValue"
@@ -75,7 +75,7 @@ service ScalarRegisterMapService {
   option (kalix.codegen) = {
     replicated_entity: {
       name: ".domain.SomeScalarRegisterMap"
-      entity_type: "some-scalar-register-map"
+      type_id: "some-scalar-register-map"
       replicated_register_map: {
         key: "sint32"
         value: "string"

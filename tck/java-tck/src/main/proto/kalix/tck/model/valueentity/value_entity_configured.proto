@@ -40,7 +40,7 @@ service ValueEntityConfigured {
   option (kalix.codegen) = {
     value_entity: {
       name: "ValueEntityConfiguredEntity"
-      entity_type: "value-entity-configured"
+      type_id: "value-entity-configured"
       state: "Persisted"
     }
   };

@@ -224,7 +224,7 @@ Add following Maven Dependencies to `pom.xml`
 
 === Generate gRPC stubs
 
-- Get all the proto files from relevant Kalix service and copy under `src/main/proto` folder. Remove all the Kalix annotations from the proto files. For instance `[(kalix.field).entity_key = true]` and `kalix.codegen` etc.
+- Get all the proto files from relevant Kalix service and copy under `src/main/proto` folder. Remove all the Kalix annotations from the proto files. For instance `[(kalix.field).id = true]` and `kalix.codegen` etc.
  For instance,  copying proto files from to `java-protobuf-valueentity-counter/src/main/proto/com/example`.
 
 - Run `mvn compile` to generate stubs.
