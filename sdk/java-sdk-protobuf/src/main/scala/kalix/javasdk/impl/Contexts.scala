@@ -20,6 +20,7 @@ import akka.actor.ActorSystem
 import akka.stream.Materializer
 import akka.stream.SystemMaterializer
 import kalix.javasdk.Context
+import kalix.javasdk.Metadata
 
 /**
  * INTERNAL API
@@ -35,6 +36,9 @@ private[impl] trait ActivatableContext extends Context {
  */
 private[kalix] trait InternalContext {
   def getComponentGrpcClient[T](serviceClass: Class[T]): T
+
+  /** Meant to be used by component calls, initially such they have access to info like trace parent */
+  def componentGrpcClientMetadata: Metadata = MetadataImpl.Empty
 }
 
 /**
@@ -47,4 +51,5 @@ abstract class AbstractContext(system: ActorSystem) extends Context with Interna
 
   def getComponentGrpcClient[T](serviceClass: Class[T]): T =
     GrpcClients(system).getComponentGrpcClient(serviceClass)
+
 }

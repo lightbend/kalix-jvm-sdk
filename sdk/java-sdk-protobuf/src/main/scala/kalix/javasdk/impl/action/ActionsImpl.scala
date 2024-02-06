@@ -37,6 +37,7 @@ import kalix.protocol.action.ActionResponse
 import kalix.protocol.action.Actions
 import kalix.protocol.component
 import kalix.protocol.component.Failure
+import kalix.protocol.component.MetadataEntry
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -63,7 +64,7 @@ final class ActionService(
 
   @volatile var actionClass: Option[Class[_]] = None
 
-  def createAction(context: ActionCreationContext): ActionRouter[_] = {
+  def createAction(context: ActionContext): ActionRouter[_] = {
     val handler = factory.create(context)
     actionClass = Some(handler.actionClass())
     handler
@@ -125,11 +126,6 @@ private[javasdk] final class ActionsImpl(
   lazy val telemetries: Map[String, Instrumentation] = services.values.map { s =>
     (s.serviceName, telemetry.traceInstrumentation(s.serviceName, ActionCategory))
   }.toMap
-
-  private object creationContext extends AbstractContext(system) with ActionCreationContext {
-    override def getGrpcClient[T](clientClass: Class[T], service: String): T =
-      GrpcClients(system).getGrpcClient(clientClass, service)
-  }
 
   private def effectToResponse(
       service: ActionService,
@@ -207,7 +203,7 @@ private[javasdk] final class ActionsImpl(
             val decodedPayload = service.messageCodec.decodeMessage(
               in.payload.getOrElse(throw new IllegalArgumentException("No command payload")))
             val effect = service.factory
-              .create(creationContext)
+              .create(context)
               .handleUnary(in.name, MessageEnvelope.of(decodedPayload, context.metadata()), context)
             effectToResponse(service, in, effect, service.messageCodec)
           } catch {
@@ -245,8 +241,9 @@ private[javasdk] final class ActionsImpl(
           services.get(call.serviceName) match {
             case Some(service) =>
               try {
+                val context = createContext(call, service.messageCodec)
                 val effect = service.factory
-                  .create(creationContext)
+                  .create(context)
                   .handleStreamedIn(
                     call.name,
                     messages.map { message =>
@@ -255,7 +252,7 @@ private[javasdk] final class ActionsImpl(
                         message.payload.getOrElse(throw new IllegalArgumentException("No command payload")))
                       MessageEnvelope.of(decodedPayload, metadata)
                     }.asJava,
-                    createContext(call, service.messageCodec))
+                    context)
                 effectToResponse(service, call, effect, service.messageCodec)
               } catch {
                 case NonFatal(ex) =>
@@ -283,7 +280,7 @@ private[javasdk] final class ActionsImpl(
           val decodedPayload = service.messageCodec.decodeMessage(
             in.payload.getOrElse(throw new IllegalArgumentException("No command payload")))
           service.factory
-            .create(creationContext)
+            .create(context)
             .handleStreamedOut(in.name, MessageEnvelope.of(decodedPayload, context.metadata()), context)
             .asScala
             .mapAsync(1)(effect => effectToResponse(service, in, effect, service.messageCodec))
@@ -324,8 +321,9 @@ private[javasdk] final class ActionsImpl(
           services.get(call.serviceName) match {
             case Some(service) =>
               try {
+                val context = createContext(call, service.messageCodec)
                 service.factory
-                  .create(creationContext)
+                  .create(context)
                   .handleStreamed(
                     call.name,
                     messages.map { message =>
@@ -364,11 +362,13 @@ private[javasdk] final class ActionsImpl(
 
 case class MessageEnvelopeImpl[T](payload: T, metadata: Metadata) extends MessageEnvelope[T]
 
+//WHY the messageCodec?
 /**
  * INTERNAL API
  */
 class ActionContextImpl(override val metadata: Metadata, val messageCodec: MessageCodec, val system: ActorSystem)
     extends AbstractContext(system)
+    with ActionCreationContext
     with ActionContext {
 
   override def eventSubject(): Optional[String] =
@@ -379,5 +379,17 @@ class ActionContextImpl(override val metadata: Metadata, val messageCodec: Messa
 
   override def getGrpcClient[T](clientClass: Class[T], service: String): T =
     GrpcClients(system).getGrpcClient(clientClass, service)
+
+  override def componentGrpcClientMetadata: Metadata = {
+    if (metadata.has(Telemetry.TRACE_PARENT_KEY)) {
+      new MetadataImpl(
+        List(
+          MetadataEntry(
+            Telemetry.TRACE_PARENT_KEY,
+            MetadataEntry.Value.StringValue(metadata.get(Telemetry.TRACE_PARENT_KEY).get()))))
+    } else {
+      MetadataImpl.Empty
+    }
+  }
 
 }
