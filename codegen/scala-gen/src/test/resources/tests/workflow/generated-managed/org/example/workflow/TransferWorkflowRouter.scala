@@ -13,17 +13,16 @@ import org.example.workflow.domain.TransferState
 // DO NOT EDIT
 
 /**
- * A value entity handler that is the glue between the Protobuf service <code>CounterService</code>
- * and the command handler methods in the <code>Counter</code> class.
+ * A workflow handler that is the glue between the Protobuf service and actual workflow implementation.
  */
-class TransferWorkflowRouter(entity: TransferWorkflow) extends WorkflowRouter[TransferState, TransferWorkflow](entity) {
+class TransferWorkflowRouter(workflow: TransferWorkflow) extends WorkflowRouter[TransferState, TransferWorkflow](entity) {
   def handleCommand(commandName: String, state: TransferState, command: Any, context: CommandContext): AbstractWorkflow.Effect[_] = {
     commandName match {
       case "Start" =>
-        entity.start(state, command.asInstanceOf[Transfer])
+        workflow.start(state, command.asInstanceOf[Transfer])
 
       case "GetState" =>
-        entity.getState(state, command.asInstanceOf[Empty])
+        workflow.getState(state, command.asInstanceOf[Empty])
 
       case _ =>
         throw new CommandHandlerNotFound(commandName)
