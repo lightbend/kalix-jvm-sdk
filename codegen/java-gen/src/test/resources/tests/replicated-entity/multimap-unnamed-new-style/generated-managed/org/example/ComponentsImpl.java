@@ -47,7 +47,7 @@ public final class ComponentsImpl implements Components {
     public DeferredCall<com.example.replicated.multimap.SomeMultiMapApi.PutValue, com.google.protobuf.Empty> put(com.example.replicated.multimap.SomeMultiMapApi.PutValue putValue) {
       return new GrpcDeferredCall<>(
         putValue,
-        MetadataImpl.Empty(),
+        (MetadataImpl) ((InternalContext) context).componentGrpcClientMetadata(),
         "com.example.replicated.multimap.MultiMapService",
         "Put",
         (Metadata metadata) -> {

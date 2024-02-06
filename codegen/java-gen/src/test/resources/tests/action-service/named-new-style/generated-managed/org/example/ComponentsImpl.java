@@ -47,7 +47,7 @@ public final class ComponentsImpl implements Components {
     public DeferredCall<org.example.service.ServiceOuterClass.MyRequest, com.google.protobuf.Empty> simpleMethod(org.example.service.ServiceOuterClass.MyRequest myRequest) {
       return new GrpcDeferredCall<>(
         myRequest,
-        MetadataImpl.Empty(),
+        (MetadataImpl) ((InternalContext) context).componentGrpcClientMetadata(),
         "org.example.service.MyService",
         "simpleMethod",
         (Metadata metadata) -> {
