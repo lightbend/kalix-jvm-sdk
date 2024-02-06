@@ -64,7 +64,7 @@ final class ActionService(
 
   @volatile var actionClass: Option[Class[_]] = None
 
-  def createAction(context: ActionContext): ActionRouter[_] = {
+  def createAction(context: ActionCreationContext): ActionRouter[_] = {
     val handler = factory.create(context)
     actionClass = Some(handler.actionClass())
     handler
@@ -203,7 +203,7 @@ private[javasdk] final class ActionsImpl(
             val decodedPayload = service.messageCodec.decodeMessage(
               in.payload.getOrElse(throw new IllegalArgumentException("No command payload")))
             val effect = service.factory
-              .create(context)
+              .create(context.asInstanceOf[ActionCreationContext])
               .handleUnary(in.name, MessageEnvelope.of(decodedPayload, context.metadata()), context)
             effectToResponse(service, in, effect, service.messageCodec)
           } catch {
@@ -243,7 +243,7 @@ private[javasdk] final class ActionsImpl(
               try {
                 val context = createContext(call, service.messageCodec)
                 val effect = service.factory
-                  .create(context)
+                  .create(context.asInstanceOf[ActionCreationContext])
                   .handleStreamedIn(
                     call.name,
                     messages.map { message =>
@@ -280,7 +280,7 @@ private[javasdk] final class ActionsImpl(
           val decodedPayload = service.messageCodec.decodeMessage(
             in.payload.getOrElse(throw new IllegalArgumentException("No command payload")))
           service.factory
-            .create(context)
+            .create(context.asInstanceOf[ActionCreationContext])
             .handleStreamedOut(in.name, MessageEnvelope.of(decodedPayload, context.metadata()), context)
             .asScala
             .mapAsync(1)(effect => effectToResponse(service, in, effect, service.messageCodec))
@@ -323,7 +323,7 @@ private[javasdk] final class ActionsImpl(
               try {
                 val context = createContext(call, service.messageCodec)
                 service.factory
-                  .create(context)
+                  .create(context.asInstanceOf[ActionCreationContext])
                   .handleStreamed(
                     call.name,
                     messages.map { message =>
@@ -332,7 +332,7 @@ private[javasdk] final class ActionsImpl(
                         message.payload.getOrElse(throw new IllegalArgumentException("No command payload")))
                       MessageEnvelope.of(decodedPayload, metadata)
                     }.asJava,
-                    createContext(call, service.messageCodec))
+                    context)
                   .asScala
                   .mapAsync(1)(effect => effectToResponse(service, call, effect, service.messageCodec))
                   .recover { case NonFatal(ex) =>
