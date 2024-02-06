@@ -51,10 +51,10 @@ class ValueEntityDescriptorFactorySpec extends AnyWordSpec with ComponentDescrip
         assertRequestFieldMessageType(method, "json_body", Any.getDescriptor.getFullName)
 
         assertRequestFieldJavaType(method, "userId", JavaType.STRING)
-        assertEntityKeyField(method, "userId")
+        assertEntityIdField(method, "userId")
 
         assertRequestFieldJavaType(method, "cartId", JavaType.STRING)
-        assertEntityKeyField(method, "cartId")
+        assertEntityIdField(method, "cartId")
       }
     }
 
@@ -64,7 +64,7 @@ class ValueEntityDescriptorFactorySpec extends AnyWordSpec with ComponentDescrip
         assertRequestFieldNumberAndJavaType(method, "value", 2, JavaType.INT)
 
         val extension = findKalixMethodOptions(desc, "RandomIncrease")
-        extension.getEntity.getKeyGenerator shouldBe KeyGeneratorMethodOptions.Generator.VERSION_4_UUID
+        extension.getIdGenerator.getAlgorithm shouldBe KeyGeneratorMethodOptions.Generator.VERSION_4_UUID
       }
     }
 
