@@ -103,7 +103,7 @@ object WorkflowSourceGenerator {
           |/**
           | * A workflow handler that is the glue between the Protobuf service and actual workflow implementation.
           | */
-          |class ${workflowName.name}Router(workflow: $workflowName) extends $WorkflowRouter[$stateType, $workflowName](entity) {
+          |class ${workflowName.name}Router(workflow: $workflowName) extends $WorkflowRouter[$stateType, $workflowName](workflow) {
           |  def handleCommand(commandName: String, state: $stateType, command: Any, context: $CommandContext): $AbstractWorkflow.Effect[_] = {
           |    commandName match {
           |      $commandCases
