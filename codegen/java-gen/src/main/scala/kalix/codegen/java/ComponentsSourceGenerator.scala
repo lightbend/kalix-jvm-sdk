@@ -140,16 +140,9 @@ object ComponentsSourceGenerator {
           val messageType = component.service.messageType
           s"""@Override
              |public DeferredCall<$inputType, $outputType> $commandMethod($inputType $paramName) {
-             |  MetadataImpl met = MetadataImpl.Empty();
-             |  if (context instanceof MetadataContext) {
-             |    Metadata metadata = ((MetadataContext) context).metadata();
-             |    if (metadata.has("traceparent")) {
-             |      met.add("traceparent", metadata.get("traceparent").get());
-             |    }
-             |  }
              |  return new GrpcDeferredCall<>(
              |    ${lowerFirst(command.inputType.name)},
-             |    met,
+             |    (MetadataImpl) ((InternalContext) context).componentGrpcClientMetadata(),
              |    "${component.service.messageType.fullyQualifiedProtoName}",
              |    "${command.name}",
              |    (Metadata metadata) -> {
