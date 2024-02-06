@@ -24,6 +24,8 @@ You can subscribe an Action to events from an Event Source Entity by annotating 
 
 To publish the events you need to add the annotation `@Publish.Topic` to the method subscribed to the events and add the name of the topic. 
 
+include::partial$pubsub-note.adoc[]
+
 [source,java,indent=0]
 .src/main/java/com/example/actions/CounterJournalToTopicAction.java
 ----
@@ -129,7 +131,9 @@ Check xref:serialization.adoc[serialization] documentation for more details.
 
 == Subscribing to a Topic
 
-To receive messages from a Google Cloud Pub/Sub or Apache Kafka topic, annotate the service method `@Subscribe.Topic` and specify the topic name.
+To receive messages from a Google Cloud Pub/Sub or Apache Kafka topic, annotate the service method `@Subscribe.Topic` and specify the topic name. 
+
+include::partial$pubsub-note.adoc[]
 
 In the following example the events from the topic are delivered to the Action and logged.
 
