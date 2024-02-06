@@ -55,6 +55,17 @@ object Types {
       "kalix.javasdk.impl.valueentity.ValueEntityRouter.CommandHandlerNotFound")
   }
 
+  object Workflow {
+    val AbstractWorkflow = ClassMessageType("kalix.scalasdk.workflow.AbstractWorkflow")
+    val ProtoWorkflow = ClassMessageType("kalix.scalasdk.workflow.ProtoWorkflow")
+    val CommandContext = ClassMessageType("kalix.scalasdk.workflow.CommandContext")
+    val WorkflowContext = ClassMessageType("kalix.scalasdk.workflow.WorkflowContext")
+    val WorkflowOptions = ClassMessageType("kalix.scalasdk.workflow.WorkflowOptions")
+    val WorkflowProvider = ClassMessageType("kalix.scalasdk.workflow.WorkflowProvider")
+    val WorkflowRouter = ClassMessageType("kalix.scalasdk.impl.workflow.WorkflowRouter")
+    val CommandHandlerNotFound = ClassMessageType("kalix.javasdk.impl.workflow.WorkflowRouter.CommandHandlerNotFound")
+  }
+
   val DeferredCall = ClassMessageType("kalix.scalasdk.DeferredCall")
   val ScalaDeferredCallAdapter = ClassMessageType("kalix.scalasdk.impl.ScalaDeferredCallAdapter")
   val InternalContext = ClassMessageType("kalix.scalasdk.impl.InternalContext")

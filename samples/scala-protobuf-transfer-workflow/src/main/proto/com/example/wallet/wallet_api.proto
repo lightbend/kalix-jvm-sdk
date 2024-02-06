@@ -1,0 +1,43 @@
+// This is the public API offered by your entity.
+syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+import "kalix/annotations.proto";
+import "com/example/wallet/wallet_domain.proto";
+
+package com.example.wallet.api;
+
+message InitialBalance {
+    string wallet_id = 1 [(kalix.field).id = true];
+    int32 balance = 2;
+}
+
+message WithdrawRequest {
+    string wallet_id = 1 [(kalix.field).id = true];
+    int32 amount = 2;
+}
+
+message DepositRequest {
+    string wallet_id = 1 [(kalix.field).id = true];
+    int32 amount = 2;
+}
+
+message GetRequest {
+    string wallet_id = 1 [(kalix.field).id = true];
+}
+
+// tag::wallet[]
+service WalletService {
+    option (kalix.codegen) = {
+        value_entity: {
+            name: "com.example.wallet.api.WalletEntity"
+            type_id: "wallet"
+            state: "com.example.wallet.domain.WalletState"
+        }
+    };
+    rpc Create(InitialBalance) returns (google.protobuf.Empty) {} // <1>
+    rpc Withdraw(WithdrawRequest) returns (google.protobuf.Empty) {} // <2>
+    rpc Deposit(DepositRequest) returns (google.protobuf.Empty) {} // <3>
+    rpc GetWalletState(GetRequest) returns (com.example.wallet.domain.WalletState) {} // <4>
+}
+// end::wallet[]
