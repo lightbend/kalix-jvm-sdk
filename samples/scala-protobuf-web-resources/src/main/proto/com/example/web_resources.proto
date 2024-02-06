@@ -41,7 +41,7 @@ service FileService {
 // end::file-service-api[]
 
 message ShoppingCart {
-  string cart_id = 1 [(kalix.field).id = true];
+  string cart_id = 1;
   repeated string items = 2;
 }
 
