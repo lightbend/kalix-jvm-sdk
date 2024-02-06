@@ -15,7 +15,7 @@ import org.example.workflow.domain.TransferState
 /**
  * A workflow handler that is the glue between the Protobuf service and actual workflow implementation.
  */
-class TransferWorkflowRouter(workflow: TransferWorkflow) extends WorkflowRouter[TransferState, TransferWorkflow](entity) {
+class TransferWorkflowRouter(workflow: TransferWorkflow) extends WorkflowRouter[TransferState, TransferWorkflow](workflow) {
   def handleCommand(commandName: String, state: TransferState, command: Any, context: CommandContext): AbstractWorkflow.Effect[_] = {
     commandName match {
       case "Start" =>
