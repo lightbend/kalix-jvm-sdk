@@ -58,7 +58,7 @@ include::example$java-protobuf-eventsourced-shopping-cart/src/main/proto/com/exa
 <2> Import the Kalix protobuf annotations or options.
 <3> Let the messages declared in this protobuf file be inner classes to the Java class `ShoppingCartApi`.
 <4> We use protobuf messages to describe the Commands that our service handles. They may contain other messages to represent structured data.
-<5> Every Command must contain a `string` field that contains the entity ID and is marked with the `(kalix.field).entity_key` option.
+<5> Every Command must contain a `string` field that contains the entity ID and is marked with the `(kalix.field).id` option.
 <6> Messages describe the return value for our API. For methods that don't have return values, we use `google.protobuf.Empty`.
 <7> The service descriptor shows the API of the entity. It lists the methods a client can use to issue Commands to the entity.
 <8> The protobuf option `(kalix.codegen)`  is specific to code-generation as provided by the Kalix Maven plugin.
@@ -79,7 +79,7 @@ include::example$scala-protobuf-eventsourced-shopping-cart/src/main/proto/com/ex
 <1> Any classes generated from this protobuf file will be in the Scala package `com.example.shoppingcart`.
 <2> Import the Kalix protobuf annotations or options.
 <3> We use protobuf messages to describe the Commands that our service handles. They may contain other messages to represent structured data.
-<4> Every Command must contain a `string` field that contains the entity ID and is marked with the `(kalix.field).entity_key` option.
+<4> Every Command must contain a `string` field that contains the entity ID and is marked with the `(kalix.field).id` option.
 <5> Messages describe the return value for our API. For methods that don't have return values, we use `google.protobuf.Empty`.
 <6> The service descriptor shows the API of the entity. It lists the methods a client can use to issue Commands to the entity.
 <7> The protobuf option `(kalix.codegen)`  is specific to code-generation as provided by the Kalix sbt plugin.
@@ -265,7 +265,7 @@ When you give the instruction to delete the entity it will still exist for some 
 
 It is not allowed to emit more events after the entity has been "marked" as deleted. You can still handle read requests of the entity until it has been completely removed.
 
-It is best to not reuse the same entity key after deletion, but if that happens after the entity has been completely removed it will be instantiated as a completely new entity without any knowledge of previous state.
+It is best to not reuse the same entity id after deletion, but if that happens after the entity has been completely removed it will be instantiated as a completely new entity without any knowledge of previous state.
 
 Note that xref:views.adoc#es_delete[deleting View state] must be handled explicitly.
 

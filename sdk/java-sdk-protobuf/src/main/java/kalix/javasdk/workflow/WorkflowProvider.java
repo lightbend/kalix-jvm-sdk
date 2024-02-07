@@ -22,9 +22,9 @@ import kalix.javasdk.impl.workflow.WorkflowRouter;
 
 import java.util.Optional;
 
-public interface WorkflowProvider<S, W extends Workflow<S>> {
+public interface WorkflowProvider<S, W extends AbstractWorkflow<S>> {
 
-  String workflowName();
+  String typeId();
 
   WorkflowOptions options();
 

@@ -22,19 +22,19 @@ package com.example.replicated.countermap;
 option java_outer_classname = "SomeCounterMapApi";
 
 message IncreaseValue {
-  string counter_map_id = 1 [(kalix.field).entity_key = true];
+  string counter_map_id = 1 [(kalix.field).id = true];
   string key = 2;
   int32 value = 3;
 }
 
 message DecreaseValue {
-  string counter_map_id = 1 [(kalix.field).entity_key = true];
+  string counter_map_id = 1 [(kalix.field).id = true];
   string key = 2;
   int32 value = 3;
 }
 
 message GetValue {
-  string counter_map_id = 1 [(kalix.field).entity_key = true];
+  string counter_map_id = 1 [(kalix.field).id = true];
   string key = 2;
 }
 
@@ -43,7 +43,7 @@ message CurrentValue {
 }
 
 message GetAllValues {
-  string counter_map_id = 1 [(kalix.field).entity_key = true];
+  string counter_map_id = 1 [(kalix.field).id = true];
 }
 
 message CurrentValues {
@@ -54,7 +54,7 @@ service CounterMapService {
   option (kalix.codegen) = {
     replicated_entity: {
       name: ".domain.SomeCounterMap"
-      entity_type: "some-counter-map"
+      type_id: "some-counter-map"
       replicated_counter_map: {
         key: ".domain.SomeKey"
       }
@@ -71,7 +71,7 @@ service ScalarCounterMapService {
   option (kalix.codegen) = {
     replicated_entity: {
       name: ".domain.SomeScalarCounterMap"
-      entity_type: "some-scalar-counter-map"
+      type_id: "some-scalar-counter-map"
       replicated_counter_map: {
         key: "int64"
       }

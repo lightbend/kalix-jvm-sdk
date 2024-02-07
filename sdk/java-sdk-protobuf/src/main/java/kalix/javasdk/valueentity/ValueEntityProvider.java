@@ -34,7 +34,7 @@ public interface ValueEntityProvider<S, E extends ValueEntity<S>> {
 
   Descriptors.ServiceDescriptor serviceDescriptor();
 
-  String entityType();
+  String typeId();
 
   ValueEntityRouter<S, E> newRouter(ValueEntityContext context);
 

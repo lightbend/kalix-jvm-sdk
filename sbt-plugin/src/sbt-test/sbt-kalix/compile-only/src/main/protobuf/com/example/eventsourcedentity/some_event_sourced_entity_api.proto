@@ -28,7 +28,7 @@ service SomeEventSourcedEntityService {
   option (kalix.codegen) = {
     event_sourced_entity: {
       name: ".domain.SomeEventSourcedEntity"
-      entity_type: "some-event-sourced-entity"
+      type_id: "some-event-sourced-entity"
       state: ".domain.SomeEventSourcedEntityState"
       events: [".domain.SomeEvent"]
     }

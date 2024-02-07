@@ -53,7 +53,7 @@ public class SomeMultiMapProvider implements ReplicatedEntityProvider<Replicated
   }
 
   @Override
-  public final String entityType() {
+  public final String typeId() {
     return "some-multi-map";
   }
 

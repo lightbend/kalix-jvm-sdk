@@ -3,7 +3,7 @@
 
 include::ROOT:partial$include.adoc[]
 
-You can access a single https://docs.kalix.io/reference/glossary.html#entity[Entity] with its https://docs.kalix.io/reference/glossary.html#entity_key[Entity key]. But sometimes this is not enough. You might want to retrieve multiple Entities, or retrieve them using an attribute other than the key. Kalix https://docs.kalix.io/reference/glossary.html#view[Views] allow you to achieve this. You can create one View for each, so that it is optimized for a specific query, or combine multiple queries into a single View.
+You can access a single https://docs.kalix.io/reference/glossary.html#entity[Entity] with its https://docs.kalix.io/reference/glossary.html#entity_key[Entity id]. But sometimes this is not enough. You might want to retrieve multiple Entities, or retrieve them using an attribute other than the key. Kalix https://docs.kalix.io/reference/glossary.html#view[Views] allow you to achieve this. You can create one View for each, so that it is optimized for a specific query, or combine multiple queries into a single View.
 
 Views can be defined from any of the following:
 

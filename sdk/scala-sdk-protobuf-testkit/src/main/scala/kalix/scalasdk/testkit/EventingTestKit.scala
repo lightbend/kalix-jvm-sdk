@@ -86,7 +86,7 @@ trait IncomingMessages {
    * @param subject
    *   to identify the entity
    */
-  def publishDelete(subject: String)
+  def publishDelete(subject: String): Unit
 }
 
 @InternalApi

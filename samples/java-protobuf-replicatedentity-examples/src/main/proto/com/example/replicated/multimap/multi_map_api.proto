@@ -22,30 +22,30 @@ package com.example.replicated.multimap;
 option java_outer_classname = "SomeMultiMapApi";
 
 message PutValue {
-  string multi_map_id = 1 [(kalix.field).entity_key = true];
+  string multi_map_id = 1 [(kalix.field).id = true];
   string key = 2;
   double value = 3;
 }
 
 message PutAllValues {
-  string multi_map_id = 1 [(kalix.field).entity_key = true];
+  string multi_map_id = 1 [(kalix.field).id = true];
   string key = 2;
   repeated double values = 3;
 }
 
 message RemoveValue {
-  string multi_map_id = 1 [(kalix.field).entity_key = true];
+  string multi_map_id = 1 [(kalix.field).id = true];
   string key = 2;
   double value = 3;
 }
 
 message RemoveAllValues {
-  string multi_map_id = 1 [(kalix.field).entity_key = true];
+  string multi_map_id = 1 [(kalix.field).id = true];
   string key = 2;
 }
 
 message GetValues {
-  string multi_map_id = 1 [(kalix.field).entity_key = true];
+  string multi_map_id = 1 [(kalix.field).id = true];
   string key = 2;
 }
 
@@ -55,7 +55,7 @@ message CurrentValues {
 }
 
 message GetAllValues {
-  string multi_map_id = 1 [(kalix.field).entity_key = true];
+  string multi_map_id = 1 [(kalix.field).id = true];
 }
 
 message AllCurrentValues {
@@ -67,7 +67,7 @@ service MultiMapService {
   option (kalix.codegen) = {
     replicated_entity: {
       name: "com.example.replicated.multimap.domain.SomeMultiMap" // <1>
-      entity_type: "some-multi-map"
+      type_id: "some-multi-map"
       replicated_multi_map: { // <2>
         key: "string" // <3>
         value: "double" // <4>

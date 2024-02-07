@@ -43,8 +43,8 @@ object ComponentsSourceGenerator {
 
     // since we want to flatten component names to as short as possible there may be duplicate
     // names, so for those we need to use a longer name
-    val services = serviceMap.values.toSeq
-    val uniqueNamesAndComponents = services
+    val services = serviceMap.values.toSeq.sortBy(_.messageType.name)
+    val uniqueNamesAndComponents: Seq[CallableComponent] = services
       .flatMap { component =>
         val callableCommands = callableCommandsFor(component)
         if (callableCommands.nonEmpty) {

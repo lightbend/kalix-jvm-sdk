@@ -39,7 +39,7 @@ service ValueEntityTwo {
   option (kalix.codegen) = {
     value_entity: {
       name: "ValueEntityTwoEntity"
-      entity_type: "value-entity-tck-model-two"
+      type_id: "value-entity-tck-model-two"
       state: "Persisted"
     }
   };

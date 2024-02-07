@@ -107,7 +107,7 @@ private[kalix] object ComponentDescriptor {
         kalixMethod.serviceMethod match {
           case serviceMethod: SyntheticRequestServiceMethod =>
             val (inputProto, extractors) =
-              buildSyntheticMessageAndExtractors(nameGenerator, serviceMethod, kalixMethod.entityKeys)
+              buildSyntheticMessageAndExtractors(nameGenerator, serviceMethod, kalixMethod.entityIds)
             (inputProto.getName, extractors, Some(inputProto))
 
           case anyJson: AnyJsonRequestServiceMethod =>
@@ -296,7 +296,7 @@ private[kalix] object ComponentDescriptor {
   private def buildSyntheticMessageAndExtractors(
       nameGenerator: NameGenerator,
       serviceMethod: SyntheticRequestServiceMethod,
-      entityKeys: Seq[String] = Seq.empty): (DescriptorProto, Map[Int, ExtractorCreator]) = {
+      entityIds: Seq[String] = Seq.empty): (DescriptorProto, Map[Int, ExtractorCreator]) = {
 
     val inputMessageName = nameGenerator.getName(serviceMethod.methodName.capitalize + "KalixSyntheticRequest")
 
@@ -307,9 +307,9 @@ private[kalix] object ComponentDescriptor {
 
     val bodyFieldDescs = bodyFieldDescriptors(indexedParams)
     val pathParamOffset = 2 //1 is reserved for json_body
-    val pathParamFieldDescs = pathParamFieldDescriptors(serviceMethod, indexedParams, entityKeys, pathParamOffset)
+    val pathParamFieldDescs = pathParamFieldDescriptors(serviceMethod, indexedParams, entityIds, pathParamOffset)
     val queryFieldsOffset = pathParamFieldDescs.size + pathParamOffset
-    val queryFieldDescs = queryParamFieldDescriptors(indexedParams, queryFieldsOffset, entityKeys, pathParamOffset)
+    val queryFieldDescs = queryParamFieldDescriptors(indexedParams, queryFieldsOffset, entityIds, pathParamOffset)
 
     inputMessageDescriptor.addAllField((bodyFieldDescs ++ pathParamFieldDescs ++ queryFieldDescs).asJava)
 
@@ -403,7 +403,7 @@ private[kalix] object ComponentDescriptor {
   private def queryParamFieldDescriptors(
       indexedParams: Seq[(RestServiceIntrospector.RestMethodParameter, Int)],
       queryFieldsOffset: Int,
-      entityKeys: Seq[String],
+      entityIds: Seq[String],
       fieldNumberOffset: Int): Seq[FieldDescriptorProto] = {
     indexedParams
       .collect { case (qp: QueryParamParameter, idx) =>
@@ -413,7 +413,7 @@ private[kalix] object ComponentDescriptor {
       .zipWithIndex
       .map { case ((_, param), fieldIdx) =>
         val fieldNumber = fieldIdx + queryFieldsOffset
-        buildField(entityKeys, param.name, fieldNumber, param.param.getGenericParameterType, fieldNumberOffset)
+        buildField(entityIds, param.name, fieldNumber, param.param.getGenericParameterType, fieldNumberOffset)
       }
   }
 
@@ -432,17 +432,17 @@ private[kalix] object ComponentDescriptor {
   private def pathParamFieldDescriptors(
       serviceMethod: SyntheticRequestServiceMethod,
       indexedParams: Seq[(RestServiceIntrospector.RestMethodParameter, Int)],
-      entityKeys: Seq[String],
+      entityIds: Seq[String],
       pathParamOffset: Int): Seq[FieldDescriptorProto] = {
     serviceMethod.parsedPath.fields.zipWithIndex.map { case (paramName, fieldIdx) =>
       val fieldNumber = fieldIdx + pathParamOffset
       val paramType = paramDetails(indexedParams, paramName)
-      buildField(entityKeys, paramName, fieldNumber, paramType, pathParamOffset)
+      buildField(entityIds, paramName, fieldNumber, paramType, pathParamOffset)
     }
   }
 
   private def buildField(
-      entityKeys: Seq[String],
+      entityIds: Seq[String],
       name: String,
       fieldNumber: Int,
       paramType: Type,
@@ -453,23 +453,23 @@ private[kalix] object ComponentDescriptor {
       .setNumber(fieldNumber)
       .setType(mapJavaTypeToProtobuf(paramType))
       .setLabel(mapJavaWrapperToLabel(paramType))
-      .setOptions(addEntityKeyIfNeeded(entityKeys, name))
+      .setOptions(addEntityKeyIfNeeded(entityIds, name))
 
-    if (!entityKeys.contains(name)) {
+    if (!entityIds.contains(name)) {
       builder
         .setProto3Optional(true)
         //setting optional flag is not enough to have the knowledge if the field was set or
         //indexing starts from 0, so we must subtract the offset
         //there won't be any gaps, since we are marking all path and query params as optional
-        .setOneofIndex(fieldNumber - fieldNumberOffset - entityKeys.size)
+        .setOneofIndex(fieldNumber - fieldNumberOffset - entityIds.size)
     }
 
     builder.build()
   }
 
-  private def addEntityKeyIfNeeded(entityKeys: Seq[String], paramName: String): DescriptorProtos.FieldOptions =
-    if (entityKeys.contains(paramName)) {
-      val fieldOptions = kalix.FieldOptions.newBuilder().setEntityKey(true).build()
+  private def addEntityKeyIfNeeded(entityIds: Seq[String], paramName: String): DescriptorProtos.FieldOptions =
+    if (entityIds.contains(paramName)) {
+      val fieldOptions = kalix.FieldOptions.newBuilder().setId(true).build()
       DescriptorProtos.FieldOptions
         .newBuilder()
         .setExtension(kalix.Annotations.field, fieldOptions)

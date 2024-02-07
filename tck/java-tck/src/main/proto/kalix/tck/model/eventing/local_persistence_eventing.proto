@@ -112,7 +112,7 @@ service EventSourcedEntityTwo {
 // or an `EventTwo`.
 //
 message EmitEventRequest {
-  string id = 1 [(kalix.field).entity_key = true];
+  string id = 1 [(kalix.field).id = true];
   oneof event {
     EventOne event_one = 2;
     EventTwo event_two = 3;
@@ -140,7 +140,7 @@ message EventTwo {
 // `LocalPersistenceSubscriberModel`.
 //
 message JsonEvent {
-  string id = 1 [(kalix.field).entity_key = true];
+  string id = 1 [(kalix.field).id = true];
   string message = 2;
 }
 
@@ -174,7 +174,7 @@ service ValueEntityTwo {
 // or an `ValueTwo`.
 //
 message UpdateValueRequest {
-  string id = 1 [(kalix.field).entity_key = true];
+  string id = 1 [(kalix.field).id = true];
   oneof value {
     ValueOne value_one = 2;
     ValueTwo value_two = 3;
@@ -202,7 +202,7 @@ message ValueTwo {
 // `ValueChangesSubscriberModel`.
 //
 message JsonValue {
-  string id = 1 [(kalix.field).entity_key = true];
+  string id = 1 [(kalix.field).id = true];
   string message = 2;
 }
 

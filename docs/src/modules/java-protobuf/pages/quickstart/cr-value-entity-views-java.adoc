@@ -40,7 +40,7 @@ Start by downloading the  xref:java-protobuf:quickstart/cr-value-entity-java.ado
 kalix quickstart download customer-registry-java
 ----
 
-You can access the `Customer` https://docs.kalix.io/reference/glossary.html#entity[Entity] with its https://docs.kalix.io/reference/glossary.html#entity_key[Entity key]. In this guide we will describe how to retrieve customers by email or name instead.
+You can access the `Customer` https://docs.kalix.io/reference/glossary.html#entity[Entity] with its https://docs.kalix.io/reference/glossary.html#entity_key[Entity id]. In this guide we will describe how to retrieve customers by email or name instead.
 
 == Define the CustomerByEmail View
 
@@ -86,7 +86,7 @@ include::example$java-protobuf-customer-registry-views-quickstart/src/main/proto
 <1> The Protobuf `service` for the View.
 <2> The option that the Maven plugin will use to generate the `CustomerByEmail` View.
 <3> The `UpdateCustomer` method defines how Kalix will update the view.
-<4> The source of the View is the `"customers"` Value Entity. This identifier is defined in the `entity_type: "customers"` property of the `(kalix.codegen).value_entity` option in the `customer_api.proto` file.
+<4> The source of the View is the `"customers"` Value Entity. This identifier is defined in the `type_id: "customers"` property of the `(kalix.codegen).value_entity` option in the `customer_api.proto` file.
 <5> The `(kalix.method).view.update` annotation defines that this method is used for updating the View. You must define the `table` attribute for the table to be used in the query. Pick any name and use it in the query `SELECT` statement.
 <6> The `GetCustomers` method defines the query to retrieve a customer by email.
 <7> The `(kalix.method).view.query` annotation defines that this method is used as a query of the View.

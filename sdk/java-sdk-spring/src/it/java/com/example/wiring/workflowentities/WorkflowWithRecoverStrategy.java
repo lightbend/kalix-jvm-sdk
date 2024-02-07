@@ -29,7 +29,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import java.util.concurrent.CompletableFuture;
 
 import static java.time.Duration.ofSeconds;
-import static kalix.javasdk.workflow.Workflow.RecoverStrategy.maxRetries;
 
 @Id("workflowId")
 @TypeId("workflow-with-recover-strategy")

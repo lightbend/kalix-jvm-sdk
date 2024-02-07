@@ -26,7 +26,7 @@ Start by downloading the  xref:java:quickstart/cr-value-entity-java.adoc[Custome
 kalix quickstart download customer-registry-java
 ----
 
-You can access the `Customer` https://docs.kalix.io/reference/glossary.html#entity[Entity] with its https://docs.kalix.io/reference/glossary.html#entity_key[Entity key]. In this guide we will describe how to retrieve customers by email or name instead.
+You can access the `Customer` https://docs.kalix.io/reference/glossary.html#entity[Entity] with its https://docs.kalix.io/reference/glossary.html#entity_key[Entity id]. In this guide we will describe how to retrieve customers by email or name instead.
 
 == Define the CustomerByEmail View
 

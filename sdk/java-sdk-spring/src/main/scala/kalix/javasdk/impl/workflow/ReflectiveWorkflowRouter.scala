@@ -19,6 +19,7 @@ package kalix.javasdk.impl.workflow
 import com.google.protobuf.any.{ Any => ScalaPbAny }
 import kalix.javasdk.impl.CommandHandler
 import kalix.javasdk.impl.InvocationContext
+import kalix.javasdk.workflow.AbstractWorkflow
 import kalix.javasdk.workflow.CommandContext
 import kalix.javasdk.workflow.Workflow
 
@@ -36,7 +37,7 @@ class ReflectiveWorkflowRouter[S, W <: Workflow[S]](
       commandName: String,
       state: S,
       command: Any,
-      commandContext: CommandContext): Workflow.Effect[_] = {
+      commandContext: CommandContext): AbstractWorkflow.Effect[_] = {
 
     workflow._internalSetCurrentState(state)
 
@@ -52,7 +53,7 @@ class ReflectiveWorkflowRouter[S, W <: Workflow[S]](
     commandHandler
       .getInvoker(inputTypeUrl)
       .invoke(workflow, invocationContext)
-      .asInstanceOf[Workflow.Effect[_]]
+      .asInstanceOf[AbstractWorkflow.Effect[_]]
   }
 }
 

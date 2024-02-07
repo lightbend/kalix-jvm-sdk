@@ -10,25 +10,25 @@ import "google/protobuf/empty.proto";
 option java_outer_classname = "CounterApi"; // <3>
 
 message IncreaseValue { // <4>
-  string counter_id = 1 [(kalix.field).entity_key = true]; // <5>
+  string counter_id = 1 [(kalix.field).id = true]; // <5>
   int32 value = 2;
 }
 
 message DecreaseValue {
-  string counter_id = 1 [(kalix.field).entity_key = true];
+  string counter_id = 1 [(kalix.field).id = true];
   int32 value = 2;
 }
 
 message ResetValue {
-  string counter_id = 1 [(kalix.field).entity_key = true];
+  string counter_id = 1 [(kalix.field).id = true];
 }
 
 message GetCounter {
-  string counter_id = 1 [(kalix.field).entity_key = true];
+  string counter_id = 1 [(kalix.field).id = true];
 }
 
 message DeleteCounter {
-  string counter_id = 1 [(kalix.field).entity_key = true];
+  string counter_id = 1 [(kalix.field).id = true];
 }
 
 message CurrentCounter { // <6>
@@ -39,7 +39,7 @@ service CounterService { // <7>
   option (kalix.codegen) = { // <8>
     value_entity: { // <9>
       name: "com.example.domain.Counter" // <10>
-      entity_type: "counter" // <11>
+      type_id: "counter" // <11>
       state: "com.example.domain.CounterState" // <12>
     }
   };

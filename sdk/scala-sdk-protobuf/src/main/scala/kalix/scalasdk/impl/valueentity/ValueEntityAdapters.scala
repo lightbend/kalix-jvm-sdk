@@ -50,7 +50,7 @@ private[scalasdk] final class JavaValueEntityProviderAdapter[S, E <: ValueEntity
   override def additionalDescriptors(): Array[Descriptors.FileDescriptor] =
     scalaSdkProvider.additionalDescriptors.toArray
 
-  override def entityType(): String = scalaSdkProvider.entityType
+  override def typeId(): String = scalaSdkProvider.typeId
 
   override def newRouter(context: javasdk.valueentity.ValueEntityContext)
       : javasdk.impl.valueentity.ValueEntityRouter[S, javasdk.valueentity.ValueEntity[S]] = {

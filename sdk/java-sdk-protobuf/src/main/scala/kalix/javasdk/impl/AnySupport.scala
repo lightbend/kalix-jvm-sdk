@@ -204,7 +204,7 @@ class AnySupport(
   import AnySupport._
   private val allDescriptors = flattenDescriptors(ArraySeq.unsafeWrapArray(descriptors))
 
-  private val allTypes = (for {
+  private val allTypes: Map[String, Descriptors.Descriptor] = (for {
     descriptor <- allDescriptors.values
     messageType <- descriptor.getMessageTypes.asScala
   } yield messageType.getFullName -> messageType).toMap

@@ -60,7 +60,7 @@ public class ReplicatedEntityTckModelEntityProvider
   }
 
   @Override
-  public final String entityType() {
+  public final String typeId() {
     return "replicated-entity-tck-model";
   }
 

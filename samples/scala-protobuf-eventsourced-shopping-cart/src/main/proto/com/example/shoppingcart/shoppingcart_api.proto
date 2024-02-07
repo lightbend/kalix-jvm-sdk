@@ -9,23 +9,23 @@ import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
 
 message AddLineItem { // <3>
-  string cart_id = 1 [(kalix.field).entity_key = true]; // <4>
+  string cart_id = 1 [(kalix.field).id = true]; // <4>
   string product_id = 2;
   string name = 3;
   int32 quantity = 4;
 }
 
 message RemoveLineItem {
-  string cart_id = 1 [(kalix.field).entity_key = true];
+  string cart_id = 1 [(kalix.field).id = true];
   string product_id = 2;
 }
 
 message GetShoppingCart {
-  string cart_id = 1 [(kalix.field).entity_key = true];
+  string cart_id = 1 [(kalix.field).id = true];
 }
 
 message CheckoutShoppingCart {
-  string cart_id = 1 [(kalix.field).entity_key = true];
+  string cart_id = 1 [(kalix.field).id = true];
 }
 
 message LineItem {
@@ -43,7 +43,7 @@ service ShoppingCartService { // <6>
   option (kalix.codegen) = { // <7>
     event_sourced_entity: { // <8>
       name: "com.example.shoppingcart.domain.ShoppingCart" // <9>
-      entity_type: "shopping-cart" // <10>
+      type_id: "shopping-cart" // <10>
       state: "com.example.shoppingcart.domain.Cart" // <11>
       events: [
         "com.example.shoppingcart.domain.ItemAdded", // <12>

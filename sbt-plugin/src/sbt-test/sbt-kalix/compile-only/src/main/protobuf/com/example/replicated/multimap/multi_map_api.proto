@@ -30,19 +30,19 @@ message Value {
 }
 
 message PutValue {
-  string multi_map_id = 1 [(kalix.field).entity_key = true];
+  string multi_map_id = 1 [(kalix.field).id = true];
   Key key = 2;
   Value value = 3;
 }
 
 message RemoveValue {
-  string multi_map_id = 1 [(kalix.field).entity_key = true];
+  string multi_map_id = 1 [(kalix.field).id = true];
   Key key = 2;
   Value value = 3;
 }
 
 message GetValues {
-  string multi_map_id = 1 [(kalix.field).entity_key = true];
+  string multi_map_id = 1 [(kalix.field).id = true];
   Key key = 2;
 }
 
@@ -52,7 +52,7 @@ message CurrentValues {
 }
 
 message GetAllValues {
-  string multi_map_id = 1 [(kalix.field).entity_key = true];
+  string multi_map_id = 1 [(kalix.field).id = true];
 }
 
 message AllCurrentValues {
@@ -63,7 +63,7 @@ service MultiMapService {
   option (kalix.codegen) = {
     replicated_entity: {
       name: ".domain.SomeMultiMap"
-      entity_type: "some-multi-map"
+      type_id: "some-multi-map"
       replicated_multi_map: {
         key: ".domain.SomeKey"
         value: ".domain.SomeValue"
@@ -81,7 +81,7 @@ service ScalarMultiMapService {
   option (kalix.codegen) = {
     replicated_entity: {
       name: ".domain.SomeScalarMultiMap"
-      entity_type: "some-scalar-multi-map"
+      type_id: "some-scalar-multi-map"
       replicated_multi_map: {
         key: "string"
         value: "double"

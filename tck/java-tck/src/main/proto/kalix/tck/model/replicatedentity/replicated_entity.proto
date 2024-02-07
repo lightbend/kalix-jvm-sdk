@@ -71,7 +71,7 @@ service ReplicatedEntityConfigured {
 // Actions must be processed in order. Any actions after a `Fail` may be ignored.
 //
 message Request {
-  string id = 1 [(kalix.field).entity_key = true];
+  string id = 1 [(kalix.field).id = true];
   repeated RequestAction actions = 2;
 }
 

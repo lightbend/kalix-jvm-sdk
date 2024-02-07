@@ -18,7 +18,6 @@ package kalix.codegen.java
 
 import kalix.codegen.Format
 import kalix.codegen.ModelBuilder
-import kalix.codegen.ClassMessageType
 import kalix.codegen.ProtoMessageType
 
 object ValueEntitySourceGenerator {
@@ -203,8 +202,8 @@ object ValueEntitySourceGenerator {
         |  }
         |
         |  @Override
-        |  public final String entityType() {
-        |    return "${entity.entityType}";
+        |  public final String typeId() {
+        |    return "${entity.typeId}";
         |  }
         |
         |  @Override

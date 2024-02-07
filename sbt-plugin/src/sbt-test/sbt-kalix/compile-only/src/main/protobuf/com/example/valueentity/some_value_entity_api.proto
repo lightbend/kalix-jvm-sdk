@@ -28,7 +28,7 @@ service SomeValueEntityService {
   option (kalix.codegen) = {
     value_entity: {
       name: ".domain.SomeValueEntity"
-      entity_type: "some-value-entity"
+      type_id: "some-value-entity"
       state: ".domain.SomeValueEntityState"
     }
   };

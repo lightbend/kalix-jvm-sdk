@@ -35,7 +35,7 @@ service EventSourcedTwo {
   option (kalix.codegen) = {
     event_sourced_entity: {
       name: "EventSourcedTwoEntity"
-      entity_type: "event-sourced-two"
+      type_id: "event-sourced-two"
       state: "Persisted"
       events: ["Persisted"]
     }

@@ -46,7 +46,7 @@ service EventSourcedTckModel {
   option (kalix.codegen) = {
     event_sourced_entity: {
       name: "EventSourcedTckModelEntity"
-      entity_type: "event-sourced-tck-model"
+      type_id: "event-sourced-tck-model"
       state: "Persisted"
       events: ["Persisted"]
     }

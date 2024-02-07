@@ -25,7 +25,7 @@ import "kalix/annotations.proto";
 // end::declarations[]
 
 message Customer {
-  string customer_id = 1 [(kalix.field).entity_key = true];
+  string customer_id = 1 [(kalix.field).id = true];
   string email = 2;
   string name = 3;
   Address address = 4;
@@ -37,20 +37,20 @@ message Address {
 }
 
 message GetCustomerRequest {
-  string customer_id = 1 [(kalix.field).entity_key = true];
+  string customer_id = 1 [(kalix.field).id = true];
 }
 
 message DeleteCustomerRequest {
-  string customer_id = 1 [(kalix.field).entity_key = true];
+  string customer_id = 1 [(kalix.field).id = true];
 }
 
 message ChangeNameRequest {
-  string customer_id = 1 [(kalix.field).entity_key = true];
+  string customer_id = 1 [(kalix.field).id = true];
   string new_name = 2;
 }
 
 message ChangeAddressRequest {
-  string customer_id = 1 [(kalix.field).entity_key = true];
+  string customer_id = 1 [(kalix.field).id = true];
   Address new_address = 2;
 }
 
@@ -59,7 +59,7 @@ service CustomerService {
   option (kalix.codegen) = {
     value_entity: {
       name: "customer.domain.CustomerValueEntity"
-      entity_type: "customer"
+      type_id: "customer"
       state: "customer.domain.CustomerState"
     }
   };

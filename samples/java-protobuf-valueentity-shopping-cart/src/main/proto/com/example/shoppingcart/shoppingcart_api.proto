@@ -33,27 +33,27 @@ import "google/api/annotations.proto";
 
 // tag::proto_messages[]
 message CreateCart {
-  string cart_id = 1 [(kalix.field).entity_key = true];
+  string cart_id = 1 [(kalix.field).id = true];
 }
 
 message AddLineItem {
-  string cart_id = 1 [(kalix.field).entity_key = true];
+  string cart_id = 1 [(kalix.field).id = true];
   string product_id = 2;
   string name = 3;
   int32 quantity = 4;
 }
 
 message RemoveLineItem {
-  string cart_id = 1 [(kalix.field).entity_key = true];
+  string cart_id = 1 [(kalix.field).id = true];
   string product_id = 2;
 }
 
 message GetShoppingCart {
-  string cart_id = 1 [(kalix.field).entity_key = true];
+  string cart_id = 1 [(kalix.field).id = true];
 }
 
 message RemoveShoppingCart {
-  string cart_id = 1 [(kalix.field).entity_key = true];
+  string cart_id = 1 [(kalix.field).id = true];
 }
 
 message LineItem {
@@ -74,7 +74,7 @@ service ShoppingCartService {
   option (kalix.codegen) = {
     value_entity: { // <1>
       name: "com.example.shoppingcart.domain.ShoppingCart" // <2>
-      entity_type: "shopping-cart" // <3>
+      type_id: "shopping-cart" // <3>
       state: "com.example.shoppingcart.domain.Cart" // <4>
     }
   };

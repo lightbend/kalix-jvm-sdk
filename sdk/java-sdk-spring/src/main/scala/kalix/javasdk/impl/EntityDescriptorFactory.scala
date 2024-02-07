@@ -38,11 +38,11 @@ private[impl] object EntityDescriptorFactory extends ComponentDescriptorFactory 
 
         val kalixMethod =
           if (ids.isEmpty) {
-            val keyGenOptions = kalix.KeyGeneratorMethodOptions.newBuilder().setKeyGenerator(Generator.VERSION_4_UUID)
-            val methodOpts = kalix.MethodOptions.newBuilder().setEntity(keyGenOptions)
+            val idGenOptions = kalix.IdGeneratorMethodOptions.newBuilder().setAlgorithm(Generator.VERSION_4_UUID)
+            val methodOpts = kalix.MethodOptions.newBuilder().setIdGenerator(idGenOptions)
             KalixMethod(restMethod).withKalixOptions(methodOpts.build())
           } else {
-            KalixMethod(restMethod, entityKeys = ids)
+            KalixMethod(restMethod, entityIds = ids)
           }
 
         kalixMethod.withKalixOptions(buildJWTOptions(restMethod.javaMethod))

@@ -40,19 +40,19 @@ message LineItem {
 
 // tag::method-messages[]
 message AddLineItem {
-  string cart_id = 1 [(kalix.field).entity_key = true];
+  string cart_id = 1 [(kalix.field).id = true];
   string product_id = 2;
   string name = 3;
   int32 quantity = 4;
 }
 
 message RemoveLineItem {
-  string cart_id = 1 [(kalix.field).entity_key = true];
+  string cart_id = 1 [(kalix.field).id = true];
   string product_id = 2;
 }
 
 message GetShoppingCart {
-  string cart_id = 1 [(kalix.field).entity_key = true];
+  string cart_id = 1 [(kalix.field).id = true];
 }
 // end::method-messages[]
 
@@ -61,7 +61,7 @@ service ShoppingCart {
   option (kalix.codegen) = {
     event_sourced_entity: {
       name: "shopping.cart.domain.ShoppingCartEntity"
-      entity_type: "eventsourced-shopping-cart"
+      type_id: "eventsourced-shopping-cart"
       state: "shopping.cart.domain.CartState"
       events: [
         "shopping.cart.domain.ItemAdded",

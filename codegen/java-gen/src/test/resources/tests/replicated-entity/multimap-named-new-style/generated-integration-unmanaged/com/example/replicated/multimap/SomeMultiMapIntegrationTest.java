@@ -37,7 +37,7 @@ public class SomeMultiMapIntegrationTest {
 
   @Test
   @Disabled("to be implemented")
-  public void putOnNonExistingEntity() throws Exception {
+  public void testPut() throws Exception {
     // TODO: set fields in command, and provide assertions to match replies
     // client.put(SomeMultiMapApi.PutValue.newBuilder().build())
     //         .toCompletableFuture().get(5, SECONDS);

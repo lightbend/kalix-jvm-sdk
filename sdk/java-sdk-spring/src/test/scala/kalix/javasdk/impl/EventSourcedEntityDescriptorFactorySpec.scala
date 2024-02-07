@@ -55,12 +55,12 @@ class EventSourcedEntityDescriptorFactorySpec extends AnyWordSpec with Component
       assertDescriptor[CounterEventSourcedEntity] { desc =>
         val method = desc.commandHandlers("GetInteger")
         assertRequestFieldJavaType(method, "id", JavaType.STRING)
-        assertEntityKeyField(method, "id")
+        assertEntityIdField(method, "id")
         assertRequestFieldJavaType(method, "number", JavaType.INT)
 
         val postMethod = desc.commandHandlers("ChangeInteger")
         assertRequestFieldJavaType(postMethod, "id", JavaType.STRING)
-        assertEntityKeyField(postMethod, "id")
+        assertEntityIdField(postMethod, "id")
         assertRequestFieldJavaType(postMethod, "number", JavaType.INT)
       }
     }
@@ -69,7 +69,7 @@ class EventSourcedEntityDescriptorFactorySpec extends AnyWordSpec with Component
       assertDescriptor[CounterEventSourcedEntityWithIdOnMethod] { desc =>
         val method = desc.commandHandlers("GetInteger")
         assertRequestFieldJavaType(method, "id", JavaType.STRING)
-        assertEntityKeyField(method, "id")
+        assertEntityIdField(method, "id")
         assertRequestFieldJavaType(method, "number", JavaType.INT)
       }
     }
@@ -78,7 +78,7 @@ class EventSourcedEntityDescriptorFactorySpec extends AnyWordSpec with Component
       assertDescriptor[CounterEventSourcedEntityWithIdMethodOverride] { desc =>
         val method = desc.commandHandlers("GetInteger")
         assertRequestFieldJavaType(method, "counter_id", JavaType.STRING)
-        assertEntityKeyField(method, "counter_id")
+        assertEntityIdField(method, "counter_id")
         assertRequestFieldJavaType(method, "number", JavaType.INT)
       }
     }
@@ -100,8 +100,8 @@ class EventSourcedEntityDescriptorFactorySpec extends AnyWordSpec with Component
         val method = desc.commandHandlers("GetInteger")
         assertRequestFieldJavaType(method, "number", JavaType.INT)
 
-        val keyGenerator = findKalixMethodOptions(desc, method.grpcMethodName).getEntity.getKeyGenerator
-        keyGenerator shouldBe Generator.VERSION_4_UUID
+        val generator = findKalixMethodOptions(desc, method.grpcMethodName).getIdGenerator.getAlgorithm
+        generator shouldBe Generator.VERSION_4_UUID
       }
     }
 
@@ -109,7 +109,7 @@ class EventSourcedEntityDescriptorFactorySpec extends AnyWordSpec with Component
       assertDescriptor[CounterEventSourcedEntityWithMethodLevelJWT] { desc =>
         val method = desc.commandHandlers("GetInteger")
         assertRequestFieldJavaType(method, "id", JavaType.STRING)
-        assertEntityKeyField(method, "id")
+        assertEntityIdField(method, "id")
         assertRequestFieldJavaType(method, "number", JavaType.INT)
 
         val jwtOption = findKalixMethodOptions(desc, method.grpcMethodName).getJwt
@@ -119,7 +119,7 @@ class EventSourcedEntityDescriptorFactorySpec extends AnyWordSpec with Component
 
         val postMethod = desc.commandHandlers("ChangeInteger")
         assertRequestFieldJavaType(postMethod, "id", JavaType.STRING)
-        assertEntityKeyField(postMethod, "id")
+        assertEntityIdField(postMethod, "id")
         assertRequestFieldJavaType(postMethod, "number", JavaType.INT)
 
         val jwtOption2 = findKalixMethodOptions(desc, postMethod.grpcMethodName).getJwt

@@ -52,7 +52,7 @@ public class CounterProvider implements ValueEntityProvider<CounterDomain.Counte
   }
 
   @Override
-  public final String entityType() {
+  public final String typeId() {
     return "counter";
   }
 

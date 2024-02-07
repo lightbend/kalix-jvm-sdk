@@ -47,7 +47,7 @@ service ValueEntityTckModel {
   option (kalix.codegen) = {
     value_entity: {
       name: "ValueEntityTckModelEntity"
-      entity_type: "value-entity-tck-model"
+      type_id: "value-entity-tck-model"
       state: "Persisted"
     }
   };

@@ -32,10 +32,10 @@ import kalix.javasdk.impl.workflow.WorkflowEffectImpl.Transition
 import kalix.javasdk.impl.workflow.WorkflowEffectImpl.TransitionalEffectImpl
 import kalix.javasdk.impl.workflow.WorkflowEffectImpl.UpdateState
 import kalix.javasdk.impl.workflow.WorkflowEffectImpl.Pause
-import kalix.javasdk.workflow.Workflow.Effect
-import kalix.javasdk.workflow.Workflow.Effect.Builder
-import kalix.javasdk.workflow.Workflow.Effect.PersistenceEffectBuilder
-import kalix.javasdk.workflow.Workflow.Effect.TransitionalEffect
+import kalix.javasdk.workflow.AbstractWorkflow.Effect
+import kalix.javasdk.workflow.AbstractWorkflow.Effect.Builder
+import kalix.javasdk.workflow.AbstractWorkflow.Effect.PersistenceEffectBuilder
+import kalix.javasdk.workflow.AbstractWorkflow.Effect.TransitionalEffect
 
 object WorkflowEffectImpl {
 

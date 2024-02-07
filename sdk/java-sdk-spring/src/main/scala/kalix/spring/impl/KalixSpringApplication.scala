@@ -55,6 +55,7 @@ import kalix.javasdk.view.ReflectiveViewProvider
 import kalix.javasdk.view.View
 import kalix.javasdk.view.ViewCreationContext
 import kalix.javasdk.view.ViewProvider
+import kalix.javasdk.workflow.AbstractWorkflow
 import kalix.javasdk.workflow.ReflectiveWorkflowProvider
 import kalix.javasdk.workflow.Workflow
 import kalix.javasdk.workflow.WorkflowContext
@@ -409,9 +410,9 @@ case class KalixSpringApplication(applicationContext: ApplicationContext, config
           .getSteps
           .asScala
           .flatMap {
-            case asyncCallStep: Workflow.AsyncCallStep[_, _, _] =>
+            case asyncCallStep: AbstractWorkflow.AsyncCallStep[_, _, _] =>
               List(asyncCallStep.callInputClass, asyncCallStep.transitionInputClass)
-            case callStep: Workflow.CallStep[_, _, _, _] =>
+            case callStep: AbstractWorkflow.CallStep[_, _, _, _] =>
               List(callStep.callInputClass, callStep.transitionInputClass)
           }
           .foreach(messageCodec.registerTypeHints)
