@@ -30,7 +30,6 @@ import static com.example.transfer.domain.TransferDomain.TransferStatus.WITHDRAW
 import static io.grpc.Status.Code.NOT_FOUND;
 import static java.time.Duration.ofHours;
 import static java.time.Duration.ofSeconds;
-import static kalix.javasdk.workflow.AbstractWorkflow.RecoverStrategy.maxRetries;
 
 // This class was initially generated based on the .proto definition by Kalix tooling.
 // This is the implementation for the Workflow Service described in your com/example/transfer/wallet_api.proto file.
