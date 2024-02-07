@@ -567,6 +567,16 @@ public abstract class AbstractWorkflow<S> {
     }
   }
 
+  /**
+   * Starts defining a recover strategy for the workflow or a specific step.
+   *
+   * @param maxRetries number of retries before giving up.
+   * @return MaxRetries strategy.
+   */
+  public MaxRetries maxRetries(int maxRetries) {
+    return RecoverStrategy.maxRetries(maxRetries);
+  }
+
   public static class RecoverStrategy<T> {
 
     public final int maxRetries;

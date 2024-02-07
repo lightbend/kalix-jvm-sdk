@@ -27,6 +27,7 @@ import kalix.scalasdk.DeferredCall
 import kalix.scalasdk.Metadata
 import kalix.scalasdk.impl.workflow.WorkflowEffectImpl
 import kalix.scalasdk.timer.TimerScheduler
+import kalix.scalasdk.workflow.AbstractWorkflow.RecoverStrategy.MaxRetries
 
 object AbstractWorkflow {
 
@@ -225,7 +226,7 @@ object AbstractWorkflow {
       private var _workflowTimeout: Option[FiniteDuration] = None,
       private var _failoverStepName: Option[String] = None,
       private var _failoverStepInput: Option[Any] = None,
-      private var _failoverMaxRetries: Option[RecoverStrategy.MaxRetries] = None,
+      private var _failoverMaxRetries: Option[MaxRetries] = None,
       private var _stepTimeout: Option[FiniteDuration] = None,
       private var _stepRecoverStrategy: Option[AbstractWorkflow.RecoverStrategy[_]] = None) {
 
@@ -287,7 +288,7 @@ object AbstractWorkflow {
      * @param maxRetries
      *   A recovery strategy for failover step.
      */
-    def failoverTo(stepName: String, maxRetries: RecoverStrategy.MaxRetries): AbstractWorkflow.WorkflowDef[S] = {
+    def failoverTo(stepName: String, maxRetries: MaxRetries): AbstractWorkflow.WorkflowDef[S] = {
       if (stepName == null) throw new IllegalArgumentException("Step name cannot be null")
       if (maxRetries == null) throw new IllegalArgumentException("Max retries cannot be null")
       this._failoverStepName = Option(stepName)
@@ -309,7 +310,7 @@ object AbstractWorkflow {
     def failoverTo[I](
         stepName: String,
         stepInput: I,
-        maxRetries: RecoverStrategy.MaxRetries): AbstractWorkflow.WorkflowDef[S] = {
+        maxRetries: MaxRetries): AbstractWorkflow.WorkflowDef[S] = {
       if (stepName == null) throw new IllegalArgumentException("Step name cannot be null")
       if (stepInput == null) throw new IllegalArgumentException("Step input cannot be null")
       if (maxRetries == null) throw new IllegalArgumentException("Max retries cannot be null")
@@ -351,7 +352,7 @@ object AbstractWorkflow {
 
     def failoverStepInput: Option[_] = _failoverStepInput
 
-    def failoverMaxRetries: Option[RecoverStrategy.MaxRetries] = _failoverMaxRetries
+    def failoverMaxRetries: Option[MaxRetries] = _failoverMaxRetries
   }
 
   sealed trait Step {
@@ -410,6 +411,13 @@ object AbstractWorkflow {
       timeout: Option[FiniteDuration],
       recoverStrategy: Option[AbstractWorkflow.RecoverStrategy[_]]) {}
 
+  /**
+   * Starts defining a recover strategy for the workflow or a specific step.
+   * @param maxRetries
+   *   number of retries before giving up.
+   */
+  def maxRetries(maxRetries: Int): MaxRetries = RecoverStrategy.maxRetries(maxRetries)
+
   object RecoverStrategy {
 
     /**
@@ -436,7 +444,7 @@ object AbstractWorkflow {
      * Set the number of retires for a failed step, `maxRetries` equals 0 means that the step won't retry in case of
      * failure.
      */
-    def maxRetries(maxRetries: Int): RecoverStrategy.MaxRetries = RecoverStrategy.MaxRetries(maxRetries)
+    def maxRetries(maxRetries: Int): MaxRetries = MaxRetries(maxRetries)
 
     /**
      * In case of a step failure don't retry but transition to a given step name.
