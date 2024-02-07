@@ -2,7 +2,7 @@
 :page-supergroup-java-scala: Language
 include::ROOT:partial$include.adoc[]
 
-You can access a single https://docs.kalix.io/reference/glossary.html#entity[Entity] with its https://docs.kalix.io/reference/glossary.html#entity_key[Entity key]. You might want to retrieve multiple Entities, or retrieve them using an attribute other than the key. Kalix https://docs.kalix.io/reference/glossary.html#view[Views] allow you achieve this. By creating multiple Views, you can optimize for query performance against each one.
+You can access a single https://docs.kalix.io/reference/glossary.html#entity[Entity] with its https://docs.kalix.io/reference/glossary.html#entity_key[Entity id]. You might want to retrieve multiple Entities, or retrieve them using an attribute other than the key. Kalix https://docs.kalix.io/reference/glossary.html#view[Views] allow you achieve this. By creating multiple Views, you can optimize for query performance against each one.
 
 Views can be defined from any of the following:
 
@@ -94,7 +94,7 @@ include::example$scala-protobuf-valueentity-customer-registry/src/main/proto/cus
 
 <1> The protobuf option (kalix.codegen) is specific to code-generation as provided by the Kalix Maven plugin. This annotation indicates to the code-generation that a View must be generated.
 <2> The `UpdateCustomer` method defines how Kalix will update the view.
-<3> The source of the View is the `"customers"` Value Entity. This identifier is defined in the `entity_type: "customers"` property of the `(kalix.codegen).value_entity` option in the `customer_api.proto` file.
+<3> The source of the View is the `"customers"` Value Entity. This identifier is defined in the `type_id: "customers"` property of the `(kalix.codegen).value_entity` option in the `customer_api.proto` file.
 <4> The `(kalix.method).view.update` annotation defines that this method is used for updating the View. You must define the `table` attribute for the table to be used in the query. Pick any name and use it in the query `SELECT` statement. When a view model is the same as the method input parameter, Kalix will optimize the processing and won't call this method. However, this behavior can be overridden with the `(kalix.method).view.update.transform_updates` flag set to `true`.
 <5> The second `(kalix.method).eventing.in` annotation with `handle_deletes: true` and (required) `google.protobuf.Empty` as a parameter defines that this method is used for handling Value Entity deletes. Similar to update methods, Kalix will optimise it and not call the method if not necessary, unless you mark it with `(kalix.method).view.update.transform_updates: true`. In this case, you indicate to Kalix that you want to provide a custom delete handler implementation.
 <6> The `GetCustomers` method defines the query to retrieve a stream of customers.
@@ -216,7 +216,7 @@ include::example$java-protobuf-eventsourced-customer-registry/src/main/proto/cus
 ----
 <1> The `kalix.codegen` option configures code generation to provide base classes and an initial implementation for the class transforming events to updates of the state.
 <2> Define an update method for each event.
-<3> The source of the View is from the journal of the `"customers"` Event Sourced Entity. This identifier is defined in the entity_type: "customers"` property of the `(kalix.codegen).event_sourced_entity` option in the `customer_api.proto` file.
+<3> The source of the View is from the journal of the `"customers"` Event Sourced Entity. This identifier is defined in the type_id: "customers"` property of the `(kalix.codegen).event_sourced_entity` option in the `customer_api.proto` file.
 <4> The same `event_sourced_entity` for all update methods. Note the required `table` attribute. Use any name, which you will reference in the query `SELECT` statement.
 
 Scala::
@@ -228,7 +228,7 @@ include::example$scala-protobuf-eventsourced-customer-registry/src/main/proto/cu
 ----
 <1> The `kalix.codegen` option configures code generation to provide base classes and an initial implementation for the class transforming events to updates of the state.
 <2> Define an update method for each event.
-<3> The source of the View is from the journal of the `"customers"` Event Sourced Entity. This identifier is defined in the entity_type: "customers"` property of the `(kalix.codegen).event_sourced_entity` option in the `customer_api.proto` file.
+<3> The source of the View is from the journal of the `"customers"` Event Sourced Entity. This identifier is defined in the type_id: "customers"` property of the `(kalix.codegen).event_sourced_entity` option in the `customer_api.proto` file.
 <4> The same `event_sourced_entity` for all update methods. Note the required `table` attribute. Use any name, which you will reference in the query `SELECT` statement.
 
 See <<#query>> for more examples of valid query syntax.

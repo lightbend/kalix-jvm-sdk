@@ -6,7 +6,7 @@ import "google/protobuf/empty.proto";
 import "kalix/annotations.proto";
 
 message Customer {
-  string customer_id = 1 [(kalix.field).entity_key = true];
+  string customer_id = 1 [(kalix.field).id = true];
   string email = 2;
   string name = 3;
   Address address = 4;
@@ -18,16 +18,16 @@ message Address {
 }
 
 message GetCustomer {
-  string customer_id = 1 [(kalix.field).entity_key = true];
+  string customer_id = 1 [(kalix.field).id = true];
 }
 
 message ChangeCustomerName {
-  string customer_id = 1 [(kalix.field).entity_key = true];
+  string customer_id = 1 [(kalix.field).id = true];
   string new_name = 2;
 }
 
 message ChangeCustomerAddress {
-  string customer_id = 1 [(kalix.field).entity_key = true];
+  string customer_id = 1 [(kalix.field).id = true];
   Address new_address = 2;
 }
 
@@ -35,7 +35,7 @@ service Customers {
   option (kalix.codegen) = {
     event_sourced_entity: {
       name: "store.customer.domain.CustomerEntity"
-      entity_type: "customers"
+      type_id: "customers"
       state: "store.customer.domain.CustomerState"
       events: [
         "store.customer.domain.CustomerCreated",

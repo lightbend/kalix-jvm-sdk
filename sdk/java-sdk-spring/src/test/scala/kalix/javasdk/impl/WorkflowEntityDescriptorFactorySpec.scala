@@ -49,7 +49,7 @@ class WorkflowEntityDescriptorFactorySpec extends AnyWordSpec with ComponentDesc
         val method = desc.commandHandlers("StartTransfer")
         val fieldKey = "transferId"
         assertRequestFieldJavaType(method, fieldKey, JavaType.STRING)
-        assertEntityKeyField(method, fieldKey)
+        assertEntityIdField(method, fieldKey)
         assertRequestFieldJavaType(method, "json_body", JavaType.MESSAGE)
       }
     }
@@ -59,7 +59,7 @@ class WorkflowEntityDescriptorFactorySpec extends AnyWordSpec with ComponentDesc
         val method = desc.commandHandlers("StartTransfer")
         val fieldKey = "transferId"
         assertRequestFieldJavaType(method, fieldKey, JavaType.STRING)
-        assertEntityKeyField(method, fieldKey)
+        assertEntityIdField(method, fieldKey)
         assertRequestFieldJavaType(method, "json_body", JavaType.MESSAGE)
       }
     }
@@ -69,7 +69,7 @@ class WorkflowEntityDescriptorFactorySpec extends AnyWordSpec with ComponentDesc
         val method = desc.commandHandlers("StartTransfer")
         val fieldKey = "transferId"
         assertRequestFieldJavaType(method, fieldKey, JavaType.STRING)
-        assertEntityKeyField(method, fieldKey)
+        assertEntityIdField(method, fieldKey)
         assertRequestFieldJavaType(method, "json_body", JavaType.MESSAGE)
       }
     }
@@ -91,8 +91,8 @@ class WorkflowEntityDescriptorFactorySpec extends AnyWordSpec with ComponentDesc
         val method = desc.commandHandlers("StartTransfer")
         assertRequestFieldJavaType(method, "json_body", JavaType.MESSAGE)
 
-        val keyGenerator = findKalixMethodOptions(desc, method.grpcMethodName).getEntity.getKeyGenerator
-        keyGenerator shouldBe Generator.VERSION_4_UUID
+        val generator = findKalixMethodOptions(desc, method.grpcMethodName).getIdGenerator.getAlgorithm
+        generator shouldBe Generator.VERSION_4_UUID
       }
     }
 
@@ -101,7 +101,7 @@ class WorkflowEntityDescriptorFactorySpec extends AnyWordSpec with ComponentDesc
         val method = desc.commandHandlers("StartTransfer")
         val fieldKey = "transferId"
         assertRequestFieldJavaType(method, fieldKey, JavaType.STRING)
-        assertEntityKeyField(method, fieldKey)
+        assertEntityIdField(method, fieldKey)
         assertRequestFieldJavaType(method, "json_body", JavaType.MESSAGE)
 
         val jwtOption = findKalixMethodOptions(desc, method.grpcMethodName).getJwt

@@ -30,7 +30,7 @@ message Value {
 }
 
 message PutValue {
-  string multi_map_id = 1 [(kalix.field).entity_key = true];
+  string multi_map_id = 1 [(kalix.field).id = true];
   Key key = 2;
   Value value = 3;
 }
@@ -39,7 +39,7 @@ service MultiMapService {
   option (kalix.codegen) = {
     replicated_entity: {
       name: ".domain.SomeMultiMap"
-      entity_type: "some-multi-map"
+      type_id: "some-multi-map"
       replicated_multi_map: {
         key: ".domain.SomeKey"
         value: ".domain.SomeValue"

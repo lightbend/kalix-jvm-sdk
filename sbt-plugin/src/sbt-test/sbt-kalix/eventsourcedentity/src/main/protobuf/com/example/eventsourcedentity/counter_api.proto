@@ -23,21 +23,21 @@ package com.example.eventsourcedentity;
 option java_outer_classname = "CounterApi";
 
 message IncreaseValue {
-  string counter_id = 1 [(kalix.field).entity_key = true];
+  string counter_id = 1 [(kalix.field).id = true];
   int32 value = 2;
 }
 
 message DecreaseValue {
-  string counter_id = 1 [(kalix.field).entity_key = true];
+  string counter_id = 1 [(kalix.field).id = true];
   int32 value = 2;
 }
 
 message ResetValue {
-  string counter_id = 1 [(kalix.field).entity_key = true];
+  string counter_id = 1 [(kalix.field).id = true];
 }
 
 message GetCounter {
-  string counter_id = 1 [(kalix.field).entity_key = true];
+  string counter_id = 1 [(kalix.field).id = true];
 }
 
 message CurrentCounter {
@@ -48,7 +48,7 @@ service CounterService {
   option (kalix.codegen) = {
     event_sourced_entity: {
       name: ".domain.Counter"
-      entity_type: "counter"
+      type_id: "counter"
       state: ".domain.CounterState"
       events: [".domain.Increased", ".domain.Decreased"]
     }

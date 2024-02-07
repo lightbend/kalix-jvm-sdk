@@ -20,12 +20,12 @@ import "kalix/annotations.proto";
 package com.example.replicated.register;
 
 message SetValue {
-  string register_id = 1 [(kalix.field).entity_key = true];
+  string register_id = 1 [(kalix.field).id = true];
   string value = 2;
 }
 
 message GetValue {
-  string register_id = 1 [(kalix.field).entity_key = true];
+  string register_id = 1 [(kalix.field).id = true];
 }
 
 message CurrentValue {
@@ -37,7 +37,7 @@ service RegisterService {
   option (kalix.codegen) = {
     replicated_entity: {
       name: "com.example.replicated.register.domain.SomeRegister" // <1>
-      entity_type: "some-register"
+      type_id: "some-register"
       replicated_register: { // <2>
         value: "com.example.replicated.register.domain.SomeValue" // <3>
       }

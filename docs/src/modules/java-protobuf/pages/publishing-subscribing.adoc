@@ -34,7 +34,7 @@ include::example$java-protobuf-eventsourced-counter/src/main/proto/com/example/a
 <1> Import the Counter Domain file containing the definitions of the events. This is typically a proto definition within the same service.
 <2> The protobuf option (kalix.codegen) is specific to code-generation as provided by the Kalix Maven plugin. This annotation indicates to the code-generation that an Action must be generated.
 <3> The `Increase` method receives the event `ValueIncreased` and returns the transformed type `Increased`.
-<4> The `(kalix.method).eventing.in` annotation indicates that events from the entity type `counter` should be delivered to this method (when the type is `ValueIncreased`).
+<4> The `(kalix.method).eventing.in` annotation indicates that events from the entity type id `counter` should be delivered to this method (when the type is `ValueIncreased`).
 <5> The `(kalix.method).eventing.out` annotation indicates that the returned value from this method should be published to the topic called `counter-events`.
 
 Scala::
@@ -47,7 +47,7 @@ include::example$scala-protobuf-eventsourced-counter/src/main/proto/com/example/
 <1> Import the Counter Domain file containing the definitions of the events. This is typically a proto definition within the same service.
 <2> The protobuf option (kalix.codegen) is specific to code-generation as provided by the Kalix sbt plugin. This annotation indicates to the code-generation that an Action must be generated.
 <3> The `Increase` method receives the event `ValueIncreased` and returns the transformed type `Increased`.
-<4> The `(kalix.method).eventing.in` annotation indicates that events from the entity type `counter` should be delivered to this method (when the type is `ValueIncreased`).
+<4> The `(kalix.method).eventing.in` annotation indicates that events from the entity type id `counter` should be delivered to this method (when the type is `ValueIncreased`).
 <5> The `(kalix.method).eventing.out` annotation indicates that the returned value from this method should be published to the topic called `counter-events`.
 
 The class `CounterJournalToTopicAction` gets generated for us based on the proto file defined above.
@@ -88,7 +88,7 @@ include::example$java-protobuf-valueentity-counter/src/main/proto/com/example/ac
 ----
 <1> Import the Counter Domain from the Value Entity example (see xref:java-protobuf:value-entity.adoc[Implementing Value Entities]).
 <2> The protobuf option (kalix.codegen) is specific to code-generation as provided by the Kalix Maven plugin. This annotation indicates to the code-generation that an Action must be generated.
-<3> The `(kalix.method).eventing.in` annotation indicates that state changes from the value entity type `counter` should be delivered to this method.
+<3> The `(kalix.method).eventing.in` annotation indicates that state changes from the value entity type id `counter` should be delivered to this method.
 <4> The second `(kalix.method).eventing.in` annotation with `handle_deletes: true` and (required) `google.protobuf.Empty` as a parameter defines that this method is used for handling value entity deletes.
 
 Scala::
@@ -100,7 +100,7 @@ include::example$scala-protobuf-valueentity-counter/src/main/proto/com/example/a
 ----
 <1> Import the Counter Domain from the Value Entity example (see xref:java-protobuf:value-entity.adoc[Implementing Value Entities]).
 <2> The protobuf option (kalix.codegen) is specific to code-generation as provided by the Kalix sbt plugin. This annotation indicates to the code-generation that an Action must be generated.
-<3> The `(kalix.method).eventing.in` annotation indicates that state changes from the value entity type `counter` should be delivered to this method.
+<3> The `(kalix.method).eventing.in` annotation indicates that state changes from the value entity type id `counter` should be delivered to this method.
 <4> The second `(kalix.method).eventing.in` annotation with `handle_deletes: true` and (required) `google.protobuf.Empty` as a parameter defines that this method is used for handling value entity deletes.
 
 == Subscribing and acting upon

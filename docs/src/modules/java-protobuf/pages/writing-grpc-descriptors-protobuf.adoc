@@ -40,9 +40,9 @@ It is recommended that you align the `proto` directory structure with the packag
 
 You define messages that can be sent to or returned from the service.
 
-==== Messages for entities
+==== Messages for stateful components
 
-Each input message for an Entity that is input to a RPC command, *must* be associated with an Entity key, so that Kalix can identify which entity the message is for. In the example, this includes `AddLineItem`, `RemoveLineItem`, and `GetShoppingCart` where the `user_id` is the `(kalix.field).entity_key`. Kalix extracts the value of these fields in order to route messages to the right Entity. If more than one field is specified as an Entity key, the fields are concatenated together. Kalix serializes Entity keys to strings.
+Each input message for an Entity or Workflow that is input to a RPC command, *must* be associated with a component id, so that Kalix can identify which component the message is for. In the example, this includes `AddLineItem`, `RemoveLineItem`, and `GetShoppingCart` where the `user_id` is the `(kalix.field).id`. Kalix extracts the value of these fields in order to route messages to the right component. If more than one field is specified as an id, the fields are concatenated together. Kalix serializes component ids to strings.
 
 .src/main/proto/com/example/shoppingcart/shoppingcart_api.proto
 [source,proto]
@@ -51,34 +51,34 @@ include::example$java-protobuf-valueentity-shopping-cart/src/main/proto/com/exam
 ----
 
 
-To use a multi-field key, add the `entity_key` notation to each field. For example, the following `SomeMessage` element defines both `first_field` and `second_field` as part of the key:
+To use a multi-field key, add the `id` notation to each field. For example, the following `SomeMessage` element defines both `first_field` and `second_field` as part of the id:
 
 [source,proto]
 ----
 message SomeMessage {
-  string first_field = 1 [(kalix.field).entity_key = true];
-  string second_field = 2 [(kalix.field).entity_key = true];
+  string first_field = 1 [(kalix.field).id = true];
+  string second_field = 2 [(kalix.field).id = true];
 }
 ----
 
-==== Generated entity keys
+==== Generated entity ids
 
-In some cases, you may wish to generate an Entity key, this is typically done when an RPC method creates an entity, and the key is a surrogate key. To indicate to Kalix that an Entity key should be generated, the incoming message must not have any `(kalix.field).entity_key` annotated field. Instead, the rpc method should be annotated with `(kalix.method).entity.key_generator`, for example:
+In some cases, you may wish to generate a component id, this is typically done when an RPC method creates an entity or workflow, and the id is a surrogate id. To indicate to Kalix that an id should be generated, the incoming message must not have any `(kalix.field).id` annotated field. Instead, the rpc method should be annotated with `(kalix.method).id_generator.algorithm`, for example:
 
 [source,proto]
 ----
 rpc CreateCart(CreateCartRequest) returns (CreateCartResponse) {
-  option (kalix.method).entity.key_generator = VERSION_4_UUID;
+  option (kalix.method).id_generator.algorithm = VERSION_4_UUID;
 };
 ----
 
-This will generate a version 4 (random) UUID for the Entity. Only version 4 UUIDs are currently supported for generated Entity keys.
+This will generate a version 4 (random) UUID for the component id. Only version 4 UUIDs are currently supported for generated ids.
 
-It will often be necessary to access the generated entity key from inside the entities code. This can be done using the link:{attachmentsdir}/api/kalix/javasdk/EntityContext.html#entityId()[`EntityContext.entityId` {tab-icon}, window="new"] method.
+It will often be necessary to access the generated id from inside the component code. This can be done using the context, for instance for ValueEntity, use link:{attachmentsdir}/api/kalix/javasdk/EntityContext.html#entityId()[`EntityContext.entityId` {tab-icon}, window="new"] method.
 
 === Service
 
-This section of the `.proto` file declares the API of the service itself, along with each function or method and their parameters and return types. When a command is received for a given Entity key, Kalix will establish a gRPC streamed call to the service implementation using that Entity's type's protocol--if one isn't already established. Any commands received for the Entity key will be sent through that call.
+This section of the `.proto` file declares the API of the service itself, along with each function or method and their parameters and return types. When a command is received for a given component id, Kalix will establish a gRPC streamed call to the service implementation using that Component's type's protocol--if one isn't already established. Any commands received for the component id will be sent through that call.
 
 The `AddItem` and `RemoveItem` methods have no return value (the `Empty` type).
 

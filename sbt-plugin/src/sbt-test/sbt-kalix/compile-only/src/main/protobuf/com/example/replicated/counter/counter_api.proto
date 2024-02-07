@@ -22,17 +22,17 @@ package com.example.replicated.counter;
 option java_outer_classname = "SomeCounterApi";
 
 message IncreaseValue {
-  string counter_id = 1 [(kalix.field).entity_key = true];
+  string counter_id = 1 [(kalix.field).id = true];
   int32 value = 2;
 }
 
 message DecreaseValue {
-  string counter_id = 1 [(kalix.field).entity_key = true];
+  string counter_id = 1 [(kalix.field).id = true];
   int32 value = 2;
 }
 
 message GetValue {
-  string counter_id = 1 [(kalix.field).entity_key = true];
+  string counter_id = 1 [(kalix.field).id = true];
 }
 
 message CurrentValue {
@@ -43,7 +43,7 @@ service CounterService {
   option (kalix.codegen) = {
     replicated_entity: {
       name: ".domain.SomeCounter"
-      entity_type: "some-counter"
+      type_id: "some-counter"
       replicated_counter: {}
     }
   };

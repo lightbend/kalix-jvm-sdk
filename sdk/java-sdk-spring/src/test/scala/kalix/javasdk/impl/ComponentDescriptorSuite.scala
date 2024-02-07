@@ -81,10 +81,10 @@ trait ComponentDescriptorSuite extends Matchers {
     field.getMessageType.getFullName shouldBe expectedMessageType
   }
 
-  def assertEntityKeyField(method: CommandHandler, fieldName: String): Assertion = {
+  def assertEntityIdField(method: CommandHandler, fieldName: String): Assertion = {
     val field = findField(method, fieldName)
     val fieldOption = field.toProto.getOptions.getExtension(kalix.Annotations.field)
-    fieldOption.getEntityKey shouldBe true
+    fieldOption.getId shouldBe true
   }
 
   def findMethodByName(desc: ComponentDescriptor, methodName: String): Descriptors.MethodDescriptor = {

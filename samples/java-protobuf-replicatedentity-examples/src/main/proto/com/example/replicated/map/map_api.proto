@@ -22,32 +22,32 @@ package com.example.replicated.map;
 option java_outer_classname = "SomeMapApi";
 
 message IncreaseFooValue {
-  string map_id = 1 [(kalix.field).entity_key = true];
+  string map_id = 1 [(kalix.field).id = true];
   int32 value = 2;
 }
 
 message DecreaseFooValue {
-  string map_id = 1 [(kalix.field).entity_key = true];
+  string map_id = 1 [(kalix.field).id = true];
   int32 value = 2;
 }
 
 message SetBarValue {
-  string map_id = 1 [(kalix.field).entity_key = true];
+  string map_id = 1 [(kalix.field).id = true];
   string value = 2;
 }
 
 message AddBazValue {
-  string map_id = 1 [(kalix.field).entity_key = true];
+  string map_id = 1 [(kalix.field).id = true];
   string value = 2;
 }
 
 message RemoveBazValue {
-  string map_id = 1 [(kalix.field).entity_key = true];
+  string map_id = 1 [(kalix.field).id = true];
   string value = 2;
 }
 
 message GetValues {
-  string map_id = 1 [(kalix.field).entity_key = true];
+  string map_id = 1 [(kalix.field).id = true];
 }
 
 message CurrentValues {
@@ -61,7 +61,7 @@ service MapService {
   option (kalix.codegen) = {
     replicated_entity: {
       name: "com.example.replicated.map.domain.SomeMap" // <1>
-      entity_type: "some-map"
+      type_id: "some-map"
       replicated_map: { // <2>
         key: "com.example.replicated.map.domain.SomeKey" // <3>
       }

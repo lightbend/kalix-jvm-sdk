@@ -40,7 +40,7 @@ public interface ActionContext extends MetadataContext {
   Metadata metadata();
 
   /**
-   * The origin subject of the {@link CloudEvent}. For example, the entity key when the event was
+   * The origin subject of the {@link CloudEvent}. For example, the entity id when the event was
    * emitted from an entity.
    */
   Optional<String> eventSubject();

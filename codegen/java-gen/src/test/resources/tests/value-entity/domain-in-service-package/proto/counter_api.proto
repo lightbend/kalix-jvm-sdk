@@ -23,12 +23,12 @@ package org.example.valueentity;
 option java_outer_classname = "CounterApi";
 
 message IncreaseValue {
-  string counter_id = 1 [(kalix.field).entity_key = true];
+  string counter_id = 1 [(kalix.field).id = true];
   int32 value = 2;
 }
 
 message DecreaseValue {
-  string counter_id = 1 [(kalix.field).entity_key = true];
+  string counter_id = 1 [(kalix.field).id = true];
   int32 value = 2;
 }
 
@@ -37,7 +37,7 @@ service CounterService {
   option (kalix.codegen) = {
     value_entity: {
       name: "Counter"
-      entity_type: "counter"
+      type_id: "counter"
       state: "CounterState"
     }
   };

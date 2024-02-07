@@ -228,14 +228,14 @@ object KalixMethod {
   def apply(
       serviceMethod: ServiceMethod,
       methodOptions: Option[kalix.MethodOptions] = None,
-      entityKeys: Seq[String] = Seq.empty): KalixMethod = {
+      entityIds: Seq[String] = Seq.empty): KalixMethod = {
 
     val aclOptions =
       serviceMethod.javaMethodOpt.flatMap { meth =>
         AclDescriptorFactory.methodLevelAclAnnotation(meth)
       }
 
-    new KalixMethod(serviceMethod, methodOptions, entityKeys)
+    new KalixMethod(serviceMethod, methodOptions, entityIds)
       .withKalixOptions(aclOptions)
   }
 }
@@ -243,7 +243,7 @@ object KalixMethod {
 case class KalixMethod private (
     serviceMethod: ServiceMethod,
     methodOptions: Option[kalix.MethodOptions] = None,
-    entityKeys: Seq[String] = Seq.empty) {
+    entityIds: Seq[String] = Seq.empty) {
 
   /**
    * KalixMethod is used to collect all the information that we need to produce a gRPC method for the proxy. At the end

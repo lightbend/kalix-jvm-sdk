@@ -229,14 +229,14 @@ public final class Kalix {
      *
      * @param factory       The value based entity factory.
      * @param descriptor    The descriptor for the service that this entity implements.
-     * @param entityType    The entity type name
+     * @param typeId        The entity type name
      * @param entityOptions The options for this entity.
      * @return This stateful service builder.
      */
     public Kalix registerValueEntity(
       ValueEntityFactory factory,
       Descriptors.ServiceDescriptor descriptor,
-      String entityType,
+      String typeId,
       ValueEntityOptions entityOptions,
       Descriptors.FileDescriptor... additionalDescriptors) {
 
@@ -248,7 +248,7 @@ public final class Kalix {
         resolvedFactory,
         anySupport,
         descriptor,
-        entityType,
+        typeId,
         entityOptions,
         additionalDescriptors);
     }
@@ -277,14 +277,14 @@ public final class Kalix {
      *
      * @param factory       The replicated entity factory.
      * @param descriptor    The descriptor for the service that this entity implements.
-     * @param entityType    The entity type name.
+     * @param typeId        The entity type name.
      * @param entityOptions The options for this entity.
      * @return This stateful service builder.
      */
     public Kalix registerReplicatedEntity(
       ReplicatedEntityFactory factory,
       Descriptors.ServiceDescriptor descriptor,
-      String entityType,
+      String typeId,
       ReplicatedEntityOptions entityOptions,
       Descriptors.FileDescriptor... additionalDescriptors) {
 
@@ -301,7 +301,7 @@ public final class Kalix {
             descriptor,
             additionalDescriptors,
             anySupport,
-            entityType,
+            typeId,
             entityOptions));
 
       return Kalix.this;
