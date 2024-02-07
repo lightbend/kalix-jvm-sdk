@@ -38,7 +38,7 @@ private[kalix] trait InternalContext {
   def getComponentGrpcClient[T](serviceClass: Class[T]): T
 
   /** Meant to be used by component calls, initially such they have access to info like trace parent */
-  def componentGrpcClientMetadata: Metadata = MetadataImpl.Empty
+  def componentCallMetadata: MetadataImpl = MetadataImpl.Empty
 }
 
 /**

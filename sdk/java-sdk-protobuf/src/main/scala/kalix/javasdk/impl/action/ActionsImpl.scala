@@ -280,7 +280,7 @@ private[javasdk] final class ActionsImpl(
           val decodedPayload = service.messageCodec.decodeMessage(
             in.payload.getOrElse(throw new IllegalArgumentException("No command payload")))
           service.factory
-            .create(context.asInstanceOf[ActionCreationContext])
+            .create(context)
             .handleStreamedOut(in.name, MessageEnvelope.of(decodedPayload, context.metadata()), context)
             .asScala
             .mapAsync(1)(effect => effectToResponse(service, in, effect, service.messageCodec))
@@ -323,7 +323,7 @@ private[javasdk] final class ActionsImpl(
               try {
                 val context = createContext(call, service.messageCodec)
                 service.factory
-                  .create(context.asInstanceOf[ActionCreationContext])
+                  .create(context)
                   .handleStreamed(
                     call.name,
                     messages.map { message =>
@@ -379,9 +379,9 @@ class ActionContextImpl(override val metadata: Metadata, val messageCodec: Messa
   override def getGrpcClient[T](clientClass: Class[T], service: String): T =
     GrpcClients(system).getGrpcClient(clientClass, service)
 
-  override def componentGrpcClientMetadata: Metadata = {
+  override def componentCallMetadata: MetadataImpl = {
     if (metadata.has(Telemetry.TRACE_PARENT_KEY)) {
-      new MetadataImpl(
+        new MetadataImpl(
         List(
           MetadataEntry(
             Telemetry.TRACE_PARENT_KEY,
