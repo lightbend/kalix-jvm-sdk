@@ -307,10 +307,7 @@ object AbstractWorkflow {
      * @param maxRetries
      *   A recovery strategy for failover step.
      */
-    def failoverTo[I](
-        stepName: String,
-        stepInput: I,
-        maxRetries: MaxRetries): AbstractWorkflow.WorkflowDef[S] = {
+    def failoverTo[I](stepName: String, stepInput: I, maxRetries: MaxRetries): AbstractWorkflow.WorkflowDef[S] = {
       if (stepName == null) throw new IllegalArgumentException("Step name cannot be null")
       if (stepInput == null) throw new IllegalArgumentException("Step input cannot be null")
       if (maxRetries == null) throw new IllegalArgumentException("Max retries cannot be null")
