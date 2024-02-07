@@ -381,7 +381,7 @@ class ActionContextImpl(override val metadata: Metadata, val messageCodec: Messa
 
   override def componentCallMetadata: MetadataImpl = {
     if (metadata.has(Telemetry.TRACE_PARENT_KEY)) {
-        new MetadataImpl(
+      new MetadataImpl(
         List(
           MetadataEntry(
             Telemetry.TRACE_PARENT_KEY,
