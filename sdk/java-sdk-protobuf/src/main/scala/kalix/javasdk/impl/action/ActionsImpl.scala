@@ -368,7 +368,6 @@ case class MessageEnvelopeImpl[T](payload: T, metadata: Metadata) extends Messag
  */
 class ActionContextImpl(override val metadata: Metadata, val messageCodec: MessageCodec, val system: ActorSystem)
     extends AbstractContext(system)
-    with ActionCreationContext
     with ActionContext {
 
   override def eventSubject(): Optional[String] =

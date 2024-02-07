@@ -23,7 +23,7 @@ import kalix.javasdk.MetadataContext;
 import java.util.Optional;
 
 /** Context for action calls. */
-public interface ActionContext extends MetadataContext {
+public interface ActionContext extends MetadataContext, ActionCreationContext {
 
   // FIXME: remove this method and move docs currently pointing
   // to this method toMetadataContext
