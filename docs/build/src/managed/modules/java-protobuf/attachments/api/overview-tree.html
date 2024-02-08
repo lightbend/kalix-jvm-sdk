@@ -69,6 +69,18 @@ loadScripts(document, 'script');</script>
 <ul>
 <li class="circle">java.lang.<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Object.html" class="type-name-link external-link" title="class or interface in java.lang">Object</a>
 <ul>
+<li class="circle">kalix.javasdk.workflow.<a href="kalix/javasdk/workflow/AbstractWorkflow.html" class="type-name-link" title="class in kalix.javasdk.workflow">AbstractWorkflow</a>&lt;S&gt;
+<ul>
+<li class="circle">kalix.javasdk.workflow.<a href="kalix/javasdk/workflow/ProtoWorkflow.html" class="type-name-link" title="class in kalix.javasdk.workflow">ProtoWorkflow</a>&lt;S&gt;</li>
+<li class="circle">kalix.javasdk.workflow.<a href="kalix/javasdk/workflow/Workflow.html" class="type-name-link" title="class in kalix.javasdk.workflow">Workflow</a>&lt;S&gt;</li>
+</ul>
+</li>
+<li class="circle">kalix.javasdk.workflow.<a href="kalix/javasdk/workflow/AbstractWorkflow.AsyncCallStep.html" class="type-name-link" title="class in kalix.javasdk.workflow">AbstractWorkflow.AsyncCallStep</a>&lt;CallInput,<wbr>CallOutput,<wbr>FailoverInput&gt; (implements kalix.javasdk.workflow.<a href="kalix/javasdk/workflow/AbstractWorkflow.Step.html" title="interface in kalix.javasdk.workflow">AbstractWorkflow.Step</a>)</li>
+<li class="circle">kalix.javasdk.workflow.<a href="kalix/javasdk/workflow/AbstractWorkflow.CallStep.html" class="type-name-link" title="class in kalix.javasdk.workflow">AbstractWorkflow.CallStep</a>&lt;CallInput,<wbr>DefCallInput,<wbr>DefCallOutput,<wbr>FailoverInput&gt; (implements kalix.javasdk.workflow.<a href="kalix/javasdk/workflow/AbstractWorkflow.Step.html" title="interface in kalix.javasdk.workflow">AbstractWorkflow.Step</a>)</li>
+<li class="circle">kalix.javasdk.workflow.<a href="kalix/javasdk/workflow/AbstractWorkflow.RecoverStrategy.html" class="type-name-link" title="class in kalix.javasdk.workflow">AbstractWorkflow.RecoverStrategy</a>&lt;T&gt;</li>
+<li class="circle">kalix.javasdk.workflow.<a href="kalix/javasdk/workflow/AbstractWorkflow.RecoverStrategy.MaxRetries.html" class="type-name-link" title="class in kalix.javasdk.workflow">AbstractWorkflow.RecoverStrategy.MaxRetries</a></li>
+<li class="circle">kalix.javasdk.workflow.<a href="kalix/javasdk/workflow/AbstractWorkflow.StepConfig.html" class="type-name-link" title="class in kalix.javasdk.workflow">AbstractWorkflow.StepConfig</a></li>
+<li class="circle">kalix.javasdk.workflow.<a href="kalix/javasdk/workflow/AbstractWorkflow.WorkflowDef.html" class="type-name-link" title="class in kalix.javasdk.workflow">AbstractWorkflow.WorkflowDef</a>&lt;S&gt;</li>
 <li class="circle">kalix.javasdk.action.<a href="kalix/javasdk/action/Action.html" class="type-name-link" title="class in kalix.javasdk.action">Action</a></li>
 <li class="circle">ch.qos.logback.core.spi.ContextAwareBase (implements ch.qos.logback.core.spi.ContextAware)
 <ul>
@@ -88,10 +100,14 @@ loadScripts(document, 'script');</script>
 </ul>
 </li>
 <li class="circle">kalix.javasdk.eventsourcedentity.<a href="kalix/javasdk/eventsourcedentity/EventSourcedEntity.html" class="type-name-link" title="class in kalix.javasdk.eventsourcedentity">EventSourcedEntity</a>&lt;S,<wbr>E&gt;</li>
+<li class="circle">kalix.javasdk.<a href="kalix/javasdk/HttpResponse.html" class="type-name-link" title="class in kalix.javasdk">HttpResponse</a></li>
 <li class="circle">kalix.javasdk.<a href="kalix/javasdk/JsonMigration.html" class="type-name-link" title="class in kalix.javasdk">JsonMigration</a></li>
 <li class="circle">kalix.javasdk.<a href="kalix/javasdk/JsonSupport.html" class="type-name-link" title="class in kalix.javasdk">JsonSupport</a></li>
 <li class="circle">kalix.javasdk.<a href="kalix/javasdk/Kalix.html" class="type-name-link" title="class in kalix.javasdk">Kalix</a></li>
 <li class="circle">kalix.javasdk.<a href="kalix/javasdk/Principal.LocalService.html" class="type-name-link" title="class in kalix.javasdk">Principal.LocalService</a> (implements kalix.javasdk.<a href="kalix/javasdk/Principal.html" title="interface in kalix.javasdk">Principal</a>)</li>
+<li class="circle">kalix.javasdk.workflow.<a href="kalix/javasdk/workflow/ProtoStepBuilder.html" class="type-name-link" title="class in kalix.javasdk.workflow">ProtoStepBuilder</a></li>
+<li class="circle">kalix.javasdk.workflow.<a href="kalix/javasdk/workflow/ProtoStepBuilder.AsyncCallStepBuilder.html" class="type-name-link" title="class in kalix.javasdk.workflow">ProtoStepBuilder.AsyncCallStepBuilder</a>&lt;CallInput,<wbr>CallOutput&gt;</li>
+<li class="circle">kalix.javasdk.workflow.<a href="kalix/javasdk/workflow/ProtoStepBuilder.CallStepBuilder.html" class="type-name-link" title="class in kalix.javasdk.workflow">ProtoStepBuilder.CallStepBuilder</a>&lt;Input,<wbr>DefCallInput,<wbr>DefCallOutput&gt;</li>
 <li class="circle">kalix.javasdk.replicatedentity.<a href="kalix/javasdk/replicatedentity/ReplicatedEntity.html" class="type-name-link" title="class in kalix.javasdk.replicatedentity">ReplicatedEntity</a>&lt;D&gt;
 <ul>
 <li class="circle">kalix.javasdk.replicatedentity.<a href="kalix/javasdk/replicatedentity/ReplicatedCounterEntity.html" class="type-name-link" title="class in kalix.javasdk.replicatedentity">ReplicatedCounterEntity</a></li>
@@ -104,18 +120,11 @@ loadScripts(document, 'script');</script>
 <li class="circle">kalix.javasdk.replicatedentity.<a href="kalix/javasdk/replicatedentity/ReplicatedVoteEntity.html" class="type-name-link" title="class in kalix.javasdk.replicatedentity">ReplicatedVoteEntity</a></li>
 </ul>
 </li>
+<li class="circle">kalix.javasdk.workflow.<a href="kalix/javasdk/workflow/StepBuilder.html" class="type-name-link" title="class in kalix.javasdk.workflow">StepBuilder</a></li>
+<li class="circle">kalix.javasdk.workflow.<a href="kalix/javasdk/workflow/StepBuilder.AsyncCallStepBuilder.html" class="type-name-link" title="class in kalix.javasdk.workflow">StepBuilder.AsyncCallStepBuilder</a>&lt;CallInput,<wbr>CallOutput&gt;</li>
+<li class="circle">kalix.javasdk.workflow.<a href="kalix/javasdk/workflow/StepBuilder.CallStepBuilder.html" class="type-name-link" title="class in kalix.javasdk.workflow">StepBuilder.CallStepBuilder</a>&lt;Input,<wbr>DefCallInput,<wbr>DefCallOutput&gt;</li>
 <li class="circle">kalix.javasdk.valueentity.<a href="kalix/javasdk/valueentity/ValueEntity.html" class="type-name-link" title="class in kalix.javasdk.valueentity">ValueEntity</a>&lt;S&gt;</li>
 <li class="circle">kalix.javasdk.view.<a href="kalix/javasdk/view/View.html" class="type-name-link" title="class in kalix.javasdk.view">View</a>&lt;S&gt;</li>
-<li class="circle">kalix.javasdk.workflow.<a href="kalix/javasdk/workflow/Workflow.html" class="type-name-link" title="class in kalix.javasdk.workflow">Workflow</a>&lt;S&gt;</li>
-<li class="circle">kalix.javasdk.workflow.<a href="kalix/javasdk/workflow/Workflow.AsyncCallStep.html" class="type-name-link" title="class in kalix.javasdk.workflow">Workflow.AsyncCallStep</a>&lt;CallInput,<wbr>CallOutput,<wbr>FailoverInput&gt; (implements kalix.javasdk.workflow.<a href="kalix/javasdk/workflow/Workflow.Step.html" title="interface in kalix.javasdk.workflow">Workflow.Step</a>)</li>
-<li class="circle">kalix.javasdk.workflow.<a href="kalix/javasdk/workflow/Workflow.CallStep.html" class="type-name-link" title="class in kalix.javasdk.workflow">Workflow.CallStep</a>&lt;CallInput,<wbr>DefCallInput,<wbr>DefCallOutput,<wbr>FailoverInput&gt; (implements kalix.javasdk.workflow.<a href="kalix/javasdk/workflow/Workflow.Step.html" title="interface in kalix.javasdk.workflow">Workflow.Step</a>)</li>
-<li class="circle">kalix.javasdk.workflow.<a href="kalix/javasdk/workflow/Workflow.RecoverStrategy.html" class="type-name-link" title="class in kalix.javasdk.workflow">Workflow.RecoverStrategy</a>&lt;T&gt;</li>
-<li class="circle">kalix.javasdk.workflow.<a href="kalix/javasdk/workflow/Workflow.RecoverStrategy.MaxRetries.html" class="type-name-link" title="class in kalix.javasdk.workflow">Workflow.RecoverStrategy.MaxRetries</a></li>
-<li class="circle">kalix.javasdk.workflow.<a href="kalix/javasdk/workflow/Workflow.StepBuilder.html" class="type-name-link" title="class in kalix.javasdk.workflow">Workflow.StepBuilder</a></li>
-<li class="circle">kalix.javasdk.workflow.<a href="kalix/javasdk/workflow/Workflow.StepBuilder.AsyncCallStepBuilder.html" class="type-name-link" title="class in kalix.javasdk.workflow">Workflow.StepBuilder.AsyncCallStepBuilder</a>&lt;CallInput,<wbr>CallOutput&gt;</li>
-<li class="circle">kalix.javasdk.workflow.<a href="kalix/javasdk/workflow/Workflow.StepBuilder.CallStepBuilder.html" class="type-name-link" title="class in kalix.javasdk.workflow">Workflow.StepBuilder.CallStepBuilder</a>&lt;Input,<wbr>DefCallInput,<wbr>DefCallOutput&gt;</li>
-<li class="circle">kalix.javasdk.workflow.<a href="kalix/javasdk/workflow/Workflow.StepConfig.html" class="type-name-link" title="class in kalix.javasdk.workflow">Workflow.StepConfig</a></li>
-<li class="circle">kalix.javasdk.workflow.<a href="kalix/javasdk/workflow/Workflow.WorkflowDef.html" class="type-name-link" title="class in kalix.javasdk.workflow">Workflow.WorkflowDef</a>&lt;S&gt;</li>
 </ul>
 </li>
 </ul>
@@ -123,6 +132,15 @@ loadScripts(document, 'script');</script>
 <section class="hierarchy">
 <h2 title="Interface Hierarchy">Interface Hierarchy</h2>
 <ul>
+<li class="circle">kalix.javasdk.workflow.<a href="kalix/javasdk/workflow/AbstractWorkflow.Effect.html" class="type-name-link" title="interface in kalix.javasdk.workflow">AbstractWorkflow.Effect</a>&lt;T&gt;
+<ul>
+<li class="circle">kalix.javasdk.workflow.<a href="kalix/javasdk/workflow/AbstractWorkflow.Effect.ErrorEffect.html" class="type-name-link" title="interface in kalix.javasdk.workflow">AbstractWorkflow.Effect.ErrorEffect</a>&lt;T&gt;</li>
+<li class="circle">kalix.javasdk.workflow.<a href="kalix/javasdk/workflow/AbstractWorkflow.Effect.TransitionalEffect.html" class="type-name-link" title="interface in kalix.javasdk.workflow">AbstractWorkflow.Effect.TransitionalEffect</a>&lt;T&gt;</li>
+</ul>
+</li>
+<li class="circle">kalix.javasdk.workflow.<a href="kalix/javasdk/workflow/AbstractWorkflow.Effect.Builder.html" class="type-name-link" title="interface in kalix.javasdk.workflow">AbstractWorkflow.Effect.Builder</a>&lt;S&gt;</li>
+<li class="circle">kalix.javasdk.workflow.<a href="kalix/javasdk/workflow/AbstractWorkflow.Effect.PersistenceEffectBuilder.html" class="type-name-link" title="interface in kalix.javasdk.workflow">AbstractWorkflow.Effect.PersistenceEffectBuilder</a>&lt;T&gt;</li>
+<li class="circle">kalix.javasdk.workflow.<a href="kalix/javasdk/workflow/AbstractWorkflow.Step.html" class="type-name-link" title="interface in kalix.javasdk.workflow">AbstractWorkflow.Step</a></li>
 <li class="circle">kalix.javasdk.action.<a href="kalix/javasdk/action/Action.Effect.html" class="type-name-link" title="interface in kalix.javasdk.action">Action.Effect</a>&lt;T&gt;</li>
 <li class="circle">kalix.javasdk.action.<a href="kalix/javasdk/action/Action.Effect.Builder.html" class="type-name-link" title="interface in kalix.javasdk.action">Action.Effect.Builder</a></li>
 <li class="circle">kalix.javasdk.impl.<a href="kalix/javasdk/impl/ActionFactory.html" class="type-name-link" title="interface in kalix.javasdk.impl">ActionFactory</a></li>
@@ -236,15 +254,6 @@ loadScripts(document, 'script');</script>
 <li class="circle">kalix.javasdk.view.<a href="kalix/javasdk/view/View.UpdateEffect.Builder.html" class="type-name-link" title="interface in kalix.javasdk.view">View.UpdateEffect.Builder</a>&lt;S&gt;</li>
 <li class="circle">kalix.javasdk.impl.<a href="kalix/javasdk/impl/ViewFactory.html" class="type-name-link" title="interface in kalix.javasdk.impl">ViewFactory</a></li>
 <li class="circle">kalix.javasdk.view.<a href="kalix/javasdk/view/ViewProvider.html" class="type-name-link" title="interface in kalix.javasdk.view">ViewProvider</a></li>
-<li class="circle">kalix.javasdk.workflow.<a href="kalix/javasdk/workflow/Workflow.Effect.html" class="type-name-link" title="interface in kalix.javasdk.workflow">Workflow.Effect</a>&lt;T&gt;
-<ul>
-<li class="circle">kalix.javasdk.workflow.<a href="kalix/javasdk/workflow/Workflow.Effect.ErrorEffect.html" class="type-name-link" title="interface in kalix.javasdk.workflow">Workflow.Effect.ErrorEffect</a>&lt;T&gt;</li>
-<li class="circle">kalix.javasdk.workflow.<a href="kalix/javasdk/workflow/Workflow.Effect.TransitionalEffect.html" class="type-name-link" title="interface in kalix.javasdk.workflow">Workflow.Effect.TransitionalEffect</a>&lt;T&gt;</li>
-</ul>
-</li>
-<li class="circle">kalix.javasdk.workflow.<a href="kalix/javasdk/workflow/Workflow.Effect.Builder.html" class="type-name-link" title="interface in kalix.javasdk.workflow">Workflow.Effect.Builder</a>&lt;S&gt;</li>
-<li class="circle">kalix.javasdk.workflow.<a href="kalix/javasdk/workflow/Workflow.Effect.PersistenceEffectBuilder.html" class="type-name-link" title="interface in kalix.javasdk.workflow">Workflow.Effect.PersistenceEffectBuilder</a>&lt;T&gt;</li>
-<li class="circle">kalix.javasdk.workflow.<a href="kalix/javasdk/workflow/Workflow.Step.html" class="type-name-link" title="interface in kalix.javasdk.workflow">Workflow.Step</a></li>
 <li class="circle">kalix.javasdk.impl.<a href="kalix/javasdk/impl/WorkflowFactory.html" class="type-name-link" title="interface in kalix.javasdk.impl">WorkflowFactory</a></li>
 <li class="circle">kalix.javasdk.workflow.<a href="kalix/javasdk/workflow/WorkflowProvider.html" class="type-name-link" title="interface in kalix.javasdk.workflow">WorkflowProvider</a>&lt;S,<wbr>W&gt;</li>
 </ul>

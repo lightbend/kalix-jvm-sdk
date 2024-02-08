@@ -20,17 +20,17 @@ import "kalix/annotations.proto";
 package com.example.replicated.counter;
 
 message IncreaseValue {
-  string counter_id = 1 [(kalix.field).entity_key = true];
+  string counter_id = 1 [(kalix.field).id = true];
   int32 value = 2;
 }
 
 message DecreaseValue {
-  string counter_id = 1 [(kalix.field).entity_key = true];
+  string counter_id = 1 [(kalix.field).id = true];
   int32 value = 2;
 }
 
 message GetValue {
-  string counter_id = 1 [(kalix.field).entity_key = true];
+  string counter_id = 1 [(kalix.field).id = true];
 }
 
 message CurrentValue {
@@ -42,7 +42,7 @@ service CounterService {
   option (kalix.codegen) = {
     replicated_entity: {
       name: "com.example.replicated.counter.domain.SomeCounter" // <1>
-      entity_type: "some-counter"
+      type_id: "some-counter"
       replicated_counter: {} // <2>
     }
   };

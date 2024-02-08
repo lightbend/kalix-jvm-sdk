@@ -72,7 +72,9 @@ loadScripts(document, 'script');</script>
 <h1 title="Class Workflow" class="title">Class Workflow&lt;S&gt;</h1>
 </div>
 <div class="inheritance" title="Inheritance Tree"><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>
+<div class="inheritance"><a href="AbstractWorkflow.html" title="class in kalix.javasdk.workflow">kalix.javasdk.workflow.AbstractWorkflow</a>&lt;S&gt;
 <div class="inheritance">kalix.javasdk.workflow.Workflow&lt;S&gt;</div>
+</div>
 </div>
 <section class="class-description" id="class-description">
 <dl class="notes">
@@ -82,19 +84,19 @@ loadScripts(document, 'script');</script>
 <hr>
 <div class="type-signature"><span class="annotations">@ApiMayChange
 </span><span class="modifiers">public abstract class </span><span class="element-name type-name-label">Workflow&lt;S&gt;</span>
-<span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></span></div>
+<span class="extends-implements">extends <a href="AbstractWorkflow.html" title="class in kalix.javasdk.workflow">AbstractWorkflow</a>&lt;S&gt;</span></div>
 <div class="block">Workflows are stateful components and are defined by a set of steps and transitions between them.
- <p>
- You can use workflows to implement business processes that span multiple services.
- <p>
- When implementing a workflow, you define a state type and a set of steps. Each step defines a call to be executed and
- the transition to the next step based on the result of the call.
- The workflow state can be updated after each successful step execution.
- <p>
- Kalix keeps track of the state of the workflow and the current step. If the workflow is stopped for any reason,
- it can be resumed from the last known state and step.
- <p>
- Workflow methods that handle incoming commands should return an <a href="Workflow.Effect.html" title="interface in kalix.javasdk.workflow"><code>Workflow.Effect</code></a> describing the next processing actions.</div>
+
+ <p>You can use workflows to implement business processes that span multiple services.
+
+ <p>When implementing a workflow, you define a state type and a set of steps. Each step defines a
+ call to be executed and the transition to the next step based on the result of the call. The
+ workflow state can be updated after each successful step execution.
+
+ <p>Kalix keeps track of the state of the workflow and the current step. If the workflow is
+ stopped for any reason, it can be resumed from the last known state and step.
+
+ <p>Workflow methods that handle incoming commands should return an <a href="AbstractWorkflow.Effect.html" title="interface in kalix.javasdk.workflow"><code>AbstractWorkflow.Effect</code></a> describing the next processing actions.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -102,38 +104,9 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="nested-class-summary" id="nested-class-summary">
 <h2>Nested Class Summary</h2>
-<div class="caption"><span>Nested Classes</span></div>
-<div class="summary-table three-column-summary">
-<div class="table-header col-first">Modifier and Type</div>
-<div class="table-header col-second">Class</div>
-<div class="table-header col-last">Description</div>
-<div class="col-first even-row-color"><code>static class&nbsp;</code></div>
-<div class="col-second even-row-color"><code><a href="Workflow.AsyncCallStep.html" class="type-name-link" title="class in kalix.javasdk.workflow">Workflow.AsyncCallStep</a>&lt;<a href="Workflow.AsyncCallStep.html" title="type parameter in Workflow.AsyncCallStep">CallInput</a>,<wbr><a href="Workflow.AsyncCallStep.html" title="type parameter in Workflow.AsyncCallStep">CallOutput</a>,<wbr><a href="Workflow.AsyncCallStep.html" title="type parameter in Workflow.AsyncCallStep">FailoverInput</a>&gt;</code></div>
-<div class="col-last even-row-color">&nbsp;</div>
-<div class="col-first odd-row-color"><code>static class&nbsp;</code></div>
-<div class="col-second odd-row-color"><code><a href="Workflow.CallStep.html" class="type-name-link" title="class in kalix.javasdk.workflow">Workflow.CallStep</a>&lt;<a href="Workflow.CallStep.html" title="type parameter in Workflow.CallStep">CallInput</a>,<wbr><a href="Workflow.CallStep.html" title="type parameter in Workflow.CallStep">DefCallInput</a>,<wbr><a href="Workflow.CallStep.html" title="type parameter in Workflow.CallStep">DefCallOutput</a>,<wbr><a href="Workflow.CallStep.html" title="type parameter in Workflow.CallStep">FailoverInput</a>&gt;</code></div>
-<div class="col-last odd-row-color">&nbsp;</div>
-<div class="col-first even-row-color"><code>static interface&nbsp;</code></div>
-<div class="col-second even-row-color"><code><a href="Workflow.Effect.html" class="type-name-link" title="interface in kalix.javasdk.workflow">Workflow.Effect</a>&lt;<a href="Workflow.Effect.html" title="type parameter in Workflow.Effect">T</a>&gt;</code></div>
-<div class="col-last even-row-color">
-<div class="block">An Effect is a description of what Kalix needs to do after the command is handled.</div>
-</div>
-<div class="col-first odd-row-color"><code>static class&nbsp;</code></div>
-<div class="col-second odd-row-color"><code><a href="Workflow.RecoverStrategy.html" class="type-name-link" title="class in kalix.javasdk.workflow">Workflow.RecoverStrategy</a>&lt;<a href="Workflow.RecoverStrategy.html" title="type parameter in Workflow.RecoverStrategy">T</a>&gt;</code></div>
-<div class="col-last odd-row-color">&nbsp;</div>
-<div class="col-first even-row-color"><code>static interface&nbsp;</code></div>
-<div class="col-second even-row-color"><code><a href="Workflow.Step.html" class="type-name-link" title="interface in kalix.javasdk.workflow">Workflow.Step</a></code></div>
-<div class="col-last even-row-color">&nbsp;</div>
-<div class="col-first odd-row-color"><code>static class&nbsp;</code></div>
-<div class="col-second odd-row-color"><code><a href="Workflow.StepBuilder.html" class="type-name-link" title="class in kalix.javasdk.workflow">Workflow.StepBuilder</a></code></div>
-<div class="col-last odd-row-color">&nbsp;</div>
-<div class="col-first even-row-color"><code>static class&nbsp;</code></div>
-<div class="col-second even-row-color"><code><a href="Workflow.StepConfig.html" class="type-name-link" title="class in kalix.javasdk.workflow">Workflow.StepConfig</a></code></div>
-<div class="col-last even-row-color">&nbsp;</div>
-<div class="col-first odd-row-color"><code>static class&nbsp;</code></div>
-<div class="col-second odd-row-color"><code><a href="Workflow.WorkflowDef.html" class="type-name-link" title="class in kalix.javasdk.workflow">Workflow.WorkflowDef</a>&lt;<a href="Workflow.WorkflowDef.html" title="type parameter in Workflow.WorkflowDef">S</a>&gt;</code></div>
-<div class="col-last odd-row-color">&nbsp;</div>
-</div>
+<div class="inherited-list">
+<h2 id="nested-classes-inherited-from-class-kalix.javasdk.workflow.AbstractWorkflow">Nested classes/interfaces inherited from class&nbsp;kalix.javasdk.workflow.<a href="AbstractWorkflow.html" title="class in kalix.javasdk.workflow">AbstractWorkflow</a></h2>
+<code><a href="AbstractWorkflow.AsyncCallStep.html" title="class in kalix.javasdk.workflow">AbstractWorkflow.AsyncCallStep</a>&lt;<a href="AbstractWorkflow.AsyncCallStep.html" title="type parameter in AbstractWorkflow.AsyncCallStep">CallInput</a>,<wbr><a href="AbstractWorkflow.AsyncCallStep.html" title="type parameter in AbstractWorkflow.AsyncCallStep">CallOutput</a>,<wbr><a href="AbstractWorkflow.AsyncCallStep.html" title="type parameter in AbstractWorkflow.AsyncCallStep">FailoverInput</a>&gt;, <a href="AbstractWorkflow.CallStep.html" title="class in kalix.javasdk.workflow">AbstractWorkflow.CallStep</a>&lt;<a href="AbstractWorkflow.CallStep.html" title="type parameter in AbstractWorkflow.CallStep">CallInput</a>,<wbr><a href="AbstractWorkflow.CallStep.html" title="type parameter in AbstractWorkflow.CallStep">DefCallInput</a>,<wbr><a href="AbstractWorkflow.CallStep.html" title="type parameter in AbstractWorkflow.CallStep">DefCallOutput</a>,<wbr><a href="AbstractWorkflow.CallStep.html" title="type parameter in AbstractWorkflow.CallStep">FailoverInput</a>&gt;, <a href="AbstractWorkflow.Effect.html" title="interface in kalix.javasdk.workflow">AbstractWorkflow.Effect</a>&lt;<a href="AbstractWorkflow.Effect.html" title="type parameter in AbstractWorkflow.Effect">T</a>&gt;, <a href="AbstractWorkflow.RecoverStrategy.html" title="class in kalix.javasdk.workflow">AbstractWorkflow.RecoverStrategy</a>&lt;<a href="AbstractWorkflow.RecoverStrategy.html" title="type parameter in AbstractWorkflow.RecoverStrategy">T</a>&gt;, <a href="AbstractWorkflow.Step.html" title="interface in kalix.javasdk.workflow">AbstractWorkflow.Step</a>, <a href="AbstractWorkflow.StepConfig.html" title="class in kalix.javasdk.workflow">AbstractWorkflow.StepConfig</a>, <a href="AbstractWorkflow.WorkflowDef.html" title="class in kalix.javasdk.workflow">AbstractWorkflow.WorkflowDef</a>&lt;<a href="AbstractWorkflow.WorkflowDef.html" title="type parameter in AbstractWorkflow.WorkflowDef">S</a>&gt;</code></div>
 </section>
 </li>
 <!-- ======== CONSTRUCTOR SUMMARY ======== -->
@@ -154,64 +127,23 @@ loadScripts(document, 'script');</script>
 <section class="method-summary" id="method-summary">
 <h2>Method Summary</h2>
 <div id="method-summary-table">
-<div class="table-tabs" role="tablist" aria-orientation="horizontal"><button id="method-summary-table-tab0" role="tab" aria-selected="true" aria-controls="method-summary-table.tabpanel" tabindex="0" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table', 3)" class="active-table-tab">All Methods</button><button id="method-summary-table-tab1" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab1', 3)" class="table-tab">Static Methods</button><button id="method-summary-table-tab2" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab2', 3)" class="table-tab">Instance Methods</button><button id="method-summary-table-tab3" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab3', 3)" class="table-tab">Abstract Methods</button><button id="method-summary-table-tab4" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab4', 3)" class="table-tab">Concrete Methods</button></div>
+<div class="table-tabs" role="tablist" aria-orientation="horizontal"><button id="method-summary-table-tab0" role="tab" aria-selected="true" aria-controls="method-summary-table.tabpanel" tabindex="0" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table', 3)" class="active-table-tab">All Methods</button><button id="method-summary-table-tab2" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab2', 3)" class="table-tab">Instance Methods</button><button id="method-summary-table-tab4" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab4', 3)" class="table-tab">Concrete Methods</button></div>
 <div id="method-summary-table.tabpanel" role="tabpanel">
 <div class="summary-table three-column-summary" aria-labelledby="method-summary-table-tab0">
 <div class="table-header col-first">Modifier and Type</div>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#_internalSetCommandContext(java.util.Optional)" class="member-name-link">_internalSetCommandContext</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/Optional.html" title="class or interface in java.util" class="external-link">Optional</a>&lt;<a href="CommandContext.html" title="interface in kalix.javasdk.workflow">CommandContext</a>&gt;&nbsp;context)</code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="StepBuilder.html" title="class in kalix.javasdk.workflow">StepBuilder</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#step(java.lang.String)" class="member-name-link">step</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;name)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">INTERNAL API</div>
-</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#_internalSetCurrentState(S)" class="member-name-link">_internalSetCurrentState</a><wbr>(<a href="Workflow.html" title="type parameter in Workflow">S</a>&nbsp;state)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">INTERNAL API</div>
-</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#_internalSetTimerScheduler(java.util.Optional)" class="member-name-link">_internalSetTimerScheduler</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/Optional.html" title="class or interface in java.util" class="external-link">Optional</a>&lt;<a href="../timer/TimerScheduler.html" title="interface in kalix.javasdk.timer">TimerScheduler</a>&gt;&nbsp;timerScheduler)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">INTERNAL API</div>
-</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected final <a href="CommandContext.html" title="interface in kalix.javasdk.workflow">CommandContext</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#commandContext()" class="member-name-link">commandContext</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Additional context and metadata for a command handler.</div>
-</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected final <a href="Workflow.html" title="type parameter in Workflow">S</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#currentState()" class="member-name-link">currentState</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Returns the state as currently stored by Kalix.</div>
-</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>abstract <a href="Workflow.WorkflowDef.html" title="class in kalix.javasdk.workflow">Workflow.WorkflowDef</a>&lt;<a href="Workflow.html" title="type parameter in Workflow">S</a>&gt;</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#definition()" class="member-name-link">definition</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected final <a href="Workflow.Effect.Builder.html" title="interface in kalix.javasdk.workflow">Workflow.Effect.Builder</a>&lt;<a href="Workflow.html" title="type parameter in Workflow">S</a>&gt;</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#effects()" class="member-name-link">effects</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="Workflow.html" title="type parameter in Workflow">S</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#emptyState()" class="member-name-link">emptyState</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Returns the initial empty state object.</div>
-</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="Workflow.StepBuilder.html" title="class in kalix.javasdk.workflow">Workflow.StepBuilder</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#step(java.lang.String)" class="member-name-link">step</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;name)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Start a step definition with a given step name.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>final <a href="../timer/TimerScheduler.html" title="interface in kalix.javasdk.timer">TimerScheduler</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#timers()" class="member-name-link">timers</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Returns a <a href="../timer/TimerScheduler.html" title="interface in kalix.javasdk.timer"><code>TimerScheduler</code></a> that can be used to schedule further in time.</div>
-</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="Workflow.WorkflowDef.html" title="class in kalix.javasdk.workflow">Workflow.WorkflowDef</a>&lt;<a href="Workflow.html" title="type parameter in Workflow">S</a>&gt;</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#workflow()" class="member-name-link">workflow</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 </div>
 </div>
 </div>
+<div class="inherited-list">
+<h3 id="methods-inherited-from-class-kalix.javasdk.workflow.AbstractWorkflow">Methods inherited from class&nbsp;kalix.javasdk.workflow.<a href="AbstractWorkflow.html" title="class in kalix.javasdk.workflow">AbstractWorkflow</a></h3>
+<code><a href="AbstractWorkflow.html#_internalSetCommandContext(java.util.Optional)">_internalSetCommandContext</a>, <a href="AbstractWorkflow.html#_internalSetCurrentState(S)">_internalSetCurrentState</a>, <a href="AbstractWorkflow.html#_internalSetTimerScheduler(java.util.Optional)">_internalSetTimerScheduler</a>, <a href="AbstractWorkflow.html#commandContext()">commandContext</a>, <a href="AbstractWorkflow.html#currentState()">currentState</a>, <a href="AbstractWorkflow.html#definition()">definition</a>, <a href="AbstractWorkflow.html#effects()">effects</a>, <a href="AbstractWorkflow.html#emptyState()">emptyState</a>, <a href="AbstractWorkflow.html#maxRetries(int)">maxRetries</a>, <a href="AbstractWorkflow.html#timers()">timers</a>, <a href="AbstractWorkflow.html#workflow()">workflow</a></code></div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-Object">Methods inherited from class&nbsp;java.lang.<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></h3>
 <code><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Object.html#clone()" title="class or interface in java.lang" class="external-link">clone</a>, <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Object.html#equals(java.lang.Object)" title="class or interface in java.lang" class="external-link">equals</a>, <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Object.html#finalize()" title="class or interface in java.lang" class="external-link">finalize</a>, <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Object.html#getClass()" title="class or interface in java.lang" class="external-link">getClass</a>, <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Object.html#hashCode()" title="class or interface in java.lang" class="external-link">hashCode</a>, <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Object.html#notify()" title="class or interface in java.lang" class="external-link">notify</a>, <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Object.html#notifyAll()" title="class or interface in java.lang" class="external-link">notifyAll</a>, <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Object.html#toString()" title="class or interface in java.lang" class="external-link">toString</a>, <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Object.html#wait()" title="class or interface in java.lang" class="external-link">wait</a>, <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Object.html#wait(long)" title="class or interface in java.lang" class="external-link">wait</a>, <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Object.html#wait(long,int)" title="class or interface in java.lang" class="external-link">wait</a></code></div>
@@ -241,105 +173,9 @@ loadScripts(document, 'script');</script>
 <h2>Method Details</h2>
 <ul class="member-list">
 <li>
-<section class="detail" id="emptyState()">
-<h3>emptyState</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="Workflow.html" title="type parameter in Workflow">S</a></span>&nbsp;<span class="element-name">emptyState</span>()</div>
-<div class="block">Returns the initial empty state object. This object will be passed into the
- command and step handlers, until a new state replaces it.
-
- <p>Also known as "zero state" or "neutral state".
-
- <p>The default implementation of this method returns <code>null</code>. It can be overridden to
- return a more sensible initial state.</div>
-</section>
-</li>
-<li>
-<section class="detail" id="commandContext()">
-<h3>commandContext</h3>
-<div class="member-signature"><span class="modifiers">protected final</span>&nbsp;<span class="return-type"><a href="CommandContext.html" title="interface in kalix.javasdk.workflow">CommandContext</a></span>&nbsp;<span class="element-name">commandContext</span>()</div>
-<div class="block">Additional context and metadata for a command handler.
-
- <p>It will throw an exception if accessed from constructor.</div>
-<dl class="notes">
-<dt>Throws:</dt>
-<dd><code><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="external-link">IllegalStateException</a></code> - if accessed outside a handler method</dd>
-</dl>
-</section>
-</li>
-<li>
-<section class="detail" id="_internalSetCommandContext(java.util.Optional)">
-<h3>_internalSetCommandContext</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">_internalSetCommandContext</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/Optional.html" title="class or interface in java.util" class="external-link">Optional</a>&lt;<a href="CommandContext.html" title="interface in kalix.javasdk.workflow">CommandContext</a>&gt;&nbsp;context)</span></div>
-<div class="block">INTERNAL API</div>
-</section>
-</li>
-<li>
-<section class="detail" id="_internalSetTimerScheduler(java.util.Optional)">
-<h3>_internalSetTimerScheduler</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">_internalSetTimerScheduler</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/Optional.html" title="class or interface in java.util" class="external-link">Optional</a>&lt;<a href="../timer/TimerScheduler.html" title="interface in kalix.javasdk.timer">TimerScheduler</a>&gt;&nbsp;timerScheduler)</span></div>
-<div class="block">INTERNAL API</div>
-</section>
-</li>
-<li>
-<section class="detail" id="timers()">
-<h3>timers</h3>
-<div class="member-signature"><span class="modifiers">public final</span>&nbsp;<span class="return-type"><a href="../timer/TimerScheduler.html" title="interface in kalix.javasdk.timer">TimerScheduler</a></span>&nbsp;<span class="element-name">timers</span>()</div>
-<div class="block">Returns a <a href="../timer/TimerScheduler.html" title="interface in kalix.javasdk.timer"><code>TimerScheduler</code></a> that can be used to schedule further in time.</div>
-</section>
-</li>
-<li>
-<section class="detail" id="_internalSetCurrentState(S)">
-<h3 id="_internalSetCurrentState(java.lang.Object)">_internalSetCurrentState</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">_internalSetCurrentState</span><wbr><span class="parameters">(<a href="Workflow.html" title="type parameter in Workflow">S</a>&nbsp;state)</span></div>
-<div class="block">INTERNAL API</div>
-</section>
-</li>
-<li>
-<section class="detail" id="currentState()">
-<h3>currentState</h3>
-<div class="member-signature"><span class="annotations">@ApiMayChange
-</span><span class="modifiers">protected final</span>&nbsp;<span class="return-type"><a href="Workflow.html" title="type parameter in Workflow">S</a></span>&nbsp;<span class="element-name">currentState</span>()</div>
-<div class="block">Returns the state as currently stored by Kalix.
-
- <p>Note that modifying the state directly will not update it in storage. To save the state, one
- must call {<code>effects().updateState()</code>}.
-
- <p>This method can only be called when handling a command. Calling it outside a method (eg: in
- the constructor) will raise a IllegalStateException exception.</div>
-<dl class="notes">
-<dt>Throws:</dt>
-<dd><code><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="external-link">IllegalStateException</a></code> - if accessed outside a handler method</dd>
-</dl>
-</section>
-</li>
-<li>
-<section class="detail" id="definition()">
-<h3>definition</h3>
-<div class="member-signature"><span class="annotations">@ApiMayChange
-</span><span class="modifiers">public abstract</span>&nbsp;<span class="return-type"><a href="Workflow.WorkflowDef.html" title="class in kalix.javasdk.workflow">Workflow.WorkflowDef</a>&lt;<a href="Workflow.html" title="type parameter in Workflow">S</a>&gt;</span>&nbsp;<span class="element-name">definition</span>()</div>
-<dl class="notes">
-<dt>Returns:</dt>
-<dd>A workflow definition in a form of steps and transitions between them.</dd>
-</dl>
-</section>
-</li>
-<li>
-<section class="detail" id="effects()">
-<h3>effects</h3>
-<div class="member-signature"><span class="modifiers">protected final</span>&nbsp;<span class="return-type"><a href="Workflow.Effect.Builder.html" title="interface in kalix.javasdk.workflow">Workflow.Effect.Builder</a>&lt;<a href="Workflow.html" title="type parameter in Workflow">S</a>&gt;</span>&nbsp;<span class="element-name">effects</span>()</div>
-</section>
-</li>
-<li>
-<section class="detail" id="workflow()">
-<h3>workflow</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="Workflow.WorkflowDef.html" title="class in kalix.javasdk.workflow">Workflow.WorkflowDef</a>&lt;<a href="Workflow.html" title="type parameter in Workflow">S</a>&gt;</span>&nbsp;<span class="element-name">workflow</span>()</div>
-</section>
-</li>
-<li>
 <section class="detail" id="step(java.lang.String)">
 <h3>step</h3>
-<div class="member-signature"><span class="annotations">@ApiMayChange
-</span><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="Workflow.StepBuilder.html" title="class in kalix.javasdk.workflow">Workflow.StepBuilder</a></span>&nbsp;<span class="element-name">step</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;name)</span></div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="StepBuilder.html" title="class in kalix.javasdk.workflow">StepBuilder</a></span>&nbsp;<span class="element-name">step</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;name)</span></div>
 <div class="block">Start a step definition with a given step name.</div>
 <dl class="notes">
 <dt>Parameters:</dt>

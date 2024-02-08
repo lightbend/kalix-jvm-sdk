@@ -114,7 +114,7 @@ loadScripts(document, 'script');</script>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#of(T,java.lang.String)" class="member-name-link">of</a><wbr>(T&nbsp;payload,
  <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;subject)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Create a message from a payload plus a subject (that is, the entity key).</div>
+<div class="block">Create a message from a payload plus a subject (that is, the entity id).</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>&lt;T&gt;&nbsp;<a href="EventingTestKit.Message.html" title="interface in kalix.javasdk.testkit">EventingTestKit.Message</a>&lt;T&gt;</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#of(T,kalix.javasdk.Metadata)" class="member-name-link">of</a><wbr>(T&nbsp;payload,
@@ -158,14 +158,14 @@ loadScripts(document, 'script');</script>
 <h3 id="of(java.lang.Object,java.lang.String)">of</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="type-parameters">&lt;T&gt;</span>&nbsp;<span class="return-type"><a href="EventingTestKit.Message.html" title="interface in kalix.javasdk.testkit">EventingTestKit.Message</a>&lt;T&gt;</span>&nbsp;<span class="element-name">of</span><wbr><span class="parameters">(T&nbsp;payload,
  <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;subject)</span></div>
-<div class="block">Create a message from a payload plus a subject (that is, the entity key).
+<div class="block">Create a message from a payload plus a subject (that is, the entity id).
  Automatically adds required default metadata for a CloudEvent.</div>
 <dl class="notes">
 <dt>Type Parameters:</dt>
 <dd><code>T</code> - </dd>
 <dt>Parameters:</dt>
 <dd><code>payload</code> - the message payload</dd>
-<dd><code>subject</code> - the entity key of which the message is concerned about</dd>
+<dd><code>subject</code> - the entity id of which the message is concerned about</dd>
 <dt>Returns:</dt>
 <dd>a Message object to be used in the context of the Testkit</dd>
 </dl>

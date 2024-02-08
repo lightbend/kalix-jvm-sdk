@@ -19,7 +19,7 @@ The sections on this page walk through these steps using a counter service as an
 
 == Defining the `proto` files
 
-NOTE: Our Value Entity example starts with the "Counter" service as included in the xref:quickstart-template.adoc[project template].
+NOTE: Our Value Entity example starts with the "Counter" service as included in the xref:project-template.adoc[project template].
 
 The following `counter_domain.proto` file defines state the Entity will hold. The entity stores an integer value as represented in the message `CounterState`. Real-world entities store much more data - often structured data - they represent an _Entity_ in the https://en.wikipedia.org/wiki/Domain-driven_design[domain-driven design] sense of the term.
 
@@ -63,7 +63,7 @@ include::example$java-protobuf-valueentity-counter/src/main/proto/com/example/co
 <2> Import the Kalix protobuf annotations, or options.
 <3> Let the messages declared in this protobuf file be inner classes to the class `CounterApi`.
 <4> We use protobuf messages to describe the Commands that our service handles. They may contain other messages to represent structured data.
-<5> Every Command must contain a `string` field that contains the entity ID and is marked with the `(kalix.field).entity_key` option.
+<5> Every Command must contain a `string` field that contains the entity ID and is marked with the `(kalix.field).id` option.
 <6> Messages describe the return value for our API. For methods that don't have return values, we use `google.protobuf.Empty`.
 <7> The service descriptor shows the API of the entity. It lists the methods a client can use to issue Commands to the entity.
 <8> The protobuf option `(kalix.codegen)`  is specific to code-generation as provided by the Kalix Maven plugin.
@@ -82,7 +82,7 @@ include::example$scala-protobuf-valueentity-counter/src/main/proto/com/example/c
 <1> Any classes generated from this protobuf file will be in the Scala package `com.example`.
 <2> Import the Kalix protobuf annotations or options.
 <3> We use protobuf messages to describe the Commands that our service handles. They may contain other messages to represent structured data.
-<4> Every Command must contain a `string` field that contains the entity ID and is marked with the `(kalix.field).entity_key` option.
+<4> Every Command must contain a `string` field that contains the entity ID and is marked with the `(kalix.field).id` option.
 <5> Messages describe the return value for our API. For methods that don't have return values, we use `google.protobuf.Empty`.
 <6> The service descriptor shows the API of the entity. It lists the methods a client can use to issue Commands to the entity.
 <7> The protobuf option `(kalix.codegen)`  is specific to code-generation as provided by the Kalix Maven plugin.
@@ -243,7 +243,7 @@ It is not allowed to make further changes after the entity has been "marked" as 
 
 NOTE: If you want to make changes after deleting the state you should use the `updateState` effect with an empty state, as a logical delete, instead of using `deleteEntity`.
 
-It is best to not reuse the same entity key after deletion, but if that happens after the entity has been completely removed it will be instantiated as a completely new entity without any knowledge of previous state.
+It is best to not reuse the same entity id after deletion, but if that happens after the entity has been completely removed it will be instantiated as a completely new entity without any knowledge of previous state.
 
 Note that xref:views.adoc#ve_delete[deleting View state] must be handled explicitly.
 

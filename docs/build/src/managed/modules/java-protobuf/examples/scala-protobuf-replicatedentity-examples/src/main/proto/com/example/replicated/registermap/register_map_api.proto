@@ -28,18 +28,18 @@ message Value {
 }
 
 message SetValue {
-  string register_map_id = 1 [(kalix.field).entity_key = true];
+  string register_map_id = 1 [(kalix.field).id = true];
   Key key = 2;
   Value value = 3;
 }
 
 message RemoveValue {
-  string register_map_id = 1 [(kalix.field).entity_key = true];
+  string register_map_id = 1 [(kalix.field).id = true];
   Key key = 2;
 }
 
 message GetValue {
-  string register_map_id = 1 [(kalix.field).entity_key = true];
+  string register_map_id = 1 [(kalix.field).id = true];
   Key key = 2;
 }
 
@@ -49,7 +49,7 @@ message CurrentValue {
 }
 
 message GetAllValues {
-  string register_map_id = 1 [(kalix.field).entity_key = true];
+  string register_map_id = 1 [(kalix.field).id = true];
 }
 
 message CurrentValues {
@@ -61,7 +61,7 @@ service RegisterMapService {
   option (kalix.codegen) = {
     replicated_entity: {
       name: "com.example.replicated.registermap.domain.SomeRegisterMap" // <1>
-      entity_type: "some-register-map"
+      type_id: "some-register-map"
       replicated_register_map: { // <2>
         key: "com.example.replicated.registermap.domain.SomeKey" // <3>
         value: "com.example.replicated.registermap.domain.SomeValue" // <4>

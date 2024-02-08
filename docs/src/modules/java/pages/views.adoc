@@ -3,7 +3,7 @@
 
 include::ROOT:partial$include.adoc[]
 
-You can access a single https://docs.kalix.io/reference/glossary.html#entity[Entity] with its https://docs.kalix.io/reference/glossary.html#entity_key[Entity key]. But sometimes this is not enough. You might want to retrieve multiple Entities, or retrieve them using an attribute other than the key. Kalix https://docs.kalix.io/reference/glossary.html#view[Views] allow you to achieve this. You can create each View, so each one is optimized for a specific query.
+You can access a single https://docs.kalix.io/reference/glossary.html#entity[Entity] with its https://docs.kalix.io/reference/glossary.html#entity_key[Entity id]. But sometimes this is not enough. You might want to retrieve multiple Entities, or retrieve them using an attribute other than the key. Kalix https://docs.kalix.io/reference/glossary.html#view[Views] allow you to achieve this. You can create one View for each, so that it is optimized for a specific query, or combine multiple queries into a single View.
 
 Views can be defined from any of the following:
 
@@ -43,7 +43,7 @@ As well as a Value Entity service `CustomerEntity.java` that will produce the st
 
 === Define the View
 
-You implement a View by extending `kalix.javasdk.view.View` and subscribing to changes from an entity. You specify how to query it by providing a method annotated with `@Query`, which is then made accessible via REST annotations.
+You implement a View by extending `kalix.javasdk.view.View` and subscribing to changes from an entity. You specify how to query it by providing one or more methods annotated with `@Query`, which is then made accessible via REST annotations.
 
 .src/main/java/customer/view/CustomersByNameView.java
 [source,java]
@@ -231,7 +231,7 @@ include::example$java-spring-valueentity-customer-registry/src/main/java/custome
 [#changing]
 == How to modify a View
 
-Kalix creates indexes for the View based on the query. For example, the following query will result in a View with an index on the `name` column:
+Kalix creates indexes for the View based on the queries. For example, the following query will result in a View with an index on the `name` column:
 
 [source,sql,indent=0]
 ----

@@ -77,10 +77,8 @@ integration tests. Please consult the component specific pages to learn more abo
 [#_package_service]
 == Package service
 
-Use Docker to package your service and any of its dependencies. See the following pages for more information:
-
-* https://docs.kalix.io/setting-up/#_containers[Setting up containers]
-* https://docs.kalix.io/projects/container-registries.html[Configuring registries]
+Use Docker to package your service and any of its dependencies.
+See https://docs.kalix.io/projects/container-registries.html[Configuring registries] for more information.
 
 [#_run_locally]
 == Run locally
@@ -94,4 +92,3 @@ After testing locally, deploy your service to Kalix using the CLI or the Console
 
 * https://docs.kalix.io/projects/index.html[Working with Kalix projects]
 * https://docs.kalix.io/services/deploy-service.html#_deploy[Deploying a packaged service]
-* https://docs.kalix.io/quickstart/index.html[Quickstart examples]

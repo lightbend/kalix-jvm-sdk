@@ -2,7 +2,7 @@
 version: "3"
 services:
   kalix-runtime:
-    image: gcr.io/kalix-public/kalix-runtime:1.1.29
+    image: gcr.io/kalix-public/kalix-runtime:1.1.31
     # uncomment volumes when persistence is enabled
     volumes: # <1>
       - ./target/kalix:/var/kalix
@@ -19,7 +19,7 @@ services:
       USER_SERVICE_HOST: ${USER_SERVICE_HOST:-host.docker.internal}
       USER_SERVICE_PORT: ${USER_SERVICE_PORT:-8080}
       # end::persistence-mode[]
-      # Comment to enable ACL check in dev-mode (see https://docs.kalix.io/services/using-acls.html#_local_development_with_acls)
+      # Comment to enable ACL check in dev-mode (see https://docs.kalix.io/java-protobuf/access-control.html#_local_development_with_acls)
       ACL_ENABLED: "false"
       # Uncomment to enable advanced view features locally (note: disabled in deployed services by default)
       #VIEW_FEATURES_ALL: "true"

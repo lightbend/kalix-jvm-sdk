@@ -12,7 +12,7 @@ NOTE: Lightbend provides Tier 1 support for the [.group-java]#Java# [.group-scal
 
 Your development project needs to include the Kalix [.group-java]#Java# [.group-scala]#Scala# Protobuf SDK and logic to start the gRPC server. You define your components in gRPC descriptors and use `protoc` to compile them. Finally, you implement business logic for service components.
 
-To save the work of starting from scratch, the Java xref:java-protobuf:quickstart-template.adoc[code generation tool] creates a project from a template, complete with descriptors and implementations. Or, you can start from one of our fully implemented https://docs.kalix.io/quickstart/index.html[Quickstart applications].
+To save the work of starting from scratch, the Java xref:java-protobuf:project-template.adoc[code generation tool] creates a project from a template, complete with descriptors and implementations. Or, you can start from one of our fully implemented https://docs.kalix.io/samples/index.html[sample applications].
 
 == Prerequisites
 
@@ -31,7 +31,7 @@ Docker:: Kalix requires https://docs.docker.com/get-docker/[Docker {tab-icon}, w
 
 == Reference the Kalix Protobuf SDKs
 
-The following examples show how to install the SDK to build your services with Maven. The code generation tools include a Kalix xref:quickstart-template.adoc[project template] that generates the recommended project structure, including a [.group-java]#`.pom` file# [.group-scala]#build.sbt# with the necessary references.
+The following examples show how to install the SDK to build your services with Maven. The code generation tools include a Kalix xref:project-template.adoc[project template] that generates the recommended project structure, including a [.group-java]#`.pom` file# [.group-scala]#build.sbt# with the necessary references.
 
 In your [.group-java]#`.pom` file# [.group-scala]#build.sbt#, add the following:
 
@@ -78,9 +78,9 @@ addSbtPlugin("io.kalix" % "sbt-kalix" % "{kalix-jvm-sdk-version}")
 Kalix supports JSON formatted logging to provide multi-line messages formatted in JSON syntax. Always use JSON formatted logging for your Kalix projects to efficiently analyze and easily leverage logging information.
 
 [TIP]
-xref:java-protobuf:quickstart/cr-value-entity-java.adoc[Build and deploy the Quickstart example] to see JSON formatted logging in action.
+xref:java-protobuf:quickstart/cr-value-entity-java.adoc[Build and deploy the sample] to see JSON formatted logging in action.
 
-JSON formatted logging is enabled by default in the projects created by the xref:quickstart-template.adoc[Kalix project template]. It includes a transitive dependency on `logback-json-classic` and a `logback.xml` file as shown here:
+JSON formatted logging is enabled by default in the projects created by the xref:project-template.adoc[Kalix project template]. It includes a transitive dependency on `logback-json-classic` and a `logback.xml` file as shown here:
 
 .src/main/resources/logback.xml
 [source,xml]
@@ -117,7 +117,7 @@ include::example$scala-protobuf-valueentity-customer-registry/src/main/scala/cus
 
 This section provides details on how to accomplish common tasks:
 
-* xref:quickstart-template.adoc[]
+* xref:project-template.adoc[]
 * xref:writing-grpc-descriptors-protobuf.adoc[]
 * xref:value-entity.adoc[Implementing Value Entities]
 * xref:event-sourced-entities.adoc[Implementing Event Sourced Entities]

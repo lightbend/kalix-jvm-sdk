@@ -4,7 +4,7 @@
 version: "3"
 services:
   kalix-runtime:
-    image: gcr.io/kalix-public/kalix-runtime:1.1.29
+    image: gcr.io/kalix-public/kalix-runtime:1.1.31
     container_name: java-spring-valueentity-counter
     ports:
       - "9000:9000"
@@ -16,7 +16,7 @@ services:
 
       USER_SERVICE_HOST: ${USER_SERVICE_HOST:-host.docker.internal}
       USER_SERVICE_PORT: ${USER_SERVICE_PORT:-8080}
-      # Comment to enable ACL check in dev-mode (see https://docs.kalix.io/services/using-acls.html#_local_development_with_acls)
+      # Comment to enable ACL check in dev-mode (see https://docs.kalix.io/java/access-control.html#_local_development_with_acls)
       ACL_ENABLED: "false"
       #PUBSUB_EMULATOR_HOST: gcloud-pubsub-emulator
   #gcloud-pubsub-emulator:

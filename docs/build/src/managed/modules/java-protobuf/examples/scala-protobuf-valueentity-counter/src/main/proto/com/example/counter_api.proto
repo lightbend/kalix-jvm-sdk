@@ -8,25 +8,25 @@ import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
 
 message IncreaseValue { // <3>
-  string counter_id = 1 [(kalix.field).entity_key = true]; // <4>
+  string counter_id = 1 [(kalix.field).id = true]; // <4>
   int32 value = 2;
 }
 
 message DecreaseValue {
-  string counter_id = 1 [(kalix.field).entity_key = true];
+  string counter_id = 1 [(kalix.field).id = true];
   int32 value = 2;
 }
 
 message ResetValue {
-  string counter_id = 1 [(kalix.field).entity_key = true];
+  string counter_id = 1 [(kalix.field).id = true];
 }
 
 message GetCounter {
-  string counter_id = 1 [(kalix.field).entity_key = true];
+  string counter_id = 1 [(kalix.field).id = true];
 }
 
 message DeleteCounter {
-  string counter_id = 1 [(kalix.field).entity_key = true];
+  string counter_id = 1 [(kalix.field).id = true];
 }
 
 message CurrentCounter { // <5>
@@ -37,7 +37,7 @@ service CounterService { // <6>
   option (kalix.codegen) = { // <7>
     value_entity: { // <8>
       name: "com.example.domain.Counter" // <9>
-      entity_type: "counter" // <10>
+      type_id: "counter" // <10>
       state: "com.example.domain.CounterState" // <11>
     }
   };

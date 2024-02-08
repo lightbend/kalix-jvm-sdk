@@ -23,17 +23,17 @@ option java_outer_classname = "SomeSetApi";
 
 
 message AddElement {
-  string set_id = 1 [(kalix.field).entity_key = true];
+  string set_id = 1 [(kalix.field).id = true];
   string element = 2;
 }
 
 message RemoveElement {
-  string set_id = 1 [(kalix.field).entity_key = true];
+  string set_id = 1 [(kalix.field).id = true];
   string element = 2;
 }
 
 message GetElements {
-  string set_id = 1 [(kalix.field).entity_key = true];
+  string set_id = 1 [(kalix.field).id = true];
 }
 
 message CurrentElements {
@@ -45,7 +45,7 @@ service SetService {
   option (kalix.codegen) = {
     replicated_entity: {
       name: "com.example.replicated.set.domain.SomeSet" // <1>
-      entity_type: "some-set"
+      type_id: "some-set"
       replicated_set: { // <2>
         element: "string" // <3>
       }
