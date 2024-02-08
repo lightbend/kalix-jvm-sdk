@@ -3,8 +3,8 @@
 # - uncomment the env var PUBSUB_EMULATOR_HOST and the section below for gcloud-pubsub-emulator service
 version: "3"
 services:
-  kalix-proxy:
-    image: gcr.io/kalix-public/kalix-proxy:1.1.27
+  kalix-runtime:
+    image: gcr.io/kalix-public/kalix-runtime:1.1.31
     container_name: java-spring-choreography-saga-quickstart
     ports:
       - "9000:9000"
