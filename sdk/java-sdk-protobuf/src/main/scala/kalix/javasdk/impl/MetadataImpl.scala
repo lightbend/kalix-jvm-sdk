@@ -17,16 +17,19 @@
 package kalix.javasdk.impl
 
 import com.google.protobuf.ByteString
+import io.opentelemetry.api.trace.propagation.W3CTraceContextPropagator
 import kalix.javasdk.CloudEvent
 import kalix.javasdk.JwtClaims
 import kalix.javasdk.Metadata
 import kalix.javasdk.Principal
 import kalix.javasdk.Principals
 import kalix.javasdk.StatusCode
-import kalix.javasdk.StatusCode.ErrorCode
+import kalix.javasdk.TraceContext
 import kalix.javasdk.impl.MetadataImpl.JwtClaimPrefix
 import kalix.protocol.component
 import kalix.protocol.component.MetadataEntry
+import io.opentelemetry.context.{ Context => OtelContext }
+import kalix.javasdk.impl.telemetry.TraceInstrumentation
 
 import java.lang
 import java.net.URI
@@ -227,6 +230,18 @@ private[kalix] class MetadataImpl(val entries: Seq[MetadataEntry]) extends Metad
         case "backoffice" => Principal.BACKOFFICE
       } ++ svc.map(Principal.localService)).asJavaCollection
     }
+  }
+
+  override lazy val traceContext: TraceContext = new TraceContext {
+    override def asOpenTelemetryContext(): OtelContext = W3CTraceContextPropagator
+      .getInstance()
+      .extract(OtelContext.current(), asMetadata(), TraceContextImpl.getter)
+
+    override def asMap(): util.Map[String, String] = entries
+      .filter(me => me.key == TraceInstrumentation.TRACE_PARENT_KEY || me.key == TraceInstrumentation.TRACE_STATE_KEY)
+      .map(me => me.key -> me.value.stringValue.get)
+      .toMap
+      .asJava
   }
 
   private[kalix] def allJwtClaimNames: Iterable[String] =

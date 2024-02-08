@@ -240,6 +240,12 @@ public interface Metadata extends Iterable<Metadata.MetadataEntry> {
   Principals principals();
 
   /**
+   * Get the trace context associated with this request metadata.
+   * @return The trace context.
+   */
+  TraceContext traceContext();
+
+  /**
    * Add an HTTP response code to this metadata.
    * This will only take effect when HTTP transcoding is in use. It will be ignored for gRPC requests.
    *

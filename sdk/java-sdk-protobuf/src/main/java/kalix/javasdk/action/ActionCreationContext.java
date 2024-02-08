@@ -16,7 +16,10 @@
 
 package kalix.javasdk.action;
 
+import io.opentelemetry.api.trace.Tracer;
 import kalix.javasdk.Context;
+
+import java.util.Optional;
 
 /**
  * Creation context for {@link Action} components.
@@ -36,4 +39,10 @@ public interface ActionCreationContext extends Context {
    *     `akka.grpc.client.[service-name]` in `application.conf`.
    */
   <T> T getGrpcClient(Class<T> clientClass, String service);
+
+  /**
+   * Get an OpenTelemetry tracer for the current action. This will allow for building and automatic exporting of spans.
+   * @return A tracer for the current action, if tracing is configured.
+   */
+  Optional<Tracer> getOpenTelemetryTracer();
 }

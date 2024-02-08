@@ -24,6 +24,7 @@ import io.opentelemetry.api.OpenTelemetry
 import io.opentelemetry.api.common.Attributes
 import io.opentelemetry.api.trace.Span
 import io.opentelemetry.api.trace.SpanKind
+import io.opentelemetry.api.trace.Tracer
 import io.opentelemetry.api.trace.propagation.W3CTraceContextPropagator
 import io.opentelemetry.context.propagation.ContextPropagators
 import io.opentelemetry.context.propagation.TextMapGetter
@@ -111,18 +112,22 @@ trait Instrumentation {
 
   def buildSpan(service: Service, command: ActionCommand): Option[Span]
 
+  def getTracer(): Tracer
+
 }
 
-private object TraceInstrumentation {
+private[kalix] object TraceInstrumentation {
 
   val TRACE_PARENT_KEY = "traceparent"
+  val TRACE_STATE_KEY = "tracestate"
+
   val TRACING_ENDPOINT = "kalix.telemetry.tracing.collector-endpoint"
 
   private val logger: Logger = LoggerFactory.getLogger(getClass)
 
   private lazy val otelGetter = new TextMapGetter[Metadata]() {
     override def get(carrier: Metadata, key: String): String = {
-      logger.debug("For the key [{}] the value is [{}]", key, carrier.get(key))
+      if (logger.isTraceEnabled) logger.trace("For the key [{}] the value is [{}]", key, carrier.get(key))
       carrier.get(key).toScala.getOrElse("")
     }
 
@@ -208,8 +213,7 @@ private final class TraceInstrumentation(
       val context = openTelemetry.getPropagators.getTextMapPropagator
         .extract(OtelContext.current(), metadata, otelGetter.asInstanceOf[TextMapGetter[Object]])
 
-      val span = openTelemetry
-        .getTracer("java-sdk")
+      val span = getTracer()
         .spanBuilder(s"""${command.name}""")
         .setParent(context)
         .setSpanKind(SpanKind.SERVER)
@@ -217,12 +221,16 @@ private final class TraceInstrumentation(
       Some(
         span
           .setAttribute("service.name", s"""${service.serviceName}""")
+          .setAttribute("component.type", service.componentType)
           .setAttribute(s"${service.componentType}", command.name))
     } else {
       if (logger.isTraceEnabled) logger.trace("No `traceparent` found for command [{}].", command)
       None
     }
   }
+
+  // TODO: should this be specific per sdk?
+  override def getTracer(): Tracer = openTelemetry.getTracer("java-sdk")
 }
 
 private object NoOpInstrumentation extends Instrumentation {
@@ -230,4 +238,6 @@ private object NoOpInstrumentation extends Instrumentation {
   override def buildSpan(service: Service, command: Command): Option[Span] = None
 
   override def buildSpan(service: Service, command: ActionCommand): Option[Span] = None
+
+  override def getTracer(): Tracer = null
 }

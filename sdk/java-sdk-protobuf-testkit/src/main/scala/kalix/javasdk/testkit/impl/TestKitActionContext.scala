@@ -16,10 +16,13 @@
 
 package kalix.javasdk.testkit.impl;
 
+import io.opentelemetry.api.trace.Tracer
 import kalix.javasdk.Metadata
 import kalix.javasdk.action.{ ActionContext, ActionCreationContext }
 import kalix.javasdk.impl.InternalContext
 import kalix.javasdk.testkit.MockRegistry
+
+import java.util.Optional
 
 /**
  * INTERNAL API Used by the generated testkit
@@ -44,4 +47,5 @@ final class TestKitActionContext(metadata: Metadata, mockRegistry: MockRegistry 
 
   override def getGrpcClient[T](clientClass: Class[T], service: String): T = getComponentGrpcClient(clientClass)
 
+  override def getOpenTelemetryTracer: Optional[Tracer] = Optional.empty()
 }
