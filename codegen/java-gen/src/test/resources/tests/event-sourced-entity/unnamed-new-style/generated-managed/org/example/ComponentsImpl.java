@@ -47,7 +47,7 @@ public final class ComponentsImpl implements Components {
     public DeferredCall<org.example.eventsourcedentity.CounterApi.IncreaseValue, com.google.protobuf.Empty> increase(org.example.eventsourcedentity.CounterApi.IncreaseValue increaseValue) {
       return new GrpcDeferredCall<>(
         increaseValue,
-        (MetadataImpl) ((InternalContext) context).componentCallMetadata(),
+        context.componentCallMetadata(),
         "org.example.eventsourcedentity.CounterService",
         "Increase",
         (Metadata metadata) -> {
@@ -65,7 +65,7 @@ public final class ComponentsImpl implements Components {
     public DeferredCall<org.example.eventsourcedentity.CounterApi.DecreaseValue, com.google.protobuf.Empty> decrease(org.example.eventsourcedentity.CounterApi.DecreaseValue decreaseValue) {
       return new GrpcDeferredCall<>(
         decreaseValue,
-        (MetadataImpl) ((InternalContext) context).componentCallMetadata(),
+        context.componentCallMetadata(),
         "org.example.eventsourcedentity.CounterService",
         "Decrease",
         (Metadata metadata) -> {
