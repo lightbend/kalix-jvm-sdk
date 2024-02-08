@@ -9,4 +9,7 @@ public sealed interface UserEvent {
 
   @TypeName("name-updated")
   record UserNameUpdated(String name) implements UserEvent {}
+
+  @TypeName("photo-updated")
+  record UserPhotoUpdated(String url) implements UserEvent {}
 }

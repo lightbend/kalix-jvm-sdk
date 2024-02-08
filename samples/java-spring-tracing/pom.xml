@@ -27,7 +27,7 @@
     <jdk.target>17</jdk.target>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-    <kalix-sdk.version>1.3.8-22-3c1e145f-dev-SNAPSHOT</kalix-sdk.version>
+    <kalix-sdk.version>1.3.8-23-092495de-dev-SNAPSHOT</kalix-sdk.version>
   </properties>
 
   <build>
