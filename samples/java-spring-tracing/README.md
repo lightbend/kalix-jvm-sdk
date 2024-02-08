@@ -6,9 +6,11 @@ To understand the Kalix concepts that are the basis for this example, see [Desig
 
 ## Developing
 
-This project demonstrates the use of Value Entity and View components.
-To understand more about these components, see [Developing services](https://docs.kalix.io/services/)
-and in particular the [Java section](https://docs.kalix.io/java/)
+This project demonstrates how to use tracing in a Kalix Service using Java SDK.
+The service is based on a User entity that gets updated with a random name and random picture after created.
+Such updates are done after calling an external API to get a random name and picture.
+All the flow is traced (most of it automatically), and see the traces in Jaeger UI.
+
 
 ## Building
 
@@ -20,8 +22,22 @@ mvn compile
 
 ## Running Locally
 
-When running a Kalix service locally, we need to have its companion Kalix Runtime running alongside it.
+To start Jaeger locally, run:
 
+```shell
+docker run -d --name jaeger \
+  -e COLLECTOR_ZIPKIN_HTTP_PORT=9411 \
+  -p 5775:5775/udp \
+  -p 6831:6831/udp \
+  -p 6832:6832/udp \
+  -p 5778:5778 \
+  -p 16686:16686 \
+  -p 14268:14268 \
+  -p 9411:9411 \
+  jaegertracing/all-in-one:1.6
+```
+
+When running a Kalix service locally, we need to have its companion Kalix Runtime running alongside it.
 To start your service locally, run:
 
 ```shell
@@ -34,24 +50,14 @@ This command will start your Kalix service and a companion Kalix Runtime as conf
 
 With both the Kalix Runtime and your service running, any defined endpoints should be available at `http://localhost:9000`.
 
-- Add items to shopping cart
+- Add a new user
 
 ```shell
-curl -i -XPOST -H "Content-Type: application/json" localhost:9000/cart/123/add -d '{"productId":"kalix-tshirt", "name":"Akka Tshirt", "quantity": 10}'
-curl -i -XPOST -H "Content-Type: application/json" localhost:9000/cart/123/add -d '{"productId":"scala-tshirt", "name":"Scala Tshirt", "quantity": 20}'
+ curl -i -XPOST -H "Content-Type: application/json" localhost:9000/user/1/add -d '{"email":"john@doe.com"}'
 ```
 
-- See current status of the shopping cart
-
-```shell
-curl -i -XGET -H "Content-Type: application/json" localhost:9000/cart/123
-```
-
-- Remove an item from the cart
-
-```shell
-curl -XPOST -H "Content-Type: application/json" localhost:9000/cart/123/items/kalix-tshirt/remove
-```
+- Now you can see the trace in Jaeger UI at http://localhost:16686
+  - select "Kalix endpoint" and "Find all traces" to explore the trace
 
 ## Deploying
 
