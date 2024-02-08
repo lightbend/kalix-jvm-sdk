@@ -51,7 +51,7 @@ public final class ComponentsImpl implements Components {
     public DeferredCall<org.example.service.SomeServiceOuterClass.SomeRequest, com.google.protobuf.Empty> simpleMethod(org.example.service.SomeServiceOuterClass.SomeRequest someRequest) {
       return new GrpcDeferredCall<>(
         someRequest,
-        MetadataImpl.Empty(),
+        context.componentCallMetadata(),
         "org.example.service.SomeService",
         "simpleMethod",
         (Metadata metadata) -> {
@@ -71,7 +71,7 @@ public final class ComponentsImpl implements Components {
     public DeferredCall<org.example.workflow.TransferWorkflowApi.Transfer, com.google.protobuf.Empty> start(org.example.workflow.TransferWorkflowApi.Transfer transfer) {
       return new GrpcDeferredCall<>(
         transfer,
-        MetadataImpl.Empty(),
+        context.componentCallMetadata(),
         "org.example.workflow.TransferWorkflowService",
         "Start",
         (Metadata metadata) -> {
@@ -89,7 +89,7 @@ public final class ComponentsImpl implements Components {
     public DeferredCall<com.google.protobuf.Empty, org.example.workflow.TransferWorkflowApi.Transfer> getState(com.google.protobuf.Empty empty) {
       return new GrpcDeferredCall<>(
         empty,
-        MetadataImpl.Empty(),
+        context.componentCallMetadata(),
         "org.example.workflow.TransferWorkflowService",
         "GetState",
         (Metadata metadata) -> {
