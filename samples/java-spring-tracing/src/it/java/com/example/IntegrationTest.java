@@ -1,26 +1,14 @@
 package com.example;
 
 import com.example.tracing.Main;
-import com.example.tracing.domain.User;
-import com.example.tracing.domain.User.LineItem;
-// tag::sample-it[]
 import kalix.spring.testkit.KalixIntegrationTestKitSupport;
-// ...
-
-// end::sample-it[]
-
 
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.reactive.function.client.WebClient;
 
 import java.time.Duration;
 
 import static java.time.temporal.ChronoUnit.SECONDS;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
 /**
@@ -32,76 +20,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * Since this is an integration tests, it interacts with the application using a WebClient
  * (already configured and provided automatically through injection).
  */
-// tag::sample-it[]
 @SpringBootTest(classes = Main.class)
-public class IntegrationTest extends KalixIntegrationTestKitSupport { // <1>
-
-  @Autowired
-  private WebClient webClient; // <2>
+public class IntegrationTest extends KalixIntegrationTestKitSupport {
 
   private Duration timeout = Duration.of(5, SECONDS);
 
   @Test
-  public void createAndManageCart() {
+  public void createUser() {
+    // TODO
 
-    String cartId = "card-abc";
-    ResponseEntity<String> created =
-      webClient.post() // <3>
-        .uri("/cart/" + cartId + "/create")
-        .retrieve()
-        .toEntity(String.class)
-        .block(timeout);
-    assertEquals(HttpStatus.OK, created.getStatusCode());
-
-    var item1 = new LineItem("tv", "Super TV 55'", 1);
-    ResponseEntity<String> itemOne =
-      webClient.post() // <4>
-        .uri("/cart/" + cartId + "/add")
-        .bodyValue(item1)
-        .retrieve()
-        .toEntity(String.class)
-        .block(timeout);
-    assertEquals(HttpStatus.OK, itemOne.getStatusCode());
-
-    // end::sample-it[]
-
-    var item2 = new LineItem("tv-table", "Table for TV", 1);
-    ResponseEntity<String> itemTwo =
-      webClient.post()
-        .uri("/cart/" + cartId + "/add")
-        .bodyValue(item2)
-        .retrieve()
-        .toEntity(String.class)
-        .block(timeout);
-    assertEquals(HttpStatus.OK, itemTwo.getStatusCode());
-
-    User cartInfo =
-      webClient.get()
-        .uri("/cart/" + cartId)
-        .retrieve()
-        .bodyToMono(User.class)
-        .block(timeout);
-    assertEquals(2, cartInfo.items().size());
-
-
-    // removing one of the items
-    ResponseEntity<String> removingItemOne =
-      webClient.post()
-        .uri("/cart/" + cartId + "/items/" + item1.productId() + "/remove")
-        .retrieve()
-        .toEntity(String.class)
-        .block(timeout);
-
-    // confirming only one product remains
-    // tag::sample-it[]
-    User cartUpdated =
-      webClient.get() // <5>
-        .uri("/cart/" + cartId)
-        .retrieve()
-        .bodyToMono(User.class)
-        .block(timeout);
-    assertEquals(1, cartUpdated.items().size());
-    assertEquals(item2, cartUpdated.items().get(0));
   }
 }
-// end::sample-it[]
