@@ -40,7 +40,7 @@ final class ComponentsImpl(context: InternalContext) extends Components {
    override def getUserByName(command: _root_.org.example.view.ByNameRequest): DeferredCall[_root_.org.example.view.ByNameRequest, _root_.org.example.view.UserResponse] =
      ScalaDeferredCallAdapter(
        command,
-       Metadata.empty,
+       context.componentCallMetadata,
        "org.example.view.UserByNameView",
        "GetUserByName",
        (metadata: Metadata) => {

@@ -40,7 +40,7 @@ final class ComponentsImpl(context: InternalContext) extends Components {
    override def simpleMethod(command: _root_.org.example.service.MyRequest): DeferredCall[_root_.org.example.service.MyRequest, _root_.com.google.protobuf.empty.Empty] =
      ScalaDeferredCallAdapter(
        command,
-       Metadata.empty,
+       context.componentCallMetadata,
        "org.example.service.MyServiceAction",
        "simpleMethod",
        (metadata: Metadata) => {

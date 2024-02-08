@@ -20,7 +20,6 @@ import akka.actor.ActorSystem
 import akka.stream.Materializer
 import akka.stream.SystemMaterializer
 import kalix.javasdk.Context
-import kalix.javasdk.Metadata
 
 /**
  * INTERNAL API
@@ -37,7 +36,11 @@ private[impl] trait ActivatableContext extends Context {
 private[kalix] trait InternalContext {
   def getComponentGrpcClient[T](serviceClass: Class[T]): T
 
-  /** Meant to be used by component calls, initially such they have access to info like trace parent */
+  /**
+   * Intended to be used by component calls, initially to give to the called component access to the trace parent from
+   * the caller. It's empty by default because only actions and workflows can to call other components. Of the two, only
+   * actions have traces and can pass them around using `protected final Component components()`.
+   */
   def componentCallMetadata: MetadataImpl = MetadataImpl.Empty
 }
 

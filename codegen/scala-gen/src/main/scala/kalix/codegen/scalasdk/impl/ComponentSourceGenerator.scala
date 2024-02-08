@@ -126,7 +126,7 @@ object ComponentSourceGenerator {
           c"""override def $commandMethod(command: $inputType): $DeferredCall[$inputType, $outputType] =
              |  $ScalaDeferredCallAdapter(
              |    command,
-             |    $Metadata.empty,
+             |    context.componentCallMetadata,
              |    "${component.service.messageType.fullyQualifiedProtoName}",
              |    "${command.name}",
              |    (metadata: Metadata) => {

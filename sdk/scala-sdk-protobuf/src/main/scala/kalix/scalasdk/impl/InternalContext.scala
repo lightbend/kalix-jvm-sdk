@@ -16,8 +16,8 @@
 
 package kalix.scalasdk.impl
 
-import kalix.javasdk.Metadata
-import kalix.javasdk.impl.MetadataImpl
+import kalix.javasdk.impl
+import kalix.scalasdk.impl.MetadataImpl
 
 /**
  * INTERNAL API
@@ -26,6 +26,10 @@ import kalix.javasdk.impl.MetadataImpl
 trait InternalContext {
   def getComponentGrpcClient[T](serviceClass: Class[T]): T
 
-  /** Meant to be used by component calls, initially such they have access to info like trace parent */
-  def componentCallMetadata: MetadataImpl = MetadataImpl.Empty
+  /**
+   * Intended to be used by component calls, initially to give to the called component access to the trace parent from
+   * the caller. It's empty by default because only actions and workflows can to call other components. Of the two, only
+   * actions have traces and can pass them around using `def components`.
+   */
+  def componentCallMetadata: MetadataImpl = new MetadataImpl(impl.MetadataImpl.Empty)
 }
