@@ -47,7 +47,7 @@ public final class ComponentsImpl implements Components {
     public DeferredCall<org.example.named.view.UserViewModel.ByNameRequest, org.example.named.view.UserViewModel.UserResponse> getUserByName(org.example.named.view.UserViewModel.ByNameRequest byNameRequest) {
       return new GrpcDeferredCall<>(
         byNameRequest,
-        (MetadataImpl) ((InternalContext) context).componentCallMetadata(),
+        context.componentCallMetadata(),
         "org.example.named.view.UserByName",
         "GetUserByName",
         (Metadata metadata) -> {
