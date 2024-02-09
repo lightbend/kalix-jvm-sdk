@@ -17,7 +17,7 @@ services:
         -Dkalix.proxy.eventing.support=google-pubsub-emulator
       # tag::persistence-mode[]
       USER_SERVICE_HOST: ${USER_SERVICE_HOST:-host.docker.internal}
-      USER_SERVICE_PORT: ${USER_SERVICE_PORT:-8080}
+      USER_SERVICE_PORT: ${USER_SERVICE_PORT}
       # end::persistence-mode[]
       PUBSUB_EMULATOR_HOST: gcloud-pubsub-emulator
       # Comment to enable ACL check in dev-mode (see https://docs.kalix.io/java/access-control.html#_local_development_with_acls)

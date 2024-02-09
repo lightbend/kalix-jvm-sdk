@@ -11,7 +11,7 @@ services:
       JAVA_TOOL_OPTIONS: >
         -Dkalix.proxy.eventing.support=google-pubsub-emulator
       USER_SERVICE_HOST: ${USER_SERVICE_HOST:-host.docker.internal}
-      USER_SERVICE_PORT: ${USER_SERVICE_PORT:-8080}
+      USER_SERVICE_PORT: ${USER_SERVICE_PORT}
       PUBSUB_EMULATOR_HOST: gcloud-pubsub-emulator
     depends_on:
       gcloud-pubsub-emulator:
