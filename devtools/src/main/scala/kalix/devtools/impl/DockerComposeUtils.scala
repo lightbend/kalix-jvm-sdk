@@ -20,6 +20,7 @@ import java.io.File
 import java.nio.file.Files
 import java.nio.file.Paths
 
+import scala.collection.mutable
 import scala.io.Source
 import scala.jdk.CollectionConverters._
 import scala.sys.process._
@@ -28,19 +29,14 @@ import com.typesafe.config.Config
 
 object DockerComposeUtils {
 
-  def apply(file: String): DockerComposeUtils = DockerComposeUtils(file, Map.empty)
-
   def fromConfig(config: Config): Option[DockerComposeUtils] =
     Option(config.getString("kalix.dev-mode.docker-compose-file"))
       .filter(_.trim.toLowerCase != "none")
       .filter { file => new File(sys.props("user.dir"), file).exists() }
-      .map { file => DockerComposeUtils(file, sys.env) }
+      .map { file => DockerComposeUtils(file) }
 }
 
-case class DockerComposeUtils(file: String, envVar: Map[String, String]) {
-
-  // mostly for using from Java code
-  def this(file: String) = this(file, Map.empty)
+case class DockerComposeUtils(file: String) {
 
   @volatile private var started = false
 
@@ -61,12 +57,10 @@ case class DockerComposeUtils(file: String, envVar: Map[String, String]) {
   // we will need to iterate over it more than once
   private lazy val lines: Seq[String] =
     if (Files.exists(Paths.get(file))) {
-      val src = Source.fromFile(file)
-      try {
-        src.getLines().toList
-      } finally {
-        src.close()
-      }
+      val collectedLines = mutable.Buffer.empty[String]
+      val processLogger = ProcessLogger(out => collectedLines.append(out))
+      Process(s"docker-compose -f $file config", None).!(processLogger)
+      collectedLines.toSeq // to immutable Seq
     } else {
       Seq.empty
     }
@@ -106,12 +100,7 @@ case class DockerComposeUtils(file: String, envVar: Map[String, String]) {
     else 0
 
   def userFunctionPort: Int =
-    envVar
-      .get("USER_SERVICE_PORT")
-      .orElse(envVar.get("USER_FUNCTION_PORT")) // legacy name
-      .map(_.toInt)
-      .orElse(userFunctionPortFromFile)
-      .getOrElse(8080)
+    userFunctionPortFromFile.getOrElse(8080)
 
   private def userFunctionPortFromFile: Option[Int] =
     lines.collectFirst { case UserServicePortExtractor(port) => port }
