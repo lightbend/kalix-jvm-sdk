@@ -16,8 +16,7 @@
 
 package kalix.scalasdk.impl
 
-import kalix.javasdk.impl
-import kalix.scalasdk.impl.MetadataImpl
+import kalix.javasdk
 
 /**
  * INTERNAL API
@@ -31,5 +30,5 @@ trait InternalContext {
    * the caller. It's empty by default because only actions and workflows can to call other components. Of the two, only
    * actions have traces and can pass them around using `def components`.
    */
-  def componentCallMetadata: MetadataImpl = new MetadataImpl(impl.MetadataImpl.Empty)
+  def componentCallMetadata: MetadataImpl = new MetadataImpl(javasdk.impl.MetadataImpl.Empty)
 }

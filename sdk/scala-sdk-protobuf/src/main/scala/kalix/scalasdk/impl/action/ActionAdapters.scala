@@ -161,15 +161,12 @@ private[scalasdk] final case class ScalaActionContextAdapter(javaSdkContext: jav
   override def materializer(): Materializer = javaSdkContext.materializer()
 
   override def componentCallMetadata: MetadataImpl = {
-    if (metadata.has(Telemetry.TRACE_PARENT_KEY)) {
-      new MetadataImpl(
-        new kalix.javasdk.impl.MetadataImpl(
-          List(
-            MetadataEntry(
-              Telemetry.TRACE_PARENT_KEY,
-              MetadataEntry.Value.StringValue(metadata.get(Telemetry.TRACE_PARENT_KEY).get)))))
-    } else {
-      new MetadataImpl(kalix.javasdk.impl.MetadataImpl.Empty)
+    metadata.get(Telemetry.TRACE_PARENT_KEY) match {
+      case Some(traceparent) =>
+        new MetadataImpl(
+          new kalix.javasdk.impl.MetadataImpl(
+            List(MetadataEntry(Telemetry.TRACE_PARENT_KEY, MetadataEntry.Value.StringValue(traceparent)))))
+      case None => new MetadataImpl(kalix.javasdk.impl.MetadataImpl.Empty)
     }
   }
 
