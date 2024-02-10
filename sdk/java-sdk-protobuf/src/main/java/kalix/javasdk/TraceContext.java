@@ -20,15 +20,13 @@ import io.opentelemetry.context.Context;
 
 import java.util.Optional;
 
-/**
- * Utility interface for trace context helper methods.
- */
+/** Utility interface for trace context helper methods. */
 public interface TraceContext {
 
-
   /**
-   * Allows retrieving the trace context as an OpenTelemetry context for easier construction of child spans.
-   * If the trace context is not available, a new empty context will be returned.
+   * Allows retrieving the trace context as an OpenTelemetry context for easier construction of
+   * child spans. If the trace context is not available, a new empty context will be returned.
+   *
    * @return the trace context as an OpenTelemetry context.
    */
   Context asOpenTelemetryContext();
