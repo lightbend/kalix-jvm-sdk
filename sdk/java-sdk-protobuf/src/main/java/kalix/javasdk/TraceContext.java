@@ -18,7 +18,7 @@ package kalix.javasdk;
 
 import io.opentelemetry.context.Context;
 
-import java.util.Map;
+import java.util.Optional;
 
 /**
  * Utility interface for trace context helper methods.
@@ -34,11 +34,22 @@ public interface TraceContext {
   Context asOpenTelemetryContext();
 
   /**
-   * Allows retrieving the trace context for easier injection for external calls (e.g. HTTP request headers).
+   * Allows retrieving the trace parent for easier injection in external calls (e.g. HTTP request
+   * headers).
    *
-   * @return a map including the trace parent and trace state (if present) using W3C Trace Context format.
-   * @see <a href="https://www.w3.org/TR/trace-context/#trace-context-http-headers-format">W3C Trace Context section 3</a>
+   * @return the trace parent using W3C Trace Context format.
+   * @see <a href="https://www.w3.org/TR/trace-context/#trace-context-http-headers-format">W3C Trace
+   *     Context section 3</a>
    */
-  Map<String, String> asMap();
+  Optional<String> traceParent();
 
+  /**
+   * Allows retrieving the trace state for easier injection in external calls (e.g. HTTP request
+   * headers).
+   *
+   * @return the trace state using W3C Trace Context format.
+   * @see <a href="https://www.w3.org/TR/trace-context/#trace-context-http-headers-format">W3C Trace
+   *     Context section 3</a>
+   */
+  Optional<String> traceState();
 }
