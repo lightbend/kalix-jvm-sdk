@@ -1,15 +1,19 @@
 package com.example.tracing.api;
 
 import com.example.tracing.domain.UserEvent;
+import io.opentelemetry.api.OpenTelemetry;
 import io.opentelemetry.api.trace.Span;
 import io.opentelemetry.api.trace.SpanKind;
 import io.opentelemetry.api.trace.StatusCode;
 import io.opentelemetry.api.trace.Tracer;
+import io.opentelemetry.context.Context;
 import io.opentelemetry.context.Scope;
+import io.opentelemetry.instrumentation.spring.webflux.v5_3.SpringWebfluxTelemetry;
 import kalix.javasdk.action.Action;
 import kalix.javasdk.annotations.Subscribe;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 
@@ -20,7 +24,7 @@ public class GetRandomPhotoActionAsync extends Action {
   private final Tracer tracer;
   private final WebClient webClient;
 
-  public GetRandomPhotoActionAsync(Tracer tracer) {
+  public GetRandomPhotoActionAsync(Tracer tracer, OpenTelemetry openTelemetry) {
     this.tracer = tracer;
     this.webClient = WebClient.create("https://randomuser.me/api/?inc=picture&noinfo");
   }
@@ -32,7 +36,11 @@ public class GetRandomPhotoActionAsync extends Action {
       // NOTE: tracing context is automatically propagated when using component client, no need to manually inject headers
       // in this case we are using WebClient directly instead, only for demonstration purposes but if you're doing a local call
       // you should use the component client instead
-      var tracingMap = actionContext().metadata().traceContext().asMap();
+      var tracingMap = Map.of(
+          "traceparent", actionContext().metadata().traceContext().traceParent().orElse(""),
+          "tracestate", actionContext().metadata().traceContext().traceState().orElse("")
+      );
+
       return WebClient.create("http://localhost:9000")
           .put()
           .uri(uriBuilder -> uriBuilder
@@ -50,10 +58,8 @@ public class GetRandomPhotoActionAsync extends Action {
 
   // gets random name from external API using a synchronous call and traces that call ^
   private CompletableFuture<String> getRandomPhotoAsync() {
-    var otelParentContext = actionContext().metadata().traceContext().asOpenTelemetryContext();
     Span span = tracer
         .spanBuilder("random-name-async")
-        .setParent(otelParentContext)
         .setSpanKind(SpanKind.CLIENT)
         .startSpan();
 

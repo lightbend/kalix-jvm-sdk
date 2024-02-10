@@ -27,7 +27,7 @@
     <jdk.target>17</jdk.target>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-    <kalix-sdk.version>1.3.8-23-092495de-dev-SNAPSHOT</kalix-sdk.version>
+    <kalix-sdk.version>1.3.8-26-5a8b8c64-dev-SNAPSHOT</kalix-sdk.version>
   </properties>
 
   <build>
@@ -279,35 +279,23 @@
       <scope>test</scope>
     </dependency>
 
+    <dependency>
+      <groupId>io.opentelemetry.instrumentation</groupId>
+      <artifactId>opentelemetry-spring-web-3.1</artifactId>
+      <version>1.32.1-alpha</version>
+    </dependency>
 
-    <!--dependency>
-      <groupId>io.opentelemetry</groupId>
-      <artifactId>opentelemetry-api</artifactId>
-    </dependency>
     <dependency>
-      <groupId>io.opentelemetry</groupId>
-      <artifactId>opentelemetry-sdk</artifactId>
+      <groupId>io.opentelemetry.instrumentation</groupId>
+      <artifactId>opentelemetry-spring-webflux-5.3</artifactId>
+      <version>1.32.1-alpha</version>
     </dependency>
-    <dependency>
-      <groupId>io.opentelemetry</groupId>
-      <artifactId>opentelemetry-sdk-metrics</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>io.opentelemetry</groupId>
-      <artifactId>opentelemetry-exporter-logging</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>io.opentelemetry.semconv</groupId>
-      <artifactId>opentelemetry-semconv</artifactId>
-      <version>1.23.1-alpha</version>
-    </dependency>
+
+
+    <!-- TODO: TO REMOVE -->
     <dependency>
       <groupId>io.opentelemetry</groupId>
       <artifactId>opentelemetry-sdk-extension-autoconfigure</artifactId>
     </dependency>
-    <dependency>
-      <groupId>io.opentelemetry</groupId>
-      <artifactId>opentelemetry-sdk-extension-autoconfigure-spi</artifactId>
-    </dependency-->
   </dependencies>
 </project>

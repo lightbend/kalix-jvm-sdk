@@ -20,9 +20,12 @@ public class GetRandomNameActionSync extends Action {
   private final Tracer tracer;
   private final ComponentClient componentClient;
 
-  public GetRandomNameActionSync(Tracer tracer, ComponentClient componentClient) {
+  private final RestTemplate restTemplate;
+
+  public GetRandomNameActionSync(Tracer tracer, ComponentClient componentClient, RestTemplate restTemplate) {
     this.tracer = tracer;
     this.componentClient = componentClient;
+    this.restTemplate = restTemplate;
   }
 
   public Effect<String> handleAdd(UserEvent.UserAdded userAdded) {
@@ -54,7 +57,7 @@ public class GetRandomNameActionSync extends Action {
         .startSpan();
 
     try (Scope ignored = span.makeCurrent()) {
-      RandomUserApi.Name result = new RestTemplate().getForObject("https://randomuser.me/api/?inc=name&noinfo", RandomUserApi.Name.class);
+      RandomUserApi.Name result = restTemplate.getForObject("https://randomuser.me/api/?inc=name&noinfo", RandomUserApi.Name.class);
       span.setAttribute("user.id", actionContext().eventSubject().orElse("unknown"));
       span.setAttribute("random.name", result.name());
       return result.name();
