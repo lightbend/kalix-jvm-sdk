@@ -26,8 +26,12 @@ public class IntegrationTest extends KalixIntegrationTestKitSupport {
   private Duration timeout = Duration.of(5, SECONDS);
 
   @Test
-  public void createUser() {
+  public void testTracingPropagation() {
     // TODO
+  }
 
+  @Test
+  public void testExternalTracingPropagation() {
+    // TODO
   }
 }
