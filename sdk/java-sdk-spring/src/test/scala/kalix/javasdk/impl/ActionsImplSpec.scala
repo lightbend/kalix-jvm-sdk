@@ -19,7 +19,7 @@ package kalix.javasdk.impl
 import akka.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
 import akka.actor.typed.scaladsl.adapter._
 import com.google.protobuf.any.Any.toJavaProto
-import com.google.protobuf.any.{ Any => ScalaPbAny }
+import com.google.protobuf.any.{Any => ScalaPbAny}
 import kalix.javasdk.JsonSupport
 import kalix.javasdk.JsonSupport.decodeJson
 import kalix.javasdk.action.ActionCreationContext
@@ -56,10 +56,7 @@ class ActionsImplSpec
 
   private val classicSystem = system.toClassic
 
-  def create(
-      provider: ReflectiveActionProvider[_],
-      messageCodec: MessageCodec,
-      tracingCollector: String = ""): Actions = {
+  def create(provider: ReflectiveActionProvider[_], messageCodec: MessageCodec, tracingCollector: String = ""): Actions = {
     val actionFactory: ActionFactory = ctx => provider.newRouter(ctx)
     val service = new ActionService(actionFactory, provider.serviceDescriptor(), Array(), messageCodec, None)
 
@@ -117,12 +114,7 @@ class ActionsImplSpec
 
       val service = create(actionProvider, jsonMessageCodec, "http://localhost:1111")
       val serviceName = actionProvider.serviceDescriptor().getFullName
-      val cmd1 = ScalaPbAny(
-        "type.googleapis.com/" + actionProvider
-          .serviceDescriptor()
-          .findMethodByName("Endpoint")
-          .getInputType
-          .getFullName)
+      val cmd1 = ScalaPbAny("type.googleapis.com/"+actionProvider.serviceDescriptor().findMethodByName("Endpoint").getInputType.getFullName)
 
       val traceParent = "00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01"
       val md = Metadata(Seq(MetadataEntry("traceparent", MetadataEntry.Value.StringValue(traceParent))))
@@ -132,7 +124,7 @@ class ActionsImplSpec
         val tp = decodeJson(classOf[String], toJavaProto(payload))
         tp should not be "not-found"
         tp should include("0af7651916cd43dd8448eb211c80319c") // trace id should be propagated
-        (tp should not).include("b7ad6b7169203331") // new span id should be generated
+        tp should not include("b7ad6b7169203331") // new span id should be generated
       }
     }
   }
