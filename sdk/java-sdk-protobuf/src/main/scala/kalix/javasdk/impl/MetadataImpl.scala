@@ -30,6 +30,7 @@ import kalix.protocol.component
 import kalix.protocol.component.MetadataEntry
 import io.opentelemetry.context.{ Context => OtelContext }
 import kalix.javasdk.impl.telemetry.TraceInstrumentation
+import kalix.javasdk.impl.telemetry.TraceInstrumentation.otelGetter
 
 import java.lang
 import java.net.URI
@@ -235,13 +236,11 @@ private[kalix] class MetadataImpl(val entries: Seq[MetadataEntry]) extends Metad
   override lazy val traceContext: TraceContext = new TraceContext {
     override def asOpenTelemetryContext(): OtelContext = W3CTraceContextPropagator
       .getInstance()
-      .extract(OtelContext.current(), asMetadata(), TraceContextImpl.getter)
+      .extract(OtelContext.current(), asMetadata(), otelGetter)
 
-    override def asMap(): util.Map[String, String] = entries
-      .filter(me => me.key == TraceInstrumentation.TRACE_PARENT_KEY || me.key == TraceInstrumentation.TRACE_STATE_KEY)
-      .map(me => me.key -> me.value.stringValue.get)
-      .toMap
-      .asJava
+    override def traceParent(): Optional[String] = getScala(TraceInstrumentation.TRACE_PARENT_KEY).asJava
+
+    override def traceState(): Optional[String] = getScala(TraceInstrumentation.TRACE_STATE_KEY).asJava
   }
 
   private[kalix] def allJwtClaimNames: Iterable[String] =

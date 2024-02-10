@@ -34,7 +34,9 @@ import kalix.javasdk.impl.ActionFactory
 import kalix.javasdk.impl.ErrorHandling.BadRequestException
 import kalix.javasdk.impl._
 import kalix.javasdk.impl.effect.EffectSupport.asProtocol
-import kalix.javasdk.impl.telemetry.{ ActionCategory, Instrumentation, Telemetry, TraceInstrumentation }
+import kalix.javasdk.impl.telemetry.ActionCategory
+import kalix.javasdk.impl.telemetry.Instrumentation
+import kalix.javasdk.impl.telemetry.Telemetry
 import kalix.javasdk.impl.telemetry.TraceInstrumentation.TRACE_PARENT_KEY
 import kalix.javasdk.impl.telemetry.TraceInstrumentation.TRACE_STATE_KEY
 import kalix.protocol.action.ActionCommand
@@ -47,7 +49,6 @@ import kalix.protocol.component.MetadataEntry.Value.StringValue
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
-import java.util
 import java.util.Optional
 import scala.collection.mutable
 import scala.compat.java8.OptionConverters.RichOptionForJava8
@@ -383,7 +384,7 @@ private[javasdk] final class ActionsImpl(
 
   private def metadataWithTracing(metadata: MetadataImpl, spanContext: SpanContext): Metadata = {
     // remove parent traceparent and tracestate from the metadata so they can be reinjected with current span context
-    val l = metadata.entries.filter(m => m.key != "traceparent" && m.key != "tracestate").toBuffer
+    val l = metadata.entries.filter(m => m.key != TRACE_PARENT_KEY && m.key != TRACE_STATE_KEY).toBuffer
 
     val setter: TextMapSetter[mutable.Buffer[MetadataEntry]] = (carrier, key, value) => {
       carrier.addOne(new MetadataEntry(key, StringValue(value)))
