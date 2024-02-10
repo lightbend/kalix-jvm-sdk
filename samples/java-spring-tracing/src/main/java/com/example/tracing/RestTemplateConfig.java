@@ -9,6 +9,7 @@ import org.springframework.web.client.RestTemplate;
 @Configuration
 public class RestTemplateConfig {
 
+  // this was added just for testing the auto-instrumentation
   @Bean
   public RestTemplate restTemplate(OpenTelemetry openTelemetry) {
 
