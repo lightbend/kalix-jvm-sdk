@@ -342,6 +342,7 @@ private[impl] object ComponentDescriptorFactory {
       val in = EventSource
         .newBuilder()
         .setDirect(direct)
+        .setConsumerGroup(streamAnn.consumerGroup())
 
       val eventing =
         ServiceEventing
