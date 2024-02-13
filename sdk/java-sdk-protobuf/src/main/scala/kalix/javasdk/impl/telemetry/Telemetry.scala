@@ -26,9 +26,8 @@ import io.opentelemetry.api.trace.Span
 import io.opentelemetry.api.trace.SpanKind
 import io.opentelemetry.api.trace.Tracer
 import io.opentelemetry.api.trace.propagation.W3CTraceContextPropagator
-import io.opentelemetry.context.propagation.ContextPropagators
-import io.opentelemetry.context.propagation.TextMapGetter
-import io.opentelemetry.context.{ Context => OtelContext }
+import io.opentelemetry.context.propagation.{ContextPropagators, TextMapGetter, TextMapSetter}
+import io.opentelemetry.context.{Context => OtelContext}
 import io.opentelemetry.exporter.otlp.trace.OtlpGrpcSpanExporter
 import io.opentelemetry.sdk.OpenTelemetrySdk
 import io.opentelemetry.sdk.resources.Resource
@@ -40,10 +39,13 @@ import kalix.javasdk.impl.MetadataImpl
 import kalix.javasdk.impl.ProxyInfoHolder
 import kalix.javasdk.impl.Service
 import kalix.protocol.action.ActionCommand
+import kalix.protocol.component.MetadataEntry
+import kalix.protocol.component.MetadataEntry.Value.StringValue
 import kalix.protocol.entity.Command
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
+import scala.collection.mutable
 import scala.concurrent.ExecutionContext
 import scala.jdk.OptionConverters._
 
@@ -133,6 +135,10 @@ private[kalix] object TraceInstrumentation {
 
     override def keys(carrier: Metadata): java.lang.Iterable[String] =
       carrier.getAllKeys
+  }
+
+  lazy val setter: TextMapSetter[mutable.Buffer[MetadataEntry]] = (carrier, key, value) => {
+    carrier.addOne(new MetadataEntry(key, StringValue(value)))
   }
 }
 

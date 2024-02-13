@@ -27,16 +27,13 @@ import io.opentelemetry.api.trace.Span
 import io.opentelemetry.api.trace.SpanContext
 import io.opentelemetry.api.trace.Tracer
 import io.opentelemetry.api.trace.propagation.W3CTraceContextPropagator
-import io.opentelemetry.context.propagation.TextMapSetter
 import kalix.javasdk._
 import kalix.javasdk.action._
 import kalix.javasdk.impl.ActionFactory
 import kalix.javasdk.impl.ErrorHandling.BadRequestException
 import kalix.javasdk.impl._
 import kalix.javasdk.impl.effect.EffectSupport.asProtocol
-import kalix.javasdk.impl.telemetry.ActionCategory
-import kalix.javasdk.impl.telemetry.Instrumentation
-import kalix.javasdk.impl.telemetry.Telemetry
+import kalix.javasdk.impl.telemetry.{ActionCategory, Instrumentation, Telemetry, TraceInstrumentation}
 import kalix.javasdk.impl.telemetry.TraceInstrumentation.TRACE_PARENT_KEY
 import kalix.javasdk.impl.telemetry.TraceInstrumentation.TRACE_STATE_KEY
 import kalix.protocol.action.ActionCommand
@@ -45,7 +42,6 @@ import kalix.protocol.action.Actions
 import kalix.protocol.component
 import kalix.protocol.component.Failure
 import kalix.protocol.component.MetadataEntry
-import kalix.protocol.component.MetadataEntry.Value.StringValue
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -132,20 +128,10 @@ private[javasdk] final class ActionsImpl(
   import ActionsImpl._
   import _system.dispatcher
   implicit val system: ActorSystem = _system
-  val telemetry = Telemetry(system)
+  private val telemetry = Telemetry(system)
   lazy val telemetries: Map[String, Instrumentation] = services.values.map { s =>
     (s.serviceName, telemetry.traceInstrumentation(s.serviceName, ActionCategory))
   }.toMap
-
-  private case class CreationContext(serviceName: Option[String] = None)
-      extends AbstractContext(system)
-      with ActionCreationContext {
-    override def getGrpcClient[T](clientClass: Class[T], service: String): T =
-      GrpcClients(system).getGrpcClient(clientClass, service)
-
-    override def getOpenTelemetryTracer: Optional[Tracer] =
-      serviceName.flatMap(telemetries.get(_).map(_.getTracer())).asJava
-  }
 
   private def effectToResponse(
       service: ActionService,
@@ -219,11 +205,11 @@ private[javasdk] final class ActionsImpl(
 
         val fut =
           try {
-            val context = createContext(in, service.messageCodec, span.map(_.getSpanContext))
+            val context = createContext(in, service.messageCodec, span.map(_.getSpanContext), service.serviceName)
             val decodedPayload = service.messageCodec.decodeMessage(
               in.payload.getOrElse(throw new IllegalArgumentException("No command payload")))
             val effect = service.factory
-              .create(CreationContext(Some(service.serviceName)))
+              .create(context)
               .handleUnary(in.name, MessageEnvelope.of(decodedPayload, context.metadata()), context)
             effectToResponse(service, in, effect, service.messageCodec)
           } catch {
@@ -261,9 +247,9 @@ private[javasdk] final class ActionsImpl(
           services.get(call.serviceName) match {
             case Some(service) =>
               try {
-                val context = createContext(call, service.messageCodec, None)
+                val context = createContext(call, service.messageCodec, None, service.serviceName)
                 val effect = service.factory
-                  .create(CreationContext())
+                  .create(context)
                   .handleStreamedIn(
                     call.name,
                     messages.map { message =>
@@ -272,7 +258,7 @@ private[javasdk] final class ActionsImpl(
                         message.payload.getOrElse(throw new IllegalArgumentException("No command payload")))
                       MessageEnvelope.of(decodedPayload, metadata)
                     }.asJava,
-                    createContext(call, service.messageCodec, None))
+                    context)
                 effectToResponse(service, call, effect, service.messageCodec)
               } catch {
                 case NonFatal(ex) =>
@@ -296,11 +282,11 @@ private[javasdk] final class ActionsImpl(
     services.get(in.serviceName) match {
       case Some(service) =>
         try {
-          val context = createContext(in, service.messageCodec, None)
+          val context = createContext(in, service.messageCodec, None, service.serviceName)
           val decodedPayload = service.messageCodec.decodeMessage(
             in.payload.getOrElse(throw new IllegalArgumentException("No command payload")))
           service.factory
-            .create(CreationContext())
+            .create(context)
             .handleStreamedOut(in.name, MessageEnvelope.of(decodedPayload, context.metadata()), context)
             .asScala
             .mapAsync(1)(effect => effectToResponse(service, in, effect, service.messageCodec))
@@ -341,9 +327,9 @@ private[javasdk] final class ActionsImpl(
           services.get(call.serviceName) match {
             case Some(service) =>
               try {
-                val context = createContext(call, service.messageCodec, None)
+                val context = createContext(call, service.messageCodec, None, service.serviceName)
                 service.factory
-                  .create(CreationContext())
+                  .create(context)
                   .handleStreamed(
                     call.name,
                     messages.map { message =>
@@ -352,7 +338,7 @@ private[javasdk] final class ActionsImpl(
                         message.payload.getOrElse(throw new IllegalArgumentException("No command payload")))
                       MessageEnvelope.of(decodedPayload, metadata)
                     }.asJava,
-                    createContext(call, service.messageCodec, None))
+                    context)
                   .asScala
                   .mapAsync(1)(effect => effectToResponse(service, call, effect, service.messageCodec))
                   .recover { case NonFatal(ex) =>
@@ -376,22 +362,20 @@ private[javasdk] final class ActionsImpl(
   private def createContext(
       in: ActionCommand,
       messageCodec: MessageCodec,
-      spanContext: Option[SpanContext]): ActionContext = {
+      spanContext: Option[SpanContext],
+      serviceName: String): ActionContext = {
     val metadata = new MetadataImpl(in.metadata.map(_.entries.toVector).getOrElse(Nil))
     val updatedMetadata = spanContext.map(metadataWithTracing(metadata, _)).getOrElse(metadata)
-    new ActionContextImpl(updatedMetadata, messageCodec, system)
+    new ActionContextImpl(updatedMetadata, messageCodec, system, serviceName, telemetries)
   }
 
   private def metadataWithTracing(metadata: MetadataImpl, spanContext: SpanContext): Metadata = {
     // remove parent traceparent and tracestate from the metadata so they can be reinjected with current span context
     val l = metadata.entries.filter(m => m.key != TRACE_PARENT_KEY && m.key != TRACE_STATE_KEY).toBuffer
 
-    val setter: TextMapSetter[mutable.Buffer[MetadataEntry]] = (carrier, key, value) => {
-      carrier.addOne(new MetadataEntry(key, StringValue(value)))
-    }
     W3CTraceContextPropagator
       .getInstance()
-      .inject(io.opentelemetry.context.Context.current().`with`(Span.wrap(spanContext)), l, setter)
+      .inject(io.opentelemetry.context.Context.current().`with`(Span.wrap(spanContext)), l, TraceInstrumentation.setter)
 
     if (log.isTraceEnabled)
       log.trace(
@@ -404,11 +388,15 @@ private[javasdk] final class ActionsImpl(
 
 case class MessageEnvelopeImpl[T](payload: T, metadata: Metadata) extends MessageEnvelope[T]
 
-//WHY the messageCodec?
 /**
  * INTERNAL API
  */
-class ActionContextImpl(override val metadata: Metadata, val messageCodec: MessageCodec, val system: ActorSystem)
+class ActionContextImpl(
+    override val metadata: Metadata,
+    val messageCodec: MessageCodec,
+    val system: ActorSystem,
+    serviceName: String,
+    telemetries: Map[String, Instrumentation])
     extends AbstractContext(system)
     with ActionContext {
 
@@ -432,5 +420,8 @@ class ActionContextImpl(override val metadata: Metadata, val messageCodec: Messa
       MetadataImpl.Empty
     }
   }
+
+  override def getOpenTelemetryTracer: Optional[Tracer] =
+    telemetries.get(serviceName).map(_.getTracer()).asJava
 
 }
