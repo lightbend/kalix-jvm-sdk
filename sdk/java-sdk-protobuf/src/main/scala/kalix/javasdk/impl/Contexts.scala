@@ -35,6 +35,13 @@ private[impl] trait ActivatableContext extends Context {
  */
 private[kalix] trait InternalContext {
   def getComponentGrpcClient[T](serviceClass: Class[T]): T
+
+  /**
+   * Intended to be used by component calls, initially to give to the called component access to the trace parent from
+   * the caller. It's empty by default because only actions and workflows can to call other components. Of the two, only
+   * actions have traces and can pass them around using `protected final Component components()`.
+   */
+  def componentCallMetadata: MetadataImpl = MetadataImpl.Empty
 }
 
 /**
@@ -47,4 +54,5 @@ abstract class AbstractContext(system: ActorSystem) extends Context with Interna
 
   def getComponentGrpcClient[T](serviceClass: Class[T]): T =
     GrpcClients(system).getComponentGrpcClient(serviceClass)
+
 }

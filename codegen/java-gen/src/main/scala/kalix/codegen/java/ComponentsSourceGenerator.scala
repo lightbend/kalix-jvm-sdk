@@ -141,7 +141,7 @@ object ComponentsSourceGenerator {
              |public DeferredCall<$inputType, $outputType> $commandMethod($inputType $paramName) {
              |  return new GrpcDeferredCall<>(
              |    ${lowerFirst(command.inputType.name)},
-             |    MetadataImpl.Empty(),
+             |    context.componentCallMetadata(),
              |    "${component.service.messageType.fullyQualifiedProtoName}",
              |    "${command.name}",
              |    (Metadata metadata) -> {

@@ -44,7 +44,7 @@ final class ComponentsImpl(context: InternalContext) extends Components {
    override def simpleMethod(command: _root_.org.example.service.SomeRequest): DeferredCall[_root_.org.example.service.SomeRequest, _root_.com.google.protobuf.empty.Empty] =
      ScalaDeferredCallAdapter(
        command,
-       Metadata.empty,
+       context.componentCallMetadata,
        "org.example.service.SomeService",
        "simpleMethod",
        (metadata: Metadata) => {
@@ -63,7 +63,7 @@ final class ComponentsImpl(context: InternalContext) extends Components {
    override def start(command: _root_.org.example.workflow.Transfer): DeferredCall[_root_.org.example.workflow.Transfer, _root_.com.google.protobuf.empty.Empty] =
      ScalaDeferredCallAdapter(
        command,
-       Metadata.empty,
+       context.componentCallMetadata,
        "org.example.workflow.TransferWorkflowService",
        "Start",
        (metadata: Metadata) => {
@@ -80,7 +80,7 @@ final class ComponentsImpl(context: InternalContext) extends Components {
    override def getState(command: _root_.com.google.protobuf.empty.Empty): DeferredCall[_root_.com.google.protobuf.empty.Empty, _root_.org.example.workflow.Transfer] =
      ScalaDeferredCallAdapter(
        command,
-       Metadata.empty,
+       context.componentCallMetadata,
        "org.example.workflow.TransferWorkflowService",
        "GetState",
        (metadata: Metadata) => {
