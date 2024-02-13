@@ -33,7 +33,7 @@ import kalix.javasdk.impl.ActionFactory
 import kalix.javasdk.impl.ErrorHandling.BadRequestException
 import kalix.javasdk.impl._
 import kalix.javasdk.impl.effect.EffectSupport.asProtocol
-import kalix.javasdk.impl.telemetry.{ActionCategory, Instrumentation, Telemetry, TraceInstrumentation}
+import kalix.javasdk.impl.telemetry.{ ActionCategory, Instrumentation, Telemetry, TraceInstrumentation }
 import kalix.javasdk.impl.telemetry.TraceInstrumentation.TRACE_PARENT_KEY
 import kalix.javasdk.impl.telemetry.TraceInstrumentation.TRACE_STATE_KEY
 import kalix.protocol.action.ActionCommand

@@ -26,8 +26,8 @@ import io.opentelemetry.api.trace.Span
 import io.opentelemetry.api.trace.SpanKind
 import io.opentelemetry.api.trace.Tracer
 import io.opentelemetry.api.trace.propagation.W3CTraceContextPropagator
-import io.opentelemetry.context.propagation.{ContextPropagators, TextMapGetter, TextMapSetter}
-import io.opentelemetry.context.{Context => OtelContext}
+import io.opentelemetry.context.propagation.{ ContextPropagators, TextMapGetter, TextMapSetter }
+import io.opentelemetry.context.{ Context => OtelContext }
 import io.opentelemetry.exporter.otlp.trace.OtlpGrpcSpanExporter
 import io.opentelemetry.sdk.OpenTelemetrySdk
 import io.opentelemetry.sdk.resources.Resource
