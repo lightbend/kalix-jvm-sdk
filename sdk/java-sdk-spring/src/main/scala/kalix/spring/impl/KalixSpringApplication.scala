@@ -19,14 +19,13 @@ package kalix.spring.impl
 import java.lang.reflect.Constructor
 import java.lang.reflect.Modifier
 import java.lang.reflect.ParameterizedType
-
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters.CollectionHasAsScala
 import scala.jdk.FutureConverters.CompletionStageOps
 import scala.jdk.OptionConverters.RichOption
-
 import akka.Done
 import com.typesafe.config.Config
+import io.opentelemetry.api.trace.Tracer
 import kalix.javasdk.Context
 import kalix.javasdk.Kalix
 import kalix.javasdk.action.Action
@@ -380,6 +379,9 @@ case class KalixSpringApplication(applicationContext: ApplicationContext, config
           case p if p == classOf[KalixClient]           => kalixClient(context)
           case p if p == classOf[ComponentClient]       => componentClient(context)
           case p if p == classOf[WebClientProvider]     => webClientProvider(context)
+          case p if p == classOf[Tracer] =>
+            context.getOpenTelemetryTracer.orElseGet(() =>
+              throw new IllegalStateException("Tracer not available. Make sure to have enabled tracing."))
         })
 
   private def workflowProvider[S, W <: Workflow[S]](clz: Class[W]): WorkflowProvider[S, W] = {
