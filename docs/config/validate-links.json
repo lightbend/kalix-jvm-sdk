@@ -1,7 +1,7 @@
 {
   "ignorePatterns": [
     { "pattern": "^https://mvnrepository\\.com" },
-    { "pattern": "^http://127.0.0.1:8080" }
+    { "pattern": "^http://127.0.0.1:8080" },
     { "pattern": "^https://site\\.mockito\\.org/" }
   ]
 }
