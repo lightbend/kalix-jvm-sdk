@@ -394,7 +394,9 @@ private[javasdk] final class ActionsImpl(
       .inject(io.opentelemetry.context.Context.current().`with`(Span.wrap(spanContext)), l, setter)
 
     if (log.isTraceEnabled)
-      log.trace("Updated metadata with trace context: [{}]", l.toList.map(e => e.key + "=" + e.value))
+      log.trace(
+        "Updated metadata with trace context: [{}]",
+        l.toList.filter(m => m.key == TRACE_PARENT_KEY || m.key == TRACE_STATE_KEY))
     new MetadataImpl(l.toSeq)
   }
 
