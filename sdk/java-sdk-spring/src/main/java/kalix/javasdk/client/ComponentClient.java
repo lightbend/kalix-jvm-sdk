@@ -16,8 +16,6 @@
 
 package kalix.javasdk.client;
 
-import kalix.javasdk.MetadataContext;
-import kalix.javasdk.action.ActionContext;
 import kalix.spring.KalixClient;
 
 import java.util.List;
