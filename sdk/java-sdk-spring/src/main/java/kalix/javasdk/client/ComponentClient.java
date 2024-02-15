@@ -16,6 +16,8 @@
 
 package kalix.javasdk.client;
 
+import kalix.javasdk.MetadataContext;
+import kalix.javasdk.action.ActionContext;
 import kalix.spring.KalixClient;
 
 import java.util.List;
@@ -48,6 +50,10 @@ public class ComponentClient {
    * Select Action as a call target component.
    */
   public ActionCallBuilder forAction() {
+    return new ActionCallBuilder(kalixClient);
+  }
+
+  public ActionCallBuilder forActionWithTracing(ActionContext context) {
     return new ActionCallBuilder(kalixClient);
   }
 

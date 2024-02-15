@@ -19,12 +19,12 @@ package kalix.javasdk.client
 import java.lang.reflect.Method
 import java.lang.reflect.ParameterizedType
 import java.util
-
 import scala.jdk.CollectionConverters._
-
 import akka.http.scaladsl.model.HttpMethods
 import com.google.protobuf.any.Any
 import kalix.javasdk.DeferredCall
+import kalix.javasdk.Metadata
+import kalix.javasdk.MetadataContext
 import kalix.javasdk.action.Action
 import kalix.javasdk.annotations.EntityType
 import kalix.javasdk.annotations.TypeId
@@ -37,6 +37,7 @@ import kalix.javasdk.impl.reflection.RestServiceIntrospector.PathParameter
 import kalix.javasdk.impl.reflection.RestServiceIntrospector.QueryParamParameter
 import kalix.javasdk.impl.reflection.RestServiceIntrospector.RestService
 import kalix.javasdk.impl.reflection.SyntheticRequestServiceMethod
+import kalix.javasdk.impl.telemetry.Telemetry
 import kalix.javasdk.valueentity.ValueEntity
 import kalix.javasdk.workflow.Workflow
 import kalix.spring.KalixClient
@@ -44,14 +45,28 @@ import kalix.spring.impl.RestKalixClientImpl
 import org.springframework.web.bind.annotation.RequestMethod
 import reactor.core.publisher.Flux
 
-final class ComponentCall[A1, R](kalixClient: KalixClient, method: Method, ids: util.List[String]) {
+import java.util.Optional
+
+final class ComponentCall[A1, R](
+    kalixClient: KalixClient,
+    method: Method,
+    ids: util.List[String],
+    metadataContext: Optional[MetadataContext]) {
 
   def this(kalixClient: KalixClient, lambda: scala.Any, ids: util.List[String]) {
-    this(kalixClient, MethodRefResolver.resolveMethodRef(lambda), ids)
+    this(kalixClient, MethodRefResolver.resolveMethodRef(lambda), ids, Optional.empty[MetadataContext])
+  }
+
+  def this(
+      kalixClient: KalixClient,
+      lambda: scala.Any,
+      ids: util.List[String],
+      metadataContext: Optional[MetadataContext]) {
+    this(kalixClient, MethodRefResolver.resolveMethodRef(lambda), ids, metadataContext)
   }
 
   def params(a1: A1): DeferredCall[Any, R] = {
-    ComponentCall.invoke(Seq(a1), kalixClient, method, ids.asScala.toList)
+    ComponentCall.invoke(Seq(a1), kalixClient, method, ids.asScala.toList, metadataContext)
   }
 }
 
@@ -65,12 +80,40 @@ object ComponentCall {
     invoke(Seq.empty, kalixClient, method, ids.asScala.toList)
   }
 
+  def addTracing(metadata: Metadata, context: Optional[MetadataContext]): Metadata = {
+    var currMetadata = metadata
+    Option(context.orElse(null)) match {
+      case Some(metadataContext) =>
+        Option(metadataContext.metadata.get(Telemetry.TRACE_PARENT_KEY).orElse(null)).foreach { traceparent =>
+          currMetadata = currMetadata.add(Telemetry.TRACE_PARENT_KEY, traceparent)
+        }
+        Option(metadataContext.metadata.get(Telemetry.TRACE_STATE_KEY).orElse(null)).foreach { tracestate =>
+          currMetadata = currMetadata.add(Telemetry.TRACE_STATE_KEY, tracestate)
+        }
+      case None =>
+    }
+    currMetadata
+  }
+
   private[client] def invoke[R](
       params: Seq[scala.Any],
       kalixClient: KalixClient,
       lambda: scala.Any,
       ids: List[String]): DeferredCall[Any, R] = {
     invoke(params, kalixClient, MethodRefResolver.resolveMethodRef(lambda), ids)
+  }
+
+  private[client] def invoke[R](
+      params: Seq[scala.Any],
+      kalixClient: KalixClient,
+      method: Method,
+      ids: List[String],
+      metadataOpt: Optional[MetadataContext]): DeferredCall[Any, R] = {
+    Option(metadataOpt.orElse(null)) match {
+      case Some(metadataContext) => invoke(params, kalixClient, method, ids).withMetadata(metadataContext.metadata())
+      case None                  => invoke(params, kalixClient, method, ids)
+    }
+
   }
 
   private[client] def invoke[R](
@@ -194,10 +237,10 @@ object ComponentCall {
 }
 
 // format: off
-final class ComponentCall2[A1, A2, R](kalixClient: KalixClient, lambda: Method, ids: util.List[String]) {
+final class ComponentCall2[A1, A2, R](kalixClient: KalixClient, lambda: Method, ids: util.List[String], metadataContextOpt: Optional[MetadataContext]) {
 
   def this(kalixClient: KalixClient, lambda: scala.Any, ids: util.List[String]) {
-    this(kalixClient, MethodRefResolver.resolveMethodRef(lambda), ids)
+    this(kalixClient, MethodRefResolver.resolveMethodRef(lambda), ids, Optional.empty())
   }
 
   /**

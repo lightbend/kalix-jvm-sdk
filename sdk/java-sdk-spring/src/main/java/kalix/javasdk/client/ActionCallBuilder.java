@@ -40,31 +40,42 @@ import akka.japi.function.Function8;
 import akka.japi.function.Function9;
 import com.google.protobuf.any.Any;
 import kalix.javasdk.DeferredCall;
+import kalix.javasdk.MetadataContext;
 import kalix.javasdk.action.Action;
+import kalix.javasdk.action.ActionContext;
 import kalix.spring.KalixClient;
+import scala.Some;
 
 import java.util.List;
+import java.util.Optional;
 
 public class ActionCallBuilder {
 
   private final KalixClient kalixClient;
+  private Optional<MetadataContext> tracingContext = Optional.empty();
 
   public ActionCallBuilder(KalixClient kalixClient) {
     this.kalixClient = kalixClient;
+  }
+
+  public ActionCallBuilder withTracing(ActionContext context){
+    this.tracingContext = Optional.of(context);
+    return this;
   }
 
   /**
    * Pass in an Action method reference annotated as a REST endpoint, e.g. <code>MyAction::create</code>
    */
   public <T, R> DeferredCall<Any, R> call(Function<T, Action.Effect<R>> methodRef) {
-    return ComponentCall.noParams(kalixClient, methodRef, List.of());
+    DeferredCall<Any, R> result = ComponentCall.noParams(kalixClient, methodRef, List.of());
+    return result.withMetadata(ComponentCall.addTracing(result.metadata(), tracingContext));
   }
 
   /**
    * Pass in an Action method reference annotated as a REST endpoint, e.g. <code>MyAction::create</code>
    */
   public <T, A1, R> ComponentCall<A1, R> call(Function2<T, A1, Action.Effect<R>> methodRef) {
-    return new ComponentCall<>(kalixClient, methodRef, List.of());
+    return new ComponentCall<>(kalixClient, methodRef, List.of(), tracingContext);
   }
 
   /**
