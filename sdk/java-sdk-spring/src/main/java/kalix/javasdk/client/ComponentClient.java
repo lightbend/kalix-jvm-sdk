@@ -53,10 +53,6 @@ public class ComponentClient {
     return new ActionCallBuilder(kalixClient);
   }
 
-  public ActionCallBuilder forActionWithTracing(ActionContext context) {
-    return new ActionCallBuilder(kalixClient);
-  }
-
   /**
    * Select ValueEntity as a call target component.
    * <p>

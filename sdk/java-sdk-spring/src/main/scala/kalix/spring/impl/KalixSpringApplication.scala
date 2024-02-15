@@ -28,7 +28,6 @@ import com.typesafe.config.Config
 import io.opentelemetry.api.trace.Tracer
 import kalix.javasdk.Context
 import kalix.javasdk.Kalix
-import kalix.javasdk.MetadataContext
 import kalix.javasdk.action.Action
 import kalix.javasdk.action.ActionCreationContext
 import kalix.javasdk.action.ActionProvider
