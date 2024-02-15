@@ -35,7 +35,6 @@ import kalix.javasdk.action.ActionProvider
 import kalix.javasdk.action.ReflectiveActionProvider
 import kalix.javasdk.annotations.ViewId
 import kalix.javasdk.client.ComponentClient
-import kalix.javasdk.client.KalixComponentClientBuilder
 import kalix.javasdk.eventsourced.ReflectiveEventSourcedEntityProvider
 import kalix.javasdk.eventsourcedentity.EventSourcedEntity
 import kalix.javasdk.eventsourcedentity.EventSourcedEntityContext
@@ -356,9 +355,6 @@ case class KalixSpringApplication(applicationContext: ApplicationContext, config
           throw new BeanCreationException(
             s"[${constructor.getDeclaringClass.getSimpleName}] are not allowed to have a dependency on WebClientProvider")
 
-        case p if p == classOf[KalixComponentClientBuilder] =>
-          throw new BeanCreationException(
-            s"[${constructor.getDeclaringClass.getSimpleName}] are not allowed to have a dependency on KalixComponentClientBuilder")
         // if partial func doesn't match, try to lookup in the applicationContext
         case anyOther =>
           val bean = applicationContext.getBean(anyOther)
