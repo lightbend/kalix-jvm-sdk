@@ -153,6 +153,13 @@ public @interface Subscribe {
     String service();
 
     /**
+     * In case you need to consume the same stream multiple times, each subscription should have a unique consumer group.
+     * <p>
+     * Changing the consumer group will lead to starting over from the beginning of the stream.
+     */
+    String consumerGroup() default "";
+
+    /**
      * When there is no method in the class whose input type matches the event type:
      * <ul>
      *   <li>if ignoreUnknown is true the event is discarded</li>
