@@ -395,6 +395,9 @@ final class ComponentCall9[A1, A2, A3, A4, A5, A6, A7, A8, A9, R](kalixClient: K
 }
 final class ComponentCall10[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, R](kalixClient: KalixClient, lambda: Method, ids: util.List[String], metadataContextOpt: Optional[MetadataContext]) {
 
+  def this(kalixClient: KalixClient, lambda: scala.Any, ids: util.List[String]) {
+    this(kalixClient, MethodRefResolver.resolveMethodRef(lambda), ids, Optional.empty[MetadataContext]())
+  }
   def this(kalixClient: KalixClient, lambda: scala.Any, ids: util.List[String], metadataContextOpt: Optional[MetadataContext]) {
     this(kalixClient, MethodRefResolver.resolveMethodRef(lambda), ids, metadataContextOpt)
   }

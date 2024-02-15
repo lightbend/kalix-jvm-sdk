@@ -53,7 +53,6 @@ object Telemetry extends ExtensionId[Telemetry] {
 
   val TRACE_PARENT_KEY: String = TraceInstrumentation.TRACE_PARENT_KEY
   val TRACE_STATE_KEY: String = TraceInstrumentation.TRACE_STATE_KEY
-  
   override def createExtension(system: ExtendedActorSystem): Telemetry =
     new Telemetry(system)
 }
