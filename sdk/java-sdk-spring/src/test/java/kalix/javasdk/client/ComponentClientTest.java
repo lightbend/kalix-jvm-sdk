@@ -22,11 +22,11 @@ import com.google.protobuf.DynamicMessage;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.any.Any;
 import kalix.javasdk.JsonSupport;
-import kalix.javasdk.impl.AnySupport;
-import kalix.javasdk.impl.ComponentDescriptor;
-import kalix.javasdk.impl.JsonMessageCodec;
-import kalix.javasdk.impl.RestDeferredCall;
-import kalix.javasdk.impl.Validations;
+import kalix.javasdk.action.ActionContext;
+import kalix.javasdk.impl.*;
+import kalix.javasdk.impl.action.ActionContextImpl;
+import kalix.javasdk.impl.telemetry.Telemetry;
+import kalix.protocol.component.MetadataEntry;
 import kalix.spring.impl.RestKalixClientImpl;
 import kalix.spring.testmodels.Message;
 import kalix.spring.testmodels.Number;
@@ -249,6 +249,24 @@ class ComponentClientTest {
     assertThat(call.methodName()).isEqualTo(targetMethod.getName());
     assertMethodParamsMatch(targetMethod, call.message(), param);
     assertThat(getBody(targetMethod, call.message(), Message.class)).isEqualTo(body);
+  }
+
+  @Test
+  public void shouldReturnDefferedCallWithTraceparent() {
+    //given
+    var action = descriptorFor(PostWithOneQueryParam.class, messageCodec);
+    restKalixClient.registerComponent(action.serviceDescriptor());
+    var targetMethod = action.serviceDescriptor().findMethodByName("Message");
+    String param = "a b&c@d";
+    Message body = new Message("hello world");
+    String traceparent = "074c4c8d-d87c-4573-847f-77951ce4e0a4";
+    ActionContext actionContext =  new ActionContextImpl(MetadataImpl.Empty().set(Telemetry.TRACE_PARENT_KEY(), traceparent), null, null,null, null);
+
+    //when
+    RestDeferredCall<Any, Message> call = (RestDeferredCall<Any, Message>) componentClient.forAction().withTracing(actionContext). call(PostWithOneQueryParam::message).params(param, body);
+
+    //then
+    assertThat(call.metadata().get(Telemetry.TRACE_PARENT_KEY()).get()).isEqualTo(traceparent);
   }
 
   @Test
