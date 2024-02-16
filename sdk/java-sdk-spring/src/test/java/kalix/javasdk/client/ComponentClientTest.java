@@ -256,7 +256,6 @@ class ComponentClientTest {
     //given
     var action = descriptorFor(PostWithOneQueryParam.class, messageCodec);
     restKalixClient.registerComponent(action.serviceDescriptor());
-    var targetMethod = action.serviceDescriptor().findMethodByName("Message");
     String param = "a b&c@d";
     Message body = new Message("hello world");
     String traceparent = "074c4c8d-d87c-4573-847f-77951ce4e0a4";
