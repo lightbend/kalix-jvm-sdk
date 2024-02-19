@@ -31,6 +31,12 @@ class KalixRunnerSpec extends AnyWordSpec with Matchers {
         |version: "3"
         |services:
         |  kalix-runtime:
+        |    image: gcr.io/kalix-public/kalix-runtime:1.1.32
+        |    ports:
+        |      - "9000:9000"
+        |    extra_hosts:
+        |      - "host.docker.internal:host-gateway"
+        |    environment:
         |      JAVA_TOOL_OPTIONS: >
         |        -Dkalix.dev-mode.service-port-mappings.$mapping
         |""".stripMargin)
@@ -122,13 +128,13 @@ class KalixRunnerSpec extends AnyWordSpec with Matchers {
           |version: "3"
           |services:
           |  kalix-runtime:
-          |    image: gcr.io/kalix-public/kalix-runtime:1.1.24
+          |    image: gcr.io/kalix-public/kalix-runtime:1.1.32
           |    ports:
           |      - "9000:9000"
           |    extra_hosts:
           |      - "host.docker.internal:host-gateway"
           |    environment:
-          |      USER_SERVICE_PORT:8082
+          |      USER_SERVICE_PORT: 8082
         |""".stripMargin
 
       val dockerComposeFile = createTmpFile(fileContent)

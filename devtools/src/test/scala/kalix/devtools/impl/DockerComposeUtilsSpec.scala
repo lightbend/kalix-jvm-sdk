@@ -35,7 +35,7 @@ class DockerComposeUtilsSpec extends AnyWordSpec with Matchers with OptionValues
       |version: "3"
       |services:
       |  kalix-runtime:
-      |    image: gcr.io/kalix-public/kalix-runtime:1.1.27
+      |    image: gcr.io/kalix-public/kalix-runtime:1.1.31
       |    ports:
       |      - "9000:9000"
       |    extra_hosts:
@@ -46,8 +46,8 @@ class DockerComposeUtilsSpec extends AnyWordSpec with Matchers with OptionValues
       |        -Dlogback.configurationFile=logback-dev-mode.xml
       |        -Dkalix.dev-mode.service-port-mappings.foo=9001
       |        -Dkalix.dev-mode.service-port-mappings.bar=9002
-      |      USER_SERVICE_HOST:${USER_SERVICE_HOST:-host.docker.internal}
-      |      USER_SERVICE_PORT:${USER_SERVICE_PORT:-8081}
+      |      USER_SERVICE_HOST: ${USER_SERVICE_HOST:-host.docker.internal}
+      |      USER_SERVICE_PORT: ${USER_SERVICE_PORT:-8081}
       |""".stripMargin
 
   "DockerComposeUtils" should {
@@ -60,8 +60,8 @@ class DockerComposeUtilsSpec extends AnyWordSpec with Matchers with OptionValues
 
     "favor USER_SERVICE_PORT env var if set " in {
       val envVar = Map("USER_SERVICE_PORT" -> "8082")
-      val dockerComposeFile = createTmpFile(defaultFile)
-      val dockerComposeUtils = DockerComposeUtils(dockerComposeFile, envVar)
+      val dockerComposeFile = createTmpFile(defaultFile, envVar)
+      val dockerComposeUtils = DockerComposeUtils(dockerComposeFile)
       dockerComposeUtils.userFunctionPort shouldBe 8082
     }
 
@@ -71,30 +71,31 @@ class DockerComposeUtilsSpec extends AnyWordSpec with Matchers with OptionValues
           |version: "3"
           |services:
           |  kalix-runtime:
-          |    image: gcr.io/kalix-public/kalix-runtime:1.1.27
+          |    image: gcr.io/kalix-public/kalix-runtime:1.1.31
           |    ports:
           |      - "9000:9000"
           |    extra_hosts:
           |      - "host.docker.internal:host-gateway"
           |""".stripMargin
+
       val dockerComposeFile = createTmpFile(fileContent)
       val dockerComposeUtils = DockerComposeUtils(dockerComposeFile)
       dockerComposeUtils.userFunctionPort shouldBe 8080
     }
 
-    "be able read user function port when env var is not used" in {
+    "be able to read user service port when env var is not used" in {
       val fileWithoutEnvVar =
         """
           |version: "3"
           |services:
           |  kalix-runtime:
-          |    image: gcr.io/kalix-public/kalix-runtime:1.1.27
+          |    image: gcr.io/kalix-public/kalix-runtime:1.1.31
           |    ports:
           |      - "9000:9000"
           |    extra_hosts:
           |      - "host.docker.internal:host-gateway"
           |    environment:
-          |      USER_SERVICE_PORT:8081
+          |      USER_SERVICE_PORT: 8081
           |""".stripMargin
 
       val dockerComposeFile = createTmpFile(fileWithoutEnvVar)
@@ -120,7 +121,7 @@ class DockerComposeUtilsSpec extends AnyWordSpec with Matchers with OptionValues
       val extraProxy =
         """
           |  kalix-runtime-2:
-          |    image: gcr.io/kalix-public/kalix-runtime:1.1.27
+          |    image: gcr.io/kalix-public/kalix-runtime:1.1.31
           |    ports:
           |      - "9000:9000"
           |    extra_hosts:
@@ -129,8 +130,8 @@ class DockerComposeUtilsSpec extends AnyWordSpec with Matchers with OptionValues
           |      JAVA_TOOL_OPTIONS: >
           |        -Dconfig.resource=dev-mode.conf
           |        -Dlogback.configurationFile=logback-dev-mode.xml
-          |      USER_SERVICE_HOST:${USER_SERVICE_HOST:-host.docker.internal}
-          |      USER_SERVICE_PORT:${USER_SERVICE_PORT:-8082}
+          |      USER_SERVICE_HOST: ${USER_SERVICE_HOST:-host.docker.internal}
+          |      USER_SERVICE_PORT: ${USER_SERVICE_PORT:-8082}
           |""".stripMargin
 
       val dockerComposeFile = createTmpFile(defaultFile + extraProxy)
