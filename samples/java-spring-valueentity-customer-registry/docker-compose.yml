@@ -15,7 +15,7 @@ services:
       # jvm -D properties can be added under this environment map (note: remove this comment when adding properties)
 
       USER_SERVICE_HOST: ${USER_SERVICE_HOST:-host.docker.internal}
-      USER_SERVICE_PORT: ${USER_SERVICE_PORT:-8080}
+      USER_SERVICE_PORT: ${USER_SERVICE_PORT}
       # Comment to enable ACL check in dev-mode (see https://docs.kalix.io/java/access-control.html#_local_development_with_acls)
       ACL_ENABLED: "false"
       #PUBSUB_EMULATOR_HOST: gcloud-pubsub-emulator
