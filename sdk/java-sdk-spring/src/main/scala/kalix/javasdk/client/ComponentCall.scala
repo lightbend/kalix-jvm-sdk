@@ -45,6 +45,8 @@ import kalix.spring.impl.RestKalixClientImpl
 import org.springframework.web.bind.annotation.RequestMethod
 import reactor.core.publisher.Flux
 
+import scala.jdk.OptionConverters._
+
 import java.util.Optional
 
 final class ComponentCall[A1, R](
@@ -82,7 +84,7 @@ object ComponentCall {
 
   def addTracing(metadata: Metadata, context: Optional[MetadataContext]): Metadata = {
     var currMetadata = metadata
-    Option(context.orElse(null)) match {
+    context.toScala match {
       case Some(metadataContext) =>
         Option(metadataContext.metadata.get(Telemetry.TRACE_PARENT_KEY).orElse(null)).foreach { traceparent =>
           currMetadata = currMetadata.add(Telemetry.TRACE_PARENT_KEY, traceparent)
