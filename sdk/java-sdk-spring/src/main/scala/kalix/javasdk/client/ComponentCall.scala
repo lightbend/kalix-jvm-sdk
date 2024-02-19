@@ -86,10 +86,10 @@ object ComponentCall {
     var currMetadata = metadata
     context.toScala match {
       case Some(metadataContext) =>
-        Option(metadataContext.metadata.get(Telemetry.TRACE_PARENT_KEY).orElse(null)).foreach { traceparent =>
+        metadataContext.metadata.get(Telemetry.TRACE_PARENT_KEY).toScala.foreach { traceparent =>
           currMetadata = currMetadata.add(Telemetry.TRACE_PARENT_KEY, traceparent)
         }
-        Option(metadataContext.metadata.get(Telemetry.TRACE_STATE_KEY).orElse(null)).foreach { tracestate =>
+        metadataContext.metadata.get(Telemetry.TRACE_STATE_KEY).toScala.foreach { tracestate =>
           currMetadata = currMetadata.add(Telemetry.TRACE_STATE_KEY, tracestate)
         }
       case None =>
@@ -111,7 +111,7 @@ object ComponentCall {
       method: Method,
       ids: List[String],
       metadataOpt: Optional[MetadataContext]): DeferredCall[Any, R] = {
-    Option(metadataOpt.orElse(null)) match {
+    metadataOpt.toScala match {
       case Some(metadataContext) => invoke(params, kalixClient, method, ids).withMetadata(metadataContext.metadata())
       case None                  => invoke(params, kalixClient, method, ids)
     }
