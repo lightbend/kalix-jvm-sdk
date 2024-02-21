@@ -1,0 +1,18 @@
+# https://docs.github.com/en/repositories/releasing-projects-on-github/automatically-generated-release-notes#configuring-automatically-generated-release-notes
+changelog:
+  categories:
+    - title: 'Java SDK'
+      labels:
+        - 'java-sdk'
+    - title: 'Java/Protobuf SDK'
+      labels:
+        - 'java-sdk-protobuf'
+    - title: 'Scala/Protobuf SDK'
+      labels:
+        - 'scala-sdk-protobuf'
+    - title: 'Documentation'
+      labels:
+        - 'Documentation'
+    - title: 'Other'
+      labels:
+        - "*"
