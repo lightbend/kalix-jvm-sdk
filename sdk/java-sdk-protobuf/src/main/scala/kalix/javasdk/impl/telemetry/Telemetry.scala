@@ -156,7 +156,7 @@ private final class TraceInstrumentation(
   private val openTelemetry: OpenTelemetry = {
     val resource =
       Resource.getDefault.merge(
-        Resource.create(Attributes.of(ResourceAttributes.SERVICE_NAME, tracePrefix + " : " + componentName)))
+        Resource.create(Attributes.of(ResourceAttributes.SERVICE_NAME, s"$tracePrefix($componentName)")))
     val sdkTracerProvider = SdkTracerProvider
       .builder()
       .addSpanProcessor(
@@ -194,15 +194,15 @@ private final class TraceInstrumentation(
 
       val span = openTelemetry
         .getTracer("java-sdk")
-        .spanBuilder(s"""${command.entityId}""")
+        .spanBuilder(command.name)
         .setParent(context)
         .setSpanKind(SpanKind.SERVER)
         .startSpan()
       Some(
         span
-          .setAttribute("service.name", s"""${service.serviceName}.${command.entityId}""")
           .setAttribute("component.type", service.componentType)
-          .setAttribute("entity.id", command.entityId))
+          .setAttribute("component.type_id", service.serviceName)
+          .setAttribute("component.id", command.entityId))
     } else {
       if (logger.isTraceEnabled) logger.trace("No `traceparent` found for command [{}].", command)
       None
@@ -220,15 +220,14 @@ private final class TraceInstrumentation(
         .extract(OtelContext.current(), metadata, otelGetter.asInstanceOf[TextMapGetter[Object]])
 
       val span = getTracer()
-        .spanBuilder(s"""${command.name}""")
+        .spanBuilder(command.name)
         .setParent(context)
         .setSpanKind(SpanKind.SERVER)
         .startSpan()
       Some(
         span
-          .setAttribute("service.name", s"""${service.serviceName}""")
-          .setAttribute("component.type", service.componentType)
-          .setAttribute(s"${service.componentType}", command.name))
+          .setAttribute("service.name", service.serviceName)
+          .setAttribute("component.type", service.componentType))
     } else {
       if (logger.isTraceEnabled) logger.trace("No `traceparent` found for command [{}].", command)
       None
