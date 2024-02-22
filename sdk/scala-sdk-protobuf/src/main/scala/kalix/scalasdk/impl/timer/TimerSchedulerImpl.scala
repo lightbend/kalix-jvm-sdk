@@ -89,7 +89,7 @@ private[kalix] final class TimerSchedulerImpl(messageCodec: MessageCodec, system
       callBuilder: SingleResponseRequestBuilder[I, O],
       metadata: Metadata): SingleResponseRequestBuilder[I, O] = {
     metadata.foldLeft(callBuilder) { case (builder, entry) =>
-      if (entry.isText) builder.addHeader(entry.getKey, entry.getValue)
+      if (entry.isText) builder.addHeader(entry.key, entry.value)
       else builder
     }
   }
