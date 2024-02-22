@@ -88,11 +88,8 @@ private[kalix] final class TimerSchedulerImpl(
       callBuilder: SingleResponseRequestBuilder[I, O],
       metadata: Metadata): SingleResponseRequestBuilder[I, O] = {
     metadata.asScala.foldLeft(callBuilder) { case (builder, entry) =>
-      if (entry.isText) {
-        builder.addHeader(entry.getKey, entry.getValue)
-      } else {
-        builder
-      }
+      if (entry.isText) builder.addHeader(entry.getKey, entry.getValue)
+      else builder
     }
   }
 
