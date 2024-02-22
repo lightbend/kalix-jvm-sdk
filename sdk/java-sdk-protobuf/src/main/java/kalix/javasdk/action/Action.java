@@ -103,7 +103,7 @@ public abstract class Action {
     ActionContextImpl impl =
       (ActionContextImpl)
         actionContext("Timers can only be scheduled or cancelled when handling a message.");
-    return new TimerSchedulerImpl(impl.messageCodec(), impl.system());
+    return new TimerSchedulerImpl(impl.messageCodec(), impl.system(), impl.componentCallMetadata());
   }
 
   /**

@@ -27,10 +27,11 @@ import scala.jdk.OptionConverters._
 import akka.stream.Materializer
 import com.google.protobuf.Descriptors
 import kalix.javasdk
+import kalix.javasdk.impl
 import kalix.javasdk.timer.TimerScheduler
-import kalix.javasdk.workflow.AbstractWorkflow.RecoverStrategy.MaxRetries
 import kalix.scalasdk.impl.InternalContext
 import kalix.scalasdk.impl.MetadataConverters
+import kalix.scalasdk.impl.MetadataImpl
 import kalix.scalasdk.impl.ScalaDeferredCallAdapter
 import kalix.scalasdk.impl.timer.TimerSchedulerImpl
 import kalix.scalasdk.workflow.AbstractWorkflow
@@ -57,7 +58,10 @@ private[scalasdk] final class JavaWorkflowAdapter[S >: Null](scalaSdkWorkflow: A
   override def _internalSetTimerScheduler(timerScheduler: Optional[TimerScheduler]): Unit = {
     scalaSdkWorkflow._internalSetTimerScheduler(timerScheduler.toScala.map {
       case javaTimerScheduler: kalix.javasdk.impl.timer.TimerSchedulerImpl =>
-        new TimerSchedulerImpl(javaTimerScheduler.messageCodec, javaTimerScheduler.system)
+        new TimerSchedulerImpl(
+          javaTimerScheduler.messageCodec,
+          javaTimerScheduler.system,
+          MetadataImpl(javaTimerScheduler.metadata.asInstanceOf[impl.MetadataImpl]))
     })
   }
 

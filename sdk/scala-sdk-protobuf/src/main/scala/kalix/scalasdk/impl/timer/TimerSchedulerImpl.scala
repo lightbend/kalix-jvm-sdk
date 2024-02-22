@@ -23,20 +23,24 @@ import scala.jdk.DurationConverters.ScalaDurationOps
 
 import akka.Done
 import akka.actor.ActorSystem
+import akka.grpc.scaladsl.SingleResponseRequestBuilder
 import com.google.protobuf.duration.{ Duration => ProtoDuration }
 import com.google.protobuf.wrappers.StringValue
 import kalix.javasdk.impl.GrpcDeferredCall
 import kalix.javasdk.impl.GrpcClients
 import kalix.javasdk.impl.MessageCodec
 import kalix.scalasdk.DeferredCall
+import kalix.scalasdk.Metadata
 import kalix.scalasdk.impl.ScalaDeferredCallAdapter
 import kalix.scalasdk.timer.TimerScheduler
 import kalix.timers.timers.Call
 import kalix.timers.timers.SingleTimer
 import kalix.timers.timers.TimerService
+import kalix.timers.timers.TimerServiceClient
 
 /** INTERNAL API */
-private[kalix] final class TimerSchedulerImpl(messageCodec: MessageCodec, system: ActorSystem) extends TimerScheduler {
+private[kalix] final class TimerSchedulerImpl(messageCodec: MessageCodec, system: ActorSystem, metadata: Metadata)
+    extends TimerScheduler {
 
   override def startSingleTimer[I, O](
       name: String,
@@ -49,7 +53,8 @@ private[kalix] final class TimerSchedulerImpl(messageCodec: MessageCodec, system
       delay: FiniteDuration,
       maxRetries: Int,
       deferredCall: DeferredCall[I, O]): Future[Done] = {
-    val timerServiceClient = GrpcClients(system).getProxyGrpcClient(classOf[TimerService])
+    val timerServiceClient =
+      GrpcClients(system).getProxyGrpcClient(classOf[TimerService]).asInstanceOf[TimerServiceClient]
 
     val deferredCallImpl =
       deferredCall match {
@@ -67,12 +72,25 @@ private[kalix] final class TimerSchedulerImpl(messageCodec: MessageCodec, system
         Some(messageCodec.encodeScala(deferredCall.message)))
 
     val singleTimer = SingleTimer(name, Some(call), Some(ProtoDuration(delay.toJava)))
-    timerServiceClient.addSingle(singleTimer).map(_ => Done)(ExecutionContext.parasitic)
-
+    addHeaders(timerServiceClient.addSingle(), metadata)
+      .invoke(singleTimer)
+      .map(_ => Done)(ExecutionContext.parasitic)
   }
 
   override def cancel(name: String): Future[Done] = {
-    val timerServiceClient = GrpcClients(system).getProxyGrpcClient(classOf[TimerService])
-    timerServiceClient.remove(StringValue(name)).map(_ => Done)(ExecutionContext.parasitic)
+    val timerServiceClient =
+      GrpcClients(system).getProxyGrpcClient(classOf[TimerService]).asInstanceOf[TimerServiceClient]
+    addHeaders(timerServiceClient.remove(), metadata)
+      .invoke(StringValue(name))
+      .map(_ => Done)(ExecutionContext.parasitic)
+  }
+
+  private def addHeaders[I, O](
+      callBuilder: SingleResponseRequestBuilder[I, O],
+      metadata: Metadata): SingleResponseRequestBuilder[I, O] = {
+    metadata.foldLeft(callBuilder) { case (builder, entry) =>
+      if (entry.isText) builder.addHeader(entry.key, entry.value)
+      else builder
+    }
   }
 }

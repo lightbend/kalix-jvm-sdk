@@ -190,7 +190,7 @@ private final class TraceInstrumentation(
       if (logger.isTraceEnabled) logger.trace("`traceparent` found")
 
       val context = openTelemetry.getPropagators.getTextMapPropagator
-        .extract(OtelContext.current(), metadata, otelGetter.asInstanceOf[TextMapGetter[Object]])
+        .extract(OtelContext.current(), metadata, otelGetter)
 
       val span = openTelemetry
         .getTracer("java-sdk")
@@ -217,7 +217,7 @@ private final class TraceInstrumentation(
       if (logger.isTraceEnabled) logger.trace("`traceparent` found")
 
       val context = openTelemetry.getPropagators.getTextMapPropagator
-        .extract(OtelContext.current(), metadata, otelGetter.asInstanceOf[TextMapGetter[Object]])
+        .extract(OtelContext.current(), metadata, otelGetter)
 
       val span = getTracer()
         .spanBuilder(command.name)
