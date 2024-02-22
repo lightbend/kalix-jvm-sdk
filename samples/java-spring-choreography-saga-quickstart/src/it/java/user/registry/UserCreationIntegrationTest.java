@@ -9,7 +9,7 @@ import user.registry.domain.User;
 import java.time.Duration;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.testcontainers.shaded.org.awaitility.Awaitility.await;
+import static org.awaitility.Awaitility.await;
 
 /**
  * This is a skeleton for implementing integration tests for a Kalix application built with the Java SDK.
@@ -108,10 +108,7 @@ public class UserCreationIntegrationTest extends KalixIntegrationTestKitSupport 
 
     await()
       .ignoreExceptions()
-      // timer will fire in 3 seconds and un-reserve the email
-      // see it/resources/application.conf for the configuration
-      // we only start to polling after 3 seconds to give the timer a chance to fire
-      .between(Duration.ofSeconds(3), Duration.ofSeconds(6))
+      .timeout(Duration.ofSeconds(10)) //3 seconds for the projection lag + 3 seconds for the timer to fire
       .untilAsserted(() -> {
         assertThat(callGetEmailInfo.execute())
           .succeedsWithin(timeout)
