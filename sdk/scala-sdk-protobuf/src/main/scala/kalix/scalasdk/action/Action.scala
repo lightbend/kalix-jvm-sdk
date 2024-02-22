@@ -22,7 +22,9 @@ import scala.concurrent.Future
 import kalix.scalasdk.{ DeferredCall, Metadata, SideEffect }
 import kalix.scalasdk.impl.action.ActionEffectImpl
 import io.grpc.Status
+import kalix.javasdk.impl
 import kalix.javasdk.impl.action.ActionContextImpl
+import kalix.scalasdk.impl.MetadataImpl
 import kalix.scalasdk.impl.action.ScalaActionContextAdapter
 import kalix.scalasdk.timer.TimerScheduler
 import kalix.scalasdk.impl.timer.TimerSchedulerImpl
@@ -259,7 +261,10 @@ abstract class Action {
             s"Incompatible ActionContext instance. Found ${other.getClass}, expecting ${classOf[ActionContextImpl].getName}")
       }
 
-    new TimerSchedulerImpl(javaActionContextImpl.messageCodec, javaActionContextImpl.system)
+    new TimerSchedulerImpl(
+      javaActionContextImpl.messageCodec,
+      javaActionContextImpl.system,
+      MetadataImpl(javaActionContextImpl.metadata.asInstanceOf[impl.MetadataImpl]))
   }
 
   protected final def effects[T]: Action.Effect.Builder =
