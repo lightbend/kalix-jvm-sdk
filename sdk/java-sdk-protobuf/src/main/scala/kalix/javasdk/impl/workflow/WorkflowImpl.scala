@@ -282,7 +282,7 @@ final class WorkflowImpl(system: ActorSystem, val services: Map[String, Workflow
           val metadata = new MetadataImpl(command.metadata.map(_.entries.toVector).getOrElse(Nil))
 
           val context = new CommandContextImpl(workflowId, command.name, command.id, metadata, system)
-          val timerScheduler = new TimerSchedulerImpl(service.messageCodec, system)
+          val timerScheduler = new TimerSchedulerImpl(service.messageCodec, system, context.componentCallMetadata)
 
           val cmd =
             service.messageCodec.decodeMessage(
@@ -306,7 +306,7 @@ final class WorkflowImpl(system: ActorSystem, val services: Map[String, Workflow
         case Step(executeStep) =>
           val context =
             new CommandContextImpl(workflowId, executeStep.stepName, executeStep.commandId, Metadata.EMPTY, system)
-          val timerScheduler = new TimerSchedulerImpl(service.messageCodec, system)
+          val timerScheduler = new TimerSchedulerImpl(service.messageCodec, system, context.componentCallMetadata)
           val stepResponse =
             try {
               executeStep.userState.foreach { state =>
