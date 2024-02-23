@@ -8,7 +8,7 @@ import org.example.ComponentsImpl;
 // It will be re-generated to reflect any changes to your protobuf definitions.
 // DO NOT EDIT
 
-public abstract class AbstractMyServiceAction extends kalix.javasdk.action.Action {
+public abstract class AbstractMyServiceAction extends kalix.javasdk.action.AbstractAction {
 
   protected final Components components() {
     return new ComponentsImpl(contextForComponents());

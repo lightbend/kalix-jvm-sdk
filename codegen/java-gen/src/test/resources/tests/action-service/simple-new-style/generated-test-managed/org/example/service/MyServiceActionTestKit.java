@@ -3,7 +3,7 @@ package org.example.service;
 import akka.NotUsed;
 import akka.stream.javadsl.Source;
 import kalix.javasdk.Metadata;
-import kalix.javasdk.action.Action.Effect;
+import kalix.javasdk.action.AbstractAction.Effect;
 import kalix.javasdk.action.ActionCreationContext;
 import kalix.javasdk.testkit.ActionResult;
 import kalix.javasdk.testkit.MockRegistry;

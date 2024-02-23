@@ -2,7 +2,7 @@ package org.example.service;
 
 import com.google.protobuf.Empty;
 import kalix.javasdk.Metadata;
-import kalix.javasdk.action.Action.Effect;
+import kalix.javasdk.action.AbstractAction.Effect;
 import kalix.javasdk.action.ActionCreationContext;
 import kalix.javasdk.testkit.ActionResult;
 import kalix.javasdk.testkit.MockRegistry;
