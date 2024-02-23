@@ -17,6 +17,8 @@
 package kalix.javasdk.workflow;
 
 import akka.annotation.ApiMayChange;
+import kalix.javasdk.client.ComponentClient;
+import kalix.spring.KalixClient;
 
 /**
  * Workflows are stateful components and are defined by a set of steps and transitions between them.
@@ -38,6 +40,7 @@ import akka.annotation.ApiMayChange;
 @ApiMayChange
 public abstract class Workflow<S> extends AbstractWorkflow<S> {
 
+  private KalixClient kalixClient;
   /**
    * Start a step definition with a given step name.
    *
@@ -47,4 +50,9 @@ public abstract class Workflow<S> extends AbstractWorkflow<S> {
   public StepBuilder step(String name) {
     return new StepBuilder(name);
   }
+
+  public ComponentClient componentClient() {
+    return new ComponentClient(kalixClient);
+  }
+
 }

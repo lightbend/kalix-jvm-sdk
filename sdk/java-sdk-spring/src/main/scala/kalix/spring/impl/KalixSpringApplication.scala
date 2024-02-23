@@ -17,12 +17,16 @@
 package kalix.spring.impl
 
 import java.lang.reflect.Constructor
+import java.lang.reflect.Field
 import java.lang.reflect.Modifier
 import java.lang.reflect.ParameterizedType
+
+import scala.annotation.tailrec
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters.CollectionHasAsScala
 import scala.jdk.FutureConverters.CompletionStageOps
 import scala.jdk.OptionConverters.RichOption
+
 import akka.Done
 import com.typesafe.config.Config
 import io.opentelemetry.api.trace.Tracer
@@ -419,8 +423,22 @@ case class KalixSpringApplication(applicationContext: ApplicationContext, config
           }
           .foreach(messageCodec.registerTypeHints)
 
+        val field = lookupSuperclassField("kalixClient", workflow.getClass.getSuperclass)
+        field.setAccessible(true)
+        field.set(workflow, kalixClient(context))
+
         workflow
       })
+  }
+
+  @tailrec
+  private def lookupSuperclassField(fieldName: String, clz: Class[_]): Field = {
+    try {
+      clz.getDeclaredField(fieldName)
+    } catch {
+      case e: NoSuchFieldException =>
+        lookupSuperclassField(fieldName, clz.getSuperclass)
+    }
   }
 
   private def eventSourcedEntityProvider[S, E, ES <: EventSourcedEntity[S, E]](

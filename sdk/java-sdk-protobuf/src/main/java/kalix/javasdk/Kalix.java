@@ -49,12 +49,9 @@ import kalix.javasdk.valueentity.ValueEntityProvider;
 import kalix.javasdk.view.ViewOptions;
 import kalix.javasdk.view.ViewProvider;
 import kalix.javasdk.workflow.AbstractWorkflow;
-import kalix.javasdk.workflow.Workflow;
 import kalix.javasdk.workflow.WorkflowOptions;
 import kalix.javasdk.workflow.WorkflowProvider;
 import kalix.replicatedentity.ReplicatedData;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import scala.jdk.javaapi.OptionConverters;
 
 import java.util.*;
@@ -67,7 +64,6 @@ import java.util.function.Function;
  */
 public final class Kalix {
 
-  private final Logger logger = LoggerFactory.getLogger(getClass());
   private final Map<String, Function<ActorSystem, Service>> services = new HashMap<>();
   private ClassLoader classLoader = getClass().getClassLoader();
   private String typeUrlPrefix = AnySupport.DefaultTypeUrlPrefix();

@@ -26,7 +26,7 @@ public class TransferWorkflowRouter extends WorkflowRouter<MoneyTransferApi.Stat
   }
 
   @Override
-  public Workflow.Effect handleCommand(String commandName, MoneyTransferApi.State state, Object command, CommandContext context) {
+  public AbstractWorkflow.Effect handleCommand(String commandName, MoneyTransferApi.State state, Object command, CommandContext context) {
     switch (commandName) {
       case "Start":
         return workflow().start((MoneyTransferApi.Transfer) command);

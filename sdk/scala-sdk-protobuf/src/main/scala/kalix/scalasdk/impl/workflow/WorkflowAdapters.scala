@@ -44,7 +44,7 @@ import kalix.scalasdk.workflow.WorkflowOptions
 import kalix.scalasdk.workflow.WorkflowProvider
 
 private[scalasdk] final class JavaWorkflowAdapter[S >: Null](scalaSdkWorkflow: AbstractWorkflow[S])
-    extends javasdk.workflow.Workflow[S] {
+    extends javasdk.workflow.AbstractWorkflow[S] {
 
   override def emptyState(): S = scalaSdkWorkflow.emptyState
 
@@ -160,7 +160,7 @@ private[scalasdk] final class JavaWorkflowProviderAdapter[S >: Null, E <: Abstra
 }
 
 private[scalasdk] final class JavaWorkflowRouterAdapter[S >: Null](
-    javaSdkWorkflow: javasdk.workflow.Workflow[S],
+    javaSdkWorkflow: javasdk.workflow.AbstractWorkflow[S],
     scalaSdkRouter: WorkflowRouter[S, AbstractWorkflow[S]])
     extends javasdk.impl.workflow.WorkflowRouter[S, javasdk.workflow.AbstractWorkflow[S]](javaSdkWorkflow) {
 
