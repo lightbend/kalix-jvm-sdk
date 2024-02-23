@@ -220,15 +220,14 @@ private final class TraceInstrumentation(
         .extract(OtelContext.current(), metadata, otelGetter)
 
       val span = getTracer()
-        .spanBuilder(s"""${command.name}""")
+        .spanBuilder(command.name)
         .setParent(context)
         .setSpanKind(SpanKind.SERVER)
         .startSpan()
       Some(
         span
-          .setAttribute("service.name", s"""${service.serviceName}""")
-          .setAttribute("component.type", service.componentType)
-          .setAttribute(s"${service.componentType}", command.name))
+          .setAttribute("service.name", service.serviceName)
+          .setAttribute("component.type", service.componentType))
     } else {
       if (logger.isTraceEnabled) logger.trace("No `traceparent` found for command [{}].", command)
       None
