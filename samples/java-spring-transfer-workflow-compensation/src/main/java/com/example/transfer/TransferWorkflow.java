@@ -11,7 +11,6 @@ import com.example.wallet.WalletEntity.WithdrawResult.WithdrawFailed;
 import com.example.wallet.WalletEntity.WithdrawResult.WithdrawSucceed;
 import kalix.javasdk.annotations.Id;
 import kalix.javasdk.annotations.TypeId;
-import kalix.javasdk.client.ComponentClient;
 import kalix.javasdk.workflow.Workflow;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,12 +47,6 @@ public class TransferWorkflow extends Workflow<TransferState> {
 
   private static final Logger logger = LoggerFactory.getLogger(TransferWorkflow.class);
 
-  final private ComponentClient componentClient;
-
-  public TransferWorkflow(ComponentClient componentClient) {
-    this.componentClient = componentClient;
-  }
-
   @Override
   public WorkflowDef<TransferState> definition() {
     Step withdraw =
@@ -62,7 +55,7 @@ public class TransferWorkflow extends Workflow<TransferState> {
           logger.info("Running: " + cmd);
           // cancelling the timer in case it was scheduled
           return timers().cancel("acceptationTimout-" + currentState().transferId()).thenCompose(__ ->
-            componentClient.forValueEntity(cmd.from)
+            componentClient().forValueEntity(cmd.from)
               .call(WalletEntity::withdraw)
               .params(cmd.amount).execute());
         })
@@ -89,7 +82,7 @@ public class TransferWorkflow extends Workflow<TransferState> {
           // end::compensation[]
           logger.info("Running: " + cmd);
           // tag::compensation[]
-          return componentClient.forValueEntity(cmd.to)
+          return componentClient().forValueEntity(cmd.to)
             .call(WalletEntity::deposit)
             .params(cmd.amount);
         })
@@ -117,7 +110,7 @@ public class TransferWorkflow extends Workflow<TransferState> {
           logger.info("Running withdraw compensation");
           // tag::compensation[]
           var transfer = currentState().transfer();
-          return componentClient.forValueEntity(transfer.from())
+          return componentClient().forValueEntity(transfer.from())
             .call(WalletEntity::deposit)
             .params(transfer.amount());
         })
@@ -155,7 +148,7 @@ public class TransferWorkflow extends Workflow<TransferState> {
           return timers().startSingleTimer(
             "acceptationTimout-" + transferId,
             ofHours(8),
-            componentClient.forWorkflow(transferId)
+            componentClient().forWorkflow(transferId)
               .call(TransferWorkflow::acceptationTimeout)); // <1>
         })
         .andThen(Done.class, __ ->

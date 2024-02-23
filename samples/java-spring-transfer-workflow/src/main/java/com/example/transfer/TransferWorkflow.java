@@ -2,7 +2,6 @@ package com.example.transfer;
 
 import com.example.transfer.TransferState.Transfer;
 import com.example.wallet.WalletEntity;
-import kalix.javasdk.client.ComponentClient;
 import kalix.javasdk.workflow.Workflow;
 import kalix.javasdk.annotations.Id;
 import kalix.javasdk.annotations.TypeId;
@@ -37,19 +36,13 @@ public class TransferWorkflow extends Workflow<TransferState> { // <1>
 
   private static final Logger logger = LoggerFactory.getLogger(TransferWorkflow.class);
 
-  final private ComponentClient componentClient;
-
-  public TransferWorkflow(ComponentClient componentClient) {
-    this.componentClient = componentClient;
-  }
-
   // tag::definition[]
   @Override
   public WorkflowDef<TransferState> definition() {
     Step withdraw =
       step("withdraw") // <1>
         .call(Withdraw.class, cmd -> {
-          return componentClient.forValueEntity(cmd.from)
+          return componentClient().forValueEntity(cmd.from)
             .call(WalletEntity::withdraw)
             .params(cmd.amount);
         }) // <2>
@@ -63,7 +56,7 @@ public class TransferWorkflow extends Workflow<TransferState> { // <1>
     Step deposit =
       step("deposit") // <1>
         .call(Deposit.class, cmd -> {
-          return componentClient.forValueEntity(cmd.to)
+          return componentClient().forValueEntity(cmd.to)
             .call(WalletEntity::deposit)
             .params(cmd.amount);
         }) // <4>
