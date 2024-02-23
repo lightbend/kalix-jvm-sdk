@@ -18,7 +18,7 @@ package kalix.javasdk.tck.model.localpersistenceeventing;
 
 import akka.NotUsed;
 import akka.stream.javadsl.Source;
-import kalix.javasdk.action.Action;
+import kalix.javasdk.action.AbstractAction;
 import kalix.javasdk.action.MessageEnvelope;
 import kalix.javasdk.impl.action.ActionRouter;
 import kalix.tck.model.eventing.LocalPersistenceEventing;
@@ -31,7 +31,7 @@ public class LocalPersistenceSubscriberRouter extends ActionRouter<LocalPersiste
   }
 
   @Override
-  public Action.Effect<?> handleUnary(String commandName, MessageEnvelope<Object> message) {
+  public AbstractAction.Effect<?> handleUnary(String commandName, MessageEnvelope<Object> message) {
     switch (commandName) {
       case "ProcessEventOne":
         return action().processEventOne((LocalPersistenceEventing.EventOne) message.payload());
@@ -54,16 +54,16 @@ public class LocalPersistenceSubscriberRouter extends ActionRouter<LocalPersiste
   }
 
   @Override
-  public Source<Action.Effect<?>, NotUsed> handleStreamedOut(
+  public Source<AbstractAction.Effect<?>, NotUsed> handleStreamedOut(
       String commandName, MessageEnvelope<Object> message) {
     switch (commandName) {
       case "ProcessEventTwo":
-        return (Source<Action.Effect<?>, NotUsed>)
+        return (Source<AbstractAction.Effect<?>, NotUsed>)
             (Object)
                 action().processEventTwo((LocalPersistenceEventing.EventTwo) message.payload());
 
       case "ProcessValueTwo":
-        return (Source<Action.Effect<?>, NotUsed>)
+        return (Source<AbstractAction.Effect<?>, NotUsed>)
             (Object)
                 action().processValueTwo((LocalPersistenceEventing.ValueTwo) message.payload());
 
@@ -73,13 +73,13 @@ public class LocalPersistenceSubscriberRouter extends ActionRouter<LocalPersiste
   }
 
   @Override
-  public Action.Effect<?> handleStreamedIn(
+  public AbstractAction.Effect<?> handleStreamedIn(
       String commandName, Source<MessageEnvelope<Object>, NotUsed> stream) {
     throw new ActionRouter.HandlerNotFound(commandName);
   }
 
   @Override
-  public Source<Action.Effect<?>, NotUsed> handleStreamed(
+  public Source<AbstractAction.Effect<?>, NotUsed> handleStreamed(
       String commandName, Source<MessageEnvelope<Object>, NotUsed> stream) {
     throw new ActionRouter.HandlerNotFound(commandName);
   }

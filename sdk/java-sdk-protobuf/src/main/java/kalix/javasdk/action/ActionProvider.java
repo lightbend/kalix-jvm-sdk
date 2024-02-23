@@ -28,7 +28,7 @@ import java.util.Optional;
  * ActionProvider</code>. The concrete <code>ActionProvider</code> is generated for the specific
  * entities defined in Protobuf, for example <code>CustomerActionProvider</code>.
  */
-public interface ActionProvider<A extends Action> {
+public interface ActionProvider<A extends AbstractAction> {
 
   ActionOptions options();
 

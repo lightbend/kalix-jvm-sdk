@@ -23,7 +23,6 @@ import akka.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
 import akka.actor.typed.scaladsl.adapter._
 import akka.stream.javadsl.Source
 import akka.stream.scaladsl.Sink
-import kalix.javasdk.action.Action
 import kalix.javasdk.action.MessageEnvelope
 import kalix.javasdk.actionspec.ActionspecApi
 import kalix.javasdk.impl.ActionFactory
@@ -49,6 +48,7 @@ import org.scalatest.wordspec.AnyWordSpecLike
 import scala.concurrent.Await
 import scala.concurrent.Future
 import scala.concurrent.duration._
+import kalix.javasdk.action.AbstractAction
 
 class ActionHandlerSpec
     extends ScalaTestWithActorTestKit
@@ -83,7 +83,7 @@ class ActionHandlerSpec
     "invoke unary commands" in {
       val service = create(new AbstractHandler {
 
-        override def handleUnary(commandName: String, message: MessageEnvelope[Any]): Action.Effect[Any] =
+        override def handleUnary(commandName: String, message: MessageEnvelope[Any]): AbstractAction.Effect[Any] =
           createReplyEffect("out: " + extractInField(message))
       })
 
@@ -98,7 +98,7 @@ class ActionHandlerSpec
     "turn thrown unary command handler exceptions into failure responses" in {
       val service = create(new AbstractHandler {
 
-        override def handleUnary(commandName: String, message: MessageEnvelope[Any]): Action.Effect[Any] =
+        override def handleUnary(commandName: String, message: MessageEnvelope[Any]): AbstractAction.Effect[Any] =
           throw new RuntimeException("boom")
       })
 
@@ -118,7 +118,7 @@ class ActionHandlerSpec
       val service = create(new AbstractHandler {
         override def handleStreamedIn(
             commandName: String,
-            stream: Source[MessageEnvelope[Any], NotUsed]): Action.Effect[Any] =
+            stream: Source[MessageEnvelope[Any], NotUsed]): AbstractAction.Effect[Any] =
           createAsyncReplyEffect(
             stream.asScala
               .map(extractInField)
@@ -143,13 +143,13 @@ class ActionHandlerSpec
       val service = create(new AbstractHandler {
         override def handleStreamedOut(
             commandName: String,
-            message: MessageEnvelope[Any]): Source[Action.Effect[_], NotUsed] = {
+            message: MessageEnvelope[Any]): Source[AbstractAction.Effect[_], NotUsed] = {
           val in = extractInField(message)
           akka.stream.scaladsl
             .Source(1 to 3)
             .asJava
             .map(idx => createReplyEffect(s"out $idx: $in"))
-            .asInstanceOf[Source[Action.Effect[_], NotUsed]]
+            .asInstanceOf[Source[AbstractAction.Effect[_], NotUsed]]
         }
       })
 
@@ -170,7 +170,7 @@ class ActionHandlerSpec
       val service = create(new AbstractHandler {
         override def handleStreamedOut(
             commandName: String,
-            message: MessageEnvelope[Any]): Source[Action.Effect[_], NotUsed] = {
+            message: MessageEnvelope[Any]): Source[AbstractAction.Effect[_], NotUsed] = {
           throw new RuntimeException("boom")
         }
       })
@@ -194,7 +194,7 @@ class ActionHandlerSpec
       val service = create(new AbstractHandler {
         override def handleStreamedOut(
             commandName: String,
-            message: MessageEnvelope[Any]): Source[Action.Effect[_], NotUsed] = {
+            message: MessageEnvelope[Any]): Source[AbstractAction.Effect[_], NotUsed] = {
           Source.failed(new RuntimeException("boom"))
         }
       })
@@ -218,12 +218,12 @@ class ActionHandlerSpec
       val service = create(new AbstractHandler {
         override def handleStreamed(
             commandName: String,
-            stream: Source[MessageEnvelope[Any], NotUsed]): Source[Action.Effect[_], NotUsed] =
+            stream: Source[MessageEnvelope[Any], NotUsed]): Source[AbstractAction.Effect[_], NotUsed] =
           stream.asScala
             .map(extractInField)
             .map(in => createReplyEffect(s"out: $in"))
             .asJava
-            .asInstanceOf[Source[Action.Effect[_], NotUsed]]
+            .asInstanceOf[Source[AbstractAction.Effect[_], NotUsed]]
       })
 
       val replies = Await.result(
@@ -251,7 +251,7 @@ class ActionHandlerSpec
 
       val service = create(new AbstractHandler {
 
-        override def handleUnary(commandName: String, message: MessageEnvelope[Any]): Action.Effect[Any] = {
+        override def handleUnary(commandName: String, message: MessageEnvelope[Any]): AbstractAction.Effect[Any] = {
           createAsyncReplyEffect(Future {
             createReplyEffect("reply").addSideEffect(
               SideEffectImpl(
@@ -294,7 +294,7 @@ class ActionHandlerSpec
 
       val service = create(new AbstractHandler {
 
-        override def handleUnary(commandName: String, message: MessageEnvelope[Any]): Action.Effect[Any] = {
+        override def handleUnary(commandName: String, message: MessageEnvelope[Any]): AbstractAction.Effect[Any] = {
           createAsyncReplyEffect(Future.successful(createIgnoreEffect())).addSideEffect(
             // will be ignored
             SideEffectImpl(
@@ -321,7 +321,7 @@ class ActionHandlerSpec
     "turn async failure into failure response" in {
       val service = create(new AbstractHandler {
 
-        override def handleUnary(commandName: String, message: MessageEnvelope[Any]): Action.Effect[Any] =
+        override def handleUnary(commandName: String, message: MessageEnvelope[Any]): AbstractAction.Effect[Any] =
           createAsyncReplyEffect(Future.failed(new RuntimeException("boom")))
       })
 
@@ -339,13 +339,13 @@ class ActionHandlerSpec
   private def createOutAny(field: String): Any =
     ActionspecApi.Out.newBuilder().setField(field).build()
 
-  private def createReplyEffect(field: String): Action.Effect[Any] =
+  private def createReplyEffect(field: String): AbstractAction.Effect[Any] =
     ActionEffectImpl.ReplyEffect(createOutAny(field), None, Nil)
 
-  private def createIgnoreEffect(): Action.Effect[Any] =
+  private def createIgnoreEffect(): AbstractAction.Effect[Any] =
     ActionEffectImpl.IgnoreEffect()
 
-  private def createAsyncReplyEffect(future: Future[Action.Effect[Any]]): Action.Effect[Any] =
+  private def createAsyncReplyEffect(future: Future[AbstractAction.Effect[Any]]): AbstractAction.Effect[Any] =
     ActionEffectImpl.AsyncEffect(future, Nil)
 
   private def extractInField(message: MessageEnvelope[Any]) =
@@ -357,22 +357,24 @@ class ActionHandlerSpec
   private def extractOutField(payload: Option[ScalaPbAny]) =
     ScalaPbAny.toJavaProto(payload.value).unpack(classOf[ActionspecApi.Out]).getField
 
-  class TestAction extends Action
+  class TestAction extends AbstractAction
 
   private abstract class AbstractHandler extends ActionRouter[TestAction](new TestAction) {
-    override def handleUnary(commandName: String, message: MessageEnvelope[Any]): Action.Effect[Any] =
+    override def handleUnary(commandName: String, message: MessageEnvelope[Any]): AbstractAction.Effect[Any] =
       ???
 
-    def handleStreamedOut(commandName: String, message: MessageEnvelope[Any]): Source[Action.Effect[_], NotUsed] = ???
+    def handleStreamedOut(
+        commandName: String,
+        message: MessageEnvelope[Any]): Source[AbstractAction.Effect[_], NotUsed] = ???
 
     override def handleStreamedIn(
         commandName: String,
-        stream: Source[MessageEnvelope[Any], NotUsed]): Action.Effect[Any] =
+        stream: Source[MessageEnvelope[Any], NotUsed]): AbstractAction.Effect[Any] =
       ???
 
     def handleStreamed(
         commandName: String,
-        stream: Source[MessageEnvelope[Any], NotUsed]): Source[Action.Effect[_], NotUsed] = ???
+        stream: Source[MessageEnvelope[Any], NotUsed]): Source[AbstractAction.Effect[_], NotUsed] = ???
   }
 
 }

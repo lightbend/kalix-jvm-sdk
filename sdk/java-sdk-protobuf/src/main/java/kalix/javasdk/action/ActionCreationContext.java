@@ -22,7 +22,7 @@ import kalix.javasdk.Context;
 import java.util.Optional;
 
 /**
- * Creation context for {@link Action} components.
+ * Creation context for {@link AbstractAction} components.
  *
  * <p>This may be accepted as an argument to the constructor of an Action.
  */

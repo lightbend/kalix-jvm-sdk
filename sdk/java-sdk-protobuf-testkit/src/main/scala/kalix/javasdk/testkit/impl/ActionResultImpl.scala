@@ -17,7 +17,6 @@
 package kalix.javasdk.testkit.impl
 
 import kalix.javasdk.SideEffect
-import kalix.javasdk.action.Action
 import kalix.javasdk.impl.GrpcDeferredCall
 import kalix.javasdk.impl.action.ActionEffectImpl
 import kalix.javasdk.testkit.ActionResult
@@ -30,6 +29,7 @@ import io.grpc.Status
 import scala.compat.java8.FutureConverters._
 import scala.concurrent.ExecutionContext
 import scala.jdk.CollectionConverters._
+import kalix.javasdk.action.AbstractAction
 
 /**
  * INTERNAL API
@@ -48,7 +48,7 @@ private[kalix] object ActionResultImpl {
 final class ActionResultImpl[T](effect: ActionEffectImpl.PrimaryEffect[T]) extends ActionResult[T] {
   import ActionResultImpl._
 
-  def this(effect: Action.Effect[T]) = this(effect.asInstanceOf[ActionEffectImpl.PrimaryEffect[T]])
+  def this(effect: AbstractAction.Effect[T]) = this(effect.asInstanceOf[ActionEffectImpl.PrimaryEffect[T]])
 
   private implicit val ec = ExecutionContext.Implicits.global
 

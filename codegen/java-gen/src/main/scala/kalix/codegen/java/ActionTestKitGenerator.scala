@@ -44,7 +44,7 @@ object ActionTestKitGenerator {
         "java.util.Optional",
         s"$packageName.$className",
         "kalix.javasdk.Metadata",
-        "kalix.javasdk.action.Action.Effect",
+        "kalix.javasdk.action.AbstractAction.Effect",
         "kalix.javasdk.action.ActionCreationContext",
         "kalix.javasdk.testkit.ActionResult",
         "kalix.javasdk.testkit.impl.ActionResultImpl",

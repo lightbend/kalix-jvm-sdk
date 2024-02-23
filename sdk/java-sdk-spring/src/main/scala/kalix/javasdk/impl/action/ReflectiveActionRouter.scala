@@ -19,6 +19,7 @@ package kalix.javasdk.impl.action
 import akka.NotUsed
 import akka.stream.javadsl.Source
 import com.google.protobuf.any.{ Any => ScalaPbAny }
+import kalix.javasdk.action.AbstractAction
 import kalix.javasdk.action.Action
 import kalix.javasdk.action.MessageEnvelope
 import kalix.javasdk.impl.AnySupport.ProtobufEmptyTypeUrl
@@ -37,7 +38,7 @@ class ReflectiveActionRouter[A <: Action](
   private def commandHandlerLookup(commandName: String) =
     commandHandlers.getOrElse(commandName, throw new RuntimeException(s"no matching method for '$commandName'"))
 
-  override def handleUnary(commandName: String, message: MessageEnvelope[Any]): Action.Effect[_] = {
+  override def handleUnary(commandName: String, message: MessageEnvelope[Any]): AbstractAction.Effect[_] = {
 
     val commandHandler = commandHandlerLookup(commandName)
 
@@ -56,11 +57,11 @@ class ReflectiveActionRouter[A <: Action](
           case ProtobufEmptyTypeUrl =>
             invoker
               .invoke(action)
-              .asInstanceOf[Action.Effect[_]]
+              .asInstanceOf[AbstractAction.Effect[_]]
           case _ =>
             invoker
               .invoke(action, invocationContext)
-              .asInstanceOf[Action.Effect[_]]
+              .asInstanceOf[AbstractAction.Effect[_]]
         }
       case None if ignoreUnknown => ActionEffectImpl.Builder.ignore()
       case None =>
@@ -72,7 +73,7 @@ class ReflectiveActionRouter[A <: Action](
 
   override def handleStreamedOut(
       commandName: String,
-      message: MessageEnvelope[Any]): Source[Action.Effect[_], NotUsed] = {
+      message: MessageEnvelope[Any]): Source[AbstractAction.Effect[_], NotUsed] = {
 
     val componentMethod = commandHandlerLookup(commandName)
 
@@ -85,7 +86,7 @@ class ReflectiveActionRouter[A <: Action](
     val inputTypeUrl = message.payload().asInstanceOf[ScalaPbAny].typeUrl
     componentMethod.lookupInvoker(inputTypeUrl) match {
       case Some(methodInvoker) =>
-        val response = methodInvoker.invoke(action, context).asInstanceOf[Flux[Action.Effect[_]]]
+        val response = methodInvoker.invoke(action, context).asInstanceOf[Flux[AbstractAction.Effect[_]]]
         Source.fromPublisher(response)
       case None if ignoreUnknown => Source.empty()
       case None =>
@@ -94,12 +95,14 @@ class ReflectiveActionRouter[A <: Action](
     }
   }
 
-  override def handleStreamedIn(commandName: String, stream: Source[MessageEnvelope[Any], NotUsed]): Action.Effect[_] =
+  override def handleStreamedIn(
+      commandName: String,
+      stream: Source[MessageEnvelope[Any], NotUsed]): AbstractAction.Effect[_] =
     throw new IllegalArgumentException("Stream in calls are not supported")
 
   // TODO: to implement
   override def handleStreamed(
       commandName: String,
-      stream: Source[MessageEnvelope[Any], NotUsed]): Source[Action.Effect[_], NotUsed] =
+      stream: Source[MessageEnvelope[Any], NotUsed]): Source[AbstractAction.Effect[_], NotUsed] =
     throw new IllegalArgumentException("Stream in calls are not supported")
 }

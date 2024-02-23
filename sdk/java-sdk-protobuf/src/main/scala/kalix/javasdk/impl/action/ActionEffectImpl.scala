@@ -17,7 +17,6 @@
 package kalix.javasdk.impl.action
 
 import kalix.javasdk.{ DeferredCall, Metadata, SideEffect }
-import kalix.javasdk.action.Action
 import java.util
 import java.util.concurrent.CompletionStage
 
@@ -30,17 +29,18 @@ import scala.jdk.CollectionConverters._
 import scala.jdk.FutureConverters.CompletionStageOps
 
 import kalix.javasdk.HttpResponse
+import kalix.javasdk.action.AbstractAction
 
 /** INTERNAL API */
 object ActionEffectImpl {
-  sealed abstract class PrimaryEffect[T] extends Action.Effect[T] {
-    override def addSideEffect(sideEffects: SideEffect*): Action.Effect[T] =
+  sealed abstract class PrimaryEffect[T] extends AbstractAction.Effect[T] {
+    override def addSideEffect(sideEffects: SideEffect*): AbstractAction.Effect[T] =
       withSideEffects(internalSideEffects() ++ sideEffects)
-    override def addSideEffects(sideEffects: util.Collection[SideEffect]): Action.Effect[T] =
+    override def addSideEffects(sideEffects: util.Collection[SideEffect]): AbstractAction.Effect[T] =
       withSideEffects(internalSideEffects() ++ sideEffects.asScala)
     override def canHaveSideEffects: Boolean = true
     def internalSideEffects(): Seq[SideEffect]
-    protected def withSideEffects(sideEffects: Seq[SideEffect]): Action.Effect[T]
+    protected def withSideEffects(sideEffects: Seq[SideEffect]): AbstractAction.Effect[T]
   }
 
   final case class ReplyEffect[T](msg: T, metadata: Option[Metadata], internalSideEffects: Seq[SideEffect])
@@ -50,7 +50,7 @@ object ActionEffectImpl {
       copy(internalSideEffects = sideEffects)
   }
 
-  final case class AsyncEffect[T](effect: Future[Action.Effect[T]], internalSideEffects: Seq[SideEffect])
+  final case class AsyncEffect[T](effect: Future[AbstractAction.Effect[T]], internalSideEffects: Seq[SideEffect])
       extends PrimaryEffect[T] {
     def isEmpty: Boolean = false
     protected def withSideEffects(sideEffects: Seq[SideEffect]): AsyncEffect[T] =
@@ -86,15 +86,15 @@ object ActionEffectImpl {
     }
   }
 
-  object Builder extends Action.Effect.Builder {
-    def reply[S](message: S): Action.Effect[S] = {
+  object Builder extends AbstractAction.Effect.Builder {
+    def reply[S](message: S): AbstractAction.Effect[S] = {
       message match {
         case httpResponse: HttpResponse =>
           ReplyEffect(message, Some(Metadata.EMPTY.withStatusCode(httpResponse.getStatusCode)), Nil)
         case _ => ReplyEffect(message, None, Nil)
       }
     }
-    def reply[S](message: S, metadata: Metadata): Action.Effect[S] = {
+    def reply[S](message: S, metadata: Metadata): AbstractAction.Effect[S] = {
       message match {
         case httpResponse: HttpResponse =>
           ReplyEffect(message, Some(metadata.withStatusCode(httpResponse.getStatusCode)), Nil)
@@ -102,24 +102,24 @@ object ActionEffectImpl {
       }
       ReplyEffect(message, Some(metadata), Nil)
     }
-    def forward[S](serviceCall: DeferredCall[_, S]): Action.Effect[S] = ForwardEffect(serviceCall, Nil)
-    def error[S](description: String): Action.Effect[S] = ErrorEffect(description, None, Nil)
-    def error[S](description: String, grpcErrorCode: Status.Code): Action.Effect[S] = {
+    def forward[S](serviceCall: DeferredCall[_, S]): AbstractAction.Effect[S] = ForwardEffect(serviceCall, Nil)
+    def error[S](description: String): AbstractAction.Effect[S] = ErrorEffect(description, None, Nil)
+    def error[S](description: String, grpcErrorCode: Status.Code): AbstractAction.Effect[S] = {
       if (grpcErrorCode.toStatus.isOk) throw new IllegalArgumentException("Cannot fail with a success status")
       ErrorEffect(description, Some(grpcErrorCode), Nil)
     }
-    def error[S](description: String, httpErrorCode: ErrorCode): Action.Effect[S] =
+    def error[S](description: String, httpErrorCode: ErrorCode): AbstractAction.Effect[S] =
       error(description, StatusCodeConverter.toGrpcCode(httpErrorCode))
-    def asyncReply[S](futureMessage: CompletionStage[S]): Action.Effect[S] =
+    def asyncReply[S](futureMessage: CompletionStage[S]): AbstractAction.Effect[S] =
       asyncReply(futureMessage, Metadata.EMPTY)
-    def asyncReply[S](futureMessage: CompletionStage[S], metadata: Metadata): Action.Effect[S] =
+    def asyncReply[S](futureMessage: CompletionStage[S], metadata: Metadata): AbstractAction.Effect[S] =
       AsyncEffect(futureMessage.asScala.map(s => Builder.reply[S](s, metadata))(ExecutionContext.parasitic), Nil)
-    def asyncEffect[S](futureEffect: CompletionStage[Action.Effect[S]]): Action.Effect[S] =
+    def asyncEffect[S](futureEffect: CompletionStage[AbstractAction.Effect[S]]): AbstractAction.Effect[S] =
       AsyncEffect(futureEffect.asScala, Nil)
-    def ignore[S](): Action.Effect[S] =
+    def ignore[S](): AbstractAction.Effect[S] =
       IgnoreEffect()
   }
 
-  def builder(): Action.Effect.Builder = Builder
+  def builder(): AbstractAction.Effect.Builder = Builder
 
 }

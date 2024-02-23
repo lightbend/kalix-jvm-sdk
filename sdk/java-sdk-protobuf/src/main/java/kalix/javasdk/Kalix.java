@@ -22,7 +22,7 @@ import akka.annotation.InternalApi;
 import com.google.protobuf.DescriptorProtos;
 import com.google.protobuf.Descriptors;
 import com.typesafe.config.Config;
-import kalix.javasdk.action.Action;
+import kalix.javasdk.action.AbstractAction;
 import kalix.javasdk.action.ActionOptions;
 import kalix.javasdk.action.ActionProvider;
 import kalix.javasdk.eventsourcedentity.EventSourcedEntity;
@@ -566,7 +566,7 @@ public final class Kalix {
    *
    * @return This stateful service builder.
    */
-  public <A extends Action> Kalix register(ActionProvider<A> provider) {
+  public <A extends AbstractAction> Kalix register(ActionProvider<A> provider) {
     return provider
       .alternativeCodec()
       .map(

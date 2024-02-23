@@ -136,7 +136,7 @@ private[javasdk] final class ActionsImpl(
   private def effectToResponse(
       service: ActionService,
       command: ActionCommand,
-      effect: Action.Effect[_],
+      effect: AbstractAction.Effect[_],
       messageCodec: MessageCodec): Future[ActionResponse] = {
     import ActionEffectImpl._
     effect match {

@@ -24,14 +24,14 @@ import kalix.scalasdk.{ DeferredCall, Metadata, SideEffect }
 import kalix.scalasdk.action.Action
 import kalix.scalasdk.impl.ScalaDeferredCallAdapter
 import kalix.scalasdk.impl.ScalaSideEffectAdapter
-
 import io.grpc.Status
+import kalix.javasdk.action.AbstractAction
 
 private[scalasdk] object ActionEffectImpl {
 
   sealed abstract class PrimaryEffect[T] extends Action.Effect[T] {
 
-    def toJavaSdk: javasdk.action.Action.Effect[T]
+    def toJavaSdk: AbstractAction.Effect[T]
 
     override def addSideEffect(sideEffects: SideEffect*): Action.Effect[T] =
       withSideEffects(internalSideEffects() ++ sideEffects)
@@ -65,7 +65,7 @@ private[scalasdk] object ActionEffectImpl {
     protected def withSideEffects(sideEffects: Seq[SideEffect]): AsyncEffect[T] =
       copy(internalSideEffects = sideEffects)
 
-    private def convertEffect(effect: Action.Effect[T]): Future[javasdk.action.Action.Effect[T]] = {
+    private def convertEffect(effect: Action.Effect[T]): Future[AbstractAction.Effect[T]] = {
       effect match {
         case eff: AsyncEffect[T] =>
           // FIXME? the Future may wrap another AsyncEffect.

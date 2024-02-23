@@ -21,7 +21,7 @@ import akka.stream.javadsl.Source;
 import kalix.javasdk.DeferredCall;
 import kalix.javasdk.JsonSupport;
 import kalix.javasdk.Metadata;
-import kalix.javasdk.action.Action;
+import kalix.javasdk.action.AbstractAction;
 import kalix.javasdk.action.ActionContext;
 import kalix.javasdk.action.ActionCreationContext;
 import kalix.javasdk.impl.GrpcDeferredCall;
@@ -32,7 +32,7 @@ import com.example.Components;
 import com.example.ComponentsImpl;
 import com.google.protobuf.Any;
 
-public class LocalPersistenceSubscriber extends Action {
+public class LocalPersistenceSubscriber extends AbstractAction {
 
   // FIXME should come from generated Abstract base class
   protected final Components components() {
@@ -41,18 +41,18 @@ public class LocalPersistenceSubscriber extends Action {
 
   public LocalPersistenceSubscriber(ActionCreationContext creationContext) {}
 
-  public Action.Effect<LocalPersistenceEventing.Response> processEventOne(
+  public AbstractAction.Effect<LocalPersistenceEventing.Response> processEventOne(
       LocalPersistenceEventing.EventOne eventOne) {
     return convert(actionContext(), eventOne.getStep());
   }
 
-  public Source<Action.Effect<LocalPersistenceEventing.Response>, NotUsed> processEventTwo(
+  public Source<AbstractAction.Effect<LocalPersistenceEventing.Response>, NotUsed> processEventTwo(
       LocalPersistenceEventing.EventTwo eventTwo) {
     ActionContext context = actionContext();
     return Source.from(eventTwo.getStepList()).map(step -> convert(context, step));
   }
 
-  public Action.Effect<LocalPersistenceEventing.Response> processAnyEvent(Any any) {
+  public AbstractAction.Effect<LocalPersistenceEventing.Response> processAnyEvent(Any any) {
     JsonMessage jsonMessage = JsonSupport.decodeJson(JsonMessage.class, any);
     return effects()
         .reply(
@@ -62,13 +62,13 @@ public class LocalPersistenceSubscriber extends Action {
                 .build());
   }
 
-  public Action.Effect<LocalPersistenceEventing.Response> processValueOne(
+  public AbstractAction.Effect<LocalPersistenceEventing.Response> processValueOne(
       LocalPersistenceEventing.ValueOne valueOne) {
     ActionContext context = actionContext();
     return convert(context, valueOne.getStep());
   }
 
-  public Source<Action.Effect<LocalPersistenceEventing.Response>, NotUsed> processValueTwo(
+  public Source<AbstractAction.Effect<LocalPersistenceEventing.Response>, NotUsed> processValueTwo(
       LocalPersistenceEventing.ValueTwo valueTwo) {
     ActionContext context = actionContext();
     return Source.from(valueTwo.getStepList()).map(step -> convert(context, step));
@@ -94,7 +94,7 @@ public class LocalPersistenceSubscriber extends Action {
                 .build());
   }
 
-  private Action.Effect<LocalPersistenceEventing.Response> convert(
+  private AbstractAction.Effect<LocalPersistenceEventing.Response> convert(
       ActionContext context, LocalPersistenceEventing.ProcessStep step) {
     String id = context.eventSubject().orElse("");
     if (step.hasReply()) {

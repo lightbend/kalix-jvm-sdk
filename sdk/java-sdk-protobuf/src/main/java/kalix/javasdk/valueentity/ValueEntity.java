@@ -21,8 +21,6 @@ import kalix.javasdk.DeferredCall;
 import kalix.javasdk.Metadata;
 import kalix.javasdk.SideEffect;
 import kalix.javasdk.StatusCode;
-import kalix.javasdk.action.Action;
-import kalix.javasdk.eventsourcedentity.EventSourcedEntity;
 import kalix.javasdk.impl.valueentity.ValueEntityEffectImpl;
 import io.grpc.Status;
 

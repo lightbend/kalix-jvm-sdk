@@ -33,12 +33,14 @@ import com.google.protobuf.Descriptors
 import kalix.javasdk.impl.telemetry.Telemetry
 import kalix.protocol.component.MetadataEntry
 import kalix.scalasdk.impl.MetadataImpl
-
 import java.util.Optional
+
 import scala.jdk.CollectionConverters.SetHasAsJava
 import scala.jdk.OptionConverters.RichOptional
 
-private[scalasdk] final case class JavaActionAdapter(scalaSdkAction: Action) extends javasdk.action.Action {
+import kalix.javasdk.action.AbstractAction
+
+private[scalasdk] final case class JavaActionAdapter(scalaSdkAction: Action) extends AbstractAction {
 
   /** INTERNAL API */
   override def _internalSetActionContext(context: Optional[javasdk.action.ActionContext]): Unit =
@@ -46,13 +48,13 @@ private[scalasdk] final case class JavaActionAdapter(scalaSdkAction: Action) ext
 }
 
 private[scalasdk] final case class JavaActionProviderAdapter[A <: Action](scalaSdkProvider: ActionProvider[A])
-    extends javasdk.action.ActionProvider[javasdk.action.Action] {
+    extends javasdk.action.ActionProvider[AbstractAction] {
 
   override def options(): javasdk.action.ActionOptions =
     ActionOptionsImpl(scalaSdkProvider.options.forwardHeaders.asJava)
 
   override def newRouter(
-      javaSdkContext: javasdk.action.ActionCreationContext): javasdk.impl.action.ActionRouter[javasdk.action.Action] = {
+      javaSdkContext: javasdk.action.ActionCreationContext): javasdk.impl.action.ActionRouter[AbstractAction] = {
     val scalaSdkRouter = scalaSdkProvider.newRouter(ScalaActionCreationContextAdapter(javaSdkContext))
     JavaActionRouterAdapter(JavaActionAdapter(scalaSdkRouter.action), scalaSdkRouter)
   }
@@ -65,13 +67,13 @@ private[scalasdk] final case class JavaActionProviderAdapter[A <: Action](scalaS
 }
 
 private[scalasdk] final case class JavaActionRouterAdapter[A <: Action](
-    javaSdkAction: javasdk.action.Action,
+    javaSdkAction: AbstractAction,
     scalaSdkRouter: ActionRouter[A])
-    extends javasdk.impl.action.ActionRouter[javasdk.action.Action](javaSdkAction) {
+    extends javasdk.impl.action.ActionRouter[AbstractAction](javaSdkAction) {
 
   override def handleUnary(
       commandName: String,
-      message: javasdk.action.MessageEnvelope[Any]): javasdk.action.Action.Effect[_] = {
+      message: javasdk.action.MessageEnvelope[Any]): AbstractAction.Effect[_] = {
 
     val messageEnvelopeAdapted = ScalaMessageEnvelopeAdapter(message)
     scalaSdkRouter.handleUnary(commandName, messageEnvelopeAdapted) match {
@@ -80,7 +82,7 @@ private[scalasdk] final case class JavaActionRouterAdapter[A <: Action](
   }
   override def handleStreamedOut(
       commandName: String,
-      message: javasdk.action.MessageEnvelope[Any]): Source[javasdk.action.Action.Effect[_], NotUsed] = {
+      message: javasdk.action.MessageEnvelope[Any]): Source[AbstractAction.Effect[_], NotUsed] = {
 
     val messageEnvelopeAdapted = ScalaMessageEnvelopeAdapter(message)
     val src = scalaSdkRouter.handleStreamedOut(commandName, messageEnvelopeAdapted)
@@ -92,7 +94,7 @@ private[scalasdk] final case class JavaActionRouterAdapter[A <: Action](
 
   override def handleStreamedIn(
       commandName: String,
-      stream: Source[javasdk.action.MessageEnvelope[Any], NotUsed]): javasdk.action.Action.Effect[_] = {
+      stream: Source[javasdk.action.MessageEnvelope[Any], NotUsed]): AbstractAction.Effect[_] = {
 
     val convertedStream =
       stream
@@ -104,8 +106,9 @@ private[scalasdk] final case class JavaActionRouterAdapter[A <: Action](
     }
   }
 
-  override def handleStreamed(commandName: String, stream: Source[javasdk.action.MessageEnvelope[Any], NotUsed])
-      : Source[javasdk.action.Action.Effect[_], NotUsed] = {
+  override def handleStreamed(
+      commandName: String,
+      stream: Source[javasdk.action.MessageEnvelope[Any], NotUsed]): Source[AbstractAction.Effect[_], NotUsed] = {
 
     val convertedStream =
       stream

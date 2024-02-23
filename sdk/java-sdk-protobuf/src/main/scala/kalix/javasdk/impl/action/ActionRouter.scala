@@ -18,17 +18,17 @@ package kalix.javasdk.impl.action
 
 import akka.NotUsed
 import akka.stream.javadsl.Source
-import kalix.javasdk.action.Action
 import kalix.javasdk.action.ActionContext
 import kalix.javasdk.action.MessageEnvelope
 import kalix.javasdk.impl.action.ActionRouter.HandlerNotFound
 
 import java.util.Optional
+import kalix.javasdk.action.AbstractAction
 
 object ActionRouter {
   case class HandlerNotFound(commandName: String) extends RuntimeException
 }
-abstract class ActionRouter[A <: Action](protected val action: A) {
+abstract class ActionRouter[A <: AbstractAction](protected val action: A) {
 
   /**
    * Handle a unary call.
@@ -42,7 +42,10 @@ abstract class ActionRouter[A <: Action](protected val action: A) {
    * @return
    *   A future of the message to return.
    */
-  final def handleUnary(commandName: String, message: MessageEnvelope[Any], context: ActionContext): Action.Effect[_] =
+  final def handleUnary(
+      commandName: String,
+      message: MessageEnvelope[Any],
+      context: ActionContext): AbstractAction.Effect[_] =
     callWithContext(context) { () =>
       handleUnary(commandName, message)
     }
@@ -57,7 +60,7 @@ abstract class ActionRouter[A <: Action](protected val action: A) {
    * @return
    *   A future of the message to return.
    */
-  def handleUnary(commandName: String, message: MessageEnvelope[Any]): Action.Effect[_]
+  def handleUnary(commandName: String, message: MessageEnvelope[Any]): AbstractAction.Effect[_]
 
   /**
    * Handle a streamed out call call.
@@ -74,7 +77,7 @@ abstract class ActionRouter[A <: Action](protected val action: A) {
   final def handleStreamedOut(
       commandName: String,
       message: MessageEnvelope[Any],
-      context: ActionContext): Source[Action.Effect[_], NotUsed] =
+      context: ActionContext): Source[AbstractAction.Effect[_], NotUsed] =
     callWithContext(context) { () =>
       handleStreamedOut(commandName, message)
     }
@@ -89,7 +92,7 @@ abstract class ActionRouter[A <: Action](protected val action: A) {
    * @return
    *   The stream of messages to return.
    */
-  def handleStreamedOut(commandName: String, message: MessageEnvelope[Any]): Source[Action.Effect[_], NotUsed]
+  def handleStreamedOut(commandName: String, message: MessageEnvelope[Any]): Source[AbstractAction.Effect[_], NotUsed]
 
   /**
    * Handle a streamed in call.
@@ -106,7 +109,7 @@ abstract class ActionRouter[A <: Action](protected val action: A) {
   final def handleStreamedIn(
       commandName: String,
       stream: Source[MessageEnvelope[Any], NotUsed],
-      context: ActionContext): Action.Effect[_] =
+      context: ActionContext): AbstractAction.Effect[_] =
     callWithContext(context) { () =>
       handleStreamedIn(commandName, stream)
     }
@@ -121,7 +124,7 @@ abstract class ActionRouter[A <: Action](protected val action: A) {
    * @return
    *   A future of the message to return.
    */
-  def handleStreamedIn(commandName: String, stream: Source[MessageEnvelope[Any], NotUsed]): Action.Effect[_]
+  def handleStreamedIn(commandName: String, stream: Source[MessageEnvelope[Any], NotUsed]): AbstractAction.Effect[_]
 
   /**
    * Handle a full duplex streamed in call.
@@ -138,7 +141,7 @@ abstract class ActionRouter[A <: Action](protected val action: A) {
   final def handleStreamed(
       commandName: String,
       stream: Source[MessageEnvelope[Any], NotUsed],
-      context: ActionContext): Source[Action.Effect[_], NotUsed] =
+      context: ActionContext): Source[AbstractAction.Effect[_], NotUsed] =
     callWithContext(context) { () =>
       handleStreamed(commandName, stream)
     }
@@ -155,7 +158,7 @@ abstract class ActionRouter[A <: Action](protected val action: A) {
    */
   def handleStreamed(
       commandName: String,
-      stream: Source[MessageEnvelope[Any], NotUsed]): Source[Action.Effect[_], NotUsed]
+      stream: Source[MessageEnvelope[Any], NotUsed]): Source[AbstractAction.Effect[_], NotUsed]
 
   private def callWithContext[T](context: ActionContext)(func: () => T) = {
     // only set, never cleared, to allow access from other threads in async callbacks in the action

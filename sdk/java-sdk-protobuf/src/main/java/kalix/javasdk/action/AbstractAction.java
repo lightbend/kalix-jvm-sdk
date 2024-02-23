@@ -59,7 +59,7 @@ import java.util.concurrent.CompletionStage;
  *
  * An Action method should return an {@link Effect} that describes what to do next.
  */
-public abstract class Action {
+public abstract class AbstractAction {
 
   private volatile Optional<ActionContext> actionContext = Optional.empty();
 

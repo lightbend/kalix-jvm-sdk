@@ -377,16 +377,24 @@ case class KalixSpringApplication(applicationContext: ApplicationContext, config
     ReflectiveActionProvider.of(
       clz,
       messageCodec,
-      context =>
-        wiredInstance(clz) {
-          case p if p == classOf[ActionCreationContext] => context
-          case p if p == classOf[KalixClient]           => kalixClient(context)
-          case p if p == classOf[ComponentClient]       => componentClient(context)
-          case p if p == classOf[WebClientProvider]     => webClientProvider(context)
-          case p if p == classOf[Tracer] =>
-            context.getOpenTelemetryTracer.orElseGet(() =>
-              throw new IllegalStateException("Tracer not available. Make sure to have enabled tracing."))
-        })
+      context => {
+        val action =
+          wiredInstance(clz) {
+            case p if p == classOf[ActionCreationContext] => context
+            case p if p == classOf[KalixClient]           => kalixClient(context)
+            case p if p == classOf[ComponentClient]       => componentClient(context)
+            case p if p == classOf[WebClientProvider]     => webClientProvider(context)
+            case p if p == classOf[Tracer] =>
+              context.getOpenTelemetryTracer.orElseGet(() =>
+                throw new IllegalStateException("Tracer not available. Make sure to have enabled tracing."))
+          }
+
+        val field = lookupSuperclassField("kalixClient", action.getClass.getSuperclass)
+        field.setAccessible(true)
+        field.set(action, kalixClient(context))
+
+        action
+      })
 
   private def workflowProvider[S, W <: Workflow[S]](clz: Class[W]): WorkflowProvider[S, W] = {
     ReflectiveWorkflowProvider.of(

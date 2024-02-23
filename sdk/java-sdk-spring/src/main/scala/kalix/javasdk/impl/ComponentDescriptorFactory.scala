@@ -19,6 +19,7 @@ package kalix.javasdk.impl
 import java.lang.reflect.AnnotatedElement
 import java.lang.reflect.Method
 import java.lang.reflect.ParameterizedType
+
 import kalix.DirectDestination
 import kalix.DirectSource
 import kalix.EventDestination
@@ -28,6 +29,7 @@ import kalix.MethodOptions
 import kalix.ServiceEventing
 import kalix.ServiceEventingOut
 import kalix.ServiceOptions
+import kalix.javasdk.action.AbstractAction
 import kalix.javasdk.action.Action
 import kalix.javasdk.annotations.Acl
 import kalix.javasdk.annotations.EntityType
@@ -96,7 +98,7 @@ private[impl] object ComponentDescriptorFactory {
   def hasActionOutput(javaMethod: Method): Boolean = {
     if (javaMethod.isPublic) {
       javaMethod.getGenericReturnType match {
-        case p: ParameterizedType => p.getRawType.equals(classOf[Action.Effect[_]])
+        case p: ParameterizedType => p.getRawType.equals(classOf[AbstractAction.Effect[_]])
         case _                    => false
       }
     } else {

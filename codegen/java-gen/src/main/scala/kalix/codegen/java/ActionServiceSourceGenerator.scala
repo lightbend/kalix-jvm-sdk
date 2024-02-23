@@ -167,7 +167,7 @@ object ActionServiceSourceGenerator {
         |
         |$managedComment
         |
-        |public abstract class ${service.abstractActionName} extends kalix.javasdk.action.Action {
+        |public abstract class ${service.abstractActionName} extends kalix.javasdk.action.AbstractAction {
         |
         |  protected final Components components() {
         |    return new ComponentsImpl(contextForComponents());
@@ -236,7 +236,7 @@ object ActionServiceSourceGenerator {
       otherImports = Seq(
         "akka.NotUsed",
         "akka.stream.javadsl.Source",
-        "kalix.javasdk.action.Action.Effect",
+        "kalix.javasdk.action.AbstractAction.Effect",
         "kalix.javasdk.action.MessageEnvelope",
         "kalix.javasdk.impl.action.ActionRouter"))
 

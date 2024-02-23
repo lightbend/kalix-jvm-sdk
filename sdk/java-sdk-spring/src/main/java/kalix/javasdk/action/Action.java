@@ -14,18 +14,16 @@
  * limitations under the License.
  */
 
-package kalix.javasdk.impl;
+package kalix.javasdk.action;
 
-import kalix.javasdk.action.AbstractAction;
-import kalix.javasdk.action.ActionCreationContext;
-import kalix.javasdk.impl.action.ActionRouter;
+import kalix.javasdk.client.ComponentClient;
+import kalix.spring.KalixClient;
 
-/**
- * Low level interface to implement {@link AbstractAction} components.
- *
- * <p>Generally, this should not be needed, instead, a class extending a generated abstract {@link
- * AbstractAction} should be used.
- */
-public interface ActionFactory {
-  ActionRouter<?> create(ActionCreationContext context);
+public class Action extends AbstractAction {
+
+    private KalixClient kalixClient;
+
+    public ComponentClient componentClient() {
+        return new ComponentClient(kalixClient);
+    }
 }
