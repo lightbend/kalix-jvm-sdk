@@ -3,13 +3,17 @@ services:
   kalix-runtime:
     image: gcr.io/kalix-public/kalix-runtime:1.1.32
     ports:
-      - "9000:9000"
+      - "${ADVERTISED_HTTP_PORT}:9000"
     extra_hosts:
       - "host.docker.internal:host-gateway"
     environment:
       JAVA_TOOL_OPTIONS: >
         -Dkalix.proxy.eventing.support=google-pubsub-emulator
         -Dkalix.proxy.telemetry.metrics.prometheus.use-default-registry=false
+      # those variables are defined in the .env file
+      # when running multiple services on your local machine, make sure that 
+      # the ports are unique by editing the corresponding .env files
+      ADVERTISED_HTTP_PORT: ${ADVERTISED_HTTP_PORT}
       USER_SERVICE_HOST: ${USER_SERVICE_HOST:-host.docker.internal}
       USER_SERVICE_PORT: ${USER_SERVICE_PORT:-8080}
       PUBSUB_EMULATOR_HOST: gcloud-pubsub-emulator
