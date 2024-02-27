@@ -20,7 +20,7 @@ services:
       # the ports are unique by editing the corresponding .env files
       ADVERTISED_HTTP_PORT: ${ADVERTISED_HTTP_PORT}
       USER_SERVICE_HOST: ${USER_SERVICE_HOST:-host.docker.internal}
-      USER_SERVICE_PORT: ${USER_SERVICE_PORT:-8080}
+      USER_SERVICE_PORT: ${USER_SERVICE_PORT}
       # Comment to enable ACL check in dev-mode (see https://docs.kalix.io/services/using-acls.html#_local_development_with_acls)
       ACL_ENABLED: "false"
       # Uncomment to enable advanced view features locally (note: disabled in deployed services by default)
