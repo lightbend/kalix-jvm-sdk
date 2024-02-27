@@ -10,7 +10,8 @@ You can see the Kalix Runtime version on prod [on grafana](https://grafana.sre.k
 
 ### Cutting the release 
 
-- [ ] Edit the [draft release notes](https://github.com/lightbend/kalix-jvm-sdk/releases) and create the appropriate tag
+- [ ] Use the "Generate release notes" button to create [a new release](https://github.com/lightbend/kalix-jvm-sdk/releases/new) with the appropriate tag.
+    - Review the generated notes and "Publish release"
     - CI will automatically publish to Sonatype OSSRH (Maven Central) based on the tag
     - CI will update the docs/kalix-current branch
 
