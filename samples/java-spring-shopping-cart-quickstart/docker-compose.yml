@@ -19,7 +19,7 @@ services:
       # when running multiple services on your local machine, make sure that 
       # the ports are unique by editing the corresponding .env files
       ADVERTISED_HTTP_PORT: ${ADVERTISED_HTTP_PORT}
-      USER_SERVICE_HOST: ${USER_SERVICE_HOST:-host.docker.internal}
+      USER_SERVICE_HOST: ${USER_SERVICE_HOST}
       USER_SERVICE_PORT: ${USER_SERVICE_PORT}
       # Comment to enable ACL check in dev-mode (see https://docs.kalix.io/java/access-control.html#_local_development_with_acls)
       ACL_ENABLED: "false"

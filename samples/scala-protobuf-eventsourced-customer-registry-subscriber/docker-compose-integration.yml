@@ -17,7 +17,7 @@ services:
       JAVA_TOOL_OPTIONS: >
         -Dkalix.dev-mode.service-port-mappings.customer-registry=host.docker.internal:9000
       ADVERTISED_HTTP_PORT: 9001
-      USER_SERVICE_HOST: ${USER_SERVICE_HOST:-host.docker.internal}
+      USER_SERVICE_HOST: ${USER_SERVICE_HOST}
       USER_SERVICE_PORT: "8081"
 
   kalix-runtime-customer-registry:
@@ -35,7 +35,7 @@ services:
       # when running multiple services on your local machine, make sure that 
       # the ports are unique by editing the corresponding .env files
       ADVERTISED_HTTP_PORT: ${ADVERTISED_HTTP_PORT}
-      USER_SERVICE_HOST: ${USER_SERVICE_HOST:-host.docker.internal}
+      USER_SERVICE_HOST: ${USER_SERVICE_HOST}
       USER_SERVICE_PORT: ${USER_SERVICE_PORT}
 
   customer-registry:
