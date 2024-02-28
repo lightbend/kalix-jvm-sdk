@@ -2,7 +2,7 @@
 :page-supergroup-java-scala: Language
 include::ROOT:partial$include.adoc[]
 
-You can access a single https://docs.kalix.io/reference/glossary.html#entity[Entity] with its https://docs.kalix.io/reference/glossary.html#entity_key[Entity id]. You might want to retrieve multiple Entities, or retrieve them using an attribute other than the key. Kalix https://docs.kalix.io/reference/glossary.html#view[Views] allow you achieve this. By creating multiple Views, you can optimize for query performance against each one.
+You can access a single https://docs.kalix.io/reference/glossary.html#entity[Entity] with its https://docs.kalix.io/reference/glossary.html#component_id[id]. You might want to retrieve multiple Entities, or retrieve them using an attribute other than the key. Kalix https://docs.kalix.io/reference/glossary.html#view[Views] allow you achieve this. By creating multiple Views, you can optimize for query performance against each one.
 
 Views can be defined from any of the following:
 
