@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+package com.example.domain;
+
+option java_outer_classname = "FactorialDomain";
+
+message FactorialState {
+  string value = 1;
+}

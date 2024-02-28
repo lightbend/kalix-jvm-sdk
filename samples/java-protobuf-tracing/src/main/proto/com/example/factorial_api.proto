@@ -1,0 +1,34 @@
+// This is the public API offered by your entity.
+syntax = "proto3";
+
+import "kalix/annotations.proto";
+
+package com.example;
+
+option java_outer_classname = "FactorialApi";
+
+message FactorialRequest {
+  string factorial_id = 1 [(kalix.field).id = true];
+}
+
+message FactorialResponse {
+  string factorial = 1;
+}
+
+
+
+service FactorialService {
+  option (kalix.codegen) = {
+    value_entity: {
+      name: "com.example.domain.Factorial"
+      type_id: "factorial"
+      state: "com.example.domain.FactorialState"
+    }
+  };
+  option (kalix.service).acl.allow = { principal: ALL };
+
+  rpc GetFactorial(FactorialRequest) returns (FactorialResponse);
+}
+
+
+
