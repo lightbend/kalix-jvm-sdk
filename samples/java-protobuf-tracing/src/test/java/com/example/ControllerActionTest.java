@@ -1,10 +1,10 @@
 package com.example;
 
 import akka.stream.javadsl.Source;
-import com.example.FactorialActionApi;
-import com.example.FactorialApi;
-import com.example.FactorialControllerAction;
-import com.example.FactorialControllerActionTestKit;
+import com.example.ControllerAction;
+import com.example.ControllerActionApi;
+import com.example.ControllerActionTestKit;
+import com.google.protobuf.Empty;
 import kalix.javasdk.testkit.ActionResult;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -15,12 +15,12 @@ import static org.junit.jupiter.api.Assertions.*;
 // As long as this file exists it will not be overwritten: you can maintain it yourself,
 // or delete it so it is regenerated as needed.
 
-public class FactorialControllerActionTest {
+public class ControllerActionTest {
 
   @Test
   @Disabled("to be implemented")
   public void exampleTest() {
-    FactorialControllerActionTestKit service = FactorialControllerActionTestKit.of(FactorialControllerAction::new);
+    ControllerActionTestKit service = ControllerActionTestKit.of(ControllerAction::new);
     // // use the testkit to execute a command
     // SomeCommand command = SomeCommand.newBuilder()...build();
     // ActionResult<SomeResponse> result = service.someOperation(command);
@@ -31,9 +31,16 @@ public class FactorialControllerActionTest {
 
   @Test
   @Disabled("to be implemented")
-  public void calculateFactorialTest() {
-    FactorialControllerActionTestKit testKit = FactorialControllerActionTestKit.of(FactorialControllerAction::new);
-    // ActionResult<FactorialApi.FactorialResponse> result = testKit.calculateFactorial(FactorialActionApi.CalculateFactorialRequest.newBuilder()...build());
+  public void callSyncEndpointTest() {
+    ControllerActionTestKit testKit = ControllerActionTestKit.of(ControllerAction::new);
+    // ActionResult<ControllerActionApi.MessageResponse> result = testKit.callSyncEndpoint(Empty.newBuilder()...build());
+  }
+
+  @Test
+  @Disabled("to be implemented")
+  public void callAsyncEndpointTest() {
+    ControllerActionTestKit testKit = ControllerActionTestKit.of(ControllerAction::new);
+    // ActionResult<ControllerActionApi.MessageResponse> result = testKit.callAsyncEndpoint(Empty.newBuilder()...build());
   }
 
 }
