@@ -3,6 +3,7 @@ package com.example;
 import com.google.protobuf.Empty;
 import io.opentelemetry.api.trace.Span;
 import io.opentelemetry.api.trace.StatusCode;
+import io.opentelemetry.api.trace.Tracer;
 import io.opentelemetry.context.Scope;
 import kalix.javasdk.action.ActionCreationContext;
 
@@ -14,64 +15,49 @@ import java.net.http.HttpResponse;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
-// This class was initially generated based on the .proto definition by Kalix tooling.
-// This is the implementation for the Action Service described in your com/example/controller_action.proto file.
-//
-// As long as this file exists it will not be overwritten: you can maintain it yourself,
-// or delete it so it is regenerated as needed.
-
 public class ControllerAction extends AbstractControllerAction {
 
+  String url = "https://jsonplaceholder.typicode.com/posts/1";
+  HttpClient httpClient = HttpClient.newHttpClient();
   public ControllerAction(ActionCreationContext creationContext) {}
 
 
   @Override
   public Effect<ControllerActionApi.MessageResponse> callSyncEndpoint(Empty empty) {
-    Span span  = actionContext().getOpenTelemetryTracer().get()
-            .spanBuilder("loreipsumendpoint")
-            .setParent(actionContext().metadata().traceContext().asOpenTelemetryContext())
-            .startSpan();
-    span.setAttribute("attribute1", "value1");
-    String result = "";
-    //scope automatically closes, try-with-resources
-    try (Scope scope = span.makeCurrent()) {
-      result = callSyncService(span);
-      span.setAttribute("result", result);
-    } catch (IOException | InterruptedException e) {
-      result = e.getMessage();
-      span.setStatus(StatusCode.ERROR, result);
-    } finally {
-      span.end();
-    }
+    //Taking the already configured tracer. Such it will know where to export the spans
+    Tracer tracer = actionContext().getOpenTelemetryTracer().get();
+    String result = callSyncService(tracer);
     return effects().reply(ControllerActionApi.MessageResponse.newBuilder().setMessage(result).build());
   }
 
 
   @Override
   public Effect<ControllerActionApi.MessageResponse> callAsyncEndpoint(Empty empty) {
-    Span span  = actionContext().getOpenTelemetryTracer().get()
-            .spanBuilder("loreipsumendpoint")
-            .setParent(actionContext().metadata().traceContext().asOpenTelemetryContext())
-            .startSpan();
-    span.setAttribute("attribute1", "value1");
-    CompletionStage<ControllerActionApi.MessageResponse> asyncComputation = callAsyncService(span).toCompletableFuture().thenApply(response -> {
+    Tracer tracer = actionContext().getOpenTelemetryTracer().get();
+
+    CompletionStage<ControllerActionApi.MessageResponse> asyncComputation = callAsyncService(tracer).toCompletableFuture().thenApply(response -> {
       return ControllerActionApi.MessageResponse.newBuilder().setMessage(response.body()).build();
     });
     return effects().asyncReply(asyncComputation);
   }
 
 
-  private CompletableFuture<HttpResponse<String>> callAsyncService(Span span) {
-    HttpClient httpClient = HttpClient.newHttpClient();
-
-    String url = "https://jsonplaceholder.typicode.com/posts/1";
+  private CompletableFuture<HttpResponse<String>> callAsyncService(Tracer tracer) {
 
     HttpRequest httpRequest = HttpRequest.newBuilder()
             .uri(URI.create(url))
             .build();
 
+    Span span  = tracer
+            .spanBuilder("loreipsumendpoint")
+            .setParent(actionContext().metadata().traceContext().asOpenTelemetryContext())
+            .startSpan();
+    span.setAttribute("attribute1", "value1");
+
+    //Async call to external service
     CompletableFuture<HttpResponse<String>> responseFuture = httpClient.sendAsync(httpRequest,
             HttpResponse.BodyHandlers.ofString());
+
     try (Scope scope = span.makeCurrent()) {
       responseFuture.thenAccept(response -> {
         String responseBody = response.body();
@@ -80,22 +66,38 @@ public class ControllerAction extends AbstractControllerAction {
       }).exceptionally(ex -> {
         span.setStatus(StatusCode.ERROR, ex.getMessage());
         span.end();
-        return null;
+        return null; //CompletableFuture<Void>
       });
     }
     return responseFuture;
   }
 
-  private String callSyncService(Span span) throws IOException, InterruptedException {
-    String url = "https://jsonplaceholder.typicode.com/posts/1";
+  private String callSyncService(Tracer tracer)  {
+    Span span  = tracer
+            .spanBuilder("loreipsumendpoint")
+            .setParent(actionContext().metadata().traceContext().asOpenTelemetryContext())
+            .startSpan();
+    span.setAttribute("attribute1", "value1");
 
-    HttpClient httpGet = HttpClient.newHttpClient();
     HttpRequest request = HttpRequest.newBuilder()
             .uri(URI.create(url))
-            .header("traceparent", span.getSpanContext().getTraceId()) // you could pass the traceparent to the next service if you'd like to continue the trace
             .build();
-    HttpResponse<String> response = httpGet.send(request, HttpResponse.BodyHandlers.ofString());
-    return response.body();
+
+
+    String result = "";
+    //scope must be closed. try-with-resources will automatically close it.
+    try(Scope scope = span.makeCurrent()){
+      //Sync call to external service
+      HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+      result = response.body();
+      span.setAttribute("result", result);
+    } catch (IOException | InterruptedException e) {
+      result = e.getMessage();
+      span.setStatus(StatusCode.ERROR, result);
+    } finally {
+      span.end();
+    }
+    return result;
   }
 
 
