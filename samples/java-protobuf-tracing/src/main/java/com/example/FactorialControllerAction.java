@@ -7,6 +7,7 @@ import java.util.concurrent.CompletionStage;
 
 import io.opentelemetry.api.trace.Span;
 import io.opentelemetry.api.trace.StatusCode;
+import io.opentelemetry.context.Scope;
 import kalix.javasdk.action.ActionCreationContext;
 
 import java.net.http.HttpClient;
@@ -30,16 +31,20 @@ public class FactorialControllerAction extends AbstractFactorialControllerAction
 
   @Override
   public Effect<MessageResponse> callSyncEndpoint(Empty empty) {
-    Span span  = actionContext().getOpenTelemetryTracer().get().spanBuilder("calculateFactorial").startSpan();
+    Span span  = actionContext().getOpenTelemetryTracer().get()
+            .spanBuilder("calculateFactorial")
+            .setParent(actionContext().metadata().traceContext().asOpenTelemetryContext())
+            .startSpan();
     span.setAttribute("attribute1", "value1");
     String result = "";
-    try {
+    //scope automatically closes, try-with-resources
+    try (Scope scope = span.makeCurrent()) {
       result = callSyncService(span.getSpanContext().getTraceId()); 
       span.setAttribute("result", result); //pick some value from it
-      span.end();
     } catch (IOException | InterruptedException e) {
       result = e.getMessage();
       span.setStatus(StatusCode.ERROR, e.getMessage());
+    } finally {
       span.end();
     }
     return effects().reply(MessageResponse.newBuilder().setMessage(result).build());
@@ -48,7 +53,10 @@ public class FactorialControllerAction extends AbstractFactorialControllerAction
 
   @Override
 	public Effect<MessageResponse> callAsyncEndpoint(Empty empty) {
-    Span span  = actionContext().getOpenTelemetryTracer().get().spanBuilder("calculateFactorial").startSpan();
+    Span span  = actionContext().getOpenTelemetryTracer().get()
+            .spanBuilder("calculateFactorial")
+            .setParent(actionContext().metadata().traceContext().asOpenTelemetryContext())
+            .startSpan();
     span.setAttribute("attribute1", "value1");
     CompletionStage<MessageResponse>  asyncComputation = callAsyncService(span).toCompletableFuture().thenApply(response -> {
       return MessageResponse.newBuilder().setMessage(response.body()).build();
@@ -68,17 +76,17 @@ public class FactorialControllerAction extends AbstractFactorialControllerAction
 
         CompletableFuture<HttpResponse<String>> responseFuture = httpClient.sendAsync(httpRequest,
         HttpResponse.BodyHandlers.ofString());
-
-        responseFuture.thenAccept(response -> {
-            String responseBody = response.body();
-            span.setAttribute("result", responseBody);
-            span.end();
-        }).exceptionally(ex -> {
-            span.setStatus(StatusCode.ERROR, ex.getMessage());
-            span.end();
-            return null;
-        });
-        
+      try (Scope scope = span.makeCurrent()) {
+          responseFuture.thenAccept(response -> {
+              String responseBody = response.body();
+              span.setAttribute("result", responseBody);
+              span.end();
+          }).exceptionally(ex -> {
+              span.setStatus(StatusCode.ERROR, ex.getMessage());
+              span.end();
+              return null;
+          });
+      }
 		return responseFuture;
   }
 
