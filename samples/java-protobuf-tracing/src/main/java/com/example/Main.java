@@ -1,6 +1,5 @@
 package com.example;
 
-import com.example.domain.Factorial;
 import kalix.javasdk.Kalix;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,8 +18,7 @@ public final class Main {
     // and is kept up-to-date with any changes in your protobuf definitions.
     // If you prefer, you may remove this and manually register these components in a
     // `new Kalix()` instance.
-    return KalixFactory.withComponents(
-       Factorial::new, FactorialControllerAction::new);
+    return KalixFactory.withComponents(ControllerAction::new);
   }
 
   public static void main(String[] args) throws Exception {

@@ -3,12 +3,11 @@ syntax = "proto3";
 
 import "kalix/annotations.proto";
 import "google/api/annotations.proto";
-import "com/example/factorial_api.proto";
 import "google/protobuf/empty.proto";
 
 package com.example;
 
-option java_outer_classname = "FactorialActionApi";
+option java_outer_classname = "ControllerActionApi";
 
 message CalculateFactorialRequest {
   int32 number = 1;
@@ -18,13 +17,11 @@ message MessageResponse {
   string message = 1;
 }
 
-service FactorialController {
+service Controller {
   option (kalix.codegen) = {
     action: {}
   };
 
-  // rpc CalculateFactorial(CalculateFactorialRequest) returns (FactorialResponse){}
-  //We can add some input as an example
   rpc CallSyncEndpoint(google.protobuf.Empty) returns (MessageResponse){}
 
   rpc CallAsyncEndpoint(google.protobuf.Empty) returns (MessageResponse){}
