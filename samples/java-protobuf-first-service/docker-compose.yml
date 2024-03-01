@@ -4,7 +4,7 @@
 version: "3"
 services:
   kalix-runtime:
-    image: gcr.io/kalix-public/kalix-runtime:1.1.32
+    image: gcr.io/kalix-public/kalix-runtime:1.1.33
     container_name: java-protobuf-first-service
     ports:
       - "9000:9000"
