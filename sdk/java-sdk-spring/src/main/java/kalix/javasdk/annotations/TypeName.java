@@ -22,10 +22,10 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Annotation to assign a logical type name to persisted events.
+ * Annotation to assign a logical type name to events.
  *
  * Kalix needs to identify each event in order to deliver them to the right event handlers.
- * If a logical type name isn't specified, Kalix will use the non-qualified class name.
+ * If a logical type name isn't specified, Kalix will use the full-qualified class name.
  *
  * Once an event is persisted in Kalix, you won't be able to rename your class if no logical type name 
  * has been specified, as Kalix won't be able to recognize previously persisted events. 
@@ -37,7 +37,7 @@ import java.lang.annotation.Target;
 public @interface TypeName {
 
   /** Logical type name for the annotated type.
-   * If missing (or defined as Empty String), the non-qualified class name will be used.
+   * If missing (or defined as Empty String), the full-qualified class name will be used.
    */
   String value() default "";
 }
