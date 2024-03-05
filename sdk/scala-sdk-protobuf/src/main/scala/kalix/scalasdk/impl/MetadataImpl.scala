@@ -27,7 +27,7 @@ import scala.jdk.CollectionConverters._
 private[kalix] object MetadataImpl {
   def apply(impl: kalix.javasdk.impl.MetadataImpl): MetadataImpl = new MetadataImpl(impl)
   def apply(entries: Seq[ProtocolMetadataEntry]): MetadataImpl = MetadataImpl(
-    new kalix.javasdk.impl.MetadataImpl(entries))
+    kalix.javasdk.impl.MetadataImpl.of(entries))
 }
 
 private[kalix] class MetadataImpl(val impl: kalix.javasdk.impl.MetadataImpl) extends Metadata with CloudEvent {

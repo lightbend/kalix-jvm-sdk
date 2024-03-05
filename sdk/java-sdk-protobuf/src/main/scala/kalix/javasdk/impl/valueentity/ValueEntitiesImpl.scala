@@ -157,7 +157,7 @@ final class ValueEntitiesImpl(
           throw ProtocolException(command, "No command payload for Value entity")
 
         case InCommand(command) =>
-          val metadata = new MetadataImpl(command.metadata.map(_.entries.toVector).getOrElse(Nil))
+          val metadata = MetadataImpl.of(command.metadata.map(_.entries.toVector).getOrElse(Nil))
 
           if (log.isTraceEnabled) log.trace("Metadata entries [{}].", metadata.entries)
           val span = instrumentations(service.serviceName).buildSpan(service, command)

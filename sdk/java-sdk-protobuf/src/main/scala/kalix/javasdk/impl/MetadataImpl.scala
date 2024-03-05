@@ -43,7 +43,7 @@ import java.util.Optional
 import scala.compat.java8.OptionConverters._
 import scala.jdk.CollectionConverters._
 
-private[kalix] class MetadataImpl(val entries: Seq[MetadataEntry]) extends Metadata with CloudEvent {
+private[kalix] class MetadataImpl private (val entries: Seq[MetadataEntry]) extends Metadata with CloudEvent {
 
   override def has(key: String): Boolean = entries.exists(_.key.equalsIgnoreCase(key))
 
@@ -89,28 +89,28 @@ private[kalix] class MetadataImpl(val entries: Seq[MetadataEntry]) extends Metad
   override def set(key: String, value: String): MetadataImpl = {
     Objects.requireNonNull(key, "Key must not be null")
     Objects.requireNonNull(value, "Value must not be null")
-    new MetadataImpl(removeKey(key) :+ MetadataEntry(key, MetadataEntry.Value.StringValue(value)))
+    MetadataImpl.of(removeKey(key) :+ MetadataEntry(key, MetadataEntry.Value.StringValue(value)))
   }
 
   override def setBinary(key: String, value: ByteBuffer): MetadataImpl = {
     Objects.requireNonNull(key, "Key must not be null")
     Objects.requireNonNull(value, "Value must not be null")
-    new MetadataImpl(removeKey(key) :+ MetadataEntry(key, MetadataEntry.Value.BytesValue(ByteString.copyFrom(value))))
+    MetadataImpl.of(removeKey(key) :+ MetadataEntry(key, MetadataEntry.Value.BytesValue(ByteString.copyFrom(value))))
   }
 
   override def add(key: String, value: String): MetadataImpl = {
     Objects.requireNonNull(key, "Key must not be null")
     Objects.requireNonNull(value, "Value must not be null")
-    new MetadataImpl(entries :+ MetadataEntry(key, MetadataEntry.Value.StringValue(value)))
+    MetadataImpl.of(entries :+ MetadataEntry(key, MetadataEntry.Value.StringValue(value)))
   }
 
   override def addBinary(key: String, value: ByteBuffer): MetadataImpl = {
     Objects.requireNonNull(key, "Key must not be null")
     Objects.requireNonNull(value, "Value must not be null")
-    new MetadataImpl(entries :+ MetadataEntry(key, MetadataEntry.Value.BytesValue(ByteString.copyFrom(value))))
+    MetadataImpl.of(entries :+ MetadataEntry(key, MetadataEntry.Value.BytesValue(ByteString.copyFrom(value))))
   }
 
-  override def remove(key: String): MetadataImpl = new MetadataImpl(removeKey(key))
+  override def remove(key: String): MetadataImpl = MetadataImpl.of(removeKey(key))
 
   override def clear(): MetadataImpl = MetadataImpl.Empty
 
@@ -137,7 +137,7 @@ private[kalix] class MetadataImpl(val entries: Seq[MetadataEntry]) extends Metad
     } else this
 
   override def asCloudEvent(id: String, source: URI, `type`: String): MetadataImpl =
-    new MetadataImpl(
+    MetadataImpl.of(
       entries.filterNot(e => MetadataImpl.CeRequired(e.key)) ++
       Seq(
         MetadataEntry(MetadataImpl.CeSpecversion, MetadataEntry.Value.StringValue(MetadataImpl.CeSpecversionValue)),
@@ -275,7 +275,7 @@ object MetadataImpl {
   val CeTime = "ce-time"
   val CeRequired: Set[String] = Set(CeSpecversion, CeId, CeSource, CeType)
 
-  val Empty = new MetadataImpl(Vector.empty)
+  val Empty = MetadataImpl.of(Vector.empty)
 
   val JwtClaimPrefix = "_kalix-jwt-claim-"
 
@@ -291,4 +291,16 @@ object MetadataImpl {
         throw new RuntimeException(s"Unknown metadata implementation: ${other.getClass}, cannot send")
     }
 
+  def of(entries: Seq[MetadataEntry]): MetadataImpl = {
+    val transformedEntries =
+      entries.map {
+        case entry if entry.key.startsWith("ce_") =>
+          // replace 'ce_' prefix by 'ce-'
+          val newKey = entry.key.replaceFirst("^ce_", "ce-")
+          MetadataEntry(newKey, entry.value)
+        case entry => entry
+      }
+
+    new MetadataImpl(transformedEntries)
+  }
 }

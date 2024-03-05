@@ -40,7 +40,7 @@ class MetadataImplSpec extends AnyWordSpec with Matchers with OptionValues {
       metadata("_kalix-jwt-claim-sub" -> "some-subject").jwtClaims.subject().toScala.value shouldBe "some-subject"
     }
 
-    "support getting the expiriation JWT claim" in {
+    "support getting the expiration JWT claim" in {
       metadata("_kalix-jwt-claim-exp" -> "12345").jwtClaims.expirationTime().toScala.value shouldBe Instant
         .ofEpochSecond(12345)
     }
@@ -159,10 +159,20 @@ class MetadataImplSpec extends AnyWordSpec with Matchers with OptionValues {
       val mdRedirect = md.withStatusCode(Redirect.MOVED_PERMANENTLY)
       mdRedirect.get("_kalix-http-code").toScala.value shouldBe "301"
     }
+
+    "support creationg with CloudEvents prefixed with ce_" in {
+      val md = metadata("ce_id" -> "id", "ce_source" -> "source", "ce_specversion" -> "1.0", "ce_type" -> "foo")
+      md.isCloudEvent shouldBe true
+      val ce = md.asCloudEvent()
+      ce.id() shouldBe "id"
+      ce.source().toString shouldBe "source"
+      ce.specversion() shouldBe "1.0"
+      ce.`type`() shouldBe "foo"
+    }
   }
 
   private def metadata(entries: (String, String)*): Metadata = {
-    new MetadataImpl(entries.map { case (key, value) =>
+    MetadataImpl.of(entries.map { case (key, value) =>
       MetadataEntry(key, MetadataEntry.Value.StringValue(value))
     })
   }

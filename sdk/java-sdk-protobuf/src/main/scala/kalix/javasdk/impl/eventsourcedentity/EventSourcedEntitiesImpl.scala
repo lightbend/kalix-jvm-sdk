@@ -186,7 +186,7 @@ final class EventSourcedEntitiesImpl(
             val cmd =
               service.messageCodec.decodeMessage(
                 command.payload.getOrElse(throw ProtocolException(command, "No command payload")))
-            val metadata = new MetadataImpl(command.metadata.map(_.entries.toVector).getOrElse(Nil))
+            val metadata = MetadataImpl.of(command.metadata.map(_.entries.toVector).getOrElse(Nil))
             val context =
               new CommandContextImpl(thisEntityId, sequence, command.name, command.id, metadata)
 

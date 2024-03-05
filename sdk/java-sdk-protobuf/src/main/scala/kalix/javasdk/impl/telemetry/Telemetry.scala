@@ -185,7 +185,7 @@ private final class TraceInstrumentation(
    */
   override def buildSpan(service: Service, command: Command): Option[Span] = {
     if (logger.isTraceEnabled) logger.trace("Building span for command [{}].", command)
-    val metadata = new MetadataImpl(command.metadata.map(_.entries).getOrElse(Nil))
+    val metadata = MetadataImpl.of(command.metadata.map(_.entries).getOrElse(Nil))
     if (metadata.get(TRACE_PARENT_KEY).isPresent) {
       if (logger.isTraceEnabled) logger.trace("`traceparent` found")
 
@@ -212,7 +212,7 @@ private final class TraceInstrumentation(
   override def buildSpan(service: Service, command: ActionCommand): Option[Span] = {
     if (logger.isTraceEnabled) logger.trace("Building span for action command [{}].", command)
 
-    val metadata = new MetadataImpl(command.metadata.map(_.entries).getOrElse(Nil))
+    val metadata = MetadataImpl.of(command.metadata.map(_.entries).getOrElse(Nil))
     if (metadata.get(TRACE_PARENT_KEY).isPresent) {
       if (logger.isTraceEnabled) logger.trace("`traceparent` found")
 

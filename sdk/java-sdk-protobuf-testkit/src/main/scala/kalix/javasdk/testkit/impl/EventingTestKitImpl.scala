@@ -376,7 +376,7 @@ private[testkit] class OutgoingMessagesImpl(
 
   override def expectOneTyped[T](clazz: Class[T], timeout: time.Duration): TestKitMessage[T] = {
     val msg = expectMsgInternal(destinationProbe, timeout, Some(clazz))
-    val metadata = new MetadataImpl(msg.getMessage.getMetadata.entries)
+    val metadata = MetadataImpl.of(msg.getMessage.getMetadata.entries)
     val scalaPb = ScalaPbAny(typeUrlFor(metadata), msg.getMessage.payload)
 
     val decodedMsg = if (typeUrlFor(metadata).startsWith(JsonSupport.KALIX_JSON)) {
@@ -392,7 +392,7 @@ private[testkit] class OutgoingMessagesImpl(
   }
 
   private def anyFromMessage(m: kalix.testkit.protocol.eventing_test_backend.Message): TestKitMessage[_] = {
-    val metadata = new MetadataImpl(m.metadata.getOrElse(Metadata.defaultInstance).entries)
+    val metadata = MetadataImpl.of(m.metadata.getOrElse(Metadata.defaultInstance).entries)
     val anyMsg = if (typeUrlFor(metadata).startsWith(JsonSupport.KALIX_JSON)) {
       m.payload.toStringUtf8
     } else {
@@ -503,7 +503,7 @@ private[testkit] class TopicImpl(
 
   override def expectOneTyped[T](clazz: Class[T], timeout: time.Duration): TestKitMessage[T] = {
     val msg = expectMsgInternal(destinationProbe, timeout, Some(clazz))
-    val metadata = new MetadataImpl(msg.getMessage.getMetadata.entries)
+    val metadata = MetadataImpl.of(msg.getMessage.getMetadata.entries)
     val scalaPb = ScalaPbAny(typeUrlFor(metadata), msg.getMessage.payload)
 
     val decodedMsg = if (typeUrlFor(metadata).startsWith(JsonSupport.KALIX_JSON)) {
@@ -519,7 +519,7 @@ private[testkit] class TopicImpl(
   }
 
   private def anyFromMessage(m: kalix.testkit.protocol.eventing_test_backend.Message): TestKitMessage[_] = {
-    val metadata = new MetadataImpl(m.metadata.getOrElse(Metadata.defaultInstance).entries)
+    val metadata = MetadataImpl.of(m.metadata.getOrElse(Metadata.defaultInstance).entries)
     val anyMsg = if (typeUrlFor(metadata).startsWith(JsonSupport.KALIX_JSON)) {
       m.payload.toStringUtf8
     } else {
@@ -579,7 +579,7 @@ private[testkit] case class TestKitMessageImpl[P](payload: P, metadata: SdkMetad
 
 private[testkit] object TestKitMessageImpl {
   def ofProtocolMessage(m: kalix.testkit.protocol.eventing_test_backend.Message): TestKitMessage[ByteString] = {
-    val metadata = new MetadataImpl(m.metadata.getOrElse(Metadata()).entries)
+    val metadata = MetadataImpl.of(m.metadata.getOrElse(Metadata()).entries)
     TestKitMessageImpl[ByteString](m.payload, metadata).asInstanceOf[TestKitMessage[ByteString]]
   }
 
