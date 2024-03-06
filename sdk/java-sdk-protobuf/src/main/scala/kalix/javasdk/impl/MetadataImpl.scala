@@ -274,6 +274,17 @@ object MetadataImpl {
   val CeSubject = "ce-subject"
   val CeTime = "ce-time"
   val CeRequired: Set[String] = Set(CeSpecversion, CeId, CeSource, CeType)
+  private val AllCeAttributes = CeRequired ++ Set(CeDataschema, CeDatacontenttype, CeSubject, CeTime)
+
+  /**
+   * Maps alternative prefixed keys to our default key format, ie: ce-.
+   *
+   * For the moment, only the Kafka prefix is in use, ie: ce_, but others might be needed in future.
+   */
+  private val alternativeKeyFormats = AllCeAttributes.map { attr =>
+    val key = attr.replaceFirst("^ce-", "ce_")
+    (key, attr)
+  }.toMap
 
   val Empty = MetadataImpl.of(Vector.empty)
 
@@ -293,12 +304,13 @@ object MetadataImpl {
 
   def of(entries: Seq[MetadataEntry]): MetadataImpl = {
     val transformedEntries =
-      entries.map {
-        case entry if entry.key.startsWith("ce_") =>
-          // replace 'ce_' prefix by 'ce-'
-          val newKey = entry.key.replaceFirst("^ce_", "ce-")
-          MetadataEntry(newKey, entry.value)
-        case entry => entry
+      entries.map { entry =>
+        // is incoming ce key in one of the alternative formats?
+        // if so, convert key to our internal default key format
+        alternativeKeyFormats.get(entry.key) match {
+          case Some(defaultKey) => MetadataEntry(defaultKey, entry.value)
+          case _                => entry
+        }
       }
 
     new MetadataImpl(transformedEntries)
