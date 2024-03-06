@@ -49,7 +49,7 @@ private[scalasdk] final case class ScalaDeferredCallAdapter[I, O](javaSdkDeferre
     extends DeferredCall[I, O] {
   override def message: I = javaSdkDeferredCall.message
   override def metadata: Metadata =
-    new MetadataImpl(javaSdkDeferredCall.metadata.asInstanceOf[kalix.javasdk.impl.MetadataImpl])
+    MetadataImpl(javaSdkDeferredCall.metadata.asInstanceOf[kalix.javasdk.impl.MetadataImpl])
 
   def execute(): Future[O] = javaSdkDeferredCall.execute().asScala
 

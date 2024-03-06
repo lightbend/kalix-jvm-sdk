@@ -253,7 +253,7 @@ private[javasdk] final class ActionsImpl(
                   .handleStreamedIn(
                     call.name,
                     messages.map { message =>
-                      val metadata = new MetadataImpl(message.metadata.map(_.entries.toVector).getOrElse(Nil))
+                      val metadata = MetadataImpl.of(message.metadata.map(_.entries.toVector).getOrElse(Nil))
                       val decodedPayload = service.messageCodec.decodeMessage(
                         message.payload.getOrElse(throw new IllegalArgumentException("No command payload")))
                       MessageEnvelope.of(decodedPayload, metadata)
@@ -333,7 +333,7 @@ private[javasdk] final class ActionsImpl(
                   .handleStreamed(
                     call.name,
                     messages.map { message =>
-                      val metadata = new MetadataImpl(message.metadata.map(_.entries.toVector).getOrElse(Nil))
+                      val metadata = MetadataImpl.of(message.metadata.map(_.entries.toVector).getOrElse(Nil))
                       val decodedPayload = service.messageCodec.decodeMessage(
                         message.payload.getOrElse(throw new IllegalArgumentException("No command payload")))
                       MessageEnvelope.of(decodedPayload, metadata)
@@ -364,7 +364,7 @@ private[javasdk] final class ActionsImpl(
       messageCodec: MessageCodec,
       spanContext: Option[SpanContext],
       serviceName: String): ActionContext = {
-    val metadata = new MetadataImpl(in.metadata.map(_.entries.toVector).getOrElse(Nil))
+    val metadata = MetadataImpl.of(in.metadata.map(_.entries.toVector).getOrElse(Nil))
     val updatedMetadata = spanContext.map(metadataWithTracing(metadata, _)).getOrElse(metadata)
     new ActionContextImpl(updatedMetadata, messageCodec, system, serviceName, telemetries)
   }
@@ -381,7 +381,7 @@ private[javasdk] final class ActionsImpl(
       log.trace(
         "Updated metadata with trace context: [{}]",
         l.toList.filter(m => m.key == TRACE_PARENT_KEY || m.key == TRACE_STATE_KEY))
-    new MetadataImpl(l.toSeq)
+    MetadataImpl.of(l.toSeq)
   }
 
 }
@@ -411,7 +411,7 @@ class ActionContextImpl(
 
   override def componentCallMetadata: MetadataImpl = {
     if (metadata.has(Telemetry.TRACE_PARENT_KEY)) {
-      new MetadataImpl(
+      MetadataImpl.of(
         List(
           MetadataEntry(
             Telemetry.TRACE_PARENT_KEY,

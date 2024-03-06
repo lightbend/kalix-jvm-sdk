@@ -238,7 +238,7 @@ object ReplicatedEntitiesImpl {
 
     override val commandName: String = command.name
 
-    override val metadata: Metadata = new MetadataImpl(command.metadata.map(_.entries.toVector).getOrElse(Nil))
+    override val metadata: Metadata = MetadataImpl.of(command.metadata.map(_.entries.toVector).getOrElse(Nil))
 
   }
 }
