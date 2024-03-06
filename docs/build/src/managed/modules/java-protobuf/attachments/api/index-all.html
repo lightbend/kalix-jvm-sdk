@@ -256,6 +256,11 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Return this CloudEvent represented as Metadata.</div>
 </dd>
+<dt><a href="kalix/javasdk/TraceContext.html#asOpenTelemetryContext()" class="member-name-link">asOpenTelemetryContext()</a> - Method in interface kalix.javasdk.<a href="kalix/javasdk/TraceContext.html" title="interface in kalix.javasdk">TraceContext</a></dt>
+<dd>
+<div class="block">Allows retrieving the trace context as an OpenTelemetry context for easier construction of
+ child spans.</div>
+</dd>
 <dt><a href="kalix/javasdk/workflow/ProtoStepBuilder.html#asyncCall(java.lang.Class,java.util.function.Function)" class="member-name-link">asyncCall(Class&lt;Input&gt;, Function&lt;Input, CompletionStage&lt;Output&gt;&gt;)</a> - Method in class kalix.javasdk.workflow.<a href="kalix/javasdk/workflow/ProtoStepBuilder.html" title="class in kalix.javasdk.workflow">ProtoStepBuilder</a></dt>
 <dd>
 <div class="block">Build a step action with an async call.</div>
@@ -1018,10 +1023,6 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="kalix/javasdk/workflow/AbstractWorkflow.WorkflowDef.html#getFailoverStepName()" class="member-name-link">getFailoverStepName()</a> - Method in class kalix.javasdk.workflow.<a href="kalix/javasdk/workflow/AbstractWorkflow.WorkflowDef.html" title="class in kalix.javasdk.workflow">AbstractWorkflow.WorkflowDef</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="kalix/javasdk/action/ActionContext.html#getGrpcClient(java.lang.Class,java.lang.String)" class="member-name-link">getGrpcClient(Class&lt;T&gt;, String)</a> - Method in interface kalix.javasdk.action.<a href="kalix/javasdk/action/ActionContext.html" title="interface in kalix.javasdk.action">ActionContext</a></dt>
-<dd>
-<div class="block">Get an Akka gRPC client for the given service name.</div>
-</dd>
 <dt><a href="kalix/javasdk/action/ActionCreationContext.html#getGrpcClient(java.lang.Class,java.lang.String)" class="member-name-link">getGrpcClient(Class&lt;T&gt;, String)</a> - Method in interface kalix.javasdk.action.<a href="kalix/javasdk/action/ActionCreationContext.html" title="interface in kalix.javasdk.action">ActionCreationContext</a></dt>
 <dd>
 <div class="block">Get an Akka gRPC client for the given service name.</div>
@@ -1078,6 +1079,10 @@ loadScripts(document, 'script');</script>
 <dt><a href="kalix/javasdk/JsonSupport.html#getObjectMapper()" class="member-name-link">getObjectMapper()</a> - Static method in class kalix.javasdk.<a href="kalix/javasdk/JsonSupport.html" title="class in kalix.javasdk">JsonSupport</a></dt>
 <dd>
 <div class="block">The Jackson ObjectMapper that is used for encoding and decoding JSON.</div>
+</dd>
+<dt><a href="kalix/javasdk/action/ActionCreationContext.html#getOpenTelemetryTracer()" class="member-name-link">getOpenTelemetryTracer()</a> - Method in interface kalix.javasdk.action.<a href="kalix/javasdk/action/ActionCreationContext.html" title="interface in kalix.javasdk.action">ActionCreationContext</a></dt>
+<dd>
+<div class="block">Get an OpenTelemetry tracer for the current action.</div>
 </dd>
 <dt><a href="kalix/javasdk/replicatedentity/ReplicatedMap.html#getOrElse(K,java.util.function.Function)" class="member-name-link">getOrElse(K, Function&lt;ReplicatedDataFactory, V&gt;)</a> - Method in interface kalix.javasdk.replicatedentity.<a href="kalix/javasdk/replicatedentity/ReplicatedMap.html" title="interface in kalix.javasdk.replicatedentity">ReplicatedMap</a></dt>
 <dd>
@@ -2143,6 +2148,22 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="kalix/javasdk/Principal.LocalService.html#toString()" class="member-name-link">toString()</a> - Method in class kalix.javasdk.<a href="kalix/javasdk/Principal.LocalService.html" title="class in kalix.javasdk">Principal.LocalService</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="kalix/javasdk/Metadata.html#traceContext()" class="member-name-link">traceContext()</a> - Method in interface kalix.javasdk.<a href="kalix/javasdk/Metadata.html" title="interface in kalix.javasdk">Metadata</a></dt>
+<dd>
+<div class="block">Get the trace context associated with this request metadata.</div>
+</dd>
+<dt><a href="kalix/javasdk/TraceContext.html" class="type-name-link" title="interface in kalix.javasdk">TraceContext</a> - Interface in <a href="kalix/javasdk/package-summary.html">kalix.javasdk</a></dt>
+<dd>
+<div class="block">Utility interface for trace context helper methods.</div>
+</dd>
+<dt><a href="kalix/javasdk/TraceContext.html#traceParent()" class="member-name-link">traceParent()</a> - Method in interface kalix.javasdk.<a href="kalix/javasdk/TraceContext.html" title="interface in kalix.javasdk">TraceContext</a></dt>
+<dd>
+<div class="block">Allows retrieving the trace parent for easier injection in external calls (e.g.</div>
+</dd>
+<dt><a href="kalix/javasdk/TraceContext.html#traceState()" class="member-name-link">traceState()</a> - Method in interface kalix.javasdk.<a href="kalix/javasdk/TraceContext.html" title="interface in kalix.javasdk">TraceContext</a></dt>
+<dd>
+<div class="block">Allows retrieving the trace state for easier injection in external calls (e.g.</div>
+</dd>
 <dt><a href="kalix/javasdk/JsonMigration.html#transform(int,com.fasterxml.jackson.databind.JsonNode)" class="member-name-link">transform(int, JsonNode)</a> - Method in class kalix.javasdk.<a href="kalix/javasdk/JsonMigration.html" title="class in kalix.javasdk">JsonMigration</a></dt>
 <dd>
 <div class="block">Implement the transformation of the incoming JSON structure to the current

@@ -112,9 +112,14 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-first">Modifier and Type</div>
 <div class="table-header col-second">Optional Element</div>
 <div class="table-header col-last">Description</div>
-<div class="col-first even-row-color"><code>boolean</code></div>
-<div class="col-second even-row-color"><code><a href="#ignoreUnknown()" class="member-name-link">ignoreUnknown</a></code></div>
+<div class="col-first even-row-color"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
+<div class="col-second even-row-color"><code><a href="#consumerGroup()" class="member-name-link">consumerGroup</a></code></div>
 <div class="col-last even-row-color">
+<div class="block">In case you need to consume the same stream multiple times, each subscription should have a unique consumer group.</div>
+</div>
+<div class="col-first odd-row-color"><code>boolean</code></div>
+<div class="col-second odd-row-color"><code><a href="#ignoreUnknown()" class="member-name-link">ignoreUnknown</a></code></div>
+<div class="col-last odd-row-color">
 <div class="block">When there is no method in the class whose input type matches the event type:
  
    if ignoreUnknown is true the event is discarded
@@ -161,6 +166,19 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="member-details">
 <ul class="member-list">
+<li>
+<section class="detail" id="consumerGroup()">
+<h3>consumerGroup</h3>
+<div class="member-signature"><span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name">consumerGroup</span></div>
+<div class="block">In case you need to consume the same stream multiple times, each subscription should have a unique consumer group.
+ <p>
+ Changing the consumer group will lead to starting over from the beginning of the stream.</div>
+<dl class="notes">
+<dt>Default:</dt>
+<dd>""</dd>
+</dl>
+</section>
+</li>
 <li>
 <section class="detail" id="ignoreUnknown()">
 <h3>ignoreUnknown</h3>

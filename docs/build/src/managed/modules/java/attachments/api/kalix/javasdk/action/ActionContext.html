@@ -74,11 +74,11 @@ loadScripts(document, 'script');</script>
 <section class="class-description" id="class-description">
 <dl class="notes">
 <dt>All Superinterfaces:</dt>
-<dd><code><a href="../Context.html" title="interface in kalix.javasdk">Context</a></code>, <code><a href="../MetadataContext.html" title="interface in kalix.javasdk">MetadataContext</a></code></dd>
+<dd><code><a href="ActionCreationContext.html" title="interface in kalix.javasdk.action">ActionCreationContext</a></code>, <code><a href="../Context.html" title="interface in kalix.javasdk">Context</a></code>, <code><a href="../MetadataContext.html" title="interface in kalix.javasdk">MetadataContext</a></code></dd>
 </dl>
 <hr>
 <div class="type-signature"><span class="modifiers">public interface </span><span class="element-name type-name-label">ActionContext</span><span class="extends-implements">
-extends <a href="../MetadataContext.html" title="interface in kalix.javasdk">MetadataContext</a></span></div>
+extends <a href="../MetadataContext.html" title="interface in kalix.javasdk">MetadataContext</a>, <a href="ActionCreationContext.html" title="interface in kalix.javasdk.action">ActionCreationContext</a></span></div>
 <div class="block">Context for action calls.</div>
 </section>
 <section class="summary">
@@ -99,20 +99,17 @@ extends <a href="../MetadataContext.html" title="interface in kalix.javasdk">Met
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
 <div class="block">The origin subject of the <a href="../CloudEvent.html" title="interface in kalix.javasdk"><code>CloudEvent</code></a>.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>&lt;T&gt;&nbsp;T</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#getGrpcClient(java.lang.Class,java.lang.String)" class="member-name-link">getGrpcClient</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;T&gt;&nbsp;clientClass,
- <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;service)</code></div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="../Metadata.html" title="interface in kalix.javasdk">Metadata</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#metadata()" class="member-name-link">metadata</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
-<div class="block">Get an Akka gRPC client for the given service name.</div>
-</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="../Metadata.html" title="interface in kalix.javasdk">Metadata</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#metadata()" class="member-name-link">metadata</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
 <div class="block">Get the metadata associated with this call.</div>
 </div>
 </div>
 </div>
 </div>
+<div class="inherited-list">
+<h3 id="methods-inherited-from-class-kalix.javasdk.action.ActionCreationContext">Methods inherited from interface&nbsp;kalix.javasdk.action.<a href="ActionCreationContext.html" title="interface in kalix.javasdk.action">ActionCreationContext</a></h3>
+<code><a href="ActionCreationContext.html#getGrpcClient(java.lang.Class,java.lang.String)">getGrpcClient</a>, <a href="ActionCreationContext.html#getOpenTelemetryTracer()">getOpenTelemetryTracer</a></code></div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-kalix.javasdk.Context">Methods inherited from interface&nbsp;kalix.javasdk.<a href="../Context.html" title="interface in kalix.javasdk">Context</a></h3>
 <code><a href="../Context.html#materializer()">materializer</a></code></div>
@@ -151,25 +148,6 @@ extends <a href="../MetadataContext.html" title="interface in kalix.javasdk">Met
 <div class="member-signature"><span class="return-type"><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/Optional.html" title="class or interface in java.util" class="external-link">Optional</a>&lt;<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;</span>&nbsp;<span class="element-name">eventSubject</span>()</div>
 <div class="block">The origin subject of the <a href="../CloudEvent.html" title="interface in kalix.javasdk"><code>CloudEvent</code></a>. For example, the entity id when the event was
  emitted from an entity.</div>
-</section>
-</li>
-<li>
-<section class="detail" id="getGrpcClient(java.lang.Class,java.lang.String)">
-<h3>getGrpcClient</h3>
-<div class="member-signature"><span class="type-parameters">&lt;T&gt;</span>&nbsp;<span class="return-type">T</span>&nbsp;<span class="element-name">getGrpcClient</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;T&gt;&nbsp;clientClass,
- <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;service)</span></div>
-<div class="block">Get an Akka gRPC client for the given service name. The same client instance is shared across
- components in the application. The lifecycle of the client is managed by the SDK and it should
- not be stopped by user code.</div>
-<dl class="notes">
-<dt>Type Parameters:</dt>
-<dd><code>T</code> - The "service" interface generated for the service by Akka gRPC</dd>
-<dt>Parameters:</dt>
-<dd><code>clientClass</code> - The class of a gRPC service generated by Akka gRPC</dd>
-<dd><code>service</code> - The name of the service to connect to, either a name of another Kalix service or
-     an external service where connection details are configured under
-     `akka.grpc.client.[service-name]` in `application.conf`.</dd>
-</dl>
 </section>
 </li>
 </ul>

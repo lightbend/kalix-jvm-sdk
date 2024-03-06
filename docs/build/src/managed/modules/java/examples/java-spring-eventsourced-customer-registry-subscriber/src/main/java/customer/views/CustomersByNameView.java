@@ -15,7 +15,8 @@ import reactor.core.publisher.Flux;
 @Table("customers_by_name")
 @Subscribe.Stream( // <1>
     service = "customer-registry", // <2>
-    id = "customer_events" // <3>
+  id = "customer_events", // <3>
+  consumerGroup = "customer-by-name-view"
 )
 public class CustomersByNameView extends View<Customer> {
   // end::view[]

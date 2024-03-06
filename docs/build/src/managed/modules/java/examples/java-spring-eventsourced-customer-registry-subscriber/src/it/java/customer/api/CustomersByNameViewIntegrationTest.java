@@ -27,7 +27,7 @@ public class CustomersByNameViewIntegrationTest extends KalixIntegrationTestKitS
   private WebClient webClient;
 
   @Test
-  public void shouldReturnCustomerByName() {
+  public void shouldReturnCustomersFromViews() {
     IncomingMessages customerEvents = kalixTestKit.getStreamIncomingMessages("customer-registry", "customer_events");
 
     String bob = "bob";
@@ -36,20 +36,28 @@ public class CustomersByNameViewIntegrationTest extends KalixIntegrationTestKitS
 
     customerEvents.publish(created1, "b");
     customerEvents.publish(created2, "a");
-    
-    await()
-        .ignoreExceptions()
-        .atMost(20, TimeUnit.SECONDS)
-        .pollInterval(1, TimeUnit.SECONDS)
-        .untilAsserted(() -> {
-              Customer customer = webClient.get()
-                  .uri("/customers/by_name/" + bob)
-                  .retrieve()
-                  .bodyToFlux(Customer.class)
-                  .blockFirst(timeout);
 
-              assertThat(customer).isEqualTo(new Customer("b", created1.email(), created1.name()));
-            }
-        );
+    await()
+      .ignoreExceptions()
+      .atMost(20, TimeUnit.SECONDS)
+      .pollInterval(1, TimeUnit.SECONDS)
+      .untilAsserted(() -> {
+          Customer customer = webClient.get()
+            .uri("/customers/by_name/" + bob)
+            .retrieve()
+            .bodyToFlux(Customer.class)
+            .blockFirst(timeout);
+
+          assertThat(customer).isEqualTo(new Customer("b", created1.email(), created1.name()));
+
+          Customer customer2 = webClient.get()
+            .uri("/customers/by_email/" + created2.email())
+            .retrieve()
+            .bodyToFlux(Customer.class)
+            .blockFirst(timeout);
+
+          assertThat(customer2).isEqualTo(new Customer("a", created2.email(), created2.name()));
+        }
+      );
   }
 }

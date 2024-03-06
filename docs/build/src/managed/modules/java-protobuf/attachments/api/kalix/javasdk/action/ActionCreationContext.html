@@ -76,6 +76,10 @@ loadScripts(document, 'script');</script>
 <dt>All Superinterfaces:</dt>
 <dd><code><a href="../Context.html" title="interface in kalix.javasdk">Context</a></code></dd>
 </dl>
+<dl class="notes">
+<dt>All Known Subinterfaces:</dt>
+<dd><code><a href="ActionContext.html" title="interface in kalix.javasdk.action">ActionContext</a></code></dd>
+</dl>
 <hr>
 <div class="type-signature"><span class="modifiers">public interface </span><span class="element-name type-name-label">ActionCreationContext</span><span class="extends-implements">
 extends <a href="../Context.html" title="interface in kalix.javasdk">Context</a></span></div>
@@ -101,6 +105,11 @@ extends <a href="../Context.html" title="interface in kalix.javasdk">Context</a>
  <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;service)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
 <div class="block">Get an Akka gRPC client for the given service name.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/Optional.html" title="class or interface in java.util" class="external-link">Optional</a>&lt;io.opentelemetry.api.trace.Tracer&gt;</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#getOpenTelemetryTracer()" class="member-name-link">getOpenTelemetryTracer</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
+<div class="block">Get an OpenTelemetry tracer for the current action.</div>
 </div>
 </div>
 </div>
@@ -135,6 +144,18 @@ extends <a href="../Context.html" title="interface in kalix.javasdk">Context</a>
 <dd><code>service</code> - The name of the service to connect to, either a name of another Kalix service or
      an external service where connection details are configured under
      `akka.grpc.client.[service-name]` in `application.conf`.</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="getOpenTelemetryTracer()">
+<h3>getOpenTelemetryTracer</h3>
+<div class="member-signature"><span class="return-type"><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/Optional.html" title="class or interface in java.util" class="external-link">Optional</a>&lt;io.opentelemetry.api.trace.Tracer&gt;</span>&nbsp;<span class="element-name">getOpenTelemetryTracer</span>()</div>
+<div class="block">Get an OpenTelemetry tracer for the current action. This will allow for building and automatic
+ exporting of spans.</div>
+<dl class="notes">
+<dt>Returns:</dt>
+<dd>A tracer for the current action, if tracing is configured.</dd>
 </dl>
 </section>
 </li>

@@ -70,10 +70,10 @@ loadScripts(document, 'script');</script>
 <div class="type-signature"><span class="annotations"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/annotation/Target.html" title="class or interface in java.lang.annotation" class="external-link">@Target</a>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/annotation/ElementType.html#TYPE" title="class or interface in java.lang.annotation" class="external-link">TYPE</a>)
 <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/annotation/Retention.html" title="class or interface in java.lang.annotation" class="external-link">@Retention</a>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/annotation/RetentionPolicy.html#RUNTIME" title="class or interface in java.lang.annotation" class="external-link">RUNTIME</a>)
 </span><span class="modifiers">public @interface </span><span class="element-name type-name-label">TypeName</span></div>
-<div class="block">Annotation to assign a logical type name to persisted events.
+<div class="block">Annotation to assign a logical type name to events.
 
  Kalix needs to identify each event in order to deliver them to the right event handlers.
- If a logical type name isn't specified, Kalix will use the non-qualified class name.
+ If a logical type name isn't specified, Kalix will use the fully qualified class name.
 
  Once an event is persisted in Kalix, you won't be able to rename your class if no logical type name 
  has been specified, as Kalix won't be able to recognize previously persisted events. 
@@ -113,7 +113,7 @@ loadScripts(document, 'script');</script>
 <h3>value</h3>
 <div class="member-signature"><span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name">value</span></div>
 <div class="block">Logical type name for the annotated type.
- If missing (or defined as Empty String), the non-qualified class name will be used.</div>
+ If missing (or defined as Empty String), the fully qualified class name will be used.</div>
 <dl class="notes">
 <dt>Default:</dt>
 <dd>""</dd>
