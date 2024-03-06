@@ -452,9 +452,9 @@ the `Counter` entity fails, the `Action` reply will succeed.
 
 == Adding tracing spans
 
-To add spans in your actions you can add the tracer available in the ActionContext and with it create the span. 
+To add spans in your actions you can add the tracer available in the link:{attachmentsdir}/api/kalix/javasdk/action/ActionContext.html[`ActionContext`{tab-icon}, window="new"] and with it create the span. 
 
-To get the tracer from the ActionContext: 
+To get the tracer from the link:{attachmentsdir}/api/kalix/javasdk/action/ActionContext.html[`ActionContext`{tab-icon}, window="new"]: 
 
 [.tabset]
 Java::
@@ -464,6 +464,8 @@ Java::
 ----
 include::example$java-protobuf-tracing/src/main/java/com/example/ControllerAction.java[tag=get-tracer]
 ----
+
+If tracing [link to our docs] is not activated the `get()` method will throw an `java.util.NoSuchElementException`. You can of course check first if tracer `isPresent`. But for the sake of simplicity here that is not done.   
 
 To create it and close it over an asynchronous call: 
 
