@@ -18,6 +18,12 @@
                 <include>**/*</include>
             </includes>
         </fileSet>
+        <fileSet filtered="true">
+            <directory></directory>
+            <includes>
+                <include>.env</include>
+            </includes>
+        </fileSet>
         <fileSet filtered="true" encoding="UTF-8">
             <directory/>
             <includes>

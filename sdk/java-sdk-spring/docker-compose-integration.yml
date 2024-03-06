@@ -10,8 +10,11 @@ services:
       JAVA_TOOL_OPTIONS: >
         -Dkalix.proxy.eventing.support=google-pubsub-emulator
         -Dkalix.proxy.telemetry.metrics.prometheus.use-default-registry=false
-      USER_SERVICE_HOST: ${USER_SERVICE_HOST:-host.docker.internal}
-      USER_SERVICE_PORT: ${USER_SERVICE_PORT:-8080}
+      # those variables are defined in the .env file
+      # when running multiple services on your local machine, make sure that 
+      # the ports are unique by editing the corresponding .env files
+      USER_SERVICE_HOST: host.docker.internal
+      USER_SERVICE_PORT: 8080
       PUBSUB_EMULATOR_HOST: gcloud-pubsub-emulator
       VIEW_FEATURE_JOINS: "true"
     depends_on:
