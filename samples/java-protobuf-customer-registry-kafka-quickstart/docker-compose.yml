@@ -7,14 +7,18 @@ services:
 #    volumes:
 #      - ./target/kalix:/var/kalix
     ports:
-      - "9000:9000"
+      - "${ADVERTISED_HTTP_PORT}:9000"
     extra_hosts:
       - "host.docker.internal:host-gateway"
     environment:
       PERSISTENCE_ENABLED: "false" #when true uncomment volumes above
       JAVA_TOOL_OPTIONS: >
         -Dkalix.proxy.eventing.support=kafka
-      USER_SERVICE_HOST: ${USER_SERVICE_HOST:-host.docker.internal}
+      # those variables are defined in the .env file
+      # when running multiple services on your local machine, make sure that 
+      # the ports are unique by editing the corresponding .env files
+      ADVERTISED_HTTP_PORT: ${ADVERTISED_HTTP_PORT}
+      USER_SERVICE_HOST: ${USER_SERVICE_HOST}
       USER_SERVICE_PORT: ${USER_SERVICE_PORT}
       # configuring kafka broker used for eventing
       BROKER_SERVERS: kafka:29092
