@@ -170,7 +170,7 @@ Design for failure is one of the key attributes of all Kalix components. Workflo
 
 === Timeouts
 
-By default, a workflow run has no time limit. It can run forever, which in most cases is not desirable behavior. A workflow step, on the other hand, has a default timeout of 5 seconds timeout. Both settings can be overridden at the workflow definition level or for a specific step configuration.
+By default, a workflow run has no time limit. It can run forever, which in most cases is not desirable behavior. A workflow step, on the other hand, has a default timeout of 5 seconds. Both settings can be overridden at the workflow definition level or for a specific step configuration.
 
 [source,java,indent=0]
 .src/main/java/com/example/transfer/TransferWorkflow.java
