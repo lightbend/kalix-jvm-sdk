@@ -279,7 +279,7 @@ final class WorkflowImpl(system: ActorSystem, val services: Map[String, Workflow
           Future.failed(ProtocolException(command, "No command payload for Workflow"))
 
         case InCommand(command) =>
-          val metadata = new MetadataImpl(command.metadata.map(_.entries.toVector).getOrElse(Nil))
+          val metadata = MetadataImpl.of(command.metadata.map(_.entries.toVector).getOrElse(Nil))
 
           val context = new CommandContextImpl(workflowId, command.name, command.id, metadata, system)
           val timerScheduler = new TimerSchedulerImpl(service.messageCodec, system, context.componentCallMetadata)

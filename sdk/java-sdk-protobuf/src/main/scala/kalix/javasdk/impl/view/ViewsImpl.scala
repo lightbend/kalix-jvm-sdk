@@ -104,7 +104,7 @@ final class ViewsImpl(system: ActorSystem, _services: Map[String, ViewService], 
 
               val commandName = receiveEvent.commandName
               val msg = service.messageCodec.decodeMessage(receiveEvent.payload.get)
-              val metadata = new MetadataImpl(receiveEvent.metadata.map(_.entries.toVector).getOrElse(Nil))
+              val metadata = MetadataImpl.of(receiveEvent.metadata.map(_.entries.toVector).getOrElse(Nil))
               val context = new UpdateContextImpl(service.viewId, commandName, metadata)
 
               val effect =

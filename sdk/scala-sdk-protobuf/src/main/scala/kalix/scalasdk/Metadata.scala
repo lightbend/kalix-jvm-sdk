@@ -289,7 +289,7 @@ trait Metadata extends Iterable[MetadataEntry] {
 }
 
 object Metadata {
-  val empty: Metadata = new MetadataImpl(JMetadataImpl.Empty)
+  val empty: Metadata = MetadataImpl(JMetadataImpl.Empty)
 }
 
 /** A metadata entry. */
