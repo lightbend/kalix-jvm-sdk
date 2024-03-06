@@ -59,7 +59,7 @@ case class DockerComposeUtils(file: String) {
     if (Files.exists(Paths.get(file))) {
       val collectedLines = mutable.Buffer.empty[String]
       val processLogger = ProcessLogger(out => collectedLines.append(out))
-      Process(s"docker-compose -f $file config", None).!(processLogger)
+      Process(s"docker compose -f $file config", None).!(processLogger)
       collectedLines.toSeq // to immutable Seq
     } else {
       Seq.empty
@@ -76,7 +76,7 @@ case class DockerComposeUtils(file: String) {
   // note to self: this is seems to be similar to sbt native packager printing errors when build docker images
   def start(): Unit =
     execIfFileExists {
-      val proc = Process(s"docker-compose -f $file up", None).run(processLogger)
+      val proc = Process(s"docker compose -f $file up", None).run(processLogger)
       started = proc.isAlive()
       // shutdown hook to down containers when jvm exits
       sys.addShutdownHook {
@@ -89,13 +89,13 @@ case class DockerComposeUtils(file: String) {
   def stop(): Unit =
     if (started)
       execIfFileExists {
-        Process(s"docker-compose -f $file stop", None).run(processLogger)
+        Process(s"docker compose -f $file stop", None).run(processLogger)
       }
 
   def stopAndWait(): Int =
     if (started)
       execIfFileExists {
-        Process(s"docker-compose -f $file stop", None).!(processLogger)
+        Process(s"docker compose -f $file stop", None).!(processLogger)
       }
     else 0
 
