@@ -449,6 +449,41 @@ include::example$java-protobuf-valueentity-counter/src/main/java/com/example/act
 Please note that, the result of a side effect is ignored by the current command meaning that even if the call to
 the `Counter` entity fails, the `Action` reply will succeed.
 
+
+== Adding tracing spans
+
+To add spans in your actions you can add the tracer available in the ActionContext and with it create the span. 
+
+To get the tracer from the ActionContext: 
+
+[.tabset]
+Java::
++
+[source,java,indent=0]
+.src/main/java/com/example/ControllerAction.java
+----
+include::example$java-protobuf-tracing/src/main/java/com/example/ControllerAction.java[tag=get-tracer]
+----
+
+To create it and close it over an asynchronous call: 
+
+[.tabset]
+Java::
++
+[source,java,indent=0]
+.src/main/java/com/example/ControllerAction.java
+----
+include::example$java-protobuf-tracing/src/main/java/com/example/ControllerAction.java[tag=create-close-span]
+----
+<1> setting this action span as the parent of this span
+<2> creating and starting the span
+<3> adding some attributes
+<4> make the span the current span 
+<5> adding some attributes
+<6> closing the span
+
+NOTE: Make sure you understood how tracing is enabled [link to that when https://github.com/lightbend/kalix-docs/pull/2000 merged to main]
+
 == Unit testing the side effects
 
 The side effects of an Action can be tested in isolation. To test the side effects of `DoubleCounterAction`, shown on the previous snippet, we can leverage link:{attachmentsdir}/testkit/kalix/javasdk/testkit/ActionResult.html[`ActionResult` {tab-icon}, window="new"]. This class has the method `getSideEffects()` that returns the list of side effects added to the `Action`.

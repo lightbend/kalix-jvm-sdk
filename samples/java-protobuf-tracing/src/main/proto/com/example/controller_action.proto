@@ -9,10 +9,6 @@ package com.example;
 
 option java_outer_classname = "ControllerActionApi";
 
-message CalculateFactorialRequest {
-  int32 number = 1;
-}
-
 message MessageResponse {
   string message = 1;
 }
