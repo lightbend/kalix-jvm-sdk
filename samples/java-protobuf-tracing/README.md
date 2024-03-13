@@ -17,7 +17,7 @@ It's worth noting that `application.conf` is passing `kalix.telemetry.tracing.co
 to the application so the SDK knows where to export the traces. This is NOT needed when deploying in Kalix, only when run in local, that is, `mvn kalix:runAll`.
 
 This command will start your Kalix service and a companion Kalix Runtime as configured in [docker-compose.yml](./docker-compose.yml) file.
-This will also start a Jaeger service to which the services above will push the traces. You can find Jaeger at `localhost:16686`
+This will also start a Jaeger service to which the services above will push the traces. You can find Jaeger at `http://localhost:16686`
 
 
 With both the Kalix Runtime and your service running, any defined endpoints should be available at `http://localhost:9000`. In addition to the defined gRPC interface, each method has a corresponding HTTP endpoint. Unless configured otherwise (see [Transcoding HTTP](https://docs.kalix.io/java-protobuf/writing-grpc-descriptors-protobuf.html#_transcoding_http)), this endpoint accepts POST requests at the path `/[package].[entity name]/[method]`.

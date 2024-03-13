@@ -12,6 +12,7 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
@@ -25,31 +26,87 @@ public class ControllerAction extends AbstractControllerAction {
   @Override
   public Effect<ControllerActionApi.MessageResponse> callSyncEndpoint(Empty empty) {
     //Taking the already configured tracer. Such it will know where to export the spans
-    // tag::get-tracer[] 
-    Tracer tracer = actionContext().getOpenTelemetryTracer().get();
-    // end::get-tracer[]
-    String result = callSyncService(tracer);
+    Optional<Tracer> tracerOpt = actionContext().getOpenTelemetryTracer();
+    String result;
+
+    if (tracerOpt.isPresent()){
+      result = callSyncService(tracerOpt.get());
+    } else {
+      try {
+        HttpResponse<String> response = callSyncService();
+        result = response.body();
+      } catch (IOException | InterruptedException e){
+        result = e.getMessage();
+      }
+    }
     return effects().reply(ControllerActionApi.MessageResponse.newBuilder().setMessage(result).build());
   }
 
+  private  HttpResponse<String> callSyncService() throws IOException, InterruptedException {
+    HttpRequest request = HttpRequest.newBuilder()
+            .uri(URI.create(url))
+            .build();
+    return httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+  }
 
-  @Override
+  private String callSyncService(Tracer tracer) {
+    Span span = tracer
+            .spanBuilder("loreipsumendpoint")
+            .setParent(actionContext().metadata().traceContext().asOpenTelemetryContext())
+            .startSpan();
+    span.setAttribute("attribute1", "value1");
+
+    String result = "";
+    //scope must be closed. try-with-resources will automatically close it.
+    try (Scope scope = span.makeCurrent()) {
+      //Sync call to external service
+      HttpResponse<String> response = callSyncService();
+      result = response.body();
+      span.setAttribute("result", result);
+    } catch (IOException | InterruptedException e) {
+      result = e.getMessage();
+      span.setStatus(StatusCode.ERROR, result);
+    } finally {
+      span.end();
+    }
+    return result;
+  }
+
+
+    @Override
   public Effect<ControllerActionApi.MessageResponse> callAsyncEndpoint(Empty empty) {
-    Tracer tracer = actionContext().getOpenTelemetryTracer().get();
+      // tag::get-tracer[]
+      Optional<Tracer> tracerOpt = actionContext().getOpenTelemetryTracer();
+      // end::get-tracer[]
+      CompletableFuture<HttpResponse<String>> futureResponse;
 
-    CompletionStage<ControllerActionApi.MessageResponse> asyncComputation = callAsyncService(tracer).toCompletableFuture().thenApply(response -> {
+    if(tracerOpt.isPresent()) {
+      futureResponse = callAsyncService(tracerOpt.get());
+    } else {
+      futureResponse = callAsyncService();
+    }
+    CompletionStage<ControllerActionApi.MessageResponse> asyncComputation = futureResponse.toCompletableFuture().thenApply(response -> {
       return ControllerActionApi.MessageResponse.newBuilder().setMessage(response.body()).build();
     });
     return effects().asyncReply(asyncComputation);
   }
 
 
-  //  tag::create-close-span[]
-  private CompletableFuture<HttpResponse<String>> callAsyncService(Tracer tracer) {
-  // end::create-close-span[]
+  private CompletableFuture<HttpResponse<String>> callAsyncService(){
     HttpRequest httpRequest = HttpRequest.newBuilder()
             .uri(URI.create(url))
             .build();
+    //Async call to external service
+    return httpClient.sendAsync(httpRequest,
+            HttpResponse.BodyHandlers.ofString());
+
+  }
+
+
+  //  tag::create-close-span[]
+  private CompletableFuture<HttpResponse<String>> callAsyncService(Tracer tracer) {
+  // end::create-close-span[]
+
     // tag::create-close-span[]
     Span span  = tracer 
             .spanBuilder("loreipsumendpoint")
@@ -57,9 +114,7 @@ public class ControllerAction extends AbstractControllerAction {
             .startSpan(); // <2>
     span.setAttribute("attribute1", "value1");// <3>
 
-    //Async call to external service
-    CompletableFuture<HttpResponse<String>> responseFuture = httpClient.sendAsync(httpRequest,
-            HttpResponse.BodyHandlers.ofString());
+    CompletableFuture<HttpResponse<String>> responseFuture = callAsyncService();
 
     try (Scope scope = span.makeCurrent()) {// <4>
       responseFuture.thenAccept(response -> {
@@ -76,33 +131,6 @@ public class ControllerAction extends AbstractControllerAction {
   }
   // end::create-close-span[]
 
-  private String callSyncService(Tracer tracer)  {
-    Span span  = tracer
-            .spanBuilder("loreipsumendpoint")
-            .setParent(actionContext().metadata().traceContext().asOpenTelemetryContext())
-            .startSpan();
-    span.setAttribute("attribute1", "value1");
-
-    HttpRequest request = HttpRequest.newBuilder()
-            .uri(URI.create(url))
-            .build();
-
-
-    String result = "";
-    //scope must be closed. try-with-resources will automatically close it.
-    try(Scope scope = span.makeCurrent()){
-      //Sync call to external service
-      HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-      result = response.body();
-      span.setAttribute("result", result);
-    } catch (IOException | InterruptedException e) {
-      result = e.getMessage();
-      span.setStatus(StatusCode.ERROR, result);
-    } finally {
-      span.end();
-    }
-    return result;
-  }
 
 
 
