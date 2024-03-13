@@ -465,9 +465,9 @@ Java::
 include::example$java-protobuf-tracing/src/main/java/com/example/ControllerAction.java[tag=get-tracer]
 ----
 
-If tracing [link to our docs] is not activated the `get()` method will throw an `java.util.NoSuchElementException`. You can of course check first if tracer `isPresent`. But for the sake of simplicity here that is not done.   
+Note that if link:https://docs.kalix.io/operations/observability-exports.html#_activating_tracing_beta[tracing] is not enabled in your service this `Optional` will be empty. Otherwise you can use the `tracerOpt.get()` to retreive the tracer. 
 
-To create it and close it over an asynchronous call: 
+To create a link:https://opentelemetry.io/docs/languages/java/instrumentation/#create-spans[span] and close it over an asynchronous call, you can do the following: 
 
 [.tabset]
 Java::
@@ -477,14 +477,14 @@ Java::
 ----
 include::example$java-protobuf-tracing/src/main/java/com/example/ControllerAction.java[tag=create-close-span]
 ----
-<1> setting this action span as the parent of this span.
+<1> setting the action's TraceContext as the parent of this span. Linking the action's trace with this span.
 <2> creating and starting the span.
 <3> adding some attribute.
 <4> make the span the current span.
 <5> adding some attribute.
 <6> closing the span.
 
-NOTE: Make sure you understood how tracing is enabled [link to that when https://github.com/lightbend/kalix-docs/pull/2000 merged to main]
+NOTE: You can find how tracing is enabled and more info  link:https://docs.kalix.io/operations/observability-exports.html#_activating_tracing_beta[here].
 
 == Unit testing the side effects
 
